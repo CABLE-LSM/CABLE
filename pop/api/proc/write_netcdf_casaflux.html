@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for POP">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>write_netcdf_casaflux &ndash; POP</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">POP </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>write_netcdf_casaflux
+      <small>Subroutine</small>
+    </h1>
+    <div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title=" 0.4% of total for procedures.">202 statements</a>
+     </li> 
+    <li><i class="fa fa-code"></i><a href="../src/casa_variable.F90"> Source File</a></li>
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+     <li><a href='../sourcefile/casa_variable.f90.html'>casa_variable.F90</a></li>
+     <li><a href='../module/casavariable.html'>casavariable</a></li>
+     <li class="active">write_netcdf_casaflux</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div id="sidebar">
+  <h3>Contents</h3>
+ 
+<em>None</em>
+
+</div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private subroutine write_netcdf_casaflux(filename, casaflux)</h2>
+        <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Uses</h3>
+      </div>
+      <ul class="list-group">
+      <li class="list-group-item">
+  <ul class="list-inline">
+    <li>netcdf</li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+  </ul>
+      </li>
+      <li class="list-group-item">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~write_netcdf_casaflux~~UsesGraph Pages: 1 -->
+<svg id="procwrite_netcdf_casafluxUsesGraph" width="298pt" height="74pt"
+ viewBox="0.00 0.00 298.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~write_netcdf_casaflux~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~write_netcdf_casaflux~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 294,-70 294,4 -4,4"/>
+<!-- proc~write_netcdf_casaflux -->
+<g id="proc~~write_netcdf_casaflux~~UsesGraph_node1" class="node">
+<title>proc~write_netcdf_casaflux</title>
+<polygon fill="none" stroke="black" points="290,-45 163,-45 163,-21 290,-21 290,-45"/>
+<text text-anchor="middle" x="226.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">write_netcdf_casaflux</text>
+</g>
+<!-- netcdf -->
+<g id="proc~~write_netcdf_casaflux~~UsesGraph_node2" class="node">
+<title>netcdf</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="90.5,-66 36.5,-66 36.5,-42 90.5,-42 90.5,-66"/>
+<text text-anchor="middle" x="63.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">netcdf</text>
+</g>
+<!-- proc~write_netcdf_casaflux&#45;&gt;netcdf -->
+<g id="proc~~write_netcdf_casaflux~~UsesGraph_edge1" class="edge">
+<title>proc~write_netcdf_casaflux&#45;&gt;netcdf</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M162.79,-41.18C141.73,-43.93 118.96,-46.9 100.65,-49.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="100.16,-45.82 90.7,-50.58 101.07,-52.76 100.16,-45.82"/>
+</g>
+<!-- module~cable_def_types_mod -->
+<g id="proc~~write_netcdf_casaflux~~UsesGraph_node3" class="node">
+<title>module~cable_def_types_mod</title>
+<g id="a_proc~~write_netcdf_casaflux~~UsesGraph_node3"><a xlink:href=".././module/cable_def_types_mod.html" xlink:title="cable_def_types_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="127,-24 0,-24 0,0 127,0 127,-24"/>
+<text text-anchor="middle" x="63.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_def_types_mod</text>
+</a>
+</g>
+</g>
+<!-- proc~write_netcdf_casaflux&#45;&gt;module~cable_def_types_mod -->
+<g id="proc~~write_netcdf_casaflux~~UsesGraph_edge2" class="edge">
+<title>proc~write_netcdf_casaflux&#45;&gt;module~cable_def_types_mod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M162.79,-24.82C154.35,-23.72 145.64,-22.58 137.04,-21.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="137.41,-17.98 127.04,-20.16 136.5,-24.92 137.41,-17.98"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a submodule to the (sub)module which it is
+    descended from. Dashed arrows point from a module or program unit to 
+    modules which it uses. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </li>
+      </ul>
+    </div>
+
+
+
+    <h3>Arguments</h3>
+      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-filename~8"></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>filename</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-casaflux~29"></span>type(<a href='../type/casa_flux.html'>casa_flux</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>casaflux</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~write_netcdf_casaflux~~CallsGraph Pages: 1 -->
+<svg id="procwrite_netcdf_casafluxCallsGraph" width="373pt" height="284pt"
+ viewBox="0.00 0.00 373.00 284.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~write_netcdf_casaflux~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 280)">
+<title>proc~~write_netcdf_casaflux~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-280 369,-280 369,4 -4,4"/>
+<!-- proc~write_netcdf_casaflux -->
+<g id="proc~~write_netcdf_casaflux~~CallsGraph_node1" class="node">
+<title>proc~write_netcdf_casaflux</title>
+<polygon fill="none" stroke="black" points="127,-150 0,-150 0,-126 127,-126 127,-150"/>
+<text text-anchor="middle" x="63.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50">write_netcdf_casaflux</text>
+</g>
+<!-- nf90_create -->
+<g id="proc~~write_netcdf_casaflux~~CallsGraph_node2" class="node">
+<title>nf90_create</title>
+<polygon fill="#777777" stroke="#777777" points="243.5,-276 167.5,-276 167.5,-252 243.5,-252 243.5,-276"/>
+<text text-anchor="middle" x="205.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_create</text>
+</g>
+<!-- proc~write_netcdf_casaflux&#45;&gt;nf90_create -->
+<g id="proc~~write_netcdf_casaflux~~CallsGraph_edge1" class="edge">
+<title>proc~write_netcdf_casaflux&#45;&gt;nf90_create</title>
+<path fill="none" stroke="#ff0000" d="M73.7,-150.33C89.9,-171.41 125.39,-214.83 163,-243 164.79,-244.34 166.67,-245.63 168.61,-246.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="166.94,-249.95 177.34,-251.98 170.48,-243.91 166.94,-249.95"/>
+</g>
+<!-- nf90_def_dim -->
+<g id="proc~~write_netcdf_casaflux~~CallsGraph_node3" class="node">
+<title>nf90_def_dim</title>
+<polygon fill="#777777" stroke="#777777" points="248,-234 163,-234 163,-210 248,-210 248,-234"/>
+<text text-anchor="middle" x="205.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_def_dim</text>
+</g>
+<!-- proc~write_netcdf_casaflux&#45;&gt;nf90_def_dim -->
+<g id="proc~~write_netcdf_casaflux~~CallsGraph_edge2" class="edge">
+<title>proc~write_netcdf_casaflux&#45;&gt;nf90_def_dim</title>
+<path fill="none" stroke="#ff0000" d="M82.32,-150.17C101.8,-163.28 134.09,-184.49 163,-201 165.5,-202.43 168.1,-203.86 170.74,-205.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="169.22,-208.43 179.71,-209.97 172.47,-202.23 169.22,-208.43"/>
+</g>
+<!-- proc~nc_err -->
+<g id="proc~~write_netcdf_casaflux~~CallsGraph_node4" class="node">
+<title>proc~nc_err</title>
+<g id="a_proc~~write_netcdf_casaflux~~CallsGraph_node4"><a xlink:href=".././proc/nc_err.html" xlink:title="nc_err">
+<polygon fill="#d9534f" stroke="#d9534f" points="232.5,-192 178.5,-192 178.5,-168 232.5,-168 232.5,-192"/>
+<text text-anchor="middle" x="205.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nc_err</text>
+</a>
+</g>
+</g>
+<!-- proc~write_netcdf_casaflux&#45;&gt;proc~nc_err -->
+<g id="proc~~write_netcdf_casaflux~~CallsGraph_edge4" class="edge">
+<title>proc~write_netcdf_casaflux&#45;&gt;proc~nc_err</title>
+<path fill="none" stroke="#ff0000" d="M104.62,-150.04C124.71,-156.06 148.84,-163.3 168.36,-169.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="167.51,-172.56 178.09,-172.08 169.52,-165.85 167.51,-172.56"/>
+</g>
+<!-- nf90_def_var -->
+<g id="proc~~write_netcdf_casaflux~~CallsGraph_node5" class="node">
+<title>nf90_def_var</title>
+<polygon fill="#777777" stroke="#777777" points="246.5,-150 164.5,-150 164.5,-126 246.5,-126 246.5,-150"/>
+<text text-anchor="middle" x="205.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_def_var</text>
+</g>
+<!-- proc~write_netcdf_casaflux&#45;&gt;nf90_def_var -->
+<g id="proc~~write_netcdf_casaflux~~CallsGraph_edge3" class="edge">
+<title>proc~write_netcdf_casaflux&#45;&gt;nf90_def_var</title>
+<path fill="none" stroke="#ff0000" d="M127.13,-138C136.23,-138 145.51,-138 154.32,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="154.43,-141.5 164.43,-138 154.43,-134.5 154.43,-141.5"/>
+</g>
+<!-- nf90_enddef -->
+<g id="proc~~write_netcdf_casaflux~~CallsGraph_node6" class="node">
+<title>nf90_enddef</title>
+<polygon fill="#777777" stroke="#777777" points="245,-108 166,-108 166,-84 245,-84 245,-108"/>
+<text text-anchor="middle" x="205.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_enddef</text>
+</g>
+<!-- proc~write_netcdf_casaflux&#45;&gt;nf90_enddef -->
+<g id="proc~~write_netcdf_casaflux~~CallsGraph_edge5" class="edge">
+<title>proc~write_netcdf_casaflux&#45;&gt;nf90_enddef</title>
+<path fill="none" stroke="#ff0000" d="M104.62,-125.96C120.69,-121.14 139.36,-115.54 156.17,-110.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="157.25,-113.83 165.82,-107.6 155.24,-107.12 157.25,-113.83"/>
+</g>
+<!-- nf90_put_var -->
+<g id="proc~~write_netcdf_casaflux~~CallsGraph_node7" class="node">
+<title>nf90_put_var</title>
+<polygon fill="#777777" stroke="#777777" points="246.5,-66 164.5,-66 164.5,-42 246.5,-42 246.5,-66"/>
+<text text-anchor="middle" x="205.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_put_var</text>
+</g>
+<!-- proc~write_netcdf_casaflux&#45;&gt;nf90_put_var -->
+<g id="proc~~write_netcdf_casaflux~~CallsGraph_edge6" class="edge">
+<title>proc~write_netcdf_casaflux&#45;&gt;nf90_put_var</title>
+<path fill="none" stroke="#ff0000" d="M82.32,-125.83C101.8,-112.72 134.09,-91.51 163,-75 165.5,-73.57 168.1,-72.14 170.74,-70.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="172.47,-73.77 179.71,-66.03 169.22,-67.57 172.47,-73.77"/>
+</g>
+<!-- nf90_close -->
+<g id="proc~~write_netcdf_casaflux~~CallsGraph_node8" class="node">
+<title>nf90_close</title>
+<polygon fill="#777777" stroke="#777777" points="240.5,-24 170.5,-24 170.5,0 240.5,0 240.5,-24"/>
+<text text-anchor="middle" x="205.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_close</text>
+</g>
+<!-- proc~write_netcdf_casaflux&#45;&gt;nf90_close -->
+<g id="proc~~write_netcdf_casaflux~~CallsGraph_edge7" class="edge">
+<title>proc~write_netcdf_casaflux&#45;&gt;nf90_close</title>
+<path fill="none" stroke="#ff0000" d="M73.7,-125.67C89.9,-104.59 125.39,-61.17 163,-33 164.79,-31.66 166.67,-30.37 168.61,-29.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="170.48,-32.09 177.34,-24.02 166.94,-26.05 170.48,-32.09"/>
+</g>
+<!-- nf90_strerror -->
+<g id="proc~~write_netcdf_casaflux~~CallsGraph_node9" class="node">
+<title>nf90_strerror</title>
+<polygon fill="#777777" stroke="#777777" points="365,-213 284,-213 284,-189 365,-189 365,-213"/>
+<text text-anchor="middle" x="324.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
+</g>
+<!-- proc~nc_err&#45;&gt;nf90_strerror -->
+<g id="proc~~write_netcdf_casaflux~~CallsGraph_edge8" class="edge">
+<title>proc~nc_err&#45;&gt;nf90_strerror</title>
+<path fill="none" stroke="#48ff00" d="M232.76,-184.71C244.9,-186.89 259.74,-189.56 273.87,-192.09"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="273.53,-195.59 283.99,-193.91 274.77,-188.7 273.53,-195.59"/>
+</g>
+<!-- mpi_abort -->
+<g id="proc~~write_netcdf_casaflux~~CallsGraph_node10" class="node">
+<title>mpi_abort</title>
+<polygon fill="#777777" stroke="#777777" points="358,-171 291,-171 291,-147 358,-147 358,-171"/>
+<text text-anchor="middle" x="324.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_abort</text>
+</g>
+<!-- proc~nc_err&#45;&gt;mpi_abort -->
+<g id="proc~~write_netcdf_casaflux~~CallsGraph_edge9" class="edge">
+<title>proc~nc_err&#45;&gt;mpi_abort</title>
+<path fill="none" stroke="#48ff00" d="M232.76,-175.29C246.8,-172.77 264.44,-169.6 280.42,-166.73"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="281.41,-170.11 290.63,-164.9 280.17,-163.22 281.41,-170.11"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~write_netcdf_casaflux~~CalledByGraph Pages: 1 -->
+<svg id="procwrite_netcdf_casafluxCalledByGraph" width="641pt" height="98pt"
+ viewBox="0.00 0.00 641.00 97.64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~write_netcdf_casaflux~~CalledByGraph" class="graph" transform="scale(1.36 1.36) rotate(0) translate(4 128.67)">
+<title>proc~~write_netcdf_casaflux~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-128.67 867,-128.67 867,4 -4,4"/>
+<!-- proc~write_netcdf_casaflux -->
+<g id="proc~~write_netcdf_casaflux~~CalledByGraph_node1" class="node">
+<title>proc~write_netcdf_casaflux</title>
+<polygon fill="none" stroke="black" points="863,-87 736,-87 736,-63 863,-63 863,-87"/>
+<text text-anchor="middle" x="799.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">write_netcdf_casaflux</text>
+</g>
+<!-- interface~write_netcdf_casa_var -->
+<g id="proc~~write_netcdf_casaflux~~CalledByGraph_node2" class="node">
+<title>interface~write_netcdf_casa_var</title>
+<g id="a_proc~~write_netcdf_casaflux~~CalledByGraph_node2"><a xlink:href=".././interface/write_netcdf_casa_var.html" xlink:title="write_netcdf_casa_var">
+<polygon fill="#a7506f" stroke="#a7506f" points="700,-87 570,-87 570,-63 700,-63 700,-87"/>
+<text text-anchor="middle" x="635" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">write_netcdf_casa_var</text>
+</a>
+</g>
+</g>
+<!-- interface~write_netcdf_casa_var&#45;&gt;proc~write_netcdf_casaflux -->
+<g id="proc~~write_netcdf_casaflux~~CalledByGraph_edge1" class="edge">
+<title>interface~write_netcdf_casa_var&#45;&gt;proc~write_netcdf_casaflux</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M700.22,-75C708.55,-75 717.12,-75 725.58,-75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="725.8,-78.5 735.8,-75 725.8,-71.5 725.8,-78.5"/>
+</g>
+<!-- proc~write_casa_restart_nc -->
+<g id="proc~~write_netcdf_casaflux~~CalledByGraph_node3" class="node">
+<title>proc~write_casa_restart_nc</title>
+<g id="a_proc~~write_netcdf_casaflux~~CalledByGraph_node3"><a xlink:href=".././proc/write_casa_restart_nc.html" xlink:title="write_casa_restart_nc">
+<polygon fill="#d9534f" stroke="#d9534f" points="534,-87 407,-87 407,-63 534,-63 534,-87"/>
+<text text-anchor="middle" x="470.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">write_casa_restart_nc</text>
+</a>
+</g>
+</g>
+<!-- proc~write_casa_restart_nc&#45;&gt;interface~write_netcdf_casa_var -->
+<g id="proc~~write_netcdf_casaflux~~CalledByGraph_edge2" class="edge">
+<title>proc~write_casa_restart_nc&#45;&gt;interface~write_netcdf_casa_var</title>
+<path fill="none" stroke="#ff0000" d="M534.33,-75C542.64,-75 551.23,-75 559.72,-75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="560,-78.5 570,-75 560,-71.5 560,-78.5"/>
+</g>
+<!-- proc~master_spincasacnp -->
+<g id="proc~~write_netcdf_casaflux~~CalledByGraph_node4" class="node">
+<title>proc~master_spincasacnp</title>
+<g id="a_proc~~write_netcdf_casaflux~~CalledByGraph_node4"><a xlink:href=".././proc/master_spincasacnp.html" xlink:title="master_spincasacnp">
+<polygon fill="#d9534f" stroke="#d9534f" points="363.5,-108 242.5,-108 242.5,-84 363.5,-84 363.5,-108"/>
+<text text-anchor="middle" x="303" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">master_spincasacnp</text>
+</a>
+</g>
+</g>
+<!-- proc~master_spincasacnp&#45;&gt;proc~write_casa_restart_nc -->
+<g id="proc~~write_netcdf_casaflux~~CalledByGraph_edge3" class="edge">
+<title>proc~master_spincasacnp&#45;&gt;proc~write_casa_restart_nc</title>
+<path fill="none" stroke="#ff0000" d="M363.75,-88.42C374.45,-87.06 385.72,-85.63 396.74,-84.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="397.29,-87.69 406.77,-82.96 396.41,-80.75 397.29,-87.69"/>
+</g>
+<!-- proc~master_casaonly_luc -->
+<g id="proc~~write_netcdf_casaflux~~CalledByGraph_node5" class="node">
+<title>proc~master_casaonly_luc</title>
+<g id="a_proc~~write_netcdf_casaflux~~CalledByGraph_node5"><a xlink:href=".././proc/master_casaonly_luc.html" xlink:title="master_CASAONLY_LUC">
+<polygon fill="#d9534f" stroke="#d9534f" points="371,-66 235,-66 235,-42 371,-42 371,-66"/>
+<text text-anchor="middle" x="303" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">master_CASAONLY_LUC</text>
+</a>
+</g>
+</g>
+<!-- proc~master_casaonly_luc&#45;&gt;proc~write_casa_restart_nc -->
+<g id="proc~~write_netcdf_casaflux~~CalledByGraph_edge4" class="edge">
+<title>proc~master_casaonly_luc&#45;&gt;proc~write_casa_restart_nc</title>
+<path fill="none" stroke="#ff0000" d="M371.32,-62.54C379.65,-63.6 388.2,-64.68 396.61,-65.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="396.42,-69.26 406.78,-67.04 397.3,-62.31 396.42,-69.26"/>
+</g>
+<!-- proc~mpidrv_master -->
+<g id="proc~~write_netcdf_casaflux~~CalledByGraph_node6" class="node">
+<title>proc~mpidrv_master</title>
+<g id="a_proc~~write_netcdf_casaflux~~CalledByGraph_node6"><a xlink:href=".././proc/mpidrv_master.html" xlink:title="mpidrv_master">
+<polygon fill="#d9534f" stroke="#d9534f" points="199,-108 106,-108 106,-84 199,-84 199,-108"/>
+<text text-anchor="middle" x="152.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpidrv_master</text>
+</a>
+</g>
+</g>
+<!-- proc~mpidrv_master&#45;&gt;proc~write_casa_restart_nc -->
+<g id="proc~~write_netcdf_casaflux~~CalledByGraph_edge5" class="edge">
+<title>proc~mpidrv_master&#45;&gt;proc~write_casa_restart_nc</title>
+<path fill="none" stroke="#ff0000" d="M192.08,-108.07C205.52,-111.7 220.79,-115.2 235,-117 294.96,-124.6 311.78,-129.1 371,-117 394.84,-112.13 420.05,-101.26 439,-91.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="440.73,-94.84 448.03,-87.16 437.53,-88.62 440.73,-94.84"/>
+</g>
+<!-- proc~mpidrv_master&#45;&gt;proc~master_spincasacnp -->
+<g id="proc~~write_netcdf_casaflux~~CalledByGraph_edge7" class="edge">
+<title>proc~mpidrv_master&#45;&gt;proc~master_spincasacnp</title>
+<path fill="none" stroke="#ff0000" d="M199.27,-96C209.71,-96 221.03,-96 232.22,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="232.43,-99.5 242.43,-96 232.43,-92.5 232.43,-99.5"/>
+</g>
+<!-- proc~mpidrv_master&#45;&gt;proc~master_casaonly_luc -->
+<g id="proc~~write_netcdf_casaflux~~CalledByGraph_edge8" class="edge">
+<title>proc~mpidrv_master&#45;&gt;proc~master_casaonly_luc</title>
+<path fill="none" stroke="#7fff00" d="M196.05,-83.96C212.68,-79.26 231.91,-73.82 249.38,-68.88"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="250.77,-72.13 259.44,-66.04 248.86,-65.39 250.77,-72.13"/>
+</g>
+<!-- program~cable_offline_driver -->
+<g id="proc~~write_netcdf_casaflux~~CalledByGraph_node7" class="node">
+<title>program~cable_offline_driver</title>
+<g id="a_proc~~write_netcdf_casaflux~~CalledByGraph_node7"><a xlink:href=".././program/cable_offline_driver.html" xlink:title="cable_offline_driver">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="362,-24 244,-24 244,0 362,0 362,-24"/>
+<text text-anchor="middle" x="303" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_offline_driver</text>
+</a>
+</g>
+</g>
+<!-- program~cable_offline_driver&#45;&gt;proc~write_casa_restart_nc -->
+<g id="proc~~write_netcdf_casaflux~~CalledByGraph_edge6" class="edge">
+<title>program~cable_offline_driver&#45;&gt;proc~write_casa_restart_nc</title>
+<path fill="none" stroke="#ff0000" d="M344.61,-24.02C353.37,-26.81 362.54,-29.88 371,-33 392.09,-40.78 415.23,-50.58 433.78,-58.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="432.47,-62 443.03,-62.87 435.31,-55.61 432.47,-62"/>
+</g>
+<!-- program~mpi_driver -->
+<g id="proc~~write_netcdf_casaflux~~CalledByGraph_node8" class="node">
+<title>program~mpi_driver</title>
+<g id="a_proc~~write_netcdf_casaflux~~CalledByGraph_node8"><a xlink:href=".././program/mpi_driver.html" xlink:title="mpi_driver">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-108 0,-108 0,-84 70,-84 70,-108"/>
+<text text-anchor="middle" x="35" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_driver</text>
+</a>
+</g>
+</g>
+<!-- program~mpi_driver&#45;&gt;proc~mpidrv_master -->
+<g id="proc~~write_netcdf_casaflux~~CalledByGraph_edge9" class="edge">
+<title>program~mpi_driver&#45;&gt;proc~mpidrv_master</title>
+<path fill="none" stroke="#00ffff" d="M70.03,-96C78.06,-96 86.84,-96 95.56,-96"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="95.73,-99.5 105.73,-96 95.73,-92.5 95.73,-99.5"/>
+</g>
+</g>
+</svg>
+</div><script>var panprocwrite_netcdf_casafluxCalledByGraph = svgPanZoom('#procwrite_netcdf_casafluxCalledByGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+      <h3>Contents</h3>
+ 
+<em>None</em>
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>POP was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

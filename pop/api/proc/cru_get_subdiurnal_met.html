@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for POP">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>CRU_GET_SUBDIURNAL_MET &ndash; POP</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">POP </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>CRU_GET_SUBDIURNAL_MET
+      <small>Subroutine</small>
+    </h1>
+    <div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title=" 0.3% of total for procedures.">120 statements</a>
+     </li> 
+    <li><i class="fa fa-code"></i><a href="../src/cable_cru_TRENDY.F90"> Source File</a></li>
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+     <li><a href='../sourcefile/cable_cru_trendy.f90.html'>cable_cru_TRENDY.F90</a></li>
+     <li><a href='../module/cable_cru.html'>cable_cru</a></li>
+     <li class="active">CRU_GET_SUBDIURNAL_MET</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div id="sidebar">
+  <h3>Contents</h3>
+ 
+<em>None</em>
+
+</div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public subroutine CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)</h2>
+        <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Uses</h3>
+      </div>
+      <ul class="list-group">
+      <li class="list-group-item">
+  <ul class="list-inline">
+    <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
+    <li><a href='../module/mo_utils.html'>mo_utils</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+    <li><a href='../module/cable_weathergenerator.html'>CABLE_WEATHERGENERATOR</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+  </ul>
+      </li>
+      <li class="list-group-item">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~cru_get_subdiurnal_met~~UsesGraph Pages: 1 -->
+<svg id="proccru_get_subdiurnal_metUsesGraph" width="641pt" height="183pt"
+ viewBox="0.00 0.00 641.00 182.60" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~cru_get_subdiurnal_met~~UsesGraph" class="graph" transform="scale(1.05 1.05) rotate(0) translate(4 188)">
+<title>proc~~cru_get_subdiurnal_met~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-188 670,-188 670,4 -4,4"/>
+<!-- proc~cru_get_subdiurnal_met -->
+<g id="proc~~cru_get_subdiurnal_met~~UsesGraph_node1" class="node">
+<title>proc~cru_get_subdiurnal_met</title>
+<polygon fill="none" stroke="black" points="666,-104 502,-104 502,-80 666,-80 666,-104"/>
+<text text-anchor="middle" x="584" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50">CRU_GET_SUBDIURNAL_MET</text>
+</g>
+<!-- module~cable_io_vars_module -->
+<g id="proc~~cru_get_subdiurnal_met~~UsesGraph_node2" class="node">
+<title>module~cable_io_vars_module</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~UsesGraph_node2"><a xlink:href=".././module/cable_io_vars_module.html" xlink:title="cable_IO_vars_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="447,-184 315,-184 315,-160 447,-160 447,-184"/>
+<text text-anchor="middle" x="381" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_IO_vars_module</text>
+</a>
+</g>
+</g>
+<!-- proc~cru_get_subdiurnal_met&#45;&gt;module~cable_io_vars_module -->
+<g id="proc~~cru_get_subdiurnal_met~~UsesGraph_edge1" class="edge">
+<title>proc~cru_get_subdiurnal_met&#45;&gt;module~cable_io_vars_module</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M559.2,-104.12C535.84,-115.74 499,-133.34 466,-146 455.85,-149.89 444.85,-153.63 434.25,-157"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="433.18,-153.67 424.68,-159.99 435.26,-160.35 433.18,-153.67"/>
+</g>
+<!-- module~mo_utils -->
+<g id="proc~~cru_get_subdiurnal_met~~UsesGraph_node3" class="node">
+<title>module~mo_utils</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~UsesGraph_node3"><a xlink:href=".././module/mo_utils.html" xlink:title="mo_utils">
+<polygon fill="#337ab7" stroke="#337ab7" points="409.5,-104 352.5,-104 352.5,-80 409.5,-80 409.5,-104"/>
+<text text-anchor="middle" x="381" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mo_utils</text>
+</a>
+</g>
+</g>
+<!-- proc~cru_get_subdiurnal_met&#45;&gt;module~mo_utils -->
+<g id="proc~~cru_get_subdiurnal_met~~UsesGraph_edge2" class="edge">
+<title>proc~cru_get_subdiurnal_met&#45;&gt;module~mo_utils</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M501.82,-92C473.48,-92 443,-92 419.88,-92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="419.81,-88.5 409.81,-92 419.81,-95.5 419.81,-88.5"/>
+</g>
+<!-- module~cable_common_module -->
+<g id="proc~~cru_get_subdiurnal_met~~UsesGraph_node4" class="node">
+<title>module~cable_common_module</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~UsesGraph_node4"><a xlink:href=".././module/cable_common_module.html" xlink:title="cable_common_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="260,-43 120,-43 120,-19 260,-19 260,-43"/>
+<text text-anchor="middle" x="190" y="-28.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_common_module</text>
+</a>
+</g>
+</g>
+<!-- proc~cru_get_subdiurnal_met&#45;&gt;module~cable_common_module -->
+<g id="proc~~cru_get_subdiurnal_met~~UsesGraph_edge3" class="edge">
+<title>proc~cru_get_subdiurnal_met&#45;&gt;module~cable_common_module</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M518.08,-79.95C501.15,-76.92 482.91,-73.75 466,-71 400.1,-60.3 325.09,-49.48 270.07,-41.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="270.42,-38.31 260.04,-40.4 269.46,-45.24 270.42,-38.31"/>
+</g>
+<!-- module~cable_weathergenerator -->
+<g id="proc~~cru_get_subdiurnal_met~~UsesGraph_node5" class="node">
+<title>module~cable_weathergenerator</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~UsesGraph_node5"><a xlink:href=".././module/cable_weathergenerator.html" xlink:title="CABLE_WEATHERGENERATOR">
+<polygon fill="#337ab7" stroke="#337ab7" points="466,-24 296,-24 296,0 466,0 466,-24"/>
+<text text-anchor="middle" x="381" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CABLE_WEATHERGENERATOR</text>
+</a>
+</g>
+</g>
+<!-- proc~cru_get_subdiurnal_met&#45;&gt;module~cable_weathergenerator -->
+<g id="proc~~cru_get_subdiurnal_met~~UsesGraph_edge4" class="edge">
+<title>proc~cru_get_subdiurnal_met&#45;&gt;module~cable_weathergenerator</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M559.2,-79.88C535.84,-68.26 499,-50.66 466,-38 455.85,-34.11 444.85,-30.37 434.25,-27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="435.26,-23.65 424.68,-24.01 433.18,-30.33 435.26,-23.65"/>
+</g>
+<!-- module~cable_def_types_mod -->
+<g id="proc~~cru_get_subdiurnal_met~~UsesGraph_node6" class="node">
+<title>module~cable_def_types_mod</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~UsesGraph_node6"><a xlink:href=".././module/cable_def_types_mod.html" xlink:title="cable_def_types_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="253.5,-165 126.5,-165 126.5,-141 253.5,-141 253.5,-165"/>
+<text text-anchor="middle" x="190" y="-150.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_def_types_mod</text>
+</a>
+</g>
+</g>
+<!-- proc~cru_get_subdiurnal_met&#45;&gt;module~cable_def_types_mod -->
+<g id="proc~~cru_get_subdiurnal_met~~UsesGraph_edge5" class="edge">
+<title>proc~cru_get_subdiurnal_met&#45;&gt;module~cable_def_types_mod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M518.08,-104.05C501.15,-107.08 482.91,-110.25 466,-113 397.52,-124.12 319.2,-135.37 263.71,-143.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="263.04,-139.65 253.62,-144.49 264,-146.59 263.04,-139.65"/>
+</g>
+<!-- module~cable_io_vars_module&#45;&gt;module~cable_def_types_mod -->
+<g id="proc~~cru_get_subdiurnal_met~~UsesGraph_edge6" class="edge">
+<title>module~cable_io_vars_module&#45;&gt;module~cable_def_types_mod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M314.96,-165.46C298.51,-163.81 280.74,-162.02 263.93,-160.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="263.91,-156.81 253.61,-159.29 263.21,-163.78 263.91,-156.81"/>
+</g>
+<!-- module~mo_kind -->
+<g id="proc~~cru_get_subdiurnal_met~~UsesGraph_node7" class="node">
+<title>module~mo_kind</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~UsesGraph_node7"><a xlink:href=".././module/mo_kind.html" xlink:title="mo_kind">
+<polygon fill="#337ab7" stroke="#337ab7" points="219,-104 161,-104 161,-80 219,-80 219,-104"/>
+<text text-anchor="middle" x="190" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mo_kind</text>
+</a>
+</g>
+</g>
+<!-- module~mo_utils&#45;&gt;module~mo_kind -->
+<g id="proc~~cru_get_subdiurnal_met~~UsesGraph_edge7" class="edge">
+<title>module~mo_utils&#45;&gt;module~mo_kind</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M352.11,-92C319.59,-92 265.65,-92 229.24,-92"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="229,-88.5 219,-92 229,-95.5 229,-88.5"/>
+</g>
+<!-- module~cable_weathergenerator&#45;&gt;module~cable_common_module -->
+<g id="proc~~cru_get_subdiurnal_met~~UsesGraph_edge8" class="edge">
+<title>module~cable_weathergenerator&#45;&gt;module~cable_common_module</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M295.73,-20.47C287.26,-21.32 278.68,-22.19 270.27,-23.03"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="269.7,-19.57 260.1,-24.05 270.4,-26.54 269.7,-19.57"/>
+</g>
+<!-- iso_c_binding -->
+<g id="proc~~cru_get_subdiurnal_met~~UsesGraph_node8" class="node">
+<title>iso_c_binding</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~UsesGraph_node8"><a xlink:href="http://fortranwiki.org/fortran/show/iso_c_binding" xlink:title="iso_c_binding">
+<polygon fill="#337ab7" stroke="#337ab7" points="84,-104 0,-104 0,-80 84,-80 84,-104"/>
+<text text-anchor="middle" x="42" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_c_binding</text>
+</a>
+</g>
+</g>
+<!-- module~mo_kind&#45;&gt;iso_c_binding -->
+<g id="proc~~cru_get_subdiurnal_met~~UsesGraph_edge9" class="edge">
+<title>module~mo_kind&#45;&gt;iso_c_binding</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M160.85,-92C141.95,-92 116.5,-92 94.09,-92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="94.05,-88.5 84.05,-92 94.05,-95.5 94.05,-88.5"/>
+</g>
+</g>
+</svg>
+</div><script>var panproccru_get_subdiurnal_metUsesGraph = svgPanZoom('#proccru_get_subdiurnal_metUsesGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a submodule to the (sub)module which it is
+    descended from. Dashed arrows point from a module or program unit to 
+    modules which it uses. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </li>
+      </ul>
+    </div>
+
+
+
+    <h3>Arguments</h3>
+      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-cru~7"></span>type(<a href='../type/cru_type.html'>cru_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>CRU</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-met~5"></span>type(<a href='../type/met_type.html'>met_type</a>)</td>
+<td></td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>MET</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-curyear~4"></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>CurYear</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ktau~21"></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ktau</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-kend~13"></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>kend</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~cru_get_subdiurnal_met~~CallsGraph Pages: 1 -->
+<svg id="proccru_get_subdiurnal_metCallsGraph" width="641pt" height="624pt"
+ viewBox="0.00 0.00 641.00 624.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph" class="graph" transform="scale(1.3 1.3) rotate(0) translate(4 807.88)">
+<title>proc~~cru_get_subdiurnal_met~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-807.88 830,-807.88 830,4 -4,4"/>
+<!-- proc~cru_get_subdiurnal_met -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node1" class="node">
+<title>proc~cru_get_subdiurnal_met</title>
+<polygon fill="none" stroke="black" points="164,-358 0,-358 0,-334 164,-334 164,-358"/>
+<text text-anchor="middle" x="82" y="-343.6" font-family="Helvetica,sans-Serif" font-size="10.50">CRU_GET_SUBDIURNAL_MET</text>
+</g>
+<!-- proc~handle_err -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node2" class="node">
+<title>proc~handle_err</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~CallsGraph_node2"><a xlink:href=".././proc/handle_err.html" xlink:title="handle_err">
+<polygon fill="#d9534f" stroke="#d9534f" points="670,-602 600,-602 600,-578 670,-578 670,-602"/>
+<text text-anchor="middle" x="635" y="-587.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">handle_err</text>
+</a>
+</g>
+</g>
+<!-- proc~cru_get_subdiurnal_met&#45;&gt;proc~handle_err -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge1" class="edge">
+<title>proc~cru_get_subdiurnal_met&#45;&gt;proc~handle_err</title>
+<path fill="none" stroke="#ff0000" d="M87.75,-358.1C100.96,-390.42 141.11,-479.94 200,-533 268.37,-594.6 296.34,-603.24 386,-624 446.19,-637.93 463.93,-633.3 525,-624 548.58,-620.41 574.07,-612.68 594.47,-605.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="595.83,-608.73 604.04,-602.04 593.45,-602.15 595.83,-608.73"/>
+</g>
+<!-- proc~get_cru_ndep -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node3" class="node">
+<title>proc~get_cru_ndep</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~CallsGraph_node3"><a xlink:href=".././proc/get_cru_ndep.html" xlink:title="GET_CRU_Ndep">
+<polygon fill="#d9534f" stroke="#d9534f" points="322.5,-524 227.5,-524 227.5,-500 322.5,-500 322.5,-524"/>
+<text text-anchor="middle" x="275" y="-509.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GET_CRU_Ndep</text>
+</a>
+</g>
+</g>
+<!-- proc~cru_get_subdiurnal_met&#45;&gt;proc~get_cru_ndep -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge3" class="edge">
+<title>proc~cru_get_subdiurnal_met&#45;&gt;proc~get_cru_ndep</title>
+<path fill="none" stroke="#ff0000" d="M92.31,-358.06C110.93,-381.62 154.83,-434.55 200,-470 212.06,-479.47 226.51,-488.16 239.43,-495.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="238.02,-498.37 248.5,-499.93 241.28,-492.18 238.02,-498.37"/>
+</g>
+<!-- proc~doysod2ymdhms -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node4" class="node">
+<title>proc~doysod2ymdhms</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~CallsGraph_node4"><a xlink:href=".././proc/doysod2ymdhms.html" xlink:title="doysod2ymdhms">
+<polygon fill="#d9534f" stroke="#d9534f" points="326.5,-718 223.5,-718 223.5,-694 326.5,-694 326.5,-718"/>
+<text text-anchor="middle" x="275" y="-703.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">doysod2ymdhms</text>
+</a>
+</g>
+</g>
+<!-- proc~cru_get_subdiurnal_met&#45;&gt;proc~doysod2ymdhms -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge4" class="edge">
+<title>proc~cru_get_subdiurnal_met&#45;&gt;proc~doysod2ymdhms</title>
+<path fill="none" stroke="#ff0000" d="M83.62,-358.28C86.72,-406.44 104.47,-584.38 200,-680 204.19,-684.2 209.1,-687.72 214.36,-690.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="212.96,-693.88 223.48,-695.13 216.03,-687.59 212.96,-693.88"/>
+</g>
+<!-- interface~eq -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node5" class="node">
+<title>interface~eq</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~CallsGraph_node5"><a xlink:href=".././interface/eq.html" xlink:title="eq">
+<polygon fill="#a7506f" stroke="#a7506f" points="302,-182 248,-182 248,-158 302,-158 302,-182"/>
+<text text-anchor="middle" x="275" y="-167.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">eq</text>
+</a>
+</g>
+</g>
+<!-- proc~cru_get_subdiurnal_met&#45;&gt;interface~eq -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge5" class="edge">
+<title>proc~cru_get_subdiurnal_met&#45;&gt;interface~eq</title>
+<path fill="none" stroke="#ff0000" d="M96.13,-333.9C128.7,-303.89 213.46,-225.78 253.05,-189.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="255.8,-191.53 260.78,-182.18 251.05,-186.38 255.8,-191.53"/>
+</g>
+<!-- proc~wgen_init -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node6" class="node">
+<title>proc~wgen_init</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~CallsGraph_node6"><a xlink:href=".././proc/wgen_init.html" xlink:title="WGEN_INIT">
+<polygon fill="#d9534f" stroke="#d9534f" points="310.5,-140 239.5,-140 239.5,-116 310.5,-116 310.5,-140"/>
+<text text-anchor="middle" x="275" y="-125.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WGEN_INIT</text>
+</a>
+</g>
+</g>
+<!-- proc~cru_get_subdiurnal_met&#45;&gt;proc~wgen_init -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge2" class="edge">
+<title>proc~cru_get_subdiurnal_met&#45;&gt;proc~wgen_init</title>
+<path fill="none" stroke="#ff0000" d="M86.72,-333.64C97.82,-298.92 134.1,-199.69 200,-149 208.58,-142.4 219.15,-137.87 229.59,-134.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="230.68,-138.1 239.49,-132.21 228.93,-131.32 230.68,-138.1"/>
+</g>
+<!-- proc~get_cru_co2 -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node7" class="node">
+<title>proc~get_cru_co2</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~CallsGraph_node7"><a xlink:href=".././proc/get_cru_co2.html" xlink:title="GET_CRU_CO2">
+<polygon fill="#d9534f" stroke="#d9534f" points="320,-98 230,-98 230,-74 320,-74 320,-98"/>
+<text text-anchor="middle" x="275" y="-83.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GET_CRU_CO2</text>
+</a>
+</g>
+</g>
+<!-- proc~cru_get_subdiurnal_met&#45;&gt;proc~get_cru_co2 -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge6" class="edge">
+<title>proc~cru_get_subdiurnal_met&#45;&gt;proc~get_cru_co2</title>
+<path fill="none" stroke="#ff0000" d="M85.29,-333.93C93.35,-294.81 124.13,-170.39 200,-107 205.85,-102.11 212.77,-98.36 219.99,-95.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="221.62,-98.62 229.95,-92.07 219.35,-92 221.62,-98.62"/>
+</g>
+<!-- proc~open_cru_met -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node8" class="node">
+<title>proc~open_cru_met</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~CallsGraph_node8"><a xlink:href=".././proc/open_cru_met.html" xlink:title="OPEN_CRU_MET">
+<polygon fill="#d9534f" stroke="#d9534f" points="323.5,-461 226.5,-461 226.5,-437 323.5,-437 323.5,-461"/>
+<text text-anchor="middle" x="275" y="-446.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OPEN_CRU_MET</text>
+</a>
+</g>
+</g>
+<!-- proc~cru_get_subdiurnal_met&#45;&gt;proc~open_cru_met -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge7" class="edge">
+<title>proc~cru_get_subdiurnal_met&#45;&gt;proc~open_cru_met</title>
+<path fill="none" stroke="#ff0000" d="M105.28,-358.02C139.12,-376.26 203.61,-411.04 242.31,-431.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="241.1,-435.23 251.56,-436.9 244.42,-429.07 241.1,-435.23"/>
+</g>
+<!-- proc~cru_get_daily_met -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node9" class="node">
+<title>proc~cru_get_daily_met</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~CallsGraph_node9"><a xlink:href=".././proc/cru_get_daily_met.html" xlink:title="CRU_GET_DAILY_MET">
+<polygon fill="#d9534f" stroke="#d9534f" points="337.5,-358 212.5,-358 212.5,-334 337.5,-334 337.5,-358"/>
+<text text-anchor="middle" x="275" y="-343.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CRU_GET_DAILY_MET</text>
+</a>
+</g>
+</g>
+<!-- proc~cru_get_subdiurnal_met&#45;&gt;proc~cru_get_daily_met -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge8" class="edge">
+<title>proc~cru_get_subdiurnal_met&#45;&gt;proc~cru_get_daily_met</title>
+<path fill="none" stroke="#ff0000" d="M164,-346C176.63,-346 189.61,-346 202.02,-346"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="202.29,-349.5 212.29,-346 202.29,-342.5 202.29,-349.5"/>
+</g>
+<!-- proc~wgen_daily_constants -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node10" class="node">
+<title>proc~wgen_daily_constants</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~CallsGraph_node10"><a xlink:href=".././proc/wgen_daily_constants.html" xlink:title="WGEN_DAILY_CONSTANTS">
+<polygon fill="#d9534f" stroke="#d9534f" points="350,-56 200,-56 200,-32 350,-32 350,-56"/>
+<text text-anchor="middle" x="275" y="-41.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WGEN_DAILY_CONSTANTS</text>
+</a>
+</g>
+</g>
+<!-- proc~cru_get_subdiurnal_met&#45;&gt;proc~wgen_daily_constants -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge9" class="edge">
+<title>proc~cru_get_subdiurnal_met&#45;&gt;proc~wgen_daily_constants</title>
+<path fill="none" stroke="#ff0000" d="M84.35,-333.73C89.81,-290.11 114.27,-141.16 200,-65 201.5,-63.67 203.07,-62.42 204.71,-61.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="206.62,-64.2 213.38,-56.04 203.01,-58.2 206.62,-64.2"/>
+</g>
+<!-- proc~wgen_subdiurnal_met -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node11" class="node">
+<title>proc~wgen_subdiurnal_met</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~CallsGraph_node11"><a xlink:href=".././proc/wgen_subdiurnal_met.html" xlink:title="WGEN_SUBDIURNAL_MET">
+<polygon fill="#d9534f" stroke="#d9534f" points="709,-798 561,-798 561,-774 709,-774 709,-798"/>
+<text text-anchor="middle" x="635" y="-783.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WGEN_SUBDIURNAL_MET</text>
+</a>
+</g>
+</g>
+<!-- proc~cru_get_subdiurnal_met&#45;&gt;proc~wgen_subdiurnal_met -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge10" class="edge">
+<title>proc~cru_get_subdiurnal_met&#45;&gt;proc~wgen_subdiurnal_met</title>
+<path fill="none" stroke="#ff0000" d="M82.48,-358.02C80.89,-411.18 82.12,-626.9 200,-727 297.69,-809.95 454.85,-809.25 550.84,-799.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="551.25,-802.57 560.8,-797.98 550.47,-795.61 551.25,-802.57"/>
+</g>
+<!-- nf90_close -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node12" class="node">
+<title>nf90_close</title>
+<polygon fill="#777777" stroke="#777777" points="490.5,-192 420.5,-192 420.5,-168 490.5,-168 490.5,-192"/>
+<text text-anchor="middle" x="455.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_close</text>
+</g>
+<!-- proc~cru_get_subdiurnal_met&#45;&gt;nf90_close -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge11" class="edge">
+<title>proc~cru_get_subdiurnal_met&#45;&gt;nf90_close</title>
+<path fill="none" stroke="#ff0000" d="M105.3,-333.91C154.76,-307.4 277.88,-243.17 386,-201 393.91,-197.91 402.48,-194.98 410.78,-192.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="411.84,-195.67 420.36,-189.38 409.77,-188.99 411.84,-195.67"/>
+</g>
+<!-- nf90_strerror -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node17" class="node">
+<title>nf90_strerror</title>
+<polygon fill="#777777" stroke="#777777" points="826,-602 745,-602 745,-578 826,-578 826,-602"/>
+<text text-anchor="middle" x="785.5" y="-587.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
+</g>
+<!-- proc~handle_err&#45;&gt;nf90_strerror -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge12" class="edge">
+<title>proc~handle_err&#45;&gt;nf90_strerror</title>
+<path fill="none" stroke="#ff0000" d="M670.07,-590C689.2,-590 713.43,-590 734.66,-590"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="734.81,-593.5 744.81,-590 734.81,-586.5 734.81,-593.5"/>
+</g>
+<!-- mpi_abort -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node19" class="node">
+<title>mpi_abort</title>
+<polygon fill="#777777" stroke="#777777" points="819,-758 752,-758 752,-734 819,-734 819,-758"/>
+<text text-anchor="middle" x="785.5" y="-743.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_abort</text>
+</g>
+<!-- proc~handle_err&#45;&gt;mpi_abort -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge13" class="edge">
+<title>proc~handle_err&#45;&gt;mpi_abort</title>
+<path fill="none" stroke="#ff0000" d="M647.65,-602.24C673.24,-629.12 734.55,-693.53 765.68,-726.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="763.47,-728.99 772.9,-733.82 768.54,-724.16 763.47,-728.99"/>
+</g>
+<!-- proc~get_cru_ndep&#45;&gt;proc~handle_err -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge15" class="edge">
+<title>proc~get_cru_ndep&#45;&gt;proc~handle_err</title>
+<path fill="none" stroke="#ff8b00" d="M285.57,-524.31C302.89,-545.45 341.77,-587.94 386,-604 453.88,-628.65 539.08,-615.06 589.89,-602.71"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="591.04,-606.03 599.88,-600.19 589.33,-599.24 591.04,-606.03"/>
+</g>
+<!-- nf90_get_var -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node18" class="node">
+<title>nf90_get_var</title>
+<polygon fill="#777777" stroke="#777777" points="676,-439 594,-439 594,-415 676,-415 676,-439"/>
+<text text-anchor="middle" x="635" y="-424.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_var</text>
+</g>
+<!-- proc~get_cru_ndep&#45;&gt;nf90_get_var -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge16" class="edge">
+<title>proc~get_cru_ndep&#45;&gt;nf90_get_var</title>
+<path fill="none" stroke="#ff8b00" d="M309.27,-524.09C358.42,-539.94 452.45,-562.46 525,-533 567.44,-515.77 602.43,-473.19 620.57,-447.54"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="623.49,-449.47 626.27,-439.25 617.72,-445.51 623.49,-449.47"/>
+</g>
+<!-- nf90_open -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node20" class="node">
+<title>nf90_open</title>
+<polygon fill="#777777" stroke="#777777" points="490,-524 421,-524 421,-500 490,-500 490,-524"/>
+<text text-anchor="middle" x="455.5" y="-509.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_open</text>
+</g>
+<!-- proc~get_cru_ndep&#45;&gt;nf90_open -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge14" class="edge">
+<title>proc~get_cru_ndep&#45;&gt;nf90_open</title>
+<path fill="none" stroke="#ff8b00" d="M322.9,-512C350.07,-512 384.07,-512 410.7,-512"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="410.88,-515.5 420.88,-512 410.88,-508.5 410.88,-515.5"/>
+</g>
+<!-- nf90_inq_varid -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node21" class="node">
+<title>nf90_inq_varid</title>
+<polygon fill="#777777" stroke="#777777" points="501,-482 410,-482 410,-458 501,-458 501,-482"/>
+<text text-anchor="middle" x="455.5" y="-467.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_varid</text>
+</g>
+<!-- proc~get_cru_ndep&#45;&gt;nf90_inq_varid -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge17" class="edge">
+<title>proc~get_cru_ndep&#45;&gt;nf90_inq_varid</title>
+<path fill="none" stroke="#ff8b00" d="M322.9,-500.96C346.5,-495.41 375.25,-488.65 399.85,-482.86"/>
+<polygon fill="#ff8b00" stroke="#ff8b00" points="400.83,-486.22 409.76,-480.53 399.22,-479.41 400.83,-486.22"/>
+</g>
+<!-- proc~doysod2ymdhms&#45;&gt;mpi_abort -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge19" class="edge">
+<title>proc~doysod2ymdhms&#45;&gt;mpi_abort</title>
+<path fill="none" stroke="#e7ff00" d="M326.7,-717.23C345.27,-720.93 366.5,-724.69 386,-727 514.82,-742.29 668.44,-745.38 741.63,-745.93"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="741.81,-749.43 751.83,-746 741.85,-742.43 741.81,-749.43"/>
+</g>
+<!-- proc~is_leapyear -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node22" class="node">
+<title>proc~is_leapyear</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~CallsGraph_node22"><a xlink:href=".././proc/is_leapyear.html" xlink:title="is_leapyear">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="492,-718 419,-718 419,-694 492,-694 492,-718"/>
+<text text-anchor="middle" x="455.5" y="-703.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">is_leapyear</text>
+</a>
+</g>
+</g>
+<!-- proc~doysod2ymdhms&#45;&gt;proc~is_leapyear -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge18" class="edge">
+<title>proc~doysod2ymdhms&#45;&gt;proc~is_leapyear</title>
+<path fill="none" stroke="#e7ff00" d="M326.67,-706C352.38,-706 383.37,-706 408.39,-706"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="408.72,-709.5 418.72,-706 408.72,-702.5 408.72,-709.5"/>
+</g>
+<!-- proc~equal_sp -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node23" class="node">
+<title>proc~equal_sp</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~CallsGraph_node23"><a xlink:href=".././proc/equal_sp.html" xlink:title="equal_sp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="485.5,-150 425.5,-150 425.5,-126 485.5,-126 485.5,-150"/>
+<text text-anchor="middle" x="455.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">equal_sp</text>
+</a>
+</g>
+</g>
+<!-- interface~eq&#45;&gt;proc~equal_sp -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge20" class="edge">
+<title>interface~eq&#45;&gt;proc~equal_sp</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M302.34,-165.28C332.13,-159.94 380.96,-151.18 415.25,-145.04"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="416.16,-148.43 425.38,-143.22 414.92,-141.54 416.16,-148.43"/>
+</g>
+<!-- proc~equal_dp -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node24" class="node">
+<title>proc~equal_dp</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~CallsGraph_node24"><a xlink:href=".././proc/equal_dp.html" xlink:title="equal_dp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="486,-108 425,-108 425,-84 486,-84 486,-108"/>
+<text text-anchor="middle" x="455.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">equal_dp</text>
+</a>
+</g>
+</g>
+<!-- interface~eq&#45;&gt;proc~equal_dp -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge21" class="edge">
+<title>interface~eq&#45;&gt;proc~equal_dp</title>
+<path fill="none" stroke="#5cff00" stroke-dasharray="5,2" d="M302.11,-165.59C316.8,-162.39 335.13,-157.15 350,-149 368.77,-138.71 367.34,-127.49 386,-117 394.95,-111.97 405.24,-108 415.08,-104.93"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="416.07,-108.29 424.71,-102.16 414.13,-101.57 416.07,-108.29"/>
+</g>
+<!-- proc~wgen_zero -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node25" class="node">
+<title>proc~wgen_zero</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~CallsGraph_node25"><a xlink:href=".././proc/wgen_zero.html" xlink:title="wgen_zero">
+<polygon fill="#d9534f" stroke="#d9534f" points="490,-66 421,-66 421,-42 490,-42 490,-66"/>
+<text text-anchor="middle" x="455.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">wgen_zero</text>
+</a>
+</g>
+</g>
+<!-- proc~wgen_init&#45;&gt;proc~wgen_zero -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge22" class="edge">
+<title>proc~wgen_init&#45;&gt;proc~wgen_zero</title>
+<path fill="none" stroke="#00ff2e" d="M310.78,-121.55C323.6,-118.3 337.94,-113.61 350,-107 368.77,-96.71 367.34,-85.49 386,-75 393.8,-70.62 402.62,-67.04 411.28,-64.16"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="412.39,-67.48 420.92,-61.2 410.34,-60.79 412.39,-67.48"/>
+</g>
+<!-- proc~get_unit -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node26" class="node">
+<title>proc~get_unit</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~CallsGraph_node26"><a xlink:href=".././proc/get_unit.html" xlink:title="get_unit">
+<polygon fill="#d9534f" stroke="#d9534f" points="483,-24 428,-24 428,0 483,0 483,-24"/>
+<text text-anchor="middle" x="455.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_unit</text>
+</a>
+</g>
+</g>
+<!-- proc~get_cru_co2&#45;&gt;proc~get_unit -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge23" class="edge">
+<title>proc~get_cru_co2&#45;&gt;proc~get_unit</title>
+<path fill="none" stroke="#00ffb9" d="M320.33,-76.92C330.43,-73.91 340.87,-70.01 350,-65 368.77,-54.71 367.34,-43.49 386,-33 395.78,-27.5 407.17,-23.27 417.82,-20.1"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="419.02,-23.4 427.73,-17.37 417.16,-16.65 419.02,-23.4"/>
+</g>
+<!-- proc~open_cru_met&#45;&gt;proc~handle_err -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge25" class="edge">
+<title>proc~open_cru_met&#45;&gt;proc~handle_err</title>
+<path fill="none" stroke="#00b9ff" d="M302.4,-461.16C317.2,-468.64 335.52,-479.07 350,-491 368.97,-506.63 364.96,-520.27 386,-533 449.83,-571.61 537.36,-584.09 589.55,-588.11"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="589.6,-591.62 599.81,-588.82 590.08,-584.63 589.6,-591.62"/>
+</g>
+<!-- proc~cru_get_metyear -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node13" class="node">
+<title>proc~cru_get_metyear</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~CallsGraph_node13"><a xlink:href=".././proc/cru_get_metyear.html" xlink:title="cru_get_metyear">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="507,-440 404,-440 404,-416 507,-416 507,-440"/>
+<text text-anchor="middle" x="455.5" y="-425.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cru_get_metyear</text>
+</a>
+</g>
+</g>
+<!-- proc~open_cru_met&#45;&gt;proc~cru_get_metyear -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge24" class="edge">
+<title>proc~open_cru_met&#45;&gt;proc~cru_get_metyear</title>
+<path fill="none" stroke="#00b9ff" d="M323.83,-443.37C345.33,-440.84 370.95,-437.83 393.79,-435.14"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="394.2,-438.62 403.72,-433.97 393.38,-431.67 394.2,-438.62"/>
+</g>
+<!-- proc~cru_get_filename -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node16" class="node">
+<title>proc~cru_get_filename</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~CallsGraph_node16"><a xlink:href=".././proc/cru_get_filename.html" xlink:title="CRU_GET_FILENAME">
+<polygon fill="#d9534f" stroke="#d9534f" points="515.5,-398 395.5,-398 395.5,-374 515.5,-374 515.5,-398"/>
+<text text-anchor="middle" x="455.5" y="-383.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CRU_GET_FILENAME</text>
+</a>
+</g>
+</g>
+<!-- proc~open_cru_met&#45;&gt;proc~cru_get_filename -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge28" class="edge">
+<title>proc~open_cru_met&#45;&gt;proc~cru_get_filename</title>
+<path fill="none" stroke="#00b9ff" d="M306.15,-436.86C328.14,-428.16 358.74,-416.37 386,-407 391.65,-405.06 397.59,-403.1 403.52,-401.21"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="404.93,-404.44 413.42,-398.1 402.83,-397.76 404.93,-404.44"/>
+</g>
+<!-- proc~open_cru_met&#45;&gt;nf90_open -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge26" class="edge">
+<title>proc~open_cru_met&#45;&gt;nf90_open</title>
+<path fill="none" stroke="#00b9ff" d="M306.15,-461.14C328.14,-469.84 358.74,-481.63 386,-491 394.12,-493.79 402.83,-496.6 411.24,-499.22"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="410.32,-502.6 420.91,-502.19 412.38,-495.91 410.32,-502.6"/>
+</g>
+<!-- proc~open_cru_met&#45;&gt;nf90_inq_varid -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge27" class="edge">
+<title>proc~open_cru_met&#45;&gt;nf90_inq_varid</title>
+<path fill="none" stroke="#00b9ff" d="M323.83,-454.63C347.24,-457.38 375.52,-460.71 399.78,-463.56"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="399.57,-467.06 409.91,-464.75 400.39,-460.11 399.57,-467.06"/>
+</g>
+<!-- proc~cru_get_daily_met&#45;&gt;proc~handle_err -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge32" class="edge">
+<title>proc~cru_get_daily_met&#45;&gt;proc~handle_err</title>
+<path fill="none" stroke="#002eff" d="M337.72,-334.13C392.07,-327.25 470.79,-326.39 525,-365 557.75,-388.33 543.8,-411.66 561,-448 581.59,-491.51 607.84,-541.34 622.6,-568.89"/>
+<polygon fill="#002eff" stroke="#002eff" points="619.66,-570.82 627.48,-577.98 625.83,-567.51 619.66,-570.82"/>
+</g>
+<!-- proc~cru_get_daily_met&#45;&gt;nf90_close -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge35" class="edge">
+<title>proc~cru_get_daily_met&#45;&gt;nf90_close</title>
+<path fill="none" stroke="#002eff" d="M296.93,-333.81C313.25,-323.4 335.49,-307.11 350,-288 375.3,-254.67 355.04,-229.15 386,-201 392.89,-194.73 401.62,-190.33 410.51,-187.25"/>
+<polygon fill="#002eff" stroke="#002eff" points="411.56,-190.59 420.15,-184.39 409.57,-183.88 411.56,-190.59"/>
+</g>
+<!-- proc~cru_get_daily_met&#45;&gt;proc~cru_get_metyear -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge29" class="edge">
+<title>proc~cru_get_daily_met&#45;&gt;proc~cru_get_metyear</title>
+<path fill="none" stroke="#002eff" d="M294.86,-358.06C316.29,-371.38 352.64,-392.82 386,-407 390.67,-408.99 395.6,-410.87 400.58,-412.64"/>
+<polygon fill="#002eff" stroke="#002eff" points="399.57,-416 410.16,-415.89 401.82,-409.37 399.57,-416"/>
+</g>
+<!-- proc~cru_read_metvals -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node14" class="node">
+<title>proc~cru_read_metvals</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~CallsGraph_node14"><a xlink:href=".././proc/cru_read_metvals.html" xlink:title="cru_read_metvals">
+<polygon fill="#d9534f" stroke="#d9534f" points="508.5,-318 402.5,-318 402.5,-294 508.5,-294 508.5,-318"/>
+<text text-anchor="middle" x="455.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cru_read_metvals</text>
+</a>
+</g>
+</g>
+<!-- proc~cru_get_daily_met&#45;&gt;proc~cru_read_metvals -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge30" class="edge">
+<title>proc~cru_get_daily_met&#45;&gt;proc~cru_read_metvals</title>
+<path fill="none" stroke="#002eff" d="M329.56,-334C349.32,-329.57 371.89,-324.51 392.35,-319.93"/>
+<polygon fill="#002eff" stroke="#002eff" points="393.22,-323.32 402.21,-317.72 391.69,-316.49 393.22,-323.32"/>
+</g>
+<!-- nf90_inquire_dimension -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node15" class="node">
+<title>nf90_inquire_dimension</title>
+<polygon fill="#777777" stroke="#777777" points="525,-234 386,-234 386,-210 525,-210 525,-234"/>
+<text text-anchor="middle" x="455.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire_dimension</text>
+</g>
+<!-- proc~cru_get_daily_met&#45;&gt;nf90_inquire_dimension -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge37" class="edge">
+<title>proc~cru_get_daily_met&#45;&gt;nf90_inquire_dimension</title>
+<path fill="none" stroke="#002eff" d="M293.68,-333.92C309.29,-322.86 332.25,-305.57 350,-288 368.2,-269.98 364.81,-257.39 386,-243 388.41,-241.36 390.96,-239.85 393.59,-238.45"/>
+<polygon fill="#002eff" stroke="#002eff" points="395.25,-241.54 402.81,-234.12 392.27,-235.2 395.25,-241.54"/>
+</g>
+<!-- proc~cru_get_daily_met&#45;&gt;proc~cru_get_filename -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge33" class="edge">
+<title>proc~cru_get_daily_met&#45;&gt;proc~cru_get_filename</title>
+<path fill="none" stroke="#002eff" d="M329.56,-358C348.79,-362.31 370.68,-367.22 390.71,-371.7"/>
+<polygon fill="#002eff" stroke="#002eff" points="390.15,-375.17 400.67,-373.94 391.68,-368.34 390.15,-375.17"/>
+</g>
+<!-- proc~cru_get_daily_met&#45;&gt;nf90_open -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge31" class="edge">
+<title>proc~cru_get_daily_met&#45;&gt;nf90_open</title>
+<path fill="none" stroke="#002eff" d="M288.43,-358.06C303.9,-373.45 330.66,-401.28 350,-428 368.91,-454.12 360.81,-470.86 386,-491 393.28,-496.82 402.16,-501.03 411.09,-504.08"/>
+<polygon fill="#002eff" stroke="#002eff" points="410.13,-507.45 420.72,-506.95 412.13,-500.74 410.13,-507.45"/>
+</g>
+<!-- proc~cru_get_daily_met&#45;&gt;nf90_inq_varid -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge34" class="edge">
+<title>proc~cru_get_daily_met&#45;&gt;nf90_inq_varid</title>
+<path fill="none" stroke="#002eff" d="M285.59,-358.04C303.23,-379.42 342.99,-424.09 386,-449 390.46,-451.58 395.27,-453.88 400.2,-455.92"/>
+<polygon fill="#002eff" stroke="#002eff" points="399.18,-459.27 409.77,-459.52 401.65,-452.72 399.18,-459.27"/>
+</g>
+<!-- nf90_inq_dimid -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_node27" class="node">
+<title>nf90_inq_dimid</title>
+<polygon fill="#777777" stroke="#777777" points="502.5,-276 408.5,-276 408.5,-252 502.5,-252 502.5,-276"/>
+<text text-anchor="middle" x="455.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_dimid</text>
+</g>
+<!-- proc~cru_get_daily_met&#45;&gt;nf90_inq_dimid -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge36" class="edge">
+<title>proc~cru_get_daily_met&#45;&gt;nf90_inq_dimid</title>
+<path fill="none" stroke="#002eff" d="M294.86,-333.94C316.29,-320.62 352.64,-299.18 386,-285 390.67,-283.01 395.6,-281.13 400.58,-279.36"/>
+<polygon fill="#002eff" stroke="#002eff" points="401.82,-282.63 410.16,-276.11 399.57,-276 401.82,-282.63"/>
+</g>
+<!-- proc~wgen_subdiurnal_met&#45;&gt;mpi_abort -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge38" class="edge">
+<title>proc~wgen_subdiurnal_met&#45;&gt;mpi_abort</title>
+<path fill="none" stroke="#e700ff" d="M680.55,-774C700.05,-768.75 722.82,-762.61 742.07,-757.43"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="743.03,-760.79 751.78,-754.81 741.21,-754.04 743.03,-760.79"/>
+</g>
+<!-- proc~cru_read_metvals&#45;&gt;proc~handle_err -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge40" class="edge">
+<title>proc~cru_read_metvals&#45;&gt;proc~handle_err</title>
+<path fill="none" stroke="#ff6600" d="M505.24,-318.09C512.58,-321.62 519.51,-326.16 525,-332 561.97,-371.33 540.58,-398.03 561,-448 579.12,-492.34 606.03,-541.51 621.62,-568.79"/>
+<polygon fill="#ff6600" stroke="#ff6600" points="618.78,-570.89 626.81,-577.81 624.85,-567.39 618.78,-570.89"/>
+</g>
+<!-- proc~cru_read_metvals&#45;&gt;nf90_get_var -->
+<g id="proc~~cru_get_subdiurnal_met~~CallsGraph_edge39" class="edge">
+<title>proc~cru_read_metvals&#45;&gt;nf90_get_var</title>
+<path fill="none" stroke="#ff6600" d="M495.3,-318C505.31,-321.82 515.83,-326.51 525,-332 560.51,-353.28 595.51,-386.57 615.91,-407.57"/>
+<polygon fill="#ff6600" stroke="#ff6600" points="613.55,-410.15 622.99,-414.96 618.61,-405.31 613.55,-410.15"/>
+</g>
+</g>
+</svg>
+</div><script>var panproccru_get_subdiurnal_metCallsGraph = svgPanZoom('#proccru_get_subdiurnal_metCallsGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~cru_get_subdiurnal_met~~CalledByGraph Pages: 1 -->
+<svg id="proccru_get_subdiurnal_metCalledByGraph" width="432pt" height="74pt"
+ viewBox="0.00 0.00 432.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~cru_get_subdiurnal_met~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~cru_get_subdiurnal_met~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 428,-70 428,4 -4,4"/>
+<!-- proc~cru_get_subdiurnal_met -->
+<g id="proc~~cru_get_subdiurnal_met~~CalledByGraph_node1" class="node">
+<title>proc~cru_get_subdiurnal_met</title>
+<polygon fill="none" stroke="black" points="424,-45 260,-45 260,-21 424,-21 424,-45"/>
+<text text-anchor="middle" x="342" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">CRU_GET_SUBDIURNAL_MET</text>
+</g>
+<!-- proc~mpidrv_master -->
+<g id="proc~~cru_get_subdiurnal_met~~CalledByGraph_node2" class="node">
+<title>proc~mpidrv_master</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~CalledByGraph_node2"><a xlink:href=".././proc/mpidrv_master.html" xlink:title="mpidrv_master">
+<polygon fill="#d9534f" stroke="#d9534f" points="211.5,-66 118.5,-66 118.5,-42 211.5,-42 211.5,-66"/>
+<text text-anchor="middle" x="165" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpidrv_master</text>
+</a>
+</g>
+</g>
+<!-- proc~mpidrv_master&#45;&gt;proc~cru_get_subdiurnal_met -->
+<g id="proc~~cru_get_subdiurnal_met~~CalledByGraph_edge1" class="edge">
+<title>proc~mpidrv_master&#45;&gt;proc~cru_get_subdiurnal_met</title>
+<path fill="none" stroke="#ff0000" d="M211.52,-48.54C223.3,-47.12 236.42,-45.55 249.65,-43.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="250.26,-47.41 259.77,-42.75 249.42,-40.46 250.26,-47.41"/>
+</g>
+<!-- program~cable_offline_driver -->
+<g id="proc~~cru_get_subdiurnal_met~~CalledByGraph_node3" class="node">
+<title>program~cable_offline_driver</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~CalledByGraph_node3"><a xlink:href=".././program/cable_offline_driver.html" xlink:title="cable_offline_driver">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="224,-24 106,-24 106,0 224,0 224,-24"/>
+<text text-anchor="middle" x="165" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_offline_driver</text>
+</a>
+</g>
+</g>
+<!-- program~cable_offline_driver&#45;&gt;proc~cru_get_subdiurnal_met -->
+<g id="proc~~cru_get_subdiurnal_met~~CalledByGraph_edge2" class="edge">
+<title>program~cable_offline_driver&#45;&gt;proc~cru_get_subdiurnal_met</title>
+<path fill="none" stroke="#ff0000" d="M224.27,-18.99C232.49,-19.98 241.1,-21.01 249.75,-22.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="249.57,-25.55 259.92,-23.27 250.41,-18.6 249.57,-25.55"/>
+</g>
+<!-- program~mpi_driver -->
+<g id="proc~~cru_get_subdiurnal_met~~CalledByGraph_node4" class="node">
+<title>program~mpi_driver</title>
+<g id="a_proc~~cru_get_subdiurnal_met~~CalledByGraph_node4"><a xlink:href=".././program/mpi_driver.html" xlink:title="mpi_driver">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-66 0,-66 0,-42 70,-42 70,-66"/>
+<text text-anchor="middle" x="35" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_driver</text>
+</a>
+</g>
+</g>
+<!-- program~mpi_driver&#45;&gt;proc~mpidrv_master -->
+<g id="proc~~cru_get_subdiurnal_met~~CalledByGraph_edge3" class="edge">
+<title>program~mpi_driver&#45;&gt;proc~mpidrv_master</title>
+<path fill="none" stroke="#ff0000" d="M70.3,-54C81.87,-54 95.1,-54 107.91,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="108.05,-57.5 118.05,-54 108.05,-50.5 108.05,-57.5"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+      <h3>Contents</h3>
+ 
+<em>None</em>
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>POP was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

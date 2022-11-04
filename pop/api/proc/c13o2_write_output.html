@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for POP">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>c13o2_write_output &ndash; POP</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">POP </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>c13o2_write_output
+      <small>Subroutine</small>
+    </h1>
+    <div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title=" 0.1% of total for procedures.">55 statements</a>
+     </li> 
+    <li><i class="fa fa-code"></i><a href="../src/cable_c13o2.F90"> Source File</a></li>
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+     <li><a href='../sourcefile/cable_c13o2.f90.html'>cable_c13o2.F90</a></li>
+     <li><a href='../module/cable_c13o2.html'>cable_c13o2</a></li>
+     <li class="active">c13o2_write_output</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div id="sidebar">
+  <h3>Contents</h3>
+ 
+<em>None</em>
+
+</div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public subroutine c13o2_write_output(file_id, vars, var_ids, days, c13o2pools)</h2>
+        <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Uses</h3>
+      </div>
+      <ul class="list-group">
+      <li class="list-group-item">
+  <ul class="list-inline">
+    <li><a href='../module/cable_c13o2_def.html'>cable_c13o2_def</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+    <li>netcdf</li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+  </ul>
+      </li>
+      <li class="list-group-item">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~c13o2_write_output~~UsesGraph Pages: 1 -->
+<svg id="procc13o2_write_outputUsesGraph" width="464pt" height="135pt"
+ viewBox="0.00 0.00 464.00 134.68" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~c13o2_write_output~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 130.68)">
+<title>proc~~c13o2_write_output~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-130.68 460,-130.68 460,4 -4,4"/>
+<!-- proc~c13o2_write_output -->
+<g id="proc~~c13o2_write_output~~UsesGraph_node1" class="node">
+<title>proc~c13o2_write_output</title>
+<polygon fill="none" stroke="black" points="456,-63.68 339,-63.68 339,-39.68 456,-39.68 456,-63.68"/>
+<text text-anchor="middle" x="397.5" y="-49.28" font-family="Helvetica,sans-Serif" font-size="10.50">c13o2_write_output</text>
+</g>
+<!-- module~cable_c13o2_def -->
+<g id="proc~~c13o2_write_output~~UsesGraph_node2" class="node">
+<title>module~cable_c13o2_def</title>
+<g id="a_proc~~c13o2_write_output~~UsesGraph_node2"><a xlink:href=".././module/cable_c13o2_def.html" xlink:title="cable_c13o2_def">
+<polygon fill="#337ab7" stroke="#337ab7" points="284.5,-126.68 181.5,-126.68 181.5,-102.68 284.5,-102.68 284.5,-126.68"/>
+<text text-anchor="middle" x="233" y="-112.28" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_c13o2_def</text>
+</a>
+</g>
+</g>
+<!-- proc~c13o2_write_output&#45;&gt;module~cable_c13o2_def -->
+<g id="proc~~c13o2_write_output~~UsesGraph_edge1" class="edge">
+<title>proc~c13o2_write_output&#45;&gt;module~cable_c13o2_def</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M371.86,-63.78C353.21,-72.68 326.83,-84.74 303,-93.68 297.59,-95.71 291.89,-97.68 286.18,-99.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="285.07,-96.25 276.61,-102.63 287.2,-102.91 285.07,-96.25"/>
+</g>
+<!-- module~cable_common_module -->
+<g id="proc~~c13o2_write_output~~UsesGraph_node3" class="node">
+<title>module~cable_common_module</title>
+<g id="a_proc~~c13o2_write_output~~UsesGraph_node3"><a xlink:href=".././module/cable_common_module.html" xlink:title="cable_common_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="303,-84.68 163,-84.68 163,-60.68 303,-60.68 303,-84.68"/>
+<text text-anchor="middle" x="233" y="-70.28" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_common_module</text>
+</a>
+</g>
+</g>
+<!-- proc~c13o2_write_output&#45;&gt;module~cable_common_module -->
+<g id="proc~~c13o2_write_output~~UsesGraph_edge2" class="edge">
+<title>proc~c13o2_write_output&#45;&gt;module~cable_common_module</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M338.75,-59.14C330.49,-60.21 321.87,-61.32 313.29,-62.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="312.71,-58.98 303.24,-63.73 313.61,-65.92 312.71,-58.98"/>
+</g>
+<!-- netcdf -->
+<g id="proc~~c13o2_write_output~~UsesGraph_node4" class="node">
+<title>netcdf</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="260,-42.68 206,-42.68 206,-18.68 260,-18.68 260,-42.68"/>
+<text text-anchor="middle" x="233" y="-28.28" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">netcdf</text>
+</g>
+<!-- proc~c13o2_write_output&#45;&gt;netcdf -->
+<g id="proc~~c13o2_write_output~~UsesGraph_edge3" class="edge">
+<title>proc~c13o2_write_output&#45;&gt;netcdf</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M338.75,-44.21C315.91,-41.26 290.36,-37.96 270.21,-35.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="270.58,-31.88 260.21,-34.06 269.68,-38.82 270.58,-31.88"/>
+</g>
+<!-- module~cable_def_types_mod -->
+<g id="proc~~c13o2_write_output~~UsesGraph_node5" class="node">
+<title>module~cable_def_types_mod</title>
+<g id="a_proc~~c13o2_write_output~~UsesGraph_node5"><a xlink:href=".././module/cable_def_types_mod.html" xlink:title="cable_def_types_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="127,-64.68 0,-64.68 0,-40.68 127,-40.68 127,-64.68"/>
+<text text-anchor="middle" x="63.5" y="-50.28" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_def_types_mod</text>
+</a>
+</g>
+</g>
+<!-- proc~c13o2_write_output&#45;&gt;module~cable_def_types_mod -->
+<g id="proc~~c13o2_write_output~~UsesGraph_edge4" class="edge">
+<title>proc~c13o2_write_output&#45;&gt;module~cable_def_types_mod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M376.2,-39.52C357.82,-29.27 329.62,-15.38 303,-9.68 242.16,3.36 223.91,3.04 163,-9.68 138.78,-14.73 113.22,-26.09 94.21,-35.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="92.38,-32.87 85.18,-40.64 95.65,-39.06 92.38,-32.87"/>
+</g>
+<!-- module~cable_c13o2_def&#45;&gt;module~cable_def_types_mod -->
+<g id="proc~~c13o2_write_output~~UsesGraph_edge5" class="edge">
+<title>module~cable_c13o2_def&#45;&gt;module~cable_def_types_mod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M189.82,-102.56C180.91,-99.8 171.6,-96.77 163,-93.68 142.07,-86.16 119.1,-76.67 100.62,-68.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="101.96,-65.49 91.39,-64.72 99.17,-71.91 101.96,-65.49"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a submodule to the (sub)module which it is
+    descended from. Dashed arrows point from a module or program unit to 
+    modules which it uses. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </li>
+      </ul>
+    </div>
+
+
+
+    <h3>Arguments</h3>
+      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-file_id~2"></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>file_id</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vars~2"></span>character(len=40),</td>
+<td>intent(in),</td>
+  <td></td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>vars</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-var_ids~2"></span>integer,</td>
+<td>intent(in),</td>
+  <td></td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>var_ids</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-days"></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>days</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-c13o2pools~11"></span>type(<a href='../type/c13o2_pool.html'>c13o2_pool</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>c13o2pools</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+    <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Calls</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~c13o2_write_output~~CallsGraph Pages: 1 -->
+<svg id="procc13o2_write_outputCallsGraph" width="377pt" height="74pt"
+ viewBox="0.00 0.00 377.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~c13o2_write_output~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~c13o2_write_output~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 373,-70 373,4 -4,4"/>
+<!-- proc~c13o2_write_output -->
+<g id="proc~~c13o2_write_output~~CallsGraph_node1" class="node">
+<title>proc~c13o2_write_output</title>
+<polygon fill="none" stroke="black" points="117,-45 0,-45 0,-21 117,-21 117,-45"/>
+<text text-anchor="middle" x="58.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">c13o2_write_output</text>
+</g>
+<!-- nf90_put_var -->
+<g id="proc~~c13o2_write_output~~CallsGraph_node2" class="node">
+<title>nf90_put_var</title>
+<polygon fill="#777777" stroke="#777777" points="250.5,-66 168.5,-66 168.5,-42 250.5,-42 250.5,-66"/>
+<text text-anchor="middle" x="209.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_put_var</text>
+</g>
+<!-- proc~c13o2_write_output&#45;&gt;nf90_put_var -->
+<g id="proc~~c13o2_write_output~~CallsGraph_edge1" class="edge">
+<title>proc~c13o2_write_output&#45;&gt;nf90_put_var</title>
+<path fill="none" stroke="#ff0000" d="M117.11,-41.12C130.55,-43.01 144.76,-45.02 157.87,-46.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="157.73,-50.38 168.12,-48.31 158.7,-43.45 157.73,-50.38"/>
+</g>
+<!-- proc~c13o2_err_handler -->
+<g id="proc~~c13o2_write_output~~CallsGraph_node3" class="node">
+<title>proc~c13o2_err_handler</title>
+<g id="a_proc~~c13o2_write_output~~CallsGraph_node3"><a xlink:href=".././proc/c13o2_err_handler.html" xlink:title="c13o2_err_handler">
+<polygon fill="#d9534f" stroke="#d9534f" points="266,-24 153,-24 153,0 266,0 266,-24"/>
+<text text-anchor="middle" x="209.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">c13o2_err_handler</text>
+</a>
+</g>
+</g>
+<!-- proc~c13o2_write_output&#45;&gt;proc~c13o2_err_handler -->
+<g id="proc~~c13o2_write_output~~CallsGraph_edge2" class="edge">
+<title>proc~c13o2_write_output&#45;&gt;proc~c13o2_err_handler</title>
+<path fill="none" stroke="#ff0000" d="M117.11,-24.88C125.37,-23.72 133.93,-22.51 142.35,-21.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="143.1,-24.75 152.52,-19.89 142.13,-17.82 143.1,-24.75"/>
+</g>
+<!-- mpi_abort -->
+<g id="proc~~c13o2_write_output~~CallsGraph_node4" class="node">
+<title>mpi_abort</title>
+<polygon fill="#777777" stroke="#777777" points="369,-24 302,-24 302,0 369,0 369,-24"/>
+<text text-anchor="middle" x="335.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_abort</text>
+</g>
+<!-- proc~c13o2_err_handler&#45;&gt;mpi_abort -->
+<g id="proc~~c13o2_write_output~~CallsGraph_edge3" class="edge">
+<title>proc~c13o2_err_handler&#45;&gt;mpi_abort</title>
+<path fill="none" stroke="#00ffff" d="M266.33,-12C274.83,-12 283.48,-12 291.65,-12"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="291.67,-15.5 301.67,-12 291.67,-8.5 291.67,-15.5"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Called by</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~c13o2_write_output~~CalledByGraph Pages: 1 -->
+<svg id="procc13o2_write_outputCalledByGraph" width="408pt" height="94pt"
+ viewBox="0.00 0.00 408.00 94.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~c13o2_write_output~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 90)">
+<title>proc~~c13o2_write_output~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-90 404,-90 404,4 -4,4"/>
+<!-- proc~c13o2_write_output -->
+<g id="proc~~c13o2_write_output~~CalledByGraph_node1" class="node">
+<title>proc~c13o2_write_output</title>
+<polygon fill="none" stroke="black" points="400,-66 283,-66 283,-42 400,-42 400,-66"/>
+<text text-anchor="middle" x="341.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">c13o2_write_output</text>
+</g>
+<!-- proc~spincasacnp -->
+<g id="proc~~c13o2_write_output~~CalledByGraph_node2" class="node">
+<title>proc~spincasacnp</title>
+<g id="a_proc~~c13o2_write_output~~CalledByGraph_node2"><a xlink:href=".././proc/spincasacnp.html" xlink:title="spincasacnp">
+<polygon fill="#d9534f" stroke="#d9534f" points="240,-66 161,-66 161,-42 240,-42 240,-66"/>
+<text text-anchor="middle" x="200.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">spincasacnp</text>
+</a>
+</g>
+</g>
+<!-- proc~spincasacnp&#45;&gt;proc~c13o2_write_output -->
+<g id="proc~~c13o2_write_output~~CalledByGraph_edge1" class="edge">
+<title>proc~spincasacnp&#45;&gt;proc~c13o2_write_output</title>
+<path fill="none" stroke="#ff0000" d="M240.22,-54C250.31,-54 261.48,-54 272.59,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="272.75,-57.5 282.75,-54 272.75,-50.5 272.75,-57.5"/>
+</g>
+<!-- proc~mpidrv_master -->
+<g id="proc~~c13o2_write_output~~CalledByGraph_node3" class="node">
+<title>proc~mpidrv_master</title>
+<g id="a_proc~~c13o2_write_output~~CalledByGraph_node3"><a xlink:href=".././proc/mpidrv_master.html" xlink:title="mpidrv_master">
+<polygon fill="#d9534f" stroke="#d9534f" points="247,-24 154,-24 154,0 247,0 247,-24"/>
+<text text-anchor="middle" x="200.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpidrv_master</text>
+</a>
+</g>
+</g>
+<!-- proc~mpidrv_master&#45;&gt;proc~c13o2_write_output -->
+<g id="proc~~c13o2_write_output~~CalledByGraph_edge2" class="edge">
+<title>proc~mpidrv_master&#45;&gt;proc~c13o2_write_output</title>
+<path fill="none" stroke="#ff0000" d="M241.33,-24.04C256.74,-28.69 274.55,-34.07 290.79,-38.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="290.08,-42.42 300.66,-41.96 292.1,-35.72 290.08,-42.42"/>
+</g>
+<!-- program~cable_offline_driver -->
+<g id="proc~~c13o2_write_output~~CalledByGraph_node4" class="node">
+<title>program~cable_offline_driver</title>
+<g id="a_proc~~c13o2_write_output~~CalledByGraph_node4"><a xlink:href=".././program/cable_offline_driver.html" xlink:title="cable_offline_driver">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="118,-86 0,-86 0,-62 118,-62 118,-86"/>
+<text text-anchor="middle" x="59" y="-71.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_offline_driver</text>
+</a>
+</g>
+</g>
+<!-- program~cable_offline_driver&#45;&gt;proc~c13o2_write_output -->
+<g id="proc~~c13o2_write_output~~CalledByGraph_edge3" class="edge">
+<title>program~cable_offline_driver&#45;&gt;proc~c13o2_write_output</title>
+<path fill="none" stroke="#ff0000" d="M118.3,-77.77C155.29,-79.3 204.08,-79.76 247,-75 259.79,-73.58 273.38,-71.1 286.13,-68.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="287.15,-71.69 296.13,-66.07 285.61,-64.87 287.15,-71.69"/>
+</g>
+<!-- program~cable_offline_driver&#45;&gt;proc~spincasacnp -->
+<g id="proc~~c13o2_write_output~~CalledByGraph_edge4" class="edge">
+<title>program~cable_offline_driver&#45;&gt;proc~spincasacnp</title>
+<path fill="none" stroke="#ff0000" d="M118.35,-65.63C129.1,-64.09 140.23,-62.5 150.66,-61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="151.42,-64.43 160.83,-59.54 150.43,-57.5 151.42,-64.43"/>
+</g>
+<!-- program~mpi_driver -->
+<g id="proc~~c13o2_write_output~~CalledByGraph_node5" class="node">
+<title>program~mpi_driver</title>
+<g id="a_proc~~c13o2_write_output~~CalledByGraph_node5"><a xlink:href=".././program/mpi_driver.html" xlink:title="mpi_driver">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="94,-24 24,-24 24,0 94,0 94,-24"/>
+<text text-anchor="middle" x="59" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_driver</text>
+</a>
+</g>
+</g>
+<!-- program~mpi_driver&#45;&gt;proc~mpidrv_master -->
+<g id="proc~~c13o2_write_output~~CalledByGraph_edge5" class="edge">
+<title>program~mpi_driver&#45;&gt;proc~mpidrv_master</title>
+<path fill="none" stroke="#00ff00" d="M94.13,-12C109.02,-12 126.88,-12 143.63,-12"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="143.87,-15.5 153.87,-12 143.87,-8.5 143.87,-15.5"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="597pt" height="32pt"
+ viewBox="0.00 0.00 596.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 592.5,-28 592.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node4" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="388.5,-24 243.5,-24 243.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="465,-24 407,-24 407,0 465,0 465,-24"/>
+<text text-anchor="middle" x="436" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="588.5,-24 483.5,-24 483.5,0 588.5,0 588.5,-24"/>
+<text text-anchor="middle" x="536" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a procedure to one which it calls. Dashed 
+    arrows point from an interface to procedures which implement that interface.
+    This could include the module procedures in a generic interface or the
+    implementation in a submodule of an interface in a parent module. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+      <h3>Contents</h3>
+ 
+<em>None</em>
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>POP was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>
