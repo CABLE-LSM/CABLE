@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for CABLE-POP_TRENDY">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>mo_isotope_luc_model &ndash; CABLE-POP_TRENDY</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">CABLE-POP_TRENDY </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>mo_isotope_luc_model 
+    <small>Module</small>
+    </h1>
+    <div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title=" 0.2% of total for modules and submodules.">102 statements</a>
+     </li> 
+    <li><i class="fa fa-code"></i><a href="../src/mo_isotope_luc_model.f90"> Source File</a></li>
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+     <li><a href='../sourcefile/mo_isotope_luc_model.f90.html'>mo_isotope_luc_model.f90</a></li>
+     <li class="active">mo_isotope_luc_model</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div id="sidebar">
+  <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#inters-0">Interfaces</a></h3></div>
+  <div id="inters-0" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/mo_isotope_luc_model.html#interface-isotope_luc_model">isotope_luc_model</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#subs-0">Subroutines</a></h3></div>
+  <div class="list-group">
+    <div id="subs-0" class="panel-collapse collapse">
+      <a class="list-group-item" href="../module/mo_isotope_luc_model.html#proc-isotope_luc_model_1d">isotope_luc_model_1d</a>
+    </div>
+  </div>
+</div>
+
+</div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <p>\file mo_isotope_luc_model.f90
+\brief Generic isotopic land-use change model
+\details Explicit solution of a generic land-use change model,
+given all the fluxes, area changes between land use classes, source and sinks.
+No fractionations included (yet).
+\author Matthias Cuntz
+\date Apr 2019</p>
+    
+    
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+      <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#inters-1">Interfaces</a></h3></div>
+  <div id="inters-1" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/mo_isotope_luc_model.html#interface-isotope_luc_model">isotope_luc_model</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#subs-1">Subroutines</a></h3></div>
+  <div class="list-group">
+    <div id="subs-1" class="panel-collapse collapse">
+      <a class="list-group-item" href="../module/mo_isotope_luc_model.html#proc-isotope_luc_model_1d">isotope_luc_model_1d</a>
+    </div>
+  </div>
+</div>
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+    <section>
+   <h2>Interfaces</h2>
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="interface-isotope_luc_model"></span><h3>public interface <a href='../interface/isotope_luc_model.html'>isotope_luc_model</a>  </h3></div>
+  <div class="panel-body">
+    <p>\brief Generic isotopic land-use change model
+\details Next explicit time step of the isotopic composition of a generic land-use change model,
+given all fluxes, area changes between land use classes, sources and sinks.
+The generic isotopic land-use model does not include any fractionations, yet.
+The land-use change model for land-use class i is: \n
+    d(A(i)<em>C(i)) = -C(i)</em>sum(dA(i,:)) + sum(dA(:,i)<em>C(:)) + S(i) - T(i) \n
+where \n
+C [kg/m^2] are the carbon concentrations in the land-use classes, \n
+A [m^2] are the areas of the land-use classes, \n
+dA [m^2] are the area changes between land-use classes for the time step (A&gt;0, A(i,i)=0), \n
+S [kg] are sources other than contributions from other land use classes, and \n
+T [kg] are sinks other than contributions to other land use classes. \n
+S and T could be source and sinks between carbon pools, for example.
+Note: \n
+     dA is change per time step in [m^2], NOT per second.\n
+     S and T are sources and sinks in total mass in [kg], NOT per area.
+The land-use model is then solved from time step t to t+dt \n
+    A(i,t+dt)</em>C(i,t+dt) - A(i,t)<em>C(i,t) = -C(i,t)</em>sum(dA(i,:)) + sum(dA(:,i)<em>C(:,t)) + S(i,dt) - T(i,dt) \n
+    C(i,t+dt) = (C(i,t)</em>(A(i,t)-sum(dA(i,:))) + sum(dA(:,i)<em>C(:,t)) + S(i,dt) - T(i,dt)) / A(i,t+dt) \n
+with S(i,dt), T(i,dt) the total sources and sinks during the time step.
+The isotopic land-use model is then:
+    A(i,t+dt)</em>C'(i,t+dt) - A(i,t)<em>C'(i,t) =
+        -C'(i,t)</em>sum(dA(i,:)) + sum(dA(:,i)<em>C'(:,t)) + Rs(i,dt)</em>S(i,dt) - R(i,t)<em>T(i,dt) \n
+    C'(i,t+dt) = (C'(i,t)</em>(A(i,t)-sum(dA(i,:))) + sum(dA(:,i)<em>C'(:,t)) + Rs(i,dt)</em>S(i,dt) - R(i,t)<em>T(i,dt) ) /
+                A(i,t+dt) \n
+with C' the isotope carbon concentrations, R the carbon isotope ratio C'/C,
+and Rs is the carbon isotope ratio of the source S during the time step.
+This can also be written with carbon concentrations C at time t as \n
+    R(i,t) = C'(i,t) / C(i,t) \n
+    A(i,t+dt)</em>C'(i,t+dt) - A(i,t)<em>R(i,t)</em>C(i,t) = -R(i,t)<em>C(i,t)</em>sum(dA(i,:)) + sum(dA(:,i)<em>R(:,t)</em>C(:,t)) +
+            Rs(i,dt)<em>S(i,dt) - R(i,t)</em>T(i,dt) \n
+    C'(i,t+dt) = (R(i,t)<em>C(i,t)</em>(A(i,t)-sum(dA(i,:))) + sum(dA(:,i)<em>R(:,t)</em>C(:,t)) +
+                  Rs(i,dt)<em>S(i,dt) - R(i,t)</em>T(i,dt)) / A(i,t+dt)
+\param[inout] "real(dp) :: Ciso(1:n)"
+                           On entry: isotope concentrations in land-use classes at time step t-1 [kg/m^2]
+                           On exit:  updated isotope concentrations of land-use classes at time step t [kg/m^2]
+\param[in]    "real(dp) :: A(1:n)"                   Areas of land-use classes at time step t-1 [m^2]
+\param[in]    "real(dp) :: dA(1:n,1:n)"              Change from each land-use class to the others
+                           during the time step [m^2]
+\param[in]    "real(dp), optional :: C(1:n)"         Non-isotope concentrations in land-use classes
+                           at time step t-1 [kg/m^2] (default: not used)
+\param[in]    "real(dp), optional :: S(1:n)"         Sources other than contributions from other land use classes,
+                           for example from other carbon pool [kg/m^2] (default: 0.)
+\param[in]    "real(dp), optional :: Rs(1:n)"        Isotope ratio of sources (default: 1.)
+\param[in]    "real(dp), optional :: T(1:n)"         Sinks other than contributions from other land use classes,
+                           for example to other carbon pool [kg/m^2] (default: 0.)
+\param[in]    "real(dp), optional :: Rt(1:n)"        Isotope ratio of sinks
+                           (default: isotope ratio of pool and land use class)
+\param[in]    "real(dp), optional :: At(1:n)"         Areas of land-use classes at time step t [m^2]
+                           (default: calculated from A and dA)
+\param[inout] "real(dp), optional :: trash(1:n)"     Container to store possible inconsistencies,
+                           might be numeric, between non-isotope and isotope model [kg/m^2].
+                           Consistency checks are only performed if trash is given in call.
+\author Written Matthias Cuntz
+\date Apr 2019</p>
+  </div>
+  <ul class="list-group">
+    <li class="list-group-item">
+    <h3>private subroutine <a href='../proc/isotope_luc_model_1d.html'>isotope_luc_model_1d</a>(Ciso, A, dA, C, S, Rs, T, Rt, At, trash)</h3>    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(inout),</td>
+  <td></td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>Ciso</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td></td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>A</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td></td>  <td>dimension(:,:)</td><td>::</td>
+  <td><strong>dA</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td>optional</td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>C</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td>optional</td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>S</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td>optional</td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>Rs</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td>optional</td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>T</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td>optional</td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>Rt</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td>optional</td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>At</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(inout),</td>
+  <td>optional</td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>trash</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+    </li>
+  </ul>
+</div>
+
+    </section>
+  <br>
+
+    
+    
+
+    <section>
+    <h2>Subroutines</h2>
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-isotope_luc_model_1d"></span><h3>private subroutine <a href='../proc/isotope_luc_model_1d.html'>isotope_luc_model_1d</a>(Ciso, A, dA, C, S, Rs, T, Rt, At, trash)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(inout),</td>
+  <td></td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>Ciso</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td></td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>A</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td></td>  <td>dimension(:,:)</td><td>::</td>
+  <td><strong>dA</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td>optional</td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>C</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td>optional</td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>S</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td>optional</td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>Rs</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td>optional</td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>T</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td>optional</td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>Rt</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(in),</td>
+  <td>optional</td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>At</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real(kind=dp),</td>
+<td>intent(inout),</td>
+  <td>optional</td>  <td>dimension(:)</td><td>::</td>
+  <td><strong>trash</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+    </section>    
+    <br>
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>CABLE-POP_TRENDY was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>
