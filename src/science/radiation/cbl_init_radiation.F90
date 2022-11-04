@@ -186,20 +186,16 @@ subroutine  common_InitRad_coeffs( xphi1, xphi2, xk, xvlai2, mp, nrb, Cpi180,&
 ! * the \(\phi\) coefficients from Sellers 1985 to calculate the
 !  real extinction coefficient for direct beam radaiation in
 !  the subroutine [[ExtinctionCoeff_beam]]
-! ### Equations
+!
+!### Equations
+!
 ! This subroutine is using the equation B6 from 
 ! [Wang and Leuning 1998](https://www.sciencedirect.com/science/article/abs/pii/S0168192398000616)
 ! and equation 13 from [Sellers 1985](https://www.tandfonline.com/doi/pdf/10.1080/01431168508948283?needAccess=true):
 !
-! \[
-! k_b = \frac{G_{ross}}{\cos\theta} 
-! 
-! G_{ross} = \phi_1 + \phi_2 \cos\theta
-! 
-! \phi_1 = 0.5 - 0.633 \chi_L - 0.33 \chi_L^2
-! 
-! \phi_2 = 0.877 (1.0 - 2.0 \phi_1)
-! \]
+! \[ k_b = \frac{\phi_1}{\cos\theta} + \phi_2 \]
+! \[ \phi_1 = 0.5 - 0.633 \chi_L - 0.33 \chi_L^2 \]
+! \[ \phi_2 = 0.877 (1.0 - 2.0 \phi_1) \]
 
 implicit none
 !re-decl in args
