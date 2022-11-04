@@ -1,0 +1,222 @@
+#==============================================================================
+# This file is part of the 
+# Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
+# This work is licensed under the CABLE Academic User Licence Agreement 
+# (the "Licence").
+# You may not use this file except in compliance with the Licence.
+# A copy of the Licence and registration form can be obtained from 
+# http://www.cawcr.gov.au/projects/access/cable
+# You need to register and read the Licence agreement before use.
+# Please contact cable_help@nf.nci.org.au for any questions on 
+# registration and the Licence.
+#
+# Unless required by applicable law or agreed to in writing, 
+# software distributed under the Licence is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the Licence for the specific language governing permissions and 
+# limitations under the Licence.
+# ==============================================================================
+#
+# Purpose: builds CABLE executable for offline case
+#
+# Contact: Bernard.Pak@csiro.au
+#
+# History: Additions for CASA-CNP
+#
+# Additions for BLAZE (Vanessa Haverd)
+# Additions for SLI (Vanessa Haverd)
+# Additions for SpinCASA (Lars Nieradzik)
+# Additions for POP, climate and phenology (Vanessa Haverd)
+# Additions for Land use change (Vanessa Haverd)
+# Additions for optimisation of ratio of Jmax to Vcmax
+# Additions for bios climate, parameters (Peter Briggs & Vanessa Haverd)
+# Additions for 13CO2 (Matthias Cuntz)
+#
+# ==============================================================================
+##########################################################################
+               
+# these are all the files we are compiling
+LSRC = cable_data.F90 cable_common.F90 cable_define_types.F90 cable_iovars.F90 \
+	cable_abort.F90 casa_variable.F90 cable_parameters.F90 cable_soilsnow.F90 \
+	cable_air.F90 cable_albedo.F90 cable_radiation.F90 cable_roughness.F90 \
+	cable_carbon.F90 cable_canopy.F90 cable_cbm.F90 cable_checks.F90 \
+	cable_read.F90 cable_initialise.F90 cable_input.F90 cable_write.F90 \
+	cable_output.F90 casa_cnp.F90 casa_cable.F90 casa_inout.F90 cable_driver.F90 \
+	cable_sli_main.F90 cable_sli_numbers.F90 cable_sli_roots.F90 \
+	cable_sli_solve.F90 cable_sli_utils.F90 spincasacnp.F90 \
+	cable_diag.F90 POP.F90 pop_io.F90 cable_plume_mip.F90 \
+	cable_weathergenerator.F90 cable_climate.F90 cable_phenology.F90 \
+	cable_cru_TRENDY.F90 POPLUC.F90 CASAONLY_LUC.F90 cable_LUC_EXPT.F90 \
+	cable_site.F90 cable_optimiseJVratio.F90 cable_bios_met_obs_params.F90\
+	blaze.F90 blaze_driver.F90 simfire.F90 \
+	cable_c13o2.F90 cable_c13o2_def.F90 \
+	cable_adjustJVgm.F90
+LSRCf90 = mo_isotope_luc_model.f90 mo_isotope_pool_model.f90 mo_c13o2_photosynthesis.f90 \
+          mo_isotope.f90 mo_constants.f90 mo_utils.f90 mo_kind.f90 minpack.f90
+
+# this is the executable we are building
+PROG = cable
+
+# from the compiled object files 
+OBJS = ${LSRC:.F90=.o} ${LSRCf90:.f90=.o}
+
+#compiler switches and flags
+CINC = -I$(NCMOD)
+
+#suffixes we use
+.SUFFIXES:
+.SUFFIXES: .f90 .F90 .o 
+#default rules for these suffixes
+.F90.o:
+	$(FC) $(CFLAGS) $(CINC) -c $<
+.f90.o:
+	$(FC) $(CFLAGS) $(CINC) -c $<
+
+# default target by convention is ``all''
+all : $(PROG)
+
+#build PROG (cable executable) by linking all objects
+#$(PROG) : $(OBJS)
+$(PROG) : cable_driver.o 
+	$(FC) $(LDFLAGS) -o $@ $(OBJS) $(LD) 
+
+
+# dependencies
+cable_abort.o: cable_abort.F90 cable_iovars.o cable_define_types.o
+
+cable_data.o: cable_data.F90 
+ 
+cable_diag.o: cable_diag.F90 cable_common.o 
+ 
+cable_air.o: cable_air.F90 cable_define_types.o cable_common.o cable_data.o
+
+cable_albedo.o: cable_albedo.F90 cable_define_types.o cable_common.o cable_data.o
+
+cable_canopy.o: cable_canopy.F90 cable_define_types.o cable_radiation.o cable_roughness.o \
+		cable_air.o cable_common.o cable_data.o cable_sli_utils.o mo_constants.o cable_sli_main.o
+
+cable_carbon.o: cable_carbon.F90 cable_define_types.o cable_common.o cable_data.o
+
+cable_cbm.o: cable_cbm.F90 cable_carbon.o cable_soilsnow.o cable_canopy.o cable_define_types.o \
+	     cable_roughness.o cable_radiation.o cable_albedo.o casa_variable.o cable_common.o cable_data.o cable_sli_main.o
+
+cable_checks.o: cable_checks.F90 cable_radiation.o cable_common.o
+
+cable_driver.o: cable_driver.F90 pop_io.o cable_diag.o cable_output.o \
+		cable_iovars.o cable_cbm.o casa_variable.o casa_cable.o casa_cnp.o \
+		casa_inout.o cable_input.o cable_common.o cable_data.o \
+		cable_plume_mip.o cable_climate.o cable_cru_TRENDY.o POPLUC.o cable_LUC_EXPT.o \
+		CASAONLY_LUC.o cable_site.o cable_bios_met_obs_params.o blaze.o \
+		blaze_driver.o simfire.o cable_c13o2_def.o spincasacnp.o mo_c13o2_photosynthesis.o \
+		casa_cable.o casa_inout.o cable_adjustJVgm.o
+
+cable_define_types.o: cable_define_types.F90
+
+cable_iovars.o: cable_iovars.F90 cable_define_types.o 
+
+cable_read.o: cable_read.F90 cable_iovars.o cable_abort.o 
+
+cable_initialise.o: cable_initialise.F90 cable_read.o cable_iovars.o cable_abort.o \
+		    cable_define_types.o cable_common.o
+
+cable_write.o: cable_write.F90 cable_iovars.o cable_abort.o cable_define_types.o 
+
+cable_input.o: cable_input.F90 POP.o cable_checks.o cable_abort.o cable_read.o cable_initialise.o cable_radiation.o \
+	       cable_parameters.o cable_common.o cable_LUC_EXPT.o POPLUC.o \
+	       simfire.o blaze.o cable_c13o2_def.o cable_c13o2.o casa_inout.o pop_io.o
+
+cable_output.o: cable_output.F90 cable_abort.o cable_checks.o cable_write.o cable_common.o \
+		casa_variable.o cable_c13o2_def.o
+
+cable_parameters.o: cable_parameters.F90 cable_define_types.o cable_iovars.o cable_abort.o \
+		    casa_variable.o cable_common.o cable_LUC_EXPT.o
+
+cable_radiation.o: cable_radiation.F90 cable_define_types.o cable_common.o cable_data.o 
+
+cable_roughness.o: cable_roughness.F90 cable_define_types.o cable_common.o cable_data.o
+
+cable_soilsnow.o: cable_soilsnow.F90 cable_iovars.o cable_define_types.o cable_common.o cable_data.o
+
+casa_variable.o: casa_variable.F90 POP.o cable_define_types.o
+
+spincasacnp.o: spincasacnp.F90 cable_define_types.o cable_carbon.o cable_common.o casa_variable.o \
+	       cable_c13o2.o cable_c13o2_def.o casa_inout.o blaze.o blaze_driver.o casa_cable.o pop_io.o
+
+#cable_LUC.o: cable_LUC.F90 cable_carbon.o cable_common.o casa_variable.o POP.o POPLUC.o cable_LUC_EXPT.o cable_c13o2.o cable_c13o2_def.o
+
+CASAONLY_LUC.o: CASAONLY_LUC.F90 cable_define_types.o cable_carbon.o cable_common.o casa_variable.o POP.o \
+		POPLUC.o cable_LUC_EXPT.o cable_c13o2.o cable_c13o2_def.o casa_cable.o casa_inout.o pop_io.o
+
+casa_cable.o: casa_cable.F90 POP.o cable_define_types.o cable_common.o cable_carbon.o casa_variable.o \
+	      cable_diag.o cable_phenology.o casa_cnp.o cable_optimiseJVratio.o \
+	      cable_adjustJVgm.o cable_c13o2.o cable_c13o2_def.o pop_io.o casa_inout.o
+
+casa_cnp.o: casa_cnp.F90 cable_define_types.o casa_variable.o 
+
+casa_inout.o: casa_inout.F90 POP.o cable_define_types.o cable_iovars.o casa_variable.o casa_cnp.o
+
+cable_common.o: cable_common.F90 cable_define_types.o cable_iovars.o
+
+POP.o: POP.F90 cable_define_types.o mo_utils.o
+
+POPLUC.o: POPLUC.F90 cable_define_types.o cable_iovars.o casa_variable.o cable_common.o cable_LUC_EXPT.o
+
+cable_LUC_EXPT.o: cable_LUC_EXPT.F90 cable_define_types.o cable_iovars.o casa_variable.o \
+		  cable_common.o cable_bios_met_obs_params.o
+
+pop_io.o: pop_io.F90 POP.o casa_variable.o cable_common.o
+
+cable_sli_main.o: cable_sli_main.F90 cable_define_types.o cable_common.o cable_sli_numbers.o \
+		  cable_sli_roots.o cable_sli_solve.o cable_soilsnow.o
+ 
+cable_sli_numbers.o: cable_sli_numbers.F90  cable_define_types.o 
+
+cable_sli_roots.o: cable_sli_roots.F90 cable_sli_numbers.o cable_define_types.o
+
+cable_sli_solve.o: cable_sli_solve.F90 cable_sli_numbers.o cable_sli_roots.o cable_sli_utils.o cable_define_types.o
+
+cable_sli_utils.o: cable_sli_utils.F90 cable_sli_numbers.o cable_define_types.o cable_common.o
+
+cable_plume_mip.o: cable_plume_mip.F90 cable_iovars.o cable_define_types.o cable_checks.o cable_weathergenerator.o
+
+cable_cru_TRENDY.o: cable_cru_TRENDY.F90 cable_iovars.o cable_define_types.o cable_checks.o \
+                    cable_weathergenerator.o casa_variable.o
+
+cable_site.o: cable_site.F90 cable_iovars.o cable_common.o
+
+cable_weathergenerator.o: cable_weathergenerator.F90 cable_common.o
+
+cable_climate.o: cable_climate.F90 cable_define_types.o cable_iovars.o cable_common.o POP.o
+
+cable_phenology.o: cable_phenology.F90 cable_define_types.o cable_iovars.o cable_common.o casa_variable.o
+
+cable_optimiseJVratio.o : cable_optimiseJVratio.F90 cable_define_types.o cable_common.o cable_canopy.o
+
+cable_bios_met_obs_params.o: cable_bios_met_obs_params.F90 cable_iovars.o cable_define_types.o cable_checks.o \
+			     cable_weathergenerator.o casa_variable.o
+
+# BLAZE related dependencies
+blaze.o: blaze.F90 simfire.o cable_iovars.o cable_common.o cable_define_types.o
+
+simfire.o: simfire.F90 cable_common.o
+
+blaze_driver.o: blaze_driver.F90 blaze.o simfire.o casa_variable.o POP.o cable_define_types.o
+
+mo_kind.o: mo_kind.f90
+mo_utils.o: mo_utils.f90 mo_kind.o
+mo_constants.o: mo_constants.f90 mo_kind.o
+mo_c13o2_photosynthesis.o: mo_c13o2_photosynthesis.f90 mo_isotope.o mo_utils.o mo_constants.o mo_kind.o
+mo_isotope.o: mo_isotope.f90 mo_constants.o mo_kind.o
+mo_isotope_pool_model.o: mo_isotope_pool_model.f90 mo_utils.o mo_kind.o
+cable_c13o2_def.o: cable_c13o2_def.F90 cable_define_types.o casa_variable.o POPLUC.o
+cable_c13o2.o: cable_c13o2.F90 cable_c13o2_def.o cable_define_types.o cable_iovars.o \
+	       cable_common.o casa_variable.o mo_isotope_luc_model.o mo_isotope_pool_model.o \
+	       mo_c13o2_photosynthesis.o mo_isotope.o
+mo_isotope_luc_model.o: mo_isotope_luc_model.f90 mo_utils.o mo_kind.o
+
+minpack.o: minpack.f90 cable_define_types.o
+cable_adjustJVgm.o: cable_adjustJVgm.F90 cable_define_types.o cable_abort.o cable_canopy.o minpack.o
+
+# make clean option
+clean:
+	rm -f *.o *.mod 

@@ -1,0 +1,267 @@
+!> \file cable_c13o2_def
+
+!> \brief Constants, types and allocation/zeroing routines for 13CO2 in CABLE
+
+!> \details All type definitions, allocation and output variables for calculating 13C within Cable.
+
+!> \author Matthias Cuntz, Juergen Knauer
+!> \date Apr 2019
+
+MODULE cable_c13o2_def
+
+  use cable_def_types_mod, only: dp => r_2
+
+  implicit none
+
+  private
+
+  ! variables
+  public :: c13o2_delta_atm
+  ! types
+  public :: c13o2_flux
+  public :: c13o2_pool
+  public :: c13o2_luc
+  ! routines
+  public :: c13o2_alloc_flux
+  public :: c13o2_alloc_pools
+  public :: c13o2_alloc_luc
+  public :: c13o2_zero_flux
+  public :: c13o2_zero_pools
+  public :: c13o2_zero_luc
+  public :: c13o2_zero_sum_pools
+  public :: c13o2_update_sum_pools
+
+  ! variables
+  real(dp), dimension(:), allocatable :: c13o2_delta_atm
+
+  ! types
+  type c13o2_flux ! all fluxes in units mol(13CO2)/m2s
+     integer                           :: ntile, nleaf
+     ! atmospheric 13CO2 concentration [mol(13CO2)/mol(air)]
+     real(dp), dimension(:),   pointer :: ca => null()
+     ! net assimilation 13CO2 flux divided by VPDB [mol(CO2)/m2s]
+     real(dp), dimension(:,:), pointer :: An => null()
+     ! leaf discrimination: 1-A13/A12/Ca
+     real(dp), dimension(:,:), pointer :: Disc => null()
+     ! daily cumulated total 12CO2 net assimilation in [mol(CO2)/m2]
+     real(dp), dimension(:),   pointer :: cAn12 => null()
+     ! daily cumulated total 13CO2 net assimilation divided by VPDB in [mol(CO2)/m2]
+     real(dp), dimension(:),   pointer :: cAn => null()
+     ! isotope ratio of daily cumulated total 13CO2 net assimilation over 12CO2 net assimilation divided by VPDB
+     real(dp), dimension(:),   pointer :: RAn => null()
+     ! Transitory starch concentration in leaf [mol(CO2)/m2] - One pool for sun and shade leaves
+     real(dp), dimension(:),   pointer :: Vstarch => null()
+     ! Isotopic composition of transitory starch
+     real(dp), dimension(:),   pointer :: Rstarch => null()
+     ! Isotopic composition of leaf sucrose
+     real(dp), dimension(:,:), pointer :: Rsucrose => null()
+     ! Isotopic composition of pool used for photorespiration
+     real(dp), dimension(:,:), pointer :: Rphoto => null()
+  end type c13o2_flux
+
+  type c13o2_pool ! all pools in units g(C)/m2
+     integer                           :: ntile, nplant, nlitter, nsoil, npools
+     real(dp), dimension(:,:), pointer :: cplant => null()   ! 13C content in plants: leaves, wood, fine roots
+     real(dp), dimension(:,:), pointer :: clitter => null()  ! 13C content in litter: metabolic, fine structural, coarse woody debris
+     real(dp), dimension(:,:), pointer :: csoil => null()    ! 13C content in soils: fast, medium, slow
+     real(dp), dimension(:),   pointer :: clabile => null()  ! 13C content in excess pool
+     real(dp), dimension(:),   pointer :: charvest => null() ! 13C content in agricultural harvest products
+  end type c13o2_pool
+
+  type c13o2_luc  ! all pools in units g(C)/m2
+     integer                           :: nland, nharvest, nclearance, npools
+     real(dp), dimension(:,:), pointer :: charvest => null()   ! 13C content in harvest products
+     real(dp), dimension(:,:), pointer :: cclearance => null() ! 13C content in clearance products
+     real(dp), dimension(:),   pointer :: cagric => null()     ! 13C content in agricultural products
+  end type c13o2_luc
+
+  ! ------------------------------------------------------------------
+
+contains
+
+  ! ------------------------------------------------------------------
+
+  ! Allocate all 13C fluxes
+  subroutine c13o2_alloc_flux(c13o2flux, ntile)
+
+    use cable_def_types_mod, only: mf
+
+    implicit none
+
+    type(c13o2_flux), intent(inout) :: c13o2flux
+    integer,          intent(in)    :: ntile
+
+    c13o2flux%ntile = ntile
+    c13o2flux%nleaf = mf
+    allocate(c13o2flux%ca(ntile))
+    allocate(c13o2flux%An(ntile,mf))
+    allocate(c13o2flux%Disc(ntile,mf))
+    allocate(c13o2flux%cAn12(ntile))
+    allocate(c13o2flux%cAn(ntile))
+    allocate(c13o2flux%RAn(ntile))
+    allocate(c13o2flux%Vstarch(ntile))
+    allocate(c13o2flux%Rstarch(ntile))
+    allocate(c13o2flux%Rsucrose(ntile,mf))
+    allocate(c13o2flux%Rphoto(ntile,mf))
+
+  end subroutine c13o2_alloc_flux
+
+  ! ------------------------------------------------------------------
+
+  ! Allocate all 13C Casa pools
+  subroutine c13o2_alloc_pools(c13o2pools, ntile)
+
+    use casadimension, only: mplant, mlitter, msoil
+
+    implicit none
+
+    type(c13o2_pool), intent(inout) :: c13o2pools
+    integer,          intent(in)    :: ntile
+
+    c13o2pools%ntile   = ntile
+    c13o2pools%nplant  = mplant
+    c13o2pools%nlitter = mlitter
+    c13o2pools%nsoil   = msoil
+    c13o2pools%npools  = mplant + mlitter + msoil + 1 ! w/o harvest
+    allocate(c13o2pools%cplant(ntile,mplant))
+    allocate(c13o2pools%clitter(ntile,mlitter))
+    allocate(c13o2pools%csoil(ntile,msoil))
+    allocate(c13o2pools%clabile(ntile))
+    allocate(c13o2pools%charvest(ntile))
+
+  end subroutine c13o2_alloc_pools
+
+  ! ------------------------------------------------------------------
+
+  ! Allocate all 13C LUC pools
+  subroutine c13o2_alloc_luc(c13o2luc, nland)
+
+    use popluc_module, only: kHarvProd, kClearProd
+
+    implicit none
+
+    type(c13o2_luc), intent(inout) :: c13o2luc
+    integer,         intent(in)    :: nland
+
+    c13o2luc%nland      = nland
+    c13o2luc%nharvest   = size(kHarvProd,1)
+    c13o2luc%nclearance = size(kClearProd,1)
+    c13o2luc%npools     = size(kHarvProd,1) + size(kClearProd,1) + 1
+    allocate(c13o2luc%charvest(nland,size(kHarvProd,1)))
+    allocate(c13o2luc%cclearance(nland,size(kClearProd,1)))
+    allocate(c13o2luc%cagric(nland))
+
+  end subroutine c13o2_alloc_luc
+
+  ! ------------------------------------------------------------------
+
+  ! Zero all 13C fluxes
+  subroutine c13o2_zero_flux(c13o2flux)
+
+    use cable_def_types_mod, only: dp => r_2
+
+    implicit none
+
+    type(c13o2_flux), intent(inout) :: c13o2flux
+
+    c13o2flux%ca       =  0.0_dp
+    c13o2flux%An       =  0.0_dp
+    c13o2flux%Disc     = -1.0_dp
+    c13o2flux%cAn12    =  0.0_dp
+    c13o2flux%cAn      =  0.0_dp
+    c13o2flux%RAn      =  0.0_dp
+    c13o2flux%Vstarch  =  0.0_dp
+    c13o2flux%Rstarch  =  1.0_dp
+    c13o2flux%Rsucrose =  1.0_dp
+    c13o2flux%Rphoto   =  1.0_dp
+
+  end subroutine c13o2_zero_flux
+
+  ! ------------------------------------------------------------------
+
+  ! Zero all 13C Casa pools
+  subroutine c13o2_zero_pools(c13o2pools)
+
+    use cable_def_types_mod, only: dp => r_2
+
+    implicit none
+
+    type(c13o2_pool), intent(inout) :: c13o2pools
+
+    c13o2pools%cplant   = 0.0_dp
+    c13o2pools%clitter  = 0.0_dp
+    c13o2pools%csoil    = 0.0_dp
+    c13o2pools%clabile  = 0.0_dp
+    c13o2pools%charvest = 0.0_dp
+
+  end subroutine c13o2_zero_pools
+
+  ! ------------------------------------------------------------------
+
+  ! Zero all 13C LUC pools
+  subroutine c13o2_zero_luc(c13o2luc)
+
+    use cable_def_types_mod, only: dp => r_2
+
+    implicit none
+
+    type(c13o2_luc), intent(inout) :: c13o2luc
+
+    c13o2luc%charvest   = 0.0_dp
+    c13o2luc%cclearance = 0.0_dp
+    c13o2luc%cagric     = 0.0_dp
+
+  end subroutine c13o2_zero_luc
+
+  ! ------------------------------------------------------------------
+
+  ! Zero the accumulated output for 13CO2
+  subroutine c13o2_zero_sum_pools(sum_c13o2pools)
+
+    use cable_def_types_mod, only: dp => r_2
+
+    implicit none
+
+    type(c13o2_pool), intent(inout) :: sum_c13o2pools
+
+    sum_c13o2pools%cplant   = 0.0_dp
+    sum_c13o2pools%clitter  = 0.0_dp
+    sum_c13o2pools%csoil    = 0.0_dp
+    sum_c13o2pools%clabile  = 0.0_dp
+
+  end subroutine c13o2_zero_sum_pools
+
+  ! ------------------------------------------------------------------
+
+  ! Sum current time step to accumulated output for 13CO2
+  ! or divide at end by number of time steps
+  subroutine c13o2_update_sum_pools(sum_c13o2pools, c13o2pools, sum_now, average_now, nsteps)
+
+    implicit none
+
+    type(c13o2_pool), intent(inout) :: sum_c13o2pools
+    type(c13o2_pool), intent(in)    :: c13o2pools
+    logical,          intent(in)    :: sum_now, average_now
+    integer,          intent(in)    :: nsteps
+
+    real(dp) :: rsteps ! 1/real(nsteps)
+
+    if (sum_now) then
+       sum_c13o2pools%cplant  =  sum_c13o2pools%cplant   + c13o2pools%cplant
+       sum_c13o2pools%clitter  = sum_c13o2pools%clitter  + c13o2pools%clitter
+       sum_c13o2pools%csoil    = sum_c13o2pools%csoil    + c13o2pools%csoil
+       sum_c13o2pools%clabile  = sum_c13o2pools%clabile  + c13o2pools%clabile
+    endif
+    if (average_now) then
+       rsteps = 1.0_dp / real(nsteps,dp)
+       sum_c13o2pools%cplant   = sum_c13o2pools%cplant  * rsteps
+       sum_c13o2pools%clitter  = sum_c13o2pools%clitter * rsteps
+       sum_c13o2pools%csoil    = sum_c13o2pools%csoil   * rsteps
+       sum_c13o2pools%clabile  = sum_c13o2pools%clabile * rsteps
+    endif
+
+  end subroutine c13o2_update_sum_pools
+
+  ! ------------------------------------------------------------------
+
+END MODULE cable_c13o2_def
