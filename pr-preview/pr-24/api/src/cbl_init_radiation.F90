@@ -187,7 +187,7 @@ subroutine  common_InitRad_coeffs( xphi1, xphi2, xk, xvlai2, mp, nrb, Cpi180,&
 !  real extinction coefficient for direct beam radaiation in
 !  the subroutine [[ExtinctionCoeff_beam]]
 !
-! ### Equations
+!### Equations
 !
 ! This subroutine is using the equation B6 from 
 ! [Wang and Leuning 1998](https://www.sciencedirect.com/science/article/abs/pii/S0168192398000616)
