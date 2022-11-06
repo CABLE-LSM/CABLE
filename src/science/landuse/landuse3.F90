@@ -4,6 +4,7 @@ MODULE landuse_variable
 
   SAVE
 
+  !! these are landuse-type variable
   TYPE landuse_mland
     ! patch generic
     INTEGER,   DIMENSION(:,:),       ALLOCATABLE :: iveg_x
