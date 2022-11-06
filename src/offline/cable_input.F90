@@ -388,7 +388,7 @@ CONTAINS
        ELSE
          WRITE(logn,*) 'Opening met data file: ', TRIM(gswpfile%rainf), ' and 7 more'
        ENDIF
- 
+
        IF( globalMetfile%l_gpcc ) THEN
        ok = NF90_OPEN(globalMetfile%rainf,0,ncid_rain)
        ELSE
@@ -405,7 +405,7 @@ CONTAINS
             CALL handle_err( ok )
          ENDIF
        ENDIF
-       
+
        IF( globalMetfile%l_gpcc ) THEN
        ok = NF90_OPEN(globalMetfile%LWdown,0,ncid_lw)
        ELSE
@@ -415,7 +415,7 @@ CONTAINS
           PRINT*,'lw'
           CALL handle_err( ok )
        ENDIF
-       
+
        IF( globalMetfile%l_gpcc ) THEN
        ok = NF90_OPEN(globalMetfile%SWdown,0,ncid_sw)
        ELSE
@@ -425,7 +425,7 @@ CONTAINS
           PRINT*,'sw'
           CALL handle_err( ok )
        ENDIF
-       
+
        IF( globalMetfile%l_gpcc ) THEN
        ok = NF90_OPEN(globalMetfile%PSurf,0,ncid_ps)
        ELSE
@@ -435,7 +435,7 @@ CONTAINS
           PRINT*,'ps'
           CALL handle_err( ok )
        ENDIF
-       
+
        IF( globalMetfile%l_gpcc ) THEN
        ok = NF90_OPEN(globalMetfile%Qair,0,ncid_qa)
        ELSE
@@ -445,7 +445,7 @@ CONTAINS
           PRINT*,'qa'
           CALL handle_err( ok )
        ENDIF
-       
+
        IF( globalMetfile%l_gpcc ) THEN
        ok = NF90_OPEN(globalMetfile%Tair,0,ncid_ta)
        ELSE
@@ -455,7 +455,7 @@ CONTAINS
           PRINT*,'ta'
           CALL handle_err( ok )
        ENDIF
-       
+
        IF( globalMetfile%l_gpcc ) THEN
        ok = NF90_OPEN(globalMetfile%wind,0,ncid_wd)
        ELSE
@@ -968,7 +968,7 @@ CONTAINS
     IF (ncciy > 0) ncid_met = ncid_sw
 
    ! option was added by Chris Lu to allow for different variable names between GPCC and GSWP forcings
-   ! added by ypwang 30/oct/2012 
+   ! added by ypwang 30/oct/2012
     CALL find_metvarid(ncid_met, possible_varnames%SWdownNames, id%SWdown, ok)
 
     IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -1446,7 +1446,7 @@ CONTAINS
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
 
               IF(exists%patch) then
-       
+
                 !Anna: also read patch fractions
                 ok= NF90_GET_VAR(ncid_met,id%patchfrac,vegpatch_metfile(i,:), &
                      start=(/land_x(i),land_y(i),1/),count=(/1,1,nmetpatches/))
@@ -1501,7 +1501,7 @@ CONTAINS
     ELSE
        NULLIFY(vegtype_metfile)
        IF(exists%patch) NULLIFY(vegpatch_metfile)
-       
+
     END IF
 
     ! Look for soil type:
@@ -2637,6 +2637,8 @@ CONTAINS
     ! Those variables found in the met file will again overwrite existing ones.
 
     CALL get_default_params(logn,vegparmnew,LUC_EXPT)
+    !! Lewd default pararmeter values using veg/soil types and lat/lon of grid
+
     CALL allocate_cable_vars(air,bgc,canopy,met,bal,rad,rough,soil,ssnow, &
          sum_flux,veg,mp)
     WRITE(logn,*) ' CABLE variables allocated with ', mp, ' patch(es).'
