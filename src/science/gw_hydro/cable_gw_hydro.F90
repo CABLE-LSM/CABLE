@@ -33,6 +33,10 @@
 !
 ! ==============================================================================
 
+! MMY this code is not actually used in this branch........
+
+
+
 MODULE cable_gw_hydro_module
 
   USE cable_def_types_mod, ONLY : soil_snow_type, soil_parameter_type,        &
