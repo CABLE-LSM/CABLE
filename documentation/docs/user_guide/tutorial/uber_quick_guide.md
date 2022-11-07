@@ -21,7 +21,7 @@ cd MyCABLE/offline
 
 === In slightly more detail ===
 
-The CABLE executable (./cable) is configured via the namelist cable.nml. By default the provided cable.nml points to 4-year meteorological forcing from the [http://sites.fluxdata.org/AU-Tum/ Tumbarumba] fluxnet site. NB: spinning up the model has been switched off in cable.nml (spinup=.FALSE.)
+The CABLE executable (./cable) is configured via the namelist cable.nml. By default the provided cable.nml points to 4-year meteorological forcing from the [Tumbarumba](http://sites.fluxdata.org/AU-Tum/) fluxnet site. NB: spinning up the model has been switched off in cable.nml (spinup=.FALSE.)
 
 We say the "serial" version as CABLE does support a  parralel configuration as well.
 
