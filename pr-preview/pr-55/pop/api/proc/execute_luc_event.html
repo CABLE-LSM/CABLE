@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.3% of total for procedures.">136 statements</a>
+    title=" 0.3% of total for procedures.">132 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/POPLUC.F90"> Source File</a></li>
   </ul>
@@ -121,19 +121,7 @@
     
     <div class="col-md-9" id='text'>
     <h2>public subroutine execute_luc_event(from_state, to_state, frac_change_grid, g, POPLUC)</h2>
-        <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Uses</h3>
-      </div>
-      <ul class="list-group">
-      <li class="list-group-item">
-  <ul class="list-inline">
-    <li><a href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm">mpi</a></li>
-  </ul>
-      </li>
-      </ul>
-    </div>
-
+    
 
     <p>$if (g==4) then
 $write(<em>,</em>) 'gtos1', frac_change_grid, frac_open_grid, POPLUC%grass(g) , sum( POPLUC%freq_age_secondary(g,:))
