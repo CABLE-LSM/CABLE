@@ -156,28 +156,34 @@ The cable_roughness MODULE calculates the roughness parameters and the
 <script type="math/tex">z_{0,minPF}</script> = 1E-4m which are the minimum values for the roughness
 length in the cases of bare soil and permanent ice land points (respectively)</p>
 <p>The MODULE is organised as a single SUBROUTINE ruff_resist which contains
- cases in two areas depending on</p>
+ IF/THEN cases in two areas depending on</p>
 <ol>
 <li>Whether the soil model used is SLI or the default (soilsnow)</li>
 <li>Whether the land point is vegetated (LAI &gt; LAI_THRESH) or not</li>
 </ol>
-<p>The principal outputs from the MODULE are
- * heights (above the displacement height) for the forcing meteorology in m
-   (rough%zref_tq and rough%zref_uv)
- * current values for canopy height and leaf area accounting for presence of snow
-   (rough%hruff and rough%vlaiw)
- * aerodynamic roughness length for soil and snow in m (rough%z0soil, rough%z0ssoilsn)
- * aerodynamic roughness length for surface (canopy+soil+snow) in m (rough%z0m)
- * displacement height of surface (if a canopy) in m (rough%disp)
- * depth of roughness sublayer in m (rough%zruffs)
- * ratio of friction velocity to wind speed at canopy top (rough%usuh)
- * extinction coefficient for wind speed profile in canopy, <script type="math/tex">c_{0}</script>, (rough%coexp)
+<p>The principal outputs from the MODULE are</p>
+<ul>
+<li>heights (above the displacement height) for the forcing meteorology in m
+   (rough%zref_tq and rough%zref_uv)</li>
+<li>current values for canopy height and leaf area accounting for presence of snow
+   (rough%hruff and rough%vlaiw)</li>
+<li>aerodynamic roughness length for soil and snow in m (rough%z0soil, rough%z0ssoilsn)</li>
+<li>aerodynamic roughness length for surface (canopy+soil+snow) in m (rough%z0m)</li>
+<li>displacement height of surface (if a canopy) in m (rough%disp)</li>
+<li>depth of roughness sublayer in m (rough%zruffs)</li>
+<li>ratio of friction velocity to wind speed at canopy top (rough%usuh)</li>
+<li>extinction coefficient for wind speed profile in canopy, <script type="math/tex">c_{0}</script>, (rough%coexp)
    where within the canopy wind speed at height <script type="math/tex">z</script> is given by
-   ( U(z) = U_{h} \exp{ c_{0} (z-h_c) }
- * <em>normalized aerodynamic resistances</em> for the turbulent transfer of scalars
-   across two layers
-   - soil/snow surface to the displacement height (rough%rt0us)
-   - displacement height to the reference level (rough%rt1us)</p>
+   ( U(z) = U_{h} \exp{ c_{0} (z-h_c) }</li>
+<li>
+<p><em>normalized aerodynamic resistances</em> for the turbulent transfer of scalars
+   across two layers</p>
+</li>
+<li>
+<p>soil/snow surface to the displacement height (rough%rt0us)</p>
+</li>
+<li>displacement height to the reference level (rough%rt1us)</li>
+</ul>
 <p>The current time step aerodynamic resistances are later evaluated by multiplying
 the <em>normalized resistances</em> by the current time step friction velocity.
 rough%rt1us is evaluated in three subparts (%rt1usa, %rt1usb, and %rt1usc).
@@ -257,12 +263,7 @@ and the third of these terms (rough%rt1usc) is evaluated in the canopy MODULE.</
   <div class="panel-heading codesum"><span class="anchor" id="proc-ruff_resist"></span><h3>public subroutine <a href='../proc/ruff_resist.html'>ruff_resist</a>(veg, rough, ssnow, canopy, LAI_pft, HGT_pft, reducedLAIdue2snow)</h3></div>
   <div class="panel-body">
        
-<p>The SUBROUTINE ruff_resist is structured
- * evaluate the canopy height and leaf area dependent on the presence of snow
- * set the value of soil and snow (depends on configuration of CABLE)
-* evaluate the remaining output variables depending on whether the land point
- is a canopy or not.
-update the evaluate %rt0us if the soil model used is SLI</p>
+<p>The SUBROUTINE ruff_resist is structured</p><a href="../proc/ruff_resist.html" class="pull-right"><emph>Read more&hellip;</emph></a>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
