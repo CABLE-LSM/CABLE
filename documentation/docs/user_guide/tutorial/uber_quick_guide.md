@@ -27,4 +27,4 @@ ACCESS-ESM1.5 uses a version of CABLE based on CABLE-2.3.4.
 
 ACCESS-CM2 uses a version of CABLE that is closer to the HEAD of the trunk at the time of writing (December 2019).
 
-For a more detailed discussion of CABLE offline please see [CableUserGuide](https://trac.nci.org.au/trac/cable/wiki/CableUserGuide) from the User Guide.
+For a more detailed discussion of CABLE offline please see [CableUserGuide](https://trac.nci.org.au/trac/cable/wiki/CableUserGuide).
