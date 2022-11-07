@@ -34,7 +34,34 @@ USE cable_phys_constants_mod, ONLY : CZDLIN  => ZDLIN
 USE cable_phys_constants_mod, ONLY : CCSW    => CSW
 USE cable_phys_constants_mod, ONLY : CGRAV   => GRAV
 USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH 
-   
+
+!* The cable_roughness MODULE calculates the roughness parameters and the
+!  aerodynamic contribution to the resistances for momentum, heat and
+!  water vapour flux between the land and atmosphere for each land point.
+!  Formulations take into account vegetation, snow cover and
+!  atmospheric conditions (surface heat fluxes).
+!  The scientific basis is a combination of the Localised Near Field theory
+!  for aerodynamic transfer within canopies (for heat and water vapour)
+!  and bulk formulae for the roughness length and displacement height
+!  accounting for roughness sublayer effects (for momentum)
+!  The primary references for these formulations are
+!
+!  * Raupach MR (1989) QJRMS 115:609-632 doi:10.1256/smsqj.48709
+!  * Raupach MR (1992) BLM 60:375-395 doi:10.1007/BF00155203
+!  * Raupach MR (1994) BLM 71:211-216 doi:10.1007/BF00709229
+!
+! Two parameters are introduced \(z_{0,min}\) = 1E-7m and
+! \(z_{0,minPF}\) = 1E-4m which are the minimum values for the roughness
+! length in the cases of bare soil and permanent ice land points (respectively)
+!
+!  The MODULE is organised as a single SUBROUTINE which contains conditional
+!  clauses in two sections
+!
+!  1. Whether the soil model used is SLI or the default (soilsnow)
+!  2. Whether the land point is vegetated (LAI > LAI_THRESH) or not
+! 
+
+
 IMPLICIT NONE
    
 real, parameter :: z0soilsn_min = 1.e-7
