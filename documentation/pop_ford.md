@@ -4,7 +4,7 @@ author: CABLE community
 src_dir: ../src_pop
 output_dir: site/pop/api
 coloured_edges: true
-preprocess: false
+preprocess: true
 display: public
 display: private
 ---
