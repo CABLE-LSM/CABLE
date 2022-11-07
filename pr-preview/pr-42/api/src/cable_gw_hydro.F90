@@ -33,9 +33,6 @@
 !
 ! ==============================================================================
 
-! MMY this code is not actually used in this branch........
-
-
 
 MODULE cable_gw_hydro_module
 
@@ -659,15 +656,17 @@ IMPLICIT NONE
 
   END SUBROUTINE iterative_wtd
 
-  !-------------------------------------------------------------------------
-  ! SUBROUTINE smoistgw (fwtop,dt,ktau,ssnow,soil,prin)
-  ! solves the modified richards equation (Zeng and Decker 2009) to find
-  ! vertical mocement of soil water.  Bottom boundary condition is determined
-  ! using a single layer groundwater module
-  !
+  !------------------------------------------------------------------------
+  ! SUBROUTINE smoistgw (dels,ktau,ssnow,soil,veg,canopy)
+  !* Solve the modified Richards equation (Zeng and Decker 2009, doi:10.1175/2008JHM1011.1) 
+  !  to find vertical movement of soil water. The modified Richards equation considers
+  !  soil moisture distribution at hydrostatic equilibrium to avoid the truncation
+  !  errors due to finite grid spacing used in the partial differential equation.
+  !  Bottom boundary condition is determined using a single-layer groundwater module.
+
   SUBROUTINE smoistgw (dels,ktau,ssnow,soil,veg,canopy)
     USE cable_common_module
-USE trimb_mod,                       ONLY : trimb
+    USE trimb_mod,                       ONLY : trimb
 
     IMPLICIT NONE
 
@@ -738,11 +737,14 @@ USE trimb_mod,                       ONLY : trimb
        END DO
     END DO
 
-    !equilibrium water content
+    !>equilibrium water content
+
     CALL calc_equilibrium_water_content(ssnow,soil)
 
+    !> 
     CALL calc_soil_hydraulic_props(ssnow,soil,veg)
 
+    !> 
     CALL subsurface_drainage(ssnow,soil,veg,dzmm)
 
     k = 1     !top soil layer
@@ -1122,7 +1124,10 @@ USE snow_processes_soil_thermal_mod, ONLY : snow_processes_soil_thermal
   END SUBROUTINE soil_snow_gw
 
   SUBROUTINE calc_equilibrium_water_content(ssnow,soil)
-    !find layer mean soil moisture and potential at equilibrium with wtd
+  !* which considers soil moisture distribution
+  !  at hydrostatic equilibrium to avoid the truncation errors caused by finite grid in computating partial 
+  !  differential Richards equation
+  !* find layer mean soil moisture and potential at equilibrium with wtd
 
     IMPLICIT NONE
 
