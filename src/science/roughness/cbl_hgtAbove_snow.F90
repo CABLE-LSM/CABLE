@@ -9,7 +9,7 @@ CONTAINS
 subroutine HgtAboveSnow( HeightAboveSnow, mp, z0surf_min, HGT_pft, &
      SnowDepth, SnowDensity )
 
-  !* Computes height of canopy above ground/snow surface when there
+  !* Subroutine computes height of canopy above ground/snow surface when there
   !  is snow present
   !
   !  inputs:  <ul> <li> mp - number of land points</li>
@@ -19,7 +19,8 @@ subroutine HgtAboveSnow( HeightAboveSnow, mp, z0surf_min, HGT_pft, &
   !           <li>SnowDensity(mp) - density of snow (in kg/m3)</li> </ul>
   !
   !  outputs: <ul> <li> HeightAboveSnow (m) - effective height of canopy (in m) </li></ul>
-  !           variable formerly known as rough%hruff
+  !           output variable formerly known as rough%hruff
+  !
   implicit none
 
   !re-decl input args  
@@ -53,12 +54,13 @@ subroutine HgtAboveSnow( HeightAboveSnow, mp, z0surf_min, HGT_pft, &
   !* the height of canopy above snow level is evaluated from snow amount,
   !  density of snow and input canopy height, while applying a minimum value
   !
-  ! \( h_{c,abovesnow} = max[10 z_{0,min}, h_{c,nosnow} - 1.2 d_{snow}/\rho_{snow}] \)
+  ! \( h_{c,abovesnow} = \max[10 z_{0,min}, h_{c,nosnow} - 1.2 d_{snow}/\rho_{snow}] \)
   !
-  !  The minimum value of the effecgtive canopy height is
-  !  10* the minimum roughness length of the surface (numerical requirement).
-  !  The snow density used to convert from snow amount to snow depth
-  !  has a minimum value enforced.
+  !  A minimum value of the effective canopy height of
+  !  10* the minimum roughness length of the surface is applied
+  !  (a numerics requirement).
+  !  To convert snow amount to snow depth requires the snow density, snow density
+  !  has a minimum value of 100 kg/m3 enforced.
   !
   !  **the multipler 1.2 needs to be followed up**
 
