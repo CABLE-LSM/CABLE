@@ -656,15 +656,14 @@ IMPLICIT NONE
 
   END SUBROUTINE iterative_wtd
 
-  !------------------------------------------------------------------------
-  ! SUBROUTINE smoistgw (dels,ktau,ssnow,soil,veg,canopy)
-  !* Solve the modified Richards equation (Zeng and Decker 2009, doi:10.1175/2008JHM1011.1) 
+  SUBROUTINE smoistgw (dels,ktau,ssnow,soil,veg,canopy)
+  !* Solve the modified Richards equation 
+  !  [Zeng and Decker 2009](https://doi.org/10.1175/2008JHM1011.1) 
   !  to find vertical movement of soil water. The modified Richards equation considers
   !  soil moisture distribution at hydrostatic equilibrium to avoid the truncation
   !  errors due to finite grid spacing used in the partial differential equation.
   !  Bottom boundary condition is determined using a single-layer groundwater module.
 
-  SUBROUTINE smoistgw (dels,ktau,ssnow,soil,veg,canopy)
     USE cable_common_module
     USE trimb_mod,                       ONLY : trimb
 
@@ -737,8 +736,7 @@ IMPLICIT NONE
        END DO
     END DO
 
-    !>equilibrium water content
-
+    !> hydrostatic equilibrium water content
     CALL calc_equilibrium_water_content(ssnow,soil)
 
     !> 
@@ -1124,10 +1122,9 @@ USE snow_processes_soil_thermal_mod, ONLY : snow_processes_soil_thermal
   END SUBROUTINE soil_snow_gw
 
   SUBROUTINE calc_equilibrium_water_content(ssnow,soil)
-  !* which considers soil moisture distribution
-  !  at hydrostatic equilibrium to avoid the truncation errors caused by finite grid in computating partial 
-  !  differential Richards equation
-  !* find layer mean soil moisture and potential at equilibrium with wtd
+  !* Calculate soil moisture and potential at hydrostatic equilibrium
+  !  with water table depth [Zeng and Decker 2009](https://doi.org/10.1175/2008JHM1011.1)
+  ! MMY unfinished 
 
     IMPLICIT NONE
 
@@ -1282,6 +1279,8 @@ USE snow_processes_soil_thermal_mod, ONLY : snow_processes_soil_thermal
   END SUBROUTINE calc_equilibrium_water_content
 
   SUBROUTINE calc_srf_wet_fraction(ssnow,soil,met,veg)
+  !* Calculate  [Decker, 2015](http://doi.wiley.com/10.1002/2015MS000507)
+  ! 
 
     IMPLICIT NONE
     TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow  ! soil+snow variables
@@ -1298,8 +1297,9 @@ USE snow_processes_soil_thermal_mod, ONLY : snow_processes_soil_thermal
     REAL(r_2)                          :: derv,slopeSTDmm,func_step
     REAL(r_2)                          :: wb_evap_threshold
 
+    !> if ture, using Dani Or soil evaporation scheme
     IF (cable_user%or_evap) THEN
-
+       
        CALL saturated_fraction(ssnow,soil,veg)
 
        ssnow%wetfac(:) = 1.0
@@ -1314,6 +1314,7 @@ USE snow_processes_soil_thermal_mod, ONLY : snow_processes_soil_thermal
                ssnow%wetfac(i) = 0.7 ! lakes: hard-wired number to be removed
        END DO
 
+    !> if true, using Dani Or soil evaporation scheme
     ELSEIF (cable_user%gw_model) THEN
 
        CALL saturated_fraction(ssnow,soil,veg)
@@ -1345,7 +1346,7 @@ USE snow_processes_soil_thermal_mod, ONLY : snow_processes_soil_thermal
                gw_params%SoilEvapAlpha*soil%sfc_vec(i,1), &
                soil%swilt_vec(i,1) ), soil%ssat_vec(i,1) )
 
-          !Sakguchi and Zeng 2009
+          ! Sakguchi and Zeng 2009
           IF (wb_unsat .GE. wb_evap_threshold) THEN
              xx = 1.
           ELSE
@@ -1523,6 +1524,10 @@ USE snow_processes_soil_thermal_mod, ONLY : snow_processes_soil_thermal
   !END SUBROUTINE calc_soil_hydraulic_props
 
   SUBROUTINE calc_soil_hydraulic_props(ssnow,soil,veg)
+   !* 
+   ! 
+   ! 
+
     USE cable_common_module
     TYPE(soil_parameter_type), INTENT(INOUT)     :: soil
     TYPE(soil_snow_type)     , INTENT(INOUT)  :: ssnow
@@ -1551,7 +1556,7 @@ USE snow_processes_soil_thermal_mod, ONLY : snow_processes_soil_thermal
     END DO
 
     ssnow%fracice(:,:) = MAX( MIN( ssnow%fracice, 1._r_2), 0._r_2)
-
+    !> 
     IF (gw_params%ssgw_ice_switch) THEN
        wb_temp(:,1:ms) =  ssnow%wbliq(:,:)
        wb_temp(:,ms+1) = ssnow%GWwb(:)
@@ -1690,6 +1695,9 @@ USE snow_processes_soil_thermal_mod, ONLY : snow_processes_soil_thermal
 
 
   SUBROUTINE aquifer_recharge(dt,ssnow,soil,veg,zaq,zmm,dzmm)
+   !* Calculate the water movement between the bottom soil layer and 
+   !  groundwater aquifer, following the equation (21) in 
+   !  [Zeng and Decker 2009](https://doi.org/10.1175/2008JHM1011.1) 
     USE cable_common_module
 
     IMPLICIT NONE
@@ -1701,9 +1709,13 @@ USE snow_processes_soil_thermal_mod, ONLY : snow_processes_soil_thermal
     REAL(r_2), DIMENSION(:), INTENT(in)       :: zmm,dzmm
 
     INTEGER :: i
-    !Doing the recharge outside of the soln of Richards Equation makes it easier to track total recharge amount.
-    !Add to ssnow at some point
+    !> Doing the recharge outside of the soln of Richards Equation makes it easier to track total recharge amount.
+    ! Add to ssnow at some point
     DO i=1,mp
+      !* if water table depth is above the bottom soil coloumn, land cover type is lake
+      !  or soil type is permanent ice, there is no water movement between bottom soil 
+      !  layer and groundwater aquifer. Otherwise, the water movement will be calcuated 
+      !  as the equation (21) in [Zeng and Decker 2009](https://doi.org/10.1175/2008JHM1011.1) 
        IF ((ssnow%wtd(i) .LE. SUM(dzmm,dim=1)) .OR. &
             (veg%iveg(i) .GE. 16) .OR. &
             (soil%isoilm(i) .EQ. 9))  THEN
@@ -1722,6 +1734,9 @@ USE snow_processes_soil_thermal_mod, ONLY : snow_processes_soil_thermal
   END SUBROUTINE aquifer_recharge
 
   SUBROUTINE subsurface_drainage(ssnow,soil,veg,dzmm)
+    !* Calculate horizontal drainage based on the equation (18) in
+    !  [Decker, 2015](http://doi.wiley.com/10.1002/2015MS000507)
+
     USE cable_common_module
 
     IMPLICIT NONE
@@ -1746,13 +1761,20 @@ USE snow_processes_soil_thermal_mod, ONLY : snow_processes_soil_thermal
 
        !Note: future revision will have interaction with river here. nned to
        !work on router and add river type cells
+
+       !* Calulate the total subsurface runoff by following the equation (18) in
+       !  [Decker, 2015](http://doi.wiley.com/10.1002/2015MS000507)
        ssnow%qhz(i)  = MIN(MAX(soil%slope(i),0.000001),0.9)*&
             gw_params%MaxHorzDrainRate* &
             EXP(-ssnow%wtd(i)/1000._r_2/&
             (1.0/(60.0*gw_params%EfoldHorzDrainRate*&
             (soil%drain_dens(i)+1.0e-3))*Efold_mod(veg%iveg(i))))
 
-
+       !* if gw_params%subsurface_sat_drainage = True, 
+       !  calcuate how many layers are below water table depth 
+       !  and thus can generate subsurface runoff;
+       !  if not, assuming subsuface runoff will generate below the 
+       !  first soil layer only. 
        IF (gw_params%subsurface_sat_drainage) THEN
           !drain from sat layers
           k_drain(i) = ms+1
