@@ -5,10 +5,12 @@ MODULE landuse_variable
   SAVE
 !*# Overview of landuse3.F90
 !
-! these are three-type landuse-type variable
+! these are three-type landuse-type variables
 !
 ! luc%var_x(mland,mvmax): variable indexed by "mland" and "mvmax" before landuse change
+!
 ! luc%var_y(mland,mvmax): variable indexed by "mland" and "mvmax" after land use change
+!
 ! lucmp%var(mp):          variable indexed by the patch number from 1 to mp
 !
 ! \[$$\textbf{y} = textbf{x} \cdot\ textbf{T}\]
