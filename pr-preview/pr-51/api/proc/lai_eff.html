@@ -138,16 +138,18 @@ in the vertical.</p>
 <li>reducedLAIdue2snow (m2/m2) - leaf area with snow (in m2/m2)</li>
 </ul>
 <p>The output variable was formerly known as rough%vlaiw</p>
-<p>leaf area acconting for the presence of snow is given by</p>
+<p>Leaf area, accounting for the presence of snow, is given by</p>
 <p>
 <script type="math/tex"> LAI_{snow} = LAI_{nosnow} h_{c,snow} / \max[0.01, h_{c,nosnow} ] </script>
 </p>
 <p>where <script type="math/tex">h_{c,snow}</script> is evaluated in cbl_HgtAboveSnow.F90.
- The LAI is decreased proportionally to the canopy height with/without snow.</p>
+The LAI is decreased proportionally to the canopy height with/without snow.</p>
 <p>The effective canopy height takes a minimum value of 0.01m.</p>
-<p>**There is potential for misbehaviour - if  <script type="math/tex"> h_{c,snow} < 0.01 </script>
-then LAI could be increased (unphysical).  <script type="math/tex">h_{c,snow} \ge 10 z_{0,min}</script>
-only which need not be greater than 0.01m.</p>
+<p><strong>There is potential for misbehaviour</strong>  If  <script type="math/tex"> h_{c,snow} < 0.01 </script>
+then LAI could be increased from its value without snow (unphysical).
+<script type="math/tex">h_{c,snow} \ge 10 z_{0,min}</script> only from cbl_HgtAbove_snow
+which need not be greater than 0.01m (depending on the value of
+<script type="math/tex">z_{0,min}</script>.</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

@@ -45,18 +45,20 @@ SUBROUTINE LAI_eff( mp, LAI_PFT, Hgt_PFT, HgtAboveSnow,  &
   
   ! LAI decreases due to snow:
   reducedLAIdue2snow = LAI_PFT * FracOfCanopyAboveSnow
-  !* leaf area acconting for the presence of snow is given by
+  !* Leaf area, accounting for the presence of snow, is given by
   !
   ! \( LAI_{snow} = LAI_{nosnow} h_{c,snow} / \max[0.01, h_{c,nosnow} ] \)
   !
   ! where \(h_{c,snow}\) is evaluated in cbl_HgtAboveSnow.F90.
-  !  The LAI is decreased proportionally to the canopy height with/without snow.
+  ! The LAI is decreased proportionally to the canopy height with/without snow.
   !
   ! The effective canopy height takes a minimum value of 0.01m.
   !
-  ! **There is potential for misbehaviour - if  \( h_{c,snow} < 0.01 \)
-  ! then LAI could be increased (unphysical).  \(h_{c,snow} \ge 10 z_{0,min}\)
-  ! only which need not be greater than 0.01m.
+  ! **There is potential for misbehaviour**  If  \( h_{c,snow} < 0.01 \)
+  ! then LAI could be increased from its value without snow (unphysical).
+  ! \(h_{c,snow} \ge 10 z_{0,min}\) only from cbl_HgtAbove_snow
+  ! which need not be greater than 0.01m (depending on the value of
+  ! \(z_{0,min}\).
 
 END SUBROUTINE LAI_eff
 
