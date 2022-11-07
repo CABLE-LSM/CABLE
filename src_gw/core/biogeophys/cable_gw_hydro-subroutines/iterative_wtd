@@ -1,0 +1,165 @@
+  !----------------------------------------------------------------------
+  ! SUBROUTINE iterative_wtd
+  !
+  ! Iteratively calcs the water table depth by equating the mass of water in the
+  ! soil column to the mass of a hydrostatic column inegrated from the surface to the
+  ! water table depth
+  !
+  SUBROUTINE iterative_wtd (ssnow, soil, veg, include_aquifer)
+    IMPLICIT NONE
+    TYPE (soil_snow_type), INTENT(INOUT)      :: ssnow ! soil and snow variables
+    TYPE (soil_parameter_type), INTENT(INOUT)    :: soil  ! soil parameters
+    TYPE (veg_parameter_type), INTENT(INOUT)     :: veg
+    LOGICAL, INTENT(IN)                       :: include_aquifer  !use GWwb or only wb to find wtd?
+
+
+    !Local vars
+    REAL(r_2), DIMENSION(mp,ms)   :: dzmm_mp,tmp_def
+    REAL(r_2), DIMENSION(0:ms)    :: zimm
+    REAL(r_2), DIMENSION(ms)      :: zmm
+    REAL(r_2), DIMENSION(mp)      :: GWzimm,temp
+    REAL(r_2), DIMENSION(mp)      :: def,defc,total_depth_column
+
+    REAL(r_2)                     :: deffunc,tempa,tempb,derv,calc,tmpc
+    REAL(r_2), DIMENSION(mp)      :: invB,Nsucs_vec  !inverse of C&H B,Nsucs_vec
+    INTEGER :: k,i,wttd,jlp
+
+    !make code cleaner define these here
+    invB     = 1._r_2/soil%bch_vec(:,ms)                                !1 over C&H B
+    Nsucs_vec  = soil%sucs_vec(:,ms)                                !psi_saturated mm
+    dzmm_mp  = REAL(SPREAD((soil%zse(:)) * 1000.0,1,mp),r_2)    !layer thickness mm
+    zimm(0)  = 0.0_r_2                                          !depth of layer interfaces mm
+
+    !total depth of soil column
+    DO k=1,ms
+       zimm(k) = zimm(k-1) + soil%zse(k)*1000._r_2
+    END DO
+
+    def(:) = 0._r_2
+
+    IF (include_aquifer) THEN  !do we include the aquifer in the calculation of wtd?
+
+       DO i=1,mp
+          total_depth_column(i) = zimm(ms) + soil%GWdz(i)*1000._r_2
+          def(i) = def(i) + MAX(0._r_2,soil%GWssat_vec(i)-ssnow%GWwb(i))*soil%GWdz(i)*1000._r_2
+       END DO
+
+    END IF
+
+    !comute the total mass away from full saturation
+    DO k=1,ms
+       DO i=1,mp
+
+          def(i) = def(i) +                                                           &
+               MAX(0._r_2,(soil%ssat_vec(i,k)-(ssnow%wbliq(i,k)+ssnow%wbice(i,k)))*dzmm_mp(i,k))
+       END DO  !mp
+    END DO  !ms
+
+    !find the deficit if the water table is at the bottom of the soil column
+    DO i=1,mp
+       defc(i) = (soil%ssat_vec(i,ms))*(total_depth_column(i)+Nsucs_vec(i)/(1._r_2-invB(i))*            &
+            (1._r_2-((Nsucs_vec(i)+total_depth_column(i))/Nsucs_vec(i))**(1._r_2-invB(i))))
+       defc(i) = MAX(0.1_r_2,defc(i))
+
+       !initial guess at wtd
+       ssnow%wtd(:) = total_depth_column(:)*def(:)/defc(:)
+    END DO
+
+
+    !use newtons method to solve for wtd, note this assumes homogenous column but
+    !that is ok
+    DO i=1,mp
+       IF ((soil%isoilm(i) .NE. 9) .AND. (veg%iveg(i) .NE. 16)) THEN
+
+          IF (defc(i) > def(i)) THEN                 !iterate tfor wtd
+
+             jlp=0
+
+             mainloop: DO
+
+                tempa   = 1.0_r_2
+                tempb   = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))**(-invB(i))
+                derv    = (soil%ssat_vec(i,ms))*(tempa-tempb) + &
+                     soil%ssat_vec(i,ms)
+
+                IF (ABS(derv) .LT. REAL(1e-8,r_2)) derv = SIGN(REAL(1e-8,r_2),derv)
+
+                tempa   = 1.0_r_2
+                tempb   = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))**(1._r_2-invB(i))
+                deffunc = (soil%ssat_vec(i,ms))*(ssnow%wtd(i) +&
+                     Nsucs_vec(i)/(1-invB(i))* &
+                     (tempa-tempb)) - def(i)
+                calc    = ssnow%wtd(i) - deffunc/derv
+
+                IF ((ABS(calc-ssnow%wtd(i))) .LE. wtd_uncert) THEN
+
+                   ssnow%wtd(i) = calc
+                   EXIT mainloop
+
+                ELSEIF (jlp .GE. wtd_iter_max) THEN
+
+                   EXIT mainloop
+
+                ELSE
+
+                   jlp=jlp+1
+                   ssnow%wtd(i) = calc
+
+                END IF
+
+             END DO mainloop  !defc .gt. def
+
+          ELSEIF (defc(i) .LT. def(i)) THEN
+
+             jlp=0
+
+             mainloop2: DO
+
+                tmpc     = Nsucs_vec(i)+ssnow%wtd(i)-total_depth_column(i)
+                tempa    = (ABS(tmpc/Nsucs_vec(i)))**(-invB(i))
+                tempb    = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))**(-invB(i))
+                derv     = (soil%ssat_vec(i,ms))*(tempa-tempb)
+                IF (ABS(derv) .LT. REAL(1e-8,r_2)) derv = SIGN(REAL(1e-8,r_2),derv)
+
+                tempa    = (ABS((Nsucs_vec(i)+ssnow%wtd(i)-total_depth_column(i))/Nsucs_vec(i)))**(1._r_2-invB(i))
+                tempb    = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))**(1._r_2-invB(i))
+                deffunc  = (soil%ssat_vec(i,ms))*(total_depth_column(i) +&
+                     Nsucs_vec(i)/(1._r_2-invB(i))*(tempa-tempb))-def(i)
+                calc     = ssnow%wtd(i) - deffunc/derv
+
+                IF ((ABS(calc-ssnow%wtd(i))) .LE. wtd_uncert) THEN
+
+                   ssnow%wtd(i) = calc
+                   EXIT mainloop2
+
+                ELSEIF (jlp==wtd_iter_max) THEN
+
+                   EXIT mainloop2
+
+                ELSE
+
+                   jlp=jlp+1
+                   ssnow%wtd(i) = calc
+
+                END IF
+
+             END DO mainloop2  !defc .lt. def
+
+          ELSE  !water table depth is exactly on bottom boundary
+
+             ssnow%wtd(i) = total_depth_column(i)
+
+          ENDIF
+
+       ENDIF  !check veg and soils
+
+    END DO   !mp loop
+
+    !limit wtd to be within a psecified range
+    DO i=1,mp
+       IF (veg%iveg(i) .GE. 16) ssnow%wtd(i) = wtd_min
+       ssnow%wtd(i) = MIN(wtd_max,MAX(wtd_min,ssnow%wtd(i) ) )
+    END DO
+
+
+  END SUBROUTINE iterative_wtd

@@ -1,0 +1,629 @@
+offline/cable_input.F90:       IF (TRIM(cable_user%MetType) .eq. "gswp") THEN ! MMY !inserted line as per MMY -- rk4417
+offline/cable_input.F90:       END IF ! MMY  !inserted line as per MMY -- rk4417
+offline/cable_input.F90:!!$       IF(ok/=NF90_NOERR) CALL nc_abort &                ! replaced by block below as per MMY -- rk4417
+offline/cable_input.F90:!!$       IF(ok/=NF90_NOERR) CALL nc_abort &          ! replaced by block below as per MMY -- rk4417
+offline/cable_input.F90:!!$       DO x=1,xdimsize       ! this loop replaces the else part in MMY code -- rk4417
+offline/cable_input.F90:!!$       DO y=1,ydimsize    ! this loop replaces the else part in MMY code -- rk4417
+offline/cable_input.F90:       PRINT *, "MMY nmetpatches is",nmetpatches ! MMY   ! inserted line as per MMY -- rk4417
+offline/cable_input.F90:    IF (TRIM(cable_user%MetType) .NE. "prin") THEN ! MMY   ! added line as per MMY -- rk4417 
+offline/cable_input.F90:    END IF ! MMY                ! added line as per MMY -- rk4417 
+offline/cable_input.F90:       IF (cable_user%MetType .eq. "prin") THEN ! MMY ! inserted if-to-else as per MMY -- rk4417 
+offline/cable_input.F90:       ELSE ! MMY      ! inserted as per MMY -- rk4417 
+offline/cable_input.F90:       END IF ! MMY   ! inserted as per MMY -- rk4417 
+offline/cable_input.F90:!!$    IF(ok /= NF90_NOERR) CALL nc_abort &         ! replaced by block below as per MMY -- rk4417
+offline/cable_input.F90:!!$    IF(ok /= NF90_NOERR) CALL nc_abort &        ! replaced by block below as per MMY -- rk4417
+offline/cable_input.F90:!!$    IF(ok /= NF90_NOERR) CALL nc_abort &       ! replaced by block below as per MMY -- rk4417
+offline/cable_input.F90:    IF(ok .NE. NF90_NOERR) ok = NF90_INQ_VARID(ncid_met,'Precip',id%Rainf) ! line absent from MMY code -- rk4417
+offline/cable_input.F90:!!$    IF(ok /= NF90_NOERR) CALL nc_abort &      ! replaced by block below as per MMY -- rk4417
+offline/cable_input.F90:!!$    IF(ok /= NF90_NOERR) THEN        ! replaced by if block below as per MMY -- rk4417
+offline/cable_input.F90:    ELSE                                             ! inserted block below as per MMY -- rk4417
+offline/cable_input.F90:       END IF                                                            ! MMY ! inserted line as per MMY -- rk4417
+offline/cable_input.F90:    IF(ok .NE. NF90_NOERR) ok = NF90_INQ_VARID(ncid_met,'Psurf',id%PSurf)  ! line is absent from MMY code -- rk4417
+offline/cable_input.F90:       END IF                                          ! inserted block below as per MMY -- rk4417
+offline/cable_input.F90:       END IF                                                      ! MMY ! inserted line as per MMY -- rk4417
+offline/cable_input.F90:!!$                                                                               ! as per MMY code -- rk4417 
+offline/cable_input.F90:       END IF ! MMY     ! inserted line as per MMY code -- rk4417
+offline/cable_input.F90:!!$       ! block below commented out as per MMY code -- rk4417
+offline/cable_input.F90:!!$       ! block above replaced by one below as per MMY code -- rk4417
+offline/cable_input.F90:       END IF !gswp3/site             ! above block replaces preceding commented one -- rk4417
+offline/cable_input.F90:!!$       ! block below commented out as per MMY code -- rk4417
+offline/cable_input.F90:!!$       ! block above replaced by one below as per MMY code -- rk4417
+offline/cable_input.F90:      END IF    ! above block replaces preceding commented one -- rk4417
+offline/cable_input.F90:!!$       ! block below commented out as per MMY code -- rk4417
+offline/cable_input.F90:!!$       ! block above replaced by one below as per MMY code -- rk4417
+offline/cable_input.F90:   END IF  ! above block replaces preceding commented one -- rk4417
+offline/cable_input.F90:!!$       ! block below commented out as per MMY code -- rk4417
+offline/cable_input.F90:!!$       ! block above replaced by one below as per MMY code -- rk4417
+offline/cable_input.F90:   END IF          ! above block replaces preceding commented one -- rk4417
+offline/cable_input.F90:   ! ______________________ MMY _________________________  ! inserted block as per MMY code -- rk4417
+offline/cable_input.F90:   END IF ! MMY   ! added line as per MMY code -- rk4417
+offline/cable_input.F90:      ! ______________________ MMY _________________________  ! inserted block as per MMY code -- rk4417
+offline/cable_input.F90:     END IF                                  ! added line as per MMY code -- rk4417
+offline/cable_input.F90:      PRINT *, "metGrid=='land'" ! MMY     ! inserted line as per MMY code -- rk4417
+offline/cable_input.F90:!!$    CALL get_default_params(logn,vegparmnew,LUC_EXPT)   ! replaced by line below as per MMY code -- rk4417
+offline/cable_input.F90:    !CALL for gw_model false and true    ! inserted these 3 lines as per MMY code -- rk4417
+offline/cable_output.F90:!!$          vcmax,hc,WatTable,GWMoist,SatFrac,Qrecharge ! replaced by 2 lines below as per MMY code -- rk4417
+offline/cable_output.F90:     REAL(KIND=4), POINTER, DIMENSION(:,:) :: SMP      ! soil pressure [m] ! inserted 3 lines as per MMY code -- rk4417
+offline/cable_output.F90:     REAL(KIND=4), POINTER, DIMENSION(:,:) :: hys_fac   ! soil pressure [m] ! inserted line as per MMY code -- rk4417
+offline/cable_output.F90:    ok = NF90_PUT_ATT(ncid_out, ovid%tvar, 'calendar', calendar)   ! note that this block is missing from MMY code -- rk4417 
+offline/cable_output.F90:!!$ inserted block below as per MMY code -- rk4417       
+offline/cable_output.F90:!!$  --------------------- start of block --------------------- rk4417
+offline/cable_output.F90:!!$  --------------------- end of block --------------------- rk4417  
+offline/cable_output.F90:!!$replaced block above by one below as per MMY code -- rk4417    
+offline/cable_output.F90:!!$  --------------------- start of block --------------------- rk4417
+offline/cable_output.F90:!!$  --------------------- end of block --------------------- rk4417    
+offline/cable_output.F90:!!$ replaced block above by below as per MMY code -- rk4417 
+offline/cable_output.F90:!!$ replaced block above by below as per MMY code -- rk4417
+offline/cable_output.F90:    PRINT *, "Successful call DATE_AND_TIME" ! MMY  ! inserted line as per MMY code -- rk4417
+offline/cable_output.F90:    PRINT *, "Successful carry out POINT 1" ! MMY    ! inserted line as per MMY code -- rk4417
+offline/cable_output.F90:!!$ replaced block above by below as per MMY code -- rk4417
+offline/cable_output.F90:!!$ replaced block above by below as per MMY code -- rk4417
+offline/cable_output.F90:!!$ replaced block above by below as per MMY code -- rk4417
+offline/cable_output.F90:!!$ replaced block above by below as per MMY code -- rk4417
+offline/cable_output.F90:!!$         'zse', SPREAD(REAL(soil%zse, 4), 1, mp),ranges%zse, &  ! replaced line by one below as per MMY code -- rk4417
+offline/cable_output.F90:!!$ replaced block above by below as per MMY code -- rk4417
+offline/cable_output.F90:!!$     inserted block below as per MMY code -- rk4417
+offline/cable_output.F90:!!$------------------------------ rk4417 ----------------------------------
+offline/cable_output.F90:!!$------------------------------ rk4417 ----------------------------------
+offline/cable_output.F90:!!$ note that 2 lines below are placed by line above in MMY code -- rk4417
+offline/cable_output.F90:       IF(output%casa) THEN    ! note that this IF block is missing from MMY code -- rk4417
+offline/cable_output.F90:       IF(output%casa) THEN    ! note that this IF block is missing from MMY code -- rk4417
+offline/cable_output.F90:!!$ line below appears as above in MMY code -- rk4417
+offline/cable_output.F90:               / 1.201E-5, 4) !-  &  ! note that this bit is not commented out in MMY code -- rk4417 
+offline/cable_output.F90:    character(len=:), allocatable :: str,alt_filename    ! added 2 lines as per MMY code -- rk4417 
+offline/cable_output.F90:   !     cut_ind = scan(trim(filename%out),".", BACK= .true.)   ! for completeness -- rk4417
+offline/cable_output.F90:         csoilID, tradID, albedoID, gwID, subdzID   ! added subdzID as per MMY code -- rk4417
+offline/cable_output.F90:    INTEGER :: hys(6)   ! inserted line as per MMY code -- rk4417
+offline/cable_output.F90:!!$ block above appears uncommented as below in MMY code -- rk4417
+offline/cable_output.F90:!!$ block above appears uncommented as below in MMY code -- rk4417
+offline/cable_output.F90:!!$ block above appears uncommented as below in MMY code -- rk4417
+offline/cable_output.F90:!!$  commented-block above replaced by 2 blocks below as per MMY code -- rk4417
+offline/cable_output.F90:!!$ block above appears uncommented as below in MMY code -- rk4417
+offline/cable_output.F90:    if (cable_user%gw_model) then            ! added if block as per MMY code -- rk4417
+offline/cable_output.F90:!!$    CALL write_ovar (ncid_restart, rpid%bch, 'bch', REAL(soil%bch, 4),         &  ! repeated -- rk4417
+offline/cable_output.F90:!!$ block above appears uncommented as below in MMY code -- rk4417
+offline/cable_output.F90:!!$ block above appears uncommented as below in MMY code -- rk4417
+offline/cable_output.F90:!!$ block above appears uncommented as below in MMY code -- rk4417
+offline/cable_output.F90:!!$  commented-block above replaced by 2 blocks below as per MMY code -- rk4417
+offline/cable_output.F90:!!$ block above appears uncommented as below in MMY code -- rk4417
+offline/cable_output.F90:    if (cable_user%gw_model) then           ! added if block as per MMY code -- rk4417
+offline/cable_abort.F90:SUBROUTINE nc_trap( ok )   ! added this subroutine as per MMY code -- rk4417
+offline/cable_mpicommon.F90:!!$  INTEGER, PARAMETER :: nparam = 330    !  replaced line by block below as per MMY code -- rk4417
+offline/cable_mpicommon.F90:!!$  INTEGER, PARAMETER :: nmat = 40   ! replaced line by one below as per MMY code -- rk4417
+offline/cable_mpicommon.F90:!!$  INTEGER, PARAMETER :: nvec = 175    ! replaced line by one below as per MMY code -- rk4417
+offline/cable_checks.F90:          PAR = (/-1000.0,5000.0/),              & ! umol/m2/s  ! this line is absent from MMY code -- rk4417 
+offline/cable_checks.F90:!!$          hyds = (/5.0E-7,8.5E-3/),           & ! vh_js ! sep14 ! replaced this line as per MMY -- rk4417
+offline/cable_checks.F90:!!$          sucs = (/-0.8,-0.03/),              &   ! replaced this line as per MMY -- rk4417
+offline/cable_checks.F90:!!$ inserted line below as per MMY -- rk4417
+offline/cable_checks.F90:       ALLOCATE( bwb_gw(mp,2) ) ! MMY  ! inserted line as per MMY -- rk4417
+offline/cable_checks.F90:       bwb_gw(:,1)=ssnow%GWwb ! MMY  ! inserted 2 lines as per MMY -- rk4417
+offline/cable_checks.F90:      ELSE ! MMY     ! inserted block above as per MMY -- rk4417
+offline/cable_checks.F90:    END IF ! MMY   ! inserted line as per MMY -- rk4417
+offline/cable_checks.F90:   ELSE ! MMY  ! inserted block above as per MMY -- rk4417
+offline/cable_checks.F90:   END IF ! MMY   ! inserted line as per MMY -- rk4417
+offline/cable_driver.F90:!!$  INTEGER, PARAMETER ::      mloop     = 5   ! CASA-CNP PreSpinup loops ! replaces line above in MMY code -- rk4417
+offline/cable_driver.F90:       spincasainput = .FALSE.,        & ! TRUE: SAVE input req'd to spin CASA-CNP; ! inserted line as per MMY code -- rk4417
+offline/cable_driver.F90:       spincasainput,    &     ! inserted line as per MMY code -- rk4417
+offline/cable_driver.F90:!!$  IF( l_vcmaxFeedbk .AND. icycle < 2 )                            &   ! replaces line above in MMY code -- rk4417
+offline/cable_driver.F90:!!$  IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &   ! this block replaces above [if -- elseif] in MMY code -- rk4417 
+offline/cable_driver.F90:!!$                                           This block appears in MMY code -- rk4417
+offline/cable_driver.F90:!!$       ELSEIF ( casaonly .AND. (.NOT. spincasa) .AND. cable_user%popluc) THEN  ! replaces line above in MMY code -- rk4417
+offline/cable_driver.F90:!!$ CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate, idoy, &   ! replaces line above in MMY code -- rk4417
+offline/cable_driver.F90:!!$                      ANY( ABS(ssnow%tgg-soilTtemp)>delsoilT) .or. &               ! -- rk4417
+offline/cable_driver.F90:     !CALL casa_poolout( ktau, veg, soil, casabiome,		  &  ! this call is uncommented in MMY code -- rk4417
+offline/cable_driver.F90:!!$                                                    ! this block appears in MMY code -- rk4417
+offline/cable_iovars.F90:!!$  line above is missing from MMY code -- rk4417
+offline/cable_iovars.F90:!!$  line above is missing from MMY code -- rk4417
+offline/cable_iovars.F90:          sand_vec,clay_vec,bch_vec,org_vec,elev,elev_std       ! added this line as per MMY code -- rk4417 
+offline/cable_iovars.F90:                                                                ! as  "FrcSand,FrcClay,Clappb,forg" ?  -- rk4417
+offline/cable_iovars.F90:          elev = .false.,&      !mean subgrid elev       ! inserted these 2 lines as per MMY code -- rk4417
+offline/cable_iovars.F90:!!$          HKdepth           ! replaced line by block below as per MMY code -- rk4417
+offline/cable_mpimaster.F90:         patch,wlogn               ! added line as per MMY code -- rk4417
+offline/cable_mpimaster.F90:         spincasainput = .FALSE., & ! TRUE: SAVE input req'd to spin CASA-CNP;  ! inserted line as per MMY code -- rk4417
+offline/cable_mpimaster.F90:                                    ! FALSE: no spin up           ! inserted comment as per MMY code -- rk4417
+offline/cable_mpimaster.F90:         spincasainput,    &      ! inserted line as per MMY code -- rk4417
+offline/cable_mpimaster.F90:    INTEGER :: i,x,kk,klev       !  added klev as per MMY code -- rk4417
+offline/cable_mpimaster.F90:    IF (TRIM(cable_user%MetType) .EQ. 'gswp' .or. TRIM(cable_user%MetType) .EQ. 'gswp3' & ! MMY   ! as per MMY code -- rk4417 
+offline/cable_mpimaster.F90:         TRIM(cable_user%MetType) .NE. "prin" .AND. & ! MMY    ! inserted line as per MMY code -- rk4417
+offline/cable_mpimaster.F90:          ELSE IF (TRIM(cable_user%MetType) .EQ. 'prin') THEN          ! MMY   ! added elseif block as per MMY code -- rk4417
+offline/cable_mpimaster.F90:!!$             CALL master_climate_types(comm, climate)  ! block above appears this way in MMY code -- rk4417
+offline/cable_mpimaster.F90:!!$          WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.    ! replaced by line below as per MMY -- rk4417
+offline/cable_mpimaster.F90:                  (TRIM(cable_user%MetType) .NE. 'prin') .and. & ! MMY    ! inserted line as per MMY -- rk4417
+offline/cable_mpimaster.F90:!!$             WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.   ! replaced by line below as per MMY -- rk4417
+offline/cable_mpimaster.F90:                        .OR. TRIM(cable_user%MetType) .EQ. 'prin'  &  ! MMY    ! inserted line as per MMY -- rk4417
+offline/cable_mpimaster.F90:                         WRITE(*,*) 'Nan in evap flux'  !  ---------------------------- rk4417 ---------------------------
+offline/cable_mpimaster.F90:                         write(*,*) 'iveg',veg%iveg(kk)   !  ---------------------------- rk4417 ---------------------------
+offline/cable_mpimaster.F90:          IF ( (TRIM(cable_user%MetType) .EQ. "gswp") &            ! replaced if above as per MMY -- rk4417
+offline/cable_mpimaster.F90:                     .OR. TRIM(cable_user%MetType) .EQ. 'prin' &      ! MMY   ! inserted line as per MMY -- rk4417
+offline/cable_mpimaster.F90:!!$          CALL WRITE_CLIMATE_RESTART_NC ( climate )  ! above line appears this way in MMY code -- rk4417
+offline/cable_mpimaster.F90:         TRIM(cable_user%MetType) .NE. "prin"  .AND. & ! MMY   ! inserted line as per MMY -- rk4417
+offline/cable_mpimaster.F90:       bidx = bidx + 1        ! inserted this block as per MMY code -- rk4417
+offline/cable_mpimaster.F90:!!$ inserted block below as per MMY code -- rk4417       
+offline/cable_mpimaster.F90:!!$  --------------------- start of block --------------------- rk4417
+offline/cable_mpimaster.F90:!!$  --------------------- end of block --------------------- rk4417
+offline/cable_mpimaster.F90:       bidx = bidx + 1                ! note that this block is missing from MMY code -- rk4417 
+offline/cable_mpimaster.F90:       bidx = bidx + 1            ! inserted this block as per MMY code -- rk4417
+offline/cable_mpimaster.F90:!!$ inserted block below as per MMY code -- rk4417       
+offline/cable_mpimaster.F90:!!$  --------------------- start of block --------------------- rk4417
+offline/cable_mpimaster.F90:!!$  --------------------- end of block --------------------- rk4417
+offline/cable_mpimaster.F90:          WRITE (*,*) 'local counbt bidx is ',bidx,' while ntyp is ',ntyp  ! inserted line as per MMY code -- rk4417
+offline/cable_mpimaster.F90:          WRITE (*,*) 'local counbt bidx is ',bidx,' while ntyp is ',ntyp  ! inserted line as per MMY code -- rk4417
+offline/cable_mpimaster.F90:!!$ inserted block below as per MMY code -- rk4417       
+offline/cable_mpimaster.F90:!!$  --------------------- start of block --------------------- rk4417
+offline/cable_mpimaster.F90:!!$  --------------------- end of block --------------------- rk4417
+offline/cable_mpimaster.F90:       vidx = vidx + 1   ! added block as per MMY code -- rk4417
+offline/cable_mpimaster.F90:!!$SUBROUTINE master_climate_types (comm, climate)  ! line above appears this way in MMY code -- rk4417
+offline/cable_mpimaster.F90:    INTEGER :: last2d, i, ktauday   ! ktauday missing from MMY code -- rk4417
+offline/cable_mpimaster.F90:!!$  CALL climate_init (climate, mp)    ! block above appears this way in MMY code -- rk4417
+offline/cable_parameters.F90:!!$  USE cable_common_module, ONLY: cable_user, hide, gw_params, &  ! replaced by below as per MMY code -- rk4417
+offline/cable_parameters.F90:       write_cnp_params,GWspatialParameters  ! added GWspatialParameters as per MMY code -- rk4417
+offline/cable_parameters.F90:!!$  ! file  ! replaced by below as per MMY code -- rk4417
+offline/cable_parameters.F90:  !MD temp vars for reading in aquifer properties !--- this block missing from MMY code -- rk4417
+offline/cable_parameters.F90:  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inSlopeSTD        !--- end of block -- rk4417
+offline/cable_parameters.F90:  INTERFACE get_gw_data                        ! inserted block as per MMY code -- rk4417
+offline/cable_parameters.F90:     MODULE PROCEDURE get_gw_2d_var_constdef   ! need to double check that it does not produce redundancy -- rk4417 
+offline/cable_parameters.F90:!!$  SUBROUTINE get_default_params(logn, vegparmnew, LUC_EXPT)  ! replaced as per MMY code -- rk4417
+offline/cable_parameters.F90:    TYPE (soil_parameter_type), INTENT(INOUT) :: soil  ! added 2 lines as per MMY code -- rk4417
+offline/cable_parameters.F90:      CALL read_gridinfo(nlon,nlat,npatch)           ! note that in MMY code only the else body exists -- rk4417
+offline/cable_parameters.F90:    IF (cable_user%force_npatches_as .gt. 0) npatch=cable_user%force_npatches_as ! inserted as per MMY code -- rk4417
+offline/cable_parameters.F90:    INTEGER, INTENT(INOUT) :: npatch    ! note that this is only 'OUT' in MMY code -- rk4417
+offline/cable_parameters.F90:    IF(.NOT. exists%patch) THEN        ! note that in MMY code only the IF body exists -- rk4417
+offline/cable_parameters.F90:    !pass npatch to the def_types module    ! added 3 comment lines as per MMY code -- rk4417
+offline/cable_parameters.F90:    IF(.NOT. exists%patch) THEN      ! no IF in MMY code -- rk4417
+offline/cable_parameters.F90:      !CLN    ok = NF90_GET_VAR(ncid, varID, idummy)   ! uncommented in MMY code -- rk4417
+offline/cable_parameters.F90:      !CLN    inVeg(:, :, 1) = idummy(:,:) ! npatch=1 in 1x1 degree input   ! uncommented in MMY code -- rk4417
+offline/cable_parameters.F90:    ELSE                                                      ! else body missing from MMY code -- rk4417
+offline/cable_parameters.F90:    INTEGER :: xlon, xlat, ok_gw_elev   ! added ok_gw_elev as per MMY code -- rk4417
+offline/cable_parameters.F90:    !MD Aquifer properties                       ! block missing from MMY code -- rk4417
+offline/cable_parameters.F90:    ALLOCATE(      inWatr(nlon, nlat) )            !---- end of block -- rk4417
+offline/cable_parameters.F90:    !MD try to read aquifer properties from the file           ! ---- block missing from MMY code -- rk4417
+offline/cable_parameters.F90:    END IF                                          ! -------------- end of block  -- rk4417
+offline/cable_parameters.F90:    ALLOCATE(inSlope(nlon,nlat),stat=ok)            ! ---- block missing from MMY code -- rk4417
+offline/cable_parameters.F90:    ENDIF  !running gw model            ! -------------- end of block  -- rk4417
+offline/cable_parameters.F90:    mpatch = npatch            ! inserted line as per MMY code -- rk4417
+offline/cable_parameters.F90:!!$       distance = 5300.0 ! initialise, units are degrees  ! replaces line above in MMY code -- rk4417
+offline/cable_parameters.F90:!!$ inserted 2 IFs below as per MMY code -- rk4417
+offline/cable_parameters.F90:!!$          replaced block above by below as per MMY code -- rk4417
+offline/cable_parameters.F90:          DO tt = 1, npatch   ! what about landpt(kk)%nap = 0 ??  -- rk4417
+offline/cable_parameters.F90:       ELSE                  ! ----------- end of block -- rk4417
+offline/cable_parameters.F90:    mpatch         = max_vegpatches    ! inserted line as per MMY code -- rk4417
+offline/cable_parameters.F90:    REAL, ALLOCATABLE, DIMENSION(:,:) :: tmp_mp_ms    ! inserted line as per MMY code -- rk4417
+offline/cable_parameters.F90:    ssnow%GWwb = -1.0        ! note this line is missing from MMY code -- rk4417 
+offline/cable_parameters.F90:!!$ note that line above appears as below in MMY code -- rk4417
+offline/cable_parameters.F90:    soil%zse_vec = real(spread(soil%zse,1,mp),r_2)      ! inserted line as per MMY code -- rk4417
+offline/cable_parameters.F90:!!$ note that above block is uncommented in MMY code -- rk4417
+offline/cable_parameters.F90:!!$ note that above 2 lines are commented out in MMY code -- rk4417
+offline/cable_parameters.F90:!!$         if (landpt(e)%nap.gt.1) then  ! replaces line above in MMY code -- rk4417
+offline/cable_parameters.F90:!!$ note that line above appears as below in MMY code -- rk4417
+offline/cable_parameters.F90:          !possibly heterogeneous soil properties  !---- block missing from MMY code -- rk4417
+offline/cable_parameters.F90:               inGWdz(landpt(e)%ilon,landpt(e)%ilat)   !---- end of block -- rk4417
+offline/cable_parameters.F90:        IF(exists%patch) &    ! this IF is missing from MMY code -- rk4417
+offline/cable_parameters.F90:!!$ note that line above appears as below in MMY code -- rk4417
+offline/cable_parameters.F90:             IF (.not.cable_user%GW_MODEL) THEN    ! IF block inserted as per MMY code -- rk4417
+offline/cable_parameters.F90:             soil%GWrhosoil_vec(h) = REAL(soilin%rhosoil(soil%isoilm(h)),r_2) ! missing from MMY code -- rk4417
+offline/cable_parameters.F90:    !should not be needed     ! block commented out in MMY code but included here for completeness -- rk4417
+offline/cable_parameters.F90:            ! PRINT *, "sand are", soil%sand ! MMY  ! 2 lines commented out in MMY code but included here for completeness -- rk4417
+offline/cable_parameters.F90:    WRITE(logn, *)  ! missing from MMY code -- rk4417
+offline/cable_parameters.F90:    !    DEALLOCATE(soilin%silt, soilin%clay, soilin%sand, soilin%swilt,            &  ! this block is uncommented in MMY code -- rk4417
+offline/cable_parameters.F90:    !    !         vegf_temp,urbanf_temp,lakef_temp,icef_temp, &                        ! ---- end of block -- rk4417
+offline/cable_parameters.F90:    IF (ALLOCATED(inGWsucs  )) DEALLOCATE(inGWsucs)   ! this block is missing from MMY code -- rk4417
+offline/cable_parameters.F90:    IF (ALLOCATED(inSlopeSTD)) DEALLOCATE(inSlopeSTD)            ! ---- end of block -- rk4417
+offline/cable_parameters.F90:!!$       WHERE(ssnow%tgg(:, :) < 273.16)       ! replaces line above in MMY code -- rk4417
+offline/cable_parameters.F90:    canopy%sublayer_dz = 0.0   ! line misssing from MMY code -- rk4417
+offline/cable_parameters.F90:!!$    ssnow%GWwb = soil%GWssat_vec     ! replaces line above in MMY code -- rk4417
+offline/cable_parameters.F90:    ssnow%wb_hys = -1.0e+36     ! inserted block as per MMY code -- rk4417
+offline/cable_parameters.F90:       ! veg%clitt = 5.0 ! (tC / ha)     ! line commented out in MMY code but included here for completeness -- rk4417
+offline/cable_parameters.F90:       !veg%clitt = 5.0 ! (tC / ha)     ! line commented out in MMY code but included here for completeness -- rk4417
+offline/cable_parameters.F90:    soil%GWdz = MAX(1.0,MIN(20.0,soil%GWdz - SUM(soil%zse,dim=1)))    ! missing from MMY code -- rk4417
+offline/cable_parameters.F90:!!$    block above appears as commented block below in MMY code -- rk4417
+offline/cable_parameters.F90:!!$    INTEGER :: j,i,klev ! do loop counter  ! replaced by below as per MMY code -- rk4417
+offline/cable_parameters.F90:    REAL(r_2), DIMENSION(17)    :: psi_o,psi_c   ! appears commented out in MMY code -- rk4417
+offline/cable_parameters.F90:!!$    REAL(r_2), DIMENSION(ms) :: soil_depth  ! replaced by 2 lines below as per MMY code -- rk4417
+offline/cable_parameters.F90:    where(veg%iveg .eq. 17) soil%isoilm = 9   ! inserted line as per MMY code -- rk4417
+offline/cable_parameters.F90:!!$    replaced above block by below as per MMY code -- rk4417
+offline/cable_parameters.F90:    psi_o(1:3)  = -66000._r_2      ! this block appears commented out in MMY code -- rk4417            
+offline/cable_parameters.F90:    soil%GWz = 0.5*soil%GWdz + SUM(soil%zse)  !node is halfway through aquifer depth  ! this line is missing from MMY code -- rk4417
+offline/cable_parameters.F90:!!$    replaced this 75-line cable_user%GW_MODEL IF block by the 204-line IF block following it from MMY code -- rk4417
+offline/cable_parameters.F90:!!$    I may still need some lines from the smaller block -- rk4417
+offline/cable_parameters.F90:!!$  the next 204-line IF block from MMY code replaces the 75-line cable_user%GW_MODEL IF block above -- rk4417
+offline/cable_parameters.F90:!!$  I may still need some lines from the smaller block -- rk4417 
+offline/cable_parameters.F90:!!$  the above 204-line IF block from MMY code replaces the 75-line cable_user%GW_MODEL IF block before it -- rk4417
+offline/cable_parameters.F90:!!$  I may still need some lines from the smaller block -- rk4417    
+offline/cable_parameters.F90:!!$  the next 76-line IF block from MMY code replaces the 5-line IF block above -- rk4417
+offline/cable_parameters.F90:!!$                  ---- end of block -- rk4417
+offline/cable_parameters.F90:!!$    inserted block below as per MMY code -- rk4417
+offline/cable_parameters.F90:!!$                        ---- end of block -- rk4417
+offline/cable_parameters.F90:!!$       replaced block above by below as per MMY code -- rk4417
+offline/cable_parameters.F90:             WRITE(*,*) 'Silt fraction is ',soil%isoilm(landpt(i)%cstart + j - 1) ! inserted line as per MMY code -- rk4417
+offline/cable_parameters.F90:    CALL cable_pft_params()    ! these 2 calls are missing in MMY code -- rk4417
+offline/cable_parameters.F90:    IF (report_parameters_to_log) THEN   ! inserted line as per MMY code -- rk4417
+offline/cable_parameters.F90: ENDIF  !report_parameters     ! inserted line as per MMY code -- rk4417
+offline/cable_parameters.F90:!!$  added code from here to the end of the module as per MMY code -- rk4417
+offline/cable_initialise.F90:!!$  USE cable_common_module, ONLY : filename, cable_user  ! replaced line by below as per MMY -- rk4417
+offline/cable_initialise.F90:    canopy%sublayer_dz = 0.001   ! added block here as per MMY -- rk4417
+offline/cable_initialise.F90:!!$    ok = NF90_INQ_VARID(ncid_rin,'GWwb',parID)   ! commented out by rk4417 as it appears below 
+offline/cable_initialise.F90:!!$      CALL readpar(ncid_rin,'gamma',dummy,veg%gamma,filename%restart_in,           & ! see below for duplicate -- rk4417
+offline/cable_initialise.F90:! added block below as per MMY code -- rk4417    
+offline/cable_initialise.F90:!----------------------------- rk4417 -------------------------------------------------
+offline/cable_initialise.F90:   IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN  ! if block commented out in MMY code -- rk4417
+offline/cable_initialise.F90:!----------------------------- rk4417 -------------------------------------------------
+offline/cable_initialise.F90:!!$       CALL readpar(ncid_rin,'ZR',dummy,veg%ZR, &                       ! this block is not commented out in MMY -- rk4417
+offline/cable_initialise.F90:    !   CALL readpar(ncid_rin,'clay',dummy,soil%clay,filename%restart_in,           &  ! ---- block uncommented in MMY -- rk4417
+offline/cable_initialise.F90:    !   END IF    ! ------------------------------------------------------------------------- end of block -- rk4417
+offline/cable_initialise.F90:    !   CALL readpar(ncid_rin,'rs20',dummy,veg%rs20,filename%restart_in,            & ! ---- block uncommented in MMY -- rk4417
+offline/cable_initialise.F90:    !                max_vegpatches,'def',from_restart,mp) ! --------------------------------- end of block -- rk4417
+offline/cable_initialise.F90:    !   ok = NF90_INQ_VARID(ncid_rin,'za',parID)                   ! ---- block uncommented in MMY -- rk4417
+offline/cable_initialise.F90:    !   ENDIF                                     ! --------------------------------- end of block -- rk4417
+offline/cable_initialise.F90:    !   CALL readpar(ncid_rin,'ratecp',dummy,bgc%ratecp,filename%restart_in,        &   ! ---- block uncommented in MMY -- rk4417
+offline/cable_initialise.F90:    !                max_vegpatches,'ncs',from_restart,mp)    ! --------------------------------- end of block -- rk4417
+offline/cable_cru_TRENDY.F90:!!$    SELECT CASE ( par )    ! the case construct above appears as below in MMY code -- rk4417
+offline/cable_cru_TRENDY.F90:!!$          ALLOCATE( CRU%CO2VALS( 1860:2015 ) )   ! the two lines above appear as below in MMY code -- rk4417
+offline/cable_cru_TRENDY.F90:!!$! Get CO2 values for use with a CRU-NCEP run. Assign a static 1860 value if specified otherwise ! this comment line replaces one below in MMY code -- rk4417 
+offline/cable_cru_TRENDY.F90:!!$       ! read Ndep at current year (noting that file starts at 1850) ! 2 lines replace ones above in MMY code -- rk4417
+offline/cable_cru_TRENDY.F90:!!$    IF (CALL1) RunStartYear = 1800 ! edit vh !  ! line above appears this way in MMY code -- rk4417
+offline/cable_cru_TRENDY.F90:       !RunStartYear = CRU%CYEAR    ! this line replaces the one below in MMY code -- rk4417
+offline/cable_cru_TRENDY.F90:!!$The code below is uncommented in MMY code -- rk4417
+offline/cable_LUC_EXPT.F90:!!$The three lines above appear as below in MMY code with different factors -- rk4417
+offline/cable_LUC_EXPT.F90:         .OR. LUC_EXPT%biome .EQ. 9 .OR. LUC_EXPT%biome .EQ. 10  )          ! is missing from MMY code -- rk4417 
+offline/cable_LUC_EXPT.F90:!!$The two lines above appear as below in MMY code with different factors -- rk4417
+offline/cable_LUC_EXPT.F90:            .OR. LUC_EXPT%biome .EQ. 9 .OR. LUC_EXPT%biome .EQ. 10) ! boreal    ! is missing from MMY code -- rk4417   
+offline/cable_LUC_EXPT.F90:          LUC_EXPT%prim_only(k)=.TRUE.     ! this else is absent in MMY code -- rk4417
+offline/cable_LUC_EXPT.F90:          inVeg(m,n,2:3) = 0              ! this line is absent in MMY code -- rk4417
+offline/cable_LUC_EXPT.F90:       WRITE(*,*) 'reading biome from : ', fname    ! supersedes MMY code -- rk4417
+offline/cable_LUC_EXPT.F90:!!$  ! Adjust transition areas based on native tree fraction for savanna grid-cells - comment line in MMY code -- rk4417
+offline/cable_LUC_EXPT.F90:!!$The four lines above appear as below in MMY code with different factors -- rk4417
+offline/cable_LUC_EXPT.F90:         .OR. LUC_EXPT%biome .EQ. 9 .OR. LUC_EXPT%biome .EQ. 10) ! boreal       ! is missing from MMY code -- rk4417   
+offline/cable_mpiworker.F90:         spincasainput = .FALSE., & ! TRUE: SAVE input req'd to spin CASA-CNP;  ! inserted 2 lines as per MMY code -- rk4417
+offline/cable_mpiworker.F90:                                ! FALSE: no spin up    ! inserted comment as per MMY code -- rk4417
+offline/cable_mpiworker.F90:         spincasainput,    &   ! inserted line as per MMY code -- rk4417
+offline/cable_mpiworker.F90:    INTEGER :: i,x,kk,klev   !  added klev as per MMY code -- rk4417
+offline/cable_mpiworker.F90:!!$             CALL worker_climate_types(comm, climate)   ! block above appears this way in MMY code -- rk4417
+offline/cable_mpiworker.F90:             ! PRINT *, met%fsd(:,1) ! MMY    ! inserted 2 lines as per MMY code -- rk4417
+offline/cable_mpiworker.F90:!!$             if (cable_user%CALL_climate) &     ! above if appears this way in MMY code -- rk4417
+offline/cable_mpiworker.F90:!!$                 CALL cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met, &  ! missing rad argument -- rk4417
+offline/cable_mpiworker.F90:             do i=1,mp                                        ! added do loop as per MMY code -- rk4417
+offline/cable_mpiworker.F90:!!$added do loop below as per MMY code -- rk4417
+offline/cable_mpiworker.F90:!!$--------------------------------------- rk4417 ---------------------------------------
+offline/cable_mpiworker.F90:!!$--------------------------------------- rk4417 ---------------------------------------
+offline/cable_mpiworker.F90:    bidx = bidx + 1       ! inserted this block as per MMY code -- rk4417
+offline/cable_mpiworker.F90:!!$ inserted block below as per MMY code -- rk4417       
+offline/cable_mpiworker.F90:!!$  --------------------- start of block --------------------- rk4417
+offline/cable_mpiworker.F90:!!$  --------------------- end of block --------------------- rk4417
+offline/cable_mpiworker.F90:    bidx = bidx + 1                ! note that this block is missing from MMY code -- rk4417 
+offline/cable_mpiworker.F90:    bidx = bidx + 1         ! inserted this block as per MMY code -- rk4417
+offline/cable_mpiworker.F90:!!$ inserted block below as per MMY code -- rk4417       
+offline/cable_mpiworker.F90:!!$  --------------------- start of block --------------------- rk4417
+offline/cable_mpiworker.F90:!!$  --------------------- end of block --------------------- rk4417
+offline/cable_mpiworker.F90:       WRITE (*,*) 'worker ',rank,' invalid number ntyp is ',ntyp,', fix it!'  ! inserted line as per MMY code -- rk4417
+offline/cable_mpiworker.F90:!!$ inserted block below as per MMY code -- rk4417       
+offline/cable_mpiworker.F90:!!$  --------------------- start of block --------------------- rk4417
+offline/cable_mpiworker.F90:!!$  --------------------- end of block --------------------- rk4417
+offline/cable_mpiworker.F90:    bidx = bidx + 1   ! added block as per MMY code -- rk4417
+offline/cable_mpiworker.F90:!!$SUBROUTINE worker_climate_types (comm, climate)  ! line above appears this way in MMY code -- rk4417
+offline/cable_mpiworker.F90:    INTEGER, INTENT(IN) :: comm, ktauday     ! ktauday missing from MMY code -- rk4417
+offline/cable_mpiworker.F90:!!$        CALL climate_init (climate, mp)   ! line above appears this way in MMY code -- rk4417
+core/biogeophys/cable_radiation.F90:    LOGICAL, DIMENSION(mp)    :: mask   ! select points for calculation  ! added line as per MMY -- rk4417
+core/biogeophys/cable_radiation.F90:    mask = canopy%vlaiw > C%LAI_THRESH  .AND.                          & ! added line as per MMY -- rk4417
+core/biogeophys/cable_radiation.F90:!!$   WHERE (canopy%vlaiw > C%LAI_THRESH .and. rad%fbeam(:,1).GE.C%RAD_THRESH   ) ! MMY has this line instead ? -- rk4417
+core/biogeophys/cable_radiation.F90:!!$       WHERE(rad%fbeam(:,1) < C%RAD_THRESH )    ! MMY has this line instead ? -- rk4417
+core/biogeophys/cable_radiation.F90:!!$            / (met%tk) * rad%extkd                              &    ! MMY has this line instead ? -- rk4417
+core/biogeophys/cable_radiation.F90:!!$            flpwb / met%tk * rad%extkd *                        &    ! MMY has this line instead ? -- rk4417
+core/biogeophys/cable_define_types.F90:#ifdef UM_BUILD    ! note that this if block is not found in MMY code -- rk4417 
+core/biogeophys/cable_define_types.F90:!!$             mland                           ! # land grid cells   ! replaced by rk4417 as per MMY
+core/biogeophys/cable_define_types.F90:#ifdef UM_BUILD            ! note that this if block is not found in MMY code -- rk4417 
+core/biogeophys/cable_define_types.F90:#endif                                                   ! -- rk4417  
+core/biogeophys/cable_define_types.F90:          smpc_vec, &  ! Hutson Cass SWC potential cutoff    ! 2 lines inserted by rk4417 as per MMY
+core/biogeophys/cable_define_types.F90:          hkrz,&! rate hyds changes with depth                  ! 6 lines added by rk4417 as per MMY
+core/biogeophys/cable_define_types.F90:          smpc_GW, &  ! Hutson Cass SWC potential cutoff  ! 2 lines inserted by rk4417 as per MMY
+core/biogeophys/cable_define_types.F90:!!$          otgg,    & ! soil temperature in K  ! This is 2-dim in MMY (see below) -- rk4417
+core/biogeophys/cable_define_types.F90:          otgg,       & ! soil temperature in K  ! inserted as per MMY (no longer 1-dim) -- rk4417
+core/biogeophys/cable_define_types.F90:          smp_hys, & !soil swc props dynamic from hysteresis ! added as per MMY -- rk4417
+core/biogeophys/cable_define_types.F90:    var%watr(:,:) = 0.05            ! line not found in MYY code -- rk4417
+core/biogeophys/cable_define_types.F90:    ALLOCATE( var%wbc_GW(mp) )      ! 4 lines added by rk4417 as per MMY
+core/biogeophys/cable_define_types.F90:    ALLOCATE( var%hkrz(mp) )   ! 6 lines inserted by rk4417 as per MMY
+core/biogeophys/cable_define_types.F90:!!$    ALLOCATE( var%otgg(mp) )     ! replaced as per MMY -- rk4417
+core/biogeophys/cable_define_types.F90:    ALLOCATE(var % smp_hys(mp,ms) )   !1      ! block added as per MMY -- rk4417
+core/biogeophys/cable_define_types.F90:#ifdef UM_BUILD                                ! note that this if block is not found in MMY code -- rk4417  
+core/biogeophys/cable_define_types.F90:    DEALLOCATE( var%wbc_GW )   ! 4 lines inserted by rk4417 as per MMY
+core/biogeophys/cable_define_types.F90:    DEALLOCATE( var%drain_dens ) ! 7 lines inserted by rk4417 as per MMY
+core/biogeophys/cable_define_types.F90:    DEALLOCATE(var % smp_hys ) ! 7 lines added by rk4417 as per MMY 
+core/biogeophys/cable_gw_hydro.F90:       ktau_gl,psi_c,psi_o  ! added by rk4417 as per MMY but ktau_gl and psi_o not used anywhere
+core/biogeophys/cable_gw_hydro.F90:  ! but the code has been changed so the line above is the one to use -- rk4417 
+core/biogeophys/cable_gw_hydro.F90:!!$  USE cable_data_module, ONLY: igwhydro_type,point2constants     ! replaced by rk4417 as per MMY 
+core/biogeophys/cable_gw_hydro.F90:!!$  TYPE(igwhydro_type), SAVE :: C      ! commented out by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:  ! note that MMY has instead !TYPE(issnow_type), SAVE :: C  -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$  REAL(r_2), SAVE :: smp_cor = 8.0  ! commented out by rk4417 as not used by MMY
+core/biogeophys/cable_gw_hydro.F90:  REAL(r_2), SAVE      :: den_rat=0.921  ! added by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:  REAL(r_2), PARAMETER :: m2mm = 1000.0   ! added by rk4417 as per MMY but will be removed eventually
+core/biogeophys/cable_gw_hydro.F90:  REAL(r_2), PARAMETER :: mm2m = 0.001    ! used only once in routine subsurface_drainage. I will remove it eventually -- rk4417 
+core/biogeophys/cable_gw_hydro.F90:!!$   abstract interface                                      ! I will decide on this block later -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$   PUBLIC above is replaced by below as per MMY code -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$   note that set_unsed_gw_vars is not called anywhere but den_rat and set_den_rat must be added -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$  SUBROUTINE GWsoilfreeze(dels, soil, ssnow,tgg_old)   ! replaced by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:    REAL     , DIMENSION(mp,ms)        :: tgg_tmp !calc wb ice at approx tgg  ! added by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:!!$    REAL, INTENT(INOUT), DIMENSION(mp,ms) :: tgg_old                ! commented out by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:    REAL(r_2) :: func,funcderv,Aconst,Dconst,t_zero,t_one,dtmp      ! added by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:!!$    REAL, DIMENSION(mp,ms) :: tgg_tmp      ! commented out by rk4417 
+core/biogeophys/cable_gw_hydro.F90:!!$    REAL(r_2),DIMENSION(mp,ms) :: xx,max_ice_frac,iceF,den_css  !Decker and Zeng 2009  ! replaced by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:    REAL(r_2),DIMENSION(mp,ms) :: xx,max_ice_frac,den_css  !Decker and Zeng 2009 ! MMY iceF is useless  ! rk4417
+core/biogeophys/cable_gw_hydro.F90:    REAL(r_2) :: delta_wbliq,tmp_var       ! added by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:!!$    max_ice_frac(:,:) = 0.0                    ! block replaced by below as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:   max_ice_frac(:,:) = 0.0                  ! next block as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:! Is this correct? rk4417
+core/biogeophys/cable_gw_hydro.F90:! Is this correct? rk4417
+core/biogeophys/cable_gw_hydro.F90:! added by rk4417 to conform with MMY modifications
+core/biogeophys/cable_gw_hydro.F90:       efpor(i) = max(0.01_r_2, soil%ssat_vec(i,1) - den_rat*ssnow%wbice(i,1))  !rk4417 is it 0.01 or 0.001 ?
+core/biogeophys/cable_gw_hydro.F90:! added by rk4417 to conform with MMY modifications
+core/biogeophys/cable_gw_hydro.F90:! uncommented by rk4417 to conform with MMY modifications
+core/biogeophys/cable_gw_hydro.F90:! added by rk4417 to conform with MMY modifications
+core/biogeophys/cable_gw_hydro.F90:! added by rk4417 to conform with MMY modifications
+core/biogeophys/cable_gw_hydro.F90:!  subroutine simple_wtd checked by rk4417. This subroutine is not called anywhere.
+core/biogeophys/cable_gw_hydro.F90:!!$    REAL(r_2), DIMENSION(mp,ms)   :: dzmm_mp,tmp_def      ! commented out by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:    REAL(r_2), DIMENSION(mp,ms)   :: tmp_def   ! replaced above block as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$    REAL(r_2), DIMENSION(mp)      :: invB,Nsucs_vec  !inverse of C&H B,Nsucs_vec  ! replaced by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:    !make code cleaner define these here           ! replaced block by next as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:    lam(:)        = 1._r_2/soil%bch_vec(:,ms) !1 over C&H B      ! replaced block above as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$          total_depth_column(i) = zimm(ms) + soil%GWdz(i)*1000._r_2  ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$          total_depth_column(i) = soil%GWdz(i)*m2mm      ! MMY original -- rk4417
+core/biogeophys/cable_gw_hydro.F90:    ELSE                   ! inserted as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:    !total depth of soil column       ! inserted as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$ MAX(0._r_2,(soil%ssat_vec(i,k)-(ssnow%wbliq(i,k)+ssnow%wbice(i,k)))*dzmm_mp(i,k))  ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$max(0._r_2,(soil%ssat_vec(i,k)-(ssnow%wbliq(i,k)+den_rat*ssnow%wbice(i,k)))*soil%zse_vec(i,k)*m2mm) ! MMY original -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$       defc(i) = (soil%ssat_vec(i,ms))*(total_depth_column(i)+Nsucs_vec(i)/(1._r_2-invB(i))*            &  ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$       !initial guess at wtd                                 ! taken out of do loop as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:    !initial guess at wtd                                      ! taken out of do loop as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$                tempb   = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))**(-invB(i))      ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$                tempb   = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))**(1._r_2-invB(i))   ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$                     Nsucs_vec(i)/(1-invB(i))* &                                ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$                tempa    = (ABS(tmpc/Nsucs_vec(i)))**(-invB(i))            ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$ tempa    = (ABS((Nsucs_vec(i)+ssnow%wtd(i)-total_depth_column(i))/Nsucs_vec(i)))**(1._r_2-invB(i))   ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$                     Nsucs_vec(i)/(1._r_2-invB(i))*(tempa-tempb))-def(i)       ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$    REAL(r_2), DIMENSION(ms)            :: dzmm      ! dzmm and dzmm_mp commented out by rk4417 as not used by MMY
+core/biogeophys/cable_gw_hydro.F90:!!$    REAL(r_2), DIMENSION(0:ms+1)        :: zimm      ! zimm and zmm replaced by 2-dim versions of MMY -- rk4417 
+core/biogeophys/cable_gw_hydro.F90:!!$    !make code cleaner define these here                 ! block commented out by rk4417 as not used by MMY
+core/biogeophys/cable_gw_hydro.F90:!!$    zimm(0) = 0._r_2         ! replaced by 2-dim versions of MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$       zimm(k) = zimm(k-1) + dzmm(k)        ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$    zmm(1:ms)  = zimm(0:(ms-1)) + 0.5_r_2*dzmm(1:ms) ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$       GWdzmm(i) = REAL(soil%GWdz(i),r_2)*1000._r_2     ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$    !equilibrium water content                           ! original block -- rk4417
+core/biogeophys/cable_gw_hydro.F90:    !soil hydraulic state/props                              ! The three calls from MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$       den(i)     = (zmm(k+1)-zmm(k)) ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$       bt(i,k) =  dzmm(k)/dels + dqodw1(i)  ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$          den(i)     = (zmm(k) - zmm(k-1))  ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$          den(i)     = (zmm(k+1)-zmm(k))  ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$          bt(i,k) =  dzmm(k)/dels - dqidw1(i) + dqodw1(i)  ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$       den(i)     = (zmm(k) - zmm(k-1))  ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$       den(i)     = zaq(i) - zmm(k)  ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$       bt(i,k) =  dzmm(k)/dels - dqidw1(i) + dqodw1(i)  ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$    CALL aquifer_recharge(dels,ssnow,soil,veg,zaq,zmm,dzmm) ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$          ssnow%wbliq(i,k) = ssnow%wbliq(i,k) + rt(i,k) - ssnow%qhlev(i,k)*dels/dzmm(k)   !volutermic liquid  ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$       ssnow%wbliq(i,ms) = ssnow%wbliq(i,ms) - ssnow%Qrecharge(i)*dels/dzmm(ms)  ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$       ssnow%GWwb(i) = ssnow%GWwb(i)  +  (ssnow%Qrecharge(i)-ssnow%qhlev(i,ms+1))*dels/GWdzmm(i) ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$          eff_por(i,k)  = MAX(0._r_2, soil%ssat_vec(i,k) - ssnow%wbice(i,k) ) ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$          xsi = (ssnow%GWwb(i) - soil%GWssat_vec(i))*GWdzmm(i)      ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$             xsi = xsi + (ssnow%wbliq(i,k) - eff_por(i,k))*dzmm(k)      ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$             IF (xsi .LT. (eff_por(i,k)-ssnow%wbliq(i,k))*dzmm(k)) THEN     ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$                xsi = xsi - (eff_por(i,k) - ssnow%wbliq(i,k))*dzmm(k)   ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$          IF (ssnow%wbliq(i,k) .LT. volwatmin) THEN                                ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$                ssnow%wbliq(i,k+1) = ssnow%wbliq(i,k+1) - xsi/dzmm(k+1)    ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$                ssnow%GWwb(i) = ssnow%GWwb(i) - xsi / GWdzmm(i)    ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$       IF ( (ssnow%GWwb(i) .LT. volwatmin) .AND. (soil%isoilm(i) .NE. 9) ) THEN    ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:          if (ssnow%qhz(i) .lt. 0.) print *, " MMY ===> Soil is too dry, found in SUBROUTINE smoistgw"   ! added as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$               soil%zse_vec(i,k)*C%density_liq    ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$               soil%zse_vec(i,k)*C%density_ice    ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$    USE cable_IO_vars_module, ONLY: wlogn        ! commented out by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:!!$    REAL, DIMENSION(mp,ms) :: tgg_old       ! commented out by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:    REAL(r_2), DIMENSION(mp,ms) :: gammzz_snow   ! added by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:!!$    CALL point2constants( C )            ! commented out by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:   if (first_gw_hydro_call) then           ! inserted by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:    ssnow%otgg = ssnow%tgg          ! inserted by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:!!$       soil%heat_cap_lower_limit(:,:) = 0.01  !never allow /0    ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$       ! after discussion with BP                                     ! block commented out by rk4417 as missing from MMY
+core/biogeophys/cable_gw_hydro.F90:!!$    tgg_old = ssnow%tgg     ! commented out by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:    gammzz_snow(:,:) = 0._r_2      ! inserted by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:!!$          ssnow%wbliq(i,k) = ssnow%wb(i,k) - ssnow%wbice(i,k)                     !liquid volume    ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:         !do not pass with mpi                                                       ! inserted by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:       DO k=1,ms                            ! inserted outer loop as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$             ssnow%gammzz(i,1) = MAX(soil%heat_cap_lower_limit(i,1),&      ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:       END DO                                     ! inserted outer loop as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:   ssnow%wbliq_old = ssnow%wbliq        ! inserted by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:!!$       wbtot_ic(i)  = SUM(ssnow%wbliq(i,:)*C%density_liq*soil%zse(:),1) + &     ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$    CALL snow_processes_soil_thermal(dels,ssnow,soil,veg,canopy,met,bal)  !  note that this line appears instead in MMY code -- rk4417  
+core/biogeophys/cable_gw_hydro.F90:!!$    CALL  GWsoilfreeze(dels, soil, ssnow,tgg_old)  ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:   IF (gw_params%BC_hysteresis)  &                                ! inserted by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:   !call swc_smp_dsmpdw(soil,ssnow)                          ! if block inserted by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:    first_gw_hydro_call=.false.   ! inserted by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:!!$    REAL(r_2), DIMENSION(0:ms)  :: zimm     !layer interface depth in mm   ! zimm and zmm replaced by 2-dim versions of MMY -- rk4417 
+core/biogeophys/cable_gw_hydro.F90:!!$    REAL(r_2)                   :: tempi, temp0,voleq1,wbrat    ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$    REAL(r_2), DIMENSION(mp,ms+1) :: ice_correction  ! commented out by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:    real(r_2), dimension(mp,ms+1) :: ztop,zbot ! added by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:!!$    IF (gw_params%ssgw_ice_switch) THEN       ! If block commented out by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:!!$    dzmm    = 1000.0_r_2 * REAL(soil%zse(:),r_2)      ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$       zimm(k) = zimm(k-1) + dzmm(k)                  ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$    DO i=1,mp                                        ! commented out by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:    do i=1,mp                                     ! replaced block above by below as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$          IF ((ssnow%wtd(i) .LE. zimm(k-1))) THEN         !fully saturated     ! commented out block as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:          if ((ssnow%wtd(i) .le. zimm(i,k-1))) then         !fully saturated        ! replaced block above by below as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:       !Aquifer Equilibrium water content                              ! commented out block as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:       if (ssnow%wtd(i) .le. zimm(i,ms)) then      !fully saturated     ! replaced block above by below as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$    CALL point2constants( C )     !commented out per MMY  -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$          icemass  = ssnow%wbice(i,1) * dzmm_one         -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$          liqmass  = (ssnow%wb(i,1)-ssnow%wbice(i,1)) * dzmm_one         -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$          icef(i)  = MAX(0._r_2,MIN(1._r_2, gw_params%IceBeta*icemass / totmass))         -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$          satfrac_liqice(i) = fice + (1._r_2-fice)*ssnow%satfrac(i)         -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$          wb_unsat = ((ssnow%wb(i,1)-ssnow%wbice(i,1)) -&         -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$ I substituted the line above just to compile, will sort it out later -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$               ( ssnow%wbice(i,1) / ssnow%wb(i,1) )**2 ) ) )         -- rk4417
+core/biogeophys/cable_gw_hydro.F90:   if (gw_params%BC_hysteresis) then                                ! if block inserted as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:   ! ___ MMY COMMENT: for Hutson Cass SWC potential ___     ! block between comments inserted as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$    DO k=1,ms                                                                  ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$       smp_cor = 8.0             ! commented out by rk4417 as not used by MMY
+core/biogeophys/cable_gw_hydro.F90:!!$                hk_ice_factor(i,k) = 10.0**(-gw_params%ice_impedence)                   ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$                hk_ice_factor(i,k) = 10.0**(-gw_params%ice_impedence* &                 ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$       smp_cor = 0.0                 ! commented out by rk4417 as not used by MMY
+core/biogeophys/cable_gw_hydro.F90:!!$    !aquifer ice                                      ! block commented out by rk4417 as not used by MMY
+core/biogeophys/cable_gw_hydro.F90:    !aquifer ice ! MMY should be aquifer liq                    ! replaced block above by below as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:  do k=1,ms-1                                 ! replaced block above by below as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:       !Aquifer                                               ! block below inserted as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$  SUBROUTINE aquifer_recharge(dt,ssnow,soil,veg,zaq,zmm,dzmm)   ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$    REAL(r_2), DIMENSION(:), INTENT(in)       :: zaq        ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$    INTEGER :: i     ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$    csum_dzmm(:,1) = m2mm*soil%zse_vec(:,1)   !  MMY original -- rk4417
+core/biogeophys/cable_gw_hydro.F90:    csum_dzmm(:,1) = 1000._r_2*soil%zse_vec(:,1)   ! inserted as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$    DO i=1,mp                                           ! block commented out by rk4417 replaced by next one
+core/biogeophys/cable_gw_hydro.F90:!!$    select case (gw_params%aquifer_recharge_function)       ! original block by MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:    select case (gw_params%aquifer_recharge_function)  ! block replaces one above as per MMY -- rk4417 
+core/biogeophys/cable_gw_hydro.F90:!!$  SUBROUTINE subsurface_drainage(ssnow,soil,veg,dzmm)     ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$    REAL(r_2), DIMENSION(:), INTENT(in)       :: dzmm    ! changed to 2-dim version below by MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!!$    REAL(r_2), DIMENSION(mp,ms)               :: ice_factor  !ice limitation on    ! replaced as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:    dzmm(:,:) = 1000._r_2*soil%zse_vec(:,:)    ! inserted as per MMY -- rk4417
+core/biogeophys/cable_gw_hydro.F90:! substantially from the one in my branch. I need to consult with MMY regarding this change -- rk4417
+core/biogeophys/cable_gw_hydro.F90:! I need to consult with MMY regarding this change -- rk4417    
+core/biogeophys/cable_gw_hydro.F90:!!$            exp( -mm2m*ssnow%wtd(i)/ soil%qhz_efold(i) )   ! replaced by below -- rk4417
+core/biogeophys/cable_gw_hydro.F90:! Original code commented by rk4417
+core/biogeophys/cable_gw_hydro.F90:! SUBROUTINE saturated_fraction below modified by rk4417 to conform with MMY code 
+core/biogeophys/cable_gw_hydro.F90:              (ssnow%wb(:,k)-den_rat*ssnow%wbice(:,k)-ssnow%watr_hys(:,k))/&  ! rk4417 two lines as per MMY
+core/biogeophys/cable_gw_hydro.F90:!!$               1._r_2 - my_erf( slopeSTDmm / SQRT(2.0* S(i)) ) ) ) -- rk4417
+core/biogeophys/cable_gw_hydro.F90:    REAL(r_2), DIMENSION(mp,ms) :: minus_ones  ! rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:!!$    CALL point2constants( C )  !  rk4417 commented out as per MMY
+core/biogeophys/cable_gw_hydro.F90:    minus_ones = -1.  !  rk4417 added as per MMY
+core/biogeophys/cable_gw_hydro.F90:          unsat_wb(i) =  (ssnow%wb(i,1) - ssnow%ssat_hys(i,1)*&    !  rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:!!$    unsat_wb(i) = MAX(soil%watr(i,1)+1e-2, MIN(soil%ssat_vec(i,1), unsat_wb(i) ) ) !  rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:          unsat_smp(i) = SIGN(soil%sucs_vec(i,1),minus_ones(i,1)) * MIN(1.0, &  !  rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:!!$    REAL(r_2), DIMENSION(ms) :: dzmm    !  commented out by rk4417 as not needed given the modifications below
+core/biogeophys/cable_gw_hydro.F90:!!$    CALL point2constants( C )      ! commented out by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:    ssnow%sucs_hys = soil%sucs_vec    ! inserted by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:!!$    dzmm = REAL(soil%zse(:),r_2)*1000._r_2       ! replaced by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:!!$    CALL aquifer_recharge(dels,ssnow,soil,veg,zaq,zmm,zmm)    ! replaced by rk4417 as per MMY
+core/biogeophys/cable_gw_hydro.F90:                     ! the last argument above is redundant, probably meant to be dzmm -- rk4417
+core/biogeophys/cable_gw_hydro.F90:!  subroutine set_unsed_gw_vars checked by rk4417. This subroutine is not called anywhere.
+core/biogeophys/cable_gw_hydro.F90:!! code below appended as per MMY -- rk4417
+core/biogeophys/cbl_soilsnow_main.F90:!!$ inserted block below as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_main.F90:!!$ -------------  end of block -------------- rk4417 -----------
+core/biogeophys/cable_canopy.F90:!!$    USE cable_gw_hydro_module, ONLY : pore_space_relative_humidity ! replaced as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:    IF (cable_user%gw_model) THEN                   ! inserted if block as per MMY -- rk4417 
+core/biogeophys/cable_canopy.F90:!!$                  * C%SBOLTZ*C%EMLEAF)+met%tvrad(j)**4) .GT. 0.0) THEN    !replaced as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:!!$                     * C%SBOLTZ*C%EMLEAF)+met%tvrad(j)**4)**0.25          !replaced as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:!!$                canopy%tv(j) = met%tvrad(j)     !replaced as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:!!$             canopy%tv(j) = met%tvrad(j)    !replaced as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:          ! IF (cable_user%gw_model .or. cable_user%or_evap) THEN ! MMY                !added MMY comments -- rk4417
+core/biogeophys/cable_canopy.F90:!!$          IF (cable_user%gw_model .OR. cable_user%or_evap) THEN      !replaced as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:          ELSE ! MMY if gw-on but or-off, carry out below   !added MMY comment -- rk4417
+core/biogeophys/cable_canopy.F90:          ! IF (cable_user%gw_model .or. cable_user%or_evap) THEN ! MMY        !added MMY comments -- rk4417
+core/biogeophys/cable_canopy.F90:!!$          IF (cable_user%gw_model .OR. cable_user%or_evap) THEN     !replaced as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:          ELSE     ! MMY if gw-on but or-off, carry out below      !added MMY comment -- rk4417
+core/biogeophys/cable_canopy.F90:!!$            C%SBOLTZ*met%tvrad**4 - C%EMSOIL*C%SBOLTZ*met%tvrad**4     !replaced as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:!!$          IF (cable_user%litter) THEN                                             !replaced as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:          ! ____________________________ MMY ________________________________        ! included MMY comments -- rk4417
+core/biogeophys/cable_canopy.F90:          IF (cable_user%or_evap) THEN                ! line inserted as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:          ELSEIF (cable_user%litter) THEN       ! if sub-block becomes elseif sub-block as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:!!$          IF (cable_user%litter) THEN                                   !replaced as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:          ! ________________ MMY COMMENT OUT _______________                ! included MMY comments -- rk4417
+core/biogeophys/cable_canopy.F90:          IF (cable_user%or_evap) THEN ! MMY                           ! line inserted as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:          ELSEIF (cable_user%litter) then ! MMY        ! if sub-block becomes elseif sub-block as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:!!$    IF (cable_user%gw_model .OR. cable_user%or_evap) THEN   ! replaced line as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:       ! _______________________ MMY redundant ___________________  ! block as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:!!$      IF (cable_user%or_evap .OR. cable_user%gw_model) THEN   ! replaced line as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:!!$         IF (cable_user%or_evap) THEN   ! commented out as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:!!$         END IF    ! commented out as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:!!$           flower_limit(j) = REAL(ssnow%wb(j,1))-soil%swilt(j)/2.0  ! replaced line by if block as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:!!$            fupper_limit(j) = REAL(ssnow%wb(j,1)-ssnow%wbice(j,1)/0.85)*frescale(j)  ! replaced line as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:    REAL, DIMENSION(0:ms+1) :: diff ! MMY      ! inserted 2 lines as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:!!$    REAL :: medlyn_lim  !INH 2018: should be a parameter in long-term  ! commented out as absent from MMY code -- rk4417
+core/biogeophys/cable_canopy.F90:!!$                !INH 2018: enforce gs_coeff to vary proportionally to fwsoil in dry soil conditions ! commented out as absent from MMY code -- rk4417
+core/biogeophys/cable_canopy.F90:!!$                   DO kk = 1,ms             ! commented out as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:                   ! _______________ MMY modify from cable_gw_hydro ________________  ! replaced block above by below as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:!!$                   IF (cable_user%soil_struc=='default') THEN               ! replaced if block by below as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:!!$    IF (.NOT.cable_user%gw_model) THEN      ! replaced if block by one below as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:    if (.not.cable_user%gw_model) THEN        ! replaced if block above as per MMY -- rk4417
+core/biogeophys/cable_canopy.F90:!!$    rwater = MAX(1.0e-9,                                                    &   ! replaced as per MMY -- rk4417
+core/biogeophys/cable_data.F90:!!$      umin   = 1.0    ! line above appears this way in MMY code -- rk4417
+core/biogeophys/cable_common.F90:  LOGICAL :: report_parameters_to_log=.false.   ! line inserted as per MMY -- rk4417
+core/biogeophys/cable_common.F90:  ! just note that MMY has only  um_radiation = .FALSE.  -- rk4417
+core/biogeophys/cable_common.F90:          compress_output        = .FALSE.     ! added line as per MMY -- rk4417
+core/biogeophys/cable_common.F90:     ! note that MMY has the following instead -- rk4417
+core/biogeophys/cable_common.F90:     !just need to test  ! inserted line as per MMY -- rk4417
+core/biogeophys/cable_common.F90:     LOGICAL :: change_soil_depths=.false.   ! added line as per MMY -- rk4417
+core/biogeophys/cable_common.F90:     INTEGER :: force_npatches_as=-1   ! added line as per MMY -- rk4417
+core/biogeophys/cable_common.F90:!!$          gw_elev       !name of file for gw/elevation data  ! replaced as per MMY -- rk4417
+core/biogeophys/cable_common.F90:  LOGICAL :: redistrb = .FALSE.    ! Turn on/off the hydraulic redistribution ! added comment -- rk4417
+core/biogeophys/cable_common.F90:          sfc_vec_hk      = 1.157407e-06, & ! these 2 lines appear in MMY under gw_parameters_type -- rk4417
+core/biogeophys/cable_common.F90:          hyds_vec = 1.0e-4,&      ! with _organic -- rk4417
+core/biogeophys/cable_common.F90:          EfoldHorzDrainScale=1.0, & !e fold rate of q_horz   ! inserted line as per MMY -- rk4417
+core/biogeophys/cable_common.F90:          sfc_vec_hk      = 1.157407e-06, & ! inserted 2 lines as per MMY  -- rk4417
+core/biogeophys/cable_common.F90:     REAL :: ssat_wet_factor=0.85            ! inserted line as per MMY -- rk4417
+core/biogeophys/cable_common.F90:     INTEGER :: aquifer_recharge_function=-1  !0=>no flux,1=>assume gw at hydrostat eq !inserted line as per MMY -- rk4417
+core/biogeophys/cable_common.F90:     LOGICAL :: cosby_univariate=.false. ! added 4 declarations as per MMY -- rk4417
+core/biogeophys/cable_common.F90:  REAL, DIMENSION(17),SAVE :: psi_c = (/-2550000.0,-2550000.0,-2550000.0, &  ! added 2 declarations as per MMY -- rk4417
+core/biogeophys/cable_common.F90:!!$                                                       ! I will commented out -- rk4417
+core/biogeophys/cable_common.F90:!!$  END INTERFACE               ! replaced as per MMY -- rk4417
+core/biogeophys/cable_common.F90:!!$      use cable_def_types_mod, ONLY : veg_parameter_type ! most likely superseded by 2 lines here -- rk4417
+core/biogeophys/cable_common.F90:       veg%froot(h,:)  = vegin%froot(:, veg%iveg(h))   ! inserted this line as per MMY -- rk4417
+core/biogeophys/cable_psm.F90:  USE cable_io_vars_module, only: wlogn   ! added by rk4417 as per MMY code but seems to do nothing in cable_io_vars_module or here
+core/biogeophys/cable_psm.F90:  ! these precomputed values are taken by the sample code in Wikipedia, ! comment inserted by rk4417 as per MMY code 
+core/biogeophys/cable_psm.F90:         soil_moisture_mod_sat, wb_liq, &                                              ! from MMY code -- rk4417
+core/biogeophys/cable_psm.F90:!!$    canopy%sublayer_dz(:) = 0.005   ! this line appears in MMY code but will leave commented for now -- rk4417
+core/biogeophys/cable_psm.F90:!!$   litter_dz(:) = 0.0                ! this block replaces the if block above in MMY code -- rk4417
+core/biogeophys/cable_psm.F90:         EXP(-rough%coexp*(1.0-canopy%sublayer_dz/MAX(1e-2,rough%hruff))))  ! the do loop below in MMY code -- rk4417 
+core/biogeophys/cable_psm.F90:    int_eddy_shape = FLOOR(eddy_shape)                                      ! the if condition below applies to them in MMY code -- rk4417
+core/biogeophys/cable_psm.F90:!!$          hk_zero_sat(i) = max(0.001*soil%hyds_vec(i,1),1e-12)   ! 2 lines here replace ones above in MMY code -- rk4417
+core/biogeophys/cable_psm.F90:!!$          end if     ! this if block replaces one above in MMY code -- rk4417
+core/biogeophys/cable_psm.F90:!!$       canopy%sublayer_dz(i) = canopy%sublayer_dz(i) + litter_dz(i)  ! line from above appears here in MMY code -- rk4417
+core/biogeophys/cable_psm.F90:!!$      if (canopy%sublayer_dz(i) .ge. 1.0e-7 .and. hk_zero(i) .lt. 1.0e14) then  ! line replaces above one in MMY code -- rk4417 
+core/biogeophys/cable_psm.F90:!!$             ssnow%rt_qh_sublayer(i) = canopy%sublayer_dz(i) / litter_thermal_diff  ! line replaces above one in MMY code -- rk4417 
+core/biogeophys/cable_constants.F90:!!$  REAL,    PARAMETER :: umin   = 1.0   ! line above appears this way in MMY code -- rk4417
+core/biogeophys/cable_roughness.F90:                                                ! but same effect -- rk4417 
+core/biogeophys/cable_roughness.F90:       WHERE( ssnow%snowd .GT. 0.01 .AND. veg%iveg == 17  )  &  ! extra line supersedes MMY code -- rk4417
+core/biogeophys/cable_roughness.F90:       rough%zref_uv = MAX( 3.5 + rough%z0m, rough%za_uv )   ! 4 lines supersede MMY code -- rk4417
+core/biogeophys/cable_roughness.F90:       rough%zref_uv = MAX( 3.5 + rough%z0m, rough%za_uv )      ! 4 lines supersede MMY code -- rk4417
+core/biogeophys/cable_roughness.F90:       rough%zref_uv = MAX( rough%zref_uv, rough%hruff-rough%disp )  ! unlike MMY code -- rk4417
+core/biogeophys/cable_albedo.F90:!!$    WHERE (soil%isoilm == 9)       ! use dry snow albedo   ! This bit appears instead in MYY code --rk4417
+core/biogeophys/cable_climate.F90:!#define UM_BUILD YES       ! This line is uncommented in MMY code -- rk4417
+core/biogeophys/cable_climate.F90:       air, rad, dels, np)   ! missing rad argument in MMY code -- rk4417
+core/biogeophys/cable_climate.F90:  SUBROUTINE climate_init ( climate,np, ktauday )  ! missing ktauday argument in MMY code -- rk4417
+core/biogeophys/cable_climate.F90:       CALL READ_CLIMATE_RESTART_NC (climate, ktauday)  ! missing ktauday argument in MMY code -- rk4417
+core/biogeophys/cable_climate.F90:  SUBROUTINE WRITE_CLIMATE_RESTART_NC ( climate, ktauday ) ! missing ktauday argument in MMY code -- rk4417
+core/biogeophys/cable_climate.F90:  SUBROUTINE READ_CLIMATE_RESTART_NC ( climate, ktauday ) ! missing ktauday argument in MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:    INTEGER, DIMENSION(mp,3) :: ssnow_isflag_ssdn  ! inserted this line as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:!!$    REAL, DIMENSION(mp,3) :: ssnow_tgg_min  ! replaced by line below as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:    CALL point2constants( C )   ! note that this line is missing from MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:    ssnow_isflag_ssdn = SPREAD( ssnow%isflag,2,mp)    ! inserted 2 lines as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:    CALL point2constants( C )   ! note that this line is missing from MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:    CALL point2constants( C )   ! note that this line is missing from MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:    CALL point2constants( C )   ! note that this line is missing from MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:    ssnow%otgg(:,:) = ssnow%tgg     ! inserted this line as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:    CALL point2constants( C )   ! note that this line is missing from MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:    CALL point2constants( C )   ! note that this line is missing from MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:    CALL point2constants( C )   ! note that this line is missing from MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:    CALL point2constants( C )   ! note that this line is missing from MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:    CALL point2constants( C )   ! note that this line is missing from MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:!!$  note that above line appears as below in MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:!!$    !track snow melt   ! the above line supersedes the one below from MMY code -- rk4417 
+core/biogeophys/cbl_soilsnow_subrs.F90:                     ! as snowmlt is passed here in the call -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:!!$    REAL, DIMENSION(mp) ::   &   ! replaced by line below as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:!!$    REAL, DIMENSION(mp) ::   &  ! replaced by line below as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:!!$         ccnsw  ! soil thermal conductivity (incl water/ice) ! replaced by below as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:!!$    INTEGER :: j,k   ! replaced by below as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:    CALL point2constants( C )   ! note that this line is missing from MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:    dels_r2 = real(dels,r_2)     ! inserted this line as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:!!$    coeff = 0.0   !  ! replaced block by one below as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:   at = 0._r_2            ! ---- start -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:   end do           ! ---- end -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:!!$       xx(:) = MAX( 0., ssnow%snowd / ssnow%ssdnn )     ! replaced by block below as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:!!$          coeff(:,k) = 2.0 / ( soil%zse(k-1) / ccnsw(:,k-1) + soil%zse(k) / & ! replaced by block below as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:!!$       dtg = dels / ssnow%gammzz(:,k)     ! replaced block by one below as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:!!$          dtg = dels / ssnow%gammzz(:,k)       ! replaced block by one below as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:!!$            * REAL( canopy%dgdtg ) ) * dels / REAL( ssnow%gammzz(:,1) ) ! replaced by block below as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:!!$            & + soil%zse(1) / ccnsw (:,1) )        ! replaced by block below as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:!!$            ccnsw(:,k) )  ! replaced by below as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:!!$       coefb = REAL( coeff (:,1) ) ! replaced 2 lines by below as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:       coefa = coeff (:,-1)           ! at the end 'real' is applied to these coefficients -- rk4417 
+core/biogeophys/cbl_soilsnow_subrs.F90:!!$          dtg = dels / sgamm    ! replaced by below as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:!!$          bt(:,k) = 1.0 - at(:,k) - ct(:,k)    ! replaced block by one below as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:!!$            * REAL( canopy%dgdtg ) ) * dels / sgamm    ! replaced by below as per MMY code -- rk4417
+core/biogeophys/cbl_soilsnow_subrs.F90:!!$    canopy%sghflux = coefa * ( ssnow%tggsn(:,1) - ssnow%tggsn(:,2) ) ! replaced 2 lines by below as per MMY code -- rk4417
+core/biogeophys/cable_cbm.F90:!!$  The line above appears uncommented in MMY code -- rk4417   
+core/biogeophys/cable_cbm.F90:!!$       The line above is different in MMY code -- rk4417
+core/utils/cable_pft_params.F90:!!$  above line appears as below in MMY code -- rk4417
+core/utils/cable_pft_params.F90:!!$  above line appears as below in MMY code -- rk4417
+core/utils/cable_pft_params.F90:!!$  note that above block appears in MMY code as the following IF block -- rk4417

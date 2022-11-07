@@ -1,0 +1,31 @@
+  SUBROUTINE aquifer_recharge(dt,ssnow,soil,veg,zaq,zmm,dzmm)
+    USE cable_common_module
+
+    IMPLICIT NONE
+    REAL, INTENT(in) :: dt
+    TYPE (soil_snow_type), INTENT(INOUT)      :: ssnow ! soil and snow variables
+    TYPE (soil_parameter_type), INTENT(INOUT)    :: soil  ! soil parameters
+    TYPE (veg_parameter_type), INTENT(INOUT)     :: veg
+    REAL(r_2), DIMENSION(:), INTENT(in)       :: zaq
+    REAL(r_2), DIMENSION(:), INTENT(in)       :: zmm,dzmm
+
+    INTEGER :: i
+    !Doing the recharge outside of the soln of Richards Equation makes it easier to track total recharge amount.
+    !Add to ssnow at some point
+    DO i=1,mp
+       IF ((ssnow%wtd(i) .LE. SUM(dzmm,dim=1)) .OR. &
+            (veg%iveg(i) .GE. 16) .OR. &
+            (soil%isoilm(i) .EQ. 9))  THEN
+
+          ssnow%Qrecharge(i) = 0._r_2
+       ELSE
+          ssnow%Qrecharge(i) = -0.5*(ssnow%hk(i,ms)*ssnow%GWhk(i))*&
+               ((-ssnow%smp(i,ms)) -&
+               (-ssnow%zq(i,ms))) / &
+               (ssnow%wtd(i) - &
+               (zmm(ms)-0.5*soil%zse_vec(i,ms)*1000.0))
+       END IF
+    END DO
+
+
+  END SUBROUTINE aquifer_recharge
