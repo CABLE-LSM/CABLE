@@ -506,9 +506,9 @@ CONTAINS
        temparray2 = SPREAD(temparray1,1,xdimsize)
        DEALLOCATE(temparray1)
 
-!!$       DO x=1,xdimsize       ! this loop replaces the else part in MMY code -- rk4417
-!!$          ok= NF90_GET_VAR(ncid_met,latitudeID,temparray2(x,:))
-!!$       ENDDO
+!$       DO x=1,xdimsize       ! this loop replaces the else part in MMY code -- rk4417
+!$          ok= NF90_GET_VAR(ncid_met,latitudeID,temparray2(x,:))
+!$       ENDDO
     END IF
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error reading latitude variable in met data file ' &
@@ -539,9 +539,9 @@ CONTAINS
        temparray2 = SPREAD(temparray1,2,ydimsize)
        DEALLOCATE(temparray1)
 
-!!$       DO y=1,ydimsize    ! this loop replaces the else part in MMY code -- rk4417
-!!$          ok= NF90_GET_VAR(ncid_met,longitudeID,temparray2(:,y))
-!!$       ENDDO
+!$       DO y=1,ydimsize    ! this loop replaces the else part in MMY code -- rk4417
+!$          ok= NF90_GET_VAR(ncid_met,longitudeID,temparray2(:,y))
+!$       ENDDO
     END IF
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error reading longitude variable in met data file ' &
@@ -1110,9 +1110,9 @@ CONTAINS
             (ok,'Error finding LWdown units in met data file ' &
             //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
        !! vh_js !! fixed bug in logic
-!!$       IF(metunits%LWdown(1:4)/='W/m2'.AND.metunits%LWdown(1:5) &
-!!$            /='W/m^2'.AND.metunits%LWdown(1:5)/='Wm^-2' &
-!!$            .AND.metunits%LWdown(1:4)/='Wm-2') THEN
+!$       IF(metunits%LWdown(1:4)/='W/m2'.AND.metunits%LWdown(1:5) &
+!$            /='W/m^2'.AND.metunits%LWdown(1:5)/='Wm^-2' &
+!$            .AND.metunits%LWdown(1:4)/='Wm-2') THEN
        IF(.NOT.(metunits%LWdown(1:4)/='W/m2'.OR.metunits%LWdown(1:5) &
             /='W/m^2'.OR.metunits%LWdown(1:5)/='Wm^-2' &
             .OR.metunits%LWdown(1:4)/='Wm-2'.OR.metunits%SWdown(1:5) /= 'W m-2')) THEN

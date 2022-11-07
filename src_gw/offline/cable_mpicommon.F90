@@ -29,7 +29,7 @@ MODULE cable_mpicommon
 
   ! base number of input fields: must correspond to CALLS to 
   ! MPI_address (field ) in *_mpimaster/ *_mpiworker
-!!$  INTEGER, PARAMETER :: nparam = 330    !  replaced line by block below as per MMY code -- rk4417
+!$  INTEGER, PARAMETER :: nparam = 330    !  replaced line by block below as per MMY code -- rk4417
    
   ! MPI: base number of input fields sent to workers as start up
   ! parameters !INTEGER, PARAMETER :: nparam = 68
@@ -96,7 +96,7 @@ MODULE cable_mpicommon
   !INTEGER, PARAMETER :: nmat = 29
   ! MPI: CABLE_r491, after following up with Bernard on the new variables
   ! vh sli nmat + 4 36 -> 40
-!!$  INTEGER, PARAMETER :: nmat = 40   ! replaced line by one below as per MMY code -- rk4417
+!$  INTEGER, PARAMETER :: nmat = 40   ! replaced line by one below as per MMY code -- rk4417
   INTEGER, PARAMETER :: nmat = 46  !hysteresis 41
   
   ! MPI: number of contig vector parts / worker (results)
@@ -114,7 +114,7 @@ MODULE cable_mpicommon
   ! vh sli nvec + 6 162 -> 168
   ! INTEGER, PARAMETER :: nvec = 172! 168
   ! INH REV_CORR +3  (SSEB +2 will be needed)
-!!$  INTEGER, PARAMETER :: nvec = 175    ! replaced line by one below as per MMY code -- rk4417
+!$  INTEGER, PARAMETER :: nvec = 175    ! replaced line by one below as per MMY code -- rk4417
   INTEGER, PARAMETER :: nvec = 176! 176!175
 
   ! MPI: number of final casa result matrices and vectors to receive

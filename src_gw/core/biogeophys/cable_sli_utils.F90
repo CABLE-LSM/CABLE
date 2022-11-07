@@ -512,16 +512,16 @@ CONTAINS
              dEdTs= zero
              !   write(*,*) "Epot3", Tsurface, vmet%Ta, Epot, Hpot, vmet%rbh
           ENDIF
-!!$          elseif (abs(Tsurface - vmet%Ta).gt. 20) then
-!!$             Tsurface = min(vmet%Ta, 0.0)
-!!$             Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
-!!$                  vmet%cva)*rhow*lambdas/vmet%rbw
-!!$             dEdTsoil = zero
-!!$             dGdTsoil = zero
-!!$             Hpot = rhocp*(Tsurface - vmet%Ta)/vmet%rbh
-!!$             Gpot = vmet%Rn-vmet%Rnsw - Hpot - Epot
-!!$             dEdTs= zero
-!!$           endif
+!$          elseif (abs(Tsurface - vmet%Ta).gt. 20) then
+!$             Tsurface = min(vmet%Ta, 0.0)
+!$             Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
+!$                  vmet%cva)*rhow*lambdas/vmet%rbw
+!$             dEdTsoil = zero
+!$             dGdTsoil = zero
+!$             Hpot = rhocp*(Tsurface - vmet%Ta)/vmet%rbh
+!$             Gpot = vmet%Rn-vmet%Rnsw - Hpot - Epot
+!$             dEdTs= zero
+!$           endif
           qevap = Epot/(rhow*lambdas)
           qTb = -dEdTsoil/(thousand*lambdas)
        ENDIF
@@ -1754,16 +1754,16 @@ CONTAINS
 
        ! add advective terms
        IF (advection==1) THEN
-!!$                   if (q(i) > zero) then
-!!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
-!!$                    else
-!!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
-!!$                    endif
-!!$                    qadv(i) = rhow*cswat*q(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
-!!$                    qadvya(i) =  rhow*cswat*qya(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
-!!$                    qadvyb(i) =  rhow*cswat*qyb(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
-!!$                    qadvTa(i) =  rhow*cswat*q(i)*w
-!!$                    qadvTb(i) =  rhow*cswat*q(i)*(one-w)
+!$                   if (q(i) > zero) then
+!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
+!$                    else
+!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
+!$                    endif
+!$                    qadv(i) = rhow*cswat*q(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
+!$                    qadvya(i) =  rhow*cswat*qya(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
+!$                    qadvyb(i) =  rhow*cswat*qyb(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
+!$                    qadvTa(i) =  rhow*cswat*q(i)*w
+!$                    qadvTb(i) =  rhow*cswat*q(i)*(one-w)
           Tqw  = MERGE(T(i), T(i+1), q(i)>zero) +zero
 
           dTqwdTa = MERGE(one, zero, (q(i)>zero))

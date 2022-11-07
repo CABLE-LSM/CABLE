@@ -94,7 +94,7 @@ USE cbl_soil_snow_subrs_module
        END DO
     END IF
 
-!!$ inserted block below as per MMY code -- rk4417
+!$ inserted block below as per MMY code -- rk4417
 
    IF( .NOT.cable_user%cable_runtime_coupled ) THEN
 
@@ -162,7 +162,7 @@ USE cbl_soil_snow_subrs_module
 
    END IF
 
-!!$ -------------  end of block -------------- rk4417 -----------
+!$ -------------  end of block -------------- rk4417 -----------
     
     ssnow%wbliq = ssnow%wb - ssnow%wbice
 

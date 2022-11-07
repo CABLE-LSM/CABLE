@@ -65,19 +65,19 @@ CONTAINS
     REAL, PARAMETER:: SBoltz  = 5.67e-8  ! Stefan-Boltzmann constant [W/m2/K4]
     climate%doy = idoy
 
-!!$! * Find irradiances, available energy, equilibrium latent heat flux
-!!$PPc    = Gaero / ( Gaero + 4.0*SBoltz*((TempA+273.16)**3)/(RhoA*Capp) )
-!!$                                                    ! PPc = Ga/(Ga+Gr)      [-]
-!!$EpsA   = Epsif(TempA, Pmb)                          ! Epsi at TempA         [-]
-!!$PhiSd  = SolarMJ * 1.0e6 / (DayltFrac*SecDay)       ! daylt down solar      [W/m2]
-!!$PhiLd  = 335.97 * (((TempA + 273.16) / 293.0)**6)   ! daylt down thermal    [W/m2]
-!!$                                                    !   (Swinbank formula)
-!!$PhiAi  = (1.0-Albedo)*PhiSd + Emis *    &           ! daylt iso-avail engy  [W/m2]
-!!$         (PhiLd - SBoltz*((TempA + 273.16)**4))     !   (veg + soil)
-!!$PhiEq  = PhiAi * (PPc*EpsA) / (PPc*EpsA + 1.0)      ! equil ltnt heat flux  [W/m2]
-!!$PhiEq  = max(PhiEq, 1.0)                            ! PhiEq > +1 W/m2, so non-negative
-!!$                                    ! precipitation         [m/day]
-!!$FWPT   = CoeffPT * PhiEq * ((DayltFrac*SecDay) / (RhoW*Rlat))
+!$! * Find irradiances, available energy, equilibrium latent heat flux
+!$PPc    = Gaero / ( Gaero + 4.0*SBoltz*((TempA+273.16)**3)/(RhoA*Capp) )
+!$                                                    ! PPc = Ga/(Ga+Gr)      [-]
+!$EpsA   = Epsif(TempA, Pmb)                          ! Epsi at TempA         [-]
+!$PhiSd  = SolarMJ * 1.0e6 / (DayltFrac*SecDay)       ! daylt down solar      [W/m2]
+!$PhiLd  = 335.97 * (((TempA + 273.16) / 293.0)**6)   ! daylt down thermal    [W/m2]
+!$                                                    !   (Swinbank formula)
+!$PhiAi  = (1.0-Albedo)*PhiSd + Emis *    &           ! daylt iso-avail engy  [W/m2]
+!$         (PhiLd - SBoltz*((TempA + 273.16)**4))     !   (veg + soil)
+!$PhiEq  = PhiAi * (PPc*EpsA) / (PPc*EpsA + 1.0)      ! equil ltnt heat flux  [W/m2]
+!$PhiEq  = max(PhiEq, 1.0)                            ! PhiEq > +1 W/m2, so non-negative
+!$                                    ! precipitation         [m/day]
+!$FWPT   = CoeffPT * PhiEq * ((DayltFrac*SecDay) / (RhoW*Rlat))
 
     ! accumulate annual evaporation and potential evaporation
     !ppc = 1.0

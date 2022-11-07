@@ -110,8 +110,8 @@ MODULE cable_common_module
           compress_output        = .FALSE.     ! added line as per MMY -- rk4417
      
      ! note that MMY has the following instead -- rk4417
-!!$          Climate_fromZero       = .TRUE., &
-!!$          CASA_fromZero          = .TRUE., &
+!$          Climate_fromZero       = .TRUE., &
+!$          CASA_fromZero          = .TRUE., &
      
      INTEGER  :: &
           CASA_SPIN_STARTYEAR = 1950, &
@@ -201,7 +201,7 @@ MODULE cable_common_module
           soilcolor,  & ! file for soil color(soilcolor_global_1x1.nc)
           inits,      & ! name of file for initialisations
           soilIGBP,   & ! name of file for IGBP soil map
-!!$          gw_elev       !name of file for gw/elevation data  ! replaced as per MMY -- rk4417
+!$          gw_elev       !name of file for gw/elevation data  ! replaced as per MMY -- rk4417
           gw_elev='', & !name of file for gw/elevation datq
           gw_soils=''   !itled/layerd soil params
                         !give default as not not required
@@ -301,15 +301,15 @@ MODULE cable_common_module
   !jhan:temporary measure. improve hiding
   !   real, dimension(:,:), pointer,save :: c1, rhoch
 
-!!$  !CABLE_LSM: intro'd quick writing capbility. remove from here. keep for ref
-!!$  character(len=*), parameter :: &                     ! this bit appears in MMY code but seems 
-!!$    fprintf_dir_root = "/short/w35/mrd561/10.6/diag/"  ! customized for mrd561
-!!$                                                       ! I will commented out -- rk4417
-!!$  character(len=200) :: fprintf_dir
+!$  !CABLE_LSM: intro'd quick writing capbility. remove from here. keep for ref
+!$  character(len=*), parameter :: &                     ! this bit appears in MMY code but seems 
+!$    fprintf_dir_root = "/short/w35/mrd561/10.6/diag/"  ! customized for mrd561
+!$                                                       ! I will commented out -- rk4417
+!$  character(len=200) :: fprintf_dir
   
   INTERFACE fudge_out
      MODULE PROCEDURE fudge_out_r2D, fudge_out_r1D, fudge_out_r3D, fudge_out_i2D
-!!$  END INTERFACE               ! replaced as per MMY -- rk4417
+!$  END INTERFACE               ! replaced as per MMY -- rk4417
   END INTERFACE fudge_out
   
 CONTAINS
