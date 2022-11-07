@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 6.0% of total for source files.">2977 statements</a>
+    title=" 5.3% of total for source files.">2967 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_sli_solve.F90"> Source File</a></li>
   </ul>
@@ -1236,24 +1236,24 @@
 <a id="ln-1079" name="ln-1079" href="#ln-1079"></a><span class="k">       end if</span>
 <a id="ln-1080" name="ln-1080" href="#ln-1080"></a>
 <a id="ln-1081" name="ln-1081" href="#ln-1081"></a><span class="k">       if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">again</span><span class="p">(</span><span class="n">kk</span><span class="p">))</span><span class="w"> </span><span class="k">then</span><span class="w"></span>
-<a id="ln-1082" name="ln-1082" href="#ln-1082"></a><span class="c">!!$                   if (h0(kk)&lt;zero .and. var(1)%isat==0 .and. (i==1)) then ! start negative pond correction</span>
-<a id="ln-1083" name="ln-1083" href="#ln-1083"></a><span class="c">!!$                      infil(kk)     = infil(kk)+h0(kk)</span>
-<a id="ln-1084" name="ln-1084" href="#ln-1084"></a><span class="c">!!$                      ! negative pond converted to loss of soil moisture in top two layers</span>
-<a id="ln-1085" name="ln-1085" href="#ln-1085"></a><span class="c">!!$                      S(1) = S(1) + h0(kk)/(dx(1)*par(1)%thre)* dx(1)/(dx(1)+dx(2))</span>
-<a id="ln-1086" name="ln-1086" href="#ln-1086"></a><span class="c">!!$                      deltaS(1) = h0(kk)/(dx(1)*par(1)%thre)* dx(1)/(dx(1)+dx(2))</span>
-<a id="ln-1087" name="ln-1087" href="#ln-1087"></a><span class="c">!!$                      ! adjust flux between layer 1 and layer 2</span>
-<a id="ln-1088" name="ln-1088" href="#ln-1088"></a><span class="c">!!$                      qlsig(1) = qlsig(1) + h0(kk)* dx(2)/(dx(1)+dx(2))/dt(kk)</span>
-<a id="ln-1089" name="ln-1089" href="#ln-1089"></a><span class="c">!!$                      deltaS(2) =   h0(kk)/(dx(2)*par(2)%thre)* dx(2)/(dx(1)+dx(2))</span>
-<a id="ln-1090" name="ln-1090" href="#ln-1090"></a><span class="c">!!$                      if (var(2)%isat.eq.0) then</span>
-<a id="ln-1091" name="ln-1091" href="#ln-1091"></a><span class="c">!!$                         dy(2) = dy(2) + deltaS(2)</span>
-<a id="ln-1092" name="ln-1092" href="#ln-1092"></a><span class="c">!!$                      else</span>
-<a id="ln-1093" name="ln-1093" href="#ln-1093"></a><span class="c">!!$                         dy(2) = deltaS(2)</span>
-<a id="ln-1094" name="ln-1094" href="#ln-1094"></a><span class="c">!!$                         var(2)%isat = 0</span>
-<a id="ln-1095" name="ln-1095" href="#ln-1095"></a><span class="c">!!$                      endif</span>
-<a id="ln-1096" name="ln-1096" href="#ln-1096"></a><span class="c">!!$</span>
-<a id="ln-1097" name="ln-1097" href="#ln-1097"></a><span class="c">!!$                      deltah0(kk) = -(h0(kk)-deltah0(kk)) ! whole pond lost (new change = - original pond height)</span>
-<a id="ln-1098" name="ln-1098" href="#ln-1098"></a><span class="c">!!$                      h0(kk) = zero  ! zero pond remaining</span>
-<a id="ln-1099" name="ln-1099" href="#ln-1099"></a><span class="c">!!$                   endif</span>
+<a id="ln-1082" name="ln-1082" href="#ln-1082"></a><span class="c">!$                   if (h0(kk)&lt;zero .and. var(1)%isat==0 .and. (i==1)) then ! start negative pond correction</span>
+<a id="ln-1083" name="ln-1083" href="#ln-1083"></a><span class="c">!$                      infil(kk)     = infil(kk)+h0(kk)</span>
+<a id="ln-1084" name="ln-1084" href="#ln-1084"></a><span class="c">!$                      ! negative pond converted to loss of soil moisture in top two layers</span>
+<a id="ln-1085" name="ln-1085" href="#ln-1085"></a><span class="c">!$                      S(1) = S(1) + h0(kk)/(dx(1)*par(1)%thre)* dx(1)/(dx(1)+dx(2))</span>
+<a id="ln-1086" name="ln-1086" href="#ln-1086"></a><span class="c">!$                      deltaS(1) = h0(kk)/(dx(1)*par(1)%thre)* dx(1)/(dx(1)+dx(2))</span>
+<a id="ln-1087" name="ln-1087" href="#ln-1087"></a><span class="c">!$                      ! adjust flux between layer 1 and layer 2</span>
+<a id="ln-1088" name="ln-1088" href="#ln-1088"></a><span class="c">!$                      qlsig(1) = qlsig(1) + h0(kk)* dx(2)/(dx(1)+dx(2))/dt(kk)</span>
+<a id="ln-1089" name="ln-1089" href="#ln-1089"></a><span class="c">!$                      deltaS(2) =   h0(kk)/(dx(2)*par(2)%thre)* dx(2)/(dx(1)+dx(2))</span>
+<a id="ln-1090" name="ln-1090" href="#ln-1090"></a><span class="c">!$                      if (var(2)%isat.eq.0) then</span>
+<a id="ln-1091" name="ln-1091" href="#ln-1091"></a><span class="c">!$                         dy(2) = dy(2) + deltaS(2)</span>
+<a id="ln-1092" name="ln-1092" href="#ln-1092"></a><span class="c">!$                      else</span>
+<a id="ln-1093" name="ln-1093" href="#ln-1093"></a><span class="c">!$                         dy(2) = deltaS(2)</span>
+<a id="ln-1094" name="ln-1094" href="#ln-1094"></a><span class="c">!$                         var(2)%isat = 0</span>
+<a id="ln-1095" name="ln-1095" href="#ln-1095"></a><span class="c">!$                      endif</span>
+<a id="ln-1096" name="ln-1096" href="#ln-1096"></a><span class="c">!$</span>
+<a id="ln-1097" name="ln-1097" href="#ln-1097"></a><span class="c">!$                      deltah0(kk) = -(h0(kk)-deltah0(kk)) ! whole pond lost (new change = - original pond height)</span>
+<a id="ln-1098" name="ln-1098" href="#ln-1098"></a><span class="c">!$                      h0(kk) = zero  ! zero pond remaining</span>
+<a id="ln-1099" name="ln-1099" href="#ln-1099"></a><span class="c">!$                   endif</span>
 <a id="ln-1100" name="ln-1100" href="#ln-1100"></a>
 <a id="ln-1101" name="ln-1101" href="#ln-1101"></a><span class="w">          </span><span class="c">! water in profile initially</span>
 <a id="ln-1102" name="ln-1102" href="#ln-1102"></a><span class="w">          </span><span class="n">wpi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">sum</span><span class="p">((</span><span class="n">par</span><span class="p">(:)%</span><span class="n">thr</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">par</span><span class="p">(:)%</span><span class="n">the</span><span class="o">-</span><span class="n">par</span><span class="p">(:)%</span><span class="n">thr</span><span class="p">)</span><span class="o">*</span><span class="n">S</span><span class="p">(:))</span><span class="o">*</span><span class="n">dx</span><span class="p">(:))</span><span class="w"></span>
@@ -2617,18 +2617,18 @@
 <a id="ln-2460" name="ln-2460" href="#ln-2460"></a><span class="k">          endif</span><span class="w"></span>
 <a id="ln-2461" name="ln-2461" href="#ln-2461"></a>
 <a id="ln-2462" name="ln-2462" href="#ln-2462"></a><span class="w">          </span><span class="c">! pond decreasing or runoff starts</span>
-<a id="ln-2463" name="ln-2463" href="#ln-2463"></a><span class="c">!!$          if (iok(kk)==1 .and. ns(kk)&lt;1 .and. h0(kk)+dy(1)&lt;h0min) then ! pond going</span>
-<a id="ln-2464" name="ln-2464" href="#ln-2464"></a><span class="c">!!$             fac(kk) = -(h0(kk)-half*h0min)/dy(1)</span>
-<a id="ln-2465" name="ln-2465" href="#ln-2465"></a><span class="c">!!$             nfac9(kk) = nfac9(kk) +1</span>
-<a id="ln-2466" name="ln-2466" href="#ln-2466"></a><span class="c">!!$             iok(kk) = 0</span>
-<a id="ln-2467" name="ln-2467" href="#ln-2467"></a><span class="c">!!$          end if</span>
+<a id="ln-2463" name="ln-2463" href="#ln-2463"></a><span class="c">!$          if (iok(kk)==1 .and. ns(kk)&lt;1 .and. h0(kk)+dy(1)&lt;h0min) then ! pond going</span>
+<a id="ln-2464" name="ln-2464" href="#ln-2464"></a><span class="c">!$             fac(kk) = -(h0(kk)-half*h0min)/dy(1)</span>
+<a id="ln-2465" name="ln-2465" href="#ln-2465"></a><span class="c">!$             nfac9(kk) = nfac9(kk) +1</span>
+<a id="ln-2466" name="ln-2466" href="#ln-2466"></a><span class="c">!$             iok(kk) = 0</span>
+<a id="ln-2467" name="ln-2467" href="#ln-2467"></a><span class="c">!$          end if</span>
 <a id="ln-2468" name="ln-2468" href="#ln-2468"></a>
-<a id="ln-2469" name="ln-2469" href="#ln-2469"></a><span class="c">!!$           ! pond decreasing or runoff starts</span>
-<a id="ln-2470" name="ln-2470" href="#ln-2470"></a><span class="c">!!$          if (iok(kk)==1 .and. ns(kk)&lt;1 .and.S(1)*par(1)%thre*dx(1) + h0(kk)+dy(1)&lt;0.1*dx(1)) then ! pond going</span>
-<a id="ln-2471" name="ln-2471" href="#ln-2471"></a><span class="c">!!$             fac(kk) = -(S(1)*par(1)%thre*dx(1)+h0(kk)-half*0.1*dx(1))/dy(1)</span>
-<a id="ln-2472" name="ln-2472" href="#ln-2472"></a><span class="c">!!$             nfac9(kk) = nfac9(kk) +1</span>
-<a id="ln-2473" name="ln-2473" href="#ln-2473"></a><span class="c">!!$             iok(kk) = 0</span>
-<a id="ln-2474" name="ln-2474" href="#ln-2474"></a><span class="c">!!$          end if</span>
+<a id="ln-2469" name="ln-2469" href="#ln-2469"></a><span class="c">!$           ! pond decreasing or runoff starts</span>
+<a id="ln-2470" name="ln-2470" href="#ln-2470"></a><span class="c">!$          if (iok(kk)==1 .and. ns(kk)&lt;1 .and.S(1)*par(1)%thre*dx(1) + h0(kk)+dy(1)&lt;0.1*dx(1)) then ! pond going</span>
+<a id="ln-2471" name="ln-2471" href="#ln-2471"></a><span class="c">!$             fac(kk) = -(S(1)*par(1)%thre*dx(1)+h0(kk)-half*0.1*dx(1))/dy(1)</span>
+<a id="ln-2472" name="ln-2472" href="#ln-2472"></a><span class="c">!$             nfac9(kk) = nfac9(kk) +1</span>
+<a id="ln-2473" name="ln-2473" href="#ln-2473"></a><span class="c">!$             iok(kk) = 0</span>
+<a id="ln-2474" name="ln-2474" href="#ln-2474"></a><span class="c">!$          end if</span>
 <a id="ln-2475" name="ln-2475" href="#ln-2475"></a>
 <a id="ln-2476" name="ln-2476" href="#ln-2476"></a><span class="w">          </span><span class="c">! J0+deltaJ&lt;J(thetai=theta) i.e. too much energy extracted</span>
 <a id="ln-2477" name="ln-2477" href="#ln-2477"></a><span class="w">          </span><span class="n">J0</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rhow</span><span class="o">*</span><span class="n">cswat</span><span class="o">*</span><span class="p">(</span><span class="n">Tsoil</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="n">dx</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">var</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">thetal</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
@@ -2643,11 +2643,11 @@
 <a id="ln-2486" name="ln-2486" href="#ln-2486"></a><span class="w">          </span><span class="n">c2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rhow</span><span class="o">*</span><span class="p">((</span><span class="n">tmp1d3</span><span class="p">(</span><span class="n">kk</span><span class="p">))</span><span class="o">*</span><span class="n">csice</span><span class="o">-</span><span class="n">lambdaf</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">dx</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">theta</span><span class="o">+</span><span class="n">tmp1d4</span><span class="p">(</span><span class="n">kk</span><span class="p">)</span><span class="o">*</span><span class="n">theta</span><span class="o">/</span><span class="n">par</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">thre</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! projected energy content</span>
 <a id="ln-2487" name="ln-2487" href="#ln-2487"></a><span class="w">               </span><span class="n">rhow</span><span class="o">*</span><span class="p">(</span><span class="n">tmp1d3</span><span class="p">(</span><span class="n">kk</span><span class="p">))</span><span class="o">*</span><span class="n">cswat</span><span class="o">*</span><span class="n">tmp1d4</span><span class="p">(</span><span class="n">kk</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">one</span><span class="o">-</span><span class="n">theta</span><span class="o">/</span><span class="n">par</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">thre</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-2488" name="ln-2488" href="#ln-2488"></a><span class="w">               </span><span class="n">dx</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">tmp1d3</span><span class="p">(</span><span class="n">kk</span><span class="p">))</span><span class="o">*</span><span class="n">par</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">rho</span><span class="o">*</span><span class="n">par</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">css</span><span class="w"></span>
-<a id="ln-2489" name="ln-2489" href="#ln-2489"></a><span class="c">!!$          if(((tmp1d2(kk))-c2)&lt;zero) then</span>
-<a id="ln-2490" name="ln-2490" href="#ln-2490"></a><span class="c">!!$             fac(kk) = 0.5_r_2</span>
-<a id="ln-2491" name="ln-2491" href="#ln-2491"></a><span class="c">!!$             iok(kk) = 0</span>
-<a id="ln-2492" name="ln-2492" href="#ln-2492"></a><span class="c">!!$             nfac10(kk) = nfac10(kk)+1</span>
-<a id="ln-2493" name="ln-2493" href="#ln-2493"></a><span class="c">!!$          endif</span>
+<a id="ln-2489" name="ln-2489" href="#ln-2489"></a><span class="c">!$          if(((tmp1d2(kk))-c2)&lt;zero) then</span>
+<a id="ln-2490" name="ln-2490" href="#ln-2490"></a><span class="c">!$             fac(kk) = 0.5_r_2</span>
+<a id="ln-2491" name="ln-2491" href="#ln-2491"></a><span class="c">!$             iok(kk) = 0</span>
+<a id="ln-2492" name="ln-2492" href="#ln-2492"></a><span class="c">!$             nfac10(kk) = nfac10(kk)+1</span>
+<a id="ln-2493" name="ln-2493" href="#ln-2493"></a><span class="c">!$          endif</span>
 <a id="ln-2494" name="ln-2494" href="#ln-2494"></a>
 <a id="ln-2495" name="ln-2495" href="#ln-2495"></a><span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fac</span><span class="p">(</span><span class="n">kk</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">one</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <a id="ln-2496" name="ln-2496" href="#ln-2496"></a><span class="k">             </span><span class="n">again_ice</span><span class="p">(</span><span class="n">kk</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w">  </span><span class="c">! reset all again_ice if calc is to be repeated with smaller time-step</span>
@@ -2691,27 +2691,27 @@
 <a id="ln-2534" name="ln-2534" href="#ln-2534"></a><span class="k">       end if</span><span class="w">  </span><span class="c">! (.not. again(kk))</span>
 <a id="ln-2535" name="ln-2535" href="#ln-2535"></a><span class="w">       </span><span class="n">nsteps</span><span class="p">(</span><span class="n">kk</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nsteps</span><span class="p">(</span><span class="n">kk</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-2536" name="ln-2536" href="#ln-2536"></a>
-<a id="ln-2537" name="ln-2537" href="#ln-2537"></a><span class="c">!!$                if ((irec.eq.8992).and.(kk.eq.1) ) then</span>
-<a id="ln-2538" name="ln-2538" href="#ln-2538"></a><span class="c">!!$                   !if ((irec.eq.5).and.(kk.eq.1626)  .and. wlogn == 1011) then</span>
-<a id="ln-2539" name="ln-2539" href="#ln-2539"></a><span class="c">!!$                    write(*,*) &#39;writing diags&#39;, again(kk), nsteps(kk)</span>
-<a id="ln-2540" name="ln-2540" href="#ln-2540"></a><span class="c">!!$</span>
-<a id="ln-2541" name="ln-2541" href="#ln-2541"></a><span class="c">!!$                    ! if (.not. again(kk)) then</span>
-<a id="ln-2542" name="ln-2542" href="#ln-2542"></a><span class="c">!!$ !write(345,&quot;(13i8,1500e16.6)&quot;)</span>
-<a id="ln-2543" name="ln-2543" href="#ln-2543"></a><span class="c">!!$                    write(346,&quot;(13i8,1500e16.6)&quot;) nsteps(kk), nfac1(kk), nfac2(kk), nfac3(kk), &amp;</span>
-<a id="ln-2544" name="ln-2544" href="#ln-2544"></a><span class="c">!!$                         nfac4(kk), nfac5(kk), nfac6(kk), nfac7(kk), nfac8(kk), nfac9(kk), nfac10(kk), &amp;</span>
-<a id="ln-2545" name="ln-2545" href="#ln-2545"></a><span class="c">!!$                         nfac11(kk), nfac12(kk) , q(:), qsig(:), qH(:), qhsig(:), &amp;</span>
-<a id="ln-2546" name="ln-2546" href="#ln-2546"></a><span class="c">!!$                         dy(0:n), de(0:n), dTsoil(:), S(:),thetai(:), Tsoil(:), &amp;</span>
-<a id="ln-2547" name="ln-2547" href="#ln-2547"></a><span class="c">!!$                         real(var(1)%iice), real(var(1)%isat), &amp;</span>
-<a id="ln-2548" name="ln-2548" href="#ln-2548"></a><span class="c">!!$                         h0(kk), real(iok(kk)), var(1)%phie, var(1)%phi, phip(kk),var(2)%phi, &amp;</span>
-<a id="ln-2549" name="ln-2549" href="#ln-2549"></a><span class="c">!!$                         vsnow(kk)%wcol, &amp;</span>
-<a id="ln-2550" name="ln-2550" href="#ln-2550"></a><span class="c">!!$                         qadv(:), qadvsig(:), qhya(:), qhyb(:), qhTa(:), qhTb(:), &amp;</span>
-<a id="ln-2551" name="ln-2551" href="#ln-2551"></a><span class="c">!!$                         qya(:), qyb(:), qTa(:), qTb(:), &amp;</span>
-<a id="ln-2552" name="ln-2552" href="#ln-2552"></a><span class="c">!!$                         var(1:n)%kH, LHS_h(1:n)*dt(kk), &amp;</span>
-<a id="ln-2553" name="ln-2553" href="#ln-2553"></a><span class="c">!!$                         RHS(1:n)*dt(kk), LHS(1:n)*dt(kk), par(1:n)%thre,dx(1:n), &amp;</span>
-<a id="ln-2554" name="ln-2554" href="#ln-2554"></a><span class="c">!!$                         real(-var(1:n)%isat), dt(kk), real(ns(kk)), vsnow(kk)%tsn(1), vsnow(kk)%hsnow(1)</span>
-<a id="ln-2555" name="ln-2555" href="#ln-2555"></a><span class="c">!!$                  !  endif</span>
-<a id="ln-2556" name="ln-2556" href="#ln-2556"></a><span class="c">!!$                    if (nsteps(kk).gt.1000) STOP</span>
-<a id="ln-2557" name="ln-2557" href="#ln-2557"></a><span class="c">!!$                 endif</span>
+<a id="ln-2537" name="ln-2537" href="#ln-2537"></a><span class="c">!$                if ((irec.eq.8992).and.(kk.eq.1) ) then</span>
+<a id="ln-2538" name="ln-2538" href="#ln-2538"></a><span class="c">!$                   !if ((irec.eq.5).and.(kk.eq.1626)  .and. wlogn == 1011) then</span>
+<a id="ln-2539" name="ln-2539" href="#ln-2539"></a><span class="c">!$                    write(*,*) &#39;writing diags&#39;, again(kk), nsteps(kk)</span>
+<a id="ln-2540" name="ln-2540" href="#ln-2540"></a><span class="c">!$</span>
+<a id="ln-2541" name="ln-2541" href="#ln-2541"></a><span class="c">!$                    ! if (.not. again(kk)) then</span>
+<a id="ln-2542" name="ln-2542" href="#ln-2542"></a><span class="c">!$ !write(345,&quot;(13i8,1500e16.6)&quot;)</span>
+<a id="ln-2543" name="ln-2543" href="#ln-2543"></a><span class="c">!$                    write(346,&quot;(13i8,1500e16.6)&quot;) nsteps(kk), nfac1(kk), nfac2(kk), nfac3(kk), &amp;</span>
+<a id="ln-2544" name="ln-2544" href="#ln-2544"></a><span class="c">!$                         nfac4(kk), nfac5(kk), nfac6(kk), nfac7(kk), nfac8(kk), nfac9(kk), nfac10(kk), &amp;</span>
+<a id="ln-2545" name="ln-2545" href="#ln-2545"></a><span class="c">!$                         nfac11(kk), nfac12(kk) , q(:), qsig(:), qH(:), qhsig(:), &amp;</span>
+<a id="ln-2546" name="ln-2546" href="#ln-2546"></a><span class="c">!$                         dy(0:n), de(0:n), dTsoil(:), S(:),thetai(:), Tsoil(:), &amp;</span>
+<a id="ln-2547" name="ln-2547" href="#ln-2547"></a><span class="c">!$                         real(var(1)%iice), real(var(1)%isat), &amp;</span>
+<a id="ln-2548" name="ln-2548" href="#ln-2548"></a><span class="c">!$                         h0(kk), real(iok(kk)), var(1)%phie, var(1)%phi, phip(kk),var(2)%phi, &amp;</span>
+<a id="ln-2549" name="ln-2549" href="#ln-2549"></a><span class="c">!$                         vsnow(kk)%wcol, &amp;</span>
+<a id="ln-2550" name="ln-2550" href="#ln-2550"></a><span class="c">!$                         qadv(:), qadvsig(:), qhya(:), qhyb(:), qhTa(:), qhTb(:), &amp;</span>
+<a id="ln-2551" name="ln-2551" href="#ln-2551"></a><span class="c">!$                         qya(:), qyb(:), qTa(:), qTb(:), &amp;</span>
+<a id="ln-2552" name="ln-2552" href="#ln-2552"></a><span class="c">!$                         var(1:n)%kH, LHS_h(1:n)*dt(kk), &amp;</span>
+<a id="ln-2553" name="ln-2553" href="#ln-2553"></a><span class="c">!$                         RHS(1:n)*dt(kk), LHS(1:n)*dt(kk), par(1:n)%thre,dx(1:n), &amp;</span>
+<a id="ln-2554" name="ln-2554" href="#ln-2554"></a><span class="c">!$                         real(-var(1:n)%isat), dt(kk), real(ns(kk)), vsnow(kk)%tsn(1), vsnow(kk)%hsnow(1)</span>
+<a id="ln-2555" name="ln-2555" href="#ln-2555"></a><span class="c">!$                  !  endif</span>
+<a id="ln-2556" name="ln-2556" href="#ln-2556"></a><span class="c">!$                    if (nsteps(kk).gt.1000) STOP</span>
+<a id="ln-2557" name="ln-2557" href="#ln-2557"></a><span class="c">!$                 endif</span>
 <a id="ln-2558" name="ln-2558" href="#ln-2558"></a>
 <a id="ln-2559" name="ln-2559" href="#ln-2559"></a><span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">nsteps</span><span class="p">(</span><span class="n">kk</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">nsteps_max</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <a id="ln-2560" name="ln-2560" href="#ln-2560"></a><span class="k">          write</span><span class="p">(</span><span class="n">wlogn</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;nsteps &gt; nsteps_max &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">irec</span><span class="p">,</span><span class="w"> </span><span class="n">kk</span><span class="w"></span>

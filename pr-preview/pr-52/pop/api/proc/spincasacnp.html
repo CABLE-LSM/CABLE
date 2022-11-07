@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.8% of total for procedures.">371 statements</a>
+    title=" 0.7% of total for procedures.">371 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/spincasacnp.F90"> Source File</a></li>
   </ul>
@@ -128,24 +128,24 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
-    <li><a href='../module/blaze_mod.html'>BLAZE_MOD</a></li>
-    <li>TypeDef</li>
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-    <li><a href='../module/cable_carbon_module.html'>cable_carbon_module</a></li>
     <li><a href='../module/casadimension.html'>casadimension</a></li>
-    <li><a href='../module/casa_inout.html'>casa_inout</a></li>
-    <li><a href='../module/casa_cable.html'>casa_cable</a></li>
-    <li><a href='../module/mo_isotope.html'>mo_isotope</a></li>
     <li><a href='../module/casaparm.html'>casaparm</a></li>
-    <li><a href='../module/phenvariable.html'>phenvariable</a></li>
-    <li><a href='../module/cable_c13o2.html'>cable_c13o2</a></li>
-    <li>POP_Constants</li>
-    <li><a href='../module/blaze_drv.html'>blaze_drv</a></li>
-    <li><a href='../module/simfire_mod.html'>SIMFIRE_MOD</a></li>
-    <li><a href='../module/cable_c13o2_def.html'>cable_c13o2_def</a></li>
     <li><a href='../module/casavariable.html'>casavariable</a></li>
-    <li>POP_Types</li>
+    <li><a href='../module/cable_c13o2_def.html'>cable_c13o2_def</a></li>
+    <li><a href='../module/cable_c13o2.html'>cable_c13o2</a></li>
+    <li><a href='../module/blaze_drv.html'>blaze_drv</a></li>
+    <li><a href='../module/blaze_mod.html'>BLAZE_MOD</a></li>
+    <li><a href='../module/phenvariable.html'>phenvariable</a></li>
+    <li><a href='../module/casa_cable.html'>casa_cable</a></li>
+    <li><a href='../module/casa_inout.html'>casa_inout</a></li>
+    <li><a href='../module/typedef.html'>TypeDef</a></li>
+    <li><a href='../module/mo_isotope.html'>mo_isotope</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+    <li><a href='../module/pop_types.html'>POP_Types</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+    <li><a href='../module/simfire_mod.html'>SIMFIRE_MOD</a></li>
+    <li><a href='../module/pop_constants.html'>POP_Constants</a></li>
+    <li><a href='../module/cable_carbon_module.html'>cable_carbon_module</a></li>
   </ul>
       </li>
       </ul>
@@ -157,8 +157,6 @@
 CLN  OPEN(91, file=fcnpspin)
 CLN  read(91,*) myearspin
 CLN    CLOSE(91)</p>
-<p>$  call totcnppools(1,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &amp;
-$       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)</p>
 <p>CLN  OPEN(91,file=fcnpspin)
 CLN  read(91,*)
 CLN      read(91,901) ncfile</p>
@@ -240,7 +238,7 @@ CLN      read(91,901) ncfile</p>
   <td><strong>phen</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-pop"></span>type(pop_type),</td>
+  <td><span class="anchor" id="variable-pop~3"></span>type(<a href='../type/pop_type.html'>POP_TYPE</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>pop</strong></td><td></td>
