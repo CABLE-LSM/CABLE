@@ -2562,6 +2562,12 @@ CONTAINS
     !* **load_parameters** defines the priority order of sources of parameter
     ! values for CABLE, determines the total number of patches over all grid
     ! cells, and writes parameter values to CABLE's parameter arrays.
+    !     - WARNING: this needs reordering and tweaking to (a) remove the
+    ! possibility of inconsistencies between the number of pathces in the
+    ! default parameter grid and a restart file, and (b) allow vegetation and
+    ! soil type to be forced from the met file (this is more complicated than
+    ! simply uncommenting the iveg and isoil reads from the met file - it
+    ! requires the actual parameter values to be written after that read).
     ! Documentation here is a simple order of processes:
 
     ! Input variables not listed:
@@ -2850,23 +2856,27 @@ CONTAINS
   !==============================================================================
 
   SUBROUTINE get_parameters_met(soil,veg,bgc,rough,completeSet)
-
+    !* **get_parameters_met** searches for CABLE parameters in the met focing
+    ! file, and if it finds any, uses these values to overwrite the values that
+    ! have already been loaded from the default parameter loading and/or the
+    ! restart file.
+    !     - WARNING: The ability to set vegetation and soil type from the met
+    ! file has been commented out here, so site based simulations can only have
+    ! the default vegetation type - this is clearly problematic. To fix this
+    ! issue, the parameter loading needs to be reordered a little, so that if
+    ! the default veg or soil type is set here, the paraemter values themselves
+    ! are actually written as a result of this.
+    !     - WARNING: The list of parameters searched for here is not complete
+    ! for all CABLE applications. Not too urgent to fix if people don't often
+    ! add parameters to the met file, but more important for detailed site-based
+    ! process studies.
     TYPE (soil_parameter_type), INTENT(INOUT) :: soil
     TYPE (veg_parameter_type), INTENT(INOUT)  :: veg
     TYPE (bgc_pool_type), INTENT(INOUT)       :: bgc
     TYPE (roughness_type), INTENT(INOUT)      :: rough
     LOGICAL, INTENT(OUT)                      :: completeSet ! were all pars found?
-
     ! Local variables
     INTEGER                              :: parID ! parameter's netcdf ID
-    !* **get_parameters_met** searches for CABLE parameters in the met focing
-    ! file, and if it finds any, uses these values to overwrite the values that
-    ! have already been loaded from the default parameter loading and/or the
-    ! restart file.
-    !     - WARNING: The list of parameters searched for here is not complete
-    ! for all CABLE applications. Not too urgent to fix if people don't often
-    ! add parameters to the met file, but more important for detailed site-based
-    ! process studies.
 
     ! removed the following section because already in IGBP types (BP apr08)
     !    ! First, if user defined surface type ratios are present in the
