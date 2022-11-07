@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for POP">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>cable_bios_met_obs_params &ndash; POP</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">POP </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>cable_bios_met_obs_params 
+    <small>Module</small>
+    </h1>
+    <div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title=" 1.8% of total for modules and submodules.">865 statements</a>
+     </li> 
+    <li><i class="fa fa-code"></i><a href="../src/cable_bios_met_obs_params.F90"> Source File</a></li>
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+     <li><a href='../sourcefile/cable_bios_met_obs_params.f90.html'>cable_bios_met_obs_params.F90</a></li>
+     <li class="active">cable_bios_met_obs_params</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div id="sidebar">
+  <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-0">Variables</a></h3></div>
+  <div id="vars-0" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-run~3">Run</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-co2~4">CO2</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-ndep~3">Ndep</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-metforcing">MetForcing</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-met_path">met_path</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-param_path">param_path</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-landmaskflt_file">landmaskflt_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-landmaskhdr_file">landmaskhdr_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-rain_file">rain_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-swdown_file">swdown_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-tairmax_file">tairmax_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-tairmin_file">tairmin_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-wind_file">wind_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-vp0900_file">vp0900_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-vp1500_file">vp1500_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-co2_file">co2_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-b1_file">b1_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-b2_file">b2_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-bulkdens1_kgm3_file">bulkdens1_kgm3_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-bulkdens2_kgm3_file">bulkdens2_kgm3_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-clayfrac1_file">clayfrac1_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-clayfrac2_file">clayfrac2_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-csoil1_file">csoil1_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-csoil2_file">csoil2_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-depth1_m_file">depth1_m_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-depth2_m_file">depth2_m_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-hyk1sat_ms_file">hyk1sat_ms_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-hyk2sat_ms_file">hyk2sat_ms_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-psie1_m_file">psie1_m_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-psie2_m_file">psie2_m_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-siltfrac1_file">siltfrac1_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-siltfrac2_file">siltfrac2_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-wvol1fc_m3m3_file">wvol1fc_m3m3_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-wvol2fc_m3m3_file">wvol2fc_m3m3_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-wvol1sat_m3m3_file">wvol1sat_m3m3_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-wvol2sat_m3m3_file">wvol2sat_m3m3_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-wvol1w_m3m3_file">wvol1w_m3m3_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-wvol2w_m3m3_file">wvol2w_m3m3_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-mvg_file">MVG_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-c4frac_file">c4frac_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-vegtypeigbp_file">vegtypeigbp_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-avgannmax_fapar_file">avgannmax_fapar_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-rain_day">rain_day</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-swdown_day">swdown_day</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-tairmax_day">tairmax_day</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-tairmin_day">tairmin_day</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-prev_tairmax_day">prev_tairmax_day</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-next_tairmin_day">next_tairmin_day</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-wind_day">wind_day</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-vp0900">vp0900</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-vp1500">vp1500</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-prev_vp1500">prev_vp1500</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-next_vp0900">next_vp0900</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-co2air_year">co2air_year</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-rain_unit">rain_unit</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-swdown_unit">swdown_unit</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-tairmax_unit">tairmax_unit</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-tairmin_unit">tairmin_unit</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-co2_unit">co2_unit</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-wind_unit">wind_unit</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-vp1500_unit">vp1500_unit</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-vp0900_unit">vp0900_unit</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-previous_date">previous_date</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-bios_rundate">bios_rundate</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-dummydate">dummydate</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-metdate">MetDate</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-recycle_met_startdate">recycle_met_startdate</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-recycle_met_enddate">recycle_met_enddate</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-skipdays">skipdays</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-bios_startdate">bios_startdate</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-bios_enddate">bios_enddate</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-secday~2">SecDay</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-wg~4">WG</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#subs-0">Subroutines</a></h3></div>
+  <div class="list-group">
+    <div id="subs-0" class="panel-collapse collapse">
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#proc-cable_bios_init">cable_bios_init</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#proc-cable_bios_read_met">cable_bios_read_met</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#proc-cable_bios_load_params">cable_bios_load_params</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#proc-cable_bios_load_biome">cable_bios_load_biome</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#proc-cable_bios_load_fracc4">cable_bios_load_fracC4</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#proc-cable_bios_load_climate_params">cable_bios_load_climate_params</a>
+    </div>
+  </div>
+</div>
+
+</div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <hr>
+<hr>
+<hr>
+<hr>
+<hr>
+<hr>
+<br>        <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Uses</h3>
+      </div>
+      <ul class="list-group">
+      <li class="list-group-item">
+  <ul class="list-inline">
+    <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
+    <li><a href='../module/bios_misc_io.html'>bios_misc_io</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+    <li><a href='../module/cable_weathergenerator.html'>CABLE_WEATHERGENERATOR</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+    <li><a href='../module/bios_date_functions.html'>bios_date_functions</a></li>
+    <li><a href='../module/bios_type_def.html'>bios_type_def</a></li>
+  </ul>
+      </li>
+      </ul>
+    </div>
+
+    
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+      <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-1">Variables</a></h3></div>
+  <div id="vars-1" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-run~3">Run</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-co2~4">CO2</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-ndep~3">Ndep</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-metforcing">MetForcing</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-met_path">met_path</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-param_path">param_path</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-landmaskflt_file">landmaskflt_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-landmaskhdr_file">landmaskhdr_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-rain_file">rain_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-swdown_file">swdown_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-tairmax_file">tairmax_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-tairmin_file">tairmin_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-wind_file">wind_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-vp0900_file">vp0900_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-vp1500_file">vp1500_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-co2_file">co2_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-b1_file">b1_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-b2_file">b2_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-bulkdens1_kgm3_file">bulkdens1_kgm3_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-bulkdens2_kgm3_file">bulkdens2_kgm3_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-clayfrac1_file">clayfrac1_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-clayfrac2_file">clayfrac2_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-csoil1_file">csoil1_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-csoil2_file">csoil2_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-depth1_m_file">depth1_m_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-depth2_m_file">depth2_m_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-hyk1sat_ms_file">hyk1sat_ms_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-hyk2sat_ms_file">hyk2sat_ms_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-psie1_m_file">psie1_m_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-psie2_m_file">psie2_m_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-siltfrac1_file">siltfrac1_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-siltfrac2_file">siltfrac2_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-wvol1fc_m3m3_file">wvol1fc_m3m3_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-wvol2fc_m3m3_file">wvol2fc_m3m3_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-wvol1sat_m3m3_file">wvol1sat_m3m3_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-wvol2sat_m3m3_file">wvol2sat_m3m3_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-wvol1w_m3m3_file">wvol1w_m3m3_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-wvol2w_m3m3_file">wvol2w_m3m3_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-mvg_file">MVG_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-c4frac_file">c4frac_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-vegtypeigbp_file">vegtypeigbp_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-avgannmax_fapar_file">avgannmax_fapar_file</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-rain_day">rain_day</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-swdown_day">swdown_day</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-tairmax_day">tairmax_day</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-tairmin_day">tairmin_day</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-prev_tairmax_day">prev_tairmax_day</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-next_tairmin_day">next_tairmin_day</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-wind_day">wind_day</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-vp0900">vp0900</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-vp1500">vp1500</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-prev_vp1500">prev_vp1500</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-next_vp0900">next_vp0900</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-co2air_year">co2air_year</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-rain_unit">rain_unit</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-swdown_unit">swdown_unit</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-tairmax_unit">tairmax_unit</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-tairmin_unit">tairmin_unit</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-co2_unit">co2_unit</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-wind_unit">wind_unit</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-vp1500_unit">vp1500_unit</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-vp0900_unit">vp0900_unit</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-previous_date">previous_date</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-bios_rundate">bios_rundate</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-dummydate">dummydate</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-metdate">MetDate</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-recycle_met_startdate">recycle_met_startdate</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-recycle_met_enddate">recycle_met_enddate</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-skipdays">skipdays</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-bios_startdate">bios_startdate</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-bios_enddate">bios_enddate</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-secday~2">SecDay</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#variable-wg~4">WG</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#subs-1">Subroutines</a></h3></div>
+  <div class="list-group">
+    <div id="subs-1" class="panel-collapse collapse">
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#proc-cable_bios_init">cable_bios_init</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#proc-cable_bios_read_met">cable_bios_read_met</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#proc-cable_bios_load_params">cable_bios_load_params</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#proc-cable_bios_load_biome">cable_bios_load_biome</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#proc-cable_bios_load_fracc4">cable_bios_load_fracC4</a>
+      <a class="list-group-item" href="../module/cable_bios_met_obs_params.html#proc-cable_bios_load_climate_params">cable_bios_load_climate_params</a>
+    </div>
+  </div>
+</div>
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    <section>
+    <h2>Variables</h2>
+    <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-run~3"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Run</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-co2~4"></span>character(len=15),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>CO2</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ndep~3"></span>character(len=15),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Ndep</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-metforcing"></span>character(len=15),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>MetForcing</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-met_path"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>met_path</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-param_path"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>param_path</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-landmaskflt_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>landmaskflt_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-landmaskhdr_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>landmaskhdr_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rain_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>rain_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-swdown_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>swdown_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tairmax_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>tairmax_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tairmin_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>tairmin_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-wind_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>wind_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vp0900_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>vp0900_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vp1500_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>vp1500_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-co2_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>co2_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-b1_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>b1_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-b2_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>b2_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-bulkdens1_kgm3_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>bulkdens1_kgm3_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-bulkdens2_kgm3_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>bulkdens2_kgm3_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-clayfrac1_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>clayfrac1_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-clayfrac2_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>clayfrac2_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-csoil1_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>csoil1_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-csoil2_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>csoil2_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-depth1_m_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>depth1_m_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-depth2_m_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>depth2_m_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-hyk1sat_ms_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>hyk1sat_ms_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-hyk2sat_ms_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>hyk2sat_ms_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-psie1_m_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>psie1_m_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-psie2_m_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>psie2_m_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-siltfrac1_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>siltfrac1_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-siltfrac2_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>siltfrac2_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-wvol1fc_m3m3_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>wvol1fc_m3m3_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-wvol2fc_m3m3_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>wvol2fc_m3m3_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-wvol1sat_m3m3_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>wvol1sat_m3m3_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-wvol2sat_m3m3_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>wvol2sat_m3m3_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-wvol1w_m3m3_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>wvol1w_m3m3_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-wvol2w_m3m3_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>wvol2w_m3m3_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-mvg_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>MVG_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-c4frac_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>c4frac_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vegtypeigbp_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>vegtypeigbp_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-avgannmax_fapar_file"></span>character(len=200),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>avgannmax_fapar_file</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rain_day"></span>real(kind=sp),</td>
+<td>public,</td>  <td>ALLOCATABLE</td><td>::</td>
+  <td><strong>rain_day</strong>(:)</td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-swdown_day"></span>real(kind=sp),</td>
+<td>public,</td>  <td>ALLOCATABLE</td><td>::</td>
+  <td><strong>swdown_day</strong>(:)</td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tairmax_day"></span>real(kind=sp),</td>
+<td>public,</td>  <td>ALLOCATABLE</td><td>::</td>
+  <td><strong>tairmax_day</strong>(:)</td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tairmin_day"></span>real(kind=sp),</td>
+<td>public,</td>  <td>ALLOCATABLE</td><td>::</td>
+  <td><strong>tairmin_day</strong>(:)</td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-prev_tairmax_day"></span>real(kind=sp),</td>
+<td>public,</td>  <td>ALLOCATABLE</td><td>::</td>
+  <td><strong>prev_tairmax_day</strong>(:)</td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-next_tairmin_day"></span>real(kind=sp),</td>
+<td>public,</td>  <td>ALLOCATABLE</td><td>::</td>
+  <td><strong>next_tairmin_day</strong>(:)</td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-wind_day"></span>real(kind=sp),</td>
+<td>public,</td>  <td>ALLOCATABLE</td><td>::</td>
+  <td><strong>wind_day</strong>(:)</td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vp0900"></span>real(kind=sp),</td>
+<td>public,</td>  <td>ALLOCATABLE</td><td>::</td>
+  <td><strong>vp0900</strong>(:)</td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vp1500"></span>real(kind=sp),</td>
+<td>public,</td>  <td>ALLOCATABLE</td><td>::</td>
+  <td><strong>vp1500</strong>(:)</td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-prev_vp1500"></span>real(kind=sp),</td>
+<td>public,</td>  <td>ALLOCATABLE</td><td>::</td>
+  <td><strong>prev_vp1500</strong>(:)</td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-next_vp0900"></span>real(kind=sp),</td>
+<td>public,</td>  <td>ALLOCATABLE</td><td>::</td>
+  <td><strong>next_vp0900</strong>(:)</td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-co2air_year"></span>real(kind=sp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>co2air_year</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rain_unit"></span>integer(kind=i4b),</td>
+<td>public,</td>  <td>SAVE</td><td>::</td>
+  <td><strong>rain_unit</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-swdown_unit"></span>integer(kind=i4b),</td>
+<td>public,</td>  <td>SAVE</td><td>::</td>
+  <td><strong>swdown_unit</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tairmax_unit"></span>integer(kind=i4b),</td>
+<td>public,</td>  <td>SAVE</td><td>::</td>
+  <td><strong>tairmax_unit</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tairmin_unit"></span>integer(kind=i4b),</td>
+<td>public,</td>  <td>SAVE</td><td>::</td>
+  <td><strong>tairmin_unit</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-co2_unit"></span>integer(kind=i4b),</td>
+<td>public,</td>  <td>SAVE</td><td>::</td>
+  <td><strong>co2_unit</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-wind_unit"></span>integer(kind=i4b),</td>
+<td>public,</td>  <td>SAVE</td><td>::</td>
+  <td><strong>wind_unit</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vp1500_unit"></span>integer(kind=i4b),</td>
+<td>public,</td>  <td>SAVE</td><td>::</td>
+  <td><strong>vp1500_unit</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vp0900_unit"></span>integer(kind=i4b),</td>
+<td>public,</td>  <td>SAVE</td><td>::</td>
+  <td><strong>vp0900_unit</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-previous_date"></span>type(<a href='../type/dmydate.html'>dmydate</a>),</td>
+<td>public,</td>  <td>SAVE</td><td>::</td>
+  <td><strong>previous_date</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-bios_rundate"></span>type(<a href='../type/dmydate.html'>dmydate</a>),</td>
+<td>public,</td>  <td>SAVE</td><td>::</td>
+  <td><strong>bios_rundate</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-dummydate"></span>type(<a href='../type/dmydate.html'>dmydate</a>),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>dummydate</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-metdate"></span>type(<a href='../type/dmydate.html'>dmydate</a>),</td>
+<td>public,</td>  <td>SAVE</td><td>::</td>
+  <td><strong>MetDate</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-recycle_met_startdate"></span>integer(kind=i4b),</td>
+<td>public,</td>  <td>parameter</td><td>::</td>
+  <td><strong>recycle_met_startdate</strong></td><td> =</td><td>1981</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-recycle_met_enddate"></span>integer(kind=i4b),</td>
+<td>public,</td>  <td>parameter</td><td>::</td>
+  <td><strong>recycle_met_enddate</strong></td><td> =</td><td>2010</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-skipdays"></span>integer(kind=i4b),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>skipdays</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-bios_startdate"></span>type(<a href='../type/dmydate.html'>dmydate</a>),</td>
+<td>public,</td>  <td>SAVE</td><td>::</td>
+  <td><strong>bios_startdate</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-bios_enddate"></span>type(<a href='../type/dmydate.html'>dmydate</a>),</td>
+<td>public,</td>  <td>SAVE</td><td>::</td>
+  <td><strong>bios_enddate</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-secday~2"></span>real(kind=sp),</td>
+<td>private,</td>  <td>parameter</td><td>::</td>
+  <td><strong>SecDay</strong></td><td> =</td><td>86400.</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-wg~4"></span>type(<a href='../type/weather_generator_type.html'>WEATHER_GENERATOR_TYPE</a>),</td>
+<td>public,</td>  <td>SAVE</td><td>::</td>
+  <td><strong>WG</strong></td><td></td><td></td><td></td>
+</tr>
+</tbody>
+</table>
+
+    </section>
+    <br>
+    
+    
+
+    
+    
+
+    <section>
+    <h2>Subroutines</h2>
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cable_bios_init"></span><h3>public subroutine <a href='../proc/cable_bios_init.html'>cable_bios_init</a>(dels, curyear, MET, kend, ktauday)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>real,</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dels</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>curyear</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/met_type.html'>met_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>MET</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>kend</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ktauday</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cable_bios_read_met"></span><h3>public subroutine <a href='../proc/cable_bios_read_met.html'>cable_bios_read_met</a>(MET, CurYear, ktau, dels)</h3></div>
+  <div class="panel-body">
+       
+<p>NB !! Peter to fix as in Cabledyn !!</p><a href="../proc/cable_bios_read_met.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/met_type.html'>met_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>MET</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>CurYear</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ktau</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>dels</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cable_bios_load_params"></span><h3>public subroutine <a href='../proc/cable_bios_load_params.html'>cable_bios_load_params</a>(soil)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>soil</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cable_bios_load_biome"></span><h3>public subroutine <a href='../proc/cable_bios_load_biome.html'>cable_bios_load_biome</a>(MVG)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>MVG</strong>(:)</td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cable_bios_load_fracc4"></span><h3>public subroutine <a href='../proc/cable_bios_load_fracc4.html'>cable_bios_load_fracC4</a>(fracC4)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>real,</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>fracC4</strong>(:)</td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cable_bios_load_climate_params"></span><h3>public subroutine <a href='../proc/cable_bios_load_climate_params.html'>cable_bios_load_climate_params</a>(climate)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/climate_type.html'>climate_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>climate</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+    </section>    
+    <br>
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>POP was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>
