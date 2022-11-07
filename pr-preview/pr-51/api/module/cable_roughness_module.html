@@ -174,18 +174,17 @@ length in the cases of bare soil and permanent ice land points (respectively)</p
 <li>ratio of friction velocity to wind speed at canopy top (rough%usuh)</li>
 <li>extinction coefficient for wind speed profile in canopy, <script type="math/tex">c_{0}</script>, (rough%coexp)
    where within the canopy wind speed at height <script type="math/tex">z</script> is given by
-   ( U(z) = U_{h} \exp{ c_{0} (z-h_c) }</li>
-<li>
-<p><em>normalized aerodynamic resistances</em> for the turbulent transfer of scalars
-   across two layers</p>
+   <script type="math/tex"> U(z) = U_{h} \exp\{ c_{0} (z-h_c) \} </script>
 </li>
-<li>
-<p>soil/snow surface to the displacement height (rough%rt0us)</p>
-</li>
+<li><em>normalized aerodynamic resistances</em> for the turbulent transfer of scalars
+   across two layers<ul>
+<li>soil/snow surface to the displacement height (rough%rt0us)</li>
 <li>displacement height to the reference level (rough%rt1us)</li>
 </ul>
+</li>
+</ul>
 <p>The current time step aerodynamic resistances are later evaluated by multiplying
-the <em>normalized resistances</em> by the current time step friction velocity.
+the <em>normalized resistances</em> by the current time step's friction velocity.
 rough%rt1us is evaluated in three subparts (%rt1usa, %rt1usb, and %rt1usc).
 Each of the normalized resistances are given by theoretical formulae in the references
 and the third of these terms (rough%rt1usc) is evaluated in the canopy MODULE.</p>
@@ -196,8 +195,8 @@ and the third of these terms (rough%rt1usc) is evaluated in the canopy MODULE.</
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_phys_constants_mod.html'>cable_phys_constants_mod</a></li>
     <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
+    <li><a href='../module/cable_phys_constants_mod.html'>cable_phys_constants_mod</a></li>
   </ul>
       </li>
       </ul>
