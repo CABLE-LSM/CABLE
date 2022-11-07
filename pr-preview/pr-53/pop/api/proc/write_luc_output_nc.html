@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.5% of total for procedures.">254 statements</a>
+    title=" 0.5% of total for procedures.">253 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/POPLUC.F90"> Source File</a></li>
   </ul>
@@ -136,16 +136,6 @@
     </div>
 
 
-    <p>$
-$       DO i = 1, SIZE(A3)
-$          STATUS = NF90_def_var(FILE_ID,TRIM(A3(i)) ,NF90_FLOAT,(/land_ID,hist_ID,t_ID/),VID3(i))
-$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-$       END DO
-$
-$       DO i = 1, SIZE(A3)
-$          STATUS = NF90_def_var(FILE_ID,TRIM(AI3(i)) ,NF90_INT,(/land_ID,hist_ID,t_ID/),VIDI3(i))
-$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-$       END DO</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

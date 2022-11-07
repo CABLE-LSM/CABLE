@@ -128,8 +128,8 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/popluc_module.html'>POPLUC_Module</a></li>
     <li><a href='../module/popmodule.html'>POPModule</a></li>
+    <li><a href='../module/popluc_module.html'>POPLUC_Module</a></li>
     <li><a href='../module/cable_luc_expt.html'>CABLE_LUC_EXPT</a></li>
   </ul>
       </li>
@@ -140,6 +140,12 @@
     <p><strong>load_parameters</strong> defines the priority order of sources of parameter
 values for CABLE, determines the total number of patches over all grid
 cells, and writes parameter values to CABLE's parameter arrays.
+    - WARNING: this needs reordering and tweaking to (a) remove the
+possibility of inconsistencies between the number of pathces in the
+default parameter grid and a restart file, and (b) allow vegetation and
+soil type to be forced from the met file (this is more complicated than
+simply uncommenting the iveg and isoil reads from the met file - it
+requires the actual parameter values to be written after that read).
 Documentation here is a simple order of processes:</p>
 <ol>
 <li>

@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.4% of total for modules and submodules.">173 statements</a>
+    title=" 0.3% of total for modules and submodules.">173 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_radiation.F90"> Source File</a></li>
   </ul>
@@ -116,7 +116,7 @@
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-0">Variables</a></h3></div>
   <div id="vars-0" class="panel-collapse collapse">
     <div class="list-group">
-      <a class="list-group-item" href="../module/cable_radiation_module.html#variable-c~17">C</a>
+      <a class="list-group-item" href="../module/cable_radiation_module.html#variable-c~19">C</a>
     </div>
   </div>
 </div>
@@ -153,8 +153,8 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
     <li><a href='../module/cable_data_module.html'>cable_data_module</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
   </ul>
       </li>
       </ul>
@@ -170,7 +170,7 @@
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-1">Variables</a></h3></div>
   <div id="vars-1" class="panel-collapse collapse">
     <div class="list-group">
-      <a class="list-group-item" href="../module/cable_radiation_module.html#variable-c~17">C</a>
+      <a class="list-group-item" href="../module/cable_radiation_module.html#variable-c~19">C</a>
     </div>
   </div>
 </div>
@@ -204,7 +204,7 @@
 <thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" id="variable-c~17"></span>type(<a href='../type/irad_type.html'>irad_type</a>),</td>
+  <td><span class="anchor" id="variable-c~19"></span>type(<a href='../type/irad_type.html'>irad_type</a>),</td>
 <td>private</td>  <td></td><td>::</td>
   <td><strong>C</strong></td><td></td><td></td><td></td>
 </tr>
@@ -296,11 +296,7 @@
   <div class="panel-heading codesum"><span class="anchor" id="proc-init_radiation"></span><h3>public subroutine <a href='../proc/init_radiation.html'>init_radiation</a>(met, rad, veg, canopy)</h3></div>
   <div class="panel-body">
        
-<p>$     rad%rhocdf(:,ictr) = rhoch(:,ictr) * &amp;
-$                          ( C%GAUSS_W(1) * xk(:,1) / ( xk(:,1) + rad%extkd(:) )&amp;
-$                          + C%GAUSS_W(2) * xk(:,2) / ( xk(:,2) + rad%extkd(:) )&amp;
-$                          + C%GAUSS_W(3) * xk(:,3) / ( xk(:,3) + rad%extkd(:) ) )
- Ticket #147  (vh)
+<p>Ticket #147  (vh)
  the above line is incorrect, as it is missing a factor of 2 in the numerator.
  (See equation 6.21 from Goudriaan &amp; van Laar 1994)
  The correct version below doubles canopy reflectance for diffuse radiation.

@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.3% of total for procedures.">159 statements</a>
+    title=" 0.2% of total for procedures.">105 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_c13o2.F90"> Source File</a></li>
   </ul>
@@ -120,7 +120,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public subroutine c13o2_update_luc(casasave, lucsave, popluc, prim_only, c13o2pools, c13o2luc, casapool)</h2>
+    <h2>public subroutine c13o2_update_luc(casasave, lucsave, popluc, prim_only, c13o2pools, c13o2luc)</h2>
         <div class="panel panel-default">
       <div class="panel-heading">
   <h3 class="panel-title">Uses</h3>
@@ -128,17 +128,14 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
+    <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
+    <li><a href='../module/popluc_types.html'>POPLUC_Types</a></li>
     <li><a href='../module/popluc_constants.html'>POPLUC_CONSTANTS</a></li>
-    <li><a href='../module/cable_c13o2_def.html'>cable_c13o2_def</a></li>
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
     <li><a href='../module/mo_isotope_pool_model.html'>mo_isotope_pool_model</a></li>
     <li><a href='../module/mo_isotope_luc_model.html'>mo_isotope_luc_model</a></li>
-    <li><a href='../module/casavariable.html'>casavariable</a></li>
-    <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
-    <li><a href='../module/mo_isotope.html'>mo_isotope</a></li>
-    <li><a href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm">mpi</a></li>
-    <li><a href='../module/popluc_types.html'>POPLUC_Types</a></li>
     <li><a href='../module/popluc_module.html'>POPLUC_Module</a></li>
+    <li><a href='../module/cable_c13o2_def.html'>cable_c13o2_def</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
   </ul>
       </li>
       </ul>
@@ -185,12 +182,6 @@
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>c13o2luc</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-casapool~46"></span>type(<a href='../type/casa_pool.html'>casa_pool</a>),</td>
-<td>intent(in),</td>
-  <td>optional</td>  <td></td><td>::</td>
-  <td><strong>casapool</strong></td><td></td>
 </tr>
 </tbody>
 </table>

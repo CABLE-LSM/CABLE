@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.5% of total for procedures.">236 statements</a>
+    title=" 0.4% of total for procedures.">236 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_sli_solve.F90"> Source File</a></li>
   </ul>
@@ -123,67 +123,49 @@
     <h2>private subroutine update_s_t(mp, n, dx, h0, S, thetai, Tsoil, infil, nsteps, var, par, qlsig, again, ih0, ns, dt, sig, dy, qhsig, deltaS, dTsoil, dJcol_latent_S, dJcol_latent_T, dJcol_sensible, deltaJ_latent_S, deltaJ_latent_T, deltaJ_sensible_S, deltaJ_sensible_T, qrunoff, tmp1d1, tmp1d2, tmp1d3, tmp1d4, deltah0, Tfreezing, dtdT, LHS_h, i, j, k, kk, theta, cp, hice, hice_tmp, J0, tmp1, tmp2, h_ex, wpi)</h2>
     
 
-    <p>$                   if (h0(kk)&lt;zero .and. var(1)%isat==0 .and. (i==1)) then ! start negative pond correction
-$                      infil(kk)     = infil(kk)+h0(kk)
-$                      ! negative pond converted to loss of soil moisture in top two layers
-$                      S(1) = S(1) + h0(kk)/(dx(1)<em>par(1)%thre)</em> dx(1)/(dx(1)+dx(2))
-$                      deltaS(1) = h0(kk)/(dx(1)<em>par(1)%thre)</em> dx(1)/(dx(1)+dx(2))
-$                      ! adjust flux between layer 1 and layer 2
-$                      qlsig(1) = qlsig(1) + h0(kk)<em> dx(2)/(dx(1)+dx(2))/dt(kk)
-$                      deltaS(2) =   h0(kk)/(dx(2)</em>par(2)%thre)* dx(2)/(dx(1)+dx(2))
-$                      if (var(2)%isat.eq.0) then
-$                         dy(2) = dy(2) + deltaS(2)
-$                      else
-$                         dy(2) = deltaS(2)
-$                         var(2)%isat = 0
-$                      endif
-$
-$                      deltah0(kk) = -(h0(kk)-deltah0(kk)) ! whole pond lost (new change = - original pond height)
-$                      h0(kk) = zero  ! zero pond remaining
-$                   endif</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" id="variable-mp~20"></span>integer(kind=i_d)</td>
+  <td><span class="anchor" id="variable-mp~27"></span>integer(kind=i_d)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>mp</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-n~33"></span>integer(kind=i_d)</td>
+  <td><span class="anchor" id="variable-n~44"></span>integer(kind=i_d)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>n</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dx~6"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dx~14"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>dx</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-h0~5"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-h0~11"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>h0</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-s~7"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-s~14"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>S</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-thetai~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-thetai~5"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>thetai</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-tsoil~5"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-tsoil~11"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>Tsoil</strong></td><td></td>
@@ -201,13 +183,13 @@ $                   endif</p>
   <td><strong>nsteps</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-var~10"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+  <td><span class="anchor" id="variable-var~20"></span>type(<a href='../type/vars.html'>vars</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>var</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-par~5"></span>type(<a href='../type/params.html'>params</a>),</td>
+  <td><span class="anchor" id="variable-par~7"></span>type(<a href='../type/params.html'>params</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>par</strong></td><td></td>
@@ -231,13 +213,13 @@ $                   endif</p>
   <td><strong>ih0</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ns~4"></span>integer(kind=i_d),</td>
+  <td><span class="anchor" id="variable-ns~6"></span>integer(kind=i_d),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>ns</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dt~7"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dt~8"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>dt</strong></td><td></td>
@@ -249,7 +231,7 @@ $                   endif</p>
   <td><strong>sig</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dy~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dy~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>dy</strong></td><td></td>
@@ -381,7 +363,7 @@ $                   endif</p>
   <td><strong>j</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-k~3"></span>integer(kind=i_d)</td>
+  <td><span class="anchor" id="variable-k~4"></span>integer(kind=i_d)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>k</strong></td><td></td>
@@ -393,7 +375,7 @@ $                   endif</p>
   <td><strong>kk</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-theta~2"></span>real(kind=r_2)</td>
+  <td><span class="anchor" id="variable-theta~6"></span>real(kind=r_2)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>theta</strong></td><td></td>

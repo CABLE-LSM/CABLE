@@ -266,10 +266,10 @@
 <a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">   </span><span class="c">! Canopy REFLection of diffuse radiation for black leaves:</span>
 <a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">   </span><span class="k">DO </span><span class="n">ictr</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nrb</span><span class="w"></span>
 <a id="ln-111" name="ln-111" href="#ln-111"></a>
-<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="c">!!$     rad%rhocdf(:,ictr) = rhoch(:,ictr) * &amp;</span>
-<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="c">!!$                          ( C%GAUSS_W(1) * xk(:,1) / ( xk(:,1) + rad%extkd(:) )&amp;</span>
-<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="c">!!$                          + C%GAUSS_W(2) * xk(:,2) / ( xk(:,2) + rad%extkd(:) )&amp;</span>
-<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="c">!!$                          + C%GAUSS_W(3) * xk(:,3) / ( xk(:,3) + rad%extkd(:) ) )</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="c">!$     rad%rhocdf(:,ictr) = rhoch(:,ictr) * &amp;</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="c">!$                          ( C%GAUSS_W(1) * xk(:,1) / ( xk(:,1) + rad%extkd(:) )&amp;</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="c">!$                          + C%GAUSS_W(2) * xk(:,2) / ( xk(:,2) + rad%extkd(:) )&amp;</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="c">!$                          + C%GAUSS_W(3) * xk(:,3) / ( xk(:,3) + rad%extkd(:) ) )</span>
 <a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">   </span><span class="c">!! Ticket #147  (vh)</span>
 <a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">   </span><span class="c">!! the above line is incorrect, as it is missing a factor of 2 in the numerator.</span>
 <a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">   </span><span class="c">!! (See equation 6.21 from Goudriaan &amp; van Laar 1994)</span>
