@@ -135,6 +135,14 @@
     </div>
 
 
+    <p>Calculate the water movement between the bottom soil layer and 
+ groundwater aquifer, following the equation (21) in 
+ <a href="https://doi.org/10.1175/2008JHM1011.1">Zeng and Decker 2009</a> 
+Doing the recharge outside of the soln of Richards Equation makes it easier to track total recharge amount.
+if water table depth is above the bottom soil coloumn, land cover type is lake
+ or soil type is permanent ice, there is no water movement between bottom soil 
+ layer and groundwater aquifer. Otherwise, the water movement will be calcuated 
+ as the equation (21) in <a href="https://doi.org/10.1175/2008JHM1011.1">Zeng and Decker 2009</a> </p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

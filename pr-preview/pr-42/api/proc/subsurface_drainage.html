@@ -135,6 +135,15 @@
     </div>
 
 
+    <p>Calculate horizontal drainage based on the equation (18) in
+ <a href="http://doi.wiley.com/10.1002/2015MS000507">Decker, 2015</a></p>
+<p>Calulate the total subsurface runoff by following the equation (18) in
+ <a href="http://doi.wiley.com/10.1002/2015MS000507">Decker, 2015</a>
+if gw_params%subsurface_sat_drainage = True, 
+ calcuate how many layers are below water table depth 
+ and thus can generate subsurface runoff;
+ if not, assuming subsuface runoff will generate below the 
+ first soil layer only. </p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

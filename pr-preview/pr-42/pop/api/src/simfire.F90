@@ -553,30 +553,30 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate )
      !write(*,*) 'SF%FAPAR, SF%MAX_NESTEROV, SF%POPD, SF%BIOME, SF%REGION, AB'
      !write(*,"(200e16.6)") ,SF%FAPAR(i), SF%MAX_NESTEROV(i), SF%POPD(i), real(SF%BIOME(i)), real(SF%REGION(i)), AB(i)
 
-!!$     ! convert to daily burned area using GFED climatology
-!!$
-!!$      STATUS = NF90_OPEN(TRIM(SF%BA_CLIM_FILE), NF90_NOWRITE, F_ID)
-!!$      CALL HANDLE_ERR(STATUS, "Opening BA Clim File "//SF%BA_CLIM_FILE )
-!!$      STATUS = NF90_INQ_VARID(F_ID,'monthly_ba', V_ID)
-!!$      CALL HANDLE_ERR(STATUS, "Inquiring  var monthly_ba in "//SF%BA_CLIM_FILE )
-!!$
-!!$      STATUS = NF90_INQ_VARID(F_ID,'latitude', V_ID_lat)
-!!$      CALL HANDLE_ERR(STATUS, "Inquiring  var latitude in "//SF%BA_CLIM_FILE )
-!!$
-!!$      STATUS = NF90_INQ_VARID(F_ID,'longitude', V_ID_lon)
-!!$      CALL HANDLE_ERR(STATUS, "Inquiring  var longitude in "//SF%BA_CLIM_FILE )
-!!$
-!!$      STATUS = NF90_GET_VAR( F_ID, V_ID_lat, lat_BA, &
-!!$               start=(/1/) )
-!!$      STATUS = NF90_GET_VAR( F_ID, V_ID_lon, lon_BA, &
-!!$           start=(/1/)  )
-!!$
-!!$      ilat = MINLOC(ABS(lat_BA - SF%LAT(i)),DIM=1)
-!!$      ilon = MINLOC(ABS(lon_BA - SF%LON(i)),DIM=1)
-!!$
-!!$      STATUS = NF90_GET_VAR( F_ID, V_ID, monthly_ba, &
-!!$           start=(/MM,ilon,ilat/) )
-!!$      CALL HANDLE_ERR(STATUS, "Reading direct from "//SF%BA_CLIM_FILE )
+!$     ! convert to daily burned area using GFED climatology
+!$
+!$      STATUS = NF90_OPEN(TRIM(SF%BA_CLIM_FILE), NF90_NOWRITE, F_ID)
+!$      CALL HANDLE_ERR(STATUS, "Opening BA Clim File "//SF%BA_CLIM_FILE )
+!$      STATUS = NF90_INQ_VARID(F_ID,'monthly_ba', V_ID)
+!$      CALL HANDLE_ERR(STATUS, "Inquiring  var monthly_ba in "//SF%BA_CLIM_FILE )
+!$
+!$      STATUS = NF90_INQ_VARID(F_ID,'latitude', V_ID_lat)
+!$      CALL HANDLE_ERR(STATUS, "Inquiring  var latitude in "//SF%BA_CLIM_FILE )
+!$
+!$      STATUS = NF90_INQ_VARID(F_ID,'longitude', V_ID_lon)
+!$      CALL HANDLE_ERR(STATUS, "Inquiring  var longitude in "//SF%BA_CLIM_FILE )
+!$
+!$      STATUS = NF90_GET_VAR( F_ID, V_ID_lat, lat_BA, &
+!$               start=(/1/) )
+!$      STATUS = NF90_GET_VAR( F_ID, V_ID_lon, lon_BA, &
+!$           start=(/1/)  )
+!$
+!$      ilat = MINLOC(ABS(lat_BA - SF%LAT(i)),DIM=1)
+!$      ilon = MINLOC(ABS(lon_BA - SF%LON(i)),DIM=1)
+!$
+!$      STATUS = NF90_GET_VAR( F_ID, V_ID, monthly_ba, &
+!$           start=(/MM,ilon,ilat/) )
+!$      CALL HANDLE_ERR(STATUS, "Reading direct from "//SF%BA_CLIM_FILE )
 
       !if (year==2003) then
       !   AB(i) = 0.8        ! test vh
