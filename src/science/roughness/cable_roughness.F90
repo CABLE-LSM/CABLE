@@ -74,15 +74,14 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 !  * ratio of friction velocity to wind speed at canopy top (rough%usuh)
 !  * extinction coefficient for wind speed profile in canopy, \(c_{0}\), (rough%coexp)
 !    where within the canopy wind speed at height \(z\) is given by
-!    \( U(z) = U_{h} \exp\{ c_{0} (z-h_c) \}
+!    \( U(z) = U_{h} \exp\{ c_{0} (z-h_c) \} \)
 !  * *normalized aerodynamic resistances* for the turbulent transfer of scalars
 !    across two layers
-!
-!    - soil/snow surface to the displacement height (rough%rt0us)
-!    - displacement height to the reference level (rough%rt1us)
+!      - soil/snow surface to the displacement height (rough%rt0us)
+!      - displacement height to the reference level (rough%rt1us)
 !
 ! The current time step aerodynamic resistances are later evaluated by multiplying
-! the *normalized resistances* by the current time step friction velocity.
+! the *normalized resistances* by the current time step's friction velocity.
 ! rough%rt1us is evaluated in three subparts (%rt1usa, %rt1usb, and %rt1usc).
 ! Each of the normalized resistances are given by theoretical formulae in the references
 ! and the third of these terms (rough%rt1usc) is evaluated in the canopy MODULE.
@@ -181,7 +180,7 @@ ELSEIF (cable_user%soil_struc=='sli') THEN
 ENDIF
 
 !* * evaluate the remaining output variables depending on whether the land point
-!  is a canopy or not.
+!  is a vegetated or not.
 do i=1,mp
   if( canopy%vlaiw(i) .LE. CLAI_THRESH  .OR.                                          &
       rough%hruff(i) .LT. rough%z0soilsn(i) ) then ! BARE SOIL SURFACE
@@ -291,7 +290,7 @@ do i=1,mp
   END IF
 END DO    
 
-!* update the evaluate %rt0us if the soil model used is SLI
+!* update the evaluated %rt0us if the soil model used is SLI
 IF (cable_user%soil_struc.EQ.'sli') THEN
   WHERE( canopy%vlaiw .GE. CLAI_THRESH  .AND.                                          &
          rough%hruff .GE. rough%z0soilsn ) ! VEGETATED SURFACE
