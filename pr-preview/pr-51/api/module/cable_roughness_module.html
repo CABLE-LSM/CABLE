@@ -155,39 +155,48 @@ The cable_roughness MODULE calculates the roughness parameters and the
 <p>Two parameters are introduced <script type="math/tex">z_{0,min}</script> = 1E-7m and
 <script type="math/tex">z_{0,minPF}</script> = 1E-4m which are the minimum values for the roughness
 length in the cases of bare soil and permanent ice land points (respectively)</p>
-<p>The MODULE is organised as a single SUBROUTINE ruff_resist which contains
+<p>&amp;nbsp
+ The MODULE is organised as a single SUBROUTINE ruff_resist which contains
  IF/THEN cases in two areas depending on</p>
 <ol>
 <li>Whether the soil model used is SLI or the default (soilsnow)</li>
 <li>Whether the land point is vegetated (LAI &gt; LAI_THRESH) or not</li>
 </ol>
-<p>The principal outputs from the MODULE are</p>
+<p>&amp;nbsp
+The principal outputs from the MODULE are</p>
 <ul>
-<li>heights (above the displacement height) for the forcing meteorology in m
+<li>heights (above the displacement height) for the forcing meteorology, in m
    (rough%zref_tq and rough%zref_uv)</li>
-<li>current values for canopy height and leaf area accounting for presence of snow
-   (rough%hruff and rough%vlaiw)</li>
-<li>aerodynamic roughness length for soil and snow in m (rough%z0soil, rough%z0ssoilsn)</li>
-<li>aerodynamic roughness length for surface (canopy+soil+snow) in m (rough%z0m)</li>
-<li>displacement height of surface (if a canopy) in m (rough%disp)</li>
-<li>depth of roughness sublayer in m (rough%zruffs)</li>
-<li>ratio of friction velocity to wind speed at canopy top (rough%usuh)</li>
-<li>extinction coefficient for wind speed profile in canopy, <script type="math/tex">c_{0}</script>, (rough%coexp)
-   where within the canopy wind speed at height <script type="math/tex">z</script> is given by
-   <script type="math/tex"> U(z) = U_{h} \exp\{ c_{0} (z-h_c) \} </script>
-</li>
-<li><em>normalized aerodynamic resistances</em> for the turbulent transfer of scalars
-   across two layers<ul>
-<li>soil/snow surface to the displacement height (rough%rt0us)</li>
-<li>displacement height to the reference level (rough%rt1us)</li>
+<li>current values for canopy height, in m, and leaf area, in m2/m2,
+   accounting for presence of snow (rough%hruff and rough%vlaiw)</li>
+<li>the aerodynamic roughness length for soil and snow, in m
+   (rough%z0soil, rough%z0ssoilsn)</li>
+<li>the aerodynamic roughness length for the surface (canopy+soil+snow), in m
+   (rough%z0m)</li>
+<li>the displacement height of the surface (if vegetated, =0.0 if not), in m
+   (rough%disp)</li>
+<li>the depth of roughness sublayer, in m (if vegetated, rough%zruffs)</li>
+<li>the extinction coefficient for the wind speed profile within the canopy, <script type="math/tex">c_{0}</script>,
+   in units of per m (rough%coexp). <script type="math/tex">c_{0}</script> is defined to be the coefficient
+   within an expontial profile, i.e.
+   the wind speed at height <script type="math/tex">z</script> above the ground within a canopy of height <script type="math/tex">h_c</script>
+   is given by <script type="math/tex"> U(z) = U_{h} \exp\{ c_{0} (z-h_c) \} </script> where <script type="math/tex">U_h</script>
+   is the wind speed at canopy top.</li>
+<li>the ratio of the friction velocity, <script type="math/tex">u_*</script>, to the wind speed at canopy top
+   (rough%usuh)</li>
+<li>values for the <em>normalized</em> aerodynamic resistances for the turbulent transfer
+   of scalars across two layers of atmosphere<ul>
+<li>from the soil/snow surface to the displacement height (rough%rt0us)</li>
+<li>from the displacement height to the reference level (rough%rt1us)</li>
 </ul>
 </li>
 </ul>
-<p>The current time step aerodynamic resistances are later evaluated by multiplying
+<p>The current time step aerodynamic resistances are evaluated later by multiplying
 the <em>normalized resistances</em> by the current time step's friction velocity.
 rough%rt1us is evaluated in three subparts (%rt1usa, %rt1usb, and %rt1usc).
-Each of the normalized resistances are given by theoretical formulae in the references
-and the third of these terms (rough%rt1usc) is evaluated in the canopy MODULE.</p>
+Each of the normalized resistances are given by theoretical formulae as given by
+the references and the third of these terms (rough%rt1usc) is evaluated in
+the canopy MODULE.</p>
 <br>        <div class="panel panel-default">
       <div class="panel-heading">
   <h3 class="panel-title">Uses</h3>
@@ -195,8 +204,8 @@ and the third of these terms (rough%rt1usc) is evaluated in the canopy MODULE.</
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
     <li><a href='../module/cable_phys_constants_mod.html'>cable_phys_constants_mod</a></li>
+    <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
   </ul>
       </li>
       </ul>
