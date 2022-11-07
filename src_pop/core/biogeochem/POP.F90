@@ -1663,12 +1663,12 @@ CONTAINS
                         max(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area,1.e-3_dp),-20.0_dp))
 
                    pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area = &
-                        pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area*(1.0_dp-Pwc) !*1.4142
+                        pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area*(1.0_dp-Pwc) ! *1.4142
                 endif
 
              ELSE
                 pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area = &
-                     0.5_dp*pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%LAI !*1.4142
+                     0.5_dp*pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%LAI ! *1.4142
              ENDIF
              pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area= &
                   max(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area,0.01_dp)
