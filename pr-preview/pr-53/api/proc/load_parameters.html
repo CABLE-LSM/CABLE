@@ -128,23 +128,25 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
+    <li><a href='../module/cable_luc_expt.html'>CABLE_LUC_EXPT</a></li>
     <li><a href='../module/popmodule.html'>POPModule</a></li>
     <li><a href='../module/popluc_module.html'>POPLUC_Module</a></li>
-    <li><a href='../module/cable_luc_expt.html'>CABLE_LUC_EXPT</a></li>
   </ul>
       </li>
       </ul>
     </div>
 
 
-    <p>load_parameters defines the priority order of sources of parameter
+    <p><strong>load_parameters</strong> defines the priority order of sources of parameter
 values for CABLE, determines the total number of patches over all grid
 cells, and writes parameter values to CABLE's parameter arrays.
 Documentation here is a simple order of processes:</p>
 <ol>
 <li>
-<p>Create parameter values from default vegetation and soil types based
-on latitude and longitude of each grid cell.</p>
+<p>Load parameter values for each grid cell from default vegetation and
+soil types based on latitude and longitude. This includes determining
+the number of patches in each grid cell, and so the total number of
+patches.</p>
 </li>
 <li>
 <p>Allocate CABLE (and CASA's [+phenology], if used) variables now that

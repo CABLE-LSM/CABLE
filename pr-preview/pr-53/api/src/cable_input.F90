@@ -2559,7 +2559,7 @@ CONTAINS
        sum_flux,bal,logn,vegparmnew,casabiome,casapool,    &
        casaflux,sum_casapool, sum_casaflux,casamet,casabal,phen,POP,spinup,EMSOIL, &
        TFRZ, LUC_EXPT, POPLUC)
-    !* load_parameters defines the priority order of sources of parameter
+    !* **load_parameters** defines the priority order of sources of parameter
     ! values for CABLE, determines the total number of patches over all grid
     ! cells, and writes parameter values to CABLE's parameter arrays.
     ! Documentation here is a simple order of processes:
@@ -2643,8 +2643,10 @@ CONTAINS
     ! Those variables found in the met file will again overwrite existing ones.
 
     CALL get_default_params(logn,vegparmnew,LUC_EXPT)
-    !* 1. Create parameter values from default vegetation and soil types based
-    ! on latitude and longitude of each grid cell.
+    !* 1. Load parameter values for each grid cell from default vegetation and
+    ! soil types based on latitude and longitude. This includes determining
+    ! the number of patches in each grid cell, and so the total number of
+    ! patches.
 
     CALL allocate_cable_vars(air,bgc,canopy,met,bal,rad,rough,soil,ssnow, &
          sum_flux,veg,mp)
@@ -2858,6 +2860,15 @@ CONTAINS
     ! Local variables
     INTEGER                              :: parID ! parameter's netcdf ID
 
+    !* **get_parameters_met** searches for CABLE parameters in the met focing
+    ! file, and if it finds any, uses these values to overwrite the values that
+    ! have already been loaded from the default parameter loading and/or the
+    ! restart file.
+    !     - WARNING: The list of parameters searched for here is not complete
+    ! for all CABLE applications. Not too urgent to fix if people don't often
+    ! add parameters to the met file, but more important for detailed site-based
+    ! process studies.
+
     ! removed the following section because already in IGBP types (BP apr08)
     !    ! First, if user defined surface type ratios are present in the
     !    ! met file then use them:
@@ -2873,6 +2884,7 @@ CONTAINS
     !    END IF
 
     completeSet=.TRUE. ! initialise (assume all param will load from met file)
+    ! Will be changed in readpar if not all are loaded.
 
     ! Get parameter values:
     ! Arguments: netcdf file ID; parameter name; complete set check;
