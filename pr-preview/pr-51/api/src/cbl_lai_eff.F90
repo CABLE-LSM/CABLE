@@ -15,14 +15,18 @@ SUBROUTINE LAI_eff( mp, LAI_PFT, Hgt_PFT, HgtAboveSnow,  &
   ! present.  This subroutine assumes that leaf area is distributed uniformly
   ! in the vertical.
   !
-  ! inputs:  <ul> <li> mp - number of land points</li>
-  !           <li> LAI_PFT (mp) - leaf area with no snow (in m2/m2) </li>
-  !           <li> HGT_pft(mp) - height of canopy with no snow (in m)</li>
-  !           <li> HgtAboveSnow (mp) - height of canopy above snow surface (in m)</li></ul>
+  ! inputs:
   !
-  !  outputs: <ul> <li> reducedLAIdue2snow (m2/m2) - leaf area above snow (in m2/m2) </li></ul>
+  ! * mp - number of land points</li>
+  ! * LAI_PFT (mp) - leaf area with no snow (in m2/m2)
+  ! * HGT_pft(mp) - height of canopy with no snow (in m)
+  ! * HgtAboveSnow (mp) - height of canopy above snow surface (in m) 
   !
-  !           output variable formerly known as rough%hruff
+  ! outputs:
+  !
+  ! * reducedLAIdue2snow (m2/m2) - leaf area with snow (in m2/m2)
+  !
+  ! The output variable was formerly known as rough%vlaiw
   !
 
   !re-decl input args  
@@ -43,7 +47,7 @@ SUBROUTINE LAI_eff( mp, LAI_PFT, Hgt_PFT, HgtAboveSnow,  &
   reducedLAIdue2snow = LAI_PFT * FracOfCanopyAboveSnow
   !* leaf area acconting for the presence of snow is given by
   !
-  ! \( LAI_{snow} = LAI_{nosnow} * h_{c,snow} / \max[0.01, h_{c,nosnow} \)
+  ! \( LAI_{snow} = LAI_{nosnow} h_{c,snow} / \max[0.01, h_{c,nosnow} ] \)
   !
   ! where \(h_{c,snow}\) is evaluated in cbl_HgtAboveSnow.F90.
   !  The LAI is decreased proportionally to the canopy height with/without snow.
@@ -51,7 +55,7 @@ SUBROUTINE LAI_eff( mp, LAI_PFT, Hgt_PFT, HgtAboveSnow,  &
   ! The effective canopy height takes a minimum value of 0.01m.
   !
   ! **There is potential for misbehaviour - if  \( h_{c,snow} < 0.01 \)
-  ! then LAI could be increased (unphysical).  \(h_{c,snow} \ge 10 z{0,min}\)
+  ! then LAI could be increased (unphysical).  \(h_{c,snow} \ge 10 z_{0,min}\)
   ! only which need not be greater than 0.01m.
 
 END SUBROUTINE LAI_eff

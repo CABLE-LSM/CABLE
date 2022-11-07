@@ -172,48 +172,52 @@
 <a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">  </span><span class="c">! present.  This subroutine assumes that leaf area is distributed uniformly</span>
 <a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">  </span><span class="c">! in the vertical.</span>
 <a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">  </span><span class="c">!</span>
-<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">  </span><span class="c">! inputs:  &lt;ul&gt; &lt;li&gt; mp - number of land points&lt;/li&gt;</span>
-<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">  </span><span class="c">!           &lt;li&gt; LAI_PFT (mp) - leaf area with no snow (in m2/m2) &lt;/li&gt;</span>
-<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">  </span><span class="c">!           &lt;li&gt; HGT_pft(mp) - height of canopy with no snow (in m)&lt;/li&gt;</span>
-<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">  </span><span class="c">!           &lt;li&gt; HgtAboveSnow (mp) - height of canopy above snow surface (in m)&lt;/li&gt;&lt;/ul&gt;</span>
-<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">  </span><span class="c">!</span>
-<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">  </span><span class="c">!  outputs: &lt;ul&gt; &lt;li&gt; reducedLAIdue2snow (m2/m2) - leaf area above snow (in m2/m2) &lt;/li&gt;&lt;/ul&gt;</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">  </span><span class="c">! inputs:</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">  </span><span class="c">!</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">  </span><span class="c">! * mp - number of land points&lt;/li&gt;</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">  </span><span class="c">! * LAI_PFT (mp) - leaf area with no snow (in m2/m2)</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">  </span><span class="c">! * HGT_pft(mp) - height of canopy with no snow (in m)</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">  </span><span class="c">! * HgtAboveSnow (mp) - height of canopy above snow surface (in m) </span>
 <a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">  </span><span class="c">!</span>
-<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">  </span><span class="c">!           output variable formerly known as rough%hruff</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">  </span><span class="c">! outputs:</span>
 <a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">  </span><span class="c">!</span>
-<a id="ln-27" name="ln-27" href="#ln-27"></a>
-<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">  </span><span class="c">!re-decl input args  </span>
-<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">  </span><span class="kt">integer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">mp</span><span class="w"></span>
-<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">  </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">LAI_PFT</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span><span class="w"></span>
-<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">  </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Hgt_PFT</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span><span class="w"></span>
-<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">  </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">HgtAboveSnow</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span><span class="w"> </span>
-<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">  </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">reducedLAIdue2snow</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span><span class="w"> </span>
-<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w"> </span>
-<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">  </span><span class="c">!local_vars: </span>
-<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">  </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Hgt_eff</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span><span class="w"></span>
-<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">  </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FracOfCanopyAboveSnow</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span><span class="w"></span>
-<a id="ln-38" name="ln-38" href="#ln-38"></a>
-<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">  </span><span class="c">!Fraction Of Canopy Above Snow</span>
-<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">  </span><span class="n">FracOfCanopyAboveSnow</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HgtAboveSnow</span><span class="o">/</span><span class="w"> </span><span class="nb">MAX</span><span class="p">(</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="n">Hgt_PFT</span><span class="p">)</span><span class="w"></span>
-<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">  </span>
-<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">  </span><span class="c">! LAI decreases due to snow:</span>
-<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">  </span><span class="n">reducedLAIdue2snow</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LAI_PFT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FracOfCanopyAboveSnow</span><span class="w"></span>
-<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">  </span><span class="c">!* leaf area acconting for the presence of snow is given by</span>
-<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">  </span><span class="c">!</span>
-<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">  </span><span class="c">! \( LAI_{snow} = LAI_{nosnow} * h_{c,snow} / \max[0.01, h_{c,nosnow} \)</span>
-<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">  </span><span class="c">!</span>
-<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">  </span><span class="c">! where \(h_{c,snow}\) is evaluated in cbl_HgtAboveSnow.F90.</span>
-<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">  </span><span class="c">!  The LAI is decreased proportionally to the canopy height with/without snow.</span>
-<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">  </span><span class="c">!</span>
-<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">  </span><span class="c">! The effective canopy height takes a minimum value of 0.01m.</span>
-<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">  </span><span class="c">!</span>
-<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">  </span><span class="c">! **There is potential for misbehaviour - if  \( h_{c,snow} &lt; 0.01 \)</span>
-<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">  </span><span class="c">! then LAI could be increased (unphysical).  \(h_{c,snow} \ge 10 z{0,min}\)</span>
-<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">  </span><span class="c">! only which need not be greater than 0.01m.</span>
-<a id="ln-56" name="ln-56" href="#ln-56"></a>
-<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="k">END SUBROUTINE </span><span class="n">LAI_eff</span><span class="w"></span>
-<a id="ln-58" name="ln-58" href="#ln-58"></a>
-<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="k">End MODULE </span><span class="n">cbl_LAI_eff_mod</span><span class="w"></span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">  </span><span class="c">! * reducedLAIdue2snow (m2/m2) - leaf area with snow (in m2/m2)</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">  </span><span class="c">!</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">  </span><span class="c">! The output variable was formerly known as rough%vlaiw</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">  </span><span class="c">!</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">  </span><span class="c">!re-decl input args  </span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">  </span><span class="kt">integer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">mp</span><span class="w"></span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">  </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">LAI_PFT</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span><span class="w"></span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">  </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Hgt_PFT</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span><span class="w"></span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">  </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">HgtAboveSnow</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span><span class="w"> </span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">  </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">reducedLAIdue2snow</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span><span class="w"> </span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w"> </span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">  </span><span class="c">!local_vars: </span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">  </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Hgt_eff</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span><span class="w"></span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">  </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FracOfCanopyAboveSnow</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span><span class="w"></span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">  </span><span class="c">!Fraction Of Canopy Above Snow</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">  </span><span class="n">FracOfCanopyAboveSnow</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HgtAboveSnow</span><span class="o">/</span><span class="w"> </span><span class="nb">MAX</span><span class="p">(</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="n">Hgt_PFT</span><span class="p">)</span><span class="w"></span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">  </span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">  </span><span class="c">! LAI decreases due to snow:</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">  </span><span class="n">reducedLAIdue2snow</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LAI_PFT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FracOfCanopyAboveSnow</span><span class="w"></span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">  </span><span class="c">!* leaf area acconting for the presence of snow is given by</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">  </span><span class="c">!</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">  </span><span class="c">! \( LAI_{snow} = LAI_{nosnow} h_{c,snow} / \max[0.01, h_{c,nosnow} ] \)</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">  </span><span class="c">!</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">  </span><span class="c">! where \(h_{c,snow}\) is evaluated in cbl_HgtAboveSnow.F90.</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">  </span><span class="c">!  The LAI is decreased proportionally to the canopy height with/without snow.</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">  </span><span class="c">!</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">  </span><span class="c">! The effective canopy height takes a minimum value of 0.01m.</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">  </span><span class="c">!</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">  </span><span class="c">! **There is potential for misbehaviour - if  \( h_{c,snow} &lt; 0.01 \)</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">  </span><span class="c">! then LAI could be increased (unphysical).  \(h_{c,snow} \ge 10 z_{0,min}\)</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">  </span><span class="c">! only which need not be greater than 0.01m.</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="k">END SUBROUTINE </span><span class="n">LAI_eff</span><span class="w"></span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="k">End MODULE </span><span class="n">cbl_LAI_eff_mod</span><span class="w"></span>
 </pre></div>
 
     </section>
