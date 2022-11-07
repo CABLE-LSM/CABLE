@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for POP">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>SEB &ndash; POP</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">POP </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>SEB
+      <small>Subroutine</small>
+    </h1>
+    <div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title=" 0.4% of total for procedures.">187 statements</a>
+     </li> 
+    <li><i class="fa fa-code"></i><a href="../src/cable_sli_utils.F90"> Source File</a></li>
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+     <li><a href='../sourcefile/cable_sli_utils.f90.html'>cable_sli_utils.F90</a></li>
+     <li><a href='../module/sli_utils.html'>sli_utils</a></li>
+     <li class="active">SEB</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div id="sidebar">
+  <h3>Contents</h3>
+ 
+<em>None</em>
+
+</div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public subroutine SEB(n, par, vmet, vsnow, var, qprec, qprec_snow, dx, h0, Tsoil, Tsurface, G0, lE0, Epot, qsurface, qevap, qliq, qv, qyb, qTb, qlyb, qvyb, qlTb, qvTb, qh, qadv, qhyb, qhTb, qadvyb, qadvTb)</h2>
+    
+
+    <p>vh!! include vapour component??
+ vh !! use max snow depth of 20 cm in this calculation to avoid huge resistances
+ leading to large negative surface temperatures when snow-pack is thick and
+ Rn is large and negative (~-100 Wm-2)
+$          elseif (abs(Tsurface - vmet%Ta).gt. 20) then
+$             Tsurface = min(vmet%Ta, 0.0)
+$             Epot = (esat(Tsurface)<em>0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - &amp; ! m3 H2O (liq) m-3 (air)
+$                  vmet%cva)</em>rhow<em>lambdas/vmet%rbw
+$             dEdTsoil = zero
+$             dGdTsoil = zero
+$             Hpot = rhocp</em>(Tsurface - vmet%Ta)/vmet%rbh
+$             Gpot = vmet%Rn-vmet%Rnsw - Hpot - Epot
+$             dEdTs= zero
+$           endif</p>
+
+    <h3>Arguments</h3>
+      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-n~34"></span>integer(kind=i_d),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>n</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-par~2"></span>type(<a href='../type/params.html'>params</a>),</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
+  <td><strong>par</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vmet"></span>type(<a href='../type/vars_met.html'>vars_met</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>vmet</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vsnow"></span>type(<a href='../type/vars_snow.html'>vars_snow</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>vsnow</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-var~7"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
+  <td><strong>var</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qprec"></span>real(kind=r_2),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>qprec</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qprec_snow"></span>real(kind=r_2),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>qprec_snow</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-dx~6"></span>real(kind=r_2),</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
+  <td><strong>dx</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-h0~6"></span>real(kind=r_2),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>h0</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tsoil~3"></span>real(kind=r_2),</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
+  <td><strong>Tsoil</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tsurface~2"></span>real(kind=r_2),</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>Tsurface</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-g0"></span>real(kind=r_2),</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>G0</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-le0~2"></span>real(kind=r_2),</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>lE0</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-epot"></span>real(kind=r_2),</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>Epot</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qsurface"></span>real(kind=r_2),</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>qsurface</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qevap"></span>real(kind=r_2),</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>qevap</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qliq"></span>real(kind=r_2),</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>qliq</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qv~2"></span>real(kind=r_2),</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>qv</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qyb~2"></span>real(kind=r_2),</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>qyb</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qtb~2"></span>real(kind=r_2),</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>qTb</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qlyb"></span>real(kind=r_2),</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>qlyb</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qvyb"></span>real(kind=r_2),</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>qvyb</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qltb"></span>real(kind=r_2),</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>qlTb</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qvtb"></span>real(kind=r_2),</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>qvTb</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qh"></span>real(kind=r_2),</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>qh</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qadv"></span>real(kind=r_2),</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>qadv</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qhyb"></span>real(kind=r_2),</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>qhyb</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qhtb"></span>real(kind=r_2),</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>qhTb</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qadvyb"></span>real(kind=r_2),</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>qadvyb</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-qadvtb"></span>real(kind=r_2),</td>
+<td>intent(out)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>qadvTb</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+      <h3>Contents</h3>
+ 
+<em>None</em>
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>POP was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

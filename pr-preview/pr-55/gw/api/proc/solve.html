@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.8% of total for procedures.">333 statements</a>
+    title=" 0.7% of total for procedures.">333 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_sli_solve.F90"> Source File</a></li>
   </ul>
@@ -141,55 +141,55 @@
   <td><strong>tfin</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-irec~7"></span>integer(kind=i_d),</td>
+  <td><span class="anchor" id="variable-irec~9"></span>integer(kind=i_d),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>irec</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-mp~22"></span>integer(kind=i_d),</td>
+  <td><span class="anchor" id="variable-mp~29"></span>integer(kind=i_d),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>mp</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qprec~6"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qprec~8"></span>real(kind=r_2),</td>
 <td>intent(in),</td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>qprec</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qprec_snow~5"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qprec_snow~7"></span>real(kind=r_2),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>qprec_snow</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-n~11"></span>integer(kind=i_d),</td>
+  <td><span class="anchor" id="variable-n~23"></span>integer(kind=i_d),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>n</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dx~10"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dx~19"></span>real(kind=r_2),</td>
 <td>intent(in),</td>
   <td></td>  <td>DIMENSION(1:mp,1:n)</td><td>::</td>
   <td><strong>dx</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-h0~9"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-h0~16"></span>real(kind=r_2),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>h0</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-s~10"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-s~17"></span>real(kind=r_2),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp,1:n)</td><td>::</td>
   <td><strong>S</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-thetai~7"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-thetai~8"></span>real(kind=r_2),</td>
 <td>intent(out),</td>
   <td></td>  <td>DIMENSION(1:mp,1:n)</td><td>::</td>
   <td><strong>thetai</strong></td><td></td>
@@ -201,7 +201,7 @@
   <td><strong>Jsensible</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-tsoil~9"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-tsoil~16"></span>real(kind=r_2),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp,1:n)</td><td>::</td>
   <td><strong>Tsoil</strong></td><td></td>
@@ -243,43 +243,43 @@
   <td><strong>discharge</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qh~7"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qh~10"></span>real(kind=r_2),</td>
 <td>intent(out),</td>
   <td></td>  <td>DIMENSION(1:mp,-nsnow_max:n)</td><td>::</td>
   <td><strong>qh</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-nsteps~9"></span>integer(kind=i_d),</td>
+  <td><span class="anchor" id="variable-nsteps~10"></span>integer(kind=i_d),</td>
 <td>intent(out),</td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>nsteps</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-vmet~5"></span>type(<a href='../type/vars_met.html'>vars_met</a>),</td>
+  <td><span class="anchor" id="variable-vmet~7"></span>type(<a href='../type/vars_met.html'>vars_met</a>),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>vmet</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-vlit~7"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+  <td><span class="anchor" id="variable-vlit~10"></span>type(<a href='../type/vars.html'>vars</a>),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>vlit</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-vsnow~7"></span>type(<a href='../type/vars_snow.html'>vars_snow</a>),</td>
+  <td><span class="anchor" id="variable-vsnow~9"></span>type(<a href='../type/vars_snow.html'>vars_snow</a>),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>vsnow</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-var~38"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+  <td><span class="anchor" id="variable-var~45"></span>type(<a href='../type/vars.html'>vars</a>),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp,1:n)</td><td>::</td>
   <td><strong>var</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-csoil~7"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-csoil~12"></span>real(kind=r_2),</td>
 <td>intent(out),</td>
   <td></td>  <td>DIMENSION(1:mp,1:n)</td><td>::</td>
   <td><strong>csoil</strong></td><td></td>
@@ -291,19 +291,19 @@
   <td><strong>kth</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-phi~5"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-phi~8"></span>real(kind=r_2),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp,1:n)</td><td>::</td>
   <td><strong>phi</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-t0~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-t0~6"></span>real(kind=r_2),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>T0</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-tsurface~5"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-tsurface~7"></span>real(kind=r_2),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>Tsurface</strong></td><td></td>
@@ -363,7 +363,7 @@
   <td><strong>deltaice_cum_S</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dxl~6"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dxl~8"></span>real(kind=r_2),</td>
 <td>intent(in),</td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>dxL</strong></td><td></td>
@@ -387,13 +387,13 @@
   <td><strong>Tl</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-plit~6"></span>type(<a href='../type/params.html'>params</a>),</td>
+  <td><span class="anchor" id="variable-plit~7"></span>type(<a href='../type/params.html'>params</a>),</td>
 <td>intent(in),</td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>plit</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-par~8"></span>type(<a href='../type/params.html'>params</a>),</td>
+  <td><span class="anchor" id="variable-par~10"></span>type(<a href='../type/params.html'>params</a>),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp,1:n)</td><td>::</td>
   <td><strong>par</strong></td><td></td>
@@ -537,7 +537,7 @@
   <td><strong>qvTsig</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qvh~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qvh~5"></span>real(kind=r_2),</td>
 <td>intent(out),</td>
   <td>optional</td>  <td>DIMENSION(1:mp,-nsnow_max:n)</td><td>::</td>
   <td><strong>qvh</strong></td><td></td>
@@ -579,7 +579,7 @@
   <td><strong>doadvection</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-err~4"></span>integer(kind=i_d),</td>
+  <td><span class="anchor" id="variable-err~8"></span>integer(kind=i_d),</td>
 <td>intent(inout),</td>
   <td>optional</td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>err</strong></td><td></td>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for GW">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>calc_soil_hydraulic_props &ndash; GW</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">GW </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>calc_soil_hydraulic_props
+      <small>Subroutine</small>
+    </h1>
+    <div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title=" 0.2% of total for procedures.">95 statements</a>
+     </li> 
+    <li><i class="fa fa-code"></i><a href="../src/cable_gw_hydro.F90"> Source File</a></li>
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+     <li><a href='../sourcefile/cable_gw_hydro.f90.html'>cable_gw_hydro.F90</a></li>
+     <li><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></li>
+     <li class="active">calc_soil_hydraulic_props</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div id="sidebar">
+  <h3>Contents</h3>
+ 
+<em>None</em>
+
+</div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private subroutine calc_soil_hydraulic_props(ssnow, soil, veg)</h2>
+        <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Uses</h3>
+      </div>
+      <ul class="list-group">
+      <li class="list-group-item">
+  <ul class="list-inline">
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+  </ul>
+      </li>
+      </ul>
+    </div>
+
+
+    <p>$    DO k=1,ms                                                                  ! replaced as per MMY -- rk4417
+$       DO i=1,mp
+$          ssnow%icefrac(i,k) = ssnow%wbice(i,k)/(MAX(ssnow%wb(i,k),0.01_r_2))
+$          ssnow%fracice(i,k) = (EXP(-gw_params%IceAlpha<em>(1._r_2-ssnow%icefrac(i,k)))&amp;
+$               -EXP(-gw_params%IceAlpha))/(1._r_2-EXP(-gw_params%IceAlpha))
+$       END DO
+$    END DO
+$       smp_cor = 8.0             ! commented out by rk4417 as not used by MMY
+$                hk_ice_factor(i,k) = 10.0</em>*(-gw_params%ice_impedence)                   ! replaced as per MMY -- rk4417</p>
+<p>$                hk_ice_factor(i,k) = 10.0<em><em>(-gw_params%ice_impedence</em> &amp;                 ! replaced as per MMY -- rk4417
+$                     ( 0.5</em>(ssnow%wbice(i,k)/MAX(1.0e-8,ssnow%wb(i,k)) + &amp;
+$                     ssnow%wbice(i,kk)/MAX(1.0e-8,ssnow%wb(i,kk))) ) &amp;
+$                     )</p>
+<p>$       smp_cor = 0.0                 ! commented out by rk4417 as not used by MMY
+$    !aquifer ice                                      ! block commented out by rk4417 as not used by MMY
+$    wb_temp(:,ms+1) = liq_ratio(:) * wb_temp(:,ms+1)
+$
+$    !potential from soil water rention function
+$    !defined as layer average
+$    DO k=1,ms
+$       DO i=1,mp
+$          s_mid(i) = (wb_temp(i,k)-soil%watr(i,k))/&amp;  !+dri<em>ssnow%wbice(:,k)
+$               (soil%ssat_vec(i,k)-soil%watr(i,k))
+$
+$          s_mid(i) = MIN(MAX(s_mid(i),0.001_r_2),1._r_2)
+$
+$          ssnow%smp(i,k) = -soil%sucs_vec(i,k)</em>s_mid(i)<strong>(-soil%bch_vec(i,k))<em>&amp;
+$               ((1._r_2 + smp_cor</em>ssnow%wbice(i,k))</strong>2.0)
+$
+$          ssnow%smp(i,k) = MAX(MIN(ssnow%smp(i,k),-soil%sucs_vec(i,k)),sucmin)
+$
+$          ssnow%dsmpdw(i,k) = -soil%bch_vec(i,k)<em>ssnow%smp(i,k)/&amp;
+$               (MAX(s_mid(i)</em>(soil%ssat_vec(i,k)-soil%watr(i,k)),0.001_r_2)) <em>&amp;
+$               ((1._r_2 + smp_cor</em>ssnow%wbice(i,k))<strong>2.0)
+$       END DO
+$    END DO
+$
+$    !Aquifer potential
+$    DO i=1,mp
+$       s_mid(i) = (wb_temp(i,ms+1)-soil%GWwatr(i))/&amp;
+$            (soil%GWssat_vec(i)-soil%GWwatr(i))
+$       s_mid(i) = MIN(MAX(s_mid(i),0.001_r_2),1._r_2)
+$       s2(i)    = soil%GWhyds_vec(i)*s_mid(i)</strong>(2._r_2<em>soil%GWbch_vec(i)+2._r_2)
+$
+$       !ssnow%GWhk(i)     =s_mid(i)</em>s2(i) * hk_ice_factor(i,ms+1)
+$       !ssnow%GWdhkdw(i)  =  (2._r_2<em>soil%GWbch_vec(i)+3._r_2)</em>&amp;
+$       !                    s2(i)<em>0.5_r_2/(soil%GWssat_vec(i)-soil%GWwatr(i)) </em>&amp;
+$       !                    hk_ice_factor(i,ms+1)
+$
+$       ssnow%GWhk(i)     = soil%GWhyds_vec(i) * hk_ice_factor(i,ms+1)<em>&amp;
+$            EXP(-ssnow%wtd(i)/1000._r_2/&amp;
+$            (1.0/(120</em>(soil%drain_dens(i)+1.0e-3))))
+$       !d(h)<em>Sy=dW
+$       ssnow%GWdhkdw(i)  = ssnow%GWhk(i)/(soil%GWssat_vec(i)-soil%GWwatr(i))</em>&amp;
+$            (0.001/(120<em>(soil%drain_dens(i)+1.0e-3)))
+$
+$       s_mid(i) = (wb_temp(i,ms+1)-soil%GWwatr(i))/(soil%GWssat_vec(i)-soil%GWwatr(i))
+$       s_mid(i) = MIN(MAX(s_mid(i),0.001_r_2),1._r_2)
+$
+$       ssnow%GWsmp(i)    = -soil%GWsucs_vec(i)</em>s_mid(i)<em><em>(-soil%GWbch_vec(i))
+$       ssnow%GWsmp(i)    = MAX(MIN(ssnow%GWsmp(i),-soil%GWsucs_vec(i)),sucmin)
+$       ssnow%GWdsmpdw(i) = -soil%GWbch_vec(i)</em>ssnow%GWsmp(i)/&amp;
+$            (s_mid(i)</em>(soil%GWssat_vec(i)-soil%GWwatr(i)))
+$    END DO</p>
+<p>$    !hydraulic conductivity
+$    !Interfacial so uses layer i and i+1
+$    DO k=1,ms
+$       kk=MIN(ms+1,k+1)
+$       DO i=1,mp
+$
+$          IF (k .LT. ms) THEN
+$             s1(i) = 0.5_r_2<em>((wb_temp(i,k)-soil%watr(i,k)) + &amp;
+$                  (wb_temp(i,kk)-soil%watr(i,kk))) / &amp;
+$                  (0.5_r_2</em>((soil%ssat_vec(i,k)-soil%watr(i,k)) + &amp;
+$                  (soil%ssat_vec(i,kk)-soil%watr(i,kk))))
+$          ELSE
+$             s1(i) = 0.5_r_2<em>((wb_temp(i,k)-soil%watr(i,k)) + &amp;
+$                  (wb_temp(i,kk)-soil%GWwatr(i))) / &amp;
+$                  (0.5_r_2</em>((soil%ssat_vec(i,k)-soil%watr(i,k)) + &amp;
+$                  (soil%GWssat_vec(i)-soil%GWwatr(i))))
+$          END IF
+$          s1(i) = MIN(MAX(s1(i),0.01_r_2),1._r_2)
+$          s2(i) = soil%hyds_vec(i,k)<em>s1(i)</em><em>(2._r_2</em>soil%bch_vec(i,k)+2._r_2)
+$
+$          ssnow%hk(i,k)    =  s1(i)<em>s2(i)</em>hk_ice_factor(i,k)
+$          ssnow%dhkdw(i,k) = (2._r_2<em>soil%bch_vec(i,k)+3._r_2)</em>s2(i)<em>&amp;
+$               0.5_r_2/(soil%ssat_vec(i,k)-soil%watr(i,k))</em>&amp;
+$               hk_ice_factor(i,k)
+$       END DO
+$    END DO</p>
+
+    <h3>Arguments</h3>
+      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-ssnow~14"></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ssnow</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-soil~28"></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>soil</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-veg~48"></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>veg</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+      <h3>Contents</h3>
+ 
+<em>None</em>
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>GW was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

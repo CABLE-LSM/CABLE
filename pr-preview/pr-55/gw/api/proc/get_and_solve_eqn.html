@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 1.0% of total for procedures.">389 statements</a>
+    title=" 0.8% of total for procedures.">389 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_sli_solve.F90"> Source File</a></li>
   </ul>
@@ -166,103 +166,103 @@ $                 endif</p>
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" id="variable-irec~5"></span>integer(kind=i_d)</td>
+  <td><span class="anchor" id="variable-irec~7"></span>integer(kind=i_d)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>irec</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-mp~20"></span>integer(kind=i_d)</td>
+  <td><span class="anchor" id="variable-mp~27"></span>integer(kind=i_d)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>mp</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qprec~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qprec~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>qprec</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-n~9"></span>integer(kind=i_d)</td>
+  <td><span class="anchor" id="variable-n~21"></span>integer(kind=i_d)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>n</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dx~8"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dx~17"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>dx</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-h0~7"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-h0~14"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>h0</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-s~8"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-s~15"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>S</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-thetai~5"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-thetai~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>thetai</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-tsoil~7"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-tsoil~14"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>Tsoil</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qh~5"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qh~8"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qh</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-nsteps~7"></span>integer(kind=i_d),</td>
+  <td><span class="anchor" id="variable-nsteps~8"></span>integer(kind=i_d),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>nsteps</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-vlit~5"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+  <td><span class="anchor" id="variable-vlit~8"></span>type(<a href='../type/vars.html'>vars</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>vlit</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-vsnow~5"></span>type(<a href='../type/vars_snow.html'>vars_snow</a>),</td>
+  <td><span class="anchor" id="variable-vsnow~7"></span>type(<a href='../type/vars_snow.html'>vars_snow</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>vsnow</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-var~36"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+  <td><span class="anchor" id="variable-var~43"></span>type(<a href='../type/vars.html'>vars</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>var</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dxl~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dxl~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>dxL</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-plit~4"></span>type(<a href='../type/params.html'>params</a>),</td>
+  <td><span class="anchor" id="variable-plit~5"></span>type(<a href='../type/params.html'>params</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>plit</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-par~6"></span>type(<a href='../type/params.html'>params</a>),</td>
+  <td><span class="anchor" id="variable-par~8"></span>type(<a href='../type/params.html'>params</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>par</strong></td><td></td>
@@ -274,7 +274,7 @@ $                 endif</p>
   <td><strong>deltaTa</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qevap~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qevap~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>qevap</strong></td><td></td>
@@ -340,7 +340,7 @@ $                 endif</p>
   <td><strong>itmp</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ns~6"></span>integer(kind=i_d),</td>
+  <td><span class="anchor" id="variable-ns~8"></span>integer(kind=i_d),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>ns</strong></td><td></td>
@@ -352,7 +352,7 @@ $                 endif</p>
   <td><strong>accel</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dt~7"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dt~11"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>dt</strong></td><td></td>
@@ -388,7 +388,7 @@ $                 endif</p>
   <td><strong>sig</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-t~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-t~5"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>t</strong></td><td></td>
@@ -400,91 +400,91 @@ $                 endif</p>
   <td><strong>qexd</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-aa~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-aa~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>aa</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-bb~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-bb~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>bb</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-cc~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-cc~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>cc</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dd~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dd~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>dd</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ee~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-ee~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>ee</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ff~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-ff~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>ff</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-gg~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-gg~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>gg</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dy~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dy~8"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>dy</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-aah~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-aah~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>aah</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-bbh~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-bbh~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>bbh</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-cch~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-cch~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>cch</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ddh~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-ddh~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>ddh</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-eeh~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-eeh~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>eeh</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ffh~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-ffh~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>ffh</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ggh~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-ggh~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>ggh</strong></td><td></td>
@@ -496,85 +496,85 @@ $                 endif</p>
   <td><strong>de</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-q~5"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-q~8"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>q</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qya~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qya~7"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qya</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qyb~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qyb~9"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qyb</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qta~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qta~7"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qTa</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qtb~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qtb~9"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qTb</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qhya~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qhya~5"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qhya</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qhyb~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qhyb~7"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qhyb</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qhta~5"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qhta~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qhTa</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qhtb~5"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qhtb~8"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qhTb</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qadv~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qadv~7"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qadv</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qadvya~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qadvya~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qadvya</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qadvyb~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qadvyb~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qadvyb</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qadvta~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qadvta~5"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qadvTa</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qadvtb~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qadvtb~7"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qadvTb</strong></td><td></td>
@@ -670,7 +670,7 @@ $                 endif</p>
   <td><strong>tmp1d4</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-g0~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-g0~5"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>G0</strong></td><td></td>
@@ -712,13 +712,13 @@ $                 endif</p>
   <td><strong>nns</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-iflux~4"></span>integer(kind=i_d),</td>
+  <td><span class="anchor" id="variable-iflux~6"></span>integer(kind=i_d),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>iflux</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-litter~6"></span>logical</td>
+  <td><span class="anchor" id="variable-litter~8"></span>logical</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>litter</strong></td><td></td>
@@ -736,13 +736,13 @@ $                 endif</p>
   <td><strong>kk</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-condition~2"></span>integer(kind=i_d)</td>
+  <td><span class="anchor" id="variable-condition~4"></span>integer(kind=i_d)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>condition</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-advection~5"></span>integer(kind=i_d)</td>
+  <td><span class="anchor" id="variable-advection~7"></span>integer(kind=i_d)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>advection</strong></td><td></td>
@@ -754,7 +754,7 @@ $                 endif</p>
   <td><strong>c2</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-theta~4"></span>real(kind=r_2)</td>
+  <td><span class="anchor" id="variable-theta~8"></span>real(kind=r_2)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>theta</strong></td><td></td>
@@ -886,7 +886,7 @@ $                 endif</p>
   <td><strong>nfac12</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-err~2"></span>integer(kind=i_d),</td>
+  <td><span class="anchor" id="variable-err~6"></span>integer(kind=i_d),</td>
 <td>intent(inout),</td>
   <td>optional</td>  <td></td><td>::</td>
   <td><strong>err</strong></td><td></td>

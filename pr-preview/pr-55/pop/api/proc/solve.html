@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.7% of total for procedures.">332 statements</a>
+    title=" 0.6% of total for procedures.">332 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_sli_solve.F90"> Source File</a></li>
   </ul>
@@ -147,49 +147,49 @@
   <td><strong>irec</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-mp~24"></span>integer(kind=i_d),</td>
+  <td><span class="anchor" id="variable-mp~31"></span>integer(kind=i_d),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>mp</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qprec~6"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qprec~7"></span>real(kind=r_2),</td>
 <td>intent(in),</td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>qprec</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qprec_snow~5"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qprec_snow~6"></span>real(kind=r_2),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>qprec_snow</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-n~41"></span>integer(kind=i_d),</td>
+  <td><span class="anchor" id="variable-n~48"></span>integer(kind=i_d),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>n</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dx~10"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dx~18"></span>real(kind=r_2),</td>
 <td>intent(in),</td>
   <td></td>  <td>DIMENSION(1:mp,1:n)</td><td>::</td>
   <td><strong>dx</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-h0~9"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-h0~15"></span>real(kind=r_2),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>h0</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-s~11"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-s~18"></span>real(kind=r_2),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp,1:n)</td><td>::</td>
   <td><strong>S</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-thetai~7"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-thetai~8"></span>real(kind=r_2),</td>
 <td>intent(out),</td>
   <td></td>  <td>DIMENSION(1:mp,1:n)</td><td>::</td>
   <td><strong>thetai</strong></td><td></td>
@@ -201,7 +201,7 @@
   <td><strong>Jsensible</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-tsoil~9"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-tsoil~15"></span>real(kind=r_2),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp,1:n)</td><td>::</td>
   <td><strong>Tsoil</strong></td><td></td>
@@ -243,7 +243,7 @@
   <td><strong>discharge</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qh~7"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qh~9"></span>real(kind=r_2),</td>
 <td>intent(out),</td>
   <td></td>  <td>DIMENSION(1:mp,-nsnow_max:n)</td><td>::</td>
   <td><strong>qh</strong></td><td></td>
@@ -255,31 +255,31 @@
   <td><strong>nsteps</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-vmet~5"></span>type(<a href='../type/vars_met.html'>vars_met</a>),</td>
+  <td><span class="anchor" id="variable-vmet~6"></span>type(<a href='../type/vars_met.html'>vars_met</a>),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>vmet</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-vlit~7"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+  <td><span class="anchor" id="variable-vlit~8"></span>type(<a href='../type/vars.html'>vars</a>),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>vlit</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-vsnow~7"></span>type(<a href='../type/vars_snow.html'>vars_snow</a>),</td>
+  <td><span class="anchor" id="variable-vsnow~8"></span>type(<a href='../type/vars_snow.html'>vars_snow</a>),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>vsnow</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-var~14"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+  <td><span class="anchor" id="variable-var~24"></span>type(<a href='../type/vars.html'>vars</a>),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp,1:n)</td><td>::</td>
   <td><strong>var</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-csoil~10"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-csoil~15"></span>real(kind=r_2),</td>
 <td>intent(out),</td>
   <td></td>  <td>DIMENSION(1:mp,1:n)</td><td>::</td>
   <td><strong>csoil</strong></td><td></td>
@@ -291,19 +291,19 @@
   <td><strong>kth</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-phi~5"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-phi~8"></span>real(kind=r_2),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp,1:n)</td><td>::</td>
   <td><strong>phi</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-t0~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-t0~6"></span>real(kind=r_2),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>T0</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-tsurface~5"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-tsurface~6"></span>real(kind=r_2),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>Tsurface</strong></td><td></td>
@@ -387,13 +387,13 @@
   <td><strong>Tl</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-plit~6"></span>type(<a href='../type/params.html'>params</a>),</td>
+  <td><span class="anchor" id="variable-plit~7"></span>type(<a href='../type/params.html'>params</a>),</td>
 <td>intent(in),</td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>plit</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-par~9"></span>type(<a href='../type/params.html'>params</a>),</td>
+  <td><span class="anchor" id="variable-par~11"></span>type(<a href='../type/params.html'>params</a>),</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(1:mp,1:n)</td><td>::</td>
   <td><strong>par</strong></td><td></td>
@@ -537,7 +537,7 @@
   <td><strong>qvTsig</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qvh~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qvh~5"></span>real(kind=r_2),</td>
 <td>intent(out),</td>
   <td>optional</td>  <td>DIMENSION(1:mp,-nsnow_max:n)</td><td>::</td>
   <td><strong>qvh</strong></td><td></td>
@@ -579,7 +579,7 @@
   <td><strong>doadvection</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-err~5"></span>integer(kind=i_d),</td>
+  <td><span class="anchor" id="variable-err~9"></span>integer(kind=i_d),</td>
 <td>intent(inout),</td>
   <td>optional</td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>err</strong></td><td></td>

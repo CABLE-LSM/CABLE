@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.6% of total for procedures.">236 statements</a>
+    title=" 0.5% of total for procedures.">236 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_sli_solve.F90"> Source File</a></li>
   </ul>
@@ -147,43 +147,43 @@ $                   endif</p>
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" id="variable-mp~18"></span>integer(kind=i_d)</td>
+  <td><span class="anchor" id="variable-mp~25"></span>integer(kind=i_d)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>mp</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-n~7"></span>integer(kind=i_d)</td>
+  <td><span class="anchor" id="variable-n~19"></span>integer(kind=i_d)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>n</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dx~6"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dx~15"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>dx</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-h0~5"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-h0~12"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>h0</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-s~6"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-s~13"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>S</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-thetai~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-thetai~5"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>thetai</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-tsoil~5"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-tsoil~12"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>Tsoil</strong></td><td></td>
@@ -195,19 +195,19 @@ $                   endif</p>
   <td><strong>infil</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-nsteps~5"></span>integer(kind=i_d),</td>
+  <td><span class="anchor" id="variable-nsteps~6"></span>integer(kind=i_d),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>nsteps</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-var~34"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+  <td><span class="anchor" id="variable-var~41"></span>type(<a href='../type/vars.html'>vars</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>var</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-par~4"></span>type(<a href='../type/params.html'>params</a>),</td>
+  <td><span class="anchor" id="variable-par~6"></span>type(<a href='../type/params.html'>params</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>par</strong></td><td></td>
@@ -231,13 +231,13 @@ $                   endif</p>
   <td><strong>ih0</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ns~4"></span>integer(kind=i_d),</td>
+  <td><span class="anchor" id="variable-ns~6"></span>integer(kind=i_d),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>ns</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dt~5"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dt~9"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>dt</strong></td><td></td>
@@ -249,7 +249,7 @@ $                   endif</p>
   <td><strong>sig</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dy~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dy~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>dy</strong></td><td></td>
@@ -381,7 +381,7 @@ $                   endif</p>
   <td><strong>j</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-k~3"></span>integer(kind=i_d)</td>
+  <td><span class="anchor" id="variable-k~4"></span>integer(kind=i_d)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>k</strong></td><td></td>
@@ -393,7 +393,7 @@ $                   endif</p>
   <td><strong>kk</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-theta~2"></span>real(kind=r_2)</td>
+  <td><span class="anchor" id="variable-theta~6"></span>real(kind=r_2)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>theta</strong></td><td></td>

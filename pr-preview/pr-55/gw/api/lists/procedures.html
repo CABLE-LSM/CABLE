@@ -96,6 +96,7 @@
 			   <tr><td><a href='../proc/alloc_climate_type.html'>alloc_climate_type</a></td><td><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/alloc_met_type.html'>alloc_met_type</a></td><td><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/alloc_phenvariable.html'>alloc_phenvariable</a></td><td><a href='../module/phenvariable.html'>phenvariable</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/alloc_pop.html'>alloc_POP</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/alloc_popluc.html'>alloc_POPLUC</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/alloc_radiation_type.html'>alloc_radiation_type</a></td><td><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/alloc_roughness_type.html'>alloc_roughness_type</a></td><td><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></td><td>Subroutine</td><td></td></tr>
@@ -105,7 +106,24 @@
 			   <tr><td><a href='../proc/alloc_sum_flux_type.html'>alloc_sum_flux_type</a></td><td><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/alloc_veg_parameter_type.html'>alloc_veg_parameter_type</a></td><td><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/allocate_cable_vars.html'>allocate_cable_vars</a></td><td><a href='../module/cable_input_module.html'>cable_input_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/allometry.html'>Allometry</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/analyticpool.html'>analyticpool</a></td><td><a href='../module/casa_cable.html'>casa_cable</a></td><td>Subroutine</td><td><p>set the following two backflow to set (see Bolker 199x)</p></td></tr>
+			   <tr><td><a href='../proc/aquifer_props.html'>aquifer_props</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/aquifer_recharge.html'>aquifer_recharge</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td><p>$    DO i=1,mp                                           ! block commented out by rk4417 replaced by next one
+$       IF ((ssnow%wtd(i) .LE. SUM(dzmm,dim=1)) .OR. &amp;
+$            (veg%iveg(i) .GE. 16) .OR. &amp;
+$            (soil%isoilm(i) .EQ. 9))  THEN
+$
+$          ssnow%Qrecharge(i) = 0._r_2
+$       ELSE
+$          ssnow%Qrecharge(i) = -0.5<em>(ssnow%hk(i,ms)</em>ssnow%GWhk(i))<em>&amp;
+$               ((-ssnow%smp(i,ms)) -&amp;
+$               (-ssnow%zq(i,ms))) / &amp;
+$               (ssnow%wtd(i) - &amp;
+$               (zmm(ms)-0.5</em>soil%zse_vec(i,ms)*1000.0))
+$       END IF
+$    END DO</p><a href="../proc/aquifer_recharge.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/area_triangle.html'>Area_Triangle</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/avgsoil.html'>avgsoil</a></td><td><a href='../module/casa_cnp_module.html'>casa_cnp_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/bcast_start_time.html'>bcast_start_time</a></td><td><a href='../module/cable_mpicommon.html'>cable_mpicommon</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/bgcdriver.html'>bgcdriver</a></td><td><a href='../module/casa_cable.html'>casa_cable</a></td><td>Subroutine</td><td></td></tr>
@@ -122,6 +140,9 @@ $write(667,*)
 $   endif
 $</p><a href="../proc/biogeochem.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/biome1_pft.html'>biome1_pft</a></td><td><a href='../module/cable_climate_mod.html'>cable_climate_mod</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/bracket.html'>bracket</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td><p><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong>*</strong>*80</p><a href="../proc/bracket.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/brook_corey_hysteresis_swc_smp.html'>brook_corey_hysteresis_swc_smp</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/brook_corey_swc_smp.html'>brook_corey_swc_smp</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/cable_climate.html'>cable_climate</a></td><td><a href='../module/cable_climate_mod.html'>cable_climate_mod</a></td><td>Subroutine</td><td><p>$! * Find irradiances, available energy, equilibrium latent heat flux
 $PPc    = Gaero / ( Gaero + 4.0<em>SBoltz</em>((TempA+273.16)<strong>3)/(RhoA<em>Capp) )
 $                                                    ! PPc = Ga/(Ga+Gr)      [-]
@@ -173,8 +194,52 @@ vh_veg_params !!</p></td></tr>
 			   <tr><td><a href='../proc/cable_pyprint2.html'>cable_Pyprint2</a></td><td><a href='../module/cable_pyfprint_module.html'>cable_Pyfprint_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/cable_soil_params.html'>cable_soil_params</a></td><td><a href='../module/cable_soil_params_mod.html'>cable_soil_params_mod</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/cable_stat.html'>cable_stat</a></td><td><a href='../module/cable_diag_module.html'>cable_diag_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/calc_equilibrium_water_content.html'>calc_equilibrium_water_content</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td><p>$       zimm(k) = zimm(k-1) + dzmm(k)                  ! replaced as per MMY -- rk4417
+$       zmm(k)  = zimm(k-1) + 0.5_r_2<em>dzmm(k)
+$       zimm(:,k) = zimm(:,k-1) + m2mm</em>soil%zse_vec(:,k)          !  MMY original
+$       zmm(:,k)  = zimm(:,k-1) + 0.5_r_2<em>m2mm</em>soil%zse_vec(:,k)
+$    DO i=1,mp                                        ! commented out by rk4417 as per MMY
+$       GWdzmm(i) = REAL(soil%GWdz(i),r_2)<em>1000._r_2
+$       GWzimm(i) = zimm(ms)+GWdzmm(i)
+$       zaq(i)    = zimm(ms) + 0.5_r_2</em>GWdzmm(i)
+$    END DO
+$
+$    IF (.NOT.gw_params%ssgw_ice_switch) THEN
+$       ice_correction(:,:) = 1._r_2
+$
+$    ELSE
+$
+$       DO k=1,ms
+$          DO i=1,mp
+$             ice_correction(i,k)    = 1._r_2 + smp_cor * ssnow%wbice(i,k)
+$             ice_correction(i,k)    =  ice_correction(i,k)<strong>(2.0/soil%bch_vec(i,k))
+$          END DO
+$       END DO
+$       DO i=1,mp
+$          ice_correction(i,ms+1)    = 1._r_2 + smp_cor * ssnow%wbice(i,ms)
+$          ice_correction(i,ms+1)    =  ice_correction(i,ms+1)</strong>(2.0/soil%GWbch_vec(i))
+$       END DO
+$
+$    END IF</p><a href="../proc/calc_equilibrium_water_content.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/calc_rhoch.html'>calc_rhoch</a></td><td><a href='../module/cable_albedo_module.html'>cable_albedo_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/calc_rhoch~2.html'>calc_rhoch</a></td><td><a href='../module/cable_radiation_module.html'>cable_radiation_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/calc_soil_hydraulic_props.html'>calc_soil_hydraulic_props</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td><p>$    DO k=1,ms                                                                  ! replaced as per MMY -- rk4417
+$       DO i=1,mp
+$          ssnow%icefrac(i,k) = ssnow%wbice(i,k)/(MAX(ssnow%wb(i,k),0.01_r_2))
+$          ssnow%fracice(i,k) = (EXP(-gw_params%IceAlpha<em>(1._r_2-ssnow%icefrac(i,k)))&amp;
+$               -EXP(-gw_params%IceAlpha))/(1._r_2-EXP(-gw_params%IceAlpha))
+$       END DO
+$    END DO
+$       smp_cor = 8.0             ! commented out by rk4417 as not used by MMY
+$                hk_ice_factor(i,k) = 10.0</em>*(-gw_params%ice_impedence)                   ! replaced as per MMY -- rk4417</p><a href="../proc/calc_soil_hydraulic_props.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/calc_srf_wet_fraction.html'>calc_srf_wet_fraction</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td><p>$          icemass  = ssnow%wbice(i,1) * dzmm_one         -- rk4417
+$          liqmass  = (ssnow%wb(i,1)-ssnow%wbice(i,1)) * dzmm_one         -- rk4417
+$          icef(i)  = MAX(0._r_2,MIN(1._r_2, gw_params%IceBeta<em>icemass / totmass))         -- rk4417
+$          satfrac_liqice(i) = fice + (1._r_2-fice)</em>ssnow%satfrac(i)         -- rk4417
+$          wb_unsat = ((ssnow%wb(i,1)-ssnow%wbice(i,1)) -&amp;         -- rk4417
+$             xx = 0.25 * (1._r_2 - COS(C%pi<em>wb_unsat/(wb_evap_threshold)))</em><em>2.0
+$ I substituted the line above just to compile, will sort it out later -- rk4417
+$               ( ssnow%wbice(i,1) / ssnow%wb(i,1) )</em>*2 ) ) )         -- rk4417</p></td></tr>
 			   <tr><td><a href='../proc/calculate_weights.html'>CALCULATE_WEIGHTS</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/canopy_type_ptr.html'>canopy_type_ptr</a></td><td><a href='../module/cable_data_module.html'>cable_data_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/carbon_pl.html'>carbon_pl</a></td><td><a href='../module/cable_carbon_module.html'>cable_carbon_module</a></td><td>Subroutine</td><td><p>vh!! inserted '0.0001' to avoide floating pt underflow</p></td></tr>
@@ -324,6 +389,9 @@ $    END SELECT</p><a href="../proc/cru_get_filename.html" class="pull-right"><e
 			   <tr><td><a href='../proc/cru_get_subdiurnal_met.html'>CRU_GET_SUBDIURNAL_MET</a></td><td><a href='../module/cable_cru.html'>CABLE_CRU</a></td><td>Subroutine</td><td><p>!!  this only works with CANBERRA cable_driver, as ktau    !!!!
 !!  restarts on Jan 1                                      !!!!</p><a href="../proc/cru_get_subdiurnal_met.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/cru_init.html'>CRU_INIT</a></td><td><a href='../module/cable_cru.html'>CABLE_CRU</a></td><td>Subroutine</td><td><a href="../proc/cru_init.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/csat.html'>csat</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/csoil.html'>csoil</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/cumexponential.html'>CumExponential</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/dealloc_air_type.html'>dealloc_air_type</a></td><td><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/dealloc_balances_type.html'>dealloc_balances_type</a></td><td><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/dealloc_bgc_pool_type.html'>dealloc_bgc_pool_type</a></td><td><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></td><td>Subroutine</td><td></td></tr>
@@ -341,6 +409,9 @@ $    END SELECT</p><a href="../proc/cru_get_filename.html" class="pull-right"><e
 			   <tr><td><a href='../proc/def_var_atts.html'>def_var_atts</a></td><td><a href='../module/cable_diag_module.html'>cable_diag_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/def_vars.html'>def_vars</a></td><td><a href='../module/cable_diag_module.html'>cable_diag_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/define_air.html'>define_air</a></td><td><a href='../module/cable_air_module.html'>cable_air_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/define_canopy.html'>define_canopy</a></td><td><a href='../module/cable_canopy_module.html'>cable_canopy_module</a></td><td>Subroutine</td><td><p>$    USE cable_gw_hydro_module, ONLY : pore_space_relative_humidity ! replaced as per MMY -- rk4417
+ vh_js !!
+ vh_js !!</p><a href="../proc/define_canopy.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/define_output_parameter_r1.html'>define_output_parameter_r1</a></td><td><a href='../module/cable_write_module.html'>cable_write_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/define_output_parameter_r2.html'>define_output_parameter_r2</a></td><td><a href='../module/cable_write_module.html'>cable_write_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/define_output_variable_r1.html'>define_output_variable_r1</a></td><td><a href='../module/cable_write_module.html'>cable_write_module</a></td><td>Subroutine</td><td></td></tr>
@@ -349,20 +420,46 @@ $    END SELECT</p><a href="../proc/cru_get_filename.html" class="pull-right"><e
 			   <tr><td><a href='../proc/derived_parameters.html'>derived_parameters</a></td><td><a href='../module/cable_param_module.html'>cable_param_module</a></td><td>Subroutine</td><td><p>vh_js !! comment out hide% condition</p></td></tr>
 			   <tr><td><a href='../proc/doysod2ymdhms.html'>DOYSOD2YMDHMS</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/driver_type_ptr.html'>driver_type_ptr</a></td><td><a href='../module/cable_data_module.html'>cable_data_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/dryleaf.html'>dryLeaf</a></td><td><a href='../module/cable_canopy_module.html'>cable_canopy_module</a></td><td>Subroutine</td><td><p>$                xleuning(i,1) = ( fwsoil(i) / ( csx(i,1) - co2cp3 ) )              &amp;
+$                     * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
+$                xleuning(i,2) = ( fwsoil(i) / ( csx(i,2) - co2cp3 ) )              &amp;
+$                     * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))</p><a href="../proc/dryleaf.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/dthetalmaxdt.html'>dthetalmaxdT</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/dthetalmaxdth.html'>dthetalmaxdTh</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/ej3x.html'>ej3x</a></td><td><a href='../module/cable_canopy_module.html'>cable_canopy_module</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/ej4x.html'>ej4x</a></td><td><a href='../module/cable_canopy_module.html'>cable_canopy_module</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/energy_balance.html'>energy_balance</a></td><td><a href='../module/cable_checks_module.html'>cable_checks_module</a></td><td>Subroutine</td><td><p>vh !! March 2014</p></td></tr>
 			   <tr><td><a href='../proc/epsif.html'>Epsif</a></td><td><a href='../module/cable_climate_mod.html'>cable_climate_mod</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/esat.html'>esat</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/esat_ice.html'>esat_ice</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/estimate_timestep.html'>estimate_timestep</a></td><td><a href='../module/sli_solve.html'>sli_solve</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/execute_luc_event.html'>execute_luc_event</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/exponential.html'>Exponential</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/extrarestart.html'>extraRestart</a></td><td><a href='../module/cable_init_module.html'>cable_init_module</a></td><td>Subroutine</td><td><p>(BP Nov 2009)</p></td></tr>
+			   <tr><td><a href='../proc/factorial.html'>Factorial</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/file_switch.html'>FILE_SWITCH</a></td><td><a href='../module/cable_plume_mip.html'>CABLE_PLUME_MIP</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/fill_farray.html'>fill_farray</a></td><td><a href='../module/cable_diag_module.html'>cable_diag_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/fill_farray2.html'>fill_farray2</a></td><td><a href='../module/cable_diag_module.html'>cable_diag_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/find_extents.html'>find_extents</a></td><td><a href='../module/cable_mpicommon.html'>cable_mpicommon</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/flux.html'>flux</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/forcerestore.html'>forcerestore</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/forcerestore_deardorff.html'>forcerestore_Deardorff</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/fprint_fland.html'>fprint_fland</a></td><td><a href='../module/cable_diag_module.html'>cable_diag_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../interface/fudge_out.html'>fudge_out</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Interface</td><td></td></tr>
 			   <tr><td><a href='../proc/fudge_out_i2d.html'>fudge_out_i2D</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/fudge_out_r1d.html'>fudge_out_r1D</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/fudge_out_r2d.html'>fudge_out_r2D</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/fudge_out_r3d.html'>fudge_out_r3D</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/fwsoil_calc_lai_ktaul.html'>fwsoil_calc_Lai_Ktaul</a></td><td><a href='../module/cable_canopy_module.html'>cable_canopy_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/fwsoil_calc_non_linear.html'>fwsoil_calc_non_linear</a></td><td><a href='../module/cable_canopy_module.html'>cable_canopy_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/fwsoil_calc_sli.html'>fwsoil_calc_sli</a></td><td><a href='../module/cable_canopy_module.html'>cable_canopy_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/fwsoil_calc_std.html'>fwsoil_calc_std</a></td><td><a href='../module/cable_canopy_module.html'>cable_canopy_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/gammln.html'>gammln</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/gcf.html'>gcf</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../interface/generic_thomas.html'>generic_thomas</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Interface</td><td></td></tr>
+			   <tr><td><a href='../proc/generic_thomas_1d.html'>generic_thomas_1d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/generic_thomas_2d.html'>generic_thomas_2d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_allometry.html'>GET_ALLOMETRY</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/get_and_solve_eqn.html'>get_and_solve_eqn</a></td><td><a href='../module/sli_solve.html'>sli_solve</a></td><td>Subroutine</td><td><p>$          if (iok(kk)==1 .and. ns(kk)&lt;1 .and. h0(kk)+dy(1)&lt;h0min) then ! pond going
 $             fac(kk) = -(h0(kk)-half*h0min)/dy(1)
 $             nfac9(kk) = nfac9(kk) +1
@@ -400,33 +497,122 @@ $    END IF</p><a href="../proc/get_restart_data.html" class="pull-right"><emph>
 			   <tr><td><a href='../interface/get_var_nc.html'>get_var_nc</a></td><td><a href='../module/cable_diag_module.html'>cable_diag_module</a></td><td>Interface</td><td></td></tr>
 			   <tr><td><a href='../proc/get_var_ncr2.html'>get_var_ncr2</a></td><td><a href='../module/cable_diag_module.html'>cable_diag_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/get_var_ncr3.html'>get_var_ncr3</a></td><td><a href='../module/cable_diag_module.html'>cable_diag_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/getdiagnostics.html'>GetDiagnostics</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)</p><a href="../proc/getdiagnostics.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../interface/getfluxes_vp.html'>getfluxes_vp</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Interface</td><td></td></tr>
+			   <tr><td><a href='../proc/getfluxes_vp_1d.html'>getfluxes_vp_1d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/getfluxes_vp_2d.html'>getfluxes_vp_2d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../interface/getheatfluxes.html'>getheatfluxes</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Interface</td><td></td></tr>
+			   <tr><td><a href='../proc/getheatfluxes_1d.html'>getheatfluxes_1d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td><p>$                   if (q(i) &gt; zero) then
+$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
+$                    else
+$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
+$                    endif
+$                    qadv(i) = rhow<em>cswat</em>q(i)<em>(w</em>(T(i)+zero)+(one-w)<em>(T(i+1)+zero))
+$                    qadvya(i) =  rhow</em>cswat<em>qya(i)</em>(w<em>(T(i)+zero)+(one-w)</em>(T(i+1)+zero))
+$                    qadvyb(i) =  rhow<em>cswat</em>qyb(i)<em>(w</em>(T(i)+zero)+(one-w)<em>(T(i+1)+zero))
+$                    qadvTa(i) =  rhow</em>cswat<em>q(i)</em>w
+$                    qadvTb(i) =  rhow<em>cswat</em>q(i)*(one-w)</p></td></tr>
+			   <tr><td><a href='../proc/getheatfluxes_2d.html'>getheatfluxes_2d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/getheight.html'>GetHeight</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/getpatchfrequencies.html'>GetPatchFrequencies</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../interface/getrex.html'>getrex</a></td><td><a href='../module/sli_roots.html'>sli_roots</a></td><td>Interface</td><td></td></tr>
 			   <tr><td><a href='../proc/getrex_1d.html'>getrex_1d</a></td><td><a href='../module/sli_roots.html'>sli_roots</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/getrex_1d~2.html'>getrex_1d</a></td><td><a href='../module/cable_canopy_module.html'>cable_canopy_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/getrex_2d.html'>getrex_2d</a></td><td><a href='../module/sli_roots.html'>sli_roots</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/getuniqueagefrequencies.html'>GetUniqueAgeFrequencies</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/gser.html'>gser</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/gtfrozen.html'>GTfrozen</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/gwhydro_type_ptr.html'>gwhydro_type_ptr</a></td><td><a href='../module/cable_data_module.html'>cable_data_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/gwsoilfreeze.html'>GWsoilfreeze</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/gwspatialparameters.html'>GWspatialParameters</a></td><td><a href='../module/cable_param_module.html'>cable_param_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/gwstempv.html'>GWstempv</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td><p>$    at = 0.0
+			   <tr><td><a href='../proc/gwstempv.html'>GWstempv</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td><p>$    at = 0.0
 $    bt = 1.0
 $    ct = 0.0
 $    coeff = 0.0   !  ! replaced block by one below as per MMY code -- rk4417</p><a href="../proc/gwstempv.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
-			   <tr><td><a href='../proc/gwstempv~2.html'>GWstempv</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/gwstempv~2.html'>GWstempv</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/gwstempv~3.html'>GWstempv</a></td><td><a href='../module/cbl_soil_snow_subrs_module~2.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/handle_err.html'>HANDLE_ERR</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/hydraulic_redistribution.html'>hydraulic_redistribution</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/hydraulic_redistribution~2.html'>hydraulic_redistribution</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/hutson_cass_swc_smp.html'>hutson_cass_swc_smp</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td><p>! MMY BUG: in Hutson &amp; Cass 1987 using 'wb/ssat' as independent factor
+! MMY      but here Mark uses effective saturation (wb-watr)/(ssat-watr)
+! MMY      in wet soil and wb/ssat in wet soil. This leads to a iscontinuity
+! MMY      in the water retention curve (smp-wb relationship), and causes
+! MMY      abs(smp) in wet soil is larger than in dry soil. I suggest to
+! MMY      use wb/ssat in HC_SWC</p></td></tr>
+			   <tr><td><a href='../proc/hydraulic_redistribution.html'>hydraulic_redistribution</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/hydraulic_redistribution~2.html'>hydraulic_redistribution</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/hydraulic_redistribution~3.html'>hydraulic_redistribution</a></td><td><a href='../module/cbl_soil_snow_subrs_module~2.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/hyofh.html'>hyofh</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/hyofs.html'>hyofS</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/iflux_loop.html'>iflux_loop</a></td><td><a href='../module/sli_solve.html'>sli_solve</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/igamma.html'>igamma</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/increment_age.html'>INCREMENT_AGE</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/init_radiation.html'>init_radiation</a></td><td><a href='../module/cable_radiation_module.html'>cable_radiation_module</a></td><td>Subroutine</td><td><p>vh !! include RAD_THRESH in condition
 $   WHERE (canopy%vlaiw &gt; C%LAI_THRESH .and. rad%fbeam(:,1).GE.C%RAD_THRESH   ) ! MMY has this line instead ? -- rk4417</p><a href="../proc/init_radiation.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/init_veg_from_vegin.html'>init_veg_from_vegin</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/initpop2d_poisson.html'>InitPOP2D_Poisson</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>$        ! set first disturbance year for first dist interval class
+$        idist = 1
+$        disturbance_interval = POP%pop_grid(g)%patch(1)%disturbance_interval(idist)
+$        DO c = 1,PATCH_REPS1
+$           tmp2(c) = max(disturbance_interval<em>c/(PATCH_REPS1),1)
+$        ENDDO
+$        DO c = 1,PATCH_REPS1
+$           i = 0
+$           DO j = 1,PATCH_REPS2
+$              ipatch = (j-1)</em>PATCH_REPS1 + c
+$              i = i+1
+$              IF (i.gt.PATCH_REPS1) then
+$                 i = 1
+$              ENDIF
+$              do while ((tmp2(i+1).eq. tmp2(i)).and.(i.lt.PATCH_REPS1))
+$                 i = i+1
+$                 IF (i.gt.PATCH_REPS1) then
+$                    i = 1
+$                 ENDIF
+$
+$              ENDDO
+$
+$
+$              write(<em>,</em>) i, tmp2(i)
+$              POP%pop_grid(g)%patch(ipatch)%first_disturbance_year(idist) = tmp2(i)
+$
+$           ENDDO
+$        ENDDO</p></td></tr>
+			   <tr><td><a href='../proc/interpolate_biomass_1d.html'>INTERPOLATE_BIOMASS_1D</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>$if (g==2) then
+$write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage), growth_age(iage),  stress_mort_age(iage), &amp;
+$ crowd_mort_age(iage), tmp_min, tmp_max, real(age_max_growth), real(age_min_growth)
+$endif</p><a href="../proc/interpolate_biomass_1d.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/interpolate_biomass_2d.html'>INTERPOLATE_BIOMASS_2D</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/is_casa_time.html'>IS_CASA_TIME</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/is_leapyear.html'>IS_LEAPYEAR</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/isnan.html'>isnan</a></td><td><a href='../module/cable_diag_module.html'>cable_diag_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/isosub.html'>isosub</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/isotope_vap.html'>isotope_vap</a></td><td><a href='../module/sli_solve.html'>sli_solve</a></td><td>Subroutine</td><td><p>vh ???? !!
 !vh!!! NB thetasat should be (thetasat-thetar)??</p></td></tr>
+			   <tr><td><a href='../proc/iterative_wtd.html'>iterative_wtd</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td><p>$          total_depth_column(i) = zimm(ms) + soil%GWdz(i)<em>1000._r_2  ! replaced as per MMY -- rk4417
+$          def(i) = def(i) + MAX(0._r_2,soil%GWssat_vec(i)-ssnow%GWwb(i))</em>soil%GWdz(i)<em>1000._r_2
+$          total_depth_column(i) = soil%GWdz(i)</em>m2mm      ! MMY original -- rk4417
+$          def(i) = max(0._r_2,soil%GWssat_vec(i)-ssnow%GWwb(i))<em>soil%GWdz(i)</em>m2mm
+$          total_depth_column(i) = total_depth_column(i) + soil%zse_vec(i,k)<em>m2mm
+$ MAX(0._r_2,(soil%ssat_vec(i,k)-(ssnow%wbliq(i,k)+ssnow%wbice(i,k)))</em>dzmm_mp(i,k))  ! replaced as per MMY -- rk4417
+$max(0._r_2,(soil%ssat_vec(i,k)-(ssnow%wbliq(i,k)+den_rat<em>ssnow%wbice(i,k)))</em>soil%zse_vec(i,k)<em>m2mm) ! MMY original -- rk4417
+$       defc(i) = (soil%ssat_vec(i,ms))</em>(total_depth_column(i)+Nsucs_vec(i)/(1._r_2-invB(i))<em>            &amp;  ! replaced as per MMY -- rk4417
+$            (1._r_2-((Nsucs_vec(i)+total_depth_column(i))/Nsucs_vec(i))</em><em>(1._r_2-invB(i))))
+$       !initial guess at wtd                                 ! taken out of do loop as per MMY -- rk4417
+$       ssnow%wtd(:) = total_depth_column(:)</em>def(:)/defc(:)
+$                tempb   = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))<strong>(-invB(i))      ! replaced as per MMY -- rk4417
+$                tempb   = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))</strong>(1._r_2-invB(i))   ! replaced as per MMY -- rk4417
+$                     Nsucs_vec(i)/(1-invB(i))<em> &amp;                                ! replaced as per MMY -- rk4417
+$                tempa    = (ABS(tmpc/Nsucs_vec(i)))</em><em>(-invB(i))            ! replaced as per MMY -- rk4417
+$                tempb    = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))</em><em>(-invB(i))
+$ tempa    = (ABS((Nsucs_vec(i)+ssnow%wtd(i)-total_depth_column(i))/Nsucs_vec(i)))</em><em>(1._r_2-invB(i))   ! replaced as per MMY -- rk4417
+$ tempb    = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))</em><em>(1._r_2-invB(i))
+$                     Nsucs_vec(i)/(1._r_2-invB(i))</em>(tempa-tempb))-def(i)       ! replaced as per MMY -- rk4417</p></td></tr>
+			   <tr><td><a href='../proc/jsoillayer.html'>JSoilLayer</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/land2xy.html'>LAND2XY</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/layer_recruitment.html'>layer_recruitment</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/layer_recruitment_single_patch.html'>layer_recruitment_single_patch</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/leap_day.html'>LEAP_DAY</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/litter_props.html'>litter_props</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/load_parameters.html'>load_parameters</a></td><td><a href='../module/cable_input_module.html'>cable_input_module</a></td><td>Subroutine</td><td><p>vh_js !!
 vh_js !!</p></td></tr>
 			   <tr><td><a href='../proc/luc_expt_init.html'>LUC_EXPT_INIT</a></td><td><a href='../module/cable_luc_expt.html'>CABLE_LUC_EXPT</a></td><td>Subroutine</td><td><p>$          STATUS = NF90_GET_VAR( Luc_expt%f_id(i), timID, tmp, &amp;
@@ -435,6 +621,10 @@ $          CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )</p><
 			   <tr><td><a href='../proc/luc_expt_set_tiles.html'>LUC_EXPT_SET_TILES</a></td><td><a href='../module/cable_luc_expt.html'>CABLE_LUC_EXPT</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/lucdriver.html'>LUCdriver</a></td><td><a href='../sourcefile/cable_driver.f90.html'>cable_driver.F90</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/lucdriver~2.html'>LUCdriver</a></td><td><a href='../module/cable_mpimaster.html'>cable_mpimaster</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mass_balance.html'>mass_balance</a></td><td><a href='../module/cable_checks_module.html'>cable_checks_module</a></td><td>Subroutine</td><td><p>vh March 2014 !!</p></td></tr>
+			   <tr><td><a href='../interface/massman_sparse.html'>massman_sparse</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Interface</td><td></td></tr>
+			   <tr><td><a href='../proc/massman_sparse_1d.html'>massman_sparse_1d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/massman_sparse_2d.html'>massman_sparse_2d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/master_cable_params.html'>master_cable_params</a></td><td><a href='../module/cable_mpimaster.html'>cable_mpimaster</a></td><td>Subroutine</td><td><p>$
 $ inserted block below as per MMY code -- rk4417     <br>
 $  --------------------- start of block --------------------- rk4417</p><a href="../proc/master_cable_params.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
@@ -459,6 +649,9 @@ $  --------------------- start of block --------------------- rk4417</p><a href=
 			   <tr><td><a href='../proc/master_spincasacnp.html'>master_spincasacnp</a></td><td><a href='../module/cable_mpimaster.html'>cable_mpimaster</a></td><td>Subroutine</td><td><p>CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
 CLN  OPEN(91,file=fcnpspin)
 CLN  read(91,*)</p></td></tr>
+			   <tr><td><a href='../interface/mean.html'>mean</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Interface</td><td></td></tr>
+			   <tr><td><a href='../proc/mean_1d.html'>mean_1d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/mean_2d.html'>mean_2d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/mpidrv_master.html'>mpidrv_master</a></td><td><a href='../module/cable_mpimaster.html'>cable_mpimaster</a></td><td>Subroutine</td><td><p>$    IF (TRIM(cable_user%MetType) .EQ. 'gswp' .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN  ! replaced by line below
  vh_js !!
  vh_js !! suggest LALLOC should ulitmately be a switch in the .nml file
@@ -467,13 +660,17 @@ $             CALL master_climate_types(comm, climate)  ! block above appears th
 			   <tr><td><a href='../proc/mpidrv_worker.html'>mpidrv_worker</a></td><td><a href='../module/cable_mpiworker.html'>cable_mpiworker</a></td><td>Subroutine</td><td><p>vh_js !!
  vh_js !! suggest LALLOC should ulitmately be a switch in the .nml file
  Check for gswp run</p><a href="../proc/mpidrv_worker.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/my_erf.html'>my_erf</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/my_gamma.html'>my_gamma</a></td><td><a href='../module/cable_psm.html'>cable_psm</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/nc_abort.html'>nc_abort</a></td><td><a href='../module/cable_abort_module.html'>cable_abort_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/nc_trap.html'>nc_trap</a></td><td><a href='../module/cable_abort_module.html'>cable_abort_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../interface/nse.html'>nse</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Interface</td><td></td></tr>
+			   <tr><td><a href='../proc/nse_1d.html'>nse_1d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/nse_2d.html'>nse_2d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/nsflip.html'>NSflip</a></td><td><a href='../module/cable_param_module.html'>cable_param_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/nullify_write.html'>nullify_write</a></td><td><a href='../module/cable_write_module.html'>cable_write_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/old_soil_conductivity.html'>old_soil_conductivity</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Function</td><td></td></tr>
-			   <tr><td><a href='../proc/old_soil_conductivity~2.html'>old_soil_conductivity</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/old_soil_conductivity.html'>old_soil_conductivity</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/old_soil_conductivity~2.html'>old_soil_conductivity</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/old_soil_conductivity~3.html'>old_soil_conductivity</a></td><td><a href='../module/cbl_soil_snow_subrs_module~2.html'>cbl_soil_snow_subrs_module</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/open_cru_met.html'>OPEN_CRU_MET</a></td><td><a href='../module/cable_cru.html'>CABLE_CRU</a></td><td>Subroutine</td><td><p>$    IF (CALL1) RunStartYear = 1800 ! edit vh !  ! line above appears this way in MMY code -- rk4417
 $    IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' )) THEN
@@ -495,7 +692,16 @@ $      where (ssnow%isflag .eq. 0 .or. ssnow%snowd .le. 0.1)
 $         litter_dz(:) = veg%clitt*0.003
 $      endwhere
 $   endif</p><a href="../proc/or_soil_evap_resistance.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/ovrlndflx.html'>ovrlndflx</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td><p>$       efpor(i) = MAX(0.001_r_2, soil%ssat_vec(i,1) - ssnow%wbice(i,1))
+$       icemass  = ssnow%wbice(i,1) * dzmm
+$       liqmass  = (ssnow%wb(i,1)-ssnow%wbice(i,1)) * dzmm</p><a href="../proc/ovrlndflx.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/patch_disturb.html'>Patch_disturb</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/patch_partial_disturb.html'>Patch_partial_disturb</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/patch_partial_disturb2.html'>Patch_partial_disturb2</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/patchannualdynamics.html'>PatchAnnualDynamics</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)</p></td></tr>
 			   <tr><td><a href='../proc/phenology.html'>phenology</a></td><td><a href='../module/casa_cnp_module.html'>casa_cnp_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/phi.html'>phi</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/photosynthesis.html'>photosynthesis</a></td><td><a href='../module/cable_canopy_module.html'>cable_canopy_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/plantcarb.html'>plantcarb</a></td><td><a href='../module/cable_carbon_module.html'>cable_carbon_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/plume_get_daily_met.html'>PLUME_GET_DAILY_MET</a></td><td><a href='../module/cable_plume_mip.html'>CABLE_PLUME_MIP</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/plume_get_filename.html'>PLUME_GET_FILENAME</a></td><td><a href='../module/cable_plume_mip.html'>CABLE_PLUME_MIP</a></td><td>Subroutine</td><td></td></tr>
@@ -503,6 +709,8 @@ $   endif</p><a href="../proc/or_soil_evap_resistance.html" class="pull-right"><
 !!  restarts on Jan 1                                      !!!!</p><a href="../proc/plume_mip_get_met.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/plume_mip_init.html'>PLUME_MIP_INIT</a></td><td><a href='../module/cable_plume_mip.html'>CABLE_PLUME_MIP</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../interface/point2constants.html'>point2constants</a></td><td><a href='../module/cable_data_module.html'>cable_data_module</a></td><td>Interface</td><td></td></tr>
+			   <tr><td><a href='../proc/pop_init.html'>POP_init</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/pop_init_single.html'>POP_init_single</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/pop_io.html'>POP_IO</a></td><td><a href='../sourcefile/pop_io.f90.html'>pop_io.F90</a></td><td>Subroutine</td><td><p>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</p><a href="../proc/pop_io.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/pop_luc_casa_transfer.html'>POP_LUC_CASA_transfer</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/popdriver.html'>POPdriver</a></td><td><a href='../module/casa_cable.html'>casa_cable</a></td><td>Subroutine</td><td></td></tr>
@@ -511,6 +719,14 @@ $   endif</p><a href="../proc/or_soil_evap_resistance.html" class="pull-right"><
 			   <tr><td><a href='../proc/popluc_set_patchfrac.html'>POPLUC_set_patchfrac</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/popluc_weights_transfer.html'>POPLUC_weights_transfer</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/poplucstep.html'>POPLUCStep</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/popstep.html'>POPStep</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>$    DO idisturb = 1,NDISTURB
+$       CALL GetUniqueAgeFrequencies(POP, disturbance_interval, idisturb, it)
+$    ENDDO
+$
+$    CALL GetPatchFrequencies(POP,it)</p></td></tr>
+			   <tr><td><a href='../proc/pore_space_relative_humidity.html'>pore_space_relative_humidity</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td><p>$          unsat_wb(i) =  (ssnow%wb(i,1) - soil%ssat_vec(i,1)*&amp;
+$    unsat_wb(i) = MAX(soil%watr(i,1)+1e-2, MIN(soil%ssat_vec(i,1), unsat_wb(i) ) ) !  rk4417 as per MMY</p><a href="../proc/pore_space_relative_humidity.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/potential_evap.html'>potential_evap</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/preparefiles.html'>prepareFiles</a></td><td><a href='../sourcefile/cable_driver.f90.html'>cable_driver.F90</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/preparefiles~2.html'>prepareFiles</a></td><td><a href='../module/cable_mpimaster.html'>cable_mpimaster</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../interface/put_var_nc.html'>put_var_nc</a></td><td><a href='../module/cable_diag_module.html'>cable_diag_module</a></td><td>Interface</td><td></td></tr>
@@ -535,60 +751,114 @@ $            / (met%tk) * rad%extkd                              &amp;    ! MMY 
 			   <tr><td><a href='../proc/readpar_r2.html'>readpar_r2</a></td><td><a href='../module/cable_read_module.html'>cable_read_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/readpar_r2d.html'>readpar_r2d</a></td><td><a href='../module/cable_read_module.html'>cable_read_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/readpar_rd.html'>readpar_rd</a></td><td><a href='../module/cable_read_module.html'>cable_read_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/realexponential.html'>REALExponential</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/realexponential.html'>REALExponential</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/realexponential~2.html'>REALExponential</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/redistr_i.html'>redistr_i</a></td><td><a href='../module/cable_read_module.html'>cable_read_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/redistr_r.html'>redistr_r</a></td><td><a href='../module/cable_read_module.html'>cable_read_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/redistr_r2.html'>redistr_r2</a></td><td><a href='../module/cable_read_module.html'>cable_read_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/redistr_r2d.html'>redistr_r2d</a></td><td><a href='../module/cable_read_module.html'>cable_read_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/redistr_rd.html'>redistr_rd</a></td><td><a href='../module/cable_read_module.html'>cable_read_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/regress.html'>REGRESS</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/remove_empty_file.html'>remove_empty_file</a></td><td><a href='../module/cable_diag_module.html'>cable_diag_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/remove_trans.html'>remove_trans</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/remove_trans~2.html'>remove_trans</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/remove_trans.html'>remove_trans</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/remove_trans~2.html'>remove_trans</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/remove_trans~3.html'>remove_trans</a></td><td><a href='../module/cbl_soil_snow_subrs_module~2.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/remove_transgw.html'>remove_transGW</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td><p>$          ssnow%wbliq(:,k) = ssnow%wbliq(:,k) - ssnow%evapfbl(:,k)/zse_mp_mm(:,k) ! original
+$          ssnow%wbliq(:,k) = ssnow%wbliq(:,k) - ssnow%evapfbl(:,k)/(soil%zse_vec(:,k)*m2mm) ! MMY</p><a href="../proc/remove_transgw.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/renamefiles.html'>renameFiles</a></td><td><a href='../sourcefile/cable_driver.f90.html'>cable_driver.F90</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/renamefiles~2.html'>renameFiles</a></td><td><a href='../module/cable_mpimaster.html'>cable_mpimaster</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/report_parameters.html'>report_parameters</a></td><td><a href='../module/cable_param_module.html'>cable_param_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/report_version_no.html'>report_version_no</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/rh0_sol.html'>rh0_sol</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/rh_sh.html'>rh_sh</a></td><td><a href='../module/cable_checks_module.html'>cable_checks_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/rough_type_ptr.html'>rough_type_ptr</a></td><td><a href='../module/cable_data_module.html'>cable_data_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/rtbis_rh0.html'>rtbis_rh0</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/rtbis_tfrozen.html'>rtbis_Tfrozen</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/ruff_resist.html'>ruff_resist</a></td><td><a href='../module/cable_roughness_module.html'>cable_roughness_module</a></td><td>Subroutine</td><td><p>$    rough%hruff = MAX( 1.e-6, veg%hc - 1.2 * ssnow%snowd /                       &amp;
 $                 MAX( ssnow%ssdnn, 100. ) )  ! above line appears like this in MMY</p><a href="../proc/ruff_resist.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/saturated_fraction.html'>saturated_fraction</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td><p>$            (ssnow%wb(:,k)-ssnow%wbice(:,k)-soil%watr(:,k))/&amp;
+$            MAX(0.001,soil%ssat_vec(:,k)-soil%watr(:,k)) ) )<em>soil%zse_vec(:,k)
+$               1._r_2 - my_erf( slopeSTDmm / SQRT(2.0</em> S(i)) ) ) ) -- rk4417</p></td></tr>
+			   <tr><td><a href='../proc/seb.html'>SEB</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td><p>vh!! include vapour component??
+ vh !! use max snow depth of 20 cm in this calculation to avoid huge resistances
+ leading to large negative surface temperatures when snow-pack is thick and
+ Rn is large and negative (~-100 Wm-2)
+$          elseif (abs(Tsurface - vmet%Ta).gt. 20) then
+$             Tsurface = min(vmet%Ta, 0.0)
+$             Epot = (esat(Tsurface)<em>0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - &amp; ! m3 H2O (liq) m-3 (air)
+$                  vmet%cva)</em>rhow<em>lambdas/vmet%rbw
+$             dEdTsoil = zero
+$             dGdTsoil = zero
+$             Hpot = rhocp</em>(Tsurface - vmet%Ta)/vmet%rbh
+$             Gpot = vmet%Rn-vmet%Rnsw - Hpot - Epot
+$             dEdTs= zero
+$           endif</p></td></tr>
+			   <tr><td><a href='../proc/seb_fr.html'>SEB_FR</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td><p>vh!! include vapour component??</p></td></tr>
+			   <tr><td><a href='../proc/set_den_rat.html'>set_den_rat</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/set_unsed_gw_vars.html'>set_unsed_gw_vars</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/setlitterpar.html'>setlitterpar</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/setpar.html'>setpar</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/setpar_loetsch.html'>setpar_Loetsch</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../interface/setroots.html'>setroots</a></td><td><a href='../module/sli_roots.html'>sli_roots</a></td><td>Interface</td><td></td></tr>
 			   <tr><td><a href='../proc/setroots_1d.html'>setroots_1d</a></td><td><a href='../module/sli_roots.html'>sli_roots</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/setroots_2d.html'>setroots_2d</a></td><td><a href='../module/sli_roots.html'>sli_roots</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/setsol.html'>setsol</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/setx.html'>setx</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/simple_wtd.html'>simple_wtd</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/sinbet.html'>sinbet</a></td><td><a href='../module/cable_radiation_module.html'>cable_radiation_module</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/site_get_co2_ndep.html'>site_GET_CO2_Ndep</a></td><td><a href='../module/cable_site.html'>CABLE_site</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/site_init.html'>site_INIT</a></td><td><a href='../module/cable_site.html'>CABLE_site</a></td><td>Subroutine</td><td><a href="../proc/site_init.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/sli_hydrology.html'>sli_hydrology</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td><p>$    dzmm = REAL(soil%zse(:),r_2)<em>1000._r_2       ! replaced by rk4417 as per MMY
+$
+$    CALL subsurface_drainage(ssnow,soil,veg,dzmm)
+$
+$    zmm(:) = 1000._r_2</em>(SUM(REAL(soil%zse,r_2),dim=1))
+$    zaq(:) = zmm(:) + 0.5_r_2<em>soil%GWdz(:)</em>1000._r_2</p><a href="../proc/sli_hydrology.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/sli_main.html'>sli_main</a></td><td><a href='../module/sli_main_mod.html'>sli_main_mod</a></td><td>Subroutine</td><td><p>$     if (.not. allocated(bd)) allocate(bd(soil%nhorizons(k)))</p><a href="../proc/sli_main.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
-			   <tr><td><a href='../proc/smoisturev.html'>smoisturev</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/smoisturev~2.html'>smoisturev</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/slope_csat.html'>slope_csat</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/slope_esat.html'>slope_esat</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/slope_esat_ice.html'>slope_esat_ice</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/smoistgw.html'>smoistgw</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td><p>$       zimm(k) = zimm(k-1) + dzmm(k)        ! replaced as per MMY -- rk4417
+$       zimm(:,k) = zimm(:,k-1) + soil%zse_vec(:,k)<em>m2mm   !  MMY original
+$    zmm(1:ms)  = zimm(0:(ms-1)) + 0.5_r_2</em>dzmm(1:ms) ! replaced as per MMY -- rk4417
+$    zmm(:,1:ms)  = zimm(:,1:ms) - 0.5<em>soil%zse_vec(:,1:ms)</em>m2mm   !  MMY original
+$       GWdzmm(i) = REAL(soil%GWdz(i),r_2)<em>1000._r_2     ! replaced as per MMY -- rk4417
+$       GWzimm(i) = zimm(ms)+GWdzmm(i)
+$       zaq(i)    = zimm(ms) + 0.5_r_2</em>GWdzmm(i)</p><a href="../proc/smoistgw.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/smoisturev.html'>smoisturev</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/smoisturev~2.html'>smoisturev</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/smoisturev~3.html'>smoisturev</a></td><td><a href='../module/cbl_soil_snow_subrs_module~2.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/snow_accum.html'>snow_accum</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/snow_accum~2.html'>snow_accum</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/smooth_flux.html'>SMOOTH_FLUX</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/smooth_flux_cat.html'>SMOOTH_FLUX_cat</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/snow_accum.html'>snow_accum</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/snow_accum~2.html'>snow_accum</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/snow_accum~3.html'>snow_accum</a></td><td><a href='../module/cbl_soil_snow_subrs_module~2.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/snow_adjust.html'>snow_adjust</a></td><td><a href='../module/sli_solve.html'>sli_solve</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/snow_augment.html'>snow_augment</a></td><td><a href='../module/sli_solve.html'>sli_solve</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/snow_melting.html'>snow_melting</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/snow_melting~2.html'>snow_melting</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/snow_melting.html'>snow_melting</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/snow_melting~2.html'>snow_melting</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/snow_melting~3.html'>snow_melting</a></td><td><a href='../module/cbl_soil_snow_subrs_module~2.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/snow_processes_soil_thermal.html'>snow_processes_soil_thermal</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td><p>$  note that above line appears as below in MMY code -- rk4417
+			   <tr><td><a href='../proc/snow_processes_soil_thermal.html'>snow_processes_soil_thermal</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td><p>$  note that above line appears as below in MMY code -- rk4417
 $    subroutine snow_processes_soil_thermal(dels,ssnow,soil,veg,canopy,met,bal)
 $   snowmlt = 0.0  ! this line appears only in MMY code but I have commented it</p></td></tr>
-			   <tr><td><a href='../proc/snow_processes_soil_thermal~2.html'>snow_processes_soil_thermal</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/snow_processes_soil_thermal~2.html'>snow_processes_soil_thermal</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/snow_processes_soil_thermal~3.html'>snow_processes_soil_thermal</a></td><td><a href='../module/cbl_soil_snow_subrs_module~2.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/snowcheck.html'>snowcheck</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/snowcheck~2.html'>snowcheck</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/snowcheck.html'>snowcheck</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/snowcheck~2.html'>snowcheck</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/snowcheck~3.html'>snowcheck</a></td><td><a href='../module/cbl_soil_snow_subrs_module~2.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/snowdensity.html'>snowdensity</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/snowdensity~2.html'>snowdensity</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/snowdensity.html'>snowdensity</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/snowdensity~2.html'>snowdensity</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/snowdensity~3.html'>snowdensity</a></td><td><a href='../module/cbl_soil_snow_subrs_module~2.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/snowl_adjust.html'>snowl_adjust</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/snowl_adjust~2.html'>snowl_adjust</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/snowl_adjust.html'>snowl_adjust</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/snowl_adjust~2.html'>snowl_adjust</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/snowl_adjust~3.html'>snowl_adjust</a></td><td><a href='../module/cbl_soil_snow_subrs_module~2.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/sofh.html'>Sofh</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/soil_snow.html'>soil_snow</a></td><td><a href='../module/cbl_soil_snow_main_module.html'>cbl_soil_snow_main_module</a></td><td>Subroutine</td><td><p>$ inserted block below as per MMY code -- rk4417</p><a href="../proc/soil_snow.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/soil_snow_gw.html'>soil_snow_gw</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td><p>$    USE cable_IO_vars_module, ONLY: wlogn        ! commented out by rk4417 as per MMY</p><a href="../proc/soil_snow_gw.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/soilcarb.html'>soilcarb</a></td><td><a href='../module/cable_carbon_module.html'>cable_carbon_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/soilcol_albedo.html'>soilcol_albedo</a></td><td><a href='../module/cable_albedo_module.html'>cable_albedo_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/soilfreeze.html'>soilfreeze</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/soilfreeze~2.html'>soilfreeze</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/soilfreeze.html'>soilfreeze</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/soilfreeze~2.html'>soilfreeze</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/soilfreeze~3.html'>soilfreeze</a></td><td><a href='../module/cbl_soil_snow_subrs_module~2.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/solve.html'>solve</a></td><td><a href='../module/sli_solve.html'>sli_solve</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/spatialsoil.html'>spatialSoil</a></td><td><a href='../module/cable_param_module.html'>cable_param_module</a></td><td>Subroutine</td><td></td></tr>
@@ -604,28 +874,155 @@ $           xkNlimiting = 0.001
 $        END WHERE
 CLN    CLOSE(91)</p><a href="../proc/spincasacnp.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/spitter.html'>spitter</a></td><td><a href='../module/cable_radiation_module.html'>cable_radiation_module</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/spline_b.html'>spline_b</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td><p><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong>*</strong>*80</p><a href="../proc/spline_b.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/ssnow_type_ptr.html'>ssnow_type_ptr</a></td><td><a href='../module/cable_data_module.html'>cable_data_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/stderr_nc.html'>stderr_nc</a></td><td><a href='../module/cable_diag_module.html'>cable_diag_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/stempv.html'>stempv</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/stempv~2.html'>stempv</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/stempv.html'>stempv</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/stempv~2.html'>stempv</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/stempv~3.html'>stempv</a></td><td><a href='../module/cbl_soil_snow_subrs_module~2.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/subsurface_drainage.html'>subsurface_drainage</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td><p>$    dzmm(:,:) = m2mm<em>soil%zse_vec(:,:)  ! MMY original
+$    DO i=1,mp
+$
+$       !Note: future revision will have interaction with river here. nned to
+$       !work on router and add river type cells
+$       ssnow%qhz(i)  = MIN(MAX(soil%slope(i),0.000001),0.9)</em>&amp;
+$            gw_params%MaxHorzDrainRate<em> &amp;
+$            EXP(-ssnow%wtd(i)/1000._r_2/&amp;
+$            (1.0/(60.0</em>gw_params%EfoldHorzDrainRate<em>&amp;
+$            (soil%drain_dens(i)+1.0e-3))</em>Efold_mod(veg%iveg(i))))
+$
+$
+$       IF (gw_params%subsurface_sat_drainage) THEN
+$          !drain from sat layers
+$          k_drain(i) = ms+1
+$          DO k=ms,2,-1
+$             IF (ssnow%wtd(i) .LE. SUM(dzmm(1:k),dim=1)) THEN
+$                k_drain(i) = k + 1
+$             END IF
+$          END DO
+$          k_drain(i) = MAX(k_drain(i),3)
+$       ELSE
+$          k_drain(i) = 2
+$       END IF
+$
+$    END DO
+$
+$    IF (gw_params%ssgw_ice_switch) THEN
+$       DO k=1,ms
+$          DO i=1,mp
+$             ice_factor(i,k) = (10.0<em><em>(-gw_params%ice_impedence</em>ssnow%wbice(i,k)/&amp;
+$                  (ssnow%wb(i,k)+1.0e-12)))
+$          END DO
+$       END DO
+$    ELSE
+$       DO k=1,ms
+$          DO i=1,mp
+$             ice_factor(i,k) = (1._r_2-ssnow%fracice(i,k))
+$          END DO
+$       END DO
+$
+$    END IF
+$    DO i=1,mp
+$
+$       ice_factor(i,:)  = 0._r_2
+$       ice_factor_tot(i)= 0._r_2
+$       ssnow%qhlev(i,:) = 0._r_2
+$       sm_tot(i)        = 0._r_2
+$
+$    END DO
+$
+$    DO i=1,mp
+$
+$       IF (gw_params%subsurface_sat_drainage) THEN
+$          sm_tot(i) = MAX((ssnow%GWwb(i) - soil%watr(i,ms)),0._r_2)</em>&amp;
+$               ice_factor(i,ms)
+$
+$          ice_factor_tot(i) = (SUM(ice_factor(i,k_drain(i):ms)<em>&amp;
+$               soil%zse_vec(i,k_drain(i):ms),dim=1)+&amp;
+$               ice_factor(i,ms)</em>soil%GWdz(i))/&amp;
+$               (SUM(soil%zse_vec(i,:),dim=1)+&amp;
+$               soil%GWdz(i))
+$
+$          DO k=k_drain(i),ms
+$             sm_tot(i) = sm_tot(i) + MAX(ssnow%wbliq(i,k)-soil%watr(i,k),0._r_2)<em>&amp;
+$                  ice_factor(i,k)
+$          END DO
+$
+$          ssnow%qhz(i) = ssnow%qhz(i)</em>ice_factor_tot(i)  !reduced due to ice
+$
+$          IF (sm_tot(i) .GE. 1.0e-12) THEN
+$             DO k=k_drain(i),ms
+$                ssnow%qhlev(i,k) = ssnow%qhz(i)<em>ice_factor(i,k)</em>&amp;
+$                     MAX(0.0,ssnow%wbliq(i,k)-soil%watr(i,k))/sm_tot(i)
+$             END DO
+$             ssnow%qhlev(i,ms+1) = MAX((ssnow%GWwb(i) - soil%watr(i,ms)),0.0)<em>&amp;
+$                  ice_factor(i,ms)</em>ssnow%qhz(i)/sm_tot(i)
+$          ENDIF
+$
+$       ELSE  !second option
+$          IF (k_drain(i) .LE. ms) THEN
+$             DO k=k_drain(i),ms
+$                sm_tot(i) = sm_tot(i) + MAX(ssnow%wbliq(i,k)-soil%watr(i,k),0._r_2)<em>&amp;
+$                     ice_factor(i,k)
+$             END DO
+$             ice_factor_tot(i) = (SUM(ice_factor(i,k_drain(i):ms)</em>&amp;
+$                  soil%zse_vec(i,k_drain(i):ms),dim=1))/&amp;
+$                  (SUM(soil%zse_vec(i,:),dim=1))
+$
+$             ssnow%qhz(i) = ssnow%qhz(i)<em>ice_factor_tot(i)  !reduced due to ice
+$             IF (sm_tot(i) .GE. 1.0e-12) THEN
+$                DO k=k_drain(i),ms
+$                   ssnow%qhlev(i,k) = (ssnow%qhz(i)</em>ice_factor(i,k)/sm_tot(i))<em>&amp;
+$                        MAX(0.0,ssnow%wbliq(i,k)-soil%watr(i,k))
+$                END DO
+$             ENDIF
+$
+$          ELSE
+$             ice_factor_tot(i) = ice_factor(i,ms)
+$             ssnow%qhz(i)        = ssnow%qhz(i)</em>ice_factor_tot(i)
+$             ssnow%qhlev(i,ms+1) = ssnow%qhz(i)*MAX(ssnow%GWwb(i)-soil%watr(i,ms),0.0)
+$
+$          END IF
+$
+$       END IF
+$       !incase every layer is frozen very dry
+$       ssnow%qhz(i) = SUM(ssnow%qhlev(i,:),dim=1)
+$
+$       !Keep "lakes" saturated forcing qhz = 0.  runoff only from lakes
+$       !overflowing
+$       IF (soil%isoilm(i) .EQ. 9 .OR. veg%iveg(i) .GE. 16) THEN
+$          ssnow%qhz(i) = 0._r_2
+$          ssnow%qhlev(i,:) = 0._r_2
+$       END IF
+$
+$    END DO</p><a href="../proc/subsurface_drainage.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/sumcflux.html'>sumcflux</a></td><td><a href='../module/casa_cable.html'>casa_cable</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/surf_wetness_fact.html'>Surf_wetness_fact</a></td><td><a href='../module/cable_canopy_module.html'>cable_canopy_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/surface_albedo.html'>surface_albedo</a></td><td><a href='../module/cable_albedo_module.html'>cable_albedo_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/surface_albedosn.html'>surface_albedosn</a></td><td><a href='../module/cable_albedo_module.html'>cable_albedo_module</a></td><td>Subroutine</td><td><p>$    WHERE (soil%isoilm == 9)       ! use dry snow albedo   ! This bit appears instead in MYY code --rk4417
 $       ssnow%albsoilsn(:,2) = 0.82
 $       ssnow%albsoilsn(:,1) = 0.82
 $    END WHERE</p></td></tr>
-			   <tr><td><a href='../proc/surfbv.html'>surfbv</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/surfbv~2.html'>surfbv</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/surfbv.html'>surfbv</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/surfbv~2.html'>surfbv</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/surfbv~3.html'>surfbv</a></td><td><a href='../module/cbl_soil_snow_subrs_module~2.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/svp.html'>svp</a></td><td><a href='../module/cable_checks_module.html'>cable_checks_module</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/swc_hyst_direction.html'>swc_hyst_direction</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/tfrozen.html'>Tfrozen</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/tfrz.html'>Tfrz</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/thetalmax.html'>thetalmax</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/timestep_loop.html'>timestep_loop</a></td><td><a href='../module/sli_solve.html'>sli_solve</a></td><td>Subroutine</td><td><p>!! vh needs attention !!!!</p></td></tr>
-			   <tr><td><a href='../proc/total_soil_conductivity.html'>total_soil_conductivity</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Function</td><td></td></tr>
-			   <tr><td><a href='../proc/total_soil_conductivity~2.html'>total_soil_conductivity</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/total_soil_conductivity.html'>total_soil_conductivity</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/total_soil_conductivity~2.html'>total_soil_conductivity</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/total_soil_conductivity~3.html'>total_soil_conductivity</a></td><td><a href='../module/cbl_soil_snow_subrs_module~2.html'>cbl_soil_snow_subrs_module</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/totcnppools.html'>totcnppools</a></td><td><a href='../module/casa_cable.html'>casa_cable</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/trimb.html'>trimb</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/trimb~2.html'>trimb</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../interface/tri.html'>tri</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Interface</td><td></td></tr>
+			   <tr><td><a href='../proc/tri_1d.html'>tri_1d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/tri_2d.html'>tri_2d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/trimb.html'>trimb</a></td><td><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/trimb~2.html'>trimb</a></td><td><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/trimb~3.html'>trimb</a></td><td><a href='../module/cbl_soil_snow_subrs_module~2.html'>cbl_soil_snow_subrs_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/tthetalmax.html'>Tthetalmax</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/update_or_soil_resis.html'>update_or_soil_resis</a></td><td><a href='../module/cable_psm.html'>cable_psm</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/update_s_t.html'>update_s_t</a></td><td><a href='../module/sli_solve.html'>sli_solve</a></td><td>Subroutine</td><td><p>$                   if (h0(kk)&lt;zero .and. var(1)%isat==0 .and. (i==1)) then ! start negative pond correction
 $                      infil(kk)     = infil(kk)+h0(kk)
@@ -648,12 +1045,14 @@ $                   endif</p></td></tr>
 			   <tr><td><a href='../proc/update_sum_casa.html'>update_sum_casa</a></td><td><a href='../module/casavariable.html'>casavariable</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/update_unknowns.html'>update_unknowns</a></td><td><a href='../module/sli_solve.html'>sli_solve</a></td><td>Subroutine</td><td><p>vsnow(kk)%Qadv_vap = vsnow(kk)%Qadv_vap + &amp;</p></td></tr>
 			   <tr><td><a href='../proc/vcmax_np.html'>vcmax_np</a></td><td><a href='../module/casa_cnp_module.html'>casa_cnp_module</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/weight.html'>weight</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/wgen_daily_constants.html'>WGEN_DAILY_CONSTANTS</a></td><td><a href='../module/cable_weathergenerator.html'>CABLE_WEATHERGENERATOR</a></td><td>Subroutine</td><td><p>$write(71, "( 1000e16.6)") WG%DecRad
 $   write(72, "( 1000e16.6)") TAN(WG%DecRad)
 $   write(73, "( 1000e16.6)") TAN(WG%LatRad)
 $ write(74, "( 1000e16.6)")  WG%DayLength</p></td></tr>
 			   <tr><td><a href='../proc/wgen_init.html'>WGEN_INIT</a></td><td><a href='../module/cable_weathergenerator.html'>CABLE_WEATHERGENERATOR</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/wgen_subdiurnal_met.html'>WGEN_SUBDIURNAL_MET</a></td><td><a href='../module/cable_weathergenerator.html'>CABLE_WEATHERGENERATOR</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/williams_allometry.html'>Williams_Allometry</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/worker_cable_params.html'>worker_cable_params</a></td><td><a href='../module/cable_mpiworker.html'>cable_mpiworker</a></td><td>Subroutine</td><td><p>$
 $ inserted block below as per MMY code -- rk4417     <br>
 $  --------------------- start of block --------------------- rk4417</p><a href="../proc/worker_cable_params.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
@@ -720,10 +1119,16 @@ $------------------------------ rk4417 ----------------------------------</p><a 
 			   <tr><td><a href='../proc/write_output_variable_r1.html'>write_output_variable_r1</a></td><td><a href='../module/cable_write_module.html'>cable_write_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/write_output_variable_r2.html'>write_output_variable_r2</a></td><td><a href='../module/cable_write_module.html'>cable_write_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../interface/write_ovar.html'>write_ovar</a></td><td><a href='../module/cable_write_module.html'>cable_write_module</a></td><td>Interface</td><td></td></tr>
+			   <tr><td><a href='../proc/xejmxt3.html'>xejmxt3</a></td><td><a href='../module/cable_canopy_module.html'>cable_canopy_module</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/xrdt.html'>xrdt</a></td><td><a href='../module/cable_canopy_module.html'>cable_canopy_module</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/xvcmxt3.html'>xvcmxt3</a></td><td><a href='../module/cable_canopy_module.html'>cable_canopy_module</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/xvcmxt4.html'>xvcmxt4</a></td><td><a href='../module/cable_canopy_module.html'>cable_canopy_module</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/xy2land.html'>XY2LAND</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/ymdhms2doysod.html'>YMDHMS2DOYSOD</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/zero_sum_casa.html'>zero_sum_casa</a></td><td><a href='../module/casavariable.html'>casavariable</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/zeropop.html'>ZeroPOP</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/zeropopluc.html'>ZeroPOPLUC</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/zerovars.html'>zerovars</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
 			 </tbody></table>
              
         </div>
