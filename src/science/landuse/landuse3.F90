@@ -10,7 +10,9 @@ MODULE landuse_variable
 ! luc%var_x(mland,mvmax): variable indexed by "mland" and "mvmax" before landuse change
 ! luc%var_y(mland,mvmax): variable indexed by "mland" and "mvmax" after land use change
 ! lucmp%var(mp):          variable indexed by the patch number from 1 to mp
-! \[y=x dot transit\]
+!
+! \[$$\textbf{y} = textbf{x} \cdot\ textbf{T}\]
+!
 ! Function of this module is to 
 !
 ! 1. map of variable "var" from CABLE into one-derived type "luc%var_x"
@@ -689,6 +691,8 @@ END MODULE landuse_variable
   subroutine landuse_driver(mlon,mlat,landmask,arealand,ssnow,soil,veg,bal,canopy,  &
                             phen,casapool,casabal,casamet,casabiome,casaflux,bgc,rad, &
                             cstart,cend,nap,lucmp)
+  ! main drivers of land use change
+  !  
   USE cable_IO_vars_module, ONLY: mask,patch,landpt, latitude, longitude
   USE cable_def_types_mod,  ONLY: mp,mvtype,mstype,mland,r_2,ms,msn,nrb,ncp,ncs,           &
                                   soil_parameter_type, soil_snow_type, veg_parameter_type, &
@@ -746,11 +750,11 @@ END MODULE landuse_variable
         lucmp%isflag(p)    = ssnow%isflag(p)
 
      enddo   
-     print *, 'point A: landuse'
-     !
-     print *, 'patchfraC',size(patch%frac)
-     print *, 'veglai= ',size(veg%vlai)
-     print *, 'landuse: casabiome:sla', size(casabiome%sla),  casabiome%sla(:) 
+!     print *, 'point A: landuse'
+!     !
+!     print *, 'patchfraC',size(patch%frac)
+!     print *, 'veglai= ',size(veg%vlai)
+!     print *, 'landuse: casabiome:sla', size(casabiome%sla),  casabiome%sla(:) 
 
      do p=1,mp
      !   print *, 'landuse b', p, veg%iveg(p),veg%vlai(p),patch(p)%frac
@@ -759,7 +763,7 @@ END MODULE landuse_variable
         lucmp%lai(p)       = veg%vlai(p)
         lucmp%sla(p)       = casabiome%sla(veg%iveg(p)) 
      enddo
-     print *, 'point b: landuse'
+!     print *, 'point b: landuse'
 
      ! biophysical variables 
      do p=1,mp
@@ -777,7 +781,7 @@ END MODULE landuse_variable
         lucmp%tss(p)         = ssnow%tss(p)
      enddo
 
-     print *, 'point C: landuse'
+!     print *, 'point C: landuse'
      lucmp%runoff(:)      = ssnow%runoff(:)
      lucmp%rnof1(:)       = ssnow%rnof1(:)
      lucmp%rnof2(:)       = ssnow%rnof2(:)
@@ -788,7 +792,7 @@ END MODULE landuse_variable
      lucmp%cansto(:)      = canopy%cansto(:)
      lucmp%ghflux(:)      = canopy%ghflux(:)
      lucmp%sghflux(:)     = canopy%sghflux(:)
-     print *, 'point D: landuse'
+!     print *, 'point D: landuse'
      lucmp%ga(:)          = canopy%ga(:)
      lucmp%dgdtg(:)       = canopy%dgdtg(:)
      lucmp%fev(:)         = canopy%fev(:)
@@ -801,7 +805,7 @@ END MODULE landuse_variable
      lucmp%cplantx(:,:)   = bgc%cplant(:,:)
      lucmp%csoilx(:,:)    = bgc%csoil(:,:)
 
-     print *, 'point E: landuse'
+!     print *, 'point E: landuse'
      ! biogeochemical variables    
      do m=1,mland
        do np=cstart(m),cend(m)
@@ -815,11 +819,11 @@ END MODULE landuse_variable
      print *, 'point F: landuse'
      if(icycle>0) then 
      do p=1,mp        
-  !      print *, 'landuse F: ', p, phen%phase(p),phen%doyphase(p,3),phen%phen(p),phen%aphen(p)
- !       print *, 'landuse F2: ',   casaflux%frac_sapwood(p),casaflux%sapwood_area(p)
- !       print *, 'landuse F3: ', casapool%clabile(p),casapool%cplant(p,:),casapool%clitter(p,:),casapool%csoil(p,:),        &
- !                               casapool%cwoodprod(p,:)
-!        print *, 'landuse F4: ',casabal%sumcbal(p)
+!       print *, 'landuse F: ', p, phen%phase(p),phen%doyphase(p,3),phen%phen(p),phen%aphen(p)
+!       print *, 'landuse F2: ',   casaflux%frac_sapwood(p),casaflux%sapwood_area(p)
+!       print *, 'landuse F3: ', casapool%clabile(p),casapool%cplant(p,:),casapool%clitter(p,:),casapool%csoil(p,:),        &
+!                               casapool%cwoodprod(p,:)
+!       print *, 'landuse F4: ',casabal%sumcbal(p)
 
         lucmp%phase(p)       = phen%phase(p)
         lucmp%doyphase3(p)   = phen%doyphase(p,3)
@@ -835,7 +839,7 @@ END MODULE landuse_variable
         lucmp%sumcbal(p)     = casabal%sumcbal(p)
      enddo
      endif
-     print *, 'point G: landuse'
+!     print *, 'point G: landuse'
      if(icycle>1) then
      do p=1,mp        
         lucmp%nplant(p,:)    = casapool%nplant(p,:)
@@ -846,7 +850,7 @@ END MODULE landuse_variable
         lucmp%sumnbal(p)     = casabal%sumnbal(p)
      enddo
      endif
-     print *, 'point H: landuse'
+!     print *, 'point H: landuse'
      if(icycle >2) then
      do p=1,mp        
         lucmp%pplant(p,:)    = casapool%pplant(p,:)
@@ -861,20 +865,20 @@ END MODULE landuse_variable
      endif
       
      ! assign variables var(mp,:) to luc%var_x(mland,mvmax,:)
-     print *, 'calling mp2land: landuse'
+!     print *, 'calling mp2land: landuse'
      call landuse_mp2land(luc,lucmp,mp,cstart,cend)
 
      ! we need to deallocate "lucmp" because "mp" will be updated after land use change
-     print *, 'calling deallocate mp: landuse'
+!     print *, 'calling deallocate mp: landuse'
      call landuse_deallocate_mp(mp,ms,msn,nrb,mplant,mlitter,msoil,mwood,lucmp)
 
-     print *, 'calling transitx: landuse'
+!     print *, 'calling transitx: landuse'
      call landuse_transitx(luc,casabiome)
 
-     print *, 'calling checks: landuse'
+!     print *, 'calling checks: landuse'
      call landuse_checks(mlon,mlat,landmask,luc)
 
-     print *, 'calling update mland: landuse'
+!     print *, 'calling update mland: landuse'
      call landuse_update_mland(luc)                    ! assign "var_y" to "var_x"
 
      ! update "cstart", "cend","nap" and "mp=>mpx"
@@ -898,7 +902,7 @@ END MODULE landuse_variable
       enddo
       mpx = np
      ! allocate "lucmp" with "mpx"
-     print *, 'calling allocate mp: landuse'
+!     print *, 'calling allocate mp: landuse'
      call landuse_allocate_mp(mpx,ms,msn,nrb,mplant,mlitter,msoil,mwood,ncp,ncs,lucmp)
  
      ! assign lucmp%lat lucmp%lon
@@ -909,20 +913,22 @@ END MODULE landuse_variable
         enddo
      enddo      
 
-     print *, 'calling land2mpx: landuse'
+!     print *, 'calling land2mpx: landuse'
      call landuse_land2mpx(luc,lucmp,mpx)
   !   call landuse_land2mpx(luc,lucmp,mpx,cstart,cend,nap)
 
-     print *, 'calling deallocate mland: landuse'
+!     print *, 'calling deallocate mland: landuse'
      call landuse_deallocate_mland(luc)
 
-     print *, 'landuse: exit landuse_driver mpx', mpx
+!     print *, 'landuse: exit landuse_driver mpx', mpx
 
      close(21)
 211  format(i4,a120)
 end subroutine landuse_driver
 
  SUBROUTINE landuse_mp2land(luc,lucmp,mp,cstart,cend)
+ ! assign lucmp%var(mp) to luc%var_x(mland,mvmax)
+ !
  use landuse_variable
  USE cable_def_types_mod,  ONLY: mvtype,mstype,mland,r_2,ms,msn,nrb,ncp,ncs
  USE casadimension,        ONLY: icycle,mplant,mlitter,msoil,mwood,mso
@@ -1118,6 +1124,14 @@ end subroutine landuse_driver
 END SUBROUTINE landuse_mp2land
   
 SUBROUTINE landuse_transitx(luc,casabiome)
+   ! this subroutine calculates 
+   !
+   ! 1. the transfer of different C N and P pools resulting from land use change in two steps
+   ! 1.1. calculate the change of a pool (delvar) using transition matrix (T)
+   ! 1.2. calculate luc%var_y as the sum of luc%var_x + delvar
+   ! 2. update biophysical states, soil texture and soil order for each patch
+   ! 3. seed any deforested land
+   !
    USE casaparm
    USE landuse_constant
    USE casavariable,        ONLY: casa_biome
@@ -1149,6 +1163,7 @@ SUBROUTINE landuse_transitx(luc,casabiome)
    integer p,d,r,q,r1,r2,r3,r4,ierror,ivt,k
    integer irb,is,icp,ics
 
+   ! vegetation types for each 17-PFT: non-veg (0),grass(1),shrub(2), forest(3)
    ivt2=(/3,3,3,3,2,1,1,2,1,1,3,3,3,1,0,0,0/)
    delarea(:,:)     = 0.0
    dcplant(:,:,:)   = 0.0; dnplant(:,:,:)   = 0.0; dpplant(:,:,:)    = 0.0; dclabile(:,:) = 0.0
@@ -1162,6 +1177,9 @@ SUBROUTINE landuse_transitx(luc,casabiome)
       do d=1,mvmax
          if(luc%cplant_x(p,d,leaf) > 0.001) then
             ! calculate the fraction of litter or root litter into metabolic litter pool
+			! this could be replaced with a call to a subroutine 
+			! if same calculations in casa_cnp.F90 are isolated into a separate subroutine
+			!
             ivt=mvtype
 
             ratioLignintoN(leaf) = (luc%cplant_x(p,d,leaf) &
@@ -1645,7 +1663,8 @@ END SUBROUTINE landuse_transitx
 
  END SUBROUTINE landuse_redistribution
 
- SUBROUTINE landuse_update_mland(luc)                     ! assign "var_y" to "var_x"
+ SUBROUTINE landuse_update_mland(luc)                     
+ ! assign "var_y" to "var_x"
  USE landuse_variable,   ONLY: landuse_mland
  IMPLICIT NONE
  TYPE(landuse_mland) :: luc
@@ -1725,6 +1744,7 @@ END SUBROUTINE landuse_transitx
  END SUBROUTINE landuse_update_mland
 
  SUBROUTINE landuse_land2mpx(luc,lucmp,mpx)
+ ! map luc%var_y(mland,mvmax) to lucmp%var(mp)
  USE landuse_constant,     ONLY: mvmax
  USE landuse_variable
  USE cable_def_types_mod,  ONLY: mland
