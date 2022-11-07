@@ -4,21 +4,18 @@ Assuming you have computing resources on gadi@NCI, installing and running CABLE 
 
 1. Checkout the source code:
 
-```bash
-svn checkout https://trac.nci.org.au/svn/cable/trunk MyCABLE
-cd MyCABLE/offline
-```
-2. Build a serial version of CABLE
+    svn checkout https://trac.nci.org.au/svn/cable/trunk MyCABLE
+    
+    cd MyCABLE/offline
 
-```bash
-./build3.sh
-```
+1. Build a serial version of CABLE
 
-3. Execute this serial version of CABLE
+    ./build3.sh
 
-```bash
-./cable
-```
+1. Execute this serial version of CABLE
+
+    ./cable
+
 
 ## In slightly more detail
 
