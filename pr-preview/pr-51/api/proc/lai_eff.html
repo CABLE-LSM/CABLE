@@ -144,12 +144,14 @@ in the vertical.</p>
 </p>
 <p>where <script type="math/tex">h_{c,snow}</script> is evaluated in cbl_HgtAboveSnow.F90.
 The LAI is decreased proportionally to the canopy height with/without snow.</p>
-<p>The effective canopy height takes a minimum value of 0.01m.</p>
-<p><strong>There is potential for misbehaviour</strong>  If  <script type="math/tex"> h_{c,snow} < 0.01 </script>
-then LAI could be increased from its value without snow (unphysical).
-<script type="math/tex">h_{c,snow} \ge 10 z_{0,min}</script> only from cbl_HgtAbove_snow
-which need not be greater than 0.01m (depending on the value of
-<script type="math/tex">z_{0,min}</script>.</p>
+<p>The effective canopy height used to evaluate the
+proportional decrease in LAI takes a minimum value of 0.01m.
+This conditions prevents numerical issues when the canopy height
+(without snow) is small.</p>
+<p><strong>To follow up</strong> Can HgtAboveSnow be greater than MAX(0.01, Hgt_PFT)?
+HgtAboveSnow takes a minimum value of 10 <script type="math/tex">z_{0,min}</script> so if
+10 <script type="math/tex">z_{0,min} > 0.01 > h_{c,nosnow} </script> then LAI is increased when
+there is snow!  </p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

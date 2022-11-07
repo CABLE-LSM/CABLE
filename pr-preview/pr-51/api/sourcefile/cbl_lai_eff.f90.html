@@ -209,17 +209,21 @@
 <a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">  </span><span class="c">! where \(h_{c,snow}\) is evaluated in cbl_HgtAboveSnow.F90.</span>
 <a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">  </span><span class="c">! The LAI is decreased proportionally to the canopy height with/without snow.</span>
 <a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">  </span><span class="c">!</span>
-<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">  </span><span class="c">! The effective canopy height takes a minimum value of 0.01m.</span>
-<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">  </span><span class="c">!</span>
-<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">  </span><span class="c">! **There is potential for misbehaviour**  If  \( h_{c,snow} &lt; 0.01 \)</span>
-<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">  </span><span class="c">! then LAI could be increased from its value without snow (unphysical).</span>
-<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">  </span><span class="c">! \(h_{c,snow} \ge 10 z_{0,min}\) only from cbl_HgtAbove_snow</span>
-<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">  </span><span class="c">! which need not be greater than 0.01m (depending on the value of</span>
-<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">  </span><span class="c">! \(z_{0,min}\).</span>
-<a id="ln-62" name="ln-62" href="#ln-62"></a>
-<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="k">END SUBROUTINE </span><span class="n">LAI_eff</span><span class="w"></span>
-<a id="ln-64" name="ln-64" href="#ln-64"></a>
-<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="k">End MODULE </span><span class="n">cbl_LAI_eff_mod</span><span class="w"></span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">  </span><span class="c">! The effective canopy height used to evaluate the</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">  </span><span class="c">! proportional decrease in LAI takes a minimum value of 0.01m.</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">  </span><span class="c">! This conditions prevents numerical issues when the canopy height</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">  </span><span class="c">! (without snow) is small.</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">  </span><span class="c">!</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">  </span><span class="c">! **To follow up** Can HgtAboveSnow be greater than MAX(0.01, Hgt_PFT)?</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">  </span><span class="c">! HgtAboveSnow takes a minimum value of 10 \(z_{0,min}\) so if</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">  </span><span class="c">! 10 \(z_{0,min} &gt; 0.01 &gt; h_{c,nosnow} \) then LAI is increased when</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">  </span><span class="c">! there is snow!  </span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">  </span><span class="c">!</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">  </span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="k">END SUBROUTINE </span><span class="n">LAI_eff</span><span class="w"></span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="k">End MODULE </span><span class="n">cbl_LAI_eff_mod</span><span class="w"></span>
 </pre></div>
 
     </section>
