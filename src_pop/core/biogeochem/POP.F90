@@ -6,11 +6,11 @@
 
 !CITATION
 !--------------------------------------------------------
-!When referring to this code in publications, please cite:
-! Haverd, V., Smith, B., Cook, G., Briggs, P.R., Nieradzik, L., Roxburgh, S.R., Liedloff, A.,
-! Meyer, C.P. and Canadell, J.G., 2013.
-! A stand-alone tree demography and landscape structure module for Earth system models.
-! Geophysical Research Letters, 40: 1-6.
+!! When referring to this code in publications, please cite:
+!! Haverd, V., Smith, B., Cook, G., Briggs, P.R., Nieradzik, L., Roxburgh, S.R., Liedloff, A.,
+!! Meyer, C.P. and Canadell, J.G., 2013.
+!! A stand-alone tree demography and landscape structure module for Earth system models.
+!! Geophysical Research Letters, 40: 1-6.
 
 
 !DISCLAIMER, COPYRIGHT AND LICENCE
@@ -81,8 +81,9 @@ MODULE POP_Constants
   ! REAL(dp),PARAMETER:: CrowdingFactor = 0.0128
   ! REAL(dp),PARAMETER:: ALPHA_CPC = 3.0
 
-  REAL(dp), PARAMETER :: FULTON_ALPHA = 3.5_dp ! recruitment scalar alpha in Fulton (1991)
-  REAL(dp), PARAMETER :: DENSINDIV_MAX = 0.2_dp  ! 0.5 !  Maximum density of individuals within a cohort indiv/m2
+  !! # Parameters
+  REAL(dp), PARAMETER :: FULTON_ALPHA = 3.5_dp     !< recruitment scalar alpha in Fulton (1991)
+  REAL(dp), PARAMETER :: DENSINDIV_MAX = 0.2_dp    !< Maximum density of individuals within a cohort indiv/m2
   REAL(dp), PARAMETER :: DENSINDIV_MIN = 1.0e-9_dp !
   REAL(dp), PARAMETER :: Kbiometric = 50.0_dp ! Constant in height-diameter relationship
   REAL(dp), PARAMETER :: WD = 300.0_dp ! Wood density kgC/m3
@@ -816,7 +817,7 @@ CONTAINS
                 ENDIF
 
                 if (ALLOM_SWITCH.eq.1) then
-                   !! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
+                   ! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
                    crown_area = densindiv*PI*(diam*100.0_dp*0.1492_dp)**2
                 else
                    crown_area = densindiv*PI*(((k_allom1 * diam ** k_rp )/PI)**0.5_dp)**2
@@ -1507,12 +1508,12 @@ CONTAINS
 
              IF (diam*100.0_dp .GT. 5.0_dp) THEN
                 if (ALLOM_SWITCH.eq.1) then
-                   !! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
+                   ! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
                    ! assumes vertical radius = 1.5 * horizontal radius
                    pop%pop_grid(g)%crown_volume = pop%pop_grid(g)%crown_volume + &
                         freq*densindiv*(4.0_dp/3.0_dp)*PI*(diam*100.0_dp*0.1492_dp)**2*(1.5_dp*(diam*100.0_dp*0.1492_dp))
                 else
-                   !! global allometry
+                   ! global allometry
                    ! assumes vertical radius = 1.5 * horizontal radius
                    pop%pop_grid(g)%crown_volume = pop%pop_grid(g)%crown_volume + &
                         freq*densindiv*(4.0_dp/3.0_dp)*PI*1.5_dp*((k_allom1 * diam ** k_rp )/PI)**1.5_dp
@@ -1648,7 +1649,7 @@ CONTAINS
              IF (diam*100.0_dp .GT. 1.0_dp) THEN
 
                 if (ALLOM_SWITCH.eq.1) then
-                   !! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
+                   ! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
                    pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area = densindiv*PI*(diam*100.0_dp*0.1492_dp)**2
                    Pwc = EXP(-0.5_dp * pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%LAI/ &
                         pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area)
@@ -1656,7 +1657,7 @@ CONTAINS
                         densindiv*PI*(diam*100.0_dp*0.1492_dp)**2*(1.0_dp-Pwc)
 
                 else
-                   !! global allometry
+                   ! global allometry
                    pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area = &
                         densindiv*PI*(((k_allom1 * diam ** k_rp )/PI)**0.5_dp)**2
                    Pwc = EXP(max(-0.5_dp * pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%LAI/ &
@@ -2007,7 +2008,9 @@ CONTAINS
 
   !*******************************************************************************
 
-
+  !! # Patch Disturbance
+  !! This subroutine kills all biomass in a patch when prescribed disturbance
+  !! interval is reached.
   SUBROUTINE Patch_disturb(pop,idisturb,precip)
     IMPLICIT NONE
 
@@ -2684,13 +2687,13 @@ CONTAINS
        POP%pop_grid(g)%sapwood_area =  POP%pop_grid(g)%sapwood_area + &
             freq_age(iage)*sapwood_area_age(iage)
 
-!!$if (g==2) then
-!!$write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage), growth_age(iage),  stress_mort_age(iage), &
-!!$ crowd_mort_age(iage), tmp_min, tmp_max, real(age_max_growth), real(age_min_growth)
-!!$endif
+!$if (g==2) then
+!$write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage), growth_age(iage),  stress_mort_age(iage), &
+!$ crowd_mort_age(iage), tmp_min, tmp_max, real(age_max_growth), real(age_min_growth)
+!$endif
 
-!!$if (g==2) write(72, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
-!!$if (g==1) write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
+!$if (g==2) write(72, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
+!$if (g==1) write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
        POP%pop_grid(g)%stress_mortality =  POP%pop_grid(g)%stress_mortality + &
             freq_age(iage)*stress_mort_age(iage)
        POP%pop_grid(g)%crowding_mortality =  POP%pop_grid(g)%crowding_mortality + &
@@ -2709,17 +2712,17 @@ CONTAINS
     POP%pop_grid(g)%fire_mortality = 0.0_dp
     POP%pop_grid(g)%res_mortality  = 0.0_dp
 
-!!$if (g==4) then
-!!$   write(*,*) 'it, nage, growth', it, nage
-!!$write(*,*) 'patch biomass', pop%pop_grid(g)%patch(1:5)%layer(1)%biomass
-!!$write(*,*) 'patch growth', pop%pop_grid(g)%patch(1:5)%growth
-!!$write(*,*) 'stress mort', pop%pop_grid(g)%patch(1:5)%stress_mortality
-!!$   write(591, "(350e16.6)") freq_age
-!!$   write(601,"(350e16.6)") cmass_age
-!!$   write(602,"(350e16.6)") stress_mort_age
-!!$   write(603,"(350e16.6)") real(age)
-!!$if (it==5) stop
-!!$endif
+!$if (g==4) then
+!$   write(*,*) 'it, nage, growth', it, nage
+!$write(*,*) 'patch biomass', pop%pop_grid(g)%patch(1:5)%layer(1)%biomass
+!$write(*,*) 'patch growth', pop%pop_grid(g)%patch(1:5)%growth
+!$write(*,*) 'stress mort', pop%pop_grid(g)%patch(1:5)%stress_mortality
+!$   write(591, "(350e16.6)") freq_age
+!$   write(601,"(350e16.6)") cmass_age
+!$   write(602,"(350e16.6)") stress_mort_age
+!$   write(603,"(350e16.6)") real(age)
+!$if (it==5) stop
+!$endif
     DEALLOCATE(age)
     DEALLOCATE(freq_age)
     DEALLOCATE(cmass_age)
