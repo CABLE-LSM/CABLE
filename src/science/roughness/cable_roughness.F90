@@ -49,17 +49,42 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 !  * Raupach MR (1989) QJRMS 115:609-632 doi:10.1256/smsqj.48709
 !  * Raupach MR (1992) BLM 60:375-395 doi:10.1007/BF00155203
 !  * Raupach MR (1994) BLM 71:211-216 doi:10.1007/BF00709229
+!  * Kowalczyk et al. (2006) CABLE documentation
 !
 ! Two parameters are introduced \(z_{0,min}\) = 1E-7m and
 ! \(z_{0,minPF}\) = 1E-4m which are the minimum values for the roughness
 ! length in the cases of bare soil and permanent ice land points (respectively)
 !
-!  The MODULE is organised as a single SUBROUTINE which contains conditional
-!  clauses in two sections
+!  The MODULE is organised as a single SUBROUTINE ruff_resist which contains
+!  cases in two areas depending on
 !
 !  1. Whether the soil model used is SLI or the default (soilsnow)
 !  2. Whether the land point is vegetated (LAI > LAI_THRESH) or not
-! 
+!
+! The principal outputs from the MODULE are
+!  * heights (above the displacement height) for the forcing meteorology in m
+!    (rough%zref_tq and rough%zref_uv)
+!  * current values for canopy height and leaf area accounting for presence of snow
+!    (rough%hruff and rough%vlaiw)
+!  * aerodynamic roughness length for soil and snow in m (rough%z0soil, rough%z0ssoilsn)
+!  * aerodynamic roughness length for surface (canopy+soil+snow) in m (rough%z0m)
+!  * displacement height of surface (if a canopy) in m (rough%disp)
+!  * depth of roughness sublayer in m (rough%zruffs)
+!  * ratio of friction velocity to wind speed at canopy top (rough%usuh)
+!  * extinction coefficient for wind speed profile in canopy, \(c_{0}\), (rough%coexp)
+!    where within the canopy wind speed at height \(z\) is given by
+!    \( U(z) = U_{h} \exp\{ c_{0} (z-h_c) \}
+!  * *normalized aerodynamic resistances* for the turbulent transfer of scalars
+!    across two layers
+!    - soil/snow surface to the displacement height (rough%rt0us)
+!    - displacement height to the reference level (rough%rt1us)
+!
+! The current time step aerodynamic resistances are later evaluated by multiplying
+! the *normalized resistances* by the current time step friction velocity.
+! rough%rt1us is evaluated in three subparts (%rt1usa, %rt1usb, and %rt1usc).
+! Each of the normalized resistances are given by theoretical formulae in the references
+! and the third of these terms (rough%rt1usc) is evaluated in the canopy MODULE.
+!
 
 
 IMPLICIT NONE
@@ -121,6 +146,9 @@ call LAI_eff( mp, veg%vlai, veg%hc, HeightAboveSnow, &
 canopy%vlaiw  = reducedLAIdue2snow
 canopy%rghlai = canopy%vlaiw
 
+!* The SUBROUTINE ruff_resist is structured
+!  * evaluate the canopy height and leaf area dependent on the presence of snow
+!  * set the value of soil and snow (depends on configuration of CABLE)
 IF (cable_user%soil_struc=='default') THEN
 
   ! Roughness length of bare soil (m): new formulation- E.Kowalczyk 2014
@@ -149,6 +177,8 @@ ELSEIF (cable_user%soil_struc=='sli') THEN
 
 ENDIF
 
+!* * evaluate the remaining output variables depending on whether the land point
+!  is a canopy or not.
 do i=1,mp
   if( canopy%vlaiw(i) .LE. CLAI_THRESH  .OR.                                          &
       rough%hruff(i) .LT. rough%z0soilsn(i) ) then ! BARE SOIL SURFACE
@@ -258,6 +288,7 @@ do i=1,mp
   END IF
 END DO    
 
+!* update the evaluate %rt0us if the soil model used is SLI
 IF (cable_user%soil_struc.EQ.'sli') THEN
   WHERE( canopy%vlaiw .GE. CLAI_THRESH  .AND.                                          &
          rough%hruff .GE. rough%z0soilsn ) ! VEGETATED SURFACE
