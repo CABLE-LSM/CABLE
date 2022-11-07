@@ -2719,7 +2719,7 @@
 <a id="ln-2562" name="ln-2562" href="#ln-2562"></a><span class="w">    </span><span class="c">!* **load_parameters** defines the priority order of sources of parameter</span>
 <a id="ln-2563" name="ln-2563" href="#ln-2563"></a><span class="w">    </span><span class="c">! values for CABLE, determines the total number of patches over all grid</span>
 <a id="ln-2564" name="ln-2564" href="#ln-2564"></a><span class="w">    </span><span class="c">! cells, and writes parameter values to CABLE&#39;s parameter arrays.</span>
-<a id="ln-2565" name="ln-2565" href="#ln-2565"></a><span class="w">    </span><span class="c">!     - WARNING: this needs reordering and tweaking to (a) remove the</span>
+<a id="ln-2565" name="ln-2565" href="#ln-2565"></a><span class="w">    </span><span class="c">! - WARNING: this needs reordering and tweaking to (a) remove the</span>
 <a id="ln-2566" name="ln-2566" href="#ln-2566"></a><span class="w">    </span><span class="c">! possibility of inconsistencies between the number of pathces in the</span>
 <a id="ln-2567" name="ln-2567" href="#ln-2567"></a><span class="w">    </span><span class="c">! default parameter grid and a restart file, and (b) allow vegetation and</span>
 <a id="ln-2568" name="ln-2568" href="#ln-2568"></a><span class="w">    </span><span class="c">! soil type to be forced from the met file (this is more complicated than</span>
@@ -3017,13 +3017,13 @@
 <a id="ln-2860" name="ln-2860" href="#ln-2860"></a><span class="w">    </span><span class="c">! file, and if it finds any, uses these values to overwrite the values that</span>
 <a id="ln-2861" name="ln-2861" href="#ln-2861"></a><span class="w">    </span><span class="c">! have already been loaded from the default parameter loading and/or the</span>
 <a id="ln-2862" name="ln-2862" href="#ln-2862"></a><span class="w">    </span><span class="c">! restart file.</span>
-<a id="ln-2863" name="ln-2863" href="#ln-2863"></a><span class="w">    </span><span class="c">!     - WARNING: The ability to set vegetation and soil type from the met</span>
+<a id="ln-2863" name="ln-2863" href="#ln-2863"></a><span class="w">    </span><span class="c">! - WARNING: The ability to set vegetation and soil type from the met</span>
 <a id="ln-2864" name="ln-2864" href="#ln-2864"></a><span class="w">    </span><span class="c">! file has been commented out here, so site based simulations can only have</span>
 <a id="ln-2865" name="ln-2865" href="#ln-2865"></a><span class="w">    </span><span class="c">! the default vegetation type - this is clearly problematic. To fix this</span>
 <a id="ln-2866" name="ln-2866" href="#ln-2866"></a><span class="w">    </span><span class="c">! issue, the parameter loading needs to be reordered a little, so that if</span>
 <a id="ln-2867" name="ln-2867" href="#ln-2867"></a><span class="w">    </span><span class="c">! the default veg or soil type is set here, the paraemter values themselves</span>
 <a id="ln-2868" name="ln-2868" href="#ln-2868"></a><span class="w">    </span><span class="c">! are actually written as a result of this.</span>
-<a id="ln-2869" name="ln-2869" href="#ln-2869"></a><span class="w">    </span><span class="c">!     - WARNING: The list of parameters searched for here is not complete</span>
+<a id="ln-2869" name="ln-2869" href="#ln-2869"></a><span class="w">    </span><span class="c">! - WARNING: The list of parameters searched for here is not complete</span>
 <a id="ln-2870" name="ln-2870" href="#ln-2870"></a><span class="w">    </span><span class="c">! for all CABLE applications. Not too urgent to fix if people don&#39;t often</span>
 <a id="ln-2871" name="ln-2871" href="#ln-2871"></a><span class="w">    </span><span class="c">! add parameters to the met file, but more important for detailed site-based</span>
 <a id="ln-2872" name="ln-2872" href="#ln-2872"></a><span class="w">    </span><span class="c">! process studies.</span>

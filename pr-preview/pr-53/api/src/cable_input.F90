@@ -2562,7 +2562,7 @@ CONTAINS
     !* **load_parameters** defines the priority order of sources of parameter
     ! values for CABLE, determines the total number of patches over all grid
     ! cells, and writes parameter values to CABLE's parameter arrays.
-    !     - WARNING: this needs reordering and tweaking to (a) remove the
+    ! - WARNING: this needs reordering and tweaking to (a) remove the
     ! possibility of inconsistencies between the number of pathces in the
     ! default parameter grid and a restart file, and (b) allow vegetation and
     ! soil type to be forced from the met file (this is more complicated than
@@ -2860,13 +2860,13 @@ CONTAINS
     ! file, and if it finds any, uses these values to overwrite the values that
     ! have already been loaded from the default parameter loading and/or the
     ! restart file.
-    !     - WARNING: The ability to set vegetation and soil type from the met
+    ! - WARNING: The ability to set vegetation and soil type from the met
     ! file has been commented out here, so site based simulations can only have
     ! the default vegetation type - this is clearly problematic. To fix this
     ! issue, the parameter loading needs to be reordered a little, so that if
     ! the default veg or soil type is set here, the paraemter values themselves
     ! are actually written as a result of this.
-    !     - WARNING: The list of parameters searched for here is not complete
+    ! - WARNING: The list of parameters searched for here is not complete
     ! for all CABLE applications. Not too urgent to fix if people don't often
     ! add parameters to the met file, but more important for detailed site-based
     ! process studies.
