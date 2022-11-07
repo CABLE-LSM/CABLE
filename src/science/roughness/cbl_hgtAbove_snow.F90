@@ -5,10 +5,19 @@ MODULE cbl_hruff_mod
   PUBLIC HgtAboveSnow
 
 CONTAINS
-!Computes height above surface given that therre is snow present
-!variable formerly known as rough%hruff
+
 subroutine HgtAboveSnow( HeightAboveSnow, mp, z0surf_min, HGT_pft, &
-                         SnowDepth, SnowDensity )
+     SnowDepth, SnowDensity )
+
+  !* Computes height of canopy above ground/snow surface when there
+  !  is snow present
+  !  inputs:  mp - number of land points
+  !           z0surf_min - minimum roughness length of surface (in m)
+  !           HGT_pft(mp) - height of canopy with no snow (in m)
+  !           SnowDepth(mp) - depth of snow (in mm/m2 liquid water)
+  !           SnowDensity(mp) - density of snow (in kg/m3)
+  !  outputs: HeightAboveSnow (m) - effective height of canopy (in m)
+  !           variable formerly known as rough%hruff
   implicit none
 
   !re-decl input args  
@@ -22,26 +31,30 @@ subroutine HgtAboveSnow( HeightAboveSnow, mp, z0surf_min, HGT_pft, &
   real :: SnowDepth(mp) !snow depth (liquid water ) 
   real :: SnowDensity(mp) 
 
- 
   !local_vars: 
-  real, parameter  :: fmin = 10. ! [meters]?
-  real, parameter  :: SnowDensity_min = 100. ! [meters]?
+  real, parameter  :: fmin = 10.             
+  real, parameter  :: SnowDensity_min = 100. 
+  !* two internal parameters: fmin = 10 (scalar multiplier)
+  !      and SnowDensity_min = 100.0 (in kg/m3)
   
   real :: SnowDensity_eff(mp) 
   real :: HgtAboveSnow_min(mp)  
   real :: HgtAboveSnow_comp(mp)  
 
-  ! restrict Effective snow density to be .GE. "a" minimum
-  SnowDensity_eff= max( SnowDensity_min, SnowDensity ) 
+  SnowDensity_eff= max( SnowDensity_min, SnowDensity )
+  !! restricts the Effective snow density to be .GE. "a" minimum
   
-  ! min. allowed canopy height (fixed @ 10* min. surface roughness)
-  HgtAboveSnow_min =  fmin * z0surf_min 
-  
-  !Canopy Hgt above snow given computed snow depth & PFT height 
+  HgtAboveSnow_min =  fmin * z0surf_min
+  !! evaluates min. allowed canopy height (fixed @ 10* min. surface roughness)
+   
   HgtAboveSnow_comp =   HGT_pft - ( 1.2 * SnowDepth / SnowDensity_eff )
+  !* evaluates the height of canopy above snow level from snow amount,
+  !  density of snow and input canopy height, while applying a minimum value
+  ! \( h_{c,abovesnow} = max[10 z_{0,min}, h_{c,nosnow} - 1.2 d_{snow}/\rho_{snow}] \)
+  !  NB the multipler 1.2 needs to be followed up
 
-  ! Finally Set Effective canopy height above snow level 
-  HeightAboveSnow = max( HgtAboveSnow_min,  HgtAboveSnow_comp )      
+  HeightAboveSnow = max( HgtAboveSnow_min,  HgtAboveSnow_comp )
+  ! Finally return the Effective canopy height above snow 
 
   return
 
