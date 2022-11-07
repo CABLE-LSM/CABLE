@@ -15,7 +15,7 @@
     
     
       
-        <title>Uber quick guide - CABLE Docs</title>
+        <title>Uber Quick Guide - CABLE Docs</title>
       
     
     
@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#macro-syntax-error" class="md-skip">
+        <a href="#uber-quick-guide" class="md-skip">
           Skip to content
         </a>
       
@@ -103,7 +103,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Uber quick guide
+              Uber Quick Guide
             
           </span>
         </div>
@@ -203,6 +203,8 @@
         
   
   
+    
+  
 
 
   
@@ -214,7 +216,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../compilation/" class="md-tabs__link">
+      <a href="./" class="md-tabs__link md-tabs__link--active">
         User Guide
       </a>
     </li>
@@ -338,12 +340,14 @@
 
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
       
       
       
@@ -374,15 +378,19 @@
               
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_1" type="checkbox" id="__nav_2_1" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_1" type="checkbox" id="__nav_2_1" checked>
       
       
       
+        
+          
         
           
         
@@ -405,6 +413,61 @@
           Tutorial
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Uber Quick Guide
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Uber Quick Guide
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#in-slightly-more-detail" class="md-nav__link">
+    In slightly more detail
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
           
             
               
@@ -938,6 +1001,21 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#in-slightly-more-detail" class="md-nav__link">
+    In slightly more detail
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -956,10 +1034,30 @@
   </a>
 
 
-<h1 id="macro-syntax-error"><em>Macro Syntax Error</em></h1>
-<p><em>Line 7 in Markdown file:</em> <strong>expected token ':', got 'checkout'</strong> </p>
-<pre><code class="language-python">svn checkout https://trac.nci.org.au/svn/cable/trunk MyCABLE
+<h1 id="uber-quick-guide">Uber Quick Guide</h1>
+<p>Assuming you have computing resources on gadi@NCI, installing and running CABLE is as simple as:</p>
+<ol>
+<li>Checkout the source code:</li>
+</ol>
+<pre><code class="language-bash">svn checkout https://trac.nci.org.au/svn/cable/trunk MyCABLE
+cd MyCABLE/offline
 </code></pre>
+<ol>
+<li>Build a serial version of CABLE</li>
+</ol>
+<pre><code class="language-bash">./build3.sh
+</code></pre>
+<ol>
+<li>Execute this serial version of CABLE</li>
+</ol>
+<pre><code class="language-bash">./cable
+</code></pre>
+<h2 id="in-slightly-more-detail">In slightly more detail</h2>
+<p>The CABLE executable (./cable) is configured via the namelist cable.nml. By default the provided cable.nml points to 4-year meteorological forcing from the <a href="http://sites.fluxdata.org/AU-Tum/">Tumbarumba</a> fluxnet site. NB: spinning up the model has been switched off in cable.nml (spinup=.FALSE.)</p>
+<p>We say the "serial" version as CABLE does support a  parallel configuration as well.</p>
+<p>ACCESS-ESM1.5 uses  a version of CABLE based on CABLE-2.3.4.</p>
+<p>ACCESS-CM2  uses  a version of CABLE that is closer to the HEAD of the trunk at the time of writing (December 2019).</p>
+<p>For a more detailed discussion of CABLE offline please see [https://trac.nci.org.au/trac/cable/wiki/CableUserGuide this page] from the User Guide.</p>
 
   <hr>
 <div class="md-source-file">
@@ -990,6 +1088,42 @@
       </main>
       
         <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../../.." class="md-footer__link md-footer__link--prev" aria-label="Previous: About" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              About
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../compilation/" class="md-footer__link md-footer__link--next" aria-label="Next: Install and compilation" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Install and compilation
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
