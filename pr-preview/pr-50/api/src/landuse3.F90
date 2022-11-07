@@ -3,8 +3,23 @@ MODULE landuse_variable
   IMPLICIT NONE
 
   SAVE
-
-  !! these are landuse-type variable
+!*# Overview of landuse3.F90
+!
+! these are three-type landuse-type variable
+!
+! luc%var_x(mland,mvmax): variable indexed by "mland" and "mvmax" before landuse change
+! luc%var_y(mland,mvmax): variable indexed by "mland" and "mvmax" after land use change
+! lucmp%var(mp):          variable indexed by the patch number from 1 to mp
+! \[y=x dot transit\]
+! Function of this module is to 
+!
+! 1. map of variable "var" from CABLE into one-derived type "luc%var_x"
+! 2. apply land use change (PFT transition, wood harvest and land management)
+! 3. write the value of "var_x" into "var_y"
+! 4. create new "mp" and write "luc%var_y" to lucmp%var
+!
+! all variables in the restart file, and state variables will be calculated
+!
   TYPE landuse_mland
     ! patch generic
     INTEGER,   DIMENSION(:,:),       ALLOCATABLE :: iveg_x

@@ -138,7 +138,20 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <p>these are landuse-type variable</p>
+    <h1>Overview of landuse3.F90</h1>
+<p>these are three-type landuse-type variable</p>
+<p>luc%var_x(mland,mvmax): variable indexed by "mland" and "mvmax" before landuse change
+ luc%var_y(mland,mvmax): variable indexed by "mland" and "mvmax" after land use change
+ lucmp%var(mp):          variable indexed by the patch number from 1 to mp
+ <script type="math/tex; mode=display">y=x dot transit</script>
+ Function of this module is to </p>
+<ol>
+<li>map of variable "var" from CABLE into one-derived type "luc%var_x"</li>
+<li>apply land use change (PFT transition, wood harvest and land management)</li>
+<li>write the value of "var_x" into "var_y"</li>
+<li>create new "mp" and write "luc%var_y" to lucmp%var</li>
+</ol>
+<p>all variables in the restart file, and state variables will be calculated</p>
 <br>        <div class="panel panel-default">
       <div class="panel-heading">
   <h3 class="panel-title">Uses</h3>
