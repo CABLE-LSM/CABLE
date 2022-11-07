@@ -2564,7 +2564,7 @@ CONTAINS
     ! cells, and writes parameter values to CABLE's parameter arrays.
     !
     ! - WARNING: this needs reordering and tweaking to (a) remove the
-    ! possibility of inconsistencies between the number of pathces in the
+    ! possibility of inconsistencies between the number of patches in the
     ! default parameter grid and a restart file, and (b) allow vegetation and
     ! soil type to be forced from the met file (this is more complicated than
     ! simply uncommenting the iveg and isoil reads from the met file - it
