@@ -56,12 +56,13 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 ! length in the cases of bare soil and permanent ice land points (respectively)
 !
 !  The MODULE is organised as a single SUBROUTINE ruff_resist which contains
-!  cases in two areas depending on
+!  IF/THEN cases in two areas depending on
 !
 !  1. Whether the soil model used is SLI or the default (soilsnow)
 !  2. Whether the land point is vegetated (LAI > LAI_THRESH) or not
 !
 ! The principal outputs from the MODULE are
+!
 !  * heights (above the displacement height) for the forcing meteorology in m
 !    (rough%zref_tq and rough%zref_uv)
 !  * current values for canopy height and leaf area accounting for presence of snow
@@ -76,6 +77,7 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 !    \( U(z) = U_{h} \exp\{ c_{0} (z-h_c) \}
 !  * *normalized aerodynamic resistances* for the turbulent transfer of scalars
 !    across two layers
+!
 !    - soil/snow surface to the displacement height (rough%rt0us)
 !    - displacement height to the reference level (rough%rt1us)
 !
@@ -147,6 +149,7 @@ canopy%vlaiw  = reducedLAIdue2snow
 canopy%rghlai = canopy%vlaiw
 
 !* The SUBROUTINE ruff_resist is structured
+!
 !  * evaluate the canopy height and leaf area dependent on the presence of snow
 !  * set the value of soil and snow (depends on configuration of CABLE)
 IF (cable_user%soil_struc=='default') THEN
