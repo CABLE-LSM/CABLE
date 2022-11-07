@@ -1,5 +1,5 @@
 ---
-project: POP
+project: GW
 author: CABLE community
 src_dir: ../src_gw
 output_dir: site/gw/api
