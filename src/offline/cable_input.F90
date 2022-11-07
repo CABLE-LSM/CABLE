@@ -2559,6 +2559,11 @@ CONTAINS
        sum_flux,bal,logn,vegparmnew,casabiome,casapool,    &
        casaflux,sum_casapool, sum_casaflux,casamet,casabal,phen,POP,spinup,EMSOIL, &
        TFRZ, LUC_EXPT, POPLUC)
+    !* load_parameters defines the priority order of sources of parameter
+    ! values for CABLE, determines the total number of patches over all grid
+    ! cells, and writes parameter values to CABLE's parameter arrays.
+    ! Documentation here is a simple order of processes:
+
     ! Input variables not listed:
     !   filename%type  - via cable_IO_vars_module
     !   exists%type    - via cable_IO_vars_module
@@ -2567,6 +2572,7 @@ CONTAINS
     !   (determined here or from sub get_default_params <- countPatch)
     !   landpt%type    - via cable_IO_vars_module (nap,cstart,cend,ilon,ilat)
     !   max_vegpatches - via cable_IO_vars_module
+
     ! vh_js !
     USE POPmodule, ONLY: POP_INIT
     USE POPLUC_module, ONLY: POPLUC_INIT
@@ -2637,8 +2643,8 @@ CONTAINS
     ! Those variables found in the met file will again overwrite existing ones.
 
     CALL get_default_params(logn,vegparmnew,LUC_EXPT)
-    !* Create parameter values from default vegetation and soil types based on
-    ! latitude and longitude of each grid cell.
+    !* 1. Create parameter values from default vegetation and soil types based
+    ! on latitude and longitude of each grid cell.
 
     CALL allocate_cable_vars(air,bgc,canopy,met,bal,rad,rough,soil,ssnow, &
          sum_flux,veg,mp)
@@ -2652,34 +2658,35 @@ CONTAINS
     IF (icycle > 0) THEN
        CALL alloc_phenvariable(phen,mp)
     ENDIF
-    !* Allocate CABLE (and CASA's [+phenology], if used) variables now that
+    !* 2. Allocate CABLE (and CASA's [+phenology], if used) variables now that
     ! the dimension of arrays is known - i.e. now that we know how many grid
     ! cells and patches there are.
-    ! WARNING: I think this allocation should happen after ALL parameter and
-    ! restart information has been loaded. As it stands, I think there is the
-    ! potential for the restart file to contain variables of a different
+    !     - WARNING: I think this allocation should happen after ALL parameter
+    ! and restart information has been loaded. As it stands, I think there is
+    ! the potential for the restart file to contain variables of a different
     ! dimension to what is declared here.
 
     CALL write_default_params(met,air,ssnow,veg,bgc,soil,canopy,rough, &
          rad,logn,vegparmnew,smoy, TFRZ, LUC_EXPT)
-    !! Write the loaded parameter values to CABLE's parameter variables
+    !! 3. Write the loaded parameter values to CABLE's parameter variables
 
     ! Zero out lai where there is no vegetation acc. to veg. index
     WHERE ( veg%iveg(:) .GE. 14 ) veg%vlai = 0.
 
     IF (icycle > 0) THEN
        CALL write_cnp_params(veg,casaflux,casamet)
-       !* Write the CASA parameters from CABLE parameters
-       ! WARNING: again this should happen after the restart file and met file
-       ! information has been used to define CABLE parameters, otherwise they
-       ! could be out of sync.
+       !* 4. [IF CASA is being used] Write the CASA parameters from CABLE
+       ! parameters
+       !     - WARNING: again this should happen after the restart file and met
+       ! file information has been used to define CABLE parameters, otherwise
+       ! they could be out of sync.
 
        CALL casa_readbiome(veg,soil,casabiome,casapool,casaflux, &
             casamet,phen)
        IF (cable_user%PHENOLOGY_SWITCH.EQ.'MODIS') CALL casa_readphen(veg,casamet,phen)
 
        CALL casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
-       !! Initialise CASA state variables
+       !! 5. [IF CASA is being used] Initialise CASA state variables
 
        ! vh_js !
        IF ( CABLE_USER%CALL_POP ) THEN
@@ -2764,14 +2771,14 @@ CONTAINS
             'restart file '//TRIM(frst_in)//' does not equal '// &
             'to number in default/met file settings. (SUB load_parameters) ' &
             //'Recommend running without restart file.')
-      !* Check that the total number of patches in the restart file matches the
-      ! total number of patches from the default grid (abort if not).
-      ! WARNING: if a restart file exists, it should define the total number of
-      ! patches, not the default grid.
+      !* 6. Check that the total number of patches in the restart file matches
+      ! the total number of patches from the default grid (abort if not).
+      !     - WARNING: if a restart file exists, it should define the total
+      ! number of patches, not the default grid.
 
        CALL get_restart_data(logn,ssnow,canopy,rough,bgc,bal,veg, &
             soil,rad,vegparmnew, EMSOIL )
-       !* Load initialisations and parameter values from restart file, and
+       !* 7. Load initialisations and parameter values from restart file, and
        ! overwrite default values with these.
 
     ELSE
@@ -2785,8 +2792,8 @@ CONTAINS
     END IF ! if restart file exists
 
     CALL get_parameters_met(soil,veg,bgc,rough,completeSet)
-    !* Overwrite parameter values with any found in the met forcing file. This
-    ! could be just a subset of parameters.
+    !* 8. Overwrite parameter values with any found in the met forcing file.
+    ! This could be just a subset of parameters.
 
     ! Results of looking for parameters in the met file:
     WRITE(logn,*)
@@ -2809,16 +2816,16 @@ CONTAINS
     WRITE(logn,*)
 
     CALL derived_parameters(soil,sum_flux,bal,ssnow,veg,rough)
-    !* Construct derived parameters and zero initialisations for the groundwater
-    ! routine, regardless of where parameters and other initialisations have
-    ! loaded from
+    !* 9. Construct derived parameters and zero initialisations for the
+    ! groundwater routine, regardless of where parameters and other
+    ! initialisations have loaded from
 
     CALL check_parameter_values(soil,veg,ssnow)
-    !! Check for basic inconsistencies in parameter values
+    !! 10. Check for basic inconsistencies in parameter values
 
     CALL report_parameters(logn,soil,veg,bgc,rough,ssnow,canopy, &
          casamet,casapool,casaflux,phen,vegparmnew,verbose)
-    !! Write per-site parameter values to log file if requested
+    !! 11. Write per-site parameter values to log file if requested
 
 
   END SUBROUTINE load_parameters
