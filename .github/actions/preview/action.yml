@@ -51,3 +51,10 @@ runs:
         # outputs to "site/pop/api" directory
         ford pop_ford.md
       shell: bash
+
+    - name: Build GW API documentation
+      working-directory: documentation
+      run: |
+        # outputs to "site/gw/api" directory
+        ford GW_ford.md
+      shell: bash

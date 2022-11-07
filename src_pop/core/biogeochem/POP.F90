@@ -1663,12 +1663,12 @@ CONTAINS
                         max(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area,1.e-3_dp),-20.0_dp))
 
                    pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area = &
-                        pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area*(1.0_dp-Pwc) !*1.4142
+                        pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area*(1.0_dp-Pwc) ! *1.4142
                 endif
 
              ELSE
                 pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area = &
-                     0.5_dp*pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%LAI !*1.4142
+                     0.5_dp*pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%LAI ! *1.4142
              ENDIF
              pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area= &
                   max(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area,0.01_dp)
@@ -2684,13 +2684,13 @@ CONTAINS
        POP%pop_grid(g)%sapwood_area =  POP%pop_grid(g)%sapwood_area + &
             freq_age(iage)*sapwood_area_age(iage)
 
-!!$if (g==2) then
-!!$write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage), growth_age(iage),  stress_mort_age(iage), &
-!!$ crowd_mort_age(iage), tmp_min, tmp_max, real(age_max_growth), real(age_min_growth)
-!!$endif
+!$if (g==2) then
+!$write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage), growth_age(iage),  stress_mort_age(iage), &
+!$ crowd_mort_age(iage), tmp_min, tmp_max, real(age_max_growth), real(age_min_growth)
+!$endif
 
-!!$if (g==2) write(72, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
-!!$if (g==1) write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
+!$if (g==2) write(72, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
+!$if (g==1) write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
        POP%pop_grid(g)%stress_mortality =  POP%pop_grid(g)%stress_mortality + &
             freq_age(iage)*stress_mort_age(iage)
        POP%pop_grid(g)%crowding_mortality =  POP%pop_grid(g)%crowding_mortality + &
@@ -2709,17 +2709,17 @@ CONTAINS
     POP%pop_grid(g)%fire_mortality = 0.0_dp
     POP%pop_grid(g)%res_mortality  = 0.0_dp
 
-!!$if (g==4) then
-!!$   write(*,*) 'it, nage, growth', it, nage
-!!$write(*,*) 'patch biomass', pop%pop_grid(g)%patch(1:5)%layer(1)%biomass
-!!$write(*,*) 'patch growth', pop%pop_grid(g)%patch(1:5)%growth
-!!$write(*,*) 'stress mort', pop%pop_grid(g)%patch(1:5)%stress_mortality
-!!$   write(591, "(350e16.6)") freq_age
-!!$   write(601,"(350e16.6)") cmass_age
-!!$   write(602,"(350e16.6)") stress_mort_age
-!!$   write(603,"(350e16.6)") real(age)
-!!$if (it==5) stop
-!!$endif
+!$if (g==4) then
+!$   write(*,*) 'it, nage, growth', it, nage
+!$write(*,*) 'patch biomass', pop%pop_grid(g)%patch(1:5)%layer(1)%biomass
+!$write(*,*) 'patch growth', pop%pop_grid(g)%patch(1:5)%growth
+!$write(*,*) 'stress mort', pop%pop_grid(g)%patch(1:5)%stress_mortality
+!$   write(591, "(350e16.6)") freq_age
+!$   write(601,"(350e16.6)") cmass_age
+!$   write(602,"(350e16.6)") stress_mort_age
+!$   write(603,"(350e16.6)") real(age)
+!$if (it==5) stop
+!$endif
     DEALLOCATE(age)
     DEALLOCATE(freq_age)
     DEALLOCATE(cmass_age)

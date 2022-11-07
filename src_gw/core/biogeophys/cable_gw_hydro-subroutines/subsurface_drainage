@@ -1,0 +1,139 @@
+  SUBROUTINE subsurface_drainage(ssnow,soil,veg,dzmm)
+    USE cable_common_module
+
+    IMPLICIT NONE
+
+    TYPE (soil_snow_type), INTENT(INOUT)      :: ssnow ! soil and snow variables
+    TYPE (soil_parameter_type), INTENT(INOUT)    :: soil  ! soil parameters
+    TYPE (veg_parameter_type), INTENT(INOUT)     :: veg
+    REAL(r_2), DIMENSION(:), INTENT(in)       :: dzmm
+    REAL(r_2), DIMENSION(mp)                  :: sm_tot,&!sum var
+         ice_factor_tot  !avg ice factor
+    REAL(r_2), DIMENSION(mp,ms)               :: ice_factor  !ice limitation on
+    !subsurface drainage
+    INTEGER, DIMENSION(mp)                    :: k_drain
+    INTEGER :: i,k
+
+    REAL(r_2), DIMENSION(17) :: Efold_mod
+
+    Efold_mod(:) = 1.0
+    !Efold_mod(1:4) = (/0.2,0.2,0.2,0.2/)
+    !Efold_mod(9) = 0.25
+    DO i=1,mp
+
+       !Note: future revision will have interaction with river here. nned to
+       !work on router and add river type cells
+       ssnow%qhz(i)  = MIN(MAX(soil%slope(i),0.000001),0.9)*&
+            gw_params%MaxHorzDrainRate* &
+            EXP(-ssnow%wtd(i)/1000._r_2/&
+            (1.0/(60.0*gw_params%EfoldHorzDrainRate*&
+            (soil%drain_dens(i)+1.0e-3))*Efold_mod(veg%iveg(i))))
+
+
+       IF (gw_params%subsurface_sat_drainage) THEN
+          !drain from sat layers
+          k_drain(i) = ms+1
+          DO k=ms,2,-1
+             IF (ssnow%wtd(i) .LE. SUM(dzmm(1:k),dim=1)) THEN
+                k_drain(i) = k + 1
+             END IF
+          END DO
+          k_drain(i) = MAX(k_drain(i),3)
+       ELSE
+          k_drain(i) = 2
+       END IF
+
+    END DO
+
+    IF (gw_params%ssgw_ice_switch) THEN
+       DO k=1,ms
+          DO i=1,mp
+             ice_factor(i,k) = (10.0**(-gw_params%ice_impedence*ssnow%wbice(i,k)/&
+                  (ssnow%wb(i,k)+1.0e-12)))
+          END DO
+       END DO
+    ELSE
+       DO k=1,ms
+          DO i=1,mp
+             ice_factor(i,k) = (1._r_2-ssnow%fracice(i,k))
+          END DO
+       END DO
+
+    END IF
+    DO i=1,mp
+
+       ice_factor(i,:)  = 0._r_2
+       ice_factor_tot(i)= 0._r_2
+       ssnow%qhlev(i,:) = 0._r_2
+       sm_tot(i)        = 0._r_2
+
+    END DO
+
+    DO i=1,mp
+
+       IF (gw_params%subsurface_sat_drainage) THEN
+          sm_tot(i) = MAX((ssnow%GWwb(i) - soil%watr(i,ms)),0._r_2)*&
+               ice_factor(i,ms)
+
+          ice_factor_tot(i) = (SUM(ice_factor(i,k_drain(i):ms)*&
+               soil%zse_vec(i,k_drain(i):ms),dim=1)+&
+               ice_factor(i,ms)*soil%GWdz(i))/&
+               (SUM(soil%zse_vec(i,:),dim=1)+&
+               soil%GWdz(i))
+
+          DO k=k_drain(i),ms
+             sm_tot(i) = sm_tot(i) + MAX(ssnow%wbliq(i,k)-soil%watr(i,k),0._r_2)*&
+                  ice_factor(i,k)
+          END DO
+
+          ssnow%qhz(i) = ssnow%qhz(i)*ice_factor_tot(i)  !reduced due to ice
+
+          IF (sm_tot(i) .GE. 1.0e-12) THEN
+             DO k=k_drain(i),ms
+                ssnow%qhlev(i,k) = ssnow%qhz(i)*ice_factor(i,k)*&
+                     MAX(0.0,ssnow%wbliq(i,k)-soil%watr(i,k))/sm_tot(i)
+             END DO
+             ssnow%qhlev(i,ms+1) = MAX((ssnow%GWwb(i) - soil%watr(i,ms)),0.0)*&
+                  ice_factor(i,ms)*ssnow%qhz(i)/sm_tot(i)
+          ENDIF
+
+       ELSE  !second option
+          IF (k_drain(i) .LE. ms) THEN
+             DO k=k_drain(i),ms
+                sm_tot(i) = sm_tot(i) + MAX(ssnow%wbliq(i,k)-soil%watr(i,k),0._r_2)*&
+                     ice_factor(i,k)
+             END DO
+             ice_factor_tot(i) = (SUM(ice_factor(i,k_drain(i):ms)*&
+                  soil%zse_vec(i,k_drain(i):ms),dim=1))/&
+                  (SUM(soil%zse_vec(i,:),dim=1))
+
+             ssnow%qhz(i) = ssnow%qhz(i)*ice_factor_tot(i)  !reduced due to ice
+             IF (sm_tot(i) .GE. 1.0e-12) THEN
+                DO k=k_drain(i),ms
+                   ssnow%qhlev(i,k) = (ssnow%qhz(i)*ice_factor(i,k)/sm_tot(i))*&
+                        MAX(0.0,ssnow%wbliq(i,k)-soil%watr(i,k))
+                END DO
+             ENDIF
+
+          ELSE
+             ice_factor_tot(i) = ice_factor(i,ms)
+             ssnow%qhz(i)        = ssnow%qhz(i)*ice_factor_tot(i)
+             ssnow%qhlev(i,ms+1) = ssnow%qhz(i)*MAX(ssnow%GWwb(i)-soil%watr(i,ms),0.0)
+
+          END IF
+
+       END IF
+       !incase every layer is frozen very dry
+       ssnow%qhz(i) = SUM(ssnow%qhlev(i,:),dim=1)
+
+       !Keep "lakes" saturated forcing qhz = 0.  runoff only from lakes
+       !overflowing
+       IF (soil%isoilm(i) .EQ. 9 .OR. veg%iveg(i) .GE. 16) THEN
+          ssnow%qhz(i) = 0._r_2
+          ssnow%qhlev(i,:) = 0._r_2
+       END IF
+
+    END DO
+
+
+  END SUBROUTINE subsurface_drainage
