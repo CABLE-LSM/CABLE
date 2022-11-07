@@ -1,2 +1,2 @@
 # Install and compile
-rubbish to install cable you need svn
+To install cable you need svn.
