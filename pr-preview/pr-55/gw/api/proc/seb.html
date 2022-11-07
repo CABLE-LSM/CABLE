@@ -126,17 +126,7 @@
     <p>vh!! include vapour component??
  vh !! use max snow depth of 20 cm in this calculation to avoid huge resistances
  leading to large negative surface temperatures when snow-pack is thick and
- Rn is large and negative (~-100 Wm-2)
-$          elseif (abs(Tsurface - vmet%Ta).gt. 20) then
-$             Tsurface = min(vmet%Ta, 0.0)
-$             Epot = (esat(Tsurface)<em>0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - &amp; ! m3 H2O (liq) m-3 (air)
-$                  vmet%cva)</em>rhow<em>lambdas/vmet%rbw
-$             dEdTsoil = zero
-$             dGdTsoil = zero
-$             Hpot = rhocp</em>(Tsurface - vmet%Ta)/vmet%rbh
-$             Gpot = vmet%Rn-vmet%Rnsw - Hpot - Epot
-$             dEdTs= zero
-$           endif</p>
+ Rn is large and negative (~-100 Wm-2)</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

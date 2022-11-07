@@ -94,7 +94,7 @@
   </ul>
   <ol class="breadcrumb in-well text-right">
      <li><a href='../sourcefile/cbl_soilsnow_subrs.f90.html'>cbl_soilsnow_subrs.F90</a></li>
-     <li><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></li>
+     <li><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></li>
      <li class="active">GWstempv</li>
   </ol>
 </div>
@@ -135,77 +135,6 @@
     </div>
 
 
-    <p>$    at = 0.0
-$    bt = 1.0
-$    ct = 0.0
-$    coeff = 0.0   !  ! replaced block by one below as per MMY code -- rk4417</p>
-<p>$       xx(:) = MAX( 0., ssnow%snowd / ssnow%ssdnn )     ! replaced by block below as per MMY code -- rk4417
-$       ccnsw(:,1) = ( ccnsw(:,1) - 0.2 ) * ( soil%zse(1) / ( soil%zse(1) + xx(:) ) &amp;
-$            ) + 0.2
-$          coeff(:,k) = 2.0 / ( soil%zse(k-1) / ccnsw(:,k-1) + soil%zse(k) / &amp; ! replaced by block below as per MMY code -- rk4417
-$               ccnsw(:,k) )
-$       coeff(:,2) = 2.0 / ( ( soil%zse(1) + xx(:) ) / ccnsw(:,1) + soil%zse(2) /   &amp;
-$            ccnsw(:,2) )
-$       coefa = 0.0
-$       coefb = REAL( coeff(:,2) )
-$
-$       wblfsp = ssnow%wblf(:,k)
-$
-$       ssnow%gammzz(:,k) = MAX((soil%heat_cap_lower_limit(:,k)), &amp;
-$            ( 1.0 - soil%ssat_vec(:,k) ) * &amp;
-$            soil%css_vec(:,k) * soil%rhosoil_vec(:,k)   &amp;
-$            + soil%ssat_vec(:,k) * ( wblfsp * C%cs_rho_wat +            &amp;
-$            ssnow%wbfice(:,k) * C%cs_rho_ice ) )     &amp;
-$            * soil%zse_vec(:,k)
-$
-$       ssnow%gammzz(:,k) = ssnow%gammzz(:,k) + C%cgsnow * ssnow%snowd
-$
-$       dtg = dels / ssnow%gammzz(:,k)     ! replaced block by one below as per MMY code -- rk4417</p>
-<p>$          wblfsp = ssnow%wblf(:,k)
-$
-$          ssnow%gammzz(:,k) = MAX((soil%heat_cap_lower_limit(:,k)), &amp;
-$               ( 1.0 - soil%ssat_vec(:,k) ) * &amp;
-$               soil%css_vec(:,k) * soil%rhosoil_vec(:,k)   &amp;
-$               + soil%ssat_vec(:,k) * ( wblfsp * C%cs_rho_wat +            &amp;
-$               ssnow%wbfice(:,k) * C%cs_rho_ice ) )     &amp;
-$               * soil%zse_vec(:,k)
-$
-$          dtg = dels / ssnow%gammzz(:,k)       ! replaced block by one below as per MMY code -- rk4417</p>
-<p>$       bt(:,1) = bt(:,1) - canopy%dgdtg * dels / ssnow%gammzz(:,1) <br>
-$       ssnow%tgg(:,1) = ssnow%tgg(:,1) + ( canopy%ga - ssnow%tgg(:,1)           &amp;
-$            * REAL( canopy%dgdtg ) ) * dels / REAL( ssnow%gammzz(:,1) ) ! replaced by block below as per MMY code -- rk4417
-$       coeff(:,-1) = 2.0 / (ssnow%sdepth(:,1) / ssnow%sconds(:,1) &amp;
-$            &amp; + ssnow%sdepth(:,2) / ssnow%sconds(:,2) )
-$       coeff(:,0) = 2.0 / (ssnow%sdepth(:,2) / ssnow%sconds(:,2) &amp;
-$            &amp; + ssnow%sdepth(:,3) / ssnow%sconds(:,3) )
-$       coeff(:,1) = 2.0 / (ssnow%sdepth(:,3) / ssnow%sconds(:,3) &amp;
-$            &amp; + soil%zse(1) / ccnsw (:,1) )        ! replaced by block below as per MMY code -- rk4417
-$            coeff(:,k) = 2.0 / ( soil%zse(k-1) / ccnsw(:,k-1) + soil%zse(k) /     &amp;
-$            ccnsw(:,k) )  ! replaced by below as per MMY code -- rk4417
-$       coefa = REAL( coeff (:,-1) )
-$       coefb = REAL( coeff (:,1) ) ! replaced 2 lines by below as per MMY code -- rk4417
-$          sgamm = ssnow%ssdn(:,k) * C%cgsnow * ssnow%sdepth(:,k)
-$          dtg = dels / sgamm    ! replaced by below as per MMY code -- rk4417
-$          wblfsp = ssnow%wblf(:,k)
-$
-$          ssnow%gammzz(:,k) = MAX((soil%heat_cap_lower_limit(:,k)),&amp;
-$               ( 1.0 - soil%ssat_vec(:,k) ) * soil%css_vec(:,k) *             &amp;
-$               soil%rhosoil_vec(:,k) + soil%ssat_vec(:,k) * ( wblfsp * C%cs_rho_wat +&amp;
-$               ssnow%wbfice(:,k) * C%cs_rho_ice)) * &amp;
-$               soil%zse_vec(:,k)
-$
-$          dtg = dels / ssnow%gammzz(:,k)
-$          at(:,k) = - dtg * coeff(:,k)
-$          ct(:,k) = - dtg * coeff(:,k + 1) ! c3(ms)=0 &amp; not really used
-$          bt(:,k) = 1.0 - at(:,k) - ct(:,k)    ! replaced block by one below as per MMY code -- rk4417</p>
-<p>$       sgamm = ssnow%ssdn(:,1) * C%cgsnow * ssnow%sdepth(:,1)
-$
-$       bt(:,-2) = bt(:,-2) - canopy%dgdtg * dels / sgamm
-$
-$       ssnow%tggsn(:,1) = ssnow%tggsn(:,1) + ( canopy%ga - ssnow%tggsn(:,1 )    &amp;
-$            * REAL( canopy%dgdtg ) ) * dels / sgamm    ! replaced by below as per MMY code -- rk4417</p>
-<p>$    canopy%sghflux = coefa * ( ssnow%tggsn(:,1) - ssnow%tggsn(:,2) ) ! replaced 2 lines by below as per MMY code -- rk4417
-$    canopy%ghflux = coefb * ( ssnow%tgg(:,1) - ssnow%tgg(:,2) ) ! +ve downwards</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
@@ -233,7 +162,7 @@ $    canopy%ghflux = coefb * ( ssnow%tgg(:,1) - ssnow%tgg(:,2) ) ! +ve downwards
   <td><span class="anchor" id="variable-soil~61"></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>soil</strong></td><td><p>$    REAL, DIMENSION(mp) ::   &amp;   ! replaced by line below as per MMY code -- rk4417</p></td>
+  <td><strong>soil</strong></td><td></td>
 </tr>
 </tbody>
 </table>

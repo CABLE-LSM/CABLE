@@ -135,13 +135,6 @@
     </div>
 
 
-    <p>$       efpor(i) = MAX(0.001_r_2, soil%ssat_vec(i,1) - ssnow%wbice(i,1))
-$       icemass  = ssnow%wbice(i,1) * dzmm
-$       liqmass  = (ssnow%wb(i,1)-ssnow%wbice(i,1)) * dzmm</p>
-<p>$       icef(i)     = MAX(0._r_2,MIN(1._r_2,gw_params%IceBeta*icemass / totmass))</p>
-<p>$       tmpa = -2._r_2<em>soil%bch_vec(i,1)</em>soil%sucs_vec(i,1)/dzmm
-$       qinmax = (1._r_2 + tmpa<em>(tmpb-1._r_2))</em>soil%hyds_vec(i,1)<em>EXP(-gw_params%hkrz</em>(0.5*dzmm/1000.0_r_2-gw_params%zdepth))</p>
-<p>$    IF (sli_call .OR. cable_runtime%UM) THEN</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

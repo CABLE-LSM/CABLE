@@ -36,7 +36,7 @@ MODULE cable_IO_vars_module
   CHARACTER(LEN=200) :: timeunits ! timing info read from nc file
 
   CHARACTER(LEN=10) :: calendar ! 'noleap' for no leap years, 'standard' for leap years
-!!$  line above is missing from MMY code -- rk4417
+!$  line above is missing from MMY code -- rk4417
   CHARACTER(LEN=3) :: time_coord ! GMT or LOCal time variables
 
   REAL(r_2),POINTER,DIMENSION(:) :: timevar ! time variable from file
@@ -129,7 +129,7 @@ MODULE cable_IO_vars_module
        vegtype_metfile(:,:)      ! user-def veg type (from met file)
 
    REAL, POINTER :: vegpatch_metfile(:,:) ! Anna: patchfrac for user-def vegtype
-!!$  line above is missing from MMY code -- rk4417
+!$  line above is missing from MMY code -- rk4417
 
   TYPE parID_type ! model parameter IDs in netcdf file
 
@@ -375,7 +375,7 @@ MODULE cable_IO_vars_module
           Qhmax=.FALSE.,&
           QhmaxEfold=.FALSE.,&
           HKefold=.FALSE.,&
-!!$          HKdepth           ! replaced line by block below as per MMY code -- rk4417
+!$          HKdepth           ! replaced line by block below as per MMY code -- rk4417
           HKdepth=.false.,&
           SMP=.false.,&
           SMP_hys=.false.,&

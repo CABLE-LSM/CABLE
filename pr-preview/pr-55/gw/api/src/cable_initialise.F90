@@ -39,7 +39,7 @@ MODULE cable_init_module
        soiltype_metfile
   USE cable_read_module
   USE netcdf
-!!$  USE cable_common_module, ONLY : filename, cable_user  ! replaced line by below as per MMY -- rk4417
+!$  USE cable_common_module, ONLY : filename, cable_user  ! replaced line by below as per MMY -- rk4417
   USE cable_common_module, ONLY : filename, cable_user,gw_params
   
   IMPLICIT NONE
@@ -422,18 +422,18 @@ CONTAINS
          max_vegpatches,'def',from_restart,mp)
 
     !MD
-!!$    ok = NF90_INQ_VARID(ncid_rin,'GWwb',parID)   ! commented out by rk4417 as it appears below 
-!!$    IF(ok == NF90_NOERR) THEN                    ! in added block 
-!!$       CALL readpar(ncid_rin,'GWwb',dummy,ssnow%GWwb,filename%restart_in,            &
-!!$            max_vegpatches,'def',from_restart,mp)
-!!$    ELSE
-!!$       ssnow%GWwb = 0.95*soil%ssat
-!!$    END IF
+!$    ok = NF90_INQ_VARID(ncid_rin,'GWwb',parID)   ! commented out by rk4417 as it appears below 
+!$    IF(ok == NF90_NOERR) THEN                    ! in added block 
+!$       CALL readpar(ncid_rin,'GWwb',dummy,ssnow%GWwb,filename%restart_in,            &
+!$            max_vegpatches,'def',from_restart,mp)
+!$    ELSE
+!$       ssnow%GWwb = 0.95*soil%ssat
+!$    END IF
 
-!!$   IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN   ! I did not comment this out,
-!!$      CALL readpar(ncid_rin,'gamma',dummy,veg%gamma,filename%restart_in,           & ! see below for duplicate -- rk4417
-!!$           max_vegpatches,'def',from_restart,mp)
-!!$   ENDIF
+!$   IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN   ! I did not comment this out,
+!$      CALL readpar(ncid_rin,'gamma',dummy,veg%gamma,filename%restart_in,           & ! see below for duplicate -- rk4417
+!$           max_vegpatches,'def',from_restart,mp)
+!$   ENDIF
 
 ! added block below as per MMY code -- rk4417    
 !----------------------------- rk4417 -------------------------------------------------
@@ -524,23 +524,23 @@ CONTAINS
             max_vegpatches,'snow',from_restart,mp)
        CALL readpar(ncid_rin,'sconds',dummy,ssnow%sconds,filename%restart_in, &
             max_vegpatches,'snow',from_restart,mp)
-!!$       CALL readpar(ncid_rin,'ZR',dummy,veg%ZR, &                       ! this block is not commented out in MMY -- rk4417
-!!$            filename%restart_in,max_vegpatches,'def',from_restart,mp)
-!!$       CALL readpar(ncid_rin,'F10',dummy,veg%F10, &
-!!$            filename%restart_in,max_vegpatches,'def',from_restart,mp)
-!!$       CALL readpar(ncid_rin,'zeta',dummy,soil%zeta,filename%restart_in,           &
-!!$            max_vegpatches,'def',from_restart,mp)
-!!$       CALL readpar(ncid_rin,'fsatmax',dummy,soil%fsatmax,filename%restart_in,           &
-!!$            max_vegpatches,'def',from_restart,mp)
-!!$       CALL readpar(ncid_rin,'nhorizons',dummy,soil%nhorizons,filename%restart_in,           &
-!!$            max_vegpatches,'def',from_restart,mp)
-!!$       ALLOCATE(var_r2(mp,ms))
-!!$       CALL readpar(ncid_rin,'ishorizon',dummy,var_r2,filename%restart_in,           &
-!!$            max_vegpatches,'ms',from_restart,mp)
-!!$       soil%ishorizon = int(var_r2)
-!!$       DEALLOCATE(var_r2)
-!!$       CALL readpar(ncid_rin,'clitt',dummy,veg%clitt,filename%restart_in,           &
-!!$            max_vegpatches,'def',from_restart,mp)
+!$       CALL readpar(ncid_rin,'ZR',dummy,veg%ZR, &                       ! this block is not commented out in MMY -- rk4417
+!$            filename%restart_in,max_vegpatches,'def',from_restart,mp)
+!$       CALL readpar(ncid_rin,'F10',dummy,veg%F10, &
+!$            filename%restart_in,max_vegpatches,'def',from_restart,mp)
+!$       CALL readpar(ncid_rin,'zeta',dummy,soil%zeta,filename%restart_in,           &
+!$            max_vegpatches,'def',from_restart,mp)
+!$       CALL readpar(ncid_rin,'fsatmax',dummy,soil%fsatmax,filename%restart_in,           &
+!$            max_vegpatches,'def',from_restart,mp)
+!$       CALL readpar(ncid_rin,'nhorizons',dummy,soil%nhorizons,filename%restart_in,           &
+!$            max_vegpatches,'def',from_restart,mp)
+!$       ALLOCATE(var_r2(mp,ms))
+!$       CALL readpar(ncid_rin,'ishorizon',dummy,var_r2,filename%restart_in,           &
+!$            max_vegpatches,'ms',from_restart,mp)
+!$       soil%ishorizon = int(var_r2)
+!$       DEALLOCATE(var_r2)
+!$       CALL readpar(ncid_rin,'clitt',dummy,veg%clitt,filename%restart_in,           &
+!$            max_vegpatches,'def',from_restart,mp)
     ENDIF
     CALL readpar(ncid_rin,'cansto',dummy,canopy%cansto,filename%restart_in,     &
          max_vegpatches,'def',from_restart,mp)

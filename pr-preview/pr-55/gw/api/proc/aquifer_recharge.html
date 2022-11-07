@@ -135,54 +135,6 @@
     </div>
 
 
-    <p>$    DO i=1,mp                                           ! block commented out by rk4417 replaced by next one
-$       IF ((ssnow%wtd(i) .LE. SUM(dzmm,dim=1)) .OR. &amp;
-$            (veg%iveg(i) .GE. 16) .OR. &amp;
-$            (soil%isoilm(i) .EQ. 9))  THEN
-$
-$          ssnow%Qrecharge(i) = 0._r_2
-$       ELSE
-$          ssnow%Qrecharge(i) = -0.5<em>(ssnow%hk(i,ms)</em>ssnow%GWhk(i))<em>&amp;
-$               ((-ssnow%smp(i,ms)) -&amp;
-$               (-ssnow%zq(i,ms))) / &amp;
-$               (ssnow%wtd(i) - &amp;
-$               (zmm(ms)-0.5</em>soil%zse_vec(i,ms)*1000.0))
-$       END IF
-$    END DO</p>
-<p>$    select case (gw_params%aquifer_recharge_function)       ! original block by MMY -- rk4417
-$       case(0)
-$          ssnow%Qrecharge(:) = 0._r_2
-$       case(1)
-$          do i=1,mp
-$             if ((ssnow%wtd(i) .le. csum_dzmm(i,ms-1)) .or. &amp;
-$                 (veg%iveg(i) .ge. 16) .or. &amp;
-$                 (soil%isoilm(i) .eq. 9))  then
-$
-$                ssnow%Qrecharge(i) = 0._r_2
-$             else
-$                ssnow%Qrecharge(i) = -0.5<em>(ssnow%hk(i,ms)+ssnow%GWhk(i))</em>&amp;
-$                                     ((-ssnow%smp(i,ms)) -&amp;
-$                                      (-ssnow%zq(i,ms))) / &amp;
-$                                      (ssnow%wtd(i) - &amp;
-$                                       (csum_dzmm(i,ms)-0.5<em>soil%zse_vec(i,ms)</em>m2mm))
-$             end if
-$          end do
-$
-$       case default
-$          do i=1,mp
-$             if ((ssnow%wtd(i) .le. csum_dzmm(i,ms)) .or. &amp;
-$                 (veg%iveg(i) .ge. 16) .or. &amp;
-$                 (soil%isoilm(i) .eq. 9))  then
-$
-$                ssnow%Qrecharge(i) = 0._r_2
-$             else
-$                ssnow%Qrecharge(i) = -(ssnow%hk(i,ms)+ssnow%GWhk(i))<em>&amp;
-$                                     ((ssnow%GWsmp(i)-ssnow%smp(i,ms)) -&amp;
-$                                      (ssnow%GWzq(i)-ssnow%zq(i,ms))) / &amp;
-$                                     (m2mm</em>(soil%GWdz(i)+soil%zse_vec(i,ms)))
-$             end if
-$          end do
-$       end select</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
@@ -210,8 +162,7 @@ $       end select</p>
   <td><span class="anchor" id="variable-veg~49"></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>veg</strong></td><td><p>$    REAL(r_2), DIMENSION(:), INTENT(in)       :: zaq        ! replaced as per MMY -- rk4417
-$    REAL(r_2), DIMENSION(:), INTENT(in)       :: zmm,dzmm</p></td>
+  <td><strong>veg</strong></td><td></td>
 </tr>
 </tbody>
 </table>

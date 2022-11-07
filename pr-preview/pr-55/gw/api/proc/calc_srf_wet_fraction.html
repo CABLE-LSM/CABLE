@@ -123,14 +123,6 @@
     <h2>public subroutine calc_srf_wet_fraction(ssnow, soil, met, veg)</h2>
     
 
-    <p>$          icemass  = ssnow%wbice(i,1) * dzmm_one         -- rk4417
-$          liqmass  = (ssnow%wb(i,1)-ssnow%wbice(i,1)) * dzmm_one         -- rk4417
-$          icef(i)  = MAX(0._r_2,MIN(1._r_2, gw_params%IceBeta<em>icemass / totmass))         -- rk4417
-$          satfrac_liqice(i) = fice + (1._r_2-fice)</em>ssnow%satfrac(i)         -- rk4417
-$          wb_unsat = ((ssnow%wb(i,1)-ssnow%wbice(i,1)) -&amp;         -- rk4417
-$             xx = 0.25 * (1._r_2 - COS(C%pi<em>wb_unsat/(wb_evap_threshold)))</em><em>2.0
-$ I substituted the line above just to compile, will sort it out later -- rk4417
-$               ( ssnow%wbice(i,1) / ssnow%wb(i,1) )</em>*2 ) ) )         -- rk4417</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

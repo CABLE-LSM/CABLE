@@ -128,40 +128,15 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
     <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
   </ul>
       </li>
       </ul>
     </div>
 
 
-    <p>$                xleuning(i,1) = ( fwsoil(i) / ( csx(i,1) - co2cp3 ) )              &amp;
-$                     * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
-$                xleuning(i,2) = ( fwsoil(i) / ( csx(i,2) - co2cp3 ) )              &amp;
-$                     * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))</p>
-<p>$!Vanessa:note there is no xleuning to go into photosynthesis etc anymore
-$             gs_coeff = xleuning</p>
-<p>$                !INH 2018: enforce gs_coeff to vary proportionally to fwsoil in dry soil conditions ! commented out as absent from MMY code -- rk4417
-$                ! required to avoid transpiration without soil water extraction
-$                medlyn_lim = 0.05
-$                IF (fwsoil(i) &lt;= medlyn_lim) THEN
-$                   gs_coeff(i,1) = (fwsoil(i) / medlyn_lim + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,1)
-$                   gs_coeff(i,2) = (fwsoil(i) / medlyn_lim + (g1 * fwsoil(i)) / SQRT(vpd)) / csx(i,2)
-$                END IF</p>
-<p>$                   DO kk = 1,ms             ! commented out as per MMY -- rk4417
-$                      ssnow%evapfbl(i,kk) = MIN( evapfb(i) * veg%froot(i,kk),      &amp;
-$                           MAX( 0.0, REAL( ssnow%wb(i,kk) ) -     &amp;
-$                           1.1 * soil%swilt(i) ) *                &amp;
-$                           soil%zse(kk) * 1000.0 )
-$                   ENDDO</p>
-<p>$                   IF (cable_user%soil_struc=='default') THEN               ! replaced if block by below as per MMY -- rk4417
-$                      canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))<em>air%rlam(i)/dels
-$                      ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
-$                   ELSEIF (cable_user%soil_struc=='sli') THEN
-$                      canopy%fevc(i) = ecx(i)</em>(1.0-canopy%fwet(i))
-$                   ENDIF</p>
-<p>vh !! inserted min to avoid -ve values of GPP</p>
+    <p>vh !! inserted min to avoid -ve values of GPP</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

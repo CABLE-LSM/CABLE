@@ -196,7 +196,7 @@
 <a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">       </span><span class="n">soiltype_metfile</span><span class="w"></span>
 <a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">  </span><span class="k">USE </span><span class="n">cable_read_module</span><span class="w"></span>
 <a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">  </span><span class="k">USE </span><span class="n">netcdf</span><span class="w"></span>
-<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="c">!!$  USE cable_common_module, ONLY : filename, cable_user  ! replaced line by below as per MMY -- rk4417</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="c">!$  USE cable_common_module, ONLY : filename, cable_user  ! replaced line by below as per MMY -- rk4417</span>
 <a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">  </span><span class="k">USE </span><span class="n">cable_common_module</span><span class="p">,</span><span class="w"> </span><span class="k">ONLY</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="n">cable_user</span><span class="p">,</span><span class="n">gw_params</span><span class="w"></span>
 <a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">  </span>
 <a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">  </span><span class="k">IMPLICIT NONE</span>
@@ -579,18 +579,18 @@
 <a id="ln-422" name="ln-422" href="#ln-422"></a><span class="w">         </span><span class="n">max_vegpatches</span><span class="p">,</span><span class="s1">&#39;def&#39;</span><span class="p">,</span><span class="n">from_restart</span><span class="p">,</span><span class="n">mp</span><span class="p">)</span><span class="w"></span>
 <a id="ln-423" name="ln-423" href="#ln-423"></a>
 <a id="ln-424" name="ln-424" href="#ln-424"></a><span class="w">    </span><span class="c">!MD</span>
-<a id="ln-425" name="ln-425" href="#ln-425"></a><span class="c">!!$    ok = NF90_INQ_VARID(ncid_rin,&#39;GWwb&#39;,parID)   ! commented out by rk4417 as it appears below </span>
-<a id="ln-426" name="ln-426" href="#ln-426"></a><span class="c">!!$    IF(ok == NF90_NOERR) THEN                    ! in added block </span>
-<a id="ln-427" name="ln-427" href="#ln-427"></a><span class="c">!!$       CALL readpar(ncid_rin,&#39;GWwb&#39;,dummy,ssnow%GWwb,filename%restart_in,            &amp;</span>
-<a id="ln-428" name="ln-428" href="#ln-428"></a><span class="c">!!$            max_vegpatches,&#39;def&#39;,from_restart,mp)</span>
-<a id="ln-429" name="ln-429" href="#ln-429"></a><span class="c">!!$    ELSE</span>
-<a id="ln-430" name="ln-430" href="#ln-430"></a><span class="c">!!$       ssnow%GWwb = 0.95*soil%ssat</span>
-<a id="ln-431" name="ln-431" href="#ln-431"></a><span class="c">!!$    END IF</span>
+<a id="ln-425" name="ln-425" href="#ln-425"></a><span class="c">!$    ok = NF90_INQ_VARID(ncid_rin,&#39;GWwb&#39;,parID)   ! commented out by rk4417 as it appears below </span>
+<a id="ln-426" name="ln-426" href="#ln-426"></a><span class="c">!$    IF(ok == NF90_NOERR) THEN                    ! in added block </span>
+<a id="ln-427" name="ln-427" href="#ln-427"></a><span class="c">!$       CALL readpar(ncid_rin,&#39;GWwb&#39;,dummy,ssnow%GWwb,filename%restart_in,            &amp;</span>
+<a id="ln-428" name="ln-428" href="#ln-428"></a><span class="c">!$            max_vegpatches,&#39;def&#39;,from_restart,mp)</span>
+<a id="ln-429" name="ln-429" href="#ln-429"></a><span class="c">!$    ELSE</span>
+<a id="ln-430" name="ln-430" href="#ln-430"></a><span class="c">!$       ssnow%GWwb = 0.95*soil%ssat</span>
+<a id="ln-431" name="ln-431" href="#ln-431"></a><span class="c">!$    END IF</span>
 <a id="ln-432" name="ln-432" href="#ln-432"></a>
-<a id="ln-433" name="ln-433" href="#ln-433"></a><span class="c">!!$   IF(cable_user%SOIL_STRUC==&#39;sli&#39;.or.cable_user%FWSOIL_SWITCH==&#39;Haverd2013&#39;) THEN   ! I did not comment this out,</span>
-<a id="ln-434" name="ln-434" href="#ln-434"></a><span class="c">!!$      CALL readpar(ncid_rin,&#39;gamma&#39;,dummy,veg%gamma,filename%restart_in,           &amp; ! see below for duplicate -- rk4417</span>
-<a id="ln-435" name="ln-435" href="#ln-435"></a><span class="c">!!$           max_vegpatches,&#39;def&#39;,from_restart,mp)</span>
-<a id="ln-436" name="ln-436" href="#ln-436"></a><span class="c">!!$   ENDIF</span>
+<a id="ln-433" name="ln-433" href="#ln-433"></a><span class="c">!$   IF(cable_user%SOIL_STRUC==&#39;sli&#39;.or.cable_user%FWSOIL_SWITCH==&#39;Haverd2013&#39;) THEN   ! I did not comment this out,</span>
+<a id="ln-434" name="ln-434" href="#ln-434"></a><span class="c">!$      CALL readpar(ncid_rin,&#39;gamma&#39;,dummy,veg%gamma,filename%restart_in,           &amp; ! see below for duplicate -- rk4417</span>
+<a id="ln-435" name="ln-435" href="#ln-435"></a><span class="c">!$           max_vegpatches,&#39;def&#39;,from_restart,mp)</span>
+<a id="ln-436" name="ln-436" href="#ln-436"></a><span class="c">!$   ENDIF</span>
 <a id="ln-437" name="ln-437" href="#ln-437"></a>
 <a id="ln-438" name="ln-438" href="#ln-438"></a><span class="c">! added block below as per MMY code -- rk4417    </span>
 <a id="ln-439" name="ln-439" href="#ln-439"></a><span class="c">!----------------------------- rk4417 -------------------------------------------------</span>
@@ -681,23 +681,23 @@
 <a id="ln-524" name="ln-524" href="#ln-524"></a><span class="w">            </span><span class="n">max_vegpatches</span><span class="p">,</span><span class="s1">&#39;snow&#39;</span><span class="p">,</span><span class="n">from_restart</span><span class="p">,</span><span class="n">mp</span><span class="p">)</span><span class="w"></span>
 <a id="ln-525" name="ln-525" href="#ln-525"></a><span class="w">       </span><span class="k">CALL </span><span class="n">readpar</span><span class="p">(</span><span class="n">ncid_rin</span><span class="p">,</span><span class="s1">&#39;sconds&#39;</span><span class="p">,</span><span class="n">dummy</span><span class="p">,</span><span class="n">ssnow</span><span class="p">%</span><span class="n">sconds</span><span class="p">,</span><span class="n">filename</span><span class="p">%</span><span class="n">restart_in</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-526" name="ln-526" href="#ln-526"></a><span class="w">            </span><span class="n">max_vegpatches</span><span class="p">,</span><span class="s1">&#39;snow&#39;</span><span class="p">,</span><span class="n">from_restart</span><span class="p">,</span><span class="n">mp</span><span class="p">)</span><span class="w"></span>
-<a id="ln-527" name="ln-527" href="#ln-527"></a><span class="c">!!$       CALL readpar(ncid_rin,&#39;ZR&#39;,dummy,veg%ZR, &amp;                       ! this block is not commented out in MMY -- rk4417</span>
-<a id="ln-528" name="ln-528" href="#ln-528"></a><span class="c">!!$            filename%restart_in,max_vegpatches,&#39;def&#39;,from_restart,mp)</span>
-<a id="ln-529" name="ln-529" href="#ln-529"></a><span class="c">!!$       CALL readpar(ncid_rin,&#39;F10&#39;,dummy,veg%F10, &amp;</span>
-<a id="ln-530" name="ln-530" href="#ln-530"></a><span class="c">!!$            filename%restart_in,max_vegpatches,&#39;def&#39;,from_restart,mp)</span>
-<a id="ln-531" name="ln-531" href="#ln-531"></a><span class="c">!!$       CALL readpar(ncid_rin,&#39;zeta&#39;,dummy,soil%zeta,filename%restart_in,           &amp;</span>
-<a id="ln-532" name="ln-532" href="#ln-532"></a><span class="c">!!$            max_vegpatches,&#39;def&#39;,from_restart,mp)</span>
-<a id="ln-533" name="ln-533" href="#ln-533"></a><span class="c">!!$       CALL readpar(ncid_rin,&#39;fsatmax&#39;,dummy,soil%fsatmax,filename%restart_in,           &amp;</span>
-<a id="ln-534" name="ln-534" href="#ln-534"></a><span class="c">!!$            max_vegpatches,&#39;def&#39;,from_restart,mp)</span>
-<a id="ln-535" name="ln-535" href="#ln-535"></a><span class="c">!!$       CALL readpar(ncid_rin,&#39;nhorizons&#39;,dummy,soil%nhorizons,filename%restart_in,           &amp;</span>
-<a id="ln-536" name="ln-536" href="#ln-536"></a><span class="c">!!$            max_vegpatches,&#39;def&#39;,from_restart,mp)</span>
-<a id="ln-537" name="ln-537" href="#ln-537"></a><span class="c">!!$       ALLOCATE(var_r2(mp,ms))</span>
-<a id="ln-538" name="ln-538" href="#ln-538"></a><span class="c">!!$       CALL readpar(ncid_rin,&#39;ishorizon&#39;,dummy,var_r2,filename%restart_in,           &amp;</span>
-<a id="ln-539" name="ln-539" href="#ln-539"></a><span class="c">!!$            max_vegpatches,&#39;ms&#39;,from_restart,mp)</span>
-<a id="ln-540" name="ln-540" href="#ln-540"></a><span class="c">!!$       soil%ishorizon = int(var_r2)</span>
-<a id="ln-541" name="ln-541" href="#ln-541"></a><span class="c">!!$       DEALLOCATE(var_r2)</span>
-<a id="ln-542" name="ln-542" href="#ln-542"></a><span class="c">!!$       CALL readpar(ncid_rin,&#39;clitt&#39;,dummy,veg%clitt,filename%restart_in,           &amp;</span>
-<a id="ln-543" name="ln-543" href="#ln-543"></a><span class="c">!!$            max_vegpatches,&#39;def&#39;,from_restart,mp)</span>
+<a id="ln-527" name="ln-527" href="#ln-527"></a><span class="c">!$       CALL readpar(ncid_rin,&#39;ZR&#39;,dummy,veg%ZR, &amp;                       ! this block is not commented out in MMY -- rk4417</span>
+<a id="ln-528" name="ln-528" href="#ln-528"></a><span class="c">!$            filename%restart_in,max_vegpatches,&#39;def&#39;,from_restart,mp)</span>
+<a id="ln-529" name="ln-529" href="#ln-529"></a><span class="c">!$       CALL readpar(ncid_rin,&#39;F10&#39;,dummy,veg%F10, &amp;</span>
+<a id="ln-530" name="ln-530" href="#ln-530"></a><span class="c">!$            filename%restart_in,max_vegpatches,&#39;def&#39;,from_restart,mp)</span>
+<a id="ln-531" name="ln-531" href="#ln-531"></a><span class="c">!$       CALL readpar(ncid_rin,&#39;zeta&#39;,dummy,soil%zeta,filename%restart_in,           &amp;</span>
+<a id="ln-532" name="ln-532" href="#ln-532"></a><span class="c">!$            max_vegpatches,&#39;def&#39;,from_restart,mp)</span>
+<a id="ln-533" name="ln-533" href="#ln-533"></a><span class="c">!$       CALL readpar(ncid_rin,&#39;fsatmax&#39;,dummy,soil%fsatmax,filename%restart_in,           &amp;</span>
+<a id="ln-534" name="ln-534" href="#ln-534"></a><span class="c">!$            max_vegpatches,&#39;def&#39;,from_restart,mp)</span>
+<a id="ln-535" name="ln-535" href="#ln-535"></a><span class="c">!$       CALL readpar(ncid_rin,&#39;nhorizons&#39;,dummy,soil%nhorizons,filename%restart_in,           &amp;</span>
+<a id="ln-536" name="ln-536" href="#ln-536"></a><span class="c">!$            max_vegpatches,&#39;def&#39;,from_restart,mp)</span>
+<a id="ln-537" name="ln-537" href="#ln-537"></a><span class="c">!$       ALLOCATE(var_r2(mp,ms))</span>
+<a id="ln-538" name="ln-538" href="#ln-538"></a><span class="c">!$       CALL readpar(ncid_rin,&#39;ishorizon&#39;,dummy,var_r2,filename%restart_in,           &amp;</span>
+<a id="ln-539" name="ln-539" href="#ln-539"></a><span class="c">!$            max_vegpatches,&#39;ms&#39;,from_restart,mp)</span>
+<a id="ln-540" name="ln-540" href="#ln-540"></a><span class="c">!$       soil%ishorizon = int(var_r2)</span>
+<a id="ln-541" name="ln-541" href="#ln-541"></a><span class="c">!$       DEALLOCATE(var_r2)</span>
+<a id="ln-542" name="ln-542" href="#ln-542"></a><span class="c">!$       CALL readpar(ncid_rin,&#39;clitt&#39;,dummy,veg%clitt,filename%restart_in,           &amp;</span>
+<a id="ln-543" name="ln-543" href="#ln-543"></a><span class="c">!$            max_vegpatches,&#39;def&#39;,from_restart,mp)</span>
 <a id="ln-544" name="ln-544" href="#ln-544"></a><span class="w">    </span><span class="k">ENDIF</span>
 <a id="ln-545" name="ln-545" href="#ln-545"></a><span class="k">    CALL </span><span class="n">readpar</span><span class="p">(</span><span class="n">ncid_rin</span><span class="p">,</span><span class="s1">&#39;cansto&#39;</span><span class="p">,</span><span class="n">dummy</span><span class="p">,</span><span class="n">canopy</span><span class="p">%</span><span class="n">cansto</span><span class="p">,</span><span class="n">filename</span><span class="p">%</span><span class="n">restart_in</span><span class="p">,</span><span class="w">     </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-546" name="ln-546" href="#ln-546"></a><span class="w">         </span><span class="n">max_vegpatches</span><span class="p">,</span><span class="s1">&#39;def&#39;</span><span class="p">,</span><span class="n">from_restart</span><span class="p">,</span><span class="n">mp</span><span class="p">)</span><span class="w"></span>

@@ -160,9 +160,9 @@ CONTAINS
           CALL HANDLE_ERR(STATUS, "Inquiring 'time'"//TRIM(LUC_EXPT%TransFile(i)))
           LUC_EXPT%nrec = tdimsize
 
-!!$          STATUS = NF90_GET_VAR( Luc_expt%f_id(i), timID, tmp, &
-!!$               start=(/1,1,1/) )
-!!$          CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
+!$          STATUS = NF90_GET_VAR( Luc_expt%f_id(i), timID, tmp, &
+!$               start=(/1,1,1/) )
+!$          CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
 
 
 
@@ -239,10 +239,10 @@ CONTAINS
        LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*4.0/5.0
        LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 1.0/5.0
        LUC_EXPT%secdf =  LUC_EXPT%secdf * 1.0/5.0
-!!$The three lines above appear as below in MMY code with different factors -- rk4417
-!!$       LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*2.0/3.0
-!!$       LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 1.0/3.0
-!!$       LUC_EXPT%secdf =  LUC_EXPT%secdf * 1.0/3.0
+!$The three lines above appear as below in MMY code with different factors -- rk4417
+!$       LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*2.0/3.0
+!$       LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 1.0/3.0
+!$       LUC_EXPT%secdf =  LUC_EXPT%secdf * 1.0/3.0
     ELSEWHERE (LUC_EXPT%biome .EQ. 7 .OR. LUC_EXPT%biome .EQ. 8 &  ! boreal ! the remainder of the where construct from here
          .OR. LUC_EXPT%biome .EQ. 9 .OR. LUC_EXPT%biome .EQ. 10  )          ! is missing from MMY code -- rk4417 
        LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)*1.0/5.0
@@ -303,9 +303,9 @@ CONTAINS
             .OR. LUC_EXPT%biome .EQ. 15 .OR. LUC_EXPT%biome .EQ. 16  ) ! shrub
           LUC_EXPT%grass = LUC_EXPT%primaryf*4.0/5.0
           LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 1.0/5.0
-!!$The two lines above appear as below in MMY code with different factors -- rk4417
-!!$          LUC_EXPT%grass = LUC_EXPT%primaryf*2.0/3.0
-!!$          LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 1.0/3.0
+!$The two lines above appear as below in MMY code with different factors -- rk4417
+!$          LUC_EXPT%grass = LUC_EXPT%primaryf*2.0/3.0
+!$          LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 1.0/3.0
        ELSEWHERE (LUC_EXPT%biome .EQ. 7 .OR. LUC_EXPT%biome .EQ. 8 &            ! the remainder of the where construct
             .OR. LUC_EXPT%biome .EQ. 9 .OR. LUC_EXPT%biome .EQ. 10) ! boreal    ! is missing from MMY code -- rk4417   
           LUC_EXPT%grass = LUC_EXPT%primaryf*1.0/5.0
@@ -317,9 +317,9 @@ CONTAINS
     END WHERE
 
 
-!!$    WHERE (LUC_EXPT%ivegp == 14)
-!!$       LUC_EXPT%prim_only = .TRUE.
-!!$    END WHERE
+!$    WHERE (LUC_EXPT%ivegp == 14)
+!$       LUC_EXPT%prim_only = .TRUE.
+!$    END WHERE
 
   END SUBROUTINE LUC_EXPT_INIT
 
@@ -575,7 +575,7 @@ CONTAINS
 
     ENDIF
 
-!!$  ! Adjust transition areas based on native tree fraction for savanna grid-cells - comment line in MMY code -- rk4417
+!$  ! Adjust transition areas based on native tree fraction for savanna grid-cells - comment line in MMY code -- rk4417
     ! Adjust transition areas based on primary wooded fraction
     WHERE (LUC_EXPT%biome .EQ. 3 .OR. LUC_EXPT%biome .EQ. 11)  ! savanna/ xerophytic woods
        LUC_EXPT%INPUT(ptos)%VAL =  LUC_EXPT%INPUT(ptos)%VAL * 1.0/2.0
@@ -588,11 +588,11 @@ CONTAINS
        LUC_EXPT%INPUT(ptog)%VAL =  LUC_EXPT%INPUT(ptog)%VAL * 1.0/5.0
        LUC_EXPT%INPUT(gtos)%VAL =  LUC_EXPT%INPUT(gtos)%VAL * 1.0/5.0
        LUC_EXPT%INPUT(stog)%VAL =  LUC_EXPT%INPUT(stog)%VAL * 1.0/5.0
-!!$The four lines above appear as below in MMY code with different factors -- rk4417
-!!$    LUC_EXPT%INPUT(ptos)%VAL =  LUC_EXPT%INPUT(ptos)%VAL * 1.0/3.0
-!!$    LUC_EXPT%INPUT(ptog)%VAL =  LUC_EXPT%INPUT(ptog)%VAL * 1.0/3.0
-!!$    LUC_EXPT%INPUT(gtos)%VAL =  LUC_EXPT%INPUT(gtos)%VAL * 1.0/3.0
-!!$    LUC_EXPT%INPUT(stog)%VAL =  LUC_EXPT%INPUT(stog)%VAL * 1.0/3.0
+!$The four lines above appear as below in MMY code with different factors -- rk4417
+!$    LUC_EXPT%INPUT(ptos)%VAL =  LUC_EXPT%INPUT(ptos)%VAL * 1.0/3.0
+!$    LUC_EXPT%INPUT(ptog)%VAL =  LUC_EXPT%INPUT(ptog)%VAL * 1.0/3.0
+!$    LUC_EXPT%INPUT(gtos)%VAL =  LUC_EXPT%INPUT(gtos)%VAL * 1.0/3.0
+!$    LUC_EXPT%INPUT(stog)%VAL =  LUC_EXPT%INPUT(stog)%VAL * 1.0/3.0
     ELSEWHERE (LUC_EXPT%biome .EQ. 7 .OR. LUC_EXPT%biome .EQ. 8 &               ! the remainder of the where construct 
          .OR. LUC_EXPT%biome .EQ. 9 .OR. LUC_EXPT%biome .EQ. 10) ! boreal       ! is missing from MMY code -- rk4417   
        LUC_EXPT%INPUT(ptos)%VAL =  LUC_EXPT%INPUT(ptos)%VAL * 0.8

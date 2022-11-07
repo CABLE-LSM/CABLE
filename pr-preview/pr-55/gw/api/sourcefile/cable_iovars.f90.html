@@ -114,7 +114,7 @@
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#mods-0">Modules</a></h3></div>
   <div id="mods-0" class="panel-collapse collapse">
     <div class="list-group">
-      <a class="list-group-item" href="../module/cable_io_vars_module~2.html">cable_IO_vars_module</a>
+      <a class="list-group-item" href="../module/cable_io_vars_module.html">cable_IO_vars_module</a>
     </div>
   </div>
 </div>
@@ -139,7 +139,7 @@
   <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#mods-1">Modules</a></h3></div>
   <div id="mods-1" class="panel-collapse collapse">
     <div class="list-group">
-      <a class="list-group-item" href="../module/cable_io_vars_module~2.html">cable_IO_vars_module</a>
+      <a class="list-group-item" href="../module/cable_io_vars_module.html">cable_IO_vars_module</a>
     </div>
   </div>
 </div>
@@ -193,7 +193,7 @@
 <a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">  </span><span class="kt">CHARACTER</span><span class="p">(</span><span class="nb">LEN</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">timeunits</span><span class="w"> </span><span class="c">! timing info read from nc file</span>
 <a id="ln-37" name="ln-37" href="#ln-37"></a>
 <a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">  </span><span class="kt">CHARACTER</span><span class="p">(</span><span class="nb">LEN</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">calendar</span><span class="w"> </span><span class="c">! &#39;noleap&#39; for no leap years, &#39;standard&#39; for leap years</span>
-<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="c">!!$  line above is missing from MMY code -- rk4417</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="c">!$  line above is missing from MMY code -- rk4417</span>
 <a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">  </span><span class="kt">CHARACTER</span><span class="p">(</span><span class="nb">LEN</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">time_coord</span><span class="w"> </span><span class="c">! GMT or LOCal time variables</span>
 <a id="ln-41" name="ln-41" href="#ln-41"></a>
 <a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">  </span><span class="kt">REAL</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="k">POINTER</span><span class="p">,</span><span class="k">DIMENSION</span><span class="p">(:)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">timevar</span><span class="w"> </span><span class="c">! time variable from file</span>
@@ -286,7 +286,7 @@
 <a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">       </span><span class="n">vegtype_metfile</span><span class="p">(:,:)</span><span class="w">      </span><span class="c">! user-def veg type (from met file)</span>
 <a id="ln-130" name="ln-130" href="#ln-130"></a>
 <a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">   </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">POINTER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vegpatch_metfile</span><span class="p">(:,:)</span><span class="w"> </span><span class="c">! Anna: patchfrac for user-def vegtype</span>
-<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="c">!!$  line above is missing from MMY code -- rk4417</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="c">!$  line above is missing from MMY code -- rk4417</span>
 <a id="ln-133" name="ln-133" href="#ln-133"></a>
 <a id="ln-134" name="ln-134" href="#ln-134"></a><span class="w">  </span><span class="k">TYPE </span><span class="n">parID_type</span><span class="w"> </span><span class="c">! model parameter IDs in netcdf file</span>
 <a id="ln-135" name="ln-135" href="#ln-135"></a>
@@ -532,7 +532,7 @@
 <a id="ln-375" name="ln-375" href="#ln-375"></a><span class="w">          </span><span class="n">Qhmax</span><span class="o">=</span><span class="p">.</span><span class="n">FALSE</span><span class="p">.,&amp;</span><span class="w"></span>
 <a id="ln-376" name="ln-376" href="#ln-376"></a><span class="w">          </span><span class="n">QhmaxEfold</span><span class="o">=</span><span class="p">.</span><span class="n">FALSE</span><span class="p">.,&amp;</span><span class="w"></span>
 <a id="ln-377" name="ln-377" href="#ln-377"></a><span class="w">          </span><span class="n">HKefold</span><span class="o">=</span><span class="p">.</span><span class="n">FALSE</span><span class="p">.,&amp;</span><span class="w"></span>
-<a id="ln-378" name="ln-378" href="#ln-378"></a><span class="c">!!$          HKdepth           ! replaced line by block below as per MMY code -- rk4417</span>
+<a id="ln-378" name="ln-378" href="#ln-378"></a><span class="c">!$          HKdepth           ! replaced line by block below as per MMY code -- rk4417</span>
 <a id="ln-379" name="ln-379" href="#ln-379"></a><span class="w">          </span><span class="n">HKdepth</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.,&amp;</span><span class="w"></span>
 <a id="ln-380" name="ln-380" href="#ln-380"></a><span class="w">          </span><span class="n">SMP</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.,&amp;</span><span class="w"></span>
 <a id="ln-381" name="ln-381" href="#ln-381"></a><span class="w">          </span><span class="n">SMP_hys</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.,&amp;</span><span class="w"></span>

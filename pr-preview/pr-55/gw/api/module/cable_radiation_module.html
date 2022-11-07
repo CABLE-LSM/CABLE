@@ -295,8 +295,7 @@
   <div class="panel-heading codesum"><span class="anchor" id="proc-init_radiation"></span><h3>public subroutine <a href='../proc/init_radiation.html'>init_radiation</a>(met, rad, veg, canopy)</h3></div>
   <div class="panel-body">
        
-<p>vh !! include RAD_THRESH in condition
-$   WHERE (canopy%vlaiw &gt; C%LAI_THRESH .and. rad%fbeam(:,1).GE.C%RAD_THRESH   ) ! MMY has this line instead ? -- rk4417</p><a href="../proc/init_radiation.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+<p>vh !! include RAD_THRESH in condition</p>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
@@ -336,8 +335,7 @@ $   WHERE (canopy%vlaiw &gt; C%LAI_THRESH .and. rad%fbeam(:,1).GE.C%RAD_THRESH  
   <div class="panel-heading codesum"><span class="anchor" id="proc-radiation"></span><h3>public subroutine <a href='../proc/radiation.html'>radiation</a>(ssnow, veg, air, met, rad, canopy)</h3></div>
   <div class="panel-body">
        
-<p>vh_js !!
-$            / (met%tk) * rad%extkd                              &amp;    ! MMY has this line instead ? -- rk4417</p><a href="../proc/radiation.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+<p>vh_js !!</p>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>

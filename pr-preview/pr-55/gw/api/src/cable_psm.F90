@@ -84,7 +84,7 @@ CONTAINS
 
     INTEGER :: i,j,k
 
-!!$    canopy%sublayer_dz(:) = 0.005   ! this line appears in MMY code but will leave commented for now -- rk4417
+!$    canopy%sublayer_dz(:) = 0.005   ! this line appears in MMY code but will leave commented for now -- rk4417
    
     IF (cable_user%litter) THEN
        litter_dz(:) = veg%clitt*0.003
@@ -92,12 +92,12 @@ CONTAINS
        litter_dz(:) = 0.0
     ENDIF
 
-!!$   litter_dz(:) = 0.0                ! this block replaces the if block above in MMY code -- rk4417
-!!$   if (cable_user%litter) then
-!!$      where (ssnow%isflag .eq. 0 .or. ssnow%snowd .le. 0.1)
-!!$         litter_dz(:) = veg%clitt*0.003
-!!$      endwhere
-!!$   endif
+!$   litter_dz(:) = 0.0                ! this block replaces the if block above in MMY code -- rk4417
+!$   if (cable_user%litter) then
+!$      where (ssnow%isflag .eq. 0 .or. ssnow%snowd .le. 0.1)
+!$         litter_dz(:) = veg%clitt*0.003
+!$      endwhere
+!$   endif
 
     
     pore_radius(:) = 0.148  / (1000.0*9.81*ABS(soil%sucs_vec(:,1))/1000.0)  !should replace 0.148 with surface tension, unit coversion, and angle
@@ -141,8 +141,8 @@ CONTAINS
           rel_s(i) = REAL( MAX(wb_liq(i)-soil%watr(i,1),0._r_2)/(soil%ssat_vec(i,1)-soil%watr(i,1)) )
           hk_zero(i) = MAX(0.001*soil%hyds_vec(i,1)*(MIN(MAX(rel_s(i),0.001_r_2),1._r_2)**(2._r_2*soil%bch_vec(i,1)+3._r_2) ),1e-8)
           hk_zero_sat(i) = MAX(0.001*soil%hyds_vec(i,1),1e-8)
-!!$          hk_zero(i) = max(0.001*soil%hyds_vec(i,1)*(min(max(rel_s(i),0.001_r_2),1._r_2)**(2._r_2*soil%bch_vec(i,1)+3._r_2) ),1e-12)
-!!$          hk_zero_sat(i) = max(0.001*soil%hyds_vec(i,1),1e-12)   ! 2 lines here replace ones above in MMY code -- rk4417
+!$          hk_zero(i) = max(0.001*soil%hyds_vec(i,1)*(min(max(rel_s(i),0.001_r_2),1._r_2)**(2._r_2*soil%bch_vec(i,1)+3._r_2) ),1e-12)
+!$          hk_zero_sat(i) = max(0.001*soil%hyds_vec(i,1),1e-12)   ! 2 lines here replace ones above in MMY code -- rk4417
 
           soil_moisture_mod(i)     = 1.0/(pi_r_2)/SQRT(wb_liq(i))* ( SQRT((pi_r_2)/(4.0*wb_liq(i)))-1.0)
           soil_moisture_mod_sat(i) = 1.0/(pi_r_2)/SQRT(soil%ssat_vec(i,1))* ( SQRT((pi_r_2)/(4.0*soil%ssat_vec(i,1)))-1.0)
@@ -161,19 +161,19 @@ CONTAINS
 
           END IF
 
-!!$          if (ssnow%isflag(i) .eq. 1 .or. (ssnow%snowd(i) .gt. 0.1) ) then
-!!$
-!!$             hk_zero(i)     = 1.0e15
-!!$             hk_zero_sat(i) = 1.0e15
-!!$             soil_moisture_mod(i)     = 0.0
-!!$             soil_moisture_mod_sat(i) = 0.0
-!!$             
-!!$          end if     ! this if block replaces one above in MMY code -- rk4417
+!$          if (ssnow%isflag(i) .eq. 1 .or. (ssnow%snowd(i) .gt. 0.1) ) then
+!$
+!$             hk_zero(i)     = 1.0e15
+!$             hk_zero_sat(i) = 1.0e15
+!$             soil_moisture_mod(i)     = 0.0
+!$             soil_moisture_mod_sat(i) = 0.0
+!$             
+!$          end if     ! this if block replaces one above in MMY code -- rk4417
 
-!!$       canopy%sublayer_dz(i) = canopy%sublayer_dz(i) + litter_dz(i)  ! line from above appears here in MMY code -- rk4417
+!$       canopy%sublayer_dz(i) = canopy%sublayer_dz(i) + litter_dz(i)  ! line from above appears here in MMY code -- rk4417
           
           IF (canopy%sublayer_dz(i) .GE. 1.0e-7) THEN
-!!$      if (canopy%sublayer_dz(i) .ge. 1.0e-7 .and. hk_zero(i) .lt. 1.0e14) then  ! line replaces above one in MMY code -- rk4417 
+!$      if (canopy%sublayer_dz(i) .ge. 1.0e-7 .and. hk_zero(i) .lt. 1.0e14) then  ! line replaces above one in MMY code -- rk4417 
              ssnow%rtevap_unsat(i) = MIN(rtevap_max, &
                   rough%z0soil(i)/canopy%sublayer_dz(i) * (lm/ (4.0*hk_zero(i)) +&
                   (canopy%sublayer_dz(i) + pore_size(i) * soil_moisture_mod(i)) / rt_Dff))
@@ -190,7 +190,7 @@ CONTAINS
                   lm/ (4.0*hk_zero_sat(i)) + (canopy%sublayer_dz(i) + pore_size(i) * soil_moisture_mod_sat(i)) / rt_Dff)
 
              ssnow%rt_qh_sublayer(i) = 0.0
-!!$             ssnow%rt_qh_sublayer(i) = canopy%sublayer_dz(i) / litter_thermal_diff  ! line replaces above one in MMY code -- rk4417 
+!$             ssnow%rt_qh_sublayer(i) = canopy%sublayer_dz(i) / litter_thermal_diff  ! line replaces above one in MMY code -- rk4417 
           END IF
 
        ELSE

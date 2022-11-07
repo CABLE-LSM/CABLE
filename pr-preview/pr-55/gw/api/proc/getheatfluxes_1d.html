@@ -123,16 +123,6 @@
     <h2>private subroutine getheatfluxes_1d(n, dx, dxL, qh, qhya, qhyb, qhTa, qhTb, var, vlit, T, TL, litter, q, qya, qyb, qTa, qTb, qadv, qadvya, qadvyb, qadvTa, qadvTb, advection)</h2>
     
 
-    <p>$                   if (q(i) &gt; zero) then
-$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
-$                    else
-$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
-$                    endif
-$                    qadv(i) = rhow<em>cswat</em>q(i)<em>(w</em>(T(i)+zero)+(one-w)<em>(T(i+1)+zero))
-$                    qadvya(i) =  rhow</em>cswat<em>qya(i)</em>(w<em>(T(i)+zero)+(one-w)</em>(T(i+1)+zero))
-$                    qadvyb(i) =  rhow<em>cswat</em>qyb(i)<em>(w</em>(T(i)+zero)+(one-w)<em>(T(i+1)+zero))
-$                    qadvTa(i) =  rhow</em>cswat<em>q(i)</em>w
-$                    qadvTb(i) =  rhow<em>cswat</em>q(i)*(one-w)</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

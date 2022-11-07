@@ -123,34 +123,6 @@
     <h2>public subroutine InitPOP2D_Poisson(POP, mean_disturbance_interval, m)</h2>
     
 
-    <p>$        ! set first disturbance year for first dist interval class
-$        idist = 1
-$        disturbance_interval = POP%pop_grid(g)%patch(1)%disturbance_interval(idist)
-$        DO c = 1,PATCH_REPS1
-$           tmp2(c) = max(disturbance_interval<em>c/(PATCH_REPS1),1)
-$        ENDDO
-$        DO c = 1,PATCH_REPS1
-$           i = 0
-$           DO j = 1,PATCH_REPS2
-$              ipatch = (j-1)</em>PATCH_REPS1 + c
-$              i = i+1
-$              IF (i.gt.PATCH_REPS1) then
-$                 i = 1
-$              ENDIF
-$              do while ((tmp2(i+1).eq. tmp2(i)).and.(i.lt.PATCH_REPS1))
-$                 i = i+1
-$                 IF (i.gt.PATCH_REPS1) then
-$                    i = 1
-$                 ENDIF
-$
-$              ENDDO
-$
-$
-$              write(<em>,</em>) i, tmp2(i)
-$              POP%pop_grid(g)%patch(ipatch)%first_disturbance_year(idist) = tmp2(i)
-$
-$           ENDDO
-$        ENDDO</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

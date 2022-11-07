@@ -123,25 +123,6 @@
     <h2>private subroutine countPatch(nlon, nlat, npatch)</h2>
     
 
-    <p>$          ! CLN added for npatches
-$       ELSE IF ( npatch .GT. 1 ) THEN
-$          landpt(kk)%nap = 0
-$          DO tt = 1, npatch
-$
-$             IF (inVeg(landpt(kk)%ilon,landpt(kk)%ilat,tt) &gt; 0) THEN
-$                landpt(kk)%nap = landpt(kk)%nap + 1
-$             ENDIF
-$          END DO
-$          ncount = ncount + landpt(kk)%nap
-$          landpt(kk)%cend = ncount
-$          IF (landpt(kk)%cend &lt; landpt(kk)%cstart) THEN
-$             PRINT <em>, 'Land point ', kk, ' does not have veg type!'
-$             PRINT </em>, 'landpt%cstart, cend = ', landpt(kk)%cstart, landpt(kk)%cend
-$             PRINT *, 'vegtype_metfile = ', vegtype_metfile(kk,:)
-$             STOP
-$          END IF
-$       ELSE</p>
-<p>$          replaced block above by below as per MMY code -- rk4417</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

@@ -123,19 +123,6 @@
     <h2>public subroutine LUC_EXPT_INIT(LUC_EXPT)</h2>
     
 
-    <p>$          STATUS = NF90_GET_VAR( Luc_expt%f_id(i), timID, tmp, &amp;
-$               start=(/1,1,1/) )
-$          CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )</p>
-<p>$The three lines above appear as below in MMY code with different factors -- rk4417
-$       LUC_EXPT%grass = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf)<em>2.0/3.0
-$       LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 1.0/3.0
-$       LUC_EXPT%secdf =  LUC_EXPT%secdf * 1.0/3.0
-$The two lines above appear as below in MMY code with different factors -- rk4417
-$          LUC_EXPT%grass = LUC_EXPT%primaryf</em>2.0/3.0
-$          LUC_EXPT%primaryf =  LUC_EXPT%primaryf * 1.0/3.0
-$    WHERE (LUC_EXPT%ivegp == 14)
-$       LUC_EXPT%prim_only = .TRUE.
-$    END WHERE</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

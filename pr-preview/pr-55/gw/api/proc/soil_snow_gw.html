@@ -135,54 +135,6 @@
     </div>
 
 
-    <p>$    USE cable_IO_vars_module, ONLY: wlogn        ! commented out by rk4417 as per MMY</p>
-<p>$    CALL point2constants( C )            ! commented out by rk4417 as per MMY</p>
-<p>$       soil%heat_cap_lower_limit(:,:) = 0.01  !never allow /0    ! replaced as per MMY -- rk4417
-$       ! after discussion with BP                                     ! block commented out by rk4417 as missing from MMY
-$       ! N.B. snmin should exceed sum of layer depths, i.e. .11 m     ! need to discuss with MMY
-$       ssnow%wbtot = 0.0
-$       ssnow%wb(:,:)  = MIN( soil%ssat_vec(:,:), MAX ( ssnow%wb(:,:), 0.5<em>soil%swilt_vec(:,:) ) )
-$
-$       DO k = 1, ms
-$
-$          WHERE( ssnow%tgg(:,k) &lt;= C%TFRZ .AND. ssnow%wbice(:,k) &lt;= 0.001</em>ssnow%wb(:,k) )   &amp;
-$               ssnow%wbice(:,k) = 0.5 * ssnow%wb(:,k)
-$
-$          !WHERE( ssnow%tgg(:,k) &lt; C%TFRZ)                                    &amp;
-$          !   ssnow%wbice(:,k) = 0.8 * ssnow%wb(:,k)
-$
-$       END DO
-$
-$       WHERE ( soil%isoilm .EQ. 9)! .and. ssnow%snowd .le. 0.1*max_glacier_snowd)
-$
-$          ! permanent ice: fix hard-wired number in next version
-$          ssnow%snowd = max_glacier_snowd
-$          ssnow%osnowd = max_glacier_snowd
-$          ssnow%tgg(:,1) = ssnow%tgg(:,1) - 1.0
-$
-$       END WHERE
-$
-$       WHERE ( SPREAD(soil%isoilm,2,ms) .EQ. 9 )
-$
-$          ssnow%wb    = 0.95 * soil%ssat_vec
-$          ssnow%wbice = 0.95 * ssnow%wb
-$
-$       END WHERE</p>
-<p>$    tgg_old = ssnow%tgg     ! commented out by rk4417 as per MMY</p>
-<p>$          ssnow%wbliq(i,k) = ssnow%wb(i,k) - ssnow%wbice(i,k)                     !liquid volume    ! replaced as per MMY -- rk4417
-$          ssnow%wmice(i,k) = ssnow%wbice(i,k)<em>REAL(C%density_ice</em>soil%zse(k),r_2) !ice mass
-$          ssnow%wmliq(i,k) = ssnow%wbliq(i,k)<em>REAL(C%density_liq</em>soil%zse(k),r_2) !liquid mass
-$             ssnow%gammzz(i,1) = MAX(soil%heat_cap_lower_limit(i,1),&amp;      ! replaced as per MMY -- rk4417
-$                  (1.0-soil%ssat_vec(i,1))<em>&amp;
-$                  soil%css_vec(i,1) * soil%rhosoil_vec(i,1)  &amp;
-$                  &amp; + ssnow%wbliq(i,1) * C%cs_rho_wat           &amp;
-$                  &amp; + ssnow%wbice(i,1) * C%cs_rho_ice ) * soil%zse(1) +   &amp;
-$                  &amp; (1. - ssnow%isflag(i)) * C%cgsnow * ssnow%snowd(i)
-$       wbtot_ic(i)  = SUM(ssnow%wbliq(i,:)</em>C%density_liq<em>soil%zse(:),1) + &amp;     ! replaced as per MMY -- rk4417
-$            SUM(ssnow%wbice(i,:)</em>C%density_ice<em>soil%zse(:),1) + &amp;
-$            ssnow%GWwb(i)</em>soil%GWdz(i)*C%density_liq
-$    CALL snow_processes_soil_thermal(dels,ssnow,soil,veg,canopy,met,bal)  !  note that this line appears instead in MMY code -- rk4417  </p>
-<p>$    CALL  GWsoilfreeze(dels, soil, ssnow,tgg_old)  ! replaced as per MMY -- rk4417</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

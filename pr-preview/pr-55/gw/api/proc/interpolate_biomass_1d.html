@@ -123,19 +123,6 @@
     <h2>public subroutine INTERPOLATE_BIOMASS_1D(POP, disturbance_interval, it, g)</h2>
     
 
-    <p>$if (g==2) then
-$write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage), growth_age(iage),  stress_mort_age(iage), &amp;
-$ crowd_mort_age(iage), tmp_min, tmp_max, real(age_max_growth), real(age_min_growth)
-$endif</p>
-<p>$if (g==2) write(72, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
-$if (g==1) write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
-$if (it.gt.400) then
-$   write(<em>,</em>) 'it, nage', it, nage
-$   write(591, "(350e16.6)") freq_age
-$   write(601,"(350e16.6)") cmass_age
-$   write(602,"(350e16.6)") stress_mort_age
-$   write(603,"(350e16.6)") real(age)
-$endif</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

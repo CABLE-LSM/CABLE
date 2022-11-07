@@ -136,13 +136,6 @@
     </div>
 
 
-    <p>$ ! if anything went wrong the master will mpi_abort
-$ ! which mpi_recv below is going to catch...
-$ ! so, now receive all the parameters
-$ CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, 0, comm, stat, ierr)
-$
-$ ! finally free the MPI type
-$ CALL MPI_Type_Free (casa_dump_t, ierr)</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

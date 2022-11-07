@@ -136,7 +136,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <p>$  USE cable_common_module, ONLY : filename, cable_user  ! replaced line by below as per MMY -- rk4417</p>
+    
 <br>        <div class="panel panel-default">
       <div class="panel-heading">
   <h3 class="panel-title">Uses</h3>
@@ -144,11 +144,11 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
-    <li><a href='../module/cable_read_module.html'>cable_read_module</a></li>
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
     <li>netcdf</li>
     <li><a href='../module/cable_abort_module.html'>cable_abort_module</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+    <li><a href='../module/cable_read_module.html'>cable_read_module</a></li>
+    <li><a href='../module/cable_io_vars_module~2.html'>cable_IO_vars_module</a></li>
     <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
   </ul>
       </li>
@@ -262,13 +262,8 @@
   <div class="panel-body">
        
 <p>(BP Nov 2009)
-$    ok = NF90_INQ_VARID(ncid_rin,'GWwb',parID)   ! commented out by rk4417 as it appears below 
-$    IF(ok == NF90_NOERR) THEN                    ! in added block 
-$       CALL readpar(ncid_rin,'GWwb',dummy,ssnow%GWwb,filename%restart_in,            &amp;
-$            max_vegpatches,'def',from_restart,mp)
-$    ELSE
-$       ssnow%GWwb = 0.95*soil%ssat
-$    END IF</p><a href="../proc/get_restart_data.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+getting rid of spurious veg types in Antarctica from the CCAM2Mk3L process
+Doing it once will fix the problem in the restart file in subsequent runs</p><a href="../proc/get_restart_data.html" class="pull-right"><emph>Read more&hellip;</emph></a>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>

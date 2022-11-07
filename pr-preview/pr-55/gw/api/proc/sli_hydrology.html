@@ -123,13 +123,6 @@
     <h2>public subroutine sli_hydrology(dels, ssnow, soil, veg, canopy)</h2>
     
 
-    <p>$    dzmm = REAL(soil%zse(:),r_2)<em>1000._r_2       ! replaced by rk4417 as per MMY
-$
-$    CALL subsurface_drainage(ssnow,soil,veg,dzmm)
-$
-$    zmm(:) = 1000._r_2</em>(SUM(REAL(soil%zse,r_2),dim=1))
-$    zaq(:) = zmm(:) + 0.5_r_2<em>soil%GWdz(:)</em>1000._r_2</p>
-<p>$    CALL aquifer_recharge(dels,ssnow,soil,veg,zaq,zmm,zmm)    ! replaced by rk4417 as per MMY</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

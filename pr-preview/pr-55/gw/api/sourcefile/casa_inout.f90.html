@@ -933,118 +933,118 @@
 <a id="ln-776" name="ln-776" href="#ln-776"></a><span class="k">    WHERE</span><span class="p">(</span><span class="n">casamet</span><span class="p">%</span><span class="n">lnonwood</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">casapool</span><span class="p">%</span><span class="n">cplant</span><span class="p">(:,</span><span class="n">WOOD</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="w"></span>
 <a id="ln-777" name="ln-777" href="#ln-777"></a><span class="w">    </span><span class="k">WHERE</span><span class="p">(</span><span class="n">casamet</span><span class="p">%</span><span class="n">lnonwood</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">casapool</span><span class="p">%</span><span class="n">nplant</span><span class="p">(:,</span><span class="n">WOOD</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="w"></span>
 <a id="ln-778" name="ln-778" href="#ln-778"></a><span class="w">    </span><span class="k">WHERE</span><span class="p">(</span><span class="n">casamet</span><span class="p">%</span><span class="n">lnonwood</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">casapool</span><span class="p">%</span><span class="n">pplant</span><span class="p">(:,</span><span class="n">WOOD</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="w"></span>
-<a id="ln-779" name="ln-779" href="#ln-779"></a><span class="c">!!$IF (initcasa==1) THEN</span>
-<a id="ln-780" name="ln-780" href="#ln-780"></a><span class="c">!!$     INQUIRE( FILE=TRIM(casafile%cnpipool), EXIST=EXRST )</span>
-<a id="ln-781" name="ln-781" href="#ln-781"></a><span class="c">!!$!! vh_js!!</span>
-<a id="ln-782" name="ln-782" href="#ln-782"></a><span class="c">!!$     IF ( EXRST ) THEN</span>
-<a id="ln-783" name="ln-783" href="#ln-783"></a><span class="c">!!$</span>
-<a id="ln-784" name="ln-784" href="#ln-784"></a><span class="c">!!$           PRINT*, &#39; Reading cnppoolOutfile as input: ,&#39;,casafile%cnpipool</span>
-<a id="ln-785" name="ln-785" href="#ln-785"></a><span class="c">!!$</span>
-<a id="ln-786" name="ln-786" href="#ln-786"></a><span class="c">!!$    OPEN(99,file=casafile%cnpipool)</span>
-<a id="ln-787" name="ln-787" href="#ln-787"></a><span class="c">!!$</span>
-<a id="ln-788" name="ln-788" href="#ln-788"></a><span class="c">!!$    DO npt =1, mp</span>
-<a id="ln-789" name="ln-789" href="#ln-789"></a><span class="c">!!$       SELECT CASE(icycle)</span>
-<a id="ln-790" name="ln-790" href="#ln-790"></a><span class="c">!!$       CASE(1)</span>
-<a id="ln-791" name="ln-791" href="#ln-791"></a><span class="c">!!$          !! vh_js !!</span>
-<a id="ln-792" name="ln-792" href="#ln-792"></a><span class="c">!!$          IF (cable_user%CALL_POP) THEN</span>
-<a id="ln-793" name="ln-793" href="#ln-793"></a><span class="c">!!$</span>
-<a id="ln-794" name="ln-794" href="#ln-794"></a><span class="c">!!$             READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &amp;</span>
-<a id="ln-795" name="ln-795" href="#ln-795"></a><span class="c">!!$                  casamet%glai(npt),slaz,phen%phase(npt) , &amp;</span>
-<a id="ln-796" name="ln-796" href="#ln-796"></a><span class="c">!!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &amp;</span>
-<a id="ln-797" name="ln-797" href="#ln-797"></a><span class="c">!!$                  casapool%clabile(npt) ,casapool%cplant(npt,:) ,  &amp;</span>
-<a id="ln-798" name="ln-798" href="#ln-798"></a><span class="c">!!$                  casapool%clitter(npt,:),casapool%csoil(npt,:), &amp;</span>
-<a id="ln-799" name="ln-799" href="#ln-799"></a><span class="c">!!$                  casaflux%frac_sapwood(npt), casaflux%sapwood_area(npt)</span>
-<a id="ln-800" name="ln-800" href="#ln-800"></a><span class="c">!!$</span>
-<a id="ln-801" name="ln-801" href="#ln-801"></a><span class="c">!!$</span>
-<a id="ln-802" name="ln-802" href="#ln-802"></a><span class="c">!!$             ELSE</span>
-<a id="ln-803" name="ln-803" href="#ln-803"></a><span class="c">!!$              READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &amp;</span>
-<a id="ln-804" name="ln-804" href="#ln-804"></a><span class="c">!!$                  casamet%glai(npt),slaz,phen%phase(npt) , &amp;</span>
-<a id="ln-805" name="ln-805" href="#ln-805"></a><span class="c">!!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &amp;</span>
-<a id="ln-806" name="ln-806" href="#ln-806"></a><span class="c">!!$                  casapool%clabile(npt) ,casapool%cplant(npt,:) ,  &amp;</span>
-<a id="ln-807" name="ln-807" href="#ln-807"></a><span class="c">!!$                  casapool%clitter(npt,:),casapool%csoil(npt,:)</span>
-<a id="ln-808" name="ln-808" href="#ln-808"></a><span class="c">!!$             casaflux%frac_sapwood(:) = 1.0</span>
-<a id="ln-809" name="ln-809" href="#ln-809"></a><span class="c">!!$             casaflux%sapwood_area(:) = 0.0</span>
-<a id="ln-810" name="ln-810" href="#ln-810"></a><span class="c">!!$          ENDIF</span>
-<a id="ln-811" name="ln-811" href="#ln-811"></a><span class="c">!!$</span>
-<a id="ln-812" name="ln-812" href="#ln-812"></a><span class="c">!!$</span>
-<a id="ln-813" name="ln-813" href="#ln-813"></a><span class="c">!!$       CASE(2)</span>
-<a id="ln-814" name="ln-814" href="#ln-814"></a><span class="c">!!$!! vh_js !!</span>
-<a id="ln-815" name="ln-815" href="#ln-815"></a><span class="c">!!$          IF (cable_user%CALL_POP) THEN</span>
-<a id="ln-816" name="ln-816" href="#ln-816"></a><span class="c">!!$             READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &amp;</span>
-<a id="ln-817" name="ln-817" href="#ln-817"></a><span class="c">!!$                  casamet%glai(npt),slaz,phen%phase(npt), &amp;</span>
-<a id="ln-818" name="ln-818" href="#ln-818"></a><span class="c">!!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &amp;</span>
-<a id="ln-819" name="ln-819" href="#ln-819"></a><span class="c">!!$                  casapool%clabile(npt),casapool%cplant(npt,:),   &amp;</span>
-<a id="ln-820" name="ln-820" href="#ln-820"></a><span class="c">!!$                  casapool%clitter(npt,:),casapool%csoil(npt,:),       &amp;</span>
-<a id="ln-821" name="ln-821" href="#ln-821"></a><span class="c">!!$                  casaflux%frac_sapwood(npt), casaflux%sapwood_area(npt), &amp;</span>
-<a id="ln-822" name="ln-822" href="#ln-822"></a><span class="c">!!$                  casapool%nplant(npt,:),casapool%nlitter(npt,:),      &amp;</span>
-<a id="ln-823" name="ln-823" href="#ln-823"></a><span class="c">!!$                  casapool%nsoil(npt,:),casapool%nsoilmin(npt)</span>
-<a id="ln-824" name="ln-824" href="#ln-824"></a><span class="c">!!$</span>
-<a id="ln-825" name="ln-825" href="#ln-825"></a><span class="c">!!$          ELSE</span>
-<a id="ln-826" name="ln-826" href="#ln-826"></a><span class="c">!!$             READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &amp;</span>
-<a id="ln-827" name="ln-827" href="#ln-827"></a><span class="c">!!$                  casamet%glai(npt),slaz,phen%phase(npt), &amp;</span>
-<a id="ln-828" name="ln-828" href="#ln-828"></a><span class="c">!!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &amp;</span>
-<a id="ln-829" name="ln-829" href="#ln-829"></a><span class="c">!!$                  casapool%clabile(npt),casapool%cplant(npt,:),   &amp;</span>
-<a id="ln-830" name="ln-830" href="#ln-830"></a><span class="c">!!$                  casapool%clitter(npt,:),casapool%csoil(npt,:),       &amp;</span>
-<a id="ln-831" name="ln-831" href="#ln-831"></a><span class="c">!!$                  casapool%nplant(npt,:),casapool%nlitter(npt,:),      &amp;</span>
-<a id="ln-832" name="ln-832" href="#ln-832"></a><span class="c">!!$                  casapool%nsoil(npt,:),casapool%nsoilmin(npt)</span>
-<a id="ln-833" name="ln-833" href="#ln-833"></a><span class="c">!!$             casaflux%frac_sapwood(:) = 1.0</span>
-<a id="ln-834" name="ln-834" href="#ln-834"></a><span class="c">!!$             casaflux%sapwood_area(:) = 0.0</span>
-<a id="ln-835" name="ln-835" href="#ln-835"></a><span class="c">!!$</span>
-<a id="ln-836" name="ln-836" href="#ln-836"></a><span class="c">!!$          ENDIF</span>
-<a id="ln-837" name="ln-837" href="#ln-837"></a><span class="c">!!$       CASE(3)</span>
-<a id="ln-838" name="ln-838" href="#ln-838"></a><span class="c">!!$!! vh_js !!</span>
-<a id="ln-839" name="ln-839" href="#ln-839"></a><span class="c">!!$          IF (cable_user%CALL_POP) THEN</span>
-<a id="ln-840" name="ln-840" href="#ln-840"></a><span class="c">!!$             READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &amp;</span>
-<a id="ln-841" name="ln-841" href="#ln-841"></a><span class="c">!!$                  casamet%glai(npt),slaz,phen%phase(npt), &amp;</span>
-<a id="ln-842" name="ln-842" href="#ln-842"></a><span class="c">!!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &amp;</span>
-<a id="ln-843" name="ln-843" href="#ln-843"></a><span class="c">!!$                  casapool%clabile(npt),casapool%cplant(npt,:),   &amp;</span>
-<a id="ln-844" name="ln-844" href="#ln-844"></a><span class="c">!!$                  casapool%clitter(npt,:),casapool%csoil(npt,:),       &amp;</span>
-<a id="ln-845" name="ln-845" href="#ln-845"></a><span class="c">!!$                  casaflux%frac_sapwood(npt), casaflux%sapwood_area(npt), &amp;</span>
-<a id="ln-846" name="ln-846" href="#ln-846"></a><span class="c">!!$                  casapool%nplant(npt,:),casapool%nlitter(npt,:),      &amp;</span>
-<a id="ln-847" name="ln-847" href="#ln-847"></a><span class="c">!!$                  casapool%nsoil(npt,:),casapool%nsoilmin(npt),        &amp;</span>
-<a id="ln-848" name="ln-848" href="#ln-848"></a><span class="c">!!$                  casapool%pplant(npt,:),casapool%plitter(npt,:),      &amp;</span>
-<a id="ln-849" name="ln-849" href="#ln-849"></a><span class="c">!!$                  casapool%psoil(npt,:),casapool%psoillab(npt),        &amp;</span>
-<a id="ln-850" name="ln-850" href="#ln-850"></a><span class="c">!!$                  casapool%psoilsorb(npt),casapool%psoilocc(npt)</span>
-<a id="ln-851" name="ln-851" href="#ln-851"></a><span class="c">!!$          ELSE</span>
-<a id="ln-852" name="ln-852" href="#ln-852"></a><span class="c">!!$             READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &amp;</span>
-<a id="ln-853" name="ln-853" href="#ln-853"></a><span class="c">!!$                  casamet%glai(npt),slaz,phen%phase(npt), &amp;</span>
-<a id="ln-854" name="ln-854" href="#ln-854"></a><span class="c">!!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &amp;</span>
-<a id="ln-855" name="ln-855" href="#ln-855"></a><span class="c">!!$                  casapool%clabile(npt),casapool%cplant(npt,:),   &amp;</span>
-<a id="ln-856" name="ln-856" href="#ln-856"></a><span class="c">!!$                  casapool%clitter(npt,:),casapool%csoil(npt,:),       &amp;</span>
-<a id="ln-857" name="ln-857" href="#ln-857"></a><span class="c">!!$                  casapool%nplant(npt,:),casapool%nlitter(npt,:),      &amp;</span>
-<a id="ln-858" name="ln-858" href="#ln-858"></a><span class="c">!!$                  casapool%nsoil(npt,:),casapool%nsoilmin(npt),        &amp;</span>
-<a id="ln-859" name="ln-859" href="#ln-859"></a><span class="c">!!$                  casapool%pplant(npt,:),casapool%plitter(npt,:),      &amp;</span>
-<a id="ln-860" name="ln-860" href="#ln-860"></a><span class="c">!!$                  casapool%psoil(npt,:),casapool%psoillab(npt),        &amp;</span>
-<a id="ln-861" name="ln-861" href="#ln-861"></a><span class="c">!!$                  casapool%psoilsorb(npt),casapool%psoilocc(npt)</span>
-<a id="ln-862" name="ln-862" href="#ln-862"></a><span class="c">!!$             casaflux%frac_sapwood(:) = 1.0</span>
-<a id="ln-863" name="ln-863" href="#ln-863"></a><span class="c">!!$             casaflux%sapwood_area(:) = 0.0</span>
-<a id="ln-864" name="ln-864" href="#ln-864"></a><span class="c">!!$</span>
-<a id="ln-865" name="ln-865" href="#ln-865"></a><span class="c">!!$</span>
-<a id="ln-866" name="ln-866" href="#ln-866"></a><span class="c">!!$          ENDIF</span>
-<a id="ln-867" name="ln-867" href="#ln-867"></a><span class="c">!!$       END SELECT</span>
-<a id="ln-868" name="ln-868" href="#ln-868"></a><span class="c">!!$       IF (ABS(patch(npt)%longitude - lonz) &gt; 0.9 .OR. &amp;</span>
-<a id="ln-869" name="ln-869" href="#ln-869"></a><span class="c">!!$            ABS(patch(npt)%latitude  - latz) &gt; 0.9) THEN</span>
-<a id="ln-870" name="ln-870" href="#ln-870"></a><span class="c">!!$          PRINT *, &#39;patch(npt)%longitude, lonz:&#39;, patch(npt)%longitude, lonz</span>
-<a id="ln-871" name="ln-871" href="#ln-871"></a><span class="c">!!$          PRINT *, &#39;patch(npt)%latitude,  latz:&#39;, patch(npt)%latitude,  latz</span>
-<a id="ln-872" name="ln-872" href="#ln-872"></a><span class="c">!!$          PRINT *, &#39;npt = &#39;, npt</span>
-<a id="ln-873" name="ln-873" href="#ln-873"></a><span class="c">!!$          STOP</span>
-<a id="ln-874" name="ln-874" href="#ln-874"></a><span class="c">!!$       ENDIF</span>
-<a id="ln-875" name="ln-875" href="#ln-875"></a><span class="c">!!$    ENDDO</span>
-<a id="ln-876" name="ln-876" href="#ln-876"></a><span class="c">!!$    CLOSE(99)</span>
-<a id="ln-877" name="ln-877" href="#ln-877"></a><span class="c">!!$</span>
-<a id="ln-878" name="ln-878" href="#ln-878"></a><span class="c">!!$</span>
-<a id="ln-879" name="ln-879" href="#ln-879"></a><span class="c">!!$ ELSE</span>
-<a id="ln-880" name="ln-880" href="#ln-880"></a><span class="c">!!$ !! vh_js !!</span>
-<a id="ln-881" name="ln-881" href="#ln-881"></a><span class="c">!!$    WRITE(*,*)&#39;No valid restart file for casa_init found.&#39;</span>
-<a id="ln-882" name="ln-882" href="#ln-882"></a><span class="c">!!$    WRITE(*,*)&#39;Using input from readbiome.!!!&#39;</span>
-<a id="ln-883" name="ln-883" href="#ln-883"></a><span class="c">!!$    WRITE(*,*) &#39;initialising frac_sapwood=1 and sapwood_area = 0)&#39;</span>
-<a id="ln-884" name="ln-884" href="#ln-884"></a><span class="c">!!$    casaflux%frac_sapwood(:) = 1.0</span>
-<a id="ln-885" name="ln-885" href="#ln-885"></a><span class="c">!!$    casaflux%sapwood_area(:) = 0.0</span>
-<a id="ln-886" name="ln-886" href="#ln-886"></a><span class="c">!!$</span>
-<a id="ln-887" name="ln-887" href="#ln-887"></a><span class="c">!!$</span>
-<a id="ln-888" name="ln-888" href="#ln-888"></a><span class="c">!!$ ENDIF  ! IF (EXRST)</span>
+<a id="ln-779" name="ln-779" href="#ln-779"></a><span class="c">!$IF (initcasa==1) THEN</span>
+<a id="ln-780" name="ln-780" href="#ln-780"></a><span class="c">!$     INQUIRE( FILE=TRIM(casafile%cnpipool), EXIST=EXRST )</span>
+<a id="ln-781" name="ln-781" href="#ln-781"></a><span class="c">!$!! vh_js!!</span>
+<a id="ln-782" name="ln-782" href="#ln-782"></a><span class="c">!$     IF ( EXRST ) THEN</span>
+<a id="ln-783" name="ln-783" href="#ln-783"></a><span class="c">!$</span>
+<a id="ln-784" name="ln-784" href="#ln-784"></a><span class="c">!$           PRINT*, &#39; Reading cnppoolOutfile as input: ,&#39;,casafile%cnpipool</span>
+<a id="ln-785" name="ln-785" href="#ln-785"></a><span class="c">!$</span>
+<a id="ln-786" name="ln-786" href="#ln-786"></a><span class="c">!$    OPEN(99,file=casafile%cnpipool)</span>
+<a id="ln-787" name="ln-787" href="#ln-787"></a><span class="c">!$</span>
+<a id="ln-788" name="ln-788" href="#ln-788"></a><span class="c">!$    DO npt =1, mp</span>
+<a id="ln-789" name="ln-789" href="#ln-789"></a><span class="c">!$       SELECT CASE(icycle)</span>
+<a id="ln-790" name="ln-790" href="#ln-790"></a><span class="c">!$       CASE(1)</span>
+<a id="ln-791" name="ln-791" href="#ln-791"></a><span class="c">!$          !! vh_js !!</span>
+<a id="ln-792" name="ln-792" href="#ln-792"></a><span class="c">!$          IF (cable_user%CALL_POP) THEN</span>
+<a id="ln-793" name="ln-793" href="#ln-793"></a><span class="c">!$</span>
+<a id="ln-794" name="ln-794" href="#ln-794"></a><span class="c">!$             READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &amp;</span>
+<a id="ln-795" name="ln-795" href="#ln-795"></a><span class="c">!$                  casamet%glai(npt),slaz,phen%phase(npt) , &amp;</span>
+<a id="ln-796" name="ln-796" href="#ln-796"></a><span class="c">!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &amp;</span>
+<a id="ln-797" name="ln-797" href="#ln-797"></a><span class="c">!$                  casapool%clabile(npt) ,casapool%cplant(npt,:) ,  &amp;</span>
+<a id="ln-798" name="ln-798" href="#ln-798"></a><span class="c">!$                  casapool%clitter(npt,:),casapool%csoil(npt,:), &amp;</span>
+<a id="ln-799" name="ln-799" href="#ln-799"></a><span class="c">!$                  casaflux%frac_sapwood(npt), casaflux%sapwood_area(npt)</span>
+<a id="ln-800" name="ln-800" href="#ln-800"></a><span class="c">!$</span>
+<a id="ln-801" name="ln-801" href="#ln-801"></a><span class="c">!$</span>
+<a id="ln-802" name="ln-802" href="#ln-802"></a><span class="c">!$             ELSE</span>
+<a id="ln-803" name="ln-803" href="#ln-803"></a><span class="c">!$              READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &amp;</span>
+<a id="ln-804" name="ln-804" href="#ln-804"></a><span class="c">!$                  casamet%glai(npt),slaz,phen%phase(npt) , &amp;</span>
+<a id="ln-805" name="ln-805" href="#ln-805"></a><span class="c">!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &amp;</span>
+<a id="ln-806" name="ln-806" href="#ln-806"></a><span class="c">!$                  casapool%clabile(npt) ,casapool%cplant(npt,:) ,  &amp;</span>
+<a id="ln-807" name="ln-807" href="#ln-807"></a><span class="c">!$                  casapool%clitter(npt,:),casapool%csoil(npt,:)</span>
+<a id="ln-808" name="ln-808" href="#ln-808"></a><span class="c">!$             casaflux%frac_sapwood(:) = 1.0</span>
+<a id="ln-809" name="ln-809" href="#ln-809"></a><span class="c">!$             casaflux%sapwood_area(:) = 0.0</span>
+<a id="ln-810" name="ln-810" href="#ln-810"></a><span class="c">!$          ENDIF</span>
+<a id="ln-811" name="ln-811" href="#ln-811"></a><span class="c">!$</span>
+<a id="ln-812" name="ln-812" href="#ln-812"></a><span class="c">!$</span>
+<a id="ln-813" name="ln-813" href="#ln-813"></a><span class="c">!$       CASE(2)</span>
+<a id="ln-814" name="ln-814" href="#ln-814"></a><span class="c">!$!! vh_js !!</span>
+<a id="ln-815" name="ln-815" href="#ln-815"></a><span class="c">!$          IF (cable_user%CALL_POP) THEN</span>
+<a id="ln-816" name="ln-816" href="#ln-816"></a><span class="c">!$             READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &amp;</span>
+<a id="ln-817" name="ln-817" href="#ln-817"></a><span class="c">!$                  casamet%glai(npt),slaz,phen%phase(npt), &amp;</span>
+<a id="ln-818" name="ln-818" href="#ln-818"></a><span class="c">!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &amp;</span>
+<a id="ln-819" name="ln-819" href="#ln-819"></a><span class="c">!$                  casapool%clabile(npt),casapool%cplant(npt,:),   &amp;</span>
+<a id="ln-820" name="ln-820" href="#ln-820"></a><span class="c">!$                  casapool%clitter(npt,:),casapool%csoil(npt,:),       &amp;</span>
+<a id="ln-821" name="ln-821" href="#ln-821"></a><span class="c">!$                  casaflux%frac_sapwood(npt), casaflux%sapwood_area(npt), &amp;</span>
+<a id="ln-822" name="ln-822" href="#ln-822"></a><span class="c">!$                  casapool%nplant(npt,:),casapool%nlitter(npt,:),      &amp;</span>
+<a id="ln-823" name="ln-823" href="#ln-823"></a><span class="c">!$                  casapool%nsoil(npt,:),casapool%nsoilmin(npt)</span>
+<a id="ln-824" name="ln-824" href="#ln-824"></a><span class="c">!$</span>
+<a id="ln-825" name="ln-825" href="#ln-825"></a><span class="c">!$          ELSE</span>
+<a id="ln-826" name="ln-826" href="#ln-826"></a><span class="c">!$             READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &amp;</span>
+<a id="ln-827" name="ln-827" href="#ln-827"></a><span class="c">!$                  casamet%glai(npt),slaz,phen%phase(npt), &amp;</span>
+<a id="ln-828" name="ln-828" href="#ln-828"></a><span class="c">!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &amp;</span>
+<a id="ln-829" name="ln-829" href="#ln-829"></a><span class="c">!$                  casapool%clabile(npt),casapool%cplant(npt,:),   &amp;</span>
+<a id="ln-830" name="ln-830" href="#ln-830"></a><span class="c">!$                  casapool%clitter(npt,:),casapool%csoil(npt,:),       &amp;</span>
+<a id="ln-831" name="ln-831" href="#ln-831"></a><span class="c">!$                  casapool%nplant(npt,:),casapool%nlitter(npt,:),      &amp;</span>
+<a id="ln-832" name="ln-832" href="#ln-832"></a><span class="c">!$                  casapool%nsoil(npt,:),casapool%nsoilmin(npt)</span>
+<a id="ln-833" name="ln-833" href="#ln-833"></a><span class="c">!$             casaflux%frac_sapwood(:) = 1.0</span>
+<a id="ln-834" name="ln-834" href="#ln-834"></a><span class="c">!$             casaflux%sapwood_area(:) = 0.0</span>
+<a id="ln-835" name="ln-835" href="#ln-835"></a><span class="c">!$</span>
+<a id="ln-836" name="ln-836" href="#ln-836"></a><span class="c">!$          ENDIF</span>
+<a id="ln-837" name="ln-837" href="#ln-837"></a><span class="c">!$       CASE(3)</span>
+<a id="ln-838" name="ln-838" href="#ln-838"></a><span class="c">!$!! vh_js !!</span>
+<a id="ln-839" name="ln-839" href="#ln-839"></a><span class="c">!$          IF (cable_user%CALL_POP) THEN</span>
+<a id="ln-840" name="ln-840" href="#ln-840"></a><span class="c">!$             READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &amp;</span>
+<a id="ln-841" name="ln-841" href="#ln-841"></a><span class="c">!$                  casamet%glai(npt),slaz,phen%phase(npt), &amp;</span>
+<a id="ln-842" name="ln-842" href="#ln-842"></a><span class="c">!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &amp;</span>
+<a id="ln-843" name="ln-843" href="#ln-843"></a><span class="c">!$                  casapool%clabile(npt),casapool%cplant(npt,:),   &amp;</span>
+<a id="ln-844" name="ln-844" href="#ln-844"></a><span class="c">!$                  casapool%clitter(npt,:),casapool%csoil(npt,:),       &amp;</span>
+<a id="ln-845" name="ln-845" href="#ln-845"></a><span class="c">!$                  casaflux%frac_sapwood(npt), casaflux%sapwood_area(npt), &amp;</span>
+<a id="ln-846" name="ln-846" href="#ln-846"></a><span class="c">!$                  casapool%nplant(npt,:),casapool%nlitter(npt,:),      &amp;</span>
+<a id="ln-847" name="ln-847" href="#ln-847"></a><span class="c">!$                  casapool%nsoil(npt,:),casapool%nsoilmin(npt),        &amp;</span>
+<a id="ln-848" name="ln-848" href="#ln-848"></a><span class="c">!$                  casapool%pplant(npt,:),casapool%plitter(npt,:),      &amp;</span>
+<a id="ln-849" name="ln-849" href="#ln-849"></a><span class="c">!$                  casapool%psoil(npt,:),casapool%psoillab(npt),        &amp;</span>
+<a id="ln-850" name="ln-850" href="#ln-850"></a><span class="c">!$                  casapool%psoilsorb(npt),casapool%psoilocc(npt)</span>
+<a id="ln-851" name="ln-851" href="#ln-851"></a><span class="c">!$          ELSE</span>
+<a id="ln-852" name="ln-852" href="#ln-852"></a><span class="c">!$             READ(99,*) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &amp;</span>
+<a id="ln-853" name="ln-853" href="#ln-853"></a><span class="c">!$                  casamet%glai(npt),slaz,phen%phase(npt), &amp;</span>
+<a id="ln-854" name="ln-854" href="#ln-854"></a><span class="c">!$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &amp;</span>
+<a id="ln-855" name="ln-855" href="#ln-855"></a><span class="c">!$                  casapool%clabile(npt),casapool%cplant(npt,:),   &amp;</span>
+<a id="ln-856" name="ln-856" href="#ln-856"></a><span class="c">!$                  casapool%clitter(npt,:),casapool%csoil(npt,:),       &amp;</span>
+<a id="ln-857" name="ln-857" href="#ln-857"></a><span class="c">!$                  casapool%nplant(npt,:),casapool%nlitter(npt,:),      &amp;</span>
+<a id="ln-858" name="ln-858" href="#ln-858"></a><span class="c">!$                  casapool%nsoil(npt,:),casapool%nsoilmin(npt),        &amp;</span>
+<a id="ln-859" name="ln-859" href="#ln-859"></a><span class="c">!$                  casapool%pplant(npt,:),casapool%plitter(npt,:),      &amp;</span>
+<a id="ln-860" name="ln-860" href="#ln-860"></a><span class="c">!$                  casapool%psoil(npt,:),casapool%psoillab(npt),        &amp;</span>
+<a id="ln-861" name="ln-861" href="#ln-861"></a><span class="c">!$                  casapool%psoilsorb(npt),casapool%psoilocc(npt)</span>
+<a id="ln-862" name="ln-862" href="#ln-862"></a><span class="c">!$             casaflux%frac_sapwood(:) = 1.0</span>
+<a id="ln-863" name="ln-863" href="#ln-863"></a><span class="c">!$             casaflux%sapwood_area(:) = 0.0</span>
+<a id="ln-864" name="ln-864" href="#ln-864"></a><span class="c">!$</span>
+<a id="ln-865" name="ln-865" href="#ln-865"></a><span class="c">!$</span>
+<a id="ln-866" name="ln-866" href="#ln-866"></a><span class="c">!$          ENDIF</span>
+<a id="ln-867" name="ln-867" href="#ln-867"></a><span class="c">!$       END SELECT</span>
+<a id="ln-868" name="ln-868" href="#ln-868"></a><span class="c">!$       IF (ABS(patch(npt)%longitude - lonz) &gt; 0.9 .OR. &amp;</span>
+<a id="ln-869" name="ln-869" href="#ln-869"></a><span class="c">!$            ABS(patch(npt)%latitude  - latz) &gt; 0.9) THEN</span>
+<a id="ln-870" name="ln-870" href="#ln-870"></a><span class="c">!$          PRINT *, &#39;patch(npt)%longitude, lonz:&#39;, patch(npt)%longitude, lonz</span>
+<a id="ln-871" name="ln-871" href="#ln-871"></a><span class="c">!$          PRINT *, &#39;patch(npt)%latitude,  latz:&#39;, patch(npt)%latitude,  latz</span>
+<a id="ln-872" name="ln-872" href="#ln-872"></a><span class="c">!$          PRINT *, &#39;npt = &#39;, npt</span>
+<a id="ln-873" name="ln-873" href="#ln-873"></a><span class="c">!$          STOP</span>
+<a id="ln-874" name="ln-874" href="#ln-874"></a><span class="c">!$       ENDIF</span>
+<a id="ln-875" name="ln-875" href="#ln-875"></a><span class="c">!$    ENDDO</span>
+<a id="ln-876" name="ln-876" href="#ln-876"></a><span class="c">!$    CLOSE(99)</span>
+<a id="ln-877" name="ln-877" href="#ln-877"></a><span class="c">!$</span>
+<a id="ln-878" name="ln-878" href="#ln-878"></a><span class="c">!$</span>
+<a id="ln-879" name="ln-879" href="#ln-879"></a><span class="c">!$ ELSE</span>
+<a id="ln-880" name="ln-880" href="#ln-880"></a><span class="c">!$ !! vh_js !!</span>
+<a id="ln-881" name="ln-881" href="#ln-881"></a><span class="c">!$    WRITE(*,*)&#39;No valid restart file for casa_init found.&#39;</span>
+<a id="ln-882" name="ln-882" href="#ln-882"></a><span class="c">!$    WRITE(*,*)&#39;Using input from readbiome.!!!&#39;</span>
+<a id="ln-883" name="ln-883" href="#ln-883"></a><span class="c">!$    WRITE(*,*) &#39;initialising frac_sapwood=1 and sapwood_area = 0)&#39;</span>
+<a id="ln-884" name="ln-884" href="#ln-884"></a><span class="c">!$    casaflux%frac_sapwood(:) = 1.0</span>
+<a id="ln-885" name="ln-885" href="#ln-885"></a><span class="c">!$    casaflux%sapwood_area(:) = 0.0</span>
+<a id="ln-886" name="ln-886" href="#ln-886"></a><span class="c">!$</span>
+<a id="ln-887" name="ln-887" href="#ln-887"></a><span class="c">!$</span>
+<a id="ln-888" name="ln-888" href="#ln-888"></a><span class="c">!$ ENDIF  ! IF (EXRST)</span>
 <a id="ln-889" name="ln-889" href="#ln-889"></a>
-<a id="ln-890" name="ln-890" href="#ln-890"></a><span class="c">!!$ENDIF</span>
+<a id="ln-890" name="ln-890" href="#ln-890"></a><span class="c">!$ENDIF</span>
 <a id="ln-891" name="ln-891" href="#ln-891"></a><span class="w">    </span><span class="c">!92 format(5(i6,2x),5(f18.6,3x),2(i6,&#39;,&#39;,2x),&#39;,&#39;,2x,100(f18.6,3x))</span>
 <a id="ln-892" name="ln-892" href="#ln-892"></a><span class="mi">92</span><span class="w">  </span><span class="k">FORMAT</span><span class="p">(</span><span class="mi">5</span><span class="p">(</span><span class="n">i6</span><span class="p">,</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="mi">2</span><span class="n">x</span><span class="p">),</span><span class="mi">5</span><span class="p">(</span><span class="n">f18</span><span class="p">.</span><span class="mi">6</span><span class="p">,</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="mi">2</span><span class="n">x</span><span class="p">),</span><span class="mi">2</span><span class="p">(</span><span class="n">i6</span><span class="p">,</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="mi">2</span><span class="n">x</span><span class="p">),</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="mi">2</span><span class="n">x</span><span class="p">,</span><span class="mi">100</span><span class="p">(</span><span class="n">f18</span><span class="p">.</span><span class="mi">6</span><span class="p">,</span><span class="s1">&#39;,&#39;</span><span class="p">,</span><span class="mi">2</span><span class="n">x</span><span class="p">))</span><span class="w"></span>
 <a id="ln-893" name="ln-893" href="#ln-893"></a>
@@ -1568,18 +1568,18 @@
 <a id="ln-1411" name="ln-1411" href="#ln-1411"></a><span class="w">       </span><span class="k">ENDWHERE</span>
 <a id="ln-1412" name="ln-1412" href="#ln-1412"></a>
 <a id="ln-1413" name="ln-1413" href="#ln-1413"></a><span class="k">    ENDIF</span><span class="w"></span>
-<a id="ln-1414" name="ln-1414" href="#ln-1414"></a><span class="c">!!$if (idoy.eq.365) then</span>
-<a id="ln-1415" name="ln-1415" href="#ln-1415"></a><span class="c">!!$ write(667,*) pop%LU</span>
-<a id="ln-1416" name="ln-1416" href="#ln-1416"></a><span class="c">!!$ write(667,*) veg%ilu</span>
-<a id="ln-1417" name="ln-1417" href="#ln-1417"></a><span class="c">!!$ write(667,991) casaflux%FluxCtohwp(POP%Iwood,1)</span>
-<a id="ln-1418" name="ln-1418" href="#ln-1418"></a><span class="c">!!$ write(667,991) POP%pop_grid(:)%cat_mortality/POP%pop_grid(:)%cmass_sum_old</span>
-<a id="ln-1419" name="ln-1419" href="#ln-1419"></a><span class="c">!!$   write(667,991)max(min((POP%pop_grid(:)%cat_mortality                &amp;</span>
-<a id="ln-1420" name="ln-1420" href="#ln-1420"></a><span class="c">!!$        /POP%pop_grid(:)%cmass_sum_old),0.99),0.0)**(1.0/365.0)</span>
-<a id="ln-1421" name="ln-1421" href="#ln-1421"></a><span class="c">!!$   write(667,991) (1.0 - (1.0 -max( min((POP%pop_grid(:)%cat_mortality  &amp;</span>
-<a id="ln-1422" name="ln-1422" href="#ln-1422"></a><span class="c">!!$        /POP%pop_grid(:)%cmass_sum_old),0.99), 0.0))**(1.0/365.0))</span>
-<a id="ln-1423" name="ln-1423" href="#ln-1423"></a><span class="c">!!$write(667,*)</span>
-<a id="ln-1424" name="ln-1424" href="#ln-1424"></a><span class="c">!!$   endif</span>
-<a id="ln-1425" name="ln-1425" href="#ln-1425"></a><span class="c">!!$</span>
+<a id="ln-1414" name="ln-1414" href="#ln-1414"></a><span class="c">!$if (idoy.eq.365) then</span>
+<a id="ln-1415" name="ln-1415" href="#ln-1415"></a><span class="c">!$ write(667,*) pop%LU</span>
+<a id="ln-1416" name="ln-1416" href="#ln-1416"></a><span class="c">!$ write(667,*) veg%ilu</span>
+<a id="ln-1417" name="ln-1417" href="#ln-1417"></a><span class="c">!$ write(667,991) casaflux%FluxCtohwp(POP%Iwood,1)</span>
+<a id="ln-1418" name="ln-1418" href="#ln-1418"></a><span class="c">!$ write(667,991) POP%pop_grid(:)%cat_mortality/POP%pop_grid(:)%cmass_sum_old</span>
+<a id="ln-1419" name="ln-1419" href="#ln-1419"></a><span class="c">!$   write(667,991)max(min((POP%pop_grid(:)%cat_mortality                &amp;</span>
+<a id="ln-1420" name="ln-1420" href="#ln-1420"></a><span class="c">!$        /POP%pop_grid(:)%cmass_sum_old),0.99),0.0)**(1.0/365.0)</span>
+<a id="ln-1421" name="ln-1421" href="#ln-1421"></a><span class="c">!$   write(667,991) (1.0 - (1.0 -max( min((POP%pop_grid(:)%cat_mortality  &amp;</span>
+<a id="ln-1422" name="ln-1422" href="#ln-1422"></a><span class="c">!$        /POP%pop_grid(:)%cmass_sum_old),0.99), 0.0))**(1.0/365.0))</span>
+<a id="ln-1423" name="ln-1423" href="#ln-1423"></a><span class="c">!$write(667,*)</span>
+<a id="ln-1424" name="ln-1424" href="#ln-1424"></a><span class="c">!$   endif</span>
+<a id="ln-1425" name="ln-1425" href="#ln-1425"></a><span class="c">!$</span>
 <a id="ln-1426" name="ln-1426" href="#ln-1426"></a><span class="w">    </span><span class="c">!write(667,991) casaflux%cgpp(147),casaflux%cnpp(147),casaflux%kplant(147,2),casapool%cplant(147,:)</span>
 <a id="ln-1427" name="ln-1427" href="#ln-1427"></a><span class="w">    </span><span class="c">!  write(*,991)casaflux%cgpp(2058),casaflux%cnpp(2058),casaflux%fracClabile(2058), &amp;</span>
 <a id="ln-1428" name="ln-1428" href="#ln-1428"></a><span class="w">    </span><span class="c">!            casaflux%fracCalloc(2058,:),casaflux%crmplant(2058,:),casaflux%crgplant(2058), casapool%Nsoilmin(2058), &amp;</span>
@@ -1974,7 +1974,7 @@
 <a id="ln-1817" name="ln-1817" href="#ln-1817"></a><span class="w">    </span><span class="c">! TIME</span>
 <a id="ln-1818" name="ln-1818" href="#ln-1818"></a><span class="w">    </span><span class="n">STATUS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_GET_ATT</span><span class="p">(</span><span class="w"> </span><span class="n">FILE_ID</span><span class="p">,</span><span class="w"> </span><span class="n">NF90_GLOBAL</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Valid restart date&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">RSTDATE</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-1819" name="ln-1819" href="#ln-1819"></a><span class="w">    </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">STATUS</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">NF90_noerr</span><span class="p">)</span><span class="w"> </span><span class="k">CALL </span><span class="n">handle_err</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
-<a id="ln-1820" name="ln-1820" href="#ln-1820"></a><span class="c">!!$</span>
+<a id="ln-1820" name="ln-1820" href="#ln-1820"></a><span class="c">!$</span>
 <a id="ln-1821" name="ln-1821" href="#ln-1821"></a><span class="w">    </span><span class="k">WRITE</span><span class="p">(</span><span class="n">CYEAR</span><span class="p">,</span><span class="w"> </span><span class="n">FMT</span><span class="o">=</span><span class="s2">&quot;(I4)&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">CurYear</span><span class="w"></span>
 <a id="ln-1822" name="ln-1822" href="#ln-1822"></a><span class="w">    </span><span class="n">CDATE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;01/01/&#39;</span><span class="o">//</span><span class="n">CYEAR</span><span class="w"></span>
 <a id="ln-1823" name="ln-1823" href="#ln-1823"></a><span class="w">    </span><span class="c">! compare current year with restart year (only for non-site type met data)</span>

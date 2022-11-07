@@ -205,16 +205,16 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_luc_expt.html'>CABLE_LUC_EXPT</a></li>
-    <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-    <li><a href='../module/cable_pft_params_mod.html'>cable_pft_params_mod</a></li>
-    <li><a href='../module/casavariable.html'>casavariable</a></li>
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
-    <li><a href='../module/cable_soil_params_mod.html'>cable_soil_params_mod</a></li>
-    <li><a href='../module/phenvariable.html'>phenvariable</a></li>
-    <li><a href='../module/cable_abort_module.html'>cable_abort_module</a></li>
     <li><a href='../module/casadimension.html'>casadimension</a></li>
+    <li><a href='../module/cable_pft_params_mod.html'>cable_pft_params_mod</a></li>
+    <li><a href='../module/cable_abort_module.html'>cable_abort_module</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+    <li><a href='../module/phenvariable.html'>phenvariable</a></li>
+    <li><a href='../module/cable_luc_expt.html'>CABLE_LUC_EXPT</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+    <li><a href='../module/cable_io_vars_module~2.html'>cable_IO_vars_module</a></li>
+    <li><a href='../module/cable_soil_params_mod.html'>cable_soil_params_mod</a></li>
+    <li><a href='../module/casavariable.html'>casavariable</a></li>
   </ul>
       </li>
       </ul>
@@ -1337,26 +1337,7 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-countpatch"></span><h3>private subroutine <a href='../proc/countpatch.html'>countPatch</a>(nlon, nlat, npatch)</h3></div>
   <div class="panel-body">
-       
-<p>$          ! CLN added for npatches
-$       ELSE IF ( npatch .GT. 1 ) THEN
-$          landpt(kk)%nap = 0
-$          DO tt = 1, npatch
-$
-$             IF (inVeg(landpt(kk)%ilon,landpt(kk)%ilat,tt) &gt; 0) THEN
-$                landpt(kk)%nap = landpt(kk)%nap + 1
-$             ENDIF
-$          END DO
-$          ncount = ncount + landpt(kk)%nap
-$          landpt(kk)%cend = ncount
-$          IF (landpt(kk)%cend &lt; landpt(kk)%cstart) THEN
-$             PRINT <em>, 'Land point ', kk, ' does not have veg type!'
-$             PRINT </em>, 'landpt%cstart, cend = ', landpt(kk)%cstart, landpt(kk)%cend
-$             PRINT *, 'vegtype_metfile = ', vegtype_metfile(kk,:)
-$             STOP
-$          END IF
-$       ELSE</p><a href="../proc/countpatch.html" class="pull-right"><emph>Read more&hellip;</emph></a>
-    
+           
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -1390,8 +1371,7 @@ $       ELSE</p><a href="../proc/countpatch.html" class="pull-right"><emph>Read 
   <div class="panel-body">
        
 <p>vh_js !!
-$    canopy%sublayer_dz = 0.01  !could go into restart to ensure starting/stopping runs gives identical results
-$                                !however the impact is negligible</p><a href="../proc/write_default_params.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+vh_js !!</p><a href="../proc/write_default_params.html" class="pull-right"><emph>Read more&hellip;</emph></a>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
@@ -1576,15 +1556,7 @@ $                                !however the impact is negligible</p><a href=".
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-check_parameter_values"></span><h3>public subroutine <a href='../proc/check_parameter_values.html'>check_parameter_values</a>(soil, veg, ssnow)</h3></div>
   <div class="panel-body">
-       
-<p>$       IF(ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart + landpt(i)%nap   &amp;
-$            - 1)) &lt; 1 ) .OR. ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart  &amp;
-$            + landpt(i)%nap - 1)) &gt; mstype)) THEN
-$          WRITE(<em>,</em>) 'SUBROUTINE load_parameters:'
-$          WRITE(<em>,</em>) 'Land point number:',i
-$          CALL abort('Unknown soil type! Aborting.')
-$       END IF</p><a href="../proc/check_parameter_values.html" class="pull-right"><emph>Read more&hellip;</emph></a>
-    
+           
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>

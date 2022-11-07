@@ -158,9 +158,9 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+    <li><a href='../module/cable_io_vars_module~2.html'>cable_IO_vars_module</a></li>
     <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
-    <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
   </ul>
       </li>
       </ul>
@@ -296,14 +296,7 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-or_soil_evap_resistance"></span><h3>public subroutine <a href='../proc/or_soil_evap_resistance.html'>or_soil_evap_resistance</a>(soil, air, met, canopy, ssnow, veg, rough)</h3></div>
   <div class="panel-body">
-       
-<p>$   litter_dz(:) = 0.0                ! this block replaces the if block above in MMY code -- rk4417
-$   if (cable_user%litter) then
-$      where (ssnow%isflag .eq. 0 .or. ssnow%snowd .le. 0.1)
-$         litter_dz(:) = veg%clitt*0.003
-$      endwhere
-$   endif</p><a href="../proc/or_soil_evap_resistance.html" class="pull-right"><emph>Read more&hellip;</emph></a>
-    
+           
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>

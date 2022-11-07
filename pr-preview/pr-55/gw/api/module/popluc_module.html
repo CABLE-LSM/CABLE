@@ -178,15 +178,15 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_luc_expt.html'>CABLE_LUC_EXPT</a></li>
+    <li><a href='../module/pop_types.html'>POP_Types</a></li>
     <li><a href='../module/popluc_constants.html'>POPLUC_CONSTANTS</a></li>
     <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-    <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
-    <li><a href='../module/casavariable.html'>casavariable</a></li>
-    <li><a href='../module/popmodule.html'>POPModule</a></li>
     <li><a href='../module/popluc_types.html'>POPLUC_Types</a></li>
     <li><a href='../module/typedef.html'>TypeDef</a></li>
-    <li><a href='../module/pop_types.html'>POP_Types</a></li>
+    <li><a href='../module/cable_luc_expt.html'>CABLE_LUC_EXPT</a></li>
+    <li><a href='../module/cable_io_vars_module~2.html'>cable_IO_vars_module</a></li>
+    <li><a href='../module/popmodule.html'>POPModule</a></li>
+    <li><a href='../module/casavariable.html'>casavariable</a></li>
   </ul>
       </li>
       </ul>
@@ -646,18 +646,7 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-write_luc_output_nc"></span><h3>public subroutine <a href='../proc/write_luc_output_nc.html'>WRITE_LUC_OUTPUT_NC</a>(POPLUC, ctime, FINAL)</h3></div>
   <div class="panel-body">
-       
-<p>$
-$       DO i = 1, SIZE(A3)
-$          STATUS = NF90_def_var(FILE_ID,TRIM(A3(i)) ,NF90_FLOAT,(/land_ID,hist_ID,t_ID/),VID3(i))
-$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-$       END DO
-$
-$       DO i = 1, SIZE(A3)
-$          STATUS = NF90_def_var(FILE_ID,TRIM(AI3(i)) ,NF90_INT,(/land_ID,hist_ID,t_ID/),VIDI3(i))
-$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-$       END DO</p>
-    
+           
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>

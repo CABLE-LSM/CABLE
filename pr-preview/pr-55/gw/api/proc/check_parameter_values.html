@@ -123,14 +123,6 @@
     <h2>public subroutine check_parameter_values(soil, veg, ssnow)</h2>
     
 
-    <p>$       IF(ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart + landpt(i)%nap   &amp;
-$            - 1)) &lt; 1 ) .OR. ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart  &amp;
-$            + landpt(i)%nap - 1)) &gt; mstype)) THEN
-$          WRITE(<em>,</em>) 'SUBROUTINE load_parameters:'
-$          WRITE(<em>,</em>) 'Land point number:',i
-$          CALL abort('Unknown soil type! Aborting.')
-$       END IF</p>
-<p>$       replaced block above by below as per MMY code -- rk4417</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

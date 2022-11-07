@@ -123,25 +123,6 @@
     <h2>private subroutine iterative_wtd(ssnow, soil, veg, include_aquifer)</h2>
     
 
-    <p>$          total_depth_column(i) = zimm(ms) + soil%GWdz(i)<em>1000._r_2  ! replaced as per MMY -- rk4417
-$          def(i) = def(i) + MAX(0._r_2,soil%GWssat_vec(i)-ssnow%GWwb(i))</em>soil%GWdz(i)<em>1000._r_2
-$          total_depth_column(i) = soil%GWdz(i)</em>m2mm      ! MMY original -- rk4417
-$          def(i) = max(0._r_2,soil%GWssat_vec(i)-ssnow%GWwb(i))<em>soil%GWdz(i)</em>m2mm
-$          total_depth_column(i) = total_depth_column(i) + soil%zse_vec(i,k)<em>m2mm
-$ MAX(0._r_2,(soil%ssat_vec(i,k)-(ssnow%wbliq(i,k)+ssnow%wbice(i,k)))</em>dzmm_mp(i,k))  ! replaced as per MMY -- rk4417
-$max(0._r_2,(soil%ssat_vec(i,k)-(ssnow%wbliq(i,k)+den_rat<em>ssnow%wbice(i,k)))</em>soil%zse_vec(i,k)<em>m2mm) ! MMY original -- rk4417
-$       defc(i) = (soil%ssat_vec(i,ms))</em>(total_depth_column(i)+Nsucs_vec(i)/(1._r_2-invB(i))<em>            &amp;  ! replaced as per MMY -- rk4417
-$            (1._r_2-((Nsucs_vec(i)+total_depth_column(i))/Nsucs_vec(i))</em><em>(1._r_2-invB(i))))
-$       !initial guess at wtd                                 ! taken out of do loop as per MMY -- rk4417
-$       ssnow%wtd(:) = total_depth_column(:)</em>def(:)/defc(:)
-$                tempb   = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))<strong>(-invB(i))      ! replaced as per MMY -- rk4417
-$                tempb   = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))</strong>(1._r_2-invB(i))   ! replaced as per MMY -- rk4417
-$                     Nsucs_vec(i)/(1-invB(i))<em> &amp;                                ! replaced as per MMY -- rk4417
-$                tempa    = (ABS(tmpc/Nsucs_vec(i)))</em><em>(-invB(i))            ! replaced as per MMY -- rk4417
-$                tempb    = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))</em><em>(-invB(i))
-$ tempa    = (ABS((Nsucs_vec(i)+ssnow%wtd(i)-total_depth_column(i))/Nsucs_vec(i)))</em><em>(1._r_2-invB(i))   ! replaced as per MMY -- rk4417
-$ tempb    = (1._r_2+ssnow%wtd(i)/Nsucs_vec(i))</em><em>(1._r_2-invB(i))
-$                     Nsucs_vec(i)/(1._r_2-invB(i))</em>(tempa-tempb))-def(i)       ! replaced as per MMY -- rk4417</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
@@ -169,10 +150,7 @@ $                     Nsucs_vec(i)/(1._r_2-invB(i))</em>(tempa-tempb))-def(i)   
   <td><span class="anchor" id="variable-include_aquifer"></span>logical,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>include_aquifer</strong></td><td><p>$    REAL(r_2), DIMENSION(mp,ms)   :: dzmm_mp,tmp_def      ! commented out by rk4417 as per MMY
-$    REAL(r_2), DIMENSION(0:ms)    :: zimm
-$    REAL(r_2), DIMENSION(ms)      :: zmm
-$    REAL(r_2), DIMENSION(mp)      :: GWzimm,temp</p></td>
+  <td><strong>include_aquifer</strong></td><td></td>
 </tr>
 </tbody>
 </table>

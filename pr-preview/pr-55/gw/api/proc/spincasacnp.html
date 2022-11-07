@@ -127,18 +127,18 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/pop_types.html'>POP_Types</a></li>
+    <li><a href='../module/casadimension.html'>casadimension</a></li>
     <li><a href='../module/cable_carbon_module.html'>cable_carbon_module</a></li>
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
     <li><a href='../module/casavariable.html'>casavariable</a></li>
-    <li><a href='../module/popmodule.html'>POPModule</a></li>
-    <li><a href='../module/casa_inout_module.html'>casa_inout_module</a></li>
+    <li><a href='../module/pop_types.html'>POP_Types</a></li>
+    <li><a href='../module/casaparm.html'>casaparm</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
     <li><a href='../module/phenvariable.html'>phenvariable</a></li>
+    <li><a href='../module/casa_inout_module.html'>casa_inout_module</a></li>
     <li><a href='../module/typedef.html'>TypeDef</a></li>
     <li><a href='../module/casa_cable.html'>casa_cable</a></li>
-    <li><a href='../module/casadimension.html'>casadimension</a></li>
-    <li><a href='../module/casaparm.html'>casaparm</a></li>
+    <li><a href='../module/popmodule.html'>POPModule</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
   </ul>
       </li>
       </ul>
@@ -150,18 +150,10 @@
 CLN  OPEN(91, file=fcnpspin)
 CLN  read(91,*) myearspin
 CLN901  format(A99)
-$        WHERE(xkNlimiting .eq. 0)  !Chris Lu 4/June/2012
-$           xkNlimiting = 0.001
-$        END WHERE
 CLN    CLOSE(91)</p>
-<p>$  call totcnppools(1,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &amp;
-$       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)</p>
 <p>CLN  OPEN(91,file=fcnpspin)
 CLN  read(91,*)
 CLN      read(91,901) ncfile</p>
-<p>$  if(nloop&gt;=nloop1) &amp;
-$       call totcnppools(2+nloop-nloop1,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &amp;
-$       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

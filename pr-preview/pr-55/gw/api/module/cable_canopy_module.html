@@ -412,8 +412,7 @@
   <div class="panel-heading codesum"><span class="anchor" id="proc-define_canopy"></span><h3>public subroutine <a href='../proc/define_canopy.html'>define_canopy</a>(bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate)</h3></div>
   <div class="panel-body">
        
-<p>$    USE cable_gw_hydro_module, ONLY : pore_space_relative_humidity ! replaced as per MMY -- rk4417
- vh_js !!
+<p>vh_js !!
  vh_js !!</p><a href="../proc/define_canopy.html" class="pull-right"><emph>Read more&hellip;</emph></a>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
@@ -552,10 +551,7 @@
   <div class="panel-heading codesum"><span class="anchor" id="proc-dryleaf"></span><h3>private subroutine <a href='../proc/dryleaf.html'>dryLeaf</a>(dels, rad, rough, air, met, veg, canopy, soil, ssnow, dsx, fwsoil, tlfx, tlfy, ecy, hcy, rny, gbhu, gbhf, csx, cansat, ghwet, iter, climate)</h3></div>
   <div class="panel-body">
        
-<p>$                xleuning(i,1) = ( fwsoil(i) / ( csx(i,1) - co2cp3 ) )              &amp;
-$                     * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
-$                xleuning(i,2) = ( fwsoil(i) / ( csx(i,2) - co2cp3 ) )              &amp;
-$                     * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))</p><a href="../proc/dryleaf.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+<p>vh !! inserted min to avoid -ve values of GPP</p>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>

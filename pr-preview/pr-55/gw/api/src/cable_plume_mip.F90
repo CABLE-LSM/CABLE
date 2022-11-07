@@ -1049,14 +1049,14 @@ CONTAINS
 
 
 
-!!$write(*,*) "met", met%precip(1), &
-!!$met%precip_sn (is:ie)  , &
-!!$     met%fld       (is:ie), &
-!!$     met%fsd       (is:ie,1), &
-!!$     met%fsd       (is:ie,2), &
-!!$     met%tk        (is:ie) , &
-!!$     met%ua        (is:ie)  , &
-!!$     met%coszen    (is:ie)
+!$write(*,*) "met", met%precip(1), &
+!$met%precip_sn (is:ie)  , &
+!$     met%fld       (is:ie), &
+!$     met%fsd       (is:ie,1), &
+!$     met%fsd       (is:ie,2), &
+!$     met%tk        (is:ie) , &
+!$     met%ua        (is:ie)  , &
+!$     met%coszen    (is:ie)
 
     !CLN  IF ( ktau.EQ.1 ) &
     !CLN       WRITE(*,*)"#    qv       Precip   snow   LWDin  PhiLD   rPhiLD   PhiSD Temp     Wind     coszen"

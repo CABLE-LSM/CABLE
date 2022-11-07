@@ -646,34 +646,34 @@
 <a id="ln-479" name="ln-479" href="#ln-479"></a><span class="k">                   ENDDO</span>
 <a id="ln-480" name="ln-480" href="#ln-480"></a><span class="k">                ENDDO</span><span class="w"></span>
 <a id="ln-481" name="ln-481" href="#ln-481"></a>
-<a id="ln-482" name="ln-482" href="#ln-482"></a><span class="c">!!$        ! set first disturbance year for first dist interval class</span>
-<a id="ln-483" name="ln-483" href="#ln-483"></a><span class="c">!!$        idist = 1</span>
-<a id="ln-484" name="ln-484" href="#ln-484"></a><span class="c">!!$        disturbance_interval = POP%pop_grid(g)%patch(1)%disturbance_interval(idist)</span>
-<a id="ln-485" name="ln-485" href="#ln-485"></a><span class="c">!!$        DO c = 1,PATCH_REPS1</span>
-<a id="ln-486" name="ln-486" href="#ln-486"></a><span class="c">!!$           tmp2(c) = max(disturbance_interval*c/(PATCH_REPS1),1)</span>
-<a id="ln-487" name="ln-487" href="#ln-487"></a><span class="c">!!$        ENDDO</span>
-<a id="ln-488" name="ln-488" href="#ln-488"></a><span class="c">!!$        DO c = 1,PATCH_REPS1</span>
-<a id="ln-489" name="ln-489" href="#ln-489"></a><span class="c">!!$           i = 0</span>
-<a id="ln-490" name="ln-490" href="#ln-490"></a><span class="c">!!$           DO j = 1,PATCH_REPS2</span>
-<a id="ln-491" name="ln-491" href="#ln-491"></a><span class="c">!!$              ipatch = (j-1)*PATCH_REPS1 + c</span>
-<a id="ln-492" name="ln-492" href="#ln-492"></a><span class="c">!!$              i = i+1</span>
-<a id="ln-493" name="ln-493" href="#ln-493"></a><span class="c">!!$              IF (i.gt.PATCH_REPS1) then</span>
-<a id="ln-494" name="ln-494" href="#ln-494"></a><span class="c">!!$                 i = 1</span>
-<a id="ln-495" name="ln-495" href="#ln-495"></a><span class="c">!!$              ENDIF</span>
-<a id="ln-496" name="ln-496" href="#ln-496"></a><span class="c">!!$              do while ((tmp2(i+1).eq. tmp2(i)).and.(i.lt.PATCH_REPS1))</span>
-<a id="ln-497" name="ln-497" href="#ln-497"></a><span class="c">!!$                 i = i+1</span>
-<a id="ln-498" name="ln-498" href="#ln-498"></a><span class="c">!!$                 IF (i.gt.PATCH_REPS1) then</span>
-<a id="ln-499" name="ln-499" href="#ln-499"></a><span class="c">!!$                    i = 1</span>
-<a id="ln-500" name="ln-500" href="#ln-500"></a><span class="c">!!$                 ENDIF</span>
-<a id="ln-501" name="ln-501" href="#ln-501"></a><span class="c">!!$</span>
-<a id="ln-502" name="ln-502" href="#ln-502"></a><span class="c">!!$              ENDDO</span>
-<a id="ln-503" name="ln-503" href="#ln-503"></a><span class="c">!!$</span>
-<a id="ln-504" name="ln-504" href="#ln-504"></a><span class="c">!!$</span>
-<a id="ln-505" name="ln-505" href="#ln-505"></a><span class="c">!!$              write(*,*) i, tmp2(i)</span>
-<a id="ln-506" name="ln-506" href="#ln-506"></a><span class="c">!!$              POP%pop_grid(g)%patch(ipatch)%first_disturbance_year(idist) = tmp2(i)</span>
-<a id="ln-507" name="ln-507" href="#ln-507"></a><span class="c">!!$</span>
-<a id="ln-508" name="ln-508" href="#ln-508"></a><span class="c">!!$           ENDDO</span>
-<a id="ln-509" name="ln-509" href="#ln-509"></a><span class="c">!!$        ENDDO</span>
+<a id="ln-482" name="ln-482" href="#ln-482"></a><span class="c">!$        ! set first disturbance year for first dist interval class</span>
+<a id="ln-483" name="ln-483" href="#ln-483"></a><span class="c">!$        idist = 1</span>
+<a id="ln-484" name="ln-484" href="#ln-484"></a><span class="c">!$        disturbance_interval = POP%pop_grid(g)%patch(1)%disturbance_interval(idist)</span>
+<a id="ln-485" name="ln-485" href="#ln-485"></a><span class="c">!$        DO c = 1,PATCH_REPS1</span>
+<a id="ln-486" name="ln-486" href="#ln-486"></a><span class="c">!$           tmp2(c) = max(disturbance_interval*c/(PATCH_REPS1),1)</span>
+<a id="ln-487" name="ln-487" href="#ln-487"></a><span class="c">!$        ENDDO</span>
+<a id="ln-488" name="ln-488" href="#ln-488"></a><span class="c">!$        DO c = 1,PATCH_REPS1</span>
+<a id="ln-489" name="ln-489" href="#ln-489"></a><span class="c">!$           i = 0</span>
+<a id="ln-490" name="ln-490" href="#ln-490"></a><span class="c">!$           DO j = 1,PATCH_REPS2</span>
+<a id="ln-491" name="ln-491" href="#ln-491"></a><span class="c">!$              ipatch = (j-1)*PATCH_REPS1 + c</span>
+<a id="ln-492" name="ln-492" href="#ln-492"></a><span class="c">!$              i = i+1</span>
+<a id="ln-493" name="ln-493" href="#ln-493"></a><span class="c">!$              IF (i.gt.PATCH_REPS1) then</span>
+<a id="ln-494" name="ln-494" href="#ln-494"></a><span class="c">!$                 i = 1</span>
+<a id="ln-495" name="ln-495" href="#ln-495"></a><span class="c">!$              ENDIF</span>
+<a id="ln-496" name="ln-496" href="#ln-496"></a><span class="c">!$              do while ((tmp2(i+1).eq. tmp2(i)).and.(i.lt.PATCH_REPS1))</span>
+<a id="ln-497" name="ln-497" href="#ln-497"></a><span class="c">!$                 i = i+1</span>
+<a id="ln-498" name="ln-498" href="#ln-498"></a><span class="c">!$                 IF (i.gt.PATCH_REPS1) then</span>
+<a id="ln-499" name="ln-499" href="#ln-499"></a><span class="c">!$                    i = 1</span>
+<a id="ln-500" name="ln-500" href="#ln-500"></a><span class="c">!$                 ENDIF</span>
+<a id="ln-501" name="ln-501" href="#ln-501"></a><span class="c">!$</span>
+<a id="ln-502" name="ln-502" href="#ln-502"></a><span class="c">!$              ENDDO</span>
+<a id="ln-503" name="ln-503" href="#ln-503"></a><span class="c">!$</span>
+<a id="ln-504" name="ln-504" href="#ln-504"></a><span class="c">!$</span>
+<a id="ln-505" name="ln-505" href="#ln-505"></a><span class="c">!$              write(*,*) i, tmp2(i)</span>
+<a id="ln-506" name="ln-506" href="#ln-506"></a><span class="c">!$              POP%pop_grid(g)%patch(ipatch)%first_disturbance_year(idist) = tmp2(i)</span>
+<a id="ln-507" name="ln-507" href="#ln-507"></a><span class="c">!$</span>
+<a id="ln-508" name="ln-508" href="#ln-508"></a><span class="c">!$           ENDDO</span>
+<a id="ln-509" name="ln-509" href="#ln-509"></a><span class="c">!$        ENDDO</span>
 <a id="ln-510" name="ln-510" href="#ln-510"></a>
 <a id="ln-511" name="ln-511" href="#ln-511"></a>
 <a id="ln-512" name="ln-512" href="#ln-512"></a><span class="w">                </span><span class="c">! set first disturbance year for first 2nd interval class</span>
@@ -749,11 +749,11 @@
 <a id="ln-582" name="ln-582" href="#ln-582"></a><span class="w">    </span><span class="k">DO </span><span class="n">g</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">np</span><span class="w"></span>
 <a id="ln-583" name="ln-583" href="#ln-583"></a><span class="w">       </span><span class="n">it</span><span class="p">(</span><span class="n">g</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="nb">MAXVAL</span><span class="p">(</span><span class="n">pop</span><span class="p">%</span><span class="n">pop_grid</span><span class="p">(</span><span class="n">g</span><span class="p">)%</span><span class="n">patch</span><span class="p">(:)%</span><span class="n">age</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-584" name="ln-584" href="#ln-584"></a><span class="w">    </span><span class="k">ENDDO</span><span class="w"></span>
-<a id="ln-585" name="ln-585" href="#ln-585"></a><span class="c">!!$    DO idisturb = 1,NDISTURB</span>
-<a id="ln-586" name="ln-586" href="#ln-586"></a><span class="c">!!$       CALL GetUniqueAgeFrequencies(POP, disturbance_interval, idisturb, it)</span>
-<a id="ln-587" name="ln-587" href="#ln-587"></a><span class="c">!!$    ENDDO</span>
-<a id="ln-588" name="ln-588" href="#ln-588"></a><span class="c">!!$</span>
-<a id="ln-589" name="ln-589" href="#ln-589"></a><span class="c">!!$    CALL GetPatchFrequencies(POP,it)</span>
+<a id="ln-585" name="ln-585" href="#ln-585"></a><span class="c">!$    DO idisturb = 1,NDISTURB</span>
+<a id="ln-586" name="ln-586" href="#ln-586"></a><span class="c">!$       CALL GetUniqueAgeFrequencies(POP, disturbance_interval, idisturb, it)</span>
+<a id="ln-587" name="ln-587" href="#ln-587"></a><span class="c">!$    ENDDO</span>
+<a id="ln-588" name="ln-588" href="#ln-588"></a><span class="c">!$</span>
+<a id="ln-589" name="ln-589" href="#ln-589"></a><span class="c">!$    CALL GetPatchFrequencies(POP,it)</span>
 <a id="ln-590" name="ln-590" href="#ln-590"></a>
 <a id="ln-591" name="ln-591" href="#ln-591"></a><span class="w">    </span><span class="c">!call flush(wlogn)</span>
 <a id="ln-592" name="ln-592" href="#ln-592"></a><span class="w">    </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="nb">PRESENT</span><span class="p">(</span><span class="n">precip</span><span class="p">))</span><span class="w"> </span><span class="k">THEN</span>
@@ -2744,13 +2744,13 @@
 <a id="ln-2577" name="ln-2577" href="#ln-2577"></a><span class="w">       </span><span class="n">POP</span><span class="p">%</span><span class="n">pop_grid</span><span class="p">(</span><span class="n">g</span><span class="p">)%</span><span class="n">sapwood_area</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">POP</span><span class="p">%</span><span class="n">pop_grid</span><span class="p">(</span><span class="n">g</span><span class="p">)%</span><span class="n">sapwood_area</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-2578" name="ln-2578" href="#ln-2578"></a><span class="w">            </span><span class="n">freq_age</span><span class="p">(</span><span class="n">iage</span><span class="p">)</span><span class="o">*</span><span class="n">sapwood_area_age</span><span class="p">(</span><span class="n">iage</span><span class="p">)</span><span class="w"></span>
 <a id="ln-2579" name="ln-2579" href="#ln-2579"></a>
-<a id="ln-2580" name="ln-2580" href="#ln-2580"></a><span class="c">!!$if (g==2) then</span>
-<a id="ln-2581" name="ln-2581" href="#ln-2581"></a><span class="c">!!$write(71, &quot;(2i4, 350e16.6)&quot;)  it,  iage, freq_age(iage), cmass_age(iage), growth_age(iage),  stress_mort_age(iage), &amp;</span>
-<a id="ln-2582" name="ln-2582" href="#ln-2582"></a><span class="c">!!$ crowd_mort_age(iage), tmp_min, tmp_max, real(age_max_growth), real(age_min_growth)</span>
-<a id="ln-2583" name="ln-2583" href="#ln-2583"></a><span class="c">!!$endif</span>
+<a id="ln-2580" name="ln-2580" href="#ln-2580"></a><span class="c">!$if (g==2) then</span>
+<a id="ln-2581" name="ln-2581" href="#ln-2581"></a><span class="c">!$write(71, &quot;(2i4, 350e16.6)&quot;)  it,  iage, freq_age(iage), cmass_age(iage), growth_age(iage),  stress_mort_age(iage), &amp;</span>
+<a id="ln-2582" name="ln-2582" href="#ln-2582"></a><span class="c">!$ crowd_mort_age(iage), tmp_min, tmp_max, real(age_max_growth), real(age_min_growth)</span>
+<a id="ln-2583" name="ln-2583" href="#ln-2583"></a><span class="c">!$endif</span>
 <a id="ln-2584" name="ln-2584" href="#ln-2584"></a>
-<a id="ln-2585" name="ln-2585" href="#ln-2585"></a><span class="c">!!$if (g==2) write(72, &quot;(2i4, 350e16.6)&quot;)  it,  iage, freq_age(iage), cmass_age(iage)</span>
-<a id="ln-2586" name="ln-2586" href="#ln-2586"></a><span class="c">!!$if (g==1) write(71, &quot;(2i4, 350e16.6)&quot;)  it,  iage, freq_age(iage), cmass_age(iage)</span>
+<a id="ln-2585" name="ln-2585" href="#ln-2585"></a><span class="c">!$if (g==2) write(72, &quot;(2i4, 350e16.6)&quot;)  it,  iage, freq_age(iage), cmass_age(iage)</span>
+<a id="ln-2586" name="ln-2586" href="#ln-2586"></a><span class="c">!$if (g==1) write(71, &quot;(2i4, 350e16.6)&quot;)  it,  iage, freq_age(iage), cmass_age(iage)</span>
 <a id="ln-2587" name="ln-2587" href="#ln-2587"></a><span class="w">       </span><span class="n">POP</span><span class="p">%</span><span class="n">pop_grid</span><span class="p">(</span><span class="n">g</span><span class="p">)%</span><span class="n">stress_mortality</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">POP</span><span class="p">%</span><span class="n">pop_grid</span><span class="p">(</span><span class="n">g</span><span class="p">)%</span><span class="n">stress_mortality</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-2588" name="ln-2588" href="#ln-2588"></a><span class="w">            </span><span class="n">freq_age</span><span class="p">(</span><span class="n">iage</span><span class="p">)</span><span class="o">*</span><span class="n">stress_mort_age</span><span class="p">(</span><span class="n">iage</span><span class="p">)</span><span class="w"></span>
 <a id="ln-2589" name="ln-2589" href="#ln-2589"></a><span class="w">       </span><span class="n">POP</span><span class="p">%</span><span class="n">pop_grid</span><span class="p">(</span><span class="n">g</span><span class="p">)%</span><span class="n">crowding_mortality</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">POP</span><span class="p">%</span><span class="n">pop_grid</span><span class="p">(</span><span class="n">g</span><span class="p">)%</span><span class="n">crowding_mortality</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
@@ -2767,13 +2767,13 @@
 <a id="ln-2600" name="ln-2600" href="#ln-2600"></a><span class="w">       </span><span class="n">pop</span><span class="p">%</span><span class="n">pop_grid</span><span class="p">(</span><span class="n">g</span><span class="p">)%</span><span class="n">biomass_age</span><span class="p">(</span><span class="n">iage</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cmass_age</span><span class="p">(</span><span class="n">iage</span><span class="p">)</span><span class="w"></span>
 <a id="ln-2601" name="ln-2601" href="#ln-2601"></a>
 <a id="ln-2602" name="ln-2602" href="#ln-2602"></a><span class="w">    </span><span class="k">ENDDO</span><span class="w"></span>
-<a id="ln-2603" name="ln-2603" href="#ln-2603"></a><span class="c">!!$if (it.gt.400) then</span>
-<a id="ln-2604" name="ln-2604" href="#ln-2604"></a><span class="c">!!$   write(*,*) &#39;it, nage&#39;, it, nage</span>
-<a id="ln-2605" name="ln-2605" href="#ln-2605"></a><span class="c">!!$   write(591, &quot;(350e16.6)&quot;) freq_age</span>
-<a id="ln-2606" name="ln-2606" href="#ln-2606"></a><span class="c">!!$   write(601,&quot;(350e16.6)&quot;) cmass_age</span>
-<a id="ln-2607" name="ln-2607" href="#ln-2607"></a><span class="c">!!$   write(602,&quot;(350e16.6)&quot;) stress_mort_age</span>
-<a id="ln-2608" name="ln-2608" href="#ln-2608"></a><span class="c">!!$   write(603,&quot;(350e16.6)&quot;) real(age)</span>
-<a id="ln-2609" name="ln-2609" href="#ln-2609"></a><span class="c">!!$endif</span>
+<a id="ln-2603" name="ln-2603" href="#ln-2603"></a><span class="c">!$if (it.gt.400) then</span>
+<a id="ln-2604" name="ln-2604" href="#ln-2604"></a><span class="c">!$   write(*,*) &#39;it, nage&#39;, it, nage</span>
+<a id="ln-2605" name="ln-2605" href="#ln-2605"></a><span class="c">!$   write(591, &quot;(350e16.6)&quot;) freq_age</span>
+<a id="ln-2606" name="ln-2606" href="#ln-2606"></a><span class="c">!$   write(601,&quot;(350e16.6)&quot;) cmass_age</span>
+<a id="ln-2607" name="ln-2607" href="#ln-2607"></a><span class="c">!$   write(602,&quot;(350e16.6)&quot;) stress_mort_age</span>
+<a id="ln-2608" name="ln-2608" href="#ln-2608"></a><span class="c">!$   write(603,&quot;(350e16.6)&quot;) real(age)</span>
+<a id="ln-2609" name="ln-2609" href="#ln-2609"></a><span class="c">!$endif</span>
 <a id="ln-2610" name="ln-2610" href="#ln-2610"></a><span class="w">    </span><span class="k">DEALLOCATE</span><span class="p">(</span><span class="n">age</span><span class="p">)</span><span class="w"></span>
 <a id="ln-2611" name="ln-2611" href="#ln-2611"></a><span class="w">    </span><span class="k">DEALLOCATE</span><span class="p">(</span><span class="n">freq_age</span><span class="p">)</span><span class="w"></span>
 <a id="ln-2612" name="ln-2612" href="#ln-2612"></a><span class="w">    </span><span class="k">DEALLOCATE</span><span class="p">(</span><span class="n">cmass_age</span><span class="p">)</span><span class="w"></span>

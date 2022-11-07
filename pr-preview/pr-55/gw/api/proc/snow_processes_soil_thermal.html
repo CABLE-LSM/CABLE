@@ -94,7 +94,7 @@
   </ul>
   <ol class="breadcrumb in-well text-right">
      <li><a href='../sourcefile/cbl_soilsnow_subrs.f90.html'>cbl_soilsnow_subrs.F90</a></li>
-     <li><a href='../module/cbl_soil_snow_subrs_module.html'>cbl_soil_snow_subrs_module</a></li>
+     <li><a href='../module/cbl_soil_snow_subrs_module~3.html'>cbl_soil_snow_subrs_module</a></li>
      <li class="active">snow_processes_soil_thermal</li>
   </ol>
 </div>
@@ -123,9 +123,6 @@
     <h2>public subroutine snow_processes_soil_thermal(dels, ssnow, soil, veg, canopy, met, bal, snowmlt)</h2>
     
 
-    <p>$  note that above line appears as below in MMY code -- rk4417
-$    subroutine snow_processes_soil_thermal(dels,ssnow,soil,veg,canopy,met,bal)
-$   snowmlt = 0.0  ! this line appears only in MMY code but I have commented it</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
@@ -177,8 +174,7 @@ $   snowmlt = 0.0  ! this line appears only in MMY code but I have commented it<
   <td><span class="anchor" id="variable-snowmlt~2"></span>real,</td>
 <td>intent(inout),</td>
   <td></td>  <td>DIMENSION(:)</td><td>::</td>
-  <td><strong>snowmlt</strong></td><td><p>$    !track snow melt   ! the above line supersedes the one below from MMY code -- rk4417 
-$    REAL, DIMENSION(mp)      :: snowmlt</p></td>
+  <td><strong>snowmlt</strong></td><td></td>
 </tr>
 </tbody>
 </table>

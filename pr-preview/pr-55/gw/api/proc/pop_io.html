@@ -127,11 +127,11 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
+    <li>netcdf</li>
+    <li><a href='../module/pop_constants.html'>POP_Constants</a></li>
+    <li><a href='../module/pop_types.html'>POP_Types</a></li>
     <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
     <li><a href='../module/casavariable.html'>casavariable</a></li>
-    <li><a href='../module/pop_constants.html'>POP_Constants</a></li>
-    <li>netcdf</li>
-    <li><a href='../module/pop_types.html'>POP_Types</a></li>
   </ul>
       </li>
       </ul>
@@ -143,35 +143,6 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</p>
 <p>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</p>
 <p>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</p>
-<p>$     MPS:DO m = 1, mp
-$
-$
-$        PAT:DO p = 1, npatch2d
-$
-$
-$           STATUS = NF90_PUT_VAR(FILE_ID, VIDR7( 1), POP%pop_grid(m)%freq_ranked_age_unique(p,:),&amp;
-$                start=(/ m, p, 1, CNT /), count=(/ 1, 1, NDISTURB, 1 /) )
-$           IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)</p>
-<p>$           STATUS = NF90_PUT_VAR(FILE_ID, VIDI8( 1), POP%pop_grid(m)%patch(p)%layer(:)%ncohort,&amp;
-$                start=(/ m, p, 1, CNT /), count=(/ 1, 1, nlayer, 1 /) )
-$           IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)</p>
-<p>$
-$
-$
-$           LAY:DO l = 1, nlayer
-$              ! COHORT STRUCTURE
-$              ! PUT 5D VARS ( mp,npatch2d, nlayer,ncohort_max,t )
-$              STATUS = NF90_PUT_VAR(FILE_ID, VIDI9( 1), POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%age,&amp;
-$                   start=(/ m, p, l, 1, CNT /), count=(/ 1, 1, 1, ncohort_max, 1 /) )
-$              IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-$              STATUS = NF90_PUT_VAR(FILE_ID, VIDI9( 2), POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%id,&amp;
-$                   start=(/ m, p, l, 1, CNT /), count=(/ 1, 1, 1, ncohort_max, 1 /) )
-$              IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-$
-$
-$           END DO LAY
-$        END DO PAT
-$     END DO MPS</p>
 <p>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</p>
 <p>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</p>
 

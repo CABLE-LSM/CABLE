@@ -364,10 +364,10 @@
 <a id="ln-207" name="ln-207" href="#ln-207"></a><span class="w">    </span><span class="c">! TempMaxDay                                                        Tx</span>
 <a id="ln-208" name="ln-208" href="#ln-208"></a><span class="w">    </span><span class="c">! TempMinDayNext                                                    Tp</span>
 <a id="ln-209" name="ln-209" href="#ln-209"></a><span class="w">    </span><span class="c">! TempMaxDayPrev</span>
-<a id="ln-210" name="ln-210" href="#ln-210"></a><span class="c">!!$write(71, &quot;( 1000e16.6)&quot;) WG%DecRad</span>
-<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="c">!!$   write(72, &quot;( 1000e16.6)&quot;) TAN(WG%DecRad)</span>
-<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="c">!!$   write(73, &quot;( 1000e16.6)&quot;) TAN(WG%LatRad)</span>
-<a id="ln-213" name="ln-213" href="#ln-213"></a><span class="c">!!$ write(74, &quot;( 1000e16.6)&quot;)  WG%DayLength</span>
+<a id="ln-210" name="ln-210" href="#ln-210"></a><span class="c">!$write(71, &quot;( 1000e16.6)&quot;) WG%DecRad</span>
+<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="c">!$   write(72, &quot;( 1000e16.6)&quot;) TAN(WG%DecRad)</span>
+<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="c">!$   write(73, &quot;( 1000e16.6)&quot;) TAN(WG%LatRad)</span>
+<a id="ln-213" name="ln-213" href="#ln-213"></a><span class="c">!$ write(74, &quot;( 1000e16.6)&quot;)  WG%DayLength</span>
 <a id="ln-214" name="ln-214" href="#ln-214"></a><span class="w">    </span><span class="k">WHERE</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">WG</span><span class="p">%</span><span class="n">DayLength</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="mf">0.01</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-215" name="ln-215" href="#ln-215"></a><span class="w">       </span><span class="c">! Polar night</span>
 <a id="ln-216" name="ln-216" href="#ln-216"></a><span class="w">       </span><span class="n">WG</span><span class="p">%</span><span class="n">TimeSunrise</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mf">9.</span><span class="w">              </span><span class="c">! Hn</span>

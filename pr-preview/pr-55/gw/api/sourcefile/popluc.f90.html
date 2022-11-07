@@ -1655,16 +1655,16 @@
 <a id="ln-1492" name="ln-1492" href="#ln-1492"></a><span class="w">             </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">STATUS</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">NF90_noerr</span><span class="p">)</span><span class="w"> </span><span class="k">CALL </span><span class="n">handle_err</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
 <a id="ln-1493" name="ln-1493" href="#ln-1493"></a><span class="w">          </span><span class="k">END DO</span>
 <a id="ln-1494" name="ln-1494" href="#ln-1494"></a><span class="k">       ENDIF</span><span class="w"></span>
-<a id="ln-1495" name="ln-1495" href="#ln-1495"></a><span class="c">!!$</span>
-<a id="ln-1496" name="ln-1496" href="#ln-1496"></a><span class="c">!!$       DO i = 1, SIZE(A3)</span>
-<a id="ln-1497" name="ln-1497" href="#ln-1497"></a><span class="c">!!$          STATUS = NF90_def_var(FILE_ID,TRIM(A3(i)) ,NF90_FLOAT,(/land_ID,hist_ID,t_ID/),VID3(i))</span>
-<a id="ln-1498" name="ln-1498" href="#ln-1498"></a><span class="c">!!$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)</span>
-<a id="ln-1499" name="ln-1499" href="#ln-1499"></a><span class="c">!!$       END DO</span>
-<a id="ln-1500" name="ln-1500" href="#ln-1500"></a><span class="c">!!$</span>
-<a id="ln-1501" name="ln-1501" href="#ln-1501"></a><span class="c">!!$       DO i = 1, SIZE(A3)</span>
-<a id="ln-1502" name="ln-1502" href="#ln-1502"></a><span class="c">!!$          STATUS = NF90_def_var(FILE_ID,TRIM(AI3(i)) ,NF90_INT,(/land_ID,hist_ID,t_ID/),VIDI3(i))</span>
-<a id="ln-1503" name="ln-1503" href="#ln-1503"></a><span class="c">!!$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)</span>
-<a id="ln-1504" name="ln-1504" href="#ln-1504"></a><span class="c">!!$       END DO</span>
+<a id="ln-1495" name="ln-1495" href="#ln-1495"></a><span class="c">!$</span>
+<a id="ln-1496" name="ln-1496" href="#ln-1496"></a><span class="c">!$       DO i = 1, SIZE(A3)</span>
+<a id="ln-1497" name="ln-1497" href="#ln-1497"></a><span class="c">!$          STATUS = NF90_def_var(FILE_ID,TRIM(A3(i)) ,NF90_FLOAT,(/land_ID,hist_ID,t_ID/),VID3(i))</span>
+<a id="ln-1498" name="ln-1498" href="#ln-1498"></a><span class="c">!$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)</span>
+<a id="ln-1499" name="ln-1499" href="#ln-1499"></a><span class="c">!$       END DO</span>
+<a id="ln-1500" name="ln-1500" href="#ln-1500"></a><span class="c">!$</span>
+<a id="ln-1501" name="ln-1501" href="#ln-1501"></a><span class="c">!$       DO i = 1, SIZE(A3)</span>
+<a id="ln-1502" name="ln-1502" href="#ln-1502"></a><span class="c">!$          STATUS = NF90_def_var(FILE_ID,TRIM(AI3(i)) ,NF90_INT,(/land_ID,hist_ID,t_ID/),VIDI3(i))</span>
+<a id="ln-1503" name="ln-1503" href="#ln-1503"></a><span class="c">!$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)</span>
+<a id="ln-1504" name="ln-1504" href="#ln-1504"></a><span class="c">!$       END DO</span>
 <a id="ln-1505" name="ln-1505" href="#ln-1505"></a>
 <a id="ln-1506" name="ln-1506" href="#ln-1506"></a><span class="w">       </span><span class="k">DO </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">SIZE</span><span class="p">(</span><span class="n">A4</span><span class="p">)</span><span class="w"></span>
 <a id="ln-1507" name="ln-1507" href="#ln-1507"></a><span class="w">          </span><span class="n">STATUS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_def_var</span><span class="p">(</span><span class="n">FILE_ID</span><span class="p">,</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">A4</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="p">,</span><span class="n">NF90_FLOAT</span><span class="p">,(</span><span class="o">/</span><span class="n">land_ID</span><span class="p">,</span><span class="n">nLU_ID</span><span class="p">,</span><span class="n">t_ID</span><span class="o">/</span><span class="p">),</span><span class="n">VID4</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"></span>

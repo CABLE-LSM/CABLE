@@ -127,22 +127,22 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_carbon_module.html'>cable_carbon_module</a></li>
-    <li><a href='../module/cable_luc_expt.html'>CABLE_LUC_EXPT</a></li>
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-    <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
-    <li><a href='../module/casavariable.html'>casavariable</a></li>
-    <li><a href='../module/popluc_module.html'>POPLUC_Module</a></li>
-    <li><a href='../module/popmodule.html'>POPModule</a></li>
-    <li><a href='../module/casa_cable.html'>casa_cable</a></li>
-    <li><a href='../module/phenvariable.html'>phenvariable</a></li>
-    <li><a href='../module/typedef.html'>TypeDef</a></li>
-    <li><a href='../module/popluc_types.html'>POPLUC_Types</a></li>
-    <li><a href='../module/casa_inout_module.html'>casa_inout_module</a></li>
-    <li><a href='../module/pop_types.html'>POP_Types</a></li>
     <li><a href='../module/casadimension.html'>casadimension</a></li>
+    <li><a href='../module/cable_carbon_module.html'>cable_carbon_module</a></li>
+    <li><a href='../module/casavariable.html'>casavariable</a></li>
+    <li><a href='../module/pop_types.html'>POP_Types</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
     <li><a href='../module/casaparm.html'>casaparm</a></li>
+    <li><a href='../module/phenvariable.html'>phenvariable</a></li>
+    <li><a href='../module/casa_inout_module.html'>casa_inout_module</a></li>
+    <li><a href='../module/casa_cable.html'>casa_cable</a></li>
+    <li><a href='../module/typedef.html'>TypeDef</a></li>
+    <li><a href='../module/cable_luc_expt.html'>CABLE_LUC_EXPT</a></li>
+    <li><a href='../module/popluc_types.html'>POPLUC_Types</a></li>
+    <li><a href='../module/popluc_module.html'>POPLUC_Module</a></li>
+    <li><a href='../module/cable_io_vars_module~2.html'>cable_IO_vars_module</a></li>
+    <li><a href='../module/popmodule.html'>POPModule</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
   </ul>
       </li>
       </ul>
@@ -151,11 +151,7 @@
 
     <p>CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
  vh_js !!
-CLN901  format(A99)
-$               WHERE (pop%pop_grid(:)%cmass_sum_old.gt.0.1 .and. pop%pop_grid(:)%cmass_sum.gt.0.1 )
-$               casapool%Cplant(Iw,2) = casapool%Cplant(Iw,2)<em>(1.0- min( POP%pop_grid(:)%cat_mortality/(POP%pop_grid(:)%cmass_sum_old),0.99))
-$               casapool%Nplant(Iw,2) = casapool%Nplant(Iw,2)</em>(1.0- min( POP%pop_grid(:)%cat_mortality/(POP%pop_grid(:)%cmass_sum_old),0.99))
-$               ENDWHERE</p>
+CLN901  format(A99)</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

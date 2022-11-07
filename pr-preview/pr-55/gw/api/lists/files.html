@@ -98,47 +98,8 @@
 			   <tr><td><a href='../sourcefile/cable_data.f90.html'>cable_data.F90</a></td><td></td></tr>
 			   <tr><td><a href='../sourcefile/cable_define_types.f90.html'>cable_define_types.F90</a></td><td></td></tr>
 			   <tr><td><a href='../sourcefile/cable_diag.f90.html'>cable_diag.F90</a></td><td></td></tr>
-			   <tr><td><a href='../sourcefile/cable_driver.f90.html'>cable_driver.F90</a></td><td><p>$                                                    ! this block appears in MMY code -- rk4417
-$! <strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><strong> MMY for Princeton input <strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong></strong>
-$SUBROUTINE prepareFiles_princeton(ncciy)
-$  USE cable_IO_vars_module, ONLY: logn,gswpfile
-$  IMPLICIT NONE
-$  INTEGER, INTENT(IN) :: ncciy
-$
-$  WRITE(logn,<em>) 'CABLE offline global run using princeton forcing for ', ncciy
-$  PRINT </em>,     'CABLE offline global run using princeton forcing for ', ncciy
-$
-$  CALL renameFiles_princeton(logn,gswpfile%rainf,ncciy,'rainf')
-$  CALL renameFiles_princeton(logn,gswpfile%LWdown,ncciy,'LWdown')
-$  CALL renameFiles_princeton(logn,gswpfile%SWdown,ncciy,'SWdown')
-$  CALL renameFiles_princeton(logn,gswpfile%PSurf,ncciy,'PSurf')
-$  CALL renameFiles_princeton(logn,gswpfile%Qair,ncciy,'Qair')
-$  CALL renameFiles_princeton(logn,gswpfile%Tair,ncciy,'Tair')
-$  CALL renameFiles_princeton(logn,gswpfile%wind,ncciy,'wind')
-$
-$END SUBROUTINE prepareFiles_princeton
-$
-$SUBROUTINE renameFiles_princeton(logn,inFile,ncciy,inName)
-$  IMPLICIT NONE
-$  INTEGER, INTENT(IN) :: logn,ncciy
-$  INTEGER:: nn
-$  CHARACTER(LEN=200), INTENT(INOUT) :: inFile
-$  CHARACTER(LEN=<em>),  INTENT(IN)        :: inName
-$  INTEGER :: idummy
-$
-$  nn = INDEX(inFile,'19')
-$  READ(inFile(nn:nn+3),'(i4)') idummy
-$  WRITE(inFile(nn:nn+3),'(i4.4)') ncciy
-$  nn = INDEX(inFile,'19')
-$  READ(inFile(nn:nn+3),'(i4)') idummy
-$  WRITE(inFile(nn:nn+3),'(i4.4)') ncciy
-$  READ(inFile(nn-5:nn-2),'(i4)') idummy
-$  WRITE(inFile(nn-5:nn-2),'(i4.4)') ncciy
-$  WRITE(logn,</em>) TRIM(inName), ' global data from ', TRIM(inFile)
-$
-$END SUBROUTINE renameFiles_princeton
-$
-$! <strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong>_</p><a href="../sourcefile/cable_driver.f90.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../sourcefile/cable_driver.f90.html'>cable_driver.F90</a></td><td><p>subroutine for reading LU input data, zeroing biomass in empty secondary forest tiles
+ and tranferring LUC-based age weights for secondary forest to POP structure</p><a href="../sourcefile/cable_driver.f90.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../sourcefile/cable_ffile.f90.html'>cable_fFile.F90</a></td><td></td></tr>
 			   <tr><td><a href='../sourcefile/cable_fprint.f90.html'>cable_fprint.F90</a></td><td></td></tr>
 			   <tr><td><a href='../sourcefile/cable_gw_hydro.f90.html'>cable_gw_hydro.F90</a></td><td></td></tr>

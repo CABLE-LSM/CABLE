@@ -128,10 +128,10 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/phenvariable.html'>phenvariable</a></li>
-    <li><a href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm">mpi</a></li>
     <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+    <li><a href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm">mpi</a></li>
     <li><a href='../module/casavariable.html'>casavariable</a></li>
+    <li><a href='../module/phenvariable.html'>phenvariable</a></li>
   </ul>
       </li>
       </ul>
@@ -143,13 +143,6 @@
 <hr>
 <p>Ndep</p>
 <hr>
-<p>$ ! if anything went wrong the master will mpi_abort
-$ ! which mpi_recv below is going to catch...
-$ ! so, now receive all the parameters
-$ CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, 0, comm, stat, ierr)
-$
-$ ! finally free the MPI type
-$ CALL MPI_Type_Free (casa_dump_t, ierr)</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

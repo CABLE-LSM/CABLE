@@ -128,13 +128,13 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_psm.html'>cable_psm</a></li>
-    <li><a href='../module/cable_roughness_module.html'>cable_roughness_module</a></li>
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
     <li><a href='../module/cable_air_module.html'>cable_air_module</a></li>
-    <li><a href='../module/cable_radiation_module.html'>cable_radiation_module</a></li>
+    <li><a href='../module/cable_psm.html'>cable_psm</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
     <li><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></li>
+    <li><a href='../module/cable_radiation_module.html'>cable_radiation_module</a></li>
     <li><a href='../module/sli_main_mod.html'>sli_main_mod</a></li>
+    <li><a href='../module/cable_roughness_module.html'>cable_roughness_module</a></li>
     <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
   </ul>
       </li>
@@ -142,41 +142,15 @@
     </div>
 
 
-    <p>$    USE cable_gw_hydro_module, ONLY : pore_space_relative_humidity ! replaced as per MMY -- rk4417
- vh_js !!
+    <p>vh_js !!
  vh_js !!</p>
-<p>$                  * C%SBOLTZ<em>C%EMLEAF)+met%tvrad(j)</em>*4) .GT. 0.0) THEN    !replaced as per MMY -- rk4417</p>
-<p>$                     * C%SBOLTZ<em>C%EMLEAF)+met%tvrad(j)</em><em>4)</em>*0.25          !replaced as per MMY -- rk4417
-$                canopy%tv(j) = met%tvrad(j)     !replaced as per MMY -- rk4417
-$             canopy%tv(j) = met%tvrad(j)    !replaced as per MMY -- rk4417
-$          IF (cable_user%gw_model .OR. cable_user%or_evap) THEN      !replaced as per MMY -- rk4417
- vh_js !! account for additional litter resistance to sensible heat transfer
+<p>vh_js !! account for additional litter resistance to sensible heat transfer
  INH simplifying code using rhlitt</p>
-<p>$          IF (cable_user%gw_model .OR. cable_user%or_evap) THEN     !replaced as per MMY -- rk4417
- vh_js !! account for additional litter resistance to sensible heat transfer
+<p>vh_js !! account for additional litter resistance to sensible heat transfer
  INH simplifying code using rhlitt</p>
 <p>Ticket #90 ssnow%cls factor should be retained: required for energy balance
  INH: %cls factor included in %fes already - do not include here
-$            C%SBOLTZ<em>met%tvrad</em><em>4 - C%EMSOIL</em>C%SBOLTZ<em>met%tvrad</em>*4     !replaced as per MMY -- rk4417</p>
-<p>$          IF (cable_user%litter) THEN                                             !replaced as per MMY -- rk4417
-$             canopy%tscrn(j) = ssnow%tss(j) + (met%tk(j) - ssnow%tss(j)) *     &amp;        <br>
-$                  MIN(1., ( (r_sc(j)+rhlitt(j)<em>canopy%us(j))  / MAX( 1.,          &amp;
-$                  rough%rt0us(j) + rough%rt1usa(j) + rough%rt1usb(j)              &amp;
-$                  + rt1usc(j) + rhlitt(j)</em>canopy%us(j) )) ) - C%tfrz
-$          ELSEIF (cable_user%or_evap .OR. cable_user%gw_model) THEN</p>
-<p>$          IF (cable_user%litter) THEN                                   !replaced as per MMY -- rk4417
-$             canopy%qscrn(j) = qsurf(j) + (met%qv(j) - qsurf(j)) *             &amp;
-$                  MIN(1., ( ( r_sc(j)+relitt(j)<em>canopy%us(j) ) / MAX( 1.,         &amp;
-$                  rough%rt0us(j) + rough%rt1usa(j) + rough%rt1usb(j)            &amp;
-$                  + rt1usc(j) + relitt(j)</em>canopy%us(j) )) )
-$
-$          ELSEIF (cable_user%or_evap .OR. cable_user%gw_model) THEN</p>
-<p>$    IF (cable_user%gw_model .OR. cable_user%or_evap) THEN   ! replaced line as per MMY -- rk4417
-$       ssnow%dfh_dtg = air%rho*C%CAPP/(ssnow%rtsoil+ REAL(ssnow%rt_qh_sublayer))</p>
-<p>INH simplifying code for legibility</p>
-<p>$       ssnow%dfe_ddq = REAL(ssnow%satfrac)/(ssnow%rtsoil+ REAL(ssnow%rtevap_sat))  &amp;
-$            + (1.0-REAL(ssnow%satfrac))*REAL(ssnow%rh_srf)                   &amp;
-$            / (ssnow%rtsoil+ REAL(ssnow%rtevap_unsat) )</p>
+ INH simplifying code for legibility</p>
 <p>vh_js!! INH simplifying code for legibility and REV_CORR</p>
 
     <h3>Arguments</h3>

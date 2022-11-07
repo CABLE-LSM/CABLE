@@ -182,8 +182,8 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/casa_cable.html'>casa_cable</a></li>
     <li><a href='../module/casa_inout_module.html'>casa_inout_module</a></li>
+    <li><a href='../module/casa_cable.html'>casa_cable</a></li>
     <li><a href='../module/cable_mpicommon.html'>cable_mpicommon</a></li>
   </ul>
       </li>
@@ -360,11 +360,9 @@
   <div class="panel-heading codesum"><span class="anchor" id="proc-mpidrv_master"></span><h3>public subroutine <a href='../proc/mpidrv_master.html'>mpidrv_master</a>(comm)</h3></div>
   <div class="panel-body">
        
-<p>$    IF (TRIM(cable_user%MetType) .EQ. 'gswp' .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN  ! replaced by line below
- vh_js !!
- vh_js !! suggest LALLOC should ulitmately be a switch in the .nml file
- vh_js !!
-$             CALL master_climate_types(comm, climate)  ! block above appears this way in MMY code -- rk4417</p><a href="../proc/mpidrv_master.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+<p>vh_js !!
+vh_js !! suggest LALLOC should ulitmately be a switch in the .nml file
+vh_js !!</p>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
@@ -475,11 +473,7 @@ $             CALL master_climate_types(comm, climate)  ! block above appears th
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-master_cable_params"></span><h3>private subroutine <a href='../proc/master_cable_params.html'>master_cable_params</a>(comm, met, air, ssnow, veg, bgc, soil, canopy, rough, rad, sum_flux, bal)</h3></div>
   <div class="panel-body">
-       
-<p>$
-$ inserted block below as per MMY code -- rk4417     <br>
-$  --------------------- start of block --------------------- rk4417</p><a href="../proc/master_cable_params.html" class="pull-right"><emph>Read more&hellip;</emph></a>
-    
+           
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -653,10 +647,7 @@ $  --------------------- start of block --------------------- rk4417</p><a href=
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-master_outtypes"></span><h3>private subroutine <a href='../proc/master_outtypes.html'>master_outtypes</a>(comm, met, canopy, ssnow, rad, bal, air, soil, veg)</h3></div>
   <div class="panel-body">
-       
-<p>$ inserted block below as per MMY code -- rk4417     <br>
-$  --------------------- start of block --------------------- rk4417</p><a href="../proc/master_outtypes.html" class="pull-right"><emph>Read more&hellip;</emph></a>
-    
+           
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -776,9 +767,7 @@ $  --------------------- start of block --------------------- rk4417</p><a href=
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-master_climate_types"></span><h3>private subroutine <a href='../proc/master_climate_types.html'>master_climate_types</a>(comm, climate, ktauday)</h3></div>
   <div class="panel-body">
-       
-<p>$SUBROUTINE master_climate_types (comm, climate)  ! line above appears this way in MMY code -- rk4417</p><a href="../proc/master_climate_types.html" class="pull-right"><emph>Read more&hellip;</emph></a>
-    
+           
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -1189,9 +1178,7 @@ CLN  read(91,*)</p>
   <div class="panel-heading codesum"><span class="anchor" id="proc-master_casaonly_luc"></span><h3>private subroutine <a href='../proc/master_casaonly_luc.html'>master_CASAONLY_LUC</a>(dels, kstart, kend, veg, soil, casabiome, casapool, casaflux, casamet, casabal, phen, POP, climate, LALLOC, LUC_EXPT, POPLUC, icomm, ocomm)</h3></div>
   <div class="panel-body">
        
-<p>$  ctime = 0
-$  CALL zero_sum_casa(sum_casapool, sum_casaflux)
-$       count_sum_casa = 0</p><a href="../proc/master_casaonly_luc.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+<p>CLN901  format(A99)</p>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>

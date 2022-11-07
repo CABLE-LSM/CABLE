@@ -124,14 +124,10 @@
     
 
     <p>vh_js !!
- adjust turnover and autotrophic respiration to avoid negative stores.
- Ticket#108</p>
+adjust turnover and autotrophic respiration to avoid negative stores.
+Ticket#108</p>
 <p>revise turnover and NPP and dcplantdt to reflect above adjustments</p>
 <p>vh_js !! end of adjustments to avoid negative stores Ticket#108</p>
-<p>$       casaflux%FluxNtolitter(npt,str) = casaflux%fromPtoL(npt,str,leaf) * casaflux%kplant(npt,leaf)  &amp;
-$                               * casapool%cplant(npt,leaf)       * ratioNCstrfix              &amp;
-$                               + casaflux%fromPtoL(npt,str,froot)* casaflux%kplant(npt,froot) &amp;
-$                               * casapool%cplant(npt,froot)      * ratioNCstrfix</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

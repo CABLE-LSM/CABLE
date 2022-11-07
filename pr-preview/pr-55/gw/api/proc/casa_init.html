@@ -128,13 +128,13 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-    <li><a href='../module/casavariable.html'>casavariable</a></li>
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
-    <li><a href='../module/phenvariable.html'>phenvariable</a></li>
     <li><a href='../module/casadimension.html'>casadimension</a></li>
     <li><a href='../module/casaparm.html'>casaparm</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+    <li><a href='../module/phenvariable.html'>phenvariable</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+    <li><a href='../module/cable_io_vars_module~2.html'>cable_IO_vars_module</a></li>
+    <li><a href='../module/casavariable.html'>casavariable</a></li>
   </ul>
       </li>
       </ul>
@@ -144,117 +144,6 @@
     <p>for first time reading file *_1220.csv  (BP may2010)</p>
 <p>SUBROUTINE casa_init(mst,casapool,casabal)
  end addition (BP may2010)</p>
-<p>$IF (initcasa==1) THEN
-$     INQUIRE( FILE=TRIM(casafile%cnpipool), EXIST=EXRST )
-$!! vh_js!!
-$     IF ( EXRST ) THEN
-$
-$           PRINT<em>, ' Reading cnppoolOutfile as input: ,',casafile%cnpipool
-$
-$    OPEN(99,file=casafile%cnpipool)
-$
-$    DO npt =1, mp
-$       SELECT CASE(icycle)
-$       CASE(1)
-$          !! vh_js !!
-$          IF (cable_user%CALL_POP) THEN
-$
-$             READ(99,</em>) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &amp;
-$                  casamet%glai(npt),slaz,phen%phase(npt) , &amp;
-$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &amp;
-$                  casapool%clabile(npt) ,casapool%cplant(npt,:) ,  &amp;
-$                  casapool%clitter(npt,:),casapool%csoil(npt,:), &amp;
-$                  casaflux%frac_sapwood(npt), casaflux%sapwood_area(npt)
-$
-$
-$             ELSE
-$              READ(99,<em>) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &amp;
-$                  casamet%glai(npt),slaz,phen%phase(npt) , &amp;
-$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &amp;
-$                  casapool%clabile(npt) ,casapool%cplant(npt,:) ,  &amp;
-$                  casapool%clitter(npt,:),casapool%csoil(npt,:)
-$             casaflux%frac_sapwood(:) = 1.0
-$             casaflux%sapwood_area(:) = 0.0
-$          ENDIF
-$
-$
-$       CASE(2)
-$!! vh_js !!
-$          IF (cable_user%CALL_POP) THEN
-$             READ(99,</em>) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &amp;
-$                  casamet%glai(npt),slaz,phen%phase(npt), &amp;
-$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &amp;
-$                  casapool%clabile(npt),casapool%cplant(npt,:),   &amp;
-$                  casapool%clitter(npt,:),casapool%csoil(npt,:),       &amp;
-$                  casaflux%frac_sapwood(npt), casaflux%sapwood_area(npt), &amp;
-$                  casapool%nplant(npt,:),casapool%nlitter(npt,:),      &amp;
-$                  casapool%nsoil(npt,:),casapool%nsoilmin(npt)
-$
-$          ELSE
-$             READ(99,<em>) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &amp;
-$                  casamet%glai(npt),slaz,phen%phase(npt), &amp;
-$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &amp;
-$                  casapool%clabile(npt),casapool%cplant(npt,:),   &amp;
-$                  casapool%clitter(npt,:),casapool%csoil(npt,:),       &amp;
-$                  casapool%nplant(npt,:),casapool%nlitter(npt,:),      &amp;
-$                  casapool%nsoil(npt,:),casapool%nsoilmin(npt)
-$             casaflux%frac_sapwood(:) = 1.0
-$             casaflux%sapwood_area(:) = 0.0
-$
-$          ENDIF
-$       CASE(3)
-$!! vh_js !!
-$          IF (cable_user%CALL_POP) THEN
-$             READ(99,</em>) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &amp;
-$                  casamet%glai(npt),slaz,phen%phase(npt), &amp;
-$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &amp;
-$                  casapool%clabile(npt),casapool%cplant(npt,:),   &amp;
-$                  casapool%clitter(npt,:),casapool%csoil(npt,:),       &amp;
-$                  casaflux%frac_sapwood(npt), casaflux%sapwood_area(npt), &amp;
-$                  casapool%nplant(npt,:),casapool%nlitter(npt,:),      &amp;
-$                  casapool%nsoil(npt,:),casapool%nsoilmin(npt),        &amp;
-$                  casapool%pplant(npt,:),casapool%plitter(npt,:),      &amp;
-$                  casapool%psoil(npt,:),casapool%psoillab(npt),        &amp;
-$                  casapool%psoilsorb(npt),casapool%psoilocc(npt)
-$          ELSE
-$             READ(99,<em>) nyearz,npz,ivtz,istz,isoz,latz,lonz,areacellz, &amp;
-$                  casamet%glai(npt),slaz,phen%phase(npt), &amp;
-$                  phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &amp;
-$                  casapool%clabile(npt),casapool%cplant(npt,:),   &amp;
-$                  casapool%clitter(npt,:),casapool%csoil(npt,:),       &amp;
-$                  casapool%nplant(npt,:),casapool%nlitter(npt,:),      &amp;
-$                  casapool%nsoil(npt,:),casapool%nsoilmin(npt),        &amp;
-$                  casapool%pplant(npt,:),casapool%plitter(npt,:),      &amp;
-$                  casapool%psoil(npt,:),casapool%psoillab(npt),        &amp;
-$                  casapool%psoilsorb(npt),casapool%psoilocc(npt)
-$             casaflux%frac_sapwood(:) = 1.0
-$             casaflux%sapwood_area(:) = 0.0
-$
-$
-$          ENDIF
-$       END SELECT
-$       IF (ABS(patch(npt)%longitude - lonz) &gt; 0.9 .OR. &amp;
-$            ABS(patch(npt)%latitude  - latz) &gt; 0.9) THEN
-$          PRINT </em>, 'patch(npt)%longitude, lonz:', patch(npt)%longitude, lonz
-$          PRINT <em>, 'patch(npt)%latitude,  latz:', patch(npt)%latitude,  latz
-$          PRINT </em>, 'npt = ', npt
-$          STOP
-$       ENDIF
-$    ENDDO
-$    CLOSE(99)
-$
-$
-$ ELSE
-$ !! vh_js !!
-$    WRITE(<em>,</em>)'No valid restart file for casa_init found.'
-$    WRITE(<em>,</em>)'Using input from readbiome.!!!'
-$    WRITE(<em>,</em>) 'initialising frac_sapwood=1 and sapwood_area = 0)'
-$    casaflux%frac_sapwood(:) = 1.0
-$    casaflux%sapwood_area(:) = 0.0
-$
-$
-$ ENDIF  ! IF (EXRST)</p>
-<p>$ENDIF</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

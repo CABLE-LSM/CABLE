@@ -172,12 +172,12 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-    <li><a href='../module/casavariable.html'>casavariable</a></li>
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
-    <li><a href='../module/phenvariable.html'>phenvariable</a></li>
     <li><a href='../module/casadimension.html'>casadimension</a></li>
     <li><a href='../module/casaparm.html'>casaparm</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+    <li><a href='../module/phenvariable.html'>phenvariable</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+    <li><a href='../module/casavariable.html'>casavariable</a></li>
   </ul>
       </li>
       </ul>
@@ -361,27 +361,14 @@
   <div class="panel-body">
        
 <p>vh_js !!
- vh_js !!
- as long as biomass is positive, adjust allocation to be
- proportional to stock when NPP -ve   (Ticket#108)
- vh !! don't require this fix for LALLOC = 3 (POP allocation scheme)
- Thiss fix can lead to over-allocation to roots, in turn bumping up N-uptake
- , leading to decline in mineral nitrogen availability and spikes in fracCalloc,
- causing spikes in tree mortality and lack of model convergence in productive
- regions where LAI is hitting LAImax.
-$        ! IF Prognostic LAI reached glaimax, no C is allocated to leaf
-$        ! Q.Zhang 17/03/2011
-$        WHERE(casamet%glai(:)&gt;=casabiome%glaimax(veg%iveg(:)))
-$           casaflux%fracCalloc(:,leaf)  = 0.0
-$           casaflux%fracCalloc(:,froot) =  casaflux%fracCalloc(:,froot) &amp;
-$                /(casaflux%fracCalloc(:,froot) &amp;
-$                +casaflux%fracCalloc(:,wood))
-$           WHERE (casamet%lnonwood==0)
-$              casaflux%fracCalloc(:,wood)  = 1.0 -casaflux%fracCalloc(:,froot)
-$           ELSEWHERE
-$              casaflux%fracCalloc(:,wood) = 0.0
-$           ENDWHERE
-$        ENDWHERE</p><a href="../proc/casa_allocation.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+vh_js !!
+as long as biomass is positive, adjust allocation to be
+proportional to stock when NPP -ve   (Ticket#108)
+vh !! don't require this fix for LALLOC = 3 (POP allocation scheme)
+Thiss fix can lead to over-allocation to roots, in turn bumping up N-uptake
+, leading to decline in mineral nitrogen availability and spikes in fracCalloc,
+causing spikes in tree mortality and lack of model convergence in productive
+regions where LAI is hitting LAImax.</p><a href="../proc/casa_allocation.html" class="pull-right"><emph>Read more&hellip;</emph></a>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
@@ -772,8 +759,8 @@ $        ENDWHERE</p><a href="../proc/casa_allocation.html" class="pull-right"><
   <div class="panel-body">
        
 <p>vh_js !!
- adjust turnover and autotrophic respiration to avoid negative stores.
- Ticket#108</p><a href="../proc/casa_delplant.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+adjust turnover and autotrophic respiration to avoid negative stores.
+Ticket#108</p><a href="../proc/casa_delplant.html" class="pull-right"><emph>Read more&hellip;</emph></a>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
@@ -908,16 +895,7 @@ $        ENDWHERE</p><a href="../proc/casa_allocation.html" class="pull-right"><
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-casa_delsoil"></span><h3>public subroutine <a href='../proc/casa_delsoil.html'>casa_delsoil</a>(veg, casapool, casaflux, casamet, casabiome)</h3></div>
   <div class="panel-body">
-       
-<p>$if (nland==1) write(59,91) casaflux%Nsnet(nland) , &amp;
-$                                 casaflux%Nlittermin(nland),  &amp;
-$                                 casaflux%Nsmin(nland),   &amp;
-$                                 casaflux%Nsimm(nland)
-$                                 , casaflux%Nmindep(nland) ,casaflux%Nminfix(nland)   &amp;
-$                                 , casaflux%Nminloss(nland)   &amp;
-$                                 , casaflux%Nminleach(nland)   &amp;
-$                                 , casaflux%Nupland(nland)</p>
-    
+           
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>

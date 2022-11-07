@@ -146,10 +146,10 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
+    <li><a href='../module/cable_io_vars_module~2.html'>cable_IO_vars_module</a></li>
     <li><a href='../module/typedef.html'>TypeDef</a></li>
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
     <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
-    <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
   </ul>
       </li>
       </ul>
@@ -229,21 +229,7 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-cable_climate"></span><h3>public subroutine <a href='../proc/cable_climate.html'>cable_climate</a>(ktau, kstart, kend, ktauday, idoy, LOY, met, climate, canopy, air, rad, dels, np)</h3></div>
   <div class="panel-body">
-       
-<p>$! * Find irradiances, available energy, equilibrium latent heat flux
-$PPc    = Gaero / ( Gaero + 4.0<em>SBoltz</em>((TempA+273.16)<strong>3)/(RhoA<em>Capp) )
-$                                                    ! PPc = Ga/(Ga+Gr)      [-]
-$EpsA   = Epsif(TempA, Pmb)                          ! Epsi at TempA         [-]
-$PhiSd  = SolarMJ * 1.0e6 / (DayltFrac</em>SecDay)       ! daylt down solar      [W/m2]
-$PhiLd  = 335.97 * (((TempA + 273.16) / 293.0)</strong>6)   ! daylt down thermal    [W/m2]
-$                                                    !   (Swinbank formula)
-$PhiAi  = (1.0-Albedo)<em>PhiSd + Emis *    &amp;           ! daylt iso-avail engy  [W/m2]
-$         (PhiLd - SBoltz</em>((TempA + 273.16)<em><em>4))     !   (veg + soil)
-$PhiEq  = PhiAi * (PPc</em>EpsA) / (PPc</em>EpsA + 1.0)      ! equil ltnt heat flux  [W/m2]
-$PhiEq  = max(PhiEq, 1.0)                            ! PhiEq &gt; +1 W/m2, so non-negative
-$                                    ! precipitation         [m/day]
-$FWPT   = CoeffPT * PhiEq * ((DayltFrac<em>SecDay) / (RhoW</em>Rlat))</p>
-    
+           
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>

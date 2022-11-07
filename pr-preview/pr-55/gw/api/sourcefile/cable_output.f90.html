@@ -226,7 +226,7 @@
 <a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">          </span><span class="n">PlantTurnover</span><span class="p">,</span><span class="w"> </span><span class="n">PlantTurnoverLeaf</span><span class="p">,</span><span class="w"> </span><span class="n">PlantTurnoverFineRoot</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">          </span><span class="n">PlantTurnoverWood</span><span class="p">,</span><span class="w"> </span><span class="n">PlantTurnoverWoodDist</span><span class="p">,</span><span class="w"> </span><span class="n">PlantTurnoverWoodCrowding</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">          </span><span class="n">PlantTurnoverWoodResourceLim</span><span class="p">,</span><span class="w"> </span><span class="n">dCdt</span><span class="p">,</span><span class="w"> </span><span class="n">Area</span><span class="p">,</span><span class="w"> </span><span class="n">LandUseFlux</span><span class="p">,</span><span class="w"> </span><span class="n">patchfrac</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="c">!!$          vcmax,hc,WatTable,GWMoist,SatFrac,Qrecharge ! replaced by 2 lines below as per MMY code -- rk4417</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="c">!$          vcmax,hc,WatTable,GWMoist,SatFrac,Qrecharge ! replaced by 2 lines below as per MMY code -- rk4417</span>
 <a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">          </span><span class="n">vcmax</span><span class="p">,</span><span class="n">hc</span><span class="p">,</span><span class="n">WatTable</span><span class="p">,</span><span class="n">GWMoist</span><span class="p">,</span><span class="n">SatFrac</span><span class="p">,</span><span class="n">Qrecharge</span><span class="p">,</span><span class="n">SMP</span><span class="p">,</span><span class="n">SMP_hys</span><span class="p">,</span><span class="n">WB_hys</span><span class="p">,</span><span class="n">SSAT_hys</span><span class="p">,&amp;</span><span class="w"></span>
 <a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">          </span><span class="n">WATR_hys</span><span class="p">,</span><span class="n">hys_fac</span><span class="w"></span>
 <a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">  </span><span class="k">END TYPE </span><span class="n">out_varID_type</span><span class="w"></span>
@@ -758,8 +758,8 @@
 <a id="ln-601" name="ln-601" href="#ln-601"></a><span class="w">       </span><span class="n">out</span><span class="p">%</span><span class="n">SoilTemp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="w"> </span><span class="c">! initialise</span>
 <a id="ln-602" name="ln-602" href="#ln-602"></a><span class="w">    </span><span class="k">END IF</span><span class="w"></span>
 <a id="ln-603" name="ln-603" href="#ln-603"></a>
-<a id="ln-604" name="ln-604" href="#ln-604"></a><span class="c">!!$ inserted block below as per MMY code -- rk4417       </span>
-<a id="ln-605" name="ln-605" href="#ln-605"></a><span class="c">!!$  --------------------- start of block --------------------- rk4417</span>
+<a id="ln-604" name="ln-604" href="#ln-604"></a><span class="c">!$ inserted block below as per MMY code -- rk4417       </span>
+<a id="ln-605" name="ln-605" href="#ln-605"></a><span class="c">!$  --------------------- start of block --------------------- rk4417</span>
 <a id="ln-606" name="ln-606" href="#ln-606"></a><span class="w">    </span>
 <a id="ln-607" name="ln-607" href="#ln-607"></a><span class="w">    </span><span class="k">IF</span><span class="p">(</span><span class="n">output</span><span class="p">%</span><span class="n">soil</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">output</span><span class="p">%</span><span class="n">SMP</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
 <a id="ln-608" name="ln-608" href="#ln-608"></a><span class="k">       CALL </span><span class="n">define_ovar</span><span class="p">(</span><span class="n">ncid_out</span><span class="p">,</span><span class="w"> </span><span class="n">ovid</span><span class="p">%</span><span class="n">SMP</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;SMP&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;m&#39;</span><span class="p">,</span><span class="w">      </span><span class="p">&amp;</span><span class="w"></span>
@@ -796,7 +796,7 @@
 <a id="ln-639" name="ln-639" href="#ln-639"></a><span class="w">       </span><span class="n">out</span><span class="p">%</span><span class="n">hys_fac</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="w"> </span><span class="c">! initialise</span>
 <a id="ln-640" name="ln-640" href="#ln-640"></a><span class="w">    </span><span class="k">end if</span><span class="w"></span>
 <a id="ln-641" name="ln-641" href="#ln-641"></a>
-<a id="ln-642" name="ln-642" href="#ln-642"></a><span class="c">!!$  --------------------- end of block --------------------- rk4417  </span>
+<a id="ln-642" name="ln-642" href="#ln-642"></a><span class="c">!$  --------------------- end of block --------------------- rk4417  </span>
 <a id="ln-643" name="ln-643" href="#ln-643"></a><span class="w">    </span>
 <a id="ln-644" name="ln-644" href="#ln-644"></a><span class="w">    </span><span class="k">IF</span><span class="p">(</span><span class="n">output</span><span class="p">%</span><span class="n">soil</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">output</span><span class="p">%</span><span class="n">BaresoilT</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
 <a id="ln-645" name="ln-645" href="#ln-645"></a><span class="k">       CALL </span><span class="n">define_ovar</span><span class="p">(</span><span class="n">ncid_out</span><span class="p">,</span><span class="w"> </span><span class="n">ovid</span><span class="p">%</span><span class="n">BaresoilT</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;BaresoilT&#39;</span><span class="p">,</span><span class="w">                 </span><span class="p">&amp;</span><span class="w"></span>
@@ -1269,39 +1269,39 @@
 <a id="ln-1112" name="ln-1112" href="#ln-1112"></a><span class="w">         </span><span class="s1">&#39;isoil&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Soil type&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">patchout</span><span class="p">%</span><span class="n">isoil</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-1113" name="ln-1113" href="#ln-1113"></a><span class="w">         </span><span class="n">xID</span><span class="p">,</span><span class="w"> </span><span class="n">yID</span><span class="p">,</span><span class="w"> </span><span class="n">zID</span><span class="p">,</span><span class="w"> </span><span class="n">landID</span><span class="p">,</span><span class="w"> </span><span class="n">patchID</span><span class="p">)</span><span class="w"></span>
 <a id="ln-1114" name="ln-1114" href="#ln-1114"></a>
-<a id="ln-1115" name="ln-1115" href="#ln-1115"></a><span class="c">!!$    IF(output%params .OR. output%bch) CALL define_ovar(ncid_out, opid%bch,     &amp;</span>
-<a id="ln-1116" name="ln-1116" href="#ln-1116"></a><span class="c">!!$         &#39;bch&#39;, &#39;-&#39;, &#39;Parameter b, Campbell eqn 1985&#39;, patchout%bch, &#39;real&#39;, &amp;</span>
-<a id="ln-1117" name="ln-1117" href="#ln-1117"></a><span class="c">!!$         xID, yID, zID, landID, patchID)</span>
-<a id="ln-1118" name="ln-1118" href="#ln-1118"></a><span class="c">!!$    IF(output%params .OR. output%clay) CALL define_ovar(ncid_out, opid%clay,   &amp;</span>
-<a id="ln-1119" name="ln-1119" href="#ln-1119"></a><span class="c">!!$         &#39;clay&#39;, &#39;-&#39;, &#39;Fraction of soil which is clay&#39;, patchout%clay, &#39;real&#39;, &amp;</span>
-<a id="ln-1120" name="ln-1120" href="#ln-1120"></a><span class="c">!!$         xID, yID, zID, landID, patchID)</span>
-<a id="ln-1121" name="ln-1121" href="#ln-1121"></a><span class="c">!!$    IF(output%params .OR. output%sand) CALL define_ovar(ncid_out, opid%sand,   &amp;</span>
-<a id="ln-1122" name="ln-1122" href="#ln-1122"></a><span class="c">!!$         &#39;sand&#39;, &#39;-&#39;, &#39;Fraction of soil which is sand&#39;, patchout%sand, &#39;real&#39;, &amp;</span>
-<a id="ln-1123" name="ln-1123" href="#ln-1123"></a><span class="c">!!$         xID, yID, zID, landID, patchID)</span>
-<a id="ln-1124" name="ln-1124" href="#ln-1124"></a><span class="c">!!$    IF(output%params .OR. output%silt) CALL define_ovar(ncid_out, opid%silt,   &amp;</span>
-<a id="ln-1125" name="ln-1125" href="#ln-1125"></a><span class="c">!!$         &#39;silt&#39;, &#39;-&#39;, &#39;Fraction of soil which is silt&#39;, patchout%silt, &#39;real&#39;, &amp;</span>
-<a id="ln-1126" name="ln-1126" href="#ln-1126"></a><span class="c">!!$         xID, yID, zID, landID, patchID)</span>
-<a id="ln-1127" name="ln-1127" href="#ln-1127"></a><span class="c">!!$    IF(output%params .OR. output%ssat) CALL define_ovar(ncid_out, opid%ssat,   &amp;</span>
-<a id="ln-1128" name="ln-1128" href="#ln-1128"></a><span class="c">!!$         &#39;ssat&#39;, &#39;-&#39;, &#39;Fraction of soil volume which is water @ saturation&#39;, &amp;</span>
-<a id="ln-1129" name="ln-1129" href="#ln-1129"></a><span class="c">!!$         patchout%ssat, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
-<a id="ln-1130" name="ln-1130" href="#ln-1130"></a><span class="c">!!$    IF(output%params .OR. output%sfc) CALL define_ovar(ncid_out, opid%sfc,     &amp;</span>
-<a id="ln-1131" name="ln-1131" href="#ln-1131"></a><span class="c">!!$         &#39;sfc&#39;, &#39;-&#39;, &#39;Fraction of soil volume which is water @ field capacity&#39;, &amp;</span>
-<a id="ln-1132" name="ln-1132" href="#ln-1132"></a><span class="c">!!$         patchout%sfc, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
-<a id="ln-1133" name="ln-1133" href="#ln-1133"></a><span class="c">!!$    IF(output%params .OR. output%swilt) CALL define_ovar(ncid_out, opid%swilt, &amp;</span>
-<a id="ln-1134" name="ln-1134" href="#ln-1134"></a><span class="c">!!$         &#39;swilt&#39;, &#39;-&#39;, &#39;Fraction of soil volume which is water @ wilting point&#39;, &amp;</span>
-<a id="ln-1135" name="ln-1135" href="#ln-1135"></a><span class="c">!!$         patchout%swilt, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
-<a id="ln-1136" name="ln-1136" href="#ln-1136"></a><span class="c">!!$    IF(output%params .OR. output%hyds) CALL define_ovar(ncid_out, opid%hyds,   &amp;</span>
-<a id="ln-1137" name="ln-1137" href="#ln-1137"></a><span class="c">!!$         &#39;hyds&#39;, &#39;m/s&#39;, &#39;Hydraulic conductivity @ saturation&#39;, &amp;</span>
-<a id="ln-1138" name="ln-1138" href="#ln-1138"></a><span class="c">!!$         patchout%hyds, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
-<a id="ln-1139" name="ln-1139" href="#ln-1139"></a><span class="c">!!$    IF(output%params .OR. output%sucs) CALL define_ovar(ncid_out, opid%sucs,   &amp;</span>
-<a id="ln-1140" name="ln-1140" href="#ln-1140"></a><span class="c">!!$         &#39;sucs&#39;, &#39;m&#39;, &#39;Suction @ saturation&#39;, &amp;</span>
-<a id="ln-1141" name="ln-1141" href="#ln-1141"></a><span class="c">!!$         patchout%sucs, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
-<a id="ln-1142" name="ln-1142" href="#ln-1142"></a><span class="c">!!$    IF(output%params .OR. output%css) CALL define_ovar(ncid_out, opid%css,     &amp;</span>
-<a id="ln-1143" name="ln-1143" href="#ln-1143"></a><span class="c">!!$         &#39;css&#39;, &#39;J/kg/C&#39;, &#39;Heat capacity of soil minerals&#39;, &amp;</span>
-<a id="ln-1144" name="ln-1144" href="#ln-1144"></a><span class="c">!!$         patchout%css, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
+<a id="ln-1115" name="ln-1115" href="#ln-1115"></a><span class="c">!$    IF(output%params .OR. output%bch) CALL define_ovar(ncid_out, opid%bch,     &amp;</span>
+<a id="ln-1116" name="ln-1116" href="#ln-1116"></a><span class="c">!$         &#39;bch&#39;, &#39;-&#39;, &#39;Parameter b, Campbell eqn 1985&#39;, patchout%bch, &#39;real&#39;, &amp;</span>
+<a id="ln-1117" name="ln-1117" href="#ln-1117"></a><span class="c">!$         xID, yID, zID, landID, patchID)</span>
+<a id="ln-1118" name="ln-1118" href="#ln-1118"></a><span class="c">!$    IF(output%params .OR. output%clay) CALL define_ovar(ncid_out, opid%clay,   &amp;</span>
+<a id="ln-1119" name="ln-1119" href="#ln-1119"></a><span class="c">!$         &#39;clay&#39;, &#39;-&#39;, &#39;Fraction of soil which is clay&#39;, patchout%clay, &#39;real&#39;, &amp;</span>
+<a id="ln-1120" name="ln-1120" href="#ln-1120"></a><span class="c">!$         xID, yID, zID, landID, patchID)</span>
+<a id="ln-1121" name="ln-1121" href="#ln-1121"></a><span class="c">!$    IF(output%params .OR. output%sand) CALL define_ovar(ncid_out, opid%sand,   &amp;</span>
+<a id="ln-1122" name="ln-1122" href="#ln-1122"></a><span class="c">!$         &#39;sand&#39;, &#39;-&#39;, &#39;Fraction of soil which is sand&#39;, patchout%sand, &#39;real&#39;, &amp;</span>
+<a id="ln-1123" name="ln-1123" href="#ln-1123"></a><span class="c">!$         xID, yID, zID, landID, patchID)</span>
+<a id="ln-1124" name="ln-1124" href="#ln-1124"></a><span class="c">!$    IF(output%params .OR. output%silt) CALL define_ovar(ncid_out, opid%silt,   &amp;</span>
+<a id="ln-1125" name="ln-1125" href="#ln-1125"></a><span class="c">!$         &#39;silt&#39;, &#39;-&#39;, &#39;Fraction of soil which is silt&#39;, patchout%silt, &#39;real&#39;, &amp;</span>
+<a id="ln-1126" name="ln-1126" href="#ln-1126"></a><span class="c">!$         xID, yID, zID, landID, patchID)</span>
+<a id="ln-1127" name="ln-1127" href="#ln-1127"></a><span class="c">!$    IF(output%params .OR. output%ssat) CALL define_ovar(ncid_out, opid%ssat,   &amp;</span>
+<a id="ln-1128" name="ln-1128" href="#ln-1128"></a><span class="c">!$         &#39;ssat&#39;, &#39;-&#39;, &#39;Fraction of soil volume which is water @ saturation&#39;, &amp;</span>
+<a id="ln-1129" name="ln-1129" href="#ln-1129"></a><span class="c">!$         patchout%ssat, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
+<a id="ln-1130" name="ln-1130" href="#ln-1130"></a><span class="c">!$    IF(output%params .OR. output%sfc) CALL define_ovar(ncid_out, opid%sfc,     &amp;</span>
+<a id="ln-1131" name="ln-1131" href="#ln-1131"></a><span class="c">!$         &#39;sfc&#39;, &#39;-&#39;, &#39;Fraction of soil volume which is water @ field capacity&#39;, &amp;</span>
+<a id="ln-1132" name="ln-1132" href="#ln-1132"></a><span class="c">!$         patchout%sfc, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
+<a id="ln-1133" name="ln-1133" href="#ln-1133"></a><span class="c">!$    IF(output%params .OR. output%swilt) CALL define_ovar(ncid_out, opid%swilt, &amp;</span>
+<a id="ln-1134" name="ln-1134" href="#ln-1134"></a><span class="c">!$         &#39;swilt&#39;, &#39;-&#39;, &#39;Fraction of soil volume which is water @ wilting point&#39;, &amp;</span>
+<a id="ln-1135" name="ln-1135" href="#ln-1135"></a><span class="c">!$         patchout%swilt, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
+<a id="ln-1136" name="ln-1136" href="#ln-1136"></a><span class="c">!$    IF(output%params .OR. output%hyds) CALL define_ovar(ncid_out, opid%hyds,   &amp;</span>
+<a id="ln-1137" name="ln-1137" href="#ln-1137"></a><span class="c">!$         &#39;hyds&#39;, &#39;m/s&#39;, &#39;Hydraulic conductivity @ saturation&#39;, &amp;</span>
+<a id="ln-1138" name="ln-1138" href="#ln-1138"></a><span class="c">!$         patchout%hyds, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
+<a id="ln-1139" name="ln-1139" href="#ln-1139"></a><span class="c">!$    IF(output%params .OR. output%sucs) CALL define_ovar(ncid_out, opid%sucs,   &amp;</span>
+<a id="ln-1140" name="ln-1140" href="#ln-1140"></a><span class="c">!$         &#39;sucs&#39;, &#39;m&#39;, &#39;Suction @ saturation&#39;, &amp;</span>
+<a id="ln-1141" name="ln-1141" href="#ln-1141"></a><span class="c">!$         patchout%sucs, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
+<a id="ln-1142" name="ln-1142" href="#ln-1142"></a><span class="c">!$    IF(output%params .OR. output%css) CALL define_ovar(ncid_out, opid%css,     &amp;</span>
+<a id="ln-1143" name="ln-1143" href="#ln-1143"></a><span class="c">!$         &#39;css&#39;, &#39;J/kg/C&#39;, &#39;Heat capacity of soil minerals&#39;, &amp;</span>
+<a id="ln-1144" name="ln-1144" href="#ln-1144"></a><span class="c">!$         patchout%css, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
 <a id="ln-1145" name="ln-1145" href="#ln-1145"></a>
-<a id="ln-1146" name="ln-1146" href="#ln-1146"></a><span class="c">!!$replaced block above by one below as per MMY code -- rk4417    </span>
-<a id="ln-1147" name="ln-1147" href="#ln-1147"></a><span class="c">!!$  --------------------- start of block --------------------- rk4417</span>
+<a id="ln-1146" name="ln-1146" href="#ln-1146"></a><span class="c">!$replaced block above by one below as per MMY code -- rk4417    </span>
+<a id="ln-1147" name="ln-1147" href="#ln-1147"></a><span class="c">!$  --------------------- start of block --------------------- rk4417</span>
 <a id="ln-1148" name="ln-1148" href="#ln-1148"></a><span class="w">    </span>
 <a id="ln-1149" name="ln-1149" href="#ln-1149"></a><span class="w">    </span><span class="k">IF</span><span class="p">(</span><span class="n">output</span><span class="p">%</span><span class="n">params</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">output</span><span class="p">%</span><span class="n">bch</span><span class="p">)</span><span class="w"> </span><span class="k">CALL </span><span class="n">define_ovar</span><span class="p">(</span><span class="n">ncid_out</span><span class="p">,</span><span class="w"> </span><span class="n">opid</span><span class="p">%</span><span class="n">bch</span><span class="p">,</span><span class="w">     </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-1150" name="ln-1150" href="#ln-1150"></a><span class="w">           </span><span class="s1">&#39;bch&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Parameter b, Campbell eqn 1985&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">patchout</span><span class="p">%</span><span class="n">bch</span><span class="p">,</span><span class="w"> </span><span class="n">soilID</span><span class="p">,</span><span class="s1">&#39;soil&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
@@ -1334,13 +1334,13 @@
 <a id="ln-1177" name="ln-1177" href="#ln-1177"></a><span class="w">                            </span><span class="s1">&#39;css&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;J/kg/C&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Heat capacity of soil minerals&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-1178" name="ln-1178" href="#ln-1178"></a><span class="w">                           </span><span class="n">patchout</span><span class="p">%</span><span class="n">css</span><span class="p">,</span><span class="w"> </span><span class="n">soilID</span><span class="p">,</span><span class="s1">&#39;soil&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">xID</span><span class="p">,</span><span class="w"> </span><span class="n">yID</span><span class="p">,</span><span class="w"> </span><span class="n">zID</span><span class="p">,</span><span class="w"> </span><span class="n">landID</span><span class="p">,</span><span class="w"> </span><span class="n">patchID</span><span class="p">)</span><span class="w"></span>
 <a id="ln-1179" name="ln-1179" href="#ln-1179"></a>
-<a id="ln-1180" name="ln-1180" href="#ln-1180"></a><span class="c">!!$  --------------------- end of block --------------------- rk4417    </span>
+<a id="ln-1180" name="ln-1180" href="#ln-1180"></a><span class="c">!$  --------------------- end of block --------------------- rk4417    </span>
 <a id="ln-1181" name="ln-1181" href="#ln-1181"></a>
-<a id="ln-1182" name="ln-1182" href="#ln-1182"></a><span class="c">!!$    IF(output%params .OR. output%rhosoil) CALL define_ovar(ncid_out,           &amp;</span>
-<a id="ln-1183" name="ln-1183" href="#ln-1183"></a><span class="c">!!$         opid%rhosoil, &#39;rhosoil&#39;, &#39;kg/m^3&#39;, &#39;Density of soil minerals&#39;, &amp;</span>
-<a id="ln-1184" name="ln-1184" href="#ln-1184"></a><span class="c">!!$         patchout%rhosoil, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
+<a id="ln-1182" name="ln-1182" href="#ln-1182"></a><span class="c">!$    IF(output%params .OR. output%rhosoil) CALL define_ovar(ncid_out,           &amp;</span>
+<a id="ln-1183" name="ln-1183" href="#ln-1183"></a><span class="c">!$         opid%rhosoil, &#39;rhosoil&#39;, &#39;kg/m^3&#39;, &#39;Density of soil minerals&#39;, &amp;</span>
+<a id="ln-1184" name="ln-1184" href="#ln-1184"></a><span class="c">!$         patchout%rhosoil, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
 <a id="ln-1185" name="ln-1185" href="#ln-1185"></a>
-<a id="ln-1186" name="ln-1186" href="#ln-1186"></a><span class="c">!!$ replaced block above by below as per MMY code -- rk4417 </span>
+<a id="ln-1186" name="ln-1186" href="#ln-1186"></a><span class="c">!$ replaced block above by below as per MMY code -- rk4417 </span>
 <a id="ln-1187" name="ln-1187" href="#ln-1187"></a>
 <a id="ln-1188" name="ln-1188" href="#ln-1188"></a><span class="w">    </span><span class="k">IF</span><span class="p">(</span><span class="n">output</span><span class="p">%</span><span class="n">params</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">output</span><span class="p">%</span><span class="n">rhosoil</span><span class="p">)</span><span class="w"> </span><span class="k">CALL </span><span class="n">define_ovar</span><span class="p">(</span><span class="n">ncid_out</span><span class="p">,</span><span class="w">           </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-1189" name="ln-1189" href="#ln-1189"></a><span class="w">         </span><span class="n">opid</span><span class="p">%</span><span class="n">rhosoil</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;rhosoil&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;kg/m^3&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Density of soil minerals&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
@@ -1464,25 +1464,25 @@
 <a id="ln-1307" name="ln-1307" href="#ln-1307"></a><span class="w">    </span><span class="c">!</span>
 <a id="ln-1308" name="ln-1308" href="#ln-1308"></a>
 <a id="ln-1309" name="ln-1309" href="#ln-1309"></a>
-<a id="ln-1310" name="ln-1310" href="#ln-1310"></a><span class="c">!!$    IF(output%params .AND. cable_user%gw_model) THEN</span>
-<a id="ln-1311" name="ln-1311" href="#ln-1311"></a><span class="c">!!$       CALL define_ovar(ncid_out, opid%Qhmax,   &amp;</span>
-<a id="ln-1312" name="ln-1312" href="#ln-1312"></a><span class="c">!!$            &#39;Qhmax&#39;, &#39;mm/s&#39;, &#39;Maximum subsurface drainage &#39;, &amp;</span>
-<a id="ln-1313" name="ln-1313" href="#ln-1313"></a><span class="c">!!$            patchout%Qhmax, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
-<a id="ln-1314" name="ln-1314" href="#ln-1314"></a><span class="c">!!$       CALL define_ovar(ncid_out, opid%QhmaxEfold,   &amp;</span>
-<a id="ln-1315" name="ln-1315" href="#ln-1315"></a><span class="c">!!$            &#39;QhmaxEfold&#39;, &#39;m&#39;, &#39;Maximum subsurface drainage decay rate&#39;, &amp;</span>
-<a id="ln-1316" name="ln-1316" href="#ln-1316"></a><span class="c">!!$            patchout%QhmaxEfold, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
-<a id="ln-1317" name="ln-1317" href="#ln-1317"></a><span class="c">!!$       CALL define_ovar(ncid_out, opid%SatFracmax,   &amp;</span>
-<a id="ln-1318" name="ln-1318" href="#ln-1318"></a><span class="c">!!$            &#39;SatFracmax&#39;, &#39;-&#39;, &#39;Controls max saturated fraction &#39;, &amp;</span>
-<a id="ln-1319" name="ln-1319" href="#ln-1319"></a><span class="c">!!$            patchout%SatFracmax, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
-<a id="ln-1320" name="ln-1320" href="#ln-1320"></a><span class="c">!!$       CALL define_ovar(ncid_out, opid%HKefold,   &amp;</span>
-<a id="ln-1321" name="ln-1321" href="#ln-1321"></a><span class="c">!!$            &#39;HKefold&#39;, &#39;1/m&#39;, &#39;Rate HK decays with depth &#39;, &amp;</span>
-<a id="ln-1322" name="ln-1322" href="#ln-1322"></a><span class="c">!!$            patchout%HKefold, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
-<a id="ln-1323" name="ln-1323" href="#ln-1323"></a><span class="c">!!$       CALL define_ovar(ncid_out, opid%HKdepth,   &amp;</span>
-<a id="ln-1324" name="ln-1324" href="#ln-1324"></a><span class="c">!!$            &#39;HKdepth&#39;, &#39;m&#39;, &#39;Depth at which HKsat(z) is HKsat(0) &#39;, &amp;</span>
-<a id="ln-1325" name="ln-1325" href="#ln-1325"></a><span class="c">!!$            patchout%HKdepth, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
-<a id="ln-1326" name="ln-1326" href="#ln-1326"></a><span class="c">!!$    END IF</span>
+<a id="ln-1310" name="ln-1310" href="#ln-1310"></a><span class="c">!$    IF(output%params .AND. cable_user%gw_model) THEN</span>
+<a id="ln-1311" name="ln-1311" href="#ln-1311"></a><span class="c">!$       CALL define_ovar(ncid_out, opid%Qhmax,   &amp;</span>
+<a id="ln-1312" name="ln-1312" href="#ln-1312"></a><span class="c">!$            &#39;Qhmax&#39;, &#39;mm/s&#39;, &#39;Maximum subsurface drainage &#39;, &amp;</span>
+<a id="ln-1313" name="ln-1313" href="#ln-1313"></a><span class="c">!$            patchout%Qhmax, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
+<a id="ln-1314" name="ln-1314" href="#ln-1314"></a><span class="c">!$       CALL define_ovar(ncid_out, opid%QhmaxEfold,   &amp;</span>
+<a id="ln-1315" name="ln-1315" href="#ln-1315"></a><span class="c">!$            &#39;QhmaxEfold&#39;, &#39;m&#39;, &#39;Maximum subsurface drainage decay rate&#39;, &amp;</span>
+<a id="ln-1316" name="ln-1316" href="#ln-1316"></a><span class="c">!$            patchout%QhmaxEfold, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
+<a id="ln-1317" name="ln-1317" href="#ln-1317"></a><span class="c">!$       CALL define_ovar(ncid_out, opid%SatFracmax,   &amp;</span>
+<a id="ln-1318" name="ln-1318" href="#ln-1318"></a><span class="c">!$            &#39;SatFracmax&#39;, &#39;-&#39;, &#39;Controls max saturated fraction &#39;, &amp;</span>
+<a id="ln-1319" name="ln-1319" href="#ln-1319"></a><span class="c">!$            patchout%SatFracmax, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
+<a id="ln-1320" name="ln-1320" href="#ln-1320"></a><span class="c">!$       CALL define_ovar(ncid_out, opid%HKefold,   &amp;</span>
+<a id="ln-1321" name="ln-1321" href="#ln-1321"></a><span class="c">!$            &#39;HKefold&#39;, &#39;1/m&#39;, &#39;Rate HK decays with depth &#39;, &amp;</span>
+<a id="ln-1322" name="ln-1322" href="#ln-1322"></a><span class="c">!$            patchout%HKefold, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
+<a id="ln-1323" name="ln-1323" href="#ln-1323"></a><span class="c">!$       CALL define_ovar(ncid_out, opid%HKdepth,   &amp;</span>
+<a id="ln-1324" name="ln-1324" href="#ln-1324"></a><span class="c">!$            &#39;HKdepth&#39;, &#39;m&#39;, &#39;Depth at which HKsat(z) is HKsat(0) &#39;, &amp;</span>
+<a id="ln-1325" name="ln-1325" href="#ln-1325"></a><span class="c">!$            patchout%HKdepth, &#39;real&#39;, xID, yID, zID, landID, patchID)</span>
+<a id="ln-1326" name="ln-1326" href="#ln-1326"></a><span class="c">!$    END IF</span>
 <a id="ln-1327" name="ln-1327" href="#ln-1327"></a>
-<a id="ln-1328" name="ln-1328" href="#ln-1328"></a><span class="c">!!$ replaced block above by below as per MMY code -- rk4417</span>
+<a id="ln-1328" name="ln-1328" href="#ln-1328"></a><span class="c">!$ replaced block above by below as per MMY code -- rk4417</span>
 <a id="ln-1329" name="ln-1329" href="#ln-1329"></a>
 <a id="ln-1330" name="ln-1330" href="#ln-1330"></a><span class="w">    </span><span class="k">IF</span><span class="p">(</span><span class="n">output</span><span class="p">%</span><span class="n">params</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">cable_user</span><span class="p">%</span><span class="n">gw_model</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
 <a id="ln-1331" name="ln-1331" href="#ln-1331"></a><span class="k">            call </span><span class="n">define_ovar</span><span class="p">(</span><span class="n">ncid_out</span><span class="p">,</span><span class="w"> </span><span class="n">opid</span><span class="p">%</span><span class="n">slope</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span><span class="w"></span>
@@ -1634,18 +1634,18 @@
 <a id="ln-1477" name="ln-1477" href="#ln-1477"></a><span class="k">    IF</span><span class="p">(</span><span class="n">output</span><span class="p">%</span><span class="n">params</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">output</span><span class="p">%</span><span class="n">isoil</span><span class="p">)</span><span class="w"> </span><span class="k">CALL </span><span class="n">write_ovar</span><span class="p">(</span><span class="n">ncid_out</span><span class="p">,</span><span class="w"> </span><span class="n">opid</span><span class="p">%</span><span class="n">isoil</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-1478" name="ln-1478" href="#ln-1478"></a><span class="w">         </span><span class="s1">&#39;isoil&#39;</span><span class="p">,</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">soil</span><span class="p">%</span><span class="n">isoilm</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="n">ranges</span><span class="p">%</span><span class="n">isoil</span><span class="p">,</span><span class="w"> </span><span class="n">patchout</span><span class="p">%</span><span class="n">isoil</span><span class="p">,</span><span class="s1">&#39;integer&#39;</span><span class="p">)</span><span class="w"></span>
 <a id="ln-1479" name="ln-1479" href="#ln-1479"></a>
-<a id="ln-1480" name="ln-1480" href="#ln-1480"></a><span class="c">!!$    IF(output%params .OR. output%bch) CALL write_ovar(ncid_out, opid%bch,      &amp;</span>
-<a id="ln-1481" name="ln-1481" href="#ln-1481"></a><span class="c">!!$         &#39;bch&#39;, REAL(soil%bch, 4), ranges%bch, patchout%bch, &#39;real&#39;)</span>
-<a id="ln-1482" name="ln-1482" href="#ln-1482"></a><span class="c">!!$    IF(output%params .OR. output%clay) CALL write_ovar(ncid_out, opid%clay,    &amp;</span>
-<a id="ln-1483" name="ln-1483" href="#ln-1483"></a><span class="c">!!$         &#39;clay&#39;, REAL(soil%clay, 4), ranges%clay, patchout%clay, &#39;real&#39;)</span>
-<a id="ln-1484" name="ln-1484" href="#ln-1484"></a><span class="c">!!$    IF(output%params .OR. output%sand) CALL write_ovar(ncid_out, opid%sand,    &amp;</span>
-<a id="ln-1485" name="ln-1485" href="#ln-1485"></a><span class="c">!!$         &#39;sand&#39;, REAL(soil%sand, 4), ranges%sand, patchout%sand, &#39;real&#39;)</span>
-<a id="ln-1486" name="ln-1486" href="#ln-1486"></a><span class="c">!!$    IF(output%params .OR. output%silt) CALL write_ovar(ncid_out, opid%silt,    &amp;</span>
-<a id="ln-1487" name="ln-1487" href="#ln-1487"></a><span class="c">!!$         &#39;silt&#39;, REAL(soil%silt, 4), ranges%silt, patchout%silt, &#39;real&#39;)</span>
-<a id="ln-1488" name="ln-1488" href="#ln-1488"></a><span class="c">!!$    IF(output%params .OR. output%css) CALL write_ovar(ncid_out, opid%css,      &amp;</span>
-<a id="ln-1489" name="ln-1489" href="#ln-1489"></a><span class="c">!!$         &#39;css&#39;, REAL(soil%css, 4), ranges%css, patchout%css, &#39;real&#39;)</span>
+<a id="ln-1480" name="ln-1480" href="#ln-1480"></a><span class="c">!$    IF(output%params .OR. output%bch) CALL write_ovar(ncid_out, opid%bch,      &amp;</span>
+<a id="ln-1481" name="ln-1481" href="#ln-1481"></a><span class="c">!$         &#39;bch&#39;, REAL(soil%bch, 4), ranges%bch, patchout%bch, &#39;real&#39;)</span>
+<a id="ln-1482" name="ln-1482" href="#ln-1482"></a><span class="c">!$    IF(output%params .OR. output%clay) CALL write_ovar(ncid_out, opid%clay,    &amp;</span>
+<a id="ln-1483" name="ln-1483" href="#ln-1483"></a><span class="c">!$         &#39;clay&#39;, REAL(soil%clay, 4), ranges%clay, patchout%clay, &#39;real&#39;)</span>
+<a id="ln-1484" name="ln-1484" href="#ln-1484"></a><span class="c">!$    IF(output%params .OR. output%sand) CALL write_ovar(ncid_out, opid%sand,    &amp;</span>
+<a id="ln-1485" name="ln-1485" href="#ln-1485"></a><span class="c">!$         &#39;sand&#39;, REAL(soil%sand, 4), ranges%sand, patchout%sand, &#39;real&#39;)</span>
+<a id="ln-1486" name="ln-1486" href="#ln-1486"></a><span class="c">!$    IF(output%params .OR. output%silt) CALL write_ovar(ncid_out, opid%silt,    &amp;</span>
+<a id="ln-1487" name="ln-1487" href="#ln-1487"></a><span class="c">!$         &#39;silt&#39;, REAL(soil%silt, 4), ranges%silt, patchout%silt, &#39;real&#39;)</span>
+<a id="ln-1488" name="ln-1488" href="#ln-1488"></a><span class="c">!$    IF(output%params .OR. output%css) CALL write_ovar(ncid_out, opid%css,      &amp;</span>
+<a id="ln-1489" name="ln-1489" href="#ln-1489"></a><span class="c">!$         &#39;css&#39;, REAL(soil%css, 4), ranges%css, patchout%css, &#39;real&#39;)</span>
 <a id="ln-1490" name="ln-1490" href="#ln-1490"></a>
-<a id="ln-1491" name="ln-1491" href="#ln-1491"></a><span class="c">!!$ replaced block above by below as per MMY code -- rk4417</span>
+<a id="ln-1491" name="ln-1491" href="#ln-1491"></a><span class="c">!$ replaced block above by below as per MMY code -- rk4417</span>
 <a id="ln-1492" name="ln-1492" href="#ln-1492"></a><span class="w">    </span>
 <a id="ln-1493" name="ln-1493" href="#ln-1493"></a><span class="w">    </span><span class="k">IF</span><span class="p">(</span><span class="n">output</span><span class="p">%</span><span class="n">params</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">output</span><span class="p">%</span><span class="n">bch</span><span class="p">)</span><span class="w"> </span><span class="k">CALL </span><span class="n">write_ovar</span><span class="p">(</span><span class="n">ncid_out</span><span class="p">,</span><span class="w"> </span><span class="n">opid</span><span class="p">%</span><span class="n">bch</span><span class="p">,</span><span class="w">      </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-1494" name="ln-1494" href="#ln-1494"></a><span class="w">                     </span><span class="s1">&#39;bch&#39;</span><span class="p">,</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">soil</span><span class="p">%</span><span class="n">bch_vec</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="n">ranges</span><span class="p">%</span><span class="n">bch</span><span class="p">,</span><span class="w"> </span><span class="n">patchout</span><span class="p">%</span><span class="n">bch</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;soil&#39;</span><span class="p">)</span><span class="w"></span>
@@ -1659,22 +1659,22 @@
 <a id="ln-1502" name="ln-1502" href="#ln-1502"></a><span class="w">                     </span><span class="s1">&#39;css&#39;</span><span class="p">,</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">soil</span><span class="p">%</span><span class="n">css_vec</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="n">ranges</span><span class="p">%</span><span class="n">css</span><span class="p">,</span><span class="w"> </span><span class="n">patchout</span><span class="p">%</span><span class="n">css</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;soil&#39;</span><span class="p">)</span><span class="w"></span>
 <a id="ln-1503" name="ln-1503" href="#ln-1503"></a>
 <a id="ln-1504" name="ln-1504" href="#ln-1504"></a>
-<a id="ln-1505" name="ln-1505" href="#ln-1505"></a><span class="c">!!$    IF(output%params .OR. output%rhosoil) CALL write_ovar(ncid_out,            &amp;</span>
-<a id="ln-1506" name="ln-1506" href="#ln-1506"></a><span class="c">!!$         opid%rhosoil, &#39;rhosoil&#39;,REAL(soil%rhosoil,4), &amp;</span>
-<a id="ln-1507" name="ln-1507" href="#ln-1507"></a><span class="c">!!$         ranges%rhosoil, patchout%rhosoil, &#39;real&#39;)</span>
+<a id="ln-1505" name="ln-1505" href="#ln-1505"></a><span class="c">!$    IF(output%params .OR. output%rhosoil) CALL write_ovar(ncid_out,            &amp;</span>
+<a id="ln-1506" name="ln-1506" href="#ln-1506"></a><span class="c">!$         opid%rhosoil, &#39;rhosoil&#39;,REAL(soil%rhosoil,4), &amp;</span>
+<a id="ln-1507" name="ln-1507" href="#ln-1507"></a><span class="c">!$         ranges%rhosoil, patchout%rhosoil, &#39;real&#39;)</span>
 <a id="ln-1508" name="ln-1508" href="#ln-1508"></a>
-<a id="ln-1509" name="ln-1509" href="#ln-1509"></a><span class="c">!!$ replaced block above by below as per MMY code -- rk4417</span>
+<a id="ln-1509" name="ln-1509" href="#ln-1509"></a><span class="c">!$ replaced block above by below as per MMY code -- rk4417</span>
 <a id="ln-1510" name="ln-1510" href="#ln-1510"></a>
 <a id="ln-1511" name="ln-1511" href="#ln-1511"></a><span class="w">    </span><span class="k">IF</span><span class="p">(</span><span class="n">output</span><span class="p">%</span><span class="n">params</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">output</span><span class="p">%</span><span class="n">rhosoil</span><span class="p">)</span><span class="w"> </span><span class="k">CALL </span><span class="n">write_ovar</span><span class="p">(</span><span class="n">ncid_out</span><span class="p">,</span><span class="w">            </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-1512" name="ln-1512" href="#ln-1512"></a><span class="w">         </span><span class="n">opid</span><span class="p">%</span><span class="n">rhosoil</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;rhosoil&#39;</span><span class="p">,</span><span class="kt">REAL</span><span class="p">(</span><span class="n">soil</span><span class="p">%</span><span class="n">rhosoil_vec</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-1513" name="ln-1513" href="#ln-1513"></a><span class="w">         </span><span class="n">ranges</span><span class="p">%</span><span class="n">rhosoil</span><span class="p">,</span><span class="w"> </span><span class="n">patchout</span><span class="p">%</span><span class="n">rhosoil</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;soil&#39;</span><span class="p">)</span><span class="w"></span>
 <a id="ln-1514" name="ln-1514" href="#ln-1514"></a>
-<a id="ln-1515" name="ln-1515" href="#ln-1515"></a><span class="c">!!$    IF(output%params .OR. output%hyds) CALL write_ovar(ncid_out, opid%hyds,    &amp;</span>
-<a id="ln-1516" name="ln-1516" href="#ln-1516"></a><span class="c">!!$         &#39;hyds&#39;, REAL(soil%hyds, 4), ranges%hyds, patchout%hyds, &#39;real&#39;)</span>
-<a id="ln-1517" name="ln-1517" href="#ln-1517"></a><span class="c">!!$    IF(output%params .OR. output%sucs) CALL write_ovar(ncid_out, opid%sucs,    &amp;</span>
-<a id="ln-1518" name="ln-1518" href="#ln-1518"></a><span class="c">!!$         &#39;sucs&#39;, REAL(soil%sucs, 4), ranges%sucs, patchout%sucs, &#39;real&#39;)</span>
+<a id="ln-1515" name="ln-1515" href="#ln-1515"></a><span class="c">!$    IF(output%params .OR. output%hyds) CALL write_ovar(ncid_out, opid%hyds,    &amp;</span>
+<a id="ln-1516" name="ln-1516" href="#ln-1516"></a><span class="c">!$         &#39;hyds&#39;, REAL(soil%hyds, 4), ranges%hyds, patchout%hyds, &#39;real&#39;)</span>
+<a id="ln-1517" name="ln-1517" href="#ln-1517"></a><span class="c">!$    IF(output%params .OR. output%sucs) CALL write_ovar(ncid_out, opid%sucs,    &amp;</span>
+<a id="ln-1518" name="ln-1518" href="#ln-1518"></a><span class="c">!$         &#39;sucs&#39;, REAL(soil%sucs, 4), ranges%sucs, patchout%sucs, &#39;real&#39;)</span>
 <a id="ln-1519" name="ln-1519" href="#ln-1519"></a>
-<a id="ln-1520" name="ln-1520" href="#ln-1520"></a><span class="c">!!$ replaced block above by below as per MMY code -- rk4417</span>
+<a id="ln-1520" name="ln-1520" href="#ln-1520"></a><span class="c">!$ replaced block above by below as per MMY code -- rk4417</span>
 <a id="ln-1521" name="ln-1521" href="#ln-1521"></a>
 <a id="ln-1522" name="ln-1522" href="#ln-1522"></a><span class="w">   </span><span class="k">IF</span><span class="p">(</span><span class="n">output</span><span class="p">%</span><span class="n">params</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">output</span><span class="p">%</span><span class="n">hyds</span><span class="p">)</span><span class="w"> </span><span class="k">CALL </span><span class="n">write_ovar</span><span class="p">(</span><span class="n">ncid_out</span><span class="p">,</span><span class="w"> </span><span class="n">opid</span><span class="p">%</span><span class="n">hyds</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-1523" name="ln-1523" href="#ln-1523"></a><span class="w">                 </span><span class="s1">&#39;hyds&#39;</span><span class="p">,</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">soil</span><span class="p">%</span><span class="n">hyds_vec</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="n">ranges</span><span class="p">%</span><span class="n">hyds</span><span class="p">,</span><span class="w"> </span><span class="n">patchout</span><span class="p">%</span><span class="n">hyds</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;soil&#39;</span><span class="p">)</span><span class="w"></span>
@@ -1687,14 +1687,14 @@
 <a id="ln-1530" name="ln-1530" href="#ln-1530"></a><span class="w">    </span><span class="c">!         &#39;rs20&#39;,REAL(soil%rs20,4),ranges%rs20,patchout%rs20,&#39;real&#39;)</span>
 <a id="ln-1531" name="ln-1531" href="#ln-1531"></a>
 <a id="ln-1532" name="ln-1532" href="#ln-1532"></a>
-<a id="ln-1533" name="ln-1533" href="#ln-1533"></a><span class="c">!!$    IF(output%params .OR. output%ssat) CALL write_ovar(ncid_out, opid%ssat,    &amp;</span>
-<a id="ln-1534" name="ln-1534" href="#ln-1534"></a><span class="c">!!$         &#39;ssat&#39;, REAL(soil%ssat, 4), ranges%ssat, patchout%ssat, &#39;real&#39;)</span>
-<a id="ln-1535" name="ln-1535" href="#ln-1535"></a><span class="c">!!$    IF(output%params .OR. output%sfc) CALL write_ovar(ncid_out, opid%sfc,      &amp;</span>
-<a id="ln-1536" name="ln-1536" href="#ln-1536"></a><span class="c">!!$         &#39;sfc&#39;, REAL(soil%sfc, 4), ranges%sfc, patchout%sfc, &#39;real&#39;)</span>
-<a id="ln-1537" name="ln-1537" href="#ln-1537"></a><span class="c">!!$    IF(output%params .OR. output%swilt) CALL write_ovar(ncid_out, opid%swilt,  &amp;</span>
-<a id="ln-1538" name="ln-1538" href="#ln-1538"></a><span class="c">!!$         &#39;swilt&#39;, REAL(soil%swilt, 4), ranges%swilt, patchout%swilt, &#39;real&#39;)</span>
+<a id="ln-1533" name="ln-1533" href="#ln-1533"></a><span class="c">!$    IF(output%params .OR. output%ssat) CALL write_ovar(ncid_out, opid%ssat,    &amp;</span>
+<a id="ln-1534" name="ln-1534" href="#ln-1534"></a><span class="c">!$         &#39;ssat&#39;, REAL(soil%ssat, 4), ranges%ssat, patchout%ssat, &#39;real&#39;)</span>
+<a id="ln-1535" name="ln-1535" href="#ln-1535"></a><span class="c">!$    IF(output%params .OR. output%sfc) CALL write_ovar(ncid_out, opid%sfc,      &amp;</span>
+<a id="ln-1536" name="ln-1536" href="#ln-1536"></a><span class="c">!$         &#39;sfc&#39;, REAL(soil%sfc, 4), ranges%sfc, patchout%sfc, &#39;real&#39;)</span>
+<a id="ln-1537" name="ln-1537" href="#ln-1537"></a><span class="c">!$    IF(output%params .OR. output%swilt) CALL write_ovar(ncid_out, opid%swilt,  &amp;</span>
+<a id="ln-1538" name="ln-1538" href="#ln-1538"></a><span class="c">!$         &#39;swilt&#39;, REAL(soil%swilt, 4), ranges%swilt, patchout%swilt, &#39;real&#39;)</span>
 <a id="ln-1539" name="ln-1539" href="#ln-1539"></a>
-<a id="ln-1540" name="ln-1540" href="#ln-1540"></a><span class="c">!!$ replaced block above by below as per MMY code -- rk4417</span>
+<a id="ln-1540" name="ln-1540" href="#ln-1540"></a><span class="c">!$ replaced block above by below as per MMY code -- rk4417</span>
 <a id="ln-1541" name="ln-1541" href="#ln-1541"></a>
 <a id="ln-1542" name="ln-1542" href="#ln-1542"></a><span class="w">    </span><span class="k">IF</span><span class="p">(</span><span class="n">output</span><span class="p">%</span><span class="n">params</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">output</span><span class="p">%</span><span class="n">ssat</span><span class="p">)</span><span class="w"> </span><span class="k">CALL </span><span class="n">write_ovar</span><span class="p">(</span><span class="n">ncid_out</span><span class="p">,</span><span class="w"> </span><span class="n">opid</span><span class="p">%</span><span class="n">ssat</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-1543" name="ln-1543" href="#ln-1543"></a><span class="w">                 </span><span class="s1">&#39;ssat&#39;</span><span class="p">,</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">soil</span><span class="p">%</span><span class="n">ssat_vec</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="n">ranges</span><span class="p">%</span><span class="n">ssat</span><span class="p">,</span><span class="w"> </span><span class="n">patchout</span><span class="p">%</span><span class="n">ssat</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;soil&#39;</span><span class="p">)</span><span class="w"></span>
@@ -1773,7 +1773,7 @@
 <a id="ln-1616" name="ln-1616" href="#ln-1616"></a><span class="w">    </span><span class="k">IF</span><span class="p">(</span><span class="n">output</span><span class="p">%</span><span class="n">params</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">output</span><span class="p">%</span><span class="n">froot</span><span class="p">)</span><span class="w"> </span><span class="k">CALL </span><span class="n">write_ovar</span><span class="w"> </span><span class="p">(</span><span class="n">ncid_out</span><span class="p">,</span><span class="w"> </span><span class="n">opid</span><span class="p">%</span><span class="n">froot</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-1617" name="ln-1617" href="#ln-1617"></a><span class="w">         </span><span class="s1">&#39;froot&#39;</span><span class="p">,</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">veg</span><span class="p">%</span><span class="n">froot</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="n">ranges</span><span class="p">%</span><span class="n">froot</span><span class="p">,</span><span class="w"> </span><span class="n">patchout</span><span class="p">%</span><span class="n">froot</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;soil&#39;</span><span class="p">)</span><span class="w"></span>
 <a id="ln-1618" name="ln-1618" href="#ln-1618"></a><span class="w">    </span><span class="k">IF</span><span class="p">(</span><span class="n">output</span><span class="p">%</span><span class="n">params</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">output</span><span class="p">%</span><span class="n">zse</span><span class="p">)</span><span class="w"> </span><span class="k">CALL </span><span class="n">write_ovar</span><span class="p">(</span><span class="n">ncid_out</span><span class="p">,</span><span class="w"> </span><span class="n">opid</span><span class="p">%</span><span class="n">zse</span><span class="p">,</span><span class="w">      </span><span class="p">&amp;</span><span class="w"></span>
-<a id="ln-1619" name="ln-1619" href="#ln-1619"></a><span class="c">!!$         &#39;zse&#39;, SPREAD(REAL(soil%zse, 4), 1, mp),ranges%zse, &amp;  ! replaced line by one below as per MMY code -- rk4417</span>
+<a id="ln-1619" name="ln-1619" href="#ln-1619"></a><span class="c">!$         &#39;zse&#39;, SPREAD(REAL(soil%zse, 4), 1, mp),ranges%zse, &amp;  ! replaced line by one below as per MMY code -- rk4417</span>
 <a id="ln-1620" name="ln-1620" href="#ln-1620"></a><span class="w">         </span><span class="s1">&#39;zse&#39;</span><span class="p">,</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">soil</span><span class="p">%</span><span class="n">zse_vec</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">),</span><span class="n">ranges</span><span class="p">%</span><span class="n">zse</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-1621" name="ln-1621" href="#ln-1621"></a><span class="w">         </span><span class="n">patchout</span><span class="p">%</span><span class="n">zse</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;soil&#39;</span><span class="p">)</span><span class="c">! no spatial dim at present</span>
 <a id="ln-1622" name="ln-1622" href="#ln-1622"></a>
@@ -1786,29 +1786,29 @@
 <a id="ln-1629" name="ln-1629" href="#ln-1629"></a><span class="w">    </span><span class="c">!</span>
 <a id="ln-1630" name="ln-1630" href="#ln-1630"></a>
 <a id="ln-1631" name="ln-1631" href="#ln-1631"></a>
-<a id="ln-1632" name="ln-1632" href="#ln-1632"></a><span class="c">!!$    IF(output%params .AND. cable_user%gw_model) THEN</span>
-<a id="ln-1633" name="ln-1633" href="#ln-1633"></a><span class="c">!!$       CALL write_ovar(ncid_out, opid%SatFracmax,    &amp;</span>
-<a id="ln-1634" name="ln-1634" href="#ln-1634"></a><span class="c">!!$            &#39;SatFracmax&#39;, SPREAD(REAL(gw_params%MaxSatFraction,4),1,mp), &amp;</span>
-<a id="ln-1635" name="ln-1635" href="#ln-1635"></a><span class="c">!!$            (/0.0,100000000.0/), patchout%SatFracmax, &#39;real&#39;)</span>
-<a id="ln-1636" name="ln-1636" href="#ln-1636"></a><span class="c">!!$</span>
-<a id="ln-1637" name="ln-1637" href="#ln-1637"></a><span class="c">!!$       CALL write_ovar(ncid_out, opid%Qhmax,    &amp;</span>
-<a id="ln-1638" name="ln-1638" href="#ln-1638"></a><span class="c">!!$            &#39;Qhmax&#39;, SPREAD(REAL(gw_params%MaxHorzDrainRate, 4),1,mp), &amp;</span>
-<a id="ln-1639" name="ln-1639" href="#ln-1639"></a><span class="c">!!$            (/0.0,100000000.0/), patchout%Qhmax, &#39;real&#39;)</span>
-<a id="ln-1640" name="ln-1640" href="#ln-1640"></a><span class="c">!!$</span>
-<a id="ln-1641" name="ln-1641" href="#ln-1641"></a><span class="c">!!$       CALL write_ovar(ncid_out, opid%QhmaxEfold,    &amp;</span>
-<a id="ln-1642" name="ln-1642" href="#ln-1642"></a><span class="c">!!$            &#39;QhmaxEfold&#39;, SPREAD(REAL(gw_params%EfoldHorzDrainRate, 4),1,mp), &amp;</span>
-<a id="ln-1643" name="ln-1643" href="#ln-1643"></a><span class="c">!!$            (/0.0,100000000.0/), patchout%QhmaxEfold, &#39;real&#39;)</span>
-<a id="ln-1644" name="ln-1644" href="#ln-1644"></a><span class="c">!!$</span>
-<a id="ln-1645" name="ln-1645" href="#ln-1645"></a><span class="c">!!$       CALL write_ovar(ncid_out, opid%HKefold,    &amp;</span>
-<a id="ln-1646" name="ln-1646" href="#ln-1646"></a><span class="c">!!$            &#39;HKefold&#39;, SPREAD(REAL(gw_params%hkrz, 4),1,mp), &amp;</span>
-<a id="ln-1647" name="ln-1647" href="#ln-1647"></a><span class="c">!!$            (/0.0,100000000.0/), patchout%HKefold, &#39;real&#39;)</span>
-<a id="ln-1648" name="ln-1648" href="#ln-1648"></a><span class="c">!!$</span>
-<a id="ln-1649" name="ln-1649" href="#ln-1649"></a><span class="c">!!$       CALL write_ovar(ncid_out, opid%HKdepth,    &amp;</span>
-<a id="ln-1650" name="ln-1650" href="#ln-1650"></a><span class="c">!!$            &#39;HKdepth&#39;, SPREAD(REAL(gw_params%zdepth, 4),1,mp), &amp;</span>
-<a id="ln-1651" name="ln-1651" href="#ln-1651"></a><span class="c">!!$            (/0.0,100000000.0/), patchout%HKdepth, &#39;real&#39;)</span>
-<a id="ln-1652" name="ln-1652" href="#ln-1652"></a><span class="c">!!$    END IF</span>
+<a id="ln-1632" name="ln-1632" href="#ln-1632"></a><span class="c">!$    IF(output%params .AND. cable_user%gw_model) THEN</span>
+<a id="ln-1633" name="ln-1633" href="#ln-1633"></a><span class="c">!$       CALL write_ovar(ncid_out, opid%SatFracmax,    &amp;</span>
+<a id="ln-1634" name="ln-1634" href="#ln-1634"></a><span class="c">!$            &#39;SatFracmax&#39;, SPREAD(REAL(gw_params%MaxSatFraction,4),1,mp), &amp;</span>
+<a id="ln-1635" name="ln-1635" href="#ln-1635"></a><span class="c">!$            (/0.0,100000000.0/), patchout%SatFracmax, &#39;real&#39;)</span>
+<a id="ln-1636" name="ln-1636" href="#ln-1636"></a><span class="c">!$</span>
+<a id="ln-1637" name="ln-1637" href="#ln-1637"></a><span class="c">!$       CALL write_ovar(ncid_out, opid%Qhmax,    &amp;</span>
+<a id="ln-1638" name="ln-1638" href="#ln-1638"></a><span class="c">!$            &#39;Qhmax&#39;, SPREAD(REAL(gw_params%MaxHorzDrainRate, 4),1,mp), &amp;</span>
+<a id="ln-1639" name="ln-1639" href="#ln-1639"></a><span class="c">!$            (/0.0,100000000.0/), patchout%Qhmax, &#39;real&#39;)</span>
+<a id="ln-1640" name="ln-1640" href="#ln-1640"></a><span class="c">!$</span>
+<a id="ln-1641" name="ln-1641" href="#ln-1641"></a><span class="c">!$       CALL write_ovar(ncid_out, opid%QhmaxEfold,    &amp;</span>
+<a id="ln-1642" name="ln-1642" href="#ln-1642"></a><span class="c">!$            &#39;QhmaxEfold&#39;, SPREAD(REAL(gw_params%EfoldHorzDrainRate, 4),1,mp), &amp;</span>
+<a id="ln-1643" name="ln-1643" href="#ln-1643"></a><span class="c">!$            (/0.0,100000000.0/), patchout%QhmaxEfold, &#39;real&#39;)</span>
+<a id="ln-1644" name="ln-1644" href="#ln-1644"></a><span class="c">!$</span>
+<a id="ln-1645" name="ln-1645" href="#ln-1645"></a><span class="c">!$       CALL write_ovar(ncid_out, opid%HKefold,    &amp;</span>
+<a id="ln-1646" name="ln-1646" href="#ln-1646"></a><span class="c">!$            &#39;HKefold&#39;, SPREAD(REAL(gw_params%hkrz, 4),1,mp), &amp;</span>
+<a id="ln-1647" name="ln-1647" href="#ln-1647"></a><span class="c">!$            (/0.0,100000000.0/), patchout%HKefold, &#39;real&#39;)</span>
+<a id="ln-1648" name="ln-1648" href="#ln-1648"></a><span class="c">!$</span>
+<a id="ln-1649" name="ln-1649" href="#ln-1649"></a><span class="c">!$       CALL write_ovar(ncid_out, opid%HKdepth,    &amp;</span>
+<a id="ln-1650" name="ln-1650" href="#ln-1650"></a><span class="c">!$            &#39;HKdepth&#39;, SPREAD(REAL(gw_params%zdepth, 4),1,mp), &amp;</span>
+<a id="ln-1651" name="ln-1651" href="#ln-1651"></a><span class="c">!$            (/0.0,100000000.0/), patchout%HKdepth, &#39;real&#39;)</span>
+<a id="ln-1652" name="ln-1652" href="#ln-1652"></a><span class="c">!$    END IF</span>
 <a id="ln-1653" name="ln-1653" href="#ln-1653"></a>
-<a id="ln-1654" name="ln-1654" href="#ln-1654"></a><span class="c">!!$ replaced block above by below as per MMY code -- rk4417</span>
+<a id="ln-1654" name="ln-1654" href="#ln-1654"></a><span class="c">!$ replaced block above by below as per MMY code -- rk4417</span>
 <a id="ln-1655" name="ln-1655" href="#ln-1655"></a>
 <a id="ln-1656" name="ln-1656" href="#ln-1656"></a><span class="w">    </span><span class="k">IF</span><span class="p">(</span><span class="n">output</span><span class="p">%</span><span class="n">params</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">cable_user</span><span class="p">%</span><span class="n">gw_model</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
 <a id="ln-1657" name="ln-1657" href="#ln-1657"></a><span class="k">          CALL </span><span class="n">write_ovar</span><span class="p">(</span><span class="n">ncid_out</span><span class="p">,</span><span class="w"> </span><span class="n">opid</span><span class="p">%</span><span class="n">slope</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span><span class="w"></span>
@@ -2444,8 +2444,8 @@
 <a id="ln-2287" name="ln-2287" href="#ln-2287"></a><span class="w">       </span><span class="k">END IF</span>
 <a id="ln-2288" name="ln-2288" href="#ln-2288"></a><span class="k">    END IF</span><span class="w"></span>
 <a id="ln-2289" name="ln-2289" href="#ln-2289"></a>
-<a id="ln-2290" name="ln-2290" href="#ln-2290"></a><span class="c">!!$     inserted block below as per MMY code -- rk4417</span>
-<a id="ln-2291" name="ln-2291" href="#ln-2291"></a><span class="c">!!$------------------------------ rk4417 ----------------------------------</span>
+<a id="ln-2290" name="ln-2290" href="#ln-2290"></a><span class="c">!$     inserted block below as per MMY code -- rk4417</span>
+<a id="ln-2291" name="ln-2291" href="#ln-2291"></a><span class="c">!$------------------------------ rk4417 ----------------------------------</span>
 <a id="ln-2292" name="ln-2292" href="#ln-2292"></a>
 <a id="ln-2293" name="ln-2293" href="#ln-2293"></a><span class="w">    </span><span class="k">IF</span><span class="p">((</span><span class="n">output</span><span class="p">%</span><span class="n">soil</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">output</span><span class="p">%</span><span class="n">SMP</span><span class="p">)</span><span class="w">  </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">cable_user</span><span class="p">%</span><span class="n">GW_MODEL</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w"></span>
 <a id="ln-2294" name="ln-2294" href="#ln-2294"></a><span class="w">       </span><span class="c">!write(*,*) &#39;Qinfl&#39;    !MDeck</span>
@@ -2502,7 +2502,7 @@
 <a id="ln-2345" name="ln-2345" href="#ln-2345"></a><span class="w">       </span><span class="k">END IF</span>
 <a id="ln-2346" name="ln-2346" href="#ln-2346"></a><span class="k">    END IF</span><span class="w"></span>
 <a id="ln-2347" name="ln-2347" href="#ln-2347"></a>
-<a id="ln-2348" name="ln-2348" href="#ln-2348"></a><span class="c">!!$------------------------------ rk4417 ----------------------------------</span>
+<a id="ln-2348" name="ln-2348" href="#ln-2348"></a><span class="c">!$------------------------------ rk4417 ----------------------------------</span>
 <a id="ln-2349" name="ln-2349" href="#ln-2349"></a>
 <a id="ln-2350" name="ln-2350" href="#ln-2350"></a><span class="w">    </span><span class="c">! recharge rate</span>
 <a id="ln-2351" name="ln-2351" href="#ln-2351"></a><span class="w">    </span><span class="k">IF</span><span class="p">(</span><span class="n">output</span><span class="p">%</span><span class="n">soil</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">output</span><span class="p">%</span><span class="n">Qrecharge</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w"></span>
@@ -2930,8 +2930,8 @@
 <a id="ln-2773" name="ln-2773" href="#ln-2773"></a><span class="w">       </span><span class="c">! in order to avoid negative carbon stores.</span>
 <a id="ln-2774" name="ln-2774" href="#ln-2774"></a>
 <a id="ln-2775" name="ln-2775" href="#ln-2775"></a><span class="w">       </span><span class="k">IF</span><span class="p">(</span><span class="n">output</span><span class="p">%</span><span class="n">casa</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w"></span>
-<a id="ln-2776" name="ln-2776" href="#ln-2776"></a><span class="c">!!$          out%AutoResp = out%AutoResp + REAL((sum(casaflux%crmplant,2)/86400.0 + &amp;</span>
-<a id="ln-2777" name="ln-2777" href="#ln-2777"></a><span class="c">!!$ note that 2 lines below are placed by line above in MMY code -- rk4417</span>
+<a id="ln-2776" name="ln-2776" href="#ln-2776"></a><span class="c">!$          out%AutoResp = out%AutoResp + REAL((sum(casaflux%crmplant,2)/86400.0 + &amp;</span>
+<a id="ln-2777" name="ln-2777" href="#ln-2777"></a><span class="c">!$ note that 2 lines below are placed by line above in MMY code -- rk4417</span>
 <a id="ln-2778" name="ln-2778" href="#ln-2778"></a><span class="w">          </span><span class="n">out</span><span class="p">%</span><span class="n">AutoResp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">out</span><span class="p">%</span><span class="n">AutoResp</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">canopy</span><span class="p">%</span><span class="n">frday</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1.201E-5</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-2779" name="ln-2779" href="#ln-2779"></a><span class="w">               </span><span class="kt">REAL</span><span class="p">((</span><span class="n">casaflux</span><span class="p">%</span><span class="n">crmplant</span><span class="p">(:,</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="mi">8640</span><span class="mf">0.0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">casaflux</span><span class="p">%</span><span class="n">crmplant</span><span class="p">(:,</span><span class="mi">3</span><span class="p">)</span><span class="o">/</span><span class="mi">8640</span><span class="mf">0.0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-2780" name="ln-2780" href="#ln-2780"></a><span class="w">               </span><span class="n">casaflux</span><span class="p">%</span><span class="n">crgplant</span><span class="o">/</span><span class="mi">8640</span><span class="mf">0.0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">casaflux</span><span class="p">%</span><span class="n">clabloss</span><span class="o">/</span><span class="mi">8640</span><span class="mf">0.</span><span class="p">)</span><span class="o">/</span><span class="w"> </span><span class="mf">1.201E-5</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"></span>
@@ -3034,8 +3034,8 @@
 <a id="ln-2877" name="ln-2877" href="#ln-2877"></a><span class="k">    ENDIF</span><span class="w"></span>
 <a id="ln-2878" name="ln-2878" href="#ln-2878"></a>
 <a id="ln-2879" name="ln-2879" href="#ln-2879"></a><span class="w">    </span><span class="c">! NBP and turnover fluxes [umol/m^2/s]</span>
-<a id="ln-2880" name="ln-2880" href="#ln-2880"></a><span class="c">!!$    IF(output%casa) THEN</span>
-<a id="ln-2881" name="ln-2881" href="#ln-2881"></a><span class="c">!!$ line below appears as above in MMY code -- rk4417</span>
+<a id="ln-2880" name="ln-2880" href="#ln-2880"></a><span class="c">!$    IF(output%casa) THEN</span>
+<a id="ln-2881" name="ln-2881" href="#ln-2881"></a><span class="c">!$ line below appears as above in MMY code -- rk4417</span>
 <a id="ln-2882" name="ln-2882" href="#ln-2882"></a><span class="w">    </span><span class="k">IF</span><span class="p">((</span><span class="n">output</span><span class="p">%</span><span class="n">carbon</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">output</span><span class="p">%</span><span class="n">NBP</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">output</span><span class="p">%</span><span class="n">casa</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w"></span>
 <a id="ln-2883" name="ln-2883" href="#ln-2883"></a><span class="w">       </span><span class="c">! Add current timestep&#39;s value to total of temporary output variable:</span>
 <a id="ln-2884" name="ln-2884" href="#ln-2884"></a><span class="w">       </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">POPLUC</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
@@ -3678,26 +3678,26 @@
 <a id="ln-3521" name="ln-3521" href="#ln-3521"></a><span class="w">         </span><span class="s1">&#39;Vegetation type&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.,</span><span class="w"> </span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">mpID</span><span class="p">,</span><span class="w"> </span><span class="n">dummy</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.)</span><span class="w"></span>
 <a id="ln-3522" name="ln-3522" href="#ln-3522"></a><span class="w">    </span><span class="k">CALL </span><span class="n">define_ovar</span><span class="p">(</span><span class="n">ncid_restart</span><span class="p">,</span><span class="w"> </span><span class="n">rpid</span><span class="p">%</span><span class="n">isoil</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;isoil&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="w">                   </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-3523" name="ln-3523" href="#ln-3523"></a><span class="w">         </span><span class="s1">&#39;Soil type&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.,</span><span class="w"> </span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">mpID</span><span class="p">,</span><span class="w"> </span><span class="n">dummy</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.)</span><span class="w"></span>
-<a id="ln-3524" name="ln-3524" href="#ln-3524"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%clay, &#39;clay&#39;, &#39;-&#39;,                     &amp;</span>
-<a id="ln-3525" name="ln-3525" href="#ln-3525"></a><span class="c">!!$                     &#39;Fraction of soil which is clay&#39;,                         &amp;</span>
-<a id="ln-3526" name="ln-3526" href="#ln-3526"></a><span class="c">!!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3527" name="ln-3527" href="#ln-3527"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%sand, &#39;sand&#39;, &#39;-&#39;,                     &amp;</span>
-<a id="ln-3528" name="ln-3528" href="#ln-3528"></a><span class="c">!!$                     &#39;Fraction of soil which is sand&#39;,                         &amp;</span>
-<a id="ln-3529" name="ln-3529" href="#ln-3529"></a><span class="c">!!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3530" name="ln-3530" href="#ln-3530"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%silt, &#39;silt&#39;, &#39;-&#39;,                     &amp;</span>
-<a id="ln-3531" name="ln-3531" href="#ln-3531"></a><span class="c">!!$                     &#39;Fraction of soil which is silt&#39;,                         &amp;</span>
-<a id="ln-3532" name="ln-3532" href="#ln-3532"></a><span class="c">!!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3533" name="ln-3533" href="#ln-3533"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%ssat, &#39;ssat&#39;, &#39;-&#39;,                     &amp;</span>
-<a id="ln-3534" name="ln-3534" href="#ln-3534"></a><span class="c">!!$                     &#39;Fraction of soil volume which is water @ saturation&#39;,    &amp;</span>
-<a id="ln-3535" name="ln-3535" href="#ln-3535"></a><span class="c">!!$                    .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3536" name="ln-3536" href="#ln-3536"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%sfc, &#39;sfc&#39;, &#39;-&#39;,                       &amp;</span>
-<a id="ln-3537" name="ln-3537" href="#ln-3537"></a><span class="c">!!$                    &#39;Fraction of soil volume which is water @ field capacity&#39;, &amp;</span>
-<a id="ln-3538" name="ln-3538" href="#ln-3538"></a><span class="c">!!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3539" name="ln-3539" href="#ln-3539"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%swilt, &#39;swilt&#39;, &#39;-&#39;,                   &amp;</span>
-<a id="ln-3540" name="ln-3540" href="#ln-3540"></a><span class="c">!!$                     &#39;Fraction of soil volume which is water @ wilting point&#39;, &amp;</span>
-<a id="ln-3541" name="ln-3541" href="#ln-3541"></a><span class="c">!!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3524" name="ln-3524" href="#ln-3524"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%clay, &#39;clay&#39;, &#39;-&#39;,                     &amp;</span>
+<a id="ln-3525" name="ln-3525" href="#ln-3525"></a><span class="c">!$                     &#39;Fraction of soil which is clay&#39;,                         &amp;</span>
+<a id="ln-3526" name="ln-3526" href="#ln-3526"></a><span class="c">!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3527" name="ln-3527" href="#ln-3527"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%sand, &#39;sand&#39;, &#39;-&#39;,                     &amp;</span>
+<a id="ln-3528" name="ln-3528" href="#ln-3528"></a><span class="c">!$                     &#39;Fraction of soil which is sand&#39;,                         &amp;</span>
+<a id="ln-3529" name="ln-3529" href="#ln-3529"></a><span class="c">!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3530" name="ln-3530" href="#ln-3530"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%silt, &#39;silt&#39;, &#39;-&#39;,                     &amp;</span>
+<a id="ln-3531" name="ln-3531" href="#ln-3531"></a><span class="c">!$                     &#39;Fraction of soil which is silt&#39;,                         &amp;</span>
+<a id="ln-3532" name="ln-3532" href="#ln-3532"></a><span class="c">!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3533" name="ln-3533" href="#ln-3533"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%ssat, &#39;ssat&#39;, &#39;-&#39;,                     &amp;</span>
+<a id="ln-3534" name="ln-3534" href="#ln-3534"></a><span class="c">!$                     &#39;Fraction of soil volume which is water @ saturation&#39;,    &amp;</span>
+<a id="ln-3535" name="ln-3535" href="#ln-3535"></a><span class="c">!$                    .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3536" name="ln-3536" href="#ln-3536"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%sfc, &#39;sfc&#39;, &#39;-&#39;,                       &amp;</span>
+<a id="ln-3537" name="ln-3537" href="#ln-3537"></a><span class="c">!$                    &#39;Fraction of soil volume which is water @ field capacity&#39;, &amp;</span>
+<a id="ln-3538" name="ln-3538" href="#ln-3538"></a><span class="c">!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3539" name="ln-3539" href="#ln-3539"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%swilt, &#39;swilt&#39;, &#39;-&#39;,                   &amp;</span>
+<a id="ln-3540" name="ln-3540" href="#ln-3540"></a><span class="c">!$                     &#39;Fraction of soil volume which is water @ wilting point&#39;, &amp;</span>
+<a id="ln-3541" name="ln-3541" href="#ln-3541"></a><span class="c">!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
 <a id="ln-3542" name="ln-3542" href="#ln-3542"></a>
-<a id="ln-3543" name="ln-3543" href="#ln-3543"></a><span class="c">!!$ block above appears uncommented as below in MMY code -- rk4417</span>
+<a id="ln-3543" name="ln-3543" href="#ln-3543"></a><span class="c">!$ block above appears uncommented as below in MMY code -- rk4417</span>
 <a id="ln-3544" name="ln-3544" href="#ln-3544"></a>
 <a id="ln-3545" name="ln-3545" href="#ln-3545"></a><span class="w">    </span><span class="k">CALL </span><span class="n">define_ovar</span><span class="p">(</span><span class="n">ncid_restart</span><span class="p">,</span><span class="w"> </span><span class="n">rpid</span><span class="p">%</span><span class="n">clay</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;clay&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="w">                     </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-3546" name="ln-3546" href="#ln-3546"></a><span class="w">                     </span><span class="s1">&#39;Fraction of soil which is clay&#39;</span><span class="p">,</span><span class="w">                         </span><span class="p">&amp;</span><span class="w"></span>
@@ -3726,29 +3726,29 @@
 <a id="ln-3569" name="ln-3569" href="#ln-3569"></a><span class="w">    </span><span class="n">ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_PUT_ATT</span><span class="p">(</span><span class="n">ncid_restart</span><span class="p">,</span><span class="w"> </span><span class="n">rpid</span><span class="p">%</span><span class="n">zse</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;long_name&quot;</span><span class="p">,</span><span class="w">                     </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-3570" name="ln-3570" href="#ln-3570"></a><span class="w">         </span><span class="s2">&quot;Depth of each soil layer&quot;</span><span class="p">)</span><span class="w"></span>
 <a id="ln-3571" name="ln-3571" href="#ln-3571"></a><span class="w">    </span><span class="n">ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NF90_PUT_ATT</span><span class="p">(</span><span class="n">ncid_restart</span><span class="p">,</span><span class="w"> </span><span class="n">rpid</span><span class="p">%</span><span class="n">zse</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;units&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;m&quot;</span><span class="p">)</span><span class="w"></span>
-<a id="ln-3572" name="ln-3572" href="#ln-3572"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%froot, &#39;froot&#39;, &#39;-&#39;,                   &amp;</span>
-<a id="ln-3573" name="ln-3573" href="#ln-3573"></a><span class="c">!!$                     &#39;Fraction of roots in each soil layer&#39;,                   &amp;</span>
-<a id="ln-3574" name="ln-3574" href="#ln-3574"></a><span class="c">!!$                      .TRUE., soilID, &#39;soil&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3575" name="ln-3575" href="#ln-3575"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%bch, &#39;bch&#39;, &#39;-&#39;,                       &amp;</span>
-<a id="ln-3576" name="ln-3576" href="#ln-3576"></a><span class="c">!!$                     &#39;Parameter b, Campbell eqn 1985&#39;,                         &amp;</span>
-<a id="ln-3577" name="ln-3577" href="#ln-3577"></a><span class="c">!!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3578" name="ln-3578" href="#ln-3578"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%hyds, &#39;hyds&#39;, &#39;m/s&#39;,                   &amp;</span>
-<a id="ln-3579" name="ln-3579" href="#ln-3579"></a><span class="c">!!$                     &#39;Hydraulic conductivity @ saturation&#39;,                    &amp;</span>
-<a id="ln-3580" name="ln-3580" href="#ln-3580"></a><span class="c">!!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3581" name="ln-3581" href="#ln-3581"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%sucs, &#39;sucs&#39;, &#39;m&#39;,                     &amp;</span>
-<a id="ln-3582" name="ln-3582" href="#ln-3582"></a><span class="c">!!$                     &#39;Suction @ saturation&#39;, .TRUE.,                           &amp;</span>
-<a id="ln-3583" name="ln-3583" href="#ln-3583"></a><span class="c">!!$                     &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3584" name="ln-3584" href="#ln-3584"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%css, &#39;css&#39;, &#39;J/kg/C&#39;,                  &amp;</span>
-<a id="ln-3585" name="ln-3585" href="#ln-3585"></a><span class="c">!!$                     &#39;Heat capacity of soil minerals&#39;,                         &amp;</span>
-<a id="ln-3586" name="ln-3586" href="#ln-3586"></a><span class="c">!!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3587" name="ln-3587" href="#ln-3587"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%rhosoil, &#39;rhosoil&#39;, &#39;kg/m^3&#39;,          &amp;</span>
-<a id="ln-3588" name="ln-3588" href="#ln-3588"></a><span class="c">!!$                     &#39;Density of soil minerals&#39;,                               &amp;</span>
-<a id="ln-3589" name="ln-3589" href="#ln-3589"></a><span class="c">!!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3590" name="ln-3590" href="#ln-3590"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%rs20, &#39;rs20&#39;, &#39;-&#39;,                     &amp;</span>
-<a id="ln-3591" name="ln-3591" href="#ln-3591"></a><span class="c">!!$                     &#39;Soil respiration coefficient at 20C&#39;,                    &amp;</span>
-<a id="ln-3592" name="ln-3592" href="#ln-3592"></a><span class="c">!!$                      .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3572" name="ln-3572" href="#ln-3572"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%froot, &#39;froot&#39;, &#39;-&#39;,                   &amp;</span>
+<a id="ln-3573" name="ln-3573" href="#ln-3573"></a><span class="c">!$                     &#39;Fraction of roots in each soil layer&#39;,                   &amp;</span>
+<a id="ln-3574" name="ln-3574" href="#ln-3574"></a><span class="c">!$                      .TRUE., soilID, &#39;soil&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3575" name="ln-3575" href="#ln-3575"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%bch, &#39;bch&#39;, &#39;-&#39;,                       &amp;</span>
+<a id="ln-3576" name="ln-3576" href="#ln-3576"></a><span class="c">!$                     &#39;Parameter b, Campbell eqn 1985&#39;,                         &amp;</span>
+<a id="ln-3577" name="ln-3577" href="#ln-3577"></a><span class="c">!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3578" name="ln-3578" href="#ln-3578"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%hyds, &#39;hyds&#39;, &#39;m/s&#39;,                   &amp;</span>
+<a id="ln-3579" name="ln-3579" href="#ln-3579"></a><span class="c">!$                     &#39;Hydraulic conductivity @ saturation&#39;,                    &amp;</span>
+<a id="ln-3580" name="ln-3580" href="#ln-3580"></a><span class="c">!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3581" name="ln-3581" href="#ln-3581"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%sucs, &#39;sucs&#39;, &#39;m&#39;,                     &amp;</span>
+<a id="ln-3582" name="ln-3582" href="#ln-3582"></a><span class="c">!$                     &#39;Suction @ saturation&#39;, .TRUE.,                           &amp;</span>
+<a id="ln-3583" name="ln-3583" href="#ln-3583"></a><span class="c">!$                     &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3584" name="ln-3584" href="#ln-3584"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%css, &#39;css&#39;, &#39;J/kg/C&#39;,                  &amp;</span>
+<a id="ln-3585" name="ln-3585" href="#ln-3585"></a><span class="c">!$                     &#39;Heat capacity of soil minerals&#39;,                         &amp;</span>
+<a id="ln-3586" name="ln-3586" href="#ln-3586"></a><span class="c">!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3587" name="ln-3587" href="#ln-3587"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%rhosoil, &#39;rhosoil&#39;, &#39;kg/m^3&#39;,          &amp;</span>
+<a id="ln-3588" name="ln-3588" href="#ln-3588"></a><span class="c">!$                     &#39;Density of soil minerals&#39;,                               &amp;</span>
+<a id="ln-3589" name="ln-3589" href="#ln-3589"></a><span class="c">!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3590" name="ln-3590" href="#ln-3590"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%rs20, &#39;rs20&#39;, &#39;-&#39;,                     &amp;</span>
+<a id="ln-3591" name="ln-3591" href="#ln-3591"></a><span class="c">!$                     &#39;Soil respiration coefficient at 20C&#39;,                    &amp;</span>
+<a id="ln-3592" name="ln-3592" href="#ln-3592"></a><span class="c">!$                      .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
 <a id="ln-3593" name="ln-3593" href="#ln-3593"></a>
-<a id="ln-3594" name="ln-3594" href="#ln-3594"></a><span class="c">!!$ block above appears uncommented as below in MMY code -- rk4417</span>
+<a id="ln-3594" name="ln-3594" href="#ln-3594"></a><span class="c">!$ block above appears uncommented as below in MMY code -- rk4417</span>
 <a id="ln-3595" name="ln-3595" href="#ln-3595"></a><span class="w">    </span>
 <a id="ln-3596" name="ln-3596" href="#ln-3596"></a><span class="w">    </span><span class="k">CALL </span><span class="n">define_ovar</span><span class="p">(</span><span class="n">ncid_restart</span><span class="p">,</span><span class="w"> </span><span class="n">rpid</span><span class="p">%</span><span class="n">froot</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;froot&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="w">                   </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-3597" name="ln-3597" href="#ln-3597"></a><span class="w">                     </span><span class="s1">&#39;Fraction of roots in each soil layer&#39;</span><span class="p">,</span><span class="w">                   </span><span class="p">&amp;</span><span class="w"></span>
@@ -3775,88 +3775,88 @@
 <a id="ln-3618" name="ln-3618" href="#ln-3618"></a><span class="w">   </span><span class="k">CALL </span><span class="n">define_ovar</span><span class="p">(</span><span class="n">ncid_restart</span><span class="p">,</span><span class="w"> </span><span class="n">rpid</span><span class="p">%</span><span class="n">albsoil</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;albsoil&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="w">               </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-3619" name="ln-3619" href="#ln-3619"></a><span class="w">         </span><span class="s1">&#39;Soil reflectance&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.,</span><span class="w">                               </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-3620" name="ln-3620" href="#ln-3620"></a><span class="w">         </span><span class="n">radID</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;radiation&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">mpID</span><span class="p">,</span><span class="w"> </span><span class="n">dummy</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.)</span><span class="w"></span>
-<a id="ln-3621" name="ln-3621" href="#ln-3621"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%hc, &#39;hc&#39;, &#39;m&#39;,                         &amp;</span>
-<a id="ln-3622" name="ln-3622" href="#ln-3622"></a><span class="c">!!$                     &#39;Height of canopy&#39;, .TRUE.,                               &amp;</span>
-<a id="ln-3623" name="ln-3623" href="#ln-3623"></a><span class="c">!!$                     &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3624" name="ln-3624" href="#ln-3624"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%canst1, &#39;canst1&#39;, &#39;mm/LAI&#39;,            &amp;</span>
-<a id="ln-3625" name="ln-3625" href="#ln-3625"></a><span class="c">!!$                     &#39;Max water intercepted by canopy&#39;,                        &amp;</span>
-<a id="ln-3626" name="ln-3626" href="#ln-3626"></a><span class="c">!!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3627" name="ln-3627" href="#ln-3627"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%dleaf, &#39;dleaf&#39;, &#39;m&#39;,                   &amp;</span>
-<a id="ln-3628" name="ln-3628" href="#ln-3628"></a><span class="c">!!$                     &#39;Chararacteristic length of leaf&#39;,                        &amp;</span>
-<a id="ln-3629" name="ln-3629" href="#ln-3629"></a><span class="c">!!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3630" name="ln-3630" href="#ln-3630"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%frac4, &#39;frac4&#39;, &#39;-&#39;,                   &amp;</span>
-<a id="ln-3631" name="ln-3631" href="#ln-3631"></a><span class="c">!!$                     &#39;Fraction of plants which are C4&#39;,                        &amp;</span>
-<a id="ln-3632" name="ln-3632" href="#ln-3632"></a><span class="c">!!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3633" name="ln-3633" href="#ln-3633"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%ejmax, &#39;ejmax&#39;, &#39;mol/m^2/s&#39;,           &amp;</span>
-<a id="ln-3634" name="ln-3634" href="#ln-3634"></a><span class="c">!!$                     &#39;Max potential electron transport rate top leaf&#39;, .TRUE., &amp;</span>
-<a id="ln-3635" name="ln-3635" href="#ln-3635"></a><span class="c">!!$                     &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3636" name="ln-3636" href="#ln-3636"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%vcmax, &#39;vcmax&#39;, &#39;mol/m^2/s&#39;,           &amp;</span>
-<a id="ln-3637" name="ln-3637" href="#ln-3637"></a><span class="c">!!$                     &#39;Maximum RuBP carboxylation rate top leaf&#39;, .TRUE.,       &amp;</span>
-<a id="ln-3638" name="ln-3638" href="#ln-3638"></a><span class="c">!!$                     &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3639" name="ln-3639" href="#ln-3639"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%rp20, &#39;rp20&#39;, &#39;-&#39;,                     &amp;</span>
-<a id="ln-3640" name="ln-3640" href="#ln-3640"></a><span class="c">!!$                     &#39;Plant respiration coefficient at 20C&#39;, .TRUE., &#39;real&#39;,   &amp;</span>
-<a id="ln-3641" name="ln-3641" href="#ln-3641"></a><span class="c">!!$                     0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3642" name="ln-3642" href="#ln-3642"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%g0, &#39;g0&#39;, &#39;-&#39;,                     &amp;</span>
-<a id="ln-3643" name="ln-3643" href="#ln-3643"></a><span class="c">!!$                     &#39;g0 term in Medlyn Stomatal Cond. Param&#39;, .TRUE.,&#39;real&#39;,&amp;</span>
-<a id="ln-3644" name="ln-3644" href="#ln-3644"></a><span class="c">!!$                     0, 0, 0, mpID, dummy, .TRUE.) ! Ticket #56</span>
-<a id="ln-3645" name="ln-3645" href="#ln-3645"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%g1, &#39;g1&#39;, &#39;-&#39;,                     &amp;</span>
-<a id="ln-3646" name="ln-3646" href="#ln-3646"></a><span class="c">!!$                     &#39;g1 term in Medlyn Stomatal Cond. Param&#39;, .TRUE.,&#39;real&#39;,&amp;</span>
-<a id="ln-3647" name="ln-3647" href="#ln-3647"></a><span class="c">!!$                     0, 0, 0, mpID, dummy, .TRUE.)  ! Ticket #56</span>
-<a id="ln-3648" name="ln-3648" href="#ln-3648"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%rpcoef, &#39;rpcoef&#39;, &#39;1/C&#39;,               &amp;</span>
-<a id="ln-3649" name="ln-3649" href="#ln-3649"></a><span class="c">!!$                     &#39;Temperature coef nonleaf plant respiration&#39;, .TRUE.,     &amp;</span>
-<a id="ln-3650" name="ln-3650" href="#ln-3650"></a><span class="c">!!$                     &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3651" name="ln-3651" href="#ln-3651"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%shelrb, &#39;shelrb&#39;, &#39;-&#39;,                 &amp;</span>
-<a id="ln-3652" name="ln-3652" href="#ln-3652"></a><span class="c">!!$              &#39;Sheltering factor&#39;, .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3653" name="ln-3653" href="#ln-3653"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%xfang, &#39;xfang&#39;, &#39;-&#39;,                   &amp;</span>
-<a id="ln-3654" name="ln-3654" href="#ln-3654"></a><span class="c">!!$           &#39;Leaf angle parameter&#39;, .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3655" name="ln-3655" href="#ln-3655"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%wai, &#39;wai&#39;, &#39;-&#39;,                       &amp;</span>
-<a id="ln-3656" name="ln-3656" href="#ln-3656"></a><span class="c">!!$                &#39;Wood area index&#39;, .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3657" name="ln-3657" href="#ln-3657"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%vegcf, &#39;vegcf&#39;, &#39;-&#39;,                   &amp;</span>
-<a id="ln-3658" name="ln-3658" href="#ln-3658"></a><span class="c">!!$                     &#39;vegcf&#39;, .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3659" name="ln-3659" href="#ln-3659"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%extkn, &#39;extkn&#39;, &#39;-&#39;,                   &amp;</span>
-<a id="ln-3660" name="ln-3660" href="#ln-3660"></a><span class="c">!!$                     &#39;Extinction coef for vertical nitrogen profile&#39;,          &amp;</span>
-<a id="ln-3661" name="ln-3661" href="#ln-3661"></a><span class="c">!!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3662" name="ln-3662" href="#ln-3662"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%tminvj, &#39;tminvj&#39;, &#39;C&#39;,                 &amp;</span>
-<a id="ln-3663" name="ln-3663" href="#ln-3663"></a><span class="c">!!$                     &#39;Min temperature for the start of photosynthesis&#39;,        &amp;</span>
-<a id="ln-3664" name="ln-3664" href="#ln-3664"></a><span class="c">!!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3665" name="ln-3665" href="#ln-3665"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%tmaxvj, &#39;tmaxvj&#39;, &#39;C&#39;,                 &amp;</span>
-<a id="ln-3666" name="ln-3666" href="#ln-3666"></a><span class="c">!!$                     &#39;Max temperature for the start of photosynthesis&#39;,        &amp;</span>
-<a id="ln-3667" name="ln-3667" href="#ln-3667"></a><span class="c">!!$                      .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3668" name="ln-3668" href="#ln-3668"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%vbeta, &#39;vbeta&#39;, &#39;-&#39;,                   &amp;</span>
-<a id="ln-3669" name="ln-3669" href="#ln-3669"></a><span class="c">!!$                     &#39;Stomatal sensitivity to soil water&#39;,                     &amp;</span>
-<a id="ln-3670" name="ln-3670" href="#ln-3670"></a><span class="c">!!$                      .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3671" name="ln-3671" href="#ln-3671"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%xalbnir, &#39;xalbnir&#39;, &#39;-&#39;,               &amp;</span>
-<a id="ln-3672" name="ln-3672" href="#ln-3672"></a><span class="c">!!$                     &#39;modifier for albedo in near ir band&#39;,                    &amp;</span>
-<a id="ln-3673" name="ln-3673" href="#ln-3673"></a><span class="c">!!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3674" name="ln-3674" href="#ln-3674"></a><span class="c">!!$    ! ratecp (Plant carbon rate constant):</span>
-<a id="ln-3675" name="ln-3675" href="#ln-3675"></a><span class="c">!!$    ok = NF90_DEF_VAR(ncid_restart, &#39;ratecp&#39;, NF90_FLOAT, (/plantcarbID/),     &amp;</span>
-<a id="ln-3676" name="ln-3676" href="#ln-3676"></a><span class="c">!!$                      rpid%ratecp)</span>
-<a id="ln-3677" name="ln-3677" href="#ln-3677"></a><span class="c">!!$    IF (ok /= NF90_NOERR) CALL nc_abort                                        &amp;</span>
-<a id="ln-3678" name="ln-3678" href="#ln-3678"></a><span class="c">!!$                     (ok, &#39;Error defining ratecp variable in restart file. &#39;// &amp;</span>
-<a id="ln-3679" name="ln-3679" href="#ln-3679"></a><span class="c">!!$                      &#39;(SUBROUTINE create_restart)&#39;)</span>
-<a id="ln-3680" name="ln-3680" href="#ln-3680"></a><span class="c">!!$    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecp, &quot;long_name&quot;,                  &amp;</span>
-<a id="ln-3681" name="ln-3681" href="#ln-3681"></a><span class="c">!!$                      &quot;Plant carbon rate constant&quot;)</span>
-<a id="ln-3682" name="ln-3682" href="#ln-3682"></a><span class="c">!!$    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecp, &quot;units&quot;, &quot;1/year&quot;)</span>
-<a id="ln-3683" name="ln-3683" href="#ln-3683"></a><span class="c">!!$    ! ratecs (Soil carbon rate constant):</span>
-<a id="ln-3684" name="ln-3684" href="#ln-3684"></a><span class="c">!!$    ok = NF90_DEF_VAR(ncid_restart, &#39;ratecs&#39;, NF90_FLOAT, (/soilcarbID/),      &amp;</span>
-<a id="ln-3685" name="ln-3685" href="#ln-3685"></a><span class="c">!!$                      rpid%ratecs)</span>
-<a id="ln-3686" name="ln-3686" href="#ln-3686"></a><span class="c">!!$    IF (ok /= NF90_NOERR) CALL nc_abort                                        &amp;</span>
-<a id="ln-3687" name="ln-3687" href="#ln-3687"></a><span class="c">!!$                     (ok, &#39;Error defining ratecs variable in restart file. &#39;// &amp;</span>
-<a id="ln-3688" name="ln-3688" href="#ln-3688"></a><span class="c">!!$                      &#39;(SUBROUTINE create_restart)&#39;)</span>
-<a id="ln-3689" name="ln-3689" href="#ln-3689"></a><span class="c">!!$    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecs, &quot;long_name&quot;,                  &amp;</span>
-<a id="ln-3690" name="ln-3690" href="#ln-3690"></a><span class="c">!!$                      &quot;Soil carbon rate constant&quot;)</span>
-<a id="ln-3691" name="ln-3691" href="#ln-3691"></a><span class="c">!!$    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecs, &quot;units&quot;, &quot;1/year&quot;)</span>
-<a id="ln-3692" name="ln-3692" href="#ln-3692"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%meth, &#39;meth&#39;, &#39;-&#39;,                     &amp;</span>
-<a id="ln-3693" name="ln-3693" href="#ln-3693"></a><span class="c">!!$                     &#39;Canopy turbulence parameterisation switch&#39;,              &amp;</span>
-<a id="ln-3694" name="ln-3694" href="#ln-3694"></a><span class="c">!!$                     .TRUE., &#39;integer&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3695" name="ln-3695" href="#ln-3695"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%za_uv, &#39;za_uv&#39;, &#39;m&#39;,                   &amp;</span>
-<a id="ln-3696" name="ln-3696" href="#ln-3696"></a><span class="c">!!$                    &#39;Reference height (lowest atm. model layer) for momentum&#39;, &amp;</span>
-<a id="ln-3697" name="ln-3697" href="#ln-3697"></a><span class="c">!!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3698" name="ln-3698" href="#ln-3698"></a><span class="c">!!$    CALL define_ovar(ncid_restart, rpid%za_tq, &#39;za_tq&#39;, &#39;m&#39;,                   &amp;</span>
-<a id="ln-3699" name="ln-3699" href="#ln-3699"></a><span class="c">!!$                     &#39;Reference height (lowest atm. model layer) for scalars&#39;, &amp;</span>
-<a id="ln-3700" name="ln-3700" href="#ln-3700"></a><span class="c">!!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3621" name="ln-3621" href="#ln-3621"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%hc, &#39;hc&#39;, &#39;m&#39;,                         &amp;</span>
+<a id="ln-3622" name="ln-3622" href="#ln-3622"></a><span class="c">!$                     &#39;Height of canopy&#39;, .TRUE.,                               &amp;</span>
+<a id="ln-3623" name="ln-3623" href="#ln-3623"></a><span class="c">!$                     &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3624" name="ln-3624" href="#ln-3624"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%canst1, &#39;canst1&#39;, &#39;mm/LAI&#39;,            &amp;</span>
+<a id="ln-3625" name="ln-3625" href="#ln-3625"></a><span class="c">!$                     &#39;Max water intercepted by canopy&#39;,                        &amp;</span>
+<a id="ln-3626" name="ln-3626" href="#ln-3626"></a><span class="c">!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3627" name="ln-3627" href="#ln-3627"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%dleaf, &#39;dleaf&#39;, &#39;m&#39;,                   &amp;</span>
+<a id="ln-3628" name="ln-3628" href="#ln-3628"></a><span class="c">!$                     &#39;Chararacteristic length of leaf&#39;,                        &amp;</span>
+<a id="ln-3629" name="ln-3629" href="#ln-3629"></a><span class="c">!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3630" name="ln-3630" href="#ln-3630"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%frac4, &#39;frac4&#39;, &#39;-&#39;,                   &amp;</span>
+<a id="ln-3631" name="ln-3631" href="#ln-3631"></a><span class="c">!$                     &#39;Fraction of plants which are C4&#39;,                        &amp;</span>
+<a id="ln-3632" name="ln-3632" href="#ln-3632"></a><span class="c">!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3633" name="ln-3633" href="#ln-3633"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%ejmax, &#39;ejmax&#39;, &#39;mol/m^2/s&#39;,           &amp;</span>
+<a id="ln-3634" name="ln-3634" href="#ln-3634"></a><span class="c">!$                     &#39;Max potential electron transport rate top leaf&#39;, .TRUE., &amp;</span>
+<a id="ln-3635" name="ln-3635" href="#ln-3635"></a><span class="c">!$                     &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3636" name="ln-3636" href="#ln-3636"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%vcmax, &#39;vcmax&#39;, &#39;mol/m^2/s&#39;,           &amp;</span>
+<a id="ln-3637" name="ln-3637" href="#ln-3637"></a><span class="c">!$                     &#39;Maximum RuBP carboxylation rate top leaf&#39;, .TRUE.,       &amp;</span>
+<a id="ln-3638" name="ln-3638" href="#ln-3638"></a><span class="c">!$                     &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3639" name="ln-3639" href="#ln-3639"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%rp20, &#39;rp20&#39;, &#39;-&#39;,                     &amp;</span>
+<a id="ln-3640" name="ln-3640" href="#ln-3640"></a><span class="c">!$                     &#39;Plant respiration coefficient at 20C&#39;, .TRUE., &#39;real&#39;,   &amp;</span>
+<a id="ln-3641" name="ln-3641" href="#ln-3641"></a><span class="c">!$                     0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3642" name="ln-3642" href="#ln-3642"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%g0, &#39;g0&#39;, &#39;-&#39;,                     &amp;</span>
+<a id="ln-3643" name="ln-3643" href="#ln-3643"></a><span class="c">!$                     &#39;g0 term in Medlyn Stomatal Cond. Param&#39;, .TRUE.,&#39;real&#39;,&amp;</span>
+<a id="ln-3644" name="ln-3644" href="#ln-3644"></a><span class="c">!$                     0, 0, 0, mpID, dummy, .TRUE.) ! Ticket #56</span>
+<a id="ln-3645" name="ln-3645" href="#ln-3645"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%g1, &#39;g1&#39;, &#39;-&#39;,                     &amp;</span>
+<a id="ln-3646" name="ln-3646" href="#ln-3646"></a><span class="c">!$                     &#39;g1 term in Medlyn Stomatal Cond. Param&#39;, .TRUE.,&#39;real&#39;,&amp;</span>
+<a id="ln-3647" name="ln-3647" href="#ln-3647"></a><span class="c">!$                     0, 0, 0, mpID, dummy, .TRUE.)  ! Ticket #56</span>
+<a id="ln-3648" name="ln-3648" href="#ln-3648"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%rpcoef, &#39;rpcoef&#39;, &#39;1/C&#39;,               &amp;</span>
+<a id="ln-3649" name="ln-3649" href="#ln-3649"></a><span class="c">!$                     &#39;Temperature coef nonleaf plant respiration&#39;, .TRUE.,     &amp;</span>
+<a id="ln-3650" name="ln-3650" href="#ln-3650"></a><span class="c">!$                     &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3651" name="ln-3651" href="#ln-3651"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%shelrb, &#39;shelrb&#39;, &#39;-&#39;,                 &amp;</span>
+<a id="ln-3652" name="ln-3652" href="#ln-3652"></a><span class="c">!$              &#39;Sheltering factor&#39;, .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3653" name="ln-3653" href="#ln-3653"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%xfang, &#39;xfang&#39;, &#39;-&#39;,                   &amp;</span>
+<a id="ln-3654" name="ln-3654" href="#ln-3654"></a><span class="c">!$           &#39;Leaf angle parameter&#39;, .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3655" name="ln-3655" href="#ln-3655"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%wai, &#39;wai&#39;, &#39;-&#39;,                       &amp;</span>
+<a id="ln-3656" name="ln-3656" href="#ln-3656"></a><span class="c">!$                &#39;Wood area index&#39;, .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3657" name="ln-3657" href="#ln-3657"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%vegcf, &#39;vegcf&#39;, &#39;-&#39;,                   &amp;</span>
+<a id="ln-3658" name="ln-3658" href="#ln-3658"></a><span class="c">!$                     &#39;vegcf&#39;, .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3659" name="ln-3659" href="#ln-3659"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%extkn, &#39;extkn&#39;, &#39;-&#39;,                   &amp;</span>
+<a id="ln-3660" name="ln-3660" href="#ln-3660"></a><span class="c">!$                     &#39;Extinction coef for vertical nitrogen profile&#39;,          &amp;</span>
+<a id="ln-3661" name="ln-3661" href="#ln-3661"></a><span class="c">!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3662" name="ln-3662" href="#ln-3662"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%tminvj, &#39;tminvj&#39;, &#39;C&#39;,                 &amp;</span>
+<a id="ln-3663" name="ln-3663" href="#ln-3663"></a><span class="c">!$                     &#39;Min temperature for the start of photosynthesis&#39;,        &amp;</span>
+<a id="ln-3664" name="ln-3664" href="#ln-3664"></a><span class="c">!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3665" name="ln-3665" href="#ln-3665"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%tmaxvj, &#39;tmaxvj&#39;, &#39;C&#39;,                 &amp;</span>
+<a id="ln-3666" name="ln-3666" href="#ln-3666"></a><span class="c">!$                     &#39;Max temperature for the start of photosynthesis&#39;,        &amp;</span>
+<a id="ln-3667" name="ln-3667" href="#ln-3667"></a><span class="c">!$                      .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3668" name="ln-3668" href="#ln-3668"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%vbeta, &#39;vbeta&#39;, &#39;-&#39;,                   &amp;</span>
+<a id="ln-3669" name="ln-3669" href="#ln-3669"></a><span class="c">!$                     &#39;Stomatal sensitivity to soil water&#39;,                     &amp;</span>
+<a id="ln-3670" name="ln-3670" href="#ln-3670"></a><span class="c">!$                      .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3671" name="ln-3671" href="#ln-3671"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%xalbnir, &#39;xalbnir&#39;, &#39;-&#39;,               &amp;</span>
+<a id="ln-3672" name="ln-3672" href="#ln-3672"></a><span class="c">!$                     &#39;modifier for albedo in near ir band&#39;,                    &amp;</span>
+<a id="ln-3673" name="ln-3673" href="#ln-3673"></a><span class="c">!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3674" name="ln-3674" href="#ln-3674"></a><span class="c">!$    ! ratecp (Plant carbon rate constant):</span>
+<a id="ln-3675" name="ln-3675" href="#ln-3675"></a><span class="c">!$    ok = NF90_DEF_VAR(ncid_restart, &#39;ratecp&#39;, NF90_FLOAT, (/plantcarbID/),     &amp;</span>
+<a id="ln-3676" name="ln-3676" href="#ln-3676"></a><span class="c">!$                      rpid%ratecp)</span>
+<a id="ln-3677" name="ln-3677" href="#ln-3677"></a><span class="c">!$    IF (ok /= NF90_NOERR) CALL nc_abort                                        &amp;</span>
+<a id="ln-3678" name="ln-3678" href="#ln-3678"></a><span class="c">!$                     (ok, &#39;Error defining ratecp variable in restart file. &#39;// &amp;</span>
+<a id="ln-3679" name="ln-3679" href="#ln-3679"></a><span class="c">!$                      &#39;(SUBROUTINE create_restart)&#39;)</span>
+<a id="ln-3680" name="ln-3680" href="#ln-3680"></a><span class="c">!$    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecp, &quot;long_name&quot;,                  &amp;</span>
+<a id="ln-3681" name="ln-3681" href="#ln-3681"></a><span class="c">!$                      &quot;Plant carbon rate constant&quot;)</span>
+<a id="ln-3682" name="ln-3682" href="#ln-3682"></a><span class="c">!$    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecp, &quot;units&quot;, &quot;1/year&quot;)</span>
+<a id="ln-3683" name="ln-3683" href="#ln-3683"></a><span class="c">!$    ! ratecs (Soil carbon rate constant):</span>
+<a id="ln-3684" name="ln-3684" href="#ln-3684"></a><span class="c">!$    ok = NF90_DEF_VAR(ncid_restart, &#39;ratecs&#39;, NF90_FLOAT, (/soilcarbID/),      &amp;</span>
+<a id="ln-3685" name="ln-3685" href="#ln-3685"></a><span class="c">!$                      rpid%ratecs)</span>
+<a id="ln-3686" name="ln-3686" href="#ln-3686"></a><span class="c">!$    IF (ok /= NF90_NOERR) CALL nc_abort                                        &amp;</span>
+<a id="ln-3687" name="ln-3687" href="#ln-3687"></a><span class="c">!$                     (ok, &#39;Error defining ratecs variable in restart file. &#39;// &amp;</span>
+<a id="ln-3688" name="ln-3688" href="#ln-3688"></a><span class="c">!$                      &#39;(SUBROUTINE create_restart)&#39;)</span>
+<a id="ln-3689" name="ln-3689" href="#ln-3689"></a><span class="c">!$    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecs, &quot;long_name&quot;,                  &amp;</span>
+<a id="ln-3690" name="ln-3690" href="#ln-3690"></a><span class="c">!$                      &quot;Soil carbon rate constant&quot;)</span>
+<a id="ln-3691" name="ln-3691" href="#ln-3691"></a><span class="c">!$    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecs, &quot;units&quot;, &quot;1/year&quot;)</span>
+<a id="ln-3692" name="ln-3692" href="#ln-3692"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%meth, &#39;meth&#39;, &#39;-&#39;,                     &amp;</span>
+<a id="ln-3693" name="ln-3693" href="#ln-3693"></a><span class="c">!$                     &#39;Canopy turbulence parameterisation switch&#39;,              &amp;</span>
+<a id="ln-3694" name="ln-3694" href="#ln-3694"></a><span class="c">!$                     .TRUE., &#39;integer&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3695" name="ln-3695" href="#ln-3695"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%za_uv, &#39;za_uv&#39;, &#39;m&#39;,                   &amp;</span>
+<a id="ln-3696" name="ln-3696" href="#ln-3696"></a><span class="c">!$                    &#39;Reference height (lowest atm. model layer) for momentum&#39;, &amp;</span>
+<a id="ln-3697" name="ln-3697" href="#ln-3697"></a><span class="c">!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3698" name="ln-3698" href="#ln-3698"></a><span class="c">!$    CALL define_ovar(ncid_restart, rpid%za_tq, &#39;za_tq&#39;, &#39;m&#39;,                   &amp;</span>
+<a id="ln-3699" name="ln-3699" href="#ln-3699"></a><span class="c">!$                     &#39;Reference height (lowest atm. model layer) for scalars&#39;, &amp;</span>
+<a id="ln-3700" name="ln-3700" href="#ln-3700"></a><span class="c">!$                     .TRUE., &#39;real&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
 <a id="ln-3701" name="ln-3701" href="#ln-3701"></a>
-<a id="ln-3702" name="ln-3702" href="#ln-3702"></a><span class="c">!!$ block above appears uncommented as below in MMY code -- rk4417</span>
+<a id="ln-3702" name="ln-3702" href="#ln-3702"></a><span class="c">!$ block above appears uncommented as below in MMY code -- rk4417</span>
 <a id="ln-3703" name="ln-3703" href="#ln-3703"></a>
 <a id="ln-3704" name="ln-3704" href="#ln-3704"></a><span class="w">    </span><span class="k">CALL </span><span class="n">define_ovar</span><span class="p">(</span><span class="n">ncid_restart</span><span class="p">,</span><span class="w"> </span><span class="n">rpid</span><span class="p">%</span><span class="n">hc</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;hc&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;m&#39;</span><span class="p">,</span><span class="w">                         </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-3705" name="ln-3705" href="#ln-3705"></a><span class="w">                     </span><span class="s1">&#39;Height of canopy&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.,</span><span class="w">                               </span><span class="p">&amp;</span><span class="w"></span>
@@ -3943,13 +3943,13 @@
 <a id="ln-3786" name="ln-3786" href="#ln-3786"></a><span class="w">    </span><span class="k">CALL </span><span class="n">define_ovar</span><span class="p">(</span><span class="n">ncid_restart</span><span class="p">,</span><span class="w"> </span><span class="n">gwID</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;GWwb&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;mm3/mm3&#39;</span><span class="p">,</span><span class="s1">&#39;GW water content&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-3787" name="ln-3787" href="#ln-3787"></a><span class="w">         </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.,</span><span class="w"> </span><span class="s1">&#39;real&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">mpID</span><span class="p">,</span><span class="w"> </span><span class="n">dummy</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.)</span><span class="w"></span>
 <a id="ln-3788" name="ln-3788" href="#ln-3788"></a>
-<a id="ln-3789" name="ln-3789" href="#ln-3789"></a><span class="c">!!$    IF(cable_user%SOIL_STRUC==&#39;sli&#39;.OR.cable_user%FWSOIL_SWITCH==&#39;Haverd2013&#39;) THEN</span>
-<a id="ln-3790" name="ln-3790" href="#ln-3790"></a><span class="c">!!$      CALL define_ovar(ncid_restart,rpid%gamma,&#39;gamma&#39;,&#39;-&#39;, &amp;</span>
-<a id="ln-3791" name="ln-3791" href="#ln-3791"></a><span class="c">!!$            &#39;Parameter in root efficiency function (Lai and Katul 2000)&#39;, &amp;</span>
-<a id="ln-3792" name="ln-3792" href="#ln-3792"></a><span class="c">!!$            .TRUE.,&#39;real&#39;,0,0,0,mpID,dummy,.TRUE.)</span>
-<a id="ln-3793" name="ln-3793" href="#ln-3793"></a><span class="c">!!$    ENDIF</span>
+<a id="ln-3789" name="ln-3789" href="#ln-3789"></a><span class="c">!$    IF(cable_user%SOIL_STRUC==&#39;sli&#39;.OR.cable_user%FWSOIL_SWITCH==&#39;Haverd2013&#39;) THEN</span>
+<a id="ln-3790" name="ln-3790" href="#ln-3790"></a><span class="c">!$      CALL define_ovar(ncid_restart,rpid%gamma,&#39;gamma&#39;,&#39;-&#39;, &amp;</span>
+<a id="ln-3791" name="ln-3791" href="#ln-3791"></a><span class="c">!$            &#39;Parameter in root efficiency function (Lai and Katul 2000)&#39;, &amp;</span>
+<a id="ln-3792" name="ln-3792" href="#ln-3792"></a><span class="c">!$            .TRUE.,&#39;real&#39;,0,0,0,mpID,dummy,.TRUE.)</span>
+<a id="ln-3793" name="ln-3793" href="#ln-3793"></a><span class="c">!$    ENDIF</span>
 <a id="ln-3794" name="ln-3794" href="#ln-3794"></a>
-<a id="ln-3795" name="ln-3795" href="#ln-3795"></a><span class="c">!!$  commented-block above replaced by 2 blocks below as per MMY code -- rk4417</span>
+<a id="ln-3795" name="ln-3795" href="#ln-3795"></a><span class="c">!$  commented-block above replaced by 2 blocks below as per MMY code -- rk4417</span>
 <a id="ln-3796" name="ln-3796" href="#ln-3796"></a><span class="w">    </span>
 <a id="ln-3797" name="ln-3797" href="#ln-3797"></a><span class="w">    </span><span class="k">CALL </span><span class="n">define_ovar</span><span class="p">(</span><span class="n">ncid_restart</span><span class="p">,</span><span class="w"> </span><span class="n">subdzID</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;sublayer_dz&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;m&#39;</span><span class="p">,</span><span class="s1">&#39;depth of viscous sublayer&#39;</span><span class="p">,&amp;</span><span class="w"></span>
 <a id="ln-3798" name="ln-3798" href="#ln-3798"></a><span class="w">                     </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.,</span><span class="w"> </span><span class="s1">&#39;real&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">mpID</span><span class="p">,</span><span class="w"> </span><span class="n">dummy</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.)</span><span class="w"></span>
@@ -3963,23 +3963,23 @@
 <a id="ln-3806" name="ln-3806" href="#ln-3806"></a><span class="w">    </span><span class="c">! Soil-Litter-Iso soil model</span>
 <a id="ln-3807" name="ln-3807" href="#ln-3807"></a><span class="w">    </span><span class="k">IF</span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">SOIL_STRUC</span><span class="o">==</span><span class="s1">&#39;sli&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w"></span>
 <a id="ln-3808" name="ln-3808" href="#ln-3808"></a><span class="w">       </span><span class="c">! Parameters for SLI:</span>
-<a id="ln-3809" name="ln-3809" href="#ln-3809"></a><span class="c">!!$       CALL define_ovar(ncid_restart,rpid%nhorizons,&#39;nhorizons&#39;,&#39;-&#39;, &amp;</span>
-<a id="ln-3810" name="ln-3810" href="#ln-3810"></a><span class="c">!!$            &#39;Number of soil horizons&#39;,.TRUE.,&#39;integer&#39;,0,0,0,mpID,dummy,.TRUE.)</span>
-<a id="ln-3811" name="ln-3811" href="#ln-3811"></a><span class="c">!!$       CALL define_ovar(ncid_restart,rpid%zeta,&#39;zeta&#39;,&#39;[ ]&#39;, &amp;</span>
-<a id="ln-3812" name="ln-3812" href="#ln-3812"></a><span class="c">!!$            &#39;exponent factor in Topmodel eq&#39;,.TRUE.,&#39;real&#39;,0,0,0,mpID,dummy,.TRUE.)</span>
-<a id="ln-3813" name="ln-3813" href="#ln-3813"></a><span class="c">!!$       CALL define_ovar(ncid_restart,rpid%fsatmax,&#39;fsatmax&#39;,&#39;[ ]&#39;, &amp;</span>
-<a id="ln-3814" name="ln-3814" href="#ln-3814"></a><span class="c">!!$            &#39;param in Topmodel eq&#39;,.TRUE.,&#39;real&#39;,0,0,0,mpID,dummy,.TRUE.)</span>
-<a id="ln-3815" name="ln-3815" href="#ln-3815"></a><span class="c">!!$       CALL define_ovar(ncid_restart,rpid%ishorizon,&#39;ishorizon&#39;,&#39;-&#39;, &amp;</span>
-<a id="ln-3816" name="ln-3816" href="#ln-3816"></a><span class="c">!!$            &#39;Horizon number&#39;,.TRUE., soilID, &#39;soil&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
-<a id="ln-3817" name="ln-3817" href="#ln-3817"></a><span class="c">!!$       CALL define_ovar(ncid_restart,rpid%clitt,&#39;clitt&#39;,&#39;tC/ha&#39;, &amp;</span>
-<a id="ln-3818" name="ln-3818" href="#ln-3818"></a><span class="c">!!$            &#39;Litter layer carbon content&#39;,.TRUE.,&#39;real&#39;,0,0,0,mpID,dummy,.TRUE.)</span>
-<a id="ln-3819" name="ln-3819" href="#ln-3819"></a><span class="c">!!$       CALL define_ovar(ncid_restart,rpid%ZR,&#39;ZR&#39;,&#39;cm&#39;, &amp;</span>
-<a id="ln-3820" name="ln-3820" href="#ln-3820"></a><span class="c">!!$            &#39;Maximum rooting depth&#39;,.TRUE.,&#39;real&#39;,0,0,0,mpID,dummy,.TRUE.)</span>
-<a id="ln-3821" name="ln-3821" href="#ln-3821"></a><span class="c">!!$       CALL define_ovar(ncid_restart,rpid%F10,&#39;F10&#39;,&#39;-&#39;, &amp;</span>
-<a id="ln-3822" name="ln-3822" href="#ln-3822"></a><span class="c">!!$            &#39;Fraction of roots in top 10 cm&#39;, &amp;</span>
-<a id="ln-3823" name="ln-3823" href="#ln-3823"></a><span class="c">!!$            .TRUE.,&#39;real&#39;,0,0,0,mpID,dummy,.TRUE.)</span>
+<a id="ln-3809" name="ln-3809" href="#ln-3809"></a><span class="c">!$       CALL define_ovar(ncid_restart,rpid%nhorizons,&#39;nhorizons&#39;,&#39;-&#39;, &amp;</span>
+<a id="ln-3810" name="ln-3810" href="#ln-3810"></a><span class="c">!$            &#39;Number of soil horizons&#39;,.TRUE.,&#39;integer&#39;,0,0,0,mpID,dummy,.TRUE.)</span>
+<a id="ln-3811" name="ln-3811" href="#ln-3811"></a><span class="c">!$       CALL define_ovar(ncid_restart,rpid%zeta,&#39;zeta&#39;,&#39;[ ]&#39;, &amp;</span>
+<a id="ln-3812" name="ln-3812" href="#ln-3812"></a><span class="c">!$            &#39;exponent factor in Topmodel eq&#39;,.TRUE.,&#39;real&#39;,0,0,0,mpID,dummy,.TRUE.)</span>
+<a id="ln-3813" name="ln-3813" href="#ln-3813"></a><span class="c">!$       CALL define_ovar(ncid_restart,rpid%fsatmax,&#39;fsatmax&#39;,&#39;[ ]&#39;, &amp;</span>
+<a id="ln-3814" name="ln-3814" href="#ln-3814"></a><span class="c">!$            &#39;param in Topmodel eq&#39;,.TRUE.,&#39;real&#39;,0,0,0,mpID,dummy,.TRUE.)</span>
+<a id="ln-3815" name="ln-3815" href="#ln-3815"></a><span class="c">!$       CALL define_ovar(ncid_restart,rpid%ishorizon,&#39;ishorizon&#39;,&#39;-&#39;, &amp;</span>
+<a id="ln-3816" name="ln-3816" href="#ln-3816"></a><span class="c">!$            &#39;Horizon number&#39;,.TRUE., soilID, &#39;soil&#39;, 0, 0, 0, mpID, dummy, .TRUE.)</span>
+<a id="ln-3817" name="ln-3817" href="#ln-3817"></a><span class="c">!$       CALL define_ovar(ncid_restart,rpid%clitt,&#39;clitt&#39;,&#39;tC/ha&#39;, &amp;</span>
+<a id="ln-3818" name="ln-3818" href="#ln-3818"></a><span class="c">!$            &#39;Litter layer carbon content&#39;,.TRUE.,&#39;real&#39;,0,0,0,mpID,dummy,.TRUE.)</span>
+<a id="ln-3819" name="ln-3819" href="#ln-3819"></a><span class="c">!$       CALL define_ovar(ncid_restart,rpid%ZR,&#39;ZR&#39;,&#39;cm&#39;, &amp;</span>
+<a id="ln-3820" name="ln-3820" href="#ln-3820"></a><span class="c">!$            &#39;Maximum rooting depth&#39;,.TRUE.,&#39;real&#39;,0,0,0,mpID,dummy,.TRUE.)</span>
+<a id="ln-3821" name="ln-3821" href="#ln-3821"></a><span class="c">!$       CALL define_ovar(ncid_restart,rpid%F10,&#39;F10&#39;,&#39;-&#39;, &amp;</span>
+<a id="ln-3822" name="ln-3822" href="#ln-3822"></a><span class="c">!$            &#39;Fraction of roots in top 10 cm&#39;, &amp;</span>
+<a id="ln-3823" name="ln-3823" href="#ln-3823"></a><span class="c">!$            .TRUE.,&#39;real&#39;,0,0,0,mpID,dummy,.TRUE.)</span>
 <a id="ln-3824" name="ln-3824" href="#ln-3824"></a>
-<a id="ln-3825" name="ln-3825" href="#ln-3825"></a><span class="c">!!$ block above appears uncommented as below in MMY code -- rk4417</span>
+<a id="ln-3825" name="ln-3825" href="#ln-3825"></a><span class="c">!$ block above appears uncommented as below in MMY code -- rk4417</span>
 <a id="ln-3826" name="ln-3826" href="#ln-3826"></a><span class="w">       </span>
 <a id="ln-3827" name="ln-3827" href="#ln-3827"></a><span class="w">       </span><span class="k">CALL </span><span class="n">define_ovar</span><span class="p">(</span><span class="n">ncid_restart</span><span class="p">,</span><span class="n">rpid</span><span class="p">%</span><span class="n">nhorizons</span><span class="p">,</span><span class="s1">&#39;nhorizons&#39;</span><span class="p">,</span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-3828" name="ln-3828" href="#ln-3828"></a><span class="w">            </span><span class="s1">&#39;Number of soil horizons&#39;</span><span class="p">,.</span><span class="n">TRUE</span><span class="p">.,</span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">mpID</span><span class="p">,</span><span class="n">dummy</span><span class="p">,.</span><span class="n">TRUE</span><span class="p">.)</span><span class="w"></span>
@@ -4104,35 +4104,35 @@
 <a id="ln-3947" name="ln-3947" href="#ln-3947"></a><span class="w">         </span><span class="n">ranges</span><span class="p">%</span><span class="n">iveg</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.,</span><span class="w"> </span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.)</span><span class="w"></span>
 <a id="ln-3948" name="ln-3948" href="#ln-3948"></a><span class="w">    </span><span class="k">CALL </span><span class="n">write_ovar</span><span class="w"> </span><span class="p">(</span><span class="n">ncid_restart</span><span class="p">,</span><span class="w"> </span><span class="n">rpid</span><span class="p">%</span><span class="n">isoil</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;isoil&#39;</span><span class="p">,</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">soil</span><span class="p">%</span><span class="n">isoilm</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">),</span><span class="w">  </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-3949" name="ln-3949" href="#ln-3949"></a><span class="w">         </span><span class="n">ranges</span><span class="p">%</span><span class="n">isoil</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.,</span><span class="w"> </span><span class="s1">&#39;integer&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.)</span><span class="w"></span>
-<a id="ln-3950" name="ln-3950" href="#ln-3950"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%bch, &#39;bch&#39;, REAL(soil%bch, 4),         &amp;  ! repeated -- rk4417</span>
-<a id="ln-3951" name="ln-3951" href="#ln-3951"></a><span class="c">!!$                     ranges%bch, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-3952" name="ln-3952" href="#ln-3952"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%bch, &#39;bch&#39;, REAL(soil%bch, 4),         &amp;</span>
-<a id="ln-3953" name="ln-3953" href="#ln-3953"></a><span class="c">!!$                     ranges%bch, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-3954" name="ln-3954" href="#ln-3954"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%clay, &#39;clay&#39;, REAL(soil%clay, 4),      &amp;</span>
-<a id="ln-3955" name="ln-3955" href="#ln-3955"></a><span class="c">!!$                     ranges%clay, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-3956" name="ln-3956" href="#ln-3956"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%sand, &#39;sand&#39;, REAL(soil%sand, 4),      &amp;</span>
-<a id="ln-3957" name="ln-3957" href="#ln-3957"></a><span class="c">!!$                     ranges%sand, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-3958" name="ln-3958" href="#ln-3958"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%silt, &#39;silt&#39;, REAL(soil%silt, 4),      &amp;</span>
-<a id="ln-3959" name="ln-3959" href="#ln-3959"></a><span class="c">!!$                     ranges%silt, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-3960" name="ln-3960" href="#ln-3960"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%css, &#39;css&#39;, REAL(soil%css, 4),         &amp;</span>
-<a id="ln-3961" name="ln-3961" href="#ln-3961"></a><span class="c">!!$                     ranges%css, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-3962" name="ln-3962" href="#ln-3962"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%rhosoil, &#39;rhosoil&#39;,                    &amp;</span>
-<a id="ln-3963" name="ln-3963" href="#ln-3963"></a><span class="c">!!$                     REAL(soil%rhosoil,4), ranges%rhosoil, .TRUE., &#39;real&#39;,     &amp;</span>
-<a id="ln-3964" name="ln-3964" href="#ln-3964"></a><span class="c">!!$                     .TRUE.)</span>
-<a id="ln-3965" name="ln-3965" href="#ln-3965"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%hyds, &#39;hyds&#39;, REAL(soil%hyds, 4),      &amp;</span>
-<a id="ln-3966" name="ln-3966" href="#ln-3966"></a><span class="c">!!$                     ranges%hyds, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-3967" name="ln-3967" href="#ln-3967"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%sucs, &#39;sucs&#39;, REAL(soil%sucs, 4),      &amp;</span>
-<a id="ln-3968" name="ln-3968" href="#ln-3968"></a><span class="c">!!$                     ranges%sucs, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-3969" name="ln-3969" href="#ln-3969"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%rs20, &#39;rs20&#39;, REAL(veg%rs20, 4),       &amp;</span>
-<a id="ln-3970" name="ln-3970" href="#ln-3970"></a><span class="c">!!$                     ranges%rs20, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-3971" name="ln-3971" href="#ln-3971"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%ssat, &#39;ssat&#39;, REAL(soil%ssat, 4),      &amp;</span>
-<a id="ln-3972" name="ln-3972" href="#ln-3972"></a><span class="c">!!$                     ranges%ssat, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-3973" name="ln-3973" href="#ln-3973"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%sfc, &#39;sfc&#39;, REAL(soil%sfc, 4),         &amp;</span>
-<a id="ln-3974" name="ln-3974" href="#ln-3974"></a><span class="c">!!$                     ranges%sfc, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-3975" name="ln-3975" href="#ln-3975"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%swilt, &#39;swilt&#39;, REAL(soil%swilt, 4),   &amp;</span>
-<a id="ln-3976" name="ln-3976" href="#ln-3976"></a><span class="c">!!$                     ranges%swilt, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-3950" name="ln-3950" href="#ln-3950"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%bch, &#39;bch&#39;, REAL(soil%bch, 4),         &amp;  ! repeated -- rk4417</span>
+<a id="ln-3951" name="ln-3951" href="#ln-3951"></a><span class="c">!$                     ranges%bch, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-3952" name="ln-3952" href="#ln-3952"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%bch, &#39;bch&#39;, REAL(soil%bch, 4),         &amp;</span>
+<a id="ln-3953" name="ln-3953" href="#ln-3953"></a><span class="c">!$                     ranges%bch, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-3954" name="ln-3954" href="#ln-3954"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%clay, &#39;clay&#39;, REAL(soil%clay, 4),      &amp;</span>
+<a id="ln-3955" name="ln-3955" href="#ln-3955"></a><span class="c">!$                     ranges%clay, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-3956" name="ln-3956" href="#ln-3956"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%sand, &#39;sand&#39;, REAL(soil%sand, 4),      &amp;</span>
+<a id="ln-3957" name="ln-3957" href="#ln-3957"></a><span class="c">!$                     ranges%sand, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-3958" name="ln-3958" href="#ln-3958"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%silt, &#39;silt&#39;, REAL(soil%silt, 4),      &amp;</span>
+<a id="ln-3959" name="ln-3959" href="#ln-3959"></a><span class="c">!$                     ranges%silt, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-3960" name="ln-3960" href="#ln-3960"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%css, &#39;css&#39;, REAL(soil%css, 4),         &amp;</span>
+<a id="ln-3961" name="ln-3961" href="#ln-3961"></a><span class="c">!$                     ranges%css, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-3962" name="ln-3962" href="#ln-3962"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%rhosoil, &#39;rhosoil&#39;,                    &amp;</span>
+<a id="ln-3963" name="ln-3963" href="#ln-3963"></a><span class="c">!$                     REAL(soil%rhosoil,4), ranges%rhosoil, .TRUE., &#39;real&#39;,     &amp;</span>
+<a id="ln-3964" name="ln-3964" href="#ln-3964"></a><span class="c">!$                     .TRUE.)</span>
+<a id="ln-3965" name="ln-3965" href="#ln-3965"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%hyds, &#39;hyds&#39;, REAL(soil%hyds, 4),      &amp;</span>
+<a id="ln-3966" name="ln-3966" href="#ln-3966"></a><span class="c">!$                     ranges%hyds, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-3967" name="ln-3967" href="#ln-3967"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%sucs, &#39;sucs&#39;, REAL(soil%sucs, 4),      &amp;</span>
+<a id="ln-3968" name="ln-3968" href="#ln-3968"></a><span class="c">!$                     ranges%sucs, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-3969" name="ln-3969" href="#ln-3969"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%rs20, &#39;rs20&#39;, REAL(veg%rs20, 4),       &amp;</span>
+<a id="ln-3970" name="ln-3970" href="#ln-3970"></a><span class="c">!$                     ranges%rs20, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-3971" name="ln-3971" href="#ln-3971"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%ssat, &#39;ssat&#39;, REAL(soil%ssat, 4),      &amp;</span>
+<a id="ln-3972" name="ln-3972" href="#ln-3972"></a><span class="c">!$                     ranges%ssat, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-3973" name="ln-3973" href="#ln-3973"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%sfc, &#39;sfc&#39;, REAL(soil%sfc, 4),         &amp;</span>
+<a id="ln-3974" name="ln-3974" href="#ln-3974"></a><span class="c">!$                     ranges%sfc, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-3975" name="ln-3975" href="#ln-3975"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%swilt, &#39;swilt&#39;, REAL(soil%swilt, 4),   &amp;</span>
+<a id="ln-3976" name="ln-3976" href="#ln-3976"></a><span class="c">!$                     ranges%swilt, .TRUE., &#39;real&#39;, .TRUE.)</span>
 <a id="ln-3977" name="ln-3977" href="#ln-3977"></a>
-<a id="ln-3978" name="ln-3978" href="#ln-3978"></a><span class="c">!!$ block above appears uncommented as below in MMY code -- rk4417</span>
+<a id="ln-3978" name="ln-3978" href="#ln-3978"></a><span class="c">!$ block above appears uncommented as below in MMY code -- rk4417</span>
 <a id="ln-3979" name="ln-3979" href="#ln-3979"></a>
 <a id="ln-3980" name="ln-3980" href="#ln-3980"></a><span class="w">    </span><span class="k">CALL </span><span class="n">write_ovar</span><span class="w"> </span><span class="p">(</span><span class="n">ncid_restart</span><span class="p">,</span><span class="w"> </span><span class="n">rpid</span><span class="p">%</span><span class="n">bch</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;bch&#39;</span><span class="p">,</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">soil</span><span class="p">%</span><span class="n">bch</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">),</span><span class="w">         </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-3981" name="ln-3981" href="#ln-3981"></a><span class="w">                     </span><span class="n">ranges</span><span class="p">%</span><span class="n">bch</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.,</span><span class="w"> </span><span class="s1">&#39;real&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.)</span><span class="w"></span>
@@ -4161,10 +4161,10 @@
 <a id="ln-4004" name="ln-4004" href="#ln-4004"></a><span class="w">                     </span><span class="n">ranges</span><span class="p">%</span><span class="n">swilt</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.,</span><span class="w"> </span><span class="s1">&#39;real&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.)</span><span class="w"></span>
 <a id="ln-4005" name="ln-4005" href="#ln-4005"></a>
 <a id="ln-4006" name="ln-4006" href="#ln-4006"></a><span class="w">    </span><span class="c">! Soil dimensioned variables/parameters:</span>
-<a id="ln-4007" name="ln-4007" href="#ln-4007"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%froot, &#39;froot&#39;, REAL(veg%froot, 4),    &amp;</span>
-<a id="ln-4008" name="ln-4008" href="#ln-4008"></a><span class="c">!!$                     ranges%froot, .TRUE., &#39;soil&#39;, .TRUE.)</span>
+<a id="ln-4007" name="ln-4007" href="#ln-4007"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%froot, &#39;froot&#39;, REAL(veg%froot, 4),    &amp;</span>
+<a id="ln-4008" name="ln-4008" href="#ln-4008"></a><span class="c">!$                     ranges%froot, .TRUE., &#39;soil&#39;, .TRUE.)</span>
 <a id="ln-4009" name="ln-4009" href="#ln-4009"></a>
-<a id="ln-4010" name="ln-4010" href="#ln-4010"></a><span class="c">!!$ block above appears uncommented as below in MMY code -- rk4417</span>
+<a id="ln-4010" name="ln-4010" href="#ln-4010"></a><span class="c">!$ block above appears uncommented as below in MMY code -- rk4417</span>
 <a id="ln-4011" name="ln-4011" href="#ln-4011"></a>
 <a id="ln-4012" name="ln-4012" href="#ln-4012"></a><span class="w">    </span><span class="k">CALL </span><span class="n">write_ovar</span><span class="w"> </span><span class="p">(</span><span class="n">ncid_restart</span><span class="p">,</span><span class="w"> </span><span class="n">rpid</span><span class="p">%</span><span class="n">froot</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;froot&#39;</span><span class="p">,</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">veg</span><span class="p">%</span><span class="n">froot</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">),</span><span class="w">    </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-4013" name="ln-4013" href="#ln-4013"></a><span class="w">                     </span><span class="n">ranges</span><span class="p">%</span><span class="n">froot</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.,</span><span class="w"> </span><span class="s1">&#39;soil&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.)</span><span class="w"></span>
@@ -4200,63 +4200,63 @@
 <a id="ln-4043" name="ln-4043" href="#ln-4043"></a><span class="w">    </span><span class="k">CALL </span><span class="n">write_ovar</span><span class="w"> </span><span class="p">(</span><span class="n">ncid_restart</span><span class="p">,</span><span class="w"> </span><span class="n">rpid</span><span class="p">%</span><span class="n">albsoil</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;albsoil&#39;</span><span class="p">,</span><span class="w">                    </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-4044" name="ln-4044" href="#ln-4044"></a><span class="w">         </span><span class="kt">REAL</span><span class="p">(</span><span class="n">soil</span><span class="p">%</span><span class="n">albsoil</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="n">ranges</span><span class="p">%</span><span class="n">albsoil</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.,</span><span class="w">            </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-4045" name="ln-4045" href="#ln-4045"></a><span class="w">         </span><span class="s1">&#39;radiation&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.)</span><span class="w"></span>
-<a id="ln-4046" name="ln-4046" href="#ln-4046"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%canst1, &#39;canst1&#39;, REAL(veg%canst1, 4), &amp;</span>
-<a id="ln-4047" name="ln-4047" href="#ln-4047"></a><span class="c">!!$                     ranges%canst1, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-4048" name="ln-4048" href="#ln-4048"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%dleaf, &#39;dleaf&#39;, REAL(veg%dleaf, 4),    &amp;</span>
-<a id="ln-4049" name="ln-4049" href="#ln-4049"></a><span class="c">!!$                     ranges%dleaf, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-4050" name="ln-4050" href="#ln-4050"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%ejmax, &#39;ejmax&#39;, REAL(veg%ejmax, 4),    &amp;</span>
-<a id="ln-4051" name="ln-4051" href="#ln-4051"></a><span class="c">!!$                     ranges%ejmax, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-4052" name="ln-4052" href="#ln-4052"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%vcmax, &#39;vcmax&#39;, REAL(veg%vcmax, 4),    &amp;</span>
-<a id="ln-4053" name="ln-4053" href="#ln-4053"></a><span class="c">!!$                     ranges%vcmax, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-4054" name="ln-4054" href="#ln-4054"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%frac4, &#39;frac4&#39;, REAL(veg%frac4, 4),    &amp;</span>
-<a id="ln-4055" name="ln-4055" href="#ln-4055"></a><span class="c">!!$                     ranges%frac4, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-4056" name="ln-4056" href="#ln-4056"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%hc, &#39;hc&#39;, REAL(veg%hc, 4),             &amp;</span>
-<a id="ln-4057" name="ln-4057" href="#ln-4057"></a><span class="c">!!$                     ranges%hc, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-4058" name="ln-4058" href="#ln-4058"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%rp20, &#39;rp20&#39;, REAL(veg%rp20, 4),       &amp;</span>
-<a id="ln-4059" name="ln-4059" href="#ln-4059"></a><span class="c">!!$                     ranges%rp20, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-4060" name="ln-4060" href="#ln-4060"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%g0, &#39;g0&#39;, REAL(veg%g0, 4),       &amp;</span>
-<a id="ln-4061" name="ln-4061" href="#ln-4061"></a><span class="c">!!$                     ranges%g0, .TRUE., &#39;real&#39;, .TRUE.) ! Ticket #56</span>
-<a id="ln-4062" name="ln-4062" href="#ln-4062"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%g1, &#39;g1&#39;, REAL(veg%g1, 4),       &amp;</span>
-<a id="ln-4063" name="ln-4063" href="#ln-4063"></a><span class="c">!!$                     ranges%g1, .TRUE., &#39;real&#39;, .TRUE.) ! Ticket #56</span>
-<a id="ln-4064" name="ln-4064" href="#ln-4064"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%rpcoef, &#39;rpcoef&#39;, REAL(veg%rpcoef, 4), &amp;</span>
-<a id="ln-4065" name="ln-4065" href="#ln-4065"></a><span class="c">!!$                     ranges%rpcoef, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-4066" name="ln-4066" href="#ln-4066"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%shelrb, &#39;shelrb&#39;, REAL(veg%shelrb, 4), &amp;</span>
-<a id="ln-4067" name="ln-4067" href="#ln-4067"></a><span class="c">!!$                     ranges%shelrb, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-4068" name="ln-4068" href="#ln-4068"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%xfang, &#39;xfang&#39;, REAL(veg%xfang, 4),    &amp;</span>
-<a id="ln-4069" name="ln-4069" href="#ln-4069"></a><span class="c">!!$                     ranges%xfang, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-4070" name="ln-4070" href="#ln-4070"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%wai, &#39;wai&#39;, REAL(veg%wai, 4),          &amp;</span>
-<a id="ln-4071" name="ln-4071" href="#ln-4071"></a><span class="c">!!$                     ranges%wai, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-4072" name="ln-4072" href="#ln-4072"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%vegcf, &#39;vegcf&#39;, REAL(veg%vegcf, 4),    &amp;</span>
-<a id="ln-4073" name="ln-4073" href="#ln-4073"></a><span class="c">!!$                     ranges%vegcf, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-4074" name="ln-4074" href="#ln-4074"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%extkn, &#39;extkn&#39;, REAL(veg%extkn, 4),    &amp;</span>
-<a id="ln-4075" name="ln-4075" href="#ln-4075"></a><span class="c">!!$                     ranges%extkn, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-4076" name="ln-4076" href="#ln-4076"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%tminvj, &#39;tminvj&#39;, REAL(veg%tminvj, 4), &amp;</span>
-<a id="ln-4077" name="ln-4077" href="#ln-4077"></a><span class="c">!!$                     ranges%tminvj, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-4078" name="ln-4078" href="#ln-4078"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%tmaxvj, &#39;tmaxvj&#39;, REAL(veg%tmaxvj, 4), &amp;</span>
-<a id="ln-4079" name="ln-4079" href="#ln-4079"></a><span class="c">!!$                     ranges%tmaxvj, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-4080" name="ln-4080" href="#ln-4080"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%vbeta, &#39;vbeta&#39;, REAL(veg%vbeta, 4),    &amp;</span>
-<a id="ln-4081" name="ln-4081" href="#ln-4081"></a><span class="c">!!$                     ranges%vbeta, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-4082" name="ln-4082" href="#ln-4082"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%xalbnir, &#39;xalbnir&#39;,                    &amp;</span>
-<a id="ln-4083" name="ln-4083" href="#ln-4083"></a><span class="c">!!$                     REAL(veg%xalbnir, 4), ranges%xalbnir, .TRUE.,             &amp;</span>
-<a id="ln-4084" name="ln-4084" href="#ln-4084"></a><span class="c">!!$                     &#39;real&#39;, .TRUE.)</span>
-<a id="ln-4085" name="ln-4085" href="#ln-4085"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%tmaxvj, &#39;tmaxvj&#39;, REAL(veg%tmaxvj, 4), &amp;</span>
-<a id="ln-4086" name="ln-4086" href="#ln-4086"></a><span class="c">!!$                     ranges%tmaxvj, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-4087" name="ln-4087" href="#ln-4087"></a><span class="c">!!$    ok = NF90_PUT_VAR(ncid_restart, rpid%ratecp, REAL(bgc%ratecp, 4))</span>
-<a id="ln-4088" name="ln-4088" href="#ln-4088"></a><span class="c">!!$    IF(ok /= NF90_NOERR) CALL nc_abort(ok,                                     &amp;</span>
-<a id="ln-4089" name="ln-4089" href="#ln-4089"></a><span class="c">!!$                                       &#39;Error writing ratecp parameter to &#39;    &amp;</span>
-<a id="ln-4090" name="ln-4090" href="#ln-4090"></a><span class="c">!!$         //TRIM(frst_out)// &#39;(SUBROUTINE create_restart)&#39;)</span>
-<a id="ln-4091" name="ln-4091" href="#ln-4091"></a><span class="c">!!$    ok = NF90_PUT_VAR(ncid_restart, rpid%ratecs, REAL(bgc%ratecs, 4))</span>
-<a id="ln-4092" name="ln-4092" href="#ln-4092"></a><span class="c">!!$    IF(ok /= NF90_NOERR) CALL nc_abort(ok,                                     &amp;</span>
-<a id="ln-4093" name="ln-4093" href="#ln-4093"></a><span class="c">!!$                                       &#39;Error writing ratecs parameter to &#39;    &amp;</span>
-<a id="ln-4094" name="ln-4094" href="#ln-4094"></a><span class="c">!!$         //TRIM(frst_out)// &#39;(SUBROUTINE create_restart)&#39;)</span>
-<a id="ln-4095" name="ln-4095" href="#ln-4095"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%meth, &#39;meth&#39;, REAL(veg%meth, 4),       &amp;</span>
-<a id="ln-4096" name="ln-4096" href="#ln-4096"></a><span class="c">!!$                     ranges%meth, .TRUE., &#39;integer&#39;, .TRUE.)</span>
-<a id="ln-4097" name="ln-4097" href="#ln-4097"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%za_uv, &#39;za_uv&#39;, REAL(rough%za_uv, 4),  &amp;</span>
-<a id="ln-4098" name="ln-4098" href="#ln-4098"></a><span class="c">!!$                     ranges%za, .TRUE., &#39;real&#39;, .TRUE.)</span>
-<a id="ln-4099" name="ln-4099" href="#ln-4099"></a><span class="c">!!$    CALL write_ovar (ncid_restart, rpid%za_tq, &#39;za_tq&#39;, REAL(rough%za_tq, 4),  &amp;</span>
-<a id="ln-4100" name="ln-4100" href="#ln-4100"></a><span class="c">!!$                     ranges%za, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-4046" name="ln-4046" href="#ln-4046"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%canst1, &#39;canst1&#39;, REAL(veg%canst1, 4), &amp;</span>
+<a id="ln-4047" name="ln-4047" href="#ln-4047"></a><span class="c">!$                     ranges%canst1, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-4048" name="ln-4048" href="#ln-4048"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%dleaf, &#39;dleaf&#39;, REAL(veg%dleaf, 4),    &amp;</span>
+<a id="ln-4049" name="ln-4049" href="#ln-4049"></a><span class="c">!$                     ranges%dleaf, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-4050" name="ln-4050" href="#ln-4050"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%ejmax, &#39;ejmax&#39;, REAL(veg%ejmax, 4),    &amp;</span>
+<a id="ln-4051" name="ln-4051" href="#ln-4051"></a><span class="c">!$                     ranges%ejmax, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-4052" name="ln-4052" href="#ln-4052"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%vcmax, &#39;vcmax&#39;, REAL(veg%vcmax, 4),    &amp;</span>
+<a id="ln-4053" name="ln-4053" href="#ln-4053"></a><span class="c">!$                     ranges%vcmax, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-4054" name="ln-4054" href="#ln-4054"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%frac4, &#39;frac4&#39;, REAL(veg%frac4, 4),    &amp;</span>
+<a id="ln-4055" name="ln-4055" href="#ln-4055"></a><span class="c">!$                     ranges%frac4, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-4056" name="ln-4056" href="#ln-4056"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%hc, &#39;hc&#39;, REAL(veg%hc, 4),             &amp;</span>
+<a id="ln-4057" name="ln-4057" href="#ln-4057"></a><span class="c">!$                     ranges%hc, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-4058" name="ln-4058" href="#ln-4058"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%rp20, &#39;rp20&#39;, REAL(veg%rp20, 4),       &amp;</span>
+<a id="ln-4059" name="ln-4059" href="#ln-4059"></a><span class="c">!$                     ranges%rp20, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-4060" name="ln-4060" href="#ln-4060"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%g0, &#39;g0&#39;, REAL(veg%g0, 4),       &amp;</span>
+<a id="ln-4061" name="ln-4061" href="#ln-4061"></a><span class="c">!$                     ranges%g0, .TRUE., &#39;real&#39;, .TRUE.) ! Ticket #56</span>
+<a id="ln-4062" name="ln-4062" href="#ln-4062"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%g1, &#39;g1&#39;, REAL(veg%g1, 4),       &amp;</span>
+<a id="ln-4063" name="ln-4063" href="#ln-4063"></a><span class="c">!$                     ranges%g1, .TRUE., &#39;real&#39;, .TRUE.) ! Ticket #56</span>
+<a id="ln-4064" name="ln-4064" href="#ln-4064"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%rpcoef, &#39;rpcoef&#39;, REAL(veg%rpcoef, 4), &amp;</span>
+<a id="ln-4065" name="ln-4065" href="#ln-4065"></a><span class="c">!$                     ranges%rpcoef, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-4066" name="ln-4066" href="#ln-4066"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%shelrb, &#39;shelrb&#39;, REAL(veg%shelrb, 4), &amp;</span>
+<a id="ln-4067" name="ln-4067" href="#ln-4067"></a><span class="c">!$                     ranges%shelrb, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-4068" name="ln-4068" href="#ln-4068"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%xfang, &#39;xfang&#39;, REAL(veg%xfang, 4),    &amp;</span>
+<a id="ln-4069" name="ln-4069" href="#ln-4069"></a><span class="c">!$                     ranges%xfang, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-4070" name="ln-4070" href="#ln-4070"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%wai, &#39;wai&#39;, REAL(veg%wai, 4),          &amp;</span>
+<a id="ln-4071" name="ln-4071" href="#ln-4071"></a><span class="c">!$                     ranges%wai, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-4072" name="ln-4072" href="#ln-4072"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%vegcf, &#39;vegcf&#39;, REAL(veg%vegcf, 4),    &amp;</span>
+<a id="ln-4073" name="ln-4073" href="#ln-4073"></a><span class="c">!$                     ranges%vegcf, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-4074" name="ln-4074" href="#ln-4074"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%extkn, &#39;extkn&#39;, REAL(veg%extkn, 4),    &amp;</span>
+<a id="ln-4075" name="ln-4075" href="#ln-4075"></a><span class="c">!$                     ranges%extkn, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-4076" name="ln-4076" href="#ln-4076"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%tminvj, &#39;tminvj&#39;, REAL(veg%tminvj, 4), &amp;</span>
+<a id="ln-4077" name="ln-4077" href="#ln-4077"></a><span class="c">!$                     ranges%tminvj, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-4078" name="ln-4078" href="#ln-4078"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%tmaxvj, &#39;tmaxvj&#39;, REAL(veg%tmaxvj, 4), &amp;</span>
+<a id="ln-4079" name="ln-4079" href="#ln-4079"></a><span class="c">!$                     ranges%tmaxvj, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-4080" name="ln-4080" href="#ln-4080"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%vbeta, &#39;vbeta&#39;, REAL(veg%vbeta, 4),    &amp;</span>
+<a id="ln-4081" name="ln-4081" href="#ln-4081"></a><span class="c">!$                     ranges%vbeta, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-4082" name="ln-4082" href="#ln-4082"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%xalbnir, &#39;xalbnir&#39;,                    &amp;</span>
+<a id="ln-4083" name="ln-4083" href="#ln-4083"></a><span class="c">!$                     REAL(veg%xalbnir, 4), ranges%xalbnir, .TRUE.,             &amp;</span>
+<a id="ln-4084" name="ln-4084" href="#ln-4084"></a><span class="c">!$                     &#39;real&#39;, .TRUE.)</span>
+<a id="ln-4085" name="ln-4085" href="#ln-4085"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%tmaxvj, &#39;tmaxvj&#39;, REAL(veg%tmaxvj, 4), &amp;</span>
+<a id="ln-4086" name="ln-4086" href="#ln-4086"></a><span class="c">!$                     ranges%tmaxvj, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-4087" name="ln-4087" href="#ln-4087"></a><span class="c">!$    ok = NF90_PUT_VAR(ncid_restart, rpid%ratecp, REAL(bgc%ratecp, 4))</span>
+<a id="ln-4088" name="ln-4088" href="#ln-4088"></a><span class="c">!$    IF(ok /= NF90_NOERR) CALL nc_abort(ok,                                     &amp;</span>
+<a id="ln-4089" name="ln-4089" href="#ln-4089"></a><span class="c">!$                                       &#39;Error writing ratecp parameter to &#39;    &amp;</span>
+<a id="ln-4090" name="ln-4090" href="#ln-4090"></a><span class="c">!$         //TRIM(frst_out)// &#39;(SUBROUTINE create_restart)&#39;)</span>
+<a id="ln-4091" name="ln-4091" href="#ln-4091"></a><span class="c">!$    ok = NF90_PUT_VAR(ncid_restart, rpid%ratecs, REAL(bgc%ratecs, 4))</span>
+<a id="ln-4092" name="ln-4092" href="#ln-4092"></a><span class="c">!$    IF(ok /= NF90_NOERR) CALL nc_abort(ok,                                     &amp;</span>
+<a id="ln-4093" name="ln-4093" href="#ln-4093"></a><span class="c">!$                                       &#39;Error writing ratecs parameter to &#39;    &amp;</span>
+<a id="ln-4094" name="ln-4094" href="#ln-4094"></a><span class="c">!$         //TRIM(frst_out)// &#39;(SUBROUTINE create_restart)&#39;)</span>
+<a id="ln-4095" name="ln-4095" href="#ln-4095"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%meth, &#39;meth&#39;, REAL(veg%meth, 4),       &amp;</span>
+<a id="ln-4096" name="ln-4096" href="#ln-4096"></a><span class="c">!$                     ranges%meth, .TRUE., &#39;integer&#39;, .TRUE.)</span>
+<a id="ln-4097" name="ln-4097" href="#ln-4097"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%za_uv, &#39;za_uv&#39;, REAL(rough%za_uv, 4),  &amp;</span>
+<a id="ln-4098" name="ln-4098" href="#ln-4098"></a><span class="c">!$                     ranges%za, .TRUE., &#39;real&#39;, .TRUE.)</span>
+<a id="ln-4099" name="ln-4099" href="#ln-4099"></a><span class="c">!$    CALL write_ovar (ncid_restart, rpid%za_tq, &#39;za_tq&#39;, REAL(rough%za_tq, 4),  &amp;</span>
+<a id="ln-4100" name="ln-4100" href="#ln-4100"></a><span class="c">!$                     ranges%za, .TRUE., &#39;real&#39;, .TRUE.)</span>
 <a id="ln-4101" name="ln-4101" href="#ln-4101"></a>
-<a id="ln-4102" name="ln-4102" href="#ln-4102"></a><span class="c">!!$ block above appears uncommented as below in MMY code -- rk4417</span>
+<a id="ln-4102" name="ln-4102" href="#ln-4102"></a><span class="c">!$ block above appears uncommented as below in MMY code -- rk4417</span>
 <a id="ln-4103" name="ln-4103" href="#ln-4103"></a>
 <a id="ln-4104" name="ln-4104" href="#ln-4104"></a><span class="w">    </span><span class="k">CALL </span><span class="n">write_ovar</span><span class="w"> </span><span class="p">(</span><span class="n">ncid_restart</span><span class="p">,</span><span class="w"> </span><span class="n">rpid</span><span class="p">%</span><span class="n">canst1</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;canst1&#39;</span><span class="p">,</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">veg</span><span class="p">%</span><span class="n">canst1</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-4105" name="ln-4105" href="#ln-4105"></a><span class="w">                     </span><span class="n">ranges</span><span class="p">%</span><span class="n">canst1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.,</span><span class="w"> </span><span class="s1">&#39;real&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.)</span><span class="w"></span>
@@ -4363,13 +4363,13 @@
 <a id="ln-4206" name="ln-4206" href="#ln-4206"></a><span class="w">    </span><span class="k">CALL </span><span class="n">write_ovar</span><span class="w"> </span><span class="p">(</span><span class="n">ncid_restart</span><span class="p">,</span><span class="w"> </span><span class="n">gwID</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;GWwb&#39;</span><span class="p">,</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">ssnow</span><span class="p">%</span><span class="n">GWwb</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">),</span><span class="w">       </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-4207" name="ln-4207" href="#ln-4207"></a><span class="w">         </span><span class="n">ranges</span><span class="p">%</span><span class="n">GWwb</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.,</span><span class="w"> </span><span class="s1">&#39;real&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.)</span><span class="w"></span>
 <a id="ln-4208" name="ln-4208" href="#ln-4208"></a>
-<a id="ln-4209" name="ln-4209" href="#ln-4209"></a><span class="c">!!$    IF(cable_user%SOIL_STRUC==&#39;sli&#39;.OR.cable_user%FWSOIL_SWITCH==&#39;Haverd2013&#39;) THEN</span>
-<a id="ln-4210" name="ln-4210" href="#ln-4210"></a><span class="c">!!$       CALL write_ovar (ncid_restart,rpid%gamma,&#39;gamma&#39;, &amp;</span>
-<a id="ln-4211" name="ln-4211" href="#ln-4211"></a><span class="c">!!$            REAL(veg%gamma,4),(/-99999.0,99999.0/),.TRUE.,&#39;real&#39;,.TRUE.)</span>
-<a id="ln-4212" name="ln-4212" href="#ln-4212"></a><span class="c">!!$    ENDIF</span>
-<a id="ln-4213" name="ln-4213" href="#ln-4213"></a><span class="c">!!$</span>
+<a id="ln-4209" name="ln-4209" href="#ln-4209"></a><span class="c">!$    IF(cable_user%SOIL_STRUC==&#39;sli&#39;.OR.cable_user%FWSOIL_SWITCH==&#39;Haverd2013&#39;) THEN</span>
+<a id="ln-4210" name="ln-4210" href="#ln-4210"></a><span class="c">!$       CALL write_ovar (ncid_restart,rpid%gamma,&#39;gamma&#39;, &amp;</span>
+<a id="ln-4211" name="ln-4211" href="#ln-4211"></a><span class="c">!$            REAL(veg%gamma,4),(/-99999.0,99999.0/),.TRUE.,&#39;real&#39;,.TRUE.)</span>
+<a id="ln-4212" name="ln-4212" href="#ln-4212"></a><span class="c">!$    ENDIF</span>
+<a id="ln-4213" name="ln-4213" href="#ln-4213"></a><span class="c">!$</span>
 <a id="ln-4214" name="ln-4214" href="#ln-4214"></a>
-<a id="ln-4215" name="ln-4215" href="#ln-4215"></a><span class="c">!!$  commented-block above replaced by 2 blocks below as per MMY code -- rk4417</span>
+<a id="ln-4215" name="ln-4215" href="#ln-4215"></a><span class="c">!$  commented-block above replaced by 2 blocks below as per MMY code -- rk4417</span>
 <a id="ln-4216" name="ln-4216" href="#ln-4216"></a>
 <a id="ln-4217" name="ln-4217" href="#ln-4217"></a><span class="w">    </span><span class="k">CALL </span><span class="n">write_ovar</span><span class="w"> </span><span class="p">(</span><span class="n">ncid_restart</span><span class="p">,</span><span class="w"> </span><span class="n">subdzID</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;sublayer_dz&#39;</span><span class="p">,</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">canopy</span><span class="p">%</span><span class="n">sublayer_dz</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">),</span><span class="w">       </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-4218" name="ln-4218" href="#ln-4218"></a><span class="w">                     </span><span class="p">(</span><span class="o">/</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">1.0e2</span><span class="o">/</span><span class="p">),</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.,</span><span class="w"> </span><span class="s1">&#39;real&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.)</span><span class="w"></span>
@@ -4382,18 +4382,18 @@
 <a id="ln-4225" name="ln-4225" href="#ln-4225"></a><span class="k">    </span>
 <a id="ln-4226" name="ln-4226" href="#ln-4226"></a><span class="k">    IF</span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">SOIL_STRUC</span><span class="o">==</span><span class="s1">&#39;sli&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w"></span>
 <a id="ln-4227" name="ln-4227" href="#ln-4227"></a><span class="w">       </span><span class="c">! Write SLI parameters:</span>
-<a id="ln-4228" name="ln-4228" href="#ln-4228"></a><span class="c">!!$       CALL write_ovar (ncid_restart,rpid%nhorizons,&#39;nhorizons&#39;, &amp;</span>
-<a id="ln-4229" name="ln-4229" href="#ln-4229"></a><span class="c">!!$            REAL(soil%nhorizons,4),(/-99999.0,99999.0/),.TRUE.,&#39;integer&#39;,.TRUE.)</span>
-<a id="ln-4230" name="ln-4230" href="#ln-4230"></a><span class="c">!!$       CALL write_ovar (ncid_restart,rpid%ishorizon,&#39;ishorizon&#39;, &amp;</span>
-<a id="ln-4231" name="ln-4231" href="#ln-4231"></a><span class="c">!!$            REAL(soil%ishorizon,4),(/-99999.0,99999.0/),.TRUE.,&#39;soil&#39;,.TRUE.)</span>
-<a id="ln-4232" name="ln-4232" href="#ln-4232"></a><span class="c">!!$       CALL write_ovar (ncid_restart,rpid%clitt,&#39;clitt&#39;, &amp;</span>
-<a id="ln-4233" name="ln-4233" href="#ln-4233"></a><span class="c">!!$            REAL(veg%clitt,4),(/-99999.0,99999.0/),.TRUE.,&#39;real&#39;,.TRUE.)</span>
-<a id="ln-4234" name="ln-4234" href="#ln-4234"></a><span class="c">!!$       CALL write_ovar (ncid_restart,rpid%ZR,&#39;ZR&#39;, &amp;</span>
-<a id="ln-4235" name="ln-4235" href="#ln-4235"></a><span class="c">!!$            REAL(veg%ZR,4),(/-99999.0,99999.0/),.TRUE.,&#39;real&#39;,.TRUE.)</span>
-<a id="ln-4236" name="ln-4236" href="#ln-4236"></a><span class="c">!!$       CALL write_ovar (ncid_restart,rpid%F10,&#39;F10&#39;, &amp;</span>
-<a id="ln-4237" name="ln-4237" href="#ln-4237"></a><span class="c">!!$            REAL(veg%F10,4),(/-99999.0,99999.0/),.TRUE.,&#39;real&#39;,.TRUE.)</span>
+<a id="ln-4228" name="ln-4228" href="#ln-4228"></a><span class="c">!$       CALL write_ovar (ncid_restart,rpid%nhorizons,&#39;nhorizons&#39;, &amp;</span>
+<a id="ln-4229" name="ln-4229" href="#ln-4229"></a><span class="c">!$            REAL(soil%nhorizons,4),(/-99999.0,99999.0/),.TRUE.,&#39;integer&#39;,.TRUE.)</span>
+<a id="ln-4230" name="ln-4230" href="#ln-4230"></a><span class="c">!$       CALL write_ovar (ncid_restart,rpid%ishorizon,&#39;ishorizon&#39;, &amp;</span>
+<a id="ln-4231" name="ln-4231" href="#ln-4231"></a><span class="c">!$            REAL(soil%ishorizon,4),(/-99999.0,99999.0/),.TRUE.,&#39;soil&#39;,.TRUE.)</span>
+<a id="ln-4232" name="ln-4232" href="#ln-4232"></a><span class="c">!$       CALL write_ovar (ncid_restart,rpid%clitt,&#39;clitt&#39;, &amp;</span>
+<a id="ln-4233" name="ln-4233" href="#ln-4233"></a><span class="c">!$            REAL(veg%clitt,4),(/-99999.0,99999.0/),.TRUE.,&#39;real&#39;,.TRUE.)</span>
+<a id="ln-4234" name="ln-4234" href="#ln-4234"></a><span class="c">!$       CALL write_ovar (ncid_restart,rpid%ZR,&#39;ZR&#39;, &amp;</span>
+<a id="ln-4235" name="ln-4235" href="#ln-4235"></a><span class="c">!$            REAL(veg%ZR,4),(/-99999.0,99999.0/),.TRUE.,&#39;real&#39;,.TRUE.)</span>
+<a id="ln-4236" name="ln-4236" href="#ln-4236"></a><span class="c">!$       CALL write_ovar (ncid_restart,rpid%F10,&#39;F10&#39;, &amp;</span>
+<a id="ln-4237" name="ln-4237" href="#ln-4237"></a><span class="c">!$            REAL(veg%F10,4),(/-99999.0,99999.0/),.TRUE.,&#39;real&#39;,.TRUE.)</span>
 <a id="ln-4238" name="ln-4238" href="#ln-4238"></a>
-<a id="ln-4239" name="ln-4239" href="#ln-4239"></a><span class="c">!!$ block above appears uncommented as below in MMY code -- rk4417</span>
+<a id="ln-4239" name="ln-4239" href="#ln-4239"></a><span class="c">!$ block above appears uncommented as below in MMY code -- rk4417</span>
 <a id="ln-4240" name="ln-4240" href="#ln-4240"></a><span class="w">       </span>
 <a id="ln-4241" name="ln-4241" href="#ln-4241"></a><span class="w">       </span><span class="k">CALL </span><span class="n">write_ovar</span><span class="w"> </span><span class="p">(</span><span class="n">ncid_restart</span><span class="p">,</span><span class="n">rpid</span><span class="p">%</span><span class="n">nhorizons</span><span class="p">,</span><span class="s1">&#39;nhorizons&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-4242" name="ln-4242" href="#ln-4242"></a><span class="w">            </span><span class="kt">REAL</span><span class="p">(</span><span class="n">soil</span><span class="p">%</span><span class="n">nhorizons</span><span class="p">,</span><span class="mi">4</span><span class="p">),(</span><span class="o">/-</span><span class="mi">9999</span><span class="mf">9.0</span><span class="p">,</span><span class="mi">9999</span><span class="mf">9.0</span><span class="o">/</span><span class="p">),.</span><span class="n">TRUE</span><span class="p">.,</span><span class="s1">&#39;integer&#39;</span><span class="p">,.</span><span class="n">TRUE</span><span class="p">.)</span><span class="w"></span>

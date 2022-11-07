@@ -252,10 +252,10 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
            CALL POP_IO( pop, casamet, YYYY, 'WRITE_EPI', &
                 ( YYYY.EQ.cable_user%YearEnd ) )
 
-!!$               WHERE (pop%pop_grid(:)%cmass_sum_old.gt.0.1 .and. pop%pop_grid(:)%cmass_sum.gt.0.1 )
-!!$               casapool%Cplant(Iw,2) = casapool%Cplant(Iw,2)*(1.0- min( POP%pop_grid(:)%cat_mortality/(POP%pop_grid(:)%cmass_sum_old),0.99))
-!!$               casapool%Nplant(Iw,2) = casapool%Nplant(Iw,2)*(1.0- min( POP%pop_grid(:)%cat_mortality/(POP%pop_grid(:)%cmass_sum_old),0.99))
-!!$               ENDWHERE
+!$               WHERE (pop%pop_grid(:)%cmass_sum_old.gt.0.1 .and. pop%pop_grid(:)%cmass_sum.gt.0.1 )
+!$               casapool%Cplant(Iw,2) = casapool%Cplant(Iw,2)*(1.0- min( POP%pop_grid(:)%cat_mortality/(POP%pop_grid(:)%cmass_sum_old),0.99))
+!$               casapool%Nplant(Iw,2) = casapool%Nplant(Iw,2)*(1.0- min( POP%pop_grid(:)%cat_mortality/(POP%pop_grid(:)%cmass_sum_old),0.99))
+!$               ENDWHERE
 
 
            CALL POP_LUC_CASA_transfer(POPLUC,POP,LUC_EXPT,casapool,casabal,casaflux,ktauday)

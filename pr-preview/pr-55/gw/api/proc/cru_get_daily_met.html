@@ -123,19 +123,6 @@
     <h2>public subroutine CRU_GET_DAILY_MET(CRU, LastDayOfYear, LastYearOfMet)</h2>
     
 
-    <p>$The code below is uncommented in MMY code -- rk4417
-$  IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' )) THEN
-$    MetYear = 1901 + MOD(CRU%CYEAR-RunStartYear,30)
-$  ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
-$    MetYear = CRU%CYEAR
-$  ELSE
-$    STOP 'Error in cable_cru.F90: CRU%Run not S0_TRENDY, S1_TRENDY, or 1901-2015'
-$  ENDIF</p>
-<p>$          IF ( TRIM(CRU%Run) .EQ. 'S0_TRENDY' .OR.  ( TRIM(CRU%Run) .EQ. 'S1_TRENDY' )) THEN
-$            NextMetYear = 1901 + MOD(CRU%CYEAR + 1 - RunStartYear,30)
-$          ELSE IF ( TRIM(CRU%Run) .EQ. 'S2_TRENDY' ) THEN
-$            NextMetYear = CRU%CYEAR + 1
-$          ENDIF</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

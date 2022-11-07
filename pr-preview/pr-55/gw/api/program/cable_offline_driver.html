@@ -225,31 +225,31 @@
       <li class="list-group-item">
   <ul class="list-inline">
     <li><a href='../module/cable_plume_mip.html'>CABLE_PLUME_MIP</a></li>
-    <li>F90_UNIX</li>
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-    <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
-    <li><a href='../module/cable_cru.html'>CABLE_CRU</a></li>
-    <li><a href='../module/cable_cbm_module.html'>cable_cbm_module</a></li>
-    <li><a href='../module/cable_diag_module.html'>cable_diag_module</a></li>
-    <li><a href='../module/cable_input_module.html'>cable_input_module</a></li>
-    <li><a href='../module/casadimension.html'>casadimension</a></li>
-    <li><a href='../module/cable_luc_expt.html'>CABLE_LUC_EXPT</a></li>
-    <li><a href='../module/cbl_soil_snow_init_special_module.html'>cbl_soil_snow_init_special_module</a></li>
-    <li><a href='../module/casa_cable.html'>casa_cable</a></li>
-    <li><a href='../module/cable_namelist_util.html'>cable_namelist_util</a></li>
-    <li><a href='../module/cable_climate_mod.html'>cable_climate_mod</a></li>
-    <li><a href='../module/casavariable.html'>casavariable</a></li>
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
-    <li><a href='../module/cable_data_module.html'>cable_data_module</a></li>
-    <li><a href='../module/phenvariable.html'>phenvariable</a></li>
-    <li><a href='../module/popluc_types.html'>POPLUC_Types</a></li>
-    <li><a href='../module/casa_inout_module.html'>casa_inout_module</a></li>
     <li><a href='../module/popluc_module.html'>POPLUC_Module</a></li>
-    <li><a href='../module/pop_constants.html'>POP_Constants</a></li>
-    <li><a href='../module/cable_write_module.html'>cable_write_module</a></li>
+    <li><a href='../module/cable_luc_expt.html'>CABLE_LUC_EXPT</a></li>
+    <li>F90_UNIX</li>
+    <li><a href='../module/cable_climate_mod.html'>cable_climate_mod</a></li>
     <li><a href='../module/cable_site.html'>CABLE_site</a></li>
-    <li><a href='../module/pop_types.html'>POP_Types</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
     <li><a href='../module/cable_output_module.html'>cable_output_module</a></li>
+    <li><a href='../module/popluc_types.html'>POPLUC_Types</a></li>
+    <li><a href='../module/casa_cable.html'>casa_cable</a></li>
+    <li><a href='../module/cable_input_module.html'>cable_input_module</a></li>
+    <li><a href='../module/phenvariable.html'>phenvariable</a></li>
+    <li><a href='../module/cable_data_module.html'>cable_data_module</a></li>
+    <li><a href='../module/pop_constants.html'>POP_Constants</a></li>
+    <li><a href='../module/casadimension.html'>casadimension</a></li>
+    <li><a href='../module/cable_namelist_util.html'>cable_namelist_util</a></li>
+    <li><a href='../module/pop_types.html'>POP_Types</a></li>
+    <li><a href='../module/cbl_soil_snow_init_special_module.html'>cbl_soil_snow_init_special_module</a></li>
+    <li><a href='../module/casa_inout_module.html'>casa_inout_module</a></li>
+    <li><a href='../module/cable_write_module.html'>cable_write_module</a></li>
+    <li><a href='../module/cable_io_vars_module~2.html'>cable_IO_vars_module</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+    <li><a href='../module/cable_cbm_module.html'>cable_cbm_module</a></li>
+    <li><a href='../module/cable_cru.html'>CABLE_CRU</a></li>
+    <li><a href='../module/cable_diag_module.html'>cable_diag_module</a></li>
+    <li><a href='../module/casavariable.html'>casavariable</a></li>
   </ul>
       </li>
       </ul>
@@ -259,96 +259,10 @@
 <p>vh_js !!
  vh_js !!
  vh_js !! suggest LALLOC should ulitmately be a switch in the .nml file
-$   IF ( .NOT. spinup ) THEN
-$    IF ( spincasa ) THEN
-$       spincasa = .FALSE.
-$       WRITE(<em>,</em>)   "spinup == .FALSE. -&gt; spincasa set to .F."
-$       WRITE(logn,*)"spinup == .FALSE. -&gt; spincasa set to .F."
-$    ENDIF
-$   ENDIF
-$</p>
-<p>$  IF( l_vcmaxFeedbk .AND. icycle &lt; 2 )                            &amp;   ! replaces line above in MMY code -- rk4417</p>
-<p>!! INISTUFF</p>
-<p>$  IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &amp;   ! this block replaces above [if -- elseif] in MMY code -- rk4417 
-$       TRIM(cable_user%MetType) .NE. "gpgs" .AND. &amp;
-$       TRIM(cable_user%MetType) .NE. "plum" .AND. &amp;
-$       TRIM(cable_user%MetType) .NE. "prin" .AND. &amp; ! MMY
-$       TRIM(cable_user%MetType) .NE. "cru") THEN
-$  YearStart = CABLE_USER%YearStart
-$  YearEnd = CABLE_USER%YearEnd
-$  cable_user%CASA_SPIN_ENDYEAR</p>
-<p>$                                           This block appears in MMY code -- rk4417
-$! <strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em> MMY using Princeton </strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><em>
-$        ELSE IF ( TRIM(cable_user%MetType) .EQ. 'prin' ) THEN
-$           ncciy = CurYear
-$
-$           CALL prepareFiles_princeton(ncciy) ! MMY
-$           IF ( RRRR .EQ. 1 ) THEN
-$           CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
-$           IF (leaps.and.is_leapyear(YYYY).and.kend.eq.2920) THEN
-$              STOP 'LEAP YEAR INCOMPATIBILITY WITH INPUT MET !!!'
-$           ENDIF
-$           IF ( NRRRR .GT. 1 ) THEN
-$              GSWP_MID(1,YYYY) = ncid_rain
-$              ! GSWP_MID(2,YYYY) = ncid_snow MMY
-$              GSWP_MID(3,YYYY) = ncid_lw
-$              GSWP_MID(4,YYYY) = ncid_sw
-$              GSWP_MID(5,YYYY) = ncid_ps
-$              GSWP_MID(6,YYYY) = ncid_qa
-$              GSWP_MID(7,YYYY) = ncid_ta
-$              GSWP_MID(8,YYYY) = ncid_wd
-$           ENDIF
-$           ELSE
-$           ncid_rain = GSWP_MID(1,YYYY)
-$           ! ncid_snow = GSWP_MID(2,YYYY) MMY
-$           ncid_lw   = GSWP_MID(3,YYYY)
-$           ncid_sw   = GSWP_MID(4,YYYY)
-$           ncid_ps   = GSWP_MID(5,YYYY)
-$           ncid_qa   = GSWP_MID(6,YYYY)
-$           ncid_ta   = GSWP_MID(7,YYYY)
-$           ncid_wd   = GSWP_MID(8,YYYY)
-$           kend      = ktauday * LOY ! MMY
-$           ENDIF
-$! <strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em></strong></em>
-$</p>
+!! INISTUFF</p>
 <p>Checks where parameters and initialisations should be loaded from.</p>
 <p>vh_js !!
-$       ELSEIF ( casaonly .AND. (.NOT. spincasa) .AND. cable_user%popluc) THEN  ! replaces line above in MMY code -- rk4417
  vh_js !!</p>
-<p>$ CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate, idoy, &amp;   ! replaces line above in MMY code -- rk4417
-$ kend/ktauday )
-$ !      CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate,&amp;
-$ !           INT(met%doy(lbound(met%doy,dim=1))), LOY )
-$         do kk=1,mp
-$        if( canopy%fe(kk).NE.( canopy%fe(kk))) THEN
-$           write(<em>,</em>) 'fe nan', kk, ktau,met%qv(kk), met%precip(kk),met%precip_sn(kk), &amp;
-$            met%fld(kk), met%fsd(kk,:), met%tk(kk), met%ua(kk), ssnow%potev(kk), met%pmb(kk), &amp;
-$            canopy%ga(kk), ssnow%tgg(kk,:), canopy%fwsoil(kk)
-$
-$
-$           stop
-$        endif
-$        if ( casaflux%cnpp(kk).NE. casaflux%cnpp(kk)) then
-$           write(<em>,</em>) 'npp nan', kk, ktau,  casaflux%cnpp(kk)
-$           stop
-$
-$        endif
-$
-$
-$        !if (canopy%fwsoil(kk).eq.0.0) then
-$        !   write(<em>,</em>) 'zero fwsoil', ktau, canopy%fpn(kk)
-$        !endif
-$
-$
-$         enddo</p>
-<p>$         IF( MOD( ktau_tot, kend ) .EQ. 0 .AND. ktau_Tot .GT. kend .AND. &amp;
-$          YYYY.EQ. CABLE_USER%YearEnd .OR. ( NRRRR .GT. 1 .AND. &amp;
-$          RRRR.EQ. NRRRR) ) THEN</p>
-<p>$                 IF( (ANY( ABS(ssnow%wb-soilMtemp)&gt;delsoilM).OR.                &amp;  ! replaces three lines above in MMY code 
-$                      ANY( ABS(ssnow%tgg-soilTtemp)&gt;delsoilT) .or. &amp;               ! -- rk4417
-$                      maxval(ABS(ssnow%GWwb-GWtemp),dim=1) &gt; delgwM) .and. &amp;
-$                      ( (int(ktau_tot/kend) .lt. cable_user%max_spins)  .and.&amp;
-$                      (cable_user%max_spins .gt. 0) ) ) THEN</p>
 <br>
      <section class="visible-xs visible-sm hidden-md">
        <h3>Contents</h3>
@@ -471,7 +385,7 @@ $                      (cable_user%max_spins .gt. 0) ) ) THEN</p>
 <tr>
   <td><span class="anchor" id="variable-mloop%09"></span>integer,</td>
   <td>parameter</td><td>::</td>
-  <td><strong>mloop	</strong></td><td> =</td><td>30</td><td><p>$  INTEGER, PARAMETER ::      mloop     = 5   ! CASA-CNP PreSpinup loops ! replaces line above in MMY code -- rk4417</p></td>
+  <td><strong>mloop	</strong></td><td> =</td><td>30</td><td></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-lalloc~11"></span>integer</td>

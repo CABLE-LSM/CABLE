@@ -62,8 +62,8 @@ CONTAINS
     ! Set canopy height above snow level:
     rough%hruff = MAX( 10. * z0soilsn_min, veg%hc - 1.2 * ssnow%snowd /                       &
          MAX( ssnow%ssdnn, 100. ) )
-!!$    rough%hruff = MAX( 1.e-6, veg%hc - 1.2 * ssnow%snowd /                       &
-!!$                 MAX( ssnow%ssdnn, 100. ) )  ! above line appears like this in MMY
+!$    rough%hruff = MAX( 1.e-6, veg%hc - 1.2 * ssnow%snowd /                       &
+!$                 MAX( ssnow%ssdnn, 100. ) )  ! above line appears like this in MMY
                                                 ! but same effect -- rk4417 
     ! LAI decreases due to snow:
     canopy%vlaiw = veg%vlai * rough%hruff / MAX( 0.01, veg%hc )

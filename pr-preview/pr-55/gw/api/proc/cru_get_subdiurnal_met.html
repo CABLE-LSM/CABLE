@@ -128,11 +128,11 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-    <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
     <li><a href='../module/cable_weathergenerator.html'>CABLE_WEATHERGENERATOR</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
     <li><a href='../module/cable_checks_module.html'>cable_checks_module</a></li>
+    <li><a href='../module/cable_io_vars_module~2.html'>cable_IO_vars_module</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
   </ul>
       </li>
       </ul>
@@ -141,15 +141,6 @@
 
     <p>!!  this only works with CANBERRA cable_driver, as ktau    !!!!
 !!  restarts on Jan 1                                      !!!!</p>
-<p>$    if (WG%Temp(iland) &gt; 2.5) then
-$       met%precip_sn(is:ie) = 0.0
-$    elseif ((WG%Temp(iland) &lt;= 2.5) .and. (WG%Temp(iland) &gt; 2.0)) then
-$       met%precip_sn(is:ie) = 0.6<em> met%precip(is:ie)
-$    elseif ((WG%Temp(iland) &lt;= 2.0) .and. (WG%Temp(iland) &gt; 0.0)) then
-$       met%precip_sn(is:ie) = (1.0 - (54.62 - 0.2 </em>(WG%Temp(iland) + 273.15)))* met%precip(is:ie) ! this facr can be &gt; 1 !!!
-$    elseif (WG%Temp(iland) &lt;= 0.0) then
-$       met%precip_sn(is:ie) = met%precip(is:ie)
-$    endif</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

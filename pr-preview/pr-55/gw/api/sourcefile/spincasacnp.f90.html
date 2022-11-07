@@ -343,9 +343,9 @@
 <a id="ln-186" name="ln-186" href="#ln-186"></a><span class="w">        </span><span class="k">ENDIF</span><span class="w"> </span><span class="c">! CALL_POP</span>
 <a id="ln-187" name="ln-187" href="#ln-187"></a>
 <a id="ln-188" name="ln-188" href="#ln-188"></a>
-<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="c">!!$        WHERE(xkNlimiting .eq. 0)  !Chris Lu 4/June/2012</span>
-<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="c">!!$           xkNlimiting = 0.001</span>
-<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="c">!!$        END WHERE</span>
+<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="c">!$        WHERE(xkNlimiting .eq. 0)  !Chris Lu 4/June/2012</span>
+<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="c">!$           xkNlimiting = 0.001</span>
+<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="c">!$        END WHERE</span>
 <a id="ln-192" name="ln-192" href="#ln-192"></a><span class="w">        </span><span class="n">nptx</span><span class="o">=</span><span class="mi">8173</span><span class="w"></span>
 <a id="ln-193" name="ln-193" href="#ln-193"></a>
 <a id="ln-194" name="ln-194" href="#ln-194"></a><span class="w">        </span><span class="n">avg_cleaf2met</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">avg_cleaf2met</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">cleaf2met</span><span class="w"></span>
@@ -438,8 +438,8 @@
 <a id="ln-281" name="ln-281" href="#ln-281"></a><span class="w">       </span><span class="n">avg_ratioNCsoilmic</span><span class="p">,</span><span class="n">avg_ratioNCsoilslow</span><span class="p">,</span><span class="n">avg_ratioNCsoilpass</span><span class="p">,</span><span class="w">            </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-282" name="ln-282" href="#ln-282"></a><span class="w">       </span><span class="n">avg_nsoilmin</span><span class="p">,</span><span class="n">avg_psoillab</span><span class="p">,</span><span class="n">avg_psoilsorb</span><span class="p">,</span><span class="n">avg_psoilocc</span><span class="p">)</span><span class="w"></span>
 <a id="ln-283" name="ln-283" href="#ln-283"></a>
-<a id="ln-284" name="ln-284" href="#ln-284"></a><span class="c">!!$  call totcnppools(1,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &amp;</span>
-<a id="ln-285" name="ln-285" href="#ln-285"></a><span class="c">!!$       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)</span>
+<a id="ln-284" name="ln-284" href="#ln-284"></a><span class="c">!$  call totcnppools(1,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &amp;</span>
+<a id="ln-285" name="ln-285" href="#ln-285"></a><span class="c">!$       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)</span>
 <a id="ln-286" name="ln-286" href="#ln-286"></a>
 <a id="ln-287" name="ln-287" href="#ln-287"></a><span class="w">  </span><span class="n">nloop1</span><span class="o">=</span><span class="w"> </span><span class="nb">MAX</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">mloop</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span><span class="w"></span>
 <a id="ln-288" name="ln-288" href="#ln-288"></a>
@@ -528,9 +528,9 @@
 <a id="ln-371" name="ln-371" href="#ln-371"></a><span class="w">     </span><span class="k">ENDDO</span><span class="w">   </span><span class="c">! end of nyear</span>
 <a id="ln-372" name="ln-372" href="#ln-372"></a>
 <a id="ln-373" name="ln-373" href="#ln-373"></a>
-<a id="ln-374" name="ln-374" href="#ln-374"></a><span class="c">!!$  if(nloop&gt;=nloop1) &amp;</span>
-<a id="ln-375" name="ln-375" href="#ln-375"></a><span class="c">!!$       call totcnppools(2+nloop-nloop1,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &amp;</span>
-<a id="ln-376" name="ln-376" href="#ln-376"></a><span class="c">!!$       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)</span>
+<a id="ln-374" name="ln-374" href="#ln-374"></a><span class="c">!$  if(nloop&gt;=nloop1) &amp;</span>
+<a id="ln-375" name="ln-375" href="#ln-375"></a><span class="c">!$       call totcnppools(2+nloop-nloop1,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &amp;</span>
+<a id="ln-376" name="ln-376" href="#ln-376"></a><span class="c">!$       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)</span>
 <a id="ln-377" name="ln-377" href="#ln-377"></a>
 <a id="ln-378" name="ln-378" href="#ln-378"></a><span class="w">  </span><span class="k">ENDDO</span><span class="w">     </span><span class="c">! end of nloop</span>
 <a id="ln-379" name="ln-379" href="#ln-379"></a>

@@ -124,36 +124,8 @@
     
 
     <p>(BP Nov 2009)
-$    ok = NF90_INQ_VARID(ncid_rin,'GWwb',parID)   ! commented out by rk4417 as it appears below 
-$    IF(ok == NF90_NOERR) THEN                    ! in added block 
-$       CALL readpar(ncid_rin,'GWwb',dummy,ssnow%GWwb,filename%restart_in,            &amp;
-$            max_vegpatches,'def',from_restart,mp)
-$    ELSE
-$       ssnow%GWwb = 0.95*soil%ssat
-$    END IF</p>
-<p>$   IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN   ! I did not comment this out,
-$      CALL readpar(ncid_rin,'gamma',dummy,veg%gamma,filename%restart_in,           &amp; ! see below for duplicate -- rk4417
-$           max_vegpatches,'def',from_restart,mp)
-$   ENDIF</p>
-<p>$       CALL readpar(ncid_rin,'ZR',dummy,veg%ZR, &amp;                       ! this block is not commented out in MMY -- rk4417
-$            filename%restart_in,max_vegpatches,'def',from_restart,mp)
-$       CALL readpar(ncid_rin,'F10',dummy,veg%F10, &amp;
-$            filename%restart_in,max_vegpatches,'def',from_restart,mp)
-$       CALL readpar(ncid_rin,'zeta',dummy,soil%zeta,filename%restart_in,           &amp;
-$            max_vegpatches,'def',from_restart,mp)
-$       CALL readpar(ncid_rin,'fsatmax',dummy,soil%fsatmax,filename%restart_in,           &amp;
-$            max_vegpatches,'def',from_restart,mp)
-$       CALL readpar(ncid_rin,'nhorizons',dummy,soil%nhorizons,filename%restart_in,           &amp;
-$            max_vegpatches,'def',from_restart,mp)
-$       ALLOCATE(var_r2(mp,ms))
-$       CALL readpar(ncid_rin,'ishorizon',dummy,var_r2,filename%restart_in,           &amp;
-$            max_vegpatches,'ms',from_restart,mp)
-$       soil%ishorizon = int(var_r2)
-$       DEALLOCATE(var_r2)
-$       CALL readpar(ncid_rin,'clitt',dummy,veg%clitt,filename%restart_in,           &amp;
-$            max_vegpatches,'def',from_restart,mp)
- getting rid of spurious veg types in Antarctica from the CCAM2Mk3L process
- Doing it once will fix the problem in the restart file in subsequent runs</p>
+getting rid of spurious veg types in Antarctica from the CCAM2Mk3L process
+Doing it once will fix the problem in the restart file in subsequent runs</p>
 <p>end of fix to spurious veg types</p>
 
     <h3>Arguments</h3>

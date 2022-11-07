@@ -548,7 +548,7 @@
 <a id="ln-391" name="ln-391" href="#ln-391"></a><span class="w">    </span><span class="k">ENDIF</span><span class="w"></span>
 <a id="ln-392" name="ln-392" href="#ln-392"></a>
 <a id="ln-393" name="ln-393" href="#ln-393"></a><span class="w">    </span><span class="c">! INITIALISATION depending on nml settings</span>
-<a id="ln-394" name="ln-394" href="#ln-394"></a><span class="c">!!$    IF (TRIM(cable_user%MetType) .EQ. &#39;gswp&#39; .OR. TRIM(cable_user%MetType) .EQ. &#39;gswp3&#39;) THEN  ! replaced by line below</span>
+<a id="ln-394" name="ln-394" href="#ln-394"></a><span class="c">!$    IF (TRIM(cable_user%MetType) .EQ. &#39;gswp&#39; .OR. TRIM(cable_user%MetType) .EQ. &#39;gswp3&#39;) THEN  ! replaced by line below</span>
 <a id="ln-395" name="ln-395" href="#ln-395"></a><span class="w">    </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">MetType</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s1">&#39;gswp&#39;</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="nb">TRIM</span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">MetType</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s1">&#39;gswp3&#39;</span><span class="w"> </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! MMY   ! as per MMY code -- rk4417 </span>
 <a id="ln-396" name="ln-396" href="#ln-396"></a><span class="w">         </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="nb">TRIM</span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">MetType</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s1">&#39;prin&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w">                                  </span><span class="c">! MMY</span>
 <a id="ln-397" name="ln-397" href="#ln-397"></a><span class="w">       </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">CABLE_USER</span><span class="p">%</span><span class="n">YearStart</span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">ncciy</span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
@@ -796,7 +796,7 @@
 <a id="ln-639" name="ln-639" href="#ln-639"></a><span class="w">             </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">call_climate</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
 <a id="ln-640" name="ln-640" href="#ln-640"></a><span class="k">                CALL </span><span class="n">master_climate_types</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">climate</span><span class="p">,</span><span class="w"> </span><span class="n">ktauday</span><span class="p">)</span><span class="w"></span>
 <a id="ln-641" name="ln-641" href="#ln-641"></a><span class="w">             </span><span class="k">ENDIF</span><span class="w"></span>
-<a id="ln-642" name="ln-642" href="#ln-642"></a><span class="c">!!$             CALL master_climate_types(comm, climate)  ! block above appears this way in MMY code -- rk4417</span>
+<a id="ln-642" name="ln-642" href="#ln-642"></a><span class="c">!$             CALL master_climate_types(comm, climate)  ! block above appears this way in MMY code -- rk4417</span>
 <a id="ln-643" name="ln-643" href="#ln-643"></a><span class="w">             </span>
 <a id="ln-644" name="ln-644" href="#ln-644"></a><span class="w">             </span><span class="c">! MPI: mvtype and mstype send out here instead of inside master_casa_params</span>
 <a id="ln-645" name="ln-645" href="#ln-645"></a><span class="w">             </span><span class="c">!      so that old CABLE carbon module can use them. (BP May 2013)</span>
@@ -942,7 +942,7 @@
 <a id="ln-785" name="ln-785" href="#ln-785"></a><span class="w">          </span><span class="n">canopy</span><span class="p">%</span><span class="n">oldcansto</span><span class="o">=</span><span class="n">canopy</span><span class="p">%</span><span class="n">cansto</span><span class="w"></span>
 <a id="ln-786" name="ln-786" href="#ln-786"></a>
 <a id="ln-787" name="ln-787" href="#ln-787"></a><span class="w">          </span><span class="c">! Zero out lai where there is no vegetation acc. to veg. index</span>
-<a id="ln-788" name="ln-788" href="#ln-788"></a><span class="c">!!$          WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.    ! replaced by line below as per MMY -- rk4417</span>
+<a id="ln-788" name="ln-788" href="#ln-788"></a><span class="c">!$          WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.    ! replaced by line below as per MMY -- rk4417</span>
 <a id="ln-789" name="ln-789" href="#ln-789"></a><span class="w">          </span><span class="k">WHERE</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">veg</span><span class="p">%</span><span class="n">iveg</span><span class="p">(:)</span><span class="w"> </span><span class="p">.</span><span class="n">GE</span><span class="p">.</span><span class="w"> </span><span class="mi">14</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">veg</span><span class="p">%</span><span class="n">vlai</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.</span><span class="w"> </span><span class="c">! MMY change from iveg%vlai to veg%vlai</span>
 <a id="ln-790" name="ln-790" href="#ln-790"></a>
 <a id="ln-791" name="ln-791" href="#ln-791"></a>
@@ -1005,20 +1005,20 @@
 <a id="ln-848" name="ln-848" href="#ln-848"></a><span class="w">                  </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">MetType</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="s1">&#39;prin&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! MMY    ! inserted line as per MMY -- rk4417</span>
 <a id="ln-849" name="ln-849" href="#ln-849"></a><span class="w">                  </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">MetType</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="s1">&#39;gswp3&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">CurYear</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">met</span><span class="p">%</span><span class="n">year</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
 <a id="ln-850" name="ln-850" href="#ln-850"></a>
-<a id="ln-851" name="ln-851" href="#ln-851"></a><span class="c">!!$             IF ( CASAONLY .AND. IS_CASA_TIME(&quot;dread&quot;, yyyy, iktau, kstart, koffset, &amp;</span>
-<a id="ln-852" name="ln-852" href="#ln-852"></a><span class="c">!!$                  kend, ktauday, logn) )  THEN</span>
-<a id="ln-853" name="ln-853" href="#ln-853"></a><span class="c">!!$                ! CLN READ FROM FILE INSTEAD !</span>
-<a id="ln-854" name="ln-854" href="#ln-854"></a><span class="c">!!$                WRITE(CYEAR,FMT=&quot;(I4)&quot;)CurYear + INT((ktau-kstart+koffset)/(LOY*ktauday))</span>
-<a id="ln-855" name="ln-855" href="#ln-855"></a><span class="c">!!$                ncfile  = TRIM(casafile%c2cdumppath)//&#39;c2c_&#39;//CYEAR//&#39;_dump.nc&#39;</span>
-<a id="ln-856" name="ln-856" href="#ln-856"></a><span class="c">!!$                casa_it = NINT( REAL(iktau / ktauday) )</span>
-<a id="ln-857" name="ln-857" href="#ln-857"></a><span class="c">!!$                CALL read_casa_dump( ncfile, casamet, casaflux, casa_it, kend, .FALSE. )</span>
-<a id="ln-858" name="ln-858" href="#ln-858"></a><span class="c">!!$             ENDIF</span>
+<a id="ln-851" name="ln-851" href="#ln-851"></a><span class="c">!$             IF ( CASAONLY .AND. IS_CASA_TIME(&quot;dread&quot;, yyyy, iktau, kstart, koffset, &amp;</span>
+<a id="ln-852" name="ln-852" href="#ln-852"></a><span class="c">!$                  kend, ktauday, logn) )  THEN</span>
+<a id="ln-853" name="ln-853" href="#ln-853"></a><span class="c">!$                ! CLN READ FROM FILE INSTEAD !</span>
+<a id="ln-854" name="ln-854" href="#ln-854"></a><span class="c">!$                WRITE(CYEAR,FMT=&quot;(I4)&quot;)CurYear + INT((ktau-kstart+koffset)/(LOY*ktauday))</span>
+<a id="ln-855" name="ln-855" href="#ln-855"></a><span class="c">!$                ncfile  = TRIM(casafile%c2cdumppath)//&#39;c2c_&#39;//CYEAR//&#39;_dump.nc&#39;</span>
+<a id="ln-856" name="ln-856" href="#ln-856"></a><span class="c">!$                casa_it = NINT( REAL(iktau / ktauday) )</span>
+<a id="ln-857" name="ln-857" href="#ln-857"></a><span class="c">!$                CALL read_casa_dump( ncfile, casamet, casaflux, casa_it, kend, .FALSE. )</span>
+<a id="ln-858" name="ln-858" href="#ln-858"></a><span class="c">!$             ENDIF</span>
 <a id="ln-859" name="ln-859" href="#ln-859"></a>
 <a id="ln-860" name="ln-860" href="#ln-860"></a>
-<a id="ln-861" name="ln-861" href="#ln-861"></a><span class="c">!!$             ! At first time step of year, set tile area according to updated LU areas</span>
-<a id="ln-862" name="ln-862" href="#ln-862"></a><span class="c">!!$             IF (ktau == 1 .and. CABLE_USER%POPLUC) THEN</span>
-<a id="ln-863" name="ln-863" href="#ln-863"></a><span class="c">!!$               CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)</span>
-<a id="ln-864" name="ln-864" href="#ln-864"></a><span class="c">!!$            ENDIF</span>
+<a id="ln-861" name="ln-861" href="#ln-861"></a><span class="c">!$             ! At first time step of year, set tile area according to updated LU areas</span>
+<a id="ln-862" name="ln-862" href="#ln-862"></a><span class="c">!$             IF (ktau == 1 .and. CABLE_USER%POPLUC) THEN</span>
+<a id="ln-863" name="ln-863" href="#ln-863"></a><span class="c">!$               CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)</span>
+<a id="ln-864" name="ln-864" href="#ln-864"></a><span class="c">!$            ENDIF</span>
 <a id="ln-865" name="ln-865" href="#ln-865"></a>
 <a id="ln-866" name="ln-866" href="#ln-866"></a>
 <a id="ln-867" name="ln-867" href="#ln-867"></a><span class="w">             </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">.</span><span class="nb">NOT</span><span class="p">.</span><span class="w"> </span><span class="n">CASAONLY</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
@@ -1047,15 +1047,15 @@
 <a id="ln-890" name="ln-890" href="#ln-890"></a><span class="w">                </span><span class="k">CALL </span><span class="n">master_send_input</span><span class="w"> </span><span class="p">(</span><span class="n">icomm</span><span class="p">,</span><span class="w"> </span><span class="n">inp_ts</span><span class="p">,</span><span class="w"> </span><span class="n">iktau</span><span class="p">)</span><span class="w"></span>
 <a id="ln-891" name="ln-891" href="#ln-891"></a><span class="w">                </span><span class="c">!  CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)</span>
 <a id="ln-892" name="ln-892" href="#ln-892"></a>
-<a id="ln-893" name="ln-893" href="#ln-893"></a><span class="c">!!$                IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND.   &amp;</span>
-<a id="ln-894" name="ln-894" href="#ln-894"></a><span class="c">!!$                     ( IS_CASA_TIME(&quot;dwrit&quot;, yyyy, oktau, kstart, &amp;</span>
-<a id="ln-895" name="ln-895" href="#ln-895"></a><span class="c">!!$                        koffset, kend, ktauday, logn) ) ) THEN</span>
-<a id="ln-896" name="ln-896" href="#ln-896"></a><span class="c">!!$                   WRITE(CYEAR,FMT=&quot;(I4)&quot;) CurYear + INT((ktau-kstart)/(LOY*ktauday))</span>
-<a id="ln-897" name="ln-897" href="#ln-897"></a><span class="c">!!$                   ncfile = TRIM(casafile%c2cdumppath)//&#39;c2c_&#39;//CYEAR//&#39;_dump.nc&#39;</span>
-<a id="ln-898" name="ln-898" href="#ln-898"></a><span class="c">!!$                   CALL write_casa_dump( ncfile, casamet , casaflux, idoy, &amp;</span>
-<a id="ln-899" name="ln-899" href="#ln-899"></a><span class="c">!!$                        kend/ktauday )</span>
-<a id="ln-900" name="ln-900" href="#ln-900"></a><span class="c">!!$</span>
-<a id="ln-901" name="ln-901" href="#ln-901"></a><span class="c">!!$                ENDIF</span>
+<a id="ln-893" name="ln-893" href="#ln-893"></a><span class="c">!$                IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND.   &amp;</span>
+<a id="ln-894" name="ln-894" href="#ln-894"></a><span class="c">!$                     ( IS_CASA_TIME(&quot;dwrit&quot;, yyyy, oktau, kstart, &amp;</span>
+<a id="ln-895" name="ln-895" href="#ln-895"></a><span class="c">!$                        koffset, kend, ktauday, logn) ) ) THEN</span>
+<a id="ln-896" name="ln-896" href="#ln-896"></a><span class="c">!$                   WRITE(CYEAR,FMT=&quot;(I4)&quot;) CurYear + INT((ktau-kstart)/(LOY*ktauday))</span>
+<a id="ln-897" name="ln-897" href="#ln-897"></a><span class="c">!$                   ncfile = TRIM(casafile%c2cdumppath)//&#39;c2c_&#39;//CYEAR//&#39;_dump.nc&#39;</span>
+<a id="ln-898" name="ln-898" href="#ln-898"></a><span class="c">!$                   CALL write_casa_dump( ncfile, casamet , casaflux, idoy, &amp;</span>
+<a id="ln-899" name="ln-899" href="#ln-899"></a><span class="c">!$                        kend/ktauday )</span>
+<a id="ln-900" name="ln-900" href="#ln-900"></a><span class="c">!$</span>
+<a id="ln-901" name="ln-901" href="#ln-901"></a><span class="c">!$                ENDIF</span>
 <a id="ln-902" name="ln-902" href="#ln-902"></a>
 <a id="ln-903" name="ln-903" href="#ln-903"></a><span class="w">                </span><span class="k">IF</span><span class="w"> </span><span class="p">(((.</span><span class="nb">NOT</span><span class="p">.</span><span class="n">spinup</span><span class="p">).</span><span class="nb">OR</span><span class="p">.(</span><span class="n">spinup</span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="n">spinConv</span><span class="p">)).</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-904" name="ln-904" href="#ln-904"></a><span class="w">                     </span><span class="nb">MOD</span><span class="p">((</span><span class="n">ktau</span><span class="o">-</span><span class="n">kstart</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">ktauday</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
@@ -1085,7 +1085,7 @@
 <a id="ln-928" name="ln-928" href="#ln-928"></a><span class="w">             </span><span class="n">canopy</span><span class="p">%</span><span class="n">oldcansto</span><span class="o">=</span><span class="n">canopy</span><span class="p">%</span><span class="n">cansto</span><span class="w"></span>
 <a id="ln-929" name="ln-929" href="#ln-929"></a>
 <a id="ln-930" name="ln-930" href="#ln-930"></a><span class="w">             </span><span class="c">! Zero out lai where there is no vegetation acc. to veg. index</span>
-<a id="ln-931" name="ln-931" href="#ln-931"></a><span class="c">!!$             WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.   ! replaced by line below as per MMY -- rk4417</span>
+<a id="ln-931" name="ln-931" href="#ln-931"></a><span class="c">!$             WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.   ! replaced by line below as per MMY -- rk4417</span>
 <a id="ln-932" name="ln-932" href="#ln-932"></a><span class="w">             </span><span class="k">WHERE</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">veg</span><span class="p">%</span><span class="n">iveg</span><span class="p">(:)</span><span class="w"> </span><span class="p">.</span><span class="n">GE</span><span class="p">.</span><span class="w"> </span><span class="mi">14</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">veg</span><span class="p">%</span><span class="n">vlai</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.</span><span class="w"> </span><span class="c">! MMY change from iveg%vlai to veg%vlai</span>
 <a id="ln-933" name="ln-933" href="#ln-933"></a>
 <a id="ln-934" name="ln-934" href="#ln-934"></a><span class="w">             </span><span class="c">! Write time step&#39;s output to file if either: we&#39;re not spinning up</span>
@@ -1139,12 +1139,12 @@
 <a id="ln-982" name="ln-982" href="#ln-982"></a><span class="w">                </span><span class="n">new_sumbal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new_sumbal</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">SUM</span><span class="p">(</span><span class="n">bal</span><span class="p">%</span><span class="n">wbal</span><span class="p">)</span><span class="o">/</span><span class="n">mp</span><span class="w"> </span><span class="o">+</span><span class="w">  </span><span class="nb">SUM</span><span class="p">(</span><span class="n">bal</span><span class="p">%</span><span class="n">ebal</span><span class="p">)</span><span class="o">/</span><span class="n">mp</span><span class="w"></span>
 <a id="ln-983" name="ln-983" href="#ln-983"></a><span class="w">                </span><span class="n">new_sumfpn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new_sumfpn</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">SUM</span><span class="p">(</span><span class="n">canopy</span><span class="p">%</span><span class="n">fpn</span><span class="p">)</span><span class="o">/</span><span class="n">mp</span><span class="w"></span>
 <a id="ln-984" name="ln-984" href="#ln-984"></a><span class="w">                </span><span class="n">new_sumfe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new_sumfe</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">SUM</span><span class="p">(</span><span class="n">canopy</span><span class="p">%</span><span class="n">fe</span><span class="p">)</span><span class="o">/</span><span class="n">mp</span><span class="w"></span>
-<a id="ln-985" name="ln-985" href="#ln-985"></a><span class="c">!!$                    if (ktau == kend-1) PRINT*, &quot;time-space-averaged energy &amp; water balances&quot;</span>
-<a id="ln-986" name="ln-986" href="#ln-986"></a><span class="c">!!$                    if (ktau == kend-1) PRINT*,&quot;Ebal_tot[Wm-2], Wbal_tot[mm]&quot;, &amp;</span>
-<a id="ln-987" name="ln-987" href="#ln-987"></a><span class="c">!!$                         sum(bal%ebal_tot)/mp/count_bal, sum(bal%wbal_tot)/mp/count_bal</span>
-<a id="ln-988" name="ln-988" href="#ln-988"></a><span class="c">!!$                    if (ktau == kend-1) PRINT*, &quot;time-space-averaged latent heat and net photosynthesis&quot;</span>
-<a id="ln-989" name="ln-989" href="#ln-989"></a><span class="c">!!$                    if (ktau == kend-1) PRINT*, &quot;sum_fe[Wm-2], sum_fpn[umol/m2/s]&quot;,  &amp;</span>
-<a id="ln-990" name="ln-990" href="#ln-990"></a><span class="c">!!$                         new_sumfe/count_bal, new_sumfpn/count_bal</span>
+<a id="ln-985" name="ln-985" href="#ln-985"></a><span class="c">!$                    if (ktau == kend-1) PRINT*, &quot;time-space-averaged energy &amp; water balances&quot;</span>
+<a id="ln-986" name="ln-986" href="#ln-986"></a><span class="c">!$                    if (ktau == kend-1) PRINT*,&quot;Ebal_tot[Wm-2], Wbal_tot[mm]&quot;, &amp;</span>
+<a id="ln-987" name="ln-987" href="#ln-987"></a><span class="c">!$                         sum(bal%ebal_tot)/mp/count_bal, sum(bal%wbal_tot)/mp/count_bal</span>
+<a id="ln-988" name="ln-988" href="#ln-988"></a><span class="c">!$                    if (ktau == kend-1) PRINT*, &quot;time-space-averaged latent heat and net photosynthesis&quot;</span>
+<a id="ln-989" name="ln-989" href="#ln-989"></a><span class="c">!$                    if (ktau == kend-1) PRINT*, &quot;sum_fe[Wm-2], sum_fpn[umol/m2/s]&quot;,  &amp;</span>
+<a id="ln-990" name="ln-990" href="#ln-990"></a><span class="c">!$                         new_sumfe/count_bal, new_sumfpn/count_bal</span>
 <a id="ln-991" name="ln-991" href="#ln-991"></a>
 <a id="ln-992" name="ln-992" href="#ln-992"></a><span class="w">                </span><span class="c">! check for Nans in biophysical outputs and abort if there are any</span>
 <a id="ln-993" name="ln-993" href="#ln-993"></a><span class="w">                </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="nb">ANY</span><span class="p">(</span><span class="w"> </span><span class="n">canopy</span><span class="p">%</span><span class="n">fe</span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="n">canopy</span><span class="p">%</span><span class="n">fe</span><span class="p">))</span><span class="w"> </span><span class="k">THEN</span>
@@ -1288,8 +1288,8 @@
 <a id="ln-1131" name="ln-1131" href="#ln-1131"></a><span class="k">          </span><span class="n">met</span><span class="p">%</span><span class="n">ofsd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">met</span><span class="p">%</span><span class="n">fsd</span><span class="p">(:,</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">met</span><span class="p">%</span><span class="n">fsd</span><span class="p">(:,</span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
 <a id="ln-1132" name="ln-1132" href="#ln-1132"></a><span class="w">          </span><span class="n">canopy</span><span class="p">%</span><span class="n">oldcansto</span><span class="o">=</span><span class="n">canopy</span><span class="p">%</span><span class="n">cansto</span><span class="w"></span>
 <a id="ln-1133" name="ln-1133" href="#ln-1133"></a>
-<a id="ln-1134" name="ln-1134" href="#ln-1134"></a><span class="c">!!$          IF ( (TRIM(cable_user%MetType) .EQ. &quot;gswp&quot;) .OR. (TRIM(cable_user%MetType) .EQ. &quot;gswp3&quot;) ) &amp;</span>
-<a id="ln-1135" name="ln-1135" href="#ln-1135"></a><span class="c">!!$               CALL close_met_file</span>
+<a id="ln-1134" name="ln-1134" href="#ln-1134"></a><span class="c">!$          IF ( (TRIM(cable_user%MetType) .EQ. &quot;gswp&quot;) .OR. (TRIM(cable_user%MetType) .EQ. &quot;gswp3&quot;) ) &amp;</span>
+<a id="ln-1135" name="ln-1135" href="#ln-1135"></a><span class="c">!$               CALL close_met_file</span>
 <a id="ln-1136" name="ln-1136" href="#ln-1136"></a><span class="w">          </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">MetType</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;gswp&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span><span class="w">            </span><span class="c">! replaced if above as per MMY -- rk4417</span>
 <a id="ln-1137" name="ln-1137" href="#ln-1137"></a><span class="w">               </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">MetType</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;prin&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! MMY</span>
 <a id="ln-1138" name="ln-1138" href="#ln-1138"></a><span class="w">               </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="nb">TRIM</span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">MetType</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;gswp3&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
@@ -1363,14 +1363,14 @@
 <a id="ln-1206" name="ln-1206" href="#ln-1206"></a><span class="k">                ENDIF</span>
 <a id="ln-1207" name="ln-1207" href="#ln-1207"></a><span class="k">             END IF</span><span class="w"></span>
 <a id="ln-1208" name="ln-1208" href="#ln-1208"></a>
-<a id="ln-1209" name="ln-1209" href="#ln-1209"></a><span class="c">!!$             IF ( CABLE_USER%CASA_DUMP_WRITE )  THEN</span>
-<a id="ln-1210" name="ln-1210" href="#ln-1210"></a><span class="c">!!$                !CLN CHECK FOR LEAP YEAR</span>
-<a id="ln-1211" name="ln-1211" href="#ln-1211"></a><span class="c">!!$                WRITE(CYEAR,FMT=&quot;(I4)&quot;) CurYear + INT((ktau-kstart)/(LOY*ktauday))</span>
-<a id="ln-1212" name="ln-1212" href="#ln-1212"></a><span class="c">!!$                ncfile = TRIM(casafile%c2cdumppath)//&#39;c2c_&#39;//CYEAR//&#39;_dump.nc&#39;</span>
-<a id="ln-1213" name="ln-1213" href="#ln-1213"></a><span class="c">!!$                CALL write_casa_dump( ncfile, casamet , casaflux, idoy, &amp;</span>
-<a id="ln-1214" name="ln-1214" href="#ln-1214"></a><span class="c">!!$                     kend/ktauday )</span>
-<a id="ln-1215" name="ln-1215" href="#ln-1215"></a><span class="c">!!$</span>
-<a id="ln-1216" name="ln-1216" href="#ln-1216"></a><span class="c">!!$             ENDIF</span>
+<a id="ln-1209" name="ln-1209" href="#ln-1209"></a><span class="c">!$             IF ( CABLE_USER%CASA_DUMP_WRITE )  THEN</span>
+<a id="ln-1210" name="ln-1210" href="#ln-1210"></a><span class="c">!$                !CLN CHECK FOR LEAP YEAR</span>
+<a id="ln-1211" name="ln-1211" href="#ln-1211"></a><span class="c">!$                WRITE(CYEAR,FMT=&quot;(I4)&quot;) CurYear + INT((ktau-kstart)/(LOY*ktauday))</span>
+<a id="ln-1212" name="ln-1212" href="#ln-1212"></a><span class="c">!$                ncfile = TRIM(casafile%c2cdumppath)//&#39;c2c_&#39;//CYEAR//&#39;_dump.nc&#39;</span>
+<a id="ln-1213" name="ln-1213" href="#ln-1213"></a><span class="c">!$                CALL write_casa_dump( ncfile, casamet , casaflux, idoy, &amp;</span>
+<a id="ln-1214" name="ln-1214" href="#ln-1214"></a><span class="c">!$                     kend/ktauday )</span>
+<a id="ln-1215" name="ln-1215" href="#ln-1215"></a><span class="c">!$</span>
+<a id="ln-1216" name="ln-1216" href="#ln-1216"></a><span class="c">!$             ENDIF</span>
 <a id="ln-1217" name="ln-1217" href="#ln-1217"></a>
 <a id="ln-1218" name="ln-1218" href="#ln-1218"></a><span class="w">             </span><span class="k">IF</span><span class="w"> </span><span class="p">(((.</span><span class="nb">NOT</span><span class="p">.</span><span class="n">spinup</span><span class="p">).</span><span class="nb">OR</span><span class="p">.(</span><span class="n">spinup</span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="n">spinConv</span><span class="p">)).</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-1219" name="ln-1219" href="#ln-1219"></a><span class="w">                  </span><span class="nb">MOD</span><span class="p">((</span><span class="n">ktau</span><span class="o">-</span><span class="n">kstart</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">ktauday</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
@@ -1553,8 +1553,8 @@
 <a id="ln-1396" name="ln-1396" href="#ln-1396"></a>
 <a id="ln-1397" name="ln-1397" href="#ln-1397"></a><span class="w">       </span><span class="c">!CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)</span>
 <a id="ln-1398" name="ln-1398" href="#ln-1398"></a>
-<a id="ln-1399" name="ln-1399" href="#ln-1399"></a><span class="c">!!$       CALL casa_poolout( ktau, veg, soil, casabiome,                           &amp;</span>
-<a id="ln-1400" name="ln-1400" href="#ln-1400"></a><span class="c">!!$            casapool, casaflux, casamet, casabal, phen )</span>
+<a id="ln-1399" name="ln-1399" href="#ln-1399"></a><span class="c">!$       CALL casa_poolout( ktau, veg, soil, casabiome,                           &amp;</span>
+<a id="ln-1400" name="ln-1400" href="#ln-1400"></a><span class="c">!$            casapool, casaflux, casamet, casabal, phen )</span>
 <a id="ln-1401" name="ln-1401" href="#ln-1401"></a><span class="w">       </span><span class="k">CALL </span><span class="n">casa_fluxout</span><span class="p">(</span><span class="w"> </span><span class="n">nyear</span><span class="p">,</span><span class="w"> </span><span class="n">veg</span><span class="p">,</span><span class="w"> </span><span class="n">soil</span><span class="p">,</span><span class="w"> </span><span class="n">casabal</span><span class="p">,</span><span class="w"> </span><span class="n">casamet</span><span class="p">)</span><span class="w"></span>
 <a id="ln-1402" name="ln-1402" href="#ln-1402"></a><span class="w">       </span><span class="k">CALL </span><span class="n">write_casa_restart_nc</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">casamet</span><span class="p">,</span><span class="w"> </span><span class="n">casapool</span><span class="p">,</span><span class="n">casaflux</span><span class="p">,</span><span class="n">phen</span><span class="p">,</span><span class="n">CASAONLY</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-1403" name="ln-1403" href="#ln-1403"></a>
@@ -1599,7 +1599,7 @@
 <a id="ln-1442" name="ln-1442" href="#ln-1442"></a>
 <a id="ln-1443" name="ln-1443" href="#ln-1443"></a>
 <a id="ln-1444" name="ln-1444" href="#ln-1444"></a><span class="w">          </span><span class="k">CALL </span><span class="n">WRITE_CLIMATE_RESTART_NC</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">climate</span><span class="p">,</span><span class="w"> </span><span class="n">ktauday</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<a id="ln-1445" name="ln-1445" href="#ln-1445"></a><span class="c">!!$          CALL WRITE_CLIMATE_RESTART_NC ( climate )  ! above line appears this way in MMY code -- rk4417</span>
+<a id="ln-1445" name="ln-1445" href="#ln-1445"></a><span class="c">!$          CALL WRITE_CLIMATE_RESTART_NC ( climate )  ! above line appears this way in MMY code -- rk4417</span>
 <a id="ln-1446" name="ln-1446" href="#ln-1446"></a><span class="w">       </span><span class="k">END IF</span>
 <a id="ln-1447" name="ln-1447" href="#ln-1447"></a>
 <a id="ln-1448" name="ln-1448" href="#ln-1448"></a><span class="k">    END IF</span><span class="w"></span>
@@ -2254,7 +2254,7 @@
 <a id="ln-2097" name="ln-2097" href="#ln-2097"></a><span class="w">       </span><span class="k">CALL </span><span class="n">MPI_Type_create_hvector</span><span class="w"> </span><span class="p">(</span><span class="n">ms</span><span class="p">,</span><span class="w"> </span><span class="n">r2len</span><span class="p">,</span><span class="w"> </span><span class="n">r2stride</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_BYTE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-2098" name="ln-2098" href="#ln-2098"></a><span class="w">            </span><span class="p">&amp;</span><span class="w">                             </span><span class="n">types</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-2099" name="ln-2099" href="#ln-2099"></a><span class="w">       </span><span class="n">blen</span><span class="p">(</span><span class="n">bidx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<a id="ln-2100" name="ln-2100" href="#ln-2100"></a><span class="c">!!$</span>
+<a id="ln-2100" name="ln-2100" href="#ln-2100"></a><span class="c">!$</span>
 <a id="ln-2101" name="ln-2101" href="#ln-2101"></a><span class="w">       </span><span class="n">bidx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bidx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-2102" name="ln-2102" href="#ln-2102"></a><span class="w">       </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">ssnow</span><span class="p">%</span><span class="n">thetai</span><span class="p">(</span><span class="n">off</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-2103" name="ln-2103" href="#ln-2103"></a><span class="w">       </span><span class="k">CALL </span><span class="n">MPI_Type_create_hvector</span><span class="w"> </span><span class="p">(</span><span class="n">ms</span><span class="p">,</span><span class="w"> </span><span class="n">r2len</span><span class="p">,</span><span class="w"> </span><span class="n">r2stride</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_BYTE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
@@ -3457,8 +3457,8 @@
 <a id="ln-3300" name="ln-3300" href="#ln-3300"></a><span class="w">            </span><span class="p">&amp;</span><span class="w">                             </span><span class="n">types</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-3301" name="ln-3301" href="#ln-3301"></a><span class="w">       </span><span class="n">blen</span><span class="p">(</span><span class="n">bidx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-3302" name="ln-3302" href="#ln-3302"></a>
-<a id="ln-3303" name="ln-3303" href="#ln-3303"></a><span class="c">!!$ inserted block below as per MMY code -- rk4417       </span>
-<a id="ln-3304" name="ln-3304" href="#ln-3304"></a><span class="c">!!$  --------------------- start of block --------------------- rk4417</span>
+<a id="ln-3303" name="ln-3303" href="#ln-3303"></a><span class="c">!$ inserted block below as per MMY code -- rk4417       </span>
+<a id="ln-3304" name="ln-3304" href="#ln-3304"></a><span class="c">!$  --------------------- start of block --------------------- rk4417</span>
 <a id="ln-3305" name="ln-3305" href="#ln-3305"></a>
 <a id="ln-3306" name="ln-3306" href="#ln-3306"></a><span class="w">  </span><span class="n">bidx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bidx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-3307" name="ln-3307" href="#ln-3307"></a><span class="w">  </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">soil</span><span class="p">%</span><span class="n">css_vec</span><span class="p">(</span><span class="n">off</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
@@ -3546,7 +3546,7 @@
 <a id="ln-3389" name="ln-3389" href="#ln-3389"></a><span class="w">  </span><span class="p">&amp;</span><span class="w">                             </span><span class="n">types</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-3390" name="ln-3390" href="#ln-3390"></a><span class="w">  </span><span class="n">blen</span><span class="p">(</span><span class="n">bidx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-3391" name="ln-3391" href="#ln-3391"></a>
-<a id="ln-3392" name="ln-3392" href="#ln-3392"></a><span class="c">!!$  --------------------- end of block --------------------- rk4417</span>
+<a id="ln-3392" name="ln-3392" href="#ln-3392"></a><span class="c">!$  --------------------- end of block --------------------- rk4417</span>
 <a id="ln-3393" name="ln-3393" href="#ln-3393"></a><span class="w">  </span>
 <a id="ln-3394" name="ln-3394" href="#ln-3394"></a><span class="w">       </span><span class="c">!1D</span>
 <a id="ln-3395" name="ln-3395" href="#ln-3395"></a><span class="w">       </span><span class="n">bidx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bidx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
@@ -3589,8 +3589,8 @@
 <a id="ln-3432" name="ln-3432" href="#ln-3432"></a><span class="w">       </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">soil</span><span class="p">%</span><span class="n">slope_std</span><span class="p">(</span><span class="n">off</span><span class="p">),</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-3433" name="ln-3433" href="#ln-3433"></a><span class="w">       </span><span class="n">blen</span><span class="p">(</span><span class="n">bidx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">r2len</span><span class="w"></span>
 <a id="ln-3434" name="ln-3434" href="#ln-3434"></a>
-<a id="ln-3435" name="ln-3435" href="#ln-3435"></a><span class="c">!!$ inserted block below as per MMY code -- rk4417       </span>
-<a id="ln-3436" name="ln-3436" href="#ln-3436"></a><span class="c">!!$  --------------------- start of block --------------------- rk4417</span>
+<a id="ln-3435" name="ln-3435" href="#ln-3435"></a><span class="c">!$ inserted block below as per MMY code -- rk4417       </span>
+<a id="ln-3436" name="ln-3436" href="#ln-3436"></a><span class="c">!$  --------------------- start of block --------------------- rk4417</span>
 <a id="ln-3437" name="ln-3437" href="#ln-3437"></a><span class="w">       </span><span class="n">bidx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bidx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-3438" name="ln-3438" href="#ln-3438"></a><span class="w">       </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">soil</span><span class="p">%</span><span class="n">drain_dens</span><span class="p">(</span><span class="n">off</span><span class="p">),</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-3439" name="ln-3439" href="#ln-3439"></a><span class="w">       </span><span class="n">blen</span><span class="p">(</span><span class="n">bidx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">r2len</span><span class="w"></span>
@@ -3625,7 +3625,7 @@
 <a id="ln-3468" name="ln-3468" href="#ln-3468"></a><span class="w">       </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">soil</span><span class="p">%</span><span class="n">qhz_efold</span><span class="p">(</span><span class="n">off</span><span class="p">),</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-3469" name="ln-3469" href="#ln-3469"></a><span class="w">       </span><span class="n">blen</span><span class="p">(</span><span class="n">bidx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">r2len</span><span class="w"></span>
 <a id="ln-3470" name="ln-3470" href="#ln-3470"></a>
-<a id="ln-3471" name="ln-3471" href="#ln-3471"></a><span class="c">!!$  --------------------- end of block --------------------- rk4417</span>
+<a id="ln-3471" name="ln-3471" href="#ln-3471"></a><span class="c">!$  --------------------- end of block --------------------- rk4417</span>
 <a id="ln-3472" name="ln-3472" href="#ln-3472"></a>
 <a id="ln-3473" name="ln-3473" href="#ln-3473"></a><span class="w">       </span><span class="n">bidx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bidx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-3474" name="ln-3474" href="#ln-3474"></a><span class="w">       </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">ssnow</span><span class="p">%</span><span class="n">GWwb</span><span class="p">(</span><span class="n">off</span><span class="p">),</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
@@ -5303,8 +5303,8 @@
 <a id="ln-5146" name="ln-5146" href="#ln-5146"></a><span class="w">       </span><span class="k">CALL </span><span class="n">MPI_Type_commit</span><span class="w"> </span><span class="p">(</span><span class="n">mat_t</span><span class="p">(</span><span class="n">midx</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-5147" name="ln-5147" href="#ln-5147"></a><span class="w">       </span><span class="n">midx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">midx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-5148" name="ln-5148" href="#ln-5148"></a><span class="w">       </span>
-<a id="ln-5149" name="ln-5149" href="#ln-5149"></a><span class="c">!!$ inserted block below as per MMY code -- rk4417       </span>
-<a id="ln-5150" name="ln-5150" href="#ln-5150"></a><span class="c">!!$  --------------------- start of block --------------------- rk4417</span>
+<a id="ln-5149" name="ln-5149" href="#ln-5149"></a><span class="c">!$ inserted block below as per MMY code -- rk4417       </span>
+<a id="ln-5150" name="ln-5150" href="#ln-5150"></a><span class="c">!$  --------------------- start of block --------------------- rk4417</span>
 <a id="ln-5151" name="ln-5151" href="#ln-5151"></a>
 <a id="ln-5152" name="ln-5152" href="#ln-5152"></a><span class="w">     </span><span class="c">! REAL(r_2)</span>
 <a id="ln-5153" name="ln-5153" href="#ln-5153"></a><span class="w">     </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">ssnow</span><span class="p">%</span><span class="n">smp</span><span class="p">(</span><span class="n">off</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">maddr</span><span class="p">(</span><span class="n">midx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"> </span><span class="c">! 12</span>
@@ -5350,7 +5350,7 @@
 <a id="ln-5193" name="ln-5193" href="#ln-5193"></a><span class="w">     </span><span class="k">CALL </span><span class="n">MPI_Type_commit</span><span class="w"> </span><span class="p">(</span><span class="n">mat_t</span><span class="p">(</span><span class="n">midx</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-5194" name="ln-5194" href="#ln-5194"></a><span class="w">     </span><span class="n">midx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">midx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-5195" name="ln-5195" href="#ln-5195"></a>
-<a id="ln-5196" name="ln-5196" href="#ln-5196"></a><span class="c">!!$  --------------------- end of block --------------------- rk4417</span>
+<a id="ln-5196" name="ln-5196" href="#ln-5196"></a><span class="c">!$  --------------------- end of block --------------------- rk4417</span>
 <a id="ln-5197" name="ln-5197" href="#ln-5197"></a>
 <a id="ln-5198" name="ln-5198" href="#ln-5198"></a><span class="w">       </span><span class="c">! REAL(r_1)</span>
 <a id="ln-5199" name="ln-5199" href="#ln-5199"></a><span class="w">       </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">ssnow</span><span class="p">%</span><span class="n">evapfbl</span><span class="p">(</span><span class="n">off</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">maddr</span><span class="p">(</span><span class="n">midx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"> </span><span class="c">! 12</span>
@@ -7152,7 +7152,7 @@
 <a id="ln-6995" name="ln-6995" href="#ln-6995"></a><span class="k">  END SUBROUTINE </span><span class="n">master_casa_types</span><span class="w"></span>
 <a id="ln-6996" name="ln-6996" href="#ln-6996"></a>
 <a id="ln-6997" name="ln-6997" href="#ln-6997"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">master_climate_types</span><span class="w"> </span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">climate</span><span class="p">,</span><span class="w"> </span><span class="n">ktauday</span><span class="p">)</span><span class="w"></span>
-<a id="ln-6998" name="ln-6998" href="#ln-6998"></a><span class="c">!!$SUBROUTINE master_climate_types (comm, climate)  ! line above appears this way in MMY code -- rk4417</span>
+<a id="ln-6998" name="ln-6998" href="#ln-6998"></a><span class="c">!$SUBROUTINE master_climate_types (comm, climate)  ! line above appears this way in MMY code -- rk4417</span>
 <a id="ln-6999" name="ln-6999" href="#ln-6999"></a><span class="w">    </span>
 <a id="ln-7000" name="ln-7000" href="#ln-7000"></a><span class="w">    </span><span class="k">USE </span><span class="n">mpi</span><span class="w"></span>
 <a id="ln-7001" name="ln-7001" href="#ln-7001"></a>
@@ -7186,9 +7186,9 @@
 <a id="ln-7029" name="ln-7029" href="#ln-7029"></a><span class="w">    </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">call_climate</span><span class="p">)</span><span class="w"> </span><span class="k">CALL </span><span class="n">climate_init</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">climate</span><span class="p">,</span><span class="w"> </span><span class="n">mp</span><span class="p">,</span><span class="w"> </span><span class="n">ktauday</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-7030" name="ln-7030" href="#ln-7030"></a><span class="w">    </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">call_climate</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.(.</span><span class="nb">NOT</span><span class="p">.</span><span class="n">cable_user</span><span class="p">%</span><span class="n">climate_fromzero</span><span class="p">))</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-7031" name="ln-7031" href="#ln-7031"></a><span class="w">         </span><span class="k">CALL </span><span class="n">READ_CLIMATE_RESTART_NC</span><span class="w"> </span><span class="p">(</span><span class="n">climate</span><span class="p">,</span><span class="w"> </span><span class="n">ktauday</span><span class="p">)</span><span class="w"></span>
-<a id="ln-7032" name="ln-7032" href="#ln-7032"></a><span class="c">!!$  CALL climate_init (climate, mp)    ! block above appears this way in MMY code -- rk4417</span>
-<a id="ln-7033" name="ln-7033" href="#ln-7033"></a><span class="c">!!$  if (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &amp;</span>
-<a id="ln-7034" name="ln-7034" href="#ln-7034"></a><span class="c">!!$       CALL READ_CLIMATE_RESTART_NC (climate)</span>
+<a id="ln-7032" name="ln-7032" href="#ln-7032"></a><span class="c">!$  CALL climate_init (climate, mp)    ! block above appears this way in MMY code -- rk4417</span>
+<a id="ln-7033" name="ln-7033" href="#ln-7033"></a><span class="c">!$  if (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &amp;</span>
+<a id="ln-7034" name="ln-7034" href="#ln-7034"></a><span class="c">!$       CALL READ_CLIMATE_RESTART_NC (climate)</span>
 <a id="ln-7035" name="ln-7035" href="#ln-7035"></a><span class="w">    </span>
 <a id="ln-7036" name="ln-7036" href="#ln-7036"></a><span class="w">    </span><span class="k">ALLOCATE</span><span class="w"> </span><span class="p">(</span><span class="n">climate_ts</span><span class="p">(</span><span class="n">wnp</span><span class="p">))</span><span class="w"></span>
 <a id="ln-7037" name="ln-7037" href="#ln-7037"></a>
@@ -7978,14 +7978,14 @@
 <a id="ln-7821" name="ln-7821" href="#ln-7821"></a><span class="w">       </span><span class="k">CALL </span><span class="n">MPI_Abort</span><span class="w"> </span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-7822" name="ln-7822" href="#ln-7822"></a><span class="w">    </span><span class="k">END IF</span><span class="w"></span>
 <a id="ln-7823" name="ln-7823" href="#ln-7823"></a>
-<a id="ln-7824" name="ln-7824" href="#ln-7824"></a><span class="c">!!$  DO rank = 1, wnp</span>
-<a id="ln-7825" name="ln-7825" href="#ln-7825"></a><span class="c">!!$</span>
-<a id="ln-7826" name="ln-7826" href="#ln-7826"></a><span class="c">!!$     CALL MPI_ISend (MPI_BOTTOM, 1, casa_dump_ts(rank), rank, 0, comm, &amp;</span>
-<a id="ln-7827" name="ln-7827" href="#ln-7827"></a><span class="c">!!$          &amp;               inp_req(rank), ierr)</span>
-<a id="ln-7828" name="ln-7828" href="#ln-7828"></a><span class="c">!!$</span>
-<a id="ln-7829" name="ln-7829" href="#ln-7829"></a><span class="c">!!$  END DO</span>
-<a id="ln-7830" name="ln-7830" href="#ln-7830"></a><span class="c">!!$</span>
-<a id="ln-7831" name="ln-7831" href="#ln-7831"></a><span class="c">!!$  CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)</span>
+<a id="ln-7824" name="ln-7824" href="#ln-7824"></a><span class="c">!$  DO rank = 1, wnp</span>
+<a id="ln-7825" name="ln-7825" href="#ln-7825"></a><span class="c">!$</span>
+<a id="ln-7826" name="ln-7826" href="#ln-7826"></a><span class="c">!$     CALL MPI_ISend (MPI_BOTTOM, 1, casa_dump_ts(rank), rank, 0, comm, &amp;</span>
+<a id="ln-7827" name="ln-7827" href="#ln-7827"></a><span class="c">!$          &amp;               inp_req(rank), ierr)</span>
+<a id="ln-7828" name="ln-7828" href="#ln-7828"></a><span class="c">!$</span>
+<a id="ln-7829" name="ln-7829" href="#ln-7829"></a><span class="c">!$  END DO</span>
+<a id="ln-7830" name="ln-7830" href="#ln-7830"></a><span class="c">!$</span>
+<a id="ln-7831" name="ln-7831" href="#ln-7831"></a><span class="c">!$  CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)</span>
 <a id="ln-7832" name="ln-7832" href="#ln-7832"></a>
 <a id="ln-7833" name="ln-7833" href="#ln-7833"></a><span class="w">  </span><span class="k">END SUBROUTINE </span><span class="n">master_casa_dump_types</span><span class="w"></span>
 <a id="ln-7834" name="ln-7834" href="#ln-7834"></a><span class="w">  </span><span class="c">! #############################################################################################################</span>
@@ -8727,21 +8727,21 @@
 <a id="ln-8570" name="ln-8570" href="#ln-8570"></a><span class="w">    </span><span class="kt">INTEGER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">count_sum_casa</span><span class="w"> </span><span class="c">! number of time steps over which casa pools &amp;</span>
 <a id="ln-8571" name="ln-8571" href="#ln-8571"></a><span class="w">    </span><span class="c">!and fluxes are aggregated (for output)</span>
 <a id="ln-8572" name="ln-8572" href="#ln-8572"></a><span class="w">    </span><span class="kt">INTEGER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="n">off</span><span class="p">,</span><span class="w"> </span><span class="n">cnt</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="w"></span>
-<a id="ln-8573" name="ln-8573" href="#ln-8573"></a><span class="c">!!$  if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))</span>
-<a id="ln-8574" name="ln-8574" href="#ln-8574"></a><span class="c">!!$  if (.NOT.Allocated(Cleafmean))  allocate(Cleafmean(mp))</span>
-<a id="ln-8575" name="ln-8575" href="#ln-8575"></a><span class="c">!!$  if (.NOT.Allocated(Crootmean)) allocate(Crootmean(mp))</span>
-<a id="ln-8576" name="ln-8576" href="#ln-8576"></a><span class="c">!!$  if (.NOT.Allocated(NPPtoGPP)) allocate(NPPtoGPP(mp))</span>
-<a id="ln-8577" name="ln-8577" href="#ln-8577"></a><span class="c">!!$  if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))</span>
-<a id="ln-8578" name="ln-8578" href="#ln-8578"></a><span class="c">!!$</span>
-<a id="ln-8579" name="ln-8579" href="#ln-8579"></a><span class="c">!!$  IF (cable_user%CALL_POP) THEN</span>
-<a id="ln-8580" name="ln-8580" href="#ln-8580"></a><span class="c">!!$     Iw = POP%Iwood</span>
-<a id="ln-8581" name="ln-8581" href="#ln-8581"></a><span class="c">!!$  ENDIF</span>
+<a id="ln-8573" name="ln-8573" href="#ln-8573"></a><span class="c">!$  if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))</span>
+<a id="ln-8574" name="ln-8574" href="#ln-8574"></a><span class="c">!$  if (.NOT.Allocated(Cleafmean))  allocate(Cleafmean(mp))</span>
+<a id="ln-8575" name="ln-8575" href="#ln-8575"></a><span class="c">!$  if (.NOT.Allocated(Crootmean)) allocate(Crootmean(mp))</span>
+<a id="ln-8576" name="ln-8576" href="#ln-8576"></a><span class="c">!$  if (.NOT.Allocated(NPPtoGPP)) allocate(NPPtoGPP(mp))</span>
+<a id="ln-8577" name="ln-8577" href="#ln-8577"></a><span class="c">!$  if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))</span>
+<a id="ln-8578" name="ln-8578" href="#ln-8578"></a><span class="c">!$</span>
+<a id="ln-8579" name="ln-8579" href="#ln-8579"></a><span class="c">!$  IF (cable_user%CALL_POP) THEN</span>
+<a id="ln-8580" name="ln-8580" href="#ln-8580"></a><span class="c">!$     Iw = POP%Iwood</span>
+<a id="ln-8581" name="ln-8581" href="#ln-8581"></a><span class="c">!$  ENDIF</span>
 <a id="ln-8582" name="ln-8582" href="#ln-8582"></a>
 <a id="ln-8583" name="ln-8583" href="#ln-8583"></a><span class="w">    </span><span class="n">ktauday</span><span class="o">=</span><span class="nb">INT</span><span class="p">(</span><span class="mi">2</span><span class="mf">4.0</span><span class="o">*</span><span class="mi">360</span><span class="mf">0.0</span><span class="o">/</span><span class="n">dels</span><span class="p">)</span><span class="w"></span>
 <a id="ln-8584" name="ln-8584" href="#ln-8584"></a><span class="w">    </span><span class="n">nday</span><span class="o">=</span><span class="p">(</span><span class="n">kend</span><span class="o">-</span><span class="n">kstart</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">ktauday</span><span class="w"></span>
-<a id="ln-8585" name="ln-8585" href="#ln-8585"></a><span class="c">!!$  ctime = 0</span>
-<a id="ln-8586" name="ln-8586" href="#ln-8586"></a><span class="c">!!$  CALL zero_sum_casa(sum_casapool, sum_casaflux)</span>
-<a id="ln-8587" name="ln-8587" href="#ln-8587"></a><span class="c">!!$       count_sum_casa = 0</span>
+<a id="ln-8585" name="ln-8585" href="#ln-8585"></a><span class="c">!$  ctime = 0</span>
+<a id="ln-8586" name="ln-8586" href="#ln-8586"></a><span class="c">!$  CALL zero_sum_casa(sum_casapool, sum_casaflux)</span>
+<a id="ln-8587" name="ln-8587" href="#ln-8587"></a><span class="c">!$       count_sum_casa = 0</span>
 <a id="ln-8588" name="ln-8588" href="#ln-8588"></a>
 <a id="ln-8589" name="ln-8589" href="#ln-8589"></a>
 <a id="ln-8590" name="ln-8590" href="#ln-8590"></a><span class="w">    </span><span class="n">myearspin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CABLE_USER</span><span class="p">%</span><span class="n">YEAREND</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">CABLE_USER</span><span class="p">%</span><span class="n">YEARSTART</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
@@ -8796,35 +8796,35 @@
 <a id="ln-8639" name="ln-8639" href="#ln-8639"></a>
 <a id="ln-8640" name="ln-8640" href="#ln-8640"></a>
 <a id="ln-8641" name="ln-8641" href="#ln-8641"></a>
-<a id="ln-8642" name="ln-8642" href="#ln-8642"></a><span class="c">!!$        ! zero annual sums</span>
-<a id="ln-8643" name="ln-8643" href="#ln-8643"></a><span class="c">!!$        if (idoy==1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)</span>
+<a id="ln-8642" name="ln-8642" href="#ln-8642"></a><span class="c">!$        ! zero annual sums</span>
+<a id="ln-8643" name="ln-8643" href="#ln-8643"></a><span class="c">!$        if (idoy==1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)</span>
 <a id="ln-8644" name="ln-8644" href="#ln-8644"></a>
-<a id="ln-8645" name="ln-8645" href="#ln-8645"></a><span class="c">!!$        CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &amp;</span>
-<a id="ln-8646" name="ln-8646" href="#ln-8646"></a><span class="c">!!$             casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &amp;</span>
-<a id="ln-8647" name="ln-8647" href="#ln-8647"></a><span class="c">!!$             xksoil,xkleaf,xkleafcold,xkleafdry,&amp;</span>
-<a id="ln-8648" name="ln-8648" href="#ln-8648"></a><span class="c">!!$             cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &amp;</span>
-<a id="ln-8649" name="ln-8649" href="#ln-8649"></a><span class="c">!!$             nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &amp;</span>
-<a id="ln-8650" name="ln-8650" href="#ln-8650"></a><span class="c">!!$             pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)</span>
-<a id="ln-8651" name="ln-8651" href="#ln-8651"></a><span class="c">!!$</span>
-<a id="ln-8652" name="ln-8652" href="#ln-8652"></a><span class="c">!!$        ! update time-aggregates of casa pools and fluxes</span>
-<a id="ln-8653" name="ln-8653" href="#ln-8653"></a><span class="c">!!$        CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &amp;</span>
-<a id="ln-8654" name="ln-8654" href="#ln-8654"></a><span class="c">!!$                            &amp; .TRUE. , .FALSE., 1)</span>
-<a id="ln-8655" name="ln-8655" href="#ln-8655"></a><span class="c">!!$        count_sum_casa = count_sum_casa + 1</span>
+<a id="ln-8645" name="ln-8645" href="#ln-8645"></a><span class="c">!$        CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &amp;</span>
+<a id="ln-8646" name="ln-8646" href="#ln-8646"></a><span class="c">!$             casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &amp;</span>
+<a id="ln-8647" name="ln-8647" href="#ln-8647"></a><span class="c">!$             xksoil,xkleaf,xkleafcold,xkleafdry,&amp;</span>
+<a id="ln-8648" name="ln-8648" href="#ln-8648"></a><span class="c">!$             cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &amp;</span>
+<a id="ln-8649" name="ln-8649" href="#ln-8649"></a><span class="c">!$             nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &amp;</span>
+<a id="ln-8650" name="ln-8650" href="#ln-8650"></a><span class="c">!$             pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)</span>
+<a id="ln-8651" name="ln-8651" href="#ln-8651"></a><span class="c">!$</span>
+<a id="ln-8652" name="ln-8652" href="#ln-8652"></a><span class="c">!$        ! update time-aggregates of casa pools and fluxes</span>
+<a id="ln-8653" name="ln-8653" href="#ln-8653"></a><span class="c">!$        CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &amp;</span>
+<a id="ln-8654" name="ln-8654" href="#ln-8654"></a><span class="c">!$                            &amp; .TRUE. , .FALSE., 1)</span>
+<a id="ln-8655" name="ln-8655" href="#ln-8655"></a><span class="c">!$        count_sum_casa = count_sum_casa + 1</span>
 <a id="ln-8656" name="ln-8656" href="#ln-8656"></a>
 <a id="ln-8657" name="ln-8657" href="#ln-8657"></a>
 <a id="ln-8658" name="ln-8658" href="#ln-8658"></a>
-<a id="ln-8659" name="ln-8659" href="#ln-8659"></a><span class="c">!!$           ! accumulate annual variables for use in POP</span>
-<a id="ln-8660" name="ln-8660" href="#ln-8660"></a><span class="c">!!$           IF(idoy==1 ) THEN</span>
-<a id="ln-8661" name="ln-8661" href="#ln-8661"></a><span class="c">!!$              casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7 ! (assumes 70% of wood NPP is allocated above ground)</span>
-<a id="ln-8662" name="ln-8662" href="#ln-8662"></a><span class="c">!!$              LAImax = casamet%glai</span>
-<a id="ln-8663" name="ln-8663" href="#ln-8663"></a><span class="c">!!$              Cleafmean = casapool%cplant(:,1)/real(mdyear)/1000.</span>
-<a id="ln-8664" name="ln-8664" href="#ln-8664"></a><span class="c">!!$              Crootmean = casapool%cplant(:,3)/real(mdyear)/1000.</span>
-<a id="ln-8665" name="ln-8665" href="#ln-8665"></a><span class="c">!!$           ELSE</span>
-<a id="ln-8666" name="ln-8666" href="#ln-8666"></a><span class="c">!!$              casaflux%stemnpp = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7</span>
-<a id="ln-8667" name="ln-8667" href="#ln-8667"></a><span class="c">!!$              LAImax = max(casamet%glai, LAImax)</span>
-<a id="ln-8668" name="ln-8668" href="#ln-8668"></a><span class="c">!!$              Cleafmean = Cleafmean + casapool%cplant(:,1)/real(mdyear)/1000.</span>
-<a id="ln-8669" name="ln-8669" href="#ln-8669"></a><span class="c">!!$              Crootmean = Crootmean +casapool%cplant(:,3)/real(mdyear)/1000.</span>
-<a id="ln-8670" name="ln-8670" href="#ln-8670"></a><span class="c">!!$           ENDIF</span>
+<a id="ln-8659" name="ln-8659" href="#ln-8659"></a><span class="c">!$           ! accumulate annual variables for use in POP</span>
+<a id="ln-8660" name="ln-8660" href="#ln-8660"></a><span class="c">!$           IF(idoy==1 ) THEN</span>
+<a id="ln-8661" name="ln-8661" href="#ln-8661"></a><span class="c">!$              casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7 ! (assumes 70% of wood NPP is allocated above ground)</span>
+<a id="ln-8662" name="ln-8662" href="#ln-8662"></a><span class="c">!$              LAImax = casamet%glai</span>
+<a id="ln-8663" name="ln-8663" href="#ln-8663"></a><span class="c">!$              Cleafmean = casapool%cplant(:,1)/real(mdyear)/1000.</span>
+<a id="ln-8664" name="ln-8664" href="#ln-8664"></a><span class="c">!$              Crootmean = casapool%cplant(:,3)/real(mdyear)/1000.</span>
+<a id="ln-8665" name="ln-8665" href="#ln-8665"></a><span class="c">!$           ELSE</span>
+<a id="ln-8666" name="ln-8666" href="#ln-8666"></a><span class="c">!$              casaflux%stemnpp = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7</span>
+<a id="ln-8667" name="ln-8667" href="#ln-8667"></a><span class="c">!$              LAImax = max(casamet%glai, LAImax)</span>
+<a id="ln-8668" name="ln-8668" href="#ln-8668"></a><span class="c">!$              Cleafmean = Cleafmean + casapool%cplant(:,1)/real(mdyear)/1000.</span>
+<a id="ln-8669" name="ln-8669" href="#ln-8669"></a><span class="c">!$              Crootmean = Crootmean +casapool%cplant(:,3)/real(mdyear)/1000.</span>
+<a id="ln-8670" name="ln-8670" href="#ln-8670"></a><span class="c">!$           ENDIF</span>
 <a id="ln-8671" name="ln-8671" href="#ln-8671"></a>
 <a id="ln-8672" name="ln-8672" href="#ln-8672"></a><span class="w">          </span><span class="k">IF</span><span class="p">(</span><span class="n">idoy</span><span class="o">==</span><span class="n">mdyear</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="c">! end of year</span>
 <a id="ln-8673" name="ln-8673" href="#ln-8673"></a>
@@ -8910,7 +8910,7 @@
 <a id="ln-8753" name="ln-8753" href="#ln-8753"></a>
 <a id="ln-8754" name="ln-8754" href="#ln-8754"></a><span class="w">             </span><span class="c">! workers call POP here</span>
 <a id="ln-8755" name="ln-8755" href="#ln-8755"></a>
-<a id="ln-8756" name="ln-8756" href="#ln-8756"></a><span class="c">!!$           CALL POPdriver(casaflux,casabal,veg, POP)</span>
+<a id="ln-8756" name="ln-8756" href="#ln-8756"></a><span class="c">!$           CALL POPdriver(casaflux,casabal,veg, POP)</span>
 <a id="ln-8757" name="ln-8757" href="#ln-8757"></a>
 <a id="ln-8758" name="ln-8758" href="#ln-8758"></a><span class="w">             </span><span class="k">CALL </span><span class="n">master_receive_pop</span><span class="p">(</span><span class="n">POP</span><span class="p">,</span><span class="w"> </span><span class="n">ocomm</span><span class="p">)</span><span class="w"></span>
 <a id="ln-8759" name="ln-8759" href="#ln-8759"></a>

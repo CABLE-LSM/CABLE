@@ -669,16 +669,16 @@
 <a id="ln-512" name="ln-512" href="#ln-512"></a><span class="w">             </span><span class="n">dEdTs</span><span class="o">=</span><span class="w"> </span><span class="n">zero</span><span class="w"></span>
 <a id="ln-513" name="ln-513" href="#ln-513"></a><span class="w">             </span><span class="c">!   write(*,*) &quot;Epot3&quot;, Tsurface, vmet%Ta, Epot, Hpot, vmet%rbh</span>
 <a id="ln-514" name="ln-514" href="#ln-514"></a><span class="w">          </span><span class="k">ENDIF</span><span class="w"></span>
-<a id="ln-515" name="ln-515" href="#ln-515"></a><span class="c">!!$          elseif (abs(Tsurface - vmet%Ta).gt. 20) then</span>
-<a id="ln-516" name="ln-516" href="#ln-516"></a><span class="c">!!$             Tsurface = min(vmet%Ta, 0.0)</span>
-<a id="ln-517" name="ln-517" href="#ln-517"></a><span class="c">!!$             Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - &amp; ! m3 H2O (liq) m-3 (air)</span>
-<a id="ln-518" name="ln-518" href="#ln-518"></a><span class="c">!!$                  vmet%cva)*rhow*lambdas/vmet%rbw</span>
-<a id="ln-519" name="ln-519" href="#ln-519"></a><span class="c">!!$             dEdTsoil = zero</span>
-<a id="ln-520" name="ln-520" href="#ln-520"></a><span class="c">!!$             dGdTsoil = zero</span>
-<a id="ln-521" name="ln-521" href="#ln-521"></a><span class="c">!!$             Hpot = rhocp*(Tsurface - vmet%Ta)/vmet%rbh</span>
-<a id="ln-522" name="ln-522" href="#ln-522"></a><span class="c">!!$             Gpot = vmet%Rn-vmet%Rnsw - Hpot - Epot</span>
-<a id="ln-523" name="ln-523" href="#ln-523"></a><span class="c">!!$             dEdTs= zero</span>
-<a id="ln-524" name="ln-524" href="#ln-524"></a><span class="c">!!$           endif</span>
+<a id="ln-515" name="ln-515" href="#ln-515"></a><span class="c">!$          elseif (abs(Tsurface - vmet%Ta).gt. 20) then</span>
+<a id="ln-516" name="ln-516" href="#ln-516"></a><span class="c">!$             Tsurface = min(vmet%Ta, 0.0)</span>
+<a id="ln-517" name="ln-517" href="#ln-517"></a><span class="c">!$             Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - &amp; ! m3 H2O (liq) m-3 (air)</span>
+<a id="ln-518" name="ln-518" href="#ln-518"></a><span class="c">!$                  vmet%cva)*rhow*lambdas/vmet%rbw</span>
+<a id="ln-519" name="ln-519" href="#ln-519"></a><span class="c">!$             dEdTsoil = zero</span>
+<a id="ln-520" name="ln-520" href="#ln-520"></a><span class="c">!$             dGdTsoil = zero</span>
+<a id="ln-521" name="ln-521" href="#ln-521"></a><span class="c">!$             Hpot = rhocp*(Tsurface - vmet%Ta)/vmet%rbh</span>
+<a id="ln-522" name="ln-522" href="#ln-522"></a><span class="c">!$             Gpot = vmet%Rn-vmet%Rnsw - Hpot - Epot</span>
+<a id="ln-523" name="ln-523" href="#ln-523"></a><span class="c">!$             dEdTs= zero</span>
+<a id="ln-524" name="ln-524" href="#ln-524"></a><span class="c">!$           endif</span>
 <a id="ln-525" name="ln-525" href="#ln-525"></a><span class="w">          </span><span class="n">qevap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Epot</span><span class="o">/</span><span class="p">(</span><span class="n">rhow</span><span class="o">*</span><span class="n">lambdas</span><span class="p">)</span><span class="w"></span>
 <a id="ln-526" name="ln-526" href="#ln-526"></a><span class="w">          </span><span class="n">qTb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">dEdTsoil</span><span class="o">/</span><span class="p">(</span><span class="n">thousand</span><span class="o">*</span><span class="n">lambdas</span><span class="p">)</span><span class="w"></span>
 <a id="ln-527" name="ln-527" href="#ln-527"></a><span class="w">       </span><span class="k">ENDIF</span>
@@ -1911,16 +1911,16 @@
 <a id="ln-1754" name="ln-1754" href="#ln-1754"></a>
 <a id="ln-1755" name="ln-1755" href="#ln-1755"></a><span class="w">       </span><span class="c">! add advective terms</span>
 <a id="ln-1756" name="ln-1756" href="#ln-1756"></a><span class="w">       </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">advection</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w"></span>
-<a id="ln-1757" name="ln-1757" href="#ln-1757"></a><span class="c">!!$                   if (q(i) &gt; zero) then</span>
-<a id="ln-1758" name="ln-1758" href="#ln-1758"></a><span class="c">!!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))</span>
-<a id="ln-1759" name="ln-1759" href="#ln-1759"></a><span class="c">!!$                    else</span>
-<a id="ln-1760" name="ln-1760" href="#ln-1760"></a><span class="c">!!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))</span>
-<a id="ln-1761" name="ln-1761" href="#ln-1761"></a><span class="c">!!$                    endif</span>
-<a id="ln-1762" name="ln-1762" href="#ln-1762"></a><span class="c">!!$                    qadv(i) = rhow*cswat*q(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))</span>
-<a id="ln-1763" name="ln-1763" href="#ln-1763"></a><span class="c">!!$                    qadvya(i) =  rhow*cswat*qya(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))</span>
-<a id="ln-1764" name="ln-1764" href="#ln-1764"></a><span class="c">!!$                    qadvyb(i) =  rhow*cswat*qyb(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))</span>
-<a id="ln-1765" name="ln-1765" href="#ln-1765"></a><span class="c">!!$                    qadvTa(i) =  rhow*cswat*q(i)*w</span>
-<a id="ln-1766" name="ln-1766" href="#ln-1766"></a><span class="c">!!$                    qadvTb(i) =  rhow*cswat*q(i)*(one-w)</span>
+<a id="ln-1757" name="ln-1757" href="#ln-1757"></a><span class="c">!$                   if (q(i) &gt; zero) then</span>
+<a id="ln-1758" name="ln-1758" href="#ln-1758"></a><span class="c">!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))</span>
+<a id="ln-1759" name="ln-1759" href="#ln-1759"></a><span class="c">!$                    else</span>
+<a id="ln-1760" name="ln-1760" href="#ln-1760"></a><span class="c">!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))</span>
+<a id="ln-1761" name="ln-1761" href="#ln-1761"></a><span class="c">!$                    endif</span>
+<a id="ln-1762" name="ln-1762" href="#ln-1762"></a><span class="c">!$                    qadv(i) = rhow*cswat*q(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))</span>
+<a id="ln-1763" name="ln-1763" href="#ln-1763"></a><span class="c">!$                    qadvya(i) =  rhow*cswat*qya(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))</span>
+<a id="ln-1764" name="ln-1764" href="#ln-1764"></a><span class="c">!$                    qadvyb(i) =  rhow*cswat*qyb(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))</span>
+<a id="ln-1765" name="ln-1765" href="#ln-1765"></a><span class="c">!$                    qadvTa(i) =  rhow*cswat*q(i)*w</span>
+<a id="ln-1766" name="ln-1766" href="#ln-1766"></a><span class="c">!$                    qadvTb(i) =  rhow*cswat*q(i)*(one-w)</span>
 <a id="ln-1767" name="ln-1767" href="#ln-1767"></a><span class="w">          </span><span class="n">Tqw</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nb">MERGE</span><span class="p">(</span><span class="n">T</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">T</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">q</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">&gt;</span><span class="n">zero</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="n">zero</span><span class="w"></span>
 <a id="ln-1768" name="ln-1768" href="#ln-1768"></a>
 <a id="ln-1769" name="ln-1769" href="#ln-1769"></a><span class="w">          </span><span class="n">dTqwdTa</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">MERGE</span><span class="p">(</span><span class="n">one</span><span class="p">,</span><span class="w"> </span><span class="n">zero</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">q</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">&gt;</span><span class="n">zero</span><span class="p">))</span><span class="w"></span>

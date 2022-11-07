@@ -128,9 +128,9 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
+    <li><a href='../module/casadimension.html'>casadimension</a></li>
     <li><a href='../module/casa_cnp_module.html'>casa_cnp_module</a></li>
     <li><a href='../module/pop_types.html'>POP_Types</a></li>
-    <li><a href='../module/casadimension.html'>casadimension</a></li>
     <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
   </ul>
       </li>
@@ -138,19 +138,7 @@
     </div>
 
 
-    <p>$if (idoy.eq.365) then
-$ write(667,<em>) pop%LU
-$ write(667,</em>) veg%ilu
-$ write(667,991) casaflux%FluxCtohwp(POP%Iwood,1)
-$ write(667,991) POP%pop_grid(:)%cat_mortality/POP%pop_grid(:)%cmass_sum_old
-$   write(667,991)max(min((POP%pop_grid(:)%cat_mortality                &amp;
-$        /POP%pop_grid(:)%cmass_sum_old),0.99),0.0)<strong>(1.0/365.0)
-$   write(667,991) (1.0 - (1.0 -max( min((POP%pop_grid(:)%cat_mortality  &amp;
-$        /POP%pop_grid(:)%cmass_sum_old),0.99), 0.0))</strong>(1.0/365.0))
-$write(667,*)
-$   endif
-$</p>
-<p>vh_js !!</p>
+    <p>vh_js !!</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

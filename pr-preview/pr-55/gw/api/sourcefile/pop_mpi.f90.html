@@ -1070,11 +1070,11 @@
 <a id="ln-913" name="ln-913" href="#ln-913"></a>
 <a id="ln-914" name="ln-914" href="#ln-914"></a><span class="w">    </span><span class="c">! Scalar Integer</span>
 <a id="ln-915" name="ln-915" href="#ln-915"></a>
-<a id="ln-916" name="ln-916" href="#ln-916"></a><span class="c">!!$    bidx = bidx + 1</span>
-<a id="ln-917" name="ln-917" href="#ln-917"></a><span class="c">!!$    CALL MPI_Get_Address (tmp_grid(1)%npatch_active, a2, ierr)</span>
-<a id="ln-918" name="ln-918" href="#ln-918"></a><span class="c">!!$    disp (bidx) = a2 - a1</span>
-<a id="ln-919" name="ln-919" href="#ln-919"></a><span class="c">!!$    blen (bidx) = 1</span>
-<a id="ln-920" name="ln-920" href="#ln-920"></a><span class="c">!!$    btype(bidx) = MPI_INTEGER</span>
+<a id="ln-916" name="ln-916" href="#ln-916"></a><span class="c">!$    bidx = bidx + 1</span>
+<a id="ln-917" name="ln-917" href="#ln-917"></a><span class="c">!$    CALL MPI_Get_Address (tmp_grid(1)%npatch_active, a2, ierr)</span>
+<a id="ln-918" name="ln-918" href="#ln-918"></a><span class="c">!$    disp (bidx) = a2 - a1</span>
+<a id="ln-919" name="ln-919" href="#ln-919"></a><span class="c">!$    blen (bidx) = 1</span>
+<a id="ln-920" name="ln-920" href="#ln-920"></a><span class="c">!$    btype(bidx) = MPI_INTEGER</span>
 <a id="ln-921" name="ln-921" href="#ln-921"></a>
 <a id="ln-922" name="ln-922" href="#ln-922"></a><span class="w">    </span><span class="n">bidx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bidx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-923" name="ln-923" href="#ln-923"></a><span class="w">    </span><span class="k">CALL </span><span class="n">MPI_Get_Address</span><span class="w"> </span><span class="p">(</span><span class="n">tmp_grid</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">LU</span><span class="p">,</span><span class="w"> </span><span class="n">a2</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>

@@ -546,18 +546,7 @@ vh_js</p>
   <div class="panel-heading codesum"><span class="anchor" id="proc-biogeochem"></span><h3>public subroutine <a href='../proc/biogeochem.html'>biogeochem</a>(ktau, dels, idoy, LALLOC, veg, soil, casabiome, casapool, casaflux, casamet, casabal, phen, POP, climate, xnplimit, xkNlimiting, xklitter, xksoil, xkleaf, xkleafcold, xkleafdry, cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd, nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd, pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd)</h3></div>
   <div class="panel-body">
        
-<p>$if (idoy.eq.365) then
-$ write(667,<em>) pop%LU
-$ write(667,</em>) veg%ilu
-$ write(667,991) casaflux%FluxCtohwp(POP%Iwood,1)
-$ write(667,991) POP%pop_grid(:)%cat_mortality/POP%pop_grid(:)%cmass_sum_old
-$   write(667,991)max(min((POP%pop_grid(:)%cat_mortality                &amp;
-$        /POP%pop_grid(:)%cmass_sum_old),0.99),0.0)<strong>(1.0/365.0)
-$   write(667,991) (1.0 - (1.0 -max( min((POP%pop_grid(:)%cat_mortality  &amp;
-$        /POP%pop_grid(:)%cmass_sum_old),0.99), 0.0))</strong>(1.0/365.0))
-$write(667,*)
-$   endif
-$</p><a href="../proc/biogeochem.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+<p>vh_js !!</p>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
@@ -832,9 +821,7 @@ $</p><a href="../proc/biogeochem.html" class="pull-right"><emph>Read more&hellip
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-read_casa_restart_nc"></span><h3>public subroutine <a href='../proc/read_casa_restart_nc.html'>READ_CASA_RESTART_NC</a>(casamet, casapool, casaflux, phen)</h3></div>
   <div class="panel-body">
-       
-<p>$</p>
-    
+           
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>

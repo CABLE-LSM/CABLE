@@ -136,13 +136,7 @@
 
 
     <p>=====================VV Determine spatial details VV=================</p>
-<p>$       DO x=1,xdimsize       ! this loop replaces the else part in MMY code -- rk4417
-$          ok= NF90_GET_VAR(ncid_met,latitudeID,temparray2(x,:))
-$       ENDDO
-$       DO y=1,ydimsize    ! this loop replaces the else part in MMY code -- rk4417
-$          ok= NF90_GET_VAR(ncid_met,longitudeID,temparray2(:,y))
-$       ENDDO
-=================^^ End spatial details ^^========================</p>
+<p>=================^^ End spatial details ^^========================</p>
 <p>=========VV Determine simulation timing details VV================</p>
 <p><strong><em>*</em></strong><em> gswp input file has bug in timevar </em><strong><em>*</em></strong><strong>*</strong>*
  hacking (BP feb2011)</p>
@@ -161,11 +155,8 @@ CLN WHY DO the input files all have bugs???
 ===================^^ End timing details ^^==========================</p>
 <p>===================VV Look for met variables VV======================
  vh_js !! fixed bug in logic
- vh_js !! fixed bug in logic
-$       IF(metunits%LWdown(1:4)/='W/m2'.AND.metunits%LWdown(1:5) &amp;
-$            /='W/m^2'.AND.metunits%LWdown(1:5)/='Wm^-2' &amp;
-$            .AND.metunits%LWdown(1:4)/='Wm-2') THEN
-=================^^ End met variables search^^=======================</p>
+ vh_js !! fixed bug in logic</p>
+<p>=================^^ End met variables search^^=======================</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

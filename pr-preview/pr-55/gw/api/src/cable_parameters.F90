@@ -911,26 +911,26 @@ CONTAINS
              PRINT *, 'vegtype_metfile = ', vegtype_metfile(kk,:)
              STOP
           END IF
-!!$          ! CLN added for npatches
-!!$       ELSE IF ( npatch .GT. 1 ) THEN
-!!$          landpt(kk)%nap = 0
-!!$          DO tt = 1, npatch
-!!$
-!!$             IF (inVeg(landpt(kk)%ilon,landpt(kk)%ilat,tt) > 0) THEN
-!!$                landpt(kk)%nap = landpt(kk)%nap + 1
-!!$             ENDIF
-!!$          END DO
-!!$          ncount = ncount + landpt(kk)%nap
-!!$          landpt(kk)%cend = ncount
-!!$          IF (landpt(kk)%cend < landpt(kk)%cstart) THEN
-!!$             PRINT *, 'Land point ', kk, ' does not have veg type!'
-!!$             PRINT *, 'landpt%cstart, cend = ', landpt(kk)%cstart, landpt(kk)%cend
-!!$             PRINT *, 'vegtype_metfile = ', vegtype_metfile(kk,:)
-!!$             STOP
-!!$          END IF
-!!$       ELSE
+!$          ! CLN added for npatches
+!$       ELSE IF ( npatch .GT. 1 ) THEN
+!$          landpt(kk)%nap = 0
+!$          DO tt = 1, npatch
+!$
+!$             IF (inVeg(landpt(kk)%ilon,landpt(kk)%ilat,tt) > 0) THEN
+!$                landpt(kk)%nap = landpt(kk)%nap + 1
+!$             ENDIF
+!$          END DO
+!$          ncount = ncount + landpt(kk)%nap
+!$          landpt(kk)%cend = ncount
+!$          IF (landpt(kk)%cend < landpt(kk)%cstart) THEN
+!$             PRINT *, 'Land point ', kk, ' does not have veg type!'
+!$             PRINT *, 'landpt%cstart, cend = ', landpt(kk)%cstart, landpt(kk)%cend
+!$             PRINT *, 'vegtype_metfile = ', vegtype_metfile(kk,:)
+!$             STOP
+!$          END IF
+!$       ELSE
 
-!!$          replaced block above by below as per MMY code -- rk4417
+!$          replaced block above by below as per MMY code -- rk4417
 
           ! CLN added for npatches
        ELSE IF ( npatch .GT. 1 .AND. cable_user%force_npatches_as .le. 0) THEN
@@ -1100,8 +1100,8 @@ CONTAINS
     ssnow%wtd = 1.0
     canopy%sublayer_dz = 0.001  !could go into restart to ensure starting/stopping runs gives identical results
     !however the impact is negligible
-!!$    canopy%sublayer_dz = 0.01  !could go into restart to ensure starting/stopping runs gives identical results
-!!$                                !however the impact is negligible
+!$    canopy%sublayer_dz = 0.01  !could go into restart to ensure starting/stopping runs gives identical results
+!$                                !however the impact is negligible
     
     !IF(hide%Ticket49Bug2) THEN
     canopy%ofes    = 0.0  ! latent heat flux from soil (W/m2)
@@ -1153,7 +1153,7 @@ CONTAINS
        IF (cable_user%popluc) THEN
           veg%iLU(landpt(e)%cstart:landpt(e)%cend)= 1
           IF (landpt(e)%nap.EQ.3 .AND.veg%iveg(landpt(e)%cstart)<=5 ) THEN
-!!$         if (landpt(e)%nap.gt.1) then  ! replaces line above in MMY code -- rk4417 ! MMY ???
+!$         if (landpt(e)%nap.gt.1) then  ! replaces line above in MMY code -- rk4417 ! MMY ???
              veg%iLU(landpt(e)%cstart+1) = 2
              veg%iLU(landpt(e)%cend) = 3
           ENDIF
@@ -1971,15 +1971,15 @@ CONTAINS
           CALL abort('Unknown vegetation type! Aborting.')
        END IF
        ! Check all soil types make sense:
-!!$       IF(ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart + landpt(i)%nap   &
-!!$            - 1)) < 1 ) .OR. ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart  &
-!!$            + landpt(i)%nap - 1)) > mstype)) THEN
-!!$          WRITE(*,*) 'SUBROUTINE load_parameters:'
-!!$          WRITE(*,*) 'Land point number:',i
-!!$          CALL abort('Unknown soil type! Aborting.')
-!!$       END IF
+!$       IF(ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart + landpt(i)%nap   &
+!$            - 1)) < 1 ) .OR. ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart  &
+!$            + landpt(i)%nap - 1)) > mstype)) THEN
+!$          WRITE(*,*) 'SUBROUTINE load_parameters:'
+!$          WRITE(*,*) 'Land point number:',i
+!$          CALL abort('Unknown soil type! Aborting.')
+!$       END IF
 
-!!$       replaced block above by below as per MMY code -- rk4417
+!$       replaced block above by below as per MMY code -- rk4417
        
        IF(ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart + landpt(i)%nap   &
           - 1)) < 1 ) .OR. ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart  &

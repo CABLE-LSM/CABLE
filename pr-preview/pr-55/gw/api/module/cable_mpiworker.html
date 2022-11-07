@@ -159,8 +159,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <p>$</p>
-<hr>
+    <hr>
 <hr>
 <br>        <div class="panel panel-default">
       <div class="panel-heading">
@@ -169,10 +168,10 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/casa_cable.html'>casa_cable</a></li>
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
     <li><a href='../module/casa_inout_module.html'>casa_inout_module</a></li>
+    <li><a href='../module/casa_cable.html'>casa_cable</a></li>
     <li><a href='../module/cable_mpicommon.html'>cable_mpicommon</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
   </ul>
       </li>
       </ul>
@@ -345,11 +344,7 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-worker_cable_params"></span><h3>private subroutine <a href='../proc/worker_cable_params.html'>worker_cable_params</a>(comm, met, air, ssnow, veg, bgc, soil, canopy, rough, rad, sum_flux, bal)</h3></div>
   <div class="panel-body">
-       
-<p>$
-$ inserted block below as per MMY code -- rk4417     <br>
-$  --------------------- start of block --------------------- rk4417</p><a href="../proc/worker_cable_params.html" class="pull-right"><emph>Read more&hellip;</emph></a>
-    
+           
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -523,10 +518,7 @@ $  --------------------- start of block --------------------- rk4417</p><a href=
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-worker_outtype"></span><h3>private subroutine <a href='../proc/worker_outtype.html'>worker_outtype</a>(comm, met, canopy, ssnow, rad, bal, air, soil, veg)</h3></div>
   <div class="panel-body">
-       
-<p>$ inserted block below as per MMY code -- rk4417     <br>
-$  --------------------- start of block --------------------- rk4417</p><a href="../proc/worker_outtype.html" class="pull-right"><emph>Read more&hellip;</emph></a>
-    
+           
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -678,9 +670,7 @@ $  --------------------- start of block --------------------- rk4417</p><a href=
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-worker_climate_types"></span><h3>private subroutine <a href='../proc/worker_climate_types.html'>worker_climate_types</a>(comm, climate, ktauday)</h3></div>
   <div class="panel-body">
-       
-<p>$SUBROUTINE worker_climate_types (comm, climate)  ! line above appears this way in MMY code -- rk4417</p><a href="../proc/worker_climate_types.html" class="pull-right"><emph>Read more&hellip;</emph></a>
-    
+           
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -790,15 +780,7 @@ $  --------------------- start of block --------------------- rk4417</p><a href=
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-worker_casa_luc_types"></span><h3>private subroutine <a href='../proc/worker_casa_luc_types.html'>worker_casa_LUC_types</a>(comm, casapool, casabal)</h3></div>
   <div class="panel-body">
-       
-<p>$ ! if anything went wrong the master will mpi_abort
-$ ! which mpi_recv below is going to catch...
-$ ! so, now receive all the parameters
-$ CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, 0, comm, stat, ierr)
-$
-$ ! finally free the MPI type
-$ CALL MPI_Type_Free (casa_dump_t, ierr)</p>
-    
+           
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -923,7 +905,6 @@ $ CALL MPI_Type_Free (casa_dump_t, ierr)</p>
        
 <p>CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
  vh_js !!
-$           ! accumulate annual variables for use in POP
 CLN    CLOSE(91)</p><a href="../proc/worker_spincasacnp.html" class="pull-right"><emph>Read more&hellip;</emph></a>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
@@ -1042,13 +1023,7 @@ CLN    CLOSE(91)</p><a href="../proc/worker_spincasacnp.html" class="pull-right"
   <div class="panel-heading codesum"><span class="anchor" id="proc-worker_casaonly_luc"></span><h3>private subroutine <a href='../proc/worker_casaonly_luc.html'>worker_CASAONLY_LUC</a>(dels, kstart, kend, veg, soil, casabiome, casapool, casaflux, casamet, casabal, phen, POP, climate, LALLOC, icomm, ocomm)</h3></div>
   <div class="panel-body">
        
-<p>CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
-$           write(wlogn,<em>) 'b4 MPI_Recv, pop_t cmass: ', POP%pop_grid%cmass_sum
-$           write(wlogn,</em>) 'b4 MPI_Recv, pop_t LU: ', POP%pop_grid%LU
-$           write(wlogn,<em>)
-$           write(wlogn,</em>) 'after MPI_Recv, pop_t cmass: ', POP%pop_grid%cmass_sum
-$           write(wlogn,<em>)
-$           write(wlogn,</em>) 'after POPstep cmass: ', POP%pop_grid%cmass_sum</p>
+<p>CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin</p>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>

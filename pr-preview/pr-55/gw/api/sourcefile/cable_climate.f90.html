@@ -222,19 +222,19 @@
 <a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">    </span><span class="kt">REAL</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="kd">::</span><span class="w"> </span><span class="n">SBoltz</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">5.67e-8</span><span class="w">  </span><span class="c">! Stefan-Boltzmann constant [W/m2/K4]</span>
 <a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">    </span><span class="n">climate</span><span class="p">%</span><span class="n">doy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">idoy</span><span class="w"></span>
 <a id="ln-67" name="ln-67" href="#ln-67"></a>
-<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="c">!!$! * Find irradiances, available energy, equilibrium latent heat flux</span>
-<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="c">!!$PPc    = Gaero / ( Gaero + 4.0*SBoltz*((TempA+273.16)**3)/(RhoA*Capp) )</span>
-<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="c">!!$                                                    ! PPc = Ga/(Ga+Gr)      [-]</span>
-<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="c">!!$EpsA   = Epsif(TempA, Pmb)                          ! Epsi at TempA         [-]</span>
-<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="c">!!$PhiSd  = SolarMJ * 1.0e6 / (DayltFrac*SecDay)       ! daylt down solar      [W/m2]</span>
-<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="c">!!$PhiLd  = 335.97 * (((TempA + 273.16) / 293.0)**6)   ! daylt down thermal    [W/m2]</span>
-<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="c">!!$                                                    !   (Swinbank formula)</span>
-<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="c">!!$PhiAi  = (1.0-Albedo)*PhiSd + Emis *    &amp;           ! daylt iso-avail engy  [W/m2]</span>
-<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="c">!!$         (PhiLd - SBoltz*((TempA + 273.16)**4))     !   (veg + soil)</span>
-<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="c">!!$PhiEq  = PhiAi * (PPc*EpsA) / (PPc*EpsA + 1.0)      ! equil ltnt heat flux  [W/m2]</span>
-<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="c">!!$PhiEq  = max(PhiEq, 1.0)                            ! PhiEq &gt; +1 W/m2, so non-negative</span>
-<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="c">!!$                                    ! precipitation         [m/day]</span>
-<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="c">!!$FWPT   = CoeffPT * PhiEq * ((DayltFrac*SecDay) / (RhoW*Rlat))</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="c">!$! * Find irradiances, available energy, equilibrium latent heat flux</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="c">!$PPc    = Gaero / ( Gaero + 4.0*SBoltz*((TempA+273.16)**3)/(RhoA*Capp) )</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="c">!$                                                    ! PPc = Ga/(Ga+Gr)      [-]</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="c">!$EpsA   = Epsif(TempA, Pmb)                          ! Epsi at TempA         [-]</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="c">!$PhiSd  = SolarMJ * 1.0e6 / (DayltFrac*SecDay)       ! daylt down solar      [W/m2]</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="c">!$PhiLd  = 335.97 * (((TempA + 273.16) / 293.0)**6)   ! daylt down thermal    [W/m2]</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="c">!$                                                    !   (Swinbank formula)</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="c">!$PhiAi  = (1.0-Albedo)*PhiSd + Emis *    &amp;           ! daylt iso-avail engy  [W/m2]</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="c">!$         (PhiLd - SBoltz*((TempA + 273.16)**4))     !   (veg + soil)</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="c">!$PhiEq  = PhiAi * (PPc*EpsA) / (PPc*EpsA + 1.0)      ! equil ltnt heat flux  [W/m2]</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="c">!$PhiEq  = max(PhiEq, 1.0)                            ! PhiEq &gt; +1 W/m2, so non-negative</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="c">!$                                    ! precipitation         [m/day]</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="c">!$FWPT   = CoeffPT * PhiEq * ((DayltFrac*SecDay) / (RhoW*Rlat))</span>
 <a id="ln-81" name="ln-81" href="#ln-81"></a>
 <a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">    </span><span class="c">! accumulate annual evaporation and potential evaporation</span>
 <a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">    </span><span class="c">!ppc = 1.0</span>

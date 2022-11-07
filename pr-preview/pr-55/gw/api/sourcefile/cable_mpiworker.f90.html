@@ -622,7 +622,7 @@
 <a id="ln-465" name="ln-465" href="#ln-465"></a><span class="w">             </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">call_climate</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
 <a id="ln-466" name="ln-466" href="#ln-466"></a><span class="k">                CALL </span><span class="n">worker_climate_types</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">climate</span><span class="p">,</span><span class="w"> </span><span class="n">ktauday</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-467" name="ln-467" href="#ln-467"></a><span class="w">             </span><span class="k">ENDIF</span><span class="w"></span>
-<a id="ln-468" name="ln-468" href="#ln-468"></a><span class="c">!!$             CALL worker_climate_types(comm, climate)   ! block above appears this way in MMY code -- rk4417</span>
+<a id="ln-468" name="ln-468" href="#ln-468"></a><span class="c">!$             CALL worker_climate_types(comm, climate)   ! block above appears this way in MMY code -- rk4417</span>
 <a id="ln-469" name="ln-469" href="#ln-469"></a><span class="w">             </span>
 <a id="ln-470" name="ln-470" href="#ln-470"></a><span class="w">             </span><span class="c">! MPI: mvtype and mstype send out here instead of inside worker_casa_params</span>
 <a id="ln-471" name="ln-471" href="#ln-471"></a><span class="w">             </span><span class="c">!      so that old CABLE carbon module can use them. (BP May 2013)</span>
@@ -750,11 +750,11 @@
 <a id="ln-593" name="ln-593" href="#ln-593"></a>
 <a id="ln-594" name="ln-594" href="#ln-594"></a><span class="w">             </span><span class="c">! somethings (e.g. CASA-CNP) only need to be done once per day</span>
 <a id="ln-595" name="ln-595" href="#ln-595"></a><span class="w">             </span><span class="n">ktauday</span><span class="o">=</span><span class="nb">INT</span><span class="p">(</span><span class="mi">2</span><span class="mf">4.0</span><span class="o">*</span><span class="mi">360</span><span class="mf">0.0</span><span class="o">/</span><span class="n">dels</span><span class="p">)</span><span class="w"></span>
-<a id="ln-596" name="ln-596" href="#ln-596"></a><span class="c">!!$             idoy = mod(ktau/ktauday,365)</span>
-<a id="ln-597" name="ln-597" href="#ln-597"></a><span class="c">!!$             IF(idoy==0) idoy=365</span>
-<a id="ln-598" name="ln-598" href="#ln-598"></a><span class="c">!!$</span>
-<a id="ln-599" name="ln-599" href="#ln-599"></a><span class="c">!!$             ! needed for CASA-CNP</span>
-<a id="ln-600" name="ln-600" href="#ln-600"></a><span class="c">!!$             nyear =INT((kend-kstart+1)/(365*ktauday))</span>
+<a id="ln-596" name="ln-596" href="#ln-596"></a><span class="c">!$             idoy = mod(ktau/ktauday,365)</span>
+<a id="ln-597" name="ln-597" href="#ln-597"></a><span class="c">!$             IF(idoy==0) idoy=365</span>
+<a id="ln-598" name="ln-598" href="#ln-598"></a><span class="c">!$</span>
+<a id="ln-599" name="ln-599" href="#ln-599"></a><span class="c">!$             ! needed for CASA-CNP</span>
+<a id="ln-600" name="ln-600" href="#ln-600"></a><span class="c">!$             nyear =INT((kend-kstart+1)/(365*ktauday))</span>
 <a id="ln-601" name="ln-601" href="#ln-601"></a>
 <a id="ln-602" name="ln-602" href="#ln-602"></a><span class="w">             </span><span class="c">! some things (e.g. CASA-CNP) only need to be done once per day</span>
 <a id="ln-603" name="ln-603" href="#ln-603"></a><span class="w">             </span><span class="n">idoy</span><span class="w"> </span><span class="o">=</span><span class="nb">INT</span><span class="p">(</span><span class="w"> </span><span class="nb">MOD</span><span class="p">((</span><span class="kt">REAL</span><span class="p">(</span><span class="n">ktau</span><span class="o">+</span><span class="n">koffset</span><span class="p">)</span><span class="o">/</span><span class="kt">REAL</span><span class="p">(</span><span class="n">ktauday</span><span class="p">)),</span><span class="kt">REAL</span><span class="p">(</span><span class="n">LOY</span><span class="p">)))</span><span class="w"></span>
@@ -805,9 +805,9 @@
 <a id="ln-648" name="ln-648" href="#ln-648"></a><span class="w">                  </span><span class="k">CALL </span><span class="n">cable_climate</span><span class="p">(</span><span class="n">ktau_tot</span><span class="p">,</span><span class="n">kstart</span><span class="p">,</span><span class="n">kend</span><span class="p">,</span><span class="n">ktauday</span><span class="p">,</span><span class="n">idoy</span><span class="p">,</span><span class="n">LOY</span><span class="p">,</span><span class="n">met</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-649" name="ln-649" href="#ln-649"></a><span class="w">                  </span><span class="n">climate</span><span class="p">,</span><span class="w"> </span><span class="n">canopy</span><span class="p">,</span><span class="w"> </span><span class="n">air</span><span class="p">,</span><span class="w"> </span><span class="n">rad</span><span class="p">,</span><span class="w"> </span><span class="n">dels</span><span class="p">,</span><span class="w"> </span><span class="n">mp</span><span class="p">)</span><span class="w"></span>
 <a id="ln-650" name="ln-650" href="#ln-650"></a>
-<a id="ln-651" name="ln-651" href="#ln-651"></a><span class="c">!!$             if (cable_user%CALL_climate) &amp;     ! above if appears this way in MMY code -- rk4417</span>
-<a id="ln-652" name="ln-652" href="#ln-652"></a><span class="c">!!$                 CALL cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met, &amp;  ! missing rad argument -- rk4417</span>
-<a id="ln-653" name="ln-653" href="#ln-653"></a><span class="c">!!$                      climate, canopy,air, dels,mp)                           ! ktau_tot  not ktau ??</span>
+<a id="ln-651" name="ln-651" href="#ln-651"></a><span class="c">!$             if (cable_user%CALL_climate) &amp;     ! above if appears this way in MMY code -- rk4417</span>
+<a id="ln-652" name="ln-652" href="#ln-652"></a><span class="c">!$                 CALL cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met, &amp;  ! missing rad argument -- rk4417</span>
+<a id="ln-653" name="ln-653" href="#ln-653"></a><span class="c">!$                      climate, canopy,air, dels,mp)                           ! ktau_tot  not ktau ??</span>
 <a id="ln-654" name="ln-654" href="#ln-654"></a>
 <a id="ln-655" name="ln-655" href="#ln-655"></a><span class="w">             </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">mp</span><span class="w">                                        </span><span class="c">! added do loop as per MMY code -- rk4417</span>
 <a id="ln-656" name="ln-656" href="#ln-656"></a><span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">met</span><span class="p">%</span><span class="n">ua</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="mi">5</span><span class="mf">0.0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
@@ -827,8 +827,8 @@
 <a id="ln-670" name="ln-670" href="#ln-670"></a><span class="w">             </span><span class="n">ssnow</span><span class="p">%</span><span class="n">runoff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ssnow</span><span class="p">%</span><span class="n">runoff</span><span class="o">*</span><span class="n">dels</span><span class="w"></span>
 <a id="ln-671" name="ln-671" href="#ln-671"></a>
 <a id="ln-672" name="ln-672" href="#ln-672"></a>
-<a id="ln-673" name="ln-673" href="#ln-673"></a><span class="c">!!$added do loop below as per MMY code -- rk4417</span>
-<a id="ln-674" name="ln-674" href="#ln-674"></a><span class="c">!!$--------------------------------------- rk4417 ---------------------------------------</span>
+<a id="ln-673" name="ln-673" href="#ln-673"></a><span class="c">!$added do loop below as per MMY code -- rk4417</span>
+<a id="ln-674" name="ln-674" href="#ln-674"></a><span class="c">!$--------------------------------------- rk4417 ---------------------------------------</span>
 <a id="ln-675" name="ln-675" href="#ln-675"></a>
 <a id="ln-676" name="ln-676" href="#ln-676"></a><span class="c">! check for Nans in biophysical outputs and abort if there are any</span>
 <a id="ln-677" name="ln-677" href="#ln-677"></a><span class="w">             </span><span class="k">DO </span><span class="n">kk</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">mp</span><span class="w"></span>
@@ -885,7 +885,7 @@
 <a id="ln-728" name="ln-728" href="#ln-728"></a><span class="k">                </span>
 <a id="ln-729" name="ln-729" href="#ln-729"></a><span class="k">             ENDDO</span><span class="w"></span>
 <a id="ln-730" name="ln-730" href="#ln-730"></a><span class="w">             </span>
-<a id="ln-731" name="ln-731" href="#ln-731"></a><span class="c">!!$--------------------------------------- rk4417 ---------------------------------------</span>
+<a id="ln-731" name="ln-731" href="#ln-731"></a><span class="c">!$--------------------------------------- rk4417 ---------------------------------------</span>
 <a id="ln-732" name="ln-732" href="#ln-732"></a><span class="w">             </span>
 <a id="ln-733" name="ln-733" href="#ln-733"></a><span class="w">             </span><span class="c">!jhan this is insufficient testing. condition for</span>
 <a id="ln-734" name="ln-734" href="#ln-734"></a><span class="w">             </span><span class="c">!spinup=.false. &amp; we want CASA_dump.nc (spinConv=.true.)</span>
@@ -1525,7 +1525,7 @@
 <a id="ln-1368" name="ln-1368" href="#ln-1368"></a><span class="w">    </span><span class="n">bidx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bidx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-1369" name="ln-1369" href="#ln-1369"></a><span class="w">    </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">ssnow</span><span class="p">%</span><span class="n">Tsoil</span><span class="p">,</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-1370" name="ln-1370" href="#ln-1370"></a><span class="w">    </span><span class="n">blen</span><span class="p">(</span><span class="n">bidx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ms</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">r2len</span><span class="w"></span>
-<a id="ln-1371" name="ln-1371" href="#ln-1371"></a><span class="c">!!$</span>
+<a id="ln-1371" name="ln-1371" href="#ln-1371"></a><span class="c">!$</span>
 <a id="ln-1372" name="ln-1372" href="#ln-1372"></a><span class="w">    </span><span class="n">bidx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bidx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-1373" name="ln-1373" href="#ln-1373"></a><span class="w">    </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">ssnow</span><span class="p">%</span><span class="n">thetai</span><span class="p">,</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-1374" name="ln-1374" href="#ln-1374"></a><span class="w">    </span><span class="n">blen</span><span class="p">(</span><span class="n">bidx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ms</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">r2len</span><span class="w"></span>
@@ -2623,8 +2623,8 @@
 <a id="ln-2466" name="ln-2466" href="#ln-2466"></a><span class="w">    </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">soil</span><span class="p">%</span><span class="n">sfc_vec</span><span class="p">,</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-2467" name="ln-2467" href="#ln-2467"></a><span class="w">    </span><span class="n">blen</span><span class="p">(</span><span class="n">bidx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ms</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">r2len</span><span class="w"></span>
 <a id="ln-2468" name="ln-2468" href="#ln-2468"></a>
-<a id="ln-2469" name="ln-2469" href="#ln-2469"></a><span class="c">!!$ inserted block below as per MMY code -- rk4417       </span>
-<a id="ln-2470" name="ln-2470" href="#ln-2470"></a><span class="c">!!$  --------------------- start of block --------------------- rk4417</span>
+<a id="ln-2469" name="ln-2469" href="#ln-2469"></a><span class="c">!$ inserted block below as per MMY code -- rk4417       </span>
+<a id="ln-2470" name="ln-2470" href="#ln-2470"></a><span class="c">!$  --------------------- start of block --------------------- rk4417</span>
 <a id="ln-2471" name="ln-2471" href="#ln-2471"></a>
 <a id="ln-2472" name="ln-2472" href="#ln-2472"></a><span class="w">  </span><span class="n">bidx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bidx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-2473" name="ln-2473" href="#ln-2473"></a><span class="w">  </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">soil</span><span class="p">%</span><span class="n">css_vec</span><span class="p">,</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
@@ -2690,7 +2690,7 @@
 <a id="ln-2533" name="ln-2533" href="#ln-2533"></a><span class="w">  </span><span class="n">blen</span><span class="p">(</span><span class="n">bidx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ms</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">r2len</span><span class="w"></span>
 <a id="ln-2534" name="ln-2534" href="#ln-2534"></a>
 <a id="ln-2535" name="ln-2535" href="#ln-2535"></a>
-<a id="ln-2536" name="ln-2536" href="#ln-2536"></a><span class="c">!!$  --------------------- end of block --------------------- rk4417</span>
+<a id="ln-2536" name="ln-2536" href="#ln-2536"></a><span class="c">!$  --------------------- end of block --------------------- rk4417</span>
 <a id="ln-2537" name="ln-2537" href="#ln-2537"></a>
 <a id="ln-2538" name="ln-2538" href="#ln-2538"></a><span class="w">    </span>
 <a id="ln-2539" name="ln-2539" href="#ln-2539"></a><span class="w">    </span><span class="c">!1d</span>
@@ -2734,8 +2734,8 @@
 <a id="ln-2577" name="ln-2577" href="#ln-2577"></a><span class="w">    </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">soil</span><span class="p">%</span><span class="n">slope_std</span><span class="p">,</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-2578" name="ln-2578" href="#ln-2578"></a><span class="w">    </span><span class="n">blen</span><span class="p">(</span><span class="n">bidx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">r2len</span><span class="w"></span>
 <a id="ln-2579" name="ln-2579" href="#ln-2579"></a>
-<a id="ln-2580" name="ln-2580" href="#ln-2580"></a><span class="c">!!$ inserted block below as per MMY code -- rk4417       </span>
-<a id="ln-2581" name="ln-2581" href="#ln-2581"></a><span class="c">!!$  --------------------- start of block --------------------- rk4417</span>
+<a id="ln-2580" name="ln-2580" href="#ln-2580"></a><span class="c">!$ inserted block below as per MMY code -- rk4417       </span>
+<a id="ln-2581" name="ln-2581" href="#ln-2581"></a><span class="c">!$  --------------------- start of block --------------------- rk4417</span>
 <a id="ln-2582" name="ln-2582" href="#ln-2582"></a>
 <a id="ln-2583" name="ln-2583" href="#ln-2583"></a><span class="w">  </span><span class="n">bidx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bidx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-2584" name="ln-2584" href="#ln-2584"></a><span class="w">  </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">soil</span><span class="p">%</span><span class="n">drain_dens</span><span class="p">,</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
@@ -2771,7 +2771,7 @@
 <a id="ln-2614" name="ln-2614" href="#ln-2614"></a><span class="w">  </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">soil</span><span class="p">%</span><span class="n">qhz_efold</span><span class="p">,</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-2615" name="ln-2615" href="#ln-2615"></a><span class="w">  </span><span class="n">blen</span><span class="p">(</span><span class="n">bidx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">r2len</span><span class="w"></span>
 <a id="ln-2616" name="ln-2616" href="#ln-2616"></a>
-<a id="ln-2617" name="ln-2617" href="#ln-2617"></a><span class="c">!!$  --------------------- end of block --------------------- rk4417</span>
+<a id="ln-2617" name="ln-2617" href="#ln-2617"></a><span class="c">!$  --------------------- end of block --------------------- rk4417</span>
 <a id="ln-2618" name="ln-2618" href="#ln-2618"></a>
 <a id="ln-2619" name="ln-2619" href="#ln-2619"></a><span class="w">    </span><span class="n">bidx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bidx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-2620" name="ln-2620" href="#ln-2620"></a><span class="w">    </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">ssnow</span><span class="p">%</span><span class="n">GWwb</span><span class="p">,</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
@@ -4231,8 +4231,8 @@
 <a id="ln-4074" name="ln-4074" href="#ln-4074"></a><span class="w">    </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">ssnow</span><span class="p">%</span><span class="n">wb</span><span class="p">(</span><span class="n">off</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-4075" name="ln-4075" href="#ln-4075"></a><span class="w">    </span><span class="n">blocks</span><span class="p">(</span><span class="n">bidx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">r2len</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ms</span><span class="w"></span>
 <a id="ln-4076" name="ln-4076" href="#ln-4076"></a>
-<a id="ln-4077" name="ln-4077" href="#ln-4077"></a><span class="c">!!$ inserted block below as per MMY code -- rk4417       </span>
-<a id="ln-4078" name="ln-4078" href="#ln-4078"></a><span class="c">!!$  --------------------- start of block --------------------- rk4417</span>
+<a id="ln-4077" name="ln-4077" href="#ln-4077"></a><span class="c">!$ inserted block below as per MMY code -- rk4417       </span>
+<a id="ln-4078" name="ln-4078" href="#ln-4078"></a><span class="c">!$  --------------------- start of block --------------------- rk4417</span>
 <a id="ln-4079" name="ln-4079" href="#ln-4079"></a>
 <a id="ln-4080" name="ln-4080" href="#ln-4080"></a><span class="w">    </span><span class="n">bidx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bidx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-4081" name="ln-4081" href="#ln-4081"></a><span class="w">    </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">ssnow</span><span class="p">%</span><span class="n">smp</span><span class="p">(</span><span class="n">off</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
@@ -4259,7 +4259,7 @@
 <a id="ln-4102" name="ln-4102" href="#ln-4102"></a><span class="w">    </span><span class="n">blocks</span><span class="p">(</span><span class="n">bidx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">r2len</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ms</span><span class="w"></span>
 <a id="ln-4103" name="ln-4103" href="#ln-4103"></a>
 <a id="ln-4104" name="ln-4104" href="#ln-4104"></a>
-<a id="ln-4105" name="ln-4105" href="#ln-4105"></a><span class="c">!!$  --------------------- end of block --------------------- rk4417</span>
+<a id="ln-4105" name="ln-4105" href="#ln-4105"></a><span class="c">!$  --------------------- end of block --------------------- rk4417</span>
 <a id="ln-4106" name="ln-4106" href="#ln-4106"></a>
 <a id="ln-4107" name="ln-4107" href="#ln-4107"></a><span class="w">    </span><span class="n">bidx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bidx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <a id="ln-4108" name="ln-4108" href="#ln-4108"></a><span class="w">    </span><span class="k">CALL </span><span class="n">MPI_Get_address</span><span class="w"> </span><span class="p">(</span><span class="n">ssnow</span><span class="p">%</span><span class="n">evapfbl</span><span class="p">(</span><span class="n">off</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
@@ -6736,7 +6736,7 @@
 <a id="ln-6579" name="ln-6579" href="#ln-6579"></a>
 <a id="ln-6580" name="ln-6580" href="#ln-6580"></a>
 <a id="ln-6581" name="ln-6581" href="#ln-6581"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">worker_climate_types</span><span class="w"> </span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">climate</span><span class="p">,</span><span class="w"> </span><span class="n">ktauday</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<a id="ln-6582" name="ln-6582" href="#ln-6582"></a><span class="c">!!$SUBROUTINE worker_climate_types (comm, climate)  ! line above appears this way in MMY code -- rk4417</span>
+<a id="ln-6582" name="ln-6582" href="#ln-6582"></a><span class="c">!$SUBROUTINE worker_climate_types (comm, climate)  ! line above appears this way in MMY code -- rk4417</span>
 <a id="ln-6583" name="ln-6583" href="#ln-6583"></a>
 <a id="ln-6584" name="ln-6584" href="#ln-6584"></a><span class="w">    </span><span class="k">USE </span><span class="n">mpi</span><span class="w"></span>
 <a id="ln-6585" name="ln-6585" href="#ln-6585"></a>
@@ -6776,7 +6776,7 @@
 <a id="ln-6619" name="ln-6619" href="#ln-6619"></a><span class="w">    </span><span class="c">! CALL alloc_cbm_var(climate,mp)</span>
 <a id="ln-6620" name="ln-6620" href="#ln-6620"></a>
 <a id="ln-6621" name="ln-6621" href="#ln-6621"></a><span class="w">    </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">call_climate</span><span class="p">)</span><span class="w"> </span><span class="k">CALL </span><span class="n">climate_init</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">climate</span><span class="p">,</span><span class="w"> </span><span class="n">mp</span><span class="p">,</span><span class="w"> </span><span class="n">ktauday</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<a id="ln-6622" name="ln-6622" href="#ln-6622"></a><span class="c">!!$        CALL climate_init (climate, mp)   ! line above appears this way in MMY code -- rk4417</span>
+<a id="ln-6622" name="ln-6622" href="#ln-6622"></a><span class="c">!$        CALL climate_init (climate, mp)   ! line above appears this way in MMY code -- rk4417</span>
 <a id="ln-6623" name="ln-6623" href="#ln-6623"></a><span class="w">    </span><span class="c">! MPI: allocate temp vectors used for marshalling</span>
 <a id="ln-6624" name="ln-6624" href="#ln-6624"></a><span class="w">    </span><span class="n">ntyp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nclimate</span><span class="w"></span>
 <a id="ln-6625" name="ln-6625" href="#ln-6625"></a>
@@ -6966,7 +6966,7 @@
 <a id="ln-6809" name="ln-6809" href="#ln-6809"></a><span class="w">    </span><span class="n">types</span><span class="p">(</span><span class="n">bidx</span><span class="p">)</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">MPI_BYTE</span><span class="w"></span>
 <a id="ln-6810" name="ln-6810" href="#ln-6810"></a>
 <a id="ln-6811" name="ln-6811" href="#ln-6811"></a>
-<a id="ln-6812" name="ln-6812" href="#ln-6812"></a><span class="c">!!$types = MPI_BYTE</span>
+<a id="ln-6812" name="ln-6812" href="#ln-6812"></a><span class="c">!$types = MPI_BYTE</span>
 <a id="ln-6813" name="ln-6813" href="#ln-6813"></a><span class="w">    </span><span class="c">! MPI: sanity check</span>
 <a id="ln-6814" name="ln-6814" href="#ln-6814"></a><span class="w">    </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">bidx</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">ntyp</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
 <a id="ln-6815" name="ln-6815" href="#ln-6815"></a><span class="k">       WRITE</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;worker: invalid number of climate fields, fix it!&#39;</span><span class="w"></span>
@@ -7008,7 +7008,7 @@
 <a id="ln-6851" name="ln-6851" href="#ln-6851"></a><span class="w">    </span><span class="k">RETURN</span>
 <a id="ln-6852" name="ln-6852" href="#ln-6852"></a>
 <a id="ln-6853" name="ln-6853" href="#ln-6853"></a><span class="k">  END SUBROUTINE </span><span class="n">worker_climate_types</span><span class="w"></span>
-<a id="ln-6854" name="ln-6854" href="#ln-6854"></a><span class="c">!!$</span>
+<a id="ln-6854" name="ln-6854" href="#ln-6854"></a><span class="c">!$</span>
 <a id="ln-6855" name="ln-6855" href="#ln-6855"></a><span class="w">  </span><span class="c">! MPI: creates restart_t type to send to the master the fields</span>
 <a id="ln-6856" name="ln-6856" href="#ln-6856"></a><span class="w">  </span><span class="c">! that are only required for the restart file but not included in the</span>
 <a id="ln-6857" name="ln-6857" href="#ln-6857"></a><span class="w">  </span><span class="c">! results sent at the end of each time step</span>
@@ -7284,13 +7284,13 @@
 <a id="ln-7127" name="ln-7127" href="#ln-7127"></a><span class="w">    </span><span class="k">DEALLOCATE</span><span class="p">(</span><span class="n">displs</span><span class="p">)</span><span class="w"></span>
 <a id="ln-7128" name="ln-7128" href="#ln-7128"></a><span class="w">    </span><span class="k">DEALLOCATE</span><span class="p">(</span><span class="n">blen</span><span class="p">)</span><span class="w"></span>
 <a id="ln-7129" name="ln-7129" href="#ln-7129"></a>
-<a id="ln-7130" name="ln-7130" href="#ln-7130"></a><span class="c">!!$ ! if anything went wrong the master will mpi_abort</span>
-<a id="ln-7131" name="ln-7131" href="#ln-7131"></a><span class="c">!!$ ! which mpi_recv below is going to catch...</span>
-<a id="ln-7132" name="ln-7132" href="#ln-7132"></a><span class="c">!!$ ! so, now receive all the parameters</span>
-<a id="ln-7133" name="ln-7133" href="#ln-7133"></a><span class="c">!!$ CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, 0, comm, stat, ierr)</span>
-<a id="ln-7134" name="ln-7134" href="#ln-7134"></a><span class="c">!!$</span>
-<a id="ln-7135" name="ln-7135" href="#ln-7135"></a><span class="c">!!$ ! finally free the MPI type</span>
-<a id="ln-7136" name="ln-7136" href="#ln-7136"></a><span class="c">!!$ CALL MPI_Type_Free (casa_dump_t, ierr)</span>
+<a id="ln-7130" name="ln-7130" href="#ln-7130"></a><span class="c">!$ ! if anything went wrong the master will mpi_abort</span>
+<a id="ln-7131" name="ln-7131" href="#ln-7131"></a><span class="c">!$ ! which mpi_recv below is going to catch...</span>
+<a id="ln-7132" name="ln-7132" href="#ln-7132"></a><span class="c">!$ ! so, now receive all the parameters</span>
+<a id="ln-7133" name="ln-7133" href="#ln-7133"></a><span class="c">!$ CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, 0, comm, stat, ierr)</span>
+<a id="ln-7134" name="ln-7134" href="#ln-7134"></a><span class="c">!$</span>
+<a id="ln-7135" name="ln-7135" href="#ln-7135"></a><span class="c">!$ ! finally free the MPI type</span>
+<a id="ln-7136" name="ln-7136" href="#ln-7136"></a><span class="c">!$ CALL MPI_Type_Free (casa_dump_t, ierr)</span>
 <a id="ln-7137" name="ln-7137" href="#ln-7137"></a>
 <a id="ln-7138" name="ln-7138" href="#ln-7138"></a><span class="w">    </span><span class="c">! all casa parameters have been received from the master by now</span>
 <a id="ln-7139" name="ln-7139" href="#ln-7139"></a>
@@ -7419,13 +7419,13 @@
 <a id="ln-7262" name="ln-7262" href="#ln-7262"></a><span class="w">    </span><span class="k">DEALLOCATE</span><span class="p">(</span><span class="n">displs</span><span class="p">)</span><span class="w"></span>
 <a id="ln-7263" name="ln-7263" href="#ln-7263"></a><span class="w">    </span><span class="k">DEALLOCATE</span><span class="p">(</span><span class="n">blen</span><span class="p">)</span><span class="w"></span>
 <a id="ln-7264" name="ln-7264" href="#ln-7264"></a>
-<a id="ln-7265" name="ln-7265" href="#ln-7265"></a><span class="c">!!$ ! if anything went wrong the master will mpi_abort</span>
-<a id="ln-7266" name="ln-7266" href="#ln-7266"></a><span class="c">!!$ ! which mpi_recv below is going to catch...</span>
-<a id="ln-7267" name="ln-7267" href="#ln-7267"></a><span class="c">!!$ ! so, now receive all the parameters</span>
-<a id="ln-7268" name="ln-7268" href="#ln-7268"></a><span class="c">!!$ CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, 0, comm, stat, ierr)</span>
-<a id="ln-7269" name="ln-7269" href="#ln-7269"></a><span class="c">!!$</span>
-<a id="ln-7270" name="ln-7270" href="#ln-7270"></a><span class="c">!!$ ! finally free the MPI type</span>
-<a id="ln-7271" name="ln-7271" href="#ln-7271"></a><span class="c">!!$ CALL MPI_Type_Free (casa_dump_t, ierr)</span>
+<a id="ln-7265" name="ln-7265" href="#ln-7265"></a><span class="c">!$ ! if anything went wrong the master will mpi_abort</span>
+<a id="ln-7266" name="ln-7266" href="#ln-7266"></a><span class="c">!$ ! which mpi_recv below is going to catch...</span>
+<a id="ln-7267" name="ln-7267" href="#ln-7267"></a><span class="c">!$ ! so, now receive all the parameters</span>
+<a id="ln-7268" name="ln-7268" href="#ln-7268"></a><span class="c">!$ CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, 0, comm, stat, ierr)</span>
+<a id="ln-7269" name="ln-7269" href="#ln-7269"></a><span class="c">!$</span>
+<a id="ln-7270" name="ln-7270" href="#ln-7270"></a><span class="c">!$ ! finally free the MPI type</span>
+<a id="ln-7271" name="ln-7271" href="#ln-7271"></a><span class="c">!$ CALL MPI_Type_Free (casa_dump_t, ierr)</span>
 <a id="ln-7272" name="ln-7272" href="#ln-7272"></a>
 <a id="ln-7273" name="ln-7273" href="#ln-7273"></a><span class="w">    </span><span class="c">! all casa parameters have been received from the master by now</span>
 <a id="ln-7274" name="ln-7274" href="#ln-7274"></a>
@@ -7694,7 +7694,7 @@
 <a id="ln-7537" name="ln-7537" href="#ln-7537"></a><span class="w">               </span><span class="n">pleaf2met</span><span class="p">,</span><span class="n">pleaf2str</span><span class="p">,</span><span class="n">proot2met</span><span class="p">,</span><span class="n">proot2str</span><span class="p">,</span><span class="n">pwood2cwd</span><span class="p">)</span><span class="w"></span>
 <a id="ln-7538" name="ln-7538" href="#ln-7538"></a>
 <a id="ln-7539" name="ln-7539" href="#ln-7539"></a><span class="w">          </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">CALL_POP</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">POP</span><span class="p">%</span><span class="n">np</span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="c">! CALL_POP</span>
-<a id="ln-7540" name="ln-7540" href="#ln-7540"></a><span class="c">!!$           ! accumulate annual variables for use in POP</span>
+<a id="ln-7540" name="ln-7540" href="#ln-7540"></a><span class="c">!$           ! accumulate annual variables for use in POP</span>
 <a id="ln-7541" name="ln-7541" href="#ln-7541"></a><span class="w">             </span><span class="k">IF</span><span class="p">(</span><span class="nb">MOD</span><span class="p">(</span><span class="n">ktau</span><span class="o">/</span><span class="n">ktauday</span><span class="p">,</span><span class="n">LOY</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
 <a id="ln-7542" name="ln-7542" href="#ln-7542"></a><span class="k">                </span><span class="n">casaflux</span><span class="p">%</span><span class="n">stemnpp</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">casaflux</span><span class="p">%</span><span class="n">cnpp</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">casaflux</span><span class="p">%</span><span class="n">fracCalloc</span><span class="p">(:,</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.7</span><span class="w"> </span><span class="c">! (assumes 70% of wood NPP is allocated above ground)</span>
 <a id="ln-7543" name="ln-7543" href="#ln-7543"></a><span class="w">                </span><span class="n">casabal</span><span class="p">%</span><span class="n">LAImax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">casamet</span><span class="p">%</span><span class="n">glai</span><span class="w"></span>
@@ -8011,11 +8011,11 @@
 <a id="ln-7854" name="ln-7854" href="#ln-7854"></a><span class="w">             </span><span class="k">CALL </span><span class="n">MPI_Comm_rank</span><span class="w"> </span><span class="p">(</span><span class="n">icomm</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span><span class="w"></span>
 <a id="ln-7855" name="ln-7855" href="#ln-7855"></a><span class="w">             </span><span class="k">WRITE</span><span class="p">(</span><span class="n">wlogn</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"></span>
 <a id="ln-7856" name="ln-7856" href="#ln-7856"></a><span class="w">             </span><span class="k">WRITE</span><span class="p">(</span><span class="n">wlogn</span><span class="p">,</span><span class="o">*</span><span class="p">),</span><span class="s1">&#39;rank receiving pop_grid from master&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="w"></span>
-<a id="ln-7857" name="ln-7857" href="#ln-7857"></a><span class="c">!!$           write(wlogn,*) &#39;b4 MPI_Recv, pop_t cmass: &#39;, POP%pop_grid%cmass_sum</span>
-<a id="ln-7858" name="ln-7858" href="#ln-7858"></a><span class="c">!!$           write(wlogn,*) &#39;b4 MPI_Recv, pop_t LU: &#39;, POP%pop_grid%LU</span>
+<a id="ln-7857" name="ln-7857" href="#ln-7857"></a><span class="c">!$           write(wlogn,*) &#39;b4 MPI_Recv, pop_t cmass: &#39;, POP%pop_grid%cmass_sum</span>
+<a id="ln-7858" name="ln-7858" href="#ln-7858"></a><span class="c">!$           write(wlogn,*) &#39;b4 MPI_Recv, pop_t LU: &#39;, POP%pop_grid%LU</span>
 <a id="ln-7859" name="ln-7859" href="#ln-7859"></a><span class="w">             </span><span class="k">CALL </span><span class="n">MPI_Recv</span><span class="p">(</span><span class="w"> </span><span class="n">POP</span><span class="p">%</span><span class="n">pop_grid</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">POP</span><span class="p">%</span><span class="n">np</span><span class="p">,</span><span class="w"> </span><span class="n">pop_t</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">icomm</span><span class="p">,</span><span class="w"> </span><span class="nb">stat</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
-<a id="ln-7860" name="ln-7860" href="#ln-7860"></a><span class="c">!!$           write(wlogn,*)</span>
-<a id="ln-7861" name="ln-7861" href="#ln-7861"></a><span class="c">!!$           write(wlogn,*) &#39;after MPI_Recv, pop_t cmass: &#39;, POP%pop_grid%cmass_sum</span>
+<a id="ln-7860" name="ln-7860" href="#ln-7860"></a><span class="c">!$           write(wlogn,*)</span>
+<a id="ln-7861" name="ln-7861" href="#ln-7861"></a><span class="c">!$           write(wlogn,*) &#39;after MPI_Recv, pop_t cmass: &#39;, POP%pop_grid%cmass_sum</span>
 <a id="ln-7862" name="ln-7862" href="#ln-7862"></a><span class="w">             </span><span class="k">WRITE</span><span class="p">(</span><span class="n">wlogn</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;after MPI_Recv, pop_t &#39;</span><span class="w"></span>
 <a id="ln-7863" name="ln-7863" href="#ln-7863"></a><span class="w">             </span><span class="k">CALL </span><span class="nb">flush</span><span class="p">(</span><span class="n">wlogn</span><span class="p">)</span><span class="w"></span>
 <a id="ln-7864" name="ln-7864" href="#ln-7864"></a><span class="w">             </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">CALL_POP</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">POP</span><span class="p">%</span><span class="n">np</span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="c">! CALL_POP</span>
@@ -8023,8 +8023,8 @@
 <a id="ln-7866" name="ln-7866" href="#ln-7866"></a><span class="w">                </span><span class="k">CALL </span><span class="n">POPdriver</span><span class="p">(</span><span class="n">casaflux</span><span class="p">,</span><span class="n">casabal</span><span class="p">,</span><span class="n">veg</span><span class="p">,</span><span class="w"> </span><span class="n">POP</span><span class="p">)</span><span class="w"></span>
 <a id="ln-7867" name="ln-7867" href="#ln-7867"></a>
 <a id="ln-7868" name="ln-7868" href="#ln-7868"></a><span class="w">             </span><span class="k">ENDIF</span><span class="w"></span>
-<a id="ln-7869" name="ln-7869" href="#ln-7869"></a><span class="c">!!$           write(wlogn,*)</span>
-<a id="ln-7870" name="ln-7870" href="#ln-7870"></a><span class="c">!!$           write(wlogn,*) &#39;after POPstep cmass: &#39;, POP%pop_grid%cmass_sum</span>
+<a id="ln-7869" name="ln-7869" href="#ln-7869"></a><span class="c">!$           write(wlogn,*)</span>
+<a id="ln-7870" name="ln-7870" href="#ln-7870"></a><span class="c">!$           write(wlogn,*) &#39;after POPstep cmass: &#39;, POP%pop_grid%cmass_sum</span>
 <a id="ln-7871" name="ln-7871" href="#ln-7871"></a><span class="w">             </span><span class="k">WRITE</span><span class="p">(</span><span class="n">wlogn</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;after POPstep &#39;</span><span class="p">,</span><span class="w">  </span><span class="n">POP</span><span class="p">%</span><span class="n">pop_grid</span><span class="p">%</span><span class="n">cmass_sum</span><span class="w"></span>
 <a id="ln-7872" name="ln-7872" href="#ln-7872"></a><span class="w">             </span><span class="k">CALL </span><span class="nb">flush</span><span class="p">(</span><span class="n">wlogn</span><span class="p">)</span><span class="w"></span>
 <a id="ln-7873" name="ln-7873" href="#ln-7873"></a><span class="w">             </span><span class="k">CALL </span><span class="n">worker_send_pop</span><span class="w"> </span><span class="p">(</span><span class="n">POP</span><span class="p">,</span><span class="w"> </span><span class="n">ocomm</span><span class="p">)</span><span class="w"></span>

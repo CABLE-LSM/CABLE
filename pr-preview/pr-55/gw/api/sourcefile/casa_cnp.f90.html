@@ -546,19 +546,19 @@
 <a id="ln-389" name="ln-389" href="#ln-389"></a><span class="w">          </span><span class="c">!! , leading to decline in mineral nitrogen availability and spikes in fracCalloc,</span>
 <a id="ln-390" name="ln-390" href="#ln-390"></a><span class="w">          </span><span class="c">!! causing spikes in tree mortality and lack of model convergence in productive</span>
 <a id="ln-391" name="ln-391" href="#ln-391"></a><span class="w">          </span><span class="c">!! regions where LAI is hitting LAImax.</span>
-<a id="ln-392" name="ln-392" href="#ln-392"></a><span class="c">!!$        ! IF Prognostic LAI reached glaimax, no C is allocated to leaf</span>
-<a id="ln-393" name="ln-393" href="#ln-393"></a><span class="c">!!$        ! Q.Zhang 17/03/2011</span>
-<a id="ln-394" name="ln-394" href="#ln-394"></a><span class="c">!!$        WHERE(casamet%glai(:)&gt;=casabiome%glaimax(veg%iveg(:)))</span>
-<a id="ln-395" name="ln-395" href="#ln-395"></a><span class="c">!!$           casaflux%fracCalloc(:,leaf)  = 0.0</span>
-<a id="ln-396" name="ln-396" href="#ln-396"></a><span class="c">!!$           casaflux%fracCalloc(:,froot) =  casaflux%fracCalloc(:,froot) &amp;</span>
-<a id="ln-397" name="ln-397" href="#ln-397"></a><span class="c">!!$                /(casaflux%fracCalloc(:,froot) &amp;</span>
-<a id="ln-398" name="ln-398" href="#ln-398"></a><span class="c">!!$                +casaflux%fracCalloc(:,wood))</span>
-<a id="ln-399" name="ln-399" href="#ln-399"></a><span class="c">!!$           WHERE (casamet%lnonwood==0)</span>
-<a id="ln-400" name="ln-400" href="#ln-400"></a><span class="c">!!$              casaflux%fracCalloc(:,wood)  = 1.0 -casaflux%fracCalloc(:,froot)</span>
-<a id="ln-401" name="ln-401" href="#ln-401"></a><span class="c">!!$           ELSEWHERE</span>
-<a id="ln-402" name="ln-402" href="#ln-402"></a><span class="c">!!$              casaflux%fracCalloc(:,wood) = 0.0</span>
-<a id="ln-403" name="ln-403" href="#ln-403"></a><span class="c">!!$           ENDWHERE</span>
-<a id="ln-404" name="ln-404" href="#ln-404"></a><span class="c">!!$        ENDWHERE</span>
+<a id="ln-392" name="ln-392" href="#ln-392"></a><span class="c">!$        ! IF Prognostic LAI reached glaimax, no C is allocated to leaf</span>
+<a id="ln-393" name="ln-393" href="#ln-393"></a><span class="c">!$        ! Q.Zhang 17/03/2011</span>
+<a id="ln-394" name="ln-394" href="#ln-394"></a><span class="c">!$        WHERE(casamet%glai(:)&gt;=casabiome%glaimax(veg%iveg(:)))</span>
+<a id="ln-395" name="ln-395" href="#ln-395"></a><span class="c">!$           casaflux%fracCalloc(:,leaf)  = 0.0</span>
+<a id="ln-396" name="ln-396" href="#ln-396"></a><span class="c">!$           casaflux%fracCalloc(:,froot) =  casaflux%fracCalloc(:,froot) &amp;</span>
+<a id="ln-397" name="ln-397" href="#ln-397"></a><span class="c">!$                /(casaflux%fracCalloc(:,froot) &amp;</span>
+<a id="ln-398" name="ln-398" href="#ln-398"></a><span class="c">!$                +casaflux%fracCalloc(:,wood))</span>
+<a id="ln-399" name="ln-399" href="#ln-399"></a><span class="c">!$           WHERE (casamet%lnonwood==0)</span>
+<a id="ln-400" name="ln-400" href="#ln-400"></a><span class="c">!$              casaflux%fracCalloc(:,wood)  = 1.0 -casaflux%fracCalloc(:,froot)</span>
+<a id="ln-401" name="ln-401" href="#ln-401"></a><span class="c">!$           ELSEWHERE</span>
+<a id="ln-402" name="ln-402" href="#ln-402"></a><span class="c">!$              casaflux%fracCalloc(:,wood) = 0.0</span>
+<a id="ln-403" name="ln-403" href="#ln-403"></a><span class="c">!$           ENDWHERE</span>
+<a id="ln-404" name="ln-404" href="#ln-404"></a><span class="c">!$        ENDWHERE</span>
 <a id="ln-405" name="ln-405" href="#ln-405"></a>
 <a id="ln-406" name="ln-406" href="#ln-406"></a><span class="w">          </span><span class="k">WHERE</span><span class="p">(</span><span class="n">casamet</span><span class="p">%</span><span class="n">glai</span><span class="p">(:)</span><span class="o">&lt;</span><span class="n">casabiome</span><span class="p">%</span><span class="n">glaimin</span><span class="p">(</span><span class="n">veg</span><span class="p">%</span><span class="n">iveg</span><span class="p">(:)))</span><span class="w"></span>
 <a id="ln-407" name="ln-407" href="#ln-407"></a><span class="w">             </span><span class="n">casaflux</span><span class="p">%</span><span class="n">fracCalloc</span><span class="p">(:,</span><span class="n">leaf</span><span class="p">)</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">0.8</span><span class="w"></span>
@@ -1466,10 +1466,10 @@
 <a id="ln-1309" name="ln-1309" href="#ln-1309"></a>
 <a id="ln-1310" name="ln-1310" href="#ln-1310"></a><span class="w">          </span><span class="c">!    PRINT *, &#39;before 2nd icycle &gt;1; npt, mp&#39;, npt, mp</span>
 <a id="ln-1311" name="ln-1311" href="#ln-1311"></a><span class="w">          </span><span class="k">IF</span><span class="p">(</span><span class="n">icycle</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w"></span>
-<a id="ln-1312" name="ln-1312" href="#ln-1312"></a><span class="c">!!$       casaflux%FluxNtolitter(npt,str) = casaflux%fromPtoL(npt,str,leaf) * casaflux%kplant(npt,leaf)  &amp;</span>
-<a id="ln-1313" name="ln-1313" href="#ln-1313"></a><span class="c">!!$                               * casapool%cplant(npt,leaf)       * ratioNCstrfix              &amp;</span>
-<a id="ln-1314" name="ln-1314" href="#ln-1314"></a><span class="c">!!$                               + casaflux%fromPtoL(npt,str,froot)* casaflux%kplant(npt,froot) &amp;</span>
-<a id="ln-1315" name="ln-1315" href="#ln-1315"></a><span class="c">!!$                               * casapool%cplant(npt,froot)      * ratioNCstrfix</span>
+<a id="ln-1312" name="ln-1312" href="#ln-1312"></a><span class="c">!$       casaflux%FluxNtolitter(npt,str) = casaflux%fromPtoL(npt,str,leaf) * casaflux%kplant(npt,leaf)  &amp;</span>
+<a id="ln-1313" name="ln-1313" href="#ln-1313"></a><span class="c">!$                               * casapool%cplant(npt,leaf)       * ratioNCstrfix              &amp;</span>
+<a id="ln-1314" name="ln-1314" href="#ln-1314"></a><span class="c">!$                               + casaflux%fromPtoL(npt,str,froot)* casaflux%kplant(npt,froot) &amp;</span>
+<a id="ln-1315" name="ln-1315" href="#ln-1315"></a><span class="c">!$                               * casapool%cplant(npt,froot)      * ratioNCstrfix</span>
 <a id="ln-1316" name="ln-1316" href="#ln-1316"></a>
 <a id="ln-1317" name="ln-1317" href="#ln-1317"></a><span class="w">             </span><span class="c">!vh! to avoid -ve Nitrogen pools Ticket#108</span>
 <a id="ln-1318" name="ln-1318" href="#ln-1318"></a><span class="w">             </span><span class="n">casaflux</span><span class="p">%</span><span class="n">FluxNtolitter</span><span class="p">(</span><span class="n">npt</span><span class="p">,</span><span class="n">str</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">MIN</span><span class="p">(</span><span class="n">casaflux</span><span class="p">%</span><span class="n">fromPtoL</span><span class="p">(</span><span class="n">npt</span><span class="p">,</span><span class="n">str</span><span class="p">,</span><span class="n">leaf</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
@@ -1759,14 +1759,14 @@
 <a id="ln-1602" name="ln-1602" href="#ln-1602"></a><span class="w">                  </span><span class="o">-</span><span class="w"> </span><span class="n">casaflux</span><span class="p">%</span><span class="n">Nupland</span><span class="p">(</span><span class="n">nland</span><span class="p">)</span><span class="w"></span>
 <a id="ln-1603" name="ln-1603" href="#ln-1603"></a>
 <a id="ln-1604" name="ln-1604" href="#ln-1604"></a><span class="w">          </span><span class="k">ENDIF</span><span class="w"></span>
-<a id="ln-1605" name="ln-1605" href="#ln-1605"></a><span class="c">!!$if (nland==1) write(59,91) casaflux%Nsnet(nland) , &amp;</span>
-<a id="ln-1606" name="ln-1606" href="#ln-1606"></a><span class="c">!!$                                 casaflux%Nlittermin(nland),  &amp;</span>
-<a id="ln-1607" name="ln-1607" href="#ln-1607"></a><span class="c">!!$                                 casaflux%Nsmin(nland),   &amp;</span>
-<a id="ln-1608" name="ln-1608" href="#ln-1608"></a><span class="c">!!$                                 casaflux%Nsimm(nland)</span>
-<a id="ln-1609" name="ln-1609" href="#ln-1609"></a><span class="c">!!$                                 , casaflux%Nmindep(nland) ,casaflux%Nminfix(nland)   &amp;</span>
-<a id="ln-1610" name="ln-1610" href="#ln-1610"></a><span class="c">!!$                                 , casaflux%Nminloss(nland)   &amp;</span>
-<a id="ln-1611" name="ln-1611" href="#ln-1611"></a><span class="c">!!$                                 , casaflux%Nminleach(nland)   &amp;</span>
-<a id="ln-1612" name="ln-1612" href="#ln-1612"></a><span class="c">!!$                                 , casaflux%Nupland(nland)</span>
+<a id="ln-1605" name="ln-1605" href="#ln-1605"></a><span class="c">!$if (nland==1) write(59,91) casaflux%Nsnet(nland) , &amp;</span>
+<a id="ln-1606" name="ln-1606" href="#ln-1606"></a><span class="c">!$                                 casaflux%Nlittermin(nland),  &amp;</span>
+<a id="ln-1607" name="ln-1607" href="#ln-1607"></a><span class="c">!$                                 casaflux%Nsmin(nland),   &amp;</span>
+<a id="ln-1608" name="ln-1608" href="#ln-1608"></a><span class="c">!$                                 casaflux%Nsimm(nland)</span>
+<a id="ln-1609" name="ln-1609" href="#ln-1609"></a><span class="c">!$                                 , casaflux%Nmindep(nland) ,casaflux%Nminfix(nland)   &amp;</span>
+<a id="ln-1610" name="ln-1610" href="#ln-1610"></a><span class="c">!$                                 , casaflux%Nminloss(nland)   &amp;</span>
+<a id="ln-1611" name="ln-1611" href="#ln-1611"></a><span class="c">!$                                 , casaflux%Nminleach(nland)   &amp;</span>
+<a id="ln-1612" name="ln-1612" href="#ln-1612"></a><span class="c">!$                                 , casaflux%Nupland(nland)</span>
 <a id="ln-1613" name="ln-1613" href="#ln-1613"></a>
 <a id="ln-1614" name="ln-1614" href="#ln-1614"></a><span class="mi">91</span><span class="w">        </span><span class="k">FORMAT</span><span class="p">(</span><span class="mi">20</span><span class="p">(</span><span class="n">e12</span><span class="p">.</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="n">x</span><span class="p">))</span><span class="w"></span>
 <a id="ln-1615" name="ln-1615" href="#ln-1615"></a><span class="w">          </span><span class="k">IF</span><span class="p">(</span><span class="n">icycle</span><span class="w"> </span><span class="o">&gt;</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
