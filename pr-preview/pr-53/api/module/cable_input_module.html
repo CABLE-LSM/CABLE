@@ -174,24 +174,24 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/phenvariable.html'>phenvariable</a></li>
-    <li><a href='../module/popluc_types.html'>POPLUC_Types</a></li>
-    <li><a href='../module/cbl_sinbet_mod.html'>cbl_sinbet_mod</a></li>
-    <li><a href='../module/casa_inout_module.html'>casa_inout_module</a></li>
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
-    <li><a href='../module/casadimension.html'>casadimension</a></li>
-    <li><a href='../module/casavariable.html'>casavariable</a></li>
-    <li>netcdf</li>
-    <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
-    <li><a href='../module/cable_read_module.html'>cable_read_module</a></li>
     <li><a href='../module/cable_init_module.html'>cable_init_module</a></li>
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-    <li><a href='../module/casaparm.html'>casaparm</a></li>
-    <li><a href='../module/cable_param_module.html'>cable_param_module</a></li>
+    <li><a href='../module/cable_read_module.html'>cable_read_module</a></li>
     <li><a href='../module/cable_checks_module.html'>cable_checks_module</a></li>
     <li><a href='../module/casa_ncdf_module.html'>casa_ncdf_module</a></li>
+    <li>netcdf</li>
+    <li><a href='../module/cable_param_module.html'>cable_param_module</a></li>
+    <li><a href='../module/casaparm.html'>casaparm</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+    <li><a href='../module/phenvariable.html'>phenvariable</a></li>
+    <li><a href='../module/popluc_types.html'>POPLUC_Types</a></li>
+    <li><a href='../module/casavariable.html'>casavariable</a></li>
     <li><a href='../module/pop_types.html'>POP_Types</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+    <li><a href='../module/casa_inout_module.html'>casa_inout_module</a></li>
+    <li><a href='../module/cbl_sinbet_mod.html'>cbl_sinbet_mod</a></li>
+    <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
     <li><a href='../module/cable_abort_module.html'>cable_abort_module</a></li>
+    <li><a href='../module/casadimension.html'>casadimension</a></li>
   </ul>
       </li>
       </ul>
@@ -721,8 +721,10 @@
   <div class="panel-heading codesum"><span class="anchor" id="proc-load_parameters"></span><h3>public subroutine <a href='../proc/load_parameters.html'>load_parameters</a>(met, air, ssnow, veg, climate, bgc, soil, canopy, rough, rad, sum_flux, bal, logn, vegparmnew, casabiome, casapool, casaflux, sum_casapool, sum_casaflux, casamet, casabal, phen, POP, spinup, EMSOIL, TFRZ, LUC_EXPT, POPLUC)</h3></div>
   <div class="panel-body">
        
-<p>Create parameter values from default vegetation and soil types based on
-latitude and longitude of each grid cell.</p><a href="../proc/load_parameters.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+<p>load_parameters defines the priority order of sources of parameter
+values for CABLE, determines the total number of patches over all grid
+cells, and writes parameter values to CABLE's parameter arrays.
+Documentation here is a simple order of processes:</p><a href="../proc/load_parameters.html" class="pull-right"><emph>Read more&hellip;</emph></a>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
