@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.4% of total for procedures.">169 statements</a>
+    title=" 0.3% of total for procedures.">169 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_input.F90"> Source File</a></li>
   </ul>
@@ -128,14 +128,14 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
+    <li><a href='../module/popluc_module.html'>POPLUC_Module</a></li>
     <li><a href='../module/casa_inout.html'>casa_inout</a></li>
     <li><a href='../module/cable_c13o2.html'>cable_c13o2</a></li>
-    <li>POPmodule</li>
     <li><a href='../module/cable_luc_expt.html'>CABLE_LUC_EXPT</a></li>
-    <li><a href='../module/casaparm.html'>casaparm</a></li>
     <li><a href='../module/cable_c13o2_def.html'>cable_c13o2_def</a></li>
-    <li><a href='../module/popluc_module.html'>POPLUC_Module</a></li>
+    <li><a href='../module/popmodule.html'>POPModule</a></li>
     <li><a href='../module/cable_pop_io.html'>cable_pop_io</a></li>
+    <li><a href='../module/casaparm.html'>casaparm</a></li>
   </ul>
       </li>
       </ul>
@@ -150,25 +150,25 @@ vh_js !!</p>
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" id="variable-met~30"></span>type(<a href='../type/met_type.html'>met_type</a>),</td>
+  <td><span class="anchor" id="variable-met~35"></span>type(<a href='../type/met_type.html'>met_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>met</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-air~12"></span>type(<a href='../type/air_type.html'>air_type</a>),</td>
+  <td><span class="anchor" id="variable-air~15"></span>type(<a href='../type/air_type.html'>air_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>air</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ssnow~31"></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+  <td><span class="anchor" id="variable-ssnow~39"></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>ssnow</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-veg~73"></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+  <td><span class="anchor" id="variable-veg~80"></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>veg</strong></td><td></td>
@@ -180,25 +180,25 @@ vh_js !!</p>
   <td><strong>bgc</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-soil~40"></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+  <td><span class="anchor" id="variable-soil~49"></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>soil</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-canopy~26"></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
+  <td><span class="anchor" id="variable-canopy~31"></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>canopy</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-rough~6"></span>type(<a href='../type/roughness_type.html'>roughness_type</a>),</td>
+  <td><span class="anchor" id="variable-rough~7"></span>type(<a href='../type/roughness_type.html'>roughness_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>rough</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-rad~14"></span>type(<a href='../type/radiation_type.html'>radiation_type</a>),</td>
+  <td><span class="anchor" id="variable-rad~17"></span>type(<a href='../type/radiation_type.html'>radiation_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>rad</strong></td><td></td>
@@ -210,7 +210,7 @@ vh_js !!</p>
   <td><strong>sum_flux</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-bal~8"></span>type(<a href='../type/balances_type.html'>balances_type</a>),</td>
+  <td><span class="anchor" id="variable-bal~11"></span>type(<a href='../type/balances_type.html'>balances_type</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>bal</strong></td><td></td>
@@ -234,13 +234,13 @@ vh_js !!</p>
   <td><strong>casabiome</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-casapool~55"></span>type(<a href='../type/casa_pool.html'>casa_pool</a>),</td>
+  <td><span class="anchor" id="variable-casapool~53"></span>type(<a href='../type/casa_pool.html'>casa_pool</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>casapool</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-casaflux~57"></span>type(<a href='../type/casa_flux.html'>casa_flux</a>),</td>
+  <td><span class="anchor" id="variable-casaflux~56"></span>type(<a href='../type/casa_flux.html'>casa_flux</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>casaflux</strong></td><td></td>
@@ -276,7 +276,7 @@ vh_js !!</p>
   <td><strong>phen</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-pop~13"></span>type(POP_TYPE),</td>
+  <td><span class="anchor" id="variable-pop~32"></span>type(<a href='../type/pop_type.html'>POP_TYPE</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>POP</strong></td><td></td>
@@ -288,7 +288,7 @@ vh_js !!</p>
   <td><strong>spinup</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-emsoil~4"></span>real,</td>
+  <td><span class="anchor" id="variable-emsoil~5"></span>real,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>EMSOIL</strong></td><td></td>
@@ -312,7 +312,7 @@ vh_js !!</p>
   <td><strong>POPLUC</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-c13o2flux~20"></span>type(<a href='../type/c13o2_flux.html'>c13o2_flux</a>),</td>
+  <td><span class="anchor" id="variable-c13o2flux~19"></span>type(<a href='../type/c13o2_flux.html'>c13o2_flux</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>c13o2flux</strong></td><td></td>
