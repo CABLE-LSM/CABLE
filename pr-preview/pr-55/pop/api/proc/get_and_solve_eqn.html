@@ -123,43 +123,6 @@
     <h2>private subroutine get_and_solve_eqn(irec, mp, qprec, n, dx, h0, S, thetai, Tsoil, qh, nsteps, vlit, vsnow, var, dxL, plit, par, deltaTa, qevap, qL, qhL, qybL, qTbL, qhTbL, qhybL, again, again_ice, iok, itmp, ns, accel, dt, fac, phip, rsig, rsigdt, sig, t, qexd, aa, bb, cc, dd, ee, ff, gg, dy, aah, bbh, cch, ddh, eeh, ffh, ggh, de, q, qya, qyb, qTa, qTb, qhya, qhyb, qhTa, qhTb, qadv, qadvya, qadvyb, qadvTa, qadvTb, qsig, qhsig, qadvsig, dTsoil, dthetaldT, nsteps_ice, imelt, deltaJ_latent_T, deltaJ_sensible_S, qrunoff, tmp1d1, tmp1d2, tmp1d3, tmp1d4, G0, Tfreezing, LHS, RHS, LHS_h, RHS_h, nns, iflux, litter, i, kk, condition, advection, c2, theta, cp, cpeff, hice, h0_tmp, hsnow, delta_snowT, delta_snowliq, J0, iqex, nfac1, nfac2, nfac3, nfac4, nfac5, nfac6, nfac7, nfac8, nfac9, nfac10, nfac11, nfac12, err)</h2>
     
 
-    <p>$          if (iok(kk)==1 .and. ns(kk)&lt;1 .and. h0(kk)+dy(1)&lt;h0min) then ! pond going
-$             fac(kk) = -(h0(kk)-half*h0min)/dy(1)
-$             nfac9(kk) = nfac9(kk) +1
-$             iok(kk) = 0
-$          end if</p>
-<p>$           ! pond decreasing or runoff starts
-$          if (iok(kk)==1 .and. ns(kk)&lt;1 .and.S(1)<em>par(1)%thre</em>dx(1) + h0(kk)+dy(1)&lt;0.1<em>dx(1)) then ! pond going
-$             fac(kk) = -(S(1)</em>par(1)%thre<em>dx(1)+h0(kk)-half</em>0.1*dx(1))/dy(1)
-$             nfac9(kk) = nfac9(kk) +1
-$             iok(kk) = 0
-$          end if</p>
-<p>$          if(((tmp1d2(kk))-c2)&lt;zero) then
-$             fac(kk) = 0.5_r_2
-$             iok(kk) = 0
-$             nfac10(kk) = nfac10(kk)+1
-$          endif</p>
-<p>$                if ((irec.eq.8992).and.(kk.eq.1) ) then
-$                   !if ((irec.eq.5).and.(kk.eq.1626)  .and. wlogn == 1011) then
-$                    write(<em>,</em>) 'writing diags', again(kk), nsteps(kk)
-$
-$                    ! if (.not. again(kk)) then
-$ !write(345,"(13i8,1500e16.6)")
-$                    write(346,"(13i8,1500e16.6)") nsteps(kk), nfac1(kk), nfac2(kk), nfac3(kk), &amp;
-$                         nfac4(kk), nfac5(kk), nfac6(kk), nfac7(kk), nfac8(kk), nfac9(kk), nfac10(kk), &amp;
-$                         nfac11(kk), nfac12(kk) , q(:), qsig(:), qH(:), qhsig(:), &amp;
-$                         dy(0:n), de(0:n), dTsoil(:), S(:),thetai(:), Tsoil(:), &amp;
-$                         real(var(1)%iice), real(var(1)%isat), &amp;
-$                         h0(kk), real(iok(kk)), var(1)%phie, var(1)%phi, phip(kk),var(2)%phi, &amp;
-$                         vsnow(kk)%wcol, &amp;
-$                         qadv(:), qadvsig(:), qhya(:), qhyb(:), qhTa(:), qhTb(:), &amp;
-$                         qya(:), qyb(:), qTa(:), qTb(:), &amp;
-$                         var(1:n)%kH, LHS_h(1:n)<em>dt(kk), &amp;
-$                         RHS(1:n)</em>dt(kk), LHS(1:n)*dt(kk), par(1:n)%thre,dx(1:n), &amp;
-$                         real(-var(1:n)%isat), dt(kk), real(ns(kk)), vsnow(kk)%tsn(1), vsnow(kk)%hsnow(1)
-$                  !  endif
-$                    if (nsteps(kk).gt.1000) STOP
-$                 endif</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

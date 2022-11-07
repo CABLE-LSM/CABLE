@@ -524,32 +524,7 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-simfire"></span><h3>public subroutine <a href='../proc/simfire.html'>SIMFIRE</a>(SF, RAINF, TMAX, TMIN, DOY, MM, YEAR, AB, climate)</h3></div>
   <div class="panel-body">
-       
-<p>$     ! convert to daily burned area using GFED climatology
-$
-$      STATUS = NF90_OPEN(TRIM(SF%BA_CLIM_FILE), NF90_NOWRITE, F_ID)
-$      CALL HANDLE_ERR(STATUS, "Opening BA Clim File "//SF%BA_CLIM_FILE )
-$      STATUS = NF90_INQ_VARID(F_ID,'monthly_ba', V_ID)
-$      CALL HANDLE_ERR(STATUS, "Inquiring  var monthly_ba in "//SF%BA_CLIM_FILE )
-$
-$      STATUS = NF90_INQ_VARID(F_ID,'latitude', V_ID_lat)
-$      CALL HANDLE_ERR(STATUS, "Inquiring  var latitude in "//SF%BA_CLIM_FILE )
-$
-$      STATUS = NF90_INQ_VARID(F_ID,'longitude', V_ID_lon)
-$      CALL HANDLE_ERR(STATUS, "Inquiring  var longitude in "//SF%BA_CLIM_FILE )
-$
-$      STATUS = NF90_GET_VAR( F_ID, V_ID_lat, lat_BA, &amp;
-$               start=(/1/) )
-$      STATUS = NF90_GET_VAR( F_ID, V_ID_lon, lon_BA, &amp;
-$           start=(/1/)  )
-$
-$      ilat = MINLOC(ABS(lat_BA - SF%LAT(i)),DIM=1)
-$      ilon = MINLOC(ABS(lon_BA - SF%LON(i)),DIM=1)
-$
-$      STATUS = NF90_GET_VAR( F_ID, V_ID, monthly_ba, &amp;
-$           start=(/MM,ilon,ilat/) )
-$      CALL HANDLE_ERR(STATUS, "Reading direct from "//SF%BA_CLIM_FILE )</p>
-    
+           
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>

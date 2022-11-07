@@ -123,34 +123,6 @@
     <h2>public subroutine setpar(mp, ms, soil, index)</h2>
     
 
-    <p>$          par(:,i)%thw        = 0.178_r_2
-$          par(:,i)%thfc       = 0.367_r_2
-$          par(:,i)%the        = 0.45_r_2
-$          par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr
-$          par(:,i)%he         = -0.572_r_2
-$          par(:,i)%Ke         = 2.8e-5_r_2
-$          par(:,i)%lam        = 1._r_2/8.7_r_2
-$          par(:,i)%eta        = two/par(:,i)%lam + two + one
-$          par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he
-$          par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he
-$          par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he
-$          par(:,i)%clay       = 0.2_r_2
-$   ! special for Cumberland: set top 3 layers to sand
-$   do i=1,3
-$      par(:,i)%thw        = 0.175_r_2
-$      par(:,i)%thfc       = 0.255_r_2
-$      par(:,i)%the        = 0.420_r_2
-$      par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr
-$      par(:,i)%he         = -0.299_r_2
-$      par(:,i)%Ke         = 6.e-6_r_2
-$      par(:,i)%lam        = 1._r_2/7.12_r_2
-$      par(:,i)%eta        = two/par(:,i)%lam + two + one
-$      par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he
-$      par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he
-$      par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he
-$      par(:,i)%clay       = 0.27_r_2
-$
-$   enddo</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

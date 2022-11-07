@@ -173,39 +173,8 @@ Avoid unrealistic Vcmax and Jmax values</p></td></tr>
 			   <tr><td><a href='../proc/biogeochem.html'>biogeochem</a></td><td><a href='../module/casa_inout.html'>casa_inout</a></td><td>Subroutine</td><td><p>vh_js !!</p></td></tr>
 			   <tr><td><a href='../proc/biome1_pft.html'>biome1_pft</a></td><td><a href='../module/cable_climate_mod.html'>cable_climate_mod</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/blaze_accounting.html'>BLAZE_ACCOUNTING</a></td><td><a href='../module/blaze_mod.html'>BLAZE_MOD</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/blaze_driver.html'>BLAZE_DRIVER</a></td><td><a href='../module/blaze_drv.html'>blaze_drv</a></td><td>Subroutine</td><td><p>$  IF (CALL1) THEN
-$     StartYear = CurYear
-$     CALL1 = .FALSE.
-$  ENDIF</p><a href="../proc/blaze_driver.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
-			   <tr><td><a href='../proc/blaze_turnover.html'>BLAZE_TURNOVER</a></td><td><a href='../module/blaze_mod.html'>BLAZE_MOD</a></td><td>Subroutine</td><td><p>$  ! Grass fuels burned by area
-$  CPLANT_g (LEAF)  = CPLANT_g (LEAF) * (1. - AB)
-$  AGL_g(METB)      = AGL_g(METB)     * (1. - AB)
-$  AGL_g(STR )      = AGL_g(STR )     * (1. - AB)
-$
-$  ! Leaves
-$  CPLANT_w (LEAF)  = &amp;
-$       CPLANT_w (LEAF) - (MTO(LEAF)%TO_ATM + MTO(LEAF)%TO_STR)
-$  ! Wood
-$  CPLANT_w (WOOD)  = &amp;
-$       CPLANT_w (WOOD) - (MTO(WOOD)%TO_ATM + MTO(WOOD)%TO_STR + MTO(WOOD)%TO_CWD)
-$  ! Fine roots
-$  CPLANT_w (FROOT) = &amp;
-$       CPLANT_w (FROOT)- (MTO(FROOT)%TO_ATM+ MTO(FROOT)%TO_STR)
-$
-$  ! Litter above ground
-$  AGL_w(METB)      = AGL_w(METB) - MTO(MLIT)%TO_ATM
-$  AGL_w(STR )      = AGL_w(STR ) - MTO(SLIT)%TO_ATM + MTO(WOOD)%TO_STR + &amp;
-$                     MTO(LEAF)%TO_STR
-$  AGL_w(CWD )      = AGL_w(CWD ) - MTO(CLIT)%TO_ATM + MTO(WOOD)%TO_CWD * shootfrac
-$
-$  ! Litter below ground
-$  BGL_w(STR ) = BGL_w(STR ) + MTO(FROOT)%TO_STR
-$  BGL_w(CWD ) = BGL_w(CWD ) + MTO(WOOD)%TO_CWD * (1. - shootfrac)
-$
-$  IF ( ANY ( AGL_w .LT. 0. )) THEN
-$     WRITE(<em>,</em>)"CLIITE_W &lt; 0 ", AGL_w
-$     STOP 1
-$  ENDIF</p></td></tr>
+			   <tr><td><a href='../proc/blaze_driver.html'>BLAZE_DRIVER</a></td><td><a href='../module/blaze_drv.html'>blaze_drv</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/blaze_turnover.html'>BLAZE_TURNOVER</a></td><td><a href='../module/blaze_mod.html'>BLAZE_MOD</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/bracket.html'>bracket</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td><p><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong>*</strong>*80</p><a href="../proc/bracket.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/burntime.html'>BURNTIME</a></td><td><a href='../module/blaze_mod.html'>BLAZE_MOD</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/c13o2_alloc_flux.html'>c13o2_alloc_flux</a></td><td><a href='../module/cable_c13o2_def.html'>cable_c13o2_def</a></td><td>Subroutine</td><td></td></tr>
@@ -525,9 +494,7 @@ vh_js!!</p></td></tr>
 			   <tr><td><a href='../proc/esat_ice.html'>esat_ice</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/esatf.html'>Esatf</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/estimate_timestep.html'>estimate_timestep</a></td><td><a href='../module/sli_solve.html'>sli_solve</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/execute_luc_event.html'>execute_luc_event</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td><p>$if (g==4) then
-$write(<em>,</em>) 'gtos1', frac_change_grid, frac_open_grid, POPLUC%grass(g) , sum( POPLUC%freq_age_secondary(g,:))
-$endif</p></td></tr>
+			   <tr><td><a href='../proc/execute_luc_event.html'>execute_luc_event</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/exponential.html'>Exponential</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/extrarestart.html'>extraRestart</a></td><td><a href='../module/cable_init_module.html'>cable_init_module</a></td><td>Subroutine</td><td><p>(BP Nov 2009)</p></td></tr>
 			   <tr><td><a href='../proc/fabc.html'>fabc</a></td><td><a href='../module/cable_optimise_jv_module.html'>cable_optimise_JV_module</a></td><td>Subroutine</td><td></td></tr>
@@ -576,11 +543,7 @@ $endif</p></td></tr>
 			   <tr><td><a href='../proc/generic_thomas_1d.html'>generic_thomas_1d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/generic_thomas_2d.html'>generic_thomas_2d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/get_allometry.html'>GET_ALLOMETRY</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/get_and_solve_eqn.html'>get_and_solve_eqn</a></td><td><a href='../module/sli_solve.html'>sli_solve</a></td><td>Subroutine</td><td><p>$          if (iok(kk)==1 .and. ns(kk)&lt;1 .and. h0(kk)+dy(1)&lt;h0min) then ! pond going
-$             fac(kk) = -(h0(kk)-half*h0min)/dy(1)
-$             nfac9(kk) = nfac9(kk) +1
-$             iok(kk) = 0
-$          end if</p><a href="../proc/get_and_solve_eqn.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/get_and_solve_eqn.html'>get_and_solve_eqn</a></td><td><a href='../module/sli_solve.html'>sli_solve</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/get_cru_co2.html'>GET_CRU_CO2</a></td><td><a href='../module/cable_cru.html'>cable_cru</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/get_cru_ndep.html'>GET_CRU_Ndep</a></td><td><a href='../module/cable_cru.html'>cable_cru</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/get_default_inits.html'>get_default_inits</a></td><td><a href='../module/cable_init_module.html'>cable_init_module</a></td><td>Subroutine</td><td></td></tr>
@@ -607,16 +570,7 @@ Doing it once will fix the problem in the restart file in subsequent runs</p><a 
 			   <tr><td><a href='../proc/getfluxes_vp_1d.html'>getfluxes_vp_1d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/getfluxes_vp_2d.html'>getfluxes_vp_2d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../interface/getheatfluxes.html'>getheatfluxes</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Interface</td><td></td></tr>
-			   <tr><td><a href='../proc/getheatfluxes_1d.html'>getheatfluxes_1d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td><p>$                   if (q(i) &gt; zero) then
-$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
-$                    else
-$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
-$                    endif
-$                    qadv(i) = rhow<em>cswat</em>q(i)<em>(w</em>(T(i)+zero)+(one-w)<em>(T(i+1)+zero))
-$                    qadvya(i) =  rhow</em>cswat<em>qya(i)</em>(w<em>(T(i)+zero)+(one-w)</em>(T(i+1)+zero))
-$                    qadvyb(i) =  rhow<em>cswat</em>qyb(i)<em>(w</em>(T(i)+zero)+(one-w)<em>(T(i+1)+zero))
-$                    qadvTa(i) =  rhow</em>cswat<em>q(i)</em>w
-$                    qadvTb(i) =  rhow<em>cswat</em>q(i)*(one-w)</p></td></tr>
+			   <tr><td><a href='../proc/getheatfluxes_1d.html'>getheatfluxes_1d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/getheatfluxes_2d.html'>getheatfluxes_2d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/getheight.html'>GetHeight</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/getpatchfrequencies.html'>GetPatchFrequencies</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
@@ -664,17 +618,9 @@ $                    qadvTb(i) =  rhow<em>cswat</em>q(i)*(one-w)</p></td></tr>
 			   <tr><td><a href='../proc/iminloc_i8.html'>iminloc_i8</a></td><td><a href='../module/mo_utils.html'>mo_utils</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/iminloc_sp.html'>iminloc_sp</a></td><td><a href='../module/mo_utils.html'>mo_utils</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/increment_age.html'>INCREMENT_AGE</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/ini_blaze.html'>INI_BLAZE</a></td><td><a href='../module/blaze_mod.html'>BLAZE_MOD</a></td><td>Subroutine</td><td><p>Called from cable_driver now
-$  ! time for averaging annual rainfall [a]
-$  BLAZE%T_AVG = 5
-$  ! deadwood decay scale time [a]
-$  BLAZE%FT    = 30</p></td></tr>
+			   <tr><td><a href='../proc/ini_blaze.html'>INI_BLAZE</a></td><td><a href='../module/blaze_mod.html'>BLAZE_MOD</a></td><td>Subroutine</td><td><p>Called from cable_driver now</p></td></tr>
 			   <tr><td><a href='../proc/ini_simfire.html'>INI_SIMFIRE</a></td><td><a href='../module/simfire_mod.html'>SIMFIRE_MOD</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/init_radiation.html'>init_radiation</a></td><td><a href='../module/cable_radiation_module.html'>cable_radiation_module</a></td><td>Subroutine</td><td><p>$     rad%rhocdf(:,ictr) = rhoch(:,ictr) * &amp;
-$                          ( C%GAUSS_W(1) * xk(:,1) / ( xk(:,1) + rad%extkd(:) )&amp;
-$                          + C%GAUSS_W(2) * xk(:,2) / ( xk(:,2) + rad%extkd(:) )&amp;
-$                          + C%GAUSS_W(3) * xk(:,3) / ( xk(:,3) + rad%extkd(:) ) )
- Ticket #147  (vh)
+			   <tr><td><a href='../proc/init_radiation.html'>init_radiation</a></td><td><a href='../module/cable_radiation_module.html'>cable_radiation_module</a></td><td>Subroutine</td><td><p>Ticket #147  (vh)
  the above line is incorrect, as it is missing a factor of 2 in the numerator.
  (See equation 6.21 from Goudriaan &amp; van Laar 1994)
  The correct version below doubles canopy reflectance for diffuse radiation.
@@ -704,10 +650,7 @@ This is an elemental subroutine and can be called with scalars and arrays.
 \date Apr-Nov 2019</p></td></tr>
 			   <tr><td><a href='../proc/init_veg_from_vegin.html'>init_veg_from_vegin</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/initpop2d_poisson.html'>InitPOP2D_Poisson</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/interpolate_biomass_1d.html'>INTERPOLATE_BIOMASS_1D</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>$if (g==2) then
-$write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage), growth_age(iage),  stress_mort_age(iage), &amp;
-$ crowd_mort_age(iage), tmp_min, tmp_max, real(age_max_growth), real(age_min_growth)
-$endif</p><a href="../proc/interpolate_biomass_1d.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/interpolate_biomass_1d.html'>INTERPOLATE_BIOMASS_1D</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/interpolate_biomass_2d.html'>INTERPOLATE_BIOMASS_2D</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/interpolate_firemortality.html'>INTERPOLATE_FIREMORTALITY</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/is_casa_time.html'>IS_CASA_TIME</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Function</td><td></td></tr>
@@ -1057,15 +1000,13 @@ vh_js !!</p></td></tr>
 			   <tr><td><a href='../proc/pop_init.html'>POP_init</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/pop_init_single.html'>POP_init_single</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/pop_io.html'>POP_IO</a></td><td><a href='../module/cable_pop_io.html'>cable_pop_io</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/pop_luc_casa_transfer.html'>POP_LUC_CASA_transfer</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td><p>$               if (g==4) write(<em>,</em>) 'b4 fdist', &amp;
-$               scalefac, casapool%cplant(j+1,2) + dcExpand(g)+dcClear(g)+dcHarv(g),  &amp;
-$               casapool%cplant(j+1,2) , dcExpand(g),dcClear(g),dcHarv(g), dcnat(g)</p><a href="../proc/pop_luc_casa_transfer.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/pop_luc_casa_transfer.html'>POP_LUC_CASA_transfer</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/popdriver.html'>POPdriver</a></td><td><a href='../module/casa_cable.html'>casa_cable</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/popluc_init.html'>POPLUC_Init</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/popluc_set_params.html'>POPLUC_set_params</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/popluc_set_patchfrac.html'>POPLUC_set_patchfrac</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/popluc_weights_transfer.html'>POPLUC_weights_transfer</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/poplucstep.html'>POPLUCStep</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td><p>$if (g==4) write(<em>,</em>) 'fracfor: ',  POPLUC%frac_forest(g),  SUM(POPLUC%freq_age_secondary(g,:))</p></td></tr>
+			   <tr><td><a href='../proc/poplucstep.html'>POPLUCStep</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/popstep.html'>POPStep</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/potential_evap.html'>potential_evap</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/preparefiles.html'>prepareFiles</a></td><td><a href='../sourcefile/cable_driver.f90.html'>cable_driver.F90</a></td><td>Subroutine</td><td></td></tr>
@@ -1164,76 +1105,16 @@ $               casapool%cplant(j+1,2) , dcExpand(g),dcClear(g),dcHarv(g), dcnat
 			   <tr><td><a href='../proc/seb.html'>SEB</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td><p>vh!! include vapour component??
  vh !! use max snow depth of 20 cm in this calculation to avoid huge resistances
  leading to large negative surface temperatures when snow-pack is thick and
- Rn is large and negative (~-100 Wm-2)
-$          elseif (abs(Tsurface - vmet%Ta).gt. 20) then
-$             Tsurface = min(vmet%Ta, 0.0)
-$             Epot = (esat(Tsurface)<em>0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - &amp; ! m3 H2O (liq) m-3 (air)
-$                  vmet%cva)</em>rhow<em>lambdas/vmet%rbw
-$             dEdTsoil = zero
-$             dGdTsoil = zero
-$             Hpot = rhocp</em>(Tsurface - vmet%Ta)/vmet%rbh
-$             Gpot = vmet%Rn-vmet%Rnsw - Hpot - Epot
-$             dEdTs= zero
-$           endif</p></td></tr>
+ Rn is large and negative (~-100 Wm-2)</p></td></tr>
 			   <tr><td><a href='../proc/setlitterpar.html'>setlitterpar</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/setpar.html'>setpar</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td><p>$          par(:,i)%thw        = 0.178_r_2
-$          par(:,i)%thfc       = 0.367_r_2
-$          par(:,i)%the        = 0.45_r_2
-$          par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr
-$          par(:,i)%he         = -0.572_r_2
-$          par(:,i)%Ke         = 2.8e-5_r_2
-$          par(:,i)%lam        = 1._r_2/8.7_r_2
-$          par(:,i)%eta        = two/par(:,i)%lam + two + one
-$          par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he
-$          par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he
-$          par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he
-$          par(:,i)%clay       = 0.2_r_2
-$   ! special for Cumberland: set top 3 layers to sand
-$   do i=1,3
-$      par(:,i)%thw        = 0.175_r_2
-$      par(:,i)%thfc       = 0.255_r_2
-$      par(:,i)%the        = 0.420_r_2
-$      par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr
-$      par(:,i)%he         = -0.299_r_2
-$      par(:,i)%Ke         = 6.e-6_r_2
-$      par(:,i)%lam        = 1._r_2/7.12_r_2
-$      par(:,i)%eta        = two/par(:,i)%lam + two + one
-$      par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he
-$      par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he
-$      par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he
-$      par(:,i)%clay       = 0.27_r_2
-$
-$   enddo</p></td></tr>
+			   <tr><td><a href='../proc/setpar.html'>setpar</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/setpar_loetsch.html'>setpar_Loetsch</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../interface/setroots.html'>setroots</a></td><td><a href='../module/sli_roots.html'>sli_roots</a></td><td>Interface</td><td></td></tr>
 			   <tr><td><a href='../proc/setroots_1d.html'>setroots_1d</a></td><td><a href='../module/sli_roots.html'>sli_roots</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/setroots_2d.html'>setroots_2d</a></td><td><a href='../module/sli_roots.html'>sli_roots</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/setsol.html'>setsol</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/setx.html'>setx</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/simfire.html'>SIMFIRE</a></td><td><a href='../module/simfire_mod.html'>SIMFIRE_MOD</a></td><td>Subroutine</td><td><p>$     ! convert to daily burned area using GFED climatology
-$
-$      STATUS = NF90_OPEN(TRIM(SF%BA_CLIM_FILE), NF90_NOWRITE, F_ID)
-$      CALL HANDLE_ERR(STATUS, "Opening BA Clim File "//SF%BA_CLIM_FILE )
-$      STATUS = NF90_INQ_VARID(F_ID,'monthly_ba', V_ID)
-$      CALL HANDLE_ERR(STATUS, "Inquiring  var monthly_ba in "//SF%BA_CLIM_FILE )
-$
-$      STATUS = NF90_INQ_VARID(F_ID,'latitude', V_ID_lat)
-$      CALL HANDLE_ERR(STATUS, "Inquiring  var latitude in "//SF%BA_CLIM_FILE )
-$
-$      STATUS = NF90_INQ_VARID(F_ID,'longitude', V_ID_lon)
-$      CALL HANDLE_ERR(STATUS, "Inquiring  var longitude in "//SF%BA_CLIM_FILE )
-$
-$      STATUS = NF90_GET_VAR( F_ID, V_ID_lat, lat_BA, &amp;
-$               start=(/1/) )
-$      STATUS = NF90_GET_VAR( F_ID, V_ID_lon, lon_BA, &amp;
-$           start=(/1/)  )
-$
-$      ilat = MINLOC(ABS(lat_BA - SF%LAT(i)),DIM=1)
-$      ilon = MINLOC(ABS(lon_BA - SF%LON(i)),DIM=1)
-$
-$      STATUS = NF90_GET_VAR( F_ID, V_ID, monthly_ba, &amp;
-$           start=(/MM,ilon,ilat/) )
-$      CALL HANDLE_ERR(STATUS, "Reading direct from "//SF%BA_CLIM_FILE )</p></td></tr>
+			   <tr><td><a href='../proc/simfire.html'>SIMFIRE</a></td><td><a href='../module/simfire_mod.html'>SIMFIRE_MOD</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/sinbet.html'>sinbet</a></td><td><a href='../module/cable_radiation_module.html'>cable_radiation_module</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/site_get_co2_ndep.html'>site_GET_CO2_Ndep</a></td><td><a href='../module/cable_site.html'>CABLE_site</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/site_init.html'>site_INIT</a></td><td><a href='../module/cable_site.html'>CABLE_site</a></td><td>Subroutine</td><td><a href="../proc/site_init.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
@@ -1333,32 +1214,12 @@ CLN    CLOSE(91)</p><a href="../proc/spincasacnp.html" class="pull-right"><emph>
 			   <tr><td><a href='../proc/tri_2d.html'>tri_2d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/trimb.html'>trimb</a></td><td><a href='../module/cable_soil_snow_module.html'>cable_soil_snow_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/tthetalmax.html'>Tthetalmax</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
-			   <tr><td><a href='../proc/update_s_t.html'>update_s_t</a></td><td><a href='../module/sli_solve.html'>sli_solve</a></td><td>Subroutine</td><td><p>$                   if (h0(kk)&lt;zero .and. var(1)%isat==0 .and. (i==1)) then ! start negative pond correction
-$                      infil(kk)     = infil(kk)+h0(kk)
-$                      ! negative pond converted to loss of soil moisture in top two layers
-$                      S(1) = S(1) + h0(kk)/(dx(1)<em>par(1)%thre)</em> dx(1)/(dx(1)+dx(2))
-$                      deltaS(1) = h0(kk)/(dx(1)<em>par(1)%thre)</em> dx(1)/(dx(1)+dx(2))
-$                      ! adjust flux between layer 1 and layer 2
-$                      qlsig(1) = qlsig(1) + h0(kk)<em> dx(2)/(dx(1)+dx(2))/dt(kk)
-$                      deltaS(2) =   h0(kk)/(dx(2)</em>par(2)%thre)* dx(2)/(dx(1)+dx(2))
-$                      if (var(2)%isat.eq.0) then
-$                         dy(2) = dy(2) + deltaS(2)
-$                      else
-$                         dy(2) = deltaS(2)
-$                         var(2)%isat = 0
-$                      endif
-$
-$                      deltah0(kk) = -(h0(kk)-deltah0(kk)) ! whole pond lost (new change = - original pond height)
-$                      h0(kk) = zero  ! zero pond remaining
-$                   endif</p></td></tr>
+			   <tr><td><a href='../proc/update_s_t.html'>update_s_t</a></td><td><a href='../module/sli_solve.html'>sli_solve</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/update_sum_casa.html'>update_sum_casa</a></td><td><a href='../module/casavariable.html'>casavariable</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/update_unknowns.html'>update_unknowns</a></td><td><a href='../module/sli_solve.html'>sli_solve</a></td><td>Subroutine</td><td><p>vsnow(kk)%Qadv_vap = vsnow(kk)%Qadv_vap + &amp;</p></td></tr>
 			   <tr><td><a href='../proc/vcmax_np.html'>vcmax_np</a></td><td><a href='../module/casa_cnp_module.html'>casa_cnp_module</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/weight.html'>weight</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
-			   <tr><td><a href='../proc/wgen_daily_constants.html'>WGEN_DAILY_CONSTANTS</a></td><td><a href='../module/cable_weathergenerator.html'>CABLE_WEATHERGENERATOR</a></td><td>Subroutine</td><td><p>$write(71, "( 1000e16.6)") WG%DecRad
-$   write(72, "( 1000e16.6)") TAN(WG%DecRad)
-$   write(73, "( 1000e16.6)") TAN(WG%LatRad)
-$ write(74, "( 1000e16.6)")  WG%DayLength </p></td></tr>
+			   <tr><td><a href='../proc/wgen_daily_constants.html'>WGEN_DAILY_CONSTANTS</a></td><td><a href='../module/cable_weathergenerator.html'>CABLE_WEATHERGENERATOR</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/wgen_init.html'>WGEN_INIT</a></td><td><a href='../module/cable_weathergenerator.html'>CABLE_WEATHERGENERATOR</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/wgen_subdiurnal_met.html'>WGEN_SUBDIURNAL_MET</a></td><td><a href='../module/cable_weathergenerator.html'>CABLE_WEATHERGENERATOR</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/wgen_zero.html'>wgen_zero</a></td><td><a href='../module/cable_weathergenerator.html'>CABLE_WEATHERGENERATOR</a></td><td>Subroutine</td><td></td></tr>
@@ -1389,8 +1250,7 @@ $ write(74, "( 1000e16.6)")  WG%DayLength </p></td></tr>
 			   <tr><td><a href='../proc/worker_spincasacnp.html'>worker_spincasacnp</a></td><td><a href='../module/cable_mpiworker.html'>cable_mpiworker</a></td><td>Subroutine</td><td><p>CLN  character(len=99), intent(in)  :: fcnpspin
  vh_js !!
 CLN    CLOSE(91)</p><a href="../proc/worker_spincasacnp.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
-			   <tr><td><a href='../proc/write_blaze_output_nc.html'>WRITE_BLAZE_OUTPUT_NC</a></td><td><a href='../module/blaze_mod.html'>BLAZE_MOD</a></td><td>Subroutine</td><td><p>$    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 15), BLAZE%CAvgAnnRainf, start=(/ 1, CNT /), &amp;
-$         count=(/ mp, 1 /) )</p></td></tr>
+			   <tr><td><a href='../proc/write_blaze_output_nc.html'>WRITE_BLAZE_OUTPUT_NC</a></td><td><a href='../module/blaze_mod.html'>BLAZE_MOD</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/write_casa_dump.html'>write_casa_dump</a></td><td><a href='../module/casa_cable.html'>casa_cable</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/write_casa_output_nc.html'>write_casa_output_nc</a></td><td><a href='../module/casa_inout.html'>casa_inout</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/write_casa_restart_nc.html'>write_casa_restart_nc</a></td><td><a href='../module/casa_inout.html'>casa_inout</a></td><td>Subroutine</td><td></td></tr>
@@ -1399,16 +1259,7 @@ $         count=(/ mp, 1 /) )</p></td></tr>
 			   <tr><td><a href='../proc/write_default_params.html'>write_default_params</a></td><td><a href='../module/cable_param_module.html'>cable_param_module</a></td><td>Subroutine</td><td><p>vh_js !!
 vh_js !!</p><a href="../proc/write_default_params.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/write_luc_output_grid_nc.html'>WRITE_LUC_OUTPUT_GRID_NC</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/write_luc_output_nc.html'>WRITE_LUC_OUTPUT_NC</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td><p>$
-$       DO i = 1, SIZE(A3)
-$          STATUS = NF90_def_var(FILE_ID,TRIM(A3(i)) ,NF90_FLOAT,(/land_ID,hist_ID,t_ID/),VID3(i))
-$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-$       END DO
-$
-$       DO i = 1, SIZE(A3)
-$          STATUS = NF90_def_var(FILE_ID,TRIM(AI3(i)) ,NF90_INT,(/land_ID,hist_ID,t_ID/),VIDI3(i))
-$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-$       END DO</p></td></tr>
+			   <tr><td><a href='../proc/write_luc_output_nc.html'>WRITE_LUC_OUTPUT_NC</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/write_luc_restart_nc.html'>WRITE_LUC_RESTART_NC</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../interface/write_netcdf_casa_var.html'>write_netcdf_casa_var</a></td><td><a href='../module/casavariable.html'>casavariable</a></td><td>Interface</td><td></td></tr>
 			   <tr><td><a href='../proc/write_netcdf_casabal.html'>write_netcdf_casabal</a></td><td><a href='../module/casavariable.html'>casavariable</a></td><td>Subroutine</td><td></td></tr>

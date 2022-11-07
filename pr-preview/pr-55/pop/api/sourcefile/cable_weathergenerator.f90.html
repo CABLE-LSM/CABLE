@@ -423,10 +423,10 @@
 <a id="ln-266" name="ln-266" href="#ln-266"></a><span class="c">! TempMaxDay                                                        Tx</span>
 <a id="ln-267" name="ln-267" href="#ln-267"></a><span class="c">! TempMinDayNext                                                    Tp</span>
 <a id="ln-268" name="ln-268" href="#ln-268"></a><span class="c">! TempMaxDayPrev  </span>
-<a id="ln-269" name="ln-269" href="#ln-269"></a><span class="c">!!$write(71, &quot;( 1000e16.6)&quot;) WG%DecRad</span>
-<a id="ln-270" name="ln-270" href="#ln-270"></a><span class="c">!!$   write(72, &quot;( 1000e16.6)&quot;) TAN(WG%DecRad)</span>
-<a id="ln-271" name="ln-271" href="#ln-271"></a><span class="c">!!$   write(73, &quot;( 1000e16.6)&quot;) TAN(WG%LatRad)</span>
-<a id="ln-272" name="ln-272" href="#ln-272"></a><span class="c">!!$ write(74, &quot;( 1000e16.6)&quot;)  WG%DayLength </span>
+<a id="ln-269" name="ln-269" href="#ln-269"></a><span class="c">!$write(71, &quot;( 1000e16.6)&quot;) WG%DecRad</span>
+<a id="ln-270" name="ln-270" href="#ln-270"></a><span class="c">!$   write(72, &quot;( 1000e16.6)&quot;) TAN(WG%DecRad)</span>
+<a id="ln-271" name="ln-271" href="#ln-271"></a><span class="c">!$   write(73, &quot;( 1000e16.6)&quot;) TAN(WG%LatRad)</span>
+<a id="ln-272" name="ln-272" href="#ln-272"></a><span class="c">!$ write(74, &quot;( 1000e16.6)&quot;)  WG%DayLength </span>
 <a id="ln-273" name="ln-273" href="#ln-273"></a><span class="k">WHERE</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">WG</span><span class="p">%</span><span class="n">DayLength</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="mf">0.01_sp</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-274" name="ln-274" href="#ln-274"></a><span class="w">   </span><span class="c">! Polar night</span>
 <a id="ln-275" name="ln-275" href="#ln-275"></a><span class="w">   </span><span class="n">WG</span><span class="p">%</span><span class="n">TimeSunrise</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mf">9._sp</span><span class="w">              </span><span class="c">! Hn</span>

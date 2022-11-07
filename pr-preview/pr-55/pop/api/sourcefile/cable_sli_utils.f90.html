@@ -679,16 +679,16 @@
 <a id="ln-522" name="ln-522" href="#ln-522"></a><span class="w">             </span><span class="n">dEdTs</span><span class="o">=</span><span class="w"> </span><span class="n">zero</span><span class="w"></span>
 <a id="ln-523" name="ln-523" href="#ln-523"></a><span class="w">             </span><span class="c">!   write(*,*) &quot;Epot3&quot;, Tsurface, vmet%Ta, Epot, Hpot, vmet%rbh</span>
 <a id="ln-524" name="ln-524" href="#ln-524"></a><span class="w">          </span><span class="k">endif</span><span class="w"></span>
-<a id="ln-525" name="ln-525" href="#ln-525"></a><span class="c">!!$          elseif (abs(Tsurface - vmet%Ta).gt. 20) then</span>
-<a id="ln-526" name="ln-526" href="#ln-526"></a><span class="c">!!$             Tsurface = min(vmet%Ta, 0.0)</span>
-<a id="ln-527" name="ln-527" href="#ln-527"></a><span class="c">!!$             Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - &amp; ! m3 H2O (liq) m-3 (air)</span>
-<a id="ln-528" name="ln-528" href="#ln-528"></a><span class="c">!!$                  vmet%cva)*rhow*lambdas/vmet%rbw</span>
-<a id="ln-529" name="ln-529" href="#ln-529"></a><span class="c">!!$             dEdTsoil = zero</span>
-<a id="ln-530" name="ln-530" href="#ln-530"></a><span class="c">!!$             dGdTsoil = zero</span>
-<a id="ln-531" name="ln-531" href="#ln-531"></a><span class="c">!!$             Hpot = rhocp*(Tsurface - vmet%Ta)/vmet%rbh</span>
-<a id="ln-532" name="ln-532" href="#ln-532"></a><span class="c">!!$             Gpot = vmet%Rn-vmet%Rnsw - Hpot - Epot</span>
-<a id="ln-533" name="ln-533" href="#ln-533"></a><span class="c">!!$             dEdTs= zero</span>
-<a id="ln-534" name="ln-534" href="#ln-534"></a><span class="c">!!$           endif</span>
+<a id="ln-525" name="ln-525" href="#ln-525"></a><span class="c">!$          elseif (abs(Tsurface - vmet%Ta).gt. 20) then</span>
+<a id="ln-526" name="ln-526" href="#ln-526"></a><span class="c">!$             Tsurface = min(vmet%Ta, 0.0)</span>
+<a id="ln-527" name="ln-527" href="#ln-527"></a><span class="c">!$             Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - &amp; ! m3 H2O (liq) m-3 (air)</span>
+<a id="ln-528" name="ln-528" href="#ln-528"></a><span class="c">!$                  vmet%cva)*rhow*lambdas/vmet%rbw</span>
+<a id="ln-529" name="ln-529" href="#ln-529"></a><span class="c">!$             dEdTsoil = zero</span>
+<a id="ln-530" name="ln-530" href="#ln-530"></a><span class="c">!$             dGdTsoil = zero</span>
+<a id="ln-531" name="ln-531" href="#ln-531"></a><span class="c">!$             Hpot = rhocp*(Tsurface - vmet%Ta)/vmet%rbh</span>
+<a id="ln-532" name="ln-532" href="#ln-532"></a><span class="c">!$             Gpot = vmet%Rn-vmet%Rnsw - Hpot - Epot</span>
+<a id="ln-533" name="ln-533" href="#ln-533"></a><span class="c">!$             dEdTs= zero</span>
+<a id="ln-534" name="ln-534" href="#ln-534"></a><span class="c">!$           endif</span>
 <a id="ln-535" name="ln-535" href="#ln-535"></a><span class="w">          </span><span class="n">qevap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Epot</span><span class="o">/</span><span class="p">(</span><span class="n">rhow</span><span class="o">*</span><span class="n">lambdas</span><span class="p">)</span><span class="w"></span>
 <a id="ln-536" name="ln-536" href="#ln-536"></a><span class="w">          </span><span class="n">qTb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">dEdTsoil</span><span class="o">/</span><span class="p">(</span><span class="n">thousand</span><span class="o">*</span><span class="n">lambdas</span><span class="p">)</span><span class="w"></span>
 <a id="ln-537" name="ln-537" href="#ln-537"></a><span class="w">       </span><span class="k">endif</span>
@@ -1934,16 +1934,16 @@
 <a id="ln-1777" name="ln-1777" href="#ln-1777"></a>
 <a id="ln-1778" name="ln-1778" href="#ln-1778"></a><span class="w">       </span><span class="c">! add advective terms</span>
 <a id="ln-1779" name="ln-1779" href="#ln-1779"></a><span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">advection</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"></span>
-<a id="ln-1780" name="ln-1780" href="#ln-1780"></a><span class="c">!!$                   if (q(i) &gt; zero) then</span>
-<a id="ln-1781" name="ln-1781" href="#ln-1781"></a><span class="c">!!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))</span>
-<a id="ln-1782" name="ln-1782" href="#ln-1782"></a><span class="c">!!$                    else</span>
-<a id="ln-1783" name="ln-1783" href="#ln-1783"></a><span class="c">!!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))</span>
-<a id="ln-1784" name="ln-1784" href="#ln-1784"></a><span class="c">!!$                    endif</span>
-<a id="ln-1785" name="ln-1785" href="#ln-1785"></a><span class="c">!!$                    qadv(i) = rhow*cswat*q(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))</span>
-<a id="ln-1786" name="ln-1786" href="#ln-1786"></a><span class="c">!!$                    qadvya(i) =  rhow*cswat*qya(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))</span>
-<a id="ln-1787" name="ln-1787" href="#ln-1787"></a><span class="c">!!$                    qadvyb(i) =  rhow*cswat*qyb(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))</span>
-<a id="ln-1788" name="ln-1788" href="#ln-1788"></a><span class="c">!!$                    qadvTa(i) =  rhow*cswat*q(i)*w</span>
-<a id="ln-1789" name="ln-1789" href="#ln-1789"></a><span class="c">!!$                    qadvTb(i) =  rhow*cswat*q(i)*(one-w)</span>
+<a id="ln-1780" name="ln-1780" href="#ln-1780"></a><span class="c">!$                   if (q(i) &gt; zero) then</span>
+<a id="ln-1781" name="ln-1781" href="#ln-1781"></a><span class="c">!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))</span>
+<a id="ln-1782" name="ln-1782" href="#ln-1782"></a><span class="c">!$                    else</span>
+<a id="ln-1783" name="ln-1783" href="#ln-1783"></a><span class="c">!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))</span>
+<a id="ln-1784" name="ln-1784" href="#ln-1784"></a><span class="c">!$                    endif</span>
+<a id="ln-1785" name="ln-1785" href="#ln-1785"></a><span class="c">!$                    qadv(i) = rhow*cswat*q(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))</span>
+<a id="ln-1786" name="ln-1786" href="#ln-1786"></a><span class="c">!$                    qadvya(i) =  rhow*cswat*qya(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))</span>
+<a id="ln-1787" name="ln-1787" href="#ln-1787"></a><span class="c">!$                    qadvyb(i) =  rhow*cswat*qyb(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))</span>
+<a id="ln-1788" name="ln-1788" href="#ln-1788"></a><span class="c">!$                    qadvTa(i) =  rhow*cswat*q(i)*w</span>
+<a id="ln-1789" name="ln-1789" href="#ln-1789"></a><span class="c">!$                    qadvTb(i) =  rhow*cswat*q(i)*(one-w)</span>
 <a id="ln-1790" name="ln-1790" href="#ln-1790"></a><span class="w">          </span><span class="n">Tqw</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="nb">merge</span><span class="p">(</span><span class="n">T</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">T</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">q</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">&gt;</span><span class="n">zero</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="n">zero</span><span class="w"></span>
 <a id="ln-1791" name="ln-1791" href="#ln-1791"></a>
 <a id="ln-1792" name="ln-1792" href="#ln-1792"></a><span class="w">          </span><span class="n">dTqwdTa</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">merge</span><span class="p">(</span><span class="n">one</span><span class="p">,</span><span class="w"> </span><span class="n">zero</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">q</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">&gt;</span><span class="n">zero</span><span class="p">))</span><span class="w"></span>
@@ -3022,37 +3022,37 @@
 <a id="ln-2865" name="ln-2865" href="#ln-2865"></a><span class="w">          </span><span class="n">par</span><span class="p">(:,</span><span class="n">i</span><span class="p">)%</span><span class="n">phiSe</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">par</span><span class="p">(:,</span><span class="n">i</span><span class="p">)%</span><span class="n">eta</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">one</span><span class="o">/</span><span class="n">par</span><span class="p">(:,</span><span class="n">i</span><span class="p">)%</span><span class="n">lam</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">par</span><span class="p">(:,</span><span class="n">i</span><span class="p">)%</span><span class="n">phie</span><span class="w">    </span><span class="c">! dphi/dS at he</span>
 <a id="ln-2866" name="ln-2866" href="#ln-2866"></a><span class="w">          </span><span class="n">par</span><span class="p">(:,</span><span class="n">i</span><span class="p">)%</span><span class="n">clay</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="mf">0.67_r_2</span><span class="w"></span>
 <a id="ln-2867" name="ln-2867" href="#ln-2867"></a>
-<a id="ln-2868" name="ln-2868" href="#ln-2868"></a><span class="c">!!$          par(:,i)%thw        = 0.178_r_2</span>
-<a id="ln-2869" name="ln-2869" href="#ln-2869"></a><span class="c">!!$          par(:,i)%thfc       = 0.367_r_2</span>
-<a id="ln-2870" name="ln-2870" href="#ln-2870"></a><span class="c">!!$          par(:,i)%the        = 0.45_r_2</span>
-<a id="ln-2871" name="ln-2871" href="#ln-2871"></a><span class="c">!!$          par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr</span>
-<a id="ln-2872" name="ln-2872" href="#ln-2872"></a><span class="c">!!$          par(:,i)%he         = -0.572_r_2</span>
-<a id="ln-2873" name="ln-2873" href="#ln-2873"></a><span class="c">!!$          par(:,i)%Ke         = 2.8e-5_r_2</span>
-<a id="ln-2874" name="ln-2874" href="#ln-2874"></a><span class="c">!!$          par(:,i)%lam        = 1._r_2/8.7_r_2</span>
-<a id="ln-2875" name="ln-2875" href="#ln-2875"></a><span class="c">!!$          par(:,i)%eta        = two/par(:,i)%lam + two + one</span>
-<a id="ln-2876" name="ln-2876" href="#ln-2876"></a><span class="c">!!$          par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he</span>
-<a id="ln-2877" name="ln-2877" href="#ln-2877"></a><span class="c">!!$          par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he</span>
-<a id="ln-2878" name="ln-2878" href="#ln-2878"></a><span class="c">!!$          par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he</span>
-<a id="ln-2879" name="ln-2879" href="#ln-2879"></a><span class="c">!!$          par(:,i)%clay       = 0.2_r_2</span>
+<a id="ln-2868" name="ln-2868" href="#ln-2868"></a><span class="c">!$          par(:,i)%thw        = 0.178_r_2</span>
+<a id="ln-2869" name="ln-2869" href="#ln-2869"></a><span class="c">!$          par(:,i)%thfc       = 0.367_r_2</span>
+<a id="ln-2870" name="ln-2870" href="#ln-2870"></a><span class="c">!$          par(:,i)%the        = 0.45_r_2</span>
+<a id="ln-2871" name="ln-2871" href="#ln-2871"></a><span class="c">!$          par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr</span>
+<a id="ln-2872" name="ln-2872" href="#ln-2872"></a><span class="c">!$          par(:,i)%he         = -0.572_r_2</span>
+<a id="ln-2873" name="ln-2873" href="#ln-2873"></a><span class="c">!$          par(:,i)%Ke         = 2.8e-5_r_2</span>
+<a id="ln-2874" name="ln-2874" href="#ln-2874"></a><span class="c">!$          par(:,i)%lam        = 1._r_2/8.7_r_2</span>
+<a id="ln-2875" name="ln-2875" href="#ln-2875"></a><span class="c">!$          par(:,i)%eta        = two/par(:,i)%lam + two + one</span>
+<a id="ln-2876" name="ln-2876" href="#ln-2876"></a><span class="c">!$          par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he</span>
+<a id="ln-2877" name="ln-2877" href="#ln-2877"></a><span class="c">!$          par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he</span>
+<a id="ln-2878" name="ln-2878" href="#ln-2878"></a><span class="c">!$          par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he</span>
+<a id="ln-2879" name="ln-2879" href="#ln-2879"></a><span class="c">!$          par(:,i)%clay       = 0.2_r_2</span>
 <a id="ln-2880" name="ln-2880" href="#ln-2880"></a><span class="w">       </span><span class="k">enddo</span>
 <a id="ln-2881" name="ln-2881" href="#ln-2881"></a><span class="k">    endif</span><span class="w"></span>
 <a id="ln-2882" name="ln-2882" href="#ln-2882"></a>
-<a id="ln-2883" name="ln-2883" href="#ln-2883"></a><span class="c">!!$   ! special for Cumberland: set top 3 layers to sand</span>
-<a id="ln-2884" name="ln-2884" href="#ln-2884"></a><span class="c">!!$   do i=1,3</span>
-<a id="ln-2885" name="ln-2885" href="#ln-2885"></a><span class="c">!!$      par(:,i)%thw        = 0.175_r_2</span>
-<a id="ln-2886" name="ln-2886" href="#ln-2886"></a><span class="c">!!$      par(:,i)%thfc       = 0.255_r_2</span>
-<a id="ln-2887" name="ln-2887" href="#ln-2887"></a><span class="c">!!$      par(:,i)%the        = 0.420_r_2</span>
-<a id="ln-2888" name="ln-2888" href="#ln-2888"></a><span class="c">!!$      par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr</span>
-<a id="ln-2889" name="ln-2889" href="#ln-2889"></a><span class="c">!!$      par(:,i)%he         = -0.299_r_2</span>
-<a id="ln-2890" name="ln-2890" href="#ln-2890"></a><span class="c">!!$      par(:,i)%Ke         = 6.e-6_r_2</span>
-<a id="ln-2891" name="ln-2891" href="#ln-2891"></a><span class="c">!!$      par(:,i)%lam        = 1._r_2/7.12_r_2</span>
-<a id="ln-2892" name="ln-2892" href="#ln-2892"></a><span class="c">!!$      par(:,i)%eta        = two/par(:,i)%lam + two + one</span>
-<a id="ln-2893" name="ln-2893" href="#ln-2893"></a><span class="c">!!$      par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he</span>
-<a id="ln-2894" name="ln-2894" href="#ln-2894"></a><span class="c">!!$      par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he</span>
-<a id="ln-2895" name="ln-2895" href="#ln-2895"></a><span class="c">!!$      par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he</span>
-<a id="ln-2896" name="ln-2896" href="#ln-2896"></a><span class="c">!!$      par(:,i)%clay       = 0.27_r_2</span>
-<a id="ln-2897" name="ln-2897" href="#ln-2897"></a><span class="c">!!$</span>
-<a id="ln-2898" name="ln-2898" href="#ln-2898"></a><span class="c">!!$   enddo</span>
+<a id="ln-2883" name="ln-2883" href="#ln-2883"></a><span class="c">!$   ! special for Cumberland: set top 3 layers to sand</span>
+<a id="ln-2884" name="ln-2884" href="#ln-2884"></a><span class="c">!$   do i=1,3</span>
+<a id="ln-2885" name="ln-2885" href="#ln-2885"></a><span class="c">!$      par(:,i)%thw        = 0.175_r_2</span>
+<a id="ln-2886" name="ln-2886" href="#ln-2886"></a><span class="c">!$      par(:,i)%thfc       = 0.255_r_2</span>
+<a id="ln-2887" name="ln-2887" href="#ln-2887"></a><span class="c">!$      par(:,i)%the        = 0.420_r_2</span>
+<a id="ln-2888" name="ln-2888" href="#ln-2888"></a><span class="c">!$      par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr</span>
+<a id="ln-2889" name="ln-2889" href="#ln-2889"></a><span class="c">!$      par(:,i)%he         = -0.299_r_2</span>
+<a id="ln-2890" name="ln-2890" href="#ln-2890"></a><span class="c">!$      par(:,i)%Ke         = 6.e-6_r_2</span>
+<a id="ln-2891" name="ln-2891" href="#ln-2891"></a><span class="c">!$      par(:,i)%lam        = 1._r_2/7.12_r_2</span>
+<a id="ln-2892" name="ln-2892" href="#ln-2892"></a><span class="c">!$      par(:,i)%eta        = two/par(:,i)%lam + two + one</span>
+<a id="ln-2893" name="ln-2893" href="#ln-2893"></a><span class="c">!$      par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he</span>
+<a id="ln-2894" name="ln-2894" href="#ln-2894"></a><span class="c">!$      par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he</span>
+<a id="ln-2895" name="ln-2895" href="#ln-2895"></a><span class="c">!$      par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he</span>
+<a id="ln-2896" name="ln-2896" href="#ln-2896"></a><span class="c">!$      par(:,i)%clay       = 0.27_r_2</span>
+<a id="ln-2897" name="ln-2897" href="#ln-2897"></a><span class="c">!$</span>
+<a id="ln-2898" name="ln-2898" href="#ln-2898"></a><span class="c">!$   enddo</span>
 <a id="ln-2899" name="ln-2899" href="#ln-2899"></a>
 <a id="ln-2900" name="ln-2900" href="#ln-2900"></a>
 <a id="ln-2901" name="ln-2901" href="#ln-2901"></a><span class="w">  </span><span class="k">END SUBROUTINE </span><span class="n">setpar</span><span class="w"></span>

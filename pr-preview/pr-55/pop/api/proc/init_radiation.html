@@ -135,11 +135,7 @@
     </div>
 
 
-    <p>$     rad%rhocdf(:,ictr) = rhoch(:,ictr) * &amp;
-$                          ( C%GAUSS_W(1) * xk(:,1) / ( xk(:,1) + rad%extkd(:) )&amp;
-$                          + C%GAUSS_W(2) * xk(:,2) / ( xk(:,2) + rad%extkd(:) )&amp;
-$                          + C%GAUSS_W(3) * xk(:,3) / ( xk(:,3) + rad%extkd(:) ) )
- Ticket #147  (vh)
+    <p>Ticket #147  (vh)
  the above line is incorrect, as it is missing a factor of 2 in the numerator.
  (See equation 6.21 from Goudriaan &amp; van Laar 1994)
  The correct version below doubles canopy reflectance for diffuse radiation.

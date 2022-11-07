@@ -123,35 +123,6 @@
     <h2>public subroutine BLAZE_TURNOVER(AB, CPLANT_g, CPLANT_w, AGL_g, AGL_w, BGL_g, BGL_w, shootfrac, TO, BT, BURNMODE, POP_TO)</h2>
     
 
-    <p>$  ! Grass fuels burned by area
-$  CPLANT_g (LEAF)  = CPLANT_g (LEAF) * (1. - AB)
-$  AGL_g(METB)      = AGL_g(METB)     * (1. - AB)
-$  AGL_g(STR )      = AGL_g(STR )     * (1. - AB)
-$
-$  ! Leaves
-$  CPLANT_w (LEAF)  = &amp;
-$       CPLANT_w (LEAF) - (MTO(LEAF)%TO_ATM + MTO(LEAF)%TO_STR)
-$  ! Wood
-$  CPLANT_w (WOOD)  = &amp;
-$       CPLANT_w (WOOD) - (MTO(WOOD)%TO_ATM + MTO(WOOD)%TO_STR + MTO(WOOD)%TO_CWD)
-$  ! Fine roots
-$  CPLANT_w (FROOT) = &amp;
-$       CPLANT_w (FROOT)- (MTO(FROOT)%TO_ATM+ MTO(FROOT)%TO_STR)
-$
-$  ! Litter above ground
-$  AGL_w(METB)      = AGL_w(METB) - MTO(MLIT)%TO_ATM
-$  AGL_w(STR )      = AGL_w(STR ) - MTO(SLIT)%TO_ATM + MTO(WOOD)%TO_STR + &amp;
-$                     MTO(LEAF)%TO_STR
-$  AGL_w(CWD )      = AGL_w(CWD ) - MTO(CLIT)%TO_ATM + MTO(WOOD)%TO_CWD * shootfrac
-$
-$  ! Litter below ground
-$  BGL_w(STR ) = BGL_w(STR ) + MTO(FROOT)%TO_STR
-$  BGL_w(CWD ) = BGL_w(CWD ) + MTO(WOOD)%TO_CWD * (1. - shootfrac)
-$
-$  IF ( ANY ( AGL_w .LT. 0. )) THEN
-$     WRITE(<em>,</em>)"CLIITE_W &lt; 0 ", AGL_w
-$     STOP 1
-$  ENDIF</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

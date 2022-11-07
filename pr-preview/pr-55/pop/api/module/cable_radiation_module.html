@@ -153,8 +153,8 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
     <li><a href='../module/cable_data_module.html'>cable_data_module</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
   </ul>
       </li>
       </ul>
@@ -296,11 +296,7 @@
   <div class="panel-heading codesum"><span class="anchor" id="proc-init_radiation"></span><h3>public subroutine <a href='../proc/init_radiation.html'>init_radiation</a>(met, rad, veg, canopy)</h3></div>
   <div class="panel-body">
        
-<p>$     rad%rhocdf(:,ictr) = rhoch(:,ictr) * &amp;
-$                          ( C%GAUSS_W(1) * xk(:,1) / ( xk(:,1) + rad%extkd(:) )&amp;
-$                          + C%GAUSS_W(2) * xk(:,2) / ( xk(:,2) + rad%extkd(:) )&amp;
-$                          + C%GAUSS_W(3) * xk(:,3) / ( xk(:,3) + rad%extkd(:) ) )
- Ticket #147  (vh)
+<p>Ticket #147  (vh)
  the above line is incorrect, as it is missing a factor of 2 in the numerator.
  (See equation 6.21 from Goudriaan &amp; van Laar 1994)
  The correct version below doubles canopy reflectance for diffuse radiation.
