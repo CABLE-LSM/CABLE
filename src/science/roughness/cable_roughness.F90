@@ -55,36 +55,46 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 ! \(z_{0,minPF}\) = 1E-4m which are the minimum values for the roughness
 ! length in the cases of bare soil and permanent ice land points (respectively)
 !
+! &nbsp
 !  The MODULE is organised as a single SUBROUTINE ruff_resist which contains
 !  IF/THEN cases in two areas depending on
 !
 !  1. Whether the soil model used is SLI or the default (soilsnow)
 !  2. Whether the land point is vegetated (LAI > LAI_THRESH) or not
 !
+! &nbsp
 ! The principal outputs from the MODULE are
 !
-!  * heights (above the displacement height) for the forcing meteorology in m
+!  * heights (above the displacement height) for the forcing meteorology, in m
 !    (rough%zref_tq and rough%zref_uv)
-!  * current values for canopy height and leaf area accounting for presence of snow
-!    (rough%hruff and rough%vlaiw)
-!  * aerodynamic roughness length for soil and snow in m (rough%z0soil, rough%z0ssoilsn)
-!  * aerodynamic roughness length for surface (canopy+soil+snow) in m (rough%z0m)
-!  * displacement height of surface (if a canopy) in m (rough%disp)
-!  * depth of roughness sublayer in m (rough%zruffs)
-!  * ratio of friction velocity to wind speed at canopy top (rough%usuh)
-!  * extinction coefficient for wind speed profile in canopy, \(c_{0}\), (rough%coexp)
-!    where within the canopy wind speed at height \(z\) is given by
-!    \( U(z) = U_{h} \exp\{ c_{0} (z-h_c) \} \)
-!  * *normalized aerodynamic resistances* for the turbulent transfer of scalars
-!    across two layers
-!      - soil/snow surface to the displacement height (rough%rt0us)
-!      - displacement height to the reference level (rough%rt1us)
+!  * current values for canopy height, in m, and leaf area, in m2/m2,
+!    accounting for presence of snow (rough%hruff and rough%vlaiw)
+!  * the aerodynamic roughness length for soil and snow, in m
+!    (rough%z0soil, rough%z0ssoilsn)
+!  * the aerodynamic roughness length for the surface (canopy+soil+snow), in m
+!    (rough%z0m)
+!  * the displacement height of the surface (if vegetated, =0.0 if not), in m
+!    (rough%disp)
+!  * the depth of roughness sublayer, in m (if vegetated, rough%zruffs)
+!  * the extinction coefficient for the wind speed profile within the canopy, \(c_{0}\),
+!    in units of per m (rough%coexp). \(c_{0}\) is defined to be the coefficient
+!    within an expontial profile, i.e.
+!    the wind speed at height \(z\) above the ground within a canopy of height \(h_c\)
+!    is given by \( U(z) = U_{h} \exp\{ c_{0} (z-h_c) \} \) where \(U_h\)
+!    is the wind speed at canopy top.
+!  * the ratio of the friction velocity, \(u_*\), to the wind speed at canopy top
+!    (rough%usuh)
+!  * values for the *normalized* aerodynamic resistances for the turbulent transfer
+!    of scalars across two layers of atmosphere
+!      - from the soil/snow surface to the displacement height (rough%rt0us)
+!      - from the displacement height to the reference level (rough%rt1us)
 !
-! The current time step aerodynamic resistances are later evaluated by multiplying
+! The current time step aerodynamic resistances are evaluated later by multiplying
 ! the *normalized resistances* by the current time step's friction velocity.
 ! rough%rt1us is evaluated in three subparts (%rt1usa, %rt1usb, and %rt1usc).
-! Each of the normalized resistances are given by theoretical formulae in the references
-! and the third of these terms (rough%rt1usc) is evaluated in the canopy MODULE.
+! Each of the normalized resistances are given by theoretical formulae as given by
+! the references and the third of these terms (rough%rt1usc) is evaluated in
+! the canopy MODULE.
 !
 
 
