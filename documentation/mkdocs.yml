@@ -53,6 +53,7 @@ nav:
   - About: index.md
   - User Guide:
     - Tutorial:
+      - Uber Quick Guide: user_guide/tutorial/uber_quick_guide.md
       - Install and compilation: user_guide/tutorial/compilation.md
       - Understand the configuration: user_guide/tutorial/configuration_desc.md
       - Run an experiment: user_guide/tutorial/run_cable.md
