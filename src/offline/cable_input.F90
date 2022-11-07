@@ -2569,6 +2569,7 @@ CONTAINS
     ! soil type to be forced from the met file (this is more complicated than
     ! simply uncommenting the iveg and isoil reads from the met file - it
     ! requires the actual parameter values to be written after that read).
+    !
     ! Documentation here is a simple order of processes:
 
     ! Input variables not listed:
@@ -2857,7 +2858,7 @@ CONTAINS
   !==============================================================================
 
   SUBROUTINE get_parameters_met(soil,veg,bgc,rough,completeSet)
-    !* **get_parameters_met** searches for CABLE parameters in the met focing
+    !* **get_parameters_met** searches for CABLE parameters in the met forcing
     ! file, and if it finds any, uses these values to overwrite the values that
     ! have already been loaded from the default parameter loading and/or the
     ! restart file.
