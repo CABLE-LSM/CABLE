@@ -4,7 +4,6 @@
 ! Written by Vanessa Haverd, Ben Smith and Lars Nieradzik
 ! Report Bugs to Vanessa.Haverd@csiro.au
 
-
 !CITATION
 !--------------------------------------------------------
 !When referring to this code in publications, please cite:
