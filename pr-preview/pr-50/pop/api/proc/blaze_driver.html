@@ -128,42 +128,20 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-    <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
     <li><a href='../module/simfire_mod.html'>SIMFIRE_MOD</a></li>
-    <li>POPMODULE</li>
-    <li><a href='../module/casavariable.html'>casavariable</a></li>
-    <li>POP_TYPES</li>
+    <li><a href='../module/popmodule.html'>POPModule</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+    <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
+    <li><a href='../module/pop_types.html'>POP_Types</a></li>
     <li><a href='../module/blaze_mod.html'>BLAZE_MOD</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+    <li><a href='../module/casavariable.html'>casavariable</a></li>
   </ul>
       </li>
       </ul>
     </div>
 
 
-    <p>$  IF (CALL1) THEN
-$     StartYear = CurYear
-$     CALL1 = .FALSE.
-$  ENDIF</p>
-<p>$  ! set heights at which tree mortality is calculated
-$  nbins = mheights
-$  DO i=1,nbins
-$     casaflux%fire_mortality_vs_height(:,i,1) = real(BIN_POWER**i, r_2)
-$  ENDDO</p>
-<p>$        IF ( casamet%lnonwood(patch_index) == 0 ) THEN ! Here woody patches
-$           DO nh = 1,mheights
-$              hgt = real(casaflux%fire_mortality_vs_height(patch_index,nh,1))
-$              casaflux%fire_mortality_vs_height(patch_index,nh,2) = &amp;
-$                   (1._r_2 - real(p_surv_OzSavanna(hgt,BLAZE%FLI(i)),r_2)) * BLAZE%AB(i) !*
-$
-$
-$              ! (1._r_2 - casaflux%fire_mortality_vs_height(patch_index,nh,2))  &amp;
-$
-$           ENDDO
-$        ENDIF
-$  CALL ADJUST_POP_FOR_FIRE(pop,int(veg%disturbance_interval(Iw,:), i4b), &amp;
-$       casaflux%fire_mortality_vs_height(Iw,:,:))</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
@@ -236,7 +214,7 @@ $       casaflux%fire_mortality_vs_height(Iw,:,:))</p>
   <td><strong>CTLFLAG</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-pop~10"></span>type(POP_TYPE),</td>
+  <td><span class="anchor" id="variable-pop~29"></span>type(<a href='../type/pop_type.html'>POP_TYPE</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
   <td><strong>POP</strong></td><td></td>

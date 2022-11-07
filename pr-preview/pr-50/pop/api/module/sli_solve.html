@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 6.1% of total for modules and submodules.">2977 statements</a>
+    title=" 5.4% of total for modules and submodules.">2967 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_sli_solve.F90"> Source File</a></li>
   </ul>
@@ -118,7 +118,6 @@
     <div class="list-group">
       <a class="list-group-item" href="../module/sli_solve.html#variable-nless">nless</a>
       <a class="list-group-item" href="../module/sli_solve.html#variable-n_noconverge">n_noconverge</a>
-      <a class="list-group-item" href="../module/sli_solve.html#variable-ierr">ierr</a>
     </div>
   </div>
 </div>
@@ -158,12 +157,11 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
-    <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
-    <li><a href='../module/sli_numbers.html'>sli_numbers</a></li>
-    <li>sli_utils</li>
-    <li><a href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm">mpi</a></li>
     <li><a href='../module/mo_utils.html'>mo_utils</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+    <li><a href='../module/sli_numbers.html'>sli_numbers</a></li>
+    <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
+    <li><a href='../module/sli_utils.html'>sli_utils</a></li>
   </ul>
       </li>
       </ul>
@@ -181,7 +179,6 @@
     <div class="list-group">
       <a class="list-group-item" href="../module/sli_solve.html#variable-nless">nless</a>
       <a class="list-group-item" href="../module/sli_solve.html#variable-n_noconverge">n_noconverge</a>
-      <a class="list-group-item" href="../module/sli_solve.html#variable-ierr">ierr</a>
     </div>
   </div>
 </div>
@@ -221,11 +218,6 @@
   <td><span class="anchor" id="variable-n_noconverge"></span>integer(kind=i_d),</td>
 <td>private,</td>  <td>DIMENSION(:), ALLOCATABLE</td><td>::</td>
   <td><strong>n_noconverge</strong></td><td></td><td></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ierr"></span>integer,</td>
-<td>private</td>  <td></td><td>::</td>
-  <td><strong>ierr</strong></td><td></td><td></td><td></td>
 </tr>
 </tbody>
 </table>
@@ -2301,26 +2293,7 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-update_s_t"></span><h3>private subroutine <a href='../proc/update_s_t.html'>update_s_t</a>(mp, n, dx, h0, S, thetai, Tsoil, infil, nsteps, var, par, qlsig, again, ih0, ns, dt, sig, dy, qhsig, deltaS, dTsoil, dJcol_latent_S, dJcol_latent_T, dJcol_sensible, deltaJ_latent_S, deltaJ_latent_T, deltaJ_sensible_S, deltaJ_sensible_T, qrunoff, tmp1d1, tmp1d2, tmp1d3, tmp1d4, deltah0, Tfreezing, dtdT, LHS_h, i, j, k, kk, theta, cp, hice, hice_tmp, J0, tmp1, tmp2, h_ex, wpi)</h3></div>
   <div class="panel-body">
-       
-<p>$                   if (h0(kk)&lt;zero .and. var(1)%isat==0 .and. (i==1)) then ! start negative pond correction
-$                      infil(kk)     = infil(kk)+h0(kk)
-$                      ! negative pond converted to loss of soil moisture in top two layers
-$                      S(1) = S(1) + h0(kk)/(dx(1)<em>par(1)%thre)</em> dx(1)/(dx(1)+dx(2))
-$                      deltaS(1) = h0(kk)/(dx(1)<em>par(1)%thre)</em> dx(1)/(dx(1)+dx(2))
-$                      ! adjust flux between layer 1 and layer 2
-$                      qlsig(1) = qlsig(1) + h0(kk)<em> dx(2)/(dx(1)+dx(2))/dt(kk)
-$                      deltaS(2) =   h0(kk)/(dx(2)</em>par(2)%thre)* dx(2)/(dx(1)+dx(2))
-$                      if (var(2)%isat.eq.0) then
-$                         dy(2) = dy(2) + deltaS(2)
-$                      else
-$                         dy(2) = deltaS(2)
-$                         var(2)%isat = 0
-$                      endif
-$
-$                      deltah0(kk) = -(h0(kk)-deltah0(kk)) ! whole pond lost (new change = - original pond height)
-$                      h0(kk) = zero  ! zero pond remaining
-$                   endif</p>
-    
+           
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -3310,13 +3283,7 @@ $                   endif</p>
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-get_and_solve_eqn"></span><h3>private subroutine <a href='../proc/get_and_solve_eqn.html'>get_and_solve_eqn</a>(irec, mp, qprec, n, dx, h0, S, thetai, Tsoil, qh, nsteps, vlit, vsnow, var, dxL, plit, par, deltaTa, qevap, qL, qhL, qybL, qTbL, qhTbL, qhybL, again, again_ice, iok, itmp, ns, accel, dt, fac, phip, rsig, rsigdt, sig, t, qexd, aa, bb, cc, dd, ee, ff, gg, dy, aah, bbh, cch, ddh, eeh, ffh, ggh, de, q, qya, qyb, qTa, qTb, qhya, qhyb, qhTa, qhTb, qadv, qadvya, qadvyb, qadvTa, qadvTb, qsig, qhsig, qadvsig, dTsoil, dthetaldT, nsteps_ice, imelt, deltaJ_latent_T, deltaJ_sensible_S, qrunoff, tmp1d1, tmp1d2, tmp1d3, tmp1d4, G0, Tfreezing, LHS, RHS, LHS_h, RHS_h, nns, iflux, litter, i, kk, condition, advection, c2, theta, cp, cpeff, hice, h0_tmp, hsnow, delta_snowT, delta_snowliq, J0, iqex, nfac1, nfac2, nfac3, nfac4, nfac5, nfac6, nfac7, nfac8, nfac9, nfac10, nfac11, nfac12, err)</h3></div>
   <div class="panel-body">
-       
-<p>$          if (iok(kk)==1 .and. ns(kk)&lt;1 .and. h0(kk)+dy(1)&lt;h0min) then ! pond going
-$             fac(kk) = -(h0(kk)-half*h0min)/dy(1)
-$             nfac9(kk) = nfac9(kk) +1
-$             iok(kk) = 0
-$          end if</p><a href="../proc/get_and_solve_eqn.html" class="pull-right"><emph>Read more&hellip;</emph></a>
-    
+           
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
