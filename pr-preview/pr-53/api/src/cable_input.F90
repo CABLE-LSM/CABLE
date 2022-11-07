@@ -2859,7 +2859,6 @@ CONTAINS
 
     ! Local variables
     INTEGER                              :: parID ! parameter's netcdf ID
-
     !* **get_parameters_met** searches for CABLE parameters in the met focing
     ! file, and if it finds any, uses these values to overwrite the values that
     ! have already been loaded from the default parameter loading and/or the
