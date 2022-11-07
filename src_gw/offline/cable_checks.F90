@@ -368,7 +368,7 @@ CONTAINS
 
     !  soil energy - INH Ticket #133 corrected for consistency with %Ebal
     !  this includes the correction terms
-    bal%EbalSoil =canopy%fns - canopy%fes & !*ssnow%cls &
+    bal%EbalSoil =canopy%fns - canopy%fes & ! *ssnow%cls &
          & -canopy%fhs -canopy%ga
 
     ! canopy energy balance
@@ -379,7 +379,7 @@ CONTAINS
     bal%Ebal = SUM(rad%qcan(:,:,1),2)+SUM(rad%qcan(:,:,2),2)+rad%qssabs &  !! vh !! March 2014
          & +met%fld-sboltz*emleaf*canopy%tv**4*(1-rad%transd) &
          -rad%flws*rad%transd &
-         & -canopy%fev-canopy%fes & !*ssnow%cls &
+         & -canopy%fev-canopy%fes & ! *ssnow%cls &
          & -canopy%fh -canopy%ga
 
     !REV_CORR - likely testing and offline-as-online cases only

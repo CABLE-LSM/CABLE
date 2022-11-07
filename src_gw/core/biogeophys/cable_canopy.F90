@@ -574,7 +574,7 @@ CONTAINS
 
           !! Ticket #90 ssnow%cls factor should be retained: required for energy balance
           !! INH: %cls factor included in %fes already - do not include here
-          canopy%ga = canopy%fns-canopy%fhs-canopy%fes !*ssnow%cls
+          canopy%ga = canopy%fns-canopy%fhs-canopy%fes ! *ssnow%cls
 
        ELSE
 

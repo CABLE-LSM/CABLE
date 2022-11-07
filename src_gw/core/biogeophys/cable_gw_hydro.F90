@@ -1438,7 +1438,7 @@ CONTAINS
     DO i=1,mp
        ssnow%pudsto(i) = 0.0  !no puddle
        ssnow%smelt(i)  = ssnow%smelt(i)/dels    !change units to mm/s.  cable_driver then reverts back to mm
-       ssnow%runoff(i) = (ssnow%rnof1(i) + ssnow%rnof2(i))!*dels  !cable_driver converts from mm/s to mm
+       ssnow%runoff(i) = (ssnow%rnof1(i) + ssnow%rnof2(i))! *dels  !cable_driver converts from mm/s to mm
        !rnof1 and rnof2 are already in mm/s
        ! Set weighted soil/snow surface temperature
        ssnow%tss(i) =  (1-ssnow%isflag(i))*ssnow%tgg(i,1) + ssnow%isflag(i)*ssnow%tggsn(i,1)
@@ -2609,7 +2609,7 @@ CONTAINS
           ! ______ MMY find this calculation from version : cable-2.2.3-pore-scale-model _______________
           sm_tot(i) = max(ssnow%GWwb(i)-soil%GWwatr(i),0._r_2)
           do k=k_drain(i),ms
-            sm_tot(i) = sm_tot(i) + max(ssnow%wbliq(i,k)-soil%watr(i,k),0._r_2)!*dzmm(k)
+            sm_tot(i) = sm_tot(i) + max(ssnow%wbliq(i,k)-soil%watr(i,k),0._r_2)! *dzmm(k)
           end do
           ! ____________________________________________________________________________________________
           if (sm_tot(i) .lt. 1.0e-8) then

@@ -2181,7 +2181,7 @@ CONTAINS
        CASE default
           ! calculate v%kH as in Campbell (1985) p.32 eq. 4.20
           A  = 0.65_r_2 - 0.78_r_2*parin%rho/thousand + 0.60_r_2*(parin%rho/thousand)**2 ! (4.27)
-          B  = 2.8_r_2 * (one-parin%thre) !*theta   ! (4.24)
+          B  = 2.8_r_2 * (one-parin%thre) ! *theta   ! (4.24)
           !MC if (parin%clay > 0.05) then
           IF (parin%clay > 0.001_r_2) THEN ! clay=0.001 -> C1=9.2
              C1 = one + 2.6_r_2/SQRT(parin%clay*100._r_2) ! (4.28)
