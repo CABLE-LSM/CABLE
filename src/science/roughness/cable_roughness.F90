@@ -148,14 +148,14 @@ REAL, DIMENSION(mp) ::                                                      &
   dh         ! d/h where d is zero-plane displacement
 integer :: i
 
-!| The SUBROUTINE ruff_resist is structured:
-!
-!  * evaluation of the canopy height and leaf area given the presence of snow (or not)
-
 ! Set canopy height above snow level:
 call HgtAboveSnow( HeightAboveSnow, mp, z0soilsn_min, veg%hc, ssnow%snowd, &
                    ssnow%ssdnn )
 rough%hruff =  HeightAboveSnow
+!* The SUBROUTINE ruff_resist is structured as:
+!
+!  * evaluation of the canopy height and leaf area given the presence of snow (or not)
+
 
 ! LAI decreases due to snow: formerly canopy%vlaiw
 call LAI_eff( mp, veg%vlai, veg%hc, HeightAboveSnow, &
