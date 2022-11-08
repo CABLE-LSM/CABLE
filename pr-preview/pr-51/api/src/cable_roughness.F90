@@ -97,7 +97,6 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 ! the references and the third of these terms (rough%rt1usc) is evaluated in
 ! the [[cable_canopy_module]].
 !
-! <br></br>
 !
 ! Further detail given in SUBROUTINE [[ruff_resist]] 
 
@@ -149,9 +148,9 @@ REAL, DIMENSION(mp) ::                                                      &
   dh         ! d/h where d is zero-plane displacement
 integer :: i
 
-!| The SUBROUTINE ruff_resist is structured
+!| The SUBROUTINE ruff_resist is structured:
 !
-!  * evaluate the canopy height and leaf area dependent on the presence of snow
+!  * evaluation of the canopy height and leaf area given the presence of snow (or not)
 
 ! Set canopy height above snow level:
 call HgtAboveSnow( HeightAboveSnow, mp, z0soilsn_min, veg%hc, ssnow%snowd, &
@@ -165,7 +164,8 @@ call LAI_eff( mp, veg%vlai, veg%hc, HeightAboveSnow, &
 canopy%vlaiw  = reducedLAIdue2snow
 canopy%rghlai = canopy%vlaiw
 
-!> * set the value of soil and snow (depends on configuration of CABLE)
+!| * sets the value of soil and snow roughness lengths
+!    (depends on configuration of CABLE)
 IF (cable_user%soil_struc=='default') THEN
 
   ! Roughness length of bare soil (m): new formulation- E.Kowalczyk 2014
@@ -194,7 +194,7 @@ ELSEIF (cable_user%soil_struc=='sli') THEN
 
 ENDIF
 
-!| * evaluate the remaining output variables depending on whether the land point
+!| * evaluates the remaining output variables, depending on whether the land point
 !  is vegetated or not.
 do i=1,mp
   if( canopy%vlaiw(i) .LE. CLAI_THRESH  .OR.                                          &
@@ -305,7 +305,7 @@ do i=1,mp
   END IF
 END DO
 
-!> * update the evaluated %rt0us if the soil model used is SLI
+!> * if the soil model used is LSI - updates the evaluated %rt0us
 IF (cable_user%soil_struc.EQ.'sli') THEN
   WHERE( canopy%vlaiw .GE. CLAI_THRESH  .AND.                                          &
          rough%hruff .GE. rough%z0soilsn ) ! VEGETATED SURFACE
