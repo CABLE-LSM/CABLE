@@ -137,14 +137,15 @@
     <div class="col-md-9" id='text'>
     <p>Calculate roughness lengths as a function of soil and canopyparameters 
 The cable_roughness MODULE calculates the roughness parameters and the
- aerodynamic contribution to the resistances for momentum, heat and
- water vapour flux between the land and atmosphere for each land point.
- Formulations take into account vegetation, snow cover and
- atmospheric conditions (surface heat fluxes).
- The scientific basis is a combination of the Localised Near Field theory
- for aerodynamic transfer within canopies (for heat and water vapour)
+ aerodynamic contribution to the resistances controlling the fluxes of momentum,
+ heat and water vapour between the land and atmosphere for each land point.
+ Formulations take into account vegetation and snow cover. The dependence on
+ atmospheric conditions (surface heat fluxes) is incorporated later within the
+ canopy MODULE.
+ The scientific basis for the formulae is a combination of Localised Near Field theory
+ for aerodynamic transfer within canopies (for the heat and water vapour fluxes)
  and bulk formulae for the roughness length and displacement height
- accounting for roughness sublayer effects (for momentum)
+ accounting for roughness sublayer effects (for the momentum flux)
  The primary references for these formulations are</p>
 <ul>
 <li>Raupach MR (1989) QJRMS 115:609-632 doi:10.1256/smsqj.48709</li>
@@ -155,14 +156,14 @@ The cable_roughness MODULE calculates the roughness parameters and the
 <p>Two parameters are introduced <script type="math/tex">z_{0,min}</script> = 1E-7m and
 <script type="math/tex">z_{0,minPF}</script> = 1E-4m which are the minimum values for the roughness
 length in the cases of bare soil and permanent ice land points (respectively)</p>
-<p>&amp;nbsp
+<p><br></br>
  The MODULE is organised as a single SUBROUTINE ruff_resist which contains
  IF/THEN cases in two areas depending on</p>
 <ol>
 <li>Whether the soil model used is SLI or the default (soilsnow)</li>
 <li>Whether the land point is vegetated (LAI &gt; LAI_THRESH) or not</li>
 </ol>
-<p>&amp;nbsp
+<p><br></br>
 The principal outputs from the MODULE are</p>
 <ul>
 <li>heights (above the displacement height) for the forcing meteorology, in m
@@ -197,6 +198,7 @@ rough%rt1us is evaluated in three subparts (%rt1usa, %rt1usb, and %rt1usc).
 Each of the normalized resistances are given by theoretical formulae as given by
 the references and the third of these terms (rough%rt1usc) is evaluated in
 the canopy MODULE.</p>
+<p><br></br></p>
 <br>        <div class="panel panel-default">
       <div class="panel-heading">
   <h3 class="panel-title">Uses</h3>
@@ -204,8 +206,8 @@ the canopy MODULE.</p>
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_phys_constants_mod.html'>cable_phys_constants_mod</a></li>
     <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
+    <li><a href='../module/cable_phys_constants_mod.html'>cable_phys_constants_mod</a></li>
   </ul>
       </li>
       </ul>
