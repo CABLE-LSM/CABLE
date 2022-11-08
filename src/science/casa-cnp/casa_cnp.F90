@@ -185,7 +185,8 @@ CONTAINS
     ! outputs:
     !   fracCalloc(mp,mplant1)
     !
-    ! modified Piere's alocation scheme
+    ! modified Piere's alocation scheme and implemented by Qian Zhang and YP Wang in 2005
+	! [Pierre Friedlingstein](https://doi.org/10.1046/j.1365-2486.1999.00269.x)
     ! input: leaf stage
     !        leaf area
 
@@ -462,9 +463,9 @@ CONTAINS
   END SUBROUTINE casa_allocation
 
   SUBROUTINE casa_wolf(veg,casabiome,casaflux,casapool,casamet)
-    ! carbon allocation based on
-    ! Wolf,Field and Berry, 2011. Ecological Applications, p1546-1556
-    ! Wolf et al. 2011. Global Biogeochemical Cycles, 25, GB3015, doi:10.1019/2010GB003917
+    ! carbon allocation implemented by Dan Qiu and YP Wang in 2011 based on
+    ! [Adam Wolf](https://doi.org/10.1890/10-1201.1) and (https://doi:10.1029/2010GB003917)
+    ! 
     IMPLICIT NONE
     TYPE (veg_parameter_type),  INTENT(IN) :: veg  ! vegetation parameters
     TYPE (casa_biome),          INTENT(IN) :: casabiome
