@@ -128,38 +128,23 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cbl_lai_eff_mod.html'>cbl_LAI_eff_mod</a></li>
     <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-    <li><a href='../module/cbl_hruff_mod.html'>cbl_hruff_mod</a></li>
     <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
+    <li><a href='../module/cbl_lai_eff_mod.html'>cbl_LAI_eff_mod</a></li>
     <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+    <li><a href='../module/cbl_hruff_mod.html'>cbl_hruff_mod</a></li>
   </ul>
       </li>
       </ul>
     </div>
 
 
-    <p>The SUBROUTINE ruff_resist is structured</p>
+    <p>The SUBROUTINE ruff_resist is structured
+ * set the value of soil and snow (depends on configuration of CABLE)</p>
 <ul>
-<li>
-<p>evaluate the canopy height and leaf area dependent on the presence of snow</p>
-</li>
-<li>
-<p>set the value of soil and snow (depends on configuration of CABLE)</p>
-</li>
+<li>evaluate the remaining output variables depending on whether the land point
+update the evaluated %rt0us if the soil model used is SLI</li>
 </ul>
-<p>The SUBROUTINE ruff_resist is structured</p>
-<ul>
-<li>evaluate the canopy height and leaf area dependent on the presence of snow</li>
-<li>
-<p>set the value of soil and snow (depends on configuration of CABLE)</p>
-</li>
-<li>
-<p>evaluate the remaining output variables depending on whether the land point
- is a vegetated or not.</p>
-</li>
-</ul>
-<p>update the evaluated %rt0us if the soil model used is SLI</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">

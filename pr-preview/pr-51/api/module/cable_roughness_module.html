@@ -135,8 +135,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <p>Calculate roughness lengths as a function of soil and canopyparameters 
-The cable_roughness MODULE calculates the roughness parameters and the
+    <p>The cable_roughness MODULE calculates the roughness parameters and the
  aerodynamic contribution to the resistances controlling the fluxes of momentum,
  heat and water vapour between the land and atmosphere for each land point.
  Formulations take into account vegetation and snow cover. The dependence on
@@ -179,7 +178,7 @@ The principal outputs from the MODULE are</p>
 <li>the depth of roughness sublayer, in m (if vegetated, rough%zruffs)</li>
 <li>the extinction coefficient for the wind speed profile within the canopy, <script type="math/tex">c_{0}</script>,
    in units of per m (rough%coexp). <script type="math/tex">c_{0}</script> is defined to be the coefficient
-   within an expontial profile, i.e.
+   within an expontial wind profile, i.e.
    the wind speed at height <script type="math/tex">z</script> above the ground within a canopy of height <script type="math/tex">h_c</script>
    is given by <script type="math/tex"> U(z) = U_{h} \exp\{ c_{0} (z-h_c) \} </script> where <script type="math/tex">U_h</script>
    is the wind speed at canopy top.</li>
@@ -197,8 +196,9 @@ the <em>normalized resistances</em> by the current time step's friction velocity
 rough%rt1us is evaluated in three subparts (%rt1usa, %rt1usb, and %rt1usc).
 Each of the normalized resistances are given by theoretical formulae as given by
 the references and the third of these terms (rough%rt1usc) is evaluated in
-the canopy MODULE.</p>
+the <a href="../module/cable_canopy_module.html">cable_canopy_module</a>.</p>
 <p><br></br></p>
+<p>Further detail given in SUBROUTINE <a href="../proc/ruff_resist.html">ruff_resist</a> </p>
 <br>        <div class="panel panel-default">
       <div class="panel-heading">
   <h3 class="panel-title">Uses</h3>
@@ -273,7 +273,8 @@ the canopy MODULE.</p>
   <div class="panel-heading codesum"><span class="anchor" id="proc-ruff_resist"></span><h3>public subroutine <a href='../proc/ruff_resist.html'>ruff_resist</a>(veg, rough, ssnow, canopy, LAI_pft, HGT_pft, reducedLAIdue2snow)</h3></div>
   <div class="panel-body">
        
-<p>The SUBROUTINE ruff_resist is structured</p><a href="../proc/ruff_resist.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+<p>The SUBROUTINE ruff_resist is structured
+ * set the value of soil and snow (depends on configuration of CABLE)</p><a href="../proc/ruff_resist.html" class="pull-right"><emph>Read more&hellip;</emph></a>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
