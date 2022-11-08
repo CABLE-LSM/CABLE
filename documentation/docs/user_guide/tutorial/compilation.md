@@ -3,7 +3,7 @@ To install cable you need svn.
 
 ## To install CABLE
 
-CABLE can be downloaded from the [subverssion repository](https://trac.nci.org.au/svn/cable) hosted at [NCI](https://nci.org.au) once a user has requested admission to the CABLE software group at NCI, as described [here](https://trac.nci.org.au/trac/cable/wiki/CABLE_Registration). We recommend that within the repository you make a copy of the [trunk](https://trac.nci.org.au/svn/cable/trunk) to your own user branch, and then checkout CABLE from there. 
+CABLE can be downloaded from the [subversion repository](https://trac.nci.org.au/svn/cable) hosted at [NCI](https://nci.org.au) once a user has requested admission to the CABLE software group at NCI, as described [here](https://trac.nci.org.au/trac/cable/wiki/CABLE_Registration). We recommend that within the repository you make a copy of the [trunk](https://trac.nci.org.au/svn/cable/trunk) to your own user branch, and then checkout CABLE from there. 
 
 Example user **NCI_ID** creating **MyFirstCABLECheckout** 
     
