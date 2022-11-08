@@ -251,8 +251,8 @@
 <a id="ln-94" name="ln-94" href="#ln-94"></a><span class="c">! the *normalized resistances* by the current time step&#39;s friction velocity.</span>
 <a id="ln-95" name="ln-95" href="#ln-95"></a><span class="c">! rough%rt1us is evaluated in three subparts (%rt1usa, %rt1usb, and %rt1usc).</span>
 <a id="ln-96" name="ln-96" href="#ln-96"></a><span class="c">! Each of the normalized resistances are given by theoretical formulae as given by</span>
-<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="c">! the references and the third of these terms (rough%rt1usc) is evaluated in</span>
-<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="c">! the [[cable_canopy_module]].</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="c">! the references.  One of the resistance terms (rough%rt1usc) is evaluated in</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="c">! [[cable_canopy_module]].</span>
 <a id="ln-99" name="ln-99" href="#ln-99"></a><span class="c">!</span>
 <a id="ln-100" name="ln-100" href="#ln-100"></a><span class="c">!</span>
 <a id="ln-101" name="ln-101" href="#ln-101"></a><span class="c">! Further detail given in SUBROUTINE [[ruff_resist]] </span>
@@ -461,7 +461,7 @@
 <a id="ln-304" name="ln-304" href="#ln-304"></a><span class="w">  </span><span class="k">END IF</span>
 <a id="ln-305" name="ln-305" href="#ln-305"></a><span class="k">END DO</span><span class="w"></span>
 <a id="ln-306" name="ln-306" href="#ln-306"></a>
-<a id="ln-307" name="ln-307" href="#ln-307"></a><span class="c">!&gt; * if the soil model used is LSI - updates the evaluated %rt0us</span>
+<a id="ln-307" name="ln-307" href="#ln-307"></a><span class="c">!&gt; * if the soil model used is SLI - updates the evaluated %rt0us</span>
 <a id="ln-308" name="ln-308" href="#ln-308"></a><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">soil_struc</span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="s1">&#39;sli&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
 <a id="ln-309" name="ln-309" href="#ln-309"></a><span class="k">  WHERE</span><span class="p">(</span><span class="w"> </span><span class="n">canopy</span><span class="p">%</span><span class="n">vlaiw</span><span class="w"> </span><span class="p">.</span><span class="n">GE</span><span class="p">.</span><span class="w"> </span><span class="n">CLAI_THRESH</span><span class="w">  </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w">                                          </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-310" name="ln-310" href="#ln-310"></a><span class="w">         </span><span class="n">rough</span><span class="p">%</span><span class="n">hruff</span><span class="w"> </span><span class="p">.</span><span class="n">GE</span><span class="p">.</span><span class="w"> </span><span class="n">rough</span><span class="p">%</span><span class="n">z0soilsn</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="c">! VEGETATED SURFACE</span>

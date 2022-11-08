@@ -94,8 +94,8 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 ! the *normalized resistances* by the current time step's friction velocity.
 ! rough%rt1us is evaluated in three subparts (%rt1usa, %rt1usb, and %rt1usc).
 ! Each of the normalized resistances are given by theoretical formulae as given by
-! the references and the third of these terms (rough%rt1usc) is evaluated in
-! the [[cable_canopy_module]].
+! the references.  One of the resistance terms (rough%rt1usc) is evaluated in
+! [[cable_canopy_module]].
 !
 !
 ! Further detail given in SUBROUTINE [[ruff_resist]] 
@@ -304,7 +304,7 @@ do i=1,mp
   END IF
 END DO
 
-!> * if the soil model used is LSI - updates the evaluated %rt0us
+!> * if the soil model used is SLI - updates the evaluated %rt0us
 IF (cable_user%soil_struc.EQ.'sli') THEN
   WHERE( canopy%vlaiw .GE. CLAI_THRESH  .AND.                                          &
          rough%hruff .GE. rough%z0soilsn ) ! VEGETATED SURFACE
