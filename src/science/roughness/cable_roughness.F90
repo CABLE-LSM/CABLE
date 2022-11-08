@@ -40,7 +40,7 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 !  heat and water vapour between the land and atmosphere for each land point.
 !  Formulations take into account vegetation and snow cover. The dependence on
 !  atmospheric conditions (surface heat fluxes) is incorporated later within the
-!  canopy MODULE.
+!  [[cable_canopy_module]].
 !  The scientific basis for the formulae is a combination of Localised Near Field theory
 !  for aerodynamic transfer within canopies (for the heat and water vapour fluxes)
 !  and bulk formulae for the roughness length and displacement height
@@ -57,8 +57,8 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 ! length in the cases of bare soil and permanent ice land points (respectively)
 !
 ! <br></br>
-!  The MODULE is organised as a single SUBROUTINE ruff_resist which contains
-!  IF/THEN cases in two areas depending on
+!  The MODULE is organised as a single SUBROUTINE [[ruff_resist]] which contains
+!  IF/THEN cases in two areas, depending on
 !
 !  1. Whether the soil model used is SLI or the default (soilsnow)
 !  2. Whether the land point is vegetated (LAI > LAI_THRESH) or not
@@ -149,7 +149,7 @@ REAL, DIMENSION(mp) ::                                                      &
   dh         ! d/h where d is zero-plane displacement
 integer :: i
 
-!> The SUBROUTINE ruff_resist is structured
+!| The SUBROUTINE ruff_resist is structured
 !
 !  * evaluate the canopy height and leaf area dependent on the presence of snow
 
@@ -165,7 +165,7 @@ call LAI_eff( mp, veg%vlai, veg%hc, HeightAboveSnow, &
 canopy%vlaiw  = reducedLAIdue2snow
 canopy%rghlai = canopy%vlaiw
 
-!>  * set the value of soil and snow (depends on configuration of CABLE)
+!> * set the value of soil and snow (depends on configuration of CABLE)
 IF (cable_user%soil_struc=='default') THEN
 
   ! Roughness length of bare soil (m): new formulation- E.Kowalczyk 2014
@@ -194,7 +194,7 @@ ELSEIF (cable_user%soil_struc=='sli') THEN
 
 ENDIF
 
-!> * evaluate the remaining output variables depending on whether the land point
+!| * evaluate the remaining output variables depending on whether the land point
 !  is vegetated or not.
 do i=1,mp
   if( canopy%vlaiw(i) .LE. CLAI_THRESH  .OR.                                          &
@@ -305,7 +305,7 @@ do i=1,mp
   END IF
 END DO
 
-!> update the evaluated %rt0us if the soil model used is SLI
+!> * update the evaluated %rt0us if the soil model used is SLI
 IF (cable_user%soil_struc.EQ.'sli') THEN
   WHERE( canopy%vlaiw .GE. CLAI_THRESH  .AND.                                          &
          rough%hruff .GE. rough%z0soilsn ) ! VEGETATED SURFACE
