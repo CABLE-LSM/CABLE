@@ -6,11 +6,12 @@
 
 !CITATION
 !--------------------------------------------------------
-!! When referring to this code in publications, please cite:
-!! Haverd, V., Smith, B., Cook, G., Briggs, P.R., Nieradzik, L., Roxburgh, S.R., Liedloff, A.,
-!! Meyer, C.P. and Canadell, J.G., 2013.
-!! A stand-alone tree demography and landscape structure module for Earth system models.
-!! Geophysical Research Letters, 40: 1-6.
+!*
+! When referring to this code in publications, please cite:
+! Haverd, V., Smith, B., Cook, G., Briggs, P.R., Nieradzik, L., Roxburgh, S.R., Liedloff, A.,
+! Meyer, C.P. and Canadell, J.G., 2013.
+! A stand-alone tree demography and landscape structure module for Earth system models.
+! Geophysical Research Letters, 40: 1-6.
 
 
 !DISCLAIMER, COPYRIGHT AND LICENCE
@@ -82,9 +83,9 @@ MODULE POP_Constants
   ! REAL(dp),PARAMETER:: ALPHA_CPC = 3.0
 
   !! # Parameters
-  REAL(dp), PARAMETER :: FULTON_ALPHA = 3.5_dp     !< recruitment scalar alpha in Fulton (1991)
-  REAL(dp), PARAMETER :: DENSINDIV_MAX = 0.2_dp    !< Maximum density of individuals within a cohort indiv/m2
-  REAL(dp), PARAMETER :: DENSINDIV_MIN = 1.0e-9_dp !
+  REAL(dp), PARAMETER :: FULTON_ALPHA = 3.5_dp     !! recruitment scalar alpha in Fulton (1991)
+  REAL(dp), PARAMETER :: DENSINDIV_MAX = 0.2_dp    !! Maximum density of individuals within a cohort indiv/m2
+  REAL(dp), PARAMETER :: DENSINDIV_MIN = 1.0e-9_dp !!
   REAL(dp), PARAMETER :: Kbiometric = 50.0_dp ! Constant in height-diameter relationship
   REAL(dp), PARAMETER :: WD = 300.0_dp ! Wood density kgC/m3
   ! threshold growth efficiency for enhanced mortality (higher value gives higher biomass turnover)
