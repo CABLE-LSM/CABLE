@@ -22,7 +22,6 @@
 
 MODULE cable_roughness_module
 
-!! Calculate roughness lengths as a function of soil and canopyparameters 
 USE cable_phys_constants_mod, ONLY : CCSD   => CSD 
 USE cable_phys_constants_mod, ONLY : CCRD   => CRD 
 USE cable_phys_constants_mod, ONLY : CCCD   => CCD 
@@ -96,9 +95,11 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 ! rough%rt1us is evaluated in three subparts (%rt1usa, %rt1usb, and %rt1usc).
 ! Each of the normalized resistances are given by theoretical formulae as given by
 ! the references and the third of these terms (rough%rt1usc) is evaluated in
-! the canopy MODULE.
+! the [[cable_canopy_module]].
 !
 ! <br></br>
+!
+! Further detail given in SUBROUTINE [[ruff_resist]] 
 
 
 IMPLICIT NONE
@@ -147,7 +148,11 @@ REAL, DIMENSION(mp) ::                                                      &
   xx,      & ! =CCCD*LAI; working variable 
   dh         ! d/h where d is zero-plane displacement
 integer :: i
-   
+
+!> The SUBROUTINE ruff_resist is structured
+!
+!  * evaluate the canopy height and leaf area dependent on the presence of snow
+
 ! Set canopy height above snow level:
 call HgtAboveSnow( HeightAboveSnow, mp, z0soilsn_min, veg%hc, ssnow%snowd, &
                    ssnow%ssdnn )
@@ -159,9 +164,6 @@ call LAI_eff( mp, veg%vlai, veg%hc, HeightAboveSnow, &
    
 canopy%vlaiw  = reducedLAIdue2snow
 canopy%rghlai = canopy%vlaiw
-!* The SUBROUTINE ruff_resist is structured
-!
-!  * evaluate the canopy height and leaf area dependent on the presence of snow
 
 !>  * set the value of soil and snow (depends on configuration of CABLE)
 IF (cable_user%soil_struc=='default') THEN
@@ -191,12 +193,9 @@ ELSEIF (cable_user%soil_struc=='sli') THEN
                           rough%z0soil - rough%z0soil*MIN(ssnow%snowd,10.)/10.)
 
 ENDIF
-!* The SUBROUTINE ruff_resist is structured
-!
-!  * evaluate the canopy height and leaf area dependent on the presence of snow
-!  * set the value of soil and snow (depends on configuration of CABLE)
 
-
+!> * evaluate the remaining output variables depending on whether the land point
+!  is vegetated or not.
 do i=1,mp
   if( canopy%vlaiw(i) .LE. CLAI_THRESH  .OR.                                          &
       rough%hruff(i) .LT. rough%z0soilsn(i) ) then ! BARE SOIL SURFACE
@@ -305,9 +304,8 @@ do i=1,mp
 
   END IF
 END DO
-!* * evaluate the remaining output variables depending on whether the land point
-!  is a vegetated or not.
 
+!> update the evaluated %rt0us if the soil model used is SLI
 IF (cable_user%soil_struc.EQ.'sli') THEN
   WHERE( canopy%vlaiw .GE. CLAI_THRESH  .AND.                                          &
          rough%hruff .GE. rough%z0soilsn ) ! VEGETATED SURFACE
@@ -319,7 +317,6 @@ IF (cable_user%soil_struc.EQ.'sli') THEN
 
   ENDWHERE
 ENDIF
-!* update the evaluated %rt0us if the soil model used is SLI
 
 END SUBROUTINE ruff_resist
 
