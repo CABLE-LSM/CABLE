@@ -36,14 +36,15 @@ USE cable_phys_constants_mod, ONLY : CGRAV   => GRAV
 USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH 
 
 !* The cable_roughness MODULE calculates the roughness parameters and the
-!  aerodynamic contribution to the resistances for momentum, heat and
-!  water vapour flux between the land and atmosphere for each land point.
-!  Formulations take into account vegetation, snow cover and
-!  atmospheric conditions (surface heat fluxes).
-!  The scientific basis is a combination of the Localised Near Field theory
-!  for aerodynamic transfer within canopies (for heat and water vapour)
+!  aerodynamic contribution to the resistances controlling the fluxes of momentum,
+!  heat and water vapour between the land and atmosphere for each land point.
+!  Formulations take into account vegetation and snow cover. The dependence on
+!  atmospheric conditions (surface heat fluxes) is incorporated later within the
+!  canopy MODULE.
+!  The scientific basis for the formulae is a combination of Localised Near Field theory
+!  for aerodynamic transfer within canopies (for the heat and water vapour fluxes)
 !  and bulk formulae for the roughness length and displacement height
-!  accounting for roughness sublayer effects (for momentum)
+!  accounting for roughness sublayer effects (for the momentum flux)
 !  The primary references for these formulations are
 !
 !  * Raupach MR (1989) QJRMS 115:609-632 doi:10.1256/smsqj.48709
@@ -55,14 +56,14 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 ! \(z_{0,minPF}\) = 1E-4m which are the minimum values for the roughness
 ! length in the cases of bare soil and permanent ice land points (respectively)
 !
-! &nbsp
+! <br></br>
 !  The MODULE is organised as a single SUBROUTINE ruff_resist which contains
 !  IF/THEN cases in two areas depending on
 !
 !  1. Whether the soil model used is SLI or the default (soilsnow)
 !  2. Whether the land point is vegetated (LAI > LAI_THRESH) or not
 !
-! &nbsp
+! <br></br>
 ! The principal outputs from the MODULE are
 !
 !  * heights (above the displacement height) for the forcing meteorology, in m
@@ -96,6 +97,7 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 ! the references and the third of these terms (rough%rt1usc) is evaluated in
 ! the canopy MODULE.
 !
+! <br></br>
 
 
 IMPLICIT NONE
@@ -156,11 +158,11 @@ call LAI_eff( mp, veg%vlai, veg%hc, HeightAboveSnow, &
    
 canopy%vlaiw  = reducedLAIdue2snow
 canopy%rghlai = canopy%vlaiw
-
 !* The SUBROUTINE ruff_resist is structured
 !
 !  * evaluate the canopy height and leaf area dependent on the presence of snow
-!  * set the value of soil and snow (depends on configuration of CABLE)
+
+!>  * set the value of soil and snow (depends on configuration of CABLE)
 IF (cable_user%soil_struc=='default') THEN
 
   ! Roughness length of bare soil (m): new formulation- E.Kowalczyk 2014
@@ -188,9 +190,12 @@ ELSEIF (cable_user%soil_struc=='sli') THEN
                           rough%z0soil - rough%z0soil*MIN(ssnow%snowd,10.)/10.)
 
 ENDIF
+!* The SUBROUTINE ruff_resist is structured
+!
+!  * evaluate the canopy height and leaf area dependent on the presence of snow
+!  * set the value of soil and snow (depends on configuration of CABLE)
 
-!* * evaluate the remaining output variables depending on whether the land point
-!  is a vegetated or not.
+
 do i=1,mp
   if( canopy%vlaiw(i) .LE. CLAI_THRESH  .OR.                                          &
       rough%hruff(i) .LT. rough%z0soilsn(i) ) then ! BARE SOIL SURFACE
@@ -298,9 +303,10 @@ do i=1,mp
     rough%rt1usb(i) = MAX( rough%rt1usb(i), 0.0 ) ! in case zrufs < rough%hruff
 
   END IF
-END DO    
+END DO
+!* * evaluate the remaining output variables depending on whether the land point
+!  is a vegetated or not.
 
-!* update the evaluated %rt0us if the soil model used is SLI
 IF (cable_user%soil_struc.EQ.'sli') THEN
   WHERE( canopy%vlaiw .GE. CLAI_THRESH  .AND.                                          &
          rough%hruff .GE. rough%z0soilsn ) ! VEGETATED SURFACE
@@ -312,7 +318,7 @@ IF (cable_user%soil_struc.EQ.'sli') THEN
 
   ENDWHERE
 ENDIF
-
+!* update the evaluated %rt0us if the soil model used is SLI
 
 END SUBROUTINE ruff_resist
 
