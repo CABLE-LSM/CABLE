@@ -128,22 +128,29 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-    <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
-    <li><a href='../module/cbl_lai_eff_mod.html'>cbl_LAI_eff_mod</a></li>
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
     <li><a href='../module/cbl_hruff_mod.html'>cbl_hruff_mod</a></li>
+    <li><a href='../module/cbl_lai_eff_mod.html'>cbl_LAI_eff_mod</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+    <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
   </ul>
       </li>
       </ul>
     </div>
 
 
-    <p>The SUBROUTINE ruff_resist is structured
- * set the value of soil and snow (depends on configuration of CABLE)</p>
+    <p>The SUBROUTINE ruff_resist is structured</p>
 <ul>
-<li>evaluate the remaining output variables depending on whether the land point
-update the evaluated %rt0us if the soil model used is SLI</li>
+<li>evaluate the canopy height and leaf area dependent on the presence of snow
+Set canopy height above snow level:</li>
+<li>
+<p>set the value of soil and snow (depends on configuration of CABLE)</p>
+</li>
+<li>
+<p>evaluate the remaining output variables depending on whether the land point
+ is vegetated or not.</p>
+</li>
+<li>update the evaluated %rt0us if the soil model used is SLI</li>
 </ul>
 
     <h3>Arguments</h3>

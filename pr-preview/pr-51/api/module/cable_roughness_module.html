@@ -140,7 +140,7 @@
  heat and water vapour between the land and atmosphere for each land point.
  Formulations take into account vegetation and snow cover. The dependence on
  atmospheric conditions (surface heat fluxes) is incorporated later within the
- canopy MODULE.
+ <a href="../module/cable_canopy_module.html">cable_canopy_module</a>.
  The scientific basis for the formulae is a combination of Localised Near Field theory
  for aerodynamic transfer within canopies (for the heat and water vapour fluxes)
  and bulk formulae for the roughness length and displacement height
@@ -156,8 +156,8 @@
 <script type="math/tex">z_{0,minPF}</script> = 1E-4m which are the minimum values for the roughness
 length in the cases of bare soil and permanent ice land points (respectively)</p>
 <p><br></br>
- The MODULE is organised as a single SUBROUTINE ruff_resist which contains
- IF/THEN cases in two areas depending on</p>
+ The MODULE is organised as a single SUBROUTINE <a href="../proc/ruff_resist.html">ruff_resist</a> which contains
+ IF/THEN cases in two areas, depending on</p>
 <ol>
 <li>Whether the soil model used is SLI or the default (soilsnow)</li>
 <li>Whether the land point is vegetated (LAI &gt; LAI_THRESH) or not</li>
@@ -273,8 +273,7 @@ the <a href="../module/cable_canopy_module.html">cable_canopy_module</a>.</p>
   <div class="panel-heading codesum"><span class="anchor" id="proc-ruff_resist"></span><h3>public subroutine <a href='../proc/ruff_resist.html'>ruff_resist</a>(veg, rough, ssnow, canopy, LAI_pft, HGT_pft, reducedLAIdue2snow)</h3></div>
   <div class="panel-body">
        
-<p>The SUBROUTINE ruff_resist is structured
- * set the value of soil and snow (depends on configuration of CABLE)</p><a href="../proc/ruff_resist.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+<p>The SUBROUTINE ruff_resist is structured</p><a href="../proc/ruff_resist.html" class="pull-right"><emph>Read more&hellip;</emph></a>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>

@@ -197,7 +197,7 @@
 <a id="ln-40" name="ln-40" href="#ln-40"></a><span class="c">!  heat and water vapour between the land and atmosphere for each land point.</span>
 <a id="ln-41" name="ln-41" href="#ln-41"></a><span class="c">!  Formulations take into account vegetation and snow cover. The dependence on</span>
 <a id="ln-42" name="ln-42" href="#ln-42"></a><span class="c">!  atmospheric conditions (surface heat fluxes) is incorporated later within the</span>
-<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="c">!  canopy MODULE.</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="c">!  [[cable_canopy_module]].</span>
 <a id="ln-44" name="ln-44" href="#ln-44"></a><span class="c">!  The scientific basis for the formulae is a combination of Localised Near Field theory</span>
 <a id="ln-45" name="ln-45" href="#ln-45"></a><span class="c">!  for aerodynamic transfer within canopies (for the heat and water vapour fluxes)</span>
 <a id="ln-46" name="ln-46" href="#ln-46"></a><span class="c">!  and bulk formulae for the roughness length and displacement height</span>
@@ -214,8 +214,8 @@
 <a id="ln-57" name="ln-57" href="#ln-57"></a><span class="c">! length in the cases of bare soil and permanent ice land points (respectively)</span>
 <a id="ln-58" name="ln-58" href="#ln-58"></a><span class="c">!</span>
 <a id="ln-59" name="ln-59" href="#ln-59"></a><span class="c">! &lt;br&gt;&lt;/br&gt;</span>
-<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="c">!  The MODULE is organised as a single SUBROUTINE ruff_resist which contains</span>
-<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="c">!  IF/THEN cases in two areas depending on</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="c">!  The MODULE is organised as a single SUBROUTINE [[ruff_resist]] which contains</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="c">!  IF/THEN cases in two areas, depending on</span>
 <a id="ln-62" name="ln-62" href="#ln-62"></a><span class="c">!</span>
 <a id="ln-63" name="ln-63" href="#ln-63"></a><span class="c">!  1. Whether the soil model used is SLI or the default (soilsnow)</span>
 <a id="ln-64" name="ln-64" href="#ln-64"></a><span class="c">!  2. Whether the land point is vegetated (LAI &gt; LAI_THRESH) or not</span>
@@ -306,7 +306,7 @@
 <a id="ln-149" name="ln-149" href="#ln-149"></a><span class="w">  </span><span class="n">dh</span><span class="w">         </span><span class="c">! d/h where d is zero-plane displacement</span>
 <a id="ln-150" name="ln-150" href="#ln-150"></a><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="w"></span>
 <a id="ln-151" name="ln-151" href="#ln-151"></a>
-<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="c">!&gt; The SUBROUTINE ruff_resist is structured</span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="c">!| The SUBROUTINE ruff_resist is structured</span>
 <a id="ln-153" name="ln-153" href="#ln-153"></a><span class="c">!</span>
 <a id="ln-154" name="ln-154" href="#ln-154"></a><span class="c">!  * evaluate the canopy height and leaf area dependent on the presence of snow</span>
 <a id="ln-155" name="ln-155" href="#ln-155"></a>
@@ -322,7 +322,7 @@
 <a id="ln-165" name="ln-165" href="#ln-165"></a><span class="n">canopy</span><span class="p">%</span><span class="n">vlaiw</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">reducedLAIdue2snow</span><span class="w"></span>
 <a id="ln-166" name="ln-166" href="#ln-166"></a><span class="n">canopy</span><span class="p">%</span><span class="n">rghlai</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">canopy</span><span class="p">%</span><span class="n">vlaiw</span><span class="w"></span>
 <a id="ln-167" name="ln-167" href="#ln-167"></a>
-<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="c">!&gt;  * set the value of soil and snow (depends on configuration of CABLE)</span>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="c">!&gt; * set the value of soil and snow (depends on configuration of CABLE)</span>
 <a id="ln-169" name="ln-169" href="#ln-169"></a><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">soil_struc</span><span class="o">==</span><span class="s1">&#39;default&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w"></span>
 <a id="ln-170" name="ln-170" href="#ln-170"></a>
 <a id="ln-171" name="ln-171" href="#ln-171"></a><span class="w">  </span><span class="c">! Roughness length of bare soil (m): new formulation- E.Kowalczyk 2014</span>
@@ -351,7 +351,7 @@
 <a id="ln-194" name="ln-194" href="#ln-194"></a>
 <a id="ln-195" name="ln-195" href="#ln-195"></a><span class="k">ENDIF</span><span class="w"></span>
 <a id="ln-196" name="ln-196" href="#ln-196"></a>
-<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="c">!&gt; * evaluate the remaining output variables depending on whether the land point</span>
+<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="c">!| * evaluate the remaining output variables depending on whether the land point</span>
 <a id="ln-198" name="ln-198" href="#ln-198"></a><span class="c">!  is vegetated or not.</span>
 <a id="ln-199" name="ln-199" href="#ln-199"></a><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">mp</span><span class="w"></span>
 <a id="ln-200" name="ln-200" href="#ln-200"></a><span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">canopy</span><span class="p">%</span><span class="n">vlaiw</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">LE</span><span class="p">.</span><span class="w"> </span><span class="n">CLAI_THRESH</span><span class="w">  </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w">                                          </span><span class="p">&amp;</span><span class="w"></span>
@@ -462,7 +462,7 @@
 <a id="ln-305" name="ln-305" href="#ln-305"></a><span class="w">  </span><span class="k">END IF</span>
 <a id="ln-306" name="ln-306" href="#ln-306"></a><span class="k">END DO</span><span class="w"></span>
 <a id="ln-307" name="ln-307" href="#ln-307"></a>
-<a id="ln-308" name="ln-308" href="#ln-308"></a><span class="c">!&gt; update the evaluated %rt0us if the soil model used is SLI</span>
+<a id="ln-308" name="ln-308" href="#ln-308"></a><span class="c">!&gt; * update the evaluated %rt0us if the soil model used is SLI</span>
 <a id="ln-309" name="ln-309" href="#ln-309"></a><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">soil_struc</span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="s1">&#39;sli&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
 <a id="ln-310" name="ln-310" href="#ln-310"></a><span class="k">  WHERE</span><span class="p">(</span><span class="w"> </span><span class="n">canopy</span><span class="p">%</span><span class="n">vlaiw</span><span class="w"> </span><span class="p">.</span><span class="n">GE</span><span class="p">.</span><span class="w"> </span><span class="n">CLAI_THRESH</span><span class="w">  </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w">                                          </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-311" name="ln-311" href="#ln-311"></a><span class="w">         </span><span class="n">rough</span><span class="p">%</span><span class="n">hruff</span><span class="w"> </span><span class="p">.</span><span class="n">GE</span><span class="p">.</span><span class="w"> </span><span class="n">rough</span><span class="p">%</span><span class="n">z0soilsn</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="c">! VEGETATED SURFACE</span>
