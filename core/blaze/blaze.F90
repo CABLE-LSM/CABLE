@@ -344,7 +344,6 @@ SUBROUTINE BLAZE_ACCOUNTING(BLAZE, climate,  ktau, dels, year, doy)
 
 END SUBROUTINE BLAZE_ACCOUNTING
 
-
 FUNCTION AVAIL_FUEL(FLIx, CPLANT_w, CPLANT_g, AGL_w, AGL_g)
 
   IMPLICIT NONE
@@ -364,7 +363,7 @@ FUNCTION AVAIL_FUEL(FLIx, CPLANT_w, CPLANT_g, AGL_w, AGL_g)
 END FUNCTION AVAIL_FUEL
 
 SUBROUTINE BLAZE_TURNOVER(AB, CPLANT_g, CPLANT_w, AGL_g, AGL_w, &
-     BGL_g, BGL_w, shootfrac, TO, BT, BURNMODE, POP_TO)
+     BGL_g, BGL_w, shootfrac, TO, BT, BURNMODE, IAM , POP_TO)
 
   IMPLICIT NONE
 
@@ -372,7 +371,7 @@ SUBROUTINE BLAZE_TURNOVER(AB, CPLANT_g, CPLANT_w, AGL_g, AGL_w, &
   !-> apply idx and factor on other TOs
 
   TYPE(TYPE_TURNOVER),INTENT(INOUT) :: TO(7)
-  INTEGER,            INTENT(IN)    :: BURNMODE
+  INTEGER,            INTENT(IN)    :: BURNMODE, IAM
   REAL,               INTENT(IN)    :: AB, shootfrac
   REAL,               INTENT(INOUT) :: CPLANT_w(3) , CPLANT_g(3)
   REAL, DIMENSION(3), INTENT(INOUT) :: AGL_w, AGL_g, BGL_w, BGL_g
@@ -384,7 +383,6 @@ SUBROUTINE BLAZE_TURNOVER(AB, CPLANT_g, CPLANT_w, AGL_g, AGL_w, &
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
   fAB = AB
-
   ! Mass Fluxes
   MTO(LEAF )%TO_ATM = fAB * TO(LEAF )%TO_ATM * CPLANT_w (LEAF )
   MTO(WOOD )%TO_ATM = fAB * TO(WOOD )%TO_ATM * CPLANT_w (WOOD )
@@ -762,7 +760,7 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
 
   INTEGER          :: np, doy, YYYY, MM, DD, DOM(12)
   REAL             :: CPLANT_g(BLAZE%NCELLS,3), CPLANT_w(BLAZE%NCELLS,3), tstp
-  REAL, DIMENSION(BLAZE%NCELLS,3) :: AGL_g, AGL_w, BGL_g, BGL_w
+  !CLNREAL, DIMENSION(BLAZE%NCELLS,3) :: AGL_g, AGL_w, BGL_g, BGL_w
   REAL, DIMENSION(BLAZE%NCELLS)   :: &
        RAINF,             & ! [mm/d]
        TMIN,              & ! [deg C]
@@ -807,7 +805,7 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
      ! CALL SIMFIRE DAILY FOR ACOUNTING OF PARAMETERS
      CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB , climate)
 
-WRITE(900+BLAZE%IAM,*)"BLAZE doy,AB",doy,BLAZE%AB
+WRITE(900+BLAZE%IAM,*)"BLAZE doy,AB",doy,BLAZE%AB(532)
      DO np = 1, BLAZE%NCELLS
         IF ( AVAIL_FUEL(1, CPLANT_w(np,:), CPLANT_g(np,:),BLAZE%AGLit_w(np,:),BLAZE%AGLit_g(np,:) ) .LE. MIN_FUEL ) &
              BLAZE%AB(np) = 0.
@@ -824,19 +822,15 @@ WRITE(900+BLAZE%IAM,*)"BLAZE doy,AB",doy,BLAZE%AB
 
   DO np = 1, BLAZE%NCELLS
 
-
-
      CALL COMBUST( BLAZE, np, CPLANT_g(np,:), CPLANT_w(np,:),TO(np,:),BLAZE%AB(np).GT.0 )
-
-
 
      BLAZE%DFLI(np) = BLAZE%FLI(np)
      BLAZE%TO(np,:) = 0.
 
      IF (BLAZE%AB(np) .GT. 0. ) THEN
         CALL BLAZE_TURNOVER( BLAZE%AB(np), CPLANT_g(np,:), CPLANT_w(np,:), &
-             AGL_g(np,:), AGL_w(np,:),BGL_g(np,:), BGL_w(np,:), &
-             BLAZE%shootfrac(np), TO(np,:), BLAZE%FLUXES(np,:), BLAZE%BURNMODE )
+             BLAZE%AGLit_g(np,:), BLAZE%AGLit_w(np,:),BLAZE%BGLit_g(np,:), BLAZE%BGLit_w(np,:), &
+             BLAZE%shootfrac(np), TO(np,:), BLAZE%FLUXES(np,:), BLAZE%BURNMODE, BLAZE%IAM )
      ENDIF
 
 

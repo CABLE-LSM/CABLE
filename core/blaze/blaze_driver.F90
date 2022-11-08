@@ -74,7 +74,7 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
                    real(casapool%cplant(patch_index,j)*patch(patch_index)%frac)
               CLITTER_w(i,j) = CLITTER_w(i,j) + &
                    real(casapool%clitter(patch_index,j)*patch(patch_index)%frac)
-           ENDIF
+          ENDIF
         END DO
      ENDDO
   ENDDO
@@ -84,10 +84,10 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
   ag_litter_frac = 0.4
   BLAZE%AGLit_w(:, CWD) = CLITTER_w(:, CWD) * BLAZE%shootfrac(:)
   BLAZE%AGLit_w(:,METB) = CLITTER_w(:,METB) * ag_litter_frac
-  BLAZE%AGLit_w(:,STR) = CLITTER_w(:,STR) * ag_litter_frac
+  BLAZE%AGLit_w(:, STR) = CLITTER_w(:, STR) * ag_litter_frac 
 
-  BLAZE%AGLit_g(:,CWD)  = 0.
-  BLAZE%AGLit_g(:,STR ) = CLITTER_g(:,STR) * ag_litter_frac
+  BLAZE%AGLit_g(:, CWD) = 0.
+  BLAZE%AGLit_g(:, STR) = CLITTER_g(:, STR) * ag_litter_frac
   BLAZE%AGLit_g(:,METB) = CLITTER_g(:,METB) * ag_litter_frac
 
   DO i = 1, 3
@@ -118,7 +118,6 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
 
 
   ! BLAZE used to compute ALL or FLI_ONLY
-  WRITE(900+BLAZE%IAM,*)"CLN MODE ",BLAZE%BURNMODE," CTfl ",CTLFLAG,"time ",BLAZE%time
   IF ( BLAZE%BURNMODE .EQ. 1 .OR.  CTLFLAG .EQ. 1 ) THEN
 
      ! BURNMode 1: BLAZE computes mortality| BURNMode 2: BLAZE computes FLI only 
@@ -136,7 +135,7 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
      DO np = 1, NCELLS
         CALL BLAZE_TURNOVER( BLAZE%AB(np), CPLANT_g(np,:), CPLANT_w(np,:), BLAZE%AGLit_g(np,:), &
              BLAZE%AGLit_w(np,:), BLAZE%BGLit_g(np,:), BLAZE%BGLit_w(np,:),BLAZE%shootfrac(np),TO(np,:), &
-             BLAZE%FLUXES(np,:), BLAZE%BURNMODE, POP_TO(np) )
+             BLAZE%FLUXES(np,:), BLAZE%BURNMODE, BLAZE%IAM,POP_TO(np) )
      END DO
   ELSE
      STOP "Wrong MODE in blaze_driver.f90!"
@@ -175,7 +174,6 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
   BLAZE%FLUXES(:,:) = 0.
   ! pop_grid index
   pidx=1
-  WRITE(900+BLAZE%IAM,*)" NCELLSabc",BLAZE%NCELLS,SIZE(POP%pop_grid)
   DO i = 1, BLAZE%NCELLS
      DO p = 1, landpt(i)%nap  ! loop over number of active patches
         patch_index = landpt(i)%cstart + p - 1 ! patch index in CABLE vector
@@ -183,8 +181,10 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
 
         IF ( casamet%lnonwood(patch_index) == 1 ) THEN ! Here non-wood
 
-           casaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i), r_2) !CLN ???
-           casaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i), r_2) !CLN ???
+           casaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i), r_2) &
+                * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac, r_2)
+           casaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i), r_2) &
+                * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac, r_2)
            casaflux%kplant_fire(patch_index,WOOD)  = 0.0_r_2
 
            casaflux%klitter_fire(patch_index,METB) = real(BLAZE%AB(i) * ag_litter_frac, r_2)
