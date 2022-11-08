@@ -79,7 +79,7 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 !  * the depth of roughness sublayer, in m (if vegetated, rough%zruffs)
 !  * the extinction coefficient for the wind speed profile within the canopy, \(c_{0}\),
 !    in units of per m (rough%coexp). \(c_{0}\) is defined to be the coefficient
-!    within an expontial profile, i.e.
+!    within an expontial wind profile, i.e.
 !    the wind speed at height \(z\) above the ground within a canopy of height \(h_c\)
 !    is given by \( U(z) = U_{h} \exp\{ c_{0} (z-h_c) \} \) where \(U_h\)
 !    is the wind speed at canopy top.
