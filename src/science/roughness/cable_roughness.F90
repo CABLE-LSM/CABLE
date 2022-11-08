@@ -22,6 +22,7 @@
 
 MODULE cable_roughness_module
 
+!! Calculate roughness lengths as a function of soil and canopyparameters 
 USE cable_phys_constants_mod, ONLY : CCSD   => CSD 
 USE cable_phys_constants_mod, ONLY : CCRD   => CRD 
 USE cable_phys_constants_mod, ONLY : CCCD   => CCD 
@@ -101,7 +102,7 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 
 
 IMPLICIT NONE
-   
+
 real, parameter :: z0soilsn_min = 1.e-7
 real, parameter :: z0soilsn_min_PF = 1.e-4
  

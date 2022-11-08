@@ -56,10 +56,10 @@ contains
     BLAZE%shootfrac = shootfrac
     IF (.not.allocated(TO)) ALLOCATE(TO(BLAZE%NCELLS,7))
 
-!!$  IF (CALL1) THEN
-!!$     StartYear = CurYear
-!!$     CALL1 = .FALSE.
-!!$  ENDIF
+!$  IF (CALL1) THEN
+!$     StartYear = CurYear
+!$     CALL1 = .FALSE.
+!$  ENDIF
 
     BLAZE%CPLANT_g  = 0.
     CLITTER_g = 0.
@@ -88,11 +88,11 @@ contains
     ENDDO
 
     BLAZE%CPLANT_w (:,WOOD) =  BLAZE%CPLANT_w (:,WOOD) * BLAZE%shootfrac(:)
-!!$  ! set heights at which tree mortality is calculated
-!!$  nbins = mheights
-!!$  DO i=1,nbins
-!!$     casaflux%fire_mortality_vs_height(:,i,1) = real(BIN_POWER**i, r_2)
-!!$  ENDDO
+!$  ! set heights at which tree mortality is calculated
+!$  nbins = mheights
+!$  DO i=1,nbins
+!$     casaflux%fire_mortality_vs_height(:,i,1) = real(BIN_POWER**i, r_2)
+!$  ENDDO
 
 
     ag_litter_frac = 0.4
@@ -169,20 +169,20 @@ contains
     DO i = 1, BLAZE%NCELLS
        DO p = 1, landpt(i)%nap  ! loop over number of active patches
           patch_index = landpt(i)%cstart + p - 1 ! patch index in CABLE vector
-!!$        IF ( casamet%lnonwood(patch_index) == 0 ) THEN ! Here woody patches
+!$        IF ( casamet%lnonwood(patch_index) == 0 ) THEN ! Here woody patches
           veg%disturbance_intensity(patch_index,1) = BLAZE%AB(i) ! needed for ADJUST_POP_FOR_FIRE
           veg%disturbance_intensity(patch_index,2) = BLAZE%FLI(i) ! needed for ADJUST_POP_FOR_FIRE
 
-!!$           DO nh = 1,mheights
-!!$              hgt = real(casaflux%fire_mortality_vs_height(patch_index,nh,1))
-!!$              casaflux%fire_mortality_vs_height(patch_index,nh,2) = &
-!!$                   (1._r_2 - real(p_surv_OzSavanna(hgt,BLAZE%FLI(i)),r_2)) * BLAZE%AB(i) !*
-!!$
-!!$
-!!$              ! (1._r_2 - casaflux%fire_mortality_vs_height(patch_index,nh,2))  &
-!!$
-!!$           ENDDO
-!!$        ENDIF
+!$           DO nh = 1,mheights
+!$              hgt = real(casaflux%fire_mortality_vs_height(patch_index,nh,1))
+!$              casaflux%fire_mortality_vs_height(patch_index,nh,2) = &
+!$                   (1._r_2 - real(p_surv_OzSavanna(hgt,BLAZE%FLI(i)),r_2)) * BLAZE%AB(i) !*
+!$
+!$
+!$              ! (1._r_2 - casaflux%fire_mortality_vs_height(patch_index,nh,2))  &
+!$
+!$           ENDDO
+!$        ENDIF
        ENDDO
     ENDDO
 
@@ -197,8 +197,8 @@ contains
     ! print*, 'dist: ', int(veg%disturbance_interval(Iw,:), i4b)
 
     POP%pop_grid(:)%fire_mortality = 0.0_dp
-!!$  CALL ADJUST_POP_FOR_FIRE(pop,int(veg%disturbance_interval(Iw,:), i4b), &
-!!$       casaflux%fire_mortality_vs_height(Iw,:,:))
+!$  CALL ADJUST_POP_FOR_FIRE(pop,int(veg%disturbance_interval(Iw,:), i4b), &
+!$       casaflux%fire_mortality_vs_height(Iw,:,:))
     CALL ADJUST_POP_FOR_FIRE(pop,int(veg%disturbance_interval(Iw,:), i4b), &
          veg%disturbance_intensity(Iw,1), veg%disturbance_intensity(Iw,2)  )
     print*,"CLN ADJUST_POP_FOR_FIRE" ,int(veg%disturbance_interval(Iw,:), i4b), &

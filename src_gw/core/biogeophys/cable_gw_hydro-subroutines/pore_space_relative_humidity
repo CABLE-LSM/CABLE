@@ -1,0 +1,56 @@
+  SUBROUTINE pore_space_relative_humidity(ssnow,soil,veg)
+    TYPE (soil_snow_type), INTENT(INOUT)      :: ssnow ! soil and snow variables
+    TYPE (soil_parameter_type), INTENT(INOUT)    :: soil  ! soil parameters
+    TYPE(veg_parameter_type), INTENT(INOUT)      :: veg
+
+    REAL(r_2), DIMENSION(mp) :: unsat_wb,unsat_smp
+
+    ! Need a matching array of ones to use in Mark's call to the intrinsic
+    ! sign func below
+    ! mgk, 24/07/2018
+    REAL(r_2), DIMENSION(mp,ms) :: ones
+
+    INTEGER :: i
+
+    CALL point2constants( C )
+
+    !if gw_model = true
+    !cable_um_init_subrs.F90 or cable_parameters:
+    ! ssat(i) = ssat_vec(i,1)
+    !if gw_model = false
+    !cable_um_init_subrs.F90 or cable_parameters:
+    !ssat_vec(i,:) = ssat(i)
+    !so ssat_vec can be used although soilsnow uses ssat
+
+    DO i=1,mp
+       IF (veg%iveg(i) .LT. 16 .AND. soil%isoilm(i) .NE. 9 .AND. &
+            ssnow%snowd(i) .LE. 1e-8 ) THEN
+
+          unsat_wb(i) =  (ssnow%wb(i,1) - soil%ssat_vec(i,1)*&
+               MIN(0.95,MAX(0.0,ssnow%satfrac(i))))/(1.0 - MIN(0.95,MAX(0.0,ssnow%satfrac(i))))
+
+          unsat_wb(i) = MAX(soil%watr(i,1)+1e-2, MIN(soil%ssat_vec(i,1), unsat_wb(i) ) )
+
+          !unsat_smp(i) = sign(soil%sucs_vec(i,1),-1.0) * min(1.0, &
+          !                         (max(0.001, (unsat_wb(i)-soil%watr(i,1))/(soil%ssat_vec(i,1)-&
+          !                         soil%watr(i,1)) ) )** (-soil%bch_vec(i,1)) )
+
+          ! mgk, 24/07/2018 - fix to compile
+          unsat_smp(i) = SIGN(soil%sucs_vec(i,1),ones(i,1)) * MIN(1.0, &
+               (MAX(0.001, (unsat_wb(i)-soil%watr(i,1))/(soil%ssat_vec(i,1)-&
+               soil%watr(i,1)) ) )** (-soil%bch_vec(i,1)) )
+
+          unsat_smp(i) = MAX(-1.0e7,unsat_smp(i) )/1000._r_2 !m
+
+          ssnow%rh_srf(i) = MAX(0.,MIN(1., &
+               EXP(9.81*unsat_smp(i)/(ssnow%tgg(i,1)*461.4)) ) )
+
+       ELSE
+
+          ssnow%rh_srf(i) = 1.0
+
+       END IF
+    END DO
+
+
+  END SUBROUTINE pore_space_relative_humidity
