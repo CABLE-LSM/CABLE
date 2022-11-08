@@ -152,10 +152,6 @@ integer :: i
 call HgtAboveSnow( HeightAboveSnow, mp, z0soilsn_min, veg%hc, ssnow%snowd, &
                    ssnow%ssdnn )
 rough%hruff =  HeightAboveSnow
-!* The SUBROUTINE ruff_resist is structured as:
-!
-!  * evaluation of the canopy height and leaf area given the presence of snow (or not)
-
 
 ! LAI decreases due to snow: formerly canopy%vlaiw
 call LAI_eff( mp, veg%vlai, veg%hc, HeightAboveSnow, &
@@ -164,7 +160,10 @@ call LAI_eff( mp, veg%vlai, veg%hc, HeightAboveSnow, &
 canopy%vlaiw  = reducedLAIdue2snow
 canopy%rghlai = canopy%vlaiw
 
-!| * sets the value of soil and snow roughness lengths
+!| The SUBROUTINE ruff_resist is structured as:
+!
+!  * evaluation of the canopy height and leaf area given the presence of snow (or not)
+!  * sets the value of soil and snow roughness lengths
 !    (depends on configuration of CABLE)
 IF (cable_user%soil_struc=='default') THEN
 
