@@ -123,6 +123,12 @@
     <h2>public subroutine layer_recruitment(POP, precip)</h2>
     
 
+    <p>Calculates recruitment (establishment):
+Calculates a recruitment factor which mirrors the conditions in the seedling layer
+(existing biomass or gap fraction)
+Recruitment factor is used to determine initial density of seedlings.
+Initial biomass calculated from initial density.
+New cohort created and height, diameter calculated from initial biomass.</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
@@ -132,13 +138,13 @@
   <td><span class="anchor" id="variable-pop~11"></span>type(<a href='../type/pop_type.html'>POP_TYPE</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>POP</strong></td><td></td>
+  <td><strong>POP</strong></td><td><p>POP structure</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-precip~8"></span>real(kind=dp),</td>
 <td>intent(in),</td>
   <td>optional</td>  <td></td><td>::</td>
-  <td><strong>precip</strong>(:)</td><td></td>
+  <td><strong>precip</strong>(:)</td><td><p>optional, not used</p></td>
 </tr>
 </tbody>
 </table>

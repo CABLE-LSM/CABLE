@@ -263,92 +263,92 @@
 <tr>
   <td><span class="anchor" id="variable-fulton_alpha"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>FULTON_ALPHA</strong></td><td> =</td><td>3.5_dp</td><td><p>recruitment scalar alpha in Fulton (1991)</p></td>
+  <td><strong>FULTON_ALPHA</strong></td><td> =</td><td>3.5_dp</td><td><p>Recruitment scalar alpha in Fulton (1991)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-densindiv_max"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>DENSINDIV_MAX</strong></td><td> =</td><td>0.2_dp</td><td><p>Maximum density of individuals within a cohort indiv/m2</p></td>
+  <td><strong>DENSINDIV_MAX</strong></td><td> =</td><td>0.2_dp</td><td><p>Maximum density of individuals within a cohort (indiv m$^{-2}$)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-densindiv_min"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>DENSINDIV_MIN</strong></td><td> =</td><td>1.0e-9_dp</td><td></td>
+  <td><strong>DENSINDIV_MIN</strong></td><td> =</td><td>1.0e-9_dp</td><td><p>Minimum density of individuals within a cohort (indiv m$^{-2}$)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-kbiometric"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>Kbiometric</strong></td><td> =</td><td>50.0_dp</td><td></td>
+  <td><strong>Kbiometric</strong></td><td> =</td><td>50.0_dp</td><td><p>Constant in height-diameter relationship</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-wd"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>WD</strong></td><td> =</td><td>300.0_dp</td><td></td>
+  <td><strong>WD</strong></td><td> =</td><td>300.0_dp</td><td><p>Wood density (kg C m$^{-3}$)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-growth_efficiency_min"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>GROWTH_EFFICIENCY_MIN</strong></td><td> =</td><td>0.009_dp</td><td></td>
+  <td><strong>GROWTH_EFFICIENCY_MIN</strong></td><td> =</td><td>0.009_dp</td><td><p>Threshold growth efficiency for enhanced mortality</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-pmort"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>Pmort</strong></td><td> =</td><td>5.0_dp</td><td></td>
+  <td><strong>Pmort</strong></td><td> =</td><td>5.0_dp</td><td><p>Exponent in stress  mortality formula</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-mort_max"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>MORT_MAX</strong></td><td> =</td><td>0.3_dp</td><td></td>
+  <td><strong>MORT_MAX</strong></td><td> =</td><td>0.3_dp</td><td><p>Maximum mortality rate per year, upper asymptote (biomass fraction)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-theta_recruit"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>THETA_recruit</strong></td><td> =</td><td>0.95_dp</td><td></td>
+  <td><strong>THETA_recruit</strong></td><td> =</td><td>0.95_dp</td><td><p>Shape parameter in recruitment equation</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-cmass_stem_init"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>CMASS_STEM_INIT</strong></td><td> =</td><td>1.0e-4_dp</td><td></td>
+  <td><strong>CMASS_STEM_INIT</strong></td><td> =</td><td>1.0e-4_dp</td><td><p>initial biomass (kg C m$^{-2}$)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-powerbiomass"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>POWERbiomass</strong></td><td> =</td><td>0.67_dp</td><td></td>
+  <td><strong>POWERbiomass</strong></td><td> =</td><td>0.67_dp</td><td><p>Exponent for biomass in proportion to which cohorts preempt resources</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-powergrowthefficiency"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>POWERGrowthEfficiency</strong></td><td> =</td><td>0.67_dp</td><td></td>
+  <td><strong>POWERGrowthEfficiency</strong></td><td> =</td><td>0.67_dp</td><td><p>Exponent in growth efficiency formulation</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-crowdingfactor"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>CrowdingFactor</strong></td><td> =</td><td>0.043_dp</td><td></td>
+  <td><strong>CrowdingFactor</strong></td><td> =</td><td>0.043_dp</td><td><p>Parameter in crowding mortality formulation</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-alpha_cpc"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>ALPHA_CPC</strong></td><td> =</td><td>3.5_dp</td><td></td>
+  <td><strong>ALPHA_CPC</strong></td><td> =</td><td>3.5_dp</td><td><p>Coefficient determining onset of crowding mortality with respect to cover</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-k_allom1"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>k_allom1</strong></td><td> =</td><td>200.0_dp</td><td></td>
+  <td><strong>k_allom1</strong></td><td> =</td><td>200.0_dp</td><td><p>Crown area =  $k_allom1 * diam^k_rp$</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-k_rp"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>k_rp</strong></td><td> =</td><td>1.67_dp</td><td></td>
+  <td><strong>k_rp</strong></td><td> =</td><td>1.67_dp</td><td><p>Constant in crown area relation to tree diameter</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-ksapwood"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>ksapwood</strong></td><td> =</td><td>0.05_dp</td><td></td>
+  <td><strong>ksapwood</strong></td><td> =</td><td>0.05_dp</td><td><p>Rate constant for conversion of sapwood to heartwood (y$^{-1}$)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-q"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>Q</strong></td><td> =</td><td>7.0_dp</td><td></td>
+  <td><strong>Q</strong></td><td> =</td><td>7.0_dp</td><td><p>Parameter governing rate of increase of mortality with age (2=exponential)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-rshootfrac"></span>real,</td>
@@ -363,67 +363,67 @@
 <tr>
   <td><span class="anchor" id="variable-ctonw"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>CtoNw</strong></td><td> =</td><td>400.0_dp</td><td></td>
+  <td><strong>CtoNw</strong></td><td> =</td><td>400.0_dp</td><td><p>Wood C:N ratio (used for calculation of respiration_scalar only)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-ctonl"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>CtoNl</strong></td><td> =</td><td>60.0_dp</td><td></td>
+  <td><strong>CtoNl</strong></td><td> =</td><td>60.0_dp</td><td><p>Leaf C:N ratio (used for calculation of respiration_scalar only)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-ctonr"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>CtoNr</strong></td><td> =</td><td>70.0_dp</td><td></td>
+  <td><strong>CtoNr</strong></td><td> =</td><td>70.0_dp</td><td><p>Fine root C:N ratio (used for calculation of respiration_scalar only)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-n_extent"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>N_EXTENT</strong></td><td> =</td><td>2.0_dp</td><td></td>
+  <td><strong>N_EXTENT</strong></td><td> =</td><td>2.0_dp</td><td><p>Multiple of crown diameters within which tree competes with other cohorts</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-eps"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>EPS</strong></td><td> =</td><td>1.0e-12_dp</td><td></td>
+  <td><strong>EPS</strong></td><td> =</td><td>1.0e-12_dp</td><td><p>Precision parameter representing </p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-nlayer"></span>integer(kind=i4b),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>NLAYER</strong></td><td> =</td><td>1</td><td></td>
+  <td><strong>NLAYER</strong></td><td> =</td><td>1</td><td><p>Number of vertical veg layers (1 is currently the only option)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-ncohort_max"></span>integer(kind=i4b),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>NCOHORT_MAX</strong></td><td> =</td><td>20</td><td></td>
+  <td><strong>NCOHORT_MAX</strong></td><td> =</td><td>20</td><td><p>Maximum number of cohorts</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-ndisturb"></span>integer(kind=i4b),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>NDISTURB</strong></td><td> =</td><td>1</td><td></td>
+  <td><strong>NDISTURB</strong></td><td> =</td><td>1</td><td><p>Number of disturbance regimes (1=total only or 2=partial and total)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-patch_reps"></span>integer(kind=i4b),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>PATCH_REPS</strong></td><td> =</td><td>10</td><td></td>
+  <td><strong>PATCH_REPS</strong></td><td> =</td><td>10</td><td><p>Higher number reduces 'noise'</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-nage_max"></span>integer(kind=i4b),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>NAGE_MAX</strong></td><td> =</td><td>1</td><td></td>
+  <td><strong>NAGE_MAX</strong></td><td> =</td><td>1</td><td><p>Number of maxium ages</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-patch_reps1"></span>integer(kind=i4b),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>PATCH_REPS1</strong></td><td> =</td><td>60</td><td></td>
+  <td><strong>PATCH_REPS1</strong></td><td> =</td><td>60</td><td><p>Number of first dist years</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-patch_reps2"></span>integer(kind=i4b),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>PATCH_REPS2</strong></td><td> =</td><td>1</td><td></td>
+  <td><strong>PATCH_REPS2</strong></td><td> =</td><td>1</td><td><p>Number of second dist years</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-npatch"></span>integer(kind=i4b),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>NPATCH</strong></td><td> =</td><td>PATCH_REPS1*PATCH_REPS2</td><td></td>
+  <td><strong>NPATCH</strong></td><td> =</td><td>PATCH_REPS1*PATCH_REPS2</td><td><p>Number of Patches</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-npatch1d"></span>integer(kind=i4b),</td>
@@ -438,12 +438,12 @@
 <tr>
   <td><span class="anchor" id="variable-height_bins"></span>integer(kind=i4b),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>HEIGHT_BINS</strong></td><td> =</td><td>12</td><td></td>
+  <td><strong>HEIGHT_BINS</strong></td><td> =</td><td>12</td><td><p>Number of height categories to keep track of for diagnostics</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-bin_power"></span>real(kind=dp),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>BIN_POWER</strong></td><td> =</td><td>1.4_dp</td><td></td>
+  <td><strong>BIN_POWER</strong></td><td> =</td><td>1.4_dp</td><td><p>Factor determining size of height bins</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-timebase_factor"></span>integer(kind=i4b),</td>
@@ -458,42 +458,42 @@
 <tr>
   <td><span class="anchor" id="variable-allom_switch~2"></span>integer(kind=i4b),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>ALLOM_SWITCH</strong></td><td> =</td><td>2</td><td></td>
+  <td><strong>ALLOM_SWITCH</strong></td><td> =</td><td>2</td><td><p>Allometry Switch: 0 = default; 1 = top-end allometry (requires precip as input to POPSTEP); 2 = Allometry following Williams 2005, Model 5b</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-max_height_switch"></span>integer(kind=i4b),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>MAX_HEIGHT_SWITCH</strong></td><td> =</td><td>2</td><td></td>
+  <td><strong>MAX_HEIGHT_SWITCH</strong></td><td> =</td><td>2</td><td><p>Max Height calculation: 0 = binnned max height variable; 1 = continuous (needs lots of memory); 2 = binned by integer heights</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-resource_switch"></span>integer(kind=i4b),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>RESOURCE_SWITCH</strong></td><td> =</td><td>1</td><td></td>
+  <td><strong>RESOURCE_SWITCH</strong></td><td> =</td><td>1</td><td><p>0 = default; 1 = fraction of net resource uptake</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-recruit_switch"></span>integer(kind=i4b),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>RECRUIT_SWITCH</strong></td><td> =</td><td>1</td><td></td>
+  <td><strong>RECRUIT_SWITCH</strong></td><td> =</td><td>1</td><td><p>Recruitment switch: 0 = default, 1 = Pgap-dependence</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-interp_switch"></span>integer(kind=i4b),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>INTERP_SWITCH</strong></td><td> =</td><td>1</td><td></td>
+  <td><strong>INTERP_SWITCH</strong></td><td> =</td><td>1</td><td><p>Biomass interpolation switch: 0 = sum over weighted patches, 1 = sum over interpolated patches</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-smooth_switch"></span>integer(kind=i4b),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>SMOOTH_SWITCH</strong></td><td> =</td><td>0</td><td></td>
+  <td><strong>SMOOTH_SWITCH</strong></td><td> =</td><td>0</td><td><p>Smooth disturbance flux switch</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-nyear_window"></span>integer(kind=i4b),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>NYEAR_WINDOW</strong></td><td> =</td><td>5</td><td></td>
+  <td><strong>NYEAR_WINDOW</strong></td><td> =</td><td>5</td><td><p>Size of one-side of smoothing window (y)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-nyear_smooth"></span>integer(kind=i4b),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>NYEAR_SMOOTH</strong></td><td> =</td><td>2*NYEAR_WINDOW+1</td><td></td>
+  <td><strong>NYEAR_SMOOTH</strong></td><td> =</td><td>2*NYEAR_WINDOW+1</td><td><p>Smoothing window size (y)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-nyear_history"></span>integer(kind=i4b),</td>
@@ -503,7 +503,7 @@
 <tr>
   <td><span class="anchor" id="variable-agemax"></span>integer(kind=i4b),</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>AGEMAX</strong></td><td> =</td><td>1000</td><td></td>
+  <td><strong>AGEMAX</strong></td><td> =</td><td>1000</td><td><p>Maximum age (y)</p></td>
 </tr>
 </tbody>
 </table>

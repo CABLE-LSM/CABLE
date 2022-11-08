@@ -123,6 +123,12 @@
     <h2>public subroutine GET_ALLOMETRY(ALLOM_SWITCH, biomass, density, ht, diam, basal, precip)</h2>
     
 
+    <p>Subroutine to calculate height, diameter, and basal area from biomass and density
+Several approaches describing different allometric relationships are implemented
+(input argument allom_switch):
+1) Standard allometriy (reference needed)
+2) following G. Cook (pers. comm. 15/4/2013)
+3) following Williams et al. 2005 (Australian Journal of Botany), Model 5b</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
@@ -132,43 +138,43 @@
   <td><span class="anchor" id="variable-allom_switch"></span>integer(kind=i4b),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>ALLOM_SWITCH</strong></td><td></td>
+  <td><strong>ALLOM_SWITCH</strong></td><td><p>switch for allometric relationship used </p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-biomass~6"></span>real(kind=dp),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>biomass</strong></td><td></td>
+  <td><strong>biomass</strong></td><td><p>biomass (kg C m-2)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-density~5"></span>real(kind=dp),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>density</strong></td><td></td>
+  <td><strong>density</strong></td><td><p>stem density (indiv m-2)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-ht"></span>real(kind=dp),</td>
 <td>intent(out)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>ht</strong></td><td></td>
+  <td><strong>ht</strong></td><td><p>height (m), diameter (m), basal area (m-2 ha-1)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-diam"></span>real(kind=dp),</td>
 <td>intent(out)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>diam</strong></td><td></td>
+  <td><strong>diam</strong></td><td><p>height (m), diameter (m), basal area (m-2 ha-1)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-basal"></span>real(kind=dp),</td>
 <td>intent(out)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>basal</strong></td><td></td>
+  <td><strong>basal</strong></td><td><p>height (m), diameter (m), basal area (m-2 ha-1)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-precip~10"></span>real(kind=dp),</td>
 <td>intent(in),</td>
   <td>optional</td>  <td></td><td>::</td>
-  <td><strong>precip</strong></td><td></td>
+  <td><strong>precip</strong></td><td><p>optional, not used</p></td>
 </tr>
 </tbody>
 </table>

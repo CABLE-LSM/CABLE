@@ -123,6 +123,8 @@
     <h2>public subroutine INTERPOLATE_BIOMASS_1D(POP, disturbance_interval, it, g)</h2>
     
 
+    <p>Subroutine that interpolates biomass and mortality across patches
+to the grid level by taking age distribution of patches (weighting) into account.</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
@@ -132,13 +134,13 @@
   <td><span class="anchor" id="variable-pop~13"></span>type(<a href='../type/pop_type.html'>POP_TYPE</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>POP</strong></td><td></td>
+  <td><strong>POP</strong></td><td><p>POP structure</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-disturbance_interval~7"></span>integer(kind=i4b),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>disturbance_interval</strong>(:,:)</td><td></td>
+  <td><strong>disturbance_interval</strong>(:,:)</td><td><p>Disturbance interval (y). Dimensions: (partial dist : total dist)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-it~4"></span>integer(kind=i4b),</td>

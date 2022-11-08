@@ -528,7 +528,9 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-zeropop"></span><h3>public subroutine <a href='../proc/zeropop.html'>ZeroPOP</a>(POP, n)</h3></div>
   <div class="panel-body">
-           
+       
+<p>Sets all variables in the POP structure to 0.</p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -554,7 +556,10 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-initpop2d_poisson"></span><h3>public subroutine <a href='../proc/initpop2d_poisson.html'>InitPOP2D_Poisson</a>(POP, mean_disturbance_interval, m)</h3></div>
   <div class="panel-body">
-           
+       
+<p>Initialises vector of patches with maximum age correpondding to 95% of pdf
+Starting year: uniform distribution up to maximum age</p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -586,7 +591,9 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-popstep"></span><h3>public subroutine <a href='../proc/popstep.html'>POPStep</a>(POP, StemNPP, disturbance_interval, disturbance_intensity, LAI, Cleaf, Croot, NPPtoGPP, StemNPP_av, frac_intensity1, precip)</h3></div>
   <div class="panel-body">
-           
+       
+<p>Main subroutine of POP module, calling most other subroutines</p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -666,7 +673,23 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-patchannualdynamics"></span><h3>public subroutine <a href='../proc/patchannualdynamics.html'>PatchAnnualDynamics</a>(pop, StemNPP, NPPtoGPP, it, StemNPP_av, precip)</h3></div>
   <div class="panel-body">
-           
+       
+<p>-receives Stem NPP (biomass increment of stems) and distributes
+it among the cohorts. Several options implemented.<br>
+- Updates allometry: basal area, stem diameter, crown area, height.
+  --&gt; Subroutine get_allometry
+- Increments biomass, sapwood and heartwood areas and their turnover.
+- Increments cohort age.
+- calculates growth efficiency as a function of StemNPP and existing biomass.
+- calculates mortality: 1) resource mortality (= stress mortality)
+                           as a function of growth efficiency
+                        2) crowding mortality (function of crown area)
+- removes cohort if density is below a threshold
+- calculates recruitment based on the conditions (light avail.) in the seedling layer
+  and determines initial density and biomass (--&gt; subroutine layer_recruitment)
+- creates new cohorts
+Most calculations happen within nested loops (grid cell &gt; patch &gt; cohort)</p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -674,19 +697,19 @@
   <td><span class="anchor" ></span>type(<a href='../type/pop_type.html'>POP_TYPE</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>pop</strong></td><td></td>
+  <td><strong>pop</strong></td><td><p>POP structure</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>real(kind=dp),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>StemNPP</strong>(:,:)</td><td></td>
+  <td><strong>StemNPP</strong>(:,:)</td><td><p>Stem NPP (= biomass increment) (kg C m-2)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>real(kind=dp),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>NPPtoGPP</strong>(:)</td><td></td>
+  <td><strong>NPPtoGPP</strong>(:)</td><td><p>NPP to GPP ratio</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>integer(kind=i4b),</td>
@@ -698,13 +721,13 @@
   <td><span class="anchor" ></span>real(kind=dp),</td>
 <td>intent(in),</td>
   <td>optional</td>  <td></td><td>::</td>
-  <td><strong>StemNPP_av</strong>(:)</td><td></td>
+  <td><strong>StemNPP_av</strong>(:)</td><td><p>not used</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>real(kind=dp),</td>
 <td>intent(in),</td>
   <td>optional</td>  <td></td><td>::</td>
-  <td><strong>precip</strong>(:)</td><td></td>
+  <td><strong>precip</strong>(:)</td><td><p>not used</p></td>
 </tr>
 </tbody>
 </table>
@@ -716,7 +739,12 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-getuniqueagefrequencies"></span><h3>public subroutine <a href='../proc/getuniqueagefrequencies.html'>GetUniqueAgeFrequencies</a>(POP, disturbance_interval, idisturb)</h3></div>
   <div class="panel-body">
-           
+       
+<p>Determines patch weightings across the grid cell (landscape)
+Fills array freq with weights (frequencies across landscape) for each unique age
+given specified mean disturbance interval.
+See Haverd et al. 2014 for details.</p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -768,7 +796,9 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-getdiagnostics"></span><h3>public subroutine <a href='../proc/getdiagnostics.html'>GetDiagnostics</a>(POP, LAI, Cleaf, Croot, disturbance_interval, it, precip)</h3></div>
   <div class="panel-body">
-           
+       
+<p>Gets diagnostic data (all POP outputs) for current landscape structure</p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -824,7 +854,10 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-patch_partial_disturb"></span><h3>public subroutine <a href='../proc/patch_partial_disturb.html'>Patch_partial_disturb</a>(POP, idisturb, intensity, frac_intensity1)</h3></div>
   <div class="panel-body">
-           
+       
+<p>Simulates a partial disturbance, i.e. removes a fraction of the biomass
+Only called if ndisturb=2 (partial disturbances considered on top of total dist.)</p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -862,7 +895,11 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-patch_partial_disturb2"></span><h3>public subroutine <a href='../proc/patch_partial_disturb2.html'>Patch_partial_disturb2</a>(POP, idisturb)</h3></div>
   <div class="panel-body">
-           
+       
+<p>Simulates a partial disturbance, i.e. removes a fraction of the biomass
+Only called if ndisturb=2 (partial disturbances considered on top of total dist.)
+Potential redundancy to Subroutine Patch_partial_disturb</p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -888,7 +925,12 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-patch_disturb"></span><h3>public subroutine <a href='../proc/patch_disturb.html'>Patch_disturb</a>(POP, idisturb, precip)</h3></div>
   <div class="panel-body">
-           
+       
+<p>Simulates a disturbance event by killing all biomass in a patch.
+Called when prescribed disturbance interval is reached.
+Sets all biomass and related variables to 0 and then calls
+layer_recruitment_single_patch to initiate recruitment.</p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -896,19 +938,19 @@
   <td><span class="anchor" ></span>type(<a href='../type/pop_type.html'>POP_TYPE</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>POP</strong></td><td></td>
+  <td><strong>POP</strong></td><td><p>POP structure</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>integer(kind=i4b),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>idisturb</strong></td><td></td>
+  <td><strong>idisturb</strong></td><td><p>disturbance regime (1=total only, 2=total and partial)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>real(kind=dp),</td>
 <td>intent(in),</td>
   <td>optional</td>  <td></td><td>::</td>
-  <td><strong>precip</strong>(:)</td><td></td>
+  <td><strong>precip</strong>(:)</td><td><p>optional, not implemented</p></td>
 </tr>
 </tbody>
 </table>
@@ -920,7 +962,14 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-layer_recruitment"></span><h3>public subroutine <a href='../proc/layer_recruitment.html'>layer_recruitment</a>(POP, precip)</h3></div>
   <div class="panel-body">
-           
+       
+<p>Calculates recruitment (establishment):
+Calculates a recruitment factor which mirrors the conditions in the seedling layer
+(existing biomass or gap fraction)
+Recruitment factor is used to determine initial density of seedlings.
+Initial biomass calculated from initial density.
+New cohort created and height, diameter calculated from initial biomass.</p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -928,13 +977,13 @@
   <td><span class="anchor" ></span>type(<a href='../type/pop_type.html'>POP_TYPE</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>POP</strong></td><td></td>
+  <td><strong>POP</strong></td><td><p>POP structure</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>real(kind=dp),</td>
 <td>intent(in),</td>
   <td>optional</td>  <td></td><td>::</td>
-  <td><strong>precip</strong>(:)</td><td></td>
+  <td><strong>precip</strong>(:)</td><td><p>optional, not used</p></td>
 </tr>
 </tbody>
 </table>
@@ -946,7 +995,10 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-layer_recruitment_single_patch"></span><h3>public subroutine <a href='../proc/layer_recruitment_single_patch.html'>layer_recruitment_single_patch</a>(POP, index, grid_index, precip)</h3></div>
   <div class="panel-body">
-           
+       
+<p>This subroutine has the same function as subroutine layer_recruitment.
+It is essentially a copy of it with the grid index as additional input argument</p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -954,25 +1006,25 @@
   <td><span class="anchor" ></span>type(<a href='../type/pop_type.html'>POP_TYPE</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>POP</strong></td><td></td>
+  <td><strong>POP</strong></td><td><p>POP structure</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>integer(kind=i4b),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>index</strong></td><td></td>
+  <td><strong>index</strong></td><td><p>grid index</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>integer(kind=i4b),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>grid_index</strong></td><td></td>
+  <td><strong>grid_index</strong></td><td><p>grid index</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>real(kind=dp),</td>
 <td>intent(in),</td>
   <td>optional</td>  <td></td><td>::</td>
-  <td><strong>precip</strong>(:)</td><td></td>
+  <td><strong>precip</strong>(:)</td><td><p>optional, not used </p></td>
 </tr>
 </tbody>
 </table>
@@ -984,7 +1036,14 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-get_allometry"></span><h3>public subroutine <a href='../proc/get_allometry.html'>GET_ALLOMETRY</a>(ALLOM_SWITCH, biomass, density, ht, diam, basal, precip)</h3></div>
   <div class="panel-body">
-           
+       
+<p>Subroutine to calculate height, diameter, and basal area from biomass and density
+Several approaches describing different allometric relationships are implemented
+(input argument allom_switch):
+1) Standard allometriy (reference needed)
+2) following G. Cook (pers. comm. 15/4/2013)
+3) following Williams et al. 2005 (Australian Journal of Botany), Model 5b</p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -992,43 +1051,43 @@
   <td><span class="anchor" ></span>integer(kind=i4b),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>ALLOM_SWITCH</strong></td><td></td>
+  <td><strong>ALLOM_SWITCH</strong></td><td><p>switch for allometric relationship used </p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>real(kind=dp),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>biomass</strong></td><td></td>
+  <td><strong>biomass</strong></td><td><p>biomass (kg C m-2)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>real(kind=dp),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>density</strong></td><td></td>
+  <td><strong>density</strong></td><td><p>stem density (indiv m-2)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>real(kind=dp),</td>
 <td>intent(out)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>ht</strong></td><td></td>
+  <td><strong>ht</strong></td><td><p>height (m), diameter (m), basal area (m-2 ha-1)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>real(kind=dp),</td>
 <td>intent(out)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>diam</strong></td><td></td>
+  <td><strong>diam</strong></td><td><p>height (m), diameter (m), basal area (m-2 ha-1)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>real(kind=dp),</td>
 <td>intent(out)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>basal</strong></td><td></td>
+  <td><strong>basal</strong></td><td><p>height (m), diameter (m), basal area (m-2 ha-1)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>real(kind=dp),</td>
 <td>intent(in),</td>
   <td>optional</td>  <td></td><td>::</td>
-  <td><strong>precip</strong></td><td></td>
+  <td><strong>precip</strong></td><td><p>optional, not used</p></td>
 </tr>
 </tbody>
 </table>
@@ -1040,7 +1099,10 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-interpolate_biomass_1d"></span><h3>public subroutine <a href='../proc/interpolate_biomass_1d.html'>INTERPOLATE_BIOMASS_1D</a>(POP, disturbance_interval, it, g)</h3></div>
   <div class="panel-body">
-           
+       
+<p>Subroutine that interpolates biomass and mortality across patches
+to the grid level by taking age distribution of patches (weighting) into account.</p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -1048,13 +1110,13 @@
   <td><span class="anchor" ></span>type(<a href='../type/pop_type.html'>POP_TYPE</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>POP</strong></td><td></td>
+  <td><strong>POP</strong></td><td><p>POP structure</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>integer(kind=i4b),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>disturbance_interval</strong>(:,:)</td><td></td>
+  <td><strong>disturbance_interval</strong>(:,:)</td><td><p>Disturbance interval (y). Dimensions: (partial dist : total dist)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>integer(kind=i4b),</td>
@@ -1078,7 +1140,9 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-interpolate_firemortality"></span><h3>public subroutine <a href='../proc/interpolate_firemortality.html'>INTERPOLATE_FIREMORTALITY</a>(POP, disturbance_interval, it, g)</h3></div>
   <div class="panel-body">
-           
+       
+<p>Integrates fire mortality from patch to grid cell level.</p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -1116,7 +1180,10 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-adjust_pop_for_fire"></span><h3>public subroutine <a href='../proc/adjust_pop_for_fire.html'>ADJUST_POP_FOR_FIRE</a>(pop, disturbance_interval, burned_area, FLI)</h3></div>
   <div class="panel-body">
-           
+       
+<p>reduces biomass on a cohort basis according to mortality vs dbh function
+interpolates patch-based fire mortality to get grid-cell mortality</p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -1154,7 +1221,11 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-interpolate_biomass_2d"></span><h3>public subroutine <a href='../proc/interpolate_biomass_2d.html'>INTERPOLATE_BIOMASS_2D</a>(POP, disturbance_interval, it, g)</h3></div>
   <div class="panel-body">
-           
+       
+<p>Subroutine equivalent to INTERPOLATE_BIOMASS_1D but for the
+ndisturb=2 case, i.e. when both total and partial disturbances
+are considered.</p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -1256,7 +1327,12 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-regress"></span><h3>public subroutine <a href='../proc/regress.html'>REGRESS</a>(x, y, n, a, b, r)</h3></div>
   <div class="panel-body">
-           
+       
+<p>Performs a linear regression of array y on array x (n values)
+returning parameters a and b in the fitted model: y=a+bx
+Source: Press et al 1986, Sect 14.2
+also returns Pearson r</p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -1306,7 +1382,11 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-allometry"></span><h3>public subroutine <a href='../proc/allometry.html'>Allometry</a>(height, biomass, density, diam, basal)</h3></div>
   <div class="panel-body">
-           
+       
+<p>Top-End Allometry
+Computes tree stem diameter (m) and basal area (m2/ha)
+given height (m), stem biomass (kgC/m2) and tree population density (indiv/m2)</p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -1350,7 +1430,19 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-williams_allometry"></span><h3>public subroutine <a href='../proc/williams_allometry.html'>Williams_Allometry</a>(agbiomass, density, height, dbh, basal)</h3></div>
   <div class="panel-body">
-           
+       
+<p>Allometry following Williams 2005, Model 5b (see table 2)
+Williams et al., "Allometry for estimating aboveground tree biomass in tropical
+and subtropical eucalypt woodlands: towards general predictive equations",
+Australian Journal of Botany, 2005, 53, 607-619
+INPUT
+agbiomass: Above ground biomass [kg(C)/m2]
+density  : Tree population density [m-2]
+OUTPUT
+height   : Tree height [m]
+dbh      : Diameter at breast height [m]
+basal    : Basal area [m2/ha]</p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -1394,7 +1486,14 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-pop_init"></span><h3>public subroutine <a href='../proc/pop_init.html'>POP_init</a>(POP, disturbance_interval, np, Iwood, precip)</h3></div>
   <div class="panel-body">
-           
+       
+<p>Initialises POP:
+- allocates POP structure
+- sets POP structure to 0
+- calls InitPOP2D_Poisson which determines disturbance interval
+- calls layer_recruitment_single_patch, which simulates recruitment of
+  first cohort.</p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -1438,7 +1537,10 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-pop_init_single"></span><h3>public subroutine <a href='../proc/pop_init_single.html'>POP_init_single</a>(POP, disturbance_interval, n, precip)</h3></div>
   <div class="panel-body">
-           
+       
+<p>Equivalent to POP_init.
+Code review needed to evaluate redundancy.</p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>

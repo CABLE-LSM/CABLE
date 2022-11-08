@@ -115,7 +115,8 @@
 2) Exclude negative parts of the An-Ci curve
 Avoid unrealistic Vcmax and Jmax values</p></td></tr>
 			   <tr><td><a href='../proc/adjust_k_collatz.html'>adjust_k_Collatz</a></td><td><a href='../module/cable_adjust_jv_gm_module.html'>cable_adjust_JV_gm_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/adjust_pop_for_fire.html'>ADJUST_POP_FOR_FIRE</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/adjust_pop_for_fire.html'>ADJUST_POP_FOR_FIRE</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>reduces biomass on a cohort basis according to mortality vs dbh function
+interpolates patch-based fire mortality to get grid-cell mortality</p></td></tr>
 			   <tr><td><a href='../proc/air_type_ptr.html'>air_type_ptr</a></td><td><a href='../module/cable_data_module.html'>cable_data_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/albedo_type_ptr.html'>albedo_type_ptr</a></td><td><a href='../module/cable_data_module.html'>cable_data_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/alloc_air_type.html'>alloc_air_type</a></td><td><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></td><td>Subroutine</td><td></td></tr>
@@ -142,7 +143,9 @@ Avoid unrealistic Vcmax and Jmax values</p></td></tr>
 			   <tr><td><a href='../proc/alloc_sum_flux_type.html'>alloc_sum_flux_type</a></td><td><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/alloc_veg_parameter_type.html'>alloc_veg_parameter_type</a></td><td><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/allocate_cable_vars.html'>allocate_cable_vars</a></td><td><a href='../module/cable_input_module.html'>cable_input_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/allometry.html'>Allometry</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/allometry.html'>Allometry</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>Top-End Allometry
+Computes tree stem diameter (m) and basal area (m2/ha)
+given height (m), stem biomass (kgC/m2) and tree population density (indiv/m2)</p></td></tr>
 			   <tr><td><a href='../proc/analyticpool.html'>analyticpool</a></td><td><a href='../module/casa_cable.html'>casa_cable</a></td><td>Subroutine</td><td><p>set the following two backflow to set (see Bolker 199x)</p></td></tr>
 			   <tr><td><a href='../proc/annual_ba.html'>ANNUAL_BA</a></td><td><a href='../module/simfire_mod.html'>SIMFIRE_MOD</a></td><td>Function</td><td><p>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</p><a href="../proc/annual_ba.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/aquifer_props.html'>aquifer_props</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
@@ -542,7 +545,12 @@ vh_js!!</p></td></tr>
 			   <tr><td><a href='../interface/generic_thomas.html'>generic_thomas</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Interface</td><td></td></tr>
 			   <tr><td><a href='../proc/generic_thomas_1d.html'>generic_thomas_1d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/generic_thomas_2d.html'>generic_thomas_2d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/get_allometry.html'>GET_ALLOMETRY</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_allometry.html'>GET_ALLOMETRY</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>Subroutine to calculate height, diameter, and basal area from biomass and density
+Several approaches describing different allometric relationships are implemented
+(input argument allom_switch):
+1) Standard allometriy (reference needed)
+2) following G. Cook (pers. comm. 15/4/2013)
+3) following Williams et al. 2005 (Australian Journal of Botany), Model 5b</p></td></tr>
 			   <tr><td><a href='../proc/get_and_solve_eqn.html'>get_and_solve_eqn</a></td><td><a href='../module/sli_solve.html'>sli_solve</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/get_cru_co2.html'>GET_CRU_CO2</a></td><td><a href='../module/cable_cru.html'>cable_cru</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/get_cru_ndep.html'>GET_CRU_Ndep</a></td><td><a href='../module/cable_cru.html'>cable_cru</a></td><td>Subroutine</td><td></td></tr>
@@ -565,7 +573,7 @@ Doing it once will fix the problem in the restart file in subsequent runs</p><a 
 			   <tr><td><a href='../interface/get_var_nc.html'>get_var_nc</a></td><td><a href='../module/cable_diag_module.html'>cable_diag_module</a></td><td>Interface</td><td></td></tr>
 			   <tr><td><a href='../proc/get_var_ncr2.html'>get_var_ncr2</a></td><td><a href='../module/cable_diag_module.html'>cable_diag_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/get_var_ncr3.html'>get_var_ncr3</a></td><td><a href='../module/cable_diag_module.html'>cable_diag_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/getdiagnostics.html'>GetDiagnostics</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/getdiagnostics.html'>GetDiagnostics</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>Gets diagnostic data (all POP outputs) for current landscape structure</p></td></tr>
 			   <tr><td><a href='../interface/getfluxes_vp.html'>getfluxes_vp</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Interface</td><td></td></tr>
 			   <tr><td><a href='../proc/getfluxes_vp_1d.html'>getfluxes_vp_1d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/getfluxes_vp_2d.html'>getfluxes_vp_2d</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
@@ -578,7 +586,10 @@ Doing it once will fix the problem in the restart file in subsequent runs</p><a 
 			   <tr><td><a href='../proc/getrex_1d.html'>getrex_1d</a></td><td><a href='../module/sli_roots.html'>sli_roots</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/getrex_1d~2.html'>getrex_1d</a></td><td><a href='../module/cable_canopy_module.html'>cable_canopy_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/getrex_2d.html'>getrex_2d</a></td><td><a href='../module/sli_roots.html'>sli_roots</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/getuniqueagefrequencies.html'>GetUniqueAgeFrequencies</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/getuniqueagefrequencies.html'>GetUniqueAgeFrequencies</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>Determines patch weightings across the grid cell (landscape)
+Fills array freq with weights (frequencies across landscape) for each unique age
+given specified mean disturbance interval.
+See Haverd et al. 2014 for details.</p></td></tr>
 			   <tr><td><a href='../proc/golden.html'>golden</a></td><td><a href='../module/cable_optimise_jv_module.html'>cable_optimise_JV_module</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../interface/greaterequal.html'>greaterequal</a></td><td><a href='../module/mo_utils.html'>mo_utils</a></td><td>Interface</td><td></td></tr>
 			   <tr><td><a href='../proc/greaterequal_dp.html'>greaterequal_dp</a></td><td><a href='../module/mo_utils.html'>mo_utils</a></td><td>Function</td><td></td></tr>
@@ -649,10 +660,14 @@ This is an elemental subroutine and can be called with scalars and arrays.
 \author Written Matthias Cuntz
 \date Apr-Nov 2019</p></td></tr>
 			   <tr><td><a href='../proc/init_veg_from_vegin.html'>init_veg_from_vegin</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/initpop2d_poisson.html'>InitPOP2D_Poisson</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/interpolate_biomass_1d.html'>INTERPOLATE_BIOMASS_1D</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/interpolate_biomass_2d.html'>INTERPOLATE_BIOMASS_2D</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/interpolate_firemortality.html'>INTERPOLATE_FIREMORTALITY</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/initpop2d_poisson.html'>InitPOP2D_Poisson</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>Initialises vector of patches with maximum age correpondding to 95% of pdf
+Starting year: uniform distribution up to maximum age</p></td></tr>
+			   <tr><td><a href='../proc/interpolate_biomass_1d.html'>INTERPOLATE_BIOMASS_1D</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>Subroutine that interpolates biomass and mortality across patches
+to the grid level by taking age distribution of patches (weighting) into account.</p></td></tr>
+			   <tr><td><a href='../proc/interpolate_biomass_2d.html'>INTERPOLATE_BIOMASS_2D</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>Subroutine equivalent to INTERPOLATE_BIOMASS_1D but for the
+ndisturb=2 case, i.e. when both total and partial disturbances
+are considered.</p></td></tr>
+			   <tr><td><a href='../proc/interpolate_firemortality.html'>INTERPOLATE_FIREMORTALITY</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>Integrates fire mortality from patch to grid cell level.</p></td></tr>
 			   <tr><td><a href='../proc/is_casa_time.html'>IS_CASA_TIME</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../interface/is_finite.html'>is_finite</a></td><td><a href='../module/mo_utils.html'>mo_utils</a></td><td>Interface</td><td><p>\brief .true. if not IEEE Inf, IEEE NaN, nor IEEE Inf nor IEEE NaN, respectively.
  \details Checks for IEEE Inf and IEEE NaN, i.e. Infinity and Not-a-Number.\n
@@ -856,8 +871,14 @@ Fluxes and fractionation factors have dimensions (n,n) or (n,n,m).
 			   <tr><td><a href='../proc/jsoillayer.html'>JSoilLayer</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/julianday.html'>JulianDay</a></td><td><a href='../module/bios_date_functions.html'>bios_date_functions</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/land2xy.html'>land2xy</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/layer_recruitment.html'>layer_recruitment</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/layer_recruitment_single_patch.html'>layer_recruitment_single_patch</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/layer_recruitment.html'>layer_recruitment</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>Calculates recruitment (establishment):
+Calculates a recruitment factor which mirrors the conditions in the seedling layer
+(existing biomass or gap fraction)
+Recruitment factor is used to determine initial density of seedlings.
+Initial biomass calculated from initial density.
+New cohort created and height, diameter calculated from initial biomass.</p></td></tr>
+			   <tr><td><a href='../proc/layer_recruitment_single_patch.html'>layer_recruitment_single_patch</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>This subroutine has the same function as subroutine layer_recruitment.
+It is essentially a copy of it with the grid index as additional input argument</p></td></tr>
 			   <tr><td><a href='../interface/le.html'>le</a></td><td><a href='../module/mo_utils.html'>mo_utils</a></td><td>Interface</td><td></td></tr>
 			   <tr><td><a href='../proc/leap_day.html'>leap_day</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/leapday.html'>LeapDay</a></td><td><a href='../module/bios_date_functions.html'>bios_date_functions</a></td><td>Function</td><td></td></tr>
@@ -982,10 +1003,30 @@ vh_js !!</p></td></tr>
 			   <tr><td><a href='../interface/operator%20%28gt%3D%29.html'>OPERATOR (>=)</a></td><td><a href='../module/bios_date_functions.html'>bios_date_functions</a></td><td>Interface</td><td></td></tr>
 			   <tr><td><a href='../proc/optimise_jv.html'>optimise_JV</a></td><td><a href='../module/cable_optimise_jv_module.html'>cable_optimise_JV_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/p_surv_ozsavanna.html'>p_surv_OzSavanna</a></td><td><a href='../module/blaze_mod.html'>BLAZE_MOD</a></td><td>Function</td><td></td></tr>
-			   <tr><td><a href='../proc/patch_disturb.html'>Patch_disturb</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/patch_partial_disturb.html'>Patch_partial_disturb</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/patch_partial_disturb2.html'>Patch_partial_disturb2</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/patchannualdynamics.html'>PatchAnnualDynamics</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/patch_disturb.html'>Patch_disturb</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>Simulates a disturbance event by killing all biomass in a patch.
+Called when prescribed disturbance interval is reached.
+Sets all biomass and related variables to 0 and then calls
+layer_recruitment_single_patch to initiate recruitment.</p></td></tr>
+			   <tr><td><a href='../proc/patch_partial_disturb.html'>Patch_partial_disturb</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>Simulates a partial disturbance, i.e. removes a fraction of the biomass
+Only called if ndisturb=2 (partial disturbances considered on top of total dist.)</p></td></tr>
+			   <tr><td><a href='../proc/patch_partial_disturb2.html'>Patch_partial_disturb2</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>Simulates a partial disturbance, i.e. removes a fraction of the biomass
+Only called if ndisturb=2 (partial disturbances considered on top of total dist.)
+Potential redundancy to Subroutine Patch_partial_disturb</p></td></tr>
+			   <tr><td><a href='../proc/patchannualdynamics.html'>PatchAnnualDynamics</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>-receives Stem NPP (biomass increment of stems) and distributes
+it among the cohorts. Several options implemented.<br>
+- Updates allometry: basal area, stem diameter, crown area, height.
+  --&gt; Subroutine get_allometry
+- Increments biomass, sapwood and heartwood areas and their turnover.
+- Increments cohort age.
+- calculates growth efficiency as a function of StemNPP and existing biomass.
+- calculates mortality: 1) resource mortality (= stress mortality)
+                           as a function of growth efficiency
+                        2) crowding mortality (function of crown area)
+- removes cohort if density is below a threshold
+- calculates recruitment based on the conditions (light avail.) in the seedling layer
+  and determines initial density and biomass (--&gt; subroutine layer_recruitment)
+- creates new cohorts
+Most calculations happen within nested loops (grid cell &gt; patch &gt; cohort)</p></td></tr>
 			   <tr><td><a href='../proc/phenology.html'>phenology</a></td><td><a href='../module/casa_cnp_module.html'>casa_cnp_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/phi.html'>phi</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/photosyn25.html'>photosyn25</a></td><td><a href='../module/cable_adjust_jv_gm_module.html'>cable_adjust_JV_gm_module</a></td><td>Subroutine</td><td></td></tr>
@@ -997,8 +1038,14 @@ vh_js !!</p></td></tr>
 			   <tr><td><a href='../proc/plume_mip_get_met.html'>PLUME_MIP_GET_MET</a></td><td><a href='../module/cable_plume_mip.html'>CABLE_PLUME_MIP</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/plume_mip_init.html'>PLUME_MIP_INIT</a></td><td><a href='../module/cable_plume_mip.html'>CABLE_PLUME_MIP</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../interface/point2constants.html'>point2constants</a></td><td><a href='../module/cable_data_module.html'>cable_data_module</a></td><td>Interface</td><td></td></tr>
-			   <tr><td><a href='../proc/pop_init.html'>POP_init</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/pop_init_single.html'>POP_init_single</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/pop_init.html'>POP_init</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>Initialises POP:
+- allocates POP structure
+- sets POP structure to 0
+- calls InitPOP2D_Poisson which determines disturbance interval
+- calls layer_recruitment_single_patch, which simulates recruitment of
+  first cohort.</p></td></tr>
+			   <tr><td><a href='../proc/pop_init_single.html'>POP_init_single</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>Equivalent to POP_init.
+Code review needed to evaluate redundancy.</p></td></tr>
 			   <tr><td><a href='../proc/pop_io.html'>POP_IO</a></td><td><a href='../module/cable_pop_io.html'>cable_pop_io</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/pop_luc_casa_transfer.html'>POP_LUC_CASA_transfer</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/popdriver.html'>POPdriver</a></td><td><a href='../module/casa_cable.html'>casa_cable</a></td><td>Subroutine</td><td></td></tr>
@@ -1007,7 +1054,7 @@ vh_js !!</p></td></tr>
 			   <tr><td><a href='../proc/popluc_set_patchfrac.html'>POPLUC_set_patchfrac</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/popluc_weights_transfer.html'>POPLUC_weights_transfer</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/poplucstep.html'>POPLUCStep</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/popstep.html'>POPStep</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/popstep.html'>POPStep</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>Main subroutine of POP module, calling most other subroutines</p></td></tr>
 			   <tr><td><a href='../proc/potential_evap.html'>potential_evap</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/preparefiles.html'>prepareFiles</a></td><td><a href='../sourcefile/cable_driver.f90.html'>cable_driver.F90</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/preparefiles~2.html'>prepareFiles</a></td><td><a href='../module/cable_mpimaster.html'>cable_mpimaster</a></td><td>Subroutine</td><td></td></tr>
@@ -1087,7 +1134,10 @@ vh_js !!</p></td></tr>
 			   <tr><td><a href='../proc/redistr_r2.html'>redistr_r2</a></td><td><a href='../module/cable_read_module.html'>cable_read_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/redistr_r2d.html'>redistr_r2d</a></td><td><a href='../module/cable_read_module.html'>cable_read_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/redistr_rd.html'>redistr_rd</a></td><td><a href='../module/cable_read_module.html'>cable_read_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/regress.html'>REGRESS</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/regress.html'>REGRESS</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>Performs a linear regression of array y on array x (n values)
+returning parameters a and b in the fitted model: y=a+bx
+Source: Press et al 1986, Sect 14.2
+also returns Pearson r</p></td></tr>
 			   <tr><td><a href='../proc/remove_trans.html'>remove_trans</a></td><td><a href='../module/cable_soil_snow_module.html'>cable_soil_snow_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/renamefiles.html'>renameFiles</a></td><td><a href='../sourcefile/cable_driver.f90.html'>cable_driver.F90</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/renamefiles~2.html'>renameFiles</a></td><td><a href='../module/cable_mpimaster.html'>cable_mpimaster</a></td><td>Subroutine</td><td></td></tr>
@@ -1223,7 +1273,17 @@ CLN    CLOSE(91)</p><a href="../proc/spincasacnp.html" class="pull-right"><emph>
 			   <tr><td><a href='../proc/wgen_init.html'>WGEN_INIT</a></td><td><a href='../module/cable_weathergenerator.html'>CABLE_WEATHERGENERATOR</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/wgen_subdiurnal_met.html'>WGEN_SUBDIURNAL_MET</a></td><td><a href='../module/cable_weathergenerator.html'>CABLE_WEATHERGENERATOR</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/wgen_zero.html'>wgen_zero</a></td><td><a href='../module/cable_weathergenerator.html'>CABLE_WEATHERGENERATOR</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/williams_allometry.html'>Williams_Allometry</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/williams_allometry.html'>Williams_Allometry</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>Allometry following Williams 2005, Model 5b (see table 2)
+Williams et al., "Allometry for estimating aboveground tree biomass in tropical
+and subtropical eucalypt woodlands: towards general predictive equations",
+Australian Journal of Botany, 2005, 53, 607-619
+INPUT
+agbiomass: Above ground biomass [kg(C)/m2]
+density  : Tree population density [m-2]
+OUTPUT
+height   : Tree height [m]
+dbh      : Diameter at breast height [m]
+basal    : Basal area [m2/ha]</p></td></tr>
 			   <tr><td><a href='../proc/worker_blaze_types.html'>worker_blaze_types</a></td><td><a href='../module/blaze_mpi.html'>BLAZE_MPI</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/worker_c13o2_flux_params.html'>worker_c13o2_flux_params</a></td><td><a href='../module/cable_mpiworker.html'>cable_mpiworker</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/worker_c13o2_flux_type.html'>worker_c13o2_flux_type</a></td><td><a href='../module/cable_mpiworker.html'>cable_mpiworker</a></td><td>Subroutine</td><td></td></tr>
@@ -1317,7 +1377,7 @@ output calc of soil albedo based on colour? - Ticket #27</p></td></tr>
 			   <tr><td><a href='../proc/zero_sum_casa.html'>zero_sum_casa</a></td><td><a href='../module/casavariable.html'>casavariable</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/zero_sum_flux_type.html'>zero_sum_flux_type</a></td><td><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/zero_veg_parameter_type.html'>zero_veg_parameter_type</a></td><td><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/zeropop.html'>ZeroPOP</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/zeropop.html'>ZeroPOP</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td><p>Sets all variables in the POP structure to 0.</p></td></tr>
 			   <tr><td><a href='../proc/zerovars.html'>zerovars</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/zerovars_aquifer.html'>zerovars_aquifer</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/zerovars_met.html'>zerovars_met</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>

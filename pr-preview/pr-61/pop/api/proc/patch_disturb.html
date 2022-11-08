@@ -123,6 +123,10 @@
     <h2>public subroutine Patch_disturb(POP, idisturb, precip)</h2>
     
 
+    <p>Simulates a disturbance event by killing all biomass in a patch.
+Called when prescribed disturbance interval is reached.
+Sets all biomass and related variables to 0 and then calls
+layer_recruitment_single_patch to initiate recruitment.</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
@@ -132,19 +136,19 @@
   <td><span class="anchor" id="variable-pop~10"></span>type(<a href='../type/pop_type.html'>POP_TYPE</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>POP</strong></td><td></td>
+  <td><strong>POP</strong></td><td><p>POP structure</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-idisturb~4"></span>integer(kind=i4b),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>idisturb</strong></td><td></td>
+  <td><strong>idisturb</strong></td><td><p>disturbance regime (1=total only, 2=total and partial)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-precip~7"></span>real(kind=dp),</td>
 <td>intent(in),</td>
   <td>optional</td>  <td></td><td>::</td>
-  <td><strong>precip</strong>(:)</td><td></td>
+  <td><strong>precip</strong>(:)</td><td><p>optional, not implemented</p></td>
 </tr>
 </tbody>
 </table>

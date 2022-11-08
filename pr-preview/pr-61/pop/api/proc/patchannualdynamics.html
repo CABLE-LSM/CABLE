@@ -123,6 +123,21 @@
     <h2>public subroutine PatchAnnualDynamics(pop, StemNPP, NPPtoGPP, it, StemNPP_av, precip)</h2>
     
 
+    <p>-receives Stem NPP (biomass increment of stems) and distributes
+it among the cohorts. Several options implemented.<br>
+- Updates allometry: basal area, stem diameter, crown area, height.
+  --&gt; Subroutine get_allometry
+- Increments biomass, sapwood and heartwood areas and their turnover.
+- Increments cohort age.
+- calculates growth efficiency as a function of StemNPP and existing biomass.
+- calculates mortality: 1) resource mortality (= stress mortality)
+                           as a function of growth efficiency
+                        2) crowding mortality (function of crown area)
+- removes cohort if density is below a threshold
+- calculates recruitment based on the conditions (light avail.) in the seedling layer
+  and determines initial density and biomass (--&gt; subroutine layer_recruitment)
+- creates new cohorts
+Most calculations happen within nested loops (grid cell &gt; patch &gt; cohort)</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
@@ -132,19 +147,19 @@
   <td><span class="anchor" id="variable-pop"></span>type(<a href='../type/pop_type.html'>POP_TYPE</a>),</td>
 <td>intent(inout)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>pop</strong></td><td></td>
+  <td><strong>pop</strong></td><td><p>POP structure</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-stemnpp~2"></span>real(kind=dp),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>StemNPP</strong>(:,:)</td><td></td>
+  <td><strong>StemNPP</strong>(:,:)</td><td><p>Stem NPP (= biomass increment) (kg C m-2)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-npptogpp~2"></span>real(kind=dp),</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>NPPtoGPP</strong>(:)</td><td></td>
+  <td><strong>NPPtoGPP</strong>(:)</td><td><p>NPP to GPP ratio</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-it~2"></span>integer(kind=i4b),</td>
@@ -156,13 +171,13 @@
   <td><span class="anchor" id="variable-stemnpp_av~2"></span>real(kind=dp),</td>
 <td>intent(in),</td>
   <td>optional</td>  <td></td><td>::</td>
-  <td><strong>StemNPP_av</strong>(:)</td><td></td>
+  <td><strong>StemNPP_av</strong>(:)</td><td><p>not used</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-precip~5"></span>real(kind=dp),</td>
 <td>intent(in),</td>
   <td>optional</td>  <td></td><td>::</td>
-  <td><strong>precip</strong>(:)</td><td></td>
+  <td><strong>precip</strong>(:)</td><td><p>not used</p></td>
 </tr>
 </tbody>
 </table>
