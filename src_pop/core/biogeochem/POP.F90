@@ -6,7 +6,8 @@
 
 !CITATION
 !--------------------------------------------------------
-!When referring to this code in publications, please cite:
+!*
+! When referring to this code in publications, please cite:
 ! Haverd, V., Smith, B., Cook, G., Briggs, P.R., Nieradzik, L., Roxburgh, S.R., Liedloff, A.,
 ! Meyer, C.P. and Canadell, J.G., 2013.
 ! A stand-alone tree demography and landscape structure module for Earth system models.
@@ -81,9 +82,10 @@ MODULE POP_Constants
   ! REAL(dp),PARAMETER:: CrowdingFactor = 0.0128
   ! REAL(dp),PARAMETER:: ALPHA_CPC = 3.0
 
-  REAL(dp), PARAMETER :: FULTON_ALPHA = 3.5_dp ! recruitment scalar alpha in Fulton (1991)
-  REAL(dp), PARAMETER :: DENSINDIV_MAX = 0.2_dp  ! 0.5 !  Maximum density of individuals within a cohort indiv/m2
-  REAL(dp), PARAMETER :: DENSINDIV_MIN = 1.0e-9_dp !
+  !! # Parameters
+  REAL(dp), PARAMETER :: FULTON_ALPHA = 3.5_dp     !! recruitment scalar alpha in Fulton (1991)
+  REAL(dp), PARAMETER :: DENSINDIV_MAX = 0.2_dp    !! Maximum density of individuals within a cohort indiv/m2
+  REAL(dp), PARAMETER :: DENSINDIV_MIN = 1.0e-9_dp !!
   REAL(dp), PARAMETER :: Kbiometric = 50.0_dp ! Constant in height-diameter relationship
   REAL(dp), PARAMETER :: WD = 300.0_dp ! Wood density kgC/m3
   ! threshold growth efficiency for enhanced mortality (higher value gives higher biomass turnover)
@@ -816,7 +818,7 @@ CONTAINS
                 ENDIF
 
                 if (ALLOM_SWITCH.eq.1) then
-                   !! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
+                   ! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
                    crown_area = densindiv*PI*(diam*100.0_dp*0.1492_dp)**2
                 else
                    crown_area = densindiv*PI*(((k_allom1 * diam ** k_rp )/PI)**0.5_dp)**2
@@ -1507,12 +1509,12 @@ CONTAINS
 
              IF (diam*100.0_dp .GT. 5.0_dp) THEN
                 if (ALLOM_SWITCH.eq.1) then
-                   !! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
+                   ! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
                    ! assumes vertical radius = 1.5 * horizontal radius
                    pop%pop_grid(g)%crown_volume = pop%pop_grid(g)%crown_volume + &
                         freq*densindiv*(4.0_dp/3.0_dp)*PI*(diam*100.0_dp*0.1492_dp)**2*(1.5_dp*(diam*100.0_dp*0.1492_dp))
                 else
-                   !! global allometry
+                   ! global allometry
                    ! assumes vertical radius = 1.5 * horizontal radius
                    pop%pop_grid(g)%crown_volume = pop%pop_grid(g)%crown_volume + &
                         freq*densindiv*(4.0_dp/3.0_dp)*PI*1.5_dp*((k_allom1 * diam ** k_rp )/PI)**1.5_dp
@@ -1648,7 +1650,7 @@ CONTAINS
              IF (diam*100.0_dp .GT. 1.0_dp) THEN
 
                 if (ALLOM_SWITCH.eq.1) then
-                   !! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
+                   ! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
                    pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area = densindiv*PI*(diam*100.0_dp*0.1492_dp)**2
                    Pwc = EXP(-0.5_dp * pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%LAI/ &
                         pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area)
@@ -1656,7 +1658,7 @@ CONTAINS
                         densindiv*PI*(diam*100.0_dp*0.1492_dp)**2*(1.0_dp-Pwc)
 
                 else
-                   !! global allometry
+                   ! global allometry
                    pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area = &
                         densindiv*PI*(((k_allom1 * diam ** k_rp )/PI)**0.5_dp)**2
                    Pwc = EXP(max(-0.5_dp * pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%LAI/ &
@@ -2007,7 +2009,9 @@ CONTAINS
 
   !*******************************************************************************
 
-
+  !! # Patch Disturbance
+  !! This subroutine kills all biomass in a patch when prescribed disturbance
+  !! interval is reached.
   SUBROUTINE Patch_disturb(pop,idisturb,precip)
     IMPLICIT NONE
 
