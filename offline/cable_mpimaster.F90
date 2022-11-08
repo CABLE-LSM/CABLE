@@ -2797,6 +2797,10 @@ CONTAINS
        blen(bidx) = r1len
 
        bidx = bidx + 1
+       CALL MPI_Get_address (canopy%day_plc(off), displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
        CALL MPI_Get_address (canopy%kplant(off), displs(bidx), ierr)
        blen(bidx) = r1len
 
@@ -5642,6 +5646,10 @@ CONTAINS
        vidx = vidx + 1
 
        CALL MPI_Get_address (canopy%plc(off), vaddr(vidx), ierr) ! 159
+       blen(vidx) = cnt * extr1
+       vidx = vidx + 1
+
+       CALL MPI_Get_address (canopy%day_plc(off), vaddr(vidx), ierr) ! 159
        blen(vidx) = cnt * extr1
        vidx = vidx + 1
 

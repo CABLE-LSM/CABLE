@@ -313,6 +313,7 @@ MODULE cable_IO_vars_module
           gsw_sun = .TRUE., &
           gsw_sha = .TRUE., &
           plc = .TRUE., &
+          day_plc = .TRUE., &
 
                                 !parameters
           bch = .FALSE.,       & ! parameter b in Campbell equation 1985

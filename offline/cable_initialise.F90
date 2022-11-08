@@ -148,6 +148,7 @@ CONTAINS
     canopy%psi_soil_prev = -0.01
 
     canopy%plc(:) = 0.0
+    canopy%day_plc(:) = 0.0
     ssnow%psi_rootzone(:) = 0.0
     ssnow%soilR(:,:) = 0.0
     ssnow%psi_soil(:,:) = 0.0

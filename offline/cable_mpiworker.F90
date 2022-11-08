@@ -2018,6 +2018,10 @@ CONTAINS
     blen(bidx) = r1len
 
     bidx = bidx + 1
+    CALL MPI_Get_address (canopy%day_plc, displs(bidx), ierr)
+    blen(bidx) = r1len
+
+    bidx = bidx + 1
     CALL MPI_Get_address (canopy%kplant, displs(bidx), ierr)
     blen(bidx) = r1len
 
@@ -4821,6 +4825,10 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%plc(off), displs(bidx), ierr)
+    blocks(bidx) = r1len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (canopy%day_plc(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
     bidx = bidx + 1

@@ -182,7 +182,8 @@ MODULE cable_checks_module
           psi_rootzone = (/-100.,100./),          &
           psi_soil = (/-100.,100./),                   &
           psi_leaf = (/-100.,100./),                   &
-          plc = (/0.,100./),                   &
+          plc = (/0.,100./),                           &
+          day_plc = (/0.,100./),                       &
           psi_stem = (/-100.,100./),                   &
           gswx = (/-1,10/),                            &
           

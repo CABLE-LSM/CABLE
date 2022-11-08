@@ -1654,6 +1654,7 @@ CONTAINS
     canopy%kstem2leaf(:) = 0.0
     canopy%kplant(:) = 0.0
     canopy%plc(:) = 0.0
+    canopy%day_plc(:) = 0.0
 
     ssnow%Rsr(:) = 0.0
     ssnow%psi_rootzone(:) = 0.0
