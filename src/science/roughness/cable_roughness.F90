@@ -90,7 +90,7 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 !      - from the soil/snow surface to the displacement height (rough%rt0us)
 !      - from the displacement height to the reference level (rough%rt1us)
 !
-! The current time step aerodynamic resistances are evaluated later by multiplying
+! The aerodynamic resistances for the current time step are evaluated later by dividing
 ! the *normalized resistances* by the current time step's friction velocity.
 ! rough%rt1us is evaluated in three subparts (%rt1usa, %rt1usb, and %rt1usc).
 ! Each of the normalized resistances are given by theoretical formulae as given by
