@@ -15,7 +15,6 @@
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
-    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -65,14 +64,6 @@
                              <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
 <li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
           </ul>
-        <form action="../search.html" class="navbar-form navbar-right" role="search">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
-        </div>
-<!--
-        <button type="submit" class="btn btn-default">Submit</button>
--->
-        </form>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
@@ -124,8 +115,8 @@
 <!--active-->			   <tr class=""><td><a href='../module/cable_phys_constants_mod.html'>cable_phys_constants_mod</a></td><td><a href='../sourcefile/cable_phys_constants_mod.f90.html'>cable_phys_constants_mod.F90</a></td><td></td></tr>
 <!---->			   <tr class="active"><td><a href='../module/cable_plume_mip.html'>CABLE_PLUME_MIP</a></td><td><a href='../sourcefile/cable_plume_mip.f90.html'>cable_plume_mip.F90</a></td><td></td></tr>
 <!--active-->			   <tr class=""><td><a href='../module/cable_psm.html'>cable_psm</a></td><td><a href='../sourcefile/cable_psm.f90.html'>cable_psm.F90</a></td><td></td></tr>
-<!---->			   <tr class="active"><td><a href='../module/cable_pyfprint_module.html'>cable_Pyfprint_module</a></td><td><a href='../sourcefile/cable_pyfprint.f90.html'>cable_PyFprint.F90</a></td><td></td></tr>
-<!--active-->			   <tr class=""><td><a href='../module/cable_pyfprint_module~2.html'>cable_Pyfprint_module</a></td><td><a href='../sourcefile/cable_pyfprint.f90~2.html'>cable_PyFprint.F90</a></td><td></td></tr>
+<!---->			   <tr class="active"><td><a href='../module/cable_pyfprint_module~2.html'>cable_Pyfprint_module</a></td><td><a href='../sourcefile/cable_pyfprint.f90.html'>cable_PyFprint.F90</a></td><td></td></tr>
+<!--active-->			   <tr class=""><td><a href='../module/cable_pyfprint_module.html'>cable_Pyfprint_module</a></td><td><a href='../sourcefile/cable_pyfprint.f90~2.html'>cable_PyFprint.F90</a></td><td></td></tr>
 <!---->			   <tr class="active"><td><a href='../module/cable_read_module.html'>cable_read_module</a></td><td><a href='../sourcefile/cable_read.f90.html'>cable_read.F90</a></td><td></td></tr>
 <!--active-->			   <tr class=""><td><a href='../module/cable_roughness_module.html'>cable_roughness_module</a></td><td><a href='../sourcefile/cable_roughness.f90.html'>cable_roughness.F90</a></td><td><p>Calculate roughness lengths as a function of soil and canopyparameters </p></td></tr>
 <!---->			   <tr class="active"><td><a href='../module/cable_runtime_opts_mod.html'>cable_runtime_opts_mod</a></td><td><a href='../sourcefile/cable_runtime_opts_mod.f90.html'>cable_runtime_opts_mod.F90</a></td><td></td></tr>
@@ -170,7 +161,7 @@
 <!--active-->			   <tr class=""><td><a href='../module/gwstempv_mod.html'>GWstempv_mod</a></td><td><a href='../sourcefile/cbl_gw.f90.html'>cbl_GW.F90</a></td><td></td></tr>
 <!---->			   <tr class="active"><td><a href='../module/hydraulic_redistribution_mod.html'>hydraulic_redistribution_mod</a></td><td><a href='../sourcefile/cbl_hyd_redistrib.f90.html'>cbl_hyd_redistrib.F90</a></td><td></td></tr>
 <!--active-->			   <tr class=""><td><a href='../module/landuse_constant.html'>landuse_constant</a></td><td><a href='../sourcefile/landuse_constant.f90.html'>landuse_constant.F90</a></td><td></td></tr>
-<!---->			   <tr class="active"><td><a href='../module/landuse_variable.html'>landuse_variable</a></td><td><a href='../sourcefile/landuse3.f90.html'>landuse3.F90</a></td><td><p>these are three-type landuse-type variables</p><a href="../module/landuse_variable.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+<!---->			   <tr class="active"><td><a href='../module/landuse_variable.html'>landuse_variable</a></td><td><a href='../sourcefile/landuse3.f90.html'>landuse3.F90</a></td><td><p>These are three-type landuse-type variables:</p><a href="../module/landuse_variable.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 <!--active-->			   <tr class=""><td><a href='../module/old_soil_conductivity_mod.html'>old_soil_conductivity_mod</a></td><td><a href='../sourcefile/cbl_oldconductivity.f90.html'>cbl_Oldconductivity.F90</a></td><td></td></tr>
 <!---->			   <tr class="active"><td><a href='../module/phenvariable.html'>phenvariable</a></td><td><a href='../sourcefile/casa_phenology.f90.html'>casa_phenology.F90</a></td><td></td></tr>
 <!--active-->			   <tr class=""><td><a href='../module/pop_constants.html'>POP_Constants</a></td><td><a href='../sourcefile/pop.f90.html'>POP.F90</a></td><td></td></tr>
@@ -245,9 +236,6 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <script src="../tipuesearch/tipuesearch_content.js"></script>
-    <script src="../tipuesearch/tipuesearch_set.js"></script>
-    <script src="../tipuesearch/tipuesearch.js"></script>
     
   </body>
 </html>

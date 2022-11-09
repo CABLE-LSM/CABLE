@@ -14,7 +14,6 @@
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
-    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -64,14 +63,6 @@
                              <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
 <li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
           </ul>
-        <form action="../search.html" class="navbar-form navbar-right" role="search">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
-        </div>
-<!--
-        <button type="submit" class="btn btn-default">Submit</button>
--->
-        </form>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
@@ -139,21 +130,23 @@
     
     <div class="col-md-9" id='text'>
     <h1>Overview of landuse3.F90</h1>
-<p>these are three-type landuse-type variables</p>
-<p>luc%var_x(mland,mvmax): variable indexed by "mland" and "mvmax" before landuse change</p>
-<p>luc%var_y(mland,mvmax): variable indexed by "mland" and "mvmax" after land use change</p>
-<p>lucmp%var(mp):          variable indexed by the patch number from 1 to mp</p>
+<p>These are three-type landuse-type variables:</p>
+<ul>
+<li><code>luc%var_x(mland,mvmax)</code>: variable indexed by "mland" and "mvmax" before landuse change</li>
+<li><code>luc%var_y(mland,mvmax)</code>: variable indexed by "mland" and "mvmax" after land use change</li>
+<li><code>lucmp%var( mp        )</code>: variable indexed by the patch number from 1 to mp</li>
+</ul>
 <p>
-<script type="math/tex; mode=display">$$\textbf{y} = textbf{x} \cdot\ textbf{T}</script>
+<script type="math/tex; mode=display">$$\textbf{y} = \textbf{x} \cdot \textbf{T}</script>
 </p>
-<p>Function of this module is to </p>
+<p>This module will: </p>
 <ol>
-<li>map of variable "var" from CABLE into one-derived type "luc%var_x"</li>
+<li>map a variable <code>var</code> from CABLE into one derived-type variable <code>luc%var_x</code></li>
 <li>apply land use change (PFT transition, wood harvest and land management)</li>
-<li>write the value of "var_x" into "var_y"</li>
-<li>create new "mp" and write "luc%var_y" to lucmp%var</li>
+<li>write the value of <code>var_x</code> into <code>var_y</code></li>
+<li>update the value of <code>mp</code> and write <code>luc%var_y</code> to <code>lucmp%var</code></li>
 </ol>
-<p>all variables in the restart file, and state variables will be calculated</p>
+<p>All variables in the restart file and the state variables will be calculated.</p>
 <br>        <div class="panel panel-default">
       <div class="panel-heading">
   <h3 class="panel-title">Uses</h3>
@@ -1489,9 +1482,6 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <script src="../tipuesearch/tipuesearch_content.js"></script>
-    <script src="../tipuesearch/tipuesearch_set.js"></script>
-    <script src="../tipuesearch/tipuesearch.js"></script>
     
   </body>
 </html>

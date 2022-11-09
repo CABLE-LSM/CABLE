@@ -5,24 +5,22 @@ MODULE landuse_variable
   SAVE
 !*# Overview of landuse3.F90
 !
-! these are three-type landuse-type variables
+! These are three-type landuse-type variables:
 !
-! luc%var_x(mland,mvmax): variable indexed by "mland" and "mvmax" before landuse change
+! - `luc%var_x(mland,mvmax)`: variable indexed by "mland" and "mvmax" before landuse change
+! - `luc%var_y(mland,mvmax)`: variable indexed by "mland" and "mvmax" after land use change
+! - `lucmp%var( mp        )`: variable indexed by the patch number from 1 to mp
 !
-! luc%var_y(mland,mvmax): variable indexed by "mland" and "mvmax" after land use change
+! \[$$\textbf{y} = \textbf{x} \cdot \textbf{T}\]
 !
-! lucmp%var(mp):          variable indexed by the patch number from 1 to mp
+! This module will: 
 !
-! \[$$\textbf{y} = textbf{x} \cdot\ textbf{T}\]
-!
-! Function of this module is to 
-!
-! 1. map of variable "var" from CABLE into one-derived type "luc%var_x"
+! 1. map a variable `var` from CABLE into one derived-type variable `luc%var_x`
 ! 2. apply land use change (PFT transition, wood harvest and land management)
-! 3. write the value of "var_x" into "var_y"
-! 4. create new "mp" and write "luc%var_y" to lucmp%var
+! 3. write the value of `var_x` into `var_y`
+! 4. update the value of `mp` and write `luc%var_y` to `lucmp%var`
 !
-! all variables in the restart file, and state variables will be calculated
+! All variables in the restart file and the state variables will be calculated.
 !
   TYPE landuse_mland
     ! patch generic
@@ -929,7 +927,7 @@ END MODULE landuse_variable
 end subroutine landuse_driver
 
  SUBROUTINE landuse_mp2land(luc,lucmp,mp,cstart,cend)
- ! assign lucmp%var(mp) to luc%var_x(mland,mvmax)
+ !! Assigns `lucmp%var(mp)` to `luc%var_x(mland,mvmax)`
  !
  use landuse_variable
  USE cable_def_types_mod,  ONLY: mvtype,mstype,mland,r_2,ms,msn,nrb,ncp,ncs
@@ -1126,11 +1124,13 @@ end subroutine landuse_driver
 END SUBROUTINE landuse_mp2land
   
 SUBROUTINE landuse_transitx(luc,casabiome)
-   ! this subroutine calculates 
+   !* This subroutine calculates: 
    !
-   ! 1. the transfer of different C N and P pools resulting from land use change in two steps
-   ! 1.1. calculate the change of a pool (delvar) using transition matrix (T)
-   ! 1.2. calculate luc%var_y as the sum of luc%var_x + delvar
+   ! 1. the transfer of different C, N and P pools resulting from land use
+   ! change in two steps
+   !     1. calculate the change of a pool (`delvar`) using transition 
+   !     matrix (`T`)
+   !     1. calculate `luc%var_y` as the sum of `luc%var_x + delvar`
    ! 2. update biophysical states, soil texture and soil order for each patch
    ! 3. seed any deforested land
    !
@@ -1179,9 +1179,10 @@ SUBROUTINE landuse_transitx(luc,casabiome)
       do d=1,mvmax
          if(luc%cplant_x(p,d,leaf) > 0.001) then
             ! calculate the fraction of litter or root litter into metabolic litter pool
-			! this could be replaced with a call to a subroutine 
-			! if same calculations in casa_cnp.F90 are isolated into a separate subroutine
-			!
+			   ! this could be replaced with a call to a subroutine 
+			   ! if same calculations in casa_cnp.F90 are isolated into a 
+            ! separate subroutine
+			   !
             ivt=mvtype
 
             ratioLignintoN(leaf) = (luc%cplant_x(p,d,leaf) &
@@ -1666,7 +1667,7 @@ END SUBROUTINE landuse_transitx
  END SUBROUTINE landuse_redistribution
 
  SUBROUTINE landuse_update_mland(luc)                     
- ! assign "var_y" to "var_x"
+ !! Assigns `luc%var_y` to `luc%var_x`
  USE landuse_variable,   ONLY: landuse_mland
  IMPLICIT NONE
  TYPE(landuse_mland) :: luc
@@ -1746,7 +1747,7 @@ END SUBROUTINE landuse_transitx
  END SUBROUTINE landuse_update_mland
 
  SUBROUTINE landuse_land2mpx(luc,lucmp,mpx)
- ! map luc%var_y(mland,mvmax) to lucmp%var(mp)
+ !! Maps `luc%var_y(mland,mvmax)` to `lucmp%var(mp)`
  USE landuse_constant,     ONLY: mvmax
  USE landuse_variable
  USE cable_def_types_mod,  ONLY: mland
