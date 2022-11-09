@@ -42,19 +42,19 @@ runs:
       working-directory: documentation
       run: |
         # outputs to "site/api" directory
-        ford cable_ford.md
+        ford --no-search cable_ford.md
       shell: bash
 
     - name: Build POP API documentation
       working-directory: documentation
       run: |
         # outputs to "site/pop/api" directory
-        ford pop_ford.md
+        ford --no-search pop_ford.md
       shell: bash
 
     - name: Build GW API documentation
       working-directory: documentation
       run: |
         # outputs to "site/gw/api" directory
-        ford GW_ford.md
+        ford --no-search GW_ford.md
       shell: bash
