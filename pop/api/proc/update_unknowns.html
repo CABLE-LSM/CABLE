@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.7% of total for procedures.">307 statements</a>
+    title=" 0.6% of total for procedures.">307 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_sli_solve.F90"> Source File</a></li>
   </ul>
@@ -136,49 +136,49 @@
   <td><strong>irec</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-mp~21"></span>integer(kind=i_d)</td>
+  <td><span class="anchor" id="variable-mp~28"></span>integer(kind=i_d)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>mp</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qprec~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qprec~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>qprec</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qprec_snow~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qprec_snow~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>qprec_snow</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-n~34"></span>integer(kind=i_d)</td>
+  <td><span class="anchor" id="variable-n~45"></span>integer(kind=i_d)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>n</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dx~7"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dx~15"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>dx</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-h0~6"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-h0~12"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>h0</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-s~8"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-s~15"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>S</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-tsoil~6"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-tsoil~12"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>Tsoil</strong></td><td></td>
@@ -208,7 +208,7 @@
   <td><strong>discharge</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qh~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qh~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qh</strong></td><td></td>
@@ -220,25 +220,25 @@
   <td><strong>nsteps</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-vmet~3"></span>type(<a href='../type/vars_met.html'>vars_met</a>),</td>
+  <td><span class="anchor" id="variable-vmet~4"></span>type(<a href='../type/vars_met.html'>vars_met</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>vmet</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-vlit~4"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+  <td><span class="anchor" id="variable-vlit~5"></span>type(<a href='../type/vars.html'>vars</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>vlit</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-vsnow~4"></span>type(<a href='../type/vars_snow.html'>vars_snow</a>),</td>
+  <td><span class="anchor" id="variable-vsnow~5"></span>type(<a href='../type/vars_snow.html'>vars_snow</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>vsnow</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-var~11"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+  <td><span class="anchor" id="variable-var~21"></span>type(<a href='../type/vars.html'>vars</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>var</strong></td><td></td>
@@ -268,7 +268,7 @@
   <td><strong>Qadvcum</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-csoil~8"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-csoil~13"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>csoil</strong></td><td></td>
@@ -280,7 +280,7 @@
   <td><strong>kth</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-phi~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-phi~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>phi</strong></td><td></td>
@@ -304,7 +304,7 @@
   <td><strong>Tl</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-par~6"></span>type(<a href='../type/params.html'>params</a>),</td>
+  <td><span class="anchor" id="variable-par~8"></span>type(<a href='../type/params.html'>params</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>par</strong></td><td></td>
@@ -334,13 +334,13 @@
   <td><strong>qvTsig</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-precip~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-precip~14"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>precip</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qevap~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qevap~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>qevap</strong></td><td></td>
@@ -370,13 +370,13 @@
   <td><strong>ih0</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ns~5"></span>integer(kind=i_d),</td>
+  <td><span class="anchor" id="variable-ns~7"></span>integer(kind=i_d),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>ns</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dt~8"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dt~9"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>dt</strong></td><td></td>
@@ -406,7 +406,7 @@
   <td><strong>qexd</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dy~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dy~7"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>dy</strong></td><td></td>
@@ -418,55 +418,55 @@
   <td><strong>de</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-q~7"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-q~10"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>q</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qya~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qya~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qya</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qyb~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qyb~7"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qyb</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qta~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qta~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qTa</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qtb~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qtb~7"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qTb</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qhya~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qhya~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qhya</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qhyb~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qhyb~5"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qhyb</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qhta~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qhta~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qhTa</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qhtb~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qhtb~5"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qhTb</strong></td><td></td>
@@ -490,43 +490,43 @@
   <td><strong>qadvsig</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qliq~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qliq~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qliq</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qv~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qv~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qv</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qvt~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qvt~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qvT</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qlyb~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qlyb~5"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qlyb</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qvya~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qvya~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qvya</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qvyb~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qvyb~5"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qvyb</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qltb~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qltb~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qlTb</strong></td><td></td>
@@ -538,7 +538,7 @@
   <td><strong>qvTa</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qvtb~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qvtb~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qvTb</strong></td><td></td>
@@ -550,7 +550,7 @@
   <td><strong>dTsoil</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-v_aquifer~2"></span>type(<a href='../type/vars_aquifer.html'>vars_aquifer</a>),</td>
+  <td><span class="anchor" id="variable-v_aquifer~3"></span>type(<a href='../type/vars_aquifer.html'>vars_aquifer</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>v_aquifer</strong></td><td></td>
@@ -718,13 +718,13 @@
   <td><strong>kk</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-advection~4"></span>integer(kind=i_d)</td>
+  <td><span class="anchor" id="variable-advection~6"></span>integer(kind=i_d)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>advection</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-theta~3"></span>real(kind=r_2)</td>
+  <td><span class="anchor" id="variable-theta~7"></span>real(kind=r_2)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>theta</strong></td><td></td>
@@ -804,28 +804,46 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~update_unknowns~~CallsGraph Pages: 1 -->
-<svg id="procupdate_unknownsCallsGraph" width="214pt" height="32pt"
- viewBox="0.00 0.00 214.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg id="procupdate_unknownsCallsGraph" width="308pt" height="32pt"
+ viewBox="0.00 0.00 308.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="proc~~update_unknowns~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
 <title>proc~~update_unknowns~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 210,-28 210,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 304,-28 304,4 -4,4"/>
 <!-- proc~update_unknowns -->
 <g id="proc~~update_unknowns~~CallsGraph_node1" class="node">
 <title>proc~update_unknowns</title>
 <polygon fill="none" stroke="black" points="109,-24 0,-24 0,0 109,0 109,-24"/>
 <text text-anchor="middle" x="54.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">update_unknowns</text>
 </g>
-<!-- jsoillayer -->
+<!-- proc~jsoillayer -->
 <g id="proc~~update_unknowns~~CallsGraph_node2" class="node">
-<title>jsoillayer</title>
-<polygon fill="#777777" stroke="#777777" points="206,-24 145,-24 145,0 206,0 206,-24"/>
-<text text-anchor="middle" x="175.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">jsoillayer</text>
+<title>proc~jsoillayer</title>
+<g id="a_proc~~update_unknowns~~CallsGraph_node2"><a xlink:href=".././proc/jsoillayer.html" xlink:title="JSoilLayer">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="210,-24 145,-24 145,0 210,0 210,-24"/>
+<text text-anchor="middle" x="177.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">JSoilLayer</text>
+</a>
 </g>
-<!-- proc~update_unknowns&#45;&gt;jsoillayer -->
+</g>
+<!-- proc~update_unknowns&#45;&gt;proc~jsoillayer -->
 <g id="proc~~update_unknowns~~CallsGraph_edge1" class="edge">
-<title>proc~update_unknowns&#45;&gt;jsoillayer</title>
-<path fill="none" stroke="#ff0000" d="M109.08,-12C117.76,-12 126.6,-12 134.87,-12"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="134.97,-15.5 144.97,-12 134.97,-8.5 134.97,-15.5"/>
+<title>proc~update_unknowns&#45;&gt;proc~jsoillayer</title>
+<path fill="none" stroke="#ff0000" d="M109.28,-12C117.8,-12 126.5,-12 134.69,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="134.75,-15.5 144.75,-12 134.75,-8.5 134.75,-15.5"/>
+</g>
+<!-- proc~tfrz -->
+<g id="proc~~update_unknowns~~CallsGraph_node3" class="node">
+<title>proc~tfrz</title>
+<g id="a_proc~~update_unknowns~~CallsGraph_node3"><a xlink:href=".././proc/tfrz.html" xlink:title="Tfrz">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="300,-24 246,-24 246,0 300,0 300,-24"/>
+<text text-anchor="middle" x="273" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Tfrz</text>
+</a>
+</g>
+</g>
+<!-- proc~jsoillayer&#45;&gt;proc~tfrz -->
+<g id="proc~~update_unknowns~~CallsGraph_edge2" class="edge">
+<title>proc~jsoillayer&#45;&gt;proc~tfrz</title>
+<path fill="none" stroke="#ff0000" d="M210.15,-12C218.44,-12 227.44,-12 235.93,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="235.97,-15.5 245.97,-12 235.97,-8.5 235.97,-15.5"/>
 </g>
 </g>
 </svg>
@@ -901,133 +919,154 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~update_unknowns~~CalledByGraph Pages: 1 -->
-<svg id="procupdate_unknownsCalledByGraph" width="641pt" height="54pt"
- viewBox="0.00 0.00 641.00 54.33" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~update_unknowns~~CalledByGraph" class="graph" transform="scale(1.36 1.36) rotate(0) translate(4 70)">
+<svg id="procupdate_unknownsCalledByGraph" width="641pt" height="47pt"
+ viewBox="0.00 0.00 641.00 47.43" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~update_unknowns~~CalledByGraph" class="graph" transform="scale(1.56 1.56) rotate(0) translate(4 70)">
 <title>proc~~update_unknowns~~CalledByGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 869,-70 869,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 996,-70 996,4 -4,4"/>
 <!-- proc~update_unknowns -->
 <g id="proc~~update_unknowns~~CalledByGraph_node1" class="node">
 <title>proc~update_unknowns</title>
-<polygon fill="none" stroke="black" points="865,-45 756,-45 756,-21 865,-21 865,-45"/>
-<text text-anchor="middle" x="810.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">update_unknowns</text>
+<polygon fill="none" stroke="black" points="992,-45 883,-45 883,-21 992,-21 992,-45"/>
+<text text-anchor="middle" x="937.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">update_unknowns</text>
 </g>
 <!-- proc~iflux_loop -->
 <g id="proc~~update_unknowns~~CalledByGraph_node2" class="node">
 <title>proc~iflux_loop</title>
 <g id="a_proc~~update_unknowns~~CalledByGraph_node2"><a xlink:href=".././proc/iflux_loop.html" xlink:title="iflux_loop">
-<polygon fill="#d9534f" stroke="#d9534f" points="720,-45 656,-45 656,-21 720,-21 720,-45"/>
-<text text-anchor="middle" x="688" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iflux_loop</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="847,-45 783,-45 783,-21 847,-21 847,-45"/>
+<text text-anchor="middle" x="815" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iflux_loop</text>
 </a>
 </g>
 </g>
 <!-- proc~iflux_loop&#45;&gt;proc~update_unknowns -->
 <g id="proc~~update_unknowns~~CalledByGraph_edge1" class="edge">
 <title>proc~iflux_loop&#45;&gt;proc~update_unknowns</title>
-<path fill="none" stroke="#ff0000" d="M720.03,-33C727.94,-33 736.72,-33 745.62,-33"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="745.67,-36.5 755.67,-33 745.67,-29.5 745.67,-36.5"/>
+<path fill="none" stroke="#ff0000" d="M847.03,-33C854.94,-33 863.72,-33 872.62,-33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="872.67,-36.5 882.67,-33 872.67,-29.5 872.67,-36.5"/>
 </g>
 <!-- proc~timestep_loop -->
 <g id="proc~~update_unknowns~~CalledByGraph_node3" class="node">
 <title>proc~timestep_loop</title>
 <g id="a_proc~~update_unknowns~~CalledByGraph_node3"><a xlink:href=".././proc/timestep_loop.html" xlink:title="timestep_loop">
-<polygon fill="#d9534f" stroke="#d9534f" points="620,-45 532,-45 532,-21 620,-21 620,-45"/>
-<text text-anchor="middle" x="576" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">timestep_loop</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="747,-45 659,-45 659,-21 747,-21 747,-45"/>
+<text text-anchor="middle" x="703" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">timestep_loop</text>
 </a>
 </g>
 </g>
 <!-- proc~timestep_loop&#45;&gt;proc~iflux_loop -->
 <g id="proc~~update_unknowns~~CalledByGraph_edge2" class="edge">
 <title>proc~timestep_loop&#45;&gt;proc~iflux_loop</title>
-<path fill="none" stroke="#ff0000" d="M620.16,-33C628.54,-33 637.3,-33 645.62,-33"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="645.86,-36.5 655.86,-33 645.86,-29.5 645.86,-36.5"/>
+<path fill="none" stroke="#ff0000" d="M747.16,-33C755.54,-33 764.3,-33 772.62,-33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="772.86,-36.5 782.86,-33 772.86,-29.5 772.86,-36.5"/>
 </g>
 <!-- proc~solve -->
 <g id="proc~~update_unknowns~~CalledByGraph_node4" class="node">
 <title>proc~solve</title>
 <g id="a_proc~~update_unknowns~~CalledByGraph_node4"><a xlink:href=".././proc/solve.html" xlink:title="solve">
-<polygon fill="#d9534f" stroke="#d9534f" points="496,-45 442,-45 442,-21 496,-21 496,-45"/>
-<text text-anchor="middle" x="469" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">solve</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="623,-45 569,-45 569,-21 623,-21 623,-45"/>
+<text text-anchor="middle" x="596" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">solve</text>
 </a>
 </g>
 </g>
 <!-- proc~solve&#45;&gt;proc~timestep_loop -->
 <g id="proc~~update_unknowns~~CalledByGraph_edge3" class="edge">
 <title>proc~solve&#45;&gt;proc~timestep_loop</title>
-<path fill="none" stroke="#ff0000" d="M496.23,-33C504.08,-33 512.99,-33 521.93,-33"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="521.97,-36.5 531.97,-33 521.97,-29.5 521.97,-36.5"/>
+<path fill="none" stroke="#ff0000" d="M623.23,-33C631.08,-33 639.99,-33 648.93,-33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="648.97,-36.5 658.97,-33 648.97,-29.5 648.97,-36.5"/>
 </g>
 <!-- proc~sli_main -->
 <g id="proc~~update_unknowns~~CalledByGraph_node5" class="node">
 <title>proc~sli_main</title>
 <g id="a_proc~~update_unknowns~~CalledByGraph_node5"><a xlink:href=".././proc/sli_main.html" xlink:title="sli_main">
-<polygon fill="#d9534f" stroke="#d9534f" points="406,-45 350,-45 350,-21 406,-21 406,-45"/>
-<text text-anchor="middle" x="378" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sli_main</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="533,-45 477,-45 477,-21 533,-21 533,-45"/>
+<text text-anchor="middle" x="505" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sli_main</text>
 </a>
 </g>
 </g>
 <!-- proc~sli_main&#45;&gt;proc~solve -->
 <g id="proc~~update_unknowns~~CalledByGraph_edge4" class="edge">
 <title>proc~sli_main&#45;&gt;proc~solve</title>
-<path fill="none" stroke="#ff0000" d="M406.19,-33C414.25,-33 423.22,-33 431.77,-33"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="431.89,-36.5 441.89,-33 431.89,-29.5 431.89,-36.5"/>
+<path fill="none" stroke="#ff0000" d="M533.19,-33C541.25,-33 550.22,-33 558.77,-33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="558.89,-36.5 568.89,-33 558.89,-29.5 558.89,-36.5"/>
+</g>
+<!-- proc~define_canopy -->
+<g id="proc~~update_unknowns~~CalledByGraph_node6" class="node">
+<title>proc~define_canopy</title>
+<g id="a_proc~~update_unknowns~~CalledByGraph_node6"><a xlink:href=".././proc/define_canopy.html" xlink:title="define_canopy">
+<polygon fill="#d9534f" stroke="#d9534f" points="441,-25 350,-25 350,-1 441,-1 441,-25"/>
+<text text-anchor="middle" x="395.5" y="-10.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">define_canopy</text>
+</a>
+</g>
+</g>
+<!-- proc~define_canopy&#45;&gt;proc~sli_main -->
+<g id="proc~~update_unknowns~~CalledByGraph_edge5" class="edge">
+<title>proc~define_canopy&#45;&gt;proc~sli_main</title>
+<path fill="none" stroke="#ff0000" d="M441.16,-21.31C449.67,-22.89 458.51,-24.54 466.76,-26.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="466.37,-29.56 476.84,-27.95 467.65,-22.68 466.37,-29.56"/>
 </g>
 <!-- proc~cbm -->
-<g id="proc~~update_unknowns~~CalledByGraph_node6" class="node">
+<g id="proc~~update_unknowns~~CalledByGraph_node7" class="node">
 <title>proc~cbm</title>
-<g id="a_proc~~update_unknowns~~CalledByGraph_node6"><a xlink:href=".././proc/cbm.html" xlink:title="cbm">
+<g id="a_proc~~update_unknowns~~CalledByGraph_node7"><a xlink:href=".././proc/cbm.html" xlink:title="cbm">
 <polygon fill="#d9534f" stroke="#d9534f" points="314,-45 260,-45 260,-21 314,-21 314,-45"/>
 <text text-anchor="middle" x="287" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbm</text>
 </a>
 </g>
 </g>
 <!-- proc~cbm&#45;&gt;proc~sli_main -->
-<g id="proc~~update_unknowns~~CalledByGraph_edge5" class="edge">
+<g id="proc~~update_unknowns~~CalledByGraph_edge6" class="edge">
 <title>proc~cbm&#45;&gt;proc~sli_main</title>
-<path fill="none" stroke="#ff0000" d="M314.22,-33C322.17,-33 331.06,-33 339.59,-33"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="339.73,-36.5 349.73,-33 339.73,-29.5 339.73,-36.5"/>
+<path fill="none" stroke="#ff0000" d="M314.24,-33.52C325.28,-33.71 338.27,-33.91 350,-34 390.44,-34.33 400.56,-34.32 441,-34 449.23,-33.93 458.06,-33.82 466.44,-33.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="466.77,-37.19 476.71,-33.53 466.66,-30.19 466.77,-37.19"/>
+</g>
+<!-- proc~cbm&#45;&gt;proc~define_canopy -->
+<g id="proc~~update_unknowns~~CalledByGraph_edge7" class="edge">
+<title>proc~cbm&#45;&gt;proc~define_canopy</title>
+<path fill="none" stroke="#ff0000" d="M314.05,-28.11C321.84,-26.65 330.68,-24.98 339.59,-23.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="340.44,-26.71 349.62,-21.43 339.15,-19.83 340.44,-26.71"/>
 </g>
 <!-- proc~mpidrv_worker -->
-<g id="proc~~update_unknowns~~CalledByGraph_node7" class="node">
+<g id="proc~~update_unknowns~~CalledByGraph_node8" class="node">
 <title>proc~mpidrv_worker</title>
-<g id="a_proc~~update_unknowns~~CalledByGraph_node7"><a xlink:href=".././proc/mpidrv_worker.html" xlink:title="mpidrv_worker">
+<g id="a_proc~~update_unknowns~~CalledByGraph_node8"><a xlink:href=".././proc/mpidrv_worker.html" xlink:title="mpidrv_worker">
 <polygon fill="#d9534f" stroke="#d9534f" points="211,-66 119,-66 119,-42 211,-42 211,-66"/>
 <text text-anchor="middle" x="165" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpidrv_worker</text>
 </a>
 </g>
 </g>
 <!-- proc~mpidrv_worker&#45;&gt;proc~cbm -->
-<g id="proc~~update_unknowns~~CalledByGraph_edge6" class="edge">
+<g id="proc~~update_unknowns~~CalledByGraph_edge8" class="edge">
 <title>proc~mpidrv_worker&#45;&gt;proc~cbm</title>
-<path fill="none" stroke="#ff0000" d="M211.02,-46.12C223.91,-43.87 237.78,-41.44 250.04,-39.29"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="250.66,-42.74 259.91,-37.57 249.46,-35.84 250.66,-42.74"/>
+<path fill="none" stroke="#00ffff" d="M211.02,-46.12C223.91,-43.87 237.78,-41.44 250.04,-39.29"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="250.66,-42.74 259.91,-37.57 249.46,-35.84 250.66,-42.74"/>
 </g>
 <!-- program~cable_offline_driver -->
-<g id="proc~~update_unknowns~~CalledByGraph_node8" class="node">
+<g id="proc~~update_unknowns~~CalledByGraph_node9" class="node">
 <title>program~cable_offline_driver</title>
-<g id="a_proc~~update_unknowns~~CalledByGraph_node8"><a xlink:href=".././program/cable_offline_driver.html" xlink:title="cable_offline_driver">
+<g id="a_proc~~update_unknowns~~CalledByGraph_node9"><a xlink:href=".././program/cable_offline_driver.html" xlink:title="cable_offline_driver">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="224,-24 106,-24 106,0 224,0 224,-24"/>
 <text text-anchor="middle" x="165" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_offline_driver</text>
 </a>
 </g>
 </g>
 <!-- program~cable_offline_driver&#45;&gt;proc~cbm -->
-<g id="proc~~update_unknowns~~CalledByGraph_edge7" class="edge">
+<g id="proc~~update_unknowns~~CalledByGraph_edge9" class="edge">
 <title>program~cable_offline_driver&#45;&gt;proc~cbm</title>
-<path fill="none" stroke="#ff0000" d="M224.24,-22.19C233.06,-23.74 241.93,-25.29 250.08,-26.71"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="249.52,-30.17 259.98,-28.45 250.73,-23.27 249.52,-30.17"/>
+<path fill="none" stroke="#00ffff" d="M224.24,-22.19C233.06,-23.74 241.93,-25.29 250.08,-26.71"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="249.52,-30.17 259.98,-28.45 250.73,-23.27 249.52,-30.17"/>
 </g>
 <!-- program~mpi_driver -->
-<g id="proc~~update_unknowns~~CalledByGraph_node9" class="node">
+<g id="proc~~update_unknowns~~CalledByGraph_node10" class="node">
 <title>program~mpi_driver</title>
-<g id="a_proc~~update_unknowns~~CalledByGraph_node9"><a xlink:href=".././program/mpi_driver.html" xlink:title="mpi_driver">
+<g id="a_proc~~update_unknowns~~CalledByGraph_node10"><a xlink:href=".././program/mpi_driver.html" xlink:title="mpi_driver">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-66 0,-66 0,-42 70,-42 70,-66"/>
 <text text-anchor="middle" x="35" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_driver</text>
 </a>
 </g>
 </g>
 <!-- program~mpi_driver&#45;&gt;proc~mpidrv_worker -->
-<g id="proc~~update_unknowns~~CalledByGraph_edge8" class="edge">
+<g id="proc~~update_unknowns~~CalledByGraph_edge10" class="edge">
 <title>program~mpi_driver&#45;&gt;proc~mpidrv_worker</title>
 <path fill="none" stroke="#ff0000" d="M70.3,-54C82.11,-54 95.64,-54 108.68,-54"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="109,-57.5 119,-54 109,-50.5 109,-57.5"/>

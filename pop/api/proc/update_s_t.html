@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.5% of total for procedures.">236 statements</a>
+    title=" 0.4% of total for procedures.">236 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_sli_solve.F90"> Source File</a></li>
   </ul>
@@ -123,67 +123,49 @@
     <h2>private subroutine update_s_t(mp, n, dx, h0, S, thetai, Tsoil, infil, nsteps, var, par, qlsig, again, ih0, ns, dt, sig, dy, qhsig, deltaS, dTsoil, dJcol_latent_S, dJcol_latent_T, dJcol_sensible, deltaJ_latent_S, deltaJ_latent_T, deltaJ_sensible_S, deltaJ_sensible_T, qrunoff, tmp1d1, tmp1d2, tmp1d3, tmp1d4, deltah0, Tfreezing, dtdT, LHS_h, i, j, k, kk, theta, cp, hice, hice_tmp, J0, tmp1, tmp2, h_ex, wpi)</h2>
     
 
-    <p>$                   if (h0(kk)&lt;zero .and. var(1)%isat==0 .and. (i==1)) then ! start negative pond correction
-$                      infil(kk)     = infil(kk)+h0(kk)
-$                      ! negative pond converted to loss of soil moisture in top two layers
-$                      S(1) = S(1) + h0(kk)/(dx(1)<em>par(1)%thre)</em> dx(1)/(dx(1)+dx(2))
-$                      deltaS(1) = h0(kk)/(dx(1)<em>par(1)%thre)</em> dx(1)/(dx(1)+dx(2))
-$                      ! adjust flux between layer 1 and layer 2
-$                      qlsig(1) = qlsig(1) + h0(kk)<em> dx(2)/(dx(1)+dx(2))/dt(kk)
-$                      deltaS(2) =   h0(kk)/(dx(2)</em>par(2)%thre)* dx(2)/(dx(1)+dx(2))
-$                      if (var(2)%isat.eq.0) then
-$                         dy(2) = dy(2) + deltaS(2)
-$                      else
-$                         dy(2) = deltaS(2)
-$                         var(2)%isat = 0
-$                      endif
-$
-$                      deltah0(kk) = -(h0(kk)-deltah0(kk)) ! whole pond lost (new change = - original pond height)
-$                      h0(kk) = zero  ! zero pond remaining
-$                   endif</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
 <tr>
-  <td><span class="anchor" id="variable-mp~20"></span>integer(kind=i_d)</td>
+  <td><span class="anchor" id="variable-mp~27"></span>integer(kind=i_d)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>mp</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-n~33"></span>integer(kind=i_d)</td>
+  <td><span class="anchor" id="variable-n~44"></span>integer(kind=i_d)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>n</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dx~6"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dx~14"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>dx</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-h0~5"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-h0~11"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>h0</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-s~7"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-s~14"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>S</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-thetai~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-thetai~5"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>thetai</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-tsoil~5"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-tsoil~11"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>Tsoil</strong></td><td></td>
@@ -201,13 +183,13 @@ $                   endif</p>
   <td><strong>nsteps</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-var~10"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+  <td><span class="anchor" id="variable-var~20"></span>type(<a href='../type/vars.html'>vars</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>var</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-par~5"></span>type(<a href='../type/params.html'>params</a>),</td>
+  <td><span class="anchor" id="variable-par~7"></span>type(<a href='../type/params.html'>params</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>par</strong></td><td></td>
@@ -231,13 +213,13 @@ $                   endif</p>
   <td><strong>ih0</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ns~4"></span>integer(kind=i_d),</td>
+  <td><span class="anchor" id="variable-ns~6"></span>integer(kind=i_d),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>ns</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dt~7"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dt~8"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>dt</strong></td><td></td>
@@ -249,7 +231,7 @@ $                   endif</p>
   <td><strong>sig</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dy~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dy~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>dy</strong></td><td></td>
@@ -381,7 +363,7 @@ $                   endif</p>
   <td><strong>j</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-k~3"></span>integer(kind=i_d)</td>
+  <td><span class="anchor" id="variable-k~4"></span>integer(kind=i_d)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>k</strong></td><td></td>
@@ -393,7 +375,7 @@ $                   endif</p>
   <td><strong>kk</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-theta~2"></span>real(kind=r_2)</td>
+  <td><span class="anchor" id="variable-theta~6"></span>real(kind=r_2)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>theta</strong></td><td></td>
@@ -461,88 +443,136 @@ $                   endif</p>
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~update_s_t~~CallsGraph Pages: 1 -->
-<svg id="procupdate_s_tCallsGraph" width="205pt" height="242pt"
- viewBox="0.00 0.00 205.00 242.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~update_s_t~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 238)">
+<svg id="procupdate_s_tCallsGraph" width="401pt" height="204pt"
+ viewBox="0.00 0.00 401.00 204.18" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~update_s_t~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 200.18)">
 <title>proc~~update_s_t~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-238 201,-238 201,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-200.18 397,-200.18 397,4 -4,4"/>
 <!-- proc~update_s_t -->
 <g id="proc~~update_s_t~~CallsGraph_node1" class="node">
 <title>proc~update_s_t</title>
-<polygon fill="none" stroke="black" points="70,-129 0,-129 0,-105 70,-105 70,-129"/>
-<text text-anchor="middle" x="35" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50">update_s_t</text>
+<polygon fill="none" stroke="black" points="70,-125 0,-125 0,-101 70,-101 70,-125"/>
+<text text-anchor="middle" x="35" y="-110.6" font-family="Helvetica,sans-Serif" font-size="10.50">update_s_t</text>
 </g>
-<!-- tfrz -->
+<!-- proc~tfrz -->
 <g id="proc~~update_s_t~~CallsGraph_node2" class="node">
-<title>tfrz</title>
-<polygon fill="#777777" stroke="#777777" points="178.5,-234 124.5,-234 124.5,-210 178.5,-210 178.5,-234"/>
-<text text-anchor="middle" x="151.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">tfrz</text>
+<title>proc~tfrz</title>
+<g id="a_proc~~update_s_t~~CallsGraph_node2"><a xlink:href=".././proc/tfrz.html" xlink:title="Tfrz">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="393,-139 339,-139 339,-115 393,-115 393,-139"/>
+<text text-anchor="middle" x="366" y="-124.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Tfrz</text>
+</a>
 </g>
-<!-- proc~update_s_t&#45;&gt;tfrz -->
+</g>
+<!-- proc~update_s_t&#45;&gt;proc~tfrz -->
 <g id="proc~~update_s_t~~CallsGraph_edge1" class="edge">
-<title>proc~update_s_t&#45;&gt;tfrz</title>
-<path fill="none" stroke="#ff0000" d="M43.7,-129.29C55.35,-147.06 78.97,-180.09 106,-201 108.94,-203.28 112.17,-205.39 115.51,-207.32"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="113.97,-210.47 124.45,-212.02 117.23,-204.27 113.97,-210.47"/>
+<title>proc~update_s_t&#45;&gt;proc~tfrz</title>
+<path fill="none" stroke="#ff0000" d="M51.55,-125.15C65.21,-135.27 85.96,-149.38 106,-158 160.66,-181.52 176.93,-182.84 236,-190 265.56,-193.58 275.53,-201.51 303,-190 323.59,-181.38 340.8,-162.21 351.82,-147.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="354.69,-149.27 357.57,-139.08 348.96,-145.25 354.69,-149.27"/>
 </g>
-<!-- dthetalmaxdth -->
+<!-- proc~thetalmax -->
 <g id="proc~~update_s_t~~CallsGraph_node3" class="node">
-<title>dthetalmaxdth</title>
-<polygon fill="#777777" stroke="#777777" points="197,-192 106,-192 106,-168 197,-168 197,-192"/>
-<text text-anchor="middle" x="151.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">dthetalmaxdth</text>
+<title>proc~thetalmax</title>
+<g id="a_proc~~update_s_t~~CallsGraph_node3"><a xlink:href=".././proc/thetalmax.html" xlink:title="thetalmax">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="303,-181 236,-181 236,-157 303,-157 303,-181"/>
+<text text-anchor="middle" x="269.5" y="-166.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">thetalmax</text>
+</a>
 </g>
-<!-- proc~update_s_t&#45;&gt;dthetalmaxdth -->
+</g>
+<!-- proc~update_s_t&#45;&gt;proc~thetalmax -->
 <g id="proc~~update_s_t~~CallsGraph_edge2" class="edge">
-<title>proc~update_s_t&#45;&gt;dthetalmaxdth</title>
-<path fill="none" stroke="#ff0000" d="M55.02,-129.11C68.93,-137.8 88.37,-149.58 106,-159 108.86,-160.53 111.86,-162.07 114.88,-163.58"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="113.41,-166.76 123.93,-167.99 116.48,-160.46 113.41,-166.76"/>
+<title>proc~update_s_t&#45;&gt;proc~thetalmax</title>
+<path fill="none" stroke="#ff0000" d="M70.03,-123.8C81.41,-127.25 94.2,-130.97 106,-134 146.35,-144.38 192.87,-154.18 225.77,-160.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="225.46,-164.27 235.95,-162.78 226.82,-157.4 225.46,-164.27"/>
 </g>
-<!-- jsoillayer -->
+<!-- proc~jsoillayer -->
 <g id="proc~~update_s_t~~CallsGraph_node4" class="node">
-<title>jsoillayer</title>
-<polygon fill="#777777" stroke="#777777" points="182,-150 121,-150 121,-126 182,-126 182,-150"/>
-<text text-anchor="middle" x="151.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">jsoillayer</text>
+<title>proc~jsoillayer</title>
+<g id="a_proc~~update_s_t~~CallsGraph_node4"><a xlink:href=".././proc/jsoillayer.html" xlink:title="JSoilLayer">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="302,-139 237,-139 237,-115 302,-115 302,-139"/>
+<text text-anchor="middle" x="269.5" y="-124.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">JSoilLayer</text>
+</a>
 </g>
-<!-- proc~update_s_t&#45;&gt;jsoillayer -->
+</g>
+<!-- proc~update_s_t&#45;&gt;proc~jsoillayer -->
 <g id="proc~~update_s_t~~CallsGraph_edge3" class="edge">
-<title>proc~update_s_t&#45;&gt;jsoillayer</title>
-<path fill="none" stroke="#ff0000" d="M70.04,-123.24C82.74,-125.57 97.26,-128.24 110.44,-130.65"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="110.2,-134.17 120.67,-132.53 111.46,-127.28 110.2,-134.17"/>
+<title>proc~update_s_t&#45;&gt;proc~jsoillayer</title>
+<path fill="none" stroke="#ff0000" d="M70.31,-115.07C111.82,-117.57 181.7,-121.77 226.43,-124.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="226.48,-127.98 236.67,-125.08 226.9,-120.99 226.48,-127.98"/>
 </g>
-<!-- thetalmax -->
+<!-- proc~gtfrozen -->
 <g id="proc~~update_s_t~~CallsGraph_node5" class="node">
-<title>thetalmax</title>
-<polygon fill="#777777" stroke="#777777" points="185,-108 118,-108 118,-84 185,-84 185,-108"/>
-<text text-anchor="middle" x="151.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">thetalmax</text>
+<title>proc~gtfrozen</title>
+<g id="a_proc~~update_s_t~~CallsGraph_node5"><a xlink:href=".././proc/gtfrozen.html" xlink:title="GTfrozen">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="299.5,-97 239.5,-97 239.5,-73 299.5,-73 299.5,-97"/>
+<text text-anchor="middle" x="269.5" y="-82.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GTfrozen</text>
+</a>
 </g>
-<!-- proc~update_s_t&#45;&gt;thetalmax -->
+</g>
+<!-- proc~update_s_t&#45;&gt;proc~gtfrozen -->
 <g id="proc~~update_s_t~~CallsGraph_edge4" class="edge">
-<title>proc~update_s_t&#45;&gt;thetalmax</title>
-<path fill="none" stroke="#ff0000" d="M70.04,-110.76C81.89,-108.58 95.33,-106.12 107.79,-103.83"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="108.76,-107.21 117.96,-101.97 107.5,-100.33 108.76,-107.21"/>
+<title>proc~update_s_t&#45;&gt;proc~gtfrozen</title>
+<path fill="none" stroke="#ff0000" d="M70.31,-108.87C112.64,-103.77 184.47,-95.12 229.04,-89.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="229.7,-93.2 239.21,-88.53 228.86,-86.25 229.7,-93.2"/>
 </g>
-<!-- gtfrozen -->
+<!-- proc~dthetalmaxdth -->
 <g id="proc~~update_s_t~~CallsGraph_node6" class="node">
-<title>gtfrozen</title>
-<polygon fill="#777777" stroke="#777777" points="179.5,-66 123.5,-66 123.5,-42 179.5,-42 179.5,-66"/>
-<text text-anchor="middle" x="151.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">gtfrozen</text>
+<title>proc~dthetalmaxdth</title>
+<g id="a_proc~~update_s_t~~CallsGraph_node6"><a xlink:href=".././proc/dthetalmaxdth.html" xlink:title="dthetalmaxdTh">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="200,-24 106,-24 106,0 200,0 200,-24"/>
+<text text-anchor="middle" x="153" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">dthetalmaxdTh</text>
+</a>
 </g>
-<!-- proc~update_s_t&#45;&gt;gtfrozen -->
+</g>
+<!-- proc~update_s_t&#45;&gt;proc~dthetalmaxdth -->
 <g id="proc~~update_s_t~~CallsGraph_edge5" class="edge">
-<title>proc~update_s_t&#45;&gt;gtfrozen</title>
-<path fill="none" stroke="#ff0000" d="M55.02,-104.89C68.93,-96.2 88.37,-84.42 106,-75 108.86,-73.47 111.86,-71.93 114.88,-70.42"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="116.48,-73.54 123.93,-66.01 113.41,-67.24 116.48,-73.54"/>
+<title>proc~update_s_t&#45;&gt;proc~dthetalmaxdth</title>
+<path fill="none" stroke="#ff0000" d="M44,-101C55.84,-83.98 79.51,-52.73 106,-33 107.83,-31.64 109.76,-30.33 111.76,-29.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="113.76,-31.98 120.79,-24.06 110.35,-25.87 113.76,-31.98"/>
 </g>
-<!-- rtbis_tfrozen -->
+<!-- proc~rtbis_tfrozen -->
 <g id="proc~~update_s_t~~CallsGraph_node7" class="node">
-<title>rtbis_tfrozen</title>
-<polygon fill="#777777" stroke="#777777" points="190.5,-24 112.5,-24 112.5,0 190.5,0 190.5,-24"/>
-<text text-anchor="middle" x="151.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">rtbis_tfrozen</text>
+<title>proc~rtbis_tfrozen</title>
+<g id="a_proc~~update_s_t~~CallsGraph_node7"><a xlink:href=".././proc/rtbis_tfrozen.html" xlink:title="rtbis_Tfrozen">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="193.5,-66 112.5,-66 112.5,-42 193.5,-42 193.5,-66"/>
+<text text-anchor="middle" x="153" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">rtbis_Tfrozen</text>
+</a>
 </g>
-<!-- proc~update_s_t&#45;&gt;rtbis_tfrozen -->
+</g>
+<!-- proc~update_s_t&#45;&gt;proc~rtbis_tfrozen -->
 <g id="proc~~update_s_t~~CallsGraph_edge6" class="edge">
-<title>proc~update_s_t&#45;&gt;rtbis_tfrozen</title>
-<path fill="none" stroke="#ff0000" d="M43.7,-104.71C55.35,-86.94 78.97,-53.91 106,-33 107.76,-31.64 109.62,-30.34 111.54,-29.1"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="113.34,-32.1 120.25,-24.07 109.84,-26.04 113.34,-32.1"/>
+<title>proc~update_s_t&#45;&gt;proc~rtbis_tfrozen</title>
+<path fill="none" stroke="#ff0000" d="M59.75,-100.92C76.88,-92.21 100.21,-80.34 119.12,-70.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="120.95,-73.72 128.28,-66.07 117.78,-67.48 120.95,-73.72"/>
+</g>
+<!-- proc~thetalmax&#45;&gt;proc~tfrz -->
+<g id="proc~~update_s_t~~CallsGraph_edge7" class="edge">
+<title>proc~thetalmax&#45;&gt;proc~tfrz</title>
+<path fill="none" stroke="#ffff00" d="M297.58,-156.96C307.52,-152.55 318.92,-147.48 329.49,-142.78"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="331.18,-145.86 338.89,-138.6 328.33,-139.47 331.18,-145.86"/>
+</g>
+<!-- proc~jsoillayer&#45;&gt;proc~tfrz -->
+<g id="proc~~update_s_t~~CallsGraph_edge8" class="edge">
+<title>proc~jsoillayer&#45;&gt;proc~tfrz</title>
+<path fill="none" stroke="#00ff00" d="M302.23,-127C310.69,-127 319.9,-127 328.59,-127"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="328.86,-130.5 338.86,-127 328.86,-123.5 328.86,-130.5"/>
+</g>
+<!-- proc~gtfrozen&#45;&gt;proc~tfrz -->
+<g id="proc~~update_s_t~~CallsGraph_edge9" class="edge">
+<title>proc~gtfrozen&#45;&gt;proc~tfrz</title>
+<path fill="none" stroke="#00ffff" d="M297.58,-97.04C307.52,-101.45 318.92,-106.52 329.49,-111.22"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="328.33,-114.53 338.89,-115.4 331.18,-108.14 328.33,-114.53"/>
+</g>
+<!-- proc~dthetalmaxdth&#45;&gt;proc~tfrz -->
+<g id="proc~~update_s_t~~CallsGraph_edge10" class="edge">
+<title>proc~dthetalmaxdth&#45;&gt;proc~tfrz</title>
+<path fill="none" stroke="#0000ff" d="M200.1,-22.24C230.85,-30.44 271.29,-43.92 303,-64 321.04,-75.42 337.78,-93.04 349.31,-106.74"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="346.75,-109.14 355.78,-114.67 352.17,-104.71 346.75,-109.14"/>
+</g>
+<!-- proc~rtbis_tfrozen&#45;&gt;proc~gtfrozen -->
+<g id="proc~~update_s_t~~CallsGraph_edge11" class="edge">
+<title>proc~rtbis_tfrozen&#45;&gt;proc~gtfrozen</title>
+<path fill="none" stroke="#ff00ff" d="M193.73,-64.76C205.32,-67.89 217.97,-71.32 229.51,-74.44"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="228.75,-77.86 239.32,-77.1 230.58,-71.11 228.75,-77.86"/>
 </g>
 </g>
 </svg>
@@ -618,133 +648,154 @@ $                   endif</p>
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~update_s_t~~CalledByGraph Pages: 1 -->
-<svg id="procupdate_s_tCalledByGraph" width="641pt" height="57pt"
- viewBox="0.00 0.00 641.00 56.88" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~update_s_t~~CalledByGraph" class="graph" transform="scale(1.3 1.3) rotate(0) translate(4 70)">
+<svg id="procupdate_s_tCalledByGraph" width="641pt" height="49pt"
+ viewBox="0.00 0.00 641.00 49.36" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~update_s_t~~CalledByGraph" class="graph" transform="scale(1.5 1.5) rotate(0) translate(4 70)">
 <title>proc~~update_s_t~~CalledByGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 830,-70 830,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 957,-70 957,4 -4,4"/>
 <!-- proc~update_s_t -->
 <g id="proc~~update_s_t~~CalledByGraph_node1" class="node">
 <title>proc~update_s_t</title>
-<polygon fill="none" stroke="black" points="826,-45 756,-45 756,-21 826,-21 826,-45"/>
-<text text-anchor="middle" x="791" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">update_s_t</text>
+<polygon fill="none" stroke="black" points="953,-45 883,-45 883,-21 953,-21 953,-45"/>
+<text text-anchor="middle" x="918" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">update_s_t</text>
 </g>
 <!-- proc~iflux_loop -->
 <g id="proc~~update_s_t~~CalledByGraph_node2" class="node">
 <title>proc~iflux_loop</title>
 <g id="a_proc~~update_s_t~~CalledByGraph_node2"><a xlink:href=".././proc/iflux_loop.html" xlink:title="iflux_loop">
-<polygon fill="#d9534f" stroke="#d9534f" points="720,-45 656,-45 656,-21 720,-21 720,-45"/>
-<text text-anchor="middle" x="688" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iflux_loop</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="847,-45 783,-45 783,-21 847,-21 847,-45"/>
+<text text-anchor="middle" x="815" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iflux_loop</text>
 </a>
 </g>
 </g>
 <!-- proc~iflux_loop&#45;&gt;proc~update_s_t -->
 <g id="proc~~update_s_t~~CalledByGraph_edge1" class="edge">
 <title>proc~iflux_loop&#45;&gt;proc~update_s_t</title>
-<path fill="none" stroke="#ff0000" d="M720.13,-33C728.29,-33 737.25,-33 745.96,-33"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="745.99,-36.5 755.99,-33 745.99,-29.5 745.99,-36.5"/>
+<path fill="none" stroke="#ff0000" d="M847.13,-33C855.29,-33 864.25,-33 872.96,-33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="872.99,-36.5 882.99,-33 872.99,-29.5 872.99,-36.5"/>
 </g>
 <!-- proc~timestep_loop -->
 <g id="proc~~update_s_t~~CalledByGraph_node3" class="node">
 <title>proc~timestep_loop</title>
 <g id="a_proc~~update_s_t~~CalledByGraph_node3"><a xlink:href=".././proc/timestep_loop.html" xlink:title="timestep_loop">
-<polygon fill="#d9534f" stroke="#d9534f" points="620,-45 532,-45 532,-21 620,-21 620,-45"/>
-<text text-anchor="middle" x="576" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">timestep_loop</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="747,-45 659,-45 659,-21 747,-21 747,-45"/>
+<text text-anchor="middle" x="703" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">timestep_loop</text>
 </a>
 </g>
 </g>
 <!-- proc~timestep_loop&#45;&gt;proc~iflux_loop -->
 <g id="proc~~update_s_t~~CalledByGraph_edge2" class="edge">
 <title>proc~timestep_loop&#45;&gt;proc~iflux_loop</title>
-<path fill="none" stroke="#ff0000" d="M620.16,-33C628.54,-33 637.3,-33 645.62,-33"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="645.86,-36.5 655.86,-33 645.86,-29.5 645.86,-36.5"/>
+<path fill="none" stroke="#ff0000" d="M747.16,-33C755.54,-33 764.3,-33 772.62,-33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="772.86,-36.5 782.86,-33 772.86,-29.5 772.86,-36.5"/>
 </g>
 <!-- proc~solve -->
 <g id="proc~~update_s_t~~CalledByGraph_node4" class="node">
 <title>proc~solve</title>
 <g id="a_proc~~update_s_t~~CalledByGraph_node4"><a xlink:href=".././proc/solve.html" xlink:title="solve">
-<polygon fill="#d9534f" stroke="#d9534f" points="496,-45 442,-45 442,-21 496,-21 496,-45"/>
-<text text-anchor="middle" x="469" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">solve</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="623,-45 569,-45 569,-21 623,-21 623,-45"/>
+<text text-anchor="middle" x="596" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">solve</text>
 </a>
 </g>
 </g>
 <!-- proc~solve&#45;&gt;proc~timestep_loop -->
 <g id="proc~~update_s_t~~CalledByGraph_edge3" class="edge">
 <title>proc~solve&#45;&gt;proc~timestep_loop</title>
-<path fill="none" stroke="#ff0000" d="M496.23,-33C504.08,-33 512.99,-33 521.93,-33"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="521.97,-36.5 531.97,-33 521.97,-29.5 521.97,-36.5"/>
+<path fill="none" stroke="#ff0000" d="M623.23,-33C631.08,-33 639.99,-33 648.93,-33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="648.97,-36.5 658.97,-33 648.97,-29.5 648.97,-36.5"/>
 </g>
 <!-- proc~sli_main -->
 <g id="proc~~update_s_t~~CalledByGraph_node5" class="node">
 <title>proc~sli_main</title>
 <g id="a_proc~~update_s_t~~CalledByGraph_node5"><a xlink:href=".././proc/sli_main.html" xlink:title="sli_main">
-<polygon fill="#d9534f" stroke="#d9534f" points="406,-45 350,-45 350,-21 406,-21 406,-45"/>
-<text text-anchor="middle" x="378" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sli_main</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="533,-45 477,-45 477,-21 533,-21 533,-45"/>
+<text text-anchor="middle" x="505" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sli_main</text>
 </a>
 </g>
 </g>
 <!-- proc~sli_main&#45;&gt;proc~solve -->
 <g id="proc~~update_s_t~~CalledByGraph_edge4" class="edge">
 <title>proc~sli_main&#45;&gt;proc~solve</title>
-<path fill="none" stroke="#ff0000" d="M406.19,-33C414.25,-33 423.22,-33 431.77,-33"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="431.89,-36.5 441.89,-33 431.89,-29.5 431.89,-36.5"/>
+<path fill="none" stroke="#ff0000" d="M533.19,-33C541.25,-33 550.22,-33 558.77,-33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="558.89,-36.5 568.89,-33 558.89,-29.5 558.89,-36.5"/>
+</g>
+<!-- proc~define_canopy -->
+<g id="proc~~update_s_t~~CalledByGraph_node6" class="node">
+<title>proc~define_canopy</title>
+<g id="a_proc~~update_s_t~~CalledByGraph_node6"><a xlink:href=".././proc/define_canopy.html" xlink:title="define_canopy">
+<polygon fill="#d9534f" stroke="#d9534f" points="441,-25 350,-25 350,-1 441,-1 441,-25"/>
+<text text-anchor="middle" x="395.5" y="-10.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">define_canopy</text>
+</a>
+</g>
+</g>
+<!-- proc~define_canopy&#45;&gt;proc~sli_main -->
+<g id="proc~~update_s_t~~CalledByGraph_edge5" class="edge">
+<title>proc~define_canopy&#45;&gt;proc~sli_main</title>
+<path fill="none" stroke="#ff0000" d="M441.16,-21.31C449.67,-22.89 458.51,-24.54 466.76,-26.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="466.37,-29.56 476.84,-27.95 467.65,-22.68 466.37,-29.56"/>
 </g>
 <!-- proc~cbm -->
-<g id="proc~~update_s_t~~CalledByGraph_node6" class="node">
+<g id="proc~~update_s_t~~CalledByGraph_node7" class="node">
 <title>proc~cbm</title>
-<g id="a_proc~~update_s_t~~CalledByGraph_node6"><a xlink:href=".././proc/cbm.html" xlink:title="cbm">
+<g id="a_proc~~update_s_t~~CalledByGraph_node7"><a xlink:href=".././proc/cbm.html" xlink:title="cbm">
 <polygon fill="#d9534f" stroke="#d9534f" points="314,-45 260,-45 260,-21 314,-21 314,-45"/>
 <text text-anchor="middle" x="287" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbm</text>
 </a>
 </g>
 </g>
 <!-- proc~cbm&#45;&gt;proc~sli_main -->
-<g id="proc~~update_s_t~~CalledByGraph_edge5" class="edge">
+<g id="proc~~update_s_t~~CalledByGraph_edge6" class="edge">
 <title>proc~cbm&#45;&gt;proc~sli_main</title>
-<path fill="none" stroke="#ff0000" d="M314.22,-33C322.17,-33 331.06,-33 339.59,-33"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="339.73,-36.5 349.73,-33 339.73,-29.5 339.73,-36.5"/>
+<path fill="none" stroke="#ff0000" d="M314.24,-33.52C325.28,-33.71 338.27,-33.91 350,-34 390.44,-34.33 400.56,-34.32 441,-34 449.23,-33.93 458.06,-33.82 466.44,-33.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="466.77,-37.19 476.71,-33.53 466.66,-30.19 466.77,-37.19"/>
+</g>
+<!-- proc~cbm&#45;&gt;proc~define_canopy -->
+<g id="proc~~update_s_t~~CalledByGraph_edge7" class="edge">
+<title>proc~cbm&#45;&gt;proc~define_canopy</title>
+<path fill="none" stroke="#ff0000" d="M314.05,-28.11C321.84,-26.65 330.68,-24.98 339.59,-23.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="340.44,-26.71 349.62,-21.43 339.15,-19.83 340.44,-26.71"/>
 </g>
 <!-- proc~mpidrv_worker -->
-<g id="proc~~update_s_t~~CalledByGraph_node7" class="node">
+<g id="proc~~update_s_t~~CalledByGraph_node8" class="node">
 <title>proc~mpidrv_worker</title>
-<g id="a_proc~~update_s_t~~CalledByGraph_node7"><a xlink:href=".././proc/mpidrv_worker.html" xlink:title="mpidrv_worker">
+<g id="a_proc~~update_s_t~~CalledByGraph_node8"><a xlink:href=".././proc/mpidrv_worker.html" xlink:title="mpidrv_worker">
 <polygon fill="#d9534f" stroke="#d9534f" points="211,-66 119,-66 119,-42 211,-42 211,-66"/>
 <text text-anchor="middle" x="165" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpidrv_worker</text>
 </a>
 </g>
 </g>
 <!-- proc~mpidrv_worker&#45;&gt;proc~cbm -->
-<g id="proc~~update_s_t~~CalledByGraph_edge6" class="edge">
+<g id="proc~~update_s_t~~CalledByGraph_edge8" class="edge">
 <title>proc~mpidrv_worker&#45;&gt;proc~cbm</title>
-<path fill="none" stroke="#ff0000" d="M211.02,-46.12C223.91,-43.87 237.78,-41.44 250.04,-39.29"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="250.66,-42.74 259.91,-37.57 249.46,-35.84 250.66,-42.74"/>
+<path fill="none" stroke="#00ffff" d="M211.02,-46.12C223.91,-43.87 237.78,-41.44 250.04,-39.29"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="250.66,-42.74 259.91,-37.57 249.46,-35.84 250.66,-42.74"/>
 </g>
 <!-- program~cable_offline_driver -->
-<g id="proc~~update_s_t~~CalledByGraph_node8" class="node">
+<g id="proc~~update_s_t~~CalledByGraph_node9" class="node">
 <title>program~cable_offline_driver</title>
-<g id="a_proc~~update_s_t~~CalledByGraph_node8"><a xlink:href=".././program/cable_offline_driver.html" xlink:title="cable_offline_driver">
+<g id="a_proc~~update_s_t~~CalledByGraph_node9"><a xlink:href=".././program/cable_offline_driver.html" xlink:title="cable_offline_driver">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="224,-24 106,-24 106,0 224,0 224,-24"/>
 <text text-anchor="middle" x="165" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_offline_driver</text>
 </a>
 </g>
 </g>
 <!-- program~cable_offline_driver&#45;&gt;proc~cbm -->
-<g id="proc~~update_s_t~~CalledByGraph_edge7" class="edge">
+<g id="proc~~update_s_t~~CalledByGraph_edge9" class="edge">
 <title>program~cable_offline_driver&#45;&gt;proc~cbm</title>
-<path fill="none" stroke="#ff0000" d="M224.24,-22.19C233.06,-23.74 241.93,-25.29 250.08,-26.71"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="249.52,-30.17 259.98,-28.45 250.73,-23.27 249.52,-30.17"/>
+<path fill="none" stroke="#00ffff" d="M224.24,-22.19C233.06,-23.74 241.93,-25.29 250.08,-26.71"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="249.52,-30.17 259.98,-28.45 250.73,-23.27 249.52,-30.17"/>
 </g>
 <!-- program~mpi_driver -->
-<g id="proc~~update_s_t~~CalledByGraph_node9" class="node">
+<g id="proc~~update_s_t~~CalledByGraph_node10" class="node">
 <title>program~mpi_driver</title>
-<g id="a_proc~~update_s_t~~CalledByGraph_node9"><a xlink:href=".././program/mpi_driver.html" xlink:title="mpi_driver">
+<g id="a_proc~~update_s_t~~CalledByGraph_node10"><a xlink:href=".././program/mpi_driver.html" xlink:title="mpi_driver">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-66 0,-66 0,-42 70,-42 70,-66"/>
 <text text-anchor="middle" x="35" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_driver</text>
 </a>
 </g>
 </g>
 <!-- program~mpi_driver&#45;&gt;proc~mpidrv_worker -->
-<g id="proc~~update_s_t~~CalledByGraph_edge8" class="edge">
+<g id="proc~~update_s_t~~CalledByGraph_edge10" class="edge">
 <title>program~mpi_driver&#45;&gt;proc~mpidrv_worker</title>
 <path fill="none" stroke="#ff0000" d="M70.3,-54C82.11,-54 95.64,-54 108.68,-54"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="109,-57.5 119,-54 109,-50.5 109,-57.5"/>

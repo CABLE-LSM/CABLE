@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for GW">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>phenvariable &ndash; GW</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">GW </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>phenvariable 
+    <small>Module</small>
+    </h1>
+    <div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title=" 0.1% of total for modules and submodules.">25 statements</a>
+     </li> 
+    <li><i class="fa fa-code"></i><a href="../src/casa_phenology.F90"> Source File</a></li>
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+     <li><a href='../sourcefile/casa_phenology.f90.html'>casa_phenology.F90</a></li>
+     <li class="active">phenvariable</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div id="sidebar">
+  <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#types-0">Derived Types</a></h3></div>
+  <div id="types-0" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/phenvariable.html#type-phen_variable">phen_variable</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#subs-0">Subroutines</a></h3></div>
+  <div class="list-group">
+    <div id="subs-0" class="panel-collapse collapse">
+      <a class="list-group-item" href="../module/phenvariable.html#proc-alloc_phenvariable">alloc_phenvariable</a>
+    </div>
+  </div>
+</div>
+
+</div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    
+<br>        <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Uses</h3>
+      </div>
+      <ul class="list-group">
+      <li class="list-group-item">
+  <ul class="list-inline">
+    <li><a href='../module/casadimension.html'>casadimension</a></li>
+  </ul>
+      </li>
+      <li class="list-group-item">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~phenvariable~~UsesGraph Pages: 1 -->
+<svg id="modulephenvariableUsesGraph" width="383pt" height="32pt"
+ viewBox="0.00 0.00 383.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~phenvariable~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>module~~phenvariable~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 379,-28 379,4 -4,4"/>
+<!-- module~phenvariable -->
+<g id="module~~phenvariable~~UsesGraph_node1" class="node">
+<title>module~phenvariable</title>
+<polygon fill="none" stroke="black" points="375,-24 292,-24 292,0 375,0 375,-24"/>
+<text text-anchor="middle" x="333.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">phenvariable</text>
+</g>
+<!-- module~casadimension -->
+<g id="module~~phenvariable~~UsesGraph_node2" class="node">
+<title>module~casadimension</title>
+<g id="a_module~~phenvariable~~UsesGraph_node2"><a xlink:href=".././module/casadimension.html" xlink:title="casadimension">
+<polygon fill="#337ab7" stroke="#337ab7" points="256,-24 163,-24 163,0 256,0 256,-24"/>
+<text text-anchor="middle" x="209.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casadimension</text>
+</a>
+</g>
+</g>
+<!-- module~phenvariable&#45;&gt;module~casadimension -->
+<g id="module~~phenvariable~~UsesGraph_edge1" class="edge">
+<title>module~phenvariable&#45;&gt;module~casadimension</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M291.88,-12C283.79,-12 275.17,-12 266.68,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="266.42,-8.5 256.42,-12 266.42,-15.5 266.42,-8.5"/>
+</g>
+<!-- module~cable_def_types_mod -->
+<g id="module~~phenvariable~~UsesGraph_node3" class="node">
+<title>module~cable_def_types_mod</title>
+<g id="a_module~~phenvariable~~UsesGraph_node3"><a xlink:href=".././module/cable_def_types_mod.html" xlink:title="cable_def_types_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="127,-24 0,-24 0,0 127,0 127,-24"/>
+<text text-anchor="middle" x="63.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_def_types_mod</text>
+</a>
+</g>
+</g>
+<!-- module~casadimension&#45;&gt;module~cable_def_types_mod -->
+<g id="module~~phenvariable~~UsesGraph_edge2" class="edge">
+<title>module~casadimension&#45;&gt;module~cable_def_types_mod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M162.94,-12C154.76,-12 146.06,-12 137.35,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="137.14,-8.5 127.14,-12 137.14,-15.5 137.14,-8.5"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a submodule to the (sub)module which it is
+    descended from. Dashed arrows point from a module or program unit to 
+    modules which it uses. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </li>
+      </ul>
+    </div>
+
+        <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Used by</h3>
+      </div>
+      <ul class="list-group">
+  <li class="list-group-item">
+    <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~phenvariable~~UsedByGraph Pages: 1 -->
+<svg id="modulephenvariableUsedByGraph" width="603pt" height="1276pt"
+ viewBox="0.00 0.00 603.00 1276.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~phenvariable~~UsedByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 1272)">
+<title>module~~phenvariable~~UsedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-1272 599,-1272 599,4 -4,4"/>
+<!-- module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_node1" class="node">
+<title>module~phenvariable</title>
+<polygon fill="none" stroke="black" points="83,-646 0,-646 0,-622 83,-622 83,-646"/>
+<text text-anchor="middle" x="41.5" y="-631.6" font-family="Helvetica,sans-Serif" font-size="10.50">phenvariable</text>
+</g>
+<!-- proc~casa_fluxout -->
+<g id="module~~phenvariable~~UsedByGraph_node2" class="node">
+<title>proc~casa_fluxout</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node2"><a xlink:href=".././proc/casa_fluxout.html" xlink:title="casa_fluxout">
+<polygon fill="#d9534f" stroke="#d9534f" points="235.5,-1268 156.5,-1268 156.5,-1244 235.5,-1244 235.5,-1268"/>
+<text text-anchor="middle" x="196" y="-1253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_fluxout</text>
+</a>
+</g>
+</g>
+<!-- proc~casa_fluxout&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge24" class="edge">
+<title>proc~casa_fluxout&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M156.3,-1253.96C142.61,-1251.24 128.32,-1245.76 119,-1235 42.07,-1146.2 41.15,-754.74 42.16,-656.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="45.66,-656.47 42.28,-646.42 38.66,-656.38 45.66,-656.47"/>
+</g>
+<!-- proc~worker_casa_dump_types -->
+<g id="module~~phenvariable~~UsedByGraph_node3" class="node">
+<title>proc~worker_casa_dump_types</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node3"><a xlink:href=".././proc/worker_casa_dump_types.html" xlink:title="worker_casa_dump_types">
+<polygon fill="#d9534f" stroke="#d9534f" points="270.5,-1226 121.5,-1226 121.5,-1202 270.5,-1202 270.5,-1226"/>
+<text text-anchor="middle" x="196" y="-1211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">worker_casa_dump_types</text>
+</a>
+</g>
+</g>
+<!-- proc~worker_casa_dump_types&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge15" class="edge">
+<title>proc~worker_casa_dump_types&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M129.58,-1201.92C125.65,-1199.45 122.06,-1196.5 119,-1193 47.27,-1110.99 42.44,-749.4 42.4,-656.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="45.9,-656.04 42.42,-646.03 38.9,-656.03 45.9,-656.04"/>
+</g>
+<!-- proc~worker_spincasacnp -->
+<g id="module~~phenvariable~~UsedByGraph_node4" class="node">
+<title>proc~worker_spincasacnp</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node4"><a xlink:href=".././proc/worker_spincasacnp.html" xlink:title="worker_spincasacnp">
+<polygon fill="#d9534f" stroke="#d9534f" points="256.5,-1184 135.5,-1184 135.5,-1160 256.5,-1160 256.5,-1184"/>
+<text text-anchor="middle" x="196" y="-1169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">worker_spincasacnp</text>
+</a>
+</g>
+</g>
+<!-- proc~worker_spincasacnp&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge16" class="edge">
+<title>proc~worker_spincasacnp&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M137.1,-1159.98C130.22,-1156.45 123.91,-1151.89 119,-1146 55.55,-1069.86 44.65,-744.85 42.84,-656.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="46.34,-656.25 42.66,-646.31 39.34,-656.38 46.34,-656.25"/>
+</g>
+<!-- proc~mpidrv_master -->
+<g id="module~~phenvariable~~UsedByGraph_node5" class="node">
+<title>proc~mpidrv_master</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node5"><a xlink:href=".././proc/mpidrv_master.html" xlink:title="mpidrv_master">
+<polygon fill="#d9534f" stroke="#d9534f" points="576.5,-947 483.5,-947 483.5,-923 576.5,-923 576.5,-947"/>
+<text text-anchor="middle" x="530" y="-932.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpidrv_master</text>
+</a>
+</g>
+</g>
+<!-- proc~mpidrv_master&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge1" class="edge">
+<title>proc~mpidrv_master&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M518.26,-947.18C467.89,-1002.94 251.84,-1226.31 119,-1113 48.56,-1052.92 42.69,-742.73 42.43,-656.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="45.93,-656.32 42.43,-646.32 38.93,-656.32 45.93,-656.32"/>
+</g>
+<!-- module~cable_input_module -->
+<g id="module~~phenvariable~~UsedByGraph_node18" class="node">
+<title>module~cable_input_module</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node18"><a xlink:href=".././module/cable_input_module.html" xlink:title="cable_input_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="429,-604 309,-604 309,-580 429,-580 429,-604"/>
+<text text-anchor="middle" x="369" y="-589.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_input_module</text>
+</a>
+</g>
+</g>
+<!-- proc~mpidrv_master&#45;&gt;module~cable_input_module -->
+<g id="module~~phenvariable~~UsedByGraph_edge32" class="edge">
+<title>proc~mpidrv_master&#45;&gt;module~cable_input_module</title>
+<path fill="none" stroke="#00e6ff" stroke-dasharray="5,2" d="M523.34,-922.79C499.87,-872.16 409.99,-678.27 379.89,-613.33"/>
+<polygon fill="#00e6ff" stroke="#00e6ff" points="382.97,-611.66 375.59,-604.06 376.62,-614.61 382.97,-611.66"/>
+</g>
+<!-- proc~casa_readphen -->
+<g id="module~~phenvariable~~UsedByGraph_node6" class="node">
+<title>proc~casa_readphen</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node6"><a xlink:href=".././proc/casa_readphen.html" xlink:title="casa_readphen">
+<polygon fill="#d9534f" stroke="#d9534f" points="243,-1104 149,-1104 149,-1080 243,-1080 243,-1104"/>
+<text text-anchor="middle" x="196" y="-1089.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_readphen</text>
+</a>
+</g>
+</g>
+<!-- proc~casa_readphen&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge2" class="edge">
+<title>proc~casa_readphen&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M148.65,-1087.83C137.57,-1084.7 126.73,-1079.51 119,-1071 62.74,-1009.04 46.87,-737.38 43.36,-656.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="46.84,-656.05 42.93,-646.21 39.84,-656.34 46.84,-656.05"/>
+</g>
+<!-- proc~casa_init -->
+<g id="module~~phenvariable~~UsedByGraph_node7" class="node">
+<title>proc~casa_init</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node7"><a xlink:href=".././proc/casa_init.html" xlink:title="casa_init">
+<polygon fill="#d9534f" stroke="#d9534f" points="225.5,-1062 166.5,-1062 166.5,-1038 225.5,-1038 225.5,-1062"/>
+<text text-anchor="middle" x="196" y="-1047.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_init</text>
+</a>
+</g>
+</g>
+<!-- proc~casa_init&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge5" class="edge">
+<title>proc~casa_init&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M166.3,-1049.2C150.19,-1047.2 130.99,-1041.97 119,-1029 67.92,-973.75 48.63,-731.74 43.81,-656.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="47.28,-655.98 43.17,-646.21 40.3,-656.41 47.28,-655.98"/>
+</g>
+<!-- proc~analyticpool -->
+<g id="module~~phenvariable~~UsedByGraph_node8" class="node">
+<title>proc~analyticpool</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node8"><a xlink:href=".././proc/analyticpool.html" xlink:title="analyticpool">
+<polygon fill="#d9534f" stroke="#d9534f" points="235,-1020 157,-1020 157,-996 235,-996 235,-1020"/>
+<text text-anchor="middle" x="196" y="-1005.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">analyticpool</text>
+</a>
+</g>
+</g>
+<!-- proc~analyticpool&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge4" class="edge">
+<title>proc~analyticpool&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M156.78,-1005.52C143.16,-1002.75 128.78,-997.35 119,-987 73.09,-938.44 50.6,-726.05 44.35,-656.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="47.81,-655.68 43.46,-646.02 40.84,-656.29 47.81,-655.68"/>
+</g>
+<!-- proc~write_casa_restart_nc -->
+<g id="module~~phenvariable~~UsedByGraph_node9" class="node">
+<title>proc~write_casa_restart_nc</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node9"><a xlink:href=".././proc/write_casa_restart_nc.html" xlink:title="WRITE_CASA_RESTART_NC">
+<polygon fill="#d9534f" stroke="#d9534f" points="273,-978 119,-978 119,-954 273,-954 273,-978"/>
+<text text-anchor="middle" x="196" y="-963.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">WRITE_CASA_RESTART_NC</text>
+</a>
+</g>
+</g>
+<!-- proc~write_casa_restart_nc&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge3" class="edge">
+<title>proc~write_casa_restart_nc&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M130.7,-953.96C126.41,-951.49 122.43,-948.53 119,-945 78.33,-903.16 52.92,-720.86 45.09,-656.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="48.53,-655.82 43.87,-646.3 41.58,-656.65 48.53,-655.82"/>
+</g>
+<!-- proc~casa_poolout -->
+<g id="module~~phenvariable~~UsedByGraph_node10" class="node">
+<title>proc~casa_poolout</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node10"><a xlink:href=".././proc/casa_poolout.html" xlink:title="casa_poolout">
+<polygon fill="#d9534f" stroke="#d9534f" points="237.5,-936 154.5,-936 154.5,-912 237.5,-912 237.5,-936"/>
+<text text-anchor="middle" x="196" y="-921.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_poolout</text>
+</a>
+</g>
+</g>
+<!-- proc~casa_poolout&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge6" class="edge">
+<title>proc~casa_poolout&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M154.37,-920.59C141.62,-917.63 128.42,-912.35 119,-903 49.8,-834.31 42.09,-707.86 41.98,-656.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="45.49,-656.27 42.07,-646.24 38.49,-656.21 45.49,-656.27"/>
+</g>
+<!-- proc~master_casa_params -->
+<g id="module~~phenvariable~~UsedByGraph_node11" class="node">
+<title>proc~master_casa_params</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node11"><a xlink:href=".././proc/master_casa_params.html" xlink:title="master_casa_params">
+<polygon fill="#d9534f" stroke="#d9534f" points="259,-894 133,-894 133,-870 259,-870 259,-894"/>
+<text text-anchor="middle" x="196" y="-879.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">master_casa_params</text>
+</a>
+</g>
+</g>
+<!-- proc~master_casa_params&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge7" class="edge">
+<title>proc~master_casa_params&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M132.85,-870.6C127.8,-868.02 123.08,-864.86 119,-861 59.82,-805.01 46.41,-701.79 43.38,-656.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="46.86,-655.96 42.81,-646.17 39.88,-656.35 46.86,-655.96"/>
+</g>
+<!-- proc~master_casa_dump_types -->
+<g id="module~~phenvariable~~UsedByGraph_node12" class="node">
+<title>proc~master_casa_dump_types</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node12"><a xlink:href=".././proc/master_casa_dump_types.html" xlink:title="master_casa_dump_types">
+<polygon fill="#d9534f" stroke="#d9534f" points="271,-852 121,-852 121,-828 271,-828 271,-852"/>
+<text text-anchor="middle" x="196" y="-837.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">master_casa_dump_types</text>
+</a>
+</g>
+</g>
+<!-- proc~master_casa_dump_types&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge8" class="edge">
+<title>proc~master_casa_dump_types&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M132.37,-827.94C127.54,-825.48 123,-822.54 119,-819 69.71,-775.41 51.49,-695.12 45.34,-656.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="48.75,-655.41 43.85,-646.02 41.82,-656.42 48.75,-655.41"/>
+</g>
+<!-- proc~worker_casa_params -->
+<g id="module~~phenvariable~~UsedByGraph_node13" class="node">
+<title>proc~worker_casa_params</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node13"><a xlink:href=".././proc/worker_casa_params.html" xlink:title="worker_casa_params">
+<polygon fill="#d9534f" stroke="#d9534f" points="258.5,-810 133.5,-810 133.5,-786 258.5,-786 258.5,-810"/>
+<text text-anchor="middle" x="196" y="-795.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">worker_casa_params</text>
+</a>
+</g>
+</g>
+<!-- proc~worker_casa_params&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge10" class="edge">
+<title>proc~worker_casa_params&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M142.82,-785.9C134.27,-782.36 125.95,-777.82 119,-772 81.61,-740.69 59.23,-686.2 49.06,-655.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="52.36,-654.72 45.97,-646.27 45.7,-656.86 52.36,-654.72"/>
+</g>
+<!-- program~cable_offline_driver -->
+<g id="module~~phenvariable~~UsedByGraph_node14" class="node">
+<title>program~cable_offline_driver</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node14"><a xlink:href=".././program/cable_offline_driver.html" xlink:title="cable_offline_driver">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="589,-708 471,-708 471,-684 589,-684 589,-708"/>
+<text text-anchor="middle" x="530" y="-693.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_offline_driver</text>
+</a>
+</g>
+</g>
+<!-- program~cable_offline_driver&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge14" class="edge">
+<title>program~cable_offline_driver&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M502.73,-708.14C434.92,-737.6 250.09,-805.69 119,-739 84.72,-721.56 62.17,-680.77 50.93,-655.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="54.04,-653.85 46.93,-646 47.59,-656.58 54.04,-653.85"/>
+</g>
+<!-- program~cable_offline_driver&#45;&gt;module~cable_input_module -->
+<g id="module~~phenvariable~~UsedByGraph_edge34" class="edge">
+<title>program~cable_offline_driver&#45;&gt;module~cable_input_module</title>
+<path fill="none" stroke="#00e6ff" stroke-dasharray="5,2" d="M510.45,-683.87C482.44,-665.55 429.22,-630.74 396.94,-609.62"/>
+<polygon fill="#00e6ff" stroke="#00e6ff" points="398.72,-606.6 388.43,-604.06 394.89,-612.46 398.72,-606.6"/>
+</g>
+<!-- proc~casaonly_luc -->
+<g id="module~~phenvariable~~UsedByGraph_node15" class="node">
+<title>proc~casaonly_luc</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node15"><a xlink:href=".././proc/casaonly_luc.html" xlink:title="CASAONLY_LUC">
+<polygon fill="#d9534f" stroke="#d9534f" points="243,-730 149,-730 149,-706 243,-706 243,-730"/>
+<text text-anchor="middle" x="196" y="-715.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CASAONLY_LUC</text>
+</a>
+</g>
+</g>
+<!-- proc~casaonly_luc&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge19" class="edge">
+<title>proc~casaonly_luc&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M148.81,-708.57C138.68,-705.6 128.23,-701.8 119,-697 97.36,-685.75 76.23,-667.65 61.68,-653.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="63.9,-651 54.31,-646.49 59,-655.99 63.9,-651"/>
+</g>
+<!-- proc~master_casa_types -->
+<g id="module~~phenvariable~~UsedByGraph_node16" class="node">
+<title>proc~master_casa_types</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node16"><a xlink:href=".././proc/master_casa_types.html" xlink:title="master_casa_types">
+<polygon fill="#d9534f" stroke="#d9534f" points="253,-688 139,-688 139,-664 253,-664 253,-688"/>
+<text text-anchor="middle" x="196" y="-673.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">master_casa_types</text>
+</a>
+</g>
+</g>
+<!-- proc~master_casa_types&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge12" class="edge">
+<title>proc~master_casa_types&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M151.3,-663.96C133.01,-658.93 111.65,-653.04 92.72,-647.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="93.64,-644.45 83.07,-645.17 91.78,-651.2 93.64,-644.45"/>
+</g>
+<!-- proc~casa_readbiome -->
+<g id="module~~phenvariable~~UsedByGraph_node17" class="node">
+<title>proc~casa_readbiome</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node17"><a xlink:href=".././proc/casa_readbiome.html" xlink:title="casa_readbiome">
+<polygon fill="#d9534f" stroke="#d9534f" points="246,-646 146,-646 146,-622 246,-622 246,-646"/>
+<text text-anchor="middle" x="196" y="-631.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_readbiome</text>
+</a>
+</g>
+</g>
+<!-- proc~casa_readbiome&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge18" class="edge">
+<title>proc~casa_readbiome&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M145.91,-634C129.18,-634 110.45,-634 93.57,-634"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="93.33,-630.5 83.33,-634 93.33,-637.5 93.33,-630.5"/>
+</g>
+<!-- module~cable_input_module&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge13" class="edge">
+<title>module~cable_input_module&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M332.57,-579.95C283.16,-565.15 191.48,-545 119,-571 95.22,-579.53 73.56,-599 59.4,-614.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="56.45,-612.09 52.35,-621.86 61.65,-616.79 56.45,-612.09"/>
+</g>
+<!-- module~cable_param_module -->
+<g id="module~~phenvariable~~UsedByGraph_node19" class="node">
+<title>module~cable_param_module</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node19"><a xlink:href=".././module/cable_param_module.html" xlink:title="cable_param_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="260,-604 132,-604 132,-580 260,-580 260,-604"/>
+<text text-anchor="middle" x="196" y="-589.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_param_module</text>
+</a>
+</g>
+</g>
+<!-- module~cable_input_module&#45;&gt;module~cable_param_module -->
+<g id="module~~phenvariable~~UsedByGraph_edge36" class="edge">
+<title>module~cable_input_module&#45;&gt;module~cable_param_module</title>
+<path fill="none" stroke="#00b4ff" stroke-dasharray="5,2" d="M308.67,-592C296.27,-592 283.05,-592 270.2,-592"/>
+<polygon fill="#00b4ff" stroke="#00b4ff" points="270.01,-588.5 260.01,-592 270.01,-595.5 270.01,-588.5"/>
+</g>
+<!-- module~cable_param_module&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge17" class="edge">
+<title>module~cable_param_module&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M151.3,-604.04C133.01,-609.07 111.65,-614.96 92.72,-620.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="91.78,-616.8 83.07,-622.83 93.64,-623.55 91.78,-616.8"/>
+</g>
+<!-- proc~read_casa_restart_nc -->
+<g id="module~~phenvariable~~UsedByGraph_node20" class="node">
+<title>proc~read_casa_restart_nc</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node20"><a xlink:href=".././proc/read_casa_restart_nc.html" xlink:title="READ_CASA_RESTART_NC">
+<polygon fill="#d9534f" stroke="#d9534f" points="271,-524 121,-524 121,-500 271,-500 271,-524"/>
+<text text-anchor="middle" x="196" y="-509.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">READ_CASA_RESTART_NC</text>
+</a>
+</g>
+</g>
+<!-- proc~read_casa_restart_nc&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge11" class="edge">
+<title>proc~read_casa_restart_nc&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M146.37,-524.02C136.81,-527.63 127.21,-532.22 119,-538 90.62,-557.99 67.38,-591.41 54.24,-613.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="51.13,-611.45 49.08,-621.84 57.17,-615 51.13,-611.45"/>
+</g>
+<!-- proc~popdriver -->
+<g id="module~~phenvariable~~UsedByGraph_node21" class="node">
+<title>proc~popdriver</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node21"><a xlink:href=".././proc/popdriver.html" xlink:title="POPdriver">
+<polygon fill="#d9534f" stroke="#d9534f" points="228,-482 164,-482 164,-458 228,-458 228,-482"/>
+<text text-anchor="middle" x="196" y="-467.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">POPdriver</text>
+</a>
+</g>
+</g>
+<!-- proc~popdriver&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge20" class="edge">
+<title>proc~popdriver&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M163.93,-472.86C149.04,-475.57 131.72,-480.83 119,-491 79.46,-522.62 57.73,-580.36 48.29,-611.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="44.82,-611.35 45.46,-621.93 51.55,-613.26 44.82,-611.35"/>
+</g>
+<!-- proc~spincasacnp -->
+<g id="module~~phenvariable~~UsedByGraph_node22" class="node">
+<title>proc~spincasacnp</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node22"><a xlink:href=".././proc/spincasacnp.html" xlink:title="spincasacnp">
+<polygon fill="#d9534f" stroke="#d9534f" points="235.5,-440 156.5,-440 156.5,-416 235.5,-416 235.5,-440"/>
+<text text-anchor="middle" x="196" y="-425.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">spincasacnp</text>
+</a>
+</g>
+</g>
+<!-- proc~spincasacnp&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge21" class="edge">
+<title>proc~spincasacnp&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M156.15,-431.79C143.09,-434.74 129.25,-439.93 119,-449 69.71,-492.59 51.49,-572.88 45.34,-611.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="41.82,-611.58 43.85,-621.98 48.75,-612.59 41.82,-611.58"/>
+</g>
+<!-- module~casa_cnp_module -->
+<g id="module~~phenvariable~~UsedByGraph_node23" class="node">
+<title>module~casa_cnp_module</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node23"><a xlink:href=".././module/casa_cnp_module.html" xlink:title="casa_cnp_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="250,-398 142,-398 142,-374 250,-374 250,-398"/>
+<text text-anchor="middle" x="196" y="-383.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_cnp_module</text>
+</a>
+</g>
+</g>
+<!-- module~casa_cnp_module&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge22" class="edge">
+<title>module~casa_cnp_module&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M141.61,-393.56C133.3,-396.66 125.36,-400.98 119,-407 59.82,-462.99 46.41,-566.21 43.38,-611.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="39.88,-611.65 42.81,-621.83 46.86,-612.04 39.88,-611.65"/>
+</g>
+<!-- proc~read_casa_dump -->
+<g id="module~~phenvariable~~UsedByGraph_node24" class="node">
+<title>proc~read_casa_dump</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node24"><a xlink:href=".././proc/read_casa_dump.html" xlink:title="read_casa_dump">
+<polygon fill="#d9534f" stroke="#d9534f" points="247.5,-356 144.5,-356 144.5,-332 247.5,-332 247.5,-356"/>
+<text text-anchor="middle" x="196" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_casa_dump</text>
+</a>
+</g>
+</g>
+<!-- proc~read_casa_dump&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge23" class="edge">
+<title>proc~read_casa_dump&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M144.49,-350.19C135.07,-353.36 126,-358.06 119,-365 49.8,-433.69 42.09,-560.14 41.98,-611.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="38.49,-611.79 42.07,-621.76 45.49,-611.73 38.49,-611.79"/>
+</g>
+<!-- proc~cable_phenology_clim -->
+<g id="module~~phenvariable~~UsedByGraph_node25" class="node">
+<title>proc~cable_phenology_clim</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node25"><a xlink:href=".././proc/cable_phenology_clim.html" xlink:title="cable_phenology_clim">
+<polygon fill="#d9534f" stroke="#d9534f" points="261.5,-314 130.5,-314 130.5,-290 261.5,-290 261.5,-314"/>
+<text text-anchor="middle" x="196" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_phenology_clim</text>
+</a>
+</g>
+</g>
+<!-- proc~cable_phenology_clim&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge25" class="edge">
+<title>proc~cable_phenology_clim&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M130.7,-314.04C126.41,-316.51 122.43,-319.47 119,-323 78.33,-364.84 52.92,-547.14 45.09,-611.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="41.58,-611.35 43.87,-621.7 48.53,-612.18 41.58,-611.35"/>
+</g>
+<!-- proc~bgcdriver -->
+<g id="module~~phenvariable~~UsedByGraph_node26" class="node">
+<title>proc~bgcdriver</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node26"><a xlink:href=".././proc/bgcdriver.html" xlink:title="bgcdriver">
+<polygon fill="#d9534f" stroke="#d9534f" points="228,-272 164,-272 164,-248 228,-248 228,-272"/>
+<text text-anchor="middle" x="196" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bgcdriver</text>
+</a>
+</g>
+</g>
+<!-- proc~bgcdriver&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge26" class="edge">
+<title>proc~bgcdriver&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M163.76,-261.26C148.27,-263.53 130.47,-268.86 119,-281 73.09,-329.56 50.6,-541.95 44.35,-611.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="40.84,-611.71 43.46,-621.98 47.81,-612.32 40.84,-611.71"/>
+</g>
+<!-- proc~master_casaonly_luc -->
+<g id="module~~phenvariable~~UsedByGraph_node27" class="node">
+<title>proc~master_casaonly_luc</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node27"><a xlink:href=".././proc/master_casaonly_luc.html" xlink:title="master_CASAONLY_LUC">
+<polygon fill="#d9534f" stroke="#d9534f" points="264,-230 128,-230 128,-206 264,-206 264,-230"/>
+<text text-anchor="middle" x="196" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">master_CASAONLY_LUC</text>
+</a>
+</g>
+</g>
+<!-- proc~master_casaonly_luc&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge27" class="edge">
+<title>proc~master_casaonly_luc&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M130.15,-230.06C126.04,-232.53 122.25,-235.48 119,-239 67.92,-294.25 48.63,-536.26 43.81,-611.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="40.3,-611.59 43.17,-621.79 47.28,-612.02 40.3,-611.59"/>
+</g>
+<!-- proc~worker_casaonly_luc -->
+<g id="module~~phenvariable~~UsedByGraph_node28" class="node">
+<title>proc~worker_casaonly_luc</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node28"><a xlink:href=".././proc/worker_casaonly_luc.html" xlink:title="worker_CASAONLY_LUC">
+<polygon fill="#d9534f" stroke="#d9534f" points="264,-188 128,-188 128,-164 264,-164 264,-188"/>
+<text text-anchor="middle" x="196" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">worker_CASAONLY_LUC</text>
+</a>
+</g>
+</g>
+<!-- proc~worker_casaonly_luc&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge28" class="edge">
+<title>proc~worker_casaonly_luc&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M129.72,-188.21C125.77,-190.65 122.13,-193.55 119,-197 62.74,-258.96 46.87,-530.62 43.36,-611.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="39.84,-611.66 42.93,-621.79 46.84,-611.95 39.84,-611.66"/>
+</g>
+<!-- proc~write_casa_dump -->
+<g id="module~~phenvariable~~UsedByGraph_node29" class="node">
+<title>proc~write_casa_dump</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node29"><a xlink:href=".././proc/write_casa_dump.html" xlink:title="write_casa_dump">
+<polygon fill="#d9534f" stroke="#d9534f" points="248.5,-146 143.5,-146 143.5,-122 248.5,-122 248.5,-146"/>
+<text text-anchor="middle" x="196" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">write_casa_dump</text>
+</a>
+</g>
+</g>
+<!-- proc~write_casa_dump&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge29" class="edge">
+<title>proc~write_casa_dump&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M143.45,-139.7C134.21,-142.92 125.48,-147.76 119,-155 57.34,-223.93 45.17,-527.17 42.96,-611.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="39.46,-611.9 42.72,-621.98 46.46,-612.07 39.46,-611.9"/>
+</g>
+<!-- proc~mpidrv_worker -->
+<g id="module~~phenvariable~~UsedByGraph_node30" class="node">
+<title>proc~mpidrv_worker</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node30"><a xlink:href=".././proc/mpidrv_worker.html" xlink:title="mpidrv_worker">
+<polygon fill="#d9534f" stroke="#d9534f" points="576,-334 484,-334 484,-310 576,-310 576,-334"/>
+<text text-anchor="middle" x="530" y="-319.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpidrv_worker</text>
+</a>
+</g>
+</g>
+<!-- proc~mpidrv_worker&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge30" class="edge">
+<title>proc~mpidrv_worker&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M519.69,-310C472.46,-250.47 256.24,5.56 119,-113 42.46,-179.12 41.08,-520.17 42.12,-611.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="38.62,-611.62 42.25,-621.57 45.62,-611.53 38.62,-611.62"/>
+</g>
+<!-- proc~mpidrv_worker&#45;&gt;module~cable_input_module -->
+<g id="module~~phenvariable~~UsedByGraph_edge33" class="edge">
+<title>proc~mpidrv_worker&#45;&gt;module~cable_input_module</title>
+<path fill="none" stroke="#00e6ff" stroke-dasharray="5,2" d="M521.75,-334.3C496.71,-376.83 413.61,-517.94 382.18,-571.31"/>
+<polygon fill="#00e6ff" stroke="#00e6ff" points="379.16,-569.54 377.11,-579.93 385.2,-573.09 379.16,-569.54"/>
+</g>
+<!-- proc~worker_casa_type -->
+<g id="module~~phenvariable~~UsedByGraph_node31" class="node">
+<title>proc~worker_casa_type</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node31"><a xlink:href=".././proc/worker_casa_type.html" xlink:title="worker_casa_type">
+<polygon fill="#d9534f" stroke="#d9534f" points="250,-66 142,-66 142,-42 250,-42 250,-66"/>
+<text text-anchor="middle" x="196" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">worker_casa_type</text>
+</a>
+</g>
+</g>
+<!-- proc~worker_casa_type&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge31" class="edge">
+<title>proc~worker_casa_type&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M141.99,-63.63C133.22,-67.42 125.03,-72.68 119,-80 50.47,-163.17 43.27,-518.63 42.56,-611.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="39.06,-611.64 42.51,-621.66 46.06,-611.68 39.06,-611.64"/>
+</g>
+<!-- proc~master_spincasacnp -->
+<g id="module~~phenvariable~~UsedByGraph_node32" class="node">
+<title>proc~master_spincasacnp</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node32"><a xlink:href=".././proc/master_spincasacnp.html" xlink:title="master_spincasacnp">
+<polygon fill="#d9534f" stroke="#d9534f" points="256.5,-24 135.5,-24 135.5,0 256.5,0 256.5,-24"/>
+<text text-anchor="middle" x="196" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">master_spincasacnp</text>
+</a>
+</g>
+</g>
+<!-- proc~master_spincasacnp&#45;&gt;module~phenvariable -->
+<g id="module~~phenvariable~~UsedByGraph_edge9" class="edge">
+<title>proc~master_spincasacnp&#45;&gt;module~phenvariable</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M135.27,-20.86C129.11,-23.87 123.48,-27.83 119,-33 42.07,-121.8 41.15,-513.26 42.16,-611.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="38.66,-611.62 42.28,-621.58 45.66,-611.53 38.66,-611.62"/>
+</g>
+<!-- proc~worker_cable_params -->
+<g id="module~~phenvariable~~UsedByGraph_node33" class="node">
+<title>proc~worker_cable_params</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node33"><a xlink:href=".././proc/worker_cable_params.html" xlink:title="worker_cable_params">
+<polygon fill="#d9534f" stroke="#d9534f" points="595,-604 465,-604 465,-580 595,-580 595,-604"/>
+<text text-anchor="middle" x="530" y="-589.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">worker_cable_params</text>
+</a>
+</g>
+</g>
+<!-- proc~worker_cable_params&#45;&gt;module~cable_input_module -->
+<g id="module~~phenvariable~~UsedByGraph_edge35" class="edge">
+<title>proc~worker_cable_params&#45;&gt;module~cable_input_module</title>
+<path fill="none" stroke="#00e6ff" stroke-dasharray="5,2" d="M464.79,-592C456.39,-592 447.76,-592 439.29,-592"/>
+<polygon fill="#00e6ff" stroke="#00e6ff" points="439.06,-588.5 429.06,-592 439.06,-595.5 439.06,-588.5"/>
+</g>
+<!-- proc~casa_feedback -->
+<g id="module~~phenvariable~~UsedByGraph_node34" class="node">
+<title>proc~casa_feedback</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node34"><a xlink:href=".././proc/casa_feedback.html" xlink:title="casa_feedback">
+<polygon fill="#d9534f" stroke="#d9534f" points="415,-419 323,-419 323,-395 415,-395 415,-419"/>
+<text text-anchor="middle" x="369" y="-404.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_feedback</text>
+</a>
+</g>
+</g>
+<!-- proc~casa_feedback&#45;&gt;module~casa_cnp_module -->
+<g id="module~~phenvariable~~UsedByGraph_edge38" class="edge">
+<title>proc~casa_feedback&#45;&gt;module~casa_cnp_module</title>
+<path fill="none" stroke="#1000ff" stroke-dasharray="5,2" d="M322.62,-401.43C303.49,-399.08 280.89,-396.3 260.18,-393.76"/>
+<polygon fill="#1000ff" stroke="#1000ff" points="260.53,-390.28 250.18,-392.53 259.68,-397.22 260.53,-390.28"/>
+</g>
+<!-- proc~biogeochem -->
+<g id="module~~phenvariable~~UsedByGraph_node35" class="node">
+<title>proc~biogeochem</title>
+<g id="a_module~~phenvariable~~UsedByGraph_node35"><a xlink:href=".././proc/biogeochem.html" xlink:title="biogeochem">
+<polygon fill="#d9534f" stroke="#d9534f" points="408.5,-377 329.5,-377 329.5,-353 408.5,-353 408.5,-377"/>
+<text text-anchor="middle" x="369" y="-362.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">biogeochem</text>
+</a>
+</g>
+</g>
+<!-- proc~biogeochem&#45;&gt;module~casa_cnp_module -->
+<g id="module~~phenvariable~~UsedByGraph_edge37" class="edge">
+<title>proc~biogeochem&#45;&gt;module~casa_cnp_module</title>
+<path fill="none" stroke="#1000ff" stroke-dasharray="5,2" d="M329.2,-369.77C308.85,-372.26 283.42,-375.39 260.31,-378.22"/>
+<polygon fill="#1000ff" stroke="#1000ff" points="259.73,-374.77 250.23,-379.46 260.58,-381.72 259.73,-374.77"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a submodule to the (sub)module which it is
+    descended from. Dashed arrows point from a module or program unit to 
+    modules which it uses. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+  </li>
+      </ul>
+    </div>
+
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+      <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#types-1">Derived Types</a></h3></div>
+  <div id="types-1" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/phenvariable.html#type-phen_variable">phen_variable</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#subs-1">Subroutines</a></h3></div>
+  <div class="list-group">
+    <div id="subs-1" class="panel-collapse collapse">
+      <a class="list-group-item" href="../module/phenvariable.html#proc-alloc_phenvariable">alloc_phenvariable</a>
+    </div>
+  </div>
+</div>
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    <section>
+     <h2>Derived Types</h2>
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="type-phen_variable"></span><h3>type, public :: <a href='../type/phen_variable.html'>phen_variable</a>  </h3></div>
+  <div class="panel-body">
+     <h4>Components</h4>
+    <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-phase"></span>integer,</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>phase</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-tkshed"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>TKshed</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-doyphase"></span>integer,</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>doyphase</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-phen"></span>real,</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>phen</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-aphen"></span>real,</td>
+<td>public,</td>  <td>DIMENSION(:), POINTER</td><td>::</td>
+  <td><strong>aphen</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-phasespin"></span>integer,</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>phasespin</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-doyphasespin_1"></span>integer,</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>doyphasespin_1</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-doyphasespin_2"></span>integer,</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>doyphasespin_2</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-doyphasespin_3"></span>integer,</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>doyphasespin_3</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-doyphasespin_4"></span>integer,</td>
+<td>public,</td>  <td>DIMENSION(:,:), POINTER</td><td>::</td>
+  <td><strong>doyphasespin_4</strong></td><td></td><td></td><td></td>
+</tr>
+</tbody>
+</table>
+
+     
+  </div>
+</div>
+
+    </section>
+  <br>
+    
+
+    <section>
+    <h2>Subroutines</h2>
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-alloc_phenvariable"></span><h3>public subroutine <a href='../proc/alloc_phenvariable.html'>alloc_phenvariable</a>(phen, arraysize)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/phen_variable.html'>phen_variable</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>phen</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>arraysize</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+    </section>    
+    <br>
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>GW was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

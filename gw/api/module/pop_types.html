@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for GW">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>POP_Types &ndash; GW</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">GW </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>POP_Types 
+    <small>Module</small>
+    </h1>
+    <div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title=" 0.3% of total for modules and submodules.">126 statements</a>
+     </li> 
+    <li><i class="fa fa-code"></i><a href="../src/POP.F90"> Source File</a></li>
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+     <li><a href='../sourcefile/pop.f90.html'>POP.F90</a></li>
+     <li class="active">POP_Types</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div id="sidebar">
+  <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#types-0">Derived Types</a></h3></div>
+  <div id="types-0" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/pop_types.html#type-cohort">Cohort</a>
+      <a class="list-group-item" href="../module/pop_types.html#type-layer">Layer</a>
+      <a class="list-group-item" href="../module/pop_types.html#type-patch">Patch</a>
+      <a class="list-group-item" href="../module/pop_types.html#type-landscape">Landscape</a>
+      <a class="list-group-item" href="../module/pop_types.html#type-pop_type">POP_TYPE</a>
+    </div>
+  </div>
+</div>
+
+</div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    
+<br>        <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Uses</h3>
+      </div>
+      <ul class="list-group">
+      <li class="list-group-item">
+  <ul class="list-inline">
+    <li><a href='../module/typedef.html'>TypeDef</a></li>
+    <li><a href='../module/pop_constants.html'>POP_Constants</a></li>
+  </ul>
+      </li>
+      <li class="list-group-item">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~pop_types~~UsesGraph Pages: 1 -->
+<svg id="modulepop_typesUsesGraph" width="293pt" height="52pt"
+ viewBox="0.00 0.00 293.00 52.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~pop_types~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 48)">
+<title>module~~pop_types~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-48 289,-48 289,4 -4,4"/>
+<!-- module~pop_types -->
+<g id="module~~pop_types~~UsesGraph_node1" class="node">
+<title>module~pop_types</title>
+<polygon fill="none" stroke="black" points="285,-44 218,-44 218,-20 285,-20 285,-44"/>
+<text text-anchor="middle" x="251.5" y="-29.6" font-family="Helvetica,sans-Serif" font-size="10.50">POP_Types</text>
+</g>
+<!-- module~typedef -->
+<g id="module~~pop_types~~UsesGraph_node2" class="node">
+<title>module~typedef</title>
+<g id="a_module~~pop_types~~UsesGraph_node2"><a xlink:href=".././module/typedef.html" xlink:title="TypeDef">
+<polygon fill="#337ab7" stroke="#337ab7" points="55,-44 0,-44 0,-20 55,-20 55,-44"/>
+<text text-anchor="middle" x="27.5" y="-29.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TypeDef</text>
+</a>
+</g>
+</g>
+<!-- module~pop_types&#45;&gt;module~typedef -->
+<g id="module~~pop_types~~UsesGraph_edge1" class="edge">
+<title>module~pop_types&#45;&gt;module~typedef</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M217.75,-32.58C206.43,-32.75 193.66,-32.91 182,-33 141.56,-33.3 131.44,-33.32 91,-33 82.76,-32.93 73.91,-32.82 65.53,-32.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="65.32,-29.19 55.26,-32.52 65.2,-36.19 65.32,-29.19"/>
+</g>
+<!-- module~pop_constants -->
+<g id="module~~pop_types~~UsesGraph_node3" class="node">
+<title>module~pop_constants</title>
+<g id="a_module~~pop_types~~UsesGraph_node3"><a xlink:href=".././module/pop_constants.html" xlink:title="POP_Constants">
+<polygon fill="#337ab7" stroke="#337ab7" points="182,-24 91,-24 91,0 182,0 182,-24"/>
+<text text-anchor="middle" x="136.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">POP_Constants</text>
+</a>
+</g>
+</g>
+<!-- module~pop_types&#45;&gt;module~pop_constants -->
+<g id="module~~pop_types~~UsesGraph_edge2" class="edge">
+<title>module~pop_types&#45;&gt;module~pop_constants</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M217.82,-26.22C209.85,-24.81 201.11,-23.26 192.43,-21.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="192.76,-18.23 182.3,-19.93 191.54,-25.12 192.76,-18.23"/>
+</g>
+<!-- module~pop_constants&#45;&gt;module~typedef -->
+<g id="module~~pop_types~~UsesGraph_edge3" class="edge">
+<title>module~pop_constants&#45;&gt;module~typedef</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M90.74,-20.37C82.21,-21.96 73.36,-23.61 65.12,-25.16"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="64.25,-21.76 55.06,-27.04 65.53,-28.64 64.25,-21.76"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a submodule to the (sub)module which it is
+    descended from. Dashed arrows point from a module or program unit to 
+    modules which it uses. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </li>
+      </ul>
+    </div>
+
+        <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Used by</h3>
+      </div>
+      <ul class="list-group">
+  <li class="list-group-item">
+    <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~pop_types~~UsedByGraph Pages: 1 -->
+<svg id="modulepop_typesUsedByGraph" width="575pt" height="930pt"
+ viewBox="0.00 0.00 575.00 929.57" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~pop_types~~UsedByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 925.57)">
+<title>module~~pop_types~~UsedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-925.57 571,-925.57 571,4 -4,4"/>
+<!-- module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_node1" class="node">
+<title>module~pop_types</title>
+<polygon fill="none" stroke="black" points="67,-273 0,-273 0,-249 67,-249 67,-273"/>
+<text text-anchor="middle" x="33.5" y="-258.6" font-family="Helvetica,sans-Serif" font-size="10.50">POP_Types</text>
+</g>
+<!-- proc~lucdriver~2 -->
+<g id="module~~pop_types~~UsedByGraph_node2" class="node">
+<title>proc~lucdriver~2</title>
+<g id="a_module~~pop_types~~UsedByGraph_node2"><a xlink:href=".././proc/lucdriver~2.html" xlink:title="LUCdriver">
+<polygon fill="#d9534f" stroke="#d9534f" points="531,-418 467,-418 467,-394 531,-394 531,-418"/>
+<text text-anchor="middle" x="499" y="-403.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LUCdriver</text>
+</a>
+</g>
+</g>
+<!-- proc~lucdriver~2&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge11" class="edge">
+<title>proc~lucdriver~2&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M489.23,-418.37C465.6,-451.59 401.95,-540.52 395,-544 302.85,-590.21 255.73,-570.04 164,-523"/>
+</g>
+<!-- module~popmodule -->
+<g id="module~~pop_types~~UsedByGraph_node10" class="node">
+<title>module~popmodule</title>
+<g id="a_module~~pop_types~~UsedByGraph_node10"><a xlink:href=".././module/popmodule.html" xlink:title="POPModule">
+<polygon fill="#337ab7" stroke="#337ab7" points="199,-315 127,-315 127,-291 199,-291 199,-315"/>
+<text text-anchor="middle" x="163" y="-300.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">POPModule</text>
+</a>
+</g>
+</g>
+<!-- proc~lucdriver~2&#45;&gt;module~popmodule -->
+<g id="module~~pop_types~~UsedByGraph_edge43" class="edge">
+<title>proc~lucdriver~2&#45;&gt;module~popmodule</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M466.76,-408.96C419.7,-412.16 328.69,-413.37 259,-384 227.02,-370.52 197.88,-342.21 180.54,-322.9"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="183.07,-320.48 173.85,-315.24 177.79,-325.08 183.07,-320.48"/>
+</g>
+<!-- module~popluc_module -->
+<g id="module~~pop_types~~UsedByGraph_node11" class="node">
+<title>module~popluc_module</title>
+<g id="a_module~~pop_types~~UsedByGraph_node11"><a xlink:href=".././module/popluc_module.html" xlink:title="POPLUC_Module">
+<polygon fill="#337ab7" stroke="#337ab7" points="375.5,-375 278.5,-375 278.5,-351 375.5,-351 375.5,-375"/>
+<text text-anchor="middle" x="327" y="-360.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">POPLUC_Module</text>
+</a>
+</g>
+</g>
+<!-- proc~lucdriver~2&#45;&gt;module~popluc_module -->
+<g id="module~~pop_types~~UsedByGraph_edge50" class="edge">
+<title>proc~lucdriver~2&#45;&gt;module~popluc_module</title>
+<path fill="none" stroke="#00ff13" stroke-dasharray="5,2" d="M466.82,-398.11C444.11,-392.37 412.7,-384.42 385.49,-377.54"/>
+<polygon fill="#00ff13" stroke="#00ff13" points="386.24,-374.12 375.69,-375.06 384.52,-380.91 386.24,-374.12"/>
+</g>
+<!-- proc~worker_send_pop -->
+<g id="module~~pop_types~~UsedByGraph_node3" class="node">
+<title>proc~worker_send_pop</title>
+<g id="a_module~~pop_types~~UsedByGraph_node3"><a xlink:href=".././proc/worker_send_pop.html" xlink:title="worker_send_pop">
+<polygon fill="#d9534f" stroke="#d9534f" points="380,-859 274,-859 274,-835 380,-835 380,-859"/>
+<text text-anchor="middle" x="327" y="-844.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">worker_send_pop</text>
+</a>
+</g>
+</g>
+<!-- proc~worker_send_pop&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge12" class="edge">
+<title>proc~worker_send_pop&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M288.91,-859.11C244.45,-873.18 174.57,-893.66 164,-887"/>
+</g>
+<!-- module~pop_mpi -->
+<g id="module~~pop_types~~UsedByGraph_node7" class="node">
+<title>module~pop_mpi</title>
+<g id="a_module~~pop_types~~UsedByGraph_node7"><a xlink:href=".././module/pop_mpi.html" xlink:title="pop_mpi">
+<polygon fill="#337ab7" stroke="#337ab7" points="192,-775 134,-775 134,-751 192,-751 192,-775"/>
+<text text-anchor="middle" x="163" y="-760.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pop_mpi</text>
+</a>
+</g>
+</g>
+<!-- proc~worker_send_pop&#45;&gt;module~pop_mpi -->
+<g id="module~~pop_types~~UsedByGraph_edge29" class="edge">
+<title>proc~worker_send_pop&#45;&gt;module~pop_mpi</title>
+<path fill="none" stroke="#d7ff00" stroke-dasharray="5,2" d="M281.35,-834.94C273.75,-832.35 266.04,-829.36 259,-826 233.09,-813.65 206.05,-795.08 187.47,-781.29"/>
+<polygon fill="#d7ff00" stroke="#d7ff00" points="189.41,-778.37 179.32,-775.15 185.2,-783.96 189.41,-778.37"/>
+</g>
+<!-- proc~worker_spincasacnp -->
+<g id="module~~pop_types~~UsedByGraph_node4" class="node">
+<title>proc~worker_spincasacnp</title>
+<g id="a_module~~pop_types~~UsedByGraph_node4"><a xlink:href=".././proc/worker_spincasacnp.html" xlink:title="worker_spincasacnp">
+<polygon fill="#d9534f" stroke="#d9534f" points="387.5,-455 266.5,-455 266.5,-431 387.5,-431 387.5,-455"/>
+<text text-anchor="middle" x="327" y="-440.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">worker_spincasacnp</text>
+</a>
+</g>
+</g>
+<!-- proc~worker_spincasacnp&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge14" class="edge">
+<title>proc~worker_spincasacnp&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M292.19,-455.01C281.44,-459.12 269.59,-463.97 259,-469 215.13,-489.84 207.21,-545.18 164,-523"/>
+</g>
+<!-- proc~worker_spincasacnp&#45;&gt;module~popmodule -->
+<g id="module~~pop_types~~UsedByGraph_edge33" class="edge">
+<title>proc~worker_spincasacnp&#45;&gt;module~popmodule</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M284.98,-430.86C275.97,-427.19 266.8,-422.61 259,-417 223.2,-391.27 192.81,-349 176.59,-323.79"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="179.38,-321.65 171.09,-315.04 173.45,-325.37 179.38,-321.65"/>
+</g>
+<!-- proc~worker_pop_types -->
+<g id="module~~pop_types~~UsedByGraph_node5" class="node">
+<title>proc~worker_pop_types</title>
+<g id="a_module~~pop_types~~UsedByGraph_node5"><a xlink:href=".././proc/worker_pop_types.html" xlink:title="worker_pop_types">
+<polygon fill="#d9534f" stroke="#d9534f" points="381.5,-817 272.5,-817 272.5,-793 381.5,-793 381.5,-817"/>
+<text text-anchor="middle" x="327" y="-802.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">worker_pop_types</text>
+</a>
+</g>
+</g>
+<!-- proc~worker_pop_types&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge1" class="edge">
+<title>proc~worker_pop_types&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M281.75,-817.02C274.03,-819.64 266.18,-822.64 259,-826 213.54,-847.25 206.46,-913.73 164,-887"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M162,-887C56.38,-820.5 37.93,-387.09 35.01,-283.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="38.5,-282.96 34.74,-273.06 31.5,-283.15 38.5,-282.96"/>
+</g>
+<!-- proc~worker_pop_types&#45;&gt;module~pop_mpi -->
+<g id="module~~pop_types~~UsedByGraph_edge28" class="edge">
+<title>proc~worker_pop_types&#45;&gt;module~pop_mpi</title>
+<path fill="none" stroke="#d7ff00" stroke-dasharray="5,2" d="M279.58,-792.96C254.98,-786.59 225.15,-778.85 201.95,-772.84"/>
+<polygon fill="#d7ff00" stroke="#d7ff00" points="202.69,-769.41 192.13,-770.29 200.93,-776.19 202.69,-769.41"/>
+</g>
+<!-- proc~worker_pop_types&#45;&gt;module~popmodule -->
+<g id="module~~pop_types~~UsedByGraph_edge32" class="edge">
+<title>proc~worker_pop_types&#45;&gt;module~popmodule</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M272.31,-794.64C267.27,-791.87 262.68,-788.39 259,-784 219.36,-736.81 235.52,-569.35 223,-509 208.9,-441.04 184.01,-362.71 171.55,-325.23"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="174.74,-323.75 168.25,-315.38 168.11,-325.97 174.74,-323.75"/>
+</g>
+<!-- proc~mpidrv_master -->
+<g id="module~~pop_types~~UsedByGraph_node6" class="node">
+<title>proc~mpidrv_master</title>
+<g id="a_module~~pop_types~~UsedByGraph_node6"><a xlink:href=".././proc/mpidrv_master.html" xlink:title="mpidrv_master">
+<polygon fill="#d9534f" stroke="#d9534f" points="545.5,-651 452.5,-651 452.5,-627 545.5,-627 545.5,-651"/>
+<text text-anchor="middle" x="499" y="-636.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpidrv_master</text>
+</a>
+</g>
+</g>
+<!-- proc~mpidrv_master&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge2" class="edge">
+<title>proc~mpidrv_master&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M496.74,-651.12C491.98,-690.31 471.19,-814.17 395,-868 310.87,-927.44 251.18,-941.88 164,-887"/>
+</g>
+<!-- proc~mpidrv_master&#45;&gt;module~popluc_module -->
+<g id="module~~pop_types~~UsedByGraph_edge46" class="edge">
+<title>proc~mpidrv_master&#45;&gt;module~popluc_module</title>
+<path fill="none" stroke="#00ff13" stroke-dasharray="5,2" d="M487.49,-626.92C472.93,-609.64 446.65,-576.34 431,-544 406.38,-493.11 425.41,-469.66 395,-422 384.71,-405.88 368.78,-391.59 355.03,-381.11"/>
+<polygon fill="#00ff13" stroke="#00ff13" points="356.96,-378.19 346.82,-375.1 352.82,-383.83 356.96,-378.19"/>
+</g>
+<!-- module~cable_input_module -->
+<g id="module~~pop_types~~UsedByGraph_node22" class="node">
+<title>module~cable_input_module</title>
+<g id="a_module~~pop_types~~UsedByGraph_node22"><a xlink:href=".././module/cable_input_module.html" xlink:title="cable_input_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="223,-613 103,-613 103,-589 223,-589 223,-613"/>
+<text text-anchor="middle" x="163" y="-598.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_input_module</text>
+</a>
+</g>
+</g>
+<!-- proc~mpidrv_master&#45;&gt;module~cable_input_module -->
+<g id="module~~pop_types~~UsedByGraph_edge52" class="edge">
+<title>proc~mpidrv_master&#45;&gt;module~cable_input_module</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M452.11,-635.03C403.94,-630.71 326.04,-623.3 259,-615 250.68,-613.97 241.95,-612.8 233.31,-611.59"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="233.63,-608.1 223.23,-610.16 232.64,-615.03 233.63,-608.1"/>
+</g>
+<!-- module~pop_mpi&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge3" class="edge">
+<title>module~pop_mpi&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M133.87,-756.46C122.58,-752.42 110.49,-746.01 103,-736 48.35,-662.98 37.08,-367.44 34.96,-283.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="38.45,-283.1 34.72,-273.19 31.45,-283.27 38.45,-283.1"/>
+</g>
+<!-- proc~alloc_pop -->
+<g id="module~~pop_types~~UsedByGraph_node8" class="node">
+<title>proc~alloc_pop</title>
+<g id="a_module~~pop_types~~UsedByGraph_node8"><a xlink:href=".././proc/alloc_pop.html" xlink:title="alloc_POP">
+<polygon fill="#d9534f" stroke="#d9534f" points="195,-192 131,-192 131,-168 195,-168 195,-192"/>
+<text text-anchor="middle" x="163" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">alloc_POP</text>
+</a>
+</g>
+</g>
+<!-- proc~alloc_pop&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge4" class="edge">
+<title>proc~alloc_pop&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M130.92,-191.89C121.68,-195.9 111.71,-200.71 103,-206 85.73,-216.49 67.98,-230.85 54.89,-242.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="52.53,-239.69 47.37,-248.94 57.18,-244.92 52.53,-239.69"/>
+</g>
+<!-- proc~master_receive_pop -->
+<g id="module~~pop_types~~UsedByGraph_node9" class="node">
+<title>proc~master_receive_pop</title>
+<g id="a_module~~pop_types~~UsedByGraph_node9"><a xlink:href=".././proc/master_receive_pop.html" xlink:title="master_receive_pop">
+<polygon fill="#d9534f" stroke="#d9534f" points="387,-775 267,-775 267,-751 387,-751 387,-775"/>
+<text text-anchor="middle" x="327" y="-760.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">master_receive_pop</text>
+</a>
+</g>
+</g>
+<!-- proc~master_receive_pop&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge5" class="edge">
+<title>proc~master_receive_pop&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M268.18,-751C225.02,-741.6 172.15,-728.99 164,-722"/>
+</g>
+<!-- proc~master_receive_pop&#45;&gt;module~pop_mpi -->
+<g id="module~~pop_types~~UsedByGraph_edge30" class="edge">
+<title>proc~master_receive_pop&#45;&gt;module~pop_mpi</title>
+<path fill="none" stroke="#d7ff00" stroke-dasharray="5,2" d="M266.6,-763C245.11,-763 221.44,-763 202.25,-763"/>
+<polygon fill="#d7ff00" stroke="#d7ff00" points="202.09,-759.5 192.09,-763 202.09,-766.5 202.09,-759.5"/>
+</g>
+<!-- module~popmodule&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge6" class="edge">
+<title>module~popmodule&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M126.82,-291.41C111.44,-286.35 93.26,-280.36 77.12,-275.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="77.97,-271.63 67.37,-271.83 75.78,-278.28 77.97,-271.63"/>
+</g>
+<!-- module~popluc_module&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge7" class="edge">
+<title>module~popluc_module&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M311.54,-375.05C297.72,-386.72 276.49,-405.08 259,-422 214.72,-464.86 218.82,-551.14 164,-523"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M162,-523C70.22,-475.88 43.75,-337.55 36.79,-283.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="40.26,-282.8 35.61,-273.28 33.31,-283.62 40.26,-282.8"/>
+</g>
+<!-- module~popluc_module&#45;&gt;module~popmodule -->
+<g id="module~~pop_types~~UsedByGraph_edge34" class="edge">
+<title>module~popluc_module&#45;&gt;module~popmodule</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M293.22,-350.86C268.1,-341.56 233.26,-328.65 206.09,-318.59"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="207.05,-315.21 196.46,-315.02 204.62,-321.78 207.05,-315.21"/>
+</g>
+<!-- program~cable_offline_driver -->
+<g id="module~~pop_types~~UsedByGraph_node12" class="node">
+<title>program~cable_offline_driver</title>
+<g id="a_module~~pop_types~~UsedByGraph_node12"><a xlink:href=".././program/cable_offline_driver.html" xlink:title="cable_offline_driver">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="558,-535 440,-535 440,-511 558,-511 558,-535"/>
+<text text-anchor="middle" x="499" y="-520.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_offline_driver</text>
+</a>
+</g>
+</g>
+<!-- program~cable_offline_driver&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge13" class="edge">
+<title>program~cable_offline_driver&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M481.72,-535.02C452.64,-555.4 389.09,-595.11 328,-601"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M326,-601C313.26,-602.23 181.87,-532.09 164,-523"/>
+</g>
+<!-- program~cable_offline_driver&#45;&gt;module~popluc_module -->
+<g id="module~~pop_types~~UsedByGraph_edge51" class="edge">
+<title>program~cable_offline_driver&#45;&gt;module~popluc_module</title>
+<path fill="none" stroke="#00ff13" stroke-dasharray="5,2" d="M486.15,-510.97C467.2,-491.82 428.76,-453.37 395,-422 380.24,-408.28 363.19,-393.28 349.98,-381.84"/>
+<polygon fill="#00ff13" stroke="#00ff13" points="352.17,-379.1 342.31,-375.21 347.6,-384.4 352.17,-379.1"/>
+</g>
+<!-- program~cable_offline_driver&#45;&gt;module~cable_input_module -->
+<g id="module~~pop_types~~UsedByGraph_edge54" class="edge">
+<title>program~cable_offline_driver&#45;&gt;module~cable_input_module</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M326,-601C295.83,-603.91 262.35,-604.37 233.7,-603.93"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="233.44,-600.42 223.38,-603.73 233.31,-607.42 233.44,-600.42"/>
+</g>
+<!-- proc~pop_init_single -->
+<g id="module~~pop_types~~UsedByGraph_node13" class="node">
+<title>proc~pop_init_single</title>
+<g id="a_module~~pop_types~~UsedByGraph_node13"><a xlink:href=".././proc/pop_init_single.html" xlink:title="POP_init_single">
+<polygon fill="#d9534f" stroke="#d9534f" points="208.5,-150 117.5,-150 117.5,-126 208.5,-126 208.5,-150"/>
+<text text-anchor="middle" x="163" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">POP_init_single</text>
+</a>
+</g>
+</g>
+<!-- proc~pop_init_single&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge16" class="edge">
+<title>proc~pop_init_single&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M118.12,-150C112.74,-152.49 107.55,-155.46 103,-159 75.27,-180.55 54.88,-216.57 43.85,-239.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="40.6,-238.23 39.58,-248.78 46.95,-241.17 40.6,-238.23"/>
+</g>
+<!-- proc~popdriver -->
+<g id="module~~pop_types~~UsedByGraph_node14" class="node">
+<title>proc~popdriver</title>
+<g id="a_module~~pop_types~~UsedByGraph_node14"><a xlink:href=".././proc/popdriver.html" xlink:title="POPdriver">
+<polygon fill="#d9534f" stroke="#d9534f" points="359,-295 295,-295 295,-271 359,-271 359,-295"/>
+<text text-anchor="middle" x="327" y="-280.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">POPdriver</text>
+</a>
+</g>
+</g>
+<!-- proc~popdriver&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge18" class="edge">
+<title>proc~popdriver&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M294.73,-274C283.38,-270.52 270.52,-266.34 259,-262 215.79,-245.74 208.4,-207.34 164,-220"/>
+</g>
+<!-- proc~popdriver&#45;&gt;module~popmodule -->
+<g id="module~~pop_types~~UsedByGraph_edge35" class="edge">
+<title>proc~popdriver&#45;&gt;module~popmodule</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M294.76,-286.86C270.47,-289.86 236.42,-294.06 209.16,-297.42"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="208.57,-293.97 199.08,-298.67 209.43,-300.92 208.57,-293.97"/>
+</g>
+<!-- proc~master_pop_types -->
+<g id="module~~pop_types~~UsedByGraph_node15" class="node">
+<title>proc~master_pop_types</title>
+<g id="a_module~~pop_types~~UsedByGraph_node15"><a xlink:href=".././proc/master_pop_types.html" xlink:title="master_pop_types">
+<polygon fill="#d9534f" stroke="#d9534f" points="381.5,-733 272.5,-733 272.5,-709 381.5,-709 381.5,-733"/>
+<text text-anchor="middle" x="327" y="-718.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">master_pop_types</text>
+</a>
+</g>
+</g>
+<!-- proc~master_pop_types&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge15" class="edge">
+<title>proc~master_pop_types&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M272.26,-728.62C231.47,-733.1 179.8,-735.55 164,-722"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M162,-722C122.84,-688.4 121.19,-670.29 103,-622 56.83,-499.44 40.66,-341.27 36.06,-283.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="39.54,-282.96 35.29,-273.25 32.56,-283.49 39.54,-282.96"/>
+</g>
+<!-- proc~master_pop_types&#45;&gt;module~pop_mpi -->
+<g id="module~~pop_types~~UsedByGraph_edge27" class="edge">
+<title>proc~master_pop_types&#45;&gt;module~pop_mpi</title>
+<path fill="none" stroke="#d7ff00" stroke-dasharray="5,2" d="M279.58,-733.04C254.98,-739.41 225.15,-747.15 201.95,-753.16"/>
+<polygon fill="#d7ff00" stroke="#d7ff00" points="200.93,-749.81 192.13,-755.71 202.69,-756.59 200.93,-749.81"/>
+</g>
+<!-- proc~casaonly_luc -->
+<g id="module~~pop_types~~UsedByGraph_node16" class="node">
+<title>proc~casaonly_luc</title>
+<g id="a_module~~pop_types~~UsedByGraph_node16"><a xlink:href=".././proc/casaonly_luc.html" xlink:title="CASAONLY_LUC">
+<polygon fill="#d9534f" stroke="#d9534f" points="546,-376 452,-376 452,-352 546,-352 546,-376"/>
+<text text-anchor="middle" x="499" y="-361.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CASAONLY_LUC</text>
+</a>
+</g>
+</g>
+<!-- proc~casaonly_luc&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge17" class="edge">
+<title>proc~casaonly_luc&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M451.68,-372.87C444.18,-375.82 436.94,-379.75 431,-385 402.08,-410.54 424.59,-439.24 395,-464 389.92,-468.25 169.89,-526.02 164,-523"/>
+</g>
+<!-- proc~casaonly_luc&#45;&gt;module~popmodule -->
+<g id="module~~pop_types~~UsedByGraph_edge38" class="edge">
+<title>proc~casaonly_luc&#45;&gt;module~popmodule</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M456.77,-351.99C410.57,-338.86 340.48,-320.05 328,-323"/>
+</g>
+<!-- proc~casaonly_luc&#45;&gt;module~popluc_module -->
+<g id="module~~pop_types~~UsedByGraph_edge45" class="edge">
+<title>proc~casaonly_luc&#45;&gt;module~popluc_module</title>
+<path fill="none" stroke="#00ff13" stroke-dasharray="5,2" d="M452,-363.73C431.54,-363.61 407.23,-363.47 385.58,-363.34"/>
+<polygon fill="#00ff13" stroke="#00ff13" points="385.54,-359.84 375.52,-363.28 385.5,-366.84 385.54,-359.84"/>
+</g>
+<!-- proc~spincasacnp -->
+<g id="module~~pop_types~~UsedByGraph_node17" class="node">
+<title>proc~spincasacnp</title>
+<g id="a_module~~pop_types~~UsedByGraph_node17"><a xlink:href=".././proc/spincasacnp.html" xlink:title="spincasacnp">
+<polygon fill="#d9534f" stroke="#d9534f" points="366.5,-253 287.5,-253 287.5,-229 366.5,-229 366.5,-253"/>
+<text text-anchor="middle" x="327" y="-238.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">spincasacnp</text>
+</a>
+</g>
+</g>
+<!-- proc~spincasacnp&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge19" class="edge">
+<title>proc~spincasacnp&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M292.53,-228.92C259.36,-218.73 207.37,-207.64 164,-220"/>
+</g>
+<!-- proc~spincasacnp&#45;&gt;module~popmodule -->
+<g id="module~~pop_types~~UsedByGraph_edge36" class="edge">
+<title>proc~spincasacnp&#45;&gt;module~popmodule</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M287.15,-252.43C277.86,-255.36 268.03,-258.65 259,-262 238.97,-269.44 217.04,-278.82 199.3,-286.73"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="197.6,-283.66 189.91,-290.95 200.47,-290.04 197.6,-283.66"/>
+</g>
+<!-- proc~biogeochem -->
+<g id="module~~pop_types~~UsedByGraph_node18" class="node">
+<title>proc~biogeochem</title>
+<g id="a_module~~pop_types~~UsedByGraph_node18"><a xlink:href=".././proc/biogeochem.html" xlink:title="biogeochem">
+<polygon fill="#d9534f" stroke="#d9534f" points="202.5,-108 123.5,-108 123.5,-84 202.5,-84 202.5,-108"/>
+<text text-anchor="middle" x="163" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">biogeochem</text>
+</a>
+</g>
+</g>
+<!-- proc~biogeochem&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge8" class="edge">
+<title>proc~biogeochem&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M123.38,-104.82C116.02,-107.8 108.81,-111.75 103,-117 66.24,-150.19 47.4,-207.32 39.39,-238.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="35.94,-238.13 37,-248.67 42.74,-239.76 35.94,-238.13"/>
+</g>
+<!-- proc~lucdriver -->
+<g id="module~~pop_types~~UsedByGraph_node19" class="node">
+<title>proc~lucdriver</title>
+<g id="a_module~~pop_types~~UsedByGraph_node19"><a xlink:href=".././proc/lucdriver.html" xlink:title="LUCdriver">
+<polygon fill="#d9534f" stroke="#d9534f" points="531,-108 467,-108 467,-84 531,-84 531,-108"/>
+<text text-anchor="middle" x="499" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LUCdriver</text>
+</a>
+</g>
+</g>
+<!-- proc~lucdriver&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge20" class="edge">
+<title>proc~lucdriver&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M466.81,-88.65C424.86,-79.36 352.68,-65.65 328,-75"/>
+</g>
+<!-- proc~lucdriver&#45;&gt;module~popmodule -->
+<g id="module~~pop_types~~UsedByGraph_edge37" class="edge">
+<title>proc~lucdriver&#45;&gt;module~popmodule</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M495.58,-108.24C487.82,-144.09 460.22,-249.77 395,-304 371.2,-323.79 358.12,-315.88 328,-323"/>
+</g>
+<!-- proc~lucdriver&#45;&gt;module~popluc_module -->
+<g id="module~~pop_types~~UsedByGraph_edge49" class="edge">
+<title>proc~lucdriver&#45;&gt;module~popluc_module</title>
+<path fill="none" stroke="#00ff13" stroke-dasharray="5,2" d="M496.2,-108.14C489.83,-146.96 464.84,-269.48 395,-337 391.34,-340.54 387.14,-343.61 382.67,-346.28"/>
+<polygon fill="#00ff13" stroke="#00ff13" points="381.05,-343.18 373.81,-350.91 384.29,-349.38 381.05,-343.18"/>
+</g>
+<!-- proc~pop_init -->
+<g id="module~~pop_types~~UsedByGraph_node20" class="node">
+<title>proc~pop_init</title>
+<g id="a_module~~pop_types~~UsedByGraph_node20"><a xlink:href=".././proc/pop_init.html" xlink:title="POP_init">
+<polygon fill="#d9534f" stroke="#d9534f" points="190.5,-66 135.5,-66 135.5,-42 190.5,-42 190.5,-66"/>
+<text text-anchor="middle" x="163" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">POP_init</text>
+</a>
+</g>
+</g>
+<!-- proc~pop_init&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge21" class="edge">
+<title>proc~pop_init&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M135.22,-58.33C124.03,-61.35 111.66,-66.44 103,-75 56.91,-120.59 41.56,-199.82 36.66,-238.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="33.16,-238.34 35.5,-248.67 40.11,-239.13 33.16,-238.34"/>
+</g>
+<!-- proc~bgcdriver -->
+<g id="module~~pop_types~~UsedByGraph_node21" class="node">
+<title>proc~bgcdriver</title>
+<g id="a_module~~pop_types~~UsedByGraph_node21"><a xlink:href=".././proc/bgcdriver.html" xlink:title="bgcdriver">
+<polygon fill="#d9534f" stroke="#d9534f" points="359,-211 295,-211 295,-187 359,-187 359,-211"/>
+<text text-anchor="middle" x="327" y="-196.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bgcdriver</text>
+</a>
+</g>
+</g>
+<!-- proc~bgcdriver&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge22" class="edge">
+<title>proc~bgcdriver&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M295,-200.28C261.98,-202.28 208.46,-207.33 164,-220"/>
+</g>
+<!-- proc~bgcdriver&#45;&gt;module~popmodule -->
+<g id="module~~pop_types~~UsedByGraph_edge39" class="edge">
+<title>proc~bgcdriver&#45;&gt;module~popmodule</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M294.88,-205.86C283.19,-209.17 270.06,-213.8 259,-220 228.74,-236.96 199.56,-264.7 181.71,-283.39"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="179.06,-281.1 174.78,-290.79 184.17,-285.89 179.06,-281.1"/>
+</g>
+<!-- module~cable_input_module&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge23" class="edge">
+<title>module~cable_input_module&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M147.14,-588.83C133.64,-576.98 114.18,-557.76 103,-537 56.41,-450.5 40.86,-331.7 36.25,-283.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="39.73,-282.71 35.36,-273.06 32.75,-283.33 39.73,-282.71"/>
+</g>
+<!-- proc~master_casaonly_luc -->
+<g id="module~~pop_types~~UsedByGraph_node23" class="node">
+<title>proc~master_casaonly_luc</title>
+<g id="a_module~~pop_types~~UsedByGraph_node23"><a xlink:href=".././proc/master_casaonly_luc.html" xlink:title="master_CASAONLY_LUC">
+<polygon fill="#d9534f" stroke="#d9534f" points="567,-66 431,-66 431,-42 567,-42 567,-66"/>
+<text text-anchor="middle" x="499" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">master_CASAONLY_LUC</text>
+</a>
+</g>
+</g>
+<!-- proc~master_casaonly_luc&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge24" class="edge">
+<title>proc~master_casaonly_luc&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M430.85,-54.95C398.84,-57.23 360.54,-62.68 328,-75"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M326,-75C297.05,-85.96 281.41,-72.65 259,-94 222.68,-128.61 258.71,-165.75 223,-201 203.39,-220.35 190.49,-212.45 164,-220"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M162,-220C133.4,-228.15 101.56,-238.39 76.85,-246.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="75.45,-243.38 67.07,-249.86 77.67,-250.01 75.45,-243.38"/>
+</g>
+<!-- proc~master_casaonly_luc&#45;&gt;module~popmodule -->
+<g id="module~~pop_types~~UsedByGraph_edge42" class="edge">
+<title>proc~master_casaonly_luc&#45;&gt;module~popmodule</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M441.57,-66.12C437.63,-68.56 434.02,-71.49 431,-75 363.73,-153.03 463.34,-226.9 395,-304 374.47,-327.16 358.12,-315.88 328,-323"/>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M326,-323C287.01,-332.21 241.68,-325.15 208.9,-316.98"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="209.71,-313.57 199.15,-314.42 207.94,-320.34 209.71,-313.57"/>
+</g>
+<!-- proc~master_casaonly_luc&#45;&gt;module~popluc_module -->
+<g id="module~~pop_types~~UsedByGraph_edge47" class="edge">
+<title>proc~master_casaonly_luc&#45;&gt;module~popluc_module</title>
+<path fill="none" stroke="#00ff13" stroke-dasharray="5,2" d="M441.5,-66.05C437.57,-68.51 433.99,-71.46 431,-75 355.12,-164.76 467.86,-244.77 395,-337 391.97,-340.84 388.3,-344.11 384.25,-346.9"/>
+<polygon fill="#00ff13" stroke="#00ff13" points="382.39,-343.93 375.5,-351.97 385.91,-349.98 382.39,-343.93"/>
+</g>
+<!-- proc~worker_casaonly_luc -->
+<g id="module~~pop_types~~UsedByGraph_node24" class="node">
+<title>proc~worker_casaonly_luc</title>
+<g id="a_module~~pop_types~~UsedByGraph_node24"><a xlink:href=".././proc/worker_casaonly_luc.html" xlink:title="worker_CASAONLY_LUC">
+<polygon fill="#d9534f" stroke="#d9534f" points="395,-169 259,-169 259,-145 395,-145 395,-169"/>
+<text text-anchor="middle" x="327" y="-154.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">worker_CASAONLY_LUC</text>
+</a>
+</g>
+</g>
+<!-- proc~worker_casaonly_luc&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge25" class="edge">
+<title>proc~worker_casaonly_luc&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M281.76,-169.04C274.04,-171.65 266.18,-174.65 259,-178 241.79,-186.02 240.18,-192.91 223,-201 198.08,-212.73 190.49,-212.45 164,-220"/>
+</g>
+<!-- proc~worker_casaonly_luc&#45;&gt;module~popmodule -->
+<g id="module~~pop_types~~UsedByGraph_edge44" class="edge">
+<title>proc~worker_casaonly_luc&#45;&gt;module~popmodule</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M274.4,-169.03C268.92,-171.5 263.65,-174.45 259,-178 235.47,-195.94 240.66,-210.26 223,-234 210.23,-251.18 194.4,-269.55 182.36,-283.01"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="179.51,-280.94 175.41,-290.71 184.71,-285.63 179.51,-280.94"/>
+</g>
+<!-- proc~mpidrv_worker -->
+<g id="module~~pop_types~~UsedByGraph_node25" class="node">
+<title>proc~mpidrv_worker</title>
+<g id="a_module~~pop_types~~UsedByGraph_node25"><a xlink:href=".././proc/mpidrv_worker.html" xlink:title="mpidrv_worker">
+<polygon fill="#d9534f" stroke="#d9534f" points="373,-535 281,-535 281,-511 373,-511 373,-535"/>
+<text text-anchor="middle" x="327" y="-520.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpidrv_worker</text>
+</a>
+</g>
+</g>
+<!-- proc~mpidrv_worker&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge26" class="edge">
+<title>proc~mpidrv_worker&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M280.8,-533.62C246.78,-539.18 200.03,-541.5 164,-523"/>
+</g>
+<!-- proc~mpidrv_worker&#45;&gt;module~popmodule -->
+<g id="module~~pop_types~~UsedByGraph_edge31" class="edge">
+<title>proc~mpidrv_worker&#45;&gt;module~popmodule</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M309.53,-510.91C295.09,-499.78 274.11,-482.27 259,-464 221.49,-418.64 189.44,-356.74 173.95,-324.5"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="176.96,-322.68 169.51,-315.14 170.63,-325.68 176.96,-322.68"/>
+</g>
+<!-- proc~mpidrv_worker&#45;&gt;module~cable_input_module -->
+<g id="module~~pop_types~~UsedByGraph_edge53" class="edge">
+<title>proc~mpidrv_worker&#45;&gt;module~cable_input_module</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M301.04,-535.02C273.45,-548.3 228.85,-569.78 198.06,-584.6"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="196.48,-581.48 188.99,-588.97 199.51,-587.79 196.48,-581.48"/>
+</g>
+<!-- proc~pop_io -->
+<g id="module~~pop_types~~UsedByGraph_node26" class="node">
+<title>proc~pop_io</title>
+<g id="a_module~~pop_types~~UsedByGraph_node26"><a xlink:href=".././proc/pop_io.html" xlink:title="POP_IO">
+<polygon fill="#d9534f" stroke="#d9534f" points="190,-24 136,-24 136,0 190,0 190,-24"/>
+<text text-anchor="middle" x="163" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">POP_IO</text>
+</a>
+</g>
+</g>
+<!-- proc~pop_io&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge9" class="edge">
+<title>proc~pop_io&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M135.86,-15.85C124.4,-18.78 111.62,-23.94 103,-33 47.33,-91.53 36.74,-193.58 34.84,-238.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="31.34,-238.63 34.52,-248.74 38.33,-238.85 31.34,-238.63"/>
+</g>
+<!-- proc~master_spincasacnp -->
+<g id="module~~pop_types~~UsedByGraph_node27" class="node">
+<title>proc~master_spincasacnp</title>
+<g id="a_module~~pop_types~~UsedByGraph_node27"><a xlink:href=".././proc/master_spincasacnp.html" xlink:title="master_spincasacnp">
+<polygon fill="#d9534f" stroke="#d9534f" points="387.5,-127 266.5,-127 266.5,-103 387.5,-103 387.5,-127"/>
+<text text-anchor="middle" x="327" y="-112.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">master_spincasacnp</text>
+</a>
+</g>
+</g>
+<!-- proc~master_spincasacnp&#45;&gt;module~pop_types -->
+<g id="module~~pop_types~~UsedByGraph_edge10" class="edge">
+<title>proc~master_spincasacnp&#45;&gt;module~pop_types</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M273.48,-127.05C268.29,-129.51 263.34,-132.46 259,-136 233.41,-156.88 248.51,-180.02 223,-201 201.72,-218.5 190.49,-212.45 164,-220"/>
+</g>
+<!-- proc~master_spincasacnp&#45;&gt;module~popmodule -->
+<g id="module~~pop_types~~UsedByGraph_edge41" class="edge">
+<title>proc~master_spincasacnp&#45;&gt;module~popmodule</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M271.59,-127.09C267,-129.53 262.71,-132.47 259,-136 225.41,-168.01 246.45,-193.96 223,-234 212.32,-252.25 196.63,-270.32 184.11,-283.39"/>
+<polygon fill="#27ff00" stroke="#27ff00" points="181.31,-281.25 176.8,-290.84 186.31,-286.15 181.31,-281.25"/>
+</g>
+<!-- proc~load_parameters -->
+<g id="module~~pop_types~~UsedByGraph_node28" class="node">
+<title>proc~load_parameters</title>
+<g id="a_module~~pop_types~~UsedByGraph_node28"><a xlink:href=".././proc/load_parameters.html" xlink:title="load_parameters">
+<polygon fill="#d9534f" stroke="#d9534f" points="550.5,-334 447.5,-334 447.5,-310 550.5,-310 550.5,-334"/>
+<text text-anchor="middle" x="499" y="-319.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">load_parameters</text>
+</a>
+</g>
+</g>
+<!-- proc~load_parameters&#45;&gt;module~popmodule -->
+<g id="module~~pop_types~~UsedByGraph_edge40" class="edge">
+<title>proc~load_parameters&#45;&gt;module~popmodule</title>
+<path fill="none" stroke="#27ff00" stroke-dasharray="5,2" d="M447.46,-316.42C413.27,-314.07 367.35,-313.7 328,-323"/>
+</g>
+<!-- proc~load_parameters&#45;&gt;module~popluc_module -->
+<g id="module~~pop_types~~UsedByGraph_edge48" class="edge">
+<title>proc~load_parameters&#45;&gt;module~popluc_module</title>
+<path fill="none" stroke="#00ff13" stroke-dasharray="5,2" d="M447.91,-334.08C428.3,-338.81 405.69,-344.26 385.42,-349.15"/>
+<polygon fill="#00ff13" stroke="#00ff13" points="384.59,-345.75 375.69,-351.5 386.23,-352.56 384.59,-345.75"/>
+</g>
+<!-- proc~worker_cable_params -->
+<g id="module~~pop_types~~UsedByGraph_node29" class="node">
+<title>proc~worker_cable_params</title>
+<g id="a_module~~pop_types~~UsedByGraph_node29"><a xlink:href=".././proc/worker_cable_params.html" xlink:title="worker_cable_params">
+<polygon fill="#d9534f" stroke="#d9534f" points="392,-691 262,-691 262,-667 392,-667 392,-691"/>
+<text text-anchor="middle" x="327" y="-676.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">worker_cable_params</text>
+</a>
+</g>
+</g>
+<!-- proc~worker_cable_params&#45;&gt;module~cable_input_module -->
+<g id="module~~pop_types~~UsedByGraph_edge55" class="edge">
+<title>proc~worker_cable_params&#45;&gt;module~cable_input_module</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M292.24,-666.89C281.49,-662.77 269.63,-657.95 259,-653 236.4,-642.48 211.72,-628.91 193.18,-618.27"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="194.76,-615.14 184.35,-613.15 191.25,-621.19 194.76,-615.14"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a submodule to the (sub)module which it is
+    descended from. Dashed arrows point from a module or program unit to 
+    modules which it uses. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+  </li>
+      </ul>
+    </div>
+
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+      <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#types-1">Derived Types</a></h3></div>
+  <div id="types-1" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/pop_types.html#type-cohort">Cohort</a>
+      <a class="list-group-item" href="../module/pop_types.html#type-layer">Layer</a>
+      <a class="list-group-item" href="../module/pop_types.html#type-patch">Patch</a>
+      <a class="list-group-item" href="../module/pop_types.html#type-landscape">Landscape</a>
+      <a class="list-group-item" href="../module/pop_types.html#type-pop_type">POP_TYPE</a>
+    </div>
+  </div>
+</div>
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    <section>
+     <h2>Derived Types</h2>
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="type-cohort"></span><h3>type, public :: <a href='../type/cohort.html'>Cohort</a>  </h3></div>
+  <div class="panel-body">
+     <h4>Components</h4>
+    <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-id"></span>integer(kind=i4b),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>id</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-age"></span>integer(kind=i4b),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>age</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-biomass"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>biomass</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-density"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>density</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-frac_resource_uptake"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>frac_resource_uptake</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-frac_light_uptake"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>frac_light_uptake</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-frac_interception"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>frac_interception</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-frac_respiration"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>frac_respiration</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-frac_npp"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>frac_NPP</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-respiration_scalar"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>respiration_scalar</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-crown_area"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>crown_area</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-pgap"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Pgap</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-height"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>height</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-diameter"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>diameter</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sapwood"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>sapwood</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-heartwood"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>heartwood</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sapwood_area~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>sapwood_area</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-basal_area"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>basal_area</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-lai~3"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>LAI</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cleaf"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Cleaf</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-croot"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Croot</strong></td><td></td><td></td><td></td>
+</tr>
+</tbody>
+</table>
+
+     
+  </div>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="type-layer"></span><h3>type, public :: <a href='../type/layer.html'>Layer</a>  </h3></div>
+  <div class="panel-body">
+     <h4>Components</h4>
+    <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-cohort"></span>type(<a href='../type/cohort.html'>Cohort</a>),</td>
+<td>public,</td>  <td>DIMENSION(NCOHORT_MAX)</td><td>::</td>
+  <td><strong>Cohort</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ncohort"></span>integer(kind=i4b),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>ncohort</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-biomass~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>biomass</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-density~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>density</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-hmean"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>hmean</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-hmax"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>hmax</strong></td><td></td><td></td><td></td>
+</tr>
+</tbody>
+</table>
+
+     
+  </div>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="type-patch"></span><h3>type, public :: <a href='../type/patch.html'>Patch</a>  </h3></div>
+  <div class="panel-body">
+     <h4>Components</h4>
+    <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-layer"></span>type(<a href='../type/layer.html'>Layer</a>),</td>
+<td>public,</td>  <td>DIMENSION(NLAYER)</td><td>::</td>
+  <td><strong>Layer</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-factor_recruit"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>factor_recruit</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-pgap"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>pgap</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-lai~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>lai</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-biomass~3"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>biomass</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-biomass_old"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>biomass_old</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sapwood~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>sapwood</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-heartwood~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>heartwood</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sapwood_old"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>sapwood_old</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sapwood_area~3"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>sapwood_area</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sapwood_area_old"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>sapwood_area_old</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-stress_mortality"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>stress_mortality</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-fire_mortality"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>fire_mortality</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cat_mortality"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>cat_mortality</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-crowding_mortality"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>crowding_mortality</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cpc"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>cpc</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-mortality"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>mortality</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sapwood_loss"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>sapwood_loss</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sapwood_area_loss"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>sapwood_area_loss</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-growth"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>growth</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-area_growth"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>area_growth</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-disturbance_interval"></span>integer(kind=i4b),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>disturbance_interval</strong>(NDISTURB)</td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-first_disturbance_year"></span>integer(kind=i4b),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>first_disturbance_year</strong>(NDISTURB)</td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-age~2"></span>integer(kind=i4b),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>age</strong>(NDISTURB)</td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-id~2"></span>integer(kind=i4b),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>id</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-frac_npp~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>frac_NPP</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-frac_respiration~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>frac_respiration</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-frac_light_uptake~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>frac_light_uptake</strong></td><td></td><td></td><td></td>
+</tr>
+</tbody>
+</table>
+
+     
+  </div>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="type-landscape"></span><h3>type, public :: <a href='../type/landscape.html'>Landscape</a>  </h3></div>
+  <div class="panel-body">
+     <h4>Components</h4>
+    <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-patch~3"></span>type(<a href='../type/patch.html'>Patch</a>),</td>
+<td>public,</td>  <td>DIMENSION(NPATCH2D)</td><td>::</td>
+  <td><strong>patch</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-freq"></span>real(kind=dp),</td>
+<td>public,</td>  <td>DIMENSION(NPATCH2D)</td><td>::</td>
+  <td><strong>freq</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-freq_old"></span>real(kind=dp),</td>
+<td>public,</td>  <td>DIMENSION(NPATCH2D)</td><td>::</td>
+  <td><strong>freq_old</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-fire_freq"></span>real(kind=dp),</td>
+<td>public,</td>  <td>DIMENSION(NPATCH2D)</td><td>::</td>
+  <td><strong>fire_freq</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-fire_freq_old"></span>real(kind=dp),</td>
+<td>public,</td>  <td>DIMENSION(NPATCH2D)</td><td>::</td>
+  <td><strong>fire_freq_old</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cat_freq"></span>real(kind=dp),</td>
+<td>public,</td>  <td>DIMENSION(NPATCH2D)</td><td>::</td>
+  <td><strong>cat_freq</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cat_freq_old"></span>real(kind=dp),</td>
+<td>public,</td>  <td>DIMENSION(NPATCH2D)</td><td>::</td>
+  <td><strong>cat_freq_old</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-freq_ranked_age_unique"></span>real(kind=dp),</td>
+<td>public,</td>  <td>DIMENSION(NPATCH2D,NDISTURB)</td><td>::</td>
+  <td><strong>freq_ranked_age_unique</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ranked_age_unique"></span>integer(kind=i4b),</td>
+<td>public,</td>  <td>DIMENSION(NPATCH2D, NDISTURB)</td><td>::</td>
+  <td><strong>ranked_age_unique</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-n_age"></span>integer(kind=i4b),</td>
+<td>public,</td>  <td>DIMENSION(NDISTURB)</td><td>::</td>
+  <td><strong>n_age</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-biomass~4"></span>real(kind=dp),</td>
+<td>public,</td>  <td>DIMENSION(NLAYER)</td><td>::</td>
+  <td><strong>biomass</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-density~3"></span>real(kind=dp),</td>
+<td>public,</td>  <td>DIMENSION(NLAYER)</td><td>::</td>
+  <td><strong>density</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-hmean~2"></span>real(kind=dp),</td>
+<td>public,</td>  <td>DIMENSION(NLAYER)</td><td>::</td>
+  <td><strong>hmean</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-hmax~2"></span>real(kind=dp),</td>
+<td>public,</td>  <td>DIMENSION(NLAYER)</td><td>::</td>
+  <td><strong>hmax</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cmass_stem_bin"></span>real(kind=dp),</td>
+<td>public,</td>  <td>DIMENSION(HEIGHT_BINS)</td><td>::</td>
+  <td><strong>cmass_stem_bin</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-densindiv_bin"></span>real(kind=dp),</td>
+<td>public,</td>  <td>DIMENSION(HEIGHT_BINS)</td><td>::</td>
+  <td><strong>densindiv_bin</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-height_bin"></span>real(kind=dp),</td>
+<td>public,</td>  <td>DIMENSION(HEIGHT_BINS)</td><td>::</td>
+  <td><strong>height_bin</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-diameter_bin"></span>real(kind=dp),</td>
+<td>public,</td>  <td>DIMENSION(HEIGHT_BINS)</td><td>::</td>
+  <td><strong>diameter_bin</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-bin_labels"></span>character(len=100),</td>
+<td>public,</td>  <td>DIMENSION(HEIGHT_BINS)</td><td>::</td>
+  <td><strong>bin_labels</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cmass_sum"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>cmass_sum</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cmass_sum_old"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>cmass_sum_old</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cheartwood_sum"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>cheartwood_sum</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-csapwood_sum"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>csapwood_sum</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-csapwood_sum_old"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>csapwood_sum_old</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-densindiv"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>densindiv</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-height_mean"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>height_mean</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-height_max"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>height_max</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-basal_area~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>basal_area</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sapwood_loss~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>sapwood_loss</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sapwood_area_loss~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>sapwood_area_loss</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-stress_mortality~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>stress_mortality</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-crowding_mortality~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>crowding_mortality</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-fire_mortality~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>fire_mortality</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cat_mortality~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>cat_mortality</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-res_mortality"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>res_mortality</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-growth~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>growth</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-area_growth~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>area_growth</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-crown_cover"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>crown_cover</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-crown_area~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>crown_area</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-crown_volume"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>crown_volume</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sapwood_area~4"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>sapwood_area</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-sapwood_area_old~2"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>sapwood_area_old</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-kclump"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>Kclump</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-npatch_active"></span>integer(kind=i4b),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>npatch_active</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-lu"></span>integer(kind=i4b),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>LU</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-smoothing_buffer"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>smoothing_buffer</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-smoothing_buffer_cat"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>smoothing_buffer_cat</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-fire_mortality_smoothed"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>fire_mortality_smoothed</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cat_mortality_smoothed"></span>real(kind=dp),</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>cat_mortality_smoothed</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-fire_mortality_history"></span>real(kind=dp),</td>
+<td>public,</td>  <td>DIMENSION(NYEAR_HISTORY)</td><td>::</td>
+  <td><strong>fire_mortality_history</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cat_mortality_history"></span>real(kind=dp),</td>
+<td>public,</td>  <td>DIMENSION(NYEAR_HISTORY)</td><td>::</td>
+  <td><strong>cat_mortality_history</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-freq_age"></span>real(kind=dp),</td>
+<td>public,</td>  <td>DIMENSION(AGEMAX)</td><td>::</td>
+  <td><strong>freq_age</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-biomass_age"></span>real(kind=dp),</td>
+<td>public,</td>  <td>DIMENSION(AGEMAX)</td><td>::</td>
+  <td><strong>biomass_age</strong></td><td></td><td></td><td></td>
+</tr>
+</tbody>
+</table>
+
+     
+  </div>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="type-pop_type"></span><h3>type, public :: <a href='../type/pop_type.html'>POP_TYPE</a>  </h3></div>
+  <div class="panel-body">
+     <h4>Components</h4>
+    <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-pop_grid"></span>type(<a href='../type/landscape.html'>Landscape</a>),</td>
+<td>public,</td>  <td>DIMENSION(:), ALLOCATABLE</td><td>::</td>
+  <td><strong>pop_grid</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-it_pop"></span>integer,</td>
+<td>public,</td>  <td>DIMENSION(:), ALLOCATABLE</td><td>::</td>
+  <td><strong>it_pop</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-np"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>np</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-iwood"></span>integer,</td>
+<td>public,</td>  <td>DIMENSION(:), ALLOCATABLE</td><td>::</td>
+  <td><strong>Iwood</strong></td><td></td><td></td><td></td>
+</tr>
+</tbody>
+</table>
+
+     
+  </div>
+</div>
+
+    </section>
+  <br>
+    
+
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>GW was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>

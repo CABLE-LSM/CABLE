@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.7% of total for modules and submodules.">334 statements</a>
+    title=" 0.6% of total for modules and submodules.">334 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/simfire.F90"> Source File</a></li>
   </ul>
@@ -195,33 +195,33 @@
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M141.71,-288.55C134.36,-285.63 127.08,-281.85 121,-277 86.72,-249.63 63.27,-202.73 51.74,-175.43"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="54.92,-173.96 47.91,-166.02 48.43,-176.6 54.92,-173.96"/>
 </g>
-<!-- proc~run_blaze -->
-<g id="module~~simfire_mod~~UsedByGraph_node3" class="node">
-<title>proc~run_blaze</title>
-<g id="a_module~~simfire_mod~~UsedByGraph_node3"><a xlink:href=".././proc/run_blaze.html" xlink:title="RUN_BLAZE">
-<polygon fill="#d9534f" stroke="#d9534f" points="219.5,-268 143.5,-268 143.5,-244 219.5,-244 219.5,-268"/>
-<text text-anchor="middle" x="181.5" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RUN_BLAZE</text>
-</a>
-</g>
-</g>
-<!-- proc~run_blaze&#45;&gt;module~simfire_mod -->
-<g id="module~~simfire_mod~~UsedByGraph_edge2" class="edge">
-<title>proc~run_blaze&#45;&gt;module~simfire_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M143.37,-245.92C135.65,-243.01 127.81,-239.4 121,-235 95.71,-218.67 72.69,-192.5 58.42,-174.34"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="61.01,-171.97 52.15,-166.15 55.45,-176.22 61.01,-171.97"/>
-</g>
 <!-- proc~blaze_driver -->
-<g id="module~~simfire_mod~~UsedByGraph_node4" class="node">
+<g id="module~~simfire_mod~~UsedByGraph_node3" class="node">
 <title>proc~blaze_driver</title>
-<g id="a_module~~simfire_mod~~UsedByGraph_node4"><a xlink:href=".././proc/blaze_driver.html" xlink:title="BLAZE_DRIVER">
-<polygon fill="#d9534f" stroke="#d9534f" points="228.5,-226 134.5,-226 134.5,-202 228.5,-202 228.5,-226"/>
-<text text-anchor="middle" x="181.5" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BLAZE_DRIVER</text>
+<g id="a_module~~simfire_mod~~UsedByGraph_node3"><a xlink:href=".././proc/blaze_driver.html" xlink:title="BLAZE_DRIVER">
+<polygon fill="#d9534f" stroke="#d9534f" points="228.5,-268 134.5,-268 134.5,-244 228.5,-244 228.5,-268"/>
+<text text-anchor="middle" x="181.5" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BLAZE_DRIVER</text>
 </a>
 </g>
 </g>
 <!-- proc~blaze_driver&#45;&gt;module~simfire_mod -->
-<g id="module~~simfire_mod~~UsedByGraph_edge3" class="edge">
+<g id="module~~simfire_mod~~UsedByGraph_edge2" class="edge">
 <title>proc~blaze_driver&#45;&gt;module~simfire_mod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M138.36,-243.93C132.31,-241.41 126.34,-238.45 121,-235 95.71,-218.67 72.69,-192.5 58.42,-174.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="61.01,-171.97 52.15,-166.15 55.45,-176.22 61.01,-171.97"/>
+</g>
+<!-- proc~run_blaze -->
+<g id="module~~simfire_mod~~UsedByGraph_node4" class="node">
+<title>proc~run_blaze</title>
+<g id="a_module~~simfire_mod~~UsedByGraph_node4"><a xlink:href=".././proc/run_blaze.html" xlink:title="RUN_BLAZE">
+<polygon fill="#d9534f" stroke="#d9534f" points="219.5,-226 143.5,-226 143.5,-202 219.5,-202 219.5,-226"/>
+<text text-anchor="middle" x="181.5" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RUN_BLAZE</text>
+</a>
+</g>
+</g>
+<!-- proc~run_blaze&#45;&gt;module~simfire_mod -->
+<g id="module~~simfire_mod~~UsedByGraph_edge3" class="edge">
+<title>proc~run_blaze&#45;&gt;module~simfire_mod</title>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M152.95,-201.97C142.89,-197.58 131.43,-192.57 121,-188 107.81,-182.22 93.36,-175.89 80.54,-170.26"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="81.68,-166.94 71.11,-166.13 78.86,-173.35 81.68,-166.94"/>
 </g>
@@ -742,32 +742,7 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-simfire"></span><h3>public subroutine <a href='../proc/simfire.html'>SIMFIRE</a>(SF, RAINF, TMAX, TMIN, DOY, MM, YEAR, AB, climate)</h3></div>
   <div class="panel-body">
-       
-<p>$     ! convert to daily burned area using GFED climatology
-$
-$      STATUS = NF90_OPEN(TRIM(SF%BA_CLIM_FILE), NF90_NOWRITE, F_ID)
-$      CALL HANDLE_ERR(STATUS, "Opening BA Clim File "//SF%BA_CLIM_FILE )
-$      STATUS = NF90_INQ_VARID(F_ID,'monthly_ba', V_ID)
-$      CALL HANDLE_ERR(STATUS, "Inquiring  var monthly_ba in "//SF%BA_CLIM_FILE )
-$
-$      STATUS = NF90_INQ_VARID(F_ID,'latitude', V_ID_lat)
-$      CALL HANDLE_ERR(STATUS, "Inquiring  var latitude in "//SF%BA_CLIM_FILE )
-$
-$      STATUS = NF90_INQ_VARID(F_ID,'longitude', V_ID_lon)
-$      CALL HANDLE_ERR(STATUS, "Inquiring  var longitude in "//SF%BA_CLIM_FILE )
-$
-$      STATUS = NF90_GET_VAR( F_ID, V_ID_lat, lat_BA, &amp;
-$               start=(/1/) )
-$      STATUS = NF90_GET_VAR( F_ID, V_ID_lon, lon_BA, &amp;
-$           start=(/1/)  )
-$
-$      ilat = MINLOC(ABS(lat_BA - SF%LAT(i)),DIM=1)
-$      ilon = MINLOC(ABS(lon_BA - SF%LON(i)),DIM=1)
-$
-$      STATUS = NF90_GET_VAR( F_ID, V_ID, monthly_ba, &amp;
-$           start=(/MM,ilon,ilat/) )
-$      CALL HANDLE_ERR(STATUS, "Reading direct from "//SF%BA_CLIM_FILE )</p>
-    
+           
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>

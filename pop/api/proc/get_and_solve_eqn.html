@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.8% of total for procedures.">388 statements</a>
+    title=" 0.7% of total for procedures.">388 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/cable_sli_solve.F90"> Source File</a></li>
   </ul>
@@ -123,43 +123,6 @@
     <h2>private subroutine get_and_solve_eqn(irec, mp, qprec, n, dx, h0, S, thetai, Tsoil, qh, nsteps, vlit, vsnow, var, dxL, plit, par, deltaTa, qevap, qL, qhL, qybL, qTbL, qhTbL, qhybL, again, again_ice, iok, itmp, ns, accel, dt, fac, phip, rsig, rsigdt, sig, t, qexd, aa, bb, cc, dd, ee, ff, gg, dy, aah, bbh, cch, ddh, eeh, ffh, ggh, de, q, qya, qyb, qTa, qTb, qhya, qhyb, qhTa, qhTb, qadv, qadvya, qadvyb, qadvTa, qadvTb, qsig, qhsig, qadvsig, dTsoil, dthetaldT, nsteps_ice, imelt, deltaJ_latent_T, deltaJ_sensible_S, qrunoff, tmp1d1, tmp1d2, tmp1d3, tmp1d4, G0, Tfreezing, LHS, RHS, LHS_h, RHS_h, nns, iflux, litter, i, kk, condition, advection, c2, theta, cp, cpeff, hice, h0_tmp, hsnow, delta_snowT, delta_snowliq, J0, iqex, nfac1, nfac2, nfac3, nfac4, nfac5, nfac6, nfac7, nfac8, nfac9, nfac10, nfac11, nfac12, err)</h2>
     
 
-    <p>$          if (iok(kk)==1 .and. ns(kk)&lt;1 .and. h0(kk)+dy(1)&lt;h0min) then ! pond going
-$             fac(kk) = -(h0(kk)-half*h0min)/dy(1)
-$             nfac9(kk) = nfac9(kk) +1
-$             iok(kk) = 0
-$          end if</p>
-<p>$           ! pond decreasing or runoff starts
-$          if (iok(kk)==1 .and. ns(kk)&lt;1 .and.S(1)<em>par(1)%thre</em>dx(1) + h0(kk)+dy(1)&lt;0.1<em>dx(1)) then ! pond going
-$             fac(kk) = -(S(1)</em>par(1)%thre<em>dx(1)+h0(kk)-half</em>0.1*dx(1))/dy(1)
-$             nfac9(kk) = nfac9(kk) +1
-$             iok(kk) = 0
-$          end if</p>
-<p>$          if(((tmp1d2(kk))-c2)&lt;zero) then
-$             fac(kk) = 0.5_r_2
-$             iok(kk) = 0
-$             nfac10(kk) = nfac10(kk)+1
-$          endif</p>
-<p>$                if ((irec.eq.8992).and.(kk.eq.1) ) then
-$                   !if ((irec.eq.5).and.(kk.eq.1626)  .and. wlogn == 1011) then
-$                    write(<em>,</em>) 'writing diags', again(kk), nsteps(kk)
-$
-$                    ! if (.not. again(kk)) then
-$ !write(345,"(13i8,1500e16.6)")
-$                    write(346,"(13i8,1500e16.6)") nsteps(kk), nfac1(kk), nfac2(kk), nfac3(kk), &amp;
-$                         nfac4(kk), nfac5(kk), nfac6(kk), nfac7(kk), nfac8(kk), nfac9(kk), nfac10(kk), &amp;
-$                         nfac11(kk), nfac12(kk) , q(:), qsig(:), qH(:), qhsig(:), &amp;
-$                         dy(0:n), de(0:n), dTsoil(:), S(:),thetai(:), Tsoil(:), &amp;
-$                         real(var(1)%iice), real(var(1)%isat), &amp;
-$                         h0(kk), real(iok(kk)), var(1)%phie, var(1)%phi, phip(kk),var(2)%phi, &amp;
-$                         vsnow(kk)%wcol, &amp;
-$                         qadv(:), qadvsig(:), qhya(:), qhyb(:), qhTa(:), qhTb(:), &amp;
-$                         qya(:), qyb(:), qTa(:), qTb(:), &amp;
-$                         var(1:n)%kH, LHS_h(1:n)<em>dt(kk), &amp;
-$                         RHS(1:n)</em>dt(kk), LHS(1:n)*dt(kk), par(1:n)%thre,dx(1:n), &amp;
-$                         real(-var(1:n)%isat), dt(kk), real(ns(kk)), vsnow(kk)%tsn(1), vsnow(kk)%hsnow(1)
-$                  !  endif
-$                    if (nsteps(kk).gt.1000) STOP
-$                 endif</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
@@ -172,55 +135,55 @@ $                 endif</p>
   <td><strong>irec</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-mp~22"></span>integer(kind=i_d)</td>
+  <td><span class="anchor" id="variable-mp~29"></span>integer(kind=i_d)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>mp</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qprec~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qprec~5"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>qprec</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-n~35"></span>integer(kind=i_d)</td>
+  <td><span class="anchor" id="variable-n~46"></span>integer(kind=i_d)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>n</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dx~8"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dx~16"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>dx</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-h0~7"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-h0~13"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>h0</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-s~9"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-s~16"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>S</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-thetai~5"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-thetai~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>thetai</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-tsoil~7"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-tsoil~13"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>Tsoil</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qh~5"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qh~7"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qh</strong></td><td></td>
@@ -232,19 +195,19 @@ $                 endif</p>
   <td><strong>nsteps</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-vlit~5"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+  <td><span class="anchor" id="variable-vlit~6"></span>type(<a href='../type/vars.html'>vars</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>vlit</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-vsnow~5"></span>type(<a href='../type/vars_snow.html'>vars_snow</a>),</td>
+  <td><span class="anchor" id="variable-vsnow~6"></span>type(<a href='../type/vars_snow.html'>vars_snow</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>vsnow</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-var~12"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+  <td><span class="anchor" id="variable-var~22"></span>type(<a href='../type/vars.html'>vars</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>var</strong></td><td></td>
@@ -256,13 +219,13 @@ $                 endif</p>
   <td><strong>dxL</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-plit~4"></span>type(<a href='../type/params.html'>params</a>),</td>
+  <td><span class="anchor" id="variable-plit~5"></span>type(<a href='../type/params.html'>params</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>plit</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-par~7"></span>type(<a href='../type/params.html'>params</a>),</td>
+  <td><span class="anchor" id="variable-par~9"></span>type(<a href='../type/params.html'>params</a>),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
   <td><strong>par</strong></td><td></td>
@@ -274,7 +237,7 @@ $                 endif</p>
   <td><strong>deltaTa</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qevap~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qevap~5"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>qevap</strong></td><td></td>
@@ -340,7 +303,7 @@ $                 endif</p>
   <td><strong>itmp</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ns~6"></span>integer(kind=i_d),</td>
+  <td><span class="anchor" id="variable-ns~8"></span>integer(kind=i_d),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>ns</strong></td><td></td>
@@ -352,7 +315,7 @@ $                 endif</p>
   <td><strong>accel</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dt~9"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dt~10"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>dt</strong></td><td></td>
@@ -388,7 +351,7 @@ $                 endif</p>
   <td><strong>sig</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-t~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-t~5"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>t</strong></td><td></td>
@@ -400,91 +363,91 @@ $                 endif</p>
   <td><strong>qexd</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-aa~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-aa~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>aa</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-bb~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-bb~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>bb</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-cc~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-cc~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>cc</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dd~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dd~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>dd</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ee~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-ee~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>ee</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ff~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-ff~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>ff</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-gg~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-gg~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>gg</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-dy~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-dy~8"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>dy</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-aah~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-aah~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>aah</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-bbh~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-bbh~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>bbh</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-cch~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-cch~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>cch</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ddh~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-ddh~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>ddh</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-eeh~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-eeh~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>eeh</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ffh~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-ffh~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>ffh</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-ggh~2"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-ggh~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
   <td><strong>ggh</strong></td><td></td>
@@ -496,85 +459,85 @@ $                 endif</p>
   <td><strong>de</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-q~8"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-q~11"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>q</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qya~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qya~7"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qya</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qyb~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qyb~8"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qyb</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qta~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qta~7"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qTa</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qtb~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qtb~8"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qTb</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qhya~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qhya~5"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qhya</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qhyb~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qhyb~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qhyb</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qhta~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qhta~5"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qhTa</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qhtb~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qhtb~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qhTb</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qadv~4"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qadv~6"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qadv</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qadvya~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qadvya~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qadvya</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qadvyb~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qadvyb~5"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qadvyb</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qadvta~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qadvta~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qadvTa</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-qadvtb~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-qadvtb~5"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
   <td><strong>qadvTb</strong></td><td></td>
@@ -664,7 +627,7 @@ $                 endif</p>
   <td><strong>tmp1d4</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-g0~3"></span>real(kind=r_2),</td>
+  <td><span class="anchor" id="variable-g0~4"></span>real(kind=r_2),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>G0</strong></td><td></td>
@@ -706,7 +669,7 @@ $                 endif</p>
   <td><strong>nns</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-iflux~4"></span>integer(kind=i_d),</td>
+  <td><span class="anchor" id="variable-iflux~6"></span>integer(kind=i_d),</td>
 <td></td>
   <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
   <td><strong>iflux</strong></td><td></td>
@@ -730,13 +693,13 @@ $                 endif</p>
   <td><strong>kk</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-condition~2"></span>integer(kind=i_d)</td>
+  <td><span class="anchor" id="variable-condition~4"></span>integer(kind=i_d)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>condition</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-advection~5"></span>integer(kind=i_d)</td>
+  <td><span class="anchor" id="variable-advection~7"></span>integer(kind=i_d)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>advection</strong></td><td></td>
@@ -748,7 +711,7 @@ $                 endif</p>
   <td><strong>c2</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-theta~4"></span>real(kind=r_2)</td>
+  <td><span class="anchor" id="variable-theta~8"></span>real(kind=r_2)</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
   <td><strong>theta</strong></td><td></td>
@@ -880,7 +843,7 @@ $                 endif</p>
   <td><strong>nfac12</strong></td><td></td>
 </tr>
 <tr>
-  <td><span class="anchor" id="variable-err~3"></span>integer(kind=i_d),</td>
+  <td><span class="anchor" id="variable-err~7"></span>integer(kind=i_d),</td>
 <td>intent(inout),</td>
   <td>optional</td>  <td></td><td>::</td>
   <td><strong>err</strong></td><td></td>
@@ -900,44 +863,131 @@ $                 endif</p>
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~get_and_solve_eqn~~CallsGraph Pages: 1 -->
-<svg id="procget_and_solve_eqnCallsGraph" width="263pt" height="74pt"
- viewBox="0.00 0.00 263.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~get_and_solve_eqn~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<svg id="procget_and_solve_eqnCallsGraph" width="641pt" height="86pt"
+ viewBox="0.00 0.00 641.00 85.77" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_and_solve_eqn~~CallsGraph" class="graph" transform="scale(1.11 1.11) rotate(0) translate(4 91)">
 <title>proc~~get_and_solve_eqn~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 259,-70 259,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-91 706,-91 706,4 -4,4"/>
 <!-- proc~get_and_solve_eqn -->
 <g id="proc~~get_and_solve_eqn~~CallsGraph_node1" class="node">
 <title>proc~get_and_solve_eqn</title>
 <polygon fill="none" stroke="black" points="114,-45 0,-45 0,-21 114,-21 114,-45"/>
 <text text-anchor="middle" x="57" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_and_solve_eqn</text>
 </g>
-<!-- massman_sparse -->
+<!-- interface~massman_sparse -->
 <g id="proc~~get_and_solve_eqn~~CallsGraph_node2" class="node">
-<title>massman_sparse</title>
-<polygon fill="#777777" stroke="#777777" points="255,-66 150,-66 150,-42 255,-42 255,-66"/>
+<title>interface~massman_sparse</title>
+<g id="a_proc~~get_and_solve_eqn~~CallsGraph_node2"><a xlink:href=".././interface/massman_sparse.html" xlink:title="massman_sparse">
+<polygon fill="#a7506f" stroke="#a7506f" points="255,-66 150,-66 150,-42 255,-42 255,-66"/>
 <text text-anchor="middle" x="202.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">massman_sparse</text>
+</a>
 </g>
-<!-- proc~get_and_solve_eqn&#45;&gt;massman_sparse -->
+</g>
+<!-- proc~get_and_solve_eqn&#45;&gt;interface~massman_sparse -->
 <g id="proc~~get_and_solve_eqn~~CallsGraph_edge1" class="edge">
-<title>proc~get_and_solve_eqn&#45;&gt;massman_sparse</title>
+<title>proc~get_and_solve_eqn&#45;&gt;interface~massman_sparse</title>
 <path fill="none" stroke="#ff0000" d="M114.3,-41.24C122.56,-42.45 131.11,-43.7 139.48,-44.92"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="139.17,-48.42 149.57,-46.4 140.18,-41.49 139.17,-48.42"/>
 </g>
-<!-- tfrz -->
+<!-- proc~tfrz -->
 <g id="proc~~get_and_solve_eqn~~CallsGraph_node3" class="node">
-<title>tfrz</title>
-<polygon fill="#777777" stroke="#777777" points="229.5,-24 175.5,-24 175.5,0 229.5,0 229.5,-24"/>
-<text text-anchor="middle" x="202.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">tfrz</text>
+<title>proc~tfrz</title>
+<g id="a_proc~~get_and_solve_eqn~~CallsGraph_node3"><a xlink:href=".././proc/tfrz.html" xlink:title="Tfrz">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="229.5,-24 175.5,-24 175.5,0 229.5,0 229.5,-24"/>
+<text text-anchor="middle" x="202.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Tfrz</text>
+</a>
 </g>
-<!-- proc~get_and_solve_eqn&#45;&gt;tfrz -->
+</g>
+<!-- proc~get_and_solve_eqn&#45;&gt;proc~tfrz -->
 <g id="proc~~get_and_solve_eqn~~CallsGraph_edge2" class="edge">
-<title>proc~get_and_solve_eqn&#45;&gt;tfrz</title>
+<title>proc~get_and_solve_eqn&#45;&gt;proc~tfrz</title>
 <path fill="none" stroke="#ff0000" d="M114.3,-24.76C131.4,-22.26 149.73,-19.58 165.14,-17.32"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="165.91,-20.74 175.3,-15.83 164.9,-13.82 165.91,-20.74"/>
 </g>
+<!-- proc~massman_sparse_1d -->
+<g id="proc~~get_and_solve_eqn~~CallsGraph_node4" class="node">
+<title>proc~massman_sparse_1d</title>
+<g id="a_proc~~get_and_solve_eqn~~CallsGraph_node4"><a xlink:href=".././proc/massman_sparse_1d.html" xlink:title="massman_sparse_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="415,-87 291,-87 291,-63 415,-63 415,-87"/>
+<text text-anchor="middle" x="353" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">massman_sparse_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~massman_sparse&#45;&gt;proc~massman_sparse_1d -->
+<g id="proc~~get_and_solve_eqn~~CallsGraph_edge3" class="edge">
+<title>interface~massman_sparse&#45;&gt;proc~massman_sparse_1d</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M255.02,-61.29C263.33,-62.46 272.06,-63.7 280.73,-64.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="280.47,-68.42 290.86,-66.35 281.45,-61.49 280.47,-68.42"/>
+</g>
+<!-- proc~massman_sparse_2d -->
+<g id="proc~~get_and_solve_eqn~~CallsGraph_node5" class="node">
+<title>proc~massman_sparse_2d</title>
+<g id="a_proc~~get_and_solve_eqn~~CallsGraph_node5"><a xlink:href=".././proc/massman_sparse_2d.html" xlink:title="massman_sparse_2d">
+<polygon fill="#d9534f" stroke="#d9534f" points="415,-45 291,-45 291,-21 415,-21 415,-45"/>
+<text text-anchor="middle" x="353" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">massman_sparse_2d</text>
+</a>
+</g>
+</g>
+<!-- interface~massman_sparse&#45;&gt;proc~massman_sparse_2d -->
+<g id="proc~~get_and_solve_eqn~~CallsGraph_edge4" class="edge">
+<title>interface~massman_sparse&#45;&gt;proc~massman_sparse_2d</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M255.02,-46.71C263.33,-45.54 272.06,-44.3 280.73,-43.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="281.45,-46.51 290.86,-41.65 280.47,-39.58 281.45,-46.51"/>
+</g>
+<!-- interface~generic_thomas -->
+<g id="proc~~get_and_solve_eqn~~CallsGraph_node6" class="node">
+<title>interface~generic_thomas</title>
+<g id="a_proc~~get_and_solve_eqn~~CallsGraph_node6"><a xlink:href=".././interface/generic_thomas.html" xlink:title="generic_thomas">
+<polygon fill="#a7506f" stroke="#a7506f" points="549,-66 451,-66 451,-42 549,-42 549,-66"/>
+<text text-anchor="middle" x="500" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">generic_thomas</text>
+</a>
+</g>
+</g>
+<!-- proc~massman_sparse_1d&#45;&gt;interface~generic_thomas -->
+<g id="proc~~get_and_solve_eqn~~CallsGraph_edge5" class="edge">
+<title>proc~massman_sparse_1d&#45;&gt;interface~generic_thomas</title>
+<path fill="none" stroke="#ff0000" d="M415.07,-66.15C423.55,-64.93 432.23,-63.67 440.66,-62.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="441.37,-65.88 450.77,-60.99 440.37,-58.96 441.37,-65.88"/>
+</g>
+<!-- proc~massman_sparse_2d&#45;&gt;interface~generic_thomas -->
+<g id="proc~~get_and_solve_eqn~~CallsGraph_edge6" class="edge">
+<title>proc~massman_sparse_2d&#45;&gt;interface~generic_thomas</title>
+<path fill="none" stroke="#00ffff" d="M415.07,-41.85C423.55,-43.07 432.23,-44.33 440.66,-45.55"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="440.37,-49.04 450.77,-47.01 441.37,-42.12 440.37,-49.04"/>
+</g>
+<!-- proc~generic_thomas_1d -->
+<g id="proc~~get_and_solve_eqn~~CallsGraph_node7" class="node">
+<title>proc~generic_thomas_1d</title>
+<g id="a_proc~~get_and_solve_eqn~~CallsGraph_node7"><a xlink:href=".././proc/generic_thomas_1d.html" xlink:title="generic_thomas_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="702,-87 585,-87 585,-63 702,-63 702,-87"/>
+<text text-anchor="middle" x="643.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">generic_thomas_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~generic_thomas&#45;&gt;proc~generic_thomas_1d -->
+<g id="proc~~get_and_solve_eqn~~CallsGraph_edge7" class="edge">
+<title>interface~generic_thomas&#45;&gt;proc~generic_thomas_1d</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M549.3,-61.17C557.47,-62.38 566.09,-63.66 574.65,-64.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="574.24,-68.41 584.64,-66.41 575.26,-61.48 574.24,-68.41"/>
+</g>
+<!-- proc~generic_thomas_2d -->
+<g id="proc~~get_and_solve_eqn~~CallsGraph_node8" class="node">
+<title>proc~generic_thomas_2d</title>
+<g id="a_proc~~get_and_solve_eqn~~CallsGraph_node8"><a xlink:href=".././proc/generic_thomas_2d.html" xlink:title="generic_thomas_2d">
+<polygon fill="#d9534f" stroke="#d9534f" points="702,-45 585,-45 585,-21 702,-21 702,-45"/>
+<text text-anchor="middle" x="643.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">generic_thomas_2d</text>
+</a>
+</g>
+</g>
+<!-- interface~generic_thomas&#45;&gt;proc~generic_thomas_2d -->
+<g id="proc~~get_and_solve_eqn~~CallsGraph_edge8" class="edge">
+<title>interface~generic_thomas&#45;&gt;proc~generic_thomas_2d</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M549.3,-46.83C557.47,-45.62 566.09,-44.34 574.65,-43.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="575.26,-46.52 584.64,-41.59 574.24,-39.59 575.26,-46.52"/>
+</g>
 </g>
 </svg>
-</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+</div><script>var panprocget_and_solve_eqnCallsGraph = svgPanZoom('#procget_and_solve_eqnCallsGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
     <p>Nodes of different colours represent the following: </p>
     <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
@@ -1009,133 +1059,154 @@ $                 endif</p>
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~get_and_solve_eqn~~CalledByGraph Pages: 1 -->
-<svg id="procget_and_solve_eqnCalledByGraph" width="641pt" height="54pt"
- viewBox="0.00 0.00 641.00 54.03" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~get_and_solve_eqn~~CalledByGraph" class="graph" transform="scale(1.37 1.37) rotate(0) translate(4 70)">
+<svg id="procget_and_solve_eqnCalledByGraph" width="641pt" height="47pt"
+ viewBox="0.00 0.00 641.00 47.20" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_and_solve_eqn~~CalledByGraph" class="graph" transform="scale(1.57 1.57) rotate(0) translate(4 70)">
 <title>proc~~get_and_solve_eqn~~CalledByGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 874,-70 874,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 1001,-70 1001,4 -4,4"/>
 <!-- proc~get_and_solve_eqn -->
 <g id="proc~~get_and_solve_eqn~~CalledByGraph_node1" class="node">
 <title>proc~get_and_solve_eqn</title>
-<polygon fill="none" stroke="black" points="870,-45 756,-45 756,-21 870,-21 870,-45"/>
-<text text-anchor="middle" x="813" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_and_solve_eqn</text>
+<polygon fill="none" stroke="black" points="997,-45 883,-45 883,-21 997,-21 997,-45"/>
+<text text-anchor="middle" x="940" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_and_solve_eqn</text>
 </g>
 <!-- proc~iflux_loop -->
 <g id="proc~~get_and_solve_eqn~~CalledByGraph_node2" class="node">
 <title>proc~iflux_loop</title>
 <g id="a_proc~~get_and_solve_eqn~~CalledByGraph_node2"><a xlink:href=".././proc/iflux_loop.html" xlink:title="iflux_loop">
-<polygon fill="#d9534f" stroke="#d9534f" points="720,-45 656,-45 656,-21 720,-21 720,-45"/>
-<text text-anchor="middle" x="688" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iflux_loop</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="847,-45 783,-45 783,-21 847,-21 847,-45"/>
+<text text-anchor="middle" x="815" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iflux_loop</text>
 </a>
 </g>
 </g>
 <!-- proc~iflux_loop&#45;&gt;proc~get_and_solve_eqn -->
 <g id="proc~~get_and_solve_eqn~~CalledByGraph_edge1" class="edge">
 <title>proc~iflux_loop&#45;&gt;proc~get_and_solve_eqn</title>
-<path fill="none" stroke="#ff0000" d="M720.04,-33C727.9,-33 736.65,-33 745.53,-33"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="745.58,-36.5 755.58,-33 745.58,-29.5 745.58,-36.5"/>
+<path fill="none" stroke="#ff0000" d="M847.04,-33C854.9,-33 863.65,-33 872.53,-33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="872.58,-36.5 882.58,-33 872.58,-29.5 872.58,-36.5"/>
 </g>
 <!-- proc~timestep_loop -->
 <g id="proc~~get_and_solve_eqn~~CalledByGraph_node3" class="node">
 <title>proc~timestep_loop</title>
 <g id="a_proc~~get_and_solve_eqn~~CalledByGraph_node3"><a xlink:href=".././proc/timestep_loop.html" xlink:title="timestep_loop">
-<polygon fill="#d9534f" stroke="#d9534f" points="620,-45 532,-45 532,-21 620,-21 620,-45"/>
-<text text-anchor="middle" x="576" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">timestep_loop</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="747,-45 659,-45 659,-21 747,-21 747,-45"/>
+<text text-anchor="middle" x="703" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">timestep_loop</text>
 </a>
 </g>
 </g>
 <!-- proc~timestep_loop&#45;&gt;proc~iflux_loop -->
 <g id="proc~~get_and_solve_eqn~~CalledByGraph_edge2" class="edge">
 <title>proc~timestep_loop&#45;&gt;proc~iflux_loop</title>
-<path fill="none" stroke="#ff0000" d="M620.16,-33C628.54,-33 637.3,-33 645.62,-33"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="645.86,-36.5 655.86,-33 645.86,-29.5 645.86,-36.5"/>
+<path fill="none" stroke="#ff0000" d="M747.16,-33C755.54,-33 764.3,-33 772.62,-33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="772.86,-36.5 782.86,-33 772.86,-29.5 772.86,-36.5"/>
 </g>
 <!-- proc~solve -->
 <g id="proc~~get_and_solve_eqn~~CalledByGraph_node4" class="node">
 <title>proc~solve</title>
 <g id="a_proc~~get_and_solve_eqn~~CalledByGraph_node4"><a xlink:href=".././proc/solve.html" xlink:title="solve">
-<polygon fill="#d9534f" stroke="#d9534f" points="496,-45 442,-45 442,-21 496,-21 496,-45"/>
-<text text-anchor="middle" x="469" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">solve</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="623,-45 569,-45 569,-21 623,-21 623,-45"/>
+<text text-anchor="middle" x="596" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">solve</text>
 </a>
 </g>
 </g>
 <!-- proc~solve&#45;&gt;proc~timestep_loop -->
 <g id="proc~~get_and_solve_eqn~~CalledByGraph_edge3" class="edge">
 <title>proc~solve&#45;&gt;proc~timestep_loop</title>
-<path fill="none" stroke="#ff0000" d="M496.23,-33C504.08,-33 512.99,-33 521.93,-33"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="521.97,-36.5 531.97,-33 521.97,-29.5 521.97,-36.5"/>
+<path fill="none" stroke="#ff0000" d="M623.23,-33C631.08,-33 639.99,-33 648.93,-33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="648.97,-36.5 658.97,-33 648.97,-29.5 648.97,-36.5"/>
 </g>
 <!-- proc~sli_main -->
 <g id="proc~~get_and_solve_eqn~~CalledByGraph_node5" class="node">
 <title>proc~sli_main</title>
 <g id="a_proc~~get_and_solve_eqn~~CalledByGraph_node5"><a xlink:href=".././proc/sli_main.html" xlink:title="sli_main">
-<polygon fill="#d9534f" stroke="#d9534f" points="406,-45 350,-45 350,-21 406,-21 406,-45"/>
-<text text-anchor="middle" x="378" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sli_main</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="533,-45 477,-45 477,-21 533,-21 533,-45"/>
+<text text-anchor="middle" x="505" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sli_main</text>
 </a>
 </g>
 </g>
 <!-- proc~sli_main&#45;&gt;proc~solve -->
 <g id="proc~~get_and_solve_eqn~~CalledByGraph_edge4" class="edge">
 <title>proc~sli_main&#45;&gt;proc~solve</title>
-<path fill="none" stroke="#ff0000" d="M406.19,-33C414.25,-33 423.22,-33 431.77,-33"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="431.89,-36.5 441.89,-33 431.89,-29.5 431.89,-36.5"/>
+<path fill="none" stroke="#ff0000" d="M533.19,-33C541.25,-33 550.22,-33 558.77,-33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="558.89,-36.5 568.89,-33 558.89,-29.5 558.89,-36.5"/>
+</g>
+<!-- proc~define_canopy -->
+<g id="proc~~get_and_solve_eqn~~CalledByGraph_node6" class="node">
+<title>proc~define_canopy</title>
+<g id="a_proc~~get_and_solve_eqn~~CalledByGraph_node6"><a xlink:href=".././proc/define_canopy.html" xlink:title="define_canopy">
+<polygon fill="#d9534f" stroke="#d9534f" points="441,-25 350,-25 350,-1 441,-1 441,-25"/>
+<text text-anchor="middle" x="395.5" y="-10.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">define_canopy</text>
+</a>
+</g>
+</g>
+<!-- proc~define_canopy&#45;&gt;proc~sli_main -->
+<g id="proc~~get_and_solve_eqn~~CalledByGraph_edge5" class="edge">
+<title>proc~define_canopy&#45;&gt;proc~sli_main</title>
+<path fill="none" stroke="#ff0000" d="M441.16,-21.31C449.67,-22.89 458.51,-24.54 466.76,-26.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="466.37,-29.56 476.84,-27.95 467.65,-22.68 466.37,-29.56"/>
 </g>
 <!-- proc~cbm -->
-<g id="proc~~get_and_solve_eqn~~CalledByGraph_node6" class="node">
+<g id="proc~~get_and_solve_eqn~~CalledByGraph_node7" class="node">
 <title>proc~cbm</title>
-<g id="a_proc~~get_and_solve_eqn~~CalledByGraph_node6"><a xlink:href=".././proc/cbm.html" xlink:title="cbm">
+<g id="a_proc~~get_and_solve_eqn~~CalledByGraph_node7"><a xlink:href=".././proc/cbm.html" xlink:title="cbm">
 <polygon fill="#d9534f" stroke="#d9534f" points="314,-45 260,-45 260,-21 314,-21 314,-45"/>
 <text text-anchor="middle" x="287" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbm</text>
 </a>
 </g>
 </g>
 <!-- proc~cbm&#45;&gt;proc~sli_main -->
-<g id="proc~~get_and_solve_eqn~~CalledByGraph_edge5" class="edge">
+<g id="proc~~get_and_solve_eqn~~CalledByGraph_edge6" class="edge">
 <title>proc~cbm&#45;&gt;proc~sli_main</title>
-<path fill="none" stroke="#ff0000" d="M314.22,-33C322.17,-33 331.06,-33 339.59,-33"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="339.73,-36.5 349.73,-33 339.73,-29.5 339.73,-36.5"/>
+<path fill="none" stroke="#ff0000" d="M314.24,-33.52C325.28,-33.71 338.27,-33.91 350,-34 390.44,-34.33 400.56,-34.32 441,-34 449.23,-33.93 458.06,-33.82 466.44,-33.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="466.77,-37.19 476.71,-33.53 466.66,-30.19 466.77,-37.19"/>
+</g>
+<!-- proc~cbm&#45;&gt;proc~define_canopy -->
+<g id="proc~~get_and_solve_eqn~~CalledByGraph_edge7" class="edge">
+<title>proc~cbm&#45;&gt;proc~define_canopy</title>
+<path fill="none" stroke="#ff0000" d="M314.05,-28.11C321.84,-26.65 330.68,-24.98 339.59,-23.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="340.44,-26.71 349.62,-21.43 339.15,-19.83 340.44,-26.71"/>
 </g>
 <!-- proc~mpidrv_worker -->
-<g id="proc~~get_and_solve_eqn~~CalledByGraph_node7" class="node">
+<g id="proc~~get_and_solve_eqn~~CalledByGraph_node8" class="node">
 <title>proc~mpidrv_worker</title>
-<g id="a_proc~~get_and_solve_eqn~~CalledByGraph_node7"><a xlink:href=".././proc/mpidrv_worker.html" xlink:title="mpidrv_worker">
+<g id="a_proc~~get_and_solve_eqn~~CalledByGraph_node8"><a xlink:href=".././proc/mpidrv_worker.html" xlink:title="mpidrv_worker">
 <polygon fill="#d9534f" stroke="#d9534f" points="211,-66 119,-66 119,-42 211,-42 211,-66"/>
 <text text-anchor="middle" x="165" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpidrv_worker</text>
 </a>
 </g>
 </g>
 <!-- proc~mpidrv_worker&#45;&gt;proc~cbm -->
-<g id="proc~~get_and_solve_eqn~~CalledByGraph_edge6" class="edge">
+<g id="proc~~get_and_solve_eqn~~CalledByGraph_edge8" class="edge">
 <title>proc~mpidrv_worker&#45;&gt;proc~cbm</title>
-<path fill="none" stroke="#ff0000" d="M211.02,-46.12C223.91,-43.87 237.78,-41.44 250.04,-39.29"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="250.66,-42.74 259.91,-37.57 249.46,-35.84 250.66,-42.74"/>
+<path fill="none" stroke="#00ffff" d="M211.02,-46.12C223.91,-43.87 237.78,-41.44 250.04,-39.29"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="250.66,-42.74 259.91,-37.57 249.46,-35.84 250.66,-42.74"/>
 </g>
 <!-- program~cable_offline_driver -->
-<g id="proc~~get_and_solve_eqn~~CalledByGraph_node8" class="node">
+<g id="proc~~get_and_solve_eqn~~CalledByGraph_node9" class="node">
 <title>program~cable_offline_driver</title>
-<g id="a_proc~~get_and_solve_eqn~~CalledByGraph_node8"><a xlink:href=".././program/cable_offline_driver.html" xlink:title="cable_offline_driver">
+<g id="a_proc~~get_and_solve_eqn~~CalledByGraph_node9"><a xlink:href=".././program/cable_offline_driver.html" xlink:title="cable_offline_driver">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="224,-24 106,-24 106,0 224,0 224,-24"/>
 <text text-anchor="middle" x="165" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_offline_driver</text>
 </a>
 </g>
 </g>
 <!-- program~cable_offline_driver&#45;&gt;proc~cbm -->
-<g id="proc~~get_and_solve_eqn~~CalledByGraph_edge7" class="edge">
+<g id="proc~~get_and_solve_eqn~~CalledByGraph_edge9" class="edge">
 <title>program~cable_offline_driver&#45;&gt;proc~cbm</title>
-<path fill="none" stroke="#ff0000" d="M224.24,-22.19C233.06,-23.74 241.93,-25.29 250.08,-26.71"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="249.52,-30.17 259.98,-28.45 250.73,-23.27 249.52,-30.17"/>
+<path fill="none" stroke="#00ffff" d="M224.24,-22.19C233.06,-23.74 241.93,-25.29 250.08,-26.71"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="249.52,-30.17 259.98,-28.45 250.73,-23.27 249.52,-30.17"/>
 </g>
 <!-- program~mpi_driver -->
-<g id="proc~~get_and_solve_eqn~~CalledByGraph_node9" class="node">
+<g id="proc~~get_and_solve_eqn~~CalledByGraph_node10" class="node">
 <title>program~mpi_driver</title>
-<g id="a_proc~~get_and_solve_eqn~~CalledByGraph_node9"><a xlink:href=".././program/mpi_driver.html" xlink:title="mpi_driver">
+<g id="a_proc~~get_and_solve_eqn~~CalledByGraph_node10"><a xlink:href=".././program/mpi_driver.html" xlink:title="mpi_driver">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-66 0,-66 0,-42 70,-42 70,-66"/>
 <text text-anchor="middle" x="35" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_driver</text>
 </a>
 </g>
 </g>
 <!-- program~mpi_driver&#45;&gt;proc~mpidrv_worker -->
-<g id="proc~~get_and_solve_eqn~~CalledByGraph_edge8" class="edge">
+<g id="proc~~get_and_solve_eqn~~CalledByGraph_edge10" class="edge">
 <title>program~mpi_driver&#45;&gt;proc~mpidrv_worker</title>
 <path fill="none" stroke="#ff0000" d="M70.3,-54C82.11,-54 95.64,-54 108.68,-54"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="109,-57.5 119,-54 109,-50.5 109,-57.5"/>

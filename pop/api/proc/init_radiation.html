@@ -229,11 +229,7 @@
     </div>
 
 
-    <p>$     rad%rhocdf(:,ictr) = rhoch(:,ictr) * &amp;
-$                          ( C%GAUSS_W(1) * xk(:,1) / ( xk(:,1) + rad%extkd(:) )&amp;
-$                          + C%GAUSS_W(2) * xk(:,2) / ( xk(:,2) + rad%extkd(:) )&amp;
-$                          + C%GAUSS_W(3) * xk(:,3) / ( xk(:,3) + rad%extkd(:) ) )
- Ticket #147  (vh)
+    <p>Ticket #147  (vh)
  the above line is incorrect, as it is missing a factor of 2 in the numerator.
  (See equation 6.21 from Goudriaan &amp; van Laar 1994)
  The correct version below doubles canopy reflectance for diffuse radiation.
@@ -355,65 +351,65 @@ $                          + C%GAUSS_W(3) * xk(:,3) / ( xk(:,3) + rad%extkd(:) )
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M171.46,-192.41C180.89,-220.16 207.24,-287.87 251,-327 252.33,-328.19 253.73,-329.32 255.2,-330.39"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="253.74,-333.6 264.08,-335.9 257.43,-327.65 253.74,-333.6"/>
 </g>
-<!-- proc~cbm_type_ptr -->
-<g id="proc~~init_radiation~~CallsGraph_node6" class="node">
-<title>proc~cbm_type_ptr</title>
-<g id="a_proc~~init_radiation~~CallsGraph_node6"><a xlink:href=".././proc/cbm_type_ptr.html" xlink:title="cbm_type_ptr">
-<polygon fill="#d9534f" stroke="#d9534f" points="343.5,-318 258.5,-318 258.5,-294 343.5,-294 343.5,-318"/>
-<text text-anchor="middle" x="301" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbm_type_ptr</text>
-</a>
-</g>
-</g>
-<!-- interface~point2constants&#45;&gt;proc~cbm_type_ptr -->
-<g id="proc~~init_radiation~~CallsGraph_edge5" class="edge">
-<title>interface~point2constants&#45;&gt;proc~cbm_type_ptr</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M174.47,-192.32C187.17,-213.79 216.01,-258.29 251,-285 252.82,-286.39 254.75,-287.71 256.75,-288.96"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="255.39,-292.2 265.83,-293.97 258.77,-286.07 255.39,-292.2"/>
-</g>
 <!-- proc~albedo_type_ptr -->
-<g id="proc~~init_radiation~~CallsGraph_node7" class="node">
+<g id="proc~~init_radiation~~CallsGraph_node6" class="node">
 <title>proc~albedo_type_ptr</title>
-<g id="a_proc~~init_radiation~~CallsGraph_node7"><a xlink:href=".././proc/albedo_type_ptr.html" xlink:title="albedo_type_ptr">
-<polygon fill="#d9534f" stroke="#d9534f" points="350,-276 252,-276 252,-252 350,-252 350,-276"/>
-<text text-anchor="middle" x="301" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">albedo_type_ptr</text>
+<g id="a_proc~~init_radiation~~CallsGraph_node6"><a xlink:href=".././proc/albedo_type_ptr.html" xlink:title="albedo_type_ptr">
+<polygon fill="#d9534f" stroke="#d9534f" points="350,-318 252,-318 252,-294 350,-294 350,-318"/>
+<text text-anchor="middle" x="301" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">albedo_type_ptr</text>
 </a>
 </g>
 </g>
 <!-- interface~point2constants&#45;&gt;proc~albedo_type_ptr -->
-<g id="proc~~init_radiation~~CallsGraph_edge6" class="edge">
+<g id="proc~~init_radiation~~CallsGraph_edge5" class="edge">
 <title>interface~point2constants&#45;&gt;proc~albedo_type_ptr</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M181.25,-192.03C197.23,-205.61 224.77,-227.78 251,-243 253.8,-244.63 256.75,-246.2 259.76,-247.7"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="258.33,-250.9 268.86,-252 261.31,-244.57 258.33,-250.9"/>
-</g>
-<!-- proc~air_type_ptr -->
-<g id="proc~~init_radiation~~CallsGraph_node8" class="node">
-<title>proc~air_type_ptr</title>
-<g id="a_proc~~init_radiation~~CallsGraph_node8"><a xlink:href=".././proc/air_type_ptr.html" xlink:title="air_type_ptr">
-<polygon fill="#d9534f" stroke="#d9534f" points="339,-234 263,-234 263,-210 339,-210 339,-234"/>
-<text text-anchor="middle" x="301" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">air_type_ptr</text>
-</a>
-</g>
-</g>
-<!-- interface~point2constants&#45;&gt;proc~air_type_ptr -->
-<g id="proc~~init_radiation~~CallsGraph_edge7" class="edge">
-<title>interface~point2constants&#45;&gt;proc~air_type_ptr</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M205.47,-192.04C220.27,-196.73 237.4,-202.16 252.97,-207.09"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="252.35,-210.57 262.94,-210.25 254.46,-203.89 252.35,-210.57"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M174.47,-192.32C187.17,-213.79 216.01,-258.29 251,-285 252.82,-286.39 254.75,-287.71 256.75,-288.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="255.39,-292.2 265.83,-293.97 258.77,-286.07 255.39,-292.2"/>
 </g>
 <!-- proc~canopy_type_ptr -->
-<g id="proc~~init_radiation~~CallsGraph_node9" class="node">
+<g id="proc~~init_radiation~~CallsGraph_node7" class="node">
 <title>proc~canopy_type_ptr</title>
-<g id="a_proc~~init_radiation~~CallsGraph_node9"><a xlink:href=".././proc/canopy_type_ptr.html" xlink:title="canopy_type_ptr">
-<polygon fill="#d9534f" stroke="#d9534f" points="351,-192 251,-192 251,-168 351,-168 351,-192"/>
-<text text-anchor="middle" x="301" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">canopy_type_ptr</text>
+<g id="a_proc~~init_radiation~~CallsGraph_node7"><a xlink:href=".././proc/canopy_type_ptr.html" xlink:title="canopy_type_ptr">
+<polygon fill="#d9534f" stroke="#d9534f" points="351,-276 251,-276 251,-252 351,-252 351,-276"/>
+<text text-anchor="middle" x="301" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">canopy_type_ptr</text>
 </a>
 </g>
 </g>
 <!-- interface~point2constants&#45;&gt;proc~canopy_type_ptr -->
-<g id="proc~~init_radiation~~CallsGraph_edge8" class="edge">
+<g id="proc~~init_radiation~~CallsGraph_edge7" class="edge">
 <title>interface~point2constants&#45;&gt;proc~canopy_type_ptr</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M215.34,-180C223.56,-180 232.19,-180 240.67,-180"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="240.9,-183.5 250.9,-180 240.9,-176.5 240.9,-183.5"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M181.25,-192.03C197.23,-205.61 224.77,-227.78 251,-243 253.8,-244.63 256.75,-246.2 259.76,-247.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="258.33,-250.9 268.86,-252 261.31,-244.57 258.33,-250.9"/>
+</g>
+<!-- proc~cbm_type_ptr -->
+<g id="proc~~init_radiation~~CallsGraph_node8" class="node">
+<title>proc~cbm_type_ptr</title>
+<g id="a_proc~~init_radiation~~CallsGraph_node8"><a xlink:href=".././proc/cbm_type_ptr.html" xlink:title="cbm_type_ptr">
+<polygon fill="#d9534f" stroke="#d9534f" points="343.5,-234 258.5,-234 258.5,-210 343.5,-210 343.5,-234"/>
+<text text-anchor="middle" x="301" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbm_type_ptr</text>
+</a>
+</g>
+</g>
+<!-- interface~point2constants&#45;&gt;proc~cbm_type_ptr -->
+<g id="proc~~init_radiation~~CallsGraph_edge8" class="edge">
+<title>interface~point2constants&#45;&gt;proc~cbm_type_ptr</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M205.47,-192.04C220.02,-196.65 236.82,-201.97 252.18,-206.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="251.44,-210.28 262.03,-209.96 253.55,-203.6 251.44,-210.28"/>
+</g>
+<!-- proc~air_type_ptr -->
+<g id="proc~~init_radiation~~CallsGraph_node9" class="node">
+<title>proc~air_type_ptr</title>
+<g id="a_proc~~init_radiation~~CallsGraph_node9"><a xlink:href=".././proc/air_type_ptr.html" xlink:title="air_type_ptr">
+<polygon fill="#d9534f" stroke="#d9534f" points="339,-192 263,-192 263,-168 339,-168 339,-192"/>
+<text text-anchor="middle" x="301" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">air_type_ptr</text>
+</a>
+</g>
+</g>
+<!-- interface~point2constants&#45;&gt;proc~air_type_ptr -->
+<g id="proc~~init_radiation~~CallsGraph_edge6" class="edge">
+<title>interface~point2constants&#45;&gt;proc~air_type_ptr</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M215.34,-180C227.38,-180 240.3,-180 252.33,-180"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="252.63,-183.5 262.63,-180 252.63,-176.5 252.63,-183.5"/>
 </g>
 <!-- proc~carbon_type_ptr -->
 <g id="proc~~init_radiation~~CallsGraph_node10" class="node">
