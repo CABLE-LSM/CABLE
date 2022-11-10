@@ -1074,14 +1074,20 @@ coupled/
 </code></pre>
 <p>All applications use the <code>science/ util/ params/</code> directories. Offline applications also use the <code>offline/</code> directory. Coupled applications use the <code>coupled/</code> directory instead. We will not discuss the coupled applications any further here. Please refer to the documentation for a specific coupled application with CABLE to learn more.</p>
 <p>CABLE supports both serial and parallel applications. </p>
-<p>???+ tip "Serial for single-site"
-    On a single processor, for single-site investigations with a suitable restart file, CABLE usually executes a year of forcing data in a matter of seconds/minutes. Even in the absence of a restart file, thus requiring spinup of the model, this usually doesn't take more than a few minutes. In this case a serial version of CABLE will suffice. </p>
-<p>???+ tip "Multiprocessor for global simulations"
-    For global (or regional) offline simulations, CABLE can still be run in serial mode (about 15 minutes/year for GSWP global run at 1x1 degree resolution). However, running on multiple processors speeds up the simulation considerably.</p>
+<details class="tip" open="open">
+<summary>Serial for single-site</summary>
+<p>On a single processor, for single-site investigations with a suitable restart file, CABLE usually executes a year of forcing data in a matter of seconds/minutes. Even in the absence of a restart file, thus requiring spinup of the model, this usually doesn't take more than a few minutes. In this case a serial version of CABLE will suffice. </p>
+</details>
+<details class="tip" open="open">
+<summary>Multiprocessor for global simulations</summary>
+<p>For global (or regional) offline simulations, CABLE can still be run in serial mode (about 15 minutes/year for GSWP global run at 1x1 degree resolution). However, running on multiple processors speeds up the simulation considerably.</p>
+</details>
 <p>CABLE can be built using the BASH script <a href="https://trac.nci.org.au/svn/cable/trunk/offline/build3.sh">build3.sh</a> in the <strong>offline/</strong> directory. </p>
-<p>???+ tip "Build on other HPC"
-    The function <em>host_gadi</em> in the build script shows the appropriate configuration to build on Gadi.
-    This may be of use as a template building CABLE on another Linux/HPC system.</p>
+<details class="tip" open="open">
+<summary>Build on other HPC</summary>
+<p>The function <em>host_gadi</em> in the build script shows the appropriate configuration to build on Gadi.
+This may be of use as a template building CABLE on another Linux/HPC system.</p>
+</details>
 <p>Both the serial and parallel executable for CABLE offline are built in the <code>offline/</code> directory by executing 
 the build script. </p>
 <p>To build the serial model execute: </p>
@@ -1101,8 +1107,10 @@ the build script. </p>
 <p>A parallel compilation then calls <code>parallel_cable</code> to compile the required MPI driver(s) and link everything together to produce the executable, <code>cable-mpi</code>.</p>
 <p>The hidden <code>.tmp/</code> directory is really only needed for technical reasons and you should never need to go 
 into the <code>.tmp/</code> directory. However, if for some reason you want the <strong>.o</strong> object files created by the compiler, they persist in this directory. Alternatively, it is sometimes useful to verify that the files you want to compile are actually making it into this directory. This is particuarly relevant if you are adding new files to CABLE. </p>
-<p>???+ warning "Do not change files under <code>.tmp/</code>"
-    If you change the files in <code>.tmp/</code> directly, the next build will not pick up these changes and will overwrite them.</p>
+<details class="warning" open="open">
+<summary>Do not change files under <code>.tmp/</code></summary>
+<p>If you change the files in <code>.tmp/</code> directly, the next build will not pick up these changes and will overwrite them.</p>
+</details>
 <p>One of the features of the build process is that only source files which are
 modified are re-built, followed by their dependents. This is possible because the .''tmp'' directory is
 overwritten by the build script, preserving timestamps of the source files from their original location.</p>
