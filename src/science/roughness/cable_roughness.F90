@@ -121,7 +121,13 @@ PUBLIC ruff_resist
 CONTAINS
 
 SUBROUTINE ruff_resist(veg, rough, ssnow, canopy, LAI_pft, HGT_pft, reducedLAIdue2snow )
-
+!* Calculates the roughness parameters
+! and the aerodynamic contribution to the resistances controlling the fluxes 
+! the land and atmosphere for each land point.
+!
+! See the description for [[cable_roughness_module]] for more scientific 
+! information.
+!
 ! see: Raupach, 1992, BLM 60 375-395
 !      MRR notes "Simplified wind model for canopy", 23-oct-92
 !      MRR draft paper "Simplified expressions...", dec-92
@@ -137,6 +143,8 @@ USE cbl_LAI_eff_mod, ONLY : LAI_eff
 USE cable_other_constants_mod, ONLY : z0surf_min
 
 implicit none
+
+!!## Structure
 
 !result returned from called subr. Avail. in cross_*paths_module - but unsure
 !yet
@@ -157,6 +165,8 @@ REAL, DIMENSION(mp) ::                                                      &
   dh         ! d/h where d is zero-plane displacement
 integer :: i
 
+!| * evaluates the canopy height and leaf area given the presence of snow 
+!    (or not)
 ! Set canopy height above snow level:
 call HgtAboveSnow( HeightAboveSnow, mp, z0soilsn_min, veg%hc, ssnow%snowd, &
                    ssnow%ssdnn )
@@ -169,10 +179,7 @@ call LAI_eff( mp, veg%vlai, veg%hc, HeightAboveSnow, &
 canopy%vlaiw  = reducedLAIdue2snow
 canopy%rghlai = canopy%vlaiw
 
-!| The SUBROUTINE ruff_resist is structured as:
-!
-!  * evaluation of the canopy height and leaf area given the presence of snow (or not)
-!  * sets the value of soil and snow roughness lengths
+!| * sets the value of soil and snow roughness lengths
 !    (depends on configuration of CABLE)
 IF (cable_user%soil_struc=='default') THEN
 
@@ -202,8 +209,8 @@ ELSEIF (cable_user%soil_struc=='sli') THEN
 
 ENDIF
 
-!| * evaluates the remaining output variables, depending on whether the land point
-!  is vegetated or not.
+!| * evaluates the remaining output variables, depending on whether the land 
+!     point is vegetated or not.
 do i=1,mp
   if( canopy%vlaiw(i) .LE. CLAI_THRESH  .OR.                                          &
       rough%hruff(i) .LT. rough%z0soilsn(i) ) then ! BARE SOIL SURFACE
@@ -313,7 +320,7 @@ do i=1,mp
   END IF
 END DO
 
-!> * if the soil model used is SLI - updates the evaluated %rt0us
+!> * if the soil model used is SLI - updates the evaluated rough%rt0us
 IF (cable_user%soil_struc.EQ.'sli') THEN
   WHERE( canopy%vlaiw .GE. CLAI_THRESH  .AND.                                          &
          rough%hruff .GE. rough%z0soilsn ) ! VEGETATED SURFACE
