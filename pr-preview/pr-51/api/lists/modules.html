@@ -15,7 +15,6 @@
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
-    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -65,14 +64,6 @@
                              <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
 <li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
           </ul>
-        <form action="../search.html" class="navbar-form navbar-right" role="search">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
-        </div>
-<!--
-        <button type="submit" class="btn btn-default">Submit</button>
--->
-        </form>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
@@ -97,10 +88,10 @@
 <!---->			   <tr class="active"><td><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></td><td><a href='../sourcefile/cable_define_types.f90.html'>cable_define_types.F90</a></td><td></td></tr>
 <!--active-->			   <tr class=""><td><a href='../module/cable_diag_module.html'>cable_diag_module</a></td><td><a href='../sourcefile/cable_diag.f90.html'>cable_diag.F90</a></td><td></td></tr>
 <!---->			   <tr class="active"><td><a href='../module/cable_diag_module~2.html'>cable_diag_module</a></td><td><a href='../sourcefile/cable_diag.f90~2.html'>cable_diag.F90</a></td><td></td></tr>
-<!--active-->			   <tr class=""><td><a href='../module/cable_ffile_module~2.html'>cable_fFile_module</a></td><td><a href='../sourcefile/cable_ffile.f90.html'>cable_fFile.F90</a></td><td></td></tr>
-<!---->			   <tr class="active"><td><a href='../module/cable_ffile_module.html'>cable_fFile_module</a></td><td><a href='../sourcefile/cable_ffile.f90~2.html'>cable_fFile.F90</a></td><td></td></tr>
-<!--active-->			   <tr class=""><td><a href='../module/cable_fprint_module.html'>cable_fprint_module</a></td><td><a href='../sourcefile/cable_fprint.f90.html'>cable_fprint.F90</a></td><td></td></tr>
-<!---->			   <tr class="active"><td><a href='../module/cable_fprint_module~2.html'>cable_fprint_module</a></td><td><a href='../sourcefile/cable_fprint.f90~2.html'>cable_fprint.F90</a></td><td></td></tr>
+<!--active-->			   <tr class=""><td><a href='../module/cable_ffile_module.html'>cable_fFile_module</a></td><td><a href='../sourcefile/cable_ffile.f90.html'>cable_fFile.F90</a></td><td></td></tr>
+<!---->			   <tr class="active"><td><a href='../module/cable_ffile_module~2.html'>cable_fFile_module</a></td><td><a href='../sourcefile/cable_ffile.f90~2.html'>cable_fFile.F90</a></td><td></td></tr>
+<!--active-->			   <tr class=""><td><a href='../module/cable_fprint_module~2.html'>cable_fprint_module</a></td><td><a href='../sourcefile/cable_fprint.f90.html'>cable_fprint.F90</a></td><td></td></tr>
+<!---->			   <tr class="active"><td><a href='../module/cable_fprint_module.html'>cable_fprint_module</a></td><td><a href='../sourcefile/cable_fprint.f90~2.html'>cable_fprint.F90</a></td><td></td></tr>
 <!--active-->			   <tr class=""><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td><a href='../sourcefile/cable_gw_hydro.f90.html'>cable_gw_hydro.F90</a></td><td></td></tr>
 <!---->			   <tr class="active"><td><a href='../module/cable_init_module.html'>cable_init_module</a></td><td><a href='../sourcefile/cable_initialise.f90.html'>cable_initialise.F90</a></td><td></td></tr>
 <!--active-->			   <tr class=""><td><a href='../module/cable_input_module.html'>cable_input_module</a></td><td><a href='../sourcefile/cable_input.f90.html'>cable_input.F90</a></td><td></td></tr>
@@ -127,17 +118,10 @@
 <!---->			   <tr class="active"><td><a href='../module/cable_pyfprint_module.html'>cable_Pyfprint_module</a></td><td><a href='../sourcefile/cable_pyfprint.f90.html'>cable_PyFprint.F90</a></td><td></td></tr>
 <!--active-->			   <tr class=""><td><a href='../module/cable_pyfprint_module~2.html'>cable_Pyfprint_module</a></td><td><a href='../sourcefile/cable_pyfprint.f90~2.html'>cable_PyFprint.F90</a></td><td></td></tr>
 <!---->			   <tr class="active"><td><a href='../module/cable_read_module.html'>cable_read_module</a></td><td><a href='../sourcefile/cable_read.f90.html'>cable_read.F90</a></td><td></td></tr>
-<!--active-->			   <tr class=""><td><a href='../module/cable_roughness_module.html'>cable_roughness_module</a></td><td><a href='../sourcefile/cable_roughness.f90.html'>cable_roughness.F90</a></td><td><p>The cable_roughness MODULE calculates the roughness parameters and the
- aerodynamic contribution to the resistances controlling the fluxes of momentum,
- heat and water vapour between the land and atmosphere for each land point.
- Formulations take into account vegetation and snow cover. The dependence on
- atmospheric conditions (surface heat fluxes) is incorporated later within the
- <a href="../module/cable_canopy_module.html">cable_canopy_module</a>.
- The scientific basis for the formulae is a combination of Localised Near Field theory
- for aerodynamic transfer within canopies (for the heat and water vapour fluxes)
- and bulk formulae for the roughness length and displacement height
- accounting for roughness sublayer effects (for the momentum flux)
- The primary references for these formulations are</p><a href="../module/cable_roughness_module.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+<!--active-->			   <tr class=""><td><a href='../module/cable_roughness_module.html'>cable_roughness_module</a></td><td><a href='../sourcefile/cable_roughness.f90.html'>cable_roughness.F90</a></td><td><p>The procedures contained in this module calculate the roughness parameters
+ and the aerodynamic contribution to the resistances controlling the fluxes 
+ of momentum, heat and water vapour between the land and atmosphere for each 
+ land point.</p><a href="../module/cable_roughness_module.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 <!---->			   <tr class="active"><td><a href='../module/cable_runtime_opts_mod.html'>cable_runtime_opts_mod</a></td><td><a href='../sourcefile/cable_runtime_opts_mod.f90.html'>cable_runtime_opts_mod.F90</a></td><td></td></tr>
 <!--active-->			   <tr class=""><td><a href='../module/cable_site.html'>CABLE_site</a></td><td><a href='../sourcefile/cable_site.f90.html'>cable_site.F90</a></td><td></td></tr>
 <!---->			   <tr class="active"><td><a href='../module/cable_soil_params_mod.html'>cable_soil_params_mod</a></td><td><a href='../sourcefile/cable_soil_params.f90.html'>cable_soil_params.F90</a></td><td></td></tr>
@@ -255,9 +239,6 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <script src="../tipuesearch/tipuesearch_content.js"></script>
-    <script src="../tipuesearch/tipuesearch_set.js"></script>
-    <script src="../tipuesearch/tipuesearch.js"></script>
     
   </body>
 </html>

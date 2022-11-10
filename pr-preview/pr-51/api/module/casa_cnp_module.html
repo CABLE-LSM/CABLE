@@ -14,7 +14,6 @@
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
-    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -64,14 +63,6 @@
                              <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
 <li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
           </ul>
-        <form action="../search.html" class="navbar-form navbar-right" role="search">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
-        </div>
-<!--
-        <button type="submit" class="btn btn-default">Submit</button>
--->
-        </form>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
@@ -173,13 +164,13 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+    <li><a href='../module/casadimension.html'>casadimension</a></li>
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
     <li><a href='../module/casavariable.html'>casavariable</a></li>
-    <li><a href='../module/landuse_constant.html'>landuse_constant</a></li>
     <li><a href='../module/casaparm.html'>casaparm</a></li>
     <li><a href='../module/phenvariable.html'>phenvariable</a></li>
-    <li><a href='../module/casadimension.html'>casadimension</a></li>
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+    <li><a href='../module/landuse_constant.html'>landuse_constant</a></li>
   </ul>
       </li>
       </ul>
@@ -362,7 +353,11 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-casa_allocation"></span><h3>public subroutine <a href='../proc/casa_allocation.html'>casa_allocation</a>(veg, soil, casabiome, casaflux, casapool, casamet, phen, LALLOC)</h3></div>
   <div class="panel-body">
-           
+       
+<p>Computes the fraction of net photosynthate allocated to leaf, wood 
+and froot using an allocation scheme modified from 
+<a href="https://doi.org/10.1046/j.1365-2486.1999.00269.x">Pierre Friedlingstein</a>.</p><a href="../proc/casa_allocation.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -424,7 +419,11 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-casa_wolf"></span><h3>public subroutine <a href='../proc/casa_wolf.html'>casa_wolf</a>(veg, casabiome, casaflux, casapool, casamet)</h3></div>
   <div class="panel-body">
-           
+       
+<p>Carbon allocation algorithm implemented by Dan Qiu and YP Wang in 2011 
+based on Adam Wolf <a href="https://doi.org/10.1890/10-1201.1">1</a> and 
+<a href="https://doi:10.1029/2010GB003917">2</a></p>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
@@ -1566,9 +1565,6 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <script src="../tipuesearch/tipuesearch_content.js"></script>
-    <script src="../tipuesearch/tipuesearch_set.js"></script>
-    <script src="../tipuesearch/tipuesearch.js"></script>
     
   </body>
 </html>

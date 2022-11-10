@@ -14,7 +14,6 @@
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
-    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -64,14 +63,6 @@
                              <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
 <li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
           </ul>
-        <form action="../search.html" class="navbar-form navbar-right" role="search">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
-        </div>
-<!--
-        <button type="submit" class="btn btn-default">Submit</button>
--->
-        </form>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
@@ -130,27 +121,38 @@
   <ul class="list-inline">
     <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
     <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+    <li><a href='../module/cbl_hruff_mod.html'>cbl_hruff_mod</a></li>
     <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
     <li><a href='../module/cbl_lai_eff_mod.html'>cbl_LAI_eff_mod</a></li>
-    <li><a href='../module/cbl_hruff_mod.html'>cbl_hruff_mod</a></li>
   </ul>
       </li>
       </ul>
     </div>
 
 
-    <p>The SUBROUTINE ruff_resist is structured as:</p>
+    <p>Calculates the roughness parameters
+ and the aerodynamic contribution to the resistances controlling the fluxes 
+ the land and atmosphere for each land point.</p>
+<p>See the description for <a href="../module/cable_roughness_module.html">cable_roughness_module</a> for more scientific 
+ information.</p>
+<p>see: Raupach, 1992, BLM 60 375-395
+      MRR notes "Simplified wind model for canopy", 23-oct-92
+      MRR draft paper "Simplified expressions...", dec-92
+ modified to include resistance calculations by Ray leuning 19 Jun 1998  </p>
+<h2>Structure</h2>
 <ul>
-<li>evaluation of the canopy height and leaf area given the presence of snow (or not)</li>
+<li>evaluates the canopy height and leaf area given the presence of snow 
+    (or not)
+ Set canopy height above snow level:</li>
 <li>
 <p>sets the value of soil and snow roughness lengths
-   (depends on configuration of CABLE)</p>
+    (depends on configuration of CABLE)</p>
 </li>
 <li>
-<p>evaluates the remaining output variables, depending on whether the land point
- is vegetated or not.</p>
+<p>evaluates the remaining output variables, depending on whether the land 
+     point is vegetated or not.</p>
 </li>
-<li>if the soil model used is SLI - updates the evaluated %rt0us</li>
+<li>if the soil model used is SLI - updates the evaluated rough%rt0us</li>
 </ul>
 
     <h3>Arguments</h3>
@@ -266,9 +268,6 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <script src="../tipuesearch/tipuesearch_content.js"></script>
-    <script src="../tipuesearch/tipuesearch_set.js"></script>
-    <script src="../tipuesearch/tipuesearch.js"></script>
     
   </body>
 </html>

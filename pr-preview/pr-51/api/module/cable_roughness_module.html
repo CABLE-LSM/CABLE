@@ -14,7 +14,6 @@
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
-    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -64,14 +63,6 @@
                              <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
 <li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
           </ul>
-        <form action="../search.html" class="navbar-form navbar-right" role="search">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
-        </div>
-<!--
-        <button type="submit" class="btn btn-default">Submit</button>
--->
-        </form>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
@@ -135,68 +126,68 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <p>The cable_roughness MODULE calculates the roughness parameters and the
- aerodynamic contribution to the resistances controlling the fluxes of momentum,
- heat and water vapour between the land and atmosphere for each land point.
- Formulations take into account vegetation and snow cover. The dependence on
- atmospheric conditions (surface heat fluxes) is incorporated later within the
- <a href="../module/cable_canopy_module.html">cable_canopy_module</a>.
- The scientific basis for the formulae is a combination of Localised Near Field theory
- for aerodynamic transfer within canopies (for the heat and water vapour fluxes)
- and bulk formulae for the roughness length and displacement height
- accounting for roughness sublayer effects (for the momentum flux)
- The primary references for these formulations are</p>
-<ul>
-<li>Raupach MR (1989) QJRMS 115:609-632 doi:10.1256/smsqj.48709</li>
-<li>Raupach MR (1992) BLM 60:375-395 doi:10.1007/BF00155203</li>
-<li>Raupach MR (1994) BLM 71:211-216 doi:10.1007/BF00709229</li>
-<li>Kowalczyk et al. (2006) CABLE documentation</li>
-</ul>
-<p>Two parameters are introduced <script type="math/tex">z_{0,min}</script> = 1E-7m and
-<script type="math/tex">z_{0,minPF}</script> = 1E-4m which are the minimum values for the roughness
-length in the cases of bare soil and permanent ice land points (respectively)</p>
-<p><br></br>
- The MODULE is organised as a single SUBROUTINE <a href="../proc/ruff_resist.html">ruff_resist</a> which contains
- IF/THEN cases in two areas, depending on</p>
+    <h1>Overview</h1>
+<p>The procedures contained in this module calculate the roughness parameters
+ and the aerodynamic contribution to the resistances controlling the fluxes 
+ of momentum, heat and water vapour between the land and atmosphere for each 
+ land point.</p>
+<p>The formulations take into account vegetation and snow cover. The dependence ! on atmospheric conditions (surface heat fluxes) is incorporated later within ! the <a href="../module/cable_canopy_module.html">cable_canopy_module</a>.</p>
+<h2>Scientific description</h2>
+<p>The scientific basis for the formulae is a combination of Localised Near 
+ Field theory for aerodynamic transfer within canopies (for the heat and 
+ water vapour fluxes) and bulk formulae for the roughness length and 
+ displacement height accounting for roughness sublayer effects (for the 
+ momentum flux).</p>
+<p>The calculations take into account whether:</p>
 <ol>
-<li>Whether the soil model used is SLI or the default (soilsnow)</li>
-<li>Whether the land point is vegetated (LAI &gt; LAI_THRESH) or not</li>
+<li>the soil model used is SLI or the default (soilsnow)</li>
+<li>the land point is vegetated (LAI &gt; LAI_THRESH) or not</li>
 </ol>
-<p><br></br>
-The principal outputs from the MODULE are</p>
+<p>The primary references for these formulations are</p>
 <ul>
-<li>heights (above the displacement height) for the forcing meteorology, in m
-   (rough%zref_tq and rough%zref_uv)</li>
-<li>current values for canopy height, in m, and leaf area, in m2/m2,
-   accounting for presence of snow (rough%hruff and rough%vlaiw)</li>
-<li>the aerodynamic roughness length for soil and snow, in m
-   (rough%z0soil, rough%z0ssoilsn)</li>
-<li>the aerodynamic roughness length for the surface (canopy+soil+snow), in m
-   (rough%z0m)</li>
-<li>the displacement height of the surface (if vegetated, =0.0 if not), in m
-   (rough%disp)</li>
-<li>the depth of roughness sublayer, in m (if vegetated, rough%zruffs)</li>
-<li>the extinction coefficient for the wind speed profile within the canopy, <script type="math/tex">c_{0}</script>,
-   in units of per m (rough%coexp). <script type="math/tex">c_{0}</script> is defined to be the coefficient
-   within an expontial wind profile, i.e.
-   the wind speed at height <script type="math/tex">z</script> above the ground within a canopy of height <script type="math/tex">h_c</script>
-   is given by <script type="math/tex"> U(z) = U_{h} \exp\{ c_{0} (z-h_c) \} </script> where <script type="math/tex">U_h</script>
-   is the wind speed at canopy top.</li>
-<li>the ratio of the friction velocity, <script type="math/tex">u_*</script>, to the wind speed at canopy top
-   (rough%usuh)</li>
-<li>values for the <em>normalized</em> aerodynamic resistances for the turbulent transfer
-   of scalars across two layers of atmosphere<ul>
-<li>from the soil/snow surface to the displacement height (rough%rt0us)</li>
-<li>from the displacement height to the reference level (rough%rt1us)</li>
+<li><a href="https://doi.org/10.1002/qj.49711548710">Raupach MR (1989)</a></li>
+<li><a href="https://doi.org/10.1007/BF00155203">Raupach MR (1992)</a></li>
+<li><a href="https://doi.org/10.1007/BF00709229">Raupach MR (1994)</a></li>
+<li><a href="http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf">Kowalczyk et al. (2006)</a></li>
 </ul>
-</li>
+<p><br></br>
+ The principal outputs from the MODULE are</p>
+<ul>
+<li><code>rough%zref_tq</code>: height above the displacement height for the 
+    air temperature and humidity (m)</li>
+<li><code>rough%zref_uv</code>: height above the displacement height for the 
+    wind speeds (m)</li>
+<li><code>rough%hruff</code>: the canopy height accounting for the presence 
+    of snow (m)</li>
+<li><code>canopy%vlaiw</code>: the leaf area index accounting for the presence
+    of snow (<script type="math/tex">m^2/m^2</script>)</li>
+<li><code>rough%z0soil</code>: the aerodynamic roughness length for soil (m)</li>
+<li><code>rough%z0ssoilsn</code>: the aerodynamic roughness lenght for snow (m)</li>
+<li><code>roug%z0m</code>: the aerodynamic roughness length for the surface 
+    (canopy+soil+snow) (m)</li>
+<li><code>rough%disp</code>: the displacement height of the surface 
+    (=0.0 if not vegetated) (m)</li>
+<li><code>rough%zruffs</code>: the depth of the roughness sublayer for vegetated
+    tiles (m)</li>
+<li><code>rough%coexp</code>: the extinction coefficient for the wind speed profile 
+    within the canopy, <script type="math/tex">c_{0}</script> (m). <script type="math/tex">c_{0}</script> is defined to be the 
+    coefficient within an expontial wind profile, i.e.
+    the wind speed at height <script type="math/tex">z</script> above the ground within a canopy of 
+    height <script type="math/tex">h_c</script> is given by <script type="math/tex"> U(z) = U_{h} \exp\{ c_{0} (z-h_c) \} </script> 
+    where <script type="math/tex">U_h</script> is the wind speed at canopy top.</li>
+<li><code>rough%usuh</code>: the ratio of the friction velocity, <script type="math/tex">u_*</script>, to the wind 
+    speed at canopy top (-)</li>
+<li><code>rough%rt0us</code>: <em>normalised</em> aerodynamic resitance for the turbulent
+    transfer from the soil/snow surface to the displacement height (-)</li>
+<li><code>rough%rt1us</code>: <em>normalised</em> aerodynamic resistance for the turbulent 
+    transfer from the displacement height to the reference level (-)</li>
 </ul>
 <p>The aerodynamic resistances for the current time step are evaluated later by dividing
-the <em>normalized resistances</em> by the current time step's friction velocity.
-rough%rt1us is evaluated in three subparts (%rt1usa, %rt1usb, and %rt1usc).
-Each of the normalized resistances are given by theoretical formulae as given by
-the references.  One of the resistance terms (rough%rt1usc) is evaluated in
-<a href="../module/cable_canopy_module.html">cable_canopy_module</a>.</p>
+ the <em>normalized resistances</em> by the current time step's friction velocity.
+ rough%rt1us is evaluated in three subparts (%rt1usa, %rt1usb, and %rt1usc).
+ Each of the normalized resistances are given by theoretical formulae as given by
+ the references.  One of the resistance terms (rough%rt1usc) is evaluated in
+ <a href="../module/cable_canopy_module.html">cable_canopy_module</a>.</p>
 <p>Further detail given in SUBROUTINE <a href="../proc/ruff_resist.html">ruff_resist</a> </p>
 <br>        <div class="panel panel-default">
       <div class="panel-heading">
@@ -205,8 +196,8 @@ the references.  One of the resistance terms (rough%rt1usc) is evaluated in
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
     <li><a href='../module/cable_phys_constants_mod.html'>cable_phys_constants_mod</a></li>
+    <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
   </ul>
       </li>
       </ul>
@@ -248,12 +239,13 @@ the references.  One of the resistance terms (rough%rt1usc) is evaluated in
 <tr>
   <td><span class="anchor" id="variable-z0soilsn_min"></span>real,</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>z0soilsn_min</strong></td><td> =</td><td>1.e-7</td><td></td>
+  <td><strong>z0soilsn_min</strong></td><td> =</td><td>1.e-7</td><td><p>Minimum value for the roughness length for bare soil, <code>(z_{0,min}</code>) (m)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-z0soilsn_min_pf"></span>real,</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>z0soilsn_min_PF</strong></td><td> =</td><td>1.e-4</td><td></td>
+  <td><strong>z0soilsn_min_PF</strong></td><td> =</td><td>1.e-4</td><td><p>Minimum value for the roughness length for permanent ice on land, 
+`(z_{0,minPF}) (m)</p></td>
 </tr>
 </tbody>
 </table>
@@ -272,7 +264,9 @@ the references.  One of the resistance terms (rough%rt1usc) is evaluated in
   <div class="panel-heading codesum"><span class="anchor" id="proc-ruff_resist"></span><h3>public subroutine <a href='../proc/ruff_resist.html'>ruff_resist</a>(veg, rough, ssnow, canopy, LAI_pft, HGT_pft, reducedLAIdue2snow)</h3></div>
   <div class="panel-body">
        
-<p>The SUBROUTINE ruff_resist is structured as:</p><a href="../proc/ruff_resist.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+<p>Calculates the roughness parameters
+ and the aerodynamic contribution to the resistances controlling the fluxes 
+ the land and atmosphere for each land point.</p><a href="../proc/ruff_resist.html" class="pull-right"><emph>Read more&hellip;</emph></a>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
@@ -373,9 +367,6 @@ the references.  One of the resistance terms (rough%rt1usc) is evaluated in
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <script src="../tipuesearch/tipuesearch_content.js"></script>
-    <script src="../tipuesearch/tipuesearch_set.js"></script>
-    <script src="../tipuesearch/tipuesearch.js"></script>
     
   </body>
 </html>
