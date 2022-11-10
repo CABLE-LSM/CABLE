@@ -9,7 +9,7 @@ CONTAINS
 subroutine HgtAboveSnow( HeightAboveSnow, mp, z0surf_min, HGT_pft, &
      SnowDepth, SnowDensity )
 
-  !* Subroutine computes height of canopy above ground/snow surface when there
+  !* Computes the height of the canopy above ground/snow surface when there
   !  is snow present
   !
   ! The height of canopy above snow level is simply the difference between
