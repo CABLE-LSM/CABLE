@@ -18,6 +18,13 @@ graph TD
     C --> D;   
     D -->|Parallel?| F[Run `parallel_cable`];
     F --> H[executable `cable_mpi`];
+    click A "http://cable-lsm.github.io/CABLE/user_guide/tutorial/compilation/#getting-the-cable-source-code"
+    click B "http://cable-lsm.github.io/CABLE/user_guide/tutorial/compilation/#launching-the-build"
+    click C "http://cable-lsm.github.io/CABLE/user_guide/tutorial/compilation/#launching-the-build"
+    click D "http://cable-lsm.github.io/CABLE/user_guide/tutorial/compilation/#description-of-the-build-process"
+    click E "http://cable-lsm.github.io/CABLE/user_guide/tutorial/compilation/#description-of-the-build-process"
+    click F "http://cable-lsm.github.io/CABLE/user_guide/tutorial/compilation/#description-of-the-build-process"
+
     classDef UserAction fill: #FEFB8E
 ```
 
@@ -47,6 +54,8 @@ CABLE has the directory structure:
 
 All applications use the `science/ util/ params/` directories. Offline applications also use the `offline/` directory. Coupled applications use the `coupled/` directory instead. We will not discuss the coupled applications any further here. Please refer to the documentation for a specific coupled application with CABLE to learn more.
 
+### Launching the build
+
 CABLE supports both serial and parallel applications. 
 
 ???+ tip "Serial for single-site"
@@ -72,6 +81,7 @@ To build the parrallel model execute the same build script but with the argumnen
 
     ./build3.sh mpi
 
+### Description of the build process
 
 The build script:
 
