@@ -32,6 +32,8 @@ CABLE has the directory structure:
 
 All applications use the `science/ util/ params/` directories. Offline applications also use the `offline/` directory. Coupled applications use the `coupled/` directory instead. We will not discuss the coupled applications any further here. Please refer to the documentation for a specific coupled application with CABLE to learn more.
 
+### Launching the build
+
 CABLE supports both serial and parallel applications. 
 
 ???+ tip "Serial for single-site"
@@ -57,6 +59,9 @@ To build the parrallel model execute the same build script but with the argumnen
 
     ./build3.sh mpi
 
+???+ warning
+    If you need to switch between a serial compilation and a parallel compilation, you need to completely [clean the previous build][clean-build] first.
+### Description of the build process
 
 The build script:
 
@@ -77,8 +82,17 @@ into the `.tmp/` directory. However, if for some reason you want the **.o** obje
     If you change the files in `.tmp/` directly, the next build will not pick up these changes and will overwrite them.
 
 One of the features of the build process is that only source files which are
-modified are re-built, followed by their dependents. This is possible because the .''tmp'' directory is
+modified are re-built, followed by their dependents. This is possible because the `.tmp/` directory is
 overwritten by the build script, preserving timestamps of the source files from their original location.
+
+### Cleaning the build
+
+From time to time, it might be useful to clean a previous build completely and restart the build from scratch. This is required 
+when switching between serial and parallel builds.
+
+To clean the build, you need to run:
+
+    ./build3.sh clean
 
 
 
@@ -87,3 +101,4 @@ overwritten by the build script, preserving timestamps of the source files from 
 [registration]: https://trac.nci.org.au/trac/cable/wiki/CABLE_Registration
 [build3]: https://trac.nci.org.au/svn/cable/trunk/offline/build3.sh
 [makefile]: https://trac.nci.org.au/svn/cable/trunk/offline/Makefile
+[clean-build]: compilation.md/#cleaning-the-build
