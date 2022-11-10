@@ -281,60 +281,60 @@ output calc of soil albedo based on colour? - Ticket #27</p>
 <path fill="none" stroke="#ff0000" d="M41.6,-186.17C46.84,-241.72 70.83,-470.79 115,-525 115.72,-525.88 116.48,-526.73 117.28,-527.54"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="115.35,-530.47 125.36,-533.94 119.7,-524.98 115.35,-530.47"/>
 </g>
-<!-- proc~energy_balance -->
-<g id="proc~~write_output~~CallsGraph_node3" class="node">
-<title>proc~energy_balance</title>
-<g id="a_proc~~write_output~~CallsGraph_node3"><a xlink:href=".././proc/energy_balance.html" xlink:title="energy_balance">
-<polygon fill="#d9534f" stroke="#d9534f" points="213,-516 115,-516 115,-492 213,-492 213,-516"/>
-<text text-anchor="middle" x="164" y="-501.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">energy_balance</text>
-</a>
-</g>
-</g>
-<!-- proc~write_output&#45;&gt;proc~energy_balance -->
-<g id="proc~~write_output~~CallsGraph_edge3" class="edge">
-<title>proc~write_output&#45;&gt;proc~energy_balance</title>
-<path fill="none" stroke="#ff0000" d="M40.15,-186.21C39.5,-230.42 42.78,-384.44 115,-478 117.34,-481.03 120.13,-483.75 123.18,-486.18"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="121.47,-489.25 131.71,-491.97 125.4,-483.46 121.47,-489.25"/>
-</g>
-<!-- proc~cable_abort -->
-<g id="proc~~write_output~~CallsGraph_node4" class="node">
-<title>proc~cable_abort</title>
-<g id="a_proc~~write_output~~CallsGraph_node4"><a xlink:href=".././proc/cable_abort.html" xlink:title="cable_abort">
-<polygon fill="#d9534f" stroke="#d9534f" points="528,-352 452,-352 452,-328 528,-328 528,-352"/>
-<text text-anchor="middle" x="490" y="-337.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_abort</text>
-</a>
-</g>
-</g>
-<!-- proc~write_output&#45;&gt;proc~cable_abort -->
-<g id="proc~~write_output~~CallsGraph_edge2" class="edge">
-<title>proc~write_output&#45;&gt;proc~cable_abort</title>
-<path fill="none" stroke="#ff0000" d="M44.62,-186.03C61.17,-232.08 127.87,-396.99 249,-445 316.76,-471.85 349.96,-481.58 413,-445 440.89,-428.81 429.74,-407.87 449,-382 454.79,-374.22 461.89,-366.35 468.49,-359.56"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="471.3,-361.7 475.9,-352.15 466.35,-356.75 471.3,-361.7"/>
-</g>
 <!-- proc~is_leapyear -->
-<g id="proc~~write_output~~CallsGraph_node5" class="node">
+<g id="proc~~write_output~~CallsGraph_node3" class="node">
 <title>proc~is_leapyear</title>
-<g id="a_proc~~write_output~~CallsGraph_node5"><a xlink:href=".././proc/is_leapyear.html" xlink:title="is_leapyear">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="200.5,-108 127.5,-108 127.5,-84 200.5,-84 200.5,-108"/>
-<text text-anchor="middle" x="164" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">is_leapyear</text>
+<g id="a_proc~~write_output~~CallsGraph_node3"><a xlink:href=".././proc/is_leapyear.html" xlink:title="is_leapyear">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="200.5,-516 127.5,-516 127.5,-492 200.5,-492 200.5,-516"/>
+<text text-anchor="middle" x="164" y="-501.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">is_leapyear</text>
 </a>
 </g>
 </g>
 <!-- proc~write_output&#45;&gt;proc~is_leapyear -->
-<g id="proc~~write_output~~CallsGraph_edge4" class="edge">
+<g id="proc~~write_output~~CallsGraph_edge3" class="edge">
 <title>proc~write_output&#45;&gt;proc~is_leapyear</title>
+<path fill="none" stroke="#ff0000" d="M40.15,-186.21C39.5,-230.42 42.78,-384.44 115,-478 117.34,-481.03 120.13,-483.75 123.18,-486.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="121.47,-489.25 131.71,-491.97 125.4,-483.46 121.47,-489.25"/>
+</g>
+<!-- nf90_put_var -->
+<g id="proc~~write_output~~CallsGraph_node4" class="node">
+<title>nf90_put_var</title>
+<polygon fill="#777777" stroke="#777777" points="531,-352 449,-352 449,-328 531,-328 531,-352"/>
+<text text-anchor="middle" x="490" y="-337.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_put_var</text>
+</g>
+<!-- proc~write_output&#45;&gt;nf90_put_var -->
+<g id="proc~~write_output~~CallsGraph_edge2" class="edge">
+<title>proc~write_output&#45;&gt;nf90_put_var</title>
+<path fill="none" stroke="#ff0000" d="M44.62,-186.03C61.17,-232.08 127.87,-396.99 249,-445 316.76,-471.85 349.96,-481.58 413,-445 440.89,-428.81 429.74,-407.87 449,-382 454.79,-374.22 461.89,-366.35 468.49,-359.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="471.3,-361.7 475.9,-352.15 466.35,-356.75 471.3,-361.7"/>
+</g>
+<!-- proc~energy_balance -->
+<g id="proc~~write_output~~CallsGraph_node5" class="node">
+<title>proc~energy_balance</title>
+<g id="a_proc~~write_output~~CallsGraph_node5"><a xlink:href=".././proc/energy_balance.html" xlink:title="energy_balance">
+<polygon fill="#d9534f" stroke="#d9534f" points="213,-108 115,-108 115,-84 213,-84 213,-108"/>
+<text text-anchor="middle" x="164" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">energy_balance</text>
+</a>
+</g>
+</g>
+<!-- proc~write_output&#45;&gt;proc~energy_balance -->
+<g id="proc~~write_output~~CallsGraph_edge5" class="edge">
+<title>proc~write_output&#45;&gt;proc~energy_balance</title>
 <path fill="none" stroke="#ff0000" d="M56.71,-161.89C71.57,-150.98 94.33,-134.76 115,-122 119.84,-119.01 125.05,-116 130.18,-113.13"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="132.16,-116.04 139.26,-108.17 128.81,-109.9 132.16,-116.04"/>
 </g>
-<!-- nf90_put_var -->
+<!-- proc~cable_abort -->
 <g id="proc~~write_output~~CallsGraph_node6" class="node">
-<title>nf90_put_var</title>
-<polygon fill="#777777" stroke="#777777" points="531,-310 449,-310 449,-286 531,-286 531,-310"/>
-<text text-anchor="middle" x="490" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_put_var</text>
+<title>proc~cable_abort</title>
+<g id="a_proc~~write_output~~CallsGraph_node6"><a xlink:href=".././proc/cable_abort.html" xlink:title="cable_abort">
+<polygon fill="#d9534f" stroke="#d9534f" points="528,-310 452,-310 452,-286 528,-286 528,-310"/>
+<text text-anchor="middle" x="490" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_abort</text>
+</a>
 </g>
-<!-- proc~write_output&#45;&gt;nf90_put_var -->
-<g id="proc~~write_output~~CallsGraph_edge5" class="edge">
-<title>proc~write_output&#45;&gt;nf90_put_var</title>
+</g>
+<!-- proc~write_output&#45;&gt;proc~cable_abort -->
+<g id="proc~~write_output~~CallsGraph_edge4" class="edge">
+<title>proc~write_output&#45;&gt;proc~cable_abort</title>
 <path fill="none" stroke="#ff0000" d="M79.18,-170.97C163.38,-165.16 360,-156.08 413,-193 446.33,-216.22 421.43,-247.17 449,-277 449.9,-277.97 450.85,-278.91 451.85,-279.81"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="450.07,-282.84 460.18,-286 454.24,-277.22 450.07,-282.84"/>
 </g>
@@ -422,48 +422,48 @@ output calc of soil albedo based on colour? - Ticket #27</p>
 <path fill="none" stroke="#00a9ff" d="M519.55,-256C530.83,-256 544.13,-256 556.88,-256"/>
 <polygon fill="#00a9ff" stroke="#00a9ff" points="556.95,-259.5 566.95,-256 556.95,-252.5 556.95,-259.5"/>
 </g>
-<!-- proc~i2sp -->
+<!-- proc~sp2sp -->
 <g id="proc~~write_output~~CallsGraph_node13" class="node">
-<title>proc~i2sp</title>
-<g id="a_proc~~write_output~~CallsGraph_node13"><a xlink:href=".././proc/i2sp.html" xlink:title="i2sp">
+<title>proc~sp2sp</title>
+<g id="a_proc~~write_output~~CallsGraph_node13"><a xlink:href=".././proc/sp2sp.html" xlink:title="sp2sp">
 <polygon fill="#d94e8f" stroke="#d94e8f" points="358,-108 304,-108 304,-84 358,-84 358,-108"/>
-<text text-anchor="middle" x="331" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">i2sp</text>
+<text text-anchor="middle" x="331" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sp2sp</text>
+</a>
+</g>
+</g>
+<!-- interface~toreal4&#45;&gt;proc~sp2sp -->
+<g id="proc~~write_output~~CallsGraph_edge14" class="edge">
+<title>interface~toreal4&#45;&gt;proc~sp2sp</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M191.14,-60.66C218.9,-67.72 262.96,-78.94 294,-86.84"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="293.42,-90.3 303.98,-89.38 295.15,-83.52 293.42,-90.3"/>
+</g>
+<!-- proc~i2sp -->
+<g id="proc~~write_output~~CallsGraph_node14" class="node">
+<title>proc~i2sp</title>
+<g id="a_proc~~write_output~~CallsGraph_node14"><a xlink:href=".././proc/i2sp.html" xlink:title="i2sp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="358,-66 304,-66 304,-42 358,-42 358,-66"/>
+<text text-anchor="middle" x="331" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">i2sp</text>
 </a>
 </g>
 </g>
 <!-- interface~toreal4&#45;&gt;proc~i2sp -->
-<g id="proc~~write_output~~CallsGraph_edge14" class="edge">
+<g id="proc~~write_output~~CallsGraph_edge13" class="edge">
 <title>interface~toreal4&#45;&gt;proc~i2sp</title>
-<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M191.14,-60.66C218.9,-67.72 262.96,-78.94 294,-86.84"/>
-<polygon fill="#0000ff" stroke="#0000ff" points="293.42,-90.3 303.98,-89.38 295.15,-83.52 293.42,-90.3"/>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M191.14,-54C218.78,-54 262.58,-54 293.59,-54"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="293.98,-57.5 303.98,-54 293.98,-50.5 293.98,-57.5"/>
 </g>
 <!-- proc~dp2sp -->
-<g id="proc~~write_output~~CallsGraph_node14" class="node">
+<g id="proc~~write_output~~CallsGraph_node15" class="node">
 <title>proc~dp2sp</title>
-<g id="a_proc~~write_output~~CallsGraph_node14"><a xlink:href=".././proc/dp2sp.html" xlink:title="dp2sp">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="358,-66 304,-66 304,-42 358,-42 358,-66"/>
-<text text-anchor="middle" x="331" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">dp2sp</text>
+<g id="a_proc~~write_output~~CallsGraph_node15"><a xlink:href=".././proc/dp2sp.html" xlink:title="dp2sp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="358,-24 304,-24 304,0 358,0 358,-24"/>
+<text text-anchor="middle" x="331" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">dp2sp</text>
 </a>
 </g>
 </g>
 <!-- interface~toreal4&#45;&gt;proc~dp2sp -->
 <g id="proc~~write_output~~CallsGraph_edge12" class="edge">
 <title>interface~toreal4&#45;&gt;proc~dp2sp</title>
-<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M191.14,-54C218.78,-54 262.58,-54 293.59,-54"/>
-<polygon fill="#0000ff" stroke="#0000ff" points="293.98,-57.5 303.98,-54 293.98,-50.5 293.98,-57.5"/>
-</g>
-<!-- proc~sp2sp -->
-<g id="proc~~write_output~~CallsGraph_node15" class="node">
-<title>proc~sp2sp</title>
-<g id="a_proc~~write_output~~CallsGraph_node15"><a xlink:href=".././proc/sp2sp.html" xlink:title="sp2sp">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="358,-24 304,-24 304,0 358,0 358,-24"/>
-<text text-anchor="middle" x="331" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sp2sp</text>
-</a>
-</g>
-</g>
-<!-- interface~toreal4&#45;&gt;proc~sp2sp -->
-<g id="proc~~write_output~~CallsGraph_edge13" class="edge">
-<title>interface~toreal4&#45;&gt;proc~sp2sp</title>
 <path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M191.14,-47.34C218.9,-40.28 262.96,-29.06 294,-21.16"/>
 <polygon fill="#0000ff" stroke="#0000ff" points="295.15,-24.48 303.98,-18.62 293.42,-17.7 295.15,-24.48"/>
 </g>
@@ -573,9 +573,9 @@ output calc of soil albedo based on colour? - Ticket #27</p>
 <polygon fill="#ff0000" stroke="#ff0000" points="449.59,-565.26 459.97,-563.12 450.52,-558.32 449.59,-565.26"/>
 </g>
 <!-- proc~equal_dp -->
-<g id="proc~~write_output~~CallsGraph_node24" class="node">
+<g id="proc~~write_output~~CallsGraph_node23" class="node">
 <title>proc~equal_dp</title>
-<g id="a_proc~~write_output~~CallsGraph_node24"><a xlink:href=".././proc/equal_dp.html" xlink:title="equal_dp">
+<g id="a_proc~~write_output~~CallsGraph_node23"><a xlink:href=".././proc/equal_dp.html" xlink:title="equal_dp">
 <polygon fill="#d94e8f" stroke="#d94e8f" points="520.5,-537 459.5,-537 459.5,-513 520.5,-513 520.5,-537"/>
 <text text-anchor="middle" x="490" y="-522.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">equal_dp</text>
 </a>
@@ -587,15 +587,15 @@ output calc of soil albedo based on colour? - Ticket #27</p>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M358.28,-542.49C383.16,-539.16 420.84,-534.12 449.37,-530.3"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="449.98,-533.75 459.42,-528.96 449.05,-526.81 449.98,-533.75"/>
 </g>
-<!-- proc~write_output_variable_r1&#45;&gt;proc~cable_abort -->
-<g id="proc~~write_output~~CallsGraph_edge25" class="edge">
-<title>proc~write_output_variable_r1&#45;&gt;proc~cable_abort</title>
-<path fill="none" stroke="#00ffb9" d="M379.15,-369.91C390.26,-367.03 402.05,-363.93 413,-361 422.42,-358.48 432.49,-355.73 442.1,-353.08"/>
-<polygon fill="#00ffb9" stroke="#00ffb9" points="443.22,-356.41 451.92,-350.37 441.35,-349.66 443.22,-356.41"/>
-</g>
 <!-- proc~write_output_variable_r1&#45;&gt;nf90_put_var -->
-<g id="proc~~write_output~~CallsGraph_edge26" class="edge">
+<g id="proc~~write_output~~CallsGraph_edge25" class="edge">
 <title>proc~write_output_variable_r1&#45;&gt;nf90_put_var</title>
+<path fill="none" stroke="#00ffb9" d="M379.15,-369.91C390.26,-367.03 402.05,-363.93 413,-361 421.45,-358.74 430.43,-356.29 439.13,-353.9"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="440.09,-357.27 448.8,-351.24 438.23,-350.52 440.09,-357.27"/>
+</g>
+<!-- proc~write_output_variable_r1&#45;&gt;proc~cable_abort -->
+<g id="proc~~write_output~~CallsGraph_edge26" class="edge">
+<title>proc~write_output_variable_r1&#45;&gt;proc~cable_abort</title>
 <path fill="none" stroke="#00ffb9" d="M394.65,-369.93C401.08,-367.48 407.33,-364.54 413,-361 433.86,-347.98 429.77,-334.32 449,-319 450.52,-317.79 452.12,-316.62 453.77,-315.49"/>
 <polygon fill="#00ffb9" stroke="#00ffb9" points="455.64,-318.44 462.3,-310.2 451.95,-312.49 455.64,-318.44"/>
 </g>
@@ -606,9 +606,9 @@ output calc of soil albedo based on colour? - Ticket #27</p>
 <polygon fill="#00ffb9" stroke="#00ffb9" points="454.24,-276.78 460.18,-268 450.07,-271.16 454.24,-276.78"/>
 </g>
 <!-- proc~range_abort -->
-<g id="proc~~write_output~~CallsGraph_node23" class="node">
+<g id="proc~~write_output~~CallsGraph_node24" class="node">
 <title>proc~range_abort</title>
-<g id="a_proc~~write_output~~CallsGraph_node23"><a xlink:href=".././proc/range_abort.html" xlink:title="range_abort">
+<g id="a_proc~~write_output~~CallsGraph_node24"><a xlink:href=".././proc/range_abort.html" xlink:title="range_abort">
 <polygon fill="#d9534f" stroke="#d9534f" points="529,-415 451,-415 451,-391 529,-391 529,-415"/>
 <text text-anchor="middle" x="490" y="-400.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">range_abort</text>
 </a>
@@ -620,33 +620,33 @@ output calc of soil albedo based on colour? - Ticket #27</p>
 <path fill="none" stroke="#00ffb9" d="M403.15,-391.52C415.83,-393.21 428.76,-394.94 440.61,-396.53"/>
 <polygon fill="#00ffb9" stroke="#00ffb9" points="440.34,-400.02 450.72,-397.88 441.27,-393.08 440.34,-400.02"/>
 </g>
-<!-- proc~write_output_parameter_r1d&#45;&gt;proc~cable_abort -->
-<g id="proc~~write_output~~CallsGraph_edge28" class="edge">
-<title>proc~write_output_parameter_r1d&#45;&gt;proc~cable_abort</title>
-<path fill="none" stroke="#00b9ff" d="M399.46,-226.12C404.33,-228.57 408.92,-231.5 413,-235 443.81,-261.47 421.43,-289.17 449,-319 449.9,-319.97 450.85,-320.91 451.85,-321.81"/>
-<polygon fill="#00b9ff" stroke="#00b9ff" points="450.07,-324.84 460.18,-328 454.24,-319.22 450.07,-324.84"/>
-</g>
 <!-- proc~write_output_parameter_r1d&#45;&gt;nf90_put_var -->
 <g id="proc~~write_output~~CallsGraph_edge27" class="edge">
 <title>proc~write_output_parameter_r1d&#45;&gt;nf90_put_var</title>
+<path fill="none" stroke="#00b9ff" d="M399.46,-226.12C404.33,-228.57 408.92,-231.5 413,-235 443.81,-261.47 421.43,-289.17 449,-319 449.9,-319.97 450.85,-320.91 451.85,-321.81"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="450.07,-324.84 460.18,-328 454.24,-319.22 450.07,-324.84"/>
+</g>
+<!-- proc~write_output_parameter_r1d&#45;&gt;proc~cable_abort -->
+<g id="proc~~write_output~~CallsGraph_edge29" class="edge">
+<title>proc~write_output_parameter_r1d&#45;&gt;proc~cable_abort</title>
 <path fill="none" stroke="#00b9ff" d="M394.65,-226.07C401.08,-228.52 407.33,-231.46 413,-235 433.86,-248.02 429.77,-261.68 449,-277 450.52,-278.21 452.12,-279.38 453.77,-280.51"/>
 <polygon fill="#00b9ff" stroke="#00b9ff" points="451.95,-283.51 462.3,-285.8 455.64,-277.56 451.95,-283.51"/>
 </g>
 <!-- proc~write_output_parameter_r1d&#45;&gt;proc~nc_abort -->
-<g id="proc~~write_output~~CallsGraph_edge29" class="edge">
+<g id="proc~~write_output~~CallsGraph_edge28" class="edge">
 <title>proc~write_output_parameter_r1d&#45;&gt;proc~nc_abort</title>
 <path fill="none" stroke="#00b9ff" d="M379.15,-226.09C390.26,-228.97 402.05,-232.07 413,-235 425.19,-238.26 438.46,-241.9 450.44,-245.22"/>
 <polygon fill="#00b9ff" stroke="#00b9ff" points="449.59,-248.61 460.16,-247.91 451.46,-241.87 449.59,-248.61"/>
 </g>
-<!-- proc~write_output_variable_r2&#45;&gt;proc~cable_abort -->
+<!-- proc~write_output_variable_r2&#45;&gt;nf90_put_var -->
 <g id="proc~~write_output~~CallsGraph_edge32" class="edge">
-<title>proc~write_output_variable_r2&#45;&gt;proc~cable_abort</title>
+<title>proc~write_output_variable_r2&#45;&gt;nf90_put_var</title>
 <path fill="none" stroke="#002eff" d="M391.09,-411.94C398.66,-409.46 406.15,-406.51 413,-403 434.88,-391.8 456.1,-373.38 470.53,-359.33"/>
 <polygon fill="#002eff" stroke="#002eff" points="473.21,-361.6 477.81,-352.06 468.27,-356.65 473.21,-361.6"/>
 </g>
-<!-- proc~write_output_variable_r2&#45;&gt;nf90_put_var -->
+<!-- proc~write_output_variable_r2&#45;&gt;proc~cable_abort -->
 <g id="proc~~write_output~~CallsGraph_edge33" class="edge">
-<title>proc~write_output_variable_r2&#45;&gt;nf90_put_var</title>
+<title>proc~write_output_variable_r2&#45;&gt;proc~cable_abort</title>
 <path fill="none" stroke="#002eff" d="M399.46,-411.88C404.33,-409.43 408.92,-406.5 413,-403 443.81,-376.53 421.43,-348.83 449,-319 449.9,-318.03 450.85,-317.09 451.85,-316.19"/>
 <polygon fill="#002eff" stroke="#002eff" points="454.24,-318.78 460.18,-310 450.07,-313.16 454.24,-318.78"/>
 </g>
@@ -662,17 +662,17 @@ output calc of soil albedo based on colour? - Ticket #27</p>
 <path fill="none" stroke="#002eff" d="M403.15,-414.48C415.83,-412.79 428.76,-411.06 440.61,-409.47"/>
 <polygon fill="#002eff" stroke="#002eff" points="441.27,-412.92 450.72,-408.12 440.34,-405.98 441.27,-412.92"/>
 </g>
-<!-- proc~write_output_parameter_r1&#45;&gt;proc~cable_abort -->
-<g id="proc~~write_output~~CallsGraph_edge34" class="edge">
-<title>proc~write_output_parameter_r1&#45;&gt;proc~cable_abort</title>
-<path fill="none" stroke="#5c00ff" d="M409.58,-340C420.47,-340 431.39,-340 441.49,-340"/>
-<polygon fill="#5c00ff" stroke="#5c00ff" points="441.69,-343.5 451.69,-340 441.69,-336.5 441.69,-343.5"/>
-</g>
 <!-- proc~write_output_parameter_r1&#45;&gt;nf90_put_var -->
 <g id="proc~~write_output~~CallsGraph_edge36" class="edge">
 <title>proc~write_output_parameter_r1&#45;&gt;nf90_put_var</title>
-<path fill="none" stroke="#5c00ff" d="M379.15,-327.91C390.26,-325.03 402.05,-321.93 413,-319 421.45,-316.74 430.43,-314.29 439.13,-311.9"/>
-<polygon fill="#5c00ff" stroke="#5c00ff" points="440.09,-315.27 448.8,-309.24 438.23,-308.52 440.09,-315.27"/>
+<path fill="none" stroke="#5c00ff" d="M409.58,-340C419.46,-340 429.36,-340 438.65,-340"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="438.85,-343.5 448.85,-340 438.85,-336.5 438.85,-343.5"/>
+</g>
+<!-- proc~write_output_parameter_r1&#45;&gt;proc~cable_abort -->
+<g id="proc~~write_output~~CallsGraph_edge34" class="edge">
+<title>proc~write_output_parameter_r1&#45;&gt;proc~cable_abort</title>
+<path fill="none" stroke="#5c00ff" d="M379.15,-327.91C390.26,-325.03 402.05,-321.93 413,-319 422.42,-316.48 432.49,-313.73 442.1,-311.08"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="443.22,-314.41 451.92,-308.37 441.35,-307.66 443.22,-314.41"/>
 </g>
 <!-- proc~write_output_parameter_r1&#45;&gt;proc~nc_abort -->
 <g id="proc~~write_output~~CallsGraph_edge35" class="edge">
@@ -680,17 +680,17 @@ output calc of soil albedo based on colour? - Ticket #27</p>
 <path fill="none" stroke="#5c00ff" d="M394.65,-327.93C401.08,-325.48 407.33,-322.54 413,-319 433.86,-305.98 429.77,-292.32 449,-277 450.52,-275.79 452.12,-274.62 453.77,-273.49"/>
 <polygon fill="#5c00ff" stroke="#5c00ff" points="455.64,-276.44 462.3,-268.2 451.95,-270.49 455.64,-276.44"/>
 </g>
-<!-- proc~write_output_parameter_r2&#45;&gt;proc~cable_abort -->
-<g id="proc~~write_output~~CallsGraph_edge37" class="edge">
-<title>proc~write_output_parameter_r2&#45;&gt;proc~cable_abort</title>
-<path fill="none" stroke="#e700ff" d="M379.15,-310.09C390.26,-312.97 402.05,-316.07 413,-319 422.42,-321.52 432.49,-324.27 442.1,-326.92"/>
-<polygon fill="#e700ff" stroke="#e700ff" points="441.35,-330.34 451.92,-329.63 443.22,-323.59 441.35,-330.34"/>
-</g>
 <!-- proc~write_output_parameter_r2&#45;&gt;nf90_put_var -->
 <g id="proc~~write_output~~CallsGraph_edge39" class="edge">
 <title>proc~write_output_parameter_r2&#45;&gt;nf90_put_var</title>
-<path fill="none" stroke="#e700ff" d="M409.58,-298C419.46,-298 429.36,-298 438.65,-298"/>
-<polygon fill="#e700ff" stroke="#e700ff" points="438.85,-301.5 448.85,-298 438.85,-294.5 438.85,-301.5"/>
+<path fill="none" stroke="#e700ff" d="M379.15,-310.09C390.26,-312.97 402.05,-316.07 413,-319 421.45,-321.26 430.43,-323.71 439.13,-326.1"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="438.23,-329.48 448.8,-328.76 440.09,-322.73 438.23,-329.48"/>
+</g>
+<!-- proc~write_output_parameter_r2&#45;&gt;proc~cable_abort -->
+<g id="proc~~write_output~~CallsGraph_edge37" class="edge">
+<title>proc~write_output_parameter_r2&#45;&gt;proc~cable_abort</title>
+<path fill="none" stroke="#e700ff" d="M409.58,-298C420.47,-298 431.39,-298 441.49,-298"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="441.69,-301.5 451.69,-298 441.69,-294.5 441.69,-301.5"/>
 </g>
 <!-- proc~write_output_parameter_r2&#45;&gt;proc~nc_abort -->
 <g id="proc~~write_output~~CallsGraph_edge38" class="edge">
@@ -698,20 +698,20 @@ output calc of soil albedo based on colour? - Ticket #27</p>
 <path fill="none" stroke="#e700ff" d="M379.15,-285.91C390.26,-283.03 402.05,-279.93 413,-277 425.19,-273.74 438.46,-270.1 450.44,-266.78"/>
 <polygon fill="#e700ff" stroke="#e700ff" points="451.46,-270.13 460.16,-264.09 449.59,-263.39 451.46,-270.13"/>
 </g>
-<!-- proc~write_output_parameter_r2d&#45;&gt;proc~cable_abort -->
-<g id="proc~~write_output~~CallsGraph_edge41" class="edge">
-<title>proc~write_output_parameter_r2d&#45;&gt;proc~cable_abort</title>
-<path fill="none" stroke="#ff008b" d="M394.65,-268.07C401.08,-270.52 407.33,-273.46 413,-277 433.86,-290.02 429.77,-303.68 449,-319 450.52,-320.21 452.12,-321.38 453.77,-322.51"/>
-<polygon fill="#ff008b" stroke="#ff008b" points="451.95,-325.51 462.3,-327.8 455.64,-319.56 451.95,-325.51"/>
-</g>
 <!-- proc~write_output_parameter_r2d&#45;&gt;nf90_put_var -->
 <g id="proc~~write_output~~CallsGraph_edge40" class="edge">
 <title>proc~write_output_parameter_r2d&#45;&gt;nf90_put_var</title>
-<path fill="none" stroke="#ff008b" d="M379.15,-268.09C390.26,-270.97 402.05,-274.07 413,-277 421.45,-279.26 430.43,-281.71 439.13,-284.1"/>
-<polygon fill="#ff008b" stroke="#ff008b" points="438.23,-287.48 448.8,-286.76 440.09,-280.73 438.23,-287.48"/>
+<path fill="none" stroke="#ff008b" d="M394.65,-268.07C401.08,-270.52 407.33,-273.46 413,-277 433.86,-290.02 429.77,-303.68 449,-319 450.52,-320.21 452.12,-321.38 453.77,-322.51"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="451.95,-325.51 462.3,-327.8 455.64,-319.56 451.95,-325.51"/>
+</g>
+<!-- proc~write_output_parameter_r2d&#45;&gt;proc~cable_abort -->
+<g id="proc~~write_output~~CallsGraph_edge42" class="edge">
+<title>proc~write_output_parameter_r2d&#45;&gt;proc~cable_abort</title>
+<path fill="none" stroke="#ff008b" d="M379.15,-268.09C390.26,-270.97 402.05,-274.07 413,-277 422.42,-279.52 432.49,-282.27 442.1,-284.92"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="441.35,-288.34 451.92,-287.63 443.22,-281.59 441.35,-288.34"/>
 </g>
 <!-- proc~write_output_parameter_r2d&#45;&gt;proc~nc_abort -->
-<g id="proc~~write_output~~CallsGraph_edge42" class="edge">
+<g id="proc~~write_output~~CallsGraph_edge41" class="edge">
 <title>proc~write_output_parameter_r2d&#45;&gt;proc~nc_abort</title>
 <path fill="none" stroke="#ff008b" d="M413.26,-256C426.07,-256 438.79,-256 450.04,-256"/>
 <polygon fill="#ff008b" stroke="#ff008b" points="450.33,-259.5 460.33,-256 450.33,-252.5 450.33,-259.5"/>
