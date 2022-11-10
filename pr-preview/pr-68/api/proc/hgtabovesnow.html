@@ -118,9 +118,9 @@
   is snow present</p>
 <p>The height of canopy above snow level is simply the difference between
  the height of the canopy above the ground and the depth of snow.
- <script type="math/tex; mode=display"> HgtAboveSnow_comp = HGT_pft - SnowHeight </script>
+ <script type="math/tex; mode=display"> HgtAboveSnow\_comp = HGT\_pft - SnowHeight </script>
  The snow height is obtained from the snow amount and the snow density:
- <script type="math/tex; mode=display"> SnowHeight = 1.2 * \frac(SnowDepth, SnowDensity) </script>
+ <script type="math/tex; mode=display"> SnowHeight = 1.2 * \frac{SnowDepth}{SnowDensity} </script>
 <strong>the multipler 1.2 needs to be followed up</strong></p>
 <p>Additionally, we ensure the snow density is larger than a minimum and the
  canopy height above snow is higher than 10 times the minimum surface
@@ -131,9 +131,12 @@
 <p>restricts the Effective snow density to be &gt;= "a" set minimum</p>
 </li>
 <li>
-<p>returns the effective canopy height above snow after comparison to
- the minimum allowed canopy height.</p>
+<p>evaluates the mininimum allowed canopy height 
+  (fixed at 10 * min. surface roughness)</p>
 </li>
+<li>calculates the height of the canopy above snow </li>
+<li>returns the effective canopy height above snow after comparison to
+ the minimum allowed canopy height.</li>
 </ul>
 
     <h3>Arguments</h3>

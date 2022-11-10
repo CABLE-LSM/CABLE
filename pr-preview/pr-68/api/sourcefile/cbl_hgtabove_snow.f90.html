@@ -162,9 +162,9 @@
 <a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">  </span><span class="c">!</span>
 <a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">  </span><span class="c">! The height of canopy above snow level is simply the difference between</span>
 <a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">  </span><span class="c">! the height of the canopy above the ground and the depth of snow.</span>
-<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">  </span><span class="c">! \[ HgtAboveSnow_comp = HGT_pft - SnowHeight \]</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">  </span><span class="c">! \[ HgtAboveSnow\_comp = HGT\_pft - SnowHeight \]</span>
 <a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">  </span><span class="c">! The snow height is obtained from the snow amount and the snow density:</span>
-<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">  </span><span class="c">! \[ SnowHeight = 1.2 * \frac(SnowDepth, SnowDensity) \]</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">  </span><span class="c">! \[ SnowHeight = 1.2 * \frac{SnowDepth}{SnowDensity} \]</span>
 <a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">  </span><span class="c">! **the multipler 1.2 needs to be followed up**</span>
 <a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">  </span><span class="c">!</span>
 <a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">  </span><span class="c">! Additionally, we ensure the snow density is larger than a minimum and the</span>
@@ -197,11 +197,11 @@
 <a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">  </span><span class="c">! * restricts the Effective snow density to be &gt;= &quot;a&quot; set minimum</span>
 <a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">  </span><span class="n">SnowDensity_eff</span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="w"> </span><span class="n">SnowDensity_min</span><span class="p">,</span><span class="w"> </span><span class="n">SnowDensity</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">  </span>
-<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">  </span><span class="c">! * evaluates the mininimum allowed canopy height </span>
-<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">  </span><span class="c">!  (fixed at 10 * min. surface roughness)</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">  </span><span class="c">!! * evaluates the mininimum allowed canopy height </span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">  </span><span class="c">!!  (fixed at 10 * min. surface roughness)</span>
 <a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">  </span><span class="n">HgtAboveSnow_min</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">fmin</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">z0surf_min</span><span class="w"></span>
 <a id="ln-55" name="ln-55" href="#ln-55"></a>
-<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">  </span><span class="c">! * calculates the height of the canopy above snow </span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">  </span><span class="c">!! * calculates the height of the canopy above snow </span>
 <a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">  </span><span class="n">HgtAboveSnow_comp</span><span class="w"> </span><span class="o">=</span><span class="w">   </span><span class="n">HGT_pft</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="mf">1.2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">SnowDepth</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">SnowDensity_eff</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-58" name="ln-58" href="#ln-58"></a>
 <a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">  </span><span class="c">!* * returns the effective canopy height above snow after comparison to</span>
