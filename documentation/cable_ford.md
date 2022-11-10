@@ -8,6 +8,7 @@ coloured_edges: true
 preprocess: false
 display: public
 display: private
+css: ford_css.css
 ---
 
 The Community Atmosphere Biosphere Land Exchange (CABLE) model is developed by a community of users under the CSIRO - MIT BSD license. 
