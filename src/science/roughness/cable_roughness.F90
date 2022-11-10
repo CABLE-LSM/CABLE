@@ -35,60 +35,66 @@ USE cable_phys_constants_mod, ONLY : CCSW    => CSW
 USE cable_phys_constants_mod, ONLY : CGRAV   => GRAV
 USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH 
 
-!* The cable_roughness MODULE calculates the roughness parameters and the
-!  aerodynamic contribution to the resistances controlling the fluxes of momentum,
-!  heat and water vapour between the land and atmosphere for each land point.
-!  Formulations take into account vegetation and snow cover. The dependence on
-!  atmospheric conditions (surface heat fluxes) is incorporated later within the
-!  [[cable_canopy_module]].
-!  The scientific basis for the formulae is a combination of Localised Near Field theory
-!  for aerodynamic transfer within canopies (for the heat and water vapour fluxes)
-!  and bulk formulae for the roughness length and displacement height
-!  accounting for roughness sublayer effects (for the momentum flux)
-!  The primary references for these formulations are
+!*# Overview
 !
-!  * Raupach MR (1989) QJRMS 115:609-632 doi:10.1256/smsqj.48709
-!  * Raupach MR (1992) BLM 60:375-395 doi:10.1007/BF00155203
-!  * Raupach MR (1994) BLM 71:211-216 doi:10.1007/BF00709229
-!  * Kowalczyk et al. (2006) CABLE documentation
+! The procedures contained in this module calculate the roughness parameters
+! and the aerodynamic contribution to the resistances controlling the fluxes 
+! of momentum, heat and water vapour between the land and atmosphere for each 
+! land point.
 !
-! Two parameters are introduced \(z_{0,min}\) = 1E-7m and
-! \(z_{0,minPF}\) = 1E-4m which are the minimum values for the roughness
-! length in the cases of bare soil and permanent ice land points (respectively)
+! The formulations take into account vegetation and snow cover. The dependence ! on atmospheric conditions (surface heat fluxes) is incorporated later within ! the [[cable_canopy_module]].
+! 
+!## Scientific description
 !
-! <br></br>
-!  The MODULE is organised as a single SUBROUTINE [[ruff_resist]] which contains
-!  IF/THEN cases in two areas, depending on
+! The scientific basis for the formulae is a combination of Localised Near 
+! Field theory for aerodynamic transfer within canopies (for the heat and 
+! water vapour fluxes) and bulk formulae for the roughness length and 
+! displacement height accounting for roughness sublayer effects (for the 
+! momentum flux).
 !
-!  1. Whether the soil model used is SLI or the default (soilsnow)
-!  2. Whether the land point is vegetated (LAI > LAI_THRESH) or not
+! The calculations take into account whether:
+! 
+! 1. the soil model used is SLI or the default (soilsnow)
+! 2. the land point is vegetated (LAI > LAI_THRESH) or not
+!
+! The primary references for these formulations are
+!
+! * [Raupach MR (1989)](https://doi.org/10.1002/qj.49711548710)
+! * [Raupach MR (1992)](https://doi.org/10.1007/BF00155203)
+! * [Raupach MR (1994)](https://doi.org/10.1007/BF00709229)
+! * [Kowalczyk et al. (2006)](http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf)
 !
 ! <br></br>
 ! The principal outputs from the MODULE are
 !
-!  * heights (above the displacement height) for the forcing meteorology, in m
-!    (rough%zref_tq and rough%zref_uv)
-!  * current values for canopy height, in m, and leaf area, in m2/m2,
-!    accounting for presence of snow (rough%hruff and rough%vlaiw)
-!  * the aerodynamic roughness length for soil and snow, in m
-!    (rough%z0soil, rough%z0ssoilsn)
-!  * the aerodynamic roughness length for the surface (canopy+soil+snow), in m
-!    (rough%z0m)
-!  * the displacement height of the surface (if vegetated, =0.0 if not), in m
-!    (rough%disp)
-!  * the depth of roughness sublayer, in m (if vegetated, rough%zruffs)
-!  * the extinction coefficient for the wind speed profile within the canopy, \(c_{0}\),
-!    in units of per m (rough%coexp). \(c_{0}\) is defined to be the coefficient
-!    within an expontial wind profile, i.e.
-!    the wind speed at height \(z\) above the ground within a canopy of height \(h_c\)
-!    is given by \( U(z) = U_{h} \exp\{ c_{0} (z-h_c) \} \) where \(U_h\)
-!    is the wind speed at canopy top.
-!  * the ratio of the friction velocity, \(u_*\), to the wind speed at canopy top
-!    (rough%usuh)
-!  * values for the *normalized* aerodynamic resistances for the turbulent transfer
-!    of scalars across two layers of atmosphere
-!      - from the soil/snow surface to the displacement height (rough%rt0us)
-!      - from the displacement height to the reference level (rough%rt1us)
+! * `rough%zref_tq`: height above the displacement height for the 
+!    air temperature and humidity (m)
+! * `rough%zref_uv`: height above the displacement height for the 
+!    wind speeds (m)
+! * `rough%hruff`: the canopy height accounting for the presence 
+!    of snow (m)
+! * `canopy%vlaiw`: the leaf area index accounting for the presence
+!    of snow (\(m^2/m^2\))
+! * `rough%z0soil`: the aerodynamic roughness length for soil (m)
+! * `rough%z0ssoilsn`: the aerodynamic roughness lenght for snow (m)
+! * `roug%z0m`: the aerodynamic roughness length for the surface 
+!    (canopy+soil+snow) (m)
+! * `rough%disp`: the displacement height of the surface 
+!    (=0.0 if not vegetated) (m)
+! * `rough%zruffs`: the depth of the roughness sublayer for vegetated
+!    tiles (m)
+! * `rough%coexp`: the extinction coefficient for the wind speed profile 
+!    within the canopy, \(c_{0}\) (m). \(c_{0}\) is defined to be the 
+!    coefficient within an expontial wind profile, i.e.
+!    the wind speed at height \(z\) above the ground within a canopy of 
+!    height \(h_c\) is given by \( U(z) = U_{h} \exp\{ c_{0} (z-h_c) \} \) 
+!    where \(U_h\) is the wind speed at canopy top.
+! * `rough%usuh`: the ratio of the friction velocity, \(u_*\), to the wind 
+!    speed at canopy top (-)
+! * `rough%rt0us`: *normalised* aerodynamic resitance for the turbulent
+!    transfer from the soil/snow surface to the displacement height (-)
+! * `rough%rt1us`: *normalised* aerodynamic resistance for the turbulent 
+!    transfer from the displacement height to the reference level (-)
 !
 ! The aerodynamic resistances for the current time step are evaluated later by dividing
 ! the *normalized resistances* by the current time step's friction velocity.
@@ -104,7 +110,10 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 IMPLICIT NONE
    
 real, parameter :: z0soilsn_min = 1.e-7
+  !! Minimum value for the roughness length for bare soil, `(z_{0,min}`) (m)
 real, parameter :: z0soilsn_min_PF = 1.e-4
+  !! Minimum value for the roughness length for permanent ice on land, 
+  !! `(z_{0,minPF}\) (m)
  
 PRIVATE
 PUBLIC ruff_resist
