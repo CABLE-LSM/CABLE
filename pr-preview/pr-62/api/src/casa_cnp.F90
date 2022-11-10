@@ -176,17 +176,22 @@ CONTAINS
 
 
   SUBROUTINE casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LALLOC)
-    ! compute fraction of net photosynthate allocated to leaf, wood and froot
+    !* Computes the fraction of net photosynthate allocated to leaf, wood 
+    ! and froot using an allocation scheme modified from 
+    ! [Pierre Friedlingstein](https://doi.org/10.1046/j.1365-2486.1999.00269.x).
     !
-    ! inputs
-    !   moistavg(mp)           as an argument (volume fraction)
-    !   tsoilavg(mp)           as an argument (K)
-    !   btran(mp)              as an argument (dimensionless)
-    ! outputs:
-    !   fracCalloc(mp,mplant1)
+    ! Implementation by Qian Zhang and Ying Ping Wang in 2005
+
+    ! Inputs:
     !
-    ! modified Piere's alocation scheme and implemented by Qian Zhang and YP Wang in 2005
-	! [Pierre Friedlingstein](https://doi.org/10.1046/j.1365-2486.1999.00269.x)
+    ! - moistavg(mp)           as an argument (volume fraction)
+    ! - tsoilavg(mp)           as an argument (K)
+    ! - btran(mp)              as an argument (dimensionless)
+    !
+    ! Outputs:
+    !
+    ! - fracCalloc(mp,mplant1)
+    !
     ! input: leaf stage
     !        leaf area
 
@@ -463,9 +468,10 @@ CONTAINS
   END SUBROUTINE casa_allocation
 
   SUBROUTINE casa_wolf(veg,casabiome,casaflux,casapool,casamet)
-    ! carbon allocation implemented by Dan Qiu and YP Wang in 2011 based on
-    ! [Adam Wolf](https://doi.org/10.1890/10-1201.1) and (https://doi:10.1029/2010GB003917)
-    ! 
+    !* Carbon allocation algorithm implemented by Dan Qiu and YP Wang in 2011 
+    ! based on Adam Wolf [1](https://doi.org/10.1890/10-1201.1) and 
+    ! [2](https://doi:10.1029/2010GB003917)
+    
     IMPLICIT NONE
     TYPE (veg_parameter_type),  INTENT(IN) :: veg  ! vegetation parameters
     TYPE (casa_biome),          INTENT(IN) :: casabiome
