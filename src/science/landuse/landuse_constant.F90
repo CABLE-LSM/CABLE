@@ -6,7 +6,7 @@ MODULE landuse_constant
   IMPLICIT NONE
   !  integer, parameter                     :: sp =selected_real_kind(8)
   !  integer, parameter                     :: dp =selected_real_kind(16)
-  !> number of land use states as in HYDE land use dataset processed by  
+  !| number of land use states as in HYDE land use dataset processed by  
   ! [George Hurtt](https://doi.org/10.5194/gmd-13-5425-2020)
   !
   INTEGER,   PARAMETER                   :: mstate   = 12  ! number of land use states
