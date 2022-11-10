@@ -583,7 +583,7 @@ MODULE landuse_variable
    END SUBROUTINE landuse_deallocate_mland
 
    SUBROUTINE landuse_allocate_mp(mpx,ms,msn,nrb,mplant,mlitter,msoil,mwood,ncp,ncs,lucmp)
-   !1 Allocates the `luc%var(mp)` variables.
+   !! Allocates the `luc%var(mp)` variables.
    integer    mpx,ms,msn,nrb,mplant,mlitter,msoil,mwood,ncp,ncs
    TYPE(landuse_mp), INTENT(INOUT)  :: lucmp
 
