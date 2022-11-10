@@ -202,6 +202,7 @@ MODULE landuse_variable
  CONTAINS
 
   SUBROUTINE landuse_allocate_mland(mland,luc)
+  !! Allocates the `luc%%var(mland,mvmax)` variables
    use landuse_constant
    IMPLICIT NONE
    TYPE(landuse_mland), INTENT(INOUT)  :: luc
@@ -453,6 +454,7 @@ MODULE landuse_variable
    END SUBROUTINE landuse_allocate_mland
 
    SUBROUTINE landuse_deallocate_mland(luc)
+   !! Deallocates the `luc%var(mland,mvmax)` variables
    IMPLICIT NONE
    TYPE(landuse_mland), INTENT(INOUT)  :: luc
 
@@ -581,6 +583,7 @@ MODULE landuse_variable
    END SUBROUTINE landuse_deallocate_mland
 
    SUBROUTINE landuse_allocate_mp(mpx,ms,msn,nrb,mplant,mlitter,msoil,mwood,ncp,ncs,lucmp)
+   !1 Allocates the `luc%var(mp)` variables.
    integer    mpx,ms,msn,nrb,mplant,mlitter,msoil,mwood,ncp,ncs
    TYPE(landuse_mp), INTENT(INOUT)  :: lucmp
 
@@ -649,6 +652,7 @@ MODULE landuse_variable
    END SUBROUTINE landuse_allocate_mp
 
    SUBROUTINE landuse_deallocate_mp(mpx,ms,msn,nrb,mplant,mlitter,msoil,mwood,lucmp)
+   !! Deallocate the `luc%var(mp)` variables
    integer     mpx,ms,msn,nrb,mplant,mlitter,msoil,mwood
    TYPE(landuse_mp), INTENT(INOUT)  :: lucmp
      ! patch-generic variables
@@ -691,7 +695,7 @@ END MODULE landuse_variable
   subroutine landuse_driver(mlon,mlat,landmask,arealand,ssnow,soil,veg,bal,canopy,  &
                             phen,casapool,casabal,casamet,casabiome,casaflux,bgc,rad, &
                             cstart,cend,nap,lucmp)
-  ! main drivers of land use change
+  !! Main driver for the land use change
   !  
   USE cable_IO_vars_module, ONLY: mask,patch,landpt, latitude, longitude
   USE cable_def_types_mod,  ONLY: mp,mvtype,mstype,mland,r_2,ms,msn,nrb,ncp,ncs,           &
@@ -1851,7 +1855,7 @@ END SUBROUTINE landuse_transitx
  END SUBROUTINE landuse_land2mpx
 
  SUBROUTINE landuse_checks(mlon,mlat,landmask,luc)
- ! check mass balance and write output CNP pool sizes for each PFT
+ !! Checks the mass balance and writes the output CNP pool sizes for each PFT
  use landuse_constant,     ONLY: mvmax
  use landuse_variable,     ONLY: landuse_mland
  USE cable_def_types_mod,  ONLY: mland,r_2
