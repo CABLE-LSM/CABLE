@@ -6,6 +6,21 @@ To install CABLE you need to have the following already installed on your system
  - a Fortran compiler
  - the netCDF library
 
+## Flowchart of the installation
+
+``` mermaid
+graph TD
+    A(Checkout CABLE with SVN):::UserAction -->|Serial?| B(Run `offline/build3.sh`):::UserAction;
+    B --> D[load modules, set compiler flags, create .tmp/ directory];
+    D -->|Serial?| E[Run `serial_cable`];
+    E --> G[executable `cable`]
+    A -->|Parallel?| C(Run `offline/build3.sh mpi`):::UserAction;
+    C --> D;   
+    D -->|Parallel?| F[Run `parallel_cable`];
+    F --> H[executable `cable_mpi`];
+    classDef UserAction fill: #FEFB8E
+```
+
 ## Getting the CABLE source code
 
 CABLE can be downloaded from the [subversion repository][cable-svn] hosted at [NCI][NCI] once a user has requested admission to the CABLE software group at NCI, as described [here][registration]. To install the latest version of CABLE, you simply need to checkout the `trunk`:
@@ -79,7 +94,6 @@ into the `.tmp/` directory. However, if for some reason you want the **.o** obje
 One of the features of the build process is that only source files which are
 modified are re-built, followed by their dependents. This is possible because the .''tmp'' directory is
 overwritten by the build script, preserving timestamps of the source files from their original location.
-
 
 
 [cable-svn]: https://trac.nci.org.au/svn/cable
