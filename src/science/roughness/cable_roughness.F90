@@ -110,7 +110,7 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 IMPLICIT NONE
 
 real, parameter :: z0soilsn_min = 1.e-7
-  !! Minimum value for the roughness length for bare soil, `(z_{0,min}`) (m)
+  !! Minimum value for the roughness length for bare soil, \(z_{0,min}\) (m)
 real, parameter :: z0soilsn_min_PF = 1.e-4
   !! Minimum value for the roughness length for permanent ice on land, 
   !! `(z_{0,minPF}\) (m)
