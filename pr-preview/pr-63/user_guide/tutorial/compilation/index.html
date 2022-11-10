@@ -481,6 +481,33 @@
     Building CABLE
   </a>
   
+    <nav class="md-nav" aria-label="Building CABLE">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#launching-the-build" class="md-nav__link">
+    Launching the build
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#description-of-the-build-process" class="md-nav__link">
+    Description of the build process
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cleaning-the-build" class="md-nav__link">
+    Cleaning the build
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -1028,6 +1055,33 @@
     Building CABLE
   </a>
   
+    <nav class="md-nav" aria-label="Building CABLE">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#launching-the-build" class="md-nav__link">
+    Launching the build
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#description-of-the-build-process" class="md-nav__link">
+    Description of the build process
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cleaning-the-build" class="md-nav__link">
+    Cleaning the build
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -1073,6 +1127,7 @@ offline/
 coupled/
 </code></pre>
 <p>All applications use the <code>science/ util/ params/</code> directories. Offline applications also use the <code>offline/</code> directory. Coupled applications use the <code>coupled/</code> directory instead. We will not discuss the coupled applications any further here. Please refer to the documentation for a specific coupled application with CABLE to learn more.</p>
+<h3 id="launching-the-build">Launching the build</h3>
 <p>CABLE supports both serial and parallel applications. </p>
 <details class="tip" open="open">
 <summary>Serial for single-site</summary>
@@ -1096,6 +1151,11 @@ the build script. </p>
 <p>To build the parrallel model execute the same build script but with the argumnent <strong>mpi</strong>.   </p>
 <pre><code>./build3.sh mpi
 </code></pre>
+<details class="warning" open="open">
+<summary>Warning</summary>
+<p>If you need to switch between a serial compilation and a parallel compilation, you need to completely <a href="compilation.md/#cleaning-the-build">clean the previous build</a> first.</p>
+</details>
+<h3 id="description-of-the-build-process">Description of the build process</h3>
 <p>The build script:</p>
 <ol>
 <li>loads modules for the Fortran compiler and the netCDF library</li>
@@ -1112,8 +1172,14 @@ into the <code>.tmp/</code> directory. However, if for some reason you want the 
 <p>If you change the files in <code>.tmp/</code> directly, the next build will not pick up these changes and will overwrite them.</p>
 </details>
 <p>One of the features of the build process is that only source files which are
-modified are re-built, followed by their dependents. This is possible because the .''tmp'' directory is
+modified are re-built, followed by their dependents. This is possible because the <code>.tmp/</code> directory is
 overwritten by the build script, preserving timestamps of the source files from their original location.</p>
+<h3 id="cleaning-the-build">Cleaning the build</h3>
+<p>From time to time, it might be useful to clean a previous build completely and restart the build from scratch. This is required 
+when switching between serial and parallel builds.</p>
+<p>To clean the build, you need to run:</p>
+<pre><code>./build3.sh clean
+</code></pre>
 
   <hr>
 <div class="md-source-file">
