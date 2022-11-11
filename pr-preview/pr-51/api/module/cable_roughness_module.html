@@ -132,8 +132,8 @@
  of momentum, heat and water vapour between the land and atmosphere for each 
  land point.</p>
 <p>The formulations take into account vegetation and snow cover. The dependence
- on atmospheric conditions (surface heat fluxes) is incorporated later within
- the <a href="../module/cable_canopy_module.html">cable_canopy_module</a>.</p>
+ on atmospheric conditions (i.e. the surface heat fluxes) is incorporated
+ later within the <a href="../proc/define_canopy.html">define_canopy</a>.</p>
 <h2>Scientific description</h2>
 <p>The scientific basis for the formulae is a combination of Localised Near 
  Field theory for aerodynamic transfer within canopies (for the heat and 
@@ -190,8 +190,8 @@
  by dividing the <em>normalized resistances</em> by the current time step's
  friction velocity <code>canopy%us</code>.  rough%rt1us is evaluated in three
  subparts (<code>rough%rt1usa</code>, <code>rough%rt1usb</code>, and <code>rough%rt1usc</code>).
- Each of the normalized resistances are given by theoretical formulae
- as given by  the references.  One of the resistance terms (<code>rough%rt1usc</code>)
+ Each of the normalized resistances are given by the theoretical formulae
+ given by the references.  One of the resistance terms (<code>rough%rt1usc</code>)
  is evaluated in <a href="../proc/define_canopy.html">define_canopy</a>.</p>
 <p>Further detail given in SUBROUTINE <a href="../proc/ruff_resist.html">ruff_resist</a> </p>
 <br>        <div class="panel panel-default">

@@ -6,11 +6,14 @@ MODULE cbl_hruff_mod
 
 CONTAINS
 
+!* The procedure in this module evalutes the canopy height
+!  above the ground or snow surface.   
+
 subroutine HgtAboveSnow( HeightAboveSnow, mp, z0surf_min, HGT_pft, &
      SnowDepth, SnowDensity )
 
-  !* Subroutine computes height of canopy above ground/snow surface when there
-  !  is snow present
+  !* This subroutine computes the height of the canopy above ground/snow
+  !  surface when there is snow present
   !
   !  inputs:
   !
@@ -24,7 +27,7 @@ subroutine HgtAboveSnow( HeightAboveSnow, mp, z0surf_min, HGT_pft, &
   !
   !  * HeightAboveSnow (mp) - effective height of canopy (m)
   !
-  !  The output variable was formerly known as rough%hruff
+  !  The `HeightAboveSnow` was formerly known as rough%hruff
   !
 
   implicit none

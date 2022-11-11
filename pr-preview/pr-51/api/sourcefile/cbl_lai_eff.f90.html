@@ -163,14 +163,14 @@
 <a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">                    </span><span class="n">reducedLAIdue2snow</span><span class="w"> </span><span class="p">)</span><span class="w"> </span>
 <a id="ln-16" name="ln-16" href="#ln-16"></a>
 <a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">  </span><span class="c">!* This subroutine computes the leaf-area index of a canopy when there is snow</span>
-<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">  </span><span class="c">! present.  The formulae assume that leaf area is distributed uniformly</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">  </span><span class="c">! present.  The formulae assume that the leaf area is distributed uniformly</span>
 <a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">  </span><span class="c">! in the vertical within the canopy.</span>
 <a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">  </span><span class="c">!</span>
 <a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">  </span><span class="c">! inputs:</span>
 <a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">  </span><span class="c">!</span>
 <a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">  </span><span class="c">! * mp - number of land points</span>
 <a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">  </span><span class="c">! * LAI_PFT (mp) - leaf area with no snow (m\(^2\) m\(^{-2})\)</span>
-<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">  </span><span class="c">! * HGT_pft(mp) - height of canopy with no snow (m)</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">  </span><span class="c">! * HGT_pft (mp) - height of canopy with no snow (m)</span>
 <a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">  </span><span class="c">! * HgtAboveSnow (mp) - height of canopy above snow surface (m) </span>
 <a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">  </span><span class="c">!</span>
 <a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">  </span><span class="c">! outputs:</span>
@@ -197,16 +197,16 @@
 <a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">  </span>
 <a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">  </span><span class="c">! LAI decreases due to snow:</span>
 <a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">  </span><span class="n">reducedLAIdue2snow</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LAI_PFT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">FracOfCanopyAboveSnow</span><span class="w"></span>
-<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">  </span><span class="c">!* Leaf area, accounting for the presence of snow, is given by</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">  </span><span class="c">!* Leaf area, LAI, accounting for the presence of snow, is given by</span>
 <a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">  </span><span class="c">!</span>
 <a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">  </span><span class="c">! \( LAI_{snow} = LAI_{nosnow} h_{c,snow} / \max[0.01, h_{c,nosnow} ] \)</span>
 <a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">  </span><span class="c">!</span>
-<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">  </span><span class="c">! where \(h_{c,snow}\) is evaluated in [[HgtAboveSnow]]</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">  </span><span class="c">! where \(h_{c,snow}\) is evaluated in [[HgtAboveSnow]].</span>
 <a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">  </span><span class="c">! The LAI is decreased proportionally to the canopy height with/without snow.</span>
 <a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">  </span><span class="c">!</span>
 <a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">  </span><span class="c">! The effective canopy height used to evaluate the</span>
 <a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">  </span><span class="c">! proportional decrease in LAI takes a minimum value of 0.01m.</span>
-<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">  </span><span class="c">! This conditions prevents numerical issues when the canopy height</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">  </span><span class="c">! This condition prevents numerical issues when the canopy height</span>
 <a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">  </span><span class="c">! (without snow) is small.</span>
 <a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">  </span><span class="c">!</span>
 <a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">  </span><span class="c">! &lt;br&gt;&lt;/br&gt;</span>
@@ -215,7 +215,7 @@
 <a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">  </span><span class="c">! Can HgtAboveSnow be greater than MAX(0.01, Hgt_PFT)?</span>
 <a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">  </span><span class="c">! If yes then there is an issue to resolve.</span>
 <a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">  </span><span class="c">! HgtAboveSnow can sit at its minimum value of 10 \(z_{0,min}\) so if</span>
-<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">  </span><span class="c">! 10 \(z_{0,min} &gt; 0.01 &gt; h_{c,nosnow} \) then LAI is increased if</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">  </span><span class="c">! 10 \(z_{0,min} &gt; 0.01 &gt; h_{c,nosnow} \) then LAI can increase if</span>
 <a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">  </span><span class="c">! there is snow!  </span>
 <a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">  </span><span class="c">!</span>
 <a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">  </span>

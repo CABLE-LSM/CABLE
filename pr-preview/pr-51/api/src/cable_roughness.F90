@@ -43,8 +43,8 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 ! land point.
 !
 ! The formulations take into account vegetation and snow cover. The dependence
-! on atmospheric conditions (surface heat fluxes) is incorporated later within
-! the [[cable_canopy_module]].
+! on atmospheric conditions (i.e. the surface heat fluxes) is incorporated
+! later within the [[define_canopy]].
 ! 
 !## Scientific description
 !
@@ -104,8 +104,8 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 ! by dividing the *normalized resistances* by the current time step's
 ! friction velocity `canopy%us`.  rough%rt1us is evaluated in three
 ! subparts (`rough%rt1usa`, `rough%rt1usb`, and `rough%rt1usc`).
-! Each of the normalized resistances are given by theoretical formulae
-! as given by  the references.  One of the resistance terms (`rough%rt1usc`)
+! Each of the normalized resistances are given by the theoretical formulae
+! given by the references.  One of the resistance terms (`rough%rt1usc`)
 ! is evaluated in [[define_canopy]].
 !
 !
@@ -175,12 +175,11 @@ REAL, DIMENSION(mp) ::                                                      &
   dh         ! d/h where d is zero-plane displacement
 integer :: i
 
-!| * evaluates the canopy height and leaf area given the presence of snow 
-!    (or not) using [[HgtAboveSnow]] and [[LAI_eff]]
-
 ! Set canopy height above snow level:
 call HgtAboveSnow( HeightAboveSnow, mp, z0soilsn_min, veg%hc, ssnow%snowd, &
-                   ssnow%ssdnn )
+     ssnow%ssdnn )
+!* * evaluates the canopy height and leaf area given the presence of snow 
+!    (or not) using [[HgtAboveSnow]] and [[LAI_eff]]
 rough%hruff =  HeightAboveSnow
 
 ! LAI decreases due to snow: formerly canopy%vlaiw
