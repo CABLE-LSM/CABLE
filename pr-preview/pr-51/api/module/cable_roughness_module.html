@@ -131,7 +131,9 @@
  and the aerodynamic contribution to the resistances controlling the fluxes 
  of momentum, heat and water vapour between the land and atmosphere for each 
  land point.</p>
-<p>The formulations take into account vegetation and snow cover. The dependence ! on atmospheric conditions (surface heat fluxes) is incorporated later within ! the <a href="../module/cable_canopy_module.html">cable_canopy_module</a>.</p>
+<p>The formulations take into account vegetation and snow cover. The dependence
+ on atmospheric conditions (surface heat fluxes) is incorporated later within
+ the <a href="../module/cable_canopy_module.html">cable_canopy_module</a>.</p>
 <h2>Scientific description</h2>
 <p>The scientific basis for the formulae is a combination of Localised Near 
  Field theory for aerodynamic transfer within canopies (for the heat and 
@@ -160,17 +162,17 @@
 <li><code>rough%hruff</code>: the canopy height accounting for the presence 
     of snow (m)</li>
 <li><code>canopy%vlaiw</code>: the leaf area index accounting for the presence
-    of snow (<script type="math/tex">m^2/m^2</script>)</li>
+    of snow (m(\^2)/m<script type="math/tex">^2</script>)</li>
 <li><code>rough%z0soil</code>: the aerodynamic roughness length for soil (m)</li>
-<li><code>rough%z0ssoilsn</code>: the aerodynamic roughness lenght for snow (m)</li>
-<li><code>roug%z0m</code>: the aerodynamic roughness length for the surface 
+<li><code>rough%z0ssoilsn</code>: the aerodynamic roughness length for snow (m)</li>
+<li><code>rough%z0m</code>: the aerodynamic roughness length for the surface 
     (canopy+soil+snow) (m)</li>
 <li><code>rough%disp</code>: the displacement height of the surface 
     (=0.0 if not vegetated) (m)</li>
-<li><code>rough%zruffs</code>: the depth of the roughness sublayer for vegetated
-    tiles (m)</li>
+<li><code>rough%zruffs</code>: the depth of the roughness sublayer over vegetated
+    surfaces (m)</li>
 <li><code>rough%coexp</code>: the extinction coefficient for the wind speed profile 
-    within the canopy, <script type="math/tex">c_{0}</script> (m). <script type="math/tex">c_{0}</script> is defined to be the 
+    within the canopy, <script type="math/tex">c_{0}</script> (m<script type="math/tex">^{-1}</script>). <script type="math/tex">c_{0}</script> is defined to be the 
     coefficient within an expontial wind profile, i.e.
     the wind speed at height <script type="math/tex">z</script> above the ground within a canopy of 
     height <script type="math/tex">h_c</script> is given by <script type="math/tex"> U(z) = U_{h} \exp\{ c_{0} (z-h_c) \} </script> 
@@ -187,7 +189,7 @@
  rough%rt1us is evaluated in three subparts (%rt1usa, %rt1usb, and %rt1usc).
  Each of the normalized resistances are given by theoretical formulae as given by
  the references.  One of the resistance terms (rough%rt1usc) is evaluated in
- <a href="../module/cable_canopy_module.html">cable_canopy_module</a>.</p>
+ <a href="../proc/define_canopy.html">define_canopy</a>.</p>
 <p>Further detail given in SUBROUTINE <a href="../proc/ruff_resist.html">ruff_resist</a> </p>
 <br>        <div class="panel panel-default">
       <div class="panel-heading">
@@ -196,8 +198,8 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
     <li><a href='../module/cable_phys_constants_mod.html'>cable_phys_constants_mod</a></li>
+    <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
   </ul>
       </li>
       </ul>
@@ -266,7 +268,7 @@
        
 <p>Calculates the roughness parameters
  and the aerodynamic contribution to the resistances controlling the fluxes 
- the land and atmosphere for each land point.</p><a href="../proc/ruff_resist.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+ between the land and atmosphere for each land point.</p><a href="../proc/ruff_resist.html" class="pull-right"><emph>Read more&hellip;</emph></a>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
