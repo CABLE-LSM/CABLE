@@ -59,18 +59,19 @@ subroutine HgtAboveSnow( HeightAboveSnow, mp, z0surf_min, HGT_pft, &
   HgtAboveSnow_comp =   HGT_pft - ( 1.2 * SnowDepth / SnowDensity_eff )
   !* The height of the canopy above snow level is simply the canopy height
   !  without snow minus the true depth of snow (in m).
-  !  The depth of snow is evaluated from the amount of snow (in mm m\(^{-2}\
-  !  of water) and the snow density.
+  !  The depth of snow is evaluated from the amount of snow (in mm m\(^{-2}\)
+  !  of liquid water) and the snow density.
   !
   ! \( h_{c,abovesnow} = \max[10 z_{0,min}, h_{c,nosnow} - 1.2 d_{snow}/\rho_{snow}] \)
   !
   !  A minimum value for the effective canopy height of
   !  '10* the minimum roughness length of the surface' is applied
   !  (a numerics requirement).
-  !  Converting snow amount to snow depth requires the snow density;
-  !  the snow density has a minimum value of 100 kg/m3 enforced.
+  !  The snow density has a minimum value of 100 kg m\(^{-3}\) enforced when
+  !  used to convert snow amount to snow depth.
   !
-  !  **the multipler 1.2 needs to be followed up**
+  !  <br></br>
+  !  **The multiplier 1.2 needs to be followed up**
 
   HeightAboveSnow = max( HgtAboveSnow_min,  HgtAboveSnow_comp )
   ! Finally return the Effective canopy height above snow 

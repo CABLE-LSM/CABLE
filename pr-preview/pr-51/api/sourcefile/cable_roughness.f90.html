@@ -226,7 +226,7 @@
 <a id="ln-78" name="ln-78" href="#ln-78"></a><span class="c">! * `rough%hruff`: the canopy height accounting for the presence </span>
 <a id="ln-79" name="ln-79" href="#ln-79"></a><span class="c">!    of snow (m)</span>
 <a id="ln-80" name="ln-80" href="#ln-80"></a><span class="c">! * `canopy%vlaiw`: the leaf area index accounting for the presence</span>
-<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="c">!    of snow (m\(^2\)/m\(^2\))</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="c">!    of snow (m\(^2\) m\(^{-2}\))</span>
 <a id="ln-82" name="ln-82" href="#ln-82"></a><span class="c">! * `rough%z0soil`: the aerodynamic roughness length for soil (m)</span>
 <a id="ln-83" name="ln-83" href="#ln-83"></a><span class="c">! * `rough%z0ssoilsn`: the aerodynamic roughness length for snow (m)</span>
 <a id="ln-84" name="ln-84" href="#ln-84"></a><span class="c">! * `rough%z0m`: the aerodynamic roughness length for the surface </span>
@@ -250,7 +250,7 @@
 <a id="ln-102" name="ln-102" href="#ln-102"></a><span class="c">!</span>
 <a id="ln-103" name="ln-103" href="#ln-103"></a><span class="c">! The aerodynamic resistances for the current time step are evaluated later</span>
 <a id="ln-104" name="ln-104" href="#ln-104"></a><span class="c">! by dividing the *normalized resistances* by the current time step&#39;s</span>
-<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="c">! friction velocity `rough%us`.  rough%rt1us is evaluated in three</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="c">! friction velocity `canopy%us`.  rough%rt1us is evaluated in three</span>
 <a id="ln-106" name="ln-106" href="#ln-106"></a><span class="c">! subparts (`rough%rt1usa`, `rough%rt1usb`, and `rough%rt1usc`).</span>
 <a id="ln-107" name="ln-107" href="#ln-107"></a><span class="c">! Each of the normalized resistances are given by theoretical formulae</span>
 <a id="ln-108" name="ln-108" href="#ln-108"></a><span class="c">! as given by  the references.  One of the resistance terms (`rough%rt1usc`)</span>

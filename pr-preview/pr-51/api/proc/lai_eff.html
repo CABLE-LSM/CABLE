@@ -115,8 +115,8 @@
     
 
     <p>This subroutine computes the leaf-area index of a canopy when there is snow
-present.  The formulae assumes that leaf area is distributed uniformly
-in the vertical.</p>
+present.  The formulae assume that leaf area is distributed uniformly
+in the vertical within the canopy.</p>
 <p>inputs:</p>
 <ul>
 <li>mp - number of land points</li>
@@ -141,9 +141,12 @@ The LAI is decreased proportionally to the canopy height with/without snow.</p>
 proportional decrease in LAI takes a minimum value of 0.01m.
 This conditions prevents numerical issues when the canopy height
 (without snow) is small.</p>
-<p><strong>To follow up</strong> Can HgtAboveSnow be greater than MAX(0.01, Hgt_PFT)?
-HgtAboveSnow takes a minimum value of 10 <script type="math/tex">z_{0,min}</script> so if
-10 <script type="math/tex">z_{0,min} > 0.01 > h_{c,nosnow} </script> then LAI is increased when
+<p><br></br>
+<strong>To follow up</strong></p>
+<p>Can HgtAboveSnow be greater than MAX(0.01, Hgt_PFT)?
+If yes then there is an issue to resolve.
+HgtAboveSnow can sit at its minimum value of 10 <script type="math/tex">z_{0,min}</script> so if
+10 <script type="math/tex">z_{0,min} > 0.01 > h_{c,nosnow} </script> then LAI is increased if
 there is snow!  </p>
 
     <h3>Arguments</h3>
