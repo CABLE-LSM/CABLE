@@ -42,7 +42,9 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 ! of momentum, heat and water vapour between the land and atmosphere for each 
 ! land point.
 !
-! The formulations take into account vegetation and snow cover. The dependence ! on atmospheric conditions (surface heat fluxes) is incorporated later within ! the [[cable_canopy_module]].
+! The formulations take into account vegetation and snow cover. The dependence
+! on atmospheric conditions (surface heat fluxes) is incorporated later within
+! the [[cable_canopy_module]].
 ! 
 !## Scientific description
 !
@@ -74,17 +76,17 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 ! * `rough%hruff`: the canopy height accounting for the presence 
 !    of snow (m)
 ! * `canopy%vlaiw`: the leaf area index accounting for the presence
-!    of snow (\(m^2/m^2\))
+!    of snow (m(\^2\)/m\(^2\))
 ! * `rough%z0soil`: the aerodynamic roughness length for soil (m)
-! * `rough%z0ssoilsn`: the aerodynamic roughness lenght for snow (m)
-! * `roug%z0m`: the aerodynamic roughness length for the surface 
+! * `rough%z0ssoilsn`: the aerodynamic roughness length for snow (m)
+! * `rough%z0m`: the aerodynamic roughness length for the surface 
 !    (canopy+soil+snow) (m)
 ! * `rough%disp`: the displacement height of the surface 
 !    (=0.0 if not vegetated) (m)
-! * `rough%zruffs`: the depth of the roughness sublayer for vegetated
-!    tiles (m)
+! * `rough%zruffs`: the depth of the roughness sublayer over vegetated
+!    surfaces (m)
 ! * `rough%coexp`: the extinction coefficient for the wind speed profile 
-!    within the canopy, \(c_{0}\) (m). \(c_{0}\) is defined to be the 
+!    within the canopy, \(c_{0}\) (m\(^{-1}\)). \(c_{0}\) is defined to be the 
 !    coefficient within an expontial wind profile, i.e.
 !    the wind speed at height \(z\) above the ground within a canopy of 
 !    height \(h_c\) is given by \( U(z) = U_{h} \exp\{ c_{0} (z-h_c) \} \) 
@@ -101,7 +103,7 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 ! rough%rt1us is evaluated in three subparts (%rt1usa, %rt1usb, and %rt1usc).
 ! Each of the normalized resistances are given by theoretical formulae as given by
 ! the references.  One of the resistance terms (rough%rt1usc) is evaluated in
-! [[cable_canopy_module]].
+! [[define_canopy]].
 !
 !
 ! Further detail given in SUBROUTINE [[ruff_resist]] 
@@ -123,7 +125,7 @@ CONTAINS
 SUBROUTINE ruff_resist(veg, rough, ssnow, canopy, LAI_pft, HGT_pft, reducedLAIdue2snow )
 !* Calculates the roughness parameters
 ! and the aerodynamic contribution to the resistances controlling the fluxes 
-! the land and atmosphere for each land point.
+! between the land and atmosphere for each land point.
 !
 ! See the description for [[cable_roughness_module]] for more scientific 
 ! information.
@@ -167,6 +169,7 @@ integer :: i
 
 !| * evaluates the canopy height and leaf area given the presence of snow 
 !    (or not)
+
 ! Set canopy height above snow level:
 call HgtAboveSnow( HeightAboveSnow, mp, z0soilsn_min, veg%hc, ssnow%snowd, &
                    ssnow%ssdnn )
@@ -180,7 +183,7 @@ canopy%vlaiw  = reducedLAIdue2snow
 canopy%rghlai = canopy%vlaiw
 
 !| * sets the value of soil and snow roughness lengths
-!    (depends on configuration of CABLE)
+!    (depends on the configuration of CABLE)
 IF (cable_user%soil_struc=='default') THEN
 
   ! Roughness length of bare soil (m): new formulation- E.Kowalczyk 2014
@@ -320,7 +323,7 @@ do i=1,mp
   END IF
 END DO
 
-!> * if the soil model used is SLI - updates the evaluated rough%rt0us
+!> * if the SLI soil model is used - updates the evaluated rough%rt0us
 IF (cable_user%soil_struc.EQ.'sli') THEN
   WHERE( canopy%vlaiw .GE. CLAI_THRESH  .AND.                                          &
          rough%hruff .GE. rough%z0soilsn ) ! VEGETATED SURFACE
