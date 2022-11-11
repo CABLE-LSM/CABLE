@@ -1709,6 +1709,23 @@ CONTAINS
     sum_rad_gradis = SUM(rad%gradis,2)
     ! print*, 'DD06 ', rad%gradis
 
+    ! default for variable d_3 of RuBP-limited photosynthesis of
+    ! Wang and Leuning (1998), which is 2 * Gamma^star
+    if (cable_user%explicit_gm) then
+       if (trim(cable_user%Rubisco_parameters) == 'Bernacchi_2002') then
+          gam0 = C%gam0cc
+          egam = C%egamcc
+       else if (trim(cable_user%Rubisco_parameters) == 'Walker_2013') then
+          gam0 = C%gam0ccw
+          egam = C%egamccw
+       endif
+    else
+       gam0 = C%gam0
+       egam = C%egam
+    endif
+    cx2(:) = 2.0 * gam0 * exp( egam / (C%rgas * C%trefk) &
+         * (1.0 - C%trefk / tlfx(:)) )
+
     DO kk=1,mp
 
        IF(canopy%vlaiw(kk) <= C%LAI_THRESH) THEN
