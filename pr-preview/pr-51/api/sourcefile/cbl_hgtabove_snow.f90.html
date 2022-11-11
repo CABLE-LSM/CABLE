@@ -155,7 +155,7 @@
 <a id="ln-7" name="ln-7" href="#ln-7"></a><span class="k">CONTAINS</span><span class="w"></span>
 <a id="ln-8" name="ln-8" href="#ln-8"></a>
 <a id="ln-9" name="ln-9" href="#ln-9"></a><span class="c">!* The procedure in this module evalutes the canopy height</span>
-<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="c">!  above the ground or snow surface.   </span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="c">!  given the effect of any snow present.   </span>
 <a id="ln-11" name="ln-11" href="#ln-11"></a>
 <a id="ln-12" name="ln-12" href="#ln-12"></a><span class="k">subroutine </span><span class="n">HgtAboveSnow</span><span class="p">(</span><span class="w"> </span><span class="n">HeightAboveSnow</span><span class="p">,</span><span class="w"> </span><span class="n">mp</span><span class="p">,</span><span class="w"> </span><span class="n">z0surf_min</span><span class="p">,</span><span class="w"> </span><span class="n">HGT_pft</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">     </span><span class="n">SnowDepth</span><span class="p">,</span><span class="w"> </span><span class="n">SnowDensity</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
@@ -165,17 +165,17 @@
 <a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">  </span><span class="c">!</span>
 <a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">  </span><span class="c">!  inputs:</span>
 <a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">  </span><span class="c">!</span>
-<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">  </span><span class="c">!  * mp - number of land points</span>
-<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">  </span><span class="c">!  * z0surf_min - minimum roughness length of surface (m)</span>
-<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">  </span><span class="c">!  * HGT_pft(mp) - height of canopy with no snow (m)</span>
-<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">  </span><span class="c">!  * SnowDepth(mp) - amount of snow (mm m\(^{-2}\) liquid water)</span>
-<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">  </span><span class="c">!  * SnowDensity(mp) - density of snow (in kg m\(^{-3}\))</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">  </span><span class="c">!  * `mp` - number of land points</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">  </span><span class="c">!  * `z0surf_min` - minimum roughness length of surface (m)</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">  </span><span class="c">!  * `HGT_pft (mp)` - height of canopy with no snow (m)</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">  </span><span class="c">!  * `SnowDepth (mp)` - amount of snow (mm m\(^{-2}\) liquid water)</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">  </span><span class="c">!  * `SnowDensity (mp)` - density of snow (in kg m\(^{-3}\))</span>
 <a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">  </span><span class="c">!</span>
 <a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">  </span><span class="c">!  outputs:</span>
 <a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">  </span><span class="c">!</span>
-<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">  </span><span class="c">!  * HeightAboveSnow (mp) - effective height of canopy (m)</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">  </span><span class="c">!  * `HeightAboveSnow (mp)` - effective height of canopy (m)</span>
 <a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">  </span><span class="c">!</span>
-<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">  </span><span class="c">!  The `HeightAboveSnow` was formerly known as rough%hruff</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">  </span><span class="c">!  `HeightAboveSnow` was known as `rough%hruff` elsewhere in the code.</span>
 <a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">  </span><span class="c">!</span>
 <a id="ln-32" name="ln-32" href="#ln-32"></a>
 <a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">  </span><span class="k">implicit none</span><span class="w"></span>

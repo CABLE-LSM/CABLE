@@ -119,18 +119,18 @@ present.  The formulae assume that the leaf area is distributed uniformly
 in the vertical within the canopy.</p>
 <p>inputs:</p>
 <ul>
-<li>mp - number of land points</li>
-<li>LAI_PFT (mp) - leaf area with no snow (m<script type="math/tex">^2</script> m<script type="math/tex">^{-2})</script>
+<li><code>mp</code> - number of land points</li>
+<li><code>LAI_PFT (mp)</code> - leaf area with no snow (m<script type="math/tex">^2</script> m<script type="math/tex">^{-2})</script>
 </li>
-<li>HGT_pft (mp) - height of canopy with no snow (m)</li>
-<li>HgtAboveSnow (mp) - height of canopy above snow surface (m) </li>
+<li><code>HGT_pft (mp)</code> - height of canopy with no snow (m)</li>
+<li><code>HgtAboveSnow (mp)</code> - height of canopy above snow surface (m) </li>
 </ul>
 <p>outputs:</p>
 <ul>
-<li>reducedLAIdue2snow (mp) - modified leaf area for snow
+<li><code>reducedLAIdue2snow (mp)</code> - modified leaf area for snow
   (m<script type="math/tex">^2</script> m<script type="math/tex">^{-2}</script>))</li>
 </ul>
-<p>The output variable was formerly known as rough%vlaiw</p>
+<p><code>reducedLAIdue2snow</code> is known as <code>rough%vlaiw</code> elsewhere in the code.</p>
 <p>Leaf area, LAI, accounting for the presence of snow, is given by</p>
 <p>
 <script type="math/tex"> LAI_{snow} = LAI_{nosnow} h_{c,snow} / \max[0.01, h_{c,nosnow} ] </script>
