@@ -119,11 +119,11 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+    <li><a href='../module/cbl_hruff_mod.html'>cbl_hruff_mod</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
     <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
     <li><a href='../module/cbl_lai_eff_mod.html'>cbl_LAI_eff_mod</a></li>
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
-    <li><a href='../module/cbl_hruff_mod.html'>cbl_hruff_mod</a></li>
   </ul>
       </li>
       </ul>
@@ -134,15 +134,17 @@
  and the aerodynamic contribution to the resistances controlling the fluxes 
  between the land and atmosphere for each land point.</p>
 <p>See the description for <a href="../module/cable_roughness_module.html">cable_roughness_module</a> for more scientific 
- information.</p>
-<p>see: Raupach, 1992, BLM 60 375-395
-      MRR notes "Simplified wind model for canopy", 23-oct-92
-      MRR draft paper "Simplified expressions...", dec-92
- modified to include resistance calculations by Ray leuning 19 Jun 1998  </p>
+ information.  Scientific literature references are</p>
+<ul>
+<li><a href="https://doi.org/10.1002/qj.49711548710">Raupach MR (1989)</a></li>
+<li><a href="https://doi.org/10.1007/BF00155203">Raupach MR (1992)</a></li>
+<li><a href="https://doi.org/10.1007/BF00709229">Raupach MR (1994)</a></li>
+<li><a href="http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf">Kowalczyk et al. (2006)</a></li>
+</ul>
 <h2>Structure</h2>
 <ul>
 <li>evaluates the canopy height and leaf area given the presence of snow 
-    (or not)
+    (or not) using <a href="../proc/hgtabovesnow.html">HgtAboveSnow</a> and <a href="../proc/lai_eff.html">LAI_eff</a>
  Set canopy height above snow level:</li>
 <li>
 <p>sets the value of soil and snow roughness lengths

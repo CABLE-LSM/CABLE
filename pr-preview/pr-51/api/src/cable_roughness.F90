@@ -69,14 +69,16 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 ! <br></br>
 ! The principal outputs from the MODULE are
 !
-! * `rough%zref_tq`: height above the displacement height for the 
-!    air temperature and humidity (m)
+! * `rough%zref_tq`: reference height above the displacement height for the 
+!    air temperature and humidity (m) - where these meteorological forcing
+!    observations are deemed to have been collected. 
 ! * `rough%zref_uv`: height above the displacement height for the 
-!    wind speeds (m)
+!    wind speeds (m) - where the wind speed forcing observations are deemed
+!    to have been collected
 ! * `rough%hruff`: the canopy height accounting for the presence 
 !    of snow (m)
 ! * `canopy%vlaiw`: the leaf area index accounting for the presence
-!    of snow (m(\^2\)/m\(^2\))
+!    of snow (m\(^2\)/m\(^2\))
 ! * `rough%z0soil`: the aerodynamic roughness length for soil (m)
 ! * `rough%z0ssoilsn`: the aerodynamic roughness length for snow (m)
 ! * `rough%z0m`: the aerodynamic roughness length for the surface 
@@ -93,17 +95,18 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 !    where \(U_h\) is the wind speed at canopy top.
 ! * `rough%usuh`: the ratio of the friction velocity, \(u_*\), to the wind 
 !    speed at canopy top (-)
-! * `rough%rt0us`: *normalised* aerodynamic resitance for the turbulent
+! * `rough%rt0us`: *normalised* aerodynamic resistance for the turbulent
 !    transfer from the soil/snow surface to the displacement height (-)
 ! * `rough%rt1us`: *normalised* aerodynamic resistance for the turbulent 
 !    transfer from the displacement height to the reference level (-)
 !
-! The aerodynamic resistances for the current time step are evaluated later by dividing
-! the *normalized resistances* by the current time step's friction velocity.
-! rough%rt1us is evaluated in three subparts (%rt1usa, %rt1usb, and %rt1usc).
-! Each of the normalized resistances are given by theoretical formulae as given by
-! the references.  One of the resistance terms (rough%rt1usc) is evaluated in
-! [[define_canopy]].
+! The aerodynamic resistances for the current time step are evaluated later
+! by dividing the *normalized resistances* by the current time step's
+! friction velocity `rough%us`.  rough%rt1us is evaluated in three
+! subparts (`rough%rt1usa`, `rough%rt1usb`, and `rough%rt1usc`).
+! Each of the normalized resistances are given by theoretical formulae
+! as given by  the references.  One of the resistance terms (`rough%rt1usc`)
+! is evaluated in [[define_canopy]].
 !
 !
 ! Further detail given in SUBROUTINE [[ruff_resist]] 
@@ -128,9 +131,14 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy, LAI_pft, HGT_pft, reducedLAIdu
 ! between the land and atmosphere for each land point.
 !
 ! See the description for [[cable_roughness_module]] for more scientific 
-! information.
+! information.  Scientific literature references are
 !
-! see: Raupach, 1992, BLM 60 375-395
+! * [Raupach MR (1989)](https://doi.org/10.1002/qj.49711548710)
+! * [Raupach MR (1992)](https://doi.org/10.1007/BF00155203)
+! * [Raupach MR (1994)](https://doi.org/10.1007/BF00709229)
+! * [Kowalczyk et al. (2006)](http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf)
+
+! out of date references - see: Raupach, 1992, BLM 60 375-395
 !      MRR notes "Simplified wind model for canopy", 23-oct-92
 !      MRR draft paper "Simplified expressions...", dec-92
 ! modified to include resistance calculations by Ray leuning 19 Jun 1998  
@@ -168,7 +176,7 @@ REAL, DIMENSION(mp) ::                                                      &
 integer :: i
 
 !| * evaluates the canopy height and leaf area given the presence of snow 
-!    (or not)
+!    (or not) using [[HgtAboveSnow]] and [[LAI_eff]]
 
 ! Set canopy height above snow level:
 call HgtAboveSnow( HeightAboveSnow, mp, z0soilsn_min, veg%hc, ssnow%snowd, &

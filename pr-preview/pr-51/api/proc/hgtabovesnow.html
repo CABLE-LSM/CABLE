@@ -119,18 +119,20 @@
 <p>inputs:</p>
 <ul>
 <li>mp - number of land points</li>
-<li>z0surf_min - minimum roughness length of surface (in m)</li>
-<li>HGT_pft(mp) - height of canopy with no snow (in m)</li>
-<li>SnowDepth(mp) - depth of snow (in mm/m2 liquid water)</li>
-<li>SnowDensity(mp) - density of snow (in kg/m3)</li>
+<li>z0surf_min - minimum roughness length of surface (m)</li>
+<li>HGT_pft(mp) - height of canopy with no snow (m)</li>
+<li>SnowDepth(mp) - amount of snow (mm m<script type="math/tex">^{-2}</script> liquid water)</li>
+<li>SnowDensity(mp) - density of snow (in kg m<script type="math/tex">^{-3}</script>)</li>
 </ul>
 <p>outputs:</p>
 <ul>
-<li>HeightAboveSnow (m) - effective height of canopy (in m)</li>
+<li>HeightAboveSnow (mp) - effective height of canopy (m)</li>
 </ul>
 <p>The output variable was formerly known as rough%hruff</p>
-<p>The height of canopy above snow level is evaluated from snow amount,
- density of snow and input canopy height, while applying a minimum value</p>
+<p>The height of the canopy above snow level is simply the canopy height
+ without snow minus the true depth of snow (in m).
+ The depth of snow is evaluated from the amount of snow (in mm m(^{-2}\
+ of water) and the snow density.</p>
 <p>
 <script type="math/tex"> h_{c,abovesnow} = \max[10 z_{0,min}, h_{c,nosnow} - 1.2 d_{snow}/\rho_{snow}] </script>
 </p>

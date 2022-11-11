@@ -155,14 +155,16 @@
 <p><br></br>
  The principal outputs from the MODULE are</p>
 <ul>
-<li><code>rough%zref_tq</code>: height above the displacement height for the 
-    air temperature and humidity (m)</li>
+<li><code>rough%zref_tq</code>: reference height above the displacement height for the 
+    air temperature and humidity (m) - where these meteorological forcing
+    observations are deemed to have been collected. </li>
 <li><code>rough%zref_uv</code>: height above the displacement height for the 
-    wind speeds (m)</li>
+    wind speeds (m) - where the wind speed forcing observations are deemed
+    to have been collected</li>
 <li><code>rough%hruff</code>: the canopy height accounting for the presence 
     of snow (m)</li>
 <li><code>canopy%vlaiw</code>: the leaf area index accounting for the presence
-    of snow (m(\^2)/m<script type="math/tex">^2</script>)</li>
+    of snow (m<script type="math/tex">^2</script>/m<script type="math/tex">^2</script>)</li>
 <li><code>rough%z0soil</code>: the aerodynamic roughness length for soil (m)</li>
 <li><code>rough%z0ssoilsn</code>: the aerodynamic roughness length for snow (m)</li>
 <li><code>rough%z0m</code>: the aerodynamic roughness length for the surface 
@@ -179,17 +181,18 @@
     where <script type="math/tex">U_h</script> is the wind speed at canopy top.</li>
 <li><code>rough%usuh</code>: the ratio of the friction velocity, <script type="math/tex">u_*</script>, to the wind 
     speed at canopy top (-)</li>
-<li><code>rough%rt0us</code>: <em>normalised</em> aerodynamic resitance for the turbulent
+<li><code>rough%rt0us</code>: <em>normalised</em> aerodynamic resistance for the turbulent
     transfer from the soil/snow surface to the displacement height (-)</li>
 <li><code>rough%rt1us</code>: <em>normalised</em> aerodynamic resistance for the turbulent 
     transfer from the displacement height to the reference level (-)</li>
 </ul>
-<p>The aerodynamic resistances for the current time step are evaluated later by dividing
- the <em>normalized resistances</em> by the current time step's friction velocity.
- rough%rt1us is evaluated in three subparts (%rt1usa, %rt1usb, and %rt1usc).
- Each of the normalized resistances are given by theoretical formulae as given by
- the references.  One of the resistance terms (rough%rt1usc) is evaluated in
- <a href="../proc/define_canopy.html">define_canopy</a>.</p>
+<p>The aerodynamic resistances for the current time step are evaluated later
+ by dividing the <em>normalized resistances</em> by the current time step's
+ friction velocity <code>rough%us</code>.  rough%rt1us is evaluated in three
+ subparts (<code>rough%rt1usa</code>, <code>rough%rt1usb</code>, and <code>rough%rt1usc</code>).
+ Each of the normalized resistances are given by theoretical formulae
+ as given by  the references.  One of the resistance terms (<code>rough%rt1usc</code>)
+ is evaluated in <a href="../proc/define_canopy.html">define_canopy</a>.</p>
 <p>Further detail given in SUBROUTINE <a href="../proc/ruff_resist.html">ruff_resist</a> </p>
 <br>        <div class="panel panel-default">
       <div class="panel-heading">
