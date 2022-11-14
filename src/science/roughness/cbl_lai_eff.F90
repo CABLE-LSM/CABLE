@@ -52,13 +52,17 @@ SUBROUTINE LAI_eff( mp, LAI_PFT, Hgt_PFT, HgtAboveSnow,  &
   ! where \(h_{c,snow}\) is evaluated in cbl_HgtAboveSnow.F90.
   ! The LAI is decreased proportionally to the canopy height with/without snow.
   !
-  ! The effective canopy height takes a minimum value of 0.01m.
+  ! The effective canopy height used to evaluate the
+  ! proportional decrease in LAI takes a minimum value of 0.01m.
+  ! This conditions prevents numerical issues when the canopy height
+  ! (without snow) is small.
   !
-  ! **There is potential for misbehaviour**  If  \( h_{c,snow} < 0.01 \)
-  ! then LAI could be increased from its value without snow (unphysical).
-  ! \(h_{c,snow} \ge 10 z_{0,min}\) only from cbl_HgtAbove_snow
-  ! which need not be greater than 0.01m (depending on the value of
-  ! \(z_{0,min}\).
+  ! **To follow up** Can HgtAboveSnow be greater than MAX(0.01, Hgt_PFT)?
+  ! HgtAboveSnow takes a minimum value of 10 \(z_{0,min}\) so if
+  ! 10 \(z_{0,min} > 0.01 > h_{c,nosnow} \) then LAI is increased when
+  ! there is snow!  
+  !
+  
 
 END SUBROUTINE LAI_eff
 
