@@ -12,15 +12,21 @@ subroutine HgtAboveSnow( HeightAboveSnow, mp, z0surf_min, HGT_pft, &
   !* Subroutine computes height of canopy above ground/snow surface when there
   !  is snow present
   !
-  !  inputs:  <ul> <li> mp - number of land points</li>
-  !           <li> z0surf_min - minimum roughness length of surface (in m) </li>
-  !           <li>HGT_pft(mp) - height of canopy with no snow (in m)</li>
-  !           <li>SnowDepth(mp) - depth of snow (in mm/m2 liquid water)</li>
-  !           <li>SnowDensity(mp) - density of snow (in kg/m3)</li> </ul>
+  !  inputs:
   !
-  !  outputs: <ul> <li> HeightAboveSnow (m) - effective height of canopy (in m) </li></ul>
-  !           output variable formerly known as rough%hruff
+  !  * mp - number of land points
+  !  * z0surf_min - minimum roughness length of surface (in m)
+  !  * HGT_pft(mp) - height of canopy with no snow (in m)
+  !  * SnowDepth(mp) - depth of snow (in mm/m2 liquid water)
+  !  * SnowDensity(mp) - density of snow (in kg/m3)
   !
+  !  outputs:
+  !
+  !  * HeightAboveSnow (m) - effective height of canopy (in m)
+  !
+  !  The output variable was formerly known as rough%hruff
+  !
+
   implicit none
 
   !re-decl input args  
@@ -51,16 +57,16 @@ subroutine HgtAboveSnow( HeightAboveSnow, mp, z0surf_min, HGT_pft, &
   ! evaluates min. allowed canopy height (fixed @ 10* min. surface roughness)
    
   HgtAboveSnow_comp =   HGT_pft - ( 1.2 * SnowDepth / SnowDensity_eff )
-  !* the height of canopy above snow level is evaluated from snow amount,
+  !* The height of canopy above snow level is evaluated from snow amount,
   !  density of snow and input canopy height, while applying a minimum value
   !
   ! \( h_{c,abovesnow} = \max[10 z_{0,min}, h_{c,nosnow} - 1.2 d_{snow}/\rho_{snow}] \)
   !
-  !  A minimum value of the effective canopy height of
-  !  10* the minimum roughness length of the surface is applied
+  !  A minimum value for the effective canopy height of
+  !  '10* the minimum roughness length of the surface' is applied
   !  (a numerics requirement).
-  !  To convert snow amount to snow depth requires the snow density, snow density
-  !  has a minimum value of 100 kg/m3 enforced.
+  !  Converting snow amount to snow depth requires the snow density;
+  !  the snow density has a minimum value of 100 kg/m3 enforced.
   !
   !  **the multipler 1.2 needs to be followed up**
 
