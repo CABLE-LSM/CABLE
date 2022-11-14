@@ -29,7 +29,7 @@ SUBROUTINE LAI_eff( mp, LAI_PFT, Hgt_PFT, HgtAboveSnow,  &
   !   (m\(^2\) m\(^{-2}\)))
   !
   ! `reducedLAIdue2snow` is known as `rough%vlaiw` elsewhere in the code.
-  !
+  ! <br></br>
 
   !re-decl input args  
   integer  :: mp

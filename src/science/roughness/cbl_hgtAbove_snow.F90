@@ -27,8 +27,8 @@ subroutine HgtAboveSnow( HeightAboveSnow, mp, z0surf_min, HGT_pft, &
   !
   !  * `HeightAboveSnow (mp)` - effective height of canopy (m)
   !
-  !  `HeightAboveSnow` was known as `rough%hruff` elsewhere in the code.
-  !
+  !  `HeightAboveSnow` is known as `rough%hruff` elsewhere in the code.
+  !  <br></br>
 
   implicit none
 
