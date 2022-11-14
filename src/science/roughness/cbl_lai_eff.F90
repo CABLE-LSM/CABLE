@@ -6,10 +6,8 @@ MODULE cbl_LAI_eff_mod
 
 CONTAINS
 
-!*# Overview
-!  
-! The procedure in this module computes the effective LAI of a canopy
-! given the effect of any snow present
+!* The procedure in this module computes the effective LAI of a canopy
+!  given the effect of any snow present
 
 SUBROUTINE LAI_eff( mp, LAI_PFT, Hgt_PFT, HgtAboveSnow,  &
                     reducedLAIdue2snow ) 
@@ -20,17 +18,17 @@ SUBROUTINE LAI_eff( mp, LAI_PFT, Hgt_PFT, HgtAboveSnow,  &
   !
   ! inputs:
   !
-  ! * mp - number of land points
-  ! * LAI_PFT (mp) - leaf area with no snow (m\(^2\) m\(^{-2})\)
-  ! * HGT_pft (mp) - height of canopy with no snow (m)
-  ! * HgtAboveSnow (mp) - height of canopy above snow surface (m) 
+  ! * `mp` - number of land points
+  ! * `LAI_PFT (mp)` - leaf area with no snow (m\(^2\) m\(^{-2})\)
+  ! * `HGT_pft (mp)` - height of canopy with no snow (m)
+  ! * `HgtAboveSnow (mp)` - height of canopy above snow surface (m) 
   !
   ! outputs:
   !
-  ! * reducedLAIdue2snow (mp) - modified leaf area for snow
+  ! * `reducedLAIdue2snow (mp)` - modified leaf area for snow
   !   (m\(^2\) m\(^{-2}\)))
   !
-  ! The output variable was formerly known as rough%vlaiw
+  ! `reducedLAIdue2snow` is known as `rough%vlaiw` elsewhere in the code.
   !
 
   !re-decl input args  
