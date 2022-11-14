@@ -6,25 +6,29 @@ MODULE cbl_LAI_eff_mod
 
 CONTAINS
 
-!Computes Effective LAI of exposed canopy given effect of snow present
-!variable formerly known as canopy%vlaiw
+!*# Overview
+!  
+! The procedures in this module computes the effective LAI of a canopy
+! given the effect of any snow present
+
 SUBROUTINE LAI_eff( mp, LAI_PFT, Hgt_PFT, HgtAboveSnow,  &
                     reducedLAIdue2snow ) 
 
-  !* Subroutine computes the leaf-area index of a canopy when there is snow
-  ! present.  This subroutine assumes that leaf area is distributed uniformly
+  !* This subroutine computes the leaf-area index of a canopy when there is snow
+  ! present.  The formulae assumes that leaf area is distributed uniformly
   ! in the vertical.
   !
   ! inputs:
   !
-  ! * mp - number of land points</li>
-  ! * LAI_PFT (mp) - leaf area with no snow (in m2/m2)
-  ! * HGT_pft(mp) - height of canopy with no snow (in m)
-  ! * HgtAboveSnow (mp) - height of canopy above snow surface (in m) 
+  ! * mp - number of land points
+  ! * LAI_PFT (mp) - leaf area with no snow (m\(^2\) m\(^{-2})\)
+  ! * HGT_pft(mp) - height of canopy with no snow (m)
+  ! * HgtAboveSnow (mp) - height of canopy above snow surface (m) 
   !
   ! outputs:
   !
-  ! * reducedLAIdue2snow (m2/m2) - leaf area with snow (in m2/m2)
+  ! * reducedLAIdue2snow (mp) - modified leaf area for snow
+  !   (m\(^2\) m\(^{-2}\)))
   !
   ! The output variable was formerly known as rough%vlaiw
   !
@@ -49,7 +53,7 @@ SUBROUTINE LAI_eff( mp, LAI_PFT, Hgt_PFT, HgtAboveSnow,  &
   !
   ! \( LAI_{snow} = LAI_{nosnow} h_{c,snow} / \max[0.01, h_{c,nosnow} ] \)
   !
-  ! where \(h_{c,snow}\) is evaluated in cbl_HgtAboveSnow.F90.
+  ! where \(h_{c,snow}\) is evaluated in [[HgtAboveSnow]]
   ! The LAI is decreased proportionally to the canopy height with/without snow.
   !
   ! The effective canopy height used to evaluate the
