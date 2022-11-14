@@ -119,11 +119,11 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
-    <li><a href='../module/cbl_lai_eff_mod.html'>cbl_LAI_eff_mod</a></li>
     <li><a href='../module/cbl_hruff_mod.html'>cbl_hruff_mod</a></li>
     <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
     <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
+    <li><a href='../module/cbl_lai_eff_mod.html'>cbl_LAI_eff_mod</a></li>
   </ul>
       </li>
       </ul>
@@ -192,7 +192,9 @@ speed at canopy top.
  and <code>rough%rt1usc</code>). One of the resistance terms (<code>rough%rt1usc</code>) is 
  evaluated in subroutine <a href="../proc/define_canopy.html">define_canopy</a>.</p>
 <p>Each of the normalized resistances are given by the theoretical formulae 
- given by the references.  </p>
+ given by the references. The aerodynamic resistances for the current 
+ time step are evaluated later by dividing the <em>normalized resistances</em> by 
+ the current time step's friction velocity <code>canopy%us</code>. </p>
 <h2>Structure</h2>
 <ul>
 <li>evaluates the canopy height and leaf area given the presence of snow 

@@ -128,7 +128,9 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy, LAI_pft, HGT_pft, reducedLAIdu
 ! evaluated in subroutine [[define_canopy]].
 !
 ! Each of the normalized resistances are given by the theoretical formulae 
-! given by the references.  
+! given by the references. The aerodynamic resistances for the current 
+! time step are evaluated later by dividing the *normalized resistances* by 
+! the current time step's friction velocity `canopy%us`. 
 
 
 
