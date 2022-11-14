@@ -179,10 +179,10 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   BLAZE%LAT       = LAT
   BLAZE%LON       = LON
 
-!!$  ! time for averaging annual rainfall [a]
-!!$  BLAZE%T_AVG = 5
-!!$  ! deadwood decay scale time [a]
-!!$  BLAZE%FT    = 30
+!$  ! time for averaging annual rainfall [a]
+!$  BLAZE%T_AVG = 5
+!$  ! deadwood decay scale time [a]
+!$  BLAZE%FT    = 30
 
   BLAZE%CPLANT_g = 0.0
   BLAZE%CPLANT_w = 0.0
@@ -429,35 +429,35 @@ SUBROUTINE BLAZE_TURNOVER(AB, CPLANT_g, CPLANT_w, AGL_g, AGL_w, &
 
   ! Update Pools
 !CVH omit: pools are re-contructed each time from casa pools
-!!$  ! Grass fuels burned by area
-!!$  CPLANT_g (LEAF)  = CPLANT_g (LEAF) * (1. - AB)
-!!$  AGL_g(METB)      = AGL_g(METB)     * (1. - AB)
-!!$  AGL_g(STR )      = AGL_g(STR )     * (1. - AB)
-!!$
-!!$  ! Leaves
-!!$  CPLANT_w (LEAF)  = &
-!!$       CPLANT_w (LEAF) - (MTO(LEAF)%TO_ATM + MTO(LEAF)%TO_STR)
-!!$  ! Wood
-!!$  CPLANT_w (WOOD)  = &
-!!$       CPLANT_w (WOOD) - (MTO(WOOD)%TO_ATM + MTO(WOOD)%TO_STR + MTO(WOOD)%TO_CWD)
-!!$  ! Fine roots
-!!$  CPLANT_w (FROOT) = &
-!!$       CPLANT_w (FROOT)- (MTO(FROOT)%TO_ATM+ MTO(FROOT)%TO_STR)
-!!$
-!!$  ! Litter above ground
-!!$  AGL_w(METB)      = AGL_w(METB) - MTO(MLIT)%TO_ATM
-!!$  AGL_w(STR )      = AGL_w(STR ) - MTO(SLIT)%TO_ATM + MTO(WOOD)%TO_STR + &
-!!$                     MTO(LEAF)%TO_STR
-!!$  AGL_w(CWD )      = AGL_w(CWD ) - MTO(CLIT)%TO_ATM + MTO(WOOD)%TO_CWD * shootfrac
-!!$
-!!$  ! Litter below ground
-!!$  BGL_w(STR ) = BGL_w(STR ) + MTO(FROOT)%TO_STR
-!!$  BGL_w(CWD ) = BGL_w(CWD ) + MTO(WOOD)%TO_CWD * (1. - shootfrac)
-!!$
-!!$  IF ( ANY ( AGL_w .LT. 0. )) THEN
-!!$     WRITE(*,*)"CLIITE_W < 0 ", AGL_w
-!!$     STOP 1
-!!$  ENDIF
+!$  ! Grass fuels burned by area
+!$  CPLANT_g (LEAF)  = CPLANT_g (LEAF) * (1. - AB)
+!$  AGL_g(METB)      = AGL_g(METB)     * (1. - AB)
+!$  AGL_g(STR )      = AGL_g(STR )     * (1. - AB)
+!$
+!$  ! Leaves
+!$  CPLANT_w (LEAF)  = &
+!$       CPLANT_w (LEAF) - (MTO(LEAF)%TO_ATM + MTO(LEAF)%TO_STR)
+!$  ! Wood
+!$  CPLANT_w (WOOD)  = &
+!$       CPLANT_w (WOOD) - (MTO(WOOD)%TO_ATM + MTO(WOOD)%TO_STR + MTO(WOOD)%TO_CWD)
+!$  ! Fine roots
+!$  CPLANT_w (FROOT) = &
+!$       CPLANT_w (FROOT)- (MTO(FROOT)%TO_ATM+ MTO(FROOT)%TO_STR)
+!$
+!$  ! Litter above ground
+!$  AGL_w(METB)      = AGL_w(METB) - MTO(MLIT)%TO_ATM
+!$  AGL_w(STR )      = AGL_w(STR ) - MTO(SLIT)%TO_ATM + MTO(WOOD)%TO_STR + &
+!$                     MTO(LEAF)%TO_STR
+!$  AGL_w(CWD )      = AGL_w(CWD ) - MTO(CLIT)%TO_ATM + MTO(WOOD)%TO_CWD * shootfrac
+!$
+!$  ! Litter below ground
+!$  BGL_w(STR ) = BGL_w(STR ) + MTO(FROOT)%TO_STR
+!$  BGL_w(CWD ) = BGL_w(CWD ) + MTO(WOOD)%TO_CWD * (1. - shootfrac)
+!$
+!$  IF ( ANY ( AGL_w .LT. 0. )) THEN
+!$     WRITE(*,*)"CLIITE_W < 0 ", AGL_w
+!$     STOP 1
+!$  ENDIF
 
 
 END SUBROUTINE BLAZE_TURNOVER
@@ -573,45 +573,45 @@ SUBROUTINE COMBUST (BLAZE, np, CPLANT_g, CPLANT_w, TO, BURN )
   ! vh KBDI now calculated in cable_climate.F90
 
   ! Keetch-Byram Drought Index [ ]
-!!$  ! Keetch, j.j. and G.M. Byram, 1968, A drought index for forest fire control,
-!!$  ! US Dept, Agr. Forest Service Res. Paper SE-38
-!!$  IF ( BLAZE%RAINF(np) .GT. 0. ) THEN
-!!$     IF ( BLAZE%DSLR(np) .GT. 0 ) THEN
-!!$        BLAZE%LR(np) = BLAZE%RAINF(np)
-!!$     ELSE
-!!$        BLAZE%LR(np) = BLAZE%LR(np) + BLAZE%RAINF(np)
-!!$     ENDIF
-!!$     BLAZE%DSLR(np) = 0
-!!$  ELSE
-!!$     BLAZE%DSLR(np) = BLAZE%DSLR(np) + 1
-!!$  ENDIF
-!!$
-!!$  DSLR      = BLAZE%DSLR(np)
-!!$  AvAnnRain = BLAZE%CAvgAnnRainf(np)
-!!$  V         = BLAZE%U10(np)
-!!$  RH        = BLAZE%RH(np)
-!!$  T         = BLAZE%TMAX(np)
-!!$
-!!$  IF ( DSLR .EQ. 0 ) THEN
-!!$     IF ( BLAZE%LR(np) .GE. 5 ) THEN
-!!$        dKBDI = 5. - BLAZE%LR(np)
-!!$     ELSE
-!!$        dKBDI = 0.
-!!$     ENDIF
-!!$  ELSE
-!!$     dKBDI = ((800. - BLAZE%KBDI(np)) * (.968 * EXP(.0486 * (T * 9./5. &
-!!$          + 32.)) - 8.3) / 1000. / (1. + 10.88 * EXP(-.0441 * AvAnnRain/25.4)) * .254)
-!!$  ENDIF
-!!$
-!!$  print*, 'KBDI', BLAZE%KBDI(np) , dKBDI, BLAZE%LR(np), T, AvAnnRain
-!!$  BLAZE%KBDI(np) = MAX(0.,BLAZE%KBDI(np) + dKBDI)
+!$  ! Keetch, j.j. and G.M. Byram, 1968, A drought index for forest fire control,
+!$  ! US Dept, Agr. Forest Service Res. Paper SE-38
+!$  IF ( BLAZE%RAINF(np) .GT. 0. ) THEN
+!$     IF ( BLAZE%DSLR(np) .GT. 0 ) THEN
+!$        BLAZE%LR(np) = BLAZE%RAINF(np)
+!$     ELSE
+!$        BLAZE%LR(np) = BLAZE%LR(np) + BLAZE%RAINF(np)
+!$     ENDIF
+!$     BLAZE%DSLR(np) = 0
+!$  ELSE
+!$     BLAZE%DSLR(np) = BLAZE%DSLR(np) + 1
+!$  ENDIF
+!$
+!$  DSLR      = BLAZE%DSLR(np)
+!$  AvAnnRain = BLAZE%CAvgAnnRainf(np)
+!$  V         = BLAZE%U10(np)
+!$  RH        = BLAZE%RH(np)
+!$  T         = BLAZE%TMAX(np)
+!$
+!$  IF ( DSLR .EQ. 0 ) THEN
+!$     IF ( BLAZE%LR(np) .GE. 5 ) THEN
+!$        dKBDI = 5. - BLAZE%LR(np)
+!$     ELSE
+!$        dKBDI = 0.
+!$     ENDIF
+!$  ELSE
+!$     dKBDI = ((800. - BLAZE%KBDI(np)) * (.968 * EXP(.0486 * (T * 9./5. &
+!$          + 32.)) - 8.3) / 1000. / (1. + 10.88 * EXP(-.0441 * AvAnnRain/25.4)) * .254)
+!$  ENDIF
+!$
+!$  print*, 'KBDI', BLAZE%KBDI(np) , dKBDI, BLAZE%LR(np), T, AvAnnRain
+!$  BLAZE%KBDI(np) = MAX(0.,BLAZE%KBDI(np) + dKBDI)
 
 !  IF ( .NOT. BURN ) RETURN
 
-!!$  ! McArthur drought factor [ ]
-!!$  D   = .191 * ( BLAZE%KBDI(np) + 104. ) * ( REAL(DSLR) + 1. )**1.5 / &
-!!$       ( 3.52 * ( REAL(DSLR) + 1. )**1.5 + BLAZE%LR(np) - 1. )
-!!$  D   = MAX(0.,MIN(10.,D))
+!$  ! McArthur drought factor [ ]
+!$  D   = .191 * ( BLAZE%KBDI(np) + 104. ) * ( REAL(DSLR) + 1. )**1.5 / &
+!$       ( 3.52 * ( REAL(DSLR) + 1. )**1.5 + BLAZE%LR(np) - 1. )
+!$  D   = MAX(0.,MIN(10.,D))
 
   ! McArthur Fire-Danger index [ ] (FFDI)
   !                             Forest  Grass
@@ -624,8 +624,8 @@ SUBROUTINE COMBUST (BLAZE, np, CPLANT_g, CPLANT_w, TO, BURN )
 
   F = BLAZE%FFDI(np)
 
-!!$  F   = 2. * EXP( -.45 + .987 * LOG(D+.001) - .03456 * RH + .0338 * T + .0234 * V ) ! V in km/h
-!!$  F   = MAX(0.,F)
+!$  F   = 2. * EXP( -.45 + .987 * LOG(D+.001) - .03456 * RH + .0338 * T + .0234 * V ) ! V in km/h
+!$  F   = MAX(0.,F)
 
 
   ! available Fuels (Litter, deadwood and under/midstorey[when is it distinguished?])) [kg/m^2]
@@ -1052,8 +1052,8 @@ END SUBROUTINE RUN_BLAZE
     STATUS = NF90_PUT_VAR(FILE_ID, VID1( 15), BLAZE%w_prior, start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-!!$    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 15), BLAZE%CAvgAnnRainf, start=(/ 1, CNT /), &
-!!$         count=(/ mp, 1 /) )
+!$    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 15), BLAZE%CAvgAnnRainf, start=(/ 1, CNT /), &
+!$         count=(/ mp, 1 /) )
 
 
     STATUS = NF90_PUT_VAR(FILE_ID, VID1( 16), BLAZE%CPLANT_w(:,FROOT), start=(/ 1, CNT /), count=(/ mp, 1 /) )

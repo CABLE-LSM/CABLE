@@ -522,16 +522,16 @@ CONTAINS
              dEdTs= zero
              !   write(*,*) "Epot3", Tsurface, vmet%Ta, Epot, Hpot, vmet%rbh
           endif
-!!$          elseif (abs(Tsurface - vmet%Ta).gt. 20) then
-!!$             Tsurface = min(vmet%Ta, 0.0)
-!!$             Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
-!!$                  vmet%cva)*rhow*lambdas/vmet%rbw
-!!$             dEdTsoil = zero
-!!$             dGdTsoil = zero
-!!$             Hpot = rhocp*(Tsurface - vmet%Ta)/vmet%rbh
-!!$             Gpot = vmet%Rn-vmet%Rnsw - Hpot - Epot
-!!$             dEdTs= zero
-!!$           endif
+!$          elseif (abs(Tsurface - vmet%Ta).gt. 20) then
+!$             Tsurface = min(vmet%Ta, 0.0)
+!$             Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
+!$                  vmet%cva)*rhow*lambdas/vmet%rbw
+!$             dEdTsoil = zero
+!$             dGdTsoil = zero
+!$             Hpot = rhocp*(Tsurface - vmet%Ta)/vmet%rbh
+!$             Gpot = vmet%Rn-vmet%Rnsw - Hpot - Epot
+!$             dEdTs= zero
+!$           endif
           qevap = Epot/(rhow*lambdas)
           qTb = -dEdTsoil/(thousand*lambdas)
        endif
@@ -1777,16 +1777,16 @@ CONTAINS
 
        ! add advective terms
        if (advection==1) then
-!!$                   if (q(i) > zero) then
-!!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
-!!$                    else
-!!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
-!!$                    endif
-!!$                    qadv(i) = rhow*cswat*q(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
-!!$                    qadvya(i) =  rhow*cswat*qya(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
-!!$                    qadvyb(i) =  rhow*cswat*qyb(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
-!!$                    qadvTa(i) =  rhow*cswat*q(i)*w
-!!$                    qadvTb(i) =  rhow*cswat*q(i)*(one-w)
+!$                   if (q(i) > zero) then
+!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
+!$                    else
+!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
+!$                    endif
+!$                    qadv(i) = rhow*cswat*q(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
+!$                    qadvya(i) =  rhow*cswat*qya(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
+!$                    qadvyb(i) =  rhow*cswat*qyb(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
+!$                    qadvTa(i) =  rhow*cswat*q(i)*w
+!$                    qadvTb(i) =  rhow*cswat*q(i)*(one-w)
           Tqw  = merge(T(i), T(i+1), q(i)>zero) +zero
 
           dTqwdTa = merge(one, zero, (q(i)>zero))
@@ -2200,7 +2200,7 @@ CONTAINS
        case default
           ! calculate v%kH as in Campbell (1985) p.32 eq. 4.20
           A  = 0.65_r_2 - 0.78_r_2*parin%rho/thousand + 0.60_r_2*(parin%rho/thousand)**2 ! (4.27)
-          B  = 2.8_r_2 * (one-parin%thre) !*theta   ! (4.24)
+          B  = 2.8_r_2 * (one-parin%thre) ! *theta   ! (4.24)
           if (parin%clay > 0.001_r_2) then ! clay=0.001 -> C1=9.2
              C1 = one + 2.6_r_2/sqrt(parin%clay*100._r_2) ! (4.28)
           else
@@ -2865,37 +2865,37 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
           par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he
           par(:,i)%clay       = 0.67_r_2
 
-!!$          par(:,i)%thw        = 0.178_r_2
-!!$          par(:,i)%thfc       = 0.367_r_2
-!!$          par(:,i)%the        = 0.45_r_2
-!!$          par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr
-!!$          par(:,i)%he         = -0.572_r_2
-!!$          par(:,i)%Ke         = 2.8e-5_r_2
-!!$          par(:,i)%lam        = 1._r_2/8.7_r_2
-!!$          par(:,i)%eta        = two/par(:,i)%lam + two + one
-!!$          par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he
-!!$          par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he
-!!$          par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he
-!!$          par(:,i)%clay       = 0.2_r_2
+!$          par(:,i)%thw        = 0.178_r_2
+!$          par(:,i)%thfc       = 0.367_r_2
+!$          par(:,i)%the        = 0.45_r_2
+!$          par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr
+!$          par(:,i)%he         = -0.572_r_2
+!$          par(:,i)%Ke         = 2.8e-5_r_2
+!$          par(:,i)%lam        = 1._r_2/8.7_r_2
+!$          par(:,i)%eta        = two/par(:,i)%lam + two + one
+!$          par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he
+!$          par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he
+!$          par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he
+!$          par(:,i)%clay       = 0.2_r_2
        enddo
     endif
 
-!!$   ! special for Cumberland: set top 3 layers to sand
-!!$   do i=1,3
-!!$      par(:,i)%thw        = 0.175_r_2
-!!$      par(:,i)%thfc       = 0.255_r_2
-!!$      par(:,i)%the        = 0.420_r_2
-!!$      par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr
-!!$      par(:,i)%he         = -0.299_r_2
-!!$      par(:,i)%Ke         = 6.e-6_r_2
-!!$      par(:,i)%lam        = 1._r_2/7.12_r_2
-!!$      par(:,i)%eta        = two/par(:,i)%lam + two + one
-!!$      par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he
-!!$      par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he
-!!$      par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he
-!!$      par(:,i)%clay       = 0.27_r_2
-!!$
-!!$   enddo
+!$   ! special for Cumberland: set top 3 layers to sand
+!$   do i=1,3
+!$      par(:,i)%thw        = 0.175_r_2
+!$      par(:,i)%thfc       = 0.255_r_2
+!$      par(:,i)%the        = 0.420_r_2
+!$      par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr
+!$      par(:,i)%he         = -0.299_r_2
+!$      par(:,i)%Ke         = 6.e-6_r_2
+!$      par(:,i)%lam        = 1._r_2/7.12_r_2
+!$      par(:,i)%eta        = two/par(:,i)%lam + two + one
+!$      par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he
+!$      par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he
+!$      par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he
+!$      par(:,i)%clay       = 0.27_r_2
+!$
+!$   enddo
 
 
   END SUBROUTINE setpar

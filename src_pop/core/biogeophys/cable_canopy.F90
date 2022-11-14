@@ -585,7 +585,7 @@ CONTAINS
           ENDIF
 
           !! Ticket #90 ssnow%cls factor should be retained: required for energy balance
-          canopy%ga = canopy%fns - canopy%fhs - real(canopy%fes) !*ssnow%cls
+          canopy%ga = canopy%fns - canopy%fhs - real(canopy%fes) ! *ssnow%cls
 
        ELSEIF (cable_user%soil_struc=='sli') THEN
 

@@ -1,0 +1,34 @@
+  SUBROUTINE sli_hydrology(dels,ssnow,soil,veg,canopy)
+    REAL, INTENT(IN)                         :: dels ! integration time step (s)
+    TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow  ! soil+snow variables
+    TYPE(soil_parameter_type), INTENT(INOUT)    :: soil ! soil parameters
+    TYPE(veg_parameter_type) , INTENT(INOUT)    :: veg  ! veg parameters
+    TYPE (canopy_type), INTENT(INOUT)           :: canopy
+
+    LOGICAL, SAVE :: sli_call = .TRUE.
+
+    REAL(r_2), DIMENSION(ms) :: dzmm
+    REAL(r_2), DIMENSION(mp) :: zmm
+    REAL(r_2), DIMENSION(mp) :: zaq
+
+    CALL point2constants( C )
+
+    CALL iterative_wtd (ssnow, soil, veg, cable_user%test_new_gw)
+
+    CALL calc_soil_hydraulic_props(ssnow,soil,veg)
+
+    CALL  ovrlndflx (dels, ssnow, soil, veg,canopy,sli_call )
+
+    dzmm = REAL(soil%zse(:),r_2)*1000._r_2
+
+    CALL subsurface_drainage(ssnow,soil,veg,dzmm)
+
+    zmm(:) = 1000._r_2*(SUM(REAL(soil%zse,r_2),dim=1))
+    zaq(:) = zmm(:) + 0.5_r_2*soil%GWdz(:)*1000._r_2
+
+    CALL aquifer_recharge(dels,ssnow,soil,veg,zaq,zmm,zmm)
+
+
+
+
+  END SUBROUTINE sli_hydrology

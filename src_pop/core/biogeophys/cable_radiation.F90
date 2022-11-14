@@ -109,10 +109,10 @@ SUBROUTINE init_radiation(met, rad, veg, canopy)
    ! Canopy REFLection of diffuse radiation for black leaves:
    DO ictr=1,nrb
 
-!!$     rad%rhocdf(:,ictr) = rhoch(:,ictr) * &
-!!$                          ( C%GAUSS_W(1) * xk(:,1) / ( xk(:,1) + rad%extkd(:) )&
-!!$                          + C%GAUSS_W(2) * xk(:,2) / ( xk(:,2) + rad%extkd(:) )&
-!!$                          + C%GAUSS_W(3) * xk(:,3) / ( xk(:,3) + rad%extkd(:) ) )
+!$     rad%rhocdf(:,ictr) = rhoch(:,ictr) * &
+!$                          ( C%GAUSS_W(1) * xk(:,1) / ( xk(:,1) + rad%extkd(:) )&
+!$                          + C%GAUSS_W(2) * xk(:,2) / ( xk(:,2) + rad%extkd(:) )&
+!$                          + C%GAUSS_W(3) * xk(:,3) / ( xk(:,3) + rad%extkd(:) ) )
    !! Ticket #147  (vh)
    !! the above line is incorrect, as it is missing a factor of 2 in the numerator.
    !! (See equation 6.21 from Goudriaan & van Laar 1994)

@@ -431,9 +431,9 @@ CONTAINS
        POPLUC%n_event(g) = POPLUC%n_event(g)+1
        n = POPLUC%n_event(g)
        ! Transition from non-forest to secondary forest (gtos)
-!!$if (g==4) then
-!!$write(*,*) 'gtos1', frac_change_grid, frac_open_grid, POPLUC%grass(g) , sum( POPLUC%freq_age_secondary(g,:))
-!!$endif
+!$if (g==4) then
+!$write(*,*) 'gtos1', frac_change_grid, frac_open_grid, POPLUC%grass(g) , sum( POPLUC%freq_age_secondary(g,:))
+!$endif
        if (frac_change_grid.LE.frac_open_grid) THEN
           POPLUC%area_history_secdf(g,n) = frac_change_grid
           POPLUC%age_history_secdf(g,n) = 0.0_dp
@@ -674,7 +674,7 @@ CONTAINS
               CALL execute_luc_event('C3ANN','SECDF',POPLUC%gtos(g),g,POPLUC)
 
          POPLUC%frac_forest(g) =  POPLUC%primf(g)+ SUM(POPLUC%freq_age_secondary(g,:))
-!!$if (g==4) write(*,*) 'fracfor: ',  POPLUC%frac_forest(g),  SUM(POPLUC%freq_age_secondary(g,:))
+!$if (g==4) write(*,*) 'fracfor: ',  POPLUC%frac_forest(g),  SUM(POPLUC%freq_age_secondary(g,:))
          CALL increment_age(POPLUC,g)
 
        ENDDO
@@ -898,9 +898,9 @@ CONTAINS
 
                 dcNat(g) = -NatDist_loss &
                      *casapool%cplant(j+1,2)
-!!$               if (g==4) write(*,*) 'b4 fdist', &
-!!$               scalefac, casapool%cplant(j+1,2) + dcExpand(g)+dcClear(g)+dcHarv(g),  &
-!!$               casapool%cplant(j+1,2) , dcExpand(g),dcClear(g),dcHarv(g), dcnat(g)
+!$               if (g==4) write(*,*) 'b4 fdist', &
+!$               scalefac, casapool%cplant(j+1,2) + dcExpand(g)+dcClear(g)+dcHarv(g),  &
+!$               casapool%cplant(j+1,2) , dcExpand(g),dcClear(g),dcHarv(g), dcnat(g)
 
                 if ((casapool%cplant(j+1,2) + dcExpand(g)+dcClear(g)+dcHarv(g)).gt.0.0_dp .and. &
                      dcnat(g).lt.0.0_dp) then
@@ -926,9 +926,9 @@ CONTAINS
                         tmp * FDist(g)
                    FHarvClear(g) = FHarv(g)+FClear(g)
 
-!!$                   if (g==4 ) write(*,*) 'fdist', &
-!!$                   FDist(g),  Fnatdist(g), tmp, dcharv(g), FHarv(g), FClear(g), &
-!!$                   POPLUC%CRelClear(g)
+!$                   if (g==4 ) write(*,*) 'fdist', &
+!$                   FDist(g),  Fnatdist(g), tmp, dcharv(g), FHarv(g), FClear(g), &
+!$                   POPLUC%CRelClear(g)
                    ! adjust biomass density changes to be consistent with FClear & FHarv
 
 
@@ -2030,16 +2030,16 @@ CONTAINS
              IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
           END DO
        endif
-!!$
-!!$       DO i = 1, SIZE(A3)
-!!$          STATUS = NF90_def_var(FILE_ID,TRIM(A3(i)) ,NF90_FLOAT,(/land_ID,hist_ID,t_ID/),VID3(i))
-!!$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-!!$       END DO
-!!$
-!!$       DO i = 1, SIZE(A3)
-!!$          STATUS = NF90_def_var(FILE_ID,TRIM(AI3(i)) ,NF90_INT,(/land_ID,hist_ID,t_ID/),VIDI3(i))
-!!$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-!!$       END DO
+!$
+!$       DO i = 1, SIZE(A3)
+!$          STATUS = NF90_def_var(FILE_ID,TRIM(A3(i)) ,NF90_FLOAT,(/land_ID,hist_ID,t_ID/),VID3(i))
+!$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+!$       END DO
+!$
+!$       DO i = 1, SIZE(A3)
+!$          STATUS = NF90_def_var(FILE_ID,TRIM(AI3(i)) ,NF90_INT,(/land_ID,hist_ID,t_ID/),VIDI3(i))
+!$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+!$       END DO
 
        DO i = 1, SIZE(A4)
           STATUS = NF90_def_var(FILE_ID,TRIM(A4(i)) ,NF90_FLOAT,(/land_ID,nLU_ID,t_ID/),VID4(i) &

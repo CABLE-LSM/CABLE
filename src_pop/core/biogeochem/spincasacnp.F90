@@ -401,8 +401,8 @@ contains
     !write(600,*) 'pmet post analytic: ', avg_pleaf2met, avg_proot2met, casaflux%klitter(1,metb), casapool%plitter(1,metb)
     ! write(600,*) 'nmet post analytic: ', avg_nleaf2met, avg_nroot2met, casaflux%klitter(1,metb), casapool%nlitter(1,metb)
 
-!!$  call totcnppools(1,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &
-!!$       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)
+!$  call totcnppools(1,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &
+!$       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)
 
     nloop1 = max(1,mloop-3)
     DO nloop=1, mloop
