@@ -78,7 +78,7 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 ! * `rough%hruff`: the canopy height accounting for the presence 
 !    of snow (m)
 ! * `canopy%vlaiw`: the leaf area index accounting for the presence
-!    of snow (m\(^2\)/m\(^2\))
+!    of snow (m\(^2\) m\(^{-2}\))
 ! * `rough%z0soil`: the aerodynamic roughness length for soil (m)
 ! * `rough%z0ssoilsn`: the aerodynamic roughness length for snow (m)
 ! * `rough%z0m`: the aerodynamic roughness length for the surface 
@@ -102,7 +102,7 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 !
 ! The aerodynamic resistances for the current time step are evaluated later
 ! by dividing the *normalized resistances* by the current time step's
-! friction velocity `rough%us`.  rough%rt1us is evaluated in three
+! friction velocity `canopy%us`.  rough%rt1us is evaluated in three
 ! subparts (`rough%rt1usa`, `rough%rt1usb`, and `rough%rt1usc`).
 ! Each of the normalized resistances are given by theoretical formulae
 ! as given by  the references.  One of the resistance terms (`rough%rt1usc`)
