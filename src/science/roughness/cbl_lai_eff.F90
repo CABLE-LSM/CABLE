@@ -8,15 +8,15 @@ CONTAINS
 
 !*# Overview
 !  
-! The procedures in this module computes the effective LAI of a canopy
+! The procedure in this module computes the effective LAI of a canopy
 ! given the effect of any snow present
 
 SUBROUTINE LAI_eff( mp, LAI_PFT, Hgt_PFT, HgtAboveSnow,  &
                     reducedLAIdue2snow ) 
 
   !* This subroutine computes the leaf-area index of a canopy when there is snow
-  ! present.  The formulae assumes that leaf area is distributed uniformly
-  ! in the vertical.
+  ! present.  The formulae assume that leaf area is distributed uniformly
+  ! in the vertical within the canopy.
   !
   ! inputs:
   !
@@ -61,9 +61,13 @@ SUBROUTINE LAI_eff( mp, LAI_PFT, Hgt_PFT, HgtAboveSnow,  &
   ! This conditions prevents numerical issues when the canopy height
   ! (without snow) is small.
   !
-  ! **To follow up** Can HgtAboveSnow be greater than MAX(0.01, Hgt_PFT)?
-  ! HgtAboveSnow takes a minimum value of 10 \(z_{0,min}\) so if
-  ! 10 \(z_{0,min} > 0.01 > h_{c,nosnow} \) then LAI is increased when
+  ! <br></br>
+  ! **To follow up**
+  ! 
+  ! Can HgtAboveSnow be greater than MAX(0.01, Hgt_PFT)?
+  ! If yes then there is an issue to resolve.
+  ! HgtAboveSnow can sit at its minimum value of 10 \(z_{0,min}\) so if
+  ! 10 \(z_{0,min} > 0.01 > h_{c,nosnow} \) then LAI is increased if
   ! there is snow!  
   !
   
