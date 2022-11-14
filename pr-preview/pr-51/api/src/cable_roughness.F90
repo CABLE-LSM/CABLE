@@ -45,8 +45,6 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 ! The formulations take into account vegetation and snow cover. The dependence
 ! on atmospheric conditions (i.e. the surface heat fluxes) is incorporated
 ! later within the [[define_canopy]] subroutine.
-! 
-! Further detail given in subroutine [[ruff_resist]] 
 
 
 IMPLICIT NONE
@@ -116,6 +114,7 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy, LAI_pft, HGT_pft, reducedLAIdu
 !    a canopy of height \(h_c\) is given by 
 !    \( U(z) = U_{h} \exp\{ c_{0} (z-h_c) \} \) where \(U_h\) is the wind 
 !    speed at canopy top.
+!
 ! * `rough%usuh`: the ratio of the friction velocity, \(u_*\), to the wind 
 !   speed at canopy top (-)
 ! * `rough%rt0us`: *normalised* aerodynamic resistance for the turbulent
@@ -123,9 +122,9 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy, LAI_pft, HGT_pft, reducedLAIdu
 ! * `rough%rt1us`: *normalised* aerodynamic resistance for the turbulent 
 !   transfer from the displacement height to the reference level (-)
 !
-! `rough%rt1us` is evaluated in three subparts (`rough%rt1usa`, `rough%rt1usb`,
-! and `rough%rt1usc`). One of the resistance terms (`rough%rt1usc`) is 
-! evaluated in subroutine [[define_canopy]].
+!   `rough%rt1us` is evaluated in three subparts (`rough%rt1usa`, 
+!   `rough%rt1usb`, and `rough%rt1usc`). One of the resistance terms 
+!   (`rough%rt1usc`) is evaluated in subroutine [[define_canopy]].
 !
 ! Each of the normalized resistances are given by the theoretical formulae 
 ! given by the references. The aerodynamic resistances for the current 

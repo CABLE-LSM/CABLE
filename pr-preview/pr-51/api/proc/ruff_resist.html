@@ -119,11 +119,11 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cbl_hruff_mod.html'>cbl_hruff_mod</a></li>
     <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
     <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
     <li><a href='../module/cbl_lai_eff_mod.html'>cbl_LAI_eff_mod</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+    <li><a href='../module/cbl_hruff_mod.html'>cbl_hruff_mod</a></li>
   </ul>
       </li>
       </ul>
@@ -179,18 +179,20 @@
 profile, i.e. the wind speed at height <script type="math/tex">z</script> above the ground within 
 a canopy of height <script type="math/tex">h_c</script> is given by 
 <script type="math/tex"> U(z) = U_{h} \exp\{ c_{0} (z-h_c) \} </script> where <script type="math/tex">U_h</script> is the wind 
-speed at canopy top.
- * <code>rough%usuh</code>: the ratio of the friction velocity, <script type="math/tex">u_*</script>, to the wind 
-   speed at canopy top (-)
- * <code>rough%rt0us</code>: <em>normalised</em> aerodynamic resistance for the turbulent
-   transfer from the soil/snow surface to the displacement height (-)
- * <code>rough%rt1us</code>: <em>normalised</em> aerodynamic resistance for the turbulent 
-   transfer from the displacement height to the reference level (-)</p>
+speed at canopy top.</p>
 </li>
+<li>
+<p><code>rough%usuh</code>: the ratio of the friction velocity, <script type="math/tex">u_*</script>, to the wind 
+   speed at canopy top (-)</p>
+</li>
+<li><code>rough%rt0us</code>: <em>normalised</em> aerodynamic resistance for the turbulent
+   transfer from the soil/snow surface to the displacement height (-)</li>
+<li><code>rough%rt1us</code>: <em>normalised</em> aerodynamic resistance for the turbulent 
+   transfer from the displacement height to the reference level (-)</li>
 </ul>
-<p><code>rough%rt1us</code> is evaluated in three subparts (<code>rough%rt1usa</code>, <code>rough%rt1usb</code>,
- and <code>rough%rt1usc</code>). One of the resistance terms (<code>rough%rt1usc</code>) is 
- evaluated in subroutine <a href="../proc/define_canopy.html">define_canopy</a>.</p>
+<p><code>rough%rt1us</code> is evaluated in three subparts (<code>rough%rt1usa</code>, 
+   <code>rough%rt1usb</code>, and <code>rough%rt1usc</code>). One of the resistance terms 
+   (<code>rough%rt1usc</code>) is evaluated in subroutine <a href="../proc/define_canopy.html">define_canopy</a>.</p>
 <p>Each of the normalized resistances are given by the theoretical formulae 
  given by the references. The aerodynamic resistances for the current 
  time step are evaluated later by dividing the <em>normalized resistances</em> by 
