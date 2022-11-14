@@ -122,9 +122,9 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy, LAI_pft, HGT_pft, reducedLAIdu
 ! * `rough%rt1us`: *normalised* aerodynamic resistance for the turbulent 
 !   transfer from the displacement height to the reference level (-)
 !
-!   `rough%rt1us` is evaluated in three subparts (`rough%rt1usa`, 
-!   `rough%rt1usb`, and `rough%rt1usc`). One of the resistance terms 
-!   (`rough%rt1usc`) is evaluated in subroutine [[define_canopy]].
+!    `rough%rt1us` is evaluated in three subparts (`rough%rt1usa`, 
+!    `rough%rt1usb`, and `rough%rt1usc`). One of the resistance terms 
+!    (`rough%rt1usc`) is evaluated in subroutine [[define_canopy]].
 !
 ! Each of the normalized resistances are given by the theoretical formulae 
 ! given by the references. The aerodynamic resistances for the current 
@@ -320,7 +320,7 @@ do i=1,mp
   END IF
 END DO
 
-!> * if the SLI soil model is used - updates the evaluated rough%rt0us
+!> * if the SLI soil model is used - updates the evaluated `rough%rt0us`
 IF (cable_user%soil_struc.EQ.'sli') THEN
   WHERE( canopy%vlaiw .GE. CLAI_THRESH  .AND.                                          &
          rough%hruff .GE. rough%z0soilsn ) ! VEGETATED SURFACE

@@ -270,9 +270,9 @@
 <a id="ln-122" name="ln-122" href="#ln-122"></a><span class="c">! * `rough%rt1us`: *normalised* aerodynamic resistance for the turbulent </span>
 <a id="ln-123" name="ln-123" href="#ln-123"></a><span class="c">!   transfer from the displacement height to the reference level (-)</span>
 <a id="ln-124" name="ln-124" href="#ln-124"></a><span class="c">!</span>
-<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="c">!   `rough%rt1us` is evaluated in three subparts (`rough%rt1usa`, </span>
-<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="c">!   `rough%rt1usb`, and `rough%rt1usc`). One of the resistance terms </span>
-<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="c">!   (`rough%rt1usc`) is evaluated in subroutine [[define_canopy]].</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="c">!    `rough%rt1us` is evaluated in three subparts (`rough%rt1usa`, </span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="c">!    `rough%rt1usb`, and `rough%rt1usc`). One of the resistance terms </span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="c">!    (`rough%rt1usc`) is evaluated in subroutine [[define_canopy]].</span>
 <a id="ln-128" name="ln-128" href="#ln-128"></a><span class="c">!</span>
 <a id="ln-129" name="ln-129" href="#ln-129"></a><span class="c">! Each of the normalized resistances are given by the theoretical formulae </span>
 <a id="ln-130" name="ln-130" href="#ln-130"></a><span class="c">! given by the references. The aerodynamic resistances for the current </span>
@@ -468,7 +468,7 @@
 <a id="ln-320" name="ln-320" href="#ln-320"></a><span class="w">  </span><span class="k">END IF</span>
 <a id="ln-321" name="ln-321" href="#ln-321"></a><span class="k">END DO</span><span class="w"></span>
 <a id="ln-322" name="ln-322" href="#ln-322"></a>
-<a id="ln-323" name="ln-323" href="#ln-323"></a><span class="c">!&gt; * if the SLI soil model is used - updates the evaluated rough%rt0us</span>
+<a id="ln-323" name="ln-323" href="#ln-323"></a><span class="c">!&gt; * if the SLI soil model is used - updates the evaluated `rough%rt0us`</span>
 <a id="ln-324" name="ln-324" href="#ln-324"></a><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">soil_struc</span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="s1">&#39;sli&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
 <a id="ln-325" name="ln-325" href="#ln-325"></a><span class="k">  WHERE</span><span class="p">(</span><span class="w"> </span><span class="n">canopy</span><span class="p">%</span><span class="n">vlaiw</span><span class="w"> </span><span class="p">.</span><span class="n">GE</span><span class="p">.</span><span class="w"> </span><span class="n">CLAI_THRESH</span><span class="w">  </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w">                                          </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-326" name="ln-326" href="#ln-326"></a><span class="w">         </span><span class="n">rough</span><span class="p">%</span><span class="n">hruff</span><span class="w"> </span><span class="p">.</span><span class="n">GE</span><span class="p">.</span><span class="w"> </span><span class="n">rough</span><span class="p">%</span><span class="n">z0soilsn</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="c">! VEGETATED SURFACE</span>

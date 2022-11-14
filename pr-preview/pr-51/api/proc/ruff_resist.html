@@ -119,11 +119,11 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+    <li><a href='../module/cbl_hruff_mod.html'>cbl_hruff_mod</a></li>
     <li><a href='../module/cbl_lai_eff_mod.html'>cbl_LAI_eff_mod</a></li>
     <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
     <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
-    <li><a href='../module/cbl_hruff_mod.html'>cbl_hruff_mod</a></li>
   </ul>
       </li>
       </ul>
@@ -187,12 +187,14 @@ speed at canopy top.</p>
 </li>
 <li><code>rough%rt0us</code>: <em>normalised</em> aerodynamic resistance for the turbulent
    transfer from the soil/snow surface to the displacement height (-)</li>
-<li><code>rough%rt1us</code>: <em>normalised</em> aerodynamic resistance for the turbulent 
-   transfer from the displacement height to the reference level (-)</li>
-</ul>
+<li>
+<p><code>rough%rt1us</code>: <em>normalised</em> aerodynamic resistance for the turbulent 
+   transfer from the displacement height to the reference level (-)</p>
 <p><code>rough%rt1us</code> is evaluated in three subparts (<code>rough%rt1usa</code>, 
-   <code>rough%rt1usb</code>, and <code>rough%rt1usc</code>). One of the resistance terms 
-   (<code>rough%rt1usc</code>) is evaluated in subroutine <a href="../proc/define_canopy.html">define_canopy</a>.</p>
+<code>rough%rt1usb</code>, and <code>rough%rt1usc</code>). One of the resistance terms 
+(<code>rough%rt1usc</code>) is evaluated in subroutine <a href="../proc/define_canopy.html">define_canopy</a>.</p>
+</li>
+</ul>
 <p>Each of the normalized resistances are given by the theoretical formulae 
  given by the references. The aerodynamic resistances for the current 
  time step are evaluated later by dividing the <em>normalized resistances</em> by 
@@ -205,7 +207,7 @@ speed at canopy top.</p>
     (depends on the configuration of CABLE)</li>
 <li>evaluates the remaining output variables, depending on whether the land 
     point is vegetated or not.</li>
-<li>if the SLI soil model is used - updates the evaluated rough%rt0us</li>
+<li>if the SLI soil model is used - updates the evaluated <code>rough%rt0us</code></li>
 </ul>
 
     <h3>Arguments</h3>
