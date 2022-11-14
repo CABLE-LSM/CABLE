@@ -135,7 +135,14 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <p>Calculate roughness lengths as a function of soil and canopyparameters </p>
+    <h1>Overview</h1>
+<p>The procedures contained in this module calculate the roughness parameters
+ and the aerodynamic contribution to the resistances controlling the fluxes 
+ of momentum, heat and water vapour between the land and atmosphere for each 
+ land point.</p>
+<p>The formulations take into account vegetation and snow cover. The dependence
+ on atmospheric conditions (i.e. the surface heat fluxes) is incorporated
+ later within the <a href="../proc/define_canopy.html">define_canopy</a> subroutine.</p>
 <br>        <div class="panel panel-default">
       <div class="panel-heading">
   <h3 class="panel-title">Uses</h3>
@@ -426,12 +433,13 @@
 <tr>
   <td><span class="anchor" id="variable-z0soilsn_min"></span>real,</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>z0soilsn_min</strong></td><td> =</td><td>1.e-7</td><td></td>
+  <td><strong>z0soilsn_min</strong></td><td> =</td><td>1.e-7</td><td><p>Minimum value for the roughness length for bare soil, <script type="math/tex">z_{0,min}</script> (m)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-z0soilsn_min_pf"></span>real,</td>
 <td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>z0soilsn_min_PF</strong></td><td> =</td><td>1.e-4</td><td></td>
+  <td><strong>z0soilsn_min_PF</strong></td><td> =</td><td>1.e-4</td><td><p>Minimum value for the roughness length for permanent ice on land, 
+<script type="math/tex">z_{0,minPF}</script> (m)</p></td>
 </tr>
 </tbody>
 </table>
@@ -449,7 +457,11 @@
       <div class="panel panel-default">
   <div class="panel-heading codesum"><span class="anchor" id="proc-ruff_resist"></span><h3>public subroutine <a href='../proc/ruff_resist.html'>ruff_resist</a>(veg, rough, ssnow, canopy, LAI_pft, HGT_pft, reducedLAIdue2snow)</h3></div>
   <div class="panel-body">
-           
+       
+<p>Calculates the roughness parameters and the aerodynamic contribution to the
+ resistances controlling the fluxes between the land and atmosphere for each 
+ land point.</p><a href="../proc/ruff_resist.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+    
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
 <tbody>
