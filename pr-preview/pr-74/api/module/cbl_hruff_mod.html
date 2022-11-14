@@ -117,8 +117,8 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <p>The procedure in this module evalutes the canopy height
- given the effect of any snow present.   </p>
+    <p>The procedure in this module evaluates the canopy height
+ given the effect of any snow present.  </p>
     
     
     <br>
@@ -152,7 +152,7 @@
   <div class="panel-body">
        
 <p>This subroutine computes the height of the canopy above ground/snow
- surface when there is snow present</p><a href="../proc/hgtabovesnow.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+ surface when there is snow present. </p><a href="../proc/hgtabovesnow.html" class="pull-right"><emph>Read more&hellip;</emph></a>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
@@ -161,37 +161,37 @@
   <td><span class="anchor" ></span>real</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>HeightAboveSnow</strong>(mp)</td><td></td>
+  <td><strong>HeightAboveSnow</strong>(mp)</td><td><p>Output. Effective height of canopy, known as <code>rough%hruff</code> elsewhere. (m)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>integer</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>mp</strong></td><td></td>
+  <td><strong>mp</strong></td><td><p>Number of land tiles (-)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>real</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>z0surf_min</strong></td><td></td>
+  <td><strong>z0surf_min</strong></td><td><p>minimum roughness length of the surface (m)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>real</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>HGT_pft</strong>(mp)</td><td></td>
+  <td><strong>HGT_pft</strong>(mp)</td><td><p>height of the canopy without snow (m)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>real</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>SnowDepth</strong>(mp)</td><td></td>
+  <td><strong>SnowDepth</strong>(mp)</td><td><p>amount of snow (mm m(^{-2}) liquid water) </p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>real</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>SnowDensity</strong>(mp)</td><td></td>
+  <td><strong>SnowDensity</strong>(mp)</td><td><p>density of snow (kg m<script type="math/tex">^{-3}</script>)</p></td>
 </tr>
 </tbody>
 </table>

@@ -115,35 +115,21 @@
     
 
     <p>This subroutine computes the height of the canopy above ground/snow
- surface when there is snow present</p>
-<p>inputs:</p>
-<ul>
-<li><code>mp</code> - number of land points</li>
-<li><code>z0surf_min</code> - minimum roughness length of surface (m)</li>
-<li><code>HGT_pft (mp)</code> - height of canopy with no snow (m)</li>
-<li><code>SnowDepth (mp)</code> - amount of snow (mm m<script type="math/tex">^{-2}</script> liquid water)</li>
-<li><code>SnowDensity (mp)</code> - density of snow (in kg m<script type="math/tex">^{-3}</script>)</li>
-</ul>
-<p>outputs:</p>
-<ul>
-<li><code>HeightAboveSnow (mp)</code> - effective height of canopy (m)</li>
-</ul>
-<p><code>HeightAboveSnow</code> is known as <code>rough%hruff</code> elsewhere in the code.
- <br></br></p>
+ surface when there is snow present. </p>
 <p>The height of the canopy above snow level is simply the canopy height
- without snow minus the true depth of snow (in m).
- The depth of snow is evaluated from the amount of snow (in mm m<script type="math/tex">^{-2}</script>
- of liquid water) and the snow density.</p>
+without snow minus the true depth of snow (in m).
+The depth of snow is evaluated from the amount of snow (in mm m<script type="math/tex">^{-2}</script>
+of liquid water) and the snow density.</p>
 <p>
-<script type="math/tex"> h_{c,abovesnow} = \max[10 z_{0,min}, h_{c,nosnow} - 1.2 d_{snow}/\rho_{snow}] </script>
+<script type="math/tex; mode=display"> h_{c,abovesnow} = \max[10 z_{0,min}, h_{c,nosnow} - 1.2 d_{snow}/\rho_{snow}] </script>
 </p>
 <p>A minimum value for the effective canopy height of
- '10* the minimum roughness length of the surface' is applied
- (a numerics requirement).
- The snow density has a minimum value of 100 kg m<script type="math/tex">^{-3}</script> enforced when
+ '10 * the minimum roughness length of the surface' is applied
+ (a numerics requirement).</p>
+<p>The snow density has a minimum value of 100 kg m<script type="math/tex">^{-3}</script> enforced when
  used to convert snow amount to snow depth.</p>
 <p><br></br>
- <strong>The multiplier 1.2 needs to be followed up</strong></p>
+ <strong> Warning: The multiplier 1.2 needs to be followed up</strong></p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
@@ -153,37 +139,37 @@
   <td><span class="anchor" id="variable-heightabovesnow"></span>real</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>HeightAboveSnow</strong>(mp)</td><td></td>
+  <td><strong>HeightAboveSnow</strong>(mp)</td><td><p>Output. Effective height of canopy, known as <code>rough%hruff</code> elsewhere. (m)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-mp~43"></span>integer</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>mp</strong></td><td></td>
+  <td><strong>mp</strong></td><td><p>Number of land tiles (-)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-z0surf_min"></span>real</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>z0surf_min</strong></td><td></td>
+  <td><strong>z0surf_min</strong></td><td><p>minimum roughness length of the surface (m)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-hgt_pft"></span>real</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>HGT_pft</strong>(mp)</td><td></td>
+  <td><strong>HGT_pft</strong>(mp)</td><td><p>height of the canopy without snow (m)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-snowdepth~8"></span>real</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>SnowDepth</strong>(mp)</td><td></td>
+  <td><strong>SnowDepth</strong>(mp)</td><td><p>amount of snow (mm m(^{-2}) liquid water) </p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-snowdensity~3"></span>real</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>SnowDensity</strong>(mp)</td><td></td>
+  <td><strong>SnowDensity</strong>(mp)</td><td><p>density of snow (kg m<script type="math/tex">^{-3}</script>)</p></td>
 </tr>
 </tbody>
 </table>
