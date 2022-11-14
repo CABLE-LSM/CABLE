@@ -15,14 +15,14 @@ subroutine HgtAboveSnow( HeightAboveSnow, mp, z0surf_min, HGT_pft, &
   !  inputs:
   !
   !  * mp - number of land points
-  !  * z0surf_min - minimum roughness length of surface (in m)
-  !  * HGT_pft(mp) - height of canopy with no snow (in m)
-  !  * SnowDepth(mp) - depth of snow (in mm/m2 liquid water)
-  !  * SnowDensity(mp) - density of snow (in kg/m3)
+  !  * z0surf_min - minimum roughness length of surface (m)
+  !  * HGT_pft(mp) - height of canopy with no snow (m)
+  !  * SnowDepth(mp) - amount of snow (mm m\(^{-2}\) liquid water)
+  !  * SnowDensity(mp) - density of snow (in kg m\(^{-3}\))
   !
   !  outputs:
   !
-  !  * HeightAboveSnow (m) - effective height of canopy (in m)
+  !  * HeightAboveSnow (mp) - effective height of canopy (m)
   !
   !  The output variable was formerly known as rough%hruff
   !
@@ -57,8 +57,10 @@ subroutine HgtAboveSnow( HeightAboveSnow, mp, z0surf_min, HGT_pft, &
   ! evaluates min. allowed canopy height (fixed @ 10* min. surface roughness)
    
   HgtAboveSnow_comp =   HGT_pft - ( 1.2 * SnowDepth / SnowDensity_eff )
-  !* The height of canopy above snow level is evaluated from snow amount,
-  !  density of snow and input canopy height, while applying a minimum value
+  !* The height of the canopy above snow level is simply the canopy height
+  !  without snow minus the true depth of snow (in m).
+  !  The depth of snow is evaluated from the amount of snow (in mm m\(^{-2}\
+  !  of water) and the snow density.
   !
   ! \( h_{c,abovesnow} = \max[10 z_{0,min}, h_{c,nosnow} - 1.2 d_{snow}/\rho_{snow}] \)
   !
