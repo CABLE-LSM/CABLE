@@ -179,7 +179,7 @@ call LAI_eff( mp, veg%vlai, veg%hc, HeightAboveSnow, &
 canopy%vlaiw  = reducedLAIdue2snow
 canopy%rghlai = canopy%vlaiw
 
-!| * sets the value of soil and snow roughness lengths
+!* * sets the value of soil and snow roughness lengths
 !    (depends on the configuration of CABLE)
 IF (cable_user%soil_struc=='default') THEN
 
@@ -210,7 +210,7 @@ ELSEIF (cable_user%soil_struc=='sli') THEN
 ENDIF
 
 !| * evaluates the remaining output variables, depending on whether the land 
-!     point is vegetated or not.
+!    point is vegetated or not.
 do i=1,mp
   if( canopy%vlaiw(i) .LE. CLAI_THRESH  .OR.                                          &
       rough%hruff(i) .LT. rough%z0soilsn(i) ) then ! BARE SOIL SURFACE

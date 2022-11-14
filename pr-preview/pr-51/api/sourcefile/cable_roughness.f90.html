@@ -327,7 +327,7 @@
 <a id="ln-179" name="ln-179" href="#ln-179"></a><span class="n">canopy</span><span class="p">%</span><span class="n">vlaiw</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">reducedLAIdue2snow</span><span class="w"></span>
 <a id="ln-180" name="ln-180" href="#ln-180"></a><span class="n">canopy</span><span class="p">%</span><span class="n">rghlai</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">canopy</span><span class="p">%</span><span class="n">vlaiw</span><span class="w"></span>
 <a id="ln-181" name="ln-181" href="#ln-181"></a>
-<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="c">!| * sets the value of soil and snow roughness lengths</span>
+<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="c">!* * sets the value of soil and snow roughness lengths</span>
 <a id="ln-183" name="ln-183" href="#ln-183"></a><span class="c">!    (depends on the configuration of CABLE)</span>
 <a id="ln-184" name="ln-184" href="#ln-184"></a><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">soil_struc</span><span class="o">==</span><span class="s1">&#39;default&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w"></span>
 <a id="ln-185" name="ln-185" href="#ln-185"></a>
@@ -358,7 +358,7 @@
 <a id="ln-210" name="ln-210" href="#ln-210"></a><span class="k">ENDIF</span><span class="w"></span>
 <a id="ln-211" name="ln-211" href="#ln-211"></a>
 <a id="ln-212" name="ln-212" href="#ln-212"></a><span class="c">!| * evaluates the remaining output variables, depending on whether the land </span>
-<a id="ln-213" name="ln-213" href="#ln-213"></a><span class="c">!     point is vegetated or not.</span>
+<a id="ln-213" name="ln-213" href="#ln-213"></a><span class="c">!    point is vegetated or not.</span>
 <a id="ln-214" name="ln-214" href="#ln-214"></a><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">mp</span><span class="w"></span>
 <a id="ln-215" name="ln-215" href="#ln-215"></a><span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">canopy</span><span class="p">%</span><span class="n">vlaiw</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">LE</span><span class="p">.</span><span class="w"> </span><span class="n">CLAI_THRESH</span><span class="w">  </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w">                                          </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-216" name="ln-216" href="#ln-216"></a><span class="w">      </span><span class="n">rough</span><span class="p">%</span><span class="n">hruff</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="n">rough</span><span class="p">%</span><span class="n">z0soilsn</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! BARE SOIL SURFACE</span>
