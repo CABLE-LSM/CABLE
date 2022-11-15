@@ -19,40 +19,40 @@
    cable_user%LUC_outfile     = "outputs/cru_out_LUC.nc"
    cable_user%climate_restart_in  = "restart/cru_climate_rst.nc"
    cable_user%climate_restart_out = "restart/cru_climate_rst.nc"
-   vegparmnew       = .true.    ! using new format when true
-   soilparmnew      = .true.    ! using new format when true
-   spinup           = .false.   ! do we spin up the model?
+   vegparmnew       = .TRUE.    ! using new format when true
+   soilparmnew      = .TRUE.    ! using new format when true
+   spinup           = .FALSE.   ! do we spin up the model?
    delsoilM         = 0.01      ! allowed variation in soil moisture for spin up
    delsoilT         = 0.1       ! allowed variation in soil temperature for spin up
    output%grid      = "mask"
-   output%restart   = .true.    ! should a restart file be created?
-   output%met       = .true.    ! input met data
-   output%flux      = .true.    ! convective, runoff, NEE
-   output%soil      = .true.    ! soil states
-   output%snow      = .true.    ! snow states
-   output%radiation = .true.    ! net rad, albedo
-   output%casa      = .true.
-   output%carbon    = .true.    ! NEE, GPP, NPP, stores
-   output%veg       = .true.    ! vegetation states
-   output%params    = .true.    ! input parameters used to produce run
-   output%balances  = .false.    ! energy and water balances
-   output%patch     = .true. 
+   output%restart   = .TRUE.    ! should a restart file be created?
+   output%met       = .TRUE.    ! input met data
+   output%flux      = .TRUE.    ! convective, runoff, NEE
+   output%soil      = .TRUE.    ! soil states
+   output%snow      = .TRUE.    ! snow states
+   output%radiation = .TRUE.    ! net rad, albedo
+   output%casa      = .TRUE.
+   output%carbon    = .TRUE.    ! NEE, GPP, NPP, stores
+   output%veg       = .TRUE.    ! vegetation states
+   output%params    = .TRUE.    ! input parameters used to produce run
+   output%balances  = .TRUE.    ! energy and water balances
+   output%patch     = .TRUE. 
    output%averaging = "monthly"
-   check%ranges     = .false.   ! variable ranges, input and output
-   check%energy_bal = .true.    ! energy balance
-   check%mass_bal   = .true.    ! water/mass balance
-   verbose          = .false.   ! write details of every grid cell init and params to log?
-   leaps            = .false.
+   check%ranges     = .FALSE.   ! variable ranges, input and output
+   check%energy_bal = .TRUE.    ! energy balance
+   check%mass_bal   = .TRUE.    ! water/mass balance
+   verbose          = .FALSE.   ! write details of every grid cell init and params to log?
+   leaps            = .FALSE.
    logn             = 88        ! log file number - declared in input module
    fixedCO2         = 350.0     ! if not found in met file, in ppmv
-   spincasainput    = .false.   ! input required to spin casacnp offline
-   spincasa         = .false.   ! spin casa before running the model if TRUE, and should be 
-                  ! set to FALSE if spincasainput = .true.
-   l_casacnp        = .true.    ! using casaCNP with CABLE  (! DEPRECATED!!! use icycle instead!))
-   l_laiFeedbk      = .true.    ! using prognostic LAI
-   l_vcmaxFeedbk    = .true.    ! using prognostic Vcmax
+   spincasainput    = .FALSE.   ! input required to spin casacnp offline
+   spincasa         = .FALSE.   ! spin casa before running the model if TRUE, and should be 
+   		   	        ! set to FALSE if spincasainput = .TRUE.
+   l_casacnp        = .TRUE.    ! using casaCNP with CABLE  (! DEPRECATED!!! use icycle instead!))
+   l_laiFeedbk      = .TRUE.    ! using prognostic LAI
+   l_vcmaxFeedbk    = .TRUE.    ! using prognostic Vcmax
    icycle           = 2         ! BP pull it out from casadimension and put here; 0 for not using casaCNP, 
-                          ! 1 for C, 2 for C+N, 3 for C+N+P
+   	    	                ! 1 for C, 2 for C+N, 3 for C+N+P
    casafile%cnpbiome  = "/home/599/jk8585/CABLE_run/TRENDY_v10/params_v2/pftlookup.csv"
    casafile%cnpmetout = "casamet.nc"          ! output daily met forcing for spinning casacnp
    casafile%cnpmetin  = ""                    ! list of daily met files for spinning casacnp
@@ -67,54 +67,54 @@
    gswpfile%Qair      = "/data/nie06a/MET/PLUMBER/Qair_cru_1986_plumber.nc"
    gswpfile%Tair      = "/data/nie06a/MET/PLUMBER/Tair_cru_1986_plumber.nc"
    gswpfile%wind      = "/data/nie06a/MET/PLUMBER/Wind_ncep_1986_plumber.nc"
-   redistrb  = .false.  ! Turn on/off the hydraulic redistribution
+   redistrb  = .FALSE.  ! Turn on/off the hydraulic redistribution
    wiltParam = 0.5
    satuParam = 0.8
    cable_user%FWSOIL_SWITCH    = "Haverd2013"    ! choices are: 
                                                  ! 1. standard 
                                                  ! 2. non-linear extrapolation 
-                                                 ! 3. Lai and Katul 2000 
+                                                 ! 3. Lai and Ktaul 2000 
                                                  ! 4. Haverd2013
-   cable_user%litter           = .true. 
+   cable_user%litter           = .TRUE. 
    cable_user%DIAG_SOIL_RESP   = "ON " 
    cable_user%LEAF_RESPIRATION = "ON " 
    cable_user%RUN_DIAG_LEVEL   = "BASIC"        ! choices are: 
                                                 ! 1. BASIC
-                                                ! 1. none
-   cable_user%CONSISTENCY_CHECK   = .true.      ! TRUE outputs combined fluxes at each timestep for comparisson to A control run 
-   cable_user%CASA_DUMP_READ      = .false.     ! TRUE reads CASA forcing from netcdf format
-   cable_user%CASA_DUMP_WRITE     = .false.     ! TRUE outputs CASA forcing in netcdf format
+                                                ! 1. NONE
+   cable_user%CONSISTENCY_CHECK   = .TRUE.      ! TRUE outputs combined fluxes at each timestep for comparisson to A control run 
+   cable_user%CASA_DUMP_READ      = .FALSE.     ! TRUE reads CASA forcing from netcdf format
+   cable_user%CASA_DUMP_WRITE     = .FALSE.     ! TRUE outputs CASA forcing in netcdf format
    cable_user%CASA_SPIN_STARTYEAR = 1850        ! default = 1950
    cable_user%CASA_SPIN_ENDYEAR   = 1859        ! default = 1960
    cable_user%CASA_NREP           = 0
-   cable_user%LogWorker           = .false.  
+   cable_user%LogWorker           = .FALSE.	 
    cable_user%SSNOW_POTEV         = "P-M"       ! Humidity Deficit Method
-   cable_user%SOIL_STRUC          = "default"   ! Soil model: 'default', 'sli'
-   cable_user%CALL_POP            = .true.
+   cable_user%SOIL_STRUC          = "default"
+   cable_user%CALL_POP            = .TRUE.
    cable_user%POP_out             = "epi"       ! Pop-output file either 'rst': Standard restart OR 'epi' for whole episode
-   cable_user%POP_fromZero        = .true.      ! Start POP from Zero, don't read restart file
-   cable_user%CASA_fromZero       = .true.  
+   cable_user%POP_fromZero        = .TRUE.      ! Start POP from Zero, don't read restart file
+   cable_user%CASA_fromZero       = .TRUE.  
    cable_user%RunIden             = "cru"
    cable_user%YearStart           = 1831        ! YYYY 4 digit year
    cable_user%YearEnd             = 1851        ! YYYY 4 digit year
    cable_user%MetType             = "cru"
    cable_user%CASA_OUT_FREQ       = "monthly"
-   cable_user%CLIMATE_fromZero    = .true.  
-   cable_user%CALL_CLIMATE        = .true.
+   cable_user%CLIMATE_fromZero    = .TRUE.	
+   cable_user%CALL_CLIMATE        = .TRUE.
    cable_user%PHENOLOGY_SWITCH    = "climate"
-   cable_user%POPLUC              = .false.  
+   cable_user%POPLUC              = .FALSE.	 
    cable_user%POPLUC_RunType      = "static"
    cable_user%vcmax               = "Walker2014"
    cable_user%gs_switch           = "medlyn"
-   cable_user%explicit_gm         = .false.
+   cable_user%explicit_gm         = .FALSE.
    cable_user%Rubisco_parameters  = "Bernacchi_2002"
    cable_user%gm_LUT_file         = "/home/599/jk8585/CABLE_run/TRENDY_v10/params_v2/gm_LUT_351x3601x7_1pt8245_Bernacchi2002.nc"
-   cable_user%coordinate_photosyn = .true.
+   cable_user%coordinate_photosyn = .TRUE.
    cable_user%g0_switch           = "maximum"
-   cable_user%acclimate_photosyn  = .true.
-   cable_user%limit_labile        = .false.
-   cable_user%SRF                 = .true.
+   cable_user%acclimate_photosyn  = .TRUE.
+   cable_user%limit_labile        = .FALSE.
+   cable_user%SRF                 = .TRUE.
    cable_user%SMRF_NAME           = "Trudinger2016"
    cable_user%STRF_NAME           = "LT1994"
-   cable_user%CALL_BLAZE          = .false.
+   cable_user%CALL_BLAZE          = .FALSE.
 /
