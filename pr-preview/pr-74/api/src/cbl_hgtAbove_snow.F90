@@ -62,7 +62,6 @@ subroutine HgtAboveSnow( HeightAboveSnow, mp, z0surf_min, HGT_pft, &
   !  The snow density has a minimum value of 100 kg m\(^{-3}\) enforced when
   !  used to convert snow amount to snow depth.
   !
-  !  <br></br>
   !  ** Warning: The multiplier 1.2 needs to be followed up**
 
   ! Finally return the Effective canopy height above snow 
