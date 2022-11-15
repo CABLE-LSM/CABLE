@@ -115,7 +115,7 @@
     
 
     <p>This subroutine computes the leaf-area index of a canopy when there is snow
-present.  The formulae assume that the leaf area is distributed uniformly
+present. The formulae assume that the leaf area is distributed uniformly
 in the vertical within the canopy.</p>
 <p>inputs:</p>
 <ul>
@@ -134,20 +134,19 @@ in the vertical within the canopy.</p>
 <br></br></p>
 <p>Leaf area, LAI, accounting for the presence of snow, is given by</p>
 <p>
-<script type="math/tex"> LAI_{snow} = LAI_{nosnow} h_{c,snow} / \max[0.01, h_{c,nosnow} ] </script>
+<script type="math/tex; mode=display"> LAI_{snow} = LAI_{nosnow} h_{c,snow} / \max[0.01, h_{c,nosnow} ] </script>
 </p>
-<p>where <script type="math/tex">h_{c,snow}</script> is evaluated in <a href="../proc/hgtabovesnow.html">HgtAboveSnow</a>.
+<p>where <script type="math/tex">h_{c,snow}</script> is evaluated in subroutine <a href="../proc/hgtabovesnow.html">HgtAboveSnow</a>.
 The LAI is decreased proportionally to the canopy height with/without snow.</p>
 <p>The effective canopy height used to evaluate the
 proportional decrease in LAI takes a minimum value of 0.01m.
 This condition prevents numerical issues when the canopy height
 (without snow) is small.</p>
-<p><br></br>
-<strong>To follow up</strong></p>
+<p><strong>Warning: To follow up</strong></p>
 <p>Can HgtAboveSnow be greater than MAX(0.01, Hgt_PFT)?
 If yes then there is an issue to resolve.
 HgtAboveSnow can sit at its minimum value of 10 <script type="math/tex">z_{0,min}</script> so if
-10 <script type="math/tex">z_{0,min} > 0.01 > h_{c,nosnow} </script> then LAI can increase if
+<script type="math/tex">10 z_{0,min} > 0.01 > h_{c,nosnow} </script> then LAI can increase if
 there is snow!  </p>
 
     <h3>Arguments</h3>
@@ -158,31 +157,32 @@ there is snow!  </p>
   <td><span class="anchor" id="variable-mp~44"></span>integer</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>mp</strong></td><td></td>
+  <td><strong>mp</strong></td><td><p>Number of land points (-)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-lai_pft"></span>real</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>LAI_PFT</strong>(mp)</td><td></td>
+  <td><strong>LAI_PFT</strong>(mp)</td><td><p>Leaf area index without snow (m<script type="math/tex">^2</script> m<script type="math/tex">^{-2})</script>
+</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-hgt_pft"></span>real</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>Hgt_PFT</strong>(mp)</td><td></td>
+  <td><strong>Hgt_PFT</strong>(mp)</td><td><p>height of canopy without snow (m)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-hgtabovesnow"></span>real</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>HgtAboveSnow</strong>(mp)</td><td></td>
+  <td><strong>HgtAboveSnow</strong>(mp)</td><td><p>height of canopy above the snow surface (m)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-reducedlaidue2snow~5"></span>real</td>
 <td></td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>reducedLAIdue2snow</strong>(mp)</td><td></td>
+  <td><strong>reducedLAIdue2snow</strong>(mp)</td><td><p>Output. Modified leaf area index for snow (m<script type="math/tex">^2</script> m<script type="math/tex">^{-2}</script>))</p></td>
 </tr>
 </tbody>
 </table>
