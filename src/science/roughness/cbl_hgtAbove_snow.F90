@@ -27,7 +27,7 @@ subroutine HgtAboveSnow( HeightAboveSnow, mp, z0surf_min, HGT_pft, &
   !re-decl input args  
   real :: z0surf_min !! minimum roughness length of the surface (m)
   real :: HGT_pft(mp) !! height of the canopy without snow (m)
-  real :: SnowDepth(mp) !! amount of snow (mm m(^{-2}\) liquid water) 
+  real :: SnowDepth(mp) !! amount of snow (mm m\(^{-2}\) liquid water) 
   real :: SnowDensity(mp) !! density of snow (kg m\(^{-3}\))
 
   !local_vars: 
