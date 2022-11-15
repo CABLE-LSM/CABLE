@@ -36,7 +36,7 @@ SUBROUTINE LAI_eff( mp, LAI_PFT, Hgt_PFT, HgtAboveSnow,  &
   reducedLAIdue2snow = LAI_PFT * FracOfCanopyAboveSnow
   !* Leaf area, LAI, accounting for the presence of snow, is given by
   !
-  ! \[ LAI_{snow} = LAI_{nosnow} h_{c,snow} / \max[0.01, h_{c,nosnow} ] \]
+  ! \[ LAI_{snow} = LAI_{nosnow} \frac{h_{c,snow}}{\max(0.01, h_{c,nosnow})} \]
   !
   ! where \(h_{c,snow}\) is evaluated in subroutine [[HgtAboveSnow]].
   ! The LAI is decreased proportionally to the canopy height with/without snow.

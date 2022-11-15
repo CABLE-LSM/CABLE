@@ -53,7 +53,7 @@ subroutine HgtAboveSnow( HeightAboveSnow, mp, z0surf_min, HGT_pft, &
   ! The depth of snow is evaluated from the amount of snow (in mm m\(^{-2}\)
   ! of liquid water) and the snow density.
   !
-  ! \[ h_{c,abovesnow} = \max[10 z_{0,min}, h_{c,nosnow} - 1.2 d_{snow}/\rho_{snow}] \]
+  ! \[ h_{c,abovesnow} = \max[10*z_{0,min}, h_{c,nosnow} - 1.2*d_{snow}/\rho_{snow}] \]
   !
   !  A minimum value for the effective canopy height of
   !  '10 * the minimum roughness length of the surface' is applied
