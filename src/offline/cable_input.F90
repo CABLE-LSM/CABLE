@@ -2678,7 +2678,7 @@ CONTAINS
 
     CALL write_default_params(met,air,ssnow,veg,bgc,soil,canopy,rough, &
          rad,logn,vegparmnew,smoy, TFRZ, LUC_EXPT)
-    !! 3. Write the loaded parameter values to CABLE's parameter variables
+    !! 3. Assign the loaded parameter values to CABLE's parameter variables
 
     ! Zero out lai where there is no vegetation acc. to veg. index
     WHERE ( veg%iveg(:) .GE. 14 ) veg%vlai = 0.
