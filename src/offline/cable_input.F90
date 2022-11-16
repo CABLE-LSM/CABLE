@@ -2858,7 +2858,7 @@ CONTAINS
   !==============================================================================
 
   SUBROUTINE get_parameters_met(soil,veg,bgc,rough,completeSet)
-    !* **get_parameters_met** searches for CABLE parameters in the met forcing
+    !* Searches for CABLE parameters in the met forcing
     ! file, and if it finds any, uses these values to overwrite the values that
     ! have already been loaded from the default parameter loading and/or the
     ! restart file.
