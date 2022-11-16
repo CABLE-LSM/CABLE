@@ -2867,7 +2867,7 @@ CONTAINS
     ! file has been commented out here, so site based simulations can only have
     ! the default vegetation type - this is clearly problematic. To fix this
     ! issue, the parameter loading needs to be reordered a little, so that if
-    ! the default veg or soil type is set here, the paraemter values themselves
+    ! the default veg or soil type is set here, the parameter values themselves
     ! are actually written as a result of this.
     !
     ! - WARNING: The list of parameters searched for here is not complete
