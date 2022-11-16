@@ -14,7 +14,6 @@
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
-    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -64,14 +63,6 @@
                              <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
 <li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
           </ul>
-        <form action="../search.html" class="navbar-form navbar-right" role="search">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
-        </div>
-<!--
-        <button type="submit" class="btn btn-default">Submit</button>
--->
-        </form>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
@@ -128,17 +119,96 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/cbl_hruff_mod.html'>cbl_hruff_mod</a></li>
     <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
     <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
     <li><a href='../module/cbl_lai_eff_mod.html'>cbl_LAI_eff_mod</a></li>
     <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
+    <li><a href='../module/cbl_hruff_mod.html'>cbl_hruff_mod</a></li>
   </ul>
       </li>
       </ul>
     </div>
 
 
+    <p>Calculates the roughness parameters and the aerodynamic contribution to the
+ resistances controlling the fluxes between the land and atmosphere for each 
+ land point.</p>
+<h2>Scientific description</h2>
+<p>The scientific basis for the formulae is a combination of Localised Near 
+ Field theory for aerodynamic transfer within canopies (for the heat and 
+ water vapour fluxes) and bulk formulae for the roughness length and 
+ displacement height accounting for roughness sublayer effects (for the 
+ momentum flux).</p>
+<p>The calculations take into account whether:</p>
+<ol>
+<li>the soil model used is SLI or the default (soilsnow)</li>
+<li>the land point is vegetated (LAI &gt; LAI_THRESH) or not</li>
+</ol>
+<p>The primary references for these formulations are</p>
+<ul>
+<li><a href="https://doi.org/10.1002/qj.49711548710">Raupach MR (1989)</a></li>
+<li><a href="https://doi.org/10.1007/BF00155203">Raupach MR (1992)</a></li>
+<li><a href="https://doi.org/10.1007/BF00709229">Raupach MR (1994)</a></li>
+<li><a href="http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf">Kowalczyk et al. (2006)</a></li>
+</ul>
+<h2>Outputs</h2>
+<p>The principal outputs from the MODULE are</p>
+<ul>
+<li><code>rough%zref_tq</code>: reference height above the displacement height for the 
+   air temperature and humidity, where these forcing observations are deemed
+   to have been collected (m) </li>
+<li><code>rough%zref_uv</code>: height above the displacement height for the 
+   wind speeds, where the forcing observations are deemed to have been 
+   collected (m) </li>
+<li><code>rough%hruff</code>: the canopy height accounting for the presence of snow (m)</li>
+<li><code>canopy%vlaiw</code>: the leaf area index accounting for the presence of snow 
+   (m<script type="math/tex">^2</script> m<script type="math/tex">^{-2}</script>)</li>
+<li><code>rough%z0soil</code>: the aerodynamic roughness length for soil (m)</li>
+<li><code>rough%z0ssoilsn</code>: the aerodynamic roughness length for snow (m)</li>
+<li><code>rough%z0m</code>: the aerodynamic roughness length for the surface 
+   (canopy+soil+snow) (m)</li>
+<li><code>rough%disp</code>: the displacement height of the surface 
+   (=0.0 if not vegetated) (m)</li>
+<li><code>rough%zruffs</code>: the depth of the roughness sublayer over vegetated
+   surfaces (m)</li>
+<li>
+<p><code>rough%coexp</code>: the extinction coefficient for the wind speed profile 
+   within the canopy, <script type="math/tex">c_{0}</script> (m<script type="math/tex">^{-1}</script>). </p>
+<p>
+<script type="math/tex">c_{0}</script> is defined to be the coefficient within an expontial wind 
+profile, i.e. the wind speed at height <script type="math/tex">z</script> above the ground within 
+a canopy of height <script type="math/tex">h_c</script> is given by 
+<script type="math/tex"> U(z) = U_{h} \exp\{ c_{0} (z-h_c) \} </script> where <script type="math/tex">U_h</script> is the wind 
+speed at canopy top.</p>
+</li>
+<li>
+<p><code>rough%usuh</code>: the ratio of the friction velocity, <script type="math/tex">u_*</script>, to the wind 
+   speed at canopy top (-)</p>
+</li>
+<li><code>rough%rt0us</code>: <em>normalised</em> aerodynamic resistance for the turbulent
+   transfer from the soil/snow surface to the displacement height (-)</li>
+<li>
+<p><code>rough%rt1us</code>: <em>normalised</em> aerodynamic resistance for the turbulent 
+   transfer from the displacement height to the reference level (-)</p>
+<p><code>rough%rt1us</code> is evaluated in three subparts (<code>rough%rt1usa</code>, 
+<code>rough%rt1usb</code>, and <code>rough%rt1usc</code>). One of the resistance terms 
+(<code>rough%rt1usc</code>) is evaluated in subroutine <a href="../proc/define_canopy.html">define_canopy</a>.</p>
+</li>
+</ul>
+<p>Each of the normalized resistances are given by the theoretical formulae 
+ given by the references. The aerodynamic resistances for the current 
+ time step are evaluated later by dividing the <em>normalized resistances</em> by 
+ the current time step's friction velocity <code>canopy%us</code>. </p>
+<h2>Structure</h2>
+<ul>
+<li>evaluates the canopy height and leaf area given the presence of snow 
+    (or not) using <a href="../proc/hgtabovesnow.html">HgtAboveSnow</a> and <a href="../proc/lai_eff.html">LAI_eff</a></li>
+<li>sets the value of soil and snow roughness lengths
+    (depends on the configuration of CABLE)</li>
+<li>evaluates the remaining output variables, depending on whether the land 
+    point is vegetated or not.</li>
+<li>if the SLI soil model is used - updates the evaluated <code>rough%rt0us</code></li>
+</ul>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
@@ -253,9 +323,6 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <script src="../tipuesearch/tipuesearch_content.js"></script>
-    <script src="../tipuesearch/tipuesearch_set.js"></script>
-    <script src="../tipuesearch/tipuesearch.js"></script>
     
   </body>
 </html>

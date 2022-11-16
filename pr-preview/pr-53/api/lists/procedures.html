@@ -15,7 +15,6 @@
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
-    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -65,14 +64,6 @@
                              <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
 <li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
           </ul>
-        <form action="../search.html" class="navbar-form navbar-right" role="search">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
-        </div>
-<!--
-        <button type="submit" class="btn btn-default">Submit</button>
--->
-        </form>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
@@ -201,7 +192,9 @@
 			   <tr><td><a href='../proc/canopytransmitance_beam.html'>CanopyTransmitance_beam</a></td><td><a href='../module/cbl_albedo_mod.html'>cbl_albedo_mod</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/canopytransmitance_dif.html'>CanopyTransmitance_dif</a></td><td><a href='../module/cbl_albedo_mod.html'>cbl_albedo_mod</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/carbon_pl.html'>carbon_pl</a></td><td><a href='../module/cable_carbon_module.html'>cable_carbon_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/casa_allocation.html'>casa_allocation</a></td><td><a href='../module/casa_cnp_module.html'>casa_cnp_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/casa_allocation.html'>casa_allocation</a></td><td><a href='../module/casa_cnp_module.html'>casa_cnp_module</a></td><td>Subroutine</td><td><p>Computes the fraction of net photosynthate allocated to leaf, wood 
+and froot using an allocation scheme modified from 
+<a href="https://doi.org/10.1046/j.1365-2486.1999.00269.x">Pierre Friedlingstein</a>.</p><a href="../proc/casa_allocation.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/casa_cnpbal.html'>casa_cnpbal</a></td><td><a href='../module/casa_cnp_module.html'>casa_cnp_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/casa_cnpcycle.html'>casa_cnpcycle</a></td><td><a href='../module/casa_cnp_module.html'>casa_cnp_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/casa_cnpflux.html'>casa_cnpflux</a></td><td><a href='../module/casa_inout_module.html'>casa_inout_module</a></td><td>Subroutine</td><td></td></tr>
@@ -224,7 +217,9 @@
 			   <tr><td><a href='../proc/casa_readphen.html'>casa_readphen</a></td><td><a href='../module/casa_inout_module.html'>casa_inout_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/casa_rplant.html'>casa_rplant</a></td><td><a href='../module/casa_cnp_module.html'>casa_cnp_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/casa_rplant1.html'>casa_rplant1</a></td><td><a href='../module/casa_cnp_module.html'>casa_cnp_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/casa_wolf.html'>casa_wolf</a></td><td><a href='../module/casa_cnp_module.html'>casa_cnp_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/casa_wolf.html'>casa_wolf</a></td><td><a href='../module/casa_cnp_module.html'>casa_cnp_module</a></td><td>Subroutine</td><td><p>Carbon allocation algorithm implemented by Dan Qiu and YP Wang in 2011 
+based on Adam Wolf <a href="https://doi.org/10.1890/10-1201.1">1</a> and 
+<a href="https://doi:10.1029/2010GB003917">2</a></p></td></tr>
 			   <tr><td><a href='../proc/casa_xkn.html'>casa_xkN</a></td><td><a href='../module/casa_cnp_module.html'>casa_cnp_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/casa_xnp.html'>casa_xnp</a></td><td><a href='../module/casa_cnp_module.html'>casa_cnp_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/casa_xrateplant.html'>casa_xrateplant</a></td><td><a href='../module/casa_cnp_module.html'>casa_cnp_module</a></td><td>Subroutine</td><td></td></tr>
@@ -343,7 +338,7 @@
 			   <tr><td><a href='../proc/get_land_index.html'>get_land_index</a></td><td><a href='../module/cable_param_module.html'>cable_param_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/get_met_data.html'>get_met_data</a></td><td><a href='../module/cable_input_module.html'>cable_input_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/get_namelist_file_name.html'>get_namelist_file_name</a></td><td><a href='../module/cable_namelist_util.html'>cable_namelist_util</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/get_parameters_met.html'>get_parameters_met</a></td><td><a href='../module/cable_input_module.html'>cable_input_module</a></td><td>Subroutine</td><td><p><strong>get_parameters_met</strong> searches for CABLE parameters in the met forcing
+			   <tr><td><a href='../proc/get_parameters_met.html'>get_parameters_met</a></td><td><a href='../module/cable_input_module.html'>cable_input_module</a></td><td>Subroutine</td><td><p>Searches for CABLE parameters in the met forcing
 file, and if it finds any, uses these values to overwrite the values that
 have already been loaded from the default parameter loading and/or the
 restart file.</p><a href="../proc/get_parameters_met.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
@@ -420,7 +415,7 @@ restart file.</p><a href="../proc/get_parameters_met.html" class="pull-right"><e
 			   <tr><td><a href='../proc/leap_day.html'>LEAP_DAY</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/limit_hgt_lai.html'>limit_HGT_LAI</a></td><td><a href='../module/cbl_lai_canopy_height_mod.html'>cbl_LAI_canopy_height_mod</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/litter_props.html'>litter_props</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/load_parameters.html'>load_parameters</a></td><td><a href='../module/cable_input_module.html'>cable_input_module</a></td><td>Subroutine</td><td><p><strong>load_parameters</strong> defines the priority order of sources of parameter
+			   <tr><td><a href='../proc/load_parameters.html'>load_parameters</a></td><td><a href='../module/cable_input_module.html'>cable_input_module</a></td><td>Subroutine</td><td><p>Defines the priority order of sources of parameter
 values for CABLE, determines the total number of patches over all grid
 cells, and writes parameter values to CABLE's parameter arrays.</p><a href="../proc/load_parameters.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/luc_expt_init.html'>LUC_EXPT_INIT</a></td><td><a href='../module/cable_luc_expt.html'>CABLE_LUC_EXPT</a></td><td>Subroutine</td><td></td></tr>
@@ -464,13 +459,13 @@ cells, and writes parameter values to CABLE's parameter arrays.</p><a href="../p
 			   <tr><td><a href='../proc/old_soil_conductivity.html'>old_soil_conductivity</a></td><td><a href='../module/old_soil_conductivity_mod.html'>old_soil_conductivity_mod</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/open_cru_met.html'>OPEN_CRU_MET</a></td><td><a href='../module/cable_cru.html'>CABLE_CRU</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/open_file_per_node.html'>open_file_per_node</a></td><td><a href='../module/cable_diag_module.html'>cable_diag_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/open_file_per_node~2.html'>open_file_per_node</a></td><td><a href='../module/cable_ffile_module.html'>cable_fFile_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/open_file_per_node~2.html'>open_file_per_node</a></td><td><a href='../module/cable_ffile_module~2.html'>cable_fFile_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/open_file_per_node~3.html'>open_file_per_node</a></td><td><a href='../module/cable_diag_module~2.html'>cable_diag_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/open_file_per_node~4.html'>open_file_per_node</a></td><td><a href='../module/cable_ffile_module~2.html'>cable_fFile_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/open_file_per_node~4.html'>open_file_per_node</a></td><td><a href='../module/cable_ffile_module.html'>cable_fFile_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/open_idiag.html'>open_iDiag</a></td><td><a href='../module/cable_diag_module.html'>cable_diag_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/open_idiag~2.html'>open_iDiag</a></td><td><a href='../module/cable_ffile_module.html'>cable_fFile_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/open_idiag~2.html'>open_iDiag</a></td><td><a href='../module/cable_ffile_module~2.html'>cable_fFile_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/open_idiag~3.html'>open_iDiag</a></td><td><a href='../module/cable_diag_module~2.html'>cable_diag_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/open_idiag~4.html'>open_iDiag</a></td><td><a href='../module/cable_ffile_module~2.html'>cable_fFile_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/open_idiag~4.html'>open_iDiag</a></td><td><a href='../module/cable_ffile_module.html'>cable_fFile_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/open_met_file.html'>open_met_file</a></td><td><a href='../module/cable_input_module.html'>cable_input_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/open_output_file.html'>open_output_file</a></td><td><a href='../module/cable_output_module.html'>cable_output_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/open_plume_met.html'>OPEN_PLUME_MET</a></td><td><a href='../module/cable_plume_mip.html'>CABLE_PLUME_MIP</a></td><td>Subroutine</td><td></td></tr>
@@ -518,7 +513,7 @@ cells, and writes parameter values to CABLE's parameter arrays.</p><a href="../p
 			   <tr><td><a href='../proc/put_var_ncr3.html'>put_var_ncr3</a></td><td><a href='../module/casa_ncdf_module.html'>casa_ncdf_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/put_var_ncr3~2.html'>put_var_ncr3</a></td><td><a href='../module/cable_diag_module.html'>cable_diag_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/put_var_ncr3~3.html'>put_var_ncr3</a></td><td><a href='../module/cable_diag_module~2.html'>cable_diag_module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/qprint.html'>qprint</a></td><td><a href='../module/cable_ffile_module.html'>cable_fFile_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/qprint.html'>qprint</a></td><td><a href='../module/cable_ffile_module~2.html'>cable_fFile_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/qsatfjh.html'>qsatfjh</a></td><td><a href='../module/cbl_qsat_module.html'>cbl_qsat_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/qsatfjh2.html'>qsatfjh2</a></td><td><a href='../module/cbl_qsat_module.html'>cbl_qsat_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/radiation.html'>radiation</a></td><td><a href='../module/cbl_radiation_module.html'>cbl_radiation_module</a></td><td>Subroutine</td><td></td></tr>
@@ -558,7 +553,9 @@ cells, and writes parameter values to CABLE's parameter arrays.</p><a href="../p
 			   <tr><td><a href='../proc/rh_sh.html'>rh_sh</a></td><td><a href='../module/cable_checks_module.html'>cable_checks_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/rtbis_rh0.html'>rtbis_rh0</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/rtbis_tfrozen.html'>rtbis_Tfrozen</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
-			   <tr><td><a href='../proc/ruff_resist.html'>ruff_resist</a></td><td><a href='../module/cable_roughness_module.html'>cable_roughness_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/ruff_resist.html'>ruff_resist</a></td><td><a href='../module/cable_roughness_module.html'>cable_roughness_module</a></td><td>Subroutine</td><td><p>Calculates the roughness parameters and the aerodynamic contribution to the
+ resistances controlling the fluxes between the land and atmosphere for each 
+ land point.</p><a href="../proc/ruff_resist.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/saturated_fraction.html'>saturated_fraction</a></td><td><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/seb.html'>SEB</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/seb_fr.html'>SEB_FR</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Subroutine</td><td></td></tr>
@@ -729,9 +726,6 @@ cells, and writes parameter values to CABLE's parameter arrays.</p><a href="../p
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <script src="../tipuesearch/tipuesearch_content.js"></script>
-    <script src="../tipuesearch/tipuesearch_set.js"></script>
-    <script src="../tipuesearch/tipuesearch.js"></script>
     
   </body>
 </html>

@@ -14,7 +14,6 @@
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
-    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -64,14 +63,6 @@
                              <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
 <li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
           </ul>
-        <form action="../search.html" class="navbar-form navbar-right" role="search">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
-        </div>
-<!--
-        <button type="submit" class="btn btn-default">Submit</button>
--->
-        </form>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
@@ -123,7 +114,7 @@
     <h2>private subroutine get_parameters_met(soil, veg, bgc, rough, completeSet)</h2>
     
 
-    <p><strong>get_parameters_met</strong> searches for CABLE parameters in the met forcing
+    <p>Searches for CABLE parameters in the met forcing
 file, and if it finds any, uses these values to overwrite the values that
 have already been loaded from the default parameter loading and/or the
 restart file.</p>
@@ -133,7 +124,7 @@ restart file.</p>
 file has been commented out here, so site based simulations can only have
 the default vegetation type - this is clearly problematic. To fix this
 issue, the parameter loading needs to be reordered a little, so that if
-the default veg or soil type is set here, the paraemter values themselves
+the default veg or soil type is set here, the parameter values themselves
 are actually written as a result of this.</p>
 </li>
 <li>
@@ -245,9 +236,6 @@ process studies.</p>
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <script src="../tipuesearch/tipuesearch_content.js"></script>
-    <script src="../tipuesearch/tipuesearch_set.js"></script>
-    <script src="../tipuesearch/tipuesearch.js"></script>
     
   </body>
 </html>

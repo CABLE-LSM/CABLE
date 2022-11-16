@@ -2559,7 +2559,7 @@ CONTAINS
        sum_flux,bal,logn,vegparmnew,casabiome,casapool,    &
        casaflux,sum_casapool, sum_casaflux,casamet,casabal,phen,POP,spinup,EMSOIL, &
        TFRZ, LUC_EXPT, POPLUC)
-    !* **load_parameters** defines the priority order of sources of parameter
+    !* Defines the priority order of sources of parameter
     ! values for CABLE, determines the total number of patches over all grid
     ! cells, and writes parameter values to CABLE's parameter arrays.
     !
@@ -2570,7 +2570,7 @@ CONTAINS
     ! simply uncommenting the iveg and isoil reads from the met file - it
     ! requires the actual parameter values to be written after that read).
     !
-    ! Documentation here is a simple order of processes:
+    ! ### Order of processes:
 
     ! Input variables not listed:
     !   filename%type  - via cable_IO_vars_module
@@ -2678,14 +2678,14 @@ CONTAINS
 
     CALL write_default_params(met,air,ssnow,veg,bgc,soil,canopy,rough, &
          rad,logn,vegparmnew,smoy, TFRZ, LUC_EXPT)
-    !! 3. Write the loaded parameter values to CABLE's parameter variables
+    !! 3. Assign the loaded parameter values to CABLE's parameter variables
 
     ! Zero out lai where there is no vegetation acc. to veg. index
     WHERE ( veg%iveg(:) .GE. 14 ) veg%vlai = 0.
 
     IF (icycle > 0) THEN
        CALL write_cnp_params(veg,casaflux,casamet)
-       !* 4. [IF CASA is being used] Write the CASA parameters from CABLE
+       !* 4. [IF CASA is being used] Assign the CASA parameters from CABLE
        ! parameters
        !     - WARNING: again this should happen after the restart file and met
        ! file information has been used to define CABLE parameters, otherwise
@@ -2858,7 +2858,7 @@ CONTAINS
   !==============================================================================
 
   SUBROUTINE get_parameters_met(soil,veg,bgc,rough,completeSet)
-    !* **get_parameters_met** searches for CABLE parameters in the met forcing
+    !* Searches for CABLE parameters in the met forcing
     ! file, and if it finds any, uses these values to overwrite the values that
     ! have already been loaded from the default parameter loading and/or the
     ! restart file.
@@ -2867,7 +2867,7 @@ CONTAINS
     ! file has been commented out here, so site based simulations can only have
     ! the default vegetation type - this is clearly problematic. To fix this
     ! issue, the parameter loading needs to be reordered a little, so that if
-    ! the default veg or soil type is set here, the paraemter values themselves
+    ! the default veg or soil type is set here, the parameter values themselves
     ! are actually written as a result of this.
     !
     ! - WARNING: The list of parameters searched for here is not complete

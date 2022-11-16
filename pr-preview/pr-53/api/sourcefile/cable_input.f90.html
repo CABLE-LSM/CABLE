@@ -14,7 +14,6 @@
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
-    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -64,14 +63,6 @@
                              <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
 <li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
           </ul>
-        <form action="../search.html" class="navbar-form navbar-right" role="search">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
-        </div>
-<!--
-        <button type="submit" class="btn btn-default">Submit</button>
--->
-        </form>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
@@ -2716,7 +2707,7 @@
 <a id="ln-2559" name="ln-2559" href="#ln-2559"></a><span class="w">       </span><span class="n">sum_flux</span><span class="p">,</span><span class="n">bal</span><span class="p">,</span><span class="n">logn</span><span class="p">,</span><span class="n">vegparmnew</span><span class="p">,</span><span class="n">casabiome</span><span class="p">,</span><span class="n">casapool</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-2560" name="ln-2560" href="#ln-2560"></a><span class="w">       </span><span class="n">casaflux</span><span class="p">,</span><span class="n">sum_casapool</span><span class="p">,</span><span class="w"> </span><span class="n">sum_casaflux</span><span class="p">,</span><span class="n">casamet</span><span class="p">,</span><span class="n">casabal</span><span class="p">,</span><span class="n">phen</span><span class="p">,</span><span class="n">POP</span><span class="p">,</span><span class="n">spinup</span><span class="p">,</span><span class="n">EMSOIL</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-2561" name="ln-2561" href="#ln-2561"></a><span class="w">       </span><span class="n">TFRZ</span><span class="p">,</span><span class="w"> </span><span class="n">LUC_EXPT</span><span class="p">,</span><span class="w"> </span><span class="n">POPLUC</span><span class="p">)</span><span class="w"></span>
-<a id="ln-2562" name="ln-2562" href="#ln-2562"></a><span class="w">    </span><span class="c">!* **load_parameters** defines the priority order of sources of parameter</span>
+<a id="ln-2562" name="ln-2562" href="#ln-2562"></a><span class="w">    </span><span class="c">!* Defines the priority order of sources of parameter</span>
 <a id="ln-2563" name="ln-2563" href="#ln-2563"></a><span class="w">    </span><span class="c">! values for CABLE, determines the total number of patches over all grid</span>
 <a id="ln-2564" name="ln-2564" href="#ln-2564"></a><span class="w">    </span><span class="c">! cells, and writes parameter values to CABLE&#39;s parameter arrays.</span>
 <a id="ln-2565" name="ln-2565" href="#ln-2565"></a><span class="w">    </span><span class="c">!</span>
@@ -2727,7 +2718,7 @@
 <a id="ln-2570" name="ln-2570" href="#ln-2570"></a><span class="w">    </span><span class="c">! simply uncommenting the iveg and isoil reads from the met file - it</span>
 <a id="ln-2571" name="ln-2571" href="#ln-2571"></a><span class="w">    </span><span class="c">! requires the actual parameter values to be written after that read).</span>
 <a id="ln-2572" name="ln-2572" href="#ln-2572"></a><span class="w">    </span><span class="c">!</span>
-<a id="ln-2573" name="ln-2573" href="#ln-2573"></a><span class="w">    </span><span class="c">! Documentation here is a simple order of processes:</span>
+<a id="ln-2573" name="ln-2573" href="#ln-2573"></a><span class="w">    </span><span class="c">! ### Order of processes:</span>
 <a id="ln-2574" name="ln-2574" href="#ln-2574"></a>
 <a id="ln-2575" name="ln-2575" href="#ln-2575"></a><span class="w">    </span><span class="c">! Input variables not listed:</span>
 <a id="ln-2576" name="ln-2576" href="#ln-2576"></a><span class="w">    </span><span class="c">!   filename%type  - via cable_IO_vars_module</span>
@@ -2835,14 +2826,14 @@
 <a id="ln-2678" name="ln-2678" href="#ln-2678"></a>
 <a id="ln-2679" name="ln-2679" href="#ln-2679"></a><span class="w">    </span><span class="k">CALL </span><span class="n">write_default_params</span><span class="p">(</span><span class="n">met</span><span class="p">,</span><span class="n">air</span><span class="p">,</span><span class="n">ssnow</span><span class="p">,</span><span class="n">veg</span><span class="p">,</span><span class="n">bgc</span><span class="p">,</span><span class="n">soil</span><span class="p">,</span><span class="n">canopy</span><span class="p">,</span><span class="n">rough</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
 <a id="ln-2680" name="ln-2680" href="#ln-2680"></a><span class="w">         </span><span class="n">rad</span><span class="p">,</span><span class="n">logn</span><span class="p">,</span><span class="n">vegparmnew</span><span class="p">,</span><span class="n">smoy</span><span class="p">,</span><span class="w"> </span><span class="n">TFRZ</span><span class="p">,</span><span class="w"> </span><span class="n">LUC_EXPT</span><span class="p">)</span><span class="w"></span>
-<a id="ln-2681" name="ln-2681" href="#ln-2681"></a><span class="w">    </span><span class="c">!! 3. Write the loaded parameter values to CABLE&#39;s parameter variables</span>
+<a id="ln-2681" name="ln-2681" href="#ln-2681"></a><span class="w">    </span><span class="c">!! 3. Assign the loaded parameter values to CABLE&#39;s parameter variables</span>
 <a id="ln-2682" name="ln-2682" href="#ln-2682"></a>
 <a id="ln-2683" name="ln-2683" href="#ln-2683"></a><span class="w">    </span><span class="c">! Zero out lai where there is no vegetation acc. to veg. index</span>
 <a id="ln-2684" name="ln-2684" href="#ln-2684"></a><span class="w">    </span><span class="k">WHERE</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">veg</span><span class="p">%</span><span class="n">iveg</span><span class="p">(:)</span><span class="w"> </span><span class="p">.</span><span class="n">GE</span><span class="p">.</span><span class="w"> </span><span class="mi">14</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">veg</span><span class="p">%</span><span class="n">vlai</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.</span><span class="w"></span>
 <a id="ln-2685" name="ln-2685" href="#ln-2685"></a>
 <a id="ln-2686" name="ln-2686" href="#ln-2686"></a><span class="w">    </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">icycle</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
 <a id="ln-2687" name="ln-2687" href="#ln-2687"></a><span class="k">       CALL </span><span class="n">write_cnp_params</span><span class="p">(</span><span class="n">veg</span><span class="p">,</span><span class="n">casaflux</span><span class="p">,</span><span class="n">casamet</span><span class="p">)</span><span class="w"></span>
-<a id="ln-2688" name="ln-2688" href="#ln-2688"></a><span class="w">       </span><span class="c">!* 4. [IF CASA is being used] Write the CASA parameters from CABLE</span>
+<a id="ln-2688" name="ln-2688" href="#ln-2688"></a><span class="w">       </span><span class="c">!* 4. [IF CASA is being used] Assign the CASA parameters from CABLE</span>
 <a id="ln-2689" name="ln-2689" href="#ln-2689"></a><span class="w">       </span><span class="c">! parameters</span>
 <a id="ln-2690" name="ln-2690" href="#ln-2690"></a><span class="w">       </span><span class="c">!     - WARNING: again this should happen after the restart file and met</span>
 <a id="ln-2691" name="ln-2691" href="#ln-2691"></a><span class="w">       </span><span class="c">! file information has been used to define CABLE parameters, otherwise</span>
@@ -3015,7 +3006,7 @@
 <a id="ln-2858" name="ln-2858" href="#ln-2858"></a><span class="w">  </span><span class="c">!==============================================================================</span>
 <a id="ln-2859" name="ln-2859" href="#ln-2859"></a>
 <a id="ln-2860" name="ln-2860" href="#ln-2860"></a><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">get_parameters_met</span><span class="p">(</span><span class="n">soil</span><span class="p">,</span><span class="n">veg</span><span class="p">,</span><span class="n">bgc</span><span class="p">,</span><span class="n">rough</span><span class="p">,</span><span class="n">completeSet</span><span class="p">)</span><span class="w"></span>
-<a id="ln-2861" name="ln-2861" href="#ln-2861"></a><span class="w">    </span><span class="c">!* **get_parameters_met** searches for CABLE parameters in the met forcing</span>
+<a id="ln-2861" name="ln-2861" href="#ln-2861"></a><span class="w">    </span><span class="c">!* Searches for CABLE parameters in the met forcing</span>
 <a id="ln-2862" name="ln-2862" href="#ln-2862"></a><span class="w">    </span><span class="c">! file, and if it finds any, uses these values to overwrite the values that</span>
 <a id="ln-2863" name="ln-2863" href="#ln-2863"></a><span class="w">    </span><span class="c">! have already been loaded from the default parameter loading and/or the</span>
 <a id="ln-2864" name="ln-2864" href="#ln-2864"></a><span class="w">    </span><span class="c">! restart file.</span>
@@ -3024,7 +3015,7 @@
 <a id="ln-2867" name="ln-2867" href="#ln-2867"></a><span class="w">    </span><span class="c">! file has been commented out here, so site based simulations can only have</span>
 <a id="ln-2868" name="ln-2868" href="#ln-2868"></a><span class="w">    </span><span class="c">! the default vegetation type - this is clearly problematic. To fix this</span>
 <a id="ln-2869" name="ln-2869" href="#ln-2869"></a><span class="w">    </span><span class="c">! issue, the parameter loading needs to be reordered a little, so that if</span>
-<a id="ln-2870" name="ln-2870" href="#ln-2870"></a><span class="w">    </span><span class="c">! the default veg or soil type is set here, the paraemter values themselves</span>
+<a id="ln-2870" name="ln-2870" href="#ln-2870"></a><span class="w">    </span><span class="c">! the default veg or soil type is set here, the parameter values themselves</span>
 <a id="ln-2871" name="ln-2871" href="#ln-2871"></a><span class="w">    </span><span class="c">! are actually written as a result of this.</span>
 <a id="ln-2872" name="ln-2872" href="#ln-2872"></a><span class="w">    </span><span class="c">!</span>
 <a id="ln-2873" name="ln-2873" href="#ln-2873"></a><span class="w">    </span><span class="c">! - WARNING: The list of parameters searched for here is not complete</span>
@@ -3253,9 +3244,6 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <script src="../tipuesearch/tipuesearch_content.js"></script>
-    <script src="../tipuesearch/tipuesearch_set.js"></script>
-    <script src="../tipuesearch/tipuesearch.js"></script>
     
   </body>
 </html>
