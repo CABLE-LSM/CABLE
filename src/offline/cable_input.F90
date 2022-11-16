@@ -2570,7 +2570,7 @@ CONTAINS
     ! simply uncommenting the iveg and isoil reads from the met file - it
     ! requires the actual parameter values to be written after that read).
     !
-    ! Documentation here is a simple order of processes:
+    ! ### Order of processes:
 
     ! Input variables not listed:
     !   filename%type  - via cable_IO_vars_module
