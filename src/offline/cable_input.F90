@@ -2559,7 +2559,7 @@ CONTAINS
        sum_flux,bal,logn,vegparmnew,casabiome,casapool,    &
        casaflux,sum_casapool, sum_casaflux,casamet,casabal,phen,POP,spinup,EMSOIL, &
        TFRZ, LUC_EXPT, POPLUC)
-    !* **load_parameters** defines the priority order of sources of parameter
+    !* Defines the priority order of sources of parameter
     ! values for CABLE, determines the total number of patches over all grid
     ! cells, and writes parameter values to CABLE's parameter arrays.
     !
