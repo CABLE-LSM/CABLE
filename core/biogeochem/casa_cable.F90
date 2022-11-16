@@ -158,17 +158,20 @@ contains
                 IF (MOD(ktau/ktauday, LOY) == 1) THEN
                    casaflux%stemnpp  =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r_2
                    ! (assumes 70% of wood NPP is allocated above ground)
+                   casaflux%potstemnpp = casaflux%cnpp + (casaflux%fracClabile * casaflux%cgpp)
                    casabal%LAImax    = casamet%glai
                    casabal%Cleafmean = casapool%cplant(:,1) / real(LOY,r_2) / 1000.0_r_2
                    casabal%Crootmean = casapool%cplant(:,3) / real(LOY,r_2) / 1000.0_r_2
                 ELSE
                    casaflux%stemnpp  = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r_2
+                   casaflux%potstemnpp = casaflux%potstemnpp + (casaflux%cnpp + (casaflux%fracClabile * casaflux%cgpp))
                    casabal%LAImax    = max(casamet%glai, casabal%LAImax)
                    casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1) / real(LOY,r_2) / 1000.0_r_2
                    casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3) / real(LOY,r_2) / 1000.0_r_2
                 ENDIF
              ELSE
                 casaflux%stemnpp = 0.0_r_2
+                casaflux%potstemnpp = 0.0_r_2
              ENDIF ! CALL_POP
 
           ENDIF ! icycle > 0
@@ -199,17 +202,20 @@ contains
              IF (MOD(ktau/ktauday,LOY)==1) THEN
                 casaflux%stemnpp  = casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r_2
                 ! (assumes 70% of wood NPP is allocated above ground)
+                casaflux%potstemnpp = casaflux%cnpp + (casaflux%fracClabile * casaflux%cgpp)
                 casabal%LAImax    = casamet%glai
                 casabal%Cleafmean = casapool%cplant(:,1) / real(LOY,r_2) / 1000.0_r_2
                 casabal%Crootmean = casapool%cplant(:,3) / real(LOY,r_2) / 1000.0_r_2
              ELSE
                 casaflux%stemnpp  = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r_2
+                casaflux%potstemnpp = casaflux%potstemnpp + (casaflux%cnpp + (casaflux%fracClabile * casaflux%cgpp))
                 casabal%LAImax    = max(casamet%glai, casabal%LAImax)
                 casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1) / real(LOY,r_2) / 1000.0_r_2
                 casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3) / real(LOY,r_2) / 1000.0_r_2
              ENDIF
           ELSE
              casaflux%stemnpp = 0.0_r_2
+             casaflux%potstemnpp = 0.0_r_2
           ENDIF ! CALL_POP
 
        ENDIF ! end of day
@@ -240,6 +246,7 @@ contains
     type(POP_TYPE),           INTENT(INOUT) :: POP
 
     real(dp)              :: StemNPP(mp,2)
+    real(dp)              :: PotStemNPP(mp)
     real(dp), allocatable :: NPPtoGPP(:)
     real(dp), allocatable :: LAImax(:), Cleafmean(:), Crootmean(:)
     !! vh_js !!
@@ -256,6 +263,11 @@ contains
 
        StemNPP(:,1) = casaflux%stemnpp
        StemNPP(:,2) = 0.0_dp
+       ! JK: define an unstressed (potential) stem NPP that could be achieved
+       !     in the absence of nutrient limitation. PotStemNPP is used only 
+       !     for the calculation of stress (=resource) mortality in POP.
+       PotStemNPP(:) = casaflux%potstemnpp
+
        where (casabal%FCgppyear > 1.e-5_dp .and. casabal%FCnppyear > 1.e-5_dp)
           NPPtoGPP = casabal%FCnppyear / casabal%FCgppyear
        elsewhere
@@ -266,8 +278,8 @@ contains
        Crootmean = casabal%Crootmean
 
        CALL POPStep(pop, max(StemNPP(Iw,:)/1000.0_dp, 0.0001_dp), int(veg%disturbance_interval(Iw,:), i4b), &
-            real(veg%disturbance_intensity(Iw,:), dp), &
-            max(LAImax(Iw), 0.001_dp), Cleafmean(Iw), Crootmean(Iw), NPPtoGPP(Iw))
+                    real(veg%disturbance_intensity(Iw,:), dp), &
+                    max(LAImax(Iw), 0.001_dp), Cleafmean(Iw), Crootmean(Iw), NPPtoGPP(Iw), max(PotStemNPP(Iw)/1000.0_dp, 0.0001_dp))
     endif ! CALL_POP
 
   END SUBROUTINE POPdriver

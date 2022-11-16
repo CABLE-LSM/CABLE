@@ -286,6 +286,7 @@ module casavariable
           fracClabile => null(), &
           !! vh_js !! the 3 variables below are needed for POP coupling to CASA
           stemnpp => null(), &
+          potstemnpp => null(), &
           frac_sapwood => null(), &
           sapwood_area => null(), &
           Charvest => null(), &  ! leaf biomass removed due to crop or pasture management
@@ -735,6 +736,7 @@ contains
          casaflux%Clabloss(arraysize), &
          casaflux%fracClabile(arraysize), &
          casaflux%stemnpp(arraysize), &
+         casaflux%potstemnpp(arraysize), &
          casaflux%frac_sapwood(arraysize), &
          casaflux%sapwood_area(arraysize), &
          casaflux%Charvest(arraysize), &
@@ -1097,6 +1099,7 @@ contains
     casaflux%Clabloss = 0.0_r_2
     casaflux%fracClabile = 0.0_r_2
     casaflux%stemnpp = 0.0_r_2
+    casaflux%potstemnpp = 0.0_r_2
     casaflux%frac_sapwood = 0.0_r_2
     casaflux%sapwood_area = 0.0_r_2
     casaflux%Charvest = 0.0_r_2
@@ -1472,6 +1475,7 @@ contains
     write(*,*) 'fromLtoCO2 ', casaflux%fromLtoCO2
     write(*,*) 'fromStoCO2 ', casaflux%fromStoCO2
     write(*,*) 'stemnpp ', casaflux%stemnpp
+    write(*,*) 'potstemnpp ', casaflux%potstemnpp
     write(*,*) 'frac_sapwood ', casaflux%frac_sapwood
     write(*,*) 'sapwood_area ', casaflux%sapwood_area
     write(*,*) 'fharvest ', casaflux%fharvest
@@ -1761,6 +1765,7 @@ contains
        sum_casaflux%fromLtoCO2      = sum_casaflux%fromLtoCO2      + casaflux%fromLtoCO2
        sum_casaflux%fromStoCO2      = sum_casaflux%fromStoCO2      + casaflux%fromStoCO2
        sum_casaflux%stemnpp         = sum_casaflux%stemnpp         + casaflux%stemnpp
+       sum_casaflux%potstemnpp      = sum_casaflux%potstemnpp      + casaflux%potstemnpp
        sum_casaflux%frac_sapwood    = sum_casaflux%frac_sapwood    + casaflux%frac_sapwood
        sum_casaflux%sapwood_area    = sum_casaflux%sapwood_area    + casaflux%sapwood_area
        sum_casaflux%Cplant_turnover = &
@@ -1915,6 +1920,7 @@ contains
        sum_casaflux%fromLtoCO2   = sum_casaflux%fromLtoCO2   * rnsteps
        sum_casaflux%fromStoCO2   = sum_casaflux%fromStoCO2   * rnsteps
        sum_casaflux%stemnpp      = sum_casaflux%stemnpp      * rnsteps
+       sum_casaflux%potstemnpp   = sum_casaflux%potstemnpp   * rnsteps
        sum_casaflux%frac_sapwood = sum_casaflux%frac_sapwood * rnsteps
        sum_casaflux%sapwood_area = sum_casaflux%sapwood_area * rnsteps
        sum_casaflux%Cplant_turnover = &
@@ -2294,6 +2300,8 @@ contains
     call nc_err(nf90_get_var(fid, vid, casaflux%fracclabile))
     call nc_err(nf90_inq_varid(fid, 'stemnpp', vid))
     call nc_err(nf90_get_var(fid, vid, casaflux%stemnpp))
+    call nc_err(nf90_inq_varid(fid, 'potstemnpp', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%potstemnpp))
     call nc_err(nf90_inq_varid(fid, 'frac_sapwood', vid))
     call nc_err(nf90_get_var(fid, vid, casaflux%frac_sapwood))
     call nc_err(nf90_inq_varid(fid, 'sapwood_area', vid))
@@ -3236,6 +3244,8 @@ contains
          [dimid1], vid(i)), i)
     call nc_err(nf90_def_var(fid, 'stemnpp', nf90_double, &
          [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'potstemnpp', nf90_double, &
+         [dimid1], vid(i)), i)
     call nc_err(nf90_def_var(fid, 'frac_sapwood', nf90_double, &
          [dimid1], vid(i)), i)
     call nc_err(nf90_def_var(fid, 'sapwood_area', nf90_double, &
@@ -3403,6 +3413,7 @@ contains
     call nc_err(nf90_put_var(fid, vid(i), casaflux%kmlabP), i)
     call nc_err(nf90_put_var(fid, vid(i), casaflux%Psorbmax), i)
     call nc_err(nf90_put_var(fid, vid(i), casaflux%stemnpp), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%potstemnpp), i)
     call nc_err(nf90_put_var(fid, vid(i), casaflux%frac_sapwood), i)
     call nc_err(nf90_put_var(fid, vid(i), casaflux%sapwood_area), i)
     call nc_err(nf90_put_var(fid, vid(i), casaflux%fharvest), i)
