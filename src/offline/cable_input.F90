@@ -2685,7 +2685,7 @@ CONTAINS
 
     IF (icycle > 0) THEN
        CALL write_cnp_params(veg,casaflux,casamet)
-       !* 4. [IF CASA is being used] Write the CASA parameters from CABLE
+       !* 4. [IF CASA is being used] Assign the CASA parameters from CABLE
        ! parameters
        !     - WARNING: again this should happen after the restart file and met
        ! file information has been used to define CABLE parameters, otherwise
