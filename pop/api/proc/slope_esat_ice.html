@@ -338,7 +338,7 @@
 </g>
 </g>
 <!-- proc~potential_evap&#45;&gt;proc~slope_esat_ice -->
-<g id="proc~~slope_esat_ice~~CalledByGraph_edge3" class="edge">
+<g id="proc~~slope_esat_ice~~CalledByGraph_edge2" class="edge">
 <title>proc~potential_evap&#45;&gt;proc~slope_esat_ice</title>
 <path fill="none" stroke="#ff0000" d="M1253.1,-63C1261.33,-63 1270.01,-63 1278.5,-63"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="1278.72,-66.5 1288.72,-63 1278.72,-59.5 1278.72,-66.5"/>
@@ -353,7 +353,7 @@
 </g>
 </g>
 <!-- proc~snow_adjust&#45;&gt;proc~slope_esat_ice -->
-<g id="proc~~slope_esat_ice~~CalledByGraph_edge2" class="edge">
+<g id="proc~~slope_esat_ice~~CalledByGraph_edge3" class="edge">
 <title>proc~snow_adjust&#45;&gt;proc~slope_esat_ice</title>
 <path fill="none" stroke="#ff0000" d="M1126.23,-18.04C1159.68,-23.59 1209.78,-32.4 1253,-42 1261.66,-43.92 1270.79,-46.14 1279.67,-48.4"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="1278.99,-51.84 1289.55,-50.95 1280.74,-45.06 1278.99,-51.84"/>
@@ -410,19 +410,19 @@
 <polygon fill="#0000ff" stroke="#0000ff" points="1038.65,-14.44 1048.67,-11 1038.69,-7.44 1038.65,-14.44"/>
 </g>
 <!-- proc~get_fluxes_and_derivs -->
-<g id="proc~~slope_esat_ice~~CalledByGraph_node10" class="node">
+<g id="proc~~slope_esat_ice~~CalledByGraph_node12" class="node">
 <title>proc~get_fluxes_and_derivs</title>
-<g id="a_proc~~slope_esat_ice~~CalledByGraph_node10"><a xlink:href=".././proc/get_fluxes_and_derivs.html" xlink:title="get_fluxes_and_derivs">
+<g id="a_proc~~slope_esat_ice~~CalledByGraph_node12"><a xlink:href=".././proc/get_fluxes_and_derivs.html" xlink:title="get_fluxes_and_derivs">
 <polygon fill="#d9534f" stroke="#d9534f" points="1013,-55 883,-55 883,-31 1013,-31 1013,-55"/>
 <text text-anchor="middle" x="948" y="-40.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_fluxes_and_derivs</text>
 </a>
 </g>
 </g>
 <!-- proc~iflux_loop&#45;&gt;proc~get_fluxes_and_derivs -->
-<g id="proc~~slope_esat_ice~~CalledByGraph_edge15" class="edge">
+<g id="proc~~slope_esat_ice~~CalledByGraph_edge16" class="edge">
 <title>proc~iflux_loop&#45;&gt;proc~get_fluxes_and_derivs</title>
-<path fill="none" stroke="#7fff00" d="M847.05,-43C854.91,-43 863.69,-43 872.71,-43"/>
-<polygon fill="#7fff00" stroke="#7fff00" points="872.94,-46.5 882.94,-43 872.94,-39.5 872.94,-46.5"/>
+<path fill="none" stroke="#7f00ff" d="M847.05,-43C854.91,-43 863.69,-43 872.71,-43"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="872.94,-46.5 882.94,-43 872.94,-39.5 872.94,-46.5"/>
 </g>
 <!-- proc~seb&#45;&gt;proc~potential_evap -->
 <g id="proc~~slope_esat_ice~~CalledByGraph_edge6" class="edge">
@@ -445,11 +445,20 @@
 <path fill="none" stroke="#7fff00" d="M211.02,-96.12C223.91,-93.87 237.78,-91.44 250.04,-89.29"/>
 <polygon fill="#7fff00" stroke="#7fff00" points="250.66,-92.74 259.91,-87.57 249.46,-85.84 250.66,-92.74"/>
 </g>
-<!-- proc~get_fluxes_and_derivs&#45;&gt;proc~seb -->
-<g id="proc~~slope_esat_ice~~CalledByGraph_edge13" class="edge">
-<title>proc~get_fluxes_and_derivs&#45;&gt;proc~seb</title>
-<path fill="none" stroke="#7f00ff" d="M1013.32,-52.36C1026.06,-54.21 1039,-56.09 1050.38,-57.75"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="1049.95,-61.22 1060.35,-59.2 1050.96,-54.29 1049.95,-61.22"/>
+<!-- proc~timestep_loop -->
+<g id="proc~~slope_esat_ice~~CalledByGraph_node10" class="node">
+<title>proc~timestep_loop</title>
+<g id="a_proc~~slope_esat_ice~~CalledByGraph_node10"><a xlink:href=".././proc/timestep_loop.html" xlink:title="timestep_loop">
+<polygon fill="#d9534f" stroke="#d9534f" points="747,-55 659,-55 659,-31 747,-31 747,-55"/>
+<text text-anchor="middle" x="703" y="-40.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">timestep_loop</text>
+</a>
+</g>
+</g>
+<!-- proc~timestep_loop&#45;&gt;proc~iflux_loop -->
+<g id="proc~~slope_esat_ice~~CalledByGraph_edge11" class="edge">
+<title>proc~timestep_loop&#45;&gt;proc~iflux_loop</title>
+<path fill="none" stroke="#00ffff" d="M747.16,-43C755.54,-43 764.3,-43 772.62,-43"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="772.86,-46.5 782.86,-43 772.86,-39.5 772.86,-46.5"/>
 </g>
 <!-- program~cable_offline_driver -->
 <g id="proc~~slope_esat_ice~~CalledByGraph_node11" class="node">
@@ -466,20 +475,11 @@
 <path fill="none" stroke="#7fff00" d="M224.24,-72.19C233.06,-73.74 241.93,-75.29 250.08,-76.71"/>
 <polygon fill="#7fff00" stroke="#7fff00" points="249.52,-80.17 259.98,-78.45 250.73,-73.27 249.52,-80.17"/>
 </g>
-<!-- proc~timestep_loop -->
-<g id="proc~~slope_esat_ice~~CalledByGraph_node12" class="node">
-<title>proc~timestep_loop</title>
-<g id="a_proc~~slope_esat_ice~~CalledByGraph_node12"><a xlink:href=".././proc/timestep_loop.html" xlink:title="timestep_loop">
-<polygon fill="#d9534f" stroke="#d9534f" points="747,-55 659,-55 659,-31 747,-31 747,-55"/>
-<text text-anchor="middle" x="703" y="-40.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">timestep_loop</text>
-</a>
-</g>
-</g>
-<!-- proc~timestep_loop&#45;&gt;proc~iflux_loop -->
-<g id="proc~~slope_esat_ice~~CalledByGraph_edge11" class="edge">
-<title>proc~timestep_loop&#45;&gt;proc~iflux_loop</title>
-<path fill="none" stroke="#00ffff" d="M747.16,-43C755.54,-43 764.3,-43 772.62,-43"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="772.86,-46.5 782.86,-43 772.86,-39.5 772.86,-46.5"/>
+<!-- proc~get_fluxes_and_derivs&#45;&gt;proc~seb -->
+<g id="proc~~slope_esat_ice~~CalledByGraph_edge13" class="edge">
+<title>proc~get_fluxes_and_derivs&#45;&gt;proc~seb</title>
+<path fill="none" stroke="#7f00ff" d="M1013.32,-52.36C1026.06,-54.21 1039,-56.09 1050.38,-57.75"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="1049.95,-61.22 1060.35,-59.2 1050.96,-54.29 1049.95,-61.22"/>
 </g>
 <!-- program~mpi_driver -->
 <g id="proc~~slope_esat_ice~~CalledByGraph_node13" class="node">
@@ -497,10 +497,10 @@
 <polygon fill="#ff0000" stroke="#ff0000" points="109,-107.5 119,-104 109,-100.5 109,-107.5"/>
 </g>
 <!-- proc~solve&#45;&gt;proc~timestep_loop -->
-<g id="proc~~slope_esat_ice~~CalledByGraph_edge16" class="edge">
+<g id="proc~~slope_esat_ice~~CalledByGraph_edge15" class="edge">
 <title>proc~solve&#45;&gt;proc~timestep_loop</title>
-<path fill="none" stroke="#7f00ff" d="M623.23,-43C631.08,-43 639.99,-43 648.93,-43"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="648.97,-46.5 658.97,-43 648.97,-39.5 648.97,-46.5"/>
+<path fill="none" stroke="#7fff00" d="M623.23,-43C631.08,-43 639.99,-43 648.93,-43"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="648.97,-46.5 658.97,-43 648.97,-39.5 648.97,-46.5"/>
 </g>
 </g>
 </svg>
