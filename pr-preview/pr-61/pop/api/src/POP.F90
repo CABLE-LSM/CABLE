@@ -4,6 +4,34 @@
 ! Written by Vanessa Haverd, Ben Smith and Lars Nieradzik
 ! Report Bugs to Vanessa.Haverd@csiro.au
 
+!*
+! This MODULE contains code for the woody demography model POP. The principal components
+! of this MODULE are the initialisation SUBROUTINE [[InitPOP2D_Poisson]], time stepping
+! SUBROUTINE [[POPStep]] and routines for allometry, recruitment, mortality and disturbance.
+! The main SUBROUTINE is [[POPStep]] which is called from SUBROUTINE POPdriver in casa_cable.F90.
+! This SUBROUTINE calls most other subroutines and functions in POP.
+! POP receives StemNPP from CASA and returns woody turnover rate and vegetation height to the
+! main model. External inputs is disturbance regime (total or total and partial) and disturbance interval.
+! Main variables and their units are:
+! Inputs:
+! Stem NPP (kg C m-2 yr-1)
+! disturbance interval (yr)
+!
+! Outputs:
+! mortality rates (kg C m-2 yr-1)
+! these are converted into woody turnover rates in SUBROUTINE biogeochem (casa_inout.F90)
+!
+! Internal:
+! vegetation height (m)
+! stem diameter (m)
+! basal area (m2 ha-1)
+! crown area (m2 ha-1)
+! stem biomass (kg C m-2)
+! population density (indiv m-2)
+! mortality rates (kg C m-2 yr-1)
+! sapwood loss (kg C m-2 yr-1)
+
+
 !CITATION
 !--------------------------------------------------------
 !*
@@ -16,6 +44,7 @@
 !
 ! A more detailed description of the code and the equations
 ! can be found in (Appendix):
+!
 ! Haverd, V., Smith, B., Nieradzik, L.P., Briggs, P.R., 2014.
 ! A stand-alone tree demography and landscape structure module for Earth system models:
 ! integration with inventory data from temperate and boreal forests.
@@ -36,7 +65,7 @@
 
 ! Attribution-Share Alike 3.0 License:
 ! http://creativecommons.org/licenses/by-sa/3.0/
-!*******************************************************************************
+!-------------------------------------------------------------------------------
 
 MODULE TypeDef
   !-------------------------------------------------------------------------------
@@ -65,7 +94,7 @@ MODULE TypeDef
 END MODULE TypeDef
 
 
-!*******************************************************************************
+!
 
 
 MODULE POP_Constants
@@ -290,7 +319,7 @@ MODULE POP_Types
 END MODULE POP_Types
 
 
-!*******************************************************************************
+!---------------------------------------------------------------------------------
 
 
 MODULE POPModule
@@ -305,7 +334,7 @@ MODULE POPModule
 
 CONTAINS
 
-  !*******************************************************************************
+  !-------------------------------------------------------------------------------
 
   SUBROUTINE ZeroPOP(POP,n)
 
@@ -476,7 +505,7 @@ CONTAINS
   END SUBROUTINE ZeroPOP
 
 
-  !*******************************************************************************
+  !---------------------------------------------------------------------------------
 
 
   SUBROUTINE InitPOP2D_Poisson(POP, mean_disturbance_interval, m)
@@ -617,7 +646,7 @@ CONTAINS
   END SUBROUTINE InitPOP2D_Poisson
 
 
-  !*******************************************************************************
+  !-----------------------------------------------------------------------------------------------
 
 
   SUBROUTINE POPStep(POP, StemNPP, disturbance_interval, disturbance_intensity,LAI,Cleaf,Croot, &
@@ -709,10 +738,10 @@ CONTAINS
   END SUBROUTINE POPStep
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------------
 
 
-  SUBROUTINE PatchAnnualDynamics(pop, StemNPP, NPPtoGPP, it, StemNPP_av, precip)
+  Subroutine PatchAnnualDynamics(pop, StemNPP, NPPtoGPP, it, StemNPP_av, precip)
     !*
     ! -receives Stem NPP (biomass increment of stems) and distributes
     ! it among the cohorts. Several options implemented.  
@@ -1176,7 +1205,7 @@ CONTAINS
   END SUBROUTINE PatchAnnualDynamics
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------------
 
 
   SUBROUTINE GetUniqueAgeFrequencies(pop, disturbance_interval, idisturb)
@@ -1323,7 +1352,7 @@ CONTAINS
   END SUBROUTINE GetUniqueAgeFrequencies
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------------
 
 
   SUBROUTINE GetPatchFrequencies(pop)
@@ -1384,7 +1413,7 @@ CONTAINS
   END SUBROUTINE GetPatchFrequencies
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------------
 
 
   SUBROUTINE GetDiagnostics(pop,LAI,Cleaf,Croot,disturbance_interval, it, precip)
@@ -1803,7 +1832,7 @@ CONTAINS
   END SUBROUTINE GetDiagnostics
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------------
 
 
   SUBROUTINE Patch_partial_disturb(pop,idisturb,intensity,frac_intensity1)
@@ -1937,7 +1966,7 @@ CONTAINS
   END SUBROUTINE Patch_partial_disturb
 
 
-  !*******************************************************************************
+  !-----------------------------------------------------------------------------------
 
 
   SUBROUTINE Patch_partial_disturb2(pop,idisturb)
@@ -2046,9 +2075,9 @@ CONTAINS
   END SUBROUTINE Patch_partial_disturb2
 
 
-  !*******************************************************************************
+  !------------------------------------------------------------------------------------
 
-  !! # Patch Disturbance
+  !! Patch Disturbance
   !! This subroutine kills all biomass in a patch when prescribed disturbance
   !! interval is reached.
   SUBROUTINE Patch_disturb(pop,idisturb,precip)
@@ -2168,7 +2197,7 @@ CONTAINS
   END SUBROUTINE Patch_disturb
 
 
-  !*******************************************************************************
+  !-------------------------------------------------------------------------------------
 
 
   SUBROUTINE  layer_recruitment(pop,precip)
@@ -2234,10 +2263,10 @@ CONTAINS
   END SUBROUTINE layer_recruitment
 
 
-  !*******************************************************************************
+  !--------------------------------------------------------------------------------
 
 
-  SUBROUTINE  layer_recruitment_single_patch(pop, index, grid_index,precip)
+  Subroutine layer_recruitment_single_patch(pop, index, grid_index,precip)
 
     !*
     ! This subroutine has the same function as subroutine layer_recruitment.
@@ -2294,7 +2323,7 @@ CONTAINS
 
   END SUBROUTINE layer_recruitment_single_patch
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------------
   ! Exponential distribution
   ! Returns probability of a given time-between-events (x)
   ! Given a Poisson process with expected frequency (events per unit time) lambda
@@ -2317,7 +2346,7 @@ CONTAINS
 
   END FUNCTION Exponential
 
-  !*******************************************************************************
+  !-------------------------------------------------------------------------------------
   ! Exponential distribution
   ! Returns probability of a given time-between-events (x)
   ! Given a Poisson process with expected frequency (events per unit time) lambda
@@ -2340,7 +2369,7 @@ CONTAINS
 
   END FUNCTION REALExponential
 
-  !*******************************************************************************
+  !-----------------------------------------------------------------------------
 
   REAL(dp) FUNCTION CumExponential(lambda, x)
 
@@ -2357,7 +2386,7 @@ CONTAINS
 
   END FUNCTION CumExponential
 
-  !*******************************************************************************
+  !-----------------------------------------------------------------------------
 
   REAL(dp) FUNCTION Factorial(n)
 
@@ -2377,9 +2406,9 @@ CONTAINS
 
   END FUNCTION Factorial
 
-  !*******************************************************************************
+  !-------------------------------------------------------------------------------
   ! ALLOMETRY
-  !*******************************************************************************
+  !-------------------------------------------------------------------------------
 
   SUBROUTINE GET_ALLOMETRY( ALLOM_SWITCH,  biomass, density, ht, diam, basal, precip )
 
@@ -2433,9 +2462,9 @@ CONTAINS
     ENDIF
 
   END SUBROUTINE GET_ALLOMETRY
-  !*******************************************************************************
+  !------------------------------------------------------------------------------
   ! TOP-END ALLOMETRY STARTS HERE
-  !*******************************************************************************
+  !------------------------------------------------------------------------------
   ! Tree height based on precipitation and Gary Cook Top-End allometry
   ! Bisection solution for tree height (m) based on modified height-DBH relationship
   ! from Garry Cook (pers. comm. 15/4/2013)
@@ -2501,7 +2530,7 @@ CONTAINS
   END FUNCTION GetHeight
 
 
-  !*******************************************************************************
+  !-----------------------------------------------------------------------------------
 
 
   SUBROUTINE INTERPOLATE_BIOMASS_1D(pop, disturbance_interval,it,g)
@@ -2800,7 +2829,7 @@ CONTAINS
   END SUBROUTINE INTERPOLATE_BIOMASS_1D
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
 
   SUBROUTINE INTERPOLATE_FIREMORTALITY(pop, disturbance_interval,it,g)
@@ -2955,7 +2984,7 @@ CONTAINS
   END SUBROUTINE INTERPOLATE_FIREMORTALITY
 
 
-  !*******************************************************************************
+  !-------------------------------------------------------------------------------
 
 
   SUBROUTINE ADJUST_POP_FOR_FIRE(pop,disturbance_interval, burned_area, FLI)
@@ -3040,7 +3069,7 @@ CONTAINS
    END SUBROUTINE ADJUST_POP_FOR_FIRE
 
 
-   !*******************************************************************************
+   !---------------------------------------------------------------------
 
 
    SUBROUTINE INTERPOLATE_BIOMASS_2D(pop, disturbance_interval,it,g)
@@ -3474,7 +3503,7 @@ DEALLOCATE(address)
 END SUBROUTINE INTERPOLATE_BIOMASS_2D
 
 
-!******************************************************************************
+!--------------------------------------------------------------------------------
 
 
 SUBROUTINE SMOOTH_FLUX(POP,g,t)
@@ -3527,7 +3556,7 @@ SUBROUTINE SMOOTH_FLUX(POP,g,t)
 END SUBROUTINE SMOOTH_FLUX
 
 
-!******************************************************************************
+!-------------------------------------------------------------------------
 
 
 SUBROUTINE SMOOTH_FLUX_cat(POP,g,t)
@@ -3579,7 +3608,7 @@ SUBROUTINE SMOOTH_FLUX_cat(POP,g,t)
 END SUBROUTINE SMOOTH_FLUX_cat
 
 
-!******************************************************************************
+!-----------------------------------------------------------------------
 
 
 SUBROUTINE REGRESS(x, y, n, a, b, r)
@@ -3629,7 +3658,7 @@ SUBROUTINE REGRESS(x, y, n, a, b, r)
 END SUBROUTINE REGRESS
 
 
-!******************************************************************************
+!-----------------------------------------------------------------------------
 
 
 REAL(dp) FUNCTION Area_Triangle(x1,y1,x2,y2,x3,y3)
@@ -3643,7 +3672,7 @@ REAL(dp) FUNCTION Area_Triangle(x1,y1,x2,y2,x3,y3)
 END FUNCTION Area_Triangle
 
 
-!******************************************************************************
+!----------------------------------------------------------------------------
 
 
 ! Fraction of topkill by DBH , according to Fig. 2 of Collins, J. Ec., 2020
@@ -3665,7 +3694,7 @@ REAL(dp) FUNCTION TopKill_Collins(dbh, FLI)
 END FUNCTION TopKill_Collins
 
 
-!******************************************************************************
+!--------------------------------------------------------------------------------
 
 
 SUBROUTINE Allometry(height,biomass,density,diam,basal)
@@ -3693,7 +3722,7 @@ SUBROUTINE Allometry(height,biomass,density,diam,basal)
 END SUBROUTINE Allometry
 
 
-!*******************************************************************************
+!---------------------------------------------------------------------------------
 
 
   SUBROUTINE Williams_Allometry(agBiomass, density, height, dbh, basal)
@@ -3732,7 +3761,7 @@ END SUBROUTINE Allometry
   END SUBROUTINE Williams_Allometry
 
 
-  !*******************************************************************************
+  !---------------------------------------------------------------------------------
 
 
   SUBROUTINE POP_init(POP, disturbance_interval, np, Iwood, precip)
@@ -3783,7 +3812,7 @@ END SUBROUTINE Allometry
   END SUBROUTINE POP_init
 
 
-  !*******************************************************************************
+  !--------------------------------------------------------------------------
 
 
   SUBROUTINE POP_init_single(POP, disturbance_interval, n, precip)
@@ -3822,7 +3851,7 @@ END SUBROUTINE Allometry
   END SUBROUTINE POP_init_single
 
 
-  !*******************************************************************************
+  !-------------------------------------------------------------------------------
 
 
   SUBROUTINE alloc_POP(POP, arraysize)
@@ -3841,8 +3870,8 @@ END SUBROUTINE Allometry
 
   END SUBROUTINE alloc_POP
 
-  !*******************************************************************************
+  !------------------------------------------------------------------------------
 
 END MODULE POPModule
 
-!*******************************************************************************
+!---------------------------------------------------------------------------------

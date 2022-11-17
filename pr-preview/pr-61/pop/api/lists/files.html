@@ -15,7 +15,6 @@
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
-    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -65,14 +64,6 @@
                              <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
 <li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
           </ul>
-        <form action="../search.html" class="navbar-form navbar-right" role="search">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
-        </div>
-<!--
-        <button type="submit" class="btn btn-default">Submit</button>
--->
-        </form>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
@@ -144,7 +135,17 @@
 			   <tr><td><a href='../sourcefile/mo_isotope_pool_model.f90.html'>mo_isotope_pool_model.f90</a></td><td></td></tr>
 			   <tr><td><a href='../sourcefile/mo_kind.f90.html'>mo_kind.f90</a></td><td></td></tr>
 			   <tr><td><a href='../sourcefile/mo_utils.f90.html'>mo_utils.f90</a></td><td></td></tr>
-			   <tr><td><a href='../sourcefile/pop.f90.html'>POP.F90</a></td><td><p>When referring to this code in publications, please cite:</p><a href="../sourcefile/pop.f90.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../sourcefile/pop.f90.html'>POP.F90</a></td><td><p>This MODULE contains code for the woody demography model POP. The principal components
+ of this MODULE are the initialisation SUBROUTINE <a href="../proc/initpop2d_poisson.html">InitPOP2D_Poisson</a>, time stepping
+ SUBROUTINE <a href="../proc/popstep.html">POPStep</a> and routines for allometry, recruitment, mortality and disturbance.
+ The main SUBROUTINE is <a href="../proc/popstep.html">POPStep</a> which is called from SUBROUTINE POPdriver in casa_cable.F90.
+ This SUBROUTINE calls most other subroutines and functions in POP.
+ POP receives StemNPP from CASA and returns woody turnover rate and vegetation height to the
+ main model. External inputs is disturbance regime (total or total and partial) and disturbance interval.
+ Main variables and their units are:
+ Inputs:
+ Stem NPP (kg C m-2 yr-1)
+ disturbance interval (yr)</p><a href="../sourcefile/pop.f90.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../sourcefile/pop_io.f90.html'>pop_io.F90</a></td><td></td></tr>
 			   <tr><td><a href='../sourcefile/pop_mpi.f90.html'>pop_mpi.F90</a></td><td></td></tr>
 			   <tr><td><a href='../sourcefile/popluc.f90.html'>POPLUC.F90</a></td><td><a href="../sourcefile/popluc.f90.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
@@ -195,9 +196,6 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <script src="../tipuesearch/tipuesearch_content.js"></script>
-    <script src="../tipuesearch/tipuesearch_set.js"></script>
-    <script src="../tipuesearch/tipuesearch.js"></script>
     
   </body>
 </html>

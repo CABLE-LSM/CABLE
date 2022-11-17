@@ -14,7 +14,6 @@
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
-    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -64,14 +63,6 @@
                              <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
 <li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
           </ul>
-        <form action="../search.html" class="navbar-form navbar-right" role="search">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
-        </div>
-<!--
-        <button type="submit" class="btn btn-default">Submit</button>
--->
-        </form>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
@@ -164,69 +155,9 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<p># Patch Disturbance
- This subroutine kills all biomass in a patch when prescribed disturbance
- interval is reached.</p>
-<hr>
-<hr>
-<hr>
-<p>Exponential distribution
- Returns probability of a given time-between-events (x)
- Given a Poisson process with expected frequency (events per unit time) lambda
- Reference: http://en.wikipedia.org/wiki/Exponential_distribution
- Use to determine average age (x, years) of patches with a given random disturbance
- frequency lambda (disturbances per year)</p>
-<hr>
-<p>Exponential distribution
- Returns probability of a given time-between-events (x)
- Given a Poisson process with expected frequency (events per unit time) lambda
- Reference: http://en.wikipedia.org/wiki/Exponential_distribution
- Use to determine average age (x, years) of patches with a given random disturbance
- frequency lambda (disturbances per year)</p>
-<hr>
-<hr>
-<hr>
-<p>ALLOMETRY</p>
-<hr>
-<hr>
-<p>TOP-END ALLOMETRY STARTS HERE</p>
-<hr>
-<p>Tree height based on precipitation and Gary Cook Top-End allometry
- Bisection solution for tree height (m) based on modified height-DBH relationship
- from Garry Cook (pers. comm. 15/4/2013)
- "I have been using H=0.054xExp(0.0014xRF)xD + 4.05<em>exp(-0.00032</em>rf) with Rf in mm, D in cm and height in m."
- Since the above expression does not go to zero at diameter=0 it is linked to a simple linear equation
- for initial height growth (H=50*D with D in m) using a non-rectangular hyperbola to smooth between the two
- Mathematical derivation: see POP documentation
- Arguments:
- precip  = annual precipitation (mm)
- biomass = tree stem C biomass across patch (kgC/m2)
- density = tree density (indiv/m2)</p>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
-<hr>
+    <p>Patch Disturbance
+This subroutine kills all biomass in a patch when prescribed disturbance
+interval is reached.</p>
 <br>        <div class="panel panel-default">
       <div class="panel-heading">
   <h3 class="panel-title">Uses</h3>
@@ -234,9 +165,9 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/typedef.html'>TypeDef</a></li>
-    <li><a href='../module/pop_constants.html'>POP_Constants</a></li>
     <li><a href='../module/pop_types.html'>POP_Types</a></li>
+    <li><a href='../module/pop_constants.html'>POP_Constants</a></li>
+    <li><a href='../module/typedef.html'>TypeDef</a></li>
   </ul>
       </li>
       </ul>
@@ -1648,9 +1579,6 @@ Code review needed to evaluate redundancy.</p>
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-    <script src="../tipuesearch/tipuesearch_content.js"></script>
-    <script src="../tipuesearch/tipuesearch_set.js"></script>
-    <script src="../tipuesearch/tipuesearch.js"></script>
     
   </body>
 </html>
