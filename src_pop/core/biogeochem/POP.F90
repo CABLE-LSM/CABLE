@@ -12,7 +12,9 @@
 ! This SUBROUTINE calls most other subroutines and functions in POP.
 ! POP receives StemNPP from CASA and returns woody turnover rate and vegetation height to the
 ! main model. External inputs is disturbance regime (total or total and partial) and disturbance interval.
+! 
 ! Main variables and their units are:
+!
 ! Inputs:
 ! Stem NPP (kg C m-2 yr-1)
 ! disturbance interval (yr)
@@ -2077,9 +2079,6 @@ CONTAINS
 
   !------------------------------------------------------------------------------------
 
-  !! Patch Disturbance
-  !! This subroutine kills all biomass in a patch when prescribed disturbance
-  !! interval is reached.
   SUBROUTINE Patch_disturb(pop,idisturb,precip)
     !*
     ! Simulates a disturbance event by killing all biomass in a patch.
