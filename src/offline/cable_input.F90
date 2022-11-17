@@ -2563,7 +2563,7 @@ CONTAINS
     ! values for CABLE, determines the total number of patches over all grid
     ! cells, and writes parameter values to CABLE's parameter arrays.
     !
-    ! - WARNING: this needs reordering and tweaking to (a) remove the
+    ! **WARNING:** this needs reordering and tweaking to (a) remove the
     ! possibility of inconsistencies between the number of patches in the
     ! default parameter grid and a restart file, and (b) allow vegetation and
     ! soil type to be forced from the met file (this is more complicated than
@@ -2650,12 +2650,20 @@ CONTAINS
     ! They will be overwritten by values from the restart file, if present.
     ! Those variables found in the met file will again overwrite existing ones.
 
-    CALL get_default_params(logn,vegparmnew,LUC_EXPT)
-    !* 1. Load parameter values for each grid cell from default vegetation and
+    !| 1. Load parameter values for each grid cell from default vegetation and
     ! soil types based on latitude and longitude. This includes determining
     ! the number of patches in each grid cell, and so the total number of
     ! patches.
+    CALL get_default_params(logn,vegparmnew,LUC_EXPT)
 
+
+    !| 2. Allocate CABLE (and CASA's [+phenology], if used) variables now that
+    ! the dimension of arrays is known - i.e. now that we know how many grid
+    ! cells and patches there are.
+    !     - **WARNING:** I think this allocation should happen after ALL 
+    ! parameter and restart information has been loaded. As it stands, I think
+    ! there is the potential for the restart file to contain variables of a 
+    ! different dimension to what is declared here.
     CALL allocate_cable_vars(air,bgc,canopy,met,bal,rad,rough,soil,ssnow, &
          sum_flux,veg,mp)
     WRITE(logn,*) ' CABLE variables allocated with ', mp, ' patch(es).'
@@ -2668,35 +2676,28 @@ CONTAINS
     IF (icycle > 0) THEN
        CALL alloc_phenvariable(phen,mp)
     ENDIF
-    !* 2. Allocate CABLE (and CASA's [+phenology], if used) variables now that
-    ! the dimension of arrays is known - i.e. now that we know how many grid
-    ! cells and patches there are.
-    !     - WARNING: I think this allocation should happen after ALL parameter
-    ! and restart information has been loaded. As it stands, I think there is
-    ! the potential for the restart file to contain variables of a different
-    ! dimension to what is declared here.
 
+    !> 3. Assign the loaded parameter values to CABLE's parameter variables
     CALL write_default_params(met,air,ssnow,veg,bgc,soil,canopy,rough, &
          rad,logn,vegparmnew,smoy, TFRZ, LUC_EXPT)
-    !! 3. Assign the loaded parameter values to CABLE's parameter variables
 
     ! Zero out lai where there is no vegetation acc. to veg. index
     WHERE ( veg%iveg(:) .GE. 14 ) veg%vlai = 0.
 
-    IF (icycle > 0) THEN
+   !| 4. [IF CASA is being used] Assign the CASA parameters from CABLE
+   ! parameters
+   !     - **WARNING:** again this should happen after the restart file and met
+   ! file information has been used to define CABLE parameters, otherwise
+   ! they could be out of sync.
+   IF (icycle > 0) THEN
        CALL write_cnp_params(veg,casaflux,casamet)
-       !* 4. [IF CASA is being used] Assign the CASA parameters from CABLE
-       ! parameters
-       !     - WARNING: again this should happen after the restart file and met
-       ! file information has been used to define CABLE parameters, otherwise
-       ! they could be out of sync.
 
        CALL casa_readbiome(veg,soil,casabiome,casapool,casaflux, &
             casamet,phen)
        IF (cable_user%PHENOLOGY_SWITCH.EQ.'MODIS') CALL casa_readphen(veg,casamet,phen)
 
+       !> 5. [IF CASA is being used] Initialise CASA state variables
        CALL casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
-       !! 5. [IF CASA is being used] Initialise CASA state variables
 
        ! vh_js !
        IF ( CABLE_USER%CALL_POP ) THEN
@@ -2762,7 +2763,10 @@ CONTAINS
        WRITE(*,*)    ' Overwriting initialisations with values in ', &
             'restart file: ', TRIM(frst_in)
 
-       ! Check total number of patches in restart file:
+      !| 6. Check that the total number of patches in the restart file matches
+      ! the total number of patches from the default grid (abort if not).
+      !     - **WARNING:** if a restart file exists, it should define the total
+      ! number of patches, not the default grid.
        ok = NF90_INQ_DIMID(ncid_rin,'mp',mpID)
        IF(ok /= NF90_NOERR) THEN
           ok = NF90_INQ_DIMID(ncid_rin,'mp_patch',mpID)
@@ -2781,15 +2785,11 @@ CONTAINS
             'restart file '//TRIM(frst_in)//' does not equal '// &
             'to number in default/met file settings. (SUB load_parameters) ' &
             //'Recommend running without restart file.')
-      !* 6. Check that the total number of patches in the restart file matches
-      ! the total number of patches from the default grid (abort if not).
-      !     - WARNING: if a restart file exists, it should define the total
-      ! number of patches, not the default grid.
 
+       !| 7. Load initialisations and parameter values from restart file, and
+       ! overwrite default values with these.
        CALL get_restart_data(logn,ssnow,canopy,rough,bgc,bal,veg, &
             soil,rad,vegparmnew, EMSOIL )
-       !* 7. Load initialisations and parameter values from restart file, and
-       ! overwrite default values with these.
 
     ELSE
        ! With no restart file, use default parameters already loaded
@@ -2801,9 +2801,9 @@ CONTAINS
        WRITE(*,*)    ' Pre-loaded default initialisations are used.'
     END IF ! if restart file exists
 
-    CALL get_parameters_met(soil,veg,bgc,rough,completeSet)
-    !* 8. Overwrite parameter values with any found in the met forcing file.
+    !| 8. Overwrite parameter values with any found in the met forcing file.
     ! This could be just a subset of parameters.
+    CALL get_parameters_met(soil,veg,bgc,rough,completeSet)
 
     ! Results of looking for parameters in the met file:
     WRITE(logn,*)
@@ -2825,17 +2825,17 @@ CONTAINS
     END IF
     WRITE(logn,*)
 
-    CALL derived_parameters(soil,sum_flux,bal,ssnow,veg,rough)
-    !* 9. Construct derived parameters and zero initialisations for the
+    !| 9. Construct derived parameters and zero initialisations for the
     ! groundwater routine, regardless of where parameters and other
     ! initialisations have loaded from
+    CALL derived_parameters(soil,sum_flux,bal,ssnow,veg,rough)
 
+    !> 10. Check for basic inconsistencies in parameter values
     CALL check_parameter_values(soil,veg,ssnow)
-    !! 10. Check for basic inconsistencies in parameter values
 
+    !> 11. Write per-site parameter values to log file if requested
     CALL report_parameters(logn,soil,veg,bgc,rough,ssnow,canopy, &
          casamet,casapool,casaflux,phen,vegparmnew,verbose)
-    !! 11. Write per-site parameter values to log file if requested
 
 
   END SUBROUTINE load_parameters
