@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for GW">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>cable_psm &ndash; GW</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">GW </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>cable_psm 
+    <small>Module</small>
+    </h1>
+    <div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title=" 0.3% of total for modules and submodules.">118 statements</a>
+     </li> 
+    <li><i class="fa fa-code"></i><a href="../src/cable_psm.F90"> Source File</a></li>
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+     <li><a href='../sourcefile/cable_psm.f90.html'>cable_psm.F90</a></li>
+     <li class="active">cable_psm</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div id="sidebar">
+  <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-0">Variables</a></h3></div>
+  <div id="vars-0" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_psm.html#variable-rt_dff">rt_Dff</a>
+      <a class="list-group-item" href="../module/cable_psm.html#variable-lm">lm</a>
+      <a class="list-group-item" href="../module/cable_psm.html#variable-c2~4">c2</a>
+      <a class="list-group-item" href="../module/cable_psm.html#variable-litter_thermal_diff">litter_thermal_diff</a>
+      <a class="list-group-item" href="../module/cable_psm.html#variable-rtevap_max">rtevap_max</a>
+      <a class="list-group-item" href="../module/cable_psm.html#variable-gamma_pre">gamma_pre</a>
+      <a class="list-group-item" href="../module/cable_psm.html#variable-c_gamma">c_gamma</a>
+      <a class="list-group-item" href="../module/cable_psm.html#variable-pi_r_2">pi_r_2</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#funcs-0">Functions</a></h3></div>
+  <div id="funcs-0" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_psm.html#proc-my_gamma">my_gamma</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#subs-0">Subroutines</a></h3></div>
+  <div class="list-group">
+    <div id="subs-0" class="panel-collapse collapse">
+      <a class="list-group-item" href="../module/cable_psm.html#proc-or_soil_evap_resistance">or_soil_evap_resistance</a>
+      <a class="list-group-item" href="../module/cable_psm.html#proc-update_or_soil_resis">update_or_soil_resis</a>
+    </div>
+  </div>
+</div>
+
+</div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    
+<br>        <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Uses</h3>
+      </div>
+      <ul class="list-group">
+      <li class="list-group-item">
+  <ul class="list-inline">
+    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+    <li><a href='../module/cable_io_vars_module~2.html'>cable_IO_vars_module</a></li>
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+  </ul>
+      </li>
+      </ul>
+    </div>
+
+    
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+      <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-1">Variables</a></h3></div>
+  <div id="vars-1" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_psm.html#variable-rt_dff">rt_Dff</a>
+      <a class="list-group-item" href="../module/cable_psm.html#variable-lm">lm</a>
+      <a class="list-group-item" href="../module/cable_psm.html#variable-c2~4">c2</a>
+      <a class="list-group-item" href="../module/cable_psm.html#variable-litter_thermal_diff">litter_thermal_diff</a>
+      <a class="list-group-item" href="../module/cable_psm.html#variable-rtevap_max">rtevap_max</a>
+      <a class="list-group-item" href="../module/cable_psm.html#variable-gamma_pre">gamma_pre</a>
+      <a class="list-group-item" href="../module/cable_psm.html#variable-c_gamma">c_gamma</a>
+      <a class="list-group-item" href="../module/cable_psm.html#variable-pi_r_2">pi_r_2</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#funcs-1">Functions</a></h3></div>
+  <div id="funcs-1" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_psm.html#proc-my_gamma">my_gamma</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#subs-1">Subroutines</a></h3></div>
+  <div class="list-group">
+    <div id="subs-1" class="panel-collapse collapse">
+      <a class="list-group-item" href="../module/cable_psm.html#proc-or_soil_evap_resistance">or_soil_evap_resistance</a>
+      <a class="list-group-item" href="../module/cable_psm.html#proc-update_or_soil_resis">update_or_soil_resis</a>
+    </div>
+  </div>
+</div>
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    <section>
+    <h2>Variables</h2>
+    <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-rt_dff"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>parameter</td><td>::</td>
+  <td><strong>rt_Dff</strong></td><td> =</td><td>2.5e-5</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-lm"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>parameter</td><td>::</td>
+  <td><strong>lm</strong></td><td> =</td><td>1.73e-5</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-c2~4"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>parameter</td><td>::</td>
+  <td><strong>c2</strong></td><td> =</td><td>2.0</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-litter_thermal_diff"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>parameter</td><td>::</td>
+  <td><strong>litter_thermal_diff</strong></td><td> =</td><td>2.7e-5</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rtevap_max"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>parameter</td><td>::</td>
+  <td><strong>rtevap_max</strong></td><td> =</td><td>10000.0</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-gamma_pre"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>parameter, DIMENSION(0:8)</td><td>::</td>
+  <td><strong>gamma_pre</strong></td><td> =</td><td>(/0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7/)</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-c_gamma"></span>integer,</td>
+<td>public,</td>  <td>parameter</td><td>::</td>
+  <td><strong>c_gamma</strong></td><td> =</td><td>7</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-pi_r_2"></span>real(kind=r_2),</td>
+<td>public,</td>  <td>parameter</td><td>::</td>
+  <td><strong>pi_r_2</strong></td><td> =</td><td>3.14159</td><td></td>
+</tr>
+</tbody>
+</table>
+
+    </section>
+    <br>
+    
+    
+
+    
+    
+ 
+    <section>
+    <h2>Functions</h2>
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-my_gamma"></span><h3>public recursive function <a href='../proc/my_gamma.html'>my_gamma</a>(a) result(g)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>real(kind=r_2),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>a</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+<h4>Return Value <small>real(kind=r_2)</small></h4>  
+
+  </div>
+  </div>
+
+    </section>
+    <br>
+
+    <section>
+    <h2>Subroutines</h2>
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-or_soil_evap_resistance"></span><h3>public subroutine <a href='../proc/or_soil_evap_resistance.html'>or_soil_evap_resistance</a>(soil, air, met, canopy, ssnow, veg, rough)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>soil</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/air_type.html'>air_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>air</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/met_type.html'>met_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>met</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>canopy</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ssnow</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>veg</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/roughness_type.html'>roughness_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>rough</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-update_or_soil_resis"></span><h3>public subroutine <a href='../proc/update_or_soil_resis.html'>update_or_soil_resis</a>(ssnow, canopy, veg, dq, dqu)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ssnow</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>canopy</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>veg</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real,</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(mp)</td><td>::</td>
+  <td><strong>dq</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>real,</td>
+<td>intent(in),</td>
+  <td></td>  <td>DIMENSION(mp)</td><td>::</td>
+  <td><strong>dqu</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+    </section>    
+    <br>
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>GW was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+  </body>
+</html>
