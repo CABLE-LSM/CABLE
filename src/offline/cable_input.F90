@@ -2863,14 +2863,14 @@ CONTAINS
     ! have already been loaded from the default parameter loading and/or the
     ! restart file.
     !
-    ! - WARNING: The ability to set vegetation and soil type from the met
+    ! **WARNING:** The ability to set vegetation and soil type from the met
     ! file has been commented out here, so site based simulations can only have
     ! the default vegetation type - this is clearly problematic. To fix this
     ! issue, the parameter loading needs to be reordered a little, so that if
     ! the default veg or soil type is set here, the parameter values themselves
     ! are actually written as a result of this.
     !
-    ! - WARNING: The list of parameters searched for here is not complete
+    ! **WARNING:** The list of parameters searched for here is not complete
     ! for all CABLE applications. Not too urgent to fix if people don't often
     ! add parameters to the met file, but more important for detailed site-based
     ! process studies.
