@@ -119,8 +119,8 @@
       <ul class="list-group">
       <li class="list-group-item">
   <ul class="list-inline">
-    <li><a href='../module/popluc_module.html'>POPLUC_Module</a></li>
     <li><a href='../module/cable_luc_expt.html'>CABLE_LUC_EXPT</a></li>
+    <li><a href='../module/popluc_module.html'>POPLUC_Module</a></li>
     <li><a href='../module/popmodule.html'>POPModule</a></li>
   </ul>
       </li>
@@ -128,6 +128,77 @@
     </div>
 
 
+    <p>Defines the priority order of sources of parameter
+values for CABLE, determines the total number of patches over all grid
+cells, and writes parameter values to CABLE's parameter arrays.</p>
+<p><strong>WARNING:</strong> this needs reordering and tweaking to (a) remove the
+possibility of inconsistencies between the number of patches in the
+default parameter grid and a restart file, and (b) allow vegetation and
+soil type to be forced from the met file (this is more complicated than
+simply uncommenting the iveg and isoil reads from the met file - it
+requires the actual parameter values to be written after that read).</p>
+<h3>Order of processes:</h3>
+<ol>
+<li>
+<p>Load parameter values for each grid cell from default vegetation and
+soil types based on latitude and longitude. This includes determining
+the number of patches in each grid cell, and so the total number of
+patches.</p>
+</li>
+<li>
+<p>Allocate CABLE (and CASA's [+phenology], if used) variables now that
+the dimension of arrays is known - i.e. now that we know how many grid
+cells and patches there are.</p>
+<ul>
+<li><strong>WARNING:</strong> I think this allocation should happen after ALL 
+parameter and restart information has been loaded. As it stands, I think
+there is the potential for the restart file to contain variables of a 
+different dimension to what is declared here.</li>
+</ul>
+</li>
+<li>
+<p>Assign the loaded parameter values to CABLE's parameter variables</p>
+</li>
+<li>
+<p>[IF CASA is being used] Assign the CASA parameters from CABLE
+parameters</p>
+<ul>
+<li><strong>WARNING:</strong> again this should happen after the restart file and met
+file information has been used to define CABLE parameters, otherwise
+they could be out of sync.</li>
+</ul>
+</li>
+<li>
+<p>[IF CASA is being used] Initialise CASA state variables</p>
+</li>
+<li>
+<p>Check that the total number of patches in the restart file matches
+the total number of patches from the default grid (abort if not).</p>
+<ul>
+<li><strong>WARNING:</strong> if a restart file exists, it should define the total
+number of patches, not the default grid.</li>
+</ul>
+</li>
+<li>
+<p>Load initialisations and parameter values from restart file, and
+overwrite default values with these.</p>
+</li>
+<li>
+<p>Overwrite parameter values with any found in the met forcing file.
+This could be just a subset of parameters.</p>
+</li>
+<li>
+<p>Construct derived parameters and zero initialisations for the
+groundwater routine, regardless of where parameters and other
+initialisations have loaded from</p>
+</li>
+<li>
+<p>Check for basic inconsistencies in parameter values</p>
+</li>
+<li>
+<p>Write per-site parameter values to log file if requested</p>
+</li>
+</ol>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
