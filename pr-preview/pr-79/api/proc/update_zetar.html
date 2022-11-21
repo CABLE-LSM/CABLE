@@ -120,23 +120,25 @@
  <a href="../proc/define_canopy.html">define_canopy</a> only.</p>
 <p>This SUBROUTINE updates the value of the stability parameter <script type="math/tex">\xi</script>
  during the Monin-Obukhov (MO) iteration loop in <a href="../proc/define_canopy.html">define_canopy</a>.
- Further scientific documentation is given in [Kowalczyk et al. 2006]
+ Further scientific documentation is given in [[Kowalczyk et al. 2006]]
  - section 3.1, equations 1-9.  The two outputs of the SUBROUTINE
  are the local (in space, time and by iteration counter) value of <script type="math/tex">\xi</script>
- (Equation 9) for 'canopy_zetar' and a related quantity 'canopy_zetarsh'.</p>
-<p>'canopy_zetar' is evaluated from the total land surface fluxes of
- momentum, sensible heat and latent heat.  'canopy_zetarsh' is the
+ (Equation 9) for <code>canopy_zetar</code> and a related quantity <code>canopy_zetarsh</code>.</p>
+<p><code>canopy_zetar</code> is evaluated from the total land surface fluxes of
+ momentum, sensible heat and latent heat.  <code>canopy_zetarsh</code> is the
  equivalent variable evaluated from the soil contribution to those fluxes
  only.  This stability parameter is used with the SLI soil module to
- moderate the fluxes from the soil when this sits underneath a canopy.</p>
-<p>'canopy_zetar' and 'canopy_zetarsh' are updated by NITER(&gt;1) times
- during the calculation of the energy balance in <a href="../proc/define_canopy.html">define_canopy</a> and
- stored im memory to aid in assessment of convergence.</p>
-<p>The outputs 'canopy_zetar' and 'canopy_zetarsh' are known as
- 'canopy%zetar' and 'canopy%zetar' in <a href="../proc/define_canopy.html">define_canopy</a> and elsewhere
+ moderate the fluxes from the soil underneath a canopy.</p>
+<p><code>canopy_zetar</code> and <code>canopy_zetarsh</code> are initialised to zero in
+ <a href="../proc/define_canopy.html">define_canopy</a> and updated by NITER(&gt;1) times
+ during the calculation of the energy balance.  The value of the variables
+ at each iteration are stored im memory to aid in the assessment
+ of convergence.</p>
+<p>The outputs <code>canopy_zetar</code> and <code>canopy_zetarsh</code> are known as
+ <code>canopy%zetar</code> and <code>canopy%zetar</code> in <a href="../proc/define_canopy.html">define_canopy</a> and elsewhere
  in the code.</p>
-<p>Special cases apply if NITER=2 or if 'canopy_zetar' or 'canopy_zetarsh'
- exceed prescribed upper 'CZETPOS' or lower 'CZETNEG' limits</p>
+<p>Special cases apply if NITER=2 or if <code>canopy_zetar</code> or <code>canopy_zetarsh</code>
+ exceed prescribed upper <code>CZETPOS</code> or lower <code>CZETNEG</code> limits</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
