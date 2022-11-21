@@ -1,4 +1,7 @@
 MODULE cbl_zetar_module
+  !* This MODULE contains the SUBROUTINE needed to update the value of
+  !  the stability parameter zetar during the Monin-Obukhov iteration
+  !  loop within [define_canopy]
 
 IMPLICIT NONE
 
