@@ -124,28 +124,31 @@
  <a href="http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf">Kowalczyk et al. (2006)</a>
  - section 3.1, equations 1-9.  The two outputs of the SUBROUTINE
  are the local (in space, time and by iteration counter) value of <script type="math/tex">\xi</script>
- (Equation 9) <code>canopy_zetar</code> and a related quantity <code>canopy_zetarsh</code>.</p>
+ (Equation 9) <code>canopy_zetar</code> and a related quantity <code>canopy_zetash</code>.</p>
 <p><code>canopy_zetar</code> is evaluated from the total land (soil+canopy)
  surface fluxes of momentum, sensible heat and latent heat.
- <code>canopy_zetarsh</code> is the equivalent variable evaluated from the soil
- contribution to those fluxes only.  <code>canopy_zetarsh</code> is used in conjunction
+ <code>canopy_zetash</code> is the equivalent variable evaluated from the soil
+ contribution to those fluxes only.  <code>canopy_zetash</code> is used in conjunction
  with the <a href="../module/sli_main_mod.html">sli_main_mod</a> soil model to moderate the fluxes from the soil
  underneath a canopy.</p>
-<p><code>canopy_zetar</code> and <code>canopy_zetarsh</code> quantify the role that the surface
+<p><code>canopy_zetar</code> and <code>canopy_zetash</code> quantify the role that the surface
  fluxes play in setting the efficiency of turbulent transfer from the land
  to the atmosphere, and hence the aerodynamic component of the resistance
  network for those same surface fluxes (an implicit problem which requires
- iteration to solve).</p>
-<p><code>canopy_zetar</code> and <code>canopy_zetarsh</code> are initialised to zero in
- <a href="../proc/define_canopy.html">define_canopy</a> and updated NITER(&gt;1) times
+ iteration to solve). </p>
+<p><code>canopy_zetar</code> and <code>canopy_zetash</code> are initialised to <code>CZETA0</code>=0 in
+ <a href="../proc/define_canopy.html">define_canopy</a> and updated <code>NITER</code>(&gt;1) times
  during the calculation of the energy balance.  The value of the variables
- at each iteration are stored in memory to aid in the assessment
+ at each iteration are stored in memory to aid in the diagnosis
  of convergence.</p>
-<p>The outputs <code>canopy_zetar</code> and <code>canopy_zetarsh</code> are known as
- <code>canopy%zetar</code> and <code>canopy%zetarsh</code> in <a href="../proc/define_canopy.html">define_canopy</a> and elsewhere
- in the code.</p>
-<p>Special cases apply if NITER=2, or if <code>canopy_zetar</code> or <code>canopy_zetarsh</code>
- exceed the prescribed upper <code>CZETPOS</code> or lower <code>CZETNEG</code> limits</p>
+<p>The outputs <code>canopy_zetar</code> and <code>canopy_zetash</code> are known as
+ <code>canopy%zetar</code> and <code>canopy%zetash</code> in <a href="../proc/define_canopy.html">define_canopy</a> and elsewhere
+ in the code. <code>canopy%zetar</code> is used in <a href="../proc/define_canopy.html">define_canopy</a> and
+ <a href="../proc/comp_friction_vel.html">comp_friction_vel</a>; <code>canopy%zetash</code> is used in `<a href="../proc/define_canopy.html">define_canopy</a>.</p>
+<p>Special cases apply if <code>NITER</code>=2, or if <code>canopy_zetar</code> or <code>canopy_zetash</code>
+ exceed the prescribed upper <code>CZETPOS</code> or lower <code>CZETNEG</code> limits. <code>NITER</code>(=4)
+ is defined in <a href="../module/cable_types_mod.html">cable_types_mod</a>; <code>CZETMUL</code>, <code>CZET0</code>, <code>CZETPOS</code> and
+ <code>CZETNEG</code> in <a>cable_phys_mod</a></p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
