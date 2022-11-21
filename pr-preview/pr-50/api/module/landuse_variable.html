@@ -79,7 +79,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 1.0% of total for modules and submodules.">436 statements</a>
+    title=" 1.0% of total for modules and submodules.">437 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/landuse3.F90"> Source File</a></li>
   </ul>
@@ -136,17 +136,6 @@
 <li><code>luc%var_y(mland,mvmax)</code>: variable indexed by "mland" and "mvmax" after land use change</li>
 <li><code>lucmp%var( mp        )</code>: variable indexed by the patch number from 1 to mp</li>
 </ul>
-<p>
-<script type="math/tex; mode=display">$$\textbf{y} = \textbf{x} \cdot \textbf{T}</script>
-</p>
-<p>This module will: </p>
-<ol>
-<li>map a variable <code>var</code> from CABLE into one derived-type variable <code>luc%var_x</code></li>
-<li>apply land use change (PFT transition, wood harvest and land management)</li>
-<li>write the value of <code>var_x</code> into <code>var_y</code></li>
-<li>update the value of <code>mp</code> and write <code>luc%var_y</code> to <code>lucmp%var</code></li>
-</ol>
-<p>All variables in the restart file and the state variables will be calculated.</p>
 <br>        <div class="panel panel-default">
       <div class="panel-heading">
   <h3 class="panel-title">Uses</h3>

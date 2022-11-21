@@ -11,7 +11,8 @@ MODULE landuse_variable
 ! - `luc%var_y(mland,mvmax)`: variable indexed by "mland" and "mvmax" after land use change
 ! - `lucmp%var( mp        )`: variable indexed by the patch number from 1 to mp
 !
-! \[$$\textbf{y} = \textbf{x} \cdot \textbf{T}\]
+The land use change for each variable is applied in the form of a transformation matrix `T` such that:
+! \[$$\textbf{luc%var_y} = \textbf{luc%var_x} \cdot \textbf{T}\]
 !
 ! This module will: 
 !
