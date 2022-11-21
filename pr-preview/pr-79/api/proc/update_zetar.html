@@ -131,8 +131,13 @@
  contribution to those fluxes only.  <code>canopy_zetarsh</code> is used in conjunction
  with the <a href="../module/sli_main_mod.html">sli_main_mod</a> soil model to moderate the fluxes from the soil
  underneath a canopy.</p>
+<p><code>canopy_zetar</code> and <code>canopy_zetarsh</code> quantify the role that the surface
+ fluxes play in setting the efficiency of turbulent transfer from the land
+ to the atmosphere, and hence the aerodynamic component of the resistance
+ network for those same surface fluxes (an implicit problem which requires
+ iteration to solve).</p>
 <p><code>canopy_zetar</code> and <code>canopy_zetarsh</code> are initialised to zero in
- <a href="../proc/define_canopy.html">define_canopy</a> and updated by NITER(&gt;1) times
+ <a href="../proc/define_canopy.html">define_canopy</a> and updated NITER(&gt;1) times
  during the calculation of the energy balance.  The value of the variables
  at each iteration are stored in memory to aid in the assessment
  of convergence.</p>
