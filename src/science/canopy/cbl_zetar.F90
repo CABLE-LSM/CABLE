@@ -1,6 +1,6 @@
 MODULE cbl_zetar_module
   !* This MODULE contains the SUBROUTINE [[update_zetar]] needed to update
-  !  the value of the stability parameter 'canopy%zetar'=\(\xi\). 
+  !  the value of the stability parameter `canopy%zetar`=\(\xi\). 
 
 IMPLICIT NONE
 
@@ -23,27 +23,29 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
   !  
   !  This SUBROUTINE updates the value of the stability parameter \(\xi\)
   !  during the Monin-Obukhov (MO) iteration loop in [[define_canopy]].
-  !  Further scientific documentation is given in [Kowalczyk et al. 2006]
+  !  Further scientific documentation is given in [[Kowalczyk et al. 2006]]
   !  - section 3.1, equations 1-9.  The two outputs of the SUBROUTINE
   !  are the local (in space, time and by iteration counter) value of \(\xi\)
-  !  (Equation 9) for 'canopy_zetar' and a related quantity 'canopy_zetarsh'.
+  !  (Equation 9) for `canopy_zetar` and a related quantity `canopy_zetarsh`.
   !
-  !  'canopy_zetar' is evaluated from the total land surface fluxes of
-  !  momentum, sensible heat and latent heat.  'canopy_zetarsh' is the
+  !  `canopy_zetar` is evaluated from the total land surface fluxes of
+  !  momentum, sensible heat and latent heat.  `canopy_zetarsh` is the
   !  equivalent variable evaluated from the soil contribution to those fluxes
   !  only.  This stability parameter is used with the SLI soil module to
-  !  moderate the fluxes from the soil when this sits underneath a canopy.
+  !  moderate the fluxes from the soil underneath a canopy.
   !
-  !  'canopy_zetar' and 'canopy_zetarsh' are updated by NITER(>1) times
-  !  during the calculation of the energy balance in [[define_canopy]] and
-  !  stored im memory to aid in assessment of convergence.
+  !  `canopy_zetar` and `canopy_zetarsh` are initialised to zero in
+  !  [[define_canopy]] and updated by NITER(>1) times
+  !  during the calculation of the energy balance.  The value of the variables
+  !  at each iteration are stored im memory to aid in the assessment
+  !  of convergence.
   !
-  !  The outputs 'canopy_zetar' and 'canopy_zetarsh' are known as
-  !  'canopy%zetar' and 'canopy%zetar' in [[define_canopy]] and elsewhere
+  !  The outputs `canopy_zetar` and `canopy_zetarsh` are known as
+  !  `canopy%zetar` and `canopy%zetar` in [[define_canopy]] and elsewhere
   !  in the code.
   !
-  !  Special cases apply if NITER=2 or if 'canopy_zetar' or 'canopy_zetarsh'
-  !  exceed prescribed upper 'CZETPOS' or lower 'CZETNEG' limits
+  !  Special cases apply if NITER=2 or if `canopy_zetar` or `canopy_zetarsh`
+  !  exceed prescribed upper `CZETPOS` or lower `CZETNEG` limits
   !
 
 IMPLICIT NONE
