@@ -36,8 +36,14 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
   !  with the [[sli_main_mod]] soil model to moderate the fluxes from the soil
   !  underneath a canopy.
   !
+  !  `canopy_zetar` and `canopy_zetarsh` quantify the role that the surface
+  !  fluxes play in setting the efficiency of turbulent transfer from the land
+  !  to the atmosphere, and hence the aerodynamic component of the resistance
+  !  network for those same surface fluxes (an implicit problem which requires
+  !  iteration to solve).
+  !
   !  `canopy_zetar` and `canopy_zetarsh` are initialised to zero in
-  !  [[define_canopy]] and updated by NITER(>1) times
+  !  [[define_canopy]] and updated NITER(>1) times
   !  during the calculation of the energy balance.  The value of the variables
   !  at each iteration are stored in memory to aid in the assessment
   !  of convergence.
