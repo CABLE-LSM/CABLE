@@ -23,7 +23,8 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
   !  
   !  This SUBROUTINE updates the value of the stability parameter \(\xi\)
   !  during the Monin-Obukhov (MO) iteration loop in [[define_canopy]].
-  !  Further scientific documentation is given in [[Kowalczyk et al. 2006]]
+  !  Further scientific documentation is given in
+  !  [Kowalczyk et al. (2006)](http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf)
   !  - section 3.1, equations 1-9.  The two outputs of the SUBROUTINE
   !  are the local (in space, time and by iteration counter) value of \(\xi\)
   !  (Equation 9) for `canopy_zetar` and a related quantity `canopy_zetarsh`.
@@ -45,7 +46,7 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
   !  in the code.
   !
   !  Special cases apply if NITER=2 or if `canopy_zetar` or `canopy_zetarsh`
-  !  exceed prescribed upper `CZETPOS` or lower `CZETNEG` limits
+  !  exceed the prescribed upper `CZETPOS` or lower `CZETNEG` limits
   !
 
 IMPLICIT NONE
@@ -67,7 +68,7 @@ REAL, INTENT(IN) :: met_tk(mp)         !! reference level air temperature (K)
 REAL, INTENT(IN) :: met_fsd(mp,nrb)    !! downwelling shortwave (Wm\(^{-2}\))  
 REAL, INTENT(IN) :: rough_zref_tq(mp)  !! reference height for T and q (m)
 REAL, INTENT(IN) :: rough_hruff(mp)    !! height of canopy (above snow) (m)
-REAL, INTENT(IN) :: rough_term6a(mp)   !! term from [[canopy_roughness]] (-)
+REAL, INTENT(IN) :: rough_term6a(mp)   !! term from [[ruff_resist]] (-)
 REAL, INTENT(IN) :: rough_z0soilsn(mp) !! roughness length of soil or snow (m)
 REAL, INTENT(IN) :: canopy_vlaiw(mp)   !! canopy leaf area (m\(^2\)m\(^{-2}\))
 REAL, INTENT(IN) :: canopy_us(mp)      !! friction velocity (ms\(^{-1}\))
