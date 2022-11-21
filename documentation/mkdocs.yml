@@ -74,10 +74,10 @@ nav:
       - CASA: user_guide/science/CASA.md
   - POP-TRENDY: POP-TRENDY/index.md
   - Developer Guide:
-    - CABLE's Contribution guidelines: 
-      - developer_guide/contributing/index.md
-      - Scientific documentation: developer_guide/contributing/science_doc.md
-      - Other documentation: developer_guide/contributing/other_doc.md
+    - Documentation guidelines: 
+      - developer_guide/doc_guide/index.md
+      - Scientific documentation: developer_guide/doc_guide/science_doc.md
+      - Other documentation: developer_guide/doc_guide/other_doc.md
     - Coding standards: developer_guide/coding_standards.md
     - CABLE's release process: developer_guide/release.md
     - API documentation: developer_guide/api.md
