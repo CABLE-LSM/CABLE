@@ -56,7 +56,11 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
   !  Special cases apply if `NITER`=2, or if `canopy_zetar` or `canopy_zetash`
   !  exceed the prescribed upper `CZETPOS` or lower `CZETNEG` limits. `NITER`(=4)
   !  is defined in [[cable_types_mod]]; `CZETMUL`, `CZET0`, `CZETPOS` and
-  !  `CZETNEG` in [[cable_phys_mod]]
+  !  `CZETNEG` in [[cable_phys_constants_mod]]
+  !
+  !  *NOTE* The INTENT statements for `canopy_zetar` and `canopy_zetash` need
+  !  sorting - this code would fail strict compilation. Perhaps also need to consider
+  !  if `canopy_zetar` and `canopy_zetash` need to be (mp,NITER) or can be just (mp)
   !
 
 IMPLICIT NONE
