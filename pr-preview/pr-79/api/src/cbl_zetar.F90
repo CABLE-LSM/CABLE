@@ -1,6 +1,6 @@
 MODULE cbl_zetar_module
   !* This MODULE contains the SUBROUTINE [[update_zetar]] needed to update
-  !  the value of the stability parameter zetar. 
+  !  the value of the stability parameter 'canopy%zetar'=\(\xi\). 
 
 IMPLICIT NONE
 
@@ -16,33 +16,34 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
                    rough_zref_tq, rough_hruff, rough_term6a, rough_z0soilsn,   &
                    canopy_vlaiw, canopy_zetash,  canopy_us, &
                    canopy_fh, canopy_fe, canopy_fhs, canopy_fes )
-  !* This routine forms part of the codebase to evaluate the surface
+  !* This SUBROUTINE forms part of the codebase to evaluate the surface
   !  energy balance on a sub-diurnal basis (i.e. every CABLE time step).
-  !  It forms part of the canopy science directory and is called from
+  !  It resides in the canopy science directory and is called from
   !  [[define_canopy]] only.
   !  
-  !  This subroutine updates the value of the stability parameter zetar
-  !  during the Monin-Obukhov (MO) iteration loop within [[define_canopy]].
+  !  This SUBROUTINE updates the value of the stability parameter \(\xi\)
+  !  during the Monin-Obukhov (MO) iteration loop in [[define_canopy]].
   !  Further scientific documentation is given in [Kowalczyk et al. 2006]
-  !  - section 3.1, equations 1-9.  There are two outputs of the SUBROUTINE
+  !  - section 3.1, equations 1-9.  The two outputs of the SUBROUTINE
   !  are the local (in space, time and by iteration counter) value of \(\xi\)
-  !  (Equation 9) for `canopy_zetar' and a related quantity `canopy_zetarsh'.
+  !  (Equation 9) for 'canopy_zetar' and a related quantity 'canopy_zetarsh'.
   !
-  !  `canopy_zetar' is evaluated from the total land surface fluxes of
-  !  momentum, sensible heat and latent heat.  `canopy_zetarsh' is the
+  !  'canopy_zetar' is evaluated from the total land surface fluxes of
+  !  momentum, sensible heat and latent heat.  'canopy_zetarsh' is the
   !  equivalent variable evaluated from the soil contribution to those fluxes
   !  only.  This stability parameter is used with the SLI soil module to
-  !  restrict the fluxes from the soil when sitting underneath a canopy.
+  !  moderate the fluxes from the soil when this sits underneath a canopy.
   !
-  !  `canopy_zetar' and `canopy_zetarsh' are updated by NITER(>1) times
-  !  during the calculation of the energy balance in [define_canopy]
+  !  'canopy_zetar' and 'canopy_zetarsh' are updated by NITER(>1) times
+  !  during the calculation of the energy balance in [[define_canopy]] and
+  !  stored im memory to aid in assessment of convergence.
   !
-  !  The outputs `canopy_zetar' and `canopy_zetarsh' are known as
-  !  canopy%zetar and canopy%zetar in [[define_canopy]] and elsewhere in the
-  !  code.
+  !  The outputs 'canopy_zetar' and 'canopy_zetarsh' are known as
+  !  'canopy%zetar' and 'canopy%zetar' in [[define_canopy]] and elsewhere
+  !  in the code.
   !
-  !  Special cases apply if NITER=2 and both upper and lower limits
-  !  are applied to both `canopy_zetar' and `canopy_zetarsh'.
+  !  Special cases apply if NITER=2 or if 'canopy_zetar' or 'canopy_zetarsh'
+  !  exceed prescribed upper 'CZETPOS' or lower 'CZETNEG' limits
   !
 
 IMPLICIT NONE
@@ -57,7 +58,7 @@ INTEGER, INTENT(IN) :: iter                   !! iteration counter
 
 ! constants
 REAL, INTENT(IN) :: CVONK, CGRAV, CCAPP, CLAI_THRESH, CZETmul, CZETPOS, CZETNEG
-CHARACTER, INTENT(IN)  :: cable_user_soil_struc
+CHARACTER, INTENT(IN)  :: cable_user_soil_struc !! name of soil model used
 
 REAL, INTENT(IN) :: air_rho(mp)        !! air density (kg m\(^{-3}\))
 REAL, INTENT(IN) :: met_tk(mp)         !! reference level air temperature (K)

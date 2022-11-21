@@ -118,7 +118,7 @@
     
     <div class="col-md-9" id='text'>
     <p>This MODULE contains the SUBROUTINE <a href="../proc/update_zetar.html">update_zetar</a> needed to update
- the value of the stability parameter zetar. </p>
+ the value of the stability parameter 'canopy%zetar'=<script type="math/tex">\xi</script>. </p>
     
     
     <br>
@@ -151,9 +151,9 @@
   <div class="panel-heading codesum"><span class="anchor" id="proc-update_zetar"></span><h3>public subroutine <a href='../proc/update_zetar.html'>update_zetar</a>(mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP, CLAI_THRESH, CZETmul, CZETPOS, CZETNEG, cable_user_soil_struc, air_rho, met_tk, met_fsd, rough_zref_tq, rough_hruff, rough_term6a, rough_z0soilsn, canopy_vlaiw, canopy_zetash, canopy_us, canopy_fh, canopy_fe, canopy_fhs, canopy_fes)</h3></div>
   <div class="panel-body">
        
-<p>This routine forms part of the codebase to evaluate the surface
+<p>This SUBROUTINE forms part of the codebase to evaluate the surface
  energy balance on a sub-diurnal basis (i.e. every CABLE time step).
- It forms part of the canopy science directory and is called from
+ It resides in the canopy science directory and is called from
  <a href="../proc/define_canopy.html">define_canopy</a> only.</p><a href="../proc/update_zetar.html" class="pull-right"><emph>Read more&hellip;</emph></a>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
@@ -236,7 +236,7 @@
   <td><span class="anchor" ></span>character,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>cable_user_soil_struc</strong></td><td></td>
+  <td><strong>cable_user_soil_struc</strong></td><td><p>name of soil model used</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>real,</td>

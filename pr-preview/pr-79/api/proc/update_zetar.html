@@ -114,28 +114,29 @@
     <h2>public subroutine update_zetar(mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP, CLAI_THRESH, CZETmul, CZETPOS, CZETNEG, cable_user_soil_struc, air_rho, met_tk, met_fsd, rough_zref_tq, rough_hruff, rough_term6a, rough_z0soilsn, canopy_vlaiw, canopy_zetash, canopy_us, canopy_fh, canopy_fe, canopy_fhs, canopy_fes)</h2>
     
 
-    <p>This routine forms part of the codebase to evaluate the surface
+    <p>This SUBROUTINE forms part of the codebase to evaluate the surface
  energy balance on a sub-diurnal basis (i.e. every CABLE time step).
- It forms part of the canopy science directory and is called from
+ It resides in the canopy science directory and is called from
  <a href="../proc/define_canopy.html">define_canopy</a> only.</p>
-<p>This subroutine updates the value of the stability parameter zetar
- during the Monin-Obukhov (MO) iteration loop within <a href="../proc/define_canopy.html">define_canopy</a>.
+<p>This SUBROUTINE updates the value of the stability parameter <script type="math/tex">\xi</script>
+ during the Monin-Obukhov (MO) iteration loop in <a href="../proc/define_canopy.html">define_canopy</a>.
  Further scientific documentation is given in [Kowalczyk et al. 2006]
- - section 3.1, equations 1-9.  There are two outputs of the SUBROUTINE
+ - section 3.1, equations 1-9.  The two outputs of the SUBROUTINE
  are the local (in space, time and by iteration counter) value of <script type="math/tex">\xi</script>
- (Equation 9) for <code>canopy_zetar' and a related quantity</code>canopy_zetarsh'.</p>
-<p><code>canopy_zetar' is evaluated from the total land surface fluxes of
- momentum, sensible heat and latent heat.</code>canopy_zetarsh' is the
+ (Equation 9) for 'canopy_zetar' and a related quantity 'canopy_zetarsh'.</p>
+<p>'canopy_zetar' is evaluated from the total land surface fluxes of
+ momentum, sensible heat and latent heat.  'canopy_zetarsh' is the
  equivalent variable evaluated from the soil contribution to those fluxes
  only.  This stability parameter is used with the SLI soil module to
- restrict the fluxes from the soil when sitting underneath a canopy.</p>
-<p><code>canopy_zetar' and</code>canopy_zetarsh' are updated by NITER(&gt;1) times
- during the calculation of the energy balance in [define_canopy]</p>
-<p>The outputs <code>canopy_zetar' and</code>canopy_zetarsh' are known as
- canopy%zetar and canopy%zetar in <a href="../proc/define_canopy.html">define_canopy</a> and elsewhere in the
- code.</p>
-<p>Special cases apply if NITER=2 and both upper and lower limits
- are applied to both <code>canopy_zetar' and</code>canopy_zetarsh'.</p>
+ moderate the fluxes from the soil when this sits underneath a canopy.</p>
+<p>'canopy_zetar' and 'canopy_zetarsh' are updated by NITER(&gt;1) times
+ during the calculation of the energy balance in <a href="../proc/define_canopy.html">define_canopy</a> and
+ stored im memory to aid in assessment of convergence.</p>
+<p>The outputs 'canopy_zetar' and 'canopy_zetarsh' are known as
+ 'canopy%zetar' and 'canopy%zetar' in <a href="../proc/define_canopy.html">define_canopy</a> and elsewhere
+ in the code.</p>
+<p>Special cases apply if NITER=2 or if 'canopy_zetar' or 'canopy_zetarsh'
+ exceed prescribed upper 'CZETPOS' or lower 'CZETNEG' limits</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
@@ -218,7 +219,7 @@
   <td><span class="anchor" id="variable-cable_user_soil_struc"></span>character,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>cable_user_soil_struc</strong></td><td></td>
+  <td><strong>cable_user_soil_struc</strong></td><td><p>name of soil model used</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-air_rho"></span>real,</td>
