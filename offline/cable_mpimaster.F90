@@ -3933,6 +3933,7 @@ subroutine master_casa_types(comm, casabiome, casapool, casaflux, casamet, &
      call add_address_hvector(casaflux%Clabloss, off, cnt, mp, displs, blocks, types, bidx)
      call add_address_hvector(casaflux%fracClabile, off, cnt, mp, displs, blocks, types, bidx)
      call add_address_hvector(casaflux%stemnpp, off, cnt, mp, displs, blocks, types, bidx)
+     call add_address_hvector(casaflux%potstemnpp, off, cnt, mp, displs, blocks, types, bidx)
      call add_address_hvector(casaflux%frac_sapwood, off, cnt, mp, displs, blocks, types, bidx)
      call add_address_hvector(casaflux%sapwood_area, off, cnt, mp, displs, blocks, types, bidx)
      call add_address_hvector(casaflux%Charvest, off, cnt, mp, displs, blocks, types, bidx)
