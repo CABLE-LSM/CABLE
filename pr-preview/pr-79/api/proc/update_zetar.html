@@ -135,7 +135,8 @@
  fluxes play in setting the efficiency of turbulent transfer from the land
  to the atmosphere, and hence the aerodynamic component of the resistance
  network for those same surface fluxes (an implicit problem which requires
- iteration to solve). </p>
+ iteration to solve).
+ <br></br></p>
 <p><code>canopy_zetar</code> and <code>canopy_zetash</code> are initialised to <code>CZETA0</code>=0 in
  <a href="../proc/define_canopy.html">define_canopy</a> and updated <code>NITER</code>(&gt;1) times
  during the calculation of the energy balance.  The value of the variables
@@ -148,7 +149,8 @@
 <p>Special cases apply if <code>NITER</code>=2, or if <code>canopy_zetar</code> or <code>canopy_zetash</code>
  exceed the prescribed upper <code>CZETPOS</code> or lower <code>CZETNEG</code> limits. <code>NITER</code>(=4)
  is defined in <a href="../module/cable_types_mod.html">cable_types_mod</a>; <code>CZETMUL</code>, <code>CZET0</code>, <code>CZETPOS</code> and
- <code>CZETNEG</code> in <a href="../module/cable_phys_constants_mod.html">cable_phys_constants_mod</a></p>
+ <code>CZETNEG</code> in <a href="../module/cable_phys_constants_mod.html">cable_phys_constants_mod</a>.
+ <br></br></p>
 <p><em>NOTE</em> The INTENT statements for <code>canopy_zetar</code> and <code>canopy_zetash</code> need
  sorting - this code would fail strict compilation. Perhaps also need to consider
  if <code>canopy_zetar</code> and <code>canopy_zetash</code> need to be (mp,NITER) or can be just (mp)</p>
