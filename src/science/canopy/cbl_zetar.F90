@@ -40,7 +40,8 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
   !  fluxes play in setting the efficiency of turbulent transfer from the land
   !  to the atmosphere, and hence the aerodynamic component of the resistance
   !  network for those same surface fluxes (an implicit problem which requires
-  !  iteration to solve). 
+  !  iteration to solve).
+  !  <br></br>
   !
   !  `canopy_zetar` and `canopy_zetash` are initialised to `CZETA0`=0 in
   !  [[define_canopy]] and updated `NITER`(>1) times
@@ -56,7 +57,8 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
   !  Special cases apply if `NITER`=2, or if `canopy_zetar` or `canopy_zetash`
   !  exceed the prescribed upper `CZETPOS` or lower `CZETNEG` limits. `NITER`(=4)
   !  is defined in [[cable_types_mod]]; `CZETMUL`, `CZET0`, `CZETPOS` and
-  !  `CZETNEG` in [[cable_phys_constants_mod]]
+  !  `CZETNEG` in [[cable_phys_constants_mod]].
+  !  <br></br>
   !
   !  *NOTE* The INTENT statements for `canopy_zetar` and `canopy_zetash` need
   !  sorting - this code would fail strict compilation. Perhaps also need to consider
