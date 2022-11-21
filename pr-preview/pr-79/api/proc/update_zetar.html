@@ -115,11 +115,11 @@
     
 
     <p>This routine forms part of the codebase to evaluate the surface
- energy balance on a sub-diurnal basis (i.e. time step).
+ energy balance on a sub-diurnal basis (i.e. every CABLE time step).
  It forms part of the canopy science directory and is called from
  <a href="../proc/define_canopy.html">define_canopy</a> only.</p>
 <p>This subroutine updates the value of the stability parameter zetar
- during the Monin-Obukhov iteration loop within <a href="../proc/define_canopy.html">define_canopy</a>.
+ during the Monin-Obukhov (MO) iteration loop within <a href="../proc/define_canopy.html">define_canopy</a>.
  Further scientific documentation is given in [Kowalczyk et al. 2006]
  - section 3.1, equations 1-9.  There are two outputs of the SUBROUTINE
  are the local (in space, time and by iteration counter) value of <script type="math/tex">\xi</script>
@@ -134,6 +134,8 @@
 <p>The outputs <code>canopy_zetar' and</code>canopy_zetarsh' are known as
  canopy%zetar and canopy%zetar in <a href="../proc/define_canopy.html">define_canopy</a> and elsewhere in the
  code.</p>
+<p>Special cases apply if NITER=2 and both upper and lower limits
+ are applied to both <code>canopy_zetar' and</code>canopy_zetarsh'.</p>
 
     <h3>Arguments</h3>
       <table class="table table-striped varlist">
@@ -155,7 +157,7 @@
   <td><span class="anchor" id="variable-canopy_zetar"></span>real,</td>
 <td>intent(out)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>canopy_zetar</strong>(mp,NITER)</td><td><p>OUT stability parameter <script type="math/tex">\xi</script>
+  <td><strong>canopy_zetar</strong>(mp,NITER)</td><td><p>OUT: stability parameter <script type="math/tex">\xi</script>
 </p></td>
 </tr>
 <tr>
@@ -252,7 +254,7 @@
   <td><span class="anchor" id="variable-rough_term6a"></span>real,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>rough_term6a</strong>(mp)</td><td><p>term from [canopy_roughness] (-)</p></td>
+  <td><strong>rough_term6a</strong>(mp)</td><td><p>term from <a>canopy_roughness</a> (-)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-rough_z0soilsn"></span>real,</td>
@@ -270,7 +272,7 @@
   <td><span class="anchor" id="variable-canopy_zetash"></span>real,</td>
 <td>intent(out)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>canopy_zetash</strong>(mp,NITER)</td><td><p>OUT as canopy_zetar for soil</p></td>
+  <td><strong>canopy_zetash</strong>(mp,NITER)</td><td><p>OUT: as canopy_zetar for soil</p></td>
 </tr>
 <tr>
   <td><span class="anchor" id="variable-canopy_us"></span>real,</td>

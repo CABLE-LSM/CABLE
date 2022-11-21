@@ -152,7 +152,7 @@
   <div class="panel-body">
        
 <p>This routine forms part of the codebase to evaluate the surface
- energy balance on a sub-diurnal basis (i.e. time step).
+ energy balance on a sub-diurnal basis (i.e. every CABLE time step).
  It forms part of the canopy science directory and is called from
  <a href="../proc/define_canopy.html">define_canopy</a> only.</p><a href="../proc/update_zetar.html" class="pull-right"><emph>Read more&hellip;</emph></a>
     
@@ -175,7 +175,7 @@
   <td><span class="anchor" ></span>real,</td>
 <td>intent(out)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>canopy_zetar</strong>(mp,NITER)</td><td><p>OUT stability parameter <script type="math/tex">\xi</script>
+  <td><strong>canopy_zetar</strong>(mp,NITER)</td><td><p>OUT: stability parameter <script type="math/tex">\xi</script>
 </p></td>
 </tr>
 <tr>
@@ -272,7 +272,7 @@
   <td><span class="anchor" ></span>real,</td>
 <td>intent(in)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>rough_term6a</strong>(mp)</td><td><p>term from [canopy_roughness] (-)</p></td>
+  <td><strong>rough_term6a</strong>(mp)</td><td><p>term from <a>canopy_roughness</a> (-)</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>real,</td>
@@ -290,7 +290,7 @@
   <td><span class="anchor" ></span>real,</td>
 <td>intent(out)</td>
   <td></td>  <td></td><td>::</td>
-  <td><strong>canopy_zetash</strong>(mp,NITER)</td><td><p>OUT as canopy_zetar for soil</p></td>
+  <td><strong>canopy_zetash</strong>(mp,NITER)</td><td><p>OUT: as canopy_zetar for soil</p></td>
 </tr>
 <tr>
   <td><span class="anchor" ></span>real,</td>

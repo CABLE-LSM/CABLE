@@ -17,12 +17,12 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
                    canopy_vlaiw, canopy_zetash,  canopy_us, &
                    canopy_fh, canopy_fe, canopy_fhs, canopy_fes )
   !* This routine forms part of the codebase to evaluate the surface
-  !  energy balance on a sub-diurnal basis (i.e. time step).
+  !  energy balance on a sub-diurnal basis (i.e. every CABLE time step).
   !  It forms part of the canopy science directory and is called from
   !  [[define_canopy]] only.
   !  
   !  This subroutine updates the value of the stability parameter zetar
-  !  during the Monin-Obukhov iteration loop within [[define_canopy]].
+  !  during the Monin-Obukhov (MO) iteration loop within [[define_canopy]].
   !  Further scientific documentation is given in [Kowalczyk et al. 2006]
   !  - section 3.1, equations 1-9.  There are two outputs of the SUBROUTINE
   !  are the local (in space, time and by iteration counter) value of \(\xi\)
@@ -41,6 +41,9 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
   !  canopy%zetar and canopy%zetar in [[define_canopy]] and elsewhere in the
   !  code.
   !
+  !  Special cases apply if NITER=2 and both upper and lower limits
+  !  are applied to both `canopy_zetar' and `canopy_zetarsh'.
+  !
 
 IMPLICIT NONE
 
@@ -48,8 +51,8 @@ INTEGER, INTENT(IN) :: mp     !! number of land points
 INTEGER, INTENT(IN) :: NITER  !! number of MO-iterations
 INTEGER, INTENT(IN) :: nrb    !! number of radiation bands
 
-REAL, INTENT(OUT) :: canopy_zetar(mp, NITER)  !!OUT stability parameter \(\xi\)
-REAL, INTENT(OUT) :: canopy_zetash(mp, NITER) !!OUT as canopy_zetar for soil
+REAL, INTENT(OUT) :: canopy_zetar(mp, NITER)  !!OUT: stability parameter \(\xi\)
+REAL, INTENT(OUT) :: canopy_zetash(mp, NITER) !!OUT: as canopy_zetar for soil
 INTEGER, INTENT(IN) :: iter                   !! iteration counter
 
 ! constants
@@ -61,7 +64,7 @@ REAL, INTENT(IN) :: met_tk(mp)         !! reference level air temperature (K)
 REAL, INTENT(IN) :: met_fsd(mp,nrb)    !! downwelling shortwave (Wm\(^{-2}\))  
 REAL, INTENT(IN) :: rough_zref_tq(mp)  !! reference height for T and q (m)
 REAL, INTENT(IN) :: rough_hruff(mp)    !! height of canopy (above snow) (m)
-REAL, INTENT(IN) :: rough_term6a(mp)   !! term from [canopy_roughness] (-)
+REAL, INTENT(IN) :: rough_term6a(mp)   !! term from [[canopy_roughness]] (-)
 REAL, INTENT(IN) :: rough_z0soilsn(mp) !! roughness length of soil or snow (m)
 REAL, INTENT(IN) :: canopy_vlaiw(mp)   !! canopy leaf area (m\(^2\)m\(^{-2}\))
 REAL, INTENT(IN) :: canopy_us(mp)      !! friction velocity (ms\(^{-1}\))
