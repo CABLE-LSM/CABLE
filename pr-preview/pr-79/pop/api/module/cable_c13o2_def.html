@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for POP">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>cable_c13o2_def &ndash; POP</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">POP </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>cable_c13o2_def 
+    <small>Module</small>
+    </h1>
+    <div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title=" 0.3% of total for modules and submodules.">156 statements</a>
+     </li> 
+    <li><i class="fa fa-code"></i><a href="../src/cable_c13o2_def.F90"> Source File</a></li>
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+     <li><a href='../sourcefile/cable_c13o2_def.f90.html'>cable_c13o2_def.F90</a></li>
+     <li class="active">cable_c13o2_def</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    <div id="sidebar">
+  <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-0">Variables</a></h3></div>
+  <div id="vars-0" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#variable-c13o2_delta_atm">c13o2_delta_atm</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#types-0">Derived Types</a></h3></div>
+  <div id="types-0" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#type-c13o2_flux">c13o2_flux</a>
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#type-c13o2_pool">c13o2_pool</a>
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#type-c13o2_luc">c13o2_luc</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#subs-0">Subroutines</a></h3></div>
+  <div class="list-group">
+    <div id="subs-0" class="panel-collapse collapse">
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#proc-c13o2_alloc_flux">c13o2_alloc_flux</a>
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#proc-c13o2_alloc_pools">c13o2_alloc_pools</a>
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#proc-c13o2_alloc_luc">c13o2_alloc_luc</a>
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#proc-c13o2_zero_flux">c13o2_zero_flux</a>
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#proc-c13o2_zero_pools">c13o2_zero_pools</a>
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#proc-c13o2_zero_luc">c13o2_zero_luc</a>
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#proc-c13o2_zero_sum_pools">c13o2_zero_sum_pools</a>
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#proc-c13o2_update_sum_pools">c13o2_update_sum_pools</a>
+    </div>
+  </div>
+</div>
+
+</div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <p>\file cable_c13o2_def
+\brief Constants, types and allocation/zeroing routines for 13CO2 in CABLE
+\details All type definitions, allocation and output variables for calculating 13C within Cable.
+\author Matthias Cuntz, Juergen Knauer
+\date Apr 2019</p>
+<br>        <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Uses</h3>
+      </div>
+      <ul class="list-group">
+      <li class="list-group-item">
+  <ul class="list-inline">
+    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+  </ul>
+      </li>
+      </ul>
+    </div>
+
+    
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+      <h3>Contents</h3>
+ 
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-1">Variables</a></h3></div>
+  <div id="vars-1" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#variable-c13o2_delta_atm">c13o2_delta_atm</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#types-1">Derived Types</a></h3></div>
+  <div id="types-1" class="panel-collapse collapse">
+    <div class="list-group">
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#type-c13o2_flux">c13o2_flux</a>
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#type-c13o2_pool">c13o2_pool</a>
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#type-c13o2_luc">c13o2_luc</a>
+    </div>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#subs-1">Subroutines</a></h3></div>
+  <div class="list-group">
+    <div id="subs-1" class="panel-collapse collapse">
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#proc-c13o2_alloc_flux">c13o2_alloc_flux</a>
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#proc-c13o2_alloc_pools">c13o2_alloc_pools</a>
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#proc-c13o2_alloc_luc">c13o2_alloc_luc</a>
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#proc-c13o2_zero_flux">c13o2_zero_flux</a>
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#proc-c13o2_zero_pools">c13o2_zero_pools</a>
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#proc-c13o2_zero_luc">c13o2_zero_luc</a>
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#proc-c13o2_zero_sum_pools">c13o2_zero_sum_pools</a>
+      <a class="list-group-item" href="../module/cable_c13o2_def.html#proc-c13o2_update_sum_pools">c13o2_update_sum_pools</a>
+    </div>
+  </div>
+</div>
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    <section>
+    <h2>Variables</h2>
+    <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-c13o2_delta_atm"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(:), allocatable</td><td>::</td>
+  <td><strong>c13o2_delta_atm</strong></td><td></td><td></td><td></td>
+</tr>
+</tbody>
+</table>
+
+    </section>
+    <br>
+    
+    
+
+    
+    <section>
+     <h2>Derived Types</h2>
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="type-c13o2_flux"></span><h3>type, public :: <a href='../type/c13o2_flux.html'>c13o2_flux</a>  </h3></div>
+  <div class="panel-body">
+     <h4>Components</h4>
+    <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-ntile"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>ntile</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nleaf"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>nleaf</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ca~2"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(:), pointer</td><td>::</td>
+  <td><strong>ca</strong></td><td>=> </td><td>null()</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-an~2"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(:,:), pointer</td><td>::</td>
+  <td><strong>An</strong></td><td>=> </td><td>null()</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-disc"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(:,:), pointer</td><td>::</td>
+  <td><strong>Disc</strong></td><td>=> </td><td>null()</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-can12"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(:), pointer</td><td>::</td>
+  <td><strong>cAn12</strong></td><td>=> </td><td>null()</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-can"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(:), pointer</td><td>::</td>
+  <td><strong>cAn</strong></td><td>=> </td><td>null()</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-ran"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(:), pointer</td><td>::</td>
+  <td><strong>RAn</strong></td><td>=> </td><td>null()</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-vstarch"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(:), pointer</td><td>::</td>
+  <td><strong>Vstarch</strong></td><td>=> </td><td>null()</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rstarch"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(:), pointer</td><td>::</td>
+  <td><strong>Rstarch</strong></td><td>=> </td><td>null()</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rsucrose"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(:,:), pointer</td><td>::</td>
+  <td><strong>Rsucrose</strong></td><td>=> </td><td>null()</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-rphoto"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(:,:), pointer</td><td>::</td>
+  <td><strong>Rphoto</strong></td><td>=> </td><td>null()</td><td></td>
+</tr>
+</tbody>
+</table>
+
+     
+  </div>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="type-c13o2_pool"></span><h3>type, public :: <a href='../type/c13o2_pool.html'>c13o2_pool</a>  </h3></div>
+  <div class="panel-body">
+     <h4>Components</h4>
+    <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-ntile~2"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>ntile</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nplant"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>nplant</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nlitter"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>nlitter</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nsoil"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>nsoil</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-npools"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>npools</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cplant~3"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(:,:), pointer</td><td>::</td>
+  <td><strong>cplant</strong></td><td>=> </td><td>null()</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-clitter"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(:,:), pointer</td><td>::</td>
+  <td><strong>clitter</strong></td><td>=> </td><td>null()</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-csoil~4"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(:,:), pointer</td><td>::</td>
+  <td><strong>csoil</strong></td><td>=> </td><td>null()</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-clabile"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(:), pointer</td><td>::</td>
+  <td><strong>clabile</strong></td><td>=> </td><td>null()</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-charvest"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(:), pointer</td><td>::</td>
+  <td><strong>charvest</strong></td><td>=> </td><td>null()</td><td></td>
+</tr>
+</tbody>
+</table>
+
+     
+  </div>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="type-c13o2_luc"></span><h3>type, public :: <a href='../type/c13o2_luc.html'>c13o2_luc</a>  </h3></div>
+  <div class="panel-body">
+     <h4>Components</h4>
+    <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" id="variable-nland"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>nland</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nharvest"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>nharvest</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-nclearance"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>nclearance</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-npools~2"></span>integer,</td>
+<td>public</td>  <td></td><td>::</td>
+  <td><strong>npools</strong></td><td></td><td></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-charvest~2"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(:,:), pointer</td><td>::</td>
+  <td><strong>charvest</strong></td><td>=> </td><td>null()</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cclearance"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(:,:), pointer</td><td>::</td>
+  <td><strong>cclearance</strong></td><td>=> </td><td>null()</td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" id="variable-cagric"></span>real(kind=dp),</td>
+<td>public,</td>  <td>dimension(:), pointer</td><td>::</td>
+  <td><strong>cagric</strong></td><td>=> </td><td>null()</td><td></td>
+</tr>
+</tbody>
+</table>
+
+     
+  </div>
+</div>
+
+    </section>
+  <br>
+    
+
+    <section>
+    <h2>Subroutines</h2>
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-c13o2_alloc_flux"></span><h3>public subroutine <a href='../proc/c13o2_alloc_flux.html'>c13o2_alloc_flux</a>(c13o2flux, ntile)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/c13o2_flux.html'>c13o2_flux</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>c13o2flux</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ntile</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-c13o2_alloc_pools"></span><h3>public subroutine <a href='../proc/c13o2_alloc_pools.html'>c13o2_alloc_pools</a>(c13o2pools, ntile)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/c13o2_pool.html'>c13o2_pool</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>c13o2pools</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>ntile</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-c13o2_alloc_luc"></span><h3>public subroutine <a href='../proc/c13o2_alloc_luc.html'>c13o2_alloc_luc</a>(c13o2luc, nland)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/c13o2_luc.html'>c13o2_luc</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>c13o2luc</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>nland</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-c13o2_zero_flux"></span><h3>public subroutine <a href='../proc/c13o2_zero_flux.html'>c13o2_zero_flux</a>(c13o2flux)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/c13o2_flux.html'>c13o2_flux</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>c13o2flux</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-c13o2_zero_pools"></span><h3>public subroutine <a href='../proc/c13o2_zero_pools.html'>c13o2_zero_pools</a>(c13o2pools)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/c13o2_pool.html'>c13o2_pool</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>c13o2pools</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-c13o2_zero_luc"></span><h3>public subroutine <a href='../proc/c13o2_zero_luc.html'>c13o2_zero_luc</a>(c13o2luc)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/c13o2_luc.html'>c13o2_luc</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>c13o2luc</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-c13o2_zero_sum_pools"></span><h3>public subroutine <a href='../proc/c13o2_zero_sum_pools.html'>c13o2_zero_sum_pools</a>(sum_c13o2pools)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/c13o2_pool.html'>c13o2_pool</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>sum_c13o2pools</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+      <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-c13o2_update_sum_pools"></span><h3>public subroutine <a href='../proc/c13o2_update_sum_pools.html'>c13o2_update_sum_pools</a>(sum_c13o2pools, c13o2pools, sum_now, average_now, nsteps)</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/c13o2_pool.html'>c13o2_pool</a>),</td>
+<td>intent(inout)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>sum_c13o2pools</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>type(<a href='../type/c13o2_pool.html'>c13o2_pool</a>),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>c13o2pools</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>sum_now</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>average_now</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>integer,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>nsteps</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+    </section>    
+    <br>
+    
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>POP was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+  </body>
+</html>
