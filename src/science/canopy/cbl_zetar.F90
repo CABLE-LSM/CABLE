@@ -27,33 +27,36 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
   !  [Kowalczyk et al. (2006)](http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf)
   !  - section 3.1, equations 1-9.  The two outputs of the SUBROUTINE
   !  are the local (in space, time and by iteration counter) value of \(\xi\)
-  !  (Equation 9) `canopy_zetar` and a related quantity `canopy_zetarsh`.
+  !  (Equation 9) `canopy_zetar` and a related quantity `canopy_zetash`.
   !
   !  `canopy_zetar` is evaluated from the total land (soil+canopy)
   !  surface fluxes of momentum, sensible heat and latent heat.
-  !  `canopy_zetarsh` is the equivalent variable evaluated from the soil
-  !  contribution to those fluxes only.  `canopy_zetarsh` is used in conjunction
+  !  `canopy_zetash` is the equivalent variable evaluated from the soil
+  !  contribution to those fluxes only.  `canopy_zetash` is used in conjunction
   !  with the [[sli_main_mod]] soil model to moderate the fluxes from the soil
   !  underneath a canopy.
   !
-  !  `canopy_zetar` and `canopy_zetarsh` quantify the role that the surface
+  !  `canopy_zetar` and `canopy_zetash` quantify the role that the surface
   !  fluxes play in setting the efficiency of turbulent transfer from the land
   !  to the atmosphere, and hence the aerodynamic component of the resistance
   !  network for those same surface fluxes (an implicit problem which requires
-  !  iteration to solve).
+  !  iteration to solve). 
   !
-  !  `canopy_zetar` and `canopy_zetarsh` are initialised to zero in
-  !  [[define_canopy]] and updated NITER(>1) times
+  !  `canopy_zetar` and `canopy_zetash` are initialised to `CZETA0`=0 in
+  !  [[define_canopy]] and updated `NITER`(>1) times
   !  during the calculation of the energy balance.  The value of the variables
-  !  at each iteration are stored in memory to aid in the assessment
+  !  at each iteration are stored in memory to aid in the diagnosis
   !  of convergence.
   !
-  !  The outputs `canopy_zetar` and `canopy_zetarsh` are known as
-  !  `canopy%zetar` and `canopy%zetarsh` in [[define_canopy]] and elsewhere
-  !  in the code.
+  !  The outputs `canopy_zetar` and `canopy_zetash` are known as
+  !  `canopy%zetar` and `canopy%zetash` in [[define_canopy]] and elsewhere
+  !  in the code. `canopy%zetar` is used in [[define_canopy]] and
+  !  [[comp_friction_vel]]; `canopy%zetash` is used in `[[define_canopy]].
   !
-  !  Special cases apply if NITER=2, or if `canopy_zetar` or `canopy_zetarsh`
-  !  exceed the prescribed upper `CZETPOS` or lower `CZETNEG` limits
+  !  Special cases apply if `NITER`=2, or if `canopy_zetar` or `canopy_zetash`
+  !  exceed the prescribed upper `CZETPOS` or lower `CZETNEG` limits. `NITER`(=4)
+  !  is defined in [[cable_types_mod]]; `CZETMUL`, `CZET0`, `CZETPOS` and
+  !  `CZETNEG` in [[cable_phys_mod]]
   !
 
 IMPLICIT NONE
