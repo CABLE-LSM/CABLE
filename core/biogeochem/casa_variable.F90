@@ -153,7 +153,7 @@ module casavariable
   ! used in write_netcdf and in MPI code
   integer, parameter, public :: ncasa_biome = 53
   integer, parameter, public :: ncasa_pool = 42
-  integer, parameter, public :: ncasa_flux = 91
+  integer, parameter, public :: ncasa_flux = 92
   integer, parameter, public :: ncasa_met = 47
   integer, parameter, public :: ncasa_bal = 47
 

@@ -158,13 +158,14 @@ contains
                 IF (MOD(ktau/ktauday, LOY) == 1) THEN
                    casaflux%stemnpp  =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r_2
                    ! (assumes 70% of wood NPP is allocated above ground)
-                   casaflux%potstemnpp = casaflux%cnpp + (casaflux%fracClabile * casaflux%cgpp)
+                   casaflux%potstemnpp = casaflux%stemnpp + (casaflux%fracClabile * casaflux%cgpp)
                    casabal%LAImax    = casamet%glai
                    casabal%Cleafmean = casapool%cplant(:,1) / real(LOY,r_2) / 1000.0_r_2
                    casabal%Crootmean = casapool%cplant(:,3) / real(LOY,r_2) / 1000.0_r_2
                 ELSE
                    casaflux%stemnpp  = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r_2
-                   casaflux%potstemnpp = casaflux%potstemnpp + (casaflux%cnpp + (casaflux%fracClabile * casaflux%cgpp))
+                   casaflux%potstemnpp = casaflux%potstemnpp + (casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp + &
+                                                                casaflux%fracClabile * casaflux%cgpp)
                    casabal%LAImax    = max(casamet%glai, casabal%LAImax)
                    casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1) / real(LOY,r_2) / 1000.0_r_2
                    casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3) / real(LOY,r_2) / 1000.0_r_2
@@ -202,13 +203,14 @@ contains
              IF (MOD(ktau/ktauday,LOY)==1) THEN
                 casaflux%stemnpp  = casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r_2
                 ! (assumes 70% of wood NPP is allocated above ground)
-                casaflux%potstemnpp = casaflux%cnpp + (casaflux%fracClabile * casaflux%cgpp)
+                casaflux%potstemnpp = casaflux%stemnpp + (casaflux%fracClabile * casaflux%cgpp)
                 casabal%LAImax    = casamet%glai
                 casabal%Cleafmean = casapool%cplant(:,1) / real(LOY,r_2) / 1000.0_r_2
                 casabal%Crootmean = casapool%cplant(:,3) / real(LOY,r_2) / 1000.0_r_2
              ELSE
                 casaflux%stemnpp  = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r_2
-                casaflux%potstemnpp = casaflux%potstemnpp + (casaflux%cnpp + (casaflux%fracClabile * casaflux%cgpp))
+                casaflux%potstemnpp = casaflux%potstemnpp + (casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp + &
+                                                             casaflux%fracClabile * casaflux%cgpp)
                 casabal%LAImax    = max(casamet%glai, casabal%LAImax)
                 casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1) / real(LOY,r_2) / 1000.0_r_2
                 casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3) / real(LOY,r_2) / 1000.0_r_2

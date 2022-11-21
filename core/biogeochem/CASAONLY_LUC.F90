@@ -190,11 +190,14 @@ contains
           IF (idoy==1) THEN
              ! (assumes 70% of wood NPP is allocated above ground)
              casaflux%stemnpp  = casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
+             casaflux%potstemnpp = casaflux%stemnpp + (casaflux%fracClabile * casaflux%cgpp)
              casabal%LAImax    = casamet%glai
              casabal%Cleafmean = casapool%cplant(:,1) / real(mdyear,dp) / 1000._dp
              casabal%Crootmean = casapool%cplant(:,3) / real(mdyear,dp) / 1000._dp
           ELSE
              casaflux%stemnpp  = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
+             casaflux%potstemnpp = casaflux%potstemnpp + (casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp + &
+                                                          casaflux%fracClabile * casaflux%cgpp)
              casabal%LAImax    = max(casamet%glai, casabal%LAImax)
              casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1) / real(mdyear,dp) / 1000._dp
              casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3) / real(mdyear,dp) / 1000._dp

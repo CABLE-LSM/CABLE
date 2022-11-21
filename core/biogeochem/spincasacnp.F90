@@ -249,17 +249,21 @@ contains
                 if (mod(ktau/ktauday,LOY) == 1) then
                    ! (assumes 70% of wood NPP is allocated above ground)
                    casaflux%stemnpp  = casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
+                   casaflux%potstemnpp = casaflux%stemnpp + (casaflux%fracClabile * casaflux%cgpp)
                    casabal%LAImax    = casamet%glai
                    casabal%Cleafmean = casapool%cplant(:,1) / real(LOY,dp) / 1000._dp
                    casabal%Crootmean = casapool%cplant(:,3) / real(LOY,dp) / 1000._dp
                 else
                    casaflux%stemnpp  = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
+                   casaflux%potstemnpp = casaflux%potstemnpp + (casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp + &
+                                                                casaflux%fracClabile * casaflux%cgpp)
                    casabal%LAImax    = max(casamet%glai, casabal%LAImax)
                    casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1) / real(LOY,dp) / 1000.0_dp
                    casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3) / real(LOY,dp) / 1000.0_dp
                 endif
              else
                 casaflux%stemnpp = 0.0_dp
+                casaflux%potstemnpp = 0.0_dp
              endif ! CALL_POP
 
              !CALL WRITE_CASA_OUTPUT_NC (veg, casamet, casapool, casabal, casaflux, &
@@ -282,6 +286,7 @@ contains
              !    ctime = ctime + 1
              ! endif  ! end of year
              casaflux%stemnpp = 0.0_dp
+             casaflux%potstemnpp = 0.0_dp
 
           endif ! (cable_user%CALL_POP .and. (POP%np.gt.0))
 
@@ -529,17 +534,21 @@ contains
                    IF (MOD(ktau/ktauday,LOY) == 1) THEN
                       ! (assumes 70% of wood NPP is allocated above ground)
                       casaflux%stemnpp  = casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
+                      casaflux%potstemnpp = casaflux%stemnpp + (casaflux%fracClabile * casaflux%cgpp)
                       casabal%LAImax    = casamet%glai
                       casabal%Cleafmean = casapool%cplant(:,1) / real(LOY,dp) / 1000.0_dp
                       casabal%Crootmean = casapool%cplant(:,3) / real(LOY,dp) / 1000.0_dp
                    ELSE
                       casaflux%stemnpp  = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
+                      casaflux%potstemnpp = casaflux%potstemnpp + (casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp + &
+                                                                   casaflux%fracClabile * casaflux%cgpp)
                       casabal%LAImax    = max(casamet%glai, casabal%LAImax)
                       casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1) / real(LOY,dp) / 1000.0_dp
                       casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3) / real(LOY,dp) / 1000.0_dp
                    ENDIF
                 ELSE
                    casaflux%stemnpp = 0.0_dp
+                   casaflux%potstemnpp = 0.0_dp
                 ENDIF ! CALL_POP
 
                 IF (idoy==mdyear) THEN ! end of year
@@ -560,6 +569,7 @@ contains
                 !     ctime = ctime+1
                 ! ENDIF ! end of year
                 casaflux%stemnpp = 0.0_dp
+                casaflux%potstemnpp = 0.0_dp
              ENDIF ! CALL_POP
 
           ENDDO ! end of idoy
