@@ -209,6 +209,8 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
 
     USE landuse_constant,     ONLY: mstate,mvmax,mharvw
     USE landuse_variable
+USE bgcdriver_mod, ONLY : bgcdriver
+USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_NC 
     IMPLICIT NONE
 
     ! MPI:
@@ -8164,6 +8166,7 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
     USE POP_Types,  ONLY: POP_TYPE
     USE POPMODULE,            ONLY: POPStep
     USE TypeDef,              ONLY: i4b, dp
+USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC
 
     IMPLICIT NONE
     !!CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
@@ -8351,6 +8354,7 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
     USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
          POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC, &
          POPLUC_set_patchfrac,  WRITE_LUC_OUTPUT_GRID_NC
+USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC
 
 
 

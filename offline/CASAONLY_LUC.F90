@@ -23,6 +23,8 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
        POPLUC_set_patchfrac, WRITE_LUC_OUTPUT_GRID_NC
   USE casa_cable
   USE casa_inout_module
+  USE biogeochem_mod, ONLY : biogeochem 
+USE casa_offline_inout_module, ONLY : WRITE_CASA_OUTPUT_NC 
 
 
   IMPLICIT NONE
