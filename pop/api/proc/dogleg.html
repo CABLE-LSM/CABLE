@@ -80,100 +80,195 @@
   <div class="row">
     <h1>dogleg
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.2% of total for procedures.">93 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/minpack.f90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/minpack.f90.html'>minpack.f90</a></li>
-     <li><a href='../module/minpack.html'>minpack</a></li>
-     <li class="active">dogleg</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.2% of total for procedures.">93 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/minpack.f90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/minpack.f90.html'>minpack.f90</a></li>
+              <li><a href='../module/minpack.html'>minpack</a></li>
+          <li class="active">dogleg</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public subroutine dogleg(n, r, lr, diag, qtb, delta, x)</h2>
+    <h2>public  subroutine dogleg(n, r, lr, diag, qtb, delta, x)  
+</h2>
     
 
     <p><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong>*</strong>*80</p>
 <p>DOGLEG finds the minimizing combination of Gauss-Newton and gradient steps.</p>
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-n~6"></span>integer</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~6"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>n</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-r"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-r"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>r</strong>(lr)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-lr"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>r</strong>(lr)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lr"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>lr</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-diag"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>lr</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-diag"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>diag</strong>(n)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qtb"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>diag</strong>(n)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qtb"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>qtb</strong>(n)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-delta"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>qtb</strong>(n)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-delta"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>delta</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-x~4"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>delta</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-x~4"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>x</strong>(n)</td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>x</strong>(n)</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
     <div class="panel panel-default">
@@ -213,18 +308,18 @@
 <path fill="none" stroke="#ff0000" d="M44.97,-129.15C57.99,-138.47 76.18,-151.49 90.89,-162.02"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="88.92,-164.91 99.08,-167.89 92.99,-159.22 88.92,-164.91"/>
 </g>
-<!-- interface~le -->
+<!-- interface~ne -->
 <g id="proc~~dogleg~~CallsGraph_node3" class="node">
-<title>interface~le</title>
-<g id="a_proc~~dogleg~~CallsGraph_node3"><a xlink:href=".././interface/le.html" xlink:title="le">
+<title>interface~ne</title>
+<g id="a_proc~~dogleg~~CallsGraph_node3"><a xlink:href=".././interface/ne.html" xlink:title="ne">
 <polygon fill="#a7506f" stroke="#a7506f" points="144,-150 90,-150 90,-126 144,-126 144,-150"/>
-<text text-anchor="middle" x="117" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">le</text>
+<text text-anchor="middle" x="117" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ne</text>
 </a>
 </g>
 </g>
-<!-- proc~dogleg&#45;&gt;interface~le -->
+<!-- proc~dogleg&#45;&gt;interface~ne -->
 <g id="proc~~dogleg~~CallsGraph_edge2" class="edge">
-<title>proc~dogleg&#45;&gt;interface~le</title>
+<title>proc~dogleg&#45;&gt;interface~ne</title>
 <path fill="none" stroke="#ff0000" d="M54.4,-123.3C62.48,-125.23 71.51,-127.38 80.1,-129.43"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="79.38,-132.86 89.92,-131.78 81,-126.05 79.38,-132.86"/>
 </g>
@@ -238,23 +333,23 @@
 </g>
 </g>
 <!-- proc~dogleg&#45;&gt;proc~enorm -->
-<g id="proc~~dogleg~~CallsGraph_edge3" class="edge">
+<g id="proc~~dogleg~~CallsGraph_edge4" class="edge">
 <title>proc~dogleg&#45;&gt;proc~enorm</title>
 <path fill="none" stroke="#ff0000" d="M54.4,-110.7C62.48,-108.77 71.51,-106.62 80.1,-104.57"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="81,-107.95 89.92,-102.22 79.38,-101.14 81,-107.95"/>
 </g>
-<!-- interface~ne -->
+<!-- interface~le -->
 <g id="proc~~dogleg~~CallsGraph_node5" class="node">
-<title>interface~ne</title>
-<g id="a_proc~~dogleg~~CallsGraph_node5"><a xlink:href=".././interface/ne.html" xlink:title="ne">
+<title>interface~le</title>
+<g id="a_proc~~dogleg~~CallsGraph_node5"><a xlink:href=".././interface/le.html" xlink:title="le">
 <polygon fill="#a7506f" stroke="#a7506f" points="144,-66 90,-66 90,-42 144,-42 144,-66"/>
-<text text-anchor="middle" x="117" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ne</text>
+<text text-anchor="middle" x="117" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">le</text>
 </a>
 </g>
 </g>
-<!-- proc~dogleg&#45;&gt;interface~ne -->
-<g id="proc~~dogleg~~CallsGraph_edge4" class="edge">
-<title>proc~dogleg&#45;&gt;interface~ne</title>
+<!-- proc~dogleg&#45;&gt;interface~le -->
+<g id="proc~~dogleg~~CallsGraph_edge3" class="edge">
+<title>proc~dogleg&#45;&gt;interface~le</title>
 <path fill="none" stroke="#ff0000" d="M44.97,-104.85C57.99,-95.53 76.18,-82.51 90.89,-71.98"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="92.99,-74.78 99.08,-66.11 88.92,-69.09 92.99,-74.78"/>
 </g>
@@ -274,9 +369,9 @@
 <polygon fill="#ff0000" stroke="#ff0000" points="185.11,-210.1 195.7,-210.5 187.67,-203.59 185.11,-210.1"/>
 </g>
 <!-- proc~equal_dp -->
-<g id="proc~~dogleg~~CallsGraph_node8" class="node">
+<g id="proc~~dogleg~~CallsGraph_node10" class="node">
 <title>proc~equal_dp</title>
-<g id="a_proc~~dogleg~~CallsGraph_node8"><a xlink:href=".././proc/equal_dp.html" xlink:title="equal_dp">
+<g id="a_proc~~dogleg~~CallsGraph_node10"><a xlink:href=".././proc/equal_dp.html" xlink:title="equal_dp">
 <polygon fill="#d94e8f" stroke="#d94e8f" points="256.5,-192 195.5,-192 195.5,-168 256.5,-168 256.5,-192"/>
 <text text-anchor="middle" x="226" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">equal_dp</text>
 </a>
@@ -288,63 +383,63 @@
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M144.18,-180C156.5,-180 171.47,-180 185.16,-180"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="185.32,-183.5 195.32,-180 185.32,-176.5 185.32,-183.5"/>
 </g>
-<!-- proc~lesserequal_dp -->
-<g id="proc~~dogleg~~CallsGraph_node9" class="node">
-<title>proc~lesserequal_dp</title>
-<g id="a_proc~~dogleg~~CallsGraph_node9"><a xlink:href=".././proc/lesserequal_dp.html" xlink:title="lesserequal_dp">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="272,-150 180,-150 180,-126 272,-126 272,-150"/>
-<text text-anchor="middle" x="226" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">lesserequal_dp</text>
-</a>
-</g>
-</g>
-<!-- interface~le&#45;&gt;proc~lesserequal_dp -->
-<g id="proc~~dogleg~~CallsGraph_edge8" class="edge">
-<title>interface~le&#45;&gt;proc~lesserequal_dp</title>
-<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M144.18,-138C152,-138 160.88,-138 169.83,-138"/>
-<polygon fill="#7fff00" stroke="#7fff00" points="169.91,-141.5 179.91,-138 169.91,-134.5 169.91,-141.5"/>
-</g>
-<!-- proc~lesserequal_sp -->
-<g id="proc~~dogleg~~CallsGraph_node10" class="node">
-<title>proc~lesserequal_sp</title>
-<g id="a_proc~~dogleg~~CallsGraph_node10"><a xlink:href=".././proc/lesserequal_sp.html" xlink:title="lesserequal_sp">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="271.5,-108 180.5,-108 180.5,-84 271.5,-84 271.5,-108"/>
-<text text-anchor="middle" x="226" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">lesserequal_sp</text>
-</a>
-</g>
-</g>
-<!-- interface~le&#45;&gt;proc~lesserequal_sp -->
-<g id="proc~~dogleg~~CallsGraph_edge7" class="edge">
-<title>interface~le&#45;&gt;proc~lesserequal_sp</title>
-<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M144.18,-127.73C156.32,-122.96 171.04,-117.18 184.57,-111.87"/>
-<polygon fill="#7fff00" stroke="#7fff00" points="186.13,-115.02 194.16,-108.11 183.57,-108.5 186.13,-115.02"/>
-</g>
-<!-- proc~notequal_sp -->
-<g id="proc~~dogleg~~CallsGraph_node7" class="node">
-<title>proc~notequal_sp</title>
-<g id="a_proc~~dogleg~~CallsGraph_node7"><a xlink:href=".././proc/notequal_sp.html" xlink:title="notequal_sp">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="264.5,-66 187.5,-66 187.5,-42 264.5,-42 264.5,-66"/>
-<text text-anchor="middle" x="226" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">notequal_sp</text>
-</a>
-</g>
-</g>
-<!-- interface~ne&#45;&gt;proc~notequal_sp -->
-<g id="proc~~dogleg~~CallsGraph_edge9" class="edge">
-<title>interface~ne&#45;&gt;proc~notequal_sp</title>
-<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M144.18,-54C154.12,-54 165.79,-54 177.12,-54"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="177.37,-57.5 187.37,-54 177.37,-50.5 177.37,-57.5"/>
-</g>
 <!-- proc~notequal_dp -->
-<g id="proc~~dogleg~~CallsGraph_node11" class="node">
+<g id="proc~~dogleg~~CallsGraph_node7" class="node">
 <title>proc~notequal_dp</title>
-<g id="a_proc~~dogleg~~CallsGraph_node11"><a xlink:href=".././proc/notequal_dp.html" xlink:title="notequal_dp">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="265.5,-24 186.5,-24 186.5,0 265.5,0 265.5,-24"/>
-<text text-anchor="middle" x="226" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">notequal_dp</text>
+<g id="a_proc~~dogleg~~CallsGraph_node7"><a xlink:href=".././proc/notequal_dp.html" xlink:title="notequal_dp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="265.5,-150 186.5,-150 186.5,-126 265.5,-126 265.5,-150"/>
+<text text-anchor="middle" x="226" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">notequal_dp</text>
 </a>
 </g>
 </g>
 <!-- interface~ne&#45;&gt;proc~notequal_dp -->
-<g id="proc~~dogleg~~CallsGraph_edge10" class="edge">
+<g id="proc~~dogleg~~CallsGraph_edge8" class="edge">
 <title>interface~ne&#45;&gt;proc~notequal_dp</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M144.18,-138C153.74,-138 164.9,-138 175.81,-138"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="176.15,-141.5 186.15,-138 176.15,-134.5 176.15,-141.5"/>
+</g>
+<!-- proc~notequal_sp -->
+<g id="proc~~dogleg~~CallsGraph_node8" class="node">
+<title>proc~notequal_sp</title>
+<g id="a_proc~~dogleg~~CallsGraph_node8"><a xlink:href=".././proc/notequal_sp.html" xlink:title="notequal_sp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="264.5,-108 187.5,-108 187.5,-84 264.5,-84 264.5,-108"/>
+<text text-anchor="middle" x="226" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">notequal_sp</text>
+</a>
+</g>
+</g>
+<!-- interface~ne&#45;&gt;proc~notequal_sp -->
+<g id="proc~~dogleg~~CallsGraph_edge7" class="edge">
+<title>interface~ne&#45;&gt;proc~notequal_sp</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M144.18,-127.73C156.32,-122.96 171.04,-117.18 184.57,-111.87"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="186.13,-115.02 194.16,-108.11 183.57,-108.5 186.13,-115.02"/>
+</g>
+<!-- proc~lesserequal_sp -->
+<g id="proc~~dogleg~~CallsGraph_node9" class="node">
+<title>proc~lesserequal_sp</title>
+<g id="a_proc~~dogleg~~CallsGraph_node9"><a xlink:href=".././proc/lesserequal_sp.html" xlink:title="lesserequal_sp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="271.5,-66 180.5,-66 180.5,-42 271.5,-42 271.5,-66"/>
+<text text-anchor="middle" x="226" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">lesserequal_sp</text>
+</a>
+</g>
+</g>
+<!-- interface~le&#45;&gt;proc~lesserequal_sp -->
+<g id="proc~~dogleg~~CallsGraph_edge9" class="edge">
+<title>interface~le&#45;&gt;proc~lesserequal_sp</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M144.18,-54C152.09,-54 161.09,-54 170.14,-54"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="170.33,-57.5 180.33,-54 170.33,-50.5 170.33,-57.5"/>
+</g>
+<!-- proc~lesserequal_dp -->
+<g id="proc~~dogleg~~CallsGraph_node11" class="node">
+<title>proc~lesserequal_dp</title>
+<g id="a_proc~~dogleg~~CallsGraph_node11"><a xlink:href=".././proc/lesserequal_dp.html" xlink:title="lesserequal_dp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="272,-24 180,-24 180,0 272,0 272,-24"/>
+<text text-anchor="middle" x="226" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">lesserequal_dp</text>
+</a>
+</g>
+</g>
+<!-- interface~le&#45;&gt;proc~lesserequal_dp -->
+<g id="proc~~dogleg~~CallsGraph_edge10" class="edge">
+<title>interface~le&#45;&gt;proc~lesserequal_dp</title>
 <path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M144.18,-43.73C156.32,-38.96 171.04,-33.18 184.57,-27.87"/>
 <polygon fill="#7f00ff" stroke="#7f00ff" points="186.13,-31.02 194.16,-24.11 183.57,-24.5 186.13,-31.02"/>
 </g>
@@ -559,9 +654,27 @@
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

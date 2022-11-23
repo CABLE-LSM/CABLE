@@ -80,74 +80,133 @@
   <div class="row">
     <h1>CRU_GET_DAILY_MET
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.6% of total for procedures.">258 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cable_cru_TRENDY.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cable_cru_trendy.f90.html'>cable_cru_TRENDY.F90</a></li>
-     <li><a href='../module/cable_cru.html'>CABLE_CRU</a></li>
-     <li class="active">CRU_GET_DAILY_MET</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.6% of total for procedures.">258 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cable_cru_TRENDY.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cable_cru_trendy.f90.html'>cable_cru_TRENDY.F90</a></li>
+              <li><a href='../module/cable_cru.html'>CABLE_CRU</a></li>
+          <li class="active">CRU_GET_DAILY_MET</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public subroutine CRU_GET_DAILY_MET(CRU, LastDayOfYear, LastYearOfMet)</h2>
+    <h2>public  subroutine CRU_GET_DAILY_MET(CRU, LastDayOfYear, LastYearOfMet)  
+</h2>
     
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-cru~6"></span>type(<a href='../type/cru_type.html'>CRU_TYPE</a>)</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cru~6"></span>
+              type(<a href='../type/cru_type.html'>CRU_TYPE</a>)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>CRU</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-lastdayofyear"></span>logical,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CRU</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lastdayofyear"></span>
+              logical,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>LastDayOfYear</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-lastyearofmet"></span>logical,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>LastDayOfYear</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lastyearofmet"></span>
+              logical,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>LastYearOfMet</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>LastYearOfMet</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
     <div class="panel panel-default">
@@ -194,22 +253,22 @@
 </g>
 </g>
 <!-- proc~cru_get_daily_met&#45;&gt;proc~handle_err -->
-<g id="proc~~cru_get_daily_met~~CallsGraph_edge2" class="edge">
+<g id="proc~~cru_get_daily_met~~CallsGraph_edge5" class="edge">
 <title>proc~cru_get_daily_met&#45;&gt;proc~handle_err</title>
 <path fill="none" stroke="#ff0000" d="M74.31,-171.07C91.14,-189.18 125.4,-223.35 161,-243 166.5,-246.04 172.5,-248.69 178.59,-251"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="177.57,-254.35 188.16,-254.34 179.88,-247.74 177.57,-254.35"/>
 </g>
-<!-- nf90_open -->
+<!-- nf90_inq_varid -->
 <g id="proc~~cru_get_daily_met~~CallsGraph_node4" class="node">
-<title>nf90_open</title>
-<polygon fill="#777777" stroke="#777777" points="265,-234 196,-234 196,-210 265,-210 265,-234"/>
-<text text-anchor="middle" x="230.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_open</text>
+<title>nf90_inq_varid</title>
+<polygon fill="#777777" stroke="#777777" points="276,-234 185,-234 185,-210 276,-210 276,-234"/>
+<text text-anchor="middle" x="230.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_varid</text>
 </g>
-<!-- proc~cru_get_daily_met&#45;&gt;nf90_open -->
-<g id="proc~~cru_get_daily_met~~CallsGraph_edge5" class="edge">
-<title>proc~cru_get_daily_met&#45;&gt;nf90_open</title>
-<path fill="none" stroke="#ff0000" d="M89.26,-171.01C108.74,-179.87 136.26,-191.91 161,-201 169.06,-203.96 177.75,-206.85 186.14,-209.49"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="185.22,-212.87 195.81,-212.47 187.28,-206.18 185.22,-212.87"/>
+<!-- proc~cru_get_daily_met&#45;&gt;nf90_inq_varid -->
+<g id="proc~~cru_get_daily_met~~CallsGraph_edge2" class="edge">
+<title>proc~cru_get_daily_met&#45;&gt;nf90_inq_varid</title>
+<path fill="none" stroke="#ff0000" d="M89.26,-171.01C108.74,-179.87 136.26,-191.91 161,-201 166.46,-203.01 172.21,-204.98 177.96,-206.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="177.01,-210.24 187.6,-209.95 179.14,-203.57 177.01,-210.24"/>
 </g>
 <!-- proc~cru_get_filename -->
 <g id="proc~~cru_get_daily_met~~CallsGraph_node5" class="node">
@@ -226,17 +285,17 @@
 <path fill="none" stroke="#ff0000" d="M125.31,-166.82C136.72,-168.26 148.7,-169.78 160.31,-171.25"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="160.03,-174.74 170.39,-172.52 160.91,-167.79 160.03,-174.74"/>
 </g>
-<!-- nf90_inq_varid -->
+<!-- nf90_open -->
 <g id="proc~~cru_get_daily_met~~CallsGraph_node6" class="node">
-<title>nf90_inq_varid</title>
-<polygon fill="#777777" stroke="#777777" points="276,-150 185,-150 185,-126 276,-126 276,-150"/>
-<text text-anchor="middle" x="230.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_varid</text>
+<title>nf90_open</title>
+<polygon fill="#777777" stroke="#777777" points="265,-150 196,-150 196,-126 265,-126 265,-150"/>
+<text text-anchor="middle" x="230.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_open</text>
 </g>
-<!-- proc~cru_get_daily_met&#45;&gt;nf90_inq_varid -->
+<!-- proc~cru_get_daily_met&#45;&gt;nf90_open -->
 <g id="proc~~cru_get_daily_met~~CallsGraph_edge3" class="edge">
-<title>proc~cru_get_daily_met&#45;&gt;nf90_inq_varid</title>
-<path fill="none" stroke="#ff0000" d="M125.31,-151.18C141.49,-149.13 158.83,-146.94 174.62,-144.94"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="175.27,-148.39 184.75,-143.66 174.39,-141.44 175.27,-148.39"/>
+<title>proc~cru_get_daily_met&#45;&gt;nf90_open</title>
+<path fill="none" stroke="#ff0000" d="M125.31,-151.18C145.29,-148.65 167.01,-145.9 185.43,-143.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="186.09,-147.02 195.58,-142.29 185.22,-140.07 186.09,-147.02"/>
 </g>
 <!-- nf90_close -->
 <g id="proc~~cru_get_daily_met~~CallsGraph_node7" class="node">
@@ -497,9 +556,27 @@
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

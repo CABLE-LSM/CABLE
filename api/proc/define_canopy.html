@@ -80,76 +80,101 @@
   <div class="row">
     <h1>define_canopy
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.9% of total for procedures.">423 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cable_canopy.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cable_canopy.f90.html'>cable_canopy.F90</a></li>
-     <li><a href='../module/cable_canopy_module.html'>cable_canopy_module</a></li>
-     <li class="active">define_canopy</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.9% of total for procedures.">423 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cable_canopy.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cable_canopy.f90.html'>cable_canopy.F90</a></li>
+              <li><a href='../module/cable_canopy_module.html'>cable_canopy_module</a></li>
+          <li class="active">define_canopy</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public subroutine define_canopy(bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate, sunlit_veg_mask, reducedLAIdue2snow)</h2>
+    <h2>public  subroutine define_canopy(bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate, sunlit_veg_mask, reducedLAIdue2snow)  
+</h2>
         <div class="panel panel-default">
       <div class="panel-heading">
-  <h3 class="panel-title">Uses</h3>
+        <h3 class="panel-title">Uses</h3>
       </div>
       <ul class="list-group">
-      <li class="list-group-item">
-  <ul class="list-inline">
-    <li><a href='../module/cable_phys_constants_mod.html'>cable_phys_constants_mod</a></li>
-    <li><a href='../module/cable_roughness_module.html'>cable_roughness_module</a></li>
-    <li><a href='../module/cbl_surfacewetness_module.html'>cbl_SurfaceWetness_module</a></li>
-    <li><a href='../module/cable_air_module.html'>cable_air_module</a></li>
-    <li><a href='../module/cbl_pot_evap_snow_module.html'>cbl_pot_evap_snow_module</a></li>
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
-    <li><a href='../module/cbl_dryleaf_module.html'>cbl_dryLeaf_module</a></li>
-    <li><a href='../module/cable_math_constants_mod.html'>cable_math_constants_mod</a></li>
-    <li><a href='../module/cable_latent_heat_module.html'>cable_latent_heat_module</a></li>
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-    <li><a href='../module/cable_within_canopy_module.html'>cable_within_canopy_module</a></li>
-    <li><a href='../module/cbl_zetar_module.html'>cbl_zetar_module</a></li>
-    <li><a href='../module/cbl_qsat_module.html'>cbl_qsat_module</a></li>
-    <li><a href='../module/cable_wetleaf_module.html'>cable_wetleaf_module</a></li>
-    <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
-    <li><a href='../module/cbl_friction_vel_module.html'>cbl_friction_vel_module</a></li>
-    <li><a href='../module/cable_photo_constants_mod.html'>cable_photo_constants_mod</a></li>
-    <li><a href='../module/cbl_radiation_module.html'>cbl_radiation_module</a></li>
-  </ul>
-      </li>
-      <li class="list-group-item">
-  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+          <li class="list-group-item">
+            <ul class="list-inline">
+                <li><a href='../module/cbl_pot_evap_snow_module.html'>cbl_pot_evap_snow_module</a></li>
+                <li><a href='../module/cbl_qsat_module.html'>cbl_qsat_module</a></li>
+                <li><a href='../module/cbl_zetar_module.html'>cbl_zetar_module</a></li>
+                <li><a href='../module/cable_photo_constants_mod.html'>cable_photo_constants_mod</a></li>
+                <li><a href='../module/cable_air_module.html'>cable_air_module</a></li>
+                <li><a href='../module/cbl_friction_vel_module.html'>cbl_friction_vel_module</a></li>
+                <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
+                <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+                <li><a href='../module/cbl_surfacewetness_module.html'>cbl_SurfaceWetness_module</a></li>
+                <li><a href='../module/cable_phys_constants_mod.html'>cable_phys_constants_mod</a></li>
+                <li><a href='../module/cable_math_constants_mod.html'>cable_math_constants_mod</a></li>
+                <li><a href='../module/cbl_radiation_module.html'>cbl_radiation_module</a></li>
+                <li><a href='../module/cable_latent_heat_module.html'>cable_latent_heat_module</a></li>
+                <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+                <li><a href='../module/cable_wetleaf_module.html'>cable_wetleaf_module</a></li>
+                <li><a href='../module/cable_within_canopy_module.html'>cable_within_canopy_module</a></li>
+                <li><a href='../module/cable_roughness_module.html'>cable_roughness_module</a></li>
+                <li><a href='../module/cbl_dryleaf_module.html'>cbl_dryLeaf_module</a></li>
+            </ul>
+          </li>
+          <li class="list-group-item">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
@@ -163,83 +188,83 @@
 <!-- proc~define_canopy -->
 <g id="proc~~define_canopy~~UsesGraph_node1" class="node">
 <title>proc~define_canopy</title>
-<polygon fill="none" stroke="black" points="669,-373 578,-373 578,-349 669,-349 669,-373"/>
-<text text-anchor="middle" x="623.5" y="-358.6" font-family="Helvetica,sans-Serif" font-size="10.50">define_canopy</text>
+<polygon fill="none" stroke="black" points="669,-376 578,-376 578,-352 669,-352 669,-376"/>
+<text text-anchor="middle" x="623.5" y="-361.6" font-family="Helvetica,sans-Serif" font-size="10.50">define_canopy</text>
 </g>
-<!-- module~cbl_dryleaf_module -->
+<!-- module~cbl_surfacewetness_module -->
 <g id="proc~~define_canopy~~UsesGraph_node2" class="node">
-<title>module~cbl_dryleaf_module</title>
-<g id="a_proc~~define_canopy~~UsesGraph_node2"><a xlink:href=".././module/cbl_dryleaf_module.html" xlink:title="cbl_dryLeaf_module">
-<polygon fill="#337ab7" stroke="#337ab7" points="517.5,-730 397.5,-730 397.5,-706 517.5,-706 517.5,-730"/>
-<text text-anchor="middle" x="457.5" y="-715.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_dryLeaf_module</text>
+<title>module~cbl_surfacewetness_module</title>
+<g id="a_proc~~define_canopy~~UsesGraph_node2"><a xlink:href=".././module/cbl_surfacewetness_module.html" xlink:title="cbl_SurfaceWetness_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="540,-730 375,-730 375,-706 540,-706 540,-730"/>
+<text text-anchor="middle" x="457.5" y="-715.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_SurfaceWetness_module</text>
 </a>
 </g>
 </g>
-<!-- proc~define_canopy&#45;&gt;module~cbl_dryleaf_module -->
-<g id="proc~~define_canopy~~UsesGraph_edge14" class="edge">
-<title>proc~define_canopy&#45;&gt;module~cbl_dryleaf_module</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M621.26,-373.2C615.44,-427.81 589.24,-649.23 542,-697 537.69,-701.36 532.62,-704.86 527.14,-707.66"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="525.41,-704.6 517.6,-711.76 528.17,-711.03 525.41,-704.6"/>
+<!-- proc~define_canopy&#45;&gt;module~cbl_surfacewetness_module -->
+<g id="proc~~define_canopy~~UsesGraph_edge15" class="edge">
+<title>proc~define_canopy&#45;&gt;module~cbl_surfacewetness_module</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M621.24,-376.09C615.35,-430.22 588.89,-649.68 542,-697 540.92,-698.1 539.78,-699.14 538.61,-700.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="536.49,-697.34 530.29,-705.93 540.49,-703.08 536.49,-697.34"/>
+</g>
+<!-- module~cable_photo_constants_mod -->
+<g id="proc~~define_canopy~~UsesGraph_node3" class="node">
+<title>module~cable_photo_constants_mod</title>
+<g id="a_proc~~define_canopy~~UsesGraph_node3"><a xlink:href=".././module/cable_photo_constants_mod.html" xlink:title="cable_photo_constants_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="539,-688 376,-688 376,-664 539,-664 539,-688"/>
+<text text-anchor="middle" x="457.5" y="-673.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_photo_constants_mod</text>
+</a>
+</g>
+</g>
+<!-- proc~define_canopy&#45;&gt;module~cable_photo_constants_mod -->
+<g id="proc~~define_canopy~~UsesGraph_edge11" class="edge">
+<title>proc~define_canopy&#45;&gt;module~cable_photo_constants_mod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M623.11,-376.05C624.64,-420.27 623.75,-575.15 542,-655 540.9,-656.08 539.75,-657.1 538.56,-658.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="536.45,-655.28 530.16,-663.8 540.4,-661.06 536.45,-655.28"/>
+</g>
+<!-- module~cable_roughness_module -->
+<g id="proc~~define_canopy~~UsesGraph_node4" class="node">
+<title>module~cable_roughness_module</title>
+<g id="a_proc~~define_canopy~~UsesGraph_node4"><a xlink:href=".././module/cable_roughness_module.html" xlink:title="cable_roughness_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="531.5,-272 383.5,-272 383.5,-248 531.5,-248 531.5,-272"/>
+<text text-anchor="middle" x="457.5" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_roughness_module</text>
+</a>
+</g>
+</g>
+<!-- proc~define_canopy&#45;&gt;module~cable_roughness_module -->
+<g id="proc~~define_canopy~~UsesGraph_edge18" class="edge">
+<title>proc~define_canopy&#45;&gt;module~cable_roughness_module</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M614.14,-351.78C600.98,-333.51 573.64,-299.27 542,-281 538.77,-279.13 535.37,-277.43 531.87,-275.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="533.01,-272.57 522.42,-272.11 530.42,-279.07 533.01,-272.57"/>
 </g>
 <!-- module~cable_math_constants_mod -->
-<g id="proc~~define_canopy~~UsesGraph_node3" class="node">
+<g id="proc~~define_canopy~~UsesGraph_node5" class="node">
 <title>module~cable_math_constants_mod</title>
-<g id="a_proc~~define_canopy~~UsesGraph_node3"><a xlink:href=".././module/cable_math_constants_mod.html" xlink:title="cable_math_constants_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="537.5,-688 377.5,-688 377.5,-664 537.5,-664 537.5,-688"/>
-<text text-anchor="middle" x="457.5" y="-673.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_math_constants_mod</text>
+<g id="a_proc~~define_canopy~~UsesGraph_node5"><a xlink:href=".././module/cable_math_constants_mod.html" xlink:title="cable_math_constants_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="537.5,-604 377.5,-604 377.5,-580 537.5,-580 537.5,-604"/>
+<text text-anchor="middle" x="457.5" y="-589.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_math_constants_mod</text>
 </a>
 </g>
 </g>
 <!-- proc~define_canopy&#45;&gt;module~cable_math_constants_mod -->
-<g id="proc~~define_canopy~~UsesGraph_edge15" class="edge">
+<g id="proc~~define_canopy~~UsesGraph_edge1" class="edge">
 <title>proc~define_canopy&#45;&gt;module~cable_math_constants_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M620.84,-373.01C613.68,-422.99 583.97,-613.9 542,-655 540.9,-656.08 539.75,-657.1 538.56,-658.08"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="536.45,-655.28 530.17,-663.81 540.4,-661.06 536.45,-655.28"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M621.54,-376.2C618.06,-411.95 602.85,-517.29 542,-571 540.65,-572.19 539.25,-573.31 537.79,-574.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="535.65,-571.58 528.97,-579.81 539.32,-577.54 535.65,-571.58"/>
 </g>
-<!-- module~cable_common_module -->
-<g id="proc~~define_canopy~~UsesGraph_node4" class="node">
-<title>module~cable_common_module</title>
-<g id="a_proc~~define_canopy~~UsesGraph_node4"><a xlink:href=".././module/cable_common_module.html" xlink:title="cable_common_module">
-<polygon fill="#337ab7" stroke="#337ab7" points="527.5,-646 387.5,-646 387.5,-622 527.5,-622 527.5,-646"/>
-<text text-anchor="middle" x="457.5" y="-631.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_common_module</text>
-</a>
-</g>
-</g>
-<!-- proc~define_canopy&#45;&gt;module~cable_common_module -->
-<g id="proc~~define_canopy~~UsesGraph_edge17" class="edge">
-<title>proc~define_canopy&#45;&gt;module~cable_common_module</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M622.51,-373.12C621.84,-413.6 613.98,-545.4 542,-613 540.27,-614.62 538.44,-616.12 536.52,-617.51"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="534.35,-614.74 527.62,-622.92 537.98,-620.72 534.35,-614.74"/>
-</g>
-<!-- module~cbl_friction_vel_module -->
-<g id="proc~~define_canopy~~UsesGraph_node5" class="node">
-<title>module~cbl_friction_vel_module</title>
-<g id="a_proc~~define_canopy~~UsesGraph_node5"><a xlink:href=".././module/cbl_friction_vel_module.html" xlink:title="cbl_friction_vel_module">
-<polygon fill="#337ab7" stroke="#337ab7" points="526.5,-604 388.5,-604 388.5,-580 526.5,-580 526.5,-604"/>
-<text text-anchor="middle" x="457.5" y="-589.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_friction_vel_module</text>
-</a>
-</g>
-</g>
-<!-- proc~define_canopy&#45;&gt;module~cbl_friction_vel_module -->
-<g id="proc~~define_canopy~~UsesGraph_edge18" class="edge">
-<title>proc~define_canopy&#45;&gt;module~cbl_friction_vel_module</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M621.63,-373.12C618.36,-409.12 603.63,-516.33 542,-571 539.99,-572.78 537.86,-574.41 535.62,-575.91"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="533.53,-573.07 526.56,-581.05 536.98,-579.16 533.53,-573.07"/>
-</g>
-<!-- module~cbl_pot_evap_snow_module -->
+<!-- module~cable_within_canopy_module -->
 <g id="proc~~define_canopy~~UsesGraph_node6" class="node">
-<title>module~cbl_pot_evap_snow_module</title>
-<g id="a_proc~~define_canopy~~UsesGraph_node6"><a xlink:href=".././module/cbl_pot_evap_snow_module.html" xlink:title="cbl_pot_evap_snow_module">
-<polygon fill="#337ab7" stroke="#337ab7" points="537.5,-562 377.5,-562 377.5,-538 537.5,-538 537.5,-562"/>
-<text text-anchor="middle" x="457.5" y="-547.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_pot_evap_snow_module</text>
+<title>module~cable_within_canopy_module</title>
+<g id="a_proc~~define_canopy~~UsesGraph_node6"><a xlink:href=".././module/cable_within_canopy_module.html" xlink:title="cable_within_canopy_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="542,-562 373,-562 373,-538 542,-538 542,-562"/>
+<text text-anchor="middle" x="457.5" y="-547.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_within_canopy_module</text>
 </a>
 </g>
 </g>
-<!-- proc~define_canopy&#45;&gt;module~cbl_pot_evap_snow_module -->
-<g id="proc~~define_canopy~~UsesGraph_edge12" class="edge">
-<title>proc~define_canopy&#45;&gt;module~cbl_pot_evap_snow_module</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M620.3,-373.35C614.08,-404.55 593.34,-487.04 542,-529 540.39,-530.31 538.72,-531.54 536.98,-532.7"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="534.84,-529.89 527.87,-537.87 538.29,-535.98 534.84,-529.89"/>
+<!-- proc~define_canopy&#45;&gt;module~cable_within_canopy_module -->
+<g id="proc~~define_canopy~~UsesGraph_edge3" class="edge">
+<title>proc~define_canopy&#45;&gt;module~cable_within_canopy_module</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M620.23,-376.13C613.84,-406.79 592.74,-487.83 542,-529 540.39,-530.31 538.71,-531.53 536.97,-532.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="534.83,-529.87 527.84,-537.84 538.27,-535.97 534.83,-529.87"/>
 </g>
 <!-- module~cable_wetleaf_module -->
 <g id="proc~~define_canopy~~UsesGraph_node7" class="node">
@@ -251,190 +276,202 @@
 </g>
 </g>
 <!-- proc~define_canopy&#45;&gt;module~cable_wetleaf_module -->
-<g id="proc~~define_canopy~~UsesGraph_edge1" class="edge">
-<title>proc~define_canopy&#45;&gt;module~cable_wetleaf_module</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M618.25,-373.23C608.8,-398.61 583.49,-457.11 542,-487 539.12,-489.07 536.06,-490.94 532.88,-492.63"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="531.23,-489.53 523.62,-496.9 534.16,-495.89 531.23,-489.53"/>
-</g>
-<!-- module~cable_within_canopy_module -->
-<g id="proc~~define_canopy~~UsesGraph_node8" class="node">
-<title>module~cable_within_canopy_module</title>
-<g id="a_proc~~define_canopy~~UsesGraph_node8"><a xlink:href=".././module/cable_within_canopy_module.html" xlink:title="cable_within_canopy_module">
-<polygon fill="#337ab7" stroke="#337ab7" points="542,-478 373,-478 373,-454 542,-454 542,-478"/>
-<text text-anchor="middle" x="457.5" y="-463.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_within_canopy_module</text>
-</a>
-</g>
-</g>
-<!-- proc~define_canopy&#45;&gt;module~cable_within_canopy_module -->
-<g id="proc~~define_canopy~~UsesGraph_edge5" class="edge">
-<title>proc~define_canopy&#45;&gt;module~cable_within_canopy_module</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M614.39,-373.06C601.36,-391.48 573.96,-426.42 542,-445 538.77,-446.88 535.38,-448.59 531.89,-450.14"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="530.43,-446.96 522.44,-453.92 533.03,-453.46 530.43,-446.96"/>
-</g>
-<!-- module~cbl_zetar_module -->
-<g id="proc~~define_canopy~~UsesGraph_node9" class="node">
-<title>module~cbl_zetar_module</title>
-<g id="a_proc~~define_canopy~~UsesGraph_node9"><a xlink:href=".././module/cbl_zetar_module.html" xlink:title="cbl_zetar_module">
-<polygon fill="#337ab7" stroke="#337ab7" points="510.5,-436 404.5,-436 404.5,-412 510.5,-412 510.5,-436"/>
-<text text-anchor="middle" x="457.5" y="-421.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_zetar_module</text>
-</a>
-</g>
-</g>
-<!-- proc~define_canopy&#45;&gt;module~cbl_zetar_module -->
-<g id="proc~~define_canopy~~UsesGraph_edge2" class="edge">
-<title>proc~define_canopy&#45;&gt;module~cbl_zetar_module</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M602.6,-373.07C586.67,-382.3 563.51,-394.81 542,-403 535.18,-405.6 527.93,-407.96 520.65,-410.1"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="519.44,-406.8 510.75,-412.86 521.33,-413.54 519.44,-406.8"/>
-</g>
-<!-- module~cable_photo_constants_mod -->
-<g id="proc~~define_canopy~~UsesGraph_node10" class="node">
-<title>module~cable_photo_constants_mod</title>
-<g id="a_proc~~define_canopy~~UsesGraph_node10"><a xlink:href=".././module/cable_photo_constants_mod.html" xlink:title="cable_photo_constants_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="539,-394 376,-394 376,-370 539,-370 539,-394"/>
-<text text-anchor="middle" x="457.5" y="-379.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_photo_constants_mod</text>
-</a>
-</g>
-</g>
-<!-- proc~define_canopy&#45;&gt;module~cable_photo_constants_mod -->
-<g id="proc~~define_canopy~~UsesGraph_edge3" class="edge">
-<title>proc~define_canopy&#45;&gt;module~cable_photo_constants_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M577.69,-366.74C568.82,-367.87 559.21,-369.1 549.44,-370.36"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="548.68,-366.92 539.21,-371.67 549.57,-373.87 548.68,-366.92"/>
-</g>
-<!-- module~cbl_qsat_module -->
-<g id="proc~~define_canopy~~UsesGraph_node11" class="node">
-<title>module~cbl_qsat_module</title>
-<g id="a_proc~~define_canopy~~UsesGraph_node11"><a xlink:href=".././module/cbl_qsat_module.html" xlink:title="cbl_qsat_module">
-<polygon fill="#337ab7" stroke="#337ab7" points="508.5,-352 406.5,-352 406.5,-328 508.5,-328 508.5,-352"/>
-<text text-anchor="middle" x="457.5" y="-337.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_qsat_module</text>
-</a>
-</g>
-</g>
-<!-- proc~define_canopy&#45;&gt;module~cbl_qsat_module -->
 <g id="proc~~define_canopy~~UsesGraph_edge4" class="edge">
-<title>proc~define_canopy&#45;&gt;module~cbl_qsat_module</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M577.69,-355.26C559.52,-352.93 538.25,-350.21 518.76,-347.72"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="519.11,-344.23 508.75,-346.43 518.22,-351.18 519.11,-344.23"/>
-</g>
-<!-- module~cable_other_constants_mod -->
-<g id="proc~~define_canopy~~UsesGraph_node12" class="node">
-<title>module~cable_other_constants_mod</title>
-<g id="a_proc~~define_canopy~~UsesGraph_node12"><a xlink:href=".././module/cable_other_constants_mod.html" xlink:title="cable_other_constants_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="337,-272 176,-272 176,-248 337,-248 337,-272"/>
-<text text-anchor="middle" x="256.5" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_other_constants_mod</text>
-</a>
-</g>
-</g>
-<!-- proc~define_canopy&#45;&gt;module~cable_other_constants_mod -->
-<g id="proc~~define_canopy~~UsesGraph_edge6" class="edge">
-<title>proc~define_canopy&#45;&gt;module~cable_other_constants_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M603.02,-348.88C587.13,-339.48 563.83,-326.79 542,-319 522.22,-311.94 407.79,-289.1 330.22,-274"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="330.49,-270.49 320.01,-272.01 329.16,-277.36 330.49,-270.49"/>
+<title>proc~define_canopy&#45;&gt;module~cable_wetleaf_module</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M618.02,-376.32C608.29,-401.3 582.74,-457.98 542,-487 539.11,-489.06 536.04,-490.91 532.85,-492.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="531.2,-489.49 523.57,-496.84 534.12,-495.85 531.2,-489.49"/>
 </g>
 <!-- module~cbl_radiation_module -->
-<g id="proc~~define_canopy~~UsesGraph_node13" class="node">
+<g id="proc~~define_canopy~~UsesGraph_node8" class="node">
 <title>module~cbl_radiation_module</title>
-<g id="a_proc~~define_canopy~~UsesGraph_node13"><a xlink:href=".././module/cbl_radiation_module.html" xlink:title="cbl_radiation_module">
-<polygon fill="#337ab7" stroke="#337ab7" points="521,-272 394,-272 394,-248 521,-248 521,-272"/>
-<text text-anchor="middle" x="457.5" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_radiation_module</text>
+<g id="a_proc~~define_canopy~~UsesGraph_node8"><a xlink:href=".././module/cbl_radiation_module.html" xlink:title="cbl_radiation_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="521,-478 394,-478 394,-454 521,-454 521,-478"/>
+<text text-anchor="middle" x="457.5" y="-463.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_radiation_module</text>
 </a>
 </g>
 </g>
 <!-- proc~define_canopy&#45;&gt;module~cbl_radiation_module -->
-<g id="proc~~define_canopy~~UsesGraph_edge7" class="edge">
+<g id="proc~~define_canopy~~UsesGraph_edge2" class="edge">
 <title>proc~define_canopy&#45;&gt;module~cbl_radiation_module</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M612.59,-348.83C598.53,-332.33 571.24,-302.97 542,-286 535,-281.94 527.29,-278.44 519.48,-275.44"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="520.52,-272.1 509.93,-272.04 518.17,-278.69 520.52,-272.1"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M613.85,-376.21C600.52,-394.11 573.19,-427.25 542,-445 538.35,-447.08 534.49,-448.96 530.51,-450.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="529.15,-447.42 521.07,-454.27 531.66,-453.96 529.15,-447.42"/>
+</g>
+<!-- module~cbl_dryleaf_module -->
+<g id="proc~~define_canopy~~UsesGraph_node9" class="node">
+<title>module~cbl_dryleaf_module</title>
+<g id="a_proc~~define_canopy~~UsesGraph_node9"><a xlink:href=".././module/cbl_dryleaf_module.html" xlink:title="cbl_dryLeaf_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="517.5,-436 397.5,-436 397.5,-412 517.5,-412 517.5,-436"/>
+<text text-anchor="middle" x="457.5" y="-421.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_dryLeaf_module</text>
+</a>
+</g>
+</g>
+<!-- proc~define_canopy&#45;&gt;module~cbl_dryleaf_module -->
+<g id="proc~~define_canopy~~UsesGraph_edge5" class="edge">
+<title>proc~define_canopy&#45;&gt;module~cbl_dryleaf_module</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M595.56,-376.16C580.05,-382.96 560.09,-391.38 542,-398 531.63,-401.79 520.41,-405.53 509.66,-408.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="508.47,-405.64 499.96,-411.96 510.55,-412.33 508.47,-405.64"/>
+</g>
+<!-- module~cable_common_module -->
+<g id="proc~~define_canopy~~UsesGraph_node10" class="node">
+<title>module~cable_common_module</title>
+<g id="a_proc~~define_canopy~~UsesGraph_node10"><a xlink:href=".././module/cable_common_module.html" xlink:title="cable_common_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="527.5,-646 387.5,-646 387.5,-622 527.5,-622 527.5,-646"/>
+<text text-anchor="middle" x="457.5" y="-631.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_common_module</text>
+</a>
+</g>
+</g>
+<!-- proc~define_canopy&#45;&gt;module~cable_common_module -->
+<g id="proc~~define_canopy~~UsesGraph_edge6" class="edge">
+<title>proc~define_canopy&#45;&gt;module~cable_common_module</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M622.45,-376.26C621.59,-416.6 613.16,-546.41 542,-613 540.27,-614.62 538.44,-616.12 536.51,-617.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="534.34,-614.73 527.6,-622.9 537.97,-620.71 534.34,-614.73"/>
+</g>
+<!-- module~cbl_pot_evap_snow_module -->
+<g id="proc~~define_canopy~~UsesGraph_node11" class="node">
+<title>module~cbl_pot_evap_snow_module</title>
+<g id="a_proc~~define_canopy~~UsesGraph_node11"><a xlink:href=".././module/cbl_pot_evap_snow_module.html" xlink:title="cbl_pot_evap_snow_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="537.5,-356 377.5,-356 377.5,-332 537.5,-332 537.5,-356"/>
+<text text-anchor="middle" x="457.5" y="-341.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_pot_evap_snow_module</text>
+</a>
+</g>
+</g>
+<!-- proc~define_canopy&#45;&gt;module~cbl_pot_evap_snow_module -->
+<g id="proc~~define_canopy~~UsesGraph_edge7" class="edge">
+<title>proc~define_canopy&#45;&gt;module~cbl_pot_evap_snow_module</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M577.69,-358.53C568.27,-357.39 558.03,-356.14 547.63,-354.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="547.98,-351.39 537.63,-353.65 547.14,-358.34 547.98,-351.39"/>
+</g>
+<!-- module~cbl_qsat_module -->
+<g id="proc~~define_canopy~~UsesGraph_node12" class="node">
+<title>module~cbl_qsat_module</title>
+<g id="a_proc~~define_canopy~~UsesGraph_node12"><a xlink:href=".././module/cbl_qsat_module.html" xlink:title="cbl_qsat_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="508.5,-314 406.5,-314 406.5,-290 508.5,-290 508.5,-314"/>
+<text text-anchor="middle" x="457.5" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_qsat_module</text>
+</a>
+</g>
+</g>
+<!-- proc~define_canopy&#45;&gt;module~cbl_qsat_module -->
+<g id="proc~~define_canopy~~UsesGraph_edge8" class="edge">
+<title>proc~define_canopy&#45;&gt;module~cbl_qsat_module</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M601.9,-351.88C585.97,-342.91 563.15,-330.93 542,-323 534.44,-320.16 526.35,-317.59 518.29,-315.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="519.08,-311.88 508.52,-312.63 517.24,-318.64 519.08,-311.88"/>
+</g>
+<!-- module~cable_air_module -->
+<g id="proc~~define_canopy~~UsesGraph_node13" class="node">
+<title>module~cable_air_module</title>
+<g id="a_proc~~define_canopy~~UsesGraph_node13"><a xlink:href=".././module/cable_air_module.html" xlink:title="cable_air_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="511,-108 404,-108 404,-84 511,-84 511,-108"/>
+<text text-anchor="middle" x="457.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_air_module</text>
+</a>
+</g>
+</g>
+<!-- proc~define_canopy&#45;&gt;module~cable_air_module -->
+<g id="proc~~define_canopy~~UsesGraph_edge9" class="edge">
+<title>proc~define_canopy&#45;&gt;module~cable_air_module</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M622.41,-351.84C621.44,-311.81 612.72,-183.02 542,-117 535.94,-111.34 528.59,-107.15 520.79,-104.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="521.7,-100.67 511.11,-100.8 519.47,-107.31 521.7,-100.67"/>
+</g>
+<!-- module~cbl_zetar_module -->
+<g id="proc~~define_canopy~~UsesGraph_node14" class="node">
+<title>module~cbl_zetar_module</title>
+<g id="a_proc~~define_canopy~~UsesGraph_node14"><a xlink:href=".././module/cbl_zetar_module.html" xlink:title="cbl_zetar_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="510.5,-230 404.5,-230 404.5,-206 510.5,-206 510.5,-230"/>
+<text text-anchor="middle" x="457.5" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_zetar_module</text>
+</a>
+</g>
+</g>
+<!-- proc~define_canopy&#45;&gt;module~cbl_zetar_module -->
+<g id="proc~~define_canopy~~UsesGraph_edge10" class="edge">
+<title>proc~define_canopy&#45;&gt;module~cbl_zetar_module</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M618.23,-351.87C608.71,-326.69 583.31,-268.65 542,-239 535.44,-234.29 527.93,-230.63 520.16,-227.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="521.19,-224.45 510.6,-224.72 519.05,-231.12 521.19,-224.45"/>
+</g>
+<!-- module~cable_other_constants_mod -->
+<g id="proc~~define_canopy~~UsesGraph_node15" class="node">
+<title>module~cable_other_constants_mod</title>
+<g id="a_proc~~define_canopy~~UsesGraph_node15"><a xlink:href=".././module/cable_other_constants_mod.html" xlink:title="cable_other_constants_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="337,-334 176,-334 176,-310 337,-310 337,-334"/>
+<text text-anchor="middle" x="256.5" y="-319.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_other_constants_mod</text>
+</a>
+</g>
+</g>
+<!-- proc~define_canopy&#45;&gt;module~cable_other_constants_mod -->
+<g id="proc~~define_canopy~~UsesGraph_edge13" class="edge">
+<title>proc~define_canopy&#45;&gt;module~cable_other_constants_mod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M577.91,-369.01C527.67,-373.54 443.77,-377.75 373,-365 344.44,-359.86 313.72,-348.09 291.15,-338.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="292.56,-334.97 282.01,-334.05 289.69,-341.35 292.56,-334.97"/>
+</g>
+<!-- module~cable_def_types_mod -->
+<g id="proc~~define_canopy~~UsesGraph_node16" class="node">
+<title>module~cable_def_types_mod</title>
+<g id="a_proc~~define_canopy~~UsesGraph_node16"><a xlink:href=".././module/cable_def_types_mod.html" xlink:title="cable_def_types_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="521,-150 394,-150 394,-126 521,-126 521,-150"/>
+<text text-anchor="middle" x="457.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_def_types_mod</text>
+</a>
+</g>
+</g>
+<!-- proc~define_canopy&#45;&gt;module~cable_def_types_mod -->
+<g id="proc~~define_canopy~~UsesGraph_edge14" class="edge">
+<title>proc~define_canopy&#45;&gt;module~cable_def_types_mod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M621.17,-351.61C616.77,-316.78 599.5,-217.04 542,-164 538.12,-160.42 533.76,-157.34 529.12,-154.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="530.4,-151.41 519.89,-150.07 527.27,-157.67 530.4,-151.41"/>
 </g>
 <!-- module~cable_phys_constants_mod -->
-<g id="proc~~define_canopy~~UsesGraph_node14" class="node">
+<g id="proc~~define_canopy~~UsesGraph_node17" class="node">
 <title>module~cable_phys_constants_mod</title>
-<g id="a_proc~~define_canopy~~UsesGraph_node14"><a xlink:href=".././module/cable_phys_constants_mod.html" xlink:title="cable_phys_constants_mod">
+<g id="a_proc~~define_canopy~~UsesGraph_node17"><a xlink:href=".././module/cable_phys_constants_mod.html" xlink:title="cable_phys_constants_mod">
 <polygon fill="#337ab7" stroke="#337ab7" points="335,-190 178,-190 178,-166 335,-166 335,-190"/>
 <text text-anchor="middle" x="256.5" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_phys_constants_mod</text>
 </a>
 </g>
 </g>
 <!-- proc~define_canopy&#45;&gt;module~cable_phys_constants_mod -->
-<g id="proc~~define_canopy~~UsesGraph_edge8" class="edge">
+<g id="proc~~define_canopy~~UsesGraph_edge16" class="edge">
 <title>proc~define_canopy&#45;&gt;module~cable_phys_constants_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M620.7,-348.84C615.32,-317.41 596.27,-233.38 542,-197 478.32,-154.31 387.56,-156.32 325.79,-164.57"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="325.16,-161.12 315.76,-166 326.15,-168.05 325.16,-161.12"/>
-</g>
-<!-- module~cable_roughness_module -->
-<g id="proc~~define_canopy~~UsesGraph_node15" class="node">
-<title>module~cable_roughness_module</title>
-<g id="a_proc~~define_canopy~~UsesGraph_node15"><a xlink:href=".././module/cable_roughness_module.html" xlink:title="cable_roughness_module">
-<polygon fill="#337ab7" stroke="#337ab7" points="531.5,-230 383.5,-230 383.5,-206 531.5,-206 531.5,-230"/>
-<text text-anchor="middle" x="457.5" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_roughness_module</text>
-</a>
-</g>
-</g>
-<!-- proc~define_canopy&#45;&gt;module~cable_roughness_module -->
-<g id="proc~~define_canopy~~UsesGraph_edge9" class="edge">
-<title>proc~define_canopy&#45;&gt;module~cable_roughness_module</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M617.99,-348.78C608.2,-324 582.57,-267.78 542,-239 539.73,-237.39 537.36,-235.91 534.9,-234.54"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="536.21,-231.28 525.68,-230.05 533.14,-237.58 536.21,-231.28"/>
-</g>
-<!-- module~cable_air_module -->
-<g id="proc~~define_canopy~~UsesGraph_node16" class="node">
-<title>module~cable_air_module</title>
-<g id="a_proc~~define_canopy~~UsesGraph_node16"><a xlink:href=".././module/cable_air_module.html" xlink:title="cable_air_module">
-<polygon fill="#337ab7" stroke="#337ab7" points="511,-150 404,-150 404,-126 511,-126 511,-150"/>
-<text text-anchor="middle" x="457.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_air_module</text>
-</a>
-</g>
-</g>
-<!-- proc~define_canopy&#45;&gt;module~cable_air_module -->
-<g id="proc~~define_canopy~~UsesGraph_edge10" class="edge">
-<title>proc~define_canopy&#45;&gt;module~cable_air_module</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M621.11,-348.8C616.55,-314.47 598.9,-216.2 542,-164 535.81,-158.32 528.39,-153.88 520.57,-150.41"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="521.83,-147.15 511.25,-146.77 519.29,-153.67 521.83,-147.15"/>
-</g>
-<!-- module~cable_def_types_mod -->
-<g id="proc~~define_canopy~~UsesGraph_node17" class="node">
-<title>module~cable_def_types_mod</title>
-<g id="a_proc~~define_canopy~~UsesGraph_node17"><a xlink:href=".././module/cable_def_types_mod.html" xlink:title="cable_def_types_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="521,-108 394,-108 394,-84 521,-84 521,-108"/>
-<text text-anchor="middle" x="457.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_def_types_mod</text>
-</a>
-</g>
-</g>
-<!-- proc~define_canopy&#45;&gt;module~cable_def_types_mod -->
-<g id="proc~~define_canopy~~UsesGraph_edge13" class="edge">
-<title>proc~define_canopy&#45;&gt;module~cable_def_types_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M622.36,-348.98C621.23,-309.43 612.06,-182.17 542,-117 538.58,-113.82 534.76,-111.11 530.67,-108.79"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="531.91,-105.5 521.38,-104.32 528.88,-111.81 531.91,-105.5"/>
-</g>
-<!-- module~cbl_surfacewetness_module -->
-<g id="proc~~define_canopy~~UsesGraph_node18" class="node">
-<title>module~cbl_surfacewetness_module</title>
-<g id="a_proc~~define_canopy~~UsesGraph_node18"><a xlink:href=".././module/cbl_surfacewetness_module.html" xlink:title="cbl_SurfaceWetness_module">
-<polygon fill="#337ab7" stroke="#337ab7" points="540,-66 375,-66 375,-42 540,-42 540,-66"/>
-<text text-anchor="middle" x="457.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_SurfaceWetness_module</text>
-</a>
-</g>
-</g>
-<!-- proc~define_canopy&#45;&gt;module~cbl_surfacewetness_module -->
-<g id="proc~~define_canopy~~UsesGraph_edge11" class="edge">
-<title>proc~define_canopy&#45;&gt;module~cbl_surfacewetness_module</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M623.04,-348.85C624.3,-304.97 622.43,-153.21 542,-75 540.89,-73.93 539.74,-72.9 538.55,-71.93"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="540.38,-68.94 530.14,-66.21 536.45,-74.73 540.38,-68.94"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M620.77,-351.62C615.59,-319.63 596.94,-234.12 542,-197 478.28,-153.95 387.12,-156.15 325.3,-164.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="324.65,-161.09 315.26,-165.99 325.65,-168.02 324.65,-161.09"/>
 </g>
 <!-- module~cable_latent_heat_module -->
-<g id="proc~~define_canopy~~UsesGraph_node19" class="node">
+<g id="proc~~define_canopy~~UsesGraph_node18" class="node">
 <title>module~cable_latent_heat_module</title>
-<g id="a_proc~~define_canopy~~UsesGraph_node19"><a xlink:href=".././module/cable_latent_heat_module.html" xlink:title="cable_latent_heat_module">
-<polygon fill="#337ab7" stroke="#337ab7" points="534,-24 381,-24 381,0 534,0 534,-24"/>
-<text text-anchor="middle" x="457.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_latent_heat_module</text>
+<g id="a_proc~~define_canopy~~UsesGraph_node18"><a xlink:href=".././module/cable_latent_heat_module.html" xlink:title="cable_latent_heat_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="534,-66 381,-66 381,-42 534,-42 534,-66"/>
+<text text-anchor="middle" x="457.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_latent_heat_module</text>
 </a>
 </g>
 </g>
 <!-- proc~define_canopy&#45;&gt;module~cable_latent_heat_module -->
-<g id="proc~~define_canopy~~UsesGraph_edge16" class="edge">
+<g id="proc~~define_canopy~~UsesGraph_edge17" class="edge">
 <title>proc~define_canopy&#45;&gt;module~cable_latent_heat_module</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M621.17,-348.73C615.09,-294.8 588.2,-79.46 542,-33 540.91,-31.91 539.78,-30.87 538.6,-29.88"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="540.48,-26.93 530.28,-24.08 536.48,-32.67 540.48,-26.93"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M623.09,-351.72C624.5,-307.4 623.11,-154.08 542,-75 540.9,-73.92 539.75,-72.9 538.55,-71.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="540.39,-68.94 530.16,-66.2 536.45,-74.73 540.39,-68.94"/>
+</g>
+<!-- module~cbl_friction_vel_module -->
+<g id="proc~~define_canopy~~UsesGraph_node19" class="node">
+<title>module~cbl_friction_vel_module</title>
+<g id="a_proc~~define_canopy~~UsesGraph_node19"><a xlink:href=".././module/cbl_friction_vel_module.html" xlink:title="cbl_friction_vel_module">
+<polygon fill="#337ab7" stroke="#337ab7" points="526.5,-24 388.5,-24 388.5,0 526.5,0 526.5,-24"/>
+<text text-anchor="middle" x="457.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cbl_friction_vel_module</text>
+</a>
+</g>
+</g>
+<!-- proc~define_canopy&#45;&gt;module~cbl_friction_vel_module -->
+<g id="proc~~define_canopy~~UsesGraph_edge12" class="edge">
+<title>proc~define_canopy&#45;&gt;module~cbl_friction_vel_module</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M621.23,-351.98C615.3,-298.18 588.65,-80.02 542,-33 539.93,-30.91 537.68,-29.02 535.3,-27.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="537.1,-24.31 526.72,-22.15 533.49,-30.3 537.1,-24.31"/>
+</g>
+<!-- module~cable_roughness_module&#45;&gt;module~cable_other_constants_mod -->
+<g id="proc~~define_canopy~~UsesGraph_edge19" class="edge">
+<title>module~cable_roughness_module&#45;&gt;module~cable_other_constants_mod</title>
+<path fill="none" stroke="#ffaa00" stroke-dasharray="5,2" d="M405.51,-272.01C394.72,-274.78 383.44,-277.84 373,-281 348.1,-288.53 320.63,-298.22 298.74,-306.29"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="297.25,-303.11 289.1,-309.87 299.69,-309.67 297.25,-303.11"/>
+</g>
+<!-- module~cable_roughness_module&#45;&gt;module~cable_phys_constants_mod -->
+<g id="proc~~define_canopy~~UsesGraph_edge20" class="edge">
+<title>module~cable_roughness_module&#45;&gt;module~cable_phys_constants_mod</title>
+<path fill="none" stroke="#ffaa00" stroke-dasharray="5,2" d="M400.67,-247.94C391.32,-245.36 381.79,-242.37 373,-239 341.92,-227.08 308.51,-208.78 285.66,-195.33"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="287.23,-192.19 276.85,-190.08 283.65,-198.2 287.23,-192.19"/>
 </g>
 <!-- module~cable_runtime_opts_mod -->
 <g id="proc~~define_canopy~~UsesGraph_node20" class="node">
@@ -446,43 +483,31 @@
 </g>
 </g>
 <!-- module~cable_common_module&#45;&gt;module~cable_runtime_opts_mod -->
-<g id="proc~~define_canopy~~UsesGraph_edge19" class="edge">
+<g id="proc~~define_canopy~~UsesGraph_edge21" class="edge">
 <title>module~cable_common_module&#45;&gt;module~cable_runtime_opts_mod</title>
-<path fill="none" stroke="#ffaa00" stroke-dasharray="5,2" d="M387.46,-634C372.17,-634 355.82,-634 340.06,-634"/>
-<polygon fill="#ffaa00" stroke="#ffaa00" points="339.8,-630.5 329.8,-634 339.8,-637.5 339.8,-630.5"/>
+<path fill="none" stroke="#00ffa9" stroke-dasharray="5,2" d="M387.46,-634C372.17,-634 355.82,-634 340.06,-634"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="339.8,-630.5 329.8,-634 339.8,-637.5 339.8,-630.5"/>
+</g>
+<!-- module~cable_air_module&#45;&gt;module~cable_phys_constants_mod -->
+<g id="proc~~define_canopy~~UsesGraph_edge22" class="edge">
+<title>module~cable_air_module&#45;&gt;module~cable_phys_constants_mod</title>
+<path fill="none" stroke="#0054ff" stroke-dasharray="5,2" d="M403.79,-107.22C393.44,-109.99 382.77,-113.25 373,-117 341.92,-128.92 308.51,-147.22 285.66,-160.67"/>
+<polygon fill="#0054ff" stroke="#0054ff" points="283.65,-157.8 276.85,-165.92 287.23,-163.81 283.65,-157.8"/>
 </g>
 <!-- module~grid_constants_mod_cbl -->
 <g id="proc~~define_canopy~~UsesGraph_node21" class="node">
 <title>module~grid_constants_mod_cbl</title>
 <g id="a_proc~~define_canopy~~UsesGraph_node21"><a xlink:href=".././module/grid_constants_mod_cbl.html" xlink:title="grid_constants_mod_cbl">
-<polygon fill="#337ab7" stroke="#337ab7" points="140,-272 0,-272 0,-248 140,-248 140,-272"/>
-<text text-anchor="middle" x="70" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">grid_constants_mod_cbl</text>
+<polygon fill="#337ab7" stroke="#337ab7" points="140,-334 0,-334 0,-310 140,-310 140,-334"/>
+<text text-anchor="middle" x="70" y="-319.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">grid_constants_mod_cbl</text>
 </a>
 </g>
 </g>
 <!-- module~cable_other_constants_mod&#45;&gt;module~grid_constants_mod_cbl -->
-<g id="proc~~define_canopy~~UsesGraph_edge20" class="edge">
-<title>module~cable_other_constants_mod&#45;&gt;module~grid_constants_mod_cbl</title>
-<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M175.92,-260C167.46,-260 158.85,-260 150.4,-260"/>
-<polygon fill="#00a9ff" stroke="#00a9ff" points="150.17,-256.5 140.17,-260 150.17,-263.5 150.17,-256.5"/>
-</g>
-<!-- module~cable_roughness_module&#45;&gt;module~cable_other_constants_mod -->
-<g id="proc~~define_canopy~~UsesGraph_edge22" class="edge">
-<title>module~cable_roughness_module&#45;&gt;module~cable_other_constants_mod</title>
-<path fill="none" stroke="#5400ff" stroke-dasharray="5,2" d="M399.47,-230.04C376.06,-234.98 348.77,-240.74 324.42,-245.88"/>
-<polygon fill="#5400ff" stroke="#5400ff" points="323.6,-242.47 314.53,-247.96 325.04,-249.32 323.6,-242.47"/>
-</g>
-<!-- module~cable_roughness_module&#45;&gt;module~cable_phys_constants_mod -->
-<g id="proc~~define_canopy~~UsesGraph_edge21" class="edge">
-<title>module~cable_roughness_module&#45;&gt;module~cable_phys_constants_mod</title>
-<path fill="none" stroke="#5400ff" stroke-dasharray="5,2" d="M396.79,-206C374.95,-201.61 350.05,-196.6 327.4,-192.05"/>
-<polygon fill="#5400ff" stroke="#5400ff" points="328,-188.6 317.51,-190.06 326.62,-195.46 328,-188.6"/>
-</g>
-<!-- module~cable_air_module&#45;&gt;module~cable_phys_constants_mod -->
 <g id="proc~~define_canopy~~UsesGraph_edge23" class="edge">
-<title>module~cable_air_module&#45;&gt;module~cable_phys_constants_mod</title>
-<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M403.95,-148.56C380.47,-153.28 352.46,-158.91 327.26,-163.98"/>
-<polygon fill="#aa00ff" stroke="#aa00ff" points="326.5,-160.56 317.38,-165.96 327.88,-167.42 326.5,-160.56"/>
+<title>module~cable_other_constants_mod&#45;&gt;module~grid_constants_mod_cbl</title>
+<path fill="none" stroke="#5400ff" stroke-dasharray="5,2" d="M175.92,-322C167.46,-322 158.85,-322 150.4,-322"/>
+<polygon fill="#5400ff" stroke="#5400ff" points="150.17,-318.5 140.17,-322 150.17,-325.5 150.17,-318.5"/>
 </g>
 </g>
 </svg>
@@ -544,96 +569,220 @@
     modules which it uses. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
     </p>
     </div></div></div></div>
-      </li>
+          </li>
       </ul>
     </div>
 
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-bal~17"></span>type(<a href='../type/balances_type.html'>balances_type</a>),</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bal~17"></span>
+              type(<a href='../type/balances_type.html'>balances_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>bal</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-rad~22"></span>type(<a href='../type/radiation_type.html'>radiation_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>bal</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rad~22"></span>
+              type(<a href='../type/radiation_type.html'>radiation_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>rad</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-rough~19"></span>type(<a href='../type/roughness_type.html'>roughness_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rad</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rough~19"></span>
+              type(<a href='../type/roughness_type.html'>roughness_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>rough</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-air~19"></span>type(<a href='../type/air_type.html'>air_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rough</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-air~19"></span>
+              type(<a href='../type/air_type.html'>air_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>air</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-met~31"></span>type(<a href='../type/met_type.html'>met_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>air</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-met~31"></span>
+              type(<a href='../type/met_type.html'>met_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>met</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-dels~22"></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>met</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dels~22"></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>dels</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ssnow~28"></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dels</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ssnow~28"></span>
+              type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>ssnow</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-soil~40"></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ssnow</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-soil~40"></span>
+              type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>soil</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-veg~45"></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>soil</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-veg~45"></span>
+              type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>veg</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-canopy~28"></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>veg</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-canopy~28"></span>
+              type(<a href='../type/canopy_type.html'>canopy_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>canopy</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-climate~14"></span>type(<a href='../type/climate_type.html'>climate_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>canopy</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-climate~14"></span>
+              type(<a href='../type/climate_type.html'>climate_type</a>),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>climate</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-sunlit_veg_mask~10"></span>logical</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>climate</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sunlit_veg_mask~10"></span>
+              logical
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>sunlit_veg_mask</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-reducedlaidue2snow~12"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>sunlit_veg_mask</strong>(mp)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-reducedlaidue2snow~12"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>reducedLAIdue2snow</strong>(mp)</td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>reducedLAIdue2snow</strong>(mp)</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
     <div class="panel panel-default">
@@ -647,481 +796,481 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~define_canopy~~CallsGraph Pages: 1 -->
-<svg id="procdefine_canopyCallsGraph" width="537pt" height="854pt"
- viewBox="0.00 0.00 537.00 854.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~define_canopy~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 850)">
+<svg id="procdefine_canopyCallsGraph" width="537pt" height="930pt"
+ viewBox="0.00 0.00 537.00 930.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~define_canopy~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 926)">
 <title>proc~~define_canopy~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-850 533,-850 533,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-926 533,-926 533,4 -4,4"/>
 <!-- proc~define_canopy -->
 <g id="proc~~define_canopy~~CallsGraph_node1" class="node">
 <title>proc~define_canopy</title>
-<polygon fill="none" stroke="black" points="91,-311 0,-311 0,-287 91,-287 91,-311"/>
-<text text-anchor="middle" x="45.5" y="-296.6" font-family="Helvetica,sans-Serif" font-size="10.50">define_canopy</text>
+<polygon fill="none" stroke="black" points="91,-632 0,-632 0,-608 91,-608 91,-632"/>
+<text text-anchor="middle" x="45.5" y="-617.6" font-family="Helvetica,sans-Serif" font-size="10.50">define_canopy</text>
 </g>
-<!-- proc~dryleaf -->
+<!-- proc~update_zetar -->
 <g id="proc~~define_canopy~~CallsGraph_node2" class="node">
-<title>proc~dryleaf</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node2"><a xlink:href=".././proc/dryleaf.html" xlink:title="dryLeaf">
-<polygon fill="#d9534f" stroke="#d9534f" points="226.5,-626 172.5,-626 172.5,-602 226.5,-602 226.5,-626"/>
-<text text-anchor="middle" x="199.5" y="-611.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">dryLeaf</text>
+<title>proc~update_zetar</title>
+<g id="a_proc~~define_canopy~~CallsGraph_node2"><a xlink:href=".././proc/update_zetar.html" xlink:title="update_zetar">
+<polygon fill="#d9534f" stroke="#d9534f" points="240.5,-922 158.5,-922 158.5,-898 240.5,-898 240.5,-922"/>
+<text text-anchor="middle" x="199.5" y="-907.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">update_zetar</text>
 </a>
 </g>
 </g>
-<!-- proc~define_canopy&#45;&gt;proc~dryleaf -->
-<g id="proc~~define_canopy~~CallsGraph_edge12" class="edge">
-<title>proc~define_canopy&#45;&gt;proc~dryleaf</title>
-<path fill="none" stroke="#ff0000" d="M46.98,-311.04C49.21,-352 61.44,-488.09 127,-572 136.34,-583.96 150.12,-593.19 163.08,-599.91"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="161.78,-603.17 172.31,-604.37 164.83,-596.87 161.78,-603.17"/>
+<!-- proc~define_canopy&#45;&gt;proc~update_zetar -->
+<g id="proc~~define_canopy~~CallsGraph_edge15" class="edge">
+<title>proc~define_canopy&#45;&gt;proc~update_zetar</title>
+<path fill="none" stroke="#ff0000" d="M46.31,-632.21C46.36,-674.29 52.36,-814.74 127,-889 133.06,-895.03 140.77,-899.35 148.86,-902.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="147.86,-905.79 158.45,-905.52 150.01,-899.13 147.86,-905.79"/>
 </g>
-<!-- proc~wetleaf -->
+<!-- proc~within_canopy -->
 <g id="proc~~define_canopy~~CallsGraph_node3" class="node">
-<title>proc~wetleaf</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node3"><a xlink:href=".././proc/wetleaf.html" xlink:title="wetLeaf">
-<polygon fill="#d9534f" stroke="#d9534f" points="227,-563 172,-563 172,-539 227,-539 227,-563"/>
-<text text-anchor="middle" x="199.5" y="-548.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">wetLeaf</text>
+<title>proc~within_canopy</title>
+<g id="a_proc~~define_canopy~~CallsGraph_node3"><a xlink:href=".././proc/within_canopy.html" xlink:title="within_canopy">
+<polygon fill="#d9534f" stroke="#d9534f" points="243.5,-880 155.5,-880 155.5,-856 243.5,-856 243.5,-880"/>
+<text text-anchor="middle" x="199.5" y="-865.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">within_canopy</text>
 </a>
 </g>
 </g>
-<!-- proc~define_canopy&#45;&gt;proc~wetleaf -->
-<g id="proc~~define_canopy~~CallsGraph_edge13" class="edge">
-<title>proc~define_canopy&#45;&gt;proc~wetleaf</title>
-<path fill="none" stroke="#ff0000" d="M47,-311.08C49.26,-349.14 61.47,-467.64 127,-530 136.37,-538.92 149.33,-544.07 161.65,-547.04"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="161.26,-550.54 171.75,-549.06 162.63,-543.67 161.26,-550.54"/>
+<!-- proc~define_canopy&#45;&gt;proc~within_canopy -->
+<g id="proc~~define_canopy~~CallsGraph_edge1" class="edge">
+<title>proc~define_canopy&#45;&gt;proc~within_canopy</title>
+<path fill="none" stroke="#ff0000" d="M47.09,-632.15C49.6,-669.83 62.46,-785.92 127,-847 132.36,-852.07 138.89,-855.93 145.79,-858.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="144.77,-862.21 155.36,-862.3 147.14,-855.62 144.77,-862.21"/>
 </g>
 <!-- proc~humidity_deficit_method -->
 <g id="proc~~define_canopy~~CallsGraph_node4" class="node">
 <title>proc~humidity_deficit_method</title>
 <g id="a_proc~~define_canopy~~CallsGraph_node4"><a xlink:href=".././proc/humidity_deficit_method.html" xlink:title="Humidity_deficit_method">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="272,-521 127,-521 127,-497 272,-497 272,-521"/>
-<text text-anchor="middle" x="199.5" y="-506.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Humidity_deficit_method</text>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="272,-838 127,-838 127,-814 272,-814 272,-838"/>
+<text text-anchor="middle" x="199.5" y="-823.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Humidity_deficit_method</text>
 </a>
 </g>
 </g>
 <!-- proc~define_canopy&#45;&gt;proc~humidity_deficit_method -->
-<g id="proc~~define_canopy~~CallsGraph_edge15" class="edge">
+<g id="proc~~define_canopy~~CallsGraph_edge2" class="edge">
 <title>proc~define_canopy&#45;&gt;proc~humidity_deficit_method</title>
-<path fill="none" stroke="#ff0000" d="M48.08,-311.24C53.07,-344.74 71.57,-438.7 127,-488 128.49,-489.32 130.05,-490.56 131.68,-491.72"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="129.93,-494.75 140.3,-496.9 133.53,-488.75 129.93,-494.75"/>
+<path fill="none" stroke="#ff0000" d="M48.24,-632.47C53.56,-665.68 72.63,-757.03 127,-805 128.49,-806.32 130.06,-807.55 131.7,-808.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="129.95,-811.74 140.33,-813.87 133.54,-805.73 129.95,-811.74"/>
 </g>
-<!-- proc~update_zetar -->
+<!-- proc~qsatfjh -->
 <g id="proc~~define_canopy~~CallsGraph_node5" class="node">
-<title>proc~update_zetar</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node5"><a xlink:href=".././proc/update_zetar.html" xlink:title="update_zetar">
-<polygon fill="#d9534f" stroke="#d9534f" points="240.5,-479 158.5,-479 158.5,-455 240.5,-455 240.5,-479"/>
-<text text-anchor="middle" x="199.5" y="-464.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">update_zetar</text>
+<title>proc~qsatfjh</title>
+<g id="a_proc~~define_canopy~~CallsGraph_node5"><a xlink:href=".././proc/qsatfjh.html" xlink:title="qsatfjh">
+<polygon fill="#d9534f" stroke="#d9534f" points="400.5,-755 346.5,-755 346.5,-731 400.5,-731 400.5,-755"/>
+<text text-anchor="middle" x="373.5" y="-740.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">qsatfjh</text>
 </a>
 </g>
 </g>
-<!-- proc~define_canopy&#45;&gt;proc~update_zetar -->
-<g id="proc~~define_canopy~~CallsGraph_edge1" class="edge">
-<title>proc~define_canopy&#45;&gt;proc~update_zetar</title>
-<path fill="none" stroke="#ff0000" d="M49.74,-311.36C57.8,-339.62 81.44,-409.33 127,-446 133.38,-451.13 140.97,-455.01 148.79,-457.94"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="147.78,-461.29 158.37,-461.07 149.95,-454.64 147.78,-461.29"/>
-</g>
-<!-- proc~define_air -->
-<g id="proc~~define_canopy~~CallsGraph_node6" class="node">
-<title>proc~define_air</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node6"><a xlink:href=".././proc/define_air.html" xlink:title="define_air">
-<polygon fill="#d9534f" stroke="#d9534f" points="232.5,-437 166.5,-437 166.5,-413 232.5,-413 232.5,-437"/>
-<text text-anchor="middle" x="199.5" y="-422.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">define_air</text>
-</a>
-</g>
-</g>
-<!-- proc~define_canopy&#45;&gt;proc~define_air -->
+<!-- proc~define_canopy&#45;&gt;proc~qsatfjh -->
 <g id="proc~~define_canopy~~CallsGraph_edge5" class="edge">
-<title>proc~define_canopy&#45;&gt;proc~define_air</title>
-<path fill="none" stroke="#ff0000" d="M52.44,-311.07C63.82,-332.95 90.82,-379.18 127,-404 135.81,-410.04 146.38,-414.37 156.66,-417.47"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="155.79,-420.86 166.35,-420.07 157.6,-414.1 155.79,-420.86"/>
-</g>
-<!-- proc~within_canopy -->
-<g id="proc~~define_canopy~~CallsGraph_node7" class="node">
-<title>proc~within_canopy</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node7"><a xlink:href=".././proc/within_canopy.html" xlink:title="within_canopy">
-<polygon fill="#d9534f" stroke="#d9534f" points="243.5,-395 155.5,-395 155.5,-371 243.5,-371 243.5,-395"/>
-<text text-anchor="middle" x="199.5" y="-380.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">within_canopy</text>
-</a>
-</g>
-</g>
-<!-- proc~define_canopy&#45;&gt;proc~within_canopy -->
-<g id="proc~~define_canopy~~CallsGraph_edge3" class="edge">
-<title>proc~define_canopy&#45;&gt;proc~within_canopy</title>
-<path fill="none" stroke="#ff0000" d="M58.83,-311.13C73.79,-325.22 100.33,-348.29 127,-362 132.74,-364.95 138.96,-367.55 145.25,-369.82"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="144.54,-373.27 155.13,-373.12 146.76,-366.63 144.54,-373.27"/>
+<title>proc~define_canopy&#45;&gt;proc~qsatfjh</title>
+<path fill="none" stroke="#ff0000" d="M58.46,-632.09C73.27,-646.37 99.86,-669.83 127,-683 145.79,-692.12 272.43,-720.86 336.1,-735"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="335.6,-738.47 346.12,-737.21 337.11,-731.64 335.6,-738.47"/>
 </g>
 <!-- proc~surf_wetness_fact -->
-<g id="proc~~define_canopy~~CallsGraph_node8" class="node">
+<g id="proc~~define_canopy~~CallsGraph_node6" class="node">
 <title>proc~surf_wetness_fact</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node8"><a xlink:href=".././proc/surf_wetness_fact.html" xlink:title="Surf_wetness_fact">
-<polygon fill="#d9534f" stroke="#d9534f" points="253.5,-353 145.5,-353 145.5,-329 253.5,-329 253.5,-353"/>
-<text text-anchor="middle" x="199.5" y="-338.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Surf_wetness_fact</text>
+<g id="a_proc~~define_canopy~~CallsGraph_node6"><a xlink:href=".././proc/surf_wetness_fact.html" xlink:title="Surf_wetness_fact">
+<polygon fill="#d9534f" stroke="#d9534f" points="253.5,-754 145.5,-754 145.5,-730 253.5,-730 253.5,-754"/>
+<text text-anchor="middle" x="199.5" y="-739.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Surf_wetness_fact</text>
 </a>
 </g>
 </g>
 <!-- proc~define_canopy&#45;&gt;proc~surf_wetness_fact -->
-<g id="proc~~define_canopy~~CallsGraph_edge4" class="edge">
+<g id="proc~~define_canopy~~CallsGraph_edge3" class="edge">
 <title>proc~define_canopy&#45;&gt;proc~surf_wetness_fact</title>
-<path fill="none" stroke="#ff0000" d="M90.06,-311.04C107.23,-315.78 127.12,-321.28 145.15,-326.26"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="144.37,-329.67 154.94,-328.96 146.23,-322.93 144.37,-329.67"/>
+<path fill="none" stroke="#ff0000" d="M53.63,-632.08C66.09,-652.2 93.68,-692.67 127,-716 132.45,-719.82 138.53,-723.14 144.77,-726.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="143.41,-729.24 153.98,-729.91 146.14,-722.79 143.41,-729.24"/>
 </g>
-<!-- proc~latent_heat_flux -->
-<g id="proc~~define_canopy~~CallsGraph_node9" class="node">
-<title>proc~latent_heat_flux</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node9"><a xlink:href=".././proc/latent_heat_flux.html" xlink:title="Latent_heat_flux">
-<polygon fill="#d9534f" stroke="#d9534f" points="249.5,-311 149.5,-311 149.5,-287 249.5,-287 249.5,-311"/>
-<text text-anchor="middle" x="199.5" y="-296.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Latent_heat_flux</text>
+<!-- proc~comp_friction_vel -->
+<g id="proc~~define_canopy~~CallsGraph_node7" class="node">
+<title>proc~comp_friction_vel</title>
+<g id="a_proc~~define_canopy~~CallsGraph_node7"><a xlink:href=".././proc/comp_friction_vel.html" xlink:title="comp_friction_vel">
+<polygon fill="#d9534f" stroke="#d9534f" points="252.5,-506 146.5,-506 146.5,-482 252.5,-482 252.5,-506"/>
+<text text-anchor="middle" x="199.5" y="-491.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">comp_friction_vel</text>
 </a>
 </g>
 </g>
-<!-- proc~define_canopy&#45;&gt;proc~latent_heat_flux -->
-<g id="proc~~define_canopy~~CallsGraph_edge2" class="edge">
-<title>proc~define_canopy&#45;&gt;proc~latent_heat_flux</title>
-<path fill="none" stroke="#ff0000" d="M91.28,-299C106.22,-299 123.11,-299 139,-299"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="139.25,-302.5 149.25,-299 139.25,-295.5 139.25,-302.5"/>
+<!-- proc~define_canopy&#45;&gt;proc~comp_friction_vel -->
+<g id="proc~~define_canopy~~CallsGraph_edge4" class="edge">
+<title>proc~define_canopy&#45;&gt;proc~comp_friction_vel</title>
+<path fill="none" stroke="#ff0000" d="M52.44,-607.93C63.82,-586.05 90.82,-539.82 127,-515 130.12,-512.86 133.45,-510.94 136.92,-509.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="138.59,-512.3 146.34,-505.07 135.77,-505.89 138.59,-512.3"/>
 </g>
 <!-- proc~radiation -->
-<g id="proc~~define_canopy~~CallsGraph_node10" class="node">
+<g id="proc~~define_canopy~~CallsGraph_node8" class="node">
 <title>proc~radiation</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node10"><a xlink:href=".././proc/radiation.html" xlink:title="radiation">
-<polygon fill="#d9534f" stroke="#d9534f" points="230,-269 169,-269 169,-245 230,-245 230,-269"/>
-<text text-anchor="middle" x="199.5" y="-254.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radiation</text>
+<g id="a_proc~~define_canopy~~CallsGraph_node8"><a xlink:href=".././proc/radiation.html" xlink:title="radiation">
+<polygon fill="#d9534f" stroke="#d9534f" points="230,-674 169,-674 169,-650 230,-650 230,-674"/>
+<text text-anchor="middle" x="199.5" y="-659.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radiation</text>
 </a>
 </g>
 </g>
 <!-- proc~define_canopy&#45;&gt;proc~radiation -->
 <g id="proc~~define_canopy~~CallsGraph_edge6" class="edge">
 <title>proc~define_canopy&#45;&gt;proc~radiation</title>
-<path fill="none" stroke="#ff0000" d="M90.06,-286.96C111.87,-280.94 138.07,-273.7 159.25,-267.85"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="160.19,-271.22 168.9,-265.18 158.33,-264.47 160.19,-271.22"/>
+<path fill="none" stroke="#ff0000" d="M90.06,-632.04C111.87,-638.06 138.07,-645.3 159.25,-651.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="158.33,-654.53 168.9,-653.82 160.19,-647.78 158.33,-654.53"/>
 </g>
-<!-- proc~qsatfjh -->
-<g id="proc~~define_canopy~~CallsGraph_node11" class="node">
-<title>proc~qsatfjh</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node11"><a xlink:href=".././proc/qsatfjh.html" xlink:title="qsatfjh">
-<polygon fill="#d9534f" stroke="#d9534f" points="400.5,-209 346.5,-209 346.5,-185 400.5,-185 400.5,-209"/>
-<text text-anchor="middle" x="373.5" y="-194.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">qsatfjh</text>
+<!-- proc~define_air -->
+<g id="proc~~define_canopy~~CallsGraph_node9" class="node">
+<title>proc~define_air</title>
+<g id="a_proc~~define_canopy~~CallsGraph_node9"><a xlink:href=".././proc/define_air.html" xlink:title="define_air">
+<polygon fill="#d9534f" stroke="#d9534f" points="232.5,-632 166.5,-632 166.5,-608 232.5,-608 232.5,-632"/>
+<text text-anchor="middle" x="199.5" y="-617.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">define_air</text>
 </a>
 </g>
 </g>
-<!-- proc~define_canopy&#45;&gt;proc~qsatfjh -->
+<!-- proc~define_canopy&#45;&gt;proc~define_air -->
 <g id="proc~~define_canopy~~CallsGraph_edge7" class="edge">
-<title>proc~define_canopy&#45;&gt;proc~qsatfjh</title>
-<path fill="none" stroke="#ff0000" d="M58.03,-286.78C72.61,-272.16 99.18,-248.12 127,-236 196.67,-205.65 286.64,-198.6 336.03,-197.16"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="336.3,-200.65 346.22,-196.92 336.14,-193.65 336.3,-200.65"/>
-</g>
-<!-- proc~comp_friction_vel -->
-<g id="proc~~define_canopy~~CallsGraph_node12" class="node">
-<title>proc~comp_friction_vel</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node12"><a xlink:href=".././proc/comp_friction_vel.html" xlink:title="comp_friction_vel">
-<polygon fill="#d9534f" stroke="#d9534f" points="252.5,-147 146.5,-147 146.5,-123 252.5,-123 252.5,-147"/>
-<text text-anchor="middle" x="199.5" y="-132.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">comp_friction_vel</text>
-</a>
-</g>
-</g>
-<!-- proc~define_canopy&#45;&gt;proc~comp_friction_vel -->
-<g id="proc~~define_canopy~~CallsGraph_edge8" class="edge">
-<title>proc~define_canopy&#45;&gt;proc~comp_friction_vel</title>
-<path fill="none" stroke="#ff0000" d="M49.84,-286.97C58.12,-259.47 82.18,-191.64 127,-156 130.1,-153.53 133.48,-151.36 137.04,-149.44"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="138.58,-152.58 146.15,-145.17 135.61,-146.24 138.58,-152.58"/>
+<title>proc~define_canopy&#45;&gt;proc~define_air</title>
+<path fill="none" stroke="#ff0000" d="M91.28,-620C111.72,-620 135.79,-620 155.95,-620"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="156.09,-623.5 166.09,-620 156.09,-616.5 156.09,-623.5"/>
 </g>
 <!-- proc~ruff_resist -->
-<g id="proc~~define_canopy~~CallsGraph_node13" class="node">
+<g id="proc~~define_canopy~~CallsGraph_node10" class="node">
 <title>proc~ruff_resist</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node13"><a xlink:href=".././proc/ruff_resist.html" xlink:title="ruff_resist">
-<polygon fill="#d9534f" stroke="#d9534f" points="231.5,-67 167.5,-67 167.5,-43 231.5,-43 231.5,-67"/>
-<text text-anchor="middle" x="199.5" y="-52.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ruff_resist</text>
+<g id="a_proc~~define_canopy~~CallsGraph_node10"><a xlink:href=".././proc/ruff_resist.html" xlink:title="ruff_resist">
+<polygon fill="#d9534f" stroke="#d9534f" points="231.5,-548 167.5,-548 167.5,-524 231.5,-524 231.5,-548"/>
+<text text-anchor="middle" x="199.5" y="-533.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ruff_resist</text>
 </a>
 </g>
 </g>
 <!-- proc~define_canopy&#45;&gt;proc~ruff_resist -->
-<g id="proc~~define_canopy~~CallsGraph_edge9" class="edge">
+<g id="proc~~define_canopy~~CallsGraph_edge8" class="edge">
 <title>proc~define_canopy&#45;&gt;proc~ruff_resist</title>
-<path fill="none" stroke="#ff0000" d="M47.47,-286.98C51.03,-250.72 66.51,-141.19 127,-81 135.4,-72.64 146.69,-66.95 157.82,-63.08"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="158.94,-66.4 167.48,-60.13 156.9,-59.7 158.94,-66.4"/>
+<path fill="none" stroke="#ff0000" d="M58.83,-607.87C73.79,-593.78 100.33,-570.71 127,-557 136.5,-552.11 147.32,-548.19 157.61,-545.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="158.56,-548.5 167.25,-542.44 156.68,-541.75 158.56,-548.5"/>
 </g>
 <!-- proc~psis -->
-<g id="proc~~define_canopy~~CallsGraph_node14" class="node">
+<g id="proc~~define_canopy~~CallsGraph_node11" class="node">
 <title>proc~psis</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node14"><a xlink:href=".././proc/psis.html" xlink:title="psis">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="226.5,-24 172.5,-24 172.5,0 226.5,0 226.5,-24"/>
-<text text-anchor="middle" x="199.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">psis</text>
+<g id="a_proc~~define_canopy~~CallsGraph_node11"><a xlink:href=".././proc/psis.html" xlink:title="psis">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="226.5,-590 172.5,-590 172.5,-566 226.5,-566 226.5,-590"/>
+<text text-anchor="middle" x="199.5" y="-575.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">psis</text>
 </a>
 </g>
 </g>
 <!-- proc~define_canopy&#45;&gt;proc~psis -->
-<g id="proc~~define_canopy~~CallsGraph_edge10" class="edge">
+<g id="proc~~define_canopy~~CallsGraph_edge9" class="edge">
 <title>proc~define_canopy&#45;&gt;proc~psis</title>
-<path fill="none" stroke="#ff0000" d="M46.42,-286.71C46.81,-245.01 53.86,-107.4 127,-34 136.4,-24.56 149.75,-19.16 162.37,-16.07"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="163.15,-19.48 172.25,-14.05 161.75,-12.62 163.15,-19.48"/>
-</g>
-<!-- proc~penman_monteith -->
-<g id="proc~~define_canopy~~CallsGraph_node15" class="node">
-<title>proc~penman_monteith</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node15"><a xlink:href=".././proc/penman_monteith.html" xlink:title="Penman_Monteith">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="253.5,-189 145.5,-189 145.5,-165 253.5,-165 253.5,-189"/>
-<text text-anchor="middle" x="199.5" y="-174.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Penman_Monteith</text>
-</a>
-</g>
-</g>
-<!-- proc~define_canopy&#45;&gt;proc~penman_monteith -->
-<g id="proc~~define_canopy~~CallsGraph_edge14" class="edge">
-<title>proc~define_canopy&#45;&gt;proc~penman_monteith</title>
-<path fill="none" stroke="#ff0000" d="M53.63,-286.92C66.09,-266.8 93.68,-226.33 127,-203 132.45,-199.18 138.53,-195.86 144.77,-192.99"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="146.14,-196.21 153.98,-189.09 143.41,-189.76 146.14,-196.21"/>
+<path fill="none" stroke="#ff0000" d="M90.06,-607.96C112.93,-601.64 140.63,-593.99 162.3,-588"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="163.4,-591.33 172.11,-585.29 161.54,-584.58 163.4,-591.33"/>
 </g>
 <!-- proc~psim -->
-<g id="proc~~define_canopy~~CallsGraph_node16" class="node">
+<g id="proc~~define_canopy~~CallsGraph_node12" class="node">
 <title>proc~psim</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node16"><a xlink:href=".././proc/psim.html" xlink:title="psim">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="400.5,-147 346.5,-147 346.5,-123 400.5,-123 400.5,-147"/>
-<text text-anchor="middle" x="373.5" y="-132.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">psim</text>
+<g id="a_proc~~define_canopy~~CallsGraph_node12"><a xlink:href=".././proc/psim.html" xlink:title="psim">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="400.5,-486 346.5,-486 346.5,-462 400.5,-462 400.5,-486"/>
+<text text-anchor="middle" x="373.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">psim</text>
 </a>
 </g>
 </g>
 <!-- proc~define_canopy&#45;&gt;proc~psim -->
-<g id="proc~~define_canopy~~CallsGraph_edge11" class="edge">
+<g id="proc~~define_canopy~~CallsGraph_edge10" class="edge">
 <title>proc~define_canopy&#45;&gt;proc~psim</title>
-<path fill="none" stroke="#ff0000" d="M47.45,-286.64C50.86,-252.04 65.77,-154.13 127,-114 180.9,-78.67 207.9,-107.37 272,-114 293.64,-116.24 317.49,-121.11 336.53,-125.61"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="335.74,-129.02 346.28,-127.97 337.39,-122.21 335.74,-129.02"/>
+<path fill="none" stroke="#ff0000" d="M48.89,-607.58C55.34,-577.9 76.18,-503.11 127,-473 192.35,-434.28 285.7,-449.96 336.38,-463.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="335.66,-466.49 346.23,-465.71 337.48,-459.73 335.66,-466.49"/>
 </g>
-<!-- proc~fwsoil_calc_std -->
-<g id="proc~~define_canopy~~CallsGraph_node20" class="node">
-<title>proc~fwsoil_calc_std</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node20"><a xlink:href=".././proc/fwsoil_calc_std.html" xlink:title="fwsoil_calc_std">
-<polygon fill="#d9534f" stroke="#d9534f" points="419,-846 328,-846 328,-822 419,-822 419,-846"/>
-<text text-anchor="middle" x="373.5" y="-831.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">fwsoil_calc_std</text>
+<!-- proc~penman_monteith -->
+<g id="proc~~define_canopy~~CallsGraph_node13" class="node">
+<title>proc~penman_monteith</title>
+<g id="a_proc~~define_canopy~~CallsGraph_node13"><a xlink:href=".././proc/penman_monteith.html" xlink:title="Penman_Monteith">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="253.5,-796 145.5,-796 145.5,-772 253.5,-772 253.5,-796"/>
+<text text-anchor="middle" x="199.5" y="-781.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Penman_Monteith</text>
 </a>
 </g>
 </g>
-<!-- proc~dryleaf&#45;&gt;proc~fwsoil_calc_std -->
-<g id="proc~~define_canopy~~CallsGraph_edge16" class="edge">
-<title>proc~dryleaf&#45;&gt;proc~fwsoil_calc_std</title>
-<path fill="none" stroke="#ff0000" d="M203.67,-626.34C213.21,-661.06 244.97,-760.44 308,-813 311.26,-815.72 314.87,-818.08 318.68,-820.15"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="317.3,-823.36 327.85,-824.43 320.27,-817.02 317.3,-823.36"/>
+<!-- proc~define_canopy&#45;&gt;proc~penman_monteith -->
+<g id="proc~~define_canopy~~CallsGraph_edge13" class="edge">
+<title>proc~define_canopy&#45;&gt;proc~penman_monteith</title>
+<path fill="none" stroke="#ff0000" d="M49.84,-632.03C58.12,-659.53 82.18,-727.36 127,-763 129.9,-765.31 133.06,-767.37 136.36,-769.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="134.88,-772.37 145.42,-773.53 137.91,-766.06 134.88,-772.37"/>
 </g>
-<!-- proc~fwsoil_calc_non_linear -->
-<g id="proc~~define_canopy~~CallsGraph_node21" class="node">
-<title>proc~fwsoil_calc_non_linear</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node21"><a xlink:href=".././proc/fwsoil_calc_non_linear.html" xlink:title="fwsoil_calc_non_linear">
-<polygon fill="#d9534f" stroke="#d9534f" points="439,-804 308,-804 308,-780 439,-780 439,-804"/>
-<text text-anchor="middle" x="373.5" y="-789.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">fwsoil_calc_non_linear</text>
+<!-- proc~wetleaf -->
+<g id="proc~~define_canopy~~CallsGraph_node14" class="node">
+<title>proc~wetleaf</title>
+<g id="a_proc~~define_canopy~~CallsGraph_node14"><a xlink:href=".././proc/wetleaf.html" xlink:title="wetLeaf">
+<polygon fill="#d9534f" stroke="#d9534f" points="227,-426 172,-426 172,-402 227,-402 227,-426"/>
+<text text-anchor="middle" x="199.5" y="-411.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">wetLeaf</text>
 </a>
 </g>
 </g>
-<!-- proc~dryleaf&#45;&gt;proc~fwsoil_calc_non_linear -->
-<g id="proc~~define_canopy~~CallsGraph_edge17" class="edge">
-<title>proc~dryleaf&#45;&gt;proc~fwsoil_calc_non_linear</title>
-<path fill="none" stroke="#ff0000" d="M205.51,-626.23C218.18,-655.64 254.32,-730.81 308,-771 310.06,-772.54 312.24,-773.98 314.51,-775.31"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="313.08,-778.51 323.58,-779.94 316.27,-772.28 313.08,-778.51"/>
+<!-- proc~define_canopy&#45;&gt;proc~wetleaf -->
+<g id="proc~~define_canopy~~CallsGraph_edge12" class="edge">
+<title>proc~define_canopy&#45;&gt;proc~wetleaf</title>
+<path fill="none" stroke="#ff0000" d="M48.61,-607.58C54.71,-575.32 75.38,-488.04 127,-440 136.69,-430.98 149.75,-425.04 162.06,-421.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="163,-424.52 171.69,-418.45 161.11,-417.78 163,-424.52"/>
 </g>
-<!-- proc~fwsoil_calc_lai_ktaul -->
-<g id="proc~~define_canopy~~CallsGraph_node22" class="node">
-<title>proc~fwsoil_calc_lai_ktaul</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node22"><a xlink:href=".././proc/fwsoil_calc_lai_ktaul.html" xlink:title="fwsoil_calc_Lai_Ktaul">
-<polygon fill="#d9534f" stroke="#d9534f" points="435,-762 312,-762 312,-738 435,-738 435,-762"/>
-<text text-anchor="middle" x="373.5" y="-747.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">fwsoil_calc_Lai_Ktaul</text>
+<!-- proc~latent_heat_flux -->
+<g id="proc~~define_canopy~~CallsGraph_node15" class="node">
+<title>proc~latent_heat_flux</title>
+<g id="a_proc~~define_canopy~~CallsGraph_node15"><a xlink:href=".././proc/latent_heat_flux.html" xlink:title="Latent_heat_flux">
+<polygon fill="#d9534f" stroke="#d9534f" points="249.5,-384 149.5,-384 149.5,-360 249.5,-360 249.5,-384"/>
+<text text-anchor="middle" x="199.5" y="-369.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Latent_heat_flux</text>
 </a>
 </g>
 </g>
-<!-- proc~dryleaf&#45;&gt;proc~fwsoil_calc_lai_ktaul -->
-<g id="proc~~define_canopy~~CallsGraph_edge19" class="edge">
-<title>proc~dryleaf&#45;&gt;proc~fwsoil_calc_lai_ktaul</title>
-<path fill="none" stroke="#ff0000" d="M208.74,-626.32C225,-649.69 263.51,-700.67 308,-729 310.73,-730.74 313.62,-732.35 316.6,-733.83"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="315.2,-737.04 325.76,-737.92 318.06,-730.65 315.2,-737.04"/>
+<!-- proc~define_canopy&#45;&gt;proc~latent_heat_flux -->
+<g id="proc~~define_canopy~~CallsGraph_edge14" class="edge">
+<title>proc~define_canopy&#45;&gt;proc~latent_heat_flux</title>
+<path fill="none" stroke="#ff0000" d="M47.09,-607.85C49.6,-570.17 62.46,-454.08 127,-393 130.84,-389.37 135.27,-386.36 140.01,-383.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="141.7,-386.95 149.42,-379.7 138.86,-380.55 141.7,-386.95"/>
 </g>
-<!-- proc~xvcmxt3 -->
-<g id="proc~~define_canopy~~CallsGraph_node23" class="node">
-<title>proc~xvcmxt3</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node23"><a xlink:href=".././proc/xvcmxt3.html" xlink:title="xvcmxt3">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="402.5,-720 344.5,-720 344.5,-696 402.5,-696 402.5,-720"/>
-<text text-anchor="middle" x="373.5" y="-705.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">xvcmxt3</text>
+<!-- proc~dryleaf -->
+<g id="proc~~define_canopy~~CallsGraph_node16" class="node">
+<title>proc~dryleaf</title>
+<g id="a_proc~~define_canopy~~CallsGraph_node16"><a xlink:href=".././proc/dryleaf.html" xlink:title="dryLeaf">
+<polygon fill="#d9534f" stroke="#d9534f" points="226.5,-255 172.5,-255 172.5,-231 226.5,-231 226.5,-255"/>
+<text text-anchor="middle" x="199.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">dryLeaf</text>
 </a>
 </g>
 </g>
-<!-- proc~dryleaf&#45;&gt;proc~xvcmxt3 -->
-<g id="proc~~define_canopy~~CallsGraph_edge20" class="edge">
-<title>proc~dryleaf&#45;&gt;proc~xvcmxt3</title>
-<path fill="none" stroke="#ff0000" d="M215.33,-626.08C235.33,-641.89 272.55,-669.63 308,-687 316.3,-691.07 325.57,-694.61 334.44,-697.58"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="333.61,-700.99 344.2,-700.67 335.73,-694.31 333.61,-700.99"/>
-</g>
-<!-- proc~xvcmxt4 -->
-<g id="proc~~define_canopy~~CallsGraph_node24" class="node">
-<title>proc~xvcmxt4</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node24"><a xlink:href=".././proc/xvcmxt4.html" xlink:title="xvcmxt4">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="402.5,-678 344.5,-678 344.5,-654 402.5,-654 402.5,-678"/>
-<text text-anchor="middle" x="373.5" y="-663.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">xvcmxt4</text>
-</a>
-</g>
-</g>
-<!-- proc~dryleaf&#45;&gt;proc~xvcmxt4 -->
-<g id="proc~~define_canopy~~CallsGraph_edge18" class="edge">
-<title>proc~dryleaf&#45;&gt;proc~xvcmxt4</title>
-<path fill="none" stroke="#ff0000" d="M226.62,-621.9C255.41,-630.6 301.96,-644.68 334.72,-654.58"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="333.83,-657.96 344.41,-657.51 335.85,-651.26 333.83,-657.96"/>
-</g>
-<!-- proc~xejmxt3 -->
-<g id="proc~~define_canopy~~CallsGraph_node25" class="node">
-<title>proc~xejmxt3</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node25"><a xlink:href=".././proc/xejmxt3.html" xlink:title="xejmxt3">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="401,-636 346,-636 346,-612 401,-612 401,-636"/>
-<text text-anchor="middle" x="373.5" y="-621.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">xejmxt3</text>
-</a>
-</g>
-</g>
-<!-- proc~dryleaf&#45;&gt;proc~xejmxt3 -->
-<g id="proc~~define_canopy~~CallsGraph_edge21" class="edge">
-<title>proc~dryleaf&#45;&gt;proc~xejmxt3</title>
-<path fill="none" stroke="#ff0000" d="M226.62,-615.52C255.71,-617.21 302.94,-619.96 335.74,-621.86"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="335.66,-625.36 345.85,-622.45 336.07,-618.38 335.66,-625.36"/>
-</g>
-<!-- proc~ej3x -->
-<g id="proc~~define_canopy~~CallsGraph_node26" class="node">
-<title>proc~ej3x</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node26"><a xlink:href=".././proc/ej3x.html" xlink:title="ej3x">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="400.5,-594 346.5,-594 346.5,-570 400.5,-570 400.5,-594"/>
-<text text-anchor="middle" x="373.5" y="-579.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ej3x</text>
-</a>
-</g>
-</g>
-<!-- proc~dryleaf&#45;&gt;proc~ej3x -->
-<g id="proc~~define_canopy~~CallsGraph_edge22" class="edge">
-<title>proc~dryleaf&#45;&gt;proc~ej3x</title>
-<path fill="none" stroke="#ff0000" d="M226.62,-609.14C255.88,-603.7 303.49,-594.84 336.32,-588.73"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="337.22,-592.12 346.41,-586.85 335.94,-585.24 337.22,-592.12"/>
-</g>
-<!-- proc~ej4x -->
-<g id="proc~~define_canopy~~CallsGraph_node27" class="node">
-<title>proc~ej4x</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node27"><a xlink:href=".././proc/ej4x.html" xlink:title="ej4x">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="400.5,-552 346.5,-552 346.5,-528 400.5,-528 400.5,-552"/>
-<text text-anchor="middle" x="373.5" y="-537.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ej4x</text>
-</a>
-</g>
-</g>
-<!-- proc~dryleaf&#45;&gt;proc~ej4x -->
-<g id="proc~~define_canopy~~CallsGraph_edge23" class="edge">
-<title>proc~dryleaf&#45;&gt;proc~ej4x</title>
-<path fill="none" stroke="#ff0000" d="M222.72,-601.88C244.16,-590.46 277.74,-573.31 308,-561 317.23,-557.24 327.4,-553.68 336.89,-550.59"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="337.99,-553.91 346.46,-547.55 335.87,-547.24 337.99,-553.91"/>
-</g>
-<!-- proc~xrdt -->
-<g id="proc~~define_canopy~~CallsGraph_node28" class="node">
-<title>proc~xrdt</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node28"><a xlink:href=".././proc/xrdt.html" xlink:title="xrdt">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="400.5,-510 346.5,-510 346.5,-486 400.5,-486 400.5,-510"/>
-<text text-anchor="middle" x="373.5" y="-495.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">xrdt</text>
-</a>
-</g>
-</g>
-<!-- proc~dryleaf&#45;&gt;proc~xrdt -->
-<g id="proc~~define_canopy~~CallsGraph_edge24" class="edge">
-<title>proc~dryleaf&#45;&gt;proc~xrdt</title>
-<path fill="none" stroke="#ff0000" d="M226.5,-602.27C240.95,-594.93 258.65,-584.5 272,-572 292.78,-552.54 285.24,-536.11 308,-519 316.4,-512.69 326.79,-508.22 336.75,-505.09"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="337.79,-508.43 346.48,-502.37 335.91,-501.69 337.79,-508.43"/>
-</g>
-<!-- proc~photosynthesis -->
-<g id="proc~~define_canopy~~CallsGraph_node29" class="node">
-<title>proc~photosynthesis</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node29"><a xlink:href=".././proc/photosynthesis.html" xlink:title="photosynthesis">
-<polygon fill="#d9534f" stroke="#d9534f" points="419.5,-468 327.5,-468 327.5,-444 419.5,-444 419.5,-468"/>
-<text text-anchor="middle" x="373.5" y="-453.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">photosynthesis</text>
-</a>
-</g>
-</g>
-<!-- proc~dryleaf&#45;&gt;proc~photosynthesis -->
-<g id="proc~~define_canopy~~CallsGraph_edge25" class="edge">
-<title>proc~dryleaf&#45;&gt;proc~photosynthesis</title>
-<path fill="none" stroke="#ff0000" d="M226.64,-603.89C241.68,-596.91 259.93,-586.3 272,-572 301.12,-537.49 275.32,-508.16 308,-477 311.07,-474.07 314.55,-471.56 318.27,-469.39"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="319.86,-472.5 327.28,-464.94 316.77,-466.23 319.86,-472.5"/>
-</g>
-<!-- proc~getrex_1d -->
-<g id="proc~~define_canopy~~CallsGraph_node31" class="node">
-<title>proc~getrex_1d</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node31"><a xlink:href=".././proc/getrex_1d.html" xlink:title="getrex_1d">
-<polygon fill="#d9534f" stroke="#d9534f" points="405.5,-426 341.5,-426 341.5,-402 405.5,-402 405.5,-426"/>
-<text text-anchor="middle" x="373.5" y="-411.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getrex_1d</text>
-</a>
-</g>
-</g>
-<!-- proc~dryleaf&#45;&gt;proc~getrex_1d -->
-<g id="proc~~define_canopy~~CallsGraph_edge26" class="edge">
-<title>proc~dryleaf&#45;&gt;proc~getrex_1d</title>
-<path fill="none" stroke="#ff0000" d="M226.85,-604.49C242.16,-597.68 260.61,-587.03 272,-572 310.02,-521.82 264.79,-480.78 308,-435 314.28,-428.34 322.7,-423.79 331.37,-420.68"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="332.6,-423.97 341.17,-417.75 330.59,-417.26 332.6,-423.97"/>
+<!-- proc~define_canopy&#45;&gt;proc~dryleaf -->
+<g id="proc~~define_canopy~~CallsGraph_edge11" class="edge">
+<title>proc~define_canopy&#45;&gt;proc~dryleaf</title>
+<path fill="none" stroke="#ff0000" d="M48.82,-607.74C56.48,-568.81 82.98,-445.04 127,-351 142.26,-318.39 166.41,-284.32 182.35,-263.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="185.29,-265.3 188.63,-255.25 179.75,-261.02 185.29,-265.3"/>
 </g>
 <!-- proc~qsatfjh2 -->
-<g id="proc~~define_canopy~~CallsGraph_node17" class="node">
+<g id="proc~~define_canopy~~CallsGraph_node21" class="node">
 <title>proc~qsatfjh2</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node17"><a xlink:href=".././proc/qsatfjh2.html" xlink:title="qsatfjh2">
-<polygon fill="#d9534f" stroke="#d9534f" points="401,-384 346,-384 346,-360 401,-360 401,-384"/>
-<text text-anchor="middle" x="373.5" y="-369.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">qsatfjh2</text>
+<g id="a_proc~~define_canopy~~CallsGraph_node21"><a xlink:href=".././proc/qsatfjh2.html" xlink:title="qsatfjh2">
+<polygon fill="#d9534f" stroke="#d9534f" points="401,-880 346,-880 346,-856 401,-856 401,-880"/>
+<text text-anchor="middle" x="373.5" y="-865.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">qsatfjh2</text>
 </a>
 </g>
 </g>
 <!-- proc~within_canopy&#45;&gt;proc~qsatfjh2 -->
-<g id="proc~~define_canopy~~CallsGraph_edge27" class="edge">
+<g id="proc~~define_canopy~~CallsGraph_edge16" class="edge">
 <title>proc~within_canopy&#45;&gt;proc~qsatfjh2</title>
-<path fill="none" stroke="#00ff00" d="M243.9,-380.22C272.19,-378.42 308.71,-376.08 335.6,-374.36"/>
-<polygon fill="#00ff00" stroke="#00ff00" points="336,-377.84 345.75,-373.71 335.55,-370.86 336,-377.84"/>
+<path fill="none" stroke="#ff6600" d="M243.9,-868C272.19,-868 308.71,-868 335.6,-868"/>
+<polygon fill="#ff6600" stroke="#ff6600" points="335.75,-871.5 345.75,-868 335.75,-864.5 335.75,-871.5"/>
 </g>
 <!-- proc~comp_friction_vel&#45;&gt;proc~psim -->
-<g id="proc~~define_canopy~~CallsGraph_edge28" class="edge">
+<g id="proc~~define_canopy~~CallsGraph_edge17" class="edge">
 <title>proc~comp_friction_vel&#45;&gt;proc~psim</title>
-<path fill="none" stroke="#0000ff" d="M252.57,-135C279.62,-135 311.99,-135 336.29,-135"/>
-<polygon fill="#0000ff" stroke="#0000ff" points="336.5,-138.5 346.5,-135 336.5,-131.5 336.5,-138.5"/>
-</g>
-<!-- proc~hgtabovesnow -->
-<g id="proc~~define_canopy~~CallsGraph_node18" class="node">
-<title>proc~hgtabovesnow</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node18"><a xlink:href=".././proc/hgtabovesnow.html" xlink:title="HgtAboveSnow">
-<polygon fill="#d9534f" stroke="#d9534f" points="420.5,-105 326.5,-105 326.5,-81 420.5,-81 420.5,-105"/>
-<text text-anchor="middle" x="373.5" y="-90.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HgtAboveSnow</text>
-</a>
-</g>
-</g>
-<!-- proc~ruff_resist&#45;&gt;proc~hgtabovesnow -->
-<g id="proc~~define_canopy~~CallsGraph_edge29" class="edge">
-<title>proc~ruff_resist&#45;&gt;proc~hgtabovesnow</title>
-<path fill="none" stroke="#6500ff" d="M231.65,-61.88C255.19,-67.08 288.13,-74.36 316.24,-80.57"/>
-<polygon fill="#6500ff" stroke="#6500ff" points="315.84,-84.07 326.36,-82.81 317.35,-77.23 315.84,-84.07"/>
+<path fill="none" stroke="#00ff00" d="M252.57,-487.95C279.62,-484.8 311.99,-481.04 336.29,-478.21"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="336.97,-481.66 346.5,-477.02 336.16,-474.7 336.97,-481.66"/>
 </g>
 <!-- proc~lai_eff -->
-<g id="proc~~define_canopy~~CallsGraph_node19" class="node">
+<g id="proc~~define_canopy~~CallsGraph_node22" class="node">
 <title>proc~lai_eff</title>
-<g id="a_proc~~define_canopy~~CallsGraph_node19"><a xlink:href=".././proc/lai_eff.html" xlink:title="LAI_eff">
-<polygon fill="#d9534f" stroke="#d9534f" points="400.5,-63 346.5,-63 346.5,-39 400.5,-39 400.5,-63"/>
-<text text-anchor="middle" x="373.5" y="-48.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LAI_eff</text>
+<g id="a_proc~~define_canopy~~CallsGraph_node22"><a xlink:href=".././proc/lai_eff.html" xlink:title="LAI_eff">
+<polygon fill="#d9534f" stroke="#d9534f" points="400.5,-528 346.5,-528 346.5,-504 400.5,-504 400.5,-528"/>
+<text text-anchor="middle" x="373.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LAI_eff</text>
 </a>
 </g>
 </g>
 <!-- proc~ruff_resist&#45;&gt;proc~lai_eff -->
-<g id="proc~~define_canopy~~CallsGraph_edge30" class="edge">
+<g id="proc~~define_canopy~~CallsGraph_edge19" class="edge">
 <title>proc~ruff_resist&#45;&gt;proc~lai_eff</title>
-<path fill="none" stroke="#6500ff" d="M231.65,-54.28C261,-53.59 305,-52.57 335.99,-51.85"/>
-<polygon fill="#6500ff" stroke="#6500ff" points="336.45,-55.34 346.36,-51.61 336.29,-48.34 336.45,-55.34"/>
+<path fill="none" stroke="#00cbff" d="M231.65,-532.38C261.13,-528.95 305.38,-523.8 336.39,-520.2"/>
+<polygon fill="#00cbff" stroke="#00cbff" points="336.84,-523.67 346.36,-519.04 336.03,-516.72 336.84,-523.67"/>
+</g>
+<!-- proc~hgtabovesnow -->
+<g id="proc~~define_canopy~~CallsGraph_node25" class="node">
+<title>proc~hgtabovesnow</title>
+<g id="a_proc~~define_canopy~~CallsGraph_node25"><a xlink:href=".././proc/hgtabovesnow.html" xlink:title="HgtAboveSnow">
+<polygon fill="#d9534f" stroke="#d9534f" points="420.5,-570 326.5,-570 326.5,-546 420.5,-546 420.5,-570"/>
+<text text-anchor="middle" x="373.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HgtAboveSnow</text>
+</a>
+</g>
+</g>
+<!-- proc~ruff_resist&#45;&gt;proc~hgtabovesnow -->
+<g id="proc~~define_canopy~~CallsGraph_edge18" class="edge">
+<title>proc~ruff_resist&#45;&gt;proc~hgtabovesnow</title>
+<path fill="none" stroke="#00cbff" d="M231.65,-539.98C255.19,-542.99 288.13,-547.21 316.24,-550.8"/>
+<polygon fill="#00cbff" stroke="#00cbff" points="315.99,-554.3 326.36,-552.1 316.88,-547.36 315.99,-554.3"/>
 </g>
 <!-- alog -->
-<g id="proc~~define_canopy~~CallsGraph_node30" class="node">
+<g id="proc~~define_canopy~~CallsGraph_node23" class="node">
 <title>alog</title>
-<polygon fill="#777777" stroke="#777777" points="529,-85 475,-85 475,-61 529,-61 529,-85"/>
-<text text-anchor="middle" x="502" y="-70.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">alog</text>
+<polygon fill="#777777" stroke="#777777" points="529,-548 475,-548 475,-524 529,-524 529,-548"/>
+<text text-anchor="middle" x="502" y="-533.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">alog</text>
 </g>
 <!-- proc~psis&#45;&gt;alog -->
-<g id="proc~~define_canopy~~CallsGraph_edge31" class="edge">
+<g id="proc~~define_canopy~~CallsGraph_edge20" class="edge">
 <title>proc~psis&#45;&gt;alog</title>
-<path fill="none" stroke="#cc00ff" d="M226.83,-9.59C271.79,-6.42 365.62,-3.97 439,-30 453.95,-35.3 468.64,-45.22 479.96,-54.19"/>
-<polygon fill="#cc00ff" stroke="#cc00ff" points="477.97,-57.09 487.91,-60.77 482.44,-51.7 477.97,-57.09"/>
-</g>
-<!-- proc~penman_monteith&#45;&gt;proc~qsatfjh -->
-<g id="proc~~define_canopy~~CallsGraph_edge32" class="edge">
-<title>proc~penman_monteith&#45;&gt;proc~qsatfjh</title>
-<path fill="none" stroke="#ff00cb" d="M253.51,-183.16C280.34,-186.28 312.21,-189.99 336.21,-192.78"/>
-<polygon fill="#ff00cb" stroke="#ff00cb" points="335.98,-196.28 346.31,-193.95 336.78,-189.32 335.98,-196.28"/>
+<path fill="none" stroke="#0066ff" d="M226.67,-583.16C271.41,-590.87 364.9,-602.18 439,-579 454.34,-574.2 469.22,-564.12 480.56,-554.93"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="483.14,-557.32 488.48,-548.17 478.6,-551.99 483.14,-557.32"/>
 </g>
 <!-- proc~psim&#45;&gt;alog -->
-<g id="proc~~define_canopy~~CallsGraph_edge33" class="edge">
+<g id="proc~~define_canopy~~CallsGraph_edge21" class="edge">
 <title>proc~psim&#45;&gt;alog</title>
-<path fill="none" stroke="#ff0066" d="M400.55,-128.26C412.55,-124.72 426.8,-119.88 439,-114 452.21,-107.63 465.9,-98.84 477.05,-91.03"/>
-<polygon fill="#ff0066" stroke="#ff0066" points="479.31,-93.72 485.39,-85.04 475.23,-88.03 479.31,-93.72"/>
+<path fill="none" stroke="#0000ff" d="M400.55,-480.74C412.55,-484.28 426.8,-489.12 439,-495 452.21,-501.37 465.9,-510.16 477.05,-517.97"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="475.23,-520.97 485.39,-523.96 479.31,-515.28 475.23,-520.97"/>
+</g>
+<!-- proc~penman_monteith&#45;&gt;proc~qsatfjh -->
+<g id="proc~~define_canopy~~CallsGraph_edge22" class="edge">
+<title>proc~penman_monteith&#45;&gt;proc~qsatfjh</title>
+<path fill="none" stroke="#6500ff" d="M251.18,-771.92C278.4,-765.43 311.34,-757.58 336.03,-751.69"/>
+<polygon fill="#6500ff" stroke="#6500ff" points="337.14,-755.03 346.06,-749.3 335.52,-748.22 337.14,-755.03"/>
+</g>
+<!-- proc~ej4x -->
+<g id="proc~~define_canopy~~CallsGraph_node17" class="node">
+<title>proc~ej4x</title>
+<g id="a_proc~~define_canopy~~CallsGraph_node17"><a xlink:href=".././proc/ej4x.html" xlink:title="ej4x">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="400.5,-192 346.5,-192 346.5,-168 400.5,-168 400.5,-192"/>
+<text text-anchor="middle" x="373.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ej4x</text>
+</a>
+</g>
+</g>
+<!-- proc~dryleaf&#45;&gt;proc~ej4x -->
+<g id="proc~~define_canopy~~CallsGraph_edge31" class="edge">
+<title>proc~dryleaf&#45;&gt;proc~ej4x</title>
+<path fill="none" stroke="#ff0066" d="M226.85,-232.22C248.51,-223.47 280.08,-210.99 308,-201 317.2,-197.71 327.21,-194.34 336.55,-191.3"/>
+<polygon fill="#ff0066" stroke="#ff0066" points="337.89,-194.54 346.34,-188.14 335.74,-187.88 337.89,-194.54"/>
+</g>
+<!-- proc~xejmxt3 -->
+<g id="proc~~define_canopy~~CallsGraph_node18" class="node">
+<title>proc~xejmxt3</title>
+<g id="a_proc~~define_canopy~~CallsGraph_node18"><a xlink:href=".././proc/xejmxt3.html" xlink:title="xejmxt3">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="401,-150 346,-150 346,-126 401,-126 401,-150"/>
+<text text-anchor="middle" x="373.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">xejmxt3</text>
+</a>
+</g>
+</g>
+<!-- proc~dryleaf&#45;&gt;proc~xejmxt3 -->
+<g id="proc~~define_canopy~~CallsGraph_edge29" class="edge">
+<title>proc~dryleaf&#45;&gt;proc~xejmxt3</title>
+<path fill="none" stroke="#ff0066" d="M213.03,-230.78C232.09,-212.79 270.15,-179.14 308,-159 316.8,-154.32 326.82,-150.44 336.31,-147.34"/>
+<polygon fill="#ff0066" stroke="#ff0066" points="337.38,-150.67 345.92,-144.39 335.33,-143.98 337.38,-150.67"/>
+</g>
+<!-- proc~photosynthesis -->
+<g id="proc~~define_canopy~~CallsGraph_node19" class="node">
+<title>proc~photosynthesis</title>
+<g id="a_proc~~define_canopy~~CallsGraph_node19"><a xlink:href=".././proc/photosynthesis.html" xlink:title="photosynthesis">
+<polygon fill="#d9534f" stroke="#d9534f" points="419.5,-108 327.5,-108 327.5,-84 419.5,-84 419.5,-108"/>
+<text text-anchor="middle" x="373.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">photosynthesis</text>
+</a>
+</g>
+</g>
+<!-- proc~dryleaf&#45;&gt;proc~photosynthesis -->
+<g id="proc~~define_canopy~~CallsGraph_edge33" class="edge">
+<title>proc~dryleaf&#45;&gt;proc~photosynthesis</title>
+<path fill="none" stroke="#ff0066" d="M207.73,-230.64C223.03,-205.55 261.16,-148.34 308,-117 311.12,-114.91 314.46,-113.02 317.93,-111.3"/>
+<polygon fill="#ff0066" stroke="#ff0066" points="319.56,-114.41 327.3,-107.17 316.73,-108 319.56,-114.41"/>
+</g>
+<!-- proc~xrdt -->
+<g id="proc~~define_canopy~~CallsGraph_node20" class="node">
+<title>proc~xrdt</title>
+<g id="a_proc~~define_canopy~~CallsGraph_node20"><a xlink:href=".././proc/xrdt.html" xlink:title="xrdt">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="400.5,-66 346.5,-66 346.5,-42 400.5,-42 400.5,-66"/>
+<text text-anchor="middle" x="373.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">xrdt</text>
+</a>
+</g>
+</g>
+<!-- proc~dryleaf&#45;&gt;proc~xrdt -->
+<g id="proc~~define_canopy~~CallsGraph_edge32" class="edge">
+<title>proc~dryleaf&#45;&gt;proc~xrdt</title>
+<path fill="none" stroke="#ff0066" d="M204.91,-230.82C216.69,-200.03 251.84,-118.42 308,-75 316.32,-68.57 326.67,-64.07 336.64,-60.94"/>
+<polygon fill="#ff0066" stroke="#ff0066" points="337.68,-64.28 346.38,-58.24 335.81,-57.54 337.68,-64.28"/>
+</g>
+<!-- proc~getrex_1d -->
+<g id="proc~~define_canopy~~CallsGraph_node24" class="node">
+<title>proc~getrex_1d</title>
+<g id="a_proc~~define_canopy~~CallsGraph_node24"><a xlink:href=".././proc/getrex_1d.html" xlink:title="getrex_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="405.5,-24 341.5,-24 341.5,0 405.5,0 405.5,-24"/>
+<text text-anchor="middle" x="373.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getrex_1d</text>
+</a>
+</g>
+</g>
+<!-- proc~dryleaf&#45;&gt;proc~getrex_1d -->
+<g id="proc~~define_canopy~~CallsGraph_edge23" class="edge">
+<title>proc~dryleaf&#45;&gt;proc~getrex_1d</title>
+<path fill="none" stroke="#ff0066" d="M203.26,-230.76C212,-194.87 242.4,-88.95 308,-33 314.84,-27.17 323.32,-22.95 331.88,-19.9"/>
+<polygon fill="#ff0066" stroke="#ff0066" points="332.95,-23.23 341.47,-16.92 330.88,-16.54 332.95,-23.23"/>
+</g>
+<!-- proc~fwsoil_calc_std -->
+<g id="proc~~define_canopy~~CallsGraph_node26" class="node">
+<title>proc~fwsoil_calc_std</title>
+<g id="a_proc~~define_canopy~~CallsGraph_node26"><a xlink:href=".././proc/fwsoil_calc_std.html" xlink:title="fwsoil_calc_std">
+<polygon fill="#d9534f" stroke="#d9534f" points="419,-444 328,-444 328,-420 419,-420 419,-444"/>
+<text text-anchor="middle" x="373.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">fwsoil_calc_std</text>
+</a>
+</g>
+</g>
+<!-- proc~dryleaf&#45;&gt;proc~fwsoil_calc_std -->
+<g id="proc~~define_canopy~~CallsGraph_edge24" class="edge">
+<title>proc~dryleaf&#45;&gt;proc~fwsoil_calc_std</title>
+<path fill="none" stroke="#ff0066" d="M208.83,-255.19C222.35,-275.08 249.81,-315.81 272,-351 288.59,-377.31 283.67,-391.63 308,-411 311.17,-413.53 314.66,-415.76 318.32,-417.72"/>
+<polygon fill="#ff0066" stroke="#ff0066" points="317.15,-421.03 327.69,-422.07 320.1,-414.68 317.15,-421.03"/>
+</g>
+<!-- proc~fwsoil_calc_non_linear -->
+<g id="proc~~define_canopy~~CallsGraph_node27" class="node">
+<title>proc~fwsoil_calc_non_linear</title>
+<g id="a_proc~~define_canopy~~CallsGraph_node27"><a xlink:href=".././proc/fwsoil_calc_non_linear.html" xlink:title="fwsoil_calc_non_linear">
+<polygon fill="#d9534f" stroke="#d9534f" points="439,-402 308,-402 308,-378 439,-378 439,-402"/>
+<text text-anchor="middle" x="373.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">fwsoil_calc_non_linear</text>
+</a>
+</g>
+</g>
+<!-- proc~dryleaf&#45;&gt;proc~fwsoil_calc_non_linear -->
+<g id="proc~~define_canopy~~CallsGraph_edge25" class="edge">
+<title>proc~dryleaf&#45;&gt;proc~fwsoil_calc_non_linear</title>
+<path fill="none" stroke="#ff0066" d="M207.73,-255.36C223.03,-280.45 261.16,-337.66 308,-369 310.43,-370.63 313,-372.14 315.65,-373.53"/>
+<polygon fill="#ff0066" stroke="#ff0066" points="314.39,-376.81 324.94,-377.87 317.36,-370.47 314.39,-376.81"/>
+</g>
+<!-- proc~xvcmxt4 -->
+<g id="proc~~define_canopy~~CallsGraph_node28" class="node">
+<title>proc~xvcmxt4</title>
+<g id="a_proc~~define_canopy~~CallsGraph_node28"><a xlink:href=".././proc/xvcmxt4.html" xlink:title="xvcmxt4">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="402.5,-360 344.5,-360 344.5,-336 402.5,-336 402.5,-360"/>
+<text text-anchor="middle" x="373.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">xvcmxt4</text>
+</a>
+</g>
+</g>
+<!-- proc~dryleaf&#45;&gt;proc~xvcmxt4 -->
+<g id="proc~~define_canopy~~CallsGraph_edge26" class="edge">
+<title>proc~dryleaf&#45;&gt;proc~xvcmxt4</title>
+<path fill="none" stroke="#ff0066" d="M213.03,-255.22C232.09,-273.21 270.15,-306.86 308,-327 316.32,-331.43 325.75,-335.14 334.77,-338.15"/>
+<polygon fill="#ff0066" stroke="#ff0066" points="333.74,-341.5 344.33,-341.14 335.83,-334.82 333.74,-341.5"/>
+</g>
+<!-- proc~xvcmxt3 -->
+<g id="proc~~define_canopy~~CallsGraph_node29" class="node">
+<title>proc~xvcmxt3</title>
+<g id="a_proc~~define_canopy~~CallsGraph_node29"><a xlink:href=".././proc/xvcmxt3.html" xlink:title="xvcmxt3">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="402.5,-318 344.5,-318 344.5,-294 402.5,-294 402.5,-318"/>
+<text text-anchor="middle" x="373.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">xvcmxt3</text>
+</a>
+</g>
+</g>
+<!-- proc~dryleaf&#45;&gt;proc~xvcmxt3 -->
+<g id="proc~~define_canopy~~CallsGraph_edge27" class="edge">
+<title>proc~dryleaf&#45;&gt;proc~xvcmxt3</title>
+<path fill="none" stroke="#ff0066" d="M226.85,-253.78C248.51,-262.53 280.08,-275.01 308,-285 316.62,-288.08 325.95,-291.23 334.77,-294.12"/>
+<polygon fill="#ff0066" stroke="#ff0066" points="333.85,-297.5 344.44,-297.25 336.01,-290.84 333.85,-297.5"/>
+</g>
+<!-- proc~fwsoil_calc_lai_ktaul -->
+<g id="proc~~define_canopy~~CallsGraph_node30" class="node">
+<title>proc~fwsoil_calc_lai_ktaul</title>
+<g id="a_proc~~define_canopy~~CallsGraph_node30"><a xlink:href=".././proc/fwsoil_calc_lai_ktaul.html" xlink:title="fwsoil_calc_Lai_Ktaul">
+<polygon fill="#d9534f" stroke="#d9534f" points="435,-276 312,-276 312,-252 435,-252 435,-276"/>
+<text text-anchor="middle" x="373.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">fwsoil_calc_Lai_Ktaul</text>
+</a>
+</g>
+</g>
+<!-- proc~dryleaf&#45;&gt;proc~fwsoil_calc_lai_ktaul -->
+<g id="proc~~define_canopy~~CallsGraph_edge28" class="edge">
+<title>proc~dryleaf&#45;&gt;proc~fwsoil_calc_lai_ktaul</title>
+<path fill="none" stroke="#ff0066" d="M226.62,-246.19C246.62,-248.63 275.2,-252.12 301.77,-255.36"/>
+<polygon fill="#ff0066" stroke="#ff0066" points="301.48,-258.85 311.83,-256.59 302.33,-251.91 301.48,-258.85"/>
+</g>
+<!-- proc~ej3x -->
+<g id="proc~~define_canopy~~CallsGraph_node31" class="node">
+<title>proc~ej3x</title>
+<g id="a_proc~~define_canopy~~CallsGraph_node31"><a xlink:href=".././proc/ej3x.html" xlink:title="ej3x">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="400.5,-234 346.5,-234 346.5,-210 400.5,-210 400.5,-234"/>
+<text text-anchor="middle" x="373.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ej3x</text>
+</a>
+</g>
+</g>
+<!-- proc~dryleaf&#45;&gt;proc~ej3x -->
+<g id="proc~~define_canopy~~CallsGraph_edge30" class="edge">
+<title>proc~dryleaf&#45;&gt;proc~ej3x</title>
+<path fill="none" stroke="#ff0066" d="M226.62,-239.81C255.88,-236.24 303.49,-230.43 336.32,-226.42"/>
+<polygon fill="#ff0066" stroke="#ff0066" points="336.91,-229.87 346.41,-225.18 336.06,-222.92 336.91,-229.87"/>
 </g>
 </g>
 </svg>
@@ -1334,9 +1483,27 @@
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

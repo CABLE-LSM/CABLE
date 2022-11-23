@@ -80,122 +80,253 @@
   <div class="row">
     <h1>get_met_data
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 1.3% of total for procedures.">588 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cable_input.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cable_input.f90.html'>cable_input.F90</a></li>
-     <li><a href='../module/cable_input_module.html'>cable_input_module</a></li>
-     <li class="active">get_met_data</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 1.3% of total for procedures.">588 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cable_input.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cable_input.f90.html'>cable_input.F90</a></li>
+              <li><a href='../module/cable_input_module.html'>cable_input_module</a></li>
+          <li class="active">get_met_data</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public subroutine get_met_data(spinup, spinConv, met, soil, rad, veg, kend, dels, TFRZ, ktau, kstart)</h2>
+    <h2>public  subroutine get_met_data(spinup, spinConv, met, soil, rad, veg, kend, dels, TFRZ, ktau, kstart)  
+</h2>
     
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-spinup~2"></span>logical,</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-spinup~2"></span>
+              logical,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>spinup</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-spinconv"></span>logical,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>spinup</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-spinconv"></span>
+              logical,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>spinConv</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-met~13"></span>type(<a href='../type/met_type.html'>met_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>spinConv</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-met~13"></span>
+              type(<a href='../type/met_type.html'>met_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>met</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-soil~15"></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>met</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-soil~15"></span>
+              type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>soil</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-rad~6"></span>type(<a href='../type/radiation_type.html'>radiation_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>soil</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rad~6"></span>
+              type(<a href='../type/radiation_type.html'>radiation_type</a>),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>rad</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-veg~15"></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rad</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-veg~15"></span>
+              type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>veg</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-kend~6"></span>integer,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>veg</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kend~6"></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>kend</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-dels~10"></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>kend</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dels~10"></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>dels</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-tfrz~2"></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dels</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tfrz~2"></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>TFRZ</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ktau~12"></span>integer,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>TFRZ</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ktau~12"></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>ktau</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-kstart~5"></span>integer,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ktau</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kstart~5"></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>kstart</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>kstart</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
     <div class="panel panel-default">
@@ -235,59 +366,59 @@
 <path fill="none" stroke="#ff0000" d="M51.59,-129.08C64.31,-147.19 90.69,-181.36 121,-201 125.05,-203.62 129.46,-205.95 134,-208.01"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="132.86,-211.33 143.44,-211.87 135.51,-204.85 132.86,-211.33"/>
 </g>
-<!-- proc~rh_sh -->
+<!-- nf90_get_var -->
 <g id="proc~~get_met_data~~CallsGraph_node3" class="node">
-<title>proc~rh_sh</title>
-<g id="a_proc~~get_met_data~~CallsGraph_node3"><a xlink:href=".././proc/rh_sh.html" xlink:title="rh_sh">
-<polygon fill="#d9534f" stroke="#d9534f" points="211.5,-192 157.5,-192 157.5,-168 211.5,-168 211.5,-192"/>
-<text text-anchor="middle" x="184.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">rh_sh</text>
-</a>
+<title>nf90_get_var</title>
+<polygon fill="#777777" stroke="#777777" points="225.5,-192 143.5,-192 143.5,-168 225.5,-168 225.5,-192"/>
+<text text-anchor="middle" x="184.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_var</text>
 </g>
-</g>
-<!-- proc~get_met_data&#45;&gt;proc~rh_sh -->
+<!-- proc~get_met_data&#45;&gt;nf90_get_var -->
 <g id="proc~~get_met_data~~CallsGraph_edge2" class="edge">
-<title>proc~get_met_data&#45;&gt;proc~rh_sh</title>
-<path fill="none" stroke="#ff0000" d="M63.42,-129.03C78.8,-138.02 100.79,-150.21 121,-159 129.47,-162.68 138.8,-166.13 147.62,-169.12"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="146.68,-172.5 157.27,-172.3 148.87,-165.85 146.68,-172.5"/>
+<title>proc~get_met_data&#45;&gt;nf90_get_var</title>
+<path fill="none" stroke="#ff0000" d="M63.42,-129.03C78.8,-138.02 100.79,-150.21 121,-159 125.36,-160.9 129.96,-162.73 134.59,-164.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="133.51,-167.81 144.1,-167.91 135.89,-161.22 133.51,-167.81"/>
+</g>
+<!-- nf90_inquire_variable -->
+<g id="proc~~get_met_data~~CallsGraph_node4" class="node">
+<title>nf90_inquire_variable</title>
+<polygon fill="#777777" stroke="#777777" points="248,-150 121,-150 121,-126 248,-126 248,-150"/>
+<text text-anchor="middle" x="184.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire_variable</text>
+</g>
+<!-- proc~get_met_data&#45;&gt;nf90_inquire_variable -->
+<g id="proc~~get_met_data~~CallsGraph_edge3" class="edge">
+<title>proc~get_met_data&#45;&gt;nf90_inquire_variable</title>
+<path fill="none" stroke="#ff0000" d="M85.13,-123.24C93.27,-124.46 102.02,-125.78 110.83,-127.1"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="110.37,-130.57 120.78,-128.59 111.41,-123.65 110.37,-130.57"/>
 </g>
 <!-- proc~nc_abort -->
-<g id="proc~~get_met_data~~CallsGraph_node4" class="node">
+<g id="proc~~get_met_data~~CallsGraph_node5" class="node">
 <title>proc~nc_abort</title>
-<g id="a_proc~~get_met_data~~CallsGraph_node4"><a xlink:href=".././proc/nc_abort.html" xlink:title="nc_abort">
-<polygon fill="#d9534f" stroke="#d9534f" points="214,-150 155,-150 155,-126 214,-126 214,-150"/>
-<text text-anchor="middle" x="184.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nc_abort</text>
+<g id="a_proc~~get_met_data~~CallsGraph_node5"><a xlink:href=".././proc/nc_abort.html" xlink:title="nc_abort">
+<polygon fill="#d9534f" stroke="#d9534f" points="214,-108 155,-108 155,-84 214,-84 214,-108"/>
+<text text-anchor="middle" x="184.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nc_abort</text>
 </a>
 </g>
 </g>
 <!-- proc~get_met_data&#45;&gt;proc~nc_abort -->
 <g id="proc~~get_met_data~~CallsGraph_edge4" class="edge">
 <title>proc~get_met_data&#45;&gt;proc~nc_abort</title>
-<path fill="none" stroke="#ff0000" d="M85.13,-123.24C103.94,-126.07 126.06,-129.38 144.54,-132.16"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="144.27,-135.65 154.68,-133.68 145.31,-128.73 144.27,-135.65"/>
+<path fill="none" stroke="#ff0000" d="M85.13,-110.76C103.94,-107.93 126.06,-104.62 144.54,-101.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="145.31,-105.27 154.68,-100.32 144.27,-98.35 145.31,-105.27"/>
 </g>
-<!-- nf90_get_var -->
-<g id="proc~~get_met_data~~CallsGraph_node5" class="node">
-<title>nf90_get_var</title>
-<polygon fill="#777777" stroke="#777777" points="225.5,-108 143.5,-108 143.5,-84 225.5,-84 225.5,-108"/>
-<text text-anchor="middle" x="184.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_var</text>
-</g>
-<!-- proc~get_met_data&#45;&gt;nf90_get_var -->
-<g id="proc~~get_met_data~~CallsGraph_edge3" class="edge">
-<title>proc~get_met_data&#45;&gt;nf90_get_var</title>
-<path fill="none" stroke="#ff0000" d="M85.13,-110.76C100.2,-108.49 117.39,-105.92 133.14,-103.55"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="133.87,-106.98 143.24,-102.04 132.83,-100.06 133.87,-106.98"/>
-</g>
-<!-- nf90_inquire_variable -->
+<!-- proc~rh_sh -->
 <g id="proc~~get_met_data~~CallsGraph_node6" class="node">
-<title>nf90_inquire_variable</title>
-<polygon fill="#777777" stroke="#777777" points="248,-66 121,-66 121,-42 248,-42 248,-66"/>
-<text text-anchor="middle" x="184.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire_variable</text>
+<title>proc~rh_sh</title>
+<g id="a_proc~~get_met_data~~CallsGraph_node6"><a xlink:href=".././proc/rh_sh.html" xlink:title="rh_sh">
+<polygon fill="#d9534f" stroke="#d9534f" points="211.5,-66 157.5,-66 157.5,-42 211.5,-42 211.5,-66"/>
+<text text-anchor="middle" x="184.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">rh_sh</text>
+</a>
 </g>
-<!-- proc~get_met_data&#45;&gt;nf90_inquire_variable -->
+</g>
+<!-- proc~get_met_data&#45;&gt;proc~rh_sh -->
 <g id="proc~~get_met_data~~CallsGraph_edge5" class="edge">
-<title>proc~get_met_data&#45;&gt;nf90_inquire_variable</title>
-<path fill="none" stroke="#ff0000" d="M63.42,-104.97C78.8,-95.98 100.79,-83.79 121,-75 125.36,-73.1 129.96,-71.27 134.59,-69.52"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="135.89,-72.78 144.1,-66.09 133.51,-66.19 135.89,-72.78"/>
+<title>proc~get_met_data&#45;&gt;proc~rh_sh</title>
+<path fill="none" stroke="#ff0000" d="M63.42,-104.97C78.8,-95.98 100.79,-83.79 121,-75 129.47,-71.32 138.8,-67.87 147.62,-64.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="148.87,-68.15 157.27,-61.7 146.68,-61.5 148.87,-68.15"/>
 </g>
 <!-- proc~sinbet -->
 <g id="proc~~get_met_data~~CallsGraph_node7" class="node">
@@ -304,32 +435,32 @@
 <path fill="none" stroke="#ff0000" d="M51.59,-104.92C64.31,-86.81 90.69,-52.64 121,-33 129.04,-27.79 138.51,-23.74 147.61,-20.65"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="148.73,-23.97 157.25,-17.67 146.66,-17.28 148.73,-23.97"/>
 </g>
-<!-- proc~svp -->
+<!-- nf90_strerror -->
 <g id="proc~~get_met_data~~CallsGraph_node8" class="node">
+<title>nf90_strerror</title>
+<polygon fill="#777777" stroke="#777777" points="365,-108 284,-108 284,-84 365,-84 365,-108"/>
+<text text-anchor="middle" x="324.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
+</g>
+<!-- proc~nc_abort&#45;&gt;nf90_strerror -->
+<g id="proc~~get_met_data~~CallsGraph_edge7" class="edge">
+<title>proc~nc_abort&#45;&gt;nf90_strerror</title>
+<path fill="none" stroke="#00ffff" d="M214.09,-96C231.3,-96 253.69,-96 273.73,-96"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="273.95,-99.5 283.95,-96 273.95,-92.5 273.95,-99.5"/>
+</g>
+<!-- proc~svp -->
+<g id="proc~~get_met_data~~CallsGraph_node9" class="node">
 <title>proc~svp</title>
-<g id="a_proc~~get_met_data~~CallsGraph_node8"><a xlink:href=".././proc/svp.html" xlink:title="svp">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="351.5,-192 297.5,-192 297.5,-168 351.5,-168 351.5,-192"/>
-<text text-anchor="middle" x="324.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">svp</text>
+<g id="a_proc~~get_met_data~~CallsGraph_node9"><a xlink:href=".././proc/svp.html" xlink:title="svp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="351.5,-66 297.5,-66 297.5,-42 351.5,-42 351.5,-66"/>
+<text text-anchor="middle" x="324.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">svp</text>
 </a>
 </g>
 </g>
 <!-- proc~rh_sh&#45;&gt;proc~svp -->
-<g id="proc~~get_met_data~~CallsGraph_edge7" class="edge">
-<title>proc~rh_sh&#45;&gt;proc~svp</title>
-<path fill="none" stroke="#ffff00" d="M211.78,-180C233.17,-180 263.59,-180 287.29,-180"/>
-<polygon fill="#ffff00" stroke="#ffff00" points="287.32,-183.5 297.32,-180 287.32,-176.5 287.32,-183.5"/>
-</g>
-<!-- nf90_strerror -->
-<g id="proc~~get_met_data~~CallsGraph_node9" class="node">
-<title>nf90_strerror</title>
-<polygon fill="#777777" stroke="#777777" points="365,-150 284,-150 284,-126 365,-126 365,-150"/>
-<text text-anchor="middle" x="324.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
-</g>
-<!-- proc~nc_abort&#45;&gt;nf90_strerror -->
 <g id="proc~~get_met_data~~CallsGraph_edge8" class="edge">
-<title>proc~nc_abort&#45;&gt;nf90_strerror</title>
-<path fill="none" stroke="#00ff00" d="M214.09,-138C231.3,-138 253.69,-138 273.73,-138"/>
-<polygon fill="#00ff00" stroke="#00ff00" points="273.95,-141.5 283.95,-138 273.95,-134.5 273.95,-141.5"/>
+<title>proc~rh_sh&#45;&gt;proc~svp</title>
+<path fill="none" stroke="#0000ff" d="M211.78,-54C233.17,-54 263.59,-54 287.29,-54"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="287.32,-57.5 297.32,-54 287.32,-50.5 287.32,-57.5"/>
 </g>
 </g>
 </svg>
@@ -527,9 +658,27 @@
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

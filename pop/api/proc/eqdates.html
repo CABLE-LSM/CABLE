@@ -80,71 +80,126 @@
   <div class="row">
     <h1>EQDates
       <small>Function</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.0% of total for procedures.">8 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cable_bios_met_obs_params.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cable_bios_met_obs_params.f90.html'>cable_bios_met_obs_params.F90</a></li>
-     <li><a href='../module/bios_date_functions.html'>bios_date_functions</a></li>
-     <li class="active">EQDates</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">8 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cable_bios_met_obs_params.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cable_bios_met_obs_params.f90.html'>cable_bios_met_obs_params.F90</a></li>
+              <li><a href='../module/bios_date_functions.html'>bios_date_functions</a></li>
+          <li class="active">EQDates</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public function EQDates(Date1, Date2)</h2>
+    <h2>public  function EQDates(Date1, Date2)  
+</h2>
     
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-date1~2"></span>type(<a href='../type/dmydate.html'>dmydate</a>),</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-date1~2"></span>
+              type(<a href='../type/dmydate.html'>dmydate</a>),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>Date1</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-date2~2"></span>type(<a href='../type/dmydate.html'>dmydate</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Date1</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-date2~2"></span>
+              type(<a href='../type/dmydate.html'>dmydate</a>),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>Date2</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Date2</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
-   <h3>Return Value <small><span class="anchor" id="variable-eqdates"></span>logical</small></h3>
-    
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-eqdates"></span>
+          logical
+        </small>
+      </h3>
+      
     <br>
     <div class="panel panel-default">
       <div class="panel-heading">
@@ -183,35 +238,35 @@
 <path fill="none" stroke="#ff0000" d="M210.75,-126.43C217.18,-123.54 223.9,-120.32 230,-117 243.3,-109.76 257.44,-100.64 269.04,-92.76"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="271.11,-95.58 277.36,-87.01 267.14,-89.81 271.11,-95.58"/>
 </g>
-<!-- interface~operator (==) -->
-<g id="proc~~eqdates~~CalledByGraph_node3" class="node">
-<title>interface~operator (==)</title>
-<g id="a_proc~~eqdates~~CalledByGraph_node3"><a xlink:href=".././interface/operator%20%28%3D%3D%29.html" xlink:title="OPERATOR (==)">
-<polygon fill="#a7506f" stroke="#a7506f" points="230,-108 133,-108 133,-84 230,-84 230,-108"/>
-<text text-anchor="middle" x="181.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OPERATOR (==)</text>
-</a>
-</g>
-</g>
-<!-- interface~operator (==)&#45;&gt;proc~eqdates -->
-<g id="proc~~eqdates~~CalledByGraph_edge4" class="edge">
-<title>interface~operator (==)&#45;&gt;proc~eqdates</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M230.11,-87.03C238.68,-85.42 247.52,-83.75 255.78,-82.2"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="256.7,-85.59 265.88,-80.3 255.41,-78.71 256.7,-85.59"/>
-</g>
 <!-- proc~ledates -->
-<g id="proc~~eqdates~~CalledByGraph_node4" class="node">
+<g id="proc~~eqdates~~CalledByGraph_node3" class="node">
 <title>proc~ledates</title>
-<g id="a_proc~~eqdates~~CalledByGraph_node4"><a xlink:href=".././proc/ledates.html" xlink:title="LEDates">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="209.5,-66 153.5,-66 153.5,-42 209.5,-42 209.5,-66"/>
-<text text-anchor="middle" x="181.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LEDates</text>
+<g id="a_proc~~eqdates~~CalledByGraph_node3"><a xlink:href=".././proc/ledates.html" xlink:title="LEDates">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="209.5,-108 153.5,-108 153.5,-84 209.5,-84 209.5,-108"/>
+<text text-anchor="middle" x="181.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LEDates</text>
 </a>
 </g>
 </g>
 <!-- proc~ledates&#45;&gt;proc~eqdates -->
 <g id="proc~~eqdates~~CalledByGraph_edge2" class="edge">
 <title>proc~ledates&#45;&gt;proc~eqdates</title>
-<path fill="none" stroke="#ff0000" d="M209.78,-59.14C223.61,-61.74 240.63,-64.95 255.74,-67.79"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="255.37,-71.29 265.84,-69.7 256.66,-64.41 255.37,-71.29"/>
+<path fill="none" stroke="#ff0000" d="M209.78,-90.86C223.61,-88.26 240.63,-85.05 255.74,-82.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="256.66,-85.59 265.84,-80.3 255.37,-78.71 256.66,-85.59"/>
+</g>
+<!-- interface~operator (==) -->
+<g id="proc~~eqdates~~CalledByGraph_node4" class="node">
+<title>interface~operator (==)</title>
+<g id="a_proc~~eqdates~~CalledByGraph_node4"><a xlink:href=".././interface/operator%20%28%3D%3D%29.html" xlink:title="OPERATOR (==)">
+<polygon fill="#a7506f" stroke="#a7506f" points="230,-66 133,-66 133,-42 230,-42 230,-66"/>
+<text text-anchor="middle" x="181.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OPERATOR (==)</text>
+</a>
+</g>
+</g>
+<!-- interface~operator (==)&#45;&gt;proc~eqdates -->
+<g id="proc~~eqdates~~CalledByGraph_edge4" class="edge">
+<title>interface~operator (==)&#45;&gt;proc~eqdates</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M230.11,-62.97C238.68,-64.58 247.52,-66.25 255.78,-67.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="255.41,-71.29 265.88,-69.7 256.7,-64.41 255.41,-71.29"/>
 </g>
 <!-- proc~gedates -->
 <g id="proc~~eqdates~~CalledByGraph_node5" class="node">
@@ -243,25 +298,10 @@
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M94.58,-138C109.95,-138 126.98,-138 141.8,-138"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="142.14,-141.5 152.14,-138 142.14,-134.5 142.14,-141.5"/>
 </g>
-<!-- interface~operator (lt=) -->
-<g id="proc~~eqdates~~CalledByGraph_node7" class="node">
-<title>interface~operator (lt=)</title>
-<g id="a_proc~~eqdates~~CalledByGraph_node7"><a xlink:href=".././interface/operator%20%28lt%3D%29.html" xlink:title="OPERATOR (&lt;=)">
-<polygon fill="#a7506f" stroke="#a7506f" points="97,-66 0,-66 0,-42 97,-42 97,-66"/>
-<text text-anchor="middle" x="48.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OPERATOR (&lt;=)</text>
-</a>
-</g>
-</g>
-<!-- interface~operator (lt=)&#45;&gt;proc~ledates -->
-<g id="proc~~eqdates~~CalledByGraph_edge6" class="edge">
-<title>interface~operator (lt=)&#45;&gt;proc~ledates</title>
-<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M97.16,-54C112.21,-54 128.6,-54 142.84,-54"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="143.26,-57.5 153.26,-54 143.26,-50.5 143.26,-57.5"/>
-</g>
 <!-- interface~operator (gt=) -->
-<g id="proc~~eqdates~~CalledByGraph_node8" class="node">
+<g id="proc~~eqdates~~CalledByGraph_node7" class="node">
 <title>interface~operator (gt=)</title>
-<g id="a_proc~~eqdates~~CalledByGraph_node8"><a xlink:href=".././interface/operator%20%28gt%3D%29.html" xlink:title="OPERATOR (&gt;=)">
+<g id="a_proc~~eqdates~~CalledByGraph_node7"><a xlink:href=".././interface/operator%20%28gt%3D%29.html" xlink:title="OPERATOR (&gt;=)">
 <polygon fill="#a7506f" stroke="#a7506f" points="97,-24 0,-24 0,0 97,0 97,-24"/>
 <text text-anchor="middle" x="48.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OPERATOR (&gt;=)</text>
 </a>
@@ -272,6 +312,21 @@
 <title>interface~operator (gt=)&#45;&gt;proc~gedates</title>
 <path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M97.16,-12C111.97,-12 128.1,-12 142.18,-12"/>
 <polygon fill="#7f00ff" stroke="#7f00ff" points="142.5,-15.5 152.5,-12 142.5,-8.5 142.5,-15.5"/>
+</g>
+<!-- interface~operator (lt=) -->
+<g id="proc~~eqdates~~CalledByGraph_node8" class="node">
+<title>interface~operator (lt=)</title>
+<g id="a_proc~~eqdates~~CalledByGraph_node8"><a xlink:href=".././interface/operator%20%28lt%3D%29.html" xlink:title="OPERATOR (&lt;=)">
+<polygon fill="#a7506f" stroke="#a7506f" points="97,-108 0,-108 0,-84 97,-84 97,-108"/>
+<text text-anchor="middle" x="48.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OPERATOR (&lt;=)</text>
+</a>
+</g>
+</g>
+<!-- interface~operator (lt=)&#45;&gt;proc~ledates -->
+<g id="proc~~eqdates~~CalledByGraph_edge6" class="edge">
+<title>interface~operator (lt=)&#45;&gt;proc~ledates</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M97.16,-96C112.21,-96 128.6,-96 142.84,-96"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="143.26,-99.5 153.26,-96 143.26,-92.5 143.26,-99.5"/>
 </g>
 </g>
 </svg>
@@ -339,9 +394,27 @@
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

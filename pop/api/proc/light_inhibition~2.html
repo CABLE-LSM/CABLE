@@ -80,65 +80,111 @@
   <div class="row">
     <h1>light_inhibition
       <small>Function</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.0% of total for procedures.">10 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cable_optimiseJVratio.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cable_optimisejvratio.f90.html'>cable_optimiseJVratio.F90</a></li>
-     <li><a href='../module/cable_optimise_jv_module.html'>cable_optimise_JV_module</a></li>
-     <li class="active">light_inhibition</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">10 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cable_optimiseJVratio.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cable_optimisejvratio.f90.html'>cable_optimiseJVratio.F90</a></li>
+              <li><a href='../module/cable_optimise_jv_module.html'>cable_optimise_JV_module</a></li>
+          <li class="active">light_inhibition</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public function light_inhibition(APAR) result(xrd)</h2>
+    <h2>public  function light_inhibition(APAR) result(xrd)  
+</h2>
     
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-apar"></span>real,</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-apar"></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>APAR</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>APAR</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
-   <h3>Return Value <small><span class="anchor" id="variable-xrd"></span>real</small></h3>
-    
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-xrd"></span>
+          real
+        </small>
+      </h3>
+      
     <br>
     <div class="panel panel-default">
       <div class="panel-heading">
@@ -177,35 +223,35 @@
 <path fill="none" stroke="#ff0000" d="M604.01,-130.56C617.16,-127.02 632.53,-122.39 646,-117 663.57,-109.97 682.37,-100.29 697.38,-92"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="699.19,-95 706.19,-87.05 695.76,-88.9 699.19,-95"/>
 </g>
-<!-- proc~total_photosynthesis_cost -->
-<g id="proc~~light_inhibition~2~~CalledByGraph_node3" class="node">
-<title>proc~total_photosynthesis_cost</title>
-<g id="a_proc~~light_inhibition~2~~CalledByGraph_node3"><a xlink:href=".././proc/total_photosynthesis_cost.html" xlink:title="total_photosynthesis_cost">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="646,-108 498,-108 498,-84 646,-84 646,-108"/>
-<text text-anchor="middle" x="572" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">total_photosynthesis_cost</text>
-</a>
-</g>
-</g>
-<!-- proc~total_photosynthesis_cost&#45;&gt;proc~light_inhibition~2 -->
-<g id="proc~~light_inhibition~2~~CalledByGraph_edge2" class="edge">
-<title>proc~total_photosynthesis_cost&#45;&gt;proc~light_inhibition~2</title>
-<path fill="none" stroke="#ff0000" d="M646.15,-85.99C654.83,-84.81 663.56,-83.61 671.91,-82.47"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="672.45,-85.93 681.88,-81.1 671.5,-78.99 672.45,-85.93"/>
-</g>
 <!-- proc~total_an_ac_aj -->
-<g id="proc~~light_inhibition~2~~CalledByGraph_node4" class="node">
+<g id="proc~~light_inhibition~2~~CalledByGraph_node3" class="node">
 <title>proc~total_an_ac_aj</title>
-<g id="a_proc~~light_inhibition~2~~CalledByGraph_node4"><a xlink:href=".././proc/total_an_ac_aj.html" xlink:title="total_An_Ac_Aj">
+<g id="a_proc~~light_inhibition~2~~CalledByGraph_node3"><a xlink:href=".././proc/total_an_ac_aj.html" xlink:title="total_An_Ac_Aj">
 <polygon fill="#d9534f" stroke="#d9534f" points="617,-66 527,-66 527,-42 617,-42 617,-66"/>
 <text text-anchor="middle" x="572" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">total_An_Ac_Aj</text>
 </a>
 </g>
 </g>
 <!-- proc~total_an_ac_aj&#45;&gt;proc~light_inhibition~2 -->
-<g id="proc~~light_inhibition~2~~CalledByGraph_edge3" class="edge">
+<g id="proc~~light_inhibition~2~~CalledByGraph_edge2" class="edge">
 <title>proc~total_an_ac_aj&#45;&gt;proc~light_inhibition~2</title>
 <path fill="none" stroke="#ff0000" d="M617.4,-60.07C634.35,-62.39 653.88,-65.06 671.68,-67.5"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="671.55,-71.02 681.94,-68.9 672.5,-64.08 671.55,-71.02"/>
+</g>
+<!-- proc~total_photosynthesis_cost -->
+<g id="proc~~light_inhibition~2~~CalledByGraph_node4" class="node">
+<title>proc~total_photosynthesis_cost</title>
+<g id="a_proc~~light_inhibition~2~~CalledByGraph_node4"><a xlink:href=".././proc/total_photosynthesis_cost.html" xlink:title="total_photosynthesis_cost">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="646,-108 498,-108 498,-84 646,-84 646,-108"/>
+<text text-anchor="middle" x="572" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">total_photosynthesis_cost</text>
+</a>
+</g>
+</g>
+<!-- proc~total_photosynthesis_cost&#45;&gt;proc~light_inhibition~2 -->
+<g id="proc~~light_inhibition~2~~CalledByGraph_edge3" class="edge">
+<title>proc~total_photosynthesis_cost&#45;&gt;proc~light_inhibition~2</title>
+<path fill="none" stroke="#ff0000" d="M646.15,-85.99C654.83,-84.81 663.56,-83.61 671.91,-82.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="672.45,-85.93 681.88,-81.1 671.5,-78.99 672.45,-85.93"/>
 </g>
 <!-- proc~total_photosynthesis -->
 <g id="proc~~light_inhibition~2~~CalledByGraph_node5" class="node">
@@ -240,8 +286,8 @@
 <!-- proc~optimise_jv&#45;&gt;proc~total_photosynthesis_cost -->
 <g id="proc~~light_inhibition~2~~CalledByGraph_edge6" class="edge">
 <title>proc~optimise_jv&#45;&gt;proc~total_photosynthesis_cost</title>
-<path fill="none" stroke="#7fff00" d="M462.22,-111.75C470.14,-110.61 478.84,-109.35 487.76,-108.05"/>
-<polygon fill="#7fff00" stroke="#7fff00" points="488.51,-111.48 497.9,-106.59 487.51,-104.56 488.51,-111.48"/>
+<path fill="none" stroke="#00ffff" d="M462.22,-111.75C470.14,-110.61 478.84,-109.35 487.76,-108.05"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="488.51,-111.48 497.9,-106.59 487.51,-104.56 488.51,-111.48"/>
 </g>
 <!-- proc~casa_feedback -->
 <g id="proc~~light_inhibition~2~~CalledByGraph_node7" class="node">
@@ -369,9 +415,27 @@
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

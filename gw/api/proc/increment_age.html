@@ -80,68 +80,118 @@
   <div class="row">
     <h1>INCREMENT_AGE
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.1% of total for procedures.">40 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/POPLUC.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/popluc.f90.html'>POPLUC.F90</a></li>
-     <li><a href='../module/popluc_module.html'>POPLUC_Module</a></li>
-     <li class="active">INCREMENT_AGE</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.1% of total for procedures.">40 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/POPLUC.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/popluc.f90.html'>POPLUC.F90</a></li>
+              <li><a href='../module/popluc_module.html'>POPLUC_Module</a></li>
+          <li class="active">INCREMENT_AGE</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public subroutine INCREMENT_AGE(POPLUC, g)</h2>
+    <h2>public  subroutine INCREMENT_AGE(POPLUC, g)  
+</h2>
     
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-popluc~7"></span>type(<a href='../type/popluc_type.html'>POPLUC_TYPE</a>),</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-popluc~7"></span>
+              type(<a href='../type/popluc_type.html'>POPLUC_TYPE</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>POPLUC</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-g~7"></span>integer(kind=i4b),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>POPLUC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-g~7"></span>
+              integer(kind=i4b),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>g</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>g</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
     <div class="panel panel-default">
@@ -206,39 +256,39 @@
 </g>
 </g>
 <!-- proc~lucdriver&#45;&gt;proc~poplucstep -->
-<g id="proc~~increment_age~~CalledByGraph_edge5" class="edge">
+<g id="proc~~increment_age~~CalledByGraph_edge3" class="edge">
 <title>proc~lucdriver&#45;&gt;proc~poplucstep</title>
 <path fill="none" stroke="#ff0000" d="M360.18,-91.34C378.3,-88.63 401.51,-85.16 421.87,-82.12"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="422.54,-85.56 431.91,-80.62 421.5,-78.63 422.54,-85.56"/>
 </g>
-<!-- proc~master_casaonly_luc -->
-<g id="proc~~increment_age~~CalledByGraph_node5" class="node">
-<title>proc~master_casaonly_luc</title>
-<g id="a_proc~~increment_age~~CalledByGraph_node5"><a xlink:href=".././proc/master_casaonly_luc.html" xlink:title="master_CASAONLY_LUC">
-<polygon fill="#d9534f" stroke="#d9534f" points="396,-66 260,-66 260,-42 396,-42 396,-66"/>
-<text text-anchor="middle" x="328" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">master_CASAONLY_LUC</text>
-</a>
-</g>
-</g>
-<!-- proc~master_casaonly_luc&#45;&gt;proc~poplucstep -->
-<g id="proc~~increment_age~~CalledByGraph_edge4" class="edge">
-<title>proc~master_casaonly_luc&#45;&gt;proc~poplucstep</title>
-<path fill="none" stroke="#ff0000" d="M396.37,-64.07C404.99,-65.36 413.66,-66.65 421.87,-67.88"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="421.58,-71.38 431.99,-69.39 422.62,-64.45 421.58,-71.38"/>
-</g>
 <!-- proc~lucdriver~2 -->
-<g id="proc~~increment_age~~CalledByGraph_node6" class="node">
+<g id="proc~~increment_age~~CalledByGraph_node5" class="node">
 <title>proc~lucdriver~2</title>
-<g id="a_proc~~increment_age~~CalledByGraph_node6"><a xlink:href=".././proc/lucdriver~2.html" xlink:title="LUCdriver">
-<polygon fill="#d9534f" stroke="#d9534f" points="360,-24 296,-24 296,0 360,0 360,-24"/>
-<text text-anchor="middle" x="328" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LUCdriver</text>
+<g id="a_proc~~increment_age~~CalledByGraph_node5"><a xlink:href=".././proc/lucdriver~2.html" xlink:title="LUCdriver">
+<polygon fill="#d9534f" stroke="#d9534f" points="360,-66 296,-66 296,-42 360,-42 360,-66"/>
+<text text-anchor="middle" x="328" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LUCdriver</text>
 </a>
 </g>
 </g>
 <!-- proc~lucdriver~2&#45;&gt;proc~poplucstep -->
-<g id="proc~~increment_age~~CalledByGraph_edge3" class="edge">
+<g id="proc~~increment_age~~CalledByGraph_edge4" class="edge">
 <title>proc~lucdriver~2&#45;&gt;proc~poplucstep</title>
-<path fill="none" stroke="#ff0000" d="M360.19,-20.26C371.65,-23.68 384.6,-28.03 396,-33 411.87,-39.92 428.7,-49.37 442.24,-57.55"/>
+<path fill="none" stroke="#ff0000" d="M360.18,-58.66C378.3,-61.37 401.51,-64.84 421.87,-67.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="421.5,-71.37 431.91,-69.38 422.54,-64.44 421.5,-71.37"/>
+</g>
+<!-- proc~master_casaonly_luc -->
+<g id="proc~~increment_age~~CalledByGraph_node6" class="node">
+<title>proc~master_casaonly_luc</title>
+<g id="a_proc~~increment_age~~CalledByGraph_node6"><a xlink:href=".././proc/master_casaonly_luc.html" xlink:title="master_CASAONLY_LUC">
+<polygon fill="#d9534f" stroke="#d9534f" points="396,-24 260,-24 260,0 396,0 396,-24"/>
+<text text-anchor="middle" x="328" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">master_CASAONLY_LUC</text>
+</a>
+</g>
+</g>
+<!-- proc~master_casaonly_luc&#45;&gt;proc~poplucstep -->
+<g id="proc~~increment_age~~CalledByGraph_edge5" class="edge">
+<title>proc~master_casaonly_luc&#45;&gt;proc~poplucstep</title>
+<path fill="none" stroke="#ff0000" d="M372.39,-24.1C380.36,-26.74 388.51,-29.73 396,-33 411.87,-39.92 428.7,-49.37 442.24,-57.55"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="440.69,-60.71 451.04,-62.97 444.36,-54.74 440.69,-60.71"/>
 </g>
 <!-- program~cable_offline_driver -->
@@ -271,17 +321,17 @@
 </a>
 </g>
 </g>
-<!-- proc~mpidrv_master&#45;&gt;proc~master_casaonly_luc -->
-<g id="proc~~increment_age~~CalledByGraph_edge8" class="edge">
-<title>proc~mpidrv_master&#45;&gt;proc~master_casaonly_luc</title>
-<path fill="none" stroke="#00ffff" d="M211.71,-38.96C223.63,-40.52 236.82,-42.24 249.89,-43.94"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="249.47,-47.42 259.84,-45.24 250.38,-40.48 249.47,-47.42"/>
-</g>
 <!-- proc~mpidrv_master&#45;&gt;proc~lucdriver~2 -->
-<g id="proc~~increment_age~~CalledByGraph_edge9" class="edge">
+<g id="proc~~increment_age~~CalledByGraph_edge8" class="edge">
 <title>proc~mpidrv_master&#45;&gt;proc~lucdriver~2</title>
-<path fill="none" stroke="#7f00ff" d="M211.71,-27.04C235.09,-23.99 263.31,-20.31 285.99,-17.35"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="286.51,-20.81 295.98,-16.05 285.61,-13.87 286.51,-20.81"/>
+<path fill="none" stroke="#00ffff" d="M211.71,-38.96C235.09,-42.01 263.31,-45.69 285.99,-48.65"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="285.61,-52.13 295.98,-49.95 286.51,-45.19 285.61,-52.13"/>
+</g>
+<!-- proc~mpidrv_master&#45;&gt;proc~master_casaonly_luc -->
+<g id="proc~~increment_age~~CalledByGraph_edge9" class="edge">
+<title>proc~mpidrv_master&#45;&gt;proc~master_casaonly_luc</title>
+<path fill="none" stroke="#7f00ff" d="M211.71,-27.04C223.63,-25.48 236.82,-23.76 249.89,-22.06"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="250.38,-25.52 259.84,-20.76 249.47,-18.58 250.38,-25.52"/>
 </g>
 <!-- program~mpi_driver -->
 <g id="proc~~increment_age~~CalledByGraph_node9" class="node">
@@ -364,9 +414,27 @@
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

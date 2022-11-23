@@ -80,178 +80,390 @@
   <div class="row">
     <h1>lmder
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.5% of total for procedures.">245 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/minpack.f90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/minpack.f90.html'>minpack.f90</a></li>
-     <li><a href='../module/minpack.html'>minpack</a></li>
-     <li class="active">lmder</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.5% of total for procedures.">245 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/minpack.f90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/minpack.f90.html'>minpack.f90</a></li>
+              <li><a href='../module/minpack.html'>minpack</a></li>
+          <li class="active">lmder</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public subroutine lmder(fcn, m, n, x, fvec, fjac, ldfjac, ftol, xtol, gtol, maxfev, diag, mode, factor, nprint, info, nfev, njev, ipvt, qtf)</h2>
+    <h2>public  subroutine lmder(fcn, m, n, x, fvec, fjac, ldfjac, ftol, xtol, gtol, maxfev, diag, mode, factor, nprint, info, nfev, njev, ipvt, qtf)  
+</h2>
     
 
     <p><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong>*</strong>*80</p>
 <p>LMDER minimizes M functions in N variables by the Levenberg-Marquardt method.</p>
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-fcn~7"></span>real</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fcn~7"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>fcn</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-m~3"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fcn</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-m~3"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>m</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-n~13"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>m</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~13"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>n</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-x~11"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-x~11"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>x</strong>(n)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-fvec~8"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>x</strong>(n)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fvec~8"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>fvec</strong>(m)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-fjac~7"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fvec</strong>(m)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fjac~7"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>fjac</strong>(ldfjac,n)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ldfjac~7"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fjac</strong>(ldfjac,n)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ldfjac~7"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>ldfjac</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ftol"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ldfjac</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ftol"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>ftol</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-xtol~3"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ftol</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-xtol~3"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>xtol</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-gtol"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>xtol</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gtol"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>gtol</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-maxfev~3"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>gtol</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-maxfev~3"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>maxfev</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-diag~4"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>maxfev</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-diag~4"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>diag</strong>(n)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-mode~4"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>diag</strong>(n)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mode~4"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>mode</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-factor~3"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>mode</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-factor~3"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>factor</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nprint~3"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>factor</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nprint~3"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>nprint</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-info~5"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nprint</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-info~5"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>info</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nfev~3"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>info</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nfev~3"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>nfev</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-njev~2"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nfev</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-njev~2"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>njev</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ipvt"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>njev</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ipvt"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>ipvt</strong>(n)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qtf~3"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ipvt</strong>(n)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qtf~3"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>qtf</strong>(n)</td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>qtf</strong>(n)</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
     <div class="panel panel-default">
@@ -291,50 +503,50 @@
 <path fill="none" stroke="#ff0000" d="M32.32,-224.07C40.3,-244.5 59.39,-285.66 90,-306 120.64,-326.35 163.03,-331.79 192.92,-332.8"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="192.87,-336.29 202.93,-332.98 193,-329.3 192.87,-336.29"/>
 </g>
-<!-- interface~eq -->
-<g id="proc~~lmder~~CallsGraph_node3" class="node">
-<title>interface~eq</title>
-<g id="a_proc~~lmder~~CallsGraph_node3"><a xlink:href=".././interface/eq.html" xlink:title="eq">
-<polygon fill="#a7506f" stroke="#a7506f" points="389,-144 335,-144 335,-120 389,-120 389,-144"/>
-<text text-anchor="middle" x="362" y="-129.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">eq</text>
-</a>
-</g>
-</g>
-<!-- proc~lmder&#45;&gt;interface~eq -->
-<g id="proc~~lmder~~CallsGraph_edge4" class="edge">
-<title>proc~lmder&#45;&gt;interface~eq</title>
-<path fill="none" stroke="#ff0000" d="M37.02,-199.58C47.93,-185.52 67.65,-163 90,-151 165.38,-110.53 270.01,-117.88 324.58,-125.59"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="324.4,-129.1 334.81,-127.13 325.44,-122.18 324.4,-129.1"/>
-</g>
 <!-- interface~ne -->
-<g id="proc~~lmder~~CallsGraph_node4" class="node">
+<g id="proc~~lmder~~CallsGraph_node3" class="node">
 <title>interface~ne</title>
-<g id="a_proc~~lmder~~CallsGraph_node4"><a xlink:href=".././interface/ne.html" xlink:title="ne">
+<g id="a_proc~~lmder~~CallsGraph_node3"><a xlink:href=".././interface/ne.html" xlink:title="ne">
 <polygon fill="#a7506f" stroke="#a7506f" points="389,-266 335,-266 335,-242 389,-242 389,-266"/>
 <text text-anchor="middle" x="362" y="-251.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ne</text>
 </a>
 </g>
 </g>
 <!-- proc~lmder&#45;&gt;interface~ne -->
-<g id="proc~~lmder~~CallsGraph_edge2" class="edge">
+<g id="proc~~lmder~~CallsGraph_edge3" class="edge">
 <title>proc~lmder&#45;&gt;interface~ne</title>
 <path fill="none" stroke="#ff0000" d="M35.88,-224.21C46.24,-239.01 65.96,-263.16 90,-273 168.93,-305.32 271.58,-282.49 325.05,-266.31"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="326.26,-269.6 334.76,-263.28 324.17,-262.92 326.26,-269.6"/>
 </g>
 <!-- proc~enorm -->
-<g id="proc~~lmder~~CallsGraph_node5" class="node">
+<g id="proc~~lmder~~CallsGraph_node4" class="node">
 <title>proc~enorm</title>
-<g id="a_proc~~lmder~~CallsGraph_node5"><a xlink:href=".././proc/enorm.html" xlink:title="enorm">
+<g id="a_proc~~lmder~~CallsGraph_node4"><a xlink:href=".././proc/enorm.html" xlink:title="enorm">
 <polygon fill="#d94e8f" stroke="#d94e8f" points="257,-226 203,-226 203,-202 257,-202 257,-226"/>
 <text text-anchor="middle" x="230" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">enorm</text>
 </a>
 </g>
 </g>
 <!-- proc~lmder&#45;&gt;proc~enorm -->
-<g id="proc~~lmder~~CallsGraph_edge3" class="edge">
+<g id="proc~~lmder~~CallsGraph_edge4" class="edge">
 <title>proc~lmder&#45;&gt;proc~enorm</title>
 <path fill="none" stroke="#ff0000" d="M54.28,-212.26C89.64,-212.61 152.7,-213.24 192.61,-213.64"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="192.68,-217.14 202.72,-213.74 192.75,-210.14 192.68,-217.14"/>
+</g>
+<!-- interface~eq -->
+<g id="proc~~lmder~~CallsGraph_node5" class="node">
+<title>interface~eq</title>
+<g id="a_proc~~lmder~~CallsGraph_node5"><a xlink:href=".././interface/eq.html" xlink:title="eq">
+<polygon fill="#a7506f" stroke="#a7506f" points="389,-144 335,-144 335,-120 389,-120 389,-144"/>
+<text text-anchor="middle" x="362" y="-129.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">eq</text>
+</a>
+</g>
+</g>
+<!-- proc~lmder&#45;&gt;interface~eq -->
+<g id="proc~~lmder~~CallsGraph_edge2" class="edge">
+<title>proc~lmder&#45;&gt;interface~eq</title>
+<path fill="none" stroke="#ff0000" d="M37.02,-199.58C47.93,-185.52 67.65,-163 90,-151 165.38,-110.53 270.01,-117.88 324.58,-125.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="324.4,-129.1 334.81,-127.13 325.44,-122.18 324.4,-129.1"/>
 </g>
 <!-- proc~qrfac -->
 <g id="proc~~lmder~~CallsGraph_node6" class="node">
@@ -397,9 +609,9 @@
 <polygon fill="#ff0000" stroke="#ff0000" points="305.83,-349.37 316.3,-347.75 307.1,-342.49 305.83,-349.37"/>
 </g>
 <!-- proc~lesserequal_dp -->
-<g id="proc~~lmder~~CallsGraph_node13" class="node">
+<g id="proc~~lmder~~CallsGraph_node10" class="node">
 <title>proc~lesserequal_dp</title>
-<g id="a_proc~~lmder~~CallsGraph_node13"><a xlink:href=".././proc/lesserequal_dp.html" xlink:title="lesserequal_dp">
+<g id="a_proc~~lmder~~CallsGraph_node10"><a xlink:href=".././proc/lesserequal_dp.html" xlink:title="lesserequal_dp">
 <polygon fill="#d94e8f" stroke="#d94e8f" points="408,-326 316,-326 316,-302 408,-302 408,-326"/>
 <text text-anchor="middle" x="362" y="-311.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">lesserequal_dp</text>
 </a>
@@ -411,74 +623,74 @@
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M257.31,-328.36C271.19,-326.43 288.78,-324 305.51,-321.68"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="306.35,-325.1 315.78,-320.26 305.39,-318.17 306.35,-325.1"/>
 </g>
-<!-- proc~equal_dp -->
-<g id="proc~~lmder~~CallsGraph_node10" class="node">
-<title>proc~equal_dp</title>
-<g id="a_proc~~lmder~~CallsGraph_node10"><a xlink:href=".././proc/equal_dp.html" xlink:title="equal_dp">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="514,-165 453,-165 453,-141 514,-141 514,-165"/>
-<text text-anchor="middle" x="483.5" y="-150.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">equal_dp</text>
-</a>
-</g>
-</g>
-<!-- interface~eq&#45;&gt;proc~equal_dp -->
-<g id="proc~~lmder~~CallsGraph_edge11" class="edge">
-<title>interface~eq&#45;&gt;proc~equal_dp</title>
-<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M389.22,-136.61C404.96,-139.37 425.29,-142.95 442.94,-146.05"/>
-<polygon fill="#ffda00" stroke="#ffda00" points="442.52,-149.53 452.98,-147.81 443.73,-142.63 442.52,-149.53"/>
-</g>
-<!-- proc~equal_sp -->
-<g id="proc~~lmder~~CallsGraph_node11" class="node">
-<title>proc~equal_sp</title>
-<g id="a_proc~~lmder~~CallsGraph_node11"><a xlink:href=".././proc/equal_sp.html" xlink:title="equal_sp">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="513.5,-123 453.5,-123 453.5,-99 513.5,-99 513.5,-123"/>
-<text text-anchor="middle" x="483.5" y="-108.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">equal_sp</text>
-</a>
-</g>
-</g>
-<!-- interface~eq&#45;&gt;proc~equal_sp -->
-<g id="proc~~lmder~~CallsGraph_edge10" class="edge">
-<title>interface~eq&#45;&gt;proc~equal_sp</title>
-<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M389.22,-127.39C405.08,-124.61 425.58,-121 443.33,-117.88"/>
-<polygon fill="#ffda00" stroke="#ffda00" points="444.16,-121.29 453.4,-116.11 442.95,-114.4 444.16,-121.29"/>
-</g>
-<!-- proc~notequal_sp -->
-<g id="proc~~lmder~~CallsGraph_node12" class="node">
-<title>proc~notequal_sp</title>
-<g id="a_proc~~lmder~~CallsGraph_node12"><a xlink:href=".././proc/notequal_sp.html" xlink:title="notequal_sp">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="522,-287 445,-287 445,-263 522,-263 522,-287"/>
-<text text-anchor="middle" x="483.5" y="-272.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">notequal_sp</text>
-</a>
-</g>
-</g>
-<!-- interface~ne&#45;&gt;proc~notequal_sp -->
-<g id="proc~~lmder~~CallsGraph_edge12" class="edge">
-<title>interface~ne&#45;&gt;proc~notequal_sp</title>
-<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M389.22,-258.61C402.53,-260.95 419.1,-263.86 434.58,-266.58"/>
-<polygon fill="#48ff00" stroke="#48ff00" points="434.09,-270.05 444.54,-268.33 435.3,-263.15 434.09,-270.05"/>
-</g>
 <!-- proc~notequal_dp -->
-<g id="proc~~lmder~~CallsGraph_node14" class="node">
+<g id="proc~~lmder~~CallsGraph_node11" class="node">
 <title>proc~notequal_dp</title>
-<g id="a_proc~~lmder~~CallsGraph_node14"><a xlink:href=".././proc/notequal_dp.html" xlink:title="notequal_dp">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="523,-245 444,-245 444,-221 523,-221 523,-245"/>
-<text text-anchor="middle" x="483.5" y="-230.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">notequal_dp</text>
+<g id="a_proc~~lmder~~CallsGraph_node11"><a xlink:href=".././proc/notequal_dp.html" xlink:title="notequal_dp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="523,-287 444,-287 444,-263 523,-263 523,-287"/>
+<text text-anchor="middle" x="483.5" y="-272.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">notequal_dp</text>
 </a>
 </g>
 </g>
 <!-- interface~ne&#45;&gt;proc~notequal_dp -->
-<g id="proc~~lmder~~CallsGraph_edge13" class="edge">
+<g id="proc~~lmder~~CallsGraph_edge11" class="edge">
 <title>interface~ne&#45;&gt;proc~notequal_dp</title>
-<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M389.22,-249.39C402.18,-247.12 418.23,-244.29 433.35,-241.64"/>
-<polygon fill="#48ff00" stroke="#48ff00" points="434.38,-245.01 443.62,-239.83 433.17,-238.12 434.38,-245.01"/>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M389.22,-258.61C402.18,-260.88 418.23,-263.71 433.35,-266.36"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="433.17,-269.88 443.62,-268.17 434.38,-262.99 433.17,-269.88"/>
+</g>
+<!-- proc~notequal_sp -->
+<g id="proc~~lmder~~CallsGraph_node13" class="node">
+<title>proc~notequal_sp</title>
+<g id="a_proc~~lmder~~CallsGraph_node13"><a xlink:href=".././proc/notequal_sp.html" xlink:title="notequal_sp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="522,-245 445,-245 445,-221 522,-221 522,-245"/>
+<text text-anchor="middle" x="483.5" y="-230.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">notequal_sp</text>
+</a>
+</g>
+</g>
+<!-- interface~ne&#45;&gt;proc~notequal_sp -->
+<g id="proc~~lmder~~CallsGraph_edge10" class="edge">
+<title>interface~ne&#45;&gt;proc~notequal_sp</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M389.22,-249.39C402.53,-247.05 419.1,-244.14 434.58,-241.42"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="435.3,-244.85 444.54,-239.67 434.09,-237.95 435.3,-244.85"/>
+</g>
+<!-- proc~equal_sp -->
+<g id="proc~~lmder~~CallsGraph_node12" class="node">
+<title>proc~equal_sp</title>
+<g id="a_proc~~lmder~~CallsGraph_node12"><a xlink:href=".././proc/equal_sp.html" xlink:title="equal_sp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="513.5,-165 453.5,-165 453.5,-141 513.5,-141 513.5,-165"/>
+<text text-anchor="middle" x="483.5" y="-150.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">equal_sp</text>
+</a>
+</g>
+</g>
+<!-- interface~eq&#45;&gt;proc~equal_sp -->
+<g id="proc~~lmder~~CallsGraph_edge12" class="edge">
+<title>interface~eq&#45;&gt;proc~equal_sp</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M389.22,-136.61C405.08,-139.39 425.58,-143 443.33,-146.12"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="442.95,-149.6 453.4,-147.89 444.16,-142.71 442.95,-149.6"/>
+</g>
+<!-- proc~equal_dp -->
+<g id="proc~~lmder~~CallsGraph_node14" class="node">
+<title>proc~equal_dp</title>
+<g id="a_proc~~lmder~~CallsGraph_node14"><a xlink:href=".././proc/equal_dp.html" xlink:title="equal_dp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="514,-123 453,-123 453,-99 514,-99 514,-123"/>
+<text text-anchor="middle" x="483.5" y="-108.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">equal_dp</text>
+</a>
+</g>
+</g>
+<!-- interface~eq&#45;&gt;proc~equal_dp -->
+<g id="proc~~lmder~~CallsGraph_edge13" class="edge">
+<title>interface~eq&#45;&gt;proc~equal_dp</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M389.22,-127.39C404.96,-124.63 425.29,-121.05 442.94,-117.95"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="443.73,-121.37 452.98,-116.19 442.52,-114.47 443.73,-121.37"/>
 </g>
 <!-- proc~qrfac&#45;&gt;interface~le -->
-<g id="proc~~lmder~~CallsGraph_edge15" class="edge">
+<g id="proc~~lmder~~CallsGraph_edge16" class="edge">
 <title>proc~qrfac&#45;&gt;interface~le</title>
 <path fill="none" stroke="#0091ff" d="M134.86,-264.15C153.3,-277.44 183.05,-298.88 204.16,-314.1"/>
 <polygon fill="#0091ff" stroke="#0091ff" points="202.19,-316.99 212.35,-320 206.28,-311.31 202.19,-316.99"/>
 </g>
 <!-- proc~qrfac&#45;&gt;interface~ne -->
-<g id="proc~~lmder~~CallsGraph_edge16" class="edge">
+<g id="proc~~lmder~~CallsGraph_edge15" class="edge">
 <title>proc~qrfac&#45;&gt;interface~ne</title>
 <path fill="none" stroke="#0091ff" d="M144.01,-252.21C187.46,-252.57 274.96,-253.29 324.54,-253.7"/>
 <polygon fill="#0091ff" stroke="#0091ff" points="324.79,-257.2 334.81,-253.78 324.84,-250.2 324.79,-257.2"/>
@@ -490,22 +702,22 @@
 <polygon fill="#0091ff" stroke="#0091ff" points="194.43,-229.54 202.75,-222.99 192.16,-222.91 194.43,-229.54"/>
 </g>
 <!-- proc~lmpar&#45;&gt;interface~le -->
-<g id="proc~~lmder~~CallsGraph_edge18" class="edge">
+<g id="proc~~lmder~~CallsGraph_edge19" class="edge">
 <title>proc~lmpar&#45;&gt;interface~le</title>
 <path fill="none" stroke="#4800ff" d="M126.34,-184.03C145.23,-211.25 191.42,-277.82 214.86,-311.61"/>
 <polygon fill="#4800ff" stroke="#4800ff" points="211.98,-313.61 220.56,-319.83 217.74,-309.62 211.98,-313.61"/>
+</g>
+<!-- proc~lmpar&#45;&gt;proc~enorm -->
+<g id="proc~~lmder~~CallsGraph_edge20" class="edge">
+<title>proc~lmpar&#45;&gt;proc~enorm</title>
+<path fill="none" stroke="#4800ff" d="M144.02,-181.85C158.67,-187.39 177.17,-194.39 193.17,-200.44"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="192.16,-203.8 202.75,-204.07 194.64,-197.26 192.16,-203.8"/>
 </g>
 <!-- proc~lmpar&#45;&gt;interface~eq -->
 <g id="proc~~lmder~~CallsGraph_edge17" class="edge">
 <title>proc~lmpar&#45;&gt;interface~eq</title>
 <path fill="none" stroke="#4800ff" d="M144.18,-161.69C155.1,-157.77 168.01,-153.63 180,-151 229.44,-140.17 287.88,-135.46 324.69,-133.44"/>
 <polygon fill="#4800ff" stroke="#4800ff" points="325.13,-136.92 334.93,-132.92 324.77,-129.93 325.13,-136.92"/>
-</g>
-<!-- proc~lmpar&#45;&gt;proc~enorm -->
-<g id="proc~~lmder~~CallsGraph_edge19" class="edge">
-<title>proc~lmpar&#45;&gt;proc~enorm</title>
-<path fill="none" stroke="#4800ff" d="M144.02,-181.85C158.67,-187.39 177.17,-194.39 193.17,-200.44"/>
-<polygon fill="#4800ff" stroke="#4800ff" points="192.16,-203.8 202.75,-204.07 194.64,-197.26 192.16,-203.8"/>
 </g>
 <!-- proc~qrsolv -->
 <g id="proc~~lmder~~CallsGraph_node15" class="node">
@@ -517,7 +729,7 @@
 </g>
 </g>
 <!-- proc~lmpar&#45;&gt;proc~qrsolv -->
-<g id="proc~~lmder~~CallsGraph_edge20" class="edge">
+<g id="proc~~lmder~~CallsGraph_edge18" class="edge">
 <title>proc~lmpar&#45;&gt;proc~qrsolv</title>
 <path fill="none" stroke="#4800ff" d="M144.02,-172C158.53,-172 176.83,-172 192.72,-172"/>
 <polygon fill="#4800ff" stroke="#4800ff" points="192.75,-175.5 202.75,-172 192.75,-168.5 192.75,-175.5"/>
@@ -552,17 +764,17 @@
 <path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M144.02,-54C151.75,-54 160.56,-54 169.5,-54"/>
 <polygon fill="#ff00da" stroke="#ff00da" points="169.6,-57.5 179.6,-54 169.6,-50.5 169.6,-57.5"/>
 </g>
-<!-- proc~qrsolv&#45;&gt;interface~eq -->
-<g id="proc~~lmder~~CallsGraph_edge24" class="edge">
-<title>proc~qrsolv&#45;&gt;interface~eq</title>
-<path fill="none" stroke="#0000ff" d="M257.31,-163.91C276.78,-157.91 303.53,-149.68 324.99,-143.08"/>
-<polygon fill="#0000ff" stroke="#0000ff" points="326.2,-146.37 334.73,-140.08 324.14,-139.68 326.2,-146.37"/>
-</g>
 <!-- proc~qrsolv&#45;&gt;interface~ne -->
 <g id="proc~~lmder~~CallsGraph_edge23" class="edge">
 <title>proc~qrsolv&#45;&gt;interface~ne</title>
 <path fill="none" stroke="#0000ff" d="M257.25,-181.88C264.78,-185.07 272.87,-188.87 280,-193 301.21,-205.29 323.3,-222.25 339.05,-235.17"/>
 <polygon fill="#0000ff" stroke="#0000ff" points="337.18,-238.16 347.1,-241.88 341.66,-232.79 337.18,-238.16"/>
+</g>
+<!-- proc~qrsolv&#45;&gt;interface~eq -->
+<g id="proc~~lmder~~CallsGraph_edge24" class="edge">
+<title>proc~qrsolv&#45;&gt;interface~eq</title>
+<path fill="none" stroke="#0000ff" d="M257.31,-163.91C276.78,-157.91 303.53,-149.68 324.99,-143.08"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="326.2,-146.37 334.73,-140.08 324.14,-139.68 326.2,-146.37"/>
 </g>
 </g>
 </svg>
@@ -730,9 +942,27 @@
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

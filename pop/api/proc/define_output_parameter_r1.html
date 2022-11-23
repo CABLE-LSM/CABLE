@@ -80,134 +80,283 @@
   <div class="row">
     <h1>define_output_parameter_r1
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.2% of total for procedures.">83 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cable_write.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cable_write.f90.html'>cable_write.F90</a></li>
-     <li><a href='../module/cable_write_module.html'>cable_write_module</a></li>
-     <li class="active">define_output_parameter_r1</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.2% of total for procedures.">83 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cable_write.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cable_write.f90.html'>cable_write.F90</a></li>
+              <li><a href='../module/cable_write_module.html'>cable_write_module</a></li>
+          <li class="active">define_output_parameter_r1</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>private subroutine define_output_parameter_r1(ncid, parID, pname, punits, longname, writepatch, dimswitch, xID, yID, zID, landID, patchID, restart)</h2>
+    <h2>private  subroutine define_output_parameter_r1(ncid, parID, pname, punits, longname, writepatch, dimswitch, xID, yID, zID, landID, patchID, restart)  
+</h2>
     
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-ncid~11"></span>integer,</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ncid~11"></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>ncid</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-parid"></span>integer,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ncid</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-parid"></span>
+              integer,
+            </td>
 <td>intent(out)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>parID</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-pname"></span>character(len=*),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>parID</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pname"></span>
+              character(len=*),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>pname</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-punits"></span>character(len=*),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>pname</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-punits"></span>
+              character(len=*),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>punits</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-longname~3"></span>character(len=*),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>punits</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-longname~3"></span>
+              character(len=*),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>longname</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-writepatch~3"></span>logical,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>longname</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-writepatch~3"></span>
+              logical,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>writepatch</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-dimswitch~3"></span>character(len=*),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>writepatch</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dimswitch~3"></span>
+              character(len=*),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>dimswitch</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-xid~3"></span>integer,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dimswitch</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-xid~3"></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>xID</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-yid~3"></span>integer,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>xID</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-yid~3"></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>yID</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-zid~3"></span>integer,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>yID</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-zid~3"></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>zID</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-landid~3"></span>integer,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>zID</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-landid~3"></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>landID</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-patchid~3"></span>integer,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>landID</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-patchid~3"></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>patchID</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-restart~3"></span>logical,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>patchID</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-restart~3"></span>
+              logical,
+            </td>
 <td>intent(in),</td>
-  <td>optional</td>  <td></td><td>::</td>
-  <td><strong>restart</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>restart</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
     <div class="panel panel-default">
@@ -244,59 +393,59 @@
 <path fill="none" stroke="#ff0000" d="M113.87,-87.15C138.79,-97.11 174.26,-111.3 201.4,-122.16"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="200.41,-125.53 210.99,-126 203.01,-119.03 200.41,-125.53"/>
 </g>
-<!-- proc~nc_abort -->
+<!-- nf90_put_att -->
 <g id="proc~~define_output_parameter_r1~~CallsGraph_node3" class="node">
+<title>nf90_put_att</title>
+<polygon fill="#777777" stroke="#777777" points="281.5,-108 202.5,-108 202.5,-84 281.5,-84 281.5,-108"/>
+<text text-anchor="middle" x="242" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_put_att</text>
+</g>
+<!-- proc~define_output_parameter_r1&#45;&gt;nf90_put_att -->
+<g id="proc~~define_output_parameter_r1~~CallsGraph_edge2" class="edge">
+<title>proc~define_output_parameter_r1&#45;&gt;nf90_put_att</title>
+<path fill="none" stroke="#ff0000" d="M165.02,-85.87C174.41,-87.12 183.74,-88.37 192.49,-89.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="192.08,-93.01 202.46,-90.86 193.01,-86.07 192.08,-93.01"/>
+</g>
+<!-- proc~nc_abort -->
+<g id="proc~~define_output_parameter_r1~~CallsGraph_node4" class="node">
 <title>proc~nc_abort</title>
-<g id="a_proc~~define_output_parameter_r1~~CallsGraph_node3"><a xlink:href=".././proc/nc_abort.html" xlink:title="nc_abort">
-<polygon fill="#d9534f" stroke="#d9534f" points="271.5,-108 212.5,-108 212.5,-84 271.5,-84 271.5,-108"/>
-<text text-anchor="middle" x="242" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nc_abort</text>
+<g id="a_proc~~define_output_parameter_r1~~CallsGraph_node4"><a xlink:href=".././proc/nc_abort.html" xlink:title="nc_abort">
+<polygon fill="#d9534f" stroke="#d9534f" points="271.5,-66 212.5,-66 212.5,-42 271.5,-42 271.5,-66"/>
+<text text-anchor="middle" x="242" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nc_abort</text>
 </a>
 </g>
 </g>
 <!-- proc~define_output_parameter_r1&#45;&gt;proc~nc_abort -->
-<g id="proc~~define_output_parameter_r1~~CallsGraph_edge2" class="edge">
+<g id="proc~~define_output_parameter_r1~~CallsGraph_edge3" class="edge">
 <title>proc~define_output_parameter_r1&#45;&gt;proc~nc_abort</title>
-<path fill="none" stroke="#ff0000" d="M165.02,-85.87C178.01,-87.6 190.89,-89.32 202.26,-90.84"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="201.87,-94.31 212.24,-92.17 202.79,-87.37 201.87,-94.31"/>
+<path fill="none" stroke="#ff0000" d="M165.02,-64.13C178.01,-62.4 190.89,-60.68 202.26,-59.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="202.79,-62.63 212.24,-57.83 201.87,-55.69 202.79,-62.63"/>
 </g>
 <!-- proc~cable_abort -->
-<g id="proc~~define_output_parameter_r1~~CallsGraph_node4" class="node">
+<g id="proc~~define_output_parameter_r1~~CallsGraph_node5" class="node">
 <title>proc~cable_abort</title>
-<g id="a_proc~~define_output_parameter_r1~~CallsGraph_node4"><a xlink:href=".././proc/cable_abort.html" xlink:title="cable_abort">
-<polygon fill="#d9534f" stroke="#d9534f" points="280,-66 204,-66 204,-42 280,-42 280,-66"/>
-<text text-anchor="middle" x="242" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_abort</text>
+<g id="a_proc~~define_output_parameter_r1~~CallsGraph_node5"><a xlink:href=".././proc/cable_abort.html" xlink:title="cable_abort">
+<polygon fill="#d9534f" stroke="#d9534f" points="280,-24 204,-24 204,0 280,0 280,-24"/>
+<text text-anchor="middle" x="242" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_abort</text>
 </a>
 </g>
 </g>
 <!-- proc~define_output_parameter_r1&#45;&gt;proc~cable_abort -->
-<g id="proc~~define_output_parameter_r1~~CallsGraph_edge3" class="edge">
-<title>proc~define_output_parameter_r1&#45;&gt;proc~cable_abort</title>
-<path fill="none" stroke="#ff0000" d="M165.02,-64.13C174.83,-62.82 184.59,-61.52 193.68,-60.31"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="194.18,-63.77 203.63,-58.98 193.26,-56.83 194.18,-63.77"/>
-</g>
-<!-- nf90_put_att -->
-<g id="proc~~define_output_parameter_r1~~CallsGraph_node5" class="node">
-<title>nf90_put_att</title>
-<polygon fill="#777777" stroke="#777777" points="281.5,-24 202.5,-24 202.5,0 281.5,0 281.5,-24"/>
-<text text-anchor="middle" x="242" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_put_att</text>
-</g>
-<!-- proc~define_output_parameter_r1&#45;&gt;nf90_put_att -->
 <g id="proc~~define_output_parameter_r1~~CallsGraph_edge4" class="edge">
-<title>proc~define_output_parameter_r1&#45;&gt;nf90_put_att</title>
+<title>proc~define_output_parameter_r1&#45;&gt;proc~cable_abort</title>
 <path fill="none" stroke="#ff0000" d="M113.87,-62.85C138.79,-52.89 174.26,-38.7 201.4,-27.84"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="203.01,-30.97 210.99,-24 200.41,-24.47 203.01,-30.97"/>
 </g>
 <!-- nf90_strerror -->
 <g id="proc~~define_output_parameter_r1~~CallsGraph_node6" class="node">
 <title>nf90_strerror</title>
-<polygon fill="#777777" stroke="#777777" points="400,-108 319,-108 319,-84 400,-84 400,-108"/>
-<text text-anchor="middle" x="359.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
+<polygon fill="#777777" stroke="#777777" points="400,-66 319,-66 319,-42 400,-42 400,-66"/>
+<text text-anchor="middle" x="359.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
 </g>
 <!-- proc~nc_abort&#45;&gt;nf90_strerror -->
 <g id="proc~~define_output_parameter_r1~~CallsGraph_edge5" class="edge">
 <title>proc~nc_abort&#45;&gt;nf90_strerror</title>
-<path fill="none" stroke="#7fff00" d="M271.55,-96C282.83,-96 296.13,-96 308.88,-96"/>
-<polygon fill="#7fff00" stroke="#7fff00" points="308.95,-99.5 318.95,-96 308.95,-92.5 308.95,-99.5"/>
+<path fill="none" stroke="#00ffff" d="M271.55,-54C282.83,-54 296.13,-54 308.88,-54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="308.95,-57.5 318.95,-54 308.95,-50.5 308.95,-57.5"/>
 </g>
 </g>
 </svg>
@@ -551,9 +700,27 @@
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

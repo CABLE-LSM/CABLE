@@ -79,53 +79,82 @@
     <div class="container">
   <div class="row">
     <h1>cable_site.F90
-    <small>Source File</small>
+      <small>Source File</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.2% of total for source files.">99 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cable_site.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li class="active">cable_site.F90</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.2% of total for source files.">99 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cable_site.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+          <li class="active">cable_site.F90</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<div class="panel panel-primary">
-  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#mods-0">Modules</a></h3></div>
-  <div id="mods-0" class="panel-collapse collapse">
-    <div class="list-group">
-      <a class="list-group-item" href="../module/cable_site.html">CABLE_site</a>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#mods-0">Modules</a>
+        </h3>
+      </div>
+      <div id="mods-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/cable_site.html">CABLE_site</a>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-<div class="panel panel-primary">
-  <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-  <div class="list-group">
-    <a class="list-group-item" href="../sourcefile/cable_site.f90.html#src">cable_site.F90</a>
-  </div>
-</div>
 
-</div>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/cable_site.f90.html#src">cable_site.F90</a>
+      </div>
+    </div>
+
+
+  </div>
 
     </div>
     <div class="col-md-9" id='text'>
@@ -184,7 +213,7 @@
 <polygon fill="#ff0000" stroke="#ff0000" points="321.73,-107.36 312.02,-111.58 322.25,-114.34 321.73,-107.36"/>
 </g>
 <!-- sourcefile~cable_common.f90&#45;&gt;sourcefile~cable_iovars_cmip6.f90 -->
-<g id="sourcefile~~cable_site.f90~~EfferentGraph_edge6" class="edge">
+<g id="sourcefile~~cable_site.f90~~EfferentGraph_edge5" class="edge">
 <title>sourcefile~cable_common.f90&#45;&gt;sourcefile~cable_iovars_cmip6.f90</title>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M359.08,-86.63C340.61,-91.42 319.18,-96.97 299.83,-101.99"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="298.73,-98.66 289.93,-104.56 300.49,-105.43 298.73,-98.66"/>
@@ -229,7 +258,7 @@
 </g>
 </g>
 <!-- sourcefile~cable_common.f90&#45;&gt;sourcefile~cable_define_types.f90 -->
-<g id="sourcefile~~cable_site.f90~~EfferentGraph_edge5" class="edge">
+<g id="sourcefile~~cable_site.f90~~EfferentGraph_edge6" class="edge">
 <title>sourcefile~cable_common.f90&#45;&gt;sourcefile~cable_define_types.f90</title>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M392.89,-62.41C376.06,-47.07 344.57,-21.54 312,-11.59 252.92,6.45 233.63,0.24 173,-11.59 147.97,-16.48 121.35,-27.42 101.38,-36.92"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="99.59,-33.9 92.14,-41.43 102.66,-40.19 99.59,-33.9"/>
@@ -367,22 +396,45 @@
     </div>
 <br>
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<div class="panel panel-primary">
-  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#mods-1">Modules</a></h3></div>
-  <div id="mods-1" class="panel-collapse collapse">
-    <div class="list-group">
-      <a class="list-group-item" href="../module/cable_site.html">CABLE_site</a>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#mods-1">Modules</a>
+        </h3>
+      </div>
+      <div id="mods-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/cable_site.html">CABLE_site</a>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-<div class="panel panel-primary">
-  <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-  <div class="list-group">
-    <a class="list-group-item" href="../sourcefile/cable_site.f90.html#src">cable_site.F90</a>
-  </div>
-</div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/cable_site.f90.html#src">cable_site.F90</a>
+      </div>
+    </div>
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

@@ -80,494 +80,1183 @@
   <div class="row">
     <h1>get_fluxes_and_derivs
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.5% of total for procedures.">253 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cable_sli_solve.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cable_sli_solve.f90.html'>cable_sli_solve.F90</a></li>
-     <li><a href='../module/sli_solve.html'>sli_solve</a></li>
-     <li class="active">get_fluxes_and_derivs</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.5% of total for procedures.">253 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cable_sli_solve.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cable_sli_solve.f90.html'>cable_sli_solve.F90</a></li>
+              <li><a href='../module/sli_solve.html'>sli_solve</a></li>
+          <li class="active">get_fluxes_and_derivs</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>private subroutine get_fluxes_and_derivs(mp, qprec, qprec_snow, n, dx, h0, Tsoil, qh, vmet, vlit, vsnow, var, T0, Tsurface, SL, Tl, plit, par, qali, qvh, qevap, again, getq0, getqn, init, ns, nsat, nsatlast, phip, qpme, hint, phimin, qexd, q, qya, qyb, qTa, qTb, qhya, qhyb, qhTa, qhTb, qadv, qadvya, qadvyb, qadvTa, qadvTb, vtmp, qliq, qv, qvT, qlya, qlyb, qvya, qvyb, qlTb, qvTa, qvTb, vtop, vbot, lE0, G0, Epot, surface_case, iflux, j, kk, advection, dTqwdTa, dTqwdTb, Tqw, keff, hice)</h2>
+    <h2>private  subroutine get_fluxes_and_derivs(mp, qprec, qprec_snow, n, dx, h0, Tsoil, qh, vmet, vlit, vsnow, var, T0, Tsurface, SL, Tl, plit, par, qali, qvh, qevap, again, getq0, getqn, init, ns, nsat, nsatlast, phip, qpme, hint, phimin, qexd, q, qya, qyb, qTa, qTb, qhya, qhyb, qhTa, qhTb, qadv, qadvya, qadvyb, qadvTa, qadvTb, vtmp, qliq, qv, qvT, qlya, qlyb, qvya, qvyb, qlTb, qvTa, qvTb, vtop, vbot, lE0, G0, Epot, surface_case, iflux, j, kk, advection, dTqwdTa, dTqwdTb, Tqw, keff, hice)  
+</h2>
     
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-mp~24"></span>integer(kind=i_d)</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>mp</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qprec~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>qprec</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qprec_snow~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>qprec_snow</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-n~41"></span>integer(kind=i_d)</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>n</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-dx~11"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>dx</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-h0~8"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>h0</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-tsoil~9"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>Tsoil</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qh~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qh</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-vmet~2"></span>type(<a href='../type/vars_met.html'>vars_met</a>),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>vmet</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-vlit~2"></span>type(<a href='../type/vars.html'>vars</a>),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>vlit</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-vsnow~2"></span>type(<a href='../type/vars_snow.html'>vars_snow</a>),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>vsnow</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-var~17"></span>type(<a href='../type/vars.html'>vars</a>),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>var</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-t0~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>T0</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-tsurface~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>Tsurface</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-sl~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>SL</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-tl"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>Tl</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-plit~2"></span>type(<a href='../type/params.html'>params</a>),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>plit</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-par~4"></span>type(<a href='../type/params.html'>params</a>),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>par</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qali"></span>real(kind=r_2),</td>
-<td></td>
-  <td>optional</td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>qali</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qvh~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qvh</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qevap~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>qevap</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-again"></span>logical,</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>again</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-getq0~3"></span>logical,</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>getq0</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-getqn~3"></span>logical,</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>getqn</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-init~3"></span>logical,</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>init</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ns~3"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>ns</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nsat~3"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>nsat</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nsatlast~3"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>nsatlast</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-phip"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>phip</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qpme"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>qpme</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-hint~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>hint</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-phimin~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>phimin</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qexd"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>qexd</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-q~7"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>q</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qya~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qya</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qyb~5"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qyb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qta~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qTa</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qtb~5"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qTb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qhya~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qhya</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qhyb~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qhyb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qhta~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qhTa</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qhtb~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qhTb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qadv~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qadv</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qadvya~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qadvya</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qadvyb~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qadvyb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qadvta~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qadvTa</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qadvtb~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qadvTb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-vtmp"></span>type(<a href='../type/vars.html'>vars</a>)</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>vtmp</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qliq~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qliq</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qv~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qv</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qvt~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qvT</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qlya~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qlya</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qlyb~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qlyb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qvya~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qvya</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qvyb~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qvyb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qltb~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qlTb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qvta"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qvTa</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qvtb~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qvTb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-vtop~3"></span>type(<a href='../type/vars.html'>vars</a>),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>vtop</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-vbot~3"></span>type(<a href='../type/vars.html'>vars</a>),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>vbot</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-le0~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>lE0</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-g0~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>G0</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-epot~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>Epot</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-surface_case"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>surface_case</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-iflux~3"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>iflux</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-j"></span>integer(kind=i_d)</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>j</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-kk"></span>integer(kind=i_d)</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>kk</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-advection~3"></span>integer(kind=i_d)</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>advection</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-dtqwdta"></span>real(kind=r_2)</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>dTqwdTa</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-dtqwdtb"></span>real(kind=r_2)</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>dTqwdTb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-tqw"></span>real(kind=r_2)</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>Tqw</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-keff"></span>real(kind=r_2)</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>keff</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-hice"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>hice</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mp~24"></span>
+              integer(kind=i_d)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>mp</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qprec~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>qprec</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qprec_snow~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>qprec_snow</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~41"></span>
+              integer(kind=i_d)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dx~11"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>dx</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-h0~8"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>h0</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tsoil~9"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>Tsoil</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qh~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qh</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vmet~2"></span>
+              type(<a href='../type/vars_met.html'>vars_met</a>),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>vmet</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vlit~2"></span>
+              type(<a href='../type/vars.html'>vars</a>),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>vlit</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vsnow~2"></span>
+              type(<a href='../type/vars_snow.html'>vars_snow</a>),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>vsnow</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-var~17"></span>
+              type(<a href='../type/vars.html'>vars</a>),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>var</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-t0~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>T0</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tsurface~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>Tsurface</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sl~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>SL</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tl"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>Tl</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-plit~2"></span>
+              type(<a href='../type/params.html'>params</a>),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>plit</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-par~4"></span>
+              type(<a href='../type/params.html'>params</a>),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>par</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qali"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td>optional,</td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>qali</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qvh~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qvh</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qevap~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>qevap</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-again"></span>
+              logical,
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>again</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-getq0~3"></span>
+              logical,
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>getq0</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-getqn~3"></span>
+              logical,
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>getqn</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-init~3"></span>
+              logical,
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>init</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ns~3"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>ns</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nsat~3"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>nsat</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nsatlast~3"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>nsatlast</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-phip"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>phip</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qpme"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>qpme</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-hint~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>hint</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-phimin~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>phimin</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qexd"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>qexd</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~7"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qya~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qya</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qyb~5"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qyb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qta~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qTa</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qtb~5"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qTb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qhya~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qhya</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qhyb~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qhyb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qhta~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qhTa</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qhtb~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qhTb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qadv~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qadv</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qadvya~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qadvya</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qadvyb~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qadvyb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qadvta~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qadvTa</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qadvtb~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qadvTb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vtmp"></span>
+              type(<a href='../type/vars.html'>vars</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vtmp</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qliq~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qliq</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qv~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qv</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qvt~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qvT</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qlya~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qlya</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qlyb~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qlyb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qvya~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qvya</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qvyb~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qvyb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qltb~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qlTb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qvta"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qvTa</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qvtb~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qvTb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vtop~3"></span>
+              type(<a href='../type/vars.html'>vars</a>),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>vtop</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vbot~3"></span>
+              type(<a href='../type/vars.html'>vars</a>),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>vbot</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-le0~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>lE0</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-g0~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>G0</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-epot~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>Epot</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-surface_case"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>surface_case</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-iflux~3"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>iflux</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-j"></span>
+              integer(kind=i_d)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>j</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kk"></span>
+              integer(kind=i_d)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>kk</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-advection~3"></span>
+              integer(kind=i_d)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>advection</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dtqwdta"></span>
+              real(kind=r_2)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dTqwdTa</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dtqwdtb"></span>
+              real(kind=r_2)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dTqwdTb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tqw"></span>
+              real(kind=r_2)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Tqw</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-keff"></span>
+              real(kind=r_2)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>keff</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-hice"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>hice</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
     <div class="panel panel-default">
@@ -607,20 +1296,20 @@
 <path fill="none" stroke="#ff0000" d="M121.47,-167.01C135.94,-170.05 151.54,-173.23 166,-176 219.61,-186.28 232.93,-189.53 287,-197 337.96,-204.04 397.19,-209.71 434.38,-212.97"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="434.46,-216.49 444.73,-213.86 435.07,-209.51 434.46,-216.49"/>
 </g>
-<!-- proc~zerovars -->
+<!-- interface~getfluxes_vp -->
 <g id="proc~~get_fluxes_and_derivs~~CallsGraph_node3" class="node">
-<title>proc~zerovars</title>
-<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node3"><a xlink:href=".././proc/zerovars.html" xlink:title="zerovars">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="501,-144 443,-144 443,-120 501,-120 501,-144"/>
-<text text-anchor="middle" x="472" y="-129.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">zerovars</text>
+<title>interface~getfluxes_vp</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node3"><a xlink:href=".././interface/getfluxes_vp.html" xlink:title="getfluxes_vp">
+<polygon fill="#a7506f" stroke="#a7506f" points="248,-167 169,-167 169,-143 248,-143 248,-167"/>
+<text text-anchor="middle" x="208.5" y="-152.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getfluxes_vp</text>
 </a>
 </g>
 </g>
-<!-- proc~get_fluxes_and_derivs&#45;&gt;proc~zerovars -->
-<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge2" class="edge">
-<title>proc~get_fluxes_and_derivs&#45;&gt;proc~zerovars</title>
-<path fill="none" stroke="#ff0000" d="M108.03,-142.94C169.93,-126.69 289.29,-101.09 391,-113 404.9,-114.63 419.88,-117.79 433.08,-121.08"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="432.22,-124.48 442.78,-123.6 433.98,-117.7 432.22,-124.48"/>
+<!-- proc~get_fluxes_and_derivs&#45;&gt;interface~getfluxes_vp -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge4" class="edge">
+<title>proc~get_fluxes_and_derivs&#45;&gt;interface~getfluxes_vp</title>
+<path fill="none" stroke="#ff0000" d="M130.13,-155C139.69,-155 149.41,-155 158.6,-155"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="158.69,-158.5 168.69,-155 158.69,-151.5 158.69,-158.5"/>
 </g>
 <!-- interface~getheatfluxes -->
 <g id="proc~~get_fluxes_and_derivs~~CallsGraph_node4" class="node">
@@ -637,20 +1326,20 @@
 <path fill="none" stroke="#ff0000" d="M81.29,-142.9C100.66,-127.72 135.23,-101.13 166,-80 170.08,-77.2 174.45,-74.33 178.76,-71.57"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="180.84,-74.39 187.44,-66.1 177.11,-68.47 180.84,-74.39"/>
 </g>
-<!-- interface~getfluxes_vp -->
+<!-- proc~zerovars -->
 <g id="proc~~get_fluxes_and_derivs~~CallsGraph_node5" class="node">
-<title>interface~getfluxes_vp</title>
-<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node5"><a xlink:href=".././interface/getfluxes_vp.html" xlink:title="getfluxes_vp">
-<polygon fill="#a7506f" stroke="#a7506f" points="248,-167 169,-167 169,-143 248,-143 248,-167"/>
-<text text-anchor="middle" x="208.5" y="-152.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getfluxes_vp</text>
+<title>proc~zerovars</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node5"><a xlink:href=".././proc/zerovars.html" xlink:title="zerovars">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="501,-144 443,-144 443,-120 501,-120 501,-144"/>
+<text text-anchor="middle" x="472" y="-129.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">zerovars</text>
 </a>
 </g>
 </g>
-<!-- proc~get_fluxes_and_derivs&#45;&gt;interface~getfluxes_vp -->
-<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge4" class="edge">
-<title>proc~get_fluxes_and_derivs&#45;&gt;interface~getfluxes_vp</title>
-<path fill="none" stroke="#ff0000" d="M130.13,-155C139.69,-155 149.41,-155 158.6,-155"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="158.69,-158.5 168.69,-155 158.69,-151.5 158.69,-158.5"/>
+<!-- proc~get_fluxes_and_derivs&#45;&gt;proc~zerovars -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge5" class="edge">
+<title>proc~get_fluxes_and_derivs&#45;&gt;proc~zerovars</title>
+<path fill="none" stroke="#ff0000" d="M108.03,-142.94C169.93,-126.69 289.29,-101.09 391,-113 404.9,-114.63 419.88,-117.79 433.08,-121.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="432.22,-124.48 442.78,-123.6 433.98,-117.7 432.22,-124.48"/>
 </g>
 <!-- proc~seb -->
 <g id="proc~~get_fluxes_and_derivs~~CallsGraph_node6" class="node">
@@ -662,7 +1351,7 @@
 </g>
 </g>
 <!-- proc~get_fluxes_and_derivs&#45;&gt;proc~seb -->
-<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge5" class="edge">
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge2" class="edge">
 <title>proc~get_fluxes_and_derivs&#45;&gt;proc~seb</title>
 <path fill="none" stroke="#ff0000" d="M80.08,-167.04C104.75,-188.14 155.93,-231.9 185.36,-257.07"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="183.18,-259.81 193.05,-263.64 187.73,-254.48 183.18,-259.81"/>
@@ -682,36 +1371,6 @@
 <path fill="none" stroke="#ff0000" d="M499.23,-216C513.31,-216 530.89,-216 546.27,-216"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="546.49,-219.5 556.49,-216 546.49,-212.5 546.49,-219.5"/>
 </g>
-<!-- proc~getheatfluxes_2d -->
-<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node10" class="node">
-<title>proc~getheatfluxes_2d</title>
-<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node10"><a xlink:href=".././proc/getheatfluxes_2d.html" xlink:title="getheatfluxes_2d">
-<polygon fill="#d9534f" stroke="#d9534f" points="391,-24 287,-24 287,0 391,0 391,-24"/>
-<text text-anchor="middle" x="339" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getheatfluxes_2d</text>
-</a>
-</g>
-</g>
-<!-- interface~getheatfluxes&#45;&gt;proc~getheatfluxes_2d -->
-<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge8" class="edge">
-<title>interface~getheatfluxes&#45;&gt;proc~getheatfluxes_2d</title>
-<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M246.32,-41.96C260.44,-37.35 276.73,-32.03 291.62,-27.16"/>
-<polygon fill="#00ff66" stroke="#00ff66" points="292.75,-30.47 301.17,-24.04 290.58,-23.82 292.75,-30.47"/>
-</g>
-<!-- proc~getheatfluxes_1d -->
-<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node11" class="node">
-<title>proc~getheatfluxes_1d</title>
-<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node11"><a xlink:href=".././proc/getheatfluxes_1d.html" xlink:title="getheatfluxes_1d">
-<polygon fill="#d9534f" stroke="#d9534f" points="391,-66 287,-66 287,-42 391,-42 391,-66"/>
-<text text-anchor="middle" x="339" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getheatfluxes_1d</text>
-</a>
-</g>
-</g>
-<!-- interface~getheatfluxes&#45;&gt;proc~getheatfluxes_1d -->
-<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge7" class="edge">
-<title>interface~getheatfluxes&#45;&gt;proc~getheatfluxes_1d</title>
-<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M251.22,-54C259.33,-54 267.99,-54 276.58,-54"/>
-<polygon fill="#00ff66" stroke="#00ff66" points="276.6,-57.5 286.6,-54 276.6,-50.5 276.6,-57.5"/>
-</g>
 <!-- proc~getfluxes_vp_1d -->
 <g id="proc~~get_fluxes_and_derivs~~CallsGraph_node8" class="node">
 <title>proc~getfluxes_vp_1d</title>
@@ -722,10 +1381,10 @@
 </g>
 </g>
 <!-- interface~getfluxes_vp&#45;&gt;proc~getfluxes_vp_1d -->
-<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge9" class="edge">
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge7" class="edge">
 <title>interface~getfluxes_vp&#45;&gt;proc~getfluxes_vp_1d</title>
-<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M248.05,-161.3C258.03,-162.93 268.99,-164.72 279.72,-166.48"/>
-<polygon fill="#0066ff" stroke="#0066ff" points="279.48,-169.98 289.91,-168.14 280.6,-163.07 279.48,-169.98"/>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M248.05,-161.3C258.03,-162.93 268.99,-164.72 279.72,-166.48"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="279.48,-169.98 289.91,-168.14 280.6,-163.07 279.48,-169.98"/>
 </g>
 <!-- proc~getfluxes_vp_2d -->
 <g id="proc~~get_fluxes_and_derivs~~CallsGraph_node9" class="node">
@@ -737,10 +1396,40 @@
 </g>
 </g>
 <!-- interface~getfluxes_vp&#45;&gt;proc~getfluxes_vp_2d -->
-<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge10" class="edge">
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge8" class="edge">
 <title>interface~getfluxes_vp&#45;&gt;proc~getfluxes_vp_2d</title>
-<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M248.05,-148.7C258.03,-147.07 268.99,-145.28 279.72,-143.52"/>
-<polygon fill="#0066ff" stroke="#0066ff" points="280.6,-146.93 289.91,-141.86 279.48,-140.02 280.6,-146.93"/>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M248.05,-148.7C258.03,-147.07 268.99,-145.28 279.72,-143.52"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="280.6,-146.93 289.91,-141.86 279.48,-140.02 280.6,-146.93"/>
+</g>
+<!-- proc~getheatfluxes_1d -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node10" class="node">
+<title>proc~getheatfluxes_1d</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node10"><a xlink:href=".././proc/getheatfluxes_1d.html" xlink:title="getheatfluxes_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="391,-24 287,-24 287,0 391,0 391,-24"/>
+<text text-anchor="middle" x="339" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getheatfluxes_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~getheatfluxes&#45;&gt;proc~getheatfluxes_1d -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge9" class="edge">
+<title>interface~getheatfluxes&#45;&gt;proc~getheatfluxes_1d</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M246.32,-41.96C260.44,-37.35 276.73,-32.03 291.62,-27.16"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="292.75,-30.47 301.17,-24.04 290.58,-23.82 292.75,-30.47"/>
+</g>
+<!-- proc~getheatfluxes_2d -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node11" class="node">
+<title>proc~getheatfluxes_2d</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node11"><a xlink:href=".././proc/getheatfluxes_2d.html" xlink:title="getheatfluxes_2d">
+<polygon fill="#d9534f" stroke="#d9534f" points="391,-66 287,-66 287,-42 391,-42 391,-66"/>
+<text text-anchor="middle" x="339" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getheatfluxes_2d</text>
+</a>
+</g>
+</g>
+<!-- interface~getheatfluxes&#45;&gt;proc~getheatfluxes_2d -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge10" class="edge">
+<title>interface~getheatfluxes&#45;&gt;proc~getheatfluxes_2d</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M251.22,-54C259.33,-54 267.99,-54 276.58,-54"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="276.6,-57.5 286.6,-54 276.6,-50.5 276.6,-57.5"/>
 </g>
 <!-- proc~potential_evap -->
 <g id="proc~~get_fluxes_and_derivs~~CallsGraph_node12" class="node">
@@ -757,35 +1446,35 @@
 <path fill="none" stroke="#cc00ff" d="M235.5,-288.14C254.84,-297.17 281.43,-309.59 302.69,-319.51"/>
 <polygon fill="#cc00ff" stroke="#cc00ff" points="301.49,-322.82 312.03,-323.88 304.45,-316.47 301.49,-322.82"/>
 </g>
-<!-- proc~hyofh -->
-<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node13" class="node">
-<title>proc~hyofh</title>
-<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node13"><a xlink:href=".././proc/hyofh.html" xlink:title="hyofh">
-<polygon fill="#d9534f" stroke="#d9534f" points="704,-248 650,-248 650,-224 704,-224 704,-248"/>
-<text text-anchor="middle" x="677" y="-233.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">hyofh</text>
-</a>
-</g>
-</g>
-<!-- proc~seb&#45;&gt;proc~hyofh -->
-<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge12" class="edge">
-<title>proc~seb&#45;&gt;proc~hyofh</title>
-<path fill="none" stroke="#cc00ff" d="M235.69,-276.42C250.7,-276.64 269.91,-276.89 287,-277 432.46,-277.94 472.59,-297.11 614,-263 624.19,-260.54 634.81,-256.52 644.32,-252.32"/>
-<polygon fill="#cc00ff" stroke="#cc00ff" points="645.8,-255.49 653.4,-248.11 642.86,-249.13 645.8,-255.49"/>
-</g>
 <!-- proc~slope_csat -->
-<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node14" class="node">
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node13" class="node">
 <title>proc~slope_csat</title>
-<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node14"><a xlink:href=".././proc/slope_csat.html" xlink:title="slope_csat">
+<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node13"><a xlink:href=".././proc/slope_csat.html" xlink:title="slope_csat">
 <polygon fill="#d94e8f" stroke="#d94e8f" points="373,-268 305,-268 305,-244 373,-244 373,-268"/>
 <text text-anchor="middle" x="339" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">slope_csat</text>
 </a>
 </g>
 </g>
 <!-- proc~seb&#45;&gt;proc~slope_csat -->
-<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge13" class="edge">
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge12" class="edge">
 <title>proc~seb&#45;&gt;proc~slope_csat</title>
 <path fill="none" stroke="#cc00ff" d="M235.5,-271.95C252.49,-269.31 275.08,-265.79 294.74,-262.73"/>
 <polygon fill="#cc00ff" stroke="#cc00ff" points="295.36,-266.18 304.7,-261.18 294.28,-259.26 295.36,-266.18"/>
+</g>
+<!-- proc~hyofh -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_node14" class="node">
+<title>proc~hyofh</title>
+<g id="a_proc~~get_fluxes_and_derivs~~CallsGraph_node14"><a xlink:href=".././proc/hyofh.html" xlink:title="hyofh">
+<polygon fill="#d9534f" stroke="#d9534f" points="704,-248 650,-248 650,-224 704,-224 704,-248"/>
+<text text-anchor="middle" x="677" y="-233.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">hyofh</text>
+</a>
+</g>
+</g>
+<!-- proc~seb&#45;&gt;proc~hyofh -->
+<g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge13" class="edge">
+<title>proc~seb&#45;&gt;proc~hyofh</title>
+<path fill="none" stroke="#cc00ff" d="M235.69,-276.42C250.7,-276.64 269.91,-276.89 287,-277 432.46,-277.94 472.59,-297.11 614,-263 624.19,-260.54 634.81,-256.52 644.32,-252.32"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="645.8,-255.49 653.4,-248.11 642.86,-249.13 645.8,-255.49"/>
 </g>
 <!-- proc~weight&#45;&gt;proc~hyofh -->
 <g id="proc~~get_fluxes_and_derivs~~CallsGraph_edge14" class="edge">
@@ -1202,9 +1891,27 @@
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

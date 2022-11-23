@@ -79,51 +79,80 @@
     <div class="container">
   <div class="row">
     <h1>get_var_nc
-   <small>Interface</small>
+      <small>Interface</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title="<p> 0.0% of total for procedures.</p>Including implementation: 32 statements,  0.1% of total for procedures.">3 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cable_diag.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cable_diag.f90.html'>cable_diag.F90</a></li>
-     <li><a href='../module/cable_diag_module.html'>cable_diag_module</a></li>
-     <li class="active">get_var_nc</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title="<p> 0.0% of total for procedures.</p>Including implementation: 32 statements,  0.1% of total for procedures.">3 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cable_diag.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cable_diag.f90.html'>cable_diag.F90</a></li>
+              <li><a href='../module/cable_diag_module.html'>cable_diag_module</a></li>
+          <li class="active">get_var_nc</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-      <div id="sidebar">
-  <h3>Contents</h3>
- 
-<div class="panel panel-primary">
-  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#modprocs-0">Module Procedures</a></h3></div>
-  <div id="modprocs-0" class="panel-collapse collapse">
-    <div class="list-group">
-      <a class="list-group-item" href="../interface/get_var_nc.html#moduleprocedure-get_var_ncr2">get_var_ncr2</a>
-      <a class="list-group-item" href="../interface/get_var_nc.html#moduleprocedure-get_var_ncr3">get_var_ncr3</a>
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#modprocs-0">Module Procedures</a>
+        </h3>
+      </div>
+      <div id="modprocs-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../interface/get_var_nc.html#moduleprocedure-get_var_ncr2">get_var_ncr2</a>
+            <a class="list-group-item" href="../interface/get_var_nc.html#moduleprocedure-get_var_ncr3">get_var_ncr3</a>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-</div>
+
+
+  </div>
 
     </div>
     
@@ -376,15 +405,45 @@
 </g>
 </g>
 <!-- proc~spincasacnp&#45;&gt;proc~read_casa_dump -->
-<g id="interface~~get_var_nc~~CalledByGraph_edge3" class="edge">
+<g id="interface~~get_var_nc~~CalledByGraph_edge6" class="edge">
 <title>proc~spincasacnp&#45;&gt;proc~read_casa_dump</title>
 <path fill="none" stroke="#ff0000" d="M367.73,-96C384.07,-96 403.48,-96 421.65,-96"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="421.87,-99.5 431.87,-96 421.87,-92.5 421.87,-99.5"/>
 </g>
-<!-- program~cable_offline_driver -->
+<!-- proc~master_spincasacnp -->
 <g id="interface~~get_var_nc~~CalledByGraph_node5" class="node">
+<title>proc~master_spincasacnp</title>
+<g id="a_interface~~get_var_nc~~CalledByGraph_node5"><a xlink:href=".././proc/master_spincasacnp.html" xlink:title="master_spincasacnp">
+<polygon fill="#d9534f" stroke="#d9534f" points="388.5,-66 267.5,-66 267.5,-42 388.5,-42 388.5,-66"/>
+<text text-anchor="middle" x="328" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">master_spincasacnp</text>
+</a>
+</g>
+</g>
+<!-- proc~master_spincasacnp&#45;&gt;proc~read_casa_dump -->
+<g id="interface~~get_var_nc~~CalledByGraph_edge3" class="edge">
+<title>proc~master_spincasacnp&#45;&gt;proc~read_casa_dump</title>
+<path fill="none" stroke="#ff0000" d="M372.99,-66.04C390.33,-70.78 410.42,-76.28 428.62,-81.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="427.94,-84.7 438.51,-83.96 429.78,-77.95 427.94,-84.7"/>
+</g>
+<!-- proc~master_casaonly_luc -->
+<g id="interface~~get_var_nc~~CalledByGraph_node6" class="node">
+<title>proc~master_casaonly_luc</title>
+<g id="a_interface~~get_var_nc~~CalledByGraph_node6"><a xlink:href=".././proc/master_casaonly_luc.html" xlink:title="master_CASAONLY_LUC">
+<polygon fill="#d9534f" stroke="#d9534f" points="396,-24 260,-24 260,0 396,0 396,-24"/>
+<text text-anchor="middle" x="328" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">master_CASAONLY_LUC</text>
+</a>
+</g>
+</g>
+<!-- proc~master_casaonly_luc&#45;&gt;proc~read_casa_dump -->
+<g id="interface~~get_var_nc~~CalledByGraph_edge5" class="edge">
+<title>proc~master_casaonly_luc&#45;&gt;proc~read_casa_dump</title>
+<path fill="none" stroke="#ff0000" d="M374.49,-24.04C381.84,-26.62 389.25,-29.6 396,-33 419.74,-44.96 443.96,-63.22 460.71,-77.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="458.84,-80.01 468.74,-83.76 463.34,-74.65 458.84,-80.01"/>
+</g>
+<!-- program~cable_offline_driver -->
+<g id="interface~~get_var_nc~~CalledByGraph_node7" class="node">
 <title>program~cable_offline_driver</title>
-<g id="a_interface~~get_var_nc~~CalledByGraph_node5"><a xlink:href=".././program/cable_offline_driver.html" xlink:title="cable_offline_driver">
+<g id="a_interface~~get_var_nc~~CalledByGraph_node7"><a xlink:href=".././program/cable_offline_driver.html" xlink:title="cable_offline_driver">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="224,-150 106,-150 106,-126 224,-126 224,-150"/>
 <text text-anchor="middle" x="165" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_offline_driver</text>
 </a>
@@ -408,36 +467,6 @@
 <path fill="none" stroke="#cbff00" d="M212.14,-125.96C232.99,-120.52 257.64,-114.09 278.74,-108.59"/>
 <polygon fill="#cbff00" stroke="#cbff00" points="279.68,-111.96 288.47,-106.05 277.91,-105.19 279.68,-111.96"/>
 </g>
-<!-- proc~master_casaonly_luc -->
-<g id="interface~~get_var_nc~~CalledByGraph_node6" class="node">
-<title>proc~master_casaonly_luc</title>
-<g id="a_interface~~get_var_nc~~CalledByGraph_node6"><a xlink:href=".././proc/master_casaonly_luc.html" xlink:title="master_CASAONLY_LUC">
-<polygon fill="#d9534f" stroke="#d9534f" points="396,-66 260,-66 260,-42 396,-42 396,-66"/>
-<text text-anchor="middle" x="328" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">master_CASAONLY_LUC</text>
-</a>
-</g>
-</g>
-<!-- proc~master_casaonly_luc&#45;&gt;proc~read_casa_dump -->
-<g id="interface~~get_var_nc~~CalledByGraph_edge5" class="edge">
-<title>proc~master_casaonly_luc&#45;&gt;proc~read_casa_dump</title>
-<path fill="none" stroke="#ff0000" d="M372.99,-66.04C390.33,-70.78 410.42,-76.28 428.62,-81.26"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="427.94,-84.7 438.51,-83.96 429.78,-77.95 427.94,-84.7"/>
-</g>
-<!-- proc~master_spincasacnp -->
-<g id="interface~~get_var_nc~~CalledByGraph_node7" class="node">
-<title>proc~master_spincasacnp</title>
-<g id="a_interface~~get_var_nc~~CalledByGraph_node7"><a xlink:href=".././proc/master_spincasacnp.html" xlink:title="master_spincasacnp">
-<polygon fill="#d9534f" stroke="#d9534f" points="388.5,-24 267.5,-24 267.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="328" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">master_spincasacnp</text>
-</a>
-</g>
-</g>
-<!-- proc~master_spincasacnp&#45;&gt;proc~read_casa_dump -->
-<g id="interface~~get_var_nc~~CalledByGraph_edge6" class="edge">
-<title>proc~master_spincasacnp&#45;&gt;proc~read_casa_dump</title>
-<path fill="none" stroke="#ff0000" d="M374.49,-24.04C381.84,-26.62 389.25,-29.6 396,-33 419.74,-44.96 443.96,-63.22 460.71,-77.02"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="458.84,-80.01 468.74,-83.76 463.34,-74.65 458.84,-80.01"/>
-</g>
 <!-- proc~mpidrv_master -->
 <g id="interface~~get_var_nc~~CalledByGraph_node8" class="node">
 <title>proc~mpidrv_master</title>
@@ -447,17 +476,17 @@
 </a>
 </g>
 </g>
-<!-- proc~mpidrv_master&#45;&gt;proc~master_casaonly_luc -->
-<g id="interface~~get_var_nc~~CalledByGraph_edge9" class="edge">
-<title>proc~mpidrv_master&#45;&gt;proc~master_casaonly_luc</title>
-<path fill="none" stroke="#0066ff" d="M211.71,-38.96C223.63,-40.52 236.82,-42.24 249.89,-43.94"/>
-<polygon fill="#0066ff" stroke="#0066ff" points="249.47,-47.42 259.84,-45.24 250.38,-40.48 249.47,-47.42"/>
-</g>
 <!-- proc~mpidrv_master&#45;&gt;proc~master_spincasacnp -->
-<g id="interface~~get_var_nc~~CalledByGraph_edge10" class="edge">
+<g id="interface~~get_var_nc~~CalledByGraph_edge9" class="edge">
 <title>proc~mpidrv_master&#45;&gt;proc~master_spincasacnp</title>
-<path fill="none" stroke="#cc00ff" d="M211.71,-27.04C225.89,-25.19 241.86,-23.11 257.29,-21.09"/>
-<polygon fill="#cc00ff" stroke="#cc00ff" points="257.87,-24.55 267.33,-19.78 256.96,-17.61 257.87,-24.55"/>
+<path fill="none" stroke="#00ff66" d="M211.71,-38.96C225.89,-40.81 241.86,-42.89 257.29,-44.91"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="256.96,-48.39 267.33,-46.22 257.87,-41.45 256.96,-48.39"/>
+</g>
+<!-- proc~mpidrv_master&#45;&gt;proc~master_casaonly_luc -->
+<g id="interface~~get_var_nc~~CalledByGraph_edge10" class="edge">
+<title>proc~mpidrv_master&#45;&gt;proc~master_casaonly_luc</title>
+<path fill="none" stroke="#0066ff" d="M211.71,-27.04C223.63,-25.48 236.82,-23.76 249.89,-22.06"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="250.38,-25.52 259.84,-20.76 249.47,-18.58 250.38,-25.52"/>
 </g>
 <!-- program~mpi_driver -->
 <g id="interface~~get_var_nc~~CalledByGraph_node9" class="node">
@@ -539,17 +568,40 @@
     </div>
 <br>
      <section class="visible-xs visible-sm hidden-md">
-       <h3>Contents</h3>
- 
-<div class="panel panel-primary">
-  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#modprocs-1">Module Procedures</a></h3></div>
-  <div id="modprocs-1" class="panel-collapse collapse">
-    <div class="list-group">
-      <a class="list-group-item" href="../interface/get_var_nc.html#moduleprocedure-get_var_ncr2">get_var_ncr2</a>
-      <a class="list-group-item" href="../interface/get_var_nc.html#moduleprocedure-get_var_ncr3">get_var_ncr3</a>
+         <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#modprocs-1">Module Procedures</a>
+        </h3>
+      </div>
+      <div id="modprocs-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../interface/get_var_nc.html#moduleprocedure-get_var_ncr2">get_var_ncr2</a>
+            <a class="list-group-item" href="../interface/get_var_nc.html#moduleprocedure-get_var_ncr3">get_var_ncr3</a>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+
+
 
      </section>
      <br class="visible-xs visible-sm hidden-md">
@@ -558,85 +610,188 @@
 
    <h2>Module Procedures</h2>
       <div class="panel panel-default">
-  <div class="panel-heading codesum"><span class="anchor" id="proc-get_var_ncr2"></span><h3>public subroutine <a href='../proc/get_var_ncr2.html'>get_var_ncr2</a>(ncid, var_name, var, n_call)</h3></div>
-  <div class="panel-body">
-           
-<h4>Arguments</h4>      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" ></span>integer,</td>
+    <div class="panel-heading codesum"><span class="anchor" id="proc-get_var_ncr2"></span><h3>public  subroutine <a href='../proc/get_var_ncr2.html'>get_var_ncr2</a>(ncid, var_name, var, n_call)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>ncid</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>character(len=*),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ncid</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>var_name</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>var_name</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real(kind=r_2),
+            </td>
 <td>intent(out),</td>
-  <td></td>  <td>dimension(:)</td><td>::</td>
-  <td><strong>var</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>integer,</td>
+              <td></td>            <td>
+              dimension(:)
+            </td>
+            <td>::</td>
+            <td><strong>var</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>n_call</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n_call</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
 
-  </div>
+    </div>
   </div>
 
       <div class="panel panel-default">
-  <div class="panel-heading codesum"><span class="anchor" id="proc-get_var_ncr3"></span><h3>public subroutine <a href='../proc/get_var_ncr3.html'>get_var_ncr3</a>(ncid, var_name, var, n_call, nl)</h3></div>
-  <div class="panel-body">
-           
-<h4>Arguments</h4>      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" ></span>integer,</td>
+    <div class="panel-heading codesum"><span class="anchor" id="proc-get_var_ncr3"></span><h3>public  subroutine <a href='../proc/get_var_ncr3.html'>get_var_ncr3</a>(ncid, var_name, var, n_call, nl)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>ncid</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>character(len=*),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ncid</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>var_name</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>var_name</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real(kind=r_2),
+            </td>
 <td>intent(out),</td>
-  <td></td>  <td>dimension(:,:)</td><td>::</td>
-  <td><strong>var</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>integer,</td>
+              <td></td>            <td>
+              dimension(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>var</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>n_call</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>integer,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n_call</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>nl</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nl</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
 
-  </div>
+    </div>
   </div>
 
 

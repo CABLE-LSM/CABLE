@@ -80,86 +80,163 @@
   <div class="row">
     <h1>litter_props
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.1% of total for procedures.">46 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cable_sli_utils.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cable_sli_utils.f90.html'>cable_sli_utils.F90</a></li>
-     <li><a href='../module/sli_utils.html'>sli_utils</a></li>
-     <li class="active">litter_props</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.1% of total for procedures.">46 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cable_sli_utils.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cable_sli_utils.f90.html'>cable_sli_utils.F90</a></li>
+              <li><a href='../module/sli_utils.html'>sli_utils</a></li>
+          <li class="active">litter_props</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public pure elemental subroutine litter_props(S, Tsoil, vlit, plit, h0)</h2>
+    <h2>public pure elemental subroutine litter_props(S, Tsoil, vlit, plit, h0)  
+</h2>
     
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-s~10"></span>real(kind=r_2),</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-s~10"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>S</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-tsoil~8"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>S</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tsoil~8"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>Tsoil</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-vlit~3"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Tsoil</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vlit~3"></span>
+              type(<a href='../type/vars.html'>vars</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>vlit</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-plit"></span>type(<a href='../type/params.html'>params</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vlit</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-plit"></span>
+              type(<a href='../type/params.html'>params</a>),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>plit</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-h0~8"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>plit</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-h0~8"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>h0</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>h0</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
     <div class="panel panel-default">
@@ -299,17 +376,38 @@
 <path fill="none" stroke="#ff0000" d="M369.6,-24C379.3,-27.8 390.17,-32.07 400.45,-36.1"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="399.48,-39.48 410.07,-39.87 402.03,-32.96 399.48,-39.48"/>
 </g>
-<!-- proc~timestep_loop -->
+<!-- proc~solve -->
 <g id="proc~~litter_props~~CalledByGraph_node3" class="node">
+<title>proc~solve</title>
+<g id="a_proc~~litter_props~~CalledByGraph_node3"><a xlink:href=".././proc/solve.html" xlink:title="solve">
+<polygon fill="#d9534f" stroke="#d9534f" points="146,-82 92,-82 92,-58 146,-58 146,-82"/>
+<text text-anchor="middle" x="119" y="-67.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">solve</text>
+</a>
+</g>
+</g>
+<!-- proc~solve&#45;&gt;proc~litter_props -->
+<g id="proc~~litter_props~~CalledByGraph_edge2" class="edge">
+<title>proc~solve&#45;&gt;proc~litter_props</title>
+<path fill="none" stroke="#ff0000" d="M146.04,-71.39C191.63,-73.43 288.79,-75.98 370,-66 378.42,-64.96 387.35,-63.5 395.92,-61.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="396.62,-65.34 405.77,-59.99 395.29,-58.46 396.62,-65.34"/>
+</g>
+<!-- proc~timestep_loop -->
+<g id="proc~~litter_props~~CalledByGraph_node4" class="node">
 <title>proc~timestep_loop</title>
-<g id="a_proc~~litter_props~~CalledByGraph_node3"><a xlink:href=".././proc/timestep_loop.html" xlink:title="timestep_loop">
+<g id="a_proc~~litter_props~~CalledByGraph_node4"><a xlink:href=".././proc/timestep_loop.html" xlink:title="timestep_loop">
 <polygon fill="#d9534f" stroke="#d9534f" points="270,-62 182,-62 182,-38 270,-38 270,-62"/>
 <text text-anchor="middle" x="226" y="-47.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">timestep_loop</text>
 </a>
 </g>
 </g>
+<!-- proc~solve&#45;&gt;proc~timestep_loop -->
+<g id="proc~~litter_props~~CalledByGraph_edge6" class="edge">
+<title>proc~solve&#45;&gt;proc~timestep_loop</title>
+<path fill="none" stroke="#0000ff" d="M146.23,-65C154.08,-63.51 162.99,-61.81 171.93,-60.11"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="172.8,-63.51 181.97,-58.2 171.49,-56.63 172.8,-63.51"/>
+</g>
 <!-- proc~timestep_loop&#45;&gt;proc~litter_props -->
-<g id="proc~~litter_props~~CalledByGraph_edge2" class="edge">
+<g id="proc~~litter_props~~CalledByGraph_edge3" class="edge">
 <title>proc~timestep_loop&#45;&gt;proc~litter_props</title>
 <path fill="none" stroke="#ff0000" d="M270.05,-50.4C306.53,-50.74 358.68,-51.23 395.77,-51.58"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="395.77,-55.08 405.8,-51.67 395.84,-48.08 395.77,-55.08"/>
@@ -319,27 +417,6 @@
 <title>proc~timestep_loop&#45;&gt;proc~iflux_loop</title>
 <path fill="none" stroke="#ff0000" d="M261.8,-37.98C272.71,-34.21 284.84,-30.02 296.13,-26.12"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="297.46,-29.36 305.77,-22.79 295.18,-22.74 297.46,-29.36"/>
-</g>
-<!-- proc~solve -->
-<g id="proc~~litter_props~~CalledByGraph_node4" class="node">
-<title>proc~solve</title>
-<g id="a_proc~~litter_props~~CalledByGraph_node4"><a xlink:href=".././proc/solve.html" xlink:title="solve">
-<polygon fill="#d9534f" stroke="#d9534f" points="146,-82 92,-82 92,-58 146,-58 146,-82"/>
-<text text-anchor="middle" x="119" y="-67.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">solve</text>
-</a>
-</g>
-</g>
-<!-- proc~solve&#45;&gt;proc~litter_props -->
-<g id="proc~~litter_props~~CalledByGraph_edge3" class="edge">
-<title>proc~solve&#45;&gt;proc~litter_props</title>
-<path fill="none" stroke="#ff0000" d="M146.04,-71.39C191.63,-73.43 288.79,-75.98 370,-66 378.42,-64.96 387.35,-63.5 395.92,-61.91"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="396.62,-65.34 405.77,-59.99 395.29,-58.46 396.62,-65.34"/>
-</g>
-<!-- proc~solve&#45;&gt;proc~timestep_loop -->
-<g id="proc~~litter_props~~CalledByGraph_edge5" class="edge">
-<title>proc~solve&#45;&gt;proc~timestep_loop</title>
-<path fill="none" stroke="#00ff00" d="M146.23,-65C154.08,-63.51 162.99,-61.81 171.93,-60.11"/>
-<polygon fill="#00ff00" stroke="#00ff00" points="172.8,-63.51 181.97,-58.2 171.49,-56.63 172.8,-63.51"/>
 </g>
 <!-- proc~sli_main -->
 <g id="proc~~litter_props~~CalledByGraph_node5" class="node">
@@ -351,10 +428,10 @@
 </g>
 </g>
 <!-- proc~sli_main&#45;&gt;proc~solve -->
-<g id="proc~~litter_props~~CalledByGraph_edge6" class="edge">
+<g id="proc~~litter_props~~CalledByGraph_edge5" class="edge">
 <title>proc~sli_main&#45;&gt;proc~solve</title>
-<path fill="none" stroke="#0000ff" d="M56.19,-70C64.25,-70 73.22,-70 81.77,-70"/>
-<polygon fill="#0000ff" stroke="#0000ff" points="81.89,-73.5 91.89,-70 81.89,-66.5 81.89,-73.5"/>
+<path fill="none" stroke="#00ff00" d="M56.19,-70C64.25,-70 73.22,-70 81.77,-70"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="81.89,-73.5 91.89,-70 81.89,-66.5 81.89,-73.5"/>
 </g>
 </g>
 </svg>
@@ -422,9 +499,27 @@
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

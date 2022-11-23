@@ -80,68 +80,118 @@
   <div class="row">
     <h1>ZeroPOP
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.3% of total for procedures.">130 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/POP.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/pop.f90.html'>POP.F90</a></li>
-     <li><a href='../module/popmodule.html'>POPModule</a></li>
-     <li class="active">ZeroPOP</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.3% of total for procedures.">130 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/POP.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/pop.f90.html'>POP.F90</a></li>
+              <li><a href='../module/popmodule.html'>POPModule</a></li>
+          <li class="active">ZeroPOP</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public subroutine ZeroPOP(POP, n)</h2>
+    <h2>public  subroutine ZeroPOP(POP, n)  
+</h2>
     
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-pop~5"></span>type(<a href='../type/pop_type.html'>POP_TYPE</a>),</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pop~5"></span>
+              type(<a href='../type/pop_type.html'>POP_TYPE</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>POP</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-n~5"></span>integer,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>POP</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~5"></span>
+              integer,
+            </td>
 <td>intent(in),</td>
-  <td>optional</td>  <td></td><td>::</td>
-  <td><strong>n</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
     <div class="panel panel-default">
@@ -221,40 +271,40 @@
 </g>
 </g>
 <!-- proc~lucdriver&#45;&gt;proc~pop_init_single -->
-<g id="proc~~zeropop~~CalledByGraph_edge6" class="edge">
+<g id="proc~~zeropop~~CalledByGraph_edge4" class="edge">
 <title>proc~lucdriver&#45;&gt;proc~pop_init_single</title>
 <path fill="none" stroke="#ff0000" d="M506.85,-165.98C513.15,-163.09 519.83,-159.98 526,-157 541.99,-149.28 559.58,-140.37 574.23,-132.84"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="576.1,-135.81 583.38,-128.11 572.89,-129.59 576.1,-135.81"/>
 </g>
-<!-- proc~master_casaonly_luc -->
-<g id="proc~~zeropop~~CalledByGraph_node6" class="node">
-<title>proc~master_casaonly_luc</title>
-<g id="a_proc~~zeropop~~CalledByGraph_node6"><a xlink:href=".././proc/master_casaonly_luc.html" xlink:title="master_CASAONLY_LUC">
-<polygon fill="#d9534f" stroke="#d9534f" points="396,-66 260,-66 260,-42 396,-42 396,-66"/>
-<text text-anchor="middle" x="328" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">master_CASAONLY_LUC</text>
-</a>
-</g>
-</g>
-<!-- proc~master_casaonly_luc&#45;&gt;proc~pop_init_single -->
-<g id="proc~~zeropop~~CalledByGraph_edge5" class="edge">
-<title>proc~master_casaonly_luc&#45;&gt;proc~pop_init_single</title>
-<path fill="none" stroke="#ff0000" d="M382.83,-66.03C431.64,-76.93 503.23,-92.93 552.18,-103.86"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="551.44,-107.29 561.97,-106.05 552.97,-100.45 551.44,-107.29"/>
-</g>
 <!-- proc~lucdriver~2 -->
-<g id="proc~~zeropop~~CalledByGraph_node7" class="node">
+<g id="proc~~zeropop~~CalledByGraph_node6" class="node">
 <title>proc~lucdriver~2</title>
-<g id="a_proc~~zeropop~~CalledByGraph_node7"><a xlink:href=".././proc/lucdriver~2.html" xlink:title="LUCdriver">
-<polygon fill="#d9534f" stroke="#d9534f" points="360,-108 296,-108 296,-84 360,-84 360,-108"/>
-<text text-anchor="middle" x="328" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LUCdriver</text>
+<g id="a_proc~~zeropop~~CalledByGraph_node6"><a xlink:href=".././proc/lucdriver~2.html" xlink:title="LUCdriver">
+<polygon fill="#d9534f" stroke="#d9534f" points="360,-66 296,-66 296,-42 360,-42 360,-66"/>
+<text text-anchor="middle" x="328" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LUCdriver</text>
 </a>
 </g>
 </g>
 <!-- proc~lucdriver~2&#45;&gt;proc~pop_init_single -->
-<g id="proc~~zeropop~~CalledByGraph_edge4" class="edge">
+<g id="proc~~zeropop~~CalledByGraph_edge5" class="edge">
 <title>proc~lucdriver~2&#45;&gt;proc~pop_init_single</title>
-<path fill="none" stroke="#ff0000" d="M360.03,-98.24C406.46,-101.58 494.68,-107.94 552.01,-112.07"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="551.76,-115.56 561.98,-112.79 552.26,-108.58 551.76,-115.56"/>
+<path fill="none" stroke="#ff0000" d="M360.03,-60.93C406.46,-71.31 494.68,-91.02 552.01,-103.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="551.46,-107.29 561.98,-106.05 552.99,-100.46 551.46,-107.29"/>
+</g>
+<!-- proc~master_casaonly_luc -->
+<g id="proc~~zeropop~~CalledByGraph_node7" class="node">
+<title>proc~master_casaonly_luc</title>
+<g id="a_proc~~zeropop~~CalledByGraph_node7"><a xlink:href=".././proc/master_casaonly_luc.html" xlink:title="master_CASAONLY_LUC">
+<polygon fill="#d9534f" stroke="#d9534f" points="396,-108 260,-108 260,-84 396,-84 396,-108"/>
+<text text-anchor="middle" x="328" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">master_CASAONLY_LUC</text>
+</a>
+</g>
+</g>
+<!-- proc~master_casaonly_luc&#45;&gt;proc~pop_init_single -->
+<g id="proc~~zeropop~~CalledByGraph_edge6" class="edge">
+<title>proc~master_casaonly_luc&#45;&gt;proc~pop_init_single</title>
+<path fill="none" stroke="#ff0000" d="M396.18,-100.84C443.79,-104.27 506.9,-108.82 551.53,-112.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="551.38,-115.54 561.61,-112.76 551.88,-108.55 551.38,-115.54"/>
 </g>
 <!-- proc~popluc_init -->
 <g id="proc~~zeropop~~CalledByGraph_node8" class="node">
@@ -343,17 +393,17 @@
 </a>
 </g>
 </g>
-<!-- proc~mpidrv_master&#45;&gt;proc~master_casaonly_luc -->
-<g id="proc~~zeropop~~CalledByGraph_edge12" class="edge">
-<title>proc~mpidrv_master&#45;&gt;proc~master_casaonly_luc</title>
-<path fill="none" stroke="#48ff00" d="M211.71,-76.92C225.66,-74.14 241.34,-71.02 256.54,-68"/>
-<polygon fill="#48ff00" stroke="#48ff00" points="257.31,-71.42 266.44,-66.04 255.95,-64.55 257.31,-71.42"/>
-</g>
 <!-- proc~mpidrv_master&#45;&gt;proc~lucdriver~2 -->
-<g id="proc~~zeropop~~CalledByGraph_edge13" class="edge">
+<g id="proc~~zeropop~~CalledByGraph_edge12" class="edge">
 <title>proc~mpidrv_master&#45;&gt;proc~lucdriver~2</title>
-<path fill="none" stroke="#00ff91" d="M211.71,-88.84C235.09,-90.29 263.31,-92.04 285.99,-93.45"/>
-<polygon fill="#00ff91" stroke="#00ff91" points="285.78,-96.95 295.98,-94.07 286.21,-89.96 285.78,-96.95"/>
+<path fill="none" stroke="#48ff00" d="M211.71,-76.92C235.09,-72.27 263.31,-66.66 285.99,-62.15"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="286.85,-65.55 295.98,-60.17 285.48,-58.68 286.85,-65.55"/>
+</g>
+<!-- proc~mpidrv_master&#45;&gt;proc~master_casaonly_luc -->
+<g id="proc~~zeropop~~CalledByGraph_edge13" class="edge">
+<title>proc~mpidrv_master&#45;&gt;proc~master_casaonly_luc</title>
+<path fill="none" stroke="#00ff91" d="M211.71,-88.84C223.52,-89.57 236.56,-90.38 249.51,-91.19"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="249.64,-94.7 259.84,-91.83 250.08,-87.72 249.64,-94.7"/>
 </g>
 <!-- proc~mpidrv_master&#45;&gt;proc~load_parameters -->
 <g id="proc~~zeropop~~CalledByGraph_edge15" class="edge">
@@ -463,9 +513,27 @@
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

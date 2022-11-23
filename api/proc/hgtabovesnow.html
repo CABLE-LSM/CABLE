@@ -80,92 +80,193 @@
   <div class="row">
     <h1>HgtAboveSnow
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.0% of total for procedures.">19 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cbl_hgtAbove_snow.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cbl_hgtabove_snow.f90.html'>cbl_hgtAbove_snow.F90</a></li>
-     <li><a href='../module/cbl_hruff_mod.html'>cbl_hruff_mod</a></li>
-     <li class="active">HgtAboveSnow</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">19 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cbl_hgtAbove_snow.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cbl_hgtabove_snow.f90.html'>cbl_hgtAbove_snow.F90</a></li>
+              <li><a href='../module/cbl_hruff_mod.html'>cbl_hruff_mod</a></li>
+          <li class="active">HgtAboveSnow</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public subroutine HgtAboveSnow(HeightAboveSnow, mp, z0surf_min, HGT_pft, SnowDepth, SnowDensity)</h2>
+    <h2>public  subroutine HgtAboveSnow(HeightAboveSnow, mp, z0surf_min, HGT_pft, SnowDepth, SnowDensity)  
+</h2>
     
 
+    <p>This subroutine computes the height of the canopy above ground/snow
+ surface when there is snow present. </p>
+<p>The height of the canopy above snow level is simply the canopy height
+without snow minus the true depth of snow (in m).
+The depth of snow is evaluated from the amount of snow (in mm m<script type="math/tex">^{-2}</script>
+of liquid water) and the snow density.</p>
+<p>
+<script type="math/tex; mode=display"> h_{c,abovesnow} = \max[10*z_{0,min}, h_{c,nosnow} - 1.2*d_{snow}/\rho_{snow}] </script>
+</p>
+<p>A minimum value for the effective canopy height of
+ '10 * the minimum roughness length of the surface' is applied
+ (a numerics requirement).</p>
+<p>The snow density has a minimum value of 100 kg m<script type="math/tex">^{-3}</script> enforced when
+ used to convert snow amount to snow depth.</p>
+<p><strong> Warning: The multiplier 1.2 needs to be followed up</strong></p>
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-heightabovesnow"></span>real</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-heightabovesnow"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>HeightAboveSnow</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-mp~43"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>HeightAboveSnow</strong>(mp)</td>
+            <td>
+                <p>Output. Effective height of canopy, known as <code>rough%hruff</code> elsewhere. (m)</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mp"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>mp</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-z0surf_min"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>mp</strong></td>
+            <td>
+                <p>Number of land tiles (-)</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-z0surf_min"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>z0surf_min</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-hgt_pft"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>z0surf_min</strong></td>
+            <td>
+                <p>minimum roughness length of the surface (m)</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-hgt_pft"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>HGT_pft</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-snowdepth~8"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>HGT_pft</strong>(mp)</td>
+            <td>
+                <p>height of the canopy without snow (m)</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-snowdepth"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>SnowDepth</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-snowdensity~3"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>SnowDepth</strong>(mp)</td>
+            <td>
+                <p>amount of snow (mm m<script type="math/tex">^{-2}</script> liquid water) </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-snowdensity"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>SnowDensity</strong>(mp)</td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>SnowDensity</strong>(mp)</td>
+            <td>
+                <p>density of snow (kg m<script type="math/tex">^{-3}</script>)</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
     <div class="panel panel-default">
@@ -352,9 +453,27 @@
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

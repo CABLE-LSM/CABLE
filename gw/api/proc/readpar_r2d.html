@@ -80,110 +80,223 @@
   <div class="row">
     <h1>readpar_r2d
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.2% of total for procedures.">98 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cable_read.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cable_read.f90.html'>cable_read.F90</a></li>
-     <li><a href='../module/cable_read_module.html'>cable_read_module</a></li>
-     <li class="active">readpar_r2d</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.2% of total for procedures.">98 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cable_read.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cable_read.f90.html'>cable_read.F90</a></li>
+              <li><a href='../module/cable_read_module.html'>cable_read_module</a></li>
+          <li class="active">readpar_r2d</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>private subroutine readpar_r2d(ncid, parname, completeSet, var_r2d, filename, npatch, dimswitch, from_restart, INpatch)</h2>
+    <h2>private  subroutine readpar_r2d(ncid, parname, completeSet, var_r2d, filename, npatch, dimswitch, from_restart, INpatch)  
+</h2>
     
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-ncid~23"></span>integer,</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ncid~23"></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>ncid</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-parname~5"></span>character(len=*),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ncid</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-parname~5"></span>
+              character(len=*),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>parname</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-completeset~6"></span>logical,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>parname</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-completeset~6"></span>
+              logical,
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>completeSet</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-var_r2d"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>completeSet</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-var_r2d"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:, :)</td><td>::</td>
-  <td><strong>var_r2d</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-filename~7"></span>character(len=*),</td>
+              <td></td>            <td>
+              DIMENSION(:, :)
+            </td>
+            <td>::</td>
+            <td><strong>var_r2d</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-filename~7"></span>
+              character(len=*),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>filename</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-npatch~6"></span>integer,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>filename</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-npatch~6"></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>npatch</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-dimswitch~15"></span>character(len=*),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>npatch</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dimswitch~15"></span>
+              character(len=*),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>dimswitch</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-from_restart~5"></span>logical,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dimswitch</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-from_restart~5"></span>
+              logical,
+            </td>
 <td>intent(in),</td>
-  <td>optional</td>  <td></td><td>::</td>
-  <td><strong>from_restart</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-inpatch~5"></span>integer,</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>from_restart</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-inpatch~5"></span>
+              integer,
+            </td>
 <td>intent(in),</td>
-  <td>optional</td>  <td></td><td>::</td>
-  <td><strong>INpatch</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>INpatch</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
     <div class="panel panel-default">
@@ -220,20 +333,17 @@
 <path fill="none" stroke="#ff0000" d="M58.95,-87.1C73.59,-96.12 94.58,-108.32 114,-117 118.17,-118.86 122.56,-120.65 126.99,-122.35"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="126.12,-125.76 136.72,-125.91 128.53,-119.19 126.12,-125.76"/>
 </g>
-<!-- proc~nc_abort -->
+<!-- nf90_inquire_variable -->
 <g id="proc~~readpar_r2d~~CallsGraph_node3" class="node">
-<title>proc~nc_abort</title>
-<g id="a_proc~~readpar_r2d~~CallsGraph_node3"><a xlink:href=".././proc/nc_abort.html" xlink:title="nc_abort">
-<polygon fill="#d9534f" stroke="#d9534f" points="207,-108 148,-108 148,-84 207,-84 207,-108"/>
-<text text-anchor="middle" x="177.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nc_abort</text>
-</a>
+<title>nf90_inquire_variable</title>
+<polygon fill="#777777" stroke="#777777" points="241,-108 114,-108 114,-84 241,-84 241,-108"/>
+<text text-anchor="middle" x="177.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire_variable</text>
 </g>
-</g>
-<!-- proc~readpar_r2d&#45;&gt;proc~nc_abort -->
+<!-- proc~readpar_r2d&#45;&gt;nf90_inquire_variable -->
 <g id="proc~~readpar_r2d~~CallsGraph_edge2" class="edge">
-<title>proc~readpar_r2d&#45;&gt;proc~nc_abort</title>
-<path fill="none" stroke="#ff0000" d="M78.02,-80.85C96.66,-83.72 119.06,-87.16 137.79,-90.04"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="137.35,-93.52 147.77,-91.58 138.42,-86.6 137.35,-93.52"/>
+<title>proc~readpar_r2d&#45;&gt;nf90_inquire_variable</title>
+<path fill="none" stroke="#ff0000" d="M78.02,-80.85C86.1,-82.09 94.89,-83.45 103.79,-84.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="103.42,-88.3 113.84,-86.36 104.48,-81.38 103.42,-88.3"/>
 </g>
 <!-- nf90_get_var -->
 <g id="proc~~readpar_r2d~~CallsGraph_node4" class="node">
@@ -247,29 +357,32 @@
 <path fill="none" stroke="#ff0000" d="M78.02,-69.15C92.91,-66.86 110.19,-64.2 126.09,-61.76"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="126.95,-65.16 136.3,-60.18 125.88,-58.25 126.95,-65.16"/>
 </g>
-<!-- nf90_inquire_variable -->
+<!-- proc~nc_abort -->
 <g id="proc~~readpar_r2d~~CallsGraph_node5" class="node">
-<title>nf90_inquire_variable</title>
-<polygon fill="#777777" stroke="#777777" points="241,-24 114,-24 114,0 241,0 241,-24"/>
-<text text-anchor="middle" x="177.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inquire_variable</text>
+<title>proc~nc_abort</title>
+<g id="a_proc~~readpar_r2d~~CallsGraph_node5"><a xlink:href=".././proc/nc_abort.html" xlink:title="nc_abort">
+<polygon fill="#d9534f" stroke="#d9534f" points="207,-24 148,-24 148,0 207,0 207,-24"/>
+<text text-anchor="middle" x="177.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nc_abort</text>
+</a>
 </g>
-<!-- proc~readpar_r2d&#45;&gt;nf90_inquire_variable -->
+</g>
+<!-- proc~readpar_r2d&#45;&gt;proc~nc_abort -->
 <g id="proc~~readpar_r2d~~CallsGraph_edge4" class="edge">
-<title>proc~readpar_r2d&#45;&gt;nf90_inquire_variable</title>
-<path fill="none" stroke="#ff0000" d="M58.95,-62.9C73.59,-53.88 94.58,-41.68 114,-33 118.17,-31.14 122.56,-29.35 126.99,-27.65"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="128.53,-30.81 136.72,-24.09 126.12,-24.24 128.53,-30.81"/>
+<title>proc~readpar_r2d&#45;&gt;proc~nc_abort</title>
+<path fill="none" stroke="#ff0000" d="M58.95,-62.9C73.59,-53.88 94.58,-41.68 114,-33 121.65,-29.58 130.04,-26.4 138.12,-23.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="139.37,-26.87 147.75,-20.38 137.15,-20.23 139.37,-26.87"/>
 </g>
 <!-- nf90_strerror -->
 <g id="proc~~readpar_r2d~~CallsGraph_node6" class="node">
 <title>nf90_strerror</title>
-<polygon fill="#777777" stroke="#777777" points="358,-108 277,-108 277,-84 358,-84 358,-108"/>
-<text text-anchor="middle" x="317.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
+<polygon fill="#777777" stroke="#777777" points="358,-24 277,-24 277,0 358,0 358,-24"/>
+<text text-anchor="middle" x="317.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
 </g>
 <!-- proc~nc_abort&#45;&gt;nf90_strerror -->
 <g id="proc~~readpar_r2d~~CallsGraph_edge5" class="edge">
 <title>proc~nc_abort&#45;&gt;nf90_strerror</title>
-<path fill="none" stroke="#7fff00" d="M207.09,-96C224.3,-96 246.69,-96 266.73,-96"/>
-<polygon fill="#7fff00" stroke="#7fff00" points="266.95,-99.5 276.95,-96 266.95,-92.5 266.95,-99.5"/>
+<path fill="none" stroke="#7f00ff" d="M207.09,-12C224.3,-12 246.69,-12 266.73,-12"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="266.95,-15.5 276.95,-12 266.95,-8.5 266.95,-15.5"/>
 </g>
 </g>
 </svg>
@@ -396,7 +509,7 @@
 </g>
 </g>
 <!-- proc~get_restart_data&#45;&gt;interface~readpar -->
-<g id="proc~~readpar_r2d~~CalledByGraph_edge4" class="edge">
+<g id="proc~~readpar_r2d~~CalledByGraph_edge3" class="edge">
 <title>proc~get_restart_data&#45;&gt;interface~readpar</title>
 <path fill="none" stroke="#ff0000" d="M489.53,-66.07C503.47,-69.7 519.3,-73.2 534,-75 588.7,-81.7 603.61,-83.89 658,-75 666.69,-73.58 675.8,-71.12 684.29,-68.37"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="685.6,-71.62 693.91,-65.05 683.32,-65 685.6,-71.62"/>
@@ -417,7 +530,7 @@
 </g>
 </g>
 <!-- proc~get_parameters_met&#45;&gt;interface~readpar -->
-<g id="proc~~readpar_r2d~~CalledByGraph_edge3" class="edge">
+<g id="proc~~readpar_r2d~~CalledByGraph_edge4" class="edge">
 <title>proc~get_parameters_met&#45;&gt;interface~readpar</title>
 <path fill="none" stroke="#ff0000" d="M632.39,-24.04C648.56,-29.54 667.71,-36.05 684.01,-41.59"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="683.15,-44.99 693.74,-44.9 685.4,-38.37 683.15,-44.99"/>
@@ -554,9 +667,27 @@
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

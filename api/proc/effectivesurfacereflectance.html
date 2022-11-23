@@ -80,122 +80,253 @@
   <div class="row">
     <h1>EffectiveSurfaceReflectance
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.0% of total for procedures.">16 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cbl_albedo.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cbl_albedo.f90.html'>cbl_albedo.F90</a></li>
-     <li><a href='../module/cbl_albedo_mod.html'>cbl_albedo_mod</a></li>
-     <li class="active">EffectiveSurfaceReflectance</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">16 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cbl_albedo.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cbl_albedo.f90.html'>cbl_albedo.F90</a></li>
+              <li><a href='../module/cbl_albedo_mod.html'>cbl_albedo_mod</a></li>
+          <li class="active">EffectiveSurfaceReflectance</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>private subroutine EffectiveSurfaceReflectance(EffSurfRefl_beam, EffSurfRefl_dif, mp, nrb, veg_mask, sunlit_veg_mask, CanopyRefl_beam, CanopyRefl_dif, CanopyTransmit_beam, CanopyTransmit_dif, AlbSnow)</h2>
+    <h2>private  subroutine EffectiveSurfaceReflectance(EffSurfRefl_beam, EffSurfRefl_dif, mp, nrb, veg_mask, sunlit_veg_mask, CanopyRefl_beam, CanopyRefl_dif, CanopyTransmit_beam, CanopyTransmit_dif, AlbSnow)  
+</h2>
     
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-effsurfrefl_beam~2"></span>real</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-effsurfrefl_beam~2"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>EffSurfRefl_beam</strong>(mp,nrb)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-effsurfrefl_dif~2"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>EffSurfRefl_beam</strong>(mp,nrb)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-effsurfrefl_dif~2"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>EffSurfRefl_dif</strong>(mp,nrb)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-mp~23"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>EffSurfRefl_dif</strong>(mp,nrb)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mp~26"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>mp</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nrb~9"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>mp</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nrb~10"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>nrb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-veg_mask~2"></span>logical</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nrb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-veg_mask~3"></span>
+              logical
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>veg_mask</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-sunlit_veg_mask~4"></span>logical</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>veg_mask</strong>(mp)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sunlit_veg_mask~4"></span>
+              logical
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>sunlit_veg_mask</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-canopyrefl_beam~4"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>sunlit_veg_mask</strong>(mp)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-canopyrefl_beam~4"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>CanopyRefl_beam</strong>(mp,nrb)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-canopyrefl_dif~4"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CanopyRefl_beam</strong>(mp,nrb)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-canopyrefl_dif~4"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>CanopyRefl_dif</strong>(mp,nrb)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-canopytransmit_beam~3"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CanopyRefl_dif</strong>(mp,nrb)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-canopytransmit_beam~3"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>CanopyTransmit_beam</strong>(mp,nrb)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-canopytransmit_dif~3"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CanopyTransmit_beam</strong>(mp,nrb)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-canopytransmit_dif~3"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>CanopyTransmit_dif</strong>(mp,nrb)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-albsnow~4"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CanopyTransmit_dif</strong>(mp,nrb)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-albsnow~4"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>AlbSnow</strong>(mp,nrb)</td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>AlbSnow</strong>(mp,nrb)</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
     <div class="panel panel-default">
@@ -461,9 +592,27 @@
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

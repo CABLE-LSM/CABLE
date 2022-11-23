@@ -80,86 +80,163 @@
   <div class="row">
     <h1>sli_hydrology
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.0% of total for procedures.">19 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cable_gw_hydro.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cable_gw_hydro.f90.html'>cable_gw_hydro.F90</a></li>
-     <li><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></li>
-     <li class="active">sli_hydrology</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">19 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cable_gw_hydro.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cable_gw_hydro.f90.html'>cable_gw_hydro.F90</a></li>
+              <li><a href='../module/cable_gw_hydro_module.html'>cable_gw_hydro_module</a></li>
+          <li class="active">sli_hydrology</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public subroutine sli_hydrology(dels, ssnow, soil, veg, canopy)</h2>
+    <h2>public  subroutine sli_hydrology(dels, ssnow, soil, veg, canopy)  
+</h2>
     
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-dels~28"></span>real,</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dels~28"></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>dels</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ssnow~47"></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dels</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ssnow~47"></span>
+              type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>ssnow</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-soil~59"></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ssnow</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-soil~59"></span>
+              type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>soil</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-veg~62"></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>soil</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-veg~62"></span>
+              type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>veg</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-canopy~33"></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>veg</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-canopy~33"></span>
+              type(<a href='../type/canopy_type.html'>canopy_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>canopy</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>canopy</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
     <div class="panel panel-default">
@@ -199,65 +276,65 @@
 <path fill="none" stroke="#ff0000" d="M53.75,-108.44C67.78,-122.6 92.56,-145.52 118,-159 125.25,-162.84 133.28,-166.05 141.28,-168.72"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="140.39,-172.11 150.98,-171.71 142.45,-165.42 140.39,-172.11"/>
 </g>
-<!-- proc~calc_soil_hydraulic_props -->
+<!-- proc~aquifer_recharge -->
 <g id="proc~~sli_hydrology~~CallsGraph_node3" class="node">
-<title>proc~calc_soil_hydraulic_props</title>
-<g id="a_proc~~sli_hydrology~~CallsGraph_node3"><a xlink:href=".././proc/calc_soil_hydraulic_props.html" xlink:title="calc_soil_hydraulic_props">
-<polygon fill="#d9534f" stroke="#d9534f" points="265,-150 118,-150 118,-126 265,-126 265,-150"/>
-<text text-anchor="middle" x="191.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_soil_hydraulic_props</text>
+<title>proc~aquifer_recharge</title>
+<g id="a_proc~~sli_hydrology~~CallsGraph_node3"><a xlink:href=".././proc/aquifer_recharge.html" xlink:title="aquifer_recharge">
+<polygon fill="#d9534f" stroke="#d9534f" points="243.5,-150 139.5,-150 139.5,-126 243.5,-126 243.5,-150"/>
+<text text-anchor="middle" x="191.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">aquifer_recharge</text>
 </a>
 </g>
 </g>
-<!-- proc~sli_hydrology&#45;&gt;proc~calc_soil_hydraulic_props -->
+<!-- proc~sli_hydrology&#45;&gt;proc~aquifer_recharge -->
 <g id="proc~~sli_hydrology~~CallsGraph_edge2" class="edge">
-<title>proc~sli_hydrology&#45;&gt;proc~calc_soil_hydraulic_props</title>
+<title>proc~sli_hydrology&#45;&gt;proc~aquifer_recharge</title>
 <path fill="none" stroke="#ff0000" d="M82.19,-107.37C99.44,-112.25 119.83,-118.01 138.24,-123.22"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="137.37,-126.61 147.94,-125.96 139.27,-119.87 137.37,-126.61"/>
 </g>
-<!-- proc~ovrlndflx -->
-<g id="proc~~sli_hydrology~~CallsGraph_node4" class="node">
-<title>proc~ovrlndflx</title>
-<g id="a_proc~~sli_hydrology~~CallsGraph_node4"><a xlink:href=".././proc/ovrlndflx.html" xlink:title="ovrlndflx">
-<polygon fill="#d9534f" stroke="#d9534f" points="221,-108 162,-108 162,-84 221,-84 221,-108"/>
-<text text-anchor="middle" x="191.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ovrlndflx</text>
-</a>
-</g>
-</g>
-<!-- proc~sli_hydrology&#45;&gt;proc~ovrlndflx -->
-<g id="proc~~sli_hydrology~~CallsGraph_edge4" class="edge">
-<title>proc~sli_hydrology&#45;&gt;proc~ovrlndflx</title>
-<path fill="none" stroke="#ff0000" d="M82.19,-96C103.74,-96 130.19,-96 151.55,-96"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="151.58,-99.5 161.58,-96 151.58,-92.5 151.58,-99.5"/>
-</g>
 <!-- proc~subsurface_drainage -->
-<g id="proc~~sli_hydrology~~CallsGraph_node5" class="node">
+<g id="proc~~sli_hydrology~~CallsGraph_node4" class="node">
 <title>proc~subsurface_drainage</title>
-<g id="a_proc~~sli_hydrology~~CallsGraph_node5"><a xlink:href=".././proc/subsurface_drainage.html" xlink:title="subsurface_drainage">
-<polygon fill="#d9534f" stroke="#d9534f" points="253.5,-66 129.5,-66 129.5,-42 253.5,-42 253.5,-66"/>
-<text text-anchor="middle" x="191.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">subsurface_drainage</text>
+<g id="a_proc~~sli_hydrology~~CallsGraph_node4"><a xlink:href=".././proc/subsurface_drainage.html" xlink:title="subsurface_drainage">
+<polygon fill="#d9534f" stroke="#d9534f" points="253.5,-108 129.5,-108 129.5,-84 253.5,-84 253.5,-108"/>
+<text text-anchor="middle" x="191.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">subsurface_drainage</text>
 </a>
 </g>
 </g>
 <!-- proc~sli_hydrology&#45;&gt;proc~subsurface_drainage -->
 <g id="proc~~sli_hydrology~~CallsGraph_edge3" class="edge">
 <title>proc~sli_hydrology&#45;&gt;proc~subsurface_drainage</title>
-<path fill="none" stroke="#ff0000" d="M82.19,-84.63C99.44,-79.75 119.83,-73.99 138.24,-68.78"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="139.27,-72.13 147.94,-66.04 137.37,-65.39 139.27,-72.13"/>
+<path fill="none" stroke="#ff0000" d="M82.19,-96C93.64,-96 106.48,-96 119.2,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="119.34,-99.5 129.34,-96 119.34,-92.5 119.34,-99.5"/>
 </g>
-<!-- proc~aquifer_recharge -->
-<g id="proc~~sli_hydrology~~CallsGraph_node6" class="node">
-<title>proc~aquifer_recharge</title>
-<g id="a_proc~~sli_hydrology~~CallsGraph_node6"><a xlink:href=".././proc/aquifer_recharge.html" xlink:title="aquifer_recharge">
-<polygon fill="#d9534f" stroke="#d9534f" points="243.5,-24 139.5,-24 139.5,0 243.5,0 243.5,-24"/>
-<text text-anchor="middle" x="191.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">aquifer_recharge</text>
+<!-- proc~calc_soil_hydraulic_props -->
+<g id="proc~~sli_hydrology~~CallsGraph_node5" class="node">
+<title>proc~calc_soil_hydraulic_props</title>
+<g id="a_proc~~sli_hydrology~~CallsGraph_node5"><a xlink:href=".././proc/calc_soil_hydraulic_props.html" xlink:title="calc_soil_hydraulic_props">
+<polygon fill="#d9534f" stroke="#d9534f" points="265,-66 118,-66 118,-42 265,-42 265,-66"/>
+<text text-anchor="middle" x="191.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_soil_hydraulic_props</text>
 </a>
 </g>
 </g>
-<!-- proc~sli_hydrology&#45;&gt;proc~aquifer_recharge -->
+<!-- proc~sli_hydrology&#45;&gt;proc~calc_soil_hydraulic_props -->
+<g id="proc~~sli_hydrology~~CallsGraph_edge4" class="edge">
+<title>proc~sli_hydrology&#45;&gt;proc~calc_soil_hydraulic_props</title>
+<path fill="none" stroke="#ff0000" d="M82.19,-84.63C99.44,-79.75 119.83,-73.99 138.24,-68.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="139.27,-72.13 147.94,-66.04 137.37,-65.39 139.27,-72.13"/>
+</g>
+<!-- proc~ovrlndflx -->
+<g id="proc~~sli_hydrology~~CallsGraph_node6" class="node">
+<title>proc~ovrlndflx</title>
+<g id="a_proc~~sli_hydrology~~CallsGraph_node6"><a xlink:href=".././proc/ovrlndflx.html" xlink:title="ovrlndflx">
+<polygon fill="#d9534f" stroke="#d9534f" points="221,-24 162,-24 162,0 221,0 221,-24"/>
+<text text-anchor="middle" x="191.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ovrlndflx</text>
+</a>
+</g>
+</g>
+<!-- proc~sli_hydrology&#45;&gt;proc~ovrlndflx -->
 <g id="proc~~sli_hydrology~~CallsGraph_edge5" class="edge">
-<title>proc~sli_hydrology&#45;&gt;proc~aquifer_recharge</title>
-<path fill="none" stroke="#ff0000" d="M53.75,-83.56C67.78,-69.4 92.56,-46.48 118,-33 121.71,-31.03 125.63,-29.23 129.65,-27.58"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="131.02,-30.8 139.15,-24 128.56,-24.25 131.02,-30.8"/>
+<title>proc~sli_hydrology&#45;&gt;proc~ovrlndflx</title>
+<path fill="none" stroke="#ff0000" d="M53.75,-83.56C67.78,-69.4 92.56,-46.48 118,-33 128.57,-27.4 140.82,-23.13 152.2,-19.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="153.12,-23.32 161.92,-17.42 151.36,-16.54 153.12,-23.32"/>
 </g>
 </g>
 </svg>
@@ -325,9 +402,27 @@
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

@@ -80,92 +80,178 @@
   <div class="row">
     <h1>open_file_per_node
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.1% of total for procedures.">25 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cable_fFile.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cable_ffile.f90.html'>cable_fFile.F90</a></li>
-     <li><a href='../module/cable_ffile_module.html'>cable_fFile_module</a></li>
-     <li class="active">open_file_per_node</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.1% of total for procedures.">25 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cable_fFile.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cable_ffile.f90.html'>cable_fFile.F90</a></li>
+              <li><a href='../module/cable_ffile_module.html'>cable_fFile_module</a></li>
+          <li class="active">open_file_per_node</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public subroutine open_file_per_node(iDiag, pDiag, dir, basename, node, fbasename)</h2>
+    <h2>public  subroutine open_file_per_node(iDiag, pDiag, dir, basename, node, fbasename)  
+</h2>
     
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-idiag~17"></span>integer</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-idiag~17"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>iDiag</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-pdiag~2"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>iDiag</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pdiag~2"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>pDiag</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-dir~8"></span>character(len=*)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>pDiag</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dir~8"></span>
+              character(len=*)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>dir</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-basename~12"></span>character(len=*)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dir</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-basename~12"></span>
+              character(len=*)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>basename</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-node~9"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>basename</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-node~9"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>node</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-fbasename~3"></span>character(len=*),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>node</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fbasename~3"></span>
+              character(len=*),
+            </td>
 <td></td>
-  <td>optional</td>  <td></td><td>::</td>
-  <td><strong>fbasename</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fbasename</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
     <div class="panel panel-default">
@@ -305,50 +391,50 @@
 <path fill="none" stroke="#ff0000" d="M204.69,-125.94C211.35,-123.03 218.43,-119.91 225,-117 244.08,-108.54 265.3,-99.02 282.7,-91.18"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="284.25,-94.32 291.93,-87.02 281.38,-87.94 284.25,-94.32"/>
 </g>
-<!-- proc~cable_pyfprintf2 -->
+<!-- proc~cable_fprintf1~2 -->
 <g id="proc~~open_file_per_node~~CalledByGraph_node3" class="node">
-<title>proc~cable_pyfprintf2</title>
-<g id="a_proc~~open_file_per_node~~CalledByGraph_node3"><a xlink:href=".././proc/cable_pyfprintf2.html" xlink:title="cable_Pyfprintf2">
-<polygon fill="#d9534f" stroke="#d9534f" points="225,-108 127,-108 127,-84 225,-84 225,-108"/>
-<text text-anchor="middle" x="176" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_Pyfprintf2</text>
+<title>proc~cable_fprintf1~2</title>
+<g id="a_proc~~open_file_per_node~~CalledByGraph_node3"><a xlink:href=".././proc/cable_fprintf1~2.html" xlink:title="cable_fprintf1">
+<polygon fill="#d9534f" stroke="#d9534f" points="219,-66 133,-66 133,-42 219,-42 219,-66"/>
+<text text-anchor="middle" x="176" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_fprintf1</text>
 </a>
 </g>
 </g>
-<!-- proc~cable_pyfprintf2&#45;&gt;proc~open_file_per_node -->
+<!-- proc~cable_fprintf1~2&#45;&gt;proc~open_file_per_node -->
 <g id="proc~~open_file_per_node~~CalledByGraph_edge2" class="edge">
-<title>proc~cable_pyfprintf2&#45;&gt;proc~open_file_per_node</title>
-<path fill="none" stroke="#ff0000" d="M225.3,-88.83C233.47,-87.62 242.09,-86.34 250.65,-85.07"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="251.26,-88.52 260.64,-83.59 250.24,-81.59 251.26,-88.52"/>
+<title>proc~cable_fprintf1~2&#45;&gt;proc~open_file_per_node</title>
+<path fill="none" stroke="#ff0000" d="M219.07,-60.24C229.11,-61.73 240.08,-63.36 250.95,-64.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="250.47,-68.44 260.88,-66.45 251.5,-61.52 250.47,-68.44"/>
 </g>
 <!-- proc~cable_fprintf2~2 -->
 <g id="proc~~open_file_per_node~~CalledByGraph_node4" class="node">
 <title>proc~cable_fprintf2~2</title>
 <g id="a_proc~~open_file_per_node~~CalledByGraph_node4"><a xlink:href=".././proc/cable_fprintf2~2.html" xlink:title="cable_fprintf2">
-<polygon fill="#d9534f" stroke="#d9534f" points="219,-66 133,-66 133,-42 219,-42 219,-66"/>
-<text text-anchor="middle" x="176" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_fprintf2</text>
+<polygon fill="#d9534f" stroke="#d9534f" points="219,-24 133,-24 133,0 219,0 219,-24"/>
+<text text-anchor="middle" x="176" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_fprintf2</text>
 </a>
 </g>
 </g>
 <!-- proc~cable_fprintf2~2&#45;&gt;proc~open_file_per_node -->
 <g id="proc~~open_file_per_node~~CalledByGraph_edge3" class="edge">
 <title>proc~cable_fprintf2~2&#45;&gt;proc~open_file_per_node</title>
-<path fill="none" stroke="#ff0000" d="M219.07,-60.24C229.11,-61.73 240.08,-63.36 250.95,-64.98"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="250.47,-68.44 260.88,-66.45 251.5,-61.52 250.47,-68.44"/>
+<path fill="none" stroke="#ff0000" d="M204.69,-24.06C211.35,-26.97 218.43,-30.09 225,-33 244.08,-41.46 265.3,-50.98 282.7,-58.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="281.38,-62.06 291.93,-62.98 284.25,-55.68 281.38,-62.06"/>
 </g>
-<!-- proc~cable_fprintf1~2 -->
+<!-- proc~cable_pyfprintf2 -->
 <g id="proc~~open_file_per_node~~CalledByGraph_node5" class="node">
-<title>proc~cable_fprintf1~2</title>
-<g id="a_proc~~open_file_per_node~~CalledByGraph_node5"><a xlink:href=".././proc/cable_fprintf1~2.html" xlink:title="cable_fprintf1">
-<polygon fill="#d9534f" stroke="#d9534f" points="219,-24 133,-24 133,0 219,0 219,-24"/>
-<text text-anchor="middle" x="176" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_fprintf1</text>
+<title>proc~cable_pyfprintf2</title>
+<g id="a_proc~~open_file_per_node~~CalledByGraph_node5"><a xlink:href=".././proc/cable_pyfprintf2.html" xlink:title="cable_Pyfprintf2">
+<polygon fill="#d9534f" stroke="#d9534f" points="225,-108 127,-108 127,-84 225,-84 225,-108"/>
+<text text-anchor="middle" x="176" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_Pyfprintf2</text>
 </a>
 </g>
 </g>
-<!-- proc~cable_fprintf1~2&#45;&gt;proc~open_file_per_node -->
+<!-- proc~cable_pyfprintf2&#45;&gt;proc~open_file_per_node -->
 <g id="proc~~open_file_per_node~~CalledByGraph_edge4" class="edge">
-<title>proc~cable_fprintf1~2&#45;&gt;proc~open_file_per_node</title>
-<path fill="none" stroke="#ff0000" d="M204.69,-24.06C211.35,-26.97 218.43,-30.09 225,-33 244.08,-41.46 265.3,-50.98 282.7,-58.82"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="281.38,-62.06 291.93,-62.98 284.25,-55.68 281.38,-62.06"/>
+<title>proc~cable_pyfprintf2&#45;&gt;proc~open_file_per_node</title>
+<path fill="none" stroke="#ff0000" d="M225.3,-88.83C233.47,-87.62 242.09,-86.34 250.65,-85.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="251.26,-88.52 260.64,-83.59 250.24,-81.59 251.26,-88.52"/>
 </g>
 <!-- interface~cable_pyfprintf -->
 <g id="proc~~open_file_per_node~~CalledByGraph_node6" class="node">
@@ -366,10 +452,10 @@
 <polygon fill="#ff0000" stroke="#ff0000" points="116.44,-127.02 126.99,-126.04 118.13,-120.23 116.44,-127.02"/>
 </g>
 <!-- interface~cable_pyfprintf&#45;&gt;proc~cable_pyfprintf2 -->
-<g id="proc~~open_file_per_node~~CalledByGraph_edge6" class="edge">
+<g id="proc~~open_file_per_node~~CalledByGraph_edge8" class="edge">
 <title>interface~cable_pyfprintf&#45;&gt;proc~cable_pyfprintf2</title>
-<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M91.08,-102.53C99.42,-101.88 108.24,-101.2 116.92,-100.52"/>
-<polygon fill="#7fff00" stroke="#7fff00" points="117.29,-104 126.99,-99.74 116.75,-97.02 117.29,-104"/>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M91.08,-102.53C99.42,-101.88 108.24,-101.2 116.92,-100.52"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="117.29,-104 126.99,-99.74 116.75,-97.02 117.29,-104"/>
 </g>
 <!-- interface~cable_fprintf~2 -->
 <g id="proc~~open_file_per_node~~CalledByGraph_node7" class="node">
@@ -380,17 +466,17 @@
 </a>
 </g>
 </g>
+<!-- interface~cable_fprintf~2&#45;&gt;proc~cable_fprintf1~2 -->
+<g id="proc~~open_file_per_node~~CalledByGraph_edge6" class="edge">
+<title>interface~cable_fprintf~2&#45;&gt;proc~cable_fprintf1~2</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M85.05,-46.3C96.95,-47.32 110.26,-48.46 122.92,-49.54"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="122.62,-53.03 132.89,-50.39 123.22,-46.05 122.62,-53.03"/>
+</g>
 <!-- interface~cable_fprintf~2&#45;&gt;proc~cable_fprintf2~2 -->
 <g id="proc~~open_file_per_node~~CalledByGraph_edge7" class="edge">
 <title>interface~cable_fprintf~2&#45;&gt;proc~cable_fprintf2~2</title>
-<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M85.05,-46.3C96.95,-47.32 110.26,-48.46 122.92,-49.54"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="122.62,-53.03 132.89,-50.39 123.22,-46.05 122.62,-53.03"/>
-</g>
-<!-- interface~cable_fprintf~2&#45;&gt;proc~cable_fprintf1~2 -->
-<g id="proc~~open_file_per_node~~CalledByGraph_edge8" class="edge">
-<title>interface~cable_fprintf~2&#45;&gt;proc~cable_fprintf1~2</title>
-<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M85.05,-33.7C96.95,-30.83 110.26,-27.62 122.92,-24.56"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="123.99,-27.91 132.89,-22.16 122.34,-21.1 123.99,-27.91"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M85.05,-33.7C96.95,-30.83 110.26,-27.62 122.92,-24.56"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="123.99,-27.91 132.89,-22.16 122.34,-21.1 123.99,-27.91"/>
 </g>
 </g>
 </svg>
@@ -458,9 +544,27 @@
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

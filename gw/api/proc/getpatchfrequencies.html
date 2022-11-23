@@ -80,68 +80,118 @@
   <div class="row">
     <h1>GetPatchFrequencies
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.1% of total for procedures.">32 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/POP.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/pop.f90.html'>POP.F90</a></li>
-     <li><a href='../module/popmodule.html'>POPModule</a></li>
-     <li class="active">GetPatchFrequencies</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.1% of total for procedures.">32 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/POP.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/pop.f90.html'>POP.F90</a></li>
+              <li><a href='../module/popmodule.html'>POPModule</a></li>
+          <li class="active">GetPatchFrequencies</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public subroutine GetPatchFrequencies(POP, it)</h2>
+    <h2>public  subroutine GetPatchFrequencies(POP, it)  
+</h2>
     
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-pop~9"></span>type(<a href='../type/pop_type.html'>POP_TYPE</a>),</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pop~9"></span>
+              type(<a href='../type/pop_type.html'>POP_TYPE</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>POP</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-it~4"></span>integer(kind=i4b),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>POP</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-it~4"></span>
+              integer(kind=i4b),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>it</strong>(:)</td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>it</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
     <div class="panel panel-default">
@@ -211,10 +261,40 @@
 <path fill="none" stroke="#ff0000" d="M372.83,-163.97C380.67,-161.34 388.68,-158.33 396,-155 410.25,-148.53 425.18,-139.62 437.33,-131.76"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="439.61,-134.45 446.01,-126.01 435.74,-128.61 439.61,-134.45"/>
 </g>
-<!-- proc~mpidrv_worker -->
+<!-- proc~worker_casaonly_luc -->
 <g id="proc~~getpatchfrequencies~~CalledByGraph_node5" class="node">
+<title>proc~worker_casaonly_luc</title>
+<g id="a_proc~~getpatchfrequencies~~CalledByGraph_node5"><a xlink:href=".././proc/worker_casaonly_luc.html" xlink:title="worker_CASAONLY_LUC">
+<polygon fill="#d9534f" stroke="#d9534f" points="396,-66 260,-66 260,-42 396,-42 396,-66"/>
+<text text-anchor="middle" x="328" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">worker_CASAONLY_LUC</text>
+</a>
+</g>
+</g>
+<!-- proc~worker_casaonly_luc&#45;&gt;proc~popdriver -->
+<g id="proc~~getpatchfrequencies~~CalledByGraph_edge6" class="edge">
+<title>proc~worker_casaonly_luc&#45;&gt;proc~popdriver</title>
+<path fill="none" stroke="#ff0000" d="M361.98,-66.05C372.91,-70.24 385.06,-75.12 396,-80 407.82,-85.28 420.54,-91.57 431.69,-97.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="430.14,-100.44 440.63,-101.95 433.37,-94.23 430.14,-100.44"/>
+</g>
+<!-- proc~worker_spincasacnp -->
+<g id="proc~~getpatchfrequencies~~CalledByGraph_node6" class="node">
+<title>proc~worker_spincasacnp</title>
+<g id="a_proc~~getpatchfrequencies~~CalledByGraph_node6"><a xlink:href=".././proc/worker_spincasacnp.html" xlink:title="worker_spincasacnp">
+<polygon fill="#d9534f" stroke="#d9534f" points="388.5,-24 267.5,-24 267.5,0 388.5,0 388.5,-24"/>
+<text text-anchor="middle" x="328" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">worker_spincasacnp</text>
+</a>
+</g>
+</g>
+<!-- proc~worker_spincasacnp&#45;&gt;proc~popdriver -->
+<g id="proc~~getpatchfrequencies~~CalledByGraph_edge5" class="edge">
+<title>proc~worker_spincasacnp&#45;&gt;proc~popdriver</title>
+<path fill="none" stroke="#ff0000" d="M378.81,-24.02C384.85,-26.5 390.74,-29.46 396,-33 419.45,-48.76 439.05,-75.09 450.87,-93.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="447.92,-95.32 456.18,-101.96 453.86,-91.62 447.92,-95.32"/>
+</g>
+<!-- proc~mpidrv_worker -->
+<g id="proc~~getpatchfrequencies~~CalledByGraph_node7" class="node">
 <title>proc~mpidrv_worker</title>
-<g id="a_proc~~getpatchfrequencies~~CalledByGraph_node5"><a xlink:href=".././proc/mpidrv_worker.html" xlink:title="mpidrv_worker">
+<g id="a_proc~~getpatchfrequencies~~CalledByGraph_node7"><a xlink:href=".././proc/mpidrv_worker.html" xlink:title="mpidrv_worker">
 <polygon fill="#d9534f" stroke="#d9534f" points="211,-66 119,-66 119,-42 211,-42 211,-66"/>
 <text text-anchor="middle" x="165" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpidrv_worker</text>
 </a>
@@ -226,47 +306,17 @@
 <path fill="none" stroke="#ff0000" d="M211.36,-64.42C226.78,-67.89 244.12,-71.7 260,-75 316.04,-86.64 381.04,-98.91 422.09,-106.51"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="421.52,-109.97 431.99,-108.34 422.79,-103.08 421.52,-109.97"/>
 </g>
-<!-- proc~worker_casaonly_luc -->
-<g id="proc~~getpatchfrequencies~~CalledByGraph_node6" class="node">
-<title>proc~worker_casaonly_luc</title>
-<g id="a_proc~~getpatchfrequencies~~CalledByGraph_node6"><a xlink:href=".././proc/worker_casaonly_luc.html" xlink:title="worker_CASAONLY_LUC">
-<polygon fill="#d9534f" stroke="#d9534f" points="396,-66 260,-66 260,-42 396,-42 396,-66"/>
-<text text-anchor="middle" x="328" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">worker_CASAONLY_LUC</text>
-</a>
-</g>
-</g>
 <!-- proc~mpidrv_worker&#45;&gt;proc~worker_casaonly_luc -->
-<g id="proc~~getpatchfrequencies~~CalledByGraph_edge11" class="edge">
+<g id="proc~~getpatchfrequencies~~CalledByGraph_edge10" class="edge">
 <title>proc~mpidrv_worker&#45;&gt;proc~worker_casaonly_luc</title>
-<path fill="none" stroke="#00ff00" d="M211.28,-54C223.28,-54 236.59,-54 249.78,-54"/>
-<polygon fill="#00ff00" stroke="#00ff00" points="249.82,-57.5 259.82,-54 249.82,-50.5 249.82,-57.5"/>
-</g>
-<!-- proc~worker_spincasacnp -->
-<g id="proc~~getpatchfrequencies~~CalledByGraph_node7" class="node">
-<title>proc~worker_spincasacnp</title>
-<g id="a_proc~~getpatchfrequencies~~CalledByGraph_node7"><a xlink:href=".././proc/worker_spincasacnp.html" xlink:title="worker_spincasacnp">
-<polygon fill="#d9534f" stroke="#d9534f" points="388.5,-24 267.5,-24 267.5,0 388.5,0 388.5,-24"/>
-<text text-anchor="middle" x="328" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">worker_spincasacnp</text>
-</a>
-</g>
+<path fill="none" stroke="#ffff00" d="M211.28,-54C223.28,-54 236.59,-54 249.78,-54"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="249.82,-57.5 259.82,-54 249.82,-50.5 249.82,-57.5"/>
 </g>
 <!-- proc~mpidrv_worker&#45;&gt;proc~worker_spincasacnp -->
-<g id="proc~~getpatchfrequencies~~CalledByGraph_edge12" class="edge">
+<g id="proc~~getpatchfrequencies~~CalledByGraph_edge11" class="edge">
 <title>proc~mpidrv_worker&#45;&gt;proc~worker_spincasacnp</title>
-<path fill="none" stroke="#00ffff" d="M211.28,-42.19C229.89,-37.33 251.64,-31.66 271.23,-26.55"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="272.15,-29.92 280.95,-24.01 270.39,-23.15 272.15,-29.92"/>
-</g>
-<!-- proc~worker_casaonly_luc&#45;&gt;proc~popdriver -->
-<g id="proc~~getpatchfrequencies~~CalledByGraph_edge5" class="edge">
-<title>proc~worker_casaonly_luc&#45;&gt;proc~popdriver</title>
-<path fill="none" stroke="#ff0000" d="M361.98,-66.05C372.91,-70.24 385.06,-75.12 396,-80 407.82,-85.28 420.54,-91.57 431.69,-97.3"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="430.14,-100.44 440.63,-101.95 433.37,-94.23 430.14,-100.44"/>
-</g>
-<!-- proc~worker_spincasacnp&#45;&gt;proc~popdriver -->
-<g id="proc~~getpatchfrequencies~~CalledByGraph_edge6" class="edge">
-<title>proc~worker_spincasacnp&#45;&gt;proc~popdriver</title>
-<path fill="none" stroke="#ff0000" d="M378.81,-24.02C384.85,-26.5 390.74,-29.46 396,-33 419.45,-48.76 439.05,-75.09 450.87,-93.44"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="447.92,-95.32 456.18,-101.96 453.86,-91.62 447.92,-95.32"/>
+<path fill="none" stroke="#00ff00" d="M211.28,-42.19C229.89,-37.33 251.64,-31.66 271.23,-26.55"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="272.15,-29.92 280.95,-24.01 270.39,-23.15 272.15,-29.92"/>
 </g>
 <!-- proc~spincasacnp -->
 <g id="proc~~getpatchfrequencies~~CalledByGraph_node8" class="node">
@@ -320,10 +370,10 @@
 </g>
 </g>
 <!-- program~mpi_driver&#45;&gt;proc~mpidrv_worker -->
-<g id="proc~~getpatchfrequencies~~CalledByGraph_edge10" class="edge">
+<g id="proc~~getpatchfrequencies~~CalledByGraph_edge12" class="edge">
 <title>program~mpi_driver&#45;&gt;proc~mpidrv_worker</title>
-<path fill="none" stroke="#ffff00" d="M70.3,-54C82.11,-54 95.64,-54 108.68,-54"/>
-<polygon fill="#ffff00" stroke="#ffff00" points="109,-57.5 119,-54 109,-50.5 109,-57.5"/>
+<path fill="none" stroke="#00ffff" d="M70.3,-54C82.11,-54 95.64,-54 108.68,-54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="109,-57.5 119,-54 109,-50.5 109,-57.5"/>
 </g>
 </g>
 </svg>
@@ -391,9 +441,27 @@
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

@@ -80,86 +80,163 @@
   <div class="row">
     <h1>trimb
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.0% of total for procedures.">21 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cbl_trimb.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cbl_trimb.f90.html'>cbl_trimb.F90</a></li>
-     <li><a href='../module/trimb_mod.html'>trimb_mod</a></li>
-     <li class="active">trimb</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">21 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cbl_trimb.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cbl_trimb.f90.html'>cbl_trimb.F90</a></li>
+              <li><a href='../module/trimb_mod.html'>trimb_mod</a></li>
+          <li class="active">trimb</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public subroutine trimb(a, b, c, rhs, kmax)</h2>
+    <h2>public  subroutine trimb(a, b, c, rhs, kmax)  
+</h2>
     
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-a~5"></span>real(kind=r_2),</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~5"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>a</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-b~9"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-b~9"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>b</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-c~2"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>b</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-c~2"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>c</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-rhs"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>c</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rhs"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>rhs</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-kmax"></span>integer,</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>rhs</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kmax"></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>kmax</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>kmax</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
     <div class="panel panel-default">
@@ -199,20 +276,20 @@
 <path fill="none" stroke="#ff0000" d="M728.84,-123.89C733.5,-121 738.44,-117.91 743,-115 754.75,-107.49 767.64,-99.01 778.6,-91.72"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="780.54,-94.63 786.92,-86.17 776.66,-88.81 780.54,-94.63"/>
 </g>
-<!-- proc~gwstempv -->
+<!-- proc~smoistgw -->
 <g id="proc~~trimb~~CalledByGraph_node3" class="node">
-<title>proc~gwstempv</title>
-<g id="a_proc~~trimb~~CalledByGraph_node3"><a xlink:href=".././proc/gwstempv.html" xlink:title="GWstempv">
-<polygon fill="#d9534f" stroke="#d9534f" points="743,-25 673,-25 673,-1 743,-1 743,-25"/>
-<text text-anchor="middle" x="708" y="-10.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GWstempv</text>
+<title>proc~smoistgw</title>
+<g id="a_proc~~trimb~~CalledByGraph_node3"><a xlink:href=".././proc/smoistgw.html" xlink:title="smoistgw">
+<polygon fill="#d9534f" stroke="#d9534f" points="584,-66 522,-66 522,-42 584,-42 584,-66"/>
+<text text-anchor="middle" x="553" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">smoistgw</text>
 </a>
 </g>
 </g>
-<!-- proc~gwstempv&#45;&gt;proc~trimb -->
-<g id="proc~~trimb~~CalledByGraph_edge2" class="edge">
-<title>proc~gwstempv&#45;&gt;proc~trimb</title>
-<path fill="none" stroke="#ff0000" d="M727.97,-25.05C742.04,-33.99 761.43,-46.32 777.25,-56.36"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="775.76,-59.56 786.07,-61.97 779.51,-53.66 775.76,-59.56"/>
+<!-- proc~smoistgw&#45;&gt;proc~trimb -->
+<g id="proc~~trimb~~CalledByGraph_edge4" class="edge">
+<title>proc~smoistgw&#45;&gt;proc~trimb</title>
+<path fill="none" stroke="#ff0000" d="M584.28,-56.41C630.66,-60.11 719.12,-67.16 768.82,-71.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="768.56,-74.61 778.8,-71.91 769.11,-67.63 768.56,-74.61"/>
 </g>
 <!-- proc~smoisturev -->
 <g id="proc~~trimb~~CalledByGraph_node4" class="node">
@@ -229,20 +306,20 @@
 <path fill="none" stroke="#ff0000" d="M743.12,-86.89C751.47,-85.15 760.44,-83.28 768.88,-81.53"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="769.76,-84.92 778.84,-79.45 768.34,-78.06 769.76,-84.92"/>
 </g>
-<!-- proc~smoistgw -->
+<!-- proc~gwstempv -->
 <g id="proc~~trimb~~CalledByGraph_node5" class="node">
-<title>proc~smoistgw</title>
-<g id="a_proc~~trimb~~CalledByGraph_node5"><a xlink:href=".././proc/smoistgw.html" xlink:title="smoistgw">
-<polygon fill="#d9534f" stroke="#d9534f" points="584,-66 522,-66 522,-42 584,-42 584,-66"/>
-<text text-anchor="middle" x="553" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">smoistgw</text>
+<title>proc~gwstempv</title>
+<g id="a_proc~~trimb~~CalledByGraph_node5"><a xlink:href=".././proc/gwstempv.html" xlink:title="GWstempv">
+<polygon fill="#d9534f" stroke="#d9534f" points="743,-25 673,-25 673,-1 743,-1 743,-25"/>
+<text text-anchor="middle" x="708" y="-10.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GWstempv</text>
 </a>
 </g>
 </g>
-<!-- proc~smoistgw&#45;&gt;proc~trimb -->
-<g id="proc~~trimb~~CalledByGraph_edge4" class="edge">
-<title>proc~smoistgw&#45;&gt;proc~trimb</title>
-<path fill="none" stroke="#ff0000" d="M584.28,-56.41C630.66,-60.11 719.12,-67.16 768.82,-71.12"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="768.56,-74.61 778.8,-71.91 769.11,-67.63 768.56,-74.61"/>
+<!-- proc~gwstempv&#45;&gt;proc~trimb -->
+<g id="proc~~trimb~~CalledByGraph_edge2" class="edge">
+<title>proc~gwstempv&#45;&gt;proc~trimb</title>
+<path fill="none" stroke="#ff0000" d="M727.97,-25.05C742.04,-33.99 761.43,-46.32 777.25,-56.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="775.76,-59.56 786.07,-61.97 779.51,-53.66 775.76,-59.56"/>
 </g>
 <!-- proc~soil_snow -->
 <g id="proc~~trimb~~CalledByGraph_node6" class="node">
@@ -284,10 +361,10 @@
 </g>
 </g>
 <!-- proc~soil_snow_gw&#45;&gt;proc~smoistgw -->
-<g id="proc~~trimb~~CalledByGraph_edge8" class="edge">
+<g id="proc~~trimb~~CalledByGraph_edge6" class="edge">
 <title>proc~soil_snow_gw&#45;&gt;proc~smoistgw</title>
-<path fill="none" stroke="#7f00ff" d="M433.16,-45.8C457.28,-47.47 487.74,-49.57 511.78,-51.23"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="511.77,-54.73 521.99,-51.93 512.26,-47.75 511.77,-54.73"/>
+<path fill="none" stroke="#7fff00" d="M433.16,-45.8C457.28,-47.47 487.74,-49.57 511.78,-51.23"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="511.77,-54.73 521.99,-51.93 512.26,-47.75 511.77,-54.73"/>
 </g>
 <!-- proc~snow_processes_soil_thermal -->
 <g id="proc~~trimb~~CalledByGraph_node8" class="node">
@@ -305,10 +382,10 @@
 <polygon fill="#00ffff" stroke="#00ffff" points="480.85,-29.39 490,-24.05 479.52,-22.52 480.85,-29.39"/>
 </g>
 <!-- proc~snow_processes_soil_thermal&#45;&gt;proc~gwstempv -->
-<g id="proc~~trimb~~CalledByGraph_edge6" class="edge">
+<g id="proc~~trimb~~CalledByGraph_edge8" class="edge">
 <title>proc~snow_processes_soil_thermal&#45;&gt;proc~gwstempv</title>
-<path fill="none" stroke="#7fff00" d="M637.22,-12.54C645.99,-12.6 654.64,-12.66 662.71,-12.71"/>
-<polygon fill="#7fff00" stroke="#7fff00" points="662.92,-16.21 672.94,-12.78 662.96,-9.21 662.92,-16.21"/>
+<path fill="none" stroke="#7f00ff" d="M637.22,-12.54C645.99,-12.6 654.64,-12.66 662.71,-12.71"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="662.92,-16.21 672.94,-12.78 662.96,-9.21 662.92,-16.21"/>
 </g>
 <!-- proc~surfbv&#45;&gt;proc~smoisturev -->
 <g id="proc~~trimb~~CalledByGraph_edge7" class="edge">
@@ -442,9 +519,27 @@
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">
