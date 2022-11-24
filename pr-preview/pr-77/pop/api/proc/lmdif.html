@@ -71,215 +71,490 @@
   <div class="row">
     <h1>lmdif
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.5% of total for procedures.">256 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/minpack.f90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/minpack.f90.html'>minpack.f90</a></li>
-     <li><a href='../module/minpack.html'>minpack</a></li>
-     <li class="active">lmdif</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.5% of total for procedures.">256 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/minpack.f90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/minpack.f90.html'>minpack.f90</a></li>
+              <li><a href='../module/minpack.html'>minpack</a></li>
+          <li class="active">lmdif</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public subroutine lmdif(fcn, m, n, x, fvec, ftol, xtol, gtol, maxfev, epsfcn, diag, mode, factor, nprint, info, nfev, fjac, ldfjac, ipvt, qtf, An, Ci, Rd, Km, gammastar)</h2>
+    <h2>public  subroutine lmdif(fcn, m, n, x, fvec, ftol, xtol, gtol, maxfev, epsfcn, diag, mode, factor, nprint, info, nfev, fjac, ldfjac, ipvt, qtf, An, Ci, Rd, Km, gammastar)  
+</h2>
     
 
     <p><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong>*</strong>*80</p>
 <p>LMDIF minimizes M functions in N variables by the Levenberg-Marquardt method.</p>
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-fcn~9"></span>real</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fcn~9"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>fcn</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-m~5"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fcn</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-m~5"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>m</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-n~15"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>m</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~15"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>n</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-x~13"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-x~13"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>x</strong>(n)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-fvec~10"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>x</strong>(n)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fvec~10"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>fvec</strong>(m)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ftol~2"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fvec</strong>(m)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ftol~2"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>ftol</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-xtol~4"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ftol</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-xtol~4"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>xtol</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-gtol~2"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>xtol</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gtol~2"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>gtol</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-maxfev~4"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>gtol</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-maxfev~4"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>maxfev</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-epsfcn~4"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>maxfev</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-epsfcn~4"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>epsfcn</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-diag~5"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>epsfcn</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-diag~5"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>diag</strong>(n)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-mode~5"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>diag</strong>(n)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mode~5"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>mode</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-factor~4"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>mode</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-factor~4"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>factor</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nprint~4"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>factor</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nprint~4"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>nprint</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-info~7"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nprint</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-info~7"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>info</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nfev~4"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>info</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nfev~4"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>nfev</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-fjac~9"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nfev</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fjac~9"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>fjac</strong>(ldfjac,n)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ldfjac~9"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fjac</strong>(ldfjac,n)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ldfjac~9"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>ldfjac</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ipvt~2"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ldfjac</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ipvt~2"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>ipvt</strong>(n)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qtf~4"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ipvt</strong>(n)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qtf~4"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>qtf</strong>(n)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-an~6"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>qtf</strong>(n)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-an~6"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>An</strong>(m)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ci~2"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>An</strong>(m)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ci~2"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>Ci</strong>(m)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-rd~5"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Ci</strong>(m)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rd~5"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>Rd</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-km~2"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Rd</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-km~2"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>Km</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-gammastar~3"></span>real(kind=r_2)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Km</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gammastar~3"></span>
+              real(kind=r_2)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>gammastar</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>gammastar</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

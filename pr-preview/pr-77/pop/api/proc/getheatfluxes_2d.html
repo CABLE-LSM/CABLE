@@ -71,177 +71,398 @@
   <div class="row">
     <h1>getheatfluxes_2d
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.2% of total for procedures.">108 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cable_sli_utils.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cable_sli_utils.f90.html'>cable_sli_utils.F90</a></li>
-     <li><a href='../module/sli_utils.html'>sli_utils</a></li>
-     <li class="active">getheatfluxes_2d</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.2% of total for procedures.">108 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cable_sli_utils.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cable_sli_utils.f90.html'>cable_sli_utils.F90</a></li>
+              <li><a href='../module/sli_utils.html'>sli_utils</a></li>
+          <li class="active">getheatfluxes_2d</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>private subroutine getheatfluxes_2d(dx, i_qh, i_qhya, i_qhyb, i_qhTa, i_qhTb, var, T, i_q, i_qya, i_qyb, i_qTa, i_qTb, i_qadv, i_qadvya, i_qadvyb, i_qadvTa, i_qadvTb, advection)</h2>
+    <h2>private  subroutine getheatfluxes_2d(dx, i_qh, i_qhya, i_qhyb, i_qhTa, i_qhTb, var, T, i_q, i_qya, i_qyb, i_qTa, i_qTb, i_qadv, i_qadvya, i_qadvyb, i_qadvTa, i_qadvTb, advection)  
+</h2>
     
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-dx~10"></span>real(kind=r_2),</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dx~10"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>dx</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qh"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>dx</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qh"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qh</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qhya"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qh</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qhya"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qhya</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qhyb"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qhya</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qhyb"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qhyb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qhta"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qhyb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qhta"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qhTa</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qhtb"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qhTa</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qhtb"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qhTb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-var~11"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qhTb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-var~11"></span>
+              type(<a href='../type/vars.html'>vars</a>),
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>var</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-t~13"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>var</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-t~13"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>T</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_q~2"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>T</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_q~2"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_q</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qya~2"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_q</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qya~2"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qya</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qyb~2"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qya</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qyb~2"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qyb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qta~2"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qyb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qta~2"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qTa</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qtb~2"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qTa</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qtb~2"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qTb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qadv"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qTb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qadv"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qadv</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qadvya"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qadv</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qadvya"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qadvya</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qadvyb"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qadvya</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qadvyb"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qadvyb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qadvta"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qadvyb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qadvta"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qadvTa</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qadvtb"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qadvTa</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qadvtb"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qadvTb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-advection~2"></span>integer(kind=i_d),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qadvTb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-advection~2"></span>
+              integer(kind=i_d),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>advection</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>advection</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

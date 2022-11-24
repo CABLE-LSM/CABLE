@@ -71,59 +71,84 @@
   <div class="row">
     <h1>RUN_BLAZE
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.1% of total for procedures.">53 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/blaze.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/blaze.f90.html'>blaze.F90</a></li>
-     <li><a href='../module/blaze_mod.html'>BLAZE_MOD</a></li>
-     <li class="active">RUN_BLAZE</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.1% of total for procedures.">53 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/blaze.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/blaze.f90.html'>blaze.F90</a></li>
+              <li><a href='../module/blaze_mod.html'>BLAZE_MOD</a></li>
+          <li class="active">RUN_BLAZE</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public subroutine RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO, climate)</h2>
+    <h2>public  subroutine RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO, climate)  
+</h2>
         <div class="panel panel-default">
       <div class="panel-heading">
-  <h3 class="panel-title">Uses</h3>
+        <h3 class="panel-title">Uses</h3>
       </div>
       <ul class="list-group">
-      <li class="list-group-item">
-  <ul class="list-inline">
-    <li><a href='../module/simfire_mod.html'>SIMFIRE_MOD</a></li>
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-  </ul>
-      </li>
+          <li class="list-group-item">
+            <ul class="list-inline">
+                <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+                <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+                <li><a href='../module/simfire_mod.html'>SIMFIRE_MOD</a></li>
+            </ul>
+          </li>
       </ul>
     </div>
 
@@ -131,72 +156,178 @@
     <p>CRM  IF ( DD .EQ. 1 ) BLAZE%FLI(:) = 0. now in accounting</p>
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-blaze~8"></span>type(<a href='../type/type_blaze.html'>TYPE_BLAZE</a>)</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-blaze~8"></span>
+              type(<a href='../type/type_blaze.html'>TYPE_BLAZE</a>)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>BLAZE</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-sf~7"></span>type(<a href='../type/type_simfire.html'>TYPE_SIMFIRE</a>)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>BLAZE</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sf~7"></span>
+              type(<a href='../type/type_simfire.html'>TYPE_SIMFIRE</a>)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>SF</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-cplant_g~5"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>SF</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cplant_g~5"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>CPLANT_g</strong>(BLAZE%NCELLS,3)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-cplant_w~5"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CPLANT_g</strong>(BLAZE%NCELLS,3)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cplant_w~5"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>CPLANT_w</strong>(BLAZE%NCELLS,3)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-tstp~2"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CPLANT_w</strong>(BLAZE%NCELLS,3)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tstp~2"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>tstp</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-yyyy"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>tstp</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-yyyy"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>YYYY</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-doy~4"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>YYYY</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-doy~4"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>doy</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-to~4"></span>type(<a href='../type/type_turnover.html'>TYPE_TURNOVER</a>)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>doy</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-to~4"></span>
+              type(<a href='../type/type_turnover.html'>TYPE_TURNOVER</a>)
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>TO</strong>(BLAZE%NCELLS,7)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-climate~14"></span>type(<a href='../type/climate_type.html'>climate_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>TO</strong>(BLAZE%NCELLS,7)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-climate~14"></span>
+              type(<a href='../type/climate_type.html'>climate_type</a>),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>climate</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>climate</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

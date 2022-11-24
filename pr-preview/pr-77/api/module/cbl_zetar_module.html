@@ -71,48 +71,77 @@
   <div class="row">
     <h1>cbl_zetar_module 
     <small>Module</small>
+    
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.1% of total for modules and submodules.">57 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cbl_zetar.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cbl_zetar.f90.html'>cbl_zetar.F90</a></li>
-     <li class="active">cbl_zetar_module</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.1% of total for modules and submodules.">57 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cbl_zetar.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cbl_zetar.f90.html'>cbl_zetar.F90</a></li>
+          <li class="active">cbl_zetar_module</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<div class="panel panel-primary">
-  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#subs-0">Subroutines</a></h3></div>
-  <div class="list-group">
-    <div id="subs-0" class="panel-collapse collapse">
-      <a class="list-group-item" href="../module/cbl_zetar_module.html#proc-update_zetar">update_zetar</a>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#subs-0">Subroutines</a>
+        </h3>
+      </div>
+      <div id="subs-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/cbl_zetar_module.html#proc-update_zetar">update_zetar</a>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-</div>
+  
+  
+  
+  
+  
+  
+
+
+  </div>
 
     </div>
     
@@ -123,16 +152,39 @@
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<div class="panel panel-primary">
-  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#subs-1">Subroutines</a></h3></div>
-  <div class="list-group">
-    <div id="subs-1" class="panel-collapse collapse">
-      <a class="list-group-item" href="../module/cbl_zetar_module.html#proc-update_zetar">update_zetar</a>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#subs-1">Subroutines</a>
+        </h3>
+      </div>
+      <div id="subs-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/cbl_zetar_module.html#proc-update_zetar">update_zetar</a>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">
@@ -147,184 +199,440 @@
     <section>
     <h2>Subroutines</h2>
       <div class="panel panel-default">
-  <div class="panel-heading codesum"><span class="anchor" id="proc-update_zetar"></span><h3>public subroutine <a href='../proc/update_zetar.html'>update_zetar</a>(mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP, CLAI_THRESH, CZETmul, CZETPOS, CZETNEG, cable_user_soil_struc, air_rho, met_tk, met_fsd, rough_zref_tq, rough_hruff, rough_term6a, rough_z0soilsn, canopy_vlaiw, canopy_zetash, canopy_us, canopy_fh, canopy_fe, canopy_fhs, canopy_fes)</h3></div>
-  <div class="panel-body">
-           
-<h4>Arguments</h4>      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" ></span>integer,</td>
+    <div class="panel-heading codesum"><span class="anchor" id="proc-update_zetar"></span><h3>public  subroutine <a href='../proc/update_zetar.html'>update_zetar</a>(mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP, CLAI_THRESH, CZETmul, CZETPOS, CZETNEG, cable_user_soil_struc, air_rho, met_tk, met_fsd, rough_zref_tq, rough_hruff, rough_term6a, rough_z0soilsn, canopy_vlaiw, canopy_zetash, canopy_us, canopy_fh, canopy_fe, canopy_fhs, canopy_fes)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>mp</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>integer,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>mp</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>NITER</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>NITER</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(out)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>canopy_zetar</strong>(mp,NITER)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>integer,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>canopy_zetar</strong>(mp,NITER)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>iter</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>integer,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>iter</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>nrb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nrb</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>CVONK</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CVONK</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>CGRAV</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CGRAV</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>CCAPP</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CCAPP</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>CLAI_THRESH</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CLAI_THRESH</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>CZETmul</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CZETmul</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>CZETPOS</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CZETPOS</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>CZETNEG</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>character,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CZETNEG</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>cable_user_soil_struc</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>cable_user_soil_struc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>air_rho</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>air_rho</strong>(mp)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>met_tk</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>met_tk</strong>(mp)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>met_fsd</strong>(mp,nrb)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>met_fsd</strong>(mp,nrb)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>rough_zref_tq</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rough_zref_tq</strong>(mp)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>rough_hruff</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rough_hruff</strong>(mp)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>rough_term6a</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rough_term6a</strong>(mp)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>rough_z0soilsn</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rough_z0soilsn</strong>(mp)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>canopy_vlaiw</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>canopy_vlaiw</strong>(mp)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(out)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>canopy_zetash</strong>(mp,NITER)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>canopy_zetash</strong>(mp,NITER)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>canopy_us</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>canopy_us</strong>(mp)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>canopy_fh</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>canopy_fh</strong>(mp)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>canopy_fe</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>canopy_fe</strong>(mp)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>canopy_fhs</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" ></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>canopy_fhs</strong>(mp)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>canopy_fes</strong>(mp)</td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>canopy_fes</strong>(mp)</td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
 
+    </div>
   </div>
-  </div>
 
-    </section>    
+    </section>
     <br>
-    
+
+
+
     </div>
   </div>
 

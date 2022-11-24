@@ -71,122 +71,235 @@
   <div class="row">
     <h1>master_casa_types
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.7% of total for procedures.">354 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cable_mpimaster.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cable_mpimaster.f90.html'>cable_mpimaster.F90</a></li>
-     <li><a href='../module/cable_mpimaster.html'>cable_mpimaster</a></li>
-     <li class="active">master_casa_types</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.7% of total for procedures.">354 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cable_mpimaster.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cable_mpimaster.f90.html'>cable_mpimaster.F90</a></li>
+              <li><a href='../module/cable_mpimaster.html'>cable_mpimaster</a></li>
+          <li class="active">master_casa_types</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>private subroutine master_casa_types(comm, casabiome, casapool, casaflux, casamet, casabal, phen)</h2>
+    <h2>private  subroutine master_casa_types(comm, casabiome, casapool, casaflux, casamet, casabal, phen)  
+</h2>
         <div class="panel panel-default">
       <div class="panel-heading">
-  <h3 class="panel-title">Uses</h3>
+        <h3 class="panel-title">Uses</h3>
       </div>
       <ul class="list-group">
-      <li class="list-group-item">
-  <ul class="list-inline">
-    <li><a href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm">mpi</a></li>
-    <li><a href='../module/cable_mpicommon.html'>cable_mpicommon</a></li>
-    <li><a href='../module/casavariable.html'>casavariable</a></li>
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
-    <li><a href='../module/casadimension.html'>casadimension</a></li>
-    <li><a href='../module/phenvariable.html'>phenvariable</a></li>
-  </ul>
-      </li>
+          <li class="list-group-item">
+            <ul class="list-inline">
+                <li><a href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm">mpi</a></li>
+                <li><a href='../module/phenvariable.html'>phenvariable</a></li>
+                <li><a href='../module/casavariable.html'>casavariable</a></li>
+                <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+                <li><a href='../module/cable_mpicommon.html'>cable_mpicommon</a></li>
+                <li><a href='../module/casadimension.html'>casadimension</a></li>
+            </ul>
+          </li>
       </ul>
     </div>
 
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-comm~15"></span>integer</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-comm~15"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>comm</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-casabiome~36"></span>type(<a href='../type/casa_biome.html'>casa_biome</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>comm</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-casabiome~36"></span>
+              type(<a href='../type/casa_biome.html'>casa_biome</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>casabiome</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-casapool~48"></span>type(<a href='../type/casa_pool.html'>casa_pool</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>casabiome</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-casapool~48"></span>
+              type(<a href='../type/casa_pool.html'>casa_pool</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>casapool</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-casaflux~50"></span>type(<a href='../type/casa_flux.html'>casa_flux</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>casapool</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-casaflux~50"></span>
+              type(<a href='../type/casa_flux.html'>casa_flux</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>casaflux</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-casamet~47"></span>type(<a href='../type/casa_met.html'>casa_met</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>casaflux</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-casamet~47"></span>
+              type(<a href='../type/casa_met.html'>casa_met</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>casamet</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-casabal~22"></span>type(<a href='../type/casa_balance.html'>casa_balance</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>casamet</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-casabal~22"></span>
+              type(<a href='../type/casa_balance.html'>casa_balance</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>casabal</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-phen~27"></span>type(<a href='../type/phen_variable.html'>phen_variable</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>casabal</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-phen~28"></span>
+              type(<a href='../type/phen_variable.html'>phen_variable</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>phen</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>phen</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">
