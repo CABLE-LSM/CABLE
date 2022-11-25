@@ -18,8 +18,7 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
                    canopy_fh, canopy_fe, canopy_fhs, canopy_fes )
   !* This SUBROUTINE forms part of the codebase to evaluate the surface
   !  energy balance on a sub-diurnal basis (i.e. every CABLE time step).
-  !  It resides in the canopy science directory and is called from
-  !  [[define_canopy]] only.
+  !  It resides in the canopy science directory.
   !  
   !  This SUBROUTINE updates the value of the stability parameter \(\xi\)
   !  during the Monin-Obukhov (MO) iteration loop in [[define_canopy]].
