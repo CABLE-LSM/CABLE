@@ -14,8 +14,7 @@ The inline documentation is processed by [FORD][FORD] which supports formatting 
 
 ## Minimum requirements
 
-At a minimum a module, subroutine, function, or interface must contain the following standard header template 
-just underneath the first defining line:
+At a minimum a subroutine, function, or interface must contain the following standard header template just underneath the first defining line:
 
     !*## Purpose
     !
@@ -33,7 +32,7 @@ just underneath the first defining line:
     !
     ! Avoid using abbreviations (e.g. write "maximum" not "max.").
     ! 
-    ! Remember to keep all lines within 80 columns width.
+    ! Remember to keep all lines within 80 columns width, except hyperlinks
     !
     !## References
     !
@@ -49,7 +48,11 @@ just underneath the first defining line:
     ! Do not use the citation text! It is too long and unnecessary with a hyperlink.
     !
 
-### Description procedure arguments and public module variables
+### Modules header
+
+Start with a short overview of the purpose of the module. You can keep it quite short as the details (references, implementation, equations etc.) will go in each subroutine within the module.
+
+### Procedure arguments and public module variables
 
 - Add a description for each argument at the end of the line or on the line after the argument declaration
 - If the argument is the direct equivalent of a variable in an equation in a published paper, add the symbol used in the equation (using LaTeX Maths) and the reference, if it's ambiguous, after the description within parentheses
@@ -95,7 +98,7 @@ There is obviously a lot of additional information that can be included with the
 
 - **Headings and special formatting**. It is possible to use Markdown to format the documentation. For example, one can add headings or lists.
   
-  For *procedures and derived types*, **do not use level-1 headings** as these are used for the procedure declaration line or the derived type declaration.
+    For *procedures and derived types*, **do not use level-1 headings** as these are used for the procedure declaration line or the derived type declaration.
 
 - **Equations**. You can insert equations with [LaTeX Mathematics][latex-maths] notations
 - **Order of procedure**. You may want to explain the successive steps of the code. When doing so it might be useful to:
@@ -121,7 +124,9 @@ CONTAINS
     ! 
     !## Method
     !
-    ! The subroutine takes a float as input, prints its value then adds 2/3, prints it and returns it.  
+    ! The subroutine takes a float as input, prints its value then adds 2/3, 
+    ! prints it and returns it. 
+    ! 
     ! The equation used is:
     ! \[ myarg = myarg + !frac{2.}{3.} \]
     !
@@ -134,7 +139,7 @@ CONTAINS
     ! Arguments
     REAL, INTENT(INOUT) :: myarg !! Example argument to show the documentation (-)
 
-    !>### Order of procedure
+    !>## Order of procedure
     !> 1. Start an ordered list for my documentation.
     PRINT*, myarg
 
