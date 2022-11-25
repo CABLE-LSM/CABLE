@@ -86,12 +86,12 @@
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/cable_optimiseJVratio.F90"> Source File</a>
+              <a href="../src/cable_canopy.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/cable_optimisejvratio.f90.html'>cable_optimiseJVratio.F90</a></li>
-              <li><a href='../module/cable_optimise_jv_module.html'>cable_optimise_JV_module</a></li>
+              <li><a href='../sourcefile/cable_canopy.f90.html'>cable_canopy.F90</a></li>
+              <li><a href='../module/cable_canopy_module.html'>cable_canopy_module</a></li>
           <li class="active">fAm_c3</li>
         </ol>
       </div>
@@ -135,7 +135,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public  subroutine fAm_c3(a, b, c1, d, p, q, Am)  
+    <h2>private pure elemental subroutine fAm_c3(a, b, c1, d, p, q, Am)  
 </h2>
         <div class="panel panel-default">
       <div class="panel-heading">
@@ -144,8 +144,8 @@
       <ul class="list-group">
           <li class="list-group-item">
             <ul class="list-inline">
-                <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
                 <li><a href='../module/mo_constants.html'>mo_constants</a></li>
+                <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
             </ul>
           </li>
       </ul>
@@ -166,7 +166,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-a~11"></span>
+              <span class="anchor" id="variable-a~29"></span>
               real(kind=r_2),
             </td>
 <td>intent(in)</td>
@@ -181,7 +181,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-b~7"></span>
+              <span class="anchor" id="variable-b~28"></span>
               real(kind=r_2),
             </td>
 <td>intent(in)</td>
@@ -196,7 +196,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-c1~2"></span>
+              <span class="anchor" id="variable-c1~5"></span>
               real(kind=r_2),
             </td>
 <td>intent(in)</td>
@@ -211,7 +211,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-d~3"></span>
+              <span class="anchor" id="variable-d~4"></span>
               real(kind=r_2),
             </td>
 <td>intent(in)</td>
@@ -226,7 +226,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-p~6"></span>
+              <span class="anchor" id="variable-p~4"></span>
               real(kind=r_2),
             </td>
 <td>intent(in)</td>
@@ -241,7 +241,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-q~3"></span>
+              <span class="anchor" id="variable-q~5"></span>
               real(kind=r_2),
             </td>
 <td>intent(in)</td>

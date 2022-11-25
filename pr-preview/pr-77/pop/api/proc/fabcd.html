@@ -86,12 +86,12 @@
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/cable_optimiseJVratio.F90"> Source File</a>
+              <a href="../src/cable_canopy.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/cable_optimisejvratio.f90.html'>cable_optimiseJVratio.F90</a></li>
-              <li><a href='../module/cable_optimise_jv_module.html'>cable_optimise_JV_module</a></li>
+              <li><a href='../sourcefile/cable_canopy.f90.html'>cable_canopy.F90</a></li>
+              <li><a href='../module/cable_canopy_module.html'>cable_canopy_module</a></li>
           <li class="active">fabcd</li>
         </ol>
       </div>
@@ -135,7 +135,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public  subroutine fabcd(Cs, g0, x, gamm, beta, Gammastar, Rd, gm, a, b, c1, d)  
+    <h2>private pure elemental subroutine fabcd(Cs, g0, x, gamma, beta, Gammastar, Rd, gm, a, b, c1, d)  
 </h2>
         <div class="panel panel-default">
       <div class="panel-heading">
@@ -165,8 +165,8 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-cs~2"></span>
-              real,
+              <span class="anchor" id="variable-cs~7"></span>
+              real(kind=r_2),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -180,8 +180,8 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-g0~7"></span>
-              real,
+              <span class="anchor" id="variable-g0~12"></span>
+              real(kind=r_2),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -195,8 +195,8 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-x~25"></span>
-              real,
+              <span class="anchor" id="variable-x~47"></span>
+              real(kind=r_2),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -210,23 +210,23 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-gamm~2"></span>
-              real,
+              <span class="anchor" id="variable-gamma~13"></span>
+              real(kind=r_2),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>gamm</strong></td>
+            <td><strong>gamma</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-beta~2"></span>
-              real,
+              <span class="anchor" id="variable-beta~9"></span>
+              real(kind=r_2),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -240,8 +240,8 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-gammastar~2"></span>
-              real,
+              <span class="anchor" id="variable-gammastar~8"></span>
+              real(kind=r_2),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -255,8 +255,8 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rd~10"></span>
-              real,
+              <span class="anchor" id="variable-rd~12"></span>
+              real(kind=r_2),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -271,7 +271,7 @@
         <tr>
             <td>
               <span class="anchor" id="variable-gm~2"></span>
-              real,
+              real(kind=r_2),
             </td>
 <td>intent(in)</td>
               <td></td>            <td>
@@ -285,7 +285,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-a~9"></span>
+              <span class="anchor" id="variable-a~25"></span>
               real(kind=r_2),
             </td>
 <td>intent(out)</td>
@@ -300,7 +300,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-b~5"></span>
+              <span class="anchor" id="variable-b~24"></span>
               real(kind=r_2),
             </td>
 <td>intent(out)</td>
@@ -315,7 +315,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-c1"></span>
+              <span class="anchor" id="variable-c1~3"></span>
               real(kind=r_2),
             </td>
 <td>intent(out)</td>
