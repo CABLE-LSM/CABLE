@@ -18,20 +18,20 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
                    canopy_fh, canopy_fe, canopy_fhs, canopy_fes )
   !* This SUBROUTINE forms part of the codebase to evaluate the surface
   !  energy balance on a sub-diurnal basis (i.e. every CABLE time step).
-  !  It resides in the canopy science directory and is called from
-  !  [[define_canopy]] only.
+  !  It resides in the canopy science directory.
   !  
   !  This SUBROUTINE updates the value of the stability parameter \(\xi\)
-  !  during the Monin-Obukhov (MO) iteration loop in [[define_canopy]].
+  !  during the iteration loop of the Monin-Obukhov (MO) similarity theory in [[define_canopy]].
   !  Further scientific documentation is given in
   !  [Kowalczyk et al. (2006)](http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf)
-  !  - section 3.1, equations 1-9.  The two outputs of the SUBROUTINE
-  !  are the local (in space, time and by iteration counter) value of \(\xi\)
-  !  (Equation 9) `canopy_zetar` and a related quantity `canopy_zetash`.
+  !  - section 3.1, equations 1-9.  
   !
-  !  `canopy_zetar` is evaluated from the total land (soil+canopy)
+  ! The two outputs of the SUBROUTINE are:
+  !
+  !  - `canopy_zetar`, the local (in space, time and by iteration counter) value of \(\xi\)
+  !  (Equation 9). It is evaluated from the total land (soil+canopy)
   !  surface fluxes of momentum, sensible heat and latent heat.
-  !  `canopy_zetash` is the equivalent variable evaluated from the soil
+  !  - `canopy_zetash` is the equivalent variable evaluated from the soil
   !  contribution to those fluxes only.  `canopy_zetash` is used in conjunction
   !  with the [[sli_main_mod]] soil model to moderate the fluxes from the soil
   !  underneath a canopy.
@@ -51,9 +51,8 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
   !  of convergence.
   !
   !  The outputs `canopy_zetar` and `canopy_zetash` are known as
-  !  `canopy%zetar` and `canopy%zetash` in [[define_canopy]] and elsewhere
-  !  in the code. `canopy%zetar` is used in [[define_canopy]] and
-  !  [[comp_friction_vel]]; `canopy%zetash` is used in `[[define_canopy]].
+  !  `canopy%zetar` and `canopy%zetash` elsewhere
+  !  in the code. 
   !
   !  Special cases apply if `NITER`=2, or if `canopy_zetar` or `canopy_zetash`
   !  exceed the prescribed upper `CZETPOS` or lower `CZETNEG` limits. `NITER`(=4)

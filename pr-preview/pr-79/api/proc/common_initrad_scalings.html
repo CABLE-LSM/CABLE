@@ -71,165 +71,350 @@
   <div class="row">
     <h1>Common_InitRad_Scalings
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.0% of total for procedures.">21 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cbl_init_radiation.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cbl_init_radiation.f90.html'>cbl_init_radiation.F90</a></li>
-     <li><a href='../module/cbl_init_radiation_module.html'>cbl_init_radiation_module</a></li>
-     <li class="active">Common_InitRad_Scalings</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">21 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cbl_init_radiation.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cbl_init_radiation.f90.html'>cbl_init_radiation.F90</a></li>
+              <li><a href='../module/cbl_init_radiation_module.html'>cbl_init_radiation_module</a></li>
+          <li class="active">Common_InitRad_Scalings</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>private subroutine Common_InitRad_Scalings(xphi1, xphi2, xk, xvlai2, c1, rhoch, mp, nrb, Cpi180, cLAI_thresh, veg_mask, reducedLAIdue2snow, VegXfang, VegTaul, VegRefl)</h2>
+    <h2>private  subroutine Common_InitRad_Scalings(xphi1, xphi2, xk, xvlai2, c1, rhoch, mp, nrb, Cpi180, cLAI_thresh, veg_mask, reducedLAIdue2snow, VegXfang, VegTaul, VegRefl)  
+</h2>
         <div class="panel panel-default">
       <div class="panel-heading">
-  <h3 class="panel-title">Uses</h3>
+        <h3 class="panel-title">Uses</h3>
       </div>
       <ul class="list-group">
-      <li class="list-group-item">
-  <ul class="list-inline">
-    <li><a href='../module/cbl_rhoch_module.html'>cbl_rhoch_module</a></li>
-  </ul>
-      </li>
+          <li class="list-group-item">
+            <ul class="list-inline">
+                <li><a href='../module/cbl_rhoch_module.html'>cbl_rhoch_module</a></li>
+            </ul>
+          </li>
       </ul>
     </div>
 
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-xphi1"></span>real</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-xphi1~2"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>xphi1</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-xphi2"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>xphi1</strong>(mp)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-xphi2~2"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>xphi2</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-xk~6"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>xphi2</strong>(mp)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-xk~4"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>xk</strong>(mp,nrb)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-xvlai2"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>xk</strong>(mp,nrb)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-xvlai2~2"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>xvlai2</strong>(mp,nrb)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-c1~4"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>xvlai2</strong>(mp,nrb)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-c1~4"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>c1</strong>(mp,nrb)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-rhoch~7"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>c1</strong>(mp,nrb)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rhoch~4"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>rhoch</strong>(mp,nrb)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-mp~46"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rhoch</strong>(mp,nrb)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mp~49"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>mp</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nrb~13"></span>integer</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>mp</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nrb~7"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>nrb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-cpi180~2"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nrb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cpi180~3"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>Cpi180</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-clai_thresh"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Cpi180</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clai_thresh~2"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>cLAI_thresh</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-veg_mask~5"></span>logical</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>cLAI_thresh</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-veg_mask~3"></span>
+              logical
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>veg_mask</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-reducedlaidue2snow~8"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>veg_mask</strong>(mp)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-reducedlaidue2snow~5"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>reducedLAIdue2snow</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-vegxfang~2"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>reducedLAIdue2snow</strong>(mp)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vegxfang~3"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>VegXfang</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-vegtaul~3"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>VegXfang</strong>(mp)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vegtaul~2"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>VegTaul</strong>(mp,nrb)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-vegrefl~3"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>VegTaul</strong>(mp,nrb)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vegrefl~2"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>VegRefl</strong>(mp,nrb)</td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>VegRefl</strong>(mp,nrb)</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

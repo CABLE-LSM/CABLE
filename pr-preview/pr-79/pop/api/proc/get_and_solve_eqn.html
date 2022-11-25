@@ -71,783 +71,1913 @@
   <div class="row">
     <h1>get_and_solve_eqn
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.7% of total for procedures.">388 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cable_sli_solve.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cable_sli_solve.f90.html'>cable_sli_solve.F90</a></li>
-     <li><a href='../module/sli_solve.html'>sli_solve</a></li>
-     <li class="active">get_and_solve_eqn</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.7% of total for procedures.">388 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cable_sli_solve.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cable_sli_solve.f90.html'>cable_sli_solve.F90</a></li>
+              <li><a href='../module/sli_solve.html'>sli_solve</a></li>
+          <li class="active">get_and_solve_eqn</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>private subroutine get_and_solve_eqn(irec, mp, qprec, n, dx, h0, S, thetai, Tsoil, qh, nsteps, vlit, vsnow, var, dxL, plit, par, deltaTa, qevap, qL, qhL, qybL, qTbL, qhTbL, qhybL, again, again_ice, iok, itmp, ns, accel, dt, fac, phip, rsig, rsigdt, sig, t, qexd, aa, bb, cc, dd, ee, ff, gg, dy, aah, bbh, cch, ddh, eeh, ffh, ggh, de, q, qya, qyb, qTa, qTb, qhya, qhyb, qhTa, qhTb, qadv, qadvya, qadvyb, qadvTa, qadvTb, qsig, qhsig, qadvsig, dTsoil, dthetaldT, nsteps_ice, imelt, deltaJ_latent_T, deltaJ_sensible_S, qrunoff, tmp1d1, tmp1d2, tmp1d3, tmp1d4, G0, Tfreezing, LHS, RHS, LHS_h, RHS_h, nns, iflux, litter, i, kk, condition, advection, c2, theta, cp, cpeff, hice, h0_tmp, hsnow, delta_snowT, delta_snowliq, J0, iqex, nfac1, nfac2, nfac3, nfac4, nfac5, nfac6, nfac7, nfac8, nfac9, nfac10, nfac11, nfac12, err)</h2>
+    <h2>private  subroutine get_and_solve_eqn(irec, mp, qprec, n, dx, h0, S, thetai, Tsoil, qh, nsteps, vlit, vsnow, var, dxL, plit, par, deltaTa, qevap, qL, qhL, qybL, qTbL, qhTbL, qhybL, again, again_ice, iok, itmp, ns, accel, dt, fac, phip, rsig, rsigdt, sig, t, qexd, aa, bb, cc, dd, ee, ff, gg, dy, aah, bbh, cch, ddh, eeh, ffh, ggh, de, q, qya, qyb, qTa, qTb, qhya, qhyb, qhTa, qhTb, qadv, qadvya, qadvyb, qadvTa, qadvTb, qsig, qhsig, qadvsig, dTsoil, dthetaldT, nsteps_ice, imelt, deltaJ_latent_T, deltaJ_sensible_S, qrunoff, tmp1d1, tmp1d2, tmp1d3, tmp1d4, G0, Tfreezing, LHS, RHS, LHS_h, RHS_h, nns, iflux, litter, i, kk, condition, advection, c2, theta, cp, cpeff, hice, h0_tmp, hsnow, delta_snowT, delta_snowliq, J0, iqex, nfac1, nfac2, nfac3, nfac4, nfac5, nfac6, nfac7, nfac8, nfac9, nfac10, nfac11, nfac12, err)  
+</h2>
     
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-irec~3"></span>integer(kind=i_d)</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>irec</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-mp~29"></span>integer(kind=i_d)</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>mp</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qprec~5"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>qprec</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-n~46"></span>integer(kind=i_d)</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>n</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-dx~16"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>dx</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-h0~13"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>h0</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-s~16"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>S</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-thetai~6"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>thetai</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-tsoil~13"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>Tsoil</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qh~7"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qh</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nsteps~7"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>nsteps</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-vlit~6"></span>type(<a href='../type/vars.html'>vars</a>),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>vlit</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-vsnow~6"></span>type(<a href='../type/vars_snow.html'>vars_snow</a>),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>vsnow</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-var~22"></span>type(<a href='../type/vars.html'>vars</a>),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>var</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-dxl~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>dxL</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-plit~5"></span>type(<a href='../type/params.html'>params</a>),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>plit</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-par~9"></span>type(<a href='../type/params.html'>params</a>),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>par</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-deltata~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>deltaTa</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qevap~5"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>qevap</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ql~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>qL</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qhl~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>qhL</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qybl~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>qybL</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qtbl~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>qTbL</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qhtbl~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>qhTbL</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qhybl~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>qhybL</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-again~6"></span>logical,</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>again</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-again_ice~2"></span>logical,</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp,1:n)</td><td>::</td>
-  <td><strong>again_ice</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-iok~2"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>iok</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-itmp~2"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>itmp</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ns~8"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>ns</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-accel~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>accel</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-dt~10"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>dt</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-fac~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>fac</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-phip~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>phip</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-rsig~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>rsig</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-rsigdt~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>rsigdt</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-sig~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>sig</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-t~5"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>t</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qexd~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>qexd</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-aa~6"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
-  <td><strong>aa</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-bb~6"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
-  <td><strong>bb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-cc~6"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
-  <td><strong>cc</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-dd~6"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
-  <td><strong>dd</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ee~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
-  <td><strong>ee</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ff~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
-  <td><strong>ff</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-gg~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
-  <td><strong>gg</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-dy~8"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
-  <td><strong>dy</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-aah~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
-  <td><strong>aah</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-bbh~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
-  <td><strong>bbh</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-cch~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
-  <td><strong>cch</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ddh~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
-  <td><strong>ddh</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-eeh~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
-  <td><strong>eeh</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ffh~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
-  <td><strong>ffh</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ggh~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
-  <td><strong>ggh</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-de~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
-  <td><strong>de</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-q~11"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>q</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qya~7"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qya</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qyb~8"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qyb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qta~7"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qTa</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qtb~8"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qTb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qhya~5"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qhya</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qhyb~6"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qhyb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qhta~5"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qhTa</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qhtb~6"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qhTb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qadv~6"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qadv</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qadvya~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qadvya</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qadvyb~5"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qadvyb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qadvta~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qadvTa</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qadvtb~5"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qadvTb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qsig~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qsig</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qhsig~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qhsig</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qadvsig~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max:n)</td><td>::</td>
-  <td><strong>qadvsig</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-dtsoil~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>dTsoil</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-dthetaldt~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>dthetaldT</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nsteps_ice~2"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>nsteps_ice</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-imelt~2"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>imelt</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-deltaj_latent_t~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>deltaJ_latent_T</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-deltaj_sensible_s~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>deltaJ_sensible_S</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-qrunoff~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>qrunoff</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-tmp1d1~5"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>tmp1d1</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-tmp1d2~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>tmp1d2</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-tmp1d3~5"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>tmp1d3</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-tmp1d4~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>tmp1d4</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-g0~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>G0</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-tfreezing~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>Tfreezing</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-lhs~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
-  <td><strong>LHS</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-rhs~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
-  <td><strong>RHS</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-lhs_h~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
-  <td><strong>LHS_h</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-rhs_h~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(-nsnow_max+1:n)</td><td>::</td>
-  <td><strong>RHS_h</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nns~2"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>nns</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-iflux~6"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>iflux</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-litter~5"></span>logical</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>litter</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i~4"></span>integer(kind=i_d)</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>i</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-kk~6"></span>integer(kind=i_d)</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>kk</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-condition~4"></span>integer(kind=i_d)</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>condition</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-advection~7"></span>integer(kind=i_d)</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>advection</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-c2~2"></span>real(kind=r_2)</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>c2</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-theta~8"></span>real(kind=r_2)</td>
-<td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>theta</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-cp~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>cp</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-cpeff~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>cpeff</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-hice~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>hice</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-h0_tmp~2"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>h0_tmp</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-hsnow~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(nsnow_max)</td><td>::</td>
-  <td><strong>hsnow</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-delta_snowt~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(nsnow_max)</td><td>::</td>
-  <td><strong>delta_snowT</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-delta_snowliq~3"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(nsnow_max)</td><td>::</td>
-  <td><strong>delta_snowliq</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-j0~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>J0</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-iqex~4"></span>real(kind=r_2),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:n)</td><td>::</td>
-  <td><strong>iqex</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nfac1~2"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>nfac1</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nfac2~2"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>nfac2</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nfac3~2"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>nfac3</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nfac4~2"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>nfac4</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nfac5~2"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>nfac5</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nfac6~2"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>nfac6</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nfac7~2"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>nfac7</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nfac8~2"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>nfac8</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nfac9~2"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>nfac9</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nfac10~2"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>nfac10</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nfac11~2"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>nfac11</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nfac12~2"></span>integer(kind=i_d),</td>
-<td></td>
-  <td></td>  <td>DIMENSION(1:mp)</td><td>::</td>
-  <td><strong>nfac12</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-err~7"></span>integer(kind=i_d),</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-irec~3"></span>
+              integer(kind=i_d)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>irec</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mp~25"></span>
+              integer(kind=i_d)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>mp</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qprec~5"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>qprec</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~15"></span>
+              integer(kind=i_d)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dx~17"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>dx</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-h0~13"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>h0</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-s~17"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>S</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-thetai~6"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>thetai</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tsoil~13"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>Tsoil</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qh~7"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qh</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nsteps~7"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>nsteps</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vlit~6"></span>
+              type(<a href='../type/vars.html'>vars</a>),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>vlit</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vsnow~6"></span>
+              type(<a href='../type/vars_snow.html'>vars_snow</a>),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>vsnow</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-var~22"></span>
+              type(<a href='../type/vars.html'>vars</a>),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>var</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dxl~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>dxL</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-plit~5"></span>
+              type(<a href='../type/params.html'>params</a>),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>plit</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-par~8"></span>
+              type(<a href='../type/params.html'>params</a>),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>par</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-deltata~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>deltaTa</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qevap~5"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>qevap</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ql~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>qL</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qhl~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>qhL</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qybl~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>qybL</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qtbl~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>qTbL</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qhtbl~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>qhTbL</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qhybl~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>qhybL</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-again~6"></span>
+              logical,
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>again</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-again_ice~2"></span>
+              logical,
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp,1:n)
+            </td>
+            <td>::</td>
+            <td><strong>again_ice</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-iok~2"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>iok</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-itmp~2"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>itmp</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ns~8"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>ns</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-accel~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>accel</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dt~14"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>dt</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fac~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>fac</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-phip~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>phip</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rsig~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>rsig</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rsigdt~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>rsigdt</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sig~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>sig</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-t~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>t</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qexd~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>qexd</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-aa~6"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max+1:n)
+            </td>
+            <td>::</td>
+            <td><strong>aa</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bb~6"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max+1:n)
+            </td>
+            <td>::</td>
+            <td><strong>bb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cc~6"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max+1:n)
+            </td>
+            <td>::</td>
+            <td><strong>cc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dd~11"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max+1:n)
+            </td>
+            <td>::</td>
+            <td><strong>dd</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ee~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max+1:n)
+            </td>
+            <td>::</td>
+            <td><strong>ee</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ff~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max+1:n)
+            </td>
+            <td>::</td>
+            <td><strong>ff</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gg~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max+1:n)
+            </td>
+            <td>::</td>
+            <td><strong>gg</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dy~8"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max+1:n)
+            </td>
+            <td>::</td>
+            <td><strong>dy</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-aah~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max+1:n)
+            </td>
+            <td>::</td>
+            <td><strong>aah</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bbh~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max+1:n)
+            </td>
+            <td>::</td>
+            <td><strong>bbh</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cch~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max+1:n)
+            </td>
+            <td>::</td>
+            <td><strong>cch</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ddh~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max+1:n)
+            </td>
+            <td>::</td>
+            <td><strong>ddh</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-eeh~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max+1:n)
+            </td>
+            <td>::</td>
+            <td><strong>eeh</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ffh~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max+1:n)
+            </td>
+            <td>::</td>
+            <td><strong>ffh</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ggh~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max+1:n)
+            </td>
+            <td>::</td>
+            <td><strong>ggh</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-de~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max+1:n)
+            </td>
+            <td>::</td>
+            <td><strong>de</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~11"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>q</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qya~7"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qya</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qyb~8"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qyb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qta~7"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qTa</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qtb~8"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qTb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qhya~5"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qhya</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qhyb~6"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qhyb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qhta~5"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qhTa</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qhtb~6"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qhTb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qadv~6"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qadv</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qadvya~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qadvya</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qadvyb~5"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qadvyb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qadvta~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qadvTa</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qadvtb~5"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qadvTb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qsig~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qsig</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qhsig~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qhsig</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qadvsig~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max:n)
+            </td>
+            <td>::</td>
+            <td><strong>qadvsig</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dtsoil~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>dTsoil</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dthetaldt~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>dthetaldT</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nsteps_ice~2"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>nsteps_ice</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-imelt~2"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>imelt</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-deltaj_latent_t~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>deltaJ_latent_T</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-deltaj_sensible_s~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>deltaJ_sensible_S</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-qrunoff~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>qrunoff</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tmp1d1~5"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>tmp1d1</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tmp1d2~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>tmp1d2</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tmp1d3~5"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>tmp1d3</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tmp1d4~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>tmp1d4</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-g0~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>G0</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tfreezing~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>Tfreezing</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lhs~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max+1:n)
+            </td>
+            <td>::</td>
+            <td><strong>LHS</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rhs~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max+1:n)
+            </td>
+            <td>::</td>
+            <td><strong>RHS</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lhs_h~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max+1:n)
+            </td>
+            <td>::</td>
+            <td><strong>LHS_h</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rhs_h~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(-nsnow_max+1:n)
+            </td>
+            <td>::</td>
+            <td><strong>RHS_h</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nns~2"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>nns</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-iflux~6"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>iflux</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-litter~5"></span>
+              logical
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>litter</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i~4"></span>
+              integer(kind=i_d)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>i</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kk~6"></span>
+              integer(kind=i_d)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>kk</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-condition~4"></span>
+              integer(kind=i_d)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>condition</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-advection~7"></span>
+              integer(kind=i_d)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>advection</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-c2~2"></span>
+              real(kind=r_2)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>c2</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-theta~9"></span>
+              real(kind=r_2)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>theta</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cp~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>cp</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cpeff~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>cpeff</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-hice~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>hice</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-h0_tmp~2"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>h0_tmp</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-hsnow~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(nsnow_max)
+            </td>
+            <td>::</td>
+            <td><strong>hsnow</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-delta_snowt~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(nsnow_max)
+            </td>
+            <td>::</td>
+            <td><strong>delta_snowT</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-delta_snowliq~3"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(nsnow_max)
+            </td>
+            <td>::</td>
+            <td><strong>delta_snowliq</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-j0~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>J0</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-iqex~4"></span>
+              real(kind=r_2),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:n)
+            </td>
+            <td>::</td>
+            <td><strong>iqex</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nfac1~2"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>nfac1</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nfac2~2"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>nfac2</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nfac3~2"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>nfac3</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nfac4~2"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>nfac4</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nfac5~2"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>nfac5</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nfac6~2"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>nfac6</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nfac7~2"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>nfac7</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nfac8~2"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>nfac8</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nfac9~2"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>nfac9</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nfac10~2"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>nfac10</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nfac11~2"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>nfac11</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nfac12~2"></span>
+              integer(kind=i_d),
+            </td>
+<td></td>
+              <td></td>            <td>
+              DIMENSION(1:mp)
+            </td>
+            <td>::</td>
+            <td><strong>nfac12</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-err~6"></span>
+              integer(kind=i_d),
+            </td>
 <td>intent(inout),</td>
-  <td>optional</td>  <td></td><td>::</td>
-  <td><strong>err</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>err</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

@@ -71,47 +71,72 @@
   <div class="row">
     <h1>get_restart_data
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.4% of total for procedures.">203 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cable_initialise.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cable_initialise.f90.html'>cable_initialise.F90</a></li>
-     <li><a href='../module/cable_init_module.html'>cable_init_module</a></li>
-     <li class="active">get_restart_data</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.4% of total for procedures.">203 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cable_initialise.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cable_initialise.f90.html'>cable_initialise.F90</a></li>
+              <li><a href='../module/cable_init_module.html'>cable_init_module</a></li>
+          <li class="active">get_restart_data</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public subroutine get_restart_data(logn, ssnow, canopy, rough, bgc, bal, veg, soil, rad, vegparmnew, EMSOIL)</h2>
+    <h2>public  subroutine get_restart_data(logn, ssnow, canopy, rough, bgc, bal, veg, soil, rad, vegparmnew, EMSOIL)  
+</h2>
     
 
     <p>(BP Nov 2009)
@@ -120,84 +145,208 @@ Doing it once will fix the problem in the restart file in subsequent runs</p>
 <p>end of fix to spurious veg types</p>
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-logn~8"></span>integer,</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-logn~14"></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>logn</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ssnow~101"></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>logn</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ssnow~106"></span>
+              type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>ssnow</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-canopy~64"></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ssnow</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-canopy~66"></span>
+              type(<a href='../type/canopy_type.html'>canopy_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>canopy</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-rough~14"></span>type(<a href='../type/roughness_type.html'>roughness_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>canopy</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rough~17"></span>
+              type(<a href='../type/roughness_type.html'>roughness_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>rough</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-bgc~14"></span>type(<a href='../type/bgc_pool_type.html'>bgc_pool_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rough</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bgc~16"></span>
+              type(<a href='../type/bgc_pool_type.html'>bgc_pool_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>bgc</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-bal~20"></span>type(<a href='../type/balances_type.html'>balances_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>bgc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bal~21"></span>
+              type(<a href='../type/balances_type.html'>balances_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>bal</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-veg~114"></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>bal</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-veg~119"></span>
+              type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>veg</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-soil~117"></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>veg</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-soil~122"></span>
+              type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>soil</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-rad~20"></span>type(<a href='../type/radiation_type.html'>radiation_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>soil</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rad~21"></span>
+              type(<a href='../type/radiation_type.html'>radiation_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>rad</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-vegparmnew~2"></span>logical,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rad</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vegparmnew~5"></span>
+              logical,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>vegparmnew</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-emsoil~9"></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vegparmnew</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-emsoil~9"></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>EMSOIL</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>EMSOIL</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

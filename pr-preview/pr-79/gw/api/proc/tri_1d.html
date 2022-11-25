@@ -71,105 +71,218 @@
   <div class="row">
     <h1>tri_1d
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.0% of total for procedures.">23 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cable_sli_utils.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cable_sli_utils.f90.html'>cable_sli_utils.F90</a></li>
-     <li><a href='../module/sli_utils.html'>sli_utils</a></li>
-     <li class="active">tri_1d</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">23 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cable_sli_utils.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cable_sli_utils.f90.html'>cable_sli_utils.F90</a></li>
+              <li><a href='../module/sli_utils.html'>sli_utils</a></li>
+          <li class="active">tri_1d</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>private subroutine tri_1d(ns, n, aa, bb, cc, dd, dy)</h2>
+    <h2>private  subroutine tri_1d(ns, n, aa, bb, cc, dd, dy)  
+</h2>
     
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-ns"></span>integer(kind=i_d),</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ns"></span>
+              integer(kind=i_d),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>ns</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-n~14"></span>integer(kind=i_d),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ns</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~7"></span>
+              integer(kind=i_d),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>n</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-aa~3"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-aa~3"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(0:n)</td><td>::</td>
-  <td><strong>aa</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-bb~3"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(0:n)
+            </td>
+            <td>::</td>
+            <td><strong>aa</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bb~3"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(0:n)</td><td>::</td>
-  <td><strong>bb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-cc~3"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(0:n)
+            </td>
+            <td>::</td>
+            <td><strong>bb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cc~3"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(0:n)</td><td>::</td>
-  <td><strong>cc</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-dd~3"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(0:n)
+            </td>
+            <td>::</td>
+            <td><strong>cc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dd~3"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(0:n)</td><td>::</td>
-  <td><strong>dd</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-dy~3"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(0:n)
+            </td>
+            <td>::</td>
+            <td><strong>dd</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dy~3"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(0:n)</td><td>::</td>
-  <td><strong>dy</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              DIMENSION(0:n)
+            </td>
+            <td>::</td>
+            <td><strong>dy</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

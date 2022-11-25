@@ -71,111 +71,233 @@
   <div class="row">
     <h1>photosyn25
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.0% of total for procedures.">10 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cable_adjustJVgm.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cable_adjustjvgm.f90.html'>cable_adjustJVgm.F90</a></li>
-     <li><a href='../module/cable_adjust_jv_gm_module.html'>cable_adjust_JV_gm_module</a></li>
-     <li class="active">photosyn25</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">10 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cable_adjustJVgm.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cable_adjustjvgm.f90.html'>cable_adjustJVgm.F90</a></li>
+              <li><a href='../module/cable_adjust_jv_gm_module.html'>cable_adjust_JV_gm_module</a></li>
+          <li class="active">photosyn25</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public subroutine photosyn25(Ciz, nrci, Vcmax25, Jmax25, Rd, Km, gammastar, Anz)</h2>
+    <h2>public  subroutine photosyn25(Ciz, nrci, Vcmax25, Jmax25, Rd, Km, gammastar, Anz)  
+</h2>
     
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-ciz"></span>real(kind=dp),</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ciz"></span>
+              real(kind=dp),
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>dimension(nrci)</td><td>::</td>
-  <td><strong>Ciz</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nrci"></span>integer,</td>
+              <td></td>            <td>
+              dimension(nrci)
+            </td>
+            <td>::</td>
+            <td><strong>Ciz</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nrci"></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>nrci</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-vcmax25"></span>real(kind=dp),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nrci</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vcmax25"></span>
+              real(kind=dp),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>Vcmax25</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-jmax25"></span>real(kind=dp),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Vcmax25</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-jmax25"></span>
+              real(kind=dp),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>Jmax25</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-rd~8"></span>real(kind=dp),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Jmax25</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rd~19"></span>
+              real(kind=dp),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>Rd</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-km~5"></span>real(kind=dp),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Rd</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-km~2"></span>
+              real(kind=dp),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>Km</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-gammastar~6"></span>real(kind=dp),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Km</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gammastar~3"></span>
+              real(kind=dp),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>gammastar</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-anz"></span>real(kind=dp),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>gammastar</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-anz"></span>
+              real(kind=dp),
+            </td>
 <td>intent(out),</td>
-  <td></td>  <td>dimension(nrci)</td><td>::</td>
-  <td><strong>Anz</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              dimension(nrci)
+            </td>
+            <td>::</td>
+            <td><strong>Anz</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">
