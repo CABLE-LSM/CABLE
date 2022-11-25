@@ -21,7 +21,7 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
   !  It resides in the canopy science directory.
   !  
   !  This SUBROUTINE updates the value of the stability parameter \(\xi\)
-  !  during the Monin-Obukhov (MO) iteration loop in [[define_canopy]].
+  !  during the iteration loop of the Monin-Obukhov (MO) similarity theory in [[define_canopy]].
   !  Further scientific documentation is given in
   !  [Kowalczyk et al. (2006)](http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf)
   !  - section 3.1, equations 1-9.  The two outputs of the SUBROUTINE
