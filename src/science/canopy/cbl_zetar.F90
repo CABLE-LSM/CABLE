@@ -51,9 +51,8 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
   !  of convergence.
   !
   !  The outputs `canopy_zetar` and `canopy_zetash` are known as
-  !  `canopy%zetar` and `canopy%zetash` in [[define_canopy]] and elsewhere
-  !  in the code. `canopy%zetar` is used in [[define_canopy]] and
-  !  [[comp_friction_vel]]; `canopy%zetash` is used in `[[define_canopy]].
+  !  `canopy%zetar` and `canopy%zetash` elsewhere
+  !  in the code. 
   !
   !  Special cases apply if `NITER`=2, or if `canopy_zetar` or `canopy_zetash`
   !  exceed the prescribed upper `CZETPOS` or lower `CZETNEG` limits. `NITER`(=4)
