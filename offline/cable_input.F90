@@ -2442,7 +2442,10 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
           met%ca(landpt(i)%cstart:landpt(i)%cend) = &
                   REAL(tmpDat4(land_x(i),land_y(i),1,1))/1000000.0
         ENDDO
-      END IF  
+      END IF
+   ELSE ! MMY@Nov2022
+      ! Fix CO2 air concentration: ! MMY@Nov2022
+      met%ca(:) = fixedCO2 /1000000.0 ! MMY@Nov2022        
    END IF
 ! __________________________________________________________________________
       
