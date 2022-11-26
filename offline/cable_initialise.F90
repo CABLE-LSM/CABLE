@@ -141,14 +141,18 @@ CONTAINS
     canopy%fhs     = 0.0   ! sensible heat flux from soil (W/m2)
     canopy%us = 0.1 ! friction velocity (needed in roughness before first call to canopy: should in be in restart?)
 
-    ! plant hydraulics stuff, mgk576, 16/7/2019
+    ! plant hydraulics, mgk576 2019; ms8355 2022
     ! This is doesn't actually get called FFS look at write_default_params
     canopy%psi_leaf_prev = -0.01
     canopy%psi_stem_prev = -0.01
     canopy%psi_soil_prev = -0.01
+    canopy%plc_root(:) = 0.0
+    canopy%plc_stem(:) = 0.0
+    canopy%plc_can(:) = 0.0
+    canopy%day_plc_root(:) = 0.0
+    canopy%day_plc_stem(:) = 0.0
+    canopy%day_plc_can(:) = 0.0
 
-    canopy%plc(:) = 0.0
-    canopy%day_plc(:) = 0.0
     ssnow%psi_rootzone(:) = 0.0
     ssnow%soilR(:,:) = 0.0
     ssnow%psi_soil(:,:) = 0.0

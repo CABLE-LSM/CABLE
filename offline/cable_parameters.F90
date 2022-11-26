@@ -1640,7 +1640,7 @@ CONTAINS
     soil%ssat_vec(:,:)  = REAL(SPREAD(soil%ssat(:),2,ms),r_2)
     soil%hyds_vec(:,:)  = REAL(SPREAD(soil%hyds(:),2,ms),r_2)
 
-    ! plant hydraulics stuff, mgk576, 16/7/2019
+    ! plant hydraulics, mgk576 2019, ms8355 2022
     ! This is the actual initalisation - write_default_params
     canopy%psi_leaf_prev(:) = -0.01
     canopy%psi_stem_prev(:) = -0.01
@@ -1648,13 +1648,20 @@ CONTAINS
 
     canopy%psi_leaf(:) = -0.01
     canopy%psi_stem(:) = -0.01
+
     canopy%flx_to_stem(:) = 0.0
     canopy%flx_to_leaf(:) = 0.0
+
     canopy%ksoil2stem(:) = 0.0
     canopy%kstem2leaf(:) = 0.0
     canopy%kplant(:) = 0.0
-    canopy%plc(:) = 0.0
-    canopy%day_plc(:) = 0.0
+
+    canopy%plc_root(:) = 0.0
+    canopy%plc_stem(:) = 0.0
+    canopy%plc_can(:) = 0.0
+    canopy%day_plc_root(:) = 0.0
+    canopy%day_plc_stem(:) = 0.0
+    canopy%day_plc_can(:) = 0.0
 
     ssnow%Rsr(:) = 0.0
     ssnow%psi_rootzone(:) = 0.0

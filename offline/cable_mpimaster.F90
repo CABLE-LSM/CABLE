@@ -2793,11 +2793,27 @@ CONTAINS
        blen(bidx) = r1len
 
        bidx = bidx + 1
-       CALL MPI_Get_address (canopy%plc(off), displs(bidx), ierr)
+       CALL MPI_Get_address (canopy%plc_root(off), displs(bidx), ierr)
        blen(bidx) = r1len
 
        bidx = bidx + 1
-       CALL MPI_Get_address (canopy%day_plc(off), displs(bidx), ierr)
+       CALL MPI_Get_address (canopy%plc_stem(off), displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (canopy%plc_can(off), displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (canopy%day_plc_root(off), displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (canopy%day_plc_stem(off), displs(bidx), ierr)
+       blen(bidx) = r1len
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (canopy%day_plc_can(off), displs(bidx), ierr)
        blen(bidx) = r1len
 
        bidx = bidx + 1
@@ -5645,15 +5661,31 @@ CONTAINS
        blen(vidx) = cnt * extr1
        vidx = vidx + 1
 
-       CALL MPI_Get_address (canopy%plc(off), vaddr(vidx), ierr) ! 159
+       CALL MPI_Get_address (canopy%plc_root(off), vaddr(vidx), ierr)
        blen(vidx) = cnt * extr1
        vidx = vidx + 1
 
-       CALL MPI_Get_address (canopy%day_plc(off), vaddr(vidx), ierr) ! 159
+       CALL MPI_Get_address (canopy%plc_stem(off), vaddr(vidx), ierr)
        blen(vidx) = cnt * extr1
        vidx = vidx + 1
 
-       CALL MPI_Get_address (canopy%kplant(off), vaddr(vidx), ierr) ! 159
+       CALL MPI_Get_address (canopy%plc_can(off), vaddr(vidx), ierr)
+       blen(vidx) = cnt * extr1
+       vidx = vidx + 1
+
+       CALL MPI_Get_address (canopy%day_plc_root(off), vaddr(vidx), ierr)
+       blen(vidx) = cnt * extr1
+       vidx = vidx + 1
+
+       CALL MPI_Get_address (canopy%day_plc_stem(off), vaddr(vidx), ierr)
+       blen(vidx) = cnt * extr1
+       vidx = vidx + 1
+
+       CALL MPI_Get_address (canopy%day_plc_can(off), vaddr(vidx), ierr)
+       blen(vidx) = cnt * extr1
+       vidx = vidx + 1
+
+       CALL MPI_Get_address (canopy%kplant(off), vaddr(vidx), ierr)
        blen(vidx) = cnt * extr1
        vidx = vidx + 1
 

@@ -305,15 +305,19 @@ MODULE cable_IO_vars_module
           PlantTurnoverWoodResourceLim = .FALSE., &
           LandUseFlux = .FALSE., &
 
-          ! plant hydraulics, ms8355
+          ! plant hydraulics, ms8355 2022
           psi_rootzone = .TRUE., &
-          psi_soil = .TRUE., &
-          psi_leaf = .TRUE., &
-          psi_stem = .TRUE., &
-          gsw_sun = .TRUE., &
-          gsw_sha = .TRUE., &
-          plc = .TRUE., &
-          day_plc = .TRUE., &
+          psi_soil = .TRUE.,     &
+          psi_leaf = .TRUE.,     &
+          psi_stem = .TRUE.,     &
+          plc_root = .TRUE.,     &
+          plc_stem = .TRUE.,     &
+          plc_can = .TRUE.,      &
+          day_plc_root = .TRUE., &
+          day_plc_stem = .TRUE., &
+          day_plc_can = .TRUE.,  &
+          gsw_sun = .TRUE.,      &
+          gsw_sha = .TRUE.,      &
 
                                 !parameters
           bch = .FALSE.,       & ! parameter b in Campbell equation 1985

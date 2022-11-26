@@ -58,11 +58,11 @@ MODULE cable_checks_module
                                 ! possible forcing variables for CABLE
           SWdown = (/0.0,1360.0/),            & ! W/m^2
           LWdown = (/0.0,950.0/),             & ! W/m^2
-          Rainf = (/0.0,0.1/),               & ! mm/s
-          Snowf = (/0.0,0.1/),             & ! mm/s
+          Rainf = (/0.0,0.1/),                & ! mm/s
+          Snowf = (/0.0,0.1/),                & ! mm/s
           PSurf = (/500.0,1100.0/),           & ! mbar/hPa
           Tair = (/200.0,333.0/),             & ! K
-          Qair = (/0.0,0.1/),                & ! g/g
+          Qair = (/0.0,0.1/),                 & ! g/g
           Tscrn = (/-70.0,70.0/),             & ! oC - INH
           Qscrn = (/0.0,0.1/),                & ! kg/kg
           CO2air = (/160.0,2000.0/),          & ! ppmv
@@ -78,7 +78,7 @@ MODULE cable_checks_module
                                 ! SWnet = (/0.0,1250.0/),            & ! W/m^2
           LWnet = (/-500.0,510.0/),           & ! W/m^2
           Rnet = (/-500.0,1250.0/),           & ! W/m^2
-          Evap = (/-0.0045,0.0045/),         &  ! note this is also used for snow melt !
+          Evap = (/-0.0045,0.0045/),          &  ! note this is also used for snow melt !
           Ewater = (/-0.0005,0.0005/),        &
           ESoil = (/-0.0015,0.0015/),         &
           TVeg = (/-0.0003,0.0003/),          &
@@ -93,8 +93,8 @@ MODULE cable_checks_module
           VegT = (/213.0,353.0/),             &
           SoilTemp = (/213.0,353.0/),         &
           SoilMoist = (/0.0,2000.0/),         &
-          Qs = (/0.0,15.0/),                   &
-          Qsb = (/0.0,15.0/),                  &
+          Qs = (/0.0,15.0/),                  &
+          Qsb = (/0.0,15.0/),                 &
           DelSoilMoist  = (/-2000.0,2000.0/), &
           DelSWE  = (/-2000.0,2000.0/),       &
           DelIntercept = (/-100.0,100.0/),    &
@@ -109,7 +109,7 @@ MODULE cable_checks_module
           NEE = (/-70.0,50.0/),               & ! umol/m2/s
           NPP = (/-20.0,75.0/),               & ! umol/m2/s
           GPP = (/-20.0,100.0/),              & ! umol/m2/s
-          PAR = (/-1000.0,5000.0/),              & ! umol/m2/s
+          PAR = (/-1000.0,5000.0/),           & ! umol/m2/s
           AutoResp = (/-50.0,20.0/),          & ! umol/m2/s
           LeafResp = (/-50.0,20.0/),          & ! umol/m2/s
           HeteroResp = (/-50.0,20.0/),        & ! umol/m2/s
@@ -172,24 +172,28 @@ MODULE cable_checks_module
           tmaxvj = (/-15.0,30.0/),            &
           rootbeta = (/0.7,1.0/),             & ! YP oct07
           veg_class = (/1.0,20.0/),           &
-          soil_class = (/1.0,20.0/)  , &
-          TotLivBiomass =  (/0.0, 1000./),      &
+          soil_class = (/1.0,20.0/)  ,        &
+          TotLivBiomass =  (/0.0, 1000./),    &
           TotSoilCarb =  (/0.0, 1000./),      &
-          TotLittCarb =  (/0.0, 1000./), &
-          Area = (/0.0, 5000./),&
+          TotLittCarb =  (/0.0, 1000./),      &
+          Area = (/0.0, 5000./),              &
 
-          !mgk576, 10/10/2017
-          psi_rootzone = (/-100.,100./),          &
-          psi_soil = (/-100.,100./),                   &
-          psi_leaf = (/-100.,100./),                   &
-          plc = (/0.,100./),                           &
-          day_plc = (/0.,100./),                       &
-          psi_stem = (/-100.,100./),                   &
-          gswx = (/-1,10/),                            &
+          !mgk576, 2017; ms8355, 2022
+          psi_rootzone = (/-100.,100./),      &
+          psi_soil = (/-100.,100./),          &
+          psi_stem = (/-100.,100./),          &
+          psi_leaf = (/-100.,100./),          &
+          plc_root = (/0.,100./),             &
+          plc_stem = (/0.,100./),             &
+          plc_can = (/0.,100./),              &
+          day_plc_root = (/0.,100./),         &
+          day_plc_stem = (/0.,100./),         &
+          day_plc_can = (/0.,100./),          &
+          gswx = (/-1,10/),                   &
           
           !MD
           WatTable = (/0.0,1.0e10/),          &
-          GWwb = (/0.0,1.0/),              &
+          GWwb = (/0.0,1.0/),                 &
           SatFrac = (/0.0,1.0/),              &
           Qrecharge = (/-9999.0,9999.0/)
   END TYPE ranges_type

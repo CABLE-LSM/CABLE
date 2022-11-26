@@ -62,16 +62,16 @@ MODULE cable_output_module
           StemResp, LeafResp, HeteroResp, GPP, NPP, LAI,             &
           ECanop, TVeg, TSap, ESoil, CanopInt, SnowDepth,            &
           HVeg, HSoil, Rnet, tvar, CanT,Fwsoil, RnetSoil, SnowMelt,  &
-          NBP, TotSoilCarb, TotLivBiomass, &
-          TotLittCarb, SoilCarbFast, SoilCarbSlow, SoilCarbPassive, &
-          LittCarbMetabolic, LittCarbStructural, LittCarbCWD, &
-          PlantCarbLeaf, PlantCarbFineRoot, PlantCarbWood, &
-          PlantTurnover, PlantTurnoverLeaf, PlantTurnoverFineRoot, &
+          NBP, TotSoilCarb, TotLivBiomass,                           &
+          TotLittCarb, SoilCarbFast, SoilCarbSlow, SoilCarbPassive,  &
+          LittCarbMetabolic, LittCarbStructural, LittCarbCWD,        &
+          PlantCarbLeaf, PlantCarbFineRoot, PlantCarbWood,           &
+          PlantTurnover, PlantTurnoverLeaf, PlantTurnoverFineRoot,   &
           PlantTurnoverWood, PlantTurnoverWoodDist, PlantTurnoverWoodCrowding, &
           PlantTurnoverWoodResourceLim, dCdt, Area, LandUseFlux, patchfrac, &
-          vcmax,hc,WatTable,GWMoist,SatFrac,Qrecharge, &
-          psi_rootzone, psi_soil, psi_leaf, psi_stem, gsw_sun, gsw_sha, &
-          plc
+          vcmax,hc,WatTable,GWMoist,SatFrac,Qrecharge,               &
+          psi_soil, psi_rootzone, psi_stem, psi_leaf,                &
+          plc_root, plc_stem, plc_can, gsw_sun, gsw_sha
 
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
@@ -235,13 +235,15 @@ MODULE cable_output_module
      REAL(KIND=4), POINTER, DIMENSION(:) :: RootResp   !  autotrophic root respiration [umol/m2/s]
      REAL(KIND=4), POINTER, DIMENSION(:) :: StemResp   !  autotrophic stem respiration [umol/m2/s]
 
-     REAL(KIND=4), POINTER, DIMENSION(:)   :: psi_rootzone           ! ms8355
-     REAL(KIND=4), POINTER, DIMENSION(:,:) :: psi_soil               ! mgk576
-     REAL(KIND=4), POINTER, DIMENSION(:)   :: psi_leaf               ! mgk576
-     REAL(KIND=4), POINTER, DIMENSION(:)   :: psi_stem               ! mgk576
-     REAL(KIND=4), POINTER, DIMENSION(:)   :: gsw_sun                ! mgk576
-     REAL(KIND=4), POINTER, DIMENSION(:)   :: gsw_sha                ! mgk576
-     REAL(KIND=4), POINTER, DIMENSION(:)   :: plc                    ! mgk576
+     REAL(KIND=4), POINTER, DIMENSION(:,:) :: psi_soil      ! ms8355
+     REAL(KIND=4), POINTER, DIMENSION(:)   :: psi_rootzone  ! ms8355
+     REAL(KIND=4), POINTER, DIMENSION(:)   :: psi_stem      ! mgk576
+     REAL(KIND=4), POINTER, DIMENSION(:)   :: psi_leaf       ! ms8355
+     REAL(KIND=4), POINTER, DIMENSION(:)   :: plc_root      ! ms8355
+     REAL(KIND=4), POINTER, DIMENSION(:)   :: plc_stem      ! ms8355
+     REAL(KIND=4), POINTER, DIMENSION(:)   :: plc_can       ! ms8355
+     REAL(KIND=4), POINTER, DIMENSION(:)   :: gsw_sun       ! mgk576
+     REAL(KIND=4), POINTER, DIMENSION(:)   :: gsw_sha       ! mgk576
 
   END TYPE output_temporary_type
   TYPE(output_temporary_type), SAVE :: out
@@ -651,6 +653,16 @@ CONTAINS
 
     ! mgk576, 19/2/2019 - I think the issue is that I turn this off for other PFTs?
     !IF(output%soil .OR. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
+
+    IF(output%soil) THEN
+       CALL define_ovar(ncid_out, ovid%psi_soil, &
+                        'psi_soil', 'MPa', 'Soil water potential', &
+                        patchout%psi_soil, 'soil', xID, yID, zID, &
+                        landID, patchID, soilID, tID)
+       ALLOCATE(out%psi_soil(mp,ms))
+       out%psi_soil = 0.0 ! initialise
+    END IF
+    
     IF(output%soil) THEN
        CALL define_ovar(ncid_out, ovid%psi_rootzone, &
                         'psi_rootzone', 'MPa', 'Weighted root zone water potential', &
@@ -660,19 +672,15 @@ CONTAINS
        out%psi_rootzone = 0.0 ! initialise
     END IF
 
-    ! mgk576, 19/2/2019 - I think the issue is that I turn this off for other PFTs?
-    !IF(output%soil .OR. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
-    IF(output%soil) THEN
-       CALL define_ovar(ncid_out, ovid%psi_soil, &
-                        'psi_soil', 'MPa', 'Soil water potential', &
-                        patchout%psi_soil, 'soil', xID, yID, zID, &
-                        landID, patchID, soilID, tID)
-       ALLOCATE(out%psi_soil(mp,ms))
-       out%psi_soil = 0.0 ! initialise
+    IF(output%veg) THEN
+       CALL define_ovar(ncid_out, ovid%psi_stem, &
+                        'psi_stem', 'MPa', 'Stem water potential', &
+                        patchout%psi_stem, 'dummy', xID, yID, zID, &
+                        landID, patchID, tID)
+       ALLOCATE(out%psi_stem(mp))
+       out%psi_stem = 0.0 ! initialise
     END IF
 
-    ! mgk576, 19/2/2019 - I think the issue is that I turn this off for other PFTs?
-    !IF(output%soil .OR. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
     IF(output%veg) THEN
        CALL define_ovar(ncid_out, ovid%psi_leaf, &
                         'psi_leaf', 'MPa', 'Leaf water potential', &
@@ -680,6 +688,33 @@ CONTAINS
                         landID, patchID, tID)
        ALLOCATE(out%psi_leaf(mp))
        out%psi_leaf = 0.0 ! initialise
+    END IF
+
+    IF(output%veg) THEN
+       CALL define_ovar(ncid_out, ovid%plc_root, &
+                        'plc_root', '%', 'Percentage loss of hydraulic conductivity in the roots', &
+                        patchout%plc_root, 'dummy', xID, yID, zID, &
+                        landID, patchID, tID)
+       ALLOCATE(out%plc_root(mp))
+       out%plc_root = 0.0 ! initialise
+    END IF
+
+    IF(output%veg) THEN
+       CALL define_ovar(ncid_out, ovid%plc_stem, &
+                        'plc_stem', '%', 'Percentage loss of hydraulic conductivity in the stem', &
+                        patchout%plc_stem, 'dummy', xID, yID, zID, &
+                        landID, patchID, tID)
+       ALLOCATE(out%plc_stem(mp))
+       out%plc_stem = 0.0 ! initialise
+    END IF
+
+    IF(output%veg) THEN
+       CALL define_ovar(ncid_out, ovid%plc_can, &
+                        'plc_can', '%', 'Percentage loss of hydraulic conductivity in the canopy', &
+                        patchout%plc_can, 'dummy', xID, yID, zID, &
+                        landID, patchID, tID)
+       ALLOCATE(out%plc_can(mp))
+       out%plc_can = 0.0 ! initialise
     END IF
 
     IF(output%veg) THEN
@@ -698,24 +733,6 @@ CONTAINS
                         landID, patchID, tID)
        ALLOCATE(out%gsw_sha(mp))
        out%gsw_sha = 0.0 ! initialise
-    END IF
-
-    IF(output%veg) THEN
-       CALL define_ovar(ncid_out, ovid%plc, &
-                        'plc', '%', 'Percentage loss of hydraulic conductivity', &
-                        patchout%plc, 'dummy', xID, yID, zID, &
-                        landID, patchID, tID)
-       ALLOCATE(out%plc(mp))
-       out%plc = 0.0 ! initialise
-    END IF
-
-    IF(output%soil) THEN
-       CALL define_ovar(ncid_out, ovid%psi_stem, &
-                        'psi_stem', 'MPa', 'Stem water potential', &
-                        patchout%psi_stem, 'dummy', xID, yID, zID, &
-                        landID, patchID, tID)
-       ALLOCATE(out%psi_stem(mp))
-       out%psi_stem = 0.0 ! initialise
     END IF
 
     ! Define radiative variables in output file and allocate temp output vars:
@@ -2168,18 +2185,52 @@ CONTAINS
 
      IF(output%veg) THEN
         ! Add current timestep's value to total of temporary output variable:
-        out%plc = out%plc + REAL(canopy%plc, 4)
+        out%plc_root = out%plc_root + REAL(canopy%plc_root, 4)
         IF(writenow) THEN
            ! Divide accumulated variable by number of accumulated time steps:
-           out%plc = out%plc / REAL(output%interval, 4)
+           out%plc_root = out%plc_root / REAL(output%interval, 4)
            ! Write value to file:
-           CALL write_ovar(out_timestep, ncid_out, ovid%plc, &
-                          'plc', &
-                           out%plc, ranges%plc, &
-                           patchout%plc, &
+           CALL write_ovar(out_timestep, ncid_out, ovid%plc_root, &
+                          'plc_root', &
+                           out%plc_root, ranges%plc_root, &
+                           patchout%plc_root, &
                           'default', met)
            ! Reset temporary output variable:
-           out%plc = 0.0
+           out%plc_root = 0.0
+        END IF
+     END IF
+
+     IF(output%veg) THEN
+        ! Add current timestep's value to total of temporary output variable:
+        out%plc_stem = out%plc_stem + REAL(canopy%plc_stem, 4)
+        IF(writenow) THEN
+           ! Divide accumulated variable by number of accumulated time steps:
+           out%plc_stem = out%plc_stem / REAL(output%interval, 4)
+           ! Write value to file:
+           CALL write_ovar(out_timestep, ncid_out, ovid%plc_stem, &
+                          'plc_stem', &
+                           out%plc_stem, ranges%plc_stem, &
+                           patchout%plc_stem, &
+                          'default', met)
+           ! Reset temporary output variable:
+           out%plc_stem = 0.0
+        END IF
+     END IF
+
+     IF(output%veg) THEN
+        ! Add current timestep's value to total of temporary output variable:
+        out%plc_can = out%plc_can + REAL(canopy%plc_can, 4)
+        IF(writenow) THEN
+           ! Divide accumulated variable by number of accumulated time steps:
+           out%plc_can = out%plc_can / REAL(output%interval, 4)
+           ! Write value to file:
+           CALL write_ovar(out_timestep, ncid_out, ovid%plc_can, &
+                          'plc_can', &
+                           out%plc_can, ranges%plc_can, &
+                           patchout%plc_can, &
+                          'default', met)
+           ! Reset temporary output variable:
+           out%plc_can = 0.0
         END IF
      END IF
 
