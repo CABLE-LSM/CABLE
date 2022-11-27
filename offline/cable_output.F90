@@ -70,7 +70,7 @@ MODULE cable_output_module
           PlantTurnoverWood, PlantTurnoverWoodDist, PlantTurnoverWoodCrowding, &
           PlantTurnoverWoodResourceLim, dCdt, Area, LandUseFlux, patchfrac, &
           vcmax,hc,WatTable,GWMoist,SatFrac,Qrecharge,               &
-          psi_soil, psi_rootzone, psi_stem, psi_leaf,                &
+          psi_soil, psi_rootzone, psi_stem, psi_can,                 &
           plc_root, plc_stem, plc_can, gsw_sun, gsw_sha
 
   END TYPE out_varID_type
@@ -238,7 +238,7 @@ MODULE cable_output_module
      REAL(KIND=4), POINTER, DIMENSION(:,:) :: psi_soil      ! ms8355
      REAL(KIND=4), POINTER, DIMENSION(:)   :: psi_rootzone  ! ms8355
      REAL(KIND=4), POINTER, DIMENSION(:)   :: psi_stem      ! mgk576
-     REAL(KIND=4), POINTER, DIMENSION(:)   :: psi_leaf       ! ms8355
+     REAL(KIND=4), POINTER, DIMENSION(:)   :: psi_can       ! ms8355
      REAL(KIND=4), POINTER, DIMENSION(:)   :: plc_root      ! ms8355
      REAL(KIND=4), POINTER, DIMENSION(:)   :: plc_stem      ! ms8355
      REAL(KIND=4), POINTER, DIMENSION(:)   :: plc_can       ! ms8355
@@ -682,12 +682,12 @@ CONTAINS
     END IF
 
     IF(output%veg) THEN
-       CALL define_ovar(ncid_out, ovid%psi_leaf, &
-                        'psi_leaf', 'MPa', 'Leaf water potential', &
-                        patchout%psi_leaf, 'dummy', xID, yID, zID, &
+       CALL define_ovar(ncid_out, ovid%psi_can, &
+                        'psi_can', 'MPa', 'Canopy water potential', &
+                        patchout%psi_can, 'dummy', xID, yID, zID, &
                         landID, patchID, tID)
-       ALLOCATE(out%psi_leaf(mp))
-       out%psi_leaf = 0.0 ! initialise
+       ALLOCATE(out%psi_can(mp))
+       out%psi_can = 0.0 ! initialise
     END IF
 
     IF(output%veg) THEN
@@ -2134,18 +2134,18 @@ CONTAINS
      !IF((output%veg) .and. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
      IF(output%veg) THEN
         ! Add current timestep's value to total of temporary output variable:
-        out%psi_leaf = out%psi_leaf + REAL(canopy%psi_leaf, 4)
+        out%psi_can = out%psi_can + REAL(canopy%psi_can, 4)
         IF(writenow) THEN
            ! Divide accumulated variable by number of accumulated time steps:
-           out%psi_leaf = out%psi_leaf / REAL(output%interval, 4)
+           out%psi_can = out%psi_can / REAL(output%interval, 4)
            ! Write value to file:
-           CALL write_ovar(out_timestep, ncid_out, ovid%psi_leaf, &
-                          'psi_leaf', &
-                           out%psi_leaf, ranges%psi_leaf, &
-                           patchout%psi_leaf, &
+           CALL write_ovar(out_timestep, ncid_out, ovid%psi_can, &
+                          'psi_can', &
+                           out%psi_can, ranges%psi_can, &
+                           patchout%psi_can, &
                           'default', met)
            ! Reset temporary output variable:
-           out%psi_leaf = 0.0
+           out%psi_can = 0.0
         END IF
      END IF
 
@@ -3689,21 +3689,6 @@ CONTAINS
             .TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
     END IF ! SLI soil model
 
-    IF (cable_user%fwsoil_switch == 'hydraulics') THEN
-
-
-      CALL define_ovar(ncid_restart, psilID, 'psi_leaf_prev', 'MPa',           &
-           'leaf water potential', &
-           .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-      CALL define_ovar(ncid_restart, psixID, 'psi_stem_prev', 'MPa',           &
-           'stem water potential', &
-           .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-      CALL define_ovar(ncid_restart, psisID, 'psi_soil_prev', 'MPa',           &
-           'previous soil weighted potential', &
-           .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-
-    END IF
-
     ! Write global attributes for file:
     CALL DATE_AND_TIME(todaydate, nowtime)
     todaydate = todaydate(1:4)//'/'//todaydate(5:6)//'/'//todaydate(7:8)
@@ -3968,26 +3953,6 @@ CONTAINS
             (/-99999.0,99999.0/),.TRUE.,'real',.TRUE.)
 
     END IF
-
-    IF (cable_user%fwsoil_switch == 'hydraulics') THEN
-
-      CALL write_ovar (ncid_restart, psilID, 'psi_leaf_prev', &
-                       REAL(canopy%psi_leaf_prev, 4),         &
-                       (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-      CALL write_ovar (ncid_restart, psixID, 'psi_stem_prev', &
-                       REAL(canopy%psi_stem_prev, 4),         &
-                       (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-      CALL write_ovar (ncid_restart, psisID, 'psi_soil_prev', &
-                       REAL(canopy%psi_soil_prev, 4),         &
-                       (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-
-    END IF
-
-    !print*, "****, writing out"
-    !print*, "****", canopy%psi_leaf_prev
-    !print*, "****", canopy%psi_stem_prev
-    !print*, "****", canopy%psi_soil_prev
-
 
     ! Close restart file
     ok = NF90_CLOSE(ncid_restart)

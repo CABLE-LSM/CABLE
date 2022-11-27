@@ -306,20 +306,20 @@ MODULE cable_IO_vars_module
           LandUseFlux = .FALSE., &
 
           ! plant hydraulics, ms8355 2022
-          psi_rootzone = .TRUE., &
-          psi_soil = .TRUE.,     &
-          psi_leaf = .TRUE.,     &
-          psi_stem = .TRUE.,     &
-          plc_root = .TRUE.,     &
-          plc_stem = .TRUE.,     &
-          plc_can = .TRUE.,      &
-          day_plc_root = .TRUE., &
-          day_plc_stem = .TRUE., &
-          day_plc_can = .TRUE.,  &
-          gsw_sun = .TRUE.,      &
-          gsw_sha = .TRUE.,      &
+          psi_rootzone = .TRUE.,  &
+          psi_soil = .TRUE.,      &
+          psi_stem = .TRUE.,      &
+          psi_can = .TRUE.,       &
+          plc_root = .TRUE.,      &
+          plc_stem = .TRUE.,      &
+          plc_can = .TRUE.,       &
+          day_plc_root = .FALSE., &
+          day_plc_stem = .FALSE., &
+          day_plc_can = .FALSE.,  &
+          gsw_sun = .TRUE.,       &
+          gsw_sha = .TRUE.,       &
 
-                                !parameters
+          !parameters
           bch = .FALSE.,       & ! parameter b in Campbell equation 1985
           latitude = .FALSE.,  & ! site latitude
           clay = .FALSE.,      & ! fraction of clay in soil
@@ -371,6 +371,11 @@ MODULE cable_IO_vars_module
                                 ! photosynthesis(leaf phenology)[-] (-5 - 15)
           vbeta = .FALSE.,     & ! stomatal sensitivity to soil water
           xalbnir = .FALSE.,   & ! modifier for albedo in near ir band
+          P12 = .FALSE.,       &
+          P50 = .FALSE.,       &
+          P88 = .FALSE.,       &
+          b_plant = .FALSE.,   & ! hydraulic vulnerability curve sensitibity [MPa] 
+          c_plant = .FALSE.,   & ! hydraulic vulnerability curve shape [-] 
           iveg  = .FALSE.,     & ! vegetation type from global index
           patchfrac  = .FALSE.,& ! fractional cover of each veg/soil patch
           isoil  = .FALSE.,    & ! soil type from global index

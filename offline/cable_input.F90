@@ -2827,11 +2827,19 @@ CONTAINS
          nmetpatches,'def')
     CALL readpar(ncid_met,'vcmax',completeSet,veg%vcmax,filename%met,           &
          nmetpatches,'def')
-    CALL readpar(ncid_met,'b_plant',completeSet,veg%b_plant,filename%met,           & ! mgk576, hydraulics
+    CALL readpar(ncid_met,'P12',completeSet,veg%P12,filename%met,               & ! hydraulics; mgk576; ms8355
          nmetpatches,'def')
-    CALL readpar(ncid_met,'c_plant',completeSet,veg%c_plant,filename%met,           & ! mgk576, hydraulics
+    CALL readpar(ncid_met,'P50',completeSet,veg%P50,filename%met,               & ! hydraulics; mgk576; ms8355
          nmetpatches,'def')
-    CALL readpar(ncid_met,'Kmax',completeSet,veg%Kmax,filename%met,           & ! mgk576, hydraulics
+    CALL readpar(ncid_met,'P88',completeSet,veg%P88,filename%met,               & ! hydraulics; mgk576; ms8355
+         nmetpatches,'def')
+    CALL readpar(ncid_met,'b_plant',completeSet,veg%b_plant,filename%met,       & ! hydraulics; mgk576; ms8355
+         nmetpatches,'def')
+    CALL readpar(ncid_met,'c_plant',completeSet,veg%c_plant,filename%met,       & ! hydraulics; mgk576; ms8355
+         nmetpatches,'def')
+    CALL readpar(ncid_met,'kmax',completeSet,veg%kmax,filename%met,             & ! hydraulics; mgk576; ms8355
+         nmetpatches,'def')
+    CALL readpar(ncid_met,'PLCcrit',completeSet,veg%PLCcrit,filename%met,       & ! hydraulics; mgk576; ms8355
          nmetpatches,'def')
     CALL readpar(ncid_met,'rp20',completeSet,veg%rp20,filename%met,             &
          nmetpatches,'def')

@@ -143,9 +143,6 @@ CONTAINS
 
     ! plant hydraulics, mgk576 2019; ms8355 2022
     ! This is doesn't actually get called FFS look at write_default_params
-    canopy%psi_leaf_prev = -0.01
-    canopy%psi_stem_prev = -0.01
-    canopy%psi_soil_prev = -0.01
     canopy%plc_root(:) = 0.0
     canopy%plc_stem(:) = 0.0
     canopy%plc_can(:) = 0.0
@@ -477,25 +474,6 @@ CONTAINS
 !!$       CALL readpar(ncid_rin,'clitt',dummy,veg%clitt,filename%restart_in,           &
 !!$            max_vegpatches,'def',from_restart,mp)
     ENDIF
-
-
-
-    IF (cable_user%fwsoil_switch == 'hydraulics') THEN
-
-      CALL readpar(ncid_rin,'psi_leaf_prev',dummy,canopy%psi_leaf_prev,&
-                   filename%restart_in,max_vegpatches,'def',from_restart,mp)
-      CALL readpar(ncid_rin,'psi_stem_prev',dummy,canopy%psi_stem_prev,&
-                   filename%restart_in,max_vegpatches,'def',from_restart,mp)
-      CALL readpar(ncid_rin,'psi_soil_prev',dummy,canopy%psi_soil_prev,&
-                   filename%restart_in,max_vegpatches,'def',from_restart,mp)
-
-    END IF
-    !print*, "****, reading in"
-    !print*, "****", canopy%psi_leaf_prev
-    !print*, "****", canopy%psi_stem_prev
-    !print*, "****", canopy%psi_soil_prev
-    !stop
-
 
     CALL readpar(ncid_rin,'cansto',dummy,canopy%cansto,filename%restart_in,     &
          max_vegpatches,'def',from_restart,mp)

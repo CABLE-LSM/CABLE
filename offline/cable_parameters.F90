@@ -1640,22 +1640,11 @@ CONTAINS
     soil%ssat_vec(:,:)  = REAL(SPREAD(soil%ssat(:),2,ms),r_2)
     soil%hyds_vec(:,:)  = REAL(SPREAD(soil%hyds(:),2,ms),r_2)
 
-    ! plant hydraulics, mgk576 2019, ms8355 2022
+    ! plant hydraulics; mgk576 2019; ms8355 2022
     ! This is the actual initalisation - write_default_params
-    canopy%psi_leaf_prev(:) = -0.01
-    canopy%psi_stem_prev(:) = -0.01
-    canopy%psi_soil_prev(:) = -0.01
-
-    canopy%psi_leaf(:) = -0.01
+    canopy%psi_can(:) = -0.01
     canopy%psi_stem(:) = -0.01
-
-    canopy%flx_to_stem(:) = 0.0
-    canopy%flx_to_leaf(:) = 0.0
-
-    canopy%ksoil2stem(:) = 0.0
-    canopy%kstem2leaf(:) = 0.0
     canopy%kplant(:) = 0.0
-
     canopy%plc_root(:) = 0.0
     canopy%plc_stem(:) = 0.0
     canopy%plc_can(:) = 0.0
@@ -1786,12 +1775,12 @@ CONTAINS
     IF (cable_user%GW_MODEL) THEN
 
        DO klev=1,ms
-          soil%hyds_vec(:,klev) = 0.0070556*10.0**(-0.884 + 0.0153*soil%Sand_Vec(:,klev)*100.0)* &
+          soil%hyds_vec(:,klev) = 0.0070556*10.0**(-0.884 + 0.0153*soil%sand_vec(:,klev)*100.0)* &
                EXP(-gw_params%hkrz*(MAX(0.,soil_depth(klev)-gw_params%zdepth)))
-          soil%sucs_vec(:,klev) = 10.0 * 10.0**(1.88 -0.0131*soil%Sand_Vec(:,klev)*100.0)
-          soil%bch_vec(:,klev) = 2.91 + 0.159*soil%Clay_Vec(:,klev)*100.0
-          soil%ssat_vec(:,klev) = 0.489 - 0.00126*soil%Sand_Vec(:,klev)*100.0
-          soil%watr(:,klev) = 0.02 + 0.00018*soil%Clay_Vec(:,klev)*100.0
+          soil%sucs_vec(:,klev) = 10.0 * 10.0**(1.88 -0.0131*soil%sand_vec(:,klev)*100.0)
+          soil%bch_vec(:,klev) = 2.91 + 0.159*soil%clay_vec(:,klev)*100.0
+          soil%ssat_vec(:,klev) = 0.489 - 0.00126*soil%sand_vec(:,klev)*100.0
+          soil%watr(:,klev) = 0.02 + 0.00018*soil%clay_vec(:,klev)*100.0
        ENDDO
        !aquifer share non-organic with last layer if not found in param file
        IF (found_explicit_gw_parameters .EQV. .FALSE.) THEN
@@ -1803,19 +1792,19 @@ CONTAINS
        ENDIF
        !include organin impact.  fraction of grid cell where percolation through
        !organic macropores dominates
-       soil%Org_Vec = MAX(0._r_2,soil%Org_Vec)
-       soil%Org_Vec = MIN(1._r_2,soil%Org_Vec)
+       soil%org_vec = MAX(0._r_2,soil%org_vec)
+       soil%org_vec = MIN(1._r_2,soil%org_vec)
        DO klev=1,3  !0-23.3 cm, data really is to 30cm
-          soil%hyds_vec(:,klev)  = (1.-soil%Org_Vec(:,klev))*soil%hyds_vec(:,klev) + &
-               soil%Org_Vec(:,klev)*gw_params%org%hyds_vec_organic
-          soil%sucs_vec(:,klev) = (1.-soil%Org_Vec(:,klev))*soil%sucs_vec(:,klev) + &
-               soil%Org_Vec(:,klev)*gw_params%org%sucs_vec_organic
-          soil%bch_vec(:,klev) = (1.-soil%Org_Vec(:,klev))*soil%bch_vec(:,klev) +&
-               soil%Org_Vec(:,klev)*gw_params%org%clappb_organic
-          soil%ssat_vec(:,klev) = (1.-soil%Org_Vec(:,klev))*soil%ssat_vec(:,klev) + &
-               soil%Org_Vec(:,klev)*gw_params%org%ssat_vec_organic
-          soil%watr(:,klev)   = (1.-soil%Org_Vec(:,klev))*soil%watr(:,klev) + &
-               soil%Org_Vec(:,klev)*gw_params%org%watr_organic
+          soil%hyds_vec(:,klev)  = (1.-soil%org_vec(:,klev))*soil%hyds_vec(:,klev) + &
+               soil%org_vec(:,klev)*gw_params%org%hyds_vec_organic
+          soil%sucs_vec(:,klev) = (1.-soil%org_vec(:,klev))*soil%sucs_vec(:,klev) + &
+               soil%org_vec(:,klev)*gw_params%org%sucs_vec_organic
+          soil%bch_vec(:,klev) = (1.-soil%org_vec(:,klev))*soil%bch_vec(:,klev) +&
+               soil%org_vec(:,klev)*gw_params%org%clappb_organic
+          soil%ssat_vec(:,klev) = (1.-soil%org_vec(:,klev))*soil%ssat_vec(:,klev) + &
+               soil%org_vec(:,klev)*gw_params%org%ssat_vec_organic
+          soil%watr(:,klev)   = (1.-soil%org_vec(:,klev))*soil%watr(:,klev) + &
+               soil%org_vec(:,klev)*gw_params%org%watr_organic
        END DO
 
        !!vegetation dependent field capacity (point plants get stressed) and
@@ -1889,6 +1878,10 @@ CONTAINS
     END WHERE
     ssnow%pudsto = 0.0
     ssnow%pudsmx = 0.0
+
+    ! hydraulics, ms8355
+    !veg%b_plant = 2.0
+    !veg%c_plant = 3.0
 
     ! Initialise sum flux variables:
     sum_flux%sumpn  = 0.0

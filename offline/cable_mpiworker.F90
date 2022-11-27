@@ -1557,29 +1557,17 @@ CONTAINS
     blen(bidx) = r1len
     ! Ticket #56, finish adding new veg parms
 
-    ! Plant hydraulics, mgk576: +9 params
+    ! plant hydraulics; mgk576 2017; ms8355 2022
     bidx = bidx + 1
-    CALL MPI_Get_address (veg%sf, displs(bidx), ierr)
+    CALL MPI_Get_address (veg%P12, displs(bidx), ierr)
     blen(bidx) = r1len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (veg%psi_f, displs(bidx), ierr)
+    CALL MPI_Get_address (veg%P50, displs(bidx), ierr)
     blen(bidx) = r1len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (veg%X_hyd, displs(bidx), ierr)
-    blen(bidx) = r1len
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (veg%p50, displs(bidx), ierr)
-    blen(bidx) = r1len
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (veg%Kmax, displs(bidx), ierr)
-    blen(bidx) = r1len
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (veg%Kcrit, displs(bidx), ierr)
+    CALL MPI_Get_address (veg%P88, displs(bidx), ierr)
     blen(bidx) = r1len
 
     bidx = bidx + 1
@@ -1591,23 +1579,11 @@ CONTAINS
     blen(bidx) = r1len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (veg%s50, displs(bidx), ierr)
+    CALL MPI_Get_address (veg%kmax, displs(bidx), ierr)
     blen(bidx) = r1len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (veg%kp_sat, displs(bidx), ierr)
-    blen(bidx) = r1len
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (veg%Cl, displs(bidx), ierr)
-    blen(bidx) = r1len
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (veg%Cs, displs(bidx), ierr)
-    blen(bidx) = r1len
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (veg%gmin, displs(bidx), ierr)
+    CALL MPI_Get_address (veg%PLCcrit, displs(bidx), ierr)
     blen(bidx) = r1len
 
     ! ----------- bgc --------------
@@ -1949,8 +1925,6 @@ CONTAINS
     CALL MPI_Get_address (canopy%wcint, displs(bidx), ierr)
     blen(bidx) = r1len
 
-
-
     !  bidx = bidx + 1
     !  CALL MPI_Get_address (canopy%rwater, displs(bidx), ierr)
     !  blen(bidx) = ms * r1len
@@ -1988,29 +1962,17 @@ CONTAINS
     CALL MPI_Get_address (canopy%fwsoil, displs(bidx), ierr)
     blen(bidx) = r2len
 
-
-
-    ! plant hydraulics, mgdk576, 23/07/2019: +11 vec (s1)
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%psi_leaf, displs(bidx), ierr)
-    blen(bidx) = r1len
-
+    ! plant hydraulics; mgdk576 2019; ms8355 2022
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%psi_stem, displs(bidx), ierr)
     blen(bidx) = r1len
 
-
     bidx = bidx + 1
-    CALL MPI_Get_address (canopy%psi_leaf_prev, displs(bidx), ierr)
-    blen(bidx) = r1len
-
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%psi_stem_prev, displs(bidx), ierr)
+    CALL MPI_Get_address (canopy%psi_can, displs(bidx), ierr)
     blen(bidx) = r1len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (canopy%psi_soil_prev, displs(bidx), ierr)
+    CALL MPI_Get_address (canopy%kplant, displs(bidx), ierr)
     blen(bidx) = r1len
 
     bidx = bidx + 1
@@ -2035,26 +1997,6 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%day_plc_can, displs(bidx), ierr)
-    blen(bidx) = r1len
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%kplant, displs(bidx), ierr)
-    blen(bidx) = r1len
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%ksoil2stem, displs(bidx), ierr)
-    blen(bidx) = r1len
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%kstem2leaf, displs(bidx), ierr)
-    blen(bidx) = r1len
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%flx_to_stem, displs(bidx), ierr)
-    blen(bidx) = r1len
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%flx_to_leaf, displs(bidx), ierr)
     blen(bidx) = r1len
 
     bidx = bidx + 1
@@ -4818,25 +4760,17 @@ CONTAINS
     CALL MPI_Get_address (canopy%fwsoil(off), displs(bidx), ierr)
     blocks(bidx) = r2len
 
-    ! plant hydraulics, mgdk576, 23/07/2019: +11 vec (s2)
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%psi_leaf(off), displs(bidx), ierr)
-    blocks(bidx) = r1len
-
+    ! plant hydraulics; mgdk576 2019; ms8355
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%psi_stem(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (canopy%psi_leaf_prev(off), displs(bidx), ierr)
+    CALL MPI_Get_address (canopy%psi_can(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (canopy%psi_stem_prev(off), displs(bidx), ierr)
-    blocks(bidx) = r1len
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%psi_soil_prev(off), displs(bidx), ierr)
+    CALL MPI_Get_address (canopy%kplant(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
     bidx = bidx + 1
@@ -4863,26 +4797,6 @@ CONTAINS
     CALL MPI_Get_address (canopy%day_plc_can(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%kplant(off), displs(bidx), ierr)
-    blocks(bidx) = r1len
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%ksoil2stem(off), displs(bidx), ierr)
-    blocks(bidx) = r1len
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%kstem2leaf(off), displs(bidx), ierr)
-    blocks(bidx) = r1len
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%flx_to_stem(off), displs(bidx), ierr)
-    blocks(bidx) = r1len
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%flx_to_leaf(off), displs(bidx), ierr)
-    blocks(bidx) = r1len
-
     ! MPI: 2D vars moved above
     ! rwater
     ! evapfbl
@@ -4890,6 +4804,7 @@ CONTAINS
     ! ssnow
     ! MPI: 2D vars moved above
     ! albsoilsn
+
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%pudsto(off), displs(bidx), ierr)
     blocks(bidx) = r1len
@@ -6953,19 +6868,6 @@ CONTAINS
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%fnv(off), displs(bidx), ierr)
     blocks(bidx) = r1len
-
-    ! plant hydraulics, mgdk576, 23/07/2019: +3 restart
-    !bidx = bidx + 1
-    !CALL MPI_Get_address (canopy%psi_leaf_prev(off), displs(bidx), ierr)
-    !blocks(bidx) = r1len
-
-    !bidx = bidx + 1
-    !CALL MPI_Get_address (canopy%psi_stem_prev(off), displs(bidx), ierr)
-    !blocks(bidx) = r1len
-
-    !bidx = bidx + 1
-    !CALL MPI_Get_address (canopy%psi_soil_prev(off), displs(bidx), ierr)
-    !blocks(bidx) = r1len
 
     bidx = bidx + 1
     CALL MPI_Get_address (air%rho(off), displs(bidx), ierr)

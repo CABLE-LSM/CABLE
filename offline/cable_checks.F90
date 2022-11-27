@@ -179,17 +179,19 @@ MODULE cable_checks_module
           Area = (/0.0, 5000./),              &
 
           !mgk576, 2017; ms8355, 2022
-          psi_rootzone = (/-100.,100./),      &
-          psi_soil = (/-100.,100./),          &
-          psi_stem = (/-100.,100./),          &
-          psi_leaf = (/-100.,100./),          &
-          plc_root = (/0.,100./),             &
-          plc_stem = (/0.,100./),             &
-          plc_can = (/0.,100./),              &
-          day_plc_root = (/0.,100./),         &
-          day_plc_stem = (/0.,100./),         &
-          day_plc_can = (/0.,100./),          &
-          gswx = (/-1,10/),                   &
+          b_plant = (/0.0, 20.0/),            &
+          c_plant = (/1.0, 20.0/),            &
+          psi_rootzone = (/-50.0, 0.0/),      &
+          psi_soil = (/-50.0, 0.0/),          &
+          psi_stem = (/-50.0, 0.0/),          &
+          psi_can = (/-50.0, 0.0/),           &
+          plc_root = (/0.0, 100.0/),          &
+          plc_stem = (/0.0, 100.0/),          &
+          plc_can = (/0.0, 100.0/),           &
+          day_plc_root = (/0.0, 100.0/),      &
+          day_plc_stem = (/0.0, 100.0/),      &
+          day_plc_can = (/0.0, 100.0/),       &
+          gswx = (/-1.0, 10.0/),              &
           
           !MD
           WatTable = (/0.0,1.0e10/),          &
