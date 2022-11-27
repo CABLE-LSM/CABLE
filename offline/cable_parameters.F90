@@ -1879,9 +1879,36 @@ CONTAINS
     ssnow%pudsto = 0.0
     ssnow%pudsmx = 0.0
 
-    ! hydraulics, ms8355
-    !veg%b_plant = 2.0
-    !veg%c_plant = 3.0
+    ! hydraulics, ms8355 2022
+    ! calculate the sensitivity and shape of the vulnerability curve
+    IF (veg%P12(1) < -1.E-3) THEN
+
+       IF (veg%P50(1) < -1.E-3) THEN
+
+          veg%c_plant = LOG(LOG(0.88) / LOG(0.5)) / (LOG(ABS(veg%P12)) - LOG(ABS(veg%P50))) ! shape parameter, unitless
+
+       ELSE IF (veg%P88(1) < -1.E-3) THEN
+
+          veg%c_plant = LOG(LOG(0.88) / LOG(0.12)) / (LOG(ABS(veg%P12)) - LOG(ABS(veg%P88))) ! shape parameter, unitless
+
+       END IF
+
+       veg%b_plant = ABS(veg%P12) / ((-LOG(0.88)) ** (1.0 / veg%c_plant)) ! sensitivity parameter, MPa
+
+    ELSE IF (veg%P50(1) < -1.E-3 .AND. veg%P88(1) < -1.E-3) THEN
+
+       veg%c_plant = LOG(LOG(0.5) / LOG(0.12)) / (LOG(ABS(veg%P50)) - LOG(ABS(veg%P88))) ! shape parameter, unitless
+       veg%b_plant = ABS(veg%P50) / ((-LOG(0.5)) ** (1.0 / veg%c_plant)) ! sensitivity parameter, MPa
+
+    ELSE IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
+
+       IF (veg%b_plant(1) < 1.E-3 .AND. veg%c_plant(1) < 1.E-3) THEN
+
+          print*, "/!\ The hydraulics parameters are not supplied, so the profitmax will crash /!\"
+
+       END IF
+
+    END IF
 
     ! Initialise sum flux variables:
     sum_flux%sumpn  = 0.0
