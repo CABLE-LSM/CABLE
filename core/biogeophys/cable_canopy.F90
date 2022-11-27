@@ -1789,7 +1789,7 @@ CONTAINS
 
     REAL, DIMENSION(mp,2) ::  gsw_term, lower_limit2  ! local temp var
 
-    REAL :: trans_mmol, conv, e_test, gmin
+    REAL :: trans_mmol, conv, e_test
     REAL, PARAMETER :: KG_2_G = 1000.0
     REAL, PARAMETER :: G_WATER_TO_MOL = 1.0 / 18.01528
     REAL, PARAMETER :: MOL_2_MMOL = 1000.0
@@ -1808,8 +1808,8 @@ CONTAINS
     REAL(r_2), DIMENSION(resolution) :: p
 
     REAL :: MOL_WATER_2_G_WATER, G_TO_KG, UMOL_TO_MOL, MB_TO_KPA, PA_TO_KPA
-    REAL :: new_plc
-    REAL, DIMENSION(mp) :: Kcmax, avg_kplant
+    REAL, DIMENSION(mp) :: kcmax, avg_kcan
+    REAL :: new_plc_root, new_plc_stem, new_plc_can
     REAL :: gamma_star
     REAL :: MOL_TO_UMOL, J_TO_MOL
 #define VanessasCanopy
@@ -1913,12 +1913,10 @@ CONTAINS
 
     DO i=1,mp
       ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
-      Kcmax(i) = veg%Kmax(i) * &
+      kcmax(i) = veg%kmax(i) * &
                   get_xylem_vulnerability(ssnow%psi_rootzone(i), &
                                           veg%b_plant(i), veg%c_plant(i))
     END DO
-
-
 
     !kdcorbin, 08/10 - doing all points all the time
     DO WHILE (k < C%MAXITER)
@@ -2151,10 +2149,10 @@ CONTAINS
                    CALL optimisation(canopy, rad, ssnow, rad%qcan, vpd, press, tlfx(i), &
                                      csx, rad%fvlai, &
                                      ssnow%psi_rootzone(i), &
-                                     ssnow%Rsr(i), Kcmax, veg%Kmax(i), veg%Kcrit(i), &
+                                     kcmax, veg%kmax(i), veg%PLCcrit(i), &
                                      veg%b_plant(i), veg%c_plant(i), &
                                      resolution, vcmxt3, ejmxt3, rdx, vx3, &
-                                     cx1(i), an_canopy, e_canopy, avg_kplant, veg%gmin(i), &
+                                     cx1(i), an_canopy, e_canopy, avg_kcan, &
                                      gamma_star, p, i)
 
 
@@ -2195,13 +2193,13 @@ CONTAINS
                anx(:,:), fwsoil(:) )
 
 
-          IF (rad%qcan(i, 1, 1) * J_TO_MOL * MOL_TO_UMOL < 80) THEN
+          IF (rad%qcan(i, 1, 1) * J_TO_MOL * MOL_TO_UMOL < 50) THEN
 
              anx(i,1) = 0.0
 
           END IF
 
-          IF (rad%qcan(i, 2, 1) * J_TO_MOL * MOL_TO_UMOL < 80) THEN
+          IF (rad%qcan(i, 2, 1) * J_TO_MOL * MOL_TO_UMOL < 50) THEN
 
              anx(i,2) = 0.0
 
@@ -2283,7 +2281,7 @@ CONTAINS
              ! PH: mgk576, 13/10/17
              ! This is over the combined direct & diffuse leaves due to the
              ! way the loops fall above
-             ELSEIF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
+             ELSE IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
 
 
                 IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
@@ -2469,32 +2467,49 @@ CONTAINS
 
 
     IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
-
-       ! Calculate this here after we've finished iterating...
        canopy%fevcs = (1.0-canopy%fwet) * ecxs  ! trans. from sapflux
 
        DO i = 1, mp
 
-          IF (avg_kplant(i) > 0.) THEN
-             new_plc = calc_plc(avg_kplant(i), veg%Kmax(i))
+          new_plc_root = calc_plc(kcmax(i), veg%kmax(i), veg%PLCcrit(i))
 
-             IF (canopy%psi_leaf(i) < ssnow%psi_rootzone(i)) THEN
-                ! allows for resetting...used in furture runs as we're collecting
-                ! continuous dry spells, but dont have growth so need to allow a reset
-                canopy%plc(i) = new_plc
+          IF (canopy%psi_can(i) < ssnow%psi_rootzone(i) .AND. ecxs(i) > 1.e-9) THEN
+             IF (avg_kcan(i) > 1.e-9 .AND. avg_kcan(i) < veg%kmax(i)) THEN
+                new_plc_stem = calc_plc(3.0 / (1.0 / avg_kcan(i) + 2.0 / kcmax(i)), veg%kmax(i), veg%PLCcrit(i)) ! note arbitrary 1:3 (can) 2:3 (root) ratio
+                new_plc_can = calc_plc(avg_kcan(i), veg%kmax(i), veg%PLCcrit(i))
 
-                ! We've reached the point of hydraulic failure, so hold the plc
-                ! here for outputting purposes..
-
-                 ! this is to deal with a bug that makes the PLC 100 at night --
-                 ! need to deal with properly later
-                IF (canopy%plc(i) >= 99.0) THEN
-                   canopy%plc(i) = 0.0
-
-                ELSE IF (canopy%plc(i) >= 88.0) THEN
-                   canopy%plc(i) = 88.0
-                ENDIF
+             ELSE
+                new_plc_stem = 0.0
+                new_plc_can = 0.0
              ENDIF
+
+          ELSE
+             new_plc_stem = 0.0
+             new_plc_can = 0.0
+          ENDIF
+
+          IF (new_plc_root > canopy%day_plc_root(i)) THEN
+             canopy%day_plc_root(:) = new_plc_root
+          ENDIF
+
+          IF (new_plc_stem > canopy%day_plc_stem(i)) THEN
+             canopy%day_plc_stem(:) = new_plc_stem
+          ENDIF
+
+          IF (new_plc_can > canopy%day_plc_can(i)) THEN
+             canopy%day_plc_can(:) = new_plc_can
+          ENDIF
+
+          ! set the day's PLC and reset the PLC tracker here
+          IF (met%hod(i) >= 24.0 - dels / (60.0 * 60.0) - 1.E-6) THEN
+             canopy%day_plc_root(:) = 0.0
+             canopy%day_plc_stem(:) = 0.0
+             canopy%day_plc_can(:) = 0.0
+
+          ELSE IF (met%hod(i) >= 24.0 - 2.0 * dels / (60.0 * 60.0) - 1.E-6) THEN
+             canopy%plc_root(i) = canopy%day_plc_root(i)
+             canopy%plc_stem(i) = canopy%day_plc_stem(i)
+             canopy%plc_can(i) = canopy%day_plc_can(i)
           ENDIF
 
        END DO
@@ -3062,28 +3077,30 @@ CONTAINS
   !*********************************************************************************************************************
 
 
-  FUNCTION calc_plc(kplant, kp_sat) RESULT(plc)
+  FUNCTION calc_plc(kplant, kp_sat, PLC_crit) RESULT(plc)
      ! Calculates the percent loss of conductivity, PLC (-)
      !
      ! Martin De Kauwe, 16th September, 2019
+     !
+     ! Manon Sabot, 2022
 
      IMPLICIT NONE
 
      REAL             :: plc
-     REAL, INTENT(IN) :: kplant, kp_sat
+     REAL, INTENT(IN) :: kplant, kp_sat, PLC_crit
 
      ! Percent loss of conductivity (-)
      plc = 100.0 * (1.0 - kplant / kp_sat)
-     plc = max(1.0e-9, min(100.0, plc))
+     plc = max(1.0e-9, min(PLC_crit, plc))
 
    END FUNCTION calc_plc
    ! ---------------------------------------------------------------------------
 
    ! ---------------------------------------------------------------------------
    SUBROUTINE optimisation(canopy, rad, ssnow, qcan, vpd, press, tleaf, csx, lai_leaf, &
-                           psi_soil, Rsr, Kcmax, Kmax, Kcrit, b_plant, &
+                           psi_soil, kcmax, kmax, PLCcrit, b_plant, &
                            c_plant, N, vcmxt3, ejmxt3, rdx, vx3, cx1, &
-                           an_canopy, e_canopy, avg_kplant, gmin, gamma_star, p, i)
+                           an_canopy, e_canopy, avg_kcan, gamma_star, p, i)
 
       ! Optimisation wrapper for the ProfitMax model. The Sperry model
       ! assumes that plant maximises the normalised (0-1) difference
@@ -3116,14 +3133,14 @@ CONTAINS
       INTEGER, INTENT(IN) :: i, N
       INTEGER :: j, k, idx
 
-      REAL, INTENT(IN) :: cx1, Kmax, Kcrit, b_plant, c_plant, vpd, press, tleaf
-      REAL, INTENT(IN) :: gmin, gamma_star
-      REAL(r_2), INTENT(IN) :: psi_soil, Rsr
+      REAL, INTENT(IN) :: cx1, kmax, PLCcrit, b_plant, c_plant, vpd, press, tleaf
+      REAL, INTENT(IN) :: gamma_star
+      REAL(r_2), INTENT(IN) :: psi_soil
       REAL, INTENT(INOUT) :: e_canopy
       REAL :: ci_ca
       REAL, DIMENSION(mf), INTENT(INOUT) :: an_canopy
-      REAL, DIMENSION(mp), INTENT(IN) :: Kcmax
-      REAL, DIMENSION(mp), INTENT(OUT) :: avg_kplant
+      REAL, DIMENSION(mp), INTENT(IN) :: kcmax
+      REAL, DIMENSION(mp), INTENT(OUT) :: avg_kcan
       REAL(r_2), DIMENSION(mp,mf), INTENT(IN) :: csx
       REAL, DIMENSION(mp,mf,nrb), INTENT(IN) :: qcan
       REAL(r_2), DIMENSION(N), INTENT(INOUT) :: p
@@ -3131,11 +3148,10 @@ CONTAINS
       REAL, DIMENSION(N) :: Ci, Ac, Aj, A, an_leaf, gsc, Cx
       LOGICAL, DIMENSION(N) ::  mask
       REAL, DIMENSION(mp,mf), INTENT(IN) :: vcmxt3, ejmxt3, rdx, vx3, lai_leaf
-      REAL, DIMENSION(N) :: Kc, e_leaf, cost, gain, profit
+      REAL, DIMENSION(N) :: kc, e_leaf, cost, gain, profit
       REAL :: p_crit, lower, upper, Cs
       REAL :: J_TO_MOL, MOL_TO_UMOL, gsw, Vcmax, Jmax, Rd, Vj, Km
       REAL, DIMENSION(mf) :: e_leaves, p_leaves, kc_leaves
-      REAL :: Kplant, Rsrl, e_cuticular
       REAL, PARAMETER :: MMOL_2_MOL = 0.001
       REAL, PARAMETER :: MOL_TO_MMOL = 1E3
       REAL, DIMENSION(2)  :: fsun
@@ -3150,11 +3166,9 @@ CONTAINS
       !  Michaelis Menten coefficient, umol m-2 s-1
       Km = cx1 * MOL_TO_UMOL
 
-      ! Canopy xylem pressure (P_crit) MPa, beyond which tree
-      ! desiccates (Ecrit), MPa
-      ! assuming Kcrit = 0.12 * Kmax  for now, this will need to get properly implemented in the future!
-      p_crit = -b_plant * log(Kmax / Kcrit)**(1.0 / c_plant)
-      p_crit = -b_plant * log(1 / 0.12)**(1.0 / c_plant)
+      ! Canopy xylem pressure (P_crit) MPa, beyond which trees fully
+      ! desiccate, MPa
+      p_crit = -b_plant * log(100.0 / (100.0 - PLCcrit))**(1.0 / c_plant)
 
       ! Loop over sunlit,shaded parts of the canopy and solve the carbon uptake
       ! and transpiration
@@ -3162,29 +3176,13 @@ CONTAINS
 
          fsun(j) = rad%fvlai(i,j) / canopy%vlaiw(i)
 
-         ! Convert total soil-to-root resistance from ...
-         ! MPa s m2 (ground) mmol-1 H2O -> MPa s m2 (leaf) mmol-1 H2O
-         !IF (lai_leaf(i,j) > 0.0) THEN
-         !   Rsrl = Rsr / fsun(j)
-         !ELSE
-         !   Rsrl = Rsr
-         !END IF
-
-         ! Total soil–plant hydraulic conductance (combined assuming
-         ! resistances are coupled in parallel)
-         ! mmol m-2 MPa-1 leaf s-1
-         !Kplant = 1.0 / (1.0 / Kmax + Rsrl)
-         Kplant = Kmax
-
          ! CO2 concentration at the leaf surface, umol mol-1
          Cs = csx(i,j) * MOL_TO_UMOL
 
          ! Generate a sequence of Ci's that we will solve the optimisation
          ! model for, range btw gamma_star and Cs. umol mol-1
-         lower = gamma_star
-         upper = Cs
          DO k=1, N
-            Ci(k)  = lower + float(k) * (upper - lower) / float(N-1)
+            Ci(k)  = gamma_star + float(k) * (Cs - gamma_star) / float(N-1)
          END DO
 
          ! absorbed par for the sunlit or shaded leaf, umol m-2 -s-1
@@ -3200,11 +3198,11 @@ CONTAINS
          Rd = rdx(i,j) * MOL_TO_UMOL
 
          ! Rate of electron transport (NB this is = J/4) so is a func of apar
-         ! incase you panic again and wonder where apar is actually being used
          Vj = vx3(i,j) * MOL_TO_UMOL
 
          ! If there is bugger all light, assume there are no fluxes
-         IF (apar(j) < 80) THEN
+         IF (apar(j) < 50) THEN
+
             ! load into stores
             an_canopy = 0.0 ! umol m-2 s-1
             e_canopy = 0.0 ! mol H2O m-2 s-1
@@ -3213,27 +3211,13 @@ CONTAINS
             ! there is no light. Setting it to the root zone water potential
             ! on the basis that there is some evidence the leaf and soil water
             ! potential come back into equilibrium overnight.
-            canopy%psi_leaf(i) = ssnow%psi_rootzone(i)
+            canopy%psi_can(i) = ssnow%psi_rootzone(i)
+         
          ELSE
-
-
+         
             ! Calculate the sunlit/shaded A_leaf (i.e. scaled up), umol m-2 s-1
             Ac = assim(Ci, gamma_star, Vcmax, Km) ! umol m-2 s-1
-            !where (Ci <= 0.0 .OR. Ci > Cs)
-            !    Ac = 0.0
-            !elsewhere
-            !   Ac = assim(Ci, gamma_star, Vcmax, Km) ! umol m-2 s-1
-            !endwhere
-
             Aj = assim(Ci, gamma_star, Vj, 2.0*gamma_star) ! umol m-2 s-1
-
-            ! When below light-compensation points, assume Ci=Ca.
-            !where (Aj <= Rd + 1E-09)
-            !   Aj = Vj * (Cs - gamma_star) / ((2.0*gamma_star) + Cs)
-            !elsewhere
-            !   Aj = Aj
-            !endwhere
-
             A = -QUADP(1.0 - 1E-4, Ac+Aj, Ac*Aj) ! umol m-2 s-1
             an_leaf = A - Rd ! Net photosynthesis, umol m-2 s-1
 
@@ -3248,44 +3232,48 @@ CONTAINS
 
             ! MPa
             p = calc_psi_leaf(psi_soil, e_leaf, &
-                              rad%scalex(i,j), Kplant, N)
+                              rad%scalex(i,j), kmax, N)
 
-            ! Ensure we don't check for profit in bad psi_leaf search space
+            ! Ensure we don't check for profit in bad psi search space
             where (p < psi_soil .AND. p > p_crit)
-                mask = .TRUE.
+               mask = .TRUE.
             elsewhere
-                mask = .FALSE.
+               mask = .FALSE.
 
-                where (p < p_crit)
-                   p = p_crit
-                end where
+               where (p < p_crit)
+                  p = p_crit
+               end where
 
             end where
 
-            ! Soil–plant hydraulic conductance at canopy xylem pressure,
+            ! Soil-plant hydraulic conductance at canopy xylem pressure,
             ! mmol m-2 s-1 MPa-1
-            Kc = Kplant * get_xylem_vulnerabilityx(p, b_plant, c_plant)
+            kc = kmax * get_xylem_vulnerabilityx(p, b_plant, c_plant)
 
             ! normalised gain (-)
             gain = an_leaf / MAXVAL(an_leaf, mask=mask)
 
             ! normalised cost (-)
-            !cost = (Kcmax(i) - Kc) / (Kcmax(i) - Kcrit)
-            cost = (Kcmax(i) - Kc) / (Kcmax(i) - 0.12 * Kplant)
+            cost = (kcmax(i) - kc) / (kcmax(i) - kmax * (100.0 - PLCcrit) / 100.0)
 
             ! Locate maximum profit
             profit = gain - cost
             idx = MAXLOC(profit, 1, mask=mask)
 
-            ! Mask instances of very low profit. These result from our
-            ! optimisation approximation, which doesn't fully ramp up the cost
+            ! Mask instances of very high/low profit. These result from our
+            !  optimisation approximation, which doesn't fully ramp up the cost
             ! as would be expected in the full optimiality model. Here, we are
-            ! ignoring profit below 0.5%, which I think we can fairly conclude
-            ! is noise.
+            ! ignoring profit above/below 99.9999/0.5%, which we can fairly conclude is noise.
             if (profit(idx) < 0.005) then
                ! load into stores
-               an_canopy(j) = 0.0 ! umol m-2 s-1
-               e_leaves(j) = 0.0 ! mol H2O m-2 s-1
+               an_canopy(j) = 0.0
+               e_leaves(j) = 0.0
+
+            else if (profit(idx) > 0.999999) then
+               ! load into stores
+               an_canopy(j) = 0.0
+               e_leaves(j) = 0.0
+
             else
                ! load into stores
                an_canopy(j) = an_leaf(idx) ! umol m-2 s-1
@@ -3293,56 +3281,33 @@ CONTAINS
             endif
 
             p_leaves(j) = p(idx)
-            kc_leaves(j) = Kc(idx)
+            kc_leaves(j) = kc(idx)
 
             canopy%gswx(i,j) = MAX(1e-9, gsc(idx) * C%RGSWC)
-            ci_ca = Ci(idx)/Cs
+            ci_ca = Ci(idx) / Cs
 
-            !if (p_leaves(j) < -4 .AND. canopy%gswx(i,j) > 0.01) then
-            !   write(*,1010) p_leaves(j) , canopy%gswx(i,j), Ci(idx), vpd, Ci(idx)/Cs, apar(j)
-            !   1010 format (1x,F8.4, 1x,F8.4, 1x,F8.4, 1x,F8.4,1x,F8.4, 1x,F8.4)
-            !endif
+            ! sunlit/shaded transpiration
+            IF (apar(1) > 50 .AND. apar(2) > 50) THEN
 
-            !if (p_leaves(j) < -4 .AND. profit(idx) < 0.001) then
-            !   write(*,1010) profit(idx), gain(idx), cost(idx), an_canopy(j)
-            !   1010 format (1x,F8.4, 1x,F8.4, 1x,F8.4, 1x,F8.4)
-            !endif
+               canopy%psi_can(i) = (p_leaves(1) * fsun(1)) + (p_leaves(2) * fsun(2)) ! MPa
+               avg_kcan(i) = SUM(fsun) / (fsun(1) / kc_leaves(1) + fsun(2) / kc_leaves(2))
 
-            ! scale up cuticular conductance, mol H2O m-2 s-1
-            !e_cuticular = gmin * MMOL_2_MOL * rad%scalex(i,j) / press * vpd
+            ELSE IF (apar(1) > 50) THEN
 
-            ! Don't add gmin, instead use it as the lower boundary
-            !IF (e_leaves(j) < e_cuticular) THEN
-            !   e_leaves(j) = e_cuticular ! mol H2O m-2 s-1
-            !END IF
+               canopy%psi_can(i) = p_leaves(1)
+               avg_kcan(i) = kc_leaves(1)
 
-            ! If there was light, save transpiration, NB. cable doesn't save
-            ! individual sunlit/shaded transpiration
-            IF (apar(1) >= 50 .AND. apar(2) >= 50) THEN
+            ELSE IF (apar(2) > 50) THEN
 
-               !canopy%psi_leaf(i) = sum(p_leaves) / 2.0 ! MPa
-               canopy%psi_leaf(i) = (p_leaves(1) * fsun(1)) + (p_leaves(2) * fsun(2))
-               !canopy%psi_leaf_prev(i) = canopy%psi_leaf(i) ! MPa
-               !avg_kplant(i) = 1.0 / (1.0 / Kcmax(i) + 1.0 / (fsun(1) / kc_leaves(1) + fsun(2) / kc_leaves(2)))
-               avg_kplant(i) = 1.0 / (fsun(1) / kc_leaves(1) + fsun(2) / kc_leaves(2))
+               canopy%psi_can(i) = p_leaves(2)
+               avg_kcan(i) = kc_leaves(2)
 
-            ELSE IF (apar(1) >= 50 .AND. apar(2) < 50) THEN
-
-               canopy%psi_leaf(i) = p_leaves(1)
-               !canopy%psi_leaf_prev(i) = canopy%psi_leaf(i) ! MPa
-               !avg_kplant(i) = 1.0 / (1.0 / Kcmax(i) + 1.0 / kc_leaves(1))
-               avg_kplant(i) = kc_leaves(1)
-
-            ELSE IF (apar(1) < 50 .AND. apar(2) >= 50) THEN
-
-               canopy%psi_leaf(i) = p_leaves(2)
-               !canopy%psi_leaf_prev(i) = canopy%psi_leaf(i) ! MPa
-               !avg_kplant(i) = 1.0 / (1.0 / Kcmax(i) + 1.0 / kc_leaves(2))
-               avg_kplant(i) = kc_leaves(2)
+            ELSE ! nothing has happened, we're in the roots
+               canopy%psi_can(i) = psi_soil
+               avg_kcan(i) = kcmax(i)
 
             END IF
 
-            canopy%psi_soil_prev(i) = psi_soil ! MPa
             e_canopy = sum(e_leaves) ! mol H2O m-2 s-1
 
          END IF
@@ -3353,7 +3318,7 @@ CONTAINS
    ! ---------------------------------------------------------------------------
 
    ! ---------------------------------------------------------------------------
-   FUNCTION calc_psi_leaf(psi_soil, e_leaf, scalex, Kplant, N) RESULT(psi_leaf)
+   FUNCTION calc_psi_leaf(psi_soil, e_leaf, scalex, kplant, N) RESULT(psi_leaf)
 
       ! Calculation the approximate matching psi_leaf from the transpiration
       ! array
@@ -3368,7 +3333,7 @@ CONTAINS
 
       REAL(r_2) :: psi_soil
       REAL, DIMENSION(N) :: eleaf_mmol
-      REAL, INTENT(IN) :: Kplant, scalex
+      REAL, INTENT(IN) :: kplant, scalex
       REAL, INTENT(IN), DIMENSION(N) :: e_leaf
       REAL, DIMENSION(N) :: psi_leaf
       REAL, PARAMETER :: MOL_TO_MMOL = 1E3
@@ -3378,7 +3343,7 @@ CONTAINS
       eleaf_mmol = e_leaf * MOL_TO_MMOL / scalex
 
       ! Infer the matching leaf water potential (MPa).
-      psi_leaf = psi_soil - eleaf_mmol / Kplant
+      psi_leaf = psi_soil - eleaf_mmol / kplant
 
    END FUNCTION calc_psi_leaf
    ! ---------------------------------------------------------------------------
@@ -3431,7 +3396,7 @@ CONTAINS
    ! ---------------------------------------------------------------------------
 
    ! ---------------------------------------------------------------------------
-   FUNCTION calc_transpiration(p, N, Kmax, b_plant, c_plant) RESULT(e_leaf)
+   FUNCTION calc_transpiration(p, N, kmax, b_plant, c_plant) RESULT(e_leaf)
 
       ! At steady-state, transpiration is the integral of the plant's
       ! vulnerability curve from zero (no cuticular conductance) to its
@@ -3447,7 +3412,7 @@ CONTAINS
       IMPLICIT NONE
 
       REAL(r_2), DIMENSION(N), INTENT(IN) :: p
-      REAL, INTENT(IN) :: b_plant, c_plant, Kmax
+      REAL, INTENT(IN) :: b_plant, c_plant, kmax
       REAL, DIMENSION(N) :: e_leaf
       REAL, PARAMETER :: MMOL_2_MOL = 1E-03
 
@@ -3459,7 +3424,7 @@ CONTAINS
       DO h=1, N
          e_leaf(h) = integrate_vulnerability(N, p(h), p(1), b_plant, c_plant)
          IF (e_leaf(h) > 1.0E-09) then
-            e_leaf(h) = e_leaf(h) * Kmax * MMOL_2_MOL ! mol m-2 s-1
+            e_leaf(h) = e_leaf(h) * kmax * MMOL_2_MOL ! mol m-2 s-1
          END IF
       END DO
 

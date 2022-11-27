@@ -64,6 +64,7 @@ CONTAINS
     REAL, PARAMETER:: Capp   = 29.09    ! isobaric spec heat air    [J/molA/K]
     REAL, PARAMETER:: SBoltz  = 5.67e-8  ! Stefan-Boltzmann constant [W/m2/K4]
     climate%doy = idoy
+    print*, idoy, climate%doy, ktau, ktauday
 
 !!$! * Find irradiances, available energy, equilibrium latent heat flux
 !!$PPc    = Gaero / ( Gaero + 4.0*SBoltz*((TempA+273.16)**3)/(RhoA*Capp) )

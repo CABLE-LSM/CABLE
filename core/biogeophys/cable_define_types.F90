@@ -391,19 +391,13 @@ MODULE cable_def_types_mod
           eko,     &  ! acvtivation enegery for oxygenase
           g0,      & ! Belinda's stomatal model intercept, Ticket #56.
           g1,      & ! Belinda's stomatal model slope, Ticket #56.
-          sf,      & ! sensitivity parameter, MPa-1
-          psi_f,   & ! reference potential for Tuzet model, MPa
-          X_hyd,   & ! pressure loss (%)
-          p50,     & ! xylem pressure inducing 50% loss of hydraulic conductivity due to embolism, MPa
-          Kmax,    & ! maximum hydraulic conductance in the soil–plant continuum, mmol m-2 s-1 MPa-1
-          Kcrit,   & ! Critical soil–plant hydraulic cond below which cavitation occurs, mmol m-2 s-1 MPa-1
-          b_plant, & ! sensitivity of VC, MPa (higher = less sensitive to SW)
-          c_plant, & ! shape of VC, [-]
-          s50,     & ! is slope of the curve at P50 used in weibull model, % MPa-1
-          kp_sat,  & ! plant saturated hydraulic conductance (mmol m-2 s-1 MPa-1)
-          Cl,      & ! Leaf capacitance (mmol m-2 leaf MPa-1)
-          Cs,      & ! Stem capacitance (mmol kg-1 MPa-1)
-          gmin       ! minimum stomatal conductance, mmol m-2 s-1
+          P12,     &
+          P50,     &
+          P88,     &
+          b_plant, & ! sensitivity of hydraulic vulnerability curve, MPa (higher = less sensitive to SW)
+          c_plant, & ! shape of hydraulic VC, [-]
+          kmax,    & ! maximum hydraulic conductance in the soil-plant continuum, mmol m-2 s-1 MPa-1
+          PLCcrit    ! critical maximum percentage loss of hydraulic conductivity above which no xylem recovery can occur, %
 
      LOGICAL, DIMENSION(:), POINTER ::                                        &
           deciduous ! flag used for phenology fix
@@ -525,11 +519,9 @@ MODULE cable_def_types_mod
      !! vh_js !! !litter thermal conductivity (Wm-2K-1) and vapour diffusivity (m2s-1)
      REAL(r_2), DIMENSION(:), POINTER :: kthLitt, DvLitt
 
-     ! mgk576, 10/10/2017: plant hydraulics
-     REAL, DIMENSION(:), POINTER :: psi_leaf, psi_leaf_prev
-     REAL, DIMENSION(:), POINTER :: flx_to_stem, flx_to_leaf
-     REAL, DIMENSION(:), POINTER :: psi_stem, psi_stem_prev, psi_soil_prev
-     REAL, DIMENSION(:), POINTER :: ksoil2stem, kstem2leaf, kplant, plc
+     ! plant hydraulics; mgk576 2017; ms835 2022
+     REAL, DIMENSION(:), POINTER :: psi_stem, psi_can, kplant
+     REAL, DIMENSION(:), POINTER :: plc_root, plc_stem, plc_can, day_plc_root, day_plc_stem, day_plc_can
 
   END TYPE canopy_type
 
@@ -1126,20 +1118,14 @@ CONTAINS
     ALLOCATE ( var % disturbance_interval(mp,2) )
     ALLOCATE ( var % disturbance_intensity(mp,2) )
 
-    ! mgk576, hydraulics stuff
-    ALLOCATE( var% sf(mp) )   ! mgk576
-    ALLOCATE( var% psi_f(mp) )   ! mgk576
-    ALLOCATE( var% X_hyd(mp) )   ! mgk576
-    ALLOCATE( var% p50(mp) )   ! mgk576
-    ALLOCATE( var% Kmax(mp) )   ! mgk576
-    ALLOCATE( var% Kcrit(mp) )   ! mgk576
-    ALLOCATE( var% b_plant(mp) )   ! mgk576
-    ALLOCATE( var% c_plant(mp) )   ! mgk576
-    ALLOCATE( var% s50(mp) )   ! mgk576
-    ALLOCATE( var% kp_sat(mp) )   ! mgk576
-    ALLOCATE( var% Cl(mp) )   ! mgk576
-    ALLOCATE( var% Cs(mp) )   ! mgk576
-    ALLOCATE( var% gmin(mp) )   ! mgk576
+    ! plant hydraulics; mgk576 2019; ms8355 2022
+    ALLOCATE( var% P12(mp) )
+    ALLOCATE( var% P50(mp) )
+    ALLOCATE( var% P88(mp) )
+    ALLOCATE( var% b_plant(mp) )
+    ALLOCATE( var% c_plant(mp) )
+    ALLOCATE( var% kmax(mp) ) 
+    ALLOCATE( var% PLCcrit(mp) ) 
 
 
   END SUBROUTINE alloc_veg_parameter_type
@@ -1231,18 +1217,16 @@ CONTAINS
     ALLOCATE (var % kthLitt(mp))
     ALLOCATE (var % DvLitt(mp))
 
-    !  mgk576, 10/10/2017: plant hydraulics
-    ALLOCATE( var%psi_leaf(mp) )
-    ALLOCATE( var%psi_leaf_prev(mp) )
+    ! plant hydraulics; mgk576 2017; ms8355 2022
     ALLOCATE( var%psi_stem(mp) )
-    ALLOCATE( var%psi_stem_prev(mp) )
-    ALLOCATE( var%psi_soil_prev(mp) )
-    ALLOCATE( var%flx_to_leaf(mp) )
-    ALLOCATE( var%flx_to_stem(mp) )
-    ALLOCATE( var%ksoil2stem(mp) )
-    ALLOCATE( var%kstem2leaf(mp) )
+    ALLOCATE( var%psi_can(mp) )
     ALLOCATE( var%kplant(mp) )
-    ALLOCATE( var%plc(mp) )
+    ALLOCATE( var%plc_root(mp) )
+    ALLOCATE( var%plc_stem(mp) )
+    ALLOCATE( var%plc_can(mp) )
+    ALLOCATE( var%day_plc_root(mp) )
+    ALLOCATE( var%day_plc_stem(mp) )
+    ALLOCATE( var%day_plc_can(mp) )
 
   END SUBROUTINE alloc_canopy_type
 
@@ -1769,20 +1753,14 @@ CONTAINS
     DEALLOCATE( var%g0 ) ! Ticket #56.
     DEALLOCATE( var%g1 ) ! Ticket #56.
 
-    ! mgk576, hydraulics stuff
-    DEALLOCATE( var% sf )   ! mgk576
-    DEALLOCATE( var% psi_f )   ! mgk576
-    DEALLOCATE( var% X_hyd )   ! mgk576
-    DEALLOCATE( var% p50 )   ! mgk576
-    DEALLOCATE( var% Kmax )   ! mgk576
-    DEALLOCATE( var% Kcrit )   ! mgk576
-    DEALLOCATE( var% b_plant )   ! mgk576
-    DEALLOCATE( var% c_plant )   ! mgk576
-    DEALLOCATE( var% s50 )   ! mgk576
-    DEALLOCATE( var% kp_sat )   ! mgk576
-    DEALLOCATE( var% Cl )   ! mgk576
-    DEALLOCATE( var% Cs )   ! mgk576
-    DEALLOCATE( var% gmin )   ! mgk576
+    ! plant hydraulics; mgk576 2019; ms8355 2022 
+    DEALLOCATE( var% P12 )
+    DEALLOCATE( var% P50 )
+    DEALLOCATE( var% P88 )
+    DEALLOCATE( var% b_plant ) 
+    DEALLOCATE( var% c_plant ) 
+    DEALLOCATE( var% kmax )
+    DEALLOCATE( var% PLCcrit )
 
     ! Deallocate variables for SLI soil model:
     !IF(cable_user%SOIL_STRUC=='sli') THEN
@@ -1874,18 +1852,16 @@ CONTAINS
     DEALLOCATE (var % kthLitt)
     DEALLOCATE (var % DvLitt)
 
-    ! mgk576, 10/10/2017: plant hydraulics
-    DEALLOCATE( var%psi_leaf )
-    DEALLOCATE( var%psi_leaf_prev )
+    ! plant hydraulics; mgk576 2017; ms8355 2022
     DEALLOCATE( var%psi_stem )
-    DEALLOCATE( var%psi_stem_prev )
-    DEALLOCATE( var%psi_soil_prev )
-    DEALLOCATE( var%flx_to_stem )
-    DEALLOCATE( var%flx_to_leaf )
-    DEALLOCATE( var%ksoil2stem )
-    DEALLOCATE( var%kstem2leaf )
+    DEALLOCATE( var%psi_can )
     DEALLOCATE( var%kplant )
-    DEALLOCATE( var%plc )
+    DEALLOCATE( var%plc_root )
+    DEALLOCATE( var%plc_stem )
+    DEALLOCATE( var%plc_can )
+    DEALLOCATE( var%day_plc_root )
+    DEALLOCATE( var%day_plc_stem )
+    DEALLOCATE( var%day_plc_can )
 
   END SUBROUTINE dealloc_canopy_type
 

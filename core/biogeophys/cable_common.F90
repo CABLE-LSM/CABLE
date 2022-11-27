@@ -540,19 +540,17 @@ CONTAINS
        veg%zr(h)       = vegin%zr(veg%iveg(h))
        veg%clitt(h)    = vegin%clitt(veg%iveg(h))
 
-       ! mgk576, hydraulics stuff
-       veg%sf(h)       = vegin%sf(veg%iveg(h))       ! mgk576
-       veg%psi_f(h)    = vegin%psi_f(veg%iveg(h))    ! mgk576
-       veg%X_hyd(h)    = vegin%X_hyd(veg%iveg(h))    ! mgk576
-       veg%p50(h)      = vegin%p50(veg%iveg(h))      ! mgk576
-       veg%s50(h)      = vegin%s50(veg%iveg(h))      ! mgk576
-       veg%kp_sat(h)   = vegin%kp_sat(veg%iveg(h))      ! mgk576
-       veg%Cl(h)       = vegin%Cl(veg%iveg(h))      ! mgk576
-       veg%Cs(h)       = vegin%Cs(veg%iveg(h))      ! mgk576
-       veg%b_plant(h)  = vegin%b_plant(veg%iveg(h))      ! mgk576
-       veg%c_plant(h)  = vegin%c_plant(veg%iveg(h))      ! mgk576
-       veg%Kmax(h)     = vegin%Kmax(veg%iveg(h))      ! mgk576
-       veg%Kcrit(h)    = vegin%Kcrit(veg%iveg(h))      ! mgk576
+       ! plant hydraulics; mgk576 2017; ms8355 2022
+       veg%kmax(h)     = vegin%kmax(veg%iveg(h))
+
+       IF (veg%PLCcrit(h) < 1.E-3) THEN
+          veg%PLCcrit(h)    = vegin%PLCcrit(veg%iveg(h))
+
+          IF (veg%PLCcrit(h) < 1.E-3) THEN
+             veg%PLCcrit(h) = 95.0
+          END IF
+
+       END IF
 
     END DO ! over each veg patch in land point
 
