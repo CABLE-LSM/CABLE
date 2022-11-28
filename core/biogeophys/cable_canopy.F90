@@ -2136,7 +2136,7 @@ CONTAINS
                       cable_user%FWSOIL_SWITCH == 'profitmax') THEN
 
                 ! Profix-Max hydraulics model
-                vpd = dsx(i) * PA_TO_KPA
+                vpd = dsx(i) * PA_TO_KPA ! this is leaf vpd
                 press = met%pmb(i) * MB_TO_KPA
 
 
@@ -3174,31 +3174,8 @@ CONTAINS
       ! and transpiration
       DO j=1, 2
 
-         fsun(j) = rad%fvlai(i,j) / canopy%vlaiw(i)
-
-         ! CO2 concentration at the leaf surface, umol mol-1
-         Cs = csx(i,j) * MOL_TO_UMOL
-
-         ! Generate a sequence of Ci's that we will solve the optimisation
-         ! model for, range btw gamma_star and Cs. umol mol-1
-         DO k=1, N
-            Ci(k)  = gamma_star + float(k) * (Cs - gamma_star) / float(N-1)
-         END DO
-
          ! absorbed par for the sunlit or shaded leaf, umol m-2 -s-1
          apar(j) = qcan(i,j,1) * J_TO_MOL * MOL_TO_UMOL
-
-         ! max rate of rubisco activity, scaled up to sunlit/shaded canopy
-         Vcmax = vcmxt3(i,j) * MOL_TO_UMOL
-
-         ! potential rate of electron transport, scaled up to sun/shade canopy
-         Jmax = ejmxt3(i,j) * MOL_TO_UMOL
-
-         ! day respiration, scaled up to sunlit/shaded canopy
-         Rd = rdx(i,j) * MOL_TO_UMOL
-
-         ! Rate of electron transport (NB this is = J/4) so is a func of apar
-         Vj = vx3(i,j) * MOL_TO_UMOL
 
          ! If there is bugger all light, assume there are no fluxes
          IF (apar(j) < 50) THEN
@@ -3212,8 +3189,31 @@ CONTAINS
             ! on the basis that there is some evidence the leaf and soil water
             ! potential come back into equilibrium overnight.
             canopy%psi_can(i) = ssnow%psi_rootzone(i)
-         
+
          ELSE
+
+            fsun(j) = rad%fvlai(i,j) / canopy%vlaiw(i)
+
+            ! CO2 concentration at the leaf surface, umol mol-1
+            Cs = csx(i,j) * MOL_TO_UMOL
+
+            ! Generate a sequence of Ci's that we will solve the optimisation
+            ! model for, range btw gamma_star and Cs. umol mol-1
+            DO k=1, N
+               Ci(k)  = gamma_star + float(k) * (Cs - gamma_star) / float(N-1)
+            END DO
+
+            ! max rate of rubisco activity, scaled up to sunlit/shaded canopy
+            Vcmax = vcmxt3(i,j) * MOL_TO_UMOL
+
+            ! potential rate of electron transport, scaled up to sun/shade canopy
+            Jmax = ejmxt3(i,j) * MOL_TO_UMOL
+
+            ! day respiration, scaled up to sunlit/shaded canopy
+            Rd = rdx(i,j) * MOL_TO_UMOL
+
+            ! Rate of electron transport (NB this is = J/4) so is a func of apar
+            Vj = vx3(i,j) * MOL_TO_UMOL
          
             ! Calculate the sunlit/shaded A_leaf (i.e. scaled up), umol m-2 s-1
             Ac = assim(Ci, gamma_star, Vcmax, Km) ! umol m-2 s-1
@@ -3226,7 +3226,7 @@ CONTAINS
             gsc = MAX(1e-9, an_leaf / MAX(0.1, Cs - Ci)) ! mol CO2 m-2 s-1
 
             ! Infer E_sun/sha from gsc. NB. as we're
-            ! iterating, Tleaf will change and so VPD, maintaining energy
+            ! iterating, Tleaf will change and so will leaf surface VPD, maintaining energy
             ! balance
             e_leaf = gsc * C%RGSWC / press * vpd ! mol H2O m-2 s-1
 
