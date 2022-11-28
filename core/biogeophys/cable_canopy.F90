@@ -3168,7 +3168,7 @@ CONTAINS
 
       ! Canopy xylem pressure (P_crit) MPa, beyond which trees fully
       ! desiccate, MPa
-      p_crit = -b_plant * log(100.0 / (100.0 - PLCcrit))**(1.0 / c_plant)
+      p_crit = -b_plant * LOG(100.0 / (100.0 - PLCcrit)) ** (1.0 / c_plant)
 
       ! Loop over sunlit,shaded parts of the canopy and solve the carbon uptake
       ! and transpiration
@@ -3200,7 +3200,9 @@ CONTAINS
             ! Generate a sequence of Ci's that we will solve the optimisation
             ! model for, range btw gamma_star and Cs. umol mol-1
             DO k=1, N
-               Ci(k)  = gamma_star + float(k) * (Cs - gamma_star) / float(N-1)
+
+               Ci(k)  = gamma_star + FLOAT(k) * (Cs - gamma_star) / FLOAT(N - 1)
+
             END DO
 
             ! max rate of rubisco activity, scaled up to sunlit/shaded canopy
@@ -3217,8 +3219,8 @@ CONTAINS
          
             ! Calculate the sunlit/shaded A_leaf (i.e. scaled up), umol m-2 s-1
             Ac = assim(Ci, gamma_star, Vcmax, Km) ! umol m-2 s-1
-            Aj = assim(Ci, gamma_star, Vj, 2.0*gamma_star) ! umol m-2 s-1
-            A = -QUADP(1.0 - 1E-4, Ac+Aj, Ac*Aj) ! umol m-2 s-1
+            Aj = assim(Ci, gamma_star, Vj, 2.0 * gamma_star) ! umol m-2 s-1
+            A = -QUADP(1.0 - 1E-4, Ac + Aj, Ac * Aj) ! umol m-2 s-1
             an_leaf = A - Rd ! Net photosynthesis, umol m-2 s-1
 
             ! Use an_leaf to infer gsc_sun/sha. NB. An is the scaled up values
@@ -3286,33 +3288,34 @@ CONTAINS
             canopy%gswx(i,j) = MAX(1e-9, gsc(idx) * C%RGSWC)
             ci_ca = Ci(idx) / Cs
 
-            ! sunlit/shaded transpiration
-            IF (apar(1) > 50 .AND. apar(2) > 50) THEN
-
-               canopy%psi_can(i) = (p_leaves(1) * fsun(1)) + (p_leaves(2) * fsun(2)) ! MPa
-               avg_kcan(i) = SUM(fsun) / (fsun(1) / kc_leaves(1) + fsun(2) / kc_leaves(2))
-
-            ELSE IF (apar(1) > 50) THEN
-
-               canopy%psi_can(i) = p_leaves(1)
-               avg_kcan(i) = kc_leaves(1)
-
-            ELSE IF (apar(2) > 50) THEN
-
-               canopy%psi_can(i) = p_leaves(2)
-               avg_kcan(i) = kc_leaves(2)
-
-            ELSE ! nothing has happened, we're in the roots
-               canopy%psi_can(i) = psi_soil
-               avg_kcan(i) = kcmax(i)
-
-            END IF
-
-            e_canopy = sum(e_leaves) ! mol H2O m-2 s-1
-
          END IF
 
       END DO
+
+      ! sunlit/shaded weighted components
+      IF (apar(1) > 50 .AND. apar(2) > 50) THEN
+
+         canopy%psi_can(i) = (p_leaves(1) * fsun(1)) + (p_leaves(2) * fsun(2)) ! MPa
+         avg_kcan(i) = SUM(fsun) / (fsun(1) / kc_leaves(1) + fsun(2) / kc_leaves(2))
+
+      ELSE IF (apar(1) > 50) THEN
+
+         canopy%psi_can(i) = p_leaves(1)
+         avg_kcan(i) = kc_leaves(1)
+
+      ELSE IF (apar(2) > 50) THEN
+
+         canopy%psi_can(i) = p_leaves(2)
+         avg_kcan(i) = kc_leaves(2)
+
+      ELSE ! nothing has happened, we're in the roots
+
+         canopy%psi_can(i) = psi_soil
+         avg_kcan(i) = kcmax(i)
+
+      END IF
+
+      e_canopy = SUM(e_leaves) ! mol H2O m-2 s-1
 
    END SUBROUTINE optimisation
    ! ---------------------------------------------------------------------------
