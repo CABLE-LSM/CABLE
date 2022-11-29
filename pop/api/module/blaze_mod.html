@@ -138,7 +138,7 @@
             <a class="list-group-item" href="../module/blaze_mod.html#variable-metb~2">METB</a>
             <a class="list-group-item" href="../module/blaze_mod.html#variable-str~2">STR</a>
             <a class="list-group-item" href="../module/blaze_mod.html#variable-cwd~2">CWD</a>
-            <a class="list-group-item" href="../module/blaze_mod.html#variable-r_2">r_2</a>
+            <a class="list-group-item" href="../module/blaze_mod.html#variable-r_2~2">r_2</a>
             <a class="list-group-item" href="../module/blaze_mod.html#variable-t_avg~2">T_AVG</a>
             <a class="list-group-item" href="../module/blaze_mod.html#variable-fbranch">fbranch</a>
             <a class="list-group-item" href="../module/blaze_mod.html#variable-fbark">fbark</a>
@@ -271,7 +271,7 @@
 </g>
 </g>
 <!-- proc~blaze_driver&#45;&gt;module~blaze_mod -->
-<g id="module~~blaze_mod~~UsedByGraph_edge4" class="edge">
+<g id="module~~blaze_mod~~UsedByGraph_edge3" class="edge">
 <title>proc~blaze_driver&#45;&gt;module~blaze_mod</title>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M143.31,-201.87C134,-197.85 123.9,-193.09 115,-188 96.86,-177.62 77.8,-163.75 63.5,-152.66"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="65.28,-149.61 55.26,-146.17 60.95,-155.11 65.28,-149.61"/>
@@ -286,25 +286,40 @@
 </g>
 </g>
 <!-- proc~mpidrv_worker&#45;&gt;module~blaze_mod -->
-<g id="module~~blaze_mod~~UsedByGraph_edge3" class="edge">
+<g id="module~~blaze_mod~~UsedByGraph_edge5" class="edge">
 <title>proc~mpidrv_worker&#45;&gt;module~blaze_mod</title>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M272.16,-164.95C230.92,-165.12 168.51,-163.61 115,-155 105.74,-153.51 96,-151.27 86.72,-148.81"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="87.45,-145.38 76.88,-146.06 85.57,-152.12 87.45,-145.38"/>
 </g>
 <!-- module~blaze_mpi -->
-<g id="module~~blaze_mod~~UsedByGraph_node5" class="node">
+<g id="module~~blaze_mod~~UsedByGraph_node6" class="node">
 <title>module~blaze_mpi</title>
-<g id="a_module~~blaze_mod~~UsedByGraph_node5"><a xlink:href=".././module/blaze_mpi.html" xlink:title="BLAZE_MPI">
+<g id="a_module~~blaze_mod~~UsedByGraph_node6"><a xlink:href=".././module/blaze_mpi.html" xlink:title="BLAZE_MPI">
 <polygon fill="#337ab7" stroke="#337ab7" points="211,-146 140,-146 140,-122 211,-122 211,-146"/>
 <text text-anchor="middle" x="175.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BLAZE_MPI</text>
 </a>
 </g>
 </g>
 <!-- proc~mpidrv_worker&#45;&gt;module~blaze_mpi -->
-<g id="module~~blaze_mod~~UsedByGraph_edge9" class="edge">
+<g id="module~~blaze_mod~~UsedByGraph_edge8" class="edge">
 <title>proc~mpidrv_worker&#45;&gt;module~blaze_mpi</title>
-<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M272.5,-154.43C256.08,-150.93 237.53,-146.98 221.14,-143.5"/>
-<polygon fill="#00ff91" stroke="#00ff91" points="221.77,-140.05 211.26,-141.39 220.31,-146.9 221.77,-140.05"/>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M272.5,-154.43C256.08,-150.93 237.53,-146.98 221.14,-143.5"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="221.77,-140.05 211.26,-141.39 220.31,-146.9 221.77,-140.05"/>
+</g>
+<!-- proc~worker_spincasacnp -->
+<g id="module~~blaze_mod~~UsedByGraph_node5" class="node">
+<title>proc~worker_spincasacnp</title>
+<g id="a_module~~blaze_mod~~UsedByGraph_node5"><a xlink:href=".././proc/worker_spincasacnp.html" xlink:title="worker_spincasacnp">
+<polygon fill="#d9534f" stroke="#d9534f" points="236,-66 115,-66 115,-42 236,-42 236,-66"/>
+<text text-anchor="middle" x="175.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">worker_spincasacnp</text>
+</a>
+</g>
+</g>
+<!-- proc~worker_spincasacnp&#45;&gt;module~blaze_mod -->
+<g id="module~~blaze_mod~~UsedByGraph_edge4" class="edge">
+<title>proc~worker_spincasacnp&#45;&gt;module~blaze_mod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M143.31,-66.13C134,-70.15 123.9,-74.91 115,-80 96.86,-90.38 77.8,-104.25 63.5,-115.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="60.95,-112.89 55.26,-121.83 65.28,-118.39 60.95,-112.89"/>
 </g>
 <!-- module~blaze_mpi&#45;&gt;module~blaze_mod -->
 <g id="module~~blaze_mod~~UsedByGraph_edge2" class="edge">
@@ -313,40 +328,25 @@
 <polygon fill="#ff0000" stroke="#ff0000" points="89.15,-130.5 79.15,-134 89.15,-137.5 89.15,-130.5"/>
 </g>
 <!-- proc~mpidrv_master -->
-<g id="module~~blaze_mod~~UsedByGraph_node6" class="node">
+<g id="module~~blaze_mod~~UsedByGraph_node7" class="node">
 <title>proc~mpidrv_master</title>
-<g id="a_module~~blaze_mod~~UsedByGraph_node6"><a xlink:href=".././proc/mpidrv_master.html" xlink:title="mpidrv_master">
+<g id="a_module~~blaze_mod~~UsedByGraph_node7"><a xlink:href=".././proc/mpidrv_master.html" xlink:title="mpidrv_master">
 <polygon fill="#d9534f" stroke="#d9534f" points="365,-125 272,-125 272,-101 365,-101 365,-125"/>
 <text text-anchor="middle" x="318.5" y="-110.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpidrv_master</text>
 </a>
 </g>
 </g>
 <!-- proc~mpidrv_master&#45;&gt;module~blaze_mod -->
-<g id="module~~blaze_mod~~UsedByGraph_edge5" class="edge">
+<g id="module~~blaze_mod~~UsedByGraph_edge6" class="edge">
 <title>proc~mpidrv_master&#45;&gt;module~blaze_mod</title>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M271.82,-109.45C230.61,-107.08 168.46,-105.61 115,-113 105.32,-114.34 95.12,-116.61 85.49,-119.18"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="84.38,-115.86 75.7,-121.94 86.27,-122.6 84.38,-115.86"/>
 </g>
 <!-- proc~mpidrv_master&#45;&gt;module~blaze_mpi -->
-<g id="module~~blaze_mod~~UsedByGraph_edge8" class="edge">
+<g id="module~~blaze_mod~~UsedByGraph_edge9" class="edge">
 <title>proc~mpidrv_master&#45;&gt;module~blaze_mpi</title>
-<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M271.72,-119.82C255.63,-122.22 237.56,-124.91 221.53,-127.29"/>
-<polygon fill="#00ff91" stroke="#00ff91" points="220.7,-123.88 211.33,-128.81 221.74,-130.8 220.7,-123.88"/>
-</g>
-<!-- proc~worker_spincasacnp -->
-<g id="module~~blaze_mod~~UsedByGraph_node7" class="node">
-<title>proc~worker_spincasacnp</title>
-<g id="a_module~~blaze_mod~~UsedByGraph_node7"><a xlink:href=".././proc/worker_spincasacnp.html" xlink:title="worker_spincasacnp">
-<polygon fill="#d9534f" stroke="#d9534f" points="236,-66 115,-66 115,-42 236,-42 236,-66"/>
-<text text-anchor="middle" x="175.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">worker_spincasacnp</text>
-</a>
-</g>
-</g>
-<!-- proc~worker_spincasacnp&#45;&gt;module~blaze_mod -->
-<g id="module~~blaze_mod~~UsedByGraph_edge6" class="edge">
-<title>proc~worker_spincasacnp&#45;&gt;module~blaze_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M143.31,-66.13C134,-70.15 123.9,-74.91 115,-80 96.86,-90.38 77.8,-104.25 63.5,-115.34"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="60.95,-112.89 55.26,-121.83 65.28,-118.39 60.95,-112.89"/>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M271.72,-119.82C255.63,-122.22 237.56,-124.91 221.53,-127.29"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="220.7,-123.88 211.33,-128.81 221.74,-130.8 220.7,-123.88"/>
 </g>
 <!-- program~cable_offline_driver -->
 <g id="module~~blaze_mod~~UsedByGraph_node8" class="node">
@@ -452,7 +452,7 @@
             <a class="list-group-item" href="../module/blaze_mod.html#variable-metb~2">METB</a>
             <a class="list-group-item" href="../module/blaze_mod.html#variable-str~2">STR</a>
             <a class="list-group-item" href="../module/blaze_mod.html#variable-cwd~2">CWD</a>
-            <a class="list-group-item" href="../module/blaze_mod.html#variable-r_2">r_2</a>
+            <a class="list-group-item" href="../module/blaze_mod.html#variable-r_2~2">r_2</a>
             <a class="list-group-item" href="../module/blaze_mod.html#variable-t_avg~2">T_AVG</a>
             <a class="list-group-item" href="../module/blaze_mod.html#variable-fbranch">fbranch</a>
             <a class="list-group-item" href="../module/blaze_mod.html#variable-fbark">fbark</a>
@@ -752,7 +752,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-r_2"></span>
+              <span class="anchor" id="variable-r_2~2"></span>
               integer,
             </td>
               <td>public,</td>
@@ -939,7 +939,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-dslr"></span>
+              <span class="anchor" id="variable-dslr~2"></span>
               integer,
             </td>
               <td>public,</td>
@@ -1024,7 +1024,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-kbdi"></span>
+              <span class="anchor" id="variable-kbdi~2"></span>
               real,
             </td>
               <td>public,</td>
@@ -1177,7 +1177,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ffdi"></span>
+              <span class="anchor" id="variable-ffdi~2"></span>
               real,
             </td>
               <td>public,</td>
@@ -1194,7 +1194,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-fli~2"></span>
+              <span class="anchor" id="variable-fli"></span>
               real,
             </td>
               <td>public,</td>
@@ -1279,7 +1279,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-lat~2"></span>
+              <span class="anchor" id="variable-lat"></span>
               real,
             </td>
               <td>public,</td>
@@ -1296,7 +1296,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-lon~2"></span>
+              <span class="anchor" id="variable-lon"></span>
               real,
             </td>
               <td>public,</td>
@@ -1772,7 +1772,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ncells~2"></span>
+              <span class="anchor" id="variable-ncells"></span>
               integer,
             </td>
               <td>public</td>
@@ -1925,7 +1925,7 @@ parameter
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-outmode~2"></span>
+              <span class="anchor" id="variable-outmode"></span>
               character(len=4),
             </td>
               <td>public</td>

@@ -155,7 +155,8 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    
+    <p>This MODULE contains the SUBROUTINE <a href="../proc/update_zetar.html">update_zetar</a> needed to update
+ the value of the stability parameter <code>canopy%zetar</code>=<script type="math/tex">\xi</script>. </p>
 <br>    
         <div class="panel panel-default">
       <div class="panel-heading">
@@ -313,7 +314,12 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>This SUBROUTINE updates the value of the stability parameter <script type="math/tex">\xi</script>
+ during the iteration loop of the Monin-Obukhov (MO) similarity theory in <a href="../proc/define_canopy.html">define_canopy</a>.<br>
+<script type="math/tex">\xi</script> quantifies the role that the surface fluxes play in setting the 
+ efficiency of turbulent transfer from the land to the atmosphere, and hence
+ the aerodynamic component of the resistance network for those same surface 
+ fluxes (an implicit problem which requires iteration to solve).</p><a href="../proc/update_zetar.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -338,7 +344,7 @@
             <td>::</td>
             <td><strong>mp</strong></td>
             <td>
-
+<p>number of land points (-)</p>
             </td>
         </tr>
         <tr>
@@ -353,7 +359,7 @@
             <td>::</td>
             <td><strong>NITER</strong></td>
             <td>
-
+<p>number of MO-iterations (-)</p>
             </td>
         </tr>
         <tr>
@@ -368,7 +374,7 @@
             <td>::</td>
             <td><strong>canopy_zetar</strong>(mp,NITER)</td>
             <td>
-
+<p>stability parameter <script type="math/tex">\xi</script> (-)</p>
             </td>
         </tr>
         <tr>
@@ -383,7 +389,7 @@
             <td>::</td>
             <td><strong>iter</strong></td>
             <td>
-
+<p>iteration counter (-)</p>
             </td>
         </tr>
         <tr>
@@ -398,7 +404,7 @@
             <td>::</td>
             <td><strong>nrb</strong></td>
             <td>
-
+<p>number of radiation bands (-)</p>
             </td>
         </tr>
         <tr>
@@ -518,7 +524,7 @@
             <td>::</td>
             <td><strong>cable_user_soil_struc</strong></td>
             <td>
-
+<p>name of soil model used</p>
             </td>
         </tr>
         <tr>
@@ -533,7 +539,7 @@
             <td>::</td>
             <td><strong>air_rho</strong>(mp)</td>
             <td>
-
+<p>air density (kg m<script type="math/tex">^{-3}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -548,7 +554,7 @@
             <td>::</td>
             <td><strong>met_tk</strong>(mp)</td>
             <td>
-
+<p>reference level air temperature (K)</p>
             </td>
         </tr>
         <tr>
@@ -563,7 +569,7 @@
             <td>::</td>
             <td><strong>met_fsd</strong>(mp,nrb)</td>
             <td>
-
+<p>downwelling shortwave (Wm<script type="math/tex">^{-2}</script>)  </p>
             </td>
         </tr>
         <tr>
@@ -578,7 +584,7 @@
             <td>::</td>
             <td><strong>rough_zref_tq</strong>(mp)</td>
             <td>
-
+<p>reference height for T and q (m)</p>
             </td>
         </tr>
         <tr>
@@ -593,7 +599,7 @@
             <td>::</td>
             <td><strong>rough_hruff</strong>(mp)</td>
             <td>
-
+<p>height of canopy (above snow) (m)</p>
             </td>
         </tr>
         <tr>
@@ -608,7 +614,7 @@
             <td>::</td>
             <td><strong>rough_term6a</strong>(mp)</td>
             <td>
-
+<p>term from <a href="../proc/ruff_resist.html">ruff_resist</a> (-)</p>
             </td>
         </tr>
         <tr>
@@ -623,7 +629,7 @@
             <td>::</td>
             <td><strong>rough_z0soilsn</strong>(mp)</td>
             <td>
-
+<p>roughness length of soil or snow (m)</p>
             </td>
         </tr>
         <tr>
@@ -638,7 +644,7 @@
             <td>::</td>
             <td><strong>canopy_vlaiw</strong>(mp)</td>
             <td>
-
+<p>canopy leaf area (m<script type="math/tex">^2</script>m<script type="math/tex">^{-2}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -653,7 +659,7 @@
             <td>::</td>
             <td><strong>canopy_zetash</strong>(mp,NITER)</td>
             <td>
-
+<p>stability parameter for soil (-)</p>
             </td>
         </tr>
         <tr>
@@ -668,7 +674,7 @@
             <td>::</td>
             <td><strong>canopy_us</strong>(mp)</td>
             <td>
-
+<p>friction velocity (ms<script type="math/tex">^{-1}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -683,7 +689,7 @@
             <td>::</td>
             <td><strong>canopy_fh</strong>(mp)</td>
             <td>
-
+<p>sensible heat flux (Wm<script type="math/tex">^{-2}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -698,7 +704,7 @@
             <td>::</td>
             <td><strong>canopy_fe</strong>(mp)</td>
             <td>
-
+<p>latent heat flux (Wm<script type="math/tex">^{-2}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -713,7 +719,7 @@
             <td>::</td>
             <td><strong>canopy_fhs</strong>(mp)</td>
             <td>
-
+<p>soil sensible heat flux (Wm<script type="math/tex">^{-2}</script>) </p>
             </td>
         </tr>
         <tr>
@@ -728,7 +734,7 @@
             <td>::</td>
             <td><strong>canopy_fes</strong>(mp)</td>
             <td>
-
+<p>soil latent heat flux (Wm<script type="math/tex">^{-2}</script>)</p>
             </td>
         </tr>
     </tbody>
