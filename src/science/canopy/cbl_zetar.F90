@@ -20,7 +20,7 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
   !
   ! This SUBROUTINE updates the value of the stability parameter \(\xi\)
   ! during the iteration loop of the Monin-Obukhov (MO) similarity theory in [[define_canopy]].  
-  ! \(xi\) quantifies the role that the surface fluxes play in setting the 
+  ! \(\xi\) quantifies the role that the surface fluxes play in setting the 
   ! efficiency of turbulent transfer from the land to the atmosphere, and hence
   ! the aerodynamic component of the resistance network for those same surface 
   ! fluxes (an implicit problem which requires iteration to solve).
@@ -41,33 +41,32 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
   !  with the [[sli_main_mod]] soil model to moderate the fluxes from the soil
   !  underneath a canopy.
   !
-  ! <br></br>
-  !
   ! `canopy_zetar` and `canopy_zetash` are initialised to `CZETA0`=0 in
   ! [[define_canopy]] and updated `NITER`(>1) times during the calculation 
   ! of the energy balance. The value of the variables at each iteration are 
   ! stored in memory to aid in the diagnosis of convergence.
   !
-  ! The outputs `canopy_zetar` and `canopy_zetash` are known as `canopy%zetar` 
-  ! and `canopy%zetash` elsewhere in the code. 
-  !
   ! A special case applies if `NITER`=2.  
   ! `canopy_zetar` and `canopy_zetash` are also bounded by the interval 
   ! `[CZETNEG, CZETPOS]`.  
+  !
+  ! The outputs `canopy_zetar` and `canopy_zetash` are known as `canopy%zetar` 
+  ! and `canopy%zetash` elsewhere in the code. 
   ! `NITER`(=4) is defined in [[cable_types_mod]]; `CZETMUL`, `CZET0`, 
   ! `CZETPOS` and `CZETNEG` in [[cable_phys_constants_mod]].
   !
   !## References
   !
-  ! Further scientific documentation is given in
   ! [Kowalczyk et al. (2006)](http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf)
   ! - section 3.1, equations 1-9. 
   ! 
   !  <br></br>
   !
-  !  *NOTE* The INTENT statements for `canopy_zetar` and `canopy_zetash` need
-  !  sorting - this code would fail strict compilation. Perhaps also need to consider
-  !  if `canopy_zetar` and `canopy_zetash` need to be (mp,NITER) or can be just (mp)
+  ! **WARNING** The INTENT statements for `canopy_zetar` and `canopy_zetash` 
+  ! need to be INTENT(INOUT): currently previous values are reset at each call 
+  ! of the subroutine. It means the initialisations in [[define_canopy]] are 
+  ! useless (the ITER=1 values are lost) and for SLI, on bare soils, 
+  !`canopy_zetash` gets crazy values for all iterations. 
   !
 
 IMPLICIT NONE
@@ -76,8 +75,8 @@ INTEGER, INTENT(IN) :: mp     !! number of land points (-)
 INTEGER, INTENT(IN) :: NITER  !! number of MO-iterations (-)
 INTEGER, INTENT(IN) :: nrb    !! number of radiation bands (-)
 
-REAL, INTENT(OUT) :: canopy_zetar(mp, NITER)  !!OUT: stability parameter \(\xi\) (-)
-REAL, INTENT(OUT) :: canopy_zetash(mp, NITER) !!OUT: as canopy_zetar for soil (-)
+REAL, INTENT(OUT) :: canopy_zetar(mp, NITER)  !!stability parameter \(\xi\) (-)
+REAL, INTENT(OUT) :: canopy_zetash(mp, NITER) !!stability parameter for soil (-)
 INTEGER, INTENT(IN) :: iter                   !! iteration counter (-)
 
 ! constants
