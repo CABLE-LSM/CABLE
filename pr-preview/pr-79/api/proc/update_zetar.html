@@ -139,46 +139,47 @@
 </h2>
     
 
-    <p>This SUBROUTINE forms part of the codebase to evaluate the surface
+    <h2>Purpose</h2>
+<p>This SUBROUTINE updates the value of the stability parameter <script type="math/tex">\xi</script>
+ during the iteration loop of the Monin-Obukhov (MO) similarity theory in <a href="../proc/define_canopy.html">define_canopy</a>.<br>
+<script type="math/tex">xi</script> quantifies the role that the surface fluxes play in setting the 
+ efficiency of turbulent transfer from the land to the atmosphere, and hence
+ the aerodynamic component of the resistance network for those same surface 
+ fluxes (an implicit problem which requires iteration to solve).</p>
+<p>This SUBROUTINE forms part of the codebase to evaluate the surface
  energy balance on a sub-diurnal basis (i.e. every CABLE time step).
  It resides in the canopy science directory.</p>
-<p>This SUBROUTINE updates the value of the stability parameter <script type="math/tex">\xi</script>
- during the iteration loop of the Monin-Obukhov (MO) similarity theory in <a href="../proc/define_canopy.html">define_canopy</a>.
- Further scientific documentation is given in
- <a href="http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf">Kowalczyk et al. (2006)</a>
- - section 3.1, equations 1-9.  </p>
+<h2>Method</h2>
 <p>The two outputs of the SUBROUTINE are:</p>
 <ul>
 <li><code>canopy_zetar</code>, the local (in space, time and by iteration counter) value of <script type="math/tex">\xi</script>
- (Equation 9). It is evaluated from the total land (soil+canopy)
- surface fluxes of momentum, sensible heat and latent heat.</li>
+  (Equation 9). It is evaluated from the total land (soil+canopy)
+  surface fluxes of momentum, sensible heat and latent heat.</li>
 <li><code>canopy_zetash</code> is the equivalent variable evaluated from the soil
- contribution to those fluxes only.  <code>canopy_zetash</code> is used in conjunction
- with the <a href="../module/sli_main_mod.html">sli_main_mod</a> soil model to moderate the fluxes from the soil
- underneath a canopy.</li>
+  contribution to those fluxes only. <code>canopy_zetash</code> is used in conjunction
+  with the <a href="../module/sli_main_mod.html">sli_main_mod</a> soil model to moderate the fluxes from the soil
+  underneath a canopy.</li>
 </ul>
-<p><code>canopy_zetar</code> and <code>canopy_zetash</code> quantify the role that the surface
- fluxes play in setting the efficiency of turbulent transfer from the land
- to the atmosphere, and hence the aerodynamic component of the resistance
- network for those same surface fluxes (an implicit problem which requires
- iteration to solve).</p>
 <p><br></br></p>
 <p><code>canopy_zetar</code> and <code>canopy_zetash</code> are initialised to <code>CZETA0</code>=0 in
- <a href="../proc/define_canopy.html">define_canopy</a> and updated <code>NITER</code>(&gt;1) times
- during the calculation of the energy balance.  The value of the variables
- at each iteration are stored in memory to aid in the diagnosis
- of convergence.</p>
-<p>The outputs <code>canopy_zetar</code> and <code>canopy_zetash</code> are known as
- <code>canopy%zetar</code> and <code>canopy%zetash</code> elsewhere
- in the code. </p>
-<p>Special cases apply if <code>NITER</code>=2, or if <code>canopy_zetar</code> or <code>canopy_zetash</code>
- exceed the prescribed upper <code>CZETPOS</code> or lower <code>CZETNEG</code> limits. <code>NITER</code>(=4)
- is defined in <a href="../module/cable_types_mod.html">cable_types_mod</a>; <code>CZETMUL</code>, <code>CZET0</code>, <code>CZETPOS</code> and
- <code>CZETNEG</code> in <a href="../module/cable_phys_constants_mod.html">cable_phys_constants_mod</a>.</p>
+ <a href="../proc/define_canopy.html">define_canopy</a> and updated <code>NITER</code>(&gt;1) times during the calculation 
+ of the energy balance. The value of the variables at each iteration are 
+ stored in memory to aid in the diagnosis of convergence.</p>
+<p>The outputs <code>canopy_zetar</code> and <code>canopy_zetash</code> are known as <code>canopy%zetar</code> 
+ and <code>canopy%zetash</code> elsewhere in the code. </p>
+<p>A special case applies if <code>NITER</code>=2.<br>
+<code>canopy_zetar</code> and <code>canopy_zetash</code> are also bounded by the interval 
+ <code>[CZETNEG, CZETPOS]</code>.<br>
+<code>NITER</code>(=4) is defined in <a href="../module/cable_types_mod.html">cable_types_mod</a>; <code>CZETMUL</code>, <code>CZET0</code>, 
+ <code>CZETPOS</code> and <code>CZETNEG</code> in <a href="../module/cable_phys_constants_mod.html">cable_phys_constants_mod</a>.</p>
+<h2>References</h2>
+<p>Further scientific documentation is given in
+ <a href="http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf">Kowalczyk et al. (2006)</a>
+ - section 3.1, equations 1-9. </p>
 <p><br></br></p>
 <p><em>NOTE</em> The INTENT statements for <code>canopy_zetar</code> and <code>canopy_zetash</code> need
- sorting - this code would fail strict compilation. Perhaps also need to consider
- if <code>canopy_zetar</code> and <code>canopy_zetash</code> need to be (mp,NITER) or can be just (mp)</p>
+  sorting - this code would fail strict compilation. Perhaps also need to consider
+  if <code>canopy_zetar</code> and <code>canopy_zetash</code> need to be (mp,NITER) or can be just (mp)</p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -233,8 +234,7 @@
             <td>::</td>
             <td><strong>canopy_zetar</strong>(mp,NITER)</td>
             <td>
-                <p>OUT: stability parameter <script type="math/tex">\xi</script>
-</p>
+                <p>OUT: stability parameter <script type="math/tex">\xi</script> (-)</p>
             </td>
         </tr>
         <tr>
@@ -249,7 +249,7 @@
             <td>::</td>
             <td><strong>iter</strong></td>
             <td>
-                <p>iteration counter</p>
+                <p>iteration counter (-)</p>
             </td>
         </tr>
         <tr>
@@ -519,7 +519,7 @@
             <td>::</td>
             <td><strong>canopy_zetash</strong>(mp,NITER)</td>
             <td>
-                <p>OUT: as canopy_zetar for soil</p>
+                <p>OUT: as canopy_zetar for soil (-)</p>
             </td>
         </tr>
         <tr>
