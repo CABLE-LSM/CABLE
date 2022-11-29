@@ -46,12 +46,12 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
   ! of the energy balance. The value of the variables at each iteration are 
   ! stored in memory to aid in the diagnosis of convergence.
   !
-  ! The outputs `canopy_zetar` and `canopy_zetash` are known as `canopy%zetar` 
-  ! and `canopy%zetash` elsewhere in the code. 
-  !
   ! A special case applies if `NITER`=2.  
   ! `canopy_zetar` and `canopy_zetash` are also bounded by the interval 
   ! `[CZETNEG, CZETPOS]`.  
+  !
+  ! The outputs `canopy_zetar` and `canopy_zetash` are known as `canopy%zetar` 
+  ! and `canopy%zetash` elsewhere in the code. 
   ! `NITER`(=4) is defined in [[cable_types_mod]]; `CZETMUL`, `CZET0`, 
   ! `CZETPOS` and `CZETNEG` in [[cable_phys_constants_mod]].
   !
