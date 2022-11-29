@@ -142,7 +142,7 @@
     <h2>Purpose</h2>
 <p>This SUBROUTINE updates the value of the stability parameter <script type="math/tex">\xi</script>
  during the iteration loop of the Monin-Obukhov (MO) similarity theory in <a href="../proc/define_canopy.html">define_canopy</a>.<br>
-<script type="math/tex">xi</script> quantifies the role that the surface fluxes play in setting the 
+<script type="math/tex">\xi</script> quantifies the role that the surface fluxes play in setting the 
  efficiency of turbulent transfer from the land to the atmosphere, and hence
  the aerodynamic component of the resistance network for those same surface 
  fluxes (an implicit problem which requires iteration to solve).</p>
@@ -160,7 +160,6 @@
   with the <a href="../module/sli_main_mod.html">sli_main_mod</a> soil model to moderate the fluxes from the soil
   underneath a canopy.</li>
 </ul>
-<p><br></br></p>
 <p><code>canopy_zetar</code> and <code>canopy_zetash</code> are initialised to <code>CZETA0</code>=0 in
  <a href="../proc/define_canopy.html">define_canopy</a> and updated <code>NITER</code>(&gt;1) times during the calculation 
  of the energy balance. The value of the variables at each iteration are 
@@ -173,13 +172,14 @@
 <code>NITER</code>(=4) is defined in <a href="../module/cable_types_mod.html">cable_types_mod</a>; <code>CZETMUL</code>, <code>CZET0</code>, 
  <code>CZETPOS</code> and <code>CZETNEG</code> in <a href="../module/cable_phys_constants_mod.html">cable_phys_constants_mod</a>.</p>
 <h2>References</h2>
-<p>Further scientific documentation is given in
- <a href="http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf">Kowalczyk et al. (2006)</a>
+<p><a href="http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf">Kowalczyk et al. (2006)</a>
  - section 3.1, equations 1-9. </p>
 <p><br></br></p>
-<p><em>NOTE</em> The INTENT statements for <code>canopy_zetar</code> and <code>canopy_zetash</code> need
-  sorting - this code would fail strict compilation. Perhaps also need to consider
-  if <code>canopy_zetar</code> and <code>canopy_zetash</code> need to be (mp,NITER) or can be just (mp)</p>
+<p><strong>WARNING</strong> The INTENT statements for <code>canopy_zetar</code> and <code>canopy_zetash</code> 
+ need to be INTENT(INOUT): currently previous values are reset at each call 
+ of the subroutine. It means the initialisations in <a href="../proc/define_canopy.html">define_canopy</a> are 
+ useless (the ITER=1 values are lost) and for SLI, on bare soils, 
+<code>canopy_zetash</code> gets crazy values for all iterations. </p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">

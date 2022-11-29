@@ -20,7 +20,7 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
   !
   ! This SUBROUTINE updates the value of the stability parameter \(\xi\)
   ! during the iteration loop of the Monin-Obukhov (MO) similarity theory in [[define_canopy]].  
-  ! \(xi\) quantifies the role that the surface fluxes play in setting the 
+  ! \(\xi\) quantifies the role that the surface fluxes play in setting the 
   ! efficiency of turbulent transfer from the land to the atmosphere, and hence
   ! the aerodynamic component of the resistance network for those same surface 
   ! fluxes (an implicit problem which requires iteration to solve).
@@ -41,8 +41,6 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
   !  with the [[sli_main_mod]] soil model to moderate the fluxes from the soil
   !  underneath a canopy.
   !
-  ! <br></br>
-  !
   ! `canopy_zetar` and `canopy_zetash` are initialised to `CZETA0`=0 in
   ! [[define_canopy]] and updated `NITER`(>1) times during the calculation 
   ! of the energy balance. The value of the variables at each iteration are 
@@ -59,15 +57,16 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
   !
   !## References
   !
-  ! Further scientific documentation is given in
   ! [Kowalczyk et al. (2006)](http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf)
   ! - section 3.1, equations 1-9. 
   ! 
   !  <br></br>
   !
-  !  *NOTE* The INTENT statements for `canopy_zetar` and `canopy_zetash` need
-  !  sorting - this code would fail strict compilation. Perhaps also need to consider
-  !  if `canopy_zetar` and `canopy_zetash` need to be (mp,NITER) or can be just (mp)
+  ! **WARNING** The INTENT statements for `canopy_zetar` and `canopy_zetash` 
+  ! need to be INTENT(INOUT): currently previous values are reset at each call 
+  ! of the subroutine. It means the initialisations in [[define_canopy]] are 
+  ! useless (the ITER=1 values are lost) and for SLI, on bare soils, 
+  !`canopy_zetash` gets crazy values for all iterations. 
   !
 
 IMPLICIT NONE
