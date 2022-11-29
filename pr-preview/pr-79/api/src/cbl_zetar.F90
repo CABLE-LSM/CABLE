@@ -75,8 +75,8 @@ INTEGER, INTENT(IN) :: mp     !! number of land points (-)
 INTEGER, INTENT(IN) :: NITER  !! number of MO-iterations (-)
 INTEGER, INTENT(IN) :: nrb    !! number of radiation bands (-)
 
-REAL, INTENT(OUT) :: canopy_zetar(mp, NITER)  !!OUT: stability parameter \(\xi\) (-)
-REAL, INTENT(OUT) :: canopy_zetash(mp, NITER) !!OUT: as canopy_zetar for soil (-)
+REAL, INTENT(OUT) :: canopy_zetar(mp, NITER)  !!stability parameter \(\xi\) (-)
+REAL, INTENT(OUT) :: canopy_zetash(mp, NITER) !!stability parameter for soil (-)
 INTEGER, INTENT(IN) :: iter                   !! iteration counter (-)
 
 ! constants
