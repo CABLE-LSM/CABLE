@@ -56,7 +56,8 @@ nav:
   - About: 
     - index.md
   - User Guide:
-    - Uber Quick Guide: uber_quick_guide.md
+    - user_guide/index.md
+    - Uber Quick Guide: user_guide/uber_quick_guide.md
     - Installation: user_guide/install.md
     - Tutorial:
       - Understand the configuration: user_guide/tutorial/configuration_desc.md

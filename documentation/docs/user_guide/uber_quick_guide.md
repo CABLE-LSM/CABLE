@@ -30,4 +30,4 @@ ACCESS-CM2 uses a version of CABLE that is closer to the HEAD of the trunk at th
 For a more detailed discussion of CABLE offline please see the other sections of the [Cable's User Guide][userguide].
 
 [fluxnet-tumba]: http://sites.fluxdata.org/AU-Tum/
-[userguide]: install.md
+[userguide]: index.md
