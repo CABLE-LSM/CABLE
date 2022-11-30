@@ -41,6 +41,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://cable-lsm.github.io/CABLE/user_guide/</loc>
+         <lastmod>2022-11-30</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://cable-lsm.github.io/CABLE/user_guide/install/</loc>
          <lastmod>2022-11-30</lastmod>
          <changefreq>daily</changefreq>
