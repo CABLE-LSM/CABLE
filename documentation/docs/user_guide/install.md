@@ -101,4 +101,4 @@ To clean the build, you need to run:
 [registration]: https://trac.nci.org.au/trac/cable/wiki/CABLE_Registration
 [build3]: https://trac.nci.org.au/svn/cable/trunk/offline/build3.sh
 [makefile]: https://trac.nci.org.au/svn/cable/trunk/offline/Makefile
-[clean-build]: compilation.md/#cleaning-the-build
+[clean-build]: install.md/#cleaning-the-build
