@@ -44,7 +44,14 @@ markdown_extensions:
       generic: true
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
+  - def_list
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
 
 extra_javascript:
   - javascripts/mathjax.js
@@ -78,6 +85,7 @@ nav:
   - POP-TRENDY: POP-TRENDY/index.md
   - Developer Guide:
     - CABLE's Contribution guidelines: developer_guide/contribution.md
+    - Contribution flowchart: developer_guide/contribution_flowchart.md
     - Coding standards: developer_guide/coding_standards.md
     - CABLE's release process: developer_guide/release.md
     - API documentation: developer_guide/api.md
