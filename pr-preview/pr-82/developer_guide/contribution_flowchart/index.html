@@ -1339,44 +1339,44 @@
       classDef question fill:#6D4C41, stroke:#3E2723, color:#FFFFFF; 
 
 ;</code></pre>
-<h2 id="clone-repository">Clone repository</h2>
+<h2 id="clone-repository"><strong>Clone repository</strong></h2>
 <p><img alt="clone" src="../../assets/clone.png" />
 Clone the repository to your local working space. Make sure to choose the appropriate protocol (HTTPS or SSH) for connecting to the remote repository. Note, you need to setup an access token to use HTTPS and SSH keys to use SSH.</p>
-<h2 id="open-issue">Open issue</h2>
+<h2 id="open-issue"><strong>Open issue</strong></h2>
 <p><img alt="issue" src="../../assets/issue.png" />
 Before starting new work, open an issue to explain what you are planning on working on. This avoid potential duplication of effort.</p>
-<h2 id="create-a-branch">Create a branch</h2>
+<h2 id="create-a-branch"><strong>Create a branch</strong></h2>
 <p><img alt="newbranch" src="../../assets/newbranch.png" />
 From the issue screen on GitHub, you can directly create a branch for that issue from the option in the right-hand side menu. GitHub suggests a branch name you can edit, but please keep the issue number in the branch name.</p>
-<h2 id="fetch-the-branch-locally">Fetch the branch locally</h2>
+<h2 id="fetch-the-branch-locally"><strong>Fetch the branch locally</strong></h2>
 <p>You have created a branch on the GitHub repository (aka the remote repository), you now need to update the repository on your work space with that information:</p>
 <div class="highlight"><pre><span></span><code>git fetch
 </code></pre></div>
-<h2 id="create-the-local-branch">Create the local branch</h2>
+<h2 id="create-the-local-branch"><strong>Create the local branch</strong></h2>
 <p>You want the local branch to sync with the remote branch you have created previously. For this, use <code>git checkout</code> with the name of the branch you have created:</p>
 <div class="highlight"><pre><span></span><code>git checkout &lt;branchname&gt;
 </code></pre></div>
-<h2 id="commit-your-edits">Commit your edits</h2>
+<h2 id="commit-your-edits"><strong>Commit your edits</strong></h2>
 <p>You need to record your edits in git, this is called <code>commit</code>. It is recommended to do this regularly as it gives some safety to reverse changes:</p>
 <div class="highlight"><pre><span></span><code>git commit -a -m <span class="s2">&quot;your commit message&quot;</span>
 </code></pre></div>
-<h2 id="push-your-edits-to-the-remote-repository">Push your edits to the remote repository</h2>
+<h2 id="push-your-edits-to-the-remote-repository"><strong>Push your edits to the remote repository</strong></h2>
 <p>It is recommended to push your changes back to the remote repository often as it provides a backup of the work, the ability to work from different computers and makes it easier to collaborate on some development:</p>
 <div class="highlight"><pre><span></span><code>git push
 </code></pre></div>
 <p>The first time you push back some work on a branch, consider opening a pull request. This allows potential collaborators or helpers to find your work easily.</p>
 <p><img alt="pr" src="../../assets/pr.png" /></p>
 <p>You can update the pull request by simply pushing more commits to the same branch.</p>
-<h2 id="check-the-preview">Check the preview</h2>
+<h2 id="check-the-preview"><strong>Check the preview</strong></h2>
 <p>The pull request will build a preview of your work <em>merged</em> with the main branch of the repository. Please check that your work is rendered correctly. Once a preview is ready, you will see the following comment in the pull request providing the path to the preview:</p>
 <p><img alt="preview" src="../../assets/preview.png" /></p>
 <p>To preview changes to the API documentation (ie. documentation in the CABLE source code), you need to append <code>/api</code> to the path provided.</p>
-<h2 id="ask-for-review">Ask for review</h2>
+<h2 id="ask-for-review"><strong>Ask for review</strong></h2>
 <p><img alt="review" src="../../assets/review.png" /></p>
 <p>Once you are satisfied with your work, ask for a review. By putting a submission in, you are responsible for being responsive to any comments or edit changes suggested by the reviewer. Remember your work will not be accepted into the main deployment branch until a reviewer approves it.</p>
-<h2 id="merge-your-branch">Merge your branch</h2>
+<h2 id="merge-your-branch"><strong>Merge your branch</strong></h2>
 <p>Once the reviewer(s) has(have) accepted your changes, you can merge your work into the main branch. Feel free to choose the merge method you prefer. "Merging" is the simplest and should be used if you don't understand what the other methods do.</p>
-<h2 id="update-your-local-repository">Update your local repository</h2>
+<h2 id="update-your-local-repository"><strong>Update your local repository</strong></h2>
 <p>Finally, don't forget to update your local repository to sync the main branch with the state of the remote repository. For this, you need to checkout main and then pull from the remote repository:</p>
 <div class="highlight"><pre><span></span><code>git checkout main
 git pull
