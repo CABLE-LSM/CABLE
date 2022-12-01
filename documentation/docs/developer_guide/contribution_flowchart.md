@@ -8,22 +8,15 @@ hide:
 ```mermaid
    %% Create a graph for the legend of the main graph
    flowchart LR
-      blank1[" "]
       uniq[action done <br> only once ever <br> at the start <br> to get the code locally]:::uniq;
-      blank2[" "]
+      sevterm[action done <br> several times per issue <br> in a terminal/text editor]:::term;
+      sevgit[action done <br> several times per issue <br> on GitHub]:::github;
+      onceterm([action done <br> once per issue <br> in a terminal/text editor]):::term;
+      oncegit([action done <br> once per issue <br> on GitHub]):::github;
+      question[\question with multiple outcomes/]:::question;
 
-      blank1---uniq;
-      subgraph Legend
-         sevterm[action done <br> several times per issue <br> in a terminal/text editor]:::term;
-         sevgit[action done <br> several times per issue <br> on GitHub]:::github;
-         onceterm([action done <br> once per issue <br> in a terminal/text editor]):::term;
-         oncegit([action done <br> once per issue <br> on GitHub]):::github;
-         question[\question with multiple outcomes/]:::question;
-
-         uniq --- sevterm --- sevgit --- question;
-         uniq --- onceterm --- oncegit --- question;
-      end
-      question --- blank2
+      uniq --- sevterm --- sevgit --- question;
+      uniq --- onceterm --- oncegit --- question;
 
       classDef default fill:#FFFDE7, stroke:#FFF59D;
       classDef uniq fill:#D81B60, stroke:#880E4F, color:#FFFFFF;
