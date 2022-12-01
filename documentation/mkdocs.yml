@@ -52,6 +52,9 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
+  - attr_list
+  - md_in_html
+
 
 extra_javascript:
   - javascripts/mathjax.js
