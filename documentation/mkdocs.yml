@@ -58,7 +58,7 @@ nav:
   - User Guide:
     - user_guide/index.md
     - Uber Quick Guide: user_guide/uber_quick_guide.md
-    - Installation: user_guide/install.md
+    - Installation: user_guide/installation.md
     - Tutorial:
       - Understand the configuration: user_guide/tutorial/configuration_desc.md
       - Run an experiment: user_guide/tutorial/run_cable.md
@@ -68,7 +68,8 @@ nav:
       - cable.nml options: user_guide/inputs/cable_nml.md
       - pft_params.nml options: user_guide/inputs/pft_params_nml.md
       - cable_soilparm.nml options: user_guide/inputs/cable_soilparm_nml.md
-    - Outputs description: user_guide/outputs_desc.md
+    - Outputs description: 
+      - user_guide/outputs/index.md
     - Existing configurations: user_guide/configurations/config.md
     - Scientific description: 
       - Radiation: user_guide/science/radiation.md
