@@ -1264,22 +1264,15 @@
 <h1 id="flowchart-to-contribute-to-cables-documentation">Flowchart to contribute to CABLE's documentation</h1>
 <pre class="mermaid"><code>   %% Create a graph for the legend of the main graph
    flowchart LR
-      blank1[" "]
       uniq[action done &lt;br&gt; only once ever &lt;br&gt; at the start &lt;br&gt; to get the code locally]:::uniq;
-      blank2[" "]
+      sevterm[action done &lt;br&gt; several times per issue &lt;br&gt; in a terminal/text editor]:::term;
+      sevgit[action done &lt;br&gt; several times per issue &lt;br&gt; on GitHub]:::github;
+      onceterm([action done &lt;br&gt; once per issue &lt;br&gt; in a terminal/text editor]):::term;
+      oncegit([action done &lt;br&gt; once per issue &lt;br&gt; on GitHub]):::github;
+      question[\question with multiple outcomes/]:::question;
 
-      blank1---uniq;
-      subgraph Legend
-         sevterm[action done &lt;br&gt; several times per issue &lt;br&gt; in a terminal/text editor]:::term;
-         sevgit[action done &lt;br&gt; several times per issue &lt;br&gt; on GitHub]:::github;
-         onceterm([action done &lt;br&gt; once per issue &lt;br&gt; in a terminal/text editor]):::term;
-         oncegit([action done &lt;br&gt; once per issue &lt;br&gt; on GitHub]):::github;
-         question[\question with multiple outcomes/]:::question;
-
-         uniq --- sevterm --- sevgit --- question;
-         uniq --- onceterm --- oncegit --- question;
-      end
-      question --- blank2
+      uniq --- sevterm --- sevgit --- question;
+      uniq --- onceterm --- oncegit --- question;
 
       classDef default fill:#FFFDE7, stroke:#FFF59D;
       classDef uniq fill:#D81B60, stroke:#880E4F, color:#FFFFFF;
