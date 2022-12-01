@@ -53,20 +53,23 @@ extra_javascript:
   
 # Navigation
 nav:
-  - About: index.md
+  - About: 
+    - index.md
   - User Guide:
+    - user_guide/index.md
+    - Uber Quick Guide: user_guide/uber_quick_guide.md
+    - Installation: user_guide/installation.md
     - Tutorial:
-      - Uber Quick Guide: user_guide/tutorial/uber_quick_guide.md
-      - Install and compilation: user_guide/tutorial/compilation.md
       - Understand the configuration: user_guide/tutorial/configuration_desc.md
       - Run an experiment: user_guide/tutorial/run_cable.md
-      - Outputs description: user_guide/tutorial/outputs_desc.md
     - Inputs description:
       - List of inputs: user_guide/inputs/list_inputs.md
       - Inputs precedence rules: user_guide/inputs/precedence.md
       - cable.nml options: user_guide/inputs/cable_nml.md
       - pft_params.nml options: user_guide/inputs/pft_params_nml.md
       - cable_soilparm.nml options: user_guide/inputs/cable_soilparm_nml.md
+    - Outputs description: 
+      - user_guide/outputs/index.md
     - Existing configurations: user_guide/configurations/config.md
     - Scientific description: 
       - Radiation: user_guide/science/radiation.md
