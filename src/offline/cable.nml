@@ -15,7 +15,7 @@
    output%restart = .TRUE.  ! should a restart file be created?
    output%met = .TRUE.  ! input met data
    output%flux = .TRUE.  ! convective, runoff, NEE
-   output%soil = .TRUE.  ! soil states
+   output%soil = .FALSE.  !see #354 soil statescrews up dimensions for ferret
    output%snow = .TRUE.  ! snow states
    output%radiation = .TRUE.  ! net rad, albedo
    output%carbon    = .TRUE.  ! NEE, GPP, NPP, stores

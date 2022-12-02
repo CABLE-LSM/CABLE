@@ -55,7 +55,8 @@ MODULE cable_input_module
   USE netcdf ! link must be made in cd to netcdf-x.x.x/src/f90/netcdf.mod
   USE cable_common_module, ONLY : filename, cable_user, CurYear, is_leapyear
   USE casa_ncdf_module, ONLY: HANDLE_ERR
-  USE casa_inout_module, ONLY: casa_readbiome, casa_readphen, casa_init
+  USE casa_inout_module, ONLY: casa_readphen, casa_init
+  USE casa_readbiome_module, ONLY: casa_readbiome
 
   IMPLICIT NONE
 
