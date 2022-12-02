@@ -43,7 +43,7 @@ MODULE cable_input_module
   USE casavariable
   USE casaparm, ONLY: forest, shrub
   USE phenvariable
-  !! vh_js !!
+  ! vh_js !
   USE POP_Types,               ONLY: POP_TYPE
   USE POPLUC_Types,               ONLY: POPLUC_TYPE
   USE cable_param_module
@@ -389,7 +389,7 @@ CONTAINS
        ELSE
          WRITE(logn,*) 'Opening met data file: ', TRIM(gswpfile%rainf), ' and 7 more'
        ENDIF
- 
+
        IF( globalMetfile%l_gpcc ) THEN
        ok = NF90_OPEN(globalMetfile%rainf,0,ncid_rain)
        ELSE
@@ -406,7 +406,7 @@ CONTAINS
             CALL handle_err( ok )
          ENDIF
        ENDIF
-       
+
        IF( globalMetfile%l_gpcc ) THEN
        ok = NF90_OPEN(globalMetfile%LWdown,0,ncid_lw)
        ELSE
@@ -416,7 +416,7 @@ CONTAINS
           PRINT*,'lw'
           CALL handle_err( ok )
        ENDIF
-       
+
        IF( globalMetfile%l_gpcc ) THEN
        ok = NF90_OPEN(globalMetfile%SWdown,0,ncid_sw)
        ELSE
@@ -426,7 +426,7 @@ CONTAINS
           PRINT*,'sw'
           CALL handle_err( ok )
        ENDIF
-       
+
        IF( globalMetfile%l_gpcc ) THEN
        ok = NF90_OPEN(globalMetfile%PSurf,0,ncid_ps)
        ELSE
@@ -436,7 +436,7 @@ CONTAINS
           PRINT*,'ps'
           CALL handle_err( ok )
        ENDIF
-       
+
        IF( globalMetfile%l_gpcc ) THEN
        ok = NF90_OPEN(globalMetfile%Qair,0,ncid_qa)
        ELSE
@@ -446,7 +446,7 @@ CONTAINS
           PRINT*,'qa'
           CALL handle_err( ok )
        ENDIF
-       
+
        IF( globalMetfile%l_gpcc ) THEN
        ok = NF90_OPEN(globalMetfile%Tair,0,ncid_ta)
        ELSE
@@ -456,7 +456,7 @@ CONTAINS
           PRINT*,'ta'
           CALL handle_err( ok )
        ENDIF
-       
+
        IF( globalMetfile%l_gpcc ) THEN
        ok = NF90_OPEN(globalMetfile%wind,0,ncid_wd)
        ELSE
@@ -485,7 +485,7 @@ CONTAINS
             ' (SUBROUTINE open_met_file)')
     ENDIF
 
-    !!=====================VV Determine spatial details VV=================
+    !=====================VV Determine spatial details VV=================
     ! Determine number of sites/gridcells.
     ! Find size of 'x' or 'lon' dimension:
     ok = NF90_INQ_DIMID(ncid_met,'x', xdimID)
@@ -727,9 +727,9 @@ CONTAINS
          CALL abort('Latitudes read from '//TRIM(filename%met)// &
          ' are not [-90,90]! Please set.')
 
-    !!=================^^ End spatial details ^^========================
+    !=================^^ End spatial details ^^========================
 
-    !!=========VV Determine simulation timing details VV================
+    !=========VV Determine simulation timing details VV================
     ! Inquire 'time' variable's ID:
     CALL find_metvarid(ncid_met, possible_varnames%TimeNames, timevarID, ok)
     IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -765,21 +765,21 @@ CONTAINS
     ! if kend > # days in selected episode
 
 
-    !********* gswp input file has bug in timevar **************
+    !========= gswp input file has bug in timevar ==========
     IF (ncciy > 0) THEN
        PRINT *, 'original timevar(kend) = ', timevar(kend)
        DO i = 1, kend - 1
           timevar(i+1) = timevar(i) + dels
        ENDDO
        PRINT *, 'New      timevar(kend) = ', timevar(kend)
-       !! hacking (BP feb2011)
+       ! hacking (BP feb2011)
        !      kend = 16   ! 2 days for 1986
-       !!      kend = 480  ! 2 months for 1986
+       ! !    kend = 480  ! 2 months for 1986
        !      PRINT *, 'Hacked   timevar(kend) = ', timevar(kend)
        !      PRINT *, 'Hacked kend = ', kend
-       !! end hacking
+       ! end hacking
     END IF
-    !********* done bug fixing for timevar in gswp input file **
+    !=========== done bug fixing for timevar in gswp input file ==
 
     ! Write time step size to log file:
     WRITE(logn,'(1X,A17,F8.1,1X,A7)') 'Time step size:  ', dels, 'seconds'
@@ -802,9 +802,9 @@ CONTAINS
          (ok,'Error finding time variable units in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
 
-    !****** PALS met file has timevar(1)=0 while timeunits from 00:30:00 ******
-    !!CLN CRITICAL! From my point of view, the information in the file is correct...
-    !!CLN WHY DO the input files all have bugs???
+    !===== PALS met file has timevar(1)=0 while timeunits from 00:30:00 ====
+    !CLN CRITICAL! From my point of view, the information in the file is correct...
+    !CLN WHY DO the input files all have bugs???
     IF (timevar(1) == 0.0) THEN
        READ(timeunits(29:30),*) tsmin
        IF (tsmin*60.0 >= dels) THEN
@@ -813,11 +813,11 @@ CONTAINS
           WRITE(timeunits(29:30),'(i2.2)') tsmin
        ENDIF
     ENDIF
-    !****** done bug fixing for timevar in PALS met file **********************
+    !===== done bug fixing for timevar in PALS met file ===============
 
-    !********* gswp input file has bug in timeunits ************
+    !===== gswp input file has bug in timeunits ===========
     IF (ncciy > 0) WRITE(timeunits(26:27),'(i2.2)') 0
-    !********* done bug fixing for timeunits in gwsp file ******
+    !===== done bug fixing for timeunits in gwsp file ========
     WRITE(logn,*) 'Time variable units: ', timeunits
     ! Get coordinate field:
     ok = NF90_GET_ATT(ncid_met,timevarID,'coordinate',time_coord)
@@ -856,7 +856,7 @@ CONTAINS
 
     ! if site data, shift start time to middle of timestep
     ! only do this if not already at middle of timestep
-    !! vh_js !!
+    ! vh_js !
     IF ((TRIM(cable_user%MetType).EQ.'' .OR. &
          TRIM(cable_user%MetType).EQ.'site').AND. MOD(shod*3600, dels)==0 .AND. &
          (shod.GT.dels/3600./2.) ) THEN
@@ -961,15 +961,15 @@ CONTAINS
     WRITE(logn,'(1X,A12,F5.2,A14,I3,A14,I4,2X,A3,1X,A4)') 'Run ends:   ',&
          ehod,' hour-of-day, ',edoy, &
          ' day-of-year, ', eyear, time_coord, 'time'
-    !!===================^^ End timing details ^^==========================
+    !===================^^ End timing details ^^==========================
 
-    !!===================VV Look for met variables VV======================
+    !===================VV Look for met variables VV======================
     all_met = .TRUE. ! initialise
     ! Look for SWdown (essential):- - - - - - - - - - - - - - - - - -
     IF (ncciy > 0) ncid_met = ncid_sw
 
    ! option was added by Chris Lu to allow for different variable names between GPCC and GSWP forcings
-   ! added by ypwang 30/oct/2012 
+   ! added by ypwang 30/oct/2012
     CALL find_metvarid(ncid_met, possible_varnames%SWdownNames, id%SWdown, ok)
 
     IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -980,7 +980,7 @@ CONTAINS
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error finding SWdown units in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
-    !! vh_js !! fixed bug in logic
+    ! vh_js ! fixed bug in logic
     IF(.NOT.(metunits%SWdown(1:4)/='W/m2'.OR.metunits%SWdown(1:5) &
          /='W/m^2'.OR.metunits%SWdown(1:5)/='Wm^-2' &
          .OR.metunits%SWdown(1:4)/='Wm-2'.OR.metunits%SWdown(1:5) /= 'W m-2')) THEN
@@ -1111,10 +1111,10 @@ CONTAINS
        IF(ok /= NF90_NOERR) CALL nc_abort &
             (ok,'Error finding LWdown units in met data file ' &
             //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
-       !! vh_js !! fixed bug in logic
-!!$       IF(metunits%LWdown(1:4)/='W/m2'.AND.metunits%LWdown(1:5) &
-!!$            /='W/m^2'.AND.metunits%LWdown(1:5)/='Wm^-2' &
-!!$            .AND.metunits%LWdown(1:4)/='Wm-2') THEN
+       ! vh_js ! fixed bug in logic
+!$       IF(metunits%LWdown(1:4)/='W/m2'.AND.metunits%LWdown(1:5) &
+!$            /='W/m^2'.AND.metunits%LWdown(1:5)/='Wm^-2' &
+!$            .AND.metunits%LWdown(1:4)/='Wm-2') THEN
        IF(.NOT.(metunits%LWdown(1:4)/='W/m2'.OR.metunits%LWdown(1:5) &
             /='W/m^2'.OR.metunits%LWdown(1:5)/='Wm^-2' &
             .OR.metunits%LWdown(1:4)/='Wm-2'.OR.metunits%SWdown(1:5) /= 'W m-2')) THEN
@@ -1447,7 +1447,7 @@ CONTAINS
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
 
               IF(exists%patch) then
-       
+
                 !Anna: also read patch fractions
                 ok= NF90_GET_VAR(ncid_met,id%patchfrac,vegpatch_metfile(i,:), &
                      start=(/land_x(i),land_y(i),1/),count=(/1,1,nmetpatches/))
@@ -1502,7 +1502,7 @@ CONTAINS
     ELSE
        NULLIFY(vegtype_metfile)
        IF(exists%patch) NULLIFY(vegpatch_metfile)
-       
+
     END IF
 
     ! Look for soil type:
@@ -1571,7 +1571,7 @@ CONTAINS
             ' some synthesised (as above).'
     END IF
 
-    !!=================^^ End met variables search^^=======================
+    !=================^^ End met variables search^^=======================
   END SUBROUTINE open_met_file
   !==============================================================================
   !
@@ -1731,7 +1731,7 @@ CONTAINS
           met%doy(landpt(i)%cstart) = met%doy(landpt(i)%cstart) + 1
           met%hod(landpt(i)%cstart) = met%hod(landpt(i)%cstart) - 24.0
           ! If a leap year AND we're using leap year timing:
-          !! vh_js !! use is_leapyear function here instead of multiple conditions
+          ! vh_js ! use is_leapyear function here instead of multiple conditions
           IF (is_leapyear(met%year(landpt(i)%cstart))) THEN
              SELECT CASE(INT(met%doy(landpt(i)%cstart)))
              CASE(32) ! Feb
@@ -2446,7 +2446,7 @@ CONTAINS
        ELSE
           ! If not in met file, use default LAI value:
           DO i=1,mland ! over all land points/grid cells
-             !! vh_js !! corrected indices of defaultLAI
+             ! vh_js ! corrected indices of defaultLAI
              veg%vlai(landpt(i)%cstart:landpt(i)%cend) =  &
                   defaultLAI(landpt(i)%cstart:landpt(i)%cend,met%moy(landpt(i)%cstart))
 
@@ -2560,6 +2560,19 @@ CONTAINS
        sum_flux,bal,logn,vegparmnew,casabiome,casapool,    &
        casaflux,sum_casapool, sum_casaflux,casamet,casabal,phen,POP,spinup,EMSOIL, &
        TFRZ, LUC_EXPT, POPLUC)
+    !* Defines the priority order of sources of parameter
+    ! values for CABLE, determines the total number of patches over all grid
+    ! cells, and writes parameter values to CABLE's parameter arrays.
+    !
+    ! **WARNING:** this needs reordering and tweaking to (a) remove the
+    ! possibility of inconsistencies between the number of patches in the
+    ! default parameter grid and a restart file, and (b) allow vegetation and
+    ! soil type to be forced from the met file (this is more complicated than
+    ! simply uncommenting the iveg and isoil reads from the met file - it
+    ! requires the actual parameter values to be written after that read).
+    !
+    ! ### Order of processes:
+
     ! Input variables not listed:
     !   filename%type  - via cable_IO_vars_module
     !   exists%type    - via cable_IO_vars_module
@@ -2568,7 +2581,8 @@ CONTAINS
     !   (determined here or from sub get_default_params <- countPatch)
     !   landpt%type    - via cable_IO_vars_module (nap,cstart,cend,ilon,ilat)
     !   max_vegpatches - via cable_IO_vars_module
-    !! vh_js !!
+
+    ! vh_js !
     USE POPmodule, ONLY: POP_INIT
     USE POPLUC_module, ONLY: POPLUC_INIT
     USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE
@@ -2602,7 +2616,7 @@ CONTAINS
     INTEGER,INTENT(IN)                      :: logn     ! log file unit number
     LOGICAL,INTENT(IN)                      :: &
          vegparmnew, &  ! are we using the new format?
-                                !! vh_js !!
+                                ! vh_js !
          spinup         ! for POP (initialize pop)
     REAL, INTENT(IN) :: TFRZ, EMSOIL
 
@@ -2615,14 +2629,14 @@ CONTAINS
          mpID,              &
          napID,             &
          i , j                   ! do loop variables
-    !! vh_js !!
+    ! vh_js !
     ! CHARACTER :: frst_in*100, CYEAR*4
     CHARACTER :: frst_in*200, CYEAR*4
 
     INTEGER   :: IOS
     CHARACTER :: TACC*20
     INTEGER,DIMENSION(:), ALLOCATABLE :: ALLVEG
-    !! vh_js !!
+    ! vh_js !
     INTEGER :: mp_POP
     INTEGER, DIMENSION(:), ALLOCATABLE :: Iwood
 
@@ -2637,7 +2651,20 @@ CONTAINS
     ! They will be overwritten by values from the restart file, if present.
     ! Those variables found in the met file will again overwrite existing ones.
 
+    !| 1. Load parameter values for each grid cell from default vegetation and
+    ! soil types based on latitude and longitude. This includes determining
+    ! the number of patches in each grid cell, and so the total number of
+    ! patches.
     CALL get_default_params(logn,vegparmnew,LUC_EXPT)
+
+
+    !| 2. Allocate CABLE (and CASA's [+phenology], if used) variables now that
+    ! the dimension of arrays is known - i.e. now that we know how many grid
+    ! cells and patches there are.
+    !     - **WARNING:** I think this allocation should happen after ALL 
+    ! parameter and restart information has been loaded. As it stands, I think
+    ! there is the potential for the restart file to contain variables of a 
+    ! different dimension to what is declared here.
     CALL allocate_cable_vars(air,bgc,canopy,met,bal,rad,rough,soil,ssnow, &
          sum_flux,veg,mp)
     WRITE(logn,*) ' CABLE variables allocated with ', mp, ' patch(es).'
@@ -2651,23 +2678,29 @@ CONTAINS
        CALL alloc_phenvariable(phen,mp)
     ENDIF
 
-    ! Write parameter values to CABLE's parameter variables:
+    !> 3. Assign the loaded parameter values to CABLE's parameter variables
     CALL write_default_params(met,air,ssnow,veg,bgc,soil,canopy,rough, &
          rad,logn,vegparmnew,smoy, TFRZ, LUC_EXPT)
-
-
 
     ! Zero out lai where there is no vegetation acc. to veg. index
     WHERE ( veg%iveg(:) .GE. 14 ) veg%vlai = 0.
 
-    IF (icycle > 0) THEN
+   !| 4. [IF CASA is being used] Assign the CASA parameters from CABLE
+   ! parameters
+   !     - **WARNING:** again this should happen after the restart file and met
+   ! file information has been used to define CABLE parameters, otherwise
+   ! they could be out of sync.
+   IF (icycle > 0) THEN
        CALL write_cnp_params(veg,casaflux,casamet)
+
        CALL casa_readbiome(veg,soil,casabiome,casapool,casaflux, &
             casamet,phen)
        IF (cable_user%PHENOLOGY_SWITCH.EQ.'MODIS') CALL casa_readphen(veg,casamet,phen)
 
+       !> 5. [IF CASA is being used] Initialise CASA state variables
        CALL casa_init(casabiome,casamet,casaflux,casapool,casabal,veg,phen)
-       !! vh_js !!
+
+       ! vh_js !
        IF ( CABLE_USER%CALL_POP ) THEN
           ! evaluate mp_POP and POP_array
           mp_POP = COUNT(casamet%iveg2==forest)+COUNT(casamet%iveg2==shrub)
@@ -2731,7 +2764,10 @@ CONTAINS
        WRITE(*,*)    ' Overwriting initialisations with values in ', &
             'restart file: ', TRIM(frst_in)
 
-       ! Check total number of patches in restart file:
+      !| 6. Check that the total number of patches in the restart file matches
+      ! the total number of patches from the default grid (abort if not).
+      !     - **WARNING:** if a restart file exists, it should define the total
+      ! number of patches, not the default grid.
        ok = NF90_INQ_DIMID(ncid_rin,'mp',mpID)
        IF(ok /= NF90_NOERR) THEN
           ok = NF90_INQ_DIMID(ncid_rin,'mp_patch',mpID)
@@ -2751,7 +2787,8 @@ CONTAINS
             'to number in default/met file settings. (SUB load_parameters) ' &
             //'Recommend running without restart file.')
 
-       ! Load initialisations and parameters from restart file:
+       !| 7. Load initialisations and parameter values from restart file, and
+       ! overwrite default values with these.
        CALL get_restart_data(logn,ssnow,canopy,rough,bgc,bal,veg, &
             soil,rad,vegparmnew, EMSOIL )
 
@@ -2765,7 +2802,8 @@ CONTAINS
        WRITE(*,*)    ' Pre-loaded default initialisations are used.'
     END IF ! if restart file exists
 
-    ! Overwrite default values by those available in met file:
+    !| 8. Overwrite parameter values with any found in the met forcing file.
+    ! This could be just a subset of parameters.
     CALL get_parameters_met(soil,veg,bgc,rough,completeSet)
 
     ! Results of looking for parameters in the met file:
@@ -2788,14 +2826,15 @@ CONTAINS
     END IF
     WRITE(logn,*)
 
-    ! Construct derived parameters and zero initialisations, regardless
-    ! of where parameters and other initialisations have loaded from:
+    !| 9. Construct derived parameters and zero initialisations for the
+    ! groundwater routine, regardless of where parameters and other
+    ! initialisations have loaded from
     CALL derived_parameters(soil,sum_flux,bal,ssnow,veg,rough)
 
-    ! Check for basic inconsistencies in parameter values:
+    !> 10. Check for basic inconsistencies in parameter values
     CALL check_parameter_values(soil,veg,ssnow)
 
-    ! Write per-site parameter values to log file if requested:
+    !> 11. Write per-site parameter values to log file if requested
     CALL report_parameters(logn,soil,veg,bgc,rough,ssnow,canopy, &
          casamet,casapool,casaflux,phen,vegparmnew,verbose)
 
@@ -2820,13 +2859,27 @@ CONTAINS
   !==============================================================================
 
   SUBROUTINE get_parameters_met(soil,veg,bgc,rough,completeSet)
-
+    !* Searches for CABLE parameters in the met forcing
+    ! file, and if it finds any, uses these values to overwrite the values that
+    ! have already been loaded from the default parameter loading and/or the
+    ! restart file.
+    !
+    ! **WARNING:** The ability to set vegetation and soil type from the met
+    ! file has been commented out here, so site based simulations can only have
+    ! the default vegetation type - this is clearly problematic. To fix this
+    ! issue, the parameter loading needs to be reordered a little, so that if
+    ! the default veg or soil type is set here, the parameter values themselves
+    ! are actually written as a result of this.
+    !
+    ! **WARNING:** The list of parameters searched for here is not complete
+    ! for all CABLE applications. Not too urgent to fix if people don't often
+    ! add parameters to the met file, but more important for detailed site-based
+    ! process studies.
     TYPE (soil_parameter_type), INTENT(INOUT) :: soil
     TYPE (veg_parameter_type), INTENT(INOUT)  :: veg
     TYPE (bgc_pool_type), INTENT(INOUT)       :: bgc
     TYPE (roughness_type), INTENT(INOUT)      :: rough
     LOGICAL, INTENT(OUT)                      :: completeSet ! were all pars found?
-
     ! Local variables
     INTEGER                              :: parID ! parameter's netcdf ID
 
@@ -2845,6 +2898,7 @@ CONTAINS
     !    END IF
 
     completeSet=.TRUE. ! initialise (assume all param will load from met file)
+    ! Will be changed in readpar if not all are loaded.
 
     ! Get parameter values:
     ! Arguments: netcdf file ID; parameter name; complete set check;

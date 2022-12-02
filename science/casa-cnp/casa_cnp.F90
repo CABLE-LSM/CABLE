@@ -175,16 +175,22 @@ CONTAINS
 
 
   SUBROUTINE casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LALLOC)
-    ! compute fraction of net photosynthate allocated to leaf, wood and froot
+    !* Computes the fraction of net photosynthate allocated to leaf, wood 
+    ! and froot using an allocation scheme modified from 
+    ! [Pierre Friedlingstein](https://doi.org/10.1046/j.1365-2486.1999.00269.x).
     !
-    ! inputs
-    !   moistavg(mp)           as an argument (volume fraction)
-    !   tsoilavg(mp)           as an argument (K)
-    !   btran(mp)              as an argument (dimensionless)
-    ! outputs:
-    !   fracCalloc(mp,mplant1)
+    ! Implementation by Qian Zhang and Ying Ping Wang in 2005
+
+    ! Inputs:
     !
-    ! modified Piere's alocation scheme
+    ! - moistavg(mp)           as an argument (volume fraction)
+    ! - tsoilavg(mp)           as an argument (K)
+    ! - btran(mp)              as an argument (dimensionless)
+    !
+    ! Outputs:
+    !
+    ! - fracCalloc(mp,mplant1)
+    !
     ! input: leaf stage
     !        leaf area
 
@@ -301,7 +307,7 @@ CONTAINS
     !   root=ratiofinerootleaf*cleaf
 
     ! vh edit to avoid overwriting CASE(3) for woody veg
-    !! vh_js !!
+    ! vh_js !
     IF (LALLOC.NE.(3)) THEN
 
        WHERE(casamet%iveg2/=icewater)
@@ -347,9 +353,9 @@ CONTAINS
              casaflux%fracCalloc(:,froot) = casaflux%Crmplant(:,froot)/SUM(casaflux%Crmplant,2)
           ENDWHERE
 
-          !! vh_js !!
-          !! as long as biomass is positive, adjust allocation to be
-          !! proportional to stock when NPP -ve   (Ticket#108)
+          ! vh_js !
+          ! as long as biomass is positive, adjust allocation to be
+          ! proportional to stock when NPP -ve   (Ticket#108)
           WHERE(casaflux%Cnpp<0.0 .AND. SUM(casapool%Cplant,2)>0  )
              casaflux%fracCalloc(:,leaf)  = casapool%Cplant(:,leaf)/SUM(casapool%Cplant,2)
              casaflux%fracCalloc(:,wood)  = casapool%Cplant(:,wood)/SUM(casapool%Cplant,2)
@@ -384,24 +390,24 @@ CONTAINS
              casaflux%fracCalloc(:,leaf)  = 0.0
           ENDWHERE
 
-          !! vh !! don't require this fix for LALLOC = 3 (POP allocation scheme)
-          !! Thiss fix can lead to over-allocation to roots, in turn bumping up N-uptake
-          !! , leading to decline in mineral nitrogen availability and spikes in fracCalloc,
-          !! causing spikes in tree mortality and lack of model convergence in productive
-          !! regions where LAI is hitting LAImax.
-!!$        ! IF Prognostic LAI reached glaimax, no C is allocated to leaf
-!!$        ! Q.Zhang 17/03/2011
-!!$        WHERE(casamet%glai(:)>=casabiome%glaimax(veg%iveg(:)))
-!!$           casaflux%fracCalloc(:,leaf)  = 0.0
-!!$           casaflux%fracCalloc(:,froot) =  casaflux%fracCalloc(:,froot) &
-!!$                /(casaflux%fracCalloc(:,froot) &
-!!$                +casaflux%fracCalloc(:,wood))
-!!$           WHERE (casamet%lnonwood==0)
-!!$              casaflux%fracCalloc(:,wood)  = 1.0 -casaflux%fracCalloc(:,froot)
-!!$           ELSEWHERE
-!!$              casaflux%fracCalloc(:,wood) = 0.0
-!!$           ENDWHERE
-!!$        ENDWHERE
+          ! vh ! don't require this fix for LALLOC = 3 (POP allocation scheme)
+          ! Thiss fix can lead to over-allocation to roots, in turn bumping up N-uptake
+          ! , leading to decline in mineral nitrogen availability and spikes in fracCalloc,
+          ! causing spikes in tree mortality and lack of model convergence in productive
+          ! regions where LAI is hitting LAImax.
+!$        ! IF Prognostic LAI reached glaimax, no C is allocated to leaf
+!$        ! Q.Zhang 17/03/2011
+!$        WHERE(casamet%glai(:)>=casabiome%glaimax(veg%iveg(:)))
+!$           casaflux%fracCalloc(:,leaf)  = 0.0
+!$           casaflux%fracCalloc(:,froot) =  casaflux%fracCalloc(:,froot) &
+!$                /(casaflux%fracCalloc(:,froot) &
+!$                +casaflux%fracCalloc(:,wood))
+!$           WHERE (casamet%lnonwood==0)
+!$              casaflux%fracCalloc(:,wood)  = 1.0 -casaflux%fracCalloc(:,froot)
+!$           ELSEWHERE
+!$              casaflux%fracCalloc(:,wood) = 0.0
+!$           ENDWHERE
+!$        ENDWHERE
 
           WHERE(casamet%glai(:)<casabiome%glaimin(veg%iveg(:)))
              casaflux%fracCalloc(:,leaf)  = 0.8
@@ -426,7 +432,7 @@ CONTAINS
              ENDWHERE
           ENDWHERE
 
-          !! vh_js !!  Ticket#108
+          ! vh_js !  Ticket#108
           WHERE(casaflux%Cnpp<0.0 .AND. SUM(casapool%Cplant,2)>0  )
              WHERE(casamet%lnonwood==0)  !woodland or forest
                 casaflux%fracCalloc(:,leaf)  = casapool%Cplant(:,leaf)/SUM(casapool%Cplant,2)
@@ -452,24 +458,25 @@ CONTAINS
 
 
 
-   ! normalization the allocation fraction to ensure they sum up to 1
-   totfracCalloc(:) = SUM(casaflux%fracCalloc(:,:),2)
-   casaflux%fracCalloc(:,leaf) = casaflux%fracCalloc(:,leaf)/totfracCalloc(:)
-   casaflux%fracCalloc(:,wood) = casaflux%fracCalloc(:,wood)/totfracCalloc(:)
-   casaflux%fracCalloc(:,froot) = casaflux%fracCalloc(:,froot)/totfracCalloc(:)
+    ! normalization the allocation fraction to ensure they sum up to 1
+    totfracCalloc(:) = SUM(casaflux%fracCalloc(:,:),2)
+    casaflux%fracCalloc(:,leaf) = casaflux%fracCalloc(:,leaf)/totfracCalloc(:)
+    casaflux%fracCalloc(:,wood) = casaflux%fracCalloc(:,wood)/totfracCalloc(:)
+    casaflux%fracCalloc(:,froot) = casaflux%fracCalloc(:,froot)/totfracCalloc(:)
 
   END SUBROUTINE casa_allocation
 
   SUBROUTINE casa_wolf(veg,casabiome,casaflux,casapool,casamet)
-  ! carbon allocation based on
-  ! Wolf,Field and Berry, 2011. Ecological Applications, p1546-1556
-  ! Wolf et al. 2011. Global Biogeochemical Cycles, 25, GB3015, doi:10.1019/2010GB003917
-  IMPLICIT NONE
-  TYPE (veg_parameter_type),  INTENT(IN) :: veg  ! vegetation parameters
-  TYPE (casa_biome),          INTENT(IN) :: casabiome
-  TYPE (casa_met),            INTENT(IN) :: casamet
-  TYPE (casa_pool),           INTENT(INOUT) :: casapool
-  TYPE (casa_flux),           INTENT(INOUT) :: casaflux
+    !* Carbon allocation algorithm implemented by Dan Qiu and YP Wang in 2011 
+    ! based on Adam Wolf [1](https://doi.org/10.1890/10-1201.1) and 
+    ! [2](https://doi:10.1029/2010GB003917)
+    
+    IMPLICIT NONE
+    TYPE (veg_parameter_type),  INTENT(IN) :: veg  ! vegetation parameters
+    TYPE (casa_biome),          INTENT(IN) :: casabiome
+    TYPE (casa_met),            INTENT(IN) :: casamet
+    TYPE (casa_pool),           INTENT(INOUT) :: casapool
+    TYPE (casa_flux),           INTENT(INOUT) :: casaflux
 
     REAL, PARAMETER :: wolf_alpha1=6.22
     REAL, PARAMETER :: wolf_beta=-1.33
@@ -637,7 +644,7 @@ CONTAINS
     REAL(r_2), DIMENSION(mp)       :: fwps,tsavg
     ! Custom soil respiration - see Ticket #42
     REAL(r_2), DIMENSION(mp)       :: smrf,strf,slopt,wlt,tsoil,fcap,sopt
-    !,tsurfavg  !!, msurfavg
+    !,tsurfavg  !, msurfavg
     INTEGER :: npt
 
     xklitter(:) = 1.0
@@ -843,7 +850,7 @@ CONTAINS
        casaflux%fromLtoS(:,slow,cwd)  = 0.7 * casabiome%fracLigninplant(veg%iveg(:),wood)
        ! CWD -> slow
 
-       !! set the following two backflow to set (see Bolker 199x)
+       ! set the following two backflow to set (see Bolker 199x)
        !    casaflux%fromStoS(:,mic,slow)  = 0.45 * (0.997 - 0.009 *soil%clay(:))
        !    casaflux%fromStoS(:,mic,pass)  = 0.45
 
@@ -878,13 +885,13 @@ CONTAINS
 
   ! modified by ypw following Chris Lu 5/nov/2012
   SUBROUTINE casa_delplant(veg,casabiome,casapool,casaflux,casamet,            &
-     cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,  &
-     nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,  &
-     pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
+       cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,  &
+       nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,  &
+       pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
 
-  !  calculate the chnage in plant C, N and P pools
-  !  uptake of N and P will be computed in casa_uptake
-  !  labile C pool will be computed casa_labile
+    !  calculate the chnage in plant C, N and P pools
+    !  uptake of N and P will be computed in casa_uptake
+    !  labile C pool will be computed casa_labile
 
     IMPLICIT NONE
     TYPE (veg_parameter_type), INTENT(INOUT) :: veg  ! vegetation parameters
@@ -937,9 +944,9 @@ CONTAINS
 
           !casapool%dcplantdt(npt,2) = casapool%dcplantdt(npt,2)
 
-          !! vh_js !!
-          !! adjust turnover and autotrophic respiration to avoid negative stores.
-          !! Ticket#108
+          ! vh_js !
+          ! adjust turnover and autotrophic respiration to avoid negative stores.
+          ! Ticket#108
 
           WHERE (((casapool%dcplantdt(npt,2:3)*deltpool + casapool%cplant(npt,2:3)).LT. 0.0) &
                .OR. ((casapool%dcplantdt(npt,2:3)*deltpool + casapool%cplant(npt,2:3)) &
@@ -952,7 +959,7 @@ CONTAINS
              casaflux%crmplant(npt,1)= MIN(casaflux%crmplant(npt,1),0.5*casaflux%Cgpp(npt))
           ENDIF
 
-          !! revise turnover and NPP and dcplantdt to reflect above adjustments
+          ! revise turnover and NPP and dcplantdt to reflect above adjustments
 
           casaflux%Cplant_turnover(npt,:) = casaflux%kplant(npt,:)  * casapool%cplant(npt,:)
           IF (ANY((casapool%dcplantdt(npt,:)*deltpool + casapool%cplant(npt,:)).LT. 0.0) &
@@ -981,7 +988,7 @@ CONTAINS
           ENDIF
 
 
-          !! vh_js !! end of adjustments to avoid negative stores Ticket#108
+          ! vh_js ! end of adjustments to avoid negative stores Ticket#108
 
           ! change here made by ypw on 26august 2011
           ! calculate fraction c to labile pool as a fraction of gpp, not npp
@@ -1068,10 +1075,10 @@ CONTAINS
 
           !    PRINT *, 'before 2nd icycle >1; npt, mp', npt, mp
           IF(icycle > 1) THEN
-!!$       casaflux%FluxNtolitter(npt,str) = casaflux%fromPtoL(npt,str,leaf) * casaflux%kplant(npt,leaf)  &
-!!$                               * casapool%cplant(npt,leaf)       * ratioNCstrfix              &
-!!$                               + casaflux%fromPtoL(npt,str,froot)* casaflux%kplant(npt,froot) &
-!!$                               * casapool%cplant(npt,froot)      * ratioNCstrfix
+!$       casaflux%FluxNtolitter(npt,str) = casaflux%fromPtoL(npt,str,leaf) * casaflux%kplant(npt,leaf)  &
+!$                               * casapool%cplant(npt,leaf)       * ratioNCstrfix              &
+!$                               + casaflux%fromPtoL(npt,str,froot)* casaflux%kplant(npt,froot) &
+!$                               * casapool%cplant(npt,froot)      * ratioNCstrfix
 
              !vh! to avoid -ve Nitrogen pools Ticket#108
              casaflux%FluxNtolitter(npt,str) = MIN(casaflux%fromPtoL(npt,str,leaf) * &
@@ -1166,7 +1173,7 @@ CONTAINS
     casaflux%Plittermin=0.0
     fluxptase = 0.0
 
-  DO nland=1,mp
+    DO nland=1,mp
        IF(casamet%iveg2(nland)/=icewater) THEN
 
           IF(icycle > 1) THEN
@@ -1343,7 +1350,7 @@ CONTAINS
              ENDDO    ! end of "k"
              ! need to account for flow from sorbed to occluded pool
           ENDIF
-  ENDIF  ! end of /=icewater
+       ENDIF  ! end of /=icewater
     ENDDO  ! end of nland
 
     DO nland=1,mp
@@ -1367,14 +1374,14 @@ CONTAINS
                   - casaflux%Nupland(nland)
 
           ENDIF
-!!$if (nland==1) write(59,91) casaflux%Nsnet(nland) , &
-!!$                                 casaflux%Nlittermin(nland),  &
-!!$                                 casaflux%Nsmin(nland),   &
-!!$                                 casaflux%Nsimm(nland)
-!!$                                 , casaflux%Nmindep(nland) ,casaflux%Nminfix(nland)   &
-!!$                                 , casaflux%Nminloss(nland)   &
-!!$                                 , casaflux%Nminleach(nland)   &
-!!$                                 , casaflux%Nupland(nland)
+!$if (nland==1) write(59,91) casaflux%Nsnet(nland) , &
+!$                                 casaflux%Nlittermin(nland),  &
+!$                                 casaflux%Nsmin(nland),   &
+!$                                 casaflux%Nsimm(nland)
+!$                                 , casaflux%Nmindep(nland) ,casaflux%Nminfix(nland)   &
+!$                                 , casaflux%Nminloss(nland)   &
+!$                                 , casaflux%Nminleach(nland)   &
+!$                                 , casaflux%Nupland(nland)
 
 91        FORMAT(20(e12.4,2x))
           IF(icycle >2) THEN
@@ -1432,7 +1439,7 @@ CONTAINS
              !                                 * max(zero,casapool%Psoillab(nland))
              casaflux%Ploss(nland)       = 0.0
           ENDIF
-  ENDIF
+       ENDIF
     ENDDO
 
   END SUBROUTINE casa_delsoil
@@ -1993,7 +2000,7 @@ CONTAINS
              ENDIF
           ENDDO
 
-          !  check if any pool size, and terminate model run if any pool size is negative!!
+          !  check if any pool size, and terminate model run if any pool size is negative!
           IF(icycle >1) THEN
              DO j=1,mlitter
                 IF(casapool%nlitter(np,j) < 0.0)  THEN
@@ -2040,27 +2047,27 @@ CONTAINS
     INTEGER, INTENT(IN) :: n, ipool
     TYPE (casa_pool), INTENT(INOUT) :: casapool
 
-    WRITE(57,*) ' WARNING: negative pools are reset to ZERO!!'
+    WRITE(57,*) ' WARNING: negative pools are reset to ZERO!'
     SELECT CASE(ipool)
     CASE(1)
-       WRITE(57,*) 'plant carbon pool size negative!!'
+       WRITE(57,*) 'plant carbon pool size negative!'
        WRITE(57,*) 'plant C pools: ', n,casapool%cplant(n,:)
     CASE(2)
-       WRITE(57,*) 'plant nitrogen pool size negative!!'
+       WRITE(57,*) 'plant nitrogen pool size negative!'
        WRITE(57,*) 'plant C pools: ',n,casapool%cplant(n,:)
        WRITE(57,*) 'plant N pools: ',n,casapool%nplant(n,:)
     CASE(3)
-       WRITE(57,*) 'litter carbon pool size negative!!'
+       WRITE(57,*) 'litter carbon pool size negative!'
        WRITE(57,*) 'litter C pools: ',n,casapool%clitter(n,:)
     CASE(4)
-       WRITE(57,*) 'litter nitrogen pool size negative!!'
+       WRITE(57,*) 'litter nitrogen pool size negative!'
        WRITE(57,*) 'carbon pool: ',n,casapool%clitter(n,:)
        WRITE(57,*) 'nitrogen pools: ',n,casapool%nlitter(n,:)
     CASE(5)
-       WRITE(57,*) 'soil carbon pool size negative!!'
+       WRITE(57,*) 'soil carbon pool size negative!'
        WRITE(57,*) 'soil C pools: ',n,casapool%csoil(n,:)
     CASE(6)
-       WRITE(57,*) 'soil nitrogen pool size negative!!'
+       WRITE(57,*) 'soil nitrogen pool size negative!'
        WRITE(57,*) 'soil C pools: ', n,casapool%csoil(n,:)
        WRITE(57,*) 'soil N pools: ', n,casapool%nsoil(n,:)
     END SELECT
@@ -2189,10 +2196,10 @@ CONTAINS
   END SUBROUTINE casa_cnpbal
 
   SUBROUTINE casa_ndummy(casamet,casabal,casapool)
-    IMPLICIT NONE
-    TYPE (casa_met),              INTENT(IN)    :: casamet
-    TYPE (casa_balance),          INTENT(INOUT) :: casabal
-    TYPE (casa_pool),             INTENT(INOUT) :: casapool
+   IMPLICIT NONE
+   TYPE (casa_met),              INTENT(IN)    :: casamet
+   TYPE (casa_balance),          INTENT(INOUT) :: casabal
+   TYPE (casa_pool),             INTENT(INOUT) :: casapool
 
         casapool%Nplant(:,:) = casapool%ratioNCplant(:,:)  * casapool%cplant(:,:)
         casapool%Nlitter(:,:)= casapool%ratioNClitter(:,:) * casapool%clitter(:,:)

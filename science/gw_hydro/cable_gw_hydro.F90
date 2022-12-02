@@ -236,9 +236,9 @@ IMPLICIT NONE
     END DO
 
   END SUBROUTINE GWsoilfreeze
-  ! -----------------------------------------------------------------------------
+  ! ----------------------------------------------------------------------------
   !
-  !! -----------------------------------------------------------------------------
+  ! ----------------------------------------------------------------------------
   !
   SUBROUTINE remove_transGW(dels, soil, ssnow, canopy, veg)
     !NOTE: this is only included because gw_model uses parameters XXX_vec
@@ -317,12 +317,12 @@ IMPLICIT NONE
   END SUBROUTINE remove_transGW
 
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!==============================================================================
 
-!!!!!!!!!!!!!!MD GW code from here on!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! MD GW code from here on !
   !----------------------------------------------------------------------
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!==============================================================================
   !-------------------------------------------------------------------------
   SUBROUTINE ovrlndflx (dels, ssnow, soil,veg, canopy,sli_call )
     USE cable_common_module, ONLY : gw_params,cable_user
@@ -450,7 +450,7 @@ IMPLICIT NONE
 
 
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!==============================================================================
   SUBROUTINE simple_wtd(ssnow, soil, veg)
     !This was only for testing purposes
     IMPLICIT NONE
@@ -483,10 +483,10 @@ IMPLICIT NONE
     END DO
 
   END SUBROUTINE simple_wtd
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!==============================================================================
 
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!==============================================================================
 
 
   !----------------------------------------------------------------------
@@ -1098,7 +1098,7 @@ USE snow_processes_soil_thermal_mod, ONLY : snow_processes_soil_thermal
     DO i=1,mp
        ssnow%pudsto(i) = 0.0  !no puddle
        ssnow%smelt(i)  = ssnow%smelt(i)/dels    !change units to mm/s.  cable_driver then reverts back to mm
-       ssnow%runoff(i) = (ssnow%rnof1(i) + ssnow%rnof2(i))!*dels  !cable_driver converts from mm/s to mm
+       ssnow%runoff(i) = (ssnow%rnof1(i) + ssnow%rnof2(i))! *dels  !cable_driver converts from mm/s to mm
        !rnof1 and rnof2 are already in mm/s
        ! Set weighted soil/snow surface temperature
        ssnow%tss(i) =  (1-ssnow%isflag(i))*ssnow%tgg(i,1) + ssnow%isflag(i)*ssnow%tggsn(i,1)

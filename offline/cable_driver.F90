@@ -104,7 +104,7 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
        casa_met, casa_balance, zero_sum_casa, update_sum_casa
   USE phenvariable,	    ONLY: phen_variable
 
-  !! vh_js !!
+  ! vh_js !
   ! modules related to POP
   USE POP_Types,	    ONLY: POP_TYPE
   USE POPLUC_Types, ONLY : POPLUC_Type
@@ -197,7 +197,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
   TYPE (casa_met)	:: casamet
   TYPE (casa_balance)	:: casabal
   TYPE (phen_variable)	:: phen
-  !! vh_js !!
+  ! vh_js !
   TYPE (POP_TYPE)	:: POP
   TYPE(POPLUC_TYPE) :: POPLUC
   TYPE (PLUME_MIP_TYPE) :: PLUME
@@ -367,32 +367,32 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
      CABLE_USER%CASA_DUMP_READ	= .FALSE.
      spincasa			= .FALSE.
 
-     !! vh_js !!
+     ! vh_js !
      CABLE_USER%CALL_POP	= .FALSE.
   ENDIF
 
-  !! vh_js !!
+  ! vh_js !
   IF (icycle.GT.0) THEN
      l_casacnp = .TRUE.
   ELSE
      l_casacnp = .FALSE.
   ENDIF
 
-  !! vh_js !! suggest LALLOC should ulitmately be a switch in the .nml file
+  ! vh_js ! suggest LALLOC should ulitmately be a switch in the .nml file
   IF (CABLE_USER%CALL_POP) THEN
      LALLOC = 3 ! for use with POP: makes use of pipe model to partition between stem and leaf
   ELSE
      LALLOC = 0 ! default
   ENDIF
 
-!!$   IF ( .NOT. spinup ) THEN
-!!$	 IF ( spincasa ) THEN
-!!$	    spincasa = .FALSE.
-!!$	    WRITE(*,*)	 "spinup == .FALSE. -> spincasa set to .F."
-!!$	    WRITE(logn,*)"spinup == .FALSE. -> spincasa set to .F."
-!!$	 ENDIF
-!!$   ENDIF
-!!$
+!$   IF ( .NOT. spinup ) THEN
+!$	 IF ( spincasa ) THEN
+!$	    spincasa = .FALSE.
+!$	    WRITE(*,*)	 "spinup == .FALSE. -> spincasa set to .F."
+!$	    WRITE(logn,*)"spinup == .FALSE. -> spincasa set to .F."
+!$	 ENDIF
+!$   ENDIF
+!$
 
   IF ( TRIM(cable_user%MetType) .EQ. 'gpgs' ) THEN
      leaps = .TRUE.
@@ -413,7 +413,7 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
   ! casa time count
   ctime = 0
 
-!!!! INISTUFF
+! INISTUFF
 
   ! Open met data and get site information from netcdf file. (NON-GSWP ONLY!)
   ! This retrieves time step size, number of timesteps, starting date,
@@ -454,9 +454,9 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
   RYEAR = 0
   ktau_tot = 0
   SPINon   = .TRUE.
-!!$  YearStart = CABLE_USER%YearStart
-!!$  YearEnd = CABLE_USER%YearEnd
-!!$  cable_user%CASA_SPIN_ENDYEAR
+!$  YearStart = CABLE_USER%YearStart
+!$  YearEnd = CABLE_USER%YearEnd
+!$  cable_user%CASA_SPIN_ENDYEAR
 
   SPINLOOP:DO WHILE ( SPINon )
 
@@ -479,7 +479,7 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
               IF ( RRRR .EQ. 1 ) THEN
                  CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
                  IF (leaps.AND.is_leapyear(YYYY).AND.kend.EQ.2920) THEN
-                    STOP 'LEAP YEAR INCOMPATIBILITY WITH INPUT MET !!!'
+                    STOP 'LEAP YEAR INCOMPATIBILITY WITH INPUT MET !'
                  ENDIF
                  IF ( NRRRR .GT. 1 ) THEN
                     GSWP_MID(1,YYYY) = ncid_rain
@@ -612,7 +612,7 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
            ! somethings (e.g. CASA-CNP) only need to be done once per day
            ktauday=INT(24.0*3600.0/dels)
 
-           !! Checks where parameters and initialisations should be loaded from.
+           ! Checks where parameters and initialisations should be loaded from.
            ! If they can be found in either the met file or restart file, they will
            ! load from there, with the met file taking precedence. Otherwise, they'll
            ! be chosen from a coarse global grid of veg and soil types, based on
@@ -622,7 +622,7 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
               IF (cable_user%POPLUC) THEN
                  CALL LUC_EXPT_INIT (LUC_EXPT)
               ENDIF
-              !! vh_js !!
+              ! vh_js !
               CALL load_parameters( met, air, ssnow, veg,climate,bgc,		&
                    soil, canopy, rough, rad, sum_flux,			 &
                    bal, logn, vegparmnew, casabiome, casapool,		 &
@@ -828,7 +828,7 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
               !jhan this is insufficient testing. condition for
               !spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
               IF(icycle >0 .OR.	 CABLE_USER%CASA_DUMP_WRITE ) THEN
-                 !! vh_js !!
+                 ! vh_js !
 
                  CALL bgcdriver( ktau, kstart, kend, dels, met,		       &
                       ssnow, canopy, veg, soil, climate, casabiome,			&
@@ -974,28 +974,28 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
 
 
                  ! vh ! commented code below detects Nans in evaporation flux and stops if there are any.
-!!$	      do kk=1,mp
-!!$		 if( canopy%fe(kk).NE.( canopy%fe(kk))) THEN
-!!$		    write(*,*) 'fe nan', kk, ktau,met%qv(kk), met%precip(kk),met%precip_sn(kk), &
-!!$			 met%fld(kk), met%fsd(kk,:), met%tk(kk), met%ua(kk), ssnow%potev(kk), met%pmb(kk), &
-!!$			 canopy%ga(kk), ssnow%tgg(kk,:), canopy%fwsoil(kk)
-!!$
-!!$
-!!$		    stop
-!!$		 endif
-!!$		 if ( casaflux%cnpp(kk).NE. casaflux%cnpp(kk)) then
-!!$		    write(*,*) 'npp nan', kk, ktau,  casaflux%cnpp(kk)
-!!$		    stop
-!!$
-!!$		 endif
-!!$
-!!$
-!!$		 !if (canopy%fwsoil(kk).eq.0.0) then
-!!$		 !   write(*,*) 'zero fwsoil', ktau, canopy%fpn(kk)
-!!$		 !endif
-!!$
-!!$
-!!$	      enddo
+!$	      do kk=1,mp
+!$		 if( canopy%fe(kk).NE.( canopy%fe(kk))) THEN
+!$		    write(*,*) 'fe nan', kk, ktau,met%qv(kk), met%precip(kk),met%precip_sn(kk), &
+!$			 met%fld(kk), met%fsd(kk,:), met%tk(kk), met%ua(kk), ssnow%potev(kk), met%pmb(kk), &
+!$			 canopy%ga(kk), ssnow%tgg(kk,:), canopy%fwsoil(kk)
+!$
+!$
+!$		    stop
+!$		 endif
+!$		 if ( casaflux%cnpp(kk).NE. casaflux%cnpp(kk)) then
+!$		    write(*,*) 'npp nan', kk, ktau,  casaflux%cnpp(kk)
+!$		    stop
+!$
+!$		 endif
+!$
+!$
+!$		 !if (canopy%fwsoil(kk).eq.0.0) then
+!$		 !   write(*,*) 'zero fwsoil', ktau, canopy%fpn(kk)
+!$		 !endif
+!$
+!$
+!$	      enddo
 
                  IF( ktau == kend ) THEN
                     nkend = nkend+1
@@ -1047,9 +1047,9 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
 
 
               ! IF not 1st run through whole dataset:
-!!$	      IF( MOD( ktau_tot, kend ) .EQ. 0 .AND. ktau_Tot .GT. kend .AND. &
-!!$		   YYYY.EQ. CABLE_USER%YearEnd .OR. ( NRRRR .GT. 1 .AND. &
-!!$		   RRRR.EQ. NRRRR) ) THEN
+!$	      IF( MOD( ktau_tot, kend ) .EQ. 0 .AND. ktau_Tot .GT. kend .AND. &
+!$		   YYYY.EQ. CABLE_USER%YearEnd .OR. ( NRRRR .GT. 1 .AND. &
+!$		   RRRR.EQ. NRRRR) ) THEN
 
               IF( MOD( ktau_tot, kend ) .EQ. 0 .AND. ktau_Tot .GT. kend .AND. &
                    YYYY.EQ. CABLE_USER%YearEnd ) THEN
@@ -1313,7 +1313,7 @@ SUBROUTINE renameFiles(logn,inFile,ncciy,inName)
 
 END SUBROUTINE renameFiles
 
-!***************************************************************************************
+!==============================================================================
 ! subroutine for reading LU input data, zeroing biomass in empty secondary forest tiles
 ! and tranferring LUC-based age weights for secondary forest to POP structure
 

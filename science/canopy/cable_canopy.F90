@@ -264,7 +264,7 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
             / rough%zref_tq ) ) / CVONK
        rt_min = 5.
 
-       !! vh_js !!
+       ! vh_js !
        IF (cable_user%soil_struc=='sli') THEN
           ! for stable conditions, update rough%rt0us & rough%rt1usa by replacing CCSW by
           ! csw = cd/2* (U(hc)/ust)**2 according to Eqs 15 & 19 from notes by Ian Harman (9-9-2011)
@@ -422,7 +422,7 @@ CALL wetLeaf( mp, CLAI_thresh, CCAPP, Crmair, dels, rad, rough, air,     &
 
              rad%lwabv(j) = CCAPP * Crmair * ( tlfy(j) - met%tk(j) ) *        &
                   sum_rad_gradis(j)
-             !! vh_js !!
+             ! vh_js !
 
              IF (  (rad%lwabv(j) / (2.0*(1.0-rad%transd(j))            &
                   * CSBOLTZ*CEMLEAF)+met%tvrad(j)**4) .GT. 0.0) THEN
@@ -516,8 +516,8 @@ CALL wetLeaf( mp, CLAI_thresh, CCAPP, Crmair, dels, rad, rough, air,     &
              !note if or_evap and litter are true then litter resistance is
              !incluyded above in ssnow%rt_qh_sublayer
           ELSEIF (cable_user%litter) THEN
-             !! vh_js !! account for additional litter resistance to sensible heat transfer
-             !! INH simplifying code using rhlitt
+             ! vh_js ! account for additional litter resistance to sensible heat transfer
+             ! INH simplifying code using rhlitt
              canopy%fhs =  air%rho*CCAPP*(ssnow%tss - met%tk) / &
                                 !(ssnow%rtsoil + real((1-ssnow%isflag))*veg%clitt*0.003/canopy%kthLitt/(air%rho*CCAPP))
                   (ssnow%rtsoil + rhlitt)
@@ -587,8 +587,8 @@ write(6,*) "SLI is not an option right now"
                   (ssnow%rtsoil + REAL(ssnow%rt_qh_sublayer))
 
           ELSEIF (cable_user%litter) THEN
-             !! vh_js !! account for additional litter resistance to sensible heat transfer
-             !! INH simplifying code using rhlitt
+             ! vh_js ! account for additional litter resistance to sensible heat transfer
+             ! INH simplifying code using rhlitt
              canopy%fhs =  air%rho*CCAPP*(ssnow%tss - met%tvair) / &
                                 !(ssnow%rtsoil +  real((1-ssnow%isflag))*veg%clitt*0.003/canopy%kthLitt/(air%rho*CCAPP))
                   (ssnow%rtsoil + rhlitt)
@@ -598,9 +598,9 @@ write(6,*) "SLI is not an option right now"
 
           ENDIF
 
-          !! Ticket #90 ssnow%cls factor should be retained: required for energy balance
-          !! INH: %cls factor included in %fes already - do not include here
-          canopy%ga = canopy%fns-canopy%fhs-canopy%fes !*ssnow%cls
+          ! Ticket #90 ssnow%cls factor should be retained: required for energy balance
+          ! INH: %cls factor included in %fes already - do not include here
+          canopy%ga = canopy%fns-canopy%fhs-canopy%fes ! *ssnow%cls
        ELSE
 
 write(6,*) "SLI is not an option right now"
@@ -670,7 +670,7 @@ write(6,*) "SLI is not an option right now"
                      canopy%vlaiw, canopy%zetash,  canopy%us, &
                      canopy%fh, canopy%fe, canopy%fhs, REAL(canopy%fes) ) 
 
-       !!880!CALL update_zetar(mp, sunlit_veg_mask)
+       !880!CALL update_zetar(mp, sunlit_veg_mask)
 
     END DO           ! do iter = 1, NITER
 
@@ -898,7 +898,7 @@ IF (cable_user%gw_model .or. cable_user%or_evap) THEN
 
   ssnow%dfh_dtg = air%rho*CCAPP/(ssnow%rtsoil+ real(ssnow%rt_qh_sublayer))
   
-  !! INH simplifying code for legibility
+  ! INH simplifying code for legibility
   !ssnow%dfe_ddq = real(ssnow%satfrac)*air%rho*air%rlam*ssnow%cls/ &
   !     (ssnow%rtsoil+ real(ssnow%rtevap_sat))  +
   !     (1.0-real(ssnow%satfrac))*real(ssnow%rh_srf)*&
@@ -950,7 +950,7 @@ IF (cable_user%gw_model .or. cable_user%or_evap) THEN
 
 
 ELSEIF (cable_user%litter) THEN ! IF (cable_user%gw_model .or. cable_user%or_evap) THEN
-  !!vh_js!! INH simplifying code for legibility and REV_CORR
+  !vh_js! INH simplifying code for legibility and REV_CORR
   !ssnow%dfh_dtg = air%rho*CCAPP/(ssnow%rtsoil+ &
   !     real((1-ssnow%isflag))*veg%clitt*0.003/canopy%kthLitt/(air%rho*CCAPP))
   !ssnow%dfe_ddq = ssnow%wetfac*air%rho*air%rlam*ssnow%cls/ &

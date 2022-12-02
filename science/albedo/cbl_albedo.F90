@@ -155,8 +155,8 @@ if(.NOT. jls_radiation) &
  
 END SUBROUTINE albedo
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
+!===============================================================================
 
 subroutine CanopyReflectance( CanopyRefl_beam, CanopyRefl_dif, &
                          mp, nrb, CGauss_w, sunlit_veg_mask, &
@@ -187,7 +187,7 @@ call CanopyReflectance_dif( CanopyRefl_dif, mp, nrb, CGauss_w, &
                              ExtCoeff_dif, xk, rhoch )
 End subroutine CanopyReflectance
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
 
 subroutine CanopyReflectance_beam( CanopyRefl_beam, mp, nrb, sunlit_veg_mask, &
               ExtCoeff_beam,ExtCoeff_dif, rhoch )
@@ -213,7 +213,7 @@ END DO
 
 End subroutine CanopyReflectance_beam
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
 
 subroutine CanopyReflectance_dif( CanopyRefl_dif, mp, nrb, CGauss_w,  &
                                   ExtCoeff_dif, xk, rhoch )
@@ -241,8 +241,8 @@ ENDDO
 
 End subroutine CanopyReflectance_dif
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
+!===============================================================================
 
 subroutine CanopyTransmitance(CanopyTransmit_beam, CanopyTransmit_dif, mp, nrb,&
                               mask, reducedLAIdue2snow, &
@@ -272,7 +272,7 @@ call CanopyTransmitance_dif( CanopyTransmit_dif, mp, nrb, EffExtCoeff_dif, &
 
 End subroutine CanopyTransmitance
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
 
 subroutine CanopyTransmitance_dif(CanopyTransmit, mp, nrb, ExtinctionCoeff, reducedLAIdue2snow, mask )
 implicit none
@@ -294,7 +294,7 @@ enddo
 
 End subroutine  CanopyTransmitance_dif
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
 
 
 subroutine CanopyTransmitance_beam(CanopyTransmit, mp, nrb, ExtinctionCoeff, reducedLAIdue2snow, mask )
@@ -320,9 +320,9 @@ enddo
 End subroutine  CanopyTransmitance_beam
 
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
+!===============================================================================
+!===============================================================================
 
 subroutine EffectiveSurfaceReflectance(EffSurfRefl_beam, EffSurfRefl_dif,      &
                                        mp, nrb, veg_mask, sunlit_veg_mask,     &
@@ -353,7 +353,7 @@ call EffectiveReflectance( EffSurfRefl_beam, mp, nrb, CanopyRefl_beam, AlbSnow,&
 
 End subroutine EffectiveSurfaceReflectance
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
 
 subroutine EffectiveReflectance( EffRefl, mp, nrb, CanopyRefl, AlbSnow, &
           CanopyTransmit, mask )
@@ -382,8 +382,8 @@ END DO
 
 End subroutine EffectiveReflectance
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
+!===============================================================================
 
 subroutine FbeamRadAlbedo( RadAlbedo, mp, nrb, veg_mask, radfbeam, &
                            EffSurfRefl_dif, EffSurfRefl_beam, AlbSnow )
@@ -414,6 +414,6 @@ END DO
 
 End subroutine FbeamRadAlbedo
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
 
 END MODULE cbl_albedo_mod

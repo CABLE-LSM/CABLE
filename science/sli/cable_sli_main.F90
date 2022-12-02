@@ -189,7 +189,7 @@ CONTAINS
     ENDIF
 
     ! If we want solutes:
-!!$     if (.not. allocated(bd)) allocate(bd(soil%nhorizons(k)))
+!$     if (.not. allocated(bd)) allocate(bd(soil%nhorizons(k)))
 
     ! Litter parameters:
     IF (.NOT. ALLOCATED(plit)) THEN
@@ -621,11 +621,11 @@ CONTAINS
                evap(k), evap_pot(k), infil(k), &
                drn(k), h0(k), Etrans(k)*dt, discharge(k), fws(k), (ip(k)-ipi(k)), fsat(k), runoff_sat(k), qb(k)
 
-!!$if (ktau==5) then
-!!$
-!!$ write(*,*) win(k), (wp(k)-wpi(k)), deltah0(k),runoff(k), evap(k), drn(k), Etrans(k)*dt, canopy%fwsoil(k), canopy%fevc(k)
-!!$stop
-!!$endif
+!$if (ktau==5) then
+!$
+!$ write(*,*) win(k), (wp(k)-wpi(k)), deltah0(k),runoff(k), evap(k), drn(k), Etrans(k)*dt, canopy%fwsoil(k), canopy%fevc(k)
+!$stop
+!$endif
 
 
           WRITE(334,"(100f15.6)") S(k,:), S(k,:)*par(k,:)%thre+par(k,:)%thr

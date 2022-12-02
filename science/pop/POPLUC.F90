@@ -35,7 +35,7 @@
 ! History: Vanessa Haverd July 2016
 
 ! ==============================================================================
-!*********************************************************************************
+!===============================================================================
 MODULE POPLUC_CONSTANTS
   USE TYPEdef, ONLY: dp, i4b
 
@@ -51,7 +51,7 @@ MODULE POPLUC_CONSTANTS
 
 END MODULE POPLUC_CONSTANTS
 
-!*******************************************************************************
+!===============================================================================
 MODULE POPLUC_Types
   USE TYPEdef, ONLY: dp, i4b
   USE POPLUC_Constants, ONLY: LENGTH_SECDF_HISTORY, AGE_MAX
@@ -81,7 +81,7 @@ MODULE POPLUC_Types
   END TYPE POPLUC_TYPE
 
 END MODULE POPLUC_Types
-!*******************************************************************************
+!===============================================================================
 
 MODULE POPLUC_Module
 
@@ -100,7 +100,7 @@ MODULE POPLUC_Module
 
 CONTAINS
 
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE ZeroPOPLUC(POPLUC)
     TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
     INTEGER:: g,np
@@ -145,7 +145,7 @@ CONTAINS
 
 
   END SUBROUTINE ZeroPOPLUC
-  !*******************************************************************************
+  !============================================================================
 
   SUBROUTINE execute_luc_event(from_state,to_state,frac_change_grid,g,POPLUC)
     ! Execute a transition between land use types (states)
@@ -229,7 +229,7 @@ CONTAINS
           POPLUC%area_history_secdf(g,n) = frac_open_grid
           POPLUC%age_history_secdf(g,n) = 0
           POPLUC%freq_age_secondary(g,1) = POPLUC%freq_age_secondary(g,1) + frac_open_grid
-          ! gtos to frac_change_grid here!!
+          ! gtos to frac_change_grid here!
           POPLUC%gtos(g) =  frac_open_grid
 
 
@@ -246,7 +246,7 @@ CONTAINS
   ENDSUBROUTINE execute_luc_event
 
 
-  !*******************************************************************************
+  !============================================================================
   SUBROUTINE CALCULATE_WEIGHTS(POPLUC, g)
     ! Calculates weights (fraction of total forest area on grid cell)
     !for primary and secondary forest stands up to specified maximum stand age
@@ -283,7 +283,7 @@ CONTAINS
 
 
   END SUBROUTINE CALCULATE_WEIGHTS
-  !*******************************************************************************
+  !============================================================================
   SUBROUTINE INCREMENT_AGE(POPLUC,g)
 
     IMPLICIT NONE
@@ -341,7 +341,7 @@ CONTAINS
 
 
   END SUBROUTINE INCREMENT_AGE
-  !*******************************************************************************
+  !============================================================================
   SUBROUTINE POPLUCStep(POPLUC,year)
     IMPLICIT NONE
     TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
@@ -387,7 +387,7 @@ CONTAINS
     ENDIF
 
   END SUBROUTINE POPLUCStep
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE POPLUC_weights_transfer(POPLUC,POP,LUC_EXPT)
 
     !-------------------------------------------------------------------------------
@@ -421,7 +421,7 @@ CONTAINS
     DEALLOCATE (freq_age)
 
   END SUBROUTINE POPLUC_weights_transfer
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE POP_LUC_CASA_transfer(POPLUC,POP,LUC_EXPT,casapool,casabal,casaflux,ktauday)
 
     !-------------------------------------------------------------------------------
@@ -1048,7 +1048,7 @@ CONTAINS
 
 
   END SUBROUTINE POP_LUC_CASA_transfer
-  !*******************************************************************************
+  !============================================================================
   SUBROUTINE POPLUC_Init(POPLUC,LUC_EXPT, casapool, casaflux, casabiome, veg, POP, np)
     USE cable_def_types_mod, ONLY : veg_parameter_type
     USE casaparm, ONLY: LEAF, WOOD, FROOT
@@ -1140,7 +1140,7 @@ CONTAINS
 
 
   END SUBROUTINE POPLUC_Init
-  !*******************************************************************************
+  !============================================================================
   SUBROUTINE POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
     IMPLICIT NONE
     TYPE(POPLUC_TYPE), INTENT(IN) :: POPLUC
@@ -1159,7 +1159,7 @@ CONTAINS
 
 
   END SUBROUTINE POPLUC_SET_PATCHFRAC
-  !*******************************************************************************
+  !============================================================================
   SUBROUTINE POPLUC_set_params(POPLUC,LUC_EXPT)
     IMPLICIT NONE
     TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
@@ -1247,7 +1247,7 @@ CONTAINS
     ENDDO
 
   END SUBROUTINE POPLUC_SET_PARAMS
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE alloc_POPLUC(POPLUC, arraysize)
     IMPLICIT NONE
     TYPE(POPLUC_TYPE),INTENT(INOUT) :: POPLUC
@@ -1300,7 +1300,7 @@ CONTAINS
     ALLOCATE(POPLUC%fracClearResid(arraysize))
 
   END SUBROUTINE alloc_POPLUC
-  !*******************************************************************************
+  !=============================================================================
   ! Exponential distribution
   ! Returns probability of a given time-between-events (x)
   ! Given a Poisson process with expected frequency (events per unit time) lambda
@@ -1322,7 +1322,7 @@ CONTAINS
   END FUNCTION REALExponential
 
 
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE WRITE_LUC_OUTPUT_NC ( POPLUC, ctime, FINAL )
 
     USE CABLE_COMMON_MODULE, ONLY:  filename, cable_user
@@ -1493,16 +1493,16 @@ CONTAINS
              IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
           END DO
        ENDIF
-!!$
-!!$       DO i = 1, SIZE(A3)
-!!$          STATUS = NF90_def_var(FILE_ID,TRIM(A3(i)) ,NF90_FLOAT,(/land_ID,hist_ID,t_ID/),VID3(i))
-!!$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-!!$       END DO
-!!$
-!!$       DO i = 1, SIZE(A3)
-!!$          STATUS = NF90_def_var(FILE_ID,TRIM(AI3(i)) ,NF90_INT,(/land_ID,hist_ID,t_ID/),VIDI3(i))
-!!$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-!!$       END DO
+!$
+!$       DO i = 1, SIZE(A3)
+!$          STATUS = NF90_def_var(FILE_ID,TRIM(A3(i)) ,NF90_FLOAT,(/land_ID,hist_ID,t_ID/),VID3(i))
+!$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+!$       END DO
+!$
+!$       DO i = 1, SIZE(A3)
+!$          STATUS = NF90_def_var(FILE_ID,TRIM(AI3(i)) ,NF90_INT,(/land_ID,hist_ID,t_ID/),VIDI3(i))
+!$          IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+!$       END DO
 
        DO i = 1, SIZE(A4)
           STATUS = NF90_def_var(FILE_ID,TRIM(A4(i)) ,NF90_FLOAT,(/land_ID,nLU_ID,t_ID/),VID4(i))
@@ -1647,7 +1647,7 @@ CONTAINS
     ENDIF
 
   END SUBROUTINE WRITE_LUC_OUTPUT_NC
-  !************************************************************************************************************************************
+  !=============================================================================
   SUBROUTINE WRITE_LUC_RESTART_NC ( POPLUC, ctime )
 
     USE CABLE_COMMON_MODULE, ONLY:  filename, cable_user
@@ -1788,7 +1788,7 @@ CONTAINS
 
 
   END SUBROUTINE WRITE_LUC_RESTART_NC
-  !*******************************************************************************
+  !=============================================================================
   SUBROUTINE READ_LUC_RESTART_NC (POPLUC)
     USE CABLE_COMMON_MODULE, ONLY:  filename, cable_user
      USE casa_ncdf_module, ONLY: HANDLE_ERR
@@ -1904,7 +1904,7 @@ CONTAINS
     STATUS = NF90_CLOSE( FILE_ID )
 
   END SUBROUTINE READ_LUC_RESTART_NC
-  !*******************************************************************************
+  !============================================================================
   SUBROUTINE WRITE_LUC_OUTPUT_GRID_NC ( POPLUC, ctime, FINAL )
 
     USE cable_IO_vars_module, ONLY: mask, xdimsize, ydimsize , lat_all, lon_all
@@ -2428,7 +2428,7 @@ CONTAINS
     ENDIF
 
   END SUBROUTINE WRITE_LUC_OUTPUT_GRID_NC
-  !************************************************************************************************************************************
+  !=============================================================================
 
 
 

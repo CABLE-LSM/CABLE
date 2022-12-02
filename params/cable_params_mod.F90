@@ -5,7 +5,7 @@ MODULE cable_params_mod
 
 !H! Elevate these to namelist definable
 USE cable_other_constants_mod,  ONLY: nsl
-USE cable_other_constants_mod,  ONLY: nrb       !# radiation "bANDS" 
+USE cable_other_constants_mod,  ONLY: nrb       ! # radiation "bANDS" 
                                                 !dir/dif components in bands VIS/NIR
 USE cable_other_constants_mod,  ONLY: nscs      ! number of soil carbon stores
 USE cable_other_constants_mod,  ONLY: nvcs      ! number of vegetation carbon stores

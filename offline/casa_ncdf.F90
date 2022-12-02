@@ -304,7 +304,7 @@ CONTAINS
 
     ! Find an unused unit for intermediate use
     ! PLEASE, use it ONLY when you OPEN AND CLOSE WITHIN THE SAME CALL
-    ! or there could be interferences with other files!!!
+    ! or there could be interferences with other files!
     ! LN 05/2014
 
     IMPLICIT NONE

@@ -108,13 +108,13 @@ MODULE sli_utils
   ! includes thermal properties in soil parameters
   ! litter_props - subroutine to define litter properties
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
 CONTAINS
 
-  !**********************************************************************************************************************
+  !=============================================================================
   ! SUBROUTINES - alphabetical
-  !**********************************************************************************************************************
+  !=============================================================================
 
   ELEMENTAL PURE SUBROUTINE aquifer_props(v_aquifer)
 
@@ -134,7 +134,7 @@ CONTAINS
 
   END SUBROUTINE aquifer_props
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   ELEMENTAL PURE SUBROUTINE flux(parin, v1, v2, dz, q, qya, qyb, qTa, qTb)
     ! VH modified 25/05/10 to include t-dep component of liquid flux (in frozen soil)
@@ -194,7 +194,7 @@ CONTAINS
 
   END SUBROUTINE flux
 
-  !*****************************************************************************************
+  !=============================================================================
 
   SUBROUTINE forcerestore(Tg0, Rnet0, lE0, dlEdTg, Ta, Tbar, d1, rrc, lambda, &
        cs, dt, iice, Tg, G, H, lE)
@@ -241,7 +241,7 @@ CONTAINS
 
   END SUBROUTINE forcerestore
 
-  !*****************************************************************************************
+  !=============================================================================
 
   SUBROUTINE forcerestore_Deardorff(Tg0, Rnet0, lE0, dlEdTg, Ta, Tbar, d1, rrc, rhos, &
        cs, dt, iice, Tg, G, H, lE)
@@ -283,7 +283,7 @@ CONTAINS
 
   END SUBROUTINE forcerestore_Deardorff
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   ! Surface Energy Balance
   SUBROUTINE SEB(n, par, vmet, vsnow, var, qprec, qprec_snow, dx, h0, Tsoil,  &
@@ -443,7 +443,7 @@ CONTAINS
           qvTb = zero
        ELSE ! supply limited
           qTb = -dE_vapdT1/(thousand*var(1)%lambdav)
-          qyb = -(var(1)%phiS/(half*dx(1)) - var(1)%KS)  !!vh!! include vapour component??
+          qyb = -(var(1)%phiS/(half*dx(1)) - var(1)%KS)  !vh! include vapour component??
           qliq = -E_liq/(thousand*var(1)%lambdav)
           qv   = -E_vap/(thousand*var(1)%lambdav)
           qlyb = -(var(1)%phiS/(half*dx(1)) - var(1)%KS)
@@ -479,7 +479,7 @@ CONTAINS
        IF (vsnow%hliq(1)>zero) THEN
           Tsurface = 0.0_r_2
           !Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
-          !            vmet%cva)*rhow*rlambda/vmet%rbw !!vh check this !!
+          !            vmet%cva)*rhow*rlambda/vmet%rbw !vh check this !
           Epot = (csat(Tsurface)/thousand - vmet%cva)/vmet%rbw *rlambda*rhow  ! m3 H2O (liq) m-3 (air) -> W/m2
           ! write(*,*) "Epot", vmet%rha, vmet%Ta,
           !            esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)*rhow*rlambda/vmet%rbw, &
@@ -494,9 +494,9 @@ CONTAINS
           qTb = zero
           !     write(*,*) "Epot2", Tsurface, vmet%Ta, Epot, Hpot, vmet%rrc, rhocp1
        ELSE
-          !! vh !! use max snow depth of 20 cm in this calculation to avoid huge resistances
-          !! leading to large negative surface temperatures when snow-pack is thick and
-          !! Rn is large and negative (~-100 Wm-2)
+          ! vh ! use max snow depth of 20 cm in this calculation to avoid huge resistances
+          ! leading to large negative surface temperatures when snow-pack is thick and
+          ! Rn is large and negative (~-100 Wm-2)
           CALL potential_evap(vmet%Rn-vmet%Rnsw, vmet%rbh, vmet%rbw, vmet%Ta, vmet%rha, &
                vsnow%tsn(1), MAX(vsnow%kth(1),0.1_r_2), half*MIN(vsnow%depth(1),0.05_r_2), &
                lambdas, Tsurface, Epot, Hpot, &
@@ -512,16 +512,16 @@ CONTAINS
              dEdTs= zero
              !   write(*,*) "Epot3", Tsurface, vmet%Ta, Epot, Hpot, vmet%rbh
           ENDIF
-!!$          elseif (abs(Tsurface - vmet%Ta).gt. 20) then
-!!$             Tsurface = min(vmet%Ta, 0.0)
-!!$             Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
-!!$                  vmet%cva)*rhow*lambdas/vmet%rbw
-!!$             dEdTsoil = zero
-!!$             dGdTsoil = zero
-!!$             Hpot = rhocp*(Tsurface - vmet%Ta)/vmet%rbh
-!!$             Gpot = vmet%Rn-vmet%Rnsw - Hpot - Epot
-!!$             dEdTs= zero
-!!$           endif
+!$          elseif (abs(Tsurface - vmet%Ta).gt. 20) then
+!$             Tsurface = min(vmet%Ta, 0.0)
+!$             Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
+!$                  vmet%cva)*rhow*lambdas/vmet%rbw
+!$             dEdTsoil = zero
+!$             dGdTsoil = zero
+!$             Hpot = rhocp*(Tsurface - vmet%Ta)/vmet%rbh
+!$             Gpot = vmet%Rn-vmet%Rnsw - Hpot - Epot
+!$             dEdTs= zero
+!$           endif
           qevap = Epot/(rhow*lambdas)
           qTb = -dEdTsoil/(thousand*lambdas)
        ENDIF
@@ -573,7 +573,7 @@ CONTAINS
 
   END SUBROUTINE SEB
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   ! Surface Energy Balance
   SUBROUTINE SEB_FR(n, par, vmet, vsnow, var, qprec, qprec_snow, &
@@ -693,7 +693,7 @@ CONTAINS
           qvTb = zero
        ELSE ! supply limited
           qTb = -dE_vapdT1/(thousand*var(1)%lambdav)
-          qyb = -(var(1)%phiS/(half*dx(1)) - var(1)%KS)  !!vh!! include vapour component??
+          qyb = -(var(1)%phiS/(half*dx(1)) - var(1)%KS)  !vh! include vapour component??
           qliq = -E_liq/(thousand*var(1)%lambdav)
           qv = -E_vap/(thousand*var(1)%lambdav)
           qlyb = -(var(1)%phiS/(half*dx(1)) - var(1)%KS)
@@ -864,7 +864,7 @@ CONTAINS
 
   END SUBROUTINE SEB_FR
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   SUBROUTINE generic_thomas_1d(n,A,B,C,r,u,err)
 
@@ -1011,7 +1011,7 @@ CONTAINS
     !
   END SUBROUTINE generic_thomas_2d
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   SUBROUTINE getfluxes_vp_1d(n, dx, vtop, vbot, parin, var, hint, phimin, q, qya, qyb, qTa, qTb, &
        ql, qlya, qlyb, qv, qvT, qvh, qvya, qvyb, &
@@ -1690,7 +1690,7 @@ CONTAINS
 
   END SUBROUTINE getfluxes_vp_2d
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   SUBROUTINE getheatfluxes_1d(n, dx, dxL, qh, qhya, qhyb, qhTa, qhTb, var, vlit, T, TL, litter, &
        q, qya, qyb, qTa, qTb,qadv, qadvya, qadvyb, qadvTa, qadvTb,advection)
@@ -1754,16 +1754,16 @@ CONTAINS
 
        ! add advective terms
        IF (advection==1) THEN
-!!$                   if (q(i) > zero) then
-!!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
-!!$                    else
-!!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
-!!$                    endif
-!!$                    qadv(i) = rhow*cswat*q(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
-!!$                    qadvya(i) =  rhow*cswat*qya(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
-!!$                    qadvyb(i) =  rhow*cswat*qyb(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
-!!$                    qadvTa(i) =  rhow*cswat*q(i)*w
-!!$                    qadvTb(i) =  rhow*cswat*q(i)*(one-w)
+!$                   if (q(i) > zero) then
+!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
+!$                    else
+!$                       w = (var(i)%kth/dx(i))/(var(i)%kth/dx(i)+var(i+1)%kth/dx(i+1))
+!$                    endif
+!$                    qadv(i) = rhow*cswat*q(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
+!$                    qadvya(i) =  rhow*cswat*qya(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
+!$                    qadvyb(i) =  rhow*cswat*qyb(i)*(w*(T(i)+zero)+(one-w)*(T(i+1)+zero))
+!$                    qadvTa(i) =  rhow*cswat*q(i)*w
+!$                    qadvTb(i) =  rhow*cswat*q(i)*(one-w)
           Tqw  = MERGE(T(i), T(i+1), q(i)>zero) +zero
 
           dTqwdTa = MERGE(one, zero, (q(i)>zero))
@@ -1942,7 +1942,7 @@ CONTAINS
 
   END SUBROUTINE getheatfluxes_2d
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   ELEMENTAL PURE SUBROUTINE hyofh(h, lam, eta, Ke, he, K, Kh, phi)
 
@@ -1971,7 +1971,7 @@ CONTAINS
 
   END SUBROUTINE hyofh
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   ! For debug: remove elemental pure
   ELEMENTAL PURE SUBROUTINE hyofS(S, Tsoil, parin, var)
@@ -2181,7 +2181,7 @@ CONTAINS
        CASE default
           ! calculate v%kH as in Campbell (1985) p.32 eq. 4.20
           A  = 0.65_r_2 - 0.78_r_2*parin%rho/thousand + 0.60_r_2*(parin%rho/thousand)**2 ! (4.27)
-          B  = 2.8_r_2 * (one-parin%thre) !*theta   ! (4.24)
+          B  = 2.8_r_2 * (one-parin%thre) ! *theta   ! (4.24)
           !MC if (parin%clay > 0.05) then
           IF (parin%clay > 0.001_r_2) THEN ! clay=0.001 -> C1=9.2
              C1 = one + 2.6_r_2/SQRT(parin%clay*100._r_2) ! (4.28)
@@ -2228,7 +2228,7 @@ CONTAINS
 
   END SUBROUTINE hyofS
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   SUBROUTINE isosub(iso, c, p, f, fd)
 
@@ -2278,7 +2278,7 @@ CONTAINS
 
   END SUBROUTINE isosub
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   SUBROUTINE massman_sparse_1d(aa, aah, bb, bbh, cc, cch, dd, ddh, ee, eeh, ff, ffh, gg, ggh, dy, dT, condition, err)
 
@@ -2573,7 +2573,7 @@ CONTAINS
     !
   END SUBROUTINE massman_sparse_2d
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   ELEMENTAL PURE SUBROUTINE litter_props(S, Tsoil, vlit, plit, h0)
 
@@ -2640,7 +2640,7 @@ CONTAINS
 
   END SUBROUTINE litter_props
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   ! ELEMENTAL PURE
   SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
@@ -2696,7 +2696,7 @@ CONTAINS
 
   END SUBROUTINE potential_evap
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   SUBROUTINE setlitterpar(mp, veg,index)
 
@@ -2742,7 +2742,7 @@ CONTAINS
 
   END SUBROUTINE setlitterpar
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   SUBROUTINE setpar(mp, ms, soil, index)
 
@@ -2785,7 +2785,7 @@ CONTAINS
 
   END SUBROUTINE setpar
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   SUBROUTINE setpar_Loetsch(mp, ms, x2dx)
 
@@ -2871,7 +2871,7 @@ CONTAINS
 
   END SUBROUTINE setpar_Loetsch
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   SUBROUTINE setsol(mp)
 
@@ -2902,7 +2902,7 @@ CONTAINS
 
   END SUBROUTINE setsol
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   SUBROUTINE setx(mp, ms, soil)
 
@@ -2931,7 +2931,7 @@ CONTAINS
 
   END SUBROUTINE setx
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   SUBROUTINE tri_1d(ns, n, aa, bb, cc, dd, dy)
 
@@ -3013,9 +3013,9 @@ CONTAINS
 
   END SUBROUTINE tri_2d
 
-  !**********************************************************************************************************************
+  !=============================================================================
   ! FUNCTIONS - alphabetical
-  !**********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL PURE FUNCTION csat(T)
     !returns  sat vapour pressure curve in kg m-3
@@ -3029,7 +3029,7 @@ CONTAINS
 
   END FUNCTION csat
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL PURE FUNCTION csoil(thetal,thetai,css,rho)
     ! determines heat capacity of soil (Jkg-1K-1)
@@ -3043,7 +3043,7 @@ CONTAINS
 
   END FUNCTION csoil
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL PURE FUNCTION dthetalmaxdT(Tin,S,he,b,thre,the)
     ! determines derivative of thetalmax wrt T
@@ -3068,7 +3068,7 @@ CONTAINS
 
   END FUNCTION dthetalmaxdT
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL PURE FUNCTION dthetalmaxdTh(Tin,S,he,b,thre,the)
     ! determines derivative of thetalmax wrt T
@@ -3091,7 +3091,7 @@ CONTAINS
 
   END FUNCTION dthetalmaxdTh
 
-  !*********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL PURE FUNCTION esat(T)
     !returns sat vapour pressure curve in Pa
@@ -3105,7 +3105,7 @@ CONTAINS
 
   END FUNCTION esat
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL PURE FUNCTION gammln(z)
     !  Uses Lanczos-type approximation to ln(gamma) for z > 0.
@@ -3147,7 +3147,7 @@ CONTAINS
 
   END FUNCTION gammln
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL PURE FUNCTION gcf(a,x)
 
@@ -3184,7 +3184,7 @@ CONTAINS
 
   END FUNCTION gcf
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL PURE FUNCTION gser(a,x)
 
@@ -3213,7 +3213,7 @@ CONTAINS
 
   END FUNCTION gser
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL PURE FUNCTION igamma(a,x)
     USE cable_def_types_mod, ONLY: r_2
@@ -3230,7 +3230,7 @@ CONTAINS
 
   END FUNCTION igamma
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   !MC this routines has to be adjusted for csol in freezing, probably.
   REAL(r_2) ELEMENTAL PURE FUNCTION phi(hr0, lambda, eta, phie, he, T, Ksat)
@@ -3247,7 +3247,7 @@ CONTAINS
     !MC freezing point? csol?
     csol1 = zero ! use zero instead of csol for the moment
     IF (PRESENT(Ksat)) THEN
-       IF (T < zero) THEN     ! frozen soil  !! need to adjust freezing point for csol and use global csol
+       IF (T < zero) THEN     ! frozen soil  ! need to adjust freezing point for csol and use global csol
           h   = (lambdaf*T/gravity/(T+Tzero)) + csol1*Rgas* (T + Tzero)/gravity
           ! phi = Ksat * he/(one-eta*lambda) * (h/he)**(one-eta*lambda)
           phi = Ksat * he/(one-eta*lambda) * EXP((one-eta*lambda)*LOG(h/he))
@@ -3265,7 +3265,7 @@ CONTAINS
 
   END FUNCTION phi
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL PURE FUNCTION rh0_sol(hr0, solin)
 
@@ -3288,7 +3288,7 @@ CONTAINS
 
   END FUNCTION rh0_sol
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   ! Using an elemental subroutine as a function argument is not Fortran90 standard.
   ! This would have been rh0_sol in function rtbis. intel's ifort and nag's f95 accept it but gfortran does not.
@@ -3325,7 +3325,7 @@ CONTAINS
 
   END FUNCTION rtbis_rh0
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL PURE FUNCTION slope_csat(T)
     !returns slope of sat vapour pressure curve in kg m-3 K-1
@@ -3341,7 +3341,7 @@ CONTAINS
 
   END FUNCTION slope_csat
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL PURE FUNCTION slope_esat(T)
     !returns slope of sat vapour pressure curve in Pa K^-1
@@ -3357,7 +3357,7 @@ CONTAINS
 
   END FUNCTION slope_esat
 
-  !*********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL FUNCTION esat_ice(T)
     !returns sat vapour pressure curve in Pa
@@ -3371,7 +3371,7 @@ CONTAINS
 
   END FUNCTION esat_ice
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL FUNCTION slope_esat_ice(T)
     !returns slope of sat vapour pressure curve in Pa K^-1
@@ -3387,7 +3387,7 @@ CONTAINS
 
   END FUNCTION slope_esat_ice
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL PURE FUNCTION Sofh(h,parin)
 
@@ -3405,7 +3405,7 @@ CONTAINS
 
   END FUNCTION Sofh
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL PURE FUNCTION Tfrz(S,he,b)
     ! determines freezing point temperature for a given moisture content
@@ -3431,7 +3431,7 @@ CONTAINS
 
   END FUNCTION Tfrz
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL PURE FUNCTION Tfrozen(J, dx, theta, thetal, csoil, rhosoil, h0, thetasat)
     ! determines temperature of frozen soil, given total energy content J and liquid water content thetal
@@ -3458,7 +3458,7 @@ CONTAINS
 
   END FUNCTION Tfrozen
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL PURE FUNCTION GTfrozen(T, J, dx, theta, csoil, rhosoil, h0, thre, the, he, b)
     ! GTfrozen = sensible heat + latent heat - total energy (should be zero)
@@ -3484,7 +3484,7 @@ CONTAINS
 
   END FUNCTION GTfrozen
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL PURE FUNCTION JSoilLayer(T, dx, theta, csoil, rhosoil, h0, thre, the, he, b)
     ! JSsoilLayer = sensible heat + latent heat (total energy in soil layer J/m2)
@@ -3511,7 +3511,7 @@ CONTAINS
   END FUNCTION JSoilLayer
 
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   ! Using an elemental subroutine as a function argument is not Fortran90 standard.
   ! This would have been rh0_sol in function rtbis. intel's ifort and nag's f95 accept it but gfortran does not.
@@ -3552,7 +3552,7 @@ CONTAINS
 
   END FUNCTION rtbis_Tfrozen
 
-  !*********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL PURE FUNCTION thetalmax(Tin,S,he,b,thre,the)
     ! determines maximum liquid water content, given T
@@ -3574,7 +3574,7 @@ CONTAINS
 
   END FUNCTION thetalmax
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL PURE FUNCTION Tthetalmax(thetal,Tin,S,he,b,thre,the)
     ! determines T, given maximum liquid water content
@@ -3601,7 +3601,7 @@ CONTAINS
 
   END FUNCTION Tthetalmax
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   REAL(r_2) ELEMENTAL PURE FUNCTION weight(parin, h, K, phi, dz)
 
@@ -3642,7 +3642,7 @@ CONTAINS
 
   END FUNCTION weight
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   FUNCTION zerovars()
 
@@ -3693,13 +3693,13 @@ CONTAINS
 
   END FUNCTION zerovars
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   SUBROUTINE bracket(x, xval, left, right)
 
-    !*****************************************************************************80
+    !===========================================================================
     !
-    !! BRACKET searches a sorted vector for successive brackets of a value.
+    ! BRACKET searches a sorted vector for successive brackets of a value.
     !
     !  Discussion:
     !
@@ -3768,9 +3768,9 @@ CONTAINS
 
   FUNCTION spline_b(tval, tdata, ydata)
 
-    !*****************************************************************************80
+    !===========================================================================
     !
-    !! SPLINE_B_VAL evaluates a cubic B spline approximant.
+    ! SPLINE_B_VAL evaluates a cubic B spline approximant.
     !
     !  Discussion:
     !
@@ -3883,7 +3883,7 @@ CONTAINS
 
   END FUNCTION spline_b
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   FUNCTION mean_1d(dat, mask)
 
@@ -3951,7 +3951,7 @@ CONTAINS
 
   END FUNCTION mean_2d
 
-  !**********************************************************************************************************************
+  !=============================================================================
 
   ! Nash-Sutcliffe Efficiency: 1-sum(obs-model)/sum(obs-mean(obs))
   FUNCTION nse_1d(x, y, mask)

@@ -1,6 +1,6 @@
 SUBROUTINE POP_IO ( POP, casamet, YEAR, ACTION, CF )
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!==============================================================================
   ! POP        : POP structure containing all specific parameter
   ! casamet    : structure containing met and grid specific parameters from CASA
   ! YEAR       : Current year <YYYY>
@@ -10,7 +10,7 @@ SUBROUTINE POP_IO ( POP, casamet, YEAR, ACTION, CF )
   !              "WRITE_RST" : Write a restart file for YEAR+1
   !              "WRITE_EPI" : Write data at the end of each year
   ! CLOSE_FILE : Flag to close file at the end of Episode (Episode only)
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!==============================================================================
   USE netcdf
   USE POP_constants
   USE POP_types
@@ -137,7 +137,7 @@ SUBROUTINE POP_IO ( POP, casamet, YEAR, ACTION, CF )
   AR0(2)  = 'longitude'
 
   AI0(1)  = 'Iwood'
-  AI0(2)  = 'it_pop' ! Scalar value !!!
+  AI0(2)  = 'it_pop' ! Scalar value !
 
   AI1(1)  = 'npatch_active'
 
@@ -245,7 +245,7 @@ SUBROUTINE POP_IO ( POP, casamet, YEAR, ACTION, CF )
 
   ntile  = mp
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!==============================================================================
 
   !IF ( PRESENT( CF ) ) THEN
   CLOSE_FILE = CF
@@ -265,9 +265,9 @@ SUBROUTINE POP_IO ( POP, casamet, YEAR, ACTION, CF )
      STOP -1
   ENDIF
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!==============================================================================
   ! WRITE POP VALUES TO OUTPUT FILE
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!==============================================================================
 
   IF ( INDEX(ACTION,"WRITE") .GT. 0 ) THEN
 
@@ -892,43 +892,43 @@ SUBROUTINE POP_IO ( POP, casamet, YEAR, ACTION, CF )
      DEALLOCATE(R4)
 
      ! PUT 3D VARS ( mp,nlayer, t )
-!!$     MPS:DO m = 1, mp
-!!$
-!!$
-!!$        PAT:DO p = 1, npatch2d
-!!$
-!!$
-!!$           STATUS = NF90_PUT_VAR(FILE_ID, VIDR7( 1), POP%pop_grid(m)%freq_ranked_age_unique(p,:),&
-!!$                start=(/ m, p, 1, CNT /), count=(/ 1, 1, NDISTURB, 1 /) )
-!!$           IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+!$     MPS:DO m = 1, mp
+!$
+!$
+!$        PAT:DO p = 1, npatch2d
+!$
+!$
+!$           STATUS = NF90_PUT_VAR(FILE_ID, VIDR7( 1), POP%pop_grid(m)%freq_ranked_age_unique(p,:),&
+!$                start=(/ m, p, 1, CNT /), count=(/ 1, 1, NDISTURB, 1 /) )
+!$           IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
      ! LAYER STRUCTURE
      ! PUT 4D VARS ( mp,npatch2d, nlayer,t )
-!!$           STATUS = NF90_PUT_VAR(FILE_ID, VIDI8( 1), POP%pop_grid(m)%patch(p)%layer(:)%ncohort,&
-!!$                start=(/ m, p, 1, CNT /), count=(/ 1, 1, nlayer, 1 /) )
-!!$           IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+!$           STATUS = NF90_PUT_VAR(FILE_ID, VIDI8( 1), POP%pop_grid(m)%patch(p)%layer(:)%ncohort,&
+!$                start=(/ m, p, 1, CNT /), count=(/ 1, 1, nlayer, 1 /) )
+!$           IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-!!$
-!!$
-!!$
-!!$           LAY:DO l = 1, nlayer
-!!$              ! COHORT STRUCTURE
-!!$              ! PUT 5D VARS ( mp,npatch2d, nlayer,ncohort_max,t )
-!!$              STATUS = NF90_PUT_VAR(FILE_ID, VIDI9( 1), POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%age,&
-!!$                   start=(/ m, p, l, 1, CNT /), count=(/ 1, 1, 1, ncohort_max, 1 /) )
-!!$              IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-!!$              STATUS = NF90_PUT_VAR(FILE_ID, VIDI9( 2), POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%id,&
-!!$                   start=(/ m, p, l, 1, CNT /), count=(/ 1, 1, 1, ncohort_max, 1 /) )
-!!$              IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-!!$
-!!$
-!!$           END DO LAY
-!!$        END DO PAT
-!!$     END DO MPS
+!$
+!$
+!$
+!$           LAY:DO l = 1, nlayer
+!$              ! COHORT STRUCTURE
+!$              ! PUT 5D VARS ( mp,npatch2d, nlayer,ncohort_max,t )
+!$              STATUS = NF90_PUT_VAR(FILE_ID, VIDI9( 1), POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%age,&
+!$                   start=(/ m, p, l, 1, CNT /), count=(/ 1, 1, 1, ncohort_max, 1 /) )
+!$              IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+!$              STATUS = NF90_PUT_VAR(FILE_ID, VIDI9( 2), POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%id,&
+!$                   start=(/ m, p, l, 1, CNT /), count=(/ 1, 1, 1, ncohort_max, 1 /) )
+!$              IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+!$
+!$
+!$           END DO LAY
+!$        END DO PAT
+!$     END DO MPS
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!==============================================================================
      ! READ POP VALUES AS RESTART VALUES
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!==============================================================================
 
   ELSE IF ( INDEX(ACTION,'READ') .GT. 0 ) THEN
 

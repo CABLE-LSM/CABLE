@@ -100,7 +100,7 @@ MODULE cable_checks_module
           BaresoilT = (/213.0,343.0/),        &
           AvgSurfT = (/213.0,333.0/),         &
           RadT = (/200.0,373.0/),             &
-                                !! vh_js !!
+                                ! vh_js !
           SWE = (/0.0,4000.0/),               &
           RootMoist = (/0.0,2000.0/),         &
           CanopInt = (/0.0,100.0/),           &
@@ -116,7 +116,7 @@ MODULE cable_checks_module
           SnowDepth = (/0.0,50.0/),           & ! EK nov07
           Wbal = (/-999999.0,999999.0/),      &
           Ebal = (/-999999.0,999999.0/),      &
-                                !! vh_js !!
+                                ! vh_js !
           CanT = (/213.0,333.0/),      &
           Fwsoil = (/0.0,1.0/),      &
                                 ! parameters:
@@ -257,7 +257,7 @@ CONTAINS
     canopy_wbal = REAL(met%precip-canopy%delwc-canopy%through                   &
          - (canopy%fevw+MIN(canopy%fevc,0.0_r_2))*dels/air%rlam)
 
-    IF (cable_user%soil_struc=='sli') THEN  !! vh March 2014 !!
+    IF (cable_user%soil_struc=='sli') THEN  ! vh March 2014 !
        ! delwcol includes change in soil water, pond and snowpack
        bal%wbal = canopy_wbal + REAL(canopy%through - ssnow%delwcol-ssnow%runoff &
             - ssnow%evap - MAX(canopy%fevc,0.0)*dels/air%rlam, r_2)
@@ -311,9 +311,9 @@ CONTAINS
          EMLEAF,  & !leaf emissivity
          EMSOIL     !leaf emissivity
 
-    !! vh_js !! note changes to this subroutine. Need to use ssnow%otss (not ssnow%tss) in these calculations.
+    ! vh_js ! note changes to this subroutine. Need to use ssnow%otss (not ssnow%tss) in these calculations.
 
-    !! vh !! March 2014
+    ! vh ! March 2014
 
     bal%Radbal = met%fsd(:,1) + met%fsd(:,2) + met%fld  - rad%albedo(:,1)*met%fsd(:,1) - rad%albedo(:,2)*met%fsd(:,2)  &
          - (emsoil*sboltz*rad%transd*ssnow%otss**4) - &
@@ -322,7 +322,7 @@ CONTAINS
 
     !  soil energy - INH Ticket #133 corrected for consistency with %Ebal
     !  this includes the correction terms
-    bal%EbalSoil =canopy%fns - canopy%fes & !*ssnow%cls &
+    bal%EbalSoil =canopy%fns - canopy%fes & ! *ssnow%cls &
          & -canopy%fhs -canopy%ga
 
     ! canopy energy balance
@@ -330,10 +330,10 @@ CONTAINS
 
     ! soil + canopy energy balance
     ! SW absorbed + LW absorbed - (LH+SH+ghflux) should = 0
-    bal%Ebal = SUM(rad%qcan(:,:,1),2)+SUM(rad%qcan(:,:,2),2)+rad%qssabs &  !! vh !! March 2014
+    bal%Ebal = SUM(rad%qcan(:,:,1),2)+SUM(rad%qcan(:,:,2),2)+rad%qssabs &  ! vh ! March 2014
          & +met%fld-sboltz*emleaf*canopy%tv**4*(1-rad%transd) &
          -rad%flws*rad%transd &
-         & -canopy%fev-canopy%fes & !*ssnow%cls &
+         & -canopy%fev-canopy%fes & ! *ssnow%cls &
          & -canopy%fh -canopy%ga
 
     !REV_CORR - likely testing and offline-as-online cases only
