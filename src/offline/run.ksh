@@ -175,7 +175,7 @@ tidy()
 ######################################################################
 ###  set up directory for this run - make output directory and     ###
 ### possibly helpful book-keeping to allow for immediate execution ### 
-### and avoid accidently over-writing data - up to a point !      ###
+### and avoid accidently over-writing data - up to a point !!      ###
 ######################################################################
 
 # see above functions()
