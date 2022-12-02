@@ -81,7 +81,7 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 3.2% of total for modules and submodules.">1471 statements</a>
+               title=" 3.0% of total for modules and submodules.">1310 statements</a>
           </li>
 
             <li id="source-file">
@@ -156,8 +156,6 @@
             <a class="list-group-item" href="../module/casa_cnp_module.html#proc-casa_xnp">casa_xnp</a>
             <a class="list-group-item" href="../module/casa_cnp_module.html#proc-casa_allocation">casa_allocation</a>
             <a class="list-group-item" href="../module/casa_cnp_module.html#proc-casa_wolf">casa_wolf</a>
-            <a class="list-group-item" href="../module/casa_cnp_module.html#proc-casa_rplant1">casa_rplant1</a>
-            <a class="list-group-item" href="../module/casa_cnp_module.html#proc-casa_rplant">casa_rplant</a>
             <a class="list-group-item" href="../module/casa_cnp_module.html#proc-casa_xrateplant">casa_xrateplant</a>
             <a class="list-group-item" href="../module/casa_cnp_module.html#proc-casa_xratesoil">casa_xratesoil</a>
             <a class="list-group-item" href="../module/casa_cnp_module.html#proc-casa_coeffplant">casa_coeffplant</a>
@@ -201,13 +199,13 @@
       <ul class="list-group">
           <li class="list-group-item">
             <ul class="list-inline">
-                <li><a href='../module/casaparm.html'>casaparm</a></li>
+                <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
                 <li><a href='../module/casadimension.html'>casadimension</a></li>
-                <li><a href='../module/casavariable.html'>casavariable</a></li>
-                <li><a href='../module/landuse_constant.html'>landuse_constant</a></li>
                 <li><a href='../module/phenvariable.html'>phenvariable</a></li>
                 <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-                <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+                <li><a href='../module/casaparm.html'>casaparm</a></li>
+                <li><a href='../module/landuse_constant.html'>landuse_constant</a></li>
+                <li><a href='../module/casavariable.html'>casavariable</a></li>
             </ul>
           </li>
       </ul>
@@ -266,8 +264,6 @@
             <a class="list-group-item" href="../module/casa_cnp_module.html#proc-casa_xnp">casa_xnp</a>
             <a class="list-group-item" href="../module/casa_cnp_module.html#proc-casa_allocation">casa_allocation</a>
             <a class="list-group-item" href="../module/casa_cnp_module.html#proc-casa_wolf">casa_wolf</a>
-            <a class="list-group-item" href="../module/casa_cnp_module.html#proc-casa_rplant1">casa_rplant1</a>
-            <a class="list-group-item" href="../module/casa_cnp_module.html#proc-casa_rplant">casa_rplant</a>
             <a class="list-group-item" href="../module/casa_cnp_module.html#proc-casa_xrateplant">casa_xrateplant</a>
             <a class="list-group-item" href="../module/casa_cnp_module.html#proc-casa_xratesoil">casa_xratesoil</a>
             <a class="list-group-item" href="../module/casa_cnp_module.html#proc-casa_coeffplant">casa_coeffplant</a>
@@ -794,221 +790,6 @@ based on Adam Wolf <a href="https://doi.org/10.1890/10-1201.1">1</a> and
             </td>
             <td>::</td>
             <td><strong>casamet</strong></td>
-            <td>
-
-            </td>
-        </tr>
-    </tbody>
-  </table>
-
-
-    </div>
-  </div>
-
-      <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-casa_rplant1"></span><h3>public  subroutine <a href='../proc/casa_rplant1.html'>casa_rplant1</a>(veg, casabiome, casapool, casaflux, casamet)  
-</h3></div>
-    <div class="panel-body">
-          
-  
-
-  <h4>Arguments</h4>
-      <table class="table table-striped varlist">
-    <thead>
-      <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-              <span class="anchor" ></span>
-              type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),
-            </td>
-<td>intent(inout)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>veg</strong></td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" ></span>
-              type(<a href='../type/casa_biome.html'>casa_biome</a>),
-            </td>
-<td>intent(inout)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>casabiome</strong></td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" ></span>
-              type(<a href='../type/casa_pool.html'>casa_pool</a>),
-            </td>
-<td>intent(inout)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>casapool</strong></td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" ></span>
-              type(<a href='../type/casa_flux.html'>casa_flux</a>),
-            </td>
-<td>intent(inout)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>casaflux</strong></td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" ></span>
-              type(<a href='../type/casa_met.html'>casa_met</a>),
-            </td>
-<td>intent(inout)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>casamet</strong></td>
-            <td>
-
-            </td>
-        </tr>
-    </tbody>
-  </table>
-
-
-    </div>
-  </div>
-
-      <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-casa_rplant"></span><h3>public  subroutine <a href='../proc/casa_rplant.html'>casa_rplant</a>(veg, casabiome, casapool, casaflux, casamet, climate)  
-</h3></div>
-    <div class="panel-body">
-          
-  
-
-  <h4>Arguments</h4>
-      <table class="table table-striped varlist">
-    <thead>
-      <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-              <span class="anchor" ></span>
-              type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),
-            </td>
-<td>intent(inout)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>veg</strong></td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" ></span>
-              type(<a href='../type/casa_biome.html'>casa_biome</a>),
-            </td>
-<td>intent(inout)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>casabiome</strong></td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" ></span>
-              type(<a href='../type/casa_pool.html'>casa_pool</a>),
-            </td>
-<td>intent(inout)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>casapool</strong></td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" ></span>
-              type(<a href='../type/casa_flux.html'>casa_flux</a>),
-            </td>
-<td>intent(inout)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>casaflux</strong></td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" ></span>
-              type(<a href='../type/casa_met.html'>casa_met</a>),
-            </td>
-<td>intent(inout)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>casamet</strong></td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" ></span>
-              type(<a href='../type/climate_type.html'>climate_type</a>),
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>climate</strong></td>
             <td>
 
             </td>
