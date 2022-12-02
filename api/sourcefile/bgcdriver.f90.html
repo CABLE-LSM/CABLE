@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for CABLE">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>bgcdriver.F90 &ndash; CABLE</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">CABLE </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>bgcdriver.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.2% of total for source files.">118 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/bgcdriver.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+          <li class="active">bgcdriver.F90</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#mods-0">Modules</a>
+        </h3>
+      </div>
+      <div id="mods-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/bgcdriver_mod.html">bgcdriver_mod</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/bgcdriver.f90.html#src">bgcdriver.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">This file depends on</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~bgcdriver.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilebgcdriverf90EfferentGraph" width="641pt" height="505pt"
+ viewBox="0.00 0.00 641.00 504.77" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph" class="graph" transform="scale(1.96 1.96) rotate(0) translate(4 987.43)">
+<title>sourcefile~~bgcdriver.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-987.43 1255,-987.43 1255,4 -4,4"/>
+<!-- sourcefile~bgcdriver.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~bgcdriver.f90</title>
+<polygon fill="none" stroke="black" points="1251,-592.99 1166,-592.99 1166,-568.99 1251,-568.99 1251,-592.99"/>
+<text text-anchor="middle" x="1208.5" y="-578.59" font-family="Helvetica,sans-Serif" font-size="10.50">bgcdriver.F90</text>
+</g>
+<!-- sourcefile~cable_define_types.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~cable_define_types.f90</title>
+<g id="a_sourcefile~~bgcdriver.f90~~EfferentGraph_node2"><a xlink:href=".././sourcefile/cable_define_types.f90.html" xlink:title="cable_define_types.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="137,-371.99 0,-371.99 0,-347.99 137,-347.99 137,-371.99"/>
+<text text-anchor="middle" x="68.5" y="-357.59" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_define_types.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bgcdriver.f90&#45;&gt;sourcefile~cable_define_types.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~bgcdriver.f90&#45;&gt;sourcefile~cable_define_types.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M601,-970.99C536.74,-942.67 512.65,-979.91 443,-970.99"/>
+</g>
+<!-- sourcefile~casa_param.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~casa_param.f90</title>
+<g id="a_sourcefile~~bgcdriver.f90~~EfferentGraph_node3"><a xlink:href=".././sourcefile/casa_param.f90.html" xlink:title="casa_param.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="492,-244.99 392,-244.99 392,-220.99 492,-220.99 492,-244.99"/>
+<text text-anchor="middle" x="442" y="-230.59" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_param.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bgcdriver.f90&#45;&gt;sourcefile~casa_param.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~bgcdriver.f90&#45;&gt;sourcefile~casa_param.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M762.5,-78.99C664.41,-68.19 623.75,-49.72 542,-104.99 514.32,-123.7 526.12,-144.31 506,-170.99 493.98,-186.91 477.92,-202.65 465.02,-214.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="462.64,-211.72 457.47,-220.97 467.28,-216.97 462.64,-211.72"/>
+</g>
+<!-- sourcefile~casa_variable.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~casa_variable.f90</title>
+<g id="a_sourcefile~~bgcdriver.f90~~EfferentGraph_node4"><a xlink:href=".././sourcefile/casa_variable.f90.html" xlink:title="casa_variable.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="656.5,-284.99 547.5,-284.99 547.5,-260.99 656.5,-260.99 656.5,-284.99"/>
+<text text-anchor="middle" x="602" y="-270.59" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_variable.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bgcdriver.f90&#45;&gt;sourcefile~casa_variable.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~bgcdriver.f90&#45;&gt;sourcefile~casa_variable.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1063,-233.99C1009.52,-175.99 766.29,-230.25 656.75,-258.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="655.69,-255.07 646.89,-260.97 657.45,-261.85 655.69,-255.07"/>
+</g>
+<!-- sourcefile~cable_common.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~cable_common.f90</title>
+<g id="a_sourcefile~~bgcdriver.f90~~EfferentGraph_node5"><a xlink:href=".././sourcefile/cable_common.f90.html" xlink:title="cable_common.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="500.5,-632.99 383.5,-632.99 383.5,-608.99 500.5,-608.99 500.5,-632.99"/>
+<text text-anchor="middle" x="442" y="-618.59" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_common.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bgcdriver.f90&#45;&gt;sourcefile~cable_common.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~bgcdriver.f90&#45;&gt;sourcefile~cable_common.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M762.5,-970.99C691.75,-966.62 667.87,-999.57 603,-970.99"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M601,-970.99C575.79,-959.88 560.22,-972.65 542,-951.99 484.86,-887.2 531.91,-843.39 506,-760.99 492.26,-717.28 468.57,-669.15 454.48,-642.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="457.54,-640.53 449.77,-633.33 451.35,-643.81 457.54,-640.53"/>
+</g>
+<!-- sourcefile~casa_dimension.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~casa_dimension.f90</title>
+<g id="a_sourcefile~~bgcdriver.f90~~EfferentGraph_node6"><a xlink:href=".././sourcefile/casa_dimension.f90.html" xlink:title="casa_dimension.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="318,-264.99 197,-264.99 197,-240.99 318,-240.99 318,-264.99"/>
+<text text-anchor="middle" x="257.5" y="-250.59" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_dimension.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bgcdriver.f90&#45;&gt;sourcefile~casa_dimension.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~bgcdriver.f90&#45;&gt;sourcefile~casa_dimension.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1205.42,-568.74C1196.72,-520.63 1159.14,-341.99 1065,-233.99"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1063,-233.99C1014.7,-178.57 1025.89,-139.35 962,-102.99 885.15,-59.25 852.47,-87.88 764.5,-78.99"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M762.5,-78.99C685.13,-68.03 678.87,-23.73 603,-4.99"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M601,-4.99C448.5,32.7 311.65,-165.88 270.83,-232.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="267.71,-230.48 265.51,-240.85 273.69,-234.12 267.71,-230.48"/>
+</g>
+<!-- sourcefile~casa_phenology.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~casa_phenology.f90</title>
+<g id="a_sourcefile~~bgcdriver.f90~~EfferentGraph_node7"><a xlink:href=".././sourcefile/casa_phenology.f90.html" xlink:title="casa_phenology.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="662,-478.99 542,-478.99 542,-454.99 662,-454.99 662,-478.99"/>
+<text text-anchor="middle" x="602" y="-464.59" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_phenology.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bgcdriver.f90&#45;&gt;sourcefile~casa_phenology.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~bgcdriver.f90&#45;&gt;sourcefile~casa_phenology.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1205.17,-592.99C1196.22,-635.47 1159.61,-779.07 1065,-833.99"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1063,-833.99C1045.69,-844.04 845.8,-570.88 829,-559.99 803.92,-543.73 790.67,-555.42 764.5,-540.99"/>
+</g>
+<!-- sourcefile~pop.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~pop.f90</title>
+<g id="a_sourcefile~~bgcdriver.f90~~EfferentGraph_node8"><a xlink:href=".././sourcefile/pop.f90.html" xlink:title="POP.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="629,-942.99 575,-942.99 575,-918.99 629,-918.99 629,-942.99"/>
+<text text-anchor="middle" x="602" y="-928.59" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">POP.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bgcdriver.f90&#45;&gt;sourcefile~pop.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~bgcdriver.f90&#45;&gt;sourcefile~pop.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M912.5,-970.99C846.83,-974.82 830.15,-975.04 764.5,-970.99"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M762.5,-970.99C719.05,-968.31 670.77,-954.62 638.83,-944"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="639.65,-940.58 629.06,-940.68 637.4,-947.21 639.65,-940.58"/>
+</g>
+<!-- sourcefile~cable_phenology.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~cable_phenology.f90</title>
+<g id="a_sourcefile~~bgcdriver.f90~~EfferentGraph_node9"><a xlink:href=".././sourcefile/cable_phenology.f90.html" xlink:title="cable_phenology.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="825.5,-767.99 701.5,-767.99 701.5,-743.99 825.5,-743.99 825.5,-767.99"/>
+<text text-anchor="middle" x="763.5" y="-753.59" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_phenology.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bgcdriver.f90&#45;&gt;sourcefile~cable_phenology.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~bgcdriver.f90&#45;&gt;sourcefile~cable_phenology.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1063,-833.99C985.34,-879.07 1004.14,-965.75 914.5,-970.99"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M912.5,-970.99C819.41,-976.42 780.35,-834.2 768.6,-778.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="772,-777.33 766.61,-768.21 765.14,-778.7 772,-777.33"/>
+</g>
+<!-- sourcefile~biogeochem_casa.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~biogeochem_casa.f90</title>
+<g id="a_sourcefile~~bgcdriver.f90~~EfferentGraph_node10"><a xlink:href=".././sourcefile/biogeochem_casa.f90.html" xlink:title="biogeochem_casa.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1130,-592.99 998,-592.99 998,-568.99 1130,-568.99 1130,-592.99"/>
+<text text-anchor="middle" x="1064" y="-578.59" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">biogeochem_casa.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bgcdriver.f90&#45;&gt;sourcefile~biogeochem_casa.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~bgcdriver.f90&#45;&gt;sourcefile~biogeochem_casa.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1165.9,-580.99C1157.87,-580.99 1149.23,-580.99 1140.5,-580.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1140.25,-577.49 1130.25,-580.99 1140.25,-584.49 1140.25,-577.49"/>
+</g>
+<!-- sourcefile~casa_param.f90&#45;&gt;sourcefile~casa_dimension.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~casa_param.f90&#45;&gt;sourcefile~casa_dimension.f90</title>
+<path fill="none" stroke="#ffaa00" stroke-dasharray="5,2" d="M391.61,-238.4C372.2,-240.53 349.56,-243.01 328.51,-245.31"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="327.89,-241.86 318.33,-246.43 328.65,-248.82 327.89,-241.86"/>
+</g>
+<!-- sourcefile~casa_variable.f90&#45;&gt;sourcefile~casa_param.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~casa_variable.f90&#45;&gt;sourcefile~casa_param.f90</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M553.59,-260.98C536.95,-256.77 518.07,-251.99 500.68,-247.59"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="501.2,-244.11 490.64,-245.05 499.48,-250.9 501.2,-244.11"/>
+</g>
+<!-- sourcefile~casa_variable.f90&#45;&gt;sourcefile~casa_dimension.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~casa_variable.f90&#45;&gt;sourcefile~casa_dimension.f90</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M547.48,-269.86C488.46,-266.41 393.27,-260.86 328.4,-257.07"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="328.44,-253.56 318.26,-256.48 328.04,-260.55 328.44,-253.56"/>
+</g>
+<!-- sourcefile~cable_runtime_opts_mod.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~cable_runtime_opts_mod.f90</title>
+<g id="a_sourcefile~~bgcdriver.f90~~EfferentGraph_node11"><a xlink:href=".././sourcefile/cable_runtime_opts_mod.f90.html" xlink:title="cable_runtime_opts_mod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="342,-632.99 173,-632.99 173,-608.99 342,-608.99 342,-632.99"/>
+<text text-anchor="middle" x="257.5" y="-618.59" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_runtime_opts_mod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_common.f90&#45;&gt;sourcefile~cable_runtime_opts_mod.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~cable_common.f90&#45;&gt;sourcefile~cable_runtime_opts_mod.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M383.26,-620.99C373.36,-620.99 362.86,-620.99 352.31,-620.99"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="352.21,-617.49 342.21,-620.99 352.21,-624.49 352.21,-617.49"/>
+</g>
+<!-- sourcefile~casa_dimension.f90&#45;&gt;sourcefile~cable_define_types.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~casa_dimension.f90&#45;&gt;sourcefile~cable_define_types.f90</title>
+<path fill="none" stroke="#00ffa9" stroke-dasharray="5,2" d="M235.41,-265.05C202.22,-284.05 137.64,-321 99.58,-342.77"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="97.45,-339.96 90.51,-347.96 100.93,-346.04 97.45,-339.96"/>
+</g>
+<!-- sourcefile~casa_phenology.f90&#45;&gt;sourcefile~casa_dimension.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~casa_phenology.f90&#45;&gt;sourcefile~casa_dimension.f90</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M577.33,-454.91C546.57,-439.3 491.08,-411.46 443,-388.99"/>
+</g>
+<!-- sourcefile~cable_phenology.f90&#45;&gt;sourcefile~cable_define_types.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~cable_phenology.f90&#45;&gt;sourcefile~cable_define_types.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M746.33,-768.14C726.62,-782.85 692.22,-808.23 662,-828.99 656.02,-833.09 450.16,-972.16 443,-970.99"/>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M441,-970.99C345.19,-958.72 336.06,-910.55 258.5,-852.99"/>
+</g>
+<!-- sourcefile~cable_phenology.f90&#45;&gt;sourcefile~casa_param.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~cable_phenology.f90&#45;&gt;sourcefile~casa_param.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M755.43,-743.84C739.97,-717.68 701.4,-654.58 662,-606.99 614.1,-549.13 581.2,-552.06 542,-487.99 514.49,-443.02 524.72,-424.26 506,-374.99 489.45,-331.42 466.54,-281.98 453.4,-254.44"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="456.51,-252.83 449.03,-245.33 450.2,-255.86 456.51,-252.83"/>
+</g>
+<!-- sourcefile~cable_phenology.f90&#45;&gt;sourcefile~casa_variable.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~cable_phenology.f90&#45;&gt;sourcefile~casa_variable.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M756.59,-743.88C744.27,-718.23 715.51,-656.34 698,-601.99 676.18,-534.26 681.51,-514.41 662,-445.99 646.22,-390.64 623.18,-326.88 611.1,-294.41"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="614.36,-293.15 607.58,-285.02 607.81,-295.61 614.36,-293.15"/>
+</g>
+<!-- sourcefile~cable_phenology.f90&#45;&gt;sourcefile~cable_common.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~cable_phenology.f90&#45;&gt;sourcefile~cable_common.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M726.43,-743.95C682.31,-728.88 605.63,-701.54 542,-672.99 518.41,-662.4 492.56,-648.75 473.2,-638.09"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="474.69,-634.92 464.25,-633.13 471.3,-641.04 474.69,-634.92"/>
+</g>
+<!-- sourcefile~cable_phenology.f90&#45;&gt;sourcefile~casa_dimension.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~cable_phenology.f90&#45;&gt;sourcefile~casa_dimension.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M710.95,-768.01C706.51,-769.52 702.14,-771.17 698,-772.99 680.61,-780.61 679.18,-787.9 662,-795.99 637.08,-807.72 629.82,-808.67 603,-814.99"/>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M601,-814.99C502.33,-838.21 412.09,-705.27 378,-641.99 333.51,-559.39 369.89,-523.56 342,-433.99 323.18,-373.54 288.62,-307.05 270.42,-274.03"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="273.47,-272.3 265.54,-265.26 267.35,-275.7 273.47,-272.3"/>
+</g>
+<!-- sourcefile~cable_phenology.f90&#45;&gt;sourcefile~casa_phenology.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~cable_phenology.f90&#45;&gt;sourcefile~casa_phenology.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M757.65,-743.76C741.24,-702.61 687.36,-569.48 662,-530.99 651.23,-514.63 636.24,-498.43 624.07,-486.42"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="626.17,-483.59 616.54,-479.18 621.32,-488.63 626.17,-483.59"/>
+</g>
+<!-- sourcefile~cable_phenology.f90&#45;&gt;sourcefile~pop.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~cable_phenology.f90&#45;&gt;sourcefile~pop.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M747.25,-768.09C733,-780.05 711.88,-799.47 698,-819.99 675.01,-853.96 690.8,-875.77 662,-904.99 655.49,-911.59 647.02,-916.64 638.53,-920.45"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="637.04,-917.28 629.05,-924.25 639.64,-923.78 637.04,-917.28"/>
+</g>
+<!-- sourcefile~cable_iovars.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~cable_iovars.f90</title>
+<g id="a_sourcefile~~bgcdriver.f90~~EfferentGraph_node12"><a xlink:href=".././sourcefile/cable_iovars.f90.html" xlink:title="cable_iovars.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="493,-864.99 391,-864.99 391,-840.99 493,-840.99 493,-864.99"/>
+<text text-anchor="middle" x="442" y="-850.59" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_iovars.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_phenology.f90&#45;&gt;sourcefile~cable_iovars.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~cable_phenology.f90&#45;&gt;sourcefile~cable_iovars.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M601,-814.99C568.31,-822.68 531.85,-831.44 502.21,-838.6"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="501.33,-835.21 492.43,-840.97 502.97,-842.02 501.33,-835.21"/>
+</g>
+<!-- sourcefile~casa_ncdf.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_node14" class="node">
+<title>sourcefile~casa_ncdf.f90</title>
+<g id="a_sourcefile~~bgcdriver.f90~~EfferentGraph_node14"><a xlink:href=".././sourcefile/casa_ncdf.f90.html" xlink:title="casa_ncdf.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="646,-786.99 558,-786.99 558,-762.99 646,-762.99 646,-786.99"/>
+<text text-anchor="middle" x="602" y="-772.59" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_ncdf.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_phenology.f90&#45;&gt;sourcefile~casa_ncdf.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~cable_phenology.f90&#45;&gt;sourcefile~casa_ncdf.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M701.29,-763.28C686.59,-765.03 670.99,-766.89 656.66,-768.59"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="655.99,-765.15 646.48,-769.81 656.82,-772.1 655.99,-765.15"/>
+</g>
+<!-- sourcefile~biogeochem_casa.f90&#45;&gt;sourcefile~cable_define_types.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~biogeochem_casa.f90&#45;&gt;sourcefile~cable_define_types.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M1058.8,-593.02C1045.1,-630.17 997.72,-742.95 914.5,-783.99"/>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M912.5,-783.99C873.91,-803.01 870.52,-746.27 829,-734.99 662.56,-689.76 606.74,-720.81 443,-774.99"/>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M441,-774.99C356.09,-798.89 329.33,-905.55 258.5,-852.99"/>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M256.5,-852.99C97.1,-734.7 73.57,-463.1 70.1,-382.77"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="73.58,-382.21 69.72,-372.34 66.59,-382.46 73.58,-382.21"/>
+</g>
+<!-- sourcefile~biogeochem_casa.f90&#45;&gt;sourcefile~cable_common.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~biogeochem_casa.f90&#45;&gt;sourcefile~cable_common.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M1023.32,-593.05C977.15,-606.4 898.39,-627.08 829,-634.99 702.26,-649.42 669.24,-643.94 542,-634.99 531.83,-634.27 521.12,-633.15 510.64,-631.84"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="511.07,-628.37 500.7,-630.54 510.16,-635.31 511.07,-628.37"/>
+</g>
+<!-- sourcefile~biogeochem_casa.f90&#45;&gt;sourcefile~casa_dimension.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~biogeochem_casa.f90&#45;&gt;sourcefile~casa_dimension.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M1061.29,-568.6C1051.47,-499.55 999.61,-163.64 914.5,-116.99"/>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M912.5,-116.99C828.38,-70.88 785.22,-132.91 698,-92.99 645.67,-69.03 658.6,-19.85 603,-4.99"/>
+</g>
+<!-- sourcefile~biogeochem_casa.f90&#45;&gt;sourcefile~pop.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~biogeochem_casa.f90&#45;&gt;sourcefile~pop.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M912.5,-783.99C799.68,-834.58 774.25,-853.16 662,-904.99 654.41,-908.49 646.24,-912.16 638.45,-915.6"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="636.97,-912.43 629.23,-919.66 639.79,-918.84 636.97,-912.43"/>
+</g>
+<!-- sourcefile~casa_cnp.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_node13" class="node">
+<title>sourcefile~casa_cnp.f90</title>
+<g id="a_sourcefile~~bgcdriver.f90~~EfferentGraph_node13"><a xlink:href=".././sourcefile/casa_cnp.f90.html" xlink:title="casa_cnp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="806,-206.99 721,-206.99 721,-182.99 806,-182.99 806,-206.99"/>
+<text text-anchor="middle" x="763.5" y="-192.59" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_cnp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~biogeochem_casa.f90&#45;&gt;sourcefile~casa_cnp.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~biogeochem_casa.f90&#45;&gt;sourcefile~casa_cnp.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M912.5,-116.99C865.04,-90.97 808.25,-144.16 780.87,-175.03"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="778.13,-172.84 774.26,-182.7 783.44,-177.41 778.13,-172.84"/>
+</g>
+<!-- sourcefile~casa_inout.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_node15" class="node">
+<title>sourcefile~casa_inout.f90</title>
+<g id="a_sourcefile~~bgcdriver.f90~~EfferentGraph_node15"><a xlink:href=".././sourcefile/casa_inout.f90.html" xlink:title="casa_inout.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="959.5,-592.99 867.5,-592.99 867.5,-568.99 959.5,-568.99 959.5,-592.99"/>
+<text text-anchor="middle" x="913.5" y="-578.59" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_inout.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~biogeochem_casa.f90&#45;&gt;sourcefile~casa_inout.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~biogeochem_casa.f90&#45;&gt;sourcefile~casa_inout.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M997.87,-580.99C988.47,-580.99 978.87,-580.99 969.69,-580.99"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="969.54,-577.49 959.54,-580.99 969.54,-584.49 969.54,-577.49"/>
+</g>
+<!-- sourcefile~casa_rplant.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_node16" class="node">
+<title>sourcefile~casa_rplant.f90</title>
+<g id="a_sourcefile~~bgcdriver.f90~~EfferentGraph_node16"><a xlink:href=".././sourcefile/casa_rplant.f90.html" xlink:title="casa_rplant.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="962,-285.99 865,-285.99 865,-261.99 962,-261.99 962,-285.99"/>
+<text text-anchor="middle" x="913.5" y="-271.59" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_rplant.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~biogeochem_casa.f90&#45;&gt;sourcefile~casa_rplant.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~biogeochem_casa.f90&#45;&gt;sourcefile~casa_rplant.f90</title>
+<path fill="none" stroke="#ff00aa" stroke-dasharray="5,2" d="M1057.18,-568.95C1034.77,-522.63 953.92,-355.47 924.93,-295.55"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="927.95,-293.75 920.44,-286.27 921.65,-296.8 927.95,-293.75"/>
+</g>
+<!-- sourcefile~cable_iovars.f90&#45;&gt;sourcefile~cable_define_types.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~cable_iovars.f90&#45;&gt;sourcefile~cable_define_types.f90</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M403.03,-865.08C363,-875.3 300.1,-883.86 258.5,-852.99"/>
+</g>
+<!-- sourcefile~casa_cnp.f90&#45;&gt;sourcefile~cable_define_types.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~casa_cnp.f90&#45;&gt;sourcefile~cable_define_types.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M730.16,-182.95C719.61,-178.5 708.03,-173.05 698,-166.99 680.42,-156.36 680.08,-147.74 662,-137.99 637.76,-124.9 629.85,-125.16 603,-118.99"/>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M601,-118.99C451.54,-84.59 397.45,-12.08 258.5,-76.99"/>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M256.5,-76.99C146.96,-129.41 92.56,-281 75.54,-337.98"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="72.12,-337.19 72.71,-347.77 78.85,-339.14 72.12,-337.19"/>
+</g>
+<!-- sourcefile~casa_cnp.f90&#45;&gt;sourcefile~casa_param.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~casa_cnp.f90&#45;&gt;sourcefile~casa_param.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M720.66,-184.81C686.92,-178.91 639.28,-175.93 603,-194.99"/>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M601,-194.99C570.48,-211.01 533.1,-220.4 502.36,-225.83"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="501.5,-222.42 492.21,-227.52 502.65,-229.33 501.5,-222.42"/>
+</g>
+<!-- sourcefile~casa_cnp.f90&#45;&gt;sourcefile~casa_variable.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~casa_cnp.f90&#45;&gt;sourcefile~casa_variable.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M730.36,-207.08C719.92,-211.23 708.37,-216.08 698,-220.99 675.46,-231.65 650.79,-245.22 632.23,-255.82"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="630.31,-252.89 623.39,-260.91 633.8,-258.95 630.31,-252.89"/>
+</g>
+<!-- sourcefile~casa_cnp.f90&#45;&gt;sourcefile~cable_common.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge38" class="edge">
+<title>sourcefile~casa_cnp.f90&#45;&gt;sourcefile~cable_common.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M601,-194.99C453.35,-272.52 578.73,-407.91 506,-557.99 497.45,-575.62 481.93,-591.23 468.44,-602.5"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="466.01,-599.97 460.38,-608.94 470.38,-605.44 466.01,-599.97"/>
+</g>
+<!-- sourcefile~casa_cnp.f90&#45;&gt;sourcefile~casa_dimension.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~casa_cnp.f90&#45;&gt;sourcefile~casa_dimension.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M601,-118.99C583.4,-114.94 460.26,-151.67 443,-156.99"/>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M441,-156.99C381.64,-175.28 318.92,-212.87 284.65,-235.2"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="282.59,-232.37 276.17,-240.8 286.45,-238.21 282.59,-232.37"/>
+</g>
+<!-- sourcefile~casa_cnp.f90&#45;&gt;sourcefile~casa_phenology.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge37" class="edge">
+<title>sourcefile~casa_cnp.f90&#45;&gt;sourcefile~casa_phenology.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M747.38,-207.18C733.22,-219.2 712.16,-238.67 698,-258.99 654.74,-321.03 623.25,-405.94 609.97,-445.31"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="606.61,-444.34 606.79,-454.93 613.25,-446.54 606.61,-444.34"/>
+</g>
+<!-- sourcefile~landuse_constant.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_node17" class="node">
+<title>sourcefile~landuse_constant.f90</title>
+<g id="a_sourcefile~~bgcdriver.f90~~EfferentGraph_node17"><a xlink:href=".././sourcefile/landuse_constant.f90.html" xlink:title="landuse_constant.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="506,-128.99 378,-128.99 378,-104.99 506,-104.99 506,-128.99"/>
+<text text-anchor="middle" x="442" y="-114.59" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">landuse_constant.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~casa_cnp.f90&#45;&gt;sourcefile~landuse_constant.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge39" class="edge">
+<title>sourcefile~casa_cnp.f90&#45;&gt;sourcefile~landuse_constant.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M601,-118.99C573.74,-112.71 543.13,-111.12 516.16,-111.47"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="515.93,-107.98 506.01,-111.7 516.09,-114.98 515.93,-107.98"/>
+</g>
+<!-- sourcefile~casa_ncdf.f90&#45;&gt;sourcefile~cable_define_types.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge42" class="edge">
+<title>sourcefile~casa_ncdf.f90&#45;&gt;sourcefile~cable_define_types.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M557.93,-767.82C525.49,-764.12 480.37,-762.62 443,-774.99"/>
+</g>
+<!-- sourcefile~casa_ncdf.f90&#45;&gt;sourcefile~cable_common.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge40" class="edge">
+<title>sourcefile~casa_ncdf.f90&#45;&gt;sourcefile~cable_common.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M565.99,-762.98C557.67,-759.23 549.14,-754.57 542,-748.99 503.2,-718.64 471.11,-669.82 454.74,-642.07"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="457.65,-640.11 449.62,-633.19 451.58,-643.6 457.65,-640.11"/>
+</g>
+<!-- sourcefile~casa_ncdf.f90&#45;&gt;sourcefile~cable_iovars.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge41" class="edge">
+<title>sourcefile~casa_ncdf.f90&#45;&gt;sourcefile~cable_iovars.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M572.61,-787.03C562.84,-791.29 551.88,-796.22 542,-800.99 518.86,-812.15 493.18,-825.67 473.78,-836.12"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="471.93,-833.15 464.8,-840.98 475.26,-839.3 471.93,-833.15"/>
+</g>
+<!-- sourcefile~casa_inout.f90&#45;&gt;sourcefile~cable_define_types.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge44" class="edge">
+<title>sourcefile~casa_inout.f90&#45;&gt;sourcefile~cable_define_types.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M870.48,-593.03C810.99,-608.57 698.77,-632.35 603,-620.99"/>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M601,-620.99C523.25,-613.47 514.96,-574.39 443,-543.99"/>
+</g>
+<!-- sourcefile~casa_inout.f90&#45;&gt;sourcefile~casa_param.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge47" class="edge">
+<title>sourcefile~casa_inout.f90&#45;&gt;sourcefile~casa_param.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M762.5,-350.99C677.63,-295.83 635.13,-333.65 542,-293.99 515.1,-282.53 486.95,-264.51 467.58,-251.03"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="469.51,-248.11 459.33,-245.19 465.47,-253.82 469.51,-248.11"/>
+</g>
+<!-- sourcefile~casa_inout.f90&#45;&gt;sourcefile~casa_variable.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge43" class="edge">
+<title>sourcefile~casa_inout.f90&#45;&gt;sourcefile~casa_variable.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M908.74,-568.92C895.88,-529.88 849.7,-406.35 764.5,-350.99"/>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M762.5,-350.99C723.68,-325.76 675.52,-303.29 642.33,-289.02"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="643.54,-285.73 632.97,-285.04 640.8,-292.17 643.54,-285.73"/>
+</g>
+<!-- sourcefile~casa_inout.f90&#45;&gt;sourcefile~cable_common.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge49" class="edge">
+<title>sourcefile~casa_inout.f90&#45;&gt;sourcefile~cable_common.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M601,-620.99C571.52,-617.49 538.74,-616.95 510.7,-617.49"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="510.52,-613.99 500.61,-617.74 510.69,-620.99 510.52,-613.99"/>
+</g>
+<!-- sourcefile~casa_inout.f90&#45;&gt;sourcefile~casa_dimension.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge45" class="edge">
+<title>sourcefile~casa_inout.f90&#45;&gt;sourcefile~casa_dimension.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M762.5,-350.99C643.14,-272.23 572.55,-449.53 443,-388.99"/>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M441,-388.99C373.97,-360.43 308.83,-302.46 277.62,-272.26"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="280.03,-269.72 270.44,-265.22 275.13,-274.72 280.03,-269.72"/>
+</g>
+<!-- sourcefile~casa_inout.f90&#45;&gt;sourcefile~casa_phenology.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge46" class="edge">
+<title>sourcefile~casa_inout.f90&#45;&gt;sourcefile~casa_phenology.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M867.25,-569.31C825.45,-558.45 769.15,-543.55 764.5,-540.99"/>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M762.5,-540.99C722.24,-518.77 674.14,-497.08 641.36,-482.99"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="642.69,-479.75 632.12,-479.04 639.94,-486.19 642.69,-479.75"/>
+</g>
+<!-- sourcefile~casa_inout.f90&#45;&gt;sourcefile~cable_iovars.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge48" class="edge">
+<title>sourcefile~casa_inout.f90&#45;&gt;sourcefile~cable_iovars.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M910.89,-593.14C905.71,-627.31 886.35,-725.15 829,-776.99 814.58,-790.02 681.03,-825.02 662,-828.99 608.85,-840.06 547.31,-846.24 503.03,-849.54"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="502.73,-846.05 493.01,-850.26 503.23,-853.03 502.73,-846.05"/>
+</g>
+<!-- sourcefile~casa_offline_inout.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_node18" class="node">
+<title>sourcefile~casa_offline_inout.f90</title>
+<g id="a_sourcefile~~bgcdriver.f90~~EfferentGraph_node18"><a xlink:href=".././sourcefile/casa_offline_inout.f90.html" xlink:title="casa_offline_inout.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="829,-592.99 698,-592.99 698,-568.99 829,-568.99 829,-592.99"/>
+<text text-anchor="middle" x="763.5" y="-578.59" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">casa_offline_inout.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~casa_inout.f90&#45;&gt;sourcefile~casa_offline_inout.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge50" class="edge">
+<title>sourcefile~casa_inout.f90&#45;&gt;sourcefile~casa_offline_inout.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M867.29,-580.99C858.33,-580.99 848.71,-580.99 839.07,-580.99"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="839.04,-577.49 829.04,-580.99 839.04,-584.49 839.04,-577.49"/>
+</g>
+<!-- sourcefile~casa_rplant.f90&#45;&gt;sourcefile~cable_define_types.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge51" class="edge">
+<title>sourcefile~casa_rplant.f90&#45;&gt;sourcefile~cable_define_types.f90</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M762.5,-272.99C644.09,-267.1 374.29,-473.46 258.5,-447.99"/>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M256.5,-447.99C197.82,-430.95 134.47,-397.64 98.62,-377.25"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="100.11,-374.06 89.69,-372.11 96.61,-380.13 100.11,-374.06"/>
+</g>
+<!-- sourcefile~casa_rplant.f90&#45;&gt;sourcefile~casa_param.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge52" class="edge">
+<title>sourcefile~casa_rplant.f90&#45;&gt;sourcefile~casa_param.f90</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M762.5,-272.99C716.96,-270.09 707.14,-258.64 662,-251.99 608.23,-244.07 546.52,-239.08 502.33,-236.21"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="502.54,-232.72 492.34,-235.58 502.1,-239.7 502.54,-232.72"/>
+</g>
+<!-- sourcefile~casa_rplant.f90&#45;&gt;sourcefile~casa_variable.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge53" class="edge">
+<title>sourcefile~casa_rplant.f90&#45;&gt;sourcefile~casa_variable.f90</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M762.5,-272.99C730.98,-270.98 695.89,-270.77 666.66,-271.14"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="666.53,-267.64 656.58,-271.29 666.64,-274.64 666.53,-267.64"/>
+</g>
+<!-- sourcefile~casa_rplant.f90&#45;&gt;sourcefile~cable_common.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge56" class="edge">
+<title>sourcefile~casa_rplant.f90&#45;&gt;sourcefile~cable_common.f90</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M905.03,-286.22C885.94,-316.25 832.08,-393.57 764.5,-426.99"/>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M762.5,-426.99C674.33,-470.59 618.92,-384.68 542,-445.99 501.11,-478.57 533.25,-513.36 506,-557.99 495.65,-574.93 479.84,-590.72 466.65,-602.26"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="464.22,-599.73 458.85,-608.86 468.74,-605.07 464.22,-599.73"/>
+</g>
+<!-- sourcefile~casa_rplant.f90&#45;&gt;sourcefile~casa_dimension.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge54" class="edge">
+<title>sourcefile~casa_rplant.f90&#45;&gt;sourcefile~casa_dimension.f90</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M864.81,-274.79C835.79,-275 797.98,-274.78 764.5,-272.99"/>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M762.5,-272.99C724.3,-270.94 726.06,-241.99 698,-215.99 681.63,-200.82 682.19,-190.5 662,-180.99 573.42,-139.26 536.57,-128.14 443,-156.99"/>
+</g>
+<!-- sourcefile~casa_rplant.f90&#45;&gt;sourcefile~casa_phenology.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge55" class="edge">
+<title>sourcefile~casa_rplant.f90&#45;&gt;sourcefile~casa_phenology.f90</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M762.5,-426.99C734.46,-440.85 701.2,-450.18 672.33,-456.31"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="671.41,-452.92 662.31,-458.35 672.81,-459.78 671.41,-452.92"/>
+</g>
+<!-- sourcefile~casa_rplant.f90&#45;&gt;sourcefile~casa_cnp.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge58" class="edge">
+<title>sourcefile~casa_rplant.f90&#45;&gt;sourcefile~casa_cnp.f90</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M889.7,-261.82C864.64,-248.44 824.21,-226.86 796.1,-211.86"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="797.55,-208.66 787.08,-207.04 794.26,-214.84 797.55,-208.66"/>
+</g>
+<!-- sourcefile~casa_rplant.f90&#45;&gt;sourcefile~landuse_constant.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge57" class="edge">
+<title>sourcefile~casa_rplant.f90&#45;&gt;sourcefile~landuse_constant.f90</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M905.6,-261.95C893.03,-241.05 864.37,-197.99 829,-173.99 778.29,-139.58 752.6,-158.81 698,-130.99 680.42,-122.02 680.78,-111.06 662,-104.99 608.78,-87.78 544.53,-94.27 499.43,-102.93"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="498.65,-99.51 489.54,-104.92 500.04,-106.38 498.65,-99.51"/>
+</g>
+<!-- sourcefile~landuse_constant.f90&#45;&gt;sourcefile~cable_define_types.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge59" class="edge">
+<title>sourcefile~landuse_constant.f90&#45;&gt;sourcefile~cable_define_types.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M408.54,-104.97C363.55,-89.15 284.8,-64.7 258.5,-76.99"/>
+</g>
+<!-- sourcefile~landuse_constant.f90&#45;&gt;sourcefile~casa_dimension.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge60" class="edge">
+<title>sourcefile~landuse_constant.f90&#45;&gt;sourcefile~casa_dimension.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M405.57,-129.05C396.27,-132.89 386.48,-137.58 378,-142.99 337.38,-168.89 297.75,-209.22 275.88,-233.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="273.01,-231.14 268.92,-240.91 278.21,-235.82 273.01,-231.14"/>
+</g>
+<!-- sourcefile~casa_offline_inout.f90&#45;&gt;sourcefile~cable_define_types.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge62" class="edge">
+<title>sourcefile~casa_offline_inout.f90&#45;&gt;sourcefile~cable_define_types.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M697.7,-580.5C632.1,-578.4 528.43,-570.61 443,-543.99"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M441,-543.99C356.58,-508.31 348.01,-467.68 258.5,-447.99"/>
+</g>
+<!-- sourcefile~casa_offline_inout.f90&#45;&gt;sourcefile~casa_variable.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge61" class="edge">
+<title>sourcefile~casa_offline_inout.f90&#45;&gt;sourcefile~casa_variable.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M756.25,-568.91C732.13,-522.35 644.98,-354.05 614.01,-294.25"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="617.09,-292.58 609.38,-285.31 610.87,-295.8 617.09,-292.58"/>
+</g>
+<!-- sourcefile~casa_offline_inout.f90&#45;&gt;sourcefile~cable_common.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge64" class="edge">
+<title>sourcefile~casa_offline_inout.f90&#45;&gt;sourcefile~cable_common.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M697.81,-588.22C653.84,-593.23 594.37,-600.2 542,-606.99 531.82,-608.31 521.07,-609.76 510.55,-611.22"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="509.97,-607.77 500.55,-612.62 510.94,-614.7 509.97,-607.77"/>
+</g>
+<!-- sourcefile~casa_offline_inout.f90&#45;&gt;sourcefile~casa_phenology.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge65" class="edge">
+<title>sourcefile~casa_offline_inout.f90&#45;&gt;sourcefile~casa_phenology.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M720.95,-568.97C712.77,-565.35 704.66,-560.76 698,-554.99 673.92,-534.12 685.75,-514.23 662,-492.99 658.14,-489.53 653.74,-486.47 649.13,-483.78"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="650.57,-480.59 640.08,-479.06 647.33,-486.79 650.57,-480.59"/>
+</g>
+<!-- sourcefile~casa_offline_inout.f90&#45;&gt;sourcefile~casa_ncdf.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~EfferentGraph_edge63" class="edge">
+<title>sourcefile~casa_offline_inout.f90&#45;&gt;sourcefile~casa_ncdf.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M752.52,-593.12C725.78,-625.65 652.3,-715.02 619.36,-755.09"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="616.62,-752.91 612.97,-762.86 622.03,-757.35 616.62,-752.91"/>
+</g>
+</g>
+</svg>
+</div><script>var pansourcefilebgcdriverf90EfferentGraph = svgPanZoom('#sourcefilebgcdriverf90EfferentGraph', {zoomEnabled: true,controlIconsEnabled: true, fit: true, center: true,}); </script><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a file to a file which it depends on. A file
+    is dependent upon another if the latter must be compiled before the former
+    can be. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Files dependent on this one</h3>
+      </div>
+      <div class="panel-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~bgcdriver.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilebgcdriverf90AfferentGraph" width="397pt" height="116pt"
+ viewBox="0.00 0.00 397.00 116.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~bgcdriver.f90~~AfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 112)">
+<title>sourcefile~~bgcdriver.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 393,-112 393,4 -4,4"/>
+<!-- sourcefile~bgcdriver.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~bgcdriver.f90</title>
+<polygon fill="none" stroke="black" points="85,-66 0,-66 0,-42 85,-42 85,-66"/>
+<text text-anchor="middle" x="42.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">bgcdriver.F90</text>
+</g>
+<!-- sourcefile~cable_mpiworker.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~cable_mpiworker.f90</title>
+<g id="a_sourcefile~~bgcdriver.f90~~AfferentGraph_node2"><a xlink:href=".././sourcefile/cable_mpiworker.f90.html" xlink:title="cable_mpiworker.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="246.5,-108 121.5,-108 121.5,-84 246.5,-84 246.5,-108"/>
+<text text-anchor="middle" x="184" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_mpiworker.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_mpiworker.f90&#45;&gt;sourcefile~bgcdriver.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~cable_mpiworker.f90&#45;&gt;sourcefile~bgcdriver.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M143.02,-83.96C127.56,-79.31 109.68,-73.93 93.39,-69.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="94.07,-65.57 83.48,-66.04 92.05,-72.27 94.07,-65.57"/>
+</g>
+<!-- sourcefile~cable_driver.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~cable_driver.f90</title>
+<g id="a_sourcefile~~bgcdriver.f90~~AfferentGraph_node3"><a xlink:href=".././sourcefile/cable_driver.f90.html" xlink:title="cable_driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="234,-24 134,-24 134,0 234,0 234,-24"/>
+<text text-anchor="middle" x="184" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_driver.f90&#45;&gt;sourcefile~bgcdriver.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~cable_driver.f90&#45;&gt;sourcefile~bgcdriver.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M143.02,-24.04C127.56,-28.69 109.68,-34.07 93.39,-38.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="92.05,-35.73 83.48,-41.96 94.07,-42.43 92.05,-35.73"/>
+</g>
+<!-- sourcefile~cable_mpimaster.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~cable_mpimaster.f90</title>
+<g id="a_sourcefile~~bgcdriver.f90~~AfferentGraph_node4"><a xlink:href=".././sourcefile/cable_mpimaster.f90.html" xlink:title="cable_mpimaster.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="247,-66 121,-66 121,-42 247,-42 247,-66"/>
+<text text-anchor="middle" x="184" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_mpimaster.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_mpimaster.f90&#45;&gt;sourcefile~bgcdriver.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~cable_mpimaster.f90&#45;&gt;sourcefile~bgcdriver.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M120.59,-54C112.13,-54 103.51,-54 95.26,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="95.04,-50.5 85.04,-54 95.04,-57.5 95.04,-50.5"/>
+</g>
+<!-- sourcefile~cable_mpidrv.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~cable_mpidrv.f90</title>
+<g id="a_sourcefile~~bgcdriver.f90~~AfferentGraph_node5"><a xlink:href=".././sourcefile/cable_mpidrv.f90.html" xlink:title="cable_mpidrv.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="389,-87 283,-87 283,-63 389,-63 389,-87"/>
+<text text-anchor="middle" x="336" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_mpidrv.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cable_mpidrv.f90&#45;&gt;sourcefile~cable_mpiworker.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~cable_mpidrv.f90&#45;&gt;sourcefile~cable_mpiworker.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M282.96,-82.29C274.47,-83.47 265.56,-84.72 256.7,-85.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="256.17,-82.5 246.75,-87.35 257.14,-89.43 256.17,-82.5"/>
+</g>
+<!-- sourcefile~cable_mpidrv.f90&#45;&gt;sourcefile~cable_mpimaster.f90 -->
+<g id="sourcefile~~bgcdriver.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~cable_mpidrv.f90&#45;&gt;sourcefile~cable_mpimaster.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M282.96,-67.71C274.63,-66.55 265.88,-65.32 257.18,-64.1"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="257.4,-60.6 247.01,-62.68 256.43,-67.53 257.4,-60.6"/>
+</g>
+</g>
+</svg>
+</div><div><a type="button" class="graph-help" data-toggle="modal" href="#graph-help-text">Help</a></div><div class="modal fade" id="graph-help-text" tabindex="-1" role="dialog"><div class="modal-dialog modal-lg" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="-graph-help-label">Graph Key</h4></div><div class="modal-body">
+    <p>Nodes of different colours represent the following: </p>
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+    
+    <p>Solid arrows point from a file to a file which it depends on. A file
+    is dependent upon another if the latter must be compiled before the former
+    can be. Where possible, edges connecting nodes are given different colours to make them easier to distinguish in large graphs.
+    </p>
+    </div></div></div></div>
+      </div>
+    </div>
+<br>
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#mods-1">Modules</a>
+        </h3>
+      </div>
+      <div id="mods-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/bgcdriver_mod.html">bgcdriver_mod</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/bgcdriver.f90.html#src">bgcdriver.F90</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+    <section>
+      <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="c">!# define UM_BUILD YES</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">MODULE </span><span class="n">bgcdriver_mod</span><span class="w"></span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="k">IMPLICIT NONE</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="k">CONTAINS</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="k">SUBROUTINE </span><span class="n">bgcdriver</span><span class="p">(</span><span class="n">ktau</span><span class="p">,</span><span class="n">kstart</span><span class="p">,</span><span class="n">kend</span><span class="p">,</span><span class="n">dels</span><span class="p">,</span><span class="n">met</span><span class="p">,</span><span class="n">ssnow</span><span class="p">,</span><span class="n">canopy</span><span class="p">,</span><span class="n">veg</span><span class="p">,</span><span class="n">soil</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">                     </span><span class="n">climate</span><span class="p">,</span><span class="n">casabiome</span><span class="p">,</span><span class="n">casapool</span><span class="p">,</span><span class="n">casaflux</span><span class="p">,</span><span class="n">casamet</span><span class="p">,</span><span class="n">casabal</span><span class="p">,</span><span class="n">phen</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">                     </span><span class="n">pop</span><span class="p">,</span><span class="w"> </span><span class="n">spinConv</span><span class="p">,</span><span class="w"> </span><span class="n">spinup</span><span class="p">,</span><span class="w"> </span><span class="n">ktauday</span><span class="p">,</span><span class="w"> </span><span class="n">idoy</span><span class="p">,</span><span class="n">loy</span><span class="p">,</span><span class="w"> </span><span class="n">dump_read</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">                     </span><span class="n">dump_write</span><span class="p">,</span><span class="w"> </span><span class="n">LALLOC</span><span class="p">)</span><span class="w"></span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">USE </span><span class="n">cable_def_types_mod</span><span class="w"></span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">USE </span><span class="n">cable_common_module</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">cable_runtime</span><span class="w"></span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">   </span><span class="k">USE </span><span class="n">casadimension</span><span class="w"></span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">   </span><span class="k">USE </span><span class="n">casaparm</span><span class="w"></span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">   </span><span class="k">USE </span><span class="n">casavariable</span><span class="w"></span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">   </span><span class="k">USE </span><span class="n">phenvariable</span><span class="w"></span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">   </span><span class="k">USE </span><span class="n">cable_common_module</span><span class="p">,</span><span class="w">  </span><span class="k">ONLY</span><span class="p">:</span><span class="w"> </span><span class="n">CurYear</span><span class="p">,</span><span class="w"> </span><span class="n">CABLE_USER</span><span class="w"></span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="k">USE </span><span class="n">TypeDef</span><span class="p">,</span><span class="w">              </span><span class="k">ONLY</span><span class="p">:</span><span class="w"> </span><span class="n">i4b</span><span class="p">,</span><span class="w"> </span><span class="n">dp</span><span class="w"></span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="cp">#  ifndef UM_BUILD</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="k">USE </span><span class="n">POPMODULE</span><span class="p">,</span><span class="w">            </span><span class="k">ONLY</span><span class="p">:</span><span class="w"> </span><span class="n">POPStep</span><span class="w"></span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="cp">#  endif</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">   </span><span class="k">USE </span><span class="n">POP_TYPES</span><span class="p">,</span><span class="w">            </span><span class="k">ONLY</span><span class="p">:</span><span class="w"> </span><span class="n">POP_TYPE</span><span class="w"></span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="cp">#  ifndef UM_BUILD</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">   </span><span class="k">USE </span><span class="n">cable_phenology_module</span><span class="p">,</span><span class="w"> </span><span class="k">ONLY</span><span class="p">:</span><span class="w"> </span><span class="n">cable_phenology_clim</span><span class="w"></span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="cp">#  endif</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">  </span><span class="k">USE </span><span class="n">biogeochem_mod</span><span class="p">,</span><span class="w"> </span><span class="k">ONLY</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">biogeochem</span><span class="w"> </span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">   </span><span class="k">IMPLICIT NONE</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="k">   </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w">      </span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ktau</span><span class="w"> </span><span class="c">! integration step number</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">   </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w">      </span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">kstart</span><span class="w"> </span><span class="c">! starting value of ktau</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">   </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w">      </span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">kend</span><span class="w"> </span><span class="c">! total # timesteps in run</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">   </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w">      </span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">                  </span><span class="kd">::</span><span class="w"> </span><span class="n">idoy</span><span class="w"> </span><span class="p">,</span><span class="n">LOY</span><span class="w"> </span><span class="c">! day of year (1-365) , Length oy</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">   </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w">      </span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">                  </span><span class="kd">::</span><span class="w"> </span><span class="n">ktauday</span><span class="w"></span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">   </span><span class="kt">logical</span><span class="p">,</span><span class="w">      </span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spinConv</span><span class="p">,</span><span class="w"> </span><span class="n">spinup</span><span class="w"></span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">   </span><span class="kt">logical</span><span class="p">,</span><span class="w">      </span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dump_read</span><span class="p">,</span><span class="w"> </span><span class="n">dump_write</span><span class="w"></span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">   </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w">      </span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">                  </span><span class="kd">::</span><span class="w"> </span><span class="n">LALLOC</span><span class="w"></span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">   </span><span class="kt">REAL</span><span class="p">,</span><span class="w">         </span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dels</span><span class="w"> </span><span class="c">! time setp size (s)</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">   </span><span class="k">TYPE</span><span class="w"> </span><span class="p">(</span><span class="n">met_type</span><span class="p">),</span><span class="w"> </span><span class="k">INTENT</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">met</span><span class="w">  </span><span class="c">! met input variables</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">   </span><span class="k">TYPE</span><span class="w"> </span><span class="p">(</span><span class="n">soil_snow_type</span><span class="p">),</span><span class="w"> </span><span class="k">INTENT</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ssnow</span><span class="w"> </span><span class="c">! soil and snow variables</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">   </span><span class="k">TYPE</span><span class="w"> </span><span class="p">(</span><span class="n">canopy_type</span><span class="p">),</span><span class="w"> </span><span class="k">INTENT</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">canopy</span><span class="w"> </span><span class="c">! vegetation variables</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">   </span><span class="k">TYPE</span><span class="w"> </span><span class="p">(</span><span class="n">veg_parameter_type</span><span class="p">),</span><span class="w">  </span><span class="k">INTENT</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">veg</span><span class="w">  </span><span class="c">! vegetation parameters</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">   </span><span class="k">TYPE</span><span class="w"> </span><span class="p">(</span><span class="n">soil_parameter_type</span><span class="p">),</span><span class="w"> </span><span class="k">INTENT</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">soil</span><span class="w"> </span><span class="c">! soil parameters</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">   </span><span class="k">TYPE</span><span class="w"> </span><span class="p">(</span><span class="n">casa_biome</span><span class="p">),</span><span class="w">          </span><span class="k">INTENT</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">casabiome</span><span class="w"></span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">   </span><span class="k">TYPE</span><span class="w"> </span><span class="p">(</span><span class="n">casa_pool</span><span class="p">),</span><span class="w">           </span><span class="k">INTENT</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">casapool</span><span class="w"></span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">   </span><span class="k">TYPE</span><span class="w"> </span><span class="p">(</span><span class="n">casa_flux</span><span class="p">),</span><span class="w">           </span><span class="k">INTENT</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">casaflux</span><span class="w"></span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">   </span><span class="k">TYPE</span><span class="w"> </span><span class="p">(</span><span class="n">casa_met</span><span class="p">),</span><span class="w">            </span><span class="k">INTENT</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">casamet</span><span class="w"></span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">   </span><span class="k">TYPE</span><span class="w"> </span><span class="p">(</span><span class="n">casa_balance</span><span class="p">),</span><span class="w">        </span><span class="k">INTENT</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">casabal</span><span class="w"></span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">   </span><span class="k">TYPE</span><span class="w"> </span><span class="p">(</span><span class="n">phen_variable</span><span class="p">),</span><span class="w">       </span><span class="k">INTENT</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">phen</span><span class="w"></span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">   </span><span class="k">TYPE</span><span class="p">(</span><span class="n">POP_TYPE</span><span class="p">),</span><span class="w">             </span><span class="k">INTENT</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">POP</span><span class="w"></span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">   </span><span class="k">TYPE</span><span class="w"> </span><span class="p">(</span><span class="n">climate_type</span><span class="p">),</span><span class="w"> </span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">climate</span><span class="w">  </span><span class="c">! climate variables</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">   </span><span class="c">! local variables added ypwang 5/nov/2012</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">   </span><span class="kt">real</span><span class="p">,</span><span class="w">      </span><span class="k">dimension</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">cleaf2met</span><span class="p">,</span><span class="w"> </span><span class="n">cleaf2str</span><span class="p">,</span><span class="w"> </span><span class="n">croot2met</span><span class="p">,</span><span class="w"> </span><span class="n">croot2str</span><span class="p">,</span><span class="w"> </span><span class="n">cwood2cwd</span><span class="w"></span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">   </span><span class="kt">real</span><span class="p">,</span><span class="w">      </span><span class="k">dimension</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">nleaf2met</span><span class="p">,</span><span class="w"> </span><span class="n">nleaf2str</span><span class="p">,</span><span class="w"> </span><span class="n">nroot2met</span><span class="p">,</span><span class="w"> </span><span class="n">nroot2str</span><span class="p">,</span><span class="w"> </span><span class="n">nwood2cwd</span><span class="w"></span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">   </span><span class="kt">real</span><span class="p">,</span><span class="w">      </span><span class="k">dimension</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">pleaf2met</span><span class="p">,</span><span class="w"> </span><span class="n">pleaf2str</span><span class="p">,</span><span class="w"> </span><span class="n">proot2met</span><span class="p">,</span><span class="w"> </span><span class="n">proot2str</span><span class="p">,</span><span class="w"> </span><span class="n">pwood2cwd</span><span class="w"></span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">   </span><span class="kt">real</span><span class="p">(</span><span class="n">r_2</span><span class="p">),</span><span class="w"> </span><span class="k">dimension</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">xnplimit</span><span class="p">,</span><span class="w">  </span><span class="n">xkNlimiting</span><span class="p">,</span><span class="w"> </span><span class="n">xklitter</span><span class="p">,</span><span class="w"> </span><span class="n">xksoil</span><span class="w"> </span><span class="p">,</span><span class="n">xkleaf</span><span class="p">,</span><span class="n">xkleafcold</span><span class="p">,</span><span class="n">xkleafdry</span><span class="w"></span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">   </span><span class="kt">INTEGER</span><span class="w">                                   </span><span class="kd">::</span><span class="w"> </span><span class="n">it</span><span class="p">,</span><span class="w"> </span><span class="n">nit</span><span class="w"></span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">   </span><span class="kt">REAL</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">StemNPP</span><span class="p">(</span><span class="n">mp</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">   </span><span class="kt">CHARACTER</span><span class="w">                                 </span><span class="kd">::</span><span class="w"> </span><span class="n">cyear</span><span class="o">*</span><span class="mi">4</span><span class="w"></span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">   </span><span class="kt">CHARACTER</span><span class="w">                                 </span><span class="kd">::</span><span class="w"> </span><span class="n">ncfile</span><span class="o">*</span><span class="mi">99</span><span class="w"></span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">   </span><span class="kt">INTEGER</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wlogn</span><span class="o">=</span><span class="mi">6</span><span class="w"></span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">.</span><span class="nb">NOT</span><span class="p">.</span><span class="w"> </span><span class="n">dump_read</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w">  </span><span class="c">! construct casa met and flux inputs from current CABLE run</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">TRIM</span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">MetType</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s1">&#39;cru&#39;</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="k">         </span><span class="n">casaflux</span><span class="p">%</span><span class="n">Nmindep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">met</span><span class="p">%</span><span class="n">Ndep</span><span class="w"></span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">      </span><span class="k">ENDIF</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="k">      IF</span><span class="p">(</span><span class="n">ktau</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">kstart</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="k">         </span><span class="n">casamet</span><span class="p">%</span><span class="n">tairk</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="w"></span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">         </span><span class="n">casamet</span><span class="p">%</span><span class="n">tsoil</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="w"></span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">         </span><span class="n">casamet</span><span class="p">%</span><span class="n">moist</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="w"></span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">      </span><span class="k">ENDIF</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="k">      IF</span><span class="p">(</span><span class="nb">MOD</span><span class="p">(</span><span class="n">ktau</span><span class="p">,</span><span class="n">ktauday</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="k">         </span><span class="n">casamet</span><span class="p">%</span><span class="n">tairk</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">met</span><span class="p">%</span><span class="n">tk</span><span class="w"></span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">         </span><span class="n">casamet</span><span class="p">%</span><span class="n">tsoil</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ssnow</span><span class="p">%</span><span class="n">tgg</span><span class="w"></span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">         </span><span class="n">casamet</span><span class="p">%</span><span class="n">moist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ssnow</span><span class="p">%</span><span class="n">wb</span><span class="w"></span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">         </span><span class="n">casaflux</span><span class="p">%</span><span class="n">meangpp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">-</span><span class="n">canopy</span><span class="p">%</span><span class="n">fpn</span><span class="o">+</span><span class="n">canopy</span><span class="p">%</span><span class="n">frday</span><span class="p">)</span><span class="o">*</span><span class="n">dels</span><span class="w"></span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">         </span><span class="n">casaflux</span><span class="p">%</span><span class="n">meanrleaf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">canopy</span><span class="p">%</span><span class="n">frday</span><span class="o">*</span><span class="n">dels</span><span class="w"></span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">      </span><span class="k">ELSE</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="k">         </span><span class="n">Casamet</span><span class="p">%</span><span class="n">tairk</span><span class="w">  </span><span class="o">=</span><span class="n">casamet</span><span class="p">%</span><span class="n">tairk</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">met</span><span class="p">%</span><span class="n">tk</span><span class="w"></span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">         </span><span class="n">casamet</span><span class="p">%</span><span class="n">tsoil</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">casamet</span><span class="p">%</span><span class="n">tsoil</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ssnow</span><span class="p">%</span><span class="n">tgg</span><span class="w"></span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">         </span><span class="n">casamet</span><span class="p">%</span><span class="n">moist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">casamet</span><span class="p">%</span><span class="n">moist</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ssnow</span><span class="p">%</span><span class="n">wb</span><span class="w"></span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">         </span><span class="n">casaflux</span><span class="p">%</span><span class="n">meangpp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">casaflux</span><span class="p">%</span><span class="n">meangpp</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="o">-</span><span class="n">canopy</span><span class="p">%</span><span class="n">fpn</span><span class="o">+</span><span class="n">canopy</span><span class="p">%</span><span class="n">frday</span><span class="p">)</span><span class="o">*</span><span class="n">dels</span><span class="w"></span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">         </span><span class="n">casaflux</span><span class="p">%</span><span class="n">meanrleaf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">casaflux</span><span class="p">%</span><span class="n">meanrleaf</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">canopy</span><span class="p">%</span><span class="n">frday</span><span class="o">*</span><span class="n">dels</span><span class="w"></span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">      </span><span class="k">ENDIF</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="k">      IF</span><span class="p">(</span><span class="nb">MOD</span><span class="p">((</span><span class="n">ktau</span><span class="o">-</span><span class="n">kstart</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">ktauday</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w">  </span><span class="c">! end of day</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">  </span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">         </span><span class="n">casamet</span><span class="p">%</span><span class="n">tairk</span><span class="w">  </span><span class="o">=</span><span class="n">casamet</span><span class="p">%</span><span class="n">tairk</span><span class="o">/</span><span class="nb">FLOAT</span><span class="p">(</span><span class="n">ktauday</span><span class="p">)</span><span class="w"></span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">         </span><span class="n">casamet</span><span class="p">%</span><span class="n">tsoil</span><span class="o">=</span><span class="n">casamet</span><span class="p">%</span><span class="n">tsoil</span><span class="o">/</span><span class="nb">FLOAT</span><span class="p">(</span><span class="n">ktauday</span><span class="p">)</span><span class="w"></span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">         </span><span class="n">casamet</span><span class="p">%</span><span class="n">moist</span><span class="o">=</span><span class="n">casamet</span><span class="p">%</span><span class="n">moist</span><span class="o">/</span><span class="nb">FLOAT</span><span class="p">(</span><span class="n">ktauday</span><span class="p">)</span><span class="w"></span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">         </span><span class="n">casaflux</span><span class="p">%</span><span class="n">cgpp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">casaflux</span><span class="p">%</span><span class="n">meangpp</span><span class="w"></span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">         </span><span class="n">casaflux</span><span class="p">%</span><span class="n">crmplant</span><span class="p">(:,</span><span class="n">leaf</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">casaflux</span><span class="p">%</span><span class="n">meanrleaf</span><span class="w"></span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">         </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">icycle</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w"></span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="cp">#     ifndef UM_BUILD</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">            </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">PHENOLOGY_SWITCH</span><span class="p">)</span><span class="o">==</span><span class="s1">&#39;climate&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w"></span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">               </span><span class="c">! get climate_dependent phenology</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">               </span><span class="k">call </span><span class="n">cable_phenology_clim</span><span class="p">(</span><span class="n">veg</span><span class="p">,</span><span class="w"> </span><span class="n">climate</span><span class="p">,</span><span class="w"> </span><span class="n">phen</span><span class="p">)</span><span class="w"></span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">            </span><span class="k">ENDIF</span><span class="w"></span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="cp">#     endif</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">            </span><span class="k">CALL </span><span class="n">biogeochem</span><span class="p">(</span><span class="n">ktau</span><span class="p">,</span><span class="n">dels</span><span class="p">,</span><span class="n">idoy</span><span class="p">,</span><span class="n">LALLOC</span><span class="p">,</span><span class="n">veg</span><span class="p">,</span><span class="n">soil</span><span class="p">,</span><span class="n">casabiome</span><span class="p">,</span><span class="n">casapool</span><span class="p">,</span><span class="n">casaflux</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">                </span><span class="n">casamet</span><span class="p">,</span><span class="n">casabal</span><span class="p">,</span><span class="n">phen</span><span class="p">,</span><span class="n">POP</span><span class="p">,</span><span class="n">climate</span><span class="p">,</span><span class="w"> </span><span class="n">xnplimit</span><span class="p">,</span><span class="n">xkNlimiting</span><span class="p">,</span><span class="n">xklitter</span><span class="p">,</span><span class="n">xksoil</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">                </span><span class="n">xkleaf</span><span class="p">,</span><span class="n">xkleafcold</span><span class="p">,</span><span class="n">xkleafdry</span><span class="p">,&amp;</span><span class="w"></span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">                </span><span class="n">cleaf2met</span><span class="p">,</span><span class="n">cleaf2str</span><span class="p">,</span><span class="n">croot2met</span><span class="p">,</span><span class="n">croot2str</span><span class="p">,</span><span class="n">cwood2cwd</span><span class="p">,</span><span class="w">         </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">                </span><span class="n">nleaf2met</span><span class="p">,</span><span class="n">nleaf2str</span><span class="p">,</span><span class="n">nroot2met</span><span class="p">,</span><span class="n">nroot2str</span><span class="p">,</span><span class="n">nwood2cwd</span><span class="p">,</span><span class="w">         </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="w">                </span><span class="n">pleaf2met</span><span class="p">,</span><span class="n">pleaf2str</span><span class="p">,</span><span class="n">proot2met</span><span class="p">,</span><span class="n">proot2str</span><span class="p">,</span><span class="n">pwood2cwd</span><span class="p">)</span><span class="w"></span>
+<a id="ln-120" name="ln-120" href="#ln-120"></a>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">            </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">CALL_POP</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="c">! accumulate input variables for POP</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">        </span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="w">               </span><span class="c">! accumulate annual variables for use in POP</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">               </span><span class="k">IF</span><span class="p">(</span><span class="nb">MOD</span><span class="p">(</span><span class="n">ktau</span><span class="o">/</span><span class="n">ktauday</span><span class="p">,</span><span class="n">LOY</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="k">          </span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="k">                  </span><span class="n">casaflux</span><span class="p">%</span><span class="n">stemnpp</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">casaflux</span><span class="p">%</span><span class="n">cnpp</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">casaflux</span><span class="p">%</span><span class="n">fracCalloc</span><span class="p">(:,</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.7</span><span class="w"></span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">                  </span><span class="c">! (assumes 70% of wood NPP is allocated above ground)</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">                  </span><span class="n">casabal</span><span class="p">%</span><span class="n">LAImax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">casamet</span><span class="p">%</span><span class="n">glai</span><span class="w"></span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">                  </span><span class="n">casabal</span><span class="p">%</span><span class="n">Cleafmean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">casapool</span><span class="p">%</span><span class="n">cplant</span><span class="p">(:,</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="kt">real</span><span class="p">(</span><span class="n">LOY</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span><span class="mf">0.</span><span class="w"></span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">                  </span><span class="n">casabal</span><span class="p">%</span><span class="n">Crootmean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">casapool</span><span class="p">%</span><span class="n">cplant</span><span class="p">(:,</span><span class="mi">3</span><span class="p">)</span><span class="o">/</span><span class="kt">real</span><span class="p">(</span><span class="n">LOY</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span><span class="mf">0.</span><span class="w"></span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">        </span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">               </span><span class="k">ELSE</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="k">        </span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="k">                  </span><span class="n">casaflux</span><span class="p">%</span><span class="n">stemnpp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">casaflux</span><span class="p">%</span><span class="n">stemnpp</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">casaflux</span><span class="p">%</span><span class="n">cnpp</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">casaflux</span><span class="p">%</span><span class="n">fracCalloc</span><span class="p">(:,</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.7</span><span class="w"></span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">                  </span><span class="n">casabal</span><span class="p">%</span><span class="n">LAImax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="n">casamet</span><span class="p">%</span><span class="n">glai</span><span class="p">,</span><span class="w"> </span><span class="n">casabal</span><span class="p">%</span><span class="n">LAImax</span><span class="p">)</span><span class="w"></span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="w">                  </span><span class="n">casabal</span><span class="p">%</span><span class="n">Cleafmean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">casabal</span><span class="p">%</span><span class="n">Cleafmean</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">casapool</span><span class="p">%</span><span class="n">cplant</span><span class="p">(:,</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="kt">real</span><span class="p">(</span><span class="n">LOY</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span><span class="mf">0.</span><span class="w"></span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="w">                  </span><span class="n">casabal</span><span class="p">%</span><span class="n">Crootmean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">casabal</span><span class="p">%</span><span class="n">Crootmean</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">casapool</span><span class="p">%</span><span class="n">cplant</span><span class="p">(:,</span><span class="mi">3</span><span class="p">)</span><span class="o">/</span><span class="kt">real</span><span class="p">(</span><span class="n">LOY</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span><span class="mf">0.</span><span class="w"></span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="w">        </span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="w">               </span><span class="k">ENDIF</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="k">      </span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="k">            ELSE</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="k">      </span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="k">               </span><span class="n">casaflux</span><span class="p">%</span><span class="n">stemnpp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.</span><span class="w"></span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="w">      </span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">            </span><span class="k">ENDIF</span><span class="w"> </span><span class="c">! CALL_POP</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">         </span><span class="k">ENDIF</span><span class="w">  </span><span class="c">! icycle .gt. 0</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="w">      </span><span class="k">ENDIF</span><span class="w">  </span><span class="c">! end of day</span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="k">ELSE</span><span class="w"> </span><span class="c">! dump_read: ! use casa met and flux inputs from dumpfile</span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="w">      </span><span class="k">IF</span><span class="p">(</span><span class="w"> </span><span class="nb">MOD</span><span class="p">((</span><span class="n">ktau</span><span class="o">-</span><span class="n">kstart</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">ktauday</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w">  </span><span class="c">! end of day</span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="w">         </span><span class="k">CALL </span><span class="n">biogeochem</span><span class="p">(</span><span class="n">ktau</span><span class="p">,</span><span class="n">dels</span><span class="p">,</span><span class="n">idoy</span><span class="p">,</span><span class="n">LALLOC</span><span class="p">,</span><span class="n">veg</span><span class="p">,</span><span class="n">soil</span><span class="p">,</span><span class="n">casabiome</span><span class="p">,</span><span class="n">casapool</span><span class="p">,</span><span class="n">casaflux</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">              </span><span class="n">casamet</span><span class="p">,</span><span class="n">casabal</span><span class="p">,</span><span class="n">phen</span><span class="p">,</span><span class="n">POP</span><span class="p">,</span><span class="n">climate</span><span class="p">,</span><span class="n">xnplimit</span><span class="p">,</span><span class="n">xkNlimiting</span><span class="p">,</span><span class="n">xklitter</span><span class="p">,</span><span class="n">xksoil</span><span class="p">,</span><span class="n">xkleaf</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">              </span><span class="n">xkleafcold</span><span class="p">,</span><span class="n">xkleafdry</span><span class="p">,&amp;</span><span class="w"></span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">              </span><span class="n">cleaf2met</span><span class="p">,</span><span class="n">cleaf2str</span><span class="p">,</span><span class="n">croot2met</span><span class="p">,</span><span class="n">croot2str</span><span class="p">,</span><span class="n">cwood2cwd</span><span class="p">,</span><span class="w">         </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="w">              </span><span class="n">nleaf2met</span><span class="p">,</span><span class="n">nleaf2str</span><span class="p">,</span><span class="n">nroot2met</span><span class="p">,</span><span class="n">nroot2str</span><span class="p">,</span><span class="n">nwood2cwd</span><span class="p">,</span><span class="w">         </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="w">              </span><span class="n">pleaf2met</span><span class="p">,</span><span class="n">pleaf2str</span><span class="p">,</span><span class="n">proot2met</span><span class="p">,</span><span class="n">proot2str</span><span class="p">,</span><span class="n">pwood2cwd</span><span class="p">)</span><span class="w"></span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="w">         </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">cable_user</span><span class="p">%</span><span class="n">CALL_POP</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="c">! accumulate input variables for POP</span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a>
+<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="w">            </span><span class="c">! accumulate annual variables for use in POP</span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">            </span><span class="k">IF</span><span class="p">(</span><span class="nb">MOD</span><span class="p">(</span><span class="n">ktau</span><span class="o">/</span><span class="n">ktauday</span><span class="p">,</span><span class="n">LOY</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="k">        </span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="k">               </span><span class="n">casaflux</span><span class="p">%</span><span class="n">stemnpp</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">casaflux</span><span class="p">%</span><span class="n">cnpp</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">casaflux</span><span class="p">%</span><span class="n">fracCalloc</span><span class="p">(:,</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.7</span><span class="w"></span>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">               </span><span class="c">! (assumes 70% of wood NPP is allocated above ground)</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="w">               </span><span class="n">casabal</span><span class="p">%</span><span class="n">LAImax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">casamet</span><span class="p">%</span><span class="n">glai</span><span class="w"></span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="w">               </span><span class="n">casabal</span><span class="p">%</span><span class="n">Cleafmean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">casapool</span><span class="p">%</span><span class="n">cplant</span><span class="p">(:,</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="kt">real</span><span class="p">(</span><span class="n">LOY</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span><span class="mf">0.</span><span class="w"></span>
+<a id="ln-171" name="ln-171" href="#ln-171"></a><span class="w">               </span><span class="n">casabal</span><span class="p">%</span><span class="n">Crootmean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">casapool</span><span class="p">%</span><span class="n">cplant</span><span class="p">(:,</span><span class="mi">3</span><span class="p">)</span><span class="o">/</span><span class="kt">real</span><span class="p">(</span><span class="n">LOY</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span><span class="mf">0.</span><span class="w"></span>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="w">      </span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">            </span><span class="k">ELSE</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="k">      </span>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="k">               </span><span class="n">casaflux</span><span class="p">%</span><span class="n">stemnpp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">casaflux</span><span class="p">%</span><span class="n">stemnpp</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">casaflux</span><span class="p">%</span><span class="n">cnpp</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">casaflux</span><span class="p">%</span><span class="n">fracCalloc</span><span class="p">(:,</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.7</span><span class="w"></span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a><span class="w">               </span><span class="n">casabal</span><span class="p">%</span><span class="n">LAImax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="n">casamet</span><span class="p">%</span><span class="n">glai</span><span class="p">,</span><span class="w"> </span><span class="n">casabal</span><span class="p">%</span><span class="n">LAImax</span><span class="p">)</span><span class="w"></span>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="w">               </span><span class="n">casabal</span><span class="p">%</span><span class="n">Cleafmean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">casabal</span><span class="p">%</span><span class="n">Cleafmean</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">casapool</span><span class="p">%</span><span class="n">cplant</span><span class="p">(:,</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="kt">real</span><span class="p">(</span><span class="n">LOY</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span><span class="mf">0.</span><span class="w"></span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a><span class="w">               </span><span class="n">casabal</span><span class="p">%</span><span class="n">Crootmean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">casabal</span><span class="p">%</span><span class="n">Crootmean</span><span class="w"> </span><span class="o">+</span><span class="n">casapool</span><span class="p">%</span><span class="n">cplant</span><span class="p">(:,</span><span class="mi">3</span><span class="p">)</span><span class="o">/</span><span class="kt">real</span><span class="p">(</span><span class="n">LOY</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span><span class="mf">0.</span><span class="w"></span>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="w">      </span>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="w">            </span><span class="k">ENDIF</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a>
+<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="k">         ENDIF</span><span class="w"> </span><span class="c">! CALL_POP</span>
+<a id="ln-183" name="ln-183" href="#ln-183"></a>
+<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="w">      </span><span class="k">ENDIF</span><span class="w"> </span><span class="c">! end of day</span>
+<a id="ln-185" name="ln-185" href="#ln-185"></a>
+<a id="ln-186" name="ln-186" href="#ln-186"></a><span class="k">ENDIF</span><span class="w"> </span><span class="c">! dump_read</span>
+<a id="ln-187" name="ln-187" href="#ln-187"></a>
+<a id="ln-188" name="ln-188" href="#ln-188"></a><span class="k">END SUBROUTINE </span><span class="n">bgcdriver</span><span class="w"></span>
+<a id="ln-189" name="ln-189" href="#ln-189"></a>
+<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="k">END MODULE </span><span class="n">bgcdriver_mod</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>CABLE was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+  </body>
+</html>
