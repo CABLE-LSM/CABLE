@@ -285,8 +285,6 @@
           
             
               
-                
-              
               <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
@@ -935,6 +933,20 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#legend-for-the-flowcharts" class="md-nav__link">
+    Legend for the flowcharts
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-for-new-piece-of-work" class="md-nav__link">
+    Setup for new piece of work
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#clone-repository" class="md-nav__link">
     Clone repository
   </a>
@@ -949,22 +961,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#create-a-branch" class="md-nav__link">
-    Create a branch
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#fetch-the-branch-locally" class="md-nav__link">
-    Fetch the branch locally
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#create-the-local-branch" class="md-nav__link">
     Create the local branch
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#do-and-record-your-work" class="md-nav__link">
+    Do and record your work
   </a>
   
 </li>
@@ -986,6 +991,13 @@
         <li class="md-nav__item">
   <a href="#check-the-preview" class="md-nav__link">
     Check the preview
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review" class="md-nav__link">
+    Review
   </a>
   
 </li>
@@ -1144,9 +1156,7 @@
             
             
               
-                
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" hidden>
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
@@ -1165,6 +1175,20 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#legend-for-the-flowcharts" class="md-nav__link">
+    Legend for the flowcharts
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-for-new-piece-of-work" class="md-nav__link">
+    Setup for new piece of work
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#clone-repository" class="md-nav__link">
     Clone repository
   </a>
@@ -1179,22 +1203,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#create-a-branch" class="md-nav__link">
-    Create a branch
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#fetch-the-branch-locally" class="md-nav__link">
-    Fetch the branch locally
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#create-the-local-branch" class="md-nav__link">
     Create the local branch
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#do-and-record-your-work" class="md-nav__link">
+    Do and record your work
   </a>
   
 </li>
@@ -1216,6 +1233,13 @@
         <li class="md-nav__item">
   <a href="#check-the-preview" class="md-nav__link">
     Check the preview
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#review" class="md-nav__link">
+    Review
   </a>
   
 </li>
@@ -1262,6 +1286,25 @@
 
 
 <h1 id="flowchart-to-contribute-to-cables-documentation">Flowchart to contribute to CABLE's documentation</h1>
+<p>This workflow assumes you have followed all the steps to <a href="https://access-nri.github.io/Training/HowTos/GitAndGitHub/">setup Git and GitHub</a> given by ACCESS-NRI. </p>
+<p>This first flowchart explains what we are trying to do in various steps. The following flowcharts go into the details, including the various git commands needed or links to screenshots on GitHub.</p>
+<pre class="mermaid"><code>   flowchart LR
+
+   Idea[Explain your work in an issue]
+   Workplace[Create a workplace for you in the repository]
+   Work[Do your work and record it]
+   Check[Check your work when rendered &lt;br&gt; and merged with the main deployment]
+   Review[Get a review on your work]
+   Merge[Merge final version into the main deployment]
+   Update[Update your local copy to stay up-to-date]
+
+   Idea --&gt; Workplace --&gt; Work --&gt; Check;
+   Check --&gt;|Incorrect|Work;
+   Check --&gt;|Correct|Review;
+   Review --&gt;|Apply requested changes|Update --&gt; Work;
+   Review --&gt;|Approved|Merge --&gt; Update;
+;</code></pre>
+<h2 id="legend-for-the-flowcharts">Legend for the flowcharts</h2>
 <pre class="mermaid"><code>   %% Create a graph for the legend of the main graph
    flowchart LR
       uniq[action done &lt;br&gt; only once ever &lt;br&gt; at the start &lt;br&gt; to get the code locally]:::uniq;
@@ -1280,50 +1323,52 @@
       classDef term fill:#F44336, stroke:#B71C1C, color:#FFFFFF;
       classDef question fill:#6D4C41, stroke:#3E2723, color:#FFFFFF; 
 ;</code></pre>
+<h2 id="setup-for-new-piece-of-work">Setup for new piece of work</h2>
 <pre class="mermaid"><code>   flowchart TB
 
       %% Define all the nodes first
       clone[Clone repository]:::uniq ;
       issue([Open an issue &lt;br&gt; to explain your work]):::github;
-      branch([Create a branch]):::github;
-      fetch([Fetch branch &lt;br&gt; to your local repository: &lt;br&gt; git fetch]):::term;
       locbranch(["Create local branch: &lt;br&gt; git checkout &amp;lt;branchname&amp;gt;"]):::term;
+      work[Ready to start work];
+
+      clone --&gt; issue --&gt; locbranch--&gt; work;
+
+      classDef default fill:#FFFDE7, stroke:#FFF59D;
+      classDef uniq fill:#D81B60, stroke:#880E4F, color:#FFFFFF;
+      classDef github fill:#388E3C,stroke:#1B5E20, color:#FFFFFF;
+      classDef term fill:#F44336, stroke:#B71C1C, color:#FFFFFF;
+      classDef question fill:#6D4C41, stroke:#3E2723, color:#FFFFFF; 
+;</code></pre>
+<h2 id="clone-repository"><strong>Clone repository</strong></h2>
+<p><img alt="clone" src="../../assets/clone.png" />
+Clone the repository to your local working space. Make sure to choose the appropriate protocol (HTTPS or SSH) for connecting to the remote repository. Note, you need to setup an access token to use HTTPS and SSH keys to use SSH.</p>
+<h2 id="open-issue"><strong>Open issue</strong></h2>
+<p><img alt="issue" src="../../assets/issue.png" />
+Before starting new work, open an issue to explain what you are planning on working on. This avoid potential duplication of effort.</p>
+<h2 id="create-the-local-branch"><strong>Create the local branch</strong></h2>
+<p>You want to create a branch for your work, that's your workplace within the shared repository. For this, use <code>git checkout</code> with the name of the branch you want:</p>
+<div class="highlight"><pre><span></span><code>git checkout &lt;branchname&gt;
+</code></pre></div>
+<p>:::tip "Branch name"</p>
+<pre><code>It is best to start the branch name with the issue number so the link between the two is obvious.
+</code></pre>
+<h2 id="do-and-record-your-work">Do and record your work</h2>
+<pre class="mermaid"><code>   flowchart TB
+
       edits[Make your edits]:::term;
       commit["Commit your edits: &lt;br&gt; git commit -a -m &amp;lt;message&amp;gt;"]:::term;
       push[Push your edits &lt;br&gt; git push]:::term;
       first[\Is it first push?/]:::question;
       pr([Create a pull request]):::github;
       preview[\Is preview correct?/]:::question;
-      review[Request review]:::github;
-      reviewchange[\Review asks for code changes &lt;br&gt; or has comments?/]:::question;
-      revieweredits[\Reviewer has committed some edits? /]:::question;
-      update[Pull updates to your local repository: &lt;br&gt; git pull]:::term;
-      merge([Merge branch]):::github;
-      updatemain([Pull update to your local repository: &lt;br&gt; git checkout main &lt;br&gt; git pull]):::term;
+      review[Ready for review];
 
-      %% Define the graphs using the nodes' names
-      clone --&gt; issue;
-      merge --&gt; updatemain;
-
-      subgraph Review
-         review --&gt; reviewchange;
-         reviewchange --&gt;|No|merge;
-      end
-
-      subgraph Editing
-         edits --&gt; commit --&gt; push --&gt; first;
-         first --&gt;|Yes|pr --&gt; preview;
-         first --&gt;|No|preview;
-         preview --&gt;|Yes|review;
-         preview --&gt;|No|edits;
-         reviewchange --&gt;|Yes|revieweredits;
-         revieweredits --&gt;|Yes|update --&gt; edits;
-         revieweredits --&gt;|No|edits;
-      end
-
-      subgraph Setup
-         issue --&gt; branch --&gt; fetch--&gt; locbranch--&gt; edits;
-      end
+      edits --&gt; commit --&gt; push;
+      push --&gt; |first time|pr --&gt; preview;
+      push ----&gt; |subsequent|preview;
+      preview --&gt;|Yes|review;
+      preview --&gt;|No|edits;
 
       classDef default fill:#FFFDE7, stroke:#FFF59D;
       classDef uniq fill:#D81B60, stroke:#880E4F, color:#FFFFFF;
@@ -1332,23 +1377,6 @@
       classDef question fill:#6D4C41, stroke:#3E2723, color:#FFFFFF; 
 
 ;</code></pre>
-<h2 id="clone-repository"><strong>Clone repository</strong></h2>
-<p><img alt="clone" src="../../assets/clone.png" />
-Clone the repository to your local working space. Make sure to choose the appropriate protocol (HTTPS or SSH) for connecting to the remote repository. Note, you need to setup an access token to use HTTPS and SSH keys to use SSH.</p>
-<h2 id="open-issue"><strong>Open issue</strong></h2>
-<p><img alt="issue" src="../../assets/issue.png" />
-Before starting new work, open an issue to explain what you are planning on working on. This avoid potential duplication of effort.</p>
-<h2 id="create-a-branch"><strong>Create a branch</strong></h2>
-<p><img alt="newbranch" src="../../assets/newbranch.png" />
-From the issue screen on GitHub, you can directly create a branch for that issue from the option in the right-hand side menu. GitHub suggests a branch name you can edit, but please keep the issue number in the branch name.</p>
-<h2 id="fetch-the-branch-locally"><strong>Fetch the branch locally</strong></h2>
-<p>You have created a branch on the GitHub repository (aka the remote repository), you now need to update the repository on your work space with that information:</p>
-<div class="highlight"><pre><span></span><code>git fetch
-</code></pre></div>
-<h2 id="create-the-local-branch"><strong>Create the local branch</strong></h2>
-<p>You want the local branch to sync with the remote branch you have created previously. For this, use <code>git checkout</code> with the name of the branch you have created:</p>
-<div class="highlight"><pre><span></span><code>git checkout &lt;branchname&gt;
-</code></pre></div>
 <h2 id="commit-your-edits"><strong>Commit your edits</strong></h2>
 <p>You need to record your edits in git, this is called <code>commit</code>. It is recommended to do this regularly as it gives some safety to reverse changes:</p>
 <div class="highlight"><pre><span></span><code>git commit -a -m <span class="s2">&quot;your commit message&quot;</span>
@@ -1364,6 +1392,31 @@ From the issue screen on GitHub, you can directly create a branch for that issue
 <p>The pull request will build a preview of your work <em>merged</em> with the main branch of the repository. Please check that your work is rendered correctly. Once a preview is ready, you will see the following comment in the pull request providing the path to the preview:</p>
 <p><img alt="preview" src="../../assets/preview.png" /></p>
 <p>To preview changes to the API documentation (ie. documentation in the CABLE source code), you need to append <code>/api</code> to the path provided.</p>
+<h2 id="review">Review</h2>
+<p>All modifications to the documentation no matter how large or small need to be reviewed by another CABLE collaborator.</p>
+<pre class="mermaid"><code>   flowchart TB
+
+      %% Define all the nodes first
+      review[Request review]:::github;
+      reviewchange[\Review asks for code changes &lt;br&gt; or has comments?/]:::question;
+      revieweredits[\Reviewer has committed some edits? /]:::question;
+      update[Pull updates to your local repository: &lt;br&gt; git pull]:::term;
+      merge([Merge branch]):::github;
+      updatemain([Pull update to your local repository: &lt;br&gt; git checkout main &lt;br&gt; git pull]):::term;
+      edits[Back to editing your branch];
+
+      %% Define the graphs using the nodes' names
+      review --&gt; |Need to put code changes|update --&gt; edits;
+      review --&gt;|Approved|merge;
+      merge --&gt; updatemain;
+
+      classDef default fill:#FFFDE7, stroke:#FFF59D;
+      classDef uniq fill:#D81B60, stroke:#880E4F, color:#FFFFFF;
+      classDef github fill:#388E3C,stroke:#1B5E20, color:#FFFFFF;
+      classDef term fill:#F44336, stroke:#B71C1C, color:#FFFFFF;
+      classDef question fill:#6D4C41, stroke:#3E2723, color:#FFFFFF; 
+
+;</code></pre>
 <h2 id="ask-for-review"><strong>Ask for review</strong></h2>
 <p><img alt="review" src="../../assets/review.png" /></p>
 <p>Once you are satisfied with your work, ask for a review. By putting a submission in, you are responsible for being responsive to any comments or edit changes suggested by the reviewer. Remember your work will not be accepted into the main deployment branch until a reviewer approves it.</p>
@@ -1380,19 +1433,17 @@ git pull
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 1, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 5, 2022</span>
       
         <br>
         Created:
-        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 1, 2022</span>
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 5, 2022</span>
       
     
   </small>
 </div>
 
 
-
-  
 
 
 
@@ -1407,8 +1458,6 @@ git pull
       
         <footer class="md-footer">
   
-    
-      
     
     <nav class="md-footer__inner md-grid" aria-label="Footer" >
       
