@@ -1336,8 +1336,8 @@
 
 
 <h1 id="flowchart-to-contribute-to-cables-documentation">Flowchart to contribute to CABLE's documentation</h1>
-<p>This workflow assumes you have followed all the steps to <a href="https://access-nri.github.io/Training/HowTos/GitAndGitHub/">setup Git and GitHub</a> given by ACCESS-NRI. </p>
-<p>This first flowchart explains what we are trying to do. The following flowcharts go into the details, including the various git commands needed.</p>
+<p>This workflow assumes you have followed all the steps to <a href="https://access-nri.github.io/Training/HowTos/GitAndGitHub/">setup Git and GitHub</a> given by ACCESS-NRI.</p>
+<p>This first flowchart explains what we are trying to do. The following flowcharts go into the details, including the various git commands needed. All the git commands listed are to be run in a terminal on the machine you are working on.</p>
 <pre class="mermaid"><code>   flowchart TD
 
    Idea[Explain your work in an issue]
@@ -1398,13 +1398,17 @@
       click work "https://cable-lsm.github.io/CABLE/developer_guide/contribution_flowchart/#do-and-record-your-work" "Doing work flowchart"
 ;</code></pre>
 <h3 id="clone-repository">Clone repository</h3>
-<p><img alt="clone" src="../../assets/clone.png" />
-Clone the repository to your local working space. Make sure to choose the appropriate protocol (HTTPS or SSH) for connecting to the remote repository. Note, you need to setup an access token to use HTTPS and SSH keys to use SSH.</p>
+<p>On <a href="https://github.com/CABLE-LSM/CABLE">CABLE's GitHub main page</a>, click the <code>code</code> green button and copy the URL you need:
+<img alt="clone" src="../../assets/clone.png" />
+Make sure to choose the appropriate protocol (HTTPS or SSH) for connecting to the remote repository. Note, you need to setup an access token to use HTTPS and SSH keys to use SSH.</p>
+<p>On your local machine in a terminal,clone the repository:</p>
+<div class="highlight"><pre><span></span><code>git clone &lt;URL provided&gt;
+</code></pre></div>
 <h3 id="open-issue">Open issue</h3>
 <p><img alt="issue" src="../../assets/issue.png" />
-Before starting new work, open an issue to explain what you are planning on working on. This avoid potential duplication of effort.</p>
+Before starting new work, open an issue on GitHub to explain what you are planning on working on. This avoid potential duplication of effort.</p>
 <h3 id="create-the-local-branch">Create the local branch</h3>
-<p>You want to create a branch for your work, that's your workspace within the shared repository. For this, use <code>git checkout</code> with the name of the branch you want:</p>
+<p>You want to create a branch for your work, that's your workspace within the shared repository. For this, in a terminal on your machine, use <code>git checkout</code> with the name of the branch you want:</p>
 <div class="highlight"><pre><span></span><code>git checkout &lt;branchname&gt;
 </code></pre></div>
 <details class="tip" open="open">
