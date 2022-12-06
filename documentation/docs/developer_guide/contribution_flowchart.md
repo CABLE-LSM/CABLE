@@ -1,8 +1,8 @@
 # Flowchart to contribute to CABLE's documentation
 
-This workflow assumes you have followed all the steps to [setup Git and GitHub][git-training] given by ACCESS-NRI. 
+This workflow assumes you have followed all the steps to [setup Git and GitHub][git-training] given by ACCESS-NRI.
 
-This first flowchart explains what we are trying to do. The following flowcharts go into the details, including the various git commands needed.
+This first flowchart explains what we are trying to do. The following flowcharts go into the details, including the various git commands needed. All the git commands listed are to be run in a terminal on the machine you are working on.
 
 ```mermaid
    flowchart TD
@@ -76,17 +76,24 @@ This first flowchart explains what we are trying to do. The following flowcharts
 
 ### Clone repository
 
+On [CABLE's GitHub main page][CABLE-repo], click the `code` green button and copy the URL you need:
 ![clone](../assets/clone.png)
-Clone the repository to your local working space. Make sure to choose the appropriate protocol (HTTPS or SSH) for connecting to the remote repository. Note, you need to setup an access token to use HTTPS and SSH keys to use SSH.
+Make sure to choose the appropriate protocol (HTTPS or SSH) for connecting to the remote repository. Note, you need to setup an access token to use HTTPS and SSH keys to use SSH.
+
+On your local machine in a terminal,clone the repository:
+
+```bash
+git clone <URL provided>
+```
 
 ### Open issue
 
 ![issue](../assets/issue.png)
-Before starting new work, open an issue to explain what you are planning on working on. This avoid potential duplication of effort.
+Before starting new work, open an issue on GitHub to explain what you are planning on working on. This avoid potential duplication of effort.
 
 ### Create the local branch
 
-You want to create a branch for your work, that's your workspace within the shared repository. For this, use `git checkout` with the name of the branch you want:
+You want to create a branch for your work, that's your workspace within the shared repository. For this, in a terminal on your machine, use `git checkout` with the name of the branch you want:
 
 ```bash
 git checkout <branchname>
@@ -229,3 +236,4 @@ git branch --delete <branchname>
 ```
 
 [git-training]: https://access-nri.github.io/Training/HowTos/GitAndGitHub/
+[CABLE-repo]: https://github.com/CABLE-LSM/CABLE
