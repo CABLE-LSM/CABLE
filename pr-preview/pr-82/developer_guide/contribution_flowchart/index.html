@@ -1030,6 +1030,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#delete-the-branch" class="md-nav__link">
+    Delete the branch
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#update-your-local-repository" class="md-nav__link">
     Update your local repository
   </a>
@@ -1290,6 +1297,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#delete-the-branch" class="md-nav__link">
+    Delete the branch
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#update-your-local-repository" class="md-nav__link">
     Update your local repository
   </a>
@@ -1323,25 +1337,27 @@
 
 <h1 id="flowchart-to-contribute-to-cables-documentation">Flowchart to contribute to CABLE's documentation</h1>
 <p>This workflow assumes you have followed all the steps to <a href="https://access-nri.github.io/Training/HowTos/GitAndGitHub/">setup Git and GitHub</a> given by ACCESS-NRI. </p>
-<p>This first flowchart explains what we are trying to do in various steps. The following flowcharts go into the details, including the various git commands needed or links to screenshots on GitHub.</p>
+<p>This first flowchart explains what we are trying to do. The following flowcharts go into the details, including the various git commands needed.</p>
 <pre class="mermaid"><code>   flowchart TD
 
    Idea[Explain your work in an issue]
-   Workplace[Create a workplace for you in the repository]
+   Workspace[Create a workspace for you in the repository]
    Work[Do your work and record it]
    Check[Check your work when rendered &lt;br&gt; and merged with the main deployment]
    Review[Get a review on your work]
-   Update[Update your local branch from the remote]
    Merge[Merge final version into the main deployment]
    FinalUpdate[Update your local copy &lt;br&gt; to be ready for your next piece of work]
 
-   Idea --&gt; Workplace --&gt; Work --&gt; Check;
+   Idea --&gt; Workspace --&gt; Work --&gt; Check;
    Check --&gt;|Incorrect|Work;
    Check --&gt;|Correct|Review;
-   Review --&gt;|Apply requested changes|Update --&gt; Work;
+   Review --&gt;|Apply requested changes|Work;
    Review --&gt;|Approved|Merge --&gt; FinalUpdate;
 
-   linkStyle 3 stroke:#ff3,stroke-width:4px,color:red;
+   linkStyle 3 stroke:red,color:red;
+   linkStyle 4 stroke:green,color:green;
+   linkStyle 5 stroke:red,color:red;
+   linkStyle 6 stroke:green,color:green;
 ;</code></pre>
 <h2 id="legend-for-the-flowcharts">Legend for the flowcharts</h2>
 <pre class="mermaid"><code>   %% Create a graph for the legend of the main graph
@@ -1374,10 +1390,12 @@
       clone --&gt; issue --&gt; locbranch--&gt; work;
 
       classDef default fill:#FFFDE7, stroke:#FFF59D;
-      classDef uniq fill:#D81B60, stroke:#880E4F, color:#FFFFFF;
-      classDef github fill:#388E3C,stroke:#1B5E20, color:#FFFFFF;
-      classDef term fill:#F44336, stroke:#B71C1C, color:#FFFFFF;
-      classDef question fill:#6D4C41, stroke:#3E2723, color:#FFFFFF; 
+      classDef uniq fill:#D81B60,stroke:#880E4F,color:#FFFFFF;
+      classDef github fill:#388E3C,stroke:#1B5E20,color:#FFFFFF;
+      classDef term fill:#F44336,stroke:#B71C1C,color:#FFFFFF;
+      classDef question fill:#6D4C41,stroke:#3E2723,color:#FFFFFF; 
+
+      click work "https://cable-lsm.github.io/CABLE/developer_guide/contribution_flowchart/#do-and-record-your-work" "Doing work flowchart"
 ;</code></pre>
 <h3 id="clone-repository">Clone repository</h3>
 <p><img alt="clone" src="../../assets/clone.png" />
@@ -1386,7 +1404,7 @@ Clone the repository to your local working space. Make sure to choose the approp
 <p><img alt="issue" src="../../assets/issue.png" />
 Before starting new work, open an issue to explain what you are planning on working on. This avoid potential duplication of effort.</p>
 <h3 id="create-the-local-branch">Create the local branch</h3>
-<p>You want to create a branch for your work, that's your workplace within the shared repository. For this, use <code>git checkout</code> with the name of the branch you want:</p>
+<p>You want to create a branch for your work, that's your workspace within the shared repository. For this, use <code>git checkout</code> with the name of the branch you want:</p>
 <div class="highlight"><pre><span></span><code>git checkout &lt;branchname&gt;
 </code></pre></div>
 <details class="tip" open="open">
@@ -1415,6 +1433,11 @@ Before starting new work, open an issue to explain what you are planning on work
       classDef term fill:#F44336, stroke:#B71C1C, color:#FFFFFF;
       classDef question fill:#6D4C41, stroke:#3E2723, color:#FFFFFF; 
 
+      linkStyle 6 stroke:red,color:red;
+      linkStyle 5 stroke:green,color:darkgreen;
+
+      click review "https://cable-lsm.github.io/CABLE/developer_guide/contribution_flowchart/#review" "Review process"
+
 ;</code></pre>
 <h3 id="commit-your-edits">Commit your edits</h3>
 <p>You need to record your edits in git, this is called <code>commit</code>. It is recommended to do this regularly as it gives some safety to reverse changes:</p>
@@ -1441,11 +1464,12 @@ Before starting new work, open an issue to explain what you are planning on work
       merge([Merge branch]):::github;
       updatemain([Sync your local repository with the remote: &lt;br&gt; git checkout main &lt;br&gt; git pull]):::term;
       edits[Back to editing your branch];
+      delete([Delete the branch on GitHub]):::github;
 
       %% Define the graphs using the nodes' names
       review --&gt; |Need to put code changes|update --&gt; edits;
       review --&gt;|Approved|merge;
-      merge --&gt; updatemain;
+      merge --&gt; delete --&gt; updatemain;
 
       classDef default fill:#FFFDE7, stroke:#FFF59D;
       classDef uniq fill:#D81B60, stroke:#880E4F, color:#FFFFFF;
@@ -1453,16 +1477,30 @@ Before starting new work, open an issue to explain what you are planning on work
       classDef term fill:#F44336, stroke:#B71C1C, color:#FFFFFF;
       classDef question fill:#6D4C41, stroke:#3E2723, color:#FFFFFF; 
 
+      linkStyle 0 stroke:red,color:red;
+      linkStyle 2 stroke:green,color:darkgreen;
+      linkStyle 1 stroke:red,color:red;
+      linkStyle 3 stroke:green;
+
+      click edits "https://cable-lsm.github.io/CABLE/developer_guide/contribution_flowchart/#do-and-record-your-work" "Doing work flowchart"
+
 ;</code></pre>
 <h3 id="ask-for-review">Ask for review</h3>
 <p><img alt="review" src="../../assets/review.png" /></p>
 <p>Once you are satisfied with your work, ask for a review. By putting a submission in, you are responsible for being responsive to any comments or edit changes suggested by the reviewer. Remember your work will not be accepted into the main deployment branch until a reviewer approves it.</p>
+<p>The reviewer might make code changes suggestions. It is recommended to accept all the suggestions you agree with first and then, work on your local copy for any additional required modifications.</p>
+<p>If you need to ask for a second review from the same reviewer, in the reviewer's list, click on the icon for this purpose.</p>
 <h3 id="merge-your-branch">Merge your branch</h3>
 <p>Once the reviewer(s) has(have) accepted your changes, you can merge your work into the main branch. Feel free to choose the merge method you prefer. "Merging" is the simplest and should be used if you don't understand what the other methods do.</p>
+<h3 id="delete-the-branch">Delete the branch</h3>
+<p>Once the branch has been merged with main, make sure to delete the branch and start any other piece of work from a different branch. Deleting the branch can be done from GitHub and the pull request screen.</p>
 <h3 id="update-your-local-repository">Update your local repository</h3>
 <p>Finally, don't forget to update your local repository to sync the main branch with the state of the remote repository. For this, you need to checkout main and then pull from the remote repository:</p>
 <div class="highlight"><pre><span></span><code>git checkout main
 git pull
+</code></pre></div>
+<p>At this stage, you can also delete your local branch which has become unnecessary:</p>
+<div class="highlight"><pre><span></span><code>git branch --delete &lt;branchname&gt;
 </code></pre></div>
 
   <hr>
