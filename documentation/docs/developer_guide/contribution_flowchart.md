@@ -2,28 +2,34 @@
 
 This workflow assumes you have followed all the steps to [setup Git and GitHub][git-training] given by ACCESS-NRI. 
 
-This first flowchart explains what we are trying to do in various steps. The following flowcharts go into the details, including the various git commands needed or links to screenshots on GitHub.
+This first flowchart explains what we are trying to do. The following flowcharts go into the details, including the various git commands needed.
 
 ```mermaid
-   flowchart LR
+   flowchart TD
 
    Idea[Explain your work in an issue]
-   Workplace[Create a workplace for you in the repository]
+   Workspace[Create a workspace for you in the repository]
    Work[Do your work and record it]
    Check[Check your work when rendered <br> and merged with the main deployment]
    Review[Get a review on your work]
    Merge[Merge final version into the main deployment]
-   Update[Update your local copy to stay up-to-date]
+   FinalUpdate[Update your local copy <br> to be ready for your next piece of work]
 
-   Idea --> Workplace --> Work --> Check;
+   Idea --> Workspace --> Work --> Check;
    Check -->|Incorrect|Work;
    Check -->|Correct|Review;
-   Review -->|Apply requested changes|Update --> Work;
-   Review -->|Approved|Merge --> Update;
+   Review -->|Apply requested changes|Work;
+   Review -->|Approved|Merge --> FinalUpdate;
+
+   linkStyle 3 stroke:red,color:red;
+   linkStyle 4 stroke:green,color:green;
+   linkStyle 5 stroke:red,color:red;
+   linkStyle 6 stroke:green,color:green;
 ;
 ```
 
 ## Legend for the flowcharts
+
 ```mermaid
    %% Create a graph for the legend of the main graph
    flowchart LR
@@ -46,6 +52,7 @@ This first flowchart explains what we are trying to do in various steps. The fol
 ```
 
 ## Setup for new piece of work
+
 ```mermaid
    flowchart TB
 
@@ -58,43 +65,45 @@ This first flowchart explains what we are trying to do in various steps. The fol
       clone --> issue --> locbranch--> work;
 
       classDef default fill:#FFFDE7, stroke:#FFF59D;
-      classDef uniq fill:#D81B60, stroke:#880E4F, color:#FFFFFF;
-      classDef github fill:#388E3C,stroke:#1B5E20, color:#FFFFFF;
-      classDef term fill:#F44336, stroke:#B71C1C, color:#FFFFFF;
-      classDef question fill:#6D4C41, stroke:#3E2723, color:#FFFFFF; 
+      classDef uniq fill:#D81B60,stroke:#880E4F,color:#FFFFFF;
+      classDef github fill:#388E3C,stroke:#1B5E20,color:#FFFFFF;
+      classDef term fill:#F44336,stroke:#B71C1C,color:#FFFFFF;
+      classDef question fill:#6D4C41,stroke:#3E2723,color:#FFFFFF; 
+
+      click work "https://cable-lsm.github.io/CABLE/developer_guide/contribution_flowchart/#do-and-record-your-work" "Doing work flowchart"
 ;
 ```
 
-## **Clone repository**
+### Clone repository
 
 ![clone](../assets/clone.png)
 Clone the repository to your local working space. Make sure to choose the appropriate protocol (HTTPS or SSH) for connecting to the remote repository. Note, you need to setup an access token to use HTTPS and SSH keys to use SSH.
 
-## **Open issue**
+### Open issue
 
 ![issue](../assets/issue.png)
 Before starting new work, open an issue to explain what you are planning on working on. This avoid potential duplication of effort.
 
-## **Create the local branch**
+### Create the local branch
 
-You want to create a branch for your work, that's your workplace within the shared repository. For this, use `git checkout` with the name of the branch you want:
+You want to create a branch for your work, that's your workspace within the shared repository. For this, use `git checkout` with the name of the branch you want:
 
 ```bash
 git checkout <branchname>
 ```
 
-:::tip "Branch name"
+???+ tip "Branch name"
 
     It is best to start the branch name with the issue number so the link between the two is obvious.
 
 ## Do and record your work
+
 ```mermaid
    flowchart TB
 
       edits[Make your edits]:::term;
       commit["Commit your edits: <br> git commit -a -m &lt;message&gt;"]:::term;
       push[Push your edits <br> git push]:::term;
-      first[\Is it first push?/]:::question;
       pr([Create a pull request]):::github;
       preview[\Is preview correct?/]:::question;
       review[Ready for review];
@@ -111,10 +120,15 @@ git checkout <branchname>
       classDef term fill:#F44336, stroke:#B71C1C, color:#FFFFFF;
       classDef question fill:#6D4C41, stroke:#3E2723, color:#FFFFFF; 
 
+      linkStyle 6 stroke:red,color:red;
+      linkStyle 5 stroke:green,color:darkgreen;
+
+      click review "https://cable-lsm.github.io/CABLE/developer_guide/contribution_flowchart/#review" "Review process"
+
 ;
 ```
 
-## **Commit your edits**
+### Commit your edits
 
 You need to record your edits in git, this is called `commit`. It is recommended to do this regularly as it gives some safety to reverse changes:
 
@@ -122,7 +136,7 @@ You need to record your edits in git, this is called `commit`. It is recommended
 git commit -a -m "your commit message"
 ```
 
-## **Push your edits to the remote repository**
+### Push your edits to the remote repository
 
 It is recommended to push your changes back to the remote repository often as it provides a backup of the work, the ability to work from different computers and makes it easier to collaborate on some development:
 
@@ -136,7 +150,7 @@ The first time you push back some work on a branch, consider opening a pull requ
 
 You can update the pull request by simply pushing more commits to the same branch.
 
-## **Check the preview**
+### Check the preview
 
 The pull request will build a preview of your work *merged* with the main branch of the repository. Please check that your work is rendered correctly. Once a preview is ready, you will see the following comment in the pull request providing the path to the preview:
 
@@ -153,17 +167,16 @@ All modifications to the documentation no matter how large or small need to be r
 
       %% Define all the nodes first
       review[Request review]:::github;
-      reviewchange[\Review asks for code changes <br> or has comments?/]:::question;
-      revieweredits[\Reviewer has committed some edits? /]:::question;
-      update[Pull updates to your local repository: <br> git pull]:::term;
+      update[Pull updates to your branch to your local repository: <br> git pull]:::term;
       merge([Merge branch]):::github;
-      updatemain([Pull update to your local repository: <br> git checkout main <br> git pull]):::term;
+      updatemain([Sync your local repository with the remote: <br> git checkout main <br> git pull]):::term;
       edits[Back to editing your branch];
+      delete([Delete the branch on GitHub]):::github;
 
       %% Define the graphs using the nodes' names
       review --> |Need to put code changes|update --> edits;
       review -->|Approved|merge;
-      merge --> updatemain;
+      merge --> delete --> updatemain;
 
       classDef default fill:#FFFDE7, stroke:#FFF59D;
       classDef uniq fill:#D81B60, stroke:#880E4F, color:#FFFFFF;
@@ -171,26 +184,48 @@ All modifications to the documentation no matter how large or small need to be r
       classDef term fill:#F44336, stroke:#B71C1C, color:#FFFFFF;
       classDef question fill:#6D4C41, stroke:#3E2723, color:#FFFFFF; 
 
+      linkStyle 0 stroke:red,color:red;
+      linkStyle 2 stroke:green,color:darkgreen;
+      linkStyle 1 stroke:red,color:red;
+      linkStyle 3 stroke:green;
+      linkStyle 3 stroke:green;
+
+      click edits "https://cable-lsm.github.io/CABLE/developer_guide/contribution_flowchart/#do-and-record-your-work" "Doing work flowchart"
+
 ;
 ```
 
-## **Ask for review**
+### Ask for review
 
 ![review](../assets/review.png)
 
 Once you are satisfied with your work, ask for a review. By putting a submission in, you are responsible for being responsive to any comments or edit changes suggested by the reviewer. Remember your work will not be accepted into the main deployment branch until a reviewer approves it.
 
-## **Merge your branch**
+The reviewer might make code changes suggestions. It is recommended to accept all the suggestions you agree with first and then, work on your local copy for any additional required modifications.
+
+If you need to ask for a second review from the same reviewer, in the reviewer's list, click on the icon for this purpose.
+
+### Merge your branch
 
 Once the reviewer(s) has(have) accepted your changes, you can merge your work into the main branch. Feel free to choose the merge method you prefer. "Merging" is the simplest and should be used if you don't understand what the other methods do.
 
-## **Update your local repository**
+### Delete the branch
+
+Once the branch has been merged with main, make sure to delete the branch and start any other piece of work from a different branch. Deleting the branch can be done from GitHub and the pull request screen.
+
+### Update your local repository
 
 Finally, don't forget to update your local repository to sync the main branch with the state of the remote repository. For this, you need to checkout main and then pull from the remote repository:
 
 ```bash
 git checkout main
 git pull
+```
+
+At this stage, you can also delete your local branch which has become unnecessary:
+
+```bash
+git branch --delete <branchname>
 ```
 
 [git-training]: https://access-nri.github.io/Training/HowTos/GitAndGitHub/
