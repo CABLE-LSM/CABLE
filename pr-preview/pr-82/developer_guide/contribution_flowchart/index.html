@@ -1331,14 +1331,17 @@
    Work[Do your work and record it]
    Check[Check your work when rendered &lt;br&gt; and merged with the main deployment]
    Review[Get a review on your work]
+   Update[Update your local branch from the remote]
    Merge[Merge final version into the main deployment]
-   Update[Update your local copy to stay up-to-date]
+   FinalUpdate[Update your local copy &lt;br&gt; to be ready for your next piece of work]
 
    Idea --&gt; Workplace --&gt; Work --&gt; Check;
    Check --&gt;|Incorrect|Work;
    Check --&gt;|Correct|Review;
    Review --&gt;|Apply requested changes|Update --&gt; Work;
-   Review --&gt;|Approved|Merge --&gt; Update;
+   Review --&gt;|Approved|Merge --&gt; FinalUpdate;
+
+   linkStyle 3 stroke:#ff3,stroke-width:4px,color:red;
 ;</code></pre>
 <h2 id="legend-for-the-flowcharts">Legend for the flowcharts</h2>
 <pre class="mermaid"><code>   %% Create a graph for the legend of the main graph
@@ -1434,9 +1437,9 @@ Before starting new work, open an issue to explain what you are planning on work
 
       %% Define all the nodes first
       review[Request review]:::github;
-      update[Pull updates to your local repository: &lt;br&gt; git pull]:::term;
+      update[Pull updates to your branch to your local repository: &lt;br&gt; git pull]:::term;
       merge([Merge branch]):::github;
-      updatemain([Pull update to your local repository: &lt;br&gt; git checkout main &lt;br&gt; git pull]):::term;
+      updatemain([Sync your local repository with the remote: &lt;br&gt; git checkout main &lt;br&gt; git pull]):::term;
       edits[Back to editing your branch];
 
       %% Define the graphs using the nodes' names
