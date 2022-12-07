@@ -109,13 +109,14 @@ git checkout <branchname>
    flowchart TB
 
       edits[Make your edits]:::term;
-      commit["Commit your edits: <br> git commit -a -m &lt;message&gt;"]:::term;
+      add["Add your edits to git's index: <br> git add ."]:::term;
+      commit["Commit your edits: <br> git commit"]:::term;
       push[Push your edits <br> git push]:::term;
       pr([Create a pull request]):::github;
       preview[\Is preview correct?/]:::question;
       review[Ready for review];
 
-      edits --> commit --> push;
+      edits --> add --> commit --> push;
       push --> |first time|pr --> preview;
       push ----> |subsequent|preview;
       preview -->|Yes|review;
@@ -137,11 +138,14 @@ git checkout <branchname>
 
 ### Commit your edits
 
-You need to record your edits in git, this is called `commit`. It is recommended to do this regularly as it gives some safety to reverse changes:
+You need to record your edits in git, this is called `commit`. It is recommended to do this regularly as it gives some safety to reverse changes. In Git, this is a 2-step process with a first step to add what you want to commit to the index and then commit what is in the index.
 
 ```bash
-git commit -a -m "your commit message"
+git add .
+git commit
 ```
+
+Then please add an informative message in the editor that opens automatically. Remember that Git records the date and time as well as the author of the commit, these do not need to be repeated in the message. The message gives information on the nature of the changes.
 
 ### Push your edits to the remote repository
 
