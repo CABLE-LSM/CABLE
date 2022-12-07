@@ -86,11 +86,11 @@
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/cable_iovars.F90"> Source File</a>
+              <a href="../src/cable_iovars_CMIP6.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/cable_iovars.f90.html'>cable_iovars.F90</a></li>
+              <li><a href='../sourcefile/cable_iovars_cmip6.f90.html'>cable_iovars_CMIP6.F90</a></li>
               <li><a href='../module/cable_io_vars_module~2.html'>cable_IO_vars_module</a></li>
           <li class="active">parID_type</li>
         </ol>
@@ -181,7 +181,7 @@
             <a class="list-group-item" href="../type/parid_type~2.html#variable-watr~2">Watr</a>
             <a class="list-group-item" href="../type/parid_type~2.html#variable-gwwatr~2">GWWatr</a>
             <a class="list-group-item" href="../type/parid_type~2.html#variable-sfc_vec~3">sfc_vec</a>
-            <a class="list-group-item" href="../type/parid_type~2.html#variable-forg">forg</a>
+            <a class="list-group-item" href="../type/parid_type~2.html#variable-org_vec~3">org_vec</a>
             <a class="list-group-item" href="../type/parid_type~2.html#variable-swilt_vec~3">swilt_vec</a>
             <a class="list-group-item" href="../type/parid_type~2.html#variable-slope~5">slope</a>
             <a class="list-group-item" href="../type/parid_type~2.html#variable-slope_std~5">slope_std</a>
@@ -191,12 +191,6 @@
             <a class="list-group-item" href="../type/parid_type~2.html#variable-qhmaxefold~4">QhmaxEfold</a>
             <a class="list-group-item" href="../type/parid_type~2.html#variable-hkefold~4">HKefold</a>
             <a class="list-group-item" href="../type/parid_type~2.html#variable-hkdepth~4">HKdepth</a>
-            <a class="list-group-item" href="../type/parid_type~2.html#variable-sand_vec~2">sand_vec</a>
-            <a class="list-group-item" href="../type/parid_type~2.html#variable-clay_vec~2">clay_vec</a>
-            <a class="list-group-item" href="../type/parid_type~2.html#variable-bch_vec~2">bch_vec</a>
-            <a class="list-group-item" href="../type/parid_type~2.html#variable-org_vec~3">org_vec</a>
-            <a class="list-group-item" href="../type/parid_type~2.html#variable-elev~3">elev</a>
-            <a class="list-group-item" href="../type/parid_type~2.html#variable-elev_std~3">elev_std</a>
             <a class="list-group-item" href="../type/parid_type~2.html#variable-ishorizon~4">ishorizon</a>
             <a class="list-group-item" href="../type/parid_type~2.html#variable-nhorizons~3">nhorizons</a>
             <a class="list-group-item" href="../type/parid_type~2.html#variable-clitt~5">clitt</a>
@@ -313,7 +307,7 @@
             <a class="list-group-item" href="../type/parid_type~2.html#variable-watr~2">Watr</a>
             <a class="list-group-item" href="../type/parid_type~2.html#variable-gwwatr~2">GWWatr</a>
             <a class="list-group-item" href="../type/parid_type~2.html#variable-sfc_vec~3">sfc_vec</a>
-            <a class="list-group-item" href="../type/parid_type~2.html#variable-forg">forg</a>
+            <a class="list-group-item" href="../type/parid_type~2.html#variable-org_vec~3">org_vec</a>
             <a class="list-group-item" href="../type/parid_type~2.html#variable-swilt_vec~3">swilt_vec</a>
             <a class="list-group-item" href="../type/parid_type~2.html#variable-slope~5">slope</a>
             <a class="list-group-item" href="../type/parid_type~2.html#variable-slope_std~5">slope_std</a>
@@ -323,12 +317,6 @@
             <a class="list-group-item" href="../type/parid_type~2.html#variable-qhmaxefold~4">QhmaxEfold</a>
             <a class="list-group-item" href="../type/parid_type~2.html#variable-hkefold~4">HKefold</a>
             <a class="list-group-item" href="../type/parid_type~2.html#variable-hkdepth~4">HKdepth</a>
-            <a class="list-group-item" href="../type/parid_type~2.html#variable-sand_vec~2">sand_vec</a>
-            <a class="list-group-item" href="../type/parid_type~2.html#variable-clay_vec~2">clay_vec</a>
-            <a class="list-group-item" href="../type/parid_type~2.html#variable-bch_vec~2">bch_vec</a>
-            <a class="list-group-item" href="../type/parid_type~2.html#variable-org_vec~3">org_vec</a>
-            <a class="list-group-item" href="../type/parid_type~2.html#variable-elev~3">elev</a>
-            <a class="list-group-item" href="../type/parid_type~2.html#variable-elev_std~3">elev_std</a>
             <a class="list-group-item" href="../type/parid_type~2.html#variable-ishorizon~4">ishorizon</a>
             <a class="list-group-item" href="../type/parid_type~2.html#variable-nhorizons~3">nhorizons</a>
             <a class="list-group-item" href="../type/parid_type~2.html#variable-clitt~5">clitt</a>
@@ -1450,7 +1438,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-forg"></span>
+              <span class="anchor" id="variable-org_vec~3"></span>
               integer,
             </td>
               <td>public</td>
@@ -1458,7 +1446,7 @@
               
             </td>
             <td>::</td>
-            <td><strong>forg</strong></td>
+            <td><strong>org_vec</strong></td>
                 <td></td>
                 <td></td>
             <td>
@@ -1612,108 +1600,6 @@
             </td>
             <td>::</td>
             <td><strong>HKdepth</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-sand_vec~2"></span>
-              integer,
-            </td>
-              <td>public</td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>sand_vec</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-clay_vec~2"></span>
-              integer,
-            </td>
-              <td>public</td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>clay_vec</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-bch_vec~2"></span>
-              integer,
-            </td>
-              <td>public</td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>bch_vec</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-org_vec~3"></span>
-              integer,
-            </td>
-              <td>public</td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>org_vec</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-elev~3"></span>
-              integer,
-            </td>
-              <td>public</td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>elev</strong></td>
-                <td></td>
-                <td></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-elev_std~3"></span>
-              integer,
-            </td>
-              <td>public</td>
-            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>elev_std</strong></td>
                 <td></td>
                 <td></td>
             <td>

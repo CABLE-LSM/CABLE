@@ -81,16 +81,16 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.1% of total for modules and submodules.">59 statements</a>
+               title=" 0.1% of total for modules and submodules.">61 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/cable_iovars_CMIP6.F90"> Source File</a>
+              <a href="../src/cable_iovars.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/cable_iovars_cmip6.f90.html'>cable_iovars_CMIP6.F90</a></li>
+              <li><a href='../sourcefile/cable_iovars.f90.html'>cable_iovars.F90</a></li>
           <li class="active">cable_IO_vars_module</li>
         </ol>
       </div>
@@ -123,6 +123,7 @@
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-smoy">smoy</a>
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-syear">syear</a>
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-timeunits">timeunits</a>
+            <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-calendar">calendar</a>
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-time_coord">time_coord</a>
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-timevar">timevar</a>
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-daysm">daysm</a>
@@ -153,6 +154,7 @@
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-integer">INTEGER</a>
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-pointer%3A%3Asoiltype_metfile">POINTER::soiltype_metfile</a>
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-vegtype_metfile">vegtype_metfile</a>
+            <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-vegpatch_metfile">vegpatch_metfile</a>
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-exists">exists</a>
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-output">output</a>
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-patchout">patchout</a>
@@ -240,6 +242,7 @@
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-smoy">smoy</a>
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-syear">syear</a>
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-timeunits">timeunits</a>
+            <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-calendar">calendar</a>
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-time_coord">time_coord</a>
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-timevar">timevar</a>
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-daysm">daysm</a>
@@ -270,6 +273,7 @@
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-integer">INTEGER</a>
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-pointer%3A%3Asoiltype_metfile">POINTER::soiltype_metfile</a>
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-vegtype_metfile">vegtype_metfile</a>
+            <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-vegpatch_metfile">vegpatch_metfile</a>
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-exists">exists</a>
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-output">output</a>
             <a class="list-group-item" href="../module/cable_io_vars_module.html#variable-patchout">patchout</a>
@@ -430,6 +434,23 @@
             </td>
             <td>::</td>
             <td><strong>timeunits</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-calendar"></span>
+              character(len=10),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>calendar</strong></td>
                 <td></td>
                 <td></td>
             <td>
@@ -948,6 +969,23 @@
         </tr>
         <tr>
             <td>
+              <span class="anchor" id="variable-vegpatch_metfile"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              POINTER
+            </td>
+            <td>::</td>
+            <td><strong>vegpatch_metfile</strong>(:,:)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
               <span class="anchor" id="variable-exists"></span>
               type(<a href='../type/input_details_type.html'>input_details_type</a>),
             </td>
@@ -1118,7 +1156,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-latitude~5"></span>
+              <span class="anchor" id="variable-latitude~4"></span>
               real,
             </td>
               <td>public</td>
@@ -1135,7 +1173,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-longitude~2"></span>
+              <span class="anchor" id="variable-longitude"></span>
               real,
             </td>
               <td>public</td>
@@ -1335,7 +1373,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-lwdown~4"></span>
+              <span class="anchor" id="variable-lwdown~6"></span>
               character(len=200),
             </td>
               <td>public</td>
@@ -1352,7 +1390,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-swdown~4"></span>
+              <span class="anchor" id="variable-swdown~6"></span>
               character(len=200),
             </td>
               <td>public</td>
@@ -1369,7 +1407,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-psurf~4"></span>
+              <span class="anchor" id="variable-psurf~8"></span>
               character(len=200),
             </td>
               <td>public</td>
@@ -1386,7 +1424,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-qair~4"></span>
+              <span class="anchor" id="variable-qair~8"></span>
               character(len=200),
             </td>
               <td>public</td>
@@ -1403,7 +1441,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tair~4"></span>
+              <span class="anchor" id="variable-tair~8"></span>
               character(len=200),
             </td>
               <td>public</td>
@@ -1486,7 +1524,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-bch~5"></span>
+              <span class="anchor" id="variable-bch~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1503,7 +1541,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-latitude~6"></span>
+              <span class="anchor" id="variable-latitude~5"></span>
               integer,
             </td>
               <td>public</td>
@@ -1520,7 +1558,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-clay~6"></span>
+              <span class="anchor" id="variable-clay~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1537,7 +1575,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-css~6"></span>
+              <span class="anchor" id="variable-css~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1554,7 +1592,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rhosoil~5"></span>
+              <span class="anchor" id="variable-rhosoil~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1571,7 +1609,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-hyds~5"></span>
+              <span class="anchor" id="variable-hyds~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1588,7 +1626,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rs20~5"></span>
+              <span class="anchor" id="variable-rs20~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1605,7 +1643,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-sand~5"></span>
+              <span class="anchor" id="variable-sand~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1622,7 +1660,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-sfc~5"></span>
+              <span class="anchor" id="variable-sfc~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1639,7 +1677,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-silt~5"></span>
+              <span class="anchor" id="variable-silt~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1656,7 +1694,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ssat~5"></span>
+              <span class="anchor" id="variable-ssat~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1673,7 +1711,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-sucs~5"></span>
+              <span class="anchor" id="variable-sucs~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1690,7 +1728,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-swilt~5"></span>
+              <span class="anchor" id="variable-swilt~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1707,7 +1745,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-froot~5"></span>
+              <span class="anchor" id="variable-froot~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1724,7 +1762,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-zse~5"></span>
+              <span class="anchor" id="variable-zse~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1741,7 +1779,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-canst1~5"></span>
+              <span class="anchor" id="variable-canst1~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1758,7 +1796,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-dleaf~5"></span>
+              <span class="anchor" id="variable-dleaf~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1775,7 +1813,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-meth~5"></span>
+              <span class="anchor" id="variable-meth~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1792,7 +1830,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-za_tq~2"></span>
+              <span class="anchor" id="variable-za_tq"></span>
               integer,
             </td>
               <td>public</td>
@@ -1809,7 +1847,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-za_uv~2"></span>
+              <span class="anchor" id="variable-za_uv"></span>
               integer,
             </td>
               <td>public</td>
@@ -1826,7 +1864,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ejmax~5"></span>
+              <span class="anchor" id="variable-ejmax~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1843,7 +1881,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-frac4~5"></span>
+              <span class="anchor" id="variable-frac4~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1860,7 +1898,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-hc~5"></span>
+              <span class="anchor" id="variable-hc~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1894,7 +1932,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rp20~5"></span>
+              <span class="anchor" id="variable-rp20~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1911,7 +1949,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rpcoef~5"></span>
+              <span class="anchor" id="variable-rpcoef~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1928,7 +1966,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-shelrb~5"></span>
+              <span class="anchor" id="variable-shelrb~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1945,7 +1983,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-vbeta~5"></span>
+              <span class="anchor" id="variable-vbeta~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1962,7 +2000,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-xalbnir~5"></span>
+              <span class="anchor" id="variable-xalbnir~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1979,7 +2017,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-vcmax~6"></span>
+              <span class="anchor" id="variable-vcmax~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -1996,7 +2034,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-xfang~5"></span>
+              <span class="anchor" id="variable-xfang~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -2013,7 +2051,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ratecp~5"></span>
+              <span class="anchor" id="variable-ratecp~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -2030,7 +2068,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ratecs~5"></span>
+              <span class="anchor" id="variable-ratecs~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -2064,7 +2102,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-isoil~4"></span>
+              <span class="anchor" id="variable-isoil~5"></span>
               integer,
             </td>
               <td>public</td>
@@ -2081,7 +2119,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-iveg~6"></span>
+              <span class="anchor" id="variable-iveg~5"></span>
               integer,
             </td>
               <td>public</td>
@@ -2098,7 +2136,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-albsoil~5"></span>
+              <span class="anchor" id="variable-albsoil~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -2115,7 +2153,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-taul~5"></span>
+              <span class="anchor" id="variable-taul~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -2132,7 +2170,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-refl~5"></span>
+              <span class="anchor" id="variable-refl~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -2183,7 +2221,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-wai~5"></span>
+              <span class="anchor" id="variable-wai~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -2200,7 +2238,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-vegcf~5"></span>
+              <span class="anchor" id="variable-vegcf~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -2217,7 +2255,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-extkn~5"></span>
+              <span class="anchor" id="variable-extkn~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -2234,7 +2272,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tminvj~5"></span>
+              <span class="anchor" id="variable-tminvj~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -2251,7 +2289,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tmaxvj~5"></span>
+              <span class="anchor" id="variable-tmaxvj~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -2336,7 +2374,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-patchfrac~3"></span>
+              <span class="anchor" id="variable-patchfrac~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -2540,7 +2578,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-sfc_vec~2"></span>
+              <span class="anchor" id="variable-sfc_vec"></span>
               integer,
             </td>
               <td>public</td>
@@ -2557,7 +2595,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-org_vec~2"></span>
+              <span class="anchor" id="variable-forg"></span>
               integer,
             </td>
               <td>public</td>
@@ -2565,7 +2603,7 @@
               
             </td>
             <td>::</td>
-            <td><strong>org_vec</strong></td>
+            <td><strong>forg</strong></td>
                 <td></td>
                 <td></td>
             <td>
@@ -2574,7 +2612,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-swilt_vec~2"></span>
+              <span class="anchor" id="variable-swilt_vec"></span>
               integer,
             </td>
               <td>public</td>
@@ -2591,7 +2629,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-slope~4"></span>
+              <span class="anchor" id="variable-slope~3"></span>
               integer,
             </td>
               <td>public</td>
@@ -2608,7 +2646,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-slope_std~4"></span>
+              <span class="anchor" id="variable-slope_std~3"></span>
               integer,
             </td>
               <td>public</td>
@@ -2625,7 +2663,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-gwdz~4"></span>
+              <span class="anchor" id="variable-gwdz~3"></span>
               integer,
             </td>
               <td>public</td>
@@ -2727,7 +2765,109 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ishorizon~3"></span>
+              <span class="anchor" id="variable-sand_vec"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>sand_vec</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clay_vec"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>clay_vec</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bch_vec"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>bch_vec</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-org_vec"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>org_vec</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-elev~2"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>elev</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-elev_std~2"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>elev_std</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ishorizon"></span>
               integer,
             </td>
               <td>public</td>
@@ -2744,7 +2884,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-nhorizons~2"></span>
+              <span class="anchor" id="variable-nhorizons"></span>
               integer,
             </td>
               <td>public</td>
@@ -2761,7 +2901,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-clitt~3"></span>
+              <span class="anchor" id="variable-clitt"></span>
               integer,
             </td>
               <td>public</td>
@@ -2778,7 +2918,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-zeta~3"></span>
+              <span class="anchor" id="variable-zeta"></span>
               integer,
             </td>
               <td>public</td>
@@ -2795,7 +2935,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-fsatmax~3"></span>
+              <span class="anchor" id="variable-fsatmax"></span>
               integer,
             </td>
               <td>public</td>
@@ -2812,7 +2952,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-gamma~2"></span>
+              <span class="anchor" id="variable-gamma"></span>
               integer,
             </td>
               <td>public</td>
@@ -2829,7 +2969,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-zr~2"></span>
+              <span class="anchor" id="variable-zr"></span>
               integer,
             </td>
               <td>public</td>
@@ -2846,7 +2986,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-f10~2"></span>
+              <span class="anchor" id="variable-f10"></span>
               integer,
             </td>
               <td>public</td>
@@ -2863,7 +3003,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-g0~5"></span>
+              <span class="anchor" id="variable-g0~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -2880,7 +3020,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-g1~5"></span>
+              <span class="anchor" id="variable-g1~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -2929,7 +3069,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-wind~4"></span>
+              <span class="anchor" id="variable-wind~7"></span>
               logical,
             </td>
               <td>public</td>
@@ -2946,7 +3086,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-lwdown~5"></span>
+              <span class="anchor" id="variable-lwdown~7"></span>
               logical,
             </td>
               <td>public</td>
@@ -2963,7 +3103,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-co2air~4"></span>
+              <span class="anchor" id="variable-co2air~8"></span>
               logical,
             </td>
               <td>public</td>
@@ -2980,7 +3120,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-psurf~5"></span>
+              <span class="anchor" id="variable-psurf~9"></span>
               logical,
             </td>
               <td>public</td>
@@ -2997,7 +3137,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-snowf~4"></span>
+              <span class="anchor" id="variable-snowf~6"></span>
               logical,
             </td>
               <td>public</td>
@@ -3014,7 +3154,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-avprecip"></span>
+              <span class="anchor" id="variable-avprecip~3"></span>
               logical,
             </td>
               <td>public</td>
@@ -3471,7 +3611,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-swdown"></span>
+              <span class="anchor" id="variable-swdown~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3489,7 +3629,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-lwdown"></span>
+              <span class="anchor" id="variable-lwdown~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3507,7 +3647,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rainf"></span>
+              <span class="anchor" id="variable-rainf~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3525,7 +3665,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-snowf"></span>
+              <span class="anchor" id="variable-snowf~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3543,7 +3683,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-psurf"></span>
+              <span class="anchor" id="variable-psurf~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3561,7 +3701,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tair"></span>
+              <span class="anchor" id="variable-tair~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3579,7 +3719,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-qair"></span>
+              <span class="anchor" id="variable-qair~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3597,7 +3737,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tscrn"></span>
+              <span class="anchor" id="variable-tscrn~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3633,7 +3773,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-qscrn"></span>
+              <span class="anchor" id="variable-qscrn~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3651,7 +3791,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-co2air"></span>
+              <span class="anchor" id="variable-co2air~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3669,7 +3809,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-wind"></span>
+              <span class="anchor" id="variable-wind~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3687,7 +3827,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-wind_n"></span>
+              <span class="anchor" id="variable-wind_n~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3705,7 +3845,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-wind_e"></span>
+              <span class="anchor" id="variable-wind_e~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3741,7 +3881,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-qmom"></span>
+              <span class="anchor" id="variable-qmom~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3759,7 +3899,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-qh"></span>
+              <span class="anchor" id="variable-qh~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3777,7 +3917,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-qle"></span>
+              <span class="anchor" id="variable-qle~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3795,7 +3935,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-qg"></span>
+              <span class="anchor" id="variable-qg~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3813,7 +3953,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-swnet"></span>
+              <span class="anchor" id="variable-swnet~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3831,7 +3971,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-lwnet"></span>
+              <span class="anchor" id="variable-lwnet~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3849,7 +3989,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-evap"></span>
+              <span class="anchor" id="variable-evap~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3867,7 +4007,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ewater"></span>
+              <span class="anchor" id="variable-ewater~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3885,7 +4025,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-esoil"></span>
+              <span class="anchor" id="variable-esoil~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3903,7 +4043,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tveg"></span>
+              <span class="anchor" id="variable-tveg~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3921,7 +4061,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ecanop"></span>
+              <span class="anchor" id="variable-ecanop~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3939,7 +4079,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-potevap"></span>
+              <span class="anchor" id="variable-potevap~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3957,7 +4097,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-acond"></span>
+              <span class="anchor" id="variable-acond~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3975,7 +4115,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-soilwet"></span>
+              <span class="anchor" id="variable-soilwet~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -3993,7 +4133,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-albedo"></span>
+              <span class="anchor" id="variable-albedo~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4011,7 +4151,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-visalbedo"></span>
+              <span class="anchor" id="variable-visalbedo~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4029,7 +4169,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-niralbedo"></span>
+              <span class="anchor" id="variable-niralbedo~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4047,7 +4187,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-vegt"></span>
+              <span class="anchor" id="variable-vegt~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4065,7 +4205,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-soiltemp"></span>
+              <span class="anchor" id="variable-soiltemp~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4083,7 +4223,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-soilmoist"></span>
+              <span class="anchor" id="variable-soilmoist~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4119,7 +4259,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-qs"></span>
+              <span class="anchor" id="variable-qs~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4137,7 +4277,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-qsb"></span>
+              <span class="anchor" id="variable-qsb~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4155,7 +4295,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-delsoilmoist"></span>
+              <span class="anchor" id="variable-delsoilmoist~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4173,7 +4313,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-delswe"></span>
+              <span class="anchor" id="variable-delswe~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4191,7 +4331,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-delintercept"></span>
+              <span class="anchor" id="variable-delintercept~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4209,7 +4349,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-snowt"></span>
+              <span class="anchor" id="variable-snowt~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4227,7 +4367,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-baresoilt"></span>
+              <span class="anchor" id="variable-baresoilt~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4245,7 +4385,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-avgsurft"></span>
+              <span class="anchor" id="variable-avgsurft~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4263,7 +4403,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-radt"></span>
+              <span class="anchor" id="variable-radt~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4281,7 +4421,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-swe"></span>
+              <span class="anchor" id="variable-swe~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4317,7 +4457,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rootmoist"></span>
+              <span class="anchor" id="variable-rootmoist~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4335,7 +4475,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-canopint"></span>
+              <span class="anchor" id="variable-canopint~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4353,7 +4493,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-nee"></span>
+              <span class="anchor" id="variable-nee~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4371,7 +4511,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-npp"></span>
+              <span class="anchor" id="variable-npp~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4389,7 +4529,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-gpp"></span>
+              <span class="anchor" id="variable-gpp~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4407,7 +4547,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-autoresp"></span>
+              <span class="anchor" id="variable-autoresp~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4425,7 +4565,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-leafresp"></span>
+              <span class="anchor" id="variable-leafresp~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4443,7 +4583,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-heteroresp"></span>
+              <span class="anchor" id="variable-heteroresp~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4461,7 +4601,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-snowdepth"></span>
+              <span class="anchor" id="variable-snowdepth~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4479,7 +4619,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rnet"></span>
+              <span class="anchor" id="variable-rnet~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4497,7 +4637,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-hveg"></span>
+              <span class="anchor" id="variable-hveg~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4515,7 +4655,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-hsoil"></span>
+              <span class="anchor" id="variable-hsoil~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4551,7 +4691,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ebal"></span>
+              <span class="anchor" id="variable-ebal~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4569,7 +4709,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-wbal"></span>
+              <span class="anchor" id="variable-wbal~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4587,7 +4727,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-cant"></span>
+              <span class="anchor" id="variable-cant~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4605,7 +4745,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-fwsoil"></span>
+              <span class="anchor" id="variable-fwsoil~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4623,7 +4763,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-area"></span>
+              <span class="anchor" id="variable-area~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4659,7 +4799,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-wattable"></span>
+              <span class="anchor" id="variable-wattable~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4677,7 +4817,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-qrecharge"></span>
+              <span class="anchor" id="variable-qrecharge~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4695,7 +4835,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-satfrac"></span>
+              <span class="anchor" id="variable-satfrac~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4749,7 +4889,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-totsoilcarb"></span>
+              <span class="anchor" id="variable-totsoilcarb~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4767,7 +4907,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-totlivbiomass"></span>
+              <span class="anchor" id="variable-totlivbiomass~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -4785,7 +4925,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-totlittcarb"></span>
+              <span class="anchor" id="variable-totlittcarb~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5109,7 +5249,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-bch"></span>
+              <span class="anchor" id="variable-bch~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5127,7 +5267,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-latitude"></span>
+              <span class="anchor" id="variable-latitude~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5145,7 +5285,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-clay"></span>
+              <span class="anchor" id="variable-clay~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5163,7 +5303,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-css"></span>
+              <span class="anchor" id="variable-css~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5181,7 +5321,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rhosoil"></span>
+              <span class="anchor" id="variable-rhosoil~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5199,7 +5339,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-hyds"></span>
+              <span class="anchor" id="variable-hyds~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5217,7 +5357,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rs20"></span>
+              <span class="anchor" id="variable-rs20~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5235,7 +5375,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-sand"></span>
+              <span class="anchor" id="variable-sand~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5253,7 +5393,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-sfc"></span>
+              <span class="anchor" id="variable-sfc~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5271,7 +5411,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-silt"></span>
+              <span class="anchor" id="variable-silt~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5289,7 +5429,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ssat"></span>
+              <span class="anchor" id="variable-ssat~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5307,7 +5447,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-sucs"></span>
+              <span class="anchor" id="variable-sucs~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5325,7 +5465,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-swilt"></span>
+              <span class="anchor" id="variable-swilt~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5343,7 +5483,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-froot"></span>
+              <span class="anchor" id="variable-froot~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5361,7 +5501,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-zse"></span>
+              <span class="anchor" id="variable-zse~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5379,7 +5519,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-canst1"></span>
+              <span class="anchor" id="variable-canst1~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5397,7 +5537,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-dleaf"></span>
+              <span class="anchor" id="variable-dleaf~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5415,7 +5555,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ejmax"></span>
+              <span class="anchor" id="variable-ejmax~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5433,7 +5573,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-frac4"></span>
+              <span class="anchor" id="variable-frac4~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5451,7 +5591,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-hc"></span>
+              <span class="anchor" id="variable-hc~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5469,7 +5609,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rp20"></span>
+              <span class="anchor" id="variable-rp20~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5487,7 +5627,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-g0"></span>
+              <span class="anchor" id="variable-g0~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5505,7 +5645,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-g1"></span>
+              <span class="anchor" id="variable-g1~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5523,7 +5663,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rpcoef"></span>
+              <span class="anchor" id="variable-rpcoef~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5541,7 +5681,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-shelrb"></span>
+              <span class="anchor" id="variable-shelrb~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5559,7 +5699,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-vcmax"></span>
+              <span class="anchor" id="variable-vcmax~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5577,7 +5717,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-xfang"></span>
+              <span class="anchor" id="variable-xfang~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5595,7 +5735,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-wai"></span>
+              <span class="anchor" id="variable-wai~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5613,7 +5753,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-vegcf"></span>
+              <span class="anchor" id="variable-vegcf~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5631,7 +5771,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-extkn"></span>
+              <span class="anchor" id="variable-extkn~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5649,7 +5789,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ratecp"></span>
+              <span class="anchor" id="variable-ratecp~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5667,7 +5807,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ratecs"></span>
+              <span class="anchor" id="variable-ratecs~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5685,7 +5825,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-albsoil"></span>
+              <span class="anchor" id="variable-albsoil~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5703,7 +5843,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-taul"></span>
+              <span class="anchor" id="variable-taul~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5721,7 +5861,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-refl"></span>
+              <span class="anchor" id="variable-refl~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5739,7 +5879,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tminvj"></span>
+              <span class="anchor" id="variable-tminvj~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5757,7 +5897,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tmaxvj"></span>
+              <span class="anchor" id="variable-tmaxvj~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5775,7 +5915,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-vbeta"></span>
+              <span class="anchor" id="variable-vbeta~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5793,7 +5933,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-xalbnir"></span>
+              <span class="anchor" id="variable-xalbnir~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5811,7 +5951,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-iveg"></span>
+              <span class="anchor" id="variable-iveg~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5847,7 +5987,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-isoil"></span>
+              <span class="anchor" id="variable-isoil~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5865,7 +6005,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-meth"></span>
+              <span class="anchor" id="variable-meth~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5883,7 +6023,7 @@ vh_js !! additional casa variables</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-za"></span>
+              <span class="anchor" id="variable-za~2"></span>
               logical,
             </td>
               <td>public</td>
@@ -5894,6 +6034,42 @@ vh_js !! additional casa variables</p>
             <td><strong>za</strong></td>
 <td> =</td>
                 <td>.FALSE.</td>
+            <td>
+<p>vh_js ! added CanT and fwsoil to the list
+vh_js !! additional casa variables</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-elev"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>elev</strong></td>
+<td> =</td>
+                <td>.false.</td>
+            <td>
+<p>vh_js ! added CanT and fwsoil to the list
+vh_js !! additional casa variables</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-elev_std"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>elev_std</strong></td>
+<td> =</td>
+                <td>.false.</td>
             <td>
 <p>vh_js ! added CanT and fwsoil to the list
 vh_js !! additional casa variables</p>
@@ -6036,8 +6212,116 @@ vh_js !! additional casa variables</p>
             </td>
             <td>::</td>
             <td><strong>HKdepth</strong></td>
-                <td></td>
-                <td></td>
+<td> =</td>
+                <td>.false.</td>
+            <td>
+<p>vh_js ! added CanT and fwsoil to the list
+vh_js !! additional casa variables</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-smp"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>SMP</strong></td>
+<td> =</td>
+                <td>.false.</td>
+            <td>
+<p>vh_js ! added CanT and fwsoil to the list
+vh_js !! additional casa variables</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-smp_hys"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>SMP_hys</strong></td>
+<td> =</td>
+                <td>.false.</td>
+            <td>
+<p>vh_js ! added CanT and fwsoil to the list
+vh_js !! additional casa variables</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-wb_hys"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>WB_hys</strong></td>
+<td> =</td>
+                <td>.false.</td>
+            <td>
+<p>vh_js ! added CanT and fwsoil to the list
+vh_js !! additional casa variables</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ssat_hys"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>SSAT_hys</strong></td>
+<td> =</td>
+                <td>.false.</td>
+            <td>
+<p>vh_js ! added CanT and fwsoil to the list
+vh_js !! additional casa variables</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-watr_hys"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>WATR_hys</strong></td>
+<td> =</td>
+                <td>.false.</td>
+            <td>
+<p>vh_js ! added CanT and fwsoil to the list
+vh_js !! additional casa variables</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-hys_fac"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>hys_fac</strong></td>
+<td> =</td>
+                <td>.false.</td>
             <td>
 <p>vh_js ! added CanT and fwsoil to the list
 vh_js !! additional casa variables</p>

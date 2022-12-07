@@ -81,17 +81,17 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.2% of total for procedures.">106 statements</a>
+               title=" 0.2% of total for procedures.">107 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/casa_cnp.F90"> Source File</a>
+              <a href="../src/casa_rplant.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/casa_cnp.f90.html'>casa_cnp.F90</a></li>
-              <li><a href='../module/casa_cnp_module.html'>casa_cnp_module</a></li>
+              <li><a href='../sourcefile/casa_rplant.f90.html'>casa_rplant.F90</a></li>
+              <li><a href='../module/casa_rplant_module.html'>casa_rplant_module</a></li>
           <li class="active">casa_rplant</li>
         </ol>
       </div>
@@ -137,7 +137,19 @@
     <div class="col-md-9" id='text'>
     <h2>public  subroutine casa_rplant(veg, casabiome, casapool, casaflux, casamet, climate)  
 </h2>
-    
+        <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Uses</h3>
+      </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+            <ul class="list-inline">
+                <li><a href='../module/casa_cnp_module.html'>casa_cnp_module</a></li>
+            </ul>
+          </li>
+      </ul>
+    </div>
+
 
 
     <h3>Arguments</h3>
@@ -153,7 +165,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-veg~61"></span>
+              <span class="anchor" id="variable-veg~54"></span>
               type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),
             </td>
 <td>intent(inout)</td>
@@ -168,7 +180,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-casabiome~27"></span>
+              <span class="anchor" id="variable-casabiome~16"></span>
               type(<a href='../type/casa_biome.html'>casa_biome</a>),
             </td>
 <td>intent(inout)</td>
@@ -183,7 +195,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-casapool~39"></span>
+              <span class="anchor" id="variable-casapool~25"></span>
               type(<a href='../type/casa_pool.html'>casa_pool</a>),
             </td>
 <td>intent(inout)</td>
@@ -198,7 +210,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-casaflux~42"></span>
+              <span class="anchor" id="variable-casaflux~28"></span>
               type(<a href='../type/casa_flux.html'>casa_flux</a>),
             </td>
 <td>intent(inout)</td>
@@ -213,7 +225,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-casamet~41"></span>
+              <span class="anchor" id="variable-casamet~29"></span>
               type(<a href='../type/casa_met.html'>casa_met</a>),
             </td>
 <td>intent(inout)</td>
@@ -228,7 +240,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-climate~23"></span>
+              <span class="anchor" id="variable-climate~16"></span>
               type(<a href='../type/climate_type.html'>climate_type</a>),
             </td>
 <td>intent(in)</td>
