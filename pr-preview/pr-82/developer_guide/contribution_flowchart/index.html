@@ -1400,15 +1400,17 @@
 <h3 id="clone-repository">Clone repository</h3>
 <p>On <a href="https://github.com/CABLE-LSM/CABLE">CABLE's GitHub main page</a>, click the <code>code</code> green button and copy the URL you need:</p>
 <figure>
-<p><img alt="Image title" src="https://dummyimage.com/600x400/" width="500" /></p>
+<p><img _="," align="right" alt="Image title" src="../../assets/clone.png" width="90%" /></p>
 </figure>
 <p>Make sure to choose the appropriate protocol (HTTPS or SSH) for connecting to the remote repository. Note, you need to setup an access token to use HTTPS and SSH keys to use SSH.</p>
 <p>On your local machine in a terminal, clone the repository:</p>
 <div class="highlight"><pre><span></span><code>git clone &lt;URL provided&gt;
 </code></pre></div>
 <h3 id="open-issue">Open issue</h3>
-<p><img alt="issue" src="../../assets/issue.png" />
-Before starting new work, open an issue on GitHub to explain what you are planning on working on. This avoid potential duplication of effort.</p>
+<figure>
+<p><img _="," align="right" alt="Image title" src="../../assets/issue.png" width="90%" /></p>
+</figure>
+<p>Before starting new work, open an issue on GitHub to explain what you are planning on working on. This avoid potential duplication of effort.</p>
 <h3 id="create-the-local-branch">Create the local branch</h3>
 <p>You want to create a branch for your work, that's your workspace within the shared repository. For this, in a terminal on your machine, use <code>git checkout</code> with the name of the branch you want:</p>
 <div class="highlight"><pre><span></span><code>git checkout &lt;branchname&gt;
@@ -1457,11 +1459,15 @@ git commit
 <div class="highlight"><pre><span></span><code>git push
 </code></pre></div>
 <p>The first time you push back some work on a branch, consider opening a pull request. This allows potential collaborators or helpers to find your work easily.</p>
-<p><img alt="pr" src="../../assets/pr.png" /></p>
+<figure>
+<p><img _="," align="right" alt="Image title" src="../../assets/pr.png" width="90%" /></p>
+</figure>
 <p>You can update the pull request by simply pushing more commits to the same branch.</p>
 <h3 id="check-the-preview">Check the preview</h3>
 <p>The pull request will build a preview of your work <em>merged</em> with the main branch of the repository. Please check that your work is rendered correctly. Once a preview is ready, you will see the following comment in the pull request providing the path to the preview:</p>
-<p><img alt="preview" src="../../assets/preview.png" /></p>
+<figure>
+<p><img _="," align="right" alt="Image title" src="../../assets/preview.png" width="90%" /></p>
+</figure>
 <p>To preview changes to the API documentation (ie. documentation in the CABLE source code), you need to append <code>/api</code> to the path provided.</p>
 <h2 id="review">Review</h2>
 <p>All modifications to the documentation no matter how large or small need to be reviewed by another CABLE collaborator.</p>
@@ -1496,7 +1502,9 @@ git commit
 
 ;</code></pre>
 <h3 id="ask-for-review">Ask for review</h3>
-<p><img alt="review" src="../../assets/review.png" /></p>
+<figure>
+<p><img _="," align="right" alt="Image title" src="../../assets/review.png" width="90%" /></p>
+</figure>
 <p>Once you are satisfied with your work, ask for a review. By putting a submission in, you are responsible for being responsive to any comments or edit changes suggested by the reviewer. Remember your work will not be accepted into the main deployment branch until a reviewer approves it.</p>
 <p>The reviewer might make code changes suggestions. It is recommended to accept all the suggestions you agree with first and then, work on your local copy for any additional required modifications.</p>
 <p>If you need to ask for a second review from the same reviewer, in the reviewer's list, click on the icon for this purpose.</p>
