@@ -1,0 +1,1727 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentation for POP">
+    <meta name="author" content="CABLE community" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>mo_constants &ndash; POP</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">POP </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="../lists/files.html">Source Files</a></li>
+            <li><a href="../lists/modules.html">Modules</a></li>
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+                   <li><a href="../lists/types.html">Derived Types</a></li>
+            <li><a href="../lists/programs.html">Programs</a></li>
+       
+            </ul>
+        
+            </li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+                             <li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>mo_constants 
+    <small>Module</small>
+    
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.1% of total for modules and submodules.">81 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/mo_constants.f90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/mo_constants.f90.html'>mo_constants.f90</a></li>
+          <li class="active">mo_constants</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#vars-0">Variables</a>
+        </h3>
+      </div>
+      <div id="vars-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/mo_constants.html#variable-eps_dp">eps_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-eps_sp">eps_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-pi_dp">pi_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-pi_sp">pi_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-pio2_dp">pio2_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-pio2_sp">pio2_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-twopi_dp">twopi_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-twopi_sp">twopi_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-sqrt2_dp">sqrt2_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-sqrt2_sp">sqrt2_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-onethird_dp">onethird_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-onethird_sp">onethird_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-twothird_dp">twothird_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-twothird_sp">twothird_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-deg2rad_dp">deg2rad_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-deg2rad_sp">deg2rad_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-rad2deg_dp">rad2deg_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-rad2deg_sp">rad2deg_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-arc2rad_dp">arc2rad_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-arc2rad_sp">arc2rad_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-secperrad_dp">secperrad_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-secperrad_sp">secperrad_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-secday_dp">secday_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-secday_sp">secday_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-psychro_dp">psychro_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-psychro_sp">psychro_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-gravity_dp">gravity_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-gravity_sp">gravity_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-solarconst_dp">solarconst_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-solarconst_sp">solarconst_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-specheatet_dp">specheatet_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-specheatet_sp">specheatet_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-t0_dp">T0_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-t0_sp">T0_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-sigma_dp">sigma_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-sigma_sp">sigma_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-radiusearth_dp">radiusearth_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-radiusearth_sp">radiusearth_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-radperday_dp">radperday_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-radperday_sp">radperday_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-mindecl_dp">mindecl_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-mindecl_sp">mindecl_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-daysoff_dp">daysoff_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-daysoff_sp">daysoff_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-ma_dp">Ma_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-ma_sp">Ma_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-mw_dp">Mw_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-mw_sp">Mw_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-epsair_dp">epsair_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-epsair_sp">epsair_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-r_dp">R_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-r_sp">R_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-lr_std_dp">lr_std_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-lr_std_sp">lr_std_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-p0_dp">p0_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-p0_sp">p0_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-rho0_dp">rho0_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-rho0_sp">rho0_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-cp0_dp">cp0_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-cp0_sp">cp0_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-t_std_dp">T_std_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-t_std_sp">T_std_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-pi_d">pi_d</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-pi">pi</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-pio2_d">pio2_d</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-pio2">pio2</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-twopi_d">twopi_d</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-twopi">twopi</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-sqrt2_d">sqrt2_d</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-sqrt2">sqrt2</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-euler_d">euler_d</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-euler">euler</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-nin">nin</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-nout">nout</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-nerr">nerr</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-nnml">nnml</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <p>\file mo_constants.f90
+\brief Provides computational, mathematical, physical, and file constants
+\details Provides computational constants like epsilon, mathematical constants such as Pi,
+physical constants such as the Stefan-Boltzmann constant, and file units for some standard streams
+such as standard in.
+\author Matthias Cuntz
+\date Nov 2011</p>
+<br>        <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Uses</h3>
+      </div>
+      <ul class="list-group">
+          <li class="list-group-item">
+            <ul class="list-inline">
+                <li><a href='../module/mo_kind.html'>mo_kind</a></li>
+                <li><a href="http://fortranwiki.org/fortran/show/iso_fortran_env">iso_fortran_env</a></li>
+            </ul>
+          </li>
+      </ul>
+    </div>
+
+    
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#vars-1">Variables</a>
+        </h3>
+      </div>
+      <div id="vars-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/mo_constants.html#variable-eps_dp">eps_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-eps_sp">eps_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-pi_dp">pi_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-pi_sp">pi_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-pio2_dp">pio2_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-pio2_sp">pio2_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-twopi_dp">twopi_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-twopi_sp">twopi_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-sqrt2_dp">sqrt2_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-sqrt2_sp">sqrt2_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-onethird_dp">onethird_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-onethird_sp">onethird_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-twothird_dp">twothird_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-twothird_sp">twothird_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-deg2rad_dp">deg2rad_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-deg2rad_sp">deg2rad_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-rad2deg_dp">rad2deg_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-rad2deg_sp">rad2deg_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-arc2rad_dp">arc2rad_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-arc2rad_sp">arc2rad_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-secperrad_dp">secperrad_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-secperrad_sp">secperrad_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-secday_dp">secday_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-secday_sp">secday_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-psychro_dp">psychro_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-psychro_sp">psychro_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-gravity_dp">gravity_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-gravity_sp">gravity_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-solarconst_dp">solarconst_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-solarconst_sp">solarconst_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-specheatet_dp">specheatet_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-specheatet_sp">specheatet_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-t0_dp">T0_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-t0_sp">T0_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-sigma_dp">sigma_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-sigma_sp">sigma_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-radiusearth_dp">radiusearth_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-radiusearth_sp">radiusearth_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-radperday_dp">radperday_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-radperday_sp">radperday_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-mindecl_dp">mindecl_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-mindecl_sp">mindecl_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-daysoff_dp">daysoff_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-daysoff_sp">daysoff_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-ma_dp">Ma_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-ma_sp">Ma_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-mw_dp">Mw_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-mw_sp">Mw_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-epsair_dp">epsair_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-epsair_sp">epsair_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-r_dp">R_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-r_sp">R_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-lr_std_dp">lr_std_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-lr_std_sp">lr_std_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-p0_dp">p0_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-p0_sp">p0_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-rho0_dp">rho0_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-rho0_sp">rho0_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-cp0_dp">cp0_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-cp0_sp">cp0_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-t_std_dp">T_std_dp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-t_std_sp">T_std_sp</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-pi_d">pi_d</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-pi">pi</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-pio2_d">pio2_d</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-pio2">pio2</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-twopi_d">twopi_d</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-twopi">twopi</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-sqrt2_d">sqrt2_d</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-sqrt2">sqrt2</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-euler_d">euler_d</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-euler">euler</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-nin">nin</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-nout">nout</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-nerr">nerr</a>
+            <a class="list-group-item" href="../module/mo_constants.html#variable-nnml">nnml</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    <section>
+    <h2>Variables</h2>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Visibility</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+<th></th><th>Initial</th>        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-eps_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>eps_dp</strong></td>
+<td> =</td>
+                <td>epsilon(1.0_dp)</td>
+            <td>
+                <p>epsilon(1.0) in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-eps_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>eps_sp</strong></td>
+<td> =</td>
+                <td>epsilon(1.0_sp)</td>
+            <td>
+                <p>epsilon(1.0) in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pi_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>pi_dp</strong></td>
+<td> =</td>
+                <td>3.141592653589793238462643383279502884197_dp</td>
+            <td>
+                <p>pi in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pi_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>pi_sp</strong></td>
+<td> =</td>
+                <td>3.141592653589793238462643383279502884197_sp</td>
+            <td>
+                <p>pi in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pio2_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>pio2_dp</strong></td>
+<td> =</td>
+                <td>1.57079632679489661923132169163975144209858_dp</td>
+            <td>
+                <p>pi/2 in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pio2_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>pio2_sp</strong></td>
+<td> =</td>
+                <td>1.57079632679489661923132169163975144209858_sp</td>
+            <td>
+                <p>pi/2 in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-twopi_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>twopi_dp</strong></td>
+<td> =</td>
+                <td>6.283185307179586476925286766559005768394_dp</td>
+            <td>
+                <p>2*pi in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-twopi_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>twopi_sp</strong></td>
+<td> =</td>
+                <td>6.283185307179586476925286766559005768394_sp</td>
+            <td>
+                <p>2*pi in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sqrt2_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>sqrt2_dp</strong></td>
+<td> =</td>
+                <td>1.41421356237309504880168872420969807856967_dp</td>
+            <td>
+                <p>square root of 2 in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sqrt2_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>sqrt2_sp</strong></td>
+<td> =</td>
+                <td>1.41421356237309504880168872420969807856967_sp</td>
+            <td>
+                <p>square root of 2 in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-onethird_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>onethird_dp</strong></td>
+<td> =</td>
+                <td>0.3333333333333333333333333333333333333_dp</td>
+            <td>
+                <p>1/3 in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-onethird_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>onethird_sp</strong></td>
+<td> =</td>
+                <td>0.3333333333333333333333333333333333333_sp</td>
+            <td>
+                <p>1/3 in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-twothird_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>twothird_dp</strong></td>
+<td> =</td>
+                <td>1.0_dp-onethird_dp</td>
+            <td>
+                <p>2/3 in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-twothird_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>twothird_sp</strong></td>
+<td> =</td>
+                <td>1.0_sp-onethird_sp</td>
+            <td>
+                <p>2/3 in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-deg2rad_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>deg2rad_dp</strong></td>
+<td> =</td>
+                <td>pi_dp/180._dp</td>
+            <td>
+                <p>degree to radian conversion (pi/180) in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-deg2rad_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>deg2rad_sp</strong></td>
+<td> =</td>
+                <td>pi_sp/180._sp</td>
+            <td>
+                <p>degree to radian conversion (pi/180) in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rad2deg_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>rad2deg_dp</strong></td>
+<td> =</td>
+                <td>180._dp/pi_dp</td>
+            <td>
+                <p>radian to degree conversion (180/pi) in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rad2deg_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>rad2deg_sp</strong></td>
+<td> =</td>
+                <td>180._sp/pi_sp</td>
+            <td>
+                <p>radian to degree conversion (180/pi) in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-arc2rad_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>arc2rad_dp</strong></td>
+<td> =</td>
+                <td>pi_dp/12._dp</td>
+            <td>
+                <p>arc to radian conversion (180/pi) in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-arc2rad_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>arc2rad_sp</strong></td>
+<td> =</td>
+                <td>pi_sp/12._sp</td>
+            <td>
+                <p>arc to radian conversion (180/pi) in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-secperrad_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>secperrad_dp</strong></td>
+<td> =</td>
+                <td>13750.9871_dp</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-secperrad_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>secperrad_sp</strong></td>
+<td> =</td>
+                <td>13750.9871_sp</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-secday_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>secday_dp</strong></td>
+<td> =</td>
+                <td>86400._dp</td>
+            <td>
+                <p>seconds per day [s] in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-secday_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>secday_sp</strong></td>
+<td> =</td>
+                <td>86400._sp</td>
+            <td>
+                <p>seconds per day [s] in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-psychro_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>psychro_dp</strong></td>
+<td> =</td>
+                <td>0.0646_dp</td>
+            <td>
+                <p>psychrometric constant [kPa K^-1] in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-psychro_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>psychro_sp</strong></td>
+<td> =</td>
+                <td>0.0646_sp</td>
+            <td>
+                <p>psychrometric constant [kPa K^-1] in sibgle precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gravity_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>gravity_dp</strong></td>
+<td> =</td>
+                <td>9.81_dp</td>
+            <td>
+                <p>gravity accelaration [m^2 s^-1] in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gravity_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>gravity_sp</strong></td>
+<td> =</td>
+                <td>9.81_sp</td>
+            <td>
+                <p>gravity accelaration [m^2 s^-1] in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-solarconst_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>solarconst_dp</strong></td>
+<td> =</td>
+                <td>1367._dp</td>
+            <td>
+                <p>solar constant in [J m^-2 s^-1] in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-solarconst_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>solarconst_sp</strong></td>
+<td> =</td>
+                <td>1367._sp</td>
+            <td>
+                <p>solar constant in [J m^-2 s^-1] in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-specheatet_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>specheatet_dp</strong></td>
+<td> =</td>
+                <td>2.45e06_dp</td>
+            <td>
+                <p>specific heat for vaporization of water in [J m-2 mm-1] in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-specheatet_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>specheatet_sp</strong></td>
+<td> =</td>
+                <td>2.45e06_sp</td>
+            <td>
+                <p>specific heat for vaporization of water in [J m-2 mm-1] in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-t0_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>T0_dp</strong></td>
+<td> =</td>
+                <td>273.15_dp</td>
+            <td>
+                <p>standard temperature [k] in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-t0_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>T0_sp</strong></td>
+<td> =</td>
+                <td>273.15_sp</td>
+            <td>
+                <p>standard temperature [k] in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sigma_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>sigma_dp</strong></td>
+<td> =</td>
+                <td>5.67e-08_dp</td>
+            <td>
+                <p>stefan-boltzmann constant [W m^-2 K^-4] in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sigma_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>sigma_sp</strong></td>
+<td> =</td>
+                <td>5.67e-08_sp</td>
+            <td>
+                <p>stefan-boltzmann constant [W m^-2 K^-4] in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-radiusearth_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>radiusearth_dp</strong></td>
+<td> =</td>
+                <td>6371228._dp</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-radiusearth_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>radiusearth_sp</strong></td>
+<td> =</td>
+                <td>6371228._sp</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-radperday_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>radperday_dp</strong></td>
+<td> =</td>
+                <td>0.017214_dp</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-radperday_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>radperday_sp</strong></td>
+<td> =</td>
+                <td>0.017214_sp</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mindecl_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>mindecl_dp</strong></td>
+<td> =</td>
+                <td>-0.4092797_dp</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mindecl_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>mindecl_sp</strong></td>
+<td> =</td>
+                <td>-0.4092797_sp</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-daysoff_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>daysoff_dp</strong></td>
+<td> =</td>
+                <td>11.25_dp</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-daysoff_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>daysoff_sp</strong></td>
+<td> =</td>
+                <td>11.25_sp</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ma_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>Ma_dp</strong></td>
+<td> =</td>
+                <td>28.9644e-3_dp</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ma_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>Ma_sp</strong></td>
+<td> =</td>
+                <td>28.9644e-3_sp</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mw_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>Mw_dp</strong></td>
+<td> =</td>
+                <td>18.0148e-3_dp</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mw_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>Mw_sp</strong></td>
+<td> =</td>
+                <td>18.0148e-3_sp</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-epsair_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>epsair_dp</strong></td>
+<td> =</td>
+                <td>Mw_dp/Ma_dp</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-epsair_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>epsair_sp</strong></td>
+<td> =</td>
+                <td>Mw_sp/Ma_sp</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-r_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>R_dp</strong></td>
+<td> =</td>
+                <td>8.3143_dp</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-r_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>R_sp</strong></td>
+<td> =</td>
+                <td>8.3143_sp</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lr_std_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>lr_std_dp</strong></td>
+<td> =</td>
+                <td>0.0065_dp</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lr_std_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>lr_std_sp</strong></td>
+<td> =</td>
+                <td>0.0065_sp</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-p0_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>p0_dp</strong></td>
+<td> =</td>
+                <td>101325._dp</td>
+            <td>
+                <p>Standard atmosphere
+standard pressure [Pa] in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-p0_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>p0_sp</strong></td>
+<td> =</td>
+                <td>101325._sp</td>
+            <td>
+                <p>standard pressure [Pa] in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rho0_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>rho0_dp</strong></td>
+<td> =</td>
+                <td>1.225_dp</td>
+            <td>
+                <p>standard density  [kg m^-3] in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rho0_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>rho0_sp</strong></td>
+<td> =</td>
+                <td>1.225_sp</td>
+            <td>
+                <p>standard density  [kg m^-3] in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cp0_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>cp0_dp</strong></td>
+<td> =</td>
+                <td>1005.0_dp</td>
+            <td>
+                <p>specific heat capacity of air [J kg^-1 K^-1] in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cp0_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>cp0_sp</strong></td>
+<td> =</td>
+                <td>1005.0_sp</td>
+            <td>
+                <p>specific heat capacity of air [J kg^-1 K^-1] in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-t_std_dp"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>T_std_dp</strong></td>
+<td> =</td>
+                <td>288.15_dp</td>
+            <td>
+                <p>standard temp at 0.0 m elevation (K)           ! standard temperature at 0 m asl</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-t_std_sp"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>T_std_sp</strong></td>
+<td> =</td>
+                <td>288.15_sp</td>
+            <td>
+                <p>standard temp at 0.0 m elevation (K)</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pi_d"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>pi_d</strong></td>
+<td> =</td>
+                <td>3.141592653589793238462643383279502884197_dp</td>
+            <td>
+                <p>pi in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pi"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>pi</strong></td>
+<td> =</td>
+                <td>3.141592653589793238462643383279502884197_sp</td>
+            <td>
+                <p>pi in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pio2_d"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>pio2_d</strong></td>
+<td> =</td>
+                <td>1.57079632679489661923132169163975144209858_dp</td>
+            <td>
+                <p>pi/2 in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pio2"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>pio2</strong></td>
+<td> =</td>
+                <td>1.57079632679489661923132169163975144209858_sp</td>
+            <td>
+                <p>pi/2 in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-twopi_d"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>twopi_d</strong></td>
+<td> =</td>
+                <td>6.283185307179586476925286766559005768394_dp</td>
+            <td>
+                <p>2*pi in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-twopi"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>twopi</strong></td>
+<td> =</td>
+                <td>6.283185307179586476925286766559005768394_sp</td>
+            <td>
+                <p>2*pi in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sqrt2_d"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>sqrt2_d</strong></td>
+<td> =</td>
+                <td>1.41421356237309504880168872420969807856967_dp</td>
+            <td>
+                <p>square root of 2 in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sqrt2"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>sqrt2</strong></td>
+<td> =</td>
+                <td>1.41421356237309504880168872420969807856967_sp</td>
+            <td>
+                <p>square root of 2 in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-euler_d"></span>
+              real(kind=dp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>euler_d</strong></td>
+<td> =</td>
+                <td>0.5772156649015328606065120900824024310422_dp</td>
+            <td>
+                <p>Euler's constant in double precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-euler"></span>
+              real(kind=sp),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>euler</strong></td>
+<td> =</td>
+                <td>0.5772156649015328606065120900824024310422_sp</td>
+            <td>
+                <p>Euler's constant in single precision</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nin"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>nin</strong></td>
+<td> =</td>
+                <td>input_unit</td>
+            <td>
+                <p>standard input file unit</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nout"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>nout</strong></td>
+<td> =</td>
+                <td>output_unit</td>
+            <td>
+                <p>standard output file unit</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nerr"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>nerr</strong></td>
+<td> =</td>
+                <td>error_unit</td>
+            <td>
+                <p>standard error file unit</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nnml"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>nnml</strong></td>
+<td> =</td>
+                <td>100</td>
+            <td>
+                <p>standard file unit for namelist</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </section>
+    <br>
+    
+    
+
+    
+    
+
+
+
+
+    </div>
+  </div>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-6"><p>POP was developed by CABLE community<br>&copy; 2022 
+</p>
+        </div>
+        <div class="col-xs-6 col-md-6">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+          </p>
+        </div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+  </body>
+</html>
