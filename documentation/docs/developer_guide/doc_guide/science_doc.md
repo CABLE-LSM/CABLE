@@ -25,7 +25,7 @@ At a minimum a subroutine, function, or interface must contain the following sta
     !
     ! Include what quantity(ies) the procedure is calculating and a short 
     ! description of the relationship between the outputs and the inputs.
-    ! It is fine to refer to a published paper as explanation of the 
+    ! It is fine to refer to a published paper as the explanation of the 
     ! relationship (e.g. "following Wang and Leuning 1998"). 
     !
     ! Mention all scientific methods used in the procedure.
