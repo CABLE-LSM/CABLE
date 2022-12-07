@@ -81,17 +81,17 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.0% of total for procedures.">13 statements</a>
+               title=" 0.0% of total for procedures.">12 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/cable_fprint.F90"> Source File</a>
+              <a href="../src/cable_diag.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/cable_fprint.f90.html'>cable_fprint.F90</a></li>
-              <li><a href='../module/cable_fprint_module.html'>cable_fprint_module</a></li>
+              <li><a href='../sourcefile/cable_diag.f90.html'>cable_diag.F90</a></li>
+              <li><a href='../module/cable_diag_module.html'>cable_diag_module</a></li>
           <li class="active">cable_fprintf1</li>
         </ol>
       </div>
@@ -135,7 +135,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public  subroutine cable_fprintf1(iDiag, basename, knode, ktau, L_fprint)  
+    <h2>public  subroutine cable_fprintf1(iDiag, basename, var1, dimx, L_fprint)  
 </h2>
         <div class="panel panel-default">
       <div class="panel-heading">
@@ -145,7 +145,6 @@
           <li class="list-group-item">
             <ul class="list-inline">
                 <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-                <li><a href='../module/cable_ffile_module.html'>cable_fFile_module</a></li>
             </ul>
           </li>
       </ul>
@@ -166,7 +165,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-idiag~17"></span>
+              <span class="anchor" id="variable-idiag~6"></span>
               integer
             </td>
 <td></td>
@@ -181,7 +180,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-basename~14"></span>
+              <span class="anchor" id="variable-basename~10"></span>
               character(len=*)
             </td>
 <td></td>
@@ -196,7 +195,22 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-knode"></span>
+              <span class="anchor" id="variable-var1~3"></span>
+              real,
+            </td>
+<td></td>
+              <td></td>            <td>
+              dimension(dimx)
+            </td>
+            <td>::</td>
+            <td><strong>var1</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dimx~5"></span>
               integer
             </td>
 <td></td>
@@ -204,29 +218,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>knode</strong></td>
+            <td><strong>dimx</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ktau~17"></span>
-              integer
-            </td>
-<td></td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>ktau</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-l_fprint~5"></span>
+              <span class="anchor" id="variable-l_fprint~6"></span>
               logical
             </td>
 <td></td>

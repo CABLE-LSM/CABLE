@@ -1419,13 +1419,14 @@ Before starting new work, open an issue on GitHub to explain what you are planni
 <pre class="mermaid"><code>   flowchart TB
 
       edits[Make your edits]:::term;
-      commit["Commit your edits: &lt;br&gt; git commit -a -m &amp;lt;message&amp;gt;"]:::term;
+      add["Add your edits to git's index: &lt;br&gt; git add ."]:::term;
+      commit["Commit your edits: &lt;br&gt; git commit"]:::term;
       push[Push your edits &lt;br&gt; git push]:::term;
       pr([Create a pull request]):::github;
       preview[\Is preview correct?/]:::question;
       review[Ready for review];
 
-      edits --&gt; commit --&gt; push;
+      edits --&gt; add --&gt; commit --&gt; push;
       push --&gt; |first time|pr --&gt; preview;
       push ----&gt; |subsequent|preview;
       preview --&gt;|Yes|review;
@@ -1444,9 +1445,11 @@ Before starting new work, open an issue on GitHub to explain what you are planni
 
 ;</code></pre>
 <h3 id="commit-your-edits">Commit your edits</h3>
-<p>You need to record your edits in git, this is called <code>commit</code>. It is recommended to do this regularly as it gives some safety to reverse changes:</p>
-<div class="highlight"><pre><span></span><code>git commit -a -m <span class="s2">&quot;your commit message&quot;</span>
+<p>You need to record your edits in git, this is called <code>commit</code>. It is recommended to do this regularly as it gives some safety to reverse changes. In Git, this is a 2-step process with a first step to add what you want to commit to the index and then commit what is in the index.</p>
+<div class="highlight"><pre><span></span><code>git add .
+git commit
 </code></pre></div>
+<p>Then please add an informative message in the editor that opens automatically. Remember that Git records the date and time as well as the author of the commit, these do not need to be repeated in the message. The message gives information on the nature of the changes.</p>
 <h3 id="push-your-edits-to-the-remote-repository">Push your edits to the remote repository</h3>
 <p>It is recommended to push your changes back to the remote repository often as it provides a backup of the work, the ability to work from different computers and makes it easier to collaborate on some development:</p>
 <div class="highlight"><pre><span></span><code>git push
@@ -1513,11 +1516,11 @@ git pull
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 6, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 7, 2022</span>
       
         <br>
         Created:
-        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 6, 2022</span>
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 7, 2022</span>
       
     
   </small>

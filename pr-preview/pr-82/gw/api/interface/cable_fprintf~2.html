@@ -81,17 +81,17 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title="<p> 0.0% of total for procedures.</p>Including implementation: 37 statements,  0.1% of total for procedures.">3 statements</a>
+               title="<p> 0.0% of total for procedures.</p>Including implementation: 223 statements,  0.5% of total for procedures.">3 statements</a>
           </li>
 
             <li id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/cable_fprint.F90"> Source File</a>
+              <a href="../src/cable_diag.F90"> Source File</a>
             </li>
         </ul>
         <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/cable_fprint.f90.html'>cable_fprint.F90</a></li>
-              <li><a href='../module/cable_fprint_module.html'>cable_fprint_module</a></li>
+              <li><a href='../sourcefile/cable_diag.f90.html'>cable_diag.F90</a></li>
+              <li><a href='../module/cable_diag_module.html'>cable_diag_module</a></li>
           <li class="active">cable_fprintf</li>
         </ol>
       </div>
@@ -135,9 +135,12 @@
       </div>
       <div id="modprocs-0" class="panel-collapse collapse">
         <div class="list-group">
-            <a class="list-group-item" href="../interface/cable_fprintf~2.html#moduleprocedure-cable_fprintf0">cable_fprintf0</a>
             <a class="list-group-item" href="../interface/cable_fprintf~2.html#moduleprocedure-cable_fprintf1~2">cable_fprintf1</a>
             <a class="list-group-item" href="../interface/cable_fprintf~2.html#moduleprocedure-cable_fprintf2~2">cable_fprintf2</a>
+            <a class="list-group-item" href="../interface/cable_fprintf~2.html#moduleprocedure-cable_fprintf3">cable_fprintf3</a>
+            <a class="list-group-item" href="../interface/cable_fprintf~2.html#moduleprocedure-cable_iprintf1">cable_iprintf1</a>
+            <a class="list-group-item" href="../interface/cable_fprintf~2.html#moduleprocedure-cable_iprintf2">cable_iprintf2</a>
+            <a class="list-group-item" href="../interface/cable_fprintf~2.html#moduleprocedure-cable_lprintf2">cable_Lprintf2</a>
         </div>
       </div>
     </div>
@@ -180,9 +183,12 @@
       </div>
       <div id="modprocs-1" class="panel-collapse collapse">
         <div class="list-group">
-            <a class="list-group-item" href="../interface/cable_fprintf~2.html#moduleprocedure-cable_fprintf0">cable_fprintf0</a>
             <a class="list-group-item" href="../interface/cable_fprintf~2.html#moduleprocedure-cable_fprintf1~2">cable_fprintf1</a>
             <a class="list-group-item" href="../interface/cable_fprintf~2.html#moduleprocedure-cable_fprintf2~2">cable_fprintf2</a>
+            <a class="list-group-item" href="../interface/cable_fprintf~2.html#moduleprocedure-cable_fprintf3">cable_fprintf3</a>
+            <a class="list-group-item" href="../interface/cable_fprintf~2.html#moduleprocedure-cable_iprintf1">cable_iprintf1</a>
+            <a class="list-group-item" href="../interface/cable_fprintf~2.html#moduleprocedure-cable_iprintf2">cable_iprintf2</a>
+            <a class="list-group-item" href="../interface/cable_fprintf~2.html#moduleprocedure-cable_lprintf2">cable_Lprintf2</a>
         </div>
       </div>
     </div>
@@ -196,7 +202,7 @@
 
    <h2>Module Procedures</h2>
       <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-cable_fprintf0"></span><h3>public  subroutine <a href='../proc/cable_fprintf0.html'>cable_fprintf0</a>(basename, L_fprint)  
+    <div class="panel-heading codesum"><span class="anchor" id="proc-cable_fprintf1~2"></span><h3>public  subroutine <a href='../proc/cable_fprintf1~2.html'>cable_fprintf1</a>(iDiag, basename, var1, dimx, L_fprint)  
 </h3></div>
     <div class="panel-body">
           
@@ -216,6 +222,21 @@
         <tr>
             <td>
               <span class="anchor" ></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>iDiag</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
               character(len=*)
             </td>
 <td></td>
@@ -224,6 +245,36 @@
             </td>
             <td>::</td>
             <td><strong>basename</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
+<td></td>
+              <td></td>            <td>
+              dimension(dimx)
+            </td>
+            <td>::</td>
+            <td><strong>var1</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dimx</strong></td>
             <td>
 
             </td>
@@ -251,7 +302,7 @@
   </div>
 
       <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-cable_fprintf1~2"></span><h3>public  subroutine <a href='../proc/cable_fprintf1~2.html'>cable_fprintf1</a>(iDiag, basename, knode, ktau, L_fprint)  
+    <div class="panel-heading codesum"><span class="anchor" id="proc-cable_fprintf2~2"></span><h3>public  subroutine <a href='../proc/cable_fprintf2~2.html'>cable_fprintf2</a>(iDiag, basename, dimx, dimy, timestep, node, dir, var1)  
 </h3></div>
     <div class="panel-body">
           
@@ -308,7 +359,7 @@
               
             </td>
             <td>::</td>
-            <td><strong>knode</strong></td>
+            <td><strong>dimx</strong></td>
             <td>
 
             </td>
@@ -323,7 +374,7 @@
               
             </td>
             <td>::</td>
-            <td><strong>ktau</strong></td>
+            <td><strong>dimy</strong></td>
             <td>
 
             </td>
@@ -331,14 +382,59 @@
         <tr>
             <td>
               <span class="anchor" ></span>
-              logical
+              integer
             </td>
 <td></td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>L_fprint</strong></td>
+            <td><strong>timestep</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>node</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dir</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
+<td></td>
+              <td></td>            <td>
+              dimension(dimx,dimy)
+            </td>
+            <td>::</td>
+            <td><strong>var1</strong></td>
             <td>
 
             </td>
@@ -351,7 +447,7 @@
   </div>
 
       <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-cable_fprintf2~2"></span><h3>public  subroutine <a href='../proc/cable_fprintf2~2.html'>cable_fprintf2</a>(iDiag, basename, msg, L_fprint)  
+    <div class="panel-heading codesum"><span class="anchor" id="proc-cable_fprintf3"></span><h3>public  subroutine <a href='../proc/cable_fprintf3.html'>cable_fprintf3</a>(iDiag, basename, dimx, dimy, dimz, timestep, node, dir, var1)  
 </h3></div>
     <div class="panel-body">
           
@@ -401,14 +497,14 @@
         <tr>
             <td>
               <span class="anchor" ></span>
-              character(len=*)
+              integer
             </td>
 <td></td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>msg</strong></td>
+            <td><strong>dimx</strong></td>
             <td>
 
             </td>
@@ -416,14 +512,509 @@
         <tr>
             <td>
               <span class="anchor" ></span>
-              logical
+              integer
             </td>
 <td></td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>L_fprint</strong></td>
+            <td><strong>dimy</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dimz</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>timestep</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>node</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dir</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real,
+            </td>
+<td></td>
+              <td></td>            <td>
+              dimension(dimx,dimy,dimz)
+            </td>
+            <td>::</td>
+            <td><strong>var1</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-cable_iprintf1"></span><h3>public  subroutine <a href='../proc/cable_iprintf1.html'>cable_iprintf1</a>(iDiag, basename, dimx, timestep, node, dir, var1)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>iDiag</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>basename</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dimx</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>timestep</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>node</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dir</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td></td>
+              <td></td>            <td>
+              dimension(dimx)
+            </td>
+            <td>::</td>
+            <td><strong>var1</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-cable_iprintf2"></span><h3>public  subroutine <a href='../proc/cable_iprintf2.html'>cable_iprintf2</a>(iDiag, basename, dimx, dimy, timestep, node, dir, var1)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>iDiag</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>basename</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dimx</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dimy</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>timestep</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>node</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dir</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td></td>
+              <td></td>            <td>
+              dimension(dimx,dimy)
+            </td>
+            <td>::</td>
+            <td><strong>var1</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-cable_lprintf2"></span><h3>public  subroutine <a href='../proc/cable_lprintf2.html'>cable_Lprintf2</a>(iDiag, basename, dimx, dimy, timestep, node, dir, var1)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>iDiag</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>basename</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dimx</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dimy</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>timestep</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>node</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dir</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              logical,
+            </td>
+<td></td>
+              <td></td>            <td>
+              dimension(dimx,dimy)
+            </td>
+            <td>::</td>
+            <td><strong>var1</strong></td>
             <td>
 
             </td>
