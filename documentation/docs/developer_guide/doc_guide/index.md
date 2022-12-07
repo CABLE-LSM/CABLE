@@ -3,7 +3,7 @@
 The documentation for CABLE has two parts:
 
  - inline documentation in the source code. This documentation includes the detailed scientific documentation. It is written using [FORD][ford].
- - the standalone guides such as the User guide and the Developer guide. It is written using [Material for MkDocs][material].
+ - the standalone guides such as the User Guide and the Developer Guide. It is written using [Material for MkDocs][material].
 
 All documentation is located in the [CABLE GitHub repository][cable-repo]. Both tools use [Markdown][md-cheatsheet] and [LaTeX Mathematics][latex-maths] for formatting. You can find a cheatsheet for FORD [on this page][ford-cheatsheet].
 
