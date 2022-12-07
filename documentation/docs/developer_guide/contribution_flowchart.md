@@ -77,10 +77,12 @@ This first flowchart explains what we are trying to do. The following flowcharts
 ### Clone repository
 
 On [CABLE's GitHub main page][CABLE-repo], click the `code` green button and copy the URL you need:
-![clone](../assets/clone.png)
+<figure markdown>
+  ![Image title](../assets/clone.png){ width="90%", align=right }
+</figure>
 Make sure to choose the appropriate protocol (HTTPS or SSH) for connecting to the remote repository. Note, you need to setup an access token to use HTTPS and SSH keys to use SSH.
 
-On your local machine in a terminal,clone the repository:
+On your local machine in a terminal, clone the repository:
 
 ```bash
 git clone <URL provided>
@@ -88,7 +90,9 @@ git clone <URL provided>
 
 ### Open issue
 
-![issue](../assets/issue.png)
+<figure markdown>
+  ![Image title](../assets/issue.png){ width="90%", align=right }
+</figure>
 Before starting new work, open an issue on GitHub to explain what you are planning on working on. This avoid potential duplication of effort.
 
 ### Create the local branch
@@ -157,7 +161,9 @@ git push
 
 The first time you push back some work on a branch, consider opening a pull request. This allows potential collaborators or helpers to find your work easily.
 
-![pr](../assets/pr.png)
+<figure markdown>
+  ![Image title](../assets/pr.png){ width="90%", align=right }
+</figure>
 
 You can update the pull request by simply pushing more commits to the same branch.
 
@@ -165,7 +171,9 @@ You can update the pull request by simply pushing more commits to the same branc
 
 The pull request will build a preview of your work *merged* with the main branch of the repository. Please check that your work is rendered correctly. Once a preview is ready, you will see the following comment in the pull request providing the path to the preview:
 
-![preview](../assets/preview.png)
+<figure markdown>
+  ![Image title](../assets/preview.png){ width="90%", align=right }
+</figure>
 
 To preview changes to the API documentation (ie. documentation in the CABLE source code), you need to append `/api` to the path provided.
 
@@ -208,7 +216,9 @@ All modifications to the documentation no matter how large or small need to be r
 
 ### Ask for review
 
-![review](../assets/review.png)
+<figure markdown>
+  ![Image title](../assets/review.png){ width="90%", align=right }
+</figure>
 
 Once you are satisfied with your work, ask for a review. By putting a submission in, you are responsible for being responsive to any comments or edit changes suggested by the reviewer. Remember your work will not be accepted into the main deployment branch until a reviewer approves it.
 
