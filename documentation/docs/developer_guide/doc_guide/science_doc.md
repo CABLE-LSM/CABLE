@@ -45,7 +45,7 @@ At a minimum a subroutine, function, or interface must contain the following sta
     !
     ! [Wang and Leuning 1998](https://doi.org/10.1016/S0168-1923(98)00061-6)
     !
-    ! Do not use the citation text! It is too long and unnecessary with a hyperlink.
+    ! Do not use the citation text! It is too long and unnecessary since we have DOI hyperlinks.
     !
 
 ### Modules header
