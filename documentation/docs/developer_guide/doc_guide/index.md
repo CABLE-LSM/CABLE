@@ -1,6 +1,6 @@
 # Documentation guidelines
 
-The documentation for CABLE is made of two different entities:
+The documentation for CABLE has two parts:
 
  - the API documentation is based on inline documentation in the source code. This documentation includes the detailed scientific documentation. It is written using [FORD][ford].
  - the standalone guides such as the User guide and the Developer guide. It is written using [Material for MkDocs][material].
