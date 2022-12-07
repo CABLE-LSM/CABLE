@@ -40,7 +40,7 @@ At a minimum a subroutine, function, or interface must contain the following sta
     ! the science and equations used in the procedure. 
     !
     ! The references should show the name of the authors and the publication 
-    ! year in the rendered text (e.g. "Wang and Leuning 1998") and be a hyperlink
+    ! year in the rendered text (e.g. "Wang and Leuning, 1998") and be a hyperlink
     ! to the paper using the DOI link as follow:
     !
     ! [Wang and Leuning 1998](https://doi.org/10.1016/S0168-1923(98)00061-6)
