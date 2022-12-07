@@ -41,7 +41,7 @@ At a minimum a subroutine, function, or interface must contain the following sta
     !
     ! The references should show the name of the authors and the publication 
     ! year in the rendered text (e.g. "Wang and Leuning, 1998") and be a hyperlink
-    ! to the paper using the DOI link as follow:
+    ! to the paper using the DOI link as follows:
     !
     ! [Wang and Leuning 1998](https://doi.org/10.1016/S0168-1923(98)00061-6)
     !
