@@ -26,7 +26,7 @@ At a minimum a subroutine, function, or interface must contain the following sta
     ! Include what quantity(ies) the procedure is calculating and a short 
     ! description of the relationship between the outputs and the inputs.
     ! It is fine to refer to a published paper as the explanation of the 
-    ! relationship (e.g. "following Wang and Leuning 1998"). 
+    ! relationship (e.g. "following Wang and Leuning, 1998"). 
     !
     ! Mention all scientific methods used in the procedure.
     !
@@ -43,7 +43,7 @@ At a minimum a subroutine, function, or interface must contain the following sta
     ! year in the rendered text (e.g. "Wang and Leuning, 1998") and be a hyperlink
     ! to the paper using the DOI link as follows:
     !
-    ! [Wang and Leuning 1998](https://doi.org/10.1016/S0168-1923(98)00061-6)
+    ! [Wang and Leuning, 1998](https://doi.org/10.1016/S0168-1923(98)00061-6)
     !
     ! Do not use the citation text! It is too long and unnecessary since we have DOI hyperlinks.
     !
