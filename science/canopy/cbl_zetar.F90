@@ -10,7 +10,7 @@ PRIVATE
 
 CONTAINS
 
-SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP,  &
+SUBROUTINE update_zetar( mp, iterplus, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP,  &
                    CLAI_THRESH, CZETmul, CZETPOS, CZETNEG,          &
                    cable_user_soil_struc, air_rho, met_tk,  met_fsd, &
                    rough_zref_tq, rough_hruff, rough_term6a, rough_z0soilsn,   &
@@ -74,6 +74,7 @@ IMPLICIT NONE
 INTEGER, INTENT(IN) :: mp     !! number of land points (-)
 INTEGER, INTENT(IN) :: NITER  !! number of MO-iterations (-)
 INTEGER, INTENT(IN) :: nrb    !! number of radiation bands (-)
+INTEGER, INTENT(OUT)  :: iterplus
 
 REAL, INTENT(OUT) :: canopy_zetar(mp, NITER)  !!stability parameter \(\xi\) (-)
 REAL, INTENT(OUT) :: canopy_zetash(mp, NITER) !!stability parameter for soil (-)
@@ -98,7 +99,6 @@ REAL, INTENT(IN) :: canopy_fhs(mp)     !! soil sensible heat flux (Wm\(^{-2}\))
 REAL, INTENT(IN) :: canopy_fes(mp)     !! soil latent heat flux (Wm\(^{-2}\))
 
 !local vars
-INTEGER :: iterplus
 INTEGER :: j
 
 ! monin-obukhov stability parameter zetar=zref/l
