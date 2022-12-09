@@ -153,8 +153,8 @@
       <ul class="list-group">
           <li class="list-group-item">
             <ul class="list-inline">
-                <li>netcdf</li>
                 <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+                <li>netcdf</li>
             </ul>
           </li>
           <li class="list-group-item">
@@ -175,32 +175,32 @@
 <polygon fill="none" stroke="black" points="292,-45 163,-45 163,-21 292,-21 292,-45"/>
 <text text-anchor="middle" x="227.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">read_netcdf_casapool</text>
 </g>
-<!-- netcdf -->
-<g id="proc~~read_netcdf_casapool~~UsesGraph_node2" class="node">
-<title>netcdf</title>
-<polygon fill="#337ab7" stroke="#337ab7" points="90.5,-66 36.5,-66 36.5,-42 90.5,-42 90.5,-66"/>
-<text text-anchor="middle" x="63.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">netcdf</text>
-</g>
-<!-- proc~read_netcdf_casapool&#45;&gt;netcdf -->
-<g id="proc~~read_netcdf_casapool~~UsesGraph_edge1" class="edge">
-<title>proc~read_netcdf_casapool&#45;&gt;netcdf</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M162.94,-41.24C141.8,-43.98 118.99,-46.94 100.66,-49.31"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="100.17,-45.85 90.7,-50.6 101.07,-52.79 100.17,-45.85"/>
-</g>
 <!-- module~cable_def_types_mod -->
-<g id="proc~~read_netcdf_casapool~~UsesGraph_node3" class="node">
+<g id="proc~~read_netcdf_casapool~~UsesGraph_node2" class="node">
 <title>module~cable_def_types_mod</title>
-<g id="a_proc~~read_netcdf_casapool~~UsesGraph_node3"><a xlink:href=".././module/cable_def_types_mod.html" xlink:title="cable_def_types_mod">
-<polygon fill="#337ab7" stroke="#337ab7" points="127,-24 0,-24 0,0 127,0 127,-24"/>
-<text text-anchor="middle" x="63.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_def_types_mod</text>
+<g id="a_proc~~read_netcdf_casapool~~UsesGraph_node2"><a xlink:href=".././module/cable_def_types_mod.html" xlink:title="cable_def_types_mod">
+<polygon fill="#337ab7" stroke="#337ab7" points="127,-66 0,-66 0,-42 127,-42 127,-66"/>
+<text text-anchor="middle" x="63.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cable_def_types_mod</text>
 </a>
 </g>
 </g>
 <!-- proc~read_netcdf_casapool&#45;&gt;module~cable_def_types_mod -->
-<g id="proc~~read_netcdf_casapool~~UsesGraph_edge2" class="edge">
+<g id="proc~~read_netcdf_casapool~~UsesGraph_edge1" class="edge">
 <title>proc~read_netcdf_casapool&#45;&gt;module~cable_def_types_mod</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M162.94,-24.76C154.46,-23.66 145.72,-22.53 137.11,-21.41"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="137.45,-17.93 127.08,-20.11 136.55,-24.87 137.45,-17.93"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M162.94,-41.24C154.46,-42.34 145.72,-43.47 137.11,-44.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="136.55,-41.13 127.08,-45.89 137.45,-48.07 136.55,-41.13"/>
+</g>
+<!-- netcdf -->
+<g id="proc~~read_netcdf_casapool~~UsesGraph_node3" class="node">
+<title>netcdf</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="90.5,-24 36.5,-24 36.5,0 90.5,0 90.5,-24"/>
+<text text-anchor="middle" x="63.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">netcdf</text>
+</g>
+<!-- proc~read_netcdf_casapool&#45;&gt;netcdf -->
+<g id="proc~~read_netcdf_casapool~~UsesGraph_edge2" class="edge">
+<title>proc~read_netcdf_casapool&#45;&gt;netcdf</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M162.94,-24.76C141.8,-22.02 118.99,-19.06 100.66,-16.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="101.07,-13.21 90.7,-15.4 100.17,-20.15 101.07,-13.21"/>
 </g>
 </g>
 </svg>
@@ -281,7 +281,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-filename~6"></span>
+              <span class="anchor" id="variable-filename~12"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -296,7 +296,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-casapool~13"></span>
+              <span class="anchor" id="variable-casapool~26"></span>
               type(<a href='../type/casa_pool.html'>casa_pool</a>),
             </td>
 <td>intent(inout)</td>
@@ -347,20 +347,17 @@
 <path fill="none" stroke="#ff0000" d="M83.07,-108.06C102.65,-121.27 135.44,-142.75 165,-159 167.68,-160.48 170.49,-161.95 173.33,-163.39"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="171.89,-166.59 182.4,-167.87 174.98,-160.31 171.89,-166.59"/>
 </g>
-<!-- proc~nc_err -->
+<!-- nf90_get_var -->
 <g id="proc~~read_netcdf_casapool~~CallsGraph_node3" class="node">
-<title>proc~nc_err</title>
-<g id="a_proc~~read_netcdf_casapool~~CallsGraph_node3"><a xlink:href=".././proc/nc_err.html" xlink:title="nc_err">
-<polygon fill="#d9534f" stroke="#d9534f" points="237.5,-150 183.5,-150 183.5,-126 237.5,-126 237.5,-150"/>
-<text text-anchor="middle" x="210.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nc_err</text>
-</a>
+<title>nf90_get_var</title>
+<polygon fill="#777777" stroke="#777777" points="251.5,-150 169.5,-150 169.5,-126 251.5,-126 251.5,-150"/>
+<text text-anchor="middle" x="210.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_var</text>
 </g>
-</g>
-<!-- proc~read_netcdf_casapool&#45;&gt;proc~nc_err -->
+<!-- proc~read_netcdf_casapool&#45;&gt;nf90_get_var -->
 <g id="proc~~read_netcdf_casapool~~CallsGraph_edge2" class="edge">
-<title>proc~read_netcdf_casapool&#45;&gt;proc~nc_err</title>
-<path fill="none" stroke="#ff0000" d="M106.76,-108.04C127.81,-114.17 153.17,-121.57 173.42,-127.48"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="172.63,-130.89 183.21,-130.33 174.59,-124.17 172.63,-130.89"/>
+<title>proc~read_netcdf_casapool&#45;&gt;nf90_get_var</title>
+<path fill="none" stroke="#ff0000" d="M106.76,-108.04C123.16,-112.82 142.17,-118.36 159.35,-123.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="158.64,-126.81 169.22,-126.25 160.6,-120.09 158.64,-126.81"/>
 </g>
 <!-- nf90_inq_varid -->
 <g id="proc~~read_netcdf_casapool~~CallsGraph_node4" class="node">
@@ -369,22 +366,25 @@
 <text text-anchor="middle" x="210.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_varid</text>
 </g>
 <!-- proc~read_netcdf_casapool&#45;&gt;nf90_inq_varid -->
-<g id="proc~~read_netcdf_casapool~~CallsGraph_edge3" class="edge">
+<g id="proc~~read_netcdf_casapool~~CallsGraph_edge5" class="edge">
 <title>proc~read_netcdf_casapool&#45;&gt;nf90_inq_varid</title>
 <path fill="none" stroke="#ff0000" d="M129.08,-96C137.65,-96 146.38,-96 154.78,-96"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="154.83,-99.5 164.83,-96 154.83,-92.5 154.83,-99.5"/>
 </g>
-<!-- nf90_get_var -->
+<!-- proc~nc_err~2 -->
 <g id="proc~~read_netcdf_casapool~~CallsGraph_node5" class="node">
-<title>nf90_get_var</title>
-<polygon fill="#777777" stroke="#777777" points="251.5,-66 169.5,-66 169.5,-42 251.5,-42 251.5,-66"/>
-<text text-anchor="middle" x="210.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_var</text>
+<title>proc~nc_err~2</title>
+<g id="a_proc~~read_netcdf_casapool~~CallsGraph_node5"><a xlink:href=".././proc/nc_err~2.html" xlink:title="nc_err">
+<polygon fill="#d9534f" stroke="#d9534f" points="237.5,-66 183.5,-66 183.5,-42 237.5,-42 237.5,-66"/>
+<text text-anchor="middle" x="210.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nc_err</text>
+</a>
 </g>
-<!-- proc~read_netcdf_casapool&#45;&gt;nf90_get_var -->
-<g id="proc~~read_netcdf_casapool~~CallsGraph_edge4" class="edge">
-<title>proc~read_netcdf_casapool&#45;&gt;nf90_get_var</title>
-<path fill="none" stroke="#ff0000" d="M106.76,-83.96C123.16,-79.18 142.17,-73.64 159.35,-68.63"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="160.6,-71.91 169.22,-65.75 158.64,-65.19 160.6,-71.91"/>
+</g>
+<!-- proc~read_netcdf_casapool&#45;&gt;proc~nc_err~2 -->
+<g id="proc~~read_netcdf_casapool~~CallsGraph_edge3" class="edge">
+<title>proc~read_netcdf_casapool&#45;&gt;proc~nc_err~2</title>
+<path fill="none" stroke="#ff0000" d="M106.76,-83.96C127.81,-77.83 153.17,-70.43 173.42,-64.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="174.59,-67.83 183.21,-61.67 172.63,-61.11 174.59,-67.83"/>
 </g>
 <!-- nf90_close -->
 <g id="proc~~read_netcdf_casapool~~CallsGraph_node6" class="node">
@@ -393,7 +393,7 @@
 <text text-anchor="middle" x="210.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_close</text>
 </g>
 <!-- proc~read_netcdf_casapool&#45;&gt;nf90_close -->
-<g id="proc~~read_netcdf_casapool~~CallsGraph_edge5" class="edge">
+<g id="proc~~read_netcdf_casapool~~CallsGraph_edge4" class="edge">
 <title>proc~read_netcdf_casapool&#45;&gt;nf90_close</title>
 <path fill="none" stroke="#ff0000" d="M83.07,-83.94C102.65,-70.73 135.44,-49.25 165,-33 167.68,-31.52 170.49,-30.05 173.33,-28.61"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="174.98,-31.69 182.4,-24.13 171.89,-25.41 174.98,-31.69"/>
@@ -401,14 +401,14 @@
 <!-- nf90_strerror -->
 <g id="proc~~read_netcdf_casapool~~CallsGraph_node7" class="node">
 <title>nf90_strerror</title>
-<polygon fill="#777777" stroke="#777777" points="373,-150 292,-150 292,-126 373,-126 373,-150"/>
-<text text-anchor="middle" x="332.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
+<polygon fill="#777777" stroke="#777777" points="373,-66 292,-66 292,-42 373,-42 373,-66"/>
+<text text-anchor="middle" x="332.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
 </g>
-<!-- proc~nc_err&#45;&gt;nf90_strerror -->
+<!-- proc~nc_err~2&#45;&gt;nf90_strerror -->
 <g id="proc~~read_netcdf_casapool~~CallsGraph_edge6" class="edge">
-<title>proc~nc_err&#45;&gt;nf90_strerror</title>
-<path fill="none" stroke="#cbff00" d="M237.54,-138C250.42,-138 266.42,-138 281.54,-138"/>
-<polygon fill="#cbff00" stroke="#cbff00" points="281.82,-141.5 291.82,-138 281.82,-134.5 281.82,-141.5"/>
+<title>proc~nc_err~2&#45;&gt;nf90_strerror</title>
+<path fill="none" stroke="#0066ff" d="M237.54,-54C250.42,-54 266.42,-54 281.54,-54"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="281.82,-57.5 291.82,-54 281.82,-50.5 281.82,-57.5"/>
 </g>
 </g>
 </svg>
