@@ -23,10 +23,12 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
        POPLUC_set_patchfrac, WRITE_LUC_OUTPUT_GRID_NC
   USE casa_cable
   USE casa_inout_module
+  USE biogeochem_mod, ONLY : biogeochem 
+USE casa_offline_inout_module, ONLY : WRITE_CASA_OUTPUT_NC 
 
 
   IMPLICIT NONE
-  !CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
+  !!CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
   REAL,    INTENT(IN)    :: dels
   INTEGER, INTENT(IN)    :: kstart
   INTEGER, INTENT(IN)    :: kend
@@ -90,7 +92,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
   IF (.NOT.ALLOCATED(Iw)) ALLOCATE(Iw(POP%np))
 
 
-  ! vh_js !
+  !! vh_js !!
   IF (cable_user%CALL_POP) THEN
      Iw = POP%Iwood
   ENDIF
@@ -127,7 +129,7 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
 
 
      CALL read_casa_dump( ncfile,casamet, casaflux, phen,climate, 1,1,.TRUE. )
-     !CLN901  format(A99)
+     !!CLN901  format(A99)
      DO idoy=1,mdyear
         ktau=(idoy-1)*ktauday +ktauday
 
@@ -253,10 +255,10 @@ SUBROUTINE CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
            CALL POP_IO( pop, casamet, YYYY, 'WRITE_EPI', &
                 ( YYYY.EQ.cable_user%YearEnd ) )
 
-!$               WHERE (pop%pop_grid(:)%cmass_sum_old.gt.0.1 .and. pop%pop_grid(:)%cmass_sum.gt.0.1 )
-!$               casapool%Cplant(Iw,2) = casapool%Cplant(Iw,2)*(1.0- min( POP%pop_grid(:)%cat_mortality/(POP%pop_grid(:)%cmass_sum_old),0.99))
-!$               casapool%Nplant(Iw,2) = casapool%Nplant(Iw,2)*(1.0- min( POP%pop_grid(:)%cat_mortality/(POP%pop_grid(:)%cmass_sum_old),0.99))
-!$               ENDWHERE
+!!$               WHERE (pop%pop_grid(:)%cmass_sum_old.gt.0.1 .and. pop%pop_grid(:)%cmass_sum.gt.0.1 )
+!!$               casapool%Cplant(Iw,2) = casapool%Cplant(Iw,2)*(1.0- min( POP%pop_grid(:)%cat_mortality/(POP%pop_grid(:)%cmass_sum_old),0.99))
+!!$               casapool%Nplant(Iw,2) = casapool%Nplant(Iw,2)*(1.0- min( POP%pop_grid(:)%cat_mortality/(POP%pop_grid(:)%cmass_sum_old),0.99))
+!!$               ENDWHERE
 
 
            CALL POP_LUC_CASA_transfer(POPLUC,POP,LUC_EXPT,casapool,casabal,casaflux,ktauday)
