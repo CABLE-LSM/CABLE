@@ -39,9 +39,13 @@
 
 MODULE casa_um_inout_mod
 
+!!  USE cable_um_tech_mod    !, ONLY : um1, veg, soil           ! cable types (replaces cable_variables)
+!!  USE define_dimensions    ! mp, r_1, r_2, i_d
+!!  USE casadimension        ! icycle,mplant,mlitter,msoil
+!!  USE cable_common_module  ! ktau_gl, kend_gl
   USE landuse_mod
   USE feedback_mod
-  USE casa_inout_mod
+  USE casa_inout_module
 
 IMPLICIT NONE 
 
@@ -51,25 +55,21 @@ CONTAINS
 !========================================================================
 !========================================================================
 
-!SUBROUTINE cable_casa_init(sin_theta_latitude,um1,cpool_tile,npool_tile,ppool_tile, &
 SUBROUTINE init_casacnp(sin_theta_latitude,cpool_tile,npool_tile,ppool_tile, &
                            soil_order,nidep,nifix,pwea,pdust,&
                            wood_hvest_c,wood_hvest_n,wood_hvest_P,&
                            wood_flux_c,wood_flux_n,wood_flux_P,&
                            wresp_c,wresp_n,wresp_P,thinning,&
                            GLAI,PHENPHASE,PREV_YR_SFRAC,idoy)
-! Lest 20 Jan 2011
     USE cable_def_types_mod
+  USE casa_readbiome_module, ONLY: casa_readbiome
     USE cable_um_tech_mod, ONLY : um1, veg, soil, canopy
     USE casavariable
     USE phenvariable
     USE casa_types_mod
-    !USE casa_inout
 
 IMPLICIT NONE
 
-!    TYPE (um_dimensions), INTENT(IN)          :: um1
-!   LOGICAL, INTENT(INOUT), DIMENSION(um1%land_pts, um1%ntiles) :: L_tile_pts
     REAL   , INTENT(IN)   , DIMENSION(um1%row_length,um1%rows)  :: sin_theta_latitude
     REAL   , INTENT(INOUT) :: cpool_tile(um1%land_pts,um1%ntiles,10)
     REAL   , INTENT(INOUT) :: npool_tile(um1%land_pts,um1%ntiles,10)
@@ -81,7 +81,6 @@ IMPLICIT NONE
     REAL   , INTENT(INOUT) :: pdust(um1%land_pts)
     REAL   , INTENT(INOUT) :: GLAI(um1%land_pts,um1%ntiles)
     REAL   , INTENT(INOUT) :: PHENPHASE(um1%land_pts,um1%ntiles)
-    !INTEGER, INTENT(INOUT) :: PHENPHASE(um1%land_pts,um1%ntiles)
     REAL   , INTENT(INOUT) :: PREV_YR_SFRAC(um1%land_pts,um1%ntiles)
     REAL   , INTENT(INOUT) :: WOOD_HVEST_C(um1%land_pts,um1%ntiles,3)
     REAL   , INTENT(INOUT) :: WOOD_HVEST_N(um1%land_pts,um1%ntiles,3)
@@ -102,15 +101,12 @@ IMPLICIT NONE
 !    casafile%cnpipool =' '
 !    casafile%cnpmetin =' '
 !    casafile%cnpmetout=' '
-!   casafile%cnpmetin ='/home/599/lxs599/surface_data/casametDH.csv'
+!!   casafile%cnpmetin ='/home/599/lxs599/surface_data/casametDH.csv'
 !    casafile%cnpflux  =' '
-
-!print *,'Lest um_inout',mp,um1%land_pts,um1%ntiles
 
     CALL alloc_casavariable(casabiome,casapool,casaflux,casamet,casabal,mp)
     CALL alloc_phenvariable(phen,mp)
 
-    !CALL casa_readpoint_pk(sin_theta_latitude,veg,soil,casaflux,casamet,um1, &
     CALL casa_readpoint_pk(sin_theta_latitude,veg,soil,casaflux,casamet, &
                           nidep,nifix,pwea,pdust,soil_order)
     CALL casa_readbiome(veg,soil,casabiome,casapool,casaflux,casamet,phen)
@@ -227,7 +223,7 @@ SUBROUTINE casa_init_pk(casabiome,casaflux,casamet,casapool,casabal,veg,canopy,p
 !  initialize some values in phenology parameters and leaf growth phase
 
    USE cable_def_types_mod
-!  USE define_dimensions    ! mp, r_2
+!!  USE define_dimensions    ! mp, r_2
   USE casadimension        ! icycle,mplant,mlitter,msoil
 !  USE define_types
   USE cable_um_tech_mod, ONLY : um1!, veg
@@ -238,7 +234,7 @@ SUBROUTINE casa_init_pk(casabiome,casaflux,casamet,casapool,casabal,veg,canopy,p
 
 IMPLICIT NONE
 
-  TYPE (casa_biome),   INTENT(IN)       :: casabiome
+  TYPE (casa_biome),   INTENT(INOUT)    :: casabiome
   TYPE (casa_flux),    INTENT(INOUT)    :: casaflux
   TYPE (casa_met),     INTENT(INOUT)    :: casamet
   TYPE (casa_pool),    INTENT(INOUT)    :: casapool
@@ -390,7 +386,7 @@ SUBROUTINE casa_reinit_pk(casabiome,casamet,casapool,casabal,veg,phen, &
 
    IMPLICIT NONE
 
-   TYPE(casa_biome),         INTENT(IN)    :: casabiome
+   TYPE(casa_biome),         INTENT(INOUT)    :: casabiome
    TYPE(casa_met),           INTENT(INOUT) :: casamet
    TYPE(casa_pool),          INTENT(INOUT) :: casapool
    TYPE(casa_balance),       INTENT(INOUT) :: casabal    
@@ -554,7 +550,7 @@ SUBROUTINE casa_reinit_pk(casabiome,casamet,casapool,casabal,veg,phen, &
   !frac_x(:,:) = um1%tile_frac(:,:)
   frac_x(:,:) = PREV_YR_SFRAC(:,:)
 
-  ! DEBUG START ! 
+  !!!! DEBUG START !!! 
   !if (mp.ge.4) then
   !   write(6,*)"DEBUG frac first 17 tiles  :", frac_x(1,:)
   !   write(6,*)"DEBUG lon of first point   :", casamet%lon(1:4)
@@ -566,7 +562,7 @@ SUBROUTINE casa_reinit_pk(casabiome,casamet,casapool,casabal,veg,phen, &
   !   write(6,*)"DEBUG mvtype       :", mvtype
   !   write(6,*)"DEBUG um1%ntiles   :", um1%ntiles
   !end if
-  ! DEBUG END !
+  !!!! DEBUG END !!!!!
 
   ! assign fractions (current)
   frac_y(:,:) = um1%tile_frac(:,:)
@@ -644,7 +640,7 @@ SUBROUTINE casa_reinit_pk(casabiome,casamet,casapool,casabal,veg,phen, &
                     clitter_x(g,:,:),nlitter_x(g,:,:),plitter_x(g,:,:), &
                     clitter_y(g,:,:),nlitter_y(g,:,:),plitter_y(g,:,:))
 
-     ! Re-calculate soil C, N, P pools
+     !! Re-calculate soil C, N, P pools
      !CALL newsoil(msoil,csoil_x(g,:,:),frac_x(g,:),ifpre_x(g,:),&
      !             csoil_y(g,:,:),frac_y(g,:),ifpre_y(g,:))
      !CALL newsoil(1,clabile_x(g,:),frac_x(g,:),ifpre_x(g,:),&
@@ -896,9 +892,9 @@ IMPLICIT NONE
 
 ! pack variables
 
-! test initialization of LAI
+!! test initialization of LAI
 !    casamet%glai = pack(GLAI(:,:)/2.  ,um1%l_tile_pts)
-! test end
+!! test end
 
     casamet%glai = pack(GLAI(:,:)  ,um1%l_tile_pts)
     phenph = INT(PHENPHASE)
@@ -907,9 +903,9 @@ IMPLICIT NONE
     casapool%clabile       = pack(clabile(:,:)  ,um1%l_tile_pts)
     do k=1,3
 
-! test initilization of plant pool  
+!! test initilization of plant pool  
 !     casapool%cplant(:,k)  = pack(cplant(:,:,k)/2. ,um1%l_tile_pts)
-! test end
+!! test end
 
      casapool%cplant(:,k)  = pack(cplant(:,:,k) ,um1%l_tile_pts)
      casapool%clitter(:,k) = pack(clitter(:,:,k),um1%l_tile_pts)
@@ -951,7 +947,7 @@ SUBROUTINE casa_poolout_unpk(casapool,casaflux,casamet,casabal,phen,  &
   USE cable_def_types_mod
   !USE define_dimensions    ! mp, r_1, r_2, i_d
   USE casadimension        ! icycle,mplant,mlitter,msoil
-!   USE define_types
+!!   USE define_types
 !   USE casaparm
     USE casavariable
     USE phenvariable
@@ -1304,6 +1300,7 @@ END SUBROUTINE unpack_glai
   END SUBROUTINE redistr_luc
 
   !SUBROUTINE redistr_luc_i(prev_yr_sfrac,inVar,outVar)
+  !    USE cable_um_tech_mod, ONLY : um1
   !   IMPLICIT NONE
   !    REAL, INTENT(IN) ,DIMENSION(um1%land_pts,um1%ntiles) :: prev_yr_sfrac
   !    INTEGER, INTENT(IN) ,DIMENSION(um1%land_pts,um1%ntiles) :: inVar

@@ -1,3 +1,4 @@
+!#define ESM15 YES
 !==============================================================================
 ! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
@@ -16,18 +17,18 @@
 ! History: Vanessa Haverd Jan 2015
 
 ! ==============================================================================
-!#define UM_BUILD YES
+
 MODULE cable_climate_mod
 
   USE cable_def_types_mod, ONLY: met_type, climate_type, canopy_type, mp, &
        r_2, alloc_cbm_var, air_type, radiation_type
   USE TypeDef,              ONLY: i4b, dp
   !CABLE_LSM: see CABLE Ticket#149. yet still inclueded file?? legacy-hack??
-# ifndef UM_BUILD
+# ifndef ESM15
   USE cable_IO_vars_module, ONLY: patch
+  USE casa_ncdf_module, ONLY: HANDLE_ERR
 # endif
   USE CABLE_COMMON_MODULE, ONLY: CurYear, filename, cable_user
-  USE casa_ncdf_module, ONLY: HANDLE_ERR
 
 CONTAINS
   ! ==============================================================================
@@ -145,7 +146,7 @@ CONTAINS
        ENDIF
 
        !jhan: see CABLE Ticket#149 and above CABLE_LSM: comment
-# ifndef UM_BUILD
+# ifndef ESM15
        WHERE ((patch%latitude>=0.0 .AND. idoy==COLDEST_DAY_NHEMISPHERE).OR. &
             (patch%latitude<0.0 .AND. idoy==COLDEST_DAY_SHEMISPHERE) )
 
@@ -541,7 +542,7 @@ CONTAINS
        ENDIF
 
        !jhan: see CABLE Ticket#149 and above CABLE_LSM: comment
-# ifndef UM_BUILD
+# ifndef ESM15
        ! check for DBL or NEL in SH: set to EBL instead
        IF ((climate%iveg(k)==1 .OR.climate%iveg(k)==3 .OR. climate%iveg(k)==4) &
             .AND. patch(k)%latitude<0) THEN
@@ -703,7 +704,7 @@ CONTAINS
 
     A4(1) = 'dtemp_91'
 
-# ifndef UM_BUILD
+# ifndef ESM15
 
     ! Get File-Name
     WRITE(CYEAR, FMT='(I4)') CurYear + 1
@@ -955,7 +956,7 @@ CONTAINS
 
     IF ( .NOT.EXISTFILE) WRITE(*,*) fname, ' does not exist!'
 
-# ifndef UM_BUILD
+# ifndef ESM15
     ! Open NetCDF file:
     STATUS = NF90_OPEN(fname, NF90_NOWRITE, FILE_ID)
     IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)

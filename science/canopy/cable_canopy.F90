@@ -65,7 +65,7 @@ USE cable_photo_constants_mod, ONLY : CMAXITER  => MAXITER ! only integer here
 USE cable_math_constants_mod,  ONLY : CPI_C  => PI
 USE cable_other_constants_mod, ONLY : CLAI_THRESH  => LAI_THRESH
 
-
+  IMPLICIT NONE
 
     TYPE (balances_type), INTENT(INOUT)  :: bal
     TYPE (radiation_type), INTENT(INOUT) :: rad
@@ -391,16 +391,21 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
 
        sum_rad_rniso = SUM(rad%rniso,2)
 
-       CALL dryLeaf( dels, rad, rough, air, met,                                &
-            veg, canopy, soil, ssnow, dsx,                             &
-            fwsoil, tlfx, tlfy, ecy, hcy,                              &
-            rny, gbhu, gbhf, csx, cansat,                              &
+       CALL dryLeaf( dels, rad, rough, air, met,                             &
+                  veg, canopy, soil, ssnow, dsx,                             &
+                  fwsoil, tlfx, tlfy, ecy, hcy,                              &
+                  rny, gbhu, gbhf, csx, cansat,                              &
             ghwet,  iter,climate )
 
 
-CALL wetLeaf( mp, CLAI_thresh, CCAPP, Crmair, dels, rad, rough, air,     &
-                    met, veg, canopy, cansat, tlfy,     &
-                    gbhu, gbhf, ghwet )
+      CALL wetLeaf( dels,                                 &
+                    cansat, tlfy,                                 &
+                    gbhu, gbhf, ghwet, &
+                    mp, CLAI_thresh, CCAPP, CRmair, & 
+                    reducedLAIdue2snow, sum_rad_rniso, sum_rad_gradis, & 
+                    canopy%fevw, canopy%fevw_pot, canopy%fhvw, &
+                    canopy%fwet, canopy%cansto, air%rlam, air%dsatdk, &
+                    met%tvair, met%tk, met%dva, air%psyc )
 
 
        ! Calculate latent heat from vegetation:
@@ -524,7 +529,7 @@ CALL wetLeaf( mp, CLAI_thresh, CCAPP, Crmair, dels, rad, rough, air,     &
           ELSE
              canopy%fhs = air%rho*CCAPP*(ssnow%tss - met%tvair) /ssnow%rtsoil
           ENDIF
-
+    
        ELSE
 
 write(6,*) "SLI is not an option right now"
@@ -569,7 +574,7 @@ write(6,*) "SLI is not an option right now"
                                  ssnow%snowd, ssnow%tgg(:,1)     )
 
 
-          ENDIF
+      ENDIF
 
           ! Soil latent heat:
       CALL Latent_heat_flux( mp, CTFRZ, dels, soil%zse(1), soil%swilt,           &

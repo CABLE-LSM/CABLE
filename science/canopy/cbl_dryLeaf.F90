@@ -136,17 +136,14 @@ USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
 
     INTEGER :: i, j, k, kk  ! iteration count
     REAL :: vpd, g1 ! Ticket #56
-#define VanessasCanopy
-#ifdef VanessasCanopy
     REAL, DIMENSION(mp,mf)  ::                                                  &
          xleuning    ! leuning stomatal coeff
-#endif
 
     REAL :: medlyn_lim  !INH 2018: should be a parameter in long-term
     ! END header
 
     ALLOCATE( gswmin(mp,mf ))
-
+   
     ! Soil water limitation on stomatal conductance:
     IF( iter ==1) THEN
        IF ((cable_user%soil_struc=='default').AND.(cable_user%FWSOIL_SWITCH.NE.'Haverd2013')) THEN
@@ -310,9 +307,6 @@ USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
              !interests of getting this into the trunk ASAP just isolate this code for now
              !default side of this condition is to use trunk version
 
-             !#ifdef VanessasCanopy
-
-
              IF (cable_user%CALL_climate) THEN
 
                 ! Atkins et al. 2015, Table S4,
@@ -386,7 +380,6 @@ USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
 !$!Vanessa:note there is no xleuning to go into photosynthesis etc anymore
 !$             gs_coeff = xleuning
 
-                !#else
                 rdx(i,1) = (veg%cfrd(i)*vcmxt3(i,1) + veg%cfrd(i)*vcmxt4(i,1))
                 rdx(i,2) = (veg%cfrd(i)*vcmxt3(i,2) + veg%cfrd(i)*vcmxt4(i,2))
 
@@ -427,7 +420,6 @@ USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
              ELSE
                 STOP 'gs_model_switch failed.'
              ENDIF ! IF (cable_user%GS_SWITCH == 'leuning') THEN
-             !#endif
 
           ENDIF !IF (canopy%vlaiw(i) > CLAI_THRESH .AND. abs_deltlf(i) > 0.1)
 
@@ -659,7 +651,7 @@ USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
 
     canopy%frday = 12.0 * SUM(rdy, 2)
     ! vh ! inserted min to avoid -ve values of GPP
-    canopy%fpn = MIN(-12.0 * SUM(an_y, 2), canopy%frday)
+  canopy%fpn = MIN(-12.0 * SUM(an_y, 2), canopy%frday)
     canopy%evapfbl = ssnow%evapfbl
 
 

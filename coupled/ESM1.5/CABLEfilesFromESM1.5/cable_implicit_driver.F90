@@ -57,11 +57,11 @@ subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
                                   NPP_FT_ACC,RESP_W_FT_ACC,RESP_S_ACC,          &
                                   FNSNET,FNLEACH,FNUP,FNLOSS,FNDEP,FNFIX,idoy )
 
-   USE cable_def_types_mod, ONLY : mp, nrb, c1, rhoch, xk
+   USE cable_def_types_mod, ONLY : mp
    USE cable_data_module,   ONLY : PHYS
    USE cable_um_tech_mod,   ONLY : um1, conv_rain_prevstep, conv_snow_prevstep,&
-                                  air, bgc, canopy, met, bal, rad, rough,      &
-                                  ssnow, sum_flux, veg, soil
+                                  air, bgc, canopy, met, bal, rad, rough, soil,&
+                                  ssnow, sum_flux, veg, climate
    USE cable_common_module, ONLY : cable_runtime, cable_user, l_casacnp,       &
                                    l_vcmaxFeedbk, knode_gl, ktau_gl, kend_gl
    USE cable_um_init_subrs_mod, ONLY : um2cable_rr
@@ -73,6 +73,7 @@ subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
    USE bgcdriver_mod, ONLY : bgcdriver
    USE sumcflux_mod, ONLY : sumcflux
    USE casa_um_inout_mod
+   USE POP_TYPES,            ONLY: POP_TYPE
 
    IMPLICIT NONE
         
@@ -242,12 +243,16 @@ subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
       dqwc
 
    REAL, POINTER :: TFRZ
+INTEGER, PARAMETER :: loy = 365 !fudge for ESM1.5 
+INTEGER, PARAMETER :: lalloc = 0 !fudge for ESM1.5 0 => call POP N/A 
+TYPE(POP_TYPE) :: POP
    
       TFRZ => PHYS%TFRZ
    
       ! FLAGS def. specific call to CABLE from UM
       cable_runtime%um_explicit = .FALSE.
       cable_runtime%um_implicit = .TRUE.
+      cable_runtime%esm15= .TRUE.
    
       dtlc = 0. ; dqwc = 0.
 
@@ -277,12 +282,12 @@ subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
       met%qv = met%qv + dqwc
       met%tvair = met%tk
       met%tvrad = met%tk
-      !d1!met%doy = idoy + 1
+      met%doy = idoy + 1
  
       canopy%cansto = canopy%oldcansto
 
-   CALL cbm( timestep, air, bgc, canopy, met, bal,                             &
-             rad, rough, soil, ssnow, sum_flux, veg )
+      CALL cbm(TIMESTEP, air, bgc, canopy, met, bal,  &
+           rad, rough, soil, ssnow, sum_flux, veg, climate )
 
       ! Lestevens - temporary ?
       ktauday = int(24.0*3600.0/TIMESTEP)
@@ -291,10 +296,11 @@ subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
 ! Lestevens Sept2012 - Call CASA-CNP
       if (l_casacnp) then
       CALL bgcdriver(ktau_gl,kstart,kend_gl,TIMESTEP,met,ssnow,canopy,veg,soil, &
-                     casabiome,casapool,casaflux,casamet,casabal,phen,          &
-                     .FALSE., .FALSE., ktauday, idoy, .FALSE., .FALSE. )
-!                     spinConv, spinup, ktauday, idoy, cable_user%casa_dump_read,&
-!                     cable_user%casa_dump_write )
+                     climate, casabiome,casapool,casaflux,casamet,casabal,      &
+                      phen, pop,.FALSE., .FALSE., ktauday, idoy, loy,	       &
+                      .FALSE., .FALSE.,   &
+                      LALLOC )
+      
       endif
 
       CALL sumcflux(ktau_gl,kstart,kend_gl,TIMESTEP,bgc,canopy,soil,ssnow,      &
@@ -359,7 +365,7 @@ SUBROUTINE implicit_unpack( TSOIL, TSOIL_TILE, SMCL, SMCL_TILE,                &
  
    USE cable_def_types_mod, ONLY : mp
    USE cable_data_module,   ONLY : PHYS
-   USE cable_um_tech_mod,   ONLY : um1 ,canopy, rad, ssnow, air, soil
+   USE cable_um_tech_mod,   ONLY : um1 ,canopy, rad, soil, ssnow, air
    USE cable_common_module, ONLY : cable_runtime, cable_user
    USE casa_types_mod
    IMPLICIT NONE

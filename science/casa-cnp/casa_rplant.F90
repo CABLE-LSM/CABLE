@@ -1,4 +1,4 @@
-#define UM_BUILD YES
+!#define ESM15 YES
 !==============================================================================
 ! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
@@ -45,7 +45,7 @@ MODULE casa_rplant_module
   USE casavariable
   USE phenvariable
   USE cable_common_module, ONLY: cable_user,l_landuse ! Custom soil respiration: Ticket #42
-#ifndef UM_BUILD 
+#ifndef ESM15 
   USE landuse_constant
 #endif
   IMPLICIT NONE
@@ -224,8 +224,12 @@ USE casa_cnp_module, ONLY : vcmax_np
           WHERE(casamet%tairk >250.0)
              WHERE(casapool%cplant(:,wood)>1.0e-6)
 
+#             ifdef ESM15 
+                casaflux%crmplant(:,wood)  = casabiome%rmplant(veg%iveg(:),wood) &
+#             else
                 casaflux%crmplant(:,wood)  =  resp_coeff * casaflux%frac_sapwood(:) * &
                      casabiome%rmplant(veg%iveg(:),wood) &
+#             endif
                      * casapool%nplant(:,wood)             &
                      * EXP(308.56*(1.0/56.02-1.0           &
                      / (casamet%tairk(:)+46.02-tkzeroc)))
@@ -239,7 +243,11 @@ USE casa_cnp_module, ONLY : vcmax_np
           ENDWHERE
           WHERE(casamet%tsoilavg >250.0.AND.casapool%cplant(:,froot)>1.0e-6)
 
-             casaflux%crmplant(:,froot) =  resp_coeff * casabiome%rmplant(veg%iveg(:),froot) &
+#         ifdef ESM15 
+            casaflux%crmplant(:,froot) = casabiome%rmplant(veg%iveg(:),froot) &
+#         else
+            casaflux%crmplant(:,froot) =  resp_coeff * casabiome%rmplant(veg%iveg(:),froot) &
+#         endif
                   * casapool%nplant(:,froot)             &
                   * EXP(308.56*(1.0/56.02-1.0            &
                   / (casamet%tsoilavg(:)+46.02-tkzeroc)))

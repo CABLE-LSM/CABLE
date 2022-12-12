@@ -135,7 +135,7 @@ MODULE cable_def_types_mod
           soilcol, & ! keep color for all patches/tiles
           albsoilf   ! soil reflectance
 
-     REAL(r_2), DIMENSION(:,:), POINTER :: &
+     REAL, DIMENSION(:,:), POINTER :: &
           heat_cap_lower_limit
 
      REAL(r_2), DIMENSION(:,:), POINTER :: &

@@ -1,15 +1,13 @@
 MODULE cable_params_mod
-!jhan: This is currently hard-wired as USEd module was NA in ESM1.5 and NOT ideal to be 
-! USEing any data, especially JULES da
-!USE max_dimensions,             ONLY: ntype_max ! defined PARAMETER @ compile time
 
 !H! Elevate these to namelist definable
 USE cable_other_constants_mod,  ONLY: nsl
-USE cable_other_constants_mod,  ONLY: nrb       ! # radiation "bANDS" 
-                                                !dir/dif components in bands VIS/NIR
-USE cable_other_constants_mod,  ONLY: nscs      ! number of soil carbon stores
-USE cable_other_constants_mod,  ONLY: nvcs      ! number of vegetation carbon stores
-USE grid_constants_cbl_mod, ONLY : mstype => nsoiltypes  ! # of soil types [9]
+USE cable_other_constants_mod,  ONLY: nrb   ! # radiation "bANDS" 
+                                            !dir/dif components in bands VIS/NIR
+USE cable_other_constants_mod,  ONLY: nscs  ! number of soil carbon stores
+USE cable_other_constants_mod,  ONLY: nvcs  ! number of vegetation carbon stores
+USE grid_constants_mod_cbl, ONLY : mstype => nsoil_max ! # of soil types [9]
+USE grid_constants_mod_cbl, ONLY : ntype_max           ! # of PFTs [17]
 
 IMPLICIT NONE
 
@@ -18,13 +16,9 @@ PUBLIC :: vegin_type
 PUBLIC :: soil_parameter_type
 PUBLIC :: soilin_type
 
-!jhan: eventuaLLY REMOVE THESE instances as PUBLIC
-PUBLIC :: veg_cbl
 PUBLIC :: vegin
-PUBLIC :: soil_cbl
 PUBLIC :: soilin
 
-INTEGER, PARAMETER :: ntype_max = 17 
 !-----------------------------------------------------------------------------
 ! Description:
 !   Defines variable types and variables for CABLE standalone runs.
@@ -182,6 +176,9 @@ END TYPE vegin_type
           albsoilf   ! soil reflectance
 
      REAL, DIMENSION(:,:), POINTER :: &
+          heat_cap_lower_limit
+
+     REAL, DIMENSION(:,:), POINTER :: &
           zse_vec,css_vec,cnsd_vec
 
      REAL, DIMENSION(:), POINTER ::                                      &
@@ -252,10 +249,7 @@ TYPE soilin_type
 END TYPE soilin_type
 
 !Instantiate types
-TYPE(vegin_type) :: vegin !read from namelist
-TYPE(soilin_type) :: soilin !read from namelist
-
-TYPE(soil_parameter_type) :: soil_cbl !used in CABLE
-TYPE(veg_parameter_type) :: veg_cbl  !used in CABLE
+TYPE(vegin_type)    :: vegin !read from namelist
+TYPE(soilin_type)  :: soilin !read from namelist
 
 END MODULE cable_params_mod

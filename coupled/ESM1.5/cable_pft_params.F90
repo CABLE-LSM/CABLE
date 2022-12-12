@@ -65,7 +65,7 @@ USE cable_params_mod, ONLY : vegin
      vegin%d0gs(1) =     1500.000000
     vegin%alpha(1) =        0.200000
    vegin%convex(1) =        0.010000
-     vegin%cfrd(1) =        0.015000
+    vegin%cfrd(1) =        0.010000
    vegin%gswmin(1) =        0.010000
    vegin%conkc0(1) =        0.000302
    vegin%conko0(1) =        0.256000
@@ -124,7 +124,7 @@ USE cable_params_mod, ONLY : vegin
      vegin%d0gs(2) =     1500.000000
     vegin%alpha(2) =        0.200000
    vegin%convex(2) =        0.010000
-     vegin%cfrd(2) =        0.015000
+    vegin%cfrd(2) =        0.010000
    vegin%gswmin(2) =        0.010000
    vegin%conkc0(2) =        0.000302
    vegin%conko0(2) =        0.256000
@@ -183,7 +183,7 @@ USE cable_params_mod, ONLY : vegin
      vegin%d0gs(3) =     1500.000000
     vegin%alpha(3) =        0.200000
    vegin%convex(3) =        0.010000
-     vegin%cfrd(3) =        0.015000
+    vegin%cfrd(3) =        0.010000
    vegin%gswmin(3) =        0.010000
    vegin%conkc0(3) =        0.000302
    vegin%conko0(3) =        0.256000
@@ -242,7 +242,7 @@ USE cable_params_mod, ONLY : vegin
      vegin%d0gs(4) =     1500.000000
     vegin%alpha(4) =        0.200000
    vegin%convex(4) =        0.010000
-     vegin%cfrd(4) =        0.015000
+    vegin%cfrd(4) =        0.010000
    vegin%gswmin(4) =        0.010000
    vegin%conkc0(4) =        0.000302
    vegin%conko0(4) =        0.256000
@@ -301,7 +301,7 @@ USE cable_params_mod, ONLY : vegin
      vegin%d0gs(5) =     1500.000000
     vegin%alpha(5) =        0.200000
    vegin%convex(5) =        0.010000
-     vegin%cfrd(5) =        0.015000
+    vegin%cfrd(5) =        0.010000
    vegin%gswmin(5) =        0.010000
    vegin%conkc0(5) =        0.000302
    vegin%conko0(5) =        0.256000
@@ -360,7 +360,7 @@ USE cable_params_mod, ONLY : vegin
      vegin%d0gs(6) =     1500.000000
     vegin%alpha(6) =        0.200000
    vegin%convex(6) =        0.010000
-     vegin%cfrd(6) =        0.015000
+    vegin%cfrd(6) =        0.010000
    vegin%gswmin(6) =        0.010000
    vegin%conkc0(6) =        0.000302
    vegin%conko0(6) =        0.256000
@@ -478,7 +478,7 @@ USE cable_params_mod, ONLY : vegin
      vegin%d0gs(8) =     1500.000000
     vegin%alpha(8) =        0.200000
    vegin%convex(8) =        0.010000
-     vegin%cfrd(8) =        0.015000
+    vegin%cfrd(8) =        0.010000
    vegin%gswmin(8) =        0.010000
    vegin%conkc0(8) =        0.000302
    vegin%conko0(8) =        0.256000
@@ -537,7 +537,7 @@ USE cable_params_mod, ONLY : vegin
      vegin%d0gs(9) =     1500.000000
     vegin%alpha(9) =        0.200000
    vegin%convex(9) =        0.010000
-     vegin%cfrd(9) =        0.015000
+    vegin%cfrd(9) =        0.010000
    vegin%gswmin(9) =        0.010000
    vegin%conkc0(9) =        0.000302
    vegin%conko0(9) =        0.256000
@@ -655,7 +655,7 @@ USE cable_params_mod, ONLY : vegin
      vegin%d0gs(11) =     1500.000000
     vegin%alpha(11) =        0.200000
    vegin%convex(11) =        0.010000
-     vegin%cfrd(11) =        0.015000
+    vegin%cfrd(11) =        0.010000
    vegin%gswmin(11) =        0.010000
    vegin%conkc0(11) =        0.000302
    vegin%conko0(11) =        0.256000
@@ -714,7 +714,7 @@ USE cable_params_mod, ONLY : vegin
      vegin%d0gs(12) =     1500.000000
     vegin%alpha(12) =        0.200000
    vegin%convex(12) =        0.010000
-     vegin%cfrd(12) =        0.015000
+    vegin%cfrd(12) =        0.010000
    vegin%gswmin(12) =        0.010000
    vegin%conkc0(12) =        0.000302
    vegin%conko0(12) =        0.256000
@@ -773,7 +773,7 @@ USE cable_params_mod, ONLY : vegin
      vegin%d0gs(13) =     1500.000000
     vegin%alpha(13) =        0.200000
    vegin%convex(13) =        0.010000
-     vegin%cfrd(13) =        0.015000
+   vegin%cfrd(13) =        0.010000
    vegin%gswmin(13) =        0.010000
    vegin%conkc0(13) =        0.000302
    vegin%conko0(13) =        0.256000
@@ -832,7 +832,7 @@ USE cable_params_mod, ONLY : vegin
      vegin%d0gs(14) =     1500.000000
     vegin%alpha(14) =        0.200000
    vegin%convex(14) =        0.010000
-     vegin%cfrd(14) =        0.015000
+    vegin%cfrd(14) =        0.010000
    vegin%gswmin(14) =        0.010000
    vegin%conkc0(14) =        0.000302
    vegin%conko0(14) =        0.256000
@@ -891,7 +891,7 @@ USE cable_params_mod, ONLY : vegin
      vegin%d0gs(15) =     1500.000000
     vegin%alpha(15) =        0.200000
    vegin%convex(15) =        0.010000
-     vegin%cfrd(15) =        0.015000
+   vegin%cfrd(15) =        0.010000
    vegin%gswmin(15) =        0.010000
    vegin%conkc0(15) =        0.000302
    vegin%conko0(15) =        0.256000
@@ -950,7 +950,7 @@ USE cable_params_mod, ONLY : vegin
      vegin%d0gs(16) =     1500.000000
     vegin%alpha(16) =        0.200000
    vegin%convex(16) =        0.010000
-     vegin%cfrd(16) =        0.015000
+    vegin%cfrd(16) =        0.010000
    vegin%gswmin(16) =        0.010000
    vegin%conkc0(16) =        0.000302
    vegin%conko0(16) =        0.256000
@@ -1009,7 +1009,7 @@ USE cable_params_mod, ONLY : vegin
      vegin%d0gs(17) =     1500.000000
     vegin%alpha(17) =        0.200000
    vegin%convex(17) =        0.010000
-     vegin%cfrd(17) =        0.015000
+    vegin%cfrd(17) =        0.010000
    vegin%gswmin(17) =        0.010000
    vegin%conkc0(17) =        0.000302
    vegin%conko0(17) =        0.256000
@@ -1020,6 +1020,56 @@ USE cable_params_mod, ONLY : vegin
        vegin%zr(17) =        1.000000
     vegin%clitt(17) =        0.000000
 
+!to match vegin parameters used in ESM1.5
+ vegin%refl( 1,1) =  6.200000000000000E-002
+ vegin%refl( 2,1) =  0.302000000000000     
+ vegin%taul( 1,1) =  5.000000000000000E-002
+ vegin%taul( 2,1) =  0.100000000000000     
+
+ vegin%refl( 1,2) = 7.600000000000000E-002
+ vegin%refl( 2,2) = 0.350000000000000     
+ vegin%taul( 1,2) = 5.000000000000000E-002
+ vegin%taul( 2,2) = 0.250000000000000     
+
+ vegin%refl( 1,3) =  5.600000000000000E-002
+ vegin%refl( 2,3) =  0.275000000000000     
+ vegin%taul( 1,3) =  4.500000000000000E-002
+ vegin%taul( 2,3) =  0.144000000000000     
+ 
+ vegin%refl( 1,4) =  9.200000000000000E-002
+ vegin%refl( 2,4) =  0.380000000000000     
+ vegin%taul( 1,4) =  5.000000000000000E-002
+ vegin%taul( 2,4) =  0.250000000000000     
+
+ vegin%refl( 1,5) =  0.100000000000000     
+ vegin%refl( 2,5) =  0.400000000000000     
+ vegin%taul( 1,5) =  5.000000000000000E-002
+ vegin%taul( 2,5) =  0.240000000000000     
+
+ vegin%refl( 1,6) =  0.110000000000000     
+ vegin%refl( 2,6) =  0.470000000000000     
+ vegin%taul( 1,6) =  7.000000000000001E-002
+ vegin%taul( 2,6) =  0.250000000000000     
+
+ vegin%refl( 1,7) =  0.100000000000000     
+ vegin%refl( 2,7) =  0.400000000000000     
+ vegin%taul( 1,7) =  0.100000000000000     
+ vegin%taul( 2,7) =  0.150000000000000     
+
+ vegin%refl( 1,8) =  0.117000000000000     
+ vegin%refl( 2,8) =  0.343000000000000     
+ vegin%taul( 1,8) =  8.000000000000000E-002
+ vegin%taul( 2,8) =  0.124000000000000     
+
+ vegin%refl( 1,9) =  0.100000000000000     
+ vegin%refl( 2,9) =  0.400000000000000     
+ vegin%taul( 1,9) =  0.100000000000000     
+ vegin%taul( 2,9) =  0.150000000000000     
+
+ vegin%refl( 1,10) = 9.000000000000000E-002
+ vegin%refl( 2,10) = 0.360000000000000     
+ vegin%taul( 1,10) = 9.000000000000000E-002
+ vegin%taul( 2,10) = 0.225000000000000         
       
    ! new calculation dleaf since April 2012 (cable v1.8 did not use width)
    vegin%dleaf = SQRT(vegin%width * vegin%length)

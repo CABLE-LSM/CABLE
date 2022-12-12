@@ -11,20 +11,14 @@ CONTAINS
 
    SUBROUTINE cbm( dels, air, bgc, canopy, met,                                &
                    bal, rad, rough, soil,                                      &
-                   ssnow, sum_flux, veg )
+                   ssnow, sum_flux, veg, climate )
     
-   USE cable_common_module
-   USE cable_carbon_module
-USE cbl_soil_snow_main_module,  ONLY: soil_snow
-!restrict with ONLY syntax
-   USE cable_def_types_mod
-   USE cable_roughness_module
-   USE cbl_init_radiation_module, ONLY: init_radiation
-   USE cable_air_module
-!CBL3 
+USE cbl_init_radiation_module, ONLY: init_radiation
 USE cbl_albedo_mod, ONLY: albedo
 USE cbl_masks_mod, ONLY: fveg_mask,  fsunlit_mask,  fsunlit_veg_mask
-USE cbl_masks_mod, ONLY: veg_mask,  sunlit_mask,  sunlit_veg_mask
+USE cbl_soil_snow_main_module, ONLY: soil_snow
+USE snow_aging_mod, ONLY : snow_aging 
+
 !jhan:pass these !data
 USE cable_other_constants_mod, ONLY: Ccoszen_tols => coszen_tols
 USE cable_other_constants_mod,  ONLY : Crad_thresh => rad_thresh
@@ -32,8 +26,16 @@ USE cable_other_constants_mod, ONLY: clai_thresh => lai_thresh
 USE cable_other_constants_mod, ONLY: cgauss_w => gauss_w
 USE cable_math_constants_mod,  ONLY: cpi => pi
 USE cable_math_constants_mod,  ONLY: cpi180 => pi180
-USE cable_climate_type_mod, ONLY : climate_cbl
 
+
+   USE cable_common_module
+   USE cable_carbon_module
+   USE cable_def_types_mod
+   USE cable_roughness_module
+   USE cable_air_module
+#ifndef NO_CASA_YET
+   USE casadimension,     only : icycle ! used in casa_cnp
+#endif
    USE cable_data_module, ONLY : icbm_type, point2constants 
    
    !ptrs to local constants 
@@ -48,18 +50,24 @@ USE cable_climate_type_mod, ONLY : climate_cbl
    TYPE (roughness_type), INTENT(INOUT) :: rough
    TYPE (soil_snow_type), INTENT(INOUT) :: ssnow
    TYPE (sum_flux_type),  INTENT(INOUT) :: sum_flux
+   TYPE(climate_type),    INTENT(INOUT) :: climate
     
    TYPE (soil_parameter_type), INTENT(INOUT)   :: soil 
    TYPE (veg_parameter_type),  INTENT(INOUT)    :: veg  
 
    REAL, INTENT(IN)               :: dels ! time setp size (s)
     
-   INTEGER :: k,kk,j  
+!co-efficients usoughout init_radiation ` called from _albedo as well
+REAL :: c1(mp,nrb)
+REAL :: rhoch(mp,nrb)
+REAL :: xk(mp,nrb)
 
+LOGICAL :: veg_mask(mp), sunlit_mask(mp), sunlit_veg_mask(mp)
 CHARACTER(LEN=*), PARAMETER :: subr_name = "cbl_model_driver"
-LOGICAL :: jls_standalone = .FALSE.
-LOGICAL :: jls_radiation  = .FALSE.
+LOGICAL :: jls_standalone= .FALSE.
+LOGICAL :: jls_radiation= .FALSE.
 LOGICAL :: cbl_standalone = .FALSE.    
+
 
    ! assign local ptrs to constants defined in cable_data_module
    CALL point2constants(C)    
@@ -67,7 +75,6 @@ LOGICAL :: cbl_standalone = .FALSE.
       cable_runtime%um_radiation = .FALSE.
       
       IF( cable_runtime%um_explicit ) THEN
-!d1!      met%DoY = met%DoY + 1.
         CALL ruff_resist( veg, rough, ssnow, canopy, veg%vlai, veg%hc, canopy%vlaiw )
          met%tk = met%tk + C%grav/C%capp*(rough%zref_tq + 0.9*rough%z0m)
       ENDIF
@@ -76,7 +83,7 @@ LOGICAL :: cbl_standalone = .FALSE.
    
 call fveg_mask( veg_mask, mp, Clai_thresh, canopy%vlaiw )
 call fsunlit_mask( sunlit_mask, mp, CRAD_THRESH,( met%fsd(:,1)+met%fsd(:,2) ) )
-call fsunlit_veg_mask( sunlit_veg_mask, mp )
+call fsunlit_veg_mask( sunlit_veg_mask, veg_mask, sunlit_mask, mp )
 
 CALL init_radiation( &
                      rad%extkb, rad%extkd,                                     &
@@ -130,7 +137,7 @@ IF( cable_runtime%um_explicit ) THEN
       ENDIF
    
    ! Calculate canopy variables:
-   CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy, climate_cbl, sunlit_veg_mask, canopy%vlaiw )
+   CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy, climate, sunlit_veg_mask, canopy%vlaiw )
 
    ssnow%otss_0 = ssnow%otss
    ssnow%otss = ssnow%tss

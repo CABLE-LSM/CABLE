@@ -26,8 +26,8 @@ PUBLIC
 ! Req'd to be defined at compile time to read in pars. strictly speaking these
 ! only need to be greater than ntiles, nsoils (below). However, there is no 
 ! point in allocating useless space here
-INTEGER, PARAMETER :: ntype_max = 17 ! Max # tiles
-INTEGER, PARAMETER :: nsoil_max = 9  ! Max # soils
+INTEGER, PARAMETER :: ntype_max = 17 ! Max # tiles ! compile time constant
+INTEGER, PARAMETER :: nsoil_max = 9  ! Max # soils ! req'd to read in pars
 
 INTEGER, PARAMETER :: ntiles    = 17 ! # tiles !npft+nveg in JULES IO
 INTEGER, PARAMETER :: nsoils    = 9  ! # soils
@@ -39,5 +39,8 @@ INTEGER, PARAMETER :: nsnl      = 3  ! # snow layers
 INTEGER, PARAMETER :: nrb       = 3  ! # rad bands VISual/NIR + Legacy incl LW
 INTEGER, PARAMETER :: nsCs      = 2  ! # soil carbon stores
 INTEGER, PARAMETER :: nvCs      = 3  ! # vegetation carbon stores
+
+INTEGER, PARAMETER :: mf = 2          ! # leaves (sunlit, shaded)
+INTEGER, PARAMETER :: niter = 4       ! number of iterations for za/L
 
 END MODULE grid_constants_mod_cbl

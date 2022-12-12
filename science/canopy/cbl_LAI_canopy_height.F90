@@ -37,13 +37,16 @@ DO N=1,NTILES
 
     IF( TILE_FRAC(i,N) .gt. 0.0 ) THEN
       
-      LAI_pft_temp(i,N) = max(CLAI_thresh*.99,LAI_pft(i,N)) 
-      if(N>13)  LAI_pft_temp(i,N) = 0.0 !to match offline Loobos
        ! hard-wired vegetation type numbers need to be removed
        IF(N < 5 ) THEN ! trees 
+        LAI_pft_temp(i,N) = max(CLAI_thresh,LAI_pft(i,N)) 
           HGT_pft_temp(i,N) = max(1.,HGT_pft(i,N)) 
-       ELSE ! shrubs/grass
+      ELSE IF(N > 4 .AND. N < 14 ) THEN  ! shrubs/grass
+        LAI_pft_temp(i,N) = max(CLAI_thresh,LAI_pft(i,N)) 
           HGT_pft_temp(i,N) = max(0.1, HGT_pft(i,N)) 
+      ELSE IF(N > 13 ) THEN ! non-vegetated
+        LAI_pft_temp(i,N) = 0.0
+        HGT_pft_temp(i,N) = 0.0
        ENDIF
 
     ENDIF

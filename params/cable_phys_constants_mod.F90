@@ -1,3 +1,4 @@
+!# define ESM15 YES   
 MODULE cable_phys_constants_mod
 
 IMPLICIT NONE
@@ -69,6 +70,9 @@ PUBLIC
   REAL, PARAMETER :: zetneg = -15.0   ! negative limit on za/L when niter>=3
   REAL, PARAMETER :: zetpos = 1.0     ! positive limit on za/L when niter>=3
   REAL, PARAMETER :: zdlin  = 1.0     ! height frac of d below which TL linear
-  REAL, PARAMETER :: umin   = 0.1     ! guarantees convergence, was 0.01 
-
+# ifdef ESM15    
+  REAL, PARAMETER :: umin   = 0.01    
+# else 
+  REAL, PARAMETER :: umin   = 0.1     ! CM2- guarantees convergence
+# endif
 END MODULE cable_phys_constants_mod

@@ -1,3 +1,4 @@
+#define ESM15 YES
 !==============================================================================
 ! This source code is part of the 
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
@@ -83,7 +84,11 @@ module cable_data_module
       zetneg = -15.0, & ! negative limit on za/L when niter>=3
       zetpos = 1.0,  & ! positive limit on za/L when niter>=3
       zdlin  = 1.0,  & ! height frac of d below which TL linear
+# ifdef ESM15    
       umin   = 0.01
+# else 
+      umin   = 0.1 !CM2
+# endif
        
    END TYPE physical_constants
 
@@ -100,8 +105,13 @@ module cable_data_module
       !where 3 = no. radiation bands (nrb in define types)
       real, DIMENSION(3) :: gauss_w=(/0.308,0.514,0.178/) ! Gaussian integ. weights
       !--- jhan: can make these trigger of #defines/namelist
+# ifdef ESM15   
+      real:: RAD_THRESH = 0.01 
+      real:: LAI_THRESH = 0.01 
+# else 
       real:: RAD_THRESH = 0.001 
       real:: LAI_THRESH = 0.001 
+# endif
    end type other_constants
 
    type photosynthetic_constants
@@ -110,8 +120,6 @@ module cable_data_module
       real :: a1c4 = 4.0
       real :: alpha3 = 0.200
       real :: alpha4  = 0.05
-      real :: cfrd3  = 0.010
-      real :: cfrd4  = 0.025
       real :: conkc0 = 302.e-6  !mol mol^-1
       real :: conko0 = 256.e-3  !mol mol^-1
       real :: convx3 = 1.0E-2
@@ -195,7 +203,7 @@ module cable_data_module
          RGSWC, GAM0, GAM1, GAM2,CONKO0, CONKC0,                               &
          ALPHA3, ALPHA4, D0C3, D0C4, RGBWC,                                    &
          CONVX3, CONVX4, GSW03, GSW04,                                         &
-         EKC, EKO, TREFK, A1C3, A1C4, CFRD3, CFRD4,                            &
+         EKC, EKO, TREFK, A1C3, A1C4,                                          &
          ! math constants
          PI_C,                                                                 &
          ! other constants
@@ -356,7 +364,6 @@ SUBROUTINE canopy_type_ptr(C)
    C%D0C3  => PHOTO%D0C3
    C%D0C4  => PHOTO%D0C4
    C%RGBWC  => PHOTO%RGBWC
-   C%CFRD3  => PHOTO%CFRD3
    C%GSW04  => PHOTO%GSW04
    C%GAM1  => PHOTO%GAM1
    C%EKO  => PHOTO%EKO
@@ -364,7 +371,6 @@ SUBROUTINE canopy_type_ptr(C)
    C%TREFK => PHOTO%TREFK
    C%A1C3 => PHOTO%A1C3
    C%A1C4  => PHOTO%A1C4
-   C%CFRD4  => PHOTO%CFRD4
 
    ! math constants
    C%PI_C  => MATH%PI_C

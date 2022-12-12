@@ -218,6 +218,7 @@ End subroutine CanopyReflectance_beam
 subroutine CanopyReflectance_dif( CanopyRefl_dif, mp, nrb, CGauss_w,  &
                                   ExtCoeff_dif, xk, rhoch )
 
+USE cable_common_module, ONLY : cable_runtime
 implicit none
 INTEGER :: mp
 integer :: nrb
@@ -228,11 +229,18 @@ REAL :: xk(mp,nrb)      ! extinct. coef.for beam rad. and black leaves
 REAL :: rhoch(mp,nrb)      
 !local vars
 INTEGER :: ictr
+REAL :: factor
+
+IF( cable_runtime%esm15 ) THEN
+  factor = 1.0  !esm15
+ELSE
+  factor = 2.0 !trunk
+ENDIF
 
 ! Canopy REFLection of diffuse radiation for black leaves:
 DO ictr=1,2
 
-  CanopyRefl_dif(:,ictr) = rhoch(:,ictr) *  2. *                                &
+  CanopyRefl_dif(:,ictr) = rhoch(:,ictr) *  factor *                                &
                        ( CGAUSS_W(1) * xk(:,1) / ( xk(:,1) + ExtCoeff_dif(:) )&
                        + CGAUSS_W(2) * xk(:,2) / ( xk(:,2) + ExtCoeff_dif(:) )&
                        + CGAUSS_W(3) * xk(:,3) / ( xk(:,3) + ExtCoeff_dif(:) ) )
