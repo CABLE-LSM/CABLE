@@ -1273,11 +1273,6 @@
 </ul>
 <h2 id="flowchart-of-the-installation">Flowchart of the installation</h2>
 <pre class="mermaid"><code>graph TD
-    UserAction(User command to run);
-    Automatic(Automatic step of the build script);
-    Output(Output of the build script):::Output;
-
-    UserAction ~~ Automatic ~~ Output;
 
     A(Checkout CABLE with SVN):::UserAction --&gt;|Serial?| B(Run `offline/build3.sh`):::UserAction;
     B --&gt; D[load modules, set compiler flags, create .tmp/ directory];
@@ -1293,6 +1288,12 @@
     click D "http://cable-lsm.github.io/CABLE/user_guide/tutorial/compilation/#description-of-the-build-process"
     click E "http://cable-lsm.github.io/CABLE/user_guide/tutorial/compilation/#description-of-the-build-process"
     click F "http://cable-lsm.github.io/CABLE/user_guide/tutorial/compilation/#description-of-the-build-process"
+
+    UserAction ---- Automatic ---- Output;
+
+    UserAction(Actions from the user):::UserAction;
+    Automatic(Automatic steps of the build script);
+    Output(Output of the build script):::Output;
 
     classDef UserAction fill:#FEFB8E
     classDef Output fill:#cefe8e</code></pre>
