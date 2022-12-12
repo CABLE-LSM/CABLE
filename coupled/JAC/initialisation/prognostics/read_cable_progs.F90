@@ -1,12 +1,27 @@
 #if !defined(UM_JULES)
+!******************************COPYRIGHT********************************************
+! (c) CSIRO 2022.
+! All rights reserved.
+!
+! This routine has been licensed to the other JULES partners for use and
+! distribution under the JULES collaboration agreement, subject to the terms and
+! conditions set out therein.
+!
+! [Met Office Ref SC0237]
+!******************************COPYRIGHT********************************************
 
 MODULE read_cable_progs_mod
 
 !------------------------------------------------------------------------------
 ! Description:
-!
 !   Reads in information about CABLE prognostic variables for their
 !   initialisation
+!
+! This MODULE is USEd in:
+!      init_cable_progs.F90
+!
+! This MODULE contains 1 public Subroutine:
+!      read_cable_progs
 !
 ! Code Owner: Please refer to ModuleLeaders.txt
 ! This file belongs in CABLE SCIENCE
@@ -23,9 +38,12 @@ CONTAINS
 
 SUBROUTINE read_cable_progs()
 
+! Description:
+!   Nothing further to add to the module description
+
 USE errormessagelength_mod, ONLY: errormessagelength
 
-USE input_mod, ONLY: fill_variables_from_file
+USE fill_variables_from_file_mod, ONLY: fill_variables_from_file
 
 USE io_constants, ONLY: max_sdf_name_len, max_file_name_len, namelist_unit
 
@@ -43,15 +61,6 @@ USE logging_mod, ONLY: log_info, log_warn, log_fatal
 
 IMPLICIT NONE
 
-!------------------------------------------------------------------------------
-! Description:
-!
-!   Reads in information about CABLE prognostic variables for their
-!   initialisation
-!
-! Code Owner: Please refer to ModuleLeaders.txt
-! This file belongs in CABLE SCIENCE
-!------------------------------------------------------------------------------
 ! Work variables
 INTEGER, PARAMETER :: max_cable_vars  = 10
        ! The maximum number of CABLE model variables that can be given
@@ -70,7 +79,7 @@ INTEGER :: i,l  ! Index variables
 
 INTEGER :: ERROR  ! Error indicator
 
-! Variables passed to fill_variables_from_file
+!! Variables passed to fill_variables_from_file
 !CHARACTER(LEN=identifier_len) :: file_var(max_cable_vars)
 !                      ! The variable identifiers of the variables to set
 !                      ! from file

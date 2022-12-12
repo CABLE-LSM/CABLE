@@ -1,4 +1,12 @@
 !# define ESM15 YES   
+!******************************************************************************
+! This source code is part of the Community Atmosphere Biosphere Land Exchange
+! (CABLE) model. This work is licensed under the CSIRO Open Source Software
+! License Agreement (variation of the BSD / MIT License).You may not use this
+! this file except in compliance with this License. A copy of the License is
+! available at https://trac.nci.org.au/trac/cable/wiki/license.
+!******************************************************************************
+
 MODULE cable_phys_constants_mod
 
 IMPLICIT NONE
@@ -9,9 +17,12 @@ PUBLIC
 ! Description:
 !   CABLE physical constants
 !
-! Code Owner: Please refer to ModuleLeaders.txt
-! This file belongs in 
-!-----------------------------------------------------------------------------
+! This MODULE is USEd throughout CABLE.
+!
+! Module specific documentation:https://trac.nci.org.au/trac/cable/wiki/TBC
+! Where it fits in the model flow:https://trac.nci.org.au/trac/cable/wiki/TBC
+!******************************************************************************
+
 
   REAL, PARAMETER :: tfrz   = 273.16        ! Temp (K) corresp. to 0 C
   REAL, PARAMETER :: sboltz = 5.67e-8       ! Stefan-Boltz. const (W/m2/K4)
@@ -75,4 +86,7 @@ PUBLIC
 # else 
   REAL, PARAMETER :: umin   = 0.1     ! CM2- guarantees convergence
 # endif
+!model parameter shared across subroutines -> cable_phys_constants
+REAL, PARAMETER :: snow_depth_thresh = 1.0
+
 END MODULE cable_phys_constants_mod

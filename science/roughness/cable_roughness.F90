@@ -137,8 +137,8 @@ USE cable_common_module, ONLY : cable_user
 USE cable_def_types_mod, ONLY : veg_parameter_type, roughness_type,         &
                                 soil_snow_type, canopy_type, mp  
 !subrs
-USE cbl_hruff_mod, ONLY : HgtAboveSnow
-USE cbl_LAI_eff_mod, ONLY : LAI_eff
+USE hruff_eff_LAI_mod_cbl, ONLY : HgtAboveSnow
+USE hruff_eff_LAI_mod_cbl, ONLY : LAI_eff
 !data
 USE cable_other_constants_mod, ONLY : z0surf_min
 

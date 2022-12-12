@@ -1,11 +1,26 @@
 #if !defined(UM_JULES)
+!******************************COPYRIGHT********************************************
+! (c) CSIRO 2022.
+! All rights reserved.
+!
+! This routine has been licensed to the other JULES partners for use and
+! distribution under the JULES collaboration agreement, subject to the terms and
+! conditions set out therein.
+!
+! [Met Office Ref SC0237]
+!******************************COPYRIGHT********************************************
 
 MODULE init_cable_progs_mod
 
 !------------------------------------------------------------------------------
 ! Description:
-!
 !   Main driver to dec/alloc/initialize CABLE prognostic variables
+!
+! This MODULE is USEd:
+!      init.F90
+!
+! This MODULE contains 1 public Subroutine:
+!      init_cable_progs
 !
 ! Code Owner: Please refer to ModuleLeaders.txt
 ! This file belongs in CABLE SCIENCE
@@ -22,6 +37,9 @@ CONTAINS
 
 SUBROUTINE init_cable_progs( land_pts, nsurft, sm_levels, lsm_id, cable,       &
                          progs_cbl_vars, progs_cbl_vars_data )
+
+! Description:
+!   Nothing further to add to the module description
 
 USE read_cable_progs_mod,         ONLY: read_cable_progs
 USE progs_cbl_vars_mod,           ONLY: progs_cbl_vars_type,                   &

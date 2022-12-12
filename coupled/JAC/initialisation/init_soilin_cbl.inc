@@ -7,6 +7,18 @@
 
 SUBROUTINE init_soilin_cbl(nml_dir)
 
+!-----------------------------------------------------------------------------
+! Description:
+!   Initialises the non-vegetation parameters
+!
+! Code Owner: Please refer to ModuleLeaders.txt
+! This file belongs in TECHNICAL
+!
+! Code Description:
+!   Language: Fortran 90.
+!   This code is written to JULES coding standards v1.
+!-----------------------------------------------------------------------------
+
 USE missing_data_mod, ONLY:                                                    &
 !  imported scalar parameters
      rmdi
@@ -21,17 +33,6 @@ USE cable_fields_mod,       ONLY: pars_io_data_cbl
 
 IMPLICIT NONE
 
-!-----------------------------------------------------------------------------
-! Description:
-!   Initialises the non-vegetation parameters
-!
-! Code Owner: Please refer to ModuleLeaders.txt
-! This file belongs in TECHNICAL
-!
-! Code Description:
-!   Language: Fortran 90.
-!   This code is written to JULES coding standards v1.
-!-----------------------------------------------------------------------------
 ! Arguments
 CHARACTER(LEN=*), INTENT(IN) :: nml_dir  ! The directory containing the
                                          ! namelists
