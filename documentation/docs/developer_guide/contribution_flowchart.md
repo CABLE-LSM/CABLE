@@ -132,8 +132,8 @@ git checkout <branchname>
       classDef term fill:#F44336, stroke:#B71C1C, color:#FFFFFF;
       classDef question fill:#6D4C41, stroke:#3E2723, color:#FFFFFF; 
 
-      linkStyle 6 stroke:red,color:red;
-      linkStyle 5 stroke:green,color:darkgreen;
+      linkStyle 7 stroke:red,color:red;
+      linkStyle 6 stroke:green,color:darkgreen;
 
       click review "https://cable-lsm.github.io/CABLE/developer_guide/contribution_flowchart/#review" "Review process"
 
