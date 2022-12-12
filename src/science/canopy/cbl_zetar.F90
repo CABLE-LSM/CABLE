@@ -1,4 +1,6 @@
 MODULE cbl_zetar_module
+  !* This MODULE contains the SUBROUTINE [[update_zetar]] needed to update
+  !  the value of the stability parameter `canopy%zetar`=\(\xi\). 
 
 IMPLICIT NONE
 
@@ -13,34 +15,87 @@ SUBROUTINE update_zetar( mp, NITER, canopy_zetar, iter, nrb, CVONK, CGRAV, CCAPP
                    cable_user_soil_struc, air_rho, met_tk,  met_fsd, &
                    rough_zref_tq, rough_hruff, rough_term6a, rough_z0soilsn,   &
                    canopy_vlaiw, canopy_zetash,  canopy_us, &
-                   canopy_fh, canopy_fe, canopy_fhs, canopy_fes ) 
+                   canopy_fh, canopy_fe, canopy_fhs, canopy_fes )
+  !*## Purpose
+  !
+  ! This SUBROUTINE updates the value of the stability parameter \(\xi\)
+  ! during the iteration loop of the Monin-Obukhov (MO) similarity theory in [[define_canopy]].  
+  ! \(\xi\) quantifies the role that the surface fluxes play in setting the 
+  ! efficiency of turbulent transfer from the land to the atmosphere, and hence
+  ! the aerodynamic component of the resistance network for those same surface 
+  ! fluxes (an implicit problem which requires iteration to solve).
+  !
+  ! This SUBROUTINE forms part of the codebase to evaluate the surface
+  ! energy balance on a sub-diurnal basis (i.e. every CABLE time step).
+  ! It resides in the canopy science directory.
+  !  
+  !## Method
+  !
+  ! The two outputs of the SUBROUTINE are:
+  !
+  ! - `canopy_zetar`, the local (in space, time and by iteration counter) value of \(\xi\)
+  !  (Equation 9). It is evaluated from the total land (soil+canopy)
+  !  surface fluxes of momentum, sensible heat and latent heat.
+  ! - `canopy_zetash` is the equivalent variable evaluated from the soil
+  !  contribution to those fluxes only. `canopy_zetash` is used in conjunction
+  !  with the [[sli_main_mod]] soil model to moderate the fluxes from the soil
+  !  underneath a canopy.
+  !
+  ! `canopy_zetar` and `canopy_zetash` are initialised to `CZETA0`=0 in
+  ! [[define_canopy]] and updated `NITER`(>1) times during the calculation 
+  ! of the energy balance. The value of the variables at each iteration are 
+  ! stored in memory to aid in the diagnosis of convergence.
+  !
+  ! A special case applies if `NITER`=2.  
+  ! `canopy_zetar` and `canopy_zetash` are also bounded by the interval 
+  ! `[CZETNEG, CZETPOS]`.  
+  !
+  ! The outputs `canopy_zetar` and `canopy_zetash` are known as `canopy%zetar` 
+  ! and `canopy%zetash` elsewhere in the code. 
+  ! `NITER`(=4) is defined in [[cable_types_mod]]; `CZETMUL`, `CZET0`, 
+  ! `CZETPOS` and `CZETNEG` in [[cable_phys_constants_mod]].
+  !
+  !## References
+  !
+  ! [Kowalczyk et al. (2006)](http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf)
+  ! - section 3.1, equations 1-9. 
+  ! 
+  !  <br></br>
+  !
+  ! **WARNING** The INTENT statements for `canopy_zetar` and `canopy_zetash` 
+  ! need to be INTENT(INOUT): currently previous values are reset at each call 
+  ! of the subroutine. It means the initialisations in [[define_canopy]] are 
+  ! useless (the ITER=1 values are lost) and for SLI, on bare soils, 
+  !`canopy_zetash` gets crazy values for all iterations. 
+  !
+
 IMPLICIT NONE
 
-INTEGER, INTENT(IN) :: mp
-INTEGER, INTENT(IN) :: NITER
-INTEGER, INTENT(IN) :: nrb
+INTEGER, INTENT(IN) :: mp     !! number of land points (-)
+INTEGER, INTENT(IN) :: NITER  !! number of MO-iterations (-)
+INTEGER, INTENT(IN) :: nrb    !! number of radiation bands (-)
 
-REAL, INTENT(OUT) :: canopy_zetar(mp, NITER)
-REAL, INTENT(OUT) :: canopy_zetash(mp, NITER)
-INTEGER, INTENT(IN) :: iter
+REAL, INTENT(OUT) :: canopy_zetar(mp, NITER)  !!stability parameter \(\xi\) (-)
+REAL, INTENT(OUT) :: canopy_zetash(mp, NITER) !!stability parameter for soil (-)
+INTEGER, INTENT(IN) :: iter                   !! iteration counter (-)
 
 ! constants
 REAL, INTENT(IN) :: CVONK, CGRAV, CCAPP, CLAI_THRESH, CZETmul, CZETPOS, CZETNEG
-CHARACTER, INTENT(IN)  :: cable_user_soil_struc
+CHARACTER, INTENT(IN)  :: cable_user_soil_struc !! name of soil model used
 
-REAL, INTENT(IN) :: air_rho(mp)
-REAL, INTENT(IN) :: met_tk(mp)
-REAL, INTENT(IN) :: met_fsd(mp,nrb)
-REAL, INTENT(IN) :: rough_zref_tq(mp)
-REAL, INTENT(IN) :: rough_hruff(mp)
-REAL, INTENT(IN) :: rough_term6a(mp)
-REAL, INTENT(IN) :: rough_z0soilsn(mp)
-REAL, INTENT(IN) :: canopy_vlaiw(mp)
-REAL, INTENT(IN) :: canopy_us(mp)
-REAL, INTENT(IN) :: canopy_fh(mp)
-REAL, INTENT(IN) :: canopy_fe(mp)
-REAL, INTENT(IN) :: canopy_fhs(mp)
-REAL, INTENT(IN) :: canopy_fes(mp)
+REAL, INTENT(IN) :: air_rho(mp)        !! air density (kg m\(^{-3}\))
+REAL, INTENT(IN) :: met_tk(mp)         !! reference level air temperature (K)
+REAL, INTENT(IN) :: met_fsd(mp,nrb)    !! downwelling shortwave (Wm\(^{-2}\))  
+REAL, INTENT(IN) :: rough_zref_tq(mp)  !! reference height for T and q (m)
+REAL, INTENT(IN) :: rough_hruff(mp)    !! height of canopy (above snow) (m)
+REAL, INTENT(IN) :: rough_term6a(mp)   !! term from [[ruff_resist]] (-)
+REAL, INTENT(IN) :: rough_z0soilsn(mp) !! roughness length of soil or snow (m)
+REAL, INTENT(IN) :: canopy_vlaiw(mp)   !! canopy leaf area (m\(^2\)m\(^{-2}\))
+REAL, INTENT(IN) :: canopy_us(mp)      !! friction velocity (ms\(^{-1}\))
+REAL, INTENT(IN) :: canopy_fh(mp)      !! sensible heat flux (Wm\(^{-2}\))
+REAL, INTENT(IN) :: canopy_fe(mp)      !! latent heat flux (Wm\(^{-2}\))
+REAL, INTENT(IN) :: canopy_fhs(mp)     !! soil sensible heat flux (Wm\(^{-2}\)) 
+REAL, INTENT(IN) :: canopy_fes(mp)     !! soil latent heat flux (Wm\(^{-2}\))
 
 !local vars
 INTEGER :: iterplus
