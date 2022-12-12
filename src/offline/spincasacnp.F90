@@ -14,9 +14,10 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   USE POP_Types,  ONLY: POP_TYPE
   USE POPMODULE,            ONLY: POPStep
   USE TypeDef,              ONLY: i4b, dp
+  USE biogeochem_mod, ONLY : biogeochem 
 
   IMPLICIT NONE
-  !CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
+  !!CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
   REAL,    INTENT(IN)    :: dels
   INTEGER, INTENT(IN)    :: kstart
   INTEGER, INTENT(IN)    :: kend
@@ -87,7 +88,7 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   IF (.NOT.ALLOCATED(Iw)) ALLOCATE(Iw(POP%np))
 
   LOY = 365
-  ! vh_js !
+  !! vh_js !!
   IF (cable_user%CALL_POP) THEN
 
      Iw = POP%Iwood
@@ -122,8 +123,8 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
   avg_lr = 0.0
   avg_annual_cnpp = 0.0
 
-  !CLN  OPEN(91, file=fcnpspin)
-  !CLN  read(91,*) myearspin
+  !!CLN  OPEN(91, file=fcnpspin)
+  !!CLN  read(91,*) myearspin
   myearspin = CABLE_USER%CASA_SPIN_ENDYEAR - CABLE_USER%CASA_SPIN_STARTYEAR + 1
   ! compute the mean fluxes and residence time of each carbon pool
   avg_cleaf2met=0.0; avg_cleaf2str=0.0; avg_croot2met=0.0; avg_croot2str=0.0; avg_cwood2cwd=0.0
@@ -141,7 +142,7 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
 
 
      CALL read_casa_dump( ncfile,casamet, casaflux, phen,climate, ktau ,kend,.TRUE. )
-     !CLN901  format(A99)
+     !!CLN901  format(A99)
      DO idoy=1,mdyear
         ktau=(idoy-1)*ktauday +1
 
@@ -210,9 +211,9 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
         ENDIF ! CALL_POP
 
 
-!$        WHERE(xkNlimiting .eq. 0)  !Chris Lu 4/June/2012
-!$           xkNlimiting = 0.001
-!$        END WHERE
+!!$        WHERE(xkNlimiting .eq. 0)  !Chris Lu 4/June/2012
+!!$           xkNlimiting = 0.001
+!!$        END WHERE
         nptx=8173
 
         ! Calculate average allocation fractions  (-) for the plant pools
@@ -327,17 +328,17 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
        avg_nsoilmin,avg_psoillab,avg_psoilsorb,avg_psoilocc,                  &
        avg_af, avg_aw, avg_ar, avg_lf, avg_lw, avg_lr, avg_annual_cnpp)
 
-!$  call totcnppools(1,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &
-!$       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)
+!!$  call totcnppools(1,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &
+!!$       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)
 
   nloop1= MAX(1,mloop-3)
 
   DO nloop=1,mloop
 
-     !CLN  OPEN(91,file=fcnpspin)
-     !CLN  read(91,*)
+     !!CLN  OPEN(91,file=fcnpspin)
+     !!CLN  read(91,*)
      DO nyear=1,myearspin
-        !CLN      read(91,901) ncfile
+        !!CLN      read(91,901) ncfile
         !write(*,*) 'spincasa CYEAR', CYEAR, ncfile
         WRITE(CYEAR,FMT="(I4)") CABLE_USER%CASA_SPIN_STARTYEAR + nyear - 1
         ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
@@ -419,9 +420,9 @@ SUBROUTINE spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
      ENDDO   ! end of nyear
 
 
-!$  if(nloop>=nloop1) &
-!$       call totcnppools(2+nloop-nloop1,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &
-!$       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)
+!!$  if(nloop>=nloop1) &
+!!$       call totcnppools(2+nloop-nloop1,veg,casamet,casapool,bmcplant,bmnplant,bmpplant,bmclitter,bmnlitter,bmplitter, &
+!!$       bmcsoil,bmnsoil,bmpsoil,bmnsoilmin,bmpsoillab,bmpsoilsorb,bmpsoilocc,bmarea)
 
   ENDDO     ! end of nloop
 
