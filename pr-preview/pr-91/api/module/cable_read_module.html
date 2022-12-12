@@ -109,7 +109,19 @@
       <div id="sidebar">
       <h3>Contents</h3>
   
-  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#vars-0">Variables</a>
+        </h3>
+      </div>
+      <div id="vars-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/cable_read_module.html#variable-ok~3">ok</a>
+        </div>
+      </div>
+    </div>
+
   
   
   
@@ -140,6 +152,11 @@
       </div>
       <div id="subs-0" class="panel-collapse collapse">
         <div class="list-group">
+            <a class="list-group-item" href="../module/cable_read_module.html#proc-readpar_i">readpar_i</a>
+            <a class="list-group-item" href="../module/cable_read_module.html#proc-readpar_r">readpar_r</a>
+            <a class="list-group-item" href="../module/cable_read_module.html#proc-readpar_rd">readpar_rd</a>
+            <a class="list-group-item" href="../module/cable_read_module.html#proc-readpar_r2">readpar_r2</a>
+            <a class="list-group-item" href="../module/cable_read_module.html#proc-readpar_r2d">readpar_r2d</a>
             <a class="list-group-item" href="../module/cable_read_module.html#proc-redistr_i">redistr_i</a>
             <a class="list-group-item" href="../module/cable_read_module.html#proc-redistr_r">redistr_r</a>
             <a class="list-group-item" href="../module/cable_read_module.html#proc-redistr_rd">redistr_rd</a>
@@ -170,10 +187,10 @@
       <ul class="list-group">
           <li class="list-group-item">
             <ul class="list-inline">
-                <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
                 <li><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></li>
                 <li><a href='../module/cable_abort_module.html'>cable_abort_module</a></li>
                 <li>netcdf</li>
+                <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
             </ul>
           </li>
       </ul>
@@ -185,7 +202,19 @@
     <section class="visible-xs visible-sm hidden-md">
         <h3>Contents</h3>
   
-  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#vars-1">Variables</a>
+        </h3>
+      </div>
+      <div id="vars-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/cable_read_module.html#variable-ok~3">ok</a>
+        </div>
+      </div>
+    </div>
+
   
   
   
@@ -216,6 +245,11 @@
       </div>
       <div id="subs-1" class="panel-collapse collapse">
         <div class="list-group">
+            <a class="list-group-item" href="../module/cable_read_module.html#proc-readpar_i">readpar_i</a>
+            <a class="list-group-item" href="../module/cable_read_module.html#proc-readpar_r">readpar_r</a>
+            <a class="list-group-item" href="../module/cable_read_module.html#proc-readpar_rd">readpar_rd</a>
+            <a class="list-group-item" href="../module/cable_read_module.html#proc-readpar_r2">readpar_r2</a>
+            <a class="list-group-item" href="../module/cable_read_module.html#proc-readpar_r2d">readpar_r2d</a>
             <a class="list-group-item" href="../module/cable_read_module.html#proc-redistr_i">redistr_i</a>
             <a class="list-group-item" href="../module/cable_read_module.html#proc-redistr_r">redistr_r</a>
             <a class="list-group-item" href="../module/cable_read_module.html#proc-redistr_rd">redistr_rd</a>
@@ -237,6 +271,40 @@
     <br class="visible-xs visible-sm hidden-md">
 
 
+    <section>
+    <h2>Variables</h2>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Visibility</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+<th></th><th>Initial</th>        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ok~3"></span>
+              integer,
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ok</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </section>
+    <br>
     
     
     <section>
@@ -250,9 +318,10 @@
     <ul class="list-group">
           <li class="list-group-item">
                 <h3>
-    private  subroutine readpar_i(ncid, parname, completeSet, var_i, filename, npatch, dimswitch, from_restart, INpatch)  
+    private  subroutine <a href='../proc/readpar_i.html'>readpar_i</a>(ncid, parname, completeSet, var_i, filename, npatch, dimswitch, from_restart, INpatch)  
 
     </h3>
+    
   
 
   <h4>Arguments</h4>
@@ -278,7 +347,7 @@
             <td>::</td>
             <td><strong>ncid</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -293,7 +362,7 @@
             <td>::</td>
             <td><strong>parname</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -308,7 +377,7 @@
             <td>::</td>
             <td><strong>completeSet</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -323,7 +392,7 @@
             <td>::</td>
             <td><strong>var_i</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -338,7 +407,7 @@
             <td>::</td>
             <td><strong>filename</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -353,7 +422,7 @@
             <td>::</td>
             <td><strong>npatch</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -368,7 +437,7 @@
             <td>::</td>
             <td><strong>dimswitch</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -383,7 +452,7 @@
             <td>::</td>
             <td><strong>from_restart</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -398,7 +467,7 @@
             <td>::</td>
             <td><strong>INpatch</strong></td>
             <td>
-                
+
             </td>
         </tr>
     </tbody>
@@ -408,9 +477,10 @@
           </li>
           <li class="list-group-item">
                 <h3>
-    private  subroutine readpar_r(ncid, parname, completeSet, var_r, filename, npatch, dimswitch, from_restart, INpatch)  
+    private  subroutine <a href='../proc/readpar_r.html'>readpar_r</a>(ncid, parname, completeSet, var_r, filename, npatch, dimswitch, from_restart, INpatch)  
 
     </h3>
+    
   
 
   <h4>Arguments</h4>
@@ -436,7 +506,7 @@
             <td>::</td>
             <td><strong>ncid</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -451,7 +521,7 @@
             <td>::</td>
             <td><strong>parname</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -466,7 +536,7 @@
             <td>::</td>
             <td><strong>completeSet</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -481,7 +551,7 @@
             <td>::</td>
             <td><strong>var_r</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -496,7 +566,7 @@
             <td>::</td>
             <td><strong>filename</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -511,7 +581,7 @@
             <td>::</td>
             <td><strong>npatch</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -526,7 +596,7 @@
             <td>::</td>
             <td><strong>dimswitch</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -541,7 +611,7 @@
             <td>::</td>
             <td><strong>from_restart</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -556,7 +626,7 @@
             <td>::</td>
             <td><strong>INpatch</strong></td>
             <td>
-                
+
             </td>
         </tr>
     </tbody>
@@ -566,9 +636,10 @@
           </li>
           <li class="list-group-item">
                 <h3>
-    private  subroutine readpar_rd(ncid, parname, completeSet, var_rd, filename, npatch, dimswitch, from_restart, INpatch)  
+    private  subroutine <a href='../proc/readpar_rd.html'>readpar_rd</a>(ncid, parname, completeSet, var_rd, filename, npatch, dimswitch, from_restart, INpatch)  
 
     </h3>
+    
   
 
   <h4>Arguments</h4>
@@ -594,7 +665,7 @@
             <td>::</td>
             <td><strong>ncid</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -609,7 +680,7 @@
             <td>::</td>
             <td><strong>parname</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -624,7 +695,7 @@
             <td>::</td>
             <td><strong>completeSet</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -639,7 +710,7 @@
             <td>::</td>
             <td><strong>var_rd</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -654,7 +725,7 @@
             <td>::</td>
             <td><strong>filename</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -669,7 +740,7 @@
             <td>::</td>
             <td><strong>npatch</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -684,7 +755,7 @@
             <td>::</td>
             <td><strong>dimswitch</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -699,7 +770,7 @@
             <td>::</td>
             <td><strong>from_restart</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -714,7 +785,7 @@
             <td>::</td>
             <td><strong>INpatch</strong></td>
             <td>
-                
+
             </td>
         </tr>
     </tbody>
@@ -724,9 +795,10 @@
           </li>
           <li class="list-group-item">
                 <h3>
-    private  subroutine readpar_r2(ncid, parname, completeSet, var_r2, filename, npatch, dimswitch, from_restart, INpatch)  
+    private  subroutine <a href='../proc/readpar_r2.html'>readpar_r2</a>(ncid, parname, completeSet, var_r2, filename, npatch, dimswitch, from_restart, INpatch)  
 
     </h3>
+    
   
 
   <h4>Arguments</h4>
@@ -752,7 +824,7 @@
             <td>::</td>
             <td><strong>ncid</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -767,7 +839,7 @@
             <td>::</td>
             <td><strong>parname</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -782,7 +854,7 @@
             <td>::</td>
             <td><strong>completeSet</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -797,7 +869,7 @@
             <td>::</td>
             <td><strong>var_r2</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -812,7 +884,7 @@
             <td>::</td>
             <td><strong>filename</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -827,7 +899,7 @@
             <td>::</td>
             <td><strong>npatch</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -842,7 +914,7 @@
             <td>::</td>
             <td><strong>dimswitch</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -857,7 +929,7 @@
             <td>::</td>
             <td><strong>from_restart</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -872,7 +944,7 @@
             <td>::</td>
             <td><strong>INpatch</strong></td>
             <td>
-                
+
             </td>
         </tr>
     </tbody>
@@ -882,9 +954,10 @@
           </li>
           <li class="list-group-item">
                 <h3>
-    private  subroutine readpar_r2d(ncid, parname, completeSet, var_r2d, filename, npatch, dimswitch, from_restart, INpatch)  
+    private  subroutine <a href='../proc/readpar_r2d.html'>readpar_r2d</a>(ncid, parname, completeSet, var_r2d, filename, npatch, dimswitch, from_restart, INpatch)  
 
     </h3>
+    
   
 
   <h4>Arguments</h4>
@@ -910,7 +983,7 @@
             <td>::</td>
             <td><strong>ncid</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -925,7 +998,7 @@
             <td>::</td>
             <td><strong>parname</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -940,7 +1013,7 @@
             <td>::</td>
             <td><strong>completeSet</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -955,7 +1028,7 @@
             <td>::</td>
             <td><strong>var_r2d</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -970,7 +1043,7 @@
             <td>::</td>
             <td><strong>filename</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -985,7 +1058,7 @@
             <td>::</td>
             <td><strong>npatch</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -1000,7 +1073,7 @@
             <td>::</td>
             <td><strong>dimswitch</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -1015,7 +1088,7 @@
             <td>::</td>
             <td><strong>from_restart</strong></td>
             <td>
-                
+
             </td>
         </tr>
         <tr>
@@ -1030,7 +1103,7 @@
             <td>::</td>
             <td><strong>INpatch</strong></td>
             <td>
-                
+
             </td>
         </tr>
     </tbody>
@@ -1049,6 +1122,806 @@
 
     <section>
     <h2>Subroutines</h2>
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-readpar_i"></span><h3>private  subroutine <a href='../proc/readpar_i.html'>readpar_i</a>(ncid, parname, completeSet, var_i, filename, npatch, dimswitch, from_restart, INpatch)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ncid</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>parname</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              logical,
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>completeSet</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>var_i</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>filename</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>npatch</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dimswitch</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>from_restart</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>INpatch</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-readpar_r"></span><h3>private  subroutine <a href='../proc/readpar_r.html'>readpar_r</a>(ncid, parname, completeSet, var_r, filename, npatch, dimswitch, from_restart, INpatch)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ncid</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>parname</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              logical,
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>completeSet</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real(kind=4),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>var_r</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>filename</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>npatch</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dimswitch</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>from_restart</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>INpatch</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-readpar_rd"></span><h3>private  subroutine <a href='../proc/readpar_rd.html'>readpar_rd</a>(ncid, parname, completeSet, var_rd, filename, npatch, dimswitch, from_restart, INpatch)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ncid</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>parname</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              logical,
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>completeSet</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real(kind=r_2),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>var_rd</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>filename</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>npatch</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dimswitch</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>from_restart</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>INpatch</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-readpar_r2"></span><h3>private  subroutine <a href='../proc/readpar_r2.html'>readpar_r2</a>(ncid, parname, completeSet, var_r2, filename, npatch, dimswitch, from_restart, INpatch)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ncid</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>parname</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              logical,
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>completeSet</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real(kind=4),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>var_r2</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>filename</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>npatch</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dimswitch</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>from_restart</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>INpatch</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+      <div class="panel panel-default">
+    <div class="panel-heading codesum"><span class="anchor" id="proc-readpar_r2d"></span><h3>private  subroutine <a href='../proc/readpar_r2d.html'>readpar_r2d</a>(ncid, parname, completeSet, var_r2d, filename, npatch, dimswitch, from_restart, INpatch)  
+</h3></div>
+    <div class="panel-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ncid</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>parname</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              logical,
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>completeSet</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              real(kind=r_2),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              DIMENSION(:, :)
+            </td>
+            <td>::</td>
+            <td><strong>var_r2d</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>filename</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>npatch</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dimswitch</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>from_restart</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>INpatch</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
       <div class="panel panel-default">
     <div class="panel-heading codesum"><span class="anchor" id="proc-redistr_i"></span><h3>public  subroutine <a href='../proc/redistr_i.html'>redistr_i</a>(INpatch, nap, in_i, out_i, parname)  
 </h3></div>
