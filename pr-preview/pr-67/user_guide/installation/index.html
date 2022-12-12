@@ -1273,6 +1273,9 @@
 </ul>
 <h2 id="flowchart-of-the-installation">Flowchart of the installation</h2>
 <pre class="mermaid"><code>graph TD
+    UserAction(User command to run);
+    Automatic(Automatic step of the build script);
+    Output(Output of the build script):::Output;
     A(Checkout CABLE with SVN):::UserAction --&gt;|Serial?| B(Run `offline/build3.sh`):::UserAction;
     B --&gt; D[load modules, set compiler flags, create .tmp/ directory];
     D --&gt;|Serial?| E[Run `serial_cable`];
@@ -1288,7 +1291,8 @@
     click E "http://cable-lsm.github.io/CABLE/user_guide/tutorial/compilation/#description-of-the-build-process"
     click F "http://cable-lsm.github.io/CABLE/user_guide/tutorial/compilation/#description-of-the-build-process"
 
-    classDef UserAction fill: #FEFB8E</code></pre>
+    classDef UserAction fill:#FEFB8E
+    classDef Output fill:#cefe8e</code></pre>
 <h2 id="getting-the-cable-source-code">Getting the CABLE source code</h2>
 <p>CABLE can be downloaded from the <a href="https://trac.nci.org.au/svn/cable">subversion repository</a> hosted at <a href="https://nci.org.au">NCI</a> once a user has requested admission to the CABLE software group at NCI, as described <a href="https://trac.nci.org.au/trac/cable/wiki/CABLE_Registration">here</a>. To install the latest version of CABLE, you simply need to checkout the <code>trunk</code>:</p>
 <pre><code>svn checkout https://trac.nci.org.au/svn/cable/trunk
