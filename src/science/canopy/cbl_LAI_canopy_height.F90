@@ -1,4 +1,7 @@
 module cbl_LAI_canopy_height_mod
+  !* This MODULE contains the SUBROUTINE [[limit_HGT_LAI]].  This routine
+  ! places limits on the values of the leaf area and canopy height to ensure
+  ! realism.
 
 contains
 
