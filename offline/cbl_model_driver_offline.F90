@@ -149,16 +149,23 @@ call Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
              xk, c1, rhoch,                                                & 
              rad%fbeam, rad%albedo,                                        &
              !RadFbeam, RadAlbedo,
-             rad%extkd, rad%extkb,                                         & 
-             !ExtCoeff_dif, ExtCoeff_beam,
-             rad%extkdm, rad%extkbm,                                       & 
-             !EffExtCoeff_dif, EffExtCoeff_beam,                
-             rad%rhocdf, rad%rhocbm,                                       &
-             !CanopyRefl_dif,CanopyRefl_beam,
-             rad%cexpkdm, rad%cexpkbm,                                     & 
-             !CanopyTransmit_dif, CanopyTransmit_beam, 
-             rad%reffdf, rad%reffbm                                        &
-           ) !EffSurfRefl_dif, EffSurfRefl_beam 
+             rad%extkb, rad%extkd,                                          & 
+             !ExtCoef_beam, ExtCoeff,
+             rad%extkbm, rad%extkdm,                                        & 
+             !EffExtCoeff_beam, EffExtCoeff_dif,                
+             rad%rhocbm, rad%rhocdf,                                        &
+             !CanopyRefl_beam,CanopyRefl_dif,
+             rad%cexpkbm, rad%cexpkdm,                                      & 
+             !CanopyTransmit_beam, CanopyTransmit_dif, 
+             rad%reffbm, rad%reffdf                                        &
+           ) !EffSurfRefl_beam, EffSurfRefl_dif
+
+
+         
+      ENDIF
+   
+   ! Calculate canopy variables:
+   CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy, climate, sunlit_veg_mask, canopy%vlaiw )
 
 
 ssnow%otss_0 = ssnow%otss  ! vh should be before call to canopy?
