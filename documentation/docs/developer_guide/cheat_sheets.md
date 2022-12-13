@@ -6,9 +6,9 @@ A minimum set of git commands used in the workflow for CABLE is given in the fol
 
 | Command | Description |
 | ------- | ----------- |
-| git clone <URL> | create a working copy of a remote repository |
+| git clone <URL\> | create a working copy of a remote repository |
 | git checkout <branchname\> | Switch to a different branch <br> creates the branch if it does not exist |
-| git add . | Add all modifications to the index before committing to git |
+| git add <filenames\> | Add files with modifications and new files to the index before committing to git |
 | git commit | Commit the index. You need to add an informative comment |
 | git push | Send your local changes to the remote repository |
 | git pull | Update your checkout branch with the state on the remote repository  |
