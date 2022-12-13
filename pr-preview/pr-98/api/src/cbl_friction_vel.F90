@@ -3,7 +3,8 @@ MODULE cbl_friction_vel_module
   ! FUNCTIONS ([[psim]] and [[psis]]) needed to
   ! evaluate the friction velocity over each land point/tile
   ! given the wind speed and the current estimate of the Monin-Obukhov
-  ! stability parameter \(\xi\) (see [[ruff_resist]] and [[define_canopy]])
+  ! stability parameter \(\xi\). Outputs `friction_vel`, `psim` and
+  ! `psis` are used in [[define_canopy]].
 
 IMPLICIT NONE
 
@@ -52,7 +53,7 @@ SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
   ! Consequently the formula for \(\psi_m\) used includes conversion
   ! factors to account for the different reference levels.
   ! `zref_uv` and `zref_tq` passed to comp_friction_vel are the heights above
-  ! the displacement height `rough%disp`
+  ! the displacement height `rough%disp`.
   !
   !## References
   !
@@ -68,7 +69,7 @@ INTEGER, INTENT(IN) :: iter             !! MO iteration counter (-)
 REAL, INTENT(IN) :: CVONK               !! von Karman constant (-)
 REAL, INTENT(IN):: CUMIN                !! minimum value of wind speed (ms\(^{-1}\))
 ! maths & other constants
-REAL, INTENT(IN) :: CPI_C               !! PI (-)
+REAL, INTENT(IN) :: CPI_C               !! PI (=3.14...) (-)
 
 REAL, INTENT(IN) :: zetar(mp,iter)      !! stability parameter - see [[update_zetar]] `canopy%zetar` (-)
 REAL, INTENT(IN) :: zref_uv(mp)         !! reference height for wind `rough%zref_uv` (m)
@@ -107,12 +108,12 @@ FUNCTION psim(zeta, mp, CPI_C ) RESULT(r)
   !*## Purpose
   !
   ! Evaluates the integrated similarity function for momentum transfer,
-  ! \(\psi_m(\xi)\)
+  ! \(\psi_m(\xi)\).
   ! Uses the Businger-Dyer form for unstable conditions (\(\xi<0\)) and the
-  ! Beljaars-Holtslag form for stable conditions (\(\xi>0\))
+  ! Beljaars-Holtslag form for stable conditions (\(\xi>0\)).
   !
   ! This function is used in the evaluation of the friction velocity in
-  ! [[comp_friction_vel]]
+  ! [[comp_friction_vel]].
   !
   !## References
   ! - [Beljaars and Holtslag (1991)](https://doi.org/10.1175/1520-0450(1991)030<0327:FPOLSF>2.0.CO;2)
@@ -126,7 +127,7 @@ FUNCTION psim(zeta, mp, CPI_C ) RESULT(r)
 
 INTEGER, INTENT(IN) :: mp                !! size of cable vector of land points (-)
 REAL, INTENT(IN), DIMENSION(mp) ::  zeta !! IN current value of stability parameter \(\xi\) (-)
-REAL, INTENT(IN) :: CPI_C                !! PI
+REAL, INTENT(IN) :: CPI_C                !! PI (=3.14...) (-)
 
 ! function result
 REAL, DIMENSION(mp) :: r                 !! OUT \(\psi_m (\xi) \)
@@ -165,7 +166,7 @@ ELEMENTAL FUNCTION psis(zeta) RESULT(r)
   ! Beljaars-Holtslag form for stable conditions (\(\xi>0\)).
   !
   ! This function is used in the evaluation of the resistance network component
-  ! `rt1usc` in [[define_canopy]]
+  ! `rt1usc` in [[define_canopy]].
   !
   !## References
   ! - [Beljaars and Holtslag (1991)](https://doi.org/10.1175/1520-0450(1991)030<0327:FPOLSF>2.0.CO;2)
