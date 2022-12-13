@@ -1,8 +1,8 @@
 MODULE cbl_friction_vel_module
   !* This MODULE contains the SUBROUTINE [[comp_friction_vel]] and two
   ! FUNCTIONS ([psim]] and [[psis]]) needed to
-  ! evaluate the value of the friction velocity over each land point/tile
-  ! given the wind speed and current estiamte of the Monin-Obukhov
+  ! evaluate the friction velocity over each land point/tile
+  ! given the wind speed and the current estimate of the Monin-Obukhov
   ! stability parameter \(\xi\) (see [[ruff_resist]] and [[define_canopy]])
 
 IMPLICIT NONE
@@ -23,19 +23,34 @@ SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
   ! during the iteration loop of the Monin-Obuhkov (MO) similarity theory in
   ! [[define_canopy]] (when quantifying the stability parameter `canopy%zetar`
   ! in [[update_zetar]]); and as used when evaluating the resistant network.
-  ! The friction velocity quantifies the magnitude of turbulent mixing.
+  ! The friction velocity quantifies the magnitude of turbulent mixing and
+  ! the flux of momentum from the atmosphere to the land.
   !
   ! The output `friction_vel` is known as `canopy%us` elsewhere in the code.
   !
   ! The basic formula is
   !
-  ! \( U(z_{ref}) = u_* ( \log [z_ref/z_{0m}] - \Psi_m(\xi\) +
-  !  \Psi_m(\xi z_{0m}/z_{ref})
+  ! \( u_{*} = U(z_{ref}) / ( \log [z_{ref}/z_{0m}] -
+  !      \Psi_m(\xi z_{ref}/z_{refTq})
+  !    + \Psi_m(\xi z_{0m}/z_{refTq}) ) \)
   !
-  ! with \(\Psi_m\) the integrated similarity function given in [[psim]].
-  ! A minimum value of inupt wind speed is applied to assist with convergence
-  ! in light wind conditions.
-  ! Small and large value limits are applied to the evaluated \(u_*\). 
+  ! with \(\Psi_m\) the integrated similarity function given by [[psim]],
+  ! \(U\) the wind speed at height \(z_{ref}\),
+  ! \(\xi\) the current value of the stability parameter, and \(z_{0m}\) the
+  ! roughness length.
+  ! A minimum value of input wind speed, `ua`= \(U(z_{ref})\) is applied
+  ! to assist with convergence of the iteration in light wind conditions.
+  ! Small and large value limits are applied to the evaluated \(u_*\).
+  !
+  ! **NOTE** Most references assume that the reference levels for wind and
+  ! temperature are equal inside the arguments to the stability functions
+  ! \(\Psi_m\) and \(\Psi_s\) - in CABLE this need not be true.
+  ! \(\xi\) is always defined relative to the reference level for temperature,
+  ! in \(\Psi_m\) the reference height for wind is needed.
+  ! Consequently the formula for \(\Psi_m\) used includes conversion
+  ! factors to account for the different reference levels.
+  ! `zref_uv` and `zref_tq` passed to comp_friction_vel are the heights above
+  ! the displacement height `rough%disp`
   !
   !## References
   ![Kowalczyk et al. (2006)](http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf)
@@ -44,19 +59,19 @@ SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
 IMPLICIT NONE
 
 INTEGER, INTENT(IN) :: mp               !! size of cable vector of land points (-)
-REAL, INTENT(OUT) :: friction_vel(mp)   !! friction velocity (ms\(^{-2}\))
+REAL, INTENT(OUT) :: friction_vel(mp)   !! friction velocity (ms\(^{-1}\))
 INTEGER, INTENT(IN) :: iter             !! MO iteration counter (-)
 ! physical constants
-REAL, INTENT(IN) :: CVONK               !! von Karman constant
+REAL, INTENT(IN) :: CVONK               !! von Karman constant (-)
 REAL, INTENT(IN):: CUMIN                !! minimum value of wind speed (ms\(^{-1}\))
 ! maths & other constants
-REAL, INTENT(IN) :: CPI_C               !! PI
+REAL, INTENT(IN) :: CPI_C               !! PI (-)
 
 REAL, INTENT(IN) :: zetar(mp,iter)      !! stability parameter - see [[update_zetar]] `canopy%zetar` (-)
-REAL, INTENT(IN) :: zref_uv(mp)         !! reference height for wind `rough%zref_uv (m)
+REAL, INTENT(IN) :: zref_uv(mp)         !! reference height for wind `rough%zref_uv` (m)
 REAL, INTENT(IN) :: zref_tq(mp)         !! reference height for temperature and humidity `rough%zref_tq` (m)
 REAL, INTENT(IN) :: z0m(mp)             !! roughness length `rough%z0m` (m)
-REAL, INTENT(IN) :: ua(mp)              !! wind speed `met%ua` (ms\(^{-1}\)
+REAL, INTENT(IN) :: ua(mp)              !! wind speed `met%ua` (ms\(^{-1}\))
 
 !local vars
 REAL :: lower_limit(mp), rescale(mp)
@@ -88,7 +103,8 @@ END SUBROUTINE comp_friction_vel
 FUNCTION psim(zeta, mp, CPI_C ) RESULT(r)
   !* Purpose
   !
-  ! Evaluates the integrated similarity function for momentum transfer
+  ! Evaluates the integrated similarity function for momentum transfer,
+  ! \(\Psi_m(\xi)\)
   ! Uses the Businger-Dyer form for unstable conditions (\(\xi<0\)) and the
   ! Beljaars-Holtslag form for stable conditions (\(\xi>0\))
   !
@@ -142,7 +158,7 @@ ELEMENTAL FUNCTION psis(zeta) RESULT(r)
   !* Purpose
   !
   ! Evaluates the integrated similarity function for turbulent transfer
-  ! of scalars.
+  ! of scalars, \(\Psi_s(\xi)\).
   ! Uses the Businger-Dyer form for unstable conditions (\(\xi<0\)) and the
   ! Beljaars-Holtslag form for stable conditions (\(\xi>0\))
   !
@@ -156,7 +172,7 @@ ELEMENTAL FUNCTION psis(zeta) RESULT(r)
 ! for scalars, using the businger-dyer form for unstable cases
 ! and the webb form for stable cases. see paulson (1970).
 
-REAL, INTENT(IN)     :: zeta
+REAL, INTENT(IN)     :: zeta  !! IN current value of stability parameter \(\xi\) (-)
 
 REAL, PARAMETER      ::                                                     &
      gu = 16.0,        & !
@@ -167,7 +183,7 @@ REAL, PARAMETER      ::                                                     &
      d = 0.35
 
 REAL                 ::                                                     &
-     r,                & !
+     r,                & !! OUT \(\Psi_s (\xi) \)
      stzeta,           & !
      ustzeta,          & !
      z,                & !
