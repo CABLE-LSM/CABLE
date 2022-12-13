@@ -11,7 +11,7 @@ A minimum set of git commands used in the workflow for CABLE is given in the fol
 | git add . | Add all modifications to the index before committing to git |
 | git commit | Commit the index. You need to add an informative comment |
 | git push | Send your local changes to the remote repository |
-| git pull | Update your local branch with the state on the remote repository  |
+| git pull | Update your checkout branch with the state on the remote repository  |
 | git branch -d <branchname\> | Delete a local branch. You need to have a different branch <br> currently checked out |
 
 Additional commands and information can be found in [this "simple guide"][git-simple-guide]
