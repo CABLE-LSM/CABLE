@@ -163,15 +163,15 @@ call Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
              xk, c1, rhoch,                                                 & 
              rad%fbeam, rad%albedo,                                         &
              !RadFbeam, RadAlbedo,
-             rad%extkd, rad%extkb,                                          & 
+             rad%extkb, rad%extkd,                                          & 
              !ExtCoeff_dif, ExtCoeff_beam,
-             rad%extkdm, rad%extkbm,                                        & 
+             rad%extkbm, rad%extkdm,                                        & 
              !EffExtCoeff_dif, EffExtCoeff_beam,                
-             rad%rhocdf, rad%rhocbm,                                        &
+             rad%rhocbm, rad%rhocdf,                                        &
              !CanopyRefl_dif,CanopyRefl_beam,
-             rad%cexpkdm, rad%cexpkbm,                                      & 
+             rad%cexpkbm, rad%cexpkdm,                                      & 
              !CanopyTransmit_dif, CanopyTransmit_beam, 
-             rad%reffdf, rad%reffbm                                        &
+             rad%reffbm, rad%reffdf                                        &
            ) !EffSurfRefl_dif, EffSurfRefl_beam 
 
 
