@@ -162,11 +162,11 @@ CALL Albedo( AlbSnow, AlbSoil,                                                 &
              SnowDepth, SnowDensity, SoilTemp, SnowAge,                        &
              xk, c1, rhoch,                                                    &
              RadFbeam, RadAlbedo,                                              &
-             ExtCoeff_dif, ExtCoeff_beam,                                      &
-             EffExtCoeff_dif, EffExtCoeff_beam,                                &
-             CanopyRefl_dif,CanopyRefl_beam,                                   &
-             CanopyTransmit_dif, CanopyTransmit_beam,                          &
-             EffSurfRefl_dif, EffSurfRefl_beam )
+             ExtCoeff_beam, ExtCoeff_dif,                                      &
+             EffExtCoeff_beam, EffExtCoeff_dif,                                &
+             CanopyRefl_beam,CanopyRefl_dif,                                   &
+             CanopyTransmit_beam, CanopyTransmit_dif,                          &
+             EffSurfRefl_beam, EffSurfRefl_dif )
 
 RETURN
 

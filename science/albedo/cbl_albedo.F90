@@ -313,13 +313,13 @@ REAL, INTENT(IN) :: CanopyTransmit_dif(mp,nrb)  ! Transmitance (rad%cexpkdm)
 REAL, INTENT(IN) :: CanopyTransmit_beam(mp,nrb) ! Transmitance (rad%cexpkbm)
 REAL, INTENT(IN) :: AlbSnow(mp,nrb)           ! snow adjustd Alb ssnow%albsoilsn
 
-!Surface reflectance to Difuse Radiation
-call EffectiveReflectance( EffSurfRefl_dif, mp, nrb, CanopyRefl_dif, AlbSnow, &
-                           CanopyTransmit_dif, veg_mask )
-
 !Surface reflectance to Direct Beam  Radiation
 call EffectiveReflectance( EffSurfRefl_beam, mp, nrb, CanopyRefl_beam, AlbSnow,&
                            CanopyTransmit_beam, veg_mask )
+
+!Surface reflectance to Difuse Radiation
+call EffectiveReflectance( EffSurfRefl_dif, mp, nrb, CanopyRefl_dif, AlbSnow, &
+                           CanopyTransmit_dif, veg_mask )
 
 RETURN
 End subroutine EffectiveSurfaceReflectance
@@ -347,7 +347,7 @@ DO i = 1,mp
   DO b = 1, (nrb-1) !because nrb=3 due to legacy
     IF ( mask(i) ) THEN
       
-         ! Calculate effective beam reflectance (fraction):
+      ! Calculate effective reflectance (fraction):
       EffRefl(i,b) = CanopyRefl(i,b) + ( AlbSnow(i,b) - CanopyRefl(i,b) )      &
                             * CanopyTransmit(i,b)**2
 
