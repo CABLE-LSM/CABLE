@@ -163,9 +163,10 @@
     
     <div class="col-md-9" id='text'>
     <h1>Overview of <code>landuse_variable</code> module (landuse3.F90)</h1>
-<p>This MODULE applies land use changes for CABLE including:</p>
+<p>This MODULE applies land-use changes for CABLE.</p>
+<p>This includes:</p>
 <ul>
-<li>PFT transition</li>
+<li>plant functional type transitions</li>
 <li>wood harvest</li>
 <li>land management</li>
 </ul>
@@ -182,7 +183,7 @@
 <li><code>lucmp%var(mp)</code> contains the variable data, indexed using the patch
     number from 1 to <code>mp</code>.</li>
 </ul>
-<p>The land use change for each variable is applied in the form of a
+<p>The land-use change for each variable is applied in the form of a
  transformation matrix <code>T</code>, such that:</p>
 <p>
 <script type="math/tex; mode=display"> \textbf{luc%var_y} = \textbf{luc%var_x} \cdot \textbf{T} </script>
@@ -285,7 +286,7 @@
       </h3>
     </div>
     <div class="panel-body">
-      
+      <p>Land-use change data for vegetation undergoing land-use transition.</p>
 
         <h4>Components</h4>
           <table class="table table-striped varlist">
@@ -2561,7 +2562,8 @@
       </h3>
     </div>
     <div class="panel-body">
-      
+      <p>Land-use data for vegetation patches undergoing wood harvest or
+management.</p>
 
         <h4>Components</h4>
           <table class="table table-striped varlist">

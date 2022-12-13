@@ -5,9 +5,11 @@ MODULE landuse_variable
   SAVE
   !*# Overview of `landuse_variable` module (landuse3.F90)
   !
-  ! This MODULE applies land use changes for CABLE including:
+  ! This MODULE applies land-use changes for CABLE.
   !
-  ! - PFT transition
+  ! This includes:
+  !
+  ! - plant functional type transitions
   ! - wood harvest
   ! - land management
   !
@@ -26,7 +28,7 @@ MODULE landuse_variable
   ! - `lucmp%var(mp)` contains the variable data, indexed using the patch
   !    number from 1 to `mp`.
   !
-  ! The land use change for each variable is applied in the form of a
+  ! The land-use change for each variable is applied in the form of a
   ! transformation matrix `T`, such that:
   !
   ! \[ \textbf{luc%var_y} = \textbf{luc%var_x} \cdot \textbf{T} \]
@@ -43,6 +45,7 @@ MODULE landuse_variable
   ! **WARNING:** there are external procedures in this file that should be
   ! moved to the `CONTAINS` clause of this module.
   TYPE landuse_mland
+    !! Land-use change data for vegetation undergoing land-use transition.
     ! patch generic
     INTEGER,   DIMENSION(:,:),       ALLOCATABLE :: iveg_x
     INTEGER,   DIMENSION(:,:),       ALLOCATABLE :: isoil_x
@@ -188,6 +191,8 @@ MODULE landuse_variable
   END TYPE landuse_mland
 
   TYPE landuse_mp
+   !! Land-use data for vegetation patches undergoing wood harvest or
+   !! management.
 
    ! generic patch properties
    integer,    dimension(:),        allocatable   :: iveg,isoil,soilorder,phase,isflag           !(mp)
@@ -363,7 +368,7 @@ MODULE landuse_variable
             luc%nwoodprod_y(mland,mvmax,mwood),  &
             luc%pwoodprod_y(mland,mvmax,mwood))
 
-    ! land use variables
+    ! land-use variables
    ALLOCATE(luc%pftfrac(mland,mvtype),           &
             luc%fharvw(mland,mharvw),            &
             luc%xluh2cable(mland,mvmax,mstate),  &
@@ -594,7 +599,7 @@ MODULE landuse_variable
               luc%cwoodprod_y,       &
               luc%nwoodprod_y,       &
               luc%pwoodprod_y)
-   !land use variables    
+   !land-use variables
    DEALLOCATE(luc%pftfrac,           &
               luc%fharvw,            &
               luc%xluh2cable,        &
@@ -715,7 +720,7 @@ END MODULE landuse_variable
   subroutine landuse_driver(mlon,mlat,landmask,arealand,ssnow,soil,veg,bal,canopy,  &
                             phen,casapool,casabal,casamet,casabiome,casaflux,bgc,rad, &
                             cstart,cend,nap,lucmp)
-  !! Main driver for the land use change
+  !! Main driver for the land-use change
   !  
   USE cable_IO_vars_module, ONLY: mask,patch,landpt, latitude, longitude
   USE cable_def_types_mod,  ONLY: mp,mvtype,mstype,mland,r_2,ms,msn,nrb,ncp,ncs,           &
@@ -760,7 +765,7 @@ END MODULE landuse_variable
      call landuse_allocate_mland(mland,luc)                                                     !setup "varx(mland,:)"        
      print *, 'exiting  allocating mland: landuse'
 
-     ! get the mapping matrix from state to PFT
+     ! get the mapping matrix from state to plant functional type
      ! call landuse_getxluh2(mlat,mlon,landmask,luc,filename%fxluh2cable)    !"xluh2cable"
      ! call landuse_getdata(mlat,mlon,landmask,filename%fxpft,luc)     !"luc(t-1)" and "xpft(t-1)"
 
@@ -892,7 +897,7 @@ END MODULE landuse_variable
 !     print *, 'calling mp2land: landuse'
      call landuse_mp2land(luc,lucmp,mp,cstart,cend)
 
-     ! we need to deallocate "lucmp" because "mp" will be updated after land use change
+     ! we need to deallocate "lucmp" because "mp" will be updated after land-use change
 !     print *, 'calling deallocate mp: landuse'
      call landuse_deallocate_mp(mp,ms,msn,nrb,mplant,mlitter,msoil,mwood,lucmp)
 
@@ -1150,13 +1155,13 @@ END SUBROUTINE landuse_mp2land
 SUBROUTINE landuse_transitx(luc,casabiome)
    !*## Purpose
    !
-   ! This subroutine applies the land use changes to the transfer of the C,
+   ! This subroutine applies the land-use changes to the transfer of the C,
    ! N and P pools, the biophysical states, the soil texture and the soil
    ! order for each patch. Then it will seed the deforested land.
    !
    !## Order of procedure
    !
-   ! 1. the transfer of different C, N and P pools resulting from land use
+   ! 1. the transfer of different C, N and P pools resulting from land-use
    ! change in two steps
    !     1. calculate the change of a pool (`delvar`) using transition
    !     matrix (`T`)
@@ -1600,8 +1605,11 @@ SUBROUTINE landuse_transitx(luc,casabiome)
 END SUBROUTINE landuse_transitx
 
    SUBROUTINE landuse_redistribution(p,mvmax,delfracx,atransx)
-      ! redistribution the PFT atrsnition to ensure that the change in PFT fractions from the state
-      ! data is consistent with the estimates from previous states and transition
+      !*## Purpose
+      !
+      ! Redistribution of the plant functional type transition to ensure that
+      ! the change in plant functional type fractions from the state data is
+      ! consistent with the estimates from previous states and transition.
       USE cable_def_types_mod,    ONLY: r_2
       implicit none
       real,    parameter                          :: thresh_frac=1.0e-6
@@ -1880,7 +1888,8 @@ END SUBROUTINE landuse_transitx
  END SUBROUTINE landuse_land2mpx
 
  SUBROUTINE landuse_checks(mlon,mlat,landmask,luc)
- !! Checks the mass balance and writes the output CNP pool sizes for each PFT
+ !! Checks the mass balance and writes the output CNP pool sizes for each
+ !! plant functional type.
  use landuse_constant,     ONLY: mvmax
  use landuse_variable,     ONLY: landuse_mland
  USE cable_def_types_mod,  ONLY: mland,r_2

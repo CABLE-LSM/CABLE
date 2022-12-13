@@ -352,17 +352,20 @@ present. The formulae assume that the leaf area is distributed uniformly
 in the vertical within the canopy.</p><a href="../proc/lai_eff.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/landuse_allocate_mland.html'>landuse_allocate_mland</a></td><td><a href='../module/landuse_variable.html'>landuse_variable</a></td><td>Subroutine</td><td><p>Allocates the <code>luc%%var(mland,mvmax)</code> variables</p></td></tr>
 			   <tr><td><a href='../proc/landuse_allocate_mp.html'>landuse_allocate_mp</a></td><td><a href='../module/landuse_variable.html'>landuse_variable</a></td><td>Subroutine</td><td><p>Allocates the <code>luc%var(mp)</code> variables.</p></td></tr>
-			   <tr><td><a href='../proc/landuse_checks.html'>landuse_checks</a></td><td><a href='../sourcefile/landuse3.f90.html'>landuse3.F90</a></td><td>Subroutine</td><td><p>Checks the mass balance and writes the output CNP pool sizes for each PFT</p></td></tr>
+			   <tr><td><a href='../proc/landuse_checks.html'>landuse_checks</a></td><td><a href='../sourcefile/landuse3.f90.html'>landuse3.F90</a></td><td>Subroutine</td><td><p>Checks the mass balance and writes the output CNP pool sizes for each
+plant functional type.</p></td></tr>
 			   <tr><td><a href='../proc/landuse_data.html'>landuse_data</a></td><td><a href='../sourcefile/landuse_inout.f90.html'>landuse_inout.F90</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/landuse_deallocate_mland.html'>landuse_deallocate_mland</a></td><td><a href='../module/landuse_variable.html'>landuse_variable</a></td><td>Subroutine</td><td><p>Deallocates the <code>luc%var(mland,mvmax)</code> variables</p></td></tr>
 			   <tr><td><a href='../proc/landuse_deallocate_mp.html'>landuse_deallocate_mp</a></td><td><a href='../module/landuse_variable.html'>landuse_variable</a></td><td>Subroutine</td><td><p>Deallocate the <code>luc%var(mp)</code> variables</p></td></tr>
-			   <tr><td><a href='../proc/landuse_driver.html'>landuse_driver</a></td><td><a href='../sourcefile/landuse3.f90.html'>landuse3.F90</a></td><td>Subroutine</td><td><p>Main driver for the land use change</p></td></tr>
+			   <tr><td><a href='../proc/landuse_driver.html'>landuse_driver</a></td><td><a href='../sourcefile/landuse3.f90.html'>landuse3.F90</a></td><td>Subroutine</td><td><p>Main driver for the land-use change</p></td></tr>
 			   <tr><td><a href='../proc/landuse_getdata.html'>landuse_getdata</a></td><td><a href='../sourcefile/landuse_inout.f90.html'>landuse_inout.F90</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/landuse_getxluh2.html'>landuse_getxluh2</a></td><td><a href='../sourcefile/landuse_inout.f90.html'>landuse_inout.F90</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/landuse_land2mpx.html'>landuse_land2mpx</a></td><td><a href='../sourcefile/landuse3.f90.html'>landuse3.F90</a></td><td>Subroutine</td><td><p>Maps <code>luc%var_y(mland,mvmax)</code> to <code>lucmp%var(mp)</code></p></td></tr>
 			   <tr><td><a href='../proc/landuse_mp2land.html'>landuse_mp2land</a></td><td><a href='../sourcefile/landuse3.f90.html'>landuse3.F90</a></td><td>Subroutine</td><td><p>Assigns <code>lucmp%var(mp)</code> to <code>luc%var_x(mland,mvmax)</code></p></td></tr>
-			   <tr><td><a href='../proc/landuse_redistribution.html'>landuse_redistribution</a></td><td><a href='../sourcefile/landuse3.f90.html'>landuse3.F90</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/landuse_transitx.html'>landuse_transitx</a></td><td><a href='../sourcefile/landuse3.f90.html'>landuse3.F90</a></td><td>Subroutine</td><td><p>This subroutine applies the land use changes to the transfer of the C,
+			   <tr><td><a href='../proc/landuse_redistribution.html'>landuse_redistribution</a></td><td><a href='../sourcefile/landuse3.f90.html'>landuse3.F90</a></td><td>Subroutine</td><td><p>Redistribution of the plant functional type transition to ensure that
+ the change in plant functional type fractions from the state data is
+ consistent with the estimates from previous states and transition.</p><a href="../proc/landuse_redistribution.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/landuse_transitx.html'>landuse_transitx</a></td><td><a href='../sourcefile/landuse3.f90.html'>landuse3.F90</a></td><td>Subroutine</td><td><p>This subroutine applies the land-use changes to the transfer of the C,
  N and P pools, the biophysical states, the soil texture and the soil
  order for each patch. Then it will seed the deforested land.</p><a href="../proc/landuse_transitx.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/landuse_update_mland.html'>landuse_update_mland</a></td><td><a href='../sourcefile/landuse3.f90.html'>landuse3.F90</a></td><td>Subroutine</td><td><p>Assigns <code>luc%var_y</code> to <code>luc%var_x</code></p></td></tr>
