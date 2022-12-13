@@ -1,6 +1,6 @@
 # Flowchart to contribute to CABLE's documentation
 
-This workflow assumes you have followed all the steps to [setup Git and GitHub][git-training] given by ACCESS-NRI.
+This workflow assumes you have followed all the steps to [setup Git and GitHub][git-training] given by ACCESS-NRI. You can also use [this cheat sheet][git-cheatsheet] for a quick reference to the main Git commands to use.
 
 This first flowchart explains what we are trying to do. The following flowcharts go into the details, including the various git commands needed. All the git commands listed are to be run in a terminal on the machine you are working on.
 
@@ -251,3 +251,4 @@ git branch --delete <branchname>
 
 [git-training]: https://access-nri.github.io/Training/HowTos/GitAndGitHub/
 [CABLE-repo]: https://github.com/CABLE-LSM/CABLE
+[git-cheatsheet]: cheat_sheets.md#git
