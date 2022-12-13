@@ -220,13 +220,13 @@
 <a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">     </span><span class="n">zetar</span><span class="p">,</span><span class="w"> </span><span class="n">zref_uv</span><span class="p">,</span><span class="w"> </span><span class="n">zref_tq</span><span class="p">,</span><span class="w"> </span><span class="n">z0m</span><span class="p">,</span><span class="w"> </span><span class="n">ua</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">  </span><span class="c">!*## Purpose</span>
 <a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">  </span><span class="c">!</span>
-<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">  </span><span class="c">! This SUBROUTINE evaluates the value of the frction velocity \(u_*\) as used</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">  </span><span class="c">! This SUBROUTINE evaluates the value of the friction velocity \(u_*\) as used</span>
 <a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">  </span><span class="c">! during the iteration loop of the Monin-Obuhkov (MO) similarity theory in</span>
-<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">  </span><span class="c">! [[define_canopy]] (when quantifying the stability parameter `canopy%zetar`</span>
-<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">  </span><span class="c">! in [[update_zetar]]); and when evaluating the resistant network component</span>
-<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">  </span><span class="c">! `rt1usc` in [[define_canopy]].</span>
-<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">  </span><span class="c">! The friction velocity quantifies the magnitude of turbulent mixing and</span>
-<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">  </span><span class="c">! the flux of momentum from the atmosphere to the land.</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">  </span><span class="c">! [[define_canopy]]. \(u_*\) is used when quantifying the stability</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">  </span><span class="c">! parameter `canopy%zetar` in [[update_zetar]]) and when evaluating the</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">  </span><span class="c">! resistance network components `rt0` and `rt1` in [[define_canopy]].</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">  </span><span class="c">! The friction velocity quantifies the magnitude of turbulent mixing as well</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">  </span><span class="c">! as the flux of momentum from the atmosphere to the land.</span>
 <a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">  </span><span class="c">!</span>
 <a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">  </span><span class="c">! The output `friction_vel` is known as `canopy%us` elsewhere in the code.</span>
 <a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">  </span><span class="c">!</span>

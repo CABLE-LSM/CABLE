@@ -20,13 +20,13 @@ SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
      zetar, zref_uv, zref_tq, z0m, ua )
   !*## Purpose
   !
-  ! This SUBROUTINE evaluates the value of the frction velocity \(u_*\) as used
+  ! This SUBROUTINE evaluates the value of the friction velocity \(u_*\) as used
   ! during the iteration loop of the Monin-Obuhkov (MO) similarity theory in
-  ! [[define_canopy]] (when quantifying the stability parameter `canopy%zetar`
-  ! in [[update_zetar]]); and when evaluating the resistant network component
-  ! `rt1usc` in [[define_canopy]].
-  ! The friction velocity quantifies the magnitude of turbulent mixing and
-  ! the flux of momentum from the atmosphere to the land.
+  ! [[define_canopy]]. \(u_*\) is used when quantifying the stability
+  ! parameter `canopy%zetar` in [[update_zetar]]) and when evaluating the
+  ! resistance network components `rt0` and `rt1` in [[define_canopy]].
+  ! The friction velocity quantifies the magnitude of turbulent mixing as well
+  ! as the flux of momentum from the atmosphere to the land.
   !
   ! The output `friction_vel` is known as `canopy%us` elsewhere in the code.
   !
