@@ -55,6 +55,7 @@ USE cable_math_constants_mod,  ONLY: cpi180 => pi180
    USE cable_common_module, ONLY : cable_runtime, cable_user
    
 USE cbl_init_radiation_module, ONLY: Common_InitRad_Scalings
+USE grid_constants_mod_cbl, ONLY : ICE_SoilType, lakes_cable
 
    IMPLICIT NONE                     
 
@@ -150,11 +151,8 @@ call Common_InitRad_Scalings( xphi1, xphi2, xk, xvlai2, c1, rhoch,             &
                             mp, nrb, Cpi180,cLAI_thresh, veg_mask,             &
                             canopy%vlaiw, Veg%Xfang, Veg%Taul, Veg%Refl)
 
- CALL Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
-             !AlbSnow, AlbSoil,              
-             mp, nrb,                                                       &
-             jls_radiation,                                                 &
-             veg_mask, sunlit_mask, sunlit_veg_mask,                        &  
+call Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
+             mp, nrb, ICE_SoilType, lakes_cable, jls_radiation, veg_mask,       &
              Ccoszen_tols, cgauss_w,                                        & 
              veg%iveg, soil%isoilm, veg%refl, veg%taul,                     & 
              !surface_type, VegRefl, VegTaul,
@@ -175,6 +173,9 @@ call Common_InitRad_Scalings( xphi1, xphi2, xk, xvlai2, c1, rhoch,             &
              !CanopyTransmit_dif, CanopyTransmit_beam, 
              rad%reffdf, rad%reffbm                                        &
            ) !EffSurfRefl_dif, EffSurfRefl_beam 
+
+
+
 
       ! only for land points, at present do not have a method for treating 
       ! mixed land/sea or land/seaice points as yet.

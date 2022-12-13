@@ -156,7 +156,7 @@ CONTAINS
 
 SUBROUTINE alloc_soil_snow_type(var, mp)
 
-USE grid_constants_mod_cbl,   ONLY: ntiles  ! # land-cover types
+USE grid_constants_mod_cbl,   ONLY: ntiles => ntype_max ! # land-cover types
 USE grid_constants_mod_cbl,   ONLY: nsl     ! # soil layers
 USE grid_constants_mod_cbl,   ONLY: nsnl    ! # snow layers
 USE grid_constants_mod_cbl,   ONLY: nrb     ! # rad "bands"

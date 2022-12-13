@@ -26,6 +26,7 @@ USE cable_other_constants_mod, ONLY: clai_thresh => lai_thresh
 USE cable_other_constants_mod, ONLY: cgauss_w => gauss_w
 USE cable_math_constants_mod,  ONLY: cpi => pi
 USE cable_math_constants_mod,  ONLY: cpi180 => pi180
+USE grid_constants_mod_cbl, ONLY : ICE_SoilType, lakes_cable
 
 
    USE cable_common_module
@@ -85,22 +86,22 @@ call fveg_mask( veg_mask, mp, Clai_thresh, canopy%vlaiw )
 call fsunlit_mask( sunlit_mask, mp, CRAD_THRESH,( met%fsd(:,1)+met%fsd(:,2) ) )
 call fsunlit_veg_mask( sunlit_veg_mask, veg_mask, sunlit_mask, mp )
 
-CALL init_radiation( &
-                     rad%extkb, rad%extkd,                                     &
-                     !ExtCoeff_beam, ExtCoeff_dif,                             &
+CALL init_radiation( rad%extkb, rad%extkd,                                     &
+                     !ExtCoeff_beam, ExtCoeff_dif,
                      rad%extkbm, rad%extkdm, Rad%Fbeam,                        &
-                     !EffExtCoeff_beam, EffExtCoeff_dif, RadFbeam,             &
+                     !EffExtCoeff_beam, EffExtCoeff_dif, RadFbeam,
                      c1, rhoch, xk,                                            &
                      mp,nrb,                                                   &
                      Clai_thresh, Ccoszen_tols, CGauss_w, Cpi, Cpi180,         &
                      cbl_standalone, jls_standalone, jls_radiation,            &
                      subr_name,                                                &
-                     veg_mask, sunlit_mask, sunlit_veg_mask,                   &
+                     veg_mask,                                                 &
                      veg%Xfang, veg%taul, veg%refl,                            &
-                     !VegXfang, VegTaul, VegRefl                               &
+                     !VegXfang, VegTaul, VegRefl
                      met%coszen, int(met%DoY), met%fsd,                        &
-                     !coszen, metDoY, SW_down,                                 &
-                     canopy%vlaiw  ) !reducedLAIdue2snow 
+                     !coszen, metDoY, SW_down,
+                     canopy%vlaiw                                              &
+                   ) !reducedLAIdue2snow 
  
 IF( cable_runtime%um_explicit ) THEN
    
@@ -108,11 +109,8 @@ IF( cable_runtime%um_explicit ) THEN
  CALL snow_aging(ssnow%snage,mp,dels,ssnow%snowd,ssnow%osnowd,ssnow%tggsn(:,1),&
          ssnow%tgg(:,1),ssnow%isflag,veg%iveg,soil%isoilm) 
          
- CALL Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                 &
-             !AlbSnow, AlbSoil,              
-             mp, nrb,                                                       &
-             jls_radiation,                                                 &
-             veg_mask, sunlit_mask, sunlit_veg_mask,                        &  
+call Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
+             mp, nrb, ICE_SoilType, lakes_cable, jls_radiation, veg_mask,       &
              Ccoszen_tols, cgauss_w,                                        & 
              veg%iveg, soil%isoilm, veg%refl, veg%taul,                     & 
              !surface_type, VegRefl, VegTaul,
@@ -134,6 +132,8 @@ IF( cable_runtime%um_explicit ) THEN
              rad%reffdf, rad%reffbm                                        &
            ) !EffSurfRefl_dif, EffSurfRefl_beam 
 
+
+         
       ENDIF
    
    ! Calculate canopy variables:
