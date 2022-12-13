@@ -69,6 +69,7 @@ MODULE cable_mpiworker
   USE cable_common_module,  ONLY: cable_user
   USE casa_inout_module
   USE casa_cable
+USE bgcdriver_mod, ONLY : bgcdriver
 
 
   IMPLICIT NONE
@@ -7222,6 +7223,7 @@ USE cbl_soil_snow_init_special_module
     USE POPMODULE,            ONLY: POPStep
     USE TypeDef,              ONLY: i4b, dp
     USE mpi
+  USE biogeochem_mod, ONLY : biogeochem 
 
     !mrd561 debug
     USE cable_IO_vars_module, ONLY: wlogn
@@ -7591,6 +7593,7 @@ USE cbl_soil_snow_init_special_module
     USE POPMODULE,            ONLY: POPStep
     USE TypeDef,              ONLY: i4b, dp
     USE mpi
+  USE biogeochem_mod, ONLY : biogeochem 
 
     !mrd561 debug
     USE cable_IO_vars_module, ONLY: wlogn

@@ -71,72 +71,102 @@
   <div class="row">
     <h1>landuse_constant 
     <small>Module</small>
+    
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.0% of total for modules and submodules.">14 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/landuse_constant.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/landuse_constant.f90.html'>landuse_constant.F90</a></li>
-     <li class="active">landuse_constant</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for modules and submodules.">14 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/landuse_constant.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/landuse_constant.f90.html'>landuse_constant.F90</a></li>
+          <li class="active">landuse_constant</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<div class="panel panel-primary">
-  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-0">Variables</a></h3></div>
-  <div id="vars-0" class="panel-collapse collapse">
-    <div class="list-group">
-      <a class="list-group-item" href="../module/landuse_constant.html#variable-mstate">mstate</a>
-      <a class="list-group-item" href="../module/landuse_constant.html#variable-mvmax~3">mvmax</a>
-      <a class="list-group-item" href="../module/landuse_constant.html#variable-mharvw">mharvw</a>
-      <a class="list-group-item" href="../module/landuse_constant.html#variable-thresh_frac">thresh_frac</a>
-      <a class="list-group-item" href="../module/landuse_constant.html#variable-fwoodprod">fwoodprod</a>
-      <a class="list-group-item" href="../module/landuse_constant.html#variable-ratewoodprod">ratewoodprod</a>
-      <a class="list-group-item" href="../module/landuse_constant.html#variable-fracwoodseed">fracwoodseed</a>
-      <a class="list-group-item" href="../module/landuse_constant.html#variable-fracgrassseed">fracgrassseed</a>
-      <a class="list-group-item" href="../module/landuse_constant.html#variable-fseedling">fseedling</a>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#vars-0">Variables</a>
+        </h3>
+      </div>
+      <div id="vars-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/landuse_constant.html#variable-mstate">mstate</a>
+            <a class="list-group-item" href="../module/landuse_constant.html#variable-mvmax">mvmax</a>
+            <a class="list-group-item" href="../module/landuse_constant.html#variable-mharvw">mharvw</a>
+            <a class="list-group-item" href="../module/landuse_constant.html#variable-thresh_frac">thresh_frac</a>
+            <a class="list-group-item" href="../module/landuse_constant.html#variable-fwoodprod">fwoodprod</a>
+            <a class="list-group-item" href="../module/landuse_constant.html#variable-ratewoodprod">ratewoodprod</a>
+            <a class="list-group-item" href="../module/landuse_constant.html#variable-fracwoodseed">fracwoodseed</a>
+            <a class="list-group-item" href="../module/landuse_constant.html#variable-fracgrassseed">fracgrassseed</a>
+            <a class="list-group-item" href="../module/landuse_constant.html#variable-fseedling">fseedling</a>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-</div>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    
+    <p>The <code>landuse_constant</code> module contains landuse-specific constants.</p>
+<p><strong>WARNING:</strong> Eventually, <code>mvmax</code> in the land-use code should be replaced with <code>mvtype</code></p>
 <br>        <div class="panel panel-default">
       <div class="panel-heading">
-  <h3 class="panel-title">Uses</h3>
+        <h3 class="panel-title">Uses</h3>
       </div>
       <ul class="list-group">
-      <li class="list-group-item">
-  <ul class="list-inline">
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
-    <li><a href='../module/casadimension.html'>casadimension</a></li>
-  </ul>
-      </li>
+          <li class="list-group-item">
+            <ul class="list-inline">
+                <li><a href='../module/casadimension.html'>casadimension</a></li>
+                <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+            </ul>
+          </li>
       </ul>
     </div>
 
@@ -144,24 +174,47 @@
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<div class="panel panel-primary">
-  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-1">Variables</a></h3></div>
-  <div id="vars-1" class="panel-collapse collapse">
-    <div class="list-group">
-      <a class="list-group-item" href="../module/landuse_constant.html#variable-mstate">mstate</a>
-      <a class="list-group-item" href="../module/landuse_constant.html#variable-mvmax~3">mvmax</a>
-      <a class="list-group-item" href="../module/landuse_constant.html#variable-mharvw">mharvw</a>
-      <a class="list-group-item" href="../module/landuse_constant.html#variable-thresh_frac">thresh_frac</a>
-      <a class="list-group-item" href="../module/landuse_constant.html#variable-fwoodprod">fwoodprod</a>
-      <a class="list-group-item" href="../module/landuse_constant.html#variable-ratewoodprod">ratewoodprod</a>
-      <a class="list-group-item" href="../module/landuse_constant.html#variable-fracwoodseed">fracwoodseed</a>
-      <a class="list-group-item" href="../module/landuse_constant.html#variable-fracgrassseed">fracgrassseed</a>
-      <a class="list-group-item" href="../module/landuse_constant.html#variable-fseedling">fseedling</a>
+        <h3>Contents</h3>
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#vars-1">Variables</a>
+        </h3>
+      </div>
+      <div id="vars-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../module/landuse_constant.html#variable-mstate">mstate</a>
+            <a class="list-group-item" href="../module/landuse_constant.html#variable-mvmax">mvmax</a>
+            <a class="list-group-item" href="../module/landuse_constant.html#variable-mharvw">mharvw</a>
+            <a class="list-group-item" href="../module/landuse_constant.html#variable-thresh_frac">thresh_frac</a>
+            <a class="list-group-item" href="../module/landuse_constant.html#variable-fwoodprod">fwoodprod</a>
+            <a class="list-group-item" href="../module/landuse_constant.html#variable-ratewoodprod">ratewoodprod</a>
+            <a class="list-group-item" href="../module/landuse_constant.html#variable-fracwoodseed">fracwoodseed</a>
+            <a class="list-group-item" href="../module/landuse_constant.html#variable-fracgrassseed">fracgrassseed</a>
+            <a class="list-group-item" href="../module/landuse_constant.html#variable-fseedling">fseedling</a>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">
@@ -169,57 +222,182 @@
 
     <section>
     <h2>Variables</h2>
-    <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Visibility</th><th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-mstate"></span>integer,</td>
-<td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>mstate</strong></td><td> =</td><td>12</td><td><p>number of land use states as in HYDE land use dataset processed by<br>
-<a href="https://doi.org/10.5194/gmd-13-5425-2020">George Hurtt</a></p></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-mvmax~3"></span>integer,</td>
-<td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>mvmax</strong></td><td> =</td><td>17</td><td><p>max number of PFT in CABLE, should be replaced by "mvtype" </p></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-mharvw"></span>integer,</td>
-<td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>mharvw</strong></td><td> =</td><td>5</td><td><p>number of harvest types</p></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-thresh_frac"></span>real(kind=r_2),</td>
-<td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>thresh_frac</strong></td><td> =</td><td>1.0e-6</td><td><p>threshold area fraction for a separate tile within a land cell</p></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-fwoodprod"></span>real(kind=r_2),</td>
-<td>public,</td>  <td>parameter, DIMENSION(mwood)</td><td>::</td>
-  <td><strong>fwoodprod</strong></td><td> =</td><td>(/0.3, 0.4, 0.4/)</td><td><p>allocation of harvested wood into different wood product pools</p></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ratewoodprod"></span>real(kind=r_2),</td>
-<td>public,</td>  <td>parameter, DIMENSION(mwood)</td><td>::</td>
-  <td><strong>ratewoodprod</strong></td><td> =</td><td>(/1.0, 0.1, 0.01/)</td><td><p>decay rate of different wood product pools</p></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-fracwoodseed"></span>real(kind=r_2),</td>
-<td>public,</td>  <td>parameter, DIMENSION(mwood)</td><td>::</td>
-  <td><strong>fracwoodseed</strong></td><td> =</td><td>(/0.4, 0.3, 0.3/)</td><td><p>biomass fraction in leaf wood and root for woody seedlings in a cleared area</p></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-fracgrassseed"></span>real(kind=r_2),</td>
-<td>public,</td>  <td>parameter, DIMENSION(mwood)</td><td>::</td>
-  <td><strong>fracgrassseed</strong></td><td> =</td><td>(/0.6, 0.0, 0.4/)</td><td><p>biomass fraction in leaf wood and root for grassy seedlings in a cleared area</p></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-fseedling"></span>real(kind=r_2),</td>
-<td>public,</td>  <td>parameter</td><td>::</td>
-  <td><strong>fseedling</strong></td><td> =</td><td>0.001</td><td><p>total biomass of seeldings in g C/m2 in a cleared area</p></td>
-</tr>
-</tbody>
-</table>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Visibility</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+<th></th><th>Initial</th>        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mstate"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>mstate</strong></td>
+<td> =</td>
+                <td>12</td>
+            <td>
+                <p>Number of land use states as in HYDE land use dataset processed by 
+<a href="https://doi.org/10.5194/gmd-13-5425-2020">George Hurtt</a>
+<script type="math/tex"> (-) </script>
+</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mvmax"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>mvmax</strong></td>
+<td> =</td>
+                <td>17</td>
+            <td>
+                <p>Maximum number of plant functional types in CABLE  <script type="math/tex"> (-) </script>
+</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mharvw"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>mharvw</strong></td>
+<td> =</td>
+                <td>5</td>
+            <td>
+                <p>Number of harvest types <script type="math/tex"> (-) </script>
+</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-thresh_frac"></span>
+              real(kind=r_2),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>thresh_frac</strong></td>
+<td> =</td>
+                <td>1.0e-6</td>
+            <td>
+                <p>Threshold area fraction for a separate tile within a land cell <script type="math/tex"> (-) </script>
+</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fwoodprod"></span>
+              real(kind=r_2),
+            </td>
+              <td>public,</td>
+            <td>
+parameter,               DIMENSION(mwood)
+            </td>
+            <td>::</td>
+            <td><strong>fwoodprod</strong></td>
+<td> =</td>
+                <td>(/0.3, 0.4, 0.4/)</td>
+            <td>
+                <p>Allocation of harvested wood into each wood product pools <script type="math/tex"> (-) </script>
+</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ratewoodprod"></span>
+              real(kind=r_2),
+            </td>
+              <td>public,</td>
+            <td>
+parameter,               DIMENSION(mwood)
+            </td>
+            <td>::</td>
+            <td><strong>ratewoodprod</strong></td>
+<td> =</td>
+                <td>(/1.0, 0.1, 0.01/)</td>
+            <td>
+                <p>Decay rate of each wood product pools <script type="math/tex"> ( year^{-1} ) </script>
+</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fracwoodseed"></span>
+              real(kind=r_2),
+            </td>
+              <td>public,</td>
+            <td>
+parameter,               DIMENSION(mwood)
+            </td>
+            <td>::</td>
+            <td><strong>fracwoodseed</strong></td>
+<td> =</td>
+                <td>(/0.4, 0.3, 0.3/)</td>
+            <td>
+                <p>Biomass fraction in leaf, wood and root pools for woody seedlings in a cleared area <script type="math/tex"> (-) </script>
+</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fracgrassseed"></span>
+              real(kind=r_2),
+            </td>
+              <td>public,</td>
+            <td>
+parameter,               DIMENSION(mwood)
+            </td>
+            <td>::</td>
+            <td><strong>fracgrassseed</strong></td>
+<td> =</td>
+                <td>(/0.6, 0.0, 0.4/)</td>
+            <td>
+                <p>Biomass fraction in leaf wood, and root pools for grassy seedlings in a cleared area <script type="math/tex"> (-) </script>
+</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fseedling"></span>
+              real(kind=r_2),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>fseedling</strong></td>
+<td> =</td>
+                <td>0.001</td>
+            <td>
+                <p>Total biomass of seeldings in a cleared area <script type="math/tex"> ( g C \cdot m^{-2} ) </script>
+</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     </section>
     <br>
@@ -229,7 +407,9 @@
     
     
 
-    
+
+
+
     </div>
   </div>
 

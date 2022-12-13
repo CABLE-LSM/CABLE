@@ -71,93 +71,208 @@
   <div class="row">
     <h1>LAI_eff
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.0% of total for procedures.">11 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cbl_lai_eff.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cbl_lai_eff.f90.html'>cbl_lai_eff.F90</a></li>
-     <li><a href='../module/cbl_lai_eff_mod.html'>cbl_LAI_eff_mod</a></li>
-     <li class="active">LAI_eff</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.0% of total for procedures.">11 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cbl_lai_eff.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cbl_lai_eff.f90.html'>cbl_lai_eff.F90</a></li>
+              <li><a href='../module/cbl_lai_eff_mod.html'>cbl_LAI_eff_mod</a></li>
+          <li class="active">LAI_eff</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public subroutine LAI_eff(mp, LAI_PFT, Hgt_PFT, HgtAboveSnow, reducedLAIdue2snow)</h2>
+    <h2>public  subroutine LAI_eff(mp, LAI_PFT, Hgt_PFT, HgtAboveSnow, reducedLAIdue2snow)  
+</h2>
     
 
+    <p>This subroutine computes the leaf-area index of a canopy when there is snow
+present. The formulae assume that the leaf area is distributed uniformly
+in the vertical within the canopy.</p>
+<p>Leaf area, LAI, accounting for the presence of snow, is given by</p>
+<p>
+<script type="math/tex; mode=display"> LAI_{snow} = LAI_{nosnow} \frac{h_{c,snow}}{\max(0.01, h_{c,nosnow})} </script>
+</p>
+<p>where <script type="math/tex">h_{c,snow}</script> is evaluated in subroutine <a href="../proc/hgtabovesnow.html">HgtAboveSnow</a>.
+The LAI is decreased proportionally to the canopy height with/without snow.</p>
+<p>The effective canopy height used to evaluate the
+proportional decrease in LAI takes a minimum value of 0.01m.
+This condition prevents numerical issues when the canopy height
+(without snow) is small.</p>
+<p><strong>Warning: To follow up</strong></p>
+<p>Can HgtAboveSnow be greater than MAX(0.01, Hgt_PFT)?
+If yes then there is an issue to resolve.
+HgtAboveSnow can sit at its minimum value of 10 <script type="math/tex">z_{0,min}</script> so if
+<script type="math/tex">10 z_{0,min} > 0.01 > h_{c,nosnow} </script> then LAI can increase if
+there is snow!  </p>
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-mp~44"></span>integer</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mp~2"></span>
+              integer
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>mp</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-lai_pft"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>mp</strong></td>
+            <td>
+                <p>Number of land points (-)</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lai_pft"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>LAI_PFT</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-hgt_pft"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>LAI_PFT</strong>(mp)</td>
+            <td>
+                <p>Leaf area index without snow (m<script type="math/tex">^2</script> m<script type="math/tex">^{-2})</script>
+</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-hgt_pft"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>Hgt_PFT</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-hgtabovesnow"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Hgt_PFT</strong>(mp)</td>
+            <td>
+                <p>height of canopy without snow (m)</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-hgtabovesnow"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>HgtAboveSnow</strong>(mp)</td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-reducedlaidue2snow~5"></span>real</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>HgtAboveSnow</strong>(mp)</td>
+            <td>
+                <p>height of canopy above the snow surface (m)</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-reducedlaidue2snow~2"></span>
+              real
+            </td>
 <td></td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>reducedLAIdue2snow</strong>(mp)</td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>reducedLAIdue2snow</strong>(mp)</td>
+            <td>
+                <p>Output. Modified leaf area index for snow (m<script type="math/tex">^2</script> m<script type="math/tex">^{-2}</script>)</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

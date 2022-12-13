@@ -71,231 +71,533 @@
   <div class="row">
     <h1>getfluxes_vp_2d
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.6% of total for procedures.">298 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cable_sli_utils.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cable_sli_utils.f90.html'>cable_sli_utils.F90</a></li>
-     <li><a href='../module/sli_utils.html'>sli_utils</a></li>
-     <li class="active">getfluxes_vp_2d</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.6% of total for procedures.">298 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cable_sli_utils.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cable_sli_utils.f90.html'>cable_sli_utils.F90</a></li>
+              <li><a href='../module/sli_utils.html'>sli_utils</a></li>
+          <li class="active">getfluxes_vp_2d</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>private subroutine getfluxes_vp_2d(dx, vtop, vbot, parin, var, hint, phimin, i_q, i_qya, i_qyb, i_qTa, i_qTb, i_ql, i_qlya, i_qlyb, i_qv, i_qvT, i_qvh, i_qvya, i_qvyb, iflux, init, getq0, getqn, Tsoil, T0, nsat, nsatlast)</h2>
+    <h2>private  subroutine getfluxes_vp_2d(dx, vtop, vbot, parin, var, hint, phimin, i_q, i_qya, i_qyb, i_qTa, i_qTb, i_ql, i_qlya, i_qlyb, i_qv, i_qvT, i_qvh, i_qvya, i_qvyb, iflux, init, getq0, getqn, Tsoil, T0, nsat, nsatlast)  
+</h2>
     
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-dx~9"></span>real(kind=r_2),</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dx~20"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>dx</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-vtop~2"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>dx</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vtop~5"></span>
+              type(<a href='../type/vars.html'>vars</a>),
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(:)</td><td>::</td>
-  <td><strong>vtop</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-vbot~2"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>vtop</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vbot~5"></span>
+              type(<a href='../type/vars.html'>vars</a>),
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(:)</td><td>::</td>
-  <td><strong>vbot</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-parin~5"></span>type(<a href='../type/params.html'>params</a>),</td>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>vbot</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-parin~5"></span>
+              type(<a href='../type/params.html'>params</a>),
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>parin</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-var~34"></span>type(<a href='../type/vars.html'>vars</a>),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>parin</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-var~40"></span>
+              type(<a href='../type/vars.html'>vars</a>),
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>var</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-hint~2"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>var</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-hint~5"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>hint</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-phimin~2"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>hint</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-phimin~5"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>phimin</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_q"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>phimin</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_q"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_q</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qya"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_q</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qya"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qya</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qyb"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qya</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qyb"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qyb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qta"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qyb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qta"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qTa</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qtb"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qTa</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qtb"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qTb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_ql"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qTb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_ql"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(out),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_ql</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qlya"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_ql</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qlya"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(out),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qlya</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qlyb"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qlya</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qlyb"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(out),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qlyb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qv"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qlyb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qv"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(out),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qv</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qvt"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qv</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qvt"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(out),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qvT</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qvh"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qvT</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qvh"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(out),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qvh</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qvya"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qvh</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qvya"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(out),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qvya</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-i_qvyb"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qvya</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i_qvyb"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(out),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>i_qvyb</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-iflux~2"></span>integer(kind=i_d),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>i_qvyb</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-iflux~7"></span>
+              integer(kind=i_d),
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(:)</td><td>::</td>
-  <td><strong>iflux</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-init~2"></span>logical,</td>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>iflux</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-init~5"></span>
+              logical,
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(:)</td><td>::</td>
-  <td><strong>init</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-getq0~2"></span>logical,</td>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>init</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-getq0~5"></span>
+              logical,
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(:)</td><td>::</td>
-  <td><strong>getq0</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-getqn~2"></span>logical,</td>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>getq0</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-getqn~5"></span>
+              logical,
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(:)</td><td>::</td>
-  <td><strong>getqn</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-tsoil~6"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>getqn</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tsoil~14"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>Tsoil</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-t0~2"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>Tsoil</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-t0~6"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(:)</td><td>::</td>
-  <td><strong>T0</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nsat~2"></span>integer(kind=i_d),</td>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>T0</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nsat~6"></span>
+              integer(kind=i_d),
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(:)</td><td>::</td>
-  <td><strong>nsat</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-nsatlast~2"></span>integer(kind=i_d),</td>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>nsat</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nsatlast~6"></span>
+              integer(kind=i_d),
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(:)</td><td>::</td>
-  <td><strong>nsatlast</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>nsatlast</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">

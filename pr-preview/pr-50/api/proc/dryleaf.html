@@ -71,219 +71,476 @@
   <div class="row">
     <h1>dryLeaf
       <small>Subroutine</small>
+      
     </h1>
-    <div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 0.6% of total for procedures.">282 statements</a>
-     </li> 
-    <li><i class="fa fa-code"></i><a href="../src/cbl_dryLeaf.F90"> Source File</a></li>
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-     <li><a href='../sourcefile/cbl_dryleaf.f90.html'>cbl_dryLeaf.F90</a></li>
-     <li><a href='../module/cbl_dryleaf_module.html'>cbl_dryLeaf_module</a></li>
-     <li class="active">dryLeaf</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 0.6% of total for procedures.">282 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cbl_dryLeaf.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/cbl_dryleaf.f90.html'>cbl_dryLeaf.F90</a></li>
+              <li><a href='../module/cbl_dryleaf_module.html'>cbl_dryLeaf_module</a></li>
+          <li class="active">dryLeaf</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    <div id="sidebar">
-  <h3>Contents</h3>
- 
-<em>None</em>
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-</div>
+
+  </div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public subroutine dryLeaf(dels, rad, rough, air, met, veg, canopy, soil, ssnow, dsx, fwsoil, tlfx, tlfy, ecy, hcy, rny, gbhu, gbhf, csx, cansat, ghwet, iter, climate)</h2>
+    <h2>public  subroutine dryLeaf(dels, rad, rough, air, met, veg, canopy, soil, ssnow, dsx, fwsoil, tlfx, tlfy, ecy, hcy, rny, gbhu, gbhf, csx, cansat, ghwet, iter, climate)  
+</h2>
         <div class="panel panel-default">
       <div class="panel-heading">
-  <h3 class="panel-title">Uses</h3>
+        <h3 class="panel-title">Uses</h3>
       </div>
       <ul class="list-group">
-      <li class="list-group-item">
-  <ul class="list-inline">
-    <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
-    <li><a href='../module/cbl_fwsoil_module.html'>cbl_fwsoil_module</a></li>
-    <li><a href='../module/cable_phys_constants_mod.html'>cable_phys_constants_mod</a></li>
-    <li><a href='../module/cable_photo_constants_mod.html'>cable_photo_constants_mod</a></li>
-    <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
-    <li><a href='../module/cbl_photosynthesis_module.html'>cbl_photosynthesis_module</a></li>
-    <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
-  </ul>
-      </li>
+          <li class="list-group-item">
+            <ul class="list-inline">
+                <li><a href='../module/cable_phys_constants_mod.html'>cable_phys_constants_mod</a></li>
+                <li><a href='../module/cable_def_types_mod.html'>cable_def_types_mod</a></li>
+                <li><a href='../module/cbl_photosynthesis_module.html'>cbl_photosynthesis_module</a></li>
+                <li><a href='../module/cable_photo_constants_mod.html'>cable_photo_constants_mod</a></li>
+                <li><a href='../module/cable_common_module.html'>cable_common_module</a></li>
+                <li><a href='../module/cable_other_constants_mod.html'>cable_other_constants_mod</a></li>
+                <li><a href='../module/cbl_fwsoil_module.html'>cbl_fwsoil_module</a></li>
+            </ul>
+          </li>
       </ul>
     </div>
 
 
 
     <h3>Arguments</h3>
-      <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
-<tbody>
-<tr>
-  <td><span class="anchor" id="variable-dels~21"></span>real,</td>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dels~44"></span>
+              real,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>dels</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-rad~21"></span>type(<a href='../type/radiation_type.html'>radiation_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dels</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rad~22"></span>
+              type(<a href='../type/radiation_type.html'>radiation_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>rad</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-rough~18"></span>type(<a href='../type/roughness_type.html'>roughness_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rad</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rough~18"></span>
+              type(<a href='../type/roughness_type.html'>roughness_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>rough</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-air~18"></span>type(<a href='../type/air_type.html'>air_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rough</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-air~20"></span>
+              type(<a href='../type/air_type.html'>air_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>air</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-met~30"></span>type(<a href='../type/met_type.html'>met_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>air</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-met~43"></span>
+              type(<a href='../type/met_type.html'>met_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>met</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-veg~44"></span>type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>met</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-veg~89"></span>
+              type(<a href='../type/veg_parameter_type.html'>veg_parameter_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>veg</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-canopy~27"></span>type(<a href='../type/canopy_type.html'>canopy_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>veg</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-canopy~43"></span>
+              type(<a href='../type/canopy_type.html'>canopy_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>canopy</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-soil~39"></span>type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>canopy</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-soil~69"></span>
+              type(<a href='../type/soil_parameter_type.html'>soil_parameter_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>soil</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ssnow~27"></span>type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>soil</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ssnow~49"></span>
+              type(<a href='../type/soil_snow_type.html'>soil_snow_type</a>),
+            </td>
 <td>intent(inout)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>ssnow</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-dsx"></span>real,</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ssnow</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dsx"></span>
+              real,
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:)</td><td>::</td>
-  <td><strong>dsx</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-fwsoil~2"></span>real,</td>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>dsx</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fwsoil~2"></span>
+              real,
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:)</td><td>::</td>
-  <td><strong>fwsoil</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-tlfx"></span>real,</td>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>fwsoil</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tlfx"></span>
+              real,
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:)</td><td>::</td>
-  <td><strong>tlfx</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-tlfy~3"></span>real,</td>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>tlfx</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tlfy~3"></span>
+              real,
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:)</td><td>::</td>
-  <td><strong>tlfy</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ecy~2"></span>real(kind=R_2),</td>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>tlfy</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ecy~2"></span>
+              real(kind=R_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:)</td><td>::</td>
-  <td><strong>ecy</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-hcy"></span>real(kind=R_2),</td>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>ecy</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-hcy"></span>
+              real(kind=R_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:)</td><td>::</td>
-  <td><strong>hcy</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-rny"></span>real(kind=R_2),</td>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>hcy</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rny"></span>
+              real(kind=R_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:)</td><td>::</td>
-  <td><strong>rny</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-gbhu~3"></span>real(kind=R_2),</td>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>rny</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gbhu~2"></span>
+              real(kind=R_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>gbhu</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-gbhf~3"></span>real(kind=R_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>gbhu</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gbhf~2"></span>
+              real(kind=R_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>gbhf</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-csx"></span>real(kind=R_2),</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>gbhf</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-csx"></span>
+              real(kind=R_2),
+            </td>
 <td>intent(inout),</td>
-  <td></td>  <td>DIMENSION(:,:)</td><td>::</td>
-  <td><strong>csx</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-cansat~3"></span>real,</td>
+              <td></td>            <td>
+              DIMENSION(:,:)
+            </td>
+            <td>::</td>
+            <td><strong>csx</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cansat~2"></span>
+              real,
+            </td>
 <td>intent(in),</td>
-  <td></td>  <td>DIMENSION(:)</td><td>::</td>
-  <td><strong>cansat</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-ghwet~2"></span>real(kind=r_2),</td>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>cansat</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ghwet~2"></span>
+              real(kind=r_2),
+            </td>
 <td>intent(out),</td>
-  <td></td>  <td>DIMENSION(:)</td><td>::</td>
-  <td><strong>ghwet</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-iter~3"></span>integer,</td>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>ghwet</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-iter~3"></span>
+              integer,
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>iter</strong></td><td></td>
-</tr>
-<tr>
-  <td><span class="anchor" id="variable-climate~13"></span>type(<a href='../type/climate_type.html'>climate_type</a>),</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>iter</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-climate~25"></span>
+              type(<a href='../type/climate_type.html'>climate_type</a>),
+            </td>
 <td>intent(in)</td>
-  <td></td>  <td></td><td>::</td>
-  <td><strong>climate</strong></td><td></td>
-</tr>
-</tbody>
-</table>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>climate</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      <h3>Contents</h3>
- 
-<em>None</em>
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
     </section>
     <br class="visible-xs visible-sm hidden-md">
