@@ -1,4 +1,10 @@
 MODULE cable_latent_heat_module
+  !* This SUBROUTINE converts the previously estimated rate of potential
+  ! evaporation from the soil to the associated latent heat flux.
+  ! This evaluation accounts for whether the flux is of water or ice, and
+  ! the partition of the latent heat flux between soil and puddle contributions.
+  !
+  ! This SUBROUTINE is called from [[define_canopy]].
 
   IMPLICIT NONE
 
