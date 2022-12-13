@@ -146,23 +146,23 @@
  the land point are well behaved (see <a href="../proc/ruff_resist.html">ruff_resist</a>).</p>
 <p>The mapping from grid cells (land_pts,ntiles) to the (mp) structure
  is also undertaken.</p>
-<p><strong>This SUBROUTINE is active run when CABLE is run within a coupled model
+<p><strong>This SUBROUTINE is active when CABLE is run within a coupled model
  (i.e. ACCESS)</strong> </p>
 <h2>Method</h2>
 <p>The cell-level input (land_pts,ntile) variables for leaf area <code>LAI_pft</code> and
  canopy height <code>HGT_pft</code> are checked for</p>
 <ul>
 <li>whether the land_pt has a non-zero fraction of that tile (if zero
-   fraction then LAI and canopy height are set to zero.</li>
+   fraction then LAI and canopy height are set to zero)</li>
 <li>whether the LAI lies above a minimum value <code>CLAI_thresh</code></li>
-<li>whether the canopy height lies a minimum value (which are PFT dependent)</li>
+<li>whether the canopy height lies above a minimum value (which is PFT dependent)</li>
 <li>whether non-vegetated tiles have a non-zero canopy height.</li>
 </ul>
 <p>Outputs are <code>LAI_pft_cbl</code> and <code>HGT_pft_cbl</code></p>
 <p><strong>WARNINGS</strong></p>
 <ul>
 <li>INTENT statements need to be added to the argument lists</li>
-<li>hardwired indexing is use throughout.  This SUBROUTINE assumes that<ol>
+<li>hardwired indexing is used throughout.  This SUBROUTINE assumes that<ol>
 <li>non-vegetated tiles take indexes 14 and onwards</li>
 <li>tall vegetation occupies tile indexes 1-4</li>
 <li>other vegetation (shrubs/grasses/crops/wetlands) occupy tile indexes
