@@ -31,8 +31,8 @@ SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
   ! The basic formula is
   !
   ! \( u_{*} = U(z_{ref}) / ( \log [z_{ref}/z_{0m}] -
-  !      \Psi_m(\xi z_{ref}/z_{refTq})
-  !    + \Psi_m(\xi z_{0m}/z_{refTq}) ) \)
+  !      \Psi_m[\xi z_{ref}/z_{refTq}]
+  !    + \Psi_m[\xi z_{0m}/z_{refTq}] ) \)
   !
   ! with \(\Psi_m\) the integrated similarity function given by [[psim]],
   ! \(U\) the wind speed at height \(z_{ref}\),
@@ -42,9 +42,10 @@ SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
   ! to assist with convergence of the iteration in light wind conditions.
   ! Small and large value limits are applied to the evaluated \(u_*\).
   !
-  ! **NOTE** Most references assume that the reference levels for wind and
-  ! temperature are equal inside the arguments to the stability functions
-  ! \(\Psi_m\) and \(\Psi_s\) - in CABLE this need not be true.
+  ! **NOTE** Most literature references assume that the reference levels
+  ! for wind and temperature are equal inside the arguments to the
+  ! stability functions \(\Psi_m\) and \(\Psi_s\) - in CABLE this need
+  ! not be true.
   ! \(\xi\) is always defined relative to the reference level for temperature,
   ! in \(\Psi_m\) the reference height for wind is needed.
   ! Consequently the formula for \(\Psi_m\) used includes conversion
@@ -109,13 +110,13 @@ FUNCTION psim(zeta, mp, CPI_C ) RESULT(r)
   ! Uses the Businger-Dyer form for unstable conditions (\(\xi<0\)) and the
   ! Beljaars-Holtslag form for stable conditions (\(\xi>0\))
   !
-  ! This function is used in the evalaution of the friction velocity in
+  ! This function is used in the evaluation of the friction velocity in
   ! [[comp_friction_vel]]
   !
   !## References
   ! - [Beljaars and Holtslag (1991)](https://doi.org/10.1175/1520-0450(1991)030<0327:FPOLSF>2.0.CO;2)
-  ! - [Businger et al. (1971)] (https://doi.org/10.1175/1520-0469(1971)028<0181:FPRITA>2.0.CO;2)
-  ! - [Dyer (1974)] (https://doi.org/10.1007/BF00240838)
+  ! - [Businger et al. (1971)](https://doi.org/10.1175/1520-0469(1971)028<0181:FPRITA>2.0.CO;2)
+  ! - [Dyer (1974)](https://doi.org/10.1007/BF00240838)
 
 ! mrr, 16-sep-92 (from function psi: mrr, edinburgh 1977)
 ! computes integrated stability function psim(z/l) (z/l=zeta)
@@ -162,13 +163,13 @@ ELEMENTAL FUNCTION psis(zeta) RESULT(r)
   ! Uses the Businger-Dyer form for unstable conditions (\(\xi<0\)) and the
   ! Beljaars-Holtslag form for stable conditions (\(\xi>0\)).
   !
-  ! This function is used in the evaluation of the resistance network
+  ! This function is used in the evaluation of the resistance network component
   ! `canopy%rtus1c` in [[define_canopy]]
   !
   !## References
   ! - [Beljaars and Holtslag (1991)](https://doi.org/10.1175/1520-0450(1991)030<0327:FPOLSF>2.0.CO;2)
-  ! - [Businger et al. (1971)] (https://doi.org/10.1175/1520-0469(1971)028<0181:FPRITA>2.0.CO;2)
-  ! - [Dyer (1974)] (https://doi.org/10.1007/BF00240838)
+  ! - [Businger et al. (1971)](https://doi.org/10.1175/1520-0469(1971)028<0181:FPRITA>2.0.CO;2)
+  ! - [Dyer (1974)](https://doi.org/10.1007/BF00240838)
 
 ! mrr, 16-sep-92 (from function psi: mrr, edinburgh 1977)
 ! computes integrated stability function psis(z/l) (z/l=zeta)
