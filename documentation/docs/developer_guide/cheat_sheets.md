@@ -14,6 +14,7 @@ A minimum set of git commands used in the workflow for CABLE is given in the fol
 | git pull | Update your local branch with the state on the remote repository  |
 | git branch -d <branchname\> | Delete a local branch. You need to have a different branch <br> currently checked out |
 
+Additional commands and information can be found in [this "simple guide"][git-simple-guide]
 ## FORD
 
 For details about the configuration or more explanation of the syntax, please refer to [the full documentation for FORD][ford-docs].
@@ -36,3 +37,4 @@ For a quick reference to Markdown, please use [this cheat sheet][md-cheatsheet].
 
 [md-cheatsheet]: https://www.markdownguide.org/cheat-sheet/
 [ford-docs]: https://forddocs.readthedocs.io/en/latest/index.html
+[git-simple-guide]: https://rogerdudler.github.io/git-guide/
