@@ -205,7 +205,10 @@ realism.</p>
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>This SUBROUTINE checks that input values of leaf area and canopy height
+ lie between set values (defined by PFT) and overwrites if necessary.
+ These limits are needed to ensure that the canopy roughness properties of
+ the land point are well behaved (see <a href="../proc/ruff_resist.html">ruff_resist</a>).</p><a href="../proc/limit_hgt_lai.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -230,7 +233,7 @@ realism.</p>
             <td>::</td>
             <td><strong>HGT_pft_temp</strong>(land_pts,ntiles)</td>
             <td>
-
+<p>OUT adjusted canopy height in (land_pts,ntile) form</p>
             </td>
         </tr>
         <tr>
@@ -245,7 +248,7 @@ realism.</p>
             <td>::</td>
             <td><strong>LAI_pft_cbl</strong>(mp)</td>
             <td>
-
+<p>OUT adjusted leaf area in (mp) form</p>
             </td>
         </tr>
         <tr>
@@ -260,7 +263,7 @@ realism.</p>
             <td>::</td>
             <td><strong>HGT_pft_cbl</strong>(mp)</td>
             <td>
-
+<p>OUT adjusted canopy height in (mp) form</p>
             </td>
         </tr>
         <tr>
@@ -275,7 +278,7 @@ realism.</p>
             <td>::</td>
             <td><strong>mp</strong></td>
             <td>
-
+<p>total number of tiles carried by land vector</p>
             </td>
         </tr>
         <tr>
@@ -290,7 +293,7 @@ realism.</p>
             <td>::</td>
             <td><strong>land_pts</strong></td>
             <td>
-
+<p>number of land points, max number of tiles that can be carried in any land point</p>
             </td>
         </tr>
         <tr>
@@ -305,7 +308,7 @@ realism.</p>
             <td>::</td>
             <td><strong>ntiles</strong></td>
             <td>
-
+<p>number of land points, max number of tiles that can be carried in any land point</p>
             </td>
         </tr>
         <tr>
@@ -320,7 +323,7 @@ realism.</p>
             <td>::</td>
             <td><strong>tile_pts</strong>(ntiles)</td>
             <td>
-
+<p>number of land_pts that a particular tile occupies </p>
             </td>
         </tr>
         <tr>
@@ -335,7 +338,7 @@ realism.</p>
             <td>::</td>
             <td><strong>tile_index</strong>(land_pts,ntiles)</td>
             <td>
-
+<p>specifies the tile types within each land point </p>
             </td>
         </tr>
         <tr>
@@ -350,7 +353,7 @@ realism.</p>
             <td>::</td>
             <td><strong>tile_frac</strong>(land_pts,ntiles)</td>
             <td>
-
+<p>fraction of cell assigned to each tile</p>
             </td>
         </tr>
         <tr>
@@ -365,7 +368,7 @@ realism.</p>
             <td>::</td>
             <td><strong>L_tile_pts</strong>(land_pts,ntiles)</td>
             <td>
-
+<p>switch to denote whether a tile is active</p>
             </td>
         </tr>
         <tr>
@@ -380,7 +383,7 @@ realism.</p>
             <td>::</td>
             <td><strong>LAI_pft</strong>(land_pts,ntiles)</td>
             <td>
-
+<p>IN leaf area (m<script type="math/tex">^2</script>m<script type="math/tex">^{-2}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -395,7 +398,7 @@ realism.</p>
             <td>::</td>
             <td><strong>HGT_pft</strong>(land_pts,ntiles)</td>
             <td>
-
+<p>IN canopy height (m)</p>
             </td>
         </tr>
         <tr>
@@ -410,7 +413,7 @@ realism.</p>
             <td>::</td>
             <td><strong>Clai_thresh</strong></td>
             <td>
-
+<p>The minimum LAI below which a tile is considered to be NOT vegetated</p>
             </td>
         </tr>
     </tbody>
