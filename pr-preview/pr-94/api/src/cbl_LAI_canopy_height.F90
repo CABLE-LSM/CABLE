@@ -59,7 +59,7 @@ real :: HGT_pft(land_pts, ntiles)   !! IN canopy height (m)
 
 !return vars
 real :: HGT_pft_temp(land_pts,ntiles) !! OUT adjusted canopy height in (land_pts,ntile) form (m)
-real :: LAI_pft_cbl(mp)             !! OUT adjusted leaf area in (mp) form (m^\(^2\)m\(^{-2}\))
+real :: LAI_pft_cbl(mp)             !! OUT adjusted leaf area in (mp) form (m\(^2\)m\(^{-2}\))
 real :: HGT_pft_cbl(mp)             !! OUT adjusted canopy height in (mp) form (m)
 
 !local vars
