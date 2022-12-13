@@ -49,7 +49,7 @@ SUBROUTINE qsatfjh2( var, CRMH2o, Crmair, CTETENA, CTETENB, CTETENC, tair,pmb)
   !*## Purpose
   !
   ! This SUBROUTINE evaluates the specific humdity (water vapour mixing ratio)
-  ! at saturation (in kgkg\(^{-1}\), at air temperature (in \(^{\circ}\)C and
+  ! at saturation (in kgkg\(^{-1}\)), at air temperature (in \(^{\circ}\)C) and
   ! and air pressure (in hPa).
   !
   !## Method
