@@ -1,15 +1,16 @@
 MODULE landuse_constant
   !! The `landuse_constant` module contains landuse-specific constants.
   !!
-  !! **WARNING:** Eventually, `mvmax` in the land-use code should be replaced with `mvtype`
-  ! written by YP Wang
+  !! **WARNING:** Eventually, `mvmax` in the land-use code should be replaced
+  !! with `mvtype`.
+  !written by YP Wang
   USE cable_def_types_mod,    ONLY: mvtype,mstype,mland,ms,msn,nrb,ncp,ncs,r_2
   USE casadimension,          ONLY: icycle,mplant,mlitter,msoil,mwood,mso
   IMPLICIT NONE
   !  integer, parameter                     :: sp =selected_real_kind(8)
   !  integer, parameter                     :: dp =selected_real_kind(16)
   INTEGER,   PARAMETER                   :: mstate   = 12
-  !* Number of land use states as in HYDE land use dataset processed by 
+  !* Number of land use states as in HYDE land use dataset processed by
   ! [George Hurtt](https://doi.org/10.5194/gmd-13-5425-2020)
   ! \( (-) \)
   INTEGER,   PARAMETER                   :: mvmax    = 17
@@ -27,5 +28,5 @@ MODULE landuse_constant
   REAL(r_2),    PARAMETER, DIMENSION(mwood) :: fracgrassseed=(/0.6,0.0,0.4/)
   !! Biomass fraction in leaf wood, and root pools for grassy seedlings in a cleared area \( (-) \)
   REAL(r_2),    PARAMETER                   :: fseedling = 0.001
-  !! Total biomass of seeldings in a cleared area \( ( g C \cdot m^{-2} ) \)
+  !! Total biomass of seedlings in a cleared area \( ( g C \cdot m^{-2} ) \)
 END MODULE landuse_constant
