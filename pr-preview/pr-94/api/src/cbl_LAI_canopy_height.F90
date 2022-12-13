@@ -49,7 +49,7 @@ subroutine limit_HGT_LAI( HGT_pft_temp, LAI_pft_cbl, HGT_pft_cbl, mp, land_pts, 
 implicit none
 real :: Clai_thresh                 !! The minimum LAI below which a tile is considered to be NOT vegetated (m\(^2\)m\(^{-2}\))
 integer :: land_pts, ntiles         !! number of land points, max number of tiles that can be carried in any land point (-)
-integer :: tile_pts(ntiles)         !! number of land_pts that a particular tile occupies (-) 
+integer :: tile_pts(ntiles)         !! number of land_pts in the array that include an active tile of a particular tile type (-) 
 integer:: tile_index(land_pts,ntiles) !! specifies the tile types within each land point (-)
 real:: tile_frac(land_pts,ntiles)   !! fraction of cell assigned to each tile (-)
 logical :: L_tile_pts(land_pts,ntiles) !! switch to denote whether a tile is active (-)
