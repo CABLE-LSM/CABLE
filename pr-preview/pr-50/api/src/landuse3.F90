@@ -3,26 +3,45 @@ MODULE landuse_variable
   IMPLICIT NONE
 
   SAVE
-!*# Overview of landuse3.F90
-!
-! These are three-type landuse-type variables:
-!
-! - `luc%var_x(mland,mvmax)`: variable indexed by "mland" and "mvmax" before landuse change
-! - `luc%var_y(mland,mvmax)`: variable indexed by "mland" and "mvmax" after land use change
-! - `lucmp%var( mp        )`: variable indexed by the patch number from 1 to mp
-!
-The land use change for each variable is applied in the form of a transformation matrix `T` such that:
-! \[$$\textbf{luc%var_y} = \textbf{luc%var_x} \cdot \textbf{T}\]
-!
-! This module will: 
-!
-! 1. map a variable `var` from CABLE into one derived-type variable `luc%var_x`
-! 2. apply land use change (PFT transition, wood harvest and land management)
-! 3. write the value of `var_x` into `var_y`
-! 4. update the value of `mp` and write `luc%var_y` to `lucmp%var`
-!
-! All variables in the restart file and the state variables will be calculated.
-!
+  !*# Overview of `landuse_variable` module (landuse3.F90)
+  !
+  ! This MODULE applies land use changes for CABLE including:
+  !
+  ! - PFT transition
+  ! - wood harvest
+  ! - land management
+  !
+  !## Method
+  !
+  ! All variables in the restart file and the state variables will be
+  ! calculated.
+  !
+  ! There are three groups of `landuse_mland` member variables. For example,
+  ! let's say we have a variable named `var`, then:
+  !
+  ! - `luc%var_x(mland,mvmax)` contains data before land-use change,
+  !    indexed using `mland` and `mvmax`.
+  ! - `luc%var_y(mland,mvmax)` contains data after land-use change, indexed
+  !    using `mland` and `mvmax`.
+  ! - `lucmp%var(mp)` contains the variable data, indexed using the patch
+  !    number from 1 to `mp`.
+  !
+  ! The land use change for each variable is applied in the form of a
+  ! transformation matrix `T`, such that:
+  !
+  ! \[ \textbf{luc%var_y} = \textbf{luc%var_x} \cdot \textbf{T} \]
+  !
+  ! The procedure for applying a land-use transition is:
+  !
+  ! 1. Map a CABLE variable `var` from CABLE into a `landuse_mland` member
+  !    variable `luc%var_x`.
+  ! 2. Apply land-use change (either a plant function type transition, wood
+  !    harvest or other land management).
+  ! 3. Write the value of `luc%var_x` into `luc%var_y`
+  ! 4. Update the value of `mp` and write `luc%var_y` to `lucmp%var`
+  !
+  ! **WARNING:** there are external procedures in this file that should be
+  ! moved to the `CONTAINS` clause of this module.
   TYPE landuse_mland
     ! patch generic
     INTEGER,   DIMENSION(:,:),       ALLOCATABLE :: iveg_x
@@ -1129,16 +1148,21 @@ end subroutine landuse_driver
 END SUBROUTINE landuse_mp2land
   
 SUBROUTINE landuse_transitx(luc,casabiome)
-   !* This subroutine calculates: 
+   !*## Purpose
+   !
+   ! This subroutine applies the land use changes to the transfer of the C,
+   ! N and P pools, the biophysical states, the soil texture and the soil
+   ! order for each patch. Then it will seed the deforested land.
+   !
+   !## Order of procedure
    !
    ! 1. the transfer of different C, N and P pools resulting from land use
    ! change in two steps
-   !     1. calculate the change of a pool (`delvar`) using transition 
+   !     1. calculate the change of a pool (`delvar`) using transition
    !     matrix (`T`)
    !     1. calculate `luc%var_y` as the sum of `luc%var_x + delvar`
    ! 2. update biophysical states, soil texture and soil order for each patch
    ! 3. seed any deforested land
-   !
    USE casaparm
    USE landuse_constant
    USE casavariable,        ONLY: casa_biome
