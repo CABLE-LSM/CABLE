@@ -144,16 +144,31 @@
  during the iteration loop of the Monin-Obuhkov (MO) similarity theory in
  <a href="../proc/define_canopy.html">define_canopy</a> (when quantifying the stability parameter <code>canopy%zetar</code>
  in <a href="../proc/update_zetar.html">update_zetar</a>); and as used when evaluating the resistant network.
- The friction velocity quantifies the magnitude of turbulent mixing.</p>
+ The friction velocity quantifies the magnitude of turbulent mixing and
+ the flux of momentum from the atmosphere to the land.</p>
 <p>The output <code>friction_vel</code> is known as <code>canopy%us</code> elsewhere in the code.</p>
 <p>The basic formula is</p>
 <p>
-<script type="math/tex"> U(z_{ref}) = u_* ( \log [z_ref/z_{0m}] - \Psi_m(\xi</script> +
-  \Psi_m(\xi z_{0m}/z_{ref})</p>
-<p>with <script type="math/tex">\Psi_m</script> the integrated similarity function given in <a href="../proc/psim.html">psim</a>.
- A minimum value of inupt wind speed is applied to assist with convergence
- in light wind conditions.
- Small and large value limits are applied to the evaluated <script type="math/tex">u_*</script>. </p>
+<script type="math/tex"> u_{*} = U(z_{ref}) / ( \log [z_{ref}/z_{0m}] -
+      \Psi_m(\xi z_{ref}/z_{refTq})
+    + \Psi_m(\xi z_{0m}/z_{refTq}) ) </script>
+</p>
+<p>with <script type="math/tex">\Psi_m</script> the integrated similarity function given by <a href="../proc/psim.html">psim</a>,
+ <script type="math/tex">U</script> the wind speed at height <script type="math/tex">z_{ref}</script>,
+ <script type="math/tex">\xi</script> the current value of the stability parameter, and <script type="math/tex">z_{0m}</script> the
+ roughness length.
+ A minimum value of input wind speed, <code>ua</code>= <script type="math/tex">U(z_{ref})</script> is applied
+ to assist with convergence of the iteration in light wind conditions.
+ Small and large value limits are applied to the evaluated <script type="math/tex">u_*</script>.</p>
+<p><strong>NOTE</strong> Most references assume that the reference levels for wind and
+ temperature are equal inside the arguments to the stability functions
+ <script type="math/tex">\Psi_m</script> and <script type="math/tex">\Psi_s</script> - in CABLE this need not be true.
+ <script type="math/tex">\xi</script> is always defined relative to the reference level for temperature,
+ in <script type="math/tex">\Psi_m</script> the reference height for wind is needed.
+ Consequently the formula for <script type="math/tex">\Psi_m</script> used includes conversion
+ factors to account for the different reference levels.
+ <code>zref_uv</code> and <code>zref_tq</code> passed to comp_friction_vel are the heights above
+ the displacement height <code>rough%disp</code></p>
 <h2>References</h2>
 <p><a href="http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf">Kowalczyk et al. (2006)</a>
  - section 3.1, equations 1-9.</p>
@@ -181,7 +196,7 @@
             <td>::</td>
             <td><strong>friction_vel</strong>(mp)</td>
             <td>
-                <p>friction velocity (ms<script type="math/tex">^{-2}</script>)</p>
+                <p>friction velocity (ms<script type="math/tex">^{-1}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -226,7 +241,7 @@
             <td>::</td>
             <td><strong>CVONK</strong></td>
             <td>
-                <p>von Karman constant</p>
+                <p>von Karman constant (-)</p>
             </td>
         </tr>
         <tr>
@@ -256,7 +271,7 @@
             <td>::</td>
             <td><strong>CPI_C</strong></td>
             <td>
-                <p>PI</p>
+                <p>PI (-)</p>
             </td>
         </tr>
         <tr>
@@ -286,7 +301,7 @@
             <td>::</td>
             <td><strong>zref_uv</strong>(mp)</td>
             <td>
-                <p>reference height for wind `rough%zref_uv (m)</p>
+                <p>reference height for wind <code>rough%zref_uv</code> (m)</p>
             </td>
         </tr>
         <tr>
@@ -331,8 +346,7 @@
             <td>::</td>
             <td><strong>ua</strong>(mp)</td>
             <td>
-                <p>wind speed <code>met%ua</code> (ms<script type="math/tex">^{-1}</script>
-</p>
+                <p>wind speed <code>met%ua</code> (ms<script type="math/tex">^{-1}</script>)</p>
             </td>
         </tr>
     </tbody>

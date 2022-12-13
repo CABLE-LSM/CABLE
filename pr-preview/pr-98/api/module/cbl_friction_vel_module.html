@@ -161,8 +161,8 @@
     <div class="col-md-9" id='text'>
     <p>This MODULE contains the SUBROUTINE <a href="../proc/comp_friction_vel.html">comp_friction_vel</a> and two
 FUNCTIONS ([psim]] and <a href="../proc/psis.html">psis</a>) needed to
-evaluate the value of the friction velocity over each land point/tile
-given the wind speed and current estiamte of the Monin-Obukhov
+evaluate the friction velocity over each land point/tile
+given the wind speed and the current estimate of the Monin-Obukhov
 stability parameter <script type="math/tex">\xi</script> (see <a href="../proc/ruff_resist.html">ruff_resist</a> and <a href="../proc/define_canopy.html">define_canopy</a>)</p>
     
     
@@ -334,7 +334,7 @@ stability parameter <script type="math/tex">\xi</script> (see <a href="../proc/r
             <td>::</td>
             <td><strong>zeta</strong></td>
             <td>
-
+<p>IN current value of stability parameter <script type="math/tex">\xi</script> (-)</p>
             </td>
         </tr>
     </tbody>
@@ -344,7 +344,8 @@ stability parameter <script type="math/tex">\xi</script> (see <a href="../proc/r
     Return Value
     <small>real</small>
     </h4>
-    
+    <p>OUT <script type="math/tex">\Psi_s (\xi) </script>
+</p>
 
     </div>
   </div>
@@ -363,7 +364,8 @@ stability parameter <script type="math/tex">\xi</script> (see <a href="../proc/r
  during the iteration loop of the Monin-Obuhkov (MO) similarity theory in
  <a href="../proc/define_canopy.html">define_canopy</a> (when quantifying the stability parameter <code>canopy%zetar</code>
  in <a href="../proc/update_zetar.html">update_zetar</a>); and as used when evaluating the resistant network.
- The friction velocity quantifies the magnitude of turbulent mixing.</p><a href="../proc/comp_friction_vel.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+ The friction velocity quantifies the magnitude of turbulent mixing and
+ the flux of momentum from the atmosphere to the land.</p><a href="../proc/comp_friction_vel.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -388,7 +390,7 @@ stability parameter <script type="math/tex">\xi</script> (see <a href="../proc/r
             <td>::</td>
             <td><strong>friction_vel</strong>(mp)</td>
             <td>
-<p>friction velocity (ms<script type="math/tex">^{-2}</script>)</p>
+<p>friction velocity (ms<script type="math/tex">^{-1}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -433,7 +435,7 @@ stability parameter <script type="math/tex">\xi</script> (see <a href="../proc/r
             <td>::</td>
             <td><strong>CVONK</strong></td>
             <td>
-<p>von Karman constant</p>
+<p>von Karman constant (-)</p>
             </td>
         </tr>
         <tr>
@@ -463,7 +465,7 @@ stability parameter <script type="math/tex">\xi</script> (see <a href="../proc/r
             <td>::</td>
             <td><strong>CPI_C</strong></td>
             <td>
-<p>PI</p>
+<p>PI (-)</p>
             </td>
         </tr>
         <tr>
@@ -493,7 +495,7 @@ stability parameter <script type="math/tex">\xi</script> (see <a href="../proc/r
             <td>::</td>
             <td><strong>zref_uv</strong>(mp)</td>
             <td>
-<p>reference height for wind `rough%zref_uv (m)</p>
+<p>reference height for wind <code>rough%zref_uv</code> (m)</p>
             </td>
         </tr>
         <tr>
@@ -538,8 +540,7 @@ stability parameter <script type="math/tex">\xi</script> (see <a href="../proc/r
             <td>::</td>
             <td><strong>ua</strong>(mp)</td>
             <td>
-<p>wind speed <code>met%ua</code> (ms<script type="math/tex">^{-1}</script>
-</p>
+<p>wind speed <code>met%ua</code> (ms<script type="math/tex">^{-1}</script>)</p>
             </td>
         </tr>
     </tbody>

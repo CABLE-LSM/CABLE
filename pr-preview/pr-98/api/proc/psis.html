@@ -141,7 +141,7 @@
 
     <p>Purpose</p>
 <p>Evaluates the integrated similarity function for turbulent transfer
-of scalars.
+of scalars, <script type="math/tex">\Psi_s(\xi)</script>.
 Uses the Businger-Dyer form for unstable conditions (<script type="math/tex">\xi<0</script>) and the
 Beljaars-Holtslag form for stable conditions (<script type="math/tex">\xi>0</script>)</p>
 <p>References
@@ -162,7 +162,7 @@ Beljaars-Holtslag form for stable conditions (<script type="math/tex">\xi>0</scr
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-zeta~6"></span>
+              <span class="anchor" id="variable-zeta~2"></span>
               real,
             </td>
 <td>intent(in)</td>
@@ -172,7 +172,7 @@ Beljaars-Holtslag form for stable conditions (<script type="math/tex">\xi>0</scr
             <td>::</td>
             <td><strong>zeta</strong></td>
             <td>
-                
+                <p>IN current value of stability parameter <script type="math/tex">\xi</script> (-)</p>
             </td>
         </tr>
     </tbody>
@@ -180,11 +180,12 @@ Beljaars-Holtslag form for stable conditions (<script type="math/tex">\xi>0</scr
 
       <h3>Return Value
         <small>
-          <span class="anchor" id="variable-r~5"></span>
+          <span class="anchor" id="variable-r~2"></span>
           real
         </small>
       </h3>
-      
+      <p>OUT <script type="math/tex">\Psi_s (\xi) </script>
+</p>
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
