@@ -4,7 +4,7 @@ MODULE cbl_qsat_module
   ! and temperature.
   !
   ! The two SUBROUTINEs differ only in that [[qsatfjh]] operates on an array
-  ! whereas as [[qsatjfh2]] operates on single element REALs.
+  ! whereas [[qsatjfh2]] operates on single element REALs.
 
 PUBLIC qsatfjh
 PUBLIC qsatfjh2
@@ -15,8 +15,8 @@ CONTAINS
     !*## Purpose
     !
     ! This SUBROUTINE evaluates the specific humdity (water vapour mixing ratio)
-    ! at saturation (in kgkg\(^{-1}\)), at air temperature (in \(^{\circ}\)C)
-    ! and air pressure (in hPa) across an array of size mp.
+    ! at saturation (in kgkg\(^{-1}\)), at a given air temperature (in \(^{\circ}\)C)
+    ! and air pressure (in hPa) for an array of size mp.
     !
     !## Method
     !
@@ -27,7 +27,7 @@ CONTAINS
 
 IMPLICIT  NONE   
 integer :: mp                        !! size of array of land points
-REAL, INTENT(OUT) :: var(mp)         !! sat specific humidity (kgkg\(^{-1}\))
+REAL, INTENT(OUT) :: var(mp)         !! specific humidity at saturation (kgkg\(^{-1}\))
 REAL :: CRMH2o, Crmair, CTETENA, CTETENB, CTETENC
 REAL, INTENT(IN) ::                                          &
   tair(mp),                        & !! air temperature (\(^{\circ}\)C)
@@ -49,7 +49,7 @@ SUBROUTINE qsatfjh2( var, CRMH2o, Crmair, CTETENA, CTETENB, CTETENC, tair,pmb)
   !*## Purpose
   !
   ! This SUBROUTINE evaluates the specific humdity (water vapour mixing ratio)
-  ! at saturation (in kgkg\(^{-1}\)), at air temperature (in \(^{\circ}\)C) and
+  ! at saturation (in kgkg\(^{-1}\)), at a given air temperature (in \(^{\circ}\)C)
   ! and air pressure (in hPa).
   !
   !## Method
