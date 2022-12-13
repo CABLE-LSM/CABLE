@@ -37,7 +37,7 @@ subroutine limit_HGT_LAI( HGT_pft_temp, LAI_pft_cbl, HGT_pft_cbl, mp, land_pts, 
   ! **WARNINGS**
   !
   ! - INTENT statements need to be added to the argument lists
-  ! - hardwired indexing is use throughout.  This SUBROUTINE assumes that
+  ! - hardwired indexing is used throughout.  This SUBROUTINE assumes that
   !     1. non-vegetated tiles take indexes 14 and onwards
   !     2. tall vegetation occupies tile indexes 1-4
   !     3. other vegetation (shrubs/grasses/crops/wetlands) occupy tile indexes
