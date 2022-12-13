@@ -150,8 +150,8 @@
 <p>The basic formula is</p>
 <p>
 <script type="math/tex"> u_{*} = U(z_{ref}) / ( \log [z_{ref}/z_{0m}] -
-      \Psi_m(\xi z_{ref}/z_{refTq})
-    + \Psi_m(\xi z_{0m}/z_{refTq}) ) </script>
+      \Psi_m[\xi z_{ref}/z_{refTq}]
+    + \Psi_m[\xi z_{0m}/z_{refTq}] ) </script>
 </p>
 <p>with <script type="math/tex">\Psi_m</script> the integrated similarity function given by <a href="../proc/psim.html">psim</a>,
  <script type="math/tex">U</script> the wind speed at height <script type="math/tex">z_{ref}</script>,
@@ -160,9 +160,10 @@
  A minimum value of input wind speed, <code>ua</code>= <script type="math/tex">U(z_{ref})</script> is applied
  to assist with convergence of the iteration in light wind conditions.
  Small and large value limits are applied to the evaluated <script type="math/tex">u_*</script>.</p>
-<p><strong>NOTE</strong> Most references assume that the reference levels for wind and
- temperature are equal inside the arguments to the stability functions
- <script type="math/tex">\Psi_m</script> and <script type="math/tex">\Psi_s</script> - in CABLE this need not be true.
+<p><strong>NOTE</strong> Most literature references assume that the reference levels
+ for wind and temperature are equal inside the arguments to the
+ stability functions <script type="math/tex">\Psi_m</script> and <script type="math/tex">\Psi_s</script> - in CABLE this need
+ not be true.
  <script type="math/tex">\xi</script> is always defined relative to the reference level for temperature,
  in <script type="math/tex">\Psi_m</script> the reference height for wind is needed.
  Consequently the formula for <script type="math/tex">\Psi_m</script> used includes conversion
