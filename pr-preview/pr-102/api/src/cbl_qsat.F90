@@ -12,11 +12,13 @@ PUBLIC qsatfjh2
 CONTAINS
 
   SUBROUTINE qsatfjh(mp, var, CRMH2o, Crmair, CTETENA, CTETENB, CTETENC, tair,pmb)
-    !*This SUBROUTINE evaluates the specific humdity (water vapour mixing ratio)
-    ! at saturation (in kgkg\(^{-1}\), at air temperature (in \(^{\circ}\)C)
+    !*## Purpose
+    !
+    ! This SUBROUTINE evaluates the specific humdity (water vapour mixing ratio)
+    ! at saturation (in kgkg\(^{-1}\)), at air temperature (in \(^{\circ}\)C)
     ! and air pressure (in hPa) across an array of size mp.
     !
-    !**METHOD
+    !## Method
     !
     ! The standard formula for specific humdity at saturation is used,
     ! see e.g. Garratt (1995), based on the values for the mass of a mole
@@ -44,11 +46,13 @@ END SUBROUTINE qsatfjh
 
 
 SUBROUTINE qsatfjh2( var, CRMH2o, Crmair, CTETENA, CTETENB, CTETENC, tair,pmb)
-  !*This SUBROUTINE evaluates the specific humdity (water vapour mixing ratio)
+  !*## Purpose
+  !
+  ! This SUBROUTINE evaluates the specific humdity (water vapour mixing ratio)
   ! at saturation (in kgkg\(^{-1}\), at air temperature (in \(^{\circ}\)C and
   ! and air pressure (in hPa).
   !
-  !** METHOD
+  !## Method
   !
   ! The standard formula for specific humdity at saturation is used,
   ! see e.g. Garratt (1995), based on the values for the mass of a mole
