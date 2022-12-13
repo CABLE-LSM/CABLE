@@ -1,4 +1,9 @@
 MODULE cbl_friction_vel_module
+  !* This MODULE contains the SUBROUTINE [[comp_friction_vel]] and two
+  ! FUNCTIONS ([psim]] and [[psis]]) needed to
+  ! evaluate the value of the friction velocity over each land point/tile
+  ! given the wind speed and current estiamte of the Monin-Obukhov
+  ! stability parameter \(\xi\) (see [[ruff_resist]] and [[define_canopy]])
 
 IMPLICIT NONE
 
@@ -11,24 +16,47 @@ PRIVATE
 CONTAINS
 
 SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
-                             zetar, zref_uv, zref_tq, z0m, ua )
+     zetar, zref_uv, zref_tq, z0m, ua )
+  !*## Purpose
+  !
+  ! This SUBROUTINE evaluates the value of the frction velocity \(u_*\) as used
+  ! during the iteration loop of the Monin-Obuhkov (MO) similarity theory in
+  ! [[define_canopy]] (when quantifying the stability parameter `canopy%zetar`
+  ! in [[update_zetar]]); and as used when evaluating the resistant network.
+  ! The friction velocity quantifies the magnitude of turbulent mixing.
+  !
+  ! The output `friction_vel` is known as `canopy%us` elsewhere in the code.
+  !
+  ! The basic formula is
+  !
+  ! \( U(z_{ref}) = u_* ( \log [z_ref/z_{0m}] - \Psi_m(\xi\) +
+  !  \Psi_m(\xi z_{0m}/z_{ref})
+  !
+  ! with \(\Psi_m\) the integrated similarity function given in [[psim]].
+  ! A minimum value of inupt wind speed is applied to assist with convergence
+  ! in light wind conditions.
+  ! Small and large value limits are applied to the evaluated \(u_*\). 
+  !
+  !## References
+  ![Kowalczyk et al. (2006)](http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf)
+  ! - section 3.1, equations 1-9.
 
 IMPLICIT NONE
 
-INTEGER, INTENT(IN) :: mp
-REAL, INTENT(OUT) :: friction_vel(mp)   !canopy%us
-INTEGER, INTENT(IN) :: iter
+INTEGER, INTENT(IN) :: mp               !! size of cable vector of land points (-)
+REAL, INTENT(OUT) :: friction_vel(mp)   !! friction velocity (ms\(^{-2}\))
+INTEGER, INTENT(IN) :: iter             !! MO iteration counter (-)
 ! physical constants
-REAL, INTENT(IN) :: CVONK
-REAL, INTENT(IN):: CUMIN   
+REAL, INTENT(IN) :: CVONK               !! von Karman constant
+REAL, INTENT(IN):: CUMIN                !! minimum value of wind speed (ms\(^{-1}\))
 ! maths & other constants
-REAL, INTENT(IN) :: CPI_C  
+REAL, INTENT(IN) :: CPI_C               !! PI
 
-REAL, INTENT(IN) :: zetar(mp,iter)      !canopy%zetar
-REAL, INTENT(IN) :: zref_uv(mp)         !rough%zref_uv
-REAL, INTENT(IN) :: zref_tq(mp)         !rough%zref_tq
-REAL, INTENT(IN) :: z0m(mp)             !rough%z0m
-REAL, INTENT(IN) :: ua(mp)              !met%ua
+REAL, INTENT(IN) :: zetar(mp,iter)      !! stability parameter - see [[update_zetar]] `canopy%zetar` (-)
+REAL, INTENT(IN) :: zref_uv(mp)         !! reference height for wind `rough%zref_uv (m)
+REAL, INTENT(IN) :: zref_tq(mp)         !! reference height for temperature and humidity `rough%zref_tq` (m)
+REAL, INTENT(IN) :: z0m(mp)             !! roughness length `rough%z0m` (m)
+REAL, INTENT(IN) :: ua(mp)              !! wind speed `met%ua` (ms\(^{-1}\)
 
 !local vars
 REAL :: lower_limit(mp), rescale(mp)
@@ -58,18 +86,32 @@ END SUBROUTINE comp_friction_vel
 
 
 FUNCTION psim(zeta, mp, CPI_C ) RESULT(r)
+  !* Purpose
+  !
+  ! Evaluates the integrated similarity function for momentum transfer
+  ! Uses the Businger-Dyer form for unstable conditions (\(\xi<0\)) and the
+  ! Beljaars-Holtslag form for stable conditions (\(\xi>0\))
+  !
+  ! This function is used in the evalaution of `canopy%rtus1c`
+  ! the normalized resistance for the turbulent flux of scalars
+  ! in [[define_canopy]] 
+  !
+  !* References
+  ! [Beljaars and Holtslag (1991)](https://doi.org/10.1175/1520-0450(1991)030<0327:FPOLSF>2.0.CO;2)
+  ! [Businger et al. (1971)] (https://doi.org/10.1175/1520-0469(1971)028<0181:FPRITA>2.0.CO;2)
+  ! [Dyer (1974)] (https://doi.org/10.1007/BF00240838)
 
 ! mrr, 16-sep-92 (from function psi: mrr, edinburgh 1977)
 ! computes integrated stability function psim(z/l) (z/l=zeta)
 ! for momentum, using the businger-dyer form for unstable cases
 ! and the Beljaars and Holtslag (1991) form for stable cases.
 
-INTEGER, INTENT(IN) :: mp
-REAL, INTENT(IN), DIMENSION(mp) ::  zeta       !
-REAL, INTENT(IN) :: CPI_C  
+INTEGER, INTENT(IN) :: mp                !! size of cable vector of land points (-)
+REAL, INTENT(IN), DIMENSION(mp) ::  zeta !! IN current value of stability parameter \(\xi\) (-)
+REAL, INTENT(IN) :: CPI_C                !! PI
 
 ! function result
-REAL, DIMENSION(mp) :: r
+REAL, DIMENSION(mp) :: r                 !! OUT \(\Psi_m (\xi) \)
 
 REAL, PARAMETER ::                                                          &
   gu = 16.0,         & !
@@ -97,6 +139,17 @@ r        = z*stable + (1.0-z)*unstable
 END FUNCTION psim
 
 ELEMENTAL FUNCTION psis(zeta) RESULT(r)
+  !* Purpose
+  !
+  ! Evaluates the integrated similarity function for turbulent transfer
+  ! of scalars.
+  ! Uses the Businger-Dyer form for unstable conditions (\(\xi<0\)) and the
+  ! Beljaars-Holtslag form for stable conditions (\(\xi>0\))
+  !
+  !* References
+  ! [Beljaars and Holtslag (1991)](https://doi.org/10.1175/1520-0450(1991)030<0327:FPOLSF>2.0.CO;2)
+  ! [Businger et al. (1971)] (https://doi.org/10.1175/1520-0469(1971)028<0181:FPRITA>2.0.CO;2)
+  ! [Dyer (1974)] (https://doi.org/10.1007/BF00240838)
 
 ! mrr, 16-sep-92 (from function psi: mrr, edinburgh 1977)
 ! computes integrated stability function psis(z/l) (z/l=zeta)
