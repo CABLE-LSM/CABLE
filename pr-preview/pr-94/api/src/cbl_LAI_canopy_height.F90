@@ -18,8 +18,8 @@ subroutine limit_HGT_LAI( HGT_pft_temp, LAI_pft_cbl, HGT_pft_cbl, mp, land_pts, 
   ! The mapping from grid cells (land_pts,ntiles) to the (mp) structure
   ! is also undertaken.
   !
-  ! This SUBROUTINE is active ONLY when CABLE is run within a coupled model
-  ! (i.e. ACCESS)  ! 
+  ! **This SUBROUTINE is active run when CABLE is run within a coupled model
+  ! (i.e. ACCESS)** 
   !
   !## Method
   !
@@ -36,7 +36,7 @@ subroutine limit_HGT_LAI( HGT_pft_temp, LAI_pft_cbl, HGT_pft_cbl, mp, land_pts, 
   !
   ! **WARNINGS**
   !
-  ! - INTENT statementts need to be added to the argument lists
+  ! - INTENT statements need to be added to the argument lists
   ! - hardwired indexing is use throughout.  This SUBROUTINE assumes that
   !     1. non-vegetated tiles take indexes 14 and onwards
   !     2. tall vegetation occupies tile indexes 1-4
@@ -47,20 +47,20 @@ subroutine limit_HGT_LAI( HGT_pft_temp, LAI_pft_cbl, HGT_pft_cbl, mp, land_pts, 
   !     2. canopy height for other vegetation is limited to be greater than 0.1m
   
 implicit none
-real :: Clai_thresh                 !! The minimum LAI below which a tile is considered to be NOT vegetated
-integer :: land_pts, ntiles         !! number of land points, max number of tiles that can be carried in any land point
-integer :: tile_pts(ntiles)         !! number of land_pts that a particular tile occupies 
-integer:: tile_index(land_pts,ntiles) !! specifies the tile types within each land point 
-real:: tile_frac(land_pts,ntiles)   !! fraction of cell assigned to each tile
-logical :: L_tile_pts(land_pts,ntiles) !! switch to denote whether a tile is active
-integer :: mp                       !! total number of tiles carried by land vector
+real :: Clai_thresh                 !! The minimum LAI below which a tile is considered to be NOT vegetated (m\(^2\)m\(^{-2}\))
+integer :: land_pts, ntiles         !! number of land points, max number of tiles that can be carried in any land point (-)
+integer :: tile_pts(ntiles)         !! number of land_pts that a particular tile occupies (-) 
+integer:: tile_index(land_pts,ntiles) !! specifies the tile types within each land point (-)
+real:: tile_frac(land_pts,ntiles)   !! fraction of cell assigned to each tile (-)
+logical :: L_tile_pts(land_pts,ntiles) !! switch to denote whether a tile is active (-)
+integer :: mp                       !! total number of tiles carried by land vector (-)
 real :: LAI_pft(land_pts, ntiles)   !! IN leaf area (m\(^2\)m\(^{-2}\))
 real :: HGT_pft(land_pts, ntiles)   !! IN canopy height (m)
 
 !return vars
-real :: HGT_pft_temp(land_pts,ntiles) !! OUT adjusted canopy height in (land_pts,ntile) form
-real :: LAI_pft_cbl(mp)             !! OUT adjusted leaf area in (mp) form
-real :: HGT_pft_cbl(mp)             !! OUT adjusted canopy height in (mp) form
+real :: HGT_pft_temp(land_pts,ntiles) !! OUT adjusted canopy height in (land_pts,ntile) form (m\(^2\)m\(^{-2}\))
+real :: LAI_pft_cbl(mp)             !! OUT adjusted leaf area in (mp) form (m^\(^2\)m\(^{-2}\))
+real :: HGT_pft_cbl(mp)             !! OUT adjusted canopy height in (mp) form (m)
 
 !local vars
 real :: LAI_pft_temp(land_pts,ntiles)
