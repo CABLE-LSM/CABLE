@@ -160,7 +160,7 @@
     
     <div class="col-md-9" id='text'>
     <p>This MODULE contains the SUBROUTINE <a href="../proc/comp_friction_vel.html">comp_friction_vel</a> and two
-FUNCTIONS ([psim]] and <a href="../proc/psis.html">psis</a>) needed to
+FUNCTIONS (<a href="../proc/psim.html">psim</a> and <a href="../proc/psis.html">psis</a>) needed to
 evaluate the friction velocity over each land point/tile
 given the wind speed and the current estimate of the Monin-Obukhov
 stability parameter <script type="math/tex">\xi</script> (see <a href="../proc/ruff_resist.html">ruff_resist</a> and <a href="../proc/define_canopy.html">define_canopy</a>)</p>
@@ -233,7 +233,10 @@ stability parameter <script type="math/tex">\xi</script> (see <a href="../proc/r
 </h3></div>
     <div class="panel-body">
           
-  <p>Purpose</p><a href="../proc/psim.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+  <p>Evaluates the integrated similarity function for momentum transfer,
+ <script type="math/tex">\Psi_m(\xi)</script>
+ Uses the Businger-Dyer form for unstable conditions (<script type="math/tex">\xi<0</script>) and the
+ Beljaars-Holtslag form for stable conditions (<script type="math/tex">\xi>0</script>)</p><a href="../proc/psim.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -309,7 +312,10 @@ stability parameter <script type="math/tex">\xi</script> (see <a href="../proc/r
 </h3></div>
     <div class="panel-body">
           
-  <p>Purpose</p><a href="../proc/psis.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+  <p>Evaluates the integrated similarity function for turbulent transfer
+ of scalars, <script type="math/tex">\Psi_s(\xi)</script>.
+ Uses the Businger-Dyer form for unstable conditions (<script type="math/tex">\xi<0</script>) and the
+ Beljaars-Holtslag form for stable conditions (<script type="math/tex">\xi>0</script>).</p><a href="../proc/psis.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
