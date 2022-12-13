@@ -160,8 +160,8 @@
  <script type="math/tex">U</script> the wind speed at height <script type="math/tex">z_{ref}</script>,
  <script type="math/tex">\xi</script> the current value of the stability parameter, and <script type="math/tex">z_{0m}</script> the
  roughness length.
- A minimum value of input wind speed, <code>ua</code>= <script type="math/tex">U(z_{ref})</script> is applied
- to assist with convergence of the iteration in light wind conditions.
+ A minimum value is applied to the input wind speed, <code>ua</code>= <script type="math/tex">U(z_{ref})</script>,
+ to assist with convergence of the MO iteration in light wind conditions.
  Small and large value limits are applied to the evaluated <script type="math/tex">u_*</script>.</p>
 <p><strong>NOTE</strong> Most literature references assume that the reference levels
  for wind and temperature are equal inside the arguments to the
@@ -169,7 +169,7 @@
  not be true.
  <script type="math/tex">\xi</script> is always defined relative to the reference level for temperature,
  in <script type="math/tex">\psi_m</script> the reference height for wind is needed.
- Consequently the formula for <script type="math/tex">\psi_m</script> used includes conversion
+ Consequently the calls to <a href="../proc/psim.html">psim</a> include conversion
  factors to account for the different reference levels.
  <code>zref_uv</code> and <code>zref_tq</code> passed to comp_friction_vel are the heights above
  the displacement height <code>rough%disp</code>.</p>
@@ -220,7 +220,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-mp~6"></span>
+              <span class="anchor" id="variable-mp~5"></span>
               integer,
             </td>
 <td>intent(in)</td>

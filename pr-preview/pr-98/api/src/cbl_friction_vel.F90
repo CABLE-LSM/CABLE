@@ -42,8 +42,8 @@ SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
   ! \(U\) the wind speed at height \(z_{ref}\),
   ! \(\xi\) the current value of the stability parameter, and \(z_{0m}\) the
   ! roughness length.
-  ! A minimum value of input wind speed, `ua`= \(U(z_{ref})\) is applied
-  ! to assist with convergence of the iteration in light wind conditions.
+  ! A minimum value is applied to the input wind speed, `ua`= \(U(z_{ref})\),
+  ! to assist with convergence of the MO iteration in light wind conditions.
   ! Small and large value limits are applied to the evaluated \(u_*\).
   !
   ! **NOTE** Most literature references assume that the reference levels
@@ -52,7 +52,7 @@ SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
   ! not be true.
   ! \(\xi\) is always defined relative to the reference level for temperature,
   ! in \(\psi_m\) the reference height for wind is needed.
-  ! Consequently the formula for \(\psi_m\) used includes conversion
+  ! Consequently the calls to [[psim]] include conversion
   ! factors to account for the different reference levels.
   ! `zref_uv` and `zref_tq` passed to comp_friction_vel are the heights above
   ! the displacement height `rough%disp`.
