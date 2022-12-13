@@ -160,9 +160,6 @@ call Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
              rad%reffbm, rad%reffdf                                        &
            ) !EffSurfRefl_beam, EffSurfRefl_dif
 
-
-         
-      ENDIF
    
    ! Calculate canopy variables:
    CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy, climate, sunlit_veg_mask, canopy%vlaiw )
