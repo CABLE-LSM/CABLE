@@ -18,7 +18,7 @@ subroutine limit_HGT_LAI( HGT_pft_temp, LAI_pft_cbl, HGT_pft_cbl, mp, land_pts, 
   ! The mapping from grid cells (land_pts,ntiles) to the (mp) structure
   ! is also undertaken.
   !
-  ! **This SUBROUTINE is active run when CABLE is run within a coupled model
+  ! **This SUBROUTINE is active when CABLE is run within a coupled model
   ! (i.e. ACCESS)** 
   !
   !## Method
