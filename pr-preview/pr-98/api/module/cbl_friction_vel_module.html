@@ -234,7 +234,7 @@ stability parameter <script type="math/tex">\xi</script> (see <a href="../proc/r
     <div class="panel-body">
           
   <p>Evaluates the integrated similarity function for momentum transfer,
- <script type="math/tex">\Psi_m(\xi)</script>
+ <script type="math/tex">\psi_m(\xi)</script>
  Uses the Businger-Dyer form for unstable conditions (<script type="math/tex">\xi<0</script>) and the
  Beljaars-Holtslag form for stable conditions (<script type="math/tex">\xi>0</script>)</p><a href="../proc/psim.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
@@ -301,7 +301,7 @@ stability parameter <script type="math/tex">\xi</script> (see <a href="../proc/r
     Return Value
     <small>real, DIMENSION(mp)</small>
     </h4>
-    <p>OUT <script type="math/tex">\Psi_m (\xi) </script>
+    <p>OUT <script type="math/tex">\psi_m (\xi) </script>
 </p>
 
     </div>
@@ -313,7 +313,7 @@ stability parameter <script type="math/tex">\xi</script> (see <a href="../proc/r
     <div class="panel-body">
           
   <p>Evaluates the integrated similarity function for turbulent transfer
- of scalars, <script type="math/tex">\Psi_s(\xi)</script>.
+ of scalars, <script type="math/tex">\psi_s(\xi)</script>.
  Uses the Businger-Dyer form for unstable conditions (<script type="math/tex">\xi<0</script>) and the
  Beljaars-Holtslag form for stable conditions (<script type="math/tex">\xi>0</script>).</p><a href="../proc/psis.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
@@ -350,7 +350,7 @@ stability parameter <script type="math/tex">\xi</script> (see <a href="../proc/r
     Return Value
     <small>real</small>
     </h4>
-    <p>OUT <script type="math/tex">\Psi_s (\xi) </script>
+    <p>OUT <script type="math/tex">\psi_s (\xi) </script>
 </p>
 
     </div>
@@ -369,7 +369,8 @@ stability parameter <script type="math/tex">\xi</script> (see <a href="../proc/r
   <p>This SUBROUTINE evaluates the value of the frction velocity <script type="math/tex">u_*</script> as used
  during the iteration loop of the Monin-Obuhkov (MO) similarity theory in
  <a href="../proc/define_canopy.html">define_canopy</a> (when quantifying the stability parameter <code>canopy%zetar</code>
- in <a href="../proc/update_zetar.html">update_zetar</a>); and as used when evaluating the resistant network.
+ in <a href="../proc/update_zetar.html">update_zetar</a>); and when evaluating the resistant network component
+ <code>rt1usc</code> in <a href="../proc/define_canopy.html">define_canopy</a>.
  The friction velocity quantifies the magnitude of turbulent mixing and
  the flux of momentum from the atmosphere to the land.</p><a href="../proc/comp_friction_vel.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 

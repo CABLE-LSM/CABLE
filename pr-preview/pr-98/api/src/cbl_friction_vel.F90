@@ -22,7 +22,8 @@ SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
   ! This SUBROUTINE evaluates the value of the frction velocity \(u_*\) as used
   ! during the iteration loop of the Monin-Obuhkov (MO) similarity theory in
   ! [[define_canopy]] (when quantifying the stability parameter `canopy%zetar`
-  ! in [[update_zetar]]); and as used when evaluating the resistant network.
+  ! in [[update_zetar]]); and when evaluating the resistant network component
+  ! `rt1usc` in [[define_canopy]].
   ! The friction velocity quantifies the magnitude of turbulent mixing and
   ! the flux of momentum from the atmosphere to the land.
   !
@@ -31,10 +32,10 @@ SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
   ! The basic formula is
   !
   ! \( u_{*} = U(z_{ref}) / ( \log [z_{ref}/z_{0m}] -
-  !      \Psi_m[\xi z_{ref}/z_{refTq}]
-  !    + \Psi_m[\xi z_{0m}/z_{refTq}] ) \)
+  !      \psi_m[\xi z_{ref}/z_{refTq}]
+  !    + \psi_m[\xi z_{0m}/z_{refTq}] ) \)
   !
-  ! with \(\Psi_m\) the integrated similarity function given by [[psim]],
+  ! with \(\psi_m\) the integrated similarity function given by [[psim]],
   ! \(U\) the wind speed at height \(z_{ref}\),
   ! \(\xi\) the current value of the stability parameter, and \(z_{0m}\) the
   ! roughness length.
@@ -44,11 +45,11 @@ SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
   !
   ! **NOTE** Most literature references assume that the reference levels
   ! for wind and temperature are equal inside the arguments to the
-  ! stability functions \(\Psi_m\) and \(\Psi_s\) - in CABLE this need
+  ! stability functions \(\psi_m\) and \(\psi_s\) - in CABLE this need
   ! not be true.
   ! \(\xi\) is always defined relative to the reference level for temperature,
-  ! in \(\Psi_m\) the reference height for wind is needed.
-  ! Consequently the formula for \(\Psi_m\) used includes conversion
+  ! in \(\psi_m\) the reference height for wind is needed.
+  ! Consequently the formula for \(\psi_m\) used includes conversion
   ! factors to account for the different reference levels.
   ! `zref_uv` and `zref_tq` passed to comp_friction_vel are the heights above
   ! the displacement height `rough%disp`
@@ -106,7 +107,7 @@ FUNCTION psim(zeta, mp, CPI_C ) RESULT(r)
   !*## Purpose
   !
   ! Evaluates the integrated similarity function for momentum transfer,
-  ! \(\Psi_m(\xi)\)
+  ! \(\psi_m(\xi)\)
   ! Uses the Businger-Dyer form for unstable conditions (\(\xi<0\)) and the
   ! Beljaars-Holtslag form for stable conditions (\(\xi>0\))
   !
@@ -128,7 +129,7 @@ REAL, INTENT(IN), DIMENSION(mp) ::  zeta !! IN current value of stability parame
 REAL, INTENT(IN) :: CPI_C                !! PI
 
 ! function result
-REAL, DIMENSION(mp) :: r                 !! OUT \(\Psi_m (\xi) \)
+REAL, DIMENSION(mp) :: r                 !! OUT \(\psi_m (\xi) \)
 
 REAL, PARAMETER ::                                                          &
   gu = 16.0,         & !
@@ -159,12 +160,12 @@ ELEMENTAL FUNCTION psis(zeta) RESULT(r)
   !*## Purpose
   !
   ! Evaluates the integrated similarity function for turbulent transfer
-  ! of scalars, \(\Psi_s(\xi)\).
+  ! of scalars, \(\psi_s(\xi)\).
   ! Uses the Businger-Dyer form for unstable conditions (\(\xi<0\)) and the
   ! Beljaars-Holtslag form for stable conditions (\(\xi>0\)).
   !
   ! This function is used in the evaluation of the resistance network component
-  ! `canopy%rtus1c` in [[define_canopy]]
+  ! `rt1usc` in [[define_canopy]]
   !
   !## References
   ! - [Beljaars and Holtslag (1991)](https://doi.org/10.1175/1520-0450(1991)030<0327:FPOLSF>2.0.CO;2)
@@ -187,7 +188,7 @@ REAL, PARAMETER      ::                                                     &
      d = 0.35
 
 REAL                 ::                                                     &
-     r,                & !! OUT \(\Psi_s (\xi) \)
+     r,                & !! OUT \(\psi_s (\xi) \)
      stzeta,           & !
      ustzeta,          & !
      z,                & !

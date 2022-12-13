@@ -143,17 +143,18 @@
 <p>This SUBROUTINE evaluates the value of the frction velocity <script type="math/tex">u_*</script> as used
  during the iteration loop of the Monin-Obuhkov (MO) similarity theory in
  <a href="../proc/define_canopy.html">define_canopy</a> (when quantifying the stability parameter <code>canopy%zetar</code>
- in <a href="../proc/update_zetar.html">update_zetar</a>); and as used when evaluating the resistant network.
+ in <a href="../proc/update_zetar.html">update_zetar</a>); and when evaluating the resistant network component
+ <code>rt1usc</code> in <a href="../proc/define_canopy.html">define_canopy</a>.
  The friction velocity quantifies the magnitude of turbulent mixing and
  the flux of momentum from the atmosphere to the land.</p>
 <p>The output <code>friction_vel</code> is known as <code>canopy%us</code> elsewhere in the code.</p>
 <p>The basic formula is</p>
 <p>
 <script type="math/tex"> u_{*} = U(z_{ref}) / ( \log [z_{ref}/z_{0m}] -
-      \Psi_m[\xi z_{ref}/z_{refTq}]
-    + \Psi_m[\xi z_{0m}/z_{refTq}] ) </script>
+      \psi_m[\xi z_{ref}/z_{refTq}]
+    + \psi_m[\xi z_{0m}/z_{refTq}] ) </script>
 </p>
-<p>with <script type="math/tex">\Psi_m</script> the integrated similarity function given by <a href="../proc/psim.html">psim</a>,
+<p>with <script type="math/tex">\psi_m</script> the integrated similarity function given by <a href="../proc/psim.html">psim</a>,
  <script type="math/tex">U</script> the wind speed at height <script type="math/tex">z_{ref}</script>,
  <script type="math/tex">\xi</script> the current value of the stability parameter, and <script type="math/tex">z_{0m}</script> the
  roughness length.
@@ -162,11 +163,11 @@
  Small and large value limits are applied to the evaluated <script type="math/tex">u_*</script>.</p>
 <p><strong>NOTE</strong> Most literature references assume that the reference levels
  for wind and temperature are equal inside the arguments to the
- stability functions <script type="math/tex">\Psi_m</script> and <script type="math/tex">\Psi_s</script> - in CABLE this need
+ stability functions <script type="math/tex">\psi_m</script> and <script type="math/tex">\psi_s</script> - in CABLE this need
  not be true.
  <script type="math/tex">\xi</script> is always defined relative to the reference level for temperature,
- in <script type="math/tex">\Psi_m</script> the reference height for wind is needed.
- Consequently the formula for <script type="math/tex">\Psi_m</script> used includes conversion
+ in <script type="math/tex">\psi_m</script> the reference height for wind is needed.
+ Consequently the formula for <script type="math/tex">\psi_m</script> used includes conversion
  factors to account for the different reference levels.
  <code>zref_uv</code> and <code>zref_tq</code> passed to comp_friction_vel are the heights above
  the displacement height <code>rough%disp</code></p>
