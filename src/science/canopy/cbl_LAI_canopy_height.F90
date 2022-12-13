@@ -29,7 +29,7 @@ subroutine limit_HGT_LAI( HGT_pft_temp, LAI_pft_cbl, HGT_pft_cbl, mp, land_pts, 
   ! - whether the land_pt has a non-zero fraction of that tile (if zero
   !   fraction then LAI and canopy height are set to zero)
   ! - whether the LAI lies above a minimum value `CLAI_thresh`
-  ! - whether the canopy height lies a minimum value (which are PFT dependent)
+  ! - whether the canopy height lies above a minimum value (which is PFT dependent)
   ! - whether non-vegetated tiles have a non-zero canopy height.
   !
   ! Outputs are `LAI_pft_cbl` and `HGT_pft_cbl`
