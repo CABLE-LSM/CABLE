@@ -1,6 +1,6 @@
 MODULE cbl_friction_vel_module
   !* This MODULE contains the SUBROUTINE [[comp_friction_vel]] and two
-  ! FUNCTIONS ([psim]] and [[psis]]) needed to
+  ! FUNCTIONS ([[psim]] and [[psis]]) needed to
   ! evaluate the friction velocity over each land point/tile
   ! given the wind speed and the current estimate of the Monin-Obukhov
   ! stability parameter \(\xi\) (see [[ruff_resist]] and [[define_canopy]])
@@ -53,6 +53,7 @@ SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
   ! the displacement height `rough%disp`
   !
   !## References
+  !
   ![Kowalczyk et al. (2006)](http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf)
   ! - section 3.1, equations 1-9.
 
@@ -101,21 +102,20 @@ END SUBROUTINE comp_friction_vel
 
 
 FUNCTION psim(zeta, mp, CPI_C ) RESULT(r)
-  !* Purpose
+  !*## Purpose
   !
   ! Evaluates the integrated similarity function for momentum transfer,
   ! \(\Psi_m(\xi)\)
   ! Uses the Businger-Dyer form for unstable conditions (\(\xi<0\)) and the
   ! Beljaars-Holtslag form for stable conditions (\(\xi>0\))
   !
-  ! This function is used in the evalaution of `canopy%rtus1c`
-  ! the normalized resistance for the turbulent flux of scalars
-  ! in [[define_canopy]] 
+  ! This function is used in the evalaution of the friction velocity in
+  ! [[comp_friction_vel]]
   !
-  !* References
-  ! [Beljaars and Holtslag (1991)](https://doi.org/10.1175/1520-0450(1991)030<0327:FPOLSF>2.0.CO;2)
-  ! [Businger et al. (1971)] (https://doi.org/10.1175/1520-0469(1971)028<0181:FPRITA>2.0.CO;2)
-  ! [Dyer (1974)] (https://doi.org/10.1007/BF00240838)
+  !## References
+  ! - [Beljaars and Holtslag (1991)](https://doi.org/10.1175/1520-0450(1991)030<0327:FPOLSF>2.0.CO;2)
+  ! - [Businger et al. (1971)] (https://doi.org/10.1175/1520-0469(1971)028<0181:FPRITA>2.0.CO;2)
+  ! - [Dyer (1974)] (https://doi.org/10.1007/BF00240838)
 
 ! mrr, 16-sep-92 (from function psi: mrr, edinburgh 1977)
 ! computes integrated stability function psim(z/l) (z/l=zeta)
@@ -155,17 +155,20 @@ r        = z*stable + (1.0-z)*unstable
 END FUNCTION psim
 
 ELEMENTAL FUNCTION psis(zeta) RESULT(r)
-  !* Purpose
+  !*## Purpose
   !
   ! Evaluates the integrated similarity function for turbulent transfer
   ! of scalars, \(\Psi_s(\xi)\).
   ! Uses the Businger-Dyer form for unstable conditions (\(\xi<0\)) and the
-  ! Beljaars-Holtslag form for stable conditions (\(\xi>0\))
+  ! Beljaars-Holtslag form for stable conditions (\(\xi>0\)).
   !
-  !* References
-  ! [Beljaars and Holtslag (1991)](https://doi.org/10.1175/1520-0450(1991)030<0327:FPOLSF>2.0.CO;2)
-  ! [Businger et al. (1971)] (https://doi.org/10.1175/1520-0469(1971)028<0181:FPRITA>2.0.CO;2)
-  ! [Dyer (1974)] (https://doi.org/10.1007/BF00240838)
+  ! This function is used in the evaluation of the resistance network
+  ! `canopy%rtus1c` in [[define_canopy]]
+  !
+  !## References
+  ! - [Beljaars and Holtslag (1991)](https://doi.org/10.1175/1520-0450(1991)030<0327:FPOLSF>2.0.CO;2)
+  ! - [Businger et al. (1971)] (https://doi.org/10.1175/1520-0469(1971)028<0181:FPRITA>2.0.CO;2)
+  ! - [Dyer (1974)] (https://doi.org/10.1007/BF00240838)
 
 ! mrr, 16-sep-92 (from function psi: mrr, edinburgh 1977)
 ! computes integrated stability function psis(z/l) (z/l=zeta)
