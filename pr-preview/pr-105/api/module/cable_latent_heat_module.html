@@ -148,8 +148,8 @@
     <div class="col-md-9" id='text'>
     <p>This MODULE contains one SUBROUTINE which evaluates the latent heat from
 ground given the previoulsy evaluated rate of potential evaporation.
-This is a component of the calcualtion of the energy balance and is carried out
-once per cycle in the MO iteration in <a href="../proc/define_canopy.html">define_canopy</a>.</p>
+This is a component of the calculation of the surface energy balance
+and is called once per cycle in the MO iteration section of <a href="../proc/define_canopy.html">define_canopy</a>.</p>
     
     
     <br>
@@ -211,8 +211,9 @@ once per cycle in the MO iteration in <a href="../proc/define_canopy.html">defin
  <code>canopy_fes</code>. The evaluation accounts for whether the water flux is
  from/to a wet or ice surface,
  the direction of the flux (to or from the soil), any limits due to a lack of
- water the surface layer of the soil, and
- the partition of the latent heat flux between soil and puddle contributions.</p><a href="../proc/latent_heat_flux.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+ water in the surface layer of the soil column, and
+ the partition of the latent heat flux between soil <code>canopy_fess</code> and
+ puddle <code>canopy_fesp</code> contributions.</p><a href="../proc/latent_heat_flux.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -273,16 +274,16 @@ once per cycle in the MO iteration in <a href="../proc/define_canopy.html">defin
         <tr>
             <td>
               <span class="anchor" ></span>
-              real
+              real,
             </td>
-<td></td>
+<td>intent(in)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
             <td><strong>soil_zse</strong></td>
             <td>
-
+<p>thickness of topmost soil layer (m)</p>
             </td>
         </tr>
         <tr>

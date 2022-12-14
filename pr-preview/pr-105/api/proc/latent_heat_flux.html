@@ -157,32 +157,98 @@
  <code>canopy_fes</code>. The evaluation accounts for whether the water flux is
  from/to a wet or ice surface,
  the direction of the flux (to or from the soil), any limits due to a lack of
- water the surface layer of the soil, and
- the partition of the latent heat flux between soil and puddle contributions.</p>
+ water in the surface layer of the soil column, and
+ the partition of the latent heat flux between soil <code>canopy_fess</code> and
+ puddle <code>canopy_fesp</code> contributions.</p>
 <h2>Warning</h2>
 <p>This current implementation is possibly confusing.  The variable <code>ssnow_potev</code>
- is not potential evaporation (in kg water m<script type="math/tex">^{-2}</script>s<script type="math/tex">^{-1}</script>) but the
- latent heat flux (in Wm<script type="math/tex">^{-2}</script> associated with the potential evaporation.
- <code>ssnow_potev</code> also assumes that the water flux described by potential
+ is not potential evaporation (in kg water m<script type="math/tex">^{-2}</script>s<script type="math/tex">^{-1}</script>) but is instead
+ the latent heat flux (in Wm<script type="math/tex">^{-2}</script>) associated with the potential evaporation.
+ <code>ssnow_potev</code> assumes that the water flux described by the potential
  evaporation is of liquid water regardless of temperature
- and whether the surface is covered by snow. Additionally one option for the
- evlaution of <code>ssnow_potev</code> (the <a href="../proc/penman_monteith.html">Penman_Monteith</a> option) does not function
+ and/or whether the surface is covered by snow. Additionally one option for the
+ evaluation of <code>ssnow_potev</code> (the <a href="../proc/penman_monteith.html">Penman_Monteith</a> option) does not function
  correctly over frozen surfaces. A bug fix will require changes to
  <a href="../proc/define_canopy.html">define_canopy</a>, <a href="../proc/penman_monteith.html">Penman_Monteith</a> and this SUBROUTINE; markers have been
  inserted into the code accordingly.  </p>
-<p>thickness of topmost soil layer (m)</p>
 <h2>Method</h2>
-<p>When there is puddle a fraction of the soil column is covered by water, <code>pwet</code>.
- The main workflow loops over the land points in the CABLE array and determines</p>
+<p>'Potential evaporation' quantifies the theoretical value of evaporation from
+ a fully saturated surface (with no limits on water availability) at a given
+ temperature and humidity, in response to the available energy.
+ This SUBROUTINE evaluates the value of the latent heat flux from the
+ ground/soil/snow packgiven the potential evaporation according to one of four cases
+ (see Ticket 137)</p>
+<ol>
+<li>evaporation from/dew onto surfaces with no snow when soil temperature &gt; freezing point</li>
+<li>sublimation from/deposition of frost onto surfaces with snow cover</li>
+<li>evaporation of liquid water from a frozen soil column if there is no snow present
+     (sublimation of frozen water from within the soil column is not possible)</li>
+<li>deposition of frost onto frozen soils if there is no snow cover</li>
+</ol>
+<p>while satisfying any constraints due to limits on soil moisture.</p>
+<p><br>&lt;\br&gt;
+ There are six outputs from this SUBROUTINE</p>
+<ul>
+<li>three latent heat fluxes (soil, puddle and total) noting that these are referenced
+ to the area of the land point (not to the area of the puddle/non-puddle split).</li>
+<li><code>pwet</code> quantifying the impact of puddles in reducing the latent heat flux from the soil.</li>
+<li><code>ssnow_wetfac</code> quantifying control of soil moisture on the rate of evaporation.</li>
+<li><code>ssnow_cls</code> quantifying whether the latent heat flux represents a change between
+ liquid/vapour of ice/vapour phases. </li>
+</ul>
+<p><strong>IMPORTANT</strong> the value of <code>ssnow_cls</code> set in this SUBROUTINE is used to control whether
+ the water fluxes from the snow pack/soil column in <a href="../proc/soil_snow.html">soil_snow</a> are of water or ice.</p>
+<p><br>&lt;\br&gt;</p>
+<h2>Workflow</h2>
+<p>The underpinning equation linking the <script type="math/tex">\beta</script>-formulation for the soil latent heat flux
+ to the potential evaporation is</p>
+<p>
+<script type="math/tex">\lambda E_s = \beta c_{ls} \lambda E_{pot} </script>
+</p>
+<p>where <script type="math/tex">\lambda</script> =<code>air_rlam</code> is the latent heat of evaporation, <script type="math/tex">c_{ls}</script>=<code>ssnow_cls</code>
+ is a factor set by whether the flux of water is to/from water or to/from ice
+ (<script type="math/tex">c_{ls}=1.1335</script> if ice - 1.1335 is the ratio of the latent heat of sublimation of water
+ to the latent heat of evaporation of water), <script type="math/tex">\beta</script>=<code>ssnow_wetfac</code> is a coefficient controlling
+ the availability of water in the soil surface layer and <script type="math/tex">\lamba E_{pot}</script>=<code>ssnow_potev</code>
+ is the latent heat flux associated with potential evaporation.</p>
+<p>When the latent heat flux is negative, i.e. the flux of water is from the atmosphere
+ onto the soil/snow there is no limit due to availability of water in the soil column
+ and <code>ssnow_wetfac</code> is overwritten to a value of 1.
+ Otherwise a first estimate for the soil latent heat flux is calcualted as above without
+ further limits.
+ When there is puddle a fraction of the soil column is covered by water, <code>pwet</code>.
+ As a result the evaporation from the soil is reduced by the change in area fraction.
+ The main workflow loops over the land points in the CABLE array and determines
+ additional limits and the value for <script type="math/tex">c_{ls}</script> depending on which
+ of the four cases that land point falls in (Ticket 137)
+ Cases 1 and 3 represent a conversion between liquid and vapour phases of water.</p>
 <p>For cases 1 and 3 there must be sufficient water in the surface soil layer
+ to provide the water for evaporation, this sets <code>fupper_limit</code>
+ the maximum latent heat flux possible.  Two options
+ are provided, set by <code>cable_user_l_new_reduce_soilevap</code>, which
+ differ in the amount of water that must remain at the end of the time step.
  Additionally (for case 3) the evaporation of liquid water from within the
- IF the surface has snow then the latent heat flux represents a conversion
+ frozen soil column must not reduce the liquid water fraction to the
+ point that that ice fraction of soil moisture exceeds the
+ frozen_limit=0.85.  This provides a second upper limit on the evaporation and
+ latent flux. <strong>WARNING</strong> frozen_limit=0.85 is hard coded - if changed
+ then the corresponding limit in <a>cbl_soilsnow</a> must also be changed.
+ If the surface has snow cover then the latent heat flux represents a
+ conversion between solid and vapour phases of water and (<script type="math/tex">c_{ls}</script>=1.1335.
+ The first estimate is updated by the change in value of (<script type="math/tex">c_{ls}</script>.
  For case 4 deposition of frost onto frozen soil (temperature below freezing)
- For case 2, if <code>ssnow_potev</code>&gt;0 then there needs to be sufficient snow to</p>
-<p>Note that in the case of dew fall onto a surface with little/no snow while
- the soil surface temperature is above freezing the latent heat flux
- defaults to the first estmate.</p>
-<p>The latent heat flux associated with evaporation from puddles is set</p>
+ occurs even if there is no snow (so <script type="math/tex">c_{ls}</script>=1.1335) and there is no limit.<br>
+ For case 2, if <code>ssnow_potev</code>&gt;0 then there needs to be sufficient snow to
+ sublimate over the time step.  This places an upper limit on the latent
+ heat flux possible.</p>
+<p>Note that the case of dew fall onto a surface with little/no snow while
+ the soil surface temperature is above freezing is unrestricted and
+ the latent heat flux defaults to the first estimate.</p>
+<p>The latent heat flux associated with evaporation from puddles is set
+ to the area fraction of <code>ssnow_potev</code> but then limited by the amount of water
+ available in the puddles.
+ Finally the total latant heat lux is obtained by summing the soil and
+ puddle contributions.</p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -242,17 +308,17 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-soil_zse~2"></span>
-              real
+              <span class="anchor" id="variable-soil_zse"></span>
+              real,
             </td>
-<td></td>
+<td>intent(in)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
             <td><strong>soil_zse</strong></td>
             <td>
-                
+                <p>thickness of topmost soil layer (m)</p>
             </td>
         </tr>
         <tr>
