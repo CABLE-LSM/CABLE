@@ -234,8 +234,8 @@ ENDDO
 ! <br></br>
 
 !| - The latent heat flux associated with evaporation from puddles is set
-! to the area fraction of `ssnow_potev` provided that sufficient water is
-! available in the puddles.
+! to the area fraction of the potential evaporation (`pwet` * `ssnow_potev`),
+! provided that sufficient water is available in the puddles.
 !  
 canopy_fesp = MIN(ssnow_pudsto/dels*air_rlam,MAX(pwet*ssnow_potev,0.))
 

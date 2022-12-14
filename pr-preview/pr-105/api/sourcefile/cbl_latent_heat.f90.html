@@ -434,8 +434,8 @@
 <a id="ln-234" name="ln-234" href="#ln-234"></a><span class="c">! &lt;br&gt;&lt;/br&gt;</span>
 <a id="ln-235" name="ln-235" href="#ln-235"></a>
 <a id="ln-236" name="ln-236" href="#ln-236"></a><span class="c">!| - The latent heat flux associated with evaporation from puddles is set</span>
-<a id="ln-237" name="ln-237" href="#ln-237"></a><span class="c">! to the area fraction of `ssnow_potev` provided that sufficient water is</span>
-<a id="ln-238" name="ln-238" href="#ln-238"></a><span class="c">! available in the puddles.</span>
+<a id="ln-237" name="ln-237" href="#ln-237"></a><span class="c">! to the area fraction of the potential evaporation (`pwet` * `ssnow_potev`),</span>
+<a id="ln-238" name="ln-238" href="#ln-238"></a><span class="c">! provided that sufficient water is available in the puddles.</span>
 <a id="ln-239" name="ln-239" href="#ln-239"></a><span class="c">!  </span>
 <a id="ln-240" name="ln-240" href="#ln-240"></a><span class="n">canopy_fesp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">MIN</span><span class="p">(</span><span class="n">ssnow_pudsto</span><span class="o">/</span><span class="n">dels</span><span class="o">*</span><span class="n">air_rlam</span><span class="p">,</span><span class="nb">MAX</span><span class="p">(</span><span class="n">pwet</span><span class="o">*</span><span class="n">ssnow_potev</span><span class="p">,</span><span class="mf">0.</span><span class="p">))</span><span class="w"></span>
 <a id="ln-241" name="ln-241" href="#ln-241"></a>
