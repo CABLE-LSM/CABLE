@@ -139,6 +139,42 @@
 </h2>
     
 
+    <h2>Purpose</h2>
+<p>This SUBROUTINE checks that input values of leaf area and canopy height
+ lie between set values (defined by PFT) and overwrites if necessary.
+ These limits are needed to ensure that the canopy roughness properties of
+ the land point are well behaved (see <a href="../proc/ruff_resist.html">ruff_resist</a>).</p>
+<p>The mapping from grid cells (land_pts,ntiles) to the (mp) structure
+ is also undertaken.</p>
+<p><strong>This SUBROUTINE is active when CABLE is run within a coupled model
+ (i.e. ACCESS)</strong> </p>
+<h2>Method</h2>
+<p>The cell-level input (land_pts,ntile) variables for leaf area <code>LAI_pft</code> and
+ canopy height <code>HGT_pft</code> are checked for</p>
+<ul>
+<li>whether the land_pt has a non-zero fraction of that tile (if zero
+   fraction then LAI and canopy height are set to zero)</li>
+<li>whether the LAI lies above a minimum value <code>CLAI_thresh</code></li>
+<li>whether the canopy height lies above a minimum value (which is PFT dependent)</li>
+<li>whether non-vegetated tiles have a non-zero canopy height.</li>
+</ul>
+<p>Outputs are <code>LAI_pft_cbl</code> and <code>HGT_pft_cbl</code></p>
+<p><strong>WARNINGS</strong></p>
+<ul>
+<li>INTENT statements need to be added to the argument lists</li>
+<li>hardwired indexing is used throughout.  This SUBROUTINE assumes that<ol>
+<li>non-vegetated tiles take indexes 14 and onwards</li>
+<li>tall vegetation occupies tile indexes 1-4</li>
+<li>other vegetation (shrubs/grasses/crops/wetlands) occupy tile indexes
+ 5-13</li>
+</ol>
+</li>
+<li>the limits on canopy height are hardwired<ol>
+<li>canopy height for tall vegetation is limited to be greater than 1m</li>
+<li>canopy height for other vegetation is limited to be greater than 0.1m</li>
+</ol>
+</li>
+</ul>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -163,7 +199,7 @@
             <td>::</td>
             <td><strong>HGT_pft_temp</strong>(land_pts,ntiles)</td>
             <td>
-                
+                <p>OUT adjusted canopy height in (land_pts,ntile) form (m)</p>
             </td>
         </tr>
         <tr>
@@ -178,7 +214,7 @@
             <td>::</td>
             <td><strong>LAI_pft_cbl</strong>(mp)</td>
             <td>
-                
+                <p>OUT adjusted leaf area in (mp) form (m<script type="math/tex">^2</script>m<script type="math/tex">^{-2}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -193,12 +229,12 @@
             <td>::</td>
             <td><strong>HGT_pft_cbl</strong>(mp)</td>
             <td>
-                
+                <p>OUT adjusted canopy height in (mp) form (m)</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-mp~70"></span>
+              <span class="anchor" id="variable-mp~4"></span>
               integer
             </td>
 <td></td>
@@ -208,12 +244,12 @@
             <td>::</td>
             <td><strong>mp</strong></td>
             <td>
-                
+                <p>total number of tiles carried by land vector (-)</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-land_pts~2"></span>
+              <span class="anchor" id="variable-land_pts"></span>
               integer
             </td>
 <td></td>
@@ -223,12 +259,12 @@
             <td>::</td>
             <td><strong>land_pts</strong></td>
             <td>
-                
+                <p>number of land points, max number of tiles that can be carried in any land point (-)</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ntiles~2"></span>
+              <span class="anchor" id="variable-ntiles"></span>
               integer
             </td>
 <td></td>
@@ -238,7 +274,7 @@
             <td>::</td>
             <td><strong>ntiles</strong></td>
             <td>
-                
+                <p>number of land points, max number of tiles that can be carried in any land point (-)</p>
             </td>
         </tr>
         <tr>
@@ -253,7 +289,7 @@
             <td>::</td>
             <td><strong>tile_pts</strong>(ntiles)</td>
             <td>
-                
+                <p>number of land_pts in the array that include an active tile of a particular tile type (-) </p>
             </td>
         </tr>
         <tr>
@@ -268,12 +304,12 @@
             <td>::</td>
             <td><strong>tile_index</strong>(land_pts,ntiles)</td>
             <td>
-                
+                <p>specifies the tile types within each land point (-)</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tile_frac~2"></span>
+              <span class="anchor" id="variable-tile_frac"></span>
               real
             </td>
 <td></td>
@@ -283,7 +319,7 @@
             <td>::</td>
             <td><strong>tile_frac</strong>(land_pts,ntiles)</td>
             <td>
-                
+                <p>fraction of cell assigned to each tile (-)</p>
             </td>
         </tr>
         <tr>
@@ -298,12 +334,12 @@
             <td>::</td>
             <td><strong>L_tile_pts</strong>(land_pts,ntiles)</td>
             <td>
-                
+                <p>switch to denote whether a tile is active (-)</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-lai_pft~2"></span>
+              <span class="anchor" id="variable-lai_pft"></span>
               real
             </td>
 <td></td>
@@ -313,12 +349,12 @@
             <td>::</td>
             <td><strong>LAI_pft</strong>(land_pts,ntiles)</td>
             <td>
-                
+                <p>IN leaf area (m<script type="math/tex">^2</script>m<script type="math/tex">^{-2}</script>)</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-hgt_pft~3"></span>
+              <span class="anchor" id="variable-hgt_pft~2"></span>
               real
             </td>
 <td></td>
@@ -328,12 +364,12 @@
             <td>::</td>
             <td><strong>HGT_pft</strong>(land_pts,ntiles)</td>
             <td>
-                
+                <p>IN canopy height (m)</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-clai_thresh~2"></span>
+              <span class="anchor" id="variable-clai_thresh"></span>
               real
             </td>
 <td></td>
@@ -343,7 +379,7 @@
             <td>::</td>
             <td><strong>Clai_thresh</strong></td>
             <td>
-                
+                <p>The minimum LAI below which a tile is considered to be NOT vegetated (m<script type="math/tex">^2</script>m<script type="math/tex">^{-2}</script>)</p>
             </td>
         </tr>
     </tbody>

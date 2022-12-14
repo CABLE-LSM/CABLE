@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#cablenml-options" class="md-skip">
+        <a href="#namelist-file-cablenml" class="md-skip">
           Skip to content
         </a>
       
@@ -598,9 +598,47 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          cable.nml options
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         cable.nml options
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#for-offline-applications" class="md-nav__link">
+    For offline applications
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#for-access-applications" class="md-nav__link">
+    For ACCESS applications
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1120,6 +1158,28 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#for-offline-applications" class="md-nav__link">
+    For offline applications
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#for-access-applications" class="md-nav__link">
+    For ACCESS applications
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1138,18 +1198,170 @@
   </a>
 
 
-<h1 id="cablenml-options">cable.nml options</h1>
+<h1 id="namelist-file-cablenml">Namelist file cable.nml</h1>
+<p>The namelist file for CABLE is cable.nml. For offline applications it
+should be located in the directory in which you are running CABLE. For
+ACCESS cases, cable.nml should be located in ~/CABLE-AUX/UM on the
+machine that CABLE is being executed on.</p>
+<p>The cable.nml file includes some settings that are common across all CABLE
+applications and others that are required only for offline
+applications. The following are annotated examples of cable.nml:</p>
+<h2 id="for-offline-applications">For offline applications</h2>
+<div class="highlight"><pre><span></span><code>&amp;cable
+   filename%met = &#39;/projects/access/CABLE-AUX/offline/TumbaFluxnet.1.3_met.nc&#39;
+   filename%out = &#39;out_cable.nc&#39;
+   filename%log = &#39;log_cable.txt&#39;
+   filename%restart_in  = &#39; &#39;
+   filename%restart_out = &#39;./restart_out.nc&#39;
+   filename%type    = &#39;/projects/access/CABLE-AUX/offline/gridinfo_CSIRO_1x1.nc&#39;
+   filename%veg    = &#39;/projects/access/CABLE-AUX/core/biogeophys/veg_params_vbeta1.txt&#39;
+   filename%soil    = &#39;/projects/access/CABLE-AUX/core/biogeophys/def_soil_params.txt&#39;
+   vegparmnew = .TRUE.  ! using new format when true
+   soilparmnew = .TRUE.  ! using new format when true
+   spinup = .TRUE.  ! do we spin up the model?
+   delsoilM = 0.001   ! allowed variation in soil moisture for spin up
+   delsoilT = 0.01    ! allowed variation in soil temperature for spin up
+   output%restart = .TRUE.  ! should a restart file be created?
+   output%met = .TRUE.  ! input met data
+   output%flux = .TRUE.  ! convective, runoff, NEE
+   output%soil = .TRUE.  ! soil states
+   output%snow = .TRUE.  ! snow states
+   output%radiation = .TRUE.  ! net rad, albedo
+   output%carbon    = .TRUE.  ! NEE, GPP, NPP, stores
+   output%veg       = .TRUE.  ! vegetation states
+   output%params    = .TRUE.  ! input parameters used to produce run
+   output%balances  = .TRUE.  ! energy and water balances
+   check%ranges     = .FALSE.  ! variable ranges, input and output
+   check%energy_bal = .TRUE.  ! energy balance
+   check%mass_bal   = .TRUE.  ! water/mass balance
+   verbose = .TRUE. ! write details of every grid cell init and params to log?
+   leaps = .TRUE. ! calculate timing with leap years?
+   logn = 88      ! log file number - declared in input module
+   fixedCO2 = 350.0   ! if not found in met file, in ppmv
+   spincasa      = .FALSE.     ! spin casa before running the model if TRUE, and should be set to FALSE if spincasainput = .TRUE.
+   l_casacnp     = .FALSE.  ! using casaCNP with CABLE
+   l_laiFeedbk   = .FALSE.  ! using prognostic LAI
+   l_vcmaxFeedbk = .FALSE.  ! using prognostic Vcmax
+   icycle = 0   ! BP pull it out from casadimension and put here; 0 for not using casaCNP, 1 for C, 2 for C+N, 3 for C+N+P
+   casafile%cnpipool=&#39;/projects/access/CABLE-AUX/core/biogeochem/poolcnpInTumbarumba.csv&#39;  !
+   casafile%cnpbiome=&#39;/projects/access/CABLE-AUX/core/biogeochem/pftlookup_csiro_v16_17tiles.csv&#39;  ! biome specific BGC parameters
+   casafile%cnpepool=&#39;poolcnpOut.csv&#39;    ! end of run pool size
+   casafile%cnpmetout=&#39;casamet.nc&#39;                ! output daily met forcing for spinning casacnp
+   casafile%cnpmetin=&#39;&#39;          ! list of daily met files for spinning casacnp
+   casafile%phen=&#39;/projects/access/CABLE-AUX/core/biogeochem/modis_phenology_csiro.txt&#39;        ! modis phenology
+   casafile%cnpflux=&#39;cnpfluxOut.csv&#39;
+   ncciy = 0 ! 0 for not using gswp; 4-digit year input for year of gswp met
+   gswpfile%rainf = &#39;gswp/Rainf_gswp1987.nc&#39;
+   gswpfile%snowf = &#39;gswp/Snowf_gswp1987.nc&#39;
+   gswpfile%LWdown= &#39;gswp/LWdown_srb1987.nc&#39;
+   gswpfile%SWdown= &#39;gswp/SWdown_srb1987.nc&#39;
+   gswpfile%PSurf = &#39;gswp/PSurf_ecor1987.nc&#39;
+   gswpfile%Qair  = &#39;gswp/Qair_cru1987.nc&#39;
+   gswpfile%Tair  = &#39;gswp/Tair_cru1987.nc&#39;
+   gswpfile%wind  = &#39;gswp/Wind_ncep1987.nc&#39;
+   redistrb = .FALSE.  ! Turn on/off the hydraulic redistribution
+   wiltParam = 0.5
+   satuParam = 0.8
+   cable_user%FWSOIL_SWITCH = &#39;standard&#39;        ! choices are:
+                                                 ! 1. standard
+                                                 ! 2. non-linear extrapolation
+                                                 ! 3. Lai and Ktaul 2000
+   cable_user%DIAG_SOIL_RESP = &#39;ON &#39;
+   cable_user%LEAF_RESPIRATION = &#39;ON &#39;
+   cable_user%RUN_DIAG_LEVEL= &#39;BASIC&#39;        ! choices are:
+                                                 ! 1. BASIC
+                                                 ! 1. NONE
+   cable_user%CONSISTENCY_CHECK= .TRUE.      ! TRUE outputs combined fluxes at each timestep for comparison to a control run
+   cable_user%CASA_DUMP_READ = .FALSE.      ! TRUE reads CASA forcing from netcdf format
+   cable_user%CASA_DUMP_WRITE = .FALSE.      ! TRUE outputs CASA forcing in netcdf format
+   cable_user%SSNOW_POTEV= &#39;HDM&#39;      ! Humidity Deficit Method
+&amp;end
+</code></pre></div>
+<h2 id="for-access-applications">For ACCESS applications</h2>
+<div class="highlight"><pre><span></span><code>&amp;cable
+!!
+!! cable namelist variables applicable to ACCESS/UM runs
+!! default parameter files are available in the following directory on raijin
+!! vegetation parameters in def_veg_params.txt or for vbeta=1 veg_params_vbeta1.txt
+!! vbeta=1 recommended but should be tested for your applications
+!
+  filename%veg     = &#39;/projects/access/CABLE-AUX/core/biogeophys/veg_params_vbeta1.txt&#39;
+!
+!! or checkout to your own area
+! filename%veg     = &#39;~/CABLE-AUX/core/biogeophys/def_veg_params.txt&#39; !relative to your home dir
+!!
+!! soil parameters in def_soil_params.txt. Not used except for isoil=9 (permanent ice) and
+!! rhosoil and css values (isoil=2 used for all non-ice tiles).
+!! Other soil parameters from spatially explicit ancillary files.
+!
+  filename%soil    = &#39;/projects/access/CABLE-AUX/core/biogeophys/def_soil_params.txt&#39;
+!
+! filename%soil    = &#39;~/CABLE-AUX/core/biogeophys/def_soil_params.txt&#39; !relative to your home dir
+!
+!! cable_user flags
+!
+  cable_user%CABLE_RUNTIME_COUPLED = .TRUE. ! controls whether snow initialised if
+                                            ! ktau_gl=1
+                                            ! must be set true for coupled run
+                                            ! use true for atmosphere only runs if
+                                            ! want to take snow from start dump
+                                            ! default is .false.
+  cable_user%FWSOIL_SWITCH = &#39;standard&#39; ! Controls root water uptake function
+                                        ! choices are:
+                                        ! &#39;standard&#39;
+                                        ! &#39;non-linear extrapolation&#39;
+                                        ! &#39;Lai and Ktaul 2000&#39; NB TYPO IS IN CODE (should be Katul)
+  cable_user%DIAG_SOIL_RESP = &#39;ON &#39;  ! Controls soil respiration scheme when CASA-CNP not used
+                                     ! &#39;ON&#39; uses scheme tuned with parameter veg%vegcf
+                                     ! &#39;OFF&#39; uses scheme tuned with parameter veg%rs20
+  cable_user%LEAF_RESPIRATION = &#39;OFF&#39; ! Controls what is output into the GPP stash variable
+                                      ! &#39;OFF&#39; is true GPP (photosynthesis + leaf respiration)
+                                      ! &#39;ON&#39; is only photosynthesis, canopy%fpn
+  cable_user%RUN_DIAG_LEVEL= &#39;BASIC&#39;  ! Controls output from CABLE to standard out
+                                      ! choices are:
+                                      ! &#39;BASIC&#39;
+                                      ! &#39;NONE&#39;
+                                      ! &#39;zero&#39; (in cable_explicit_driver - what does this do?)
+  cable_user%ssnow_POTEV = &#39;&#39;    ! Controls method used for soil evaporation
+                                 ! Choices are:
+                                 ! &#39;P-M&#39; Penman_Monteith, otherwise defaults to
+                                 ! humidity deficit method
+!!--------------Test Switches--------------
+  cable_user%l_new_roughness_soil  = .FALSE.   ! for new soil roughness, E.Kowalczyk Mar14
+  cable_user%l_new_runoff_speed    = .FALSE.   ! for new increase in runoff speed, E.Kowalczyk Mar14
+  cable_user%l_new_reduce_soilevp  = .FALSE.   ! to reduce soil evaporation, E.Kowalczyk Mar14
+!!-----------------------------------------
+!
+  redistrb = .FALSE.  ! Turn on/off the hydraulic redistribution
+  wiltParam = 0.5     ! only used if hydraulic redistribution .true.
+  satuParam = 0.8     ! only used if hydraulic redistribution .true.
+!
+! CASA-CNP flags
+  l_casacnp = .true. ! redundant? actually controlled by icycle
+  icycle = 3 ! Controls whether CASA-CNP is run and for which species
+             ! Choices are:
+             ! 0 CASA-CNP not run
+             ! 1 Carbon only
+             ! 2 Carbon and nitrogen
+             ! 3 Carbon, nitrogen and phosphorus
+  l_laiFeedbk   = .TRUE.  ! using prognostic LAI
+  l_vcmaxFeedbk = .TRUE.  ! using prognostic Vcmax
+! filenames for CASA-CNP input files
+  casafile%cnpbiome=&#39;~/CABLE-AUX/core/biogeochem/pftlookup_csiro_v16_17tiles.csv&#39; ! biome specific BGC parameters
+  casafile%phen=&#39;~/CABLE-AUX/core/biogeochem/modis_phenology_csiro.txt&#39; ! phenology by latitude (modis derived)
+&amp;end
+</code></pre></div>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 12, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 14, 2022</span>
       
         <br>
         Created:
-        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 12, 2022</span>
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 14, 2022</span>
       
     
   </small>
