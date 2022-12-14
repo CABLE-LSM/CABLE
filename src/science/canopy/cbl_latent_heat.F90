@@ -1,9 +1,8 @@
 MODULE cable_latent_heat_module
-  !* This SUBROUTINE converts the previously estimated rate of potential
-  ! evaporation from the soil to the associated latent heat flux.
-  ! This evaluation accounts for whether the flux is from/to water or ice,
-  ! the direction of the flux (to or from the soil), and
-  ! the partition of the latent heat flux between soil and puddle contributions.
+  !* This MODULE contains one SUBROUTINE which evaluates the latent heat from
+  ! ground given the previoulsy evaluated rate of potential evaporation.
+  ! This is a component of the calcualtion of the energy balance and is carried out
+  ! once per cycle in the MO iteration in [[define_canopy]].
 
   IMPLICIT NONE
 
@@ -18,6 +17,29 @@ SUBROUTINE Latent_heat_flux( mp, CTFRZ, dels, soil_zse, soil_swilt,           &
                              ssnow_pudsto, ssnow_pudsmx, ssnow_potev,          &
                              ssnow_wetfac, ssnow_evapfbl, ssnow_cls,          & 
                              ssnow_tss, canopy_fes, canopy_fess, canopy_fesp  )
+  !*## Purpose
+  !
+  ! This SUBROUTINE converts the previously evaluated rate of potential
+  ! evaporation `ssnow_potev` from the soil to the associated latent heat flux
+  ! `canopy_fes`. The evaluation accounts for whether the water flux is
+  ! from/to a wet or ice surface,
+  ! the direction of the flux (to or from the soil), any limits due to a lack of
+  ! water the surface layer of the soil, and
+  ! the partition of the latent heat flux between soil and puddle contributions.
+  !
+  !## Warning
+  !
+  ! This current implementation is possibly confusing.  The variable `ssnow_potev`
+  ! is not potential evaporation (in kg water m\(^{-2}\)s\(^{-1}\)) but the
+  ! latent heat flux (in Wm\(^{-2}\) associated with the potential evaporation.
+  ! `ssnow_potev` also assumes that the water flux described by potential
+  ! evaporation is of liquid water regardless of temperature
+  ! and whether the surface is covered by snow. Additionally one option for the
+  ! evlaution of `ssnow_potev` (the [[Penman_Monteith]] option) does not function
+  ! correctly over frozen surfaces. A bug fix will require changes to
+  ! [[define_canopy]], [[Penman_Monteith]] and this SUBROUTINE; markers have been
+  ! inserted into the code accordingly.
+  
 
 USE cable_def_types_mod, ONLY : r_2
 IMPLICIT NONE
@@ -61,11 +83,19 @@ REAL, DIMENSION(mp) ::                                                      &
 
 INTEGER :: j
 
-!Ticket 137 - adjustments made so that one of four cases occurs
-!             i) evaporation from/dew onto surfaces with no snow, T>Tfrz
-!            ii) sublimation from/frost onto surfaces with snow cover
-!           iii) evaporation of liquid water if no snow but frozen soil
-!            iv) deposition of frost onto frozen soils if no snow cover
+!*## Method
+!
+! 'Potential evaporation' quantifies the theoretical value of evaporation from
+! a fully saturated surface (with no limits of water) at a given temperature
+! and avaialble energy.
+! This SUBROUTINE evaluates a true value of the ground latent heat flux in one of four cases
+! (Ticket 137)
+!
+!  1. evaporation from/dew onto surfaces with no snow, where soil temperature > freezing point
+!  2. sublimation from/frost onto surfaces with snow cover
+!  3. evaporation of liquid water from frozen soil column if there is no snow present
+!     (sublimation of frozen water from within the soil column is not possible)
+!  4. deposition of frost onto a frozen soils if no snow cover
 !
 !IMPORTANTLY the value of _cls set here is used to control whether
 !water fluxes are from the snow pack or soil column in _soilsnow
