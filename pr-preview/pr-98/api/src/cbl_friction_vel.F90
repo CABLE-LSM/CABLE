@@ -74,7 +74,7 @@ INTEGER, INTENT(IN) :: iter             !! MO iteration counter (-)
 REAL, INTENT(IN) :: CVONK               !! von Karman constant (-)
 REAL, INTENT(IN):: CUMIN                !! minimum value of wind speed (ms\(^{-1}\))
 ! maths & other constants
-REAL, INTENT(IN) :: CPI_C               !! PI (=3.14...) (-)
+REAL, INTENT(IN) :: CPI_C               !! \(\pi\) (-)
 
 REAL, INTENT(IN) :: zetar(mp,iter)      !! stability parameter - see [[update_zetar]] `canopy%zetar` (-)
 REAL, INTENT(IN) :: zref_uv(mp)         !! reference height for wind `rough%zref_uv` (m)
@@ -135,7 +135,7 @@ FUNCTION psim(zeta, mp, CPI_C ) RESULT(r)
 
 INTEGER, INTENT(IN) :: mp                !! size of cable vector of land points (-)
 REAL, INTENT(IN), DIMENSION(mp) ::  zeta !! IN current value of stability parameter \(\xi\) (-)
-REAL, INTENT(IN) :: CPI_C                !! PI (=3.14...) (-)
+REAL, INTENT(IN) :: CPI_C                !! \( \pi \) (-)
 
 ! function result
 REAL, DIMENSION(mp) :: r                 ! result of FUNCTION
