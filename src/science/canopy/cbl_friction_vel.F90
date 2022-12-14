@@ -31,6 +31,9 @@ SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
   !
   ! The output `friction_vel` is known as `canopy%us` elsewhere in the code.
   !
+  !
+  !## Method
+  !
   ! The basic formula is derived from the modified log-law for the
   ! vertical profile of wind speed near to the ground namely
   !
