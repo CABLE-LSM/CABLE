@@ -213,13 +213,13 @@
  the availability of water in the soil surface layer, and <script type="math/tex">\lambda E_{pot}</script>=<code>ssnow_potev</code>
  is the latent heat flux associated with potential evaporation.</p>
 <p><br></br>
- * First, when the latent heat flux is negative, i.e. the flux of water is from the atmosphere
+ - First, when the latent heat flux is negative, i.e. the flux of water is from the atmosphere
  onto the soil/snow, there is no limit due to availability of water in the soil column
  and <code>ssnow_wetfac</code> is overwritten to a value of 1.
  Subsequently, a first estimate for the soil latent heat flux is calculated from the equation without
  further limit.
 <br></br>
- * Second, when there is puddle a fraction of the soil column is covered by water, <code>pwet</code>.
+ - Second, when there is puddle a fraction of the soil column is covered by water, <code>pwet</code>.
  As a result the evaporation from the soil is reduced by the change in area fraction.
 <br></br>
  The main workflow in the SUBROUTINE loops over the land points in the CABLE array
@@ -240,7 +240,7 @@
  latent flux. <strong>WARNING</strong> frozen_limit=0.85 is hard coded - if it is changed
  then the corresponding limit in <a>cbl_soilsnow</a> must also be changed.
 <br></br>
- * If the surface has snow cover then the latent heat flux represents a
+ - If the surface has snow cover then the latent heat flux represents a
  conversion between solid and vapour phases of water and (<script type="math/tex">c_{ls}</script>=1.1335.
  The first estimate is updated by the change in value of (<script type="math/tex">c_{ls}</script>.</p>
 <p>For case 4, deposition of frost onto frozen surface (temperature below freezing)
