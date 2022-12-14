@@ -91,6 +91,7 @@ nav:
   - POP-TRENDY: POP-TRENDY/index.md
   - Developer Guide:
     - Contribution flowchart: developer_guide/contribution_flowchart.md
+    - Cheat Sheets: developer_guide/cheat_sheets.md
     - Documentation guidelines: 
       - developer_guide/documentation_guidelines/index.md
       - Scientific documentation: developer_guide/documentation_guidelines/science_doc.md
