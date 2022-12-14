@@ -20,6 +20,13 @@
 
 MODULE cbl_init_radiation_module
 
+  !*# Overview
+  !
+  ! This MODULE initialise the radiation parameters.
+  !
+  ! The MODULE contains one public subroutine [[init_radiation]] and several
+  ! private subroutines.
+
    IMPLICIT NONE
 
    PUBLIC init_radiation
@@ -43,6 +50,8 @@ SUBROUTINE init_radiation( ExtCoeff_beam, ExtCoeff_dif,                        &
                         coszen, metDoY, SW_down,                               & 
                         reducedLAIdue2snow )
 
+!*## Purpose
+!
 implicit none
 
 !re-decl input args
