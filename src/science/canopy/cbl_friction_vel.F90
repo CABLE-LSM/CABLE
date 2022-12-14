@@ -21,7 +21,7 @@ SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
   !*## Purpose
   !
   ! This SUBROUTINE evaluates the value of the friction velocity \(u_*\) as used
-  ! during the iteration loop of the Monin-Obuhkov (MO) similarity theory in
+  ! during the iteration loop of the Monin-Obukhov (MO) similarity theory in
   ! [[define_canopy]]. \(u_*\) is used when quantifying the stability
   ! parameter `canopy%zetar` in [[update_zetar]], and when evaluating the
   ! resistance network components `rt0` and `rt1` in [[define_canopy]].
