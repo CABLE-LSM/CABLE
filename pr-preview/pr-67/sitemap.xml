@@ -16,6 +16,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://cable-lsm.github.io/CABLE/developer_guide/cheat_sheets/</loc>
+         <lastmod>2022-12-14</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://cable-lsm.github.io/CABLE/developer_guide/coding_standards/</loc>
          <lastmod>2022-12-14</lastmod>
          <changefreq>daily</changefreq>
@@ -42,11 +47,6 @@
     </url>
     <url>
          <loc>https://cable-lsm.github.io/CABLE/developer_guide/documentation_guidelines/</loc>
-         <lastmod>2022-12-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://cable-lsm.github.io/CABLE/developer_guide/documentation_guidelines/ford_cheatsheet/</loc>
          <lastmod>2022-12-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
