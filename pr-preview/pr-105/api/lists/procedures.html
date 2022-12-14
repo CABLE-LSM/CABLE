@@ -335,7 +335,7 @@ restart file.</p><a href="../proc/get_parameters_met.html" class="pull-right"><e
 			   <tr><td><a href='../proc/iflux_loop.html'>iflux_loop</a></td><td><a href='../module/sli_solve.html'>sli_solve</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/igamma.html'>igamma</a></td><td><a href='../module/sli_utils.html'>sli_utils</a></td><td>Function</td><td></td></tr>
 			   <tr><td><a href='../proc/increment_age.html'>INCREMENT_AGE</a></td><td><a href='../module/popluc_module.html'>POPLUC_Module</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/init_radiation.html'>init_radiation</a></td><td><a href='../module/cbl_init_radiation_module.html'>cbl_init_radiation_module</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/init_radiation.html'>init_radiation</a></td><td><a href='../module/cbl_init_radiation_module.html'>cbl_init_radiation_module</a></td><td>Subroutine</td><td><a href="../proc/init_radiation.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/init_veg_from_vegin.html'>init_veg_from_vegin</a></td><td><a href='../module/cable_param_module.html'>cable_param_module</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/initpop2d_poisson.html'>InitPOP2D_Poisson</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/interpolate_biomass_1d.html'>INTERPOLATE_BIOMASS_1D</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
@@ -364,7 +364,13 @@ in the vertical within the canopy.</p><a href="../proc/lai_eff.html" class="pull
 			   <tr><td><a href='../proc/landuse_redistribution.html'>landuse_redistribution</a></td><td><a href='../sourcefile/landuse3.f90.html'>landuse3.F90</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/landuse_transitx.html'>landuse_transitx</a></td><td><a href='../sourcefile/landuse3.f90.html'>landuse3.F90</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/landuse_update_mland.html'>landuse_update_mland</a></td><td><a href='../sourcefile/landuse3.f90.html'>landuse3.F90</a></td><td>Subroutine</td><td></td></tr>
-			   <tr><td><a href='../proc/latent_heat_flux.html'>Latent_heat_flux</a></td><td><a href='../module/cable_latent_heat_module.html'>cable_latent_heat_module</a></td><td>Subroutine</td><td><p>thickness of topmost soil layer (m)</p></td></tr>
+			   <tr><td><a href='../proc/latent_heat_flux.html'>Latent_heat_flux</a></td><td><a href='../module/cable_latent_heat_module.html'>cable_latent_heat_module</a></td><td>Subroutine</td><td><p>This SUBROUTINE converts the previously evaluated rate of potential
+ evaporation <code>ssnow_potev</code> from the soil to the associated latent heat flux
+ <code>canopy_fes</code>. The evaluation accounts for whether the water flux is
+ from/to a wet or ice surface,
+ the direction of the flux (to or from the soil), any limits due to a lack of
+ water the surface layer of the soil, and
+ the partition of the latent heat flux between soil and puddle contributions.</p><a href="../proc/latent_heat_flux.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 			   <tr><td><a href='../proc/layer_recruitment.html'>layer_recruitment</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/layer_recruitment_single_patch.html'>layer_recruitment_single_patch</a></td><td><a href='../module/popmodule.html'>POPModule</a></td><td>Subroutine</td><td></td></tr>
 			   <tr><td><a href='../proc/leap_day.html'>LEAP_DAY</a></td><td><a href='../module/cable_common_module.html'>cable_common_module</a></td><td>Function</td><td></td></tr>

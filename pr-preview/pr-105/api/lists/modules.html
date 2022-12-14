@@ -93,11 +93,10 @@
 <!--active-->			   <tr class=""><td><a href='../module/cable_init_module.html'>cable_init_module</a></td><td><a href='../sourcefile/cable_initialise.f90.html'>cable_initialise.F90</a></td><td></td></tr>
 <!---->			   <tr class="active"><td><a href='../module/cable_input_module.html'>cable_input_module</a></td><td><a href='../sourcefile/cable_input.f90.html'>cable_input.F90</a></td><td></td></tr>
 <!--active-->			   <tr class=""><td><a href='../module/cable_io_vars_module.html'>cable_IO_vars_module</a></td><td><a href='../sourcefile/cable_iovars.f90.html'>cable_iovars.F90</a></td><td></td></tr>
-<!---->			   <tr class="active"><td><a href='../module/cable_latent_heat_module.html'>cable_latent_heat_module</a></td><td><a href='../sourcefile/cbl_latent_heat.f90.html'>cbl_latent_heat.F90</a></td><td><p>This SUBROUTINE converts the previously estimated rate of potential
-evaporation from the soil to the associated latent heat flux.
-This evaluation accounts for whether the flux is from/to water or ice,
-the direction of the flux (to or from the soil), and
-the partition of the latent heat flux between soil and puddle contributions.</p></td></tr>
+<!---->			   <tr class="active"><td><a href='../module/cable_latent_heat_module.html'>cable_latent_heat_module</a></td><td><a href='../sourcefile/cbl_latent_heat.f90.html'>cbl_latent_heat.F90</a></td><td><p>This MODULE contains one SUBROUTINE which evaluates the latent heat from
+ground given the previoulsy evaluated rate of potential evaporation.
+This is a component of the calcualtion of the energy balance and is carried out
+once per cycle in the MO iteration in <a href="../proc/define_canopy.html">define_canopy</a>.</p></td></tr>
 <!--active-->			   <tr class=""><td><a href='../module/cable_luc_expt.html'>CABLE_LUC_EXPT</a></td><td><a href='../sourcefile/cable_luc_expt.f90.html'>cable_LUC_EXPT.F90</a></td><td></td></tr>
 <!---->			   <tr class="active"><td><a href='../module/cable_math_constants_mod.html'>cable_math_constants_mod</a></td><td><a href='../sourcefile/cable_maths_constants_mod.f90.html'>cable_maths_constants_mod.F90</a></td><td></td></tr>
 <!--active-->			   <tr class=""><td><a href='../module/cable_metutils_module.html'>CABLE_METUTILS_MODULE</a></td><td><a href='../sourcefile/cable_metutils.f90.html'>cable_metutils.F90</a></td><td></td></tr>
@@ -143,7 +142,7 @@ the partition of the latent heat flux between soil and puddle contributions.</p>
 <!---->			   <tr class="active"><td><a href='../module/cbl_fwsoil_module.html'>cbl_fwsoil_module</a></td><td><a href='../sourcefile/cbl_fwsoil.f90.html'>cbl_fwsoil.F90</a></td><td></td></tr>
 <!--active-->			   <tr class=""><td><a href='../module/cbl_hruff_mod.html'>cbl_hruff_mod</a></td><td><a href='../sourcefile/cbl_hgtabove_snow.f90.html'>cbl_hgtAbove_snow.F90</a></td><td><p>The procedure in this module evaluates the canopy height
  given the effect of any snow present.  </p></td></tr>
-<!---->			   <tr class="active"><td><a href='../module/cbl_init_radiation_module.html'>cbl_init_radiation_module</a></td><td><a href='../sourcefile/cbl_init_radiation.f90.html'>cbl_init_radiation.F90</a></td><td></td></tr>
+<!---->			   <tr class="active"><td><a href='../module/cbl_init_radiation_module.html'>cbl_init_radiation_module</a></td><td><a href='../sourcefile/cbl_init_radiation.f90.html'>cbl_init_radiation.F90</a></td><td><p>This MODULE initialise the radiation parameters.</p><a href="../module/cbl_init_radiation_module.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
 <!--active-->			   <tr class=""><td><a href='../module/cbl_lai_canopy_height_mod.html'>cbl_LAI_canopy_height_mod</a></td><td><a href='../sourcefile/cbl_lai_canopy_height.f90.html'>cbl_LAI_canopy_height.F90</a></td><td><p>This MODULE contains the SUBROUTINE <a href="../proc/limit_hgt_lai.html">limit_HGT_LAI</a>.  This routine
 places limits on the values of the leaf area and canopy height to ensure
 realism.</p></td></tr>

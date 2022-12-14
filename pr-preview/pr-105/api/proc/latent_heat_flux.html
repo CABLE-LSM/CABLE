@@ -151,7 +151,26 @@
     </div>
 
 
-    <p>thickness of topmost soil layer (m)</p>
+    <h2>Purpose</h2>
+<p>This SUBROUTINE converts the previously evaluated rate of potential
+ evaporation <code>ssnow_potev</code> from the soil to the associated latent heat flux
+ <code>canopy_fes</code>. The evaluation accounts for whether the water flux is
+ from/to a wet or ice surface,
+ the direction of the flux (to or from the soil), any limits due to a lack of
+ water the surface layer of the soil, and
+ the partition of the latent heat flux between soil and puddle contributions.</p>
+<h2>Warning</h2>
+<p>This current implementation is possibly confusing.  The variable <code>ssnow_potev</code>
+ is not potential evaporation (in kg water m<script type="math/tex">^{-2}</script>s<script type="math/tex">^{-1}</script>) but the
+ latent heat flux (in Wm<script type="math/tex">^{-2}</script> associated with the potential evaporation.
+ <code>ssnow_potev</code> also assumes that the water flux described by potential
+ evaporation is of liquid water regardless of temperature
+ and whether the surface is covered by snow. Additionally one option for the
+ evlaution of <code>ssnow_potev</code> (the <a href="../proc/penman_monteith.html">Penman_Monteith</a> option) does not function
+ correctly over frozen surfaces. A bug fix will require changes to
+ <a href="../proc/define_canopy.html">define_canopy</a>, <a href="../proc/penman_monteith.html">Penman_Monteith</a> and this SUBROUTINE; markers have been
+ inserted into the code accordingly.</p>
+<p>thickness of topmost soil layer (m)</p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">

@@ -146,11 +146,10 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <p>This SUBROUTINE converts the previously estimated rate of potential
-evaporation from the soil to the associated latent heat flux.
-This evaluation accounts for whether the flux is from/to water or ice,
-the direction of the flux (to or from the soil), and
-the partition of the latent heat flux between soil and puddle contributions.</p>
+    <p>This MODULE contains one SUBROUTINE which evaluates the latent heat from
+ground given the previoulsy evaluated rate of potential evaporation.
+This is a component of the calcualtion of the energy balance and is carried out
+once per cycle in the MO iteration in <a href="../proc/define_canopy.html">define_canopy</a>.</p>
     
     
     <br>
@@ -207,7 +206,13 @@ the partition of the latent heat flux between soil and puddle contributions.</p>
 </h3></div>
     <div class="panel-body">
           
-  <p>thickness of topmost soil layer (m)</p>
+  <p>This SUBROUTINE converts the previously evaluated rate of potential
+ evaporation <code>ssnow_potev</code> from the soil to the associated latent heat flux
+ <code>canopy_fes</code>. The evaluation accounts for whether the water flux is
+ from/to a wet or ice surface,
+ the direction of the flux (to or from the soil), any limits due to a lack of
+ water the surface layer of the soil, and
+ the partition of the latent heat flux between soil and puddle contributions.</p><a href="../proc/latent_heat_flux.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
