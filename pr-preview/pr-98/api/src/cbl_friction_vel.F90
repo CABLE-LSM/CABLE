@@ -111,6 +111,9 @@ FUNCTION psim(zeta, mp, CPI_C ) RESULT(r)
   !
   ! Evaluates the integrated similarity function for momentum transfer,
   ! \(\psi_m(\xi)\).
+  !
+  !## Method
+  !
   ! Uses the Businger-Dyer form for unstable conditions (\(\xi<0\)) and the
   ! Beljaars-Holtslag form for stable conditions (\(\xi>0\)).
   !
