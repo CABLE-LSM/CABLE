@@ -169,8 +169,20 @@
  evlaution of <code>ssnow_potev</code> (the <a href="../proc/penman_monteith.html">Penman_Monteith</a> option) does not function
  correctly over frozen surfaces. A bug fix will require changes to
  <a href="../proc/define_canopy.html">define_canopy</a>, <a href="../proc/penman_monteith.html">Penman_Monteith</a> and this SUBROUTINE; markers have been
- inserted into the code accordingly.</p>
+ inserted into the code accordingly.  </p>
 <p>thickness of topmost soil layer (m)</p>
+<h2>Method</h2>
+<p>When there is puddle a fraction of the soil column is covered by water, <code>pwet</code>.
+ The main workflow loops over the land points in the CABLE array and determines</p>
+<p>For cases 1 and 3 there must be sufficient water in the surface soil layer
+ Additionally (for case 3) the evaporation of liquid water from within the
+ IF the surface has snow then the latent heat flux represents a conversion
+ For case 4 deposition of frost onto frozen soil (temperature below freezing)
+ For case 2, if <code>ssnow_potev</code>&gt;0 then there needs to be sufficient snow to</p>
+<p>Note that in the case of dew fall onto a surface with little/no snow while
+ the soil surface temperature is above freezing the latent heat flux
+ defaults to the first estmate.</p>
+<p>The latent heat flux associated with evaporation from puddles is set</p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
