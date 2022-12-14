@@ -135,7 +135,7 @@ REAL, INTENT(IN), DIMENSION(mp) ::  zeta !! IN current value of stability parame
 REAL, INTENT(IN) :: CPI_C                !! PI (=3.14...) (-)
 
 ! function result
-REAL, DIMENSION(mp) :: r                 !! OUT \(\psi_m (\xi) \)
+REAL, DIMENSION(mp) :: r                 ! result of FUNCTION
 
 REAL, PARAMETER ::                                                          &
   gu = 16.0,         & !
