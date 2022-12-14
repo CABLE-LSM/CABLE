@@ -141,7 +141,7 @@
 
     <h2>Purpose</h2>
 <p>This SUBROUTINE evaluates the value of the friction velocity <script type="math/tex">u_*</script> as used
- during the iteration loop of the Monin-Obuhkov (MO) similarity theory in
+ during the iteration loop of the Monin-Obukhov (MO) similarity theory in
  <a href="../proc/define_canopy.html">define_canopy</a>. <script type="math/tex">u_*</script> is used when quantifying the stability
  parameter <code>canopy%zetar</code> in <a href="../proc/update_zetar.html">update_zetar</a>, and when evaluating the
  resistance network components <code>rt0</code> and <code>rt1</code> in <a href="../proc/define_canopy.html">define_canopy</a>.
@@ -149,17 +149,18 @@
  is occurring as well as the flux of momentum from the atmosphere to
  the land.</p>
 <p>The output <code>friction_vel</code> is known as <code>canopy%us</code> elsewhere in the code.</p>
+<h2>Method</h2>
 <p>The basic formula is derived from the modified log-law for the
  vertical profile of wind speed near to the ground namely</p>
 <p>
 <script type="math/tex"> u_{*} = U(z_{ref}) / ( \log [z_{ref}/z_{0m}] -
-      \psi_m[\xi z_{ref}/z_{refTq}]
-    + \psi_m[\xi z_{0m}/z_{refTq}] ) </script>
+      \psi_m[\xi * z_{ref}/z_{refTq}]
+    + \psi_m[\xi * z_{0m}/z_{refTq}] ) </script>
 </p>
 <p>with <script type="math/tex">\psi_m</script> the integrated similarity function given by <a href="../proc/psim.html">psim</a>,
  <script type="math/tex">U</script> the wind speed at height <script type="math/tex">z_{ref}</script>,
  <script type="math/tex">\xi</script> the current value of the stability parameter, and <script type="math/tex">z_{0m}</script> the
- roughness length.
+ roughness length.<br>
  A minimum value is applied to the input wind speed, <code>ua</code>= <script type="math/tex">U(z_{ref})</script>,
  to assist with convergence of the MO iteration in light wind conditions.
  Small and large value limits are applied to the evaluated <script type="math/tex">u_*</script>.</p>

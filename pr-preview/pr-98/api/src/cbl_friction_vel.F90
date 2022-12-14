@@ -21,7 +21,7 @@ SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
   !*## Purpose
   !
   ! This SUBROUTINE evaluates the value of the friction velocity \(u_*\) as used
-  ! during the iteration loop of the Monin-Obuhkov (MO) similarity theory in
+  ! during the iteration loop of the Monin-Obukhov (MO) similarity theory in
   ! [[define_canopy]]. \(u_*\) is used when quantifying the stability
   ! parameter `canopy%zetar` in [[update_zetar]], and when evaluating the
   ! resistance network components `rt0` and `rt1` in [[define_canopy]].
@@ -31,17 +31,20 @@ SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
   !
   ! The output `friction_vel` is known as `canopy%us` elsewhere in the code.
   !
+  !
+  !## Method
+  !
   ! The basic formula is derived from the modified log-law for the
   ! vertical profile of wind speed near to the ground namely
   !
   ! \( u_{*} = U(z_{ref}) / ( \log [z_{ref}/z_{0m}] -
-  !      \psi_m[\xi z_{ref}/z_{refTq}]
-  !    + \psi_m[\xi z_{0m}/z_{refTq}] ) \)
+  !      \psi_m[\xi * z_{ref}/z_{refTq}]
+  !    + \psi_m[\xi * z_{0m}/z_{refTq}] ) \)
   !
   ! with \(\psi_m\) the integrated similarity function given by [[psim]],
   ! \(U\) the wind speed at height \(z_{ref}\),
   ! \(\xi\) the current value of the stability parameter, and \(z_{0m}\) the
-  ! roughness length.
+  ! roughness length.  
   ! A minimum value is applied to the input wind speed, `ua`= \(U(z_{ref})\),
   ! to assist with convergence of the MO iteration in light wind conditions.
   ! Small and large value limits are applied to the evaluated \(u_*\).
@@ -135,7 +138,7 @@ REAL, INTENT(IN), DIMENSION(mp) ::  zeta !! IN current value of stability parame
 REAL, INTENT(IN) :: CPI_C                !! PI (=3.14...) (-)
 
 ! function result
-REAL, DIMENSION(mp) :: r                 !! OUT \(\psi_m (\xi) \)
+REAL, DIMENSION(mp) :: r                 ! result of FUNCTION
 
 REAL, PARAMETER ::                                                          &
   gu = 16.0,         & !
@@ -183,7 +186,7 @@ ELEMENTAL FUNCTION psis(zeta) RESULT(r)
 ! for scalars, using the businger-dyer form for unstable cases
 ! and the webb form for stable cases. see paulson (1970).
 
-REAL, INTENT(IN)     :: zeta  !! IN current value of stability parameter \(\xi\) (-)
+REAL, INTENT(IN)     :: zeta  !! current value of stability parameter \(\xi\) (-)
 
 REAL, PARAMETER      ::                                                     &
      gu = 16.0,        & !
