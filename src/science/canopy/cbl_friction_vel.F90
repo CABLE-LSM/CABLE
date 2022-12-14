@@ -44,7 +44,7 @@ SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
   ! with \(\psi_m\) the integrated similarity function given by [[psim]],
   ! \(U\) the wind speed at height \(z_{ref}\),
   ! \(\xi\) the current value of the stability parameter, and \(z_{0m}\) the
-  ! roughness length.
+  ! roughness length.  
   ! A minimum value is applied to the input wind speed, `ua`= \(U(z_{ref})\),
   ! to assist with convergence of the MO iteration in light wind conditions.
   ! Small and large value limits are applied to the evaluated \(u_*\).
