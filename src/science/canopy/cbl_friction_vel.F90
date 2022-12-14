@@ -183,7 +183,7 @@ ELEMENTAL FUNCTION psis(zeta) RESULT(r)
 ! for scalars, using the businger-dyer form for unstable cases
 ! and the webb form for stable cases. see paulson (1970).
 
-REAL, INTENT(IN)     :: zeta  !! IN current value of stability parameter \(\xi\) (-)
+REAL, INTENT(IN)     :: zeta  !! current value of stability parameter \(\xi\) (-)
 
 REAL, PARAMETER      ::                                                     &
      gu = 16.0,        & !
