@@ -190,12 +190,12 @@
             <td>::</td>
             <td><strong>CTFRZ</strong></td>
             <td>
-                
+                <p>temperature at freezing point (K) </p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-dels~43"></span>
+              <span class="anchor" id="variable-dels"></span>
               real,
             </td>
 <td>intent(in)</td>
@@ -205,12 +205,12 @@
             <td>::</td>
             <td><strong>dels</strong></td>
             <td>
-                
+                <p>time step of CABLE (s)</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-soil_zse~2"></span>
+              <span class="anchor" id="variable-soil_zse"></span>
               real,
             </td>
 <td>intent(in)</td>
@@ -220,7 +220,7 @@
             <td>::</td>
             <td><strong>soil_zse</strong></td>
             <td>
-                
+                <p>thickness of topmost soil layer (m)</p>
             </td>
         </tr>
         <tr>
@@ -235,7 +235,7 @@
             <td>::</td>
             <td><strong>soil_swilt</strong>(mp)</td>
             <td>
-                
+                <p>soil moisture content at wilting point (m<script type="math/tex">^3</script> water m<script type="math/tex">^{-3}</script> volume)</p>
             </td>
         </tr>
         <tr>
@@ -250,7 +250,7 @@
             <td>::</td>
             <td><strong>cable_user_l_new_reduce_soilevp</strong></td>
             <td>
-                
+                <p>NAMELIST switch to use alternate soil evaporation scheme</p>
             </td>
         </tr>
         <tr>
@@ -265,12 +265,12 @@
             <td>::</td>
             <td><strong>pwet</strong>(mp)</td>
             <td>
-                
+                <p>factor to reduce soil evaporation due to presence of a puddle (-)</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-air_rlam~3"></span>
+              <span class="anchor" id="variable-air_rlam"></span>
               real,
             </td>
 <td>intent(in)</td>
@@ -280,12 +280,12 @@
             <td>::</td>
             <td><strong>air_rlam</strong>(mp)</td>
             <td>
-                
+                <p>density of air (kgm<script type="math/tex">^{-3}</script>)</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ssnow_snowd~2"></span>
+              <span class="anchor" id="variable-ssnow_snowd"></span>
               real,
             </td>
 <td>intent(in)</td>
@@ -295,7 +295,7 @@
             <td>::</td>
             <td><strong>ssnow_snowd</strong>(mp)</td>
             <td>
-                
+                <p>depth of snow in liquid water equivalent (mm m^<script type="math/tex">^{-2}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -310,7 +310,7 @@
             <td>::</td>
             <td><strong>ssnow_wb</strong>(mp)</td>
             <td>
-                
+                <p>water content in surface soil layer (m<script type="math/tex">^{3} liquid water m\(^{-3}</script> volume)water m<script type="math/tex">^{-3}</script> volume)</p>
             </td>
         </tr>
         <tr>
@@ -325,7 +325,7 @@
             <td>::</td>
             <td><strong>ssnow_wbice</strong>(mp)</td>
             <td>
-                
+                <p>ice content in surface soil layer (m<script type="math/tex">^{3} frozen water m\(^{-3}</script> volume)</p>
             </td>
         </tr>
         <tr>
@@ -340,7 +340,7 @@
             <td>::</td>
             <td><strong>ssnow_pudsto</strong>(mp)</td>
             <td>
-                
+                <p>amount of water in puddles (kgm<script type="math/tex">^{-2}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -355,12 +355,12 @@
             <td>::</td>
             <td><strong>ssnow_pudsmx</strong>(mp)</td>
             <td>
-                
+                <p>maximum amount of water possible in puddles (kgm<script type="math/tex">^{-2}</script>)</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ssnow_potev~2"></span>
+              <span class="anchor" id="variable-ssnow_potev"></span>
               real,
             </td>
 <td>intent(in)</td>
@@ -370,7 +370,7 @@
             <td>::</td>
             <td><strong>ssnow_potev</strong>(mp)</td>
             <td>
-                
+                <p>latent heat flux associated potential evaporation (Wm<script type="math/tex">^{-2}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -385,7 +385,7 @@
             <td>::</td>
             <td><strong>ssnow_wetfac</strong>(mp)</td>
             <td>
-                
+                <p>wetness factor for soil (between 0 and 1)</p>
             </td>
         </tr>
         <tr>
@@ -400,7 +400,7 @@
             <td>::</td>
             <td><strong>ssnow_evapfbl</strong>(mp)</td>
             <td>
-                
+                <p>flux of water from soil surface (kg m<script type="math/tex">^{-2}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -415,7 +415,7 @@
             <td>::</td>
             <td><strong>ssnow_cls</strong>(mp)</td>
             <td>
-                
+                <p>factor denoting whether latent flux is to/from water or ice (=1 if water, =1.1335 if ice)</p>
             </td>
         </tr>
         <tr>
@@ -430,12 +430,12 @@
             <td>::</td>
             <td><strong>ssnow_tss</strong>(mp)</td>
             <td>
-                
+                <p>temperature of surface soil/snow layer (K)</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-canopy_fes~2"></span>
+              <span class="anchor" id="variable-canopy_fes"></span>
               real(kind=r_2),
             </td>
 <td>intent(out)</td>
@@ -445,7 +445,7 @@
             <td>::</td>
             <td><strong>canopy_fes</strong>(mp)</td>
             <td>
-                
+                <p>latent heat flux from the ground (Wm<script type="math/tex">^{-2}</script>) </p>
             </td>
         </tr>
         <tr>
@@ -460,7 +460,7 @@
             <td>::</td>
             <td><strong>canopy_fess</strong>(mp)</td>
             <td>
-                
+                <p>latent heat flux from the soil (Wm<script type="math/tex">^{-2}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -475,7 +475,7 @@
             <td>::</td>
             <td><strong>canopy_fesp</strong>(mp)</td>
             <td>
-                
+                <p>latent heat flux from any puddles (Wm^{-2}))</p>
             </td>
         </tr>
     </tbody>
