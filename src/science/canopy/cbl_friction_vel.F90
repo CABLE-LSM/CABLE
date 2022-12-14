@@ -135,7 +135,7 @@ FUNCTION psim(zeta, mp, CPI_C ) RESULT(r)
 
 INTEGER, INTENT(IN) :: mp                !! size of cable vector of land points (-)
 REAL, INTENT(IN), DIMENSION(mp) ::  zeta !! IN current value of stability parameter \(\xi\) (-)
-REAL, INTENT(IN) :: CPI_C                !! PI (=3.14...) (-)
+REAL, INTENT(IN) :: CPI_C                !! \( \pi \) (-)
 
 ! function result
 REAL, DIMENSION(mp) :: r                 ! result of FUNCTION
