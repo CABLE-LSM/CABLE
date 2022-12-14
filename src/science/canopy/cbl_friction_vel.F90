@@ -38,8 +38,8 @@ SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
   ! vertical profile of wind speed near to the ground namely
   !
   ! \( u_{*} = U(z_{ref}) / ( \log [z_{ref}/z_{0m}] -
-  !      \psi_m[\xi z_{ref}/z_{refTq}]
-  !    + \psi_m[\xi z_{0m}/z_{refTq}] ) \)
+  !      \psi_m[\xi * z_{ref}/z_{refTq}]
+  !    + \psi_m[\xi * z_{0m}/z_{refTq}] ) \)
   !
   ! with \(\psi_m\) the integrated similarity function given by [[psim]],
   ! \(U\) the wind speed at height \(z_{ref}\),
