@@ -1,8 +1,9 @@
 MODULE cable_latent_heat_module
   !* This MODULE contains one SUBROUTINE which evaluates the latent heat from
-  ! ground given the previoulsy evaluated rate of potential evaporation.
-  ! This is a component of the calculation of the surface energy balance
-  ! and is called once per cycle in the MO iteration section of [[define_canopy]].
+  ! ground/soil/snow pack given the previously evaluated rate of potential
+  ! evaporation. This is a component of the calculation of the surface energy
+  ! balance and is called once per cycle in the MO iteration section of
+  ! [[define_canopy]].
 
   IMPLICIT NONE
 
@@ -20,7 +21,7 @@ SUBROUTINE Latent_heat_flux( mp, CTFRZ, dels, soil_zse, soil_swilt,           &
   !*## Purpose
   !
   ! This SUBROUTINE converts the previously evaluated rate of potential
-  ! evaporation `ssnow_potev` from the soil to the associated latent heat flux
+  ! evaporation `ssnow_potev` from the soil into the associated latent heat flux
   ! `canopy_fes`. The evaluation accounts for whether the water flux is
   ! from/to a wet or ice surface,
   ! the direction of the flux (to or from the soil), any limits due to a lack of
@@ -30,7 +31,7 @@ SUBROUTINE Latent_heat_flux( mp, CTFRZ, dels, soil_zse, soil_swilt,           &
   !
   !## Warning
   !
-  ! This current implementation is possibly confusing.  The variable `ssnow_potev`
+  ! This current CABLE implementation is possibly confusing.  The variable `ssnow_potev`
   ! is not potential evaporation (in kg water m\(^{-2}\)s\(^{-1}\)) but is instead
   ! the latent heat flux (in Wm\(^{-2}\)) associated with the potential evaporation.
   ! `ssnow_potev` assumes that the water flux described by the potential
@@ -100,7 +101,7 @@ INTEGER :: j
 !
 ! while satisfying any constraints due to limits on soil moisture.
 !
-!<br><\br>
+!<br></br>
 ! There are six outputs from this SUBROUTINE
 !
 ! * three latent heat fluxes (soil, puddle and total) noting that these are referenced
@@ -110,10 +111,11 @@ INTEGER :: j
 ! * `ssnow_cls` quantifying whether the latent heat flux represents a change between
 ! liquid/vapour of ice/vapour phases. 
 !
+! <br></br>
 ! **IMPORTANT** the value of `ssnow_cls` set in this SUBROUTINE is used to control whether
 ! the water fluxes from the snow pack/soil column in [[soil_snow]] are of water or ice.
 !
-!<br><\br>
+!<br></br>
 !## Workflow
 ! The underpinning equation linking the \(\beta\)-formulation for the soil latent heat flux
 ! to the potential evaporation is
@@ -124,18 +126,20 @@ INTEGER :: j
 ! is a factor set by whether the flux of water is to/from water or to/from ice
 ! (\(c_{ls}=1.1335\) if ice - 1.1335 is the ratio of the latent heat of sublimation of water
 ! to the latent heat of evaporation of water), \(\beta\)=`ssnow_wetfac` is a coefficient controlling
-! the availability of water in the soil surface layer and \(\lamba E_{pot}\)=`ssnow_potev`
+! the availability of water in the soil surface layer, and \(\lambda E_{pot}\)=`ssnow_potev`
 ! is the latent heat flux associated with potential evaporation.
 !
-! When the latent heat flux is negative, i.e. the flux of water is from the atmosphere
-! onto the soil/snow there is no limit due to availability of water in the soil column
+! <br></br>
+! First, when the latent heat flux is negative, i.e. the flux of water is from the atmosphere
+! onto the soil/snow, there is no limit due to availability of water in the soil column
 ! and `ssnow_wetfac` is overwritten to a value of 1.
-! Otherwise a first estimate for the soil latent heat flux is calcualted as above without
-! further limits.
+! Subsequently, a first estimate for the soil latent heat flux is calculated from the equation without
+! further limit.
+!<br></br>
 WHERE (ssnow_potev < 0. ) ssnow_wetfac(:) = 1.0
 canopy_fess= ssnow_wetfac * ssnow_potev
 
-!| When there is puddle a fraction of the soil column is covered by water, `pwet`.
+!| Second, when there is puddle a fraction of the soil column is covered by water, `pwet`.
 ! As a result the evaporation from the soil is reduced by the change in area fraction.
 pwet = MAX(0.,MIN(0.2,ssnow_pudsto/MAX(1.,ssnow_pudsmx)))
 canopy_fess = canopy_fess * (1.-pwet)
@@ -145,19 +149,21 @@ canopy_fess = canopy_fess * (1.-pwet)
 ! 1000 is the density of water in kg/m3
 frescale = soil_zse * 1000. * air_rlam / dels
 
-!| The main workflow loops over the land points in the CABLE array and determines
-! additional limits and the value for \(c_{ls}\) depending on which
-! of the four cases that land point falls in (Ticket 137)
+!| The main workflow in the SUBROUTINE loops over the land points in the CABLE array
+! and determines additional limits on the latent heat flux and the value for \(c_{ls}\)
+! accroding to which of the four cases that land point falls in (Ticket 137).
+!
 ! Cases 1 and 3 represent a conversion between liquid and vapour phases of water.
 DO j=1,mp
 
   IF(ssnow_snowd(j) < 0.1 .AND. canopy_fess(j) .GT. 0. ) THEN
 
      !|For cases 1 and 3 there must be sufficient water in the surface soil layer
-     ! to provide the water for evaporation, this sets `fupper_limit`
+     ! to provide the water for evaporation. This sets `fupper_limit`,
      ! the maximum latent heat flux possible.  Two options
-     ! are provided, set by `cable_user_l_new_reduce_soilevap`, which
-     ! differ in the amount of water that must remain at the end of the time step.
+     ! are provided for `fupper_limit`, set by `cable_user_l_new_reduce_soilevap` switch.
+     ! The options differ in the amount of water that remains at the end of the time step.
+     !
      IF (.NOT.cable_user_l_new_reduce_soilevp) THEN
         flower_limit(j) = REAL(ssnow_wb(j))-soil_swilt(j)/2.0
      ELSE
@@ -174,8 +180,9 @@ DO j=1,mp
      ! frozen soil column must not reduce the liquid water fraction to the
      ! point that that ice fraction of soil moisture exceeds the
      ! frozen_limit=0.85.  This provides a second upper limit on the evaporation and
-     ! latent flux. **WARNING** frozen_limit=0.85 is hard coded - if changed
+     ! latent flux. **WARNING** frozen_limit=0.85 is hard coded - if it is changed
      ! then the corresponding limit in [[cbl_soilsnow]] must also be changed.
+     !<br></br>
      fupper_limit(j) = REAL(ssnow_wb(j)-ssnow_wbice(j)/0.85)*frescale(j)
      fupper_limit(j) = MAX(REAL(fupper_limit(j),r_2),0.)
 
@@ -188,13 +195,16 @@ DO j=1,mp
   !| If the surface has snow cover then the latent heat flux represents a
   ! conversion between solid and vapour phases of water and (\(c_{ls}\)=1.1335.
   ! The first estimate is updated by the change in value of (\(c_{ls}\).
+  !
   IF (ssnow_snowd(j) >=0.1 ) THEN
      ssnow_cls(j) = 1.1335
      canopy_fess(j) = ssnow_cls(j)*ssnow_potev(j)
   ENDIF
 
-  !| For case 4 deposition of frost onto frozen soil (temperature below freezing)
-  ! occurs even if there is no snow (so \(c_{ls}\)=1.1335) and there is no limit.  
+  !| For case 4, deposition of frost onto frozen surface (temperature below freezing)
+  ! occurs even if there is no snow (so \(c_{ls}\)=1.1335) - there is no limit
+  ! on the magnitude of the latent heat flux.
+  !
   IF (ssnow_snowd(j) < 0.1 .AND. ssnow_potev(j) < 0. .AND. &
        ssnow_tss(j)<CTFRZ) THEN
      ssnow_cls(j)=1.1335
@@ -204,6 +214,7 @@ DO j=1,mp
   !| For case 2, if `ssnow_potev`>0 then there needs to be sufficient snow to
   ! sublimate over the time step.  This places an upper limit on the latent
   ! heat flux possible.
+  !
   IF (ssnow_snowd(j) >= 0.1 .AND. ssnow_potev(j) > 0.) THEN
 
      ssnow_cls(j) = 1.1335
@@ -218,12 +229,13 @@ ENDDO
 !*  Note that the case of dew fall onto a surface with little/no snow while
 ! the soil surface temperature is above freezing is unrestricted and
 ! the latent heat flux defaults to the first estimate.
+! <br></br>
 
 !| The latent heat flux associated with evaporation from puddles is set
-! to the area fraction of `ssnow_potev` but then limited by the amount of water
+! to the area fraction of `ssnow_potev` provided that sufficient water is
 ! available in the puddles.
-! Finally the total latant heat lux is obtained by summing the soil and
-! puddle contributions.
+! Finally, the total latant heat flux is obtained by summing the soil and
+! puddle contributions.  
 canopy_fesp = MIN(ssnow_pudsto/dels*air_rlam,MAX(pwet*ssnow_potev,0.))
 canopy_fes = canopy_fess + canopy_fesp
 
