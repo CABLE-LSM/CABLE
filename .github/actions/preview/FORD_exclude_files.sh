@@ -18,10 +18,10 @@ echo number of files found:
 wc -l exclude_files_ford.txt
 
 # List of modified files in the last commit
-modif=$(git diff --name-only --diff-filter=ACMRT f7eeea5954823195437b68c4db0fd9f113aa7774 25d6bb3b45cbb47ff6a03d86125b44858fb0695a | grep .F90$ | xargs)
+modif=$(git diff --name-only --diff-filter=ACMRT f7eeea5954823195437b68c4db0fd9f113aa7774 bebfc44aa0a054be2f9407cfdf195890c9968edc | grep .F90$ | xargs)
 
-echo number of modified files found
-$modif
+echo modified files found
+echo $modif
 
 # Remove each modified file from the list to exclude
 for path in $modif
@@ -40,5 +40,5 @@ wc -l exclude_files_ford.txt
 cat documentation/cable_config_ford.md exclude.txt documentation/cable_desc_ford.md > documentation/cable_FORD.md
 
 # Clean up
-rm exclude_files_ford.txt exclude.txt
+#rm exclude_files_ford.txt exclude.txt
 
