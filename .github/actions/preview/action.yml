@@ -32,9 +32,17 @@ runs:
         mkdocs build -f mkdocs.yml
       shell: bash
 
+    # FORD documentation
+    # Installation
     - name: Install dependencies for ford
       run: | 
         pip install -r documentation/ford-requirements.txt
+      shell: bash
+
+    # Create config file to build modified files only.
+    - name: Create cable_ford.md
+      run: |
+        .github/actions/preview/FORD_exclude_files.sh ${{ github.event.pull_request.base.sha }} ${{ github.sha }}
       shell: bash
 
     # Builds without call graphs for faster result

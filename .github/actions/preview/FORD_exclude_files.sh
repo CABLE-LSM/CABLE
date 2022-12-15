@@ -22,6 +22,7 @@ echo number of files found:
 wc -l exclude_files_ford.txt
 
 # List of modified files in the last commit
+echo "git diff --name-only --diff-filter=ACMRT ${base_SHA} ${PR_SHA} | grep .F90$ | xargs"
 modif=$(git diff --name-only --diff-filter=ACMRT ${base_SHA} ${PR_SHA} | grep .F90$ | xargs)
 
 echo modified files found
@@ -31,18 +32,18 @@ echo $modif
 for path in $modif
 do
     file=$(basename $path)
-    /opt/miniconda3/bin/sed -i "/$file/d" exclude_files_ford.txt
+    sed -i "/$file/d" exclude_files_ford.txt
 done
 
 echo number of unchanged files to exclude from FORD:
 wc -l exclude_files_ford.txt
 
 # Print the list to exclude in FORD
-/opt/miniconda3/bin/sed "s/^/exclude: /" exclude_files_ford.txt > exclude.txt
+sed "s/^/exclude: /" exclude_files_ford.txt > exclude.txt
 
 # concatenate the various parts for the FORD config file
 cat documentation/cable_config_ford.md exclude.txt documentation/cable_desc_ford.md > documentation/cable_FORD.md
 
 # Clean up
-#rm exclude_files_ford.txt exclude.txt
+rm exclude_files_ford.txt exclude.txt
 
