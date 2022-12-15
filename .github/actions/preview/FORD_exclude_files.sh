@@ -10,6 +10,10 @@
 #     files and the front page description for CABLE using cat.
 #  6. Clean up by removing unnecessary files
 
+# Get SHA numbers as input
+base_SHA=$1
+PR_SHA=$2
+
 # List of all source files in the trunk
 find src -name "*.F90" | rev | cut -d '/' -f1 | rev > exclude_files_ford.txt
 
@@ -18,7 +22,7 @@ echo number of files found:
 wc -l exclude_files_ford.txt
 
 # List of modified files in the last commit
-modif=$(git diff --name-only --diff-filter=ACMRT f7eeea5954823195437b68c4db0fd9f113aa7774 bebfc44aa0a054be2f9407cfdf195890c9968edc | grep .F90$ | xargs)
+modif=$(git diff --name-only --diff-filter=ACMRT ${base_SHA} ${PR_SHA} | grep .F90$ | xargs)
 
 echo modified files found
 echo $modif
