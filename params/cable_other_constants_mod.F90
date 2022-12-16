@@ -1,5 +1,22 @@
 !#define ESM15 YES
+!******************************************************************************
+! This source code is part of the Community Atmosphere Biosphere Land Exchange
+! (CABLE) model. This work is licensed under the CSIRO Open Source Software
+! License Agreement (variation of the BSD / MIT License).You may not use this
+! this file except in compliance with this License. A copy of the License is
+! available at https://trac.nci.org.au/trac/cable/wiki/license.
+!******************************************************************************
 MODULE cable_other_constants_mod
+
+!-----------------------------------------------------------------------------
+! Description:
+!   Other CABLE constants
+!
+! This MODULE is USEd throughout CABLE
+!
+! Module specific documentation:https://trac.nci.org.au/trac/cable/wiki/TBC
+! Where it fits in the model flow:https://trac.nci.org.au/trac/cable/wiki/TBC
+!-----------------------------------------------------------------------------
 
 USE grid_constants_mod_cbl, ONLY : nrb, nsl, nsCs, nvCs
 USE grid_constants_mod_cbl, ONLY : msn =>  nsnl
@@ -8,13 +25,15 @@ IMPLICIT NONE
 
 PUBLIC
 
-!-----------------------------------------------------------------------------
-! Description:
-!   Other CABLE constants
-!
-! Code Owner: Please refer to ModuleLeaders.txt
-! This file belongs in CABLE SCIENCE
-!-----------------------------------------------------------------------------
+REAL, PARAMETER :: gauss_w(nrb)=[0.308,0.514,0.178 ] ! Gaussian integ. weights
+
+# ifdef ESM15 
+REAL, PARAMETER :: rad_thresh = 0.01 ! min. zenithal angle for downward SW 
+REAL, PARAMETER :: lai_thresh = 0.01 ! min. LAI to be considered as vegetated
+# else 
+REAL, PARAMETER :: rad_thresh = 0.001
+REAL, PARAMETER :: lai_thresh = 0.001
+# endif
 
 INTEGER, PARAMETER ::                                                          &
   swb = 2,           & ! 2 shortwave bands (initial division - visible /
@@ -31,21 +50,11 @@ INTEGER, PARAMETER ::                                                          &
 REAL, PARAMETER ::                                                             &
   max_snow_depth = 50000.0,  & ! maximum depth of lying snow on tiles (kg/m2)
   init_snow_rho1l = 140.0      ! Initial value for snow mean density
-! Gaussian integ. weights
-!REAL, PARAMETER :: gauss_w(nrb)=(/0.308,0.514,0.178 /) ! F90 
-REAL, PARAMETER :: gauss_w(nrb)=[0.308,0.514,0.178 ]    ! F03
-# ifdef ESM15 
-REAL, PARAMETER :: rad_thresh = 0.01 ! min. zenithal angle for downward SW 
-REAL, PARAMETER :: lai_thresh = 0.01 ! min. LAI to be considered as vegetated
-# else 
-REAL, PARAMETER :: rad_thresh = 0.001
-REAL, PARAMETER :: lai_thresh = 0.001
-# endif
 
 ! minimum (cosine)zenith angle of sun signalling sunrise 
 REAL, PARAMETER :: coszen_tols = 1.0e-4
 
-REAL, PARAMETER :: z0surf_min = 1.e-7 ! min. roughness of bare soil surface
+REAL, PARAMETER :: z0surf_min = 1.0e-7 ! min. roughness of bare soil surface
 !H!REAL, PARAMETER :: z0snow_min = 1.e-7 ! min. roughness of bare snow surface
 
 END MODULE cable_other_constants_mod

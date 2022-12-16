@@ -52,8 +52,7 @@ SUBROUTINE init_radiation( ExtCoeff_beam, ExtCoeff_dif,                        &
 ! Description:
 !   Computes various extinction coefficients for different radiations (visible,
 !   diffuse) and various quantities for black leaves.
-
-USE cable_common_module, only: cable_runtime
+USE cable_common_module, ONLY : cable_runtime
 
 IMPLICIT NONE
 
@@ -153,8 +152,25 @@ SUBROUTINE Common_InitRad_Scalings( xphi1, xphi2, xk, xvlai2, c1, rhoch,       &
                             mp, nrb, Cpi180,cLAI_thresh, veg_mask,             &
                             reducedLAIdue2snow,                                &
                             VegXfang, VegTaul, VegRefl)
-! Description:
-!   Compute common scaling co-efficients used throughout init_radiation
+!* Calculates the extinction coefficients for black leaves. It returns:
+!
+! * the extinction coefficients for three values of the zenith angle 
+!  to be used to calculate the real extinction coefficient for the
+!  diffuse radiation (Gauss quadrature)
+!
+! * the \(\phi\) coefficients from Sellers 1985 to calculate the
+!  real extinction coefficient for direct beam radaiation in
+!  the subroutine [[ExtinctionCoeff_beam]]
+!
+!### Equations
+!
+! This subroutine is using the equation B6 from 
+! [Wang and Leuning 1998](https://www.sciencedirect.com/science/article/abs/pii/S0168192398000616)
+! and equation 13 from [Sellers 1985](https://www.tandfonline.com/doi/pdf/10.1080/01431168508948283?needAccess=true):
+!
+! \[ k_b = \frac{\phi_1}{\cos\theta} + \phi_2 \]
+! \[ \phi_1 = 0.5 - 0.633 \chi_L - 0.33 \chi_L^2 \]
+! \[ \phi_2 = 0.877 (1.0 - 2.0 \phi_1) \]
 
 !subrs
 USE cbl_rhoch_module,   ONLY: calc_rhoch

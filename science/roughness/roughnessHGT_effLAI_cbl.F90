@@ -46,10 +46,10 @@ SUBROUTINE HgtAboveSnow( HeightAboveSnow, mp, z0surf_min, HGT_pft,             &
 
 !* This subroutine computes the height of the canopy above ground/snow
 !  surface when there is snow present. 
-  
+
 IMPLICIT NONE
 
-INTEGER, INTENT(IN)   :: mp    !! Number of land tiles (-)     
+INTEGER, INTENT(IN)   :: mp    !! Number of tiles (-)     
 
 REAL, INTENT(OUT) :: HeightAboveSnow(mp) 
     !! Output. Effective height of canopy, known as `rough%hruff` elsewhere. (m)
@@ -145,7 +145,7 @@ reducedLAIdue2snow = lai_pft * FracOfCanopyAboveSnow
 ! \(10 z_{0,min} > 0.01 > h_{c,nosnow} \) then LAI can increase if
 ! there is snow!  
 !
- 
+
 RETURN
 END SUBROUTINE LAI_eff
 

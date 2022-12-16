@@ -166,7 +166,7 @@ CALL Albedo( AlbSnow, AlbSoil,                                                 &
              EffExtCoeff_beam, EffExtCoeff_dif,                                &
              CanopyRefl_beam,CanopyRefl_dif,                                   &
              CanopyTransmit_beam, CanopyTransmit_dif,                          &
-             EffSurfRefl_beam, EffSurfRefl_dif )
+             EffSurfRefl_beam, EffSurfRefl_dif)
 
 RETURN
 
