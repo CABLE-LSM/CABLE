@@ -17,6 +17,10 @@ PR_SHA=$2
 # List of all source files in the trunk
 find src -name "*.F90" | rev | cut -d '/' -f1 | rev > exclude_files_ford.txt
 
+# FORD builds everything if we exclude everything.
+# Remove the cable_driver.F90 from the list so that at least this one is built.
+sed -i "/cable_driver.F90/d" exclude_files_ford.txt
+
 # Number of files found
 echo number of files found:
 wc -l exclude_files_ford.txt
