@@ -17,7 +17,7 @@ PR_SHA=$2
 # List of all source files in the trunk
 find src -name "*.F90" | rev | cut -d '/' -f1 | rev > exclude_files_ford.txt
 
-# FORD builds everything if we exclude everything.
+# FORD fails if we exclude everything.
 # Remove the cable_driver.F90 from the list so that at least this one is built.
 sed -i "/cable_driver.F90/d" exclude_files_ford.txt
 
@@ -46,7 +46,7 @@ wc -l exclude_files_ford.txt
 sed "s/^/exclude: /" exclude_files_ford.txt > exclude.txt
 
 # concatenate the various parts for the FORD config file
-cat documentation/cable_config_ford.md exclude.txt documentation/cable_desc_ford.md > documentation/cable_FORD.md
+cat documentation/cable_config_ford.md exclude.txt documentation/cable_desc_ford.md > documentation/cable_ford.md
 
 # Clean up
 rm exclude_files_ford.txt exclude.txt
