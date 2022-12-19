@@ -59,10 +59,13 @@ SUBROUTINE qsatfjh2( var, CRMH2o, Crmair, CTETENA, CTETENB, CTETENC, tair,pmb)
   !
   !## Method
   !
-  ! The standard formula for specific humdity at saturation is used,
-  ! see e.g. Garratt (1995), based on the values for the mass of a mole
-  ! of water,`CRMH2o`, mass of a mole of dry air `Crmair`,
-  ! and the Teten constants.
+  ! The Teten's formula for specific humdity at saturation is used,
+  ! based on the values for the mass of a mole of water,`CRMH2o`, 
+  ! mass of a mole of dry air `Crmair`, and the Teten constants.
+  !
+  !## Reference
+  !
+  ! [Murray F.W, 1967](https://doi.org/10.1175/1520-0450(1967)006%3C0203:OTCOSV%3E2.0.CO;2)
   
 REAL :: CRMH2o, Crmair, CTETENA, CTETENB, CTETENC
   REAL, INTENT(IN) ::                                                         &
