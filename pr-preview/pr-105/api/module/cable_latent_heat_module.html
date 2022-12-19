@@ -210,7 +210,7 @@ balance and is called once per cycle in the MO iteration section of
   <p>This SUBROUTINE converts the previously evaluated rate of potential
  evaporation <code>ssnow_potev</code> from the soil into the associated latent heat flux
  <code>canopy_fes</code>. The evaluation accounts for whether the water flux is
- from/to a wet or ice surface,
+ in lioquid or solid pahse (evaporation or sublimation, dew or frost),
  the direction of the flux (to or from the soil), any limits due to a lack of
  water in the surface layer of the soil column, and
  the partition of the latent heat flux between soil <code>canopy_fess</code> and
@@ -479,7 +479,7 @@ balance and is called once per cycle in the MO iteration section of
             <td>::</td>
             <td><strong>ssnow_cls</strong>(mp)</td>
             <td>
-<p>factor denoting whether latent flux is to/from water or ice (=1 if water, =1.1335 if ice)</p>
+<p>factor denoting phase of water flux (=1 if liquid, =1.1335 if ice)</p>
             </td>
         </tr>
         <tr>

@@ -155,50 +155,58 @@
 <p>This SUBROUTINE converts the previously evaluated rate of potential
  evaporation <code>ssnow_potev</code> from the soil into the associated latent heat flux
  <code>canopy_fes</code>. The evaluation accounts for whether the water flux is
- from/to a wet or ice surface,
+ in lioquid or solid pahse (evaporation or sublimation, dew or frost),
  the direction of the flux (to or from the soil), any limits due to a lack of
  water in the surface layer of the soil column, and
  the partition of the latent heat flux between soil <code>canopy_fess</code> and
  puddle <code>canopy_fesp</code> contributions.</p>
 <h2>Warning</h2>
-<p>This current CABLE implementation is possibly confusing.  The variable <code>ssnow_potev</code>
- is not potential evaporation (in kg water m<script type="math/tex">^{-2}</script>s<script type="math/tex">^{-1}</script>) but is instead
- the latent heat flux (in Wm<script type="math/tex">^{-2}</script>) associated with the potential evaporation.
+<p>This current CABLE implementation is possibly confusing.
+ The variable <code>ssnow_potev</code> is not potential evaporation (in kg water
+ m<script type="math/tex">^{-2}</script>s<script type="math/tex">^{-1}</script>) but is instead the latent heat flux (in Wm<script type="math/tex">^{-2}</script>)
+ associated with the potential evaporation.
  <code>ssnow_potev</code> assumes that the water flux described by the potential
  evaporation is of liquid water regardless of temperature
  and/or whether the surface is covered by snow. Additionally one option for the
  evaluation of <code>ssnow_potev</code> (the <a href="../proc/penman_monteith.html">Penman_Monteith</a> option) does not function
  correctly over frozen surfaces. A bug fix will require changes to
- <a href="../proc/define_canopy.html">define_canopy</a>, <a href="../proc/penman_monteith.html">Penman_Monteith</a> and this SUBROUTINE; markers have been
+ <a href="../proc/define_canopy.html">define_canopy</a>, <a href="../proc/penman_monteith.html">Penman_Monteith</a> and this SUBROUTINE; comments have been
  inserted into the code accordingly.  </p>
 <h2>Method</h2>
 <p>'Potential evaporation' quantifies the theoretical value of evaporation from
  a fully saturated surface (with no limits on water availability) at a given
  temperature and humidity, in response to the available energy.
  This SUBROUTINE evaluates the value of the latent heat flux from the
- ground/soil/snow packgiven the potential evaporation according to one of four cases
+ ground/soil/snow pack given the potential evaporation according to one of four cases
  (see Ticket 137)</p>
 <ol>
-<li>evaporation from/dew onto surfaces with no snow when soil temperature &gt; freezing point</li>
-<li>sublimation from/deposition of frost onto surfaces with snow cover</li>
+<li>evaporation from/dew onto surfaces where there is no snow and
+     when soil temperature &gt; freezing point</li>
+<li>sublimation from/deposition of frost onto surfaces where there is snow cover</li>
 <li>evaporation of liquid water from a frozen soil column if there is no snow present
-     (sublimation of frozen water from within the soil column is not possible)</li>
+     (sublimation of frozen water from within the soil column is not possible per CABLE)</li>
 <li>deposition of frost onto frozen soils if there is no snow cover</li>
 </ol>
-<p>while satisfying any constraints due to limits on soil moisture.</p>
-<p><br></br>
+<p>while satisfying any constraints due to limits on soil moisture.
+<br></br>
  There are six outputs from this SUBROUTINE</p>
 <ul>
-<li>three latent heat fluxes (soil, puddle and total) noting that these are referenced
- to the area of the land point (not to the area of the puddle/non-puddle split).</li>
+<li>three latent heat fluxes (soil, puddle and total). Note that these fluxes
+ are referenced to the area of the land point and not to the area of the
+ puddle/non-puddle split.</li>
 <li><code>pwet</code> quantifying the impact of puddles in reducing the latent heat flux from the soil.</li>
-<li><code>ssnow_wetfac</code> quantifying control of soil moisture on the rate of evaporation.</li>
+<li><code>ssnow_wetfac</code> quantifying the control of soil moisture on the rate of evaporation.</li>
 <li><code>ssnow_cls</code> quantifying whether the latent heat flux represents a change between
- liquid/vapour of ice/vapour phases. </li>
+ liquid/vapour of ice/vapour phases.
+<br></br>
+ <code>ssnow_cls</code> takes one of two values - 1.0 if the flux of water is of liquid, and
+ 1.1335 if the flux of water is of ice.  1.1335 = latent heat of sublimation of ice /
+ latent heat of evaporation of liquid water.  </li>
 </ul>
-<p><br></br>
- <strong>IMPORTANT</strong> the value of <code>ssnow_cls</code> set in this SUBROUTINE is used to control whether
- the water fluxes from the snow pack/soil column in <a href="../proc/soil_snow.html">soil_snow</a> are of water or ice.</p>
+<p><strong>IMPORTANT</strong> the value of <code>ssnow_cls</code> set in this SUBROUTINE is used to control whether
+ the water fluxes from the snow pack/soil column in <a href="../proc/soil_snow.html">soil_snow</a> (and its SUBROUTINES)
+ are of liquid or solid phase. Inconsistencies between the two sets of SUBROUTINES
+ would lead to loss of energy closure and/or loss of mass.</p>
 <p><br></br></p>
 <h2>Workflow</h2>
 <p>The underpinning equation linking the <script type="math/tex">\beta</script>-formulation for the soil latent heat flux
@@ -206,60 +214,69 @@
 <p>
 <script type="math/tex">\lambda E_s = \beta c_{ls} \lambda E_{pot} </script>
 </p>
-<p>where <script type="math/tex">\lambda</script> =<code>air_rlam</code> is the latent heat of evaporation, <script type="math/tex">c_{ls}</script>=<code>ssnow_cls</code>
- is a factor set by whether the flux of water is to/from water or to/from ice
- (<script type="math/tex">c_{ls}=1.1335</script> if ice - 1.1335 is the ratio of the latent heat of sublimation of water
- to the latent heat of evaporation of water), <script type="math/tex">\beta</script>=<code>ssnow_wetfac</code> is a coefficient controlling
- the availability of water in the soil surface layer, and <script type="math/tex">\lambda E_{pot}</script>=<code>ssnow_potev</code>
+<p>where <script type="math/tex">\lambda</script> =<code>air_rlam</code> is the latent heat of evaporation
+ (which can theoretically vary so is an mp-array), <script type="math/tex">c_{ls}</script>=<code>ssnow_cls</code>
+ is a factor set by the phase of the water being fluxed,
+ <script type="math/tex">\beta</script>=<code>ssnow_wetfac</code> is a coefficient quantifying the control that soil surface
+ layer moisture has on evaporaqtion, and <script type="math/tex">\lambda E_{pot}</script>=<code>ssnow_potev</code>
  is the latent heat flux associated with potential evaporation.</p>
 <p><br></br>
- - First, when the latent heat flux is negative, i.e. the flux of water is from the atmosphere
- onto the soil/snow, there is no limit due to availability of water in the soil column
- and <code>ssnow_wetfac</code> is overwritten to a value of 1.
- Subsequently, a first estimate for the soil latent heat flux is calculated from the equation without
- further limit.
+ - First, a first estimate for the soil latent heat flux is calculated
+ assuming that the flux is of liquid water. If <code>ssnow_potev</code> is negative
+ any limitation due to soil moisture availability is negected. f
 <br></br>
- - Second, when there is puddle a fraction of the soil column is covered by water, <code>pwet</code>.
- As a result the evaporation from the soil is reduced by the change in area fraction.
+ - Second, if there is water in the puddle store <code>ssnow_pudsto</code>, the fraction
+ the surface area covered by the puddle is qunatified, <code>pwet</code>.
+ The rate of evaporation from the soil is reduced by the change in area fraction.
 <br></br>
- The main workflow in the SUBROUTINE loops over the land points in the CABLE array
- and determines additional limits on the latent heat flux and the value for <script type="math/tex">c_{ls}</script>
- according to which of the four cases that land point falls in (Ticket 137).</p>
-<ul>
-<li>Cases 1 and 3 represent a conversion between liquid and vapour phases of water.</li>
-</ul>
-<p>For cases 1 and 3 there must be sufficient water in the surface soil layer
- to provide the water for evaporation. This sets <code>fupper_limit</code>,
- the maximum latent heat flux possible.  Two options
- are provided for <code>fupper_limit</code>, set by <code>cable_user_l_new_reduce_soilevap</code> switch.
- The options differ in the amount of water that remains at the end of the time step.</p>
-<p>Additionally (for case 3) the evaporation of liquid water from within the
- frozen soil column must not reduce the liquid water fraction to the
- point that that ice fraction of soil moisture exceeds the
- frozen_limit=0.85.  This provides a second upper limit on the evaporation and
- latent flux. <strong>WARNING</strong> frozen_limit=0.85 is hard coded - if it is changed
- then the corresponding limit in <a>cbl_soilsnow</a> must also be changed.
-<br></br>
- - If the surface has snow cover then the latent heat flux represents a
- conversion between solid and vapour phases of water and (<script type="math/tex">c_{ls}</script>=1.1335.
- The first estimate is updated by the change in value of (<script type="math/tex">c_{ls}</script>.</p>
-<p>For case 4, deposition of frost onto frozen surface (temperature below freezing)
- occurs even if there is no snow (so <script type="math/tex">c_{ls}</script>=1.1335) - there is no limit
- on the magnitude of the latent heat flux.</p>
-<p>For case 2, if <code>ssnow_potev</code>&gt;0 then there needs to be sufficient snow to
- sublimate over the time step.  This places an upper limit on the latent
- heat flux possible.</p>
+ - Third (the main loop) the value for <script type="math/tex">c_{ls}</script> and additional limits
+ on the latent heat flux(es) are applied, according to which of the four cases
+ is occurring.  Inside the loop the workflow is as follows:</p>
+<div class="codehilite"><pre><span></span><code><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">For</span><span class="w"> </span><span class="n">cases</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">flux</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">liquid</span><span class="w"> </span><span class="n">water</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="p">(</span><span class="err">\</span><span class="p">(</span><span class="n">c_</span><span class="err">{</span><span class="n">ls</span><span class="err">}\</span><span class="p">)</span><span class="o">=</span><span class="mf">1.0</span><span class="w"> </span><span class="p">.</span><span class="w"></span>
+
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="k">Limit</span><span class="w"> </span><span class="mi">1</span><span class="o">:</span><span class="w"> </span><span class="k">For</span><span class="w"> </span><span class="n">cases</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="n">there</span><span class="w"> </span><span class="n">must</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">sufficient</span><span class="w"> </span><span class="n">liquid</span><span class="w"> </span><span class="n">water</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">surface</span><span class="w"></span>
+<span class="w">    </span><span class="n">soil</span><span class="w"> </span><span class="n">layer</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">provide</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">water</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">evaporation</span><span class="p">.</span><span class="w"> </span><span class="n">This</span><span class="w"> </span><span class="k">set</span><span class="n">s</span><span class="w"></span>
+<span class="w">    </span><span class="n">the</span><span class="w"> </span><span class="n">maximum</span><span class="w"> </span><span class="n">latent</span><span class="w"> </span><span class="n">heat</span><span class="w"> </span><span class="n">flux</span><span class="w"> </span><span class="n">possible</span><span class="p">,</span><span class="w"> </span><span class="n n-Quoted">`fupper_limit`</span><span class="p">.</span><span class="w">  </span><span class="n">Two</span><span class="w"> </span><span class="k">options</span><span class="w"></span>
+<span class="w">    </span><span class="n">are</span><span class="w"> </span><span class="n">provided</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n n-Quoted">`fupper_limit`</span><span class="p">,</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n n-Quoted">`cable_user_l_new_reduce_soilevap`</span><span class="w"> </span><span class="n">switch</span><span class="p">.</span><span class="w"></span>
+<span class="w">    </span><span class="n">The</span><span class="w"> </span><span class="k">options</span><span class="w"> </span><span class="n">differ</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">amount</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">water</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">remains</span><span class="w"> </span><span class="k">at</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">end</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="kt">time</span><span class="w"> </span><span class="n">step</span><span class="p">.</span><span class="w"></span>
+
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="k">Limit</span><span class="w"> </span><span class="mi">2</span><span class="o">:</span><span class="w"> </span><span class="n">Additionally</span><span class="w"> </span><span class="p">(</span><span class="k">for</span><span class="w"> </span><span class="k">case</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">evaporation</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">liquid</span><span class="w"> </span><span class="n">water</span><span class="w"></span>
+<span class="w">     </span><span class="k">from</span><span class="w"> </span><span class="n">within</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">frozen</span><span class="w"> </span><span class="n">soil</span><span class="w"> </span><span class="k">column</span><span class="w"> </span><span class="n">must</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="n">reduce</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">liquid</span><span class="w"> </span><span class="n">water</span><span class="w"> </span><span class="n">fraction</span><span class="w"></span>
+<span class="w">     </span><span class="k">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="kt">point</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">ice</span><span class="w"> </span><span class="n">fraction</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">soil</span><span class="w"> </span><span class="n">moisture</span><span class="w"> </span><span class="n">exceeds</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">upper</span><span class="w"> </span><span class="k">limit</span><span class="w"></span>
+<span class="w">     </span><span class="n">frozen_limit</span><span class="o">=</span><span class="mf">0.85</span><span class="p">.</span><span class="w">  </span><span class="n">This</span><span class="w"> </span><span class="n">provides</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">second</span><span class="w"> </span><span class="n">upper</span><span class="w"> </span><span class="k">limit</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">evaporation</span><span class="w"> </span><span class="k">and</span><span class="w"></span>
+<span class="w">     </span><span class="n">latent</span><span class="w"> </span><span class="n">flux</span><span class="p">.</span><span class="w"> </span><span class="o">**</span><span class="n">WARNING</span><span class="o">**</span><span class="w"> </span><span class="n">frozen_limit</span><span class="o">=</span><span class="mf">0.85</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">hard</span><span class="w"> </span><span class="n">coded</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">changed</span><span class="w"></span>
+<span class="w">     </span><span class="k">then</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">corresponding</span><span class="w"> </span><span class="k">limit</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="err">[[</span><span class="n">cbl_soilsnow</span><span class="err">]]</span><span class="w"> </span><span class="n">must</span><span class="w"> </span><span class="n">also</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">changed</span><span class="p">.</span><span class="w"></span>
+</code></pre></div>
+
+<p><br></br>
+     - If the surface has snow cover then the latent heat flux represents a
+        conversion between solid and vapour phases of water, (<script type="math/tex">c_{ls}</script>=1.1335.
+        The first estimate is updated by the change in value of (<script type="math/tex">c_{ls}</script>.</p>
+<div class="codehilite"><pre><span></span><code><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="k">For</span><span class="w"> </span><span class="k">case</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">deposition</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">frost</span><span class="w"> </span><span class="n">onto</span><span class="w"> </span><span class="n">frozen</span><span class="w"> </span><span class="n">surface</span><span class="w"> </span><span class="p">(</span><span class="n">temperature</span><span class="w"> </span><span class="n">below</span><span class="w"></span>
+<span class="w">     </span><span class="n">freezing</span><span class="p">)</span><span class="w"> </span><span class="n">occurs</span><span class="w"> </span><span class="n">even</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">there</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">no</span><span class="w"> </span><span class="n">snow</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">there</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">no</span><span class="w"> </span><span class="k">limit</span><span class="w"></span>
+<span class="w">     </span><span class="k">on</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">magnitude</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">latent</span><span class="w"> </span><span class="n">heat</span><span class="w"> </span><span class="n">flux</span><span class="p">.</span><span class="w"></span>
+
+<span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">For</span><span class="w"> </span><span class="k">case</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n n-Quoted">`ssnow_potev`</span><span class="o">&gt;</span><span class="mi">0</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="n">there</span><span class="w"> </span><span class="n">needs</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">sufficient</span><span class="w"> </span><span class="n">snow</span><span class="w"> </span><span class="k">to</span><span class="w"></span>
+<span class="w">    </span><span class="n">sublimate</span><span class="w"> </span><span class="k">over</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="kt">time</span><span class="w"> </span><span class="n">step</span><span class="p">.</span><span class="w">  </span><span class="n">This</span><span class="w"> </span><span class="n">places</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">upper</span><span class="w"> </span><span class="k">limit</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">latent</span><span class="w"></span>
+<span class="w">    </span><span class="n">heat</span><span class="w"> </span><span class="n">flux</span><span class="w"> </span><span class="n">possible</span><span class="p">.</span><span class="w"></span>
+
+
+<span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="k">case</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">dew</span><span class="w"> </span><span class="n">fall</span><span class="w"> </span><span class="n">onto</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">surface</span><span class="w"> </span><span class="k">with</span><span class="w"> </span><span class="n">little</span><span class="o">/</span><span class="k">no</span><span class="w"> </span><span class="n">snow</span><span class="w"> </span><span class="k">while</span><span class="w"></span>
+<span class="w">    </span><span class="n">the</span><span class="w"> </span><span class="n">soil</span><span class="w"> </span><span class="n">surface</span><span class="w"> </span><span class="n">temperature</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">above</span><span class="w"> </span><span class="n">freezing</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">unrestricted</span><span class="w"> </span><span class="k">and</span><span class="w"></span>
+<span class="w">    </span><span class="n">the</span><span class="w"> </span><span class="n">latent</span><span class="w"> </span><span class="n">heat</span><span class="w"> </span><span class="n">flux</span><span class="w"> </span><span class="n">defaults</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">first</span><span class="w"> </span><span class="n">estimate</span><span class="p">.</span><span class="w"></span>
+</code></pre></div>
+
+<p><br></br></p>
 <ul>
 <li>
-<p>Note that the case of dew fall onto a surface with little/no snow while
- the soil surface temperature is above freezing is unrestricted and
- the latent heat flux defaults to the first estimate.
- <br></br></p>
+<p>Fourth, the latent heat flux associated with evaporation from puddles is set
+    to the area fraction of the potential evaporation (<code>pwet</code> * <code>ssnow_potev</code>).
+    If there is insufficient water in the puddle to support the flux then an upper
+    limit is applied.</p>
 </li>
 <li>
-<p>The latent heat flux associated with evaporation from puddles is set
- to the area fraction of the potential evaporation (<code>pwet</code> * <code>ssnow_potev</code>),
- provided that sufficient water is available in the puddles.</p>
+<p>Finally, the total latent heat flux is obtained by summing the soil and
+    puddle contributions. </p>
 </li>
 </ul>
 
@@ -526,7 +543,7 @@
             <td>::</td>
             <td><strong>ssnow_cls</strong>(mp)</td>
             <td>
-                <p>factor denoting whether latent flux is to/from water or ice (=1 if water, =1.1335 if ice)</p>
+                <p>factor denoting phase of water flux (=1 if liquid, =1.1335 if ice)</p>
             </td>
         </tr>
         <tr>
