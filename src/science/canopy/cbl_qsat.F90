@@ -31,7 +31,7 @@ CONTAINS
     ! [Murray F.W, 1967](https://doi.org/10.1175/1520-0450(1967)006%3C0203:OTCOSV%3E2.0.CO;2)
 
 IMPLICIT  NONE   
-integer :: mp                        !! size of array of land points
+integer :: mp                        !! size of array of land points (-)
 REAL, INTENT(OUT) :: var(mp)         !! specific humidity at saturation (kgkg\(^{-1}\))
 REAL :: CRMH2o, Crmair, CTETENA, CTETENB, CTETENC
 REAL, INTENT(IN) ::                                          &
