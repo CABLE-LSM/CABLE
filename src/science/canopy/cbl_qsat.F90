@@ -4,7 +4,9 @@ MODULE cbl_qsat_module
   ! and temperature.
   !
   ! The two SUBROUTINEs differ only in that [[qsatfjh]] operates on an array
-  ! whereas [[qsatjfh2]] operates on single element REALs.
+  ! whereas [[qsatfjh2]] operates on single element REALs.
+  
+  ** Warning: ** [[qsatfjh2]] is redundant and the code should be changed to only use [[qsatfjh]].
 
 PUBLIC qsatfjh
 PUBLIC qsatfjh2
