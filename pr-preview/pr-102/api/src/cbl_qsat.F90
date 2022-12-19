@@ -4,7 +4,9 @@ MODULE cbl_qsat_module
   ! and temperature.
   !
   ! The two SUBROUTINEs differ only in that [[qsatfjh]] operates on an array
-  ! whereas [[qsatjfh2]] operates on single element REALs.
+  ! whereas [[qsatfjh2]] operates on single element REALs.
+  
+  ** Warning: ** [[qsatfjh2]] is redundant and the code should be changed to only use [[qsatfjh]].
 
 PUBLIC qsatfjh
 PUBLIC qsatfjh2
@@ -20,13 +22,16 @@ CONTAINS
     !
     !## Method
     !
-    ! The standard formula for specific humdity at saturation is used,
-    ! see e.g. Garratt (1995), based on the values for the mass of a mole
-    ! of water,`CRMH2o`, mass of a mole of dry air `Crmair`,
-    ! and the Teten constants.
+    ! The Teten's formula for specific humdity at saturation is used,
+    ! based on the values for the mass of a mole of water,`CRMH2o`, 
+    ! mass of a mole of dry air `Crmair`, and the Teten constants.
+    !
+    !## Reference
+    !
+    ! [Murray F.W, 1967](https://doi.org/10.1175/1520-0450(1967)006%3C0203:OTCOSV%3E2.0.CO;2)
 
 IMPLICIT  NONE   
-integer :: mp                        !! size of array of land points
+integer :: mp                        !! size of array of land points (-)
 REAL, INTENT(OUT) :: var(mp)         !! specific humidity at saturation (kgkg\(^{-1}\))
 REAL :: CRMH2o, Crmair, CTETENA, CTETENB, CTETENC
 REAL, INTENT(IN) ::                                          &
@@ -54,10 +59,13 @@ SUBROUTINE qsatfjh2( var, CRMH2o, Crmair, CTETENA, CTETENB, CTETENC, tair,pmb)
   !
   !## Method
   !
-  ! The standard formula for specific humdity at saturation is used,
-  ! see e.g. Garratt (1995), based on the values for the mass of a mole
-  ! of water,`CRMH2o`, mass of a mole of dry air `Crmair`,
-  ! and the Teten constants.
+  ! The Teten's formula for specific humdity at saturation is used,
+  ! based on the values for the mass of a mole of water,`CRMH2o`, 
+  ! mass of a mole of dry air `Crmair`, and the Teten constants.
+  !
+  !## Reference
+  !
+  ! [Murray F.W, 1967](https://doi.org/10.1175/1520-0450(1967)006%3C0203:OTCOSV%3E2.0.CO;2)
   
 REAL :: CRMH2o, Crmair, CTETENA, CTETENB, CTETENC
   REAL, INTENT(IN) ::                                                         &
