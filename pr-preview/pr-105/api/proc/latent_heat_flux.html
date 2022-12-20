@@ -223,72 +223,74 @@
  is the latent heat flux associated with the potential evaporation.</p>
 <p><br></br>
  The workflow is</p>
-<ul>
-<li>First, a first estimate for the soil latent heat flux is calculated
+<ol>
+<li>A first estimate for the soil latent heat flux is calculated
  assuming that the flux is of liquid water. If <code>ssnow_potev</code> is negative
  any limitation due to soil moisture availability is negected.
  <br></br></li>
-<li>Second, if there is water in the puddle store <code>ssnow_pudsto</code>, the fraction
+<li>If there is water in the puddle store <code>ssnow_pudsto</code>, the fraction
  of surface area covered by the puddle is quantified, <code>pwet</code> (between 0-0.2)
  The soil latent heat flux is reduced by the change in area fraction.
  <br></br></li>
 <li>
-<p>Third (the main loop) the value for <script type="math/tex">c_{ls}</script> and additional limits
+<p>(the main loop) The value for <script type="math/tex">c_{ls}</script> and additional limits
  on the latent heat flux(es) are applied, according to which of the four cases
  is occurring.  Inside the loop the workflow is as follows:</p>
-</li>
+<ul>
 <li>
 <p>For cases 1 and 3 the flux is of liquid water, <script type="math/tex">c_{ls}</script> stays equal to 1.</p>
 </li>
 <li>
 <p>Limit 1: For cases 1 and 3 there must be sufficient liquid water in the surface
-       soil layer to provide the water for evaporation. This sets
-       the maximum soil latent heat flux possible, <code>fupper_limit</code>.  Two options
-       are provided for <code>fupper_limit</code>, set by the <code>cable_user_l_new_reduce_soilevap</code>
-       switch.
-       The options differ in the amount of water that remains at the end of the time step.</p>
+   soil layer to provide the water for evaporation. This sets
+   the maximum soil latent heat flux possible, <code>fupper_limit</code>.  Two options
+   are provided for <code>fupper_limit</code>, set by the <code>cable_user_l_new_reduce_soilevap</code>
+   switch.
+   The options differ in the amount of water that remains at the end of the time step.</p>
 </li>
 <li>
 <p>Limit 2: Additionally for case 3, the evaporation of liquid water
-        from within the frozen soil column must not reduce the liquid water fraction
-        to the point that that ice fraction of soil moisture exceeds an upper limit
-        frozen_limit=0.85.  This provides a second upper limit on the evaporation and
-        soil latent flux. <strong>WARNING</strong> frozen_limit=0.85 is hard coded - if it is changed
-        then the corresponding limit in <a>cbl_soilsnow</a> must also be changed.</p>
+    from within the frozen soil column must not reduce the liquid water fraction
+    to the point that that ice fraction of soil moisture exceeds an upper limit
+    frozen_limit=0.85.  This provides a second upper limit on the evaporation and
+    soil latent flux. <strong>WARNING</strong> frozen_limit=0.85 is hard coded - if it is changed
+    then the corresponding limit in <a>cbl_soilsnow</a> must also be changed.</p>
 </li>
 <li>
 <p>The case of dew fall onto a surface with little/no snow while
-        the soil surface temperature is above freezing is unrestricted and
-        the soil latent heat flux defaults to the first estimate.</p>
+    the soil surface temperature is above freezing is unrestricted and
+    the soil latent heat flux defaults to the first estimate.</p>
 </li>
 <li>
 <p>If the surface has snow cover <strong>or</strong> <code>ssnow_potev</code> is negative and the soil
-        temperature is below freezing (frost) then the latent heat flux represents a
-        conversion between solid and vapour phases of water, (<script type="math/tex">c_{ls}</script>=1.1335.
-        The first estimate for the soil latent heat flux is updated by the change
-        in value of (<script type="math/tex">c_{ls}</script>.</p>
+    temperature is below freezing (frost) then the latent heat flux represents a
+    conversion between solid and vapour phases of water, (<script type="math/tex">c_{ls}</script>=1.1335.
+    The first estimate for the soil latent heat flux is updated by the change
+    in value of (<script type="math/tex">c_{ls}</script>.</p>
 </li>
 <li>
 <p>For case 4, deposition of frost onto frozen surface (temperature below
-        freezing) occurs even if there is no snow - there is no limit
-        on the magnitude of the soil latent heat flux.</p>
+    freezing) occurs even if there is no snow - there is no limit
+    on the magnitude of the soil latent heat flux.</p>
 </li>
 <li>
-<p>For case 2, if <code>ssnow_potev</code>&gt;0 then there needs to be sufficient snow to
-        sublimate over the time step.  This places an upper limit on the soil latent
-        heat flux.</p>
+<p>Limit 3: For case 2, if <code>ssnow_potev</code>&gt;0 then there needs to be sufficient
+    snow to sublimate over the time step.  This places an upper limit on
+    the soil latent heat flux.</p>
 </li>
 </ul>
+</li>
+</ol>
 <p><br></br>
- - Fourth, the latent heat flux associated with evaporation from puddles is set
+ 4. The latent heat flux associated with evaporation from puddles is set
    to the area fraction of the potential evaporation (<code>pwet</code> * <code>ssnow_potev</code>).
    If there is insufficient water in the puddle to support this flux then an upper
    limit is applied.
  <br></br></p>
-<ul>
-<li>Finally, the total latent heat flux is obtained by summing the soil and
+<ol>
+<li>The total latent heat flux is obtained by summing the soil and
     puddle contributions. </li>
-</ul>
+</ol>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
