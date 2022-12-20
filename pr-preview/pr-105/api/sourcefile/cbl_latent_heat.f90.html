@@ -411,11 +411,11 @@
 <a id="ln-211" name="ln-211" href="#ln-211"></a><span class="w">  </span>
 <a id="ln-212" name="ln-212" href="#ln-212"></a><span class="w">  </span><span class="n">ssnow_cls</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">=</span><span class="mf">1.</span><span class="w"></span>
 <a id="ln-213" name="ln-213" href="#ln-213"></a>
-<a id="ln-214" name="ln-214" href="#ln-214"></a><span class="c">!|     - If the surface has snow cover **or** `ssnow_potev`&lt;0 and the soil</span>
-<a id="ln-215" name="ln-215" href="#ln-215"></a><span class="c">!        temperature is below freezing (frost) then the latent heat flux represents a</span>
+<a id="ln-214" name="ln-214" href="#ln-214"></a><span class="c">!|     - If the surface has snow cover, or `ssnow_potev`&lt;0 **and** the soil</span>
+<a id="ln-215" name="ln-215" href="#ln-215"></a><span class="c">!        temperature is below freezing (frost), then the latent heat flux represents a</span>
 <a id="ln-216" name="ln-216" href="#ln-216"></a><span class="c">!        conversion between solid and vapour phases of water, \(c_{ls}\)=1.1335.</span>
 <a id="ln-217" name="ln-217" href="#ln-217"></a><span class="c">!        The first estimate for the soil latent heat flux is updated by the change</span>
-<a id="ln-218" name="ln-218" href="#ln-218"></a><span class="c">!        in value of (\(c_{ls}\).</span>
+<a id="ln-218" name="ln-218" href="#ln-218"></a><span class="c">!        in value of \(c_{ls}\).</span>
 <a id="ln-219" name="ln-219" href="#ln-219"></a><span class="c">!</span>
 <a id="ln-220" name="ln-220" href="#ln-220"></a><span class="w">  </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">ssnow_snowd</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="mf">0.1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
 <a id="ln-221" name="ln-221" href="#ln-221"></a><span class="k">     </span><span class="n">ssnow_cls</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.1335</span><span class="w"></span>

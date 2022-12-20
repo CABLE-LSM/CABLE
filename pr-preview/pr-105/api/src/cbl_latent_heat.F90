@@ -211,11 +211,11 @@ DO j=1,mp
   
   ssnow_cls(j)=1.
 
-!|     - If the surface has snow cover **or** `ssnow_potev`<0 and the soil
-!        temperature is below freezing (frost) then the latent heat flux represents a
+!|     - If the surface has snow cover, or `ssnow_potev`<0 **and** the soil
+!        temperature is below freezing (frost), then the latent heat flux represents a
 !        conversion between solid and vapour phases of water, \(c_{ls}\)=1.1335.
 !        The first estimate for the soil latent heat flux is updated by the change
-!        in value of (\(c_{ls}\).
+!        in value of \(c_{ls}\).
 !
   IF (ssnow_snowd(j) >=0.1 ) THEN
      ssnow_cls(j) = 1.1335
