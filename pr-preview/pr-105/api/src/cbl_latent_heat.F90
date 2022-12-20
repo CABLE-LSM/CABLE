@@ -171,7 +171,7 @@ DO j=1,mp
 
   IF(ssnow_snowd(j) < 0.1 .AND. canopy_fess(j) .GT. 0. ) THEN
 
-!|    - For cases 1 and 3 the flux is of liquid water, \(c_{ls}\) stays equal to 1.
+!|    - For cases 1 and 3 the flux is of liquid water, \(c_{ls} =1\).
 !     
 !     - Limit 1: For cases 1 and 3 there must be sufficient liquid water in the surface
 !       soil layer to provide the water for evaporation. This sets
@@ -213,7 +213,7 @@ DO j=1,mp
 
 !|     - If the surface has snow cover **or** `ssnow_potev`<0 and the soil
 !        temperature is below freezing (frost) then the latent heat flux represents a
-!        conversion between solid and vapour phases of water, (\(c_{ls}\)=1.1335.
+!        conversion between solid and vapour phases of water, \(c_{ls}\)=1.1335.
 !        The first estimate for the soil latent heat flux is updated by the change
 !        in value of (\(c_{ls}\).
 !
@@ -248,7 +248,8 @@ DO j=1,mp
 
 ENDDO
 
-!| 4. The latent heat flux associated with evaporation from puddles is set
+!|<br></br>
+! 4. The latent heat flux associated with evaporation from puddles is set
 ! to the area fraction of the potential evaporation (`pwet` * `ssnow_potev`).
 ! If there is insufficient water in the puddle to support this flux then an upper
 ! limit is applied.
