@@ -174,7 +174,8 @@ DO j=1,mp
 !  -    Limit 1: For cases 1 and 3 there must be sufficient liquid water in the surface
 !       soil layer to provide the water for evaporation. This sets
 !       the maximum latent heat flux possible, `fupper_limit`.  Two options
-!       are provided for `fupper_limit`, set by `cable_user_l_new_reduce_soilevap` switch.
+!       are provided for `fupper_limit`, set by the `cable_user_l_new_reduce_soilevap`
+!       switch.
 !       The options differ in the amount of water that remains at the end of the time step.
 !
      IF (.NOT.cable_user_l_new_reduce_soilevp) THEN
