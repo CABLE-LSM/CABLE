@@ -28,15 +28,24 @@ import tempfile
 import pandas as pd
 import xarray as xr
 import numpy as np
+import subprocess
 
 class RunCable(object):
 
-    def __init__(self, experiment_id, namelist_dir, param_dir, output_dir, restart_dir,
-                 dump_dir, met_fname, co2_ndep_fname, nml_fn, site_nml_fn,
-                 veg_param_fn,log_dir, exe, aux_dir, biogeochem, call_pop,
-                 verbose):
+    def __init__(self, experiment_id, startyear, endyear, call_crop, lai_feedback,
+                 site_dir, obs_dir, plot_dir, namelist_dir, param_dir,
+                 output_dir, restart_dir,dump_dir, met_fname, co2_ndep_fname, nml_fn,
+                 site_nml_fn,veg_param_fn, crop_param_fn,log_dir, exe, aux_dir,
+                 biogeochem, call_pop, verbose):
 
         self.experiment_id = experiment_id
+        self.startyear = startyear
+        self.endyear = endyear
+        self.call_crop = call_crop
+        self.lai_feedback = lai_feedback
+        self.site_dir = site_dir
+        self.obs_dir = obs_dir
+        self.plot_dir = plot_dir
         self.namelist_dir = namelist_dir
         self.param_dir = param_dir
         self.output_dir = output_dir
@@ -47,6 +56,7 @@ class RunCable(object):
         self.nml_fn = nml_fn
         self.site_nml_fn = site_nml_fn
         self.veg_param_fn = veg_param_fn
+        self.crop_param_fn = crop_param_fn
         self.cable_restart_fname = "%s_cable_rst.nc" % (self.experiment_id)
         self.casa_restart_fname = "%s_casa_rst.nc" % (self.experiment_id)
         self.pop_restart_fname = "%s_pop_rst.nc" % (self.experiment_id)
@@ -69,7 +79,7 @@ class RunCable(object):
         elif biogeochem == "CNP":
             self.biogeochem = 3
             self.vcmax = "Walker2014"
-            self.vcmax_feedback = ".TRUE."
+            self.vcmax_feedback = ".FALSE."
         else:
             raise ValueError("Unknown biogeochemistry option: C, CN, CNP")
         self.call_pop = call_pop
@@ -81,6 +91,28 @@ class RunCable(object):
 
     def main(self, SPIN_UP=False, TRANSIENT=False, SIMULATION=False):
 
+        os.chdir(site_dir + '/' + site)
+        out_file=site_dir + '/' + site + "/" + output_dir + '/' + experiment_id + '_out_cable.nc'
+    
+        if not os.path.exists(restart_dir):
+            os.makedirs(restart_dir)
+
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+
+        if not os.path.exists(dump_dir):
+            os.makedirs(dump_dir)
+
+        # delete previous stdout and stderr files, if existing
+        if os.path.exists("%s.err" % (self.experiment_id)):
+            os.remove("%s.err" % (self.experiment_id))
+        if os.path.exists("%s.out" % (self.experiment_id)):
+            os.remove("%s.out" % (self.experiment_id))
+
+            
         num = 1
         not_in_equilibrium = True
 
@@ -100,6 +132,7 @@ class RunCable(object):
             #sys.exit()
 
             while num < 4:
+                print("Spinup number " + str(num)) 
                 self.logfile="log_ccp%d" % (num)
                 self.setup_re_spin(number=num)
                 self.run_me()
@@ -109,7 +142,6 @@ class RunCable(object):
                                            en_yr_spin=en_yr_spin )
                 self.run_me()
                 self.clean_up(end=False, tag="saa%d" % (num))
-                #sys.exit()
                 not_in_equilibrium = self.check_steady_state(num)
                 num += 1
                 
@@ -117,11 +149,11 @@ class RunCable(object):
             self.limit_labile =".FALSE."
             while not_in_equilibrium:
 
+                print("Spinup number " + str(num)) 
                 self.logfile="log_ccp%d" % (num)
                 self.setup_re_spin(number=num)
                 self.run_me()
                 self.clean_up(end=False, tag="ccp%d" % (num))
-
                 #sys.exit()
                 self.logfile="log_sa%d" % (num)
                 self.setup_analytical_spin(number=num, st_yr_spin=st_yr_spin,
@@ -152,6 +184,10 @@ class RunCable(object):
             self.setup_simulation(st_yr, en_yr)
             self.run_me()
 
+            print("Plotting")
+            #subprocess.call(["./CABLE_plots.R", site, str(st_yr), str(en_yr), out_file, self.obs_dir])
+            subprocess.call([os.path.join(self.plot_dir,"CABLE_plots.R"), self.experiment_id, str(st_yr), str(en_yr), out_file, self.obs_dir, self.plot_dir])
+
         self.clean_up(end=True)
 
     def get_years(self):
@@ -164,11 +200,14 @@ class RunCable(object):
 
         ds = xr.open_dataset(self.met_fname)
 
-        st_yr = pd.to_datetime(ds.time[0].values).year
-
+        # st_yr = pd.to_datetime(ds.time[0].values).year
+        ## Note: start- and endyear now determined in the wrapper script
+        st_yr = self.startyear
+        en_yr = self.endyear
+        
         # PALS met files final year tag only has a single 30 min, so need to
         # end at the previous year, which is the real file end
-        en_yr = pd.to_datetime(ds.time[-1].values).year
+        # en_yr = pd.to_datetime(ds.time[-1].values).year
 
         # length of met record
         nrec = en_yr - st_yr + 1
@@ -301,9 +340,11 @@ class RunCable(object):
                         "filename%type": "'%s'" % (os.path.join(self.aux_dir, "offline/gridinfo_CSIRO_1x1.nc")),
                         "filename%veg": "'%s'" % os.path.join(self.param_dir, veg_param_fn),
                         "filename%soil": "'%s'" % os.path.join(self.param_dir, soil_param_fn),
+                        "filename%crop": "'%s'" % os.path.join(self.param_dir, crop_param_fn),
                         "output%restart": ".TRUE.",
                         "casafile%phen": "'%s'" % (os.path.join(self.aux_dir, "core/biogeochem/modis_phenology_csiro.txt")),
                         "casafile%cnpbiome": "'%s'" % (os.path.join(self.param_dir, bgc_param_fn)),
+                        "cable_user%CALL_CROP": ".%s." % (self.call_crop), 
                         "cable_user%RunIden": "'%s'" % (self.experiment_id),
                         "cable_user%POP_out": "'rst'",
                         "cable_user%POP_rst": "'./'",
@@ -317,10 +358,11 @@ class RunCable(object):
                         "cable_user%CASA_SPIN_ENDYEAR": "%d" % (en_yr_spin),
                         "cable_user%CALL_POP": "%s" % (self.pop_flag),
                         "output%averaging": "'monthly'",
+                        "output%patch": ".TRUE.",
                         "icycle": "%d" % (self.biogeochem),
                         "leaps": ".TRUE.",
                         "l_vcmaxFeedbk": "%s" % (self.vcmax_feedback),
-                        "l_laiFeedbk": ".TRUE.",         
+                        "l_laiFeedbk": ".%s." % (self.lai_feedback),
                         "cable_user%CASA_OUT_FREQ":  "'annually'" ,
                         "cable_user%limit_labile": "%s" % (self.limit_labile) ,
                         "cable_user%SRF":  ".T." ,  
@@ -406,7 +448,7 @@ class RunCable(object):
                         "cable_user%CASA_DUMP_READ": ".TRUE.",
                         "cable_user%CASA_DUMP_WRITE": ".FALSE.",
                         "cable_user%CASA_NREP": "1",
-                        "cable_user%SOIL_STRUC": "'default'",
+                        "cable_user%SOIL_STRUC": "'sli'",
                         "leaps": ".FALSE.",
                         "spincasa": ".TRUE.",
                         "casafile%c2cdumppath": "'./'",
@@ -522,17 +564,15 @@ class RunCable(object):
         }
         self.adjust_nml_file(self.nml_fn, replace_dict)
 
-        
     def run_me(self):
-        if self.verbose: # write outputs to console
+        if self.verbose: # output is printed to console
             os.system("%s" % (self.cable_exe))
         else:
             # No outputs to the screen, stout and stderr to dev/null
-            # JK: output now written to two separate files
             #os.system("%s > /dev/null 2>&1" % (self.cable_exe))
+            # JK: stdout and stderr are printed to files (but not to console)
             os.system("%s >> %s.out 2>>%s.err" % (self.cable_exe,self.experiment_id,self.experiment_id))
             
-
     def check_steady_state(self, num):
         """
         Check whether the plant (leaves, wood and roots) and soil
@@ -555,7 +595,6 @@ class RunCable(object):
 
         fname = "%s_out_CASA_ccp%d.nc" % (self.experiment_id, num)
         fname = os.path.join(self.output_dir, fname)
-        print(fname)
         ds = xr.open_dataset(fname)
         new_cplant = ds.cplant[:,:,0].values[-1].sum() * g_2_kg
         new_csoil = ds.csoil[:,:,0].values[-1].sum() * g_2_kg
@@ -587,8 +626,8 @@ class RunCable(object):
             f = "new_sumbal"
             if os.path.isfile(f):
                 os.remove(f)
-            # JK: no longer remove .out file!
-            # for f in glob.glob("*.out"):
+            #JK: no longer remove .out files 
+            #for f in glob.glob("*.out"):
             #    os.remove(f)
             for f in glob.glob("restart_*.nc"):
                 os.remove(f)
@@ -608,10 +647,7 @@ class RunCable(object):
             if self.call_pop:
                 old = os.path.join(self.restart_dir, self.pop_restart_fname)
                 new = "%s_%s.nc" % (old[:-3], tag)
-                try:
-                    shutil.copyfile(old, new)
-                except FileNotFoundError:
-                    print('POP restart file (' + new + ') not found! Continuing without...') 
+                shutil.copyfile(old, new)
 
     def add_missing_options_to_nml_file(self, fname, line_start=None):
         """
@@ -648,12 +684,24 @@ class RunCable(object):
 
 if __name__ == "__main__":
 
+    # command line parameters
+    site=sys.argv[1]
+    startyear=int(sys.argv[2])
+    endyear=int(sys.argv[3])
+    call_crop=sys.argv[4]
+    lai_feedback=sys.argv[5]
+    site_dir=sys.argv[6]
+    obs_dir=sys.argv[7]
+    plot_dir=sys.argv[8]
+    exp_name=sys.argv[9]
+
+    
     cwd = os.getcwd()
     namelist_dir = "namelists"
     param_dir = "params"
     dump_dir = "dump"
     met_dir = "met"
-    co2_ndep_dir = "met"
+    co2_ndep_dir = "/OSM/CBR/OA_GLOBALCABLE/work/BIOS3_forcing/site_met"
     aux_dir = "./CABLE-AUX/"
     log_dir = "logs"
     output_dir = "outputs"
@@ -661,42 +709,36 @@ if __name__ == "__main__":
     nml_fn = "cable.nml"
     site_nml_fn = "site.nml"
     #met_fname = os.path.join(met_dir, '%s.1.4_met.nc' % (experiment_id))
-    met_fname = os.path.join(met_dir, 'CumberlandPlain_site_pi_2014_2019_2tiles.nc')
+    #met_fname = os.path.join(met_dir, site + '_' + str(startyear) + '_' + str(endyear) + '_2tiles.nc')
+    met_fname = os.path.join(met_dir, site + '_' + str(startyear) + '_' + str(endyear) + '_FLUXNET2015.nc')
     co2_ndep_fname = os.path.join(co2_ndep_dir,
                                   "AmaFACE_co2npdepforcing_1850_2100_AMB.csv")
     veg_param_fn = "Cumberland_veg_params.txt"
     bgc_param_fn = "Cumberland_pftlookup.csv"
+    crop_param_fn = "def_crop_params.txt"
     soil_param_fn = "def_soil_params.txt"   # only used when soilparmnew = .FALSE. in cable.nml
     exe = "./cable"
 
     # special for PEST
-    veg_param_fn = "def_veg_params_pest.txt"
-    bgc_param_fn = "pftlookup_pest.csv"
-    param_dir = "./"
+    #veg_param_fn = "veg_params_pest.txt"
+    #bgc_param_fn = "pftlookup_pest.csv"
+    #param_dir = "./"
 
 
 
+    
     call_pop = False
     verbose = False
-
-    if not os.path.exists(restart_dir):
-        os.makedirs(restart_dir)
-
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
-
-    if not os.path.exists(dump_dir):
-        os.makedirs(dump_dir)
 
     #for biogeochem in ["C", "CN", "CNP"]:
     for biogeochem in ["CNP"]:
 
-        experiment_id = "CumberlandPlain_2019_%s_2tiles" % (biogeochem)
-        C = RunCable(experiment_id, namelist_dir, param_dir, output_dir, restart_dir,
-                     dump_dir, met_fname, co2_ndep_fname, nml_fn, site_nml_fn,
-                     veg_param_fn, log_dir, exe, aux_dir, biogeochem, call_pop,
-                     verbose)
+        # experiment_id = "Cumberland_POP_%s" % (biogeochem)
+        # experiment_id = site + "_%s_2tiles_%s" % (biogeochem,exp_name)
+        experiment_id = site + "_%s_%s" % (biogeochem,exp_name)
+        C = RunCable(experiment_id, startyear, endyear, call_crop, lai_feedback, site_dir,
+                     obs_dir, plot_dir,  namelist_dir,
+                     param_dir,output_dir, restart_dir,dump_dir, met_fname, co2_ndep_fname,
+                     nml_fn, site_nml_fn,veg_param_fn,crop_param_fn, log_dir, exe, aux_dir,
+                     biogeochem, call_pop,verbose)
         C.main(SPIN_UP=False, TRANSIENT=False, SIMULATION=True)

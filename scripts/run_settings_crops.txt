@@ -1,0 +1,1 @@
+TRUE TRUE /OSM/CBR/OA_GLOBALCABLE/work/Juergen/single_site /OSM/CBR/OA_GLOBALCABLE/work/Data_EC/OzFlux /OSM/CBR/OA_GLOBALCABLE/work/CABLE_files/plots_R crop /OSM/CBR/OA_GLOBALCABLE/work/Juergen/CABLE_run/CROPS/crop_sites_v2.txt
