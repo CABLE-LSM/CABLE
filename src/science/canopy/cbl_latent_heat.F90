@@ -211,7 +211,7 @@ DO j=1,mp
   
   ssnow_cls(j)=1.
 
-!|     - If the surface has snow cover **or** `ssnow_potev` is negative and the soil
+!|     - If the surface has snow cover **or** `ssnow_potev`<0 and the soil
 !        temperature is below freezing (frost) then the latent heat flux represents a
 !        conversion between solid and vapour phases of water, (\(c_{ls}\)=1.1335.
 !        The first estimate for the soil latent heat flux is updated by the change
@@ -248,16 +248,15 @@ DO j=1,mp
 
 ENDDO
 
-!| <br></br>
-! 4. The latent heat flux associated with evaporation from puddles is set
-!   to the area fraction of the potential evaporation (`pwet` * `ssnow_potev`).
-!   If there is insufficient water in the puddle to support this flux then an upper
-!   limit is applied.
+!| 4. The latent heat flux associated with evaporation from puddles is set
+! to the area fraction of the potential evaporation (`pwet` * `ssnow_potev`).
+! If there is insufficient water in the puddle to support this flux then an upper
+! limit is applied.
 ! <br></br>
 canopy_fesp = MIN(ssnow_pudsto/dels*air_rlam,MAX(pwet*ssnow_potev,0.))
 
 !| 5. The total latent heat flux is obtained by summing the soil and
-!    puddle contributions. 
+! puddle contributions. 
 canopy_fes = canopy_fess + canopy_fesp
 
 END SUBROUTINE latent_heat_flux
