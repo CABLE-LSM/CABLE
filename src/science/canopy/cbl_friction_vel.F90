@@ -170,6 +170,9 @@ ELEMENTAL FUNCTION psis(zeta) RESULT(r)
   !
   ! Evaluates the integrated similarity function for turbulent transfer
   ! of scalars, \(\psi_s(\xi)\).
+  !
+  !## Method
+  !
   ! Uses the Businger-Dyer form for unstable conditions (\(\xi<0\)) and the
   ! Beljaars-Holtslag form for stable conditions (\(\xi>0\)).
   !
