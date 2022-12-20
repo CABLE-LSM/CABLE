@@ -474,6 +474,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#flowchart-of-the-installation" class="md-nav__link">
+    Flowchart of the installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#getting-the-cable-source-code" class="md-nav__link">
     Getting the CABLE source code
   </a>
@@ -1206,6 +1213,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#flowchart-of-the-installation" class="md-nav__link">
+    Flowchart of the installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#getting-the-cable-source-code" class="md-nav__link">
     Getting the CABLE source code
   </a>
@@ -1273,6 +1287,32 @@
 <li>a Fortran compiler</li>
 <li>the netCDF library</li>
 </ul>
+<h2 id="flowchart-of-the-installation">Flowchart of the installation</h2>
+<pre class="mermaid"><code>graph TD
+
+    A(Checkout CABLE with SVN):::UserAction --&gt;|Serial?| B(Run `offline/build3.sh`):::UserAction;
+    B --&gt; D[load modules, set compiler flags, create .tmp/ directory];
+    D --&gt;|Serial?| E[Run `serial_cable`];
+    E --&gt; G[executable `cable`]:::Output;
+    A --&gt;|Parallel?| C(Run `offline/build3.sh mpi`):::UserAction;
+    C --&gt; D;   
+    D --&gt;|Parallel?| F[Run `parallel_cable`];
+    F --&gt; H[executable `cable_mpi`]:::Output;
+    click A "http://cable-lsm.github.io/CABLE/user_guide/installation/#getting-the-cable-source-code"
+    click B "http://cable-lsm.github.io/CABLE/user_guide/installation/#launching-the-build"
+    click C "http://cable-lsm.github.io/CABLE/user_guide/installation/#launching-the-build"
+    click D "http://cable-lsm.github.io/CABLE/user_guide/installation/#description-of-the-build-process"
+    click E "http://cable-lsm.github.io/CABLE/user_guide/installation/#description-of-the-build-process"
+    click F "http://cable-lsm.github.io/CABLE/user_guide/installation/#description-of-the-build-process"
+
+    UserAction ---- Automatic ---- Output;
+
+    UserAction(Actions from the user):::UserAction;
+    Automatic(Automatic steps of the build script);
+    Output(Output of the build script):::Output;
+
+    classDef UserAction fill:#FEFB8E
+    classDef Output fill:#cefe8e</code></pre>
 <h2 id="getting-the-cable-source-code">Getting the CABLE source code</h2>
 <p>CABLE can be downloaded from the <a href="https://trac.nci.org.au/svn/cable">subversion repository</a> hosted at <a href="https://nci.org.au">NCI</a> once a user has requested admission to the CABLE software group at NCI, as described <a href="https://trac.nci.org.au/trac/cable/wiki/CABLE_Registration">here</a>. To install the latest version of CABLE, you simply need to checkout the <code>trunk</code>:</p>
 <pre><code>svn checkout https://trac.nci.org.au/svn/cable/trunk
@@ -1347,11 +1387,11 @@ overwritten by the build script, preserving timestamps of the source files from 
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 14, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 20, 2022</span>
       
         <br>
         Created:
-        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 14, 2022</span>
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 20, 2022</span>
       
     
   </small>
