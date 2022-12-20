@@ -352,7 +352,7 @@
 <a id="ln-152" name="ln-152" href="#ln-152"></a><span class="n">canopy_fess</span><span class="o">=</span><span class="w"> </span><span class="n">ssnow_wetfac</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ssnow_potev</span><span class="w"></span>
 <a id="ln-153" name="ln-153" href="#ln-153"></a>
 <a id="ln-154" name="ln-154" href="#ln-154"></a><span class="c">!| 2. If there is water in the puddle store `ssnow_pudsto`, the fraction</span>
-<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="c">! of surface area covered by the puddle is quantified, `pwet` (between 0-0.2)</span>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="c">! of surface area covered by the puddle is quantified, `pwet` (between 0-0.2).</span>
 <a id="ln-156" name="ln-156" href="#ln-156"></a><span class="c">! The soil latent heat flux is reduced by the change in area fraction.</span>
 <a id="ln-157" name="ln-157" href="#ln-157"></a><span class="c">! &lt;br&gt;&lt;/br&gt;</span>
 <a id="ln-158" name="ln-158" href="#ln-158"></a><span class="n">pwet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">MAX</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span><span class="nb">MIN</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span><span class="n">ssnow_pudsto</span><span class="o">/</span><span class="nb">MAX</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span><span class="n">ssnow_pudsmx</span><span class="p">)))</span><span class="w"></span>
@@ -448,21 +448,20 @@
 <a id="ln-248" name="ln-248" href="#ln-248"></a>
 <a id="ln-249" name="ln-249" href="#ln-249"></a><span class="k">ENDDO</span><span class="w"></span>
 <a id="ln-250" name="ln-250" href="#ln-250"></a>
-<a id="ln-251" name="ln-251" href="#ln-251"></a><span class="c">!|&lt;br&gt;&lt;/br&gt;</span>
-<a id="ln-252" name="ln-252" href="#ln-252"></a><span class="c">! 4. The latent heat flux associated with evaporation from puddles is set</span>
-<a id="ln-253" name="ln-253" href="#ln-253"></a><span class="c">! to the area fraction of the potential evaporation (`pwet` * `ssnow_potev`).</span>
-<a id="ln-254" name="ln-254" href="#ln-254"></a><span class="c">! If there is insufficient water in the puddle to support this flux then an upper</span>
-<a id="ln-255" name="ln-255" href="#ln-255"></a><span class="c">! limit is applied.</span>
-<a id="ln-256" name="ln-256" href="#ln-256"></a><span class="c">! &lt;br&gt;&lt;/br&gt;</span>
-<a id="ln-257" name="ln-257" href="#ln-257"></a><span class="n">canopy_fesp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">MIN</span><span class="p">(</span><span class="n">ssnow_pudsto</span><span class="o">/</span><span class="n">dels</span><span class="o">*</span><span class="n">air_rlam</span><span class="p">,</span><span class="nb">MAX</span><span class="p">(</span><span class="n">pwet</span><span class="o">*</span><span class="n">ssnow_potev</span><span class="p">,</span><span class="mf">0.</span><span class="p">))</span><span class="w"></span>
-<a id="ln-258" name="ln-258" href="#ln-258"></a>
-<a id="ln-259" name="ln-259" href="#ln-259"></a><span class="c">!| 5. The total latent heat flux is obtained by summing the soil and</span>
-<a id="ln-260" name="ln-260" href="#ln-260"></a><span class="c">! puddle contributions. </span>
-<a id="ln-261" name="ln-261" href="#ln-261"></a><span class="n">canopy_fes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">canopy_fess</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">canopy_fesp</span><span class="w"></span>
-<a id="ln-262" name="ln-262" href="#ln-262"></a>
-<a id="ln-263" name="ln-263" href="#ln-263"></a><span class="k">END SUBROUTINE </span><span class="n">latent_heat_flux</span><span class="w"></span>
-<a id="ln-264" name="ln-264" href="#ln-264"></a>
-<a id="ln-265" name="ln-265" href="#ln-265"></a><span class="k">END MODULE </span><span class="n">cable_latent_heat_module</span><span class="w"></span>
+<a id="ln-251" name="ln-251" href="#ln-251"></a><span class="c">!|  4. The latent heat flux associated with evaporation from puddles is set</span>
+<a id="ln-252" name="ln-252" href="#ln-252"></a><span class="c">! to the area fraction of the potential evaporation (`pwet` * `ssnow_potev`).</span>
+<a id="ln-253" name="ln-253" href="#ln-253"></a><span class="c">! If there is insufficient water in the puddle to support this flux then an upper</span>
+<a id="ln-254" name="ln-254" href="#ln-254"></a><span class="c">! limit is applied.</span>
+<a id="ln-255" name="ln-255" href="#ln-255"></a><span class="c">! &lt;br&gt;&lt;/br&gt;</span>
+<a id="ln-256" name="ln-256" href="#ln-256"></a><span class="n">canopy_fesp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">MIN</span><span class="p">(</span><span class="n">ssnow_pudsto</span><span class="o">/</span><span class="n">dels</span><span class="o">*</span><span class="n">air_rlam</span><span class="p">,</span><span class="nb">MAX</span><span class="p">(</span><span class="n">pwet</span><span class="o">*</span><span class="n">ssnow_potev</span><span class="p">,</span><span class="mf">0.</span><span class="p">))</span><span class="w"></span>
+<a id="ln-257" name="ln-257" href="#ln-257"></a>
+<a id="ln-258" name="ln-258" href="#ln-258"></a><span class="c">!| 5. The total latent heat flux is obtained by summing the soil and</span>
+<a id="ln-259" name="ln-259" href="#ln-259"></a><span class="c">! puddle contributions. </span>
+<a id="ln-260" name="ln-260" href="#ln-260"></a><span class="n">canopy_fes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">canopy_fess</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">canopy_fesp</span><span class="w"></span>
+<a id="ln-261" name="ln-261" href="#ln-261"></a>
+<a id="ln-262" name="ln-262" href="#ln-262"></a><span class="k">END SUBROUTINE </span><span class="n">latent_heat_flux</span><span class="w"></span>
+<a id="ln-263" name="ln-263" href="#ln-263"></a>
+<a id="ln-264" name="ln-264" href="#ln-264"></a><span class="k">END MODULE </span><span class="n">cable_latent_heat_module</span><span class="w"></span>
 </pre></div>
 
     </section>

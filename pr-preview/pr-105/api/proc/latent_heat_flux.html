@@ -229,7 +229,7 @@
  any limitation due to soil moisture availability is negected.
  <br></br></li>
 <li>If there is water in the puddle store <code>ssnow_pudsto</code>, the fraction
- of surface area covered by the puddle is quantified, <code>pwet</code> (between 0-0.2)
+ of surface area covered by the puddle is quantified, <code>pwet</code> (between 0-0.2).
  The soil latent heat flux is reduced by the change in area fraction.
  <br></br></li>
 <li>
@@ -280,16 +280,17 @@
 </li>
 </ul>
 </li>
-</ol>
-<p><br></br>
- 4. The latent heat flux associated with evaporation from puddles is set
+<li>
+<p>The latent heat flux associated with evaporation from puddles is set
  to the area fraction of the potential evaporation (<code>pwet</code> * <code>ssnow_potev</code>).
  If there is insufficient water in the puddle to support this flux then an upper
  limit is applied.
  <br></br></p>
-<ol>
-<li>The total latent heat flux is obtained by summing the soil and
- puddle contributions. </li>
+</li>
+<li>
+<p>The total latent heat flux is obtained by summing the soil and
+ puddle contributions. </p>
+</li>
 </ol>
 
     <h3>Arguments</h3>
