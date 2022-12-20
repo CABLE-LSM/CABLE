@@ -81,7 +81,7 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.1% of total for modules and submodules.">23 statements</a>
+               title=" 0.1% of total for modules and submodules.">22 statements</a>
           </li>
 
             <li id="source-file">
@@ -148,10 +148,13 @@
     
     <div class="col-md-9" id='text'>
     <p>This MODULE contains two SUBROUTINEs that calculate
-the specific humdity at saturation as a function of air pressure
-and temperature.</p>
+ the specific humdity at saturation as a function of air pressure
+ and temperature.</p>
 <p>The two SUBROUTINEs differ only in that <a href="../proc/qsatfjh.html">qsatfjh</a> operates on an array
-whereas <a href="../proc/qsatfjh2.html">qsatfjh2</a> operates on single element REALs.</p>
+ whereas <a href="../proc/qsatfjh2.html">qsatfjh2</a> operates on single element REALs.</p>
+<ul>
+<li>Warning: ** <a href="../proc/qsatfjh2.html">qsatfjh2</a> is redundant and the code should be changed to only use <a href="../proc/qsatfjh.html">qsatfjh</a>.</li>
+</ul>
     
     
     <br>
