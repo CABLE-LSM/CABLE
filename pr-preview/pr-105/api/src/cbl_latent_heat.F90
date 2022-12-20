@@ -156,7 +156,7 @@ pwet = MAX(0.,MIN(0.2,ssnow_pudsto/MAX(1.,ssnow_pudsmx)))
 canopy_fess = canopy_fess * (1.-pwet)
 
 ! frescale is a factor used to convert an amount of water (in m3/m3)
-! in the surface layer of the soil into a corresponding latent heat flux.
+! in the surface layer of the soil into a limit on the soil latent heat flux.
 ! 1000 is the density of water in kg/m3
 frescale = soil_zse * 1000. * air_rlam / dels
 
@@ -168,9 +168,9 @@ DO j=1,mp
 
   IF(ssnow_snowd(j) < 0.1 .AND. canopy_fess(j) .GT. 0. ) THEN
 
-!|     - For cases 1 and 3 the flux is of liquid water and (\(c_{ls}\)=1.0 .
+!| -     For cases 1 and 3 the flux is of liquid water and (\(c_{ls}\)=1.0 .
 !     
-!      - Limit 1: For cases 1 and 3 there must be sufficient liquid water in the surface
+!  -     Limit 1: For cases 1 and 3 there must be sufficient liquid water in the surface
 !        soil layer to provide the water for evaporation. This sets
 !        the maximum latent heat flux possible, `fupper_limit`.  Two options
 !        are provided for `fupper_limit`, set by `cable_user_l_new_reduce_soilevap` switch.
