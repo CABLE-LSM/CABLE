@@ -262,7 +262,7 @@
     the soil latent heat flux defaults to the first estimate.</p>
 </li>
 <li>
-<p>If the surface has snow cover <strong>or</strong> <code>ssnow_potev</code> is negative and the soil
+<p>If the surface has snow cover <strong>or</strong> <code>ssnow_potev</code>&lt;0 and the soil
     temperature is below freezing (frost) then the latent heat flux represents a
     conversion between solid and vapour phases of water, (<script type="math/tex">c_{ls}</script>=1.1335.
     The first estimate for the soil latent heat flux is updated by the change
@@ -280,16 +280,17 @@
 </li>
 </ul>
 </li>
-</ol>
-<p><br></br>
- 4. The latent heat flux associated with evaporation from puddles is set
-   to the area fraction of the potential evaporation (<code>pwet</code> * <code>ssnow_potev</code>).
-   If there is insufficient water in the puddle to support this flux then an upper
-   limit is applied.
+<li>
+<p>The latent heat flux associated with evaporation from puddles is set
+ to the area fraction of the potential evaporation (<code>pwet</code> * <code>ssnow_potev</code>).
+ If there is insufficient water in the puddle to support this flux then an upper
+ limit is applied.
  <br></br></p>
-<ol>
-<li>The total latent heat flux is obtained by summing the soil and
-    puddle contributions. </li>
+</li>
+<li>
+<p>The total latent heat flux is obtained by summing the soil and
+ puddle contributions. </p>
+</li>
 </ol>
 
     <h3>Arguments</h3>
