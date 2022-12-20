@@ -152,7 +152,7 @@ WHERE (ssnow_potev < 0. ) ssnow_wetfac(:) = 1.0
 canopy_fess= ssnow_wetfac * ssnow_potev
 
 !| 2. If there is water in the puddle store `ssnow_pudsto`, the fraction
-! of surface area covered by the puddle is quantified, `pwet` (between 0-0.2)
+! of surface area covered by the puddle is quantified, `pwet` (between 0-0.2).
 ! The soil latent heat flux is reduced by the change in area fraction.
 ! <br></br>
 pwet = MAX(0.,MIN(0.2,ssnow_pudsto/MAX(1.,ssnow_pudsmx)))
@@ -248,8 +248,7 @@ DO j=1,mp
 
 ENDDO
 
-!|<br></br>
-! 4. The latent heat flux associated with evaporation from puddles is set
+!|  4. The latent heat flux associated with evaporation from puddles is set
 ! to the area fraction of the potential evaporation (`pwet` * `ssnow_potev`).
 ! If there is insufficient water in the puddle to support this flux then an upper
 ! limit is applied.
