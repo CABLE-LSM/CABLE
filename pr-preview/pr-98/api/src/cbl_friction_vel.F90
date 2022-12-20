@@ -134,7 +134,7 @@ FUNCTION psim(zeta, mp, CPI_C ) RESULT(r)
 ! and the Beljaars and Holtslag (1991) form for stable cases.
 
 INTEGER, INTENT(IN) :: mp                !! size of cable vector of land points (-)
-REAL, INTENT(IN), DIMENSION(mp) ::  zeta !! IN current value of stability parameter \(\xi\) (-)
+REAL, INTENT(IN), DIMENSION(mp) ::  zeta !! current value of stability parameter \(\xi\) (-)
 REAL, INTENT(IN) :: CPI_C                !! \( \pi \) (-)
 
 ! function result
