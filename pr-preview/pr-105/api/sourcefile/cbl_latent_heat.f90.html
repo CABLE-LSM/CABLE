@@ -202,7 +202,7 @@
 <a id="ln-2" name="ln-2" href="#ln-2"></a><span class="w">  </span><span class="c">!* This MODULE contains one SUBROUTINE which evaluates the latent heat from</span>
 <a id="ln-3" name="ln-3" href="#ln-3"></a><span class="w">  </span><span class="c">! ground/soil/snow pack given the previously evaluated rate of potential</span>
 <a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">  </span><span class="c">! evaporation. This is a component of the calculation of the surface energy</span>
-<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">  </span><span class="c">! balance and is called once per cycle in the MO iteration section of</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">  </span><span class="c">! balance and is called twice per cycle in the MO iteration section of</span>
 <a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">  </span><span class="c">! [[define_canopy]].</span>
 <a id="ln-7" name="ln-7" href="#ln-7"></a>
 <a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">  </span><span class="k">IMPLICIT NONE</span>
@@ -223,9 +223,9 @@
 <a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">  </span><span class="c">! This SUBROUTINE converts the previously evaluated rate of potential</span>
 <a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">  </span><span class="c">! evaporation `ssnow_potev` from the soil into the associated latent heat flux</span>
 <a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">  </span><span class="c">! `canopy_fes`. The evaluation accounts for whether the water flux is</span>
-<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">  </span><span class="c">! in lioquid or solid pahse (evaporation or sublimation, dew or frost),</span>
-<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">  </span><span class="c">! the direction of the flux (to or from the soil), any limits due to a lack of</span>
-<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">  </span><span class="c">! water in the surface layer of the soil column, and</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">  </span><span class="c">! in liquid or solid phase (evaporation or sublimation, dew or frost),</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">  </span><span class="c">! the direction of the flux (to or from the soil), and any limits due to a lack of</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">  </span><span class="c">! water in the surface layer of the soil column.  The SUBROUTINE also evaluates</span>
 <a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">  </span><span class="c">! the partition of the latent heat flux between soil `canopy_fess` and</span>
 <a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">  </span><span class="c">! puddle `canopy_fesp` contributions.</span>
 <a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">  </span><span class="c">!</span>
@@ -292,7 +292,7 @@
 <a id="ln-92" name="ln-92" href="#ln-92"></a><span class="c">!|## Method</span>
 <a id="ln-93" name="ln-93" href="#ln-93"></a><span class="c">!</span>
 <a id="ln-94" name="ln-94" href="#ln-94"></a><span class="c">! &#39;Potential evaporation&#39; quantifies the theoretical value of evaporation from</span>
-<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="c">! a fully saturated surface (with no limits on water availability) at a given</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="c">! a fully saturated surface (i.e. with no limits on water availability) at a given</span>
 <a id="ln-96" name="ln-96" href="#ln-96"></a><span class="c">! temperature and humidity, in response to the available energy.</span>
 <a id="ln-97" name="ln-97" href="#ln-97"></a><span class="c">! This SUBROUTINE evaluates the value of the latent heat flux from the</span>
 <a id="ln-98" name="ln-98" href="#ln-98"></a><span class="c">! ground/soil/snow pack given the potential evaporation according to one of four cases</span>
@@ -305,7 +305,7 @@
 <a id="ln-105" name="ln-105" href="#ln-105"></a><span class="c">!     (sublimation of frozen water from within the soil column is not possible per CABLE)</span>
 <a id="ln-106" name="ln-106" href="#ln-106"></a><span class="c">!  4. deposition of frost onto frozen soils if there is no snow cover</span>
 <a id="ln-107" name="ln-107" href="#ln-107"></a><span class="c">!</span>
-<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="c">! while satisfying any constraints due to limits on soil moisture.</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="c">! while satisfying any constraints due to limits from soil moisture availability.</span>
 <a id="ln-109" name="ln-109" href="#ln-109"></a><span class="c">!&lt;br&gt;&lt;/br&gt;</span>
 <a id="ln-110" name="ln-110" href="#ln-110"></a><span class="c">! There are six outputs from this SUBROUTINE</span>
 <a id="ln-111" name="ln-111" href="#ln-111"></a><span class="c">!</span>
@@ -322,143 +322,147 @@
 <a id="ln-122" name="ln-122" href="#ln-122"></a><span class="c">! latent heat of evaporation of liquid water.  </span>
 <a id="ln-123" name="ln-123" href="#ln-123"></a><span class="c">!</span>
 <a id="ln-124" name="ln-124" href="#ln-124"></a><span class="c">! **IMPORTANT** the value of `ssnow_cls` set in this SUBROUTINE is used to control whether</span>
-<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="c">! the water fluxes from the snow pack/soil column in [[soil_snow]] (and its SUBROUTINES)</span>
-<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="c">! are of liquid or solid phase. Inconsistencies between the two sets of SUBROUTINES</span>
-<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="c">! would lead to loss of energy closure and/or loss of mass.</span>
-<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="c">!</span>
-<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="c">!&lt;br&gt;&lt;/br&gt;</span>
-<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="c">!## Workflow</span>
-<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="c">! The underpinning equation linking the \(\beta\)-formulation for the soil latent heat flux</span>
-<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="c">! to the potential evaporation is</span>
-<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="c">!</span>
-<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="c">! \(\lambda E_s = \beta c_{ls} \lambda E_{pot} \)</span>
-<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="c">!</span>
-<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="c">! where \(\lambda\) =`air_rlam` is the latent heat of evaporation</span>
-<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="c">! (which can theoretically vary so is an mp-array), \(c_{ls}\)=`ssnow_cls`</span>
-<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="c">! is a factor set by the phase of the water being fluxed,</span>
-<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="c">! \(\beta\)=`ssnow_wetfac` is a coefficient quantifying the control that soil surface</span>
-<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="c">! layer moisture has on evaporaqtion, and \(\lambda E_{pot}\)=`ssnow_potev`</span>
-<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="c">! is the latent heat flux associated with potential evaporation.</span>
-<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="c">!</span>
-<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="c">! &lt;br&gt;&lt;/br&gt;</span>
-<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="c">! THe workflow is</span>
-<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="c">! - First, a first estimate for the soil latent heat flux is calculated</span>
-<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="c">! assuming that the flux is of liquid water. If `ssnow_potev` is negative</span>
-<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="c">! any limitation due to soil moisture availability is negected.</span>
-<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="c">!&lt;br&gt;&lt;/br&gt;</span>
-<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="k">WHERE</span><span class="w"> </span><span class="p">(</span><span class="n">ssnow_potev</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">ssnow_wetfac</span><span class="p">(:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w"></span>
-<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="n">canopy_fess</span><span class="o">=</span><span class="w"> </span><span class="n">ssnow_wetfac</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ssnow_potev</span><span class="w"></span>
-<a id="ln-151" name="ln-151" href="#ln-151"></a>
-<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="c">!| - Second, if there is water in the puddle store `ssnow_pudsto`, the fraction</span>
-<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="c">! the surface area covered by the puddle is qunatified, `pwet`.</span>
-<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="c">! The rate of evaporation from the soil is reduced by the change in area fraction.</span>
-<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="c">!&lt;br&gt;&lt;/br&gt;</span>
-<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="n">pwet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">MAX</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span><span class="nb">MIN</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span><span class="n">ssnow_pudsto</span><span class="o">/</span><span class="nb">MAX</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span><span class="n">ssnow_pudsmx</span><span class="p">)))</span><span class="w"></span>
-<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="n">canopy_fess</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">canopy_fess</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mf">1.</span><span class="o">-</span><span class="n">pwet</span><span class="p">)</span><span class="w"></span>
-<a id="ln-158" name="ln-158" href="#ln-158"></a>
-<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="c">! frescale is a factor used to convert an amount of water (in m3/m3)</span>
-<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="c">! in the surface layer of the soil into a limit on the soil latent heat flux.</span>
-<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="c">! 1000 is the density of water in kg/m3</span>
-<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="n">frescale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">soil_zse</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="mf">0.</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">air_rlam</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">dels</span><span class="w"></span>
-<a id="ln-163" name="ln-163" href="#ln-163"></a>
-<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="c">!| - Third (the main loop) the value for \(c_{ls}\) and additional limits</span>
-<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="c">! on the latent heat flux(es) are applied, according to which of the four cases</span>
-<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="c">! is occurring.  Inside the loop the workflow is as follows:</span>
-<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="c">!</span>
-<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="k">DO </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">mp</span><span class="w"></span>
-<a id="ln-169" name="ln-169" href="#ln-169"></a>
-<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="w">  </span><span class="k">IF</span><span class="p">(</span><span class="n">ssnow_snowd</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.1</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">canopy_fess</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="mf">0.</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w"></span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="c">! the water fluxes from the snow pack/soil column are of liquid or solid water</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="c">! in [[soil_snow]] (and its SUBROUTINES).</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="c">! Inconsistencies between the two sets of SUBROUTINES</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="c">! would lead to loss of energy closure and/or loss of mass.</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="c">!</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="c">!&lt;br&gt;&lt;/br&gt;</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="c">!## Workflow</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="c">! The underpinning equation linking the \(\beta\)-formulation for the soil latent heat flux</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="c">! to the potential evaporation is</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="c">!</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="c">! \(\lambda E_s = \beta c_{ls} \lambda E_{pot} \)</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="c">!</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="c">! where \(\lambda\) =`air_rlam` is the latent heat of evaporation</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="c">! (which can theoretically vary so is an mp-array), \(c_{ls}\)=`ssnow_cls`</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="c">! is a factor set by the phase of the water being fluxed,</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="c">! \(\beta\)=`ssnow_wetfac` is a coefficient quantifying the control that soil surface</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="c">! layer moisture has on evaporation, and \(\lambda E_{pot}\)=`ssnow_potev`</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="c">! is the latent heat flux associated with the potential evaporation.</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="c">!</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="c">! &lt;br&gt;&lt;/br&gt;</span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="c">! The workflow is</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="c">!</span>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="c">! - First, a first estimate for the soil latent heat flux is calculated</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="c">! assuming that the flux is of liquid water. If `ssnow_potev` is negative</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="c">! any limitation due to soil moisture availability is negected.</span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="c">! &lt;br&gt;&lt;/br&gt;</span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="k">WHERE</span><span class="w"> </span><span class="p">(</span><span class="n">ssnow_potev</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">ssnow_wetfac</span><span class="p">(:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w"></span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="n">canopy_fess</span><span class="o">=</span><span class="w"> </span><span class="n">ssnow_wetfac</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ssnow_potev</span><span class="w"></span>
+<a id="ln-153" name="ln-153" href="#ln-153"></a>
+<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="c">!| - Second, if there is water in the puddle store `ssnow_pudsto`, the fraction</span>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="c">! of surface area covered by the puddle is quantified, `pwet` (between 0-0.2)</span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="c">! The soil latent heat flux is reduced by the change in area fraction.</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="c">! &lt;br&gt;&lt;/br&gt;</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="n">pwet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">MAX</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span><span class="nb">MIN</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span><span class="n">ssnow_pudsto</span><span class="o">/</span><span class="nb">MAX</span><span class="p">(</span><span class="mf">1.</span><span class="p">,</span><span class="n">ssnow_pudsmx</span><span class="p">)))</span><span class="w"></span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="n">canopy_fess</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">canopy_fess</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mf">1.</span><span class="o">-</span><span class="n">pwet</span><span class="p">)</span><span class="w"></span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="c">! frescale is a factor used to convert an amount of water (in m3/m3)</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="c">! in the surface layer of the soil into a limit on the soil latent heat flux.</span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="c">! 1000 is the density of water in kg/m3</span>
+<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="n">frescale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">soil_zse</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="mf">0.</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">air_rlam</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">dels</span><span class="w"></span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="c">!| - Third (the main loop) the value for \(c_{ls}\) and additional limits</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="c">! on the latent heat flux(es) are applied, according to which of the four cases</span>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="c">! is occurring.  Inside the loop the workflow is as follows:</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="c">!</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="k">DO </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">mp</span><span class="w"></span>
 <a id="ln-171" name="ln-171" href="#ln-171"></a>
-<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="c">!| -    For cases 1 and 3 the flux is of liquid water, \(c_{ls}\) stays equal to 1.</span>
-<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="c">!     </span>
-<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="c">!  -    Limit 1: For cases 1 and 3 there must be sufficient liquid water in the surface</span>
-<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="c">!       soil layer to provide the water for evaporation. This sets</span>
-<a id="ln-176" name="ln-176" href="#ln-176"></a><span class="c">!       the maximum latent heat flux possible, `fupper_limit`.  Two options</span>
-<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="c">!       are provided for `fupper_limit`, set by the `cable_user_l_new_reduce_soilevap`</span>
-<a id="ln-178" name="ln-178" href="#ln-178"></a><span class="c">!       switch.</span>
-<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="c">!       The options differ in the amount of water that remains at the end of the time step.</span>
-<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="c">!</span>
-<a id="ln-181" name="ln-181" href="#ln-181"></a><span class="w">     </span><span class="k">IF</span><span class="w"> </span><span class="p">(.</span><span class="nb">NOT</span><span class="p">.</span><span class="n">cable_user_l_new_reduce_soilevp</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
-<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="k">        </span><span class="n">flower_limit</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">ssnow_wb</span><span class="p">(</span><span class="n">j</span><span class="p">))</span><span class="o">-</span><span class="n">soil_swilt</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">/</span><span class="mf">2.0</span><span class="w"></span>
-<a id="ln-183" name="ln-183" href="#ln-183"></a><span class="w">     </span><span class="k">ELSE</span><span class="w"></span>
-<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="w">        </span><span class="c">! E.Kowalczyk 2014 - reduces the soil evaporation</span>
-<a id="ln-185" name="ln-185" href="#ln-185"></a><span class="w">        </span><span class="n">flower_limit</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">ssnow_wb</span><span class="p">(</span><span class="n">j</span><span class="p">))</span><span class="o">-</span><span class="n">soil_swilt</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"></span>
-<a id="ln-186" name="ln-186" href="#ln-186"></a><span class="w">     </span><span class="k">ENDIF</span>
-<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="k">     </span><span class="n">fupper_limit</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">MAX</span><span class="p">(</span><span class="w"> </span><span class="mf">0.</span><span class="p">,</span><span class="w">                                        </span><span class="p">&amp;</span><span class="w"></span>
-<a id="ln-188" name="ln-188" href="#ln-188"></a><span class="w">          </span><span class="n">flower_limit</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">frescale</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w">                       </span><span class="p">&amp;</span><span class="w"></span>
-<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="w">          </span><span class="o">-</span><span class="w"> </span><span class="n">ssnow_evapfbl</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="n">air_rlam</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">/</span><span class="n">dels</span><span class="p">)</span><span class="w"></span>
-<a id="ln-190" name="ln-190" href="#ln-190"></a>
-<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="w">     </span><span class="n">canopy_fess</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">MIN</span><span class="p">(</span><span class="n">canopy_fess</span><span class="p">(</span><span class="n">j</span><span class="p">),</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">fupper_limit</span><span class="p">(</span><span class="n">j</span><span class="p">),</span><span class="n">r_2</span><span class="p">))</span><span class="w"></span>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="w">  </span><span class="k">IF</span><span class="p">(</span><span class="n">ssnow_snowd</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.1</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">canopy_fess</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="mf">0.</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w"></span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a>
+<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="c">!| -    For cases 1 and 3 the flux is of liquid water, \(c_{ls}\) stays equal to 1.</span>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="c">!     </span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a><span class="c">!  -    Limit 1: For cases 1 and 3 there must be sufficient liquid water in the surface</span>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="c">!       soil layer to provide the water for evaporation. This sets</span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a><span class="c">!       the maximum soil latent heat flux possible, `fupper_limit`.  Two options</span>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="c">!       are provided for `fupper_limit`, set by the `cable_user_l_new_reduce_soilevap`</span>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="c">!       switch.</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a><span class="c">!       The options differ in the amount of water that remains at the end of the time step.</span>
+<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="c">!</span>
+<a id="ln-183" name="ln-183" href="#ln-183"></a><span class="w">     </span><span class="k">IF</span><span class="w"> </span><span class="p">(.</span><span class="nb">NOT</span><span class="p">.</span><span class="n">cable_user_l_new_reduce_soilevp</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="k">        </span><span class="n">flower_limit</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">ssnow_wb</span><span class="p">(</span><span class="n">j</span><span class="p">))</span><span class="o">-</span><span class="n">soil_swilt</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">/</span><span class="mf">2.0</span><span class="w"></span>
+<a id="ln-185" name="ln-185" href="#ln-185"></a><span class="w">     </span><span class="k">ELSE</span><span class="w"></span>
+<a id="ln-186" name="ln-186" href="#ln-186"></a><span class="w">        </span><span class="c">! E.Kowalczyk 2014 - reduces the soil evaporation</span>
+<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="w">        </span><span class="n">flower_limit</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">ssnow_wb</span><span class="p">(</span><span class="n">j</span><span class="p">))</span><span class="o">-</span><span class="n">soil_swilt</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"></span>
+<a id="ln-188" name="ln-188" href="#ln-188"></a><span class="w">     </span><span class="k">ENDIF</span>
+<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="k">     </span><span class="n">fupper_limit</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">MAX</span><span class="p">(</span><span class="w"> </span><span class="mf">0.</span><span class="p">,</span><span class="w">                                        </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="w">          </span><span class="n">flower_limit</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">frescale</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w">                       </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="w">          </span><span class="o">-</span><span class="w"> </span><span class="n">ssnow_evapfbl</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="n">air_rlam</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">/</span><span class="n">dels</span><span class="p">)</span><span class="w"></span>
 <a id="ln-192" name="ln-192" href="#ln-192"></a>
-<a id="ln-193" name="ln-193" href="#ln-193"></a><span class="c">!| -     Limit 2: Additionally for case 3, the evaporation of liquid water</span>
-<a id="ln-194" name="ln-194" href="#ln-194"></a><span class="c">!        from within the frozen soil column must not reduce the liquid water fraction</span>
-<a id="ln-195" name="ln-195" href="#ln-195"></a><span class="c">!        to the point that that ice fraction of soil moisture exceeds an upper limit</span>
-<a id="ln-196" name="ln-196" href="#ln-196"></a><span class="c">!        frozen_limit=0.85.  This provides a second upper limit on the evaporation and</span>
-<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="c">!        latent flux. **WARNING** frozen_limit=0.85 is hard coded - if it is changed</span>
-<a id="ln-198" name="ln-198" href="#ln-198"></a><span class="c">!        then the corresponding limit in [[cbl_soilsnow]] must also be changed.</span>
-<a id="ln-199" name="ln-199" href="#ln-199"></a><span class="c">!</span>
-<a id="ln-200" name="ln-200" href="#ln-200"></a><span class="w">     </span><span class="n">fupper_limit</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">ssnow_wb</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">-</span><span class="n">ssnow_wbice</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">/</span><span class="mf">0.85</span><span class="p">)</span><span class="o">*</span><span class="n">frescale</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"></span>
-<a id="ln-201" name="ln-201" href="#ln-201"></a><span class="w">     </span><span class="n">fupper_limit</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">MAX</span><span class="p">(</span><span class="kt">REAL</span><span class="p">(</span><span class="n">fupper_limit</span><span class="p">(</span><span class="n">j</span><span class="p">),</span><span class="n">r_2</span><span class="p">),</span><span class="mf">0.</span><span class="p">)</span><span class="w"></span>
-<a id="ln-202" name="ln-202" href="#ln-202"></a>
-<a id="ln-203" name="ln-203" href="#ln-203"></a><span class="w">     </span><span class="n">canopy_fess</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">MIN</span><span class="p">(</span><span class="n">canopy_fess</span><span class="p">(</span><span class="n">j</span><span class="p">),</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">fupper_limit</span><span class="p">(</span><span class="n">j</span><span class="p">),</span><span class="n">r_2</span><span class="p">))</span><span class="w"></span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a><span class="w">     </span><span class="n">canopy_fess</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">MIN</span><span class="p">(</span><span class="n">canopy_fess</span><span class="p">(</span><span class="n">j</span><span class="p">),</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">fupper_limit</span><span class="p">(</span><span class="n">j</span><span class="p">),</span><span class="n">r_2</span><span class="p">))</span><span class="w"></span>
+<a id="ln-194" name="ln-194" href="#ln-194"></a>
+<a id="ln-195" name="ln-195" href="#ln-195"></a><span class="c">!| -     Limit 2: Additionally for case 3, the evaporation of liquid water</span>
+<a id="ln-196" name="ln-196" href="#ln-196"></a><span class="c">!        from within the frozen soil column must not reduce the liquid water fraction</span>
+<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="c">!        to the point that that ice fraction of soil moisture exceeds an upper limit</span>
+<a id="ln-198" name="ln-198" href="#ln-198"></a><span class="c">!        frozen_limit=0.85.  This provides a second upper limit on the evaporation and</span>
+<a id="ln-199" name="ln-199" href="#ln-199"></a><span class="c">!        soil latent flux. **WARNING** frozen_limit=0.85 is hard coded - if it is changed</span>
+<a id="ln-200" name="ln-200" href="#ln-200"></a><span class="c">!        then the corresponding limit in [[cbl_soilsnow]] must also be changed.</span>
+<a id="ln-201" name="ln-201" href="#ln-201"></a><span class="c">!</span>
+<a id="ln-202" name="ln-202" href="#ln-202"></a><span class="w">     </span><span class="n">fupper_limit</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">ssnow_wb</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">-</span><span class="n">ssnow_wbice</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">/</span><span class="mf">0.85</span><span class="p">)</span><span class="o">*</span><span class="n">frescale</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"></span>
+<a id="ln-203" name="ln-203" href="#ln-203"></a><span class="w">     </span><span class="n">fupper_limit</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">MAX</span><span class="p">(</span><span class="kt">REAL</span><span class="p">(</span><span class="n">fupper_limit</span><span class="p">(</span><span class="n">j</span><span class="p">),</span><span class="n">r_2</span><span class="p">),</span><span class="mf">0.</span><span class="p">)</span><span class="w"></span>
 <a id="ln-204" name="ln-204" href="#ln-204"></a>
-<a id="ln-205" name="ln-205" href="#ln-205"></a><span class="w">  </span><span class="k">END IF</span><span class="w">   </span>
-<a id="ln-206" name="ln-206" href="#ln-206"></a><span class="c">!* -     The case of dew fall onto a surface with little/no snow while</span>
-<a id="ln-207" name="ln-207" href="#ln-207"></a><span class="c">!        the soil surface temperature is above freezing is unrestricted and</span>
-<a id="ln-208" name="ln-208" href="#ln-208"></a><span class="c">!        the latent heat flux defaults to the first estimate.</span>
-<a id="ln-209" name="ln-209" href="#ln-209"></a><span class="w">  </span>
-<a id="ln-210" name="ln-210" href="#ln-210"></a><span class="w">  </span><span class="n">ssnow_cls</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">=</span><span class="mf">1.</span><span class="w"></span>
-<a id="ln-211" name="ln-211" href="#ln-211"></a>
-<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="c">!| -     If the surface has snow cover then the latent heat flux represents a</span>
-<a id="ln-213" name="ln-213" href="#ln-213"></a><span class="c">!        conversion between solid and vapour phases of water, (\(c_{ls}\)=1.1335.</span>
-<a id="ln-214" name="ln-214" href="#ln-214"></a><span class="c">!        The first estimate is updated by the change in value of (\(c_{ls}\).</span>
-<a id="ln-215" name="ln-215" href="#ln-215"></a><span class="c">!</span>
-<a id="ln-216" name="ln-216" href="#ln-216"></a><span class="w">  </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">ssnow_snowd</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="mf">0.1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
-<a id="ln-217" name="ln-217" href="#ln-217"></a><span class="k">     </span><span class="n">ssnow_cls</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.1335</span><span class="w"></span>
-<a id="ln-218" name="ln-218" href="#ln-218"></a><span class="w">     </span><span class="n">canopy_fess</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ssnow_cls</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="n">ssnow_potev</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"></span>
-<a id="ln-219" name="ln-219" href="#ln-219"></a><span class="w">  </span><span class="k">ENDIF</span><span class="w"></span>
-<a id="ln-220" name="ln-220" href="#ln-220"></a>
-<a id="ln-221" name="ln-221" href="#ln-221"></a><span class="c">!| -     For case 4, deposition of frost onto frozen surface (temperature below</span>
-<a id="ln-222" name="ln-222" href="#ln-222"></a><span class="c">!        freezing) occurs even if there is no snow - there is no limit</span>
-<a id="ln-223" name="ln-223" href="#ln-223"></a><span class="c">!        on the magnitude of the latent heat flux.</span>
-<a id="ln-224" name="ln-224" href="#ln-224"></a><span class="c">!</span>
-<a id="ln-225" name="ln-225" href="#ln-225"></a><span class="w">  </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">ssnow_snowd</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.1</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">ssnow_potev</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<a id="ln-226" name="ln-226" href="#ln-226"></a><span class="w">       </span><span class="n">ssnow_tss</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">&lt;</span><span class="n">CTFRZ</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
-<a id="ln-227" name="ln-227" href="#ln-227"></a><span class="k">     </span><span class="n">ssnow_cls</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">=</span><span class="mf">1.1335</span><span class="w"></span>
-<a id="ln-228" name="ln-228" href="#ln-228"></a><span class="w">     </span><span class="n">canopy_fess</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ssnow_cls</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="n">ssnow_potev</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"></span>
-<a id="ln-229" name="ln-229" href="#ln-229"></a><span class="w">  </span><span class="k">ENDIF</span><span class="w"></span>
-<a id="ln-230" name="ln-230" href="#ln-230"></a>
-<a id="ln-231" name="ln-231" href="#ln-231"></a><span class="c">!| -     For case 2, if `ssnow_potev`&gt;0 then there needs to be sufficient snow to</span>
-<a id="ln-232" name="ln-232" href="#ln-232"></a><span class="c">!        sublimate over the time step.  This places an upper limit on the latent</span>
-<a id="ln-233" name="ln-233" href="#ln-233"></a><span class="c">!        heat flux possible.</span>
-<a id="ln-234" name="ln-234" href="#ln-234"></a><span class="c">!</span>
-<a id="ln-235" name="ln-235" href="#ln-235"></a><span class="w">  </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">ssnow_snowd</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mf">0.1</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">ssnow_potev</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0.</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
-<a id="ln-236" name="ln-236" href="#ln-236"></a>
-<a id="ln-237" name="ln-237" href="#ln-237"></a><span class="k">     </span><span class="n">ssnow_cls</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.1335</span><span class="w"></span>
-<a id="ln-238" name="ln-238" href="#ln-238"></a>
-<a id="ln-239" name="ln-239" href="#ln-239"></a><span class="w">     </span><span class="c">!INH - if changes to PM routine then matching changes here</span>
-<a id="ln-240" name="ln-240" href="#ln-240"></a><span class="w">     </span><span class="n">canopy_fess</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">MIN</span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="n">ssnow_wetfac</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="n">ssnow_potev</span><span class="p">(</span><span class="n">j</span><span class="p">))</span><span class="o">*</span><span class="n">ssnow_cls</span><span class="p">(</span><span class="n">j</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<a id="ln-241" name="ln-241" href="#ln-241"></a><span class="w">          </span><span class="n">ssnow_snowd</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">/</span><span class="n">dels</span><span class="o">*</span><span class="n">air_rlam</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="n">ssnow_cls</span><span class="p">(</span><span class="n">j</span><span class="p">))</span><span class="w"></span>
+<a id="ln-205" name="ln-205" href="#ln-205"></a><span class="w">     </span><span class="n">canopy_fess</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">MIN</span><span class="p">(</span><span class="n">canopy_fess</span><span class="p">(</span><span class="n">j</span><span class="p">),</span><span class="w"> </span><span class="kt">REAL</span><span class="p">(</span><span class="n">fupper_limit</span><span class="p">(</span><span class="n">j</span><span class="p">),</span><span class="n">r_2</span><span class="p">))</span><span class="w"></span>
+<a id="ln-206" name="ln-206" href="#ln-206"></a>
+<a id="ln-207" name="ln-207" href="#ln-207"></a><span class="w">  </span><span class="k">END IF</span><span class="w">   </span>
+<a id="ln-208" name="ln-208" href="#ln-208"></a><span class="c">!* -     The case of dew fall onto a surface with little/no snow while</span>
+<a id="ln-209" name="ln-209" href="#ln-209"></a><span class="c">!        the soil surface temperature is above freezing is unrestricted and</span>
+<a id="ln-210" name="ln-210" href="#ln-210"></a><span class="c">!        the soil latent heat flux defaults to the first estimate.</span>
+<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="w">  </span>
+<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="w">  </span><span class="n">ssnow_cls</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">=</span><span class="mf">1.</span><span class="w"></span>
+<a id="ln-213" name="ln-213" href="#ln-213"></a>
+<a id="ln-214" name="ln-214" href="#ln-214"></a><span class="c">!| -     If the surface has snow cover **or** `ssnow_potev` is negative and the soil</span>
+<a id="ln-215" name="ln-215" href="#ln-215"></a><span class="c">!        temperature is below freezing (frost) then the latent heat flux represents a</span>
+<a id="ln-216" name="ln-216" href="#ln-216"></a><span class="c">!        conversion between solid and vapour phases of water, (\(c_{ls}\)=1.1335.</span>
+<a id="ln-217" name="ln-217" href="#ln-217"></a><span class="c">!        The first estimate for the soil latent heat flux is updated by the change</span>
+<a id="ln-218" name="ln-218" href="#ln-218"></a><span class="c">!        in value of (\(c_{ls}\).</span>
+<a id="ln-219" name="ln-219" href="#ln-219"></a><span class="c">!</span>
+<a id="ln-220" name="ln-220" href="#ln-220"></a><span class="w">  </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">ssnow_snowd</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="mf">0.1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<a id="ln-221" name="ln-221" href="#ln-221"></a><span class="k">     </span><span class="n">ssnow_cls</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.1335</span><span class="w"></span>
+<a id="ln-222" name="ln-222" href="#ln-222"></a><span class="w">     </span><span class="n">canopy_fess</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ssnow_cls</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="n">ssnow_potev</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"></span>
+<a id="ln-223" name="ln-223" href="#ln-223"></a><span class="w">  </span><span class="k">ENDIF</span><span class="w"></span>
+<a id="ln-224" name="ln-224" href="#ln-224"></a>
+<a id="ln-225" name="ln-225" href="#ln-225"></a><span class="c">!| -     For case 4, deposition of frost onto frozen surface (temperature below</span>
+<a id="ln-226" name="ln-226" href="#ln-226"></a><span class="c">!        freezing) occurs even if there is no snow - there is no limit</span>
+<a id="ln-227" name="ln-227" href="#ln-227"></a><span class="c">!        on the magnitude of the soil latent heat flux.</span>
+<a id="ln-228" name="ln-228" href="#ln-228"></a><span class="c">!</span>
+<a id="ln-229" name="ln-229" href="#ln-229"></a><span class="w">  </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">ssnow_snowd</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.1</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">ssnow_potev</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-230" name="ln-230" href="#ln-230"></a><span class="w">       </span><span class="n">ssnow_tss</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">&lt;</span><span class="n">CTFRZ</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<a id="ln-231" name="ln-231" href="#ln-231"></a><span class="k">     </span><span class="n">ssnow_cls</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">=</span><span class="mf">1.1335</span><span class="w"></span>
+<a id="ln-232" name="ln-232" href="#ln-232"></a><span class="w">     </span><span class="n">canopy_fess</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ssnow_cls</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="n">ssnow_potev</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"></span>
+<a id="ln-233" name="ln-233" href="#ln-233"></a><span class="w">  </span><span class="k">ENDIF</span><span class="w"></span>
+<a id="ln-234" name="ln-234" href="#ln-234"></a>
+<a id="ln-235" name="ln-235" href="#ln-235"></a><span class="c">!| -     For case 2, if `ssnow_potev`&gt;0 then there needs to be sufficient snow to</span>
+<a id="ln-236" name="ln-236" href="#ln-236"></a><span class="c">!        sublimate over the time step.  This places an upper limit on the soil latent</span>
+<a id="ln-237" name="ln-237" href="#ln-237"></a><span class="c">!        heat flux.</span>
+<a id="ln-238" name="ln-238" href="#ln-238"></a><span class="c">!</span>
+<a id="ln-239" name="ln-239" href="#ln-239"></a><span class="w">  </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">ssnow_snowd</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mf">0.1</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">ssnow_potev</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0.</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<a id="ln-240" name="ln-240" href="#ln-240"></a>
+<a id="ln-241" name="ln-241" href="#ln-241"></a><span class="k">     </span><span class="n">ssnow_cls</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.1335</span><span class="w"></span>
 <a id="ln-242" name="ln-242" href="#ln-242"></a>
-<a id="ln-243" name="ln-243" href="#ln-243"></a><span class="w">  </span><span class="k">ENDIF</span>
-<a id="ln-244" name="ln-244" href="#ln-244"></a>
-<a id="ln-245" name="ln-245" href="#ln-245"></a><span class="k">ENDDO</span><span class="w"></span>
+<a id="ln-243" name="ln-243" href="#ln-243"></a><span class="w">     </span><span class="c">!INH - if changes to PM routine then matching changes here</span>
+<a id="ln-244" name="ln-244" href="#ln-244"></a><span class="w">     </span><span class="n">canopy_fess</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">MIN</span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="n">ssnow_wetfac</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="n">ssnow_potev</span><span class="p">(</span><span class="n">j</span><span class="p">))</span><span class="o">*</span><span class="n">ssnow_cls</span><span class="p">(</span><span class="n">j</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<a id="ln-245" name="ln-245" href="#ln-245"></a><span class="w">          </span><span class="n">ssnow_snowd</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">/</span><span class="n">dels</span><span class="o">*</span><span class="n">air_rlam</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="n">ssnow_cls</span><span class="p">(</span><span class="n">j</span><span class="p">))</span><span class="w"></span>
 <a id="ln-246" name="ln-246" href="#ln-246"></a>
-<a id="ln-247" name="ln-247" href="#ln-247"></a><span class="c">! &lt;br&gt;&lt;/br&gt;</span>
-<a id="ln-248" name="ln-248" href="#ln-248"></a><span class="c">!| - Fourth, the latent heat flux associated with evaporation from puddles is set</span>
-<a id="ln-249" name="ln-249" href="#ln-249"></a><span class="c">!    to the area fraction of the potential evaporation (`pwet` * `ssnow_potev`).</span>
-<a id="ln-250" name="ln-250" href="#ln-250"></a><span class="c">!    If there is insufficient water in the puddle to support this flux then an upper</span>
-<a id="ln-251" name="ln-251" href="#ln-251"></a><span class="c">!    limit is applied.</span>
-<a id="ln-252" name="ln-252" href="#ln-252"></a><span class="c">!</span>
-<a id="ln-253" name="ln-253" href="#ln-253"></a><span class="n">canopy_fesp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">MIN</span><span class="p">(</span><span class="n">ssnow_pudsto</span><span class="o">/</span><span class="n">dels</span><span class="o">*</span><span class="n">air_rlam</span><span class="p">,</span><span class="nb">MAX</span><span class="p">(</span><span class="n">pwet</span><span class="o">*</span><span class="n">ssnow_potev</span><span class="p">,</span><span class="mf">0.</span><span class="p">))</span><span class="w"></span>
-<a id="ln-254" name="ln-254" href="#ln-254"></a>
-<a id="ln-255" name="ln-255" href="#ln-255"></a><span class="c">!| - Finally, the total latent heat flux is obtained by summing the soil and</span>
-<a id="ln-256" name="ln-256" href="#ln-256"></a><span class="c">!    puddle contributions. </span>
-<a id="ln-257" name="ln-257" href="#ln-257"></a><span class="n">canopy_fes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">canopy_fess</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">canopy_fesp</span><span class="w"></span>
+<a id="ln-247" name="ln-247" href="#ln-247"></a><span class="w">  </span><span class="k">ENDIF</span>
+<a id="ln-248" name="ln-248" href="#ln-248"></a>
+<a id="ln-249" name="ln-249" href="#ln-249"></a><span class="k">ENDDO</span><span class="w"></span>
+<a id="ln-250" name="ln-250" href="#ln-250"></a>
+<a id="ln-251" name="ln-251" href="#ln-251"></a><span class="c">!| &lt;br&gt;&lt;/br&gt;</span>
+<a id="ln-252" name="ln-252" href="#ln-252"></a><span class="c">! - Fourth, the latent heat flux associated with evaporation from puddles is set</span>
+<a id="ln-253" name="ln-253" href="#ln-253"></a><span class="c">!   to the area fraction of the potential evaporation (`pwet` * `ssnow_potev`).</span>
+<a id="ln-254" name="ln-254" href="#ln-254"></a><span class="c">!   If there is insufficient water in the puddle to support this flux then an upper</span>
+<a id="ln-255" name="ln-255" href="#ln-255"></a><span class="c">!   limit is applied.</span>
+<a id="ln-256" name="ln-256" href="#ln-256"></a><span class="c">! &lt;br&gt;&lt;/br&gt;</span>
+<a id="ln-257" name="ln-257" href="#ln-257"></a><span class="n">canopy_fesp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">MIN</span><span class="p">(</span><span class="n">ssnow_pudsto</span><span class="o">/</span><span class="n">dels</span><span class="o">*</span><span class="n">air_rlam</span><span class="p">,</span><span class="nb">MAX</span><span class="p">(</span><span class="n">pwet</span><span class="o">*</span><span class="n">ssnow_potev</span><span class="p">,</span><span class="mf">0.</span><span class="p">))</span><span class="w"></span>
 <a id="ln-258" name="ln-258" href="#ln-258"></a>
-<a id="ln-259" name="ln-259" href="#ln-259"></a><span class="k">END SUBROUTINE </span><span class="n">latent_heat_flux</span><span class="w"></span>
-<a id="ln-260" name="ln-260" href="#ln-260"></a>
-<a id="ln-261" name="ln-261" href="#ln-261"></a><span class="k">END MODULE </span><span class="n">cable_latent_heat_module</span><span class="w"></span>
+<a id="ln-259" name="ln-259" href="#ln-259"></a><span class="c">!| - Finally, the total latent heat flux is obtained by summing the soil and</span>
+<a id="ln-260" name="ln-260" href="#ln-260"></a><span class="c">!    puddle contributions. </span>
+<a id="ln-261" name="ln-261" href="#ln-261"></a><span class="n">canopy_fes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">canopy_fess</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">canopy_fesp</span><span class="w"></span>
+<a id="ln-262" name="ln-262" href="#ln-262"></a>
+<a id="ln-263" name="ln-263" href="#ln-263"></a><span class="k">END SUBROUTINE </span><span class="n">latent_heat_flux</span><span class="w"></span>
+<a id="ln-264" name="ln-264" href="#ln-264"></a>
+<a id="ln-265" name="ln-265" href="#ln-265"></a><span class="k">END MODULE </span><span class="n">cable_latent_heat_module</span><span class="w"></span>
 </pre></div>
 
     </section>

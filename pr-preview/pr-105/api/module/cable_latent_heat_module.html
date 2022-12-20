@@ -149,7 +149,7 @@
     <p>This MODULE contains one SUBROUTINE which evaluates the latent heat from
 ground/soil/snow pack given the previously evaluated rate of potential
 evaporation. This is a component of the calculation of the surface energy
-balance and is called once per cycle in the MO iteration section of
+balance and is called twice per cycle in the MO iteration section of
 <a href="../proc/define_canopy.html">define_canopy</a>.</p>
     
     
@@ -210,9 +210,9 @@ balance and is called once per cycle in the MO iteration section of
   <p>This SUBROUTINE converts the previously evaluated rate of potential
  evaporation <code>ssnow_potev</code> from the soil into the associated latent heat flux
  <code>canopy_fes</code>. The evaluation accounts for whether the water flux is
- in lioquid or solid pahse (evaporation or sublimation, dew or frost),
- the direction of the flux (to or from the soil), any limits due to a lack of
- water in the surface layer of the soil column, and
+ in liquid or solid phase (evaporation or sublimation, dew or frost),
+ the direction of the flux (to or from the soil), and any limits due to a lack of
+ water in the surface layer of the soil column.  The SUBROUTINE also evaluates
  the partition of the latent heat flux between soil <code>canopy_fess</code> and
  puddle <code>canopy_fesp</code> contributions.</p><a href="../proc/latent_heat_flux.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
