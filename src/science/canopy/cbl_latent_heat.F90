@@ -18,6 +18,8 @@ SUBROUTINE Latent_heat_flux( mp, CTFRZ, dels, soil_zse, soil_swilt,           &
                              ssnow_pudsto, ssnow_pudsmx, ssnow_potev,          &
                              ssnow_wetfac, ssnow_evapfbl, ssnow_cls,          & 
                              ssnow_tss, canopy_fes, canopy_fess, canopy_fesp  )
+  vkfeopge
+
   !*## Purpose
   !
   ! This SUBROUTINE converts the previously evaluated rate of potential
@@ -42,6 +44,14 @@ SUBROUTINE Latent_heat_flux( mp, CTFRZ, dels, soil_zse, soil_swilt,           &
   ! correctly over frozen surfaces. A bug fix will require changes to
   ! [[define_canopy]], [[Penman_Monteith]] and this SUBROUTINE; comments have been
   ! inserted into the code accordingly.  
+  !
+  ! The subroutine implicitly sets `ssnow_wetfac=1` over snow but does not 
+  ! actually change the value of `ssnow_wetfac` for these points.
+  ! Later on, other calculations use `ssnow_wetfac` and may use a different
+  ! `ssnow_wetfac` value over snow. It is important to note,
+  ! [[Surf_wetness_fact]] calculates `ssnow_wetfac` and sets it to 0.9
+  ! over snow. And the value for points with new snow could be smaller.
+
 
 USE cable_def_types_mod, ONLY : r_2
 IMPLICIT NONE
