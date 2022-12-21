@@ -245,8 +245,8 @@
 <a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">  </span><span class="c">! [[define_canopy]], [[Penman_Monteith]] and this SUBROUTINE; comments have been</span>
 <a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">  </span><span class="c">! inserted into the code accordingly.  </span>
 <a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">  </span><span class="c">!</span>
-<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">  </span><span class="c">! **Warning**: The subroutine implicitly sets `ssnow_wetfac=1` over snow but</span>
-<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">  </span><span class="c">! does not actually change the value of `ssnow_wetfac` for these points.</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">  </span><span class="c">! The subroutine implicitly sets `ssnow_wetfac=1` over snow but does not </span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">  </span><span class="c">! actually change the value of `ssnow_wetfac` for these points.</span>
 <a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">  </span><span class="c">! Later on, other calculations use `ssnow_wetfac` and may use a different</span>
 <a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">  </span><span class="c">! `ssnow_wetfac` value over snow. It is important to note,</span>
 <a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">  </span><span class="c">! [[Surf_wetness_fact]] calculates `ssnow_wetfac` and sets it to 0.9</span>

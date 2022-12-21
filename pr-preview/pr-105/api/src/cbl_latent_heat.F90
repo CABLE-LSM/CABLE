@@ -45,8 +45,8 @@ SUBROUTINE Latent_heat_flux( mp, CTFRZ, dels, soil_zse, soil_swilt,           &
   ! [[define_canopy]], [[Penman_Monteith]] and this SUBROUTINE; comments have been
   ! inserted into the code accordingly.  
   !
-  ! **Warning**: The subroutine implicitly sets `ssnow_wetfac=1` over snow but
-  ! does not actually change the value of `ssnow_wetfac` for these points.
+  ! The subroutine implicitly sets `ssnow_wetfac=1` over snow but does not 
+  ! actually change the value of `ssnow_wetfac` for these points.
   ! Later on, other calculations use `ssnow_wetfac` and may use a different
   ! `ssnow_wetfac` value over snow. It is important to note,
   ! [[Surf_wetness_fact]] calculates `ssnow_wetfac` and sets it to 0.9

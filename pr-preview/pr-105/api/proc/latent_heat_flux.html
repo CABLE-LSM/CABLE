@@ -172,8 +172,8 @@
  correctly over frozen surfaces. A bug fix will require changes to
  <a href="../proc/define_canopy.html">define_canopy</a>, <a href="../proc/penman_monteith.html">Penman_Monteith</a> and this SUBROUTINE; comments have been
  inserted into the code accordingly.  </p>
-<p><strong>Warning</strong>: The subroutine implicitly sets <code>ssnow_wetfac=1</code> over snow but
- does not actually change the value of <code>ssnow_wetfac</code> for these points.
+<p>The subroutine implicitly sets <code>ssnow_wetfac=1</code> over snow but does not 
+ actually change the value of <code>ssnow_wetfac</code> for these points.
  Later on, other calculations use <code>ssnow_wetfac</code> and may use a different
  <code>ssnow_wetfac</code> value over snow. It is important to note,
  <a href="../proc/surf_wetness_fact.html">Surf_wetness_fact</a> calculates <code>ssnow_wetfac</code> and sets it to 0.9
