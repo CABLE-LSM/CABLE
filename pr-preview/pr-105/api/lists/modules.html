@@ -139,7 +139,12 @@ balance and is called twice per cycle in the MO iteration section of
 <!---->			   <tr class="active"><td><a href='../module/casavariable.html'>casavariable</a></td><td><a href='../sourcefile/casa_variable.f90.html'>casa_variable.F90</a></td><td></td></tr>
 <!--active-->			   <tr class=""><td><a href='../module/cbl_albedo_mod.html'>cbl_albedo_mod</a></td><td><a href='../sourcefile/cbl_albedo.f90.html'>cbl_albedo.F90</a></td><td></td></tr>
 <!---->			   <tr class="active"><td><a href='../module/cbl_dryleaf_module.html'>cbl_dryLeaf_module</a></td><td><a href='../sourcefile/cbl_dryleaf.f90.html'>cbl_dryLeaf.F90</a></td><td></td></tr>
-<!--active-->			   <tr class=""><td><a href='../module/cbl_friction_vel_module.html'>cbl_friction_vel_module</a></td><td><a href='../sourcefile/cbl_friction_vel.f90.html'>cbl_friction_vel.F90</a></td><td></td></tr>
+<!--active-->			   <tr class=""><td><a href='../module/cbl_friction_vel_module.html'>cbl_friction_vel_module</a></td><td><a href='../sourcefile/cbl_friction_vel.f90.html'>cbl_friction_vel.F90</a></td><td><p>This MODULE contains the SUBROUTINE <a href="../proc/comp_friction_vel.html">comp_friction_vel</a> and two
+FUNCTIONS (<a href="../proc/psim.html">psim</a> and <a href="../proc/psis.html">psis</a>) needed to
+evaluate the friction velocity over each land point/tile
+given the wind speed and the current estimate of the Monin-Obukhov
+stability parameter <script type="math/tex">\xi</script>. Outputs <code>friction_vel</code>, <code>psim</code> and
+<code>psis</code> are used in <a href="../proc/define_canopy.html">define_canopy</a>.</p></td></tr>
 <!---->			   <tr class="active"><td><a href='../module/cbl_fwsoil_module.html'>cbl_fwsoil_module</a></td><td><a href='../sourcefile/cbl_fwsoil.f90.html'>cbl_fwsoil.F90</a></td><td></td></tr>
 <!--active-->			   <tr class=""><td><a href='../module/cbl_hruff_mod.html'>cbl_hruff_mod</a></td><td><a href='../sourcefile/cbl_hgtabove_snow.f90.html'>cbl_hgtAbove_snow.F90</a></td><td><p>The procedure in this module evaluates the canopy height
  given the effect of any snow present.  </p></td></tr>

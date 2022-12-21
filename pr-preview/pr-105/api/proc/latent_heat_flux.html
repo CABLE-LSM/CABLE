@@ -81,7 +81,7 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.1% of total for procedures.">61 statements</a>
+               title=" 0.1% of total for procedures.">62 statements</a>
           </li>
 
             <li id="source-file">
@@ -172,6 +172,12 @@
  correctly over frozen surfaces. A bug fix will require changes to
  <a href="../proc/define_canopy.html">define_canopy</a>, <a href="../proc/penman_monteith.html">Penman_Monteith</a> and this SUBROUTINE; comments have been
  inserted into the code accordingly.  </p>
+<p><strong>Warning</strong>: The subroutine implicitly sets <code>ssnow_wetfac=1</code> over snow but
+ does not actually change the value of <code>ssnow_wetfac</code> for these points.
+ Later on, other calculations use <code>ssnow_wetfac</code> and may use a different
+ <code>ssnow_wetfac</code> value over snow. It is important to note,
+ <a href="../proc/surf_wetness_fact.html">Surf_wetness_fact</a> calculates <code>ssnow_wetfac</code> and sets it to 0.9
+ over snow. And the value for points with new snow could be smaller.</p>
 <h2>Method</h2>
 <p>'Potential evaporation' quantifies the theoretical value of evaporation from
  a fully saturated surface (i.e. with no limits on water availability) at a given
@@ -306,7 +312,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-mp~60"></span>
+              <span class="anchor" id="variable-mp~62"></span>
               integer
             </td>
 <td></td>

@@ -139,6 +139,20 @@
 </h2>
     
 
+    <h2>Purpose</h2>
+<p>Evaluates the integrated similarity function for momentum transfer,
+ <script type="math/tex">\psi_m(\xi)</script>.</p>
+<h2>Method</h2>
+<p>Uses the Businger-Dyer form for unstable conditions (<script type="math/tex">\xi<0</script>) and the
+ Beljaars-Holtslag form for stable conditions (<script type="math/tex">\xi>0</script>).</p>
+<p>This function is used in the evaluation of the friction velocity in
+ <a href="../proc/comp_friction_vel.html">comp_friction_vel</a>.</p>
+<h2>References</h2>
+<ul>
+<li><a href="https://doi.org/10.1175/1520-0450(1991)030&lt;0327:FPOLSF&gt;2.0.CO;2">Beljaars and Holtslag (1991)</a></li>
+<li><a href="https://doi.org/10.1175/1520-0469(1971)028&lt;0181:FPRITA&gt;2.0.CO;2">Businger et al. (1971)</a></li>
+<li><a href="https://doi.org/10.1007/BF00240838">Dyer (1974)</a></li>
+</ul>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -153,7 +167,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-zeta~5"></span>
+              <span class="anchor" id="variable-zeta"></span>
               real,
             </td>
 <td>intent(in),</td>
@@ -163,12 +177,12 @@
             <td>::</td>
             <td><strong>zeta</strong></td>
             <td>
-                
+                <p>current value of stability parameter <script type="math/tex">\xi</script> (-)</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-mp~63"></span>
+              <span class="anchor" id="variable-mp~5"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -178,7 +192,7 @@
             <td>::</td>
             <td><strong>mp</strong></td>
             <td>
-                
+                <p>size of cable vector of land points (-)</p>
             </td>
         </tr>
         <tr>
@@ -193,7 +207,8 @@
             <td>::</td>
             <td><strong>CPI_C</strong></td>
             <td>
-                
+                <p>
+<script type="math/tex"> \pi </script> (-)</p>
             </td>
         </tr>
     </tbody>
@@ -201,7 +216,7 @@
 
       <h3>Return Value
         <small>
-          <span class="anchor" id="variable-r~4"></span>
+          <span class="anchor" id="variable-r~5"></span>
           real, DIMENSION(mp)
         </small>
       </h3>
