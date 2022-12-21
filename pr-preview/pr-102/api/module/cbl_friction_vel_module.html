@@ -159,7 +159,12 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    
+    <p>This MODULE contains the SUBROUTINE <a href="../proc/comp_friction_vel.html">comp_friction_vel</a> and two
+FUNCTIONS (<a href="../proc/psim.html">psim</a> and <a href="../proc/psis.html">psis</a>) needed to
+evaluate the friction velocity over each land point/tile
+given the wind speed and the current estimate of the Monin-Obukhov
+stability parameter <script type="math/tex">\xi</script>. Outputs <code>friction_vel</code>, <code>psim</code> and
+<code>psis</code> are used in <a href="../proc/define_canopy.html">define_canopy</a>.</p>
     
     
     <br>
@@ -229,7 +234,8 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>Evaluates the integrated similarity function for momentum transfer,
+ <script type="math/tex">\psi_m(\xi)</script>.</p><a href="../proc/psim.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -254,7 +260,7 @@
             <td>::</td>
             <td><strong>zeta</strong></td>
             <td>
-
+<p>current value of stability parameter <script type="math/tex">\xi</script> (-)</p>
             </td>
         </tr>
         <tr>
@@ -269,7 +275,7 @@
             <td>::</td>
             <td><strong>mp</strong></td>
             <td>
-
+<p>size of cable vector of land points (-)</p>
             </td>
         </tr>
         <tr>
@@ -284,7 +290,8 @@
             <td>::</td>
             <td><strong>CPI_C</strong></td>
             <td>
-
+<p>
+<script type="math/tex"> \pi </script> (-)</p>
             </td>
         </tr>
     </tbody>
@@ -304,7 +311,8 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>Evaluates the integrated similarity function for turbulent transfer
+ of scalars, <script type="math/tex">\psi_s(\xi)</script>.</p><a href="../proc/psis.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -329,7 +337,7 @@
             <td>::</td>
             <td><strong>zeta</strong></td>
             <td>
-
+<p>current value of stability parameter <script type="math/tex">\xi</script> (-)</p>
             </td>
         </tr>
     </tbody>
@@ -339,7 +347,8 @@
     Return Value
     <small>real</small>
     </h4>
-    
+    <p>OUT <script type="math/tex">\psi_s (\xi) </script>
+</p>
 
     </div>
   </div>
@@ -354,7 +363,14 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>This SUBROUTINE evaluates the value of the friction velocity <script type="math/tex">u_*</script> as used
+ during the iteration loop of the Monin-Obukhov (MO) similarity theory in
+ <a href="../proc/define_canopy.html">define_canopy</a>. <script type="math/tex">u_*</script> is used when quantifying the stability
+ parameter <code>canopy%zetar</code> in <a href="../proc/update_zetar.html">update_zetar</a>, and when evaluating the
+ resistance network components <code>rt0</code> and <code>rt1</code> in <a href="../proc/define_canopy.html">define_canopy</a>.
+ The friction velocity quantifies the magnitude of turbulent mixing that
+ is occurring as well as the flux of momentum from the atmosphere to
+ the land.</p><a href="../proc/comp_friction_vel.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -379,7 +395,7 @@
             <td>::</td>
             <td><strong>friction_vel</strong>(mp)</td>
             <td>
-
+<p>friction velocity (ms<script type="math/tex">^{-1}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -394,7 +410,7 @@
             <td>::</td>
             <td><strong>iter</strong></td>
             <td>
-
+<p>MO iteration counter (-)</p>
             </td>
         </tr>
         <tr>
@@ -409,7 +425,7 @@
             <td>::</td>
             <td><strong>mp</strong></td>
             <td>
-
+<p>size of cable vector of land points (-)</p>
             </td>
         </tr>
         <tr>
@@ -424,7 +440,7 @@
             <td>::</td>
             <td><strong>CVONK</strong></td>
             <td>
-
+<p>von Karman constant (-)</p>
             </td>
         </tr>
         <tr>
@@ -439,7 +455,7 @@
             <td>::</td>
             <td><strong>CUMIN</strong></td>
             <td>
-
+<p>minimum value of wind speed (ms<script type="math/tex">^{-1}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -454,7 +470,8 @@
             <td>::</td>
             <td><strong>CPI_C</strong></td>
             <td>
-
+<p>
+<script type="math/tex">\pi</script> (-)</p>
             </td>
         </tr>
         <tr>
@@ -469,7 +486,7 @@
             <td>::</td>
             <td><strong>zetar</strong>(mp,iter)</td>
             <td>
-
+<p>stability parameter - see <a href="../proc/update_zetar.html">update_zetar</a> <code>canopy%zetar</code> (-)</p>
             </td>
         </tr>
         <tr>
@@ -484,7 +501,7 @@
             <td>::</td>
             <td><strong>zref_uv</strong>(mp)</td>
             <td>
-
+<p>reference height for wind <code>rough%zref_uv</code> (m)</p>
             </td>
         </tr>
         <tr>
@@ -499,7 +516,7 @@
             <td>::</td>
             <td><strong>zref_tq</strong>(mp)</td>
             <td>
-
+<p>reference height for temperature and humidity <code>rough%zref_tq</code> (m)</p>
             </td>
         </tr>
         <tr>
@@ -514,7 +531,7 @@
             <td>::</td>
             <td><strong>z0m</strong>(mp)</td>
             <td>
-
+<p>roughness length <code>rough%z0m</code> (m)</p>
             </td>
         </tr>
         <tr>
@@ -529,7 +546,7 @@
             <td>::</td>
             <td><strong>ua</strong>(mp)</td>
             <td>
-
+<p>wind speed <code>met%ua</code> (ms<script type="math/tex">^{-1}</script>)</p>
             </td>
         </tr>
     </tbody>
