@@ -93,6 +93,7 @@ nav:
       - CASA: user_guide/science/CASA.md
   - POP-TRENDY: POP-TRENDY/index.md
   - Developer Guide:
+    - developer_guide/index.md
     - Contribution flowchart: developer_guide/contribution_flowchart.md
     - Cheat Sheets: developer_guide/cheat_sheets.md
     - Documentation guidelines: 
