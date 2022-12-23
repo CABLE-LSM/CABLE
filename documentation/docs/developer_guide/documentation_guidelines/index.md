@@ -7,13 +7,13 @@ The documentation for CABLE has two parts:
 - inline documentation in the source code. This documentation includes the detailed scientific documentation. It is written using [FORD][ford].
 - the standalone guides such as the User Guide and the Developer Guide. It is written using [Material for MkDocs][material].
 
-Both tools use [Markdown][md-cheatsheet] and [LaTeX Mathematics][latex-maths] for formatting. 
+Both tools use [Markdown][cheat-sheets] and [LaTeX Mathematics][latex-maths] for formatting. 
 
 ## Documentation workflow
 All documentation is located in the [CABLE GitHub repository][cable-repo]. To update the documentation, you need to follow a traditional GitHub contribution process: open an issue and a new branch; work on your changes; submit a pull request for review before publication. The process is explained in more details [on this page][git-process].
 
 ## Scientific documentation
-The *scientific documentation* should be added directly into the source code available under the `src/` directory. Please use [these guidelines][api-guidelines] to structure the documentation. You can find a cheatsheet for FORD [on this page][ford-cheatsheet].
+The *scientific documentation* should be added directly into the source code available under the `src/` directory. Please use [these guidelines][api-guidelines] to structure the documentation. You can find a cheatsheet for FORD [on this page][cheat-sheets].
 
 ???+ warning "No code changes please"
     
@@ -30,7 +30,7 @@ To help you find the file corresponding to a page, on the rendered [documentatio
 [cable-repo]: https://github.com/CABLE-LSM/CABLE
 [git-process]: ../git_process.md
 [latex-maths]: https://en.wikibooks.org/wiki/LaTeX/Mathematics
-[ford-cheatsheet]: ford_cheatsheet.md
+[cheat-sheets]: ../cheat-sheets.md
 [api-guidelines]: science_doc.md
 [doc-pages]: https://cable-lsm.github.io/CABLE
 [Hive-contribute]: https://access-hive.org.au/about/contribute/
