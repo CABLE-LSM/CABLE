@@ -95,11 +95,11 @@ nav:
   - Developer Guide:
     - developer_guide/index.md
     - Contribution flowchart: developer_guide/contribution_flowchart.md
-    - Cheat Sheets: developer_guide/cheat_sheets.md
     - Documentation guidelines: 
       - developer_guide/documentation_guidelines/index.md
       - Scientific documentation: developer_guide/documentation_guidelines/science_doc.md
       - Other documentation: developer_guide/documentation_guidelines/other_doc.md
+      - Cheat Sheets: developer_guide/documentation_guidelines/cheat_sheets.md
     - Coding standards: developer_guide/coding_standards.md
     - CABLE's release process: developer_guide/release.md
     - API documentation: developer_guide/api.md
