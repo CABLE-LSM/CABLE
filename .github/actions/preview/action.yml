@@ -14,7 +14,12 @@ runs:
   using: "composite"
   steps:
     - name: Checkout
+      # Need SHA of HEAD of base branch so we need to fetch with depth=2.
+      # Default is fetch-depth=1 which only gives access to the merged commit
+      # from the PR.
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 2
       
     - uses: actions/setup-python@v2
       with:
@@ -32,23 +37,43 @@ runs:
         mkdocs build -f mkdocs.yml
       shell: bash
 
+    # API documentation
+    # Installation
     - name: Install dependencies for ford
       run: | 
         pip install -r documentation/ford-requirements.txt
       shell: bash
 
-    # Builds without call graphs for faster result
+    # Create config file to build modified files only.
+    - name: Create cable_ford.md
+      id: src_tobuild
+      run: |
+        .github/actions/preview/FORD_exclude_files.sh ${{ github.event.pull_request.base.sha }} ${{ github.sha }} cable
+      shell: bash
+
+    # Build API doc if required
     - name: Build API documentation
+      if: ${{ steps.src_tobuild.outputs.TO_BUILD > 0 }}
       working-directory: documentation
       run: |
+        echo Building FORD documentation for src/
         # outputs to "site/api" directory
         ford --no-search cable_ford.md
       shell: bash
+      
+    # Create config file for POP to build modified files only.
+    - name: Create pop_ford.md
+      id: pop_tobuild
+      run: |
+        .github/actions/preview/FORD_exclude_files.sh ${{ github.event.pull_request.base.sha }} ${{ github.sha }} pop
+      shell: bash
 
+    # Build POP API if required
     - name: Build POP API documentation
+      if: ${{ steps.pop_tobuild.outputs.TO_BUILD > 0 }}
       working-directory: documentation
       run: |
+        echo Building FORD documentation for src_pop/
         # outputs to "site/pop/api" directory
         ford --no-search pop_ford.md
       shell: bash
-      
