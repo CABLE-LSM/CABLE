@@ -12,11 +12,27 @@ export dosvn=1 # 1/0: do/do not check svn
 known_hosts()
 {
     if [ "${SHELL}" == "/bin/bash" ]; then
-        kh=( vayu cher pear shin jigg nXXX raij ces2 ccrc mael valh mcin vm_o petr )
+        kh=( vayu cher pear shin jigg nXXX raij ces2 ccrc mael valh mcin vm_o petr gadi )
     else
-        set -A kh vayu cher pear shin jigg nXXX raij ces2 ccrc mael valh mcin vm_o petr
+        set -A kh vayu cher pear shin jigg nXXX raij ces2 ccrc mael valh mcin vm_o petr gadi
     fi
 }
+
+
+## gadi.nci.org.au
+host_gadi()
+{
+   export NCDIR='/apps/netcdf/4.7.3/lib/Intel'
+   export NCMOD='/apps/netcdf/4.7.3/include/Intel'
+   export FC=ifort
+   export CFLAGS='-O2 -fp-model precise'
+   export LD='-lnetcdf -lnetcdff'
+   export LDFLAGS='-L/apps/netcdf/4.7.3/lib/Intel -O2'
+   build_build
+   cd ../
+   build_status
+}
+
 
 ## petrichor.hpc.csiro.au
 host_petr()
@@ -563,7 +579,7 @@ i_do_now()
 {
       cd ../
       host_write
-      tail -n +7 build.ksh > build.ksh.tmp
+      tail -n +20 build.ksh > build.ksh.tmp
       cat junk build.ksh.tmp > build.ksh.new
       mv build.ksh.new build.ksh
       chmod u+x build.ksh
