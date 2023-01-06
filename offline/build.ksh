@@ -2,21 +2,37 @@
 
 export dosvn=1 # 1/0: do/do not check svn
 
-# so that script can be called by bash buils.ksh if no ksh installed
+# so that script can be called by bash build.ksh if no ksh installed
 #if [ "${SHELL}" == "/bin/bash" ] ; then
 #    function print(){
-#	printf "$@"
+#        printf "$@"
 #    }
 #fi
 
 known_hosts()
 {
-    if [ "${SHELL}" == "/bin/bash" ] ; then
-	kh=(vayu cher pear shin jigg nXXX raij ces2 ccrc mael valh mcin vm_o)
+    if [ "${SHELL}" == "/bin/bash" ]; then
+        kh=( vayu cher pear shin jigg nXXX raij ces2 ccrc mael valh mcin vm_o petr )
     else
-        set -A kh vayu cher pear shin jigg nXXX raij ces2 ccrc mael valh mcin vm_o
+        set -A kh vayu cher pear shin jigg nXXX raij ces2 ccrc mael valh mcin vm_o petr
     fi
 }
+
+## petrichor.hpc.csiro.au
+host_petr()
+{
+   export NETCDF_ROOT=/apps
+   export NCDIR=$NETCDF_ROOT'/netcdf/4.8.0/lib64'
+   export NCMOD=$NETCDF_ROOT'/netcdf/4.8.0/include'
+   export FC=gfortran
+   export CFLAGS='-g -I'${NCMOD}' -Wl,-Bsymbolic-functions -Wl,-z,relro -Wl,-z,now'
+   export LD='-lnetcdf -lnetcdff -ldl -lm'
+   export LDFLAGS='-L'$NCDIR''
+   build_build
+   cd ../
+   build_status
+}
+
 
 ## 
 host_valh()
@@ -24,7 +40,7 @@ host_valh()
    # GFORTRAN
    export FC=gfortran
    # debug
-  
+
    export CFLAGS=" -Wall -W -O -g -Wno-maybe-uninitialized -cpp -ffree-form -ffixed-line-length-132 -Wno-tabs -Wconversion" # -DVanessas_common"
    # # release
    # export CFLAGS="-O3 -Wno-aggressive-loop-optimizations -cpp -ffree-form -ffixed-line-length-132"
@@ -59,10 +75,10 @@ host_mael()
    export NCMOD='/share/apps/netcdf/intel/4.1.3/include'
    export FC=ifort
    export CFLAGS='-O2 -fp-model precise -fpp'
-   export CFLAGS='-O3 -fp-model precise  -ipo --parallel '   
+   export CFLAGS='-O3 -fp-model precise  -ipo --parallel '
    #export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib -O2'
    if [[ $1 = 'debug' ]]; then
-      export CFLAGS='-O0 -traceback -g -fp-model precise -fpp' 
+      export CFLAGS='-O0 -traceback -g -fp-model precise -fpp'
       export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib'
    fi
    export LD='-lnetcdf -lnetcdff'
@@ -94,7 +110,7 @@ host_ccrc()
 }
 
 
-## 
+##
 host_ces2()
 {
    # GFORTRAN
@@ -128,7 +144,7 @@ host_ces2()
 }
 
 
-## Interactive Job nXXX@burnet.hpsc.csiro.au  
+## Interactive Job nXXX@burnet.hpsc.csiro.au
 host_nXXX()
 {
    export NCDIR=$NETCDF_ROOT'/lib/'
@@ -163,11 +179,11 @@ host_jigg()
 }
 
 
-## pearcey.hpsc.csiro.au 
+## pearcey.hpsc.csiro.au
 host_pear()
 {
    . /apps/modules/Modules/default/init/ksh
- 
+
    module del intel-cc intel-fc
    module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
    module add netcdf/4.3.3.1
@@ -176,7 +192,7 @@ host_pear()
    export NCMOD=$NETCDF_ROOT'/include/'
    export FC='ifort'
    #export  CFLAGS='-O0 -fp-model precise -fpe0 -fpp -g -debug -traceback -fp-stack-check -no-ftz -ftrapuv -check all,noarg_temp_created -C '
-   #export CFLAGS='-O0 -fpe=0 -fpe-all=0 -fpp -g -debug -traceback -fp-stack-check -no-ftz -ftrapuv -check bounds 
+   #export CFLAGS='-O0 -fpe=0 -fpe-all=0 -fpp -g -debug -traceback -fp-stack-check -no-ftz -ftrapuv -check bounds
    export CFLAGS='-O2 -fp-model precise -fpp'
    export CFLAGS="${CFLAGS} -DCRU2017"
    export LDFLAGS='-g -L'$NCDIR' -O2'
@@ -354,23 +370,23 @@ host_vm_o()
 }
 
 
-## unknown machine, user entering options stdout 
+## unknown machine, user entering options stdout
 host_read()
 {
    print "\n\tWhat is the ROOT path of your NetCDF library" \
          "and .mod file. "
    print "\tRemember these have to be created by the same " \
-         "Fortran compiler you" 
+         "Fortran compiler you"
    print "\twant to use to build CABLE. e.g./usr/local/intel"
    read NCDF_ROOT
-   
+
    print "\n\tWhat is the path, relative to the above ROOT, of " \
-         "your NetCDF library." 
+         "your NetCDF library."
    print "\n\tPress enter for default [lib]."
    read NCDF_DIR
    if [[ $NCDF_DIR == '' ]]; then
       export NCDIR=$NCDF_ROOT/'lib'
-   else   
+   else
       export NCDIR=$NCDF_ROOT/$NCDF_DIR
    fi
 
@@ -380,28 +396,28 @@ host_read()
    read NCDF_MOD
    if [[ $NCDF_MOD == '' ]]; then
       export NCMOD=$NCDF_ROOT/'include'
-   else   
+   else
       export NCMOD=$NCDF_ROOT/$NCDF_MOD
    fi
 
    print "\n\tWhat is the Fortran compiler you wish to use."
    print "\te.g. ifort, gfortran"
-   
+
    print "\n\tPress enter for default [ifort]."
-   read FCRESPONSE 
+   read FCRESPONSE
    if [[ $FCRESPONSE == '' ]]; then
       export FC='ifort'
-   else   
+   else
       export FC=$FCRESPONSE
    fi
 
    print "\n\tWhat are the approriate compiler options"
    print "\te.g.(ifort) -O2 -fp-model precise "
    print "\n\tPress enter for default [-O2 -fp-model precise]."
-   read CFLAGRESPONSE 
+   read CFLAGRESPONSE
    if [[ $CFLAGRESPONSE == '' ]]; then
       export CFLAGS='-O2 -fp-model precise'
-   else   
+   else
       export CFLAGS=$CFLAGRESPONSE
    fi
 
@@ -411,10 +427,10 @@ host_read()
    print "\n\tWhat are the approriate libraries to link"
    print "\te.g.(most systems) -lnetcdf "
    print "\n\tPress enter for default [-lnetcdf]."
-   read LDRESPONSE 
+   read LDRESPONSE
    if [[ $LDRESPONSE == '' ]]; then
       export LD='-lnetcdf'
-   else   
+   else
       export LD=$LDRESPONSE
    fi
 }
@@ -424,9 +440,22 @@ host_write()
 {
    print '#!/bin/ksh' > junk
    print '' >> junk
+   print 'export dosvn=1 # 1/0: do/do not check svn' >> junk
+   print '' >> junk
+   print '# so that script can be called by bash build.ksh if no ksh installed' >> junk
+   print '#if [ "${SHELL}" == "/bin/bash" ] ; then' >> junk
+   print '#    function print(){' >> junk
+   print '#        printf "$@"' >> junk
+   print '#    }' >> junk
+   print '#fi' >> junk
+   print '' >> junk
    print 'known_hosts()' >> junk
    print '{' >> junk
-   print '   set -A kh' ${kh[*]} $HOST_MACH >> junk
+   print '    if [ "${SHELL}" == "/bin/bash" ]; then' >> junk
+   print '        kh=(' ${kh[*]} $HOST_MACH ')' >> junk
+   print '    else' >> junk
+   print '        set -A kh' ${kh[*]} $HOST_MACH >> junk
+   print '    fi' >> junk
    print '}' >> junk
    print '' >> junk
    print '' >> junk
@@ -443,8 +472,6 @@ host_write()
    print '   cd ../' >> junk
    print '   build_status' >> junk
    print '}' >> junk
-   print '' >> junk
-   print '' >> junk
 }
 
 
@@ -458,31 +485,31 @@ clean_build()
 
 
 not_recognized()
-{  
+{
    print "\n\n\tThis is not a recognized host for which we " \
-         "know the location of the" 
+         "know the location of the"
    print "\tnetcdf distribution and correct compiler switches."
 
    print "\n\tPlease enter these details as prompted, and the " \
-         "script will be " 
-   print "\tupdated accordingly. " 
+         "script will be "
+   print "\tupdated accordingly. "
    print "\n\tIf this is a common machine for CABLE users, " \
          "please email"
-   print "\n\t\t cable_help@nf.nci.org.au "  
+   print "\n\t\t cable_help@nf.nci.org.au "
    print "\n\talong with your new build.ksh so that we can " \
          "update the script "
    print "\tfor all users. "
    print "\n\tTo enter compile options for this build press " \
-         "enter, otherwise " 
-   print "\tControl-C to abort script."           
-   
+         "enter, otherwise "
+   print "\tControl-C to abort script."
+
    host_read
 
    print "\n\tPlease supply a comment include the new build " \
-         "script." 
+         "script."
    print "\n\tGenerally the host URL e.g. raijin.nci.org.au "
    read HOST_COMM
-   
+
    build_build
 }
 
@@ -523,15 +550,15 @@ build_status()
         mv .tmp/cable .
         print '\nBUILD OK\n'
    else
-      print '\nOooops. Something went wrong\n'        
-      print '\nKnown build issues:\n'        
-      print '\nSome systems require additional library. \n'        
-      print '\nEdit Makefile_offline; add -lnetcdff to LD = ...\n'        
+      print '\nOooops. Something went wrong\n'
+      print '\nKnown build issues:\n'
+      print '\nSome systems require additional library. \n'
+      print '\nEdit Makefile_offline; add -lnetcdff to LD = ...\n'
    fi
    exit
 }
 
-      
+
 i_do_now()
 {
       cd ../
@@ -539,8 +566,8 @@ i_do_now()
       tail -n +7 build.ksh > build.ksh.tmp
       cat junk build.ksh.tmp > build.ksh.new
       mv build.ksh.new build.ksh
-      chmod u+x build.ksh 
-      rm -f build.ksh.tmp build.ksh.new junk 
+      chmod u+x build.ksh
+      rm -f build.ksh.tmp build.ksh.new junk
       build_status
 }
 
@@ -549,28 +576,28 @@ build_build()
 {
    if [[ ${dosvn} -eq 1 ]] ; then
        # write file for consumption by Fortran code
-       # get SVN revision number 
+       # get SVN revision number
        CABLE_REV=`svn info | grep Revis |cut -c 11-18`
        if [[ $CABLE_REV = "" ]]; then
            echo "this is not an svn checkout"
            CABLE_REV=0
-           echo "setting CABLE revision number to " $CABLE_REV 
-       fi         
+           echo "setting CABLE revision number to " $CABLE_REV
+       fi
        echo $CABLE_REV > ~/.cable_rev
-       # get SVN status 
+       # get SVN status
        CABLE_STAT=`svn status`
        echo $CABLE_STAT >> ~/.cable_rev
    fi
- 
+
    if [[ ! -d .tmp ]]; then
       mkdir .tmp
    fi
-   
+
    if [[ -f cable ]]; then
-      print '\ncable executable exists. copying to dated backup file\n' 
+      print '\ncable executable exists. copying to dated backup file\n'
       mv cable cable.`date +%d.%m.%y`
    fi
-   
+
    # directories contain source code
    PHYS="../core/biogeophys"
    UTIL="../core/utils"
@@ -578,16 +605,16 @@ build_build()
    CASA="../core/biogeochem"
    BLAZE="../core/blaze"
    CROP="../core/crop"
-   
+
    /bin/cp -p $PHYS/*90  ./.tmp
    /bin/cp -p $UTIL/*90  ./.tmp
    /bin/cp -p $DRV/*90   ./.tmp
    /bin/cp -p $CASA/*90  ./.tmp
    /bin/cp -p $BLAZE/*90 ./.tmp
    /bin/cp -p $CROP/*90  ./.tmp
-    
+
    /bin/cp -p Makefile_offline ./.tmp
-   
+
    cd .tmp/
    make -f Makefile_offline ${MFLAGS}
 }
