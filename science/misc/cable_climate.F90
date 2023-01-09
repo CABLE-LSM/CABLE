@@ -1,5 +1,4 @@
-!#define ESM15 YES
-!#define UM-CBL YES
+#define UM-CBL YES
 !==============================================================================
 ! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
@@ -25,11 +24,8 @@ MODULE cable_climate_mod
   USE cable_def_types_mod, ONLY: met_type, climate_type, canopy_type, mp, &
        r_2, alloc_cbm_var, air_type, radiation_type
   USE TypeDef,              ONLY: i4b, dp
-  !CABLE_LSM: see CABLE Ticket#149. yet still inclueded file?? legacy-hack??
-# ifndef UM-CBL
   USE cable_IO_vars_module, ONLY: patch
   USE casa_ncdf_module, ONLY: HANDLE_ERR
-# endif
   USE CABLE_COMMON_MODULE, ONLY: CurYear, filename, cable_user
 
 CONTAINS

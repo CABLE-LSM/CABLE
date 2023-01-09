@@ -55,6 +55,7 @@ USE cable_math_constants_mod,  ONLY: cpi180 => pi180
    USE cable_common_module, ONLY : cable_runtime, cable_user
    
 USE cbl_init_radiation_module, ONLY: Common_InitRad_Scalings
+USE grid_constants_mod_cbl, ONLY : ICE_SoilType, lakes_cable
 
    IMPLICIT NONE                     
 
@@ -150,31 +151,29 @@ call Common_InitRad_Scalings( xphi1, xphi2, xk, xvlai2, c1, rhoch,             &
                             mp, nrb, Cpi180,cLAI_thresh, veg_mask,             &
                             canopy%vlaiw, Veg%Xfang, Veg%Taul, Veg%Refl)
 
- CALL Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
-             !AlbSnow, AlbSoil,              
-             mp, nrb,                                                       &
-             jls_radiation,                                                 &
-             veg_mask, sunlit_mask, sunlit_veg_mask,                        &  
+call Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
+             mp, nrb, ICE_SoilType, lakes_cable, jls_radiation, veg_mask,       &
              Ccoszen_tols, cgauss_w,                                        & 
              veg%iveg, soil%isoilm, veg%refl, veg%taul,                     & 
              !surface_type, VegRefl, VegTaul,
              met%coszen, canopy%vlaiw,                                      &
              !coszen, reducedLAIdue2snow,
              ssnow%snowd, ssnow%ssdnn, ssnow%tgg(:,1), ssnow%snage,         &
-             !SnowDepth, SnowDensity, SoilTemp, SnowAge,
+             !SnowDepth, SnowDensity, SoilTemp, SnowAge,  
              xk, c1, rhoch,                                                 & 
              rad%fbeam, rad%albedo,                                         &
              !RadFbeam, RadAlbedo,
-             rad%extkd, rad%extkb,                                          & 
-             !ExtCoeff_dif, ExtCoeff_beam,
-             rad%extkdm, rad%extkbm,                                        & 
-             !EffExtCoeff_dif, EffExtCoeff_beam,                
-             rad%rhocdf, rad%rhocbm,                                        &
-             !CanopyRefl_dif,CanopyRefl_beam,
-             rad%cexpkdm, rad%cexpkbm,                                      & 
-             !CanopyTransmit_dif, CanopyTransmit_beam, 
-             rad%reffdf, rad%reffbm                                        &
-           ) !EffSurfRefl_dif, EffSurfRefl_beam 
+             rad%extkb, rad%extkd,                                          & 
+             !ExtCoef_beamf, ExtCoeff,
+             rad%extkbm, rad%extkdm,                                        & 
+             !EffExtCoeff_beam, EffExtCoeff_dif,                
+             rad%rhocbm, rad%rhocdf,                                        &
+             !CanopyRefl_beam,CanopyRefl_dif,
+             rad%cexpkbm, rad%cexpkdm,                                      & 
+             !CanopyTransmit_beam, CanopyTransmit_dif, 
+             rad%reffbm, rad%reffdf                                        &
+           ) !EffSurfRefl_beam, EffSurfRefl_dif
+
 
       ! only for land points, at present do not have a method for treating 
       ! mixed land/sea or land/seaice points as yet.
