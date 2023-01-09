@@ -1,4 +1,4 @@
-!#define ESM15 YES
+!#define UM_CBL YES
 !==============================================================================
 ! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
@@ -109,7 +109,7 @@ CONTAINS
     USE cable_def_types_mod
     USE cable_io_vars_module, ONLY: landpt, patch
     USE cable_common_module, ONLY: cable_user
-#ifndef ESM15
+#ifndef UM_CBL 
 USE casa_offline_inout_module, ONLY : READ_CASA_RESTART_NC
 #endif
 
@@ -213,7 +213,7 @@ USE casa_offline_inout_module, ONLY : READ_CASA_RESTART_NC
 
     IF (initcasa==1) THEN
        IF (.NOT.cable_user%casa_fromzero) THEN
-#ifndef ESM15
+#ifndef UM_CBL 
           CALL READ_CASA_RESTART_NC (  casamet, casapool, casaflux, phen )
 #endif
        ELSE

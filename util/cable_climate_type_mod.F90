@@ -50,6 +50,6 @@ TYPE climate_type
 END TYPE climate_type
 
 !Instantiation:
-TYPE(climate_type), SAVE :: climate_cbl
+TYPE(climate_type) :: climate_cbl
 
 END MODULE cable_climate_type_mod

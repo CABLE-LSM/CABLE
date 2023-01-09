@@ -1,4 +1,4 @@
-!#define ESM15 YES
+!# define UM_CBL YES
 !==============================================================================
 ! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
@@ -45,7 +45,7 @@ MODULE casa_rplant_module
   USE casavariable
   USE phenvariable
   USE cable_common_module, ONLY: cable_user,l_landuse ! Custom soil respiration: Ticket #42
-#ifndef ESM15 
+#ifndef UM_CBL
   USE landuse_constant
 #endif
   IMPLICIT NONE
