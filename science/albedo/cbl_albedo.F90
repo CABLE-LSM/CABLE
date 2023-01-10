@@ -200,8 +200,6 @@ SUBROUTINE CanopyReflectance( CanopyRefl_beam, CanopyRefl_dif,                 &
 ! Description:
 !   Computes canopy Reflectance for diffuse/direct radiation
 
-USE cable_common_module, ONLY : cable_runtime
-
 IMPLICIT NONE
 
 INTEGER, INTENT(IN) :: mp                    ! total number of "tiles"
@@ -217,19 +215,12 @@ REAL, INTENT(IN) :: ExtCoeff_beam(mp)        ! Extinction co-efficient
 REAL, INTENT(IN) :: ExtCoeff_dif(mp)         ! Extinction co-efficient
 !local
 INTEGER :: i, b
-REAL :: factor
-
-IF( cable_runtime%esm15 ) THEN
-  factor = 1.0  !esm15
-ELSE
-  factor = 2.0 !trunk
-ENDIF
 
 ! Canopy reflection (6.21) beam:
 DO i = 1,mp
   DO b = 1, (nrb-1) !because nrb=3 due to legacy
     IF ( veg_mask(i) )                                                         &
-      CanopyRefl_beam(i,b) = factor * ExtCoeff_beam(i) /                       &
+      CanopyRefl_beam(i,b) = 2.0 * ExtCoeff_beam(i) /                          &
                             ( ExtCoeff_beam(i) + ExtCoeff_dif(i) )             &
                             * rhoch(i,b)
   END DO
@@ -238,7 +229,7 @@ END DO
 ! Canopy REFLection of diffuse radiation for black leaves:
 DO i=1,(nrb-1) !because nrb=3 due to legacy
 
-  CanopyRefl_dif(:,i) = rhoch(:,i) *  factor *                                 &
+  CanopyRefl_dif(:,i) = rhoch(:,i) *  2.0 *                                    &
                        ( cgauss_w(1) * xk(:,1) / ( xk(:,1) + ExtCoeff_dif(:) ) &
                        + cgauss_w(2) * xk(:,2) / ( xk(:,2) + ExtCoeff_dif(:) ) &
                        + cgauss_w(3) * xk(:,3) / ( xk(:,3) + ExtCoeff_dif(:) ) )

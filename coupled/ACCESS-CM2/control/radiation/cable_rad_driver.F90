@@ -96,9 +96,9 @@ USE grid_constants_mod_cbl, ONLY : ICE_SoilType, lakes_cable, nrb
 
   LOGICAL :: veg_mask(mp), sunlit_mask(mp), sunlit_veg_mask(mp)
 
-LOGICAL :: cbl_standalone= .true.
-LOGICAL :: jls_standalone= .false.
-LOGICAL :: jls_radiation= .false.
+LOGICAL :: cbl_standalone= .FALSE.
+LOGICAL :: jls_standalone= .FALSE.
+LOGICAL :: jls_radiation= .TRUE.
 
 !co-efficients usoughout init_radiation ` called from _albedo as well
 REAL :: c1(mp,nrb)

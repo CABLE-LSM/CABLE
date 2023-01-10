@@ -1,4 +1,3 @@
-!#define ESM15 YES
 !******************************************************************************
 ! This source code is part of the Community Atmosphere Biosphere Land Exchange
 ! (CABLE) model. This work is licensed under the CSIRO Open Source Software
@@ -27,13 +26,8 @@ PUBLIC
 
 REAL, PARAMETER :: gauss_w(nrb)=[0.308,0.514,0.178 ] ! Gaussian integ. weights
 
-# ifdef ESM15 
-REAL, PARAMETER :: rad_thresh = 0.01 ! min. zenithal angle for downward SW 
-REAL, PARAMETER :: lai_thresh = 0.01 ! min. LAI to be considered as vegetated
-# else 
-REAL, PARAMETER :: rad_thresh = 0.001
-REAL, PARAMETER :: lai_thresh = 0.001
-# endif
+REAL, PARAMETER :: rad_thresh = 0.001 ! min. zenithal angle for downward SW 
+REAL, PARAMETER :: lai_thresh = 0.001 ! min. LAI to be considered as vegetated
 
 INTEGER, PARAMETER ::                                                          &
   swb = 2,           & ! 2 shortwave bands (initial division - visible /
@@ -51,7 +45,7 @@ REAL, PARAMETER ::                                                             &
   max_snow_depth = 50000.0,  & ! maximum depth of lying snow on tiles (kg/m2)
   init_snow_rho1l = 140.0      ! Initial value for snow mean density
 
-! minimum (cosine)zenith angle of sun signalling sunrise 
+! minimum (cosine)zenith angle of sun signalling sunrise
 REAL, PARAMETER :: coszen_tols = 1.0e-4
 
 REAL, PARAMETER :: z0surf_min = 1.0e-7 ! min. roughness of bare soil surface

@@ -52,7 +52,6 @@ SUBROUTINE init_radiation( ExtCoeff_beam, ExtCoeff_dif,                        &
 ! Description:
 !   Computes various extinction coefficients for different radiations (visible,
 !   diffuse) and various quantities for black leaves.
-USE cable_common_module, ONLY : cable_runtime
 
 IMPLICIT NONE
 
@@ -106,9 +105,6 @@ ExtCoeff_beam(:) = 0.0
 ExtCoeff_dif(:) = 0.0
 EffExtCoeff_beam(:,:) = 0.0
 EffExtCoeff_dif(:,:) = 0.0
-IF( .NOT. cable_runtime%um) THEN
-  RadFbeam(:,:) = 0.0
-ENDIF
 
 c1(:,:) = 0.0
 rhoch(:,:) = 0.0

@@ -1,4 +1,3 @@
-!# define ESM15 YES   
 !******************************************************************************
 ! This source code is part of the Community Atmosphere Biosphere Land Exchange
 ! (CABLE) model. This work is licensed under the CSIRO Open Source Software
@@ -6,7 +5,6 @@
 ! this file except in compliance with this License. A copy of the License is
 ! available at https://trac.nci.org.au/trac/cable/wiki/license.
 !******************************************************************************
-
 MODULE cable_phys_constants_mod
 
 !-----------------------------------------------------------------------------
@@ -80,11 +78,8 @@ REAL, PARAMETER :: zeta0  = 0.0     ! initial value of za/L
 REAL, PARAMETER :: zetneg = -15.0   ! negative limit on za/L when niter>=3
 REAL, PARAMETER :: zetpos = 1.0     ! positive limit on za/L when niter>=3
 REAL, PARAMETER :: zdlin  = 1.0     ! height frac of d below which TL linear
-# ifdef ESM15    
-REAL, PARAMETER :: umin   = 0.01    
-# else 
-REAL, PARAMETER :: umin   = 0.1     ! CM2- guarantees convergence
-# endif
+REAL, PARAMETER :: umin   = 0.1     ! guarantees convergence, was 0.01
+
 !model parameter shared across subroutines -> cable_phys_constants
 REAL, PARAMETER :: snow_depth_thresh = 1.0
 

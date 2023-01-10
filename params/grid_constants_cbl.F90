@@ -40,7 +40,6 @@ INTEGER, PARAMETER :: ntype_max = 17 ! Max # tiles ! compile time constant
 INTEGER, PARAMETER :: nsoil_max = 9  ! Max # soils ! req'd to read in pars
 INTEGER, PARAMETER :: nsl       = 6  ! # soil layers !sm_levels in JULES IO
 INTEGER, PARAMETER :: nsnl      = 3  ! # snow layers
-
 INTEGER, PARAMETER :: nrb       = 3  ! # rad bands VISual/NIR + Legacy incl LW
 INTEGER, PARAMETER :: nrs       = 4  ! # streams (VIS+NIR)*(Direct+Diffuse)=4
 INTEGER, PARAMETER :: nsCs      = 2  ! # soil carbon stores
