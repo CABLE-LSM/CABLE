@@ -93,7 +93,7 @@ class RunCable(object):
 
         os.chdir(site_dir + '/' + site)
         out_file=site_dir + '/' + site + "/" + output_dir + '/' + experiment_id + '_out_cable.nc'
-    
+
         if not os.path.exists(restart_dir):
             os.makedirs(restart_dir)
 
@@ -112,7 +112,7 @@ class RunCable(object):
         if os.path.exists("%s.out" % (self.experiment_id)):
             os.remove("%s.out" % (self.experiment_id))
 
-            
+
         num = 1
         not_in_equilibrium = True
 
@@ -132,7 +132,7 @@ class RunCable(object):
             #sys.exit()
 
             while num < 4:
-                print("Spinup number " + str(num)) 
+                print("Spinup number " + str(num))
                 self.logfile="log_ccp%d" % (num)
                 self.setup_re_spin(number=num)
                 self.run_me()
@@ -144,12 +144,12 @@ class RunCable(object):
                 self.clean_up(end=False, tag="saa%d" % (num))
                 not_in_equilibrium = self.check_steady_state(num)
                 num += 1
-                
+
             not_in_equilibrium=True
             self.limit_labile =".FALSE."
             while not_in_equilibrium:
 
-                print("Spinup number " + str(num)) 
+                print("Spinup number " + str(num))
                 self.logfile="log_ccp%d" % (num)
                 self.setup_re_spin(number=num)
                 self.run_me()
@@ -204,7 +204,7 @@ class RunCable(object):
         ## Note: start- and endyear now determined in the wrapper script
         st_yr = self.startyear
         en_yr = self.endyear
-        
+
         # PALS met files final year tag only has a single 30 min, so need to
         # end at the previous year, which is the real file end
         # en_yr = pd.to_datetime(ds.time[-1].values).year
@@ -344,7 +344,7 @@ class RunCable(object):
                         "output%restart": ".TRUE.",
                         "casafile%phen": "'%s'" % (os.path.join(self.aux_dir, "core/biogeochem/modis_phenology_csiro.txt")),
                         "casafile%cnpbiome": "'%s'" % (os.path.join(self.param_dir, bgc_param_fn)),
-                        "cable_user%CALL_CROP": ".%s." % (self.call_crop), 
+                        "cable_user%CALL_CROP": ".%s." % (self.call_crop),
                         "cable_user%RunIden": "'%s'" % (self.experiment_id),
                         "cable_user%POP_out": "'rst'",
                         "cable_user%POP_rst": "'./'",
@@ -365,7 +365,7 @@ class RunCable(object):
                         "l_laiFeedbk": ".%s." % (self.lai_feedback),
                         "cable_user%CASA_OUT_FREQ":  "'annually'" ,
                         "cable_user%limit_labile": "%s" % (self.limit_labile) ,
-                        "cable_user%SRF":  ".T." ,  
+                        "cable_user%SRF":  ".T." ,
                         "cable_user%STRF": "'DAMM'" ,
                         "cable_user%SMRF": "'DAMM'"
           }
@@ -408,7 +408,7 @@ class RunCable(object):
                         "cable_user%CASA_DUMP_READ": ".FALSE.",
                         "cable_user%CASA_DUMP_WRITE": ".TRUE.",
                         "cable_user%CASA_NREP": "0",
-                        "cable_user%SOIL_STRUC": "'sli'",
+                        "cable_user%SOIL_STRUC": "'default'",
                         "icycle": "%d" % (self.biogeochem),
                         "leaps": ".TRUE.",
                         "spincasa": ".FALSE.",
@@ -448,7 +448,7 @@ class RunCable(object):
                         "cable_user%CASA_DUMP_READ": ".TRUE.",
                         "cable_user%CASA_DUMP_WRITE": ".FALSE.",
                         "cable_user%CASA_NREP": "1",
-                        "cable_user%SOIL_STRUC": "'sli'",
+                        "cable_user%SOIL_STRUC": "'default'",
                         "leaps": ".FALSE.",
                         "spincasa": ".TRUE.",
                         "casafile%c2cdumppath": "'./'",
@@ -493,7 +493,7 @@ class RunCable(object):
                         "cable_user%CASA_DUMP_READ": ".FALSE.",
                         "cable_user%CASA_DUMP_WRITE": ".FALSE.",
                         "cable_user%CASA_NREP": "0",
-                        "cable_user%SOIL_STRUC": "'sli'",
+                        "cable_user%SOIL_STRUC": "'default'",
                         "output%restart": ".TRUE.",
                         "output%averaging": "'monthly'",
                         "spinup": ".FALSE.",
@@ -549,7 +549,7 @@ class RunCable(object):
                         "POPLUC": ".F.",
                         "cable_user%CASA_DUMP_READ": ".FALSE.",
                         "cable_user%CASA_DUMP_WRITE": ".FALSE.",
-                        "cable_user%SOIL_STRUC": "'sli'",
+                        "cable_user%SOIL_STRUC": "'default'",
                         "spincasa": ".FALSE.",
                         "spinup": ".FALSE.",
                         "output%averaging": "'all'",
@@ -572,7 +572,7 @@ class RunCable(object):
             #os.system("%s > /dev/null 2>&1" % (self.cable_exe))
             # JK: stdout and stderr are printed to files (but not to console)
             os.system("%s >> %s.out 2>>%s.err" % (self.cable_exe,self.experiment_id,self.experiment_id))
-            
+
     def check_steady_state(self, num):
         """
         Check whether the plant (leaves, wood and roots) and soil
@@ -626,7 +626,7 @@ class RunCable(object):
             f = "new_sumbal"
             if os.path.isfile(f):
                 os.remove(f)
-            #JK: no longer remove .out files 
+            #JK: no longer remove .out files
             #for f in glob.glob("*.out"):
             #    os.remove(f)
             for f in glob.glob("restart_*.nc"):
@@ -695,13 +695,13 @@ if __name__ == "__main__":
     plot_dir=sys.argv[8]
     exp_name=sys.argv[9]
 
-    
+
     cwd = os.getcwd()
     namelist_dir = "namelists"
     param_dir = "params"
     dump_dir = "dump"
     met_dir = "met"
-    co2_ndep_dir = "/OSM/CBR/OA_GLOBALCABLE/work/BIOS3_forcing/site_met"
+    co2_ndep_dir = "/datasets/work/oa-globalcable/work/BIOS3_forcing/site_met"
     aux_dir = "./CABLE-AUX/"
     log_dir = "logs"
     output_dir = "outputs"
@@ -726,7 +726,7 @@ if __name__ == "__main__":
 
 
 
-    
+
     call_pop = False
     verbose = False
 
@@ -741,4 +741,4 @@ if __name__ == "__main__":
                      param_dir,output_dir, restart_dir,dump_dir, met_fname, co2_ndep_fname,
                      nml_fn, site_nml_fn,veg_param_fn,crop_param_fn, log_dir, exe, aux_dir,
                      biogeochem, call_pop,verbose)
-        C.main(SPIN_UP=False, TRANSIENT=False, SIMULATION=True)
+        C.main(SPIN_UP=True, TRANSIENT=True, SIMULATION=True)

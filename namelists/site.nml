@@ -1,0 +1,9 @@
+&siteNML
+	RunType = "spinup"
+	CO2NDepFile = "/datasets/work/oa-globalcable/work/BIOS3_forcing/site_met/AmaFACE_co2npdepforcing_1850_2100_AMB.csv"
+	spinstartyear = 1831
+	spinendyear = 1851
+	spinCO2 = 284.7
+	spinNdep = 0.79  ! kg N ha-1 y-1
+        spinPdep = 0.144 ! kg P ha-1 y-1
+&end
