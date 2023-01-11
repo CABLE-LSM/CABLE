@@ -81,7 +81,7 @@
           <li id="statements"><i class="fa fa-list-ol"></i>
             <a data-toggle="tooltip"
                data-placement="bottom" data-html="true"
-               title=" 0.2% of total for modules and submodules.">67 statements</a>
+               title=" 0.2% of total for modules and submodules.">68 statements</a>
           </li>
 
             <li id="source-file">
@@ -146,7 +146,11 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    
+    <p>This MODULE contains one SUBROUTINE which evaluates the latent heat from
+ground/soil/snow pack given the previously evaluated rate of potential
+evaporation. This is a component of the calculation of the surface energy
+balance and is called twice per cycle in the MO iteration section of
+<a href="../proc/define_canopy.html">define_canopy</a>.</p>
     
     
     <br>
@@ -203,7 +207,14 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>This SUBROUTINE converts the previously evaluated rate of potential
+ evaporation <code>ssnow_potev</code> from the soil into the associated latent heat flux
+ <code>canopy_fes</code>. The evaluation accounts for whether the water flux is
+ in liquid or solid phase (evaporation or sublimation, dew or frost),
+ the direction of the flux (to or from the soil), and any limits due to a lack of
+ water in the surface layer of the soil column.  The SUBROUTINE also evaluates
+ the partition of the latent heat flux between soil <code>canopy_fess</code> and
+ puddle <code>canopy_fesp</code> contributions.</p><a href="../proc/latent_heat_flux.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -243,7 +254,7 @@
             <td>::</td>
             <td><strong>CTFRZ</strong></td>
             <td>
-
+<p>temperature at freezing point (K) </p>
             </td>
         </tr>
         <tr>
@@ -258,7 +269,7 @@
             <td>::</td>
             <td><strong>dels</strong></td>
             <td>
-
+<p>time step of CABLE (s)</p>
             </td>
         </tr>
         <tr>
@@ -273,7 +284,7 @@
             <td>::</td>
             <td><strong>soil_zse</strong></td>
             <td>
-
+<p>thickness of topmost soil layer (m)</p>
             </td>
         </tr>
         <tr>
@@ -288,7 +299,7 @@
             <td>::</td>
             <td><strong>soil_swilt</strong>(mp)</td>
             <td>
-
+<p>soil moisture content at wilting point (m<script type="math/tex">^3</script> water m<script type="math/tex">^{-3}</script> volume of soil)</p>
             </td>
         </tr>
         <tr>
@@ -303,7 +314,7 @@
             <td>::</td>
             <td><strong>cable_user_l_new_reduce_soilevp</strong></td>
             <td>
-
+<p>NAMELIST switch to use alternate soil evaporation scheme</p>
             </td>
         </tr>
         <tr>
@@ -318,7 +329,7 @@
             <td>::</td>
             <td><strong>pwet</strong>(mp)</td>
             <td>
-
+<p>factor to reduce soil evaporation due to presence of a puddle (-)</p>
             </td>
         </tr>
         <tr>
@@ -333,7 +344,7 @@
             <td>::</td>
             <td><strong>air_rlam</strong>(mp)</td>
             <td>
-
+<p>density of air (kgm<script type="math/tex">^{-3}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -348,7 +359,7 @@
             <td>::</td>
             <td><strong>ssnow_snowd</strong>(mp)</td>
             <td>
-
+<p>depth of snow in liquid water equivalent (mm m<script type="math/tex">^{-2}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -363,7 +374,7 @@
             <td>::</td>
             <td><strong>ssnow_wb</strong>(mp)</td>
             <td>
-
+<p>water content in surface soil layer (m<script type="math/tex">^{3}</script> liquid water m<script type="math/tex">^{-3}</script> volume of soil)</p>
             </td>
         </tr>
         <tr>
@@ -378,7 +389,7 @@
             <td>::</td>
             <td><strong>ssnow_wbice</strong>(mp)</td>
             <td>
-
+<p>ice content in surface soil layer (m<script type="math/tex">^{3}</script> frozen water m<script type="math/tex">^{-3}</script> volume of soil)</p>
             </td>
         </tr>
         <tr>
@@ -393,7 +404,7 @@
             <td>::</td>
             <td><strong>ssnow_pudsto</strong>(mp)</td>
             <td>
-
+<p>amount of water in puddles (kgm<script type="math/tex">^{-2}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -408,7 +419,7 @@
             <td>::</td>
             <td><strong>ssnow_pudsmx</strong>(mp)</td>
             <td>
-
+<p>maximum amount of water possible in puddles (kgm<script type="math/tex">^{-2}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -423,7 +434,7 @@
             <td>::</td>
             <td><strong>ssnow_potev</strong>(mp)</td>
             <td>
-
+<p>latent heat flux associated potential evaporation (Wm<script type="math/tex">^{-2}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -438,7 +449,7 @@
             <td>::</td>
             <td><strong>ssnow_wetfac</strong>(mp)</td>
             <td>
-
+<p>wetness factor for soil (between 0 and 1)</p>
             </td>
         </tr>
         <tr>
@@ -453,7 +464,7 @@
             <td>::</td>
             <td><strong>ssnow_evapfbl</strong>(mp)</td>
             <td>
-
+<p>flux of water from soil surface (kg m<script type="math/tex">^{-2}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -468,7 +479,7 @@
             <td>::</td>
             <td><strong>ssnow_cls</strong>(mp)</td>
             <td>
-
+<p>factor denoting phase of water flux (=1 if liquid, =1.1335 if ice)</p>
             </td>
         </tr>
         <tr>
@@ -483,7 +494,7 @@
             <td>::</td>
             <td><strong>ssnow_tss</strong>(mp)</td>
             <td>
-
+<p>temperature of surface soil/snow layer (K)</p>
             </td>
         </tr>
         <tr>
@@ -498,7 +509,7 @@
             <td>::</td>
             <td><strong>canopy_fes</strong>(mp)</td>
             <td>
-
+<p>latent heat flux from the ground (Wm<script type="math/tex">^{-2}</script>) </p>
             </td>
         </tr>
         <tr>
@@ -513,7 +524,7 @@
             <td>::</td>
             <td><strong>canopy_fess</strong>(mp)</td>
             <td>
-
+<p>latent heat flux from the soil (Wm<script type="math/tex">^{-2}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -528,7 +539,7 @@
             <td>::</td>
             <td><strong>canopy_fesp</strong>(mp)</td>
             <td>
-
+<p>latent heat flux from any puddles (Wm<script type="math/tex">^{-2}</script>)</p>
             </td>
         </tr>
     </tbody>
@@ -551,7 +562,7 @@
     <footer>
       <div class="container">
       <div class="row">
-        <div class="col-xs-6 col-md-6"><p>CABLE was developed by CABLE community<br>&copy; 2022 
+        <div class="col-xs-6 col-md-6"><p>CABLE was developed by CABLE community<br>&copy; 2023 
 </p>
         </div>
         <div class="col-xs-6 col-md-6">

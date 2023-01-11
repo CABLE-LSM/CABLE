@@ -147,7 +147,12 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    
+    <p>This MODULE contains two SUBROUTINEs that calculate
+the specific humidity at saturation as a function of air pressure
+and temperature.</p>
+<p>The two SUBROUTINEs differ only in that <a href="../proc/qsatfjh.html">qsatfjh</a> operates on an array
+whereas <a href="../proc/qsatfjh2.html">qsatfjh2</a> operates on single element REALs.</p>
+<p><strong>Warning:</strong> <a href="../proc/qsatfjh2.html">qsatfjh2</a> is redundant and the code should be changed to only use <a href="../proc/qsatfjh.html">qsatfjh</a>.</p>
     
     
     <br>
@@ -205,7 +210,9 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>This SUBROUTINE evaluates the specific humidity (water vapour mixing ratio)
+ at saturation (in kgkg<script type="math/tex">^{-1}</script>), at a given air temperature (in <script type="math/tex">^{\circ}</script>C)
+ and air pressure (in hPa) for an array of size mp.</p><a href="../proc/qsatfjh.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -230,7 +237,7 @@
             <td>::</td>
             <td><strong>mp</strong></td>
             <td>
-
+<p>size of array of land points (-)</p>
             </td>
         </tr>
         <tr>
@@ -245,7 +252,7 @@
             <td>::</td>
             <td><strong>var</strong>(mp)</td>
             <td>
-
+<p>specific humidity at saturation (kgkg<script type="math/tex">^{-1}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -335,7 +342,8 @@
             <td>::</td>
             <td><strong>tair</strong>(mp)</td>
             <td>
-
+<p>air temperature (<script type="math/tex">^{\circ}</script>C)
+surface air pressure (hPa)</p>
             </td>
         </tr>
         <tr>
@@ -350,7 +358,8 @@
             <td>::</td>
             <td><strong>pmb</strong>(mp)</td>
             <td>
-
+<p>air temperature (<script type="math/tex">^{\circ}</script>C)
+surface air pressure (hPa)</p>
             </td>
         </tr>
     </tbody>
@@ -365,7 +374,9 @@
 </h3></div>
     <div class="panel-body">
           
-  
+  <p>This SUBROUTINE evaluates the specific humidity (water vapour mixing ratio)
+ at saturation (in kgkg<script type="math/tex">^{-1}</script>), at a given air temperature (in <script type="math/tex">^{\circ}</script>C)
+ and air pressure (in hPa).</p><a href="../proc/qsatfjh2.html" class="pull-right"><emph>Read more&hellip;</emph></a>
 
   <h4>Arguments</h4>
       <table class="table table-striped varlist">
@@ -390,7 +401,7 @@
             <td>::</td>
             <td><strong>var</strong></td>
             <td>
-
+<p>specific humidity at saturation (kgkg<script type="math/tex">^{-1}</script>)</p>
             </td>
         </tr>
         <tr>
@@ -480,7 +491,8 @@
             <td>::</td>
             <td><strong>tair</strong></td>
             <td>
-
+<p>air temperature (<script type="math/tex">^{\circ}</script>C),
+surface air pressure (hPa)</p>
             </td>
         </tr>
         <tr>
@@ -495,7 +507,8 @@
             <td>::</td>
             <td><strong>pmb</strong></td>
             <td>
-
+<p>air temperature (<script type="math/tex">^{\circ}</script>C),
+surface air pressure (hPa)</p>
             </td>
         </tr>
     </tbody>
@@ -518,7 +531,7 @@
     <footer>
       <div class="container">
       <div class="row">
-        <div class="col-xs-6 col-md-6"><p>CABLE was developed by CABLE community<br>&copy; 2022 
+        <div class="col-xs-6 col-md-6"><p>CABLE was developed by CABLE community<br>&copy; 2023 
 </p>
         </div>
         <div class="col-xs-6 col-md-6">
