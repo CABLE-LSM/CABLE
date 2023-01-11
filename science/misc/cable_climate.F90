@@ -1,4 +1,4 @@
-!#define UM-CBL YES
+!#define UM_CBL YES
 !==============================================================================
 ! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
@@ -18,7 +18,7 @@
 
 ! ==============================================================================
 
-# ifndef UM-CBL
+# ifndef UM_CBL
 MODULE cable_climate_mod
 
   USE cable_def_types_mod, ONLY: met_type, climate_type, canopy_type, mp, &
