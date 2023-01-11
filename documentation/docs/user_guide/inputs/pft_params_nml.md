@@ -75,7 +75,7 @@ vegin%zr=1.800000,3.000000,2.000000,2.000000,2.500000,5*0.500000,1.800000,3.1000
 | vegin%clitt | real | >=0.0 | 20, 6, 10, 13, 2, 2, 0.3, 0.3, 0, 0, 2, 2, 0, 0, 0, 0, 0 | Leaf litter (alters resistance to soil evaporation) \( (tC \cdot ha^{-1}) \) |
 | vegin%conkc0 | real | >=0.0 | 0.000302, 0.000302, 0.000302, 0.000302, 0.000302, 0.000302, 0.000302, 0.000302, 0.000302, 0.000302, 0.000302, 0.000302, 0.000302, 0.000302, 0.000302, 0.000302, 0.000302 | Michaelis-menton constant for carboxylase \( (bar) \) |
 | vegin%conko0 | real | >=0.0 | 0.256, 0.256, 0.256, 0.256, 0.256, 0.256, 0.256, 0.256, 0.256, 0.256, 0.256, 0.256, 0.256, 0.256, 0.256, 0.256, 0.256 | Michaelis-menton constant for oxygenase \( (bar) \) |
-| vegin%convex | real | >=0.0 | 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.8, 0.01, 0.01, 0.8, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01 | Convexity of J-Q response curve \( (-) )/ |
+| vegin%convex | real | >=0.0 | 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.8, 0.01, 0.01, 0.8, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01 | Convexity of J-Q response curve \( (-) \) |
 | vegin%cplant1 | real | >=0.0 | 200, 300, 200, 300, 159, 250, 250, 250, 150, 150, 250, 1, 0.1, 0, 1, 1, 0 | Plant carbon in 1st vegetation carbon store \( (gC \cdot m^{-2}) \) |
 | vegin%cplant2 | real | >=0.0 | 10217, 16833, 5967, 12000, 5000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 | Plant carbon in 2nd vegetation carbon store \( (gC \cdot m^{-2}) \) |
 | vegin%cplant3 | real | >=0.0 | 876, 1443, 511, 1029, 500, 500, 500, 500, 607, 607, 500, 1, 0.1, 0, 1, 1, 0 | Plant carbon in 3rd vegetation carbon store \( (gC \cdot m^{-2}) \) |
@@ -110,8 +110,8 @@ vegin%zr=1.800000,3.000000,2.000000,2.000000,2.500000,5*0.500000,1.800000,3.1000
 | vegin%refl3 | real | 0.0 – 0.5 | 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01 | Leaf reflectance in 3rd radiation band \( (-) \) |
 | vegin%rootbeta | real | 0.0 – 1.0 | 0.943, 0.962, 0.966, 0.961, 0.964, 0.943, 0.943, 0.943, 0.961, 0.961, 0.943, 0.975, 0.961, 0.961, 0.961, 0.961, 0.961 | Beta parameter to calculate froot (Jackson et al. 1996) \( (-) \) |
 | vegin%rp20 | real | 0.0 – 10.0 | 3, 0.6, 3, 2.2, 1, 1.5, 2.8, 2.5, 1.5, 1, 1.5, 1, 1, 1, 1, 1, 1 | Plant respiration coefficient at 20 C \( (-) \) |
-| vegin%rpcoef | real | 0.05 – 1.5 | 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832 | Temperature coeficient non-leaf plant respiration \( (C^{-1}) \) |
-| vegin%rs20 | real | 0.0 – 10.0 | 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0 | Soil respiration at 20 C \( (mol \cdot m^{-2} \cdot s^{-1}] ) \) |
+| vegin%rpcoef | real | 0.05 – 1.5 | 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832, 0.0832 | Temperature coeficient non-leaf plant respiration \( (^{\circ}C^{-1}) \) |
+| vegin%rs20 | real | 0.0 – 10.0 | 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0 | Soil respiration at 20 C \( (mol \cdot m^{-2} \cdot s^{-1} ) \) |
 | vegin%shelrb | real | >=0.0 | 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 | Sheltering factor \( (-) \) |
 | vegin%taul1 | real | 0.0 – 0.3 | 0.09, 0.09, 0.075, 0.09, 0.09, 0.11, 0.11, 0.075, 0.11, 0.11, 0.075, 0.023, 0.059, 0.039, 0.023, 0.023, 0.026 | Leaf transmittance in 1st radiation band \( (-) \) |
 | vegin%taul2 | real | 0.0 – 0.3 | 0.3, 0.29, 0.3, 0.29, 0.3, 0.34, 0.34, 0.32, 0.34, 0.34, 0.146, 0.198, 0.163, 0.189, 0.113, 0.113, 0.113 | Leaf transmittance in 2nd radiation band \( (-) \) |
@@ -136,7 +136,7 @@ vegin%zr=1.800000,3.000000,2.000000,2.000000,2.500000,5*0.500000,1.800000,3.1000
 | isoil | integer |  | 1 – 30 | Soil type |
 | iveg | integer |  | 1 – 30 | Vegetation type |
 | meth | integer |  |  | Method for calculation of canopy fluxes and temperature |
-| toptvj | real |  |  | Optimum temperature of the start of photosynthesis \( ^{/circ}C \) |
+| toptvj | real |  |  | Optimum temperature of the start of photosynthesis \( (^{\circ}C) \) |
 | vegin%wai | real | 0.0 – 1.0 | 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 | Wood area index (stem+branches+twigs) (not used) \( (-) \) |
 | vegin%xalbnir | real | >=0.0 | 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 | Not used |
 | vlai  | real |  |  | Leaf area index |
