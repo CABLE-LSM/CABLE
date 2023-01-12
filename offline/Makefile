@@ -80,7 +80,6 @@ POPdriver.F90									\
 POP.F90												\
 pop_io.F90										\
 POPLUC.F90										\
-pop_mpi.F90										\
 pop_types.F90									\
 cbl_init_radiation.F90				\
 cbl_radiation.F90							\
@@ -182,8 +181,8 @@ cable_soil_params.o: cable_soil_params.F90 cable_define_types.o
 casa_param.o: casa_param.F90
 
 ##│   ├── casa-cnp
-bgcdriver.o: bgcdriver.F90 biogeochem_casa.o
-biogeochem_casa.o: biogeochem_casa.F90 casa_rplant.o
+bgcdriver.o: bgcdriver.F90 biogeochem_casa.o pop_types.o POP.o
+biogeochem_casa.o: biogeochem_casa.F90 casa_rplant.o pop_types.o
 casa_feedback.o: casa_feedback.F90
 casa_readbiome.o: casa_readbiome.F90 casa_variable.o
 casa_rplant.o: casa_rplant.F90 casa_cnp.o
@@ -271,7 +270,7 @@ cable_write.o: cable_write.F90 cable_iovars.o cable_abort.o cable_define_types.o
 
 cable_metutils.o: cable_metutils.F90
 
-cable_input.o: cable_input.F90 POP.o cable_checks.o cable_abort.o cable_read.o cable_initialise.o cbl_sinbet.o \
+cable_input.o: cable_input.F90 pop_types.o POP.o cable_checks.o cable_abort.o cable_read.o cable_initialise.o cbl_sinbet.o \
 	       cable_parameters.o cable_common.o cable_LUC_EXPT.o POPLUC.o casa_inout.o cable_metutils.o casa_readbiome.o
 
 cable_output.o: cable_output.F90 cable_abort.o cable_checks.o cable_write.o cable_common.o
@@ -284,13 +283,11 @@ cable_roughness.o: cable_roughness.F90 cable_phys_constants_mod.o cable_define_t
 casa_variable.o: casa_variable.F90 POP.o casa_dimension.o casa_param.o
 
 spincasacnp.o: spincasacnp.F90  cable_define_types.o  cable_carbon.o cable_common.o \
-	 casa_variable.o casa_phenology.o  casa_cable.o casa_ncdf.o
+	 casa_variable.o casa_phenology.o  casa_cable.o casa_ncdf.o pop_types.o POP.o 
 
-#cable_LUC.o: cable_LUC.F90 cable_carbon.o cable_common.o casa_variable.o POP.o POPLUC.o cable_LUC_EXPT.o
+CASAONLY_LUC.o: CASAONLY_LUC.F90 cable_define_types.o  cable_carbon.o cable_common.o casa_variable.o pop_types.o POP.o POPLUC.o cable_LUC_EXPT.o casa_ncdf.o casa_offline_inout.o
 
-CASAONLY_LUC.o: CASAONLY_LUC.F90 cable_define_types.o  cable_carbon.o cable_common.o casa_variable.o POP.o POPLUC.o cable_LUC_EXPT.o casa_ncdf.o casa_offline_inout.o
-
-casa_cable.o: casa_cable.F90 POP.o cable_define_types.o  cable_carbon.o casa_variable.o \
+casa_cable.o: casa_cable.F90 pop_types.o POP.o cable_define_types.o  cable_carbon.o casa_variable.o \
 	      cable_phenology.o casa_cnp.o casa_inout.o casa_ncdf.o biogeochem_casa.o
 
 landuse_constant.o: landuse_constant.F90 cable_define_types.o casa_dimension.o
@@ -302,13 +299,19 @@ casa_offline_inout.o: casa_offline_inout.F90 POP.o cable_define_types.o  cable_i
 
 cable_common.o: cable_common.F90  cable_iovars.o cable_pft_params.o cable_soil_params.o cable_runtime_opts_mod.o
 
-POP.o: POP.F90 cable_define_types.o
+POP.o: POP.F90 cable_define_types.o pop_def.o pop_constants.o pop_types.o
 
-POPLUC.o: POPLUC.F90 cable_define_types.o cable_iovars.o casa_variable.o cable_common.o cable_runtime_opts_mod.o casa_ncdf.o
+POPLUC.o: POPLUC.F90  pop_def.o pop_types.o cable_define_types.o cable_iovars.o casa_variable.o cable_common.o cable_runtime_opts_mod.o casa_ncdf.o
 
 cable_LUC_EXPT.o: cable_LUC_EXPT.F90 cable_define_types.o cable_iovars.o casa_variable.o cable_common.o casa_ncdf.o
 
-pop_io.o: pop_io.F90 POP.o casa_variable.o cable_common.o casa_ncdf.o
+pop_io.o: pop_io.F90 pop_constants.o pop_types.o casa_variable.o cable_common.o casa_ncdf.o
+
+pop_def.o: pop_def.F90
+
+pop_constants.o: pop_constants.F90 pop_def.o
+
+pop_types.o: pop_types.F90 pop_def.o pop_constants.o
 
 cable_sli_main.o: cable_sli_main.F90  cable_define_types.o cable_sli_numbers.o cable_sli_roots.o cable_sli_solve.o 
 
@@ -410,13 +413,16 @@ all  : grid_constants_cbl.o    \
 	cable_sli_utils.o       		 \
 	POP.o                    	   \
 	pop_io.o                 	   \
+  POPLUC.o  		 							 \
+  pop_constants.o 				     \
+  pop_def.o  		 							 \
+  pop_types.o  	 							 \
 	cable_plume_mip.o        	   \
 	cable_weathergenerator.o 	   \
 	cable_climate.o          	   \
 	cable_climate_type_mod.o     \
 	cable_phenology.o        	   \
 	cable_cru_TRENDY.o       	   \
-	POPLUC.o                 	   \
 	cable_LUC_EXPT.o         	   \
 	cable_gw_hydro.o         	   \
 	cable_psm.o              	   \
