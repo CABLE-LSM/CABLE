@@ -38,7 +38,7 @@ SUBROUTINE cable_rad_unpack( land_albedo, alb_surft,                           &
                              mp, nrs, row_length, rows, land_pts,              &
                              nsurft, tile_pts, tile_index,                     &
                              land_index, tile_frac, L_tile_pts,                &
-                             EffSurfRefl_dif, EffSurfRefl_beam )
+                             EffSurfRefl_beam, EffSurfRefl_dif)
 
 ! Description:
 !   Nothing further to add to module description.

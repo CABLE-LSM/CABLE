@@ -81,7 +81,7 @@ USE cable_pack_mod,             ONLY: cable_pack_rr
 ! Define CABLE grid, sunlit/veg masks & initialize surface type params
 USE init_cable_parms_mod,       ONLY: init_cable_parms_rad
 USE alloc_rad_albedo_vars_mod,  ONLY: alloc_local_vars, flush_local_vars
-USE cbl_masks_mod,              ONLY: fveg_mask, L_tile_pts
+USE cbl_masks_mod,              ONLY: fveg_mask
 
 !Compute canopy exposed above (potential) snow
 USE cbl_LAI_canopy_height_mod,  ONLY: limit_HGT_LAI
@@ -149,6 +149,8 @@ REAL, INTENT(IN) :: OneLyrSnowDensity_CABLE(land_pts, nsurft )
 REAL, INTENT(IN) :: SnowAge_CABLE(land_pts, nsurft )
 
 !--- local vars - Neither IN nor OUT (passed to subrs)
+
+LOGICAL, ALLOCATABLE :: L_tile_pts(:,:)  ! TRUE where tile_frac > 0
 
 ! Albedos req'd by JULES - Effective Surface Relectance as seen by atmosphere
 REAL, ALLOCATABLE :: EffSurfRefl_dif(:,:)
@@ -229,7 +231,7 @@ CALL alloc_local_vars( EffSurfRefl_beam, EffSurfRefl_dif, mp, nrb,             &
                        CanopyRefl_beam, CanopyRefl_dif, RadFbeam,              &
                        RadAlbedo, AlbSnow, c1, rhoch, xk, metDoY,              &
                        SnowDepth, SnowDensity, SoilTemp, SnowAge,              &
-                       AlbSoil, SW_down)
+                       AlbSoil, SW_down, veg_mask )
 ! -----------------------------------------------------------------------------
 ! 1. PACK CABLE fields
 ! -----------------------------------------------------------------------------
@@ -289,7 +291,7 @@ CALL cable_rad_driver( EffSurfRefl_beam, EffSurfRefl_dif,                      &
 CALL cable_rad_unpack( land_albedo, alb_surft, mp, nrs, row_length, rows,      &
                        land_pts, nsurft, surft_pts, surft_index,               &
                        land_index, tile_frac, l_tile_pts,                      &
-                       EffSurfRefl_dif, EffSurfRefl_beam  )
+                       EffSurfRefl_beam, EffSurfRefl_dif )
 
 CALL flush_local_vars( EffSurfRefl_beam, EffSurfRefl_dif,SnowDepth,            &
                        SnowDensity, SoilTemp, SnowAge, AlbSoil,                &
@@ -299,7 +301,7 @@ CALL flush_local_vars( EffSurfRefl_beam, EffSurfRefl_dif,SnowDepth,            &
                        CanopyTransmit_dif, CanopyRefl_beam, CanopyRefl_dif,    &
                        RadFbeam, RadAlbedo, AlbSnow, c1, rhoch, xk, metDoY, SW_down )
 
-!flick switches before leaving
+! for completeness flick switches before leaving
 jls_radiation= .FALSE.
 
 RETURN

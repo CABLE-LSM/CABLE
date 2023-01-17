@@ -150,7 +150,7 @@ SUBROUTINE Common_InitRad_Scalings( xphi1, xphi2, xk, xvlai2, c1, rhoch,       &
                             VegXfang, VegTaul, VegRefl)
 !* Calculates the extinction coefficients for black leaves. It returns:
 !
-! * the extinction coefficients for three values of the zenith angle 
+! * the extinction coefficients for three values of the zenith angle
 !  to be used to calculate the real extinction coefficient for the
 !  diffuse radiation (Gauss quadrature)
 !
@@ -160,7 +160,7 @@ SUBROUTINE Common_InitRad_Scalings( xphi1, xphi2, xk, xvlai2, c1, rhoch,       &
 !
 !### Equations
 !
-! This subroutine is using the equation B6 from 
+! This subroutine is using the equation B6 from
 ! [Wang and Leuning 1998](https://www.sciencedirect.com/science/article/abs/pii/S0168192398000616)
 ! and equation 13 from [Sellers 1985](https://www.tandfonline.com/doi/pdf/10.1080/01431168508948283?needAccess=true):
 !

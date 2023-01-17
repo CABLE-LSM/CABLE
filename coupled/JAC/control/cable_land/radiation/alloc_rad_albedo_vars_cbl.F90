@@ -45,7 +45,7 @@ SUBROUTINE alloc_local_vars( EffSurfRefl_beam, EffSurfRefl_dif, mp, nrb,       &
                              CanopyRefl_beam, CanopyRefl_dif, RadFbeam,        &
                              RadAlbedo, AlbSnow, c1, rhoch, xk, metDoY,        &
                              SnowDepth, SnowDensity, SoilTemp, SnowAge,        &
-                             AlbSoil, SW_down)
+                             AlbSoil, SW_down, veg_mask )
 ! Description:
 ! Allocate variables in the rad structure
 
@@ -80,7 +80,10 @@ REAL, INTENT(OUT), ALLOCATABLE :: xk(:,:)
 REAL, INTENT(OUT), ALLOCATABLE :: SW_down(:,:)        ! dummy
 REAL, INTENT(OUT), ALLOCATABLE :: RadFbeam(:,:)
 REAL, INTENT(OUT), ALLOCATABLE :: RadAlbedo(:,:)
-INTEGER, ALLOCATABLE :: metDoY(:)        ! can pass DoY from current_time
+INTEGER, INTENT(OUT), ALLOCATABLE :: metDoY(:)        ! can pass DoY from current_time
+! vegetated mask required on albedo pathway
+LOGICAL, INTENT(OUT), ALLOCATABLE :: veg_mask(:)
+
 
 IF ( .NOT. ALLOCATED(reducedLAIdue2snow))  ALLOCATE(reducedLAIdue2snow(mp) )
 IF ( .NOT. ALLOCATED(HeightAboveSnow) )    ALLOCATE(HeightAboveSnow(mp) )
@@ -110,6 +113,9 @@ IF ( .NOT. ALLOCATED(metDoY) )             ALLOCATE(metDoY(mp) )
 IF ( .NOT. ALLOCATED(SW_down) )            ALLOCATE(SW_down(mp,nrb) )
 IF ( .NOT. ALLOCATED(RadFbeam) )           ALLOCATE(RadFbeam(mp, nrb) )
 IF ( .NOT. ALLOCATED(RadAlbedo) )          ALLOCATE(RadAlbedo(mp, nrb) )
+IF (.NOT. ALLOCATED(veg_mask) ) THEN
+  ALLOCATE( veg_mask(mp) )
+END IF
 
 EffSurfRefl_dif(:,:) = 0.0
 EffSurfRefl_beam(:,:) = 0.0
@@ -138,6 +144,7 @@ RadFbeam(:,:) = 0.0
 RadAlbedo(:,:) = 0.0
 SW_down(:,:) = 0.0
 metDoY(:) = 0  !can pass DoY from current_time%
+veg_mask(:) = .FALSE.
 
 RETURN
 

@@ -29,7 +29,7 @@ MODULE hruff_eff_LAI_mod_cbl
 !-----------------------------------------------------------------------------
 
 !* The first procedure in this module evaluates the canopy height
-!  given the effect of any snow present.  
+!  given the effect of any snow present.
 
 !* The secone procedure in this module computes the effective LAI of a canopy
 !  given the effect of any snow present
@@ -45,23 +45,23 @@ SUBROUTINE HgtAboveSnow( HeightAboveSnow, mp, z0surf_min, HGT_pft,             &
                          SnowDepth, SnowDensity )
 
 !* This subroutine computes the height of the canopy above ground/snow
-!  surface when there is snow present. 
+!  surface when there is snow present.
 
 IMPLICIT NONE
 
-INTEGER, INTENT(IN)   :: mp    !! Number of tiles (-)     
+INTEGER, INTENT(IN)   :: mp    !! Number of tiles (-)
 
-REAL, INTENT(OUT) :: HeightAboveSnow(mp) 
+REAL, INTENT(OUT) :: HeightAboveSnow(mp)
     !! Output. Effective height of canopy, known as `rough%hruff` elsewhere. (m)
 
 REAL, INTENT(IN) :: z0surf_min      !! minimum roughness length of surface (m)
-REAL, INTENT(IN) :: HGT_pft(mp)     !! height of the canopy without snow (m)      
+REAL, INTENT(IN) :: HGT_pft(mp)     !! height of the canopy without snow (m)
 REAL, INTENT(IN) :: SnowDepth(mp)   !! snow amount (mm m\(^{-2}\) liquid water)
-REAL, INTENT(IN) :: SnowDensity(mp) !! density of snow (kg m\(^{-3}\))           
+REAL, INTENT(IN) :: SnowDensity(mp) !! density of snow (kg m\(^{-3}\))
 
 !local_vars:
 REAL, PARAMETER  :: fmin = 10.0 ! [meters]?
-    ! Multiplier scalar to fix the minimum allowed canopy height. (-)           
+    ! Multiplier scalar to fix the minimum allowed canopy height. (-)
 REAL, PARAMETER  :: SnowDensity_min = 100.0 ! min. snow density
     ! Minimum allowed snow density (kg m\(^{-3}\))
 
@@ -72,7 +72,7 @@ REAL :: HgtAboveSnow_comp(mp)       ! computed canopy height above snow
 ! restricts the Effective snow density to be >= a set minimum
 SnowDensity_eff= MAX( SnowDensity_min, SnowDensity )
 
-! evaluates mininimum allowed canopy height for numerical stability 
+! evaluates mininimum allowed canopy height for numerical stability
 ! (fixed at 10 * mininimum surface roughness)
 HgtAboveSnow_min =  fmin * z0surf_min
 
@@ -138,12 +138,12 @@ reducedLAIdue2snow = lai_pft * FracOfCanopyAboveSnow
 ! (without snow) is small.
 !
 ! **Warning: To follow up**
-! 
+!
 ! Can HgtAboveSnow be greater than MAX(0.01, Hgt_PFT)?
 ! If yes then there is an issue to resolve.
 ! HgtAboveSnow can sit at its minimum value of 10 \(z_{0,min}\) so if
 ! \(10 z_{0,min} > 0.01 > h_{c,nosnow} \) then LAI can increase if
-! there is snow!  
+! there is snow!
 !
 
 RETURN
