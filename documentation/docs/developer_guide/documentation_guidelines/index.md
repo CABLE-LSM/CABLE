@@ -17,7 +17,7 @@ The *scientific documentation* should be added directly into the source code ava
 
 ???+ warning "No code changes please"
     
-    Currently, the CABLE code under `src/` is only for documentation purposes. All code changes should go on the SVN repository. Any code change submitted in the GitHub repository will be discarded at this stage.
+    Currently, the CABLE code under `src/` is only for documentation purposes. All code changes should go on the SVN repository. Any code change submitted in the GitHub repository will be discarded at this stage. Only changes to comments for documentation will be accepted.
 
 ## Other documentation
 Other documentation such as the User guide and Developer guide are located under the `documentation/docs/` folder. Each file corresponds to a page on the rendered documentation and each folder corresponds to a tab or a section. Folders and files are named very similarly to the sections and pages on the documentation website to help navigation when developing the documentation.  
