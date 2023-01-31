@@ -1,6 +1,6 @@
 # Documentation guidelines
 
-First of all, you should become a member of the CABLE-LSM GitHub organisation prior to contribute to the CABLE's documentation. Please ask for membership [on this issue][cable-lsm-join]. All guidelines are written with the assumption you are a member of the organisation.
+First of all, you should become a member of the CABLE-LSM GitHub organisation prior to contribute to the CABLE's documentation. Please ask for membership [on this issue][cable-lsm-join]. All guidelines and implementation details are written with the assumption you are a member of the organisation.
 
 The documentation for CABLE has two parts:
 
