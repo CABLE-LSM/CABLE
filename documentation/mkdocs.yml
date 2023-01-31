@@ -91,7 +91,6 @@ nav:
       - Snow: user_guide/science/snow.md
       - Groundwater: user_guide/science/groundwater.md
       - CASA: user_guide/science/CASA.md
-  - POP-TRENDY: POP-TRENDY/index.md
   - Developer Guide:
     - developer_guide/index.md
     - Contribution flowchart: developer_guide/contribution_flowchart.md
