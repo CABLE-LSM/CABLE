@@ -16,9 +16,8 @@ MODULE cable_other_constants_mod
 ! Module specific documentation:https://trac.nci.org.au/trac/cable/wiki/TBC
 ! Where it fits in the model flow:https://trac.nci.org.au/trac/cable/wiki/TBC
 !-----------------------------------------------------------------------------
-
-USE grid_constants_mod_cbl, ONLY: nrb, nsl, nsCs, nvCs
-USE grid_constants_mod_cbl, ONLY: msn =>  nsnl
+!CABLE science not yet in JAC uses msn to describe number of snow layers
+USE grid_constants_mod_cbl, ONLY: nrb, nsl, nsCs, nvCs, msn => nsnl
 
 IMPLICIT NONE
 

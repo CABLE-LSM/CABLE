@@ -344,7 +344,9 @@ DO i = 1,mp
     !IF mask is present we are doing the beam component then:
     IF ( PRESENT(mask)) THEN
       !then ONLY IF it is sunlit and vegetated -else default
-      IF ( mask(i) ) Eff_ExtCoeff(i,b) = ExtCoeff(i) * c1(i,b)
+      IF ( mask(i) ) THEN
+        Eff_ExtCoeff(i,b) = ExtCoeff(i) * c1(i,b)
+      END IF
     ELSE
       Eff_ExtCoeff(i,b) = ExtCoeff(i) * c1(i,b)
     END IF

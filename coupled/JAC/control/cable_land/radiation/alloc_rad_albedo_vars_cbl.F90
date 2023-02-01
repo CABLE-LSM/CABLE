@@ -84,35 +84,90 @@ INTEGER, INTENT(OUT), ALLOCATABLE :: metDoY(:)        ! can pass DoY from curren
 ! vegetated mask required on albedo pathway
 LOGICAL, INTENT(OUT), ALLOCATABLE :: veg_mask(:)
 
-
-IF ( .NOT. ALLOCATED(reducedLAIdue2snow))  ALLOCATE(reducedLAIdue2snow(mp) )
-IF ( .NOT. ALLOCATED(HeightAboveSnow) )    ALLOCATE(HeightAboveSnow(mp) )
-IF ( .NOT. ALLOCATED(LAI_pft_cbl) )        ALLOCATE(LAI_pft_cbl(mp) )
-IF ( .NOT. ALLOCATED(HGT_pft_cbl) )        ALLOCATE(HGT_pft_cbl(mp) )
-IF ( .NOT. ALLOCATED(AlbSoil) )            ALLOCATE(AlbSoil(mp,nrb) )
-IF ( .NOT. ALLOCATED(coszen) )             ALLOCATE(coszen(mp) )
-IF ( .NOT. ALLOCATED(EffSurfRefl_dif) )    ALLOCATE(EffSurfRefl_dif(mp, nrb) )
-IF ( .NOT. ALLOCATED(EffSurfRefl_beam) )   ALLOCATE(EffSurfRefl_beam(mp, nrb) )
-IF ( .NOT. ALLOCATED(SnowDepth) )          ALLOCATE(SnowDepth(mp) )
-IF ( .NOT. ALLOCATED(SnowDensity) )        ALLOCATE(SnowDensity(mp) )
-IF ( .NOT. ALLOCATED(SoilTemp) )           ALLOCATE(SoilTemp(mp) )
-IF ( .NOT. ALLOCATED(SnowAge) )            ALLOCATE(SnowAge(mp) )
-IF ( .NOT. ALLOCATED(ExtCoeff_beam) )      ALLOCATE(ExtCoeff_beam(mp) )
-IF ( .NOT. ALLOCATED(ExtCoeff_dif) )       ALLOCATE(ExtCoeff_dif(mp) )
-IF ( .NOT. ALLOCATED(EffExtCoeff_beam) )   ALLOCATE(EffExtCoeff_beam(mp, nrb) )
-IF ( .NOT. ALLOCATED(EffExtCoeff_dif) )    ALLOCATE(EffExtCoeff_dif(mp, nrb) )
-IF ( .NOT. ALLOCATED(CanopyTransmit_dif))  ALLOCATE(CanopyTransmit_dif(mp, nrb))
-IF ( .NOT. ALLOCATED(CanopyTransmit_beam)) ALLOCATE(CanopyTransmit_beam(mp,nrb))
-IF ( .NOT. ALLOCATED(CanopyRefl_dif) )     ALLOCATE(CanopyRefl_dif(mp, nrb) )
-IF ( .NOT. ALLOCATED(CanopyRefl_beam) )    ALLOCATE(CanopyRefl_beam(mp, nrb) )
-IF ( .NOT. ALLOCATED(AlbSnow) )            ALLOCATE(AlbSnow(mp, nrb) )
-IF ( .NOT. ALLOCATED(c1) )                 ALLOCATE(c1(mp, nrb) )
-IF ( .NOT. ALLOCATED(rhoch) )              ALLOCATE(rhoch(mp, nrb) )
-IF ( .NOT. ALLOCATED(xk) )                 ALLOCATE(xk(mp, nrb) )
-IF ( .NOT. ALLOCATED(metDoY) )             ALLOCATE(metDoY(mp) )
-IF ( .NOT. ALLOCATED(SW_down) )            ALLOCATE(SW_down(mp,nrb) )
-IF ( .NOT. ALLOCATED(RadFbeam) )           ALLOCATE(RadFbeam(mp, nrb) )
-IF ( .NOT. ALLOCATED(RadAlbedo) )          ALLOCATE(RadAlbedo(mp, nrb) )
+IF ( .NOT. ALLOCATED(reducedLAIdue2snow) ) THEN
+  ALLOCATE( reducedLAIdue2snow(mp) )
+END IF
+IF ( .NOT. ALLOCATED(HeightAboveSnow) ) THEN
+  ALLOCATE( HeightAboveSnow(mp) )
+END IF
+IF ( .NOT. ALLOCATED(LAI_pft_cbl) ) THEN
+  ALLOCATE( LAI_pft_cbl(mp) )
+END IF
+IF ( .NOT. ALLOCATED(HGT_pft_cbl) ) THEN
+  ALLOCATE( HGT_pft_cbl(mp) )
+END IF
+IF ( .NOT. ALLOCATED(AlbSoil) ) THEN
+  ALLOCATE( AlbSoil(mp,nrb) )
+END IF
+IF ( .NOT. ALLOCATED(coszen) ) THEN
+  ALLOCATE( coszen(mp) )
+END IF
+IF ( .NOT. ALLOCATED(EffSurfRefl_dif) ) THEN
+  ALLOCATE( EffSurfRefl_dif(mp, nrb) )
+END IF
+IF ( .NOT. ALLOCATED(EffSurfRefl_beam) ) THEN
+  ALLOCATE( EffSurfRefl_beam(mp, nrb) )
+END IF
+IF ( .NOT. ALLOCATED(SnowDepth) ) THEN
+  ALLOCATE( SnowDepth(mp) )
+END IF
+IF ( .NOT. ALLOCATED(SnowDensity) ) THEN
+  ALLOCATE( SnowDensity(mp) )
+END IF
+IF ( .NOT. ALLOCATED(SoilTemp) ) THEN
+  ALLOCATE( SoilTemp(mp) )
+END IF
+IF ( .NOT. ALLOCATED(SnowAge) ) THEN
+  ALLOCATE( SnowAge(mp) )
+END IF
+IF ( .NOT. ALLOCATED(ExtCoeff_beam) ) THEN
+  ALLOCATE( ExtCoeff_beam(mp) )
+END IF
+IF ( .NOT. ALLOCATED(ExtCoeff_dif) ) THEN
+  ALLOCATE( ExtCoeff_dif(mp) )
+END IF
+IF ( .NOT. ALLOCATED(EffExtCoeff_beam) ) THEN
+  ALLOCATE( EffExtCoeff_beam(mp, nrb) )
+END IF
+IF ( .NOT. ALLOCATED(EffExtCoeff_dif) ) THEN
+  ALLOCATE( EffExtCoeff_dif(mp, nrb) )
+END IF
+IF ( .NOT. ALLOCATED(CanopyTransmit_dif) ) THEN
+  ALLOCATE( CanopyTransmit_dif(mp, nrb))
+END IF
+IF ( .NOT. ALLOCATED(CanopyTransmit_beam) ) THEN
+  ALLOCATE( CanopyTransmit_beam(mp,nrb) )
+END IF
+IF ( .NOT. ALLOCATED(CanopyRefl_dif) ) THEN
+  ALLOCATE( CanopyRefl_dif(mp, nrb) )
+END IF
+IF ( .NOT. ALLOCATED(CanopyRefl_beam) ) THEN
+  ALLOCATE( CanopyRefl_beam(mp, nrb) )
+END IF
+IF ( .NOT. ALLOCATED(AlbSnow) ) THEN
+  ALLOCATE( AlbSnow(mp, nrb) )
+END IF
+IF ( .NOT. ALLOCATED(c1) ) THEN
+  ALLOCATE( c1(mp, nrb) )
+END IF
+IF ( .NOT. ALLOCATED(rhoch) ) THEN
+  ALLOCATE( rhoch(mp, nrb) )
+END IF
+IF ( .NOT. ALLOCATED(xk) ) THEN
+  ALLOCATE( xk(mp, nrb) )
+END IF
+IF ( .NOT. ALLOCATED(metDoY) ) THEN
+  ALLOCATE( metDoY(mp) )
+END IF
+IF ( .NOT. ALLOCATED(SW_down) ) THEN
+  ALLOCATE( SW_down(mp,nrb) )
+END IF
+IF ( .NOT. ALLOCATED(RadFbeam) ) THEN
+  ALLOCATE( RadFbeam(mp, nrb) )
+END IF
+IF ( .NOT. ALLOCATED(RadAlbedo) ) THEN
+  ALLOCATE( RadAlbedo(mp, nrb) )
+END IF
 IF (.NOT. ALLOCATED(veg_mask) ) THEN
   ALLOCATE( veg_mask(mp) )
 END IF
@@ -158,7 +213,8 @@ SUBROUTINE flush_local_vars( EffSurfRefl_beam, EffSurfRefl_dif, SnowDepth,     &
                              ExtCoeff_dif, EffExtCoeff_beam, EffExtCoeff_dif,  &
                              CanopyTransmit_beam, CanopyTransmit_dif,          &
                              CanopyRefl_beam, CanopyRefl_dif, RadFbeam,        &
-                             RadAlbedo, AlbSnow, c1, rhoch, xk, metDoY, SW_down)
+                             RadAlbedo, AlbSnow, c1, rhoch, xk, metDoY,        &
+                             SW_down, veg_mask )
 
 ! Description:
 ! Deallocate variables in the rad structure
@@ -193,6 +249,7 @@ REAL, INTENT(IN OUT), ALLOCATABLE :: c1(:,:)
 REAL, INTENT(IN OUT), ALLOCATABLE :: rhoch(:,:)
 REAL, INTENT(IN OUT), ALLOCATABLE :: xk(:,:)
 REAL, INTENT(IN OUT), ALLOCATABLE :: SW_down(:,:)        ! dummy
+LOGICAL, INTENT(IN OUT), ALLOCATABLE :: veg_mask(:)
 INTEGER, INTENT(IN OUT), ALLOCATABLE :: metDoY(:)  ! pass DoY from current_time
 
 IF ( ALLOCATED(EffSurfRefl_dif)     ) DEALLOCATE ( EffSurfRefl_dif )
@@ -223,6 +280,7 @@ IF ( ALLOCATED (rhoch)              ) DEALLOCATE (rhoch )
 IF ( ALLOCATED (xk)                 ) DEALLOCATE (xk )
 IF ( ALLOCATED (SW_down)            ) DEALLOCATE (SW_down )
 IF ( ALLOCATED (MetDoY)             ) DEALLOCATE (MetDoY )
+IF ( ALLOCATED (veg_mask)           ) DEALLOCATE (veg_mask)
 
 RETURN
 END SUBROUTINE flush_local_vars

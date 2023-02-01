@@ -299,7 +299,8 @@ CALL flush_local_vars( EffSurfRefl_beam, EffSurfRefl_dif,SnowDepth,            &
                        HeightAboveSnow, coszen, ExtCoeff_beam, ExtCoeff_dif,   &
                        EffExtCoeff_beam, EffExtCoeff_dif, CanopyTransmit_beam, &
                        CanopyTransmit_dif, CanopyRefl_beam, CanopyRefl_dif,    &
-                       RadFbeam, RadAlbedo, AlbSnow, c1, rhoch, xk, metDoY, SW_down )
+                       RadFbeam, RadAlbedo, AlbSnow, c1, rhoch, xk, metDoY,    &
+                       SW_down, veg_mask )
 
 ! for completeness flick switches before leaving
 jls_radiation= .FALSE.
