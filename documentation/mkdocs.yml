@@ -54,6 +54,10 @@ markdown_extensions:
       alternate_style: true
   - attr_list
   - md_in_html
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+
 
 extra_javascript:
   - javascripts/mathjax.js
@@ -87,14 +91,13 @@ nav:
       - Snow: user_guide/science/snow.md
       - Groundwater: user_guide/science/groundwater.md
       - CASA: user_guide/science/CASA.md
-  - POP-TRENDY: POP-TRENDY/index.md
   - Developer Guide:
+    - developer_guide/index.md
     - Contribution flowchart: developer_guide/contribution_flowchart.md
-    - Cheat Sheets: developer_guide/cheat_sheets.md
     - Documentation guidelines: 
       - developer_guide/documentation_guidelines/index.md
       - Scientific documentation: developer_guide/documentation_guidelines/science_doc.md
-      - Other documentation: developer_guide/documentation_guidelines/other_doc.md
+      - Cheat Sheets: developer_guide/documentation_guidelines/cheat_sheets.md
     - Coding standards: developer_guide/coding_standards.md
     - CABLE's release process: developer_guide/release.md
     - API documentation: developer_guide/api.md
