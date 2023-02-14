@@ -1,5 +1,5 @@
 #!/bin/bash
-# This script excludes all the Fortran files from FORD except these that have
+# This script excludes all the Fortran files from FORD except those that have
 # been modified by the Pull Request
 #
 # Inputs:
@@ -46,7 +46,7 @@ then
     src_dir="src_pop"
 fi
 
-# List of all source files in the trunk
+# List of the basenames of all source file pathnames in the trunk
 find ${src_dir} -name "*.F90" | rev | cut -d '/' -f1 | rev > exclude_files_ford.txt
 
 # Number of files found. Need input redirection to get number only
