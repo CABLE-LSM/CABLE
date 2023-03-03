@@ -45,7 +45,7 @@ MODULE landuse_variable
   ! **WARNING:** there are external procedures in this file that should be
   ! moved to the `CONTAINS` clause of this module.
   TYPE landuse_mland
-    !! Land-use change data for vegetation undergoing land-use transition.
+    !! Variables indexed along land points and vegetation type
     ! patch generic
     INTEGER,   DIMENSION(:,:),       ALLOCATABLE :: iveg_x
     INTEGER,   DIMENSION(:,:),       ALLOCATABLE :: isoil_x
