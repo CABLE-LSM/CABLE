@@ -227,6 +227,8 @@ MODULE landuse_variable
 
   SUBROUTINE landuse_allocate_mland(mland,luc)
   !! Allocates the `luc%%var(mland,mvmax)` variables
+  !!
+  !! **WARNING:** Need to use a separate ALLOCATE call for each array
    use landuse_constant
    IMPLICIT NONE
    TYPE(landuse_mland), INTENT(INOUT)  :: luc
