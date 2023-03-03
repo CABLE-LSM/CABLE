@@ -612,6 +612,8 @@ MODULE landuse_variable
 
    SUBROUTINE landuse_allocate_mp(mpx,ms,msn,nrb,mplant,mlitter,msoil,mwood,ncp,ncs,lucmp)
    !! Allocates the `luc%var(mp)` variables.
+   !!
+   !! **WARNING:** Need to use a separate ALLOCATE call for each array
    integer    mpx,ms,msn,nrb,mplant,mlitter,msoil,mwood,ncp,ncs
    TYPE(landuse_mp), INTENT(INOUT)  :: lucmp
 
