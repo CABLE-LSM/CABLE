@@ -191,9 +191,8 @@ MODULE landuse_variable
   END TYPE landuse_mland
 
   TYPE landuse_mp
-   !! Land-use data for vegetation patches undergoing wood harvest or
-   !! management.
-
+   !! Variables indexed along the vegetation patches.
+   
    ! generic patch properties
    integer,    dimension(:),        allocatable   :: iveg,isoil,soilorder,phase,isflag           !(mp)
    integer,    dimension(:),        allocatable   :: doyphase3                                   !(mp)
