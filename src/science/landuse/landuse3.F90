@@ -481,6 +481,8 @@ MODULE landuse_variable
 
    SUBROUTINE landuse_deallocate_mland(luc)
    !! Deallocates the `luc%var(mland,mvmax)` variables
+   !!
+   !! **WARNING:** Need to deallocate in reverse order from the allocation.
    IMPLICIT NONE
    TYPE(landuse_mland), INTENT(INOUT)  :: luc
 
