@@ -37,7 +37,7 @@ MODULE landuse_variable
   !
   ! 1. Map a CABLE variable `var` from CABLE into a `landuse_mland` member
   !    variable `luc%var_x`.
-  ! 2. Apply land-use change (either a plant function type transition, wood
+  ! 2. Apply land-use change (either a plant functional type transition, wood
   !    harvest or other land management).
   ! 3. Write the value of `luc%var_x` into `luc%var_y`
   ! 4. Update the value of `mp` and write `luc%var_y` to `lucmp%var`
