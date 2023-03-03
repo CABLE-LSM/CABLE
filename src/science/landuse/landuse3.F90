@@ -677,7 +677,9 @@ MODULE landuse_variable
    END SUBROUTINE landuse_allocate_mp
 
    SUBROUTINE landuse_deallocate_mp(mpx,ms,msn,nrb,mplant,mlitter,msoil,mwood,lucmp)
-   !! Deallocate the `luc%var(mp)` variables
+   !! Deallocates the `luc%var(mp)` variables
+   !!
+   !! **WARNING:** Need to deallocate in reverse order from the allocation.
    integer     mpx,ms,msn,nrb,mplant,mlitter,msoil,mwood
    TYPE(landuse_mp), INTENT(INOUT)  :: lucmp
      ! patch-generic variables
