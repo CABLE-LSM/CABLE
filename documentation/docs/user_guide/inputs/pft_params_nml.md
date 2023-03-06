@@ -128,20 +128,12 @@ vegin%zr=1.800000,3.000000,2.000000,2.000000,2.500000,5*0.500000,1.800000,3.1000
 | vegin%xfang | real | -1.0 – 0.5 | 0.01, 0.1, 0.01, 0.25, 0.01, -0.3, -0.3, -0.3, -0.3, -0.3, -0.3, 0.1, 0, 0, 0, 0, 0| Leaf angle \( (-) \) |
 | vegin%zr | real | >=0.0 | 1.8, 3, 2, 2, 2.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.8, 3.1, 3, 1, 1, 1, 1 | Maximum rooting depth \( (cm) \) |
 
-## Old or unused parameters
+## Unused parameters
 
 | Name | Type | Available | Default | Description |
 |-|-|-|-|-|
-| deciduous | logical | .true., .false. | N/A | Flag used for phenology fix |
-| iLU | integer | ? | 1 – 30 | Land use type |
-| isoil | integer | ? | 1 – 30 | Soil type |
-| iveg | integer | ? | 1 – 30 | Vegetation type |
-| meth | integer | 0, 1 | 1 | Canopy turbulence parameterisation method |
-| toptvj | real | ? | ? | Optimum temperature of the start of photosynthesis. \( (^{\circ}C) \) |
-| vegin%dleaf | real | ? | ? | Characteristic length of leaf \( (m) \) |
-| vegin%froot | real  | ? | ? | Root fraction \( (-) \) |
+| vegin%dleaf | real | ? | ? | Characteristic length of leaf (not used) \( (m) \) |
+| vegin%froot | real  | ? | ? | Root fraction (not used) \( (-) \) |
 | vegin%wai | real | 0.0 – 1.0 | 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 | Wood area index (stem+branches+twigs) (not used) \( (-) \) |
-| vegin%xalbnir | real | >=0.0 | 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 | Not used |
-| vlai  | real | ? | ? | Leaf area index \( (-) or (m \cdot m^{-1}) \)|
-| vlaimax | real | ? | ? | Vertical extinction coefficient \( (-) or (m \cdot m^{-1}) \) |
+| vegin%xalbnir | real | >=0.0 | 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 | ? (not used) |
 
