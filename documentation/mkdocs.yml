@@ -81,6 +81,7 @@ nav:
       - cable.nml options: user_guide/inputs/cable_nml.md
       - pft_params.nml options: user_guide/inputs/pft_params_nml.md
       - cable_soilparm.nml options: user_guide/inputs/cable_soilparm_nml.md
+      - pftlookup.csv table: user_guide/inputs/pftlookup_csv.md
     - Outputs description: 
       - user_guide/outputs/index.md
     - Existing configurations: user_guide/configurations/config.md
