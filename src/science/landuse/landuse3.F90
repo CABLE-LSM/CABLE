@@ -15,18 +15,20 @@ MODULE landuse_variable
   !
   !## Method
   !
-  ! All variables in the restart file and the state variables will be
+  ! All variables in the CABLE restart file and the state variables will be
   ! calculated.
   !
   ! There are three groups of `landuse_mland` member variables. For example,
   ! let's say we have a variable named `var`, then:
   !
   ! - `luc%var_x(mland,mvmax)` contains data before land-use change,
-  !    indexed using `mland` and `mvmax`.
+  !   indexed on the number of land points (`mland`) and the maximum number of 
+  !   plant functional types (`mvmax`).
   ! - `luc%var_y(mland,mvmax)` contains data after land-use change, indexed
-  !    using `mland` and `mvmax`.
-  ! - `lucmp%var(mp)` contains the variable data, indexed using the patch
-  !    number from 1 to `mp`.
+  !   on the number of land points (`mland`) and the maximum number of 
+  !   plant functional types (`mvmax`).
+  ! - `lucmp%var(mp)` contains the variable data, indexed on the number of 
+  !   vegetation patches (`mp`).  
   !
   ! The land-use change for each variable is applied in the form of a
   ! transformation matrix `T`, such that:
