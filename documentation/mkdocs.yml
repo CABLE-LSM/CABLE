@@ -32,6 +32,9 @@ theme:
     - navigation.tabs
     - navigation.tabs.sticky
 
+extra_css:
+  - css/cable.css
+
 plugins:
   - git-revision-date-localized:
       type: date
