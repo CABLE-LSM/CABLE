@@ -91,6 +91,7 @@ nav:
       - Snow: user_guide/science/snow.md
       - Groundwater: user_guide/science/groundwater.md
       - CASA: user_guide/science/CASA.md
+    - Obsolete and deprecated features: user_guide/obsolete_and_deprecated_features/obsolete_and_deprecated_features.md
   - Developer Guide:
     - developer_guide/index.md
     - Contribution flowchart: developer_guide/contribution_flowchart.md
@@ -101,6 +102,7 @@ nav:
     - Coding standards: developer_guide/coding_standards.md
     - CABLE's release process: developer_guide/release.md
     - API documentation: developer_guide/api.md
+    - Obsolete and deprecated features: developer_guide/obsolete_and_deprecated_features/obsolete_and_deprecated_features.md
   - How-to:
     - How to prepare fields for CABLE: how-to/input_fields.md
     - How to work with 1D arrays: how-to/1D.md
