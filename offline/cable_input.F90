@@ -1834,7 +1834,7 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
         ! PRINT *, "met%fsd",met%fsd
       ! ____________________________________________________
       ELSE ! MMY
-        print *, "cable_user%MetType .ne. 'prin' in Get SWdown data for mask grid" ! MMY
+        !print *, "cable_user%MetType .ne. 'prin' in Get SWdown data for mask grid" ! MMY
         ok= NF90_GET_VAR(ncid_met,id%SWdown,tmpDat3, &
              start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
         IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -1848,7 +1848,7 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
           met%fsd(landpt(i)%cstart:landpt(i)%cend,2) = &
                0.5 * REAL(tmpDat3(land_x(i),land_y(i),1))
         ENDDO
-        print *, "met%fsd",met%fsd ! MMY
+        !print *, "met%fsd",met%fsd ! MMY
       END IF ! MMY
 
 ! _______________________ MMY bring below from CABLE trunk r8444  ______________________

@@ -4,94 +4,9 @@ export dosvn=1 # 1/0: do/do not check svn
 
 known_hosts()
 {
-   set -A kh vayu cher pear shin jigg nXXX gadi ces2 ccrc mael mons cycl hurr typh
+   set -A kh  pear jigg nXXX raij ces2 ccrc mael gadi
 }
 
-host_gadi()
-{
-   . /etc/bashrc
-   module purge
-   module add intel-compiler/2019.5.281
-   module add intel-mpi/2019.5.281
-   module add netcdf/4.6.3
-
-   export FC='mpif90'
-   export NCDIR=$NETCDF_ROOT'/lib/Intel'
-   export NCMOD=$NETCDF_ROOT'/include/Intel'
-   export CFLAGS='-O2 -fp-model precise'
-   if [[ $1 = 'debug' ]]; then
-      export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
-   fi
-   export LDFLAGS='-L'$NCDIR' -O0'
-   export LD='-lnetcdf -lnetcdff'
-   build_build
-   cd ../
-   build_status
-}
-
-##
-host_cycl()
-{
-   export NCDIR='/share/apps/netcdf-f/intel/4.4.4/lib'
-   export NCMOD='/share/apps/netcdf-f/intel/4.4.4/include'
-   export FC=ifort
-   export CFLAGS='-O2 -fp-model precise'
-   if [[ $1 = 'debug' ]]; then
-      export CFLAGS='-O0 -fp-model precise -fpe0 -g -traceback -nostand -check all,nobounds,noarg_temp_created -debug all'
-   fi
-   export LD='-lnetcdf -lnetcdff'
-   export LDFLAGS='-L/share/apps/netcdf-f/intel/4.4.4/lib -O2'
-   build_build
-   cd ../
-   build_status
-}
-
-host_hurr()
-{
-   export NCDIR='/share/apps/netcdf-f/intel/4.4.4/lib'
-   export NCMOD='/share/apps/netcdf-f/intel/4.4.4/include'
-   export FC=ifort
-   export CFLAGS='-O2 -fp-model precise'
-   if [[ $1 = 'debug' ]]; then
-      export CFLAGS='-O0 -fp-model precise -fpe0 -g -traceback -nostand -check all,nobounds,noarg_temp_created -debug all'
-   fi
-   export LD='-lnetcdf -lnetcdff'
-   export LDFLAGS='-L/share/apps/netcdf-f/intel/4.4.4/lib -O2'
-   build_build
-   cd ../
-   build_status
-}
-
-host_typh()
-{
-   export NCDIR='/share/apps/netcdf-f/intel/4.4.4/lib'
-   export NCMOD='/share/apps/netcdf-f/intel/4.4.4/include'
-   export FC=ifort
-   export CFLAGS='-O2 -fp-model precise'
-   if [[ $1 = 'debug' ]]; then
-      export CFLAGS='-O0 -fp-model precise -fpe0 -g -traceback -nostand -check all,nobounds,noarg_temp_created -debug all'
-   fi
-   export LD='-lnetcdf -lnetcdff'
-   export LDFLAGS='-L/share/apps/netcdf-f/intel/4.4.4/lib -O2'
-   build_build
-   cd ../
-   build_status
-}
-
-
-## run with new gridinfo
-host_mons()
-{
-    export NCDIR='/share/apps/netcdf/intel/4.2.1/lib//share/apps/netcdf/intel/4.2.1/lib'
-    export NCMOD='/share/apps/netcdf/intel/4.2.1/lib//share/apps/netcdf/intel/4.2.1/include'
-    export FC=ifort
-    export CFLAGS='-O2 -fp-model precise -fpe0 -g -traceback -nostand -check all,nobounds,noarg_temp_created -debug all'
-    export LD='-lnetcdf -lnetcdff'
-    export LDFLAGS='-L/share/apps/netcdf/intel/4.2.1/lib//share/apps/netcdf/intel/4.2.1/lib -O2'
-    build_build
-    cd ../
-    build_status
-}
 
 host_mael()
 {
@@ -102,25 +17,7 @@ host_mael()
    #export CFLAGS='-O3 -fp-model precise  -ipo --parallel '
    export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib  -O2'
    if [[ $1 = 'debug' ]]; then
-      export CFLAGS='-O0 -fp-model precise -fpe0 -g -traceback -nostand -check all,nobounds,noarg_temp_created -debug all '
-      export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib '
-   fi
-   export LD='-lnetcdf -lnetcdff'
-   build_build
-   cd ../
-   build_status
-}
-
-host_bliz()
-{
-   export NCDIR='/share/apps/netcdf/intel/4.1.3/lib'
-   export NCMOD='/share/apps/netcdf/intel/4.1.3/include'
-   export FC=ifort
-   export CFLAGS='-O2 -fp-model precise  '
-   #export CFLAGS='-O3 -fp-model precise  -ipo --parallel '
-   export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib  -O2'
-   if [[ $1 = 'debug' ]]; then
-      export CFLAGS='-O0 -fp-model precise -fpe0 -g -traceback -nostand -check all,nobounds,noarg_temp_created -debug all '
+      export CFLAGS='-O0 -traceback -g -fp-model precise  '
       export LDFLAGS='-L/share/apps/intel/Composer/lib/intel64 -L/share/apps/netcdf/intel/4.1.3/lib '
    fi
    export LD='-lnetcdf -lnetcdff'
@@ -133,13 +30,8 @@ host_bliz()
 
 host_ccrc()
 {
-
-   netcdfversion=$(nc-config --version | cut -c 8-12)
-
-   ifortversion=$(ifort --version | head -n 1 | cut -c 15-18)
-
-   export NCDIR="/usr/local/netcdf/intel/${netcdfversion}/lib"
-   export NCMOD="/usr/local/netcdf/intel/${netcdfversion}/include"
+   export NCDIR='/usr/local/netcdf/intel/4.1.3/lib'
+   export NCMOD='/usr/local/netcdf/intel/4.1.3/include'
    export FC=ifort
    export CFLAGS='-O2 -fp-model precise '   #-traceback
    if [[ $1 = 'debug' ]]; then
@@ -147,9 +39,9 @@ host_ccrc()
 # -diag-enable sc2 -diag-enable sc-single-file
    fi
    export LD='-lnetcdf -lnetcdff'
-   export LDFLAGS="-L/usr/local/intel/Compiler/${ifortversion}/lib/intel64 -L//usr/local/netcdf/intel/${netcdfversion}/lib -O2"
+   export LDFLAGS='-L/usr/local/intel/Compiler/11.1/lib/intel64 -L//usr/local/netcdf/intel/4.1.3/lib -O2'
    if [[ $1 = 'debug' ]]; then
-      export LDFLAGS="-L/usr/local/intel/Compiler/${ifortversion}/lib/intel64 -L//usr/local/netcdf/intel/${netcdfversion}/lib -O0 -debug -g -ftrapuv -diag-enable warn"
+      export LDFLAGS='-L/usr/local/intel/Compiler/11.1/lib/intel64 -L//usr/local/netcdf/intel/4.1.3/lib -O0 -debug -g -ftrapuv -diag-enable warn'
 # -diag-enable sc2 -diag-enable sc-single-file
    fi
    build_build
@@ -228,23 +120,6 @@ host_jigg()
 }
 
 
-## shine-cl.nexus.csiro.au
-host_shin()
-{
-   export NCDIR='/usr/local/intel/lib'
-   export NCMOD='/usr/local/intel/include'
-   export FC=ifort
-   export CFLAGS='-O2 -fp-model precise -ftz -fpe0'
-   export LD='-lnetcdf'
-   export LDFLAGS='-L/usr/local/intel/lib -O2'
-   build_build
-   cd ../
-   build_status
-}
-
- #export CFLAGS='  -g -debug -traceback -fp-stack-check -O0 -debug -fpe=0 -fpe-all=0 -no-ftz -ftrapuv'
-#export CFLAGS='-warn all,nounused  -check all,noarg_temp_created -g -debug -traceback -fp-stack-check -O0 -debug -fpe1 -no-ftz -ftrapuv'
-
 
 ## pearcey.hpsc.csiro.au
 host_pear()
@@ -268,15 +143,22 @@ host_pear()
    build_status
 }
 
-
-## cherax.hpsc.csiro.au
-host_cher()
+## gadi.nci.org.au
+host_gadi()
 {
-   export NCDIR=$NETCDF_ROOT'/lib/'
-   export NCMOD=$NETCDF_ROOT'/include/'
-   export FC=$F90
+   . /etc/bashrc
+   module purge
+   module add intel-compiler/2019.5.281
+   module add netcdf/4.6.3
+
+   export FC='ifort'
+   export NCDIR=$NETCDF_ROOT'/lib/Intel'
+   export NCMOD=$NETCDF_ROOT'/include/Intel'
    export CFLAGS='-O2 -fp-model precise'
-   export LDFLAGS='-L'$NCDIR' -O2'
+   if [[ $1 = 'debug' ]]; then
+      export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
+   fi
+   export LDFLAGS='-L'$NCDIR' -O0'
    export LD='-lnetcdf -lnetcdff'
    build_build
    cd ../
@@ -284,33 +166,21 @@ host_cher()
 }
 
 
-## vayu.nci.org.au
-host_vayu()
-{
-   export NCDIR=$NETCDF_ROOT'/lib/Intel'
-   export NCMOD=$NETCDF_ROOT'/include/Intel'
-   export FC=$F90
-   export CFLAGS='-O0 -fp-model precise'
-   if [[ $1 = 'debug' ]]; then
-      export CFLAGS='-O2 -traceback -g -fp-model precise -ftz -fpe0'
-   fi
-   export LDFLAGS='-L'$NCDIR' -O0'
-   export LD='-lnetcdf'
-   build_build
-   cd ../
-   build_status
-}
+
 
 ## raijin.nci.org.au
 host_raij()
 {
-   module load  intel-fc/17.0.1.132 netcdf
+   module del intel-cc intel-fc
+   module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
+   module add netcdf/4.3.3.1
+
    export NCDIR=$NETCDF_ROOT'/lib/Intel'
    export NCMOD=$NETCDF_ROOT'/include/Intel'
    export FC=$F90
    export CFLAGS='-O0 -fp-model precise'
    if [[ $1 = 'debug' ]]; then
-      export CFLAGS='-O0 -fp-model precise -fpe0 -g -traceback -nostand -check all,nobounds,noarg_temp_created -debug all '
+      export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
    fi
    export LDFLAGS='-L'$NCDIR' -O0'
    export LD='-lnetcdf -lnetcdff'
@@ -394,7 +264,7 @@ host_write()
    print '' >> junk
    print 'known_hosts()' >> junk
    print '{' >> junk
-   print '   set -A kh' ${kh[*]} $HOST_MACH >> junk
+   print '   set -A kh' ${kh[*]} $HOST_MACH >> junk ccrc ccrc Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart ccrc ccrc Mart ccrc ccrc ccrc ccrc ccrc ccrc ccrc ccrc Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart Mart
    print '}' >> junk
    print '' >> junk
    print '' >> junk
@@ -513,7 +383,6 @@ i_do_now()
 
 build_build()
 {
-   bash ./my_banner.sh
    if [[ ${dosvn} -eq 1 ]] ; then
        # write file for consumption by Fortran code
        # get SVN revision number
@@ -539,11 +408,15 @@ build_build()
    fi
 
    # directories contain source code
-   CORE="../core/biogeophys"
+   PHYS="../core/biogeophys"
+   UTIL="../core/utils"
+   DIAG=$UTIL"/diag"
    DRV="."
    CASA="../core/biogeochem"
 
-   /bin/cp -p $CORE/*90 ./.tmp
+   /bin/cp -p $PHYS/*90 ./.tmp
+   /bin/cp -p $UTIL/*90 ./.tmp
+   /bin/cp -p $DIAG/*90 ./.tmp
    /bin/cp -p $DRV/*90 ./.tmp
    /bin/cp -p $CASA/*90 ./.tmp
 
