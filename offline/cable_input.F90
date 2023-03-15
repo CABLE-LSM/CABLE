@@ -1070,7 +1070,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
               //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
          exists%Wind = .FALSE. ! Use vector wind when reading met
       ELSE                                                       ! MMY
-         exists%Wind = .TRUE. ! 'Wind' variable exists           ! MMY        
+         exists%Wind = .TRUE. ! 'Wind' variable exists           ! MMY
       END IF
     ELSE
        exists%Wind = .TRUE. ! 'Wind' variable exists
@@ -1883,7 +1883,7 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
    !      ENDDO
    !    END IF ! MMY
    !  ELSE  !Anna, site runs need extra z dimension
-   
+
    !    ok= NF90_GET_VAR(ncid_met,id%Tair,tmpDat4, &
    !          start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
    !    IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -2448,7 +2448,7 @@ SUBROUTINE get_met_data(spinup,spinConv,met,soil,rad,                          &
       met%ca(:) = fixedCO2 /1000000.0 ! MMY@Nov2022        
    END IF
 ! __________________________________________________________________________
-      
+
       ! Get LAI, if it's present, for mask grid:- - - - - - - - - - - - -
       IF(exists%LAI) THEN ! If LAI exists in met file
         IF(exists%LAI_T) THEN ! i.e. time dependent LAI
@@ -3160,7 +3160,7 @@ SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad, 
     CALL report_parameters(logn,soil,veg,bgc,rough,ssnow,canopy, &
          casamet,casapool,casaflux,phen,vegparmnew,verbose)
 
-
+    print *,"***MMY soil%elev, rough%za_uv, rough%za_tq, veg%hc",soil%elev, rough%za_uv, rough%za_tq, veg%hc !MMY
 END SUBROUTINE load_parameters
 
 
@@ -3247,8 +3247,12 @@ SUBROUTINE get_parameters_met(soil,veg,bgc,rough,completeSet)
                 nmetpatches,'nrb')
    CALL readpar(ncid_met,'froot',completeSet,veg%froot,filename%met,           &
                 nmetpatches,'ms')
-   CALL readpar(ncid_met,'hc',completeSet,veg%hc,filename%met,                 &
+   ! _____________________ MMY @Nov2022 change for PLUMBER 2 ___________________
+   ! CALL readpar(ncid_met,'hc',completeSet,veg%hc,filename%met,               &
+   !              nmetpatches,'def')
+   CALL readpar(ncid_met,'canopy_height',completeSet,veg%hc,filename%met,      &
                 nmetpatches,'def')
+   ! ___________________________________________________________________________
    CALL readpar(ncid_met,'canst1',completeSet,veg%canst1,filename%met,         &
                 nmetpatches,'def')
    CALL readpar(ncid_met,'dleaf',completeSet,veg%dleaf,filename%met,           &
@@ -3287,12 +3291,12 @@ SUBROUTINE get_parameters_met(soil,veg,bgc,rough,completeSet)
                 nmetpatches,'def') ! Ticket #56
    CALL readpar(ncid_met,'g1',completeSet,veg%g1,filename%met,             &
                 nmetpatches,'def') ! Ticket #56
-   ok = NF90_INQ_VARID(ncid_met,'za',parID)
+   ok = NF90_INQ_VARID(ncid_met,'reference_height',parID) ! MMY change za to reference_height for PLUMBER 2
    IF(ok == NF90_NOERR) THEN ! if it does exist
-      CALL readpar(ncid_met,'za',completeSet,rough%za_uv,filename%met,         &
-                   nmetpatches,'def')
-      CALL readpar(ncid_met,'za',completeSet,rough%za_tq,filename%met,         &
-                   nmetpatches,'def')
+      CALL readpar(ncid_met,'reference_height',completeSet,rough%za_uv,filename%met,         &
+                   nmetpatches,'def') ! MMY change za to reference_height for PLUMBER 2
+      CALL readpar(ncid_met,'reference_height',completeSet,rough%za_tq,filename%met,         &
+                   nmetpatches,'def') ! MMY change za to reference_height for PLUMBER 2
    ELSE
       CALL readpar(ncid_met,'za_uv',completeSet,rough%za_uv,filename%met,      &
                    nmetpatches,'def')
@@ -3305,7 +3309,8 @@ SUBROUTINE get_parameters_met(soil,veg,bgc,rough,completeSet)
                 nmetpatches,'ncp')
    CALL readpar(ncid_met,'ratecs',completeSet,bgc%ratecs,filename%met,         &
                 nmetpatches,'ncs')
-
+    CALL readpar(ncid_met,'elevation',completeSet,soil%elev,filename%met,         &
+                 nmetpatches,'def')  ! MMY read elevation for PLUMBER 2
 END SUBROUTINE get_parameters_met
 
 !==============================================================================
