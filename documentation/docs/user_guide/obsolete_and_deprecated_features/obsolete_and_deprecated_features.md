@@ -15,7 +15,8 @@ Enter obsolete user features in the table below:
 
 | Feature name | <div style="width:150px"> Removal reason </div> | Replacement? | CABLE version | Pull Request |
 | ------------ | ------------------------------------------------------- | ------------ | ------------- | ------------ |
-| exact feature syntax | short deprecation reason | current alternative if any | version number | [#pull request number](copy PR's URL) |
+| Namelist variable `filename%veg` | Now uses namelist file `pft_params.nml` | `pft_params.nml` | CABLE3 | N/A |
+| Namelist variable `filename%soil` | Now uses namelist file `cable_soilparm.nml` | `cable_soilparm` | CABLE3 | N/A |
 | exact feature syntax | short deprecation reason | current alternative if any | version number | [#pull request number](copy PR's URL) |
 
 
