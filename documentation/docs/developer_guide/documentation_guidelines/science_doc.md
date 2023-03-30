@@ -28,7 +28,11 @@ At a minimum a subroutine, function, or interface must contain the following sta
     ! It is fine to refer to a published paper as the explanation of the 
     ! relationship (e.g. "following Wang and Leuning, 1998"). 
     !
-    ! Mention all scientific methods used in the procedure.
+    ! Mention all scientific methods used in the procedure. 
+    !
+    ! **Warning**: Highlight any code deficiency (bug, incompatibilities, 
+    ! refactoring needs, etc.) in a **Warning** section. Use strong 
+    ! emphasis on "Warning". 
     !
     ! Avoid using abbreviations (e.g. write "maximum" not "max.").
     ! 
@@ -76,6 +80,8 @@ CONTAINS
     !!## Method
     !!
     !! It writes the argument to the standard output.
+    !!
+    !! **Warning**: This subroutine seems useless and should be removed.
     !! 
     !!## References
     !!

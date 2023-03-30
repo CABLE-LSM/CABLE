@@ -6,6 +6,36 @@ To install CABLE you need to have the following already installed on your system
 - a Fortran compiler
 - the netCDF library
 
+## Flowchart of the installation
+
+``` mermaid
+graph TD
+    
+    A(Checkout CABLE with SVN):::UserAction -->|Serial?| B(Run `offline/build3.sh`):::UserAction;
+    B --> D[load modules, set compiler flags, create .tmp/ directory];
+    D -->|Serial?| E[Run `serial_cable`];
+    E --> G[executable `cable`]:::Output;
+    A -->|Parallel?| C(Run `offline/build3.sh mpi`):::UserAction;
+    C --> D;   
+    D -->|Parallel?| F[Run `parallel_cable`];
+    F --> H[executable `cable_mpi`]:::Output;
+    click A "http://cable-lsm.github.io/CABLE/user_guide/installation/#getting-the-cable-source-code"
+    click B "http://cable-lsm.github.io/CABLE/user_guide/installation/#launching-the-build"
+    click C "http://cable-lsm.github.io/CABLE/user_guide/installation/#launching-the-build"
+    click D "http://cable-lsm.github.io/CABLE/user_guide/installation/#description-of-the-build-process"
+    click E "http://cable-lsm.github.io/CABLE/user_guide/installation/#description-of-the-build-process"
+    click F "http://cable-lsm.github.io/CABLE/user_guide/installation/#description-of-the-build-process"
+
+    UserAction ---- Automatic ---- Output;
+
+    UserAction(Actions from the user):::UserAction;
+    Automatic(Automatic steps of the build script);
+    Output(Output of the build script):::Output;
+
+    classDef UserAction fill:#FEFB8E
+    classDef Output fill:#cefe8e
+```
+
 ## Getting the CABLE source code
 
 CABLE can be downloaded from the [subversion repository][cable-svn] hosted at [NCI][NCI] once a user has requested admission to the CABLE software group at NCI, as described [here][registration]. To install the latest version of CABLE, you simply need to checkout the `trunk`:
