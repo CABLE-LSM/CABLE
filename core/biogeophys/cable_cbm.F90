@@ -101,7 +101,7 @@ CONTAINS
        ENDIF
        ! Height adjustment not used in ACCESS CM2. See CABLE ticket 197
        ! met%tk = met%tk + C%grav/C%capp*(rough%zref_tq + 0.9*rough%z0m)
-!!$  The line above appears uncommented in MMY code -- rk4417   
+!$  The line above appears uncommented in MMY code -- rk4417   
 
        CALL define_air (met, air)
 
@@ -230,7 +230,7 @@ CONTAINS
        ! CM2 - further adapted to pass the correction term onto %trad correctly
        rad%trad = ( ( 1.-rad%transd ) * C%emleaf * canopy%tv**4 +                      &
             rad%transd * C%emsoil * ssnow%otss**4 + canopy%fns_cor/C%sboltz )**0.25
-!!$       The line above is different in MMY code -- rk4417
+!$       The line above is different in MMY code -- rk4417
     ELSE
        rad%trad = ( ( 1.-rad%transd ) * canopy%tv**4 +                             &
             rad%transd * ssnow%tss**4 )**0.25

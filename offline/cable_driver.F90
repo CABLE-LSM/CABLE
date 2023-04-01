@@ -62,7 +62,7 @@ PROGRAM cable_offline_driver
   USE cable_def_types_mod
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,		      &
        verbose, fixedCO2,output,check,patchout,	   &
-       patch_type,soilparmnew,&
+       patch_type,& ! soilparmnew, ! MMY @Oct2022 change to use soilparmnew by default
        defaultLAI, sdoy, smoy, syear, timeunits, exists, calendar
   USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
        cable_runtime, filename, myhome,		   &
@@ -135,7 +135,7 @@ USE cbl_soil_snow_init_special_module
   ! timing variables
   INTEGER, PARAMETER ::	 kstart = 1   ! start of simulation
   INTEGER, PARAMETER ::	 mloop	= 30   ! CASA-CNP PreSpinup loops
-!!$  INTEGER, PARAMETER ::      mloop     = 5   ! CASA-CNP PreSpinup loops ! replaces line above in MMY code -- rk4417
+!$  INTEGER, PARAMETER ::      mloop     = 5   ! CASA-CNP PreSpinup loops ! replaces line above in MMY code -- rk4417
   INTEGER :: LALLOC ! allocation coefficient for passing to spincasa
 
   INTEGER	 ::							      &
@@ -207,8 +207,6 @@ USE cbl_soil_snow_init_special_module
        vegparmnew = .FALSE.,	   & ! using new format input file (BP dec 2007)
        spinup = .FALSE.,	   & ! model spinup to soil state equilibrium?
        spinConv = .FALSE.,	   & ! has spinup converged?
-       spincasainput = .FALSE.,        & ! TRUE: SAVE input req'd to spin CASA-CNP; ! inserted line as per MMY code -- rk4417
-                                ! FALSE: READ input to spin CASA-CNP
        spincasa = .FALSE.,	   & ! TRUE: CASA-CNP Will spin mloop times,
                                 ! FALSE: no spin up
        l_casacnp = .FALSE.,	   & ! using CASA-CNP with CABLE
@@ -243,7 +241,7 @@ USE cbl_soil_snow_init_special_module
   NAMELIST/CABLE/		   &
        filename,	 & ! TYPE, containing input filenames
        vegparmnew,	 & ! use new soil param. method
-       soilparmnew,	 & ! use new soil param. method
+       !  soilparmnew,	 & ! use new soil param. method ! MMY @Oct2022 change to use soilparmnew by default
        calcsoilalbedo,	 & ! albedo considers soil color Ticket #27
        spinup,		 & ! spinup model (soil) to steady state
        delsoilM,delsoilT,& !
@@ -255,7 +253,6 @@ USE cbl_soil_snow_init_special_module
        leaps,		 &
        logn,		 &
        fixedCO2,	 &
-       spincasainput,    &     ! inserted line as per MMY code -- rk4417
        spincasa,	 &
        l_casacnp,	 &
        l_laiFeedbk,	 &
@@ -370,14 +367,14 @@ USE cbl_soil_snow_init_special_module
      LALLOC = 0 ! default
   ENDIF
 
-!!$   IF ( .NOT. spinup ) THEN
-!!$	 IF ( spincasa ) THEN
-!!$	    spincasa = .FALSE.
-!!$	    WRITE(*,*)	 "spinup == .FALSE. -> spincasa set to .F."
-!!$	    WRITE(logn,*)"spinup == .FALSE. -> spincasa set to .F."
-!!$	 ENDIF
-!!$   ENDIF
-!!$
+!$   IF ( .NOT. spinup ) THEN
+!$	 IF ( spincasa ) THEN
+!$	    spincasa = .FALSE.
+!$	    WRITE(*,*)	 "spinup == .FALSE. -> spincasa set to .F."
+!$	    WRITE(logn,*)"spinup == .FALSE. -> spincasa set to .F."
+!$	 ENDIF
+!$   ENDIF
+!$
 
   IF ( TRIM(cable_user%MetType) .EQ. 'gpgs' ) THEN
      leaps = .TRUE.
@@ -395,11 +392,11 @@ USE cbl_soil_snow_init_special_module
   !IF( ( l_laiFeedbk .OR. l_vcmaxFeedbk ) )	  &
   !   STOP 'casaCNP required to get prognostic LAI or Vcmax'
   IF( l_vcmaxFeedbk .AND. icycle < 1 )					   &
-!!$  IF( l_vcmaxFeedbk .AND. icycle < 2 )                            &   ! replaces line above in MMY code -- rk4417
+!$  IF( l_vcmaxFeedbk .AND. icycle < 2 )                            &   ! replaces line above in MMY code -- rk4417
        STOP 'icycle must be 2 to 3 to get prognostic Vcmax'
-  IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )				   &
-       STOP 'casaCNP must use new soil parameters'
-
+  !   IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )				   & ! MMY @Oct2022 change to use soilparmnew by default
+  !        STOP 'casaCNP must use new soil parameters'
+  
   NRRRR = MERGE(MAX(CABLE_USER%CASA_NREP,1), 1, CASAONLY)
   ! casa time count
   ctime = 0
@@ -427,11 +424,11 @@ USE cbl_soil_snow_init_special_module
      ENDIF !l_casacnp
 
   ELSEIF (TRIM(cable_user%MetType) .EQ. '') THEN
-!!$  IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &   ! this block replaces above [if -- elseif] in MMY code -- rk4417 
-!!$       TRIM(cable_user%MetType) .NE. "gpgs" .AND. &
-!!$       TRIM(cable_user%MetType) .NE. "plum" .AND. &
-!!$       TRIM(cable_user%MetType) .NE. "prin" .AND. & ! MMY
-!!$       TRIM(cable_user%MetType) .NE. "cru") THEN
+!$  IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &   ! this block replaces above [if -- elseif] in MMY code -- rk4417 
+!$       TRIM(cable_user%MetType) .NE. "gpgs" .AND. &
+!$       TRIM(cable_user%MetType) .NE. "plum" .AND. &
+!$       TRIM(cable_user%MetType) .NE. "prin" .AND. & ! MMY
+!$       TRIM(cable_user%MetType) .NE. "cru") THEN
      CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
      IF ( koffset .NE. 0 .AND. CABLE_USER%CALL_POP ) THEN
         WRITE(*,*)"When using POP, episode must start at Jan 1st!"
@@ -449,9 +446,9 @@ USE cbl_soil_snow_init_special_module
   RYEAR = 0
   ktau_tot = 0
   SPINon   = .TRUE.
-!!$  YearStart = CABLE_USER%YearStart
-!!$  YearEnd = CABLE_USER%YearEnd
-!!$  cable_user%CASA_SPIN_ENDYEAR
+!$  YearStart = CABLE_USER%YearStart
+!$  YearEnd = CABLE_USER%YearEnd
+!$  cable_user%CASA_SPIN_ENDYEAR
 
   SPINLOOP:DO WHILE ( SPINon )
 
@@ -504,40 +501,38 @@ USE cbl_soil_snow_init_special_module
                  calendar = "noleap"
               ENDIF
 
-!!$                                           This block appears in MMY code -- rk4417
-!!$! __________________________ MMY using Princeton _______________________________
-!!$        ELSE IF ( TRIM(cable_user%MetType) .EQ. 'prin' ) THEN
-!!$           ncciy = CurYear
-!!$
-!!$           CALL prepareFiles_princeton(ncciy) ! MMY
-!!$           IF ( RRRR .EQ. 1 ) THEN
-!!$           CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
-!!$           IF (leaps.and.is_leapyear(YYYY).and.kend.eq.2920) THEN
-!!$              STOP 'LEAP YEAR INCOMPATIBILITY WITH INPUT MET !!!'
-!!$           ENDIF
-!!$           IF ( NRRRR .GT. 1 ) THEN
-!!$              GSWP_MID(1,YYYY) = ncid_rain
-!!$              ! GSWP_MID(2,YYYY) = ncid_snow MMY
-!!$              GSWP_MID(3,YYYY) = ncid_lw
-!!$              GSWP_MID(4,YYYY) = ncid_sw
-!!$              GSWP_MID(5,YYYY) = ncid_ps
-!!$              GSWP_MID(6,YYYY) = ncid_qa
-!!$              GSWP_MID(7,YYYY) = ncid_ta
-!!$              GSWP_MID(8,YYYY) = ncid_wd
-!!$           ENDIF
-!!$           ELSE
-!!$           ncid_rain = GSWP_MID(1,YYYY)
-!!$           ! ncid_snow = GSWP_MID(2,YYYY) MMY
-!!$           ncid_lw   = GSWP_MID(3,YYYY)
-!!$           ncid_sw   = GSWP_MID(4,YYYY)
-!!$           ncid_ps   = GSWP_MID(5,YYYY)
-!!$           ncid_qa   = GSWP_MID(6,YYYY)
-!!$           ncid_ta   = GSWP_MID(7,YYYY)
-!!$           ncid_wd   = GSWP_MID(8,YYYY)
-!!$           kend      = ktauday * LOY ! MMY
-!!$           ENDIF
-!!$! ______________________________________________________________________________
-!!$
+! __________________________ MMY using Princeton _______________________________
+        ELSE IF ( TRIM(cable_user%MetType) .EQ. 'prin' ) THEN
+           ncciy = CurYear
+
+           CALL prepareFiles_princeton(ncciy) ! MMY
+           IF ( RRRR .EQ. 1 ) THEN
+           CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
+           IF (leaps.and.is_leapyear(YYYY).and.kend.eq.2920) THEN
+              STOP 'LEAP YEAR INCOMPATIBILITY WITH INPUT MET !!!'
+           ENDIF
+           IF ( NRRRR .GT. 1 ) THEN
+              GSWP_MID(1,YYYY) = ncid_rain
+              ! GSWP_MID(2,YYYY) = ncid_snow MMY
+              GSWP_MID(3,YYYY) = ncid_lw
+              GSWP_MID(4,YYYY) = ncid_sw
+              GSWP_MID(5,YYYY) = ncid_ps
+              GSWP_MID(6,YYYY) = ncid_qa
+              GSWP_MID(7,YYYY) = ncid_ta
+              GSWP_MID(8,YYYY) = ncid_wd
+           ENDIF
+           ELSE
+           ncid_rain = GSWP_MID(1,YYYY)
+           ! ncid_snow = GSWP_MID(2,YYYY) MMY
+           ncid_lw   = GSWP_MID(3,YYYY)
+           ncid_sw   = GSWP_MID(4,YYYY)
+           ncid_ps   = GSWP_MID(5,YYYY)
+           ncid_qa   = GSWP_MID(6,YYYY)
+           ncid_ta   = GSWP_MID(7,YYYY)
+           ncid_wd   = GSWP_MID(8,YYYY)
+           kend      = ktauday * LOY ! MMY
+           ENDIF
+! ______________________________________________________________________________
               
            ELSE IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
               ! PLUME experiment setup using WATCH
@@ -707,7 +702,7 @@ USE cbl_soil_snow_init_special_module
                  SPINconv = .FALSE.
 
               ELSEIF ( casaonly .AND. (.NOT. spincasa) ) THEN !.AND. cable_user%popluc) THEN
-!!$       ELSEIF ( casaonly .AND. (.NOT. spincasa) .AND. cable_user%popluc) THEN  ! replaces line above in MMY code -- rk4417
+!$       ELSEIF ( casaonly .AND. (.NOT. spincasa) .AND. cable_user%popluc) THEN  ! replaces line above in MMY code -- rk4417
                  CALL CASAONLY_LUC(dels,kstart,kend,veg,soil,casabiome,casapool, &
                       casaflux,casamet,casabal,phen,POP,climate,LALLOC, LUC_EXPT, POPLUC, &
                       sum_casapool, sum_casaflux)
@@ -930,10 +925,10 @@ USE cbl_soil_snow_init_special_module
                           !jhan:assuming doy for mp=1 is same as ....
                           CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate,&
                                INT(met%doy(1)), LOY )
-!!$ CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate, idoy, &   ! replaces line above in MMY code -- rk4417
-!!$ kend/ktauday )
-!!$ !      CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate,&
-!!$ !           INT(met%doy(lbound(met%doy,dim=1))), LOY )
+!$ CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate, idoy, &   ! replaces line above in MMY code -- rk4417
+!$ kend/ktauday )
+!$ !      CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate,&
+!$ !           INT(met%doy(lbound(met%doy,dim=1))), LOY )
                        ELSE
                           CALL write_casa_dump( ncfile, casamet , casaflux, &
                                phen, climate, idoy, kend/ktauday )
@@ -1015,28 +1010,28 @@ USE cbl_soil_snow_init_special_module
 
 
                  ! vh ! commented code below detects Nans in evaporation flux and stops if there are any.
-!!$	      do kk=1,mp
-!!$		 if( canopy%fe(kk).NE.( canopy%fe(kk))) THEN
-!!$		    write(*,*) 'fe nan', kk, ktau,met%qv(kk), met%precip(kk),met%precip_sn(kk), &
-!!$			 met%fld(kk), met%fsd(kk,:), met%tk(kk), met%ua(kk), ssnow%potev(kk), met%pmb(kk), &
-!!$			 canopy%ga(kk), ssnow%tgg(kk,:), canopy%fwsoil(kk)
-!!$
-!!$
-!!$		    stop
-!!$		 endif
-!!$		 if ( casaflux%cnpp(kk).NE. casaflux%cnpp(kk)) then
-!!$		    write(*,*) 'npp nan', kk, ktau,  casaflux%cnpp(kk)
-!!$		    stop
-!!$
-!!$		 endif
-!!$
-!!$
-!!$		 !if (canopy%fwsoil(kk).eq.0.0) then
-!!$		 !   write(*,*) 'zero fwsoil', ktau, canopy%fpn(kk)
-!!$		 !endif
-!!$
-!!$
-!!$	      enddo
+!$	      do kk=1,mp
+!$		 if( canopy%fe(kk).NE.( canopy%fe(kk))) THEN
+!$		    write(*,*) 'fe nan', kk, ktau,met%qv(kk), met%precip(kk),met%precip_sn(kk), &
+!$			 met%fld(kk), met%fsd(kk,:), met%tk(kk), met%ua(kk), ssnow%potev(kk), met%pmb(kk), &
+!$			 canopy%ga(kk), ssnow%tgg(kk,:), canopy%fwsoil(kk)
+!$
+!$
+!$		    stop
+!$		 endif
+!$		 if ( casaflux%cnpp(kk).NE. casaflux%cnpp(kk)) then
+!$		    write(*,*) 'npp nan', kk, ktau,  casaflux%cnpp(kk)
+!$		    stop
+!$
+!$		 endif
+!$
+!$
+!$		 !if (canopy%fwsoil(kk).eq.0.0) then
+!$		 !   write(*,*) 'zero fwsoil', ktau, canopy%fpn(kk)
+!$		 !endif
+!$
+!$
+!$	      enddo
 
                  IF( ktau == kend ) THEN
                     nkend = nkend+1
@@ -1088,9 +1083,9 @@ USE cbl_soil_snow_init_special_module
 
 
               ! IF not 1st run through whole dataset:
-!!$	      IF( MOD( ktau_tot, kend ) .EQ. 0 .AND. ktau_Tot .GT. kend .AND. &
-!!$		   YYYY.EQ. CABLE_USER%YearEnd .OR. ( NRRRR .GT. 1 .AND. &
-!!$		   RRRR.EQ. NRRRR) ) THEN
+!$	      IF( MOD( ktau_tot, kend ) .EQ. 0 .AND. ktau_Tot .GT. kend .AND. &
+!$		   YYYY.EQ. CABLE_USER%YearEnd .OR. ( NRRRR .GT. 1 .AND. &
+!$		   RRRR.EQ. NRRRR) ) THEN
 
               IF( MOD( ktau_tot, kend ) .EQ. 0 .AND. ktau_Tot .GT. kend .AND. &
                    YYYY.EQ. CABLE_USER%YearEnd ) THEN
@@ -1100,11 +1095,11 @@ USE cbl_soil_snow_init_special_module
                       ANY( ABS(ssnow%tgg-soilTtemp)>delsoilT) .OR. &
                       MAXVAL(ABS(ssnow%GWwb-GWtemp),dim=1) > delgwM) THEN
 
-!!$                 IF( (ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.                &  ! replaces three lines above in MMY code 
-!!$                      ANY( ABS(ssnow%tgg-soilTtemp)>delsoilT) .or. &               ! -- rk4417
-!!$                      maxval(ABS(ssnow%GWwb-GWtemp),dim=1) > delgwM) .and. &
-!!$                      ( (int(ktau_tot/kend) .lt. cable_user%max_spins)  .and.&
-!!$                      (cable_user%max_spins .gt. 0) ) ) THEN
+!$                 IF( (ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.                &  ! replaces three lines above in MMY code 
+!$                      ANY( ABS(ssnow%tgg-soilTtemp)>delsoilT) .or. &               ! -- rk4417
+!$                      maxval(ABS(ssnow%GWwb-GWtemp),dim=1) > delgwM) .and. &
+!$                      ( (int(ktau_tot/kend) .lt. cable_user%max_spins)  .and.&
+!$                      (cable_user%max_spins .gt. 0) ) ) THEN
               
                     ! No complete convergence yet
                     PRINT *, 'ssnow%wb : ', ssnow%wb
@@ -1311,47 +1306,46 @@ SUBROUTINE renameFiles(logn,inFile,ncciy,inName)
 
 END SUBROUTINE renameFiles
 
-!!$                                                    ! this block appears in MMY code -- rk4417
-!!$! _______________________ MMY for Princeton input ______________________________
-!!$SUBROUTINE prepareFiles_princeton(ncciy)
-!!$  USE cable_IO_vars_module, ONLY: logn,gswpfile
-!!$  IMPLICIT NONE
-!!$  INTEGER, INTENT(IN) :: ncciy
-!!$
-!!$  WRITE(logn,*) 'CABLE offline global run using princeton forcing for ', ncciy
-!!$  PRINT *,     'CABLE offline global run using princeton forcing for ', ncciy
-!!$
-!!$  CALL renameFiles_princeton(logn,gswpfile%rainf,ncciy,'rainf')
-!!$  CALL renameFiles_princeton(logn,gswpfile%LWdown,ncciy,'LWdown')
-!!$  CALL renameFiles_princeton(logn,gswpfile%SWdown,ncciy,'SWdown')
-!!$  CALL renameFiles_princeton(logn,gswpfile%PSurf,ncciy,'PSurf')
-!!$  CALL renameFiles_princeton(logn,gswpfile%Qair,ncciy,'Qair')
-!!$  CALL renameFiles_princeton(logn,gswpfile%Tair,ncciy,'Tair')
-!!$  CALL renameFiles_princeton(logn,gswpfile%wind,ncciy,'wind')
-!!$
-!!$END SUBROUTINE prepareFiles_princeton
-!!$
-!!$SUBROUTINE renameFiles_princeton(logn,inFile,ncciy,inName)
-!!$  IMPLICIT NONE
-!!$  INTEGER, INTENT(IN) :: logn,ncciy
-!!$  INTEGER:: nn
-!!$  CHARACTER(LEN=200), INTENT(INOUT) :: inFile
-!!$  CHARACTER(LEN=*),  INTENT(IN)        :: inName
-!!$  INTEGER :: idummy
-!!$
-!!$  nn = INDEX(inFile,'19')
-!!$  READ(inFile(nn:nn+3),'(i4)') idummy
-!!$  WRITE(inFile(nn:nn+3),'(i4.4)') ncciy
-!!$  nn = INDEX(inFile,'19')
-!!$  READ(inFile(nn:nn+3),'(i4)') idummy
-!!$  WRITE(inFile(nn:nn+3),'(i4.4)') ncciy
-!!$  READ(inFile(nn-5:nn-2),'(i4)') idummy
-!!$  WRITE(inFile(nn-5:nn-2),'(i4.4)') ncciy
-!!$  WRITE(logn,*) TRIM(inName), ' global data from ', TRIM(inFile)
-!!$
-!!$END SUBROUTINE renameFiles_princeton
-!!$
-!!$! ______________________________________________________________________________
+! _______________________ MMY for Princeton input ______________________________
+SUBROUTINE prepareFiles_princeton(ncciy)
+  USE cable_IO_vars_module, ONLY: logn,gswpfile
+  IMPLICIT NONE
+  INTEGER, INTENT(IN) :: ncciy
+
+  WRITE(logn,*) 'CABLE offline global run using princeton forcing for ', ncciy
+  PRINT *,     'CABLE offline global run using princeton forcing for ', ncciy
+
+  CALL renameFiles_princeton(logn,gswpfile%rainf,ncciy,'rainf')
+  CALL renameFiles_princeton(logn,gswpfile%LWdown,ncciy,'LWdown')
+  CALL renameFiles_princeton(logn,gswpfile%SWdown,ncciy,'SWdown')
+  CALL renameFiles_princeton(logn,gswpfile%PSurf,ncciy,'PSurf')
+  CALL renameFiles_princeton(logn,gswpfile%Qair,ncciy,'Qair')
+  CALL renameFiles_princeton(logn,gswpfile%Tair,ncciy,'Tair')
+  CALL renameFiles_princeton(logn,gswpfile%wind,ncciy,'wind')
+
+END SUBROUTINE prepareFiles_princeton
+
+SUBROUTINE renameFiles_princeton(logn,inFile,ncciy,inName)
+  IMPLICIT NONE
+  INTEGER, INTENT(IN) :: logn,ncciy
+  INTEGER:: nn
+  CHARACTER(LEN=200), INTENT(INOUT) :: inFile
+  CHARACTER(LEN=*),  INTENT(IN)        :: inName
+  INTEGER :: idummy
+
+  nn = INDEX(inFile,'19')
+  READ(inFile(nn:nn+3),'(i4)') idummy
+  WRITE(inFile(nn:nn+3),'(i4.4)') ncciy
+  nn = INDEX(inFile,'19')
+  READ(inFile(nn:nn+3),'(i4)') idummy
+  WRITE(inFile(nn:nn+3),'(i4.4)') ncciy
+  READ(inFile(nn-5:nn-2),'(i4)') idummy
+  WRITE(inFile(nn-5:nn-2),'(i4.4)') ncciy
+  WRITE(logn,*) TRIM(inName), ' global data from ', TRIM(inFile)
+
+END SUBROUTINE renameFiles_princeton
+
+! ______________________________________________________________________________
 
 
 !***************************************************************************************

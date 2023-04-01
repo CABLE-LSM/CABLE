@@ -158,7 +158,7 @@ CONTAINS
     USE cable_def_types_mod
     USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
          verbose, fixedCO2,output,check,patchout,    &
-         patch_type,soilparmnew,&
+         patch_type,& ! soilparmnew, ! MMY @Oct2022 change to use soilparmnew by default
          defaultLAI, sdoy, smoy, syear, timeunits, exists, output, &
          latitude,longitude, calendar,                             &
          patch,wlogn               ! added line as per MMY code -- rk4417
@@ -275,10 +275,8 @@ CONTAINS
          vegparmnew    = .FALSE., & ! using new format input file (BP dec 2007)
          spinup        = .FALSE., & ! model spinup to soil state equilibrium?
          spinConv      = .FALSE., & ! has spinup converged?
-         spincasainput = .FALSE., & ! TRUE: SAVE input req'd to spin CASA-CNP;  ! inserted line as per MMY code -- rk4417
-                                    ! FALSE: READ input to spin CASA-CNP
          spincasa      = .FALSE., & ! TRUE: CASA-CNP Will spin mloop times,
-                                    ! FALSE: no spin up           ! inserted comment as per MMY code -- rk4417
+                                    ! FALSE: no spin up  
          l_casacnp     = .FALSE., & ! using CASA-CNP with CABLE
          l_laiFeedbk   = .FALSE., & ! using prognostic LAI
          l_vcmaxFeedbk = .FALSE., & ! using prognostic Vcmax
@@ -332,7 +330,7 @@ CONTAINS
     NAMELIST/CABLE/                  &
          filename,         & ! TYPE, containing input filenames
          vegparmnew,       & ! use new soil param. method
-         soilparmnew,      & ! use new soil param. method
+         !     soilparmnew,      & ! use new soil param. method ! MMY @Oct2022 change to use soilparmnew by default
          calcsoilalbedo,   & ! ! vars intro for Ticket #27
          spinup,           & ! spinup model (soil) to steady state
          delsoilM,delsoilT,& !
@@ -343,7 +341,6 @@ CONTAINS
          leaps,            &
          logn,             &
          fixedCO2,         &
-         spincasainput,    &      ! inserted line as per MMY code -- rk4417
          spincasa,         &
          l_casacnp,        &
          l_laiFeedbk,      &
@@ -391,8 +388,7 @@ CONTAINS
     ENDIF
 
     ! INITIALISATION depending on nml settings
-!!$    IF (TRIM(cable_user%MetType) .EQ. 'gswp' .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN  ! replaced by line below
-    IF (TRIM(cable_user%MetType) .EQ. 'gswp' .or. TRIM(cable_user%MetType) .EQ. 'gswp3' & ! MMY   ! as per MMY code -- rk4417 
+    IF (TRIM(cable_user%MetType) .EQ. 'gswp' .or. TRIM(cable_user%MetType) .EQ. 'gswp3' & ! MMY   
          .or. TRIM(cable_user%MetType) .EQ. 'prin') THEN                                  ! MMY
        IF ( CABLE_USER%YearStart.EQ.0 .AND. ncciy.GT.0) THEN
           CABLE_USER%YearStart = ncciy
@@ -454,8 +450,8 @@ CONTAINS
          STOP 'casaCNP required to get prognostic LAI or Vcmax'
     IF( l_vcmaxFeedbk .AND. icycle < 2 )                                     &
          STOP 'icycle must be 2 to 3 to get prognostic Vcmax'
-    IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &
-         STOP 'casaCNP must use new soil parameters'
+!     IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &
+!          STOP 'casaCNP must use new soil parameters' ! MMY @Oct2022 change to use soilparmnew by default
 
     ! casa time count
     ctime = 0
@@ -467,7 +463,7 @@ CONTAINS
     ! latitudes, longitudes, number of sites.
     IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
          TRIM(cable_user%MetType) .NE. "gswp3" .AND. &
-         TRIM(cable_user%MetType) .NE. "prin" .AND. & ! MMY    ! inserted line as per MMY code -- rk4417
+         TRIM(cable_user%MetType) .NE. "prin" .AND. & ! MMY  
          TRIM(cable_user%MetType) .NE. "gpgs" .AND. &
          TRIM(cable_user%MetType) .NE. "plum"  .AND. &
          TRIM(cable_user%MetType) .NE. "cru") THEN
@@ -556,7 +552,7 @@ CONTAINS
              ELSE
                 calendar = "noleap"
              ENDIF
-          ELSE IF (TRIM(cable_user%MetType) .EQ. 'prin') THEN          ! MMY   ! added elseif block as per MMY code -- rk4417
+          ELSE IF (TRIM(cable_user%MetType) .EQ. 'prin') THEN          ! MMY   
              ncciy = CurYear                                           ! MMY
              WRITE(*,*) 'Looking for global offline run info.'         ! MMY
              CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ ) ! MMY
@@ -639,7 +635,6 @@ CONTAINS
              IF (cable_user%call_climate) THEN
                 CALL master_climate_types(comm, climate, ktauday)
              ENDIF
-!!$             CALL master_climate_types(comm, climate)  ! block above appears this way in MMY code -- rk4417
              
              ! MPI: mvtype and mstype send out here instead of inside master_casa_params
              !      so that old CABLE carbon module can use them. (BP May 2013)
@@ -785,7 +780,6 @@ CONTAINS
           canopy%oldcansto=canopy%cansto
 
           ! Zero out lai where there is no vegetation acc. to veg. index
-!!$          WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.    ! replaced by line below as per MMY -- rk4417
           WHERE ( veg%iveg(:) .GE. 14 ) veg%vlai = 0. ! MMY change from iveg%vlai to veg%vlai
 
 
@@ -845,23 +839,23 @@ CONTAINS
 
              ENDIF
              IF ( (TRIM(cable_user%MetType) .NE. 'gswp') .AND. &
-                  (TRIM(cable_user%MetType) .NE. 'prin') .and. & ! MMY    ! inserted line as per MMY -- rk4417
+                  (TRIM(cable_user%MetType) .NE. 'prin') .and. & ! MMY
                   (TRIM(cable_user%MetType) .NE. 'gswp3') ) CurYear = met%year(1)
 
-!!$             IF ( CASAONLY .AND. IS_CASA_TIME("dread", yyyy, iktau, kstart, koffset, &
-!!$                  kend, ktauday, logn) )  THEN
-!!$                ! CLN READ FROM FILE INSTEAD !
-!!$                WRITE(CYEAR,FMT="(I4)")CurYear + INT((ktau-kstart+koffset)/(LOY*ktauday))
-!!$                ncfile  = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-!!$                casa_it = NINT( REAL(iktau / ktauday) )
-!!$                CALL read_casa_dump( ncfile, casamet, casaflux, casa_it, kend, .FALSE. )
-!!$             ENDIF
+!$             IF ( CASAONLY .AND. IS_CASA_TIME("dread", yyyy, iktau, kstart, koffset, &
+!$                  kend, ktauday, logn) )  THEN
+!$                ! CLN READ FROM FILE INSTEAD !
+!$                WRITE(CYEAR,FMT="(I4)")CurYear + INT((ktau-kstart+koffset)/(LOY*ktauday))
+!$                ncfile  = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
+!$                casa_it = NINT( REAL(iktau / ktauday) )
+!$                CALL read_casa_dump( ncfile, casamet, casaflux, casa_it, kend, .FALSE. )
+!$             ENDIF
 
 
-!!$             ! At first time step of year, set tile area according to updated LU areas
-!!$             IF (ktau == 1 .and. CABLE_USER%POPLUC) THEN
-!!$               CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
-!!$            ENDIF
+!$             ! At first time step of year, set tile area according to updated LU areas
+!$             IF (ktau == 1 .and. CABLE_USER%POPLUC) THEN
+!$               CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
+!$            ENDIF
 
 
              IF ( .NOT. CASAONLY ) THEN
@@ -890,15 +884,15 @@ CONTAINS
                 CALL master_send_input (icomm, inp_ts, iktau)
                 !  CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
 
-!!$                IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND.   &
-!!$                     ( IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
-!!$                        koffset, kend, ktauday, logn) ) ) THEN
-!!$                   WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart)/(LOY*ktauday))
-!!$                   ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-!!$                   CALL write_casa_dump( ncfile, casamet , casaflux, idoy, &
-!!$                        kend/ktauday )
-!!$
-!!$                ENDIF
+!$                IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)) .AND.   &
+!$                     ( IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
+!$                        koffset, kend, ktauday, logn) ) ) THEN
+!$                   WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart)/(LOY*ktauday))
+!$                   ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
+!$                   CALL write_casa_dump( ncfile, casamet , casaflux, idoy, &
+!$                        kend/ktauday )
+!$
+!$                ENDIF
 
                 IF (((.NOT.spinup).OR.(spinup.AND.spinConv)).AND. &
                      MOD((ktau-kstart+1),ktauday)==0) THEN
@@ -928,7 +922,6 @@ CONTAINS
              canopy%oldcansto=canopy%cansto
 
              ! Zero out lai where there is no vegetation acc. to veg. index
-!!$             WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.   ! replaced by line below as per MMY -- rk4417
              WHERE ( veg%iveg(:) .GE. 14 ) veg%vlai = 0. ! MMY change from iveg%vlai to veg%vlai
 
              ! Write time step's output to file if either: we're not spinning up
@@ -957,7 +950,7 @@ CONTAINS
                    IF ( TRIM(cable_user%MetType) .EQ. 'plum'       &
                         .OR. TRIM(cable_user%MetType) .EQ. 'cru'   &
                         .OR. TRIM(cable_user%MetType) .EQ. 'gswp'  &
-                        .OR. TRIM(cable_user%MetType) .EQ. 'prin'  &  ! MMY    ! inserted line as per MMY -- rk4417
+                        .OR. TRIM(cable_user%MetType) .EQ. 'prin'  &  ! MMY   
                         .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
                       CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
                            casamet,ssnow,         &
@@ -982,12 +975,12 @@ CONTAINS
                 new_sumbal = new_sumbal + SUM(bal%wbal)/mp +  SUM(bal%ebal)/mp
                 new_sumfpn = new_sumfpn + SUM(canopy%fpn)/mp
                 new_sumfe = new_sumfe + SUM(canopy%fe)/mp
-!!$                    if (ktau == kend-1) PRINT*, "time-space-averaged energy & water balances"
-!!$                    if (ktau == kend-1) PRINT*,"Ebal_tot[Wm-2], Wbal_tot[mm]", &
-!!$                         sum(bal%ebal_tot)/mp/count_bal, sum(bal%wbal_tot)/mp/count_bal
-!!$                    if (ktau == kend-1) PRINT*, "time-space-averaged latent heat and net photosynthesis"
-!!$                    if (ktau == kend-1) PRINT*, "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
-!!$                         new_sumfe/count_bal, new_sumfpn/count_bal
+!$                    if (ktau == kend-1) PRINT*, "time-space-averaged energy & water balances"
+!$                    if (ktau == kend-1) PRINT*,"Ebal_tot[Wm-2], Wbal_tot[mm]", &
+!$                         sum(bal%ebal_tot)/mp/count_bal, sum(bal%wbal_tot)/mp/count_bal
+!$                    if (ktau == kend-1) PRINT*, "time-space-averaged latent heat and net photosynthesis"
+!$                    if (ktau == kend-1) PRINT*, "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
+!$                         new_sumfe/count_bal, new_sumfpn/count_bal
 
                 ! check for Nans in biophysical outputs and abort if there are any
                 IF (ANY( canopy%fe.NE. canopy%fe)) THEN
@@ -1001,57 +994,7 @@ CONTAINS
                               canopy%ga(kk), ssnow%tgg(kk,:), canopy%fwsoil(kk), &
                               rad%fvlai(kk,:) ,  rad%fvlai(kk,1), &
                               rad%fvlai(kk,2), canopy%vlaiw(kk)
-                         
-                         WRITE(*,*) 'Nan in evap flux'  !  ---------------------------- rk4417 ---------------------------
-                         write(*,*) 'mp ',kk            !  I have inserted this block from MMY code despite some redundancy
-                         write(*,*) 'lat',patch(kk)%latitude
-                         write(*,*) 'lon-',patch(kk)%longitude
-                         write(*,*) 'ktau ',ktau
-                         write(*,*) 'qv-',met%qv(kk)
-                         write(*,*) 'precip',met%precip(kk)
-                         write(*,*) 'sn-',met%precip_sn(kk)
-                         write(*,*) 'fld-',met%fld(kk)
-                         write(*,*) 'fsd1',met%fsd(kk,1)
-                         write(*,*) 'fsd2',met%fsd(kk,2)
-                         write(*,*) 'tk', met%tk(kk)
-                         write(*,*) 'ua', met%ua(kk)
-                         write(*,*) 'potev',ssnow%potev(kk)
-                         write(*,*) 'pmb', met%pmb(kk)
-                         write(*,*) 'ga', canopy%ga(kk)
-                         do klev=1,ms
-                            write(*,*) 'lvl',klev,'tgg',ssnow%tgg(kk,klev)
-                            write(*,*) 'lvl',klev,'wb',ssnow%wb(kk,klev)
-                            write(*,*) 'lvl',klev,'wbliq',ssnow%wbliq(kk,klev)
-                            write(*,*) 'lvl',klev,'wbice',ssnow%wbice   (kk,klev)
-                            write(*,*) 'lvl',klev,'smp',ssnow%smp     (kk,klev)
-                            write(*,*) 'lvl',klev,'hk',ssnow%hk      (kk,klev)
-                            write(*,*) 'lvl',klev,'smp_hys',ssnow%smp_hys (kk,klev)
-                            write(*,*) 'lvl',klev,'ssat_hys',ssnow%ssat_hys(kk,klev)
-                            write(*,*) 'lvl',klev,'watr_hys',ssnow%watr_hys(kk,klev)
-                            write(*,*) 'lvl',klev,'wb_hys',ssnow%wb_hys  (kk,klev)
-                            write(*,*) 'lvl',klev,'hys_fac',ssnow%hys_fac (kk,klev)
-                            
-                            write(*,*) 'lvl',klev,'ssuc_vec',soil%sucs_vec(kk,klev)
-                            write(*,*) 'lvl',klev,'ssat_vec',soil%ssat_vec(kk,klev)
-                            write(*,*) 'lvl',klev,'watr_hys',soil%watr(kk,klev)
-                         end do
-                         write(*,*) 'rh',ssnow%rh_srf(kk)
-                         write(*,*) 'or sat',ssnow%rtevap_sat(kk)
-                         write(*,*) 'or unsat',ssnow%rtevap_unsat(kk)
-                         write(*,*) 'sub dz',canopy%sublayer_dz(kk)
-                         write(*,*) 'fwsoil',canopy%fwsoil(kk)
-                         write(*,*) 'vlai1',rad%fvlai(kk,1)
-                         write(*,*) 'vlai2',rad%fvlai(kk,2)
-                         write(*,*) 'vlaiw', canopy%vlaiw(kk)
-                         write(*,*) 'snowd',ssnow%snowd(kk)
-                         write(*,*) 'satfrac',ssnow%satfrac(kk)
-                         write(*,*) 'GWwb',ssnow%GWwb(kk)
-                         write(*,*) 'wtd',ssnow%wtd(kk)
-                         write(*,*) 'rnof1',ssnow%rnof1(kk)
-                         write(*,*) 'rnof2',ssnow%rnof2(kk)
-                         write(*,*) 'isoil',soil%isoilm(kk)
-                         write(*,*) 'iveg',veg%iveg(kk)   !  ---------------------------- rk4417 ---------------------------
-                         
+
                          CALL MPI_Abort(comm, 0, ierr)
                       ENDIF
                       
@@ -1131,9 +1074,7 @@ CONTAINS
           met%ofsd = met%fsd(:,1) + met%fsd(:,2)
           canopy%oldcansto=canopy%cansto
 
-!!$          IF ( (TRIM(cable_user%MetType) .EQ. "gswp") .OR. (TRIM(cable_user%MetType) .EQ. "gswp3") ) &
-!!$               CALL close_met_file
-          IF ( (TRIM(cable_user%MetType) .EQ. "gswp") &            ! replaced if above as per MMY -- rk4417
+          IF ( (TRIM(cable_user%MetType) .EQ. "gswp") &           
                .or. (TRIM(cable_user%MetType) .EQ. "prin") & ! MMY
                .or. (TRIM(cable_user%MetType) .EQ. "gswp3") ) &
                CALL close_met_file
@@ -1206,14 +1147,14 @@ CONTAINS
                 ENDIF
              END IF
 
-!!$             IF ( CABLE_USER%CASA_DUMP_WRITE )  THEN
-!!$                !CLN CHECK FOR LEAP YEAR
-!!$                WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart)/(LOY*ktauday))
-!!$                ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
-!!$                CALL write_casa_dump( ncfile, casamet , casaflux, idoy, &
-!!$                     kend/ktauday )
-!!$
-!!$             ENDIF
+!$             IF ( CABLE_USER%CASA_DUMP_WRITE )  THEN
+!$                !CLN CHECK FOR LEAP YEAR
+!$                WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart)/(LOY*ktauday))
+!$                ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
+!$                CALL write_casa_dump( ncfile, casamet , casaflux, idoy, &
+!$                     kend/ktauday )
+!$
+!$             ENDIF
 
              IF (((.NOT.spinup).OR.(spinup.AND.spinConv)).AND. &
                   MOD((ktau-kstart+1),ktauday)==0) THEN
@@ -1232,7 +1173,7 @@ CONTAINS
                 IF ( TRIM(cable_user%MetType) .EQ. 'plum' &
                      .OR. TRIM(cable_user%MetType) .EQ. 'cru'   &
                      .OR. TRIM(cable_user%MetType) .EQ. 'gswp' &
-                     .OR. TRIM(cable_user%MetType) .EQ. 'prin' &      ! MMY   ! inserted line as per MMY -- rk4417
+                     .OR. TRIM(cable_user%MetType) .EQ. 'prin' &      ! MMY
                      .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
 
                    CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
@@ -1396,8 +1337,8 @@ CONTAINS
 
        !CALL MPI_Waitall (wnp, recv_req, recv_stats, ierr)
 
-!!$       CALL casa_poolout( ktau, veg, soil, casabiome,                           &
-!!$            casapool, casaflux, casamet, casabal, phen )
+!$       CALL casa_poolout( ktau, veg, soil, casabiome,                           &
+!$            casapool, casaflux, casamet, casabal, phen )
        CALL casa_fluxout( nyear, veg, soil, casabal, casamet)
        CALL write_casa_restart_nc ( casamet, casapool,casaflux,phen,CASAONLY )
 
@@ -1442,7 +1383,6 @@ CONTAINS
 
 
           CALL WRITE_CLIMATE_RESTART_NC ( climate, ktauday )
-!!$          CALL WRITE_CLIMATE_RESTART_NC ( climate )  ! above line appears this way in MMY code -- rk4417
        END IF
 
     END IF
@@ -1452,7 +1392,7 @@ CONTAINS
     ! Close met data input file:
     IF ( TRIM(cable_user%MetType) .NE. "gswp"  .AND. &
          TRIM(cable_user%MetType) .NE. "gswp3" .AND. &
-         TRIM(cable_user%MetType) .NE. "prin"  .AND. & ! MMY   ! inserted line as per MMY -- rk4417
+         TRIM(cable_user%MetType) .NE. "prin"  .AND. & ! MMY
          TRIM(cable_user%MetType) .NE. "plum"  .AND. &
          TRIM(cable_user%MetType) .NE. "cru") CALL close_met_file
     IF  (.NOT. CASAONLY) THEN
@@ -2097,7 +2037,7 @@ CONTAINS
        CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
             &                             types(bidx), ierr)
        blen(bidx) = 1
-!!$
+!$
        bidx = bidx + 1
        CALL MPI_Get_address (ssnow%thetai(off,1), displs(bidx), ierr)
        CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
@@ -3300,8 +3240,8 @@ CONTAINS
             &                             types(bidx), ierr)
        blen(bidx) = 1
 
-!!$ inserted block below as per MMY code -- rk4417       
-!!$  --------------------- start of block --------------------- rk4417
+!$ inserted block below as per MMY code -- rk4417       
+!$  --------------------- start of block --------------------- rk4417
 
   bidx = bidx + 1
   CALL MPI_Get_address (soil%css_vec(off,1), displs(bidx), ierr)
@@ -3389,7 +3329,7 @@ CONTAINS
   &                             types(bidx), ierr)
   blen(bidx) = 1
 
-!!$  --------------------- end of block --------------------- rk4417
+!$  --------------------- end of block --------------------- rk4417
   
        !1D
        bidx = bidx + 1
@@ -3432,8 +3372,8 @@ CONTAINS
        CALL MPI_Get_address (soil%slope_std(off), displs(bidx), ierr)
        blen(bidx) = r2len
 
-!!$ inserted block below as per MMY code -- rk4417       
-!!$  --------------------- start of block --------------------- rk4417
+!$ inserted block below as per MMY code -- rk4417       
+!$  --------------------- start of block --------------------- rk4417
        bidx = bidx + 1
        CALL MPI_Get_address (soil%drain_dens(off), displs(bidx), ierr)
        blen(bidx) = r2len
@@ -3468,7 +3408,7 @@ CONTAINS
        CALL MPI_Get_address (soil%qhz_efold(off), displs(bidx), ierr)
        blen(bidx) = r2len
 
-!!$  --------------------- end of block --------------------- rk4417
+!$  --------------------- end of block --------------------- rk4417
 
        bidx = bidx + 1
        CALL MPI_Get_address (ssnow%GWwb(off), displs(bidx), ierr)
@@ -5146,8 +5086,8 @@ CONTAINS
        CALL MPI_Type_commit (mat_t(midx, rank), ierr)
        midx = midx + 1
        
-!!$ inserted block below as per MMY code -- rk4417       
-!!$  --------------------- start of block --------------------- rk4417
+!$ inserted block below as per MMY code -- rk4417       
+!$  --------------------- start of block --------------------- rk4417
 
      ! REAL(r_2)
      CALL MPI_Get_address (ssnow%smp(off,1), maddr(midx), ierr) ! 12
@@ -5193,7 +5133,7 @@ CONTAINS
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
 
-!!$  --------------------- end of block --------------------- rk4417
+!$  --------------------- end of block --------------------- rk4417
 
        ! REAL(r_1)
        CALL MPI_Get_address (ssnow%evapfbl(off,1), maddr(midx), ierr) ! 12
@@ -6995,7 +6935,6 @@ CONTAINS
   END SUBROUTINE master_casa_types
 
   SUBROUTINE master_climate_types (comm, climate, ktauday)
-!!$SUBROUTINE master_climate_types (comm, climate)  ! line above appears this way in MMY code -- rk4417
     
     USE mpi
 
@@ -7011,7 +6950,7 @@ CONTAINS
     INTEGER, ALLOCATABLE, DIMENSION(:) :: types
     INTEGER :: ntyp ! number of worker's types
 
-    INTEGER :: last2d, i, ktauday   ! ktauday missing from MMY code -- rk4417
+    INTEGER :: last2d, i, ktauday  
 
     ! MPI: block lenghts for hindexed representing all vectors
     INTEGER, ALLOCATABLE, DIMENSION(:) :: blen
@@ -7029,9 +6968,6 @@ CONTAINS
     IF (cable_user%call_climate) CALL climate_init ( climate, mp, ktauday )
     IF (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
          CALL READ_CLIMATE_RESTART_NC (climate, ktauday)
-!!$  CALL climate_init (climate, mp)    ! block above appears this way in MMY code -- rk4417
-!!$  if (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
-!!$       CALL READ_CLIMATE_RESTART_NC (climate)
     
     ALLOCATE (climate_ts(wnp))
 
@@ -7821,14 +7757,14 @@ CONTAINS
        CALL MPI_Abort (comm, 0, ierr)
     END IF
 
-!!$  DO rank = 1, wnp
-!!$
-!!$     CALL MPI_ISend (MPI_BOTTOM, 1, casa_dump_ts(rank), rank, 0, comm, &
-!!$          &               inp_req(rank), ierr)
-!!$
-!!$  END DO
-!!$
-!!$  CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
+!$  DO rank = 1, wnp
+!$
+!$     CALL MPI_ISend (MPI_BOTTOM, 1, casa_dump_ts(rank), rank, 0, comm, &
+!$          &               inp_req(rank), ierr)
+!$
+!$  END DO
+!$
+!$  CALL MPI_Waitall (wnp, inp_req, inp_stats, ierr)
 
   END SUBROUTINE master_casa_dump_types
   ! #############################################################################################################
@@ -8570,21 +8506,21 @@ CONTAINS
     INTEGER :: count_sum_casa ! number of time steps over which casa pools &
     !and fluxes are aggregated (for output)
     INTEGER :: rank, count, off, cnt, ierr
-!!$  if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))
-!!$  if (.NOT.Allocated(Cleafmean))  allocate(Cleafmean(mp))
-!!$  if (.NOT.Allocated(Crootmean)) allocate(Crootmean(mp))
-!!$  if (.NOT.Allocated(NPPtoGPP)) allocate(NPPtoGPP(mp))
-!!$  if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))
-!!$
-!!$  IF (cable_user%CALL_POP) THEN
-!!$     Iw = POP%Iwood
-!!$  ENDIF
+!$  if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))
+!$  if (.NOT.Allocated(Cleafmean))  allocate(Cleafmean(mp))
+!$  if (.NOT.Allocated(Crootmean)) allocate(Crootmean(mp))
+!$  if (.NOT.Allocated(NPPtoGPP)) allocate(NPPtoGPP(mp))
+!$  if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))
+!$
+!$  IF (cable_user%CALL_POP) THEN
+!$     Iw = POP%Iwood
+!$  ENDIF
 
     ktauday=INT(24.0*3600.0/dels)
     nday=(kend-kstart+1)/ktauday
-!!$  ctime = 0
-!!$  CALL zero_sum_casa(sum_casapool, sum_casaflux)
-!!$       count_sum_casa = 0
+!$  ctime = 0
+!$  CALL zero_sum_casa(sum_casapool, sum_casaflux)
+!$       count_sum_casa = 0
 
 
     myearspin = CABLE_USER%YEAREND - CABLE_USER%YEARSTART + 1
@@ -8639,35 +8575,35 @@ CONTAINS
 
 
 
-!!$        ! zero annual sums
-!!$        if (idoy==1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)
+!$        ! zero annual sums
+!$        if (idoy==1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)
 
-!!$        CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
-!!$             casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
-!!$             xksoil,xkleaf,xkleafcold,xkleafdry,&
-!!$             cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
-!!$             nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
-!!$             pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
-!!$
-!!$        ! update time-aggregates of casa pools and fluxes
-!!$        CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
-!!$                            & .TRUE. , .FALSE., 1)
-!!$        count_sum_casa = count_sum_casa + 1
+!$        CALL biogeochem(ktau,dels,idoy,LALLOC,veg,soil,casabiome,casapool,casaflux, &
+!$             casamet,casabal,phen,POP,climate,xnplimit,xkNlimiting,xklitter, &
+!$             xksoil,xkleaf,xkleafcold,xkleafdry,&
+!$             cleaf2met,cleaf2str,croot2met,croot2str,cwood2cwd,         &
+!$             nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
+!$             pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
+!$
+!$        ! update time-aggregates of casa pools and fluxes
+!$        CALL update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, &
+!$                            & .TRUE. , .FALSE., 1)
+!$        count_sum_casa = count_sum_casa + 1
 
 
 
-!!$           ! accumulate annual variables for use in POP
-!!$           IF(idoy==1 ) THEN
-!!$              casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7 ! (assumes 70% of wood NPP is allocated above ground)
-!!$              LAImax = casamet%glai
-!!$              Cleafmean = casapool%cplant(:,1)/real(mdyear)/1000.
-!!$              Crootmean = casapool%cplant(:,3)/real(mdyear)/1000.
-!!$           ELSE
-!!$              casaflux%stemnpp = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
-!!$              LAImax = max(casamet%glai, LAImax)
-!!$              Cleafmean = Cleafmean + casapool%cplant(:,1)/real(mdyear)/1000.
-!!$              Crootmean = Crootmean +casapool%cplant(:,3)/real(mdyear)/1000.
-!!$           ENDIF
+!$           ! accumulate annual variables for use in POP
+!$           IF(idoy==1 ) THEN
+!$              casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7 ! (assumes 70% of wood NPP is allocated above ground)
+!$              LAImax = casamet%glai
+!$              Cleafmean = casapool%cplant(:,1)/real(mdyear)/1000.
+!$              Crootmean = casapool%cplant(:,3)/real(mdyear)/1000.
+!$           ELSE
+!$              casaflux%stemnpp = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7
+!$              LAImax = max(casamet%glai, LAImax)
+!$              Cleafmean = Cleafmean + casapool%cplant(:,1)/real(mdyear)/1000.
+!$              Crootmean = Crootmean +casapool%cplant(:,3)/real(mdyear)/1000.
+!$           ENDIF
 
           IF(idoy==mdyear) THEN ! end of year
 
@@ -8753,7 +8689,7 @@ CONTAINS
 
              ! workers call POP here
 
-!!$           CALL POPdriver(casaflux,casabal,veg, POP)
+!$           CALL POPdriver(casaflux,casabal,veg, POP)
 
              CALL master_receive_pop(POP, ocomm)
 

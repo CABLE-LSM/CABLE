@@ -309,10 +309,10 @@ CONTAINS
        ssnow%albsoilsn(:,2) = aliro - 0.05 ! => here al*o LESS arbitrary aging 0.05
     END WHERE
     
-!!$    WHERE (soil%isoilm == 9)       ! use dry snow albedo   ! This bit appears instead in MYY code --rk4417
-!!$       ssnow%albsoilsn(:,2) = 0.82
-!!$       ssnow%albsoilsn(:,1) = 0.82
-!!$    END WHERE
+!$    WHERE (soil%isoilm == 9)       ! use dry snow albedo   ! This bit appears instead in MYY code --rk4417
+!$       ssnow%albsoilsn(:,2) = 0.82
+!$       ssnow%albsoilsn(:,1) = 0.82
+!$    END WHERE
     
     RETURN
 

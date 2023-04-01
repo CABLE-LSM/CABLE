@@ -109,21 +109,6 @@ CONTAINS
   !
   !==============================================================================
 
-SUBROUTINE nc_trap( ok )   ! added this subroutine as per MMY code -- rk4417
-
-   USE netcdf
-
-   ! Input arguments
-   INTEGER, INTENT(IN) :: ok
-
-   IF (ok .ne. NF90_NOERR) THEN
-      WRITE(*,*) 'Netcdf error found nc_trap '
-      WRITE(*,*) NF90_STRERROR(ok) ! netcdf error details
-      STOP
-   END IF
-
-END SUBROUTINE nc_trap
-
   SUBROUTINE nc_abort( ok, message )
 
     USE netcdf

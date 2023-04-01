@@ -36,7 +36,7 @@ MODULE cable_IO_vars_module
   CHARACTER(LEN=200) :: timeunits ! timing info read from nc file
 
   CHARACTER(LEN=10) :: calendar ! 'noleap' for no leap years, 'standard' for leap years
-!!$  line above is missing from MMY code -- rk4417
+!$  line above is missing from MMY code -- rk4417
   CHARACTER(LEN=3) :: time_coord ! GMT or LOCal time variables
 
   REAL(r_2),POINTER,DIMENSION(:) :: timevar ! time variable from file
@@ -120,8 +120,8 @@ MODULE cable_IO_vars_module
        logn          ! log file unit number
 
   LOGICAL ::                                                                  &
-       verbose,    & ! print init and param details of all grid cells?
-       soilparmnew   ! read IGBP new soil map. Q.Zhang @ 12/20/2010
+       verbose! print init and param details of all grid cells? ! MMY,    & 
+     !   soilparmnew   ! read IGBP new soil map. Q.Zhang @ 12/20/2010 ! MMY @Oct2022 change to use soilparmnew by default
 
   ! ================ Veg and soil type variables ============================
   INTEGER, POINTER ::                                                         &
@@ -129,7 +129,7 @@ MODULE cable_IO_vars_module
        vegtype_metfile(:,:)      ! user-def veg type (from met file)
 
    REAL, POINTER :: vegpatch_metfile(:,:) ! Anna: patchfrac for user-def vegtype
-!!$  line above is missing from MMY code -- rk4417
+!$  line above is missing from MMY code -- rk4417
 
   TYPE parID_type ! model parameter IDs in netcdf file
 
@@ -143,8 +143,7 @@ MODULE cable_IO_vars_module
           HkSat,GWHkSat,FrcSand,FrcClay,Clappb,Watr,GWWatr,sfc_vec,forg,swilt_vec, &
           slope,slope_std,GWdz,SatFracmax,Qhmax,QhmaxEfold,HKefold,HKdepth,   &
           sand_vec,clay_vec,bch_vec,org_vec,elev,elev_std       ! added this line as per MMY code -- rk4417 
-                                                                ! is  "sand_vec,clay_vec,bch_vec,org_vec" the same 
-                                                                ! as  "FrcSand,FrcClay,Clappb,forg" ?  -- rk4417
+                                                                
      INTEGER :: ishorizon,nhorizons,clitt, &
           zeta,fsatmax, &
           gamma,ZR,F10
@@ -375,7 +374,7 @@ MODULE cable_IO_vars_module
           Qhmax=.FALSE.,&
           QhmaxEfold=.FALSE.,&
           HKefold=.FALSE.,&
-!!$          HKdepth           ! replaced line by block below as per MMY code -- rk4417
+!$          HKdepth           ! replaced line by block below as per MMY code -- rk4417
           HKdepth=.false.,&
           SMP=.false.,&
           SMP_hys=.false.,&

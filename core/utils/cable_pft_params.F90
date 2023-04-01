@@ -53,16 +53,7 @@ MODULE cable_pft_params_mod
 
    CHARACTER(LEN=70), allocatable :: veg_desc(:)    ! decriptions of veg type
 
-!!$  above line appears as below in MMY code -- rk4417
-
-!!$   CHARACTER(LEN=70), DIMENSION(:), POINTER ::                                 &
-!!$      veg_desc    ! decriptions of veg type
-   
-TYPE(vegin_type) :: vegin
-
-!!$  above line appears as below in MMY code -- rk4417
-
-!!$   TYPE(vegin_type),  SAVE  :: vegin
+   TYPE(vegin_type),  SAVE  :: vegin
 
 
 CONTAINS
@@ -122,36 +113,6 @@ if( .NOT. allocated(vegin%g0    ) )  allocate( vegin%g0       ( mvtype ) )! Tick
 if( .NOT. allocated(vegin%g1    ) )  allocate( vegin%g1       ( mvtype ) )! Ticket #56
 if( .NOT. allocated(vegin%zr    ) )  allocate( vegin%zr       (mvtype) )!! vh_veg_params !!
 if( .NOT. allocated(vegin%clitt ) )  allocate( vegin%clitt    (mvtype) )!! vh_veg_params !!
-
-!!$  note that above block appears in MMY code as the following IF block -- rk4417
-
-!!$  if( first_call ) then
-!!$
-!!$    ALLOCATE (                                                               &
-!!$         vegin%canst1( mvtype ), vegin%dleaf( mvtype ),                        &
-!!$         vegin%length( mvtype ), vegin%width( mvtype ),                        &
-!!$         vegin%vcmax( mvtype ),  vegin%ejmax( mvtype ),                        &
-!!$         vegin%hc( mvtype ), vegin%xfang( mvtype ),                            &
-!!$         vegin%rp20( mvtype ), vegin%rpcoef( mvtype ),                         &
-!!$         vegin%rs20( mvtype ), vegin%wai( mvtype ),                            &
-!!$         vegin%rootbeta( mvtype ), vegin%shelrb( mvtype ),                     &
-!!$         vegin%vegcf( mvtype ), vegin%frac4( mvtype ),                         &
-!!$         vegin%xalbnir( mvtype ), vegin%extkn( mvtype ),                       &
-!!$         vegin%tminvj( mvtype ), vegin%tmaxvj( mvtype ),                       &
-!!$         vegin%vbeta( mvtype ), vegin%froot( ms, mvtype ),                     &
-!!$         vegin%cplant( ncp, mvtype ), vegin%csoil( ncs, mvtype ),              &
-!!$         vegin%ratecp( ncp, mvtype ), vegin%ratecs( ncs, mvtype ),             &
-!!$         vegin%refl( nrb, mvtype ), vegin%taul( nrb, mvtype ),                 &
-!!$         veg_desc( mvtype ),                                                   &
-!!$         vegin%a1gs(mvtype), vegin%d0gs(mvtype),                               &
-!!$         vegin%alpha(mvtype),vegin%convex(mvtype),vegin%cfrd(mvtype),          &
-!!$         vegin%gswmin(mvtype),vegin%conkc0(mvtype), vegin%conko0(mvtype),      &
-!!$         vegin%ekc(mvtype), vegin%eko(mvtype),                                 &
-!!$         ! Ticket #56
-!!$         vegin%g0( mvtype ), vegin%g1( mvtype ),                               &
-!!$         !! vh_veg_params !!
-!!$         vegin%zr(mvtype), vegin%clitt(mvtype) )
-!!$  endif
 
  !PFT parameters: description and corresponding variable name in code. 
  !PFT parameters are assigned as TYPE vegin% but later used as veg%

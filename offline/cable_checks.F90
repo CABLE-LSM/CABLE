@@ -130,7 +130,7 @@ MODULE cable_checks_module
           clay = (/0.0,1.0/),                 &
           css = (/700.0,2200.0/),             &
           rhosoil = (/300.0,3000.0/),         &
-!!$          hyds = (/5.0E-7,8.5E-3/),           & ! vh_js ! sep14 ! replaced this line as per MMY -- rk4417
+!$          hyds = (/5.0E-7,8.5E-3/),           & ! vh_js ! sep14 ! replaced this line as per MMY -- rk4417
           hyds = (/5.0E-7,8.5/),              & ! vh_js ! sep14 ! MMY
           ! MMY 8.5E-3->8.5 since hyds uses m/s, but hyds_vec uses mm/s
           rs20 = (/0.0,10.0/),                &
@@ -138,7 +138,7 @@ MODULE cable_checks_module
           sfc = (/0.1,0.5/),                  &
           silt = (/0.0,1.0/),                 &
           ssat = (/0.35,0.5/),                &
-!!$          sucs = (/-0.8,-0.03/),              &   ! replaced this line as per MMY -- rk4417
+!$          sucs = (/-0.8,-0.03/),              &   ! replaced this line as per MMY -- rk4417
           sucs = (/30.,800./),                & ! MMY the range [-0.8,-0.03] doesn't suit for Mark Decker's version
           swilt = (/0.05,0.4/),               &
           froot = (/0.0,1.0/),                &
@@ -216,7 +216,6 @@ CONTAINS
 
     ! Local variables
     REAL(r_2), DIMENSION(:,:,:),POINTER, SAVE :: bwb         ! volumetric soil moisture
-!!$ inserted line below as per MMY -- rk4417
     REAL(r_2), DIMENSION(:,:),POINTER, SAVE   :: bwb_gw ! volumetric gw soil moisture ! MMY
     REAL(r_2), DIMENSION(mp)                  :: delwb       ! change in soilmoisture
     ! b/w tsteps
@@ -226,11 +225,11 @@ CONTAINS
 
     IF(ktau==1) THEN
        ALLOCATE( bwb(mp,ms,2) )
-       ALLOCATE( bwb_gw(mp,2) ) ! MMY  ! inserted line as per MMY -- rk4417
+       ALLOCATE( bwb_gw(mp,2) ) ! MMY
        ! initial vlaue of soil moisture
        bwb(:,:,1)=ssnow%wb
        bwb(:,:,2)=ssnow%wb
-       bwb_gw(:,1)=ssnow%GWwb ! MMY  ! inserted 2 lines as per MMY -- rk4417
+       bwb_gw(:,1)=ssnow%GWwb ! MMY  
        bwb_gw(:,2)=ssnow%GWwb ! MMY
        delwb(:) = 0.
     ELSE
@@ -257,7 +256,7 @@ CONTAINS
        END IF
       ! ______________________________________________________________________
 
-      ELSE ! MMY     ! inserted block above as per MMY -- rk4417
+      ELSE ! MMY  
 
        IF(MOD(REAL(ktau),2.0)==1.0) THEN         ! if odd timestep
           bwb(:,:,1)=ssnow%wb
@@ -273,7 +272,7 @@ CONTAINS
           END DO
        END IF
        
-    END IF ! MMY   ! inserted line as per MMY -- rk4417
+    END IF ! MMY
 
  END IF
 
@@ -292,12 +291,12 @@ CONTAINS
          - ssnow%runoff-(canopy%fevw+canopy%fevc                                &
          + canopy%fes/ssnow%cls)*dels/air%rlam - delwb) ! remove qrecharge
    ! ______________________________________________________________________
-   ELSE ! MMY  ! inserted block above as per MMY -- rk4417
+   ELSE ! MMY
 
     bal%wbal = REAL(met%precip - canopy%delwc - ssnow%snowd+ssnow%osnowd        &
          - ssnow%runoff-(canopy%fevw+canopy%fevc                                &
          + canopy%fes/ssnow%cls)*dels/air%rlam - delwb - ssnow%qrecharge)
-   END IF ! MMY   ! inserted line as per MMY -- rk4417
+   END IF ! MMY
     
     ! Canopy water balance: precip-change.can.storage-throughfall-evap+dew
     canopy_wbal = REAL(met%precip-canopy%delwc-canopy%through                   &

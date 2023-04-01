@@ -124,7 +124,7 @@ CONTAINS
     USE cable_def_types_mod
     USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
          verbose, fixedCO2,output,check,patchout,    &
-         patch_type,soilparmnew,&
+         patch_type,                                 &      ! MMY@Feb2023 soilparmnew,  
          defaultLAI, wlogn
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, filename, myhome,            &
@@ -226,10 +226,8 @@ USE cbl_soil_snow_init_special_module
          vegparmnew    = .FALSE., & ! using new format input file (BP dec 2007)
          spinup        = .FALSE., & ! model spinup to soil state equilibrium?
          spinConv      = .FALSE., & ! has spinup converged?
-         spincasainput = .FALSE., & ! TRUE: SAVE input req'd to spin CASA-CNP;  ! inserted 2 lines as per MMY code -- rk4417
-                                ! FALSE: READ input to spin CASA-CNP    
          spincasa      = .FALSE., & ! TRUE: CASA-CNP Will spin mloop times,
-                                ! FALSE: no spin up    ! inserted comment as per MMY code -- rk4417
+                                ! FALSE: no spin up
          l_casacnp     = .FALSE., & ! using CASA-CNP with CABLE
          l_laiFeedbk   = .FALSE., & ! using prognostic LAI
          l_vcmaxFeedbk = .FALSE., & ! using prognostic Vcmax
@@ -257,7 +255,7 @@ USE cbl_soil_snow_init_special_module
     NAMELIST/CABLE/                  &
          filename,         & ! TYPE, containing input filenames
          vegparmnew,       & ! use new soil param. method
-         soilparmnew,      & ! use new soil param. method
+         ! soilparmnew,      & ! use new soil param. method ! MMY@Feb2023
          calcsoilalbedo,   & ! switch: soil colour albedo - Ticket #27
          spinup,           & ! spinup model (soil) to steady state
          delsoilM,delsoilT,& !
@@ -268,7 +266,6 @@ USE cbl_soil_snow_init_special_module
          leaps,            &
          logn,             &
          fixedCO2,         &
-         spincasainput,    &   ! inserted line as per MMY code -- rk4417
          spincasa,         &
          l_casacnp,        &
          l_laiFeedbk,      &
@@ -366,8 +363,8 @@ USE cbl_soil_snow_init_special_module
          STOP 'casaCNP required to get prognostic LAI or Vcmax'
     IF( l_vcmaxFeedbk .AND. icycle < 2 )                                     &
          STOP 'icycle must be 2 to 3 to get prognostic Vcmax'
-    IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &
-         STOP 'casaCNP must use new soil parameters'
+   !  IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             & ! MMY@Feb2023
+   !       STOP 'casaCNP must use new soil parameters' 
 
     ! Open log file:
     ! MPI: worker logs go to the black hole
@@ -465,7 +462,6 @@ USE cbl_soil_snow_init_special_module
              IF (cable_user%call_climate) THEN
                 CALL worker_climate_types(comm, climate, ktauday )
              ENDIF
-!!$             CALL worker_climate_types(comm, climate)   ! block above appears this way in MMY code -- rk4417
              
              ! MPI: mvtype and mstype send out here instead of inside worker_casa_params
              !      so that old CABLE carbon module can use them. (BP May 2013)
@@ -593,11 +589,11 @@ USE cbl_soil_snow_init_special_module
 
              ! somethings (e.g. CASA-CNP) only need to be done once per day
              ktauday=INT(24.0*3600.0/dels)
-!!$             idoy = mod(ktau/ktauday,365)
-!!$             IF(idoy==0) idoy=365
-!!$
-!!$             ! needed for CASA-CNP
-!!$             nyear =INT((kend-kstart+1)/(365*ktauday))
+!$             idoy = mod(ktau/ktauday,365)
+!$             IF(idoy==0) idoy=365
+!$
+!$             ! needed for CASA-CNP
+!$             nyear =INT((kend-kstart+1)/(365*ktauday))
 
              ! some things (e.g. CASA-CNP) only need to be done once per day
              idoy =INT( MOD((REAL(ktau+koffset)/REAL(ktauday)),REAL(LOY)))
@@ -613,8 +609,6 @@ USE cbl_soil_snow_init_special_module
 
              ! Get met data and LAI, set time variables.
              ! Rainfall input may be augmented for spinup purposes:
-             ! PRINT *, met%fsd(:,1) ! MMY    ! inserted 2 lines as per MMY code -- rk4417
-             ! PRINT *, met%fsd(:,2) ! MMY
              met%ofsd = met%fsd(:,1) + met%fsd(:,2)
              ! MPI: input file read on the master only
              !CALL get_met_data( spinup, spinConv, met, soil,                    &
@@ -648,9 +642,9 @@ USE cbl_soil_snow_init_special_module
                   CALL cable_climate(ktau_tot,kstart,kend,ktauday,idoy,LOY,met, &
                   climate, canopy, air, rad, dels, mp)
 
-!!$             if (cable_user%CALL_climate) &     ! above if appears this way in MMY code -- rk4417
-!!$                 CALL cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met, &  ! missing rad argument -- rk4417
-!!$                      climate, canopy,air, dels,mp)                           ! ktau_tot  not ktau ??
+!$             if (cable_user%CALL_climate) &     ! above if appears this way in MMY code -- rk4417
+!$                 CALL cable_climate(ktau,kstart,kend,ktauday,idoy,LOY,met, &  ! missing rad argument -- rk4417
+!$                      climate, canopy,air, dels,mp)                           ! ktau_tot  not ktau ??
 
              do i=1,mp                                        ! added do loop as per MMY code -- rk4417
                 if (met%ua(i) .gt. 50.0) then
@@ -670,8 +664,8 @@ USE cbl_soil_snow_init_special_module
              ssnow%runoff = ssnow%runoff*dels
 
 
-!!$added do loop below as per MMY code -- rk4417
-!!$--------------------------------------- rk4417 ---------------------------------------
+!$added do loop below as per MMY code -- rk4417
+!$--------------------------------------- rk4417 ---------------------------------------
 
 ! check for Nans in biophysical outputs and abort if there are any
              DO kk=1,mp
@@ -728,7 +722,7 @@ USE cbl_soil_snow_init_special_module
                 
              ENDDO
              
-!!$--------------------------------------- rk4417 ---------------------------------------
+!$--------------------------------------- rk4417 ---------------------------------------
              
              !jhan this is insufficient testing. condition for
              !spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
@@ -1368,7 +1362,7 @@ USE cbl_soil_snow_init_special_module
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%Tsoil, displs(bidx), ierr)
     blen(bidx) = ms * r2len
-!!$
+!$
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%thetai, displs(bidx), ierr)
     blen(bidx) = ms * r2len
@@ -2466,8 +2460,8 @@ USE cbl_soil_snow_init_special_module
     CALL MPI_Get_address (soil%sfc_vec, displs(bidx), ierr)
     blen(bidx) = ms * r2len
 
-!!$ inserted block below as per MMY code -- rk4417       
-!!$  --------------------- start of block --------------------- rk4417
+!$ inserted block below as per MMY code -- rk4417       
+!$  --------------------- start of block --------------------- rk4417
 
   bidx = bidx + 1
   CALL MPI_Get_address (soil%css_vec, displs(bidx), ierr)
@@ -2533,7 +2527,7 @@ USE cbl_soil_snow_init_special_module
   blen(bidx) = ms * r2len
 
 
-!!$  --------------------- end of block --------------------- rk4417
+!$  --------------------- end of block --------------------- rk4417
 
     
     !1d
@@ -2577,8 +2571,8 @@ USE cbl_soil_snow_init_special_module
     CALL MPI_Get_address (soil%slope_std, displs(bidx), ierr)
     blen(bidx) = r2len
 
-!!$ inserted block below as per MMY code -- rk4417       
-!!$  --------------------- start of block --------------------- rk4417
+!$ inserted block below as per MMY code -- rk4417       
+!$  --------------------- start of block --------------------- rk4417
 
   bidx = bidx + 1
   CALL MPI_Get_address (soil%drain_dens, displs(bidx), ierr)
@@ -2614,7 +2608,7 @@ USE cbl_soil_snow_init_special_module
   CALL MPI_Get_address (soil%qhz_efold, displs(bidx), ierr)
   blen(bidx) = r2len
 
-!!$  --------------------- end of block --------------------- rk4417
+!$  --------------------- end of block --------------------- rk4417
 
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%GWwb, displs(bidx), ierr)
@@ -4074,8 +4068,8 @@ USE cbl_soil_snow_init_special_module
     CALL MPI_Get_address (ssnow%wb(off,1), displs(bidx), ierr)
     blocks(bidx) = r2len * ms
 
-!!$ inserted block below as per MMY code -- rk4417       
-!!$  --------------------- start of block --------------------- rk4417
+!$ inserted block below as per MMY code -- rk4417       
+!$  --------------------- start of block --------------------- rk4417
 
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%smp(off,1), displs(bidx), ierr)
@@ -4102,7 +4096,7 @@ USE cbl_soil_snow_init_special_module
     blocks(bidx) = r2len * ms
 
 
-!!$  --------------------- end of block --------------------- rk4417
+!$  --------------------- end of block --------------------- rk4417
 
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%evapfbl(off,1), displs(bidx), ierr)
@@ -6579,7 +6573,6 @@ USE cbl_soil_snow_init_special_module
 
 
   SUBROUTINE worker_climate_types (comm, climate, ktauday )
-!!$SUBROUTINE worker_climate_types (comm, climate)  ! line above appears this way in MMY code -- rk4417
 
     USE mpi
 
@@ -6619,7 +6612,7 @@ USE cbl_soil_snow_init_special_module
     ! CALL alloc_cbm_var(climate,mp)
 
     IF (cable_user%call_climate) CALL climate_init ( climate, mp, ktauday )
-!!$        CALL climate_init (climate, mp)   ! line above appears this way in MMY code -- rk4417
+!$        CALL climate_init (climate, mp)   ! line above appears this way in MMY code -- rk4417
     ! MPI: allocate temp vectors used for marshalling
     ntyp = nclimate
 
@@ -6809,7 +6802,7 @@ USE cbl_soil_snow_init_special_module
     types(bidx)  = MPI_BYTE
 
 
-!!$types = MPI_BYTE
+!$types = MPI_BYTE
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE (*,*) 'worker: invalid number of climate fields, fix it!'
@@ -6851,7 +6844,7 @@ USE cbl_soil_snow_init_special_module
     RETURN
 
   END SUBROUTINE worker_climate_types
-!!$
+!$
   ! MPI: creates restart_t type to send to the master the fields
   ! that are only required for the restart file but not included in the
   ! results sent at the end of each time step
@@ -7127,13 +7120,13 @@ USE cbl_soil_snow_init_special_module
     DEALLOCATE(displs)
     DEALLOCATE(blen)
 
-!!$ ! if anything went wrong the master will mpi_abort
-!!$ ! which mpi_recv below is going to catch...
-!!$ ! so, now receive all the parameters
-!!$ CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, 0, comm, stat, ierr)
-!!$
-!!$ ! finally free the MPI type
-!!$ CALL MPI_Type_Free (casa_dump_t, ierr)
+!$ ! if anything went wrong the master will mpi_abort
+!$ ! which mpi_recv below is going to catch...
+!$ ! so, now receive all the parameters
+!$ CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, 0, comm, stat, ierr)
+!$
+!$ ! finally free the MPI type
+!$ CALL MPI_Type_Free (casa_dump_t, ierr)
 
     ! all casa parameters have been received from the master by now
 
@@ -7262,13 +7255,13 @@ USE cbl_soil_snow_init_special_module
     DEALLOCATE(displs)
     DEALLOCATE(blen)
 
-!!$ ! if anything went wrong the master will mpi_abort
-!!$ ! which mpi_recv below is going to catch...
-!!$ ! so, now receive all the parameters
-!!$ CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, 0, comm, stat, ierr)
-!!$
-!!$ ! finally free the MPI type
-!!$ CALL MPI_Type_Free (casa_dump_t, ierr)
+!$ ! if anything went wrong the master will mpi_abort
+!$ ! which mpi_recv below is going to catch...
+!$ ! so, now receive all the parameters
+!$ CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, 0, comm, stat, ierr)
+!$
+!$ ! finally free the MPI type
+!$ CALL MPI_Type_Free (casa_dump_t, ierr)
 
     ! all casa parameters have been received from the master by now
 
@@ -7537,7 +7530,7 @@ USE cbl_soil_snow_init_special_module
                pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
 
           IF (cable_user%CALL_POP .AND. POP%np.GT.0) THEN ! CALL_POP
-!!$           ! accumulate annual variables for use in POP
+!$           ! accumulate annual variables for use in POP
              IF(MOD(ktau/ktauday,LOY)==1 ) THEN
                 casaflux%stemnpp =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7 ! (assumes 70% of wood NPP is allocated above ground)
                 casabal%LAImax = casamet%glai
@@ -7854,11 +7847,11 @@ USE cbl_soil_snow_init_special_module
              CALL MPI_Comm_rank (icomm, rank, ierr)
              WRITE(wlogn,*)
              WRITE(wlogn,*),'rank receiving pop_grid from master', rank
-!!$           write(wlogn,*) 'b4 MPI_Recv, pop_t cmass: ', POP%pop_grid%cmass_sum
-!!$           write(wlogn,*) 'b4 MPI_Recv, pop_t LU: ', POP%pop_grid%LU
+!$           write(wlogn,*) 'b4 MPI_Recv, pop_t cmass: ', POP%pop_grid%cmass_sum
+!$           write(wlogn,*) 'b4 MPI_Recv, pop_t LU: ', POP%pop_grid%LU
              CALL MPI_Recv( POP%pop_grid(1), POP%np, pop_t, 0, 0, icomm, stat, ierr )
-!!$           write(wlogn,*)
-!!$           write(wlogn,*) 'after MPI_Recv, pop_t cmass: ', POP%pop_grid%cmass_sum
+!$           write(wlogn,*)
+!$           write(wlogn,*) 'after MPI_Recv, pop_t cmass: ', POP%pop_grid%cmass_sum
              WRITE(wlogn,*) 'after MPI_Recv, pop_t '
              CALL flush(wlogn)
              IF (cable_user%CALL_POP .AND. POP%np.GT.0) THEN ! CALL_POP
@@ -7866,8 +7859,8 @@ USE cbl_soil_snow_init_special_module
                 CALL POPdriver(casaflux,casabal,veg, POP)
 
              ENDIF
-!!$           write(wlogn,*)
-!!$           write(wlogn,*) 'after POPstep cmass: ', POP%pop_grid%cmass_sum
+!$           write(wlogn,*)
+!$           write(wlogn,*) 'after POPstep cmass: ', POP%pop_grid%cmass_sum
              WRITE(wlogn,*) 'after POPstep ',  POP%pop_grid%cmass_sum
              CALL flush(wlogn)
              CALL worker_send_pop (POP, ocomm)

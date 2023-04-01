@@ -506,22 +506,18 @@ CONTAINS
   ! -----------------------------------------------------------------------------
 
   SUBROUTINE snowdensity (dels, ssnow, soil)
-
+    !*## Purpose
+    !  Calculate snow density for either single snow layer and three snow layers
+    
     REAL, INTENT(IN) :: dels   ! integration time step (s)
 
     TYPE(soil_snow_type),      INTENT(INOUT) :: ssnow
 
     TYPE(soil_parameter_type), INTENT(INOUT) :: soil
 
-    INTEGER, DIMENSION(mp,3) :: ssnow_isflag_ssdn  ! inserted this line as per MMY code -- rk4417
     REAL, DIMENSION(mp) :: ssnow_tgg_min1
-!!$    REAL, DIMENSION(mp,3) :: ssnow_tgg_min  ! replaced by line below as per MMY code -- rk4417
-    REAL, DIMENSION(mp,3) :: dels_ssdn, ssnow_tgg_min
     
     CALL point2constants( C )   ! note that this line is missing from MMY code -- rk4417
-
-    ssnow_isflag_ssdn = SPREAD( ssnow%isflag,2,mp)    ! inserted 2 lines as per MMY code -- rk4417
-    dels_ssdn = SPREAD( SPREAD( dels, 1, mp ), 2,  mp )
 
     ssnow_tgg_min1 = MIN( C%TFRZ, ssnow%tgg(:,1) )
 
@@ -609,7 +605,9 @@ CONTAINS
   ! -----------------------------------------------------------------------------
 
   SUBROUTINE snow_melting (dels, snowmlt, ssnow, soil )
-
+    !*## Purpose
+    ! Snow melting
+    
     USE cable_common_module
 
     REAL, INTENT(IN) :: dels   ! integration time step (s)
@@ -725,6 +723,8 @@ CONTAINS
   ! -----------------------------------------------------------------------------
 
   SUBROUTINE snow_accum ( dels,  canopy, met, ssnow, soil )
+    !*## Purpose
+    ! calcualte snowfall and snow evap and update snow depth, snow temp, snow mass, snow density
 
     USE cable_common_module
 
@@ -1260,6 +1260,8 @@ CONTAINS
   ! -----------------------------------------------------------------------------
 
   SUBROUTINE snowcheck(dels, ssnow, soil, met )
+    !*## Purpose
+    !  Set up snow depth, snow mass, snow temp and snow layer used
 
     USE cable_common_module
 
@@ -1278,7 +1280,7 @@ CONTAINS
     DO j=1,mp
 
        IF( ssnow%snowd(j) <= 0.0 ) THEN
-
+       !> using a single snow layer but there is no snow yet  
           ssnow%isflag(j) = 0
           ssnow%ssdn(j,:) = 120.0
           ssnow%ssdnn(j) = 120.0
@@ -1294,7 +1296,7 @@ CONTAINS
 
           ! in loop: IF( ssnow%snowd(j) <= 0.0 ) THEN
        ELSEIF( ssnow%snowd(j) < snmin * ssnow%ssdnn(j) ) THEN
-
+       !> snow depth is between 0 and 1*snow density 
           IF( ssnow%isflag(j) == 1 ) THEN
              ssnow%ssdn(j,1) = ssnow%ssdnn(j)
              ssnow%tgg(j,1) = ssnow%tggsn(j,1)
@@ -1323,7 +1325,7 @@ CONTAINS
 
 
        ELSE ! in loop: IF( ssnow%snowd(j) <= 0.0 ) THEN
-          ! sufficient snow now for 3 layer snowpack
+          !> sufficient snow now for 3 layer snowpack
 
           IF( ssnow%isflag(j) == 0 ) THEN
 
@@ -1371,6 +1373,10 @@ CONTAINS
 
   SUBROUTINE snowl_adjust(dels, ssnow, canopy )
 
+    !*## Purpose
+    ! Adjust levels in the snowpack due to snow accumulation/melting,
+    ! snow aging etc...
+    
     REAL, INTENT(IN) :: dels ! integration time step (s)
 
     TYPE(soil_snow_type), INTENT(INOUT) :: ssnow
@@ -1989,9 +1995,8 @@ CONTAINS
 
   END FUNCTION old_soil_conductivity
 
-  SUBROUTINE snow_processes_soil_thermal(dels,ssnow,soil,veg,canopy,met,bal,snowmlt)
-!!$  note that above line appears as below in MMY code -- rk4417
-!!$    subroutine snow_processes_soil_thermal(dels,ssnow,soil,veg,canopy,met,bal)
+    subroutine snow_processes_soil_thermal(dels,ssnow,soil,veg,canopy,met,bal)
+    !* calculate snow processes and thermal soil
     REAL, INTENT(IN)                    :: dels ! integration time step (s)
     TYPE(soil_parameter_type), INTENT(INOUT) :: soil
     TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow
@@ -1999,17 +2004,15 @@ CONTAINS
     TYPE(veg_parameter_type), INTENT(INOUT)  :: veg
     TYPE(met_type), INTENT(INOUT)            :: met ! all met forcing
     TYPE (balances_type), INTENT(INOUT)      :: bal
-    REAL, DIMENSION(:),  INTENT(INOUT)       :: snowmlt
-!!$    !track snow melt   ! the above line supersedes the one below from MMY code -- rk4417 
-!!$    REAL, DIMENSION(mp)      :: snowmlt
+    REAL, DIMENSION(mp)                      :: snowmlt !track snow melt
+    !     REAL, DIMENSION(:),  INTENT(INOUT)       :: snowmlt ! MMY@Nov2022
 
     INTEGER             :: k,i
 
     CALL point2constants( C )
 
-!!$   snowmlt = 0.0  ! this line appears only in MMY code but I have commented it
-                     ! as snowmlt is passed here in the call -- rk4417
-    
+    snowmlt = 0.0  
+                   
     CALL snowcheck (dels, ssnow, soil, met )
 
     CALL snowdensity (dels, ssnow, soil)
@@ -2039,6 +2042,10 @@ CONTAINS
   END SUBROUTINE snow_processes_soil_thermal
 
   SUBROUTINE GWstempv(dels, canopy, ssnow, soil)
+
+    !*## Purpose
+    ! updates soil temp and ground heat flux
+
     USE cable_common_module, ONLY: cable_user
     REAL, INTENT(IN) :: dels ! integration time step (s)
 
@@ -2047,12 +2054,10 @@ CONTAINS
 
     TYPE(soil_parameter_type), INTENT(INOUT) :: soil
 
-!!$    REAL, DIMENSION(mp) ::   &   ! replaced by line below as per MMY code -- rk4417
     REAL(r_2), DIMENSION(mp) ::                                                      & 
          coefa, coefb,  & !
          sgamm            !
 
-!!$    REAL, DIMENSION(mp) ::   &  ! replaced by line below as per MMY code -- rk4417
     REAL(r_2), DIMENSION(mp) ::                                                 &
          dtg,     & !
          ew,      & !
@@ -2060,7 +2065,6 @@ CONTAINS
          wblfsp     !
 
     REAL(r_2), DIMENSION(mp,ms) ::                                              &
-!!$         ccnsw  ! soil thermal conductivity (incl water/ice) ! replaced by below as per MMY code -- rk4417
          ccnsw,&  ! soil thermal conductivity (incl water/ice)
          gammzz_snow
 
@@ -2071,8 +2075,6 @@ CONTAINS
 
     REAL(r_2), DIMENSION(mp,ms+3)    :: tmp_mat ! temp. matrix for tggsn & tgg
 
-!!$    INTEGER :: j,k   ! replaced by below as per MMY code -- rk4417
-!!$    REAL :: exp_arg
     INTEGER :: j,k,i
     REAL(r_2) :: exp_arg,dels_r2
     
@@ -2082,17 +2084,13 @@ CONTAINS
 
     dels_r2 = real(dels,r_2)     ! inserted this line as per MMY code -- rk4417
     
-!!$    at = 0.0
-!!$    bt = 1.0
-!!$    ct = 0.0
-!!$    coeff = 0.0   !  ! replaced block by one below as per MMY code -- rk4417
 
    at = 0._r_2            ! ---- start -- rk4417
    bt = 1._r_2
    ct = 0._r_2
    coeff = 0._r_2
 
-   ssnow%otgg(:,:) = ssnow%tgg(:,:)
+   ssnow%otgg(:,:) = ssnow%tgg(:,:) ! MMY??? ssnow%otgg has gotten value in SUBROUTINE soil_snow_gw before call snow_processes_soil_thermal
 
    gammzz_snow(:,:) = 0._r_2
 
@@ -2115,9 +2113,6 @@ CONTAINS
     xx(:) = 0.
 
     WHERE(ssnow%isflag == 0)
-!!$       xx(:) = MAX( 0., ssnow%snowd / ssnow%ssdnn )     ! replaced by block below as per MMY code -- rk4417
-!!$       ccnsw(:,1) = ( ccnsw(:,1) - 0.2 ) * ( soil%zse(1) / ( soil%zse(1) + xx(:) ) &
-!!$            ) + 0.2
        xx(:) = MAX( 0._r_2, real(ssnow%snowd / ssnow%ssdnn,r_2) )
        ccnsw(:,1) = ( ccnsw(:,1) - 0.2_r_2 ) * ( soil%zse_vec(:,1) / ( soil%zse_vec(:,1) + xx(:) ) &
             ) + 0.2_r_2
@@ -2126,8 +2121,6 @@ CONTAINS
     DO k = 3, ms
 
        WHERE (ssnow%isflag == 0)
-!!$          coeff(:,k) = 2.0 / ( soil%zse(k-1) / ccnsw(:,k-1) + soil%zse(k) / & ! replaced by block below as per MMY code -- rk4417
-!!$               ccnsw(:,k) )
           coeff(:,k) = 2.0 / ( soil%zse_vec(:,k-1) / ccnsw(:,k-1) + soil%zse_vec(:,k) /     &
                ccnsw(:,k) )
        END WHERE
@@ -2135,23 +2128,23 @@ CONTAINS
 
     k = 1
     WHERE( ssnow%isflag == 0 )
-!!$       coeff(:,2) = 2.0 / ( ( soil%zse(1) + xx(:) ) / ccnsw(:,1) + soil%zse(2) /   &
-!!$            ccnsw(:,2) )
-!!$       coefa = 0.0
-!!$       coefb = REAL( coeff(:,2) )
-!!$
-!!$       wblfsp = ssnow%wblf(:,k)
-!!$
-!!$       ssnow%gammzz(:,k) = MAX((soil%heat_cap_lower_limit(:,k)), &
-!!$            ( 1.0 - soil%ssat_vec(:,k) ) * &
-!!$            soil%css_vec(:,k) * soil%rhosoil_vec(:,k)   &
-!!$            + soil%ssat_vec(:,k) * ( wblfsp * C%cs_rho_wat +            &
-!!$            ssnow%wbfice(:,k) * C%cs_rho_ice ) )     &
-!!$            * soil%zse_vec(:,k)
-!!$
-!!$       ssnow%gammzz(:,k) = ssnow%gammzz(:,k) + C%cgsnow * ssnow%snowd
-!!$
-!!$       dtg = dels / ssnow%gammzz(:,k)     ! replaced block by one below as per MMY code -- rk4417
+!$       coeff(:,2) = 2.0 / ( ( soil%zse(1) + xx(:) ) / ccnsw(:,1) + soil%zse(2) /   &
+!$            ccnsw(:,2) )
+!$       coefa = 0.0
+!$       coefb = REAL( coeff(:,2) )
+!$
+!$       wblfsp = ssnow%wblf(:,k)
+!$
+!$       ssnow%gammzz(:,k) = MAX((soil%heat_cap_lower_limit(:,k)), &
+!$            ( 1.0 - soil%ssat_vec(:,k) ) * &
+!$            soil%css_vec(:,k) * soil%rhosoil_vec(:,k)   &
+!$            + soil%ssat_vec(:,k) * ( wblfsp * C%cs_rho_wat +            &
+!$            ssnow%wbfice(:,k) * C%cs_rho_ice ) )     &
+!$            * soil%zse_vec(:,k)
+!$
+!$       ssnow%gammzz(:,k) = ssnow%gammzz(:,k) + C%cgsnow * ssnow%snowd
+!$
+!$       dtg = dels / ssnow%gammzz(:,k)     ! replaced block by one below as per MMY code -- rk4417
 
        coeff(:,2) = 2._r_2 / ( ( soil%zse_vec(:,1) + xx(:) ) / ccnsw(:,1) + soil%zse_vec(:,2) /   &
             ccnsw(:,2) )
@@ -2178,16 +2171,16 @@ CONTAINS
 
        WHERE( ssnow%isflag == 0 )
 
-!!$          wblfsp = ssnow%wblf(:,k)
-!!$
-!!$          ssnow%gammzz(:,k) = MAX((soil%heat_cap_lower_limit(:,k)), &
-!!$               ( 1.0 - soil%ssat_vec(:,k) ) * &
-!!$               soil%css_vec(:,k) * soil%rhosoil_vec(:,k)   &
-!!$               + soil%ssat_vec(:,k) * ( wblfsp * C%cs_rho_wat +            &
-!!$               ssnow%wbfice(:,k) * C%cs_rho_ice ) )     &
-!!$               * soil%zse_vec(:,k)
-!!$
-!!$          dtg = dels / ssnow%gammzz(:,k)       ! replaced block by one below as per MMY code -- rk4417
+!$          wblfsp = ssnow%wblf(:,k)
+!$
+!$          ssnow%gammzz(:,k) = MAX((soil%heat_cap_lower_limit(:,k)), &
+!$               ( 1.0 - soil%ssat_vec(:,k) ) * &
+!$               soil%css_vec(:,k) * soil%rhosoil_vec(:,k)   &
+!$               + soil%ssat_vec(:,k) * ( wblfsp * C%cs_rho_wat +            &
+!$               ssnow%wbfice(:,k) * C%cs_rho_ice ) )     &
+!$               * soil%zse_vec(:,k)
+!$
+!$          dtg = dels / ssnow%gammzz(:,k)       ! replaced block by one below as per MMY code -- rk4417
           
           ssnow%gammzz(:,k) = MAX((soil%heat_cap_lower_limit(:,k)), &
                ( 1.0 - soil%ssat_vec(:,k) ) * &
@@ -2208,9 +2201,6 @@ CONTAINS
     END DO
 
     WHERE( ssnow%isflag == 0 )
-!!$       bt(:,1) = bt(:,1) - canopy%dgdtg * dels / ssnow%gammzz(:,1)   
-!!$       ssnow%tgg(:,1) = ssnow%tgg(:,1) + ( canopy%ga - ssnow%tgg(:,1)           &
-!!$            * REAL( canopy%dgdtg ) ) * dels / REAL( ssnow%gammzz(:,1) ) ! replaced by block below as per MMY code -- rk4417
        bt(:,1) = bt(:,1) - canopy%dgdtg * dels_r2 / ssnow%gammzz(:,1)
        ssnow%tgg(:,1) = ssnow%tgg(:,1) + real(( real(canopy%ga,r_2) - real(ssnow%tgg(:,1),r_2)           &
             * REAL( canopy%dgdtg ) ) * dels_r2 /  ssnow%gammzz(:,1) )
@@ -2227,12 +2217,6 @@ CONTAINS
             & + 0.074, max_sconds) )
        ssnow%sconds(:,3) = MAX(0.2, MIN(2.876e-6 * ssnow%ssdn(:,3)**2 &
             & + 0.074, max_sconds) )
-!!$       coeff(:,-1) = 2.0 / (ssnow%sdepth(:,1) / ssnow%sconds(:,1) &
-!!$            & + ssnow%sdepth(:,2) / ssnow%sconds(:,2) )
-!!$       coeff(:,0) = 2.0 / (ssnow%sdepth(:,2) / ssnow%sconds(:,2) &
-!!$            & + ssnow%sdepth(:,3) / ssnow%sconds(:,3) )
-!!$       coeff(:,1) = 2.0 / (ssnow%sdepth(:,3) / ssnow%sconds(:,3) &
-!!$            & + soil%zse(1) / ccnsw (:,1) )        ! replaced by block below as per MMY code -- rk4417
        coeff(:,-1) = 2._r_2 / (real(ssnow%sdepth(:,1) / ssnow%sconds(:,1),r_2) &
             & + real(ssnow%sdepth(:,2) / ssnow%sconds(:,2),r_2) )
        coeff(:,0) = 2._r_2 / (real(ssnow%sdepth(:,2) / ssnow%sconds(:,2),r_2) &
@@ -2244,24 +2228,18 @@ CONTAINS
     DO k = 2, ms
 
        WHERE( ssnow%isflag /= 0 )                                               &
-!!$            coeff(:,k) = 2.0 / ( soil%zse(k-1) / ccnsw(:,k-1) + soil%zse(k) /     &
-!!$            ccnsw(:,k) )  ! replaced by below as per MMY code -- rk4417
             coeff(:,k) = 2._r_2 / ( soil%zse_vec(:,k-1) / ccnsw(:,k-1) + soil%zse_vec(:,k) /     &
             ccnsw(:,k) )
     END DO
 
     WHERE( ssnow%isflag /= 0 )
-!!$       coefa = REAL( coeff (:,-1) )
-!!$       coefb = REAL( coeff (:,1) ) ! replaced 2 lines by below as per MMY code -- rk4417
-       coefa = coeff (:,-1)           ! at the end 'real' is applied to these coefficients -- rk4417 
+       coefa = coeff (:,-1)         
        coefb = coeff (:,1)
     END WHERE
 
     DO k = 1, 3
 
        WHERE( ssnow%isflag /= 0 )
-!!$          sgamm = ssnow%ssdn(:,k) * C%cgsnow * ssnow%sdepth(:,k)
-!!$          dtg = dels / sgamm    ! replaced by below as per MMY code -- rk4417
           sgamm = real(ssnow%ssdn(:,k) * C%cgsnow * ssnow%sdepth(:,k),r_2)
           dtg = dels_r2 / sgamm
           at(:,k-3) = - dtg * coeff(:,k-3)
@@ -2274,18 +2252,18 @@ CONTAINS
     DO k = 1, ms
 
        WHERE( ssnow%isflag /= 0 )
-!!$          wblfsp = ssnow%wblf(:,k)
-!!$
-!!$          ssnow%gammzz(:,k) = MAX((soil%heat_cap_lower_limit(:,k)),&
-!!$               ( 1.0 - soil%ssat_vec(:,k) ) * soil%css_vec(:,k) *             &
-!!$               soil%rhosoil_vec(:,k) + soil%ssat_vec(:,k) * ( wblfsp * C%cs_rho_wat +&
-!!$               ssnow%wbfice(:,k) * C%cs_rho_ice)) * &
-!!$               soil%zse_vec(:,k)
-!!$
-!!$          dtg = dels / ssnow%gammzz(:,k)
-!!$          at(:,k) = - dtg * coeff(:,k)
-!!$          ct(:,k) = - dtg * coeff(:,k + 1) ! c3(ms)=0 & not really used
-!!$          bt(:,k) = 1.0 - at(:,k) - ct(:,k)    ! replaced block by one below as per MMY code -- rk4417
+!$          wblfsp = ssnow%wblf(:,k)
+!$
+!$          ssnow%gammzz(:,k) = MAX((soil%heat_cap_lower_limit(:,k)),&
+!$               ( 1.0 - soil%ssat_vec(:,k) ) * soil%css_vec(:,k) *             &
+!$               soil%rhosoil_vec(:,k) + soil%ssat_vec(:,k) * ( wblfsp * C%cs_rho_wat +&
+!$               ssnow%wbfice(:,k) * C%cs_rho_ice)) * &
+!$               soil%zse_vec(:,k)
+!$
+!$          dtg = dels / ssnow%gammzz(:,k)
+!$          at(:,k) = - dtg * coeff(:,k)
+!$          ct(:,k) = - dtg * coeff(:,k + 1) ! c3(ms)=0 & not really used
+!$          bt(:,k) = 1.0 - at(:,k) - ct(:,k)    ! replaced block by one below as per MMY code -- rk4417
 
           ssnow%gammzz(:,k) = MAX((soil%heat_cap_lower_limit(:,k)), &
                ( 1.0 - soil%ssat_vec(:,k) ) * &
@@ -2305,13 +2283,6 @@ CONTAINS
     END DO
 
     WHERE( ssnow%isflag /= 0 )
-!!$       sgamm = ssnow%ssdn(:,1) * C%cgsnow * ssnow%sdepth(:,1)
-!!$
-!!$       bt(:,-2) = bt(:,-2) - canopy%dgdtg * dels / sgamm
-!!$
-!!$       ssnow%tggsn(:,1) = ssnow%tggsn(:,1) + ( canopy%ga - ssnow%tggsn(:,1 )    &
-!!$            * REAL( canopy%dgdtg ) ) * dels / sgamm    ! replaced by below as per MMY code -- rk4417
-       
        sgamm = real(ssnow%ssdn(:,1) * C%cgsnow * ssnow%sdepth(:,1),r_2)
        
        bt(:,-2) = bt(:,-2) - canopy%dgdtg * dels_r2 / sgamm
@@ -2331,8 +2302,6 @@ CONTAINS
 
     ssnow%tggsn = REAL( tmp_mat(:,1:3) )
     ssnow%tgg   = REAL( tmp_mat(:,4:(ms+3)) )
-!!$    canopy%sghflux = coefa * ( ssnow%tggsn(:,1) - ssnow%tggsn(:,2) ) ! replaced 2 lines by below as per MMY code -- rk4417
-!!$    canopy%ghflux = coefb * ( ssnow%tgg(:,1) - ssnow%tgg(:,2) ) ! +ve downwards
     canopy%sghflux = real(coefa) * ( ssnow%tggsn(:,1) - ssnow%tggsn(:,2) )
     canopy%ghflux = real(coefb) * ( ssnow%tgg(:,1) - ssnow%tgg(:,2) ) ! +ve downwards
 

@@ -136,7 +136,7 @@ CONTAINS
 
     !!vh !! include RAD_THRESH in condition
     WHERE (canopy%vlaiw > C%LAI_THRESH .AND. met%coszen > 1.e-6 )
-!!$   WHERE (canopy%vlaiw > C%LAI_THRESH .and. rad%fbeam(:,1).GE.C%RAD_THRESH   ) ! MMY has this line instead ? -- rk4417
+!$   WHERE (canopy%vlaiw > C%LAI_THRESH .and. rad%fbeam(:,1).GE.C%RAD_THRESH   ) ! MMY has this line instead ? -- rk4417
        ! SW beam extinction coefficient ("black" leaves, extinction neglects
        ! leaf SW transmittance and REFLectance):
        rad%extkb = xphi1 / met%coszen + xphi2
@@ -150,7 +150,7 @@ CONTAINS
     END WHERE
 
     WHERE( met%coszen < 1.e-6 )
-!!$       WHERE(rad%fbeam(:,1) < C%RAD_THRESH )    ! MMY has this line instead ? -- rk4417
+!$       WHERE(rad%fbeam(:,1) < C%RAD_THRESH )    ! MMY has this line instead ? -- rk4417
        ! higher value precludes sunlit leaves at night. affects
        ! nighttime evaporation - Ticket #90
        rad%extkb=1.0e5
@@ -235,7 +235,7 @@ CONTAINS
        ! Define radiative conductance (Leuning et al, 1995), eq. D7:
        rad%gradis(:,1) = ( 4.0 * C%EMLEAF / (C%CAPP * air%rho) ) * flpwb        &
             / (met%tvrad) * rad%extkd                              &
-!!$            / (met%tk) * rad%extkd                              &    ! MMY has this line instead ? -- rk4417
+!$            / (met%tk) * rad%extkd                              &    ! MMY has this line instead ? -- rk4417
             * ( ( 1.0 - rad%transb * rad%transd ) /                &
             ( rad%extkb + rad%extkd )                              &
             + ( rad%transd - rad%transb ) /                        &
@@ -243,7 +243,7 @@ CONTAINS
 
        rad%gradis(:,2) = ( 8.0 * C%EMLEAF / ( C%CAPP * air%rho ) ) *            &
             flpwb / met%tvrad * rad%extkd *                        &
-!!$            flpwb / met%tk * rad%extkd *                        &    ! MMY has this line instead ? -- rk4417
+!$            flpwb / met%tk * rad%extkd *                        &    ! MMY has this line instead ? -- rk4417
             ( 1.0 - rad%transd ) / rad%extkd - rad%gradis(:,1)
 
        ! Longwave radiation absorbed by sunlit canopy fraction:

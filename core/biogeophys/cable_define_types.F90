@@ -42,7 +42,7 @@ MODULE cable_def_types_mod
 #else       
              mstype,& ! total # soil types,         from input
 #endif
-!!$             mland                           ! # land grid cells   ! replaced by rk4417 as per MMY
+!$             mland                           ! # land grid cells   ! replaced by rk4417 as per MMY
              mland,& !                         ! # land grid cells
              mpatch  !number of patches per tile 
                      !allows for setting this to a const value
@@ -210,8 +210,8 @@ MODULE cable_def_types_mod
 
   ! Soil and snow variables:
   TYPE soil_snow_type
-
-     INTEGER, DIMENSION(:), POINTER :: isflag ! 0 => no snow 1 => snow
+     !> isflag 0 => one snow layer 1 => three snow layer 
+     INTEGER, DIMENSION(:), POINTER :: isflag ! 0 => one snow layer 1 => three snow layer ! MMY
 
      REAL, DIMENSION(:), POINTER ::                                           &
           iantrct, & ! pointer to Antarctic land points
@@ -244,7 +244,7 @@ MODULE cable_def_types_mod
           owetfac, & ! surface wetness fact. at previous time step
           t_snwlr, & ! top snow layer depth in 3 layer snowpack
           tggav,   & ! mean soil temperature in K
-!!$          otgg,    & ! soil temperature in K  ! This is 2-dim in MMY (see below) -- rk4417
+!$          otgg,    & ! soil temperature in K  ! This is 2-dim in MMY (see below) -- rk4417
           otss,    & ! surface temperature (weighted soil, snow)
           otss_0,  & ! surface temperature (weighted soil, snow)
           tprecip, &
@@ -986,7 +986,7 @@ CONTAINS
     ALLOCATE( var%t_snwlr(mp) )
     ALLOCATE( var%wbfice(mp,ms) )
     ALLOCATE( var%tggav(mp) )
-!!$    ALLOCATE( var%otgg(mp) )     ! replaced as per MMY -- rk4417
+!$    ALLOCATE( var%otgg(mp) )     ! replaced as per MMY -- rk4417
     ALLOCATE( var%otgg(mp,ms) )
     ALLOCATE( var%otss(mp) )
     ALLOCATE( var%otss_0(mp) )
