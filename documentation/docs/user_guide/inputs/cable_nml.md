@@ -12,7 +12,7 @@ applications. The following are annotated examples of cable.nml:
 
 !!! Note
 
-    If your restart file has entries that do not appear here please check the
+    If your namelist file has entries that do not appear here please check the
     [obsolete and deprecated user features](../obsolete_and_deprecated_features/obsolete_and_deprecated_features.md) page.
 
 
@@ -93,11 +93,11 @@ applications. The following are annotated examples of cable.nml:
 | filename%type                | character | any string of max. 500 characters   | '/projects/access/CABLE-AUX/offline/gridinfo_CSIRO_1x1.nc'                   | Gridinfo file                                                                                            |
 | filename%veg                 | character | any string of max. 500 characters   | '/projects/access/CABLE-AUX/core/biogeophys/veg_params_vbeta1.txt'           | Vegetation parameters file (obsolete, vegetation parameters are now in the pft_params.nml file)          |
 | filename%soil                | character | any string of max. 500 characters   | '/projects/access/CABLE-AUX/core/biogeophys/def_soil_params.txt'             | Soil parameters file ((obsolete, vegetation parameters are n:wow in the cable_soilparm.nml file)         |
-| vegparmnew                   | logical   | .TURE. .FALSE.                      | .TRUE.                                                                       | Use new format for vegetation parameter files when true                                                  |
+| vegparmnew                   | logical   | .TRUE. .FALSE.                      | .TRUE.                                                                       | Use new format for vegetation parameter files when true                                                  |
 | soilparmnew                  | logical   | .TURE. .FALSE.                      | .TRUE.                                                                       | Use new format for soil parameter files when true                                                        |
 | spinup                       | logical   | .TURE. .FALSE.                      | .TRUE.                                                                       | Spin up the model when .TRUE.                                                                            |
-| delsoilM                     | integer   |                                     | 0.001                                                                        | Allowed variation in soil moisture for spin up                                                           |
-| delsoilT                     | integer   |                                     | 0.01                                                                         | Allowed variation in soil temperature for spin up                                                        |
+| delsoilM                     | real       |  any real number        | 0.001                                                                        | Allowed variation in soil moisture for spin up                                                           |
+| delsoilT                     | real        |  any real number        | 0.01                                                                         | Allowed variation in soil temperature for spin up                                                        |
 | output%restart               | logical   | .TURE. .FALSE.                      | .TRUE.                                                                       | Create a restart file when .TRUE.                                                                        |
 | output%met                   | logical   | .TURE. .FALSE.                      | .TRUE.                                                                       | Use input meteorological data when .TRUE.                                                                |
 | output%flux                  | logical   | .TURE. .FALSE.                      | .TRUE.                                                                       | convective, runoff, NEE                                                                                  |
