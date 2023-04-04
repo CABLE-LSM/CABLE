@@ -36,7 +36,8 @@
    output%veg       = .TRUE.    ! vegetation states
    output%params    = .TRUE.    ! input parameters used to produce run
    output%balances  = .TRUE.    ! energy and water balances
-   output%patch     = .TRUE. 
+   output%patch     = .TRUE.
+   output%vars5D    = .FALSE.   ! add 5D variables to output or average over patches first?
    output%averaging = "monthly"
    check%ranges     = .FALSE.   ! variable ranges, input and output
    check%energy_bal = .TRUE.    ! energy balance
