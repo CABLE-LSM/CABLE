@@ -184,7 +184,8 @@ MODULE cable_IO_vars_module
          balances = .FALSE.,  & ! energy and water balances
          restart = .FALSE.,   & ! create restart file?
          ensemble = .FALSE.,  & ! are we creating an ensemble run?
-         patch = .FALSE. , &    ! should patch-specific info be written to output file?
+         patch = .FALSE. ,    & ! should patch-specific info be written to output file?
+         vars5D = .FALSE.,    & ! allow 5D variables in output? If FALSE, average over patches
          ! vh_js !
          casa = .FALSE.         ! additional casa outputs (C stores and plant turnover)
 

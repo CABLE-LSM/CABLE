@@ -101,7 +101,7 @@ cable_carbon.o: cable_carbon.F90 cable_define_types.o cable_common.o cable_data.
 cable_cbm.o: cable_cbm.F90 cable_carbon.o cable_soilsnow.o cable_canopy.o cable_define_types.o \
 	     cable_roughness.o cable_radiation.o cable_albedo.o casa_variable.o cable_common.o cable_data.o cable_sli_main.o
 
-cable_checks.o: cable_checks.F90 cable_radiation.o cable_common.o
+cable_checks.o: cable_checks.F90 cable_radiation.o cable_common.o mo_utils.o
 
 cable_mpicommon.o: cable_mpicommon.F90  cable_iovars.o cable_define_types.o
 
@@ -179,7 +179,7 @@ POP.o: POP.F90 cable_define_types.o mo_utils.o
 POPLUC.o: POPLUC.F90 cable_define_types.o cable_iovars.o casa_variable.o cable_common.o cable_LUC_EXPT.o
 
 cable_LUC_EXPT.o: cable_LUC_EXPT.F90 cable_define_types.o cable_iovars.o casa_variable.o cable_common.o \
-		  cable_bios_met_obs_params.o
+		  cable_bios_met_obs_params.o cable_climate.o
 
 pop_io.o: pop_io.F90 POP.o casa_variable.o cable_common.o
 
