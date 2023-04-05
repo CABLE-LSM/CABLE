@@ -13,7 +13,7 @@ applications. The following are annotated examples of cable.nml:
 !!! Note
 
     If your namelist file has entries that do not appear here please check the
-    [obsolete and deprecated user feaTRUEs](../obsolete_and_deprecated_feaTRUEs/obsolete_and_deprecated_feaTRUEs.md) page.
+    [obsolete and deprecated user features](../obsolete_and_deprecated_features/obsolete_and_deprecated_features.md) page.
 
 
 ## For offline applications ##
