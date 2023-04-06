@@ -43,11 +43,11 @@ on soil, vegetation carbon and nutrients dynamics.
 | C:N slow       | `ratioCNsoil(nv,slow)`                        | $n_{slow}$ Carbon:Nitrogen ratio of slow soil pool. Used to calculate `casapool%ratioNCsoil(npt,:)`. \( (gC \cdot gN^{-1}) \) |
 | C:N pass       | `ratioCNsoil(nv,pass)`                        | $n_{pass}$ Carbon:Nitrogen ratio of passive soil pool. Used to calculate `casapool%ratioNCsoil(npt,:)`. \( (gC \cdot gN^{-1}) \) |
 | C:Nmicmin      | `ratioCNsoilmin(nv,mic)`                      | Minimum Carbon:Nitrogen ratio in microbial pool. \( (gC \cdot gN^{-1}) \) |
-| C:Nslowmin     | `ratioCNsoilmin(nv,slow)`                     | Minimum Carbon:Nitrogen ratio in microbial pool. \( (gC \cdot gN^{-1}) \) |
-| C:Npassmin     | `ratioCNsoilmin(nv,pass)`                     | Minimum Carbon:Nitrogen ratio in microbial pool. \( (gC \cdot gN^{-1}) \) |
+| C:Nslowmin     | `ratioCNsoilmin(nv,slow)`                     | Minimum Carbon:Nitrogen ratio in slow pool. \( (gC \cdot gN^{-1}) \) |
+| C:Npassmin     | `ratioCNsoilmin(nv,pass)`                     | Minimum Carbon:Nitrogen ratio in passive pool. \( (gC \cdot gN^{-1}) \) |
 | C:Nmaxmic      | `ratioCNsoilmax(nv,mic)`                      | Maximum Carbon:Nitrogen ratio in microbial pool. \( (gC \cdot gN^{-1}) \) |
-| C:Nslowmax     | `ratioCNsoilmax(nv,slow)`                     | Maximum Carbon:Nitrogen ratio in microbial pool. \( (gC \cdot gN^{-1}) \) |
-| C:Npassmax     | `ratioCNsoilmax(nv,pass)`                     | Maximum Carbon:Nitrogen ratio in microbial pool. \( (gC \cdot gN^{-1}) \) |
+| C:Nslowmax     | `ratioCNsoilmax(nv,slow)`                     | Maximum Carbon:Nitrogen ratio in slow pool. \( (gC \cdot gN^{-1}) \) |
+| C:Npassmax     | `ratioCNsoilmax(nv,pass)`                     | Maximum Carbon:Nitrogen ratio in passive pool. \( (gC \cdot gN^{-1}) \) |
 | Laimax         | `casabiome%glaimax(nv)`                       | Maximum leaf area index. \( (-) \) |
 | Laimin         | `casabiome%glaimin(nv)`                       | Minimum leaf area index. \( (-) \) |
 | Leaf C         | `cleaf(nv)`                                   | Unused \( (gC \cdot m^{-2}) \) |
