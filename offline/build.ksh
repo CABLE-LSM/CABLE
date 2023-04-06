@@ -65,7 +65,7 @@ host_gadi()
     export CFLAGS="${CFLAGS} ${OPTFLAG}"
     export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
     # export CFLAGS="${CFLAGS} -D__CRU2017__"
-    #export CFLAGS="${CFLAGS} -D__NETCDF3__"
+    # export CFLAGS="${CFLAGS} -D__NETCDF3__"
     export LDFLAGS="-L"${NCDIR}" "${LDFLAGS}
     export LD="-lnetcdf -lnetcdff"
     export MFLAGS="-j 8"

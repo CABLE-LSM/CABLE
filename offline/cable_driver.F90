@@ -94,7 +94,7 @@ PROGRAM cable_offline_driver
   ! modules related to POP
   use POP_Types,     only: POP_TYPE
   use POPLUC_Types,  only: POPLUC_Type
-  use POPLUC_Module, only: WRITE_LUC_OUTPUT_NC, &
+  use POPLUC_Module, only: WRITE_LUC_OUTPUT_NC, WRITE_LUC_OUTPUT_GRID_NC, &
        POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, POPLUC_set_patchfrac
   use POP_Constants, only: rshootfrac
   use cable_pop_io,  only: pop_io
@@ -1112,7 +1112,11 @@ PROGRAM cable_offline_driver
                           end if
                        end if
                        ! Dynamic LUC: write output
-                       call WRITE_LUC_OUTPUT_NC(POPLUC, YYYY, (YYYY == cable_user%YearEnd))
+                       if (output%grid(1:3) == 'lan') then
+                          call WRITE_LUC_OUTPUT_NC(POPLUC, YYYY, (YYYY == cable_user%YearEnd))
+                       else
+                          call WRITE_LUC_OUTPUT_GRID_NC(POPLUC, YYYY, (YYYY == cable_user%YearEnd))
+                       end if
                     end if ! POPLUC
 
                  end if ! end of day and end of year
