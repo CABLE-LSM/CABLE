@@ -10,7 +10,8 @@ contains
 
     USE cable_def_types_mod
     USE cable_carbon_module
-    USE cable_common_module, ONLY: CABLE_USER
+    USE cable_common_module,  ONLY: CABLE_USER
+    use cable_io_vars_module, only: output
     USE casadimension
     USE casaparm ! e.g. leaf
     USE casavariable
@@ -19,7 +20,8 @@ contains
     USE POP_Constants,       ONLY: rshootfrac
     ! use cable_pop_io,        only: pop_io
     use casa_cable,          only: POPdriver, read_casa_dump, analyticpool
-    use casa_inout,          only: casa_fluxout, biogeochem, write_casa_output_nc
+    use casa_inout,          only: casa_fluxout, biogeochem, write_casa_output_nc, &
+                                   write_casa_output_grid_nc
     use TypeDef,             only: dp
     ! 13C
     use cable_c13o2_def,     only: c13o2_pool, c13o2_flux
@@ -512,9 +514,14 @@ contains
              if (nloop==mloop .and. nyear==myearspin) then
                 ! CALL WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, &
                 !      .true., ctime,  idoy.eq.mdyear )
-                CALL WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, &
-                     .true., ctime,  idoy.eq.mdyear )
-                ! 13C
+                if (output%grid(1:3) == 'lan') then
+                   CALL WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, &
+                                              .true., ctime,  idoy.eq.mdyear )
+                else
+                  CALL WRITE_CASA_OUTPUT_GRID_NC( veg, casamet, casapool, casabal, casaflux, &
+                                                 .true., ctime,  idoy.eq.mdyear )
+                end if
+                  ! 13C
                 if (cable_user%c13o2) then
                    if (idoy == 1) then
                       call c13o2_create_output(casamet, c13o2pools, c13o2_file_id, c13o2_vars, c13o2_var_ids)

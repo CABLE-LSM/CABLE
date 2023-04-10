@@ -41,7 +41,14 @@
 !   biogeochem
 module casa_inout
 
+  use cable_def_types_mod,  only: mland
+  use cable_IO_vars_module, only: landpt, mask, patch, max_vegpatches, xdimsize, ydimsize, &
+                                  land_x, land_y, lat_all, lon_all
+  use netcdf
+
   implicit none
+
+  REAL(KIND=4) :: ncmissingr = -1.0e+33
 
 contains
 
@@ -1497,17 +1504,16 @@ contains
     use casavariable,         only: casa_met, casa_pool, casa_balance, casa_flux, &
          casafile, casa_timeunits
     use cable_common_module,  only: cable_user, filename, handle_err
-    use cable_IO_vars_module, only: patch
     use cable_def_types_mod,  only: veg_parameter_type, mp
     ! use cable_def_types_mod,  only: sp => r_2
-    use netcdf,               only: nf90_noerr, &
-         nf90_put_var, nf90_clobber, nf90_create, nf90_global, nf90_put_att, &
-#ifdef __NETCDF3__
-         nf90_64bit_offset, &
-#else
-         nf90_netcdf4, nf90_classic_model, &
-#endif
-         nf90_def_dim, nf90_unlimited, nf90_int, nf90_def_var, nf90_float, nf90_enddef, nf90_put_var, nf90_close ! , nf90_double
+    !use netcdf,               only: nf90_noerr, &
+    !     nf90_put_var, nf90_clobber, nf90_create, nf90_global, nf90_put_att, &
+!#ifdef __NETCDF3__
+!         nf90_64bit_offset, &
+!#else
+!         nf90_netcdf4, nf90_classic_model, &
+!#endif
+!         nf90_def_dim, nf90_unlimited, nf90_int, nf90_def_var, nf90_float, nf90_enddef, nf90_put_var, nf90_close ! , nf90_double
 
     implicit none
 
@@ -2059,6 +2065,743 @@ contains
     endif
 
   end subroutine write_casa_output_nc
+
+
+  subroutine write_casa_output_grid_nc(veg, casamet, casapool, casabal, casaflux, casaonly, ctime, lfinal)
+
+   ! version of write_casa_output_nc that gives casa output in a latlon grid
+   ! Note: only works for 4D casa variables. Higher dimensions are not supported at the moment 
+   !       -> variables fromLtoS, fromPtoL, and fromStoS currently not considered
+   !       -> variables with additional dimensions (mplant, mlitter, msoil) are averaged over patches to avoid 5D outputs
+
+    use casadimension,        only: mplant, mlitter, msoil, icycle
+    use casavariable,         only: casa_met, casa_pool, casa_balance, casa_flux, &
+         casafile, casa_timeunits
+    use cable_common_module,  only: cable_user, filename, handle_err
+    use cable_def_types_mod,  only: veg_parameter_type, mp
+!    use netcdf,               only: nf90_noerr, &
+!         nf90_put_var, nf90_clobber, nf90_create, nf90_global, nf90_put_att, &
+!#ifdef __NETCDF3__
+!         nf90_64bit_offset, &
+!#else
+!         nf90_netcdf4, nf90_classic_model, &
+!#endif
+!         nf90_def_dim, nf90_unlimited, nf90_int, nf90_def_var, nf90_float, nf90_enddef, nf90_put_var, nf90_close ! , nf90_double
+
+    implicit none
+
+    type(veg_parameter_type), intent(in) :: veg      ! vegetation parameters
+    type(casa_met) ,          intent(in) :: casamet
+    type(casa_pool),          intent(in) :: casapool
+    type(casa_balance),       intent(in) :: casabal
+    type(casa_flux),          intent(in) :: casaflux
+    logical,                  intent(in) :: casaonly
+    integer,                  intent(in) :: ctime
+    logical,                  intent(in) :: lfinal
+
+    integer :: status
+    integer :: x_id, y_id, patch_id, plant_id, litter_id, soil_id, t_id, i
+    character(len=99) :: fname
+    character(len=50) :: dum
+    logical, save :: call1 = .true.
+    integer, parameter :: sp = kind(1.0)
+
+    ! 2 dim arrays (x,y)
+    character(len=20), dimension(2)  :: a0
+    ! 4 dim arrays (x,y,patch,t)
+    character(len=20), dimension(53) :: a1
+    ! 4 dim arrays (x,y,mplant,t)
+    character(len=20), dimension(9)  :: a2
+    ! 4 dim arrays (x,y,mlitter,t)
+    character(len=20), dimension(9)  :: a3
+    ! 4 dim arrays (x,y,msoil,t)
+    character(len=20), dimension(8)  :: a4
+
+    ! Same structure for units
+    ! 2 dim arrays (x,y)
+    character(len=30), dimension(2)  :: u0
+    ! 4 dim arrays (x,y,patch,t)
+    character(len=30), dimension(53) :: u1
+    ! 4 dim arrays (x,y,mplant,t)
+    character(len=30), dimension(9)  :: u2
+    ! 4 dim arrays (x,y,mlitter,t)
+    character(len=30), dimension(9)  :: u3
+    ! 4 dim arrays (x,y,msoil,t)
+    character(len=30), dimension(8)  :: u4
+    
+    integer                            :: vidx, vidy
+    integer, dimension(size(a0)), save :: vid0
+    integer, dimension(size(a1)), save :: vid1
+    integer, dimension(size(a2)), save :: vid2
+    integer, dimension(size(a3)), save :: vid3
+    integer, dimension(size(a4)), save :: vid4
+    integer, save :: vidtime, file_id, cnt
+    integer :: na0, na1, na2, na3, na4  ! actual size to write depending on icycle
+
+
+    if (icycle < 1) return
+    
+    ! latitude and longitude
+    a0(1) = 'latitude'
+    a0(2) = 'longitude'
+
+    u0(1) = 'degrees_north'
+    u0(2) = 'degrees_east'
+    na0 = 2
+
+    ! patch fraction and area
+    a1(1)  = 'patchfrac'
+    a1(2)  = 'patcharea'
+    
+    u1(1)  = 'fraction'
+    u1(2)  = 'km2'
+
+    ! C
+    a1(3)  = 'glai'
+    a1(4)  = 'clabile'
+    a1(5)  = 'sumcbal'
+    a1(6)  = 'Cgpp'
+    a1(7)  = 'Cnpp'
+    a1(8)  = 'stemnpp'
+    a1(9)  = 'Crp'
+    a1(10)  = 'Crgplant'
+    a1(11)  = 'Clabloss'
+    a1(12) = 'fraclabile'
+    a1(13) = 'Cnep'
+    a1(14) = 'Crsoil'
+    a1(15) = 'FluxCtoco2'
+    a1(16) = 'FCgppyear'
+    a1(17) = 'FCrpyear'
+    a1(18) = 'FCnppyear'
+    a1(19) = 'FCrsyear'
+    a1(20) = 'FCNeeyear'
+    a1(21) = 'vcmax'
+    na1 = 21
+
+    u1(3)  = 'm2 m-2' 
+    u1(4)  = 'g C m-2 d-1'
+    u1(5)  = 'g C m-2 d-1'
+    u1(6)  = 'g C m-2 d-1'
+    u1(7)  = 'g C m-2 d-1'
+    u1(8)  = 'g C m-2 d-1'
+    u1(9)  = 'g C m-2 d-1'
+    u1(10) = 'g C m-2 d-1'
+    u1(11) = 'g C m-2 d-1'
+    u1(12) = 'fraction'
+    u1(13) = 'g C m-2 d-1'
+    u1(14) = 'g C m-2 d-1'
+    u1(15) = ''
+    u1(16) = ''
+    u1(17) = ''
+    u1(18) = ''
+    u1(19) = ''
+    u1(20) = ''
+    u1(21) = 'umol m-2 s-1'
+
+
+    ! N
+    a1(22) = 'sumnbal'
+    a1(23) = 'Nminfix'
+    a1(24) = 'Nmindep'
+    a1(25) = 'Nminloss'
+    a1(26) = 'Nminleach'
+    a1(27) = 'Nupland'
+    a1(28) = 'Nlittermin'
+    a1(29) = 'Nsmin'
+    a1(30) = 'Nsimm'
+    a1(31) = 'Nsnet'
+    a1(32) = 'fNMinloss'
+    a1(33) = 'Nsoilmin'
+    if (icycle==2) na1 = 33
+
+    u1(22) = ''
+    u1(23) = 'g N m-2 d-1'
+    u1(24) = 'g N m-2 d-1'
+    u1(25) = 'g N m-2 d-1'
+    u1(26) = 'g N m-2 d-1'
+    u1(27) = 'g N m-2 d-1'
+    u1(28) = 'g N m-2 d-1'
+    u1(29) = 'g N m-2 d-1'
+    u1(30) = 'g N m-2 d-1'
+    u1(31) = 'g N m-2 d-1'
+    u1(32) = 'g N m-2 d-1'
+    u1(33) = 'g N m-2 d-1'
+
+
+    ! P
+    a1(34) = 'psoillab'
+    a1(35) = 'psoilsorb'
+    a1(36) = 'psoilocc'
+    a1(37) = 'sumpbal'
+    a1(38) = 'Plabuptake'
+    a1(39) = 'Pdep'
+    a1(40) = 'pwea'
+    a1(41) = 'Pleach'
+    a1(42) = 'Ploss'
+    a1(43) = 'Pupland'
+    a1(44) = 'Plittermin'
+    a1(45) = 'Psmin'
+    a1(46) = 'Psimm'
+    a1(47) = 'Psnet'
+    a1(48) = 'fPleach'
+    a1(49) = 'kPlab'
+    a1(50) = 'kPsorb'
+    a1(51) = 'kpocc'
+    a1(52) = 'kmlabP'
+    a1(53) = 'Psorbmax'
+    if (icycle==3) na1 = 53
+
+    u1(34) = 'g P m-2 d-1'
+    u1(35) = 'g P m-2 d-1'
+    u1(36) = 'g P m-2 d-1'
+    u1(37) = 'sumpbal'
+    u1(38) = 'g P m-2 d-1'
+    u1(39) = 'g P m-2 d-1'
+    u1(40) = 'g P m-2 d-1'
+    u1(41) = 'g P m-2 d-1'
+    u1(42) = 'g P m-2 d-1'
+    u1(43) = 'g P m-2 d-1'
+    u1(44) = 'g P m-2 d-1'
+    u1(45) = 'g P m-2 d-1'
+    u1(46) = 'g P m-2 d-1'
+    u1(47) = 'g P m-2 d-1'
+    u1(48) = ''
+    u1(49) = ''
+    u1(50) = ''
+    u1(51) = ''
+    u1(52) = ''
+    u1(53) = ''
+
+    ! C
+    a2(1) = 'cplant'
+    a2(2) = 'fracCalloc'
+    a2(3) = 'kplant'
+    a2(4) = 'Crmplant'
+    a2(5) = 'kplant_fire'
+    na2 = 5
+
+    u2(1) = ''
+    u2(2) = 'fraction'
+    u2(3) = ''
+    u2(4) = ''
+    u2(5) = ''
+
+    ! N
+    a2(6) = 'nplant'
+    a2(7) = 'fracNalloc'
+    if (icycle==2) na2 = 7
+
+    u2(6) = ''
+    u2(7) = 'fraction'
+
+    ! P
+    a2(8) = 'pplant'
+    a2(9) = 'fracPalloc'
+    if (icycle==3) na2 = 9
+
+    u2(8) = ''
+    u2(9) = 'fraction'
+
+    ! C
+    a3(1) = 'clitter'
+    a3(2) = 'klitter'
+    a3(3) = 'fromLtoCO2'
+    a3(4) = 'FluxCtolitter'
+    a3(5) = 'klitter_fire'
+    na3 = 5
+
+    u3(1) = ''
+    u3(2) = ''
+    u3(3) = ''
+    u3(4) = ''
+    u3(5) = ''
+
+    ! N
+    a3(6) = 'nlitter'
+    a3(7) = 'FluxNtolitter'
+    if (icycle==2) na3 = 7
+
+    u3(6) = ''
+    u3(7) = ''
+
+    ! P
+    a3(8) = 'plitter'
+    a3(9) = 'FluxPtolitter'
+    if (icycle==3) na3 = 9
+
+    u3(8) = ''
+    u3(9) = ''
+
+    ! C
+    a4(1) = 'csoil'
+    a4(2) = 'ksoil'
+    a4(3) = 'fromStoCO2'
+    a4(4) = 'FluxCtosoil'
+    na4 = 4
+
+    u4(1) = ''
+    u4(2) = ''
+    u4(3) = ''
+    u4(4) = ''
+
+    ! N
+    a4(5) = 'nsoil'
+    a4(6) = 'FluxNtosoil'
+    if (icycle==2) na4 = 6
+
+    u4(5) = ''
+    u4(6) = ''
+
+    ! P
+    a4(7) = 'psoil'
+    a4(8) = 'FluxPxtosoil'
+    if (icycle==3) na4 = 8
+
+    u4(7) = ''
+    u4(8) = ''
+
+    ! C
+    !a5(1) = 'fromPtoL'
+    !na5 = 1
+
+    ! C
+    !a6(1) = 'fromLtoS'
+    !na6 = 1
+
+    ! C
+    !a7(1) = 'fromStoS'
+    !na7 = 1
+
+    ! Get File-Name
+    if (len_trim(casafile%out) > 0) then
+       fname = trim(casafile%out)
+    else
+       if (len_trim(cable_user%mettype) > 0) then
+          if (cable_user%yearstart < 1000) then
+             write(dum, fmt="(i3)") cable_user%yearstart
+          else
+             write(dum, fmt="(i4)") cable_user%yearstart
+          endif
+          if (cable_user%yearend < 1000) then
+             write(dum, fmt="(a,a,i3)") trim(dum), '_', cable_user%yearend
+          else
+             write(dum, fmt="(a,a,i4)") trim(dum), '_', cable_user%yearend
+          endif
+          fname = trim(filename%path)//'/'//trim(cable_user%RunIden)//'_'//trim(dum)//'_casa_out.nc'
+       else
+          ! site data
+          fname = trim(filename%path)//'/'//trim(cable_user%RunIden)//'_casa_out.nc'
+       endif
+    endif
+
+    if ( call1 ) then
+       cnt = 0
+
+       ! create netcdf file:
+#ifdef __NETCDF3__
+       status = nf90_create(trim(fname), ior(nf90_clobber,nf90_64bit_offset), file_id)
+#else
+       status = nf90_create(trim(fname), ior(nf90_clobber,ior(nf90_netcdf4,nf90_classic_model)), file_id)
+#endif
+       if (status /= nf90_noerr) call handle_err(status)
+
+       status = nf90_put_att(file_id, nf90_global, "icycle"   , icycle)
+       status = nf90_put_att(file_id, nf90_global, "startyear", cable_user%yearstart)
+       status = nf90_put_att(file_id, nf90_global, "endyear"  , cable_user%yearend)
+       status = nf90_put_att(file_id, nf90_global, "runiden"  , cable_user%runiden)
+       
+       if (casaonly) then
+          dum = 'casa-only run'
+       else
+          dum = 'cable-casa coupled run'
+       endif
+       status = nf90_put_att(file_id, nf90_global, "run-type", trim(dum))
+
+       ! define dimensions:
+       ! land (number of points)
+       !status = nf90_def_dim(file_id, 'land',    mp,             land_id)
+       !if (status /= nf90_noerr) call handle_err(status)
+       status = nf90_def_dim(file_id, 'x', xdimsize, x_id) 
+       if (status /= nf90_noerr) call handle_err(status)
+       status = nf90_def_dim(file_id, 'y', ydimsize, y_id) 
+       if (status /= nf90_noerr) call handle_err(status)
+       status = nf90_def_dim(file_id, 'patch', max_vegpatches, patch_id) 
+       if (status /= nf90_noerr) call handle_err(status)
+       status = nf90_def_dim(file_id, 'mplant',  mplant,         plant_id)
+       if (status /= nf90_noerr) call handle_err(status)
+       status = nf90_def_dim(file_id, 'mlitter', mlitter,        litter_id)
+       if (status /= nf90_noerr) call handle_err(status)
+       status = nf90_def_dim(file_id, 'msoil',   msoil,          soil_id)
+       if (status /= nf90_noerr) call handle_err(status)
+       status = nf90_def_dim(file_id, 'time',    nf90_unlimited, t_id)
+       if (status /= nf90_noerr) call handle_err(status)
+
+       ! define variables
+       status = nf90_def_var(file_id, 'time', nf90_int, (/t_id/), vidtime)
+       if (status /= nf90_noerr) call handle_err(status)
+
+       STATUS = NF90_PUT_ATT(FILE_ID, VIDtime, 'units', TRIM(casa_timeunits))
+       IF (STATUS /= NF90_NOERR)  CALL handle_err(STATUS)
+
+       ! STATUS = NF90_PUT_ATT(FILE_ID, VIDtime, 'calendar', trim(casa_calendar))
+       ! IF (STATUS /= NF90_NOERR)  CALL handle_err(STATUS)
+
+       ! Define x and y variables to get the right output grid
+       status = nf90_def_var(file_id, 'y', nf90_float, (/y_id/), vidy)
+       if (status /= nf90_noerr) call handle_err(status)
+       status = nf90_put_att(file_id, vidy, 'units', 'degrees_north')
+       if (status /= nf90_noerr) call handle_err(status)
+
+       status = nf90_def_var(file_id, 'x', nf90_float, (/x_id/), vidx)
+       if (status /= nf90_noerr) call handle_err(status)
+       status = nf90_put_att(file_id, vidx, 'units', 'degrees_east')
+       if (status /= nf90_noerr) call handle_err(status)
+
+       ! Latitude and Longitude
+       do i=1, na0
+          status = nf90_def_var(file_id, trim(a0(i)), nf90_float, (/x_id,y_id/), vid0(i))
+          if (status /= nf90_noerr) call handle_err(status)
+          status = nf90_put_att(file_id, vid0(i), 'units', trim(u0(i)))
+          if (status /= nf90_noerr) call handle_err(status)
+       end do
+
+       do i=1, na1
+          status = nf90_def_var(file_id, trim(a1(i)), nf90_float, (/x_id,y_id,patch_id,t_id/), vid1(i) &
+#ifndef __NETCDF3__
+               , deflate_level=4, shuffle = .TRUE. &
+#endif
+               )
+          if (status /= nf90_noerr) call handle_err(status)
+          status = nf90_put_att(file_id, vid1(i), 'units', trim(u1(i)))
+          if (status /= nf90_noerr) call handle_err(status)
+          status = nf90_put_att(file_id, vid1(i), '_FillValue', real(ncmissingr,sp))
+          if (status /= nf90_noerr) call handle_err(status)
+       end do
+
+       do i=1, na2
+          status = nf90_def_var(file_id, trim(a2(i)), nf90_float, (/x_id,y_id,plant_id,t_id/), vid2(i) &
+#ifndef __NETCDF3__
+               , deflate_level=4, shuffle = .TRUE. &
+#endif
+               )
+          if (status /= nf90_noerr) call handle_err(status)
+          status = nf90_put_att(file_id, vid2(i), 'units', trim(u2(i)))
+          if (status /= nf90_noerr) call handle_err(status)
+          status = nf90_put_att(file_id, vid2(i), '_FillValue', real(ncmissingr,sp))
+          if (status /= nf90_noerr) call handle_err(status)
+       end do
+
+       do i=1, na3
+          status = nf90_def_var(file_id, trim(a3(i)), nf90_float, (/x_id,y_id,litter_id,t_id/), vid3(i) &
+#ifndef __NETCDF3__
+               , deflate_level=4, shuffle = .TRUE. &
+#endif
+               )
+          if (status /= nf90_noerr) call handle_err(status)
+          status = nf90_put_att(file_id, vid3(i), 'units', trim(u3(i)))
+          if (status /= nf90_noerr) call handle_err(status)
+          status = nf90_put_att(file_id, vid3(i), '_FillValue', real(ncmissingr,sp))
+          if (status /= nf90_noerr) call handle_err(status)
+       end do
+
+       do i=1, na4
+          status = nf90_def_var(file_id, trim(a4(i)), nf90_float, (/x_id,y_id,soil_id,t_id/), vid4(i) &
+#ifndef __NETCDF3__
+               , deflate_level=4, shuffle = .TRUE. &
+#endif
+               )
+          if (status /= nf90_noerr) call handle_err(status)
+          status = nf90_put_att(file_id, vid4(i), 'units', trim(u4(i)))
+          if (status /= nf90_noerr) call handle_err(status)
+          status = nf90_put_att(file_id, vid4(i), '_FillValue', real(ncmissingr,sp))
+          if (status /= nf90_noerr) call handle_err(status)
+       end do
+
+       ! end define mode:
+       status = nf90_enddef(file_id)
+       if (status /= nf90_noerr) call handle_err(status)
+
+       ! put y and x
+       status = nf90_put_var(file_id, vidy, real(lat_all(1,:),sp))
+       if(status /= nf90_noerr) call handle_err(status)
+       status = nf90_put_var(file_id, vidx, real(lon_all(:,1),sp))
+       if(status /= nf90_noerr) call handle_err(status)
+
+       ! put longitude and latitude
+       status = nf90_put_var(file_id, vid0(1), lat_all)
+       if(status /= nf90_noerr) call handle_err(status)
+       status = nf90_put_var(file_id, vid0(2), lon_all)
+       if(status /= nf90_noerr) call handle_err(status)
+
+       call1 = .false.
+    endif ! call1
+
+    cnt = cnt + 1
+
+    ! time  ( t )
+    status = nf90_put_var(file_id, vidtime, ctime, start=(/cnt/))
+    if(status /= nf90_noerr) call handle_err(status)
+
+    ! patchfrac and area
+    call put_casa_var_grid_patch(file_id,vid1(1), real(patch(:)%frac,sp), cnt)
+    call put_casa_var_grid_patch(file_id,vid1(2), real(casamet%areacell,sp), cnt)
+    
+    ! 4D vars (x,y,patch,t)
+    ! C
+    call put_casa_var_grid_patch(file_id, vid1(3), real(casamet%glai,sp), cnt)
+    call put_casa_var_grid_patch(file_id, vid1(4), real(casapool%clabile,sp), cnt)
+    call put_casa_var_grid_patch(file_id, vid1(5), real(casabal%sumcbal,sp), cnt)
+    call put_casa_var_grid_patch(file_id, vid1(6), real(casaflux%cgpp,sp), cnt)
+    call put_casa_var_grid_patch(file_id, vid1(7), real(casaflux%cnpp,sp), cnt)
+    call put_casa_var_grid_patch(file_id, vid1(8), real(casaflux%stemnpp,sp), cnt)
+    call put_casa_var_grid_patch(file_id, vid1(9), real(casaflux%crp,sp), cnt)
+    call put_casa_var_grid_patch(file_id, vid1(10), real(casaflux%crgplant,sp), cnt)
+    call put_casa_var_grid_patch(file_id, vid1(11), real(casaflux%clabloss,sp), cnt)
+    call put_casa_var_grid_patch(file_id, vid1(12), real(casaflux%fracclabile,sp), cnt)   
+    call put_casa_var_grid_patch(file_id, vid1(13), real(casaflux%cnep,sp), cnt)
+    call put_casa_var_grid_patch(file_id, vid1(14), real(casaflux%crsoil,sp), cnt)
+    call put_casa_var_grid_patch(file_id, vid1(15), real(casaflux%fluxctoco2,sp), cnt)
+    call put_casa_var_grid_patch(file_id, vid1(16), real(casabal%fcgppyear,sp), cnt)
+    call put_casa_var_grid_patch(file_id, vid1(17), real(casabal%fcrpyear,sp), cnt)
+    call put_casa_var_grid_patch(file_id, vid1(18), real(casabal%fcnppyear,sp), cnt)
+    call put_casa_var_grid_patch(file_id, vid1(19), real(casabal%fcrsyear,sp), cnt)
+    call put_casa_var_grid_patch(file_id, vid1(20), real(casabal%fcneeyear,sp), cnt)
+    call put_casa_var_grid_patch(file_id, vid1(21), real(veg%vcmax,sp), cnt)
+
+    ! N
+    if (icycle > 1) then
+       call put_casa_var_grid_patch(file_id, vid1(22), real(casabal%sumnbal,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(23), real(casaflux%nminfix,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(24), real(casaflux%nmindep,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(25), real(casaflux%nminloss,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(26), real(casaflux%nminleach,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(27), real(casaflux%nupland,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(28), real(casaflux%nlittermin,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(29), real(casaflux%nsmin,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(30), real(casaflux%nsimm,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(31), real(casaflux%nsnet,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(32), real(casaflux%fnminloss,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(33), real(casapool%nsoilmin,sp), cnt)
+    endif
+
+    ! P
+    if (icycle > 2) then
+       call put_casa_var_grid_patch(file_id, vid1(34), real(casapool%psoillab,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(35), real(casapool%psoilsorb,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(36), real(casapool%psoilocc,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(37), real(casabal%sumpbal,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(38), real(casaflux%plabuptake,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(39), real(casaflux%pdep,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(40), real(casaflux%pwea,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(41), real(casaflux%pleach,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(42), real(casaflux%ploss,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(43), real(casaflux%pupland,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(44), real(casaflux%plittermin,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(45), real(casaflux%psmin,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(46), real(casaflux%psimm,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(47), real(casaflux%psnet,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(48), real(casaflux%fpleach,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(49), real(casaflux%kplab,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(50), real(casaflux%kpsorb,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(51), real(casaflux%kpocc,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(52), real(casaflux%kmlabp,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(53), real(casaflux%psorbmax,sp), cnt)
+    endif
+
+    ! 4D vars (x,y,mplant,t)
+    ! C
+    call put_casa_var_grid_patch_average(file_id, vid2(1), real(casapool%cplant,sp),      "mplant", cnt)
+    call put_casa_var_grid_patch_average(file_id, vid2(2), real(casaflux%fracCalloc,sp),  "mplant", cnt)
+    call put_casa_var_grid_patch_average(file_id, vid2(3), real(casaflux%kplant,sp),      "mplant", cnt)
+    call put_casa_var_grid_patch_average(file_id, vid2(4), real(casaflux%crmplant,sp),    "mplant", cnt)
+    call put_casa_var_grid_patch_average(file_id, vid2(5), real(casaflux%kplant_fire,sp), "mplant", cnt)
+
+    ! N
+    if (icycle > 1) then
+       call put_casa_var_grid_patch_average(file_id, vid2(6), real(casapool%nplant,sp),     "mplant", cnt)
+       call put_casa_var_grid_patch_average(file_id, vid2(7), real(casaflux%fracnalloc,sp), "mplant", cnt)
+    endif
+
+    ! P
+    if (icycle > 2) then
+       call put_casa_var_grid_patch_average(file_id, vid2(8), real(casapool%pplant,sp),     "mplant", cnt)
+       call put_casa_var_grid_patch_average(file_id, vid2(9), real(casaflux%fracpalloc,sp), "mplant", cnt)
+    endif
+
+    ! 4D vars (x,y,mlitter,t)
+    ! C
+    call put_casa_var_grid_patch_average(file_id, vid3(1), real(casapool%clitter,sp),       "mlitter", cnt)
+    call put_casa_var_grid_patch_average(file_id, vid3(2), real(casaflux%klitter,sp),       "mlitter", cnt)
+    call put_casa_var_grid_patch_average(file_id, vid3(3), real(casaflux%fromltoco2,sp),    "mlitter", cnt)
+    call put_casa_var_grid_patch_average(file_id, vid3(4), real(casaflux%fluxctolitter,sp), "mlitter", cnt)
+    call put_casa_var_grid_patch_average(file_id, vid3(5), real(casaflux%klitter_fire,sp),  "mlitter", cnt)
+
+    ! N
+    if (icycle > 1) then
+       call put_casa_var_grid_patch_average(file_id, vid3(6), real(casapool%nlitter,sp),       "mlitter", cnt)
+       call put_casa_var_grid_patch_average(file_id, vid3(7), real(casaflux%fluxntolitter,sp), "mlitter", cnt)
+    endif
+
+    ! P
+    if (icycle > 2) then
+       call put_casa_var_grid_patch_average(file_id, vid3(8), real(casapool%plitter,sp),       "mlitter", cnt)
+       call put_casa_var_grid_patch_average(file_id, vid3(9), real(casaflux%fluxptolitter,sp), "mlitter", cnt)
+    endif
+
+    ! 4d vars (x,y,msoil,t)
+    ! C
+    call put_casa_var_grid_patch_average(file_id, vid4(1), real(casapool%csoil,sp),       "msoil", cnt)
+    call put_casa_var_grid_patch_average(file_id, vid4(2), real(casaflux%ksoil,sp),       "msoil", cnt)
+    call put_casa_var_grid_patch_average(file_id, vid4(3), real(casaflux%fromstoco2,sp),  "msoil", cnt)
+    call put_casa_var_grid_patch_average(file_id, vid4(4), real(casaflux%fluxctosoil,sp), "msoil", cnt)
+
+    ! N
+    if (icycle > 1) then
+       call put_casa_var_grid_patch_average(file_id, vid4(5), real(casapool%nsoil,sp),       "msoil", cnt)
+       call put_casa_var_grid_patch_average(file_id, vid4(6), real(casaflux%fluxntosoil,sp), "msoil", cnt)
+    endif
+
+    ! P
+    if (icycle > 2) then
+       call put_casa_var_grid_patch_average(file_id, vid4(7), real(casapool%psoil,sp),       "msoil", cnt)
+       call put_casa_var_grid_patch_average(file_id, vid4(8), real(casaflux%fluxptosoil,sp), "msoil", cnt)
+    endif
+
+    ! put 4d vars ( mp, mlitter,mplant, t )
+    ! C
+    !status = nf90_put_var(file_id, vid5(1), real(casaflux%fromptol,sp), start=(/1,1,1,cnt/), count=(/mp,mlitter,mplant,1/))
+    !if(status /= nf90_noerr) call handle_err(status)
+
+    ! put 4d vars ( mp, msoil, mlitter, t )
+    ! C
+    !status = nf90_put_var(file_id, vid6(1), real(casaflux%fromltos,sp), start=(/1,1,1,cnt/), count=(/mp,msoil,mlitter,1/))
+    !if(status /= nf90_noerr) call handle_err(status)
+
+    ! put 4d vars ( mp, msoil, msoil, t )
+    ! C
+    !status = nf90_put_var(file_id, vid7(1), real(casaflux%fromstos,sp), start=(/1,1,1,cnt/), count=(/mp,msoil,msoil,1/))
+    !if(status /= nf90_noerr) call handle_err(status)
+
+    if ( lfinal ) then
+       ! close netcdf file:
+       status = nf90_close(file_id)
+       file_id = -1
+       if (status /= nf90_noerr) call handle_err(status)
+       write(*,*) " casa output written to ", trim(fname)
+    endif
+
+  end subroutine write_casa_output_grid_nc
+
+
+
+  SUBROUTINE put_casa_var_grid_patch(file_id,var_id,var_vals,cnt)
+
+   ! writes casa vars to file with dimensions x,y,patch,t
+   
+   use casadimension, only: mplant, mlitter, msoil, icycle
+   use cable_common_module,  only: handle_err
+
+   implicit none
+
+   INTEGER, INTENT(IN) :: file_id                      ! netcdf file ID 
+   INTEGER, INTENT(IN) :: var_id                       ! variable's netcdf ID
+   REAL(KIND=4), DIMENSION(:), INTENT(IN) :: var_vals  ! variable values
+   INTEGER, INTENT(IN) :: cnt                          ! current time step #
+    
+   ! Local variables
+   REAL(KIND=4), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp 
+   INTEGER                                       :: i, j   ! counters
+   INTEGER                                       :: status ! NF90 status
+
+   ! Allocate temporary array
+   ALLOCATE(otmp(xdimsize, ydimsize, max_vegpatches, 1))
+   otmp(:,:,:,:) = 0.0
+
+   ! Write values to temporary output grid. Average over patches if necessary
+   do i = 1, mland ! over all land grid points
+      ! active patches
+      otmp(land_x(i), land_y(i), 1:landpt(i)%nap, 1) = var_vals(landpt(i)%cstart:landpt(i)%cend)
+      ! inactive patches
+      if (landpt(i)%nap < max_vegpatches) then 
+         otmp(land_x(i),land_y(i), (landpt(i)%nap + 1):max_vegpatches, 1) = ncmissingr
+      endif
+   end do ! land grid points
+
+   ! Fill non-land points with NA values:
+   do j = 1, max_vegpatches
+      where(mask /= 1) otmp(:, :, j, 1) = ncmissingr ! not land
+   end do
+   
+   ! write data to file
+   status = nf90_put_var(file_id, var_id, otmp(:, :, :, 1), &
+                        start=(/1, 1, 1, cnt/), count=(/xdimsize, ydimsize, max_vegpatches, 1/))
+                         
+   if(status /= nf90_noerr) call handle_err(status)
+
+   deallocate(otmp)
+
+END SUBROUTINE put_casa_var_grid_patch
+
+
+
+
+SUBROUTINE put_casa_var_grid_patch_average(file_id,var_id,var_vals,outdim,cnt)
+
+   ! writes casa vars to file with dimensions x,y,outdim,t
+   ! averages 3rd dimension (outdim) over patches
+
+   use casadimension, only: mplant, mlitter, msoil, icycle
+   use cable_common_module,  only: handle_err
+
+   implicit none
+
+   INTEGER, INTENT(IN) :: file_id                        ! netcdf file ID 
+   INTEGER, INTENT(IN) :: var_id                         ! variable's netcdf ID
+   REAL(KIND=4), DIMENSION(:,:), INTENT(IN) :: var_vals  ! variable values
+   CHARACTER(LEN=*), INTENT(IN) :: outdim                ! 3rd dimension of output ('mplant','mlitter','msoil') 
+   INTEGER, INTENT(IN) :: cnt                            ! current time step #
+    
+   ! Local variables
+   REAL(KIND=4), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp 
+   INTEGER                                       :: ndim3  ! size of 3rd dimension
+   INTEGER                                       :: i, j   ! counters
+   INTEGER                                       :: status ! NF90 status
+
+   if ( trim(outdim) == "mplant" ) then
+      ndim3 = mplant
+   elseif ( trim(outdim) == "mlitter" ) then
+      ndim3 = mlitter
+   elseif ( trim(outdim) == "msoil" ) then
+      ndim3 = msoil
+   endif    
+
+   ! Allocate temporary array
+   ALLOCATE(otmp(xdimsize, ydimsize, ndim3, 1))
+   otmp(:,:,:,:) = 0.0
+
+   ! Write values to temporary output grid. Average over patches if necessary
+   do i = 1, mland ! over all land grid points
+      ! write data and average over patches 
+      do j = 1, ndim3
+         otmp(land_x(i), land_y(i), j , 1) = SUM(var_vals(landpt(i)%cstart:landpt(i)%cend, j) * & 
+                                             real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
+      end do
+   end do ! land grid points
+
+   ! Fill non-land points with NA values:
+   do j = 1, ndim3
+      where(mask /= 1) otmp(:, :, j, 1) = ncmissingr ! not land
+   end do
+   
+   ! write data to file
+   status = nf90_put_var(file_id, var_id, otmp(:, :, :, 1), & 
+                         start = (/1, 1, 1, cnt/), count = (/xdimsize, ydimsize, ndim3, 1/))
+   if(status /= nf90_noerr) call handle_err(status)
+
+   deallocate(otmp)
+
+END SUBROUTINE put_casa_var_grid_patch_average
+
 #endif
 
 end module casa_inout

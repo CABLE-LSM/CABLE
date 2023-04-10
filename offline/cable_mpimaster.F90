@@ -192,7 +192,8 @@ contains
          casa_met, casa_balance, zero_sum_casa, update_sum_casa
     use phenvariable,         only: phen_variable
     use casa_cable,           only: write_casa_dump
-    use casa_inout,           only: casa_fluxout, write_casa_restart_nc, write_casa_output_nc
+    use casa_inout,           only: casa_fluxout, write_casa_restart_nc, write_casa_output_nc, &
+                                    write_casa_output_grid_nc
     use casa_inout,           only: casa_cnpflux
 
     !CLN added
@@ -1172,10 +1173,15 @@ contains
                       ! if (cable_user%c13o2) &
                       !      call c13o2_update_sum_pools(sum_c13o2pools, c13o2pools, .true., casa_time, count_sum_casa)
                       ! count_sum_casa = 0
-
-                      call write_casa_output_nc(veg, casamet, sum_casapool, &
-                           casabal, sum_casaflux, CASAONLY, ctime, &
-                           (ktau == kend) .and. (yyyy == cable_user%YearEnd))
+                      if (output%grid(1:3) == 'lan') then
+                         call write_casa_output_nc(veg, casamet, sum_casapool, &
+                              casabal, sum_casaflux, CASAONLY, ctime, &
+                              (ktau == kend) .and. (yyyy == cable_user%YearEnd))
+                      else
+                         call write_casa_output_grid_nc(veg, casamet, sum_casapool, &
+                              casabal, sum_casaflux, CASAONLY, ctime, &
+                              (ktau == kend) .and. (yyyy == cable_user%YearEnd))
+                      end if
                       ! 13C
                       if (cable_user%c13o2) then
                          if (first_casa_write) then
@@ -1396,9 +1402,15 @@ contains
                    !      call c13o2_update_sum_pools(sum_c13o2pools, c13o2pools, .true., .true., count_sum_casa)
                    ! call write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, &
                    !      CASAONLY, ctime, (ktau==kend) .and. (YYYY==cable_user%YearEnd))
-                   call write_casa_output_nc(veg, casamet, sum_casapool, &
-                        casabal, sum_casaflux, CASAONLY, ctime, &
-                        (ktau == kend) .and. (YYYY == cable_user%YearEnd))
+                   if (output%grid(1:3) == 'lan') then
+                      call write_casa_output_nc(veg, casamet, sum_casapool, &
+                           casabal, sum_casaflux, CASAONLY, ctime, &
+                           (ktau == kend) .and. (YYYY == cable_user%YearEnd))
+                   else
+                      call write_casa_output_grid_nc(veg, casamet, sum_casapool, &
+                           casabal, sum_casaflux, CASAONLY, ctime, &
+                           (ktau == kend) .and. (YYYY == cable_user%YearEnd))
+                   end if
                    ! 13C
                    if (cable_user%c13o2) then
                       call c13o2_write_output(c13o2_outfile_id, c13o2_vars, &
