@@ -61,7 +61,7 @@ def latlon2ixjy(LAT,LON,latmin,latmax,lonmin,lonmax,nx,ny,mtype='array'):
         return XY
     elif mtype == 'mask':
         MASK = np.zeros((nx,ny))
-        MASK[np.fix(XY[0]).astype(np.int),np.fix(XY[1]).astype(np.int)] = 1
+        MASK[np.fix(XY[0]).astype(int),np.fix(XY[1]).astype(int)] = 1
         return MASK.T
     else:
         print("Wrong mtype in latlon2ixjy. Either 'array' or 'mask'!")
@@ -152,7 +152,7 @@ def running_mean(arr, n, typ="central", edge='valid'):
         print("wrong type 'edge' in call to 'running_mean'")
         exit(-1)
 
-    ns = n - np.int((n+1) / 2.)
+    ns = n - int((n+1) / 2.)
     ne = n - ns
 
     nn = len(arr)
@@ -278,5 +278,3 @@ def rank_array( arr, eliminate0='no' ):
             ranks[i] = np.nan
 
     return ranks
-
-

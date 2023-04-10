@@ -104,17 +104,17 @@ if 'x' in fi.dimensions: # use existing grid
 else:                    # great new global grid -60 to +90 latitudes
     dlat = np.abs(np.diff(np.unique(np.sort(ilats)))).min() # 0.5, 1 degree
     dlon = np.abs(np.diff(np.unique(np.sort(ilons)))).min() # 0.5, 1 degree
-    nlat = np.rint(150./dlat).astype(np.int) # 300, 150
-    nlon = np.rint(360./dlon).astype(np.int) # 720, 360
+    nlat = np.rint(150./dlat).astype(int) # 300, 150
+    nlon = np.rint(360./dlon).astype(int) # 720, 360
     clat = ilats.min() % 1. # 0.0 or 0.25, 0.0 or 0.5
     clon = ilons.min() % 1. # 0.0 or 0.25, 0.0 or 0.5
     olat = -60.  + clat + np.arange(nlat)/float(nlat-1) * (150.-dlat) # new lats
     olon = -180. + clon + np.arange(nlon)/float(nlon-1) * (360.-dlon) # new lons
 olon2d, olat2d = np.meshgrid(olon, olat) # new lats, lons in 2D
 lltree = cp.llKDTree(olat2d, olon2d) # KD-tree
-iidl   = np.arange(nland, dtype=np.int) # indices of land in input grid
-oidx   = np.empty(nland, dtype=np.int)  # indices of lon in output grid
-oidy   = np.empty(nland, dtype=np.int)  # indices of lat in output grid
+iidl   = np.arange(nland, dtype=int) # indices of land in input grid
+oidx   = np.empty(nland, dtype=int)  # indices of lon in output grid
+oidy   = np.empty(nland, dtype=int)  # indices of lat in output grid
 for i in range(nland):
     iy, ix = lltree.query(ilats[i], ilons[i])
     oidx[i] = ix

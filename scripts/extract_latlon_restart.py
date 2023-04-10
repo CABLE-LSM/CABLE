@@ -36,6 +36,7 @@ Written  Matthias Cuntz, Oct 2018
 Modified Matthias Cuntz, Apr 2020 - updated to same structure as other netcdf utilities
                                   - allow several lats/lons via input file
          Matthias Cuntz, Apr 2020 - use python module cablepop
+         Matthias Cuntz, Apr 2023 - np.int -> int
 """
 
 # -------------------------------------------------------------------------
@@ -138,7 +139,7 @@ iinlons = []
 for ii in range(nlatlon):
     iinlats.append(cp.closest(inlats, lats[ii]))
     iinlons.append(cp.closest(inlons, lons[ii]))
-    
+
 # Copy global attributes, adding script
 cp.set_global_attributes(fi, fo, add={'history':ptime.asctime()+': '+' '.join(sys.argv)})
 
@@ -199,7 +200,7 @@ for ifile in restartfiles:
         #   -> make lats/lons per tile with the help of number of tiles per grid cell 'nap'
         mlats = fi.variables[latname][:]
         mlons = fi.variables[lonname][:]
-        nap   = fi.variables['nap'][:].astype(np.int)
+        nap   = fi.variables['nap'][:].astype(int)
         ntile = fi.dimensions['mp'].size
         ngrid = fi.dimensions['mland'].size
         tlats = np.full(ntile, -999.)
@@ -242,7 +243,7 @@ for ifile in restartfiles:
             fo = nc.Dataset(ofile, 'w', format=fi.file_format)
         else:
             fo = nc.Dataset(ofile, 'w', format='NETCDF3_64BIT_OFFSET')
-    
+
     # Copy global attributes, adding script
     cp.set_global_attributes(fi, fo, add={'history':ptime.asctime()+': '+' '.join(sys.argv)})
 
@@ -255,7 +256,7 @@ for ifile in restartfiles:
     # create dynamic variables (time dependent)
     cp.create_variables(fi, fo, time=True, izip=izip, chunksizes=False)
 
-    # Copy variables, selecting the land points with latitude,longitude    
+    # Copy variables, selecting the land points with latitude,longitude
     for ivar in fi.variables.values():
         ovar = fo.variables[ivar.name]
         if ('mp' in ivar.dimensions) or ('land' in ivar.dimensions) or ('nland' in ivar.dimensions):

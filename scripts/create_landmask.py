@@ -51,15 +51,15 @@ if len(sys.argv) > 1:
     coords = sys.argv[1]
     cc = coords.split(',')
     if len(cc) == 2:
-        mlatmin = np.floor(np.float(cc[0])) + res * 0.5
+        mlatmin = np.floor(float(cc[0])) + res * 0.5
         mlatmax = mlatmin
-        mlonmin = np.floor(np.float(cc[1])) + res * 0.5
+        mlonmin = np.floor(float(cc[1])) + res * 0.5
         mlonmax = mlonmin
     elif len(cc) == 4:
-        mlatmin = np.floor(np.float(cc[0])) + res * 0.5
-        mlatmax = np.floor(np.float(cc[1])) + res * 0.5
-        mlonmin = np.floor(np.float(cc[2])) + res * 0.5
-        mlonmax = np.floor(np.float(cc[3])) + res * 0.5
+        mlatmin = np.floor(float(cc[0])) + res * 0.5
+        mlatmax = np.floor(float(cc[1])) + res * 0.5
+        mlonmin = np.floor(float(cc[2])) + res * 0.5
+        mlonmax = np.floor(float(cc[3])) + res * 0.5
     else:
         print("'coords' must be of length 2 or 4!")
         exit(1)
@@ -76,8 +76,8 @@ if cable_switch != 'cable' and cable_switch != 'standard':
     exit()
 
 
-nx       = np.int( (lonmax - lonmin)/res ) # number of lons (fields in W-E direction
-ny       = np.int( (latmax - latmin)/res ) # number of lats (fields in N-S direction)
+nx       = int( (lonmax - lonmin)/res ) # number of lons (fields in W-E direction
+ny       = int( (latmax - latmin)/res ) # number of lats (fields in N-S direction)
 c_offset = res * 0.5
 
 # geometrical settings (we're doing centerpoints and lats are flipped for CABLE!)
@@ -157,8 +157,8 @@ else:
                                    alllonlat['land'] > 0]
     else:
         print("invalid 'land' variable in land mask file!")
-    ilatlist = landlonlat['latitude'].to_numpy(dtype=np.float, copy=True)
-    ilonlist = landlonlat['longitude'].to_numpy(dtype=np.float, copy=True)
+    ilatlist = landlonlat['latitude'].to_numpy(dtype=float, copy=True)
+    ilonlist = landlonlat['longitude'].to_numpy(dtype=float, copy=True)
 
 # get mask
 tmask = latlon2ixjy(ilatlist,ilonlist,latmin,latmax,lonmin,lonmax,
