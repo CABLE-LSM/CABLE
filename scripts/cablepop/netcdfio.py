@@ -3,8 +3,9 @@
 NetCDF4 helper functions to copy one netcdf file to another while
 doing some transformations.
 
-This module was written by Matthias Cuntz while at Institut National de Recherche
-pour l'Agriculture, l'Alimentation et l'Environnement (INRAE), Nancy, France.
+This module was written by Matthias Cuntz while at Institut National de
+Recherche pour l'Agriculture, l'Alimentation et l'Environnement (INRAE), Nancy,
+France.
 
 It borrows some concepts from the netcdf4 thin layer of David Schaefer.
 
@@ -20,15 +21,16 @@ The following functions are provided
 .. autosummary::
    create_dimensions
    create_variables
+   get_variable_definition
    set_global_attributes
    set_output_filename
 """
-from __future__ import division, absolute_import, print_function
 import numpy as np
 import netCDF4 as nc
 
 
 __all__ = ['create_dimensions', 'create_variables',
+           'get_variable_definition',
            'set_global_attributes', 'set_output_filename']
 
 
@@ -63,27 +65,38 @@ def _tolist(arg):
         return [arg]
 
 
-def _get_variable_definition(ncvar):
+def get_variable_definition(ncvar):
     """
     Collect information on input variable.
 
     Parameters
     ----------
     ncvar : netcdf4 variable
-        variable of input file
+        Variable of input file
 
     Returns
     -------
     dict
-        containing information on input variable withkey/value pairs.
-
-        The following keys are returned: 'name', 'dtype', 'dimensions', 'fill_vallue', 'chunksizes'
+        Containing information on input variable withkey/value pairs.
+        The following keys are returned: 'name', 'dtype', 'dimensions',
+        'fill_vallue', 'chunksizes'
 
     Examples
     --------
-    _get_variable_definition(fi.variables['GPP'])
+    .. code-block:: python
+
+       get_variable_definition(fi.variables['GPP'])
+
     """
     out = ncvar.filters() if ncvar.filters() else {}
+    # Delete HDF5 filters that are False, e.g. because the plugin is not
+    # available. zlib is always available.
+    # Necessary for netcdf4 > 1.6.0 because it gives all possible filters,
+    # installed or not, i.e. 'zlib', 'szip', 'zstd', 'bzip2', 'blosc',
+    # 'shuffle', 'complevel', 'fletcher32'
+    todel = [ oo for oo in out if (oo != 'zlib') and (not out[oo]) ]
+    for oo in todel:
+        del out[oo]
     # chunksizes
     chunks = None
     if "chunking" in dir(ncvar):
@@ -99,16 +112,17 @@ def _get_variable_definition(ncvar):
         ifill = None
     # output variable
     out.update({
-        "name"       : ncvar.name,
-        "dtype"      : ncvar.dtype,
-        "dimensions" : list(ncvar.dimensions),
-        "fill_value" : ifill,
-        "chunksizes" : chunks,
-        })
+        "name":       ncvar.name,
+        "dtype":      ncvar.dtype,
+        "dimensions": list(ncvar.dimensions),
+        "fill_value": ifill,
+        "chunksizes": chunks,
+    })
     return out
 
 
-def create_dimensions(fi, fo, removedim=[], renamedim={}, changedim={}, adddim={}):
+def create_dimensions(fi, fo, removedim=[], renamedim={}, changedim={},
+                      adddim={}):
     """
     Create dimensions in output from dimensions in input file.
 
@@ -123,15 +137,17 @@ def create_dimensions(fi, fo, removedim=[], renamedim={}, changedim={}, adddim={
     renamedim : dict, optional
         Rename dimensions in output file compared to input file.
         Dimension names in input file are given as dictionary keys,
-        corresponding dimension names of output file are give as dictionary values.
+        corresponding dimension names of output file are give as dictionary
+        values.
     add : dict, optional
         Add dimension to output file.
-        New dimension names are given as dictionary keys and new dimension sizes
-        are give as dictionary values.
+        New dimension names are given as dictionary keys and new dimension
+        sizes are give as dictionary values.
     replacedim : dict, optional
         Replace dimensions in output file compared to input file.
         Dimension names in input file are given as dictionary keys,
-        corresponding dimension names of output file are give as dictionary values.
+        corresponding dimension names of output file are give as dictionary
+        values.
 
     Returns
     -------
@@ -141,7 +157,8 @@ def create_dimensions(fi, fo, removedim=[], renamedim={}, changedim={}, adddim={
 
     Examples
     --------
-    create_dimensions(fi, fo, removedim=['patch'], renamedim={'x':'lon', 'y':'lat'}, changedim={'mland':1})
+    create_dimensions(fi, fo, removedim=['patch'],
+                      renamedim={'x':'lon', 'y':'lat'}, changedim={'mland':1})
     """
     removedim = _tolist(removedim)
     for d in fi.dimensions.values():
@@ -167,9 +184,9 @@ def create_dimensions(fi, fo, removedim=[], renamedim={}, changedim={}, adddim={
             fo.createDimension(d, adddim[d])
 
 
-
 def create_variables(fi, fo, time=None, izip=False, fill=None, chunksizes=True,
-                     removevar=[], renamevar={}, removedim=[], renamedim={}, replacedim={}):
+                     removevar=[], renamevar={}, removedim=[], renamedim={},
+                     replacedim={}):
     """
     Create variables in output from variables in input file.
 
@@ -186,39 +203,47 @@ def create_variables(fi, fo, time=None, izip=False, fill=None, chunksizes=True,
 
         False: copy only variables that do not have dimension 'time'.
     izip : bool, optional
-        True: the data will be compressed in the netCDF file using gzip compression (default: False).
+        True: the data will be compressed in the netCDF file using gzip
+        compression (default: False).
     fill : float, bool or None, optional
-        Determine the behaviour if variable have no _FillValue or missing_value.
+        Determine the behaviour if variable have no _FillValue or
+        missing_value.
 
         If None or False: no _FillValue will be set.
 
-        If True: _FillValue will be set to default value of the Python packege netCDF4 for this type.
+        If True: _FillValue will be set to default value of the Python package
+        netCDF4 for this type.
 
         If number: _FillValue will be set to number.
     chunksizes : bool, optional
         True: include possible chunksizes in output file (default).
 
-        False: do not include chunksize information from input file in output file.
-        Set to False, for example, if dimension size gets changed because the chunksize
-        on a dimension can not be greater than the dimension size.
+        False: do not include chunksize information from input file in output
+        file.
+        Set to False, for example, if dimension size gets changed because the
+        chunksize on a dimension can not be greater than the dimension size.
     removevar : list of str, optional
         do not create variables given in `removevar` in output file.
     renamevar : dict, optional
         rename variables in output file compared to input file.
         Variable names in input file are given as dictionary keys,
-        corresponding variable names of output file are give as dictionary values.
+        corresponding variable names of output file are give as dictionary
+        values.
     removedim : list of str, optional
         Remove dimensions from variable definitions in output file.
     renamedim : dict, optional
         Rename dimensions for variables in output file.
         Dimension names in input file are given as dictionary keys,
-        corresponding dimension names of output file are give as dictionary values.
+        corresponding dimension names of output file are give as dictionary
+        values.
     replacedim : dict, optional
         Replace dimensions for variables in output file.
         Dimension names in input file are given as dictionary keys,
-        corresponding dimension names of output file are give as dictionary values.
+        corresponding dimension names of output file are give as dictionary
+        values.
 
-        The output names can be tuples or lists to extend dimensions of a variable.
+        The output names can be tuples or lists to extend dimensions of a
+        variable.
 
     Returns
     -------
@@ -228,7 +253,9 @@ def create_variables(fi, fo, time=None, izip=False, fill=None, chunksizes=True,
 
     Examples
     --------
-    create_variable(fi, fo, fill=True, izip=True, removedim=['patch'], renamevar={'lon':'longitude'}, replacedim={'land':('y','x')})
+    create_variable(fi, fo, fill=True, izip=True, removedim=['patch'],
+                    renamevar={'lon':'longitude'},
+                    replacedim={'land':('y','x')})
     """
     removevar = _tolist(removevar)
     removedim = _tolist(removedim)
@@ -243,8 +270,9 @@ def create_variables(fi, fo, time=None, izip=False, fill=None, chunksizes=True,
                 else:
                     itime = 'time' not in ivar.dimensions
             if itime:
-                invardef = _get_variable_definition(ivar)
-                if izip: invardef.update({'zlib':True})
+                invardef = get_variable_definition(ivar)
+                if izip:
+                    invardef.update({'zlib': True})
                 # rename variable if in renamevar
                 if ivar.name in renamevar.keys():
                     invardef['name'] = renamevar[ivar.name]
@@ -266,12 +294,14 @@ def create_variables(fi, fo, time=None, izip=False, fill=None, chunksizes=True,
                     if dd in dims:
                         rdim = _tolist(replacedim[dd])
                         ip = dims.index(dd)
-                        dims = dims[:ip] + rdim + dims[ip+1:]
+                        dims = dims[:ip] + rdim + dims[ip + 1:]
                         if chunks:
                             rchunk = []
                             for cc in rdim:
-                                rchunk.append(len(fo.dimensions[cc])) # use fo not fi because new dims perhaps not yet in fi
-                            chunks = chunks[:ip] + rchunk + chunks[ip+1:]
+                                # use fo not fi because new dims perhaps not
+                                # yet in fi
+                                rchunk.append(len(fo.dimensions[cc]))
+                            chunks = chunks[:ip] + rchunk + chunks[ip + 1:]
                 invardef['dimensions'] = dims
                 invardef['chunksizes'] = chunks
                 # set missing value if None
@@ -279,28 +309,40 @@ def create_variables(fi, fo, time=None, izip=False, fill=None, chunksizes=True,
                     if fill:
                         if isinstance(fill, bool):
                             if invardef['dtype'] == np.dtype(np.int8):
-                                invardef['fill_value'] = nc.default_fillvals['i1']
+                                invardef['fill_value'] = (
+                                    nc.default_fillvals['i1'])
                             elif invardef['dtype'] == np.dtype(np.int16):
-                                invardef['fill_value'] = nc.default_fillvals['i2']
+                                invardef['fill_value'] = (
+                                    nc.default_fillvals['i2'])
                             elif invardef['dtype'] == np.dtype(np.int32):
-                                invardef['fill_value'] = nc.default_fillvals['i4']
+                                invardef['fill_value'] = (
+                                    nc.default_fillvals['i4'])
                             elif invardef['dtype'] == np.dtype(np.int64):
-                                invardef['fill_value'] = nc.default_fillvals['i8']
+                                invardef['fill_value'] = (
+                                    nc.default_fillvals['i8'])
                             elif invardef['dtype'] == np.dtype(np.uint8):
-                                invardef['fill_value'] = nc.default_fillvals['u1']
+                                invardef['fill_value'] = (
+                                    nc.default_fillvals['u1'])
                             elif invardef['dtype'] == np.dtype(np.uint16):
-                                invardef['fill_value'] = nc.default_fillvals['u2']
+                                invardef['fill_value'] = (
+                                    nc.default_fillvals['u2'])
                             elif invardef['dtype'] == np.dtype(np.uint32):
-                                invardef['fill_value'] = nc.default_fillvals['u4']
+                                invardef['fill_value'] = (
+                                    nc.default_fillvals['u4'])
                             elif invardef['dtype'] == np.dtype(np.uint64):
-                                invardef['fill_value'] = nc.default_fillvals['u8']
+                                invardef['fill_value'] = (
+                                    nc.default_fillvals['u8'])
                             elif invardef['dtype'] == np.dtype(np.float32):
-                                invardef['fill_value'] = nc.default_fillvals['f4']
+                                invardef['fill_value'] = (
+                                    nc.default_fillvals['f4'])
                             elif invardef['dtype'] == np.dtype(np.float64):
-                                invardef['fill_value'] = nc.default_fillvals['f8']
+                                invardef['fill_value'] = (
+                                    nc.default_fillvals['f8'])
                             else:
                                 import warnings
-                                warnings.warn("dtype of variable "+invardef['name']+" unknown: "+invardef['dtype'])
+                                warnings.warn("dtype of variable " +
+                                              invardef['name'] +
+                                              " unknown: " + invardef['dtype'])
                         else:
                             invardef['fill_value'] = fill
                 # exclude chunksizes
@@ -337,13 +379,14 @@ def set_global_attributes(fi, fo, add={}):
 
     Examples
     --------
-    set_global_attributes(fi, fo, add={'history':time.asctime()+': '+' '.join(sys.argv)})
+    set_global_attributes(fi, fo, add={'history': time.asctime() + ': ' +
+                                       ' '.join(sys.argv)})
     """
     for k in fi.ncattrs():
         iattr = fi.getncattr(k)
         # add to existing global attribute
         if k in add.keys():
-            iattr += '\n'+add[k]
+            iattr += '\n' + add[k]
         fo.setncattr(k, iattr)
     # add if global attribute does not exist yet
     for k in add.keys():
@@ -376,7 +419,7 @@ def set_output_filename(ifile, ext):
     in.nop.nc
     """
     sifile = ifile.split('.')
-    sifile[-2] = sifile[-2]+ext
+    sifile[-2] = sifile[-2] + ext
     ofile = '.'.join(sifile)
     return ofile
 

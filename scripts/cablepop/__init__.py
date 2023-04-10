@@ -24,6 +24,7 @@ Subpackages
 from .closest  import closest
 from .llkdtree import llKDTree
 from .netcdfio import create_dimensions, create_variables
+from .netcdfio import get_variable_definition
 from .netcdfio import set_global_attributes, set_output_filename
 
 from .version import __version__, __author__
