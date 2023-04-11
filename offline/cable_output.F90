@@ -1512,7 +1512,7 @@ CONTAINS
     IF(output%params .OR. output%rs20) CALL define_ovar(ncid_out, opid%rs20, &
          'rs20', '-', 'Soil respiration coefficient at 20C', &
          patchout%rs20, 'real', xID, yID, zID, landID, patchID)
-    IF(output%params .OR. output%albsoil) CALL define_ovar(ncid_out, &
+    IF(output%params .AND. output%albsoil) CALL define_ovar(ncid_out, &
          opid%albsoil, 'albsoil', '-', &
          'Snow free shortwave soil reflectance fraction', &
          patchout%albsoil, radID, 'radiation', xID, yID, zID, landID, patchID)
@@ -1598,18 +1598,18 @@ CONTAINS
             'Reference height (lowest atm. model layer) for scalars', &
             patchout%za, 'real', xID, yID, zID, landID, patchID)
     ENDIF
-    IF(output%params .OR. output%ratecp) CALL define_ovar(ncid_out, &
+    IF(output%params .AND. output%ratecp) CALL define_ovar(ncid_out, &
          opid%ratecp, 'ratecp', '1/year', 'Plant carbon rate constant', &
          patchout%ratecp, plantcarbID, 'plantcarbon', xID, yID, zID, &
          landID, patchID)
-    IF(output%params .OR. output%ratecs) CALL define_ovar(ncid_out, &
+    IF(output%params .AND. output%ratecs) CALL define_ovar(ncid_out, &
          opid%ratecs, 'ratecs', '1/year', 'Soil carbon rate constant', &
          patchout%ratecs, soilcarbID, 'soilcarbon', xID, yID, zID, &
          landID, patchID)
-    IF(output%params .OR. output%zse) CALL define_ovar(ncid_out, opid%zse, &
+    IF(output%params .AND. output%zse) CALL define_ovar(ncid_out, opid%zse, &
          'zse', 'm', 'Depth of each soil layer', &
          patchout%zse, soilID, 'soil', xID, yID, zID, landID, patchID)
-    IF(output%params .OR. output%froot) CALL define_ovar(ncid_out, opid%froot, &
+    IF(output%params .AND. output%froot) CALL define_ovar(ncid_out, opid%froot, &
          'froot', '-', 'Fraction of roots in each soil layer', &
          patchout%froot, soilID, 'soil', xID, yID, zID, landID, patchID)
 
@@ -1745,7 +1745,7 @@ CONTAINS
          'sfc', toreal4(soil%sfc), ranges%sfc, patchout%sfc, 'real')
     IF(output%params .OR. output%swilt) CALL write_ovar(ncid_out, opid%swilt, &
          'swilt', toreal4(soil%swilt), ranges%swilt, patchout%swilt, 'real')
-    IF(output%params .OR. output%albsoil) CALL write_ovar(ncid_out, &
+    IF(output%params .AND. output%albsoil) CALL write_ovar(ncid_out, &
          opid%albsoil, 'albsoil', toreal4(soil%albsoil), &
          ranges%albsoil, patchout%albsoil, 'radiation')
     IF(output%params .OR. output%canst1) CALL write_ovar(ncid_out, &
@@ -1806,15 +1806,15 @@ CONTAINS
        CALL write_ovar(ncid_out, opid%za_tq, &
             'za_tq', toreal4(rough%za_tq), ranges%za, patchout%za, 'real')
     ENDIF
-    IF(output%params .OR. output%ratecp) CALL write_ovar(ncid_out, &
+    IF(output%params .AND. output%ratecp) CALL write_ovar(ncid_out, &
          opid%ratecp, 'ratecp',SPREAD(toreal4(bgc%ratecp),1,mp), ranges%ratecp, &
          patchout%ratecp,'plantcarbon')! no spatial dim at present
-    IF(output%params .OR. output%ratecs) CALL write_ovar(ncid_out, &
+    IF(output%params .AND. output%ratecs) CALL write_ovar(ncid_out, &
          opid%ratecs, 'ratecs', SPREAD(toreal4(bgc%ratecs), 1, mp), ranges%ratecs, &
          patchout%ratecs, 'soilcarbon')! no spatial dim at present
-    IF(output%params .OR. output%froot) CALL write_ovar (ncid_out, opid%froot, &
+    IF(output%params .AND. output%froot) CALL write_ovar (ncid_out, opid%froot, &
          'froot', toreal4(veg%froot), ranges%froot, patchout%froot, 'soil')
-    IF(output%params .OR. output%zse) CALL write_ovar(ncid_out, opid%zse, &
+    IF(output%params .AND. output%zse) CALL write_ovar(ncid_out, opid%zse, &
          'zse', SPREAD(toreal4(soil%zse), 1, mp),ranges%zse, &
          patchout%zse, 'soil')! no spatial dim at present
 
