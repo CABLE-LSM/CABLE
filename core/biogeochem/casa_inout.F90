@@ -48,6 +48,13 @@ module casa_inout
 
   implicit none
 
+  ! Define temporary output arrays for use in write_casa_output_grid_nc
+  REAL(KIND=4), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4patch
+  REAL(KIND=4), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4plant
+  REAL(KIND=4), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4litter
+  REAL(KIND=4), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4soil
+ 
+
   REAL(KIND=4) :: ncmissingr = -1.0e+33
 
 contains
@@ -2533,6 +2540,17 @@ contains
        status = nf90_put_var(file_id, vid0(2), lon_all)
        if(status /= nf90_noerr) call handle_err(status)
 
+       ! allocate temporary array
+       ALLOCATE(otmp4patch(xdimsize, ydimsize, max_vegpatches, 1))
+       ALLOCATE(otmp4plant(xdimsize, ydimsize, mplant, 1))
+       ALLOCATE(otmp4litter(xdimsize, ydimsize, mlitter, 1))
+       ALLOCATE(otmp4soil(xdimsize, ydimsize, msoil, 1))
+
+       otmp4patch(:,:,:,:) = 0.0
+       otmp4plant(:,:,:,:) = 0.0
+       otmp4litter(:,:,:,:) = 0.0
+       otmp4soil(:,:,:,:) = 0.0
+
        call1 = .false.
     endif ! call1
 
@@ -2543,128 +2561,128 @@ contains
     if(status /= nf90_noerr) call handle_err(status)
 
     ! patchfrac and area
-    call put_casa_var_grid_patch(file_id,vid1(1), real(patch(:)%frac,sp), cnt)
-    call put_casa_var_grid_patch(file_id,vid1(2), real(casamet%areacell,sp), cnt)
+    call put_casa_var_grid_patch(file_id,vid1(1), real(patch(:)%frac,sp), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id,vid1(2), real(casamet%areacell,sp), cnt, otmp4patch)
     
     ! 4D vars (x,y,patch,t)
     ! C
-    call put_casa_var_grid_patch(file_id, vid1(3), real(casamet%glai,sp), cnt)
-    call put_casa_var_grid_patch(file_id, vid1(4), real(casapool%clabile,sp), cnt)
-    call put_casa_var_grid_patch(file_id, vid1(5), real(casabal%sumcbal,sp), cnt)
-    call put_casa_var_grid_patch(file_id, vid1(6), real(casaflux%cgpp,sp), cnt)
-    call put_casa_var_grid_patch(file_id, vid1(7), real(casaflux%cnpp,sp), cnt)
-    call put_casa_var_grid_patch(file_id, vid1(8), real(casaflux%stemnpp,sp), cnt)
-    call put_casa_var_grid_patch(file_id, vid1(9), real(casaflux%crp,sp), cnt)
-    call put_casa_var_grid_patch(file_id, vid1(10), real(casaflux%crgplant,sp), cnt)
-    call put_casa_var_grid_patch(file_id, vid1(11), real(casaflux%clabloss,sp), cnt)
-    call put_casa_var_grid_patch(file_id, vid1(12), real(casaflux%fracclabile,sp), cnt)   
-    call put_casa_var_grid_patch(file_id, vid1(13), real(casaflux%cnep,sp), cnt)
-    call put_casa_var_grid_patch(file_id, vid1(14), real(casaflux%crsoil,sp), cnt)
-    call put_casa_var_grid_patch(file_id, vid1(15), real(casaflux%fluxctoco2,sp), cnt)
-    call put_casa_var_grid_patch(file_id, vid1(16), real(casabal%fcgppyear,sp), cnt)
-    call put_casa_var_grid_patch(file_id, vid1(17), real(casabal%fcrpyear,sp), cnt)
-    call put_casa_var_grid_patch(file_id, vid1(18), real(casabal%fcnppyear,sp), cnt)
-    call put_casa_var_grid_patch(file_id, vid1(19), real(casabal%fcrsyear,sp), cnt)
-    call put_casa_var_grid_patch(file_id, vid1(20), real(casabal%fcneeyear,sp), cnt)
-    call put_casa_var_grid_patch(file_id, vid1(21), real(veg%vcmax,sp), cnt)
+    call put_casa_var_grid_patch(file_id, vid1(3), real(casamet%glai,sp), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(4), real(casapool%clabile,sp), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(5), real(casabal%sumcbal,sp), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(6), real(casaflux%cgpp,sp), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(7), real(casaflux%cnpp,sp), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(8), real(casaflux%stemnpp,sp), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(9), real(casaflux%crp,sp), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(10), real(casaflux%crgplant,sp), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(11), real(casaflux%clabloss,sp), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(12), real(casaflux%fracclabile,sp), cnt, otmp4patch )
+    call put_casa_var_grid_patch(file_id, vid1(13), real(casaflux%cnep,sp), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(14), real(casaflux%crsoil,sp), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(15), real(casaflux%fluxctoco2,sp), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(16), real(casabal%fcgppyear,sp), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(17), real(casabal%fcrpyear,sp), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(18), real(casabal%fcnppyear,sp), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(19), real(casabal%fcrsyear,sp), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(20), real(casabal%fcneeyear,sp), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(21), real(veg%vcmax,sp), cnt, otmp4patch)
 
     ! N
     if (icycle > 1) then
-       call put_casa_var_grid_patch(file_id, vid1(22), real(casabal%sumnbal,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(23), real(casaflux%nminfix,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(24), real(casaflux%nmindep,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(25), real(casaflux%nminloss,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(26), real(casaflux%nminleach,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(27), real(casaflux%nupland,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(28), real(casaflux%nlittermin,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(29), real(casaflux%nsmin,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(30), real(casaflux%nsimm,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(31), real(casaflux%nsnet,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(32), real(casaflux%fnminloss,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(33), real(casapool%nsoilmin,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(22), real(casabal%sumnbal,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(23), real(casaflux%nminfix,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(24), real(casaflux%nmindep,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(25), real(casaflux%nminloss,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(26), real(casaflux%nminleach,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(27), real(casaflux%nupland,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(28), real(casaflux%nlittermin,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(29), real(casaflux%nsmin,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(30), real(casaflux%nsimm,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(31), real(casaflux%nsnet,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(32), real(casaflux%fnminloss,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(33), real(casapool%nsoilmin,sp), cnt, otmp4patch )
     endif
 
     ! P
     if (icycle > 2) then
-       call put_casa_var_grid_patch(file_id, vid1(34), real(casapool%psoillab,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(35), real(casapool%psoilsorb,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(36), real(casapool%psoilocc,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(37), real(casabal%sumpbal,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(38), real(casaflux%plabuptake,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(39), real(casaflux%pdep,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(40), real(casaflux%pwea,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(41), real(casaflux%pleach,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(42), real(casaflux%ploss,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(43), real(casaflux%pupland,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(44), real(casaflux%plittermin,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(45), real(casaflux%psmin,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(46), real(casaflux%psimm,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(47), real(casaflux%psnet,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(48), real(casaflux%fpleach,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(49), real(casaflux%kplab,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(50), real(casaflux%kpsorb,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(51), real(casaflux%kpocc,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(52), real(casaflux%kmlabp,sp), cnt)
-       call put_casa_var_grid_patch(file_id, vid1(53), real(casaflux%psorbmax,sp), cnt)
+       call put_casa_var_grid_patch(file_id, vid1(34), real(casapool%psoillab,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(35), real(casapool%psoilsorb,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(36), real(casapool%psoilocc,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(37), real(casabal%sumpbal,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(38), real(casaflux%plabuptake,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(39), real(casaflux%pdep,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(40), real(casaflux%pwea,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(41), real(casaflux%pleach,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(42), real(casaflux%ploss,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(43), real(casaflux%pupland,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(44), real(casaflux%plittermin,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(45), real(casaflux%psmin,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(46), real(casaflux%psimm,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(47), real(casaflux%psnet,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(48), real(casaflux%fpleach,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(49), real(casaflux%kplab,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(50), real(casaflux%kpsorb,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(51), real(casaflux%kpocc,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(52), real(casaflux%kmlabp,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(53), real(casaflux%psorbmax,sp), cnt, otmp4patch )
     endif
 
     ! 4D vars (x,y,mplant,t)
     ! C
-    call put_casa_var_grid_patch_average(file_id, vid2(1), real(casapool%cplant,sp),      "mplant", cnt)
-    call put_casa_var_grid_patch_average(file_id, vid2(2), real(casaflux%fracCalloc,sp),  "mplant", cnt)
-    call put_casa_var_grid_patch_average(file_id, vid2(3), real(casaflux%kplant,sp),      "mplant", cnt)
-    call put_casa_var_grid_patch_average(file_id, vid2(4), real(casaflux%crmplant,sp),    "mplant", cnt)
-    call put_casa_var_grid_patch_average(file_id, vid2(5), real(casaflux%kplant_fire,sp), "mplant", cnt)
+    call put_casa_var_grid_patch_average(file_id, vid2(1), real(casapool%cplant,sp),      "mplant", cnt, otmp4plant)
+    call put_casa_var_grid_patch_average(file_id, vid2(2), real(casaflux%fracCalloc,sp),  "mplant", cnt, otmp4plant)
+    call put_casa_var_grid_patch_average(file_id, vid2(3), real(casaflux%kplant,sp),      "mplant", cnt, otmp4plant)
+    call put_casa_var_grid_patch_average(file_id, vid2(4), real(casaflux%crmplant,sp),    "mplant", cnt, otmp4plant)
+    call put_casa_var_grid_patch_average(file_id, vid2(5), real(casaflux%kplant_fire,sp), "mplant", cnt, otmp4plant)
 
     ! N
     if (icycle > 1) then
-       call put_casa_var_grid_patch_average(file_id, vid2(6), real(casapool%nplant,sp),     "mplant", cnt)
-       call put_casa_var_grid_patch_average(file_id, vid2(7), real(casaflux%fracnalloc,sp), "mplant", cnt)
+      call put_casa_var_grid_patch_average(file_id, vid2(6), real(casapool%nplant,sp),     "mplant", cnt, otmp4plant)
+      call put_casa_var_grid_patch_average(file_id, vid2(7), real(casaflux%fracnalloc,sp), "mplant", cnt, otmp4plant)
     endif
 
     ! P
     if (icycle > 2) then
-       call put_casa_var_grid_patch_average(file_id, vid2(8), real(casapool%pplant,sp),     "mplant", cnt)
-       call put_casa_var_grid_patch_average(file_id, vid2(9), real(casaflux%fracpalloc,sp), "mplant", cnt)
+       call put_casa_var_grid_patch_average(file_id, vid2(8), real(casapool%pplant,sp),     "mplant", cnt, otmp4plant)
+       call put_casa_var_grid_patch_average(file_id, vid2(9), real(casaflux%fracpalloc,sp), "mplant", cnt, otmp4plant)
     endif
 
     ! 4D vars (x,y,mlitter,t)
     ! C
-    call put_casa_var_grid_patch_average(file_id, vid3(1), real(casapool%clitter,sp),       "mlitter", cnt)
-    call put_casa_var_grid_patch_average(file_id, vid3(2), real(casaflux%klitter,sp),       "mlitter", cnt)
-    call put_casa_var_grid_patch_average(file_id, vid3(3), real(casaflux%fromltoco2,sp),    "mlitter", cnt)
-    call put_casa_var_grid_patch_average(file_id, vid3(4), real(casaflux%fluxctolitter,sp), "mlitter", cnt)
-    call put_casa_var_grid_patch_average(file_id, vid3(5), real(casaflux%klitter_fire,sp),  "mlitter", cnt)
+    call put_casa_var_grid_patch_average(file_id, vid3(1), real(casapool%clitter,sp),       "mlitter", cnt, otmp4litter)
+    call put_casa_var_grid_patch_average(file_id, vid3(2), real(casaflux%klitter,sp),       "mlitter", cnt, otmp4litter)
+    call put_casa_var_grid_patch_average(file_id, vid3(3), real(casaflux%fromltoco2,sp),    "mlitter", cnt, otmp4litter)
+    call put_casa_var_grid_patch_average(file_id, vid3(4), real(casaflux%fluxctolitter,sp), "mlitter", cnt, otmp4litter)
+    call put_casa_var_grid_patch_average(file_id, vid3(5), real(casaflux%klitter_fire,sp),  "mlitter", cnt, otmp4litter)
 
     ! N
     if (icycle > 1) then
-       call put_casa_var_grid_patch_average(file_id, vid3(6), real(casapool%nlitter,sp),       "mlitter", cnt)
-       call put_casa_var_grid_patch_average(file_id, vid3(7), real(casaflux%fluxntolitter,sp), "mlitter", cnt)
+       call put_casa_var_grid_patch_average(file_id, vid3(6), real(casapool%nlitter,sp),       "mlitter", cnt, otmp4litter)
+       call put_casa_var_grid_patch_average(file_id, vid3(7), real(casaflux%fluxntolitter,sp), "mlitter", cnt, otmp4litter)
     endif
 
     ! P
     if (icycle > 2) then
-       call put_casa_var_grid_patch_average(file_id, vid3(8), real(casapool%plitter,sp),       "mlitter", cnt)
-       call put_casa_var_grid_patch_average(file_id, vid3(9), real(casaflux%fluxptolitter,sp), "mlitter", cnt)
+       call put_casa_var_grid_patch_average(file_id, vid3(8), real(casapool%plitter,sp),       "mlitter", cnt, otmp4litter)
+       call put_casa_var_grid_patch_average(file_id, vid3(9), real(casaflux%fluxptolitter,sp), "mlitter", cnt, otmp4litter)
     endif
 
     ! 4d vars (x,y,msoil,t)
     ! C
-    call put_casa_var_grid_patch_average(file_id, vid4(1), real(casapool%csoil,sp),       "msoil", cnt)
-    call put_casa_var_grid_patch_average(file_id, vid4(2), real(casaflux%ksoil,sp),       "msoil", cnt)
-    call put_casa_var_grid_patch_average(file_id, vid4(3), real(casaflux%fromstoco2,sp),  "msoil", cnt)
-    call put_casa_var_grid_patch_average(file_id, vid4(4), real(casaflux%fluxctosoil,sp), "msoil", cnt)
+    call put_casa_var_grid_patch_average(file_id, vid4(1), real(casapool%csoil,sp),       "msoil", cnt, otmp4soil)
+    call put_casa_var_grid_patch_average(file_id, vid4(2), real(casaflux%ksoil,sp),       "msoil", cnt, otmp4soil)
+    call put_casa_var_grid_patch_average(file_id, vid4(3), real(casaflux%fromstoco2,sp),  "msoil", cnt, otmp4soil)
+    call put_casa_var_grid_patch_average(file_id, vid4(4), real(casaflux%fluxctosoil,sp), "msoil", cnt, otmp4soil)
 
     ! N
     if (icycle > 1) then
-       call put_casa_var_grid_patch_average(file_id, vid4(5), real(casapool%nsoil,sp),       "msoil", cnt)
-       call put_casa_var_grid_patch_average(file_id, vid4(6), real(casaflux%fluxntosoil,sp), "msoil", cnt)
+       call put_casa_var_grid_patch_average(file_id, vid4(5), real(casapool%nsoil,sp),       "msoil", cnt, otmp4soil)
+       call put_casa_var_grid_patch_average(file_id, vid4(6), real(casaflux%fluxntosoil,sp), "msoil", cnt, otmp4soil)
     endif
 
     ! P
     if (icycle > 2) then
-       call put_casa_var_grid_patch_average(file_id, vid4(7), real(casapool%psoil,sp),       "msoil", cnt)
-       call put_casa_var_grid_patch_average(file_id, vid4(8), real(casaflux%fluxptosoil,sp), "msoil", cnt)
+       call put_casa_var_grid_patch_average(file_id, vid4(7), real(casapool%psoil,sp),       "msoil", cnt, otmp4soil)
+       call put_casa_var_grid_patch_average(file_id, vid4(8), real(casaflux%fluxptosoil,sp), "msoil", cnt, otmp4soil)
     endif
 
     ! put 4d vars ( mp, mlitter,mplant, t )
@@ -2688,13 +2706,18 @@ contains
        file_id = -1
        if (status /= nf90_noerr) call handle_err(status)
        write(*,*) " casa output written to ", trim(fname)
+
+       deallocate(otmp4patch)
+       deallocate(otmp4plant)
+       deallocate(otmp4litter)
+       deallocate(otmp4soil)
     endif
 
   end subroutine write_casa_output_grid_nc
 
 
 
-  SUBROUTINE put_casa_var_grid_patch(file_id,var_id,var_vals,cnt)
+  SUBROUTINE put_casa_var_grid_patch(file_id,var_id,var_vals,cnt,tmp_array)
 
    ! writes casa vars to file with dimensions x,y,patch,t
    
@@ -2703,49 +2726,43 @@ contains
 
    implicit none
 
-   INTEGER, INTENT(IN) :: file_id                      ! netcdf file ID 
-   INTEGER, INTENT(IN) :: var_id                       ! variable's netcdf ID
-   REAL(KIND=4), DIMENSION(:), INTENT(IN) :: var_vals  ! variable values
-   INTEGER, INTENT(IN) :: cnt                          ! current time step #
-    
+   INTEGER, INTENT(IN) :: file_id                               ! netcdf file ID 
+   INTEGER, INTENT(IN) :: var_id                                ! variable's netcdf ID
+   REAL(KIND=4), DIMENSION(:), INTENT(IN) :: var_vals           ! variable values
+   INTEGER, INTENT(IN) :: cnt                                   ! current time step #
+   REAL(KIND=4), DIMENSION(:,:,:,:), INTENT(INOUT) :: tmp_array ! temporary array   
+
    ! Local variables
-   REAL(KIND=4), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp 
    INTEGER                                       :: i, j   ! counters
    INTEGER                                       :: status ! NF90 status
-
-   ! Allocate temporary array
-   ALLOCATE(otmp(xdimsize, ydimsize, max_vegpatches, 1))
-   otmp(:,:,:,:) = 0.0
 
    ! Write values to temporary output grid. Average over patches if necessary
    do i = 1, mland ! over all land grid points
       ! active patches
-      otmp(land_x(i), land_y(i), 1:landpt(i)%nap, 1) = var_vals(landpt(i)%cstart:landpt(i)%cend)
+      tmp_array(land_x(i), land_y(i), 1:landpt(i)%nap, 1) = var_vals(landpt(i)%cstart:landpt(i)%cend)
       ! inactive patches
       if (landpt(i)%nap < max_vegpatches) then 
-         otmp(land_x(i),land_y(i), (landpt(i)%nap + 1):max_vegpatches, 1) = ncmissingr
+         tmp_array(land_x(i),land_y(i), (landpt(i)%nap + 1):max_vegpatches, 1) = ncmissingr
       endif
    end do ! land grid points
 
    ! Fill non-land points with NA values:
    do j = 1, max_vegpatches
-      where(mask /= 1) otmp(:, :, j, 1) = ncmissingr ! not land
+      where(mask /= 1) tmp_array(:, :, j, 1) = ncmissingr ! not land
    end do
    
    ! write data to file
-   status = nf90_put_var(file_id, var_id, otmp(:, :, :, 1), &
+   status = nf90_put_var(file_id, var_id, tmp_array(:, :, :, 1), &
                         start=(/1, 1, 1, cnt/), count=(/xdimsize, ydimsize, max_vegpatches, 1/))
                          
    if(status /= nf90_noerr) call handle_err(status)
-
-   deallocate(otmp)
 
 END SUBROUTINE put_casa_var_grid_patch
 
 
 
 
-SUBROUTINE put_casa_var_grid_patch_average(file_id,var_id,var_vals,outdim,cnt)
+SUBROUTINE put_casa_var_grid_patch_average(file_id,var_id,var_vals,outdim,cnt,tmp_array)
 
    ! writes casa vars to file with dimensions x,y,outdim,t
    ! averages 3rd dimension (outdim) over patches
@@ -2755,50 +2772,38 @@ SUBROUTINE put_casa_var_grid_patch_average(file_id,var_id,var_vals,outdim,cnt)
 
    implicit none
 
-   INTEGER, INTENT(IN) :: file_id                        ! netcdf file ID 
-   INTEGER, INTENT(IN) :: var_id                         ! variable's netcdf ID
-   REAL(KIND=4), DIMENSION(:,:), INTENT(IN) :: var_vals  ! variable values
-   CHARACTER(LEN=*), INTENT(IN) :: outdim                ! 3rd dimension of output ('mplant','mlitter','msoil') 
-   INTEGER, INTENT(IN) :: cnt                            ! current time step #
-    
+   INTEGER, INTENT(IN) :: file_id                               ! netcdf file ID 
+   INTEGER, INTENT(IN) :: var_id                                ! variable's netcdf ID
+   REAL(KIND=4), DIMENSION(:,:), INTENT(IN) :: var_vals         ! variable values
+   CHARACTER(LEN=*), INTENT(IN) :: outdim                       ! 3rd dimension of output ('mplant','mlitter','msoil') 
+   INTEGER, INTENT(IN) :: cnt                                   ! current time step #
+   REAL(KIND=4), DIMENSION(:,:,:,:), INTENT(INOUT) :: tmp_array ! temporary array   
+
    ! Local variables
-   REAL(KIND=4), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp 
    INTEGER                                       :: ndim3  ! size of 3rd dimension
    INTEGER                                       :: i, j   ! counters
    INTEGER                                       :: status ! NF90 status
 
-   if ( trim(outdim) == "mplant" ) then
-      ndim3 = mplant
-   elseif ( trim(outdim) == "mlitter" ) then
-      ndim3 = mlitter
-   elseif ( trim(outdim) == "msoil" ) then
-      ndim3 = msoil
-   endif    
-
-   ! Allocate temporary array
-   ALLOCATE(otmp(xdimsize, ydimsize, ndim3, 1))
-   otmp(:,:,:,:) = 0.0
+   ndim3 = SIZE(tmp_array,3)
 
    ! Write values to temporary output grid. Average over patches if necessary
    do i = 1, mland ! over all land grid points
       ! write data and average over patches 
       do j = 1, ndim3
-         otmp(land_x(i), land_y(i), j , 1) = SUM(var_vals(landpt(i)%cstart:landpt(i)%cend, j) * & 
-                                             real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
+         tmp_array(land_x(i), land_y(i), j , 1) = SUM(var_vals(landpt(i)%cstart:landpt(i)%cend, j) * & 
+                                                      real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
       end do
    end do ! land grid points
 
    ! Fill non-land points with NA values:
    do j = 1, ndim3
-      where(mask /= 1) otmp(:, :, j, 1) = ncmissingr ! not land
+      where(mask /= 1) tmp_array(:, :, j, 1) = ncmissingr ! not land
    end do
    
    ! write data to file
-   status = nf90_put_var(file_id, var_id, otmp(:, :, :, 1), & 
+   status = nf90_put_var(file_id, var_id, tmp_array(:, :, :, 1), & 
                          start = (/1, 1, 1, cnt/), count = (/xdimsize, ydimsize, ndim3, 1/))
    if(status /= nf90_noerr) call handle_err(status)
-
-   deallocate(otmp)
 
 END SUBROUTINE put_casa_var_grid_patch_average
 
