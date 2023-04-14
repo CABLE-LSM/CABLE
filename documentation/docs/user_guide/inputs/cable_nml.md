@@ -30,7 +30,7 @@ applications. The following are annotated examples of cable.nml:
    soilparmnew = .TRUE.  ! using new format when true
    spinup = .TRUE.  ! do we spin up the model?
    delsoilM = 0.001   ! allowed variation in soil moisture for spin up
-   delsoilT = 0.01    ! allowed variation in soil temperaTRUE for spin up
+   delsoilT = 0.01    ! allowed variation in soil temperature for spin up
    output%restart = .TRUE.  ! should a restart file be created?
    output%met = .TRUE.  ! input met data
    output%flux = .TRUE.  ! convective, runoff, NEE
