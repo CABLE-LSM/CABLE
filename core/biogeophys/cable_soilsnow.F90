@@ -2731,7 +2731,21 @@ CONTAINS
   SUBROUTINE calc_swp(ssnow, soil, i)
      ! Calculate the soil water potential.
      !
-     ! Martin De Kauwe, 3rd June, 2019
+     ! Martin De Kauwe, 2019; Manon Sabot, 2022
+     !
+     ! When the soil water potential is below the wilting point, we apply the
+     ! dry soil correction from Webb 2000, as parameterised in Schneider & Goss
+     ! 2012.
+     !
+     ! References:
+     !
+     ! * Webb, S. W. (2000). A simple extension of two-phase characteristic
+     ! curves to include the dry region. Water Resources Research, 36(6),
+     ! 1425-1430.
+     !
+     ! * Schneider, M., & Goss, K. U. (2012). Prediction of water retention
+     ! curves for dry soils from an established pedotransfer function:
+     ! Evaluation of the Webb model. Water Resources Research, 48(6).
 
      USE cable_def_types_mod
      USE cable_common_module
@@ -2743,16 +2757,20 @@ CONTAINS
 
      INTEGER             :: j
      INTEGER, INTENT(IN) :: i
-     REAL                :: psi_sat, t_over_t_sat, cond_per_layer
-     REAL, PARAMETER     :: sucmin = -1E5 ! minimum soil pressure head [m]
+     REAL                :: psi_sat, psi_wilt
 
      REAL, PARAMETER :: KPA_2_MPa = 0.001
      REAL, PARAMETER :: M_HEAD_TO_MPa = 9.8 * KPA_2_MPa
+     REAL, PARAMETER :: cmH2O_TO_MPa = 1.0 / (10.0 * 1036)
 
      ssnow%psi_soil(i,:) = 0.0 ! MPa
 
-     ! Soil matric potential at saturation (m of head to MPa: 9.81 * KPA_2_MPA)
+     ! Soil matric potential at saturation (m of head to MPa: 9.8 * KPA_2_MPA)
      psi_sat = soil%sucs(i) * M_HEAD_TO_MPa
+
+     ! Soil matric potential at wilting point, MPa
+     psi_wilt = psi_sat * MAX(1.E-9, MIN(1.0, soil%swilt(i) / soil%ssat(i))) &
+                ** (-soil%bch(i))
 
      DO j = 1, ms ! Loop over 6 soil layers
 
@@ -2761,15 +2779,24 @@ CONTAINS
        ! implentation issue. The very thin upper layers would obv get extremely
        ! negative, which in turn would bias the weighted_swp.
        ! The bounding here can be considered as a physical disconnection of the
-       ! roots from the soil, although frankly this is an imperfect solution
-       ! to the use of layer thickness and inferring swp.
-       t_over_t_sat = MAX(1.0e-9, MIN(1.0, ssnow%wb(i,j) / soil%ssat(i)))
+       ! roots from the soil.
 
-       if (j < 3) then
-          ssnow%psi_soil(i,j) = MAX(-5.0, psi_sat * t_over_t_sat**(-soil%bch(i)))
-       else
-          ssnow%psi_soil(i,j) = psi_sat * t_over_t_sat**(-soil%bch(i))
-       endif
+       ssnow%psi_soil(i,j) = psi_sat * MAX(1.E-9, MIN(1.0, ssnow%wb(i,j) / &
+                             soil%ssat(i))) ** (-soil%bch(i))
+
+       ! bound psi_soil by the wilting point in upper soil layers
+       IF (j < 3) THEN
+
+          ssnow%psi_soil(i,j) = MAX(psi_wilt, ssnow%psi_soil(i,j))
+
+       ! below wilting point, apply dry soil correction from Webb 2000
+       ELSE IF (ssnow%wb(i,j) < soil%swilt(i)) THEN
+
+          ssnow%psi_soil(i,j) = (-10.0 ** ((LOG10(-psi_wilt / cmH2O_TO_MPa) &
+                                - 6.8) * ssnow%wb(i,j) / soil%swilt(i) + 6.8)) &
+                                * cmH2O_TO_MPa
+
+       END IF
 
     END DO
 
@@ -2788,7 +2815,7 @@ CONTAINS
      ! Actual water from each layer is determined using the estimated value as a
      ! weighted factor.
      !
-     ! Martin De Kauwe, 4th March, 2019
+     ! Martin De Kauwe, 2019
 
      USE cable_def_types_mod
      USE cable_common_module
@@ -2848,26 +2875,32 @@ CONTAINS
      END DO
      total_est_evap = SUM(est_evap)
 
-     ! calculate the weighted psi_soil
+     ! calculate the weighted psi_soil, ms8355 2022
      IF (total_est_evap > 0.0) THEN
+
         ! Soil water potential is weighted by total_est_evap.
         ssnow%psi_rootzone(i) = ssnow%psi_rootzone(i) / total_est_evap
+
      ELSE
+
         ssnow%psi_rootzone(i) = 0.0
         depth_sum = 0.0
+
         DO j = 1, ms ! Loop over 6 soil layers
+
            IF (veg%froot(i,j) .GT. 0.0) THEN
+
               ssnow%psi_rootzone(i) = ssnow%psi_rootzone(i) + &
                                       ssnow%psi_soil(i,j) * soil%zse(j)
               depth_sum = depth_sum + soil%zse(j)
-           ENDIF
-        END DO
-        ssnow%psi_rootzone(i) = ssnow%psi_rootzone(i) / depth_sum
-     END IF
 
-     IF (ssnow%psi_rootzone(i) < -20.0) THEN
-        ssnow%psi_rootzone(i) = -20.0
-     ENDIF
+           ENDIF
+
+        END DO
+
+        ssnow%psi_rootzone(i) = ssnow%psi_rootzone(i) / depth_sum
+
+     END IF
 
      ! SPA method to figure out relative water uptake.
      ! Fraction uptake in each layer by Emax in each layer

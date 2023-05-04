@@ -521,7 +521,7 @@ MODULE cable_def_types_mod
 
      ! plant hydraulics; mgk576 2017; ms835 2022
      REAL, DIMENSION(:), POINTER :: psi_stem, psi_can, kplant
-     REAL, DIMENSION(:), POINTER :: plc_root, plc_stem, plc_can, day_plc_root, day_plc_stem, day_plc_can
+     REAL, DIMENSION(:), POINTER :: plc_sat, plc_stem, plc_can, day_plc_sat, day_plc_stem, day_plc_can
 
   END TYPE canopy_type
 
@@ -1221,10 +1221,10 @@ CONTAINS
     ALLOCATE( var%psi_stem(mp) )
     ALLOCATE( var%psi_can(mp) )
     ALLOCATE( var%kplant(mp) )
-    ALLOCATE( var%plc_root(mp) )
+    ALLOCATE( var%plc_sat(mp) )
     ALLOCATE( var%plc_stem(mp) )
     ALLOCATE( var%plc_can(mp) )
-    ALLOCATE( var%day_plc_root(mp) )
+    ALLOCATE( var%day_plc_sat(mp) )
     ALLOCATE( var%day_plc_stem(mp) )
     ALLOCATE( var%day_plc_can(mp) )
 
@@ -1856,10 +1856,10 @@ CONTAINS
     DEALLOCATE( var%psi_stem )
     DEALLOCATE( var%psi_can )
     DEALLOCATE( var%kplant )
-    DEALLOCATE( var%plc_root )
+    DEALLOCATE( var%plc_sat )
     DEALLOCATE( var%plc_stem )
     DEALLOCATE( var%plc_can )
-    DEALLOCATE( var%day_plc_root )
+    DEALLOCATE( var%day_plc_sat )
     DEALLOCATE( var%day_plc_stem )
     DEALLOCATE( var%day_plc_can )
 
