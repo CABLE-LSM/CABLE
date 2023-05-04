@@ -283,9 +283,9 @@ for ncvar in ncvars:
             invar = ivar[:]
             # fill in memory, then write to disk in one go
             if len(invar.shape) == 1:
-                outvar[oidy, oidx] = invar[iidl]
+                outvar[oidy[f], oidx[f]] = invar[iidl[f]]
             else:
-                outvar[..., oidy, oidx] = invar[..., iidl]
+                outvar[..., oidy[f], oidx[f]] = invar[..., iidl[f]]
         # write to disk in one go
         ovar[:] = outvar
 
