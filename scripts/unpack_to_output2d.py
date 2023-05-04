@@ -1,61 +1,64 @@
 #!/usr/bin/env python
 """
-usage: nopatch2d.py [-h] [-o output_netcdf] [-v] [-z] [input_netcdf]
+usage: unpack_to_output2d.py [-h] [-o output_netcdf] [-v] [-z] [input_netcdf]
 
-Transform Cable or Casa output with summed patches to 2D arrays with latitude/longitude.
+Transform Cable or Casa land format to 2D arrays with latitude/longitude.
 
 positional arguments:
   input_netcdf          input netcdf file.
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -o output_netcdf, --outfile output_netcdf
                         output netcdf file name (default: input-2d.nc).
   -v, --verbose         Feedback during copy (default: no feedback).
-  -z, --zip             Use netCDF4 variable compression (default: same format
-                        as input file).
+  -z, --zip             Use netCDF4 variable compression
+                        (default: same format as input file).
 
 
 Example
 -------
-  python nopatch2d.py -z -o cru_out_casa_2009_2011-no_patch-2d.nc \
-      cru_out_casa_2009_2011-no_patch.nc
+  python pack_output2d.py -z -o cru_out_casa_2009_2011-packed.nc \
+      cru_out_casa_2009_2011.nc
+  python unpack_to_output2d.py -z -o cru_out_casa_2009_2011-2d.nc \
+      cru_out_casa_2009_2011-packed.nc
 
 
 History
 -------
 Written  Matthias Cuntz, May 2020
-Modified Matthias Cuntz, May 2020
-             - use llKDTree from cablepop library
-         Matthias Cuntz, May 2023
-             - flake8 compatible
+             - from nopatch2d.py
 
 """
-from __future__ import division, absolute_import, print_function
+import argparse
+import sys
+import numpy as np
+import netCDF4 as nc
+import cablepop as cp
+import pyjams as pj
+import time as ptime
 
 # -------------------------------------------------------------------------
 # Command line
 #
-
-import argparse
 
 ofile   = None
 verbose = False
 izip    = False
 parser  = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
-    description=('Transform Cable or Casa output with summed patches to'
-                 ' 2D arrays with latitude/longitude.'))
+    description=('Transform Cable or Casa land format to 2D arrays with'
+                 ' latitude/longitude.') )
 parser.add_argument('-o', '--outfile', action='store',
                     default=ofile, dest='ofile', metavar='output_netcdf',
                     help='output netcdf file name (default: input-2d.nc).')
-parser.add_argument('-v', '--verbose', action='store_true',
-                    default=verbose, dest='verbose',
+parser.add_argument('-v', '--verbose', action='store_true', default=verbose,
+                    dest='verbose',
                     help='Feedback during copy (default: no feedback).')
 parser.add_argument('-z', '--zip', action='store_true', default=izip,
                     dest='izip',
-                    help=('Use netCDF4 variable compression (default: same'
-                          ' format as input file).'))
+                    help=('Use netCDF4 variable compression (default:'
+                          ' same format as input file).'))
 parser.add_argument('ifile', nargs='?', default=None, metavar='input_netcdf',
                     help='input netcdf file.')
 args    = parser.parse_args()
@@ -68,11 +71,6 @@ del parser, args
 if ifile is None:
     raise IOError('Input file must be given.')
 
-import sys
-import numpy as np
-import netCDF4 as nc
-import cablepop as cp
-import time as ptime
 if verbose:
     tstart = ptime.time()
 
@@ -80,14 +78,14 @@ if verbose:
 # Copy data
 #
 
-#
-# Open files
-#
-if ofile is None:  # Default output filename
-    ofile = cp.set_output_filename(ifile, '-2d')
+# Input file
 fi = nc.Dataset(ifile, 'r')
 if verbose:
     print('Input file:  ', ifile)
+
+# Output file
+if ofile is None:  # Default output filename
+    ofile = pj.ncio.set_output_filename(ifile, '-2d')
 if verbose:
     print('Output file: ', ofile)
 if izip:
@@ -111,10 +109,11 @@ if 'x' in fi.dimensions:  # use existing grid
     olon = fi.variables['x'][:]
     nlat   = olat.size
     nlon   = olon.size
-else:                     # great new global grid -60 to +90 latitudes
+else:                     # create new global grid -60 to +90 latitudes
     # 0.5, 1 degree
     dlon = np.abs(np.diff(np.unique(np.sort(ilons)))).min()
     if np.all(ilats == ilats[0]):
+        # if only few cells on one latitude band
         dlat = dlon
     else:
         # 0.5, 1 degree
@@ -125,6 +124,7 @@ else:                     # great new global grid -60 to +90 latitudes
     clon = ilons.min() % 1.  # 0.0 or 0.25, 0.0 or 0.5
     # new lats
     olat = -60.  + clat + np.arange(nlat) / float(nlat - 1) * (150. - dlat)
+    olat = olat[::-1]
     # new lons
     olon = -180. + clon + np.arange(nlon) / float(nlon - 1) * (360. - dlon)
 olon2d, olat2d = np.meshgrid(olon, olat)  # new lats, lons in 2D
@@ -137,27 +137,46 @@ for i in range(nland):
     oidx[i] = ix
     oidy[i] = iy
 
-# Copy global attributes, adding script
-cp.set_global_attributes(fi, fo,
-                         add={'history': ptime.asctime() + ': ' +
-                              ' '.join(sys.argv)})
+# Copy global attributes, adding this script
+pj.ncio.copy_global_attributes(fi, fo,
+                               add={'history': ptime.asctime() + ': ' +
+                                    ' '.join(sys.argv)})
 
 # Copy dimensions
-cp.create_dimensions(fi, fo, removedim=['land', 'ntile'],
-                     adddim={'x': nlon, 'y': nlat})
+pj.ncio.copy_dimensions(fi, fo,
+                        removedim=['land', 'ntile'],
+                        adddim={'x': nlon, 'y': nlat})
 
-# create static variables (independent of time)
+# Create static variables (independent of time)
 if 'local_lat' in fi.variables:
-    renvar = {}  # {'latitude':'nav_lat', 'longitude':'nav_lon'}
+    renvar = {}  # {'latitude': 'nav_lat', 'longitude': 'nav_lon'}
 else:
     renvar = {}
-cp.create_variables(fi, fo, time=False, izip=izip, fill=True,
-                    chunksizes=False, renamevar=renvar,
-                    replacedim={'land': ('y', 'x'), 'ntile': ('y', 'x')})
+pj.ncio.create_variables(fi, fo, time=False, izip=izip, fill=True,
+                         chunksizes=False, renamevar=renvar,
+                         replacedim={'land': ('y', 'x'), 'ntile': ('y', 'x')})
 # create dynamic variables (time dependent)
-cp.create_variables(fi, fo, time=True, izip=izip, fill=True,
-                    chunksizes=False, renamevar=renvar,
-                    replacedim={'land': ('y', 'x'), 'ntile': ('y', 'x')})
+pj.ncio.create_variables(fi, fo, time=True, izip=izip, fill=True,
+                         chunksizes=False, renamevar=renvar,
+                         replacedim={'land': ('y', 'x'), 'ntile': ('y', 'x')})
+
+if 'x' not in fi.variables:
+    print('Create x')
+    nvar = {'name': 'x',
+            'dtype': ilons.dtype,
+            'dimensions': ('x'),
+            'units': 'degrees_east'}
+    ovar = pj.ncio.create_new_variable(nvar, fo)
+    ovar[:] = olon
+
+if 'y' not in fi.variables:
+    print('Create y')
+    nvar = {'name': 'y',
+            'dtype': ilats.dtype,
+            'dimensions': ('y'),
+            'units': 'degrees_north'}
+    ovar = pj.ncio.create_new_variable(nvar, fo)
+    ovar[:] = olat
 
 #
 # Copy variables from in to out expanding the land dimension to y, x
@@ -173,14 +192,14 @@ else:
     n10 = nvar // 10
 n = 0
 for ivar in fi.variables.values():
-    if verbose and (n > 0) and ((n % n10) == 0):
-        print('  {:d}%'.format(int(n / nvar * 100.)))
+    if verbose:
+        print(f'    {ivar.name}')
     n += 1
-    ovar  = fo.variables[ivar.name]
+    ovar = fo.variables[ivar.name]
     invar = ivar[:]  # read whole field, otherwise times increasing sharpely
     if ('land' in ivar.dimensions) or ('ntile' in ivar.dimensions):
         outshape = list(invar.shape)
-        outshape[-1] = nlat   # land to y,x
+        outshape[-1] = nlat   # land to y, x
         outshape.append(nlon)
         # fill in memory, then write to disk in one go
         out = np.full(outshape, ovar._FillValue)

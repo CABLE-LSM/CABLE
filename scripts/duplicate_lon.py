@@ -4,7 +4,8 @@ from __future__ import print_function
 usage: duplicate_lon.py [-h] [-n ncopies] [-o output_netcdf] [-z]
                         [input_netcdf]
 
-Copies all variables of a single grid cell file into a second (or more) grid cell(s) with the same lat/lon.
+Copies all variables of a single grid cell file into a second (or more)
+grid cell(s) with the same lat/lon.
 
 positional arguments:
   input_netcdf          input netcdf file.
@@ -28,10 +29,16 @@ Example
 History
 -------
 Written  Matthias Cuntz, Dec 2019
-Modified Matthias Cuntz, Jan 2020 - added ncopy
-                                  - copy global attributes and append history
-         Matthias Cuntz, Apr 2020 - use create_variable function as in sum_patchfrac.py
+Modified Matthias Cuntz, Jan 2020
+             - added ncopy
+             - copy global attributes and append history
+         Matthias Cuntz, Apr 2020
+             - use create_variable function as in sum_patchfrac.py
+         Matthias Cuntz, May 2023
+             - flake8 compatible
+
 """
+
 
 # -------------------------------------------------------------------------
 # Functions
@@ -41,7 +48,8 @@ def _get_variable_definition(ncvar):
     out  = ncvar.filters() if ncvar.filters() else {}
     dims = list(ncvar.dimensions)
     # Do not set chunksize because it should be only 2
-    # chunks = ncvar.chunking() if not isinstance(ncvar.chunking(), str) else None
+    # chunks = ncvar.chunking() if not isinstance(
+    #              ncvar.chunking(), str ) else None
     if "missing_value" in dir(ncvar):
         ifill = ncvar.missing_value
     elif "_FillValue" in dir(ncvar):
@@ -49,11 +57,11 @@ def _get_variable_definition(ncvar):
     else:
         ifill = None
     out.update({
-        "name"       : ncvar.name,
-        "dtype"      : ncvar.dtype,
-        "dimensions" : dims,
-        # "chunksizes" : chunks,
-        "fill_value" : ifill,
+        "name": ncvar.name,
+        "dtype": ncvar.dtype,
+        "dimensions": dims,
+        # "chunksizes": chunks,
+        "fill_value": ifill,
     })
     return out
 
@@ -68,8 +76,10 @@ def _create_output_variables(fi, fo, time=False, izip=False):
         if itime:
             # create output variable
             invardef = _get_variable_definition(ivar)
-            if izip: invardef.update({'zlib':True})
-            ovar = fo.createVariable(invardef.pop("name"), invardef.pop("dtype"), **invardef)
+            if izip:
+                invardef.update({'zlib': True})
+            ovar = fo.createVariable(invardef.pop("name"),
+                                     invardef.pop("dtype"), **invardef)
             for k in ivar.ncattrs():
                 iattr = ivar.getncattr(k)
                 if (k != 'missing_value') and (k != '_FillValue'):
@@ -86,18 +96,23 @@ import argparse
 ncopy  = 2
 ofile  = None
 izip   = False
-parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                                     description=('''Copies all variables of a single grid cell file into a second (or more) grid cell(s) with the same lat/lon.'''))
+parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    description=('Copies all variables of a single grid cell file into a'
+                 ' second (or more) grid cell(s) with the same lat/lon.'))
 parser.add_argument('-n', '--ncopy', type=int, action='store',
-                        default=ncopy, dest='ncopy', metavar='ncopies',
-                        help='number of copies of single grid cell, i.e. final number of identical grid cells (default: 2).')
+                    default=ncopy, dest='ncopy', metavar='ncopies',
+                    help=('number of copies of single grid cell, i.e. final'
+                          ' number of identical grid cells (default: 2).'))
 parser.add_argument('-o', '--outfile', action='store',
-                        default=ofile, dest='ofile', metavar='output_netcdf',
-                        help='output netcdf file name (default: input-2.nc).')
-parser.add_argument('-z', '--zip', action='store_true', default=izip, dest='izip',
-                        help='Use netCDF4 variable compression (default: same format as input file).')
+                    default=ofile, dest='ofile', metavar='output_netcdf',
+                    help='output netcdf file name (default: input-2.nc).')
+parser.add_argument('-z', '--zip', action='store_true', default=izip,
+                    dest='izip',
+                    help=('Use netCDF4 variable compression (default:'
+                          ' same format as input file).'))
 parser.add_argument('ifile', nargs='?', default=None, metavar='input_netcdf',
-                        help='input netcdf file.')
+                    help='input netcdf file.')
 args  = parser.parse_args()
 ncopy = args.ncopy
 ofile = args.ofile
@@ -115,17 +130,19 @@ import time as ptime
 # Copy data
 #
 
-if ofile is None: # Default output filename
+if ofile is None:  # Default output filename
     sifile = ifile.split('.')
-    sifile[-2] = sifile[-2]+'-2'
+    sifile[-2] = sifile[-2] + '-2'
     ofile = '.'.join(sifile)
 fi = nc.Dataset(ifile, 'r')
 # Check that only one longitude present
 for d in fi.dimensions.values():
     l = None if d.isunlimited() else len(d)
-    if (d.name=='longitude' or d.name=='lon' or d.name=='x') and (l != 1):
+    if ( (d.name == 'longitude' or d.name == 'lon' or d.name == 'x') and
+         (l != 1)):
         fi.close()
-        raise IOError('More than one longitude present in input file: '+str(l))
+        raise IOError(
+            'More than one longitude present in input file: ' + str(l))
 if izip:
     fo = nc.Dataset(ofile, 'w', format='NETCDF4')
 else:
@@ -158,7 +175,8 @@ for k in fi.ncattrs():
 # Copy dimensions
 for d in fi.dimensions.values():
     l = None if d.isunlimited() else len(d)
-    if (d.name=='longitude' or d.name=='lon' or d.name=='x'): l = ncopy
+    if (d.name == 'longitude' or d.name == 'lon' or d.name == 'x'):
+        l = ncopy
     fo.createDimension(d.name, l)
 
 #
@@ -181,10 +199,10 @@ for ivar in fi.variables.values():
         ovar = fo.variables[ivar.name]
         if (latname in ivar.dimensions) and (lonname in ivar.dimensions):
             for nn in range(ncopy):
-                ovar[:,nn,...] = ivar[:,0,...]
+                ovar[:, nn, ...] = ivar[:, 0, ...]
         elif (lonname in ivar.dimensions):
             for nn in range(ncopy):
-                ovar[nn,...] = ivar[0,...]
+                ovar[nn, ...] = ivar[0, ...]
         else:
             ovar[:] = ivar[:]
 
@@ -197,14 +215,15 @@ if 'time' in fi.dimensions:
         for ivar in fi.variables.values():
             if 'time' in ivar.dimensions:
                 ovar = fo.variables[ivar.name]
-                if (latname in ivar.dimensions) and (lonname in ivar.dimensions):
+                if ( (latname in ivar.dimensions) and
+                     (lonname in ivar.dimensions) ):
                     for nn in range(ncopy):
-                        ovar[tt,:,nn,...] = ivar[tt,:,0,...]
+                        ovar[tt, :, nn, ...] = ivar[tt, :, 0, ...]
                 elif (lonname in ivar.dimensions):
                     for nn in range(ncopy):
-                        ovar[tt,nn,...] = ivar[tt,0,...]
+                        ovar[tt, nn, ...] = ivar[tt, 0, ...]
                 else:
-                    ovar[tt,...] = ivar[tt,...]
+                    ovar[tt, ...] = ivar[tt, ...]
 
 fi.close()
 fo.close()

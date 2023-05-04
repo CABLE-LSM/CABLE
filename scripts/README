@@ -2,8 +2,10 @@ Existing scripts
 ----------------
 Note: the scripts of Matthias Cuntz use the Python library cablepop.
       Add this scripts directory to your PYTHONPATH if you do not run
-      from the scripts directory, e.g. in the script directory
+      from the scripts directory, e.g. type while in the script directory
           export PYTHONPATH=${PYTHONPATH}:${PWD}
+      The scripts of Matthias Cuntz are slowly moved towards using the Python
+      library pyjams, which can be installed via pip or conda/mamba.
 
 
 # Prepare input
@@ -62,9 +64,16 @@ compare_two_cable_runs.sh
 global_150x360.griddes
     Grid description file for cdo to use on 2D files produced with Python
     scripts of this directory.
+merge_output2d.py
+    Merge Cable 2D output files from pseudo-parallelised runs.
+merge_to_output2d.py
+    Merge files of pseudo-parallelised Cable or Casa output in land format
+    to combined 2D arrays with latitude/longitude.
 nopatch2d.py
     Transform Cable or Casa output with summed patches (from sum_patchfrac.py
-    or sum_patchcasa.py) to 2D latitude/longitude output
+    or sum_patchcasa.py) to 2D latitude/longitude output.
+pack_output2d.py
+    Pack Cable 2D output files by removing masked ocean and land points.
 sum_patchcasa.py
     Copy Casa output summing variables weighted with patchfrac.
 sum_patchcasa2d.py
@@ -72,3 +81,5 @@ sum_patchcasa2d.py
     lat/lon grid.
 sum_patchfrac.py
     Copy Cable output summing variables weighted with patchfrac.
+unpack_to_output2d.py
+    Transform Cable or Casa land format to 2D arrays with latitude/longitude.
