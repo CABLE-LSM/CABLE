@@ -310,10 +310,10 @@ MODULE cable_IO_vars_module
           psi_soil = .TRUE.,      &
           psi_stem = .TRUE.,      &
           psi_can = .TRUE.,       &
-          plc_root = .TRUE.,      &
+          plc_sat = .TRUE.,      &
           plc_stem = .TRUE.,      &
           plc_can = .TRUE.,       &
-          day_plc_root = .FALSE., &
+          day_plc_sat = .FALSE., &
           day_plc_stem = .FALSE., &
           day_plc_can = .FALSE.,  &
           gsw_sun = .TRUE.,       &

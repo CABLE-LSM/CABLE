@@ -71,7 +71,7 @@ MODULE cable_output_module
           PlantTurnoverWoodResourceLim, dCdt, Area, LandUseFlux, patchfrac, &
           vcmax,hc,WatTable,GWMoist,SatFrac,Qrecharge,               &
           psi_soil, psi_rootzone, psi_stem, psi_can,                 &
-          plc_root, plc_stem, plc_can, gsw_sun, gsw_sha
+          plc_sat, plc_stem, plc_can, gsw_sun, gsw_sha
 
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
@@ -239,7 +239,7 @@ MODULE cable_output_module
      REAL(KIND=4), POINTER, DIMENSION(:)   :: psi_rootzone  ! ms8355
      REAL(KIND=4), POINTER, DIMENSION(:)   :: psi_stem      ! mgk576
      REAL(KIND=4), POINTER, DIMENSION(:)   :: psi_can       ! ms8355
-     REAL(KIND=4), POINTER, DIMENSION(:)   :: plc_root      ! ms8355
+     REAL(KIND=4), POINTER, DIMENSION(:)   :: plc_sat      ! ms8355
      REAL(KIND=4), POINTER, DIMENSION(:)   :: plc_stem      ! ms8355
      REAL(KIND=4), POINTER, DIMENSION(:)   :: plc_can       ! ms8355
      REAL(KIND=4), POINTER, DIMENSION(:)   :: gsw_sun       ! mgk576
@@ -552,7 +552,7 @@ CONTAINS
     ! plant hydraulics, ms8355
     IF(output%flux .OR. output%TSap) THEN
        CALL define_ovar(ncid_out, ovid%TSap, 'TSap', 'kg/m^2/s',               &
-            'Vegetation transpiration from sapflux', patchout%TSap, 'dummy',    &
+            'Vegetation transpiration from sap ascent', patchout%TSap, 'dummy',    &
             xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%TSap(mp))
        out%TSap = 0.0 ! initialise
@@ -691,12 +691,12 @@ CONTAINS
     END IF
 
     IF(output%veg) THEN
-       CALL define_ovar(ncid_out, ovid%plc_root, &
-                        'plc_root', '%', 'Percentage loss of hydraulic conductivity in the roots', &
-                        patchout%plc_root, 'dummy', xID, yID, zID, &
+       CALL define_ovar(ncid_out, ovid%plc_sat, &
+                        'plc_sat', '%', 'Percentage loss of hydraulic conductivity at saturation of the xylem', &
+                        patchout%plc_sat, 'dummy', xID, yID, zID, &
                         landID, patchID, tID)
-       ALLOCATE(out%plc_root(mp))
-       out%plc_root = 0.0 ! initialise
+       ALLOCATE(out%plc_sat(mp))
+       out%plc_sat = 0.0 ! initialise
     END IF
 
     IF(output%veg) THEN
@@ -2185,18 +2185,18 @@ CONTAINS
 
      IF(output%veg) THEN
         ! Add current timestep's value to total of temporary output variable:
-        out%plc_root = out%plc_root + REAL(canopy%plc_root, 4)
+        out%plc_sat = out%plc_sat + REAL(canopy%plc_sat, 4)
         IF(writenow) THEN
            ! Divide accumulated variable by number of accumulated time steps:
-           out%plc_root = out%plc_root / REAL(output%interval, 4)
+           out%plc_sat = out%plc_sat / REAL(output%interval, 4)
            ! Write value to file:
-           CALL write_ovar(out_timestep, ncid_out, ovid%plc_root, &
-                          'plc_root', &
-                           out%plc_root, ranges%plc_root, &
-                           patchout%plc_root, &
+           CALL write_ovar(out_timestep, ncid_out, ovid%plc_sat, &
+                          'plc_sat', &
+                           out%plc_sat, ranges%plc_sat, &
+                           patchout%plc_sat, &
                           'default', met)
            ! Reset temporary output variable:
-           out%plc_root = 0.0
+           out%plc_sat = 0.0
         END IF
      END IF
 
@@ -2721,10 +2721,9 @@ CONTAINS
     !      added frday in the calculation of GPP (BP may08)
     IF(output%carbon .OR. output%GPP) THEN
        ! Add current timestep's value to total of temporary output variable:
-       !out%GPP = out%GPP + REAL((-1.0 * canopy%fpn + canopy%frday)             &
-       !    / 1.201E-5, 4)
-        out%GPP = out%GPP + REAL((-1.0 * canopy%fpn)             &
-                               / 1.201E-5, 4)
+       out%GPP = out%GPP + REAL((-1.0 * canopy%fpn + canopy%frday)             &
+                                / 1.201E-5, 4)
+       
 
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:

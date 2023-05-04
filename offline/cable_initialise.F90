@@ -142,11 +142,10 @@ CONTAINS
     canopy%us = 0.1 ! friction velocity (needed in roughness before first call to canopy: should in be in restart?)
 
     ! plant hydraulics, mgk576 2019; ms8355 2022
-    ! This is doesn't actually get called FFS look at write_default_params
-    canopy%plc_root(:) = 0.0
+    canopy%plc_sat(:) = 0.0
     canopy%plc_stem(:) = 0.0
     canopy%plc_can(:) = 0.0
-    canopy%day_plc_root(:) = 0.0
+    canopy%day_plc_sat(:) = 0.0
     canopy%day_plc_stem(:) = 0.0
     canopy%day_plc_can(:) = 0.0
 

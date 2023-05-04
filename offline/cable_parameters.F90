@@ -1645,10 +1645,10 @@ CONTAINS
     canopy%psi_can(:) = -0.01
     canopy%psi_stem(:) = -0.01
     canopy%kplant(:) = 0.0
-    canopy%plc_root(:) = 0.0
+    canopy%plc_sat(:) = 0.0
     canopy%plc_stem(:) = 0.0
     canopy%plc_can(:) = 0.0
-    canopy%day_plc_root(:) = 0.0
+    canopy%day_plc_sat(:) = 0.0
     canopy%day_plc_stem(:) = 0.0
     canopy%day_plc_can(:) = 0.0
 
@@ -1904,7 +1904,7 @@ CONTAINS
 
        IF (veg%b_plant(1) < 1.E-3 .AND. veg%c_plant(1) < 1.E-3) THEN
 
-          print*, "/!\ The hydraulics parameters are not supplied, so the profitmax will crash /!\"
+          PRINT *, "/!\ The hydraulics parameters are not supplied, so the profitmax will crash /!\"
 
        END IF
 

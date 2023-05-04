@@ -1976,7 +1976,7 @@ CONTAINS
     blen(bidx) = r1len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (canopy%plc_root, displs(bidx), ierr)
+    CALL MPI_Get_address (canopy%plc_sat, displs(bidx), ierr)
     blen(bidx) = r1len
 
     bidx = bidx + 1
@@ -1988,7 +1988,7 @@ CONTAINS
     blen(bidx) = r1len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (canopy%day_plc_root, displs(bidx), ierr)
+    CALL MPI_Get_address (canopy%day_plc_sat, displs(bidx), ierr)
     blen(bidx) = r1len
 
     bidx = bidx + 1
@@ -4774,7 +4774,7 @@ CONTAINS
     blocks(bidx) = r1len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (canopy%plc_root(off), displs(bidx), ierr)
+    CALL MPI_Get_address (canopy%plc_sat(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
     bidx = bidx + 1
@@ -4786,7 +4786,7 @@ CONTAINS
     blocks(bidx) = r1len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (canopy%day_plc_root(off), displs(bidx), ierr)
+    CALL MPI_Get_address (canopy%day_plc_sat(off), displs(bidx), ierr)
     blocks(bidx) = r1len
 
     bidx = bidx + 1

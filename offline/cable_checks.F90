@@ -185,10 +185,10 @@ MODULE cable_checks_module
           psi_soil = (/-50.0, 0.0/),          &
           psi_stem = (/-50.0, 0.0/),          &
           psi_can = (/-50.0, 0.0/),           &
-          plc_root = (/0.0, 100.0/),          &
+          plc_sat = (/0.0, 100.0/),           &
           plc_stem = (/0.0, 100.0/),          &
           plc_can = (/0.0, 100.0/),           &
-          day_plc_root = (/0.0, 100.0/),      &
+          day_plc_sat = (/0.0, 100.0/),       &
           day_plc_stem = (/0.0, 100.0/),      &
           day_plc_can = (/0.0, 100.0/),       &
           gswx = (/-1.0, 10.0/),              &
