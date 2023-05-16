@@ -2936,7 +2936,7 @@ SUBROUTINE get_parameters_met(soil,veg,bgc,rough,completeSet)
    CALL readpar(ncid_met,'froot',completeSet,veg%froot,filename%met,           &
                 nmetpatches,'ms')
    ! CALL readpar(ncid_met,'hc',completeSet,veg%hc,filename%met,                 & ! MMY@May2023 change for PLUMBER2
-   CALL readpar(ncid_met,'canopy_height',completeSet,veg%hc,filename%met,          ! MMY@May2023 change for PLUMBER2
+   CALL readpar(ncid_met,'canopy_height',completeSet,veg%hc,filename%met,      &    ! MMY@May2023 change for PLUMBER2
                 nmetpatches,'def')
    CALL readpar(ncid_met,'canst1',completeSet,veg%canst1,filename%met,         &
                 nmetpatches,'def')
