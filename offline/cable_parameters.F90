@@ -1756,13 +1756,13 @@ CONTAINS
                 end if
              end do
           end do
-       
+
        ELSE
 
           DO klev=1,ms
               soil%hyds_vec(:,klev) = soil%hyds_vec(:,klev)*exp(-soil%hkrz(:)*(soil_depth(:,klev)-soil%zdepth(:)))
           END DO
-       
+
        END IF  !use either uni or multi cosby transfer func
 
        !set the non-vectored values to srf value
@@ -2948,7 +2948,7 @@ END SUBROUTINE report_parameters
     ENDDO
 
     !removed gw_soils for now
-  
+
   END SUBROUTINE GWspatialParameters
 
    function get_gw_2d_var_constdef(ncfile_id,try_it,varname,default_const,nlon,nlat) result(data_vec)
