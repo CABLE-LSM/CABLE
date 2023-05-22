@@ -1,4 +1,4 @@
-!******************************************************************************
+!==============================================================================
 ! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
 ! This work is licensed under the CSIRO Open Source Software License
@@ -8,31 +8,16 @@
 ! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) can be found
 ! at https://github.com/CABLE-LSM/CABLE/blob/main/
 !
-!******************************************************************************
+! ==============================================================================
 
 MODULE cbl_init_radiation_module
 
-!-----------------------------------------------------------------------------
-! Description:
-!   Computes radiation absorbed by canopy and soil surface
-!
-! This MODULE is USEd in:
-!     cable_cbm.F90 (ESM1.5),
-!     cbl_model_driver_offline.F90 (CABLE),
-!     rad_driver_cbl.F90 (JaC)
-!
-! This MODULE contains 1 public Subroutine:
-!     init_ratidation
-! Other Subroutines:
-!     Common_InitRad_Scalings,
-!     ExtinctionCoeff,
-!     EffectiveExtinctCoeffs,
-!     EffectiveExtinctCoeff,
-!     BeamFraction
-!
-! Module specific documentation: https://trac.nci.org.au/trac/cable/wiki/TBC
-! Where it fits in the model flow: https://trac.nci.org.au/trac/cable/wiki/TBC
-!-----------------------------------------------------------------------------
+  !*# Overview
+  !
+  ! This MODULE initialise the radiation parameters.
+  !
+  ! The MODULE contains one public subroutine [[init_radiation]] and several
+  ! private subroutines.
 
 IMPLICIT NONE
 
@@ -142,7 +127,7 @@ IF ( cbl_standalone .OR. jls_standalone .AND. .NOT. jls_radiation )            &
 RETURN
 END SUBROUTINE init_radiation
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
 
 SUBROUTINE Common_InitRad_Scalings( xphi1, xphi2, xk, xvlai2, c1, rhoch,       &
                             mp, nrb, Cpi180,cLAI_thresh, veg_mask,             &
@@ -173,22 +158,34 @@ USE cbl_rhoch_module,   ONLY: calc_rhoch
 IMPLICIT NONE
 ! model dimensions
 INTEGER, INTENT(IN) :: mp
+  !! Number of tiles
 INTEGER, INTENT(IN) :: nrb
+  !! Number of radiation bands
 
 REAL, INTENT(OUT) :: xk(mp,nrb)   ! extinct. coef.for beam rad. and black leaves
+  !! Extinction coefficients for black leaves at 3 different zenith angles
 REAL, INTENT(OUT) :: c1(mp,nrb)
 REAL, INTENT(OUT) :: rhoch(mp,nrb)
 REAL, INTENT(OUT) :: xphi1(mp)    ! leaf angle parmameter 1
+  !! Leaf angle parameter defined by Sellers 1985 \(\phi_1\) 
 REAL, INTENT(OUT) :: xphi2(mp)    ! leaf angle parmameter 2
+  !! Leaf angle parameter defined by Sellers 1985 \(\phi_2\) 
 REAL, INTENT(OUT) :: xvlai2(mp,nrb)  ! 2D vlai
+  !! LAI spread over the 3 different zenith angles
 
 REAL, INTENT(IN) :: Cpi180
+  !! \(\pi\)
+
 REAL, INTENT(IN) :: cLAI_thresh
+  !! Threshold for the LAI under which a tile is considered unvegetated
 REAL, INTENT(IN) :: reducedLAIdue2snow(mp)
+  !! LAI after the effect of snow
 REAL, INTENT(IN) :: VegXfang(mp)
+  !! Parameter \(\chi\) in Sellers 1985
 REAL, INTENT(IN) :: VegTaul(mp,nrb)
 REAL, INTENT(IN) :: VegRefl(mp,nrb)
 LOGICAL, INTENT(IN) :: veg_mask(mp)
+  !! Mask indicating the presence of vegetation on a tile
 
 !local vars
 REAL :: cos3(nrb)      ! cos(15 45 75 degrees)
@@ -220,8 +217,7 @@ CALL calc_rhoch( c1,rhoch, mp, nrb, VegTaul, VegRefl )
 RETURN
 END SUBROUTINE Common_InitRad_Scalings
 
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
 
 SUBROUTINE ExtinctionCoeff( ExtCoeff_beam, ExtCoeff_dif, mp, nrb, CGauss_w,    &
                             Ccoszen_tols_tiny, reducedLAIdue2snow, veg_mask,   &
@@ -286,7 +282,7 @@ END WHERE
 RETURN
 END SUBROUTINE ExtinctionCoeff
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
 
 SUBROUTINE EffectiveExtinctCoeffs( EffExtCoeff_beam, EffExtCoeff_dif, mp, nrb, &
                                    veg_mask, ExtCoeff_beam, ExtCoeff_dif, c1 )
@@ -321,7 +317,7 @@ CALL EffectiveExtinctCoeff( EffExtCoeff_dif, mp, ExtCoeff_dif, c1 )
 RETURN
 END SUBROUTINE EffectiveExtinctCoeffs
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
 
 SUBROUTINE EffectiveExtinctCoeff(Eff_ExtCoeff, mp, ExtCoeff, c1, mask )
 ! Description:
@@ -357,7 +353,7 @@ END DO
 RETURN
 END SUBROUTINE EffectiveExtinctCoeff
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!===============================================================================
 
 SUBROUTINE BeamFraction( RadFbeam, mp, nrb, Cpi,Ccoszen_tols_huge, metDoy,     &
                          coszen, SW_down )

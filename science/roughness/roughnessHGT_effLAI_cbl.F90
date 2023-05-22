@@ -1,4 +1,4 @@
-!******************************************************************************
+!==============================================================================
 ! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
 ! This work is licensed under the CSIRO Open Source Software License
@@ -8,14 +8,20 @@
 ! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) can be found
 ! at https://github.com/CABLE-LSM/CABLE/blob/main/
 !
-!******************************************************************************
+!==============================================================================
 
 MODULE hruff_eff_LAI_mod_cbl
 
 !-----------------------------------------------------------------------------
-! Description:
-!   Computes the height above the surface given that there is snow present
-!   and the effective LAI of the canopy given the effect of snow
+!* Purpose:
+!   This module takes into account the effect of snow on the canopy height and
+!   the LAI.
+!
+!   The procedure [[HgtAboveSnow]] evaluates the canopy height given the effect
+!   of any snow present.
+!
+!   The procedure [[LAI_eff]] computes the effective LAI of a canopy given the 
+!   effect of any snow present
 !
 ! This MODULE is USEd in:
 !     cable_land_albedo_mod_cbl.F90 (JULES)
@@ -24,15 +30,7 @@ MODULE hruff_eff_LAI_mod_cbl
 !     HgtAboveSnow,
 !     LAI_eff
 !
-! Module specific documentation: https://trac.nci.org.au/trac/cable/wiki/TBC
-! Where it fits in the model flow: https://trac.nci.org.au/trac/cable/wiki/TBC
 !-----------------------------------------------------------------------------
-
-!* The first procedure in this module evaluates the canopy height
-!  given the effect of any snow present.
-
-!* The secone procedure in this module computes the effective LAI of a canopy
-!  given the effect of any snow present
 
 IMPLICIT NONE
 
@@ -109,12 +107,13 @@ SUBROUTINE LAI_eff( mp, lai_pft, Hgt_PFT, HgtAboveSnow,                        &
 
 IMPLICIT NONE
 
-INTEGER, INTENT(IN)   :: mp           ! CABLE VECTOR LENGTH
+INTEGER, INTENT(IN)   :: mp           !! Number of land points (-)
 ! return result - considered LAI seen given snow coverage
 REAL, INTENT(OUT) :: reducedLAIdue2snow(mp)
-REAL, INTENT(IN) :: lai_pft(mp)       ! LAI
-REAL, INTENT(IN) :: HGT_pft(mp)       ! canopy height
-REAL, INTENT(IN) :: HgtAboveSnow(mp)  ! computed canopy height above snow
+ !! Output. Modified leaf area index for snow (m\(^2\) m\(^{-2}\))
+REAL, INTENT(IN) :: lai_pft(mp)       !! Leaf area index without snow (m\(^2\) m\(^{-2})\)
+REAL, INTENT(IN) :: HGT_pft(mp)       !!! height of canopy without snow (m)
+REAL, INTENT(IN) :: HgtAboveSnow(mp)  !! height of canopy above the snow surface (m)
 
 !local_vars:
 REAL :: Hgt_eff(mp)
