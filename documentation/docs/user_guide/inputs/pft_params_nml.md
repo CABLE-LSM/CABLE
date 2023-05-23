@@ -2,10 +2,9 @@
 
 ## Example pft_params.nml file
 
-!!! Note
+!!! Note "Namelist file format explanation"
 
-    The asterisk symbol does not mean arithmetic multiplication in the namelist file.
-    It means that the following value is repeated multiple times.
+    The asterisk symbol, in the namelist file, means the following entry is repeated multiple times. It does not mean arithmetic multiplication.
 
 ``` fortran-free-form
 &cable_pftparm
