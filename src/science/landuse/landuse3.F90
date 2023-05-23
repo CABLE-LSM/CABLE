@@ -3,8 +3,56 @@ MODULE landuse_variable
   IMPLICIT NONE
 
   SAVE
-
+  !*# Overview of `landuse_variable` module (landuse3.F90)
+  !
+  ! This MODULE applies land-use changes for CABLE.
+  !
+  ! This includes:
+  !
+  ! - plant functional type transitions
+  ! - wood harvest
+  ! - land management
+  !
+  !## Method
+  !
+  ! All variables in the CABLE restart file and the state variables will be
+  ! calculated.
+  !
+  ! There are three groups of `landuse_mland` member variables. For example,
+  ! let's say we have a variable named `var`, then:
+  !
+  ! - `luc%var_x(mland,mvmax)` contains data before land-use change,
+  !   indexed on the number of land points (`mland`) and the maximum number of 
+  !   plant functional types (`mvmax`).
+  ! - `luc%var_y(mland,mvmax)` contains data after land-use change, indexed
+  !   on the number of land points (`mland`) and the maximum number of 
+  !   plant functional types (`mvmax`).
+  ! - `lucmp%var(mp)` contains the variable data, indexed on the number of 
+  !   vegetation patches (`mp`).  
+  !
+  ! The land-use change for each variable is applied in the form of a
+  ! transformation matrix `T`, such that:
+  !
+  ! \[ \textbf{luc%var_y} = \textbf{luc%var_x} \cdot \textbf{T} \]
+  !
+  ! The procedure for applying a land-use transition is:
+  !
+  ! 1. Map a CABLE variable `var` from CABLE into a `landuse_mland` member
+  !    variable `luc%var_x`.
+  ! 2. Apply land-use change (either a plant functional type transition, wood
+  !    harvest or other land management).
+  ! 3. Write the value of `luc%var_x` into `luc%var_y`
+  ! 4. Update the value of `mp` and write `luc%var_y` to `lucmp%var`
+  !
+  ! **WARNING:** 
+  !
+  ! * There are external procedures in this file that should be
+  ! moved to the `CONTAINS` clause of this module.
+  ! * Any variables added to CABLE/CASA restart files must be reproduced here 
+  ! in both "landuse_mland" and "landuse_mp".
+  !
   TYPE landuse_mland
+    !! Variables indexed along land points and vegetation type
     ! patch generic
     INTEGER,   DIMENSION(:,:),       ALLOCATABLE :: iveg_x
     INTEGER,   DIMENSION(:,:),       ALLOCATABLE :: isoil_x
@@ -150,7 +198,8 @@ MODULE landuse_variable
   END TYPE landuse_mland
 
   TYPE landuse_mp
-
+   !! Variables indexed along the vegetation patches.
+   
    ! generic patch properties
    integer,    dimension(:),        allocatable   :: iveg,isoil,soilorder,phase,isflag           !(mp)
    integer,    dimension(:),        allocatable   :: doyphase3                                   !(mp)
@@ -184,6 +233,9 @@ MODULE landuse_variable
  CONTAINS
 
   SUBROUTINE landuse_allocate_mland(mland,luc)
+  !! Allocates the `luc%%var(mland,mvmax)` variables
+  !!
+  !! **WARNING:** Need to use a separate ALLOCATE call for each array
    use landuse_constant
    IMPLICIT NONE
    TYPE(landuse_mland), INTENT(INOUT)  :: luc
@@ -324,7 +376,7 @@ MODULE landuse_variable
             luc%nwoodprod_y(mland,mvmax,mwood),  &
             luc%pwoodprod_y(mland,mvmax,mwood))
 
-    ! land use variables
+    ! land-use variables
    ALLOCATE(luc%pftfrac(mland,mvtype),           &
             luc%fharvw(mland,mharvw),            &
             luc%xluh2cable(mland,mvmax,mstate),  &
@@ -435,6 +487,9 @@ MODULE landuse_variable
    END SUBROUTINE landuse_allocate_mland
 
    SUBROUTINE landuse_deallocate_mland(luc)
+   !! Deallocates the `luc%var(mland,mvmax)` variables
+   !!
+   !! **WARNING:** Need to deallocate in reverse order from the allocation.
    IMPLICIT NONE
    TYPE(landuse_mland), INTENT(INOUT)  :: luc
 
@@ -554,7 +609,7 @@ MODULE landuse_variable
               luc%cwoodprod_y,       &
               luc%nwoodprod_y,       &
               luc%pwoodprod_y)
-   !land use variables    
+   !land-use variables
    DEALLOCATE(luc%pftfrac,           &
               luc%fharvw,            &
               luc%xluh2cable,        &
@@ -563,6 +618,9 @@ MODULE landuse_variable
    END SUBROUTINE landuse_deallocate_mland
 
    SUBROUTINE landuse_allocate_mp(mpx,ms,msn,nrb,mplant,mlitter,msoil,mwood,ncp,ncs,lucmp)
+   !! Allocates the `luc%var(mp)` variables.
+   !!
+   !! **WARNING:** Need to use a separate ALLOCATE call for each array
    integer    mpx,ms,msn,nrb,mplant,mlitter,msoil,mwood,ncp,ncs
    TYPE(landuse_mp), INTENT(INOUT)  :: lucmp
 
@@ -631,6 +689,9 @@ MODULE landuse_variable
    END SUBROUTINE landuse_allocate_mp
 
    SUBROUTINE landuse_deallocate_mp(mpx,ms,msn,nrb,mplant,mlitter,msoil,mwood,lucmp)
+   !! Deallocates the `luc%var(mp)` variables
+   !!
+   !! **WARNING:** Need to deallocate in reverse order from the allocation.
    integer     mpx,ms,msn,nrb,mplant,mlitter,msoil,mwood
    TYPE(landuse_mp), INTENT(INOUT)  :: lucmp
      ! patch-generic variables
@@ -673,6 +734,8 @@ END MODULE landuse_variable
   subroutine landuse_driver(mlon,mlat,landmask,arealand,ssnow,soil,veg,bal,canopy,  &
                             phen,casapool,casabal,casamet,casabiome,casaflux,bgc,rad, &
                             cstart,cend,nap,lucmp)
+  !! Main driver for the land-use change
+  !  
   USE cable_IO_vars_module, ONLY: mask,patch,landpt, latitude, longitude
   USE cable_def_types_mod,  ONLY: mp,mvtype,mstype,mland,r_2,ms,msn,nrb,ncp,ncs,           &
                                   soil_parameter_type, soil_snow_type, veg_parameter_type, &
@@ -716,7 +779,7 @@ END MODULE landuse_variable
      call landuse_allocate_mland(mland,luc)                                                     !setup "varx(mland,:)"        
      print *, 'exiting  allocating mland: landuse'
 
-     ! get the mapping matrix from state to PFT
+     ! get the mapping matrix from state to plant functional type
      ! call landuse_getxluh2(mlat,mlon,landmask,luc,filename%fxluh2cable)    !"xluh2cable"
      ! call landuse_getdata(mlat,mlon,landmask,filename%fxpft,luc)     !"luc(t-1)" and "xpft(t-1)"
 
@@ -730,11 +793,11 @@ END MODULE landuse_variable
         lucmp%isflag(p)    = ssnow%isflag(p)
 
      enddo   
-     print *, 'point A: landuse'
-     !
-     print *, 'patchfraC',size(patch%frac)
-     print *, 'veglai= ',size(veg%vlai)
-     print *, 'landuse: casabiome:sla', size(casabiome%sla),  casabiome%sla(:) 
+!     print *, 'point A: landuse'
+!     !
+!     print *, 'patchfraC',size(patch%frac)
+!     print *, 'veglai= ',size(veg%vlai)
+!     print *, 'landuse: casabiome:sla', size(casabiome%sla),  casabiome%sla(:) 
 
      do p=1,mp
      !   print *, 'landuse b', p, veg%iveg(p),veg%vlai(p),patch(p)%frac
@@ -743,7 +806,7 @@ END MODULE landuse_variable
         lucmp%lai(p)       = veg%vlai(p)
         lucmp%sla(p)       = casabiome%sla(veg%iveg(p)) 
      enddo
-     print *, 'point b: landuse'
+!     print *, 'point b: landuse'
 
      ! biophysical variables 
      do p=1,mp
@@ -761,7 +824,7 @@ END MODULE landuse_variable
         lucmp%tss(p)         = ssnow%tss(p)
      enddo
 
-     print *, 'point C: landuse'
+!     print *, 'point C: landuse'
      lucmp%runoff(:)      = ssnow%runoff(:)
      lucmp%rnof1(:)       = ssnow%rnof1(:)
      lucmp%rnof2(:)       = ssnow%rnof2(:)
@@ -772,7 +835,7 @@ END MODULE landuse_variable
      lucmp%cansto(:)      = canopy%cansto(:)
      lucmp%ghflux(:)      = canopy%ghflux(:)
      lucmp%sghflux(:)     = canopy%sghflux(:)
-     print *, 'point D: landuse'
+!     print *, 'point D: landuse'
      lucmp%ga(:)          = canopy%ga(:)
      lucmp%dgdtg(:)       = canopy%dgdtg(:)
      lucmp%fev(:)         = canopy%fev(:)
@@ -785,7 +848,7 @@ END MODULE landuse_variable
      lucmp%cplantx(:,:)   = bgc%cplant(:,:)
      lucmp%csoilx(:,:)    = bgc%csoil(:,:)
 
-     print *, 'point E: landuse'
+!     print *, 'point E: landuse'
      ! biogeochemical variables    
      do m=1,mland
        do np=cstart(m),cend(m)
@@ -799,11 +862,11 @@ END MODULE landuse_variable
      print *, 'point F: landuse'
      if(icycle>0) then 
      do p=1,mp        
-  !      print *, 'landuse F: ', p, phen%phase(p),phen%doyphase(p,3),phen%phen(p),phen%aphen(p)
- !       print *, 'landuse F2: ',   casaflux%frac_sapwood(p),casaflux%sapwood_area(p)
- !       print *, 'landuse F3: ', casapool%clabile(p),casapool%cplant(p,:),casapool%clitter(p,:),casapool%csoil(p,:),        &
- !                               casapool%cwoodprod(p,:)
-!        print *, 'landuse F4: ',casabal%sumcbal(p)
+!       print *, 'landuse F: ', p, phen%phase(p),phen%doyphase(p,3),phen%phen(p),phen%aphen(p)
+!       print *, 'landuse F2: ',   casaflux%frac_sapwood(p),casaflux%sapwood_area(p)
+!       print *, 'landuse F3: ', casapool%clabile(p),casapool%cplant(p,:),casapool%clitter(p,:),casapool%csoil(p,:),        &
+!                               casapool%cwoodprod(p,:)
+!       print *, 'landuse F4: ',casabal%sumcbal(p)
 
         lucmp%phase(p)       = phen%phase(p)
         lucmp%doyphase3(p)   = phen%doyphase(p,3)
@@ -819,7 +882,7 @@ END MODULE landuse_variable
         lucmp%sumcbal(p)     = casabal%sumcbal(p)
      enddo
      endif
-     print *, 'point G: landuse'
+!     print *, 'point G: landuse'
      if(icycle>1) then
      do p=1,mp        
         lucmp%nplant(p,:)    = casapool%nplant(p,:)
@@ -830,7 +893,7 @@ END MODULE landuse_variable
         lucmp%sumnbal(p)     = casabal%sumnbal(p)
      enddo
      endif
-     print *, 'point H: landuse'
+!     print *, 'point H: landuse'
      if(icycle >2) then
      do p=1,mp        
         lucmp%pplant(p,:)    = casapool%pplant(p,:)
@@ -845,20 +908,20 @@ END MODULE landuse_variable
      endif
       
      ! assign variables var(mp,:) to luc%var_x(mland,mvmax,:)
-     print *, 'calling mp2land: landuse'
+!     print *, 'calling mp2land: landuse'
      call landuse_mp2land(luc,lucmp,mp,cstart,cend)
 
-     ! we need to deallocate "lucmp" because "mp" will be updated after land use change
-     print *, 'calling deallocate mp: landuse'
+     ! we need to deallocate "lucmp" because "mp" will be updated after land-use change
+!     print *, 'calling deallocate mp: landuse'
      call landuse_deallocate_mp(mp,ms,msn,nrb,mplant,mlitter,msoil,mwood,lucmp)
 
-     print *, 'calling transitx: landuse'
+!     print *, 'calling transitx: landuse'
      call landuse_transitx(luc,casabiome)
 
-     print *, 'calling checks: landuse'
+!     print *, 'calling checks: landuse'
      call landuse_checks(mlon,mlat,landmask,luc)
 
-     print *, 'calling update mland: landuse'
+!     print *, 'calling update mland: landuse'
      call landuse_update_mland(luc)                    ! assign "var_y" to "var_x"
 
      ! update "cstart", "cend","nap" and "mp=>mpx"
@@ -882,7 +945,7 @@ END MODULE landuse_variable
       enddo
       mpx = np
      ! allocate "lucmp" with "mpx"
-     print *, 'calling allocate mp: landuse'
+!     print *, 'calling allocate mp: landuse'
      call landuse_allocate_mp(mpx,ms,msn,nrb,mplant,mlitter,msoil,mwood,ncp,ncs,lucmp)
  
      ! assign lucmp%lat lucmp%lon
@@ -893,20 +956,22 @@ END MODULE landuse_variable
         enddo
      enddo      
 
-     print *, 'calling land2mpx: landuse'
+!     print *, 'calling land2mpx: landuse'
      call landuse_land2mpx(luc,lucmp,mpx)
   !   call landuse_land2mpx(luc,lucmp,mpx,cstart,cend,nap)
 
-     print *, 'calling deallocate mland: landuse'
+!     print *, 'calling deallocate mland: landuse'
      call landuse_deallocate_mland(luc)
 
-     print *, 'landuse: exit landuse_driver mpx', mpx
+!     print *, 'landuse: exit landuse_driver mpx', mpx
 
      close(21)
 211  format(i4,a120)
 end subroutine landuse_driver
 
  SUBROUTINE landuse_mp2land(luc,lucmp,mp,cstart,cend)
+ !! Assigns `lucmp%var(mp)` to `luc%var_x(mland,mvmax)`
+ !
  use landuse_variable
  USE cable_def_types_mod,  ONLY: mvtype,mstype,mland,r_2,ms,msn,nrb,ncp,ncs
  USE casadimension,        ONLY: icycle,mplant,mlitter,msoil,mwood,mso
@@ -1102,6 +1167,21 @@ end subroutine landuse_driver
 END SUBROUTINE landuse_mp2land
   
 SUBROUTINE landuse_transitx(luc,casabiome)
+   !*## Purpose
+   !
+   ! This subroutine applies the land-use changes to the transfer of the C,
+   ! N and P pools, the biophysical states, the soil texture and the soil
+   ! order for each patch. Then it will seed the deforested land.
+   !
+   !## Order of procedure
+   !
+   ! 1. the transfer of different C, N and P pools resulting from land-use
+   ! change in two steps
+   !     1. calculate the change of a pool (`delvar`) using transition
+   !     matrix (`T`)
+   !     1. calculate `luc%var_y` as the sum of `luc%var_x + delvar`
+   ! 2. update biophysical states, soil texture and soil order for each patch
+   ! 3. seed any deforested land
    USE casaparm
    USE landuse_constant
    USE casavariable,        ONLY: casa_biome
@@ -1133,6 +1213,7 @@ SUBROUTINE landuse_transitx(luc,casabiome)
    integer p,d,r,q,r1,r2,r3,r4,ierror,ivt,k
    integer irb,is,icp,ics
 
+   ! vegetation types for each 17-PFT: non-veg (0),grass(1),shrub(2), forest(3)
    ivt2=(/3,3,3,3,2,1,1,2,1,1,3,3,3,1,0,0,0/)
    delarea(:,:)     = 0.0
    dcplant(:,:,:)   = 0.0; dnplant(:,:,:)   = 0.0; dpplant(:,:,:)    = 0.0; dclabile(:,:) = 0.0
@@ -1146,6 +1227,10 @@ SUBROUTINE landuse_transitx(luc,casabiome)
       do d=1,mvmax
          if(luc%cplant_x(p,d,leaf) > 0.001) then
             ! calculate the fraction of litter or root litter into metabolic litter pool
+			   ! this could be replaced with a call to a subroutine 
+			   ! if same calculations in casa_cnp.F90 are isolated into a 
+            ! separate subroutine
+			   !
             ivt=mvtype
 
             ratioLignintoN(leaf) = (luc%cplant_x(p,d,leaf) &
@@ -1534,8 +1619,11 @@ SUBROUTINE landuse_transitx(luc,casabiome)
 END SUBROUTINE landuse_transitx
 
    SUBROUTINE landuse_redistribution(p,mvmax,delfracx,atransx)
-      ! redistribution the PFT atrsnition to ensure that the change in PFT fractions from the state
-      ! data is consistent with the estimates from previous states and transition
+      !*## Purpose
+      !
+      ! Redistribution of the plant functional type transition to ensure that
+      ! the change in plant functional type fractions from the state data is
+      ! consistent with the estimates from previous states and transition.
       USE cable_def_types_mod,    ONLY: r_2
       implicit none
       real,    parameter                          :: thresh_frac=1.0e-6
@@ -1629,7 +1717,8 @@ END SUBROUTINE landuse_transitx
 
  END SUBROUTINE landuse_redistribution
 
- SUBROUTINE landuse_update_mland(luc)                     ! assign "var_y" to "var_x"
+ SUBROUTINE landuse_update_mland(luc)                     
+ !! Assigns `luc%var_y` to `luc%var_x`
  USE landuse_variable,   ONLY: landuse_mland
  IMPLICIT NONE
  TYPE(landuse_mland) :: luc
@@ -1709,6 +1798,7 @@ END SUBROUTINE landuse_transitx
  END SUBROUTINE landuse_update_mland
 
  SUBROUTINE landuse_land2mpx(luc,lucmp,mpx)
+ !! Maps `luc%var_y(mland,mvmax)` to `lucmp%var(mp)`
  USE landuse_constant,     ONLY: mvmax
  USE landuse_variable
  USE cable_def_types_mod,  ONLY: mland
@@ -1812,7 +1902,8 @@ END SUBROUTINE landuse_transitx
  END SUBROUTINE landuse_land2mpx
 
  SUBROUTINE landuse_checks(mlon,mlat,landmask,luc)
- ! check mass balance and write output CNP pool sizes for each PFT
+ !! Checks the mass balance and writes the output CNP pool sizes for each
+ !! plant functional type.
  use landuse_constant,     ONLY: mvmax
  use landuse_variable,     ONLY: landuse_mland
  USE cable_def_types_mod,  ONLY: mland,r_2
