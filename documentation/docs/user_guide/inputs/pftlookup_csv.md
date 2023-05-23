@@ -3,6 +3,10 @@
 This file is required by CASA-CNP and contains biome (plant function types) specific parameters
 on soil, vegetation carbon and nutrients dynamics.
 
+!!! Note "Parameter names"
+
+     The Variable column shows the parameter names as they appear in the pftlookup.csv table. The CABLE variable is the name of the variable in the CABLE source code. All alternative parameter names in the Description column are from Appendix A of Wang et al. (2010).
+
 | Variable       | <div style="width:250px">CABLE variable</div> | Description           |
 |----------------|-----------------------------------------------|-----------------------|
 | Kroot          | `casabiome%kroot(nv)`                         | Unused \( (m^{-1}) \) |
@@ -119,4 +123,6 @@ on soil, vegetation carbon and nutrients dynamics.
 | Plab           | `xplab(nv)`                                   | Phosphorus in labile pool \( (gP \cdot m^{-2}) \) |
 | Psorb          | `xpsorb(nv)`                                  | Phosphorus in sorbed pool \( (gP \cdot m^{-2}) \) |
 | Pocc           | `xpocc(nv)`                                   | Phosphorus in occluded pool \( (gP \cdot m^{-2}) \) |
+
+1. Wang, Y. P., Law, R. M. & Pak, B. A global model of carbon, nitrogen and phosphorus cycles for the terrestrial biosphere. Biogeosciences 7, 2261–2282 (2010).
 
