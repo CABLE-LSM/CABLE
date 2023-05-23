@@ -44,11 +44,12 @@ MODULE landuse_variable
   ! 3. Write the value of `luc%var_x` into `luc%var_y`
   ! 4. Update the value of `mp` and write `luc%var_y` to `lucmp%var`
   !
-  ! **WARNING:** there are external procedures in this file that should be
+  ! **WARNING:** 
+  !
+  ! * There are external procedures in this file that should be
   ! moved to the `CONTAINS` clause of this module.
-  ! WARNING
-  ! any variables added to CABLE/CASA restart files must be reproduced here 
-  ! in both "landuse_mland" and "landuse_mp"
+  ! * Any variables added to CABLE/CASA restart files must be reproduced here 
+  ! in both "landuse_mland" and "landuse_mp".
   !
   TYPE landuse_mland
     !! Variables indexed along land points and vegetation type
