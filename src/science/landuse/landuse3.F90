@@ -46,6 +46,10 @@ MODULE landuse_variable
   !
   ! **WARNING:** there are external procedures in this file that should be
   ! moved to the `CONTAINS` clause of this module.
+  ! WARNING
+  ! any variables added to CABLE/CASA restart files must be reproduced here 
+  ! in both "landuse_mland" and "landuse_mp"
+  !
   TYPE landuse_mland
     !! Variables indexed along land points and vegetation type
     ! patch generic
