@@ -2,6 +2,11 @@
 
 ## Example pft_params.nml file
 
+!!! Note
+
+    The asterisk symbol does not mean arithmetic multiplication in the namelist file.
+    It means that the following value is repeated multiple times.
+
 ``` fortran-free-form
 &cable_pftparm
 vegin%desc='Evergreen Needleleaf', 'Evergreen Broadleaf', 'Deciduous Needleleaf', 'Deciduous Broadleaf',
