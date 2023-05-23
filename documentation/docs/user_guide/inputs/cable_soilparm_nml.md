@@ -2,10 +2,9 @@
 
 ## Example cable_soilparm.nml file
 
-!!! Note
+!!! Note "Namelist file format explanation"
 
-    The asterisk symbol does not mean arithmetic multiplication in the namelist file.
-    It means that the following value is repeated multiple times.
+    The asterisk symbol, in the namelist file, means the following entry is repeated multiple times. It does not mean arithmetic multiplication.
 
 ```fortran
 &cable_soilparm
@@ -35,9 +34,9 @@ soilin%swilt=0.072,0.216,0.286,0.135,0.219,0.283,0.175,0.395,0.216,
 
 ## Descriptive table of parameters
 
-!!! Note
+!!! Note "JULES implementation"
 
-    In JULES, unintialised variables are assigned a missing data indicator (MDI) value.
+    In JULES, all namelist variables are initialised with a missing data indicator (MDI). The MDI value varies according to the type of the namelist variable.
 
 | Namelist variable | Type              | Available values | Default values | Description                                                                                  |
 |-------------------|-------------------|------------------|----------------|----------------------------------------------------------------------------------------------|
