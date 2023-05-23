@@ -51,6 +51,5 @@ soilin%swilt=0.072,0.216,0.286,0.135,0.219,0.283,0.175,0.395,0.216,
 | soilin%css        | real(n_soiltypes) | >=0.0            | uninitialised  | Soil specific heat capacity \( (J \cdot kg^{-1} \cdot K^{-1}) \).                        |
 
 
-1) Brooks, R. H., and Corey, A. T. 1964. Hydraulic Properties of Porous Media. Fort Collins: Colorado State University.
-
-2) Campbell, G. S. 1974. A simple method for determining unsaturated conductivity from moisture retention data. Soil Science, 117(6), 311-314. [doi:10.1097/00010694-197406000-00001
+1. Brooks, R. H., and Corey, A. T. 1964. Hydraulic Properties of Porous Media. Fort Collins: Colorado State University.
+2. Campbell, G. S. 1974. A simple method for determining unsaturated conductivity from moisture retention data. Soil Science, 117(6), 311-314. [doi:10.1097/00010694-197406000-00001
