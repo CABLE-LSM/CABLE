@@ -880,6 +880,8 @@ END SUBROUTINE landuse_getdata
   end subroutine sort
 
   SUBROUTINE WRITE_LANDUSE_CASA_RESTART_NC(mpx, lucmp, CASAONLY )
+    ! if any additional variables are added to CASA restart file, they should be repeated here
+    !
 
     USE netcdf
     USE casavariable,         ONLY : icycle, mplant, mlitter, msoil, mwood, casafile
@@ -1128,6 +1130,9 @@ END SUBROUTINE landuse_getdata
     ! Creates a restart file for CABLE using a land only grid with mland
     ! land points and max_vegpatches veg/soil patches (some of which may
     ! not be active). It uses CABLE's internal variable names.
+    ! be aware
+    ! if any additional variables are added to CABLE restart file, they should be repeated here
+    !
     use netcdf
     USE cable_def_types_mod,        ONLY : r_2, mland, mvtype, mstype,nrb,ncs,ncp,ms,msn,soil_parameter_type
     use cable_abort_module,         ONLY : nc_abort
