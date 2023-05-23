@@ -35,18 +35,18 @@ soilin%swilt=0.072,0.216,0.286,0.135,0.219,0.283,0.175,0.395,0.216,
 /
 ```
 
-| Namelist variable | Type              | Available values | Default values | Description                                           |
-|-------------------|-------------------|------------------|----------------|-------------------------------------------------------|
-| soilin%desc       | character(*)      |                  | uninitialised  | Description of soil types                             |
-| soilin%bch        | real(n_soiltypes) | >=0.0            | uninitialised  | Parameter b in Campbell equation \( ( - ) \).         |
-| soilin%silt       | real(n_soiltypes) | >=0.0            | uninitialised  | Fraction of soil which is silt \( ( - ) \).           |
-| soilin%clay       | real(n_soiltypes) | >=0.0            | uninitialised  | Fraction of soil which is clay \( ( - ) \).           |
-| soilin%sand       | real(n_soiltypes) | >=0.0            | uninitialised  | Fraction of soil which is sand \( ( - ) \).           |
-| soilin%swilt      | real(n_soiltypes) | >=0.0            | uninitialised  | Volume of H2O at wilting \( (m^{3} m^{-3}) \).        |
-| soilin%sfc        | real(n_soiltypes) | >=0.0            | uninitialised  | Volume of H2O at field capacity \( (m^{3} m^{-3}) \). |
-| soilin%ssat       | real(n_soiltypes) | >=0.0            | uninitialised  | Volume of H2O at saturation \( (m^{3} m^{-3}) \).     |
-| soiln%hyds        | real(n_soiltypes) | >=0.0            | uninitialised  | Hydraulic conductivity at saturation \( (m^{-1}) \).  |
-| soilin%sucs       | real(n_soiltypes) | <=0.0            | uninitialised  | Suction at saturation \( (m) \).                      |
-| soilin%rhosoil    | real(n_soiltypes) | >=0.0            | uninitialised  | Soil bulk density \( (kg m^{-3}) \).                  |
-| soilin%css        | real(n_soiltypes) | >=0.0            | uninitialised  | Soil specific heat capacity \( (J kg^{-1} K^{-1}) \). |
+| Namelist variable | Type              | Available values | Default values | Description                                                       |
+|-------------------|-------------------|------------------|----------------|-------------------------------------------------------------------|
+| soilin%desc       | character(*)      |                  | uninitialised  | Description of soil types                                         |
+| soilin%bch        | real(n_soiltypes) | >=0.0            | uninitialised  | Parameter b in Campbell equation \( ( - ) \).                     |
+| soilin%silt       | real(n_soiltypes) | >=0.0            | uninitialised  | Fraction of soil which is silt \( ( - ) \).                       |
+| soilin%clay       | real(n_soiltypes) | >=0.0            | uninitialised  | Fraction of soil which is clay \( ( - ) \).                       |
+| soilin%sand       | real(n_soiltypes) | >=0.0            | uninitialised  | Fraction of soil which is sand \( ( - ) \).                       |
+| soilin%swilt      | real(n_soiltypes) | >=0.0            | uninitialised  | Volume of H2O at wilting \( (m^{3} \cdot m^{-3}) \).              |
+| soilin%sfc        | real(n_soiltypes) | >=0.0            | uninitialised  | Volume of H2O at field capacity \( (m^{3} \cdot m^{-3}) \).       |
+| soilin%ssat       | real(n_soiltypes) | >=0.0            | uninitialised  | Volume of H2O at saturation \( (m^{3} \cdot m^{-3}) \).           |
+| soiln%hyds        | real(n_soiltypes) | >=0.0            | uninitialised  | Hydraulic conductivity at saturation \( (m^{-1}) \).              |
+| soilin%sucs       | real(n_soiltypes) | <=0.0            | uninitialised  | Suction at saturation \( (m) \).                                  |
+| soilin%rhosoil    | real(n_soiltypes) | >=0.0            | uninitialised  | Soil bulk density \( (kg \cdot m^{-3}) \).                        |
+| soilin%css        | real(n_soiltypes) | >=0.0            | uninitialised  | Soil specific heat capacity \( (J \cdot kg^{-1} \cdot K^{-1}) \). |
 
