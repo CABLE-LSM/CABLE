@@ -1,10 +1,10 @@
-[![doc_badge](documentation/docs/assets/doc_badge.svg)](https://cable-lsm.github.io/CABLE/)
+[![doc_badge](documentation/docs/assets/doc_badge.svg)](https://cable.readthedocs.io/en/latest/)
 
 # CABLE
 This repository currently holds the documentation for the CABLE land surface model. It will eventually be used to host the CABLE model itself as well.
 
 ## CABLE documentation
-The CABLE documentation is published at https://cable-lsm.github.io/CABLE/
+The CABLE documentation is published at https://cable.readthedocs.io/en/latest/
 
 The main documentation is powered by [Material for Mkdocs][material]. The API documentation is powered by [FORD][ford].
 

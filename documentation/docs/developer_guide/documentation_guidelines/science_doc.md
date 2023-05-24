@@ -86,7 +86,7 @@ CONTAINS
     !!## References
     !!
     !! The minimum requirements for documentation are taken from:  
-    !! [CABLE developer guide](https://cable-lsm.github.io/CABLE/developer_guide/doc_guide/science_doc/)
+    !! [CABLE developer guide](https://cable.readthedocs.io/en/latest/developer_guide/doc_guide/science_doc/)
 
     ! Arguments
     INTEGER, INTENT(IN) :: myarg !! Example argument to show the documentation (-)
@@ -139,7 +139,7 @@ CONTAINS
     !## References
     !
     ! The guidelines for documentation can be found in:  
-    ! [CABLE developer guide](https://cable-lsm.github.io/CABLE/developer_guide/doc_guide/science_doc/)
+    ! [CABLE developer guide](https://cable.readthedocs.io/en/latest/developer_guide/doc_guide/science_doc/)
     !
 
     ! Arguments

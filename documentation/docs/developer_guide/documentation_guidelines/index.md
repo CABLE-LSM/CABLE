@@ -32,6 +32,6 @@ To help you find the file corresponding to a page, on the rendered [documentatio
 [latex-maths]: https://en.wikibooks.org/wiki/LaTeX/Mathematics
 [cheat-sheets]: cheat_sheets.md
 [api-guidelines]: science_doc.md
-[doc-pages]: https://cable-lsm.github.io/CABLE
+[doc-pages]: https://cable.readthedocs.io/en/latest
 [Hive-contribute]: https://access-hive.org.au/about/contribute/
 [cable-lsm-join]: https://github.com/CABLE-LSM/CABLE/issues/110
