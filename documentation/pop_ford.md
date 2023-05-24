@@ -2,7 +2,7 @@
 project: POP
 author: CABLE community
 src_dir: ../src_pop
-output_dir: site/pop/api
+output_dir: docs/pop/api
 coloured_edges: true
 preprocess: true
 display: public
