@@ -19,12 +19,12 @@ graph TD
     C --> D;   
     D -->|Parallel?| F[Run `parallel_cable`];
     F --> H[executable `cable_mpi`]:::Output;
-    click A "http://cable-lsm.github.io/CABLE/user_guide/installation/#getting-the-cable-source-code"
-    click B "http://cable-lsm.github.io/CABLE/user_guide/installation/#launching-the-build"
-    click C "http://cable-lsm.github.io/CABLE/user_guide/installation/#launching-the-build"
-    click D "http://cable-lsm.github.io/CABLE/user_guide/installation/#description-of-the-build-process"
-    click E "http://cable-lsm.github.io/CABLE/user_guide/installation/#description-of-the-build-process"
-    click F "http://cable-lsm.github.io/CABLE/user_guide/installation/#description-of-the-build-process"
+    click A "http://cable.readthedocs.io/en/latest/user_guide/installation/#getting-the-cable-source-code"
+    click B "http://cable.readthedocs.io/en/latest/user_guide/installation/#launching-the-build"
+    click C "http://cable.readthedocs.io/en/latest/user_guide/installation/#launching-the-build"
+    click D "http://cable.readthedocs.io/en/latest/user_guide/installation/#description-of-the-build-process"
+    click E "http://cable.readthedocs.io/en/latest/user_guide/installation/#description-of-the-build-process"
+    click F "http://cable.readthedocs.io/en/latest/user_guide/installation/#description-of-the-build-process"
 
     UserAction ---- Automatic ---- Output;
 

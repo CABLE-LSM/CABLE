@@ -2,7 +2,7 @@ site_name: CABLE Docs
 
 # Needed to generate the canonical_url for each pages that are 
 # then used to create the sitemap for search engine indexing
-site_url: https://cable-lsm.github.io/CABLE/
+site_url: https://cable.readthedocs.io/en/latest/
 # Git repository
 repo_url: https://github.com/CABLE-LSM/CABLE
 repo_name: CABLE

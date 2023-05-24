@@ -70,7 +70,7 @@ This first flowchart explains what we are trying to do. The following flowcharts
       classDef term fill:#F44336,stroke:#B71C1C,color:#FFFFFF;
       classDef question fill:#6D4C41,stroke:#3E2723,color:#FFFFFF; 
 
-      click work "https://cable-lsm.github.io/CABLE/developer_guide/contribution_flowchart/#do-and-record-your-work" "Doing work flowchart"
+      click work "https://cable.readthedocs.io/en/latest/developer_guide/contribution_flowchart/#do-and-record-your-work" "Doing work flowchart"
 ;
 ```
 
@@ -135,7 +135,7 @@ git checkout <branchname>
       linkStyle 7 stroke:red,color:red;
       linkStyle 6 stroke:green,color:darkgreen;
 
-      click review "https://cable-lsm.github.io/CABLE/developer_guide/contribution_flowchart/#review" "Review process"
+      click review "https://cable.readthedocs.io/en/latest/developer_guide/contribution_flowchart/#review" "Review process"
 
 ;
 ```
@@ -209,7 +209,7 @@ All modifications to the documentation no matter how large or small need to be r
       linkStyle 3 stroke:green;
       linkStyle 3 stroke:green;
 
-      click edits "https://cable-lsm.github.io/CABLE/developer_guide/contribution_flowchart/#do-and-record-your-work" "Doing work flowchart"
+      click edits "https://cable.readthedocs.io/en/latest/developer_guide/contribution_flowchart/#do-and-record-your-work" "Doing work flowchart"
 
 ;
 ```
