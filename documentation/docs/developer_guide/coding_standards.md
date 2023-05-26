@@ -1,5 +1,7 @@
 ## Foreword
-Currently not all of the CABLE code is compliant with the standards described here. Work is in progress to apply these standards across the existing code base, however these standards are expected to be met by any new development.
+!!! Note "Current standards compliance"
+
+    Currently not all of the CABLE code is compliant with the standards described here. Work is in progress to apply these standards across the existing code base, however these standards are expected to be met by any new development.
 
 ## Introduction
 CABLE is a community software project. 
