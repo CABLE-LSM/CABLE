@@ -20,7 +20,7 @@ In terms of the offline application of the model this means IO should be restric
 
 ### 2. Comment liberally
 
-Detrimental to any model is the lack of meaningful and/or outdated comments. 
+Detrimental to any software is the lack of meaningful and/or outdated comments. 
 Liberal inline commenting is expected aswell as thorough commenting in the MarkDown. See [cable_roughness.F90](https://github.com/CABLE-LSM/CABLE/blob/main/src/science/roughness/cable_roughness.F90) for an example, which is then redered as ?????
 
 ### 3. Avoid WHERE loops
