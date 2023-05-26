@@ -36,7 +36,8 @@ Please maintain globally consistent names of variables across files, subroutines
 
 ### 5. File names
 
-To include CABLE code identifiably across applications, please include the "_cbl" suffix in your filename **eg. egName_cbl.F90**. 
+To include CABLE code identifiably across applications, please name the file with a `_cbl` suffix in your filename.
+For example: `egName_cbl.F90`. 
 
 Please maintain consistent naming between files/subroutines/modules. 
 
