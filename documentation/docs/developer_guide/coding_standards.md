@@ -32,7 +32,7 @@ Moreover it will not pass JULES coding standards.
 
 We are not so limited by the number of character spaces available as we once were. Developers are encouraged to name variables meaningfully. Commenting might make it clear what the variable corresponds to, however, it is helpful to be able to understand what is going on whilst reading a line of code.
 
-Please maintain globally consistent names of variables across files/subroutines/modules. 
+Please maintain globally consistent names of variables across files, subroutines and modules. 
 
 ### 5. File names
 
