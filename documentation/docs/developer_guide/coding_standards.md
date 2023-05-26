@@ -109,7 +109,7 @@ END PROGRAM eg_driver
 ```
 Where,
 
-```
+```fortran
 MODULE eg_mod_cbl
 ! Module description in markdown - see??
 
@@ -127,7 +127,7 @@ END MODULE eg_mod_cbl
 
 Where,
 
-```
+```fortran
 SUBROUTINE eg_subr( eg_arg, ilen, jlen, sometype )
 ! Subroutine description in markdown - see??
 
