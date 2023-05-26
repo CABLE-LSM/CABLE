@@ -86,9 +86,9 @@ USE new_mod_cbl, ONLY : new
 
 IMPLICIT NONE
 Header Declarations
-...
+  ...
 CALL eg_subr( Arguments )
-...
+  ...
 
 END PROGRAM eg_driver
 ```
@@ -96,7 +96,6 @@ Where,
 
 ```
 MODULE eg_mod_cbl
-! Module description in markdown - see??
 
 PUBLIC :: eg_subr 
 PRIVATE
@@ -104,7 +103,7 @@ PRIVATE
 CONTAINS
 
 SUBROUTINE eg_subr ( Arguments )
-...
+  ...
 END SUBROUTINE eg_subr 
 
 END MODULE eg_mod_cbl
@@ -114,7 +113,6 @@ Where,
 
 ```
 SUBROUTINE eg_subr( eg_arg, ilen, jlen, sometype )
-! Subroutine description in markdown - see??
 
 USE some_type_mod_cbl, ONLY : some_type
 
@@ -157,4 +155,4 @@ END DO                              ! DO:over ilen
 
 RETURN
 END SUBROUTINE eg_subr 
-
+```
