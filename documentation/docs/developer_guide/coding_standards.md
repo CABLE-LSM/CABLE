@@ -5,7 +5,7 @@
 
 ## Introduction
 CABLE is a community software project. 
-For the benefit of the whole community, developers are required to adhere to certain coding standards that better enable portability, efficient maintenance, future development, performance, readability. 
+For the benefit of the whole community, developers are required to adhere to certain coding standards that better enable portability, efficient maintenance, future development, performance and readability. 
 
 Submitted developments that are inconsistent with the standards discussed below, and/or poorly commented/documented code will not be accepted without revision. 
 ## Coding Standards
