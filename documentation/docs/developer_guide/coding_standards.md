@@ -25,7 +25,7 @@ Liberal inline commenting is expected, as well as use of Markdown for FORD gener
 
 ### 3. Avoid WHERE loops
 
-WHERE loops effectively replace DO/IF loops. In some circumstances these may improve readability. They certainly make it easier to write code. However they are nightmare to debug and hamper portability. Especially nested WHERE loops. 
+`WHERE` loops are sometimes used in stead of `DO` loops with an `IF`. In some circumstances, this may improve readability and is easier to write. However, they are difficult to debug, hamper portability and are therefore discouraged. 
 Moreover it will not pass JULES coding standards. 
 
 ### 4. Variable names
