@@ -1,45 +1,56 @@
-## Foreword
-!!! Note "Current standards compliance"
-
-    Currently not all of the CABLE code is compliant with the standards described here. Work is in progress to apply these standards across the existing code base, however these standards are expected to be met by any new development.
 
 ## Introduction
+
 CABLE is a community software project. 
 For the benefit of the whole community, developers are required to adhere to certain coding standards that better enable portability, efficient maintenance, future development, performance and readability. 
 
 Submitted developments that are inconsistent with the standards discussed below, and/or poorly commented/documented code will not be accepted without revision. 
-## Coding Standards
-Generic code examples are given below as well as a link to the JULES coding standards, to which CABLE is somewhat bound through the JULES and CABLE (JAC) project.  
-Whilst syntax/text formatting style is relatively trivial, it must still be adhered to. Some more significant general rules that should be followed are: 
- 
-The JAC project is a long term initiative to include CABLE as an inter-operable Land-Surface Model (LSM) within the Unified Model (UM). For several reasons, CABLE is coupled to the UM via its native LSM, JULES. From a coding standards perspective, both the UM and JULES developments are strictly goverened by the UK Met Office and thus CABLE's coding standards are somewhat constrained by JULES' coding standards. 
 
-The [JULES coding standards](http://jules-lsm.github.io/coding_standards/) are described in this comprehensive document.
+The JULES and CABLE (JAC) project is a long term initiative to include CABLE as an inter-operable Land-Surface Model (LSM) within the Unified Model (UM). For several reasons, CABLE is coupled to the UM via its native LSM, JULES. From a coding standards perspective, both the UM and JULES developments are strictly goverened by the UK Met Office and thus CABLE's coding standards are somewhat constrained the [JULES coding standards](http://jules-lsm.github.io/coding_standards/).
+
+Currently not all of the CABLE code is compliant with the standards described here. Work is in progress to apply these standards across the existing code base, however these standards are expected to be met by any new development.
+
+Whilst syntax/text formatting style is relatively trivial, it must still be adhered to. Some more significant general rules follow.
+
+## General Rules
+
 ### 1. IO must be restricted to the top level
+
 In terms of the offline application of the model this means IO should be restricted to the offline/ directory. Coupled to the UM/JULES there should be no IO code in the CABLE directory. 
 
 ### 2. Comment liberally
+
 Detrimental to any model is the lack of meaningful and/or outdated comments. 
 Liberal inline commenting is expected aswell as thorough commenting in the MarkDown. See [cable_roughness.F90](https://github.com/CABLE-LSM/CABLE/blob/main/src/science/roughness/cable_roughness.F90) for an example, which is then redered as ?????
+
 ### 3. Avoid WHERE loops
+
 WHERE loops effectively replace DO/IF loops. In some circumstances these may improve readability. They certainly make it easier to write code. However they are nightmare to debug and hamper portability. Especially nested WHERE loops. 
 Moreover it will not pass JULES coding standards. 
+
 ### 4. Variable names
+
 We are not so limited by the number of character spaces available as we once were. Developers are encouraged to name variables meaningfully. Of course commenting might make it clear what the variable corresponds to however it is helpful to be able to understand what is going on whilst reading a line of code.
 
 Please maintain globally consistent names of variables across files/subroutines/modules. 
+
 ### 5. File names
+
 To include CABLE code identifiably across applications, please include the "_cbl" suffix in your filename **eg. egName_cbl.F90**. 
 
 Please maintain consistent naming between files/subroutines/modules. 
+
 ### 6. MODULE names
+
 Everything should be contained within modules.
 Modules should be of the form "*_mod_cbl". Following from the above file egName_cbl.F90 **MODULE egName_mod_cbl**.
 
 ### 7. SUBROUTINE names
+
 Subroutines should be of the form "*_cbl()". Following from the above file egName_cbl.F90 **SUBROUTINE egName_cbl()**.
 
 ### 8. Miscellaneous
+
  * The last character of a line MUST not be placed beyond column 80. 
  * SAVE attributes will not be permitted.
  * Intrinsic FORTRAN subroutines, functions, etc should be capitalized
@@ -62,6 +73,7 @@ END IF
  * In summary, be pedantic, be clear
 
 ## Final Note about JAC
+
 The UKMO is in the process of revising their entire suite of models, as part of a major program to create a Next Generation Modelling System (NGMS). 
 The specific coding standards required of the NGMS have not yet been strictly defined. 
 However, from a technical perspective the necessity of the project can be summarized as follows. 
@@ -72,13 +84,14 @@ In the main our models (including CABLE), have evolved over decades, involving d
 Code developments broadly fall into two categories. Bug fixes and new developments. Both can of course involve a wide range of complexity. However, at the extremes a bug fix may be as simple as moving a bracket. Alternatively, the bug fix might require you to rewrite a section, or even several sections of code. 
 A new development might be as simple as an alternative section or calculation, or it might be an entirely new model that can be plugged in to CABLE. Either as an alternative model, or an extra feature to be used in the standard model.
 
-In all cases an issue should be raised. The accompanying fix contained should then be implemented in a unique branch, corresponding to the raised issue. A bugfix might simply ivolve reference to this issue. For a more complicated, added feature, it is a requirement that this addition can be isolated, switched off via a configuration switch. So that the model can be run, and return results as if there had been no addition. There is of course every possibility that this feature will be accepted as a standard part of the model. Although this is not the expectation initially and the developer should be mindful of this fundamental requirement. 
+In all cases, an issue should be raised. The accompanying fix contained should then be implemented in a unique branch, corresponding to the raised issue. A bugfix might simply involve reference to this issue. For a more complicated, added feature, it is a requirement that this addition can be isolated and switched off via a configuration switch, so that the model can be also run as if there had been no alteration. There is of course every possibility that this feature will be accepted as a standard part of the model. Although this is not the expectation initially and the developer should be mindful of this fundamental requirement. 
 
 We proceed assuming that the "issue" raised requires adding a new and significant feature to CABLE, requiring the addition of new files/modules to CABLE. Lesser modifications are covered under this assumption anyway.
 
 For discussion purposes we assume that you are including a new model to do some new stuff. This can conveniently be added in a single file. 
 
 ## Code Template 
+
 Assuming the *new* model is called from eg_driver.F90.
 
 ```
@@ -159,4 +172,4 @@ END DO                              ! DO:over ilen
 
 RETURN
 END SUBROUTINE eg_subr 
-
+```
