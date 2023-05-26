@@ -16,7 +16,7 @@ Whilst syntax/text formatting style is relatively trivial, it must still be adhe
 
 ### 1. IO must be restricted to the top level
 
-In terms of the offline application of the model this means IO should be restricted to the offline/ directory. Coupled to the UM/JULES there should be no IO code in the CABLE directory. 
+In terms of the offline application of the model this means IO should be restricted to the offline/ directory. There should be no IO code elsewhere in the CABLE directory. 
 
 ### 2. Comment liberally
 
