@@ -11,7 +11,7 @@ Submitted developments that are inconsistent with the standards discussed below,
 ## Coding Standards
 Generic code examples are given below as well as a link to the JULES coding standards, to which CABLE is somewhat bound through the JULES and CABLE (JAC) project.  
 Whilst syntax/text formatting style is relatively trivial, it must still be adhered to. Some more significant general rules that should be followed are: 
-## The JAC project 
+ 
 The JAC project is a long term initiative to include CABLE as an inter-operable Land-Surface Model (LSM) within the Unified Model (UM). For several reasons, CABLE is coupled to the UM via its native LSM, JULES. From a coding standards perspective, both the UM and JULES developments are strictly goverened by the UK Met Office and thus CABLE's coding standards are somewhat constrained by JULES' coding standards. 
 
 The [JULES coding standards](http://jules-lsm.github.io/coding_standards/) are described in this comprehensive document.
