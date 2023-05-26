@@ -20,17 +20,17 @@ In terms of the offline application of the model this means IO should be restric
 
 ### 2. Comment liberally
 
-Detrimental to any model is the lack of meaningful and/or outdated comments. 
-Liberal inline commenting is expected aswell as thorough commenting in the MarkDown. See [cable_roughness.F90](https://github.com/CABLE-LSM/CABLE/blob/main/src/science/roughness/cable_roughness.F90) for an example, which is then redered as ?????
+Detrimental to any software is the lack of meaningful and/or outdated comments. 
+Liberal inline commenting is expected, as well as use of Markdown for FORD generated documentation. See [cable_roughness.F90](https://github.com/CABLE-LSM/CABLE/blob/main/src/science/roughness/cable_roughness.F90) for an example, which is then redered [here](https://cable.readthedocs.io/en/latest/api/module/cable_roughness_module.html)
 
 ### 3. Avoid WHERE loops
 
-WHERE loops effectively replace DO/IF loops. In some circumstances these may improve readability. They certainly make it easier to write code. However they are nightmare to debug and hamper portability. Especially nested WHERE loops. 
+`WHERE` loops are sometimes used in stead of `DO` loops with an `IF`. In some circumstances, this may improve readability and is easier to write. However, they are difficult to debug, hamper portability and are therefore discouraged. 
 Moreover it will not pass JULES coding standards. 
 
 ### 4. Variable names
 
-We are not so limited by the number of character spaces available as we once were. Developers are encouraged to name variables meaningfully. Of course commenting might make it clear what the variable corresponds to however it is helpful to be able to understand what is going on whilst reading a line of code.
+We are not so limited by the number of character spaces available as we once were. Developers are encouraged to name variables meaningfully. Commenting might make it clear what the variable corresponds to, however, it is helpful to be able to understand what is going on whilst reading a line of code.
 
 Please maintain globally consistent names of variables across files/subroutines/modules. 
 
