@@ -81,7 +81,7 @@ For discussion purposes we assume that you are including a new model to do some 
 ## Code Template 
 Assuming the *new* model is called from eg_driver.F90.
 
-```
+```fortran
 PROGRAM eg_driver()
 
 USE new_mod_cbl, ONLY : new
