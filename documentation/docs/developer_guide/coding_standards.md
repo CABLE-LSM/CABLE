@@ -44,7 +44,7 @@ Please maintain consistent naming between files, subroutines and modules.
 ### 6. MODULE names
 
 Everything should be contained within modules.
-Modules should be of the form "*_mod_cbl". Following from the above file egName_cbl.F90 **MODULE egName_mod_cbl**.
+Modules should be named of the form `*_mod_cbl`. Following from the above example, the file `egName_cbl.F90` should contain the module declaration `MODULE egName_mod_cbl`
 
 ### 7. SUBROUTINE names
 
@@ -52,21 +52,20 @@ Subroutines should be of the form "*_cbl()". Following from the above file egNam
 
 ### 8. Miscellaneous
 
- * The last character of a line MUST not be placed beyond column 80. 
- * SAVE attributes will not be permitted.
- * Intrinsic FORTRAN subroutines, functions, etc should be capitalized
+ * The last character of a line **must** not be placed beyond column 80. 
+ * `SAVE` attributes are not permitted.
+ * Intrinsic Fortran subroutines, functions, etc should be capitalized
  * Subroutines start on the margin. As do headers. Indentation of two spaces
    occurs in loops 
- * Specify IMPLICIT NONE ! prevents accidents 
- * Recieved arguments need to be (re)declared with the INTENT() attribute 
- * Declare in a MODULE header what is to be PUBLIC
- * Specify ONLY in USE statements. To avoid inadvertent inheritance and
+ * Specify `IMPLICIT NONE` in all modules to prevent type mismatch errors 
+ * Dummy arguments must be declared with the `INTENT()` attribute
+ * Declare in the `MODULE` preamble which elements are `PUBLIC`
+ * Import specific components using `ONLY` with `USE` statements to avoid inadvertent inheritance and
    increase transparency of underlying data flow 
- * It is very useful to label either side of a loop. Especially if it covers
+ * Label each side of a loop, especially if it extends
    more than a page.
- * Specify IMPLICIT NONE 
- * All IF constructs must be of the form:
-```
+ * All `IF` constructs must be of the form:
+```fortran
 IF() THEN 
   Even if they only contain a simple, single line statement following the IF. 
 END IF
@@ -79,11 +78,11 @@ The UKMO is in the process of revising their entire suite of models, as part of 
 The specific coding standards required of the NGMS have not yet been strictly defined. 
 However, from a technical perspective the necessity of the project can be summarized as follows. 
 Excluding a quantum computing breakthrough, we as a community can no longer expect advances in hardware to enable higher performance. This means higher resolution, more sophisticated process description etc. We can however better  organize the software. 
-In the main our models (including CABLE), have evolved over decades, involving dozens of developers. A key feature emerging from NGMS is the tight reign on memory. As such it will not be permitted to USE data through MODULEs. Data must be passed through argument lists. There are further rules emerging in this respect which relax the rules slightly to allow time independent scalars to be USEd. Nevertheless it is straight-forward enough to pass these as well. 
+In general, models (including CABLE) have evolved over decades, involving dozens of developers. A key feature emerging from NGMS is the tight reign on memory. As such, it will not be permitted to `USE` data through `MODULE`s. Data will be be passed through argument lists. There are further rules emerging in this respect which relax the rules slightly to allow time independent scalars to be `USE`d. Nevertheless, it is straightforward enough to pass these as well. 
 
 ## Specific Develoments
-Code developments broadly fall into two categories. Bug fixes and new developments. Both can of course involve a wide range of complexity. However, at the extremes a bug fix may be as simple as moving a bracket. Alternatively, the bug fix might require you to rewrite a section, or even several sections of code. 
-A new development might be as simple as an alternative section or calculation, or it might be an entirely new model that can be plugged in to CABLE. Either as an alternative model, or an extra feature to be used in the standard model.
+Code developments broadly fall into two categories. Bug fixes and new developments. Both can involve a wide range of complexity. However, at the extremes a bug fix may be as simple as moving a bracket. Alternatively, the bug fix might require you to rewrite a section, or even several sections of code. 
+A new development might be as simple as an alternative section or calculation, or it might be an entirely new model that can be plugged in to CABLE, either as an alternative model, or an extra feature to be used in the standard model.
 
 In all cases, an issue should be raised. The accompanying fix contained should then be implemented in a unique branch, corresponding to the raised issue. A bugfix might simply involve reference to this issue. For a more complicated, added feature, it is a requirement that this addition can be isolated and switched off via a configuration switch, so that the model can be also run as if there had been no alteration. There is of course every possibility that this feature will be accepted as a standard part of the model. Although this is not the expectation initially and the developer should be mindful of this fundamental requirement. 
 
