@@ -48,15 +48,15 @@ Modules should be named of the form `*_mod_cbl`. Following from the above exampl
 
 ### 7. SUBROUTINE names
 
-Subroutines should be of the form "*_cbl()". Following from the above file egName_cbl.F90 **SUBROUTINE egName_cbl()**.
+Subroutines should be of the form "*_cbl()". Following from the above file egName_cbl.F90 **SUBROUTINE egName_cbl()**. This is not only helpful for consonsistency but necessary within JULES/UM applications where it distinguishes the CABLE version of an analagous JULES subroutine. 
 
 ### 8. Miscellaneous
 
  * The last character of a line **must** not be placed beyond column 80. 
  * `SAVE` attributes are not permitted.
  * Intrinsic Fortran subroutines, functions, etc should be capitalized
- * Subroutines start on the margin. As do headers. Indentation of two spaces
-   occurs in loops 
+ * Subroutines start on the margin. This includes MODULE, CONTAINS, SUBROUTINE, USE statements, and declarations. Indentation of two spaces occurs in loops/layers. This is vital in readily identifying the extent of loops/layers. i.e. Under which condition(s) a section of code is relevantin an IF layer, or at what index is being traversed in a DO loop. 
+
  * Specify `IMPLICIT NONE` in all modules to prevent type mismatch errors 
  * Dummy arguments must be declared with the `INTENT()` attribute
  * Declare in the `MODULE` preamble which elements are `PUBLIC`
@@ -74,10 +74,13 @@ END IF
 
 ## Final Note about JAC
 
-The UKMO is in the process of revising their entire suite of models, as part of a major program to create a Next Generation Modelling System (NGMS). 
-The specific coding standards required of the NGMS have not yet been strictly defined. 
-However, from a technical perspective the necessity of the project can be summarized as follows. 
-Excluding a quantum computing breakthrough, we as a community can no longer expect advances in hardware to enable higher performance. This means higher resolution, more sophisticated process description etc. We can however better  organize the software. 
+Scientific models have naturally evolved over time to include increasing complexity. Coupled with the demand for higher resolution, larger ensembles etc, this has required ever increasing computational performance.
+For several decades, this icreasing performance demand has been met by technological advances in hardware.   
+This era has come to an end.
+The Next Generation Modelling System (NGMS) is a major program at the UKMO to address this issue.  
+The NGMS is an initiative to optimize the software of their entire suite of models.
+The specific coding standards required by the NGMS have not yet been strictly defined. 
+
 In general, models (including CABLE) have evolved over decades, involving dozens of developers. A key feature emerging from NGMS is the tight reign on memory. As such, it will not be permitted to `USE` data through `MODULE`s. Data will be be passed through argument lists. There are further rules emerging in this respect which relax the rules slightly to allow time independent scalars to be `USE`d. Nevertheless, it is straightforward enough to pass these as well. 
 
 ## Specific Develoments
@@ -111,7 +114,7 @@ Where,
 
 ```fortran
 MODULE eg_mod_cbl
-! Module description in markdown - see??
+! Module description in markdown - e.g. [cable_roughness.F90](https://github.com/CABLE-LSM/CABLE/blob/main/src/science/roughness/cable_roughness.F90) for an example, which is then redered [here](https://cable.readthedocs.io/en/latest/api/module/cable_roughness_module.html)
 
 PUBLIC :: eg_subr 
 PRIVATE
