@@ -16,7 +16,7 @@ Whilst syntax/text formatting style is relatively trivial, it must still be adhe
 
 ### 1. IO must be restricted to the top level
 
-In terms of the offline application of the model this means IO should be restricted to the offline/ directory. There should be no IO code elsewhere in the CABLE directory. 
+In terms of the offline application of the model this means IO should be restricted to the `offline/` directory. There should be no IO code elsewhere in the CABLE directory. 
 
 ### 2. Comment liberally
 
@@ -48,7 +48,8 @@ Modules should be named of the form `*_mod_cbl`. Following from the above exampl
 
 ### 7. SUBROUTINE names
 
-Subroutines should be of the form "*_cbl()". Following from the above file egName_cbl.F90 **SUBROUTINE egName_cbl()**. This is not only helpful for consonsistency but necessary within JULES/UM applications where it distinguishes the CABLE version of an analagous JULES subroutine. 
+Subroutines should be of the form "\*_cbl()". Following from the above file `egName_cbl.F90` `SUBROUTINE egName_cbl()`. This is not only helpful for consistency but necessary within JULES/UM applications where it distinguishes the CABLE version of an analogous JULES subroutine. 
+Markdown needs to escape * characters.
 
 ### 8. Miscellaneous
 
@@ -77,14 +78,14 @@ END IF
 Scientific models have naturally evolved over time to include increasing complexity. Coupled with the demand for higher resolution, larger ensembles etc, this has required ever increasing computational performance.
 For several decades, this icreasing performance demand has been met by technological advances in hardware.   
 This era has come to an end.
-The Next Generation Modelling System (NGMS) is a major program at the UKMO to address this issue.  
+The Next Generation Modelling System (NGMS) is a major program at the UKMO to address this issue.
 The NGMS is an initiative to optimize the software of their entire suite of models.
 The specific coding standards required by the NGMS have not yet been strictly defined. 
 
 In general, models (including CABLE) have evolved over decades, involving dozens of developers. A key feature emerging from NGMS is the tight reign on memory. As such, it will not be permitted to `USE` data through `MODULE`s. Data will be be passed through argument lists. There are further rules emerging in this respect which relax the rules slightly to allow time independent scalars to be `USE`d. Nevertheless, it is straightforward enough to pass these as well. 
 
 ## Specific Develoments
-Code developments broadly fall into two categories. Bug fixes and new developments. Both can involve a wide range of complexity. However, at the extremes a bug fix may be as simple as moving a bracket. Alternatively, the bug fix might require you to rewrite a section, or even several sections of code. 
+Code developments broadly fall into two categories: bug fixes and new developments. Both can involve a wide range of complexity. However, at the extremes a bug fix may be as simple as moving a bracket. Alternatively, the bug fix might require you to rewrite a section, or even several sections of code. 
 A new development might be as simple as an alternative section or calculation, or it might be an entirely new model that can be plugged in to CABLE, either as an alternative model, or an extra feature to be used in the standard model.
 
 In all cases, an issue should be raised. The accompanying fix contained should then be implemented in a unique branch, corresponding to the raised issue. A bugfix might simply involve reference to this issue. For a more complicated, added feature, it is a requirement that this addition can be isolated and switched off via a configuration switch, so that the model can be also run as if there had been no alteration. There is of course every possibility that this feature will be accepted as a standard part of the model. Although this is not the expectation initially and the developer should be mindful of this fundamental requirement. 
