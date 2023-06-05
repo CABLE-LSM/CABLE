@@ -109,8 +109,8 @@ MODULE cable_param_module
   ! vars intro for Ticket #27
   INTEGER, DIMENSION(:, :),     ALLOCATABLE :: inSoilColor
 
-  INTERFACE get_gw_data                        ! inserted block as per MMY code -- rk4417
-     MODULE PROCEDURE get_gw_2d_var_constdef   ! need to double check that it does not produce redundancy -- rk4417 
+  INTERFACE get_gw_data                       
+     MODULE PROCEDURE get_gw_2d_var_constdef  
      MODULE PROCEDURE get_gw_3d_var_constdef
      MODULE PROCEDURE get_gw_4d_var_constdef
      MODULE PROCEDURE get_gw_2d_var
@@ -176,8 +176,8 @@ CONTAINS
        CALL read_soilcolor(logn)
     END IF
 
-    IF (cable_user%force_npatches_as .gt. 0) npatch=cable_user%force_npatches_as ! inserted as per MMY code -- rk4417 ! MMY???
-
+    IF (cable_user%force_npatches_as .gt. 0) npatch=cable_user%force_npatches_as ! MMY@13April force_npatches_as seems a new flag read from cable.nml             
+                                                                                 !          the default value is -1 set in TYPE kbl_user_switches in cable_common 
     ! count to obtain 'landpt', 'max_vegpatches' and 'mp'
     CALL countPatch(nlon, nlat, npatch)
 
@@ -239,7 +239,9 @@ CONTAINS
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error inquiring y dimension.')
     ok = NF90_INQUIRE_DIMENSION(ncid, yID, LEN=nlat)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting y dimension.')
-    IF(.NOT. exists%patch) THEN        ! note that in MMY code only the IF body exists -- rk4417 ! MMY???
+    IF(.NOT. exists%patch) THEN   ! MMY@13April here is right, when npatch doesn't exist in met file (i.e. exists%patch=False),
+                                  !             read npatch from gridinfo file. Note that it is to say,                        
+                                  !             npatch in meteorology file has a priority over in gridinfo                     
       ok = NF90_INQ_DIMID(ncid, 'patch', pID)
       IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error inquiring patch dimension.')
       ok = NF90_INQUIRE_DIMENSION(ncid, pID, LEN=npatch)
@@ -306,7 +308,7 @@ CONTAINS
     ok = NF90_GET_VAR(ncid, varID, inLat)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading variable latitude.')
 
-    IF(.NOT. exists%patch) THEN      ! no IF in MMY code -- rk4417
+    IF(.NOT. exists%patch) THEN      
       ok = NF90_INQ_VARID(ncid, 'iveg', varID)
       IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error finding variable iveg.')
       ok = NF90_GET_VAR(ncid, varID, inVeg)
@@ -317,7 +319,7 @@ CONTAINS
       ok = NF90_GET_VAR(ncid, varID, inPFrac)
       IF (ok /= NF90_NOERR) CALL nc_abort(ok,                                    &
            'Error reading variable patchfrac.')
-    ELSE                                                      ! else body missing from MMY code -- rk4417
+    ELSE                                                     
       !loop through lat and lon to fill patch and veg vars
       DO lon = 1,nlon
         DO lat = 1, nlat
@@ -872,8 +874,10 @@ CONTAINS
     INTEGER :: ii, jj, kk, tt, ncount
 
     !set mpatch, the publically available number of patches
-    mpatch = npatch            ! inserted line as per MMY code -- rk4417
-
+    mpatch = npatch   ! MMY@13April it makes sense. mpatch is set in cable_define_types_mod    
+                      !     as a public variable and is used in subroutine GWspatialParameters 
+                      !     and in get_gw_data                                                 
+    
     ! range of longitudes from input file (inLon) should be -180 to 180,
     ! and longitude(:) has already been converted to -180 to 180 for CABLE.
     landpt(:)%ilon = -999
@@ -917,31 +921,11 @@ CONTAINS
              PRINT *, 'vegtype_metfile = ', vegtype_metfile(kk,:)
              STOP
           END IF
-!$          ! CLN added for npatches
-!$       ELSE IF ( npatch .GT. 1 ) THEN
-!$          landpt(kk)%nap = 0
-!$          DO tt = 1, npatch
-!$
-!$             IF (inVeg(landpt(kk)%ilon,landpt(kk)%ilat,tt) > 0) THEN
-!$                landpt(kk)%nap = landpt(kk)%nap + 1
-!$             ENDIF
-!$          END DO
-!$          ncount = ncount + landpt(kk)%nap
-!$          landpt(kk)%cend = ncount
-!$          IF (landpt(kk)%cend < landpt(kk)%cstart) THEN
-!$             PRINT *, 'Land point ', kk, ' does not have veg type!'
-!$             PRINT *, 'landpt%cstart, cend = ', landpt(kk)%cstart, landpt(kk)%cend
-!$             PRINT *, 'vegtype_metfile = ', vegtype_metfile(kk,:)
-!$             STOP
-!$          END IF
-!$       ELSE
-
-!$          replaced block above by below as per MMY code -- rk4417
 
           ! CLN added for npatches
        ELSE IF ( npatch .GT. 1 .AND. cable_user%force_npatches_as .le. 0) THEN
+          landpt(kk)%nap = 0 
           DO tt = 1, npatch 
-             landpt(kk)%nap = 0 ! MMY this line missed in CABLE-GW
              IF (inVeg(landpt(kk)%ilon,landpt(kk)%ilat,tt) > 0) THEN
                 landpt(kk)%nap = landpt(kk)%nap + 1
              ENDIF
@@ -967,7 +951,7 @@ CONTAINS
              PRINT *, 'vegtype_metfile = ', vegtype_metfile(kk,:)
              STOP
           END IF
-       ELSE                  ! ----------- end of block -- rk4417
+       ELSE                  
 
           ! assume nmetpatches to be 1
           IF (nmetpatches == 1) THEN
@@ -991,7 +975,8 @@ CONTAINS
 
     ! Set the maximum number of active patches to that read from met file:
     max_vegpatches = MAXVAL(landpt(:)%nap)
-    mpatch         = max_vegpatches    ! inserted line as per MMY code -- rk4417
+    mpatch         = max_vegpatches   ! MMY@13April keep this line, it is an update of mpatch to consider
+                                      !        force_npatches_as's change on mpatch                      
     !CLN    IF (max_vegpatches /= nmetpatches) THEN
     IF (max_vegpatches /= nmetpatches .AND. npatch == 1) THEN
        PRINT *, 'Error! Met file claiming to have more active patches than'
@@ -1137,7 +1122,9 @@ CONTAINS
 
     END SELECT
 
-    soil%zse_vec = real(spread(soil%zse,1,mp),r_2)      ! inserted line as per MMY code -- rk4417 ! MMY???
+    soil%zse_vec = real(spread(soil%zse,1,mp),r_2)    ! MMY@13April, this line is needed since zec_vec is defined in UM/init/cable_um_init_subrs.F90, 
+                                                      !      but it isn't used in offline CABLE                                                       
+    
 
     rough%za_uv = 40.0 ! lowest atm. model layer/reference height
     rough%za_tq = 40.0
@@ -1159,7 +1146,7 @@ CONTAINS
        IF (cable_user%popluc) THEN
           veg%iLU(landpt(e)%cstart:landpt(e)%cend)= 1
           IF (landpt(e)%nap.EQ.3 .AND.veg%iveg(landpt(e)%cstart)<=5 ) THEN
-!$         if (landpt(e)%nap.gt.1) then  ! replaces line above in MMY code -- rk4417 ! MMY ???
+!$         if (landpt(e)%nap.gt.1) then  ! FEEDBACK (replaces line above in MMY code) --rk4417 
              veg%iLU(landpt(e)%cstart+1) = 2
              veg%iLU(landpt(e)%cend) = 3
           ENDIF
@@ -1256,7 +1243,7 @@ CONTAINS
           veg%iveg(landpt(e)%cstart:landpt(e)%cstart + nmetpatches - 1) =      &
                vegtype_metfile(e, :)
 
-        IF(exists%patch) &    ! this IF is missing from MMY code -- rk4417
+        IF(exists%patch) &   ! FEEDBACK (this IF is missing from MMY code) --rk4417 
           patch(landpt(e)%cstart:landpt(e)%cstart)%frac =      &
                                                            vegpatch_metfile(e, :)
 
@@ -1286,6 +1273,7 @@ CONTAINS
           bgc%ratecp(:)   = vegin%ratecp(:, veg%iveg(h))
           bgc%ratecs(:)   = vegin%ratecs(:, veg%iveg(h))
 
+          ! MMY@13April keep it in the code but commented, here removed soilparmnew option and take soilparmnew=true as default
           ! ____ MMY @Oct2022 comment out since soilparmnew should be the default ____
           !   IF (.NOT. soilparmnew) THEN   ! Q,Zhang @ 12/20/2010
           !   soil%swilt(h)   =  soilin%swilt(soil%isoilm(h))
@@ -1413,14 +1401,14 @@ CONTAINS
     END WHERE
 
     ssnow%Qrecharge = 0.0
-    canopy%sublayer_dz = 0.0   ! line misssing from MMY code -- rk4417
+    canopy%sublayer_dz = 0.0   
     ssnow%rtevap_sat = 0.0
     ssnow%rtevap_unsat = 0.0
     ssnow%satfrac = 0.5
     ssnow%wbliq = ssnow%wb - ssnow%wbice
     ssnow%GWwb = 0.9*soil%ssat
 
-    ssnow%wb_hys = -1.0e+36     ! inserted block as per MMY code -- rk4417
+    ssnow%wb_hys = -1.0e+36     
     ssnow%hys_fac = 1.0
     ssnow%watr_hys = soil%watr
     ssnow%ssat_hys = soil%ssat_vec
@@ -1445,14 +1433,11 @@ CONTAINS
 
     IF(cable_user%SOIL_STRUC=='sli') THEN
        soil%nhorizons = 1 ! use 1 soil horizon globally
-       ! veg%clitt = 5.0 ! (tC / ha)     ! line commented out in MMY code but included here for completeness -- rk4417
        veg%F10 = 0.85
-       veg%ZR = 5.0
     END IF
 
     IF(cable_user%SOIL_STRUC=='sli'.OR.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
        veg%gamma = 3.e-2
-       !veg%clitt = 5.0 ! (tC / ha)     ! line commented out in MMY code but included here for completeness -- rk4417
     ENDIF
     !! vh_js !!
     IF(cable_user%CALL_POP) THEN
@@ -1576,12 +1561,22 @@ CONTAINS
     ! regardless of where parameters and other initialisations
     ! have loaded from:
 
-    where(veg%iveg .eq. 17) soil%isoilm = 9   ! inserted line as per MMY code -- rk4417
+    where(veg%iveg .eq. 17) soil%isoilm = 9   ! MMY@13April it says where iveg = ice, isoilm = permanent ice
 
     soil_depth(:,1) = soil%zse_vec(:,1)
     do klev=2,ms
        soil_depth(:,klev) = soil_depth(:,klev-1) + soil%zse_vec(:,klev)
     end do
+
+    ! _______ MMY@19May2023 move back since moving below will cause gw_off issue ________
+    ! Construct derived parameters and zero initialisations,
+    ! regardless of where parameters and other initialisations
+    ! have loaded from:
+    soil%zshh(1) = 0.5 * soil%zse(1) ! distance between consecutive layer
+                                     ! midpoints:
+    soil%zshh(ms + 1) = 0.5 * soil%zse(ms)
+    soil%zshh(2:ms)   = 0.5 * (soil%zse(1:ms-1) + soil%zse(2:ms))
+    ! ___________________________________________________________________________________
 
     !MD aquifer node depth
     soil%GWz = 0.5*soil%GWdz + SUM(soil%zse)  !node is halfway through aquifer depth ! MMY note: GWz doesn't function, kept for later
@@ -1688,7 +1683,7 @@ CONTAINS
           end do; end do
 
        ! MMY take soil organic material impact into consideration
-       if (gw_params%cosby_multivariate .or. gw_params%cosby_multivariate) then
+       if (.not.gw_params%HC_SWC) then
              DO klev=1,ms  !0-23.3 cm, data really is to 30cm
                 do i=1,mp
                    soil%hyds_vec(i,klev)  = (1.-soil%org_vec(i,klev))*soil%hyds_vec(i,klev) + &
@@ -1978,16 +1973,7 @@ CONTAINS
           CALL abort('Unknown vegetation type! Aborting.')
        END IF
        ! Check all soil types make sense:
-!$       IF(ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart + landpt(i)%nap   &
-!$            - 1)) < 1 ) .OR. ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart  &
-!$            + landpt(i)%nap - 1)) > mstype)) THEN
-!$          WRITE(*,*) 'SUBROUTINE load_parameters:'
-!$          WRITE(*,*) 'Land point number:',i
-!$          CALL abort('Unknown soil type! Aborting.')
-!$       END IF
 
-!$       replaced block above by below as per MMY code -- rk4417
-       
        IF(ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart + landpt(i)%nap   &
           - 1)) < 1 ) .OR. ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart  &
           + landpt(i)%nap - 1)) > mstype) ) THEN ! MMY@Feb2023 .and. .not. soilparmnew
@@ -2122,8 +2108,6 @@ CONTAINS
     ! loaded (i.e. if restart file + met file contains all parameter/init/LAI
     ! info). This will not overwrite any parameter values.
     ! CALL get_type_parameters(filename_veg, filename_soil, logn, vegparmnew)
-    CALL cable_pft_params()    ! these 2 calls are missing in MMY code -- rk4417
-    CALL cable_soil_params()
 
     ! Only report parameters for active vegetation patches:
 
@@ -2745,13 +2729,14 @@ CONTAINS
         soil_depth(:,klev) = soil_depth(:,klev-1) + soil%zse_vec(:,klev)
      end do
 
-     ! MMY : move from subroutine derived_parameters to here
-     !       since derived_parameters is now an option but compulsory 
-     soil%zshh(1)      = 0.5 * soil%zse(1) ! distance between consecutive layer
-     ! midpoints:
-     soil%zshh(ms + 1) = 0.5 * soil%zse(ms)
-     soil%zshh(2:ms)   = 0.5 * (soil%zse(1:ms-1) + soil%zse(2:ms))
-     ! ______________________________________
+     !! MMY : move from subroutine derived_parameters to here
+     !!       since derived_parameters is now an option but compulsory 
+     !soil%zshh(1)      = 0.5 * soil%zse(1) ! distance between consecutive layer
+     !! midpoints:
+     !soil%zshh(ms + 1) = 0.5 * soil%zse(ms)
+     !soil%zshh(2:ms)   = 0.5 * (soil%zse(1:ms-1) + soil%zse(2:ms))
+     !print *, "MMY testing soil%zshh", soil%zshh
+     !! ______________________________________
 
     !MD Aquifer properties
 

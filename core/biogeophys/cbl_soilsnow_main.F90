@@ -94,7 +94,7 @@ USE cbl_soil_snow_subrs_module
        END DO
     END IF
 
-!$ inserted block below as per MMY code -- rk4417
+!$ inserted block below as per MMY code -- rk4417     ! FEEDBACK (any opinion about this block?) --rk4417
 
    IF( .NOT.cable_user%cable_runtime_coupled ) THEN
 

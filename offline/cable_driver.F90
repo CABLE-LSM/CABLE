@@ -135,7 +135,7 @@ USE cbl_soil_snow_init_special_module
   ! timing variables
   INTEGER, PARAMETER ::	 kstart = 1   ! start of simulation
   INTEGER, PARAMETER ::	 mloop	= 30   ! CASA-CNP PreSpinup loops
-!$  INTEGER, PARAMETER ::      mloop     = 5   ! CASA-CNP PreSpinup loops ! replaces line above in MMY code -- rk4417
+!$  INTEGER, PARAMETER ::      mloop     = 5   ! CASA-CNP PreSpinup loops 
   INTEGER :: LALLOC ! allocation coefficient for passing to spincasa
 
   INTEGER	 ::							      &
@@ -392,7 +392,7 @@ USE cbl_soil_snow_init_special_module
   !IF( ( l_laiFeedbk .OR. l_vcmaxFeedbk ) )	  &
   !   STOP 'casaCNP required to get prognostic LAI or Vcmax'
   IF( l_vcmaxFeedbk .AND. icycle < 1 )					   &
-!$  IF( l_vcmaxFeedbk .AND. icycle < 2 )                            &   ! replaces line above in MMY code -- rk4417
+!$  IF( l_vcmaxFeedbk .AND. icycle < 2 )                            & 
        STOP 'icycle must be 2 to 3 to get prognostic Vcmax'
   !   IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )				   & ! MMY @Oct2022 change to use soilparmnew by default
   !        STOP 'casaCNP must use new soil parameters'
@@ -424,11 +424,6 @@ USE cbl_soil_snow_init_special_module
      ENDIF !l_casacnp
 
   ELSEIF (TRIM(cable_user%MetType) .EQ. '') THEN
-!$  IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &   ! this block replaces above [if -- elseif] in MMY code -- rk4417 
-!$       TRIM(cable_user%MetType) .NE. "gpgs" .AND. &
-!$       TRIM(cable_user%MetType) .NE. "plum" .AND. &
-!$       TRIM(cable_user%MetType) .NE. "prin" .AND. & ! MMY
-!$       TRIM(cable_user%MetType) .NE. "cru") THEN
      CALL open_met_file( dels, koffset, kend, spinup, C%TFRZ )
      IF ( koffset .NE. 0 .AND. CABLE_USER%CALL_POP ) THEN
         WRITE(*,*)"When using POP, episode must start at Jan 1st!"
@@ -702,7 +697,6 @@ USE cbl_soil_snow_init_special_module
                  SPINconv = .FALSE.
 
               ELSEIF ( casaonly .AND. (.NOT. spincasa) ) THEN !.AND. cable_user%popluc) THEN
-!$       ELSEIF ( casaonly .AND. (.NOT. spincasa) .AND. cable_user%popluc) THEN  ! replaces line above in MMY code -- rk4417
                  CALL CASAONLY_LUC(dels,kstart,kend,veg,soil,casabiome,casapool, &
                       casaflux,casamet,casabal,phen,POP,climate,LALLOC, LUC_EXPT, POPLUC, &
                       sum_casapool, sum_casaflux)
@@ -925,10 +919,8 @@ USE cbl_soil_snow_init_special_module
                           !jhan:assuming doy for mp=1 is same as ....
                           CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate,&
                                INT(met%doy(1)), LOY )
-!$ CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate, idoy, &   ! replaces line above in MMY code -- rk4417
+!$ CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate, idoy, &  
 !$ kend/ktauday )
-!$ !      CALL write_casa_dump( ncfile, casamet , casaflux, phen, climate,&
-!$ !           INT(met%doy(lbound(met%doy,dim=1))), LOY )
                        ELSE
                           CALL write_casa_dump( ncfile, casamet , casaflux, &
                                phen, climate, idoy, kend/ktauday )
@@ -1095,8 +1087,8 @@ USE cbl_soil_snow_init_special_module
                       ANY( ABS(ssnow%tgg-soilTtemp)>delsoilT) .OR. &
                       MAXVAL(ABS(ssnow%GWwb-GWtemp),dim=1) > delgwM) THEN
 
-!$                 IF( (ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.                &  ! replaces three lines above in MMY code 
-!$                      ANY( ABS(ssnow%tgg-soilTtemp)>delsoilT) .or. &               ! -- rk4417
+!$                 IF( (ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.                &  ! FEEDBACK (three lines above or this block?) --rk4417 
+!$                      ANY( ABS(ssnow%tgg-soilTtemp)>delsoilT) .or. &               
 !$                      maxval(ABS(ssnow%GWwb-GWtemp),dim=1) > delgwM) .and. &
 !$                      ( (int(ktau_tot/kend) .lt. cable_user%max_spins)  .and.&
 !$                      (cable_user%max_spins .gt. 0) ) ) THEN
@@ -1231,7 +1223,7 @@ USE cbl_soil_snow_init_special_module
 
   IF (icycle > 0) THEN
 
-     !CALL casa_poolout( ktau, veg, soil, casabiome,		  &  ! this call is uncommented in MMY code -- rk4417
+     !CALL casa_poolout( ktau, veg, soil, casabiome,		  &  ! FEEDBACK (this call is uncommented in MMY code) --rk4417 
      ! casapool, casaflux, casamet, casabal, phen )
      CALL write_casa_restart_nc ( casamet, casapool,casaflux,phen, CASAONLY )
 

@@ -108,7 +108,7 @@ MODULE cable_checks_module
           NEE = (/-70.0,50.0/),               & ! umol/m2/s
           NPP = (/-20.0,75.0/),               & ! umol/m2/s
           GPP = (/-20.0,100.0/),              & ! umol/m2/s
-          PAR = (/-1000.0,5000.0/),              & ! umol/m2/s  ! this line is absent from MMY code -- rk4417 
+          PAR = (/-1000.0,5000.0/),              & ! umol/m2/s  
           AutoResp = (/-50.0,20.0/),          & ! umol/m2/s
           LeafResp = (/-50.0,20.0/),          & ! umol/m2/s
           HeteroResp = (/-50.0,20.0/),        & ! umol/m2/s
@@ -130,15 +130,14 @@ MODULE cable_checks_module
           clay = (/0.0,1.0/),                 &
           css = (/700.0,2200.0/),             &
           rhosoil = (/300.0,3000.0/),         &
-!$          hyds = (/5.0E-7,8.5E-3/),           & ! vh_js ! sep14 ! replaced this line as per MMY -- rk4417
-          hyds = (/5.0E-7,8.5/),              & ! vh_js ! sep14 ! MMY
+          hyds = (/5.0E-7,8.5E-3/),           & ! vh_js ! sep14 
           ! MMY 8.5E-3->8.5 since hyds uses m/s, but hyds_vec uses mm/s
           rs20 = (/0.0,10.0/),                &
           sand = (/0.0,1.0/),                 &
           sfc = (/0.1,0.5/),                  &
           silt = (/0.0,1.0/),                 &
           ssat = (/0.35,0.5/),                &
-!$          sucs = (/-0.8,-0.03/),              &   ! replaced this line as per MMY -- rk4417
+!$          sucs = (/-0.8,-0.03/),              &  ! MMY@23Apr2023 keep this line commented since it works for CABLE-non GW
           sucs = (/30.,800./),                & ! MMY the range [-0.8,-0.03] doesn't suit for Mark Decker's version
           swilt = (/0.05,0.4/),               &
           froot = (/0.0,1.0/),                &

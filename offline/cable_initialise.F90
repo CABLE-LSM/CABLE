@@ -420,8 +420,6 @@ CONTAINS
     CALL readpar(ncid_rin,'runoff',dummy,ssnow%runoff,filename%restart_in,      &
          max_vegpatches,'def',from_restart,mp)
 
-! added block below as per MMY code -- rk4417    
-!----------------------------- rk4417 -------------------------------------------------
    IF (cable_user%gw_model) THEN
       ok = NF90_INQ_VARID(ncid_rin,'GWwb',parID)
       IF(ok == NF90_NOERR) THEN 
@@ -488,12 +486,11 @@ CONTAINS
       END IF
    END IF
    
-   IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN  ! if block commented out in MMY code -- rk4417
+   IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN  ! if block commented out in MMY code -- rk4417 ! MMY@23Apr2023 this needs test but keep the comments now 
       CALL readpar(ncid_rin,'gamma',dummy,veg%gamma,filename%restart_in,           &
            max_vegpatches,'def',from_restart,mp)
    ENDIF
-!----------------------------- rk4417 -------------------------------------------------
-    
+
     IF(cable_user%SOIL_STRUC=='sli') THEN
        CALL readpar(ncid_rin,'S',dummy,ssnow%S,filename%restart_in, &
             max_vegpatches,'ms',from_restart,mp)
@@ -509,7 +506,7 @@ CONTAINS
             max_vegpatches,'snow',from_restart,mp)
        CALL readpar(ncid_rin,'sconds',dummy,ssnow%sconds,filename%restart_in, &
             max_vegpatches,'snow',from_restart,mp)
-!$       CALL readpar(ncid_rin,'ZR',dummy,veg%ZR, &                       ! this block is not commented out in MMY -- rk4417
+!$       CALL readpar(ncid_rin,'ZR',dummy,veg%ZR, &    
 !$            filename%restart_in,max_vegpatches,'def',from_restart,mp)
 !$       CALL readpar(ncid_rin,'F10',dummy,veg%F10, &
 !$            filename%restart_in,max_vegpatches,'def',from_restart,mp)

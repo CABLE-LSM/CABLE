@@ -100,8 +100,7 @@ CONTAINS
           CALL ruff_resist(veg, rough, ssnow, canopy)
        ENDIF
        ! Height adjustment not used in ACCESS CM2. See CABLE ticket 197
-       ! met%tk = met%tk + C%grav/C%capp*(rough%zref_tq + 0.9*rough%z0m)
-!$  The line above appears uncommented in MMY code -- rk4417   
+       ! met%tk = met%tk + C%grav/C%capp*(rough%zref_tq + 0.9*rough%z0m)  ! FEEDBACK (this line is uncommented in MMY code?) --rk4417
 
        CALL define_air (met, air)
 
@@ -229,8 +228,9 @@ CONTAINS
        ! check that emissivities (pft and nvg) set = 1 within the UM i/o configuration
        ! CM2 - further adapted to pass the correction term onto %trad correctly
        rad%trad = ( ( 1.-rad%transd ) * C%emleaf * canopy%tv**4 +                      &
-            rad%transd * C%emsoil * ssnow%otss**4 + canopy%fns_cor/C%sboltz )**0.25
-!$       The line above is different in MMY code -- rk4417
+            rad%transd * C%emsoil * ssnow%otss**4 + canopy%fns_cor/C%sboltz )**0.25      ! FEEDBACK (this line appears as below in MMY code?) --rk4417
+      ! rad%trad = ( ( 1.-rad%transd ) * C%emleaf * canopy%tv**4 +                     & 
+      ! rad%transd * C%emsoil * ssnow%tss**4 )**0.25
     ELSE
        rad%trad = ( ( 1.-rad%transd ) * canopy%tv**4 +                             &
             rad%transd * ssnow%tss**4 )**0.25

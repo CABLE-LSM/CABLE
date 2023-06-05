@@ -84,6 +84,7 @@ IF( .NOT.cable_user%cable_runtime_coupled ) THEN
          ssnow%wbice(:,5) = 0.90 * ssnow%wb(:,5)
          ssnow%wbice(:,6) = 0.90 * ssnow%wb(:,6)
       ENDWHERE
+!      print *, "MMY testing soil%heat_cap_lower_limit(:,1)", soil%heat_cap_lower_limit(:,1) ! MMY@18May2023
       xx=REAL(soil%heat_cap_lower_limit(:,1))
       ssnow%gammzz(:,1) = MAX( (1.0 - soil%ssat) * soil%css * soil%rhosoil &
            & + (ssnow%wb(:,1) - ssnow%wbice(:,1) ) * C%cswat * C%density_liq &
