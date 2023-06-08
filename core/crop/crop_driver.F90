@@ -1,125 +1,166 @@
-SUBROUTINE crop_driver(doy,climate,ssnow,soil,veg,canopy,casaflux,casamet, &
-                       casapool,crop)
+SUBROUTINE crop_driver( &
+      doy, &
+      climate, &
+      ssnow, &
+      soil, &
+      veg, &
+      canopy, &
+      casaflux, &
+      casamet, &
+      casapool, &
+      crop &
+      )
 
-  use crop_def,            only: crop_type, nc, baresoil, planted, emergent, growing, &
-                                 Rgcoeff, DMtoC
-  use crop_module
-  use casavariable,        only: casa_flux, casa_met, casa_pool
-  use cable_def_types_mod, only: climate_type, soil_snow_type, soil_parameter_type, &
-                                 veg_parameter_type, canopy_type, dp => r_2
+  USE crop_def, only: &
+      crop_type, &
+      nc, &
+      baresoil, &
+      planted, &
+      emergent, &
+      growing, &
+      Rgcoeff, &
+      DMtoC
+  USE crop_module
+  USE casavariable, only: casa_flux, casa_met, casa_pool
+  USE cable_def_types_mod, only: &
+      climate_type, &
+      soil_snow_type, &
+      soil_parameter_type, &
+      veg_parameter_type, &
+      canopy_type, &
+      dp=>r_2
 
-  implicit none
+  IMPLICIT NONE
 
-  integer,                   intent(in)    :: doy
-  type(climate_type),        intent(in)    :: climate
-  type(soil_snow_type),      intent(in)    :: ssnow
-  type(soil_parameter_type), intent(in)    :: soil
-  type(veg_parameter_type),  intent(inout) :: veg
-  type(canopy_type),         intent(inout) :: canopy
-  type(casa_flux),           intent(inout) :: casaflux
-  type(casa_met),            intent(inout) :: casamet
-  type(casa_pool),           intent(inout) :: casapool
-  type(crop_type),           intent(inout) :: crop
-  
+  INTEGER, INTENT (in) :: doy
+  TYPE (climate_type), INTENT (in) :: climate
+  TYPE (soil_snow_type), INTENT (in) :: ssnow
+  TYPE (soil_parameter_type), INTENT (in) :: soil
+  TYPE (veg_parameter_type), INTENT (inout) :: veg
+  TYPE (canopy_type), INTENT (inout) :: canopy
+  TYPE (casa_flux), INTENT (inout) :: casaflux
+  TYPE (casa_met), INTENT (inout) :: casamet
+  TYPE (casa_pool), INTENT (inout) :: casapool
+  TYPE (crop_type), INTENT (inout) :: crop
+
   ! local
-  integer  :: ic,sl  ! loop counters: crop type, soil layer
-  real(dp) :: fPHU_day
-  real(dp) :: SLA_C
-  
-  
-  do ic=1, nc
-write(70,*) 'DOY: ', doy
-    if (crop%state(ic) == baresoil) then
-      if (doy >= crop%sowing_doymin(ic) .and. doy <= crop%sowing_doymax(ic)) then 
-         call planting(ic,doy,climate,ssnow,soil,crop)
-      end if
+  INTEGER :: ic,sl ! loop counters: crop type, soil layer
+  REAL (dp) :: fPHU_day
+  REAL (dp) :: SLA_C
 
-    else if (crop%state(ic) == planted) then
-       call germination(ic,doy,climate,ssnow,soil,crop)
-       call irrigation(ic,ssnow,soil,canopy)
-casapool%Cplant(ic,:) = 0.0_dp ! shouldn't be needed here!! Check initialisation
-casamet%glai(ic) = 0.0_dp
+  DO ic=1, nc
 
-    else if (crop%state(ic) == emergent .or. crop%state(ic) == growing) then
+    WRITE (70,*) 'DOY: ', doy
 
-       ! update phenological heat units (start at 0 at germination!)
-       fPHU_day = heat_units(climate%dtemp(ic),crop%Tbase(ic),crop%Tmax(ic)) / crop%PHU_maturity(ic)
-       crop%fPHU(ic) = crop%fPHU(ic) + fPHU_day
+    IF (crop%state(ic)==baresoil) THEN
+      IF (doy>=crop%sowing_doymin(ic) .and. doy<=crop%sowing_doymax(ic)) THEN
+         CALL planting(ic, doy, climate, ssnow, soil, crop)
+      END IF
 
-       ! calculate SLA in m2 g-1 C
-       SLA_C = SLA_development(crop%fPHU(ic),crop%sla_maturity(ic),crop%sla_beta(ic)) / DMtoC
+    ELSE IF (crop%state(ic)==planted) THEN
+      CALL germination(ic, doy, climate, ssnow, soil, crop)
+      CALL irrigation(ic, ssnow, soil, canopy)
 
-       if (crop%vernalisation(ic) .and. .not. crop%vacc(ic)) then
-         call vernalisation(ic,climate,crop)
-       endif
+      ! shouldn't be needed here! Check initialisation
+      casapool%Cplant(ic,:) = 0.0_dp
+      casamet%glai(ic) = 0.0_dp
 
-       ! calculate C allocation factors
-       call C_allocation_crops(ic,casaflux,crop)
+    ELSE IF (crop%state(ic)==emergent .or. crop%state(ic)==growing) THEN
 
-       ! calculate growth respiration
-       casaflux%Crgplant(ic) = sum(Rgcoeff * casaflux%fracCalloc(ic,:)) * casaflux%Cgpp(ic)
-write(66,*) 'sum(Rgcoeff * casaflux%fracCalloc(ic,:))', sum(Rgcoeff * casaflux%fracCalloc(ic,:))
-write(66,*) 'casaflux%fracCalloc(ic,:)', casaflux%fracCalloc(ic,:)      
-       ! calculate maintenance respiration
-       ! as in casa at the moment. Evtl calculate Rm first, then Rg. Discuss
-       ! if it makes sense to replace Rgcoeff with Ygrowth as calculated in casa_cnp
-       ! only need to calculate Rm and Rg here if we want to do it differently than in casa_rplant
-       ! in that case, we might also change it in casa_rplant directly!!
+      ! update phenological heat units (start at 0 at germination!)
+      fPHU_day = heat_units(climate%dtemp(ic), crop%Tbase(ic), crop%Tmax(ic)) &
+          /crop%PHU_maturity(ic)
+      crop%fPHU(ic) = crop%fPHU(ic) + fPHU_day
 
-       ! calculate NPP
-       casaflux%Cnpp(ic) = casaflux%Cgpp(ic) - sum(casaflux%Crmplant(ic,:)) - casaflux%Crgplant(ic)
-       
+      ! calculate specific leaf area in m2 g-1 C
+      SLA_C = SLA_development( &
+          crop%fPHU(ic), &
+          crop%sla_maturity(ic), &
+          crop%sla_beta(ic) &
+          )/DMtoC
 
-       if (crop%state(ic) == emergent) then
+      IF (crop%vernalisation(ic) .and. .not. crop%vacc(ic)) THEN
+        CALL vernalisation(ic, climate, crop)
+      END IF
 
-         call emergence(ic,doy,SLA_C,fPHU_day,veg,casaflux,casapool,casamet,crop)
+      ! calculate C allocation factors
+      CALL C_allocation_crops(ic, casaflux, crop)
 
-       else if (crop%state(ic) == growing) then
+      ! calculate growth respiration
+      casaflux%Crgplant(ic) = &
+          sum(Rgcoeff*casaflux%fracCalloc(ic,:))*casaflux%Cgpp(ic)
 
-write(60,*) 'doy:', doy
-write(60,*) '  casaflux%Cgpp(ic):', casaflux%Cgpp(ic)
-write(60,*) '  sum(casaflux%Crmplant(ic,:)): ', sum(casaflux%Crmplant(ic,:))
-write(60,*) '  casaflux%Crgplant(ic): ', casaflux%Crgplant(ic)
-write(60,*) '  casaflux%Cnpp_first(ic):', casaflux%Cnpp(ic)
-write(70,*) 'climate%dtemp: ', climate%dtemp
-write(70,*) 'fPHU_day: ', fPHU_day          
-write(70,*) 'crop%fPHU: ', crop%fPHU
+      WRITE (66,*) 'sum(Rgcoeff * casaflux%fracCalloc(ic,:))', &
+          sum(Rgcoeff * casaflux%fracCalloc(ic,:))
+      WRITE (66,*) 'casaflux%fracCalloc(ic,:)', casaflux%fracCalloc(ic,:)
 
+      ! calculate maintenance respiration
+      ! as in casa at the moment. Evtl calculate Rm first, then
+      ! Rg. Discuss if it makes sense to replace Rgcoeff with Ygrowth as
+      ! calculated in casa_cnp only need to calculate Rm and Rg here if we
+      ! want to do it differently than in casa_rplant in that case, we might
+      ! also change it in casa_rplant directly!
 
-         call senescence(ic,fPHU_day,casamet,casapool,casaflux,crop)
+      ! calculate NPP
+      casaflux%Cnpp(ic) = casaflux%Cgpp(ic) - &
+          sum(casaflux%Crmplant(ic,:)) - casaflux%Crgplant(ic)
 
-         call growth(ic,SLA_C,veg,casaflux,casapool,casamet,crop)
+      IF (crop%state(ic)==emergent) THEN
+        CALL emergence( &
+            ic, &
+            doy, &
+            SLA_C, &
+            fPHU_day, &
+            veg, &
+            casaflux, &
+            casapool, &
+            casamet, &
+            crop &
+            )
+      ELSE IF (crop%state(ic)==growing) THEN
 
-write(70,*) 'casaflux%Cgpp: ', casaflux%Cgpp
-write(70,*) 'casaflux%Cnpp: ', casaflux%Cnpp
-write(70,*) 'casamet%glai: ',  casamet%glai
-          
-         ! harvest if enough PHU accumulated
-         if (crop%fPHU(ic) >= 1.0_dp) then
-            call harvest(ic,doy,casapool,casamet,veg,crop)
+        WRITE (60,*) 'doy:', doy
+        WRITE (60,*) '  casaflux%Cgpp(ic):', casaflux%Cgpp(ic)
+        WRITE (60,*) '  sum(casaflux%Crmplant(ic,:)): ', &
+            sum(casaflux%Crmplant(ic,:))
+        WRITE (60,*) '  casaflux%Crgplant(ic): ', casaflux%Crgplant(ic)
+        WRITE (60,*) '  casaflux%Cnpp_first(ic):', casaflux%Cnpp(ic)
+        WRITE (70,*) 'climate%dtemp: ', climate%dtemp
+        WRITE (70,*) 'fPHU_day: ', fPHU_day
+        WRITE (70,*) 'crop%fPHU: ', crop%fPHU
 
-            ! reset heat units and vernalisation requirements etc.
-            crop%fPHU(ic)    = 0.0_dp
-            crop%fsenesc(ic) = 0.0_dp
-            crop%VU(ic)      = 0.0_dp
-            crop%fVU(ic)     = 0.0_dp
-            crop%vacc(ic)    = .FALSE.
+        CALL senescence(ic, fPHU_day, casamet, casapool, casaflux, crop)
+        CALL growth(ic, SLA_C, veg, casaflux, casapool, casamet, crop)
 
-            ! reset management settings
-            canopy%irrig_surface(ic)   = 0.0
-            canopy%irrig_sprinkler(ic) = 0.0
+        WRITE (70,*) 'casaflux%Cgpp: ', casaflux%Cgpp
+        WRITE (70,*) 'casaflux%Cnpp: ', casaflux%Cnpp
+        WRITE (70,*) 'casamet%glai: ',  casamet%glai
 
-            ! reset other variables
-            crop%state_nrdays(ic,:) = 0
-            crop%sl(ic) = 0
-            
-         end if
-       end if ! crop%state == growing
+        ! harvest if enough PHU accumulated
+        IF (crop%fPHU(ic)>=1.0_dp) THEN
+          CALL harvest(ic, doy, casapool, casamet, veg, crop)
 
-         call irrigation(ic,ssnow,soil,canopy)
-      
-     end if 
-   end do
- 
+          ! reset heat units and vernalisation requirements etc.
+          crop%fPHU(ic) = 0.0_dp
+          crop%fsenesc(ic) = 0.0_dp
+          crop%VU(ic) = 0.0_dp
+          crop%fVU(ic) = 0.0_dp
+          crop%vacc(ic) = .FALSE.
+
+          ! reset management settings
+          canopy%irrig_surface(ic) = 0.0
+          canopy%irrig_sprinkler(ic) = 0.0
+
+          ! reset other variables
+          crop%state_nrdays(ic,:) = 0
+          crop%sl(ic) = 0
+
+        END IF
+      END IF ! crop%state == growing
+
+      CALL irrigation(ic, ssnow, soil, canopy)
+
+    END IF
+  END DO
+
 END SUBROUTINE crop_driver
-
