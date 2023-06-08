@@ -14,54 +14,50 @@ MODULE crop_def
 
 
   ! variables/parameters
-  !! Number of crop types in grid cell.
   integer :: nc = 1
-  !! Total number of crop functional types (CFTs). Read from crop parameter
-  !! file (filename%crop).
+      !! Number of crop types in grid cell.
   integer :: ncmax
+      !! Total number of crop functional types (CFTs). Read from crop parameter
+      !! file (filename%crop).
 
-  !! Crop stage
-  integer, parameter :: baresoil = 0
-  !! Crop stage
-  integer, parameter :: planted = 1
-  !! Crop stage
-  integer, parameter :: emergent = 2
-  !! Crop stage
-  integer, parameter :: growing = 3
+  integer, parameter :: baresoil = 0 !! Crop stage
+  integer, parameter :: planted = 1 !! Crop stage
+  integer, parameter :: emergent = 2 !! Crop stage
+  integer, parameter :: growing = 3 !! Crop stage
 
 
   ! Parameters related to planting and germination.
-  !! Critical soil moisture relative to field capacity for germination.
   real, parameter :: fcrit_germination = 0.8
-  !! Number of days checked before possible planting date.
+      !! Critical soil moisture relative to field capacity for germination.
   integer, parameter :: nrdays_before=7
-  !! Number of days checked after planting date.
+      !! Number of days checked before possible planting date.
   integer, parameter :: nrdays_after=3
+      !! Number of days checked after planting date.
 
   ! parameters related to carbon allocation etc.
-  !! Maximum days since sowing above which germination is assumed to have
-  !! failed.
   integer, parameter :: maxdays_ger = 40
-  !! conversion dry matter to carbon
-  real(dp), parameter :: DMtoC = 0.475_dp
-  !! fPHU at flowering.
+      !! Maximum days since sowing above which germination is assumed to have
+      !! failed.
+  real(dp), parameter :: DMtoC = 0.475_dp !! conversion dry matter to carbon.
   real(dp), parameter :: fPHU_flowering = 0.5_dp
-  !! Ratio of carbon content in senescent and green leaves.
+      !! Fraction of phenological heat units at flowering.
   real(dp), parameter :: rCsen_Cgr = 0.666_dp
-  !! Growth respiration coefficient (see Lokupitiya et al. 2009).
+      !! Ratio of carbon content in senescent and green leaves.
   real(dp), parameter :: Rgcoeff = 0.22_dp
-  !! Fraction of leaf C that is mobilised to products at senesc.
+      !! Growth respiration coefficient (see Lokupitiya et al. 2009).
   real(dp), parameter :: fCleaf_mobile = 0.5_dp
+      !! Fraction of leaf C that is mobilised to products at senesc.
 
   ! parameters related to management
   ! irrigation
-  !! Soil depth used for calculation of irrigation demand (m).
   real, parameter :: irrig_depth = 0.5
-  !! Fraction of available soil moisture below which irrigation is triggered.
+      !! Soil depth used for calculation of irrigation demand (m).
   real, parameter :: irrig_trigger = 0.9
-  !! Irrigation loss factor (0-1), integrative parameter. Maybe rename to
-  !! refill/irrigation efficiency or similar.
+      !! Fraction of available soil moisture below which irrigation is
+      !! triggered.
   real, parameter :: Firrig_loss = 0.5
+      !! Irrigation loss factor (0-1), integrative parameter. Maybe rename to
+      !! refill/irrigation efficiency or similar.
 
   ! types
   type crop_type
@@ -73,125 +69,117 @@ MODULE crop_def
     !! - 2: emergent
     !! - 3: growing
 
-    !! Crop state.
-    integer, dimension (:), pointer :: state
-    !! Number of days elapsed in each state.
+    integer, dimension (:), pointer :: state !! Crop state.
     integer, dimension (:,:), pointer :: state_nrdays
+        !! Number of days elapsed in each state.
 
     ! Switches related to physiology/development
-    !! Switch for whether vernalisation occurs
     logical, dimension (:), pointer :: vernalisation
-    !! Switch for whether crop responds to photoperiod
+        !! Switch for whether vernalisation occurs
     logical, dimension (:), pointer :: photoperiodism
+        !! Switch for whether crop responds to photoperiod
 
     ! Crop temperature requirements
-    !! Crop-specific base temperature.
-    real, dimension (:), pointer :: Tbase
-    !! Crop-specific max. temperature (no further PHU accumulation above Tmax)
+    real, dimension (:), pointer :: Tbase !! Crop-specific base temperature.
     real, dimension (:), pointer :: Tmax
-    !! Planting temperature
-    real, dimension (:), pointer :: Tplant
+        !! Crop-specific max. temperature for which no further
+        !! phenological heat units accumulation above Tmax.
+    real, dimension (:), pointer :: Tplant !! Planting temperature.
 
     ! Phenological heat units (PHU)
-    !! Phenological heat units (soil) until germination in the absence of
-    !! water stress.
     real (dp), dimension (:), pointer :: PHU_germination
-    !! fPHU (air) until emergence (use of seed storage) is completed.
+        !! Phenological heat units (soil) until germination in the absence of
+        !! water stress.
     real (dp), dimension (:), pointer :: fPHU_emergence
-    !! Phenological heat units (air) until maturity.
+        !! fPHU (air) until emergence (use of seed storage) is completed.
     real (dp), dimension (:), pointer :: PHU_maturity
-    !! Actual phenological heat units relative to maturity (growth)
+        !! Phenological heat units (air) until maturity.
     real (dp), dimension (:), pointer :: fPHU
+        !! Actual phenological heat units relative to maturity (growth)
 
     ! vernalisation requirements
-    !! Accrued vernalisation units.
-    real (dp), dimension (:), pointer :: VU
-    !! Fraction of required vernalisation units.
+    real (dp), dimension (:), pointer :: VU !! Accrued vernalisation units.
     real (dp), dimension (:), pointer :: fVU
-    !! True if vernalisation effects have been taken into account
+        !! Fraction of required vernalisation units.
     logical, dimension (:), pointer :: vacc
+        !! True if vernalisation effects have been taken into account.
 
     ! Carbon allocation
+    logical, dimension (:), pointer :: dynamic_allocation
     !! Dynamic C allocation? (i.e. allocation depends on soil moisture and
     !! nutrients).
-    logical, dimension (:), pointer :: dynamic_allocation
-    !! Initial C allocation coefficient to roots at emergence.
     real (dp), dimension (:), pointer :: fCalloc_root_init
-    !! Initial C allocation coefficient to leaves at emergence.
+        !! Initial C allocation coefficient to roots at emergence.
     real (dp), dimension (:), pointer :: fCalloc_leaf_init
-    !! C allocation coefficient to leaves at first breakpoint.
+        !! Initial C allocation coefficient to leaves at emergence.
     real (dp), dimension (:), pointer :: fCalloc_leaf_bpt
-    !! fPHU at which C allocation to roots stops.
+        !! C allocation coefficient to leaves at first breakpoint.
     real (dp), dimension (:), pointer :: Calloc_root_end
-    !! fPHU at first breakpoint (leaves).
+        !! fPHU at which C allocation to roots stops.
     real (dp), dimension (:), pointer :: Calloc_leaf_bpt
-    !! fPHU at which C allocation to leaves stops.
+        !! fPHU at first breakpoint (leaves).
     real (dp), dimension (:), pointer :: Calloc_leaf_end
-    !! fPHU at which C allocation coefficient to products is 1.
+        !! fPHU at which C allocation to leaves stops.
     real (dp), dimension (:), pointer :: Calloc_prod_max
-    !! Carbon pool in the stem that is used as mobile reserves.
+        !! fPHU at which C allocation coefficient to products is 1.
     real (dp), dimension (:), pointer :: Cstem_mobile
+        !! Carbon pool in the stem that is used as mobile reserves.
 
     ! Senescence and remobilisation
-    !! Fraction of C in the stem that goes to mobile reserves.
     real (dp), dimension(:), pointer :: fCstem_mobile
-    !! Maximum C stored in plant pools.
+        !! Fraction of C in the stem that goes to mobile reserves.
     real (dp), dimension(:,:), pointer :: Cmax
-    !! Maximum C stored in mobile reserves of stem.
+        !! Maximum C stored in plant pools.
     real (dp), dimension(:), pointer :: Cmaxstemmob
-    !! Fraction of C mobilised from stem to products.
+        !! Maximum C stored in mobile reserves of stem.
     real (dp), dimension(:), pointer :: fmobilise
-    !! Fraction of the crop canopy that is senescent (0-1).
+        !! Fraction of C mobilised from stem to products.
     real (dp), dimension(:), pointer :: fsenesc
-    !! Total (green + brown) LAI.
+        !! Fraction of the crop canopy that is senescent (0-1).
     real (dp), dimension(:), pointer :: LAItot
-    !! Senescent (brown) LAI.
+        !! Total (green + brown) LAI.
     real (dp), dimension(:), pointer :: LAIsen
-    !! Exponent in leaf senescence function.
+        !! Senescent (brown) LAI.
     real (dp), dimension(:), pointer :: drsen
+        !! Exponent in leaf senescence function.
 
     ! Planting/Sowing dates (DOY)
-    !! Earliest sowing date.
-    integer, dimension (:), pointer :: sowing_doymin
-    !! Latest sowing date.
-    integer, dimension (:), pointer :: sowing_doymax
-    !! Actual sowing date.
-    integer, dimension (:), pointer :: sowing_doy
+    integer, dimension (:), pointer :: sowing_doymin !! Earliest sowing date.
+    integer, dimension (:), pointer :: sowing_doymax !! Latest sowing date.
+    integer, dimension (:), pointer :: sowing_doy !! Actual sowing date.
 
     ! Germination requirements
-    !! Total germination requirements (0-1)
     real (dp), dimension (:), pointer :: fgermination
+        !! Total germination requirements (0-1)
 
     ! Management options
-    !! Carbon content in seeds (gC m-2) corresponds to planting density.
     real (dp), dimension (:), pointer :: Cseed
-    !! Sowing depth (m).
-    real (dp), dimension (:), pointer :: sowing_depth
-    !! Fraction of aboveground biomass (stem and leaves) removed at harvest.
-    !! Remainder goes to litter pool.
+        !! Carbon content in seeds (gC m-2) corresponds to planting density.
+    real (dp), dimension (:), pointer :: sowing_depth !! Sowing depth (m).
     real (dp), dimension (:), pointer :: Cplant_remove
+        !! Fraction of aboveground biomass (stem and leaves) removed at
+        !! harvest. Remainder goes to litter pool.
 
-    !! Soil layer corresponding to snow depth.
     integer, dimension (:), pointer :: sl
+        !! Soil layer corresponding to snow depth.
 
     ! Harvest variables
-    !! Yield at harvest (gC m-2).
-    real (dp), dimension (:), pointer :: yield
-    !! Harvest index (Cproduct/total Cplant).
+    real (dp), dimension (:), pointer :: yield !! Yield at harvest (gC m-2).
     real (dp), dimension (:), pointer :: harvest_index
+        !! Harvest index (Cproduct/total Cplant).
 
     ! Leaf structural variables
-    !! Specific leaf area (m2/gDM) at plant maturity.
     real (dp), dimension (:), pointer :: sla_maturity
-    !! Extinction cofficient in specific leaf area formula.
+        !! Specific leaf area (m2/gDM) at plant maturity.
     real (dp), dimension (:), pointer :: sla_beta
+        !! Extinction cofficient in specific leaf area formula.
 
     ! Management variables
     ! file names of spatial data sets
-    !! File containing 'area equipped for irrigation'.
     character (len=200) :: AEI_file
-    !! File containing fertilisation data; not yet implemented.
+        !! File containing 'area equipped for irrigation'.
     character (len=200) :: Fertilisation_file
+        !! File containing fertilisation data; not yet implemented.
 
 
     ! Crop-related variables in other types:
@@ -209,16 +197,16 @@ contains
   subroutine allocate_init_cropvars(crop, filename)
     !! Allocates and initialises crop variables in one routine.
 
-    type (crop_type), intent(inout) :: crop
-    type (filenames_type), intent(in) :: filename
+    type (crop_type), intent(inout) :: crop !! Crops data.
+    type (filenames_type), intent(in) :: filename !! Crop parameters file name.
 
     !local
-    integer :: j, jcrop   ! loop counter
-    integer :: ioerror    ! input error integer
+    integer :: j, jcrop ! loop counter
+    integer :: ioerror ! input error integer
     integer :: vernalisation, photoperiodism ! to be converted to logical
     character (len=25) :: cropnametmp  ! not sure if needed/useful
 
-    open (40, FILE=filename%crop, STATUS='old', ACTION='READ',IOSTAT=ioerror)
+    open (40, FILE=filename%crop, STATUS='old', ACTION='READ', IOSTAT=ioerror)
 
     if (ioerror/=0) then
       STOP 'CABLE_log: Cannot open crop parameter file!'
@@ -341,7 +329,7 @@ contains
     !! Read spatial datasets needed for crop modeling: irrigation,
     !! fertilisation, crop distribution etc.
 
-    type (crop_type), intent (inout) :: crop
+    type (crop_type), intent (inout) :: crop !! Crop data.
 
     ! local
     ! Error status returned by nc routines zero=ok, non-zero=error

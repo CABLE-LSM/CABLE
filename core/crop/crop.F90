@@ -34,10 +34,10 @@ contains
 
     integer, intent (in) :: i !! Crop type.
     integer, intent (in) :: doy !! Day of year.
-    type (climate_type), intent (in) :: climate
-    type (soil_snow_type), intent (in) :: ssnow
-    type (soil_parameter_type), intent (in) :: soil
-    type (crop_type), intent (inout) :: crop
+    type (climate_type), intent (in) :: climate !! Climate data.
+    type (soil_snow_type), intent (in) :: ssnow !! Soil snow data.
+    type (soil_parameter_type), intent (in) :: soil !! Soil data.
+    type (crop_type), intent (inout) :: crop !! Crop data.
 
     ! local
     integer :: sl ! loop counters: crop type, soil layer
@@ -110,10 +110,10 @@ contains
 
     integer, intent (in) :: i !! Crop type.
     integer, intent (in) :: doy !! day of year.
-    type (climate_type), intent (in) :: climate
-    type (soil_snow_type), intent (in) :: ssnow
-    type (soil_parameter_type), intent (in) :: soil
-    type (crop_type), intent (inout) :: crop
+    type (climate_type), intent (in) :: climate !! Climate data.
+    type (soil_snow_type), intent (in) :: ssnow !! Soil snow data.
+    type (soil_parameter_type), intent (in) :: soil !! Soil data.
+    type (crop_type), intent (inout) :: crop !! Crop data.
 
     ! local
     ! suitable conditions for germination in the first three days after
@@ -218,11 +218,11 @@ contains
     integer, intent (in) :: doy !! Day of year.
     real (dp), intent (in) :: SLA_C !! Specific leaf area.
     real (dp), intent (inout) :: fPHU_day !! Fractional phenological heat units of actual day.
-    type (veg_parameter_type), intent (inout) :: veg
-    type (casa_flux), intent (inout) :: casaflux
-    type (casa_pool), intent (inout) :: casapool
-    type (casa_met),  intent (inout) :: casamet
-    type (crop_type), intent (inout) :: crop
+    type (veg_parameter_type), intent (inout) :: veg !! Vegetation data.
+    type (casa_flux), intent (inout) :: casaflux !! CASA flux data.
+    type (casa_pool), intent (inout) :: casapool !! CASA pools data.
+    type (casa_met),  intent (inout) :: casamet !! CASA meteorological data.
+    type (crop_type), intent (inout) :: crop !! Crop data.
 
     ! local
     real (dp) :: LAIday
@@ -278,8 +278,8 @@ contains
     !! Calcualtes vernalisation factor and consequences for crop development.
 
     integer, intent (in) :: i !! Crop type.
-    type (climate_type), intent (in) :: climate
-    type (crop_type), intent (inout) :: crop
+    type (climate_type), intent (in) :: climate !! Climate data.
+    type (crop_type), intent (inout) :: crop !! Crop data.
 
     ! local
     real :: VU_day ! daily accumulated vernalisation unit
@@ -305,11 +305,11 @@ contains
 
     integer, intent (in) :: i !! Crop type.
     real (dp), intent(in) :: SLA_C !! Specific leaf area.
-    type (veg_parameter_type), intent (inout) :: veg
-    type (casa_flux), intent (inout) :: casaflux
-    type (casa_pool), intent (inout) :: casapool
-    type (casa_met), intent (inout) :: casamet
-    type (crop_type), intent (inout) :: crop
+    type (veg_parameter_type), intent (inout) :: veg !! Vegetation data.
+    type (casa_flux), intent (inout) :: casaflux !! CASA flux data.
+    type (casa_pool), intent (inout) :: casapool !! CASA pools data.
+    type (casa_met), intent (inout) :: casamet !! CASA meteorological data.
+    type (crop_type), intent (inout) :: crop !! Crop data.
 
     ! local
     real (dp) :: LAIday
@@ -366,8 +366,8 @@ contains
     !! TBD: this could also be part of CASA!
 
     integer, intent (in) :: i !! Crop type.
-    type (casa_flux), intent (inout) :: casaflux
-    type (crop_type), intent (inout) :: crop
+    type (casa_flux), intent (inout) :: casaflux !! CASA flux data.
+    type (crop_type), intent (inout) :: crop !! Crops data.
 
     ! determine C allocation fractions
     casaflux%fracCalloc(i,froot) = Calloc_roots( &
@@ -403,10 +403,10 @@ contains
 
     integer, intent (in) :: i !! Crop type.
     real (dp), intent (in) :: fPHU_day !! Fraction of phenological heat units.
-    type (casa_met), intent (inout) :: casamet
-    type (casa_pool), intent (inout) :: casapool
-    type (casa_flux), intent (inout) :: casaflux
-    type (crop_type), intent (inout) :: crop
+    type (casa_met), intent (inout) :: casamet !! CASA meterological data.
+    type (casa_pool), intent (inout) :: casapool !! CASA pools data.
+    type (casa_flux), intent (inout) :: casaflux !! CASA flux data.
+    type (crop_type), intent (inout) :: crop !! Crops data.
 
     ! local
     integer :: p ! plant pool
@@ -502,11 +502,11 @@ contains
     !!    to stems during leaf senescence (calculated in senescence subroutine)
 
     integer, intent (in) :: i !! Crop type.
-    type (casa_pool), intent (inout) :: casapool !! CASA pools.
-    type (crop_type), intent (inout) :: crop !! Crop type.
+    type (casa_pool), intent (inout) :: casapool !! CASA pools data.
+    type (crop_type), intent (inout) :: crop !! Crops data.
     real (dp), intent (in) :: fPHU_day !! Fraction of phenological heat units.
-    !! C loss of leaves due to remobilisation.
     real (dp), intent (in) :: Closs_leaf_mobile
+        !! C loss of leaves due to remobilisation.
 
     ! local
     real (dp) :: remob_period ! Period over which remobilisation occurs.
@@ -569,9 +569,9 @@ contains
     !! Irrigate whenever soil moisture falls below field capacity.
 
     integer, intent (in) :: i !! Crop type.
-    type (soil_snow_type), intent (in) :: ssnow !! Soil snow.
-    type (soil_parameter_type), intent (in) :: soil !! Soil.
-    type (canopy_type), intent (inout) :: canopy !! Canopy.
+    type (soil_snow_type), intent (in) :: ssnow !! Soil snow data.
+    type (soil_parameter_type), intent (in) :: soil !! Soil data.
+    type (canopy_type), intent (inout) :: canopy !! Canopy data.
 
     ! local
     integer :: s, sl ! soil layers
@@ -649,10 +649,10 @@ contains
 
     integer, intent (in) :: i !! Crop type.
     integer, intent (in) :: doy !! Day of year.
-    type (casa_pool), intent (inout) :: casapool
-    type (casa_met),  intent (inout) :: casamet
-    type (veg_parameter_type), intent (inout) :: veg
-    type (crop_type), intent (inout) :: crop
+    type (casa_pool), intent (inout) :: casapool !! CASA pools data.
+    type (casa_met),  intent (inout) :: casamet !! CASA meterological data.
+    type (veg_parameter_type), intent (inout) :: veg !! Vegetation data.
+    type (crop_type), intent (inout) :: crop !! Crops data.
 
     ! local
     real (dp) :: Cstemleaf_removed
@@ -712,7 +712,7 @@ contains
     real, parameter :: Topt = 4.9 ! Optimum temperature for vernalisation.
     real, parameter :: Tmax = 15.7 ! Maximum temperature for vernalisation.
     real :: alpha ! Used in for fvn calculation.
-    real :: fvn ! Daily vernalisation rate.
+    real :: fvn !! Daily vernalisation rate.
 
     alpha = log(2.0)/log((Tmax - Tmin)/(Topt - Tmin))
 
@@ -727,13 +727,12 @@ contains
 
 
   function heat_units(dtemp, basetemp, maxtemp) result (HU)
-    !! Standard calculation of daily heat units per day.
+    !! Standard calculation of daily heat units.
 
     real, intent (in) :: dtemp !! Mean daily temperature (degC).
     real, intent (in) :: basetemp !! Base temperature (degC).
-    !! maximum mean daily temp. (degC). No further increases in HU above
-    !! maxtemp.
     real, intent (in) :: maxtemp
+        !! Maximum mean daily temp. (degC) for which no further increases in HU
     real (dp) :: HU !! Daily heat units.
 
     HU = min( &
@@ -762,14 +761,12 @@ contains
     !! Calculates specific leaf area in dependence of crop age/developmental stage.
     !! Decrease of specific leaf area with crop age.
 
-    !! Fraction of phenological heat units
-    real (dp), intent (in) :: fPHU
-    !! Baseline value of specific leaf area (at fPHU=1)
+    real (dp), intent (in) :: fPHU !! Fraction of phenological heat units.
     real (dp), intent (in) :: alpha
-    !! Exponent (rate of decrease over developmental stage)
+        !! Baseline value of specific leaf area (at fPHU=1)
     real (dp), intent (in) :: beta
-    !! Specific leaf area (m2 gDM-1)
-    real (dp) :: SLA
+        !! Exponent (rate of decrease over developmental stage)
+    real (dp) :: SLA !! Specific leaf area (m2 gDM-1)
 
     SLA = alpha*fPHU**beta
   end function SLA_development
@@ -780,13 +777,12 @@ contains
   function Calloc_roots(fPHU, fCalloc_init, Calloc_end) result (fCalloc)
     !! C allocation to roots as a function of the phenological development.
 
-    !! Fraction of phenological heat units
-    real (dp), intent (in) :: fPHU
-    !! Initial fraction of C allocation (at fPHU=0).
+    real (dp), intent (in) :: fPHU !! Fraction of phenological heat units.
     real (dp), intent (in) :: fCalloc_init
-    !! Developmental stage (fPHU) at which fCalloc reaches 0.
+        !! Initial fraction of C allocation (at fPHU=0).
     real (dp), intent (in) :: Calloc_end
-    real (dp) :: fCalloc
+        !! Developmental stage (fPHU) at which fCalloc reaches 0.
+    real (dp) :: fCalloc !! Fraction of carbon allocated.
 
     if (fPHU <= Calloc_end) then
        fCalloc = fCalloc_init - 1.0_dp/Calloc_end*fCalloc_init*fPHU
@@ -805,17 +801,14 @@ contains
           ) result (fCalloc)
     !! C allocation to leaves as a function of the phenological development.
 
-    !! Fraction of phenological heat units.
-    real (dp), intent (in) :: fPHU
-    !! fPHU at breakpoint.
-    real (dp), intent (in) :: fPHU_bpt
-    !! Developmental stage (fPHU) at which fCalloc reaches 0.
+    real (dp), intent (in) :: fPHU !! Fraction of phenological heat units.
+    real (dp), intent (in) :: fPHU_bpt !! fPHU at breakpoint.
     real (dp), intent (in) :: Calloc_end
-    !! Initial fraction of C allocation (at fPHU=0).
+        !! Developmental stage (fPHU) at which fCalloc reaches 0.
     real (dp), intent (in) :: fCalloc_init
-    !! fCalloc to leaves at breakpoint.
-    real (dp), intent (in) :: fCalloc_bpt
-    real (dp) :: fCalloc
+        !! Initial fraction of C allocation (at fPHU=0).
+    real (dp), intent (in) :: fCalloc_bpt !! fCalloc to leaves at breakpoint.
+    real (dp) :: fCalloc !! Fraction of carbon allocated.
 
     if (fPHU <= fPHU_bpt) then
        fCalloc = fCalloc_init - &
@@ -832,13 +825,13 @@ contains
   function Calloc_products(fPHU, fPHU_flowering, Calloc_max) result (fCalloc)
     !! C allocation to products as a function of the phenological development.
 
-    !! Fraction of phenological heat units.
-    real (dp), intent (in) :: fPHU
-    !! Fraction of phenological heat units at flowering (usually 0.5).
+    real (dp), intent (in) :: fPHU !! Fraction of phenological heat units.
     real (dp), intent (in) :: fPHU_flowering
-    !! Developmental stage (fPHU) at which fCalloc reaches 1.
+        !! Fraction of phenological heat units at flowering (usually 0.5).
     real (dp), intent (in) :: Calloc_max
-    real (dp) :: fCalloc
+        !! Developmental stage (fPHU) at which fCalloc reaches 1.
+    real (dp) :: fCalloc !! Fraction of carbon allocated.
+
 
     if (fPHU <= fPHU_flowering) then
        fCalloc = 0.0_dp
@@ -854,12 +847,9 @@ contains
     !! Crop height from allometric relationships.
     !! Arora and Boer 2005 (Eq. A2): dependence on Cstem and Cleaf.
 
-    !! C content in stem (gC m-2).
-    real (dp), intent (in) :: Cstem
-    !! C content in leaves (gC m-2).
-    real (dp), intent (in) :: Cleaf
-    !! crop height (m).
-    real (dp) :: height
+    real (dp), intent (in) :: Cstem !! C content in stem (gC m-2).
+    real (dp), intent (in) :: Cleaf !! C content in leaves (gC m-2).
+    real (dp) :: height !! Crop height (m).
 
     height = ((Cstem + Cleaf)/1000.0_dp)**0.385_dp
   end function vegheight_Cstem_Cleaf

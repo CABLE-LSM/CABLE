@@ -32,16 +32,16 @@ SUBROUTINE crop_driver( &
 
   IMPLICIT NONE
 
-  INTEGER, INTENT (in) :: doy
-  TYPE (climate_type), INTENT (in) :: climate
-  TYPE (soil_snow_type), INTENT (in) :: ssnow
-  TYPE (soil_parameter_type), INTENT (in) :: soil
-  TYPE (veg_parameter_type), INTENT (inout) :: veg
-  TYPE (canopy_type), INTENT (inout) :: canopy
-  TYPE (casa_flux), INTENT (inout) :: casaflux
-  TYPE (casa_met), INTENT (inout) :: casamet
-  TYPE (casa_pool), INTENT (inout) :: casapool
-  TYPE (crop_type), INTENT (inout) :: crop
+  INTEGER, INTENT (in) :: doy !! Day of year.
+  TYPE (climate_type), INTENT (in) :: climate !! Climate data.
+  TYPE (soil_snow_type), INTENT (in) :: ssnow !! Soil snow.data.
+  TYPE (soil_parameter_type), INTENT (in) :: soil !! Soil data.
+  TYPE (veg_parameter_type), INTENT (inout) :: veg !! Vegetation data.
+  TYPE (canopy_type), INTENT (inout) :: canopy !! Canopy data.
+  TYPE (casa_flux), INTENT (inout) :: casaflux !! CASA flux data.
+  TYPE (casa_met), INTENT (inout) :: casamet !! CASA meteorological data.
+  TYPE (casa_pool), INTENT (inout) :: casapool !! CASA pools data.
+  TYPE (crop_type), INTENT (inout) :: crop !! Crop data.
 
   ! local
   INTEGER :: ic,sl ! loop counters: crop type, soil layer
