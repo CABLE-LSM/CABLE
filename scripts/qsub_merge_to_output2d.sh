@@ -6,9 +6,9 @@
 #PBS -P x45
 # express / normal / copyq (2x24, cascadelake)
 # expressbw / normalbw (2x14, broadwell) / normalsl (2x16, skylake)- ex-Raijin nodes
-#PBS -q normalbw
+#PBS -q normal
 # casa < 1 h, cable < 2 h, sum_patchfrac < 25 min
-#PBS -l walltime=03:30:00
+#PBS -l walltime=04:00:00
 #PBS -l mem=4GB
 #PBS -l ncpus=1
 # #PBS -l jobfs=1GB
@@ -63,12 +63,12 @@ for otype in ${otypes} ; do
     fi
 
     # merge
-    ofile="${outdir}/cru_out_${otype}_${oend}-merged.nc"
+    ofile="${outdir}/cru_out_${otype}_${oend}-merged1.nc"
     python merge_to_output2d.py -z -v -o ${ofile} ${ifiles}
 
     # sum patch
     if [[ "${otype}" == "cable" ]] ; then
-        pfile="${outdir}/cru_out_${otype}_${oend}-sum_patch.nc"
+        pfile="${outdir}/cru_out_${otype}_${oend}-sum_patch1.nc"
         python sum_patchfrac.py -v -z -o ${pfile} ${ofile}
     fi
 done
