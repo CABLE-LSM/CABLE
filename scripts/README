@@ -64,8 +64,10 @@ compare_two_cable_runs.sh
 global_150x360.griddes
     Grid description file for cdo to use on 2D files produced with Python
     scripts of this directory.
-merge_output2d.py
-    Merge Cable 2D output files from pseudo-parallelised runs.
+# merge_output2d.py
+#     Merge Cable 2D output files from pseudo-parallelised runs.
+#     Not yet tuned for memory usage. To be changed like merge_to_output2d.py
+#     in case of need.
 merge_to_output2d.py
     Merge files of pseudo-parallelised Cable or Casa output in land format
     to combined 2D arrays with latitude/longitude.
@@ -74,6 +76,9 @@ nopatch2d.py
     or sum_patchcasa.py) to 2D latitude/longitude output.
 pack_output2d.py
     Pack Cable 2D output files by removing masked ocean and land points.
+qsub_merge_to_output2d.sh
+    Submit merge_to_output2d.py and sum_patchfrac.py on Casa and
+    Cable output in land format.
 sum_patchcasa.py
     Copy Casa output summing variables weighted with patchfrac.
 sum_patchcasa2d.py

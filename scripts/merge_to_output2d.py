@@ -29,6 +29,11 @@ History
 Written  Matthias Cuntz, May 2020
              - from unpack_to_output2d.py
 
+Remember:
+https://chase-seibert.github.io/blog/2013/08/03/diagnosing-memory-leaks-python.html
+https://gist.github.com/schlamar/2311116
+https://stackoverflow.com/questions/15455048/releasing-memory-in-python
+
 """
 import argparse
 import sys
@@ -37,6 +42,8 @@ import netCDF4 as nc
 import cablepop as cp
 import pyjams as pj
 import time as ptime
+import psutil
+import gc
 
 # -------------------------------------------------------------------------
 # Command line
@@ -76,6 +83,8 @@ if len(ifiles) == 0:
 if verbose:
     tstart = ptime.time()
 
+gb = 1073741824.  # (1024 * 1024 * 1024)
+
 # -------------------------------------------------------------------------
 # Copy data
 #
@@ -92,14 +101,15 @@ ntime = fi.dimensions['time'].size
 if ofile is None:  # Default output filename
     ofile = pj.ncio.set_output_filename(ifile, '-merged')
 if verbose:
-    print('Output Create output file:', ofile)
+    print('Create output file:', ofile)
 if izip:
-    fo = nc.Dataset(ofile, 'w', format='NETCDF4')
+    oformat = 'NETCDF4'
 else:
     if 'file_format' in dir(fi):
-        fo = nc.Dataset(ofile, 'w', format=fi.file_format)
+        oformat = fi.file_format
     else:
-        fo = nc.Dataset(ofile, 'w', format='NETCDF3_64BIT_OFFSET')
+        oformat = 'NETCDF3_64BIT_OFFSET'
+fo = nc.Dataset(ofile, 'w', format=oformat)
 
 # get latitude/longitude
 if 'local_lat' in fi.variables:
@@ -160,8 +170,10 @@ pj.ncio.create_variables(fi, fo, time=True, izip=izip, fill=True,
                          replacedim={'land': ('y', 'x'),
                                      'ntile': ('y', 'x')})
 
+# create x and y for cdo, etc.
 if 'x' not in fi.variables:
-    print('Create x')
+    if verbose:
+        print('Create x')
     nvar = {'name': 'x',
             'dtype': ilons.dtype,
             'dimensions': ('x'),
@@ -170,7 +182,8 @@ if 'x' not in fi.variables:
     ovar[:] = olon
 
 if 'y' not in fi.variables:
-    print('Create y')
+    if verbose:
+        print('Create y')
     nvar = {'name': 'y',
             'dtype': ilats.dtype,
             'dimensions': ('y'),
@@ -178,28 +191,31 @@ if 'y' not in fi.variables:
     ovar = pj.ncio.create_new_variable(nvar, fo)
     ovar[:] = olat
 
+# write time for correct output shape
+if verbose:
+    print('Write time')
+ivar = fi.variables['time']
+ovar = fo.variables['time']
+ovar[:] = ivar[:]
+
 fi.close()
+fo.close()
 
 if verbose:
     print('Get all indexes')
 nfiles = len(ifiles)
-fis = []
 iidl = []
 oidx = []
 oidy = []
 for nfile, ifile in enumerate(ifiles):
     fi = nc.Dataset(ifile, 'r')
-    fis.append(fi)
     # Check time
     ntime1 = fi.dimensions['time'].size
     if ntime1 != ntime:
-        for fi in fis:
-            fi.close()
-        fo.close()
+        fi.close()
         raise ValueError(f'Time not the same in {ifiles[0]} and in {ifile}')
     # get latitude/longitude indices
     if 'local_lat' in fi.variables:
-        print('local_lat')
         ilats = fi.variables['local_lat'][:]
         ilons = fi.variables['local_lon'][:]
     else:
@@ -240,6 +256,7 @@ for nfile, ifile in enumerate(ifiles):
         fi_oidy[i] = iy
     oidx.append(fi_oidx)
     oidy.append(fi_oidy)
+    fi.close()
 
 #
 # Copy variables from in to out expanding the land dimension to y, x
@@ -250,47 +267,106 @@ if verbose:
     print('Copy input to output')
 n = 0
 for ncvar in ncvars:
+    if ncvar == 'time':
+        continue
     if verbose:
         tstartvar = ptime.time()
         print(f'    {ncvar}')
     n += 1
-    ivar0 = fis[0].variables[ncvar]
+    ifile0 = ifiles[0]
+    fi0 = nc.Dataset(ifile0, 'r')
+    fo = nc.Dataset(ofile, 'a', format=oformat)
+    ivar0 = fi0.variables[ncvar]
+    ivar0_dtype = ivar0.dtype
     ovar = fo.variables[ncvar]
     if ncvar == 'longitude':
+        fi0.close()
         ovar[:] = olon2d
     elif ncvar == 'latitude':
+        fi0.close()
         ovar[:] = olat2d
     elif (('land' not in ivar0.dimensions) and
           ('ntile' not in ivar0.dimensions)):
         # should not be masked and all the same: check
-        for f, fi in enumerate(fis):
-            ivar = fi.variables[ncvar]
-            if not np.all(ivar0[:] == ivar[:]):
-                print('ivar0', ivar0[:])
-                print('ivar', ivar[:])
-                for fi in fis:
-                    fi.close()
+        ivar00 = ivar0[:]
+        fi0.close()
+        for ifile in ifiles:
+            fi = nc.Dataset(ifile, 'r')
+            ivar = fi.variables[ncvar][:]
+            if not np.all(ivar00 == ivar):
+                print('ivar0', ivar00)
+                print('ivar', ivar)
+                fi.close()
                 fo.close()
                 raise ValueError(f'variable {ncvar} not equal in file'
-                                 f' {ifiles[0]} and file {ifiles[f]}')
-        ovar[:] = ivar0[:]
-    else:
+                                 f' {ifile0} and file {ifile}')
+            fi.close()
+            del ivar
+        ovar[:] = ivar00
+        del ivar00
+    elif ('time' not in ivar0.dimensions):
+        fi0.close()
         outvar = np.full(ovar.shape,
-                         pj.ncio.get_fill_value_for_dtype(ivar0.dtype))
-        for f, fi in enumerate(fis):
+                         pj.ncio.get_fill_value_for_dtype(ivar0_dtype))
+        for f, ifile in enumerate(ifiles):
+            fi = nc.Dataset(ifile, 'r')
             ivar = fi.variables[ncvar]
-            # read whole field, otherwise times increasing sharply
+            # read whole field
             invar = ivar[:]
-            # fill in memory, then write to disk in one go
-            if len(invar.shape) == 1:
+            # fill in memory
+            if len(ivar.shape) == 1:
                 outvar[oidy[f], oidx[f]] = invar[iidl[f]]
             else:
                 outvar[..., oidy[f], oidx[f]] = invar[..., iidl[f]]
+            fi.close()
+            del invar, ivar
         # write to disk in one go
         ovar[:] = outvar
-
-fi.close()
-fo.close()
+        del outvar
+    else:  # has time and land/ntile
+        fi0.close()
+        print(f'        {ovar.shape}')
+        nt = np.ceil(np.prod(ovar.shape) * 8 / gb / 2).astype(int)
+        tindexes = np.linspace(0, ntime, nt+1, dtype=int)
+        for nn in range(nt):
+            oshape = list(ovar.shape)
+            i1 = tindexes[nn]
+            i2 = tindexes[nn + 1]
+            oshape[0] = i2 - i1
+            if nt > 1:
+                print(f'        {oshape} {i1} {i2}')
+            outvar = np.full(oshape,
+                             pj.ncio.get_fill_value_for_dtype(ivar0_dtype))
+            mem = psutil.Process().memory_info()
+            if verbose:
+                tstartread = ptime.time()
+            for f, ifile in enumerate(ifiles):
+                fi = nc.Dataset(ifile, 'r')
+                ivar = fi.variables[ncvar]
+                    # read time steps
+                invar = ivar[i1:i2, ...]
+                # fill in memory
+                outvar[..., oidy[f], oidx[f]] = invar[..., iidl[f]]
+                fi.close()
+                del invar, ivar
+            # write to disk in one go
+            if verbose:
+                tstopread = ptime.time()
+                print('        Read  {:.2f} s'.format(tstopread - tstartread))
+                tstartwrite = tstopread
+            ovar[i1:i2, ...] = outvar
+            if verbose:
+                tstopwrite = ptime.time()
+                print('        Wrote {:.2f} s'.format(tstopwrite - tstartwrite))
+                mem = psutil.Process().memory_info()
+                print(f'        Memory physical [GB]: {mem.rss / gb:.2f} virtual: {mem.vms / gb:.2f}')
+            del outvar
+    fo.close()
+    del ivar0, ovar
+    gc.collect()
+    if verbose:
+        tstopvar = ptime.time()
+        print('        Total {:.2f} s'.format(tstopvar - tstartvar))
 
 # -------------------------------------------------------------------------
 # Finish
