@@ -3,6 +3,8 @@
 ## Splits up global land mask into n number of land masks to be used in serial runs
 ## Makes use of raster objects rather than gridlists to speed things up.
 ## Expects land mask as input with 1=land and 0 or NA = non-land
+# June 2023: split landmask evenly across the globe to ensure more even distribution
+#            of land cover classes in each run (e.g. avoid ice-only runs)
 
 library("ncdf4")
 library("raster")
@@ -18,7 +20,6 @@ if (bbox != "global"){
   lmask     <- crop(gl,bounds)
   gl[]      <- NA
   gl        <- merge(gl,lmask)
-  names(gl) <- "land"
 }
 
 vals <- getValues(gl)
@@ -26,7 +27,8 @@ vals <- getValues(gl)
 ntot     <- sum(vals,na.rm=T)    # total number of land grid cells
 npermask <- ceiling(ntot/nmasks) # land grid cells per mask
 
-vals[!is.na(vals)] <- vals[!is.na(vals)] + sort(rep(1:nmasks-1,npermask))[1:ntot]
+#vals[!is.na(vals)] <- vals[!is.na(vals)] + sort(rep(1:nmasks-1,npermask))[1:ntot]
+vals[!is.na(vals)] <- vals[!is.na(vals)] + rep(1:nmasks-1,npermask)[1:ntot]
 
 for (i in 1:nmasks){
   mask <- vals
@@ -37,7 +39,7 @@ for (i in 1:nmasks){
   outdir_full <- paste0(outdir,"/run",i,"/landmask")
   dir.create(outdir_full,recursive=TRUE,showWarnings=FALSE)
   writeRaster(mask,paste0(outdir_full,"/landmask",i,".nc"),format="CDF",datatype="INT1S",overwrite=TRUE,
-              NAflag=0,varunit="0:no land, 1:land",longname="land")
+              NAflag=0,varunit="0:no land, 1:land",varname="land",longname="land")
 }
 
 

@@ -2,10 +2,11 @@
 
 # Gadi
 # https://opus.nci.org.au/display/Help/How+to+submit+a+job
-#PBS -N S3_test_serial
+#PBS -N S3_test8_serial_global
 #PBS -P x45
 #PBS -q normal
-#PBS -l walltime=05:00:00
+#PBS -p 400
+#PBS -l walltime=12:00:00
 #PBS -l mem=4GB
 #PBS -l ncpus=1
 #PBS -l storage=gdata/x45+scratch/pt17+gdata/vl59
@@ -79,7 +80,7 @@ if [[ ! -z ${mpiexecdir} ]] ; then export mpiexecdir="${mpiexecdir}/" ; fi
 # TRENDY experiment (S0, S1, S2, S3, S4, S5, S6):     
 experiment='S3'
 # Name of the experiment (= name of output folder)     
-experiment_name='S3_test_serial'
+experiment_name='S3_test8_serial_global'
 # Code directory
 cablecode='/home/599/jk8585/CABLE_code/SHARE/CABLE-POP_TRENDY'
 # Script directory
@@ -95,9 +96,9 @@ TransitionFilePath='/g/data/x45/LUH2/GCB_2022/1deg/EXTRACT'
 # Global Surface file 
 SurfaceFile='/g/data/vl59/TRENDY_v11/aux/gridinfo_CSIRO_1x1.nc'
 # Output directory of the run
-runpath='/scratch/pt17/jk8585/CABLE_tests/S3_test_serial/run2'
+runpath='/scratch/pt17/jk8585/CABLE_tests/S3_test8_serial_global/run100'
 # Land Mask used for this run
-LandMaskFile='/scratch/pt17/jk8585/CABLE_tests/S3_test_serial/run2/landmask/landmask2.nc'
+LandMaskFile='/scratch/pt17/jk8585/CABLE_tests/S3_test8_serial_global/run100/landmask/landmask100.nc'
 
 
 ## ----------------------------------------------------------------
@@ -350,7 +351,7 @@ cat > ${tmp}/sedtmp.${pid} << EOF
     cable_user%RunIden                 = "${mettype}"
     cable_user%MetType                 = "${mettype}"
     output%averaging                   = "monthly"
-    output%grid                        = "mask"
+    output%grid                        = "land"
     output%vars5D                      = .FALSE.
     leaps                              = .false.
     cable_user%SOIL_STRUC              = "default"
