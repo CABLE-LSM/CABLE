@@ -18,7 +18,7 @@ applications. The following are annotated examples of cable.nml:
 
 ## For offline applications ##
 
-```fortran-free-form
+```fortran
 &cable
    filename%met = '/projects/access/CABLE-AUX/offline/TumbaFluxnet.1.3_met.nc'
    filename%out = 'out_cable.nc'
@@ -139,7 +139,7 @@ applications. The following are annotated examples of cable.nml:
 | casafile%phen                    | character(len=99)  | any string of max. 99 characters                           | uninitialised                    | Modis phenology file name.                                                                              |
 | casafile%cnpflux                 | character(len=99)  | any string of max. 99 characters                           | uninitialised                    | Output file name for CNP fluxes                                                                         |
 | casafile%c2cdumppath             | character(len=99)  | any string of max. 99 characters                           | ''                               | CABLE to CASA dump for CASA spin up.                                                                    |
-| ncciy                            | integer            |                                                            | uninitialised                    | GSWP year. 0 for not using GSWP; 4-digit year input for year of GSWP meteorological forcing.            |
+| ncciy                            | integer            | any integer                                                | uninitialised                    | GSWP year. 0 for not using GSWP; 4-digit year input for year of GSWP meteorological forcing.            |
 | gswpfile%rainf                   | character(len=200) | any string of max. 200 characters                          | uninitialised                    | Input file for rain meteorological forcing.                                                             |
 | gswpfile%snowf                   | character(len=200) | any string of max. 200 characters                          | uninitialised                    | Input file for snow meteorological forcing.                                                             |
 | gswpfile%LWdown                  | character(len=200) | any string of max. 200 characters                          | uninitialised                    | Input file for long wave radiation meteorological forcing.                                              |
@@ -149,8 +149,8 @@ applications. The following are annotated examples of cable.nml:
 | gswpfile%Tair                    | character(len=200) | any string of max. 200 characters                          | uninitialised                    | Input file for temperature meteorological forcing.                                                      |
 | gswpfile%wind                    | character(len=200) | any string of max. 200 characters                          | uninitialised                    | Input file for wind meteorological forcing.                                                             |
 | redistrb                         | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Turn on/off the hydraulic redistribution.                                                               |
-| wiltParam                        | real               |                                                            | 0.0                              | Wilt parameter in hydraulic redistribution module.                                                      |
-| satuParam                        | real               |                                                            | 0.0                              | Saturation parameter in hydraulic redistribution module.                                                |
+| wiltParam                        | real               | any real                                                   | 0.0                              | Wilt parameter in hydraulic redistribution module.                                                      |
+| satuParam                        | real               | any real                                                   | 0.0                              | Saturation parameter in hydraulic redistribution module.                                                |
 | cable_user%FWSOIL_SWITCH         | character          | 'standard' 'non-linear extrapolation' 'Lai and Ktaul 2000' | ''                               | Controls root water uptake function.                                                                    |
 | cable_user%DIAG_SOIL_RESP        | character(len=3)   | 'ON' 'OFF'                                                 | ''                               | Controls soil respiration scheme when CASA-CNP not used.                                                |
 | cable_user%LEAF_RESPIRATION      | character(len=3)   | 'ON' 'OFF'                                                 | uninitialised                    | Controls what is output into the GPP stash variable.                                                    |
@@ -164,12 +164,12 @@ applications. The following are annotated examples of cable.nml:
 | cable_user%l_rev_corr            | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Apply revised sensitvity/correction terms to soilsnow energy balance.                                   |
 | cable_user%soil_thermal_fix      | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Snow capping depth?                                                                                     |
 | cable_user%phenology_switch      | character(len=20)  | 'MODIS' 'climate'                                          | 'MODIS'                          | ?                                                                                                       |
-| cable_user%RunIden               | character(len=10)  | any string of max. 10 characters                           | 'STANDARD'                       | Snow capping depth?                                                                                     |
+| cable_user%RunIden               | character(len=10)  | any string of max. 10 characters                           | 'STANDARD'                       | ?                                                                                                       |
 | cable_user%MetType               | character(len=6)   | any string of max. 6 characters                            | ' '                              | ?                                                                                                       |
 | cable_user%soil_struc            | character(len=20)  | 'default' 'sli'                                            | 'default'                        | ?                                                                                                       |
 | cable_user%POP_out               | character(len=3)   | 'epi' 'rst'                                                | 'rst'                            | ?                                                                                                       |
 | cable_user%POP_rst               | character(len=50)  | any string of max. 50 characters                           | ' '                              | ?                                                                                                       |
-| cable_user%casa_out_freq         | character(len=8)   | 'daily' 'monthly' 'annually'                               | 'annually'                       | ?                                                                                                       |
+| cable_user%casa_out_freq         | character(len=8)   | 'daily' 'monthly' 'annually'                               | 'annually'                       | CASA output frequency                                                                                   |
 | cable_user%vcmax                 | character(len=10)  | 'standard' 'Walker2014'                                    | 'standard'                       | ?                                                                                                       |
 | cable_user%POPLUC_RunType        | character(len=10)  | 'static' 'init' 'restart'                                  | 'static'                         | ?                                                                                                       |
 | cable_user%call_pop              | logical            | .TRUE. .FALSE.                                             | .FALSE.,                         | ?                                                                                                       |
@@ -178,8 +178,8 @@ applications. The following are annotated examples of cable.nml:
 | cable_user%climate_fromzero      | logical            | .TRUE. .FALSE.                                             | .FALSE.,                         | ?                                                                                                       |
 | cable_user%CASA_fromzero         | logical            | .TRUE. .FALSE.                                             | .FALSE.,                         | ?                                                                                                       |
 | cable_user%POPLUC                | logical            | .TRUE. .FALSE.                                             | .FALSE.,                         | ?                                                                                                       |
-| cable_user%casa_spin_startyear   | integer            | any integer                                                | 1950                             | ?                                                                                                       |
-| cable_user%casa_spin_endyear     | integer            | any integer                                                | 1960                             | ?                                                                                                       |
+| cable_user%casa_spin_startyear   | integer            | any integer                                                | 1950                             | CASA spinup start year.                                                                                 |
+| cable_user%casa_spin_endyear     | integer            | any integer                                                | 1960                             | CASA spinup end year.                                                                                   |
 | cable_user%yearstart             | integer            | any integer                                                | 0                                | ?                                                                                                       |
 | cable_user%yearend               | integer            | any integer                                                | 0                                | ?                                                                                                       |
 | cable_user%casa_nrep             | integer            | any integer                                                | 1                                | ?                                                                                                       |
@@ -192,7 +192,7 @@ applications. The following are annotated examples of cable.nml:
 | cable_user%casa_dump_read        | logical            | .TRUE. .FALSE.                                             | .FALSE.,                         | ?                                                                                                       |
 | cable_user%casa_dump_write       | logical            | .TRUE. .FALSE.                                             | .FALSE.,                         | ?                                                                                                       |
 | cable_user%cable_runtime_coupled | logical            | .TRUE. .FALSE.                                             | .TRUE.,                          | ?                                                                                                       |
-| cable_user%LogWorker             | logical            | .TRUE. .FALSE.                                             | .TRUE.,                          | Write Output of each worker                                                                             |
+| cable_user%LogWorker             | logical            | .TRUE. .FALSE.                                             | .TRUE.,                          | Write output of each worker                                                                             |
 | cable_user%l_new_roughness_soil  | logical            | .TRUE. .FALSE.                                             | .FALSE.,                         | ?                                                                                                       |
 | cable_user%l_new_runoff_speed    | logical            | .TRUE. .FALSE.                                             | .FALSE.,                         | ?                                                                                                       |
 | cable_user%l_new_reduce_soilevp  | logical            | .TRUE. .FALSE.                                             | .FALSE.,                         | ?                                                                                                       |
@@ -205,7 +205,7 @@ applications. The following are annotated examples of cable.nml:
 | cable_user%test_new_gw           | logical            | .TRUE. .FALSE.                                             | .FALSE.,                         | ?                                                                                                       |
 | cable_user%sync_nc_file          | logical            | .TRUE. .FALSE.                                             | .FALSE.,                         | ?                                                                                                       |
 | cable_user%max_spins             | integer            | any integer                                                | 1                                | ?                                                                                                       |
-| cable_user%fix_access_roots      | logical            | .TRUE. .FALSE.                                             | .FALSE.,                         | use pft dependent roots in ACCESS                                                                       |
+| cable_user%fix_access_roots      | logical            | .TRUE. .FALSE.                                             | .FALSE.,                         | Use pft dependent roots in ACCESS                                                                       |
 | cable_user%access13roots         | logical            | .TRUE. .FALSE.                                             | .FALSE.,                         | Switch to use ACCESS1.3 %froot.                                                                         |
 | cable_user%l_limit_labile        | logical            | .TRUE. .FALSE.                                             | .FALSE.,                         | Limit Labile in spinup                                                                                  |
 | cable_user%NtilesThruMetFile     | logical            | .TRUE. .FALSE.                                             | .FALSE.,                         | Specify Ntiles through met file                                                                         |
@@ -214,7 +214,7 @@ applications. The following are annotated examples of cable.nml:
 ## For ACCESS applications ##
 
 
-```fortran-free-form
+```fortran
 &cable
 !!
 !! cable namelist variables applicable to ACCESS/UM runs
