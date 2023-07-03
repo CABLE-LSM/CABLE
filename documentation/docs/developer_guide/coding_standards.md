@@ -131,7 +131,7 @@ Where,
 SUBROUTINE eg_subr( eg_arg, ilen, jlen, sometype )
 ! Subroutine description in markdown - see??
 
-USE some_type_mod_cbl, ONLY : some_type
+USE cbl_some_type_mod, ONLY : some_type
 
 IMPLICIT NONE
 
