@@ -35,15 +35,13 @@ Maintain globally consistent names of variables across files, subroutines and mo
 
 ### 5. File names
 
-To include CABLE code identifiably across applications, please name the file with a `_cbl` suffix in your filename.
-For example: `egName_cbl.F90`. 
-
-Please maintain consistent naming between files, subroutines and modules. 
+All files in CABLE source code should use the prefix `cbl_` in their name.
+For example: `cbl_egName.F90`. 
 
 ### 6. MODULE names
 
 Everything should be contained within modules.
-Modules should be named of the form `*_mod_cbl`. Following from the above example, the file `egName_cbl.F90` should contain the module declaration `MODULE egName_mod_cbl`
+Modules should be named using the filename followed by a `_mod` suffix. For example, the file `cbl_egName.F90` should contain the module declaration `MODULE cbl_egName_mod`
 
 ### 7. SUBROUTINE names
 
