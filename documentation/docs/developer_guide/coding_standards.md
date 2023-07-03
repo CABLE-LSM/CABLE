@@ -23,10 +23,9 @@ In terms of the offline application of the model this means IO should be restric
 Detrimental to any software is the lack of meaningful and/or outdated comments. 
 Liberal inline commenting is expected, as well as use of Markdown for FORD generated documentation. See [cable_roughness.F90](https://github.com/CABLE-LSM/CABLE/blob/main/src/science/roughness/cable_roughness.F90) for an example, which is then rendered [here](https://cable.readthedocs.io/en/latest/api/module/cable_roughness_module.html)
 
-### 3. Avoid WHERE loops
+### 3. Do not use WHERE loops
 
-`WHERE` loops are sometimes used in stead of `DO` loops with an `IF`. In some circumstances, this may improve readability and is easier to write. However, they are difficult to debug, hamper portability and are therefore discouraged. 
-Moreover it will not pass JULES coding standards. 
+`WHERE` loops are sometimes used instead of `DO` loops with an `IF`. Although they might be easier to write and may improve readability, `WHERE` loops are difficult to debug and hamper portability. They are therefore discouraged. 
 
 ### 4. Variable names
 
