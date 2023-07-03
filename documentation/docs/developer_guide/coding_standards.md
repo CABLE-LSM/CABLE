@@ -122,7 +122,7 @@ SUBROUTINE eg_subr ( Arguments )
 ...
 END SUBROUTINE eg_subr 
 
-END MODULE eg_mod_cbl
+END MODULE cbl_eg_mod
 ```
 
 Where,
