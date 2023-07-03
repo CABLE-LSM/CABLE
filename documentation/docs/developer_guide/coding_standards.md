@@ -46,7 +46,6 @@ Modules should be named using the filename followed by a `_mod` suffix. For exam
 ### 7. SUBROUTINE names
 
 Subroutines should be of the form "\*_cbl()". Following from the above file `egName_cbl.F90` `SUBROUTINE egName_cbl()`. This is not only helpful for consistency but necessary within JULES/UM applications where it distinguishes the CABLE version of an analogous JULES subroutine. 
-Markdown needs to escape * characters.
 
 ### 8. Miscellaneous
 
