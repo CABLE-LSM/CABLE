@@ -142,33 +142,33 @@ REAL, INTENT(OUT) :: eg_arg(ilen,jlen)   ! example arg [kg//m^2/s]
 !local variables
 REAL :: eg_local(ilen,jlen)              ! example local [kg//m^2/s]
 
-DO i=1,ilen                         ! DO:over ilen
+ilen_loop: DO i=1,ilen
 
-  DO j=1,jlen                       ! DO:over jlen
+  jlen_loop: DO j=1,jlen
   
-    IF( condition1 ) THEN           ! IF:condition1  
+    condition1: IF( condition1 ) THEN
   
-      IF( condition1.1 ) THEN       ! IF:condition1.1  
+      condition1.1: IF( condition1.1 ) THEN  
         
         eg_arg = some_type%some_type_member1 * some_type%some_type_member2     &
                 * some_type%some_type_member3 
       
-      ENDIF                         ! IF:condition1.1  
+      END IF condition1.1
       
     ELSE
         
-      IF( condition1.2 ) THEN       ! IF:condition1.2  
+      condition1.2: IF( condition1.2 ) THEN 
       
         eg_arg = some_type%some_type_member1 * some_type%some_type_member2     &
                 * some_type%some_type_member4 
       
-      ENDIF                         ! IF:condition1.2    
+      END IF condition1.2
                           
-    ENDIF                           ! IF:condition1
+    END IF condition1
   
-  END DO                            ! DO:over jlen
+  END DO jlen_loop
 
-END DO                              ! DO:over ilen
+END DO ilen_loop
 
 RETURN
 END SUBROUTINE eg_subr 
