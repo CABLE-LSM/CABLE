@@ -21,7 +21,7 @@ In terms of the offline application of the model this means IO should be restric
 ### 2. Comment liberally
 
 Detrimental to any software is the lack of meaningful and/or outdated comments. 
-Liberal inline commenting is expected, as well as use of Markdown for FORD generated documentation. See [cable_roughness.F90](https://github.com/CABLE-LSM/CABLE/blob/main/src/science/roughness/cable_roughness.F90) for an example, which is then redered [here](https://cable.readthedocs.io/en/latest/api/module/cable_roughness_module.html)
+Liberal inline commenting is expected, as well as use of Markdown for FORD generated documentation. See [cable_roughness.F90](https://github.com/CABLE-LSM/CABLE/blob/main/src/science/roughness/cable_roughness.F90) for an example, which is then rendered [here](https://cable.readthedocs.io/en/latest/api/module/cable_roughness_module.html)
 
 ### 3. Avoid WHERE loops
 
