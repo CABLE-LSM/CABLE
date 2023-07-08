@@ -1857,7 +1857,7 @@ CONTAINS
 
     INTEGER :: dday ! number of past-years days for monthly output LN
     INTEGER :: iy   ! Counter
-    INTEGER, SAVE :: YearStart
+    INTEGER, SAVE   :: YearStart
     INTEGER :: ok ! for netcdf sync
     real(kind=4) :: rinterval
     real(r_2)    :: r2interval, gd2umols
@@ -1927,7 +1927,7 @@ CONTAINS
           ! If currently a leap year:
           if (is_leapyear(CurYear)) then
              !! vh_js !!
-             IF(ANY(INT(real(lastdayl+dday) * 24. * 3600. / dels) == ktau)) THEN
+             IF(ANY(NINT(real(lastdayl+dday) * 24. * 3600. / dels) == ktau)) THEN
                 out_month = MOD(out_month, 12) + 1 ! can only be 1 - 12
                 ! write to output file this time step
                 writenow = .TRUE.
@@ -1941,7 +1941,7 @@ CONTAINS
           ELSE ! not currently a leap year
              ! last time step of month
              !! vh_js !!
-             IF(ANY(INT(real(lastday+dday) * 24. * 3600. / dels) == ktau)) THEN
+             IF(ANY(NINT(real(lastday+dday) * 24. * 3600. / dels) == ktau)) THEN
                 ! increment output month counter
                 out_month = MOD(out_month, 12) + 1 ! can only be 1 - 12
                 ! write to output file this time step
@@ -1950,23 +1950,20 @@ CONTAINS
                 out_timestep = out_timestep + 1
                 ! set numbr of time steps in output period
                 output%interval = daysm(out_month) * 24 * 3600 / INT(dels)
-                !write(72,*) CurYear, is_leapyear(CurYear), dday, ktau
              ELSE
                 writenow = .FALSE.
              END IF
           END IF
        ELSE ! not using leap year timing in this run
-
           !! vh_js !!
-          IF(ANY(INT((real((lastday+dday))*24.*3600./real(INT(dels))))==ktau)) THEN ! last time step of month
-             ! IF(ANY(((lastday+dday)*24*3600/INT(dels))==ktau)) THEN ! last time step of month
+          IF(ANY(NINT(real((lastday+dday))*24.*3600./real(INT(dels)))==ktau)) THEN ! last time step of month
              ! increment output month counter
              out_month = MOD(out_month, 12) + 1 ! can only be 1 - 12
              ! write to output file this time step
              writenow = .TRUE.
              ! increment output time step counter:
              out_timestep = out_timestep + 1
-             ! set numbr of time steps in output period
+             ! set number of time steps in output period
              output%interval = daysm(out_month) * 24 * 3600 / INT(dels)
           ELSE
              writenow = .FALSE.

@@ -421,7 +421,7 @@ CONTAINS
     ELSE IF(output%grid(1:3) == 'lan'                                          &
             .OR. (output%grid(1:3) == 'def' .AND. metGrid == 'land')) THEN
       ! Should patch-specific info be written for this variable?
-      IF(writepatch .OR. output%patch) THEN
+      IF(writepatch .OR. output%patch .AND. output%vars5D) THEN
         WRITE(logn, *) 'Writing '//vname//                                     &
                       ' to output file using land grid with patch-specific info'
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/landID, patchID,          &
@@ -1506,7 +1506,7 @@ CONTAINS
       ! Should patch-specific info be written for this variable
       ! (no patches in ALMA format)?
       IF((writepatch .OR. output%patch) .AND. (.NOT. output%grid(1:3)          &
-        == 'ALM')) THEN
+        == 'ALM') .AND. output%vars5D) THEN
         ! Decide what the second dimension of this variable is:
         IF(dimswitch == 'soil') THEN ! other dim is soil
           DO i = 1, mland ! over all land grid points

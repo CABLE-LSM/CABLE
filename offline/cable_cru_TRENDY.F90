@@ -177,18 +177,6 @@ contains
 
     ! Assign Forcing and CO2 labels based only on the value of CRU%Run
     select case(trim(CRU%Run))
-    case("drought_heat_spinup")
-       CRU%Forcing = "spinup"
-       CRU%CO2     = "static2011"
-       CRU%Ndep    = "static2011"
-       write(*,'(a)') "Run = 'drought_heat_spinup': Therefore Forcing = 'spinup', CO2 and Ndep = 'static2011'"
-       write(logn,*)  "Run = 'drought_heat_spinup': Therefore Forcing = 'spinup', CO2 and Ndep = 'static2011'"
-    case("drought_heat_run")
-       CRU%Forcing = "2000_2099"
-       CRU%CO2     = "static2011"
-       CRU%Ndep    = "static2011"
-       write(*,'(a)') "Run = 'drought_heat_run': Therefore Forcing = '2000_2099', CO2 and Ndep = 'static2011'"
-       write(logn,*)  "Run = 'drought_heat_run': Therefore Forcing = '2000_2099', CO2 and Ndep = 'static2011'"
     case("S0_TRENDY")
        CRU%Forcing = "spinup"
        CRU%CO2     = "static1860"
@@ -361,17 +349,6 @@ contains
        CRU%VAR_NAME(tmin)  = "Tminalign"
        CRU%VAR_NAME(uwind) = "Wind_Enoalign"
        CRU%VAR_NAME(vwind) = "Wind_Nnoalign"
-    else if (trim(CRU%MetVersion) == "Drought_Heat") then
-       CRU%VAR_NAME(rain) = "pr"
-       CRU%VAR_NAME(lwdn) = "lwd"
-       CRU%VAR_NAME(swdn) = "swd"
-       CRU%VAR_NAME(pres) = "psl"
-       CRU%VAR_NAME(qair) = "Qair"
-       CRU%VAR_NAME(tmax) = "tasmax"
-       CRU%VAR_NAME(tmin) = "tasmin"
-       CRU%VAR_NAME(uwind) = "uas"
-       CRU%VAR_NAME(vwind) = "vas"
-       CRU%Metstart = 2000
     end if
 
     write(*,'(a)') "========================================= CRU ============"
@@ -544,35 +521,12 @@ contains
        cruver="crujra.v2.3"
     case("VERIFY_2021")
        cruver="cru_verify"
-    case("Drought_Heat")
-       cruver=fn(scan(fn,"/",.true.)+1:) ! scenario
     end select
 
     ! Build the rest of the filename according to the value of par, which references 11 possible
     ! types of met through the parameter names rain, lwdn, etc.
 
-    if (trim(CRU%MetVersion) == "Drought_Heat") then
-       select case(par)
-       case(rain)
-          FN = trim(FN)//"/pr/"//trim(cruver)//"_pr_"//cy//".nc"
-       case(lwdn)
-          FN = trim(FN)//"/lwd/"//trim(cruver)//"_lwd_"//cy//".nc"
-       case(swdn)
-          FN = trim(FN)//"/swd/"//trim(cruver)//"_swd_"//cy//".nc"
-       case(pres)
-          FN = trim(FN)//"/psl/"//trim(cruver)//"_psl_"//cy//".nc"
-       case(qair)
-          FN = trim(FN)//"/Qair/"//trim(cruver)//"_Qair_"//cy//".nc"
-       case(tmax, PrevTmax)
-          FN = trim(FN)//"/tasmax/"//trim(cruver)//"_tasmax_"//cy//".nc"
-       case(tmin, NextTmin)
-          FN = trim(FN)//"/tasmin/"//trim(cruver)//"_tasmin_"//cy//".nc"
-       case(uwind)
-          FN = trim(FN)//"/uas/"//trim(cruver)//"_uas_"//cy//".nc"
-       case(vwind)
-          FN = trim(FN)//"/vas/"//trim(cruver)//"_vas_"//cy//".nc"
-       end select
-    else if (trim(CRU%MetVersion) == "VERIFY_2021") then
+    if (trim(CRU%MetVersion) == "VERIFY_2021") then
        select case(par)
        case(rain)
           FN = trim(FN)//"/"//trim(cruver)//"_"//cy//"_daily_Precipalign.nc"
@@ -641,11 +595,7 @@ contains
     integer,        intent(in) :: ivar   ! years for special runs depend on variable
     integer                    :: cru_get_metyear
 
-    if (trim(cru%run) == 'drought_heat_spinup') then
-       cru_get_metyear = 2000 + mod(cyear, 100)
-    else if (trim(cru%run) == 'drought_heat_run') then
-       cru_get_metyear = cyear
-    else if ( (trim(cru%run) == 'S0_TRENDY') &
+    if ( (trim(cru%run) == 'S0_TRENDY') &
          .or. (trim(cru%run) == 'S1_TRENDY') &
          .or. (trim(cru%run) == 'S0_TRENDY_CO2') &
          .or. (trim(cru%run) == 'S0_TRENDY_Ndep') ) then
@@ -829,10 +779,7 @@ contains
     ! On the first call, allocate the CRU%CO2VALS array to store the entire history of annual CO2
     ! values, open the (ascii) CO2 file and read the values into the array.
     if (CALL1) then
-       if (trim(CRU%MetVersion) == "Drought_Heat") then
-          NdepFILE = trim(CRU%BasePath) // "/ndep/" // &
-               "ndep_NHx_NOy_2011_1x1deg.nc"
-       else if (trim(CRU%MetVersion) == "CRUJRA_2018") then
+       if (trim(CRU%MetVersion) == "CRUJRA_2018") then
           NdepFILE = trim(CRU%BasePath) // "/ndep/" // &
                "NOy_plus_NHx_dry_plus_wet_deposition_hist_1850_2015_annual_1deg.nc"
        else if (trim(CRU%MetVersion) == "VERIFY_2021") then
