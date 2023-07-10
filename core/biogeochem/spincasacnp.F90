@@ -20,7 +20,7 @@ contains
     USE POP_Constants,       ONLY: rshootfrac
     ! use cable_pop_io,        only: pop_io
     use casa_cable,          only: POPdriver, read_casa_dump, analyticpool
-    use casa_inout,          only: casa_fluxout, biogeochem, write_casa_output_nc, &
+    use casa_inout,          only: casa_fluxout, biogeochem, write_casa_output_patch_nc, &
                                    write_casa_output_grid_nc
     use TypeDef,             only: dp
     ! 13C
@@ -515,7 +515,7 @@ contains
                 ! CALL WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, &
                 !      .true., ctime,  idoy.eq.mdyear )
                 if (output%grid(1:3) == 'lan') then
-                   CALL WRITE_CASA_OUTPUT_NC( veg, casamet, casapool, casabal, casaflux, &
+                   CALL WRITE_CASA_OUTPUT_PATCH_NC( veg, casamet, casapool, casabal, casaflux, &
                                               .true., ctime,  idoy.eq.mdyear )
                 else
                   CALL WRITE_CASA_OUTPUT_GRID_NC( veg, casamet, casapool, casabal, casaflux, &

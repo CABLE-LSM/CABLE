@@ -88,8 +88,8 @@ PROGRAM cable_offline_driver
   use casa_cable,           only: bgcdriver, POPdriver, read_casa_dump, write_casa_dump, casa_feedback, sumcflux
   use cable_spincasacnp,    only: spincasacnp
   use cable_casaonly_luc,   only: casaonly_luc
-  use casa_inout,           only: casa_cnpflux, casa_fluxout, write_casa_restart_nc, write_casa_output_nc, &
-                                  write_casa_output_grid_nc
+  use casa_inout,           only: casa_cnpflux, casa_fluxout, write_casa_restart_nc, write_casa_output_grid_nc, &
+                                  write_casa_output_patch_nc
 
   !! vh_js !!
   ! modules related to POP
@@ -1141,7 +1141,7 @@ PROGRAM cable_offline_driver
 
                  if (CASA_TIME) then
                     if (output%grid(1:3) == 'lan') then
-                       call WRITE_CASA_OUTPUT_NC(veg, casamet, sum_casapool, &
+                       call WRITE_CASA_OUTPUT_PATCH_NC(veg, casamet, sum_casapool, &
                             casabal, sum_casaflux, CASAONLY, ctime, &
                             (ktau == kend) .and. (YYYY == cable_user%YearEnd) .and. &
                             (RRRR == NRRRR))
