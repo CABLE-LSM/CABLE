@@ -48,13 +48,16 @@ module casa_inout
 
   implicit none
 
-  ! Define temporary output arrays for use in write_casa_output_grid_nc
-  REAL(KIND=4), DIMENSION(:,:,:),   ALLOCATABLE :: otmp3patch
+  ! Define temporary output arrays for use in write_casa_output_grid_nc and write_casa_output_patch_nc
+  REAL(KIND=4), DIMENSION(:,:,:), ALLOCATABLE :: otmp3patch
+  REAL(KIND=4), DIMENSION(:,:,:), ALLOCATABLE :: otmp3plant
+  REAL(KIND=4), DIMENSION(:,:,:), ALLOCATABLE :: otmp3litter
+  REAL(KIND=4), DIMENSION(:,:,:), ALLOCATABLE :: otmp3soil
+
   REAL(KIND=4), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4patch
   REAL(KIND=4), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4plant
   REAL(KIND=4), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4litter
   REAL(KIND=4), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4soil
- 
 
   REAL(KIND=4) :: ncmissingr = -1.0e+33
 
@@ -2814,9 +2817,12 @@ END SUBROUTINE put_casa_var_grid_patch_average
 
    ! version of write_casa_output_nc that gives casa output with patch information analogous 
    ! to cable output with output%grid = "land"
-   ! see r9609 for a grid level output, which is overwritten here.
    ! Note: only works for 3D or 4D casa variables. Higher dimensions are not supported at the moment 
    !       -> variables fromLtoS, fromPtoL, and fromStoS currently not considered
+   ! Note: 4D variables (e.g. with mplant dimension) are averaged over patches to avoid 4D outputs that 
+   !       translate into 5D outputs in a lat-lon grid.
+   ! see r9609 for a grid level output, which is overwritten here.
+   ! see r9610 for code that allows 4D casa outputs (e.g. land,patch,mplant,time)
 
     use casadimension,        only: mplant, mlitter, msoil, icycle
     use casavariable,         only: casa_met, casa_pool, casa_balance, casa_flux, &
@@ -2855,11 +2861,11 @@ END SUBROUTINE put_casa_var_grid_patch_average
     character(len=20), dimension(2)  :: a0
     ! 3 dim arrays (land,patch,t)
     character(len=20), dimension(53) :: a1
-    ! 3 dim arrays (land,patch,mplant,t)
+    ! 3 dim arrays (land,mplant,t)
     character(len=20), dimension(9)  :: a2
-    ! 3 dim arrays (land,patch,mlitter,t)
+    ! 3 dim arrays (land,mlitter,t)
     character(len=20), dimension(9)  :: a3
-    ! 3 dim arrays (land,patch,msoil,t)
+    ! 3 dim arrays (land,msoil,t)
     character(len=20), dimension(8)  :: a4
 
     ! Same structure for units
@@ -2867,11 +2873,11 @@ END SUBROUTINE put_casa_var_grid_patch_average
     character(len=30), dimension(2)  :: u0
     ! 3 dim arrays (land,patch,t)
     character(len=30), dimension(53) :: u1
-    ! 4 dim arrays (land,patch,mplant,t)
+    ! 3 dim arrays (land,mplant,t)
     character(len=30), dimension(9)  :: u2
-    ! 4 dim arrays (land,patch,mlitter,t)
+    ! 3 dim arrays (land,mlitter,t)
     character(len=30), dimension(9)  :: u3
-    ! 4 dim arrays (land,patch,msoil,t)
+    ! 3 dim arrays (land,msoil,t)
     character(len=30), dimension(8)  :: u4
     
     integer                            :: vidx, vidy
@@ -3237,7 +3243,7 @@ END SUBROUTINE put_casa_var_grid_patch_average
        end do
 
        do i=1, na2
-          status = nf90_def_var(file_id, trim(a2(i)), nf90_float, (/land_id,patch_id,plant_id,t_id/), vid2(i) &
+          status = nf90_def_var(file_id, trim(a2(i)), nf90_float, (/land_id,plant_id,t_id/), vid2(i) &
 #ifndef __NETCDF3__
                , deflate_level=4, shuffle = .TRUE. &
 #endif
@@ -3250,7 +3256,7 @@ END SUBROUTINE put_casa_var_grid_patch_average
        end do
 
        do i=1, na3
-          status = nf90_def_var(file_id, trim(a3(i)), nf90_float, (/land_id,patch_id,litter_id,t_id/), vid3(i) &
+          status = nf90_def_var(file_id, trim(a3(i)), nf90_float, (/land_id,litter_id,t_id/), vid3(i) &
 #ifndef __NETCDF3__
                , deflate_level=4, shuffle = .TRUE. &
 #endif
@@ -3263,7 +3269,7 @@ END SUBROUTINE put_casa_var_grid_patch_average
        end do
 
        do i=1, na4
-          status = nf90_def_var(file_id, trim(a4(i)), nf90_float, (/land_id,patch_id,soil_id,t_id/), vid4(i) &
+          status = nf90_def_var(file_id, trim(a4(i)), nf90_float, (/land_id,soil_id,t_id/), vid4(i) &
 #ifndef __NETCDF3__
                , deflate_level=4, shuffle = .TRUE. &
 #endif
@@ -3299,14 +3305,14 @@ END SUBROUTINE put_casa_var_grid_patch_average
 
        ! allocate temporary array
        ALLOCATE(otmp3patch(mland, max_vegpatches, 1))
-       ALLOCATE(otmp4plant(mland, max_vegpatches, mplant, 1))
-       ALLOCATE(otmp4litter(mland, max_vegpatches, mlitter, 1))
-       ALLOCATE(otmp4soil(mland, max_vegpatches, msoil, 1))
+       ALLOCATE(otmp3plant(mland, mplant, 1))
+       ALLOCATE(otmp3litter(mland, mlitter, 1))
+       ALLOCATE(otmp3soil(mland, msoil, 1))
 
-       otmp3patch(:,:,:) = 0.0
-       otmp4plant(:,:,:,:) = 0.0
-       otmp4litter(:,:,:,:) = 0.0
-       otmp4soil(:,:,:,:) = 0.0
+       otmp3patch(:,:,:)  = 0.0
+       otmp3plant(:,:,:)  = 0.0
+       otmp3litter(:,:,:) = 0.0
+       otmp3soil(:,:,:)   = 0.0
 
        call1 = .false.
     endif ! call1
@@ -3382,60 +3388,60 @@ END SUBROUTINE put_casa_var_grid_patch_average
     endif
     ! 4D vars (land,patch,mplant,t)
     ! C
-    call put_casa_var_patch_extradim(file_id, vid2(1), real(casapool%cplant,sp),      "mplant", cnt, otmp4plant)
-    call put_casa_var_patch_extradim(file_id, vid2(2), real(casaflux%fracCalloc,sp),  "mplant", cnt, otmp4plant)
-    call put_casa_var_patch_extradim(file_id, vid2(3), real(casaflux%kplant,sp),      "mplant", cnt, otmp4plant)
-    call put_casa_var_patch_extradim(file_id, vid2(4), real(casaflux%crmplant,sp),    "mplant", cnt, otmp4plant)
-    call put_casa_var_patch_extradim(file_id, vid2(5), real(casaflux%kplant_fire,sp), "mplant", cnt, otmp4plant)
+    call put_casa_var_patch_average(file_id, vid2(1), real(casapool%cplant,sp),      "mplant", cnt, otmp3plant)
+    call put_casa_var_patch_average(file_id, vid2(2), real(casaflux%fracCalloc,sp),  "mplant", cnt, otmp3plant)
+    call put_casa_var_patch_average(file_id, vid2(3), real(casaflux%kplant,sp),      "mplant", cnt, otmp3plant)
+    call put_casa_var_patch_average(file_id, vid2(4), real(casaflux%crmplant,sp),    "mplant", cnt, otmp3plant)
+    call put_casa_var_patch_average(file_id, vid2(5), real(casaflux%kplant_fire,sp), "mplant", cnt, otmp3plant)
 
     ! N
     if (icycle > 1) then
-      call put_casa_var_patch_extradim(file_id, vid2(6), real(casapool%nplant,sp),     "mplant", cnt, otmp4plant)
-      call put_casa_var_patch_extradim(file_id, vid2(7), real(casaflux%fracnalloc,sp), "mplant", cnt, otmp4plant)
+      call put_casa_var_patch_average(file_id, vid2(6), real(casapool%nplant,sp),     "mplant", cnt, otmp3plant)
+      call put_casa_var_patch_average(file_id, vid2(7), real(casaflux%fracnalloc,sp), "mplant", cnt, otmp3plant)
     endif
 
     ! P
     if (icycle > 2) then
-       call put_casa_var_patch_extradim(file_id, vid2(8), real(casapool%pplant,sp),     "mplant", cnt, otmp4plant)
-       call put_casa_var_patch_extradim(file_id, vid2(9), real(casaflux%fracpalloc,sp), "mplant", cnt, otmp4plant)
+       call put_casa_var_patch_average(file_id, vid2(8), real(casapool%pplant,sp),     "mplant", cnt, otmp3plant)
+       call put_casa_var_patch_average(file_id, vid2(9), real(casaflux%fracpalloc,sp), "mplant", cnt, otmp3plant)
     endif
 
     ! 4D vars (land,patch,mlitter,t)
     ! C
-    call put_casa_var_patch_extradim(file_id, vid3(1), real(casapool%clitter,sp),       "mlitter", cnt, otmp4litter)
-    call put_casa_var_patch_extradim(file_id, vid3(2), real(casaflux%klitter,sp),       "mlitter", cnt, otmp4litter)
-    call put_casa_var_patch_extradim(file_id, vid3(3), real(casaflux%fromltoco2,sp),    "mlitter", cnt, otmp4litter)
-    call put_casa_var_patch_extradim(file_id, vid3(4), real(casaflux%fluxctolitter,sp), "mlitter", cnt, otmp4litter)
-    call put_casa_var_patch_extradim(file_id, vid3(5), real(casaflux%klitter_fire,sp),  "mlitter", cnt, otmp4litter)
+    call put_casa_var_patch_average(file_id, vid3(1), real(casapool%clitter,sp),       "mlitter", cnt, otmp3litter)
+    call put_casa_var_patch_average(file_id, vid3(2), real(casaflux%klitter,sp),       "mlitter", cnt, otmp3litter)
+    call put_casa_var_patch_average(file_id, vid3(3), real(casaflux%fromltoco2,sp),    "mlitter", cnt, otmp3litter)
+    call put_casa_var_patch_average(file_id, vid3(4), real(casaflux%fluxctolitter,sp), "mlitter", cnt, otmp3litter)
+    call put_casa_var_patch_average(file_id, vid3(5), real(casaflux%klitter_fire,sp),  "mlitter", cnt, otmp3litter)
     ! N
     if (icycle > 1) then
-       call put_casa_var_patch_extradim(file_id, vid3(6), real(casapool%nlitter,sp),       "mlitter", cnt, otmp4litter)
-       call put_casa_var_patch_extradim(file_id, vid3(7), real(casaflux%fluxntolitter,sp), "mlitter", cnt, otmp4litter)
+       call put_casa_var_patch_average(file_id, vid3(6), real(casapool%nlitter,sp),       "mlitter", cnt, otmp3litter)
+       call put_casa_var_patch_average(file_id, vid3(7), real(casaflux%fluxntolitter,sp), "mlitter", cnt, otmp3litter)
     endif
 
     ! P
     if (icycle > 2) then
-       call put_casa_var_patch_extradim(file_id, vid3(8), real(casapool%plitter,sp),       "mlitter", cnt, otmp4litter)
-       call put_casa_var_patch_extradim(file_id, vid3(9), real(casaflux%fluxptolitter,sp), "mlitter", cnt, otmp4litter)
+       call put_casa_var_patch_average(file_id, vid3(8), real(casapool%plitter,sp),       "mlitter", cnt, otmp3litter)
+       call put_casa_var_patch_average(file_id, vid3(9), real(casaflux%fluxptolitter,sp), "mlitter", cnt, otmp3litter)
     endif
 
     ! 4d vars (land,patch,msoil,t)
     ! C
-    call put_casa_var_patch_extradim(file_id, vid4(1), real(casapool%csoil,sp),       "msoil", cnt, otmp4soil)
-    call put_casa_var_patch_extradim(file_id, vid4(2), real(casaflux%ksoil,sp),       "msoil", cnt, otmp4soil)
-    call put_casa_var_patch_extradim(file_id, vid4(3), real(casaflux%fromstoco2,sp),  "msoil", cnt, otmp4soil)
-    call put_casa_var_patch_extradim(file_id, vid4(4), real(casaflux%fluxctosoil,sp), "msoil", cnt, otmp4soil)
+    call put_casa_var_patch_average(file_id, vid4(1), real(casapool%csoil,sp),       "msoil", cnt, otmp3soil)
+    call put_casa_var_patch_average(file_id, vid4(2), real(casaflux%ksoil,sp),       "msoil", cnt, otmp3soil)
+    call put_casa_var_patch_average(file_id, vid4(3), real(casaflux%fromstoco2,sp),  "msoil", cnt, otmp3soil)
+    call put_casa_var_patch_average(file_id, vid4(4), real(casaflux%fluxctosoil,sp), "msoil", cnt, otmp3soil)
 
     ! N
     if (icycle > 1) then
-       call put_casa_var_patch_extradim(file_id, vid4(5), real(casapool%nsoil,sp),       "msoil", cnt, otmp4soil)
-       call put_casa_var_patch_extradim(file_id, vid4(6), real(casaflux%fluxntosoil,sp), "msoil", cnt, otmp4soil)
+       call put_casa_var_patch_average(file_id, vid4(5), real(casapool%nsoil,sp),       "msoil", cnt, otmp3soil)
+       call put_casa_var_patch_average(file_id, vid4(6), real(casaflux%fluxntosoil,sp), "msoil", cnt, otmp3soil)
     endif
 
     ! P
     if (icycle > 2) then
-       call put_casa_var_patch_extradim(file_id, vid4(7), real(casapool%psoil,sp),       "msoil", cnt, otmp4soil)
-       call put_casa_var_patch_extradim(file_id, vid4(8), real(casaflux%fluxptosoil,sp), "msoil", cnt, otmp4soil)
+       call put_casa_var_patch_average(file_id, vid4(7), real(casapool%psoil,sp),       "msoil", cnt, otmp3soil)
+       call put_casa_var_patch_average(file_id, vid4(8), real(casaflux%fluxptosoil,sp), "msoil", cnt, otmp3soil)
     endif
     ! put 4d vars ( mp, mlitter,mplant, t )
     ! C
@@ -3460,9 +3466,9 @@ END SUBROUTINE put_casa_var_grid_patch_average
        write(*,*) " casa output written to ", trim(fname)
 
        deallocate(otmp3patch)
-       deallocate(otmp4plant)
-       deallocate(otmp4litter)
-       deallocate(otmp4soil)
+       deallocate(otmp3plant)
+       deallocate(otmp3litter)
+       deallocate(otmp3soil)
     endif
 
   end subroutine write_casa_output_patch_nc
@@ -3508,9 +3514,9 @@ END SUBROUTINE put_casa_var_patch
 
 
 
-SUBROUTINE put_casa_var_patch_extradim(file_id,var_id,var_vals,outdim,cnt,tmp_array)
+SUBROUTINE put_casa_var_patch_average(file_id,var_id,var_vals,outdim,cnt,tmp_array)
 
-   ! writes casa vars to file with dimensions land,patch,outdim,t
+   ! writes casa vars to file with dimensions land,outdim,t
 
    use casadimension, only: mplant, mlitter, msoil, icycle
    use cable_common_module,  only: handle_err
@@ -3520,33 +3526,32 @@ SUBROUTINE put_casa_var_patch_extradim(file_id,var_id,var_vals,outdim,cnt,tmp_ar
    INTEGER, INTENT(IN) :: file_id                               ! netcdf file ID 
    INTEGER, INTENT(IN) :: var_id                                ! variable's netcdf ID
    REAL(KIND=4), DIMENSION(:,:), INTENT(IN) :: var_vals         ! variable values
-   CHARACTER(LEN=*), INTENT(IN) :: outdim                       ! 3rd dimension of output ('mplant','mlitter','msoil') 
+   CHARACTER(LEN=*), INTENT(IN) :: outdim                       ! 2nd dimension of output ('mplant','mlitter','msoil') 
    INTEGER, INTENT(IN) :: cnt                                   ! current time step #
-   REAL(KIND=4), DIMENSION(:,:,:,:), INTENT(INOUT) :: tmp_array ! temporary array   
+   REAL(KIND=4), DIMENSION(:,:,:), INTENT(INOUT) :: tmp_array   ! temporary array   
 
    ! Local variables
-   INTEGER  :: ndim3  ! size of 3rd dimension
-   INTEGER  :: i      ! counter
+   INTEGER  :: ndim2  ! size of 2nd dimension
+   INTEGER  :: i,j    ! counters
    INTEGER  :: status ! NF90 status
 
-   ndim3 = SIZE(tmp_array,3)
+   ndim2 = SIZE(tmp_array,2)
 
-   ! Write values to temporary output grid. Average over patches if necessary
+   ! Write values to temporary output grid and average over patches
    do i = 1, mland ! over all land grid points
-      tmp_array(i, 1:landpt(i)%nap, : , 1) = var_vals(landpt(i)%cstart:landpt(i)%cend, :)
-      ! inactive patches
-      if (landpt(i)%nap < max_vegpatches) then 
-         tmp_array(i, (landpt(i)%nap + 1):max_vegpatches, : , 1) = ncmissingr
-      endif
+      do j = 1, ndim2
+         tmp_array(i, j , 1) = SUM(var_vals(landpt(i)%cstart:landpt(i)%cend, j) * & 
+                                   real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
+      end do
    end do ! land grid points
    
    ! write data to file
-   status = nf90_put_var(file_id, var_id, tmp_array(:, :, :, 1), & 
-                         start = (/1, 1, 1, cnt/), count = (/mland, max_vegpatches, ndim3, 1/))
+   status = nf90_put_var(file_id, var_id, tmp_array(:, :, 1), & 
+                         start = (/1, 1, cnt/), count = (/mland, ndim2, 1/))
 
    if(status /= nf90_noerr) call handle_err(status)
 
-END SUBROUTINE put_casa_var_patch_extradim
+END SUBROUTINE put_casa_var_patch_average
 
 #endif
 
