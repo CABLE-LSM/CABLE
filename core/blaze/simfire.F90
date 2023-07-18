@@ -398,7 +398,7 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
                  wPOPD = wPOPD + RVAL(ix,jy) * LAND_AREA(ix,jy)
                  wTOT  = wTOT  + LAND_AREA(ix,jy)
 
-                 write(*,*) 'RVAL: ',   RVAL(ix,jy), ix, jy
+                 !CRMwrite(*,*) 'RVAL: ',   RVAL(ix,jy), ix, jy
               END DO
            END DO
 

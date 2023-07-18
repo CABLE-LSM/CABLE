@@ -1360,8 +1360,8 @@ SUBROUTINE casa_delplant(veg, casabiome, casapool, casaflux, casamet, &
         do nP=1, mplant
            casaflux%FluxFromPtoCO2(npt,nP) = &
                 (1.0_r_2-casaflux%kplant(npt,nP)) * casaflux%kplant_fire(npt,nP) * &
-                casapool%cplant(npt,nP) * &
-                (1.0_r_2 - sum(casaflux%fromPtoL_fire(npt,:,nP)))
+                casapool%cplant(npt,nP) !CLN *  & Shouldn't it be min(1-casaflux%kplant,X)???
+                !CLN should be considered in kplant_fire ??? (1.0_r_2 - sum(casaflux%fromPtoL_fire(npt,:,nP)))
            casaflux%fluxCtoCO2_plant_fire(npt) = casaflux%fluxCtoCO2_plant_fire(npt) + &
                 casaflux%FluxFromPtoCO2(npt,nP)
         enddo

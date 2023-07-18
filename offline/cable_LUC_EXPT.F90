@@ -246,6 +246,9 @@ CONTAINS
             start=(/1,1,LUC_EXPT%CTSTEP/),count=(/xds,yds,1/) )
        CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
        DO k = 1, mland
+          WRITE(*,*) "land kxy   ",k, land_x(k), land_y(k)
+          CALL FLUSH(6)
+          WRITE(*,*) "land tmparr",tmparr( land_x(k), land_y(k) )
           LUC_EXPT%grass(k) = tmparr( land_x(k), land_y(k) )
        END DO
     ENDIF
