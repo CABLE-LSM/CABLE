@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 usage: sum_patchcasa.py [-h] [-o output_netcdf] [-v] [-z] [input_netcdf]
 

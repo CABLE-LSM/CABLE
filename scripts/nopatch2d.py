@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 usage: nopatch2d.py [-h] [-o output_netcdf] [-v] [-z] [input_netcdf]
 

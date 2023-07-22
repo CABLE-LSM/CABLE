@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 """
 usage: duplicate_lon.py [-h] [-n ncopies] [-o output_netcdf] [-z]

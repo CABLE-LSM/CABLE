@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 usage: pack_output2d.py [-h] [-o output_netcdf] [-v] [-z] [file]
 

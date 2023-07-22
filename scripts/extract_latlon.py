@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 """
 usage: extract_latlon.py [-h] [-o output_netcdf] [-z] lat,lon input_netcdf

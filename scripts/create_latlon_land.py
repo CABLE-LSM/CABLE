@@ -1,4 +1,4 @@
-#/usr/bin/env python
+#/usr/bin/env python3
 #
 # Script to generate a random number of lonlat points for use in CABLE runs
 # Same as script generate_latlonlist.py but using variable land (0/1)

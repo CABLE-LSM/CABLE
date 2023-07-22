@@ -20,7 +20,7 @@ options:
 
 Example
 -------
-  python merge_to_output2d.py -v -z -o cru_out_casa_2009_2011.nc \
+  python3 merge_to_output2d.py -v -z -o cru_out_casa_2009_2011.nc \
       run*/outputs/cru_out_casa_2009_2011.nc
 
 

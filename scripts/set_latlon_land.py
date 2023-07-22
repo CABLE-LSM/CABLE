@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 usage: set_latlon_land.py [-h] [-o output_netcdf] [-z] latlon input_netcdf
 

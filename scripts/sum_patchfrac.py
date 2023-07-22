@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 """
 usage: sum_patchfrac.py [-h] [-o output_netcdf] [-v] [-z] [input_netcdf]

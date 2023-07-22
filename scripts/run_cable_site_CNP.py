@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 CABLE site run with full biogeochemistry (CNP) and POP

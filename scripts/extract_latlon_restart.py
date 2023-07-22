@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 """
 usage: extract_restart_point.py [-h] [-l lat,lon] [-z] [netcdf [netcdf ...]]
