@@ -1,0 +1,10 @@
+&LUCNML
+
+	!TransitionFilePath ="/g/data1a/x45/LUH2/GCB_2018/1deg/EXTRACT"
+	TransitionFilePath ="/OSM/CBR/OA_GLOBALCABLE/work/LUH2/LUH2_Aug2019/1deg/EXTRACT" 
+        ClimateFile ="/OSM/CBR/OA_GLOBALCABLE/work/Vanessa/MASKS/cru_climate_rst_test_savanna_1x1.nc"
+	DirectRead   = .FALSE.
+	YearStart    = 2000
+        YearEnd      = 2014	     
+        NotPrimOnlyFile = "none"
+&end	

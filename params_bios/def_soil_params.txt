@@ -1,0 +1,33 @@
+c Soil parameters (Zobler ?)
+c
+9   ! no of soil types
+c
+c isoil
+c 1     Coarse sand/Loamy sand
+c 2     Medium clay loam/silty clay loam/silt loam
+c 3     Fine clay
+c 4     Coarse-medium sandy loam/loam
+c 5     Coarse-fine sandy clay
+c 6     Medium-fine silty clay
+c 7     Coarse-medium-fine sandy clay loam
+c 8     Organic peat
+c 9     Permanent ice
+c Details of parameter values for each soil type from Eva's file soil.txt
+c1      2       3       4       5       6       7       8       9         
+0.08    0.33    0.17    0.20    0.06    0.25    0.15    0.70    0.33    ! Silt fraction
+0.09    0.30    0.67    0.20    0.42    0.48    0.27    0.17    0.30    ! Clay fraction
+0.83    0.37    0.16    0.60    0.52    0.27    0.58    0.13    0.37    ! Sand fraction
+0.072   0.216   0.286   0.135   0.219   0.283   0.175   0.395   0.216   ! swilt
+0.143   0.301   0.367   0.218   0.310   0.370   0.255   0.450   0.301  	! sfc
+0.398   0.479   0.482   0.443   0.426   0.482   0.420   0.451   0.479   ! ssat
+4.20    7.10    11.4    5.15    10.4    10.4    7.12    5.83    7.10    ! bch
+166.e-6 4.e-6   1.e-6   21.e-6  2.e-6   1.e-6   6.e-6   800.e-6 1.e-6   ! hyds
+-.106   -.591   -.405   -.348   -.153   -.49    -.299   -.356   -.153   ! sucs
+1600.   1600.   1381.   1373.   1476.   1521.   1373.   1537.   910.  	! new rhosoil values
+850.    850.    850.    850.    850.    850.    850.    1920.   2100.   ! css
+                                                                           
+1600.   1595.   1381.   1373.   1476.   1521.   1373.   1537.   1455. 1000.  ! rhosoil (changed, YP nov 2007)
+1600.   1600.   1600.   1600.   1600.   1600.   1600.   1300.   910.  1600.  ! old rhosoil values
+1600.   1595.   1381.   1373.   1476.   1521.   1373.   1537.   1455. 1595.  ! new rhosoil values
+
+

@@ -1,0 +1,11 @@
+&blazenml
+    blazeTStep       = "annually"	! Call frequency ("daily","monthly","annually")
+    BurnedAreaSource = "SIMFIRE"    	! Burnt Area ("PRESCRIBED","SIMFIRE","GFED4") 
+    BurnedAreaFile   = "/home/x_larni/STOREDIR/DATA/CABLE_INPUT/DATA_BLAZE/BA_Aust_2001-2019.nc"     		! used for Prescribed fires !CLN not available for now!
+    OutputMode       = "full"      	! "std" for standard vars, "full" for full set of BLAZE output
+&end
+&simfirenml
+    SIMFIRE_REGION   = "ANZ"  		! ("ANZ","EUROPE","GLOBAL") 
+    HydePath         = "/home/x_larni/STOREDIR/DATA/CABLE_INPUT/DATA_BLAZE/HYDE3.1"	! PAth to Hyde3.1 population density data
+    BurnedAreaClimatologyFile = "/home/x_larni/STOREDIR/DATA/CABLE_INPUT/DATA_BLAZE/simfire_monthly_ba.nc"	! BA climatology file (needed when blazeTStep!="annual"
+&end

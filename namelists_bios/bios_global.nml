@@ -1,0 +1,59 @@
+&biosnml
+! Bios Namelist File
+
+Run           = "standard" 
+
+! Pathnames for meteorology and spatially varying parameters. File format is dated binfile,
+met_path="/g/data/x45/BIOS3_forcing/acttest9/met//"
+param_path="/g/data/x45/BIOS3_forcing/acttest9/params/"
+
+! Operational landmask. Format is gridded flt file.
+landmaskflt_file="/g/data/x45/BIOS3_forcing/acttest9/acttest9.flt"
+landmaskhdr_file="/g/data/x45/BIOS3_forcing/acttest9/acttest9.hdr"
+
+! Meteorology files. File format is dated bin files.
+rain_file="1900010120201231_rain_b2003.bin"
+swdown_file="1900010120201231_rad_b2003.bin"
+tairmax_file="1900010120201231_tmax_noclim_b2003.bin"
+tairmin_file="1900010120201231_tmin_noclim_b2003.bin"
+wind_file="1900010120201231_windspeed_ms_b2003.bin"
+vp0900_file="1900010120201231_vph09_b2003.bin"
+vp1500_file="1900010120201231_vph15_b2003.bin"
+co2_file="1750_2020_globalCO2_time_series.bin"
+
+! Spatially-varying soil parameters. Format is undated bin files.
+b1_file             = "b1.bin"
+b2_file             = "b2.bin"
+bulkdens1_kgm3_file = "bulkdens1_kgm3.bin"
+bulkdens2_kgm3_file = "bulkdens2_kgm3.bin"
+clayfrac1_file      = "clayfrac1.bin"
+clayfrac2_file      = "clayfrac2.bin"
+csoil1_file         = "csoil1.bin"
+csoil2_file         = "csoil2.bin"
+depth1_m_file       = "depth1_m.bin"
+depth2_m_file       = "depth2_m.bin"
+hyk1sat_ms_file     = "hyk1sat_ms.bin"
+hyk2sat_ms_file     = "hyk2sat_ms.bin"
+psie1_m_file        = "psie1_m.bin"
+psie2_m_file        = "psie2_m.bin"
+siltfrac1_file      = "siltfrac1.bin"
+siltfrac2_file      = "siltfrac2.bin"
+wvol1fc_m3m3_file   = "wvol1fc_m3m3.bin"
+wvol2fc_m3m3_file   = "wvol2fc_m3m3.bin"
+wvol1sat_m3m3_file  = "wvol1sat_m3m3.bin"
+wvol2sat_m3m3_file  = "wvol2sat_m3m3.bin"
+wvol1w_m3m3_file    = "wvol1w_m3m3.bin"
+wvol2w_m3m3_file    = "wvol2w_m3m3.bin"
+MVG_file            = "nvis5pre1750grp.bin"
+c4frac_file         = "c4_grass_frac_cov.bin"
+vegtypeigbp_file    = "vegtypeigbp_ctr05.bin"
+avgannmax_fapar_file = "avgannmaxdata1998-2005_ctr05.bin"
+
+! Terrain slope in degrees
+!slope_deg_file      = "slope_deg.bin"
+
+! Timestep size in seconds
+dels  = 10800.
+
+&end
+
