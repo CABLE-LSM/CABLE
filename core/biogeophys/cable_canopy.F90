@@ -3174,7 +3174,8 @@ CONTAINS
            e_leaf = gsc * C%RGSWC / press * vpd ! mol H2O m-2 s-1
 
            ! Infer leaf water potential, MPa, having rescaled E from big-leaf to
-           ! unit leaf first. N.B: solving with an accuracy of 0.1*kcrit on kc
+           ! unit leaf first.
+           ! N.B: solving with an accuracy of 0.1*kcrit on kc
            p = calc_psi_leaf(ssnow%psi_rootzone(i), &
                              e_leaf * MOL_TO_MMOL / rad%scalex(i,j), kmax, &
                              b_plant, c_plant, 1E-3 * (100. - PLCcrit) * kmax, N)
@@ -3214,7 +3215,7 @@ CONTAINS
            ! ignoring profit above/below 98/2%, which we can fairly conclude is
            ! noise. For example, profit ~100% is typically due to gsc being
            ! bonkers because of an unrealistic Ci:Cs.
-           WHERE (profit < 0.005 .AND. profit > 0.995)
+           WHERE (profit < 0.005 .OR. profit > 0.995)
 
               mask = .FALSE.
 
@@ -3222,6 +3223,10 @@ CONTAINS
 
            ! Locate maximum profit
            idx = MAXLOC(profit, 1, mask=mask)
+
+           !IF (vpd < 1.0) THEN
+           !   print*, vpd, idx, profit(idx), Ci(idx) / Cs
+           !ENDIF
 
            an_canopy(j) = an_leaf(idx) ! umolC m-2 s-1
            e_leaves(j) = e_leaf(idx) ! molH2O m-2 s-1
@@ -3451,6 +3456,9 @@ CONTAINS
      RESULT(psi_leaf)
 
      ! Calculation the approximate matching psi_leaf from the transpiration array.
+     ! The Newton-Raphson procedure and associated methods fail to converge for
+     ! this problem, and a z-brent also fails to secure a valid result for every
+     ! index on the transpiration array, thus we use this trick.
      !
      ! Manon Sabot, 2023
 
