@@ -36,35 +36,21 @@ host_gadi()
         . /etc/kshrc
     fi
     module purge
-    #module load intel-compiler/2019.5.281
-    #module load netcdf/4.6.3
-    module load intel-compiler/2021.5.0
-    module load netcdf/4.8.0
+    # module load intel-compiler/2019.5.281
+    # module load netcdf/4.6.3
+    module load intel-compiler-llvm/2023.0.0
+    module load netcdf/4.9.2
 
     export FC=ifort
     export NCDIR=${NETCDF_ROOT}"/lib/Intel"
     export NCMOD=${NETCDF_ROOT}"/include/Intel"
-    #if [[ ${1} == "debug" ]]; then
-        # debug
-        #export CFLAGS='-O0 -fpp -debug -traceback -g -fp-model precise -ftz -fpe0'
-        ##export CFLAGS='-O0 -fpe=0 -fpe-all=0 -fpp -g -debug -traceback -fp-stack-check -no-ftz -ftrapuv -check bounds'
-        ##export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv"
-        #export LDFLAGS="-O0"
-        #OPTFLAG=""
-    #else
-        # release
-        # export CFLAGS='-O2 -fpp -fp-model precise'
-        export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382"
-        export LDFLAGS="-O3"
-        OPTFLAG="-xCASCADELAKE"
-        # OPTFLAG="${CFLAGS} -xCORE-AVX2 -axSKYLAKE-AVX512,CASCADELAKE" # given in user training: does not work
-        # OPTFLAG="${CFLAGS} -xCASCADELAKE" # or -xCORE-AVX512;                           queues: express / normal
-        # OPTFLAG="${CFLAGS} -xBROADWELL"   # or -xCORE-AVX512;                           queues: expressbw / normalbw
-        # OPTFLAG="${CFLAGS} -xSKYLAKE"     # or -xSKYLAKE-AVX512 depends on performance; queues: normalsl
-    #fi
+    # release
+    # -ip only in CFLAGS, or -ipo in CFLAGS and LDFLAGS
+    export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382,15009"
+    export LDFLAGS="-O3"
+    OPTFLAG="-march=broadwell -axSKYLAKE-AVX512,CASCADELAKE,SAPPHIRERAPIDS"
     export CFLAGS="${CFLAGS} ${OPTFLAG}"
     export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
-    # export CFLAGS="${CFLAGS} -D__CRU2017__"
     export CFLAGS="${CFLAGS} -D__NETCDF3__"
     export LDFLAGS="-L"${NCDIR}" "${LDFLAGS}
     export LD="-lnetcdf -lnetcdff"
@@ -366,7 +352,8 @@ host_vm_o()
         # OPTFLAG="${CFLAGS} -mtune=ivybridge"     # ivy / k20
         export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
         export LD=""
-        export NCROOT="/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-ifort2018.0"
+        export NCCROOT="/home/oqx29/shared/local.save"
+        export NCROOT="${NCCROOT}/netcdf-fortran-4.4.4-ifort2018.0"
     else
         # GFORTRAN # 6.3.0 because of netcdf-fortran
         module load gcc/6.3.0
@@ -388,7 +375,8 @@ host_vm_o()
         # OPTFLAG="${CFLAGS} -mavx"                # ivy / k20
         export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__" # -pg # gprof --line ./cable gmon.out
         export LD=""
-        export NCROOT="/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-gfortran63"
+        export NCCROOT="/home/oqx29/shared/local.gnu"
+        export NCROOT=${NCCROOT}
     fi
 
     # All compilers
@@ -397,7 +385,6 @@ host_vm_o()
     export CFLAGS="${CFLAGS} -D__CRU2017__"
     export CFLAGS="${CFLAGS} -D__NETCDF3__"
 
-    export NCCROOT="/home/oqx29/zzy20/local"
     export NCCLIB=${NCCROOT}"/lib"
     export NCLIB=${NCROOT}"/lib"
     export NCMOD=${NCROOT}"/include"
