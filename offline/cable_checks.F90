@@ -57,6 +57,7 @@ MODULE cable_checks_module
            timestp,                                       &
                                 ! possible forcing variables for CABLE
            SWdown = (/0.0,1360.0/),                       & ! W/m^2
+           FracDiff = (/0.0,1.0/),                        & ! -
            LWdown = (/0.0,950.0/),                        & ! W/m^2
            Rainf = (/0.0,0.1/),                           & ! mm/s
            Snowf = (/0.0,0.1/),                           & ! mm/s

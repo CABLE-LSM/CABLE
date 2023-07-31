@@ -170,9 +170,10 @@ contains
     CRU%DirectRead   = DirectRead
 
     ! diffuse fraction not available for all Metversions
-    if ((CRU%ReadDiffFrac == .true.) .and. (trim(CRU%MetVersion) /= "CRUJRA_2022")) then
-       write(*,'(a)') "Diffuse Fraction only available for CRUJRA_2022!"
-       write(logn,*)  "Diffuse Fraction only available for CRUJRA_2022!"
+    if ((CRU%ReadDiffFrac == .true.) .and. &
+      ((trim(CRU%MetVersion) /= "CRUJRA_2022") .and. (trim(CRU%MetVersion) /= "CRUJRA_2023"))) then
+       write(*,'(a)') "Diffuse Fraction only available for CRUJRA_2022 and CRUJRA_2023!"
+       write(logn,*)  "Diffuse Fraction only available for CRUJRA_2022 and CRUJRA_2023!"
     endif
 
     ! Assign Forcing and CO2 labels based only on the value of CRU%Run
@@ -333,7 +334,7 @@ contains
 
     if (trim(CRU%MetVersion) == "CRUJRA_2021") then
        CRU%VAR_NAME(swdn) = "tswrf"
-    else if (trim(CRU%MetVersion) == "CRUJRA_2022") then
+    else if (trim(CRU%MetVersion) == "CRUJRA_2022" .or. trim(CRU%MetVersion) == "CRUJRA_2023") then
        CRU%VAR_NAME(swdn) = "tswrf"
        if (CRU%ReadDiffFrac) then
           CRU%NMET = 10
@@ -509,16 +510,12 @@ contains
     fn   = trim(metp)
 
     select case(trim(CRU%MetVersion))
-    case("CRUJRA_2018")
-       cruver="crujra.V1.1"
-    case("CRUJRA_2019")
-       cruver="crujra.v2.0"
-    case("CRUJRA_2020")
-       cruver="crujra.v2.1"
     case("CRUJRA_2021")
        cruver="crujra.v2.2"
     case("CRUJRA_2022")
        cruver="crujra.v2.3"
+    case("CRUJRA_2023")
+       cruver="crujra.v2.4"
     case("VERIFY_2021")
        cruver="cru_verify"
     end select
@@ -558,6 +555,8 @@ contains
              fn = trim(fn)//"/tswrf/tswrf_v10_"//cy//".daymean.1deg.nc"
           else if (trim(CRU%MetVersion) == "CRUJRA_2022") then
              fn = trim(fn)//"/tswrf/tswrf_v11_"//cy//".daymean.1deg.nc"
+          else if (trim(CRU%MetVersion) == "CRUJRA_2023") then
+             fn = trim(fn)//"/tswrf/tswrf_v12_"//cy//".daymean.1deg.nc"
           else
              fn = trim(fn)//"/dswrf/"//trim(cruver)//".5d.dswrf."//cy//".365d.noc.daymean.1deg.nc"
           endif
@@ -576,7 +575,9 @@ contains
        case(fdiff)
           if (trim(CRU%MetVersion) == "CRUJRA_2022") then
              fn = trim(fn)//"/fd/fd_v11_"//cy//".daymean.1deg.nc"
-          endif
+          else if (trim(CRU%MetVersion) == "CRUJRA_2023") then
+             fn = trim(fn)//"/fd/fd_v12_"//cy//".daymean.1deg.nc"
+          end if
        end select
     endif
 
@@ -718,21 +719,15 @@ contains
        ! values, open the (ascii) CO2 file and read the values into the array.
        if (CALL1) then
           select case(trim(CRU%MetVersion))
-          case("CRUJRA_2018")
-             allocate(CRU%CO2VALS(1700:2017))
-             CO2FILE = trim(CRU%BasePath)//"/co2/global_co2_ann_1700_2017.csv"
-          case("CRUJRA_2019")
-             allocate(CRU%CO2VALS(1700:2018))
-             CO2FILE = trim(CRU%BasePath)//"/co2/global_co2_ann_1700_2018.csv"
-          case("CRUJRA_2020")
-             allocate(CRU%CO2VALS(1700:2019))
-             CO2FILE = trim(CRU%BasePath)//"/co2/global_co2_ann_1700_2019.txt"
           case("CRUJRA_2021", "VERIFY_2021")
              allocate(CRU%CO2VALS(1700:2020))
              CO2FILE = trim(CRU%BasePath)//"/co2/global_co2_ann_1700_2020.txt"
           case("CRUJRA_2022")
              allocate(CRU%CO2VALS(1700:2021))
              CO2FILE = trim(CRU%BasePath)//"/co2/global_co2_ann_1700_2021.txt"
+          case("CRUJRA_2023")
+             allocate(CRU%CO2VALS(1700:2022))
+             CO2FILE = trim(CRU%BasePath)//"/co2/global_co2_ann_1700_2022.txt"
           end select
 
           call GET_UNIT(iunit)
@@ -779,10 +774,7 @@ contains
     ! On the first call, allocate the CRU%CO2VALS array to store the entire history of annual CO2
     ! values, open the (ascii) CO2 file and read the values into the array.
     if (CALL1) then
-       if (trim(CRU%MetVersion) == "CRUJRA_2018") then
-          NdepFILE = trim(CRU%BasePath) // "/ndep/" // &
-               "NOy_plus_NHx_dry_plus_wet_deposition_hist_1850_2015_annual_1deg.nc"
-       else if (trim(CRU%MetVersion) == "VERIFY_2021") then
+       if (trim(CRU%MetVersion) == "VERIFY_2021") then
           NdepFILE = trim(CRU%BasePath) // "/ndep/" // &
                "NOy_plus_NHx_dry_plus_wet_deposition_1850_2099_annual.0.125deg_Europe.nc"
        else

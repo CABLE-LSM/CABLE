@@ -54,7 +54,7 @@ MODULE cable_output_module
 
   INTEGER :: ncid_out ! output data netcdf file ID
   TYPE out_varID_type ! output variable IDs in netcdf file
-     INTEGER :: SWdown, LWdown, Wind, Wind_E, PSurf, &
+     INTEGER :: SWdown, FracDiff, LWdown, Wind, Wind_E, PSurf, &
           Tair, Qair, Rainf, Snowf, CO2air, &
           Qle, Qh, Qg, NEE, fbeam, SWnet, &
           LWnet, SoilMoist, SoilTemp, Albedo, &
@@ -90,12 +90,13 @@ MODULE cable_output_module
   TYPE(parID_type) :: opid ! netcdf variable IDs for output variables
 
   TYPE output_temporary_type
-     REAL(KIND=4), POINTER, DIMENSION(:) :: SWdown => null() ! 6 downward short-wave radiation [W/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: LWdown => null() ! 7 downward long-wave radiation [W/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Rainf => null()  ! 8 rainfall [kg/m2/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Snowf => null()  ! 9 snowfall [kg/m2/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: PSurf => null()  ! 10 surface pressure [Pa]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Tair => null()   ! 11 surface air temperature
+     REAL(KIND=4), POINTER, DIMENSION(:) :: SWdown => null()   ! 5 downward short-wave radiation [W/m2]
+     REAL(KIND=4), POINTER, DIMENSION(:) :: FracDiff => null() ! 6 Fraction of diffuse radiation
+     REAL(KIND=4), POINTER, DIMENSION(:) :: LWdown => null()   ! 7 downward long-wave radiation [W/m2]
+     REAL(KIND=4), POINTER, DIMENSION(:) :: Rainf => null()    ! 8 rainfall [kg/m2/s]
+     REAL(KIND=4), POINTER, DIMENSION(:) :: Snowf => null()    ! 9 snowfall [kg/m2/s]
+     REAL(KIND=4), POINTER, DIMENSION(:) :: PSurf => null()    ! 10 surface pressure [Pa]
+     REAL(KIND=4), POINTER, DIMENSION(:) :: Tair => null()     ! 11 surface air temperature
      ! [K]
      REAL(KIND=4), POINTER, DIMENSION(:) :: Qair => null()   ! 12 specific humidity [kg/kg]
      REAL(KIND=4), POINTER, DIMENSION(:) :: CO2air => null() ! 13 CO2 concentration [ppmv]
@@ -470,6 +471,13 @@ CONTAINS
             patchout%SWdown, 'dummy', xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%SWdown(mp))
        out%SWdown = zero4 ! initialise
+    END IF
+    IF(output%met .OR. output%FracDiff) THEN
+     CALL define_ovar(ncid_out, &
+          ovid%FracDiff, 'FracDiff', '-', 'Fraction of diffuse radiation', &
+          patchout%FracDiff, 'dummy', xID, yID, zID, landID, patchID, tID)
+     ALLOCATE(out%FracDiff(mp))
+     out%FracDiff = zero4 ! initialise
     END IF
     IF(output%met .OR. output%LWdown) THEN
        CALL define_ovar(ncid_out, ovid%LWdown, 'LWdown', 'W/m^2', &
@@ -2017,6 +2025,20 @@ CONTAINS
           ! Reset temporary output variable:
           out%SWdown = zero4
        END IF
+    END IF
+    ! FracDiff: Diffuse Radiation Fraction 
+    IF(output%met .OR. output%FracDiff) THEN
+      ! Add current timestep's value to total of temporary output variable:
+      out%FracDiff = out%FracDiff + toreal4(met%fdiff)
+      IF(writenow) THEN
+        ! Divide accumulated variable by number of accumulated time steps:
+        out%FracDiff = out%FracDiff * rinterval
+        ! Write value to file:
+        CALL write_ovar(out_timestep, ncid_out, ovid%FracDiff, 'FracDiff', &
+             out%FracDiff, ranges%FracDiff, patchout%FracDiff, 'default', met)
+        ! Reset temporary output variable:
+        out%FracDiff = zero4
+      END IF
     END IF
     ! LWdown: downward long-wave radiation [W/m^2]
     IF(output%met .OR. output%LWdown) THEN
