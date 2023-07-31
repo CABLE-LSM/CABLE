@@ -2128,8 +2128,8 @@ CONTAINS
                    anx(i,1) = 0.0 - rdx(i,1)
                    anx(i,2) = 0.0 - rdx(i,2)
                 ELSE
-                   CALL optimisation(canopy, rad, ssnow, rad%qcan, vpd, press, tlfx(i), &
-                                     csx, rad%fvlai, ssnow%psi_rootzone(i), &
+                   CALL optimisation(canopy, rad, vpd, press, tlfx(i), &
+                                     csx, ssnow%psi_rootzone(i), &
                                      kcmax, veg%kmax(i), veg%PLCcrit(i), &
                                      veg%b_plant(i), veg%c_plant(i), resolution, vcmxt3, &
                                      ejmxt3, rdx, vx3, cx1(i), an_canopy, e_canopy, &
@@ -3041,8 +3041,8 @@ CONTAINS
   ! ------------------------------------------------------------------------------
 
   ! ------------------------------------------------------------------------------
-  SUBROUTINE optimisation(canopy, rad, ssnow, qcan, vpd, press, tleaf, csx, &
-                          lai_leaf, psi_soil, kcmax, kmax, PLCcrit, b_plant, &
+  SUBROUTINE optimisation(canopy, rad, vpd, press, tleaf, csx, &
+                          psi_soil, kcmax, kmax, PLCcrit, b_plant, &
                           c_plant, N, vcmxt3, ejmxt3, rdx, vx3, cx1, an_canopy, &
                           e_canopy, avg_kcan, gamma_star, p, i)
 
@@ -3073,15 +3073,13 @@ CONTAINS
 
      TYPE (canopy_type), INTENT(INOUT) :: canopy
      TYPE (radiation_type), INTENT(INOUT) :: rad
-     TYPE (soil_snow_type), INTENT(INOUT) :: ssnow
 
      INTEGER, INTENT(IN) :: i, N
      REAL, INTENT(IN) :: cx1, kmax, PLCcrit, b_plant, c_plant, vpd, press, &
                          tleaf, gamma_star
      REAL(r_2), INTENT(IN) :: psi_soil
      REAL, DIMENSION(mp), INTENT(IN) :: kcmax
-     REAL, DIMENSION(mp,mf), INTENT(IN) :: vcmxt3, ejmxt3, rdx, vx3, lai_leaf
-     REAL, DIMENSION(mp,mf,nrb), INTENT(IN) :: qcan
+     REAL, DIMENSION(mp,mf), INTENT(IN) :: vcmxt3, ejmxt3, rdx, vx3
      REAL(r_2), DIMENSION(mp,mf), INTENT(IN) :: csx
 
      REAL, INTENT(INOUT) :: e_canopy
@@ -3093,11 +3091,10 @@ CONTAINS
      ! local variables
      INTEGER :: j, k, idx
      LOGICAL, DIMENSION(N) ::  mask
-     REAL :: p_crit, p_sat, lower, upper, Cs, gsw, Vcmax, Jmax, Rd, Vj, Km
+     REAL :: p_crit, lower, upper, Cs, gsw, Vcmax, Jmax, Rd, Vj, Km
      REAL, DIMENSION(mf) :: fsun, apar, e_leaves, p_leaves, kc_leaves
      REAL, DIMENSION(N) :: Ci, Ac, Aj, A, an_leaf, gsc, Cx, kc, kc_iter, e_leaf, cost, &
                            gain, profit
-     REAL(r_2), DIMENSION(N) :: p_potentials
 
      REAL, PARAMETER :: &
         J_TO_MOL = 4.6E-6, & ! Convert from J to Mol for light
@@ -3109,28 +3106,19 @@ CONTAINS
      ! Xylem pressure beyond which there's full dessication, MPa
      p_crit = -b_plant * LOG(100. / (100. - PLCcrit)) ** (1. / c_plant)
 
-     ! Xylem pressure at saturation
-     p_sat = ssnow%psi_rootzone(i)
-
      ! Loop over sunlit, shaded parts of the canopy and solve the carbon uptake
      ! and transpiration
      DO j=1, 2
 
         ! absorbed par for the sunlit or shaded leaf, umol m-2 -s-1
-        apar(j) = qcan(i,j,1) * J_TO_MOL * MOL_TO_UMOL
+        apar(j) = rad%qcan(i,j,1) * J_TO_MOL * MOL_TO_UMOL
 
         ! If there is bugger all light, assume there are no fluxes
         IF (apar(j) <= 0.) THEN
 
            ! load into stores
-           an_canopy = -rdx(i,j) * MOL_TO_UMOL ! umol m-2 s-1
-           e_canopy = 0. ! mol H2O m-2 s-1
-
-           ! It's not clear what should happen to the leaf water potential if
-           ! there is no light. Setting it to the root zone water potential on the
-           ! basis that there is some evidence the leaf and soil water potential
-           ! come back into equilibrium overnight.
-           canopy%psi_can(i) = ssnow%psi_rootzone(i)
+           an_canopy(j) = -rdx(i,j) * MOL_TO_UMOL ! umol m-2 s-1
+           e_leaves(j) = 0. ! mol H2O m-2 s-1
 
         ELSE
 
@@ -3176,7 +3164,7 @@ CONTAINS
            ! Infer leaf water potential, MPa, having rescaled E from big-leaf to
            ! unit leaf first.
            ! N.B: solving with an accuracy of 0.1*kcrit on kc
-           p = calc_psi_leaf(ssnow%psi_rootzone(i), &
+           p = calc_psi_leaf(psi_soil, &
                              e_leaf * MOL_TO_MMOL / rad%scalex(i,j), kmax, &
                              b_plant, c_plant, 1E-3 * (100. - PLCcrit) * kmax, N)
 
@@ -3190,7 +3178,7 @@ CONTAINS
            kc = kmax * get_xylem_vulnerabilityx(p, b_plant, c_plant)
 
            ! Ensure we don't check for profit in bad search space
-           WHERE (p < ssnow%psi_rootzone(i) .AND. p > p_crit)
+           WHERE (p < psi_soil .AND. p > p_crit)
 
               mask = .TRUE.
 
@@ -3224,15 +3212,33 @@ CONTAINS
            ! Locate maximum profit
            idx = MAXLOC(profit, 1, mask=mask)
 
-           !IF (vpd < 1.0) THEN
-           !   print*, vpd, idx, profit(idx), Ci(idx) / Cs
-           !ENDIF
+           IF (idx > 1) THEN ! the optimisation conditions are satisfied
 
-           an_canopy(j) = an_leaf(idx) ! umolC m-2 s-1
-           e_leaves(j) = e_leaf(idx) ! molH2O m-2 s-1
-           canopy%gswx(i,j) = MAX(1E-9, gsc(idx) * C%RGSWC) ! molH2O m-2 s-1
-           p_leaves(j) = p(idx)
-           kc_leaves(j) = kc(idx)
+              an_canopy(j) = an_leaf(idx) ! umolC m-2 s-1
+              e_leaves(j) = e_leaf(idx) ! molH2O m-2 s-1
+              canopy%gswx(i,j) = MAX(1E-9, gsc(idx) * C%RGSWC) ! molH2O m-2 s-1
+              p_leaves(j) = p(idx)
+              kc_leaves(j) = kc(idx)
+
+           ELSE ! the optimisation conditions are not satisfied
+
+              an_canopy(j) = -rdx(i,j) * MOL_TO_UMOL ! umol m-2 s-1
+              e_leaves(j) = 0. ! mol H2O m-2 s-1
+
+              ! It's not clear what should happen to the leaf water potential if
+              ! there is no light. Setting it to the root zone water potential
+              ! on the basis that there is some evidence the leaf and soil water
+              ! potential come back into equilibrium overnight.
+              p_leaves(j) = psi_soil
+
+              ! Unclear what should happen to the conductance too...
+              kc_leaves(j) = kcmax(i)
+
+           END IF
+
+           !IF (vpd < 1.0) THEN
+           !   print*, vpd, apar(j), profit(idx), e_leaves(j), e_leaf(idx)
+           !END IF
 
         END IF
 
@@ -3257,7 +3263,14 @@ CONTAINS
 
      ELSE ! nothing has happened, we're in the roots
 
+        ! It's not clear what should happen to the leaf water potential if
+        ! there is no light. Setting it to the root zone water potential on
+        ! the
+        ! basis that there is some evidence the leaf and soil water potential
+        ! come back into equilibrium overnight.
         canopy%psi_can(i) = psi_soil
+
+        ! Unclear what should happen to the conductance too...
         avg_kcan(i) = kcmax(i)
 
      END IF
@@ -3452,7 +3465,7 @@ CONTAINS
   ! ------------------------------------------------------------------------------
 
   ! ------------------------------------------------------------------------------
-  FUNCTION calc_psi_leaf(psi_soil, e_leaf, kmax, b_plant, c_plant, acc, N) &
+  FUNCTION calc_psi_leaf(psi_sat, e_leaf, kmax, b_plant, c_plant, acc, N) &
      RESULT(psi_leaf)
 
      ! Calculation the approximate matching psi_leaf from the transpiration array.
@@ -3468,7 +3481,7 @@ CONTAINS
 
      INTEGER, INTENT(IN) :: N
      REAL, INTENT(IN) :: kmax, b_plant, c_plant, acc
-     REAL(r_2), INTENT(IN) :: psi_soil
+     REAL(r_2), INTENT(IN) :: psi_sat
      REAL, DIMENSION(N), INTENT(IN) :: e_leaf
 
      ! local variables
@@ -3478,14 +3491,14 @@ CONTAINS
 
      ! Initialise the soil-plant hydraulic conductance at canopy xylem pressure
      ! mmol m-2 s-1 MPa-1
-     kc = kmax * get_xylem_vulnerability(psi_soil, b_plant, c_plant)
+     kc = kmax * get_xylem_vulnerability(psi_sat, b_plant, c_plant)
 
      ! Infer the leaf water potentials via convergence of kc; this is not
      ! dissimilar to doing a series expansion
      DO iter = 1, N
 
         ! Update the leaf water potential estimates
-        psi_leaf = psi_soil - e_leaf / kc
+        psi_leaf = psi_sat - e_leaf / kc
 
         ! Check the convergence on kc
         kc_iter = kmax * get_xylem_vulnerabilityx(psi_leaf, b_plant, c_plant)
@@ -3504,7 +3517,7 @@ CONTAINS
   ! ------------------------------------------------------------------------------
 
   ! ------------------------------------------------------------------------------
-  FUNCTION get_xylem_vulnerabilityx(p, b_plant, c_plant) RESULT(weibull)
+  FUNCTION get_xylem_vulnerabilityx(psi, b_plant, c_plant) RESULT(weibull)
 
      ! Calculate the vulnerability to cavitation using a Weibull function
      !
@@ -3515,18 +3528,18 @@ CONTAINS
      IMPLICIT NONE
 
      REAL, INTENT(IN) :: b_plant, c_plant
-     REAL(r_2), DIMENSION(:), INTENT(IN) :: p
+     REAL(r_2), DIMENSION(:), INTENT(IN) :: psi
 
      ! local variables
-     REAL, DIMENSION( SIZE(p) ) :: weibull
+     REAL, DIMENSION( SIZE(psi) ) :: weibull
 
-     weibull = min(1., max(1E-9, exp(-(-p / b_plant)**c_plant)))
+     weibull = min(1., max(1E-9, exp(-(-psi / b_plant)**c_plant)))
 
   END FUNCTION get_xylem_vulnerabilityx
   ! ------------------------------------------------------------------------------
 
   ! ------------------------------------------------------------------------------
-  FUNCTION get_xylem_vulnerability(p, b_plant, c_plant) RESULT(weibull)
+  FUNCTION get_xylem_vulnerability(psi, b_plant, c_plant) RESULT(weibull)
 
      ! Calculate the vulnerability to cavitation using a Weibull function
      !
@@ -3537,12 +3550,12 @@ CONTAINS
      IMPLICIT NONE
 
      REAL, INTENT(IN) :: b_plant, c_plant
-     REAL(r_2), INTENT(IN) :: p
+     REAL(r_2), INTENT(IN) :: psi
 
      ! local variables
      REAL :: weibull
 
-     weibull = min(1., max(1E-9, exp(-(-p / b_plant)**c_plant)))
+     weibull = min(1., max(1E-9, exp(-(-psi / b_plant)**c_plant)))
 
   END FUNCTION get_xylem_vulnerability
   ! ------------------------------------------------------------------------------
