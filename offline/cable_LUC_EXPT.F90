@@ -190,14 +190,14 @@ CONTAINS
        ! inquire dimensions
        IF (i.eq.1) THEN
           FID = LUC_EXPT%F_ID(i)
-          STATUS = NF90_INQ_DIMID(FID,'lat',latID)
+          STATUS = NF90_INQ_DIMID(FID,'latitude',latID)
           STATUS = NF90_INQUIRE_DIMENSION(FID,latID,len=ydimsize)
-          CALL HANDLE_ERR(STATUS, "Inquiring 'lat'"//TRIM(LUC_EXPT%TransFile(i)))
+          CALL HANDLE_ERR(STATUS, "Inquiring 'latitude'"//TRIM(LUC_EXPT%TransFile(i)))
           LUC_EXPT%ydimsize = ydimsize
 
-          STATUS = NF90_INQ_DIMID(FID,'lon',lonID)
+          STATUS = NF90_INQ_DIMID(FID,'longitude',lonID)
           STATUS = NF90_INQUIRE_DIMENSION(FID,lonID,len=xdimsize)
-          CALL HANDLE_ERR(STATUS, "Inquiring 'lon'"//TRIM(LUC_EXPT%TransFile(i)))
+          CALL HANDLE_ERR(STATUS, "Inquiring 'longitude'"//TRIM(LUC_EXPT%TransFile(i)))
           LUC_EXPT%xdimsize = xdimsize
 
           STATUS = NF90_INQ_DIMID(FID,'time',timID)

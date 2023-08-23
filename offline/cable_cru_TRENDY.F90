@@ -368,7 +368,7 @@ contains
     ! Latitude: Get the dimension ID, find the size of the dimension, assign it to CRU.
     ErrStatus = NF90_INQ_DIMID(FID, 'latitude', latID)
     ErrStatus = NF90_INQUIRE_DIMENSION(FID, latID, len=ydimsize)
-    call HANDLE_ERR(ErrStatus, "Inquiring 'lat'" // trim(LandMaskFile))
+    call HANDLE_ERR(ErrStatus, "Inquiring 'latitude'" // trim(LandMaskFile))
     CRU%ydimsize = ydimsize
 
     ! Collect the latitudes into CRU_lats
@@ -381,7 +381,7 @@ contains
     ! Longitude: Get the dimension ID, find the size of the dimension, assign it to CRU.
     ErrStatus = NF90_INQ_DIMID(FID, 'longitude', lonID)
     ErrStatus = NF90_INQUIRE_DIMENSION(FID, lonID, len=xdimsize)
-    call HANDLE_ERR(ErrStatus, "Inquiring 'lon'" // trim(LandMaskFile))
+    call HANDLE_ERR(ErrStatus, "Inquiring 'longitude'" // trim(LandMaskFile))
     CRU%xdimsize = xdimsize
 
     ! Collect the longitudes into CRU_lons
