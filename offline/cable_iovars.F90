@@ -232,6 +232,7 @@ MODULE cable_IO_vars_module
          VegT = .FALSE.,      & ! 31 vegetation temperature [K]
          SoilTemp = .FALSE.,  & ! 32 av.layer soil temperature [K]
          SoilMoist = .FALSE., & ! 33 av.layer soil moisture [kg/m2]
+         SoilMoistPFT = .FALSE., & ! Total soil moisture per PFT [kg/m2]
          SoilMoistIce = .FALSE., & ! 33 av.layer soil frozen moisture [kg/m2]
          Qs = .FALSE.,        & ! 34 surface runoff [kg/m2/s]
          Qsb = .FALSE.,       &! 35 subsurface runoff [kg/m2/s]
@@ -267,7 +268,7 @@ MODULE cable_IO_vars_module
          CanT = .FALSE.,      & ! within-canopy temperature [K]
          Fwsoil = .FALSE.,      & ! soil moisture modifier to stomatal conductance
          Area = .FALSE., & ! patch area in km2
-         GPP_components = .TRUE.,    & ! sunlit and shaded GPP, plus J and C limited components
+         GPP_components = .FALSE.,    & ! sunlit and shaded GPP, plus J and C limited components
          Qcan = .FALSE.,     & ! absorbed radiation by canopy
 
          ! vh_mc ! additional variables for ESM-SnowMIP

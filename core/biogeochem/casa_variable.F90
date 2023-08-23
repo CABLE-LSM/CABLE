@@ -289,11 +289,14 @@ module casavariable
           potstemnpp => null(), &
           frac_sapwood => null(), &
           sapwood_area => null(), &
-          Charvest => null(), &  ! leaf biomass removed due to crop or pasture management
-          Nharvest => null(), & ! leaf N removed due to crop or pasture management
-          Pharvest => null(), & ! leaf P removed due to crop or pasture management
-          fHarvest => null(), &  ! fraction leaf biomass removed due to crop or pasture management
-          fcrop => null()        ! fraction of 'grass' that is crop
+          Charvest => null(), &    ! leaf biomass removed due to crop or pasture management
+          Nharvest => null(), &    ! leaf N removed due to crop or pasture management
+          Pharvest => null(), &    ! leaf P removed due to crop or pasture management
+          fHarvest => null(), &    ! fraction leaf biomass removed due to crop or pasture management
+          fcrop => null(),    &    ! fraction of 'grass' that is crop
+          CallocLeaf => null(), &  ! C allocation to leaves 
+          CallocWood => null(), &  ! C allocation to wood
+          CallocFineRoot => null() ! C allocation to fine roots
      real(r_2), dimension(:,:), pointer :: &
           fracCalloc => null(), &
           fracNalloc => null(), &
@@ -343,6 +346,9 @@ module casavariable
      real(r_2), dimension(:,:),   pointer :: fromLtoCO2 => null()
      real(r_2), dimension(:,:),   pointer :: fromStoCO2 => null()
      real(r_2), dimension(:,:),   pointer :: FluxCtolitter => null()
+     real(r_2), dimension(:,:),   pointer :: FluxCLeaftoLitter => null()
+     real(r_2), dimension(:,:),   pointer :: FluxCWoodtoLitter => null()
+     real(r_2), dimension(:,:),   pointer :: FluxCFineRoottoLitter => null()
      real(r_2), dimension(:,:),   pointer :: FluxNtolitter => null()
      real(r_2), dimension(:,:),   pointer :: FluxPtolitter => null()
      real(r_2), dimension(:,:),   pointer :: FluxCtosoil => null()
@@ -744,6 +750,9 @@ contains
          casaflux%Pharvest(arraysize), &
          casaflux%fharvest(arraysize), &
          casaflux%fcrop(arraysize), &
+         casaflux%CallocLeaf(arraysize), &
+         casaflux%CallocWood(arraysize), &
+         casaflux%CallocFineRoot(arraysize), &
          casaflux%fracCalloc(arraysize,mplant), &
          casaflux%fracNalloc(arraysize,mplant), &
          casaflux%fracPalloc(arraysize,mplant), &
@@ -788,6 +797,9 @@ contains
          casaflux%fromLtoCO2(arraysize,mlitter), &
          casaflux%fromStoCO2(arraysize,msoil), &
          casaflux%FluxCtolitter(arraysize,mlitter), &
+         casaflux%FluxCLeaftoLitter(arraysize,mlitter), &
+         casaflux%FluxCWoodtoLitter(arraysize,mlitter), &
+         casaflux%FluxCFineRoottoLitter(arraysize,mlitter), &
          casaflux%FluxNtolitter(arraysize,mlitter), &
          casaflux%FluxPtolitter(arraysize,mlitter), &
          casaflux%FluxCtosoil(arraysize,msoil), &
@@ -1107,6 +1119,9 @@ contains
     casaflux%Pharvest = 0.0_r_2
     casaflux%fHarvest = 0.0_r_2
     casaflux%fcrop = 0.0_r_2
+    casaflux%CallocLeaf = 0.0_r_2
+    casaflux%CallocWood = 0.0_r_2
+    casaflux%CallocFineRoot = 0.0_r_2
     casaflux%fracCalloc = 0.0_r_2
     casaflux%fracNalloc = 0.0_r_2
     casaflux%fracPalloc = 0.0_r_2
@@ -1151,6 +1166,9 @@ contains
     casaflux%fromLtoCO2 = 0.0_r_2
     casaflux%fromStoCO2 = 0.0_r_2
     casaflux%FluxCtolitter = 0.0_r_2
+    casaflux%FluxCLeaftoLitter = 0.0_r_2
+    casaflux%FluxCWoodtoLitter = 0.0_r_2
+    casaflux%FluxCFineRoottoLitter = 0.0_r_2
     casaflux%FluxNtolitter = 0.0_r_2
     casaflux%FluxPtolitter = 0.0_r_2
     casaflux%FluxCtosoil = 0.0_r_2
@@ -1435,6 +1453,9 @@ contains
     write(*,*) 'Plabuptake ', casaflux%Plabuptake
     write(*,*) 'Clabloss ', casaflux%Clabloss
     write(*,*) 'fracClabile ', casaflux%fracClabile
+    write(*,*) 'CallocLeaf', casaflux%CallocLeaf
+    write(*,*) 'CallocWood', casaflux%CallocWood
+    write(*,*) 'CallocFineRoot', casaflux%CallocFineRoot
     write(*,*) 'fracCalloc ', casaflux%fracCalloc
     write(*,*) 'fracNalloc ', casaflux%fracNalloc
     write(*,*) 'fracPalloc ', casaflux%fracPalloc
@@ -1500,6 +1521,9 @@ contains
     write(*,*) 'FluxNtoAtm_fire ', casaflux%FluxNtoAtm_fire
 
     write(*,*) 'FluxCtolitter ', casaflux%FluxCtolitter
+    write(*,*) 'FluxCLeaftoLitter ', casaflux%FluxCLeaftoLitter
+    write(*,*) 'FluxCWoodtoLitter ', casaflux%FluxCWoodtoLitter
+    write(*,*) 'FluxCFineRoottoLitter ', casaflux%FluxCFineRoottoLitter
     write(*,*) 'FluxNtolitter ', casaflux%FluxNtolitter
     write(*,*) 'FluxPtolitter ', casaflux%FluxPtolitter
 
@@ -1722,6 +1746,9 @@ contains
        ! sum_casaflux%fracCalloc(:,1) = sum_casaflux%fracCalloc(:,1) + casaflux%fracCalloc(:,1)
        ! sum_casaflux%fracCalloc(:,2) = sum_casaflux%fracCalloc(:,2) + casaflux%fracCalloc(:,2)
        ! sum_casaflux%fracCalloc(:,3) = sum_casaflux%fracCalloc(:,3) + casaflux%fracCalloc(:,3)
+       sum_casaflux%CallocLeaf      = sum_casaflux%CallocLeaf      + casaflux%CallocLeaf
+       sum_casaflux%CallocWood      = sum_casaflux%CallocWood      + casaflux%CallocWood
+       sum_casaflux%CallocFineRoot  = sum_casaflux%CallocFineRoot  + casaflux%CallocFineRoot
        sum_casaflux%fracCalloc(:,1) = sum_casaflux%fracCalloc(:,1) + casaflux%fracCalloc(:,1) * casaflux%Cnpp
        sum_casaflux%fracCalloc(:,2) = sum_casaflux%fracCalloc(:,2) + casaflux%fracCalloc(:,2) * casaflux%Cnpp
        sum_casaflux%fracCalloc(:,3) = sum_casaflux%fracCalloc(:,3) + casaflux%fracCalloc(:,3) * casaflux%Cnpp
@@ -1778,6 +1805,9 @@ contains
             sum_casaflux%Cplant_turnover_resource_limitation + casaflux%Cplant_turnover_resource_limitation
 
        sum_casaflux%FluxCtolitter = sum_casaflux%FluxCtolitter + casaflux%FluxCtolitter
+       sum_casaflux%FluxCLeaftoLitter = sum_casaflux%FluxCLeaftoLitter + casaflux%FluxCLeaftoLitter
+       sum_casaflux%FluxCWoodtoLitter = sum_casaflux%FluxCWoodtoLitter + casaflux%FluxCWoodtoLitter
+       sum_casaflux%FluxCFineRoottoLitter = sum_casaflux%FluxCFineRoottoLitter + casaflux%FluxCFineRoottoLitter
        sum_casaflux%FluxNtolitter = sum_casaflux%FluxNtolitter + casaflux%FluxNtolitter
        sum_casaflux%FluxPtolitter = sum_casaflux%FluxPtolitter + casaflux%FluxPtolitter
 
@@ -1872,17 +1902,20 @@ contains
        sum_casapool%ratioPCplant   = sum_casapool%ratioPCplant   * rnsteps
        sum_casapool%ratioPClitter  = sum_casapool%ratioPClitter  * rnsteps
 
-       sum_casaflux%Cgpp        = sum_casaflux%Cgpp        * rnsteps
-       sum_casaflux%Cnpp        = sum_casaflux%Cnpp        * rnsteps
-       sum_casaflux%Crp         = sum_casaflux%Crp         * rnsteps
-       sum_casaflux%Crgplant    = sum_casaflux%Crgplant    * rnsteps
-       sum_casaflux%Nminfix     = sum_casaflux%Nminfix     * rnsteps
-       sum_casaflux%Nminuptake  = sum_casaflux%Nminuptake  * rnsteps
-       sum_casaflux%Plabuptake  = sum_casaflux%Plabuptake  * rnsteps
-       sum_casaflux%Clabloss    = sum_casaflux%Clabloss    * rnsteps
-       sum_casaflux%fracClabile = sum_casaflux%fracClabile * rnsteps
-       sum_casaflux%fracNalloc = sum_casaflux%fracNalloc * rnsteps
-       sum_casaflux%fracPalloc = sum_casaflux%fracPalloc * rnsteps
+       sum_casaflux%Cgpp           = sum_casaflux%Cgpp        * rnsteps
+       sum_casaflux%Cnpp           = sum_casaflux%Cnpp        * rnsteps
+       sum_casaflux%Crp            = sum_casaflux%Crp         * rnsteps
+       sum_casaflux%Crgplant       = sum_casaflux%Crgplant    * rnsteps
+       sum_casaflux%Nminfix        = sum_casaflux%Nminfix     * rnsteps
+       sum_casaflux%Nminuptake     = sum_casaflux%Nminuptake  * rnsteps
+       sum_casaflux%Plabuptake     = sum_casaflux%Plabuptake  * rnsteps
+       sum_casaflux%Clabloss       = sum_casaflux%Clabloss    * rnsteps
+       sum_casaflux%CallocLeaf     = sum_casaflux%CallocLeaf * rnsteps
+       sum_casaflux%CallocWood     = sum_casaflux%CallocWood * rnsteps
+       sum_casaflux%CallocFineRoot = sum_casaflux%CallocFineRoot * rnsteps
+       sum_casaflux%fracClabile    = sum_casaflux%fracClabile * rnsteps
+       sum_casaflux%fracNalloc     = sum_casaflux%fracNalloc * rnsteps
+       sum_casaflux%fracPalloc     = sum_casaflux%fracPalloc * rnsteps
 
        sum_casaflux%Crmplant     = sum_casaflux%Crmplant     * rnsteps
        sum_casaflux%fromPtoL     = sum_casaflux%fromPtoL     * rnsteps
@@ -1932,6 +1965,9 @@ contains
        sum_casaflux%Cplant_turnover_resource_limitation = &
             sum_casaflux%Cplant_turnover_resource_limitation * rnsteps
        sum_casaflux%FluxCtolitter = sum_casaflux%FluxCtolitter * rnsteps
+       sum_casaflux%FluxCLeaftoLitter = sum_casaflux%FluxCLeaftoLitter * rnsteps
+       sum_casaflux%FluxCWoodtoLitter = sum_casaflux%FluxCWoodtoLitter * rnsteps
+       sum_casaflux%FluxCFineRoottoLitter = sum_casaflux%FluxCFineRoottoLitter * rnsteps
        sum_casaflux%FluxNtolitter = sum_casaflux%FluxNtolitter * rnsteps
        sum_casaflux%FluxPtolitter = sum_casaflux%FluxPtolitter * rnsteps
 
@@ -2316,6 +2352,12 @@ contains
     call nc_err(nf90_get_var(fid, vid, casaflux%fharvest))
     call nc_err(nf90_inq_varid(fid, 'fcrop', vid))
     call nc_err(nf90_get_var(fid, vid, casaflux%fcrop))
+    call nc_err(nf90_inq_varid(fid, 'CallocLeaf', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%callocleaf))
+    call nc_err(nf90_inq_varid(fid, 'CallocWood', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%callocwood))
+    call nc_err(nf90_inq_varid(fid, 'CallocFineRoot', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%callocfineroot))
     call nc_err(nf90_inq_varid(fid, 'fraccalloc', vid))
     call nc_err(nf90_get_var(fid, vid, casaflux%fraccalloc))
     call nc_err(nf90_inq_varid(fid, 'fracnalloc', vid))
@@ -2404,6 +2446,12 @@ contains
     call nc_err(nf90_get_var(fid, vid, casaflux%fromstoco2))
     call nc_err(nf90_inq_varid(fid, 'fluxctolitter', vid))
     call nc_err(nf90_get_var(fid, vid, casaflux%fluxctolitter))
+    call nc_err(nf90_inq_varid(fid, 'fluxcleaftolitter', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxcleaftolitter))
+    call nc_err(nf90_inq_varid(fid, 'fluxcwoodtolitter', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxcwoodtolitter))
+    call nc_err(nf90_inq_varid(fid, 'fluxcfineroottolitter', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fluxcfineroottolitter))
     call nc_err(nf90_inq_varid(fid, 'fluxntolitter', vid))
     call nc_err(nf90_get_var(fid, vid, casaflux%fluxntolitter))
     call nc_err(nf90_inq_varid(fid, 'fluxptolitter', vid))
@@ -3290,6 +3338,12 @@ contains
          [dimid1], vid(i)), i)
     call nc_err(nf90_def_var(fid, 'fluxfromptoharvest', nf90_double, &
          [dimid1], vid(i)), i)
+     call nc_err(nf90_def_var(fid, 'CallocLeaf', nf90_double, &
+         [dimid1], vid(i)), i)
+     call nc_err(nf90_def_var(fid, 'CallocWood', nf90_double, &
+         [dimid1], vid(i)), i)
+     call nc_err(nf90_def_var(fid, 'CallocFineRoot', nf90_double, &
+         [dimid1], vid(i)), i)
 
     ! define double array variables [dim1, dim2]
     call nc_err(nf90_def_var(fid, 'fraccalloc', nf90_double, &
@@ -3323,6 +3377,12 @@ contains
     call nc_err(nf90_def_var(fid, 'klitter_tot', nf90_double, &
          [dimid1, dimid3], vid(i)), i)
     call nc_err(nf90_def_var(fid, 'fluxctolitter', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxcleaftolitter', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxcwoodtolitter', nf90_double, &
+         [dimid1, dimid3], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fluxcfineroottolitter', nf90_double, &
          [dimid1, dimid3], vid(i)), i)
     call nc_err(nf90_def_var(fid, 'fluxntolitter', nf90_double, &
          [dimid1, dimid3], vid(i)), i)
@@ -3436,6 +3496,9 @@ contains
     call nc_err(nf90_put_var(fid, vid(i), casaflux%CtransferLUC), i)
     call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxCtoco2), i)
     call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxFromPtoHarvest), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%CallocLeaf), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%CallocWood), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%CallocFineRoot), i)
     call nc_err(nf90_put_var(fid, vid(i), casaflux%fracCalloc), i)
     call nc_err(nf90_put_var(fid, vid(i), casaflux%fracNalloc), i)
     call nc_err(nf90_put_var(fid, vid(i), casaflux%fracPalloc), i)
@@ -3451,6 +3514,9 @@ contains
     call nc_err(nf90_put_var(fid, vid(i), casaflux%klitter_fire), i)
     call nc_err(nf90_put_var(fid, vid(i), casaflux%klitter_tot), i)
     call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxCtolitter), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxCLeaftoLitter), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxCWoodtoLitter), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxCFineRoottoLitter), i)
     call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxNtolitter), i)
     call nc_err(nf90_put_var(fid, vid(i), casaflux%FluxPtolitter), i)
     call nc_err(nf90_put_var(fid, vid(i), casaflux%fluxfromLtoCO2_fire), i)

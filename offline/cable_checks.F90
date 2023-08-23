@@ -91,6 +91,7 @@ MODULE cable_checks_module
            VegT = (/213.0,353.0/),                        &
            SoilTemp = (/213.0,353.0/),                    &
            SoilMoist = (/0.0,2000.0/),                    &
+           SoilMoistPFT = (/0.0,10000.0/),                &
            Qs = (/0.0,15.0/),                             &
            Qsb = (/0.0,15.0/),                            &
            DelSoilMoist  = (/-2000.0,2000.0/),            &

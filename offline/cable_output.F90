@@ -57,7 +57,7 @@ MODULE cable_output_module
      INTEGER :: SWdown, FracDiff, LWdown, Wind, Wind_E, PSurf, &
           Tair, Qair, Rainf, Snowf, CO2air, &
           Qle, Qh, Qg, NEE, fbeam, SWnet, &
-          LWnet, SoilMoist, SoilTemp, Albedo, &
+          LWnet, SoilMoist, SoilMoistPFT, SoilTemp, Albedo, &
           visAlbedo, nirAlbedo, SoilMoistIce, &
           Qs, Qsb, Evap, BaresoilT, SWE, SnowT, &
           RadT, VegT, Ebal, Wbal, AutoResp, RootResp, &
@@ -125,6 +125,7 @@ MODULE cable_output_module
      REAL(KIND=4), POINTER, DIMENSION(:) :: VegT => null()    ! 31 vegetation temperature [K]
      REAL(KIND=4), POINTER, DIMENSION(:,:) :: SoilTemp => null()  ! 32 av.layer soil temperature [K]
      REAL(KIND=4), POINTER, DIMENSION(:,:) :: SoilMoist => null() ! 33 av.layer soil moisture [kg/m2]
+     REAL(KIND=4), POINTER, DIMENSION(:)   :: SoilMoistPFT => null() ! 33 soil moisture per PFT [kg/m2]
      REAL(KIND=4), POINTER, DIMENSION(:,:) :: SoilMoistIce => null() ! 33 av.layer soil frozen moisture [kg/m2]
      REAL(KIND=4), POINTER, DIMENSION(:) :: Qs => null()  ! 34 surface runoff [kg/m2/s]
      REAL(KIND=4), POINTER, DIMENSION(:) :: Qsb => null() ! 35 subsurface runoff [kg/m2/s]
@@ -685,12 +686,17 @@ CONTAINS
        CALL define_ovar(ncid_out, ovid%SoilMoist, 'SoilMoist', 'm^3/m^3', &
             'Average layer soil moisture', patchout%SoilMoist, &
             'soil', xID, yID, zID, landID, patchID, soilID, tID)
+       CALL define_ovar(ncid_out, ovid%SoilMoistPFT, 'SoilMoistPFT', 'kg m-2', &
+            'Average soil moisture per PFT (whole soil column)', patchout%SoilMoistPFT, &
+            'dummy', xID, yID, zID, landID, patchID, tID)
        CALL define_ovar(ncid_out, ovid%SoilMoistIce, 'SoilMoistIce', 'm^3/m^3', &
             'Average layer frozen soil moisture', patchout%SoilMoistIce, &
             'soil', xID, yID, zID, landID, patchID, soilID, tID)
        ALLOCATE(out%SoilMoist(mp,ms))
+       ALLOCATE(out%SoilMoistPFT(mp))
        ALLOCATE(out%SoilMoistIce(mp,ms))
        out%SoilMoist = zero4 ! initialise
+       out%SoilMoistPFT = zero4 ! initialise
        out%SoilMoistIce = zero4 ! initialise
     END IF
     IF(output%soil .OR. output%SoilTemp) THEN
@@ -914,7 +920,6 @@ CONTAINS
        ALLOCATE(out%GPP(mp))
        out%GPP = zero4 ! initialise
     END IF
-
     IF(output%GPP_components) THEN
        CALL define_ovar(ncid_out, ovid%An_sl, 'Anet_sunlit', 'umol/m^2/s', &
             'Anet from sunlit leaves', patchout%GPP, &
@@ -2397,18 +2402,23 @@ CONTAINS
     IF(output%soil .OR. output%SoilMoist) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%SoilMoist = out%SoilMoist + toreal4(ssnow%wb)
+       out%SoilMoistPFT = out%SoilMoistPFT + toreal4(sum(ssnow%wb * 1000.0_r_2 * real(spread(soil%zse,1,mp),r_2),2))
        out%SoilMoistIce = out%SoilMoistIce + toreal4(ssnow%wbice)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%SoilMoist = out%SoilMoist * rinterval
+          out%SoilMoistPFT = out%SoilMoistPFT * rinterval
           out%SoilMoistIce = out%SoilMoistIce * rinterval
           ! Write value to file:
           CALL write_ovar(out_timestep, ncid_out, ovid%SoilMoist, 'SoilMoist', &
                out%SoilMoist, ranges%SoilMoist, patchout%SoilMoist, 'soil', met)
+          CALL write_ovar(out_timestep, ncid_out, ovid%SoilMoistPFT, 'SoilMoistPFT', &
+               out%SoilMoistPFT, ranges%SoilMoistPFT, patchout%SoilMoist, 'default', met)
           CALL write_ovar(out_timestep, ncid_out, ovid%SoilMoistIce, 'SoilMoistIce', &
                out%SoilMoistIce, ranges%SoilMoist, patchout%SoilMoistIce, 'soil', met)
           ! Reset temporary output variable:
           out%SoilMoist = zero4
+          out%SoilMoistPFT = zero4
           out%SoilMoistIce = zero4
        END IF
     END IF

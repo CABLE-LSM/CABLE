@@ -1195,6 +1195,9 @@ CONTAINS
 
     ! casa
     casaflux%FluxCtolitter         = 0.0_r_2
+    casaflux%FluxCLeaftoLitter     = 0.0_r_2
+    casaflux%FluxCWoodtoLitter     = 0.0_r_2
+    casaflux%FluxCFineRoottoLitter = 0.0_r_2
     casaflux%FluxNtolitter         = 0.0_r_2
     casaflux%FluxPtolitter         = 0.0_r_2
     ! fire
@@ -1305,6 +1308,11 @@ CONTAINS
              if ( any((casapool%Cplant(npt,:) + casapool%dCplantdt(npt,:) * deltpool) < 0.0_r_2) ) &
                   write(*,*) 'ERR Tonnerre de Brest !'
           endif
+
+          ! JK: additional output variables required for TRENDY
+          casaflux%CallocLeaf(npt)     = max(0.0_r_2, casaflux%Cnpp(npt) * casaflux%fracCalloc(npt,leaf))
+          casaflux%CallocWood(npt)     = max(0.0_r_2, casaflux%Cnpp(npt) * casaflux%fracCalloc(npt,wood))
+          casaflux%CallocFineRoot(npt) = max(0.0_r_2, casaflux%Cnpp(npt) * casaflux%fracCalloc(npt,froot))
 
           ! change here made by ypw on 26 august 2011
           ! calculate fraction C to labile pool as a fraction of gpp, not npp
@@ -1527,6 +1535,31 @@ CONTAINS
                      + casaflux%kplant_fire(npt,nP)*(1.0_r_2 - casaflux%kplant(npt,nP)) * &
                      casapool%cplant(npt,nP)* casaflux%fromPtoL_fire(npt,nL,nP)
              enddo
+             ! JK: add fluxes from plant components to separate outputs
+             ! Leaf to Litter
+             casaflux%FluxCLeaftoLitter(npt,nL) = casaflux%FluxCLeaftoLitter(npt,nL) &
+                  + casaflux%fromPtoL(npt,nL,leaf) * casaflux%kplant(npt,leaf) * &
+                  casapool%cplant(npt,leaf) &
+                                ! inputs from fire
+                  + casaflux%kplant_fire(npt,leaf)*(1.0_r_2 - casaflux%kplant(npt,leaf)) * &
+                  casapool%cplant(npt,leaf) * casaflux%fromPtoL_fire(npt,nL,leaf)
+
+             ! Wood to Litter
+             casaflux%FluxCWoodtoLitter(npt,nL) = casaflux%FluxCWoodtoLitter(npt,nL) &
+                  + casaflux%fromPtoL(npt,nL,wood) * casaflux%kplant(npt,wood) * &
+                  casapool%cplant(npt,wood) &
+                                ! inputs from fire
+                  + casaflux%kplant_fire(npt,wood)*(1.0_r_2 - casaflux%kplant(npt,wood)) * &
+                  casapool%cplant(npt,wood) * casaflux%fromPtoL_fire(npt,nL,wood)
+
+             ! Fine Root to Litter
+             casaflux%FluxCFineRoottoLitter(npt,nL) = casaflux%FluxCFineRoottoLitter(npt,nL) &
+                  + casaflux%fromPtoL(npt,nL,froot) * casaflux%kplant(npt,froot) * &
+                  casapool%cplant(npt,froot) &
+                                ! inputs from fire
+                  + casaflux%kplant_fire(npt,froot)*(1.0_r_2 - casaflux%kplant(npt,froot)) * &
+                  casapool%cplant(npt,froot) * casaflux%fromPtoL_fire(npt,nL,froot)
+
           enddo
 
           ! Nitrogen
