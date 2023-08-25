@@ -300,6 +300,18 @@ CONTAINS
     LUC_EXPT%grass    = min(LUC_EXPT%grass, 1.0)
     LUC_EXPT%primaryf = min(LUC_EXPT%primaryf, 1.0-LUC_EXPT%grass)
     LUC_EXPT%secdf    = max(1.0-LUC_EXPT%grass-LUC_EXPT%primaryf, 0.0)
+    
+    !! JK Debug
+    where (LUC_EXPT%secdf < 0.00001 .and. LUC_EXPT%prim_only .eqv. .FALSE. )
+      LUC_EXPT%secdf = 0.00001
+      LUC_EXPT%primaryf = LUC_EXPT%primaryf - 0.00001
+    endwhere
+    where (LUC_EXPT%primaryf < 0.0)
+      LUC_EXPT%primaryf = 0.0
+      LUC_EXPT%grass = LUC_EXPT%grass + LUC_EXPT%primaryf
+    endwhere
+    !! JK Debug
+    
     LUC_EXPT%crop     = max(min(LUC_EXPT%crop, LUC_EXPT%grass), 0.0)
     LUC_EXPT%past     = max(min(LUC_EXPT%grass-LUC_EXPT%crop, LUC_EXPT%past), 0.0)
 
