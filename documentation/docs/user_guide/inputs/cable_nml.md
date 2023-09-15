@@ -103,7 +103,7 @@ applications. The following are annotated examples of cable.nml:
 | cable_user%POP_out               | character(len=3)   | 'epi' 'rst' 'ini'                                          | 'rst'                            | POP restart file type. `'epi'` is end of year state `'rst'` is a standard restart file, `'ini'` is an initialisation restart file. |
 | cable_user%POP_rst               | character(len=50)  | any string of max. 50 characters                           | ' '                              | POP restart file directory.                                                                             |
 | cable_user%casa_out_freq         | character(len=8)   | 'daily' 'monthly' 'annually'                               | 'annually'                       | CASA output frequency.                                                                                  |
-| cable_user%vcmax                 | character(len=10)  | 'standard' 'Walker2014'                                    | 'standard'                       | Alternative functional form of $V_{cmax}$ (maximum RuBP carboxylation rate). For `'Walker2014'` see [Walker et al., 2014](https://onlinelibrary.wiley.com/doi/10.1002/ece3.1173) |
+| cable_user%vcmax                 | character(len=10)  | 'standard' 'Walker2014'                                    | 'standard'                       | Alternative functional form of $V_{cmax}$ (maximum RuBP carboxylation rate). For `'Walker2014'` see [Walker et al., 2014][Walker] |
 | cable_user%POPLUC_RunType        | character(len=10)  | 'static' 'init' 'restart'                                  | 'static'                         | Type of POP-LUC run. `'init'` is initial POP-LUC run, `'restart'` is a restart run, `'static'` disables dynamic vegetation and sets `cable_user%POPLUC = .FALSE.`.|
 | cable_user%call_pop              | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Enable POP.                                                                                             |
 | cable_user%POP_fromZero          | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Run POP initialisation.                                                                                 |
@@ -279,3 +279,5 @@ applications. The following are annotated examples of cable.nml:
   casafile%phen='~/CABLE-AUX/core/biogeochem/modis_phenology_csiro.txt' ! phenology by latitude (modis derived)
 &end
 ```
+
+<!-- markdown-link-check-disable-line --> [Walker]: https://doi.org/10.1002/ece3.1173
