@@ -16,73 +16,6 @@ applications. The following are annotated examples of cable.nml:
     [obsolete and deprecated user features](../obsolete_and_deprecated_features/obsolete_and_deprecated_features.md) page.
 
 
-## For offline applications ##
-
-```fortran
-&cable
-   filename%met = '/projects/access/CABLE-AUX/offline/TumbaFluxnet.1.3_met.nc'
-   filename%out = 'out_cable.nc'
-   filename%log = 'log_cable.txt'
-   filename%restart_in  = ' '
-   filename%restart_out = './restart_out.nc'
-   filename%type    = '/projects/access/CABLE-AUX/offline/gridinfo_CSIRO_1x1.nc'
-   vegparmnew = .TRUE.  ! using new format when true
-   soilparmnew = .TRUE.  ! using new format when true
-   spinup = .TRUE.  ! do we spin up the model?
-   delsoilM = 0.001   ! allowed variation in soil moisture for spin up
-   delsoilT = 0.01    ! allowed variation in soil temperature for spin up
-   output%restart = .TRUE.  ! should a restart file be created?
-   output%met = .TRUE.  ! input met data
-   output%flux = .TRUE.  ! convective, runoff, NEE
-   output%soil = .TRUE.  ! soil states
-   output%snow = .TRUE.  ! snow states
-   output%radiation = .TRUE.  ! net rad, albedo
-   output%carbon    = .TRUE.  ! NEE, GPP, NPP, stores
-   output%veg       = .TRUE.  ! vegetation states
-   output%params    = .TRUE.  ! input parameters used to produce run
-   output%balances  = .TRUE.  ! energy and water balances
-   check%ranges     = .FALSE.  ! variable ranges, input and output
-   check%energy_bal = .TRUE.  ! energy balance
-   check%mass_bal   = .TRUE.  ! water/mass balance
-   verbose = .TRUE. ! write details of every grid cell init and params to log?
-   leaps = .TRUE. ! calculate timing with leap years
-   logn = 88      ! log file number - declared in input module
-   fixedCO2 = 350.0   ! if not found in met file, in ppmv
-   spincasa      = .FALSE.     ! spin casa before running the model if TRUE, and should be set to FALSE if spincasainput = .TRUE.
-   l_casacnp     = .FALSE.  ! using casaCNP with CABLE
-   l_laiFeedbk   = .FALSE.  ! using prognostic LAI
-   l_vcmaxFeedbk = .FALSE.  ! using prognostic Vcmax
-   icycle = 0   ! BP pull it out from casadimension and put here; 0 for not using casaCNP, 1 for C, 2 for C+N, 3 for C+N+P
-   casafile%cnpipool='/projects/access/CABLE-AUX/core/biogeochem/poolcnpInTumbarumba.csv'  !
-   casafile%cnpbiome='/projects/access/CABLE-AUX/core/biogeochem/pftlookup_csiro_v16_17tiles.csv'  ! biome specific BGC parameters
-   casafile%cnpepool='poolcnpOut.csv'    ! end of run pool size
-   casafile%cnpmetout='casamet.nc'                ! output daily met forcing for spinning casacnp
-   casafile%cnpmetin=''          ! list of daily met files for spinning casacnp
-   casafile%phen='/projects/access/CABLE-AUX/core/biogeochem/modis_phenology_csiro.txt'        ! modis phenology
-   casafile%cnpflux='cnpfluxOut.csv'
-   ncciy = 0 ! 0 for not using gswp; 4-digit year input for year of gswp met
-   gswpfile%rainf = 'gswp/Rainf_gswp1987.nc'
-   gswpfile%snowf = 'gswp/Snowf_gswp1987.nc'
-   gswpfile%LWdown= 'gswp/LWdown_srb1987.nc'
-   gswpfile%SWdown= 'gswp/SWdown_srb1987.nc'
-   gswpfile%PSurf = 'gswp/PSurf_ecor1987.nc'
-   gswpfile%Qair  = 'gswp/Qair_cru1987.nc'
-   gswpfile%Tair  = 'gswp/Tair_cru1987.nc'
-   gswpfile%wind  = 'gswp/Wind_ncep1987.nc'
-   redistrb = .FALSE.  ! Turn on/off the hydraulic redistribution
-   wiltParam = 0.5
-   satuParam = 0.8
-   cable_user%FWSOIL_SWITCH = 'standard'        ! choices are: 'standard', 'non-linear extrapolation' or 'Lai and Ktaul 2000'
-   cable_user%DIAG_SOIL_RESP = 'ON '
-   cable_user%LEAF_RESPIRATION = 'ON '
-   cable_user%RUN_DIAG_LEVEL= 'BASIC'        ! choices are: 'BASIC', 'NONE'
-   cable_user%CONSISTENCY_CHECK= .TRUE.      ! TRUE outputs combined fluxes at each timestep for comparison to a control run
-   cable_user%CASA_DUMP_READ = .FALSE.      ! TRUE reads CASA forcing from netcdf format
-   cable_user%CASA_DUMP_WRITE = .FALSE.      ! TRUE outputs CASA forcing in netcdf format
-   cable_user%SSNOW_POTEV= 'HDM'      ! Humidity Deficit Method
-&end
-```
-
 ## List of namelist variables
 
 | Namelist variable                | Type               | Available values                                           | Default value                    | Description                                                                                             |
@@ -170,7 +103,7 @@ applications. The following are annotated examples of cable.nml:
 | cable_user%POP_out               | character(len=3)   | 'epi' 'rst' 'ini'                                          | 'rst'                            | POP restart file type. `'epi'` is end of year state `'rst'` is a standard restart file, `'ini'` is an initialisation restart file. |
 | cable_user%POP_rst               | character(len=50)  | any string of max. 50 characters                           | ' '                              | POP restart file directory.                                                                             |
 | cable_user%casa_out_freq         | character(len=8)   | 'daily' 'monthly' 'annually'                               | 'annually'                       | CASA output frequency.                                                                                  |
-| cable_user%vcmax                 | character(len=10)  | 'standard' 'Walker2014'                                    | 'standard'                       | Alternative functional form of $V_{cmax}$ (maximum RuBP carboxylation rate). For `'Walker2014'` see [Walker et al., 2014](https://doi.org/10.1002/ece3.1173) |
+| cable_user%vcmax                 | character(len=10)  | 'standard' 'Walker2014'                                    | 'standard'                       | Alternative functional form of $V_{cmax}$ (maximum RuBP carboxylation rate). For `'Walker2014'` see [Walker et al., 2014](https://onlinelibrary.wiley.com/doi/10.1002/ece3.1173) |
 | cable_user%POPLUC_RunType        | character(len=10)  | 'static' 'init' 'restart'                                  | 'static'                         | Type of POP-LUC run. `'init'` is initial POP-LUC run, `'restart'` is a restart run, `'static'` disables dynamic vegetation and sets `cable_user%POPLUC = .FALSE.`.|
 | cable_user%call_pop              | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Enable POP.                                                                                             |
 | cable_user%POP_fromZero          | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Run POP initialisation.                                                                                 |
@@ -201,6 +134,73 @@ applications. The following are annotated examples of cable.nml:
 | cable_user%l_limit_labile        | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Limit labile in spinup.                                                                                 |
 | cable_user%NtilesThruMetFile     | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Specify Ntiles through met file.                                                                        |
 
+
+## For offline applications ##
+
+```fortran
+&cable
+   filename%met = '/projects/access/CABLE-AUX/offline/TumbaFluxnet.1.3_met.nc'
+   filename%out = 'out_cable.nc'
+   filename%log = 'log_cable.txt'
+   filename%restart_in  = ' '
+   filename%restart_out = './restart_out.nc'
+   filename%type    = '/projects/access/CABLE-AUX/offline/gridinfo_CSIRO_1x1.nc'
+   vegparmnew = .TRUE.  ! using new format when true
+   soilparmnew = .TRUE.  ! using new format when true
+   spinup = .TRUE.  ! do we spin up the model?
+   delsoilM = 0.001   ! allowed variation in soil moisture for spin up
+   delsoilT = 0.01    ! allowed variation in soil temperature for spin up
+   output%restart = .TRUE.  ! should a restart file be created?
+   output%met = .TRUE.  ! input met data
+   output%flux = .TRUE.  ! convective, runoff, NEE
+   output%soil = .TRUE.  ! soil states
+   output%snow = .TRUE.  ! snow states
+   output%radiation = .TRUE.  ! net rad, albedo
+   output%carbon    = .TRUE.  ! NEE, GPP, NPP, stores
+   output%veg       = .TRUE.  ! vegetation states
+   output%params    = .TRUE.  ! input parameters used to produce run
+   output%balances  = .TRUE.  ! energy and water balances
+   check%ranges     = .FALSE.  ! variable ranges, input and output
+   check%energy_bal = .TRUE.  ! energy balance
+   check%mass_bal   = .TRUE.  ! water/mass balance
+   verbose = .TRUE. ! write details of every grid cell init and params to log?
+   leaps = .TRUE. ! calculate timing with leap years
+   logn = 88      ! log file number - declared in input module
+   fixedCO2 = 350.0   ! if not found in met file, in ppmv
+   spincasa      = .FALSE.     ! spin casa before running the model if TRUE, and should be set to FALSE if spincasainput = .TRUE.
+   l_casacnp     = .FALSE.  ! using casaCNP with CABLE
+   l_laiFeedbk   = .FALSE.  ! using prognostic LAI
+   l_vcmaxFeedbk = .FALSE.  ! using prognostic Vcmax
+   icycle = 0   ! BP pull it out from casadimension and put here; 0 for not using casaCNP, 1 for C, 2 for C+N, 3 for C+N+P
+   casafile%cnpipool='/projects/access/CABLE-AUX/core/biogeochem/poolcnpInTumbarumba.csv'  !
+   casafile%cnpbiome='/projects/access/CABLE-AUX/core/biogeochem/pftlookup_csiro_v16_17tiles.csv'  ! biome specific BGC parameters
+   casafile%cnpepool='poolcnpOut.csv'    ! end of run pool size
+   casafile%cnpmetout='casamet.nc'                ! output daily met forcing for spinning casacnp
+   casafile%cnpmetin=''          ! list of daily met files for spinning casacnp
+   casafile%phen='/projects/access/CABLE-AUX/core/biogeochem/modis_phenology_csiro.txt'        ! modis phenology
+   casafile%cnpflux='cnpfluxOut.csv'
+   ncciy = 0 ! 0 for not using gswp; 4-digit year input for year of gswp met
+   gswpfile%rainf = 'gswp/Rainf_gswp1987.nc'
+   gswpfile%snowf = 'gswp/Snowf_gswp1987.nc'
+   gswpfile%LWdown= 'gswp/LWdown_srb1987.nc'
+   gswpfile%SWdown= 'gswp/SWdown_srb1987.nc'
+   gswpfile%PSurf = 'gswp/PSurf_ecor1987.nc'
+   gswpfile%Qair  = 'gswp/Qair_cru1987.nc'
+   gswpfile%Tair  = 'gswp/Tair_cru1987.nc'
+   gswpfile%wind  = 'gswp/Wind_ncep1987.nc'
+   redistrb = .FALSE.  ! Turn on/off the hydraulic redistribution
+   wiltParam = 0.5
+   satuParam = 0.8
+   cable_user%FWSOIL_SWITCH = 'standard'        ! choices are: 'standard', 'non-linear extrapolation' or 'Lai and Ktaul 2000'
+   cable_user%DIAG_SOIL_RESP = 'ON '
+   cable_user%LEAF_RESPIRATION = 'ON '
+   cable_user%RUN_DIAG_LEVEL= 'BASIC'        ! choices are: 'BASIC', 'NONE'
+   cable_user%CONSISTENCY_CHECK= .TRUE.      ! TRUE outputs combined fluxes at each timestep for comparison to a control run
+   cable_user%CASA_DUMP_READ = .FALSE.      ! TRUE reads CASA forcing from netcdf format
+   cable_user%CASA_DUMP_WRITE = .FALSE.      ! TRUE outputs CASA forcing in netcdf format
+   cable_user%SSNOW_POTEV= 'HDM'      ! Humidity Deficit Method
+&end
+```
 
 ## For ACCESS applications ##
 
