@@ -15,9 +15,9 @@ IMPLICIT NONE
     REAL(r_2), DIMENSION(mp)           :: sicefreeze
     REAL(r_2), DIMENSION(mp)           :: sicemelt
     REAL, DIMENSION(mp)           :: xx
-INTEGER :: i,k
-REAL :: heat_cap_lower_limit(mp,ms)
-REAL :: max_arg1, max_arg2
+    INTEGER :: i,k
+    REAL :: heat_cap_lower_limit(mp,ms)  ! best to declare INTENT - rk4417 - phase2
+    REAL :: max_arg1, max_arg2
 
 xx = 0.
 DO k = 1, ms  !loop over soil levels

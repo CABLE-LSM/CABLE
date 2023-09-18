@@ -312,9 +312,13 @@ IMPLICIT NONE
              ct(:,k) = dtt(:,k) * ( - z2(:,k+1) * 0.5 * soil%zse(k)             &
                   / soil%zshh (k+1) - z3(:,k+1) )
 
+!             bt(:,k) = 1.0 + dtt(:,k) * ( - z2(:,k+1) * 0.5 * soil%zse(k+1)     &  ! replaced by rk4417 - phase2
+!                  / soil%zshh (k+1) + z2(:,k) * 0.5 * soil%zse(k)               &
+!                  / soil%zshh (k) + z3(:,k+1) + z3(:,k) )
+
              bt(:,k) = 1.0 + dtt(:,k) * ( - z2(:,k+1) * 0.5 * soil%zse(k+1)     &
-                  / soil%zshh (k+1) + z2(:,k) * 0.5 * soil%zse(k)               &
-                  / soil%zshh (k) + z3(:,k+1) + z3(:,k) )
+                  / soil%zshh (k+1) + z2(:,k) * 0.5 * soil%zse( MAX( k-1,  &
+                  1 ) ) / soil%zshh (k) + z3(:,k+1) + z3(:,k) )
 
           END DO
 

@@ -27,6 +27,10 @@ USE cable_runtime_opts_mod ,ONLY : cable_user
 USE cable_runtime_opts_mod ,ONLY : satuparam
 USE cable_runtime_opts_mod ,ONLY : wiltparam
 
+! two imports below inserted by rk4417 - phase2
+USE cable_pft_params_mod, ONLY : vegin
+USE cable_soil_params_mod, ONLY : soilin
+  
   IMPLICIT NONE
 
   !---allows reference to "gl"obal timestep in run (from atm_step)
@@ -77,18 +81,20 @@ USE cable_runtime_opts_mod ,ONLY : wiltparam
           soilcolor,  & ! file for soil color(soilcolor_global_1x1.nc)
           inits,      & ! name of file for initialisations
           soilIGBP,   & ! name of file for IGBP soil map
-          gw_elev,    & !name of file for gw/elevation data
+!          gw_elev,    & !name of file for gw/elevation data ! see below - rk4417 - phase2
           fxpft,      & !filename for PFT fraction and transition,wood harvest, secondary harvest
           fxluh2cable,& !filename for mapping 12 luc states into 17 CABLE PFT
-          gridnew       !filename for updated gridinfo file                       
-
+          gridnew,&       !filename for updated gridinfo file                       
+          gw_elev='', & !name of file for gw/elevation data ! 2 lines added by rk4417 - phase2
+          gw_soils=''   !tiled/layerd soil params
+                        !give default as not not required
 
   END TYPE filenames_type
 
    TYPE(filenames_type) :: filename
 
   ! hydraulic_redistribution switch _soilsnow module
-  LOGICAL :: redistrb = .FALSE.  
+  LOGICAL :: redistrb = .FALSE.    ! Turn on/off the hydraulic redistribution
 
   TYPE organic_soil_params
      !Below are the soil properties for fully organic soil
@@ -100,35 +106,91 @@ USE cable_runtime_opts_mod ,ONLY : wiltparam
           ssat_vec_organic = 0.9,    &
           watr_organic   = 0.1,     &
           sfc_vec_hk      = 1.157407e-06, &
-          swilt_vec_hk      = 2.31481481e-8
+          swilt_vec_hk      = 2.31481481e-8, &
+
+! should the ones below be included also or is it a renaming? - rk4417 - phase2
+! they are included to fix compilation error - rk4417 - phase2
+          hyds_organic  = 1.0e-4,   &
+          sucs_organic  = 10.3,     &
+          bch_organic   = 2.91,     &
+          ssat_organic  = 0.9,      &
+          css_organic   = 4000.0,   &
+          cnsd_organic  = 0.1 
 
   END TYPE organic_soil_params
 
   TYPE gw_parameters_type
 
+!     REAL ::                   &
+!          MaxHorzDrainRate=2e-4,  & !anisintropy * q_max [qsub]
+!          EfoldHorzDrainRate=2.0, & !e fold rate of q_horz
+!          MaxSatFraction=2500.0,     & !parameter controll max sat fraction
+!          hkrz=0.5,               & !hyds_vec variation with z
+!          zdepth=1.5,             & !level where hyds_vec(z) = hyds_vec(no z)
+!          frozen_frac=0.05,       & !ice fraction to determine first non-frozen layer for qsub
+!          SoilEvapAlpha = 1.0,    & !modify field capacity dependence of soil evap limit
+!          IceAlpha=3.0,           &
+!          IceBeta=1.0
+!
+!     REAL :: ice_impedence=5.0
+!
+!     TYPE(organic_soil_params) :: org
+!
+!     INTEGER :: level_for_satfrac = 6
+!     LOGICAL :: ssgw_ice_switch = .FALSE.
+!
+!     LOGICAL :: subsurface_sat_drainage = .TRUE.
+
+! replaced above block by below - rk4417 - phase2
+
      REAL ::                   &
           MaxHorzDrainRate=2e-4,  & !anisintropy * q_max [qsub]
           EfoldHorzDrainRate=2.0, & !e fold rate of q_horz
+          EfoldHorzDrainScale=1.0, & !e fold rate of q_horz  
           MaxSatFraction=2500.0,     & !parameter controll max sat fraction
           hkrz=0.5,               & !hyds_vec variation with z
           zdepth=1.5,             & !level where hyds_vec(z) = hyds_vec(no z)
           frozen_frac=0.05,       & !ice fraction to determine first non-frozen layer for qsub
           SoilEvapAlpha = 1.0,    & !modify field capacity dependence of soil evap limit
           IceAlpha=3.0,           &
-          IceBeta=1.0
+          IceBeta=1.0,            &
+          sfc_vec_hk      = 1.157407e-06, & 
+          swilt_vec_hk      = 2.31481481e-8
 
      REAL :: ice_impedence=5.0
-
+     REAL :: ssat_wet_factor=0.85 
+                    !hysteresis reduces ssat due to air entrapment
+     
      TYPE(organic_soil_params) :: org
-
+     INTEGER :: aquifer_recharge_function=-1  !0=>no flux,1=>assume gw at hydrostat eq !inserted line as per MMY -- rk4417
      INTEGER :: level_for_satfrac = 6
      LOGICAL :: ssgw_ice_switch = .FALSE.
 
+     !LOGICAL :: derive_soil_param = .FALSE. ! MMY TRUE: derive soil parameters by cosby or HC-SWC equations hard-coded in CABLE-GW
+                                            ! MMY       however, sand/silt/clay/org/rhosoil_vec are read from gridinfo 
+                                            ! MMY FALSE: read soil parameters from land gridinfo file
      LOGICAL :: subsurface_sat_drainage = .TRUE.
-
+     LOGICAL :: cosby_univariate=.false. 
+     LOGICAL :: cosby_multivariate=.false.
+     LOGICAL :: HC_SWC=.false. !use Hutson Cass modified brooks corey
+                               !seperates wet/dry to remove need for watr and
+                               !gives better numerical behavoir for soln
+     LOGICAL :: BC_hysteresis=.false.
+     
   END TYPE gw_parameters_type
 
   TYPE(gw_parameters_type), SAVE :: gw_params
+
+! psi_c and psi_o below inserted by rk4417 - phase2 
+  REAL, DIMENSION(17),SAVE :: psi_c = (/-2550000.0,-2550000.0,-2550000.0, &  
+                                  -2240000.0,-4280000.0,-2750000.0,-2750000.0,&
+                                  -2750000.0,-2750000.0,-2750000.0,-2750000.0,-2750000.0,&
+                                  -2750000.0,-2750000.0,-2750000.0,-2750000.0,-2750000.0/)
+
+  REAL, DIMENSION(17),SAVE :: psi_o = (/-66000.0,-66000.0,-66000.0,&
+                                  -35000.0,-83000.0,-74000.0,-74000.0,&
+                                  -74000.0,-74000.0,-74000.0,-74000.0,-74000.0,&
+                                  -74000.0,-74000.0,-74000.0,-74000.0,-74000.0/)
 
   REAL, SAVE ::        &!should be able to change parameters!
        max_glacier_snowd=1100.0,&

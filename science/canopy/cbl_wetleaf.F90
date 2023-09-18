@@ -56,7 +56,7 @@ REAL, INTENT(IN) :: sum_rad_gradis(mp)
 
   !i sums, terms of convenience/readability
   REAL, DIMENSION(mp) ::                                                      &
-     sum_gbh, xx1
+     sum_gbh, xx1     ! xx1 not used - rk4417 - phase2
 
   INTEGER :: j
    

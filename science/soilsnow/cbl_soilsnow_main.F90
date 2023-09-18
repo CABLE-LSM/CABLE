@@ -56,11 +56,11 @@ USE snowdensity_mod,              ONLY: snowDensity
     REAL(r_2), DIMENSION(mp) :: deltat,sinfil1,sinfil2,sinfil3
     REAL                :: zsetot
     INTEGER, SAVE :: ktau =0
-REAL :: wbliq(mp,ms)
+    REAL :: wbliq(mp,ms)
 
     ktau = ktau +1
-  !this is the value it is initialized with in cable_common anyway 
-  max_glacier_snowd = 1100.0 ! for ACCESS1.3 onwards. = 50000.0 for ACCESS1.0
+    !this is the value it is initialized with in cable_common anyway 
+    max_glacier_snowd = 1100.0 ! for ACCESS1.3 onwards. = 50000.0 for ACCESS1.0
 
     zsetot = SUM(soil%zse)
     ssnow%tggav = 0.
@@ -69,7 +69,7 @@ REAL :: wbliq(mp,ms)
       soil%heat_cap_lower_limit(:,k) = MAX( 0.01, soil%css(:) * soil%rhosoil(:) )
     END DO
 
-  IF( cable_runtime%offline .or. cable_runtime%mk3l ) THEN !in um_init for UM
+    IF( cable_runtime%offline .or. cable_runtime%mk3l ) THEN !in um_init for UM
       ssnow%t_snwlr = 0.05
     ENDIF
 

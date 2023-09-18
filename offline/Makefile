@@ -247,7 +247,8 @@ cbl_zetar.o: cbl_zetar.F90
 cbl_latent_heat.o: cbl_latent_heat.F90 cable_define_types.o
 cbl_wetleaf.o: cbl_wetleaf.F90 cable_define_types.o
 cbl_within_canopy.o: cbl_within_canopy.F90 cable_define_types.o cable_common.o cbl_qsat.o
-cbl_SurfaceWetness.o: cbl_SurfaceWetness.F90 cable_define_types.o cable_common.o cable_phys_constants_mod.o
+# added cable_gw_hydro.o to line below - rk4417 - phase2
+cbl_SurfaceWetness.o: cbl_SurfaceWetness.F90 cable_define_types.o cable_common.o cable_phys_constants_mod.o cable_gw_hydro.o
 cbl_dryLeaf.o: cbl_dryLeaf.F90 cbl_photosynthesis.o cbl_fwsoil.o cable_define_types.o cable_common.o cable_phys_constants_mod.o cable_photo_constants_mod.o 
 cbl_fwsoil.o: cbl_fwsoil.F90 cable_define_types.o cable_common.o
 cbl_photosynthesis.o: cbl_photosynthesis.F90 cable_define_types.o cable_other_constants_mod.o cable_photo_constants_mod.o 
