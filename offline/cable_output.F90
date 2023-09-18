@@ -3429,7 +3429,8 @@ CONTAINS
 
     ! plant carbon [kg C m-2]
     IF (output%casa) THEN
-       out%TotSoilCarb = out%TotSoilCarb + toreal4((SUM(casapool%csoil,2)+SUM(casapool%clitter,2)) / 1000.0_r_2)
+       !out%TotSoilCarb = out%TotSoilCarb + toreal4((SUM(casapool%csoil,2)+SUM(casapool%clitter,2)) / 1000.0_r_2)
+       out%TotSoilCarb = out%TotSoilCarb + toreal4(SUM(casapool%csoil,2) / 1000.0_r_2)
        IF (writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%TotSoilCarb = out%TotSoilCarb * rinterval
