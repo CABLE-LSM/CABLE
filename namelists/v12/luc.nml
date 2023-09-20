@@ -1,0 +1,8 @@
+&lucnml
+        TransitionFilePath = "/g/data/x45/LUH2/GCB_2021/1deg/EXTRACT"
+        ClimateFile        = "/g/data/x45/ipbes/cable_climate/ipsl_climate_rst_glob_1deg.nc"
+	DirectRead         = .FALSE.
+        YearStart          = 1700
+        YearEnd            = 2020
+        NotPrimOnlyFile    = "none"
+/
