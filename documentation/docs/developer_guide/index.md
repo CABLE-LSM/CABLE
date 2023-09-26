@@ -17,5 +17,42 @@ We also ask that you become familiar with this developer guide. It contains impo
 - the structure of the documentation and source code
 - the required standards for both the code and the documentation
 
+## Roles and responsibilities
+
+For this code base, we define the following roles:
+
+!!! info "The order in which the roles are listed is important"
+
+    In addition to their own responsibilities, each of these roles should also follow the responsibilities of the roles listed previously.
+
+`User`
+
+:    A user is someone who is using the software but is not making changes to the code base. Users' responsibilities are listed in the [user guide][user_guide]
+
+
+`Developer`
+
+:    A developer uses and modifies the software. The modification to the software can include bug fixing, correction to the documentaiton, development of new capabilities, etc.
+
+:    Developers are asked to read and follow the [contribution guidelines][contribution_guide] before starting their development work.
+
+`Reviewer`
+
+:    A reviewer reviews changes proposed by the developer to ensure these changes follow the guidelines and are documented and tested appropriately. All developers are encouraged to become reviewers.
+
+:    Description of the reviewers' responsibilities are in our [reviewers guide][review_guide].
+
+`Maintainer`
+
+:    A maintainer ensures the CABLE's software ecosystem (source code, documentation, tests, configurations etc.) is accessible and updated appropriately with the work of the developers. They are also responsible with ensuring the coherence of the software design is maintained.
+
+:    Maintainers are available to advise developers, release the software (see [release process][release_process]) and ensure the synchonisation of the CABLE software through all its applications (standalone, ACCESS-AM, ACCESS-CM and ACCESS-ESM).
+
+
+
 [cable-lsm-join]: https://github.com/CABLE-LSM/CABLE/issues/110
 [sc-git]: https://swcarpentry.github.io/git-novice/index.html
+[user_guide]: ../user_guide/index.md#users-responsitilities
+[contribution_guide]: contribution_guide.md
+[review_guide]: review_guide.md
+[release_process]: release_process.md
