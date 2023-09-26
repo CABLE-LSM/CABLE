@@ -1,30 +1,37 @@
-# Flowchart to contribute to CABLE's documentation
+# Guidelines to contribute to CABLE
 
-This workflow assumes you have followed all the steps to [setup Git and GitHub][git-training] given by ACCESS-NRI. You can also use [this cheat sheet][git-cheatsheet] for a quick reference to the main Git commands to use.
+!!! warning "Pre-requisite"
 
-This first flowchart explains what we are trying to do. The following flowcharts go into the details, including the various git commands needed. All the git commands listed are to be run in a terminal on the machine you are working on.
+    Before contributing to CABLE, please ensure you have followed all the steps to [setup Git and GitHub][git-training] given by ACCESS-NRI. Failing this, some of the commands described here may require additional steps or options.
+
+These guidelines are written from the perspective of a new contributor to CABLE wanting to start their first development. Notes are added when guidelines for subsequent contributions differ.
+
+!!! info "Resources"
+
+    Please refer to [this cheat sheet page][cheatsheet] for quick references to Git, Markdown and FORD syntax.
+
+First, here is a flowchart explaining how the various steps of the workflow interact together. More details is provided for each step in the following sections of this page.
 
 ```mermaid
    flowchart TD
 
    Idea[Explain your work in an issue]
-   Workspace[Create a workspace for you in the repository]
-   Work[Do your work and record it]
-   Check[Check your work when rendered <br> and merged with the main deployment]
+   Workspace[Create a place for your work for you in the repository]
+   Work[Do your work, record it and check it]
    Review[Get a review on your work]
-   Merge[Merge final version into the main deployment]
-   FinalUpdate[Update your local copy <br> to be ready for your next piece of work]
+   Merge[Get your work into <br> the main development version of CABLE]
+   FinalUpdate[Get ready for your next project]
 
-   Idea --> Workspace --> Work --> Check;
-   Check -->|Incorrect|Work;
-   Check -->|Correct|Review;
+   Idea --> Workspace --> Work;
+   Work -->|Incorrect|Work;
+   Work -->|Correct|Review;
    Review -->|Apply requested changes|Work;
    Review -->|Approved|Merge --> FinalUpdate;
 
-   linkStyle 3 stroke:red,color:red;
-   linkStyle 4 stroke:green,color:green;
-   linkStyle 5 stroke:red,color:red;
-   linkStyle 6 stroke:green,color:green;
+   linkStyle 4 stroke:red,color:red;
+   linkStyle 3 stroke:green,color:green;
+   linkStyle 2 stroke:red,color:red;
+   linkStyle 5 stroke:green,color:green;
 ;
 ```
 
