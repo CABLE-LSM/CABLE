@@ -12,7 +12,7 @@ These guidelines are written from the perspective of a new contributor to CABLE 
 
     Please refer to [this cheat sheet page][cheatsheet] for quick references to Git, Markdown and FORD syntax.
 
-First, here is a flowchart explaining how the various steps of the workflow interact together. More details is provided for each step in the following sections of this page.
+First, here is a flowchart explaining how the various steps of the workflow interact together. More details are provided for each step in the following sections of this page.
 
 ```mermaid
    flowchart TD
@@ -51,11 +51,15 @@ You first need to tell the community what you will be working on. For this you n
 </figure>
 Make sure to give a description that is detailed enough. The Issue should describe what you are trying to do and why and not how you are doing it. 
 
-For example, if you want to implement an algorithm by Doe J. et al (1950), say so in your issue and ideally put a link to the publication (using a DOI). You can add why you think this is a good addition to CABLE: is it adding a completely new process? Is it adding a new parametrisation for an existing process? 
+For example, if you want to implement an algorithm by Doe J. et al (1950), say so in your issue and ideally put a link to the publication (using a DOI). You can add why you think this is a good addition to CABLE: is it adding a completely new process? Is it adding a new parametrisation for an existing process?
 
-!!! failure "Do not list the code changes"
+You can cite some of the source code if it helps explain what the issue is.
+
+!!! failure "Do not list the code changes you made to fix the issue"
 
     An issue should not contain the detail of the code changes made and the modified files. That information is contained in the Git history of the code and does not need to be replicated by hand.
+
+    An issue should be used to discuss and plan the work before it is implemented so the work done to fix the issue should not be commented on here but in the pull request.
 
 ## A place for your work in the repository
 
@@ -116,24 +120,28 @@ git checkout <branchname>
 
     It is best to start the branch name with the issue number so the link between the two is obvious.
 
-## Do and record your work
+## Do, record and check your work
+
+You are now ready to start implementing your modifications in the CABLE code and its documentation.
+
+We recommend that you record your modifications on your machine with Git frequently as it provides with the ability to undo part of the changes easily. We also recommend to update your work on GitHub frequently. It ensures the community knows you are actively working on this feature, it provides you with a backup and cloud storage for your work, it enables you to check your modifications against some basic tests automatically during development.
 
 ```mermaid
    flowchart TB
 
-      edits[Make your edits]:::term;
+      edits[Modify the source code]:::term;
       add["Add your edits to git's index: <br> git add ."]:::term;
-      commit["Commit your edits: <br> git commit"]:::term;
-      push[Push your edits <br> git push]:::term;
+      commit["Commit your edits locally: <br> git commit"]:::term;
+      push[Push your edits to GitHub: <br> git push]:::term;
       pr([Create a pull request]):::github;
-      preview[\Is preview correct?/]:::question;
+      tests[\Do the tests pass?/]:::question;
       review[Ready for review];
 
       edits --> add --> commit --> push;
-      push --> |first time|pr --> preview;
-      push ----> |subsequent|preview;
-      preview -->|Yes|review;
-      preview -->|No|edits;
+      push --> |first time|pr --> tests;
+      push ----> |subsequent|tests;
+      tests -->|Yes|review;
+      tests -->|No|edits;
 
       classDef default fill:#FFFDE7, stroke:#FFF59D;
       classDef uniq fill:#D81B60, stroke:#880E4F, color:#FFFFFF;
@@ -149,32 +157,62 @@ git checkout <branchname>
 ;
 ```
 
-### Commit your edits
+### Record your modifications
 
-You need to record your edits in git, this is called `commit`. It is recommended to do this regularly as it gives some safety to reverse changes. In Git, this is a 2-step process with a first step to add what you want to commit to the index and then commit what is in the index.
+You need to record your edits in git, this is called `commit`. It is recommended to do this regularly as it gives some safety to reverse changes. The recommendation is to commit every logical part of your modifications. For example you could commit together: code to read in new input variables or files or the declaration of new variables.
+
+In Git, committing is a 2-step process with a first step to add what you want to commit to the index and then commit what is in the index.
 
 ```bash
+# To add all the modified files to the next commit
 git add .
 git commit
 ```
 
-Then please add an informative message in the editor that opens automatically. Remember that Git records the date and time as well as the author of the commit, these do not need to be repeated in the message. The message gives information on the nature of the changes.
+Then please add an informative message in the editor that opens automatically. You need to give some information on the nature of the changes. With the previous commit examples, it could be: "Read in variable X" or "Declare variables for process Y". You can give a short title to the commit followed by a longer description after an empty line.
 
-### Push your edits to the remote repository
+!!! failure "Do not repeat what Git stores automatically"
 
-It is recommended to push your changes back to the remote repository often as it provides a backup of the work, the ability to work from different computers and makes it easier to collaborate on some development:
+    You do not need to list the following in your commit message: 
+
+    - the date and time
+    - the name of author
+    - the email of the author
+    - the files modified in the commit
+
+!!! example "Commit message example"
+
+    #1000- Add global variables for Doe J.'s equation
+
+### Update the remote repository
+
+It is recommended you update the remote repository with your changes often as it provides a backup of the work, the ability to work from different computers and makes it easier to collaborate on some development.
+
+Updating the remote repository is called "push" for git and is simply done as is:
 
 ```bash
 git push
 ```
 
-The first time you push back some work on a branch, consider opening a pull request. This allows potential collaborators or helpers to find your work easily.
+### Open a pull request
+
+!!! note "Once per branch only"
+
+    You need to create the pull request only once per branch. Subsequent push from the same branch will update the status of the previously created pull request.
+
+In addition to updating the remote repository with your changes, we recommend creating a pull request **at the start of your work**. In doing this, you provide yourself with:
+
+- a place to ask for technical help on your development work
+- a place to collaborate with others
+- automated tests
+- check if your changes conflict with the current development version of CABLE
+
+Discussions about implementation details of a sub-feature should happen in a pull request rather than in the issue. This is because the pull request shows what has been done and comments can be left attached to specific lines of the code.
 
 <figure markdown>
   ![Image title](../assets/pr.png){ width="90%", align=right }
+  <figcaption>How to create a pull request</figcaption>
 </figure>
-
-You can update the pull request by simply pushing more commits to the same branch.
 
 ### Check the preview
 
@@ -258,6 +296,31 @@ At this stage, you can also delete your local branch which has become unnecessar
 git branch --delete <branchname>
 ```
 
+## Legend for the flowcharts
+
+```mermaid
+   %% Create a graph for the legend of the main graph
+   flowchart LR
+      uniq[action done <br> only once ever <br> at the start <br> to get the code locally]:::uniq;
+      sevterm[action done <br> several times per issue <br> in a terminal/text editor]:::term;
+      sevgit[action done <br> several times per issue <br> on GitHub]:::github;
+      onceterm([action done <br> once per issue <br> in a terminal/text editor]):::term;
+      oncegit([action done <br> once per issue <br> on GitHub]):::github;
+      question[\question with multiple outcomes/]:::question;
+
+      uniq --- sevterm --- sevgit --- question;
+      uniq --- onceterm --- oncegit --- question;
+
+      classDef default fill:#FFFDE7, stroke:#FFF59D;
+      classDef uniq fill:#D81B60, stroke:#880E4F, color:#FFFFFF;
+      classDef github fill:#388E3C,stroke:#1B5E20, color:#FFFFFF;
+      classDef term fill:#F44336, stroke:#B71C1C, color:#FFFFFF;
+      classDef question fill:#6D4C41, stroke:#3E2723, color:#FFFFFF; 
+;
+```
+
+
 [git-training]: https://access-nri.github.io/Training/HowTos/GitAndGitHub/
 [CABLE-repo]: https://github.com/CABLE-LSM/CABLE
-[git-cheatsheet]: documentation_guidelines/cheat_sheets.md#git
+[cheatsheet]: documentation_guidelines/cheat_sheets.md
+[doc-guidelines]: documentation_guidelines/index.md
