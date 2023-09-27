@@ -32,27 +32,24 @@ For this code base, we define the following roles:
 
 `Developer`
 
-:    A developer uses and modifies the software. The modification to the software can include bug fixing, correction to the documentaiton, development of new capabilities, etc.
+:    A developer uses and modifies the software. The modification to the software can include bug fixing, correction to the documentation, development of new capabilities, etc.
 
-:    Developers are asked to read and follow the [contribution guidelines][contribution_guide] before starting their development work.
+:    Developers are asked to read and follow the [contribution guidelines](contribution_guide.md) before starting their development work.
 
 `Reviewer`
 
 :    A reviewer reviews changes proposed by the developer to ensure these changes follow the guidelines and are documented and tested appropriately. All developers are encouraged to become reviewers.
 
-:    Description of the reviewers' responsibilities are in our [reviewers guide][review_guide].
+:    Description of the reviewers' responsibilities are in our [reviewers guide](review_guide.md).
 
 `Maintainer`
 
 :    A maintainer ensures the CABLE's software ecosystem (source code, documentation, tests, configurations etc.) is accessible and updated appropriately with the work of the developers. They are also responsible with ensuring the coherence of the software design is maintained.
 
-:    Maintainers are available to advise developers, release the software (see [release process][release_process]) and ensure the synchonisation of the CABLE software through all its applications (standalone, ACCESS-AM, ACCESS-CM and ACCESS-ESM).
+:    Maintainers are available to advise developers, release the software (see [release process](release_process.md)) and ensure the synchronisation of the CABLE software through all its applications (standalone, ACCESS-AM, ACCESS-CM and ACCESS-ESM).
 
 
 
 [cable-lsm-join]: https://github.com/CABLE-LSM/CABLE/issues/110
 [sc-git]: https://swcarpentry.github.io/git-novice/index.html
-[user_guide]: ../user_guide/index.md#users-responsitilities
-[contribution_guide]: contribution_guide.md
-[review_guide]: review_guide.md
-[release_process]: release_process.md
+[contribution_guide]: 
