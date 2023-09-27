@@ -27,7 +27,7 @@ For this code base, we define the following roles:
 
 `User`
 
-:    A user is someone who is using the software but is not making changes to the code base. Users' responsibilities are listed in the [user guide][user_guide]
+:    A user is someone who is using the software but is not making changes to the code base. Users' responsibilities are listed in the [user guide](/user_guide/index.md)
 
 
 `Developer`
@@ -52,4 +52,3 @@ For this code base, we define the following roles:
 
 [cable-lsm-join]: https://github.com/CABLE-LSM/CABLE/issues/110
 [sc-git]: https://swcarpentry.github.io/git-novice/index.html
-[contribution_guide]: 
