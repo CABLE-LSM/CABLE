@@ -971,17 +971,26 @@ PROGRAM cable_offline_driver
 !!$             YYYY.EQ. CABLE_USER%YearEnd .OR. ( NRRRR .GT. 1 .AND. &
 !!$             RRRR.EQ. NRRRR) ) THEN
 
-       IF( MOD( ktau_tot, kend ) .EQ. 0 .AND. ktau_Tot .GT. kend .AND. &
+          IF( MOD( ktau_tot, kend ) .EQ. 0 .AND. ktau_Tot .GT. kend .AND. &
              YYYY.EQ. CABLE_USER%YearEnd ) THEN
 
           ! evaluate spinup
+          ! ________________ MMY@Sept2023 fix spinup ___________________
+           ! IF( ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.		      &
+           !     ANY( ABS(ssnow%tgg-soilTtemp)>delsoilT) .OR. &
+           !     MAXVAL(ABS(ssnow%GWwb-GWtemp),dim=1) > delgwM) THEN
+           ! MMY@Sept2023: since max_spins is set -1 in cable_common.F90,
+           !            the code below will always be false => model converged
+           !
            IF( (ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.                &
                 ANY( ABS(ssnow%tgg-soilTtemp)>delsoilT) .or. &
-                       maxval(ABS(ssnow%GWwb-GWtemp),dim=1) > delgwM) .and. &   
-                       ( (int(ktau_tot/kend) .lt. cable_user%max_spins) .and.&  
-                       (cable_user%max_spins .gt. 0) ) ) THEN                   
-
+                       maxval(ABS(ssnow%GWwb-GWtemp),dim=1) > delgwM) .and. &
+                       ( (int(ktau_tot/kend) .lt. cable_user%max_spins) .and.&
+                       (cable_user%max_spins .gt. 0) ) ) THEN
+           ! _____________________________________________________________
       ! No complete convergence yet
+
+              PRINT *, 'cable_user%max_spins : ', cable_user%max_spins !MMY@Sept2023
               PRINT *, 'ssnow%wb : ', ssnow%wb
               PRINT *, 'soilMtemp: ', soilMtemp
               PRINT *, 'ssnow%tgg: ', ssnow%tgg
@@ -1006,13 +1015,13 @@ PROGRAM cable_offline_driver
                 delsoilT, ' in any layer over whole run'
            END IF
 
-           ELSE ! allocate variables for storage
+         ELSE ! allocate variables for storage
 
            IF (.NOT.ALLOCATED(soilMtemp)) ALLOCATE(  soilMtemp(mp,ms) )
            IF (.NOT.ALLOCATED(soilTtemp)) ALLOCATE(  soilTtemp(mp,ms) )
            IF (.NOT.ALLOCATED(GWtemp)   ) ALLOCATE(  GWtemp(mp)  )
 
-           END IF
+         END IF
 
               if (cable_user%max_spins .gt. 0) then
               if ((ktau_tot/kend .ge. cable_user%max_spins)) then

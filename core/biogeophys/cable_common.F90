@@ -1,11 +1,11 @@
 !==============================================================================
-! This source code is part of the 
+! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
 ! This work is licensed under the CSIRO Open Source Software License
 ! Agreement (variation of the BSD / MIT License).
-! 
+!
 ! You may not use this file except in compliance with this License.
-! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located 
+! A copy of the License (CSIRO_BSD_MIT_License_v2.0_CABLE.txt) is located
 ! in each directory containing CABLE code.
 !
 ! ==============================================================================
@@ -26,7 +26,7 @@ MODULE cable_common_module
 
   use cable_pft_params_mod, ONLY : vegin
   use cable_soil_params_mod, ONLY : soilin
-  
+
   IMPLICIT NONE
 
   LOGICAL :: report_parameters_to_log=.false.
@@ -35,7 +35,7 @@ MODULE cable_common_module
   !---total number of timesteps, and processing node
   INTEGER, SAVE :: ktau_gl, kend_gl, knode_gl, kwidth_gl
 
-  logical :: L_fudge = .false. 
+  logical :: L_fudge = .false.
 
   INTEGER, SAVE :: CurYear  ! current year of multiannual run
 
@@ -91,7 +91,7 @@ MODULE cable_common_module
      ! Ticket #56
      CHARACTER(LEN=20) ::                                                     &
         GS_SWITCH='leuning'
-      
+
      CHARACTER(LEN=10) :: RunIden       = 'STANDARD'  !
      CHARACTER(LEN=6)  :: MetType       = ' ' !
      CHARACTER(LEN=20) :: SOIL_STRUC    = "default" ! 'default' or 'sli'
@@ -99,7 +99,7 @@ MODULE cable_common_module
      CHARACTER(LEN=50) :: POP_rst       = ' ' !
      CHARACTER(LEN=8)  :: CASA_OUT_FREQ = 'annually' ! 'daily', 'monthly', 'annually'
      CHARACTER(LEN=10)  :: vcmax = 'standard' ! "standard" or "Walker2014"
-     CHARACTER(LEN=10)  :: POPLUC_RunType = 'static' ! 'static', 'init', 'restart' 
+     CHARACTER(LEN=10)  :: POPLUC_RunType = 'static' ! 'static', 'init', 'restart'
 
      LOGICAL ::                                                               &
           CALL_POP               = .FALSE., & !
@@ -159,13 +159,13 @@ MODULE cable_common_module
      !MD
       LOGICAL :: GW_MODEL = .FALSE.
       LOGICAL :: alt_forcing = .FALSE.
- 
+
      !using GSWP3 forcing?
      LOGICAL :: GSWP3 = .FALSE.
      LOGICAL :: or_evap = .FALSE.
      LOGICAL :: test_new_gw=.false.
      LOGICAL :: sync_nc_file=.false.
-     INTEGER :: max_spins = -1
+     INTEGER :: max_spins = 30 ! MMY@Sept2023 change from -1 to 30
      !just need to test
      LOGICAL :: fix_access_roots = .false.  !use pft dependent roots in ACCESS
      !ticket#179
@@ -209,21 +209,21 @@ MODULE cable_common_module
 
   ! hydraulic_redistribution parameters _soilsnow module
   REAL :: wiltParam=0.5, satuParam=0.8
- 
+
    TYPE organic_soil_params
         !Below are the soil properties for fully organic soil
 
-      REAL ::    &    
+      REAL ::    &
         hyds_vec = 1.0e-4,&
         sucs_vec = 10.3,   &
-        bch_vec  = 2.91,     &    
-        ssat_vec = 0.9,    &    
+        bch_vec  = 2.91,     &
+        ssat_vec = 0.9,    &
         watr     = 0.1,&
         css_vec  = 4000.0,&
-        cnsd_vec = 0.1 
+        cnsd_vec = 0.1
 
    END TYPE organic_soil_params
- 
+
    TYPE gw_parameters_type
 
       REAL ::                   &
@@ -249,7 +249,7 @@ MODULE cable_common_module
       INTEGER :: aquifer_recharge_function=-1  !0=>no flux,1=>assume gw at hydrostat eq
       INTEGER :: level_for_satfrac = 6
       LOGICAL :: ssgw_ice_switch = .false.
- 
+
       LOGICAL :: subsurface_sat_drainage = .true.
       LOGICAL :: cosby_univariate=.false.
       LOGICAL :: cosby_multivariate=.false.
@@ -275,16 +275,16 @@ MODULE cable_common_module
       max_glacier_snowd=1100.0,&
       snow_ccnsw = 2.0, &
 !jh!an:clobber - effectively force single layer snow
-      !snmin = 100.0,      & ! for 1-layer; 
+      !snmin = 100.0,      & ! for 1-layer;
       snmin = 1.,          & ! for 3-layer;
       max_ssdn = 750.0,    & !
       max_sconds = 2.51,   & !
       frozen_limit = 0.85    ! EAK Feb2011 (could be 0.95)
 
-  !CABLE_LSM: soil/veg params types & subr deleted here 
+  !CABLE_LSM: soil/veg params types & subr deleted here
   ! vn10.6-CABLE hacks-hardwires these
   !use these as the basis for namelist vars/files later in offline apps
-  
+
   !CABLE_LSM: verify these are set if commented here
   !   !---parameters, tolerances, etc. could be set in _directives.h
   !jhan:cable.nml   real, parameter :: RAD_TOLS = 1.0e-2
@@ -295,7 +295,7 @@ MODULE cable_common_module
   !CABLE_LSM: intro'd quick writing capbility. remove from here. keep for ref
   character(len=*), parameter :: &
     fprintf_dir_root = "/short/w35/mrd561/10.6/diag/"
-  
+
   character(len=200) :: fprintf_dir
 
 
@@ -317,10 +317,10 @@ CONTAINS
 !#define Vanessas_common
 !#ifdef Vanessas_common
        WRITE(*,*) TRIM(NF90_strerror(INT(status,4)))
-!#else       
-!       WRITE(*,*) "UM builds with -i8. Therefore call to nf90_strerror is ", & 
-!       " invalid. Quick fix to eliminate for now. Build NF90 with -i8, force -i4?" 
-!#endif     
+!#else
+!       WRITE(*,*) "UM builds with -i8. Therefore call to nf90_strerror is ", &
+!       " invalid. Quick fix to eliminate for now. Build NF90 with -i8, force -i4?"
+!#endif
        STOP -1
     END IF
   END SUBROUTINE HANDLE_ERR
@@ -520,15 +520,15 @@ CONTAINS
 
   END SUBROUTINE report_version_no
 
-  SUBROUTINE init_veg_from_vegin(ifmp,fmp, veg) 
+  SUBROUTINE init_veg_from_vegin(ifmp,fmp, veg)
      use cable_def_types_mod, ONLY : veg_parameter_type
-     integer ::  ifmp,  & ! start local mp, # landpoints (jhan:when is this not 1 )      
-                 fmp     ! local mp, # landpoints       
-  
+     integer ::  ifmp,  & ! start local mp, # landpoints (jhan:when is this not 1 )
+                 fmp     ! local mp, # landpoints
+
      type(veg_parameter_type) :: veg
-     
+
      integer :: h
-     
+
          ! Prescribe parameters for current gridcell based on veg/soil type (which
          ! may have loaded from default value file or met file):
          DO h = ifmp, fmp          ! over each patch in current grid
@@ -572,8 +572,8 @@ CONTAINS
             veg%zr(h)       = vegin%zr(veg%iveg(h))
             veg%clitt(h)    = vegin%clitt(veg%iveg(h))
          END DO ! over each veg patch in land point
-  
-  END SUBROUTINE init_veg_from_vegin 
+
+  END SUBROUTINE init_veg_from_vegin
 
 
   FUNCTION IS_CASA_TIME(iotype, yyyy, ktau, kstart, koffset, kend, ktauday, logn)
@@ -585,7 +585,7 @@ CONTAINS
 !cable_common module was intended to be unequivocally common to all
 !applications. iovars is an offline module and so not appropriate to include
 !here. Suggested FIX is to move decs of vars needed (e.g. leaps) to here, and
-!then use common in iovars  
+!then use common in iovars
 #ifdef Vanessas_common
     USE cable_IO_vars_module, ONLY: leaps
 #endif
@@ -653,16 +653,16 @@ SUBROUTINE fudge_out_i2D( i,j, var, varname, vzero, vval )
    ! ft changes with interface
    character(len=*), parameter :: &
       ft = '(  "fudge: ", A10, "(", I2.1, ",", I2.1, X, ") = ", I1.1 )'
-   
+
    character(len=*) :: varname
    logical :: vzero
    integer :: vval
-   
+
    ! content changes with interface
-   var = var(i,j) 
+   var = var(i,j)
    if( (vzero) ) var = vval
    write (6, ft) varname,i, var(i,j)
-End SUBROUTINE fudge_out_i2D 
+End SUBROUTINE fudge_out_i2D
 
 
 SUBROUTINE fudge_out_r1D( i, var, varname, vzero, vval )
@@ -672,16 +672,16 @@ SUBROUTINE fudge_out_r1D( i, var, varname, vzero, vval )
    ! ft changes with interface
    character(len=*), parameter :: &
       ft = '(  "fudge: ", A10, "(", I2.1, X, ") = ", F15.3 )'
-   
+
    character(len=*) :: varname
    logical :: vzero
    real :: vval
 
    ! content changes with interface
-   var = var(i) 
+   var = var(i)
    if( (vzero) ) var = vval
    write (6, ft) varname,i, var(i)
-End SUBROUTINE fudge_out_r1D 
+End SUBROUTINE fudge_out_r1D
 
 SUBROUTINE fudge_out_r2D( i,j, var, varname, vzero, vval )
    ! interfaces on these
@@ -690,16 +690,16 @@ SUBROUTINE fudge_out_r2D( i,j, var, varname, vzero, vval )
    ! ft changes with interface
    character(len=*), parameter :: &
       ft = '(  "fudge: ", A10, "(", I2.1, ",", I2.1, X, ") = ", F15.3 )'
-   
+
    character(len=*) :: varname
    logical :: vzero
    real :: vval
-   
+
    ! content changes with interface
-   var = var(i,j) 
+   var = var(i,j)
    if( (vzero) ) var = vval
    write (6, ft) varname,i,j, var(i,j)
-End SUBROUTINE fudge_out_r2D 
+End SUBROUTINE fudge_out_r2D
 
 SUBROUTINE fudge_out_r3D( i,j,k, var, varname, vzero, vval )
    ! interfaces on these
@@ -708,16 +708,16 @@ SUBROUTINE fudge_out_r3D( i,j,k, var, varname, vzero, vval )
    ! ft changes with interface
    character(len=*), parameter :: &
       ft = '(  "fudge: ", A10, "(",  I2.1, ",",I2.1, ",", I2.1, X, ") = ", F15.3 )'
-   
+
    character(len=*) :: varname
    logical :: vzero
    real :: vval
-   
+
    ! content changes with interface
-   var = var(i,j,k) 
+   var = var(i,j,k)
    if( (vzero) ) var = vval
    write (6, ft) varname,i,j,k, var(i,j,k)
-End SUBROUTINE fudge_out_r3D 
+End SUBROUTINE fudge_out_r3D
 
 
 
