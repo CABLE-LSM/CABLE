@@ -1877,12 +1877,19 @@ contains
 
     ! 1 dim arrays (mp)
     character(len=22), dimension(2)  :: a0
+    !INH BLAZE
+    !! 2 dim arrays (mp,t)
+    !character(len=22), dimension(51) :: a1
+    !! 3 dim arrays (mp,mplant,t)
+    !character(len=22), dimension(10) :: a2
+    !! 3 dim arrays (mp,mlitter,t)
+    !character(len=22), dimension(10) :: a3
     ! 2 dim arrays (mp,t)
-    character(len=22), dimension(51) :: a1
+    character(len=22), dimension(53) :: a1
     ! 3 dim arrays (mp,mplant,t)
-    character(len=22), dimension(10) :: a2
+    character(len=22), dimension(9) :: a2
     ! 3 dim arrays (mp,mlitter,t)
-    character(len=22), dimension(10) :: a3
+    character(len=22), dimension(9) :: a3
     ! 3 dim arrays (mp,msoil,t)
     character(len=22), dimension(8)  :: a4
     ! 4 dim arrays (mp,mlitter,mplant,t)
@@ -1930,43 +1937,82 @@ contains
     a1(17) = 'FCrsyear'
     a1(18) = 'FCNeeyear'
     a1(19) = 'vcmax'
+    !INH BLAZE na1 = 19
+    ! N
+    !a1(20) = 'sumnbal'
+    !a1(21) = 'Nminfix'
+    !a1(22) = 'Nmindep'
+    !a1(23) = 'Nminloss'
+    !a1(24) = 'Nminleach'
+    !a1(25) = 'Nupland'
+    !a1(26) = 'Nlittermin'
+    !a1(27) = 'Nsmin'
+    !a1(28) = 'Nsimm'
+    !a1(29) = 'Nsnet'
+    !a1(30) = 'fNMinloss'
+    !a1(31) = 'Nsoilmin'
+    !if (icycle==2) na1 = 31
+    !! P
+    !a1(32) = 'psoillab'
+    !a1(33) = 'psoilsorb'
+    !a1(34) = 'psoilocc'
+    !a1(35) = 'sumpbal'
+    !a1(36) = 'Plabuptake'
+    !a1(37) = 'Pdep'
+    !a1(38) = 'pwea'
+    !a1(39) = 'Pleach'
+    !a1(40) = 'Ploss'
+    !a1(41) = 'Pupland'
+    !a1(42) = 'Plittermin'
+    !a1(43) = 'Psmin'
+    !a1(44) = 'Psimm'
+    !a1(45) = 'Psnet'
+    !a1(46) = 'fPleach'
+    !a1(47) = 'kPlab'
+    !a1(48) = 'kPsorb'
+    !a1(49) = 'kpocc'
+    !a1(50) = 'kmlabP'
+    !a1(51) = 'Psorbmax'
+    !if (icycle==3) na1 = 51
+    a1(20) = 'fluxCtoCO2_plant_fire'
+    a1(21) = 'fluxCtoCO2_litter_fire'
     na1 = 19
     ! N
-    a1(20) = 'sumnbal'
-    a1(21) = 'Nminfix'
-    a1(22) = 'Nmindep'
-    a1(23) = 'Nminloss'
-    a1(24) = 'Nminleach'
-    a1(25) = 'Nupland'
-    a1(26) = 'Nlittermin'
-    a1(27) = 'Nsmin'
-    a1(28) = 'Nsimm'
-    a1(29) = 'Nsnet'
-    a1(30) = 'fNMinloss'
-    a1(31) = 'Nsoilmin'
-    if (icycle==2) na1 = 31
+    a1(22) = 'sumnbal'
+    a1(23) = 'Nminfix'
+    a1(24) = 'Nmindep'
+    a1(25) = 'Nminloss'
+    a1(26) = 'Nminleach'
+    a1(27) = 'Nupland'
+    a1(28) = 'Nlittermin'
+    a1(29) = 'Nsmin'
+    a1(30) = 'Nsimm'
+    a1(31) = 'Nsnet'
+    a1(32) = 'fNMinloss'
+    a1(33) = 'Nsoilmin'
+    if (icycle==2) na1 = 33
     ! P
-    a1(32) = 'psoillab'
-    a1(33) = 'psoilsorb'
-    a1(34) = 'psoilocc'
-    a1(35) = 'sumpbal'
-    a1(36) = 'Plabuptake'
-    a1(37) = 'Pdep'
-    a1(38) = 'pwea'
-    a1(39) = 'Pleach'
-    a1(40) = 'Ploss'
-    a1(41) = 'Pupland'
-    a1(42) = 'Plittermin'
-    a1(43) = 'Psmin'
-    a1(44) = 'Psimm'
-    a1(45) = 'Psnet'
-    a1(46) = 'fPleach'
-    a1(47) = 'kPlab'
-    a1(48) = 'kPsorb'
-    a1(49) = 'kpocc'
-    a1(50) = 'kmlabP'
-    a1(51) = 'Psorbmax'
-    if (icycle==3) na1 = 51
+    a1(34) = 'psoillab'
+    a1(35) = 'psoilsorb'
+    a1(36) = 'psoilocc'
+    a1(37) = 'sumpbal'
+    a1(38) = 'Plabuptake'
+    a1(39) = 'Pdep'
+    a1(40) = 'pwea'
+    a1(41) = 'Pleach'
+    a1(42) = 'Ploss'
+    a1(43) = 'Pupland'
+    a1(44) = 'Plittermin'
+    a1(45) = 'Psmin'
+    a1(46) = 'Psimm'
+    a1(47) = 'Psnet'
+    a1(48) = 'fPleach'
+    a1(49) = 'kPlab'
+    a1(50) = 'kPsorb'
+    a1(51) = 'kpocc'
+    a1(52) = 'kmlabP'
+    a1(53) = 'Psorbmax'
+    if (icycle==3) na1 = 53
 
     ! C
     a2(1) = 'cplant'
@@ -1974,15 +2020,24 @@ contains
     a2(3) = 'kplant'
     a2(4) = 'Crmplant'
     a2(5) = 'kplant_fire'
-    a2(6) = 'fluxCtoCO2_plant_fire'
-    na2 = 6
+    !INH BLAZE a2(6) = 'fluxCtoCO2_plant_fire'
+    !na2 = 6
     ! N
-    a2(7) = 'nplant'
-    a2(8) = 'fracNalloc'
+    !a2(7) = 'nplant'
+    !a2(8) = 'fracNalloc'
+    !if (icycle==2) na2 = na2 + 2
+    !! P
+    !a2(9) = 'pplant'
+    !a2(10)= 'fracPalloc'
+    !if (icycle==3) na2 = na2 + 2
+    na2 = 5
+    ! N
+    a2(6) = 'nplant'
+    a2(7) = 'fracNalloc'
     if (icycle==2) na2 = na2 + 2
     ! P
-    a2(9) = 'pplant'
-    a2(10)= 'fracPalloc'
+    a2(8) = 'pplant'
+    a2(9)= 'fracPalloc'
     if (icycle==3) na2 = na2 + 2
 
     ! C
@@ -1991,15 +2046,24 @@ contains
     a3(3) = 'fromLtoCO2'
     a3(4) = 'FluxCtolitter'
     a3(5) = 'klitter_fire'
-    a3(6) = 'fluxCtoCO2_litter_fire'
-    na3 = 6
+    !INH BLAZE a3(6) = 'fluxCtoCO2_litter_fire'
+    !na3 = 6
+    !! N
+    !a3(7) = 'nlitter'
+    !a3(8) = 'FluxNtolitter'
+    !if (icycle==2) na3 = na3 + 2
+    !! P
+    !a3(9) = 'plitter'
+    !a3(10)= 'FluxPtolitter'
+    !if (icycle==3) na3 = na3 + 2
+    na3 = 5
     ! N
-    a3(7) = 'nlitter'
-    a3(8) = 'FluxNtolitter'
+    a3(6) = 'nlitter'
+    a3(7) = 'FluxNtolitter'
     if (icycle==2) na3 = na3 + 2
     ! P
-    a3(9) = 'plitter'
-    a3(10)= 'FluxPtolitter'
+    a3(8) = 'plitter'
+    a3(9)= 'FluxPtolitter'
     if (icycle==3) na3 = na3 + 2
 
     ! C
@@ -2223,74 +2287,80 @@ contains
     if(status /= nf90_noerr) call handle_err(status)
     status = nf90_put_var(file_id, vid1(19), real(veg%vcmax,sp),            start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
+    !INH BLAZE edits from here down
+    status = nf90_put_var(file_id, vid1(20), real(casaflux%fluxCtoCO2_plant_fire,sp), start=(/1,cnt/), count=(/mp,1/) )
+    if(status /= nf90_noerr) call handle_err(status)
+    status = nf90_put_var(file_id, vid1(21), real(casaflux%fluxCtoCO2_litter_fire,sp), start=(/1,cnt/), count=(/mp,1/) )
+    if(status /= nf90_noerr) call handle_err(status)
     ! N
     if (icycle > 1) then
-       status = nf90_put_var(file_id, vid1(20), real(casabal%sumnbal,sp),      start=(/1,cnt/), count=(/mp,1/) )
+       !INH BLAZE added 2 to indexes in vid1
+       status = nf90_put_var(file_id, vid1(22), real(casabal%sumnbal,sp),      start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(21), real(casaflux%nminfix,sp),     start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(23), real(casaflux%nminfix,sp),     start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(22), real(casaflux%nmindep,sp),     start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(24), real(casaflux%nmindep,sp),     start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(23), real(casaflux%nminloss,sp),    start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(25), real(casaflux%nminloss,sp),    start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(24), real(casaflux%nminleach,sp),   start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(26), real(casaflux%nminleach,sp),   start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(25), real(casaflux%nupland,sp),     start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(27), real(casaflux%nupland,sp),     start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(26), real(casaflux%nlittermin,sp),  start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(28), real(casaflux%nlittermin,sp),  start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(27), real(casaflux%nsmin,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(29), real(casaflux%nsmin,sp),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(28), real(casaflux%nsimm,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(30), real(casaflux%nsimm,sp),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(29), real(casaflux%nsnet,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(31), real(casaflux%nsnet,sp),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(30), real(casaflux%fnminloss,sp),   start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(32), real(casaflux%fnminloss,sp),   start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(31), real(casapool%nsoilmin,sp),    start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(33), real(casapool%nsoilmin,sp),    start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
     endif
     ! P
     if (icycle > 2) then
-       status = nf90_put_var(file_id, vid1(32), real(casapool%psoillab,sp),    start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(34), real(casapool%psoillab,sp),    start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(33), real(casapool%psoilsorb,sp),   start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(35), real(casapool%psoilsorb,sp),   start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(34), real(casapool%psoilocc,sp),    start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(36), real(casapool%psoilocc,sp),    start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(35), real(casabal%sumpbal,sp),      start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(37), real(casabal%sumpbal,sp),      start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(36), real(casaflux%plabuptake,sp),  start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(38), real(casaflux%plabuptake,sp),  start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(37), real(casaflux%pdep,sp),        start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(39), real(casaflux%pdep,sp),        start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(38), real(casaflux%pwea,sp),        start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(40), real(casaflux%pwea,sp),        start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(39), real(casaflux%pleach,sp),      start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(41), real(casaflux%pleach,sp),      start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(40), real(casaflux%ploss,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(42), real(casaflux%ploss,sp),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(41), real(casaflux%pupland,sp),     start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(43), real(casaflux%pupland,sp),     start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(42), real(casaflux%plittermin,sp),  start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(44), real(casaflux%plittermin,sp),  start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(43), real(casaflux%psmin,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(45), real(casaflux%psmin,sp),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(44), real(casaflux%psimm,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(46), real(casaflux%psimm,sp),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(45), real(casaflux%psnet,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(47), real(casaflux%psnet,sp),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(46), real(casaflux%fpleach,sp),     start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(48), real(casaflux%fpleach,sp),     start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(47), real(casaflux%kplab,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(49), real(casaflux%kplab,sp),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(48), real(casaflux%kpsorb,sp),      start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(50), real(casaflux%kpsorb,sp),      start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(49), real(casaflux%kpocc,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(51), real(casaflux%kpocc,sp),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(50), real(casaflux%kmlabp,sp),      start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(52), real(casaflux%kmlabp,sp),      start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(51), real(casaflux%psorbmax,sp),    start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(53), real(casaflux%psorbmax,sp),    start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
     endif
 
@@ -2306,9 +2376,10 @@ contains
     if(status /= nf90_noerr) call handle_err(status)
     status = nf90_put_var(file_id, vid2(5), real(casaflux%kplant_fire,sp), start=(/1,1,cnt/), count=(/mp,mplant,1/))
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid2(6), real(casaflux%fluxCtoCO2_plant_fire,sp), &
-         start=(/1,1,cnt/), count=(/mp,mplant,1/))
-    if(status /= nf90_noerr) call handle_err(status)
+    !INH BLAZE
+    !status = nf90_put_var(file_id, vid2(6), real(casaflux%fluxCtoCO2_plant_fire,sp), &
+    !     start=(/1,1,cnt/), count=(/mp,mplant,1/))
+    !if(status /= nf90_noerr) call handle_err(status)
     ! N
     if (icycle > 1) then
        status = nf90_put_var(file_id, vid2(6), real(casapool%nplant,sp),     start=(/1,1,cnt/), count=(/mp,mplant,1/))
@@ -2336,9 +2407,10 @@ contains
     if(status /= nf90_noerr) call handle_err(status)
     status = nf90_put_var(file_id, vid3(5), real(casaflux%klitter_fire,sp),  start=(/1,1,cnt/), count=(/mp,mlitter,1/))
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid3(6), real(casaflux%fluxCtoCO2_litter_fire,sp),  &
-         start=(/1,1,cnt/), count=(/mp,mlitter,1/))
-    if(status /= nf90_noerr) call handle_err(status)
+    !INH BLAZE
+    !status = nf90_put_var(file_id, vid3(6), real(casaflux%fluxCtoCO2_litter_fire,sp),  &
+    !     start=(/1,1,cnt/), count=(/mp,mlitter,1/))
+    !if(status /= nf90_noerr) call handle_err(status)
     ! N
     if (icycle > 1) then
        status = nf90_put_var(file_id, vid3(6), real(casapool%nlitter,sp),       start=(/1,1,cnt/), count=(/mp,mlitter,1/))

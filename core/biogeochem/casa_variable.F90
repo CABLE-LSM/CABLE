@@ -2067,6 +2067,7 @@ Contains
        sum_casaflux%FluxFromPtoHarvest = sum_casaflux%FluxFromPtoHarvest * rnsteps
     endif ! average_now
 
+
   END SUBROUTINE update_sum_casa
 
 
