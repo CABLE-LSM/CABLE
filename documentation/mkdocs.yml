@@ -31,6 +31,7 @@ theme:
     - navigation.indexes
     - navigation.tabs
     - navigation.tabs.sticky
+    - navigation.sections
 
 extra_css:
   - css/cable.css
@@ -100,7 +101,8 @@ nav:
     - developer_guide/index.md
     - Contribution guidelines:
       - developer_guide/contribution/index.md
-    - Contribution flowchart: developer_guide/contribution_flowchart.md
+      - developer_guide/contribution/plan_your_work.md
+      - developer_guide/contribution/resources/how_to.md
     - Documentation guidelines: 
       - developer_guide/documentation_guidelines/index.md
       - Scientific documentation: developer_guide/documentation_guidelines/science_doc.md
