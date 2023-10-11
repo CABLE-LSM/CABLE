@@ -41,7 +41,6 @@ plugins:
       enable_creation_date: true
   - search
   - macros
-  - ezlinks
 
 markdown_extensions:
   - pymdownx.arithmatex:
