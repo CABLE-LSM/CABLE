@@ -1,4 +1,4 @@
-# Flowchart to contribute to CABLE's documentation
+# Contribution guidelines
 
 This workflow assumes you have followed all the steps to [setup Git and GitHub][git-training] given by ACCESS-NRI. You can also use [this cheat sheet][git-cheatsheet] for a quick reference to the main Git commands to use.
 

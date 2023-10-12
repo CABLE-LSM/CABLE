@@ -61,7 +61,6 @@ markdown_extensions:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
 
-
 extra_javascript:
   - javascripts/mathjax.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6
@@ -98,11 +97,12 @@ nav:
     - Obsolete and deprecated features: user_guide/obsolete_and_deprecated_features/obsolete_and_deprecated_features.md
   - Developer Guide:
     - developer_guide/index.md
-    - Contribution flowchart: developer_guide/contribution_flowchart.md
+    - Contribution guidelines: developer_guide/contribution_guide.md
     - Documentation guidelines: 
       - developer_guide/documentation_guidelines/index.md
       - Scientific documentation: developer_guide/documentation_guidelines/science_doc.md
       - Cheat Sheets: developer_guide/documentation_guidelines/cheat_sheets.md
+    - Review guidelines: developer_guide/review_guide.md
     - Coding standards: developer_guide/coding_standards.md
     - CABLE's release process: developer_guide/release.md
     - API documentation: developer_guide/api.md
