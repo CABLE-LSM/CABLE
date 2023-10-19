@@ -42,4 +42,5 @@ Here is a flowchart explaining how the various steps of the contribution workflo
 ;
 ```
 
+[git-training]: https://access-nri.github.io/Training/HowTos/GitAndGitHub/
 [doc-guidelines]: ../documentation_guidelines/index.md
