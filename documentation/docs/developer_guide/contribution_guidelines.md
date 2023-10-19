@@ -4,7 +4,7 @@
 
     Before contributing to CABLE, please ensure you have followed all the steps to [setup Git and GitHub][git-training] given by ACCESS-NRI. Failing this, some of the commands described here may require additional steps or options.
 
-These guidelines are written from the perspective of a new contributor to CABLE wanting to start their first development. Notes are added when guidelines for subsequent contributions differ.
+These guidelines are written from the perspective of a new contributor to CABLE wanting to start their first development. Notes are added when guidelines for subsequent contributions differ. 
 
 :material-sim-alert: The CABLE documentation is an integral part of the CABLE code and its repository. The present guidelines apply for changes to the scientific code as well as to the documentation. All changes to the scientific code **must** be accompanied by adequate changes to the documentation. The changes to the documentation are expected to be part of the same set of changes as the scientific modifications. The documentation changes **must** not be submitted separately, except for corrections. You can refer to [the documentation guidelines][doc-guidelines] to know what level of documentation is expected and how to document code changes.
 
@@ -12,30 +12,7 @@ These guidelines are written from the perspective of a new contributor to CABLE 
 
     Please refer to [this cheat sheet page][cheatsheet] for quick references to Git, Markdown and FORD syntax.
 
-First, here is a flowchart explaining how the various steps of the workflow interact together. More details are provided for each step in the following sections of this page.
 
-```mermaid
-   flowchart TD
-
-   Idea[Explain your work in an issue]
-   Workspace[Create a place for your work for you in the repository]
-   Work[Do your work, record it and check it]
-   Review[Get a review on your work]
-   Merge[Get your work into <br> the main development version of CABLE]
-   FinalUpdate[Get ready for your next project]
-
-   Idea --> Workspace --> Work;
-   Work -->|Incorrect|Work;
-   Work -->|Correct|Review;
-   Review -->|Apply requested changes|Work;
-   Review -->|Approved|Merge --> FinalUpdate;
-
-   linkStyle 4 stroke:red,color:red;
-   linkStyle 3 stroke:green,color:green;
-   linkStyle 2 stroke:red,color:red;
-   linkStyle 5 stroke:green,color:green;
-;
-```
 !!! info "Legend of flowcharts"
 
     The legend for all subsequent flowcharts can be found in the [legend section](#legend-for-the-flowcharts)
@@ -323,4 +300,4 @@ git branch --delete <branchname>
 [git-training]: https://access-nri.github.io/Training/HowTos/GitAndGitHub/
 [CABLE-repo]: https://github.com/CABLE-LSM/CABLE
 [cheatsheet]: documentation_guidelines/cheat_sheets.md
-[doc-guidelines]: documentation_guidelines/index.md
+

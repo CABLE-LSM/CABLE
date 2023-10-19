@@ -97,7 +97,9 @@ nav:
     - Obsolete and deprecated features: user_guide/obsolete_and_deprecated_features/obsolete_and_deprecated_features.md
   - Developer Guide:
     - developer_guide/index.md
-    - Contribution guidelines: developer_guide/contribution_guide.md
+    - Contribution guidelines:
+      - developer_guide/contribution/index.md
+    - Contribution flowchart: developer_guide/contribution_flowchart.md
     - Documentation guidelines: 
       - developer_guide/documentation_guidelines/index.md
       - Scientific documentation: developer_guide/documentation_guidelines/science_doc.md
