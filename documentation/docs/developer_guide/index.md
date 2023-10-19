@@ -50,6 +50,6 @@ For this code base, we define the following roles:
 [cable-lsm-join]: https://github.com/CABLE-LSM/CABLE/issues/110
 [sc-git]: https://swcarpentry.github.io/git-novice/index.html
 [user_guide]: ../user_guide/index.md
-[contribution_guide]: contribution_guide.md
+[contribution_guide]: contribution/index.md
 [review_guide]: review_guide.md
 [release_process]: release_process.md

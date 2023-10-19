@@ -108,7 +108,7 @@ nav:
       - Cheat Sheets: developer_guide/documentation_guidelines/cheat_sheets.md
     - Review guidelines: developer_guide/review_guide.md
     - Coding standards: developer_guide/coding_standards.md
-    - CABLE's release process: developer_guide/release.md
+    - CABLE's release process: developer_guide/release_process.md
     - API documentation: developer_guide/api.md
     - Obsolete and deprecated features: developer_guide/obsolete_and_deprecated_features/obsolete_and_deprecated_features.md
   - How-to:
