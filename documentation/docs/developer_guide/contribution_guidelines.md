@@ -17,6 +17,17 @@ These guidelines are written from the perspective of a new contributor to CABLE 
 
     The legend for all subsequent flowcharts can be found in the [legend section](#legend-for-the-flowcharts)
 
+## Get your copy of the software
+
+!!! note "First time only"
+
+    You only need to clone the repository on your work machine the first time you work on a development for CABLE. The subsequent times, you can work from the same copy of the repository.
+
+If you are a member of the CABLE-LSM organisation on GitHub, you can simply work from a locally cloned copy of the repository. You do not need to create a fork of the GitHub repository. To become a member of the CABLE-LSM organisation, please reply on [this issue][new_member]
+
+??? tip "How to"
+    [How to clone][how_to_clone]
+
 ## Explain your work
 
 You first need to tell the community what you will be working on. For this you need to open an Issue on the CABLE's GitHub repository.
