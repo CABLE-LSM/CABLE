@@ -55,18 +55,17 @@ For example, if you want to implement an algorithm by Doe J. et al (1950), say s
 
     An issue should not contain the detail of the code changes made and the modified files. That information is contained in the Git history of the code and does not need to be replicated by hand.
 
-## Setup for new piece of work
+## A place for your work in the repository
 
 ```mermaid
    flowchart TB
 
       %% Define all the nodes first
       clone[Clone repository]:::uniq ;
-      issue([Open an issue <br> to explain your work]):::github;
       locbranch(["Create local branch: <br> git checkout &lt;branchname&gt;"]):::term;
       work[Ready to start work];
 
-      clone --> issue --> locbranch--> work;
+      clone --> locbranch--> work;
 
       classDef default fill:#FFFDE7, stroke:#FFF59D;
       classDef uniq fill:#D81B60,stroke:#880E4F,color:#FFFFFF;
@@ -78,13 +77,24 @@ For example, if you want to implement an algorithm by Doe J. et al (1950), say s
 ;
 ```
 
-### Clone repository
+### Clone the repository
 
-On [CABLE's GitHub main page][CABLE-repo], click the `code` green button and copy the URL you need:
+!!! note "First time only"
+
+    You only need to clone the repository on your work machine the first time you work on a development for CABLE. The subsequent times, you can work from the same copy of the repository.
+
+On [CABLE's GitHub main page][CABLE-repo], click the `code` green button, choose the SSH protocol and copy the URL you need:
 <figure markdown>
   ![Image title](../assets/clone.png){ width="90%", align=right }
 </figure>
-Make sure to choose the appropriate protocol (HTTPS or SSH) for connecting to the remote repository. Note, you need to setup an access token to use HTTPS and SSH keys to use SSH.
+!!! warning "Change the protocol after cloning"
+
+    It is possible to change the access protocol to GitHub in your cloned repository if you realise you have chosen the wrong protocol, ie.:
+    
+    - you have cloned using the HTTPS protocol but have SSH keys setup with GitHub
+    - or you have cloned using the SSH protocol but you have a personal access token setup with GitHub
+
+    To do this, check our FAQs. 
 
 On your local machine in a terminal, clone the repository:
 
@@ -92,16 +102,9 @@ On your local machine in a terminal, clone the repository:
 git clone <URL provided>
 ```
 
-### Open issue
+### Create a branch for your work
 
-<figure markdown>
-  ![Image title](../assets/issue.png){ width="90%", align=right }
-</figure>
-Before starting new work, open an issue on GitHub to explain what you are planning on working on. This avoid potential duplication of effort.
-
-### Create the local branch
-
-You want to create a branch for your work, that's your workspace within the shared repository. For this, in a terminal on your machine, use `git checkout` with the name of the branch you want:
+You want to create your own branch for your work, that's your workspace within the shared repository. For this, in a terminal on your machine, use `git checkout` with the name of the branch you want:
 
 ```bash
 git checkout <branchname>
