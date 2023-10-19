@@ -34,29 +34,26 @@ First, here is a flowchart explaining how the various steps of the workflow inte
    linkStyle 5 stroke:green,color:green;
 ;
 ```
+!!! info "Legend of flowcharts"
 
-## Legend for the flowcharts
+    The legend for all subsequent flowcharts can be found in the [legend section](#legend-for-the-flowcharts)
 
-```mermaid
-   %% Create a graph for the legend of the main graph
-   flowchart LR
-      uniq[action done <br> only once ever <br> at the start <br> to get the code locally]:::uniq;
-      sevterm[action done <br> several times per issue <br> in a terminal/text editor]:::term;
-      sevgit[action done <br> several times per issue <br> on GitHub]:::github;
-      onceterm([action done <br> once per issue <br> in a terminal/text editor]):::term;
-      oncegit([action done <br> once per issue <br> on GitHub]):::github;
-      question[\question with multiple outcomes/]:::question;
+## Explain your work
 
-      uniq --- sevterm --- sevgit --- question;
-      uniq --- onceterm --- oncegit --- question;
+You first need to tell the community what you will be working on. For this you need to open an Issue on the CABLE's GitHub repository.
 
-      classDef default fill:#FFFDE7, stroke:#FFF59D;
-      classDef uniq fill:#D81B60, stroke:#880E4F, color:#FFFFFF;
-      classDef github fill:#388E3C,stroke:#1B5E20, color:#FFFFFF;
-      classDef term fill:#F44336, stroke:#B71C1C, color:#FFFFFF;
-      classDef question fill:#6D4C41, stroke:#3E2723, color:#FFFFFF; 
-;
-```
+### Open an issue
+
+<figure markdown>
+  ![Image title](../assets/issue.png){ width="90%", align=right }
+</figure>
+Make sure to give a description that is detailed enough. The Issue should describe what you are trying to do and why and not how you are doing it. 
+
+For example, if you want to implement an algorithm by Doe J. et al (1950), say so in your issue and ideally put a link to the publication (using a DOI). You can add why you think this is a good addition to CABLE: is it adding a completely new process? Is it adding a new parametrisation for an existing process? 
+
+!!! failure "Do not list the code changes"
+
+    An issue should not contain the detail of the code changes made and the modified files. That information is contained in the Git history of the code and does not need to be replicated by hand.
 
 ## Setup for new piece of work
 
