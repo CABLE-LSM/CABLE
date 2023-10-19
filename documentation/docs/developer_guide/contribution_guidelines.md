@@ -1,4 +1,4 @@
-# Guidelines to contribute to CABLE
+# Contribution guidelines
 
 !!! warning "Pre-requisite"
 
