@@ -45,7 +45,7 @@ Modules should be named using the filename followed by a `_mod` suffix. For exam
 
 ### 7. SUBROUTINE names
 
-Subroutines should be of the form "\*_cbl()". Following from the above file `egName_cbl.F90` `SUBROUTINE egName_cbl()`. This is not only helpful for consistency but necessary within JULES/UM applications where it distinguishes the CABLE version of an analogous JULES subroutine. 
+Subroutines should be of the form "\*_cbl()". The above file `cbl_egName.F90` would contain the subroutine: `SUBROUTINE egName_cbl()`. The name of the subroutine should be chosen to reflect what the subroutine does. This name does not need to have any link with the module or file names. This is not only helpful for consistency but necessary within JULES/UM applications where it distinguishes the CABLE version of an analogous JULES subroutine. 
 
 ### 8. Miscellaneous
 
@@ -87,12 +87,12 @@ In general, models (including CABLE) have evolved over decades, involving dozens
 ```fortran
 PROGRAM eg_driver()
 
-USE cbl_eg_mod, ONLY : eg_subr
+USE cbl_eg_mod, ONLY : eg_subr_cbl
 
 IMPLICIT NONE
 Header Declarations
 ...
-CALL eg_subr( Arguments )
+CALL eg_subr_cbl( Arguments )
 ...
 
 END PROGRAM eg_driver
@@ -103,14 +103,14 @@ Where,
 MODULE cbl_eg_mod
 ! Module description in markdown - e.g. [cable_roughness.F90](https://github.com/CABLE-LSM/CABLE/blob/main/src/science/roughness/cable_roughness.F90) for an example, which is then rendered [here](https://cable.readthedocs.io/en/latest/api/module/cable_roughness_module.html)
 
-PUBLIC :: eg_subr 
+PUBLIC :: eg_subr_cbl 
 PRIVATE
 
 CONTAINS
 
-SUBROUTINE eg_subr ( Arguments )
+SUBROUTINE eg_subr_cbl ( Arguments )
 ...
-END SUBROUTINE eg_subr 
+END SUBROUTINE eg_subr_cbl 
 
 END MODULE cbl_eg_mod
 ```
@@ -118,7 +118,7 @@ END MODULE cbl_eg_mod
 Where,
 
 ```fortran
-SUBROUTINE eg_subr( eg_arg, ilen, jlen, sometype )
+SUBROUTINE eg_subr_cbl( eg_arg, ilen, jlen, sometype )
 ! Subroutine description in markdown - see??
 
 USE cbl_some_type_mod, ONLY : some_type
@@ -161,5 +161,5 @@ ilen_loop: DO i=1,ilen
 END DO ilen_loop
 
 RETURN
-END SUBROUTINE eg_subr 
+END SUBROUTINE eg_subr_cbl 
 ```
