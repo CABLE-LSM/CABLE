@@ -81,16 +81,6 @@ The specific coding standards required by the NGMS have not yet been strictly de
 
 In general, models (including CABLE) have evolved over decades, involving dozens of developers. A key feature emerging from NGMS is the tight reign on memory. As listed above, it will not be permitted to `USE` data through `MODULE`s. Data will be be passed through argument lists. There are further rules emerging in this respect which relax the rules slightly to allow time independent scalars to be `USE`d. Nevertheless, it is straightforward enough to pass these as well. 
 
-## Specific Develoments
-Code developments broadly fall into two categories: bug fixes and new developments. Both can involve a wide range of complexity. However, at the extremes a bug fix may be as simple as moving a bracket. Alternatively, the bug fix might require you to rewrite a section, or even several sections of code. 
-A new development might be as simple as an alternative section or calculation, or it might be an entirely new model that can be plugged in to CABLE, either as an alternative model, or an extra feature to be used in the standard model.
-
-In all cases, an issue should be raised. The accompanying fix contained should then be implemented in a unique branch, corresponding to the raised issue. A bugfix might simply involve reference to this issue. For a more complicated, added feature, it is a requirement that this addition can be isolated and switched off via a configuration switch, so that the model can be also run as if there had been no alteration. There is of course every possibility that this feature will be accepted as a standard part of the model. Although this is not the expectation initially and the developer should be mindful of this fundamental requirement. 
-
-We proceed assuming that the "issue" raised requires adding a new and significant feature to CABLE, requiring the addition of new files/modules to CABLE. Lesser modifications are covered under this assumption anyway.
-
-For discussion purposes we assume that you are including a new model to do some new stuff. This can conveniently be added in a single file. 
-
 ## Code Template 
 
 Assuming the *new* model is called from eg_driver.F90.
