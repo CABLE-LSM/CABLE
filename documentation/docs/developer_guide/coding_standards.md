@@ -83,7 +83,6 @@ In general, models (including CABLE) have evolved over decades, involving dozens
 
 ## Code Template 
 
-Assuming the *new* model is called from eg_driver.F90.
 
 ```fortran
 PROGRAM eg_driver()
