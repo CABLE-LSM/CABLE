@@ -108,11 +108,12 @@ All variables must have a "units" string attribute and the data must be in the c
 
 Meteorological input data must be continuous in time and have regular intervals.
 
-The starting (**reference?**) time value is obtained from the "`units`" field for the time variable, and is of the form: "seconds since 2001-02-22 00:00:00".
-It is not essential that this "start time" be the start time of the simulation, e.g. the first value of the "time" variable may be 86400, in which case the actual start time might be 2001-02-22 00:00:00 + 86400 seconds; i.e. 2001-02-23 00:00:00.
+CABLE's running period is deduced from the time period of the meteorolocal forcing data.
+The time variables units attribute is of the form "`seconds since <reference_time>`", where the reference time can be any date on or before the starting date (e.g. "`2001-02-22 00:00:00`").
+For example, the first value of the "`time`" variable may be 86400, in which case the actual start time might be 2001-02-22 00:00:00 + 86400 seconds; i.e. 2001-02-23 00:00:00.
 
-The "time" value for regional or global simulations is assumed to be GMT, while the value for single site/grid cell simulations is assumed to be "local".
-Single site simulation "`time`" values will be read as GMT if and only if a "`coordinate`" field is present for the "`time`" variable and set to be "GMT".
+The "`time`" values for regional or global simulations is assumed to be GMT, while the value for single site/grid cell simulations is assumed to be "local".
+Single site simulation "`time`" values will be read as GMT if and only if a "`coordinate`" attribute is present for the "`time`" variable and set to be "GMT".
 This time coordinate system will be reported in the log file.
 
 CABLE’s time step size is calculated from the first two values of the time variable, and the run length of the simulation is decided by the length of this same variable.
