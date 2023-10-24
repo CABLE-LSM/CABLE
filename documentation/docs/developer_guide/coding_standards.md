@@ -52,6 +52,7 @@ Subroutines should be of the form "*_cbl()". Following from the above file egNam
 
 ### 8. Miscellaneous
 
+ * It will not be permitted to `USE` data through `MODULE`s. Data will be be passed through argument lists. 
  * The last character of a line **must** not be placed beyond column 80. 
  * `SAVE` attributes are not permitted.
  * Intrinsic Fortran subroutines, functions, etc should be capitalized
@@ -81,7 +82,7 @@ The Next Generation Modelling System (NGMS) is a major program at the UKMO to ad
 The NGMS is an initiative to optimize the software of their entire suite of models.
 The specific coding standards required by the NGMS have not yet been strictly defined. 
 
-In general, models (including CABLE) have evolved over decades, involving dozens of developers. A key feature emerging from NGMS is the tight reign on memory. As such, it will not be permitted to `USE` data through `MODULE`s. Data will be be passed through argument lists. There are further rules emerging in this respect which relax the rules slightly to allow time independent scalars to be `USE`d. Nevertheless, it is straightforward enough to pass these as well. 
+In general, models (including CABLE) have evolved over decades, involving dozens of developers. A key feature emerging from NGMS is the tight reign on memory. As listed above, it will not be permitted to `USE` data through `MODULE`s. Data will be be passed through argument lists. There are further rules emerging in this respect which relax the rules slightly to allow time independent scalars to be `USE`d. Nevertheless, it is straightforward enough to pass these as well. 
 
 ## Specific Develoments
 Code developments broadly fall into two categories. Bug fixes and new developments. Both can involve a wide range of complexity. However, at the extremes a bug fix may be as simple as moving a bracket. Alternatively, the bug fix might require you to rewrite a section, or even several sections of code. 
