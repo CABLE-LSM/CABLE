@@ -6,7 +6,7 @@ The filename is set using the CABLE namelist variable `filename%met`.
 The global offline simulations use multiple met files, one for each meteorological variable recorded in compressed grid method.
 The data must be in NetCDF format with the correct units, broadly conforming to the [ALMA](https://web.lmd.jussieu.fr/~polcher/ALMA/convention_output_3.html) standard.
 
-An example input file is provided with the CABLE-AUx release or can can be found at the [NCI THREDDS server](https://geonetwork.nci.org.au/geonetwork/srv/eng/catalog.search#/metadata/f7075_4625_2374_0846).
+An example input file is provided with the CABLE-AUX release or can can be found at the [NCI THREDDS server](https://geonetwork.nci.org.au/geonetwork/srv/eng/catalog.search#/metadata/f7075_4625_2374_0846).
 
 ## Model configuration and grid
 
@@ -19,7 +19,7 @@ Meteorological variables that conform to the ALMA standard can have:
 
 For the x-y grid, an "`x`" and a "`y`" dimension variable must be present, even if the simulation is only a single site/gridpoint. Additionally, single precision variables named "`latitude`" and "`longitude`" (or "`nav_lat`" and "`nav_lon`" if using ALMA formatting), both dependent on the x and y dimensions only, must be present. Both sea and land points may be included by using an integer mask(x,y) variable; a value of 1 implies a land gridpoint, anything else is assumed to be ocean.
 
-For the single dimension land-only “compression by gathering” grid (see ​http://www.lmd.jussieu.fr/~polcher/ALMA/dataformats.html), a single spatial dimension is used.
+For the single dimension land-only “compression by gathering” grid (see [here](http://www.lmd.jussieu.fr/~polcher/ALMA/dataformats.html)), a single spatial dimension is used.
 An example of the NetCDF header from such a file is shown below:
 
 ```
@@ -71,10 +71,10 @@ Note that the number of points simulated by offline CABLE is not specified in th
 | Name     | Description                               | Units                  |
 |----------|-------------------------------------------|------------------------|
 | `time`   | time of each time step (double precision) | \( s \)                |
-| `SWdown` | Surface incident shortwave radiation      | \( W \dot m^{-2} \)    |
+| `SWdown` | Surface incident shortwave radiation      | \( W \cdot m^{-2} \)   |
 | `Tair`   | Surface incident shortwave radiation      | \( K \)                |
 | `Qair`   | Near surface specific humidity            | \( kg \cdot kg^{-1} \) |
-| `Rainf`  | Rainfall rate                             | \( mm s^{-1} \)        |
+| `Rainf`  | Rainfall rate                             | \( mm \cdot s^{-1} \)  |
 | `Wind` or `Wind_E` and `Wind_E` | Scalar wind speed  | \( m \cdot s^{-1} \)   |
 
 ### Optional variables
@@ -90,8 +90,8 @@ Note that the number of points simulated by offline CABLE is not specified in th
 ### Site specific parameters
 
 Site-specific parameters recorded in the met file will overwrite the default values obtained during initialisation and have top priority over values specified in other files.
-For example, the default value of `za` (reference height or measurement height) is 40 m; it will be overwritten by the value read from the met file.
-The site specific parameters include:
+For example, the default value of `za` (reference height or measurement height) is 40 m; it will be overwritten by the value read from the meteorological file.
+The site-specific parameters include:
 
 | Name    | Description       | Units   |
 |---------|-------------------|---------|
@@ -111,8 +111,9 @@ Meteorological input data must be continuous in time and have regular intervals.
 The starting (**reference?**) time value is obtained from the "`units`" field for the time variable, and is of the form: "seconds since 2001-02-22 00:00:00".
 It is not essential that this "start time" be the start time of the simulation, e.g. the first value of the "time" variable may be 86400, in which case the actual start time might be 2001-02-22 00:00:00 + 86400 seconds; i.e. 2001-02-23 00:00:00.
 
-The "time" value for regional or global simulations is assumed to be GMT, while the value for single site/grid cell simulations is assumed to be local.
-Single site simulation "time" values will be read as GMT if and only if a "coordinate" field is present for the "time" variable and set to be "GMT". This time coordinate system will be reported in the log file.
+The "time" value for regional or global simulations is assumed to be GMT, while the value for single site/grid cell simulations is assumed to be "local".
+Single site simulation "`time`" values will be read as GMT if and only if a "`coordinate`" field is present for the "`time`" variable and set to be "GMT".
+This time coordinate system will be reported in the log file.
 
 CABLE’s time step size is calculated from the first two values of the time variable, and the run length of the simulation is decided by the length of this same variable.
 
