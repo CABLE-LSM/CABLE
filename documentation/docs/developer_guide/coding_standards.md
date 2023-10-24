@@ -87,7 +87,7 @@ In general, models (including CABLE) have evolved over decades, involving dozens
 ```fortran
 PROGRAM eg_driver()
 
-USE new_mod_cbl, ONLY : new
+USE cbl_eg_mod, ONLY : eg_subr
 
 IMPLICIT NONE
 Header Declarations
