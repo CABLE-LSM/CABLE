@@ -28,6 +28,4 @@ The issue is where all discussions on planning how the work is going to be done 
 
 If the issue is about a bug or a code improvement, explain why it is a bug. Give the solution if you know it. Give a reproducible test case that highlights the issue if possible.
 
-[how_to_clone]: resources/how_to.md#cloning-a-repository
 [github_issues]: https://github.com/CABLE-LSM/CABLE/issues
-[new_member]: https://github.com/CABLE-LSM/CABLE/issues/110

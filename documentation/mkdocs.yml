@@ -100,6 +100,7 @@ nav:
     - Contribution guidelines:
       - developer_guide/contribution/index.md
       - developer_guide/contribution/plan_your_work.md
+      - developer_guide/contribution/develop_your_idea.md
       - developer_guide/contribution/resources/how_to.md
     - Documentation guidelines: 
       - developer_guide/documentation_guidelines/index.md

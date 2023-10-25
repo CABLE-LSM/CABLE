@@ -17,38 +17,6 @@ These guidelines are written from the perspective of a new contributor to CABLE 
 
     The legend for all subsequent flowcharts can be found in the [legend section](#legend-for-the-flowcharts)
 
-## Get your copy of the software
-
-!!! note "First time only"
-
-    You only need to clone the repository on your work machine the first time you work on a development for CABLE. The subsequent times, you can work from the same copy of the repository.
-
-If you are a member of the CABLE-LSM organisation on GitHub, you can simply work from a locally cloned copy of the repository. You do not need to create a fork of the GitHub repository. To become a member of the CABLE-LSM organisation, please reply on [this issue][new_member]
-
-??? tip "How to"
-    [How to clone][how_to_clone]
-
-## Explain your work
-
-You first need to tell the community what you will be working on. For this you need to open an Issue on the CABLE's GitHub repository.
-
-### Open an issue
-
-<figure markdown>
-  ![Image title](../assets/issue.png){ width="90%", align=right }
-</figure>
-Make sure to give a description that is detailed enough. The Issue should describe what you are trying to do and why and not how you are doing it. 
-
-For example, if you want to implement an algorithm by Doe J. et al (1950), say so in your issue and ideally put a link to the publication (using a DOI). You can add why you think this is a good addition to CABLE: is it adding a completely new process? Is it adding a new parametrisation for an existing process?
-
-You can cite some of the source code if it helps explain what the issue is.
-
-!!! failure "Do not list the code changes you made to fix the issue"
-
-    An issue should not contain the detail of the code changes made and the modified files. That information is contained in the Git history of the code and does not need to be replicated by hand.
-
-    An issue should be used to discuss and plan the work before it is implemented so the work done to fix the issue should not be commented on here but in the pull request.
-
 ## A place for your work in the repository
 
 ```mermaid
