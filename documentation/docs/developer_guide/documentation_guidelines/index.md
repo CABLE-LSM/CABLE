@@ -10,7 +10,7 @@ The documentation for CABLE has two parts:
 Both tools use [Markdown][cheat-sheets] and [LaTeX Mathematics][latex-maths] for formatting. 
 
 ## Documentation workflow
-All documentation is located in the [CABLE GitHub repository][cable-repo]. To update the documentation, you need to follow a traditional GitHub contribution process: open an issue and a new branch; work on your changes; submit a pull request for review before publication. The process is explained in more details [on this page][git-process].
+All documentation is located in the [CABLE GitHub repository][cable-repo]. To update the documentation, you need to follow the [CABLE contribution guidelines][contrib_guide].
 
 ## Scientific documentation
 The *scientific documentation* should be added directly into the source code available under the `src/` directory. Please use [these guidelines][api-guidelines] to structure the documentation. You can find a cheatsheet for FORD [on this page][cheat-sheets].
@@ -28,7 +28,7 @@ To help you find the file corresponding to a page, on the rendered [documentatio
 [ford]: https://forddocs.readthedocs.io/en/latest/index.html
 [material]: https://squidfunk.github.io/mkdocs-material/
 [cable-repo]: https://github.com/CABLE-LSM/CABLE
-[git-process]: ../git_process.md
+[contrib_guide]: ../contribution/index.md
 [latex-maths]: https://en.wikibooks.org/wiki/LaTeX/Mathematics
 [cheat-sheets]: cheat_sheets.md
 [api-guidelines]: science_doc.md
