@@ -105,7 +105,7 @@ We will also implement simple technical tests to automatically run on all update
 
 PRs require a description when you open them, this description and the PR title are editable. Our advice is to update them as your work progress as you may realise the scope of your PR changes later on. We will provide a template for the PR description, please read carefully and provide as much of the required information as possible.
 
-**If you have any questions about the implementation of a feature, you can contact another CABLE developer or the CABLE maintainers team via the PR. Simply mention the people you'd like to contact in a comment with your question.** For questions on lines of code you have modified, you can leave your comment right with the code which can reduce the risk of confusion.
+**If you have any questions about the implementation of a feature, you can contact another CABLE developer or the CABLE maintainers team via the PR. Mention the people you'd like to contact in a comment with your question to notify them.** For questions on lines of code you have modified, you can leave your comment right with the code which can reduce the risk of confusion.
 
 As we will see next, the pull request will also be used to share test results and review contributions before inclusion in the main CABLE version.
 
