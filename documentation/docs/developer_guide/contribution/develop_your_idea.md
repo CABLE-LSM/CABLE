@@ -54,22 +54,43 @@ If you are a member of the CABLE-LSM organisation on GitHub, you can simply work
 
 Once you decide to start on an issue, you need two actions on GitHub CABLE's repository:
 
-1. [Assign yourself][assign_issue] to the issue. This indicates to the community you are activelly working on the issue. It does not have to be the same as the reporter of the issue.
-2. [Create a branch][create_branch] on the repository for you to work on. This allows you to isolate your work from others' work, thus controlling the changes made to the code.
+1. [Assign yourself][assign_issue] to the issue. This indicates to the community you are actively working on the issue. You do not need to be the creator of the issue to assign yourself an issue. Feel free to work on issues highlighten by others.
+2. [Create a branch][create_branch] on the repository for you to work on. This allows you to isolate your work from others' work, thus controlling the changes made to the code in your branch.
 
 !!! warning "Branch naming convention"
 
     We would like all branches to follow the GitHub naming convention: `<issue_number>-<issue-title-with-dashes>`. If your issue title is too long, some shortening in the branch name is acceptable. A branch created following the methodology above will follow that convention.
+
     In VS Code, the GitHub Pull Requests and Issues extension allows you to specify the branch template in the settings:
     ```
     "githubIssues.issueBranchTitle": "${issueNumber}-${sanitizedIssueTitle}"
     ```
 
-!!! tip "Branches are writable by all"
+!!! tip "Everyone has write access to your branch"
 
-    Contrary to SVN, in GitHub, the branches are writeable by everyone. This means collaboration on code development can happen on all branches, there is no need to open special branches for collaboration.
+    Contrary to SVN, in GitHub, everyone has write access to the branches except the `main` branch. This means collaboration on code development can happen on all branches, there is no need to open special branches for collaboration.
+
+## Develop your feature
+
+It is now time for you to start working on CABLE and its documentation. Here are a few considerations and advice to consider during your coding work:
+
+1. Follow CABLE's coding standard for all new work
+2. Document your additions/modifications to the code as you go along, according to the documentation guidelines. Consider being a good citizen by adding more documentation to existing parts of the code if you can!
+3. Keep every commit small. Write meaningful commit messages about what you want to achieve rather than a description of the change. The committed code itself is the description of the change and is often more precise than you can be. (see examples after)
+4. Reference the issue number in each commit message. Do not put it at the start of the message since `#` is a comment in shell scripting. (see examples after)
+   
+!!! tip "Examples of commit messages"
+    Let's say you modified the value of the parameter, `my_param`, from 0.5 to 0.9 because you have read some paper that has proven the updated value is better.
+
+    **Bad commit message:**
+
+    :x: Changed my_param from 0.5 to 0.9. Fixes #123
+
+    **Good commit message:**
+
+    :white_check_mark: Use Doe J. et al. (2500) value for my_param. Fixes #123
 
 [how_to_clone]: resources/how_to.md#cloning-a-repository
 [new_member]: https://github.com/CABLE-LSM/CABLE/issues/110
-[assign_issue]:
-[create_branch]:
+[assign_issue]: resources/how_to.md#assign-an-issue
+[create_branch]: resources/how_to.md#create-a-branch

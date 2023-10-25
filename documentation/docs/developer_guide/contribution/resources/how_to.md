@@ -6,7 +6,7 @@ Below you will find details instructions on how to follow various steps of the c
 
 On [CABLE's GitHub main page][CABLE-repo], click the `code` green button, choose the SSH protocol and copy the URL you need:
 <figure markdown>
-  ![Image title](../../../assets/clone.png){ width="90%", align=right }
+  ![how_clone](../../../assets/clone.png){ width="90%", align=right }
 </figure>
 On your local machine in a terminal, clone the repository:
 
@@ -35,5 +35,31 @@ git clone <URL provided>
     ```
     git branch -u origin/<branch_name>
     ```
+
+## Assign an issue
+
+When starting work on an issue, on that issue page on GitHub, assign yourself to that issue following the steps in the image:
+<figure markdown>
+  ![how assign](../../../assets/assign_issue.png){ width="90%", align=right }
+</figure>
+
+## Create a branch
+
+Since we want to enforce a branch naming convention for CABLE, the simplest is to create the branch on the GitHub repository and then get that branch on your local repository.
+
+1. Create the branch on GitHub:
+    <figure markdown>
+      ![how branch](../../../assets/create_branch.png){ width="60%", align=left }
+    </figure>
+
+2. Keep all options to default on the confirmation pop-up window:
+    <figure markdown>
+       ![how confirm branch](../../../assets/branch_confirm.png){ width="40%", align=left }
+    </figure>
+
+3. Get the branch locally. Copy the commands given by GitHub and paste them in your terminal within your local repository.
+    <figure markdown>
+      ![how local branch](../../../assets/terminal_branch_create.png){ width="40%", align=left }
+    </figure>
 
 [CABLE-repo]: https://github.com/CABLE-LSM/CABLE
