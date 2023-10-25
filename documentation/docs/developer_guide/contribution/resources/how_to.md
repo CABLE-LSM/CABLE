@@ -62,4 +62,6 @@ Since we want to enforce a branch naming convention for CABLE, the simplest is t
       ![how local branch](../../../assets/terminal_branch_create.png){ width="40%", align=left }
     </figure>
 
+## Create a pull request (PR)
+
 [CABLE-repo]: https://github.com/CABLE-LSM/CABLE
