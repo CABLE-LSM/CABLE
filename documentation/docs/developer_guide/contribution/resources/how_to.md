@@ -64,4 +64,21 @@ Since we want to enforce a branch naming convention for CABLE, the simplest is t
 
 ## Create a pull request (PR)
 
+Once you push at least one commit to a new branch, you can create a pull request with the following steps:
+
+1. Click New pull request:
+    <figure markdown>
+      ![how start pr](../../../assets/start_pr.png){ width="90%", align=right }
+    </figure>
+
+2. Check the branches are correct and continue
+    <figure markdown>
+      ![how check branches pr](../../../assets/check_branch_pr.png){ width="90%", align=right }
+    </figure>
+
+3. Fill the description as best you can. The CABLE pull requests will come with a template to guide you through the information needed. The description and the title are editable at any time. It is often impossible to give the whole description at the start of the PR.
+    <figure markdown>
+      ![how describe pr](../../../assets/describe_pr.png){ width="90%", align=right }
+    </figure>
+
 [CABLE-repo]: https://github.com/CABLE-LSM/CABLE
