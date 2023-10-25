@@ -1,5 +1,9 @@
 # Contribution guidelines
 
+!!! warning "Instructions for contribution to CABLE main releases only"
+
+    These instructions are only for modifications that will come into a future CABLE release. If you need to modify the source code but do not intend to contribute these changes back, please follow the instructions for [the sensitivity experiments][sensitivity]. If you believe your use case needs to be handled differently, feel free to open an Issue to discuss the best approach.
+
 All new contributors are encouraged to read through these guidelines before working on any development work. All contributors should refer to these guidelines if they have questions on the contribution process.
 
 These guidelines are written from the perspective of a new contributor to CABLE wanting to start their first development. Notes are added when guidelines for subsequent contributions differ.
@@ -44,3 +48,5 @@ Here is a flowchart explaining how the various steps of the contribution workflo
 
 [git-training]: https://access-nri.github.io/Training/HowTos/GitAndGitHub/
 [doc-guidelines]: ../documentation_guidelines/index.md
+[sensitivity]: ../../how-to/sensitivity_exp.md
+[cheatsheet]: ../documentation_guidelines/cheat_sheets.md
