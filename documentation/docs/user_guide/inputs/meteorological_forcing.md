@@ -17,7 +17,7 @@ Meteorological variables that conform to the ALMA standard can have:
 - an x-y grid with 3 dimensions (x,y,t) or 4 dimensions (x,y,z,t), or
 - a compressed land-only grid of 2 dimensions (land, t)
 
-For the x-y grid, an "`x`" and a "`y`" dimension variable must be present, even if the simulation is only a single site/gridpoint. Additionally, single precision variables named "`latitude`" and "`longitude`" (or "`nav_lat`" and "`nav_lon`" if using ALMA formatting), both dependent on the x and y dimensions only, must be present. Both sea and land points may be included by using an integer mask(x,y) variable; a value of 1 implies a land gridpoint, anything else is assumed to be ocean.
+For the x-y grid, an `x` and a `y` dimension variable must be present, even if the simulation is only a single site/gridpoint. Additionally, single precision variables named `latitude` and `longitude` (or `nav_lat` and `nav_lon` if using ALMA formatting), both dependent on the x and y dimensions only, must be present. Both sea and land points may be included by using an integer `mask(x,y)` variable; a value of 1 implies a land gridpoint, anything else is assumed to be ocean.
 
 For the single dimension land-only “compression by gathering” grid (see [here](http://www.lmd.jussieu.fr/~polcher/ALMA/dataformats.html)), a single spatial dimension is used.
 An example of the NetCDF header from such a file is shown below:
@@ -80,12 +80,12 @@ Note that the number of points simulated by offline CABLE is not specified in th
 ### Optional variables
 
 | Name        | Description | Units |
-|-------------|-----------------------------------------------------------------------------------------------------|---------------------|
-| `LWdown`    | Surface incident longwave radiation (can be synthesised from `Tair`)                                | \( W \dot m^{-2} \) |
-| `PSurf`     | Surface air pressure (can be estimated at a fixed value based on Tair and an "`elevation`" variable | \( Pa \)            |
-| `elevation` | Surface elevation (required if PSurf is not present)                                                | \( m \)             |
-| `Snowf`     | Snowfall (assumed to be included in Rainf if not present)                                           | \( mm s^{-1} \)     |
-| `CO2air`    | CO$_2$ concentration (assumes a fixed value, determined in the `cable.nml` namelist file)           | \( ppm \)           |
+|-------------|-----------------------------------------------------------------------------------------------------|-----------------------|
+| `LWdown`    | Surface incident longwave radiation (can be synthesised from `Tair`)                                | \( W \cdot m^{-2} \)  |
+| `PSurf`     | Surface air pressure (can be estimated at a fixed value based on Tair and an "`elevation`" variable | \( Pa \)              |
+| `elevation` | Surface elevation (required if `PSurf` is not present)                                                | \( m \)               |
+| `Snowf`     | Snowfall (assumed to be included in `Rainf` if not present)                                           | \( mm \cdot s^{-1} \) |
+| `CO2air`    | CO$_2$ concentration (assumes a fixed value, determined in the `cable.nml` namelist file)           | \( ppm \)             |
 
 ### Site specific parameters
 
@@ -109,11 +109,11 @@ All variables must have a "units" string attribute and the data must be in the c
 Meteorological input data must be continuous in time and have regular intervals.
 
 CABLE's running period is deduced from the time period of the meteorolocal forcing data.
-The time variables units attribute is of the form "`seconds since <reference_time>`", where the reference time can be any date on or before the starting date (e.g. "`2001-02-22 00:00:00`").
-For example, the first value of the "`time`" variable may be 86400, in which case the actual start time might be 2001-02-22 00:00:00 + 86400 seconds; i.e. 2001-02-23 00:00:00.
+The time variables units attribute is of the form `seconds since <reference_time>`, where the reference time can be any date on or before the starting date (e.g. `2001-02-22 00:00:00`).
+For example, the first value of the `time` variable may be 86400, in which case the actual start time might be 2001-02-22 00:00:00 + 86400 seconds; i.e. 2001-02-23 00:00:00.
 
-The "`time`" values for regional or global simulations is assumed to be GMT, while the value for single site/grid cell simulations is assumed to be "local".
-Single site simulation "`time`" values will be read as GMT if and only if a "`coordinate`" attribute is present for the "`time`" variable and set to be "GMT".
+The `time` values for regional or global simulations is assumed to be GMT, while the value for single site/grid cell simulations is assumed to be "local".
+Single site simulation `time` values will be read as GMT if and only if a `coordinate` attribute is present for the `time` variable and set to be "GMT".
 This time coordinate system will be reported in the log file.
 
 CABLE’s time step size is calculated from the first two values of the time variable, and the run length of the simulation is decided by the length of this same variable.
