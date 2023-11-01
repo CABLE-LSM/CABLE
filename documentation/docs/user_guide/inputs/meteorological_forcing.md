@@ -6,7 +6,7 @@ The filename is set using the CABLE namelist variable `filename%met`.
 The global offline simulations use multiple met files, one for each meteorological variable recorded in compressed grid method.
 The data must be in NetCDF format with the correct units, broadly conforming to the [ALMA](https://web.lmd.jussieu.fr/~polcher/ALMA/convention_output_3.html) standard.
 
-An example input file is provided with the CABLE-AUX release or can can be found at the [NCI THREDDS server](https://geonetwork.nci.org.au/geonetwork/srv/eng/catalog.search#/metadata/f7075_4625_2374_0846).
+An example input file can can be found at the [NCI THREDDS server](https://geonetwork.nci.org.au/geonetwork/srv/eng/catalog.search#/metadata/f7075_4625_2374_0846).
 
 ## Model configuration and grid
 
