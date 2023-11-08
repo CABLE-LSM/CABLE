@@ -5,7 +5,8 @@ After planning for the work, we enter the stage where it is time to implement th
 This is a diagram view of how this stage proceed:
 
 ```mermaid
-   flowchart LR
+   
+   flowchart TB
 
       %% Define all the nodes first
       clone[Clone repository]:::uniq ;
@@ -52,7 +53,7 @@ If you are a member of the CABLE-LSM organisation on GitHub, you can simply **[c
 
 Once you decide to start on an issue, you need two actions on GitHub CABLE's repository:
 
-1. **[Assign yourself][assign_issue] to the issue.** This indicates to the community you are actively working on the issue. You do not need to be the creator of the issue to assign yourself an issue. Feel free to work on issues highlighten by others.
+1. **[Assign yourself][assign_issue] to the issue.** This indicates to the community you are actively working on the issue. You do not need to be the creator of the issue to assign yourself an issue. Feel free to work on issues raised by others.
 2. **[Create a branch][create_branch]** on the repository for you to work on. This allows you to isolate your work from others' work, thus controlling the changes made to the code in your branch.
 
 !!! warning "Branch naming convention"
