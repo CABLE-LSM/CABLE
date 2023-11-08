@@ -47,14 +47,14 @@ This is a diagram view of how this stage proceed:
 
     You only need to clone the repository on your work machine the first time you work on a development for CABLE. The subsequent times, you can work from the same copy of the repository. To learn more how to prepare for new work after finishing some contribution, please refer to the final steps documentation.
 
-If you are a member of the CABLE-LSM organisation on GitHub, you can simply **[clone the repository][how_to_clone] locally**. You do not need to create a fork of the GitHub repository. To become a member of the CABLE-LSM organisation, please reply on [this issue][new_member]
+If you are a member of the CABLE-LSM organisation on GitHub, you can simply **[clone the repository locally][how_to_clone]**. You do not need to create a fork of the GitHub repository. To become a member of the CABLE-LSM organisation, please reply on [this issue][new_member]
 
 ## Create a branch for your issue
 
 Once you decide to start on an issue, you need two actions on GitHub CABLE's repository:
 
-1. **[Assign yourself][assign_issue] to the issue.** This indicates to the community you are actively working on the issue. You do not need to be the creator of the issue to assign yourself an issue. Feel free to work on issues raised by others.
-2. **[Create a branch][create_branch]** on the repository for you to work on. This allows you to isolate your work from others' work, thus controlling the changes made to the code in your branch.
+1. **[Assign yourself to the issue.][assign_issue]** This indicates to the community you are actively working on the issue. You do not need to be the creator of the issue to assign yourself an issue. Feel free to work on issues raised by others.
+2. **[Create a branch][create_branch]** on the repository for you to work on. This allows you to isolate your work from others' work, thus controlling the changes made to the code in your branch. We recommend you create the branch from the issue page on GitHub (see the details linked previously).
 
 !!! warning "Branch naming convention"
 
@@ -74,18 +74,19 @@ Once you decide to start on an issue, you need two actions on GitHub CABLE's rep
 It is now time for you to start working on CABLE and its documentation. Here are a few considerations and advice to consider during your coding work:
 
 1. Follow [**CABLE's coding standards**][coding_standards] for all new work.
-2. **Implement new features within a new namelist option.** New features should be turned off by default. All new namelist options will require updates to the documentation.
-3. **Document your additions/modifications** to the code as you go along, according to the [documentation guidelines][doc_guidelines]. Keep in mind the science needs to be documented within the source code using FORD. Modifications to the User Guide are also done within this CABLE repository and are done using Markdown formatting. Consider being a good citizen by adding more documentation to existing parts of the code if you can!
-4. **Keep every commit small.** **Write meaningful commit messages** about what you want to achieve rather than a description of the change. The committed code itself is the description of the change and is often more precise than you can be. (see examples after)
-5. **Reference the issue number (format: `#<number>`) in each commit message.** Do not put it at the start of the message since `#` is a comment in shell scripting. (see examples after)
-6. **Push your work to the GitHub repository frequently.** For periods of active code development, this could happen daily or weekly. Pushing after each commit is also acceptable. It provides you with:
+2. **Only commit source code and documentation files.** Files to run CABLE should not be committed to the repository. If you want to save a specific configuration for running CABLE or a running script etc., the best option is to save these in a separate repository on GitHub so it can be shared easily.
+3. **Implement new features within a new namelist option.** New features should be turned off by default. All new namelist options will require updates to the documentation.
+4. **Document your additions/modifications** to the code as you go along, according to the [documentation guidelines][doc_guidelines]. Keep in mind the science needs to be documented within the source code using FORD. Modifications to the User Guide are also done within this CABLE repository and are done using Markdown formatting. Consider being a good citizen by adding more documentation to existing parts of the code if you can!
+5. **Keep every commit small.** **Write meaningful commit messages** about what you want to achieve rather than a description of the change. The committed code itself is the description of the change and is often more precise than you can be. (see examples after)
+6. **Reference the issue number (format: `#<number>`) in each commit message.** Do not put it at the start of the message since `#` is a comment in shell scripting. (see examples after)
+7. **Push your work to the GitHub repository frequently.** For periods of active code development, this could happen daily or weekly. Pushing after each commit is also acceptable. It provides you with:
     1. a backup
     2. the possibility to work from different computers
     3. easy collaboration as any CABLE developer can access an up-to-date version of your branch right away
     4. a platform for getting support from the CABLE maintainers (see [The Pull Request: your communication centre](#the-pull-request-your-communication-centre))
-7. **Keep your branch current with the released versions of CABLE.** You are expected to merge into your branch the released versions of CABLE. We will only accept contributions from branches that are up-to-date with the latest released version of CABLE. An exception will be made for legacy work that as start a significant amount of time before the transition to git and GitHub.
-8. **[Create a Pull Request (PR)][pr_create] on GitHub early on**, ideally after the first commit on your branch. PRs allow the community to know what is being worked on. Keep your PR up-to-date by pushing your work frequently to GitHub.
-9. **Test frequently** (see [Testing your work][testing]).
+8. **Keep your branch current with the released versions of CABLE.** You are expected to merge into your branch the released versions of CABLE. We will only accept contributions from branches that are up-to-date with the latest released version of CABLE. An exception will be made for legacy work, i.e. work that started a significant amount of time before the transition to git and GitHub.
+9. **[Create a Pull Request (PR) on GitHub early on][pr_create]**, ideally after the first commit on your branch. PRs allow the community to know what is being worked on. Keep your PR up-to-date by pushing your work frequently to GitHub.
+10. **Test frequently** (see [Testing your work][testing]).
 
 !!! tip "Examples of commit messages"
     Let's say you modified the value of the parameter, `my_param`, from 0.5 to 0.9 because you have read some paper that has proven the updated value is better.
