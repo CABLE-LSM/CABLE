@@ -464,13 +464,18 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
 
         YEAR: DO YYYY= CABLE_USER%YearStart,  CABLE_USER%YearEnd
            CurYear = YYYY
-           IF ( leaps .AND. IS_LEAPYEAR( YYYY ) ) THEN
-              LOY = 366
+
+           !ccc Set "calendar" for netcdf time attribute and 
+           ! number of days in the year
+           calendar = "noleap"
+           LOY = 365
+           IF ( leaps ) THEN
               calendar = "standard"
-           ELSE
-              LOY = 365
-              calendar = "noleap"
-           ENDIF
+           END IF
+           IF ( IS_LEAPYEAR( YYYY ) ) THEN
+            LOY = 366
+           END IF
+
            ! Check for gswp run
            IF ( TRIM(cable_user%MetType) .EQ. 'gswp' ) THEN
               ncciy = CurYear
@@ -503,11 +508,12 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
                  kend	   = ktauday * LOY
               ENDIF
 
-              IF (leaps) THEN
-                 calendar = "standard"
-              ELSE
-                 calendar = "noleap"
-              ENDIF
+              !ccc Redundant. Already set before the condition on MetType
+            !  IF (leaps) THEN
+            !     calendar = "standard"
+            !  ELSE
+            !     calendar = "noleap"
+            !  ENDIF
 
            ELSE IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
               ! PLUME experiment setup using WATCH
@@ -530,11 +536,12 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
                  str3 = ADJUSTL(str3)
                  timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//" &
                       00:00"
-                 IF (leaps) THEN
-                    calendar = "standard"
-                 ELSE
-                    calendar = "noleap"
-                 ENDIF
+                 !ccc Redundant. Already set before the condition on MetType
+               !   IF (leaps) THEN
+               !      calendar = "standard"
+               !   ELSE
+               !      calendar = "noleap"
+               !   ENDIF
 
               ENDIF
               IF ( .NOT. PLUME%LeapYears ) LOY = 365
@@ -582,9 +589,10 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
                  calendar = 'standard'
 
               ENDIF
-              LOY = 365
+            !ccc Redundant. Already set before the condition on MetType
+            !   LOY = 365
 
-              IF (IS_LEAPYEAR(CurYear)) LOY = 366
+            !   IF (IS_LEAPYEAR(CurYear)) LOY = 366
               kend = NINT(24.0*3600.0/dels) * LOY
               ! get koffset to add to time-step of sitemet
               IF (TRIM(site%RunType)=='historical') THEN

@@ -500,10 +500,9 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
 
           CurYear = YYYY
 
+          LOY = 365
           IF ( leaps .AND. IS_LEAPYEAR( YYYY ) ) THEN
              LOY = 366
-          ELSE
-             LOY = 365
           ENDIF
 
           IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
@@ -562,13 +561,6 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
              WRITE(*,*) 'Looking for global offline run info.'
              CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
 
-             !ccc Remove the dependence on leap-year here. We want the same calendar
-             ! attribute in the netcdf files for all the years of a simulation.
-             IF ( leaps ) THEN
-                calendar = "standard"
-             ELSE
-                calendar = "noleap"
-             ENDIF
 
            ELSE IF ( globalMetfile%l_gpcc ) THEN
              ncciy = CurYear
@@ -576,6 +568,14 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
              CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
 
           ENDIF
+
+          !ccc Remove the dependence on leap-year here. We want the same calendar
+          ! attribute in the netcdf files for all the years of a simulation.
+          calendar = "noleap"
+          IF ( leaps ) THEN
+             calendar = "standard"
+          ENDIF
+
 
           ! somethings (e.g. CASA-CNP) only need to be done once per day
           ktauday=INT(24.0*3600.0/dels)
