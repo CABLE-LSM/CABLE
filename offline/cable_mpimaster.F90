@@ -562,7 +562,9 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
              WRITE(*,*) 'Looking for global offline run info.'
              CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
 
-             IF ( leaps .AND. IS_LEAPYEAR( YYYY ) ) THEN
+             !ccc Remove the dependence on leap-year here. We want the same calendar
+             ! attribute in the netcdf files for all the years of a simulation.
+             IF ( leaps ) THEN
                 calendar = "standard"
              ELSE
                 calendar = "noleap"
