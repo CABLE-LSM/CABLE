@@ -68,7 +68,7 @@ x = landGrid(j) - y*xdimsize
 y = y + 1
 ```
 
-From (`cable_input.F90`)[https://cable.readthedocs.io/en/latest/api/sourcefile/cable_input.f90.html#ln-633], where landGrid is the `land` variable above.
+From (`cable_input.F90`)[https://cable.readthedocs.io/en/latest/api/sourcefile/cable_input.f90.html#ln-633], where `landGrid` is the `land` variable above.
 
 ## Variables
 
