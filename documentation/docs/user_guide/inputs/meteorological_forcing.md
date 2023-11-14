@@ -60,7 +60,7 @@ variables:
         time:time_origin = " 1949-JAN-01 00:00:00" ;
 ```
 
-Most of the variables will be structured as SWdown is above. The relationship between “land” and “x” and “y” inside the CABLE netcdf driver is:
+Most of the variables will be structured as SWdown is above. The relationship between `land` and `x` and `y` inside the CABLE netcdf driver is:
 
 ```fortran
 y = INT((landGrid(j)-1)/xdimsize)
@@ -68,6 +68,7 @@ x = landGrid(j) - y*xdimsize
 y = y + 1
 ```
 
+From (`cable_input.F90`)[https://cable.readthedocs.io/en/latest/api/sourcefile/cable_input.f90.html#ln-633], where landGrid is the `land` variable above.
 
 ## Variables
 
