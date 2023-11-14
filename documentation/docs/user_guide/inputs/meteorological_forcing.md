@@ -3,23 +3,29 @@
 The meteorological forcing is a collection of meteorological variables that need to be read into CABLE's `met` arrays when CABLE is run in offline (uncoupled) mode.
 
 The filename is set using the CABLE namelist variable `filename%met`.
-The global offline simulations use multiple met files, one for each meteorological variable recorded in compressed grid method.
+The global offline simulations use multiple met files, one for each meteorological variable.
 The data must be in NetCDF format with the correct units, broadly conforming to the [ALMA](https://web.lmd.jussieu.fr/~polcher/ALMA/convention_output_3.html) standard.
 
 An example input file can can be found at the [NCI THREDDS server](https://geonetwork.nci.org.au/geonetwork/srv/eng/catalog.search#/metadata/f7075_4625_2374_0846).
+!!! note "Number of land points in the simulation"
 
+    The number of points simulated by offline CABLE is not specified in the code but is determined using the number of land points found in the meteorological forcing file. CABLE will consider the number of patches to determine the number of simulated points according to the [`patchfrac` variable](#optional-variables).
 ## Model configuration and grid
 
-Site or regional/global simulations can use either an x-y grid input file or a land only compressed grid-type input file.
-
-Meteorological variables that conform to the ALMA standard can have:
+Site or regional/global meteorological input file(s) need to follow the ALMA convention. The grid in the input file(s) can either be:
 
 - an x-y grid with 3 dimensions (x,y,t) or 4 dimensions (x,y,z,t), or
 - a compressed land-only grid of 2 dimensions (land, t)
 
-For the x-y grid, an `x` and a `y` dimension variable must be present, even if the simulation is only a single site/gridpoint. Additionally, single precision variables named `latitude` and `longitude` (or `nav_lat` and `nav_lon` if using ALMA formatting), both dependent on the x and y dimensions only, must be present. Both sea and land points may be included by using an integer `mask(x,y)` variable; a value of 1 implies a land gridpoint, anything else is assumed to be ocean.
+### x-y grid
 
-For the single dimension land-only “compression by gathering” grid (see [here](http://www.lmd.jussieu.fr/~polcher/ALMA/dataformats.html)), a single spatial dimension is used.
+An `x` and a `y` dimension variable must be present, even if the simulation is only a single site/gridpoint. Additionally, single precision variables named `latitude` and `longitude` (or `nav_lat` and `nav_lon` if using ALMA formatting), both dependent on the x and y dimensions only, must be present. 
+
+If both sea and land points are present, an integer `mask(x,y)` variable must be provided. A value of 1 for the mask implies a land gridpoint, anything else is assumed to be ocean.
+
+### Land-only compressed grid
+
+More information on this format is available [here](http://www.lmd.jussieu.fr/~polcher/ALMA/dataformats.html). In this grid, a single spatial dimension is used.
 An example of the NetCDF header from such a file is shown below:
 
 ```
@@ -62,7 +68,6 @@ x = landGrid(j) - y*xdimsize
 y = y + 1
 ```
 
-Note that the number of points simulated by offline CABLE is not specified in the code, but determined here using the number of land points found in the met file. If a patch dimension exists, the `patchfrac` variable gives the fraction of each vegetation patch in each land grid point. CABLE counts the number of "active" patches (patches with non-zero `patchfrac`) as the number of points for simulation.
 
 ## Variables
 
@@ -75,7 +80,7 @@ Note that the number of points simulated by offline CABLE is not specified in th
 | `Tair`   | Surface incident shortwave radiation      | \( K \)                |
 | `Qair`   | Near surface specific humidity            | \( kg \cdot kg^{-1} \) |
 | `Rainf`  | Rainfall rate                             | \( mm \cdot s^{-1} \)  |
-| `Wind` or `Wind_E` and `Wind_E` | Scalar wind speed  | \( m \cdot s^{-1} \)   |
+| `Wind` or `Wind_E` and `Wind_N` | Scalar wind speed  | \( m \cdot s^{-1} \)   |
 
 ### Optional variables
 
@@ -86,6 +91,7 @@ Note that the number of points simulated by offline CABLE is not specified in th
 | `elevation` | Surface elevation (required if `PSurf` is not present)                                                | \( m \)               |
 | `Snowf`     | Snowfall (assumed to be included in `Rainf` if not present)                                           | \( mm \cdot s^{-1} \) |
 | `CO2air`    | CO$_2$ concentration (assumes a fixed value, determined in the `cable.nml` namelist file)           | \( ppm \)             |
+| `patchfrac` | The fraction of each vegetation patch in each land grid point. CABLE counts the number of "active" patches (patches with non-zero `patchfrac`) as the number of points for simulation. | \( - \) |
 
 ### Site specific parameters
 
