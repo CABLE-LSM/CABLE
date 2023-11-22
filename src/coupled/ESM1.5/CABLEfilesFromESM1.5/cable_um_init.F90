@@ -59,12 +59,10 @@ SUBROUTINE interface_UM_data( row_length, rows, land_pts, ntiles,              &
                               RESP_S_ACC, iday )
 
    USE cable_um_init_subrs_mod          ! where most subrs called from here reside
-USE cable_soil_params_mod, ONLY : cable_soil_params
-USE cable_pft_params_mod, ONLY : cable_pft_params
    
    USE cable_um_tech_mod,   ONLY :                                             &
       alloc_um_interface_types,  & ! mem. allocation subr (um1, kblum%) 
-      um1,                       & ! um1% type UM basics 4 convenience
+      um1,soil,                  & ! um1% type UM basics 4 convenience
       kblum_veg                    ! kblum_veg% reset UM veg vars 4 CABLE use
 
    USE cable_common_module, ONLY :                                             &
@@ -76,13 +74,15 @@ USE cable_pft_params_mod, ONLY : cable_pft_params
    USE cable_def_types_mod, ONLY : mp, mland ! number of points CABLE works on
 
    USE casa_um_inout_mod
+  ! veg and soil parameters READ subroutine  
+  USE cable_pft_params_mod,   ONLY: cable_pft_params
+  USE cable_soil_params_mod,  ONLY: cable_soil_params
 !CBL3
 !draft1!USE cbl_soil_snow_init_special_module, ONLY: spec_init_soil_snow
 USE cable_common_module, ONLY : kwidth_gl 
 USE cable_def_types_mod, ONLY : ms
-USE cable_um_tech_mod,   ONLY : ssnow, canopy, met, bal, veg, soil
+USE cable_um_tech_mod,   ONLY : ssnow, canopy, met, bal, veg
 USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
-USE cbl_ssnow_data_mod, ONLY: heat_cap_lower_limit
 
    !-------------------------------------------------------------------------- 
    !--- INPUT ARGS FROM cable_explicit_driver() ------------------------------
@@ -247,6 +247,8 @@ USE cbl_ssnow_data_mod, ONLY: heat_cap_lower_limit
 !CBL3
 REAL, DIMENSION(land_pts, ntiles) ::  clobbered_htveg
 
+soil%heat_cap_lower_limit = 0.01
+
       !---------------------------------------------------------------------!
       !--- code to create type um1% conaining UM basic vars describing    --! 
       !--- dimensions etc, which are used frequently throughout interfaces. !
@@ -344,7 +346,9 @@ CALL initialize_veg( kblum_veg%htveg , land_pts, npft, ntiles, sm_levels, mp,   
 
  
       IF( first_call ) THEN
-!CBL3call spec_init_soil_snow( real(kwidth_gl), soil_cbl, ssnow_cbl, canopy_cbl, met_cbl, bal_cbl, veg_cbl,heat_cap_loower_limit)
+!!we have properly initz-ed ssnow
+!!call spec_init_soil_snow( real(kwidth_gl), soil, ssnow, canopy, met, bal, veg, &
+!!        soil%heat_cap_lower_limit )
          CALL init_bgc_vars() 
          CALL init_sumflux_zero() 
 
