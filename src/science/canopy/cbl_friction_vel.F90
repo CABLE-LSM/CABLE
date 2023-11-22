@@ -17,7 +17,7 @@ PRIVATE
 CONTAINS
 
 SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
-     zetar, zref_uv, zref_tq, z0m, ua )
+                             zetar, zref_uv, zref_tq, z0m, ua )
   !*## Purpose
   !
   ! This SUBROUTINE evaluates the value of the friction velocity \(u_*\) as used

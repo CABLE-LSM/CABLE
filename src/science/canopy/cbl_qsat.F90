@@ -13,7 +13,7 @@ PUBLIC qsatfjh2
 
 CONTAINS
 
-  SUBROUTINE qsatfjh(mp, var, CRMH2o, Crmair, CTETENA, CTETENB, CTETENC, tair,pmb)
+SUBROUTINE qsatfjh(mp, var, CRMH2o, Crmair, CTETENA, CTETENB, CTETENC, tair,pmb)
     !*## Purpose
     !
     ! This SUBROUTINE evaluates the specific humidity (water vapour mixing ratio)
@@ -30,25 +30,29 @@ CONTAINS
     !
     ! [Murray F. W., 1967](https://doi.org/10.1175/1520-0450(1967)006%3C0203:OTCOSV%3E2.0.CO;2)
 
-IMPLICIT  NONE   
-integer :: mp                        !! size of array of land points (-)
-REAL, INTENT(OUT) :: var(mp)         !! specific humidity at saturation (kgkg\(^{-1}\))
-REAL :: CRMH2o, Crmair, CTETENA, CTETENB, CTETENC
-REAL, INTENT(IN) ::                                          &
-  tair(mp),                        & !! air temperature (\(^{\circ}\)C)
-  pmb(mp)                            !! surface air pressure (hPa)
+IMPLICIT NONE
 
+INTEGER, INTENT(IN) :: mp               !! size of array of land points (-)
+REAL, INTENT(IN) :: CRMH2O, CRMAIR
+REAL, INTENT(IN) :: CTETENA, CTETENB, CTETENC
+REAL, INTENT(IN) :: tair(mp)            !! air temperature (\(^{\circ}\)C)
+REAL, INTENT(IN) :: pmb(mp)             ! surface air pressure (hPa)
+
+REAL, INTENT(OUT) :: var(mp)            !! specific humidity at saturation (kgkg\(^{-1}\))
+
+!local vars
 INTEGER :: j
 
 DO j=1,mp
 
-  var(j) = (CRMH2o/Crmair) * (CTETENA*EXP(CTETENB*tair(j)/(CTETENC+tair(j))))  &
+  var(j) = (CRMH2o/Crmair) * (CTETENA*EXP(CTETENB*tair(j) /(CTETENC+tair(j))))    &
           / pmb(j)
 ENDDO
 
+RETURN
 END SUBROUTINE qsatfjh
 
-
+!==============================================================================
 
 SUBROUTINE qsatfjh2( var, CRMH2o, Crmair, CTETENA, CTETENB, CTETENC, tair,pmb)
   !*## Purpose
@@ -66,17 +70,18 @@ SUBROUTINE qsatfjh2( var, CRMH2o, Crmair, CTETENA, CTETENB, CTETENC, tair,pmb)
   !## Reference
   !
   ! [Murray F. W., 1967](https://doi.org/10.1175/1520-0450(1967)006%3C0203:OTCOSV%3E2.0.CO;2)
-  
-REAL :: CRMH2o, Crmair, CTETENA, CTETENB, CTETENC
-  REAL, INTENT(IN) ::                                                         &
-       tair,         & !! air temperature (\(^{\circ}\)C),
-       pmb             !! surface air pressure (hPa)
+IMPLICIT NONE
 
-  REAL, INTENT(OUT) ::                                                        &
-       var             !! specific humidity at saturation (kgkg\(^{-1}\))
+REAL, INTENT(IN) :: CRMH2O, CRMAIR
+REAL, INTENT(IN) :: CTETENA, CTETENB, CTETENC
+REAL, INTENT(IN) :: tair            !! air temperature (\(^{\circ}\)C),
+REAL, INTENT(IN) :: pmb             !! surface air pressure (hPa)
 
-  var = (CRMH2o/Crmair) * (CTETENA*EXP(CTETENB*tair/(CTETENC+tair))) / pmb
+REAL, INTENT(OUT) :: var            !! specific humidity at saturation (kgkg\(^{-1}\))
 
+var = (CRMH2o/Crmair) * (CTETENA*EXP(CTETENB*tair/(CTETENC+tair))) / pmb
+
+RETURN
 END SUBROUTINE qsatfjh2
 
 END MODULE cbl_qsat_module

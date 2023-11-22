@@ -18,6 +18,7 @@ SUBROUTINE Latent_heat_flux( mp, CTFRZ, dels, soil_zse, soil_swilt,           &
                              ssnow_pudsto, ssnow_pudsmx, ssnow_potev,          &
                              ssnow_wetfac, ssnow_evapfbl, ssnow_cls,          & 
                              ssnow_tss, canopy_fes, canopy_fess, canopy_fesp  )
+
   !*## Purpose
   !
   ! This SUBROUTINE converts the previously evaluated rate of potential
