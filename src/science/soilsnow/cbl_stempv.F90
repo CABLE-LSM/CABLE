@@ -85,7 +85,6 @@ REAL :: heat_cap_lower_limit(mp,ms)
 
        wblfsp = ssnow%wblf(:,k)
 
-      !esm15 xx = soil%css * soil%rhosoil
        xx = heat_cap_lower_limit(:,k)
 
        ssnow%gammzz(:,k) = MAX( heat_cap_lower_limit(:,k), &

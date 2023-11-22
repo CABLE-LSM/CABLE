@@ -20,6 +20,4 @@ USE cable_common_module, ONLY: cable_user,snow_ccnsw,snmin,&
 
 IMPLICIT NONE
 
-REAL, ALLOCATABLE :: heat_cap_lower_limit(:,:)
-
 END MODULE cbl_ssnow_data_mod
