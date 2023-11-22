@@ -2,7 +2,7 @@ site_name: CABLE Docs
 
 # Needed to generate the canonical_url for each pages that are 
 # then used to create the sitemap for search engine indexing
-site_url: https://cable-lsm.github.io/CABLE/
+site_url: https://cable.readthedocs.io/en/latest/
 # Git repository
 repo_url: https://github.com/CABLE-LSM/CABLE
 repo_name: CABLE
@@ -32,6 +32,9 @@ theme:
     - navigation.tabs
     - navigation.tabs.sticky
 
+extra_css:
+  - css/cable.css
+
 plugins:
   - git-revision-date-localized:
       type: date
@@ -44,7 +47,19 @@ markdown_extensions:
       generic: true
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
+  - def_list
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - attr_list
+  - md_in_html
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
 
 extra_javascript:
   - javascripts/mathjax.js
@@ -68,6 +83,8 @@ nav:
       - cable.nml options: user_guide/inputs/cable_nml.md
       - pft_params.nml options: user_guide/inputs/pft_params_nml.md
       - cable_soilparm.nml options: user_guide/inputs/cable_soilparm_nml.md
+      - pftlookup.csv table: user_guide/inputs/pftlookup_csv.md
+      - Meteorological forcing: user_guide/inputs/meteorological_forcing.md
     - Outputs description: 
       - user_guide/outputs/index.md
     - Existing configurations: user_guide/configurations/config.md
@@ -78,13 +95,24 @@ nav:
       - Snow: user_guide/science/snow.md
       - Groundwater: user_guide/science/groundwater.md
       - CASA: user_guide/science/CASA.md
-  - POP-TRENDY: POP-TRENDY/index.md
+    - Obsolete and deprecated features: user_guide/obsolete_and_deprecated_features/obsolete_and_deprecated_features.md
   - Developer Guide:
-    - CABLE's Contribution guidelines: developer_guide/contribution.md
+    - developer_guide/index.md
+    - Contribution guidelines:
+      - developer_guide/contribution/index.md
+      - developer_guide/contribution/plan_your_work.md
+      - developer_guide/contribution/develop_your_idea.md
+      - developer_guide/contribution/testing.md
+      - developer_guide/contribution/resources/how_to.md
+    - Documentation guidelines: 
+      - developer_guide/documentation_guidelines/index.md
+      - Scientific documentation: developer_guide/documentation_guidelines/science_doc.md
+      - Cheat Sheets: developer_guide/documentation_guidelines/cheat_sheets.md
+    - Review guidelines: developer_guide/review_guide.md
     - Coding standards: developer_guide/coding_standards.md
-    - CABLE's release process: developer_guide/release.md
+    - CABLE's release process: developer_guide/release_process.md
     - API documentation: developer_guide/api.md
-#    - CABLE's source documentation:
+    - Obsolete and deprecated features: developer_guide/obsolete_and_deprecated_features/obsolete_and_deprecated_features.md
   - How-to:
     - How to prepare fields for CABLE: how-to/input_fields.md
     - How to work with 1D arrays: how-to/1D.md

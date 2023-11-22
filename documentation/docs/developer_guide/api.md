@@ -1,3 +1,3 @@
 The API documentation for CABLE is hosted [here][API].
 
-[API]: https://cable-lsm.github.io/CABLE/api/
+[API]: https://cable.readthedocs.io/en/latest/api/

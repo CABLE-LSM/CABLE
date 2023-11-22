@@ -2,7 +2,7 @@
 project: GW
 author: CABLE community
 src_dir: ../src_gw
-output_dir: site/gw/api
+output_dir: docs/gw/api
 coloured_edges: true
 preprocess: false
 display: public
