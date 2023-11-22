@@ -1,5 +1,4 @@
-
-!#define UM_BUILD YES
+!#define ESM15 YES
 
 MODULE biogeochem_mod
 
@@ -18,7 +17,7 @@ USE casadimension
 USE casa_cnp_module
 USE casa_inout_module, ONLY : casa_cnpflux
 USE POP_TYPES,            ONLY: POP_TYPE
-#ifdef UM_BUILD 
+#ifdef ESM15 
 USE casa_rplant_module, ONLY: casa_rplant 
 #else
 USE casa_rplant_module, ONLY: casa_rplant1 
@@ -63,7 +62,7 @@ IF (cable_user%PHENOLOGY_SWITCH.EQ.'MODIS' .OR. cable_runtime%esm15 ) THEN
        CALL phenology(idoy,veg,phen)
 ENDIF
 CALL avgsoil(veg,soil,casamet)
-#ifdef UM_BUILD 
+#ifdef ESM15 
 CALL casa_rplant(veg,casabiome,casapool,casaflux,casamet,climate)
 #else
 CALL casa_rplant1(veg,casabiome,casapool,casaflux,casamet)

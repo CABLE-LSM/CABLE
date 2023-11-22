@@ -1,6 +1,5 @@
 MODULE cbl_soil_snow_main_module
 
-USE cbl_ssnow_data_mod
 
 IMPLICIT NONE
 
@@ -28,6 +27,7 @@ CONTAINS
   !        ssnow
   SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, bal, veg)
     USE cable_common_module
+USE cbl_ssnow_data_mod
 !called subrs
 USE hydraulic_redistribution_mod, ONLY: hydraulic_redistribution
 USE soilfreeze_mod,               ONLY: soilfreeze
@@ -51,24 +51,22 @@ USE snowdensity_mod,              ONLY: snowDensity
     REAL, DIMENSION(mp) :: snowmlt
     REAL, DIMENSION(mp) :: totwet
     REAL, DIMENSION(mp) :: weting
-    REAL, DIMENSION(mp) :: xx, tgg_old, tggsn_old
-    REAL(r_2), DIMENSION(mp) :: xxx,deltat,sinfil1,sinfil2,sinfil3
+    REAL, DIMENSION(mp) :: xx
+    REAL(r_2), DIMENSION(mp) :: xxx
+    REAL(r_2), DIMENSION(mp) :: deltat,sinfil1,sinfil2,sinfil3
     REAL                :: zsetot
     INTEGER, SAVE :: ktau =0
 REAL :: wbliq(mp,ms)
 
-  IF(.NOT. ALLOCATED(heat_cap_lower_limit)) THEN
-    ALLOCATE( heat_cap_lower_limit(mp,ms) )
-  END IF  
     ktau = ktau +1
-
+  !this is the value it is initialized with in cable_common anyway 
   max_glacier_snowd = 1100.0 ! for ACCESS1.3 onwards. = 50000.0 for ACCESS1.0
 
     zsetot = SUM(soil%zse)
     ssnow%tggav = 0.
     DO k = 1, ms
       ssnow%tggav = ssnow%tggav  + soil%zse(k)*ssnow%tgg(:,k)/zsetot
-      heat_cap_lower_limit(:,k) = MAX( 0.01, soil%css(:) * soil%rhosoil(:) )
+      soil%heat_cap_lower_limit(:,k) = MAX( 0.01, soil%css(:) * soil%rhosoil(:) )
     END DO
 
   IF( cable_runtime%offline .or. cable_runtime%mk3l ) THEN !in um_init for UM
@@ -124,7 +122,7 @@ REAL :: wbliq(mp,ms)
     ! snow aging etc...
     CALL snowl_adjust(dels, ssnow, canopy )
 
-    CALL stempv(dels, canopy, ssnow, soil, heat_cap_lower_limit)
+   CALL stempv(dels, canopy, ssnow, soil, soil%heat_cap_lower_limit )
 
     ssnow%tss =  (1-ssnow%isflag)*ssnow%tgg(:,1) + ssnow%isflag*ssnow%tggsn(:,1)
 
@@ -135,7 +133,7 @@ REAL :: wbliq(mp,ms)
 
     CALL remove_trans(dels, soil, ssnow, canopy, veg)
 
-    CALL  soilfreeze(dels, soil, ssnow,heat_cap_lower_limit )
+   CALL  soilfreeze(dels, soil, ssnow, soil%heat_cap_lower_limit)
 
 
     totwet = canopy%precis + ssnow%smelt
@@ -200,7 +198,6 @@ ENDIF
        ssnow%wbtot = ssnow%wbtot + REAL(ssnow%wb(:,k)*1000.0*soil%zse(k),r_2)
     END DO
 
-    IF( ALLOCATED(heat_cap_lower_limit) ) DEALLOCATE(heat_cap_lower_limit)
 
 RETURN
 END SUBROUTINE soil_snow

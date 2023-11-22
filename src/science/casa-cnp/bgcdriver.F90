@@ -1,4 +1,4 @@
-!# define UM_BUILD YES
+!# define UM_CBL YES
 
 MODULE bgcdriver_mod
 
@@ -19,13 +19,11 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    USE phenvariable
    USE cable_common_module,  ONLY: CurYear, CABLE_USER
    USE TypeDef,              ONLY: i4b, dp
-#  ifndef UM_BUILD
+#  ifndef UM_CBL
    USE POPMODULE,            ONLY: POPStep
-#  endif
-   USE POP_TYPES,            ONLY: POP_TYPE
-#  ifndef UM_BUILD
    USE cable_phenology_module, ONLY: cable_phenology_clim
 #  endif
+   USE POP_TYPES,            ONLY: POP_TYPE
   USE biogeochem_mod, ONLY : biogeochem 
    IMPLICIT NONE
 
@@ -104,7 +102,7 @@ IF ( .NOT. dump_read ) THEN  ! construct casa met and flux inputs from current C
 
          IF ( icycle .GT. 0 ) THEN
 
-#     ifndef UM_BUILD
+#     ifndef UM_CBL
             IF (trim(cable_user%PHENOLOGY_SWITCH)=='climate') THEN
                ! get climate_dependent phenology
                call cable_phenology_clim(veg, climate, phen)

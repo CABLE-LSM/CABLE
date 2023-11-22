@@ -1,3 +1,4 @@
+!#define UM_CBL YES
 !==============================================================================
 ! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
@@ -29,8 +30,7 @@
 !   casa_poolout
 !   casa_cnpflux  (zeros casabal quantites on doy 1 and updates casabal at end of biogeochem)
 !   biogeochem
-!CABLE_LSM:This has to be commented for offline
-!#define UM_BUILD YES
+
 MODULE casa_inout_module
 
 USE casavariable, ONLY : casafile
@@ -109,7 +109,9 @@ CONTAINS
     USE cable_def_types_mod
     USE cable_io_vars_module, ONLY: landpt, patch
     USE cable_common_module, ONLY: cable_user
+#ifndef UM_CBL 
 USE casa_offline_inout_module, ONLY : READ_CASA_RESTART_NC
+#endif
 
     ! end addition (BP may2010)
     IMPLICIT NONE
@@ -211,7 +213,7 @@ USE casa_offline_inout_module, ONLY : READ_CASA_RESTART_NC
 
     IF (initcasa==1) THEN
        IF (.NOT.cable_user%casa_fromzero) THEN
-#ifndef UM_BUILD
+#ifndef UM_CBL 
           CALL READ_CASA_RESTART_NC (  casamet, casapool, casaflux, phen )
 #endif
        ELSE
