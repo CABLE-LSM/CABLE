@@ -60,6 +60,7 @@ MODULE casaparm
   REAL(r_2), PARAMETER :: Q10alloc=2.0
   REAL(r_2), PARAMETER :: ratioNCstrfix = 1.0/150.0
   REAL(r_2), PARAMETER :: ratioNPstrfix = 25.0
+  REAL(r_2), PARAMETER :: ratioPCstrfix = ratioNCstrfix/25.0 !ESM15:casa_landuse
   REAL(r_2), PARAMETER :: fracCbiomass = 0.50
   REAL(r_2), PARAMETER :: tsoilrefc=25.0
   REAL(r_2), PARAMETER :: tkzeroc=273.15

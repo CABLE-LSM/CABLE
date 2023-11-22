@@ -51,6 +51,7 @@ MODULE casadimension
   !  INTEGER, PARAMETER :: icycle=3           ! =1 for C, =2 for C+N; =3 for C+N+P
   INTEGER, PARAMETER :: mstart=1           ! starting time step
   INTEGER, PARAMETER :: mphase=4           ! phen. phases
+  INTEGER, PARAMETER :: mlogmax=4               ! max.woody PFT. ESM1.5:land use
   REAL(r_2),    PARAMETER :: deltcasa=1.0/365.0 ! year
   REAL(r_2),    PARAMETER :: deltpool=1.0       ! pool delt(1day)
 
