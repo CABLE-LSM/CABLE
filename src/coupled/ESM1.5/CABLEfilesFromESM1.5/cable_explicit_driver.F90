@@ -65,7 +65,9 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    
    !--- reads runtime and user switches and reports
    USE cable_um_tech_mod, ONLY : cable_um_runtime_vars, air, bgc, canopy,      &
-                                 met, bal, rad, rough, ssnow, sum_flux, veg, soil
+                                 met, bal, rad, rough, soil, ssnow, sum_flux,  &
+                                 veg, climate 
+   
    !--- vars common to CABLE declared 
    USE cable_common_module, ONLY : cable_runtime, cable_user, ktau_gl,         &
                                    knode_gl, kwidth_gl, kend_gl,               &
@@ -77,7 +79,7 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    !--- subr to call CABLE model
    USE cable_cbm_module, ONLY : cbm
 
-   USE cable_def_types_mod, ONLY : mp, nrb, c1, rhoch, xk
+   USE cable_def_types_mod, ONLY : mp, nrb
 
    !--- include subr called to write data for testing purposes 
    USE casa_um_inout_mod
@@ -309,7 +311,7 @@ integer :: j
 
    !--- initialize cable_runtime% switches 
    cable_runtime%um = .TRUE.
-   cable_runtime%esm15 = .TRUE.
+   cable_runtime%esm15= .TRUE.
    
    !--- basic info from global model passed to cable_common_module 
    !--- vars so don't need to be passed around, just USE _module
@@ -389,13 +391,13 @@ integer :: j
 
    canopy%oldcansto=canopy%cansto
 
-   IF(.NOT. ALLOCATED(c1) ) ALLOCATE( c1(mp,nrb), rhoch(mp,nrb), xk(mp,nrb) )
+
    !---------------------------------------------------------------------!
    !--- real(timestep) width, CABLE types passed to CABLE "engine" as ---!  
    !--- req'd by Mk3L  --------------------------------------------------!
    !---------------------------------------------------------------------!
    CALL cbm( timestep, air, bgc, canopy, met, bal,                             &
-             rad, rough, soil, ssnow, sum_flux, veg )
+             rad, rough, soil, ssnow, sum_flux, veg, climate  )
 
    !---------------------------------------------------------------------!
    !--- pass land-surface quantities calc'd by CABLE in explicit call ---!
@@ -629,6 +631,30 @@ SUBROUTINE cable_expl_unpack( FTL_TILE_CAB, FTL_CAB, FTL_TILE, FQW_TILE,       &
          first_cable_call = .FALSE.
       ENDIF
 
+!!IF(knode_gl==2) THEN 
+!!IF(ktau_gl<11) THEN 
+!!  OPEN(unit=781,FILE="/home/599/jxs599/expl_unpack.txt")
+!!  write(781,*) 'ktau ', ktau_gl
+!!  write(781,*) 'FTL_TILE_CAB, ', SUM( FTL_TILE_CAB)  
+!!  write(781,*) 'FQW_TILE_CAB , ', SUM(FQW_TILE_CAB)  
+!!  write(781,*) 'LE_TILE_CAB, ', SUM(  LE_TILE_CAB)   
+!!  write(781,*) 'FTL_TILE, ', SUM(FTL_TILE)          
+!!  write(781,*) 'FQW_TILE, ', SUM( FQW_TILE)          
+!!  write(781,*) 'TSTAR_TILE, ', SUM(TSTAR_TILE)         
+!!  write(781,*) 'Z0M_TILE, ', SUM(Z0M_TILE)                
+!!  write(781,*) 'U_S_TILE, ', SUM(U_S_TILE)                  
+!!  write(781,*) 'CD_CAB_TILE, ', SUM(CD_CAB_TILE)     
+!!  write(781,*) 'CH_CAB_TILE, ,', SUM(CH_CAB_TILE)     
+!!  write(781,*) 'FRACA, ', SUM(FRACA)                        
+!!  write(781,*) 'RESFT, ', SUM(RESFT)                      
+!!  write(781,*) 'RESFS, ,', SUM(RESFS)                        
+!!  write(781,*) 'RADNET_TILE,, ', SUM(RADNET_TILE )           
+!!  write(781,*) 'RECIP_L_MO_TILE, ', SUM(RECIP_L_MO_TILE)    
+!!  write(781,*) 'EPOT_TILE, ', SUM(EPOT_TILE)                
+!!  write(781,*) ''
+!!ENDIF
+!!ENDIF
+   
 END SUBROUTINE cable_expl_unpack
     
 !============================================================================

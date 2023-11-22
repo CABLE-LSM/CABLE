@@ -30,23 +30,22 @@
 
 MODULE cable_def_types_mod
 
-!cbl3!USE cable_types_mod!,          ONLY: mp, l_tile_pts
+USE cable_canopy_type_mod,    ONLY: canopy_type
+USE cable_soil_snow_type_mod, ONLY: soil_snow_type
+USE cable_climate_type_mod,   ONLY: climate_type
+
+USE cable_params_mod,         ONLY: soil_parameter_type
+USE cable_params_mod,         ONLY: veg_parameter_type
+USE cable_other_constants_mod, ONLY: r_2
+
+!cbl3!USE cable_types_mod!!,          ONLY: mp, l_tile_pts
 !cbl3!USE cable_air_type_mod,       ONLY: air_type
 !cbl3!USE cable_balances_type_mod,  ONLY: balances_type
 !cbl3!USE cable_bgc_pool_type_mod,  ONLY: bgc_pool_type
-USE cable_canopy_type_mod,    ONLY: canopy_type
-USE cable_climate_type_mod,   ONLY: climate_type
 !cbl3!USE cable_met_type_mod,       ONLY: met_type
 !cbl3!USE cable_radiation_type_mod, ONLY: radiation_type
 !cbl3!USE cable_roughness_type_mod, ONLY: roughness_type
-USE cable_soil_snow_type_mod, ONLY: soil_snow_type
 !cbl3!USE cable_sum_flux_type_mod,  ONLY: sum_flux_type
-USE cable_params_mod,         ONLY: veg_parameter_type
-USE cable_params_mod,         ONLY: soil_parameter_type
-
-USE cable_types_mod, ONLY: r_2
-   ! Contains all variables which are not subroutine-internal
-
    IMPLICIT NONE
 
    PUBLIC
@@ -70,11 +69,6 @@ USE cable_types_mod, ONLY: r_2
       niter = 4,     & ! number of iterations for za/L
       ms = 6           ! # soil layers
 
-!ID-ed in CABLE3
-!co-efficients usoughout init_radiation ` called from _albedo as well
-REAL,allocatable, SAVE :: c1(:,:)
-REAL,allocatable, SAVE :: rhoch(:,:)
-REAL,allocatable, SAVE :: xk(:,:)
   
 ! .............................................................................
 
@@ -237,7 +231,9 @@ REAL,allocatable, SAVE :: xk(:,:)
          qvair,   & ! within canopy specific humidity (g/g)
          da,      & ! water vap pressure deficit at ref height (Pa)
          dva,     & ! in canopy water vap pressure deficit (Pa)
-         coszen     ! cos(zenith angle of sun)
+         coszen,  & ! cos(zenith angle of sun)
+         Ndep,    & ! nitrogen deposition (gN m-2 d-1)
+         Pdep       ! P deposition (gP m-2 d-1)
      
       REAL, DIMENSION(:,:), POINTER ::                                         &
          fsd  ! downward short-wave radiation (W/m2)
@@ -300,8 +296,6 @@ REAL,allocatable, SAVE :: xk(:,:)
 
    INTERFACE dealloc_cbm_var
       MODULE PROCEDURE dealloc_balances_type,                                  &
-         dealloc_soil_snow_type,                                               &
-         dealloc_canopy_type,                                                  &
          dealloc_radiation_type,                                               &
          dealloc_roughness_type,                                               &
          dealloc_air_type,                                                     &
@@ -350,6 +344,74 @@ END SUBROUTINE alloc_balances_type
 
 ! ------------------------------------------------------------------------------
 
+SUBROUTINE alloc_soil_parameter_type(var, mp)
+   
+   TYPE(soil_parameter_type), INTENT(inout) :: var
+   INTEGER, INTENT(in) :: mp
+   
+   allocate( var% bch(mp) )   
+   allocate( var% c3(mp) )    
+   allocate( var% clay(mp) )  
+   allocate( var% css(mp) )   
+   allocate( var% hsbh(mp) )  
+   allocate( var% hyds(mp) )  
+   allocate( var% i2bp3(mp) ) 
+   allocate( var% ibp2(mp) )  
+   allocate( var% isoilm(mp) )  
+   allocate( var% rhosoil(mp) )  
+   allocate( var% sand(mp) )   
+   allocate( var% sfc(mp) )   
+   allocate( var% silt(mp) )   
+   allocate( var% ssat(mp) )   
+   allocate( var% sucs(mp) )   
+   allocate( var% swilt(mp) )  
+   allocate( var% zse(ms) )    
+   allocate( var% zshh(ms+1) )  
+   allocate( var% cnsd(mp) )  
+   allocate( var% albsoil(mp, nrb) )  
+   allocate( var% pwb_min(mp) )  
+   allocate( var% albsoilf(mp) )  
+
+END SUBROUTINE alloc_soil_parameter_type
+ 
+! ------------------------------------------------------------------------------
+SUBROUTINE alloc_veg_parameter_type(var, mp)
+
+   TYPE(veg_parameter_type), INTENT(inout) :: var
+   INTEGER, INTENT(in) :: mp
+   
+   ALLOCATE( var% canst1(mp) ) 
+   ALLOCATE( var% dleaf(mp) )  
+   ALLOCATE( var% ejmax(mp) ) 
+   ALLOCATE( var% iveg(mp) ) 
+   ALLOCATE( var% meth(mp) ) 
+   ALLOCATE( var% frac4(mp) )  
+   ALLOCATE( var% hc(mp) )     
+   ALLOCATE( var% vlai(mp) )   
+   ALLOCATE( var% xalbnir(mp) ) 
+   ALLOCATE( var% rp20(mp) )   
+   ALLOCATE( var% rpcoef(mp) ) 
+   ALLOCATE( var% rs20(mp) )   
+   ALLOCATE( var% shelrb(mp) ) 
+   ALLOCATE( var% vegcf(mp) )  
+   ALLOCATE( var% tminvj(mp) ) 
+   ALLOCATE( var% tmaxvj(mp) ) 
+   ALLOCATE( var% vbeta(mp) )  
+   ALLOCATE( var% vcmax(mp) )  
+   ALLOCATE( var% xfang(mp) )  
+   ALLOCATE( var%extkn(mp) ) 
+   ALLOCATE( var%wai(mp) )   
+   ALLOCATE( var%deciduous(mp) ) 
+   ALLOCATE( var%froot(mp,ms) ) 
+   !was nrb(=3), but never uses (:,3) in model   
+   ALLOCATE( var%refl(mp,2) ) !jhan:swb?
+   ALLOCATE( var%taul(mp,2) ) 
+   ALLOCATE( var%vlaimax(mp) ) 
+
+END SUBROUTINE alloc_veg_parameter_type
+
+! ------------------------------------------------------------------------------
+   
 SUBROUTINE alloc_radiation_type(var, mp)
 
    TYPE(radiation_type), INTENT(inout) :: var
@@ -466,6 +528,8 @@ SUBROUTINE alloc_met_type(var, mp)
    ALLOCATE ( var % da(mp) )
    ALLOCATE ( var % dva(mp) )
    ALLOCATE ( var % coszen(mp) )
+ALLOCATE ( var % Ndep(mp) )
+ALLOCATE ( var % Pdep(mp) )
 
 END SUBROUTINE alloc_met_type
    
@@ -573,141 +637,37 @@ SUBROUTINE dealloc_soil_parameter_type(var)
 END SUBROUTINE dealloc_soil_parameter_type
 
 ! ------------------------------------------------------------------------------
+SUBROUTINE dealloc_veg_parameter_type(var)
 
-SUBROUTINE dealloc_soil_snow_type(var)
-   
-   TYPE(soil_snow_type), INTENT(inout) :: var
+   TYPE(veg_parameter_type), INTENT(inout) :: var
   
-   DEALLOCATE ( var % iantrct )
-   DEALLOCATE ( var % pudsto )
-   DEALLOCATE ( var % pudsmx )
-   DEALLOCATE ( var % dtmlt )
-   DEALLOCATE( var% albsoilsn ) 
-   DEALLOCATE( var% cls )     
-   DEALLOCATE( var% dfn_dtg ) 
-   DEALLOCATE( var% dfh_dtg ) 
-   DEALLOCATE( var% dfe_ddq ) 
-   DEALLOCATE( var% ddq_dtg ) 
-   DEALLOCATE( var% evapsn )  
-   DEALLOCATE( var% fwtop )   
-   DEALLOCATE( var% fwtop1 )   
-   DEALLOCATE( var% fwtop2 )   
-   DEALLOCATE( var% fwtop3 )   
-   DEALLOCATE( var% gammzz ) 
-   DEALLOCATE( var% isflag ) 
-   DEALLOCATE( var% osnowd ) 
-   DEALLOCATE( var% potev ) 
-   DEALLOCATE( var% runoff )
-   DEALLOCATE( var% rnof1 ) 
-   DEALLOCATE( var% rnof2 ) 
-   DEALLOCATE( var% rtsoil )
-   DEALLOCATE( var% sconds ) 
-   DEALLOCATE( var% sdepth ) 
-   DEALLOCATE( var% smass ) 
-   DEALLOCATE( var% snage )  
-   DEALLOCATE( var% snowd )  
-   DEALLOCATE( var% smelt )  
-   DEALLOCATE( var% ssdn ) 
-   DEALLOCATE( var% ssdnn ) 
-   DEALLOCATE( var% tgg )   
-   DEALLOCATE( var% tggsn ) 
-   DEALLOCATE( var% tss )   
-   DEALLOCATE( var% tss_p )   
-   DEALLOCATE( var% deltss )   
-   DEALLOCATE( var% owb1 )   
-   DEALLOCATE( var% wb )    
-   DEALLOCATE( var% wbice ) 
-   DEALLOCATE( var% wblf ) 
-   DEALLOCATE( var%wbtot )    
-   DEALLOCATE( var%wbtot1 )    
-   DEALLOCATE( var%wbtot2 )    
-   DEALLOCATE( var%wb_lake )    
-   DEALLOCATE( var%sinfil )    
-   DEALLOCATE( var%evapfbl)    
-   DEALLOCATE( var%qstss)    
-   DEALLOCATE( var%wetfac )  
-   DEALLOCATE( var%owetfac )  
-   DEALLOCATE( var%t_snwlr )  
-   DEALLOCATE( var%wbfice )  
-   DEALLOCATE( var%tggav )  
-   DEALLOCATE( var%otgg )   
-   DEALLOCATE( var%otss )   
-   DEALLOCATE( var%otss_0 )   
-   DEALLOCATE( var%tprecip ) 
-   DEALLOCATE( var%tevap ) 
-   DEALLOCATE( var%trnoff ) 
-   DEALLOCATE( var%totenbal ) 
-   DEALLOCATE( var%totenbal2 ) 
-   DEALLOCATE( var%fland )      
-   DEALLOCATE( var%ifland )  
-   DEALLOCATE( var%tilefrac ) 
-   DEALLOCATE( var%qasrf )  
-   DEALLOCATE( var%qfsrf )  
-   DEALLOCATE( var%qssrf )  
-   
-END SUBROUTINE dealloc_soil_snow_type
-   
+   DEALLOCATE( var% canst1 ) 
+   DEALLOCATE( var% dleaf )  
+   DEALLOCATE( var% ejmax ) 
+   DEALLOCATE( var% iveg ) 
+   DEALLOCATE( var% meth ) 
+   DEALLOCATE( var% frac4 )  
+   DEALLOCATE( var% hc )     
+   DEALLOCATE( var% vlai )   
+   DEALLOCATE( var% xalbnir ) 
+   DEALLOCATE( var% rp20 )   
+   DEALLOCATE( var% rpcoef ) 
+   DEALLOCATE( var% rs20 )   
+   DEALLOCATE( var% shelrb ) 
+   DEALLOCATE( var% vegcf )  
+   DEALLOCATE( var% tminvj ) 
+   DEALLOCATE( var% tmaxvj ) 
+   DEALLOCATE( var% vbeta)  
+   DEALLOCATE( var% vcmax )  
+   DEALLOCATE( var% xfang )  
+   DEALLOCATE( var%extkn ) 
+   DEALLOCATE( var%wai )   
+   DEALLOCATE( var%deciduous ) 
+   DEALLOCATE( var%froot) 
+   DEALLOCATE( var%refl )
+   DEALLOCATE( var%taul ) 
 
-SUBROUTINE dealloc_canopy_type(var)
-
-   TYPE(canopy_type), INTENT(inout) :: var
-
-   DEALLOCATE ( var % fess )
-   DEALLOCATE ( var % fesp )
-   DEALLOCATE( var% cansto )  
-   DEALLOCATE( var% cduv )   
-   DEALLOCATE( var% delwc )  
-   DEALLOCATE( var% dewmm )  
-   DEALLOCATE( var% dgdtg )  
-   DEALLOCATE( var% fe )      
-   DEALLOCATE( var% fh )      
-   DEALLOCATE( var% fpn )     
-   DEALLOCATE( var% frp )     
-   DEALLOCATE( var% frpw )    
-   DEALLOCATE( var% frpr )    
-   DEALLOCATE( var% frs )     
-   DEALLOCATE( var% fnee )    
-   DEALLOCATE( var% frday )   
-   DEALLOCATE( var% fnv )     
-   DEALLOCATE( var% fev )     
-   DEALLOCATE( var% fevc )    
-   DEALLOCATE( var% fhv )     
-   DEALLOCATE( var% fns )     
-   DEALLOCATE( var% fhs )     
-   DEALLOCATE( var% fhs_cor )     
-   DEALLOCATE( var% ga )      
-   DEALLOCATE( var% ghflux )   
-   DEALLOCATE( var% precis ) 
-   DEALLOCATE( var% qscrn )  
-   DEALLOCATE( var% rnet )   
-   DEALLOCATE( var% segg )   
-   DEALLOCATE( var% sghflux )  
-   DEALLOCATE( var% through )  
-   DEALLOCATE( var% spill )  
-   DEALLOCATE( var% tscrn )  
-   DEALLOCATE( var% wcint )  
-   DEALLOCATE( var% tv )      
-   DEALLOCATE( var% us )      
-   DEALLOCATE( var% uscrn )   
-   DEALLOCATE( var% rghlai ) 
-   DEALLOCATE( var% vlaiw ) 
-   DEALLOCATE( var% fwet )   
-   DEALLOCATE ( var % evapfbl )
-   DEALLOCATE( var% epot )   
-   DEALLOCATE( var% fnpp )   
-   DEALLOCATE( var% fevw_pot )  
-   DEALLOCATE( var% gswx_T )  
-   DEALLOCATE( var% cdtq )   
-   DEALLOCATE( var% wetfac_cs )  
-   DEALLOCATE( var% fevw )   
-   DEALLOCATE( var% fhvw )   
-   DEALLOCATE( var% fes )    
-   DEALLOCATE( var% fes_cor )    
-   DEALLOCATE( var% gswx )  
-   DEALLOCATE( var% oldcansto )  
-   DEALLOCATE( var% zetar )  
-
-END SUBROUTINE dealloc_canopy_type
+END SUBROUTINE dealloc_veg_parameter_type
    
 ! ------------------------------------------------------------------------------
 
