@@ -7,7 +7,7 @@ should result in general in an error message. Usage of the deprecated user featu
 and removed from future versions of CABLE. Attempts to use such features in runs of current versions of CABLE
 should result in general in a warning message.
 
-Other content of potential interest: [obsolete and deprecated developer features](../../developer_guide/obsolete_and_deprecated_features/obsolete_and_deprecated_features.md)
+Other content of potential interest: [obsolete and deprecated developer features](../../../developer_guide/other_resources/obsolete_and_deprecated_features/obsolete_and_deprecated_features.md)
 
 ## Obsolete user features ##
 

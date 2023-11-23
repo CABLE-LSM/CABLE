@@ -13,7 +13,7 @@ applications. The following are annotated examples of cable.nml:
 !!! Note
 
     If your namelist file has entries that do not appear here please check the
-    [obsolete and deprecated user features](../obsolete_and_deprecated_features/obsolete_and_deprecated_features.md) page.
+    [obsolete and deprecated user features][obsolete] page.
 
 
 ## List of namelist variables
@@ -281,3 +281,4 @@ applications. The following are annotated examples of cable.nml:
 ```
 
 <!-- markdown-link-check-disable-line --> [Walker]: https://doi.org/10.1002/ece3.1173
+[obsolete]: ../other_resources/obsolete_and_deprecated_features/obsolete_and_deprecated_features.md

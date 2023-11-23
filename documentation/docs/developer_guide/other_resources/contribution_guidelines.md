@@ -278,5 +278,5 @@ git branch --delete <branchname>
 
 [git-training]: https://access-nri.github.io/Training/HowTos/GitAndGitHub/
 [CABLE-repo]: https://github.com/CABLE-LSM/CABLE
-[cheatsheet]: documentation_guidelines/cheat_sheets.md
+[cheatsheet]: cheat_sheets.md
 
