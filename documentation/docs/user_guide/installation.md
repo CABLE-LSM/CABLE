@@ -2,7 +2,7 @@
 
 To install CABLE you need to have the following already installed on your system:
 
-- SVN
+- git
 - a Fortran compiler
 - the netCDF library
 
@@ -11,7 +11,7 @@ To install CABLE you need to have the following already installed on your system
 ``` mermaid
 graph TD
     
-    A(Checkout CABLE with SVN):::UserAction -->|Serial?| B(Run `offline/build3.sh`):::UserAction;
+    A(Clone CABLE with git):::UserAction -->|Serial?| B(Run `offline/build3.sh`):::UserAction;
     B --> D[load modules, set compiler flags, create .tmp/ directory];
     D -->|Serial?| E[Run `serial_cable`];
     E --> G[executable `cable`]:::Output;
@@ -38,9 +38,13 @@ graph TD
 
 ## Getting the CABLE source code
 
-CABLE can be downloaded from the [subversion repository][cable-svn] hosted at [NCI][NCI] once a user has requested admission to the CABLE software group at NCI, as described [here][registration]. To install the latest version of CABLE, you simply need to checkout the `trunk`:
+CABLE can be downloaded from the [GitHub repository][cable-github]. To install the latest version of CABLE, you simply need to clone the repository:
 
-    svn checkout https://trac.nci.org.au/svn/cable/trunk
+    git clone https://github.com/CABLE-LSM/CABLE.git
+
+!!! tip "Choice of protocol"
+
+    If you have SSH keys installed for GitHub, you can also use the SSH protocol to clone the CABLE repository.
 
 ## Building CABLE
 
@@ -122,9 +126,9 @@ To clean the build, you need to run:
 
     ./build3.sh clean
 
-[cable-svn]: https://trac.nci.org.au/svn/cable
+[cable-github]: https://github.com/CABLE-LSM/cable.git
 [NCI]: https://nci.org.au
 [registration]: https://trac.nci.org.au/trac/cable/wiki/CABLE_Registration
-[build3]: https://trac.nci.org.au/svn/cable/trunk/offline/build3.sh
-[makefile]: https://trac.nci.org.au/svn/cable/trunk/offline/Makefile
+[build3]: https://github.com/CABLE-LSM/CABLE/blob/main/src/offline/build3.sh
+[makefile]: https://github.com/CABLE-LSM/CABLE/blob/main/src/offline/Makefile
 [clean-build]: installation.md/#cleaning-the-build

@@ -15,10 +15,6 @@ All documentation is located in the [CABLE GitHub repository][cable-repo]. To up
 ## Scientific documentation
 The *scientific documentation* should be added directly into the source code available under the `src/` directory. Please use [these guidelines][api-guidelines] to structure the documentation. You can find a cheatsheet for FORD [on this page][cheat-sheets].
 
-???+ warning "No code changes please"
-    
-    Currently, the CABLE code under `src/` is only for documentation purposes. All code changes should go on the SVN repository. Any code change submitted in the GitHub repository will be discarded at this stage. Only changes to comments for documentation will be accepted.
-
 ## Other documentation
 Other documentation such as the User guide and Developer guide are located under the `documentation/docs/` folder. Each file corresponds to a page on the rendered documentation and each folder corresponds to a tab or a section. Folders and files are named very similarly to the sections and pages on the documentation website to help navigation when developing the documentation.  
 To help you find the file corresponding to a page, on the rendered [documentation website][doc-pages], you can click on the pen icon :material-pencil: at the top right. This will open the corresponding file in GitHub and show you the path to the file. If you need more help to contribute to the User guide or the Developer guide, please use [the contribution guide for ACCESS-Hive][Hive-contribute].
