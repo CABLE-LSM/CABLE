@@ -9,6 +9,7 @@ repo_name: CABLE
 # Material default to a "master" branch, need to change to "main"
 edit_uri: edit/main/documentation/docs
 docs_dir: docs
+copyright: Copyright &copy; 2015 CSIRO
 
 theme:
   name: material

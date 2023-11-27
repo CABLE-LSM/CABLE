@@ -2,10 +2,10 @@
 
 Assuming you have computing resources on gadi@NCI, installing and running CABLE is as simple as:
 
-1. Checkout the source code:
+1. Clone the source code:
 
-        svn checkout https://trac.nci.org.au/svn/cable/trunk MyCABLE
-        cd MyCABLE/offline
+        git clone https://github.com/CABLE-LSM/CABLE.git
+        cd CABLE/offline
 
 1. Build a serial version of CABLE
 
@@ -25,7 +25,7 @@ ACCESS-ESM1.5 uses a version of CABLE based on CABLE-2.3.4.
 
 ACCESS-CM2 uses a version of CABLE that is closer to the HEAD of the trunk at the time of writing (December 2019).
 
-For a more detailed discussion of CABLE offline please see the other sections of the [Cable's User Guide][userguide].
+For a more detailed discussion of CABLE offline, please see the other sections of the [Cable's User Guide][userguide].
 
 [fluxnet-tumba]: https://fluxnet.org/sites/siteinfo/AU-Tum
 [userguide]: index.md
