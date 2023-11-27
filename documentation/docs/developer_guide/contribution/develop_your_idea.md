@@ -35,9 +35,6 @@ This is a diagram view of how this stage proceed:
 
       linkStyle 10 stroke:red,color:red;
       linkStyle 9 stroke:green,color:darkgreen;
-
-      click review "https://cable.readthedocs.io/en/latest/developer_guide/contribution_flowchart/#review" "Review process"
-
 ;
 ```
 
@@ -116,6 +113,6 @@ As we will see next, the pull request will also be used to share test results an
 [assign_issue]: resources/how_to.md#assign-an-issue
 [create_branch]: resources/how_to.md#create-a-branch
 [pr_create]: resources/how_to.md#create-a-pull-request-pr
-[coding_standards]: ../coding_standards.md
+[coding_standards]: ../other_resources/coding_standards.md
 [testing]: testing.md
 [doc_guidelines]: ../documentation_guidelines/index.md

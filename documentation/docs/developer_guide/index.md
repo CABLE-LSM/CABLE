@@ -51,5 +51,5 @@ For this code base, we define the following roles:
 [sc-git]: https://swcarpentry.github.io/git-novice/index.html
 [user_guide]: ../user_guide/index.md
 [contribution_guide]: contribution/index.md
-[review_guide]: review_guide.md
-[release_process]: release_process.md
+[review_guide]: contribution/review_guide.md
+[release_process]: other_resources/release_process.md

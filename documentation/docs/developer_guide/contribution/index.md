@@ -49,4 +49,4 @@ Here is a flowchart explaining how the various steps of the contribution workflo
 [git-training]: https://access-nri.github.io/Training/HowTos/GitAndGitHub/
 [doc-guidelines]: ../documentation_guidelines/index.md
 [sensitivity]: ../../how-to/sensitivity_exp.md
-[cheatsheet]: ../documentation_guidelines/cheat_sheets.md
+[cheatsheet]: ../other_resources/cheat_sheets.md

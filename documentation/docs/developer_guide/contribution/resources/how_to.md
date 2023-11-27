@@ -1,4 +1,4 @@
-# How-tos for the contribution steps
+# How-to
 
 Below you will find details instructions on how to follow various steps of the contribution guidelines with GitHub and git.
 

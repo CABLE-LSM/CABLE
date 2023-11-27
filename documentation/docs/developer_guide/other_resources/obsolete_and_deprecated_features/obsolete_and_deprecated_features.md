@@ -6,7 +6,7 @@ from the code. Coding with the deprecated developer features described here is d
 and removed from future versions of the CABLE code. Development that includes any deprecated or obsolete features will require modifications 
 before being accepted for a CABLE release.
 
-Other content of potential interest: [obsolete and deprecated user features](../../user_guide/obsolete_and_deprecated_features/obsolete_and_deprecated_features.md)
+Other content of potential interest: [obsolete and deprecated user features](../../../user_guide/other_resources/obsolete_and_deprecated_features/obsolete_and_deprecated_features.md)
 
 ## Obsolete developer features ##
 
