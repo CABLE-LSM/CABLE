@@ -81,4 +81,11 @@ Once you push at least one commit to a new branch, you can create a pull request
       ![how describe pr](../../../assets/describe_pr.png){ width="90%", align=right }
     </figure>
 
+## Ask a review
+
+To ask for a review, on the pull request screen, click on the Reviewers menu or its cog icon and choose the `CABLE-LSM/reviewers` team:
+    <figure markdown>
+      ![how request review](../../../assets/request_review.png){ width="90%", align=right }
+    </figure>
+
 [CABLE-repo]: https://github.com/CABLE-LSM/CABLE
