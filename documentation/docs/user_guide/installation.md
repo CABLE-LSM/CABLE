@@ -13,11 +13,11 @@ graph TD
     
     A(Clone CABLE with git):::UserAction -->|Serial?| B(Run `offline/build3.sh`):::UserAction;
     B --> D[load modules, set compiler flags, create .tmp/ directory];
-    D -->|Serial?| E[Run `serial_cable`];
+    D -->|Serial?| E[Run `make`];
     E --> G[executable `cable`]:::Output;
     A -->|Parallel?| C(Run `offline/build3.sh mpi`):::UserAction;
     C --> D;   
-    D -->|Parallel?| F[Run `parallel_cable`];
+    D -->|Parallel?| F[Run `make mpi`];
     F --> H[executable `cable_mpi`]:::Output;
     click A "http://cable.readthedocs.io/en/latest/user_guide/installation/#getting-the-cable-source-code"
     click B "http://cable.readthedocs.io/en/latest/user_guide/installation/#launching-the-build"
@@ -101,12 +101,9 @@ The build script:
 1. loads modules for the Fortran compiler and the netCDF library
 2. sets the compiler flags
 3. creates a hidden temporary directory (`.tmp/`) in which it then compiles CABLE.  
+4. executes `make` in the hidden temporary directory
 
-A [Makefile][makefile] compiles the CABLE code that is common to both serial and parallel CABLE. This includes all the files under the `science/`, `util/`, and `params/` directories.
-
-A serial compilation then calls `serial_cable` to compile the serial driver and link everything together to produce the executable, `cable`.
-
-A parallel compilation then calls `parallel_cable` to compile the required MPI driver(s) and link everything together to produce the executable, `cable-mpi`.
+The [Makefile][makefile] compiles the serial executable by default (via `make`) and compiles the MPI executable via the `mpi` target (via `make mpi`).
 
 The hidden `.tmp/` directory is really only needed for technical reasons and you should never need to go
 into the `.tmp/` directory. However, if for some reason you want the **.o** object files created by the compiler, they persist in this directory. Alternatively, it is sometimes useful to verify that the files you want to compile are actually making it into this directory. This is particularly relevant if you are adding new files to CABLE.
