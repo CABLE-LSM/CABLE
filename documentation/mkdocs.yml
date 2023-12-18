@@ -1,0 +1,106 @@
+site_name: CABLE Docs
+
+# Needed to generate the canonical_url for each pages that are 
+# then used to create the sitemap for search engine indexing
+site_url: https://cable.readthedocs.io/en/latest/
+# Git repository
+repo_url: https://github.com/CABLE-LSM/CABLE
+repo_name: CABLE
+# Material default to a "master" branch, need to change to "main"
+edit_uri: edit/main/documentation/docs
+docs_dir: docs
+copyright: Copyright &copy; 2015 CSIRO
+
+theme:
+  name: material
+  palette:
+    - scheme: light
+      primary: red
+      accent: deep orange
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+    - scheme: slate
+      primary: red
+      accent: deep orange
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+
+  features:
+    - navigation.instant
+    - navigation.indexes
+    - navigation.tabs
+    - navigation.tabs.sticky
+
+extra_css:
+  - css/cable.css
+
+plugins:
+  - git-revision-date-localized:
+      type: date
+      enable_creation_date: true
+  - search
+  - macros
+
+markdown_extensions:
+  - pymdownx.arithmatex:
+      generic: true
+  - admonition
+  - pymdownx.details
+  - def_list
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - attr_list
+  - md_in_html
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+  
+# Navigation
+nav:
+  - About: 
+    - index.md
+  - User Guide:
+    - user_guide/index.md
+    - Uber Quick Guide: user_guide/uber_quick_guide.md
+    - Installation: user_guide/installation.md
+    - Inputs description:
+      - cable.nml options: user_guide/inputs/cable_nml.md
+      - pft_params.nml options: user_guide/inputs/pft_params_nml.md
+      - cable_soilparm.nml options: user_guide/inputs/cable_soilparm_nml.md
+      - pftlookup.csv table: user_guide/inputs/pftlookup_csv.md
+      - Meteorological forcing: user_guide/inputs/meteorological_forcing.md
+    - Other resources:
+      - Existing configurations: user_guide/other_resources/configurations/config.md
+      - Obsolete and deprecated features: user_guide/other_resources/obsolete_and_deprecated_features/obsolete_and_deprecated_features.md
+  - Developer Guide:
+    - developer_guide/index.md
+    - Contribution guidelines:
+      - developer_guide/contribution/index.md
+      - developer_guide/contribution/plan_your_work.md
+      - developer_guide/contribution/develop_your_idea.md
+      - developer_guide/contribution/testing.md
+      - developer_guide/contribution/review_guide.md
+      - developer_guide/contribution/resources/how_to.md
+    - Documentation guidelines: 
+      - developer_guide/documentation_guidelines/index.md
+      - Scientific documentation: developer_guide/documentation_guidelines/science_doc.md
+    - Other resources:
+      - Coding standards: developer_guide/other_resources/coding_standards.md
+      - Cheat Sheets: developer_guide/other_resources/cheat_sheets.md
+      - CABLE's release process: developer_guide/other_resources/release_process.md
+      - API documentation: developer_guide/other_resources/api.md
+      - Obsolete and deprecated features: developer_guide/other_resources/obsolete_and_deprecated_features/obsolete_and_deprecated_features.md
+  - How-to:
+    - Set up a sensitivity experiment: how-to/sensitivity_exp.md      
