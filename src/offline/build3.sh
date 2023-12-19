@@ -104,8 +104,6 @@ build_build()
 /bin/cp -p $UTI/*90 ./.tmp
 /bin/cp -p $PAR/*90 ./.tmp
 
-/bin/cp -p serial_cable ./.tmp
-/bin/cp -p parallel_cable ./.tmp
 /bin/cp -p Makefile  ./.tmp
 
 cd .tmp/
@@ -122,11 +120,10 @@ echo  ''
 echo  'Building drivers for either serial or MPI application'
 echo  ''
 
-make -f Makefile #this makes elements of CABLE that are common to all apps
 if [[ $1 = 'mpi' ]]; then
-   ./parallel_cable "$FC" "$CFLAGS" "$LDFLAGS" "$LD" "$NCMOD"
+    make mpi
 else
-   ./serial_cable "$FC" "$CFLAGS" "$LDFLAGS" "$LD" "$NCMOD"
+    make
 fi
 
 }
