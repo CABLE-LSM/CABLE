@@ -569,8 +569,8 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
 
           ENDIF
 
-          !ccc Remove the dependence on leap-year here. We want the same calendar
-          ! attribute in the netcdf files for all the years of a simulation.
+          !ccc Set calendar attribute: dependant on the value of `leaps`
+          ! that is set in the MetType if conditions above.
           calendar = "noleap"
           IF ( leaps ) THEN
              calendar = "standard"

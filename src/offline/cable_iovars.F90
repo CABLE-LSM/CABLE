@@ -35,7 +35,8 @@ MODULE cable_IO_vars_module
 
   CHARACTER(LEN=200) :: timeunits ! timing info read from nc file
 
-  CHARACTER(LEN=10) :: calendar ! 'noleap' for no leap years, 'standard' for leap years
+  CHARACTER(LEN=10) :: calendar ! 'standard' if using leap years (set by 
+                                ! leaps namelist option), else 'noleap'
 
   CHARACTER(LEN=3) :: time_coord ! GMT or LOCal time variables
 
