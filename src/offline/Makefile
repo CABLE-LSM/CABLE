@@ -168,18 +168,10 @@ serial: cable_driver.F90 $(OBJS)
 mpi: cable_mpidrv.F90 cable_mpicommon.o cable_mpimaster.o cable_mpiworker.o pop_mpi.o $(OBJS)
 	$(FC) $(SUPPRESS_FLAGS) $(CFLAGS) $(LDFLAGS) -o $(PROG_MPI) $^ $(CINC) $(LD)
 
-# TODO(Sean): passing LDFLAGS to the compiler ensures bitwise reproducibility
-# for this PR (#193). This is because LDFLAGS contains the -O0 flag (see
-# build3.sh). Ideally, LDFLAGS should not contain -O0 and this should be set in
-# CFLAGS as this would let us use the default suffix rule for *.o files.
 cable_mpicommon.o: cable_mpicommon.F90 $(OBJS)
-	$(FC) $(CFLAGS) $(CINC) $(LDFLAGS) -c $<
 pop_mpi.o: pop_mpi.F90 cable_mpicommon.o $(OBJS)
-	$(FC) $(CFLAGS) $(CINC) $(LDFLAGS) -c $<
 cable_mpiworker.o: cable_mpiworker.F90 cable_mpicommon.o pop_mpi.o $(OBJS)
-	$(FC) $(CFLAGS) $(CINC) $(LDFLAGS) -c $<
 cable_mpimaster.o: cable_mpimaster.F90 cable_mpicommon.o cable_mpiworker.o pop_mpi.o $(OBJS)
-	$(FC) $(CFLAGS) $(CINC) $(LDFLAGS) -c $<
 
 # dependencies, compilation rules for ALL files needed for "all" (LSRC)
 #================================================================
