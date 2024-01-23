@@ -5,15 +5,15 @@ Assuming you have computing resources on gadi@NCI, installing and running CABLE 
 1. Clone the source code:
 
         git clone https://github.com/CABLE-LSM/CABLE.git
-        cd CABLE/offline
+        cd CABLE
 
 1. Build a serial version of CABLE
 
-        ./build3.sh
+        ./build.bash
 
 1. Execute this serial version of CABLE
 
-        ./cable
+        ./bin/cable
 
 ## In slightly more detail
 
