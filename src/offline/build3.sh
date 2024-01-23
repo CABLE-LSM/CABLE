@@ -19,7 +19,7 @@ host_gadi()
    export NCDIR=$NETCDF_ROOT'/lib/Intel'
    export NCMOD=$NETCDF_ROOT'/include/Intel'
    export CFLAGS='-O2 -fp-model precise '
-   export LDFLAGS='-L'$NCDIR' -O0'
+   export LDFLAGS='-L'$NCDIR
    export LD='-lnetcdf -lnetcdff'
 
    if [[ $1 = 'mpi' ]]; then
