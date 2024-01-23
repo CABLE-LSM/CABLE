@@ -9,31 +9,26 @@ project(
 option(CABLE_MPI "Build the MPI executable" OFF)
 
 # third party libs
+if(CABLE_MPI)
+    find_package(MPI REQUIRED COMPONENTS Fortran)
+endif()
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(NETCDF REQUIRED IMPORTED_TARGET "netcdf-fortran")
 
-set(CABLE_INTEL_Fortran_FLAGS -fp-model precise)
-set(CABLE_INTEL_Fortran_FLAGS_DEBUG -O0 -g -traceback -fpe0)
-set(CABLE_INTEL_Fortran_FLAGS_RELEASE -O2)
+set(CABLE_Intel_Fortran_FLAGS -fp-model precise)
+set(CABLE_Intel_Fortran_FLAGS_DEBUG -O0 -g -traceback -fpe0)
+set(CABLE_Intel_Fortran_FLAGS_RELEASE -O2)
+if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
+    add_compile_options(
+        ${CABLE_Intel_Fortran_FLAGS}
+        "$<$<CONFIG:Release>:${CABLE_Intel_Fortran_FLAGS_RELEASE}>"
+        "$<$<CONFIG:Debug>:${CABLE_Intel_Fortran_FLAGS_DEBUG}>"
+    )
+endif()
 
-# CMake $<...> syntax is explained here:
-# https://cmake.org/cmake/help/latest/manual/cmake-generator-expressions.7.html#introduction
-set(CABLE_EXE_NAME "$<IF:$<BOOL:${CABLE_MPI}>,cable-mpi,cable>")
-
-set(
-    CABLE_SRCS_SERIAL
-    src/offline/cable_driver.F90
-)
-set(
-    CABLE_SRCS_MPI
-    src/offline/cable_mpidrv.F90
-    src/offline/cable_mpicommon.F90
-    src/offline/cable_mpimaster.F90
-    src/offline/cable_mpiworker.F90
-    src/science/pop/pop_mpi.F90
-)
-set(
-    CABLE_SRCS_COMMON
+add_library(
+    cable_common_objlib
+    OBJECT
     src/science/casa-cnp/bgcdriver.F90
     src/science/casa-cnp/biogeochem_casa.F90
     src/offline/cable_abort.F90
@@ -143,29 +138,26 @@ set(
     src/science/roughness/roughnessHGT_effLAI_cbl.F90
     src/offline/spincasacnp.F90
 )
-set(
-    CABLE_SRCS
-    "$<IF:$<BOOL:${CABLE_MPI}>,${CABLE_SRCS_MPI},${CABLE_SRCS_SERIAL}>"
-    ${CABLE_SRCS_COMMON}
-)
+target_link_libraries(cable_common_objlib PRIVATE PkgConfig::NETCDF)
 
-add_executable(cable ${CABLE_SRCS})
-
-set_target_properties(cable PROPERTIES OUTPUT_NAME ${CABLE_EXE_NAME})
-
-if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
-    target_compile_options(
-        cable
-        PRIVATE
-        ${CABLE_INTEL_Fortran_FLAGS}
-        "$<$<CONFIG:Release>:${CABLE_INTEL_Fortran_FLAGS_RELEASE}>"
-        "$<$<CONFIG:Debug>:${CABLE_INTEL_Fortran_FLAGS_DEBUG}>"
-    )
-endif()
-
-target_link_libraries(
+add_executable(
     cable
-    PkgConfig::NETCDF
+    src/offline/cable_driver.F90
+    "$<TARGET_OBJECTS:cable_common_objlib>"
 )
-
+target_link_libraries(cable PRIVATE PkgConfig::NETCDF)
 install(TARGETS cable RUNTIME)
+
+if(CABLE_MPI)
+    add_executable(
+        cable-mpi
+        src/offline/cable_mpidrv.F90
+        src/offline/cable_mpicommon.F90
+        src/offline/cable_mpimaster.F90
+        src/offline/cable_mpiworker.F90
+        src/science/pop/pop_mpi.F90
+        "$<TARGET_OBJECTS:cable_common_objlib>"
+    )
+    target_link_libraries(cable-mpi PRIVATE PkgConfig::NETCDF MPI::MPI_Fortran)
+    install(TARGETS cable-mpi RUNTIME)
+endif()

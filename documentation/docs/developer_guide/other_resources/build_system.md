@@ -11,7 +11,7 @@ Source files can be added easily by adding to the list of source files in [CMake
 
 ## Setting compiler flags
 
-The recommended compiler flags for debug and release builds are set in the [CMakeLists.txt][CMakeLists.txt] file via [`target_compile_options`](https://cmake.org/cmake/help/latest/command/target_compile_options.html). These can be modified if required.
+The recommended compiler flags for debug and release builds for each compiler are set in the [CMakeLists.txt][CMakeLists.txt] file via the `CABLE_<COMPILER_ID>_Fortran_FLAGS*` variables. These can be modified if required.
 
 ???+ warning
     Compiler flags should be guarded by a check on the compiler ID as they are generally compiler specific. See [`CMAKE_<LANG>_COMPILER_ID`](https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER_ID.html) for a list of supported compiler IDs.

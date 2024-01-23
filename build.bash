@@ -46,7 +46,6 @@ while [ $# -gt 0 ]; do
         --mpi)
             mpi=1
             cmake_args+=(-DCABLE_MPI="ON")
-            cmake_args+=(-DCMAKE_Fortran_COMPILER="mpif90")
             ;;
         -h|--help)
             show_help
@@ -68,8 +67,15 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
     # This is required so that the netcdf-fortran library is discoverable by
     # pkg-config:
     prepend_path PKG_CONFIG_PATH "${NETCDF_BASE}/lib/Intel/pkgconfig"
+
     if [[ -n $mpi ]]; then
         module add intel-mpi/2019.5.281
+    fi
+
+    if module is-loaded openmpi; then
+        # This is required so that the openmpi MPI libraries are discoverable
+        # via CMake's `find_package` mechanism:
+        prepend_path CMAKE_PREFIX_PATH "${OPENMPI_BASE}/include/Intel"
     fi
 fi
 
