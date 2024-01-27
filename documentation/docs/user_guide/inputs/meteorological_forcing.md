@@ -78,7 +78,7 @@ From (`cable_input.F90`)[https://cable.readthedocs.io/en/latest/api/sourcefile/c
 |----------|-------------------------------------------|------------------------|
 | `time`   | time of each time step (double precision) | \( s \)                |
 | `SWdown` | Surface incident shortwave radiation      | \( W \cdot m^{-2} \)   |
-| `Tair`   | Surface incident shortwave radiation      | \( K \)                |
+| `Tair`   | Surface temperature                       | \( K \)                |
 | `Qair`   | Near surface specific humidity            | \( kg \cdot kg^{-1} \) |
 | `Rainf`  | Rainfall rate                             | \( mm \cdot s^{-1} \)  |
 | `Wind` or `Wind_E` and `Wind_N` | Scalar wind speed  | \( m \cdot s^{-1} \)   |
