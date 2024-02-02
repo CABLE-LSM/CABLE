@@ -201,7 +201,6 @@ host_mcin()
 host_mc16()
 {
     idebug=0
-    iintel=0
     ignu=1
     inag=0
     np=$#
@@ -209,18 +208,11 @@ host_mc16()
         if [[ "${1}" == "debug" ]] ; then
             idebug=1
             shift 1
-        elif [[ "${1}" == "ifort" || "${1}" == "intel" ]] ; then
-            iintel=1
-            ignu=0
-            inag=0
-            shift 1
         elif [[ "${1}" == "gfortran" || "${1}" == "gnu" ]] ; then
-            iintel=0
             ignu=1
             inag=0
             shift 1
         elif [[ "${1}" == "nagfor" || "${1}" == "nag" ]] ; then
-            iintel=0
             ignu=0
             inag=1
             shift 1
@@ -229,24 +221,7 @@ host_mc16()
             exit 1
         fi
     done
-    if [[ ${iintel} -eq 1 ]] ;  then
-        # INTEL
-        /opt/intel/compilers_and_libraries/mac/bin/compilervars.sh intel64
-        export FC=ifort
-        # release
-        export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382"
-        export LDFLAGS="-O3"
-        OPTFLAG="-xHost"
-        if [[ ${idebug} -eq 1 ]] ; then
-            # debug
-            export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv -init=arrays,snan
-            export LDFLAGS="-O0"
-            OPTFLAG=
-        fi
-        export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
-        export LD=""
-        export NCROOT="/usr/local/netcdf-fortran-4.5.3-ifort"
-    elif [[ ${ignu} -eq 1 ]] ;  then
+    if [[ ${ignu} -eq 1 ]] ;  then
         # GFORTRAN
         export FC=gfortran
         # release
@@ -262,7 +237,7 @@ host_mc16()
         # export CFLAGS="${CFLAGS} -march=native"
         export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
         export LD=""
-        export NCROOT="/usr/local/netcdf-fortran-4.5.3-gfortran"
+        export NCROOT="/usr/local/netcdf-fortran-4.6.1-gfortran"
     elif [[ ${inag} -eq 1 ]] ;  then
         # NAG
         export FC=nagfor
@@ -283,12 +258,12 @@ host_mc16()
         # export CFLAGS="${CFLAGS} -march=native"
         export CFLAGS="${CFLAGS} -D__NAG__"
         export LD="-ideclient -unsharedrts"
-        export NCROOT="/usr/local/netcdf-fortran-4.5.3-nagfor"
+        export NCROOT="/usr/local/netcdf-fortran-4.6.1-nagfor"
     fi
 
     # All compilers
     export CFLAGS="${CFLAGS} ${OPTFLAG}"
-    export CFLAGS="${CFLAGS} -D__CRU2017__"
+    # export CFLAGS="${CFLAGS} -D__CRU2017__"
     export CFLAGS="${CFLAGS} -D__NETCDF3__"
     # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
 

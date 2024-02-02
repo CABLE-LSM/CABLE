@@ -170,8 +170,8 @@ contains
     CRU%DirectRead   = DirectRead
 
     ! diffuse fraction not available for all Metversions
-    if ((CRU%ReadDiffFrac == .true.) .and. &
-      ((trim(CRU%MetVersion) /= "CRUJRA_2022") .and. (trim(CRU%MetVersion) /= "CRUJRA_2023"))) then
+    if ( CRU%ReadDiffFrac .and. &
+         ((trim(CRU%MetVersion) /= "CRUJRA_2022") .and. (trim(CRU%MetVersion) /= "CRUJRA_2023")) ) then
        write(*,'(a)') "Diffuse Fraction only available for CRUJRA_2022 and CRUJRA_2023!"
        write(logn,*)  "Diffuse Fraction only available for CRUJRA_2022 and CRUJRA_2023!"
     endif
