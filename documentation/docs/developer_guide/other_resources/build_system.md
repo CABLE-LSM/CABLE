@@ -7,7 +7,7 @@ For CABLE offline applications, the underlying build system is [CMake](https://c
 
 ## Adding source files
 
-Source files can be added easily by adding to the list of source files in [CMakeLists.txt][CMakeLists.txt].
+Source files can be added easily by adding to the list of source files in [CMakeLists.txt][CMakeLists.txt]. We recommend keeping the list sorted in alphabetical order when adding new source files.
 
 ## Setting compiler flags
 
