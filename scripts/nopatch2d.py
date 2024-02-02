@@ -119,14 +119,35 @@ else:                     # great new global grid -60 to +90 latitudes
     else:
         # 0.5, 1 degree
         dlat = np.abs(np.diff(np.unique(np.sort(ilats)))).min()
-    nlat = np.rint(150. / dlat).astype(int)  # 300, 150
-    nlon = np.rint(360. / dlon).astype(int)  # 720, 360
+    area = 'Australia'  # 'global', 'Australia'
+    if area.lower() == 'global':
+        # exclude Antarctica
+        # latmin,latmax,lonmin,lonmax = -60.,90.,-180.,180.
+        latmin = -60.
+        lonmin = -180.
+        ddeglat = 150.
+        ddeglon = 360.
+    elif area.lower() == 'australia':
+        # Australia
+        # latmin,latmax,lonmin,lonmax = -44.,-10.,110.,155.
+        latmin = -44.
+        lonmin = 110.
+        ddeglat = 34.
+        ddeglon = 45.
+    else:
+        fi.close()
+        fo.close()
+        raise ValueError(f'area not known: {area}')
+    nlat = np.rint(ddeglat / dlat).astype(int)  # 300, 150
+    nlon = np.rint(ddeglon / dlon).astype(int)  # 720, 360
     clat = ilats.min() % 1.  # 0.0 or 0.25, 0.0 or 0.5
     clon = ilons.min() % 1.  # 0.0 or 0.25, 0.0 or 0.5
     # new lats
-    olat = -60.  + clat + np.arange(nlat) / float(nlat - 1) * (150. - dlat)
+    olat = (latmin + clat +
+            np.arange(nlat) / float(nlat - 1) * (ddeglat - dlat))
     # new lons
-    olon = -180. + clon + np.arange(nlon) / float(nlon - 1) * (360. - dlon)
+    olon = (lonmin + clon +
+            np.arange(nlon) / float(nlon - 1) * (ddeglon - dlon))
 olon2d, olat2d = np.meshgrid(olon, olat)  # new lats, lons in 2D
 lltree = cp.llKDTree(olat2d, olon2d)  # KD-tree
 iidl   = np.arange(nland, dtype=int)  # indices of land in input grid
