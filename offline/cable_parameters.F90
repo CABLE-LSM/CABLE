@@ -1711,7 +1711,7 @@ CONTAINS
     TYPE (balances_type),       INTENT(INOUT) :: bal
     TYPE (roughness_type),      INTENT(INOUT) :: rough
 
-    INTEGER :: j ! do loop counter
+    ! INTEGER :: j ! do loop counter
     REAL(r_2) :: temp(mp)
     REAL      :: tmp2(mp)
 

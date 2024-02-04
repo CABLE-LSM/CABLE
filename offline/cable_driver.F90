@@ -231,7 +231,7 @@ PROGRAM cable_offline_driver
   character(len=40), dimension(c13o2_nvars_output) :: c13o2_vars
   integer,           dimension(c13o2_nvars_output) :: c13o2_var_ids
   ! discrimination
-  integer :: ileaf
+  ! integer :: ileaf
   real(r_2), dimension(:,:), allocatable :: gpp ! , diff
   real(r_2), dimension(:),   allocatable :: Ra
   ! delta-13C of atmospheric CO2
