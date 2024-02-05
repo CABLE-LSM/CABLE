@@ -357,13 +357,13 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
         precipTot,              & ! used for spinup adj
         avPrecipInMet             ! used for spinup adj
    CHARACTER(LEN=10)                :: todaydate, nowtime ! used to timestamp log file
-   REAL(4),DIMENSION(1)             :: data1 ! temp variable for netcdf reading
-   REAL(4),DIMENSION(1,1)           :: data2 ! temp variable for netcdf reading
-   REAL(4), DIMENSION(:),     ALLOCATABLE :: temparray1  ! temp read in variable
-   REAL(4), DIMENSION(:,:),   ALLOCATABLE :: &
+   REAL(r_1),DIMENSION(1)             :: data1 ! temp variable for netcdf reading
+   REAL(r_1),DIMENSION(1,1)           :: data2 ! temp variable for netcdf reading
+   REAL(r_1), DIMENSION(:),     ALLOCATABLE :: temparray1  ! temp read in variable
+   REAL(r_1), DIMENSION(:,:),   ALLOCATABLE :: &
         tempPrecip2,            & ! used for spinup adj
         temparray2                ! temp read in variable
-   REAL(4), DIMENSION(:,:,:), ALLOCATABLE :: tempPrecip3 ! used for spinup adj
+   REAL(r_1), DIMENSION(:,:,:), ALLOCATABLE :: tempPrecip3 ! used for spinup adj
    LOGICAL                          ::                                         &
         all_met     ! ALL required met in met file (no synthesis)?
 #ifdef __MPI__
@@ -1525,10 +1525,10 @@ SUBROUTINE get_met_data(spinup, spinConv, met, rad, &
 
    ! Local variables
    INTEGER                           :: i,j ! do loop counter
-   REAL(KIND=4),ALLOCATABLE,DIMENSION(:)       :: tmpDat1
-   REAL(KIND=4),ALLOCATABLE,DIMENSION(:,:)     :: tmpDat2, tmpDat2x
-   REAL(KIND=4),ALLOCATABLE,DIMENSION(:,:,:)   :: tmpDat3, tmpDat3x
-   REAL(KIND=4),ALLOCATABLE,DIMENSION(:,:,:,:) :: tmpDat4, tmpDat4x
+   REAL(KIND=r_1),ALLOCATABLE,DIMENSION(:)       :: tmpDat1
+   REAL(KIND=r_1),ALLOCATABLE,DIMENSION(:,:)     :: tmpDat2, tmpDat2x
+   REAL(KIND=r_1),ALLOCATABLE,DIMENSION(:,:,:)   :: tmpDat3, tmpDat3x
+   REAL(KIND=r_1),ALLOCATABLE,DIMENSION(:,:,:,:) :: tmpDat4, tmpDat4x
 #ifdef __MPI__
    integer :: ierr
 #endif

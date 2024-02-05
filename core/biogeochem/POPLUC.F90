@@ -2736,12 +2736,12 @@ CONTAINS
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
           ! Define missing/fill values:
-          STATUS = NF90_PUT_ATT(FILE_ID, VID0(i), '_FillValue', REAL(ncmissingr,4))
+          STATUS = NF90_PUT_ATT(FILE_ID, VID0(i), '_FillValue', REAL(ncmissingr, sp))
           IF (STATUS /= NF90_NOERR) CALL handle_err                                        &
                (STATUS, 'Error defining '//A0(i)//' variable attributes in output file. '// &
                                                       '(INTERFACE define_ovar)')
           ! Define missing/fill values:
-          STATUS = NF90_PUT_ATT(FILE_ID, VID0(i), 'missing_value', REAL(ncmissingr, 4))
+          STATUS = NF90_PUT_ATT(FILE_ID, VID0(i), 'missing_value', REAL(ncmissingr, sp))
           IF (STATUS /= NF90_NOERR) CALL handle_err                                        &
                (STATUS, 'Error defining '//A0(i)//' variable attributes in output file. '// &
                '(INTERFACE define_ovar)')
@@ -2756,12 +2756,12 @@ CONTAINS
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
           ! Define missing/fill values:
-          STATUS = NF90_PUT_ATT(FILE_ID, VID1(i), '_FillValue', REAL(ncmissingr, 4))
+          STATUS = NF90_PUT_ATT(FILE_ID, VID1(i), '_FillValue', REAL(ncmissingr, sp))
           IF (STATUS /= NF90_NOERR) CALL handle_err                                        &
                (STATUS, 'Error defining '//A1(i)//' variable attributes in output file. '// &
                                                       '(INTERFACE define_ovar)')
           ! Define missing/fill values:
-          STATUS = NF90_PUT_ATT(FILE_ID, VID1(i), 'missing_value', REAL(ncmissingr, 4))
+          STATUS = NF90_PUT_ATT(FILE_ID, VID1(i), 'missing_value', REAL(ncmissingr, sp))
           IF (STATUS /= NF90_NOERR) CALL handle_err                                        &
                (STATUS, 'Error defining '//A1(i)//' variable attributes in output file. '// &
                '(INTERFACE define_ovar)')

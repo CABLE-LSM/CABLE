@@ -263,12 +263,12 @@ CONTAINS
   D = real(GregDate%Day,dp)
   M = real(GregDate%Month,dp)
   Y = real(GregDate%Year,dp)
-  IF (M<3.0_8) THEN 
-    M = M + 12.0_8 
-    Y = Y - 1.0_8 
+  IF (M<3.0_dp) THEN 
+    M = M + 12.0_dp 
+    Y = Y - 1.0_dp 
   END IF 
-  JulianDay = D + int((153.0_8 * M - 457.0_8)/5.0_8) + (365.0_8*Y) +     &
-              FLOOR(Y/4.0_8) - FLOOR(Y/100.0_8) + FLOOR(Y/400.0_8) + 1721118.5_8
+  JulianDay = D + int((153.0_dp * M - 457.0_dp)/5.0_dp) + (365.0_dp*Y) +     &
+              FLOOR(Y/4.0_dp) - FLOOR(Y/100.0_dp) + FLOOR(Y/400.0_dp) + 1721118.5_dp
   END FUNCTION JulianDay
 
 !*******************************************************************************
@@ -285,18 +285,18 @@ CONTAINS
   REAL(dp)                   :: D,M,Y
   REAL(dp)                   :: Z,R,A,G,B,C
 !-------------------------------------------------------------------------------
-  Z = FLOOR(JulianDay - 1721118.5_8) 
-  R = JulianDay - 1721118.5_8 - Z
-  G = Z - 0.25_8 
-  A = FLOOR(G/36524.25_8) 
-  B = A - FLOOR(A/4.0_8) 
-  Y = FLOOR((B+G)/365.25_8) 
-  C = B + Z - FLOOR(365.25_8*Y) 
-  M = int(((5.0_8*C) + 456.0_8) / 153.0_8) 
-  D = C - int((153.0_8 * M - 457.0_8) / 5.0_8) + R  
-  IF (M > 12.0_8) THEN 
-    Y = Y + 1.0_8 
-    M = M - 12.0_8 
+  Z = FLOOR(JulianDay - 1721118.5_dp) 
+  R = JulianDay - 1721118.5_dp - Z
+  G = Z - 0.25_dp 
+  A = FLOOR(G/36524.25_dp) 
+  B = A - FLOOR(A/4.0_dp) 
+  Y = FLOOR((B+G)/365.25_dp) 
+  C = B + Z - FLOOR(365.25_dp*Y) 
+  M = int(((5.0_dp*C) + 456.0_dp) / 153.0_dp) 
+  D = C - int((153.0_dp * M - 457.0_dp) / 5.0_dp) + R  
+  IF (M > 12.0_dp) THEN 
+    Y = Y + 1.0_dp 
+    M = M - 12.0_dp 
   END IF
   GregDate = dmydate(int(D),int(M),int(Y))  ! Keep truncated day number only
   END FUNCTION GregDate

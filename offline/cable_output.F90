@@ -90,171 +90,171 @@ MODULE cable_output_module
   TYPE(parID_type) :: opid ! netcdf variable IDs for output variables
 
   TYPE output_temporary_type
-     REAL(KIND=4), POINTER, DIMENSION(:) :: SWdown => null()   ! 5 downward short-wave radiation [W/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: FracDiff => null() ! 6 Fraction of diffuse radiation
-     REAL(KIND=4), POINTER, DIMENSION(:) :: LWdown => null()   ! 7 downward long-wave radiation [W/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Rainf => null()    ! 8 rainfall [kg/m2/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Snowf => null()    ! 9 snowfall [kg/m2/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: PSurf => null()    ! 10 surface pressure [Pa]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Tair => null()     ! 11 surface air temperature
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: SWdown => null()   ! 5 downward short-wave radiation [W/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: FracDiff => null() ! 6 Fraction of diffuse radiation
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: LWdown => null()   ! 7 downward long-wave radiation [W/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Rainf => null()    ! 8 rainfall [kg/m2/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Snowf => null()    ! 9 snowfall [kg/m2/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PSurf => null()    ! 10 surface pressure [Pa]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Tair => null()     ! 11 surface air temperature
      ! [K]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Qair => null()   ! 12 specific humidity [kg/kg]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: CO2air => null() ! 13 CO2 concentration [ppmv]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Wind => null()   ! 14 windspeed [m/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Wind_N => null() ! 15 surface wind speed, N component [m/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Wind_E => null() ! 16 surface wind speed, E component [m/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: LAI => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Qh => null()     ! 17 sensible heat flux [W/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Qle => null()    ! 18 latent heat flux [W/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Qg => null()     ! 19 ground heat flux [W/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: fbeam => null()  ! 20 fracion of direct radiation
-     REAL(KIND=4), POINTER, DIMENSION(:) :: SWnet => null()  ! 20 net shortwave [W/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: LWnet => null()  ! 21 net longwave [W/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Evap => null()   ! 22 total evapotranspiration [kg/m2/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Ewater => null() ! 23 evap. from surface water storage [kg/m2/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: ESoil => null()  ! 24 bare soil evaporation [kg/m2/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: TVeg => null()   ! 25 vegetation transpiration [kg/m2/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: ECanop => null() ! 26 interception evaporation [kg/m2/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Qair => null()   ! 12 specific humidity [kg/kg]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: CO2air => null() ! 13 CO2 concentration [ppmv]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Wind => null()   ! 14 windspeed [m/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Wind_N => null() ! 15 surface wind speed, N component [m/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Wind_E => null() ! 16 surface wind speed, E component [m/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: LAI => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Qh => null()     ! 17 sensible heat flux [W/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Qle => null()    ! 18 latent heat flux [W/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Qg => null()     ! 19 ground heat flux [W/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: fbeam => null()  ! 20 fracion of direct radiation
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: SWnet => null()  ! 20 net shortwave [W/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: LWnet => null()  ! 21 net longwave [W/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Evap => null()   ! 22 total evapotranspiration [kg/m2/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Ewater => null() ! 23 evap. from surface water storage [kg/m2/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: ESoil => null()  ! 24 bare soil evaporation [kg/m2/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: TVeg => null()   ! 25 vegetation transpiration [kg/m2/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: ECanop => null() ! 26 interception evaporation [kg/m2/s]
      ! 27 potential evapotranspiration [kg/m2/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: PotEvap => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: ACond => null()   ! 28 aerodynamic conductance [m/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: SoilWet => null() ! 29 total soil wetness [-]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Albedo => null()  ! 30 albedo [-]
-     REAL(KIND=4), POINTER, DIMENSION(:,:) :: visAlbedo => null()  ! vars intro for Ticket #27
-     REAL(KIND=4), POINTER, DIMENSION(:,:) :: nirAlbedo => null()  ! vars intro for Ticket #27
-     REAL(KIND=4), POINTER, DIMENSION(:) :: VegT => null()    ! 31 vegetation temperature [K]
-     REAL(KIND=4), POINTER, DIMENSION(:,:) :: SoilTemp => null()  ! 32 av.layer soil temperature [K]
-     REAL(KIND=4), POINTER, DIMENSION(:,:) :: SoilMoist => null() ! 33 av.layer soil moisture [kg/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:)   :: SoilMoistPFT => null() ! 33 soil moisture per PFT [kg/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:,:) :: SoilMoistIce => null() ! 33 av.layer soil frozen moisture [kg/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Qs => null()  ! 34 surface runoff [kg/m2/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Qsb => null() ! 35 subsurface runoff [kg/m2/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PotEvap => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: ACond => null()   ! 28 aerodynamic conductance [m/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: SoilWet => null() ! 29 total soil wetness [-]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Albedo => null()  ! 30 albedo [-]
+     REAL(KIND=r_1), POINTER, DIMENSION(:,:) :: visAlbedo => null()  ! vars intro for Ticket #27
+     REAL(KIND=r_1), POINTER, DIMENSION(:,:) :: nirAlbedo => null()  ! vars intro for Ticket #27
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: VegT => null()    ! 31 vegetation temperature [K]
+     REAL(KIND=r_1), POINTER, DIMENSION(:,:) :: SoilTemp => null()  ! 32 av.layer soil temperature [K]
+     REAL(KIND=r_1), POINTER, DIMENSION(:,:) :: SoilMoist => null() ! 33 av.layer soil moisture [kg/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: SoilMoistPFT => null() ! 33 soil moisture per PFT [kg/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:,:) :: SoilMoistIce => null() ! 33 av.layer soil frozen moisture [kg/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Qs => null()  ! 34 surface runoff [kg/m2/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Qsb => null() ! 35 subsurface runoff [kg/m2/s]
      ! 36 change in soilmoisture (sum layers) [kg/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: DelSoilMoist => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: DelSoilMoist => null()
      ! 37 change in snow water equivalent [kg/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: DelSWE => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: DelSWE => null()
      ! 38 change in interception storage [kg/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: DelIntercept => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: SnowT => null()     ! 39 snow surface temp [K]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: BaresoilT => null() ! 40 surface bare soil temp [K]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: AvgSurfT => null()  ! 41 Average surface temperature [K]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: RadT => null()      ! 42 Radiative surface temperature [K]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: SWE => null()       ! 43 snow water equivalent [kg/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: RootMoist => null() ! 44 root zone soil moisture [kg/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: CanopInt => null()  ! 45 total canopy water storage [kg/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: NEE => null()       ! 46 net ecosystem exchange [umol/m2/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: NPP => null()       ! 47 net primary production of C by veg [umol/m2/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: DelIntercept => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: SnowT => null()     ! 39 snow surface temp [K]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: BaresoilT => null() ! 40 surface bare soil temp [K]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: AvgSurfT => null()  ! 41 Average surface temperature [K]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: RadT => null()      ! 42 Radiative surface temperature [K]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: SWE => null()       ! 43 snow water equivalent [kg/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: RootMoist => null() ! 44 root zone soil moisture [kg/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: CanopInt => null()  ! 45 total canopy water storage [kg/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: NEE => null()       ! 46 net ecosystem exchange [umol/m2/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: NPP => null()       ! 47 net primary production of C by veg [umol/m2/s]
      ! 48 gross primary production C by veg [umol/m2/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: GPP => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: AutoResp => null()   ! 49 autotrophic respiration [umol/m2/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: LeafResp => null()   ! 51 autotrophic respiration [umol/m2/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: HeteroResp => null() ! 50 heterotrophic respiration [umol/m2/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: SnowDepth => null()  ! actual depth of snow in [m]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: AutoResp => null()   ! 49 autotrophic respiration [umol/m2/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: LeafResp => null()   ! 51 autotrophic respiration [umol/m2/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: HeteroResp => null() ! 50 heterotrophic respiration [umol/m2/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: SnowDepth => null()  ! actual depth of snow in [m]
      ! vh_mc ! additional variables for ESM-SnowMIP
-     real(kind=4), pointer, dimension(:)   :: hfds => null()  ! downward heat flux at ground surface [W/m2]
-     real(kind=4), pointer, dimension(:)   :: hfdsn => null() ! downward heat flux into snowpack [W/m2]
-     real(kind=4), pointer, dimension(:)   :: hfls => null()  ! surface upward latent heat flux [W/m2]
-     real(kind=4), pointer, dimension(:)   :: hfmlt => null() ! energy of fusion [W/m2]
-     real(kind=4), pointer, dimension(:)   :: hfrs => null()  ! heat transferred to snowpack by rain [W/m2]
-     real(kind=4), pointer, dimension(:)   :: hfsbl => null() ! energy of sublimation [W/m2]
-     real(kind=4), pointer, dimension(:)   :: hfss => null()  ! surface upward sensible heat flux [W/m2]
-     real(kind=4), pointer, dimension(:)   :: rlus => null()  ! surface upwelling longwave radiation [W/m2]
-     real(kind=4), pointer, dimension(:)   :: rsus => null()  ! surface upwelling shortwave radiation [W/m2]
-     real(kind=4), pointer, dimension(:)   :: esn => null()   ! liquid water evaporation from snowpack [kg/m2/s]
+     real(kind=r_1), pointer, dimension(:)   :: hfds => null()  ! downward heat flux at ground surface [W/m2]
+     real(kind=r_1), pointer, dimension(:)   :: hfdsn => null() ! downward heat flux into snowpack [W/m2]
+     real(kind=r_1), pointer, dimension(:)   :: hfls => null()  ! surface upward latent heat flux [W/m2]
+     real(kind=r_1), pointer, dimension(:)   :: hfmlt => null() ! energy of fusion [W/m2]
+     real(kind=r_1), pointer, dimension(:)   :: hfrs => null()  ! heat transferred to snowpack by rain [W/m2]
+     real(kind=r_1), pointer, dimension(:)   :: hfsbl => null() ! energy of sublimation [W/m2]
+     real(kind=r_1), pointer, dimension(:)   :: hfss => null()  ! surface upward sensible heat flux [W/m2]
+     real(kind=r_1), pointer, dimension(:)   :: rlus => null()  ! surface upwelling longwave radiation [W/m2]
+     real(kind=r_1), pointer, dimension(:)   :: rsus => null()  ! surface upwelling shortwave radiation [W/m2]
+     real(kind=r_1), pointer, dimension(:)   :: esn => null()   ! liquid water evaporation from snowpack [kg/m2/s]
      ! total water vapour flux from the surface to the atmosphere [kg/m2/s]
-     real(kind=4), pointer, dimension(:)   :: evspsbl => null()
-     real(kind=4), pointer, dimension(:)   :: evspsblsoi => null() ! evaporation and sublimation from soil [kg/m2/s]
-     real(kind=4), pointer, dimension(:)   :: evspsblveg => null() ! evaporation and sublimation from canopy [kg/m2/s]
-     real(kind=4), pointer, dimension(:)   :: mrrob => null()   ! subsurface runoff [kg/m2/s]
-     real(kind=4), pointer, dimension(:)   :: mrros => null()   ! surface runoff [kg/m2/s]
-     real(kind=4), pointer, dimension(:)   :: sbl => null()     ! sublimation of snow [kg/m2/s]
-     real(kind=4), pointer, dimension(:)   :: snm => null()     ! surface snow melt [kg/m2/s]
-     real(kind=4), pointer, dimension(:)   :: snmsl => null()   ! water flowing out of snowpack [kg/m2/s]
-     real(kind=4), pointer, dimension(:)   :: tran => null()    ! transpiration [kg/m2/s]
-     real(kind=4), pointer, dimension(:)   :: albs => null()    ! surface albedo [-]
-     real(kind=4), pointer, dimension(:)   :: albsn => null()   ! snow albedo [-]
-     real(kind=4), pointer, dimension(:)   :: cw => null()      ! total canopy water storage [kg/m2]
-     real(kind=4), pointer, dimension(:)   :: lqsn => null()    ! mass fraction of liquid water in snowpack [-]
-     real(kind=4), pointer, dimension(:)   :: lwsnl => null()   ! liquid water content of snowpack [kg/m2]
-     real(kind=4), pointer, dimension(:,:) :: mrfsofr => null() ! mass fractions of frozen water in soil layers [-]
-     real(kind=4), pointer, dimension(:,:) :: mrlqso => null()  ! mass fractions of unfrozen water in soil layers [-]
-     real(kind=4), pointer, dimension(:,:) :: mrlsl => null()   ! masses of frozen and unfrozen moisture in soil layers [kg/m2]
-     real(kind=4), pointer, dimension(:)   :: snc => null()     ! snow area fraction [-]
-     real(kind=4), pointer, dimension(:)   :: snd => null()     ! snowdepth [m]
-     real(kind=4), pointer, dimension(:)   :: snw => null()     ! mass of snowpack [kg/m2]
-     real(kind=4), pointer, dimension(:)   :: snwc => null()    ! mass of snow intercepted by vegetation [kg/m2]
-     real(kind=4), pointer, dimension(:)   :: tcs => null()     ! vegetation canopy temperature [K]
-     real(kind=4), pointer, dimension(:)   :: tgs => null()     ! temperature of bare soil [K]
-     real(kind=4), pointer, dimension(:)   :: ts => null()      ! surface temperature [K]
-     real(kind=4), pointer, dimension(:,:) :: tsl => null()     ! temperatures of soil layers [K]
-     real(kind=4), pointer, dimension(:)   :: tsn => null()     ! snow internal temperature [K]
-     real(kind=4), pointer, dimension(:)   :: tsns => null()    ! snow surface temperature [K]
+     real(kind=r_1), pointer, dimension(:)   :: evspsbl => null()
+     real(kind=r_1), pointer, dimension(:)   :: evspsblsoi => null() ! evaporation and sublimation from soil [kg/m2/s]
+     real(kind=r_1), pointer, dimension(:)   :: evspsblveg => null() ! evaporation and sublimation from canopy [kg/m2/s]
+     real(kind=r_1), pointer, dimension(:)   :: mrrob => null()   ! subsurface runoff [kg/m2/s]
+     real(kind=r_1), pointer, dimension(:)   :: mrros => null()   ! surface runoff [kg/m2/s]
+     real(kind=r_1), pointer, dimension(:)   :: sbl => null()     ! sublimation of snow [kg/m2/s]
+     real(kind=r_1), pointer, dimension(:)   :: snm => null()     ! surface snow melt [kg/m2/s]
+     real(kind=r_1), pointer, dimension(:)   :: snmsl => null()   ! water flowing out of snowpack [kg/m2/s]
+     real(kind=r_1), pointer, dimension(:)   :: tran => null()    ! transpiration [kg/m2/s]
+     real(kind=r_1), pointer, dimension(:)   :: albs => null()    ! surface albedo [-]
+     real(kind=r_1), pointer, dimension(:)   :: albsn => null()   ! snow albedo [-]
+     real(kind=r_1), pointer, dimension(:)   :: cw => null()      ! total canopy water storage [kg/m2]
+     real(kind=r_1), pointer, dimension(:)   :: lqsn => null()    ! mass fraction of liquid water in snowpack [-]
+     real(kind=r_1), pointer, dimension(:)   :: lwsnl => null()   ! liquid water content of snowpack [kg/m2]
+     real(kind=r_1), pointer, dimension(:,:) :: mrfsofr => null() ! mass fractions of frozen water in soil layers [-]
+     real(kind=r_1), pointer, dimension(:,:) :: mrlqso => null()  ! mass fractions of unfrozen water in soil layers [-]
+     real(kind=r_1), pointer, dimension(:,:) :: mrlsl => null()   ! masses of frozen and unfrozen moisture in soil layers [kg/m2]
+     real(kind=r_1), pointer, dimension(:)   :: snc => null()     ! snow area fraction [-]
+     real(kind=r_1), pointer, dimension(:)   :: snd => null()     ! snowdepth [m]
+     real(kind=r_1), pointer, dimension(:)   :: snw => null()     ! mass of snowpack [kg/m2]
+     real(kind=r_1), pointer, dimension(:)   :: snwc => null()    ! mass of snow intercepted by vegetation [kg/m2]
+     real(kind=r_1), pointer, dimension(:)   :: tcs => null()     ! vegetation canopy temperature [K]
+     real(kind=r_1), pointer, dimension(:)   :: tgs => null()     ! temperature of bare soil [K]
+     real(kind=r_1), pointer, dimension(:)   :: ts => null()      ! surface temperature [K]
+     real(kind=r_1), pointer, dimension(:,:) :: tsl => null()     ! temperatures of soil layers [K]
+     real(kind=r_1), pointer, dimension(:)   :: tsn => null()     ! snow internal temperature [K]
+     real(kind=r_1), pointer, dimension(:)   :: tsns => null()    ! snow surface temperature [K]
      ! Non-Alma variables
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Rnet => null()  ! net absorbed radiation [W/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: HVeg => null()  ! sensible heat from vegetation [W/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: HSoil => null() ! sensible heat from soil [W/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: RnetSoil => null() ! latent heat from soil [kg/m2/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: SnowMelt => null() ! snow melt [W/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Ebal => null()  ! cumulative energy balance [W/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Wbal => null()  ! cumulative water balance [W/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: CanT => null()  ! within-canopy temperature [K]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Fwsoil => null()  ! soil-moisture modfier to stomatal conductance [-]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Rnet => null()  ! net absorbed radiation [W/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: HVeg => null()  ! sensible heat from vegetation [W/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: HSoil => null() ! sensible heat from soil [W/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: RnetSoil => null() ! latent heat from soil [kg/m2/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: SnowMelt => null() ! snow melt [W/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Ebal => null()  ! cumulative energy balance [W/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Wbal => null()  ! cumulative water balance [W/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: CanT => null()  ! within-canopy temperature [K]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Fwsoil => null()  ! soil-moisture modfier to stomatal conductance [-]
 
      ! [umol/m2/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: NBP => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: dCdt => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: NBP => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: dCdt => null()
      ! [kg C /m2]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: TotSoilCarb => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: TotLivBiomass => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: TotLittCarb => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: SoilCarbFast => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: SoilCarbSlow => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: SoilCarbPassive => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: LittCarbMetabolic => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: LittCarbStructural => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: LittCarbCWD => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: PlantCarbLeaf => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: PlantCarbFineRoot => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: PlantCarbWood => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: PlantTurnover => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: PlantTurnoverLeaf => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: PlantTurnoverFineRoot => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: PlantTurnoverWood => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: PlantTurnoverWoodDist => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: PlantTurnoverWoodCrowding => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: PlantTurnoverWoodResourceLim => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: Area => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: LandUseFlux => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: vcmax => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: ejmax => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: patchfrac => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: hc => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_sl => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_sh => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_slC => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_shC => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_slJ => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: GPP_shJ => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: An_sl => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: An_sh=> null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: ci_sl => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: ci_sh => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: scalex_sl => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: scalex_sh => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: dlf => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: eta_GPP_cs => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: eta_TVeg_cs => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: dGPPdcs => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: CO2s => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: gsw_TVeg => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: vcmax_ts => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: jmax_ts => null()
-     REAL(KIND=4), POINTER, DIMENSION(:) :: gsw_sl => null()   ! stomatal conductance (sunlit leaves)
-     REAL(KIND=4), POINTER, DIMENSION(:) :: gsw_sh => null()   ! stomatal conductance (shaded leaves)
-     REAL(KIND=4), POINTER, DIMENSION(:) :: RootResp => null()   ! autotrophic root respiration [umol/m2/s]
-     REAL(KIND=4), POINTER, DIMENSION(:) :: StemResp => null()   ! autotrophic stem respiration [umol/m2/s]
-     REAL(KIND=4), POINTER, DIMENSION(:,:) :: qcan_sl => null()   ! absorbed radiation by canopy (sunlit leaves) [W/m2]
-     REAL(KIND=4), POINTER, DIMENSION(:,:) :: qcan_sh => null()   ! absorbed radiation by canopy (shaded leaves) [W/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: TotSoilCarb => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: TotLivBiomass => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: TotLittCarb => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: SoilCarbFast => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: SoilCarbSlow => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: SoilCarbPassive => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: LittCarbMetabolic => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: LittCarbStructural => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: LittCarbCWD => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PlantCarbLeaf => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PlantCarbFineRoot => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PlantCarbWood => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PlantTurnover => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PlantTurnoverLeaf => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PlantTurnoverFineRoot => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PlantTurnoverWood => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PlantTurnoverWoodDist => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PlantTurnoverWoodCrowding => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PlantTurnoverWoodResourceLim => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Area => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: LandUseFlux => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: vcmax => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: ejmax => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: patchfrac => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: hc => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP_sl => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP_sh => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP_slC => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP_shC => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP_slJ => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP_shJ => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: An_sl => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: An_sh=> null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: ci_sl => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: ci_sh => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: scalex_sl => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: scalex_sh => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: dlf => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: eta_GPP_cs => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: eta_TVeg_cs => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: dGPPdcs => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: CO2s => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: gsw_TVeg => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: vcmax_ts => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: jmax_ts => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: gsw_sl => null()   ! stomatal conductance (sunlit leaves)
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: gsw_sh => null()   ! stomatal conductance (shaded leaves)
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: RootResp => null()   ! autotrophic root respiration [umol/m2/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: StemResp => null()   ! autotrophic stem respiration [umol/m2/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:,:) :: qcan_sl => null()   ! absorbed radiation by canopy (sunlit leaves) [W/m2]
+     REAL(KIND=r_1), POINTER, DIMENSION(:,:) :: qcan_sh => null()   ! absorbed radiation by canopy (shaded leaves) [W/m2]
      REAL(KIND=r_2), POINTER, DIMENSION(:)   :: An => null()        ! total net assimilation
      REAL(KIND=r_2), POINTER, DIMENSION(:)   :: Rd => null()        ! total leaf respiration
      REAL(KIND=r_2), POINTER, DIMENSION(:,:) :: cplant => null()    ! plant carbon pools
@@ -299,7 +299,7 @@ CONTAINS
     CHARACTER(LEN=10) :: todaydate, nowtime ! used to timestamp netcdf file
     integer :: nplantid, nlitterid, nsoilid
 
-    real(kind=4), parameter :: zero4 = real(0.0,4)
+    real(kind=r_1), parameter :: zero4 = real(0.0,r_1)
 
     ! Create output file:
 #ifdef __NETCDF3__
@@ -1872,9 +1872,9 @@ CONTAINS
     INTEGER :: iy   ! Counter
     INTEGER, SAVE   :: YearStart
     INTEGER :: ok ! for netcdf sync
-    real(kind=4) :: rinterval
+    real(kind=r_1) :: rinterval
     real(r_2)    :: r2interval, gd2umols
-    real(kind=4), parameter :: zero4 = real(0.0,4)
+    real(kind=r_1), parameter :: zero4 = real(0.0,r_1)
     real, dimension(mp) :: totlai
 
     ! logical :: opened
@@ -4477,13 +4477,13 @@ CONTAINS
     implicit none
 
     real(r_2),   intent(in) :: var
-    real(kind=4)            :: dp2sp
+    real(kind=r_1)            :: dp2sp
 
     real(r_2),    parameter :: tini = real(tiny(1.0),r_2)
-    real(kind=4), parameter :: zero = real(0.0,4)
+    real(kind=r_1), parameter :: zero = real(0.0,r_1)
 
     if (abs(var) > tini) then
-       dp2sp = real(var,4)
+       dp2sp = real(var,r_1)
     else
        dp2sp = zero
     endif
@@ -4498,9 +4498,9 @@ CONTAINS
     implicit none
 
     integer  ,   intent(in) :: var
-    real(kind=4)            :: i2sp
+    real(kind=r_1)            :: i2sp
 
-    i2sp = real(var,4)
+    i2sp = real(var,r_1)
 
     return
 
@@ -4512,13 +4512,13 @@ CONTAINS
     implicit none
 
     real,        intent(in) :: var
-    real(kind=4)            :: sp2sp
+    real(kind=r_1)            :: sp2sp
 
     real,         parameter :: tini = tiny(1.0)
-    real(kind=4), parameter :: zero = real(0.0,4)
+    real(kind=r_1), parameter :: zero = real(0.0,r_1)
 
     if (abs(var) > tini) then
-       sp2sp = real(var,4)
+       sp2sp = real(var,r_1)
     else
        sp2sp = zero
     endif

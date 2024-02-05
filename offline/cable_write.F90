@@ -292,12 +292,12 @@ CONTAINS
       (ok, 'Error defining '//vname//' variable attributes in output file. '// &
                                                       '(INTERFACE define_ovar)')
     ! Define missing/fill values:
-    ok = NF90_PUT_ATT(ncid, varID, '_FillValue', REAL(ncmissingr, 4))
+    ok = NF90_PUT_ATT(ncid, varID, '_FillValue', REAL(ncmissingr, r_1))
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
       (ok, 'Error defining '//vname//' variable attributes in output file. '// &
                                                       '(INTERFACE define_ovar)')
     ! Define missing/fill values:
-    ok = NF90_PUT_ATT(ncid, varID, 'missing_value', REAL(ncmissingr, 4))
+    ok = NF90_PUT_ATT(ncid, varID, 'missing_value', REAL(ncmissingr, r_1))
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
       (ok, 'Error defining '//vname//' variable attributes in output file. '// &
                                                       '(INTERFACE define_ovar)')
@@ -527,12 +527,12 @@ CONTAINS
       (ok, 'Error defining '//vname//' variable attributes in output file. '// &
                                        '(SUBROUTINE define_output_variable_r2)')
     ! Define missing/fill values:
-    ok = NF90_PUT_ATT(ncid, varID, '_FillValue', REAL(ncmissingr, 4))
+    ok = NF90_PUT_ATT(ncid, varID, '_FillValue', REAL(ncmissingr, r_1))
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
        (ok,'Error defining '//vname//' variable attributes in output file. '// &
                                                       '(INTERFACE define_ovar)')
     ! Define missing/fill values:
-    ok = NF90_PUT_ATT(ncid, varID, 'missing_value', REAL(ncmissingr, 4))
+    ok = NF90_PUT_ATT(ncid, varID, 'missing_value', REAL(ncmissingr, r_1))
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
       (ok, 'Error defining '//vname//' variable attributes in output file. '// &
                                                       '(INTERFACE define_ovar)')
@@ -711,20 +711,20 @@ CONTAINS
             'Error defining '//pname//' variable attributes in '// &
             'output file. (INTERFACE define_ovar)')
     else if (dimswitch(1:2) == 'r2') then
-       ok = nf90_put_att(ncid, parID, '_FillValue', real(ncmissingr, 8))
+       ok = nf90_put_att(ncid, parID, '_FillValue', real(ncmissingr, r_2))
        if (ok /= nf90_noerr) call nc_abort(ok, &
             'Error defining '//pname//' variable attributes in '// &
             'output file. (INTERFACE define_ovar)')
-       ok = nf90_put_att(ncid, parid, 'missing_value', real(ncmissingr, 8))
+       ok = nf90_put_att(ncid, parid, 'missing_value', real(ncmissingr, r_2))
        if (ok /= nf90_noerr) call nc_abort(ok, &
             'Error defining '//pname//' variable attributes in '// &
             'output file. (INTERFACE define_ovar)')
     else
-       ok = nf90_put_att(ncid, parID, '_FillValue', real(ncmissingr, 4))
+       ok = nf90_put_att(ncid, parID, '_FillValue', real(ncmissingr, r_1))
        if (ok /= nf90_noerr) call nc_abort(ok, &
             'Error defining '//pname//' variable attributes in '// &
             'output file. (INTERFACE define_ovar)')
-       ok = nf90_put_att(ncid, parid, 'missing_value', real(ncmissingr, 4))
+       ok = nf90_put_att(ncid, parid, 'missing_value', real(ncmissingr, r_1))
        if (ok /= nf90_noerr) call nc_abort(ok, &
             'Error defining '//pname//' variable attributes in '// &
             'output file. (INTERFACE define_ovar)')
@@ -933,20 +933,20 @@ CONTAINS
           (ok, 'Error defining '//pname//' variable attributes in '//          &
                                          'output file. (INTERFACE define_ovar)')
     ELSE IF(dimswitch(1:2) == 'r2') THEN
-       ok = NF90_PUT_ATT(ncid, parID, '_FillValue', REAL(ncmissingr, 8))
+       ok = NF90_PUT_ATT(ncid, parID, '_FillValue', REAL(ncmissingr, r_2))
        IF (ok /= NF90_NOERR) CALL nc_abort                                     &
           (ok, 'Error defining '//pname//' variable attributes in '//          &
                                          'output file. (INTERFACE define_ovar)')
-       ok = NF90_PUT_ATT(ncid, parID, 'missing_value', REAL(ncmissingr, 8))
+       ok = NF90_PUT_ATT(ncid, parID, 'missing_value', REAL(ncmissingr, r_2))
        IF (ok /= NF90_NOERR) CALL nc_abort                                     &
           (ok, 'Error defining '//pname//' variable attributes in '//          &
                                          'output file. (INTERFACE define_ovar)')
     ELSE
-       ok = NF90_PUT_ATT(ncid, parID, '_FillValue', REAL(ncmissingr, 4))
+       ok = NF90_PUT_ATT(ncid, parID, '_FillValue', REAL(ncmissingr, r_1))
        IF (ok /= NF90_NOERR) CALL nc_abort                                     &
             (ok, 'Error defining '//pname//' variable attributes in '//        &
                                          'output file. (INTERFACE define_ovar)')
-       ok = NF90_PUT_ATT(ncid, parID, 'missing_value', REAL(ncmissingr, 4))
+       ok = NF90_PUT_ATT(ncid, parID, 'missing_value', REAL(ncmissingr, r_1))
        IF (ok /= NF90_NOERR) CALL nc_abort                                     &
           (ok, 'Error defining '//pname//' variable attributes in '//          &
                                          'output file. (INTERFACE define_ovar)')
@@ -962,7 +962,7 @@ CONTAINS
     INTEGER, INTENT(IN) :: ktau ! current time step #
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID
     INTEGER, INTENT(IN) :: varID ! variable's netcdf ID
-    REAL(KIND=4), DIMENSION(:), INTENT(IN) :: var_r1 ! variable values
+    REAL(KIND=r_1), DIMENSION(:), INTENT(IN) :: var_r1 ! variable values
     REAL, DIMENSION(2), INTENT(IN) :: vrange ! max and min for variable ! error checking
     LOGICAL, INTENT(IN) :: writepatch ! write patch-specific info for this var?
     CHARACTER(LEN=*), INTENT(IN) :: vname ! name of variable
@@ -1002,7 +1002,7 @@ CONTAINS
              WHERE(mask /= 1) otmp4xypt(:, :, j, 1) = ncmissingr ! not land
           END DO
           ! write data to file
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4xypt(:, :, :, 1), 4),       &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4xypt(:, :, :, 1), r_1),       &
                             start = (/1, 1, 1, ktau/),                         &
                             count = (/xdimsize, ydimsize, max_vegpatches, 1/))
        ELSE ! only grid point values, no patch-specific info
@@ -1014,7 +1014,7 @@ CONTAINS
              ! patches):
              otmp4xyzt(land_x(i), land_y(i), 1, 1) =                           &
                                                   SUM(var_r1(landpt(i)%cstart: &
-                  landpt(i)%cend) * real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
+                  landpt(i)%cend) * real(patch(landpt(i)%cstart:landpt(i)%cend)%frac, r_1))
             IF(check%ranges) THEN  ! Check ranges:
               IF((otmp4xyzt(land_x(i), land_y(i), 1, 1) < vrange(1)) .OR.      &
                  (otmp4xyzt(land_x(i), land_y(i), 1, 1) > vrange(2)))          &
@@ -1025,7 +1025,7 @@ CONTAINS
           END DO
           ! Fill non-land points with dummy value:
           WHERE(mask /= 1) otmp4xyzt(:, :, 1, 1) = ncmissingr ! not land
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4xyzt, 4),                   &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4xyzt, r_1),                   &
                             start = (/1, 1, 1, ktau/),                         &
                       count = (/xdimsize, ydimsize, 1, 1/)) ! write data to file
         ELSE ! normal x-y-t mask grid
@@ -1033,7 +1033,7 @@ CONTAINS
             ! Write to temporary variable (area weighted average across all
             ! patches):
             otmp3xyt(land_x(i), land_y(i), 1) = SUM(var_r1(landpt(i)%cstart:   &
-                  landpt(i)%cend) * real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
+                  landpt(i)%cend) * real(patch(landpt(i)%cstart:landpt(i)%cend)%frac, r_1))
             IF(check%ranges) THEN  ! Check ranges:
               IF((otmp3xyt(land_x(i), land_y(i), 1) < vrange(1)) .OR.          &
                  (otmp3xyt(land_x(i), land_y(i), 1) > vrange(2)))              &
@@ -1044,7 +1044,7 @@ CONTAINS
           END DO
           ! Fill non-land points with dummy value:
           WHERE(mask /= 1) otmp3xyt(:, :, 1) = ncmissingr ! not land
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3xyt, 4),                    &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3xyt, r_1),                    &
                           start = (/1,1,ktau/),                                &
                          count = (/xdimsize, ydimsize, 1/)) ! write data to file
         END IF
@@ -1070,14 +1070,14 @@ CONTAINS
           END IF
         END DO
         ! write data to file
-        ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lpt(:, :, 1), 4),             &
+        ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lpt(:, :, 1), r_1),             &
                    start = (/1, 1, ktau/), count = (/mland, max_vegpatches, 1/))
       ELSE ! only grid point values, no patch-specific info
         DO i = 1, mland ! over all land grid points
           ! Write to temporary variable (area weighted average across all
           ! patches):
           otmp2lt(i, 1) = SUM(var_r1(landpt(i)%cstart:                         &
-                  landpt(i)%cend) * real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
+                  landpt(i)%cend) * real(patch(landpt(i)%cstart:landpt(i)%cend)%frac, r_1))
           IF(check%ranges) THEN  ! Check ranges:
             IF((otmp2lt(i, 1) < vrange(1)) .OR.                                &
                  (otmp2lt(i, 1) > vrange(2)))                                  &
@@ -1085,7 +1085,7 @@ CONTAINS
                  ktau, met, otmp2lt(i, 1), vrange, i)
           END IF
         END DO
-        ok = NF90_PUT_VAR(ncid, varID, REAL(otmp2lt, 4),                       &
+        ok = NF90_PUT_VAR(ncid, varID, REAL(otmp2lt, r_1),                       &
                  start = (/1, ktau/), count = (/mland, 1/)) ! write data to file
       END IF
     ELSE
@@ -1106,7 +1106,7 @@ CONTAINS
     INTEGER, INTENT(IN) :: ktau ! current time step #
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID
     INTEGER, INTENT(IN) :: varID ! variable's netcdf ID
-    REAL(KIND=4), DIMENSION(:, :), INTENT(IN) :: var_r2 ! variable values
+    REAL(KIND=r_1), DIMENSION(:, :), INTENT(IN) :: var_r2 ! variable values
     REAL, DIMENSION(2), INTENT(IN) :: vrange ! max and min for variable
                                                   ! error checking
     LOGICAL, INTENT(IN) :: writepatch ! write patch-specific info for this var?
@@ -1116,7 +1116,7 @@ CONTAINS
 
     INTEGER :: i, j, k ! do loop counter
     integer :: n2 ! 2nd dimension of input var
-    real(kind=4) :: rout
+    real(kind=r_1) :: rout
     real, dimension(:,:,:),     allocatable :: otmp3
     real, dimension(:,:,:,:),   allocatable :: otmp4
     real, dimension(:,:,:,:,:), allocatable :: otmp5
@@ -1159,7 +1159,7 @@ CONTAINS
             END DO
           END DO
           ! Write data to file:
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp5xypst(:, :, :, :,1), 4),    &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp5xypst(:, :, :, :,1), r_1),    &
                             start = (/1, 1, 1, 1, ktau/),                      &
                           count = (/xdimsize, ydimsize, max_vegpatches, ms, 1/))
         ELSE IF(dimswitch == 'snow') THEN ! other dim is snow
@@ -1190,7 +1190,7 @@ CONTAINS
                 END DO
           END DO
           ! Write data to file:
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp5xypsnt(:, :, :, :, 1), 4),  &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp5xypsnt(:, :, :, :, 1), r_1),  &
                             start = (/1, 1, 1, 1, ktau/),                      &
                          count = (/xdimsize, ydimsize, max_vegpatches, msn, 1/))
         ELSE IF(dimswitch=='radiation') THEN ! other dim is radiation bands
@@ -1222,7 +1222,7 @@ CONTAINS
                 END DO
           END DO
           ! Write data to file:
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp5xyprt(:, :, :, :, 1), 4),   &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp5xyprt(:, :, :, :, 1), r_1),   &
                             start = (/1, 1, 1, 1, ktau/),                      &
                          count = (/xdimsize, ydimsize, max_vegpatches, nrb, 1/))
 
@@ -1257,7 +1257,7 @@ CONTAINS
                 END DO
           END DO
           ! Write data to file:
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp5xyppct(:, :, :, :, 1), 4),  &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp5xyppct(:, :, :, :, 1), r_1),  &
                             start = (/1, 1, 1, 1, ktau/),                      &
                          count = (/xdimsize, ydimsize, max_vegpatches, ncp, 1/))
         ELSE IF(dimswitch == 'soilcarbon') THEN ! other dim is soil carbon pools
@@ -1289,7 +1289,7 @@ CONTAINS
             END DO
           END DO
           ! Write data to file:
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp5xypsct(:, :, :, :, 1), 4),  &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp5xypsct(:, :, :, :, 1), r_1),  &
                             start = (/1, 1, 1, 1, ktau/),                      &
                          count = (/xdimsize, ydimsize, max_vegpatches, ncs, 1/))
        else if (dimswitch == 'generic') then ! dimensions are determined from var_r2
@@ -1318,7 +1318,7 @@ CONTAINS
           
           ! write data to file
           ok = NF90_PUT_VAR(ncid, varid, &
-               real(otmp5(:, :, :, :, 1), 4), &
+               real(otmp5(:, :, :, :, 1), r_1), &
                start = (/1, 1, 1, 1, ktau/), &
                count = (/xdimsize, ydimsize, max_vegpatches, n2, 1/))
           
@@ -1338,7 +1338,7 @@ CONTAINS
             DO j = 1, ms
                otmp4xyst(land_x(i), land_y(i), j, 1) = SUM(                    &
                                  var_r2(landpt(i)%cstart:landpt(i)%cend, j) *  &
-                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac, r_1))
             END DO
             IF(check%ranges) THEN  ! Check ranges:
               DO j = 1, ms
@@ -1354,7 +1354,7 @@ CONTAINS
           DO j = 1, ms
             WHERE(mask /= 1) otmp4xyst(:, :, j, 1) = ncmissingr ! not land
           END DO
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4xyst, 4),                   &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4xyst, r_1),                   &
                             start = (/1, 1, 1, ktau/),                         &
                      count = (/xdimsize, ydimsize, ms, 1/)) ! write data to file
         ELSE IF(dimswitch == 'snow') THEN ! other dim is snow
@@ -1364,7 +1364,7 @@ CONTAINS
             DO j = 1, msn
                otmp4xysnt(land_x(i), land_y(i), j, 1) = SUM(                   &
                                  var_r2(landpt(i)%cstart:landpt(i)%cend, j) *  &
-                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac, r_1))
             END DO
             IF(check%ranges) THEN  ! Check ranges:
               DO j = 1, msn
@@ -1380,7 +1380,7 @@ CONTAINS
           DO j = 1, msn
             WHERE(mask /= 1) otmp4xysnt(:, :, j, 1) = ncmissingr ! not land
           END DO
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4xysnt, 4),                  &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4xysnt, r_1),                  &
                             start = (/1, 1, 1, ktau/),                         &
                     count = (/xdimsize, ydimsize, msn, 1/)) ! write data to file
         ELSE IF(dimswitch == 'radiation') THEN ! other dim is radiation bands
@@ -1390,7 +1390,7 @@ CONTAINS
             DO j = 1, nrb
                otmp4xyrt(land_x(i), land_y(i), j, 1) = SUM(                    &
                                   var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
-                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac, r_1))
             END DO
             IF(check%ranges) THEN  ! Check ranges:
               DO j = 1, nrb
@@ -1406,7 +1406,7 @@ CONTAINS
           DO j = 1, nrb
             WHERE(mask /= 1) otmp4xyrt(:, :, j, 1) = ncmissingr ! not land
           END DO
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4xyrt, 4),                   &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4xyrt, r_1),                   &
                             start = (/1, 1, 1, ktau/),                         &
                     count = (/xdimsize, ydimsize, nrb, 1/)) ! write data to file
         ELSE IF(dimswitch == 'plantcarbon') THEN ! other dim is plant carbon
@@ -1416,7 +1416,7 @@ CONTAINS
             DO j = 1, ncp
                otmp4xypct(land_x(i), land_y(i), j, 1) = SUM(                   &
                                   var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
-                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac, r_1))
             END DO
             IF(check%ranges) THEN  ! Check ranges:
               DO j = 1, ncp
@@ -1432,7 +1432,7 @@ CONTAINS
           DO j = 1, ncp
             WHERE(mask /= 1) otmp4xypct(:, :, j, 1) = ncmissingr ! not land
           END DO
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4xypct, 4),                  &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4xypct, r_1),                  &
                             start = (/1, 1, 1, ktau/),                         &
                     count = (/xdimsize, ydimsize, ncp, 1/)) ! write data to file
         ELSE IF(dimswitch == 'soilcarbon') THEN ! other dim is soil carbon pools
@@ -1441,7 +1441,7 @@ CONTAINS
             DO j = 1, ncs
                otmp4xysct(land_x(i), land_y(i), j, 1) = SUM(                   &
                                   var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
-                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac, r_1))
             END DO
             IF(check%ranges) THEN  ! Check ranges:
               DO j = 1, ncs
@@ -1457,7 +1457,7 @@ CONTAINS
           DO j = 1, ncs
             WHERE(mask /= 1) otmp4xysct(:, :, j, 1) = ncmissingr ! not land
           END DO
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4xysct, 4),                  &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4xysct, r_1),                  &
                             start = (/1, 1, 1, ktau/),                         &
                     count = (/xdimsize, ydimsize, ncs, 1/)) ! write data to file
        else if (dimswitch == 'generic') then ! dimensions are determined from var_r2
@@ -1470,7 +1470,7 @@ CONTAINS
              ! Write active patches to temporary variable (sum over patches & weight by fraction)
              do j=1, n2
                 otmp4(land_x(i), land_y(i), j, 1) = sum( var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
-                     real(patch(landpt(i)%cstart:landpt(i)%cend)%frac) )
+                     real(patch(landpt(i)%cstart:landpt(i)%cend)%frac, r_1) )
              end do             
 
              ! Check ranges
@@ -1489,7 +1489,7 @@ CONTAINS
           
           ! write data to file
           ok = NF90_PUT_VAR(ncid, varid, &
-               real(otmp4(:, :, :, 1), 4), &
+               real(otmp4(:, :, :, 1), r_1), &
                start = (/1, 1, 1, ktau/), &
                count = (/xdimsize, ydimsize, n2, 1/))
 
@@ -1528,7 +1528,7 @@ CONTAINS
             END IF
           END DO
           ! Write data to file:
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4lpst(:, :, :, 1), 4),       &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4lpst(:, :, :, 1), r_1),       &
                             start = (/1, 1, 1, ktau/),                         &
                             count = (/mland, max_vegpatches, ms, 1/))
         ELSE IF(dimswitch == 'snow') THEN ! other dim is snow
@@ -1551,7 +1551,7 @@ CONTAINS
             END IF
           END DO
           ! write data to file
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4lpsnt(:, :, :, 1), 4),      &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4lpsnt(:, :, :, 1), r_1),      &
                             start = (/1, 1, 1, ktau/),                         &
                             count = (/mland, max_vegpatches, msn, 1/))
         ELSE IF(dimswitch == 'radiation') THEN ! other dim is radiation bands
@@ -1575,7 +1575,7 @@ CONTAINS
             END IF
           END DO
           ! write data to file
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4lprt(:, :, :, 1), 4),       &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4lprt(:, :, :, 1), r_1),       &
                             start = (/1, 1, 1, ktau/),                         &
                             count = (/mland, max_vegpatches, nrb, 1/))
 !write(*,*) 'var', var_r2(landpt(1)%cstart:landpt(1)%cend,:)
@@ -1601,7 +1601,7 @@ CONTAINS
             END IF
           END DO
           ! write data to file
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4lppct(:, :, :, 1), 4),      &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4lppct(:, :, :, 1), r_1),      &
                             start = (/1, 1, 1, ktau/),                         &
                             count = (/mland, max_vegpatches, ncp, 1/))
         ELSE IF(dimswitch == 'soilcarbon') THEN ! other dim is soil carbon pools
@@ -1624,7 +1624,7 @@ CONTAINS
             END IF
           END DO
           ! write data to file
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4lpsct(:, :, :, 1), 4),      &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4lpsct(:, :, :, 1), r_1),      &
                             start = (/1, 1, 1, ktau/),                         &
                             count = (/mland, max_vegpatches, ncs, 1/))
        else if (dimswitch == 'generic') then ! dimensions are determined from var_r2
@@ -1653,7 +1653,7 @@ CONTAINS
           
           ! write data to file
           ok = NF90_PUT_VAR(ncid, varid, &
-               real(otmp4(:, :, :, 1), 4), &
+               real(otmp4(:, :, :, 1), r_1), &
                start = (/1, 1, 1, ktau/), &
                count = (/mland, max_vegpatches, n2, 1/))
           
@@ -1673,7 +1673,7 @@ CONTAINS
             DO j = 1, ms
                otmp3lst(i, j, 1) = SUM(                                        &
                                   var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
-                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac, r_1))
             END DO
             IF(check%ranges) THEN  ! Check ranges:
               DO j = 1, ms
@@ -1684,7 +1684,7 @@ CONTAINS
               END DO
             END IF
           END DO
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lst, 4),                    &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lst, r_1),                    &
                             start = (/1, 1, ktau/),                            &
                             count = (/mland, ms, 1/)) ! write data to file
         ELSE IF(dimswitch == 'snow') THEN ! other dim is snow
@@ -1694,7 +1694,7 @@ CONTAINS
             DO j = 1, msn
                otmp3lsnt(i, j, 1) = SUM(                                       &
                                   var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
-                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac, r_1))
             END DO
             IF(check%ranges) THEN  ! Check ranges:
               DO j = 1, msn
@@ -1705,7 +1705,7 @@ CONTAINS
               END DO
             END IF
           END DO
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lsnt, 4),                   &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lsnt, r_1),                   &
                             start = (/1, 1, ktau/),                            &
                             count = (/mland, msn, 1/)) ! write data to file
         ELSE IF(dimswitch == 'radiation') THEN ! other dim is radiation bands
@@ -1714,7 +1714,7 @@ CONTAINS
             DO j = 1, nrb
                otmp3lrt(i, j, 1) = SUM(                                        &
                                   var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
-                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac, r_1))
             END DO
             IF(check%ranges) THEN  ! Check ranges:
               DO j = 1, nrb
@@ -1725,7 +1725,7 @@ CONTAINS
               END DO
             END IF
           END DO
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lrt, 4),                    &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lrt, r_1),                    &
                             start = (/1, 1, ktau/),                            &
                             count = (/mland, nrb, 1/)) ! write data to file
         ELSE IF(dimswitch == 'plantcarbon') THEN ! other dim is plant carbon
@@ -1735,7 +1735,7 @@ CONTAINS
             DO j = 1, ncp
                otmp3lpct(i, j, 1) = SUM(                                       &
                                   var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
-                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac, r_1))
             END DO
             IF(check%ranges) THEN  ! Check ranges:
               DO j = 1, ncp
@@ -1746,7 +1746,7 @@ CONTAINS
               END DO
             END IF
           END DO
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lpct, 4),                   &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lpct, r_1),                   &
                             start = (/1, 1, ktau/),                            &
                             count = (/mland, ncp, 1/)) ! write data to file
         ELSE IF(dimswitch == 'soilcarbon') THEN ! other dim is soil carbon pools
@@ -1755,7 +1755,7 @@ CONTAINS
             DO j = 1, ncs
                otmp3lsct(i, j, 1) = SUM(                                       &
                                   var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
-                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
+                                    real(patch(landpt(i)%cstart:landpt(i)%cend)%frac, r_1))
             END DO
             IF(check%ranges) THEN  ! Check ranges:
               DO j = 1, ncs
@@ -1766,7 +1766,7 @@ CONTAINS
               END DO
             END IF
           END DO
-          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lsct, 4),                   &
+          ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lsct, r_1),                   &
                             start = (/1, 1, ktau/),                            &
                             count = (/mland, ncs, 1/)) ! write data to file
        else if (dimswitch == 'generic') then ! dimensions are determined from var_r2
@@ -1779,7 +1779,7 @@ CONTAINS
              ! Write active patches to temporary variable (sum over patches & weight by fraction)
              do j=1, n2
                 otmp3(i, j, 1) = sum(var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
-                     real(patch(landpt(i)%cstart:landpt(i)%cend)%frac))
+                     real(patch(landpt(i)%cstart:landpt(i)%cend)%frac, r_1))
              end do             
 
              ! Check ranges
@@ -1798,7 +1798,7 @@ CONTAINS
           
           ! write data to file
           ok = NF90_PUT_VAR(ncid, varid, &
-               real(otmp3(:, :, 1), 4), &
+               real(otmp3(:, :, 1), r_1), &
                start = (/1, 1, ktau/), &
                count = (/mland, n2, 1/))
 
@@ -1827,7 +1827,7 @@ CONTAINS
     INTEGER,                    INTENT(IN) :: ncid       ! netcdf file ID
     INTEGER,                    INTENT(IN) :: parID      ! variable's netcdf ID
     CHARACTER(LEN=*),           INTENT(IN) :: pname      ! name of variable
-    REAL(KIND=4), DIMENSION(:), INTENT(IN) :: par_r1     ! variable values
+    REAL(KIND=r_1), DIMENSION(:), INTENT(IN) :: par_r1     ! variable values
     REAL,         DIMENSION(2), INTENT(IN) :: prange     ! max and min for variable error checking
     LOGICAL,                    INTENT(IN) :: writepatch ! write patch-specific info for this var?
     CHARACTER(LEN=*),           INTENT(IN) :: dimswitch  ! indicates dimesnion of parameter
@@ -1875,7 +1875,7 @@ CONTAINS
              DO j = 1, max_vegpatches
                 WHERE(mask /= 1) otmp3xyp(:, :, j) = ncmissingr ! not land
              END DO
-             ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3xyp(:, :, :), 4),        &
+             ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3xyp(:, :, :), r_1),        &
                                start = (/1, 1, 1/),                            &
                                count = (/xdimsize, ydimsize, max_vegpatches/))
           ELSE IF(dimswitch(1:1) == 'i') THEN
@@ -1907,7 +1907,7 @@ CONTAINS
           IF(dimswitch(1:1) == 'r') THEN
              ! Fill non-land points with dummy value:
              WHERE(mask /= 1) otmp2xy(:, :) = ncmissingr ! not land
-             ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2xy, 4),                  &
+             ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2xy, r_1),                  &
                                start = (/1, 1/),                               &
                             count = (/xdimsize, ydimsize/)) ! write data to file
           ELSE IF(dimswitch(1:1) == 'i') THEN
@@ -1952,7 +1952,7 @@ CONTAINS
           END DO
           ! Write data to file
           IF(dimswitch(1:1) == 'r') THEN
-             ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2lp(:, :), 4),            &
+             ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2lp(:, :), r_1),            &
                             start = (/1, 1/), count = (/mland, max_vegpatches/))
           ELSE IF(dimswitch(1:1) == 'i') THEN
              ok = NF90_PUT_VAR(ncid, parID, INT(otmp2lp(:, :)),                &
@@ -1964,7 +1964,7 @@ CONTAINS
           IF(PRESENT(restart)) THEN ! If writing restart data:
              ! Write output:
              IF(dimswitch(1:1) == 'r') THEN
-                ok = NF90_PUT_VAR(ncid, parID, REAL(par_r1, 4),                &
+                ok = NF90_PUT_VAR(ncid, parID, REAL(par_r1, r_1),                &
                              start = (/1/), count = (/mp/)) ! write data to file
              ELSE IF(dimswitch(1:1) == 'i') THEN
                 ok = NF90_PUT_VAR(ncid, parID, INT(par_r1),                    &
@@ -1987,7 +1987,7 @@ CONTAINS
              END DO
              ! Write output:
              IF(dimswitch(1:1) == 'r') THEN
-                ok = NF90_PUT_VAR(ncid, parID, REAL(otmp1l, 4),                &
+                ok = NF90_PUT_VAR(ncid, parID, REAL(otmp1l, r_1),                &
                           start = (/1/), count = (/mland/)) ! write data to file
              ELSE IF(dimswitch(1:1) == 'i') THEN
                 ok = NF90_PUT_VAR(ncid, parID, INT(otmp1l),                    &
@@ -2051,7 +2051,7 @@ CONTAINS
              END DO
           END IF
        END DO
-       ok = NF90_PUT_VAR(ncid, parID, REAL(tmpout(:, :), 8), start = (/1, 1/), &
+       ok = NF90_PUT_VAR(ncid, parID, REAL(tmpout(:, :), r_2), start = (/1, 1/), &
                          count = (/mland, max_vegpatches/)) ! write data to file
        DEALLOCATE(tmpout)
        ! Check writing was successful:
@@ -2066,7 +2066,7 @@ CONTAINS
     ! Subroutine for writing a real valued 2D parameter (time invariant)
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID
     INTEGER, INTENT(IN) :: parID ! variable's netcdf ID
-    REAL(KIND=4), DIMENSION(:, :), INTENT(IN) :: par_r2 ! variable values
+    REAL(KIND=r_1), DIMENSION(:, :), INTENT(IN) :: par_r2 ! variable values
     REAL, DIMENSION(2), INTENT(IN) :: prange ! max and min for variable
                                                   ! error checking
     LOGICAL, INTENT(IN) :: writepatch ! write patch-specific info for this var?
@@ -2115,7 +2115,7 @@ CONTAINS
             END DO
           END DO
           ! write data to file
-          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp4xyps(:, :, :, :), 4),       &
+          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp4xyps(:, :, :, :), r_1),       &
                             start = (/1, 1, 1, 1/),                            &
                             count = (/xdimsize, ydimsize, max_vegpatches, ms/))
         ELSE IF(dimswitch == 'plantcarbon') THEN ! i.e. spatial and plant carbon
@@ -2148,7 +2148,7 @@ CONTAINS
             END DO
           END DO
           ! write data to file
-          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp4xyppc(:, :, :, :), 4),      &
+          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp4xyppc(:, :, :, :), r_1),      &
                             start = (/1, 1, 1, 1/),                            &
                             count = (/xdimsize, ydimsize, max_vegpatches, ncp/))
         ELSE IF(dimswitch == 'soilcarbon') THEN ! i.e. spatial and soil carbon
@@ -2181,7 +2181,7 @@ CONTAINS
             END DO
           END DO
           ! write data to file:
-          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp4xypsc(:, :, :, :), 4),      &
+          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp4xypsc(:, :, :, :), r_1),      &
                             start = (/1, 1, 1, 1/),                            &
                             count = (/xdimsize, ydimsize, max_vegpatches, ncs/))
         ELSE IF(dimswitch == 'radiation') THEN ! i.e. spatial and soil carbon
@@ -2214,7 +2214,7 @@ CONTAINS
             END DO
           END DO
           ! write data to file:
-          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp4xypr(:, :, :, :), 4),       &
+          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp4xypr(:, :, :, :), r_1),       &
                             start = (/1, 1, 1, 1/),                            &
                             count = (/xdimsize, ydimsize, max_vegpatches, nrb/))
         ELSE
@@ -2243,7 +2243,7 @@ CONTAINS
           DO j = 1, ms
             WHERE(mask /= 1) otmp3xys(:, :, j) = ncmissingr ! not land
           END DO
-          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3xys, 4),                    &
+          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3xys, r_1),                    &
                             start = (/1, 1, 1/),                               &
                         count = (/xdimsize, ydimsize, ms/)) ! write data to file
         ELSE IF(dimswitch == 'plantcarbon') THEN ! i.e. spatial and plant carbon
@@ -2265,7 +2265,7 @@ CONTAINS
           DO j = 1, ncp
             WHERE(mask /= 1) otmp3xypc(:, :, j) = ncmissingr ! not land
           END DO
-          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3xypc, 4),                   &
+          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3xypc, r_1),                   &
                             start = (/1, 1, 1/),                               &
                        count = (/xdimsize, ydimsize, ncp/)) ! write data to file
         ELSE IF(dimswitch == 'soilcarbon') THEN ! i.e. spatial and soil carbon
@@ -2287,7 +2287,7 @@ CONTAINS
           DO j = 1, ncs
             WHERE(mask /= 1) otmp3xysc(:, :, j) = ncmissingr ! not land
           END DO
-          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3xysc, 4),                   &
+          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3xysc, r_1),                   &
                             start = (/1, 1, 1/),                               &
                        count = (/xdimsize, ydimsize, ncs/)) ! write data to file
         ELSE IF(dimswitch == 'radiation') THEN ! i.e. spatial and soil carbon
@@ -2309,7 +2309,7 @@ CONTAINS
           DO j = 1, nrb
             WHERE(mask /= 1) otmp3xyr(:, :, j) = ncmissingr ! not land
           END DO
-          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3xyr, 4),                    &
+          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3xyr, r_1),                    &
                             start = (/1, 1, 1/),                               &
                        count = (/xdimsize, ydimsize, nrb/)) ! write data to file
         ELSE IF(dimswitch == 'surftype') THEN ! i.e. surface fraction
@@ -2331,7 +2331,7 @@ CONTAINS
           DO j = 1, 4
             WHERE(mask /= 1) otmp3xysf(:, :, j) = ncmissingr ! not land
           END DO
-          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3xysf, 4),                   &
+          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3xysf, r_1),                   &
                             start = (/1, 1, 1/),                               &
                          count = (/xdimsize, ydimsize, 4/)) ! write data to file
         ELSE
@@ -2369,7 +2369,7 @@ CONTAINS
             END IF
           END DO
           ! write data to file
-          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3lps(:, :, :), 4),           &
+          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3lps(:, :, :), r_1),           &
                      start = (/1, 1, 1/), count = (/mland, max_vegpatches, ms/))
         ELSE IF(dimswitch == 'plantcarbon') THEN ! i.e. spatial and plant carbon
           DO i = 1, mland ! over all land grid points
@@ -2393,7 +2393,7 @@ CONTAINS
             END IF
           END DO
           ! write data to file
-          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3lppc(:, :, :), 4),          &
+          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3lppc(:, :, :), r_1),          &
                     start = (/1, 1, 1/), count = (/mland, max_vegpatches, ncp/))
         ELSE IF(dimswitch == 'soilcarbon') THEN ! i.e. spatial and soil carbon
           DO i = 1, mland ! over all land grid points
@@ -2417,7 +2417,7 @@ CONTAINS
             END IF
           END DO
           ! write data to file
-          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3lpsc(:, :, :), 4),          &
+          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3lpsc(:, :, :), r_1),          &
                     start = (/1, 1, 1/), count = (/mland, max_vegpatches, ncs/))
         ELSE IF(dimswitch == 'radiation') THEN ! i.e. spatial and radiation
                                                ! bands
@@ -2442,7 +2442,7 @@ CONTAINS
             END IF
           END DO
           ! write data to file
-          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3lpr(:, :, :), 4),           &
+          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3lpr(:, :, :), r_1),           &
                     start = (/1, 1, 1/), count = (/mland, max_vegpatches, nrb/))
         ELSE IF(dimswitch == 'snow') THEN ! i.e. spatial and radiation bands
           DO i = 1, mland ! over all land grid points
@@ -2466,7 +2466,7 @@ CONTAINS
             END IF
           END DO
           ! write data to file
-          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3lpsn(:, :, :), 4),          &
+          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3lpsn(:, :, :), r_1),          &
                     start = (/1, 1, 1/), count = (/mland, max_vegpatches, msn/))
         ELSE
           CALL cable_abort('Parameter '//pname//                                     &
@@ -2478,7 +2478,7 @@ CONTAINS
          IF(dimswitch=='soil') THEN ! i.e. spatial and soil
             IF(PRESENT(restart)) THEN
                ! Write data to restart file
-               ok=NF90_PUT_VAR(ncid,parID,REAL(par_r2,4), &
+               ok=NF90_PUT_VAR(ncid,parID,REAL(par_r2, r_1), &
                     start=(/1,1/),count=(/mp,ms/))
             ELSE
                DO i = 1, mland ! over all land grid points
@@ -2495,13 +2495,13 @@ CONTAINS
                      END IF
                   END IF
                END DO
-               ok=NF90_PUT_VAR(ncid,parID,REAL(otmp2ls,4), &
+               ok=NF90_PUT_VAR(ncid,parID,REAL(otmp2ls, r_1), &
                     start=(/1,1/),count=(/mland,ms/)) ! write data to file
             END IF
         ELSE IF(dimswitch == 'plantcarbon') THEN ! i.e. spatial and plant carbon
            IF(PRESENT(restart)) THEN
               ! Write data to restart file
-              ok = NF90_PUT_VAR(ncid, parID, REAL(par_r2, 4),                  &
+              ok = NF90_PUT_VAR(ncid, parID, REAL(par_r2, r_1),                  &
                                 start = (/1, 1/), count = (/mp, ncp/))
            ELSE
               DO i = 1, mland ! over all land grid points
@@ -2518,13 +2518,13 @@ CONTAINS
                     END IF
                  END IF
               END DO
-              ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2lpc, 4),                &
+              ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2lpc, r_1),                &
                   start = (/1, 1/), count = (/mland, ncp/)) ! write data to file
            END IF
         ELSE IF(dimswitch == 'soilcarbon') THEN ! i.e. spatial and soil carbon
            IF(PRESENT(restart)) THEN
               ! Write data to restart file
-              ok = NF90_PUT_VAR(ncid, parID, REAL(par_r2, 4),                  &
+              ok = NF90_PUT_VAR(ncid, parID, REAL(par_r2, r_1),                  &
                    start = (/1, 1/), count = (/mp, ncs/))
            ELSE
               DO i = 1, mland ! over all land grid points
@@ -2541,14 +2541,14 @@ CONTAINS
                     END IF
                  END IF
               END DO
-              ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2lsc, 4),                &
+              ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2lsc, r_1),                &
                     start = (/1, 1/), count=(/mland, ncs/)) ! write data to file
            END IF
         ELSE IF(dimswitch == 'radiation') THEN ! i.e. spatial and radiation
                                                ! bands
            IF(PRESENT(restart)) THEN
               ! Write data to restart file
-              ok = NF90_PUT_VAR(ncid, parID, REAL(par_r2, 4),                  &
+              ok = NF90_PUT_VAR(ncid, parID, REAL(par_r2, r_1),                  &
                                 start = (/1, 1/), count = (/mp, nrb/))
            ELSE ! writing to output file
               DO i = 1, mland ! over all land grid points
@@ -2565,13 +2565,13 @@ CONTAINS
                     END IF
                  END IF
               END DO
-              ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2lr, 4),                 &
+              ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2lr, r_1),                 &
                   start = (/1, 1/), count = (/mland, nrb/)) ! write data to file
            END IF
         ELSE IF(dimswitch == 'snow') THEN ! i.e. spatial and radiation bands
            IF(PRESENT(restart)) THEN
               ! Write data to restart file
-              ok = NF90_PUT_VAR(ncid, parID, REAL(par_r2, 4),                  &
+              ok = NF90_PUT_VAR(ncid, parID, REAL(par_r2, r_1),                  &
                                 start = (/1, 1/), count = (/mp, msn/))
            ELSE ! writing to output file
               DO i = 1, mland ! over all land grid points
@@ -2588,7 +2588,7 @@ CONTAINS
                     END IF
                  END IF
               END DO
-              ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2lsn, 4),                &
+              ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2lsn, r_1),                &
                   start = (/1, 1/), count = (/mland, msn/)) ! write data to file
            END IF
         ELSE IF(dimswitch == 'surftype') THEN
@@ -2606,7 +2606,7 @@ CONTAINS
               END IF
             END IF
           END DO
-          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2lsf, 4),                    &
+          ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2lsf, r_1),                    &
                     start = (/1, 1/), count = (/mland, 4/)) ! write data to file
         ELSE
           CALL cable_abort('Parameter '//pname//                                     &
@@ -2670,7 +2670,7 @@ CONTAINS
                 END DO
              END IF
           END DO
-          ok = NF90_PUT_VAR(ncid, parID, REAL(tmpout(:, :, :), 8),             &
+          ok = NF90_PUT_VAR(ncid, parID, REAL(tmpout(:, :, :), r_2),           &
                             start = (/1, 1, 1/),                               &
                             count = (/mland, max_vegpatches, ms/)) ! write data to file
           DEALLOCATE(tmpout)

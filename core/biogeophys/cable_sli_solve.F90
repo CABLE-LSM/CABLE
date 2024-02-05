@@ -4792,7 +4792,7 @@ CONTAINS
        coefB = -76.248_r_2
        coefC = 0.052612_r_2
        ! alphaplus_liqice = 1.0212_r_2
-       coefA_liqice = 48888_r_2
+       coefA_liqice = 48888._r_2
        coefB_liqice = -203.10_r_2
        coefC_liqice = 0.2133_r_2
     endif

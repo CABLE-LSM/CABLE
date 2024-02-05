@@ -10,9 +10,9 @@ fi
 known_hosts()
 {
     if [ -z ${PS3} ] ; then
-        kh=(kh gadi pear mcin mc16 vm_o auro)
+        kh=(kh gadi pear mcin mc16 mcmi vm_o auro)
     else
-        set -A kh gadi pear mcin mc16 vm_o auro
+        set -A kh gadi pear mcin mc16 mcmi vm_o auro
     fi
 }
 
@@ -272,6 +272,90 @@ host_mc16()
     export NCLIB=${NCROOT}"/lib"
     export NCMOD=${NCROOT}"/include"
     export LDFLAGS="-L${NCLIB} -lnetcdff -L${NCCLIB} -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz "${LDFLAGS}
+    export dosvn=0
+    export MFLAGS="-j 8"
+    build_build
+    cd ../
+    build_status
+}
+
+
+host_mcmi()
+{
+    idebug=0
+    ignu=1
+    inag=0
+    np=$#
+    for ((i=0; i<${np}; i++)) ; do
+        if [[ "${1}" == "debug" ]] ; then
+            idebug=1
+            shift 1
+        elif [[ "${1}" == "gfortran" || "${1}" == "gnu" ]] ; then
+            ignu=1
+            inag=0
+            shift 1
+        elif [[ "${1}" == "nagfor" || "${1}" == "nag" ]] ; then
+            ignu=0
+            inag=1
+            shift 1
+        else
+            echo "Error: command line option not known: " ${1}
+            exit 1
+        fi
+    done
+    if [[ ${ignu} -eq 1 ]] ;  then
+        # GFORTRAN
+        export FC=gfortran
+        # release
+        export CFLAGS="-cpp -O3 -Wno-aggressive-loop-optimizations -ffree-form -ffixed-line-length-132 -frecursive"
+        export LDFLAGS="-O3"
+        OPTFLAG="-march=native"
+        if [[ ${idebug} -eq 1 ]] ; then
+            # debug
+            export CFLAGS="-cpp -O -g -pedantic-errors -Wall -W -Wno-maybe-uninitialized -ffree-form -ffixed-line-length-132 -frecursive -fbacktrace -ffpe-trap=zero,overflow -finit-real=nan" #  -ffpe-trap=zero,overflow,underflow
+            export LDFLAGS="-O"
+            OPTFLAG=
+        fi
+        # export CFLAGS="${CFLAGS} -march=native"
+        export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
+        export LD=""
+        export NCROOT="/usr/local/netcdf-fortran-4.6.1-gfortran"
+    elif [[ ${inag} -eq 1 ]] ;  then
+        # NAG
+        export FC=nagfor
+        # release
+        export CFLAGS="-O4"
+        export LDFLAGS="-O4"
+        OPTFLAG=
+        if [[ ${idebug} -eq 1 ]] ; then
+            # debug
+            # export CFLAGS="-C -C=dangling -g -nan -O0 -strict95 -gline"
+            # set runtime environment variables: export NAGFORTRAN_RUNTIME_OPTIONS=show_dangling
+            export CFLAGS="-C=alias -C=array -C=bits -C=dangling -C=do -C=intovf -C=present -C=pointer -C=recursion -g -nan -O0 -strict95 -gline"
+            export LDFLAGS="-O0"
+            OPTFLAG=
+        fi
+        # export CFLAGS="${CFLAGS} -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -not_openmp"
+        export CFLAGS="${CFLAGS} -fpp -colour -unsharedf95 -ideclient -ieee=full -free -not_openmp"
+        export CFLAGS="${CFLAGS} -mismatch"
+        export CFLAGS="${CFLAGS} -mdir ."
+        # export CFLAGS="${CFLAGS} -march=native"
+        export CFLAGS="${CFLAGS} -D__NAG__"
+        export LD="-ideclient -unsharedrts"
+        export NCROOT="/usr/local/netcdf-fortran-4.6.1-nagfor"
+    fi
+
+    # All compilers
+    export CFLAGS="${CFLAGS} ${OPTFLAG}"
+    # export CFLAGS="${CFLAGS} -D__CRU2017__"
+    export CFLAGS="${CFLAGS} -D__NETCDF3__"
+    # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
+
+    export NCCROOT="/opt/homebrew"
+    export NCCLIB=${NCCROOT}"/lib"
+    export NCLIB=${NCROOT}"/lib"
+    export NCMOD=${NCROOT}"/include"
+    export LDFLAGS="-L${NCLIB} -lnetcdff -L${NCCLIB} -lnetcdf  -lhdf5 -lhdf5_hl -lsz -lz -ldl -lzstd -lbz2 -lcurl -lxml2 "${LDFLAGS}
     export dosvn=0
     export MFLAGS="-j 8"
     build_build

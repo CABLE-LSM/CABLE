@@ -25,6 +25,8 @@ module cable_def_types_mod
 
   ! Contains all variables which are not subroutine-internal
 
+  use, intrinsic :: iso_c_binding, only: c_float
+
   implicit none
 
   private
@@ -39,10 +41,11 @@ module cable_def_types_mod
        mland     ! # land grid cells
 
   integer, public, parameter :: &
-       ! i_d  = KIND(9), &                  ! probably unintended
-       i_d  = SELECTED_INT_kind(9), &       ! as in pop.f90
+       ! i_d  = KIND(9), &             ! probably unintended
+       i_d  = SELECTED_INT_kind(9), &  ! as in pop.f90
        ! r_2  = SELECTED_REAL_KIND(12, 50), & ! old
-       r_2  = kind(1.0d0), &                ! as in pop.f90
+       r_1 = c_float, &                ! for writing floats in netcdf files
+       r_2 = kind(1.0d0), &            ! as in pop.f90
        n_tiles = 17,  & ! # possible no of different
        ncp = 3,       & ! # vegetation carbon stores
        ncs = 2,       & ! # soil carbon stores

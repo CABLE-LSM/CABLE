@@ -33,7 +33,7 @@
 MODULE cable_read_module
 
    USE cable_abort_module
-   USE cable_def_types_mod,  ONLY: ms, ncp, r_2, mland, mp, ncs, nrb, msn, mf
+   USE cable_def_types_mod,  ONLY: ms, ncp, r_1, r_2, mland, mp, ncs, nrb, msn, mf
    USE cable_IO_vars_module, ONLY: landpt, exists, land_x, land_y, metGrid
    USE netcdf
 #ifdef __MPI__
@@ -183,7 +183,7 @@ CONTAINS
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID
     INTEGER, INTENT(IN) :: npatch ! # of veg patches in parameter's file
     INTEGER, INTENT(IN), OPTIONAL :: INpatch
-    REAL(KIND=4), DIMENSION(:), INTENT(INOUT) :: var_r ! returned parameter values
+    REAL(KIND=r_1), DIMENSION(:), INTENT(INOUT) :: var_r ! returned parameter values
     LOGICAL, INTENT(IN), OPTIONAL :: from_restart ! reading from restart file?
     LOGICAL, INTENT(INOUT) :: completeSet ! has every parameter been loaded?
     CHARACTER(LEN=*), INTENT(IN) :: parname ! name of parameter
@@ -193,10 +193,10 @@ CONTAINS
     INTEGER :: parID ! parameter's netcdf ID
     INTEGER :: pardims ! # dimensions of parameter
     INTEGER :: i ! do loop counter
-    REAL(KIND=4), DIMENSION(1) :: data1r ! temporary for ncdf read in
-    REAL(KIND=4), DIMENSION(1, 1) :: data2r ! temporary for ncdf read in
-    REAL(KIND=4), DIMENSION(:, :), POINTER :: tmp2r => null() ! temporary for ncdf read in
-    REAL(KIND=4), DIMENSION(:, :, :), POINTER :: tmp3r => null() ! temporary for ncdf read in
+    REAL(KIND=r_1), DIMENSION(1) :: data1r ! temporary for ncdf read in
+    REAL(KIND=r_1), DIMENSION(1, 1) :: data2r ! temporary for ncdf read in
+    REAL(KIND=r_1), DIMENSION(:, :), POINTER :: tmp2r => null() ! temporary for ncdf read in
+    REAL(KIND=r_1), DIMENSION(:, :, :), POINTER :: tmp3r => null() ! temporary for ncdf read in
 
     ! Check if parameter exists:
     ok = NF90_INQ_VARID(ncid, parname, parID)
@@ -336,10 +336,10 @@ CONTAINS
     INTEGER :: parID ! parameter's netcdf ID
     INTEGER :: pardims ! # dimensions of parameter
     INTEGER :: i ! do loop counter
-    REAL(4), DIMENSION(1) :: data1r ! temporary for ncdf read in
-    REAL(4), DIMENSION(1, 1) :: data2r ! temporary for ncdf read in
-    REAL(4), DIMENSION(:, :), POINTER :: tmp2r => null() ! temporary for ncdf read in
-    REAL(4), DIMENSION(:, :, :), POINTER :: tmp3r => null() ! temporary for ncdf read in
+    REAL(r_1), DIMENSION(1) :: data1r ! temporary for ncdf read in
+    REAL(r_1), DIMENSION(1, 1) :: data2r ! temporary for ncdf read in
+    REAL(r_1), DIMENSION(:, :), POINTER :: tmp2r => null() ! temporary for ncdf read in
+    REAL(r_1), DIMENSION(:, :, :), POINTER :: tmp3r => null() ! temporary for ncdf read in
 
     ! Check if parameter exists:
     ok = NF90_INQ_VARID(ncid, parname, parID)
@@ -528,7 +528,7 @@ CONTAINS
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID
     INTEGER, INTENT(IN) :: npatch ! number of veg patches in file
     INTEGER, INTENT(IN), OPTIONAL :: INpatch
-    REAL(KIND=4), DIMENSION(:,:), INTENT(INOUT) :: var_r2 ! returned parameter values
+    REAL(KIND=r_1), DIMENSION(:,:), INTENT(INOUT) :: var_r2 ! returned parameter values
     LOGICAL, INTENT(IN), OPTIONAL :: from_restart ! reading from restart file?
     LOGICAL, INTENT(INOUT) :: completeSet ! has every parameter been loaded?
     CHARACTER(LEN=*), INTENT(IN) :: filename ! file containing parameter values
@@ -540,11 +540,11 @@ CONTAINS
     INTEGER :: pardims ! # dimensions of parameter
     INTEGER :: dimctr ! size of non-spatial (2nd) dimension of parameter
     INTEGER :: i, j ! do loop counter
-    REAL(KIND=4), DIMENSION(:, :), POINTER       :: tmp2r => null() ! temporary for ncdf
+    REAL(KIND=r_1), DIMENSION(:, :), POINTER       :: tmp2r => null() ! temporary for ncdf
                                                           ! read in
-    REAL(KIND=4), DIMENSION(:, :, :), POINTER    :: tmp3r => null() ! temporary for ncdf
+    REAL(KIND=r_1), DIMENSION(:, :, :), POINTER    :: tmp3r => null() ! temporary for ncdf
                                                           ! read in
-    REAL(KIND=4), DIMENSION(:, :, :, :), POINTER :: tmp4r => null() ! temporary for ncdf read in
+    REAL(KIND=r_1), DIMENSION(:, :, :, :), POINTER :: tmp4r => null() ! temporary for ncdf read in
     REAL :: tmpjh
 
     ! Check if parameter exists:
@@ -709,11 +709,11 @@ CONTAINS
     INTEGER :: pardims ! # dimensions of parameter
     INTEGER :: dimctr ! size of non-spatial (2nd) dimension of parameter
     INTEGER :: i,j ! do loop counter
-    REAL(4), DIMENSION(:, :), POINTER       :: tmp2r => null()  ! temporary for ncdf
+    REAL(r_1), DIMENSION(:, :), POINTER       :: tmp2r => null()  ! temporary for ncdf
                                                       ! read in
-    REAL(4), DIMENSION(:, :, :), POINTER    :: tmp3r => null()  ! temporary for ncdf
+    REAL(r_1), DIMENSION(:, :, :), POINTER    :: tmp3r => null()  ! temporary for ncdf
                                                       ! read in
-    REAL(4), DIMENSION(:, :, :, :), POINTER :: tmp4r => null()  ! temporary for ncdf
+    REAL(r_1), DIMENSION(:, :, :, :), POINTER :: tmp4r => null()  ! temporary for ncdf
                                                       ! read in
 
     ! Check if parameter exists:

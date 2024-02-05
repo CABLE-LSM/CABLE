@@ -41,7 +41,7 @@
 !   biogeochem
 module casa_inout
 
-  use cable_def_types_mod,  only: mland
+  use cable_def_types_mod,  only: mland, r_1
   use cable_IO_vars_module, only: landpt, mask, patch, max_vegpatches, xdimsize, ydimsize, &
                                   land_x, land_y, lat_all, lon_all, latitude, longitude
   use netcdf
@@ -49,17 +49,17 @@ module casa_inout
   implicit none
 
   ! Define temporary output arrays for use in write_casa_output_grid_nc and write_casa_output_patch_nc
-  REAL(KIND=4), DIMENSION(:,:,:), ALLOCATABLE :: otmp3patch
-  REAL(KIND=4), DIMENSION(:,:,:), ALLOCATABLE :: otmp3plant
-  REAL(KIND=4), DIMENSION(:,:,:), ALLOCATABLE :: otmp3litter
-  REAL(KIND=4), DIMENSION(:,:,:), ALLOCATABLE :: otmp3soil
+  REAL(KIND=r_1), DIMENSION(:,:,:), ALLOCATABLE :: otmp3patch
+  REAL(KIND=r_1), DIMENSION(:,:,:), ALLOCATABLE :: otmp3plant
+  REAL(KIND=r_1), DIMENSION(:,:,:), ALLOCATABLE :: otmp3litter
+  REAL(KIND=r_1), DIMENSION(:,:,:), ALLOCATABLE :: otmp3soil
 
-  REAL(KIND=4), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4patch
-  REAL(KIND=4), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4plant
-  REAL(KIND=4), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4litter
-  REAL(KIND=4), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4soil
+  REAL(KIND=r_1), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4patch
+  REAL(KIND=r_1), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4plant
+  REAL(KIND=r_1), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4litter
+  REAL(KIND=r_1), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4soil
 
-  REAL(KIND=4) :: ncmissingr = -1.0e+33
+  REAL(KIND=r_1) :: ncmissingr = -1.0e+33
 
 contains
 
@@ -2770,9 +2770,9 @@ contains
 
    INTEGER, INTENT(IN) :: file_id                               ! netcdf file ID 
    INTEGER, INTENT(IN) :: var_id                                ! variable's netcdf ID
-   REAL(KIND=4), DIMENSION(:), INTENT(IN) :: var_vals           ! variable values
+   REAL(KIND=r_1), DIMENSION(:), INTENT(IN) :: var_vals           ! variable values
    INTEGER, INTENT(IN) :: cnt                                   ! current time step #
-   REAL(KIND=4), DIMENSION(:,:,:,:), INTENT(INOUT) :: tmp_array ! temporary array   
+   REAL(KIND=r_1), DIMENSION(:,:,:,:), INTENT(INOUT) :: tmp_array ! temporary array   
 
    ! Local variables
    INTEGER                                       :: i, j   ! counters
@@ -2816,10 +2816,10 @@ SUBROUTINE put_casa_var_grid_patch_average(file_id,var_id,var_vals,outdim,cnt,tm
 
    INTEGER, INTENT(IN) :: file_id                               ! netcdf file ID 
    INTEGER, INTENT(IN) :: var_id                                ! variable's netcdf ID
-   REAL(KIND=4), DIMENSION(:,:), INTENT(IN) :: var_vals         ! variable values
+   REAL(KIND=r_1), DIMENSION(:,:), INTENT(IN) :: var_vals         ! variable values
    CHARACTER(LEN=*), INTENT(IN) :: outdim                       ! 3rd dimension of output ('mplant','mlitter','msoil') 
    INTEGER, INTENT(IN) :: cnt                                   ! current time step #
-   REAL(KIND=4), DIMENSION(:,:,:,:), INTENT(INOUT) :: tmp_array ! temporary array   
+   REAL(KIND=r_1), DIMENSION(:,:,:,:), INTENT(INOUT) :: tmp_array ! temporary array   
 
    ! Local variables
    INTEGER                                       :: ndim3  ! size of 3rd dimension
@@ -3540,9 +3540,9 @@ END SUBROUTINE put_casa_var_grid_patch_average
 
    INTEGER, INTENT(IN) :: file_id                              ! netcdf file ID 
    INTEGER, INTENT(IN) :: var_id                               ! variable's netcdf ID
-   REAL(KIND=4), DIMENSION(:), INTENT(IN) :: var_vals          ! variable values
+   REAL(KIND=r_1), DIMENSION(:), INTENT(IN) :: var_vals          ! variable values
    INTEGER, INTENT(IN) :: cnt                                  ! current time step #
-   REAL(KIND=4), DIMENSION(:,:,:), INTENT(INOUT) :: tmp_array  ! temporary array   
+   REAL(KIND=r_1), DIMENSION(:,:,:), INTENT(INOUT) :: tmp_array  ! temporary array   
 
    ! Local variables
    INTEGER   :: i      ! counter
@@ -3579,10 +3579,10 @@ SUBROUTINE put_casa_var_patch_average(file_id,var_id,var_vals,outdim,cnt,tmp_arr
 
    INTEGER, INTENT(IN) :: file_id                               ! netcdf file ID 
    INTEGER, INTENT(IN) :: var_id                                ! variable's netcdf ID
-   REAL(KIND=4), DIMENSION(:,:), INTENT(IN) :: var_vals         ! variable values
+   REAL(KIND=r_1), DIMENSION(:,:), INTENT(IN) :: var_vals         ! variable values
    CHARACTER(LEN=*), INTENT(IN) :: outdim                       ! 2nd dimension of output ('mplant','mlitter','msoil') 
    INTEGER, INTENT(IN) :: cnt                                   ! current time step #
-   REAL(KIND=4), DIMENSION(:,:,:), INTENT(INOUT) :: tmp_array   ! temporary array   
+   REAL(KIND=r_1), DIMENSION(:,:,:), INTENT(INOUT) :: tmp_array   ! temporary array   
 
    ! Local variables
    INTEGER  :: ndim2  ! size of 2nd dimension

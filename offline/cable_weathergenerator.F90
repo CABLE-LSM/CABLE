@@ -1,11 +1,12 @@
 MODULE CABLE_WEATHERGENERATOR
   
-  USE CABLE_COMMON_MODULE, ONLY:  cable_user
+  USE CABLE_COMMON_MODULE, ONLY: cable_user
+  USE cable_def_types_mod, only: r_2
   
   IMPLICIT NONE
 
   ! Parameters
-  INTEGER, PARAMETER,PRIVATE :: sp = 8 ! this is double precision
+  INTEGER, PARAMETER,PRIVATE :: sp = r_2 ! this is double precision
   REAL(sp),PARAMETER,PRIVATE :: &
        Pi         = 3.14159265_sp , &            ! Pi
        PiBy2      = 1.57079632_sp , &            ! Pi/2
