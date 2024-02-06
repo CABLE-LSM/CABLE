@@ -746,7 +746,7 @@ PROGRAM cable_offline_driver
               !    where (veg%iveg(:) .ge. 14) casamet%glai = 0.0_r_2
               ! end if
               if ((trim(cable_user%MetType) == 'cru') .and. (icycle > 0)) then
-                 if (all(real(casamet%glai(:)) == 0.)) then
+                 if (all(eq(real(casamet%glai(:)), 0.))) then
                     write(*,*) 'W A R N I N G : deleted setting casamet%glai for CRU.'
                     stop 205
                  end if

@@ -324,8 +324,8 @@ CONTAINS
 
        do while (.not. val_ok .and. i .le. maxit)
           i = i + 1
-          veg%vcmaxcc(p) = LUT_VcmaxJmax(1, ird, ivc, igm)
-          veg%ejmaxcc(p) = LUT_VcmaxJmax(2, ird, ivc, igm)
+          veg%vcmaxcc(p) = real(LUT_VcmaxJmax(1, ird, ivc, igm))
+          veg%ejmaxcc(p) = real(LUT_VcmaxJmax(2, ird, ivc, igm))
 
           ! check for implausible parameter combinations that result in NAs
           if ((veg%vcmaxcc(p) > 0.0) .and. (veg%ejmaxcc(p) > 0.0)) then
@@ -347,6 +347,8 @@ CONTAINS
   ! conversion of k Parameter in Collatz et al. 1992 from implicit gm model
   ! to explicit gm model.
   Subroutine adjust_k_Collatz(veg, p)
+
+    use mo_utils, only: eq
 
     implicit none
 
@@ -376,15 +378,15 @@ CONTAINS
        An_Ci1 = min(Aj_Ci, Ae_Ci)
 
        ! 2) exclude negative An values and those not limited by Ci
-       lAn = count((An_Ci1 > 0.0_dp) .and. (An_Ci1 == Ae_Ci))
+       lAn = count((An_Ci1 > 0.0_dp) .and. eq(An_Ci1, Ae_Ci))
 
        allocate(An_Ci(lAn))
        allocate(An_Cc(lAn))
        allocate(Ci(lAn))
        allocate(Cc(lAn))
 
-       An_Ci = pack(An_Ci1, (An_Ci1 > 0.0_dp) .and. (An_Ci1 == Ae_Ci))
-       Ci    = pack(Ci1, (An_Ci1 > 0.0_dp) .and. (An_Ci1 == Ae_Ci))
+       An_Ci = pack(An_Ci1, (An_Ci1 > 0.0_dp) .and. eq(An_Ci1, Ae_Ci))
+       Ci    = pack(Ci1, (An_Ci1 > 0.0_dp) .and. eq(An_Ci1, Ae_Ci))
 
        ! 3) calculate Cc
        Cc = Ci - An_Ci / gmmax25
