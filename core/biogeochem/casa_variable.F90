@@ -3737,7 +3737,7 @@ contains
   subroutine write_netcdf_casabal(filename, casabal)
 
     use netcdf, only: nf90_create, nf90_clobber, nf90_64bit_offset, &
-         nf90_def_dim, nf90_def_var, nf90_float, nf90_double, &
+         nf90_def_dim, nf90_def_var, nf90_double, &
          nf90_enddef, nf90_put_var, nf90_close
     use cable_def_types_mod, only: nc_err
 
