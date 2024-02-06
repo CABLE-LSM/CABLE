@@ -828,6 +828,7 @@ contains
   END SUBROUTINE casa_init
 
 
+  ! NOT USED ANYMORE
   SUBROUTINE casa_poolout(ktau, veg, soil, casabiome, casapool, casaflux, casamet, &
        casabal, phen)
 
