@@ -171,8 +171,8 @@ host_mcin()
             export LDFLAGS="-O0"
             OPTFLAG=
         fi
-        export CFLAGS="${CFLAGS} -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -not_openmp"
-        export CFLAGS="${CFLAGS} -mismatch"
+        export CFLAGS="${CFLAGS} -fpp -colour -unsharedf95 -ideclient -ieee=full -free -not_openmp"
+        export CFLAGS="${CFLAGS} -mismatch -mdir ."
         # export CFLAGS="${CFLAGS} -march=native"
         export CFLAGS="${CFLAGS} -D__NAG__"
         export LD="-ideclient -unsharedrts"
@@ -253,11 +253,12 @@ host_mc16()
             export LDFLAGS="-O0"
             OPTFLAG=
         fi
-        export CFLAGS="${CFLAGS} -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -not_openmp"
-        export CFLAGS="${CFLAGS} -mismatch"
+        export CFLAGS="${CFLAGS} -fpp -colour -unsharedf95 -ideclient -ieee=full -free -not_openmp"
+        export CFLAGS="${CFLAGS} -mismatch -mdir ."
         # export CFLAGS="${CFLAGS} -march=native"
         export CFLAGS="${CFLAGS} -D__NAG__"
         export LD="-ideclient -unsharedrts"
+	export LDFLAGS="${LDFLAGS} -Wl,-ld_classic"  # until gcc update of Homebrew
         export NCROOT="/usr/local/netcdf-fortran-4.6.1-nagfor"
     fi
 
@@ -337,8 +338,7 @@ host_mcmi()
         fi
         # export CFLAGS="${CFLAGS} -fpp -colour -unsharedf95 -kind=byte -ideclient -ieee=full -free -not_openmp"
         export CFLAGS="${CFLAGS} -fpp -colour -unsharedf95 -ideclient -ieee=full -free -not_openmp"
-        export CFLAGS="${CFLAGS} -mismatch"
-        export CFLAGS="${CFLAGS} -mdir ."
+        export CFLAGS="${CFLAGS} -mismatch -mdir ."
         # export CFLAGS="${CFLAGS} -march=native"
         export CFLAGS="${CFLAGS} -D__NAG__"
         export LD="-ideclient -unsharedrts"
