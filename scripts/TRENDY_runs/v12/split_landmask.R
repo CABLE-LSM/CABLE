@@ -41,5 +41,3 @@ for (i in 1:nmasks){
   writeRaster(mask,paste0(outdir_full,"/landmask",i,".nc"),format="CDF",datatype="INT1S",overwrite=TRUE,
               NAflag=0,varunit="0:no land, 1:land",varname="land",longname="land")
 }
-
-
