@@ -258,7 +258,7 @@ host_mc16()
         # export CFLAGS="${CFLAGS} -march=native"
         export CFLAGS="${CFLAGS} -D__NAG__"
         export LD="-ideclient -unsharedrts"
-	export LDFLAGS="${LDFLAGS} -Wl,-ld_classic"  # until gcc update of Homebrew
+        export LDFLAGS="${LDFLAGS} -Wl,-ld_classic"  # until gcc update of Homebrew
         export NCROOT="/usr/local/netcdf-fortran-4.6.1-nagfor"
     fi
 
@@ -390,12 +390,19 @@ host_vm_o()
     done
     if [[ ${iintel} -eq 1 ]] ;  then
         # INTEL
+        # 2018
         module load intel/2018.5
+        # # 2023
+        # module load intel/2019.4-full
+        # module load hdf5/1.10.1/intelmpi/intel17
+        # module load netcdf-c/4.7.2
+        # module load netcdf-fortran/4.5.2
         export FC=ifort
         # release
         export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382"
         export LDFLAGS="-O3"
-        OPTFLAG="-xBROADWELL"
+        # OPTFLAG="-xBROADWELL"
+        OPTFLAG="-xHost"
         if [[ ${idebug} -eq 1 ]] ; then
             # debug
             export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv -init=arrays,snan
@@ -411,16 +418,29 @@ host_vm_o()
         # OPTFLAG="${CFLAGS} -mtune=ivybridge"     # ivy / k20
         export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
         export LD=""
+        # 2018
         export NCCROOT="/home/oqx29/shared/local.save"
-        export NCROOT="${NCCROOT}/netcdf-fortran-4.4.4-ifort2018.0"
+        export NCROOT="${NCCROOT}/netcdf-fortran-4.4.4-ifort2019.4"
+        # # 2023
+        # export NCCROOT=`nc-config --prefix`
+        # export NCROOT=`nf-config --prefix`
     else
+        # 2018
         # GFORTRAN # 6.3.0 because of netcdf-fortran
         module load gcc/6.3.0
+        # # 2023
+        # module purge
+        # module use /opt/modulefiles/shared/mcs_mod
+        # # module load softwares/anaconda3/2022.05
+        # module load softwares/anaconda3/2023.03
+        # source ${HOME_ANACONDA}/anaconda.rc
+        # conda activate ${HOME}/.conda/envs/cpystd
         export FC=gfortran
         # release
         export CFLAGS="-cpp -O3 -Wno-aggressive-loop-optimizations -ffree-form -ffixed-line-length-132"
         export LDFLAGS="-O3"
-        OPTFLAG="-march=broadwell"
+        # OPTFLAG="-march=broadwell"
+        OPTFLAG="-march=native"
         if [[ ${idebug} -eq 1 ]] ; then
             # debug
             export CFLAGS="-cpp -O -g -pedantic-errors -Wall -W -Wno-maybe-uninitialized -ffree-form -ffixed-line-length-132 -fbacktrace -ffpe-trap=zero,overflow -finit-real=nan" #  -ffpe-trap=zero,overflow,underflow
@@ -434,8 +454,15 @@ host_vm_o()
         # OPTFLAG="${CFLAGS} -mavx"                # ivy / k20
         export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__" # -pg # gprof --line ./cable gmon.out
         export LD=""
-        export NCCROOT="/home/oqx29/shared/local.gnu"
-        export NCROOT=${NCCROOT}
+        # 2018
+        # export NCCROOT="/home/oqx29/shared/local.gnu"
+        # export NCROOT=${NCCROOT}
+        export NCCROOT="/home/oqx29/shared/local.save"
+        export NCROOT="/home/oqx29/shared/local.save/netcdf-fortran-4.4.4-gfortran63/"
+        # export LDFLAGS="-lhdf5_hl -lhdf5 -lsz -lz -lssl -lcrypto ${LDFLAGS}"
+        # # 2023
+        # export NCCROOT=`nc-config --prefix`
+        # export LDFLAGS="-L${NCLIB}/lib -lcurl -L/lib ${LDFLAGS}"  # for libc
     fi
 
     # All compilers
@@ -447,7 +474,10 @@ host_vm_o()
     export NCCLIB=${NCCROOT}"/lib"
     export NCLIB=${NCROOT}"/lib"
     export NCMOD=${NCROOT}"/include"
-    export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz "${LDFLAGS} # " -pg"
+    # 2018
+    export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lsz -lz -lssl -lcrypto "${LDFLAGS} # " -pg"
+    # # 2023
+    # export LDFLAGS="-L${NCLIB} -lnetcdff -L${NCCLIB} -lnetcdf ${LDFLAGS}" # " -pg"
     export dosvn=0
     export MFLAGS="-j 8"
     build_build
@@ -637,6 +667,8 @@ fi
 known_hosts
 known_domains
 HOST_MACH=`uname -n | cut -c 1-4 | tr - _`
+host2=`echo ${HOST_MACH} | cut -c1,2`
+if [ ${host2} = 'cn' ] ; then HOST_MACH="vm_o" ; fi
 if [ `uname -s` = 'Darwin' ] ; then
     domain=`hostname`
 else
