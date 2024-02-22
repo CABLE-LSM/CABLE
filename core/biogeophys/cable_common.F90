@@ -538,6 +538,91 @@ CONTAINS
 
     CLOSE(40)
 
+    ! ! MCtest
+    ! !     sed -e 's|.*cable|\&cable|' -e 's|=[ ]\{1,100\}|=|' \
+    ! !         -e 's| /|/|' -e 's|[ ]\{1,100\}|,|g' -e '/=/s|$|,|' cable_soilparm.nml
+    ! !     sed -e 's|.*cable|\&cable|' -e 's|=[ ]\{1,100\}|=|' \
+    ! !         -e 's| /|/|' -e 's|[ ]\{1,100\}|,|g' -e '/=/s|$|,|' pft_params.nml
+    ! open(99, file='pft_params.nml')
+    ! write(99, *) '&cable_pftparm'
+    ! write(99, '(a,17f15.6)') 'vegin%a1gs=', vegin%a1gs
+    ! write(99, '(a,17f15.6)') 'vegin%alpha=', vegin%alpha
+    ! write(99, '(a,17f15.6)') 'vegin%canst1=', vegin%canst1
+    ! write(99, '(a,17f15.6)') 'vegin%cfrd=', vegin%cfrd
+    ! write(99, '(a,17f15.6)') 'vegin%clitt=', vegin%clitt
+    ! write(99, '(a,17f15.6)') 'vegin%conkc0=', vegin%conkc0
+    ! write(99, '(a,17f15.6)') 'vegin%conko0=', vegin%conko0
+    ! write(99, '(a,17f15.6)') 'vegin%convex=', vegin%convex
+    ! write(99, '(a,17f15.6)') 'vegin%cplant1=', vegin%cplant(1, :)
+    ! write(99, '(a,17f15.6)') 'vegin%cplant2=', vegin%cplant(2, :)
+    ! write(99, '(a,17f15.6)') 'vegin%cplant3=', vegin%cplant(3, :)
+    ! write(99, '(a,17f15.6)') 'vegin%csoil1=', vegin%csoil(1, :)
+    ! write(99, '(a,17f15.6)') 'vegin%csoil2=', vegin%csoil(2, :)
+    ! write(99, '(a,17f15.6)') 'vegin%d0gs=', vegin%d0gs
+    ! write(99, '(a,17f15.6)') 'vegin%ejmax=', vegin%ejmax
+    ! write(99, '(a,17f15.6)') 'vegin%ekc=', vegin%ekc
+    ! write(99, '(a,17f15.6)') 'vegin%eko=', vegin%eko
+    ! write(99, '(a,17f15.6)') 'vegin%extkn=', vegin%extkn
+    ! write(99, '(a,17f15.6)') 'vegin%frac4=', vegin%frac4
+    ! write(99, '(a,17f15.6)') 'vegin%froot1=', vegin%froot(1, :)
+    ! write(99, '(a,17f15.6)') 'vegin%froot2=', vegin%froot(2, :)
+    ! write(99, '(a,17f15.6)') 'vegin%froot3=', vegin%froot(3, :)
+    ! write(99, '(a,17f15.6)') 'vegin%froot4=', vegin%froot(4, :)
+    ! write(99, '(a,17f15.6)') 'vegin%froot5=', vegin%froot(5, :)
+    ! write(99, '(a,17f15.6)') 'vegin%froot6=', vegin%froot(6, :)
+    ! write(99, '(a,17f15.6)') 'vegin%g0=', vegin%g0
+    ! write(99, '(a,17f15.6)') 'vegin%g1=', vegin%g1
+    ! write(99, '(a,17f15.6)') 'vegin%gswmin=', vegin%gswmin
+    ! write(99, '(a,17f15.6)') 'vegin%hc=', vegin%hc
+    ! write(99, '(a,17f15.6)') 'vegin%length=', vegin%length
+    ! write(99, '(a,17f15.6)') 'vegin%ratecp1=', vegin%ratecp(1, :)
+    ! write(99, '(a,17f15.6)') 'vegin%ratecp2=', vegin%ratecp(2, :)
+    ! write(99, '(a,17f15.6)') 'vegin%ratecp3=', vegin%ratecp(3, :)
+    ! write(99, '(a,17f15.6)') 'vegin%ratecs1=', vegin%ratecs(1, :)
+    ! write(99, '(a,17f15.6)') 'vegin%ratecs2=', vegin%ratecs(2, :)
+    ! write(99, '(a,17f15.6)') 'vegin%refl1=', vegin%refl(1, :)
+    ! write(99, '(a,17f15.6)') 'vegin%refl2=', vegin%refl(2, :)
+    ! write(99, '(a,17f15.6)') 'vegin%refl3=', vegin%refl(3, :)
+    ! write(99, '(a,17f15.6)') 'vegin%taul1=', vegin%taul(1, :)
+    ! write(99, '(a,17f15.6)') 'vegin%taul2=', vegin%taul(2, :)
+    ! write(99, '(a,17f15.6)') 'vegin%taul3=', vegin%taul(3, :)
+    ! write(99, '(a,17f15.6)') 'vegin%rootbeta=', vegin%rootbeta
+    ! write(99, '(a,17f15.6)') 'vegin%rp20=', vegin%rp20
+    ! write(99, '(a,17f15.6)') 'vegin%rpcoef=', vegin%rpcoef
+    ! write(99, '(a,17f15.6)') 'vegin%rs20=', vegin%rs20
+    ! write(99, '(a,17f15.6)') 'vegin%shelrb=', vegin%shelrb
+    ! write(99, '(a,17f15.6)') 'vegin%tmaxvj=', vegin%tmaxvj
+    ! write(99, '(a,17f15.6)') 'vegin%tminvj=', vegin%tminvj
+    ! write(99, '(a,17f15.6)') 'vegin%vbeta=', vegin%vbeta
+    ! write(99, '(a,17f15.6)') 'vegin%vcmax=', vegin%vcmax
+    ! write(99, '(a,17f15.6)') 'vegin%vegcf=', vegin%vegcf
+    ! write(99, '(a,17f15.6)') 'vegin%wai=', vegin%wai
+    ! write(99, '(a,17f15.6)') 'vegin%width=', vegin%width
+    ! write(99, '(a,17f15.6)') 'vegin%xalbnir=', vegin%xalbnir
+    ! write(99, '(a,17f15.6)') 'vegin%xfang=', vegin%xfang
+    ! write(99, '(a,17f15.6)') 'vegin%zr=', vegin%zr
+    ! write(99, *) '/'
+    ! close(99)
+
+    ! open(99, file='cable_soilparm.nml')
+    ! write(99, *) '&cable_soilparm'
+    ! write(99, '(a,9f15.6)') 'soilin%bch=', soilin%bch
+    ! write(99, '(a,9f15.6)') 'soilin%clay=', soilin%clay
+    ! write(99, '(a,9f15.6)') 'soilin%css=', soilin%css
+    ! write(99, '(a,9f15.6)') 'soilin%hyds=', soilin%hyds
+    ! write(99, '(a,9f15.6)') 'soilin%rhosoil=', soilin%rhosoil
+    ! write(99, '(a,9f15.6)') 'soilin%sand=', soilin%sand
+    ! write(99, '(a,9f15.6)') 'soilin%sfc=', soilin%sfc
+    ! write(99, '(a,9f15.6)') 'soilin%silt=', soilin%silt
+    ! write(99, '(a,9f15.6)') 'soilin%ssat=', soilin%ssat
+    ! write(99, '(a,9f15.6)') 'soilin%sucs=', soilin%sucs
+    ! write(99, '(a,9f15.6)') 'soilin%swilt=', soilin%swilt
+    ! write(99, *) '/'
+    ! close(99)
+
+    ! stop
+    ! ! MCtest
+
   END SUBROUTINE get_type_parameters
 
 
