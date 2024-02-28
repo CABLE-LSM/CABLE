@@ -39,7 +39,7 @@ REAL, PARAMETER :: cgsnow = 2090.0        ! specific heat capacity for snow
 REAL, PARAMETER :: cs_rho_ice = 1.9341e6  !heat capacity * density ice
 REAL, PARAMETER :: cs_rho_wat = 4.218e6   ! heat capacity * density  water
 REAL, PARAMETER :: csice = 2.100e3        ! specific heat capacity for ice
-REAL, PARAMETER :: cswat = 4.218e3        ! specific heat capacity water
+REAL, PARAMETER :: cswat = 4.182e3        ! specific heat for water (J/kg/K)
 REAL, PARAMETER :: density_liq = 1000.0   ! density of liquid water
 REAL, PARAMETER :: density_ice = 921.0    ! denisty of ice
 
