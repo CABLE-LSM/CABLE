@@ -15,12 +15,14 @@ host_gadi()
    module purge
    module add intel-compiler/2019.5.281
    module add netcdf/4.6.3
+   # This is required so that the netcdf-fortran library is discoverable by
+   # pkg-config:
+   prepend_path PKG_CONFIG_PATH "${NETCDF_BASE}/lib/Intel/pkgconfig"
 
-   export NCDIR=$NETCDF_ROOT'/lib/Intel'
-   export NCMOD=$NETCDF_ROOT'/include/Intel'
-   export CFLAGS='-O2 -fp-model precise '
-   export LDFLAGS='-L'$NCDIR
-   export LD='-lnetcdf -lnetcdff'
+   if ! pkg-config --exists netcdf-fortran; then
+       echo -e "\nUnable to find netcdf-fortran via pkg-config. Exiting...\n"
+       exit 1
+   fi
 
    if [[ $1 = 'mpi' ]]; then
       module add intel-mpi/2019.5.281
@@ -28,16 +30,22 @@ host_gadi()
    else
       export FC='ifort'
    fi
+
+   CFLAGS="-O2 -fp-model precise"
    
    if [[ $1 = 'MGK' ]]; then
-      export CFLAGS='-O2'
-      #export NCMOD=$NETCDF_ROOT'/include'
+      CFLAGS='-O2'
    fi
 
    if [[ $1 = 'debug' ]]; then
-      export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
-      #export CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0 -check all,noarg_temp_created'
+      CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0'
+      #CFLAGS='-O0 -traceback -g -fp-model precise -ftz -fpe0 -check all,noarg_temp_created'
    fi
+
+   CFLAGS+=" $(pkg-config --cflags netcdf-fortran)"
+   export CFLAGS
+   LDFLAGS=$(pkg-config --libs netcdf-fortran)
+   export LDFLAGS
    
    if [[ $1 = 'mpi' ]]; then
     build_build mpi
@@ -144,9 +152,6 @@ build_status()
       echo  ''
       echo 'Oooops. Something went wrong'
       echo  ''
-      echo 'Other than compiler messages, known build issues:'
-      echo 'Some systems require additional library. '
-      echo 'e.g. Edit Makefile; add -lnetcdff to LD = ...'
    fi
    exit
 }

@@ -147,26 +147,23 @@ PROG_MPI = cable-mpi
 # from the compiled object files
 OBJS := ${LSRC:.F90=.o}
 
-#compiler switches and flags
-CINC = -I$(NCMOD)
-
 #suffixes we use
 .SUFFIXES:
 .SUFFIXES: .F90 .o
 #default rules for these suffixes
 .F90.o:
-	$(FC) $(CFLAGS) $(CINC) -c $<
+	$(FC) $(CFLAGS) -c $<
 
 SUPPRESS_FLAGS := -warn nostderrors -diag-disable 10145
 
 # the first target is the default target
 .PHONY: serial
 serial: cable_driver.F90 $(OBJS)
-	$(FC) $(SUPPRESS_FLAGS) $(CFLAGS) $(LDFLAGS) $(LD) -o $(PROG_SERIAL) $^ $(CINC)
+	$(FC) $(SUPPRESS_FLAGS) $(CFLAGS) -o $(PROG_SERIAL) $^ $(LDFLAGS)
 
 .PHONY: mpi
 mpi: cable_mpidrv.F90 cable_mpicommon.o cable_mpimaster.o cable_mpiworker.o pop_mpi.o $(OBJS)
-	$(FC) $(SUPPRESS_FLAGS) $(CFLAGS) $(LDFLAGS) -o $(PROG_MPI) $^ $(CINC) $(LD)
+	$(FC) $(SUPPRESS_FLAGS) $(CFLAGS) -o $(PROG_MPI) $^ $(LDFLAGS)
 
 cable_mpicommon.o: cable_mpicommon.F90 $(OBJS)
 pop_mpi.o: pop_mpi.F90 cable_mpicommon.o $(OBJS)
