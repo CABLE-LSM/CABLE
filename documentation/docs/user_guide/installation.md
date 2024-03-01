@@ -2,7 +2,10 @@
 
 To install CABLE you need to have the following already installed on your system:
 
-- git
+- `git`
+- `cmake`
+- `pkg-config`
+- MPI (for parallel applications)
 - a Fortran compiler
 - the netCDF library
 
@@ -11,20 +14,20 @@ To install CABLE you need to have the following already installed on your system
 ``` mermaid
 graph TD
     
-    A(Clone CABLE with git):::UserAction -->|Serial?| B(Run `offline/build3.sh`):::UserAction;
-    B --> D[load modules, set compiler flags, create .tmp/ directory];
-    D -->|Serial?| E[Run `make`];
-    E --> G[executable `cable`]:::Output;
-    A -->|Parallel?| C(Run `offline/build3.sh mpi`):::UserAction;
+    A(Clone CABLE with git):::UserAction -->|Serial?| B(Run `./build.bash`):::UserAction;
+    B --> D[load modules and invoke `cmake`];
+    D -->|Serial?| E;
+    E[executable `cable`]:::Output;
+    A -->|Parallel?| C(Run `./build.bash --mpi`):::UserAction;
     C --> D;   
-    D -->|Parallel?| F[Run `make mpi`];
-    F --> H[executable `cable_mpi`]:::Output;
-    click A "http://cable.readthedocs.io/en/latest/user_guide/installation/#getting-the-cable-source-code"
-    click B "http://cable.readthedocs.io/en/latest/user_guide/installation/#launching-the-build"
-    click C "http://cable.readthedocs.io/en/latest/user_guide/installation/#launching-the-build"
-    click D "http://cable.readthedocs.io/en/latest/user_guide/installation/#description-of-the-build-process"
-    click E "http://cable.readthedocs.io/en/latest/user_guide/installation/#description-of-the-build-process"
-    click F "http://cable.readthedocs.io/en/latest/user_guide/installation/#description-of-the-build-process"
+    D -->|Parallel?| F;
+    F[executable `cable-mpi`]:::Output;
+    click A "#getting-the-cable-source-code"
+    click B "#launching-the-build"
+    click C "#launching-the-build"
+    click D "#description-of-the-build-process"
+    click E "#description-of-the-build-process"
+    click F "#description-of-the-build-process"
 
     UserAction ---- Automatic ---- Output;
 
@@ -54,6 +57,8 @@ In principle, the only requirements for building and running CABLE are a Fortran
 
 Whilst we have endeavoured to make CABLE as portable as possible, and indeed we have used CABLE on a variety of platforms, our discussion here is limited to building CABLE on UNIX/Linux platforms only. Specifically, on Gadi@NCI, using Intel Fortran compiler. On other HPC systems there are likely modules available for both Fortran and netCDF. We recommend to get advice from your local system administrators.
 
+See [**Build System**][build-system] for more extensive documentation on the build system.
+
 CABLE has the directory structure:
 
     science/
@@ -74,58 +79,53 @@ CABLE supports both serial and parallel applications.
 ???+ tip "Multiprocessor for global simulations"
     For global (or regional) offline simulations, CABLE can still be run in serial mode (about 15 minutes/year for GSWP global run at 1x1 degree resolution). However, running on multiple processors speeds up the simulation considerably.
 
-CABLE can be built using the BASH script [build3.sh][build3] in the **offline/** directory.
+CABLE can be built using the BASH script [build.bash][build.bash] in the project root directory.
 
 ???+ tip "Build on other HPC"
-    The function *host_gadi* in the build script shows the appropriate configuration to build on Gadi.
-    This may be of use as a template building CABLE on another Linux/HPC system.
+    Gadi specific configuration is guarded by a check on the current hostname (see [here][build.bash-hostname-check]). This may be of use as a template for building CABLE on another Linux/HPC system. For advice on issues relating to porting to other HPC systems, please get in touch with ACCESS-NRI either via GitHub or the [ACCESS-Hive Forum][hive-forum-cable].
 
-Both the serial and parallel executable for CABLE offline are built in the `offline/` directory by executing
-the build script.
+
+Executables are built in the `<project_root>/build` directory. Once built successfully, they are then installed in the `<project_root>/bin` directory.
 
 To build the serial model execute:
 
-    ./build3.sh
+    ./build.bash
 
-To build the parallel model execute the same build script but with the argument **mpi**.
+To build the parallel model execute the same build script but with the `--mpi` flag.
 
-    ./build3.sh mpi
+    ./build.bash --mpi
 
 ???+ warning
     If you need to switch between a serial compilation and a parallel compilation, you need to completely [clean the previous build][clean-build] first.
-
-### Description of the build process
-
-The build script:
-
-1. loads modules for the Fortran compiler and the netCDF library
-2. sets the compiler flags
-3. creates a hidden temporary directory (`.tmp/`) in which it then compiles CABLE.  
-4. executes `make` in the hidden temporary directory
-
-The [Makefile][makefile] compiles the serial executable by default (via `make`) and compiles the MPI executable via the `mpi` target (via `make mpi`).
-
-The hidden `.tmp/` directory is really only needed for technical reasons and you should never need to go
-into the `.tmp/` directory. However, if for some reason you want the **.o** object files created by the compiler, they persist in this directory. Alternatively, it is sometimes useful to verify that the files you want to compile are actually making it into this directory. This is particularly relevant if you are adding new files to CABLE.
-
-???+ warning "Do not change files under `.tmp/`"
-    If you change the files in `.tmp/` directly, the next build will not pick up these changes and will overwrite them.
-
-One of the features of the build process is that only source files which are
-modified are re-built, followed by their dependents. This is possible because the `.tmp/` directory is
-overwritten by the build script, preserving timestamps of the source files from their original location.
 
 ### Cleaning the build
 
 From time to time, it might be useful to clean a previous build completely and restart the build from scratch. This is required when switching between serial and parallel builds.
 
-To clean the build, you need to run:
+To clean the previous build prior to compiling, specify the `--clean` flag to `build.bash`.
 
-    ./build3.sh clean
+    ./build.bash --clean
+
+### Enabling debug mode
+
+The release build is default. To enable debug mode, specify the CMake option `-DCMAKE_BUILD_TYPE=Debug` when invoking `build.bash`.
+
+### Enabling verbose output from Makefile builds
+
+To enable more verbose output from Makefile builds, specify the CMake option `-DCMAKE_VERBOSE_MAKEFILE=ON` when invoking `build.bash`.
+
+### Parallel compilation
+
+By default, the compilation is done in parallel. The number of parallel jobs can be overwritten by setting the environment variable [`CMAKE_BUILD_PARALLEL_LEVEL`](https://cmake.org/cmake/help/latest/envvar/CMAKE_BUILD_PARALLEL_LEVEL.html).
+
+???+ tip
+    Run `./build.bash --help` for information on supported options.
 
 [cable-github]: https://github.com/CABLE-LSM/cable.git
 [NCI]: https://nci.org.au
 [registration]: https://trac.nci.org.au/trac/cable/wiki/CABLE_Registration
-[build3]: https://github.com/CABLE-LSM/CABLE/blob/main/src/offline/build3.sh
-[makefile]: https://github.com/CABLE-LSM/CABLE/blob/main/src/offline/Makefile
+[build.bash]: https://github.com/CABLE-LSM/CABLE/blob/main/build.bash
+[build.bash-hostname-check]: https://github.com/CABLE-LSM/CABLE/blob/main/build.bash#L45-L55
 [clean-build]: installation.md/#cleaning-the-build
+[build-system]: ../developer_guide/other_resources/build_system.md
+[hive-forum-cable]: https://forum.access-hive.org.au/c/land/cable/18

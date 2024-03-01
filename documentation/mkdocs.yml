@@ -98,6 +98,7 @@ nav:
       - Scientific documentation: developer_guide/documentation_guidelines/science_doc.md
     - Other resources:
       - Coding standards: developer_guide/other_resources/coding_standards.md
+      - Build System: developer_guide/other_resources/build_system.md
       - Cheat Sheets: developer_guide/other_resources/cheat_sheets.md
       - CABLE's release process: developer_guide/other_resources/release_process.md
       - API documentation: developer_guide/other_resources/api.md

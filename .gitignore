@@ -1,3 +1,5 @@
 # Fortran
 *.mod
 *.o
+build
+bin
