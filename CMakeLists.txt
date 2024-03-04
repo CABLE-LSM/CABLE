@@ -26,6 +26,17 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
     )
 endif()
 
+set(CABLE_GNU_Fortran_FLAGS -cpp -ffree-form -ffixed-line-length-132)
+set(CABLE_GNU_Fortran_FLAGS_DEBUG -O -g -pedantic-errors -Wall -W -Wno-maybe-uninitialized -fbacktrace -ffpe-trap=zero,overflow,underflow -finit-real=nan)
+set(CABLE_GNU_Fortran_FLAGS_RELEASE -O3 -Wno-aggressive-loop-optimizations)
+if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
+    add_compile_options(
+        ${CABLE_GNU_Fortran_FLAGS}
+        "$<$<CONFIG:Release>:${CABLE_GNU_Fortran_FLAGS_RELEASE}>"
+        "$<$<CONFIG:Debug>:${CABLE_GNU_Fortran_FLAGS_DEBUG}>"
+    )
+endif()
+
 add_library(
     cable_common_objlib
     OBJECT

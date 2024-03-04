@@ -14,6 +14,8 @@ options below will be passed to CMake when generating the build system.
 Options:
       --clean   Delete build directory before invoking CMake.
       --mpi     Compile MPI executable.
+      --compiler <compiler>
+                Specify the compiler to use.
   -j <jobs>     Specify the number of parallel jobs in the compilation. By
                 default this value is set to $nproc_default.
   -h, --help    Show this screen.
@@ -43,6 +45,10 @@ while [ $# -gt 0 ]; do
             mpi=1
             cmake_args+=(-DCABLE_MPI="ON")
             ;;
+        --compiler)
+            compiler=$2
+            shift
+            ;;
         -j)
             CMAKE_BUILD_PARALLEL_LEVEL=$2
             shift
@@ -59,14 +65,29 @@ while [ $# -gt 0 ]; do
 done
 
 if hostname -f | grep gadi.nci.org.au > /dev/null; then
+    : "${compiler:=intel}"
+
     . /etc/bashrc
     module purge
     module add cmake/3.24.2
-    module add intel-compiler/2019.5.281
     module add netcdf/4.6.3
+    case ${compiler} in
+        intel)
+            module add intel-compiler/2019.5.281
+            compiler_lib_install_dir=Intel
+            ;;
+        gnu)
+            module add gcc/13.2.0
+            compiler_lib_install_dir=GNU
+            ;;
+        ?*)
+            echo -e "\nError: compiler ${compiler} is not supported.\n"
+            exit 1
+    esac
+
     # This is required so that the netcdf-fortran library is discoverable by
     # pkg-config:
-    prepend_path PKG_CONFIG_PATH "${NETCDF_BASE}/lib/Intel/pkgconfig"
+    prepend_path PKG_CONFIG_PATH "${NETCDF_BASE}/lib/${compiler_lib_install_dir}/pkgconfig"
 
     if [[ -n $mpi ]]; then
         module add intel-mpi/2019.5.281
@@ -75,7 +96,7 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
     if module is-loaded openmpi; then
         # This is required so that the openmpi MPI libraries are discoverable
         # via CMake's `find_package` mechanism:
-        prepend_path CMAKE_PREFIX_PATH "${OPENMPI_BASE}/include/Intel"
+        prepend_path CMAKE_PREFIX_PATH "${OPENMPI_BASE}/include/${compiler_lib_install_dir}"
     fi
 fi
 
