@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 nproc_default=4
 
@@ -14,6 +14,8 @@ options below will be passed to CMake when generating the build system.
 Options:
       --clean   Delete build directory before invoking CMake.
       --mpi     Compile MPI executable.
+  -j <jobs>     Specify the number of parallel jobs in the compilation. By
+                default this value is set to $nproc_default.
   -h, --help    Show this screen.
 
 Enabling debug mode:
@@ -25,12 +27,6 @@ Enabling verbose output from Makefile builds:
 
   To enable more verbose output from Makefile builds, specify the CMake option
   -DCMAKE_VERBOSE_MAKEFILE=ON when invoking $script_name.
-
-Parallel compilation:
-
-  By default, the number of parallel jobs used in the compilation is
-  $nproc_default. This value can be overwritten by setting the environment
-  variable CMAKE_BUILD_PARALLEL_LEVEL.
 
 EOF
 }
@@ -46,6 +42,10 @@ while [ $# -gt 0 ]; do
         --mpi)
             mpi=1
             cmake_args+=(-DCABLE_MPI="ON")
+            ;;
+        -j)
+            CMAKE_BUILD_PARALLEL_LEVEL=$2
+            shift
             ;;
         -h|--help)
             show_help

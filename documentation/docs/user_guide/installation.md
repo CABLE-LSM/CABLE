@@ -110,10 +110,6 @@ The release build is default. To enable debug mode, specify the CMake option `-D
 
 To enable more verbose output from Makefile builds, specify the CMake option `-DCMAKE_VERBOSE_MAKEFILE=ON` when invoking `build.bash`.
 
-### Parallel compilation
-
-By default, the compilation is done in parallel. The number of parallel jobs can be overwritten by setting the environment variable [`CMAKE_BUILD_PARALLEL_LEVEL`](https://cmake.org/cmake/help/latest/envvar/CMAKE_BUILD_PARALLEL_LEVEL.html).
-
 ???+ tip
     Run `./build.bash --help` for information on supported options.
 
