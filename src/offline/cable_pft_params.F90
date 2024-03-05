@@ -42,12 +42,6 @@ REAL ::                                                                        &
    g1(ntype_max),                                                              &
    zr(ntype_max),                                                              &
    clitt(ntype_max),                                                           &
-   froot1(ntype_max),                                                          &
-   froot2(ntype_max),                                                          &
-   froot3(ntype_max),                                                          &
-   froot4(ntype_max),                                                          &
-   froot5(ntype_max),                                                          &
-   froot6(ntype_max),                                                          &
    csoil1(ntype_max),                                                          &
    csoil2(ntype_max),                                                          &
    ratecs1(ntype_max),                                                         &
