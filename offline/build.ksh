@@ -10,9 +10,9 @@ fi
 known_hosts()
 {
     if [ -z ${PS3} ] ; then
-        kh=(kh gadi pear mcin mc16 mcmi vm_o auro)
+        kh=(kh gadi pear mcin mc16 mcmi vm_o logi auro)
     else
-        set -A kh gadi pear mcin mc16 mcmi vm_o auro
+        set -A kh gadi pear mcin mc16 mcmi vm_o logi auro
     fi
 }
 
@@ -486,6 +486,127 @@ host_vm_o()
     build_status
 }
 
+
+## MatthiasCuntz@curta
+host_logi()
+{
+    idebug=0
+    iintel=1
+    ignu=0
+    np=$#
+    for ((i=0; i<${np}; i++)) ; do
+        if [[ "${1}" == "debug" ]] ; then
+            idebug=1
+            shift 1
+        elif [[ "${1}" == "ifort" || "${1}" == "intel" ]] ; then
+            iintel=1
+            ignu=0
+            shift 1
+        elif [[ "${1}" == "gfortran" || "${1}" == "gnu" ]] ; then
+            iintel=0
+            ignu=1
+            shift 1
+        else
+            echo "Error: command line option not known: " ${1}
+            exit 1
+        fi
+    done
+    if [[ ${iintel} -eq 1 ]] ;  then
+        # INTEL
+        module load intel-oneapi-compilers/2023.1.0/gcc@11.2.0-57kkzxu
+        module load netcdf-c/4.9.2/oneapi@2023.0.0-2rbrj54
+        module load netcdf-fortran/4.6.0/oneapi@2023.0.0-n24bykw
+	module load gcc/11.2.0
+	# Does not work with the following error:
+	#     ifort: /lib64/libstdc++.so.6: version `GLIBCXX_3.4.21' not found (required by ifort)
+	# module load compiler/intel/2020.4.304
+	# module load netcdf-intel
+	# module load netcdf-fortran-intel
+        export FC=ifort
+        # release
+        export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382"
+        export LDFLAGS="-O3"
+        # OPTFLAG="-xBROADWELL"
+        OPTFLAG="-xHost"
+        if [[ ${idebug} -eq 1 ]] ; then
+            # debug
+            export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv -init=arrays,snan
+            export LDFLAGS="-O0"
+            OPTFLAG=
+        fi
+        # OPTFLAG="${CFLAGS} -march=broadwell"     # std / hf
+        # OPTFLAG="${CFLAGS} -march=core-avx2"     # std / hf
+        # OPTFLAG="${CFLAGS} -mtune=broadwell"     # std / hf
+        # OPTFLAG="${CFLAGS} -march=skylake-avx512 # sky
+        # OPTFLAG="${CFLAGS} -march=ivybridge"     # ivy / k20
+        # OPTFLAG="${CFLAGS} -march=avx"           # ivy / k20
+        # OPTFLAG="${CFLAGS} -mtune=ivybridge"     # ivy / k20
+        export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
+        export LD=""
+	NCCFLAGS=`pkg-config --cflags netcdf`
+	NCFLAGS=`pkg-config --cflags netcdf-fortran`
+	export CFLAGS="${CFLAGS} ${NCFLAGS} ${NCCFLAGS}"
+    else
+        # 2018
+        # GFORTRAN # 6.3.0 because of netcdf-fortran
+        module load gcc/6.3.0
+        # # 2023
+        # module purge
+        # module use /opt/modulefiles/shared/mcs_mod
+        # # module load softwares/anaconda3/2022.05
+        # module load softwares/anaconda3/2023.03
+        # source ${HOME_ANACONDA}/anaconda.rc
+        # conda activate ${HOME}/.conda/envs/cpystd
+        export FC=gfortran
+        # release
+        export CFLAGS="-cpp -O3 -Wno-aggressive-loop-optimizations -ffree-form -ffixed-line-length-132"
+        export LDFLAGS="-O3"
+        # OPTFLAG="-march=broadwell"
+        OPTFLAG="-march=native"
+        if [[ ${idebug} -eq 1 ]] ; then
+            # debug
+            export CFLAGS="-cpp -O -g -pedantic-errors -Wall -W -Wno-maybe-uninitialized -ffree-form -ffixed-line-length-132 -fbacktrace -ffpe-trap=zero,overflow -finit-real=nan" #  -ffpe-trap=zero,overflow,underflow
+            export LDFLAGS="-O"
+            OPTFLAG=
+        fi
+        # OPTFLAG="${CFLAGS} -march=broadwell"     # std / hf
+        # OPTFLAG="${CFLAGS} -mavx2"               # std / hf
+        # OPTFLAG="${CFLAGS} -march=skylake-avx512 # sky
+        # OPTFLAG="${CFLAGS} -march=ivybridge"     # ivy / k20
+        # OPTFLAG="${CFLAGS} -mavx"                # ivy / k20
+        export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__" # -pg # gprof --line ./cable gmon.out
+        export LD=""
+        # 2018
+        # export NCCROOT="/home/oqx29/shared/local.gnu"
+        # export NCROOT=${NCCROOT}
+        export NCCROOT="/home/oqx29/shared/local.save"
+        export NCROOT="/home/oqx29/shared/local.save/netcdf-fortran-4.4.4-gfortran63/"
+        # export LDFLAGS="-lhdf5_hl -lhdf5 -lsz -lz -lssl -lcrypto ${LDFLAGS}"
+        # # 2023
+        # export NCCROOT=`nc-config --prefix`
+        # export LDFLAGS="-L${NCLIB}/lib -lcurl -L/lib ${LDFLAGS}"  # for libc
+    fi
+
+    # All compilers
+    export CFLAGS="${CFLAGS} ${OPTFLAG}"
+    # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
+    # export CFLAGS="${CFLAGS} -D__CRU2017__"
+    export CFLAGS="${CFLAGS} -D__NETCDF3__"
+
+    # NCCLIBS=`nc-config --static --libs`
+    # NCLIBS=`nf-config --flibs`
+    # export LDFLAGS="${NCLIBS} ${NCCLIBS} -static-intel ${LDFLAGS}"
+    NCCLIBS=`pkg-config --libs netcdf`
+    NCLIBS=`pkg-config --libs netcdf-fortran`
+    export NCMOD=`nf-config --includedir`
+    export LDFLAGS="${NCLIBS} ${NCCLIBS} ${LDFLAGS}"
+    export dosvn=0
+    export MFLAGS="-j 8"
+    build_build
+    cd ../
+    build_status
+}
+
 ## Lars Nieradzik @ aurora.lunarc.lu.se
 host_auro()
 {
@@ -668,6 +789,7 @@ fi
 known_hosts
 known_domains
 HOST_MACH=`uname -n | cut -c 1-4 | tr - _`
+# host2: for compilation on compute nodes of Explor
 host2=`echo ${HOST_MACH} | cut -c1,2`
 if [ ${host2} = 'cn' ] ; then HOST_MACH="vm_o" ; fi
 if [ `uname -s` = 'Darwin' ] ; then
