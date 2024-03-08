@@ -26,7 +26,7 @@ MODULE sli_numbers
   REAL(r_2), PARAMETER :: Mw        = 0.018016_r_2        ! weight of 1 mol of water [kg]
   REAL(r_2), PARAMETER :: rmair     = 0.02897_r_2         ! molecular wt: dry air (kg/mol)
   REAL(r_2), PARAMETER :: Mw18      = 0.018_r_2           ! weight of 1 mol of water [kg] (main isotopologue only)
-  REAL(r_2), PARAMETER :: cpa       = 1004.64_r_2         ! specific heat capacity of dry air at 0-40 degC [J/kgK]
+  REAL(r_2), PARAMETER :: cpa       = 1004.64_r_2         ! specific heat of dry air at 0-40 degC [J/kgK]
   REAL(r_2), PARAMETER :: esata     = 6.106_r_2*100.0_r_2 ! constants for saturated vapour pressure calculation
   REAL(r_2), PARAMETER :: esatb     = 17.27_r_2           ! %
   REAL(r_2), PARAMETER :: esatc     = 237.3_r_2           ! %
@@ -38,14 +38,14 @@ MODULE sli_numbers
   REAL(r_2), PARAMETER :: rhow      = 1000.0_r_2   ! denisty of water [kg/m3]
   REAL(r_2), PARAMETER :: rhoi      = 920._r_2     ! density of ice (kg m-3)
 
-  REAL(r_2), PARAMETER :: rhoa      = 1.184_r_2    ! denisty of dry air at std (25 degC) [kg/m3]
+  REAL(r_2), PARAMETER :: rhoa      = 1.184_r_2    ! density of dry air at std (25 degC) [kg/m3]
   REAL(r_2), PARAMETER :: rhocp     = 1189.8_r_2   ! cpa*rhoa at std (25 degC) [J/m3K]
 
   REAL(r_2), PARAMETER :: esata_ice = 611.2_r_2   ! constants for saturated vapour pressure calculation over ice (WMO, 2008)
   REAL(r_2), PARAMETER :: esatb_ice = 22.46_r_2   ! %
   REAL(r_2), PARAMETER :: esatc_ice = 272.62_r_2  ! %
-  REAL(r_2), PARAMETER :: csice     = 2.100e3_r_2 ! specific heat capacity for ice
-  REAL(r_2), PARAMETER :: cswat     = 4.218e3_r_2 ! specific heat capacity for water
+  REAL(r_2), PARAMETER :: csice     = 2.100e3_r_2 ! specific heat for ice (J/kg/K)
+  REAL(r_2), PARAMETER :: cswat     = 4.182e3_r_2 ! specific heat for water at 0°C (J/kg/K)
   REAL(r_2), PARAMETER :: rgas      = 8.3143_r_2  ! universal gas const  (J/mol/K)
   REAL(r_2), PARAMETER :: kw        = 0.58_r_2    ! dito
 
