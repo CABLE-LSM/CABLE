@@ -35,11 +35,11 @@ REAL, PARAMETER :: grav   = 9.8086        ! gravity acceleration (m/s2)
 REAL, PARAMETER :: rgas   = 8.3143        ! universal gas const  (J/mol/K)
 REAL, PARAMETER :: rmair  = 0.02897       ! molecular wt: dry air (kg/mol)
 REAL, PARAMETER :: rmh2o  = 0.018016      ! molecular wt: water (kg/mol)
-REAL, PARAMETER :: cgsnow = 2090.0        ! specific heat capacity for snow
+REAL, PARAMETER :: cgsnow = 2090.0        ! specific heat for snow (J/kg/K)
 REAL, PARAMETER :: cs_rho_ice = 1.9341e6  !heat capacity * density ice
 REAL, PARAMETER :: cs_rho_wat = 4.218e6   ! heat capacity * density  water
-REAL, PARAMETER :: csice = 2.100e3        ! specific heat capacity for ice
-REAL, PARAMETER :: cswat = 4.182e3        ! specific heat for water (J/kg/K)
+REAL, PARAMETER :: csice = 2.100e3        ! specific heat for ice (J/kg/K)
+REAL, PARAMETER :: cswat = 4.218e3        ! specific heat for water at 0°C (J/kg/K)
 REAL, PARAMETER :: density_liq = 1000.0   ! density of liquid water
 REAL, PARAMETER :: density_ice = 921.0    ! denisty of ice
 
