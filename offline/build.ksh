@@ -388,6 +388,7 @@ host_vm_o()
             exit 1
         fi
     done
+    module purge
     if [[ ${iintel} -eq 1 ]] ;  then
         # INTEL
         # 2018
@@ -468,7 +469,7 @@ host_vm_o()
     # All compilers
     export CFLAGS="${CFLAGS} ${OPTFLAG}"
     # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
-    export CFLAGS="${CFLAGS} -D__CRU2017__"
+    # export CFLAGS="${CFLAGS} -D__CRU2017__"
     export CFLAGS="${CFLAGS} -D__NETCDF3__"
 
     export NCCLIB=${NCCROOT}"/lib"
