@@ -106,8 +106,9 @@ MODULE cable_common_module
      CHARACTER(LEN=10)  :: POPLUC_RunType = 'static'  ! 'static', 'init', 'restart'
      CHARACTER(LEN=200) :: BLAZE_outfile = ''
      CHARACTER(LEN=200) :: gm_LUT_file = ''           ! LUT file used if explicit_gm = .true.
-     ! Options: Bernacchi_2002 or Walker_2013. Only used if explicit_gm = .true.
-     CHARACTER(LEN=50)  :: Rubisco_parameters = ''    ! Rubisco kinetic parameters
+     ! Options: Bernacchi_2002 or Walker_2013.
+     !          Only used if explicit_gm = .true.
+     CHARACTER(LEN=50)  :: Rubisco_parameters = 'Bernacchi_2002'    ! Rubisco kinetic parameters
      LOGICAL ::                                                               &
           CALL_POP               = .FALSE., & !
           POP_fromZero           = .FALSE., &
