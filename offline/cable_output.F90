@@ -3647,15 +3647,6 @@ CONTAINS
        endif
     endif
 
-    !MC - Do we need this?
-    !     From the netcdf documentation:
-    !         The function NF90 SYNC offers a way to synchronize the disk copy of a netCDF dataset
-    !         with in-memory buffers. There are two reasons you might want to synchronize after writes:
-    !         - To minimize data loss in case of abnormal termination, or
-    !         - To make data available to other processes for reading immediately after it is written.
-    !     Both is not the case.
-    ok = nf90_sync(ncid_out)
-
   END SUBROUTINE write_output
 
   !=============================================================================
