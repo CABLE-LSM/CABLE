@@ -98,6 +98,21 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
         # via CMake's `find_package` mechanism:
         prepend_path CMAKE_PREFIX_PATH "${OPENMPI_BASE}/include/${compiler_lib_install_dir}"
     fi
+
+elif hostname -f | grep -E '(mc16|mcmini)' > /dev/null; then
+    : "${compiler:=gnu}"
+
+    case ${compiler} in
+        gnu)
+            export PKG_CONFIG_PATH=/usr/local/netcdf-fortran-4.6.1-gfortran/lib/pkgconfig:${PKG_CONFIG_PATH}
+            export PKG_CONFIG_PATH=${HOMEBREW_PREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH}
+            cmake_args+=(-DCMAKE_Fortran_COMPILER=gfortran)
+            ;;
+        ?*)
+            echo -e "\nError: compiler ${compiler} is not supported.\n"
+            exit 1
+            ;;
+    esac
 fi
 
 export CMAKE_BUILD_PARALLEL_LEVEL="${CMAKE_BUILD_PARALLEL_LEVEL:=$nproc_default}"
