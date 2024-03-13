@@ -25,6 +25,7 @@ module load intel-compiler/2021.8.0
 export R_LIBS=/g/data/x45/R/libs
 export PYTHONPATH=/g/data/x45/python3.10.4/lib/python3.10/site-packages
 # module load conda_concept/analysis3       # Can load python libraries from this module, supplied by project hh5
+# Access to the hh5 project can be requested at https://my.nci.org.au/
 
 #-------------------------------------------------------
 # Settings

@@ -20,7 +20,7 @@ def generate_parser():
     args.add_argument("nmasks", help="Number of runs for CABLE-POP", type=int)
     args.add_argument("outpath", help="Root path for output files")
     args.add_argument(
-        "-e", "--extent", help='"global" or "lon_min,lon_max,lat_min,lat_max"', type=str
+        "-e", "--extent", help='"global" or "lon_min,lon_max,lat_min,lat_max"', type=str, default = "global"
     )
 
     return args
