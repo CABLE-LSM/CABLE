@@ -24,7 +24,7 @@ module load geos/3.8.0
 module load intel-compiler/2021.8.0
 export R_LIBS=/g/data/x45/R/libs
 export PYTHONPATH=/g/data/x45/python3.10.4/lib/python3.10/site-packages
-
+# module load conda_concept/analysis3       # Can load python libraries from this module, supplied by project hh5
 
 #-------------------------------------------------------
 # Settings
@@ -56,6 +56,7 @@ cablecode="/home/599/jk8585/CABLE_code/SHARE/CABLE-POP_TRENDY"
 rundir="/home/599/jk8585/CABLE_run/TRENDY_v12"
 # Scripts
 landmask_script="${rundir}/scripts/split_landmask.R"
+#landmask_script="${rundir}/scripts/split_landmask.py"
 run_script="${rundir}/scripts/run_cable.sh"
 merge_script="${rundir}/scripts/merge_outputs.sh"
 cleanup_script="${rundir}/scripts/cleanup.sh"
@@ -81,6 +82,7 @@ GlobalLandMaskFile="${aux}/landmasks/glob_ipsl_1x1.nc"
 # -----------------------------------------------------------------------
 if [[ ${create_landmasks} -eq 1 ]] ; then
    $landmask_script $GlobalLandMaskFile $nruns $outpath $extent
+   #$landmask_script $GlobalLandMaskFile $nruns $outpath -e $extent     # Python uses arg -e for extent
 fi
 
 # -----------------------------------------------------------------------
