@@ -13,13 +13,13 @@ To install CABLE you need to have the following already installed on your system
 
 ``` mermaid
 graph TD
-    
+
     A(Clone CABLE with git):::UserAction -->|Serial?| B(Run `./build.bash`):::UserAction;
     B --> D[load modules and invoke `cmake`];
     D -->|Serial?| E;
     E[executable `cable`]:::Output;
     A -->|Parallel?| C(Run `./build.bash --mpi`):::UserAction;
-    C --> D;   
+    C --> D;
     D -->|Parallel?| F;
     F[executable `cable-mpi`]:::Output;
     click A "#getting-the-cable-source-code"
@@ -84,7 +84,6 @@ CABLE can be built using the BASH script [build.bash][build.bash] in the project
 ???+ tip "Build on other HPC"
     Gadi specific configuration is guarded by a check on the current hostname (see [here][build.bash-hostname-check]). This may be of use as a template for building CABLE on another Linux/HPC system. For advice on issues relating to porting to other HPC systems, please get in touch with ACCESS-NRI either via GitHub or the [ACCESS-Hive Forum][hive-forum-cable].
 
-
 Executables are built in the `<project_root>/build` directory. Once built successfully, they are then installed in the `<project_root>/bin` directory.
 
 To build the serial model execute:
@@ -95,12 +94,9 @@ To build the parallel model execute the same build script but with the `--mpi` f
 
     ./build.bash --mpi
 
-???+ warning
-    If you need to switch between a serial compilation and a parallel compilation, you need to completely [clean the previous build][clean-build] first.
-
 ### Cleaning the build
 
-From time to time, it might be useful to clean a previous build completely and restart the build from scratch. This is required when switching between serial and parallel builds.
+From time to time, it might be useful to clean a previous build completely and restart the build from scratch.
 
 To clean the previous build prior to compiling, specify the `--clean` flag to `build.bash`.
 
@@ -113,10 +109,6 @@ The release build is default. To enable debug mode, specify the CMake option `-D
 ### Enabling verbose output from Makefile builds
 
 To enable more verbose output from Makefile builds, specify the CMake option `-DCMAKE_VERBOSE_MAKEFILE=ON` when invoking `build.bash`.
-
-### Parallel compilation
-
-By default, the compilation is done in parallel. The number of parallel jobs can be overwritten by setting the environment variable [`CMAKE_BUILD_PARALLEL_LEVEL`](https://cmake.org/cmake/help/latest/envvar/CMAKE_BUILD_PARALLEL_LEVEL.html).
 
 ???+ tip
     Run `./build.bash --help` for information on supported options.
