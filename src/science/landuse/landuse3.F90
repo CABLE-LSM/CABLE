@@ -22,13 +22,13 @@ MODULE landuse_variable
   ! let's say we have a variable named `var`, then:
   !
   ! - `luc%var_x(mland,mvmax)` contains data before land-use change,
-  !   indexed on the number of land points (`mland`) and the maximum number of 
+  !   indexed on the number of land points (`mland`) and the maximum number of
   !   plant functional types (`mvmax`).
   ! - `luc%var_y(mland,mvmax)` contains data after land-use change, indexed
-  !   on the number of land points (`mland`) and the maximum number of 
+  !   on the number of land points (`mland`) and the maximum number of
   !   plant functional types (`mvmax`).
-  ! - `lucmp%var(mp)` contains the variable data, indexed on the number of 
-  !   vegetation patches (`mp`).  
+  ! - `lucmp%var(mp)` contains the variable data, indexed on the number of
+  !   vegetation patches (`mp`).
   !
   ! The land-use change for each variable is applied in the form of a
   ! transformation matrix `T`, such that:
@@ -44,11 +44,11 @@ MODULE landuse_variable
   ! 3. Write the value of `luc%var_x` into `luc%var_y`
   ! 4. Update the value of `mp` and write `luc%var_y` to `lucmp%var`
   !
-  ! **WARNING:** 
+  ! **WARNING:**
   !
   ! * There are external procedures in this file that should be
   ! moved to the `CONTAINS` clause of this module.
-  ! * Any variables added to CABLE/CASA restart files must be reproduced here 
+  ! * Any variables added to CABLE/CASA restart files must be reproduced here
   ! in both "landuse_mland" and "landuse_mp".
   !
   TYPE landuse_mland
@@ -179,7 +179,7 @@ MODULE landuse_variable
     REAL(r_2), DIMENSION(:,:,:), ALLOCATABLE :: cwoodprod_y
     REAL(r_2), DIMENSION(:,:,:), ALLOCATABLE :: nplant_y
     REAL(r_2), DIMENSION(:,:,:), ALLOCATABLE :: nlitter_y
-    REAL(r_2), DIMENSION(:,:,:), ALLOCATABLE :: nsoil_y 
+    REAL(r_2), DIMENSION(:,:,:), ALLOCATABLE :: nsoil_y
     REAL(r_2), DIMENSION(:,:),   ALLOCATABLE :: nsoilmin_y
     REAL(r_2), DIMENSION(:,:,:), ALLOCATABLE :: nwoodprod_y
     REAL(r_2), DIMENSION(:,:,:), ALLOCATABLE :: pplant_y
@@ -192,14 +192,14 @@ MODULE landuse_variable
 
   ! landuse data
     REAL(r_2), DIMENSION(:,:),   ALLOCATABLE :: pftfrac
-    REAL(r_2), DIMENSION(:,:),   ALLOCATABLE :: fharvw 
-    REAL(r_2), DIMENSION(:,:,:), ALLOCATABLE :: xluh2cable 
+    REAL(r_2), DIMENSION(:,:),   ALLOCATABLE :: fharvw
+    REAL(r_2), DIMENSION(:,:,:), ALLOCATABLE :: xluh2cable
     REAL(r_2), DIMENSION(:,:,:), ALLOCATABLE :: atransit
   END TYPE landuse_mland
 
   TYPE landuse_mp
    !! Variables indexed along the vegetation patches.
-   
+
    ! generic patch properties
    integer,    dimension(:),        allocatable   :: iveg,isoil,soilorder,phase,isflag           !(mp)
    integer,    dimension(:),        allocatable   :: doyphase3                                   !(mp)
@@ -221,7 +221,7 @@ MODULE landuse_variable
    real(r_2),  dimension(:,:),      allocatable   :: cplantx, csoilx               !float(mp,plant_carbon_pools/soil_carbon_pools)
 
    ! biogeochemical variables
-   real(r_2),  dimension(:),        allocatable   :: sumcbal,sumnbal,sumpbal                              !float(mp)                   
+   real(r_2),  dimension(:),        allocatable   :: sumcbal,sumnbal,sumpbal                              !float(mp)
    real(r_2),  dimension(:),        allocatable   :: clabile,nsoilmin,psoillab,psoilsorb,psoilocc         !float(mp)
    real(r_2),  dimension(:,:),      allocatable   :: cplant,nplant,pplant                                 !float(mp,mplant)
    real(r_2),  dimension(:,:),      allocatable   :: clitter,nlitter,plitter                              !float(mp,mlitter)
@@ -229,164 +229,164 @@ MODULE landuse_variable
    real(r_2),  dimension(:,:),      allocatable   :: cwoodprod,nwoodprod,pwoodprod                        !float(mp,mwood)
 
  END TYPE landuse_mp
- 
+
  CONTAINS
 
-  SUBROUTINE landuse_allocate_mland(mland,luc)
-  !! Allocates the `luc%%var(mland,mvmax)` variables
+  SUBROUTINE landuse_allocate_mland(imland,luc)
+  !! Allocates the `luc%%var(imland,mvmax)` variables
   !!
   !! **WARNING:** Need to use a separate ALLOCATE call for each array
    use landuse_constant
    IMPLICIT NONE
    TYPE(landuse_mland), INTENT(INOUT)  :: luc
-   integer  mland
+   integer  imland
    ! patch-genric variables
-   ALLOCATE(luc%iveg_x(mland,mvmax),             &
-            luc%isoil_x(mland,mvmax),            &
-            luc%soilorder_x(mland,mvmax),        &
-            luc%phase_x(mland,mvmax),            &
-            luc%phen_x(mland,mvmax),             &
-            luc%aphen_x(mland,mvmax),            &
-            luc%doyphase3_x(mland,mvmax),        &
-            luc%frac_sapwood_x(mland,mvmax),     &
-            luc%sapwood_area_x(mland,mvmax),     &
-            luc%isflag_x(mland,mvmax),           &
-            luc%patchfrac_x(mland,mvmax),        &
-            luc%lai_x(mland,mvmax),              &
-            luc%sla_x(mland,mvmax))
+   ALLOCATE(luc%iveg_x(imland,mvmax),             &
+            luc%isoil_x(imland,mvmax),            &
+            luc%soilorder_x(imland,mvmax),        &
+            luc%phase_x(imland,mvmax),            &
+            luc%phen_x(imland,mvmax),             &
+            luc%aphen_x(imland,mvmax),            &
+            luc%doyphase3_x(imland,mvmax),        &
+            luc%frac_sapwood_x(imland,mvmax),     &
+            luc%sapwood_area_x(imland,mvmax),     &
+            luc%isflag_x(imland,mvmax),           &
+            luc%patchfrac_x(imland,mvmax),        &
+            luc%lai_x(imland,mvmax),              &
+            luc%sla_x(imland,mvmax))
 
-   ALLOCATE(luc%iveg_y(mland,mvmax),             &
-            luc%isoil_y(mland,mvmax),            &
-            luc%soilorder_y(mland,mvmax),        &
-            luc%phase_y(mland,mvmax),            &
-            luc%phen_y(mland,mvmax),             &
-            luc%aphen_y(mland,mvmax),            &
-            luc%doyphase3_y(mland,mvmax),        &
-            luc%frac_sapwood_y(mland,mvmax),     &
-            luc%sapwood_area_y(mland,mvmax),     &
-            luc%isflag_y(mland,mvmax),           &
-            luc%patchfrac_y(mland,mvmax),        &
-            luc%lai_y(mland,mvmax),              &
-            luc%sla_y(mland,mvmax))
+   ALLOCATE(luc%iveg_y(imland,mvmax),             &
+            luc%isoil_y(imland,mvmax),            &
+            luc%soilorder_y(imland,mvmax),        &
+            luc%phase_y(imland,mvmax),            &
+            luc%phen_y(imland,mvmax),             &
+            luc%aphen_y(imland,mvmax),            &
+            luc%doyphase3_y(imland,mvmax),        &
+            luc%frac_sapwood_y(imland,mvmax),     &
+            luc%sapwood_area_y(imland,mvmax),     &
+            luc%isflag_y(imland,mvmax),           &
+            luc%patchfrac_y(imland,mvmax),        &
+            luc%lai_y(imland,mvmax),              &
+            luc%sla_y(imland,mvmax))
 
     ! biophysical
-   ALLOCATE(luc%albsoilsn_x(mland,mvmax,nrb),   &
-            luc%albedo_x(mland,mvmax,nrb),      &
-            luc%albsoil_x(mland,mvmax,nrb),     &
-            luc%dgdtg_x(mland,mvmax),           &
-            luc%gammzz_x(mland,mvmax,ms),       &
-            luc%tgg_x(mland,mvmax,ms),          &
-            luc%wb_x(mland,mvmax,ms),           &
-            luc%wbice_x(mland,mvmax,ms),        &
-            luc%tggsn_x(mland,mvmax,msn),       &
-            luc%ssdn_x(mland,mvmax,msn),        &
-            luc%smass_x(mland,mvmax,msn),       &
-            luc%sdepth_x(mland,mvmax,msn),      &
-            luc%tss_x(mland,mvmax),             &
-            luc%rtsoil_x(mland,mvmax),          &
-            luc%runoff_x(mland,mvmax),          &
-            luc%rnof1_x(mland,mvmax),           &
-            luc%rnof2_x(mland,mvmax),           &
-            luc%ssdnn_x(mland,mvmax),           &
-            luc%snowd_x(mland,mvmax),           &
-            luc%snage_x(mland,mvmax),           &
-            luc%osnowd_x(mland,mvmax),          &
-            luc%cansto_x(mland,mvmax),          &
-            luc%ghflux_x(mland,mvmax),          &
-            luc%sghflux_x(mland,mvmax),         &
-            luc%ga_x(mland,mvmax),              &
-            luc%fev_x(mland,mvmax),             &
-            luc%fes_x(mland,mvmax),             &
-            luc%fhs_x(mland,mvmax),             &
-            luc%wbtot0_x(mland,mvmax),          &
-            luc%osnowd0_x(mland,mvmax),         & 
-            luc%trad_x(mland,mvmax),            &
-            luc%GWwb_x(mland,mvmax),            &
-            luc%cplantx_x(mland,mvmax,ncp),     &
-            luc%csoilx_x(mland,mvmax,ncs))
+   ALLOCATE(luc%albsoilsn_x(imland,mvmax,nrb),   &
+            luc%albedo_x(imland,mvmax,nrb),      &
+            luc%albsoil_x(imland,mvmax,nrb),     &
+            luc%dgdtg_x(imland,mvmax),           &
+            luc%gammzz_x(imland,mvmax,ms),       &
+            luc%tgg_x(imland,mvmax,ms),          &
+            luc%wb_x(imland,mvmax,ms),           &
+            luc%wbice_x(imland,mvmax,ms),        &
+            luc%tggsn_x(imland,mvmax,msn),       &
+            luc%ssdn_x(imland,mvmax,msn),        &
+            luc%smass_x(imland,mvmax,msn),       &
+            luc%sdepth_x(imland,mvmax,msn),      &
+            luc%tss_x(imland,mvmax),             &
+            luc%rtsoil_x(imland,mvmax),          &
+            luc%runoff_x(imland,mvmax),          &
+            luc%rnof1_x(imland,mvmax),           &
+            luc%rnof2_x(imland,mvmax),           &
+            luc%ssdnn_x(imland,mvmax),           &
+            luc%snowd_x(imland,mvmax),           &
+            luc%snage_x(imland,mvmax),           &
+            luc%osnowd_x(imland,mvmax),          &
+            luc%cansto_x(imland,mvmax),          &
+            luc%ghflux_x(imland,mvmax),          &
+            luc%sghflux_x(imland,mvmax),         &
+            luc%ga_x(imland,mvmax),              &
+            luc%fev_x(imland,mvmax),             &
+            luc%fes_x(imland,mvmax),             &
+            luc%fhs_x(imland,mvmax),             &
+            luc%wbtot0_x(imland,mvmax),          &
+            luc%osnowd0_x(imland,mvmax),         &
+            luc%trad_x(imland,mvmax),            &
+            luc%GWwb_x(imland,mvmax),            &
+            luc%cplantx_x(imland,mvmax,ncp),     &
+            luc%csoilx_x(imland,mvmax,ncs))
 
-   ALLOCATE(luc%albsoilsn_y(mland,mvmax,nrb),   &
-            luc%albedo_y(mland,mvmax,nrb),      &
-            luc%albsoil_y(mland,mvmax,nrb),     &
-            luc%dgdtg_y(mland,mvmax),           &
-            luc%gammzz_y(mland,mvmax,ms),       &
-            luc%tgg_y(mland,mvmax,ms),          &
-            luc%wb_y(mland,mvmax,ms),           &
-            luc%wbice_y(mland,mvmax,ms),        &
-            luc%tggsn_y(mland,mvmax,msn),       &
-            luc%ssdn_y(mland,mvmax,msn),        &
-            luc%smass_y(mland,mvmax,msn),       &
-            luc%sdepth_y(mland,mvmax,msn),      &
-            luc%tss_y(mland,mvmax),             &
-            luc%rtsoil_y(mland,mvmax),          &
-            luc%runoff_y(mland,mvmax),          &
-            luc%rnof1_y(mland,mvmax),           &
-            luc%rnof2_y(mland,mvmax),           &
-            luc%ssdnn_y(mland,mvmax),           &
-            luc%snowd_y(mland,mvmax),           &
-            luc%snage_y(mland,mvmax),           &
-            luc%osnowd_y(mland,mvmax),          &
-            luc%cansto_y(mland,mvmax),          &
-            luc%ghflux_y(mland,mvmax),          &
-            luc%sghflux_y(mland,mvmax),         &
-            luc%ga_y(mland,mvmax),              &
-            luc%fev_y(mland,mvmax),             &
-            luc%fes_y(mland,mvmax),             &
-            luc%fhs_y(mland,mvmax),             &
-            luc%wbtot0_y(mland,mvmax),          &
-            luc%osnowd0_y(mland,mvmax),         & 
-            luc%trad_y(mland,mvmax),            &
-            luc%GWwb_y(mland,mvmax),            &
-            luc%cplantx_y(mland,mvmax,ncp),     &
-            luc%csoilx_y(mland,mvmax,ncs))
+   ALLOCATE(luc%albsoilsn_y(imland,mvmax,nrb),   &
+            luc%albedo_y(imland,mvmax,nrb),      &
+            luc%albsoil_y(imland,mvmax,nrb),     &
+            luc%dgdtg_y(imland,mvmax),           &
+            luc%gammzz_y(imland,mvmax,ms),       &
+            luc%tgg_y(imland,mvmax,ms),          &
+            luc%wb_y(imland,mvmax,ms),           &
+            luc%wbice_y(imland,mvmax,ms),        &
+            luc%tggsn_y(imland,mvmax,msn),       &
+            luc%ssdn_y(imland,mvmax,msn),        &
+            luc%smass_y(imland,mvmax,msn),       &
+            luc%sdepth_y(imland,mvmax,msn),      &
+            luc%tss_y(imland,mvmax),             &
+            luc%rtsoil_y(imland,mvmax),          &
+            luc%runoff_y(imland,mvmax),          &
+            luc%rnof1_y(imland,mvmax),           &
+            luc%rnof2_y(imland,mvmax),           &
+            luc%ssdnn_y(imland,mvmax),           &
+            luc%snowd_y(imland,mvmax),           &
+            luc%snage_y(imland,mvmax),           &
+            luc%osnowd_y(imland,mvmax),          &
+            luc%cansto_y(imland,mvmax),          &
+            luc%ghflux_y(imland,mvmax),          &
+            luc%sghflux_y(imland,mvmax),         &
+            luc%ga_y(imland,mvmax),              &
+            luc%fev_y(imland,mvmax),             &
+            luc%fes_y(imland,mvmax),             &
+            luc%fhs_y(imland,mvmax),             &
+            luc%wbtot0_y(imland,mvmax),          &
+            luc%osnowd0_y(imland,mvmax),         &
+            luc%trad_y(imland,mvmax),            &
+            luc%GWwb_y(imland,mvmax),            &
+            luc%cplantx_y(imland,mvmax,ncp),     &
+            luc%csoilx_y(imland,mvmax,ncs))
 
     ! biogeochemical variables
-   ALLOCATE(luc%cplant_x(mland,mvmax,mplant),    &
-            luc%nplant_x(mland,mvmax,mplant),    &
-            luc%pplant_x(mland,mvmax,mplant),    &
-            luc%clitter_x(mland,mvmax,mlitter),  &
-            luc%nlitter_x(mland,mvmax,mlitter),  &
-            luc%plitter_x(mland,mvmax,mlitter),  &
-            luc%csoil_x(mland,mvmax,msoil),      &
-            luc%nsoil_x(mland,mvmax,msoil),      &
-            luc%psoil_x(mland,mvmax,msoil),      &
-            luc%clabile_x(mland,mvmax),          &
-            luc%nsoilmin_x(mland,mvmax),         &
-            luc%psoillab_x(mland,mvmax),         &
-            luc%psoilsorb_x(mland,mvmax),        &
-            luc%psoilocc_x(mland,mvmax),         &
-            luc%cwoodprod_x(mland,mvmax,mwood),  &
-            luc%nwoodprod_x(mland,mvmax,mwood),  &
-            luc%pwoodprod_x(mland,mvmax,mwood),  &
-            luc%cplant_y(mland,mvmax,mplant),    &
-            luc%nplant_y(mland,mvmax,mplant),    &
-            luc%pplant_y(mland,mvmax,mplant),    &
-            luc%clitter_y(mland,mvmax,mlitter),  &
-            luc%nlitter_y(mland,mvmax,mlitter),  &
-            luc%plitter_y(mland,mvmax,mlitter),  &
-            luc%csoil_y(mland,mvmax,msoil),      &
-            luc%nsoil_y(mland,mvmax,msoil),      &
-            luc%psoil_y(mland,mvmax,msoil),      &
-            luc%clabile_y(mland,mvmax),          &
-            luc%nsoilmin_y(mland,mvmax),         &
-            luc%psoillab_y(mland,mvmax),         &
-            luc%psoilsorb_y(mland,mvmax),        &
-            luc%psoilocc_y(mland,mvmax),         &
-            luc%cwoodprod_y(mland,mvmax,mwood),  &
-            luc%nwoodprod_y(mland,mvmax,mwood),  &
-            luc%pwoodprod_y(mland,mvmax,mwood))
+   ALLOCATE(luc%cplant_x(imland,mvmax,mplant),    &
+            luc%nplant_x(imland,mvmax,mplant),    &
+            luc%pplant_x(imland,mvmax,mplant),    &
+            luc%clitter_x(imland,mvmax,mlitter),  &
+            luc%nlitter_x(imland,mvmax,mlitter),  &
+            luc%plitter_x(imland,mvmax,mlitter),  &
+            luc%csoil_x(imland,mvmax,msoil),      &
+            luc%nsoil_x(imland,mvmax,msoil),      &
+            luc%psoil_x(imland,mvmax,msoil),      &
+            luc%clabile_x(imland,mvmax),          &
+            luc%nsoilmin_x(imland,mvmax),         &
+            luc%psoillab_x(imland,mvmax),         &
+            luc%psoilsorb_x(imland,mvmax),        &
+            luc%psoilocc_x(imland,mvmax),         &
+            luc%cwoodprod_x(imland,mvmax,mwood),  &
+            luc%nwoodprod_x(imland,mvmax,mwood),  &
+            luc%pwoodprod_x(imland,mvmax,mwood),  &
+            luc%cplant_y(imland,mvmax,mplant),    &
+            luc%nplant_y(imland,mvmax,mplant),    &
+            luc%pplant_y(imland,mvmax,mplant),    &
+            luc%clitter_y(imland,mvmax,mlitter),  &
+            luc%nlitter_y(imland,mvmax,mlitter),  &
+            luc%plitter_y(imland,mvmax,mlitter),  &
+            luc%csoil_y(imland,mvmax,msoil),      &
+            luc%nsoil_y(imland,mvmax,msoil),      &
+            luc%psoil_y(imland,mvmax,msoil),      &
+            luc%clabile_y(imland,mvmax),          &
+            luc%nsoilmin_y(imland,mvmax),         &
+            luc%psoillab_y(imland,mvmax),         &
+            luc%psoilsorb_y(imland,mvmax),        &
+            luc%psoilocc_y(imland,mvmax),         &
+            luc%cwoodprod_y(imland,mvmax,mwood),  &
+            luc%nwoodprod_y(imland,mvmax,mwood),  &
+            luc%pwoodprod_y(imland,mvmax,mwood))
 
     ! land-use variables
-   ALLOCATE(luc%pftfrac(mland,mvtype),           &
-            luc%fharvw(mland,mharvw),            &
-            luc%xluh2cable(mland,mvmax,mstate),  &
-            luc%atransit(mland,mvmax,mvmax))
+   ALLOCATE(luc%pftfrac(imland,mvtype),           &
+            luc%fharvw(imland,mharvw),            &
+            luc%xluh2cable(imland,mvmax,mstate),  &
+            luc%atransit(imland,mvmax,mvmax))
 
-    !        luc%phen_y(mland,mvmax),             &
-    !        luc%aphen_y(mland,mvmax),            &
-    !        luc%doyphase3_y(mland,mvmax),        &
-    !        luc%frac_sapwood_y(mland,mvmax),     &
-    !        luc%sapwood_area_y(mland,mvmax))        
+    !        luc%phen_y(imland,mvmax),             &
+    !        luc%aphen_y(imland,mvmax),            &
+    !        luc%doyphase3_y(imland,mvmax),        &
+    !        luc%frac_sapwood_y(imland,mvmax),     &
+    !        luc%sapwood_area_y(imland,mvmax))
    ! Initialize temporary variables
            ! patch-genric variables
            luc%iveg_x   = -1;     luc%isoil_x=-1;          luc%soilorder_x=-1;     luc%phase_x=0;    luc%isflag_x=0
@@ -639,7 +639,7 @@ MODULE landuse_variable
      allocate(lucmp%gammzz(mpx,ms))                                                                    !double(mp,soil)
      allocate(lucmp%tgg(mpx,ms),lucmp%wb(mpx,ms),lucmp%wbice(mpx,ms))                               !float(mp,soil)
      allocate(lucmp%tggsn(mpx,msn),lucmp%ssdn(mpx,msn),lucmp%smass(mpx,msn),lucmp%sdepth(mpx,msn)) !float(mp,snow)
- 
+
      allocate(lucmp%tss(mpx),lucmp%rtsoil(mpx),lucmp%runoff(mpx),lucmp%rnof1(mpx),lucmp%rnof2(mpx), &
               lucmp%ssdnn(mpx),lucmp%snowd(mpx),lucmp%snage(mpx),lucmp%osnowd(mpx),                 &
               lucmp%cansto(mpx),lucmp%ghflux(mpx),lucmp%sghflux(mpx),lucmp%ga(mpx),                 &
@@ -647,7 +647,7 @@ MODULE landuse_variable
               lucmp%trad(mpx),lucmp%GWwb(mpx))                                                  !float(mp)
      allocate(lucmp%cplantx(mpx,ncp), lucmp%csoilx(mpx,ncs))                                    !float(mp,ncp/ncs)
 
-    ! biogeochemical variables 
+    ! biogeochemical variables
      allocate(lucmp%sumcbal(mpx),lucmp%sumnbal(mpx),lucmp%sumpbal(mpx))
      allocate(lucmp%clabile(mpx))
      allocate(lucmp%cplant(mpx,mplant),lucmp%nplant(mpx,mplant),lucmp%pplant(mpx,mplant))
@@ -669,7 +669,7 @@ MODULE landuse_variable
      lucmp%gammzz(:,:)=0.0                                                                   !double(mp,soil)
      lucmp%tgg(:,:)=0.0;lucmp%wb(:,:)=0.0; lucmp%wbice(:,:)=0.0                              !float(mp,soil)
      lucmp%tggsn(:,:)=0.0; lucmp%ssdn(:,:)=0.0; lucmp%smass(:,:)=0.0; lucmp%sdepth(:,:)=0.0  !float(mp,snow)
- 
+
      lucmp%tss(:)=0.0; lucmp%rtsoil(:)=0.0; lucmp%runoff(:)=0.0; lucmp%rnof1(:)=0.0; lucmp%rnof2(:)=0.0
      lucmp%ssdnn(:)=0.0; lucmp%snowd(:)=0.0; lucmp%snage(:)=0.0; lucmp%osnowd(:)=0.0
      lucmp%cansto(:)=0.0; lucmp%ghflux(:)=0.0; lucmp%sghflux(:)=0.0; lucmp%ga(:)=0.0
@@ -708,7 +708,7 @@ MODULE landuse_variable
      deallocate(lucmp%gammzz)                                                 !double(mp,soil)
      deallocate(lucmp%tgg,lucmp%wb,lucmp%wbice)                               !float(mp,soil)
      deallocate(lucmp%tggsn,lucmp%ssdn,lucmp%smass,lucmp%sdepth)             !float(mp,snow)
- 
+
      deallocate(lucmp%tss,lucmp%rtsoil,lucmp%runoff,lucmp%rnof1,lucmp%rnof2,    &
               lucmp%ssdnn,lucmp%snowd,lucmp%snage,lucmp%osnowd,                 &
               lucmp%cansto,lucmp%ghflux,lucmp%sghflux,lucmp%ga,                 &
@@ -735,7 +735,7 @@ END MODULE landuse_variable
                             phen,casapool,casabal,casamet,casabiome,casaflux,bgc,rad, &
                             cstart,cend,nap,lucmp)
   !! Main driver for the land-use change
-  !  
+  !
   USE cable_IO_vars_module, ONLY: mask,patch,landpt, latitude, longitude
   USE cable_def_types_mod,  ONLY: mp,mvtype,mstype,mland,r_2,ms,msn,nrb,ncp,ncs,           &
                                   soil_parameter_type, soil_snow_type, veg_parameter_type, &
@@ -774,9 +774,9 @@ END MODULE landuse_variable
   integer ncid,ok,xID,yID,varID,i,j,m,mpx
 
      print *, 'calling allocate mp: landuse'
-     call landuse_allocate_mp(mp,ms,msn,nrb,mplant,mlitter,msoil,mwood,ncp,ncs,lucmp)  
+     call landuse_allocate_mp(mp,ms,msn,nrb,mplant,mlitter,msoil,mwood,ncp,ncs,lucmp)
      print *, 'calling allocate mland: landuse'
-     call landuse_allocate_mland(mland,luc)                                                     !setup "varx(mland,:)"        
+     call landuse_allocate_mland(mland,luc)                                                     !setup "varx(mland,:)"
      print *, 'exiting  allocating mland: landuse'
 
      ! get the mapping matrix from state to plant functional type
@@ -788,27 +788,27 @@ END MODULE landuse_variable
      do p=1,mp
 !        print *, 'p', p, veg%iveg(p),soil%isoilm(p),ssnow%isflag(p)
         lucmp%iveg(p)      = veg%iveg(p)
-        lucmp%isoil(p)     = soil%isoilm(p)          
-        lucmp%soilorder(p) = casamet%isorder(p)          
+        lucmp%isoil(p)     = soil%isoilm(p)
+        lucmp%soilorder(p) = casamet%isorder(p)
         lucmp%isflag(p)    = ssnow%isflag(p)
 
-     enddo   
+     enddo
 !     print *, 'point A: landuse'
 !     !
 !     print *, 'patchfraC',size(patch%frac)
 !     print *, 'veglai= ',size(veg%vlai)
-!     print *, 'landuse: casabiome:sla', size(casabiome%sla),  casabiome%sla(:) 
+!     print *, 'landuse: casabiome:sla', size(casabiome%sla),  casabiome%sla(:)
 
      do p=1,mp
      !   print *, 'landuse b', p, veg%iveg(p),veg%vlai(p),patch(p)%frac
 
         lucmp%patchfrac(p) = patch(p)%frac             ! maybe we should create another variable for "primary%patch"
         lucmp%lai(p)       = veg%vlai(p)
-        lucmp%sla(p)       = casabiome%sla(veg%iveg(p)) 
+        lucmp%sla(p)       = casabiome%sla(veg%iveg(p))
      enddo
 !     print *, 'point b: landuse'
 
-     ! biophysical variables 
+     ! biophysical variables
      do p=1,mp
         lucmp%albsoilsn(p,:) = ssnow%albsoilsn(p,:)
         lucmp%albedo(p,:)    = rad%albedo(p,:)
@@ -840,7 +840,7 @@ END MODULE landuse_variable
      lucmp%dgdtg(:)       = canopy%dgdtg(:)
      lucmp%fev(:)         = canopy%fev(:)
      lucmp%fes(:)         = canopy%fes(:)
-     lucmp%fhs(:)         = canopy%fhs(:) 
+     lucmp%fhs(:)         = canopy%fhs(:)
      lucmp%wbtot0(:)      = bal%wbtot0(:)
      lucmp%osnowd0(:)     = bal%osnowd0(:)
      lucmp%trad(:)        = rad%trad(:)
@@ -849,7 +849,7 @@ END MODULE landuse_variable
      lucmp%csoilx(:,:)    = bgc%csoil(:,:)
 
 !     print *, 'point E: landuse'
-     ! biogeochemical variables    
+     ! biogeochemical variables
      do m=1,mland
        do np=cstart(m),cend(m)
           ivt = lucmp%iveg(np)
@@ -860,8 +860,8 @@ END MODULE landuse_variable
      enddo
 
      print *, 'point F: landuse'
-     if(icycle>0) then 
-     do p=1,mp        
+     if(icycle>0) then
+     do p=1,mp
 !       print *, 'landuse F: ', p, phen%phase(p),phen%doyphase(p,3),phen%phen(p),phen%aphen(p)
 !       print *, 'landuse F2: ',   casaflux%frac_sapwood(p),casaflux%sapwood_area(p)
 !       print *, 'landuse F3: ', casapool%clabile(p),casapool%cplant(p,:),casapool%clitter(p,:),casapool%csoil(p,:),        &
@@ -884,7 +884,7 @@ END MODULE landuse_variable
      endif
 !     print *, 'point G: landuse'
      if(icycle>1) then
-     do p=1,mp        
+     do p=1,mp
         lucmp%nplant(p,:)    = casapool%nplant(p,:)
         lucmp%nlitter(p,:)   = casapool%nlitter(p,:)
         lucmp%nsoil(p,:)     = casapool%nsoil(p,:)
@@ -895,7 +895,7 @@ END MODULE landuse_variable
      endif
 !     print *, 'point H: landuse'
      if(icycle >2) then
-     do p=1,mp        
+     do p=1,mp
         lucmp%pplant(p,:)    = casapool%pplant(p,:)
         lucmp%plitter(p,:)   = casapool%plitter(p,:)
         lucmp%psoil(p,:)     = casapool%psoil(p,:)
@@ -906,7 +906,7 @@ END MODULE landuse_variable
         lucmp%sumpbal(p)     = casabal%sumpbal(p)
      enddo
      endif
-      
+
      ! assign variables var(mp,:) to luc%var_x(mland,mvmax,:)
 !     print *, 'calling mp2land: landuse'
      call landuse_mp2land(luc,lucmp,mp,cstart,cend)
@@ -947,14 +947,14 @@ END MODULE landuse_variable
      ! allocate "lucmp" with "mpx"
 !     print *, 'calling allocate mp: landuse'
      call landuse_allocate_mp(mpx,ms,msn,nrb,mplant,mlitter,msoil,mwood,ncp,ncs,lucmp)
- 
+
      ! assign lucmp%lat lucmp%lon
      do p=1,mland
         do q=cstart(p),cend(p)
            lucmp%lat(q) = latitude(p)
            lucmp%lon(q) = longitude(p)
         enddo
-     enddo      
+     enddo
 
 !     print *, 'calling land2mpx: landuse'
      call landuse_land2mpx(luc,lucmp,mpx)
@@ -973,8 +973,6 @@ end subroutine landuse_driver
  !! Assigns `lucmp%var(mp)` to `luc%var_x(mland,mvmax)`
  !
  use landuse_variable
- USE cable_def_types_mod,  ONLY: mvtype,mstype,mland,r_2,ms,msn,nrb,ncp,ncs
- USE casadimension,        ONLY: icycle,mplant,mlitter,msoil,mwood,mso
  IMPLICIT NONE
  integer mp
  type(landuse_mland)   :: luc
@@ -995,11 +993,11 @@ end subroutine landuse_driver
         print *, 'stop!'
      endif
 
-     ! patch-genric variables 
+     ! patch-genric variables
      luc%isoil_x(g,ivt)       = lucmp%isoil(np)
-     luc%soilorder_x(g,ivt)   = lucmp%soilorder(np) 
+     luc%soilorder_x(g,ivt)   = lucmp%soilorder(np)
      luc%phase_x(g,ivt)       = lucmp%phase(np)
-  
+
      luc%doyphase3_x(g,ivt)   = lucmp%doyphase3(np)
      luc%phen_x(g,ivt)        = lucmp%phen(np)
      luc%aphen_x(g,ivt)       = lucmp%aphen(np)
@@ -1007,16 +1005,16 @@ end subroutine landuse_driver
      luc%sapwood_area_x(g,ivt)= lucmp%sapwood_area(np)
 
      luc%isflag_x(g,ivt)      = lucmp%isflag(np)
-     luc%patchfrac_x(g,ivt)   = lucmp%patchfrac(np)   
+     luc%patchfrac_x(g,ivt)   = lucmp%patchfrac(np)
      luc%lai_x(g,ivt)         = lucmp%lai(np)
-     luc%sla_x(g,ivt)         = lucmp%sla(np)  
-    
+     luc%sla_x(g,ivt)         = lucmp%sla(np)
+
      ! biophysical variables
      do i=1,nrb
         luc%albsoilsn_x(g,ivt,i) = lucmp%albsoilsn(np,i)
         luc%albedo_x(g,ivt,i)    = lucmp%albedo(np,i)
         luc%albsoil_x(g,ivt,i)   = lucmp%albsoil(np,i)
-     enddo 
+     enddo
 
      luc%dgdtg_x(g,ivt)        = lucmp%dgdtg(np)
 
@@ -1051,7 +1049,7 @@ end subroutine landuse_driver
      luc%fes_x(g,ivt)          = lucmp%fes(np)
      luc%fhs_x(g,ivt)          = lucmp%fhs(np)
      luc%wbtot0_x(g,ivt)       = lucmp%wbtot0(np)
-     luc%osnowd0_x(g,ivt)      = lucmp%osnowd0(np) 
+     luc%osnowd0_x(g,ivt)      = lucmp%osnowd0(np)
      luc%trad_x(g,ivt)         = lucmp%trad(np)
      luc%GWwb_x(g,ivt)         = lucmp%GWwb(np)
 
@@ -1085,19 +1083,19 @@ end subroutine landuse_driver
       luc%psoilocc_x(g,ivt)    = lucmp%psoilocc(np)
       luc%pwoodprod_x(g,ivt,:) = lucmp%pwoodprod(np,:)
     END IF
-    
+
   enddo
   enddo
-  
+
   ! patch-genric variables
   luc%isoil_y       = luc%isoil_x
   luc%soilorder_y   = luc%soilorder_x
-  luc%phase_y       = luc%phase_x 
-  luc%isflag_y      = luc%isflag_x 
-  luc%patchfrac_y   = luc%patchfrac_x  
-  luc%lai_y         = luc%lai_x 
+  luc%phase_y       = luc%phase_x
+  luc%isflag_y      = luc%isflag_x
+  luc%patchfrac_y   = luc%patchfrac_x
+  luc%lai_y         = luc%lai_x
   luc%sla_y         = luc%sla_x
-  
+
   luc%doyphase3_y   = luc%doyphase3_x
   luc%phen_y        = luc%phen_x
   luc%aphen_y       = luc%aphen_x
@@ -1106,39 +1104,39 @@ end subroutine landuse_driver
 
   ! biophysical variables
   luc%albsoilsn_y   = luc%albsoilsn_x
-  luc%albedo_y      = luc%albedo_x 
+  luc%albedo_y      = luc%albedo_x
   luc%albsoil_y     = luc%albsoil_x
-  luc%dgdtg_y       = luc%dgdtg_x 
+  luc%dgdtg_y       = luc%dgdtg_x
   luc%gammzz_y      = luc%gammzz_x
-  luc%tgg_y         = luc%tgg_x 
+  luc%tgg_y         = luc%tgg_x
   luc%wb_y          = luc%wb_x
-  luc%wbice_y       = luc%wbice_x 
+  luc%wbice_y       = luc%wbice_x
   luc%tggsn_y       = luc%tggsn_x
-  luc%ssdn_y        = luc%ssdn_x 
+  luc%ssdn_y        = luc%ssdn_x
   luc%smass_y       = luc%smass_x
   luc%sdepth_y      = luc%sdepth_x
   luc%tss_y         = luc%tss_x
-  luc%rtsoil_y      = luc%rtsoil_x 
+  luc%rtsoil_y      = luc%rtsoil_x
   luc%runoff_y      = luc%runoff_x
   luc%rnof1_y       = luc%rnof1_x
   luc%rnof2_y       = luc%rnof2_x
-  luc%ssdnn_y       = luc%ssdnn_x  
-  luc%snowd_y       = luc%snowd_x 
+  luc%ssdnn_y       = luc%ssdnn_x
+  luc%snowd_y       = luc%snowd_x
   luc%snage_y       = luc%snage_x
-  luc%osnowd_y      = luc%osnowd_x 
+  luc%osnowd_y      = luc%osnowd_x
   luc%cansto_y      = luc%cansto_x
   luc%ghflux_y      = luc%ghflux_x
   luc%sghflux_y     = luc%sghflux_x
-  luc%ga_y          = luc%ga_x 
+  luc%ga_y          = luc%ga_x
   luc%fev_y         = luc%fev_x
   luc%fes_y         = luc%fes_x
-  luc%fhs_y         = luc%fhs_x    
+  luc%fhs_y         = luc%fhs_x
   luc%wbtot0_y      = luc%wbtot0_x
-  luc%osnowd0_y     = luc%osnowd0_x 
+  luc%osnowd0_y     = luc%osnowd0_x
   luc%trad_y        = luc%trad_x
-  luc%GWwb_y        = luc%GWwb_x 
+  luc%GWwb_y        = luc%GWwb_x
   luc%cplantx_y     = luc%cplantx_x
-  luc%csoilx_y      = luc%csoilx_x 
+  luc%csoilx_y      = luc%csoilx_x
 
   ! biogeochemical variables
   luc%clabile_y   = luc%clabile_x
@@ -1165,7 +1163,7 @@ end subroutine landuse_driver
   END IF
 
 END SUBROUTINE landuse_mp2land
-  
+
 SUBROUTINE landuse_transitx(luc,casabiome)
    !*## Purpose
    !
@@ -1227,8 +1225,8 @@ SUBROUTINE landuse_transitx(luc,casabiome)
       do d=1,mvmax
          if(luc%cplant_x(p,d,leaf) > 0.001) then
             ! calculate the fraction of litter or root litter into metabolic litter pool
-			   ! this could be replaced with a call to a subroutine 
-			   ! if same calculations in casa_cnp.F90 are isolated into a 
+			   ! this could be replaced with a call to a subroutine
+			   ! if same calculations in casa_cnp.F90 are isolated into a
             ! separate subroutine
 			   !
             ivt=mvtype
@@ -1247,17 +1245,17 @@ SUBROUTINE landuse_transitx(luc,casabiome)
       enddo
 
       ! compute the transition matrix relating to primary forest harvest
-      delfwhpri(1:mvmax) = 0.0; afwhpri(1:mvmax,1:mvmax) = 0.0      
+      delfwhpri(1:mvmax) = 0.0; afwhpri(1:mvmax,1:mvmax) = 0.0
       if(luc%fharvw(p,1) >0.0) then
-         ! calculate the transition matrix for primary land 
+         ! calculate the transition matrix for primary land
           do d=1,mvtype
             if(d<11.or.d>13) then
                delfwhpri(d)  = luc%fharvw(p,1) * luc%xluh2cable(p,d,1)    ! donor    (positive)
             else
                delfwhpri(d) = -luc%fharvw(p,1) * luc%xluh2cable(p,r,3)    ! receiver (negative)
-            endif          
+            endif
          enddo  ! of "d"
-         call landuse_redistribution(p,mvmax,delfwhpri,afwhpri)  
+         call landuse_redistribution(p,mvmax,delfwhpri,afwhpri)
       endif
 
       transitx(1:mvmax,1:mvmax) = luc%atransit(p,1:mvmax,1:mvmax)+afwhpri(1:mvmax,1:mvmax)
@@ -1299,7 +1297,7 @@ SUBROUTINE landuse_transitx(luc,casabiome)
 
             !move the donor wood to receiver wood product pool including labile C
             dcwoodprod(p,r,1) = dcwoodprod(p,r,1) + transitx(r,d)   &
-                                                  *(luc%cplant_x(p,d,wood)*fwoodprod(1) + luc%cwoodprod_x(p,d,1)) 
+                                                  *(luc%cplant_x(p,d,wood)*fwoodprod(1) + luc%cwoodprod_x(p,d,1))
 
             dcwoodprod(p,r,2) = dcwoodprod(p,r,2) + transitx(r,d)   &
                                                   *(luc%cplant_x(p,d,wood)*fwoodprod(2) + luc%cwoodprod_x(p,d,2))
@@ -1521,7 +1519,7 @@ SUBROUTINE landuse_transitx(luc,casabiome)
          luc%fes_y(p,d)       = avgpatchr2(d,luc%patchfrac_x(p,d),transitx(1:mvmax,1:mvmax),luc%fes_x(p,1:mvmax))
          luc%fhs_y(p,d)       = avgpatchr2(d,luc%patchfrac_x(p,d),transitx(1:mvmax,1:mvmax),luc%fhs_x(p,1:mvmax))
          luc%wbtot0_y(p,d)    = avgpatchr2(d,luc%patchfrac_x(p,d),transitx(1:mvmax,1:mvmax),luc%wbtot0_x(p,1:mvmax))
-         luc%osnowd0_y(p,d)   = avgpatchr2(d,luc%patchfrac_x(p,d),transitx(1:mvmax,1:mvmax),luc%osnowd0_x(p,1:mvmax)) 
+         luc%osnowd0_y(p,d)   = avgpatchr2(d,luc%patchfrac_x(p,d),transitx(1:mvmax,1:mvmax),luc%osnowd0_x(p,1:mvmax))
          luc%trad_y(p,d)      = avgpatchr2(d,luc%patchfrac_x(p,d),transitx(1:mvmax,1:mvmax),luc%trad_x(p,1:mvmax))
          luc%GWwb_y(p,d)      = avgpatchr2(d,luc%patchfrac_x(p,d),transitx(1:mvmax,1:mvmax),luc%GWwb_x(p,1:mvmax))
 
@@ -1583,7 +1581,7 @@ SUBROUTINE landuse_transitx(luc,casabiome)
               delareax = delareax - x2y(k1,q)
            endif
         enddo
- 
+
         do k2=1,mvmax
            if(k2/=q) then
               xgain = xgain +x2y(q,k2)  * x(k2)
@@ -1607,7 +1605,7 @@ SUBROUTINE landuse_transitx(luc,casabiome)
 
         dominantint = min(xmax,max(xmin,xk(1)))
         fracxmax  = fracx(1)
-        do k=2,mvmax   
+        do k=2,mvmax
            if(fracx(k)>fracxmax) then
               fracxmax = fracx(k)
               dominantint = xk(k)
@@ -1655,12 +1653,12 @@ END SUBROUTINE landuse_transitx
                 temp      = delx(i)
                 itemp     = ivt(i)
                 delx(i)   = delx(i+1)
-                ivt(i)    = ivt(i+1) 
+                ivt(i)    = ivt(i+1)
                 delx(i+1) = temp
                 ivt(i+1)  = itemp
              endif
           enddo
-       enddo 
+       enddo
 
        ! determine number of negative (receive) and positives (donor)
        ndonor=0;nreceive=0
@@ -1677,7 +1675,7 @@ END SUBROUTINE landuse_transitx
           receive(j)    = delx(i)
           ivtreceive(j) = ivt(i)
        enddo
-         
+
        ! donor to receive
        do i=1,ndonor
           if(donor(i) > 0.0) then
@@ -1687,8 +1685,8 @@ END SUBROUTINE landuse_transitx
                    vj = ivtreceive(j)
                    if(donor(i)>=-receive(j)) then
                       atransx(vj,vi) = atransx(vj,vi) - receive(j)
-                      donor(i)       = donor(i) + receive(j)        
-                      receive(j)     = 0.0 
+                      donor(i)       = donor(i) + receive(j)
+                      receive(j)     = 0.0
                    else
                       atransx(vj,vi) = atransx(vj,vi) + donor(i)
                       receive(j)     = receive(j) + donor(i)
@@ -1717,7 +1715,7 @@ END SUBROUTINE landuse_transitx
 
  END SUBROUTINE landuse_redistribution
 
- SUBROUTINE landuse_update_mland(luc)                     
+ SUBROUTINE landuse_update_mland(luc)
  !! Assigns `luc%var_y` to `luc%var_x`
  USE landuse_variable,   ONLY: landuse_mland
  IMPLICIT NONE
@@ -1898,7 +1896,7 @@ END SUBROUTINE landuse_transitx
     enddo  ! end of "p"
 
     print *, 'npnew npold', npnew,npold
-     
+
  END SUBROUTINE landuse_land2mpx
 
  SUBROUTINE landuse_checks(mlon,mlat,landmask,luc)
@@ -1913,7 +1911,7 @@ END SUBROUTINE landuse_transitx
  real, parameter      :: xunit = 1.0e-15
  TYPE(landuse_mland)  :: luc
  integer,       dimension(mlon,mlat) :: landmask
- real(r_2), dimension(mvmax)     :: areapft                    
+ real(r_2), dimension(mvmax)     :: areapft
  real(r_2), dimension(mvmax)     :: cpland,npland,ppland
  real(r_2), dimension(mvmax)     :: clland,nlland,plland
  real(r_2), dimension(mvmax)     :: csland,nsland,psland
@@ -1944,7 +1942,7 @@ END SUBROUTINE landuse_transitx
        csland(v) = csland(v) + luc%patchfrac_y(n,v) * sum(luc%csoil_y(n,v,1:3))
        nsland(v) = nsland(v) + luc%patchfrac_y(n,v) * sum(luc%nsoil_y(n,v,1:3))
        psland(v) = psland(v) + luc%patchfrac_y(n,v) * sum(luc%psoil_y(n,v,1:3))
- 
+
        clabland(v)   = clabland(v)   + luc%patchfrac_y(n,v) * luc%clabile_y(n,v)
        nsminland(v)  = nsminland(v)  + luc%patchfrac_y(n,v) * luc%nsoilmin_y(n,v)
        pslabland(v)  = pslabland(v)  + luc%patchfrac_y(n,v) * luc%psoillab_y(n,v)
@@ -1970,5 +1968,5 @@ END SUBROUTINE landuse_transitx
 
 201 format(i3,2x,20(f10.5,2x))
 202 format(20(f10.5,2x))
-   
+
  END SUBROUTINE landuse_checks

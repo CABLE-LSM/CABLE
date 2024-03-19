@@ -1023,9 +1023,10 @@ DO npt=1,mp
       ENDIF
 
       casapool%dNplantdt(npt,wood) = 0.0
-#     ifndef ESM15 ! offline/trunk uses this condition
+#ifndef ESM15
+      ! offline/trunk uses this condition
       IF (casamet%lnonwood(npt)==0)                                            & 
-#     endif
+#endif
       casapool%dNplantdt(npt,wood) = - casaflux%kplant(npt,wood)             &
                                      * casapool%Nplant(npt,wood)               &
                                      * casabiome%ftransNPtoL(veg%iveg(npt),wood)

@@ -15,7 +15,7 @@ MODULE CABLE_LUC_EXPT
   END TYPE LUC_INPUT_TYPE
 
   TYPE LUC_EXPT_TYPE
-     CHARACTER(len=200)::	TransitionFilePath,ClimateFile, Run
+     CHARACTER(len=200):: TransitionFilePath,ClimateFile, Run
      LOGICAL  :: DirectRead, READrst, WRITErst
      LOGICAL, ALLOCATABLE ::  prim_only(:)
      LOGICAL, ALLOCATABLE :: ptos(:), ptog(:), stog(:), gtos(:)

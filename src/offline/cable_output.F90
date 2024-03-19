@@ -877,8 +877,7 @@ CONTAINS
 
     IF(output%casa) THEN
        CALL define_ovar(ncid_out, ovid%NBP, 'NBP', 'umol/m^2/s',               &
-            'Net Biosphere Production &
-            (uptake +ve)', patchout%NBP,         &
+            'Net Biosphere Production (uptake +ve)', patchout%NBP,         &
             'dummy', xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%NBP(mp))
        out%NBP = 0.0 ! initialise
@@ -1486,7 +1485,7 @@ CONTAINS
     TYPE(casa_flux), INTENT(IN) :: casaflux ! casa fluxes
     TYPE(casa_pool), INTENT(IN) :: casapool ! casa fluxes
     TYPE(balances_type), INTENT(INOUT) :: bal
-    TYPE (casa_met), INTENT(IN)	:: casamet
+    TYPE(casa_met), INTENT(IN) :: casamet
 
     REAL(r_2), DIMENSION(1) :: timetemp ! temporary variable for storing time
     ! value
