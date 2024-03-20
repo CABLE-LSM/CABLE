@@ -113,6 +113,18 @@ To enable more verbose output from Makefile builds, specify the CMake option `-D
 ???+ tip
     Run `./build.bash --help` for information on supported options.
 
+## Installation with `spack`
+
+CABLE is available to be installed as a [spack](https://spack.io/) package via the [ACCESS-NRI/spack-packages][accessnri-spack-packages] repository:
+
+```bash
+$ spack list cable
+cable
+==> 1 packages
+```
+
+See the [README file][accessnri-spack-packages] in the package repository for instructions on how to install these packages.
+
 [cable-github]: https://github.com/CABLE-LSM/cable.git
 [NCI]: https://nci.org.au
 [registration]: https://trac.nci.org.au/trac/cable/wiki/CABLE_Registration
@@ -121,3 +133,4 @@ To enable more verbose output from Makefile builds, specify the CMake option `-D
 [clean-build]: installation.md/#cleaning-the-build
 [build-system]: ../developer_guide/other_resources/build_system.md
 [hive-forum-cable]: https://forum.access-hive.org.au/c/land/cable/18
+[accessnri-spack-packages]: https://github.com/ACCESS-NRI/spack-packages
