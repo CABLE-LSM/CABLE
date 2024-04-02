@@ -1,5 +1,5 @@
 ! Author: Lachlan Whyborn
-! Last Modified: Thu 28 Mar 2024 17:10:47
+! Last Modified: Wed 03 Apr 2024 08:56:33 AM AEDT
 
 module CRU
 
@@ -98,7 +98,7 @@ module CRU
   
     namelist /cruconfig/ 
 
-  subroutine PREPARE_MET_FILES(CRUFILES, CRUVARIABLES)
+  subroutine PREPARE_MET_FILES(METFILES, METVARIABLES)
 
     ! Prepare the met netCDF files for reading. We follow a process similar to
     ! that of JULES to handle time series data split over multiple files, see
@@ -124,60 +124,159 @@ module CRU
     ! This approach should be able to be extended to any time series data, but
     ! we're just applying it to the Met data for now.
 
+    ! Specify the intent of the arguments
+    character(len=256), dimension(:), intent(in)  :: METFILES
+    character(len=8),   dimension(:), intent(in)  :: METVARIABLES
+
     ! We need to have a definition of the substrings we're going to replace.
-    character(len=9)  :: StartDate = "<startdate>"
-    character(len=7)  :: EndDate = "<enddate>"
+    character(len=11) :: StartDate = "<startdate>"
+    character(len=9)  :: EndDate = "<enddate>"
+
+    ! For clarity in the looping, and so we don't mutate the original inputs,
+    ! we extract the filename from the array.
+    character(len=256):: CurrentFile
+
+    ! We write the outputs to a specific reserved filename
+    character(len=32) :: ReservedOutputFile
+
+    ! We read the start and end years to strings before writing them to the key.
+    character(len=4)  :: StartYear, EndYear
 
     ! Initialise integers to store the status of the command.
-    integer           :: ExitStat, CmdStat
+    integer           :: ExStat, CStat
 
     ! We're going to want to remember where "<startdate>" and "<enddate>" occur
     ! in the filename templates, so we can retrieve the time periods of each
-    ! file.
-    integer           :: IndxStartDate, IndxEndDate
+    ! file later.
+    integer           :: IndxStartDate = 0, IndxEndDate = 0
 
-    ! Loop over the variable names
-    DO VarIndx = 1, SIZE(CRUFILES)
-      ! First thing we need to do is make the strings compatible with ls, by
-      ! replacing <startdate> and <enddate> with wildcard characters.
+    ! integers for the file IDs that read and write the file metadata.
+    integer           :: InputUnit, OutputUnit
 
-      ! First replace startdate, so only loop up to startdate's length from the
-      ! end of the string. It seems to work fine even if we continue up to the 
-      ! end of the string, but accessing past the end of the array is undefined
-      ! behaviour and theoertically bad things could happen.
-      DO CharIndx = 1, LEN(CRUFiles(VarIndx)) - 9
-        ! If the local substring matches StartDate, replace it with the wildcard
-        ! and shift the rest of the string 8 characters to the left.
-        IF (CRUFiles(VarIndx)(CharIndx:CharIndx + 9) == StartDate) THEN
-          CRUFiles(VarIndx)(CharIndx:CharIndx) = "*"
-          CRUFiles(VarIndx)(CharIndx+1:) = CRUFiles(VarIndx)(CharIndx+9:)
+    ! And status integers for those files
+    integer           :: iosIn, iosOut
 
-          ! Remember where the start date starts
+    ! We want to reuse the units for the input and output files, so get unique
+    ! IDs here rather than inside the loop.
+    CALL get_unit(InputUnit)
+    CALL get_unit(OutputUnit)
+
+    ! Loop over the variable names and process the files for each variable.
+    LoopVariables: DO VarIndx = 1, SIZE(METVARIABLES)
+      ! First thing we have to do is determine the location of the <startdate>
+      ! and <enddate> strings in the supplied filenames. To do that, we compare
+      ! substrings of the relevant length, with the substring moving along the
+      ! length of the filename string.
+      ! We iterate separately for <startdate> and <enddate> so that we make
+      ! absolutely sure we never read past the end of the allocated string.
+      ! We stop the iteration when we either find <startdate>/<enddate> or we 
+      ! reach the character 11/9 elements from the end of the string (11/9 are 
+      ! the lengths of the substrings we're comparing against).
+
+      ! Build the reserved filename for the output
+      ReservedOutputFile = METVARIABLES(VarIndx)//"Key.txt"
+
+      ! Pull out the current file from the array
+      CurrentFile = METFILES(VarIndx)
+
+      ! Iterate through the string for <startdate>
+      FindStart: DO CharIndx = 1, LEN(CurrentFile) - 11
+        ! Check against <startdate>, if found set the index
+        IF (CURRENTFILE(CharIndx:CharIndx+10) == StartDate) THEN
           IndxStartDate = CharIndx
+          EXIT FindStart
         END IF
-      END DO
+      END DO FindStart
 
-      ! Do the same with enddate.
-      DO CharIndx = 1, LEN(CRUFiles(VarIndx)) - 7
-        ! Match and replace <enddate>
-        IF (CRUFiles(VarIndx)(CharIndx:CharIndx + 7) == EndDate) THEN
-          CRUFiles(VarIndx)(CharIndx:CharIndx) = "*"
-          CRUFiles(VarIndx)(CharIndx+1:) = CRUFiles(VarIndx)(CharIndx+7:)
-          
-          ! Remember where the end date starts
+      ! Iterate through for <enddate>
+      FindEnd: DO CharIndx = 1, LEN(CurrentFile) - 9
+        ! Check against <enddate>, if found set the index
+        IF (CurrentFile(CharIndx:CharIndx+8) == EndDate) THEN
           IndxEndDate = CharIndx
+          EXIT FindEnd
         END IF
-      END DO
 
-      ! Now we can use execute_command_lane to glob all the matching files and
-      ! write them to a specified filename.
-      call execute_command_lane("ls -1 "\\CRUFiles(VarIndx)\\" > "\\&
-          CRUVariables(VarIndx)\\".txt", exitstat = ExitStat, cmdstat = CmdStat)
+      END DO FindEnd
 
-      
-        
+      ! Check that both occurrences were found- this triggers if either remain 0
+      IF ((.NOT. IndxStartDate) .OR. (.NOT. IndxEndDate)) THEN
+        write(*,*) "Supplied file for "//CurrentFile//" is invalid."
+        CALL EXIT(5)
+      END IF
 
+      ! Now we go and replace the <startdate> and <enddate> strings with "*" so
+      ! that we can pass the filename to the unix ls command. We also want to
+      ! shift the remaining section of the string to the right of <startdate>/
+      ! <enddate> 10/8 characters to the left to fill in the new gap.
 
+      ! Do <enddate> first so we don't mess up the indexing
+      CurrentFile(IndxEndDate:IndxEndDate) = "*"
+      CurrentFile(IndxEndDate+1:) = CurrentFile(IndxEndDate+9:)
 
+      CurrentFile(IndxStartDate:IndxStartDate) = "*"
+      CurrentFile(IndxStartDate+1:) = CurrentFile(IndxStartDate+11:)
 
+      ! Now we've processed the supplied string, pass it to the ls unix command.
+      ! We need to write the output to a temporary file and read it back in to
+      ! get the date ranges for each file.
+      CALL execute_command_line("ls -1 "//TRIM(CurrentFile)//" >&
+         __tmpFileWithNoClashes__.txt", EXITSTAT = ExStat, CMDSTAT = CStat)
 
+      ! Now we want to read this temporary file back in and inspect the contents
+      ! to determine the date ranges for each file. We then write back to a
+      ! reserved name file, that now contains the original filenames as well as
+      ! the year ranges for each file as described in the opening preamble to
+      ! this subroutine.
+
+      OPEN(InputUnit, "__tmpFileWithNoClashes__.txt", ios = ios1)
+      OPEN(OutputUnit, ReservedOutputFile, ios = ios2)
+
+      ! Now iterate through the lines in the input file, inspect the string
+      ! to extract the bracketing years. We then append the start and the end
+      ! year to the line. We can reuse the CurrentFile string to store the read
+      ! line from the temporary file
+
+      BuildKey: DO
+        ! Read in the line and check the status
+        READ(InputUnit, '(A)', IOSTAT = iosIn) CurrentFile
+
+        IF (iosIn == -1) THEN
+          ! Read completed successfully
+          EXIT BuildKey
+        ELSEIF (iosIn /= 0) THEN
+          ! Read failed for some other reason
+          EXIT(5)
+        END If
+
+        ! We assume the dates in the filename in the YYYYMMDD format.
+        ! For now, we're assuming that the data files contain complete years,
+        ! with partial year splits across the files, so all we need is the year.
+        ! If in future we have more fine grained data, we can modify this and
+        ! the key reader routines.
+
+        ! Reading the start year is easy- just the first 4 characters starting
+        ! from the recorded IndxStartDate.
+        StartYear = CurrentFile(IndxStartDate:IndxStartDate+3)
+
+        ! The end year is not as simple as taking the 4 characters at
+        ! IndxEndDate, because the size of the <startdate> string is 3
+        ! characters longer than the YYYYMMDD date specifier. Therefore, shift
+        ! the index back 3 units and then take the next 4 characters
+        EndYear = CurrentFile(IndxEndDate-3:IndxEndDate)
+
+        ! Now we have everything we need to write back to the key file, in the
+        ! format {filename} {StartYear} {EndYear}.
+
+        WRITE(OutputUnit, '(A)', IOSTAT = iosOut) TRIM(CurrentFile)//" "//&
+          StartYear//" "//EndYear
+
+        ! Any non-zero iostat is bad
+        IF (iosOut =/ 0) THEN
+          EXIT(5)
+        END IF
+
+      END DO LoopVariables
+
+      ! Now we've build the key for each variable, we can remove the temporary
+      ! we used to store the filenames
+      CALL execute_command_line("rm __tmpFileWithNoClashes__.txt")
