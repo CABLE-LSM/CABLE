@@ -38,12 +38,14 @@ MODULE cable_def_types_mod
   INTEGER :: mp,    & ! # total no of patches/tiles
        mvtype,& ! total # vegetation types,   from input
 #ifdef UM_BUILD 
-       mstype=9,& ! total # soil types, needs to de defined atCompile TimeForNow
+       mstype=9,& ! total # soil types, needs to be defined at compile time for now
 #else       
        mstype,& ! total # soil types,         from input
 #endif
-       mland                           ! # land grid cells
-
+       mland,& !                          ! # land grid cells
+       mpatch  !number of patches   ! mpatch added by rk4417 - phase2
+               !allows for setting this to a const value
+       
   INTEGER, PARAMETER ::                                                        &
        i_d  = KIND(9), &
 #ifdef UM_BUILD 
@@ -164,6 +166,13 @@ MODULE cable_def_types_mod
           swilt_vec     ! wilting point (hk = 0.02 mm/day)
 
      REAL(r_2), DIMENSION(:), POINTER ::                                      &
+          hkrz,&! rate hyds changes with depth         
+          zdepth,&!  depth [m] where hkrz has zero impact
+          srf_frac_ma,&! fraction of surface with macropores 
+          edepth_ma,&!  e fold depth macropore fraction
+          qhz_max,&!  maximum base flow when fully sat
+          qhz_efold,&!  base flow efold rate dep on wtd, from drain-dens and param
+! block above inserted by rk4417 - phase2
           drain_dens,&!  drainage density ( mean dist to rivers/streams )
           elev, &  !elevation above sea level
           elev_std, &  !elevation above sea level
@@ -308,7 +317,15 @@ MODULE cable_def_types_mod
           wmliq,   &    !water mass [mm] liq
           wmice,   &    !water mass [mm] ice
           wmtot,   &    !water mass [mm] liq+ice ->total
-          qhlev
+          qhlev,   &
+          smp_hys, & !soil swc props dynamic from hysteresis ! from here to end added by rk4417 - phase2
+          wb_hys,  &
+          sucs_hys,&
+          ssat_hys,&
+          watr_hys,&
+          hys_fac, &
+          wbliq_old
+
      ! Additional SLI variables:
      REAL(r_2), DIMENSION(:,:), POINTER :: S         ! moisture content relative to sat value    (edit vh 23/01/08)
      REAL(r_2), DIMENSION(:,:), POINTER :: Tsoil         !     Tsoil (deg C)
@@ -872,6 +889,12 @@ CONTAINS
     ALLOCATE( var%rhosoil_vec(mp,ms) )
 
     ALLOCATE( var%drain_dens(mp) )
+    ALLOCATE( var%hkrz(mp) )  ! block inserted by rk4417 - phase2
+    ALLOCATE( var%zdepth(mp) )
+    ALLOCATE( var%srf_frac_ma(mp) )
+    ALLOCATE( var%edepth_ma(mp) )
+    ALLOCATE( var%qhz_max(mp) )
+    ALLOCATE( var%qhz_efold(mp) ) ! end - rk4417 - phase
     ALLOCATE( var%elev(mp) )
     ALLOCATE( var%elev_std(mp) )
     ALLOCATE( var%slope(mp) )
@@ -1001,7 +1024,15 @@ CONTAINS
     ALLOCATE( var%wmliq(mp,ms) )
     ALLOCATE( var%wmice(mp,ms) )
     ALLOCATE( var%wmtot(mp,ms) )
+    ALLOCATE(var % smp_hys(mp,ms) )   !1  ! from here to end added by rk4417 - phase2
+    ALLOCATE(var % wb_hys(mp,ms) )    !2
+    ALLOCATE(var % ssat_hys(mp,ms) )   !3
+    ALLOCATE(var % watr_hys(mp,ms) )   !4
+    ALLOCATE(var % hys_fac(mp,ms) )    !5
+    ALLOCATE(var % sucs_hys(mp,ms) )    !5
+    ALLOCATE(var % wbliq_old(mp,ms) ) 
 
+    
     ! Allocate variables for SLI soil model:
     !IF(cable_user%SOIL_STRUC=='sli') THEN
     ALLOCATE ( var % S(mp,ms) )
@@ -1504,6 +1535,13 @@ CONTAINS
     DEALLOCATE( var%elev_std )
     DEALLOCATE( var%slope )
     DEALLOCATE( var%slope_std )
+!    DEALLOCATE( var%drain_dens ) ! block inserted by rk4417 - phase2
+    DEALLOCATE( var%hkrz )
+    DEALLOCATE( var%zdepth )
+    DEALLOCATE( var%srf_frac_ma )
+    DEALLOCATE( var%edepth_ma )
+    DEALLOCATE( var%qhz_max )
+    DEALLOCATE( var%qhz_efold ) ! end - rk4417 - phase
     ! Deallocate variables for SLI soil model:
     !IF(cable_user%SOIL_STRUC=='sli') THEN
     DEALLOCATE ( var % nhorizons)
@@ -1627,6 +1665,13 @@ CONTAINS
     DEALLOCATE( var%wmliq )
     DEALLOCATE( var%wmice )
     DEALLOCATE( var%wmtot )
+    DEALLOCATE(var % smp_hys )  ! block inserted by rk4417 - phase2
+    DEALLOCATE(var % wb_hys )
+    DEALLOCATE(var % ssat_hys )
+    DEALLOCATE(var % watr_hys )
+    DEALLOCATE(var % hys_fac )
+    DEALLOCATE(var % sucs_hys )
+    DEALLOCATE(var % wbliq_old ) ! end - rk4417 - phase
 
     !IF(cable_user%SOIL_STRUC=='sli') THEN
     DEALLOCATE ( var % S )
