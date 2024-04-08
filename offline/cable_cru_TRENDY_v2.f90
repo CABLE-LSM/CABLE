@@ -1,5 +1,5 @@
 ! Author: Lachlan Whyborn
-! Last Modified: Thu 04 Apr 2024 16:49:23
+! Last Modified: Mon 08 Apr 2024 01:36:00 PM AEST
 
 MODULE CRU
 
@@ -76,7 +76,6 @@ SUBROUTINE CRU_INIT(CRU)
   use cable_def_types_mod,  only: mland  ! (I) Number of land cells
 #ifdef __MPI__
   use mpi,                  only: MPI_Abort
-#endif
   ! The main goal of this routine is to mutate the CRU data structure to prep
   ! it for the experiment.
   TYPE(CRU_TYPE), INTENT(OUT)    :: CRU
@@ -376,13 +375,18 @@ SUBROUTINE prepare_temporal_dataset(FileName, TargetArray)
   ! A placeholder for the line, that we inspect to check for comment lines
   CHARACTER(LEN=256)    :: LineInFile
 
-  ! Placeholders for the Key in the line
-  REAL    :: Key
+  ! Placeholders for the year key in the line. We also want to store the start
+  ! and end years so that we can set the custom array indexing for the data
+  INTEGER    :: Time, StartTime, EndTime
+
+  ! Need a dummy variable to store the values on the first read of the file
+  REAL       :: DummyValue
 
   ! The status holder, and the file and header counters
   INTEGER :: ios, LineCounter, HeaderCounter
 
   ! We're going to assume that we only have a single file.
+  ! We need to iterate through the file twice, first to inspect the number of
   ! We need to iterate through the file twice, first to inspect the number of
   ! entries in the file to allocate the correct amount of memory, second to
   ! actually write the data to the array.
@@ -390,12 +394,15 @@ SUBROUTINE prepare_temporal_dataset(FileName, TargetArray)
   OPEN(FileID, FileName, STATUS = "old", ACTION = "read")
 
   LineCounter = 0
-  DetermineSize: DO
+  DetermineFileSize: DO
     ! Read line by line, checking for a header line
     READ(FileID, '(A)', IOSTAT = ios) LineInFile
     
     IF (ios == -1) THEN
       ! Read completed successfully and hit EOF
+      ! Assign Time to EndTime
+      EndTime = Time
+
       EXIT DetermineSize
     END IF
 
@@ -405,14 +412,24 @@ SUBROUTINE prepare_temporal_dataset(FileName, TargetArray)
     ELSE
       ! Otherwise, its a line of useful data
       LineCounter = LineCounter + 1
+      
+      ! To correctly index the array, we need to pull out the time interval
+      ! from the line
+      READ(LineInFile, '(I) (F)') Time, DummyValue
     END IF
-  END DO DetermineSize
 
-  ! Rewind the pointer to the start of the file
+    IF (LineCounter == 1) THEN
+      ! Assign Time to StartTime
+      StartTime = Time
+    END IF
+
+  END DO DetermineFileSize
+
+  ! Rewind the cursor to the start of the file
   REWIND(FileID)
 
   ! Now allocate the appropriate memory
-  ALLOCATE(TargetArray(LineCounter))
+  ALLOCATE(TemporaryArray(StartTime:EndTime))
 
   ! First step over the header lines
   SkipHeader: DO iter = 1, HeaderCounter
@@ -420,8 +437,8 @@ SUBROUTINE prepare_temporal_dataset(FileName, TargetArray)
   END DO SkipHeader
 
   ! Now the useful contents of the file into the array
-  ReadValues: DO iter = 1, LineCounter
-    READ(FileID, '(F) (F)', IOSTAT = ios) Key, TargetArray(iter)
+  ReadValues: DO iter = StartTime, EndTime
+    READ(FileID, '(I4) (F)', IOSTAT = ios) Time, TargetArray(iter)
   END DO ReadValues
 END SUBROUTINE prepare_temporal_dataset
 
@@ -473,6 +490,8 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, VariableName, Dataset)
   ! We read the start and end years to strings before writing them to the key.
   CHARACTER(len=4)  :: StartYear, EndYear
 
+  ! Initialise integers to store the status of the command.
+  INTEGER           :: ExStat, CStat
   ! Initialise integers to store the status of the command.
   INTEGER           :: ExStat, CStat
 
@@ -660,6 +679,30 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, VariableName, Dataset)
   CALL execute_command_line("rm __tmpFileWithNoClashes__.txt")
 END SUBROUTINE build_dataset_key
 
+SUBROUTINE get_cru_CO2(CRU, CurrentYear, CO2air)
+  ! Get the atmospheric CO2
+
+  TYPE(CRU_TYPE), INTENT(IN)    :: CRU
+  INTEGER, INTENT(IN)           :: CurrentYear
+  REAL, INTENT(OUT)             :: CO2air
+
+  ! When we retrieve a specific year's CO2, we want to convert a string to int
+  INTEGER                       :: CO2Year
+
+  ! How do we actually get the correct CO2?
+  ! First, check the CO2 method
+  IF (CRU%CO2Method == "Yearly") THEN
+    CO2air = CRU%CO2Vals(CurrentYear)
+  ELSEIF (CRU%CO2Method == "Spatial") THEN
+    CONTINUE
+    ! This clause is not yet implemented.
+  ELSE
+    ! Get the CO2 from a specific year
+    READ(CRU%CO2Method, '(I)') CO2Year
+    CO2Air = CRU%CO2Vals(CO2Year)
+  END IF
+END SUBROUTINE get_cru_co2    
+  
 SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)
 
   ! Obtain one day of CRU-NCEP meteorology, subdiurnalise it using a weather
