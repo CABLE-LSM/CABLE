@@ -34,7 +34,7 @@
 #
 # ==============================================================================
 ##########################################################################
-               
+
 # these are all the files we are compiling
 LSRC = cable_data.F90 cable_common.F90 cable_define_types.F90 cable_iovars.F90 \
 	cable_abort.F90 casa_variable.F90 cable_parameters.F90 cable_soilsnow.F90 \
@@ -85,9 +85,9 @@ $(PROG) : cable_driver.o
 cable_abort.o: cable_abort.F90 cable_iovars.o cable_define_types.o
 
 cable_data.o: cable_data.F90 
- 
+
 cable_diag.o: cable_diag.F90 cable_common.o 
- 
+
 cable_air.o: cable_air.F90 cable_define_types.o cable_common.o cable_data.o
 
 cable_albedo.o: cable_albedo.F90 cable_define_types.o cable_common.o cable_data.o
@@ -142,7 +142,7 @@ casa_variable.o: casa_variable.F90 POP.o cable_define_types.o
 spincasacnp.o: spincasacnp.F90 cable_define_types.o cable_carbon.o cable_common.o casa_variable.o \
 	       cable_c13o2.o cable_c13o2_def.o casa_inout.o blaze.o blaze_driver.o casa_cable.o pop_io.o
 
-#cable_LUC.o: cable_LUC.F90 cable_carbon.o cable_common.o casa_variable.o POP.o POPLUC.o cable_LUC_EXPT.o cable_c13o2.o cable_c13o2_def.o
+# cable_LUC.o: cable_LUC.F90 cable_carbon.o cable_common.o casa_variable.o POP.o POPLUC.o cable_LUC_EXPT.o cable_c13o2.o cable_c13o2_def.o
 
 CASAONLY_LUC.o: CASAONLY_LUC.F90 cable_define_types.o cable_carbon.o cable_common.o casa_variable.o POP.o \
 		POPLUC.o cable_LUC_EXPT.o cable_c13o2.o cable_c13o2_def.o casa_cable.o casa_inout.o pop_io.o
@@ -168,7 +168,7 @@ pop_io.o: pop_io.F90 POP.o casa_variable.o cable_common.o
 
 cable_sli_main.o: cable_sli_main.F90 cable_define_types.o cable_common.o cable_sli_numbers.o \
 		  cable_sli_roots.o cable_sli_solve.o cable_soilsnow.o
- 
+
 cable_sli_numbers.o: cable_sli_numbers.F90  cable_define_types.o 
 
 cable_sli_roots.o: cable_sli_roots.F90 cable_sli_numbers.o cable_define_types.o
