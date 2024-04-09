@@ -10,9 +10,9 @@ fi
 known_hosts()
 {
     if [ -z ${PS3} ] ; then
-        kh=(kh gadi pear mcin mc16 mcmi vm_o logi auro)
+        kh=(kh gadi pear mcin mc16 mcmi zlle vm_o logi auro)
     else
-        set -A kh gadi pear mcin mc16 mcmi vm_o logi auro
+        set -A kh gadi pear mcin mc16 mcmi zlle vm_o logi auro
     fi
 }
 
@@ -640,6 +640,56 @@ host_auro()
     export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
     export LDFLAGS="-L"${NCDIR}" "${LDFLAGS}
     export LD="-lnetcdf -lnetcdff"
+    export MFLAGS="-j 8"
+    build_build
+    cd ../
+    build_status
+}
+
+
+host_zlle()
+{
+    idebug=0
+    ignu=1
+    np=$#
+    for ((i=0; i<${np}; i++)) ; do
+        if [[ "${1}" == "debug" ]] ; then
+            idebug=1
+            shift 1
+        else
+            echo "Error: command line option not known: " ${1}
+            exit 1
+        fi
+    done
+    # GFORTRAN
+    export FC=gfortran
+    # release
+    export CFLAGS="-cpp -O3 -Wno-aggressive-loop-optimizations -ffree-form -ffixed-line-length-132 -frecursive"
+    export LDFLAGS="-O3"
+    OPTFLAG="-march=native"
+    if [[ ${idebug} -eq 1 ]] ; then
+        # debug
+        export CFLAGS="-cpp -O -g -pedantic-errors -Wall -W -Wno-maybe-uninitialized -ffree-form -ffixed-line-length-132 -frecursive -fbacktrace -ffpe-trap=zero,overflow -finit-real=nan" #  -ffpe-trap=zero,overflow,underflow
+        export LDFLAGS="-O"
+        OPTFLAG=
+    fi
+    # export CFLAGS="${CFLAGS} -march=native"
+    export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
+    export NCROOT="/usr"
+
+    # All compilers
+    export CFLAGS="${CFLAGS} ${OPTFLAG}"
+    # export CFLAGS="${CFLAGS} -D__CRU2017__"
+    export CFLAGS="${CFLAGS} -D__NETCDF3__"
+    # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
+
+    export NCCROOT="/usr"
+    export NCCLIB=${NCCROOT}"/lib/x86_64-linux-gnu"
+    export NCLIB=${NCROOT}"/lib/x86_64-linux-gnu"
+    export NCMOD=${NCROOT}"/include"
+    export LDFLAGS="-Wl,-Bsymbolic-functions -flto=auto -ffat-lto-objects -Wl,-z,relro -Wl,-z,now "${LDFLAGS}
+    export LD="-L${NCLIB} -lnetcdff -L${NCCLIB} -lnetcdf -lm"
+    export dosvn=0
     export MFLAGS="-j 8"
     build_build
     cd ../
