@@ -1774,6 +1774,9 @@ CONTAINS
     REAL(r_2), DIMENSION(mp,ms) :: psi_tmp
     REAL(r_2), DIMENSION(ms) :: soil_depth
 
+    ! line below inserted by rk4417 - phase2
+    where(veg%iveg .eq. 17) soil%isoilm = 9   ! 
+    
     soil_depth(1) = REAL(soil%zse(1),r_2)
     DO klev=2,ms
        soil_depth(klev) = soil_depth(klev-1) + REAL(soil%zse(klev),r_2)
