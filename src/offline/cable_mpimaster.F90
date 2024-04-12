@@ -746,7 +746,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
              ENDIF
              IF (YYYY.EQ.CABLE_USER%YEARSTART) THEN
                 CALL nullify_write() ! nullify pointers
-                CALL open_output_file( dels, soil, veg, bgc, rough )
+                CALL open_output_file( dels, soil, veg, bgc, rough, met)
              ENDIF
           ENDIF
 
@@ -1448,7 +1448,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
 
        call WRITE_LANDUSE_CASA_RESTART_NC(cend(mland), lucmp, CASAONLY )
 
-       call create_landuse_cable_restart(logn, dels, ktau, soil, cend(mland),lucmp,cstart,cend,nap)
+       call create_landuse_cable_restart(logn, dels, ktau, soil, cend(mland),lucmp,cstart,cend,nap, met)
 
        call landuse_deallocate_mp(cend(mland),ms,msn,nrb,mplant,mlitter,msoil,mwood,lucmp)
      ENDIF

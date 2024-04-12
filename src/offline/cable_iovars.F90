@@ -399,8 +399,16 @@ MODULE cable_IO_vars_module
   TYPE(output_inclusion_type),SAVE :: output
   TYPE(output_inclusion_type),SAVE :: patchout ! do we want patch-specific info
 
+  ENUM, BIND(C)
+    ENUMERATOR :: NO_CHECK = 0
+    ENUMERATOR :: ON_TIMESTEP = 1
+    ENUMERATOR :: ON_WRITE = 2
+    ENUMERATOR :: RANGE_CHECK
+  END ENUM
   TYPE checks_type
-     LOGICAL :: ranges, energy_bal, mass_bal
+    LOGICAL :: energy_bal, mass_bal
+    INTEGER(KIND(RANGE_CHECK)) :: ranges  ! 0 = NO , 1 = TIMESTEP , 2 = WRITE
+    LOGICAL :: exit
   END TYPE checks_type
 
   TYPE(checks_type) :: check ! what types of checks to perform
@@ -413,5 +421,137 @@ MODULE cable_IO_vars_module
 
   ! For threading:
   !$OMP THREADPRIVATE(landpt,patch)
+CONTAINS
+  SUBROUTINE set_group_output_values
+
+    !*#Purpose:
+    ! Set individual variables to output according to the values of the group options from the namelist entries in `output%`.
+    IF (output%params) THEN
+      output%iveg = .TRUE.
+      output%patchfrac = .TRUE.
+      output%isoil = .TRUE.
+      output%bch = .TRUE.
+      output%clay = .TRUE.
+      output%sand = .TRUE.
+      output%silt = .TRUE.
+      output%css = .TRUE.
+      output%rhosoil = .TRUE.
+      output%hyds = .TRUE.
+      output%sucs = .TRUE.
+      output%rs20 = .TRUE.
+      output%ssat = .TRUE.
+      output%sfc = .TRUE.
+      output%swilt = .TRUE.
+      output%albsoil = .TRUE.
+      output%canst1 = .TRUE.
+      output%dleaf = .TRUE.
+      output%ejmax = .TRUE.
+      output%vcmax = .TRUE.
+      output%frac4 = .TRUE.
+      output%hc = .TRUE.
+      output%rp20 = .TRUE.
+      output%g0 = .TRUE.
+      output%g1 = .TRUE.
+      output%rpcoef = .TRUE.
+      output%shelrb = .TRUE.
+      output%xfang = .TRUE.
+      output%wai = .TRUE.
+      output%vegcf = .TRUE.
+      output%extkn = .TRUE.
+      output%tminvj = .TRUE.
+      output%tmaxvj = .TRUE.
+      output%vbeta = .TRUE.
+      output%xalbnir = .TRUE.
+      output%meth = .TRUE.
+      output%za = .TRUE.
+      output%ratecp = .TRUE.
+      output%ratecs = .TRUE.
+      output%froot = .TRUE.
+      output%zse = .TRUE.
+      output%slope = .TRUE.
+      output%slope_std = .TRUE.
+      output%GWdz = .TRUE.
+    END IF
+
+    IF (output%met) THEN
+      output%Swdown = .TRUE.
+      output%Lwdown = .TRUE.
+      output%Rainf = .TRUE.
+      output%Snowf = .TRUE.
+      output%PSurf = .TRUE.
+      output%Tair = .TRUE.
+      output%Qair = .TRUE.
+      output%Wind = .TRUE.
+      output%CO2air = .TRUE.
+    END IF
+
+    IF (output%flux) THEN
+      output%Qmom = .TRUE.
+      output%Qh = .TRUE.
+      output%Qle = .TRUE.
+      output%Qg = .TRUE.
+      output%Qs = .TRUE.
+      output%Qsb = .TRUE.
+      output%Evap = .TRUE.
+      output%ECanop = .TRUE.
+      output%TVeg = .TRUE.
+      output%ESoil = .TRUE.
+      output%HVeg = .TRUE.
+      output%HSoil = .TRUE.
+      output%RNetSoil = .TRUE.
+      output%NEE = .TRUE.
+    END IF
+
+    IF (output%soil) THEN
+      output%SoilMoist = .TRUE.
+      output%SoilTemp = .TRUE.
+      output%BaresoilT = .TRUE.
+      output%WatTable = .TRUE.
+      output%GWMoist = .TRUE.
+      output%SatFrac = .TRUE.
+      output%Qrecharge = .TRUE.
+    END IF
+
+    IF (output%snow) THEN
+      output%SWE = .TRUE.
+      output%SnowT = .TRUE.
+      output%SnowDepth = .TRUE.
+    END IF
+
+    IF (output%radiation) THEN
+      output%Swnet = .TRUE.
+      output%Lwnet = .TRUE.
+      output%Rnet = .TRUE.
+      output%Albedo = .TRUE.
+      output%RadT = .TRUE.
+    END IF
+
+    IF (output%veg) THEN
+      output%Tscrn = .TRUE.
+      output%Tex = .TRUE.
+      output%Qscrn = .TRUE.
+      output%VegT = .TRUE.
+      output%CanT = .TRUE.
+      output%Fwsoil = .TRUE.
+      output%CanopInt = .TRUE.
+      output%LAI = .TRUE.
+    END IF
+
+    IF (output%balances) THEN
+      output%Ebal = .TRUE.
+      output%Wbal = .TRUE.
+    END IF
+
+    IF (output%carbon) THEN
+      output%GPP = .TRUE.
+      output%NPP = .TRUE.
+      output%NBP = .TRUE.
+      output%NEE = .TRUE.
+      output%AutoResp = .TRUE.
+      output%LeafResp = .TRUE.
+      output%HeteroResp = .TRUE.
+    END IF
+
+  END SUBROUTINE set_group_output_values
 
 END MODULE cable_IO_vars_module
