@@ -1,30 +1,13 @@
 ! Author: Lachlan Whyborn
-! Last Modified: Mon 08 Apr 2024 01:36:00 PM AEST
+! Last Modified: Mon 15 Apr 2024 16:45:51
 
 MODULE CRU
 
-  IMPLICIT NONE
+IMPLICIT NONE
 
-TYPE SPATIO_TEMPORAL_DATASET
-  ! This data type is used to store effectively a reference to spatio-temporal
-  ! datasets which span multiple files, which is common for external forcings.
-  ! The idea is to store the list of files in the dataset, and their start and
-  ! end years respectively. We also need to know the internal variable names in
-  ! the netCDF dataset so we can call it correctly. 
-  ! This can possibly permit series with different sampling intervals as well.
-  CHARACTER(LEN=256), DIMENSION(:), ALLOCATABLE :: FileNames
-  INTEGER, DIMENSION(:), ALLOCATABLE            :: StartYear, EndYear
-  CHARACTER(LEN=16), DIMENSION(:), ALLOCATABLE  :: VarNames
-  ! As well as the metadata about the dataset contents, we want some data that
-  ! is updated to inform which file is currently open and it's period. If open a
-  ! file relevant to a particular year, and move onto the next year that's still
-  ! contained in the current file's period, we don't want to go through open
-  ! another file, we just want to continue using the current file.
-  ! To do this, we need to know the current FileID, and which index it is in
-  ! our list of files so we can access it's period.
-  INTEGER CurrentFileID, CurrentFileIndx
-
-END TYPE SPATIO_TEMPORAL_DATASET
+TYPE CRU_MET_TYPE
+  REAL, DIMENSION(:), ALLOCATABLE :: MetVals
+END TYPE CRU_MET_TYPE
 
 TYPE CRU_TYPE
   INTEGER   :: mLand              ! Number of land cells in the run
@@ -60,7 +43,6 @@ TYPE CRU_TYPE
 END TYPE CRU_TYPE
 
 SUBROUTINE CRU_INIT(CRU)
-
   ! A rewrite of the CRU_INIT subroutine in cable_cru_TRENDY.f90
 
   use cable_IO_vars_module, only: &
@@ -76,6 +58,7 @@ SUBROUTINE CRU_INIT(CRU)
   use cable_def_types_mod,  only: mland  ! (I) Number of land cells
 #ifdef __MPI__
   use mpi,                  only: MPI_Abort
+#endif
   ! The main goal of this routine is to mutate the CRU data structure to prep
   ! it for the experiment.
   TYPE(CRU_TYPE), INTENT(OUT)    :: CRU
@@ -92,6 +75,9 @@ SUBROUTINE CRU_INIT(CRU)
   ! landmask
   INTEGER, DIMENSION(:,:), ALLOCATABLE  :: LandMask
  
+  ! Iterator variable for the variables
+  INTEGER   :: VarIndx
+
   ! Read the namelist and pull out the input files and configuration variables
   CALL read_MET_namelist_cbl(InputFiles, CRU)
 
@@ -115,6 +101,8 @@ SUBROUTINE CRU_INIT(CRU)
     prepare_temporal_dataset(InputFiles(11), CRU%CO2Vals)
   ELSEIF (CRU%CarbonMethod == "Spatial") THEN
     prepare_spatiotemporal_dataset(InputFiles(11), "CO2", CRU%CO2Vals)
+  ELSE
+    prepare_temporal_dataset(InputFiles(11), CRU%CO2Vals)
   END IF
 
   IF (CRU%NDepMethod == "Yearly") THEN
@@ -122,6 +110,23 @@ SUBROUTINE CRU_INIT(CRU)
   ELSEIF (CRU%NDepMethod == "Spatial") THEN
     prepare_spatiatemporal_dataset(InputFiles(12), "N_deposition",&
           CRU%NDepDataset)
+    ! For now, set the file index to 1 since we know its only one file
+    CRU%NDepDataset%CurrentFileIndx = 1
+    CALL get_unit(CRU%NDepDataset%CurrentFileID)
+    NF90_OPEN(CRU%NDepDataset%Filenames(1), NF90_NOWRITE,&
+      CRU%NDepDataset%CurrentFileID)
+    NF90_INQ_VARID(CRU%NDepDataset%CurrentFileID, "N_deposition",&
+      CRU%NDepDataset%CurrentVarID)
+  ELSE
+    prepare_spatiotemporal_dataset(InputFiles(12), "N_deposition",&
+      CRU%NDepDataset)
+    ! For now, set the file index to 1 since we know its only one file
+    CRU%NDepDataset%CurrentFileIndx = 1
+    CALL get_unit(CRU%NDepDataset%CurrentFileID)
+    NF90_OPEN(CRU%NDepDataset%Filenames(1), NF90_NOWRITE,&
+      CRU%NDepDataset%CurrentFileID)
+    NF90_INQ_VARID(CRU%NDepDataset%CurrentFileID, "N_deposition",&
+      CRU%NDepDataset%CurrentVarID)
   END IF
 END SUBROUTINE CRU_INIT
 
@@ -309,8 +314,8 @@ SUBROUTINE read_landmask(LandmaskFile, CRU)
   LoopThroughLats: DO LatIndx = 1, yDimSize
     LoopThroughLons: DO LonIndx = 1, xDimSize
       IF (CRU%LandMask(LonIndx, LatIndx)) THEN
-        Land_x = LonIndx
-        Land_y = LatIndx
+        Land_x(MaskCounter) = LonIndx
+        Land_y(MaskCounter) = LatIndx
         Longitude(MaskCounter) = Longitudes(LonIndx)
         Latitude(MaskCounter) = Latitudes(LatIndx)
         MaskCounter = MaskCounter + 1
@@ -323,8 +328,9 @@ SUBROUTINE read_landmask(LandmaskFile, CRU)
     ALLOCATE(CRU%Met(VarIndx)%MetVals(CRU%mLand))
   END DO AllocateMemory
 
-  ! And do the same for nitrogen deposition
+  ! And do the same for nitrogen deposition and atmospheric CO2
   ALLOCATE(CRU%NDepVals(CRU%mLand))
+  ALLOCATE(CRU%CO2Vals(CRU%mLand))
 
   ! Allocate global data- this practice must be purged in future.
   metGrid = "mask"
@@ -375,18 +381,15 @@ SUBROUTINE prepare_temporal_dataset(FileName, TargetArray)
   ! A placeholder for the line, that we inspect to check for comment lines
   CHARACTER(LEN=256)    :: LineInFile
 
-  ! Placeholders for the year key in the line. We also want to store the start
-  ! and end years so that we can set the custom array indexing for the data
-  INTEGER    :: Time, StartTime, EndTime
-
-  ! Need a dummy variable to store the values on the first read of the file
-  REAL       :: DummyValue
+  ! Placeholders for the Key in the line, and years which form the start and end
+  ! indexes of the array
+  INTEGER               :: Time, StartTime, EndTime
+  REAL                  :: DummyValue
 
   ! The status holder, and the file and header counters
   INTEGER :: ios, LineCounter, HeaderCounter
 
   ! We're going to assume that we only have a single file.
-  ! We need to iterate through the file twice, first to inspect the number of
   ! We need to iterate through the file twice, first to inspect the number of
   ! entries in the file to allocate the correct amount of memory, second to
   ! actually write the data to the array.
@@ -394,13 +397,14 @@ SUBROUTINE prepare_temporal_dataset(FileName, TargetArray)
   OPEN(FileID, FileName, STATUS = "old", ACTION = "read")
 
   LineCounter = 0
-  DetermineFileSize: DO
+  DetermineSize: DO
     ! Read line by line, checking for a header line
     READ(FileID, '(A)', IOSTAT = ios) LineInFile
     
     IF (ios == -1) THEN
       ! Read completed successfully and hit EOF
-      ! Assign Time to EndTime
+
+      ! Take the current time value and set it as the end index of the array
       EndTime = Time
 
       EXIT DetermineSize
@@ -412,24 +416,25 @@ SUBROUTINE prepare_temporal_dataset(FileName, TargetArray)
     ELSE
       ! Otherwise, its a line of useful data
       LineCounter = LineCounter + 1
-      
-      ! To correctly index the array, we need to pull out the time interval
-      ! from the line
+
+      ! Read the line of data as a (time, value) pair. We don't want to use the
+      ! value this time around because we haven't yet allocated the array to
+      ! store it.
       READ(LineInFile, '(I) (F)') Time, DummyValue
     END IF
 
+    ! If the LineCounter is 1, we just read the first line of data, so get the
+    ! starting index for our array
     IF (LineCounter == 1) THEN
-      ! Assign Time to StartTime
       StartTime = Time
     END IF
+  END DO DetermineSize
 
-  END DO DetermineFileSize
-
-  ! Rewind the cursor to the start of the file
+  ! Rewind the pointer to the start of the file
   REWIND(FileID)
 
   ! Now allocate the appropriate memory
-  ALLOCATE(TemporaryArray(StartTime:EndTime))
+  ALLOCATE(TargetArray(StartTime:EndTime))
 
   ! First step over the header lines
   SkipHeader: DO iter = 1, HeaderCounter
@@ -438,7 +443,7 @@ SUBROUTINE prepare_temporal_dataset(FileName, TargetArray)
 
   ! Now the useful contents of the file into the array
   ReadValues: DO iter = StartTime, EndTime
-    READ(FileID, '(I4) (F)', IOSTAT = ios) Time, TargetArray(iter)
+    READ(FileID, '(I) (F)', IOSTAT = ios) Time, TargetArray(iter)
   END DO ReadValues
 END SUBROUTINE prepare_temporal_dataset
 
@@ -490,8 +495,6 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, VariableName, Dataset)
   ! We read the start and end years to strings before writing them to the key.
   CHARACTER(len=4)  :: StartYear, EndYear
 
-  ! Initialise integers to store the status of the command.
-  INTEGER           :: ExStat, CStat
   ! Initialise integers to store the status of the command.
   INTEGER           :: ExStat, CStat
 
@@ -679,30 +682,6 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, VariableName, Dataset)
   CALL execute_command_line("rm __tmpFileWithNoClashes__.txt")
 END SUBROUTINE build_dataset_key
 
-SUBROUTINE get_cru_CO2(CRU, CurrentYear, CO2air)
-  ! Get the atmospheric CO2
-
-  TYPE(CRU_TYPE), INTENT(IN)    :: CRU
-  INTEGER, INTENT(IN)           :: CurrentYear
-  REAL, INTENT(OUT)             :: CO2air
-
-  ! When we retrieve a specific year's CO2, we want to convert a string to int
-  INTEGER                       :: CO2Year
-
-  ! How do we actually get the correct CO2?
-  ! First, check the CO2 method
-  IF (CRU%CO2Method == "Yearly") THEN
-    CO2air = CRU%CO2Vals(CurrentYear)
-  ELSEIF (CRU%CO2Method == "Spatial") THEN
-    CONTINUE
-    ! This clause is not yet implemented.
-  ELSE
-    ! Get the CO2 from a specific year
-    READ(CRU%CO2Method, '(I)') CO2Year
-    CO2Air = CRU%CO2Vals(CO2Year)
-  END IF
-END SUBROUTINE get_cru_co2    
-  
 SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)
 
   ! Obtain one day of CRU-NCEP meteorology, subdiurnalise it using a weather
@@ -733,7 +712,8 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)
   INTEGER   :: dM, dD                 ! Met date as year, month, and day returned from DOYSOD2YMDHMS
   INTEGER   :: is, ie                 ! Starting and ending vegetation type per land cell
   REAL      :: dt                     ! Timestep in seconds
-  REAL      :: CO2air                 ! CO2 concentration in ppm
+  ! Store the CO2Air as an array
+  REAL, DIMENSION(:), ALLOCATABLE    :: CO2air                 ! CO2 concentration in ppm
   type(WEATHER_GENERATOR_TYPE), save :: WG
   logical,                      save :: CALL1 = .true.  ! A *local* variable recording the first call of this routine
 
@@ -773,11 +753,14 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)
   ! It's a new day if the hour of the day is zero.
   newday = eq(met%hod(landpt(1)%cstart), 0.0)
 
+  ! Allocate memory for the CO2 values
+  CO2Air = met%ca
+
   ! Beginning-of-year accounting
   if (ktau == 1) then  ! ktau is always reset to 1 at the start of the year.
      ! Read a new annual CO2 value and convert it from ppm to mol/mol
      call GET_CRU_CO2(CRU, CO2air)
-     met%ca(:) = CO2air / 1.0e6
+     met%ca(:) = CO2air(:) / 1.0e6
 
      call GET_CRU_Ndep(CRU)
      do iland = 1, CRU%mland
@@ -949,56 +932,297 @@ contains
 
 end subroutine CRU_GET_SUBDIURNAL_MET
 
-subroutine GET_CRU_CO2(CRU, CO2air)
-  ! Get CO2 values for use with a CRU-NCEP run. Assign a static 1860 value if specified otherwise
-  ! on the first call read all the annual values from a file into the CRU%CO2VALS array. On the first
-  ! and subsequent
+SUBROUTINE get_cru_co2(CRU, CurrentYear, CO2Air)
+  ! Get CO2 values from the MET data.
+  TYPE(CRU_TYPE), INTENT(IN)                  :: CRU
+  INTEGER, INTENT(IN)                         :: CurrentYear
+  REAL, DIMENSION(:), ALLOCATABLE, INTENT(OUT):: CO2Air
 
-  implicit none
+  ! We treat the CO2 as an array always, even in the instances where we're using
+  ! a single global value. We pass to the MET struct as an array anyway, so we
+  ! don't really get any benefit by treating it as a single value.
+  
+  ! We may want to take a constant CO2 value from a particular year, so bind the
+  ! year we use here to another variable
+  INTEGER         :: CO2Year
 
-  type(CRU_TYPE), intent(inout) :: CRU    ! All the info needed for CRU met runs
-  real,           intent(OUT)   :: CO2air ! A single annual value of CO2air in ppm for the current year.
+  ! What method are we using for CO2?
+  IF (CRU%CO2Method == "yearly") THEN
+    ! We use the same year as the simulation year
+    CO2Year = CurrentYear
+    CO2Air(:) = CRU%CO2Vals(CO2Year)
+  ELSE
+    ! The user has specified the year
+    READ(CRU%CO2Method, '(I)') CO2Year
+    CO2Air(:) = CRU%CO2Vals(CO2Year)
+  END IF
+END SUBROUTINE get_cru_co2
 
-  integer              :: iunit, iyear, IOS = 0
-  character(len=200)   :: CO2FILE
-  logical,        save :: CALL1 = .true.  ! A *local* variable recording the first call of this routine
+SUBROUTINE get_cru_ndep(CRU, CurrentYear)
+  ! Get the nitrogen deposition values from the MET data.
+  TYPE(CRU_TYPE), INTENT(INOUT)             :: CRU
+  INTEGER, INTENT(IN)                       :: CurrentYear
 
-  ! For S0_TRENDY, use only static 1860 CO2 value and return immediately
-  if (trim(CRU%CO2) == "static1860") then
-     !CO2air = 286.42   ! CO2 in ppm for 1860
-     CO2air = 276.59   ! CO2 in ppm for 1700
-     return
-  else if (trim(CRU%CO2) == "static2011") then
-     CO2air = 389.78   ! CO2 in ppm for 2011
-     return
-  else ! If not S0_TRENDY, varying CO2 values will be used...
-     ! On the first call, allocate the CRU%CO2VALS array to store the entire history of annual CO2
-     ! values, open the (ascii) CO2 file and read the values into the array.
-     if (CALL1) then
-        select case(trim(CRU%MetVersion))
-        case("CRUJRA_2021", "VERIFY_2021")
-           allocate(CRU%CO2VALS(1700:2020))
-           CO2FILE = trim(CRU%BasePath)//"/co2/global_co2_ann_1700_2020.txt"
-        case("CRUJRA_2022")
-           allocate(CRU%CO2VALS(1700:2021))
-           CO2FILE = trim(CRU%BasePath)//"/co2/global_co2_ann_1700_2021.txt"
-        case("CRUJRA_2023")
-           allocate(CRU%CO2VALS(1700:2022))
-           CO2FILE = trim(CRU%BasePath)//"/co2/global_co2_ann_1700_2022.txt"
-        end select
+  ! The nitrogen deposition is a spatio_temporal_dataset netCDF dataset.
+  ! The data is unfortunately arranged, in that the frequency is yearly, but the
+  ! time index is monthly with month fractions i.e. 5.922..., 17.922... which
+  ! makes it very inconvenient to index. For now, we have to rely on the prior
+  ! knowledge that the dataset begins at 1850.
+  INTEGER         :: TimeIndex
 
-        call GET_UNIT(iunit)
-        open(iunit, FILE=trim(CO2FILE), STATUS="OLD", ACTION="READ")
-        do while (IOS == 0)
-           read(iunit, FMT=*, IOSTAT=IOS) iyear, CRU%CO2VALS(iyear)
-        end do
-        close(iunit)
+  ! Temporary array to store the full set of spatial data
+  REAL, DIMENSION(:, :), ALLOCATABLE        :: TmpArray
 
-        CALL1 = .false.
-     end if
-     ! In all varying CO2 cases, return the element of the array for the current year
-     ! as a single CO2 value.
-     CO2air = CRU%CO2VALS(CRU%CYEAR)
-  end if
+  ! Which method are we using for Nitrogen deposition?
+  IF (CRU%NDepMethod == "spatial") THEN
+    ! We're using the simulation year for the deposition data
+    TimeIndex = CurrentYear - 1849
+  ELSE
+    ! We're using a specific year of data
+    READ(CRU%NDepMethod, '(I)') TimeIndex
+    TimeIndex = TimeIndex - 1849
+  END IF
 
-end subroutine GET_CRU_CO2
+  ! And finally grab the data. Since we're using landmask, we have to extract
+  ! the full set of data first and then read the unmasked points into the NDep
+  ! values.
+  ALLOCATE(TmpArray(CRU%xDimSize, CRU%yDimSize))
+
+  ok = NF90_GET_VAR(CRU%CurrentFileID, CRU%CurrentVarID, TmpArray,&
+    START = (/1, 1, TimeIndex/), COUNT = (/CRU%xDimSize, CRU%yDimSize, 1/))
+
+  ! Apply the land mask
+  ApplyLandmask: DO GridCell = 1, CRU%mLand
+    CRU%NDepVals(GridCell) = TmpArray(land_x(GridCell), land_y(GridCell))
+  END DO ApplyLandmask
+END SUBROUTINE get_cru_ndep
+
+SUBROUTINE cru_read_metvals(STD, MetData, Year, DayOfYear,&
+    LeapYears)
+  ! Get the data from a day
+  TYPE(SPATIO_TEMPORAL_DATASET), INTENT(INOUT)  :: STD
+  TYPE(CRU_MET_TYPE), INTENT(OUT)               :: MetData
+  INTEGER, INTENT(IN)                           :: DayOfYear
+
+  ! Need a temporary array to read in the data from the netcdf file
+  REAL, DIMENSION(:, :), ALLOCATABLE            :: TmpArray
+
+  ! We'll need to compute the record index to grab
+  INTEGER     :: TimeIndex
+
+  ! Check 2 conditions- if the file index is 0, it means we 
+  ! haven't selected a file for opening yet, or the year is outside the range of
+  ! the current file. In either case, we need to choose a new file.
+  IF (STD%CurrentFileIndx == 0) .OR.&
+    ((YEAR < STD%StartYear) .AND.&
+     (YEAR > STD%EndYear)) THEN
+    ! In either instance, find the relevant file
+    ! First, we might be in an instance where we're in no file's time period.
+    IF (YEAR < STD%StartYear(1)) THEN
+      ! We're before the era of our data, just get the first day in the dataset
+      SpatioTemporalData.CurrentFileIndx = 1
+      YEAR = STD%StartYear(1)
+      DayOfYear = 1
+    ELSEIF (YEAR > STD%EndYear(SIZE(STD%EndYear))) THEN
+      ! We're after the era of our data, get the last day of the last year
+      STD%CurrentFileIndx = SIZE(STD%FileNames)
+      YEAR = STD%EndYear(SIZE(STD%EndYear))
+      ! Need special handling if leapyears
+      IF LEAPYEARS THEN
+        IF is_leapyear(YEAR) THEN
+          DayOfYear = 366
+        ELSE
+          DayOfYear = 365
+        END IF
+      ELSE
+        DayOfYear = 365
+      END IF
+    ELSE
+      ! Standard operation, we're in the era of our data
+      FindFile: DO FileIndx = 1, SIZE(STD%FileNames)
+        IF (YEAR >= STD%StartYear(FileIndx)) .AND. &
+          (YEAR <= STD%EndYear(FileIndx)) THEN
+          STD.CurrentFileIndx = FileIndx
+          EXIT FindFile
+        END IF
+      END DO FindFile
+
+    ! We've selected the file, obtain a unique file ID and open the input stream
+    CALL get_unit(STD%CurrentFileID)
+    NF90_OPEN(STD%FileNames(&
+      STD%CurrentFileIndx, NF90_NOWRITE,&
+      STD%CurrentFileID)
+
+    ! Find the variable and get it's ID
+    FindVar: DO VarNameIndx = 1, SIZE(STD%VarNames)
+      ok = NF90_INQ_VARID(STD%CurrentFileID,&
+        STD%VarNames(VarNameIndx),&
+        STD%CurrentVarID)
+      IF (ok == NF90_NOERR) THEN
+        EXIT FindVar
+      END IF
+    END DO FindVar
+  END IF
+
+  ! Now read the desired time step
+  TimeIndex = DayOfYear
+
+  ! Due to leapyears, we can't just do add 365 * number of years from startyear.
+  IF LeapYears THEN
+    CountDays: DO YEAR = SpatioTemporalData%StartYear(&
+      STD%CurrentFileIndx), (Year - 1)
+      IF is_leapyear(YEAR) THEN
+        TimeIndex = TimeIndex + 366
+      ELSE
+        TimeIndex = TimeIndex + 365
+      END IF
+    END DO CountDays
+  ELSE
+    TimeIndex = TimeIndex + 365 * (Year - STD%StartYear(&
+    STD%CurrentFileIndx) - 1)
+  END IF
+
+  ! Now we have the index, we can grab the data
+  ALLOCATE(TmpArray(CRU%xDimSize, CRU%yDimSize))
+
+  NF90_GET_VAR(STD%CurrentFileID,&
+    STD%CurrentVarID, TmpArray, START = (/1, 1, TimeIndx/))
+
+  ! Read from the global array to the masked array
+  ApplyMask: DO LandCell = 1, CRU%mLand
+    MetData(LandCell) = TmpArray(land_x(LandCell), land_y(LandCell)
+  END DO ApplyMask
+END SUBROUTINE cru_read_metvals
+  
+SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
+  TYPE(CRU_TYPE), INTENT(INOUT)   :: CRU
+  LOGICAL, INTENT(IN)             :: LastDayOfYear
+
+  ! We need a temporary array to read in the spatial data from a timestep.
+  REAL, DIMENSION(:, :), ALLOCATABLE  :: TmpArray
+
+  ! One of the tricky things here is the requirement to have the previous and
+  ! next days Tmax and Tmin. This is handled by the dataset reader, if we try to
+  ! read outside the range of our data, we just use the first/last record.
+
+  ! The year of met forcing we use depends on our choice of configuration.
+  ! Sometimes, recycle through a subset of data, and others we use the sim year.
+  ! So we want to store both.
+  INTEGER   :: RecycledYear, MetYear
+
+  ! We want to handle the nextTmin and prevTmax things separately so we don't
+  ! mess with the data stored in CRU
+  INTEGER   :: DummyYear, DummyDay
+
+  ! Allocate the temporary array, we re-use it for all the variables
+  ALLOCATE(TmpArray(CRU%xDimSize, CRU%yDimSize))
+
+  ! Determine the recycled and sim year
+  RecycledYear = 1901 + MOD(CRU%cYear - 1501, CRU%metRecyc)
+
+  ! Iterate through the base variables
+  IterateVariables: DO VarIndx = 1, 9
+    ! If the variable is time recycled
+    IF CRU%isRecycled(VarIndx) THEN
+      MetYear = RecycledYear
+    ELSE
+      MetYear = CRU%cYear
+    END IF
+
+    ! CRU%CTStep is the current day, which we use to index the netCDF arrays
+    CALL cru_read_metvals(CRU%MetDatasets(VarIndx), CRU%Met(VarIndx), MetYear,&
+      CRU%CTStep, CRU%LeapYears)
+  END DO IterateVariables
+
+  ! Only read the DiffFrac sometimes, with the same process as the rest of the
+  ! met variables
+  IF CRU%ReadDiffFrac THEN
+    IF CRU%isRecycled(10) THEN
+      MetYear = RecycledYear
+    ELSE
+      MetYear = CRU%cYear
+    END IF
+
+    call cru_read_metvals(CRU%MetDatasets(10), CRU%Met(10), MetYear,&
+      CRU%CTStep, CRU%LeapYears)
+  END IF
+
+  ! Now the variables with special handling- nextTmin and prevTmax
+  ! The easiest way to do this is to simply change the day by 1, check if we
+  ! need to change the year, and go through the same read process. This is a
+  ! little inefficient as we'll be messing with the Tmin and Tmax dataset
+  ! structs and in select instances (at the end of the era of a particular file)
+  ! opening and closing the io stream unnecessarily, but I think it's a minor
+  ! evil.
+
+  ! Address prevTmax first
+  ! Check what the day is, and whether we need to change the year
+  IF (CRU%CTSTEP == 1) THEN
+    ! Go back to previous year
+    DummyYear = CRU%cYear - 1
+    IF CRU%LeapYears THEN
+      ! Check what the day should be
+      IF is_leapyear(DummyYear) THEN
+        DummyDay = 366
+      ELSE
+        DummyDay = 365
+      END IF
+    ELSE
+      ! No leapyears
+      DummyDay = 365
+    END IF
+  ELSE
+    ! Not the first day of the year, treat normally
+    DummyYear = CRU%cYear
+    DummyDay = CRU%CTStep - 1
+  END IF
+
+  ! Was the Tmax recycled?
+  IF CRU%isRecycled(6) THEN
+    MetYear = 1901 + MOD(DummyYear - 1501, CRU%metRecyc)
+  ELSE
+    MetYear = CRU%cYear
+  END IF
+
+  ! Now we just need to call cru_read_metvals with the Tmax Dataset reader and
+  ! the prevTmax array to write to
+  CALL cru_read_metvals(CRU%MetDatasets(6), CRU%Met(11), MetYear, DummyDay,&
+    CRU%LeapYears)
+
+  ! Now do nextTmin
+  ! Check what the day is, and whether we need to change the year
+  ! This changes whether its a leapyear or not
+  IF CRU%LeapYears .AND. (CRU%CTStep == 366) THEN
+    ! We're at the last day of a leapyear
+    DummyDay = 1
+    DummyYear = CRU%cYear + 1
+  ELSEIF (CRU%CTStep == 365) THEN
+    ! We're at the end of a normal year
+    DummyDay = 1
+    DummyYear = CRU%cYear + 1
+  ELSE
+    DummyDay = CRU%CTStep + 1
+    DummyYear = CRU%cYear
+  END IF
+
+  ! Was the Tmin recycled?
+  IF CRU%isRecycled(7) THEN
+    MetYear = 1901 + MOD(DummyYear - 1501, CRU%metRecyc)
+  ELSE
+    MetYear = CRU%cYear
+  END IF
+
+  CALL cru_read_metvals(CRU%MetDatasets(7), CRU%Met(12), MetYear, DummyDay,&
+    CRU%LeapYears)
+
+
+    
+    
+
+
+
+
+    
+  
+
+
