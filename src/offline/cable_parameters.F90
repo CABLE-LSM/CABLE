@@ -1759,7 +1759,7 @@ CONTAINS
   SUBROUTINE derived_parameters(soil, sum_flux, bal, ssnow, veg, rough)
     ! Gives values to parameters that are derived from other parameters.
     TYPE (soil_snow_type),      INTENT(INOUT)    :: ssnow
-    TYPE (veg_parameter_type),  INTENT(IN)    :: veg
+    TYPE (veg_parameter_type),  INTENT(INOUT)    :: veg
     TYPE (soil_parameter_type), INTENT(INOUT) :: soil
     TYPE (sum_flux_type),       INTENT(INOUT) :: sum_flux
     TYPE (balances_type),       INTENT(INOUT) :: bal
@@ -1774,8 +1774,10 @@ CONTAINS
     REAL(r_2), DIMENSION(mp,ms) :: psi_tmp
     REAL(r_2), DIMENSION(ms) :: soil_depth
 
+    ! ccc. Ensure consitency between permanent ice soil type and ice vegetation 
     ! line below inserted by rk4417 - phase2
     where(veg%iveg .eq. 17) soil%isoilm = 9   ! 
+    where(soil%isoilm .eq. 9) veg%iveg = 17
     
     soil_depth(1) = REAL(soil%zse(1),r_2)
     DO klev=2,ms
