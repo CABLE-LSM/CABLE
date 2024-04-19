@@ -59,6 +59,7 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
     
     USE cable_canopy_module, ONLY : define_canopy
     USE cbl_albedo_mod, ONLY : albedo
+    USE snow_aging_mod,               ONLY: snow_aging
     
 !data !jhan:pass these
 USE cable_other_constants_mod, ONLY : CLAI_THRESH => lai_thresh
@@ -109,6 +110,8 @@ ICYCLE = 0
 
 CALL ruff_resist( veg, rough, ssnow, canopy, veg%vlai, veg%hc, canopy%vlaiw )
 
+!jhan: this call to define air may be redundant
+CALL define_air (met, air)
 
 call fveg_mask( veg_mask, mp, Clai_thresh, canopy%vlaiw )
 !call fsunlit_mask( sunlit_mask, mp, Ccoszen_tols, met%coszen )
@@ -133,8 +136,8 @@ CALL init_radiation( rad%extkb, rad%extkd,                                     &
                    ) !reducedLAIdue2snow 
 
 !Ticket 331 refactored albedo code for JAC
-!CALL snow_aging(ssnow%snage,mp,dels,ssnow%snowd,ssnow%osnowd,ssnow%tggsn(:,1),&
-!         ssnow%tgg(:,1),ssnow%isflag,veg%iveg,soil%isoilm) 
+CALL snow_aging(ssnow%snage,mp,dels,ssnow%snowd,ssnow%osnowd,ssnow%tggsn(:,1),&
+         ssnow%tgg(:,1),ssnow%isflag,veg%iveg,soil%isoilm) 
 
 call Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
              !AlbSnow, AlbSoil,              
