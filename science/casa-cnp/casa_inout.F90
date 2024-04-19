@@ -828,7 +828,6 @@ contains
   END SUBROUTINE casa_init
 
 
-  ! NOT USED ANYMORE
   SUBROUTINE casa_poolout(ktau, veg, soil, casabiome, casapool, casaflux, casamet, &
        casabal, phen)
 
@@ -1548,21 +1547,21 @@ contains
     integer, parameter :: sp = kind(1.0)
 
     ! 1 dim arrays (mp)
-    character(len=21), dimension(2)  :: a0
+    character(len=20), dimension(2)  :: a0
     ! 2 dim arrays (mp,t)
-    character(len=21), dimension(56) :: a1
+    character(len=20), dimension(56) :: a1
     ! 3 dim arrays (mp,mplant,t)
-    character(len=21), dimension(9)  :: a2
+    character(len=20), dimension(9)  :: a2
     ! 3 dim arrays (mp,mlitter,t)
-    character(len=21), dimension(12) :: a3
+    character(len=20), dimension(12) :: a3
     ! 3 dim arrays (mp,msoil,t)
-    character(len=21), dimension(8)  :: a4
+    character(len=20), dimension(8)  :: a4
     ! 4 dim arrays (mp,mlitter,mplant,t)
-    character(len=21), dimension(1)  :: a5
+    character(len=20), dimension(1)  :: a5
     ! 4 dim arrays (mp,msoil,mlitter,t)
-    character(len=21), dimension(1)  :: a6
+    character(len=20), dimension(1)  :: a6
     ! 4 dim arrays (mp,msoil,msoil,t)
-    character(len=21), dimension(1)  :: a7
+    character(len=20), dimension(1)  :: a7
 
     integer, dimension(size(a0)), save :: vid0
     integer, dimension(size(a1)), save :: vid1
@@ -2139,15 +2138,15 @@ contains
     integer, parameter :: sp = kind(1.0)
 
     ! 2 dim arrays (x,y)
-    character(len=21), dimension(2)  :: a0
+    character(len=20), dimension(2)  :: a0
     ! 4 dim arrays (x,y,patch,t)
-    character(len=21), dimension(56) :: a1
+    character(len=20), dimension(56) :: a1
     ! 4 dim arrays (x,y,mplant,t)
-    character(len=21), dimension(9)  :: a2
+    character(len=20), dimension(9)  :: a2
     ! 4 dim arrays (x,y,mlitter,t)
-    character(len=21), dimension(12)  :: a3
+    character(len=20), dimension(12)  :: a3
     ! 4 dim arrays (x,y,msoil,t)
-    character(len=21), dimension(8)  :: a4
+    character(len=20), dimension(8)  :: a4
 
     ! Same structure for units
     ! 2 dim arrays (x,y)
@@ -2896,15 +2895,15 @@ END SUBROUTINE put_casa_var_grid_patch_average
     integer, parameter :: sp = kind(1.0)
 
     ! 1 dim arrays (land)
-    character(len=21), dimension(2)  :: a0
+    character(len=20), dimension(2)  :: a0
     ! 3 dim arrays (land,patch,t)
-    character(len=21), dimension(56) :: a1
+    character(len=20), dimension(56) :: a1
     ! 3 dim arrays (land,mplant,t)
-    character(len=21), dimension(9)  :: a2
+    character(len=20), dimension(9)  :: a2
     ! 3 dim arrays (land,mlitter,t)
-    character(len=21), dimension(12)  :: a3
+    character(len=20), dimension(12)  :: a3
     ! 3 dim arrays (land,msoil,t)
-    character(len=21), dimension(8)  :: a4
+    character(len=20), dimension(8)  :: a4
 
     ! Same structure for units
     ! 1 dim arrays (land)

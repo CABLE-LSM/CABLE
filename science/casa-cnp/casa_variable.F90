@@ -153,7 +153,7 @@ module casavariable
   ! used in write_netcdf and in MPI code
   integer, parameter, public :: ncasa_biome = 53
   integer, parameter, public :: ncasa_pool = 42
-  integer, parameter, public :: ncasa_flux = 98
+  integer, parameter, public :: ncasa_flux = 92
   integer, parameter, public :: ncasa_met = 47
   integer, parameter, public :: ncasa_bal = 47
 
@@ -3198,7 +3198,7 @@ contains
     type(casa_flux),  intent(in) :: casaflux
 
     integer :: fid
-    integer :: dimid1, dimid2, dimid3, dimid4, dimid5
+    integer :: dimid1, dimid2, dimid3, dimid4
     integer :: i
     integer, dimension(ncasa_flux) :: vid
 
@@ -3214,8 +3214,6 @@ contains
     call nc_err(nf90_def_dim(fid, 'dim3', size(casaflux%klitter, 2), dimid3))
     ! msoil
     call nc_err(nf90_def_dim(fid, 'dim4', size(casaflux%ksoil, 2), dimid4))
-    ! msoil
-    call nc_err(nf90_def_dim(fid, 'dim5', size(casaflux%ksoil, 2), dimid5))
 
     ! define variables
     i = 1
@@ -3427,11 +3425,11 @@ contains
     call nc_err(nf90_def_var(fid, 'fromltos', nf90_double, &
          [dimid1, dimid4, dimid3], vid(i)), i)
 
-    ! define double array variables [dim1, dim4, dim5]
+    ! define double array variables [dim1, dim4, dim4]
     call nc_err(nf90_def_var(fid, 'fromstos', nf90_double, &
-         [dimid1, dimid4, dimid5], vid(i)), i)
+         [dimid1, dimid4, dimid4], vid(i)), i)
     call nc_err(nf90_def_var(fid, 'fluxfromstos', nf90_double, &
-         [dimid1, dimid4, dimid5], vid(i)), i)
+         [dimid1, dimid4, dimid4], vid(i)), i)
 
     ! end define mode
     call nc_err(nf90_enddef(fid))
@@ -3739,7 +3737,7 @@ contains
   subroutine write_netcdf_casabal(filename, casabal)
 
     use netcdf, only: nf90_create, nf90_clobber, nf90_64bit_offset, &
-         nf90_def_dim, nf90_def_var, nf90_double, &
+         nf90_def_dim, nf90_def_var, nf90_float, nf90_double, &
          nf90_enddef, nf90_put_var, nf90_close
     use cable_def_types_mod, only: nc_err
 
