@@ -22,12 +22,11 @@
 !
 ! History: Calling sequence changes for ACCESS compared to v1.4b
 !
+!          REV_CORR package of fixes for the sensitivity/correction terms
 !
 ! ==============================================================================
 
 MODULE cable_cbm_module
-
-   USE cable_albedo_module
 
 IMPLICIT NONE
 
@@ -40,14 +39,15 @@ CONTAINS
                   bal, rad, rough, soil, &
                   ssnow, veg, climate )
 
-   USE cable_common_module
-   USE cable_carbon_module
-   USE cable_soil_snow_module
-   USE cable_def_types_mod
-   USE cable_roughness_module
+    USE cable_common_module
+    USE cable_carbon_module
+    USE cable_soil_snow_module
+    !USE cbl_soil_snow_main_module, ONLY : soil_snow
+    USE cable_def_types_mod
+    USE cable_roughness_module, ONLY : ruff_resist
     USE cbl_init_radiation_module, ONLY : init_radiation
-   USE cable_air_module
-   USE casadimension,     only: icycle ! used in casa_cnp
+    USE cable_air_module, ONLY : define_air
+    USE casadimension,     ONLY : icycle ! used in casa_cnp
    USE cable_data_module, ONLY: icbm_type, point2constants
    use cable_sli_main,    only: sli_main
 ! physical constants
@@ -57,9 +57,8 @@ USE cable_phys_constants_mod, ONLY : CEMLEAF => EMLEAF
 USE cable_phys_constants_mod, ONLY : CEMSOIL => EMSOIL
 USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
     
-   USE cable_radiation_module
     USE cable_canopy_module, ONLY : define_canopy
-!    USE cbl_albedo_mod, ONLY : albedo
+    USE cbl_albedo_mod, ONLY : albedo
     
 !data !jhan:pass these
 USE cable_other_constants_mod, ONLY : CLAI_THRESH => lai_thresh
@@ -106,12 +105,7 @@ REAL :: xk(mp,nrb)
 !iFor testing
 cable_user%soil_struc="default"
 
-   ICYCLE = 0
-
-   ! assign local ptrs to constants defined in cable_data_module
-   !CALL point2constants(C)
-
-
+ICYCLE = 0
 
 CALL ruff_resist( veg, rough, ssnow, canopy, veg%vlai, veg%hc, canopy%vlaiw )
 
@@ -138,11 +132,40 @@ CALL init_radiation( rad%extkb, rad%extkd,                                     &
                      canopy%vlaiw                                              &
                    ) !reducedLAIdue2snow 
 
-      CALL surface_albedo(ssnow, veg, met, rad, soil, canopy)
+!Ticket 331 refactored albedo code for JAC
+!CALL snow_aging(ssnow%snage,mp,dels,ssnow%snowd,ssnow%osnowd,ssnow%tggsn(:,1),&
+!         ssnow%tgg(:,1),ssnow%isflag,veg%iveg,soil%isoilm) 
+
+call Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
+             !AlbSnow, AlbSoil,              
+             mp, nrb,                                                      &
+             ICE_SoilType, lakes_cable,                                    &
+             jls_radiation,                                                &
+             veg_mask,                                                     &  
+             Ccoszen_tols, CGAUSS_W,                                       & 
+             veg%iveg, soil%isoilm, veg%refl, veg%taul,                    & 
+             !surface_type, VegRefl, VegTaul,
+             met%coszen, canopy%vlaiw,                                     &
+             !coszen, reducedLAIdue2snow,
+             ssnow%snowd, ssnow%ssdnn, ssnow%tgg(:,1), ssnow%snage,        & 
+             !SnowDepth, SnowDensity, SoilTemp, SnowAge, 
+             xk, c1, rhoch,                                                & 
+             rad%fbeam, rad%albedo,                                        &
+             !RadFbeam, RadAlbedo,
+             rad%extkb, rad%extkd,                                         & 
+             !ExtCoeff_beam, ExtCoeff_dif,
+             rad%extkbm, rad%extkdm,                                       & 
+             !EffExtCoeff_beam, EffExtCoeff_dif,                
+             rad%rhocbm, rad%rhocdf,                                       &
+             !CanopyRefl_beam,CanopyRefl_dif,
+             rad%cexpkbm, rad%cexpkdm,                                     & 
+             !CanopyTransmit_beam, CanopyTransmit_dif, 
+             rad%reffbm, rad%reffdf                                        &
+           ) !EffSurfRefl_beam, EffSurfRefldif_
 
 ssnow%otss_0 = ssnow%otss  ! vh should be before call to canopy?
-ssnow%otss   = ssnow%tss
-ssnow%owetfac = ssnow%wetfac ! MC should also be before canopy
+ssnow%otss = ssnow%tss
+ssnow%owetfac = ssnow%wetfac
 
    ! Calculate canopy variables
    CALL define_canopy(bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate)
@@ -153,13 +176,13 @@ ssnow%owetfac = ssnow%wetfac ! MC should also be before canopy
        CALL sli_main(ktau, dels, veg, soil, ssnow, met, canopy, air, rad, 0)
     ENDIF
 
-   ssnow%deltss = ssnow%tss-ssnow%otss
+ssnow%deltss = ssnow%tss-ssnow%otss
 
-   ! need to adjust fe after soilsnow
-   canopy%fev  = real(canopy%fevc) + canopy%fevw
+! need to adjust fe after soilsnow
+canopy%fev  = real(canopy%fevc) + canopy%fevw
 
-   ! Calculate total latent heat flux:
-   canopy%fe = canopy%fev + real(canopy%fes)
+  ! Calculate total latent heat flux:
+  canopy%fe = canopy%fev + real(canopy%fes)
 
    ! Calculate net radiation absorbed by soil + veg
    canopy%rnet = canopy%fns + canopy%fnv
@@ -168,10 +191,6 @@ ssnow%owetfac = ssnow%wetfac ! MC should also be before canopy
    rad%trad = ( (1. - rad%transd) * canopy%tv**4 + &
         rad%transd * ssnow%tss**4 )**0.25
 
-   ! rml 17/1/11 move all plant resp and soil resp calculations here
-   ! from canopy. in UM only call on implicit step.
-   ! put old and new soil resp calculations into soilcarb subroutine
-   ! make new plantcarb subroutine
    IF (icycle == 0) THEN
 
       !calculate canopy%frp
@@ -187,6 +206,6 @@ ssnow%owetfac = ssnow%wetfac ! MC should also be before canopy
 
    ENDIF
 
-END SUBROUTINE cbm
+  END SUBROUTINE cbm
 
 END MODULE cable_cbm_module

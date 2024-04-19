@@ -170,30 +170,24 @@ build_build()
     fi
 
     # directories contain source code
-    PHYS="../core/biogeophys"
     UTIL="../core/utils"
-    UTIL3="../util"
-    DRV="."
-    CASA="../core/biogeochem"
     BLAZE="../core/blaze"
+    UTIL3="../util"
     SCI="../science/*"
-   PAR="../params"
+    PAR="../params"
 
-    /bin/cp -p $PHYS/*90  ./.tmp
     /bin/cp -p $UTIL/*90  ./.tmp
-    /bin/cp -p $UTIL3/*90  ./.tmp
-    /bin/cp -p $DRV/*90   ./.tmp
-    #/bin/cp -p $CASA/*90  ./.tmp
     /bin/cp -p $BLAZE/*90 ./.tmp
+    /bin/cp -p $UTIL3/*90 ./.tmp
     /bin/cp -p $SCI/*90   ./.tmp
-/bin/cp -p $PAR/*90 ./.tmp
+		/bin/cp -p $PAR/*90   ./.tmp
+    /bin/cp -p *90   ./.tmp
 
     /bin/cp -p Makefile_offline ./.tmp
 
     cd .tmp/
     make -f Makefile_offline ${MFLAGS}
 }
-
 
 ###########################################
 ## build.ksh - MAIN SCRIPT STARTS HERE   ##
