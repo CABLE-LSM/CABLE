@@ -184,7 +184,7 @@ canopy%rghlai = canopy%vlaiw
 IF (cable_user%soil_struc=='default') THEN
 
   ! Roughness length of bare soil (m): new formulation- E.Kowalczyk 2014
-  IF (.NOT.cable_user%l_new_roughness_soil ) THEN
+  IF (.NOT.cable_user%l_new_roughness_soil .AND. (.NOT.cable_user%or_evap)) THEN
     rough%z0soil = 0.0009*min(1.0,canopy%vlaiw) + 1.e-4
     rough%z0soilsn = rough%z0soil 
   ELSE

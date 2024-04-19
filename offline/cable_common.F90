@@ -80,6 +80,7 @@ MODULE cable_common_module
      !jhan: this is redundant now we all use filename%veg?
      CHARACTER(LEN=200) :: VEG_PARS_FILE  !
 
+  LOGICAL :: or_evap = .FALSE.
      CHARACTER(LEN=20) :: &
           FWSOIL_SWITCH, &               !
           PHENOLOGY_SWITCH = 'climate'   ! alternative is 'climate'

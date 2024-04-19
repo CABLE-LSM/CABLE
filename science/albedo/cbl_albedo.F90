@@ -69,7 +69,6 @@ SUBROUTINE Albedo( AlbSnow, AlbSoil, mp, nrb, ICE_SoilType, lakes_cable,       &
 
 !subrs called
 USE cbl_snow_albedo_module, ONLY: surface_albedosn
-USE cable_common_module,    ONLY : knode_gl, ktau_gl
 
 IMPLICIT NONE
 
@@ -138,17 +137,7 @@ REAL, INTENT(OUT) :: CanopyTransmit_dif(mp,nrb)  ! Difuse Transmit (rad%cexpkbm)
 ! local vars
 INTEGER :: i
 
-CHARACTER(LEN=8),  PARAMETER :: subr_name = "BBalbedo"
-CHARACTER(LEN=30), PARAMETER :: basename  = "/home/599/jxs599/temp/BBalbed/"
-INTEGER,           PARAMETER :: iunit     = 101        
-
-CHARACTER(LEN=38) :: filename
-
-filename=TRIM(TRIM(basename)//TRIM(subr_name) )
-
-OPEN( UNIT=iunit,FILE=filename//".dat", STATUS="unknown",ACTION="write", & 
-      POSITION='append' )
-WRITE (iunit,*) "dt  ", ktau_gl 
+! END header
 
 AlbSnow(:,:) = 0.0
 CanopyRefl_beam(:,:) = 0.0
@@ -177,15 +166,6 @@ CALL CanopyTransmitance(CanopyTransmit_beam, CanopyTransmit_dif, mp, nrb,      &
                         veg_mask, reducedLAIdue2snow,                          &
                         EffExtCoeff_beam, EffExtCoeff_dif)
 
-WRITE (iunit,*) mp, nrb                                 
-DO i=1,mp
-  WRITE (iunit,*) veg_mask(i), reducedLAIdue2snow(i)            
-  WRITE (iunit,*) EffExtCoeff_dif(i,1), EffExtCoeff_dif(i,2)
-  WRITE (iunit,*) CanopyTransmit_beam(i,1), CanopyTransmit_dif(i,1) 
-END DO
-WRITE (iunit,*) ""
-  
-
 !---1 = visible, 2 = nir radiaition
 ! Finally compute Effective 4-band albedo for diffuse/direct radiation-
 ! In the UM this is the required variable to be passed back on the rad call
@@ -207,9 +187,6 @@ RadAlbedo = AlbSnow
 IF (.NOT. jls_radiation)                                                       &
   CALL FbeamRadAlbedo( RadAlbedo, mp, nrb, veg_mask, radfbeam,                 &
                        EffSurfRefl_beam, EffSurfRefl_dif, AlbSnow )
-
-WRITE (iunit,*) "End"
-CLOSE(iunit)
 
 RETURN
 END SUBROUTINE albedo

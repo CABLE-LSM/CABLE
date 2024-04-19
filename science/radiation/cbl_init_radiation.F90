@@ -40,8 +40,6 @@ SUBROUTINE init_radiation( ExtCoeff_beam, ExtCoeff_dif,                        &
 !   diffuse) and various quantities for black leaves.
 
 USE cable_common_module, ONLY: cable_user
-USE cable_def_types_mod, ONLY: met_type, radiation_type
-
 
 IMPLICIT NONE
 
@@ -131,12 +129,6 @@ IF ( cbl_standalone .OR. jls_standalone .AND. .NOT. jls_radiation ) THEN
 
   IF (cable_user%pop_fbeam) THEN
      
-     ! Inexplicable difference here. In CABLE-POP version this calculation of Fbeam is 
-     ! executed in init_radiation located inside module containing multiple radiation
-     ! routines (albeit using %type members). Identical code tested here previously (now
-     ! reverted to consistent code that is shown) sggests that moving the code to  an independent 
-     ! module  has set the output albedo to zero when no sunlight, rather than a small +ve value 
-     !
      RadFbeam(:,1) = MAX( MIN( 1.0 - metFdiff(:), 1.0 ), 0.0)
      RadFbeam(:,2) = MAX( MIN( 1.0 - metFdiff(:), 1.0 ), 0.0)
      
