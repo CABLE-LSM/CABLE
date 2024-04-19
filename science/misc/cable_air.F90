@@ -23,72 +23,79 @@
 
 MODULE cable_air_module
 
-   ! local pointers to global constants defined in
-   USE cable_data_module, ONLY : iair_type, point2constants
+  ! local pointers to global constants defined in
 
-   IMPLICIT NONE
+USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
+USE cable_phys_constants_mod, ONLY : CRMAIR  => RMAIR
+USE cable_phys_constants_mod, ONLY : CRGAS   => RGAS
+USE cable_phys_constants_mod, ONLY : CCAPP   => CAPP
+USE cable_phys_constants_mod, ONLY : CHL     => HL
+USE cable_phys_constants_mod, ONLY : CRMH2O  => RMH2O
+USE cable_phys_constants_mod, ONLY : CTETENA => TETENA
+USE cable_phys_constants_mod, ONLY : CTETENB => TETENB
+USE cable_phys_constants_mod, ONLY : CTETENC => TETENC
+USE cable_phys_constants_mod, ONLY : CTETENA_ICE => TETENA_ICE
+USE cable_phys_constants_mod, ONLY : CTETENB_ICE => TETENB_ICE
+USE cable_phys_constants_mod, ONLY : CTETENC_ICE => TETENC_ICE
 
-   PUBLIC :: define_air
-   
-   PRIVATE
 
-   TYPE(iair_type) :: C
+  IMPLICIT NONE
+
+  PUBLIC define_air
+  PRIVATE
 
 
 CONTAINS
 
 
-SUBROUTINE define_air(met,air)
+  SUBROUTINE define_air(met,air)
 
-   USE cable_def_types_mod, ONLY: air_type, met_type, mp
+    USE cable_def_types_mod,          ONLY : air_type, met_type, mp
 
-   IMPLICIT NONE
+    TYPE (air_type), INTENT(INOUT) :: air ! air_type variables
+    TYPE (met_type), INTENT(IN)    :: met ! meteorological variables
 
-   TYPE(air_type), INTENT(INOUT) :: air ! air_type variables
-   TYPE(met_type), INTENT(IN)    :: met ! meteorological variables
+    ! local vatiables
+    REAL, DIMENSION(mp)     :: es ! sat vapour pressure (mb)
 
-   ! local vatiables
-   REAL, DIMENSION(mp)     :: es ! sat vapour pressure (mb)
-   ! END header
+    ! END header
 
-   ! local ptrs to constants defined in cable_data_module
-   call point2constants( C )
+    ! Calculate saturation vapour pressure
+    es = CTETENA * EXP( CTETENB * ( met%tvair - CTFRZ )                     &
+         / ( CTETENC + ( met%tvair - CTFRZ ) ) )
 
-   ! Calculate saturation vapour pressure
-   es = C%TETENA * EXP( C%TETENB * ( met%tvair - C%TFRZ )                     &
-        / ( C%TETENC + ( met%tvair - C%TFRZ ) ) )
+    ! Calculate conversion factor from from m/s to mol/m2/s
+    air%cmolar = met%pmb * 100.0 / (CRGAS * (met%tvair))
 
-   ! Calculate conversion factor from from m/s to mol/m2/s
-   air%cmolar = met%pmb * 100.0 / (C%RGAS * (met%tvair))
+    ! Calculate dry air density:
+    air%rho = MIN(1.3,CRMAIR * air%cmolar)
 
-   ! Calculate dry air density:
-   air%rho = MIN(1.3,C%RMAIR * air%cmolar)
+    ! molar volume (m^3/mol)
+    air%volm = CRGAS * (met%tvair) / (100.0 * met%pmb)
 
-   ! molar volume (m^3/mol)
-   air%volm = C%RGAS * (met%tvair) / (100.0 * met%pmb)
+    ! latent heat for water (j/kg)
+    air%rlam= CHL
 
-   ! latent heat for water (j/kg)
-   air%rlam= C%HL
+    ! saturation specific humidity
+    air%qsat = (CRMH2O / CRMAIR) * es / met%pmb
 
-   ! saturation specific humidity
-   air%qsat = (C%RMH2O / C%RMAIR) * es / met%pmb
+    ! d(qsat)/dT ((kg/kg)/K)
+    air%epsi = (air%rlam / CCAPP) * (CRMH2O / CRMAIR) * es * CTETENB *     &
+         CTETENC / ( CTETENC + (met%tvair - CTFRZ) ) ** 2 / met%pmb
 
-   ! d(qsat)/dT ((kg/kg)/K)
-   air%epsi = (air%rlam / C%CAPP) * (C%RMH2O / C%RMAIR) * es * C%TETENB *     &
-              C%TETENC / ( C%TETENC + (met%tvair - C%TFRZ) ) ** 2 / met%pmb
+    ! air kinematic viscosity (m^2/s)
+    air%visc = 1e-5 * MAX(1.0, 1.35 + 0.0092 * (met%tvair - CTFRZ) )
 
-   ! air kinematic viscosity (m^2/s)
-   air%visc = 1e-5 * MAX(1.0, 1.35 + 0.0092 * (met%tvair - C%TFRZ) )
+    ! psychrometric constant
+    air%psyc = met%pmb * 100.0 * CCAPP * CRMAIR / air%rlam / CRMH2O
 
-   ! psychrometric constant
-   air%psyc = met%pmb * 100.0 * C%CAPP * C%RMAIR / air%rlam / C%RMH2O
+    ! d(es)/dT (mb/K)
+    air%dsatdk = 100.0*(CTETENA*CTETENB*CTETENC)/((met%tvair-CTFRZ) +      &
+         CTETENC)**2 * EXP( CTETENB * ( met%tvair-CTFRZ ) /         &
+         ( (met%tvair-CTFRZ) + CTETENC) )
 
-   ! d(es)/dT (mb/K)
-   air%dsatdk = 100.0*(C%TETENA*C%TETENB*C%TETENC)/((met%tvair-C%TFRZ) +      &
-                C%TETENC)**2 * EXP( C%TETENB * ( met%tvair-C%TFRZ ) /         &
-                ( (met%tvair-C%TFRZ) + C%TETENC) )
+  END SUBROUTINE define_air
 
-END SUBROUTINE define_air
 
 
 END MODULE cable_air_module

@@ -25,7 +25,7 @@ MODULE cable_radiation_module
 
    IMPLICIT NONE
 
-   PUBLIC :: init_radiation, radiation, sinbet
+   PUBLIC :: radiation, sinbet
 
    PRIVATE
 
@@ -37,145 +37,145 @@ CONTAINS
 
   ! ------------------------------------------------------------------------------
 
-SUBROUTINE init_radiation(met, rad, veg, canopy)
-
-   USE cable_def_types_mod, ONLY: radiation_type, met_type, canopy_type, &
-        veg_parameter_type, nrb, mp
-
-   implicit none
-
-   TYPE(met_type),           INTENT(IN)    :: met
-   TYPE(radiation_type),     INTENT(INOUT) :: rad
-   TYPE(canopy_type),        INTENT(IN)    :: canopy
-   TYPE(veg_parameter_type), INTENT(IN)    :: veg
-
-   REAL, DIMENSION(nrb) :: &
-      cos3       ! cos(15 45 75 degrees)
-   REAL, DIMENSION(mp,nrb) :: &
-      xvlai2, & ! 2D vlai
-      xk        ! extinct. coef.for beam rad. and black leaves
-   REAL, DIMENSION(mp) :: &
-      xphi1, & ! leaf angle parmameter 1
-      xphi2    ! leaf angle parmameter 2
-   REAL, DIMENSION(:,:), ALLOCATABLE, SAVE :: &
-      ! subr to calc these curr. appears twice. fix this
-      c1, & !
-      rhoch
-   LOGICAL, DIMENSION(mp)    :: mask   ! select points for calculation
-   INTEGER :: ictr
-
-   CALL point2constants(C)
-
-   IF(.NOT. ALLOCATED(c1)) ALLOCATE(c1(mp,nrb), rhoch(mp,nrb))
-
-   cos3 = COS(C%PI180 * (/ 15.0, 45.0, 75.0 /))
-
-   ! See Sellers 1985, eq.13 (leaf angle parameters):
-   WHERE (canopy%vlaiw > C%LAI_THRESH)
-      xphi1 = 0.5 - veg%xfang * (0.633 + 0.33 * veg%xfang)
-      xphi2 = 0.877 * (1.0 - 2.0 * xphi1)
-   END WHERE
-
-   ! 2 dimensional LAI
-   xvlai2 = SPREAD(canopy%vlaiw, 2, 3)
-   ! print*, 'XX01 ', canopy%vlaiw
-   ! print*, 'XX02 ', veg%xfang
-   ! print*, 'XX03 ', met%fsd
-   ! Extinction coefficient for beam radiation and black leaves;
-   ! eq. B6, Wang and Leuning, 1998
-   WHERE (xvlai2 > C%LAI_THRESH) ! vegetated
-      xk = SPREAD(xphi1, 2, 3) / SPREAD(cos3, 1, mp) + SPREAD(xphi2, 2, 3)
-   ELSEWHERE ! i.e. bare soil
-      xk = 0.0
-   END WHERE
-
-   WHERE (canopy%vlaiw > C%LAI_THRESH ) ! vegetated
-
-      ! Extinction coefficient for diffuse radiation for black leaves:
-      rad%extkd = -LOG( SUM( &
-                  SPREAD( C%GAUSS_W, 1, mp ) * EXP( -xk * xvlai2 ), 2) ) &
-                  / canopy%vlaiw
-
-   ELSEWHERE ! i.e. bare soil
-      rad%extkd = 0.7
-   END WHERE
-
-   mask = canopy%vlaiw > C%LAI_THRESH  .AND. &
-          ( met%fsd(:,1) + met%fsd(:,2) ) > C%RAD_THRESH
-
-   CALL calc_rhoch( veg, c1, rhoch )
-   ! print*, 'XX07 ', rhoch
-
-   ! Canopy REFLection of diffuse radiation for black leaves:
-   DO ictr=1,nrb
-
-!!$     rad%rhocdf(:,ictr) = rhoch(:,ictr) * &
-!!$                          ( C%GAUSS_W(1) * xk(:,1) / ( xk(:,1) + rad%extkd(:) )&
-!!$                          + C%GAUSS_W(2) * xk(:,2) / ( xk(:,2) + rad%extkd(:) )&
-!!$                          + C%GAUSS_W(3) * xk(:,3) / ( xk(:,3) + rad%extkd(:) ) )
-   !! Ticket #147  (vh)
-   !! the above line is incorrect, as it is missing a factor of 2 in the numerator.
-   !! (See equation 6.21 from Goudriaan & van Laar 1994)
-   !! The correct version below doubles canopy reflectance for diffuse radiation.
-   !! (Note it is correctly implemented in the evaluation of canopy beam reflectance
-   !! rad%rhocbm in canopy_albedo.F90).
-
-     rad%rhocdf(:,ictr) = rhoch(:,ictr) * &
-                          ( C%GAUSS_W(1) * 2. *xk(:,1) / ( xk(:,1) + rad%extkd(:) )&
-                          + C%GAUSS_W(2) * 2. *xk(:,2) / ( xk(:,2) + rad%extkd(:) )&
-                          + C%GAUSS_W(3) * 2. *xk(:,3) / ( xk(:,3) + rad%extkd(:) ) )
-
-
-   ENDDO
-   ! print*, 'XX04 ', rad%extkd
-   ! print*, 'XX05 ', met%doy
-   ! print*, 'XX06 ', met%coszen
-
-   !write(83,*) "cable_user%calc_fdiff", cable_user%calc_fdiff
-   IF( .NOT. cable_runtime%um) THEN
-      ! Define beam fraction, fbeam:
-      IF (cable_user%calc_fdiff) THEN
-         rad%fbeam(:,1) = spitter(met%doy, met%coszen, met%fsd(:,1))
-         rad%fbeam(:,2) = spitter(met%doy, met%coszen, met%fsd(:,2))
-         !write(87,*) "rad%fbeam:", rad%fbeam(:,1)
-      ELSE
-         rad%fbeam(:,1) = max(min(1.0 - met%fdiff(:),1.0),0.0)
-         rad%fbeam(:,2) = max(min(1.0 - met%fdiff(:),1.0),0.0)
-         !write(83,*) "rad%fbeam:", rad%fbeam(:,1)
-         !write(83,*) "met%fdiff(:)", met%fdiff(:)
-         !write(83,*) "met%fsd(:,1)", met%fsd(:,1)
-      ENDIF
-         
-      ! coszen is set during met data read in.
-      WHERE (met%coszen <1.0e-2)
-         rad%fbeam(:,1) = 0.0
-         rad%fbeam(:,2) = 0.0
-      END WHERE
-   ENDIF
-
-   ! In gridcells where vegetation exists....
-
-   !!vh !! include RAD_THRESH in condition
-   WHERE ((canopy%vlaiw > C%LAI_THRESH) .and. (rad%fbeam(:,1).GE.C%RAD_THRESH))
-      ! WHERE (canopy%vlaiw > C%LAI_THRESH)
-      ! SW beam extinction coefficient ("black" leaves, extinction neglects
-      ! leaf SW transmittance and REFLectance):
-      rad%extkb = xphi1 / met%coszen + xphi2
-   ELSEWHERE ! i.e. bare soil or night
-      rad%extkb = 0.5
-   END WHERE
-
-   WHERE (abs(rad%extkb - rad%extkd) < 0.001)
-      rad%extkb = rad%extkd + 0.001
-   END WHERE
-
-   WHERE (rad%fbeam(:,1) < C%RAD_THRESH)
-      ! higher value precludes sunlit leaves at night. affects
-      ! nighttime evaporation - Ticket #90
-      rad%extkb = 1.0e5
-    END WHERE
-
-END SUBROUTINE init_radiation
+!SUBROUTINE init_radiation(met, rad, veg, canopy)
+!
+!   USE cable_def_types_mod, ONLY: radiation_type, met_type, canopy_type, &
+!        veg_parameter_type, nrb, mp
+!
+!   implicit none
+!
+!   TYPE(met_type),           INTENT(IN)    :: met
+!   TYPE(radiation_type),     INTENT(INOUT) :: rad
+!   TYPE(canopy_type),        INTENT(IN)    :: canopy
+!   TYPE(veg_parameter_type), INTENT(IN)    :: veg
+!
+!   REAL, DIMENSION(nrb) :: &
+!      cos3       ! cos(15 45 75 degrees)
+!   REAL, DIMENSION(mp,nrb) :: &
+!      xvlai2, & ! 2D vlai
+!      xk        ! extinct. coef.for beam rad. and black leaves
+!   REAL, DIMENSION(mp) :: &
+!      xphi1, & ! leaf angle parmameter 1
+!      xphi2    ! leaf angle parmameter 2
+!   REAL, DIMENSION(:,:), ALLOCATABLE, SAVE :: &
+!      ! subr to calc these curr. appears twice. fix this
+!      c1, & !
+!      rhoch
+!   LOGICAL, DIMENSION(mp)    :: mask   ! select points for calculation
+!   INTEGER :: ictr
+!
+!   CALL point2constants(C)
+!
+!   IF(.NOT. ALLOCATED(c1)) ALLOCATE(c1(mp,nrb), rhoch(mp,nrb))
+!
+!   cos3 = COS(C%PI180 * (/ 15.0, 45.0, 75.0 /))
+!
+!   ! See Sellers 1985, eq.13 (leaf angle parameters):
+!   WHERE (canopy%vlaiw > C%LAI_THRESH)
+!      xphi1 = 0.5 - veg%xfang * (0.633 + 0.33 * veg%xfang)
+!      xphi2 = 0.877 * (1.0 - 2.0 * xphi1)
+!   END WHERE
+!
+!   ! 2 dimensional LAI
+!   xvlai2 = SPREAD(canopy%vlaiw, 2, 3)
+!   ! print*, 'XX01 ', canopy%vlaiw
+!   ! print*, 'XX02 ', veg%xfang
+!   ! print*, 'XX03 ', met%fsd
+!   ! Extinction coefficient for beam radiation and black leaves;
+!   ! eq. B6, Wang and Leuning, 1998
+!   WHERE (xvlai2 > C%LAI_THRESH) ! vegetated
+!      xk = SPREAD(xphi1, 2, 3) / SPREAD(cos3, 1, mp) + SPREAD(xphi2, 2, 3)
+!   ELSEWHERE ! i.e. bare soil
+!      xk = 0.0
+!   END WHERE
+!
+!   WHERE (canopy%vlaiw > C%LAI_THRESH ) ! vegetated
+!
+!      ! Extinction coefficient for diffuse radiation for black leaves:
+!      rad%extkd = -LOG( SUM( &
+!                  SPREAD( C%GAUSS_W, 1, mp ) * EXP( -xk * xvlai2 ), 2) ) &
+!                  / canopy%vlaiw
+!
+!   ELSEWHERE ! i.e. bare soil
+!      rad%extkd = 0.7
+!   END WHERE
+!
+!   mask = canopy%vlaiw > C%LAI_THRESH  .AND. &
+!          ( met%fsd(:,1) + met%fsd(:,2) ) > C%RAD_THRESH
+!
+!   CALL calc_rhoch( veg, c1, rhoch )
+!   ! print*, 'XX07 ', rhoch
+!
+!   ! Canopy REFLection of diffuse radiation for black leaves:
+!   DO ictr=1,nrb
+!
+!!!$     rad%rhocdf(:,ictr) = rhoch(:,ictr) * &
+!!!$                          ( C%GAUSS_W(1) * xk(:,1) / ( xk(:,1) + rad%extkd(:) )&
+!!!$                          + C%GAUSS_W(2) * xk(:,2) / ( xk(:,2) + rad%extkd(:) )&
+!!!$                          + C%GAUSS_W(3) * xk(:,3) / ( xk(:,3) + rad%extkd(:) ) )
+!   !! Ticket #147  (vh)
+!   !! the above line is incorrect, as it is missing a factor of 2 in the numerator.
+!   !! (See equation 6.21 from Goudriaan & van Laar 1994)
+!   !! The correct version below doubles canopy reflectance for diffuse radiation.
+!   !! (Note it is correctly implemented in the evaluation of canopy beam reflectance
+!   !! rad%rhocbm in canopy_albedo.F90).
+!
+!     rad%rhocdf(:,ictr) = rhoch(:,ictr) * &
+!                          ( C%GAUSS_W(1) * 2. *xk(:,1) / ( xk(:,1) + rad%extkd(:) )&
+!                          + C%GAUSS_W(2) * 2. *xk(:,2) / ( xk(:,2) + rad%extkd(:) )&
+!                          + C%GAUSS_W(3) * 2. *xk(:,3) / ( xk(:,3) + rad%extkd(:) ) )
+!
+!
+!   ENDDO
+!   ! print*, 'XX04 ', rad%extkd
+!   ! print*, 'XX05 ', met%doy
+!   ! print*, 'XX06 ', met%coszen
+!
+!   !write(83,*) "cable_user%calc_fdiff", cable_user%calc_fdiff
+!   IF( .NOT. cable_runtime%um) THEN
+!      ! Define beam fraction, fbeam:
+!      IF (cable_user%calc_fdiff) THEN
+!         rad%fbeam(:,1) = spitter(met%doy, met%coszen, met%fsd(:,1))
+!         rad%fbeam(:,2) = spitter(met%doy, met%coszen, met%fsd(:,2))
+!         !write(87,*) "rad%fbeam:", rad%fbeam(:,1)
+!      ELSE
+!         rad%fbeam(:,1) = max(min(1.0 - met%fdiff(:),1.0),0.0)
+!         rad%fbeam(:,2) = max(min(1.0 - met%fdiff(:),1.0),0.0)
+!         !write(83,*) "rad%fbeam:", rad%fbeam(:,1)
+!         !write(83,*) "met%fdiff(:)", met%fdiff(:)
+!         !write(83,*) "met%fsd(:,1)", met%fsd(:,1)
+!      ENDIF
+!         
+!      ! coszen is set during met data read in.
+!      WHERE (met%coszen <1.0e-2)
+!         rad%fbeam(:,1) = 0.0
+!         rad%fbeam(:,2) = 0.0
+!      END WHERE
+!   ENDIF
+!
+!   ! In gridcells where vegetation exists....
+!
+!   !!vh !! include RAD_THRESH in condition
+!   WHERE ((canopy%vlaiw > C%LAI_THRESH) .and. (rad%fbeam(:,1).GE.C%RAD_THRESH))
+!      ! WHERE (canopy%vlaiw > C%LAI_THRESH)
+!      ! SW beam extinction coefficient ("black" leaves, extinction neglects
+!      ! leaf SW transmittance and REFLectance):
+!      rad%extkb = xphi1 / met%coszen + xphi2
+!   ELSEWHERE ! i.e. bare soil or night
+!      rad%extkb = 0.5
+!   END WHERE
+!
+!   WHERE (abs(rad%extkb - rad%extkd) < 0.001)
+!      rad%extkb = rad%extkd + 0.001
+!   END WHERE
+!
+!   WHERE (rad%fbeam(:,1) < C%RAD_THRESH)
+!      ! higher value precludes sunlit leaves at night. affects
+!      ! nighttime evaporation - Ticket #90
+!      rad%extkb = 1.0e5
+!    END WHERE
+!
+!END SUBROUTINE init_radiation
 
 
 ! ------------------------------------------------------------------------------
@@ -209,6 +209,7 @@ SUBROUTINE radiation(ssnow, veg, air, met, rad, canopy)
    INTEGER, SAVE :: call_number =0
 
    call_number = call_number + 1
+   CALL point2constants(C)
 
    ! Define vegetation mask:
    mask = canopy%vlaiw > C%LAI_THRESH .AND. &

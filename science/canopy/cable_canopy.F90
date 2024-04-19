@@ -133,6 +133,7 @@ CONTAINS
 
     INTEGER :: j
 
+REAL :: air_term(mp)
     INTEGER, SAVE :: call_number =0
 
     ! END header
@@ -276,7 +277,7 @@ CONTAINS
        ! print*, 'RR05 ', rough%hruff
        ! E.Kowalczyk 2014
        IF (cable_user%l_new_roughness_soil) &
-            CALL ruff_resist(veg, rough, ssnow, canopy)
+        CALL ruff_resist( veg, rough, ssnow, canopy, veg%vlai, veg%hc, canopy%vlaiw )
 
        ! Turbulent aerodynamic resistance from roughness sublayer depth
        ! to reference height, x=1 if zref+disp>zruffs,
@@ -824,12 +825,20 @@ CONTAINS
             ssnow%ddq_dtg, r_2)
     ENDIF
 
+    air_term = C%CAPP*C%rmair*(tlfy-met%tk)*SUM(rad%gradis,2)  ! YP nov2009 
+          
     bal%drybal = REAL(ecy+hcy) - SUM(rad%rniso,2) &
-         + C%CAPP*C%rmair*(tlfy-met%tk)*SUM(rad%gradis,2)  ! YP nov2009
+         + air_term 
 
-    bal%wetbal = canopy%fevw + canopy%fhvw - SUM(rad%rniso,2) * canopy%fwet &
-         + C%CAPP*C%rmair * (tlfy-met%tk) * SUM(rad%gradis,2) * &
-         canopy%fwet  ! YP nov2009
+    !print *, "jh:REAL(ecy+hcy)      ", REAL(ecy+hcy)
+    !print *, "jh:SUM(rad%rniso,2)  ", SUM(rad%rniso,2)
+    !print *, "jh:airair_term     ", air_term 
+    !print *, "jh:canopy%fevw ", canopy%fevw
+    !print *, "jh:canopy%fhvw ", canopy%fhvw
+    !print *, "jh:canopy%fwet ", canopy%fwet 
+    bal%wetbal = (canopy%fevw + canopy%fhvw) - SUM(rad%rniso,2) * canopy%fwet &
+         + air_term * canopy%fwet 
+         
 
     DEALLOCATE(cansat,gbhu)
     DEALLOCATE(dsx, fwsoil, tlfx, tlfy)
@@ -1381,7 +1390,7 @@ CONTAINS
             ghrwet(j) = sum_rad_gradis(j) + real(ghwet(j))
 
             ! Calculate fraction of canopy which is wet:
-            canopy%fwet(j) = MAX( 0.0, MIN( 1.0, &
+            canopy%fwet(j) = MAX( 1.0e-20, MIN( 1.0, &
                  0.8 * canopy%cansto(j) / MAX( cansat(j), 0.01 ) ) )
 
             ! Calculate lat heat from wet canopy, may be neg. if dew on wet canopy
@@ -1459,7 +1468,7 @@ CONTAINS
     canopy%cansto = canopy%cansto + canopy%wcint
 
     ! Calculate fraction of canopy which is wet:
-    canopy%fwet   = MAX( 0.0, MIN( 0.9, 0.8 * canopy%cansto / &
+    canopy%fwet   = MAX( 1.0e-20, MIN( 0.9, 0.8 * canopy%cansto / &
          MAX( cansat, 0.01 ) ) )
 
     ssnow%wetfac = MAX( 1.e-6, MIN( 1.0, &
@@ -1775,7 +1784,7 @@ CONTAINS
              ghrwet(i) = sum_rad_gradis(i) + real(ghwet(i))
 
              ! Calculate fraction of canopy which is wet:
-             canopy%fwet(i) = MAX( 0.0, MIN( 1.0, 0.8 * canopy%cansto(i)/ MAX( &
+             canopy%fwet(i) = MAX( 1.0e-20, MIN( 1.0, 0.8 * canopy%cansto(i)/ MAX( &
                   cansat(i),0.01 ) ) )
 
              ! Calculate lat heat from wet canopy, may be neg.
