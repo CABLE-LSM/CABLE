@@ -75,10 +75,12 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
         intel)
             module add intel-compiler/2019.5.281
             compiler_lib_install_dir=Intel
+            [[ -n $mpi ]] && module add intel-mpi/2019.5.281
             ;;
         gnu)
             module add gcc/13.2.0
             compiler_lib_install_dir=GNU
+            [[ -n $mpi ]] && module add openmpi/4.1.4
             ;;
         ?*)
             echo -e "\nError: compiler ${compiler} is not supported.\n"
@@ -88,10 +90,6 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
     # This is required so that the netcdf-fortran library is discoverable by
     # pkg-config:
     prepend_path PKG_CONFIG_PATH "${NETCDF_BASE}/lib/${compiler_lib_install_dir}/pkgconfig"
-
-    if [[ -n $mpi ]]; then
-        module add intel-mpi/2019.5.281
-    fi
 
     if module is-loaded openmpi; then
         # This is required so that the openmpi MPI libraries are discoverable
