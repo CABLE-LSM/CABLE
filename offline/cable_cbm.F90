@@ -171,7 +171,7 @@ ssnow%otss = ssnow%tss
 ssnow%owetfac = ssnow%wetfac
 
    ! Calculate canopy variables
-   CALL define_canopy(bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate)
+CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate, sunlit_veg_mask )
 
     IF (cable_user%SOIL_STRUC=='default') THEN
        call soil_snow(dels, soil, ssnow, canopy, met, veg)
