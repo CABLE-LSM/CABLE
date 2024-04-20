@@ -272,7 +272,7 @@ PROGRAM cable_offline_driver
        soilTtemp
 
   ! timing
-  real :: atime0, atime, etime ! Declare the type of etime(), For receiving user and system time, total time
+  real:: etime ! Declare the type of etime(), For receiving user and system time, total time
 
   !___ unique unit/file identifiers for cable_diag: arbitrarily 5 here
   integer :: iDiagZero=0
@@ -510,12 +510,12 @@ PROGRAM cable_offline_driver
   ! YearEnd   = CABLE_USER%YearEnd
   ! cable_user%CASA_SPIN_ENDYEAR
 
-  call CPU_time(atime0)
   SPINLOOP: do while (SPINon)
 
      NREP: do RRRR=1, NRRRR
 
         if (trim(cable_user%MetType) == "bios") then
+           call CPU_time(etime)
            call cable_bios_init(dels,curyear,met,kend,ktauday)
            koffset   = 0
            leaps = .true.
@@ -529,7 +529,6 @@ PROGRAM cable_offline_driver
         write(*,*) "CABLE_USER%YearStart,  CABLE_USER%YearEnd", CABLE_USER%YearStart,  CABLE_USER%YearEnd
 
         YEAR: do YYYY=CABLE_USER%YearStart,  CABLE_USER%YearEnd
-           call CPU_time(atime)
 
            CurYear = YYYY
            if (leaps .and. IS_LEAPYEAR(YYYY)) then
@@ -572,6 +571,7 @@ PROGRAM cable_offline_driver
            else if (trim(cable_user%MetType) == 'plume') then
               ! PLUME experiment setup using WATCH
               if (CALL1) then
+                 call cpu_time(etime)
                  call plume_mip_init( plume )
                  dels      = PLUME%dt
                  koffset   = 0
@@ -594,6 +594,7 @@ PROGRAM cable_offline_driver
            else if (trim(cable_user%MetType) == 'cru') then
               ! TRENDY experiment using CRU-NCEP
               if (CALL1) then
+                 call cpu_time(etime)
                  call cru_init(cru)
                  dels         = cru%dtsecs
                  koffset      = 0
@@ -621,6 +622,7 @@ PROGRAM cable_offline_driver
            else if (trim(cable_user%MetType) == 'site') then
               ! site experiment eg AmazonFace (spinup or transient run type)
               if (CALL1) then
+                 call cpu_time(etime)
                  call site_init(site)
                  write(str1,'(i4)') CurYear
                  str1 = adjustl(str1)
@@ -744,7 +746,7 @@ PROGRAM cable_offline_driver
               !    where (veg%iveg(:) .ge. 14) casamet%glai = 0.0_r_2
               ! end if
               if ((trim(cable_user%MetType) == 'cru') .and. (icycle > 0)) then
-                 if (all(eq(real(casamet%glai(:)), 0.))) then
+                 if (all(real(casamet%glai(:)) == 0.)) then
                     write(*,*) 'W A R N I N G : deleted setting casamet%glai for CRU.'
                     stop 205
                  end if
@@ -1400,7 +1402,7 @@ PROGRAM cable_offline_driver
            end if
 
            call CPU_time(etime)
-           write(*,*) 'Finished. ', int(etime - atime), ' seconds needed for year'
+           write(*,*) 'Finished. ', etime, ' seconds needed for year'
 
            ! 13C - While testing
            if (cable_user%c13o2) then
@@ -1472,9 +1474,9 @@ PROGRAM cable_offline_driver
   if (cable_user%POPLUC) call close_luh2(LUC_EXPT)
 
   call cpu_time(etime)
-  write(logn,*) 'Finished. ', int(etime - atime0), ' seconds needed for total run'
+  write(logn,*) 'Finished. ', etime, ' seconds needed for ', kend,' hours'
   close(logn) ! Close log file
-  write(*,*) 'Finished. ', int(etime - atime0), ' seconds needed for total run'
+  write(*,*) 'Finished. ', etime, ' seconds needed for ', kend,' hours'
 
 END PROGRAM cable_offline_driver
 

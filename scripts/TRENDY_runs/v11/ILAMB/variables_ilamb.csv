@@ -1,9 +1,0 @@
-variable_ilamb,variable_trendy,startyear,endyear,unit_conversion,notes
-biomass,cVeg,2000,2001,,
-gpp,gpp,1982,2008,,FLUXNET2015 goes until 2014
-lai,lai,1982,2010,,MODIS from 2000 - 2005 and AVH15C1 from 1982 - 2018
-nee,derive,1982,2008,,same as GPP
-reco,derive,1982,2008,,same as GPP
-cSoilAbove1m,cSoil,2000,2000,,model Soil C for the whole soil column
-et,evapotrans,1980,2018,,DOLCE: hfls renamed to et
-mrro,mrro,1980,2020,,Dai: variable runoff renamed to mrro
