@@ -48,7 +48,7 @@ MODULE cable_input_module
    USE POPLUC_Types,            Only: POPLUC_TYPE
    USE cable_param_module
    USE cable_checks_module,     ONLY: ranges, rh_sh
-   USE cable_radiation_module,  ONLY: sinbet
+   USE cbl_sinbet_mod,  ONLY: sinbet
    USE cable_IO_vars_module
    USE cable_read_module,       ONLY: readpar
    USE cable_init_module

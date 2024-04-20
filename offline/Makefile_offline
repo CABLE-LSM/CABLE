@@ -62,6 +62,7 @@ roughnessHGT_effLAI_cbl.F90   \
 cbl_init_radiation.F90				\
 cbl_rhoch.F90									\
 cbl_spitter.F90							  \
+cbl_sinbet.F90							  \
 cbl_albedo.F90 	              \
 cbl_snow_albedo.F90 	        \
 cbl_soilColour_albedo.F90 		\
@@ -130,8 +131,8 @@ cbl_soilColour_albedo.o: cbl_soilColour_albedo.F90
 ##radiation
 cbl_rhoch.o: cbl_rhoch.F90
 cbl_spitter.o: cbl_spitter.F90
-#cbl_sinbet.o: cbl_sinbet.F90 cable_maths_constants_mod.o
-##cbl_radiation.o: cbl_radiation.F90 cable_define_types.o cable_common.o cbl_init_radiation.o cable_phys_constants_mod.o
+cbl_sinbet.o: cbl_sinbet.F90 cable_maths_constants_mod.o
+#cbl_radiation.o: cbl_radiation.F90 cable_define_types.o cable_common.o cbl_init_radiation.o cable_phys_constants_mod.o
 cbl_init_radiation.o: cbl_init_radiation.F90 cable_other_constants_mod.o cable_maths_constants_mod.o cable_define_types.o cbl_spitter.o cbl_rhoch.o cable_common.o
 
 #soilsnow
@@ -165,7 +166,7 @@ cable_initialise.o: cable_initialise.F90 cable_read.o cable_iovars.o cable_abort
 
 cable_write.o: cable_write.F90 cable_iovars.o cable_abort.o cable_define_types.o 
 
-cable_input.o: cable_input.F90 POP.o cable_checks.o cable_abort.o cable_read.o cable_initialise.o cable_radiation.o \
+cable_input.o: cable_input.F90 POP.o cable_checks.o cable_abort.o cable_read.o cable_initialise.o cbl_sinbet.o \
 	       cable_parameters.o cable_common.o cable_LUC_EXPT.o POPLUC.o \
 	       simfire.o blaze.o cable_c13o2_def.o cable_c13o2.o casa_inout.o pop_io.o
 
