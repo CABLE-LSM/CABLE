@@ -1635,14 +1635,16 @@ CONTAINS
                 ! the remaining SW in the layer
                 ssnow%wb(:,k) = ssnow%wb(:,k) - supply(:,k) / &
                                  (soil%zse(k)*C%density_liq)
-                supply(:,k) = difference
+                !supply(:,k) = difference
+                supply(:,k) = 0  ! zihan 21/04/2024
              ELSEWHERE
                 ! We have sufficent water to supply demand, extract needed SW
                 ! from the layer
                 ssnow%wb(:,k) = ssnow%wb(:,k) - demand / &
                                  (soil%zse(k)*C%density_liq)
 
-                supply(:,k) = 0.0
+                !supply(:,k) = 0.0
+               supply(:,k) = difference  ! zihan 21/04/2024
              ENDWHERE
 
           END WHERE   !fvec > 0
