@@ -512,13 +512,19 @@ host_logi()
         fi
     done
     if [[ ${iintel} -eq 1 ]] ;  then
-        # INTEL
-        module load intel-oneapi-compilers/2023.1.0/gcc@11.2.0-57kkzxu
-        module load netcdf-c/4.9.2/oneapi@2023.0.0-2rbrj54
-        module load netcdf-fortran/4.6.0/oneapi@2023.0.0-n24bykw
+        # # INTEL - curta
+        # module load intel-oneapi-compilers/2023.1.0/gcc@11.2.0-57kkzxu
+        # module load netcdf-c/4.9.2/oneapi@2023.0.0-2rbrj54
+        # module load netcdf-fortran/4.6.0/oneapi@2023.0.0-n24bykw
+	# module load gcc/11.2.0
+        # INTEL - curta2
+        module load intel-oneapi-compilers/2023.1.0/gcc@11.2.0-rex53zv
+        module load netcdf-c/4.9.2/oneapi@2023.0.0-eyrwrda
+        module load netcdf-fortran/4.6.0/oneapi@2023.0.0-2jxietz
 	module load gcc/11.2.0
-	# Does not work with the following error:
-	#     ifort: /lib64/libstdc++.so.6: version `GLIBCXX_3.4.21' not found (required by ifort)
+	# # Does not work on curta with the following error:
+	# #     ifort: /lib64/libstdc++.so.6: version `GLIBCXX_3.4.21' not found (required by ifort)
+	# # Does not work on curta2 because compiler/intel/2020.4.304 does not exist
 	# module load compiler/intel/2020.4.304
 	# module load netcdf-intel
 	# module load netcdf-fortran-intel
@@ -534,13 +540,6 @@ host_logi()
             export LDFLAGS="-O0"
             OPTFLAG=
         fi
-        # OPTFLAG="${CFLAGS} -march=broadwell"     # std / hf
-        # OPTFLAG="${CFLAGS} -march=core-avx2"     # std / hf
-        # OPTFLAG="${CFLAGS} -mtune=broadwell"     # std / hf
-        # OPTFLAG="${CFLAGS} -march=skylake-avx512 # sky
-        # OPTFLAG="${CFLAGS} -march=ivybridge"     # ivy / k20
-        # OPTFLAG="${CFLAGS} -march=avx"           # ivy / k20
-        # OPTFLAG="${CFLAGS} -mtune=ivybridge"     # ivy / k20
         export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
         export LD=""
 	NCCFLAGS=`pkg-config --cflags netcdf`
