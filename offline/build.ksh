@@ -10,9 +10,9 @@ fi
 known_hosts()
 {
     if [ -z ${PS3} ] ; then
-        kh=(kh gadi pear mcin mc16 mcmi zlle vm_o logi auro)
+        kh=(kh gadi pear mcin mc16 mcmi zlle vm_o logi auro bioc)
     else
-        set -A kh gadi pear mcin mc16 mcmi zlle vm_o logi auro
+        set -A kh gadi pear mcin mc16 mcmi zlle vm_o logi auro bioc
     fi
 }
 
@@ -688,6 +688,56 @@ host_zlle()
     export NCMOD=${NCROOT}"/include"
     export LDFLAGS="-Wl,-Bsymbolic-functions -flto=auto -ffat-lto-objects -Wl,-z,relro -Wl,-z,now "${LDFLAGS}
     export LD="-L${NCLIB} -lnetcdff -L${NCCLIB} -lnetcdf -lm"
+    export dosvn=0
+    export MFLAGS="-j 8"
+    build_build
+    cd ../
+    build_status
+}
+
+
+## biocomp
+host_bioc()
+{
+    idebug=0
+    np=$#
+    for ((i=0; i<${np}; i++)) ; do
+        if [[ "${1}" == "debug" ]] ; then
+            idebug=1
+            shift 1
+        else
+            echo "Error: command line option not known: " ${1}
+            exit 1
+        fi
+    done
+    #
+    eval "$(${HOME}/miniconda3/bin/conda 'shell.bash' 'hook' 2> /dev/null)"
+    conda activate pystd
+    #
+    export FC=gfortran
+    # release
+    export CFLAGS="-cpp -O3 -Wno-aggressive-loop-optimizations -ffree-form -ffixed-line-length-132"
+    export LDFLAGS="-O3"
+    OPTFLAG="-march=native"
+    if [[ ${idebug} -eq 1 ]] ; then
+        # debug
+        export CFLAGS="-cpp -O -g -pedantic-errors -Wall -W -Wno-maybe-uninitialized -ffree-form -ffixed-line-length-132 -fbacktrace -ffpe-trap=zero,overflow -finit-real=nan" #  -ffpe-trap=zero,overflow,underflow
+        export LDFLAGS="-O"
+        OPTFLAG=
+    fi
+    export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__" # -pg # gprof --line ./cable gmon.out
+    export CFLAGS="${CFLAGS} ${OPTFLAG}"
+    # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
+    export CFLAGS="${CFLAGS} -D__NETCDF3__"
+    #
+    export LD=""
+    export NCCROOT="${HOME}/miniconda3/envs/pystd"
+    export NCROOT="${HOME}/miniconda3/envs/pystd"
+    # export LDFLAGS="-lmfhdf -ldf -lhdf5_hl -lhdf5 -lcrypto -lcurl -lpthread -lsz -lz -ldl -lm -lzip -lblosc -lzstd -lbz2 -lxml2 ${LDFLAGS}"
+    export NCCLIB=${NCCROOT}"/lib"
+    export NCLIB=${NCROOT}"/lib"
+    export NCMOD=${NCROOT}"/include"
+    export LDFLAGS="-L${NCCLIB} -L${NCLIB} -lnetcdff -lnetcdf "${LDFLAGS} # " -pg"
     export dosvn=0
     export MFLAGS="-j 8"
     build_build
