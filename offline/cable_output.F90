@@ -1933,8 +1933,9 @@ CONTAINS
        IF (leaps) THEN
           ! If currently a leap year:
           if (is_leapyear(CurYear)) then
-             !! vh_js !!
-             IF(ANY(INT(real(lastdayl+dday) * 24. * 3600. / dels) == ktau)) THEN
+             !! vh_js !! git issue #204
+             !IF(ANY(INT(real(lastdayl+dday) * 24. * 3600. / dels) == ktau)) THEN
+             IF(ANY(NINT(real(lastdayl+dday) * 24. * 3600. / dels) == ktau)) THEN
                 out_month = MOD(out_month, 12) + 1 ! can only be 1 - 12
                 ! write to output file this time step
                 writenow = .TRUE.
@@ -1947,8 +1948,8 @@ CONTAINS
              END IF
           ELSE ! not currently a leap year
              ! last time step of month
-             !! vh_js !!
-             IF(ANY(INT(real(lastday+dday) * 24. * 3600. / dels) == ktau)) THEN
+             !! vh_js !! git issue #204
+             IF(ANY(NINT(real(lastday+dday) * 24. * 3600. / dels) == ktau)) THEN
                 ! increment output month counter
                 out_month = MOD(out_month, 12) + 1 ! can only be 1 - 12
                 ! write to output file this time step
@@ -1964,8 +1965,8 @@ CONTAINS
           END IF
        ELSE ! not using leap year timing in this run
 
-          !! vh_js !!
-          IF(ANY(INT((real((lastday+dday))*24.*3600./real(INT(dels))))==ktau)) THEN ! last time step of month
+          !! vh_js !! !!changed see above and git issue #204
+          IF(ANY(NINT(real(lastday+dday)*24.*3600./dels) == ktau)) THEN ! last time step of month
              ! IF(ANY(((lastday+dday)*24*3600/INT(dels))==ktau)) THEN ! last time step of month
              ! increment output month counter
              out_month = MOD(out_month, 12) + 1 ! can only be 1 - 12
@@ -3434,7 +3435,9 @@ CONTAINS
 
     ! plant carbon [kg C m-2]
     IF (output%casa) THEN
-       out%TotSoilCarb = out%TotSoilCarb + toreal4((SUM(casapool%csoil,2)+SUM(casapool%clitter,2)) / 1000.0_r_2)
+       !out%TotSoilCarb = out%TotSoilCarb + toreal4((SUM(casapool%csoil,2)+SUM(casapool%clitter,2)) / 1000.0_r_2)
+       !litter not counted in TotalSoilCarbon JK 18/9/2023
+       out%TotSoilCarb = out%TotSoilCarb + toreal4(SUM(casapool%csoil,2) / 1000.0_r_2)
        IF (writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%TotSoilCarb = out%TotSoilCarb * rinterval

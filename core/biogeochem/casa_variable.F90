@@ -232,6 +232,7 @@ MODULE casavariable
           fracClabile => null(), &
           !! vh_js !! the 3 variables below are needed for POP coupling to CASA
           stemnpp => null(), &
+          potstemnpp => null(), &
           frac_sapwood => null(), &
           sapwood_area => null(), &
           Charvest => null(), &  ! leaf biomass removed due to crop or pasture management
@@ -645,6 +646,7 @@ Contains
          casaflux%fromLtoCO2(arraysize,mlitter),       &
          casaflux%fromStoCO2(arraysize,msoil),         &
          casaflux%stemnpp(arraysize),                  &
+         casaflux%potstemnpp(arraysize),               &
          casaflux%frac_sapwood(arraysize),             &
          casaflux%sapwood_area(arraysize), &
          casaflux%fharvest(arraysize), &
@@ -1132,6 +1134,7 @@ Contains
     casaflux%fromLtoCO2   = 0.0_r_2
     casaflux%fromStoCO2   = 0.0_r_2
     casaflux%stemnpp      = 0.0_r_2
+    casaflux%potstemnpp   = 0.0_r_2
     casaflux%frac_sapwood = 0.0_r_2
     casaflux%sapwood_area = 0.0_r_2
     casaflux%fharvest     = 0.0_r_2
@@ -1463,6 +1466,7 @@ Contains
     write(*,*) 'fromLtoCO2 ', casaflux%fromLtoCO2
     write(*,*) 'fromStoCO2 ', casaflux%fromStoCO2
     write(*,*) 'stemnpp ', casaflux%stemnpp
+    write(*,*) 'potstemnpp', casaflux%potstemnpp
     write(*,*) 'frac_sapwood ', casaflux%frac_sapwood
     write(*,*) 'sapwood_area ', casaflux%sapwood_area
     write(*,*) 'fharvest ', casaflux%fharvest
@@ -1872,6 +1876,7 @@ Contains
        sum_casaflux%fromLtoCO2      = sum_casaflux%fromLtoCO2      + casaflux%fromLtoCO2
        sum_casaflux%fromStoCO2      = sum_casaflux%fromStoCO2      + casaflux%fromStoCO2
        sum_casaflux%stemnpp         = sum_casaflux%stemnpp         + casaflux%stemnpp
+       sum_casaflux%potstemnpp      = sum_casaflux%stemnpp         + casaflux%potstemnpp
        sum_casaflux%frac_sapwood    = sum_casaflux%frac_sapwood    + casaflux%frac_sapwood
        sum_casaflux%sapwood_area    = sum_casaflux%sapwood_area    + casaflux%sapwood_area
        sum_casaflux%Cplant_turnover = &
@@ -2026,6 +2031,7 @@ Contains
        sum_casaflux%fromLtoCO2   = sum_casaflux%fromLtoCO2   * rnsteps
        sum_casaflux%fromStoCO2   = sum_casaflux%fromStoCO2   * rnsteps
        sum_casaflux%stemnpp      = sum_casaflux%stemnpp      * rnsteps
+       sum_casaflux%potstemnpp   = sum_casaflux%potstemnpp   * rnsteps
        sum_casaflux%frac_sapwood = sum_casaflux%frac_sapwood * rnsteps
        sum_casaflux%sapwood_area = sum_casaflux%sapwood_area * rnsteps
        sum_casaflux%Cplant_turnover = &
