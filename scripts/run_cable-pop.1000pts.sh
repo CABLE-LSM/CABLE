@@ -99,7 +99,7 @@ nproc=48  # Number of cores for MPI runs
 #         N deposition from 1700, and 30 years of repeated meteorology.
 #      b) Run from 1700 to 1899 with dynmic land use, varying atmospheric CO2 and N deposition,
 #         but still with 30 years of repeated meteorology.
-#   6. Final historical run, everything dynamic from 1900 to 2022.
+#   6. Final historical run, everything dynamic from 1900 to 2017.
 #   7. Future run, everything dynamic (not all met types).
 #
 # Written,  Matthias Cuntz, Aug 2019, following the run scripts and namelists provided by Vanessa Haverd
@@ -140,7 +140,7 @@ doextractsite=0 # 0: Do not extract local meteo, land use nor mask
                 # 1: Do extract only mask at specific site/region (imeteo=1)
                 # 2: Do extract meteo, land use and mask at specific site/region (imeteo=2)
                 #    Does not work with randompoints /= 0 but with latlon
-    experiment=new1000ptsmpi_off
+    experiment=new1000ptsmpi_on
     randompoints=0   # <0: use -1*randompoints from file ${LandMaskFilePath}/${experiment}_points.csv if existing
                      # 0:  use latlon
                      # >0: generate and use randompoints random grid points from GlobalLandMaskFile
@@ -151,21 +151,21 @@ doextractsite=0 # 0: Do not extract local meteo, land use nor mask
     # latlon=-44.0,-10.0,110.0,155.0  # Australia
 
 # Step 1
-doclimate=1     # 1/0: Do/Do not create climate restart file
+doclimate=0     # 1/0: Do/Do not create climate restart file
 # Step 2
-dofromzero=1    # 1/0: Do/Do not first spinup phase from zero biomass stocks
+dofromzero=0    # 1/0: Do/Do not first spinup phase from zero biomass stocks
 # Step 3
-doequi1=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
-nequi1=0       #      number of times to repeat steps in doequi1
+doequi1=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
+nequi1=4       #      number of times to repeat steps in doequi1
 # Step 4
-doequi2=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
+doequi2=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
 nequi2=4        #      number of times to repeat steps in doequi2
 # Step 5a
 doiniluc=0      # 1/0: Do/Do not spinup with dynamic land use (5a)
 # Step 5b
-doinidyn=0      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
+doinidyn=1      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
 # Step 6
-dofinal=0       # 1/0: Do/Do not final run from 1900 to 2022
+dofinal=1       # 1/0: Do/Do not final run from 1900 to 2022
 # Step 7
 dofuture=0      # 1/0: Do/Do not future runs (plume only)
 
@@ -1164,7 +1164,7 @@ cat > ${tmp}/sedtmp.${pid} << EOF
     cable_user%c13o2_restart_out_pools = "restart/${mettype}_c13o2_pools_rst.nc"
     cable_user%c13o2_restart_in_luc    = "restart/${mettype}_c13o2_luc_rst.nc"
     cable_user%c13o2_restart_out_luc   = "restart/${mettype}_c13o2_luc_rst.nc"
-    cable_user%CALL_BLAZE              = .false.
+    cable_user%CALL_BLAZE              = .true.
 EOF
 if [[ ${call_pop} -eq 1 ]] ; then
     sed -i -e "/cable_user%CALL_POP/s/=.*/= .true./" ${tmp}/sedtmp.${pid}
@@ -1363,8 +1363,8 @@ EOF
         #MCTEST
         cat > ${tmp}/sedtmp.${pid} << EOF
             cable_user%CLIMATE_fromZero    = .false.
-            cable_user%YearStart           = 1840
-            cable_user%YearEnd             = 1859
+            cable_user%YearStart           = 1860
+            cable_user%YearEnd             = 1889
             icycle                         = 2
             spincasa                       = .false.
             cable_user%CASA_fromZero       = .false.
@@ -1377,7 +1377,6 @@ EOF
             cable_user%POP_out             = "ini"
             cable_user%POPLUC              = .true.
             cable_user%POPLUC_RunType      = "static"
-            cable_user%YearEnd             = 1840
 EOF
         applysed ${tmp}/sedtmp.${pid} ${rdir}/cable_${experiment}.nml ${rdir}/cable.nml
         # run model
@@ -1425,15 +1424,15 @@ EOF
         #MCTEST
         cat > ${tmp}/sedtmp.${pid} << EOF
             cable_user%CLIMATE_fromZero    = .false.
-            cable_user%YearStart           = 1840
-            cable_user%YearEnd             = 1859
+            cable_user%YearStart           = 1860
+            cable_user%YearEnd             = 1889
             icycle                         = 12
             spincasa                       = .true.
             cable_user%CASA_fromZero       = .false.
             cable_user%CASA_DUMP_READ      = .true.
             cable_user%CASA_DUMP_WRITE     = .false.
-            cable_user%CASA_SPIN_STARTYEAR = 1840
-            cable_user%CASA_SPIN_ENDYEAR   = 1859
+            cable_user%CASA_SPIN_STARTYEAR = 1860
+            cable_user%CASA_SPIN_ENDYEAR   = 1869
             cable_user%limit_labile        = .true.
             cable_user%POP_fromZero        = .false.
             cable_user%POP_out             = "ini"
@@ -1496,8 +1495,8 @@ EOF
         #MCTEST
         cat > ${tmp}/sedtmp.${pid} << EOF
             cable_user%CLIMATE_fromZero    = .false.
-            cable_user%YearStart           = 1840
-            cable_user%YearEnd             = 1859
+            cable_user%YearStart           = 1860
+            cable_user%YearEnd             = 1889
             icycle                         = 2
             spincasa                       = .false.
             cable_user%CASA_fromZero       = .false.
@@ -1557,15 +1556,15 @@ EOF
         #MCTEST
         cat > ${tmp}/sedtmp.${pid} << EOF
             cable_user%CLIMATE_fromZero    = .false.
-            cable_user%YearStart           = 1840
-            cable_user%YearEnd             = 1859
+            cable_user%YearStart           = 1860
+            cable_user%YearEnd             = 1889
             icycle                         = 12
             spincasa                       = .true.
             cable_user%CASA_fromZero       = .false.
             cable_user%CASA_DUMP_READ      = .true.
             cable_user%CASA_DUMP_WRITE     = .false.
-            cable_user%CASA_SPIN_STARTYEAR = 1840
-            cable_user%CASA_SPIN_ENDYEAR   = 1859
+            cable_user%CASA_SPIN_STARTYEAR = 1860
+            cable_user%CASA_SPIN_ENDYEAR   = 1869
             cable_user%limit_labile        = .false.
             cable_user%POP_fromZero        = .false.
             cable_user%POP_out             = "ini"
@@ -1641,8 +1640,8 @@ EOF
         cable_user%CASA_fromZero        = .false.
         cable_user%CASA_DUMP_READ       = .true.
         cable_user%CASA_DUMP_WRITE      = .false.
-        cable_user%CASA_SPIN_STARTYEAR  = 1840
-        cable_user%CASA_SPIN_ENDYEAR    = 1859
+        cable_user%CASA_SPIN_STARTYEAR  = 1860
+        cable_user%CASA_SPIN_ENDYEAR    = 1869
         cable_user%limit_labile         = .false.
         cable_user%POP_fromZero         = .false.
         cable_user%POP_out              = "ini"
@@ -1725,8 +1724,8 @@ EOF
         cable_user%CASA_fromZero       = .false.
         cable_user%CASA_DUMP_READ      = .false.
         cable_user%CASA_DUMP_WRITE     = .false.
-        cable_user%CASA_SPIN_STARTYEAR = 1850
-        cable_user%CASA_SPIN_ENDYEAR   = 1859
+        cable_user%CASA_SPIN_STARTYEAR = 1860
+        cable_user%CASA_SPIN_ENDYEAR   = 1869
         cable_user%limit_labile        = .false.
         cable_user%POP_fromZero        = .false.
         cable_user%POP_out             = "ini"
@@ -1810,8 +1809,8 @@ EOF
         cable_user%CASA_fromZero       = .false.
         cable_user%CASA_DUMP_READ      = .false.
         cable_user%CASA_DUMP_WRITE     = .false.
-        cable_user%CASA_SPIN_STARTYEAR = 1850
-        cable_user%CASA_SPIN_ENDYEAR   = 1859
+        cable_user%CASA_SPIN_STARTYEAR = 1860
+        cable_user%CASA_SPIN_ENDYEAR   = 1869
         cable_user%limit_labile        = .false.
         cable_user%POP_fromZero        = .false.
         cable_user%POP_out             = "ini"
@@ -1883,8 +1882,8 @@ EOF
         cable_user%CASA_fromZero       = .false.
         cable_user%CASA_DUMP_READ      = .false.
         cable_user%CASA_DUMP_WRITE     = .false.
-        cable_user%CASA_SPIN_STARTYEAR = 1850
-        cable_user%CASA_SPIN_ENDYEAR   = 1851
+        cable_user%CASA_SPIN_STARTYEAR = 1860
+        cable_user%CASA_SPIN_ENDYEAR   = 1869
         cable_user%limit_labile        = .false.
         cable_user%POP_fromZero        = .false.
         cable_user%POP_out             = "ini"
