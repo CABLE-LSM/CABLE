@@ -42,7 +42,7 @@
 # Typical for global or Aust continent at 0.25, 192 GB memory and 48 cpus,
 # maybe 12 hours walltime
 # Typical for small runs, fewer cpus than pixels
-#PBS -l walltime=02:00:00
+#PBS -l walltime=04:00:00
 #PBS -l mem=48GB
 #PBS -l ncpus=48
 # #PBS -l jobfs=1GB
@@ -140,7 +140,7 @@ doextractsite=0 # 0: Do not extract local meteo, land use nor mask
                 # 1: Do extract only mask at specific site/region (imeteo=1)
                 # 2: Do extract meteo, land use and mask at specific site/region (imeteo=2)
                 #    Does not work with randompoints /= 0 but with latlon
-    experiment=new1000ptsmpi_on
+    experiment=new1000ptsmpi_off
     randompoints=0   # <0: use -1*randompoints from file ${LandMaskFilePath}/${experiment}_points.csv if existing
                      # 0:  use latlon
                      # >0: generate and use randompoints random grid points from GlobalLandMaskFile
@@ -151,9 +151,9 @@ doextractsite=0 # 0: Do not extract local meteo, land use nor mask
     # latlon=-44.0,-10.0,110.0,155.0  # Australia
 
 # Step 1
-doclimate=0     # 1/0: Do/Do not create climate restart file
+doclimate=1     # 1/0: Do/Do not create climate restart file
 # Step 2
-dofromzero=0    # 1/0: Do/Do not first spinup phase from zero biomass stocks
+dofromzero=1    # 1/0: Do/Do not first spinup phase from zero biomass stocks
 # Step 3
 doequi1=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
 nequi1=4       #      number of times to repeat steps in doequi1
@@ -1164,7 +1164,7 @@ cat > ${tmp}/sedtmp.${pid} << EOF
     cable_user%c13o2_restart_out_pools = "restart/${mettype}_c13o2_pools_rst.nc"
     cable_user%c13o2_restart_in_luc    = "restart/${mettype}_c13o2_luc_rst.nc"
     cable_user%c13o2_restart_out_luc   = "restart/${mettype}_c13o2_luc_rst.nc"
-    cable_user%CALL_BLAZE              = .true.
+    cable_user%CALL_BLAZE              = .false.
 EOF
 if [[ ${call_pop} -eq 1 ]] ; then
     sed -i -e "/cable_user%CALL_POP/s/=.*/= .true./" ${tmp}/sedtmp.${pid}
@@ -1730,7 +1730,7 @@ EOF
         cable_user%POP_fromZero        = .false.
         cable_user%POP_out             = "ini"
         cable_user%POPLUC              = .true.
-        cable_user%POPLUC_RunType      = "restart"
+        cable_user%POPLUC_RunType      = "static"
 EOF
     applysed ${tmp}/sedtmp.${pid} ${rdir}/cable_${experiment}.nml ${rdir}/cable.nml
     # run model
@@ -1815,7 +1815,7 @@ EOF
         cable_user%POP_fromZero        = .false.
         cable_user%POP_out             = "ini"
         cable_user%POPLUC              = .true.
-        cable_user%POPLUC_RunType      = "restart"
+        cable_user%POPLUC_RunType      = "static"
 EOF
     applysed ${tmp}/sedtmp.${pid} ${rdir}/cable_${experiment}.nml ${rdir}/cable.nml
     # run model

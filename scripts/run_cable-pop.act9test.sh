@@ -155,17 +155,17 @@ doclimate=1     # 1/0: Do/Do not create climate restart file
 # Step 2
 dofromzero=1    # 1/0: Do/Do not first spinup phase from zero biomass stocks
 # Step 3
-doequi1=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
-nequi1=0       #      number of times to repeat steps in doequi1
+doequi1=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
+nequi1=4       #      number of times to repeat steps in doequi1
 # Step 4
-doequi2=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
+doequi2=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
 nequi2=4        #      number of times to repeat steps in doequi2
 # Step 5a
 doiniluc=0      # 1/0: Do/Do not spinup with dynamic land use (5a)
 # Step 5b
-doinidyn=0      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
+doinidyn=1      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
 # Step 6
-dofinal=0       # 1/0: Do/Do not final run from 1900 to 2017
+dofinal=1       # 1/0: Do/Do not final run from 1900 to 2017
 # Step 7
 dofuture=0      # 1/0: Do/Do not future runs (plume only)
 
@@ -1728,7 +1728,7 @@ EOF
         cable_user%POP_fromZero        = .false.
         cable_user%POP_out             = "ini"
         cable_user%POPLUC              = .true.
-        cable_user%POPLUC_RunType      = "restart"
+        cable_user%POPLUC_RunType      = "static"
 EOF
     applysed ${tmp}/sedtmp.${pid} ${rdir}/cable_${experiment}.nml ${rdir}/cable.nml
     # run model
@@ -1813,7 +1813,7 @@ EOF
         cable_user%POP_fromZero        = .false.
         cable_user%POP_out             = "ini"
         cable_user%POPLUC              = .true.
-        cable_user%POPLUC_RunType      = "restart"
+        cable_user%POPLUC_RunType      = "static"
 EOF
     applysed ${tmp}/sedtmp.${pid} ${rdir}/cable_${experiment}.nml ${rdir}/cable.nml
     # run model
