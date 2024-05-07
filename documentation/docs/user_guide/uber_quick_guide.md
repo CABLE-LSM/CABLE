@@ -13,7 +13,8 @@ Assuming you have computing resources on gadi@NCI, installing and running CABLE 
 
 1. Execute this serial version of CABLE
 
-        ./bin/cable
+        cd src/offline
+        ../../bin/cable
 
 ## In slightly more detail
 
