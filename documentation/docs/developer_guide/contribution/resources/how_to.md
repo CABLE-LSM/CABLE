@@ -81,11 +81,55 @@ Once you push at least one commit to a new branch, you can create a pull request
       ![how describe pr](../../../assets/describe_pr.png){ width="90%", align=right }
     </figure>
 
-## Ask a review
+## Review
+
+### Ask for a review
 
 To ask for a review, on the pull request screen, click on the Reviewers menu or its cog icon and choose the `CABLE-LSM/reviewers` team:
     <figure markdown>
       ![how request review](../../../assets/request_review.png){ width="90%", align=right }
     </figure>
 
+### Understand a review
+
+Reviewers can either leave comments or suggestions during the review. All of these need to be resolved to finish the current review.
+
+#### Suggestions from the reviewer
+
+A reviewer can directly suggest a specific code change. These suggestions appear like this:
+    <figure markdown>
+       ![how review suggestion](../../../assets/review-suggestion.png)
+    </figure>
+
+These suggestions can be directly applied within GitHub without requiring the author to copy them to their own local branch. It is easier to:
+
+- first apply the suggestions you agree with via GitHub
+- then update your local branch with `git pull`
+- apply other changes required by the review locally to the branch
+- and finally push the fully revised version to GitHub (`git push`)
+
+#### Comments from the reviewer
+
+These comments can be:
+
+- generic to the whole set of changes
+- attached to a specific file
+- or attached to a specific set of modified lines in a file
+
+Comments to a specific set of lines look like this:
+    <figure markdown>
+       ![how review comment](../../../assets/review-comment.png)
+    </figure>
+
+It shows the specific lines commented on and the comment from the reviewer and it allows to reply to that specific comment.
+
+### Request a re-review
+
+Once you have finished addressing all the comments from the reviewer, you should ask the reviewer to re-review the pull request:
+    <figure markdown>
+       ![how re-review](../../../assets/re-review.png)
+    </figure>
+
+You will only be able to merge you work after getting approval from a reviewer.
+  
 [CABLE-repo]: https://github.com/CABLE-LSM/CABLE
