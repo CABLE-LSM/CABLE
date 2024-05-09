@@ -140,7 +140,7 @@ doextractsite=0 # 0: Do not extract local meteo, land use nor mask
                 # 1: Do extract only mask at specific site/region (imeteo=1)
                 # 2: Do extract meteo, land use and mask at specific site/region (imeteo=2)
                 #    Does not work with randompoints /= 0 but with latlon
-    experiment=newblazempi_on
+    experiment=ext_newblazempi_off
     randompoints=0   # <0: use -1*randompoints from file ${LandMaskFilePath}/${experiment}_points.csv if existing
                      # 0:  use latlon
                      # >0: generate and use randompoints random grid points from GlobalLandMaskFile
@@ -1161,7 +1161,7 @@ cat > ${tmp}/sedtmp.${pid} << EOF
     cable_user%c13o2_restart_out_pools = "restart/${mettype}_c13o2_pools_rst.nc"
     cable_user%c13o2_restart_in_luc    = "restart/${mettype}_c13o2_luc_rst.nc"
     cable_user%c13o2_restart_out_luc   = "restart/${mettype}_c13o2_luc_rst.nc"
-    cable_user%CALL_BLAZE              = .true.
+    cable_user%CALL_BLAZE              = .false.
 EOF
 if [[ ${call_pop} -eq 1 ]] ; then
     sed -i -e "/cable_user%CALL_POP/s/=.*/= .true./" ${tmp}/sedtmp.${pid}
@@ -1374,7 +1374,6 @@ EOF
             cable_user%POP_out             = "ini"
             cable_user%POPLUC              = .true.
             cable_user%POPLUC_RunType      = "static"
-            cable_user%YearEnd             = 1840
 EOF
         applysed ${tmp}/sedtmp.${pid} ${rdir}/cable_${experiment}.nml ${rdir}/cable.nml
         # run model
