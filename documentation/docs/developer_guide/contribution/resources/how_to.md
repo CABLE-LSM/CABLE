@@ -98,7 +98,7 @@ Reviewers can either leave comments or suggestions during the review. All of the
 
 A reviewer can directly suggest a specific code change. These suggestions appear like this:
     <figure markdown>
-       ![how review suggestion](../../../assets/review-suggestion.png)
+       ![how review suggestion](../../../assets/review-suggestion.png){ width="90%", align=right }
     </figure>
 
 These suggestions can be directly applied within GitHub without requiring the author to copy them to their own local branch. It is easier to:
@@ -118,7 +118,7 @@ These comments can be:
 
 Comments to a specific set of lines look like this:
     <figure markdown>
-       ![how review comment](../../../assets/review-comment.png)
+       ![how review comment](../../../assets/review-comment.png){ width="90%", align=right }
     </figure>
 
 It shows the specific lines commented on and the comment from the reviewer and it allows to reply to that specific comment.
@@ -127,7 +127,7 @@ It shows the specific lines commented on and the comment from the reviewer and i
 
 Once you have finished addressing all the comments from the reviewer, you should ask the reviewer to re-review the pull request:
     <figure markdown>
-       ![how re-review](../../../assets/re-review.png)
+       ![how re-review](../../../assets/re-review.png){ width="90%", align=right }
     </figure>
 
 You will only be able to merge you work after getting approval from a reviewer.
