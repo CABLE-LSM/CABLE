@@ -92,7 +92,7 @@ To ask for a review, on the pull request screen, click on the Reviewers menu or 
 
 ### Understand a review
 
-Reviewers can either leave comments or suggestions during the review. All of these need to be resolved to finish the current review.
+Reviewers can either leave comments or suggestions during the review. All of these need to be resolved to finish the current review. The GitHub documentation has more information about reviews, in particular around [comments on PR][github-commentPR] and how to [incorporate feedback][github-feedback]. 
 
 #### Suggestions from the reviewer
 
@@ -101,7 +101,7 @@ A reviewer can directly suggest a specific code change. These suggestions appear
        ![how review suggestion](../../../assets/review-suggestion.png){ width="90%", align=right }
     </figure>
 
-These suggestions can be directly applied within GitHub without requiring the author to copy them to their own local branch. It is easier to:
+These suggestions can be directly applied within GitHub without requiring the author to copy them to their own local branch. It is recommended to:
 
 - first apply the suggestions you agree with via GitHub
 - then update your local branch with `git pull`
@@ -133,3 +133,5 @@ Once you have finished addressing all the comments from the reviewer, you should
 You will only be able to merge you work after getting approval from a reviewer.
   
 [CABLE-repo]: https://github.com/CABLE-LSM/CABLE
+[github-commentPR]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/commenting-on-a-pull-request
+[github-feedback]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/incorporating-feedback-in-your-pull-request
