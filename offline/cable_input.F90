@@ -53,13 +53,15 @@ MODULE cable_input_module
    USE cable_read_module,       ONLY: readpar
    USE cable_init_module
    USE netcdf                   ! link must be made in cd to netcdf-x.x.x/src/f90/netcdf.mod
-   USE cable_common_module,     ONLY: filename, cable_user, CurYear, HANDLE_ERR, is_leapyear
+   USE cable_common_module,     ONLY: filename, cable_user, CurYear, HANDLE_ERR, is_leapyear, get_unit
 
    IMPLICIT NONE
 
    PRIVATE
    PUBLIC :: get_default_lai, open_met_file, close_met_file, load_parameters,      &
-       allocate_cable_vars, get_met_data, &
+       allocate_cable_vars, get_met_data, SPATIO_TEMPORAL_DATASET,&
+       prepare_spatiotemporal_dataset, open_at_first_file, find_variable_ID,&
+       read_metvals,&
        ncid_met,        &
        ncid_rain,       &
        ncid_snow,       &
@@ -135,6 +137,38 @@ MODULE cable_input_module
            Elev
    END TYPE convert_units_type
    TYPE(convert_units_type)          :: convert ! units change factors for met variables
+
+!==============================================================================
+!
+! Name: SPATIO_TEMPORAL_DATASET
+!
+! Purpose: This structure contains information about a spatially and temporally
+!         varying dataset which spans multiple files. It contains the list of
+!         filenames contained in the dataset, the start and end years of each
+!         dataset, and the index of the currently open file with the associated
+!         NetCDF file and variable ID.
+!
+!         It keeps the current file open until the reference time moves out of
+!         the range of the file, in which case it uses the list of start and end
+!         years to determine which file to open. Unfortunately we can't simply
+!         move to the next year by default, because there are multiple instances
+!         where we move backwards in time.
+!
+! Called from: cable_inputs.F90, cable_cru_TRENDY.F90
+!
+!==============================================================================
+
+TYPE SPATIO_TEMPORAL_DATASET
+  ! List of filenames in the dataset
+  CHARACTER(LEN=256), DIMENSION(:), ALLOCATABLE :: FileNames
+  ! The start and end years of each dataset
+  INTEGER, DIMENSION(:), ALLOCATABLE            :: StartYear, EndYear
+  ! List of possible variable names for the desired variable in the dataset
+  CHARACTER(LEN=16), DIMENSION(:), ALLOCATABLE  :: VarNames
+
+  ! Metadata about the currently open file
+  INTEGER :: CurrentFileID, CurrentVarId, CurrentFileIndx
+END TYPE SPATIO_TEMPORAL_DATASET
 
   !$OMP THREADPRIVATE(ok,exists)
 
@@ -2887,5 +2921,402 @@ SUBROUTINE allocate_cable_vars(air,bgc,canopy,met,bal,                         &
 
 END SUBROUTINE allocate_cable_vars
 
-END MODULE cable_input_module
 !==============================================================================
+!
+! From here are routines developed by Lachlan Whyborn as a first pass at new
+! input routines. Initially written for the purpose of running the LUC+POP
+! functionality using the ACCESS-ESM1.5 input data. The original routines for
+! reading in the Met forcing files were incredibly constrictive, containing
+! hardcoded filenames, opaque option setting and no extendability.
+!
+!==============================================================================
+
+!==============================================================================
+!
+! Name: prepare_spatiotemporal_dataset
+!
+! Purpose: Prepare a dataset that is varying both spatially and temporally and
+!         and may span over multiple files. The target is specified in the
+!         namelist by prescribing a file "template". The template is as follows:
+!
+!         -- "some/file/path/and/name-<startdate>-<enddate>.nc"
+!
+!         Where <startdate> and <enddate> are the YYYYMMDD specification of the
+!         start and end date of the specific file in the dataset.
+!         For example, rain data from 1900 to 1999 may be split into two files:
+!
+!         -- "path/to/rain/file_19000101_19491231.nc"
+!         -- "path/to/rain/file_19500101_19991231.nc"
+!
+!         The entry in the namelist would then be:
+!
+!         -- "path/to/rain/file_<startdate>_<enddate>.nc"
+!
+!         The type SPATIO_TEMPORAL_DATASET provides a consistent interface that
+!         should be usable across the code.
+!
+! Called from: cable_cru_TRENDY.F90
+!
+! Calls: get_unit
+!
+!==============================================================================
+
+SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
+  ! Prepare the met netCDF files for reading. We follow a process similar to
+  ! that of JULES to handle time series data split over multiple files, see
+  ! 6.31.2.2 at https://jules-lsm.github.io/latest/namelists/drive.nml.html.
+
+  ! The user specifies a template matching the file names for each variable,
+  ! containing the start and end date of the data in the file. For example,
+  ! rain data files may be named "pre/precip_1850101_18991231.nc",
+  ! "pre/precip_19000101_19491231.nc" and so on. Then the user would specify
+  ! rainFile = "pre/precip_<startdate>_<enddate>.nc" in the namelist.
+
+  ! We then use the ls command to find all files matching this pattern and 
+  ! write the output to a text file. We then inspect the filenames to
+  ! determine the time period for each filej.
+
+  ! We then create a data structure which effectively holds metadata about
+  ! the possibly multi-file dataset.
+  ! The data structure contains the list of files, their periods, as well as
+  ! a reference to the current open file.
+  ! Specify the intent of the arguments
+  CHARACTER(len=256), INTENT(IN)  :: FileTemplate
+  TYPE(SPATIO_TEMPORAL_DATASET), INTENT(OUT)  :: Dataset
+
+  ! We need to have a definition of the substrings we're going to replace.
+  CHARACTER(len=11) :: StartDate = "<startdate>"
+  CHARACTER(len=9)  :: EndDate = "<enddate>"
+
+  ! For clarity in the looping, and so we don't mutate the original inputs,
+  ! we extract the filename from the array.
+  CHARACTER(len=256):: CurrentFile
+
+  ! We write the outputs from the `ls` command to a specific reserved filename
+  CHARACTER(len=32) :: ReservedOutputFile = "__FileNameWithNoClashes__.txt"
+
+  ! We read the start and end years to strings before writing them to the key.
+  CHARACTER(len=4)  :: StartYear, EndYear
+
+  ! Initialise integers to store the status of the command.
+  INTEGER           :: ExStat, CStat
+
+  ! We're going to want to remember where "<startdate>" and "<enddate>" occur
+  ! in the filename templates, so we can retrieve the time periods of each
+  ! file later.
+  INTEGER           :: IndxStartDate = 0, IndxEndDate = 0
+
+  ! INTEGERs for the file ID that reads the output from the 'ls' command.
+  INTEGER           :: InputUnit
+
+  ! And status integers for the IO
+  INTEGER           :: ios
+
+  ! Need to compute the number of files in the dataset
+  INTEGER           :: FileCounter
+
+  ! Iterators
+  INTEGER           :: CharIndx, FileIndx
+
+  ! Get a unique ID here.
+  CALL get_unit(InputUnit)
+
+  ! First thing we have to do is determine the location of the <startdate>
+  ! and <enddate> strings in the supplied filenames. To do that, we compare
+  ! substrings of the relevant length, with the substring moving along the
+  ! length of the filename string.
+  ! We iterate separately for <startdate> and <enddate> so that we make
+  ! absolutely sure we never read past the end of the allocated string.
+  ! We stop the iteration when we either find <startdate>/<enddate> or we 
+  ! reach the character 11/9 elements from the end of the string (11/9 are 
+  ! the lengths of the substrings we're comparing against).
+
+  ! Let's keep a record of the original template, so make a copy to mutate
+  CurrentFile = FileTemplate
+
+  ! Iterate through the string for <startdate>
+  FindStart: DO CharIndx = 1, LEN(CurrentFile) - 11
+    ! Check against <startdate>, if found set the index
+    IF (CurrentFile(CharIndx:CharIndx+10) == StartDate) THEN
+      IndxStartDate = CharIndx
+      EXIT FindStart
+    END IF
+  END DO FindStart
+
+  ! Iterate through for <enddate>
+  FindEnd: DO CharIndx = 1, LEN(CurrentFile) - 9
+    ! Check against <enddate>, if found set the index
+    IF (CurrentFile(CharIndx:CharIndx+8) == EndDate) THEN
+      IndxEndDate = CharIndx
+      EXIT FindEnd
+    END IF
+  END DO FindEnd
+
+  ! Check that both occurrences were found- this triggers if either remain 0
+  IF ((IndxStartDate == 0) .OR. (IndxEndDate == 0)) THEN
+    write(*,*) "File for "//CurrentFile//" does not match the template."
+    CALL EXIT(5)
+  END IF
+
+  ! Now we go and replace the <startdate> and <enddate> strings with "*" so
+  ! that we can pass the filename to the unix ls command. We also want to
+  ! shift the remaining section of the string to the right of <startdate>/
+  ! <enddate> 10/8 characters to the left to fill in the new gap.
+
+  ! Do <enddate> first so we don't mess up the indexing
+  CurrentFile(IndxEndDate:IndxEndDate) = "*"
+  CurrentFile(IndxEndDate+1:) = CurrentFile(IndxEndDate+9:)
+
+  CurrentFile(IndxStartDate:IndxStartDate) = "*"
+  CurrentFile(IndxStartDate+1:) = CurrentFile(IndxStartDate+11:)
+
+  ! Now we've processed the supplied string, pass it to the ls unix command.
+  ! We need to write the output to a temporary file and read it back in to
+  ! get the date ranges for each file.
+  CALL execute_command_line("ls -1 "//TRIM(CurrentFile)//" >&
+     __FileNameWithNoClashes__.txt", EXITSTAT = ExStat, CMDSTAT = CStat)
+
+  ! Now we want to read this temporary file back in and inspect the contents
+  ! to determine the date ranges for each file. We then write back to a
+  ! reserved name file, that now contains the original filenames as well as
+  ! the year ranges for each file as described in the opening preamble to
+  ! this subroutine.
+
+  OPEN(InputUnit, FILE = "__FileNameWithNoClashes__.txt", IOSTAT = ios)
+
+  ! Now iterate through this temporary file and check how many files are in the
+  ! dataset, so we can allocate memory in the SpatioTemporalDataset
+  FileCounter = 0
+  CountFiles: DO
+    ! Read in the line and check the status. We write the line to the variable,
+    ! but it's not actually necessary at the moment.
+    READ(InputUnit, '(A)', IOSTAT = ios) CurrentFile
+
+    IF (ios == -1) THEN
+      ! Read completed successfully
+      EXIT CountFiles
+    ELSEIF (ios /= 0) THEN
+      ! Read failed for some other reason
+      CALL EXIT(5)
+    END If
+    ! Otherwise, we read a line, so increase the counter
+    FileCounter = FileCounter + 1
+  END DO CountFiles
+
+  ! Now allocate memory for the filenames and periods
+  ALLOCATE(Dataset%Filenames(FileCounter), Dataset%StartYear(FileCounter),&
+          Dataset%EndYear(FileCounter))
+
+  ! Now rewind the file and read it again
+  REWIND(InputUnit)
+
+  BuildDataset: DO FileIndx = 1, FileCounter
+    ! Read in the line, this time we do need to store the line
+    READ(InputUnit, '(A)', IOSTAT = ios) CurrentFile
+
+    ! Place the filename in the dataset structure
+    Dataset%Filenames(FileIndx) = CurrentFile
+
+    ! Reading the start year is easy- just the first 4 characters starting
+    ! from the recorded IndxStartDate.
+    READ(CurrentFile(IndxStartDate:IndxStartDate+3), *)&
+      Dataset%StartYear(FileIndx)
+
+    ! The end year is not as simple as taking the 4 characters at
+    ! IndxEndDate, because the size of the <startdate> string is 3
+    ! characters longer than the YYYYMMDD date specifier. Therefore, shift
+    ! the index back 3 units and then take the next 4 characters
+    READ(CurrentFile(IndxEndDate-3:IndxEndDate), *) Dataset%EndYear(FileIndx)
+
+  END DO BuildDataset
+
+  ! Close the file
+  CLOSE(InputUnit)
+  
+  ! Finished the work (we assign the VarNames later). Now delete the temporary
+  ! file we used to store the `ls` output.
+  CALL execute_command_line("rm __FileNameWithNoClashes__.txt")
+END SUBROUTINE prepare_spatiotemporal_dataset
+
+!==============================================================================
+!
+! Name: open_at_first_file
+!
+! Purpose: Used exclusively with a SPATIO_TEMPORAL_DATASET to prepare the
+!         dataset for usage. By default, we open the dataset at the start of the
+!         first file in the dataset, and then allow the first read to shift the
+!         pointer to the desired file if required.
+!
+! Called from: cable_cru_TRENDY.F90
+!
+! Calls: find_variable_ID
+!
+!==============================================================================
+
+SUBROUTINE open_at_first_file(Dataset)
+  ! Open the spatiotemporal dataset at the first file as an initialisation
+  TYPE(SPATIO_TEMPORAL_DATASET), INTENT(INOUT) :: Dataset
+
+  INTEGER :: ok
+
+  ! Set the current FileIndx to 1, and open that NCdataset
+  Dataset%CurrentFileIndx = 1
+
+  ok = NF90_OPEN(Dataset%FileNames(Dataset%CurrentFileIndx), NF90_NOWRITE,&
+    Dataset%CurrentFileID)
+  IF (ok /= NF90_NOERR) THEN
+    CALL handle_err(ok, "Error opening "//Dataset%FileNames&
+      (Dataset%CurrentFileIndx)//" in open_at_first_file.")  
+  END IF
+
+  CALL find_variable_ID(Dataset)
+END SUBROUTINE open_at_first_file
+
+!==============================================================================
+!
+! Name: find_variable_ID
+!
+! Purpose: Used exclusively with a SPATIO_TEMPORAL_DATASET to determine the
+!         variable ID associated with the variable that we want to read. To save
+!         the user from having to specify the internal (netCDF) name of the 
+!         desired variable, we have a list of common names for each CABLE
+!         variable and search through them to find the correct one.
+!
+! Called from: open_at_first_file, read_metvals
+!
+! Calls:
+!
+!==============================================================================
+
+SUBROUTINE find_variable_ID(Dataset)
+  ! Find the desired variable name in the dataset
+  TYPE(SPATIO_TEMPORAL_DATASET), INTENT(INOUT) :: Dataset
+
+  INTEGER :: ok, VarNameIter
+
+  ! Iterate through our possible variable names to find the relevant name
+  FindVar: DO VarNameIter = 1, SIZE(Dataset%VarNames)
+    ok = NF90_INQ_VARID(Dataset%CurrentFileID, Dataset%VarNames(VarNameIter),&
+      Dataset%CurrentVarID)
+    IF (ok == NF90_NOERR) THEN
+      EXIT FindVar
+    END IF
+  END DO FindVar
+
+  ! Handle the case where we don't find the variable
+  IF (ok /= NF90_NOERR) THEN
+    CALL handle_err(ok, "Error finding desired variable in "//Dataset%FileNames&
+      (Dataset%CurrentFileIndx))
+  END IF
+
+END SUBROUTINE find_variable_ID
+
+!==============================================================================
+!
+! Name: read_metvals
+!
+! Purpose: Read a record from a SPATIO_TEMPORAL_DATASET from the year and
+!         day specified into the provided DataArr provided using the
+!         landmask (specified with LandIDx, LandIDy).
+!
+! Called from: cable_cru_TRENDY.F90
+!
+! Calls: find_variable_ID
+!
+!==============================================================================
+
+SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
+    LeapYears)
+  ! Get the data from a day
+  TYPE(SPATIO_TEMPORAL_DATASET), INTENT(INOUT)  :: STD
+  REAL, DIMENSION(:), ALLOCATABLE, INTENT(INOUT)    :: DataArr
+  INTEGER, DIMENSION(:), POINTER, INTENT(IN)    :: LandIDx, LandIDy
+
+  INTEGER, INTENT(IN) :: DayOfYear, Year
+  LOGICAL, INTENT(IN) :: LeapYears
+
+  ! We'll need to compute the record index to grab
+  INTEGER     :: YearIndex, TimeIndex
+
+  ! Loop Iterators
+  INTEGER     :: FileIndx, VarNameIndx, YearIter, LandCell
+
+  ! Status checker
+  INTEGER  :: ok
+
+  TimeIndex = DayOfYear
+  YearIndex = Year
+
+  ! We've already opened a file, check whether the current year is open
+  IF ((Year >= STD%StartYear(STD%CurrentFileIndx)) .AND.&
+    (Year <= STD%EndYear(STD%CurrentFileIndx))) THEN
+    ! In this instance, we don't need to do anything
+    CONTINUE
+  ELSE
+    ok = NF90_CLOSE(STD%CurrentFileID)
+
+    ! First, check if we're outside the range of our data
+    IF (YEAR < STD%StartYear(1)) THEN
+      ! Before the first year
+      STD%CurrentFileIndx = 1
+      YearIndex = STD%StartYear(1)
+      TimeIndex = 1
+    ELSE IF (YEAR > STD%EndYear(SIZE(STD%EndYear))) THEN
+      ! After the last year
+      STD%CurrentFileIndx = SIZE(STD%EndYear)
+      YearIndex = STD%EndYear(STD%CurrentFileIndx)
+      IF ((LeapYears) .AND. (is_leapyear(YearIndex))) THEN
+        TimeIndex = 366
+      ELSE
+        TimeIndex = 365
+      END IF
+    ELSE
+      ! Normal operation, we're in the year of our data
+      FindFile: DO FileIndx = 1, SIZE(STD%FileNames)
+        IF ((Year >= STD%StartYear(FileIndx)) .AND. &
+          (Year <= STD%EndYear(FileIndx))) THEN
+          STD%CurrentFileIndx = FileIndx
+          EXIT FindFile
+        END IF
+      END DO FindFile
+    END IF
+
+    ! Open the new file
+    ok = NF90_OPEN(STD%FileNames(STD%CurrentFileIndx), NF90_NOWRITE,&
+      STD%CurrentFileID)
+
+    CALL find_variable_id(STD)
+  END IF
+
+  ! Now read the desired time step
+
+  ! Due to leapyears, we can't just do add 365 * number of years from startyear.
+  IF (LeapYears) THEN
+    CountDays: DO YearIter = STD%StartYear(STD%CurrentFileIndx), YearIndex
+      IF (is_leapyear(YearIndex)) THEN
+        TimeIndex = TimeIndex + 366
+      ELSE
+        TimeIndex = TimeIndex + 365
+      END IF
+    END DO CountDays
+  ELSE
+    TimeIndex = TimeIndex + 365 * (YearIndex - STD%StartYear(STD%CurrentFileIndx))
+  END IF
+  ! Now we have the index, we can grab the data
+
+  ! Read from the netCDF file to the masked array point by point
+  ApplyMask: DO LandCell = 1, SIZE(LandIDx)
+    ok = NF90_GET_VAR(STD%CurrentFileID,&
+      STD%CurrentVarID, DataArr(LandCell), START = (/LandIDx(LandCell),&
+      LandIDy(LandCell), TimeIndex/))
+      IF (ok /= NF90_NOERR) THEN
+        CALL handle_err(ok, "Failed reading "//STD%FileNames&
+          (STD%CurrentFileIndx)//" in read_metvals.")
+      END IF
+  END DO ApplyMask
+
+END SUBROUTINE read_metvals
+
+!==============================================================================
+
+END MODULE cable_input_module
