@@ -92,7 +92,7 @@ To ask for a review, on the pull request screen, click on the Reviewers menu or 
 
 ### Understand a review
 
-Reviewers can either leave comments or suggestions during the review. All of these need to be resolved to finish the current review. The GitHub documentation has more information about reviews, in particular around [comments on PR][github-commentPR] and how to [incorporate feedback][github-feedback]. 
+Reviewers can either leave comments or suggestions during the review. All of these need to be resolved to finish the current review. The GitHub documentation has more information about reviews, in particular around [comments on PR][github-commentPR] and how to [incorporate feedback][github-feedback].
 
 #### Suggestions from the reviewer
 
@@ -122,6 +122,8 @@ Comments to a specific set of lines look like this:
     </figure>
 
 It shows the specific lines commented on and the comment from the reviewer and it allows to reply to that specific comment.
+
+Changes arising from these comments need to be applied on your local repository.
 
 ### Request a re-review
 

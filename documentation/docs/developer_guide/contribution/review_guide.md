@@ -1,6 +1,8 @@
 # Review guidelines
 
-All contributions to the CABLE land surface model will be reviewed before inclusion in the model. The review process is intended to check that:
+All contributions to the CABLE land surface model will be reviewed before inclusion in the model. The review is intended to ensure submissions to CABLE are of the best quality and integrate correctly within the CABLE's code design.
+
+The review process checks that:
 
 - [the coding standards][coding-standards] have been applied
 - the documentation is understandable and follows at least the [minimum requirements][doc-min-req]
@@ -9,14 +11,20 @@ All contributions to the CABLE land surface model will be reviewed before inclus
 - the proposed changes are correct
 - the implementation of the changes follows the design of the CABLE model and will be maintainable
 
-Once you have finished the implementation of your changes, please make sure:
+## Final checks before asking for review
 
-- the description of the pull request is up-to-date. 
+Once you have finished the implementation of your changes and before asking for a review, please make sure:
+
+- the description of the pull request is up-to-date.
 - all the required test results are either linked to in comments or copied in. If you have performed tests beyond the required tests, make sure these tests and their results are described in comments in your pull request.
-- the automated checks pass. Contact the @CABLE-LSM/admin team if you need help understanding a failure of these tests.
-- all conflicts have been solved. 
+- the automated checks pass. Contact the @CABLE-LSM/admin team, through a comment in your pull request, if you need help understanding a failure of these tests.
+- all conflicts have been solved.
 
-Once you are ready, [ask for a review by `CABLE-LSM/reviewers`][how-ask-review]. If you want a specific individual, you can use the same process to choose that person.
+## Asking for review
+
+Once you are ready, [ask for a review by `CABLE-LSM/reviewers`][how-ask-review]. If you want a specific individual, you can use the same process to choose that person. Using the reviewers team is preferred as it will spread the workload across reviewers.
+
+In most cases, asking for one reviewer is enough. The system allows asking for multiple reviewers, please use this feature will parsimony. It is often easier to ask for a single reviewer first and add another reviewer later as necessary.
 
 ## Review process
 
@@ -28,11 +36,13 @@ The review is likely to be an iterative process between the reviewer and the aut
 
 [To incorporate code changes requested by the reviewer][how-review], you often need to incorporate these changes to your local repository and push them to GitHub again. It is possible for the reviewer to suggest changes that can be apply directly in GitHub. We recommend to:
 
-- first apply the suggestions you agree with via GitHub
-- then update your local branch with `git pull`
-- apply other changes required by the review locally to your branch
-- push the fully revised version to GitHub (`git push`)
-- and finally [ask for a re-review][how-re-review] once you have resolved all points raised by the reviewer
+1. apply the suggestions you agree with via GitHub
+1. update your local branch with `git pull`
+1. apply other changes required by the review locally to your branch
+1. push the fully revised version to GitHub (`git push`)
+1. [ask for a re-review][how-re-review] once you have resolved all points raised by the reviewer
+
+The reviewer might ask for a complementary review by another individual if they think they are not able to review all aspects of a submission.
 
 To better understand the pull request interface for reviews on GitHub, please refer to [the GitHub documentation][github-review].
 
@@ -44,7 +54,6 @@ Once a reviewer has approved the pull request, you can merge it. We prefer if th
 [doc-min-req]: ../documentation_guidelines/index.md
 [tests-req]: testing.md
 [how-ask-review]: resources/how_to.md#ask-a-review
-[how-checks]: resources/how_to.md#
 [how-review]: resources/how_to.md#understand-a-review
 [how-re-review]: resources/how_to.md#request-a-re-review
 [github-review]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests
