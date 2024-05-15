@@ -11,7 +11,7 @@
 #     -h          Prints this help screen.
 #
 # Example
-#     compare_two_cable_runs.sh  dir1 dir2
+#     compare_two_cable_runs.sh  dir1  dir2
 #
 # Copyright (c) 2020 Matthias Cuntz - mc (at) macu (dot) de
 #
@@ -24,8 +24,12 @@
 # History
 # -------
 # Written  Matthias Cuntz, Mar 2020
-# Modified Matthias Cuntz, Mar 2020 - Changed check with ncdump to be correct on more than two land points
-#          Matthias Cuntz, Apr 2020 - Check Restart and Output files
+# Modified Matthias Cuntz, Mar 2020
+#              - Changed check with ncdump to be correct on more than two land points
+#          Matthias Cuntz, Apr 2020
+#              - Check Restart and Output files
+#          Matthias Cuntz, May 2024
+#              - Updated to current file structure
 #
 set -e
 
@@ -35,7 +39,7 @@ dprog=$(dirname ${prog})
 isdir=${PWD}
 pid=$$
 
-# -------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Functions
 #
 function usage () {
@@ -65,7 +69,7 @@ function abspath()
     echo "${odir}"
 }
 
-# -------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Analyse command line
 #
 
@@ -110,7 +114,7 @@ done
 adir1=$(abspath ${dir1})
 adir2=$(abspath ${dir2})
 
-# -------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Compare restart/output files
 #
 
@@ -129,7 +133,8 @@ set -e
 
 # File suffixes to check
 suff1="_climate_restart"
-suff2="_zero_biomass _spinup_limit_labile _spinup_analytic_limit_labile _spinup _spinup_analytic _1580_1699 _1700_1899 _1900_2017"
+suff2="_zero_biomass _spinup_analytic_limit_labile _1700_1900 _1901_2022"  #  _1580_1699
+suff3="_spinup_limit_labile _spinup_nutrient_limited _spinup_analytic"
 
 echo ""
 echo ""
@@ -140,9 +145,10 @@ if [[ true ]] ; then
         echo ""
         echo "cdo diff in ${idir}"
         cd ${adir1}/${idir}/
-        for suff in ${suff1} ${suff2} ; do
+        for suff in ${suff1} ${suff2} ${suff3} ; do
             echo '  Step ' ${suff}
-            for i in *${suff}.nc ; do
+	    sfiles=$(ls *${suff}.nc *${suff}_*.nc 2> /dev/null | sort -u)
+            for i in ${sfiles} ; do
 		if [[ -f ${i} ]] ; then
                     echo '    ' ${i}
                     set +e
@@ -159,20 +165,22 @@ if [[ true ]] ; then
     echo ""
     echo "ncdiff pop_cru_ini in ${idir}"
     cd ${adir1}/${idir}/
-    for suff in ${suff2} ; do
-        i=pop_cru_ini${suff}.nc
-	if [[ -f ${i} ]] ; then
-            echo '    ' ${i}
-            ncdiff ${i} ${adir2}/${idir}/${i} tmp.${pid}.nc
-            set +e
-            iout=$(ncdump tmp.${pid}.nc | sed -e '/^netcdf/,/^variables:/d' -e '/ latitude/,/;$/d' -e '/ longitude/,/;$/d' -e '/[:{}]/d' -e '/^$/d' -e '/) ;$/d' -e 's/ ;/,/' -e 's/ 0,//g' | sed -e '/^[[:blank:]]*$/d' -e '/=[[:blank:]]*$/d' -e '/[tT]ime =/d')
-            set -e
-            if [[ -n ${iout} ]] ; then
-		echo "     Check ${i} in ${PWD}"
-		echo "         ncdiff -O ${i} ${adir2}/${idir}/${i} tmp.nc ; ncdump tmp.nc | sed -e '/^netcdf/,/^variables:/d' -e '/ latitude/,/;$/d' -e '/ longitude/,/;$/d' -e '/[:{}]/d' -e '/^$/d' -e '/) ;$/d' -e 's/ ;/,/' -e 's/ 0,//g' | sed -e '/^[[:blank:]]*$/d' -e '/=[[:blank:]]*$/d' -e '/[tT]ime =/d'"
-            fi
-            rm tmp.${pid}.nc
-	fi
+    for suff in ${suff2} ${suff3} ; do
+	pfiles=$(ls pop_cru_ini${suff}.nc pop_cru_ini${suff}_*.nc 2> /dev/null | sort -u)
+        for i in ${pfiles} ; do
+	    if [[ -f ${i} ]] ; then
+		echo '    ' ${i}
+		ncdiff ${i} ${adir2}/${idir}/${i} tmp.${pid}.nc
+		set +e
+		iout=$(ncdump tmp.${pid}.nc | sed -e '/^netcdf/,/^variables:/d' -e '/ latitude/,/;$/d' -e '/ longitude/,/;$/d' -e '/[:{}]/d' -e '/^$/d' -e '/) ;$/d' -e 's/ ;/,/' -e 's/ 0,//g' | sed -e '/^[[:blank:]]*$/d' -e '/=[[:blank:]]*$/d' -e '/[tT]ime =/d')
+		set -e
+		if [[ -n ${iout} ]] ; then
+		    echo "     Check ${i} in ${PWD}"
+		    echo "         ncdiff -O ${i} ${adir2}/${idir}/${i} tmp.nc ; ncdump tmp.nc | sed -e '/^netcdf/,/^variables:/d' -e '/ latitude/,/;$/d' -e '/ longitude/,/;$/d' -e '/[:{}]/d' -e '/^$/d' -e '/) ;$/d' -e 's/ ;/,/' -e 's/ 0,//g' | sed -e '/^[[:blank:]]*$/d' -e '/=[[:blank:]]*$/d' -e '/[tT]ime =/d'"
+		fi
+		rm tmp.${pid}.nc
+	    fi
+	done
     done
 fi
 
