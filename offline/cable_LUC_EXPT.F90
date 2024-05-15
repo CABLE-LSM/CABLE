@@ -930,9 +930,6 @@ CONTAINS
        write(*,'(a)') 'warning: past end of LUH2 record'
     endif
 
-    ! Determine woody fraction (forest and shrub cover).
-    call get_woody_fraction(LUC_EXPT)
-
     ! Adjust transition areas based on primary wooded fraction
     LUC_EXPT%INPUT(ptos)%VAL   =  LUC_EXPT%INPUT(ptos)%VAL   * LUC_EXPT%woodfrac
     LUC_EXPT%INPUT(ptog)%VAL   =  LUC_EXPT%INPUT(ptog)%VAL   * LUC_EXPT%woodfrac
