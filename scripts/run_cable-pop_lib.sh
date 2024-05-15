@@ -15,11 +15,13 @@
 #         irm         rm file/directory if present
 #         mvid        rename files adding first argument to filenames
 #         renameid    rename files adding first argument to filenames
+#         saveid      Copy and move output, restart, log, and namelists
 #
 #     File content
 #     ------------
 #         applysed    apply file with "a=b" as sed script
 #         csed        make sed command from comma-separated list: var1=str1,var2=str2
+#         nckslatlon  return argument to extract lat and lon with ncks
 #         ncvarlist   get list of variables in netcdf file
 #         text2sed    transform a simple file with "a = b" into sed command file
 #
@@ -248,8 +250,34 @@ function isin()
 #   vars=$(ncvarlist netcdf_file)
 function ncvarlist()
 {
-    out=$(ncks --trd -m ${1} | grep -E ': type' | cut -f 1 -d ' ' | sed 's/://' | sort)
+    out=$(ncks --trd -m ${1} | grep -E ': type' | cut -f 1 -d ' ' | sed -e 's/://' | sort)
     echo ${out}
+}
+
+#----------------------------------------------------------------
+# return a string that can be used as argument to ncks
+# to extract a single lat and lon grid cell
+# latlon="48.6742166667,7.06461666667"
+# for nc in ${GlobalMetPath}/pres/*.nc ; do
+#     ff=$(basename ${nc})
+#     ncks -O $(nckslatlon ${nc} ${latlon}) ${nc} ${MetPath}/pres/${ff}
+# done
+function nckslatlon()
+{
+    vars=$(ncvarlist ${1})
+    if [[ -z $(isin latitude ${vars}) ]] ; then ilat="lat" ; else ilat="latitude" ; fi
+    if [[ -z $(isin longitude ${vars}) ]] ; then ilon="lon" ; else ilon="longitude" ; fi
+    if [[ -z $(echo ${2} | cut -f 3 -d ",") || -z $(echo ${2} | cut -f 4 -d ",") ]] ; then
+        iilat=$(echo ${2} | cut -f 1 -d ",")
+        iilon=$(echo ${2} | cut -f 2 -d ",")
+        echo "-d ${ilat},${iilat} -d ${ilon},${iilon}"
+    else
+        iilat1=$(echo ${2} | cut -f 1 -d ",")
+        iilat2=$(echo ${2} | cut -f 2 -d ",")
+        iilon1=$(echo ${2} | cut -f 3 -d ",")
+        iilon2=$(echo ${2} | cut -f 4 -d ",")
+        echo "-d ${ilat},${iilat1},${iilat2} -d ${ilon},${iilon1},${iilon2}"
+    fi
 }
 
 #----------------------------------------------------------------
@@ -268,6 +296,49 @@ function renameid()
 function mvid()
 {
     renameid "$@"
+}
+
+#----------------------------------------------------------------
+# copy restart files adding first argument to filenames,
+# and move output files, log files, and namelists adding first argument to filenames
+#   saveid ${rid} ${mettype} ${doc13o2}
+function saveid()
+{
+    rid=${1}
+    mettype=${2}
+    doc13o2=${3}
+    # mv namelists
+    for i in ${mettype} luc cable ; do
+	renameid ${rid} ${i}.nml
+    done
+    mv *_${rid}.nml restart/
+    # mv logs
+    cd logs
+    for i in log log_out ; do
+	renameid ${rid} ${i}_cable.txt
+    done
+    cd ..
+    # mv outputs
+    cd outputs
+    for i in cable casa LUC ; do
+	renameid ${rid} ${mettype}_out_${i}.nc
+    done
+    if [[ ${doc13o2} -eq 1 ]] ; then
+	renameid ${rid} ${mettype}_out_casa_c13o2.nc
+    fi
+    cd ..
+    # cp restarts
+    cd restart
+    for i in climate cable LUC casa_biome casa_met casa_pool casa_phen casa_flux casa_bal ; do
+	copyid ${rid} ${mettype}_${i}_rst.nc
+    done
+    copyid ${rid} pop_${mettype}_ini.nc
+    if [[ ${doc13o2} -eq 1 ]] ; then
+	for i in flux pools luc ; do
+	    copyid ${rid} ${mettype}_c13o2_${i}_rst.nc
+	done
+    fi
+    cd ..
 }
 
 #----------------------------------------------------------------
