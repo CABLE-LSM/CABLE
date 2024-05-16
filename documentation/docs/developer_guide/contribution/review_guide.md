@@ -24,7 +24,7 @@ Once you have finished the implementation of your changes and before asking for 
 
 Once you are ready, [ask for a review by `CABLE-LSM/reviewers`][how-ask-review]. If you want a specific individual, you can use the same process to choose that person. Using the reviewers team is preferred as it will spread the workload across reviewers.
 
-In most cases, asking for one reviewer is enough. The system allows asking for multiple reviewers, please use this feature will parsimony. It is often easier to ask for a single reviewer first and add another reviewer later as necessary.
+In most cases, asking for one reviewer is enough. The system allows asking for multiple reviewers, please use this feature sparingly. It is often easier to ask for a single reviewer first and add another reviewer later as necessary.
 
 ## Review process
 
