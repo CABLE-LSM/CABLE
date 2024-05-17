@@ -85,6 +85,7 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
         ?*)
             echo -e "\nError: compiler ${compiler} is not supported.\n"
             exit 1
+            ;;
     esac
 
     # This is required so that the netcdf-fortran library is discoverable by
