@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-nproc_default=4
+ncpus_default=4
 
 script_name=$(basename "${0}")
 
@@ -16,8 +16,9 @@ Options:
       --mpi     Compile MPI executable.
       --compiler <compiler>
                 Specify the compiler to use.
-  -j <jobs>     Specify the number of parallel jobs in the compilation. By
-                default this value is set to $nproc_default.
+      --ncpus <ncpus>
+                Specify the number of parallel jobs in the compilation. By
+                default this value is set to $ncpus_default.
   -h, --help    Show this screen.
 
 Enabling debug mode:
@@ -50,7 +51,7 @@ while [ $# -gt 0 ]; do
             compiler=$2
             shift
             ;;
-        -j)
+        --ncpus)
             CMAKE_BUILD_PARALLEL_LEVEL=$2
             shift
             ;;
@@ -115,7 +116,7 @@ elif hostname -f | grep -E '(mc16|mcmini)' > /dev/null; then
     esac
 fi
 
-export CMAKE_BUILD_PARALLEL_LEVEL="${CMAKE_BUILD_PARALLEL_LEVEL:=$nproc_default}"
+export CMAKE_BUILD_PARALLEL_LEVEL="${CMAKE_BUILD_PARALLEL_LEVEL:=$ncpus_default}"
 
 cmake -S . -B build "${cmake_args[@]}" &&\
 cmake --build build &&\
