@@ -39,7 +39,8 @@ cmake_args=(-DCMAKE_BUILD_TYPE=Release -DCABLE_MPI=OFF)
 while [ $# -gt 0 ]; do
     case $1 in
         --clean)
-            rm -r build
+            rm -r build bin
+            exit
             ;;
         --mpi)
             mpi=1
