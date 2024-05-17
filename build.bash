@@ -33,7 +33,7 @@ Enabling verbose output from Makefile builds:
 EOF
 }
 
-cmake_args=(-DCMAKE_BUILD_TYPE=Release)
+cmake_args=(-DCMAKE_BUILD_TYPE=Release -DCABLE_MPI=OFF)
 
 # Argument parsing adapted and stolen from http://mywiki.wooledge.org/BashFAQ/035#Complex_nonstandard_add-on_utilities
 while [ $# -gt 0 ]; do
