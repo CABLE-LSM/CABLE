@@ -20,14 +20,17 @@ options:
 
 Example
 -------
-  python3 merge_to_output2d.py -v -z -o cru_out_casa_2009_2011.nc \
+  python merge_to_output2d.py -v -z -o cru_out_casa_2009_2011.nc \
       run*/outputs/cru_out_casa_2009_2011.nc
 
 
 History
 -------
 Written  Matthias Cuntz, May 2020
-             - from unpack_to_output2d.py
+    - from unpack_to_output2d.py
+Modified Matthias Cuntz, May 2024
+    - formatted strings in all print statements
+    - better formatting of print of variable slices
 
 Remember:
 https://chase-seibert.github.io/blog/2013/08/03/diagnosing-memory-leaks-python.html
@@ -93,7 +96,7 @@ gb = 1073741824.  # (1024 * 1024 * 1024)
 ifile = ifiles[0]
 fi = nc.Dataset(ifile, 'r')
 if verbose:
-    print('Check first input file:', ifile)
+    print(f'Check first input file: {ifile}')
 ncvars = list(fi.variables.keys())
 ntime = fi.dimensions['time'].size
 
@@ -101,7 +104,7 @@ ntime = fi.dimensions['time'].size
 if ofile is None:  # Default output filename
     ofile = pj.ncio.set_output_filename(ifile, '-merged')
 if verbose:
-    print('Create output file:', ofile)
+    print(f'Create output file: {ofile}')
 if izip:
     oformat = 'NETCDF4'
 else:
@@ -294,8 +297,8 @@ for ncvar in ncvars:
             fi = nc.Dataset(ifile, 'r')
             ivar = fi.variables[ncvar][:]
             if not np.all(ivar00 == ivar):
-                print('ivar0', ivar00)
-                print('ivar', ivar)
+                print(f'ivar0: {ivar00}')
+                print(f'ivar:  {ivar}')
                 fi.close()
                 fo.close()
                 raise ValueError(f'variable {ncvar} not equal in file'
@@ -325,7 +328,8 @@ for ncvar in ncvars:
         del outvar
     else:  # has time and land/ntile
         fi0.close()
-        print(f'        {ovar.shape}')
+        if verbose:
+            print(f'        {ovar.shape}')
         nt = np.ceil(np.prod(ovar.shape) * 8 / gb / 2).astype(int)
         tindexes = np.linspace(0, ntime, nt+1, dtype=int)
         for nn in range(nt):
@@ -333,8 +337,8 @@ for ncvar in ncvars:
             i1 = tindexes[nn]
             i2 = tindexes[nn + 1]
             oshape[0] = i2 - i1
-            if nt > 1:
-                print(f'        {oshape} {i1} {i2}')
+            if verbose:
+                print(f'            {oshape} {i1} {i2}')
             outvar = np.full(oshape,
                              pj.ncio.get_fill_value_for_dtype(ivar0_dtype))
             mem = psutil.Process().memory_info()
@@ -352,25 +356,26 @@ for ncvar in ncvars:
             # write to disk in one go
             if verbose:
                 tstopread = ptime.time()
-                print('        Read  {:.2f} s'.format(tstopread - tstartread))
+                print(f'            Read  {tstopread - tstartread:.2f} s')
                 tstartwrite = tstopread
             ovar[i1:i2, ...] = outvar
             if verbose:
                 tstopwrite = ptime.time()
-                print('        Wrote {:.2f} s'.format(tstopwrite - tstartwrite))
+                print(f'            Wrote {tstopwrite - tstartwrite:.2f} s')
                 mem = psutil.Process().memory_info()
-                print(f'        Memory physical [GB]: {mem.rss / gb:.2f} virtual: {mem.vms / gb:.2f}')
+                print(f'            Memory physical [GB]: {mem.rss / gb:.2f},'
+                      f' virtual: {mem.vms / gb:.2f}')
             del outvar
     fo.close()
     del ivar0, ovar
     gc.collect()
     if verbose:
         tstopvar = ptime.time()
-        print('        Total {:.2f} s'.format(tstopvar - tstartvar))
+        print(f'        Total {tstopvar - tstartvar:.2f} s')
 
 # -------------------------------------------------------------------------
 # Finish
 
 if verbose:
     tstop = ptime.time()
-    print('Finished in [s]: {:.2f}'.format(tstop - tstart))
+    print(f'Finished in [s]: {tstop - tstart:.2f}')

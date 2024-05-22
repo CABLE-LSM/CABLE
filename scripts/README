@@ -34,9 +34,15 @@ extract_latlon.py
 extract_latlon_restart.py
     Generate global landmask from a list of lat,lon tupels, and extract tiles
     from any number of restart files.
+latlon_landmask.py
+    Generate land mask for CABLE-POP with only latitude,longitude set
+    on given latitudes,longitudes.
+latlon_meteo.sh
+    Extract lat,lon from meteo, land use, and mask files.
 set_latlon_land.py
     Sets the land variable of netcdf file to 1 at given latitude/longitude
     points, otherwise 0.
+
 
 
 # Run Cable
