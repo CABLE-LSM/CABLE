@@ -84,8 +84,6 @@ module cable_def_types_mod
   ! general functions
   public :: nc_err
 
-  private :: testzlu
-
   ! .............................................................................
 
   ! Energy and water balance variables:
