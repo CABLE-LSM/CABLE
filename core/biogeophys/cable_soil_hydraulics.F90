@@ -1,0 +1,420 @@
+!=========================================================
+! purpose: all routines for calculate hydraulic processes in soil
+!
+! contanct: zihan.lu@inrae.fr
+!==========================================================
+
+MODULE cable_soil_hydraulics_module
+   PUBLIC :: calc_soil_root_resistance, calc_swp, calc_weighted_swp_and_frac_uptake
+
+CONTAINS
+   ! ----------------------------------------------------------------------------
+   SUBROUTINE calc_soil_root_resistance(ssnow, soil, veg, bgc, root_length, i)
+      ! Calculate root & soil hydraulic resistance following SPA approach
+      ! (Williams et al.)
+      !
+      ! Root hydraulic resistance declines linearly with increasing root
+      ! biomass according to root resistivity (400) [MPA s m2 mmol-1].
+      !
+      ! Soil hydraulic resistance depends on soil conductivity, root length,
+      ! depth of layer and distance between roots.
+      !
+      ! In units conversion, useful to recall that:
+      ! m s-1 = m3 m-1 m-1 s-1
+      ! m3 (amount of water) m-1 (per unit length) m-1 (per unit hydraulic head,
+      !                                                 measured in meters) s-1
+      !
+      ! References:
+      ! -----------
+      ! * Duursma, R. A. 2008. Predicting the decline in daily maximum
+      !   transpiration rate of two pine stands during drought based on
+      !   constant minimum leaf water potential and plant hydraulic conductance.
+      !   Tree Physiology, 28, 265–276.
+      ! * Gardner, W.R. 1964. Relation of root distribution to water uptake
+      !   and availability. Agron. J. 56:41–45.
+      ! * Newman, E.I. 1969. Resistance to water flow in soil and plant. I.
+      !   Soil resistance in relation to amounts of root: theoretical
+      !   estimates. J. Appl. Ecol. 6:1–12.
+      ! * Williams, M. et al. 1996. Modeling the soil–plant–atmosphere continuum
+      !   in a Quercus–Acer stand at Harvard Forest: the regulation of stomatal
+      !   conductance by light, nitrogen and soil/plant hydraulic properties.
+      !   Plant Cell Environ. 19:911–927.
+      !
+      ! Martin De Kauwe, 3rd June, 2019
+
+      USE cable_def_types_mod
+      USE cable_common_module
+
+      IMPLICIT NONE
+
+      TYPE (soil_snow_type), INTENT(INOUT)        :: ssnow
+      TYPE (soil_parameter_type), INTENT(INOUT)   :: soil
+      TYPE (veg_parameter_type), INTENT(INOUT)    :: veg
+      TYPE (bgc_pool_type),  INTENT(IN)           :: bgc
+
+      ! All from Williams et al. 2001, Tree phys
+      REAL, PARAMETER :: pi = 3.1415927
+      REAL, PARAMETER :: root_radius = 0.0005                 ! m
+      REAL, PARAMETER :: root_xsec_area = pi * root_radius**2 ! m2
+      REAL, PARAMETER :: root_density = 0.5e6                ! g biomass m-3 root
+      REAL, PARAMETER :: root_resistivity = 25.             ! MPa s g mmol-1, Bonan
+      REAL, PARAMETER :: root_k = 100.0
+
+      ! unit conv
+      REAL, PARAMETER :: head = 0.009807             ! head of pressure  (MPa/m)
+      REAL, PARAMETER :: MM_TO_M = 0.001
+      REAL, PARAMETER :: KPA_2_MPa = 0.001
+      REAL, PARAMETER :: M_HEAD_TO_MPa = 9.8 * KPA_2_MPa
+      REAL, PARAMETER :: G_WATER_TO_MOLE = 1.0 / 18.01528
+      REAL, PARAMETER :: CUBIC_M_WATER_2_GRAMS = 1E6
+      REAL, PARAMETER :: MOL_2_MMOL = 1000.0
+      REAL, PARAMETER :: TINY_NUMBER = 1E-35
+      REAL, PARAMETER :: HUGE_NUMBER = 1E35
+      REAL, PARAMETER :: BIG_NUMBER = 1E9
+      REAL, PARAMETER :: SMALL_NUMBER = 1E-9
+
+      REAL, DIMENSION(ms) :: depth
+      REAL                :: root_mass, rs, Ksoil, root_biomass, root_depth
+      REAL                :: soil_resist, rsum, conv
+
+
+      REAL, DIMENSION(:), INTENT(INOUT) :: root_length
+      ! ratio Dry matter mass to g(C)
+      REAL, PARAMETER                   :: gC2DM = 1./0.49
+
+      INTEGER, INTENT(IN) :: i
+      INTEGER :: j
+      INTEGER, PARAMETER :: ROOT_INDEX = 3
+
+      REAL               :: ht, stem_biomass
+      REAL, PARAMETER    :: Kbiometric = 50.0 ! cst in height-diameter relationship
+      REAL, PARAMETER    :: WD = 300.0 ! Wood density kgC/m3
+      INTEGER, PARAMETER :: STEM_INDEX = 2
+
+      stem_biomass = bgc%cplant(i,STEM_INDEX) * gC2DM
+      ht = (Kbiometric**(3.0/4.0))*(4.*stem_biomass/(WD*PI))**(1.0/4.0)
+      !print*, ht
+
+      ! convert from gC to g biomass, i.e. twice the C content
+      !root_biomass = bgc%cplant(i,ROOT_INDEX) * gC2DM
+      !root_biomass = 1443.0 * gC2DM ! EBF value
+      root_biomass = 832.0 * gC2DM ! Eucface value
+
+      !root_biomass = 318.9 * gC2DM ! Spruce experiment
+
+      ! sensitivity experiment values
+      !root_biomass = 200. * gC2DM ! Range from Williams 2001, 200-1000
+      !root_biomass = 400. * gC2DM ! Range from Williams 2001, 200-1000
+      !root_biomass = 600. * gC2DM ! Range from Williams 2001, 200-1000
+      !root_biomass = 800. * gC2DM ! Range from Williams 2001, 200-1000
+      !root_biomass = 1000. * gC2DM ! Range from Williams 2001, 200-1000
+
+
+      ! Always provide a minimum root biomass
+      root_biomass = MAX(5., root_biomass)
+
+      ! Store each layers resistance, used in LWP calculatons
+      rsum = 0.0
+
+      !print*, bgc%cplant
+      !stop
+      DO j = 1, ms ! Loop over 6 soil layers
+
+         ! Soil Hydraulic conductivity (m s-1), Campbell 1974
+         Ksoil = soil%hyds(i) * &
+            (ssnow%wb(i,j) / soil%ssat(i))**(2.0 * soil%bch(i) + 3.0)
+
+         ! converts from m s-1 to m2 s-1 MPa-1
+         Ksoil = Ksoil / head
+
+         ! Calculate soil-root hydraulic resistance
+
+         ! prevent floating point error
+         !IF (Ksoil < TINY_NUMBER) THEN
+         IF (Ksoil < SMALL_NUMBER) THEN
+            !ssnow%soilR(i,j) = HUGE_NUMBER
+            ssnow%soilR(i,j) = BIG_NUMBER
+            rsum = rsum + ( 1.0 / ssnow%soilR(i,j) )
+         ELSE
+
+            ! Root biomass density (g biomass m-3 soil)
+            ! Divide root mass up by the frac roots in the layer (g m-3)
+            ! plant carbon is g C m-2
+            root_mass = root_biomass * veg%froot(i,j)
+
+            ! Root length density (m root m-3 soil)
+            root_length(j) = root_mass / (root_density * root_xsec_area)
+
+            ! Conductance of the soil-to-root pathway can be estimated
+            ! assuming that the root system consists of one long root that
+            ! has access to a surrounding cylinder of soil
+            ! (Gardner 1960, Newman 1969)
+            rs = SQRT(1.0 / (root_length(j) * pi))
+
+            ! Soil-to-root resistance (MPa s m2 (ground) mmol-1 H2O)
+            soil_resist = LOG(rs / root_radius) / &
+               (2.0 * pi * root_length(j) * soil%zse(j) * Ksoil)
+
+            ! convert from MPa s m2 m-3 to MPa s m2 mmol-1
+            soil_resist = soil_resist * 1E-6 * 18. * 0.001
+
+            ! root_resistance is commented out : don't use root-component of
+            ! resistance (is part of plant resistance)
+            ! MPa s m2 mmol-1 H2O
+            ssnow%soilR(i,j) = soil_resist !+ root_resist
+
+
+         END IF
+
+         !print*, "DEBUG soilR:", j,  ssnow%soilR(i,j), Ksoil, root_mass, root_biomass , rsum
+
+
+         ! Need to combine resistances in parallel, but we only want the
+         ! soil term as the root component is part of the plant resistance
+         rsum = rsum + ( 1.0 / ssnow%soilR(i,j) )
+
+      END DO
+
+      ! rsum calc above is 1/rsum (i.e. conductance(, as we're combining in
+      ! parallel, turn back into resistance (MPa s m2 mmol-1 H2O)
+      ssnow%Rsr(i) = 1.0 / rsum
+
+
+   END SUBROUTINE calc_soil_root_resistance
+   ! ----------------------------------------------------------------------------
+
+   ! ----------------------------------------------------------------------------
+   SUBROUTINE calc_swp(ssnow, soil, i)
+      ! Calculate the soil water potential.
+      !
+      ! Martin De Kauwe, 2019; Manon Sabot, 2022
+      !
+      ! When the soil water potential is below the wilting point, we apply the
+      ! dry soil correction from Webb 2000, as parameterised in Schneider & Goss
+      ! 2012.
+      !
+      ! References:
+      !
+      ! * Webb, S. W. (2000). A simple extension of two-phase characteristic
+      ! curves to include the dry region. Water Resources Research, 36(6),
+      ! 1425-1430.
+      !
+      ! * Schneider, M., & Goss, K. U. (2012). Prediction of water retention
+      ! curves for dry soils from an established pedotransfer function:
+      ! Evaluation of the Webb model. Water Resources Research, 48(6).
+
+      USE cable_def_types_mod
+      USE cable_common_module
+
+      IMPLICIT NONE
+
+      TYPE (soil_snow_type), INTENT(INOUT)        :: ssnow
+      TYPE (soil_parameter_type), INTENT(INOUT)   :: soil
+
+      INTEGER             :: j
+      INTEGER, INTENT(IN) :: i
+      REAL                :: psi_sat, psi_wilt
+
+      REAL, PARAMETER :: KPA_2_MPa = 0.001
+      REAL, PARAMETER :: M_HEAD_TO_MPa = 9.8 * KPA_2_MPa
+      REAL, PARAMETER :: cmH2O_TO_MPa = 1.0 / (10.0 * 1036)
+
+      ssnow%psi_soil(i,:) = 0.0 ! MPa
+
+      ! Soil matric potential at saturation (m of head to MPa: 9.8 * KPA_2_MPA)
+      psi_sat = soil%sucs(i) * M_HEAD_TO_MPa
+
+      ! Soil matric potential at wilting point, MPa
+      psi_wilt = psi_sat * MAX(1.E-9, MIN(1.0, soil%swilt(i) / soil%ssat(i))) &
+         ** (-soil%bch(i))
+
+      DO j = 1, ms ! Loop over 6 soil layers
+
+         ! Below the wilting point, the water potential drops to silly values, due
+         ! to the non-linear reln btw swc and swp. This is really more of an
+         ! implentation issue. The very thin upper layers would obv get extremely
+         ! negative, which in turn would bias the weighted_swp.
+         ! The bounding here can be considered as a physical disconnection of the
+         ! roots from the soil.
+
+         ssnow%psi_soil(i,j) = psi_sat * MAX(1.E-9, MIN(1.0, ssnow%wb(i,j) / &
+            soil%ssat(i))) ** (-soil%bch(i))
+
+         ! bound psi_soil by the wilting point in upper soil layers
+         IF (j < 3) THEN
+
+            ssnow%psi_soil(i,j) = MAX(psi_wilt, ssnow%psi_soil(i,j))
+
+            ! below wilting point, apply dry soil correction from Webb 2000
+         ELSE IF (ssnow%wb(i,j) < soil%swilt(i)) THEN
+
+            ssnow%psi_soil(i,j) = (-10.0 ** ((LOG10(-psi_wilt / cmH2O_TO_MPa) &
+               - 6.8) * ssnow%wb(i,j) / soil%swilt(i) + 6.8)) &
+               * cmH2O_TO_MPa
+
+         END IF
+
+      END DO
+
+   END SUBROUTINE calc_swp
+   ! ----------------------------------------------------------------------------
+
+   ! ----------------------------------------------------------------------------
+   SUBROUTINE calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, veg, &
+      root_length, i)
+      !
+      ! Determine weighted SWP given the the maximum rate of water supply from
+      ! each rooted soil layer and hydraulic resistance of each layer. We are
+      ! also calculating a weighting fraction for water extraction. This is
+      ! achieved by roughly estimating the maximum rate of water supply from each
+      ! rooted soil layer, using SWP and hydraulic resistance of each layer.
+      ! Actual water from each layer is determined using the estimated value as a
+      ! weighted factor.
+      !
+      ! Martin De Kauwe, 2019
+
+      USE cable_def_types_mod
+      USE cable_common_module
+
+      IMPLICIT NONE
+
+      TYPE (soil_snow_type), INTENT(INOUT)      :: ssnow
+      TYPE (soil_parameter_type), INTENT(INOUT) :: soil
+      TYPE(canopy_type), INTENT(INOUT)          :: canopy ! vegetation variables
+      TYPE(veg_parameter_type), INTENT(IN)      :: veg
+
+      REAL, PARAMETER :: MM_TO_M = 0.001
+      REAL, PARAMETER :: KPA_2_MPa = 0.001
+      REAL, PARAMETER :: M_HEAD_TO_MPa = 9.8 * KPA_2_MPa
+
+      ! The minimum root water potential (MPa), used in determining fractional
+      ! water uptake in soil layers
+      REAL, PARAMETER :: min_root_wp = -3.0
+
+      REAL, DIMENSION(ms)            :: swp, est_evap
+      REAL, DIMENSION(:), INTENT(IN) :: root_length
+      REAL                           :: total_est_evap, swp_diff, depth_sum
+
+      INTEGER, INTENT(IN) :: i
+      INTEGER             :: j
+
+      ! SPA method to figure out relative water uptake.
+      LOGICAL :: SPA_relative_uptake
+      SPA_relative_uptake = .TRUE.
+
+      total_est_evap = 0.0
+      est_evap = 0.0
+      ssnow%psi_rootzone(i) = 0.0
+      ssnow%fraction_uptake(i,:) = 0.0
+
+      ! Estimate max transpiration from gradient-gravity / soil resistance
+      DO j = 1, ms ! Loop over 6 soil layers
+
+         IF (ssnow%soilR(i,j) .GT. 0.0 .AND. veg%froot(i,j) .GT. 0.0) THEN
+
+            est_evap(j) = MAX(0.0, &
+               (ssnow%psi_soil(i,j) - min_root_wp) / ssnow%soilR(i,j))
+         ELSE
+            est_evap(j) = 0.0 ! when no roots present
+         ENDIF
+
+         ! No uptake from frozen soils
+         IF ( ssnow%wbice(i,j) .gt. 0.0 ) THEN
+            est_evap(j) = 0.0
+         ENDIF
+
+         IF (veg%froot(i,j) .GT. 0.0) THEN
+            ! Soil water potential weighted by layer Emax (from SPA)
+            ssnow%psi_rootzone(i) = ssnow%psi_rootzone(i) + &
+               ssnow%psi_soil(i,j) * est_evap(j)
+         ENDIF
+      END DO
+      total_est_evap = SUM(est_evap)
+
+      ! calculate the weighted psi_soil, ms8355 2022
+      IF (total_est_evap > 0.0) THEN
+
+         ! Soil water potential is weighted by total_est_evap.
+         ssnow%psi_rootzone(i) = ssnow%psi_rootzone(i) / total_est_evap
+
+      ELSE
+
+         ssnow%psi_rootzone(i) = 0.0
+         depth_sum = 0.0
+
+         DO j = 1, ms ! Loop over 6 soil layers
+
+            IF (veg%froot(i,j) .GT. 0.0) THEN
+
+               ssnow%psi_rootzone(i) = ssnow%psi_rootzone(i) + &
+                  ssnow%psi_soil(i,j) * soil%zse(j)
+               depth_sum = depth_sum + soil%zse(j)
+
+            ENDIF
+
+         END DO
+
+         ssnow%psi_rootzone(i) = ssnow%psi_rootzone(i) / depth_sum
+
+      END IF
+
+      ! SPA method to figure out relative water uptake.
+      ! Fraction uptake in each layer by Emax in each layer
+      IF (SPA_relative_uptake) THEN
+
+         IF (total_est_evap > 0.0) THEN
+            DO j = 1, ms ! Loop over 6 soil layers
+
+               ! fraction of water taken from layer, I've lower bounded frac
+               ! uptake because when soilR is set to a huge number
+               ! (see calc_soil_root_resistance), then frac_uptake will be so
+               ! small you end up with numerical issues.
+               ssnow%fraction_uptake(i,j) = MAX(1E-09, &
+                  est_evap(j) / total_est_evap)
+
+               IF ((ssnow%fraction_uptake(i,j) > 1.0) .OR. &
+                  (ssnow%fraction_uptake(i,j) < 0.0)) THEN
+                  PRINT *, 'Problem with the uptake fraction (either >1 or 0<)'
+                  STOP
+               END IF
+
+            END DO
+         ELSE
+            ! No water was evaporated
+            ssnow%fraction_uptake(i,:) = 1.0 / FLOAT(ms)
+         END IF
+
+         ! Use Taylor-Keppler root water uptake distribution.
+      ELSE
+         ! Taylor and Keppler: relative water uptake is
+         ! proportional to root length density and Psi difference.
+         ! See : Taylor, H.M. and B. Keppler. 1975. Water uptake by cotton root
+         ! systems: an examination of assumptions in the single root model.
+         ! Soil Science. 120:57-67.
+         DO j = 1, ms ! Loop over 6 soil layers
+
+            IF (total_est_evap .GT. 0.) THEN
+               swp_diff = MAX(0., (ssnow%psi_soil(i,j) - min_root_wp))
+               ssnow%fraction_uptake(i,j) = root_length(j) * swp_diff
+            ELSE
+               ! no water uptake possible
+               ssnow%fraction_uptake(i,j) = 0.0
+            END IF
+         END DO
+
+         IF (SUM(ssnow%fraction_uptake) .GT. 0) THEN
+            ! Make sure that it sums to 1.
+            ssnow%fraction_uptake = ssnow%fraction_uptake / &
+               SUM(ssnow%fraction_uptake)
+         ELSE
+            ssnow%fraction_uptake = 0.0
+         ENDIF
+
+      ENDIF
+
+   END SUBROUTINE calc_weighted_swp_and_frac_uptake
+   ! ----------------------------------------------------------------------------
+
+END MODULE cable_soil_snow_module
+
+END MODULE cable_soil_hydraulics_module
