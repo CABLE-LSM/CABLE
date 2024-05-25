@@ -288,6 +288,18 @@ module cable_def_types_mod
      real(r_2), dimension(:),   pointer :: surface_melt => null()
      real(r_2), dimension(:),   pointer :: Qadv_rain_sn => null()
 
+    REAL(r_2), DIMENSION(:,:), POINTER ::                                      &
+          soilR => null(), & !
+          psi_soil => null(), &
+          fraction_uptake => null()
+
+      ! ms8355
+      ! Plant hydraulics variables
+    REAL(r_2), DIMENSION(:), POINTER ::                                      &
+          Rsr => null(), &   ! Total belowground resistance across layers (excludes
+                   ! root resistance).
+          psi_rootzone => null()
+
   end type soil_snow_type
 
   ! .............................................................................
@@ -469,6 +481,7 @@ module cable_def_types_mod
      real(r_2), dimension(:,:),   pointer :: tlfy => null()   ! sunlit and shaded leaf temperatures
      real(r_2), dimension(:,:),   pointer :: ecy => null()    ! sunlit and shaded leaf transpiration (dry canopy)
      real(r_2), dimension(:,:),   pointer :: ecx => null()    ! sunlit and shaded leaf latent heat flux
+     REAL(r_2), DIMENSION(:,:),   POINTER :: ecxs => null()  ! sunlit and shaded leaf latent heat flux (sap flux)
      ! REAL(r_2), DIMENSION(:,:,:), POINTER :: ci => null()     ! intra-cellular CO2 vh 6/7/09
      real(r_2), dimension(:),     pointer :: fwsoil => null() !
 
@@ -487,6 +500,13 @@ module cable_def_types_mod
      real(r_2), dimension(:,:), pointer :: gbc => null()       ! leaf boundary layer conductance for CO2 [mol(CO2)/m^2/s]
      real(r_2), dimension(:,:), pointer :: gac => null()       ! aerodynamic conductance for CO2 [mol(CO2)/m^2/s]
      real(r_2), dimension(:,:), pointer :: ci => null()        ! stomatal CO2 concentration [mol(CO2)/mol(air)]
+
+     ! plant hydraulics; mgk576 2017; ms835 2022
+     REAL, DIMENSION(:), POINTER :: &
+        psi_stem => null(), &
+        psi_can => null(), & 
+        kplant => null()
+     REAL, DIMENSION(:), POINTER :: plc_sat, plc_stem, plc_can, day_plc_sat, day_plc_stem, day_plc_can
 
   end type canopy_type
 

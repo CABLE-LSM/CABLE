@@ -50,7 +50,7 @@ LSRC = cable_data.F90 cable_common.F90 cable_define_types.F90 cable_iovars.F90 \
 	cable_site.F90 cable_optimiseJVratio.F90 cable_bios_met_obs_params.F90\
 	blaze.F90 blaze_driver.F90 simfire.F90 \
 	cable_c13o2.F90 cable_c13o2_def.F90 \
-	cable_adjustJVgm.F90
+	cable_adjustJVgm.F90 cable_soil_hydraulics.F90 cable_veg_hydraulics.F90
 LSRCf90 = mo_isotope_luc_model.f90 mo_isotope_pool_model.f90 mo_c13o2_photosynthesis.f90 \
           mo_isotope.f90 mo_constants.f90 mo_utils.f90 mo_kind.f90 minpack.f90
 
@@ -108,7 +108,7 @@ cable_driver.o: cable_driver.F90 pop_io.o cable_diag.o cable_output.o \
 		cable_plume_mip.o cable_climate.o cable_cru_TRENDY.o POPLUC.o cable_LUC_EXPT.o \
 		CASAONLY_LUC.o cable_site.o cable_bios_met_obs_params.o blaze.o \
 		blaze_driver.o simfire.o cable_c13o2_def.o spincasacnp.o mo_c13o2_photosynthesis.o \
-		casa_cable.o casa_inout.o cable_adjustJVgm.o
+		casa_cable.o casa_inout.o cable_adjustJVgm.o cable_soil_hydraulics.o cable_veg_hydraulics.o
 
 cable_define_types.o: cable_define_types.F90
 
@@ -216,6 +216,8 @@ mo_isotope_luc_model.o: mo_isotope_luc_model.f90 mo_utils.o mo_kind.o
 
 minpack.o: minpack.f90 cable_define_types.o
 cable_adjustJVgm.o: cable_adjustJVgm.F90 cable_define_types.o cable_abort.o cable_canopy.o minpack.o
+cable_soil_hydraulics.o: cable_soil_hydraulics.F90 cable_define_types.o cable_common.o 
+cable_veg_hydraulics.o: cable_veg_hydraulics.F90 cable_data.o cable_define_types.o cable_common.o 
 
 # make clean option
 clean:

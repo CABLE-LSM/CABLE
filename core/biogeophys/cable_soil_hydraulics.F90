@@ -415,6 +415,6 @@ CONTAINS
    END SUBROUTINE calc_weighted_swp_and_frac_uptake
    ! ----------------------------------------------------------------------------
 
-END MODULE cable_soil_snow_module
+
 
 END MODULE cable_soil_hydraulics_module

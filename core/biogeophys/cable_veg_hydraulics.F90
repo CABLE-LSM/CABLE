@@ -4,12 +4,16 @@
 ! contanct: zihan.lu@inrae.fr
 !==========================================================
 MODULE cable_veg_hydraulics_module
-   PUBLIC :: optimisation, zbrent, solve_psi_leaf, calc_psi_leaf, calc_psi_leaf_fails, &
-            get_xylem_vulnerability, get_xylem_vulnerabilityx, calc_plc, integrate_vulnerability, &
-            calc_transpiration, assim, QUADP, calc_michaelis_menten_constants, arrh, peaked_arrh
-
+   USE cable_data_module, ONLY : icanopy_type, point2constants
    implicit none
 
+   PUBLIC :: optimisation  ! does the actual optimization between supply and demand of transpiration
+   PUBLIC :: zbrent, solve_psi_leaf, calc_psi_leaf, calc_psi_leaf_fails, &
+            get_xylem_vulnerability, get_xylem_vulnerabilityx, calc_plc, integrate_vulnerability, &
+            calc_transpiration, assim, QUADP, calc_michaelis_menten_constants, arrh, peaked_arrh
+   PRIVATE
+
+   TYPE(icanopy_type) :: C
 CONTAINS
    SUBROUTINE optimisation(canopy, rad, vpd, press, tleaf, csx, &
       psi_soil, kcmax, kmax, PLCcrit, b_plant, &
