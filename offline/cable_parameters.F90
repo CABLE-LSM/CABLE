@@ -1174,6 +1174,7 @@ CONTAINS
     canopy%ofes   = 0.0_r_2 ! latent heat flux from soil (W/m2)
     canopy%fevc   = 0.0_r_2 !vh!
     canopy%fevw   = 0.0     !vh!
+    canopy%fevcs    = 0.0_r_2 
     canopy%fns    = 0.0
     canopy%fnv    = 0.0
     canopy%fhv    = 0.0
@@ -1790,7 +1791,36 @@ CONTAINS
        soil%ishorizon = 1
     END IF
     ! END IF
+    ! hydraulics, ms8355 2022
+    ! calculate the sensitivity and shape of the vulnerability curve
+    IF (veg%P12(1) < -1.E-3) THEN
 
+      IF (veg%P50(1) < -1.E-3) THEN
+
+         veg%c_plant = LOG(LOG(0.88) / LOG(0.5)) / (LOG(ABS(veg%P12)) - LOG(ABS(veg%P50))) ! shape parameter, unitless
+
+      ELSE IF (veg%P88(1) < -1.E-3) THEN
+
+         veg%c_plant = LOG(LOG(0.88) / LOG(0.12)) / (LOG(ABS(veg%P12)) - LOG(ABS(veg%P88))) ! shape parameter, unitless
+
+      END IF
+
+      veg%b_plant = ABS(veg%P12) / ((-LOG(0.88)) ** (1.0 / veg%c_plant)) ! sensitivity parameter, MPa
+
+   ELSE IF (veg%P50(1) < -1.E-3 .AND. veg%P88(1) < -1.E-3) THEN
+
+      veg%c_plant = LOG(LOG(0.5) / LOG(0.12)) / (LOG(ABS(veg%P50)) - LOG(ABS(veg%P88))) ! shape parameter, unitless
+      veg%b_plant = ABS(veg%P50) / ((-LOG(0.5)) ** (1.0 / veg%c_plant)) ! sensitivity parameter, MPa
+
+   ELSE IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
+
+      IF (veg%b_plant(1) < 1.E-3 .AND. veg%c_plant(1) < 1.E-3) THEN
+
+         PRINT *, "/!\ The hydraulics parameters are not supplied, so the profitmax will crash /!\"
+
+      END IF
+
+   END IF
   END SUBROUTINE derived_parameters
   !============================================================================
   SUBROUTINE check_parameter_values(soil, veg, ssnow)
