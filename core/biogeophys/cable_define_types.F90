@@ -357,7 +357,15 @@ module cable_def_types_mod
           gm => null(),      & ! mesophyll conductance adjusted for N content (mol/2/s)
           c4kci => null(),   & ! C4 plants: initial slope of An-Ci response curve (Ci-based)
           c4kcc => null(),   & ! C4 plants: initial slope of An-Ci response curve (Cc-based)
-          bjv => null()        ! Jmax-Vcmax ratio at 25degC
+          bjv => null(),&        ! Jmax-Vcmax ratio at 25degC
+          P12 => null(),     &
+          P50 => null(),     &
+          P88 => null(),     &
+          b_plant => null(), & ! sensitivity of hydraulic vulnerability curve, MPa (higher = less sensitive to SW)
+          c_plant => null(), & ! shape of hydraulic VC, [-]
+          kmax => null(),    & ! maximum hydraulic conductance in the soil-plant continuum, mmol m-2 s-1 MPa-1
+          PLCcrit => null()    ! critical maximum percentage loss of hydraulic conductivity above which no xylem recovery can occur, %
+
 
      logical, dimension(:), pointer :: &
           deciduous => null() ! flag used for phenology fix
@@ -448,6 +456,7 @@ module cable_def_types_mod
           fes => null(),     & ! latent heatfl from soil (W/m2)
           fes_cor => null(), & ! latent heatfl from soil (W/m2)
           fevc => null(),    & ! dry canopy transpiration (W/m2)
+          fevcs => null(),     &  ! sapflux-based transpiration (W/m2), plant hydraulics, ms8355
           ofes => null(),    & ! latent heatfl from soil (W/m2)
           A_sl => null(),    & ! net photosynthesis from sunlit leaves
           A_sh => null(),    & ! net photosynthesis from shaded leaves
@@ -1041,7 +1050,12 @@ contains
     allocate(ssnow%evap_liq_sn(mp))
     allocate(ssnow%surface_melt(mp))
     allocate(ssnow%Qadv_rain_sn(mp))
-
+      ! Allocate variables for plant hydraulics, mgk576, 9/10/17
+    allocate ( ssnow%Rsr(mp) )
+    allocate ( ssnow%soilR(mp,ms) )
+    allocate ( ssnow%fraction_uptake(mp,ms) )
+    allocate ( ssnow%psi_soil(mp,ms) )
+    allocate ( ssnow%psi_rootzone(mp) )
   end subroutine alloc_soil_snow_type
 
   ! ------------------------------------------------------------------
@@ -1111,6 +1125,13 @@ contains
     allocate(veg%clitt(mp))
     allocate(veg%disturbance_interval(mp,2))
     allocate(veg%disturbance_intensity(mp,2))
+    allocate( veg%P12(mp) )
+    allocate( veg%P50(mp) )
+    allocate( veg%P88(mp) )
+    allocate( veg%b_plant(mp) )
+    allocate( veg%c_plant(mp) )
+    allocate( veg%kmax(mp) ) 
+    allocate( veg%PLCcrit(mp) ) 
 
   end subroutine alloc_veg_parameter_type
 
@@ -1223,7 +1244,18 @@ contains
     allocate(canopy%gbc(mp,mf))
     allocate(canopy%gac(mp,mf))
     allocate(canopy%ci(mp,mf))
-
+    allocate( canopy%fevcs(mp) )
+    allocate ( canopy%ecxs(mp,mf) )    ! sunlit and shaded leaf latent heat flux (sap flux)
+  ! plant hydraulics; mgk576 2017; ms8355 2022
+    allocate( canopy%psi_stem(mp) )
+    allocate( canopy%psi_can(mp) )
+    allocate( canopy%kplant(mp) )
+    allocate( canopy%plc_sat(mp) )
+    allocate( canopy%plc_stem(mp) )
+    allocate( canopy%plc_can(mp) )
+    allocate( canopy%day_plc_sat(mp) )
+    allocate( canopy%day_plc_stem(mp) )
+    allocate( canopy%day_plc_can(mp) )
   end subroutine alloc_canopy_type
 
   ! ------------------------------------------------------------------
@@ -1669,7 +1701,11 @@ contains
     deallocate(ssnow%evap_liq_sn)
     deallocate(ssnow%surface_melt)
     deallocate(ssnow%Qadv_rain_sn)
-
+    deallocate( ssnow%Rsr  )
+    deallocate( ssnow%soilR  )
+    deallocate( ssnow%fraction_uptake  )
+    deallocate( ssnow%psi_soil )
+    deallocate( ssnow%psi_rootzone )
   end subroutine dealloc_soil_snow_type
 
   ! ------------------------------------------------------------------
@@ -1730,6 +1766,14 @@ contains
     deallocate(veg%CLitt)
     deallocate(veg%disturbance_interval)
     deallocate(veg%disturbance_intensity)
+      ! plant hydraulics; mgk576 2019; ms8355 2022 
+    deallocate( veg%P12 )
+    deallocate( veg%P50 )
+    deallocate( veg%P88 )
+    deallocate( veg%b_plant ) 
+    deallocate( veg%c_plant ) 
+    deallocate( veg%kmax )
+    deallocate( veg%PLCcrit )
 
   end subroutine dealloc_veg_parameter_type
 
@@ -1813,6 +1857,18 @@ contains
     !! vh_js !! litter resistances to heat and vapour transfer
     deallocate(canopy%kthLitt)
     deallocate(canopy%DvLitt)
+    ! plant hydraulics; mgk576 2017; ms8355 2022
+    deallocate( canopy%fevcs )
+    deallocate( canopy%ecxs )
+    deallocate( canopy%psi_stem )
+    deallocate( canopy%psi_can )
+    deallocate( canopy%kplant )
+    deallocate( canopy%plc_sat )
+    deallocate( canopy%plc_stem )
+    deallocate( canopy%plc_can )
+    deallocate( canopy%day_plc_sat )
+    deallocate( canopy%day_plc_stem )
+    deallocate( canopy%day_plc_can )
 
   end subroutine dealloc_canopy_type
 
@@ -2164,6 +2220,11 @@ contains
     ssnow%evap_liq_sn      = 0
     ssnow%surface_melt     = 0
     ssnow%Qadv_rain_sn     = 0
+    ssnow%Rsr              = 0
+    ssnow%soilR            = 0
+    ssnow%fraction_uptake  = 0
+    ssnow%psi_soil         = 0
+    ssnow%psi_rootzone     = 0
 
   end subroutine zero_soil_snow_type
 
@@ -2234,7 +2295,14 @@ contains
     veg%clitt    = 0
     veg%disturbance_interval  = 0
     veg%disturbance_intensity = 0
-
+    veg%P12 = 0
+    veg%P50 = 0
+    veg%P88 = 0
+    veg%b_plant = 0
+    veg%c_plant = 0
+    veg%kmax = 0
+    veg%PLCcrit = 0
+   
   end subroutine zero_veg_parameter_type
 
 
@@ -2343,6 +2411,17 @@ contains
     canopy%gbc       = 0
     canopy%gac       = 0
     canopy%ci        = 0
+    canopy%fevcs = 0
+    canopy%ecxs = 0
+    canopy%psi_stem = 0
+    canopy%psi_can = 0
+    canopy%kplant = 0
+    canopy%plc_sat = 0
+    canopy%plc_stem = 0
+    canopy%plc_can = 0
+    canopy%day_plc_sat = 0
+    canopy%day_plc_stem = 0
+    canopy%day_plc_can = 0
 
   end subroutine zero_canopy_type
 
@@ -2794,6 +2873,17 @@ contains
     write(*,*) 'ssnow%surface_melt ', ssnow%surface_melt
     write(*,*) 'ssnow%Qadv_rain_sn ', ssnow%Qadv_rain_sn
 
+    write(*,*) 'ssnow%E_sublimation_sn ', ssnow%E_sublimation_sn
+    write(*,*) 'ssnow%latent_heat_sn ', ssnow%latent_heat_sn
+    write(*,*) 'ssnow%evap_liq_sn ', ssnow%evap_liq_sn
+    write(*,*) 'ssnow%surface_melt ', ssnow%surface_melt
+    write(*,*) 'ssnow%Qadv_rain_sn ', ssnow%Qadv_rain_sn
+    write(*,*) 'ssnow%Rsr ', ssnow%Rsr
+    write(*,*) 'ssnow%soilR ', ssnow%soilR
+    write(*,*) 'ssnow%fraction_uptake ', ssnow%fraction_uptake
+    write(*,*) 'ssnow%psi_soil ', ssnow%psi_soil
+    write(*,*) 'ssnow%psi_rootzone ', ssnow%psi_rootzone
+ 
   end subroutine print_soil_snow_type
 
 
@@ -2863,7 +2953,14 @@ contains
     write(*,*) 'veg%clitt ', veg%clitt
     write(*,*) 'veg%disturbance_interval ', veg%disturbance_interval
     write(*,*) 'veg%disturbance_intensity ', veg%disturbance_intensity
-
+    write(*,*) 'veg%P12 ', veg%P12
+    write(*,*) 'veg%P50 ', veg%P50
+    write(*,*) 'veg%P88 ', veg%P88
+    write(*,*) 'veg%b_plant ', veg%b_plant
+    write(*,*) 'veg%c_plant ', veg%c_plant
+    write(*,*) 'veg%kmax ', veg%kmax
+    write(*,*) 'veg%PLCcrit ', veg%PLCcrit
+  
   end subroutine print_veg_parameter_type
 
 
@@ -2971,8 +3068,18 @@ contains
     write(*,*) 'canopy%gsc ', canopy%gsc
     write(*,*) 'canopy%gbc ', canopy%gbc
     write(*,*) 'canopy%gac ', canopy%gac
-    write(*,*) 'canopy%ci ', canopy%ci
-
+    write(*,*) 'canopy%fevcs ', canopy%fevcs
+    write(*,*) 'canopy%ecxs ', canopy%ecxs
+    write(*,*) 'canopy%psi_stem ', canopy%psi_stem
+    write(*,*) 'canopy%psi_can ', canopy%psi_can
+    write(*,*) 'canopy%kplant ', canopy%kplant
+    write(*,*) 'canopy%plc_sat ', canopy%plc_sat
+    write(*,*) 'canopy%plc_stem ', canopy%plc_stem
+    write(*,*) 'canopy%plc_can ', canopy%plc_can
+    write(*,*) 'canopy%day_plc_sat ', canopy%day_plc_sat
+    write(*,*) 'canopy%day_plc_stem ', canopy%day_plc_stem
+    write(*,*) 'canopy%day_plc_can ', canopy%day_plc_can
+  
   end subroutine print_canopy_type
 
 
