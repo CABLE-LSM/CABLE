@@ -957,6 +957,17 @@ CONTAINS
        veg%froot(h,:) = vegin%froot(:, veg%iveg(h))
        veg%zr(h)      = vegin%zr(veg%iveg(h))
        veg%clitt(h)   = vegin%clitt(veg%iveg(h))
+          ! plant hydraulics; mgk576 2017; ms8355 2022
+       veg%kmax(h)     = vegin%kmax(veg%iveg(h))
+
+       IF (veg%PLCcrit(h) < 1.E-3) THEN
+          veg%PLCcrit(h)    = vegin%PLCcrit(veg%iveg(h))
+
+          IF (veg%PLCcrit(h) < 1.E-3) THEN
+             veg%PLCcrit(h) = 95.0
+          END IF
+
+       END IF
     END DO ! over each veg patch in land point
 
   END SUBROUTINE init_veg_from_vegin
