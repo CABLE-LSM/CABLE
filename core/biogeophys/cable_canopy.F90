@@ -763,7 +763,7 @@ CONTAINS
        canopy%qscrn(j) = met%qv(j) - qstar(j) * ftemp(j)
 
        IF( canopy%vlaiw(j) >C%LAI_THRESH .and. rough%hruff(j) > 0.01) &
-
+            
             canopy%qscrn(j) = qsurf(j) + (met%qv(j) - qsurf(j)) * MIN( 1., &
             r_sc(j) / MAX( 1., rough%rt0us(j) + &
             rough%rt1usa(j) + rough%rt1usb(j) + rt1usc(j) ) )
@@ -1585,10 +1585,10 @@ CONTAINS
          vx3,        & ! carboxylation C3 plants
          vx4,        & ! carboxylation C4 plants
          co2cp,      & ! CO2 compensation point (needed for Leuing stomatal conductance)
-                       ! Ticket #56, xleuning is no longer used, we replace it with gs_coeff,
-                       ! which is computed differently based on the new GS_SWITCH. If GS_SWITCH
-                       ! is "leuning", it's the same, if "medlyn", then the new Medlyn model
-                       ! xleuning,   & ! leuning stomatal coeff
+                                ! Ticket #56, xleuning is no longer used, we replace it with gs_coeff,
+                                ! which is computed differently based on the new GS_SWITCH. If GS_SWITCH
+                                ! is "leuning", it's the same, if "medlyn", then the new Medlyn model
+                                ! xleuning,   & ! leuning stomatal coeff
          gs_coeff,   & ! stom coeff, Ticket #56
          psycst,     & ! modified pych. constant
          frac42,     & ! 2D frac4
@@ -1631,25 +1631,25 @@ CONTAINS
     integer :: i, k, kk, h ! iteration count
     real :: vpd, g1, ktot, fw, refill  ! Ticket #56
     REAL, PARAMETER :: & ! Ref. params from Bernacchi et al. (2001)
-    co2cp325 = 42.75, & ! CO2 compensation pt C3 at 25 degrees, umol mol-1
-    Eaco2cp325 = 37830. ! activation energy for the CO2 compensation pt
- REAL :: co2cp3 ! CO2 compensation pt C3, N.B.: this is set to 0 by default in CABLE
+         co2cp325 = 42.75, & ! CO2 compensation pt C3 at 25 degrees, umol mol-1
+         Eaco2cp325 = 37830. ! activation energy for the CO2 compensation pt
+    REAL :: co2cp3 ! CO2 compensation pt C3, N.B.: this is set to 0 by default in CABLE
 
- REAL :: trans_mmol, press
- REAL, PARAMETER :: KG_2_G = 1000.0
- REAL, PARAMETER :: G_WATER_TO_MOL = 1.0 / 18.01528
- REAL, PARAMETER :: MOL_2_MMOL = 1000.0
- REAL, PARAMETER :: MMOL_2_MOL = 1.0 / MOL_2_MMOL
- REAL, PARAMETER :: MB_TO_PA = 100.
- INTEGER, PARAMETER :: resolution = 800 ! jumps in Ci ~ 0.5 umol mol-1
- REAL, DIMENSION(2) :: an_canopy
- REAL :: e_canopy
- REAL(r_2), DIMENSION(resolution) :: p
+    REAL :: trans_mmol, press
+    REAL, PARAMETER :: KG_2_G = 1000.0
+    REAL, PARAMETER :: G_WATER_TO_MOL = 1.0 / 18.01528
+    REAL, PARAMETER :: MOL_2_MMOL = 1000.0
+    REAL, PARAMETER :: MMOL_2_MOL = 1.0 / MOL_2_MMOL
+    REAL, PARAMETER :: MB_TO_PA = 100.
+    INTEGER, PARAMETER :: resolution = 800 ! jumps in Ci ~ 0.5 umol mol-1
+    REAL, DIMENSION(2) :: an_canopy
+    REAL :: e_canopy
+    REAL(r_2), DIMENSION(resolution) :: p
 
- REAL :: MOL_WATER_2_G_WATER, G_TO_KG, UMOL_TO_MOL, MB_TO_KPA, PA_TO_KPA
- REAL, DIMENSION(mp) :: kcmax, avg_kcan
- REAL :: new_plc_sat, new_plc_stem, new_plc_can
- REAL :: MOL_TO_UMOL, J_TO_MOL
+    REAL :: MOL_WATER_2_G_WATER, G_TO_KG, UMOL_TO_MOL, MB_TO_KPA, PA_TO_KPA
+    REAL, DIMENSION(mp) :: kcmax, avg_kcan
+    REAL :: new_plc_sat, new_plc_stem, new_plc_can
+    REAL :: MOL_TO_UMOL, J_TO_MOL
 #ifdef __MPI__
     integer :: ierr
 #endif
@@ -1667,8 +1667,8 @@ CONTAINS
              call fwsoil_calc_non_linear(fwsoil, soil, ssnow, veg)
           elseif (cable_user%fwsoil_switch == 'Lai and Katul 2000') then
              call fwsoil_calc_Lai_Katul(fwsoil, soil, ssnow, veg)
-             elseif (cable_user%FWSOIL_SWITCH == 'profitmax') then
-               fwsoil = 1.0
+          elseif (cable_user%FWSOIL_SWITCH == 'profitmax') then
+             fwsoil = 1.0
           else
              write(*,*) 'fwsoil_switch failed.'
 #ifdef __MPI__
@@ -1729,8 +1729,8 @@ CONTAINS
     canopy%fevc   = 0.0_r_2
     ssnow%evapfbl = 0.0
 
-    ecxs = 0.0
-    canopy%fevcs = 0.0
+    ecxs = 0.0_r_2
+    canopy%fevcs = 0.0_r_2
 
     ghwet = 1.0e-3_r_2
     gwwet = 1.0e-3
@@ -1758,6 +1758,7 @@ CONTAINS
     endif
     cx2(:) = 2.0 * gam0 * exp( egam / (C%rgas * C%trefk) &
          * (1.0 - C%trefk / tlfx(:)) )
+    a = k25 * exp((Ea * (Tk - 298.15)) / (298.15 * RGAS * Tk))
 
     DO kk=1,mp
 
@@ -1765,7 +1766,7 @@ CONTAINS
           rnx(kk) = 0.0_r_2 ! intialise
           ecx(kk) = 0.0_r_2 ! intialise
           ecy(kk) = ecx(kk) ! store initial values
-          ecxs(kk) = 0.0 ! initialise
+          ecxs(kk) = 0.0_r_2 ! initialise
           abs_deltlf(kk) = 0.0
           rny(kk) = rnx(kk) ! store initial values
           ! calculate total thermal resistance, rthv in s/m
@@ -1776,10 +1777,10 @@ CONTAINS
     deltlfy = abs_deltlf
     k = 0
     DO i=1,mp
-      ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
-      kcmax(i) = veg%kmax(i) * &
-                  get_xylem_vulnerability(ssnow%psi_rootzone(i), &
-                                          veg%b_plant(i), veg%c_plant(i))
+       ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
+       kcmax(i) = veg%kmax(i) * &
+            get_xylem_vulnerability(ssnow%psi_rootzone(i), &
+            veg%b_plant(i), veg%c_plant(i))
     END DO
     !kdcorbin, 08/10 - doing all points all the time
     DO WHILE (k < C%MAXITER)
@@ -1918,9 +1919,9 @@ CONTAINS
              ! used for Jmax for C3 plants:
              if (.not.cable_user%acclimate_photosyn) then
                 temp_sun_c3(i) = xejmxt3(tlfx(i)) * &
-                                 veg%ejmax_sun(i) * (1.0-veg%frac4(i))
+                     veg%ejmax_sun(i) * (1.0-veg%frac4(i))
                 temp_shade_c3(i) = xejmxt3(tlfx(i)) * &
-                                   veg%ejmax_shade(i) * (1.0-veg%frac4(i))
+                     veg%ejmax_shade(i) * (1.0-veg%frac4(i))
              else
                 call xejmxt3_acclim(tlfx(i), climate%mtemp(i), climate%mtemp_max20(i), temp_c3(i))
                 temp_sun_c3(i)   = temp_c3(i) * veg%ejmax_sun(i) * (1.0-veg%frac4(i))
@@ -2118,9 +2119,9 @@ CONTAINS
                 !      * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
 
                 ! Medlyn BE et al (2011) Global Change Biology 17: 2134-2144.
-               ELSEIF(cable_user%GS_SWITCH == 'medlyn' .AND. &
-                        cable_user%FWSOIL_SWITCH /= 'profitmax') THEN
-    
+             ELSEIF(cable_user%GS_SWITCH == 'medlyn' .AND. &
+                  cable_user%FWSOIL_SWITCH /= 'profitmax') THEN
+
                 gswmin(i,1) = veg%g0(i) * rad%scalex(i,1)
                 gswmin(i,2) = veg%g0(i) * rad%scalex(i,2)
 
@@ -2147,37 +2148,40 @@ CONTAINS
              ELSE IF (cable_user%GS_SWITCH == 'medlyn' .AND. &
                   cable_user%FWSOIL_SWITCH == 'profitmax') THEN
 
-            ! Profix-Max hydraulics model
-            vpd = dsx(i) * PA_TO_KPA ! this is leaf vpd
-            press = met%pmb(i) * MB_TO_KPA
+                ! Profix-Max hydraulics model
+                vpd = dsx(i) * PA_TO_KPA ! this is leaf vpd
+                press = met%pmb(i) * MB_TO_KPA
 
-            IF (vpd < 0.05) THEN
-               ecx(i) = 0.0
-               ecxs(i) = 0.0
-               anx(i,1) = 0.0 - rdx(i,1)
-               anx(i,2) = 0.0 - rdx(i,2)
-            ELSE
-               CALL optimisation(canopy, rad, vpd, press, tlfx(i), &
-                                 csx, ssnow%psi_rootzone(i), &
-                                 kcmax, veg%kmax(i), veg%PLCcrit(i), &
-                                 veg%b_plant(i), veg%c_plant(i), resolution, vcmxt3, &
-                                 ejmxt3, rdx, vx3, cx1(i), an_canopy, e_canopy, &
-                                 avg_kcan, co2cp3, p, i)
+                IF (vpd < 0.05) THEN
+                   ecx(i) = 0.0_r_2
+                   ecxs(i) = 0.0_r_2
+                   anx(i, 1) = 0.0 - rdx(i, 1)  !MC Why A=0 if VPD low?
+                   anx(i, 2) = 0.0 - rdx(i, 2)
+                ELSE
+                   !MC Photosynthesis is calculated in here: to change for "our"
+                   !   photosynthesis model
+                   CALL optimisation(canopy, rad, vpd, press, tlfx(i), &
+                        csx, ssnow%psi_rootzone(i), &
+                        kcmax, veg%kmax(i), veg%PLCcrit(i), &
+                        veg%b_plant(i), veg%c_plant(i), resolution, vcmxt3, &
+                        ejmxt3, rdx, vx3, cx1(i), an_canopy, e_canopy, &
+                        avg_kcan, co2cp3, p, i)
 
-               ! fix units for CABLE and pack into arrays
-               anx(i,1) = an_canopy(1) * UMOL_TO_MOL
-               anx(i,2) = an_canopy(2) * UMOL_TO_MOL
+                   ! fix units for CABLE and pack into arrays
+                   anx(i,1) = an_canopy(1) * UMOL_TO_MOL
+                   anx(i,2) = an_canopy(2) * UMOL_TO_MOL
 
-               ! fix units for CABLE and pack sap flux E into arrays
-               IF (e_canopy > 0.0) THEN
-                  ecxs(i) = e_canopy * air%rlam(i) * MOL_WATER_2_G_WATER * G_TO_KG
-               ELSE
-                  ecxs(i) = 0.0
-               END IF
-            END IF
+                   ! fix units for CABLE and pack sap flux E into arrays
+                   !MC check for single/double precision
+                   IF (e_canopy > 0.0) THEN
+                      ecxs(i) = e_canopy * air%rlam(i) * MOL_WATER_2_G_WATER * G_TO_KG
+                   ELSE
+                      ecxs(i) = 0.0_r_2
+                   END IF
+                END IF
 
-          ELSE
-           PRINT *, cable_user%GS_SWITCH, cable_user%FWSOIL_SWITCH, veg%iveg(i)
+             ELSE
+                PRINT *, cable_user%GS_SWITCH, cable_user%FWSOIL_SWITCH, veg%iveg(i)
 
                 write(*,*) 'gs_model_switch failed.'
 #ifdef __MPI__
@@ -2194,16 +2198,16 @@ CONTAINS
 
        ! gmes is 0.0 if explicit_gm = FALSE (easier to debug)
        IF (cable_user%FWSOIL_SWITCH /= 'profitmax') THEN
-       CALL photosynthesis_gm( csx(:,:), &
-            spread(cx1(:),2,mf), &
-            spread(cx2(:),2,mf), &
-            gswmin(:,:), rdx(:,:), vcmxt3(:,:), &
-            vcmxt4(:,:), vx3(:,:), vx4(:,:), &
-                              ! Ticket #56, xleuning replaced with gs_coeff here
-            gs_coeff(:,:), rad%fvlai(:,:), &
-            spread(abs_deltlf,2,mf), &
-            anx(:,:), fwsoil(:), qs, gmes(:,:), kc4(:,:), &
-            anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:) )
+          CALL photosynthesis_gm( csx(:,:), &
+               spread(cx1(:),2,mf), &
+               spread(cx2(:),2,mf), &
+               gswmin(:,:), rdx(:,:), vcmxt3(:,:), &
+               vcmxt4(:,:), vx3(:,:), vx4(:,:), &
+                                ! Ticket #56, xleuning replaced with gs_coeff here
+               gs_coeff(:,:), rad%fvlai(:,:), &
+               spread(abs_deltlf,2,mf), &
+               anx(:,:), fwsoil(:), qs, gmes(:,:), kc4(:,:), &
+               anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:) )
        ENDIF
        ! print*, 'DD28 ', rad%fvlai
        ! print*, 'DD29 ', met%ca
@@ -2297,33 +2301,33 @@ CONTAINS
                    fwsoil(i) = real(canopy%fwsoil(i))
                 endif
 
-               ELSE IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
+             ELSE IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
 
 
-                  IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
-                      evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels  &
-                           / air%rlam(i)
-  
-                      DO kk = 1,ms
-  
-                         !ssnow%evapfbl(i,kk) = MIN(evapfb(i) * &
-                         !                          ssnow%fraction_uptake(i,kk),  &
-                         !                          MAX(0.0, &
-                         !                              REAL(ssnow%wb(i,kk)) -    &
-                         !                              soil%swilt(i)) * &
-                         !                          soil%zse(kk) * 1000.0)
-  
-                         ! ms8355: no bounding by swilt in this version, or the
-                         ! "beneits" from hydraulics are cancelled
-                         ssnow%evapfbl(i,kk) = evapfb(i) * &
-                                               ssnow%fraction_uptake(i,kk)
-  
-                     ENDDO
-                     canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
-                     ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
-                 ENDIF
-  
-               ELSE
+                IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
+                   evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels  &
+                        / air%rlam(i)
+
+                   DO kk = 1,ms
+
+                      !ssnow%evapfbl(i,kk) = MIN(evapfb(i) * &
+                      !                          ssnow%fraction_uptake(i,kk),  &
+                      !                          MAX(0.0, &
+                      !                              REAL(ssnow%wb(i,kk)) -    &
+                      !                              soil%swilt(i)) * &
+                      !                          soil%zse(kk) * 1000.0)
+
+                      ! ms8355: no bounding by swilt in this version, or the
+                      ! "beneits" from hydraulics are cancelled
+                      ssnow%evapfbl(i,kk) = evapfb(i) * &
+                           ssnow%fraction_uptake(i,kk)
+
+                   ENDDO
+                   canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
+                   ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
+                ENDIF
+
+             ELSE
 
                 if (ecx(i) > 0.0_r_2 .and. canopy%fwet(i) < 1.0) then
                    evapfb(i) = ( 1.0 - canopy%fwet(i)) * real(ecx(i)) *dels &
@@ -2565,58 +2569,58 @@ CONTAINS
     canopy%ci        = real(spread(met%ca, 2, mf), r_2) - &
          canopy%An / &
          (1.0_r_2 / (1.0_r_2/canopy%gbc + 1.0_r_2/canopy%gsc + tiny(1.0_r_2)))
-      IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
-            canopy%fevcs = (1.0-canopy%fwet) * ecxs  ! trans. from sapflux
-     
-            DO i = 1, mp
-     
-               new_plc_sat = calc_plc(kcmax(i), veg%kmax(i), veg%PLCcrit(i))
-     
-               IF (canopy%psi_can(i) < ssnow%psi_rootzone(i) .AND. ecxs(i) > 1E-9) THEN
-                  IF (avg_kcan(i) > 1E-9 .AND. avg_kcan(i) < veg%kmax(i)) THEN
-     
-                     ! Partitioning ratios from Drake et al. (2015), PC&E, 38: 1628-1636.
-                     new_plc_stem = calc_plc(5. / (2. / avg_kcan(i) + 3. / kcmax(i)), &
-                                             veg%kmax(i), veg%PLCcrit(i)) ! 2:5 to 3:5
-     
-                     new_plc_can = calc_plc(avg_kcan(i), veg%kmax(i), veg%PLCcrit(i))
-     
-                  ELSE
-                     new_plc_stem = 0.0
-                     new_plc_can = 0.0
-                  ENDIF
-     
-               ELSE
-                  new_plc_stem = 0.0
-                  new_plc_can = 0.0
-               ENDIF
-     
-               IF (new_plc_sat > canopy%day_plc_sat(i)) THEN
-                  canopy%day_plc_sat(:) = new_plc_sat
-               ENDIF
-     
-               IF (new_plc_stem > canopy%day_plc_stem(i)) THEN
-                  canopy%day_plc_stem(:) = new_plc_stem
-               ENDIF
-     
-               IF (new_plc_can > canopy%day_plc_can(i)) THEN
-                  canopy%day_plc_can(:) = new_plc_can
-               ENDIF
-     
-               ! set the day's PLC and reset the PLC tracker here
-               IF (met%hod(i) >= 24.0 - dels / (60.0 * 60.0) - 1E-6) THEN
-                  canopy%day_plc_sat(:) = 0.0
-                  canopy%day_plc_stem(:) = 0.0
-                  canopy%day_plc_can(:) = 0.0
-     
-               ELSE IF (met%hod(i) >= 24.0 - 2.0 * dels / (60.0 * 60.0) - 1E-6) THEN
-                  canopy%plc_sat(i) = canopy%day_plc_sat(i)
-                  canopy%plc_stem(i) = canopy%day_plc_stem(i)
-                  canopy%plc_can(i) = canopy%day_plc_can(i)
-               ENDIF
-     
-            END DO
-         ENDIF
+    IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
+       canopy%fevcs = (1.0-canopy%fwet) * ecxs  ! trans. from sapflux
+
+       DO i = 1, mp
+
+          new_plc_sat = calc_plc(kcmax(i), veg%kmax(i), veg%PLCcrit(i))
+
+          IF (canopy%psi_can(i) < ssnow%psi_rootzone(i) .AND. ecxs(i) > 1E-9) THEN
+             IF (avg_kcan(i) > 1E-9 .AND. avg_kcan(i) < veg%kmax(i)) THEN
+
+                ! Partitioning ratios from Drake et al. (2015), PC&E, 38: 1628-1636.
+                new_plc_stem = calc_plc(5. / (2. / avg_kcan(i) + 3. / kcmax(i)), &
+                     veg%kmax(i), veg%PLCcrit(i)) ! 2:5 to 3:5
+
+                new_plc_can = calc_plc(avg_kcan(i), veg%kmax(i), veg%PLCcrit(i))
+
+             ELSE
+                new_plc_stem = 0.0
+                new_plc_can = 0.0
+             ENDIF
+
+          ELSE
+             new_plc_stem = 0.0
+             new_plc_can = 0.0
+          ENDIF
+
+          IF (new_plc_sat > canopy%day_plc_sat(i)) THEN
+             canopy%day_plc_sat(:) = new_plc_sat
+          ENDIF
+
+          IF (new_plc_stem > canopy%day_plc_stem(i)) THEN
+             canopy%day_plc_stem(:) = new_plc_stem
+          ENDIF
+
+          IF (new_plc_can > canopy%day_plc_can(i)) THEN
+             canopy%day_plc_can(:) = new_plc_can
+          ENDIF
+
+          ! set the day's PLC and reset the PLC tracker here
+          IF (met%hod(i) >= 24.0 - dels / (60.0 * 60.0) - 1E-6) THEN
+             canopy%day_plc_sat(:) = 0.0
+             canopy%day_plc_stem(:) = 0.0
+             canopy%day_plc_can(:) = 0.0
+
+          ELSE IF (met%hod(i) >= 24.0 - 2.0 * dels / (60.0 * 60.0) - 1E-6) THEN
+             canopy%plc_sat(i) = canopy%day_plc_sat(i)
+             canopy%plc_stem(i) = canopy%day_plc_stem(i)
+             canopy%plc_can(i) = canopy%day_plc_can(i)
+          ENDIF
+
+       END DO
+    ENDIF
     ! deallocate( gswmin )
 
   END SUBROUTINE dryLeaf
@@ -2726,7 +2730,7 @@ CONTAINS
                               Am, dAmc(i,j))
                          if (g0 > Am*X) then ! repeat calculation if g0 > A*X
                             call fAndAn_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
-                              Am, dAmc(i,j))
+                                 Am, dAmc(i,j))
                          endif
                       endif
                    endif
@@ -2763,8 +2767,8 @@ CONTAINS
                          call fAmdAm_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
                               gm, Am, dAme(i,j))
                       else
-                        call fAndAn_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
-                             Am, dAme(i,j))
+                         call fAndAn_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
+                              Am, dAme(i,j))
                       endif
                    elseif (trim(cable_user%g0_switch) == 'maximum') then
                       if (cable_user%explicit_gm) then
@@ -2906,9 +2910,9 @@ CONTAINS
     real             :: xrd   ! light inhibition of Rd (0-1)
 
     if (APAR > 10.0) then
-        xrd = 0.5 - 0.05 * log(APAR)
+       xrd = 0.5 - 0.05 * log(APAR)
     else
-        xrd = 1.0
+       xrd = 1.0
     endif
 
   END FUNCTION light_inhibition
@@ -3018,8 +3022,8 @@ CONTAINS
     !z = max(0.0, xvcnum / xvcden)
 
     xv = exp(EaV * (Tk - C%TrefK) / (C%TrefK * C%Rgas * Tk )) * &
-          (1.0 + exp((C%TrefK * dSV - EdV) / (C%TrefK * C%Rgas))) / &
-          (1.0 + exp((Tk * dSV - EdV) / (Tk * C%Rgas)))
+         (1.0 + exp((C%TrefK * dSV - EdV) / (C%TrefK * C%Rgas))) / &
+         (1.0 + exp((Tk * dSV - EdV) / (Tk * C%Rgas)))
     z = max(0.0, xv)
 
   END FUNCTION xvcmxt3
@@ -3051,8 +3055,8 @@ CONTAINS
     call point2constants(C)
 
     xc4 = exp(EHa * (Tk - C%TrefK) / (C%TrefK * C%Rgas * Tk )) * &
-          (1.0 + exp((C%TrefK * Entrop - EHd) / (C%TrefK * C%Rgas))) / &
-          (1.0 + exp((Tk * Entrop - EHd) / (Tk * C%Rgas)))
+         (1.0 + exp((C%TrefK * Entrop - EHd) / (C%TrefK * C%Rgas))) / &
+         (1.0 + exp((Tk * Entrop - EHd) / (Tk * C%Rgas)))
 
     z = max(0.0, xc4)
 
@@ -3164,8 +3168,8 @@ CONTAINS
     !z = max(0.0, xjxnum/xjxden)
 
     xj = exp(EaJ * (Tk - C%TrefK) / (C%TrefK * C%Rgas * Tk )) * &
-          (1.0 + exp((C%TrefK * dSJ - EdJ) / (C%TrefK * C%Rgas))) / &
-          (1.0 + exp((Tk * dSJ - EdJ) / (Tk * C%Rgas)))
+         (1.0 + exp((C%TrefK * dSJ - EdJ) / (C%TrefK * C%Rgas))) / &
+         (1.0 + exp((Tk * dSJ - EdJ) / (Tk * C%Rgas)))
     z = max(0.0, xj)
 
   END FUNCTION xejmxt3
