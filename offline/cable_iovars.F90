@@ -392,7 +392,16 @@ MODULE cable_IO_vars_module
          isoil  = .FALSE.,    & ! soil type from global index
          meth  = .FALSE.,     & ! method for solving turbulence in canopy scheme
          za  = .FALSE.,       & ! something to do with roughness ????
-         c13o2 = .false.        ! carbon pools and flux output for 13C isotopes
+         c13o2 = .false., &      ! carbon pools and flux output for 13C isotopes
+         psi_soil = .FALSE.,       & 
+         psi_rootzone = .FALSE.,       & 
+         psi_stem = .FALSE.,       & 
+         psi_can = .FALSE.,       & 
+         plc_sat = .FALSE.,       & 
+         plc_stem = .FALSE.,       & 
+         plc_can = .FALSE.,       & 
+         gsw_sun = .FALSE.,       & 
+         gsw_sha = .FALSE.
    END TYPE output_inclusion_type
 
    TYPE(output_inclusion_type), SAVE :: output

@@ -67,7 +67,7 @@ contains
     ! local variables
     INTEGER                  :: myearspin,nyear, yyyy, nyear_dump
     CHARACTER(LEN=99)        :: ncfile
-    CHARACTER(LEN=4)         :: cyear
+    CHARACTER(LEN=4)         :: 
     INTEGER                  :: ktau,ktauday,nday,idoy
     real(r_2), dimension(mp)      :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
     real(r_2), dimension(mp)      :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
@@ -114,7 +114,7 @@ contains
        nyear_dump = mod(nyear, cable_user%casa_spin_endyear - cable_user%casa_spin_startyear + 1)
        if (nyear_dump == 0) &
             nyear_dump = cable_user%casa_spin_endyear - cable_user%casa_spin_startyear + 1
-       write(cyear,fmt="(i4)") cable_user%casa_spin_startyear + nyear_dump - 1
+       write(,fmt="(i4)") cable_user%casa_spin_startyear + nyear_dump - 1
        ncfile = trim(casafile%c2cdumppath)//'c2c_'//cyear//'_dump.nc'
        call read_casa_dump(trim(ncfile), casamet, casaflux, phen, climate, c13o2flux, 1, 1, .true.)
 

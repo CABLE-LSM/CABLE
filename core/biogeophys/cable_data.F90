@@ -241,7 +241,7 @@ module cable_data_module
    TYPE issnow_type
       REAL, POINTER ::                                                         &
          ! physical constants
-         CAPP, TFRZ, HL, HLF, HLS
+         CAPP, TFRZ, HL, HLF, HLS, rhow
    END TYPE issnow_type
 
    TYPE const_type

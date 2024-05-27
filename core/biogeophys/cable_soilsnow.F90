@@ -34,7 +34,7 @@ MODULE cable_soil_snow_module
 
    USE cable_def_types_mod, ONLY : soil_snow_type, soil_parameter_type,        &
                              veg_parameter_type, canopy_type, met_type,        &
-                             r_2, ms, mp
+                             r_2, ms, mp,  bgc_pool_type
    USE cable_data_module, ONLY : issnow_type, point2constants
 
    IMPLICIT NONE
@@ -1646,9 +1646,55 @@ SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
    TYPE(veg_parameter_type), INTENT(INOUT)  :: veg
    REAL(r_2), DIMENSION(mp,0:ms) :: diff
    REAL(r_2), DIMENSION(mp)      :: xx, xxd
-   INTEGER :: k
+   INTEGER :: k, i
+   REAL(r_2), DIMENSION(mp)      :: demand, difference
+   REAL(r_2), DIMENSION(mp,0:ms) :: supply
 
-  IF (cable_user%FWSOIL_switch.ne.'Haverd2013') THEN
+   IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
+      ! This follows the default extraction logic, but instead of weighting
+      ! by froot, we are weighting by the frac uptake we calculated when we
+      ! were weighting the soil water potential.
+      !
+      ! Martin De Kauwe, 22/02/19
+
+      demand = 0._r_2
+      difference = 0._r_2
+      supply = 0._r_2
+
+      xx = 0.; xxd = 0.; diff(:,:) = 0.
+      DO k = 1, ms
+         WHERE (canopy%fevc > 0.0)
+
+            ! Calculate the amount of water we wish to extract from each
+            ! layer, kg/m2
+            demand = canopy%fevc * dels / C%HL * &
+                        ssnow%fraction_uptake(:,k) + supply(:,k-1)
+
+            ! Calculate the amount of water available in the layer
+            supply(:,k) = MAX(0.0, ssnow%wb(:,k) - soil%swilt) * &
+                           (soil%zse(k) * C%rhow)
+
+            difference = demand - supply(:,k)
+
+            ! Calculate new layer water balance
+            WHERE (difference > 0.0)
+               ! We don't have sufficent water to supply demand, extract only
+               ! the remaining SW in the layer
+               ssnow%wb(:,k) = ssnow%wb(:,k) - supply(:,k) / &
+                                (soil%zse(k)*C%rhow)
+               supply(:,k) = difference
+            ELSEWHERE
+               ! We have sufficent water to supply demand, extract needed SW
+               ! from the layer
+               ssnow%wb(:,k) = ssnow%wb(:,k) - demand / &
+                                (soil%zse(k)*C%rhow)
+
+               supply(:,k) = 0.0
+            ENDWHERE
+
+         END WHERE   !fvec > 0
+      END DO   !ms
+  ELSEIF (cable_user%FWSOIL_switch.ne.'Haverd2013') THEN
      xx  = 0.0_r_2
      xxd = 0.0_r_2
      diff(:,:) = 0.0_r_2

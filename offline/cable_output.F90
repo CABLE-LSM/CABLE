@@ -1851,14 +1851,14 @@ CONTAINS
 ! mgk576, 19/2/2019 - I think the issue is that I turn this off for other PFTs?
     !IF(output%soil .OR. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
 
-         IF(output%soil) THEN
+     IF(output%soil) THEN
           CALL define_ovar(ncid_out, ovid%psi_soil, &
                            'psi_soil', 'MPa', 'Soil water potential', &
                            patchout%psi_soil, 'soil', xID, yID, zID, &
                            landID, patchID, soilID, tID)
           ALLOCATE(out%psi_soil(mp,ms))
           out%psi_soil = 0.0 ! initialise
-       END IF
+     END IF
    
        IF(output%soil) THEN
           CALL define_ovar(ncid_out, ovid%psi_rootzone, &
@@ -3753,18 +3753,17 @@ CONTAINS
     IF(output%flux .OR. output%TSap) THEN
      ! Add current timestep's value to total of temporary output variable:
      out%TSap = out%TSap + REAL(canopy%fevcs / air%rlam, 4)
-     IF(writenow) THEN
+          IF(writenow) THEN
         ! Divide accumulated variable by number of accumulated time steps:
-        out%TSap = out%TSap / REAL(output%interval, 4)
+          out%TSap = out%TSap / REAL(output%interval, 4)
         ! Write value to file:
-        CALL write_ovar(out_timestep, ncid_out, ovid%TSap, 'TSap', out%TSap, &
+          CALL write_ovar(out_timestep, ncid_out, ovid%TSap, 'TSap', out%TSap, &
              ranges%TSap, patchout%TSap, 'default', met)
         ! Reset temporary output variable:
         out%TSap = 0.0
+          END IF
      END IF
-  END IF
-  END SUBROUTINE write_output
-! ms8355
+  ! ms8355
      !IF((output%soil) .and. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
   IF(output%soil) THEN
      ! Add current timestep's value to total of temporary output variable:
@@ -3924,6 +3923,8 @@ CONTAINS
          out%psi_stem = 0.0
       END IF
    END IF
+  END SUBROUTINE write_output
+
   !=============================================================================
 
   SUBROUTINE close_output_file(bal)

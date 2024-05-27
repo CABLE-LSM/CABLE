@@ -43,6 +43,7 @@ MODULE cable_canopy_module
 
   use cable_data_module,   only: icanopy_type, point2constants
   use cable_common_module, only: cable_user
+  use cable_veg_hydraulics_module, only: optimisation, arrh, get_xylem_vulnerability, calc_plc
 
   implicit none
 
@@ -1563,7 +1564,8 @@ CONTAINS
     real(r_2), dimension(mp)  :: &
          ecx,        & ! lat. hflux big leaf
          hcx,        & ! sens heat fl big leaf prev iteration
-         rnx           ! net rad prev timestep
+         rnx, &          ! net rad prev timestep
+         ecxs ! lat. hflux big leaf (sap flux)
 
     real, dimension(mp,ms)  :: oldevapfbl
 
@@ -1626,8 +1628,28 @@ CONTAINS
 
     real, dimension(mp,2) ::  gsw_term, lower_limit2  ! local temp var
 
-    integer :: i, k, kk  ! iteration count
-    real :: vpd, g1 ! Ticket #56
+    integer :: i, k, kk, h ! iteration count
+    real :: vpd, g1, ktot, fw, refill  ! Ticket #56
+    REAL, PARAMETER :: & ! Ref. params from Bernacchi et al. (2001)
+    co2cp325 = 42.75, & ! CO2 compensation pt C3 at 25 degrees, umol mol-1
+    Eaco2cp325 = 37830. ! activation energy for the CO2 compensation pt
+ REAL :: co2cp3 ! CO2 compensation pt C3, N.B.: this is set to 0 by default in CABLE
+
+ REAL :: trans_mmol, press
+ REAL, PARAMETER :: KG_2_G = 1000.0
+ REAL, PARAMETER :: G_WATER_TO_MOL = 1.0 / 18.01528
+ REAL, PARAMETER :: MOL_2_MMOL = 1000.0
+ REAL, PARAMETER :: MMOL_2_MOL = 1.0 / MOL_2_MMOL
+ REAL, PARAMETER :: MB_TO_PA = 100.
+ INTEGER, PARAMETER :: resolution = 800 ! jumps in Ci ~ 0.5 umol mol-1
+ REAL, DIMENSION(2) :: an_canopy
+ REAL :: e_canopy
+ REAL(r_2), DIMENSION(resolution) :: p
+
+ REAL :: MOL_WATER_2_G_WATER, G_TO_KG, UMOL_TO_MOL, MB_TO_KPA, PA_TO_KPA
+ REAL, DIMENSION(mp) :: kcmax, avg_kcan
+ REAL :: new_plc_sat, new_plc_stem, new_plc_can
+ REAL :: MOL_TO_UMOL, J_TO_MOL
 #ifdef __MPI__
     integer :: ierr
 #endif
@@ -1645,6 +1667,8 @@ CONTAINS
              call fwsoil_calc_non_linear(fwsoil, soil, ssnow, veg)
           elseif (cable_user%fwsoil_switch == 'Lai and Katul 2000') then
              call fwsoil_calc_Lai_Katul(fwsoil, soil, ssnow, veg)
+             elseif (cable_user%FWSOIL_SWITCH == 'profitmax') then
+               fwsoil = 1.0
           else
              write(*,*) 'fwsoil_switch failed.'
 #ifdef __MPI__
@@ -1659,7 +1683,13 @@ CONTAINS
        endif
     endif
     ! print*, 'DD01 ', canopy%fwsoil
-
+    MOL_TO_UMOL = 1E6
+    J_TO_MOL = 4.6E-6  ! Convert from J to Mol for light
+    MOL_WATER_2_G_WATER = 18.02
+    G_TO_KG = 1E-03
+    UMOL_TO_MOL = 1E-06
+    MB_TO_KPA = 0.1
+    PA_TO_KPA = 1E-03
     ! weight min stomatal conductance by C3 an C4 plant fractions
     frac42       = spread(veg%frac4, 2, mf) ! frac C4 plants
     gsw_term     = spread(veg%gswmin, 2, mf)
@@ -1699,6 +1729,9 @@ CONTAINS
     canopy%fevc   = 0.0_r_2
     ssnow%evapfbl = 0.0
 
+    ecxs = 0.0
+    canopy%fevcs = 0.0
+
     ghwet = 1.0e-3_r_2
     gwwet = 1.0e-3
     ghrwet= 1.0e-3
@@ -1732,6 +1765,7 @@ CONTAINS
           rnx(kk) = 0.0_r_2 ! intialise
           ecx(kk) = 0.0_r_2 ! intialise
           ecy(kk) = ecx(kk) ! store initial values
+          ecxs(kk) = 0.0 ! initialise
           abs_deltlf(kk) = 0.0
           rny(kk) = rnx(kk) ! store initial values
           ! calculate total thermal resistance, rthv in s/m
@@ -1741,7 +1775,12 @@ CONTAINS
 
     deltlfy = abs_deltlf
     k = 0
-
+    DO i=1,mp
+      ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
+      kcmax(i) = veg%kmax(i) * &
+                  get_xylem_vulnerability(ssnow%psi_rootzone(i), &
+                                          veg%b_plant(i), veg%c_plant(i))
+    END DO
     !kdcorbin, 08/10 - doing all points all the time
     DO WHILE (k < C%MAXITER)
        k = k + 1
@@ -1861,6 +1900,10 @@ CONTAINS
              vcmxt3(i,2) = rad%scalex(i,2) * temp_shade_c3(i) * fwsoil(i)**qb
              vcmxt4(i,1) = rad%scalex(i,1) * temp_sun_c4(i) * fwsoil(i)**qb
              vcmxt4(i,2) = rad%scalex(i,2) * temp_shade_c4(i) * fwsoil(i)**qb
+             ! temperature response of the CO2 compensation point/gamma star used
+             ! for C3 plants (Bernacchi et al. 2001), umol mol-1
+             ! N.B.: this is always zero by default in CABLE, which is wrong.
+             co2cp3 = arrh(co2cp325, Eaco2cp325, tlfx(i)) ! CABLE's gamma_star
 
              ! apply same scaling for k as for Vcmax in C4 plants
              if (.not. cable_user%explicit_gm) then
@@ -2075,7 +2118,9 @@ CONTAINS
                 !      * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
 
                 ! Medlyn BE et al (2011) Global Change Biology 17: 2134-2144.
-             ELSEIF(cable_user%GS_SWITCH == 'medlyn') THEN
+               ELSEIF(cable_user%GS_SWITCH == 'medlyn' .AND. &
+                        cable_user%FWSOIL_SWITCH /= 'profitmax') THEN
+    
                 gswmin(i,1) = veg%g0(i) * rad%scalex(i,1)
                 gswmin(i,2) = veg%g0(i) * rad%scalex(i,2)
 
@@ -2099,7 +2144,41 @@ CONTAINS
                    gs_coeff(i,1) = (1.0 + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,1))
                    gs_coeff(i,2) = (1.0 + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,2))
                 endif
-             ELSE
+             ELSE IF (cable_user%GS_SWITCH == 'medlyn' .AND. &
+                  cable_user%FWSOIL_SWITCH == 'profitmax') THEN
+
+            ! Profix-Max hydraulics model
+            vpd = dsx(i) * PA_TO_KPA ! this is leaf vpd
+            press = met%pmb(i) * MB_TO_KPA
+
+            IF (vpd < 0.05) THEN
+               ecx(i) = 0.0
+               ecxs(i) = 0.0
+               anx(i,1) = 0.0 - rdx(i,1)
+               anx(i,2) = 0.0 - rdx(i,2)
+            ELSE
+               CALL optimisation(canopy, rad, vpd, press, tlfx(i), &
+                                 csx, ssnow%psi_rootzone(i), &
+                                 kcmax, veg%kmax(i), veg%PLCcrit(i), &
+                                 veg%b_plant(i), veg%c_plant(i), resolution, vcmxt3, &
+                                 ejmxt3, rdx, vx3, cx1(i), an_canopy, e_canopy, &
+                                 avg_kcan, co2cp3, p, i)
+
+               ! fix units for CABLE and pack into arrays
+               anx(i,1) = an_canopy(1) * UMOL_TO_MOL
+               anx(i,2) = an_canopy(2) * UMOL_TO_MOL
+
+               ! fix units for CABLE and pack sap flux E into arrays
+               IF (e_canopy > 0.0) THEN
+                  ecxs(i) = e_canopy * air%rlam(i) * MOL_WATER_2_G_WATER * G_TO_KG
+               ELSE
+                  ecxs(i) = 0.0
+               END IF
+            END IF
+
+          ELSE
+           PRINT *, cable_user%GS_SWITCH, cable_user%FWSOIL_SWITCH, veg%iveg(i)
+
                 write(*,*) 'gs_model_switch failed.'
 #ifdef __MPI__
                 call MPI_Abort(0, 127, ierr) ! Do not know comm nor rank here
@@ -2114,6 +2193,7 @@ CONTAINS
        ENDDO !i=1,mp
 
        ! gmes is 0.0 if explicit_gm = FALSE (easier to debug)
+       IF (cable_user%FWSOIL_SWITCH /= 'profitmax') THEN
        CALL photosynthesis_gm( csx(:,:), &
             spread(cx1(:),2,mf), &
             spread(cx2(:),2,mf), &
@@ -2124,7 +2204,7 @@ CONTAINS
             spread(abs_deltlf,2,mf), &
             anx(:,:), fwsoil(:), qs, gmes(:,:), kc4(:,:), &
             anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:) )
-
+       ENDIF
        ! print*, 'DD28 ', rad%fvlai
        ! print*, 'DD29 ', met%ca
        ! print*, 'DD30 ', canopy%gswx
@@ -2217,7 +2297,33 @@ CONTAINS
                    fwsoil(i) = real(canopy%fwsoil(i))
                 endif
 
-             ELSE
+               ELSE IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
+
+
+                  IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
+                      evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels  &
+                           / air%rlam(i)
+  
+                      DO kk = 1,ms
+  
+                         !ssnow%evapfbl(i,kk) = MIN(evapfb(i) * &
+                         !                          ssnow%fraction_uptake(i,kk),  &
+                         !                          MAX(0.0, &
+                         !                              REAL(ssnow%wb(i,kk)) -    &
+                         !                              soil%swilt(i)) * &
+                         !                          soil%zse(kk) * 1000.0)
+  
+                         ! ms8355: no bounding by swilt in this version, or the
+                         ! "beneits" from hydraulics are cancelled
+                         ssnow%evapfbl(i,kk) = evapfb(i) * &
+                                               ssnow%fraction_uptake(i,kk)
+  
+                     ENDDO
+                     canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
+                     ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
+                 ENDIF
+  
+               ELSE
 
                 if (ecx(i) > 0.0_r_2 .and. canopy%fwet(i) < 1.0) then
                    evapfb(i) = ( 1.0 - canopy%fwet(i)) * real(ecx(i)) *dels &
@@ -2332,7 +2438,7 @@ CONTAINS
 
     ! print*, 'DD45 ', canopy%fwet
     ! print*, 'DD46 ', canopy%fevc
-    IF (cable_user%fwsoil_switch /= 'Haverd2013') then
+    IF (cable_user%fwsoil_switch.NE.'Haverd2013' .AND. cable_user%fwsoil_switch.NE.'profitmax') THEN
 
        ! Recalculate ssnow%evapfbl as ecy may not be updated with the ecx
        ! calculated in the last iteration.
@@ -2459,7 +2565,58 @@ CONTAINS
     canopy%ci        = real(spread(met%ca, 2, mf), r_2) - &
          canopy%An / &
          (1.0_r_2 / (1.0_r_2/canopy%gbc + 1.0_r_2/canopy%gsc + tiny(1.0_r_2)))
-
+      IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
+            canopy%fevcs = (1.0-canopy%fwet) * ecxs  ! trans. from sapflux
+     
+            DO i = 1, mp
+     
+               new_plc_sat = calc_plc(kcmax(i), veg%kmax(i), veg%PLCcrit(i))
+     
+               IF (canopy%psi_can(i) < ssnow%psi_rootzone(i) .AND. ecxs(i) > 1E-9) THEN
+                  IF (avg_kcan(i) > 1E-9 .AND. avg_kcan(i) < veg%kmax(i)) THEN
+     
+                     ! Partitioning ratios from Drake et al. (2015), PC&E, 38: 1628-1636.
+                     new_plc_stem = calc_plc(5. / (2. / avg_kcan(i) + 3. / kcmax(i)), &
+                                             veg%kmax(i), veg%PLCcrit(i)) ! 2:5 to 3:5
+     
+                     new_plc_can = calc_plc(avg_kcan(i), veg%kmax(i), veg%PLCcrit(i))
+     
+                  ELSE
+                     new_plc_stem = 0.0
+                     new_plc_can = 0.0
+                  ENDIF
+     
+               ELSE
+                  new_plc_stem = 0.0
+                  new_plc_can = 0.0
+               ENDIF
+     
+               IF (new_plc_sat > canopy%day_plc_sat(i)) THEN
+                  canopy%day_plc_sat(:) = new_plc_sat
+               ENDIF
+     
+               IF (new_plc_stem > canopy%day_plc_stem(i)) THEN
+                  canopy%day_plc_stem(:) = new_plc_stem
+               ENDIF
+     
+               IF (new_plc_can > canopy%day_plc_can(i)) THEN
+                  canopy%day_plc_can(:) = new_plc_can
+               ENDIF
+     
+               ! set the day's PLC and reset the PLC tracker here
+               IF (met%hod(i) >= 24.0 - dels / (60.0 * 60.0) - 1E-6) THEN
+                  canopy%day_plc_sat(:) = 0.0
+                  canopy%day_plc_stem(:) = 0.0
+                  canopy%day_plc_can(:) = 0.0
+     
+               ELSE IF (met%hod(i) >= 24.0 - 2.0 * dels / (60.0 * 60.0) - 1E-6) THEN
+                  canopy%plc_sat(i) = canopy%day_plc_sat(i)
+                  canopy%plc_stem(i) = canopy%day_plc_stem(i)
+                  canopy%plc_can(i) = canopy%day_plc_can(i)
+               ENDIF
+     
+            END DO
+         ENDIF
     ! deallocate( gswmin )
 
   END SUBROUTINE dryLeaf

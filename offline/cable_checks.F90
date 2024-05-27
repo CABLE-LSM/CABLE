@@ -176,7 +176,22 @@ MODULE cable_checks_module
            TotLittCarb =  (/0.0, 1000./),                 &
            Area = (/0.0, 5000./),                         &
            gsw_sl = (/0.0, 1.0/),                         &
-           gsw_sh = (/0.0, 1.0/)
+           gsw_sh = (/0.0, 1.0/), &
+           !mgk576, 2017; ms8355, 2022
+           TSap = (/-0.0003,0.0003/), &
+          b_plant = (/0.0, 20.0/),            &
+          c_plant = (/1.0, 20.0/),            &
+          psi_rootzone = (/-50.0, 0.0/),      &
+          psi_soil = (/-50.0, 0.0/),          &
+          psi_stem = (/-50.0, 0.0/),          &
+          psi_can = (/-50.0, 0.0/),           &
+          plc_sat = (/0.0, 100.0/),           &
+          plc_stem = (/0.0, 100.0/),          &
+          plc_can = (/0.0, 100.0/),           &
+          day_plc_sat = (/0.0, 100.0/),       &
+          day_plc_stem = (/0.0, 100.0/),      &
+          day_plc_can = (/0.0, 100.0/),       &
+          gswx = (/-1.0, 10.0/)
    END TYPE ranges_type
    TYPE(ranges_type),SAVE :: ranges
 

@@ -269,7 +269,9 @@ MODULE cable_common_module
           g1,         & !  Ticket #56
           zr,         &
           clitt,      &
-          gamma
+          gamma, &
+          kmax, &
+          PLCcrit
      REAL, DIMENSION(:,:), ALLOCATABLE :: &
           froot,      & !
           cplant,     & !
@@ -378,7 +380,8 @@ CONTAINS
          ! Ticket #56
          vegin%g0( mvtype ), vegin%g1( mvtype ),                          &
          !! vh_veg_params !!
-         vegin%zr(mvtype), vegin%clitt(mvtype), vegin%gamma(mvtype))
+         vegin%zr(mvtype), vegin%clitt(mvtype), vegin%gamma(mvtype), &
+         vegin%kmax(mvtype), vegin%PLCcrit(mvtype))
     ! set default vcmaxcc and ejmaxcc to 0. because not used yet
     vegin%vcmaxcc = 0
     vegin%ejmaxcc = 0
