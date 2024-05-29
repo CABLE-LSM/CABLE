@@ -54,9 +54,9 @@ for file in ${files} ; do
 
     cp ${filepath}/${file} ${outpath}/${file}
     #ncks -O -d time,${startyear},${endyear_file} ${file} tmp.nc
-    #cdo -O -f nc4 -settaxis,850-01-01,0:00:00,1year -setcalendar,365_day ${file} tmp.nc
-    cdo -O -f nc4 -z zip5 selyear,${startyear}/${endyear_file} ${file} tmp1.nc
-
+    cdo -O -f nc4 -z zip5 selyear,${startyear}/${endyear_file} ${file} tmp.nc
+    cdo -O -f nc4 -settaxis,${startyear}-01-01,00:00:00,1year -setcalendar,365_day tmp.nc tmp1.nc
+    #ncatted -O -a units,time,o,c,"years since ${startyear}-01-01 00:00:00" tmp1.nc
 
     ## 2) Aggregate from 0.25 to 1 degree using conservative remapping
     cdo -O -z zip5 remapcon,${gridfile} tmp1.nc tmp2.nc
