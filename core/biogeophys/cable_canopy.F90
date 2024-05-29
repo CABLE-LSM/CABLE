@@ -1758,7 +1758,7 @@ CONTAINS
     endif
     cx2(:) = 2.0 * gam0 * exp( egam / (C%rgas * C%trefk) &
          * (1.0 - C%trefk / tlfx(:)) )
-    a = k25 * exp((Ea * (Tk - 298.15)) / (298.15 * RGAS * Tk))
+    !a = k25 * exp((Ea * (Tk - 298.15)) / (298.15 * RGAS * Tk))
 
     DO kk=1,mp
 
