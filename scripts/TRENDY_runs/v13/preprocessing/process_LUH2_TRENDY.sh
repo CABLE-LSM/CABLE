@@ -18,7 +18,8 @@
 # compared to Peter Briggs' original scripts.
 
 # The file assumes that LUH2 data are downloaded manually (see TRENDY protocol for location)
-# there should be three files: management.nc, states.nc, and transitions.nc
+# there should be three files: management.nc, states.nc, and transitions.nc.
+# management.nc is currently not used
 
 ## set up workspace
 module purge
@@ -42,7 +43,7 @@ cd $outpath
 
 for file in ${files} ; do
     
-    ## 1) select time period of interest and set time axis to years since 1580 and sets calendar.
+    ## 1) select time period of interest, set time axis to years since 1580 and set calendar.
     # latitude and longitude dimensions are renamed to lat and lon (the variables latitude(lat) and longitude(lon) remain). 
 
     # The transitions file always has one less data record than the others.
@@ -56,19 +57,17 @@ for file in ${files} ; do
     #ncks -O -d time,${startyear},${endyear_file} ${file} tmp.nc
     cdo -O -f nc4 -z zip5 selyear,${startyear}/${endyear_file} ${file} tmp.nc
     cdo -O -f nc4 -settaxis,${startyear}-01-01,00:00:00,1year -setcalendar,365_day tmp.nc tmp1.nc
-    #ncatted -O -a units,time,o,c,"years since ${startyear}-01-01 00:00:00" tmp1.nc
 
     ## 2) Aggregate from 0.25 to 1 degree using conservative remapping
     cdo -O -z zip5 remapcon,${gridfile} tmp1.nc tmp2.nc
     #ncrename -d latitude,lat -d longitude,lon tmp2.nc
 
     # set optimal netcdf chunking
-    # Note: it would be better to change order with time coming first, but that would require changes to the code.
-    nccopy -d0 -c longitude/64,latitude/64,time/1 tmp2.nc tmp3.nc
-
+    # Note: This is now done as part of the ncap2 command below. Chunking can likely be improved!
+    #nccopy -d0 -c longitude/64,latitude/64,time/1 tmp2.nc tmp3.nc
 
     ## 3) Aggregate land use classes into broader categories
-    tmpfile="tmp3.nc"
+    tmpfile="tmp2.nc"
 
     if [[ "${file}" == "management.nc" ]] ; then
 
@@ -76,37 +75,37 @@ for file in ${files} ; do
 
     elif [[ "${file}" == "states.nc" ]] ; then
 
-        ncap2 -O -s "grass=c3ann+c4ann+c3per+c4per+c3nfx+pastr+range" -v $tmpfile ${outpath}/grass.nc
-        ncap2 -O -s "primaryf=primf+primn"                            -v $tmpfile ${outpath}/primaryf.nc
-        ncap2 -O -s "secondaryf=secdf+secdn"                          -v $tmpfile ${outpath}/secondaryf.nc
+        ncap2 -O -s "grass=c3ann+c4ann+c3per+c4per+c3nfx+pastr+range" -v --cnk_map rd1 $tmpfile ${outpath}/grass.nc
+        ncap2 -O -s "primaryf=primf+primn"                            -v --cnk_map rd1 $tmpfile ${outpath}/primaryf.nc
+        ncap2 -O -s "secondaryf=secdf+secdn"                          -v --cnk_map rd1 $tmpfile ${outpath}/secondaryf.nc
 
-        ncap2 -O -s "crop=c3ann+c4ann+c3per+c4per+c3nfx" -v $tmpfile ${outpath}/crop.nc
-        ncap2 -O -s "past=pastr"                         -v $tmpfile ${outpath}/past.nc
-        ncap2 -O -s "rang=range"                         -v $tmpfile ${outpath}/rang.nc
+        ncap2 -O -s "crop=c3ann+c4ann+c3per+c4per+c3nfx" -v --cnk_map rd1 $tmpfile ${outpath}/crop.nc
+        ncap2 -O -s "past=pastr"                         -v --cnk_map rd1 $tmpfile ${outpath}/past.nc
+        ncap2 -O -s "rang=range"                         -v --cnk_map rd1 $tmpfile ${outpath}/rang.nc
 
     elif [[ "${file}" == "transitions.nc" ]] ; then
         
-        ncap2 -O -s "pharv=primf_harv+primn_harv"  -v $tmpfile ${outpath}/pharv.nc
-        ncap2 -O -s "smharv=secmf_harv+secnf_harv" -v $tmpfile ${outpath}/smharv.nc
-        ncap2 -O -s "syharv=secyf_harv"            -v $tmpfile ${outpath}/syharv.nc
+        ncap2 -O -s "pharv=primf_harv+primn_harv"  -v --cnk_map rd1 $tmpfile ${outpath}/pharv.nc
+        ncap2 -O -s "smharv=secmf_harv+secnf_harv" -v --cnk_map rd1 $tmpfile ${outpath}/smharv.nc
+        ncap2 -O -s "syharv=secyf_harv"            -v --cnk_map rd1 $tmpfile ${outpath}/syharv.nc
 
-        ncap2 -O -s "ptos=primf_harv+primn_to_secdf+primn_harv" -v $tmpfile ${outpath}/ptos.nc
+        ncap2 -O -s "ptos=primf_harv+primn_to_secdf+primn_harv" -v --cnk_map rd1 $tmpfile ${outpath}/ptos.nc
         ncap2 -O -s "ptog=primf_to_c3ann+primf_to_c4ann+primf_to_c3per+primf_to_c4per+primf_to_c3nfx+primf_to_pastr+
-                          primf_to_range+primn_to_c3ann+primn_to_c4ann+primn_to_c3per+primn_to_c4per+primn_to_c3nfx" -v $tmpfile ${outpath}/ptog.nc
+                          primf_to_range+primn_to_c3ann+primn_to_c4ann+primn_to_c3per+primn_to_c4per+primn_to_c3nfx" -v --cnk_map rd1 $tmpfile ${outpath}/ptog.nc
         ncap2 -O -s "stog=secdf_to_c3ann+secdf_to_c4ann+secdf_to_c3per+secdf_to_c4per+secdf_to_c3nfx+secdf_to_pastr+
-                          secdf_to_range+secdn_to_c3ann+secdn_to_c4ann+secdn_to_c3per+secdn_to_c4per+secdn_to_c3nfx" -v $tmpfile ${outpath}/stog.nc
+                          secdf_to_range+secdn_to_c3ann+secdn_to_c4ann+secdn_to_c3per+secdn_to_c4per+secdn_to_c3nfx" -v --cnk_map rd1 $tmpfile ${outpath}/stog.nc
         ncap2 -O -s "gtos=c3ann_to_secdf+c4ann_to_secdf+c3per_to_secdf+c4per_to_secdf+c3nfx_to_secdf+pastr_to_secdf+
                           range_to_secdf+c3ann_to_secdn+c4ann_to_secdn+c3per_to_secdn+c4per_to_secdn+c3nfx_to_secdn+
-                          pastr_to_secdn+range_to_secdn" -v $tmpfile ${outpath}/gtos.nc
+                          pastr_to_secdn+range_to_secdn" -v --cnk_map rd1 $tmpfile ${outpath}/gtos.nc
         ncap2 -O -s "ptoc=primf_to_c3ann+primf_to_c4ann+primf_to_c3per+primf_to_c4per+primf_to_c3nfx+primn_to_c3ann+
-                          primn_to_c4ann+primn_to_c3per+primn_to_c4per+primn_to_c3nfx" -v $tmpfile  ${outpath}/ptoc.nc
-        ncap2 -O -s "ptoq=primf_to_pastr+primn_to_pastr" -v $tmpfile  ${outpath}/ptoq.nc
+                          primn_to_c4ann+primn_to_c3per+primn_to_c4per+primn_to_c3nfx" -v --cnk_map rd1 $tmpfile  ${outpath}/ptoc.nc
+        ncap2 -O -s "ptoq=primf_to_pastr+primn_to_pastr" -v --cnk_map rd1 $tmpfile  ${outpath}/ptoq.nc
         ncap2 -O -s "stoc=secdf_to_c3ann+secdf_to_c4ann+secdf_to_c3per+secdf_to_c4per+secdf_to_c3nfx+secdn_to_c3ann+
-                          secdn_to_c4ann+secdn_to_c3per+secdn_to_c4per+secdn_to_c3nfx" -v $tmpfile ${outpath}/stoc.nc
-        ncap2 -O -s "stoq=secdf_to_pastr + secdn_to_pastr" -v $tmpfile ${outpath}/stoq.nc
+                          secdn_to_c4ann+secdn_to_c3per+secdn_to_c4per+secdn_to_c3nfx" -v $tmpfile --cnk_map rd1 ${outpath}/stoc.nc
+        ncap2 -O -s "stoq=secdf_to_pastr + secdn_to_pastr" -v --cnk_map rd1 $tmpfile ${outpath}/stoq.nc
         ncap2 -O -s "ctos=c3ann_to_secdf+c4ann_to_secdf+c3per_to_secdf+c4per_to_secdf+c3nfx_to_secdf+c3ann_to_secdn+
-                          c4ann_to_secdn+c3per_to_secdn+c4per_to_secdn+c3nfx_to_secdn" -v $tmpfile ${outpath}/ctos.nc
-        ncap2 -O -s "qtos=pastr_to_secdf+pastr_to_secdn" -v $tmpfile ${outpath}/qtos.nc
+                          c4ann_to_secdn+c3per_to_secdn+c4per_to_secdn+c3nfx_to_secdn" -v --cnk_map rd1 $tmpfile ${outpath}/ctos.nc
+        ncap2 -O -s "qtos=pastr_to_secdf+pastr_to_secdn" -v --cnk_map rd1 $tmpfile ${outpath}/qtos.nc
 
    fi
 done
