@@ -34,7 +34,7 @@ The ranges listed are “physically possible” and mostly correspond to the opt
 | Name (vegin%)         | Range            | Units                                                                                               | Description |
 |-----------------------|------------------|-----------------------------------------------------------------------------------------------------|-------------|                                                                      
 | 	a1gs            | >=0.0        	   | \( (-) \) 												 | a1 parameter in stomatal conductance model. Represents the sensitivity of stomatal conductance to the assimilation rate |
-| 	alpha           | >=0.0        	   | \( (mol (electrons) \cdot mol^{-1} (photons) (C3) \cdot mol (CO2) \cdot mol^{-1} (photons) (C4)) \) | Initial slope of J-Q response curve |
+| 	alpha           | >=0.0        	   | \( (mol (electrons) \cdot mol^{-1} (photons) (C3) \cdot \) <br> \( mol (CO2) \cdot mol^{-1} (photons) (C4)) \) | Initial slope of J-Q response curve |
 | 	canst1          | 0.05 – 0.15  	   | \( (mm \cdot LAI^{-1}) \) 										 | Maximum intercepted water by canopy |                                   
 | 	cfrd            | >=0.0        	   | \( (-) \) 												 | Ratio of day respiration to vcmax |                                                      
 | 	clitt           | >=0.0        	   | \( (tC \cdot ha^{-1}) \)                                                                            | Leaf litter (alters resistance to soil evaporation) |
