@@ -299,13 +299,17 @@ CONTAINS
     LUC_EXPT%secdf    = max(1.0-LUC_EXPT%grass-LUC_EXPT%primaryf, 0.0)
     
     !! JK Debug
+    ! For some reason the transition from secdf does not work correctly
+    ! if there is secdf = 0.0 at first timestep (1580). This is a bandaid
+    ! solution that allows a 'correct' transition. Minimum fraction of 0.01
+    ! was required for it to work correctly.
     where (LUC_EXPT%secdf < 0.01 .and. LUC_EXPT%prim_only .eqv. .FALSE. )
-      LUC_EXPT%secdf = 0.01
-      LUC_EXPT%primaryf = LUC_EXPT%primaryf - 0.01
+    LUC_EXPT%primaryf = LUC_EXPT%primaryf + LUC_EXPT%secdf - 0.01  
+    LUC_EXPT%secdf = 0.01
     endwhere
     where (LUC_EXPT%primaryf < 0.0)
-      LUC_EXPT%primaryf = 0.0
       LUC_EXPT%grass = LUC_EXPT%grass + LUC_EXPT%primaryf
+      LUC_EXPT%primaryf = 0.0
     endwhere
     !! JK Debug
     
