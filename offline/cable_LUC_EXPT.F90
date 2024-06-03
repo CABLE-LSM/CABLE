@@ -942,6 +942,13 @@ CONTAINS
     LUC_EXPT%INPUT(smharv)%VAL =  LUC_EXPT%INPUT(smharv)%VAL * LUC_EXPT%woodfrac
     LUC_EXPT%INPUT(syharv)%VAL =  LUC_EXPT%INPUT(syharv)%VAL * LUC_EXPT%woodfrac
 
+    LUC_EXPT%INPUT(ptoc)%VAL = LUC_EXPT%INPUT(ptoc)%VAL * LUC_EXPT%woodfrac
+    LUC_EXPT%INPUT(ptoq)%VAL = LUC_EXPT%INPUT(ptoq)%VAL * LUC_EXPT%woodfrac
+    LUC_EXPT%INPUT(stoc)%VAL = LUC_EXPT%INPUT(stoc)%VAL * LUC_EXPT%woodfrac
+    LUC_EXPT%INPUT(stoq)%VAL = LUC_EXPT%INPUT(stoq)%VAL * LUC_EXPT%woodfrac
+    LUC_EXPT%INPUT(ctos)%VAL = LUC_EXPT%INPUT(ctos)%VAL * LUC_EXPT%woodfrac
+    LUC_EXPT%INPUT(qtos)%VAL = LUC_EXPT%INPUT(qtos)%VAL * LUC_EXPT%woodfrac
+
   END SUBROUTINE READ_LUH2
 
 
