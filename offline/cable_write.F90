@@ -209,7 +209,7 @@ CONTAINS
 #endif
              )
         IF (ok /= NF90_NOERR) CALL nc_abort                                    &
-                 (ok, 'Error defining '//vname//' variable in output file. '// &
+                 (ok, 'Error defining R1 '//vname//' variable in output file. '// &
                                                       '(INTERFACE define_ovar)')
         ! If not already allocated, allocate a temporary storage variable
         ! of this dim:
@@ -219,7 +219,7 @@ CONTAINS
         ! If this is an ALMA 4D surface variable
         ! AND the user has forced the grid type as ALMA:
         IF(dimswitch == 'ALMA' .AND. output%grid(1:3) == 'ALM') THEN
-          WRITE(logn, *) 'Writing '//vname//' to output file using mask grid'
+          WRITE(logn, *) 'Writing R1 '//vname//' to output file using mask grid'
           ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/xID, yID, zID, tID/),   &
                varID &
 #ifndef __NETCDF3__
@@ -231,7 +231,7 @@ CONTAINS
           IF(.NOT.ASSOCIATED(otmp4xyzt))                                       &
              ALLOCATE(otmp4xyzt(xdimsize, ydimsize, 1, 1))
         ELSE ! normal x-y-t mask grid
-          WRITE(logn, *) 'Writing '//vname//' to output file using mask grid'
+          WRITE(logn, *) 'Writing R1 '//vname//' to output file using mask grid'
           ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/xID, yID, tID/), varID &
 #ifndef __NETCDF3__
                , deflate_level=4, shuffle = .TRUE. &
@@ -242,14 +242,14 @@ CONTAINS
           IF(.NOT.ASSOCIATED(otmp3xyt))ALLOCATE(otmp3xyt(xdimsize, ydimsize, 1))
         END IF
         IF (ok /= NF90_NOERR) CALL nc_abort                                    &
-                 (ok, 'Error defining '//vname//' variable in output file. '// &
+                 (ok, 'Error defining R1 '//vname//' variable in output file. '// &
                                                       '(INTERFACE define_ovar)')
       END IF
     ELSE IF(output%grid(1:3) == 'lan'                                          &
             .OR.(output%grid(1:3) == 'def' .AND. metGrid == 'land')) THEN
       ! Should patch-specific info be written for this variable?
       IF(writepatch .OR. output%patch) THEN
-        WRITE(logn, *) 'Writing '//vname//                                     &
+        WRITE(logn, *) 'Writing R1 '//vname//                                     &
                       ' to output file using land grid with patch-specific info'
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/landID, patchID, tID/),   &
              varID &
@@ -258,21 +258,21 @@ CONTAINS
 #endif
              )
         IF (ok /= NF90_NOERR) CALL nc_abort                                    &
-                  (ok,'Error defining '//vname//' variable in output file. '// &
+                  (ok,'Error defining R1 '//vname//' variable in output file. '// &
                                                       '(INTERFACE define_ovar)')
         ! If not already allocated, allocate a temporary storage variable
         ! of this dim:
         IF( .NOT. ASSOCIATED(otmp3lpt)) ALLOCATE(otmp3lpt(mland,               &
                                                  max_vegpatches, 1))
       ELSE ! only grid point values, no patch-specific info
-        WRITE(logn, *) 'Writing '//vname//' to output file using land grid'
+        WRITE(logn, *) 'Writing R1 '//vname//' to output file using land grid'
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/landID,tID/), varID &
 #ifndef __NETCDF3__
              , deflate_level=4, shuffle = .TRUE. &
 #endif
              )
         IF (ok /= NF90_NOERR) CALL nc_abort                                    &
-                 (ok, 'Error defining '//vname//' variable in output file. '// &
+                 (ok, 'Error defining R1 '//vname//' variable in output file. '// &
                                                       '(INTERFACE define_ovar)')
         ! If not already allocated, allocate a temporary storage variable
         ! of this dim:
@@ -284,22 +284,22 @@ CONTAINS
     ! Define variable units:
     ok = NF90_PUT_ATT(ncid, varID, 'units', vunits)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
-      (ok, 'Error defining '//vname//' variable attributes in output file. '// &
+      (ok, 'Error defining R1 '//vname//' variable attributes in output file. '// &
                                                       '(INTERFACE define_ovar)')
     ! Define long name:
     ok = NF90_PUT_ATT(ncid,varID, 'long_name', longname)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
-      (ok, 'Error defining '//vname//' variable attributes in output file. '// &
+      (ok, 'Error defining R1 '//vname//' variable attributes in output file. '// &
                                                       '(INTERFACE define_ovar)')
     ! Define missing/fill values:
     ok = NF90_PUT_ATT(ncid, varID, '_FillValue', REAL(ncmissingr, r_1))
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
-      (ok, 'Error defining '//vname//' variable attributes in output file. '// &
+      (ok, 'Error defining R1 '//vname//' variable attributes in output file. '// &
                                                       '(INTERFACE define_ovar)')
     ! Define missing/fill values:
     ok = NF90_PUT_ATT(ncid, varID, 'missing_value', REAL(ncmissingr, r_1))
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
-      (ok, 'Error defining '//vname//' variable attributes in output file. '// &
+      (ok, 'Error defining R1 '//vname//' variable attributes in output file. '// &
                                                       '(INTERFACE define_ovar)')
 
   END SUBROUTINE define_output_variable_r1
@@ -375,7 +375,7 @@ CONTAINS
                                    ' - in SUBROUTINE define_output_variable_r2 - 01')
         END IF
       ELSE ! only grid point values, no patch-specific info
-        WRITE(logn, *) 'Writing '//vname//' to output file using mask grid'
+        WRITE(logn, *) 'Writing R2 '//vname//' to output file using mask grid'
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/xID, yID, othdimID, tID/), varID &
 #ifndef __NETCDF3__
              , deflate_level=4, shuffle = .TRUE. &
@@ -422,7 +422,7 @@ CONTAINS
             .OR. (output%grid(1:3) == 'def' .AND. metGrid == 'land')) THEN
       ! Should patch-specific info be written for this variable?
       IF(writepatch .OR. output%patch .AND. output%vars5D) THEN
-        WRITE(logn, *) 'Writing '//vname//                                     &
+        WRITE(logn, *) 'Writing R2 '//vname//                                     &
                       ' to output file using land grid with patch-specific info'
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/landID, patchID,          &
              othdimID, tID/), varID &
@@ -473,13 +473,14 @@ CONTAINS
                                    ' - in SUBROUTINE define_output_variable_r2 - 03')
         END IF
       ELSE ! only grid point values, no patch-specific info
-        WRITE(logn, *) 'Writing '//vname//' to output file using land grid'
+        WRITE(logn, *) 'Writing R2 '//vname//' to output file using land grid'
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/landID, othdimID, tID/),  &
              varID &
 #ifndef __NETCDF3__
              , deflate_level=4, shuffle = .TRUE. &
 #endif
              )
+        
         IF (ok /= NF90_NOERR) CALL nc_abort                                    &
                  (ok, 'Error defining '//vname//' variable in output file. '// &
                                        '(SUBROUTINE define_output_variable_r2)')
@@ -519,22 +520,22 @@ CONTAINS
     ! Define variable units:
     ok = NF90_PUT_ATT(ncid, varID, 'units', vunits)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
-      (ok, 'Error defining '//vname//' variable attributes in output file. '// &
+      (ok, 'Error defining R2 '//vname//' variable attributes in output file. '// &
                                        '(SUBROUTINE define_output_variable_r2)')
     ! Define long name:
     ok = NF90_PUT_ATT(ncid, varID, 'long_name', longname)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
-      (ok, 'Error defining '//vname//' variable attributes in output file. '// &
+      (ok, 'Error defining R2 '//vname//' variable attributes in output file. '// &
                                        '(SUBROUTINE define_output_variable_r2)')
     ! Define missing/fill values:
     ok = NF90_PUT_ATT(ncid, varID, '_FillValue', REAL(ncmissingr, r_1))
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
-       (ok,'Error defining '//vname//' variable attributes in output file. '// &
+       (ok,'Error defining R2 '//vname//' variable attributes in output file. '// &
                                                       '(INTERFACE define_ovar)')
     ! Define missing/fill values:
     ok = NF90_PUT_ATT(ncid, varID, 'missing_value', REAL(ncmissingr, r_1))
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
-      (ok, 'Error defining '//vname//' variable attributes in output file. '// &
+      (ok, 'Error defining R2 '//vname//' variable attributes in output file. '// &
                                                       '(INTERFACE define_ovar)')
 
   END SUBROUTINE define_output_variable_r2
@@ -566,7 +567,7 @@ CONTAINS
        ! Should patch-specific info be written for this variable
        ! (no patches in ALMA format)?
        if ( (writepatch .or. output%patch) .and. (.not. output%grid(1:3) == 'ALM') ) then
-          write(logn, *) 'Writing '//pname//' to output file using mask grid with patch-specific info'
+          write(logn, *) 'Writing P1 '//pname//' to output file using mask grid with patch-specific info'
           if (dimswitch(1:2) == 're') then
              ok = nf90_def_var(ncid, pname, nf90_float, (/xid, yid, patchid/), parid &
 #ifndef __NETCDF3__
@@ -587,13 +588,13 @@ CONTAINS
                   )
           end if
           if (ok /= nf90_noerr) call nc_abort(ok, &
-               'Error defining '//pname//' variable in output file. '// &
+               'Error defining P1 '//pname//' variable in output file. '// &
                '(SUBROUTINE define_output_parameter_r1)')
           ! If not already allocated, allocate a temporary storage variable
           ! of this dim:
           if (.not. associated(otmp3xyp)) allocate(otmp3xyp(xdimsize, ydimsize, max_vegpatches))
        else ! only grid point values, no patch-specific info
-          write(logn, *) 'Writing '//pname//' to output file using mask grid'
+          write(logn, *) 'Writing P1 '//pname//' to output file using mask grid'
           if (dimswitch(1:2) == 're') then
              ok = nf90_def_var(ncid, pname, nf90_float, (/xid, yid/), parid &
 #ifndef __NETCDF3__
@@ -617,7 +618,7 @@ CONTAINS
           ! of this dim:
           if (.not. associated(otmp2xy)) allocate(otmp2xy(xdimsize, ydimsize))
           if (ok /= nf90_noerr) call nc_abort(ok, &
-               'Error defining '//pname//' variable in output file. '// &
+               'Error defining P1 '//pname//' variable in output file. '// &
                '(SUBROUTINE define_output_parameter_r1)')
        end if
     else if (present(restart) .or. ( (output%grid(1:3) == 'lan') .or. &
@@ -627,7 +628,7 @@ CONTAINS
        ! (writepatch) OR all have been (output%patch) AND we're NOT writing
        ! a restart file (which uses a different technique to store patch info):
        if ((writepatch .or. output%patch) .and. .not. present(restart)) then
-          write(logn, *) 'Writing '//pname//' to output file using land grid with patch-specific info'
+          write(logn, *) 'Writing P1 '//pname//' to output file using land grid with patch-specific info'
           if (dimswitch(1:2) == 're') then
              ok = nf90_def_var(ncid, pname, nf90_float, (/landid, patchid/), parid &
 #ifndef __NETCDF3__
@@ -648,7 +649,7 @@ CONTAINS
                   )
           end if
           if (ok /= nf90_noerr) call nc_abort(ok, &
-               'Error defining '//pname//' variable in output file. '// &
+               'Error defining P1 '//pname//' variable in output file. '// &
                '(SUBROUTINE define_output_parameter_r1)')
           ! If not already allocated, allocate a temporary storage variable
           ! of this dim:
@@ -657,7 +658,7 @@ CONTAINS
           ! restart variable
           ! Restart file definitions will be directed to this part of interface.
           ! If not writing a restart file, report variable writing to log file:
-          if (.not. present(restart)) write(logn, *) 'Writing '//pname//' to output file using land grid'
+          if (.not. present(restart)) write(logn, *) 'Writing P1 '//pname//' to output file using land grid'
           if (dimswitch(1:2) == 're') then
              ok = nf90_def_var(ncid, pname, nf90_float, (/landid/), parid &
 #ifndef __NETCDF3__
@@ -704,29 +705,29 @@ CONTAINS
     if (dimswitch(1:1) == 'i') then
        ok = nf90_put_att(ncid, parID, '_FillValue', ncmissingi)
        if (ok /= nf90_noerr) call nc_abort(ok, &
-            'Error defining '//pname//' variable attributes in '// &
+            'Error defining P1 '//pname//' variable attributes in '// &
             'output file. (INTERFACE define_ovar)')
        ok = nf90_put_att(ncid, parid, 'missing_value', ncmissingi)
        if (ok /= nf90_noerr) call nc_abort(ok, &
-            'Error defining '//pname//' variable attributes in '// &
+            'Error defining P1 '//pname//' variable attributes in '// &
             'output file. (INTERFACE define_ovar)')
     else if (dimswitch(1:2) == 'r2') then
        ok = nf90_put_att(ncid, parID, '_FillValue', real(ncmissingr, r_2))
        if (ok /= nf90_noerr) call nc_abort(ok, &
-            'Error defining '//pname//' variable attributes in '// &
+            'Error defining P1 '//pname//' variable attributes in '// &
             'output file. (INTERFACE define_ovar)')
        ok = nf90_put_att(ncid, parid, 'missing_value', real(ncmissingr, r_2))
        if (ok /= nf90_noerr) call nc_abort(ok, &
-            'Error defining '//pname//' variable attributes in '// &
+            'Error defining P1 '//pname//' variable attributes in '// &
             'output file. (INTERFACE define_ovar)')
     else
        ok = nf90_put_att(ncid, parID, '_FillValue', real(ncmissingr, r_1))
        if (ok /= nf90_noerr) call nc_abort(ok, &
-            'Error defining '//pname//' variable attributes in '// &
+            'Error defining P1 '//pname//' variable attributes in '// &
             'output file. (INTERFACE define_ovar)')
        ok = nf90_put_att(ncid, parid, 'missing_value', real(ncmissingr, r_1))
        if (ok /= nf90_noerr) call nc_abort(ok, &
-            'Error defining '//pname//' variable attributes in '// &
+            'Error defining P1 '//pname//' variable attributes in '// &
             'output file. (INTERFACE define_ovar)')
     end if
 
@@ -759,7 +760,7 @@ CONTAINS
        ! (no patches in ALMA format)?
        IF((writepatch .OR. output%patch) .AND. (.NOT. output%grid(1:3)         &
           == 'ALM') .AND.(dimswitch/='surftype')) THEN
-          WRITE(logn, *) 'Writing '//pname//                                   &
+          WRITE(logn, *) 'Writing P2 '//pname//                                   &
                       ' to output file using mask grid with patch-specific info'
           ok = NF90_DEF_VAR(ncid, pname, NF90_FLOAT, (/xID, yID, patchID,      &
                othdimID/),parID &
@@ -768,7 +769,7 @@ CONTAINS
 #endif
                )
           IF (ok /= NF90_NOERR) CALL nc_abort                                  &
-                 (ok, 'Error defining '//pname//' variable in output file. '// &
+                 (ok, 'Error defining P2 '//pname//' variable in output file. '// &
                                       '(SUBROUTINE define_output_parameter_r2)')
           ! If not already allocated, allocate a temporary storage variable
           ! of this dim:
@@ -788,7 +789,7 @@ CONTAINS
              continue
           END IF
        ELSE ! only grid point values, no patch-specific info
-          WRITE(logn, *) 'Writing '//pname//' to output file using mask grid'
+          WRITE(logn, *) 'Writing P2 '//pname//' to output file using mask grid'
           ok = NF90_DEF_VAR(ncid, pname, NF90_FLOAT, (/xID, yID, othdimID/)    &
                , parID &
 #ifndef __NETCDF3__
@@ -816,7 +817,7 @@ CONTAINS
              continue
           END IF
           IF (ok /= NF90_NOERR) CALL nc_abort                                  &
-                 (ok, 'Error defining '//pname//' variable in output file. '// &
+                 (ok, 'Error defining P2 '//pname//' variable in output file. '// &
                                       '(SUBROUTINE define_output_parameter_r2)')
        END IF
     ELSE IF(output%grid(1:3) == 'lan' .OR. (output%grid(1:3) == 'def'          &
@@ -827,7 +828,7 @@ CONTAINS
        ! a restart file (which uses a different technique to store patch info):
        IF((writepatch .OR. output%patch) .AND. (dimswitch /= 'surftype')       &
           .AND. .NOT. PRESENT(restart)) THEN
-          WRITE(logn, *) 'Writing '//pname//                                   &
+          WRITE(logn, *) 'Writing P2 '//pname//                                   &
                       ' to output file using land grid with patch-specific info'
           ! Define parameter as double precision if required:
           IF(dimswitch(1:2) == 'r2') THEN
@@ -846,7 +847,7 @@ CONTAINS
                   )
           END IF
           IF (ok /= NF90_NOERR) CALL nc_abort                                  &
-                 (ok, 'Error defining '//pname//' variable in output file. '// &
+                 (ok, 'Error defining P2 '//pname//' variable in output file. '// &
                                       '(SUBROUTINE define_output_parameter_r2)')
           ! If not already allocated, allocate a temporary storage variable
           ! of this dim:
@@ -871,7 +872,7 @@ CONTAINS
        ELSE ! variable has no explicit patch dimension (incl. restart file)
           ! Restart file definitions will be directed to this part of interface.
           ! If not writing a restart file, report variable writing to log file:
-          IF(.NOT.PRESENT(restart)) WRITE(logn,*) 'Writing '//pname// &
+          IF(.NOT.PRESENT(restart)) WRITE(logn,*) 'Writing P2 '//pname// &
                ' to output file using land grid'
           ! Define parameter as double precision if required for restart file:
           IF(dimswitch(1:2)=='r2') THEN
@@ -888,7 +889,7 @@ CONTAINS
                   )
           END IF
           IF (ok /= NF90_NOERR) CALL nc_abort &
-               (ok,'Error defining '//pname//' variable in output file. '// &
+               (ok,'Error defining P2 '//pname//' variable in output file. '// &
                '(SUBROUTINE define_output_parameter_r2)')
           ! If not already allocated, allocate a temporary storage variable
           ! of this dimension structure:
@@ -915,40 +916,40 @@ CONTAINS
     ! Define variable units:
     ok = NF90_PUT_ATT(ncid ,parID, 'units', punits)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
-       (ok, 'Error defining '//pname//' variable attributes in '//             &
+       (ok, 'Error defining P2 '//pname//' variable attributes in '//             &
                          'output file. (SUBROUTINE define_output_parameter_r2)')
     ! Define long name:
     ok = NF90_PUT_ATT(ncid, parID, 'long_name', longname)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
-       (ok, 'Error defining '//pname//' variable attributes in '//             &
+       (ok, 'Error defining P2 '//pname//' variable attributes in '//             &
                          'output file. (SUBROUTINE define_output_parameter_r2)')
     ! Define missing/fill values:
     IF(dimswitch(1:1) == 'i') THEN
        ok = NF90_PUT_ATT(ncid, parID, '_FillValue', ncmissingi)
        IF (ok /= NF90_NOERR) CALL nc_abort                                     &
-          (ok, 'Error defining '//pname//' variable attributes in '//          &
+          (ok, 'Error defining P2 '//pname//' variable attributes in '//          &
                                          'output file. (INTERFACE define_ovar)')
        ok = NF90_PUT_ATT(ncid, parID, 'missing_value', ncmissingi)
        IF (ok /= NF90_NOERR) CALL nc_abort                                     &
-          (ok, 'Error defining '//pname//' variable attributes in '//          &
+          (ok, 'Error defining P2 '//pname//' variable attributes in '//          &
                                          'output file. (INTERFACE define_ovar)')
     ELSE IF(dimswitch(1:2) == 'r2') THEN
        ok = NF90_PUT_ATT(ncid, parID, '_FillValue', REAL(ncmissingr, r_2))
        IF (ok /= NF90_NOERR) CALL nc_abort                                     &
-          (ok, 'Error defining '//pname//' variable attributes in '//          &
+          (ok, 'Error defining P2 '//pname//' variable attributes in '//          &
                                          'output file. (INTERFACE define_ovar)')
        ok = NF90_PUT_ATT(ncid, parID, 'missing_value', REAL(ncmissingr, r_2))
        IF (ok /= NF90_NOERR) CALL nc_abort                                     &
-          (ok, 'Error defining '//pname//' variable attributes in '//          &
+          (ok, 'Error defining P2 '//pname//' variable attributes in '//          &
                                          'output file. (INTERFACE define_ovar)')
     ELSE
        ok = NF90_PUT_ATT(ncid, parID, '_FillValue', REAL(ncmissingr, r_1))
        IF (ok /= NF90_NOERR) CALL nc_abort                                     &
-            (ok, 'Error defining '//pname//' variable attributes in '//        &
+            (ok, 'Error defining P2 '//pname//' variable attributes in '//        &
                                          'output file. (INTERFACE define_ovar)')
        ok = NF90_PUT_ATT(ncid, parID, 'missing_value', REAL(ncmissingr, r_1))
        IF (ok /= NF90_NOERR) CALL nc_abort                                     &
-          (ok, 'Error defining '//pname//' variable attributes in '//          &
+          (ok, 'Error defining P2 '//pname//' variable attributes in '//          &
                                          'output file. (INTERFACE define_ovar)')
     END IF
 

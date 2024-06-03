@@ -180,6 +180,8 @@ MODULE cable_common_module
      character(len=200) :: c13o2_restart_out_pools = '' ! 13CO2 restart Casa output file
      character(len=200) :: c13o2_restart_in_luc = ''    ! 13CO2 restart LUC input file
      character(len=200) :: c13o2_restart_out_luc = ''   ! 13CO2 restart LUC output file
+     
+     character(len=20) :: SOIL_SCHE  ! soil scheme about soil hydraulics process 
   END TYPE kbl_user_switches
 
   ! instantiate internal switches

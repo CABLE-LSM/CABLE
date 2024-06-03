@@ -59,6 +59,7 @@ CONTAINS
    USE cable_soil_snow_module, ONLY : soil_snow
    USE cable_soil_hydraulics_module, ONLY : calc_soil_root_resistance, &
    calc_swp, calc_weighted_swp_and_frac_uptake
+   USE cable_IO_vars_module, ONLY: logn
    ! CABLE model variables
    INTEGER,                   INTENT(IN)    :: ktau
    REAL,                      INTENT(IN)    :: dels ! time setp size (s)
@@ -115,7 +116,9 @@ CONTAINS
    ssnow%otss   = ssnow%tss
    ssnow%owetfac = ssnow%wetfac ! MC should also be before canopy
    ! PH: mgk576, 13/10/17, added two funcs
-   !IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
+   
+   IF (cable_user%SOIL_SCHE == 'hydraulics') THEN
+    
       DO i = 1, mp
 
          CALL calc_soil_root_resistance(ssnow, soil, veg, bgc, root_length, i)
@@ -124,7 +127,7 @@ CONTAINS
                                                 root_length, i)
 
       END DO
-   !END IF
+   END IF
 
 
    ! Calculate canopy variables

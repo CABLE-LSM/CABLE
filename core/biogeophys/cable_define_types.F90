@@ -288,7 +288,7 @@ module cable_def_types_mod
      real(r_2), dimension(:),   pointer :: surface_melt => null()
      real(r_2), dimension(:),   pointer :: Qadv_rain_sn => null()
 
-    REAL(r_2), DIMENSION(:,:), POINTER ::                                      &
+    REAL(r_1), DIMENSION(:,:), POINTER ::                                      &
           soilR => null(), & !
           psi_soil => null(), &
           fraction_uptake => null()
@@ -511,11 +511,11 @@ module cable_def_types_mod
      real(r_2), dimension(:,:), pointer :: ci => null()        ! stomatal CO2 concentration [mol(CO2)/mol(air)]
 
      ! plant hydraulics; mgk576 2017; ms835 2022
-     REAL, DIMENSION(:), POINTER :: &
+     REAL(r_1), DIMENSION(:), POINTER :: &
         psi_stem => null(), &
         psi_can => null(), & 
         kplant => null()
-     REAL, DIMENSION(:), POINTER :: plc_sat, plc_stem, plc_can, day_plc_sat, day_plc_stem, day_plc_can
+     REAL(r_1), DIMENSION(:), POINTER :: plc_sat, plc_stem, plc_can, day_plc_sat, day_plc_stem, day_plc_can
 
   end type canopy_type
 

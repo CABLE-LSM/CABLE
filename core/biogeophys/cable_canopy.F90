@@ -129,7 +129,8 @@ CONTAINS
          gbhu => null(),          & ! forcedConvectionBndryLayerCond
          gbhf => null(),          & ! freeConvectionBndryLayerCond
          csx => null()              ! leaf surface CO2 concentration
-    REAL :: rt_min
+   
+   REAL :: rt_min
     REAL, DIMENSION(mp) :: zstar, rL, phist, csw, psihat,rt0bus
 
     INTEGER :: j

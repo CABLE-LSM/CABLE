@@ -100,7 +100,7 @@ cable_carbon.o: cable_carbon.F90 cable_define_types.o cable_common.o cable_data.
 
 cable_cbm.o: cable_cbm.F90 cable_carbon.o cable_soilsnow.o cable_canopy.o cable_define_types.o \
 	     cable_roughness.o cable_radiation.o cable_albedo.o casa_variable.o cable_common.o cable_data.o cable_sli_main.o \
-		 cable_soil_hydraulics.o
+		 cable_soil_hydraulics.o cable_iovars.o
 
 cable_checks.o: cable_checks.F90 cable_radiation.o cable_common.o
 

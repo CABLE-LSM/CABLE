@@ -1637,6 +1637,7 @@ CONTAINS
    SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
 
       USE cable_common_module, ONLY : cable_user
+      USE cable_IO_vars_module, ONLY: logn
 
       ! Removes transpiration water from soil.
       REAL, INTENT(IN)                    :: dels ! integration time step (s)
@@ -1644,57 +1645,72 @@ CONTAINS
       TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow
       TYPE(soil_parameter_type), INTENT(INOUT) :: soil
       TYPE(veg_parameter_type), INTENT(INOUT)  :: veg
-      REAL(r_2), DIMENSION(mp,0:ms) :: diff
+      REAL(r_2), DIMENSION(mp,ms) :: diff
       REAL(r_2), DIMENSION(mp)      :: xx, xxd
       INTEGER :: k, i
       REAL(r_2), DIMENSION(mp)      :: demand, difference
-      REAL(r_2), DIMENSION(mp,0:ms) :: supply
+      REAL(r_2), DIMENSION(mp,ms) :: supply
 
-      IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
+
+
+
+      IF (cable_user%SOIL_SCHE == 'hydraulics') THEN
          ! This follows the default extraction logic, but instead of weighting
          ! by froot, we are weighting by the frac uptake we calculated when we
          ! were weighting the soil water potential.
          !
          ! Martin De Kauwe, 22/02/19
+         
 
-         demand = 0._r_2
-         difference = 0._r_2
-         supply = 0._r_2
+         demand = 0.0_r_2
+         difference = 0.0_r_2
+         supply = 0.0_r_2
 
-         xx = 0.; xxd = 0.; diff(:,:) = 0.
+         xx  = 0.0_r_2
+         xxd = 0.0_r_2
+         diff(:,:) = 0.0_r_2
+        
          DO k = 1, ms
-            WHERE (canopy%fevc > 0.0)
+          !  WRITE(logn, *) 'fevc  is: ', canopy%fevc(1)
+             WHERE (canopy%fevc > 0.0_r_2)
 
-               ! Calculate the amount of water we wish to extract from each
-               ! layer, kg/m2
-               demand = canopy%fevc * dels / C%HL * &
-                  ssnow%fraction_uptake(:,k) + supply(:,k-1)
+            !    ! Calculate the amount of water we wish to extract from each
+            !    ! layer, kg/m2
+                demand = canopy%fevc * real(dels / C%HL,r_2) * &
+                   real(ssnow%fraction_uptake(:,k),r_2) + supply(:,k-1)
 
-               ! Calculate the amount of water available in the layer
-               supply(:,k) = MAX(0.0, ssnow%wb(:,k) - soil%swilt) * &
-                  (soil%zse(k) * C%rhow)
+            !    ! Calculate the amount of water available in the layer
+                supply(:,k) = MAX(0.0_r_2, ssnow%wb(:,k) - real(soil%swilt,r_2)) * &
+                   (real(soil%zse(k),r_2) *1000.0_r_2)
 
-               difference = demand - supply(:,k)
+                difference = demand - supply(:,k)
+                
+                
 
-               ! Calculate new layer water balance
-               WHERE (difference > 0.0)
-                  ! We don't have sufficent water to supply demand, extract only
-                  ! the remaining SW in the layer
-                  ssnow%wb(:,k) = ssnow%wb(:,k) - supply(:,k) / &
-                     (soil%zse(k)*C%rhow)
-                  supply(:,k) = difference
-               ELSEWHERE
-                  ! We have sufficent water to supply demand, extract needed SW
-                  ! from the layer
+            !    ! Calculate new layer water balance
+                WHERE (difference > 0.0_r_2)
+                
+            !       ! We don't have sufficent water to supply demand, extract only
+            !       ! the remaining SW in the layer
+                   ssnow%wb(:,k) = ssnow%wb(:,k) - supply(:,k) / &
+                    (real(soil%zse(k),r_2)**1000.0_r_2)
+                   supply(:,k) = difference
+                ELSEWHERE
+                 
+            !       ! We have sufficent water to supply demand, extract needed SW
+            !       ! from the layer
                   ssnow%wb(:,k) = ssnow%wb(:,k) - demand / &
-                     (soil%zse(k)*C%rhow)
+                  (real(soil%zse(k),r_2) *1000.0_r_2)
 
-                  supply(:,k) = 0.0
-               ENDWHERE
+                   supply(:,k) = 0.0_r_2
+                ENDWHERE
 
-            END WHERE   !fvec > 0
+             END WHERE   !fvec > 0
+
+
          END DO   !ms
-      ELSEIF (cable_user%FWSOIL_switch.ne.'Haverd2013') THEN
+      ELSEIF (cable_user%FWSOIL_switch .ne.'Haverd2013') THEN
+      !IF (cable_user%FWSOIL_switch .ne.'Haverd2013') THEN
          xx  = 0.0_r_2
          xxd = 0.0_r_2
          diff(:,:) = 0.0_r_2

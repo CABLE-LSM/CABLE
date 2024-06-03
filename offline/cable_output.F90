@@ -561,6 +561,13 @@ CONTAINS
        ALLOCATE(out%Qle(mp))
        out%Qle = zero4 ! initialise
     END IF
+    IF(output%flux .OR. output%Tsap) THEN
+     CALL define_ovar(ncid_out, ovid%Tsap, 'Tsap', 'kg/m^2/s', &
+          'trans. from sapflux at top of leaves',patchout%Qle,'dummy', &
+          xID, yID, zID, landID, patchID, tID)
+     ALLOCATE(out%Tsap(mp))
+     out%Tsap = zero4 ! initialise
+  END IF
     IF(output%flux .OR. output%Qh) THEN
        CALL define_ovar(ncid_out,ovid%Qh,'Qh', 'W/m^2', &
             'Surface sensible heat flux',patchout%Qh,'dummy', &
@@ -729,6 +736,87 @@ CONTAINS
        ALLOCATE(out%BaresoilT(mp))
        out%BaresoilT = zero4 ! initialise
     END IF
+         IF(output%soil) THEN
+          CALL define_ovar(ncid_out, ovid%psi_soil, &
+                           'psi_soil', 'MPa', 'Soil water potential', &
+                           patchout%psi_soil, 'soil', xID, yID, zID, &
+                           landID, patchID, soilID, tID)
+          ALLOCATE(out%psi_soil(mp,ms))
+
+          out%psi_soil = 0.0 ! initialise
+     END IF
+   
+       IF(output%soil) THEN
+          CALL define_ovar(ncid_out, ovid%psi_rootzone, &
+                           'psi_rootzone', 'MPa', 'Weighted root zone water potential', &
+                           patchout%psi_rootzone, 'dummy', xID, yID, zID, &
+                           landID, patchID, tID)
+          ALLOCATE(out%psi_rootzone(mp))
+          out%psi_rootzone = 0.0 ! initialise
+       END IF
+   
+    IF(output%veg) THEN
+     CALL define_ovar(ncid_out, ovid%psi_stem, &
+                      'psi_stem', 'MPa', 'Stem water potential', &
+                      patchout%psi_stem, 'dummy', xID, yID, zID, &
+                      landID, patchID, tID)
+     ALLOCATE(out%psi_stem(mp))
+     out%psi_stem = 0.0 ! initialise
+  END IF
+
+  IF(output%veg) THEN
+     CALL define_ovar(ncid_out, ovid%psi_can, &
+                      'psi_can', 'MPa', 'Canopy water potential', &
+                      patchout%psi_can, 'dummy', xID, yID, zID, &
+                      landID, patchID, tID)
+     ALLOCATE(out%psi_can(mp))
+     out%psi_can = 0.0 ! initialise
+  END IF
+
+  IF(output%veg) THEN
+     CALL define_ovar(ncid_out, ovid%plc_sat, &
+                      'plc_sat', '%', 'Percentage loss of hydraulic conductivity at saturation of the xylem', &
+                      patchout%plc_sat, 'dummy', xID, yID, zID, &
+                      landID, patchID, tID)
+     ALLOCATE(out%plc_sat(mp))
+     out%plc_sat = 0.0 ! initialise
+  END IF
+
+  IF(output%veg) THEN
+     CALL define_ovar(ncid_out, ovid%plc_stem, &
+                      'plc_stem', '%', 'Percentage loss of hydraulic conductivity in the stem', &
+                      patchout%plc_stem, 'dummy', xID, yID, zID, &
+                      landID, patchID, tID)
+     ALLOCATE(out%plc_stem(mp))
+     out%plc_stem = 0.0 ! initialise
+  END IF
+
+  IF(output%veg) THEN
+     CALL define_ovar(ncid_out, ovid%plc_can, &
+                      'plc_can', '%', 'Percentage loss of hydraulic conductivity in the canopy', &
+                      patchout%plc_can, 'dummy', xID, yID, zID, &
+                      landID, patchID, tID)
+     ALLOCATE(out%plc_can(mp))
+     out%plc_can = 0.0 ! initialise
+  END IF
+
+  IF(output%veg) THEN
+     CALL define_ovar(ncid_out, ovid%gsw_sun, &
+                      'gsw_sun', 'mmol m-2 s-1', 'gsw_sun', &
+                      patchout%gsw_sun, 'dummy', xID, yID, zID, &
+                      landID, patchID, tID)
+     ALLOCATE(out%gsw_sun(mp))
+     out%gsw_sun = 0.0 ! initialise
+  END IF
+
+  IF(output%veg) THEN
+     CALL define_ovar(ncid_out, ovid%gsw_sha, &
+                      'gsw_sha', 'mmol m-2 s-1', 'gsw_sha', &
+                      patchout%gsw_sha, 'dummy', xID, yID, zID, &
+                      landID, patchID, tID)
+     ALLOCATE(out%gsw_sha(mp))
+     out%gsw_sha = 0.0 ! initialise
+  END IF
     ! Define snow state variables in output file and allocate temp output vars:
     IF(output%snow .OR. output%SWE) THEN
        CALL define_ovar(ncid_out, ovid%SWE, 'SWE', 'kg/m^2', &
@@ -1851,86 +1939,7 @@ CONTAINS
 ! mgk576, 19/2/2019 - I think the issue is that I turn this off for other PFTs?
     !IF(output%soil .OR. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
 
-     IF(output%soil) THEN
-          CALL define_ovar(ncid_out, ovid%psi_soil, &
-                           'psi_soil', 'MPa', 'Soil water potential', &
-                           patchout%psi_soil, 'soil', xID, yID, zID, &
-                           landID, patchID, soilID, tID)
-          ALLOCATE(out%psi_soil(mp,ms))
-          out%psi_soil = 0.0 ! initialise
-     END IF
-   
-       IF(output%soil) THEN
-          CALL define_ovar(ncid_out, ovid%psi_rootzone, &
-                           'psi_rootzone', 'MPa', 'Weighted root zone water potential', &
-                           patchout%psi_rootzone, 'dummy', xID, yID, zID, &
-                           landID, patchID, tID)
-          ALLOCATE(out%psi_rootzone(mp))
-          out%psi_rootzone = 0.0 ! initialise
-       END IF
-   
-       IF(output%veg) THEN
-          CALL define_ovar(ncid_out, ovid%psi_stem, &
-                           'psi_stem', 'MPa', 'Stem water potential', &
-                           patchout%psi_stem, 'dummy', xID, yID, zID, &
-                           landID, patchID, tID)
-          ALLOCATE(out%psi_stem(mp))
-          out%psi_stem = 0.0 ! initialise
-       END IF
-   
-       IF(output%veg) THEN
-          CALL define_ovar(ncid_out, ovid%psi_can, &
-                           'psi_can', 'MPa', 'Canopy water potential', &
-                           patchout%psi_can, 'dummy', xID, yID, zID, &
-                           landID, patchID, tID)
-          ALLOCATE(out%psi_can(mp))
-          out%psi_can = 0.0 ! initialise
-       END IF
-   
-       IF(output%veg) THEN
-          CALL define_ovar(ncid_out, ovid%plc_sat, &
-                           'plc_sat', '%', 'Percentage loss of hydraulic conductivity at saturation of the xylem', &
-                           patchout%plc_sat, 'dummy', xID, yID, zID, &
-                           landID, patchID, tID)
-          ALLOCATE(out%plc_sat(mp))
-          out%plc_sat = 0.0 ! initialise
-       END IF
-   
-       IF(output%veg) THEN
-          CALL define_ovar(ncid_out, ovid%plc_stem, &
-                           'plc_stem', '%', 'Percentage loss of hydraulic conductivity in the stem', &
-                           patchout%plc_stem, 'dummy', xID, yID, zID, &
-                           landID, patchID, tID)
-          ALLOCATE(out%plc_stem(mp))
-          out%plc_stem = 0.0 ! initialise
-       END IF
-   
-       IF(output%veg) THEN
-          CALL define_ovar(ncid_out, ovid%plc_can, &
-                           'plc_can', '%', 'Percentage loss of hydraulic conductivity in the canopy', &
-                           patchout%plc_can, 'dummy', xID, yID, zID, &
-                           landID, patchID, tID)
-          ALLOCATE(out%plc_can(mp))
-          out%plc_can = 0.0 ! initialise
-       END IF
-   
-       IF(output%veg) THEN
-          CALL define_ovar(ncid_out, ovid%gsw_sun, &
-                           'gsw_sun', 'mmol m-2 s-1', 'gsw_sun', &
-                           patchout%gsw_sun, 'dummy', xID, yID, zID, &
-                           landID, patchID, tID)
-          ALLOCATE(out%gsw_sun(mp))
-          out%gsw_sun = 0.0 ! initialise
-       END IF
-   
-       IF(output%veg) THEN
-          CALL define_ovar(ncid_out, ovid%gsw_sha, &
-                           'gsw_sha', 'mmol m-2 s-1', 'gsw_sha', &
-                           patchout%gsw_sha, 'dummy', xID, yID, zID, &
-                           landID, patchID, tID)
-          ALLOCATE(out%gsw_sha(mp))
-          out%gsw_sha = 0.0 ! initialise
-       END IF
+
    
   END SUBROUTINE open_output_file
 
@@ -3749,8 +3758,8 @@ CONTAINS
           out%c13labile = 0.0_r_2
        endif
     endif
-     ! TSap: vegetation transpiration from sapflux [kg/m^2/s]
-    IF(output%flux .OR. output%TSap) THEN
+!      ! TSap: vegetation transpiration from sapflux [kg/m^2/s]
+    IF(output%flux .and. cable_user%FWSOIL_SWITCH == 'profitmax') THEN
      ! Add current timestep's value to total of temporary output variable:
      out%TSap = out%TSap + REAL(canopy%fevcs / air%rlam, 4)
           IF(writenow) THEN
@@ -3764,8 +3773,8 @@ CONTAINS
           END IF
      END IF
   ! ms8355
-     !IF((output%soil) .and. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
-  IF(output%soil) THEN
+   IF(output%soil .and. cable_user%SOIL_SCHE == 'hydraulics') THEN
+  !IF(output%soil) THEN
      ! Add current timestep's value to total of temporary output variable:
      out%psi_rootzone = out%psi_rootzone + &
                            REAL(ssnow%psi_rootzone, 4)
@@ -3784,8 +3793,8 @@ CONTAINS
    END IF
 
    ! mgk576, 19/2/2019
-   !IF((output%soil) .and. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
-   IF(output%soil) THEN
+   IF(output%soil .and. cable_user%SOIL_SCHE == 'hydraulics') THEN
+   !IF(output%soil) THEN
      ! Add current timestep's value to total of temporary output variable:
      out%psi_soil = out%psi_soil + REAL(ssnow%psi_soil, 4)
      IF(writenow) THEN
@@ -3802,8 +3811,8 @@ CONTAINS
    END IF
 
    ! mgk576, 19/2/2019
-   !IF((output%veg) .and. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
-   IF(output%veg) THEN
+   IF(output%veg .and. cable_user%FWSOIL_SWITCH == 'profitmax') THEN
+   !IF(output%veg) THEN
       ! Add current timestep's value to total of temporary output variable:
       out%psi_can = out%psi_can + REAL(canopy%psi_can, 4)
       IF(writenow) THEN
@@ -3820,7 +3829,7 @@ CONTAINS
       END IF
    END IF
 
-   IF(output%veg) THEN
+   IF(output%veg .and. cable_user%FWSOIL_SWITCH == 'profitmax') THEN
       ! Add current timestep's value to total of temporary output variable:
       out%gsw_sun = out%gsw_sun + REAL(canopy%gswx(:,1), 4)
       IF(writenow) THEN
@@ -3837,7 +3846,7 @@ CONTAINS
       END IF
    END IF
 
-   IF(output%veg) THEN
+   IF(output%veg .and. cable_user%FWSOIL_SWITCH == 'profitmax') THEN
       ! Add current timestep's value to total of temporary output variable:
       out%gsw_sha = out%gsw_sha + REAL(canopy%gswx(:,2), 4)
       IF(writenow) THEN
@@ -3854,7 +3863,7 @@ CONTAINS
       END IF
    END IF
 
-   IF(output%veg) THEN
+   IF(output%veg .and. cable_user%FWSOIL_SWITCH == 'profitmax') THEN
       ! Add current timestep's value to total of temporary output variable:
       out%plc_sat = out%plc_sat + REAL(canopy%plc_sat, 4)
       IF(writenow) THEN
@@ -3871,7 +3880,7 @@ CONTAINS
       END IF
    END IF
 
-   IF(output%veg) THEN
+   IF(output%veg .and. cable_user%FWSOIL_SWITCH == 'profitmax') THEN
       ! Add current timestep's value to total of temporary output variable:
       out%plc_stem = out%plc_stem + REAL(canopy%plc_stem, 4)
       IF(writenow) THEN
@@ -3888,7 +3897,7 @@ CONTAINS
       END IF
    END IF
 
-   IF(output%veg) THEN
+   IF(output%veg .and. cable_user%FWSOIL_SWITCH == 'profitmax') THEN
       ! Add current timestep's value to total of temporary output variable:
       out%plc_can = out%plc_can + REAL(canopy%plc_can, 4)
       IF(writenow) THEN
@@ -3907,7 +3916,7 @@ CONTAINS
 
    ! mgk576, 19/2/2019
    !IF((output%veg) .and. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
-   IF(output%veg) THEN
+   IF(output%veg .and. cable_user%FWSOIL_SWITCH == 'profitmax') THEN
       ! Add current timestep's value to total of temporary output variable:
       out%psi_stem = out%psi_stem + REAL(canopy%psi_stem, 4)
       IF(writenow) THEN
