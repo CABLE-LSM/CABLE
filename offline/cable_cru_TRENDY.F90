@@ -976,6 +976,11 @@ SUBROUTINE get_cru_co2(CRU, CO2Air)
   IF (CRU%CO2Method == "Yearly") THEN
     ! We use the same year as the simulation year
     CO2Year = CRU%cYear
+    
+    ! Make sure it's in the bounds of the array
+    CO2Year = MAX(LBOUND(CRU%CO2Vals), CO2Year)
+    CO2Year = MIN(UBOUND(CRU%CO2Vals), CO2Year)
+
     CO2Air(:) = CRU%CO2Vals(CO2Year)
   ELSE
     ! The user has specified the year
@@ -1024,6 +1029,10 @@ SUBROUTINE get_cru_ndep(CRU)
     READ(CRU%NDepMethod, '(I4)') TimeIndex
     TimeIndex = TimeIndex - 1849
   END IF
+
+  ! If the year is before the time period of the data, get the earliest
+  ! year.
+  TimeIndex = MAX(1, TimeIndex)
 
   ! And finally grab the data. Since we're using landmask, we have to extract
   ! the full set of data first and then read the unmasked points into the NDep
