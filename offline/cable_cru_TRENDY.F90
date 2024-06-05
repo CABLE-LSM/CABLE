@@ -1,15 +1,9 @@
-! Author: Lachlan Whyborn
-! Last Modified: Tue 14 May 2024 14:17:11
-
 MODULE CABLE_CRU
 
-! Import from other modules. We should absolutely not be importing data from
-! other modules, like those from cable_io_vars_module, but this behaviour
-! permeates the code and will take months of work to refactor out and will be
-! addressed when CABLE receives a fundamental rewrite.
-! For some reason, some bits of data are imported here, and others are imported
-! within subroutines. We've combined into a single import at the start of the
-! module.
+!*## Purpose
+!
+! The master module to handle the meteorological forcing when using the CRU
+! dataset.
 
 USE NetCDF,                 ONLY: NF90_OPEN, NF90_NOWRITE, NF90_INQ_DIMID,&
                                   NF90_INQUIRE_DIMENSION, NF90_INQ_VARID,&
@@ -31,38 +25,8 @@ USE mo_utils,               ONLY: eq
 #IFDEF __MPI__
 USE mpi,                    ONLY: MPI_Abort
 #ENDIF
-                                
+
 IMPLICIT NONE
-
-!TYPE SPATIO_TEMPORAL_DATASET
-  !! When we actually want a piece of data, we pass this along with the year
-  !! and day to a read routine. The routine checks the passed year against
-  !! StartYear(CurrentFileIndx) and EndYear(CurrentFileIndx), and decides whether
-  !! to either a) continue with the current file if it falls within that range,
-  !!        or b) move to a new file if it falls outside that range.
-  !! By storing the ID associated with the currently open file, we only need to
-  !! open a new IO stream a couple of times per simulation, rather than every
-  !! time we start a new year or a new time step.
-
-  !! This data type is used to store effectively a reference to spatio-temporal
-  !! datasets which span multiple files, which is common for external forcings.
-  !! The idea is to store the list of files in the dataset, and their start and
-  !! end years respectively. We also need to know the internal variable names in
-  !! the netCDF dataset so we can call it correctly. 
-  !! This can possibly permit series with different sampling intervals as well.
-  !CHARACTER(LEN=256), DIMENSION(:), ALLOCATABLE :: FileNames
-  !INTEGER, DIMENSION(:), ALLOCATABLE            :: StartYear, EndYear
-  !CHARACTER(LEN=16), DIMENSION(:), ALLOCATABLE  :: VarNames
-
-  !! As well as the metadata about the dataset contents, we want some data that
-  !! is updated to inform which file is currently open and it's period. If open a
-  !! file relevant to a particular year, and move onto the next year that's still
-  !! contained in the current file's period, we don't want to go through open
-  !! another file, we just want to continue using the current file.
-  !! To do this, we need to know the current FileID, and which index it is in
-  !! our list of files so we can access it's period.
-  !INTEGER :: CurrentFileID, CurrentVarId, CurrentFileIndx = 0
-!END TYPE SPATIO_TEMPORAL_DATASET
 
 TYPE CRU_MET_TYPE
   REAL, DIMENSION(:), ALLOCATABLE :: MetVals
@@ -77,7 +41,7 @@ TYPE CRU_TYPE
   INTEGER   :: DtSecs             ! Size of the timestep in seconds
   INTEGER   :: MetRecyc           ! Period of the met forcing recycling
   INTEGER   :: Ktau
-  
+
   INTEGER, DIMENSION(10)    :: FileID, VarId    ! File and variable IDs for
   INTEGER                   :: NDepFId, NDepVId ! reading netCDF
 
@@ -115,22 +79,26 @@ INTEGER, PRIVATE             :: ErrStatus
 CONTAINS
 
 SUBROUTINE CRU_INIT(CRU)
-  ! A rewrite of the CRU_INIT subroutine in cable_cru_TRENDY.f90
+  !*## Purpose
+  !
+  ! Initialise the program to handle met forcing from the CRU dataset.
+  !
+  !## Method
+  !
+  ! Reads the cru.nml namelist and configures the passed ```CRU``` derived type
+  ! with information about the way the met forcing is handled, the location of
+  ! the datasets on the filesystem, and reads in the landmask to globally shared
+  ! variables.
 
-  ! The main goal of this routine is to mutate the CRU data structure to prep
-  ! it for the experiment.
+  ! The CRU derived type which is used to control the met forcing.
   TYPE(CRU_TYPE), INTENT(OUT)    :: CRU
 
-  ! Start with the things we want from the namelist. The namelist must set
-  ! the filenames to read from, the method of choosing atmospheric carbon and
-  ! nitrogen deposition, and the timestep.
-  ! We want one filename for each variable, stored in a list predefined index.
+  ! We want one filename for each variable, stored in a predefined index.
   CHARACTER(LEN=256), dimension(13) :: InputFiles
 
-  ! To determine the data we want from the Met data, we need to look at the
-  ! landmask
+  ! Landmask to spatially filter the data
   INTEGER, DIMENSION(:,:), ALLOCATABLE  :: LandMask
- 
+
   ! Iterator variable for the variables
   INTEGER   :: VarIndx
 
@@ -138,19 +106,22 @@ SUBROUTINE CRU_INIT(CRU)
   INTEGER   :: ok
   LOGICAL :: IsOpen
 
-  ! Read the namelist and pull out the input files and configuration variables
+  ! Start with the things we want from the namelist. The namelist must set
+  ! the filenames to read from, the method of choosing atmospheric carbon and
+  ! nitrogen deposition, and the timestep.
   CALL read_MET_namelist_cbl(InputFiles, CRU)
 
   ! Read the landmask and allocate appropriate memory for the array variables
   CALL read_landmask(InputFiles(13), CRU)
 
   ! We know that the first 9 Met variables (indices 1-9) are always going to be
-  ! time series, so always build their keys.
+  ! time series, so always build their SPATIO_TEMPORAL_DATASET derived types.
   BuildKeys: DO VarIndx = 1, 9
-    CALL prepare_spatiotemporal_dataset(InputFiles(VarIndx), CRU%MetDatasets(VarIndx))
+    CALL prepare_spatiotemporal_dataset(InputFiles(VarIndx),&
+      CRU%MetDatasets(VarIndx))
   END DO BuildKeys
 
-  ! Our building of NDep, Carbon and FDiff keys depend on our choices of method.
+  ! Build the SPATIO_TEMPORAL_DATASET for fdiff if requested
   IF (CRU%ReadDiffFrac) THEN
     CALL prepare_spatiotemporal_dataset(InputFiles(10), CRU%MetDatasets(10))
   END IF
@@ -190,23 +161,23 @@ SUBROUTINE CRU_INIT(CRU)
 
     ok = NF90_OPEN(CRU%NDepDataset%Filenames(1), NF90_NOWRITE,&
       CRU%NDepFID)
-    CALL handle_err(ok, "Reading NDep file")
+    CALL handle_err(ok, "Opening NDep file")
 
     ok =NF90_INQ_VARID(CRU%NDepFID, "N_deposition",&
       CRU%NDepVID)
-    CALL handle_err(ok, "Reading NDep variable")
+    CALL handle_err(ok, "Finding NDep variable")
   ELSE
     CALL prepare_spatiotemporal_dataset(InputFiles(12), CRU%NDepDataset)
     ! For now, set the file index to 1 since we know its only one file
     CRU%NDepDataset%CurrentFileIndx = 1
-    
+
     ok = NF90_OPEN(CRU%NDepDataset%Filenames(1), NF90_NOWRITE,&
       CRU%NDepFID)
-    CALL handle_err(ok, "Reading NDep file")
+    CALL handle_err(ok, "Opening NDep file")
 
     ok = NF90_INQ_VARID(CRU%NDepFID, "N_deposition",&
       CRU%NDepVID)
-    CALL handle_err(ok, "Reading NDep variable")
+    CALL handle_err(ok, "Finding NDep variable")
   END IF
 END SUBROUTINE CRU_INIT
 
@@ -214,7 +185,7 @@ END SUBROUTINE CRU_INIT
 SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)
 
   ! Obtain one day of CRU-NCEP meteorology, subdiurnalise it using a weather
-  ! and return the result to the CABLE driver.
+  ! generator and return the result to the CABLE driver.
 
   IMPLICIT NONE
 
@@ -249,10 +220,10 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)
      else
         cable_user%calc_fdiff = .true.
      endif
-     
+
      call WGEN_INIT(WG, CRU%mland, latitude, dt)
   endif
-     
+
   ! Pass time-step information to CRU
   CRU%CYEAR = CurYear
   CRU%ktau  = ktau     ! ktau is the current timestep in the year.
@@ -351,6 +322,7 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)
 
   ! strangely, met% is not save over Wait all in MPI...!
   !  met%pmb = CRU%MET(pres)%METVALS !CLN interpolation??
+
   ! Assign weather-generated data, or daily values, as required to CABLE
   ! variables.
   do iland = 1, CRU%mland
@@ -447,7 +419,7 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
   INTEGER   :: DummyYear, DummyDay
 
   ! Define iteration variable
-  INTEGER   :: VarIndx 
+  INTEGER   :: VarIndx
 
   ! Determine the recycled and sim year
   RecycledYear = 1901 + MOD(CRU%cYear - 1501, CRU%metRecyc)
@@ -458,7 +430,7 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
     IF (CRU%isRecycled(VarIndx)) THEN
       MetYear = RecycledYear
     ELSE
-      MetYear = CRU%cYear
+      MetYear = CRU%cYearc
     END IF
 
     ! CRU%CTStep is the current day, which we use to index the netCDF arrays
@@ -522,7 +494,7 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
     MetYear, DummyDay, CRU%LeapYears)
 
   ! Now do nextTmin
-  ! Check what the day is, and whether we need to change the year
+  ! Check what the day is, and whether wce need to change the year
   ! This changes whether its a leapyear or not
   IF ((CRU%LeapYears) .AND. (CRU%CTStep == 366)) THEN
     ! We're at the last day of a leapyear
@@ -549,51 +521,18 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
 END SUBROUTINE cru_get_daily_met
 
 SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
-  ! # read_MET_namelist_cbl(InputFiles, CRU)
-  ! Read the supplied cru.nml namelist and extract the desired input file names
-  ! and a series of configuration options regarding the usage of the MET data.
-  ! ## Namelist inputs
-  ! The entries expected in the namelist are:
-  ! ```
-  ! &MetConfig
-  ! rainFile = filename_template
-  ! lwdnFile = ...
-  ! swdnFile = ...
-  ! presFile = ...
-  ! qairFile = ...
-  ! TmaxFile = ...
-  ! TminFile = ...
-  ! uwindFile = ...
-  ! vwindFile = ...
-  ! fdiffFile = ...
-  ! carbonFile = ...
-  ! NDepFile = ...
-  ! CO2Method = "yearly", "spatial", <year>
-  ! NDepMethod = "yearly", "spatial", <year>
-  ! ReadDiffFrac = T/F
-  ! LeapYears = T/F
-  ! MetRecyc = <NYears>
-  ! ! And then variables for the recycling of MET variables.
-  ! rainRecyc = T/F
-  ! lwdnRecyc = T/F
-  ! ! and so on.
-  ! ```
-
-  ! It's not clear why this recycling is necessary, but it's included in the
-  ! TRENDY configuration, so keep it for imply having the repconsistency.
-
-  ! The filename template is "path/to/file/prefix<startdate>_<enddate>suffix".
-  ! For example, there may be a series of files describing the rain data at
-  ! ```"data/rain/cru_rain_data_18500101_18991231_av.nc"```,
-  ! ```"data/rain/cru_rain_data_19000101_19491231_av.nc"``` and so on.
-  ! The entry for rainFile would be 
-  ! ```"data/rain/cru_rain_data_<startdate>_<enddate>_av.nc".
+  !*## Purpose
   !
-  ! The CO2Method and NDepMethod are "yearly", with globally constant values
-  ! for each year, "spatial" with spatially varying values for each year, or
-  ! a specific year which fixes the value at that specific year.
+  ! Set the metadata for the met forcing.
+  !
+  !## Method
+  !
+  ! Reads the namelist at ```cru.nml```, extracts a series of filename
+  ! templates used to build the ```SPATIO_TEMPORAL_DATASET```(s) used to manage
+  ! the input met data and sets metadata about the met forcing in the ```CRU```
+  ! derived type.
 
-  ! Internally, we're going to pick up the individually separated inputs and
+  ! Intcernally, we're going to pick up the individually separated inputs and
   ! pack them into a more convenient data structure. We don't expect the user
   ! to know the order in which we store the MET inputs internally, so we need
   ! to access them by name.
@@ -607,14 +546,14 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   ! expected in. So we first read them from a recognisable name, then pass them
   ! to the array.
   CHARACTER(LEN=256)  :: rainFile, lwdnFile, swdnFile, presFile, qairFile,&
-                         TmaxFile, TminFile, uwindFile, vwindFile, fdiffFile,&
+                         cTmaxFile, TminFile, uwindFile, vwindFile, fdiffFile,&
                          CO2File, NDepFile, landmaskFile
   LOGICAL             :: rainRecycle, lwdnRecycle, swdnRecycle, presRecycle,&
                          qairRecycle, TmaxRecycle, TminRecycle, uwindRecycle,&
                          vwindRecycle, fdiffRecycle
   CHARACTER(LEN=16)   :: CO2Method, NDepMethod
   INTEGER             :: MetRecyc
-  REAL                :: DtHrs
+  REAL  c              :: DtHrs
   LOGICAL             :: ReadDiffFrac, LeapYears
 
   ! Need a unit to handle the io
@@ -632,7 +571,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   TminFile = "None"
   uwindFile = "None"
   vwindFile = "None"
-  fdiffFile = "None"
+  fdiffFicle = "None"
   CO2File = "None"
   NDepFile = "None"
   landmaskFile = "None"
@@ -653,7 +592,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   CO2Method = "yearly"
   NDepMethod = "yearly"
   MetRecyc = 20
-  ReadDiffFrac = .TRUE.
+  ReadDiffcFrac = .TRUE.
 
   ! Set up and read the namelist
   NAMELIST /MetConfig/ rainFile, lwdnFile, swdnFile, presFile, qairFile,&
@@ -667,7 +606,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
 
   ! Get a temporary unique ID and use it to read the namelist
   CALL get_unit(nmlUnit)
-  OPEN(nmlUnit, file = "cru.nml", status = 'old', action = 'read')
+  OPEN(nmlUnit, file = "ccru.nml", status = 'old', action = 'read')
   READ(nmlUnit, nml = MetConfig)
   CLOSE(nmlUnit)
 
@@ -682,7 +621,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   InputFiles(8) = uwindFile
   InputFiles(9) = vwindFile
   InputFiles(10) = fdiffFile
-  InputFiles(11) = CO2File
+  InputFiles(11) = CO2Filec
   InputFiles(12) = NDepFile
   InputFiles(13) = landmaskFile
 
@@ -695,7 +634,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   CRU%IsRecycled(6) = TmaxRecycle
   CRU%IsRecycled(7) = TminRecycle
   CRU%IsRecycled(8) = uwindRecycle
-  CRU%IsRecycled(9) = vwindRecycle
+  CRU%IsReccycled(9) = vwindRecycle
   CRU%IsRecycled(10) = fdiffRecycle
 
   ! Bind the remaining config variables to the CRU structure
@@ -711,33 +650,16 @@ END SUBROUTINE read_MET_namelist_cbl
 !------------------------------------------------------------------------------!
 
 SUBROUTINE read_variable_names(STDatasets)
-  ! Read in the possible variable names from a namelist, and assign them to the
-  ! SpatioTemporalDataset structs.
-  ! While the CF convention exists to dictate what specific variables should be
-  ! named in a dataset, this convention is yet to hold much sway and the
-  ! variables in a NetCDF dataset may be named any number of things.
-  ! The current solution is to have an internally maintained namelist which
-  ! contains the possible NetCDF names for a given variable, and hope that there
-  ! is some overlap between names across macro datasets.
-  ! Having an internal namelist was chosen because it strikes a balance between
-  ! putting too much onus on the user, and having such options set opaquely deep
-  ! within the source code. If a user comes with a new macro dataset, with a new
-  ! set of variable names, they should not have to dig deep into the source code
-  ! to make an addition to the list of possible NetCDF names for a variable.
-  ! There are two alternatives to the current approach:
-  ! 1. Have the user simply state the variable names used in the NetCDF data.
-  !   This may be a better long term option, if it turns out there is minimal
-  !   overlap in the namings.
-  ! 2. Have a list of possible names defined explicitly in the code. This is not
-  !   desirable due to the reasons outlined above, in that it makes the process
-  !   opaque and difficult to adapt for a new user.
-
-  ! The namelist contains both a list of possible names for an internal variable
-  ! and the number of names in this list. This allows us to first allocate 
-  ! memory for the list of possible names, then to write to those arrays.
-
-  ! The more I think about this the more I think going with option 1 is the
-  ! better long term option, but let's run with this for now.
+  !*## Purpose
+  !
+  ! Prepare the possible NetCDF names for the met forcing variables.
+  !
+  !## Method
+  !
+  ! Read the ```met_names.nml``` namelist to build a series of arrays
+  ! containing the possible NetCDF names for each variable. The namelist
+  ! contains, for each variable, the number of possible names to ```ALLOCATE```
+  ! string arrays, and then the string arrays themselves.
 
   TYPE(SPATIO_TEMPORAL_DATASET), DIMENSION(10)  :: STDatasets
 
@@ -788,6 +710,17 @@ END SUBROUTINE read_variable_names
 !------------------------------------------------------------------------------!
 
 SUBROUTINE read_landmask(LandmaskFile, CRU)
+  !*## Purpose
+  !
+  ! Reads a landmask and allocates the data arrays in the ```CRU``` derived
+  ! type, sets up indexing arrays for reading from met forcing datasets and
+  ! global landmask variables.
+  !
+  !*## Method
+  !
+  ! Uses the NetCDF dataset at ```LandmaskFile``` to determine which cells are
+  ! computed in this run of CABLE.
+
   ! Read the landmask file to determine which land cells we're looking at.
   ! Define the input variables
   CHARACTER(len=256), INTENT(IN)  :: LandmaskFile
@@ -826,7 +759,7 @@ SUBROUTINE read_landmask(LandmaskFile, CRU)
     CALL NC_ABORT(ErrStatus, "Error reading the latitude length.")
   END IF
 
-  ErrStatus = nf90_inq_dimid(FileID, 'longitude', LonID)
+  ErrStatus = nf90_inq_dimid(FileID, 'longictude', LonID)
   IF (ErrStatus /= NF90_NOERR) THEN
     CALL NC_ABORT(ErrStatus, "Error reading the longitude ID.")
   END IF
@@ -910,7 +843,7 @@ SUBROUTINE read_landmask(LandmaskFile, CRU)
   END DO FillLongitudes
 
   ! Some CABLE time units?
-  shod = 0.
+  shod = 0.c
   sdoy = 1
   smoy = 1
   syear = CRU%CYEAR
@@ -919,226 +852,18 @@ SUBROUTINE read_landmask(LandmaskFile, CRU)
   ALLOCATE(CRU%AVG_LWDN(mLand))
 END SUBROUTINE read_landmask
 
-!------------------------------------------------------------------------------!
-
-!SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
-  !! Prepare the met netCDF files for reading. We follow a process similar to
-  !! that of JULES to handle time series data split over multiple files, see
-  !! 6.31.2.2 at https://jules-lsm.github.io/latest/namelists/drive.nml.html.
-
-  !! The user specifies a template matching the file names for each variable,
-  !! containing the start and end date of the data in the file. For example,
-  !! rain data files may be named "pre/precip_1850101_18991231.nc",
-  !! "pre/precip_19000101_19491231.nc" and so on. Then the user would specify
-  !! rainFile = "pre/precip_<startdate>_<enddate>.nc" in the namelist.
-
-  !! We then use the ls command to find all files matching this pattern and 
-  !! write the output to a text file. We then inspect the filenames to
-  !! determine the time period for each filej.
-
-  !! We then create a data structure which effectively holds metadata about
-  !! the possibly multi-file dataset.
-  !! The data structure contains the list of files, their periods, as well as
-  !! a reference to the current open file.
-  !! Specify the intent of the arguments
-  !CHARACTER(len=256), INTENT(IN)  :: FileTemplate
-  !TYPE(SPATIO_TEMPORAL_DATASET), INTENT(OUT)  :: Dataset
-
-  !! We need to have a definition of the substrings we're going to replace.
-  !CHARACTER(len=11) :: StartDate = "<startdate>"
-  !CHARACTER(len=9)  :: EndDate = "<enddate>"
-
-  !! For clarity in the looping, and so we don't mutate the original inputs,
-  !! we extract the filename from the array.
-  !CHARACTER(len=256):: CurrentFile
-
-  !! We write the outputs from the `ls` command to a specific reserved filename
-  !CHARACTER(len=32) :: ReservedOutputFile = "__FileNameWithNoClashes__.txt"
-
-  !! We read the start and end years to strings before writing them to the key.
-  !CHARACTER(len=4)  :: StartYear, EndYear
-
-  !! Initialise integers to store the status of the command.
-  !INTEGER           :: ExStat, CStat
-
-  !! We're going to want to remember where "<startdate>" and "<enddate>" occur
-  !! in the filename templates, so we can retrieve the time periods of each
-  !! file later.
-  !INTEGER           :: IndxStartDate = 0, IndxEndDate = 0
-
-  !! INTEGERs for the file ID that reads the output from the 'ls' command.
-  !INTEGER           :: InputUnit
-
-  !! And status integers for the IO
-  !INTEGER           :: ios
-
-  !! Need to compute the number of files in the dataset
-  !INTEGER           :: FileCounter
-
-  !! Iterators
-  !INTEGER           :: CharIndx, FileIndx
-
-  !! Get a unique ID here.
-  !CALL get_unit(InputUnit)
-
-  !! First thing we have to do is determine the location of the <startdate>
-  !! and <enddate> strings in the supplied filenames. To do that, we compare
-  !! substrings of the relevant length, with the substring moving along the
-  !! length of the filename string.
-  !! We iterate separately for <startdate> and <enddate> so that we make
-  !! absolutely sure we never read past the end of the allocated string.
-  !! We stop the iteration when we either find <startdate>/<enddate> or we 
-  !! reach the character 11/9 elements from the end of the string (11/9 are 
-  !! the lengths of the substrings we're comparing against).
-
-  !! Let's keep a record of the original template, so make a copy to mutate
-  !CurrentFile = FileTemplate
-
-  !! Iterate through the string for <startdate>
-  !FindStart: DO CharIndx = 1, LEN(CurrentFile) - 11
-    !! Check against <startdate>, if found set the index
-    !IF (CurrentFile(CharIndx:CharIndx+10) == StartDate) THEN
-      !IndxStartDate = CharIndx
-      !EXIT FindStart
-    !END IF
-  !END DO FindStart
-
-  !! Iterate through for <enddate>
-  !FindEnd: DO CharIndx = 1, LEN(CurrentFile) - 9
-    !! Check against <enddate>, if found set the index
-    !IF (CurrentFile(CharIndx:CharIndx+8) == EndDate) THEN
-      !IndxEndDate = CharIndx
-      !EXIT FindEnd
-    !END IF
-  !END DO FindEnd
-
-  !! Check that both occurrences were found- this triggers if either remain 0
-  !IF ((IndxStartDate == 0) .OR. (IndxEndDate == 0)) THEN
-    !write(*,*) "File for "//CurrentFile//" does not match the template."
-    !CALL EXIT(5)
-  !END IF
-
-  !! Now we go and replace the <startdate> and <enddate> strings with "*" so
-  !! that we can pass the filename to the unix ls command. We also want to
-  !! shift the remaining section of the string to the right of <startdate>/
-  !! <enddate> 10/8 characters to the left to fill in the new gap.
-
-  !! Do <enddate> first so we don't mess up the indexing
-  !CurrentFile(IndxEndDate:IndxEndDate) = "*"
-  !CurrentFile(IndxEndDate+1:) = CurrentFile(IndxEndDate+9:)
-
-  !CurrentFile(IndxStartDate:IndxStartDate) = "*"
-  !CurrentFile(IndxStartDate+1:) = CurrentFile(IndxStartDate+11:)
-
-  !! Now we've processed the supplied string, pass it to the ls unix command.
-  !! We need to write the output to a temporary file and read it back in to
-  !! get the date ranges for each file.
-  !CALL execute_command_line("ls -1 "//TRIM(CurrentFile)//" >&
-     !__FileNameWithNoClashes__.txt", EXITSTAT = ExStat, CMDSTAT = CStat)
-
-  !! Now we want to read this temporary file back in and inspect the contents
-  !! to determine the date ranges for each file. We then write back to a
-  !! reserved name file, that now contains the original filenames as well as
-  !! the year ranges for each file as described in the opening preamble to
-  !! this subroutine.
-
-  !OPEN(InputUnit, FILE = "__FileNameWithNoClashes__.txt", IOSTAT = ios)
-
-  !! Now iterate through this temporary file and check how many files are in the
-  !! dataset, so we can allocate memory in the SpatioTemporalDataset
-  !FileCounter = 0
-  !CountFiles: DO
-    !! Read in the line and check the status. We write the line to the variable,
-    !! but it's not actually necessary at the moment.
-    !READ(InputUnit, '(A)', IOSTAT = ios) CurrentFile
-
-    !IF (ios == -1) THEN
-      !! Read completed successfully
-      !EXIT CountFiles
-    !ELSEIF (ios /= 0) THEN
-      !! Read failed for some other reason
-      !CALL EXIT(5)
-    !END If
-    !! Otherwise, we read a line, so increase the counter
-    !FileCounter = FileCounter + 1
-  !END DO CountFiles
-
-  !! Now allocate memory for the filenames and periods
-  !ALLOCATE(Dataset%Filenames(FileCounter), Dataset%StartYear(FileCounter),&
-          !Dataset%EndYear(FileCounter))
-
-  !! Now rewind the file and read it again
-  !REWIND(InputUnit)
-
-  !BuildDataset: DO FileIndx = 1, FileCounter
-    !! Read in the line, this time we do need to store the line
-    !READ(InputUnit, '(A)', IOSTAT = ios) CurrentFile
-
-    !! Place the filename in the dataset structure
-    !Dataset%Filenames(FileIndx) = CurrentFile
-
-    !! Reading the start year is easy- just the first 4 characters starting
-    !! from the recorded IndxStartDate.
-    !READ(CurrentFile(IndxStartDate:IndxStartDate+3), *)&
-      !Dataset%StartYear(FileIndx)
-
-    !! The end year is not as simple as taking the 4 characters at
-    !! IndxEndDate, because the size of the <startdate> string is 3
-    !! characters longer than the YYYYMMDD date specifier. Therefore, shift
-    !! the index back 3 units and then take the next 4 characters
-    !READ(CurrentFile(IndxEndDate-3:IndxEndDate), *) Dataset%EndYear(FileIndx)
-
-  !END DO BuildDataset
-
-  !! Close the file
-  !CLOSE(InputUnit)
-  
-  !! Finished the work (we assign the VarNames later). Now delete the temporary
-  !! file we used to store the `ls` output.
-  !CALL execute_command_line("rm __FileNameWithNoClashes__.txt")
-!END SUBROUTINE prepare_spatiotemporal_dataset
-
-!!------------------------------------------------------------------------------!
-
-!SUBROUTINE open_at_first_file(Dataset)
-  !! Open the spatiotemporal dataset at the first file as an initialisation
-  !TYPE(SPATIO_TEMPORAL_DATASET), INTENT(INOUT) :: Dataset
-
-  !INTEGER :: ok
-
-  !! Set the current FileIndx to 1, and open that NCdataset
-  !Dataset%CurrentFileIndx = 1
-
-  !ok = NF90_OPEN(Dataset%FileNames(Dataset%CurrentFileIndx), NF90_NOWRITE,&
-    !Dataset%CurrentFileID)
-  !IF (ok /= NF90_NOERR) THEN
-    !CALL handle_err(ok, "Error opening "//Dataset%FileNames(Dataset%CurrentFileIndx))  
-  !END IF
-
-  !CALL find_variable_ID(Dataset)
-!END SUBROUTINE open_at_first_file
-
-!!------------------------------------------------------------------------------!
-
-!SUBROUTINE find_variable_ID(Dataset)
-  !! Find the desired variable name in the dataset
-  !TYPE(SPATIO_TEMPORAL_DATASET), INTENT(INOUT) :: Dataset
-
-  !INTEGER :: ok, VarNameIter
-
-  !FindVar: DO VarNameIter = 1, SIZE(Dataset%VarNames)
-    !ok = NF90_INQ_VARID(Dataset%CurrentFileID, Dataset%VarNames(VarNameIter),&
-      !Dataset%CurrentVarID)
-    !IF (ok == NF90_NOERR) THEN
-      !EXIT FindVar
-    !END IF
-  !END DO FindVar
-
-!END SUBROUTINE find_variable_ID
-
 !!------------------------------------------------------------------------------!
 
 SUBROUTINE prepare_temporal_dataset(FileName, TargetArray)
+  !*## Purpose
+  !
+  ! Read the CO2 dataset.
+  !
+  !## Method
+  !
+  ! Read the ```FileName``` text file which contains the yearly CO2 data in
+  ! ```YEAR VALUE``` pairs into ```TargetArray```.
+
   ! If we have a dataset that's only varying in time, then we should be able to
   ! just the whole thing into memory immediately.
 
@@ -1174,7 +899,7 @@ SUBROUTINE prepare_temporal_dataset(FileName, TargetArray)
   DetermineSize: DO
     ! Read line by line, checking for a header line
     READ(FileID, '(A)', IOSTAT = ios) LineInFile
-    
+
     IF (ios < 0) THEN
       ! Read completed successfully and hit EOF
 
@@ -1225,6 +950,16 @@ END SUBROUTINE prepare_temporal_dataset
 !------------------------------------------------------------------------------!
 
 SUBROUTINE get_cru_co2(CRU, CO2Air)
+  !*## Purpose
+  !
+  ! Read the CO2 value from a specific year.
+  !
+  !## Method
+  !
+  ! Get the CO2 values from the already-defined CO2 data array and fill in the
+  ! ```CO2Air``` array with this data. The year is dependent on the
+  ! ```CRU%CO2Method```.
+
   ! Get CO2 values from the MET data.
   TYPE(CRU_TYPE), INTENT(IN)                  :: CRU
   REAL, DIMENSION(:), ALLOCATABLE, INTENT(INOUT) :: CO2Air
@@ -1232,13 +967,13 @@ SUBROUTINE get_cru_co2(CRU, CO2Air)
   ! We treat the CO2 as an array always, even in the instances where we're using
   ! a single global value. We pass to the MET struct as an array anyway, so we
   ! don't really get any benefit by treating it as a single value.
-  
+
   ! We may want to take a constant CO2 value from a particular year, so bind the
   ! year we use here to another variable
   INTEGER         :: CO2Year
 
   ! What method are we using for CO2?
-  IF (CRU%CO2Method == "yearly") THEN
+  IF (CRU%CO2Method == "Yearly") THEN
     ! We use the same year as the simulation year
     CO2Year = CRU%cYear
     CO2Air(:) = CRU%CO2Vals(CO2Year)
@@ -1252,6 +987,15 @@ END SUBROUTINE get_cru_co2
 !------------------------------------------------------------------------------!
 
 SUBROUTINE get_cru_ndep(CRU)
+  !*## Purpose
+  !
+  ! Read the NDep value from a specific year.
+  !
+  !## Method
+  !
+  ! Get the NDep values using the ```SPATIO_TEMPORAL_DATASET``` associated with
+  ! NDep and fill in the NDep data array.
+
   ! Get the nitrogen deposition values from the MET data.
   TYPE(CRU_TYPE), INTENT(INOUT)             :: CRU
 
@@ -1298,99 +1042,6 @@ END SUBROUTINE get_cru_ndep
 
 !!------------------------------------------------------------------------------!
 
-!SUBROUTINE cru_read_metvals(STD, MetData, Year, DayOfYear,&
-    !LeapYears)
-  !! Get the data from a day
-  !TYPE(SPATIO_TEMPORAL_DATASET), INTENT(INOUT)  :: STD
-  !TYPE(CRU_MET_TYPE), INTENT(INOUT)             :: MetData
-  !INTEGER, INTENT(IN)                           :: DayOfYear, Year
-  !LOGICAL, INTENT(IN)                           :: LeapYears
-
-  !! We'll need to compute the record index to grab
-  !INTEGER     :: YearIndex, TimeIndex
-
-  !! Iterators
-  !INTEGER     :: FileIndx, VarNameIndx, YearIter, LandCell
-
-  !! Status checker
-  !INTEGER  :: ok
-
-  !CHARACTER(LEN=256) :: CheckFilename
-  !LOGICAL :: IsOpen
-
-  !TimeIndex = DayOfYear
-  !YearIndex = Year
-
-  !! We've already opened a file, check whether the current year is open
-  !IF ((Year >= STD%StartYear(STD%CurrentFileIndx)) .AND.&
-    !(Year <= STD%EndYear(STD%CurrentFileIndx))) THEN
-    !! In this instance, we don't need to do anything
-    !CONTINUE
-  !ELSE
-    !ok = NF90_CLOSE(STD%CurrentFileID)
-
-    !! First, check if we're outside the range of our data
-    !IF (YEAR < STD%StartYear(1)) THEN
-      !! Before the first year
-      !STD%CurrentFileIndx = 1
-      !YearIndex = STD%StartYear(1)
-      !TimeIndex = 1
-    !ELSE IF (YEAR > STD%EndYear(SIZE(STD%EndYear))) THEN
-      !! After the last year
-      !STD%CurrentFileIndx = SIZE(STD%EndYear)
-      !YearIndex = STD%EndYear(STD%CurrentFileIndx)
-      !IF ((LeapYears) .AND. (is_leapyear(YearIndex))) THEN
-        !TimeIndex = 366
-      !ELSE
-        !TimeIndex = 365
-      !END IF
-    !ELSE
-      !! Normal operation, we're in the year of our data
-      !FindFile: DO FileIndx = 1, SIZE(STD%FileNames)
-        !IF ((Year >= STD%StartYear(FileIndx)) .AND. &
-          !(Year <= STD%EndYear(FileIndx))) THEN
-          !STD%CurrentFileIndx = FileIndx
-          !EXIT FindFile
-        !END IF
-      !END DO FindFile
-    !END IF
-
-    !! Open the new file
-    !ok = NF90_OPEN(STD%FileNames(STD%CurrentFileIndx), NF90_NOWRITE,&
-      !STD%CurrentFileID)
-
-    !CALL find_variable_id(STD)
-  !END IF
-
-  !! Now read the desired time step
-
-  !! Due to leapyears, we can't just do add 365 * number of years from startyear.
-  !IF (LeapYears) THEN
-    !CountDays: DO YearIter = STD%StartYear(STD%CurrentFileIndx), YearIndex
-      !IF (is_leapyear(YearIndex)) THEN
-        !TimeIndex = TimeIndex + 366
-      !ELSE
-        !TimeIndex = TimeIndex + 365
-      !END IF
-    !END DO CountDays
-  !ELSE
-    !TimeIndex = TimeIndex + 365 * (YearIndex - STD%StartYear(STD%CurrentFileIndx))
-  !END IF
-  !! Now we have the index, we can grab the data
-
-  !! Read from the global array to the masked array
-  !ApplyMask: DO LandCell = 1, mLand
-    !ok = NF90_GET_VAR(STD%CurrentFileID,&
-      !STD%CurrentVarID, MetData%MetVals(LandCell), START = (/land_x(LandCell), land_y(LandCell), TimeIndex/))
-      !IF (ok /= NF90_NOERR) THEN
-        !CALL handle_err(ok, "Failed reading "//STD%FileNames(STD%CurrentFileIndx))
-      !END IF
-  !END DO ApplyMask
-
-!END SUBROUTINE cru_read_metvals
-
-!!------------------------------------------------------------------------------!
-
 ELEMENTAL FUNCTION Esatf(TC)
 ! ------------------------------------------------------------------------------
 ! At temperature TC [deg C], return saturation water vapour pressure Esatf [mb]
@@ -1419,6 +1070,15 @@ Esatf = A*exp(B*TCtmp/(C+TCtmp))    ! sat vapour pressure (mb)
 END FUNCTION Esatf
 
 SUBROUTINE cru_close(CRU)
+  !*## Purpose
+  !
+  ! Close the NetCDF file at the end of the run.
+  !
+  !## Method
+  !
+  ! Use the ```CurrentFileID``` to determine the currently open NetCDF file in
+  ! the dataset and then close the file attached to that ID.
+
   ! Close the open NetCDF files
   TYPE(CRU_TYPE), INTENT(INOUT) :: CRU
 

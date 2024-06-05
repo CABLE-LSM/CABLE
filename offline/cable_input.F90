@@ -142,11 +142,6 @@ MODULE cable_input_module
 !
 ! Name: SPATIO_TEMPORAL_DATASET
 !
-! Purpose: This structure contains information about a spatially and temporally
-!         varying dataset which spans multiple files. It contains the list of
-!         filenames contained in the dataset, the start and end years of each
-!         dataset, and the index of the currently open file with the associated
-!         NetCDF file and variable ID.
 !
 !         It keeps the current file open until the reference time moves out of
 !         the range of the file, in which case it uses the list of start and end
@@ -159,6 +154,14 @@ MODULE cable_input_module
 !==============================================================================
 
 TYPE SPATIO_TEMPORAL_DATASET
+!*##Purpose:
+
+! This structure contains information about a spatially and temporally varying
+! dataset that spans multiple files. It contains the list of filenames contained
+! in the dataset, the start and end years of each file in the dataset, and the
+! index of the currently open file with the associated NetCDF file and variable
+! ID.
+
   ! List of filenames in the dataset
   CHARACTER(LEN=256), DIMENSION(:), ALLOCATABLE :: FileNames
   ! The start and end years of each dataset
@@ -167,7 +170,7 @@ TYPE SPATIO_TEMPORAL_DATASET
   CHARACTER(LEN=16), DIMENSION(:), ALLOCATABLE  :: VarNames
 
   ! Metadata about the currently open file
-  INTEGER :: CurrentFileID, CurrentVarId, CurrentFileIndx
+  INTEGER :: CurrentFileID, CurrentVarID, CurrentFileIndx
 END TYPE SPATIO_TEMPORAL_DATASET
 
   !$OMP THREADPRIVATE(ok,exists)
@@ -2921,65 +2924,32 @@ SUBROUTINE allocate_cable_vars(air,bgc,canopy,met,bal,                         &
 
 END SUBROUTINE allocate_cable_vars
 
-!==============================================================================
-!
-! From here are routines developed by Lachlan Whyborn as a first pass at new
-! input routines. Initially written for the purpose of running the LUC+POP
-! functionality using the ACCESS-ESM1.5 input data. The original routines for
-! reading in the Met forcing files were incredibly constrictive, containing
-! hardcoded filenames, opaque option setting and no extendability.
-!
-!==============================================================================
-
-!==============================================================================
-!
-! Name: prepare_spatiotemporal_dataset
-!
-! Purpose: Prepare a dataset that is varying both spatially and temporally and
-!         and may span over multiple files. The target is specified in the
-!         namelist by prescribing a file "template". The template is as follows:
-!
-!         -- "some/file/path/and/name-<startdate>-<enddate>.nc"
-!
-!         Where <startdate> and <enddate> are the YYYYMMDD specification of the
-!         start and end date of the specific file in the dataset.
-!         For example, rain data from 1900 to 1999 may be split into two files:
-!
-!         -- "path/to/rain/file_19000101_19491231.nc"
-!         -- "path/to/rain/file_19500101_19991231.nc"
-!
-!         The entry in the namelist would then be:
-!
-!         -- "path/to/rain/file_<startdate>_<enddate>.nc"
-!
-!         The type SPATIO_TEMPORAL_DATASET provides a consistent interface that
-!         should be usable across the code.
-!
-! Called from: cable_cru_TRENDY.F90
-!
-! Calls: get_unit
-!
-!==============================================================================
-
 SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
-  ! Prepare the met netCDF files for reading. We follow a process similar to
-  ! that of JULES to handle time series data split over multiple files, see
-  ! 6.31.2.2 at https://jules-lsm.github.io/latest/namelists/drive.nml.html.
+  !*## Purpose
+  !
+  ! The procedure prepares a SPATIO_TEMPORAL_DATASET which facilitates reading
+  ! of datasets which span multiple files.
+  !
+  !## Method
+  ! Uses the ```FileTemplate``` to build a ```SPATIO_TEMPORAL_DATASET``` at
+  ! ```Dataset```. The FileTemplate is a string used to locate the files which
+  ! form the dataset pertaining to a particular variable using ```ls```.
+  !
+  ! For example, precipitation data is stored in a series of files at
+  !
+  !* rain/rain_data_18500101_18991231.nc
+  !* rain/rain_data_19000101_19491231.nc
+  !* rain/rain_data_19500101_19991231.nc
+  !
+  ! the passed FileTemplate should be
+  !
+  ! ```rain/rain_data_<startdate>_<enddate>.nc```.
+  !
+  ! **Warning**: This routines requires that the files in the dataset are named
+  ! in a particular manner- they contain the start and end dates of the data in
+  ! the file in the <YYYYMMDD> format. Further, this currently only handles
+  ! files where the time period of a file begins and ends at the end of a year.
 
-  ! The user specifies a template matching the file names for each variable,
-  ! containing the start and end date of the data in the file. For example,
-  ! rain data files may be named "pre/precip_1850101_18991231.nc",
-  ! "pre/precip_19000101_19491231.nc" and so on. Then the user would specify
-  ! rainFile = "pre/precip_<startdate>_<enddate>.nc" in the namelist.
-
-  ! We then use the ls command to find all files matching this pattern and 
-  ! write the output to a text file. We then inspect the filenames to
-  ! determine the time period for each filej.
-
-  ! We then create a data structure which effectively holds metadata about
-  ! the possibly multi-file dataset.
-  ! The data structure contains the list of files, their periods, as well as
-  ! a reference to the current open file.
   ! Specify the intent of the arguments
   CHARACTER(len=256), INTENT(IN)  :: FileTemplate
   TYPE(SPATIO_TEMPORAL_DATASET), INTENT(OUT)  :: Dataset
@@ -2988,8 +2958,8 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
   CHARACTER(len=11) :: StartDate = "<startdate>"
   CHARACTER(len=9)  :: EndDate = "<enddate>"
 
-  ! For clarity in the looping, and so we don't mutate the original inputs,
-  ! we extract the filename from the array.
+  ! This string contains a copy of the original FileTemplate, so we can mutate
+  ! without destroying the original template.
   CHARACTER(len=256):: CurrentFile
 
   ! We write the outputs from the `ls` command to a specific reserved filename
@@ -2998,10 +2968,10 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
   ! We read the start and end years to strings before writing them to the key.
   CHARACTER(len=4)  :: StartYear, EndYear
 
-  ! Initialise integers to store the status of the command.
+  ! Integers to store the status of the command.
   INTEGER           :: ExStat, CStat
 
-  ! We're going to want to remember where "<startdate>" and "<enddate>" occur
+  ! We're going to want to remember where "<startdate>" and "<enddate>" start
   ! in the filename templates, so we can retrieve the time periods of each
   ! file later.
   INTEGER           :: IndxStartDate = 0, IndxEndDate = 0
@@ -3018,7 +2988,7 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
   ! Iterators
   INTEGER           :: CharIndx, FileIndx
 
-  ! Get a unique ID here.
+  ! Get a unique file ID here.
   CALL get_unit(InputUnit)
 
   ! First thing we have to do is determine the location of the <startdate>
@@ -3027,8 +2997,8 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
   ! length of the filename string.
   ! We iterate separately for <startdate> and <enddate> so that we make
   ! absolutely sure we never read past the end of the allocated string.
-  ! We stop the iteration when we either find <startdate>/<enddate> or we 
-  ! reach the character 11/9 elements from the end of the string (11/9 are 
+  ! We stop the iteration when we either find <startdate>/<enddate> or we
+  ! reach the character 11/9 elements from the end of the string (11/9 are
   ! the lengths of the substrings we're comparing against).
 
   ! Let's keep a record of the original template, so make a copy to mutate
@@ -3132,63 +3102,48 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
 
   ! Close the file
   CLOSE(InputUnit)
-  
+
   ! Finished the work (we assign the VarNames later). Now delete the temporary
   ! file we used to store the `ls` output.
   CALL execute_command_line("rm __FileNameWithNoClashes__.txt")
 END SUBROUTINE prepare_spatiotemporal_dataset
 
-!==============================================================================
-!
-! Name: open_at_first_file
-!
-! Purpose: Used exclusively with a SPATIO_TEMPORAL_DATASET to prepare the
-!         dataset for usage. By default, we open the dataset at the start of the
-!         first file in the dataset, and then allow the first read to shift the
-!         pointer to the desired file if required.
-!
-! Called from: cable_cru_TRENDY.F90
-!
-! Calls: find_variable_ID
-!
-!==============================================================================
-
 SUBROUTINE open_at_first_file(Dataset)
-  ! Open the spatiotemporal dataset at the first file as an initialisation
+  !*## Purpose
+  !
+  ! Set up the ```Dataset``` to retrieve data so that we can avoid having to
+  ! handle start-up processes in the core routines.
+  !
+  !## Method
+  !
+  ! Sets the ```CurrentFileIndx``` to 1 (i.e. the first file in the dataset) and
+  ! associates a unique file ID with the file using NetCDF. Identifies the name
+  ! of the variable used in the NetCDF for the desired variable.
+
+  ! Declare the intent of the Dataset
   TYPE(SPATIO_TEMPORAL_DATASET), INTENT(INOUT) :: Dataset
 
+  ! Status checker for NF90 operations
   INTEGER :: ok
 
-  ! Set the current FileIndx to 1, and open that NCdataset
+  ! Set the current FileIndx to 1, and open that NetCDF file.
   Dataset%CurrentFileIndx = 1
 
   ok = NF90_OPEN(Dataset%FileNames(Dataset%CurrentFileIndx), NF90_NOWRITE,&
     Dataset%CurrentFileID)
   IF (ok /= NF90_NOERR) THEN
     CALL handle_err(ok, "Error opening "//Dataset%FileNames&
-      (Dataset%CurrentFileIndx)//" in open_at_first_file.")  
+      (Dataset%CurrentFileIndx)//" in open_at_first_file.")
   END IF
 
+  ! Find the NetCDF name associated with the variable
   CALL find_variable_ID(Dataset)
 END SUBROUTINE open_at_first_file
 
-!==============================================================================
-!
-! Name: find_variable_ID
-!
-! Purpose: Used exclusively with a SPATIO_TEMPORAL_DATASET to determine the
-!         variable ID associated with the variable that we want to read. To save
-!         the user from having to specify the internal (netCDF) name of the 
-!         desired variable, we have a list of common names for each CABLE
-!         variable and search through them to find the correct one.
-!
-! Called from: open_at_first_file, read_metvals
-!
-! Calls:
-!
-!==============================================================================
-
 SUBROUTINE find_variable_ID(Dataset)
+  !*## Purpose
+  !
+  ! Use the list of possible NetCDF names for the variable
   ! Find the desired variable name in the dataset
   TYPE(SPATIO_TEMPORAL_DATASET), INTENT(INOUT) :: Dataset
 
@@ -3227,6 +3182,16 @@ END SUBROUTINE find_variable_ID
 
 SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
     LeapYears)
+  !*## Purpose
+  !
+  ! Read the met forcing values for a given date into the met data array.
+  !
+  !## Method
+  !
+  ! Uses the ```Year``` and ```DayOfYear``` to read a specific record from the
+  ! ```SPATIO_TEMPORAL_DATASET```. Reads from the 2D met data into a 1D array
+  ! using the point IDs in ```LandIDx``` and ```LandIDy```.
+
   ! Get the data from a day
   TYPE(SPATIO_TEMPORAL_DATASET), INTENT(INOUT)  :: STD
   REAL, DIMENSION(:), ALLOCATABLE, INTENT(INOUT)    :: DataArr
@@ -3255,7 +3220,11 @@ SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
   ELSE
     ok = NF90_CLOSE(STD%CurrentFileID)
 
-    ! First, check if we're outside the range of our data
+    ! If the requested is:
+    !   - Before the time-range of our data, then use the first day from the
+    !     first file in the dataset
+    !   - After the time-range of our data, then use the last day from the last
+    !     file in the datasetc
     IF (YEAR < STD%StartYear(1)) THEN
       ! Before the first year
       STD%CurrentFileIndx = 1
