@@ -2958,9 +2958,6 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
   ! without destroying the original template.
   CHARACTER(len=256):: CurrentFile
 
-  ! We write the outputs from the `ls` command to a specific reserved filename
-  CHARACTER(len=32) :: ReservedOutputFile = "__FileNameWithNoClashes__.txt"
-
   ! We read the start and end years to strings before writing them to the key.
   CHARACTER(len=4)  :: StartYear, EndYear
 
