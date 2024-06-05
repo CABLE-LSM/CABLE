@@ -127,7 +127,7 @@ MODULE cable_input_module
            avPrecip
    END TYPE met_units_type
    TYPE(met_units_type)              :: metunits ! units for meteorological variables
-   TYPE convert_units_type
+   TYPE convert_units_typec
       REAL                      ::                                        &
            PSurf,        &
            Tair,         &
@@ -145,7 +145,7 @@ MODULE cable_input_module
 !
 !         It keeps the current file open until the reference time moves out of
 !         the range of the file, in which case it uses the list of start and end
-!         years to determine which file to open. Unfortunately we can't simply
+!         years to determine which file to open. Unfortunactely we can't simply
 !         move to the next year by default, because there are multiple instances
 !         where we move backwards in time.
 !
@@ -178,7 +178,7 @@ END TYPE SPATIO_TEMPORAL_DATASET
 CONTAINS
 
 !==============================================================================
-!
+!c
 ! Name: get_default_lai
 !
 ! Purpose: Reads all monthly LAI from default gridded netcdf file
@@ -203,7 +203,7 @@ SUBROUTINE get_default_lai
 
    ! Local variables
    INTEGER                              ::                                &
-        ncid,                                   &
+        ncid,                                   &c
         xID,                                    &
         yID,                                    &
         pID,                                    &
@@ -2954,10 +2954,6 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
   CHARACTER(len=256), INTENT(IN)  :: FileTemplate
   TYPE(SPATIO_TEMPORAL_DATASET), INTENT(OUT)  :: Dataset
 
-  ! We need to have a definition of the substrings we're going to replace.
-  CHARACTER(len=11) :: StartDate = "<startdate>"
-  CHARACTER(len=9)  :: EndDate = "<enddate>"
-
   ! This string contains a copy of the original FileTemplate, so we can mutate
   ! without destroying the original template.
   CHARACTER(len=256):: CurrentFile
@@ -2997,30 +2993,16 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
   ! length of the filename string.
   ! We iterate separately for <startdate> and <enddate> so that we make
   ! absolutely sure we never read past the end of the allocated string.
-  ! We stop the iteration when we either find <startdate>/<enddate> or we
+  ! We stop the iteration when we either find <startdate>c/<enddate> or we
   ! reach the character 11/9 elements from the end of the string (11/9 are
   ! the lengths of the substrings we're comparing against).
 
   ! Let's keep a record of the original template, so make a copy to mutate
   CurrentFile = FileTemplate
 
-  ! Iterate through the string for <startdate>
-  FindStart: DO CharIndx = 1, LEN(CurrentFile) - 11
-    ! Check against <startdate>, if found set the index
-    IF (CurrentFile(CharIndx:CharIndx+10) == StartDate) THEN
-      IndxStartDate = CharIndx
-      EXIT FindStart
-    END IF
-  END DO FindStart
-
-  ! Iterate through for <enddate>
-  FindEnd: DO CharIndx = 1, LEN(CurrentFile) - 9
-    ! Check against <enddate>, if found set the index
-    IF (CurrentFile(CharIndx:CharIndx+8) == EndDate) THEN
-      IndxEndDate = CharIndx
-      EXIT FindEnd
-    END IF
-  END DO FindEnd
+  ! Find the locations of <startdate> and <enddate> in the template
+  IndxStartDate = INDEX(CurrentFile, "<startdate>")
+  IndxEndDate = INDEX(CurrentFile, "<enddate>")
 
   ! Check that both occurrences were found- this triggers if either remain 0
   IF ((IndxStartDate == 0) .OR. (IndxEndDate == 0)) THEN
