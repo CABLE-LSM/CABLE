@@ -80,11 +80,11 @@ USE casa_cnp_module, ONLY : vcmax_np
     Ygrow        = 0.0
 
     WHERE(casapool%Nplant>0.0)
-       ratioPNplant = casapool%Pplant/(casapool%Nplant+ 1.0e-10)
+      ratioPNplant = casapool%Pplant / casapool%Nplant                   
     ENDWHERE
 
-    Ygrow(:) = 0.65+0.2*ratioPNplant(:,leaf)/(ratioPNplant(:,leaf)+1.0/15.0)
-    Ygrow(:) = min(0.85,max(0.65,Ygrow(:)))
+    Ygrow(:) = 0.65 + 0.2 * ratioPNplant(:,leaf) /                             &
+                      ( ratioPNplant(:,leaf) + 1.0 / 15.0 )
 
     casaflux%crmplant(:,wood) = 0.0
     casaflux%crmplant(:,froot) = 0.0
