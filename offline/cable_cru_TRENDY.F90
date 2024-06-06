@@ -109,11 +109,14 @@ SUBROUTINE CRU_INIT(CRU)
   ! Start with the things we want from the namelist. The namelist must set
   ! the filenames to read from, the method of choosing atmospheric carbon and
   ! nitrogen deposition, and the timestep.
+  WRITE(*,*) "Checkpoint 1"
   CALL read_MET_namelist_cbl(InputFiles, CRU)
 
+  WRITE(*,*) "Checkpoint 2"
   ! Read the landmask and allocate appropriate memory for the array variables
   CALL read_landmask(InputFiles(13), CRU)
 
+  WRITE(*,*) "Checkpoint 3"
   ! We know that the first 9 Met variables (indices 1-9) are always going to be
   ! time series, so always build their SPATIO_TEMPORAL_DATASET derived types.
   BuildKeys: DO VarIndx = 1, 9
@@ -121,23 +124,28 @@ SUBROUTINE CRU_INIT(CRU)
       CRU%MetDatasets(VarIndx))
   END DO BuildKeys
 
+  WRITE(*,*) "Checkpoint 4"
   ! Build the SPATIO_TEMPORAL_DATASET for fdiff if requested
   IF (CRU%ReadDiffFrac) THEN
     CALL prepare_spatiotemporal_dataset(InputFiles(10), CRU%MetDatasets(10))
   END IF
 
+  WRITE(*,*) "Checkpoint 5"
   ! Set the possible variable names for the main Met variables
   CALL read_variable_names(CRU%MetDatasets)
 
+  WRITE(*,*) "Checkpoint 6"
   ! Open the datasets at the first file so we don't need CALL1 behaviour later
   InitialiseDatasets: DO VarIndx = 1, 9
     CALL open_at_first_file(CRU%MetDatasets(VarIndx))
   END DO InitialiseDatasets
 
+  WRITE(*,*) "Checkpoint 7"
   IF (CRU%ReadDiffFrac) THEN
     CALL open_at_first_file(CRU%MetDatasets(10))
   END IF
 
+  WRITE(*,*) "Checkpoint 8"
   ! Set up the carbon reader
   IF (CRU%CO2Method == "Yearly") THEN
     ! If it's year by year, or single year atmospheric CO2, we want to read the
@@ -149,6 +157,7 @@ SUBROUTINE CRU_INIT(CRU)
     CALL prepare_temporal_dataset(InputFiles(11), CRU%CO2Vals)
   END IF
 
+  WRITE(*,*) "Checkpoint 9"
   ! Set up the nitrogen deposition reader
   IF (CRU%NDepMethod == "Yearly") THEN
     CALL prepare_temporal_dataset(InputFiles(12), CRU%NDepVals)
@@ -179,6 +188,7 @@ SUBROUTINE CRU_INIT(CRU)
       CRU%NDepVID)
     CALL handle_err(ok, "Finding NDep variable")
   END IF
+  WRITE(*,*) "Checkpoint 10"
 END SUBROUTINE CRU_INIT
 
 
@@ -430,7 +440,7 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
     IF (CRU%isRecycled(VarIndx)) THEN
       MetYear = RecycledYear
     ELSE
-      MetYear = CRU%cYearc
+      MetYear = CRU%cYear
     END IF
 
     ! CRU%CTStep is the current day, which we use to index the netCDF arrays
@@ -494,7 +504,7 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
     MetYear, DummyDay, CRU%LeapYears)
 
   ! Now do nextTmin
-  ! Check what the day is, and whether wce need to change the year
+  ! Check what the day is, and whether we need to change the year
   ! This changes whether its a leapyear or not
   IF ((CRU%LeapYears) .AND. (CRU%CTStep == 366)) THEN
     ! We're at the last day of a leapyear
@@ -532,7 +542,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   ! the input met data and sets metadata about the met forcing in the ```CRU```
   ! derived type.
 
-  ! Intcernally, we're going to pick up the individually separated inputs and
+  ! Internally, we're going to pick up the individually separated inputs and
   ! pack them into a more convenient data structure. We don't expect the user
   ! to know the order in which we store the MET inputs internally, so we need
   ! to access them by name.
@@ -546,14 +556,14 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   ! expected in. So we first read them from a recognisable name, then pass them
   ! to the array.
   CHARACTER(LEN=256)  :: rainFile, lwdnFile, swdnFile, presFile, qairFile,&
-                         cTmaxFile, TminFile, uwindFile, vwindFile, fdiffFile,&
+                         TmaxFile, TminFile, uwindFile, vwindFile, fdiffFile,&
                          CO2File, NDepFile, landmaskFile
   LOGICAL             :: rainRecycle, lwdnRecycle, swdnRecycle, presRecycle,&
                          qairRecycle, TmaxRecycle, TminRecycle, uwindRecycle,&
                          vwindRecycle, fdiffRecycle
   CHARACTER(LEN=16)   :: CO2Method, NDepMethod
   INTEGER             :: MetRecyc
-  REAL  c              :: DtHrs
+  REAL                :: DtHrs
   LOGICAL             :: ReadDiffFrac, LeapYears
 
   ! Need a unit to handle the io
@@ -571,7 +581,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   TminFile = "None"
   uwindFile = "None"
   vwindFile = "None"
-  fdiffFicle = "None"
+  fdiffFile = "None"
   CO2File = "None"
   NDepFile = "None"
   landmaskFile = "None"
@@ -592,7 +602,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   CO2Method = "yearly"
   NDepMethod = "yearly"
   MetRecyc = 20
-  ReadDiffcFrac = .TRUE.
+  ReadDiffFrac = .TRUE.
 
   ! Set up and read the namelist
   NAMELIST /MetConfig/ rainFile, lwdnFile, swdnFile, presFile, qairFile,&
@@ -606,7 +616,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
 
   ! Get a temporary unique ID and use it to read the namelist
   CALL get_unit(nmlUnit)
-  OPEN(nmlUnit, file = "ccru.nml", status = 'old', action = 'read')
+  OPEN(nmlUnit, file = "cru.nml", status = 'old', action = 'read')
   READ(nmlUnit, nml = MetConfig)
   CLOSE(nmlUnit)
 
@@ -634,7 +644,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   CRU%IsRecycled(6) = TmaxRecycle
   CRU%IsRecycled(7) = TminRecycle
   CRU%IsRecycled(8) = uwindRecycle
-  CRU%IsReccycled(9) = vwindRecycle
+  CRU%IsRecycled(9) = vwindRecycle
   CRU%IsRecycled(10) = fdiffRecycle
 
   ! Bind the remaining config variables to the CRU structure
@@ -759,7 +769,7 @@ SUBROUTINE read_landmask(LandmaskFile, CRU)
     CALL NC_ABORT(ErrStatus, "Error reading the latitude length.")
   END IF
 
-  ErrStatus = nf90_inq_dimid(FileID, 'longictude', LonID)
+  ErrStatus = nf90_inq_dimid(FileID, 'longitude', LonID)
   IF (ErrStatus /= NF90_NOERR) THEN
     CALL NC_ABORT(ErrStatus, "Error reading the longitude ID.")
   END IF
@@ -843,7 +853,7 @@ SUBROUTINE read_landmask(LandmaskFile, CRU)
   END DO FillLongitudes
 
   ! Some CABLE time units?
-  shod = 0.c
+  shod = 0.
   sdoy = 1
   smoy = 1
   syear = CRU%CYEAR
