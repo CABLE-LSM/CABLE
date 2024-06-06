@@ -483,9 +483,9 @@ CONTAINS
        IF (ok /= NF90_NOERR) CALL nc_abort &
             (ok,'Error opening netcdf met forcing file '//TRIM(filename%met)// &
             ' (SUBROUTINE open_met_file)')
-    ! R. Law (rml599gh) 30/05/24 ncid_mask needs to be set to ncid_met 
-    ! if reading a met data file otherwise code crashes if trying to do 
-    ! multiple sites with a met data file
+       ! R. Law (rml599gh) 30/05/24 ncid_mask needs to be set to ncid_met 
+       ! if reading a met data file otherwise code crashes if trying to do 
+       ! multiple sites with a met data file
        ncid_mask = ncid_met
     ENDIF
 
