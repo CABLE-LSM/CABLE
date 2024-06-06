@@ -631,7 +631,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   InputFiles(8) = uwindFile
   InputFiles(9) = vwindFile
   InputFiles(10) = fdiffFile
-  InputFiles(11) = CO2Filec
+  InputFiles(11) = CO2File
   InputFiles(12) = NDepFile
   InputFiles(13) = landmaskFile
 
@@ -988,8 +988,8 @@ SUBROUTINE get_cru_co2(CRU, CO2Air)
     CO2Year = CRU%cYear
     
     ! Make sure it's in the bounds of the array
-    CO2Year = MAX(LBOUND(CRU%CO2Vals), CO2Year)
-    CO2Year = MIN(UBOUND(CRU%CO2Vals), CO2Year)
+    CO2Year = MAX(LBOUND(CRU%CO2Vals, 1), CO2Year)
+    CO2Year = MIN(UBOUND(CRU%CO2Vals, 1), CO2Year)
 
     CO2Air(:) = CRU%CO2Vals(CO2Year)
   ELSE
