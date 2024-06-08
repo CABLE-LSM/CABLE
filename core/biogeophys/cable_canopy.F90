@@ -2161,12 +2161,21 @@ CONTAINS
                 ELSE
                    !MC Photosynthesis is calculated in here: to change for "our"
                    !   photosynthesis model
-                   CALL optimisation(canopy, rad, vpd, press, tlfx(i), &
+                  !  CALL optimisation(canopy, rad, vpd, press, tlfx(i), &
+                  !       csx, ssnow%psi_rootzone(i), &
+                  !       kcmax, veg%kmax(i), veg%PLCcrit(i), &
+                  !       veg%b_plant(i), veg%c_plant(i), resolution, vcmxt3, &
+                  !       ejmxt3, rdx, vx3, cx1(i), an_canopy, e_canopy, &
+                  !       avg_kcan, co2cp3, p, i)
+                  ! zhanlu: difference between optimisation and photosynthesis_gm to 
+                  ! calculate Ac, Aj is co2cp3 Vs gammast. change co2cp3 to gammast = cx2/2
+                  
+                  CALL optimisation(canopy, rad, vpd, press, tlfx(i), &
                         csx, ssnow%psi_rootzone(i), &
                         kcmax, veg%kmax(i), veg%PLCcrit(i), &
                         veg%b_plant(i), veg%c_plant(i), resolution, vcmxt3, &
                         ejmxt3, rdx, vx3, cx1(i), an_canopy, e_canopy, &
-                        avg_kcan, co2cp3, p, i)
+                        avg_kcan, cx2(i)/2, p, i)
 
                    ! fix units for CABLE and pack into arrays
                    anx(i,1) = an_canopy(1) * UMOL_TO_MOL

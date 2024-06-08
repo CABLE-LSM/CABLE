@@ -19,6 +19,7 @@ CONTAINS
       psi_soil, kcmax, kmax, PLCcrit, b_plant, &
       c_plant, N, vcmxt3, ejmxt3, rdx, vx3, cx1, an_canopy, &
       e_canopy, avg_kcan, gamma_star, p, i)
+      ! zihanlu :ejmxt3 is not used, try to delete it
 
       ! Optimisation wrapper for the ProfitMax model. The Sperry model assumes that
       ! plants maximise the normalised (0-1) difference between relative gain and
