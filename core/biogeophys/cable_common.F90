@@ -273,7 +273,9 @@ MODULE cable_common_module
           clitt,      &
           gamma, &
           kmax, &
-          PLCcrit
+          PLCcrit, &
+          P50, &
+          P88
      REAL, DIMENSION(:,:), ALLOCATABLE :: &
           froot,      & !
           cplant,     & !
@@ -383,7 +385,8 @@ CONTAINS
          vegin%g0( mvtype ), vegin%g1( mvtype ),                          &
          !! vh_veg_params !!
          vegin%zr(mvtype), vegin%clitt(mvtype), vegin%gamma(mvtype), &
-         vegin%kmax(mvtype), vegin%PLCcrit(mvtype))
+         vegin%kmax(mvtype), vegin%PLCcrit(mvtype), &
+         vegin%P50(mvtype), vegin%P88(mvtype))
     ! set default vcmaxcc and ejmaxcc to 0. because not used yet
     vegin%vcmaxcc = 0
     vegin%ejmaxcc = 0
@@ -392,7 +395,8 @@ CONTAINS
 
        ! Read in parameter values for each vegetation type:
        DO a = 1,mvtype
-
+         WRITE(logn, *) 'type No.',a
+        
           READ(40,*) jveg, vegtypetmp, vegnametmp
 
           IF ( jveg .GT. mvtype ) then
@@ -428,6 +432,8 @@ CONTAINS
           READ(40,*) vegin%gswmin(jveg), vegin%conkc0(jveg), vegin%conko0(jveg), vegin%ekc(jveg), vegin%eko(jveg)
           READ(40,*) vegin%g0(jveg), vegin%g1(jveg)      ! Ticket #56
           READ(40,*) vegin%gamma(jveg), vegin%gmmax(jveg)
+          READ(40,*) vegin%kmax(jveg), vegin%PLCcrit(jveg)
+          READ(40,*) vegin%P50(jveg), vegin%P88(jveg)
        END DO
 
     ELSE
@@ -973,8 +979,11 @@ CONTAINS
           END IF
 
        END IF
-    END DO ! over each veg patch in land point
+       veg%P50(h)     = vegin%P50(veg%iveg(h))
+       veg%P88(h)     = vegin%P88(veg%iveg(h))
 
+    END DO ! over each veg patch in land point
+      
   END SUBROUTINE init_veg_from_vegin
 
 

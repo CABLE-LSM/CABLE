@@ -83,7 +83,7 @@ CONTAINS
    INTEGER :: ICYCLE
    ICYCLE = 0
 #endif
- REAL(KIND=r_1), POINTER, DIMENSION(:)   :: SoilMoistPFTtemp => null()
+ REAL(KIND=r_2), DIMENSION(mp)   :: SoilMoistPFTtemp 
    
    ! assign local ptrs to constants defined in cable_data_module
    CALL point2constants(C)
@@ -132,7 +132,10 @@ CONTAINS
    ! zihanlu: calculate psi_soil no matter which soil_sche is used
    !DO i = 1, mp
       !CALL calc_swp(ssnow, soil, i)
-      SoilMoistPFTtemp = real(sum(ssnow%wb * 1000.0_r_2 * real(spread(soil%zse,1,mp),r_2),2),r_2)
+      !write(logn,*),'calculate soilMoistPFT'
+      SoilMoistPFTtemp = sum(ssnow%wb * 1000.0_r_2 * real(spread(soil%zse,1,mp),r_2),2)
+      !SoilMoistPFTtemp = real(sum(ssnow%wb * 1000.0_r_2 * real(spread(soil%zse,1,mp),r_2),2),r_2)
+      !write(logn,*),'soilMoistPFT mp1: ',SoilMoistPFTtemp(1)
       DO i = 1, mp
       ssnow%psi_rootzone(i) = soil%sucs(i) * 9.8 * 0.001 * MAX(1.E-9, MIN(1.0, SoilMoistPFTtemp(i) / &
             soil%ssat(i))) ** (-soil%bch(i))

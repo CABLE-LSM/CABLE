@@ -100,7 +100,7 @@ cable_carbon.o: cable_carbon.F90 cable_define_types.o cable_common.o cable_data.
 
 cable_cbm.o: cable_cbm.F90 cable_carbon.o cable_soilsnow.o cable_canopy.o cable_define_types.o \
 	     cable_roughness.o cable_radiation.o cable_albedo.o casa_variable.o cable_common.o cable_data.o cable_sli_main.o \
-		 cable_soil_hydraulics.o cable_iovars.o
+		 cable_soil_hydraulics.o cable_iovars.o 
 
 cable_checks.o: cable_checks.F90 cable_radiation.o cable_common.o
 
@@ -131,7 +131,7 @@ cable_output.o: cable_output.F90 cable_abort.o cable_checks.o cable_write.o cabl
 		casa_variable.o cable_c13o2_def.o
 
 cable_parameters.o: cable_parameters.F90 cable_define_types.o cable_iovars.o cable_abort.o \
-		    casa_variable.o cable_common.o cable_LUC_EXPT.o
+		    casa_variable.o cable_common.o cable_LUC_EXPT.o cable_iovars.o
 
 cable_radiation.o: cable_radiation.F90 cable_define_types.o cable_common.o cable_data.o 
 
@@ -219,7 +219,7 @@ mo_isotope_luc_model.o: mo_isotope_luc_model.f90 mo_utils.o mo_kind.o
 minpack.o: minpack.f90 cable_define_types.o
 cable_adjustJVgm.o: cable_adjustJVgm.F90 cable_define_types.o cable_abort.o cable_canopy.o minpack.o
 cable_soil_hydraulics.o: cable_soil_hydraulics.F90 cable_define_types.o cable_common.o 
-cable_veg_hydraulics.o: cable_veg_hydraulics.F90 cable_data.o cable_define_types.o cable_common.o 
+cable_veg_hydraulics.o: cable_veg_hydraulics.F90 cable_data.o cable_define_types.o cable_common.o cable_iovars.o
 
 # make clean option
 clean:

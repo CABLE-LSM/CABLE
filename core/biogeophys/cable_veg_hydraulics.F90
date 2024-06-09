@@ -43,6 +43,7 @@ CONTAINS
 
       USE cable_def_types_mod
       USE cable_common_module
+      USE cable_IO_vars_module, ONLY: logn
 
       IMPLICIT NONE
 
@@ -64,7 +65,7 @@ CONTAINS
       REAL, DIMENSION(mp), INTENT(OUT) :: avg_kcan
 
       ! local variables
-      INTEGER :: j, k, idx
+      INTEGER :: j, k, idx, aa
       LOGICAL, DIMENSION(N) ::  mask
       REAL :: p_crit, lower, upper, Cs, gsw, Vcmax, Jmax, Rd, Vj, Km
       REAL, DIMENSION(mf) :: fsun, apar, e_leaves, p_leaves, kc_leaves
@@ -74,12 +75,14 @@ CONTAINS
       REAL, PARAMETER :: &
          J_TO_MOL = 4.6E-6, & ! Convert from J to Mol for light
          MOL_TO_UMOL = 1E6, MMOL_2_MOL = 1E-3, MOL_TO_MMOL = 1E3
-
+      CALL point2constants(C)
       ! Michaelis Menten coefficient, umol m-2 s-1
       Km = cx1 * MOL_TO_UMOL
-
+      
+     
       ! Xylem pressure beyond which there's full dessication, MPa
       p_crit = -b_plant * LOG(100. / (100. - PLCcrit)) ** (1. / c_plant)
+    
 
       ! Loop over sunlit, shaded parts of the canopy and solve the carbon uptake
       ! and transpiration
@@ -87,7 +90,7 @@ CONTAINS
 
          ! absorbed par for the sunlit or shaded leaf, umol m-2 -s-1
          apar(j) = rad%qcan(i,j,1) * J_TO_MOL * MOL_TO_UMOL
-
+        
          ! If there is bugger all light, assume there are no fluxes
          IF (apar(j) <= 0.) THEN
 
@@ -109,7 +112,7 @@ CONTAINS
                Ci(k)  = gamma_star + FLOAT(k) * (Cs - gamma_star) / FLOAT(N - 1)
 
             END DO
-
+           
             ! max rate of rubisco activity, scaled up to sunlit/shaded canopy
             Vcmax = vcmxt3(i,j) * MOL_TO_UMOL
 
@@ -127,22 +130,25 @@ CONTAINS
             Aj = assim(Ci, gamma_star, Vj, 2. * gamma_star) ! umol m-2 s-1
             A = -QUADP(1. - 1E-4, Ac + Aj, Ac * Aj) ! umol m-2 s-1
             an_leaf = A - Rd ! Net photosynthesis, umol m-2 s-1
+         
 
             ! Use an_leaf to infer gsc_sun/sha. NB. An is the scaled up values via
             ! scalex applied to Vcmax/Jmax
             gsc = MAX(0., A / (Cs - Ci)) ! mol CO2 m-2 s-1
-
+            aa = C%RGSWC
+         
             ! Infer E_sun/sha from gsc. NB. as we're iterating, Tleaf will change
             ! and so will leaf surface VPD, maintaining energy balance
-            e_leaf = gsc * C%RGSWC / press * vpd ! mol H2O m-2 s-1
-
+            e_leaf = gsc * real(C%RGSWC / press * vpd,r_2) ! mol H2O m-2 s-1
+           ! write(logn,*) 'e_leaf ', e_leaf(1)
+          
             ! Infer leaf water potential, MPa, having rescaled E from big-leaf to
             ! unit leaf first.
             ! N.B: solving with an accuracy of 0.1*kcrit on kc
             p = calc_psi_leaf(psi_soil, &
                e_leaf * MOL_TO_MMOL / rad%scalex(i,j), kmax, &
                b_plant, c_plant, 1E-3 * (100. - PLCcrit) * kmax, N)
-
+             
             ! Alternative zbrent solver which doesn't work
             !p = calc_psi_leaf_fails(p_crit + 1E-2, p_sat - 1E-2, &
             !                        e_leaf * MOL_TO_MMOL / rad%scalex(i,j), kmax, &

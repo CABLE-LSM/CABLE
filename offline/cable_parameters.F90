@@ -1705,6 +1705,7 @@ CONTAINS
   !============================================================================
   SUBROUTINE derived_parameters(soil, sum_flux, bal, ssnow, veg, rough)
     ! Gives values to parameters that are derived from other parameters.
+    USE cable_IO_vars_module, ONLY: logn
     TYPE (soil_snow_type),      INTENT(INOUT)    :: ssnow
     TYPE (veg_parameter_type),  INTENT(IN)    :: veg
     TYPE (soil_parameter_type), INTENT(INOUT) :: soil
@@ -1817,6 +1818,9 @@ CONTAINS
       IF (veg%b_plant(1) < 1.E-3 .AND. veg%c_plant(1) < 1.E-3) THEN
 
          PRINT *, "/!\ The hydraulics parameters are not supplied, so the profitmax will crash /!\"
+         write(logn,*),'The hydraulics parameters are not supplied, so the profitmax will crash'
+         close(logn)
+
 
       END IF
 
