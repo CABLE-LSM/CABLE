@@ -127,7 +127,7 @@ MODULE cable_input_module
            avPrecip
    END TYPE met_units_type
    TYPE(met_units_type)              :: metunits ! units for meteorological variables
-   TYPE convert_units_typec
+   TYPE convert_units_type
       REAL                      ::                                        &
            PSurf,        &
            Tair,         &
@@ -203,7 +203,7 @@ SUBROUTINE get_default_lai
 
    ! Local variables
    INTEGER                              ::                                &
-        ncid,                                   &c
+        ncid,                                   &
         xID,                                    &
         yID,                                    &
         pID,                                    &
@@ -3122,7 +3122,14 @@ END SUBROUTINE open_at_first_file
 SUBROUTINE find_variable_ID(Dataset)
   !*## Purpose
   !
-  ! Use the list of possible NetCDF names for the variable
+  ! Use the list of possible names for the variable to find the NetCDF name
+  ! for the variable.
+  !
+  !## Method
+  !
+  ! Run through a list of possible names for a given variable, and once found,
+  ! save the NetCDF variable ID associated with the variable.
+
   ! Find the desired variable name in the dataset
   TYPE(SPATIO_TEMPORAL_DATASET), INTENT(INOUT) :: Dataset
 
@@ -3240,7 +3247,7 @@ SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
 
   ! Due to leapyears, we can't just do add 365 * number of years from startyear.
   IF (LeapYears) THEN
-    CountDays: DO YearIter = STD%StartYear(STD%CurrentFileIndx), YearIndex
+    CountDays: DO YearIter = STD%StartYear(STD%CurrentFileIndx), YearIndex-1
       IF (is_leapyear(YearIndex)) THEN
         TimeIndex = TimeIndex + 366
       ELSE

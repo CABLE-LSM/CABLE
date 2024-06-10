@@ -109,14 +109,11 @@ SUBROUTINE CRU_INIT(CRU)
   ! Start with the things we want from the namelist. The namelist must set
   ! the filenames to read from, the method of choosing atmospheric carbon and
   ! nitrogen deposition, and the timestep.
-  WRITE(*,*) "Checkpoint 1"
   CALL read_MET_namelist_cbl(InputFiles, CRU)
 
-  WRITE(*,*) "Checkpoint 2"
   ! Read the landmask and allocate appropriate memory for the array variables
   CALL read_landmask(InputFiles(13), CRU)
 
-  WRITE(*,*) "Checkpoint 3"
   ! We know that the first 9 Met variables (indices 1-9) are always going to be
   ! time series, so always build their SPATIO_TEMPORAL_DATASET derived types.
   BuildKeys: DO VarIndx = 1, 9
@@ -124,71 +121,38 @@ SUBROUTINE CRU_INIT(CRU)
       CRU%MetDatasets(VarIndx))
   END DO BuildKeys
 
-  WRITE(*,*) "Checkpoint 4"
   ! Build the SPATIO_TEMPORAL_DATASET for fdiff if requested
   IF (CRU%ReadDiffFrac) THEN
     CALL prepare_spatiotemporal_dataset(InputFiles(10), CRU%MetDatasets(10))
   END IF
 
-  WRITE(*,*) "Checkpoint 5"
   ! Set the possible variable names for the main Met variables
   CALL read_variable_names(CRU%MetDatasets)
 
-  WRITE(*,*) "Checkpoint 6"
   ! Open the datasets at the first file so we don't need CALL1 behaviour later
   InitialiseDatasets: DO VarIndx = 1, 9
     CALL open_at_first_file(CRU%MetDatasets(VarIndx))
   END DO InitialiseDatasets
 
-  WRITE(*,*) "Checkpoint 7"
   IF (CRU%ReadDiffFrac) THEN
     CALL open_at_first_file(CRU%MetDatasets(10))
   END IF
 
-  WRITE(*,*) "Checkpoint 8"
   ! Set up the carbon reader
-  IF (CRU%CO2Method == "Yearly") THEN
-    ! If it's year by year, or single year atmospheric CO2, we want to read the
-    ! temporal dataset.
-    CALL prepare_temporal_dataset(InputFiles(11), CRU%CO2Vals)
-  ELSEIF (CRU%CO2Method == "Spatial") THEN
-    ! This is a placeholder, not currently implemented
-  ELSE
-    CALL prepare_temporal_dataset(InputFiles(11), CRU%CO2Vals)
-  END IF
+  CALL prepare_temporal_dataset(InputFiles(11), CRU%CO2Vals)
 
-  WRITE(*,*) "Checkpoint 9"
   ! Set up the nitrogen deposition reader
-  IF (CRU%NDepMethod == "Yearly") THEN
-    CALL prepare_temporal_dataset(InputFiles(12), CRU%NDepVals)
-  ELSEIF (CRU%NDepMethod == "Spatial") THEN
-    CALL prepare_spatiotemporal_dataset(InputFiles(12), CRU%NDepDataset)
-    ! For now, set the file index to 1 since we know its only one file
-    ! We don't want this to be a long term solution, just a temporary practical
-    ! solution to get the LUC and Demography running with ACCESS Met forcing.
-    CRU%NDepDataset%CurrentFileIndx = 1
+  CALL prepare_spatiotemporal_dataset(InputFiles(12), CRU%NDepDataset)
+  ! For now, set the file index to 1 since we know its only one file
+  CRU%NDepDataset%CurrentFileIndx = 1
 
-    ok = NF90_OPEN(CRU%NDepDataset%Filenames(1), NF90_NOWRITE,&
-      CRU%NDepFID)
-    CALL handle_err(ok, "Opening NDep file")
+  ok = NF90_OPEN(CRU%NDepDataset%Filenames(1), NF90_NOWRITE,&
+    CRU%NDepFID)
+  CALL handle_err(ok, "Opening NDep file")
 
-    ok =NF90_INQ_VARID(CRU%NDepFID, "N_deposition",&
-      CRU%NDepVID)
-    CALL handle_err(ok, "Finding NDep variable")
-  ELSE
-    CALL prepare_spatiotemporal_dataset(InputFiles(12), CRU%NDepDataset)
-    ! For now, set the file index to 1 since we know its only one file
-    CRU%NDepDataset%CurrentFileIndx = 1
-
-    ok = NF90_OPEN(CRU%NDepDataset%Filenames(1), NF90_NOWRITE,&
-      CRU%NDepFID)
-    CALL handle_err(ok, "Opening NDep file")
-
-    ok = NF90_INQ_VARID(CRU%NDepFID, "N_deposition",&
-      CRU%NDepVID)
-    CALL handle_err(ok, "Finding NDep variable")
-  END IF
-  WRITE(*,*) "Checkpoint 10"
+  ok = NF90_INQ_VARID(CRU%NDepFID, "N_deposition",&
+    CRU%NDepVID)
+  CALL handle_err(ok, "Finding NDep variable")
 END SUBROUTINE CRU_INIT
 
 
@@ -493,15 +457,15 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
 
   ! Was the Tmax recycled?
   IF (CRU%isRecycled(6)) THEN
-    MetYear = 1901 + MOD(DummyYear - 1501, CRU%metRecyc)
+    DummyYear = 1901 + MOD(DummyYear - 1501, CRU%metRecyc)
   ELSE
-    MetYear = CRU%cYear
+    DummyYear = DummyYear
   END IF
 
   ! Now we just need to call cru_read_metvals with the Tmax Dataset reader and
   ! the prevTmax array to write to
   CALL read_metvals(CRU%MetDatasets(6), CRU%Met(11)%MetVals, land_x, land_y,&
-    MetYear, DummyDay, CRU%LeapYears)
+    DummyYear, DummyDay, CRU%LeapYears)
 
   ! Now do nextTmin
   ! Check what the day is, and whether we need to change the year
@@ -521,13 +485,14 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
 
   ! Was the Tmin recycled?
   IF (CRU%isRecycled(7)) THEN
-    MetYear = 1901 + MOD(DummyYear - 1501, CRU%metRecyc)
+    DummyYear = 1901 + MOD(DummyYear - 1501, CRU%metRecyc)
   ELSE
-    MetYear = CRU%cYear
+    DummyYear = DummyYear
   END IF
 
   CALL read_metvals(CRU%MetDatasets(7), CRU%Met(12)%MetVals, land_x, land_y,&
-    MetYear, DummyDay, CRU%LeapYears)
+    DummyYear, DummyDay, CRU%LeapYears)
+
 END SUBROUTINE cru_get_daily_met
 
 SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
@@ -599,13 +564,13 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   fdiffRecycle = .FALSE.
 
   ! Defaults for the other inputs
-  CO2Method = "yearly"
-  NDepMethod = "yearly"
+  CO2Method = "Yearly"
+  NDepMethod = "Yearly"
   MetRecyc = 20
   ReadDiffFrac = .TRUE.
 
   ! Set up and read the namelist
-  NAMELIST /MetConfig/ rainFile, lwdnFile, swdnFile, presFile, qairFile,&
+  NAMELIST /crunml/ rainFile, lwdnFile, swdnFile, presFile, qairFile,&
                     TmaxFile, TminFile, uwindFile, vwindFile, fdiffFile,&
                     CO2File, NDepFile, landmaskFile,&
                     rainRecycle, lwdnRecycle, swdnRecycle, presRecycle,&
@@ -617,7 +582,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   ! Get a temporary unique ID and use it to read the namelist
   CALL get_unit(nmlUnit)
   OPEN(nmlUnit, file = "cru.nml", status = 'old', action = 'read')
-  READ(nmlUnit, nml = MetConfig)
+  READ(nmlUnit, nml = crunml)
   CLOSE(nmlUnit)
 
   ! Now pack the filepaths into the data structure we want to transport around
@@ -906,6 +871,8 @@ SUBROUTINE prepare_temporal_dataset(FileName, TargetArray)
   END IF
 
   LineCounter = 0
+  HeaderCounter = 0
+
   DetermineSize: DO
     ! Read line by line, checking for a header line
     READ(FileID, '(A)', IOSTAT = ios) LineInFile
@@ -952,7 +919,8 @@ SUBROUTINE prepare_temporal_dataset(FileName, TargetArray)
 
   ! Now the useful contents of the file into the array
   ReadValues: DO iter = StartTime, EndTime
-    READ(FileID, FMT = '(I4, F)', IOSTAT = ios) Time, TargetArray(iter)
+    READ(FileID, FMT = '(A)', IOSTAT = ios) LineInFile
+    READ(LineInFile, FMT = '(I4, F)', IOSTAT = ios) Time, TargetArray(iter)
   END DO ReadValues
   CLOSE(FileID)
 END SUBROUTINE prepare_temporal_dataset
@@ -1031,7 +999,7 @@ SUBROUTINE get_cru_ndep(CRU)
   INTEGER  :: ok
 
   ! Which method are we using for Nitrogen deposition?
-  IF (CRU%NDepMethod == "spatial") THEN
+  IF (CRU%NDepMethod == "Yearly") THEN
     ! We're using the simulation year for the deposition data
     TimeIndex = CRU%cYear - 1849
   ELSE
