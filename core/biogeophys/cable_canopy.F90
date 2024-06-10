@@ -44,6 +44,7 @@ MODULE cable_canopy_module
   use cable_data_module,   only: icanopy_type, point2constants
   use cable_common_module, only: cable_user
   use cable_veg_hydraulics_module, only: optimisation, arrh, get_xylem_vulnerability, calc_plc
+  USE cable_IO_vars_module, ONLY: logn
 
   implicit none
 
@@ -2311,13 +2312,13 @@ CONTAINS
                    fwsoil(i) = real(canopy%fwsoil(i))
                 endif
 
-             ELSE IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
+             ELSE IF (cable_user%FWSOIL_SWITCH == 'profitmax' .AND. cable_user%SOIL_SCHE == 'hydraulics') THEN
 
 
                 IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
                    evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels  &
                         / air%rlam(i)
-
+                    
                    DO kk = 1,ms
 
                       !ssnow%evapfbl(i,kk) = MIN(evapfb(i) * &
@@ -2331,9 +2332,12 @@ CONTAINS
                       ! "beneits" from hydraulics are cancelled
                       ssnow%evapfbl(i,kk) = evapfb(i) * &
                            ssnow%fraction_uptake(i,kk)
+                          
+                           
 
                    ENDDO
                    canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
+                   
                    ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
                 ENDIF
 
@@ -2448,8 +2452,9 @@ CONTAINS
     END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
 
     ! dry canopy flux
+    
     canopy%fevc = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
-
+    !write(logn,*) 'fevc', canopy%fevc(1)
     ! print*, 'DD45 ', canopy%fwet
     ! print*, 'DD46 ', canopy%fevc
     IF (cable_user%fwsoil_switch.NE.'Haverd2013' .AND. cable_user%fwsoil_switch.NE.'profitmax') THEN
