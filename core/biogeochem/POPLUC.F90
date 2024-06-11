@@ -773,6 +773,13 @@ CONTAINS
     integer  :: iwtile, iwpool
 #endif
 
+    ! Harvest indices (harvested component / total AG biomass)
+    ! see e.g. Yang et al. 2010, Journal of Experimental Botany (Table 1) for a range of HIs of major crops
+    ! similar HI of pastures (e.g. Carlassare et al. 2002, Agronomy Journal), certainly management-dependent
+    ! and thus varies with region.
+    REAL(dp), PARAMETER :: HIcrop = 0.5_dp
+    REAL(dp), PARAMETER :: HIpast = 0.5_dp
+
     ! turnover rates for harvest and clearance products (y-1)
     kHarvProd(1) = 1.0_dp ! / 1.0_dp
     kHarvProd(2) = 1.0_dp / 10.0_dp
@@ -1493,8 +1500,8 @@ CONTAINS
           POPLUC%AgProd(g)     = POPLUC%AgProd(g) + casaflux%Charvest(l)*patch(l)%frac - POPLUC%AgProdLoss(g)
           casaflux%charvest(l) = 0.0_dp
           casaflux%nharvest(l) = 0.0_dp
-          casaflux%fharvest(l) = min(POPLUC%past(g)/POPLUC%grass(g),1.0_dp)*0.5_dp + &
-               min(POPLUC%crop(g)/POPLUC%grass(g),1.0_dp)*0.9_dp !  fraction grass AGB to be removed next year
+          casaflux%fharvest(l) = min(POPLUC%past(g)/POPLUC%grass(g),1.0_dp) * HIpast + &
+               min(POPLUC%crop(g)/POPLUC%grass(g),1.0_dp) * HIcrop !  fraction grass AGB to be removed next year
           !write(*,*)'harvest', g,   patch(l)%frac,  casaflux%fharvest(l), POPLUC%crop(g),  POPLUC%past(g)
           !casaflux%fharvest(l) = 0; ! test vh!
           casaflux%fcrop(l) = min(POPLUC%crop(g)/POPLUC%grass(g), 1.0_dp)

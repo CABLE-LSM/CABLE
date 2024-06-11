@@ -22,6 +22,7 @@ MODULE CABLE_LUC_EXPT
      integer :: ctstep
      real,    allocatable :: primaryf(:), grass(:), secdf(:), crop(:), past(:)
      real,    allocatable :: mtemp_min20(:)
+     real,    allocatable :: woodfrac(:)
      character(len=200),   dimension(17) :: TransFile
      character(len=12) ,   dimension(17) :: var_name
      integer,              dimension(17) :: f_id, v_id
@@ -59,8 +60,6 @@ CONTAINS
 
   SUBROUTINE LUC_EXPT_INIT(LUC_EXPT)
 
-    use cable_common_module,       only: cable_user
-    use cable_bios_met_obs_params, only: cable_bios_load_biome
     use netcdf,                    only: nf90_open, nf90_nowrite, nf90_inq_varid, nf90_inq_dimid, &
          nf90_inquire_dimension, nf90_inq_varid, nf90_get_att, nf90_get_var, nf90_close
 
@@ -78,13 +77,11 @@ CONTAINS
     CHARACTER(len=400)   :: TransitionFilePath, ClimateFile, NotPrimOnlyFile
     LOGICAL :: DirectRead
     INTEGER :: YearStart, YearEnd
-    REAL, ALLOCATABLE :: tmpvec(:), tmparr3(:,:,:), CPC(:)
-    INTEGER:: MVG(mland)
+    REAL, ALLOCATABLE :: tmpvec(:), tmparr3(:,:,:)
     INTEGER :: NotPrimOnly_fID, NotPrimOnly_vID
     INTEGER :: TimeVarID, Idash
     CHARACTER(len=100)    :: time_units
     CHARACTER(len=4) :: yearstr
-    REAL :: projection_factor
 
     namelist /lucnml/  TransitionFilePath, ClimateFile, Run, DirectRead, YearStart, YearEnd, &
          NotPrimOnlyFile
@@ -108,10 +105,10 @@ CONTAINS
     ALLOCATE( LUC_EXPT%crop(mland) )
     ALLOCATE( LUC_EXPT%past(mland) )
     ALLOCATE( LUC_EXPT%mtemp_min20(mland) )
+    ALLOCATE( LUC_EXPT%woodfrac(mland))
 
     call luc_expt_zero(LUC_EXPT)
 
-    ALLOCATE( CPC(mland))
     LUC_EXPT%NotPrimOnlyFile = 'none'
     ! READ LUC_EXPT settings
     call get_unit(iu)
@@ -302,130 +299,30 @@ CONTAINS
     LUC_EXPT%secdf    = max(1.0-LUC_EXPT%grass-LUC_EXPT%primaryf, 0.0)
     
     !! JK Debug
+    ! For some reason the transition from secdf does not work correctly
+    ! if there is secdf = 0.0 at first timestep (1580). This is a bandaid
+    ! solution that allows a 'correct' transition. Minimum fraction of 0.01
+    ! was required for it to work correctly.
     where (LUC_EXPT%secdf < 0.01 .and. LUC_EXPT%prim_only .eqv. .FALSE. )
-      LUC_EXPT%secdf = 0.01
-      LUC_EXPT%primaryf = LUC_EXPT%primaryf - 0.01
+    LUC_EXPT%primaryf = LUC_EXPT%primaryf + LUC_EXPT%secdf - 0.01  
+    LUC_EXPT%secdf = 0.01
     endwhere
     where (LUC_EXPT%primaryf < 0.0)
-      LUC_EXPT%primaryf = 0.0
       LUC_EXPT%grass = LUC_EXPT%grass + LUC_EXPT%primaryf
+      LUC_EXPT%primaryf = 0.0
     endwhere
     !! JK Debug
     
     LUC_EXPT%crop     = max(min(LUC_EXPT%crop, LUC_EXPT%grass), 0.0)
     LUC_EXPT%past     = max(min(LUC_EXPT%grass-LUC_EXPT%crop, LUC_EXPT%past), 0.0)
 
-    IF (TRIM(cable_user%MetType) .EQ. "bios") THEN
+   ! Determine woody fraction (forest and shrub cover).
+    call get_woody_fraction(LUC_EXPT)
 
-       ! read bios parameter file to NVIS Major Vegetation Group "biomes"
-       CALL cable_bios_load_biome(MVG)
-       ! adjust fraction woody cover based on Major Vegetation Group
-       LUC_EXPT%biome = MVG
-       LUC_EXPT%ivegp = 2
-       projection_factor = 0.65
-       WHERE (LUC_EXPT%biome .eq. 1)
-          CPC = 0.89
-       ELSEWHERE (LUC_EXPT%biome .eq. 2)
-          CPC = 0.81
-       ELSEWHERE (LUC_EXPT%biome .eq. 3)
-          CPC = 0.79
-       ELSEWHERE (LUC_EXPT%biome .eq. 4)
-          CPC = 0.50
-       ELSEWHERE (LUC_EXPT%biome .eq. 5)
-          CPC = 0.31
-       ELSEWHERE (LUC_EXPT%biome .eq. 6)
-          CPC = 0.15
-       ELSEWHERE (LUC_EXPT%biome .eq. 7)
-          CPC = 0.37
-       ELSEWHERE (LUC_EXPT%biome .eq. 8)
-          CPC = 0.27
-       ELSEWHERE (LUC_EXPT%biome .eq. 9)
-          CPC = 0.23
-       ELSEWHERE (LUC_EXPT%biome .eq. 10)
-          CPC = 0.24
-       ELSEWHERE (LUC_EXPT%biome .eq. 11)
-          CPC = 0.19
-       ELSEWHERE (LUC_EXPT%biome .eq. 12)
-          CPC = 0.25
-       ELSEWHERE (LUC_EXPT%biome .eq. 13)
-          CPC = 0.14
-       ELSEWHERE (LUC_EXPT%biome .eq. 14)
-          CPC = 0.33
-       ELSEWHERE (LUC_EXPT%biome .eq. 15)
-          CPC = 0.29
-       ELSEWHERE (LUC_EXPT%biome .eq. 16)
-          CPC = 0.13
-       ELSEWHERE (LUC_EXPT%biome .eq. 17)
-          CPC = 0.21
-       ELSEWHERE (LUC_EXPT%biome .eq. 18)
-          CPC = 0.34
-       ELSEWHERE (LUC_EXPT%biome .eq. 19)
-          CPC = 0.05
-       ELSEWHERE (LUC_EXPT%biome .eq. 20)
-          CPC = 0.16
-       ELSEWHERE (LUC_EXPT%biome .eq. 21)
-          CPC = 0.11
-       ELSEWHERE (LUC_EXPT%biome .eq. 22)
-          CPC = 0.06
-       ELSEWHERE (LUC_EXPT%biome .eq. 23)
-          CPC = 1.0
-       ELSEWHERE (LUC_EXPT%biome .eq. 24)
-          CPC = 0.04
-       ELSEWHERE (LUC_EXPT%biome .eq. 25)
-          CPC= 0.1
-       ELSEWHERE (LUC_EXPT%biome .eq. 26)
-          CPC= 0.1
-       ELSEWHERE (LUC_EXPT%biome .eq. 27)
-          CPC = 0.02
-       ELSEWHERE (LUC_EXPT%biome .eq. 28)
-          CPC = 0.1
-       ELSEWHERE (LUC_EXPT%biome .eq. 29)
-          CPC = 0.1
-       ELSEWHERE (LUC_EXPT%biome .eq. 30)
-          CPC = 0.5
-       ELSEWHERE (LUC_EXPT%biome .eq. 31)
-          CPC= 0.20
-       ELSEWHERE (LUC_EXPT%biome .eq. 32)
-          CPC = 0.24
-       ELSEWHERE
-          CPC= 0.1
-       ENDWHERE
-
-       CPC = min(CPC/projection_factor, 1.0)
-
-       ! write(*,*)  LUC_EXPT%grass(93), LUC_EXPT%primaryf(93), LUC_EXPT%secdf(93), CPC
-
-       LUC_EXPT%grass    = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf) * (1.0-CPC)
-       LUC_EXPT%primaryf = LUC_EXPT%primaryf * CPC
-       LUC_EXPT%secdf    = LUC_EXPT%secdf    * CPC
-       ! write(*,*)  LUC_EXPT%grass(93), LUC_EXPT%primaryf(93), LUC_EXPT%secdf(93)
-    ELSE
-       CALL READ_ClimateFile(LUC_EXPT)
-       ! hot desert
-       WHERE (LUC_EXPT%biome .eq. 15)
-          LUC_EXPT%ivegp = 14
-       ENDWHERE
-
-       WHERE (LUC_EXPT%biome .eq. 3 .or. LUC_EXPT%biome .eq. 11) ! savanna/ xerophytic woods
-          LUC_EXPT%grass    = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf) * 0.6
-          LUC_EXPT%primaryf = LUC_EXPT%primaryf * 0.4
-          LUC_EXPT%secdf    = LUC_EXPT%secdf    * 0.4
-       ELSEWHERE (LUC_EXPT%biome .eq. 12 .or. LUC_EXPT%biome .eq. 13 & ! shrub
-            .or. LUC_EXPT%biome .eq. 15 .or. LUC_EXPT%biome .eq. 16  )
-          LUC_EXPT%grass    = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf) * 0.8
-          LUC_EXPT%primaryf = LUC_EXPT%primaryf * 0.2
-          LUC_EXPT%secdf    = LUC_EXPT%secdf    * 0.2
-       ELSEWHERE (LUC_EXPT%biome .eq. 7 .or. LUC_EXPT%biome .eq. 8 &  ! boreal
-            .or. LUC_EXPT%biome .eq. 9 .or. LUC_EXPT%biome .eq. 10  )
-          LUC_EXPT%grass    = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf) * 0.2
-          LUC_EXPT%primaryf = LUC_EXPT%primaryf * 0.8
-          LUC_EXPT%secdf    = LUC_EXPT%secdf    * 0.8
-       ELSEWHERE (LUC_EXPT%biome .eq. 5 .or. LUC_EXPT%biome .eq. 6 ) ! DBL
-          LUC_EXPT%grass    = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf) * 0.3
-          LUC_EXPT%primaryf = LUC_EXPT%primaryf * 0.7
-          LUC_EXPT%secdf    = LUC_EXPT%secdf    * 0.7
-       END WHERE
-    ENDIF
+    ! Adjust grass and forest fractions based on LUC_EXPT%woodfrac as determined in get_woody_fraction.
+    LUC_EXPT%grass    = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf) * (1.0-LUC_EXPT%woodfrac)
+    LUC_EXPT%primaryf = LUC_EXPT%primaryf * LUC_EXPT%woodfrac
+    LUC_EXPT%secdf    = LUC_EXPT%secdf    * LUC_EXPT%woodfrac
 
     ! write(59,*) TRIM(LUC_EXPT%NotPrimOnlyFile), (TRIM(LUC_EXPT%NotPrimOnlyFile).EQ.'none')
     ! READ transitions from primary to see if primary remains primary
@@ -477,40 +374,16 @@ CONTAINS
        NotPrimOnly_fID = -1
     ENDIF
 
-    IF (TRIM(cable_user%MetType) .EQ. "bios") THEN
-       WHERE (LUC_EXPT%prim_only .eqv. .TRUE.)
-          LUC_EXPT%secdf    = 0.0
-          LUC_EXPT%primaryf = 1.0
-          LUC_EXPT%grass    = 0.0
-          LUC_EXPT%grass    = LUC_EXPT%primaryf * (1.0-CPC)
-          LUC_EXPT%primaryf = LUC_EXPT%primaryf * CPC
-       ENDWHERE
-       DEALLOCATE (CPC)
-    ELSE
-       ! set secondary vegetation area to be zero where land use transitions don't occur
-       ! set grass component of primary vegetation cover
-       WHERE (LUC_EXPT%prim_only .eqv. .TRUE.)
-          LUC_EXPT%secdf    = 0.0
-          LUC_EXPT%primaryf = 1.0
-          LUC_EXPT%grass    = 0.0
-          WHERE (LUC_EXPT%biome .eq. 3 .or. LUC_EXPT%biome .eq. 11) ! savanna/ xerophytic woods
-             LUC_EXPT%grass    = LUC_EXPT%primaryf * 0.6
-             LUC_EXPT%primaryf = LUC_EXPT%primaryf * 0.4
-          ELSEWHERE (LUC_EXPT%biome .eq. 12 .or. LUC_EXPT%biome .eq. 13 &
-               .or. LUC_EXPT%biome .eq. 15 .or. LUC_EXPT%biome .eq. 16  ) ! shrub
-             LUC_EXPT%grass    = LUC_EXPT%primaryf * 0.8
-             LUC_EXPT%primaryf = LUC_EXPT%primaryf * 0.2
-          ELSEWHERE (LUC_EXPT%biome .eq. 7 .or. LUC_EXPT%biome .eq. 8 &
-               .or. LUC_EXPT%biome .eq. 9 .or. LUC_EXPT%biome .eq. 10) ! boreal
-             LUC_EXPT%grass    = LUC_EXPT%primaryf * 0.2
-             LUC_EXPT%primaryf = LUC_EXPT%primaryf * 0.8
-          ELSEWHERE (LUC_EXPT%biome .eq. 5 .or. LUC_EXPT%biome .eq. 6 ) ! DBL
-             LUC_EXPT%grass    = LUC_EXPT%primaryf * 0.3
-             LUC_EXPT%primaryf = LUC_EXPT%primaryf * 0.7
-          END WHERE
-       END WHERE
-    ENDIF
-
+    ! set secondary vegetation area to be zero where land use transitions don't occur
+    ! set grass component of primary vegetation cover
+    WHERE (LUC_EXPT%prim_only .eqv. .TRUE.)
+      LUC_EXPT%secdf    = 0.0
+      LUC_EXPT%primaryf = 1.0
+      LUC_EXPT%grass    = 0.0
+      LUC_EXPT%grass    = LUC_EXPT%primaryf * (1.0-LUC_EXPT%woodfrac)
+      LUC_EXPT%primaryf = LUC_EXPT%primaryf * LUC_EXPT%woodfrac
+    ENDWHERE
+    
   END SUBROUTINE LUC_EXPT_INIT
 
   subroutine luc_expt_zero(luc_expt)
@@ -538,10 +411,142 @@ CONTAINS
     luc_expt%crop        = 0.
     luc_expt%past        = 0.
     luc_expt%mtemp_min20 = 0.
+    luc_expt%woodfrac    = 0.
 
   end subroutine luc_expt_zero
 
   ! ------------------------------------------------------------------
+
+  subroutine get_woody_fraction(LUC_EXPT) 
+    ! Determine woody fraction (forest and shrub cover) from ancillary data.
+    
+    use cable_bios_met_obs_params, only: cable_bios_load_biome
+    use cable_common_module,       only: cable_user
+
+    implicit none
+
+    type(LUC_EXPT_type), intent(inout) :: LUC_EXPT
+    real    :: CPC(mland)
+    integer :: MVG(mland)
+    real    :: projection_factor
+
+    if (TRIM(cable_user%MetType) .EQ. "bios") then
+      ! For bios, calculate crown projective cover (CPC) based on
+      ! Major Vegetation Groups from National Vegetation Information System (NVIS).
+      ! Woody fraction (woodfrac) is then calculated from CPC.
+      
+      ! read bios parameter file to NVIS Major Vegetation Group "biomes"
+      call cable_bios_load_biome(MVG)
+      
+      ! adjust fraction woody cover based on Major Vegetation Group
+      LUC_EXPT%biome = MVG
+      LUC_EXPT%ivegp = 2
+      projection_factor = 0.65
+      WHERE (LUC_EXPT%biome .eq. 1)
+         CPC = 0.89
+      ELSEWHERE (LUC_EXPT%biome .eq. 2)
+         CPC = 0.81
+      ELSEWHERE (LUC_EXPT%biome .eq. 3)
+         CPC = 0.79
+      ELSEWHERE (LUC_EXPT%biome .eq. 4)
+         CPC = 0.50
+      ELSEWHERE (LUC_EXPT%biome .eq. 5)
+         CPC = 0.31
+      ELSEWHERE (LUC_EXPT%biome .eq. 6)
+         CPC = 0.15
+      ELSEWHERE (LUC_EXPT%biome .eq. 7)
+         CPC = 0.37
+      ELSEWHERE (LUC_EXPT%biome .eq. 8)
+         CPC = 0.27
+      ELSEWHERE (LUC_EXPT%biome .eq. 9)
+         CPC = 0.23
+      ELSEWHERE (LUC_EXPT%biome .eq. 10)
+         CPC = 0.24
+      ELSEWHERE (LUC_EXPT%biome .eq. 11)
+         CPC = 0.19
+      ELSEWHERE (LUC_EXPT%biome .eq. 12)
+         CPC = 0.25
+      ELSEWHERE (LUC_EXPT%biome .eq. 13)
+         CPC = 0.14
+      ELSEWHERE (LUC_EXPT%biome .eq. 14)
+         CPC = 0.33
+      ELSEWHERE (LUC_EXPT%biome .eq. 15)
+         CPC = 0.29
+      ELSEWHERE (LUC_EXPT%biome .eq. 16)
+         CPC = 0.13
+      ELSEWHERE (LUC_EXPT%biome .eq. 17)
+         CPC = 0.21
+      ELSEWHERE (LUC_EXPT%biome .eq. 18)
+         CPC = 0.34
+      ELSEWHERE (LUC_EXPT%biome .eq. 19)
+         CPC = 0.05
+      ELSEWHERE (LUC_EXPT%biome .eq. 20)
+         CPC = 0.16
+      ELSEWHERE (LUC_EXPT%biome .eq. 21)
+         CPC = 0.11
+      ELSEWHERE (LUC_EXPT%biome .eq. 22)
+         CPC = 0.06
+      ELSEWHERE (LUC_EXPT%biome .eq. 23)
+         CPC = 1.0
+      ELSEWHERE (LUC_EXPT%biome .eq. 24)
+         CPC = 0.04
+      ELSEWHERE (LUC_EXPT%biome .eq. 25)
+         CPC= 0.1
+      ELSEWHERE (LUC_EXPT%biome .eq. 26)
+         CPC= 0.1
+      ELSEWHERE (LUC_EXPT%biome .eq. 27)
+         CPC = 0.02
+      ELSEWHERE (LUC_EXPT%biome .eq. 28)
+         CPC = 0.1
+      ELSEWHERE (LUC_EXPT%biome .eq. 29)
+         CPC = 0.1
+      ELSEWHERE (LUC_EXPT%biome .eq. 30)
+         CPC = 0.5
+      ELSEWHERE (LUC_EXPT%biome .eq. 31)
+         CPC= 0.20
+      ELSEWHERE (LUC_EXPT%biome .eq. 32)
+         CPC = 0.24
+      ELSEWHERE
+         CPC= 0.1
+      ENDWHERE
+
+      LUC_EXPT%woodfrac = min(CPC/projection_factor, 1.0)
+
+   ELSE
+      ! For all other applications, infer CPC from biome information.
+
+      ! Read climate restart file
+      CALL READ_ClimateFile(LUC_EXPT)
+
+      WHERE (LUC_EXPT%biome .eq. 15) ! hot desert
+         LUC_EXPT%ivegp = 14
+      ENDWHERE
+
+
+      WHERE (LUC_EXPT%biome .eq. 3 .or. LUC_EXPT%biome .eq. 11) ! savanna/ xerophytic woods
+         
+         LUC_EXPT%woodfrac = 0.4
+
+      ELSEWHERE (LUC_EXPT%biome .eq. 12 .or. LUC_EXPT%biome .eq. 13 & ! shrub
+            .or. LUC_EXPT%biome .eq. 15 .or. LUC_EXPT%biome .eq. 16  )
+
+         LUC_EXPT%woodfrac = 0.2
+
+      ELSEWHERE (LUC_EXPT%biome .eq. 7 .or. LUC_EXPT%biome .eq. 8 &  ! boreal
+            .or. LUC_EXPT%biome .eq. 9 .or. LUC_EXPT%biome .eq. 10  )
+
+         LUC_EXPT%woodfrac = 0.8
+
+      ELSEWHERE (LUC_EXPT%biome .eq. 5 .or. LUC_EXPT%biome .eq. 6 ) ! DBL
+         
+         LUC_EXPT%woodfrac = 0.7
+
+      END WHERE
+   ENDIF
+
+  end subroutine get_woody_fraction
+
+
 
 
   SUBROUTINE LUC_EXPT_SET_TILES(inVeg, inPfrac, LUC_EXPT)
@@ -930,37 +935,19 @@ CONTAINS
     endif
 
     ! Adjust transition areas based on primary wooded fraction
-    WHERE (LUC_EXPT%biome .eq. 3 .or. LUC_EXPT%biome .eq. 11)  ! savanna/ xerophytic woods
-       LUC_EXPT%INPUT(ptos)%VAL   =  LUC_EXPT%INPUT(ptos)%VAL   * 0.4
-       LUC_EXPT%INPUT(ptog)%VAL   =  LUC_EXPT%INPUT(ptog)%VAL   * 0.4
-       LUC_EXPT%INPUT(gtos)%VAL   =  LUC_EXPT%INPUT(gtos)%VAL   * 0.4
-       LUC_EXPT%INPUT(stog)%VAL   =  LUC_EXPT%INPUT(stog)%VAL   * 0.4
-       LUC_EXPT%INPUT(smharv)%VAL =  LUC_EXPT%INPUT(smharv)%VAL * 0.4
-       LUC_EXPT%INPUT(syharv)%VAL =  LUC_EXPT%INPUT(syharv)%VAL * 0.4
-    ELSEWHERE (LUC_EXPT%biome .eq. 12 .or. LUC_EXPT%biome .eq. 13 &
-         .or. LUC_EXPT%biome .eq. 15 .or. LUC_EXPT%biome .eq. 16  ) ! shrub
-       LUC_EXPT%INPUT(ptos)%VAL   =  LUC_EXPT%INPUT(ptos)%VAL   * 0.2
-       LUC_EXPT%INPUT(ptog)%VAL   =  LUC_EXPT%INPUT(ptog)%VAL   * 0.2
-       LUC_EXPT%INPUT(gtos)%VAL   =  LUC_EXPT%INPUT(gtos)%VAL   * 0.2
-       LUC_EXPT%INPUT(stog)%VAL   =  LUC_EXPT%INPUT(stog)%VAL   * 0.2
-       LUC_EXPT%INPUT(smharv)%VAL =  LUC_EXPT%INPUT(smharv)%VAL * 0.2
-       LUC_EXPT%INPUT(syharv)%VAL =  LUC_EXPT%INPUT(syharv)%VAL * 0.2
-    ELSEWHERE (LUC_EXPT%biome .eq. 7 .or. LUC_EXPT%biome .eq. 8 &
-         .or. LUC_EXPT%biome .eq. 9 .or. LUC_EXPT%biome .eq. 10) ! boreal
-       LUC_EXPT%INPUT(ptos)%VAL   =  LUC_EXPT%INPUT(ptos)%VAL   * 0.8
-       LUC_EXPT%INPUT(ptog)%VAL   =  LUC_EXPT%INPUT(ptog)%VAL   * 0.8
-       LUC_EXPT%INPUT(gtos)%VAL   =  LUC_EXPT%INPUT(gtos)%VAL   * 0.8
-       LUC_EXPT%INPUT(stog)%VAL   =  LUC_EXPT%INPUT(stog)%VAL   * 0.8
-       LUC_EXPT%INPUT(smharv)%VAL =  LUC_EXPT%INPUT(smharv)%VAL * 0.8
-       LUC_EXPT%INPUT(syharv)%VAL =  LUC_EXPT%INPUT(syharv)%VAL * 0.8
-    ELSEWHERE (LUC_EXPT%biome .eq. 5 .or. LUC_EXPT%biome .eq. 6 ) ! DBL
-       LUC_EXPT%INPUT(ptos)%VAL   =  LUC_EXPT%INPUT(ptos)%VAL   * 0.7
-       LUC_EXPT%INPUT(ptog)%VAL   =  LUC_EXPT%INPUT(ptog)%VAL   * 0.7
-       LUC_EXPT%INPUT(gtos)%VAL   =  LUC_EXPT%INPUT(gtos)%VAL   * 0.7
-       LUC_EXPT%INPUT(stog)%VAL   =  LUC_EXPT%INPUT(stog)%VAL   * 0.7
-       LUC_EXPT%INPUT(smharv)%VAL =  LUC_EXPT%INPUT(smharv)%VAL * 0.7
-       LUC_EXPT%INPUT(syharv)%VAL =  LUC_EXPT%INPUT(syharv)%VAL * 0.7
-    ENDWHERE
+    LUC_EXPT%INPUT(ptos)%VAL   =  LUC_EXPT%INPUT(ptos)%VAL   * LUC_EXPT%woodfrac
+    LUC_EXPT%INPUT(ptog)%VAL   =  LUC_EXPT%INPUT(ptog)%VAL   * LUC_EXPT%woodfrac
+    LUC_EXPT%INPUT(gtos)%VAL   =  LUC_EXPT%INPUT(gtos)%VAL   * LUC_EXPT%woodfrac
+    LUC_EXPT%INPUT(stog)%VAL   =  LUC_EXPT%INPUT(stog)%VAL   * LUC_EXPT%woodfrac
+    LUC_EXPT%INPUT(smharv)%VAL =  LUC_EXPT%INPUT(smharv)%VAL * LUC_EXPT%woodfrac
+    LUC_EXPT%INPUT(syharv)%VAL =  LUC_EXPT%INPUT(syharv)%VAL * LUC_EXPT%woodfrac
+
+    LUC_EXPT%INPUT(ptoc)%VAL = LUC_EXPT%INPUT(ptoc)%VAL * LUC_EXPT%woodfrac
+    LUC_EXPT%INPUT(ptoq)%VAL = LUC_EXPT%INPUT(ptoq)%VAL * LUC_EXPT%woodfrac
+    LUC_EXPT%INPUT(stoc)%VAL = LUC_EXPT%INPUT(stoc)%VAL * LUC_EXPT%woodfrac
+    LUC_EXPT%INPUT(stoq)%VAL = LUC_EXPT%INPUT(stoq)%VAL * LUC_EXPT%woodfrac
+    LUC_EXPT%INPUT(ctos)%VAL = LUC_EXPT%INPUT(ctos)%VAL * LUC_EXPT%woodfrac
+    LUC_EXPT%INPUT(qtos)%VAL = LUC_EXPT%INPUT(qtos)%VAL * LUC_EXPT%woodfrac
 
   END SUBROUTINE READ_LUH2
 
