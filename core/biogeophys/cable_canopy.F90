@@ -2149,7 +2149,8 @@ CONTAINS
                 endif
              ELSE IF (cable_user%GS_SWITCH == 'medlyn' .AND. &
                   cable_user%FWSOIL_SWITCH == 'profitmax') THEN
-
+                ! write(logn,*) '1:gs_coeff of 1', gs_coeff(1,1)
+                ! write(logn,*) '1:gs_coeff of 2', gs_coeff(1,2)
                 ! Profix-Max hydraulics model
                 vpd = dsx(i) * PA_TO_KPA ! this is leaf vpd
                 press = met%pmb(i) * MB_TO_KPA
@@ -2243,7 +2244,7 @@ CONTAINS
              DO kk=1, mf
 
                 IF (rad%fvlai(i,kk)>C%LAI_THRESH) THEN
-                  write(logn,*) 'gs_coeff of ',kk, ': ',gs_coeff(i,kk)
+                !  write(logn,*) '2: gs_coeff of ',kk, ': ',gs_coeff(i,kk)
 
 
                    csx(i,kk) = real(met%ca(i),r_2) - real(C%RGBWC*anx(i,kk),r_2) / &
@@ -2265,7 +2266,10 @@ CONTAINS
                            anx(i,kk) )) )
 
                    endif
+                  
+
                   endif
+                 ! write(logn,*) '3: gsw of ',kk, ': ', canopy%gswx(i,kk)
                    !Recalculate conductance for water:
                    gw(i,kk) = 1.0 / ( 1.0 / canopy%gswx(i,kk) + &
                         1.0 / ( 1.075 * real(gbhu(i,kk) + gbhf(i,kk)) ) )
