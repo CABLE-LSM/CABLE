@@ -2243,10 +2243,13 @@ CONTAINS
              DO kk=1, mf
 
                 IF (rad%fvlai(i,kk)>C%LAI_THRESH) THEN
+                  write(logn,*) 'gs_coeff of ',kk, ': ',gs_coeff(i,kk)
+
 
                    csx(i,kk) = real(met%ca(i),r_2) - real(C%RGBWC*anx(i,kk),r_2) / &
                         (gbhu(i,kk) + gbhf(i,kk))
                    csx(i,kk) = max(1.0e-4_r_2, csx(i,kk))
+                   if (cable_user%FWSOIL_SWITCH /= 'profitmax') THEN
 
                    ! Ticket #56, xleuning replaced with gs_coeff here
                    if (cable_user%g0_switch == 'default') then
@@ -2262,6 +2265,7 @@ CONTAINS
                            anx(i,kk) )) )
 
                    endif
+                  endif
                    !Recalculate conductance for water:
                    gw(i,kk) = 1.0 / ( 1.0 / canopy%gswx(i,kk) + &
                         1.0 / ( 1.075 * real(gbhu(i,kk) + gbhf(i,kk)) ) )
