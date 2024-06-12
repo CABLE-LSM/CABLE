@@ -554,8 +554,8 @@ MODULE cable_bios_met_obs_params
   TYPE(dmydate)       :: dummydate     ! Dummy date for when keeping the date is not required
   TYPE(dmydate),SAVE  :: MetDate       ! Date of met to access (equals current date for normals runs, but
                                        ! must be calculated for spinup and initialisation runs (for dates before 1900)
-  INTEGER(i4b),PARAMETER :: recycle_met_startdate = 1981 ! range for met to be recycled for spinup and initialisation
-  INTEGER(i4b),PARAMETER :: recycle_met_enddate = 2010
+  INTEGER(i4b),PARAMETER :: recycle_met_startdate = 1981 ! range for met to be recycled for spinup and initialisation AB: TEST 1951 start (old value 1981)
+  INTEGER(i4b),PARAMETER :: recycle_met_enddate = 2010 ! AB: TEST 1980 end(old value 2010)
   INTEGER(i4b)   :: skipdays                        ! Days of met to skip when user_startdate is after bios_startdate
   TYPE(dmydate), SAVE  :: bios_startdate, bios_enddate    ! First and last dates found in bios met files (read from rain file)
   REAL(sp), PRIVATE, PARAMETER :: SecDay = 86400.
@@ -926,7 +926,7 @@ CONTAINS
       sdoy        = 1
       smoy        = 1
       !syear       = 1690
-      syear = 1981
+      syear = 1981 ! AB TEST old value 1981
       write(*,*) 'prev:',previous_date%year,previous_date%month,previous_date%day
       write(*,*) 'run:',  user_startdate%year, user_startdate%month,  user_startdate%day      
       ! For spinup and initialisation before bios met begins (1900),
@@ -1153,6 +1153,10 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
        READ (swdown_unit) bios_rundate, swdown_day        ! Packed vector of daily AWAP/BIOS swdown (MJ)
        READ (tairmax_unit) bios_rundate, tairmax_day       ! Packed vector of daily AWAP/BIOS max air temp (deg C)
        READ (tairmin_unit) bios_rundate, tairmin_day       ! Packed vector of daily AWAP/BIOS min air temp (deg C)
+       
+       !PRINT*, "bios rundate tairmax", bios_rundate, tairmax_day ! added for debugging AB 14/8/2024
+       !PRINT*, "bios rundate tairmin", bios_rundate, tairmin_day ! added for debugging AB 14/8/2024
+       
        IF (TRIM(wind_file) .NE. 'none') THEN
           READ (wind_unit) bios_rundate, wind_day          !
        ENDIF
@@ -1200,7 +1204,7 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
              READ (swdown_unit) dummydate, swdown_day
              READ (tairmax_unit) dummydate, tairmax_day
              READ (tairmin_unit) dummydate, tairmin_day
-             
+                          
              IF (TRIM(wind_file) .NE. 'none') THEN
                 READ (wind_unit) dummydate, wind_day
              ENDIF

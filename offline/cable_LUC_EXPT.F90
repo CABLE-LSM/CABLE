@@ -311,6 +311,8 @@ CONTAINS
     LUC_EXPT%crop     = max(min(LUC_EXPT%crop, LUC_EXPT%grass), 0.0)
     LUC_EXPT%past     = max(min(LUC_EXPT%grass-LUC_EXPT%crop, LUC_EXPT%past), 0.0)
 
+   write(*,*) "Finished reading in LUC files"
+
     IF (TRIM(cable_user%MetType) .EQ. "bios") THEN
 
        ! read bios parameter file to NVIS Major Vegetation Group "biomes"
@@ -394,7 +396,7 @@ CONTAINS
        LUC_EXPT%grass    = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf) * (1.0-CPC)
        LUC_EXPT%primaryf = LUC_EXPT%primaryf * CPC
        LUC_EXPT%secdf    = LUC_EXPT%secdf    * CPC
-       ! write(*,*)  LUC_EXPT%grass(93), LUC_EXPT%primaryf(93), LUC_EXPT%secdf(93)
+       write(*,*)  LUC_EXPT%grass(93), LUC_EXPT%primaryf(93), LUC_EXPT%secdf(93)
     ELSE
        CALL READ_ClimateFile(LUC_EXPT)
        ! hot desert
@@ -505,7 +507,9 @@ CONTAINS
              LUC_EXPT%primaryf = LUC_EXPT%primaryf * 0.7
           END WHERE
        END WHERE
-    ENDIF
+      ENDIF
+
+   write(*,*) "finished LUC_EXPT_INT"
 
   END SUBROUTINE LUC_EXPT_INIT
 

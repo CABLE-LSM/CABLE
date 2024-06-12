@@ -3640,7 +3640,7 @@ SUBROUTINE master_casa_params(comm, casabiome, casapool, casaflux, casamet, casa
   INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
   INTEGER :: tsize, localtotal, remotetotal
 
-  INTEGER :: ierr
+  INTEGER :: ierr 
   INTEGER, ALLOCATABLE, DIMENSION(:) :: casa_t
 
   INTEGER(KIND=MPI_ADDRESS_KIND) :: r1stride, r2stride, istride
@@ -4850,7 +4850,7 @@ SUBROUTINE master_casa_params(comm, casabiome, casapool, casaflux, casamet, casa
 
      ! MPI: sanity check
      IF (bidx /= ntyp) THEN
-        WRITE(*,*) 'master: invalid number of casa_t param fields ',bidx,', fix it (02)!'
+        WRITE(*,*) 'master: invalid number of casa_t param fields ',bidx, ', fix it (02)!'
         CALL MPI_Abort(comm, 21, ierr)
      END IF
 
@@ -7382,6 +7382,11 @@ SUBROUTINE master_casa_types(comm, casapool, casaflux, casamet, casabal, phen)
 
      bidx = bidx + 1
      CALL MPI_Get_address(casaflux%stemnpp(off), displs(bidx), ierr)
+     blocks(bidx) = r2len
+
+     !this is equivalent MPI code to part of #9238
+     bidx = bidx + 1
+     CALL MPI_Get_address(casaflux%potstemnpp(off), displs(bidx), ierr)
      blocks(bidx) = r2len
 
      bidx = bidx + 1
