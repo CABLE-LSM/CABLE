@@ -12,11 +12,11 @@ Build script wrapper around CMake. Supplied arguments that do not match the
 options below will be passed to CMake when generating the build system.
 
 Options:
-      --clean   Delete build directory before invoking CMake.
-      --mpi     Compile MPI executable.
-      --compiler <compiler>
+  -c, --clean   Delete build directory before invoking CMake.
+  -m, --mpi     Compile MPI executable.
+  -C, --compiler <compiler>
                 Specify the compiler to use.
-      --ncpus <ncpus>
+  -n, --ncpus <ncpus>
                 Specify the number of parallel jobs in the compilation. By
                 default this value is set to $ncpus_default.
   -h, --help    Show this screen.
@@ -39,19 +39,19 @@ cmake_args=(-DCMAKE_BUILD_TYPE=Release -DCABLE_MPI=OFF)
 # Argument parsing adapted and stolen from http://mywiki.wooledge.org/BashFAQ/035#Complex_nonstandard_add-on_utilities
 while [ $# -gt 0 ]; do
     case $1 in
-        --clean)
+        -c|--clean)
             rm -r build bin
             exit
             ;;
-        --mpi)
+        -m|--mpi)
             mpi=1
             cmake_args+=(-DCABLE_MPI="ON")
             ;;
-        --compiler)
+        -C|--compiler)
             compiler=$2
             shift
             ;;
-        --ncpus)
+        -n|--ncpus)
             CMAKE_BUILD_PARALLEL_LEVEL=$2
             shift
             ;;
