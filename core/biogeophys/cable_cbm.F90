@@ -41,199 +41,234 @@ MODULE cable_cbm_module
 CONTAINS
 
    SUBROUTINE cbm(ktau, dels, air, bgc, canopy, met, &
-                  bal, rad, rough, soil, &
-                  ssnow, veg, climate )
+      bal, rad, rough, soil, &
+      ssnow, veg, climate )
 
-   USE cable_common_module
-   USE cable_carbon_module
-   USE cable_soil_snow_module
-   USE cable_def_types_mod
-   USE cable_roughness_module
-   USE cable_radiation_module
-   USE cable_air_module
+      USE cable_common_module
+      USE cable_carbon_module
+      USE cable_soil_snow_module
+      USE cable_def_types_mod
+      USE cable_roughness_module
+      USE cable_radiation_module
+      USE cable_air_module
 #ifndef NO_CASA_YET
-   USE casadimension,     only: icycle ! used in casa_cnp
+      USE casadimension,     only: icycle ! used in casa_cnp
 #endif
-   USE cable_data_module, ONLY: icbm_type, point2constants
-   use cable_sli_main,    only: sli_main
-   USE cable_soil_snow_module, ONLY : soil_snow
-   USE cable_soil_hydraulics_module, ONLY : calc_soil_root_resistance, &
-   calc_swp, calc_weighted_swp_and_frac_uptake
-   USE cable_IO_vars_module, ONLY: logn
-   ! CABLE model variables
-   INTEGER,                   INTENT(IN)    :: ktau
-   REAL,                      INTENT(IN)    :: dels ! time setp size (s)
-   TYPE(air_type),            INTENT(INOUT) :: air
-   TYPE(bgc_pool_type),       INTENT(INOUT) :: bgc
-   TYPE(canopy_type),         INTENT(INOUT) :: canopy
-   TYPE(met_type),            INTENT(INOUT) :: met
-   TYPE(balances_type),       INTENT(INOUT) :: bal
-   TYPE(radiation_type),      INTENT(INOUT) :: rad
-   TYPE(roughness_type),      INTENT(INOUT) :: rough
-   TYPE(soil_parameter_type), INTENT(INOUT) :: soil
-   TYPE(soil_snow_type),      INTENT(INOUT) :: ssnow
-   TYPE(veg_parameter_type),  INTENT(INOUT) :: veg
-   TYPE(climate_type),        INTENT(IN)    :: climate
+      USE cable_data_module, ONLY: icbm_type, point2constants
+      use cable_sli_main,    only: sli_main
+      USE cable_soil_snow_module, ONLY : soil_snow
+      USE cable_soil_hydraulics_module, ONLY : calc_soil_root_resistance, &
+         calc_swp, calc_weighted_swp_and_frac_uptake
+      USE cable_IO_vars_module, ONLY: logn
+      ! CABLE model variables
+      INTEGER,                   INTENT(IN)    :: ktau
+      REAL,                      INTENT(IN)    :: dels ! time setp size (s)
+      TYPE(air_type),            INTENT(INOUT) :: air
+      TYPE(bgc_pool_type),       INTENT(INOUT) :: bgc
+      TYPE(canopy_type),         INTENT(INOUT) :: canopy
+      TYPE(met_type),            INTENT(INOUT) :: met
+      TYPE(balances_type),       INTENT(INOUT) :: bal
+      TYPE(radiation_type),      INTENT(INOUT) :: rad
+      TYPE(roughness_type),      INTENT(INOUT) :: rough
+      TYPE(soil_parameter_type), INTENT(INOUT) :: soil
+      TYPE(soil_snow_type),      INTENT(INOUT) :: ssnow
+      TYPE(veg_parameter_type),  INTENT(INOUT) :: veg
+      TYPE(climate_type),        INTENT(IN)    :: climate
 
-   ! ptrs to local constants
-   TYPE(icbm_type) :: C
-   REAL, DIMENSION(ms) :: root_length
-   integer :: i
+      ! ptrs to local constants
+      TYPE(icbm_type) :: C
+      REAL, DIMENSION(ms) :: root_length, layer_depth, zsetmp, froottmp, frcuptmp
+      integer :: i,k
 #ifdef NO_CASA_YET
-   INTEGER :: ICYCLE
-   ICYCLE = 0
+      INTEGER :: ICYCLE
+      ICYCLE = 0
 #endif
- REAL(KIND=r_2), DIMENSION(mp)   :: SoilMoistPFTtemp 
-   
-   ! assign local ptrs to constants defined in cable_data_module
-   CALL point2constants(C)
+      REAL(KIND=r_2) :: SoilMoistPFTtemp
+      REAL, DIMENSION(ms) :: a
 
-   IF (cable_runtime%um) THEN
-      cable_runtime%um_radiation = .FALSE.
+      ! assign local ptrs to constants defined in cable_data_module
+      CALL point2constants(C)
 
-      IF (cable_runtime%um_explicit) THEN
-         CALL ruff_resist(veg, rough, ssnow, canopy)
-         met%tk = met%tk + C%grav/C%capp*(rough%zref_tq + 0.9*rough%z0m)
+      IF (cable_runtime%um) THEN
+         cable_runtime%um_radiation = .FALSE.
+
+         IF (cable_runtime%um_explicit) THEN
+            CALL ruff_resist(veg, rough, ssnow, canopy)
+            met%tk = met%tk + C%grav/C%capp*(rough%zref_tq + 0.9*rough%z0m)
+         ENDIF
+
+         CALL define_air(met, air)
+      ELSE
+         call ruff_resist(veg, rough, ssnow, canopy)
       ENDIF
 
-      CALL define_air(met, air)
-   ELSE
-      call ruff_resist(veg, rough, ssnow, canopy)
-   ENDIF
+      CALL init_radiation(met, rad, veg, canopy) ! need to be called at every dt
 
-   CALL init_radiation(met, rad, veg, canopy) ! need to be called at every dt
-
-   IF (cable_runtime%um) THEN
-      IF (cable_runtime%um_explicit) THEN
+      IF (cable_runtime%um) THEN
+         IF (cable_runtime%um_explicit) THEN
+            CALL surface_albedo(ssnow, veg, met, rad, soil, canopy)
+         ENDIF
+      ELSE
          CALL surface_albedo(ssnow, veg, met, rad, soil, canopy)
-      ENDIF
-   ELSE
-      CALL surface_albedo(ssnow, veg, met, rad, soil, canopy)
-   ENDIf
+      ENDIf
 
-   !! vh_js !!
+      !! vh_js !!
 
-   ssnow%otss_0 = ssnow%otss  ! vh should be before call to canopy?
-   ssnow%otss   = ssnow%tss
-   ssnow%owetfac = ssnow%wetfac ! MC should also be before canopy
-   ! PH: mgk576, 13/10/17, added two funcs
-   
-   IF (cable_user%SOIL_SCHE == 'hydraulics') THEN
-    
+      ssnow%otss_0 = ssnow%otss  ! vh should be before call to canopy?
+      ssnow%otss   = ssnow%tss
+      ssnow%owetfac = ssnow%wetfac ! MC should also be before canopy
+      ! PH: mgk576, 13/10/17, added two funcs
+
+      !IF (cable_user%SOIL_SCHE == 'hydraulics') THEN
+
       DO i = 1, mp
 
          CALL calc_soil_root_resistance(ssnow, soil, veg, bgc, root_length, i)
          CALL calc_swp(ssnow, soil, i)
          CALL calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, veg, &
-                                                root_length, i)
+            root_length, i)
 
       END DO
-   ELSE
-   ! zihanlu: calculate psi_soil no matter which soil_sche is used
-   !DO i = 1, mp
+      !ELSE
+      ! zihanlu: calculate psi_soil no matter which soil_sche is used
+      !DO i = 1, mp
       !CALL calc_swp(ssnow, soil, i)
       !write(logn,*),'calculate soilMoistPFT'
-      SoilMoistPFTtemp = sum(ssnow%wb * 1000.0_r_2 * real(spread(soil%zse,1,mp),r_2),2)
-      !SoilMoistPFTtemp = real(sum(ssnow%wb * 1000.0_r_2 * real(spread(soil%zse,1,mp),r_2),2),r_2)
-      !write(logn,*),'soilMoistPFT mp1: ',SoilMoistPFTtemp(1)
+      layer_depth(1) = 0.0_r_2
+      do k=2, ms
+         layer_depth(k) = sum(soil%zse(1:k-1))
+      enddo
       DO i = 1, mp
-      ssnow%psi_rootzone(i) = soil%sucs(i) * 9.8 * 0.001 * MAX(1.E-9, MIN(1.0, SoilMoistPFTtemp(i) / &
-            soil%ssat(i))) ** (-soil%bch(i))
+
+         if (cable_user%calSoilMean == 'zW') then
+            zsetmp = soil%zse
+            where (layer_depth > veg%zr(i) )
+               zsetmp = 0
+            endwhere
+
+            SoilMoistPFTtemp = sum(ssnow%wb(i,:) * real(zsetmp,r_2),1) / real(sum(zsetmp),r_2)
+            SoilMoistPFTtemp = sum(zsetmp)
+            ssnow%psi_rootzone(i) = soil%sucs(i) * 9.8 * 0.001 * MAX(1.E-9, MIN(1.0, SoilMoistPFTtemp / &
+               soil%ssat(i))) ** (-soil%bch(i))
+
+         elseif (cable_user%calSoilMean == 'frootW') then
+            froottmp = veg%froot(i,:)
+            where (layer_depth > veg%zr(i) )
+               froottmp = 0
+            endwhere
+            SoilMoistPFTtemp = sum(ssnow%wb(i,:) * froottmp) / sum(froottmp)
+            ssnow%psi_rootzone(i) = soil%sucs(i) * 9.8 * 0.001 * MAX(1.E-9, MIN(1.0, SoilMoistPFTtemp / &
+               soil%ssat(i))) ** (-soil%bch(i))
+         elseif (cable_user%calSoilMean == 'FrcUpW') then
+            frcuptmp = ssnow%fraction_uptake(i,:)
+            where (layer_depth > veg%zr(i) )
+               frcuptmp = 0
+            endwhere
+            SoilMoistPFTtemp = sum(ssnow%wb(i,:) * frcuptmp) / sum(froottmp)
+            ssnow%psi_rootzone(i) = soil%sucs(i) * 9.8 * 0.001 * MAX(1.E-9, MIN(1.0, SoilMoistPFTtemp / &
+               soil%ssat(i))) ** (-soil%bch(i))
+
+         endif
+         !SoilMoistPFTtemp = real(sum(ssnow%wb * 1000.0_r_2 * real(spread(soil%zse,1,mp),r_2),2),r_2)
+
+
+
       END DO
+      !write(logn,*),'psi_rootzone mp1: ',ssnow%psi_rootzone(1)
 
-   ENDIF
+      !ENDIF
 
 
-   ! Calculate canopy variables
-   CALL define_canopy(bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate)
+      ! Calculate canopy variables
+      CALL define_canopy(bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate)
 
-   ! write(*,*) 'hod, TVeg: ', met%hod(1), canopy%fevc(1), canopy%fwsoil(1)
-   ! if (met%hod(1).gt.12.0) stop
+      ! write(*,*) 'hod, TVeg: ', met%hod(1), canopy%fevc(1), canopy%fwsoil(1)
+      ! if (met%hod(1).gt.12.0) stop
 
-   !ssnow%otss_0 = ssnow%otss
-   !ssnow%otss = ssnow%tss
+      !ssnow%otss_0 = ssnow%otss
+      !ssnow%otss = ssnow%tss
 
-   ! RML moved out of following IF after discussion with Eva
-   ! ssnow%owetfac = ssnow%wetfac
+      ! RML moved out of following IF after discussion with Eva
+      ! ssnow%owetfac = ssnow%wetfac
 
-   IF (cable_runtime%um) THEN
-      IF (cable_runtime%um_implicit) THEN
-         CALL soil_snow(dels, soil, ssnow, canopy, met, veg)
+      IF (cable_runtime%um) THEN
+         IF (cable_runtime%um_implicit) THEN
+            CALL soil_snow(dels, soil, ssnow, canopy, met, veg)
+         ENDIF
+      ELSE
+         IF (cable_user%SOIL_STRUC=='default') THEN
+            call soil_snow(dels, soil, ssnow, canopy, met, veg)
+         ELSEIF (cable_user%SOIL_STRUC=='sli') THEN
+            ! print*, 'SLIMAIN01 ', ktau, dels
+            ! call print_cbm_var(veg)
+            ! call print_cbm_var(soil)
+            ! call print_cbm_var(ssnow)
+            ! call print_cbm_var(met)
+            ! call print_cbm_var(canopy)
+            ! call print_cbm_var(air)
+            ! call print_cbm_var(rad)
+            CALL sli_main(ktau, dels, veg, soil, ssnow, met, canopy, air, rad, 0)
+            ! print*, 'SLIMAIN02 ', ktau, dels
+            ! call print_cbm_var(veg)
+            ! call print_cbm_var(soil)
+            ! call print_cbm_var(ssnow)
+            ! call print_cbm_var(met)
+            ! call print_cbm_var(canopy)
+            ! call print_cbm_var(air)
+            ! call print_cbm_var(rad)
+         ENDIF
       ENDIF
-   ELSE
-      IF (cable_user%SOIL_STRUC=='default') THEN
-         call soil_snow(dels, soil, ssnow, canopy, met, veg)
-      ELSEIF (cable_user%SOIL_STRUC=='sli') THEN
-         ! print*, 'SLIMAIN01 ', ktau, dels
-         ! call print_cbm_var(veg)
-         ! call print_cbm_var(soil)
-         ! call print_cbm_var(ssnow)
-         ! call print_cbm_var(met)
-         ! call print_cbm_var(canopy)
-         ! call print_cbm_var(air)
-         ! call print_cbm_var(rad)
-         CALL sli_main(ktau, dels, veg, soil, ssnow, met, canopy, air, rad, 0)
-         ! print*, 'SLIMAIN02 ', ktau, dels
-         ! call print_cbm_var(veg)
-         ! call print_cbm_var(soil)
-         ! call print_cbm_var(ssnow)
-         ! call print_cbm_var(met)
-         ! call print_cbm_var(canopy)
-         ! call print_cbm_var(air)
-         ! call print_cbm_var(rad)
+
+      ssnow%deltss = ssnow%tss-ssnow%otss
+      ! correction required for energy balance in online simulations
+      IF (cable_runtime%um) THEN
+
+         canopy%fhs = canopy%fhs + ( ssnow%tss-ssnow%otss ) * ssnow%dfh_dtg
+
+         canopy%fhs_cor = canopy%fhs_cor + ( ssnow%tss-ssnow%otss ) * ssnow%dfh_dtg
+
+         canopy%fh = canopy%fhv + canopy%fhs
+
+         canopy%fes = canopy%fes + real(ssnow%tss-ssnow%otss, r_2) * &
+            real(ssnow%dfe_ddq * ssnow%ddq_dtg, r_2)
+         !( ssnow%cls * ssnow%dfe_ddq * ssnow%ddq_dtg )
+         canopy%fes_cor = canopy%fes_cor + real(ssnow%tss-ssnow%otss, r_2) * &
+            real(ssnow%cls * ssnow%dfe_ddq * ssnow%ddq_dtg, r_2)
+
       ENDIF
-   ENDIF
 
-   ssnow%deltss = ssnow%tss-ssnow%otss
-   ! correction required for energy balance in online simulations
-   IF (cable_runtime%um) THEN
+      ! need to adjust fe after soilsnow
+      canopy%fev  = real(canopy%fevc) + canopy%fevw
 
-      canopy%fhs = canopy%fhs + ( ssnow%tss-ssnow%otss ) * ssnow%dfh_dtg
+      ! Calculate total latent heat flux:
+      canopy%fe = canopy%fev + real(canopy%fes)
 
-      canopy%fhs_cor = canopy%fhs_cor + ( ssnow%tss-ssnow%otss ) * ssnow%dfh_dtg
+      ! Calculate net radiation absorbed by soil + veg
+      canopy%rnet = canopy%fns + canopy%fnv
 
-      canopy%fh = canopy%fhv + canopy%fhs
+      ! Calculate radiative/skin temperature:
+      rad%trad = ( (1. - rad%transd) * canopy%tv**4 + &
+         rad%transd * ssnow%tss**4 )**0.25
 
-      canopy%fes = canopy%fes + real(ssnow%tss-ssnow%otss, r_2) * &
-                real(ssnow%dfe_ddq * ssnow%ddq_dtg, r_2)
-                !( ssnow%cls * ssnow%dfe_ddq * ssnow%ddq_dtg )
-      canopy%fes_cor = canopy%fes_cor + real(ssnow%tss-ssnow%otss, r_2) * &
-                    real(ssnow%cls * ssnow%dfe_ddq * ssnow%ddq_dtg, r_2)
+      ! rml 17/1/11 move all plant resp and soil resp calculations here
+      ! from canopy. in UM only call on implicit step.
+      ! put old and new soil resp calculations into soilcarb subroutine
+      ! make new plantcarb subroutine
+      IF ((.not. cable_runtime%um_explicit) .AND. (icycle == 0)) THEN
 
-   ENDIF
+         !calculate canopy%frp
+         CALL plantcarb(veg, bgc, met, canopy)
 
-   ! need to adjust fe after soilsnow
-   canopy%fev  = real(canopy%fevc) + canopy%fevw
+         !calculate canopy%frs
+         CALL soilcarb(soil, ssnow, veg, bgc, canopy)
 
-   ! Calculate total latent heat flux:
-   canopy%fe = canopy%fev + real(canopy%fes)
+         CALL carbon_pl(dels, soil, ssnow, veg, canopy, bgc)
 
-   ! Calculate net radiation absorbed by soil + veg
-   canopy%rnet = canopy%fns + canopy%fnv
+         canopy%fnpp = -1.0 * canopy%fpn - canopy%frp
+         canopy%fnee = canopy%fpn + canopy%frs + canopy%frp
 
-   ! Calculate radiative/skin temperature:
-   rad%trad = ( (1. - rad%transd) * canopy%tv**4 + &
-        rad%transd * ssnow%tss**4 )**0.25
+      ENDIF
 
-   ! rml 17/1/11 move all plant resp and soil resp calculations here
-   ! from canopy. in UM only call on implicit step.
-   ! put old and new soil resp calculations into soilcarb subroutine
-   ! make new plantcarb subroutine
-   IF ((.not. cable_runtime%um_explicit) .AND. (icycle == 0)) THEN
-
-      !calculate canopy%frp
-      CALL plantcarb(veg, bgc, met, canopy)
-
-      !calculate canopy%frs
-      CALL soilcarb(soil, ssnow, veg, bgc, canopy)
-
-      CALL carbon_pl(dels, soil, ssnow, veg, canopy, bgc)
-
-      canopy%fnpp = -1.0 * canopy%fpn - canopy%frp
-      canopy%fnee = canopy%fpn + canopy%frs + canopy%frp
-
-   ENDIF
-
-END SUBROUTINE cbm
+   END SUBROUTINE cbm
 
 END MODULE cable_cbm_module

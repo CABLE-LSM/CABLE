@@ -18,7 +18,7 @@ CONTAINS
    SUBROUTINE optimisation(canopy, rad, vpd, press, tleaf, csx, &
       psi_soil, kcmax, kmax, PLCcrit, b_plant, &
       c_plant, N, vcmxt3, ejmxt3, rdx, vx3, cx1, an_canopy, &
-      e_canopy, avg_kcan, gamma_star, p, i)
+      e_canopy, avg_kcan, gamma_star, p, i, gswmin)
       ! zihanlu :ejmxt3 is not used, try to delete it
 
       ! Optimisation wrapper for the ProfitMax model. The Sperry model assumes that
@@ -57,6 +57,7 @@ CONTAINS
       REAL, DIMENSION(mp), INTENT(IN) :: kcmax
       REAL, DIMENSION(mp,mf), INTENT(IN) :: vcmxt3, ejmxt3, rdx, vx3
       REAL(r_2), DIMENSION(mp,mf), INTENT(IN) :: csx
+      REAL, DIMENSION(mf), INTENT(IN) :: gswmin
 
       REAL, INTENT(INOUT) :: e_canopy
       REAL, DIMENSION(mf), INTENT(INOUT) :: an_canopy
@@ -86,7 +87,7 @@ CONTAINS
 
       ! Loop over sunlit, shaded parts of the canopy and solve the carbon uptake
       ! and transpiration
-      DO j=1, 2
+      DO j=1, mf
 
          ! absorbed par for the sunlit or shaded leaf, umol m-2 -s-1
          apar(j) = rad%qcan(i,j,1) * J_TO_MOL * MOL_TO_UMOL
@@ -205,6 +206,7 @@ CONTAINS
 
                an_canopy(j) = -rdx(i,j) * MOL_TO_UMOL ! umol m-2 s-1
                e_leaves(j) = 0. ! mol H2O m-2 s-1
+               canopy%gswx(i,j) = gswmin(j)
 
                ! It's not clear what should happen to the leaf water potential if
                ! there is no light. Setting it to the root zone water potential

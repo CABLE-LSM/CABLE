@@ -3773,7 +3773,7 @@ CONTAINS
           END IF
      END IF
   ! ms8355
-   IF(output%soil .and. cable_user%SOIL_SCHE == 'hydraulics') THEN
+   IF(output%soil) THEN
   !IF(output%soil) THEN
      ! Add current timestep's value to total of temporary output variable:
      out%psi_rootzone = out%psi_rootzone + &
@@ -3793,7 +3793,7 @@ CONTAINS
    END IF
 
    ! mgk576, 19/2/2019
-   IF(output%soil .and. cable_user%SOIL_SCHE == 'hydraulics') THEN
+   IF(output%soil) THEN
    !IF(output%soil) THEN
      ! Add current timestep's value to total of temporary output variable:
      out%psi_soil = out%psi_soil + REAL(ssnow%psi_soil, 4)

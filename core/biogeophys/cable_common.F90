@@ -182,6 +182,7 @@ MODULE cable_common_module
      character(len=200) :: c13o2_restart_out_luc = ''   ! 13CO2 restart LUC output file
      
      character(len=20) :: SOIL_SCHE  ! soil scheme about soil hydraulics process 
+     character(len=20) :: calSoilMean  ! the method to calculate mean soil mositure
   END TYPE kbl_user_switches
 
   ! instantiate internal switches
