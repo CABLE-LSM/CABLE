@@ -145,9 +145,7 @@ CONTAINS
             where (layer_depth > veg%zr(i) )
                zsetmp = 0
             endwhere
-
             SoilMoistPFTtemp = sum(ssnow%wb(i,:) * real(zsetmp,r_2),1) / real(sum(zsetmp),r_2)
-            SoilMoistPFTtemp = sum(zsetmp)
             ssnow%psi_rootzone(i) = soil%sucs(i) * 9.8 * 0.001 * MAX(1.E-9, MIN(1.0, SoilMoistPFTtemp / &
                soil%ssat(i))) ** (-soil%bch(i))
 
@@ -164,7 +162,7 @@ CONTAINS
             where (layer_depth > veg%zr(i) )
                frcuptmp = 0
             endwhere
-            SoilMoistPFTtemp = sum(ssnow%wb(i,:) * frcuptmp) / sum(froottmp)
+            SoilMoistPFTtemp = sum(ssnow%wb(i,:) * frcuptmp) / sum(frcuptmp)
             ssnow%psi_rootzone(i) = soil%sucs(i) * 9.8 * 0.001 * MAX(1.E-9, MIN(1.0, SoilMoistPFTtemp / &
                soil%ssat(i))) ** (-soil%bch(i))
 
