@@ -6,7 +6,7 @@ script_name=$(basename "${0}")
 
 show_help() {
     cat << EOF
-Usage: ./$script_name [OPTIONS]
+Usage: ./${script_name} [OPTIONS]
 
 Build script wrapper around CMake. Supplied arguments that do not match the
 options below will be passed to CMake when generating the build system.
@@ -18,18 +18,18 @@ Options:
                 Specify the compiler to use.
   -n, --ncpus <ncpus>
                 Specify the number of parallel jobs in the compilation. By
-                default this value is set to $ncpus_default.
+                default this value is set to ${ncpus_default}.
   -h, --help    Show this screen.
 
 Enabling debug mode:
 
   The release build is default. To enable debug mode, specify the CMake option
-  -DCMAKE_BUILD_TYPE=Debug when invoking $script_name.
+  -DCMAKE_BUILD_TYPE=Debug when invoking ${script_name}.
 
 Enabling verbose output from Makefile builds:
 
   To enable more verbose output from Makefile builds, specify the CMake option
-  -DCMAKE_VERBOSE_MAKEFILE=ON when invoking $script_name.
+  -DCMAKE_VERBOSE_MAKEFILE=ON when invoking ${script_name}.
 
 EOF
 }
@@ -37,8 +37,8 @@ EOF
 cmake_args=(-DCMAKE_BUILD_TYPE=Release -DCABLE_MPI=OFF)
 
 # Argument parsing adapted and stolen from http://mywiki.wooledge.org/BashFAQ/035#Complex_nonstandard_add-on_utilities
-while [ $# -gt 0 ]; do
-    case $1 in
+while [ ${#} -gt 0 ]; do
+    case ${1} in
         -c|--clean)
             rm -r build bin
             exit
@@ -48,11 +48,11 @@ while [ $# -gt 0 ]; do
             cmake_args+=(-DCABLE_MPI="ON")
             ;;
         -C|--compiler)
-            compiler=$2
+            compiler=${2}
             shift
             ;;
         -n|--ncpus)
-            CMAKE_BUILD_PARALLEL_LEVEL=$2
+            CMAKE_BUILD_PARALLEL_LEVEL=${2}
             shift
             ;;
         -h|--help)
@@ -60,7 +60,7 @@ while [ $# -gt 0 ]; do
             exit
             ;;
         ?*)
-            cmake_args+=("$1")
+            cmake_args+=("${1}")
             ;;
     esac
     shift
@@ -77,12 +77,12 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
         intel)
             module add intel-compiler/2019.5.281
             compiler_lib_install_dir=Intel
-            [[ -n $mpi ]] && module add intel-mpi/2019.5.281
+            [[ -n ${mpi} ]] && module add intel-mpi/2019.5.281
             ;;
         gnu)
             module add gcc/13.2.0
             compiler_lib_install_dir=GNU
-            [[ -n $mpi ]] && module add openmpi/4.1.4
+            [[ -n ${mpi} ]] && module add openmpi/4.1.4
             ;;
         ?*)
             echo -e "\nError: compiler ${compiler} is not supported.\n"
@@ -116,7 +116,7 @@ elif hostname -f | grep -E '(mc16|mcmini)' > /dev/null; then
     esac
 fi
 
-export CMAKE_BUILD_PARALLEL_LEVEL="${CMAKE_BUILD_PARALLEL_LEVEL:=$ncpus_default}"
+export CMAKE_BUILD_PARALLEL_LEVEL="${CMAKE_BUILD_PARALLEL_LEVEL:=${ncpus_default}}"
 
 cmake -S . -B build "${cmake_args[@]}" &&\
 cmake --build build &&\
