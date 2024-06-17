@@ -75,12 +75,17 @@ nav:
     - user_guide/index.md
     - Uber Quick Guide: user_guide/uber_quick_guide.md
     - Installation: user_guide/installation.md
-    - Inputs description:
-      - cable.nml options: user_guide/inputs/cable_nml.md
-      - pft_params.nml options: user_guide/inputs/pft_params_nml.md
-      - cable_soilparm.nml options: user_guide/inputs/cable_soilparm_nml.md
+    - Input files:
+      - user_guide/inputs/index.md
+      - cable.nml: user_guide/inputs/cable_nml.md
+      - pft_params.nml: user_guide/inputs/pft_params_nml.md
+      - cable_soilparm.nml: user_guide/inputs/cable_soilparm_nml.md
       - pftlookup.csv table: user_guide/inputs/pftlookup_csv.md
       - Meteorological forcing: user_guide/inputs/meteorological_forcing.md
+      - Surface forcing: user_guide/inputs/surface_forcing.md
+      - Restart: user_guide/inputs/restart.md
+    - Output files:
+      - user_guide/outputs/index.md
     - Other resources:
       - Existing configurations: user_guide/other_resources/configurations/config.md
       - Obsolete and deprecated features: user_guide/other_resources/obsolete_and_deprecated_features/obsolete_and_deprecated_features.md
