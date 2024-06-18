@@ -6,13 +6,14 @@ Table 1 lists the various input files used in offline CABLE. A description of ea
 
 ## Table 1: CABLE input files for the offline case
 
-|   Input file         	 |
-|------------------------|
-| cable.nml            	 |
-| pft_params.nml       	 |
-| cable_soilparm.nml   	 |
-| pftlookup.csv        	 |           
-| Meteorological forcing |
-| Surface forcing        |
-| Restart                |  
+|   Input file         	 | Description |
+|------------------------|-------------|
+| cable.nml            	 | main configuration file for CABLE |
+| pft_params.nml       	 | default parameter values for each PFT |
+| cable_soilparm.nml   	 | default parameter values for each soil type |
+| pftlookup.csv        	 | default parameter values for CASA-CNP |          
+| Meteorological forcing | atmospheric forcing data for CABLE |
+| Surface forcing        | information about the surface characteristics |
+| Restart                | information from a previous CABLE run to restart a simulation | 
+
 
