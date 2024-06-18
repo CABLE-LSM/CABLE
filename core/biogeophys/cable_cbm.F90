@@ -140,21 +140,44 @@ CONTAINS
       enddo
       DO i = 1, mp
 
+         zsetmp = soil%zse
+         where (layer_depth > veg%zr(i) )
+            zsetmp = 0
+         elsewhere
+            zsetmp = min(veg%zr(i)-layer_depth,soil%zse)
+
+         endwhere
+         ! print *, 'zr:', veg%zr(i)
+         ! print *, 'zse:', soil%zse
+         ! print *, 'zsetmp:', zsetmp
+         ! SoilMoistPFTtemp = sum(ssnow%wb(i,:) * real(zsetmp,r_2),1) / real(sum(zsetmp),r_2)
+         ! ssnow%psi_rootzone(i) = soil%sucs(i) * 9.8 * 0.001 * MAX(1.E-9, MIN(1.0, SoilMoistPFTtemp / &
+         !    soil%ssat(i))) ** (-soil%bch(i))
+         ! print*, 'PSI_rootzone for ZW', SoilMoistPFTtemp,  ssnow%psi_rootzone(i)
+         ! froottmp = veg%froot(i,:)
+         ! SoilMoistPFTtemp = sum(ssnow%wb(i,:) * froottmp * zsetmp) / sum(froottmp * zsetmp)
+         ! ssnow%psi_rootzone(i) = soil%sucs(i) * 9.8 * 0.001 * MAX(1.E-9, MIN(1.0, SoilMoistPFTtemp / &
+         !    soil%ssat(i))) ** (-soil%bch(i))
+         ! print*, 'PSI_rootzone for froot', SoilMoistPFTtemp,  ssnow%psi_rootzone(i)
+         ! frcuptmp = ssnow%fraction_uptake(i,:)
+         ! where (layer_depth > veg%zr(i) )
+         !    frcuptmp = 0
+         ! endwhere
+         ! SoilMoistPFTtemp = sum(ssnow%wb(i,:) * frcuptmp) / sum(frcuptmp)
+         ! ssnow%psi_rootzone(i) = soil%sucs(i) * 9.8 * 0.001 * MAX(1.E-9, MIN(1.0, SoilMoistPFTtemp / &
+         !    soil%ssat(i))) ** (-soil%bch(i))
+         ! print*, 'PSI_rootzone for uptake', SoilMoistPFTtemp,  ssnow%psi_rootzone(i)
+        ! print *, 'zr:', veg%zr(i)
+
          if (cable_user%calSoilMean == 'zW') then
-            zsetmp = soil%zse
-            where (layer_depth > veg%zr(i) )
-               zsetmp = 0
-            endwhere
+
             SoilMoistPFTtemp = sum(ssnow%wb(i,:) * real(zsetmp,r_2),1) / real(sum(zsetmp),r_2)
             ssnow%psi_rootzone(i) = soil%sucs(i) * 9.8 * 0.001 * MAX(1.E-9, MIN(1.0, SoilMoistPFTtemp / &
                soil%ssat(i))) ** (-soil%bch(i))
 
          elseif (cable_user%calSoilMean == 'frootW') then
             froottmp = veg%froot(i,:)
-            where (layer_depth > veg%zr(i) )
-               froottmp = 0
-            endwhere
-            SoilMoistPFTtemp = sum(ssnow%wb(i,:) * froottmp) / sum(froottmp)
+            SoilMoistPFTtemp = sum(ssnow%wb(i,:) * froottmp * zsetmp) / sum(froottmp * zsetmp)
             ssnow%psi_rootzone(i) = soil%sucs(i) * 9.8 * 0.001 * MAX(1.E-9, MIN(1.0, SoilMoistPFTtemp / &
                soil%ssat(i))) ** (-soil%bch(i))
          elseif (cable_user%calSoilMean == 'FrcUpW') then

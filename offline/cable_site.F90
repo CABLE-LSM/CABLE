@@ -55,6 +55,7 @@ MODULE CABLE_site
      REAL :: CO2   ! CO2 for current time step
      REAL :: Ndep  ! Ndep for current time step
      REAL :: Pdep  ! Pdep for current time step
+     REAL :: zr ! root length
   END TYPE site_TYPE
 
   TYPE (site_TYPE):: site  ! Define the variable CRU, of type CRU_TYPE
@@ -86,11 +87,12 @@ CONTAINS
     REAL :: spinCO2 ! ppm (pre-industrial)
     REAL :: spinNdep  ! kgNha-1y-1 (pre-industrial)
     REAL :: spinPdep  ! kgPha-1y-1 (pre-industrial)
+    REAL :: zr ! root maximum length, zihanlu
  
     ! Flag for errors
 
     NAMELIST /siteNML/ RunType, CO2NdepFile, spinstartyear, spinendyear, spinCO2, &
-         spinNdep, spinPdep
+         spinNdep, spinPdep, zr
 
     ! Read site namelist settings
     CALL GET_UNIT(nmlunit)  ! CABLE routine finds spare unit number
@@ -105,7 +107,8 @@ CONTAINS
     site%spinendyear = spinendyear
     site%spinCO2 = spinCO2
     site%spinNdep = spinNdep    
-    site%spinPdep = spinPdep    
+    site%spinPdep = spinPdep
+    site%zr = zr
     ! Print settings
     WRITE(*   ,*)"========================================= SITE INFO  ============"
     WRITE(*   ,*)"site settings chosen:"
