@@ -533,7 +533,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   CHARACTER(LEN=16)   :: CO2Method, NDepMethod
   INTEGER             :: MetRecyc
   REAL                :: DtHrs
-  LOGICAL             :: ReadDiffFrac, LeapYears
+  LOGICAL             :: ReadDiffFrac, LeapYears, DirectRead
 
   ! Need a unit to handle the io
   INTEGER             :: nmlUnit
@@ -572,6 +572,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   NDepMethod = "Yearly"
   MetRecyc = 20
   ReadDiffFrac = .TRUE.
+  DirectRead = .FALSE.
 
   ! Set up and read the namelist
   NAMELIST /crunml/ rainFile, lwdnFile, swdnFile, presFile, qairFile,&
@@ -581,7 +582,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
                     qairRecycle, TmaxRecycle, TminRecycle, uwindRecycle,&
                     vwindRecycle, fdiffRecycle,&
                     ReadDiffFrac, CO2Method, NDepMethod, MetRecyc, LeapYears,&
-                    DtHrs
+                    DtHrs, DirectRead
 
   ! Get a temporary unique ID and use it to read the namelist
   CALL get_unit(nmlUnit)
@@ -624,6 +625,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   CRU%MetRecyc = MetRecyc
   CRU%ReadDiffFrac = ReadDiffFrac
   CRU%LeapYears = LeapYears
+  CRU%DirectRead = DirectRead
 END SUBROUTINE read_MET_namelist_cbl
 
 !------------------------------------------------------------------------------!
