@@ -112,17 +112,17 @@ SUBROUTINE master_blaze_types (comm, wland, wnp, mp, BLAZE, blaze_restart_ts, bl
      END IF
 
      CALL MPI_Type_create_struct (bidx, blocks, displs, types, blaze_in_ts(rank), ierr)
-write(*,*)" CLN ierr1 " , ierr
+!write(*,*)" CLN ierr1 " , ierr
      CALL MPI_Type_commit (blaze_in_ts(rank), ierr)
-write(*,*)" CLN ierr2 " , ierr
+!write(*,*)" CLN ierr2 " , ierr
 
      CALL MPI_Type_size (blaze_in_ts(rank), tsize, ierr)
-write(*,*)" CLN ierr3 " , ierr
+!write(*,*)" CLN ierr3 " , ierr
      CALL MPI_Type_get_extent (blaze_in_ts(rank), tmplb, text, ierr)
-write(*,*)" CLN ierr4 " , ierr
+!write(*,*)" CLN ierr4 " , ierr
 
-     WRITE (*,*) 'input results recv from worker, size, extent, lb: ', &
-   &       rank,tsize,text,tmplb
+ !    WRITE (*,*) 'input results recv from worker, size, extent, lb: ', &
+ !  &       rank,tsize,text,tmplb
 
      totalrecv = totalrecv + tsize
 
@@ -248,17 +248,17 @@ write(*,*)" CLN ierr4 " , ierr
      END IF
 
      CALL MPI_Type_create_struct (bidx, blocks, displs, types, blaze_restart_ts(rank), ierr)
-write(*,*)" CLN ierr1 " , ierr
+!write(*,*)" CLN ierr1 " , ierr
      CALL MPI_Type_commit (blaze_restart_ts(rank), ierr)
-write(*,*)" CLN ierr2 " , ierr
+!write(*,*)" CLN ierr2 " , ierr
 
      CALL MPI_Type_size (blaze_restart_ts(rank), tsize, ierr)
-write(*,*)" CLN ierr3 " , ierr
+!write(*,*)" CLN ierr3 " , ierr
      CALL MPI_Type_get_extent (blaze_restart_ts(rank), tmplb, text, ierr)
-write(*,*)" CLN ierr4 " , ierr
+!write(*,*)" CLN ierr4 " , ierr
 
-     WRITE (*,*) 'restart results recv from worker, size, extent, lb: ', &
-   &       rank,tsize,text,tmplb
+!     WRITE (*,*) 'restart results recv from worker, size, extent, lb: ', &
+!   &       rank,tsize,text,tmplb
 
      totalrecv = totalrecv + tsize
 
@@ -498,8 +498,8 @@ write(*,*)" CLN ierr4 " , ierr
      CALL MPI_Type_size (blaze_out_ts(rank), tsize, ierr)
      CALL MPI_Type_get_extent (blaze_out_ts(rank), tmplb, text, ierr)
 
-     WRITE (*,*) 'restart results recv from worker, size, extent, lb: ', &
-   &       rank,tsize,text,tmplb
+   !  WRITE (*,*) 'restart results recv from worker, size, extent, lb: ', &
+   !&       rank,tsize,text,tmplb
 
      totalrecv = totalrecv + tsize
 
@@ -603,7 +603,7 @@ SUBROUTINE worker_blaze_types(comm, mp, BLAZE, blaze_restart_t, blaze_in_t, blaz
   CALL MPI_Type_size (blaze_in_t, tsize, ierr)
   CALL MPI_Type_get_extent (blaze_in_t, tmplb, text, ierr)
   
-  WRITE (*,*) 'in_blaze struct blocks, size, extent and lb: ',rank,bidx,tsize,text,tmplb
+  !WRITE (*,*) 'in_blaze struct blocks, size, extent and lb: ',rank,bidx,tsize,text,tmplb
   
   ! MPI: check whether total size of received data equals total
   ! data sent by all the workers
@@ -696,7 +696,7 @@ SUBROUTINE worker_blaze_types(comm, mp, BLAZE, blaze_restart_t, blaze_in_t, blaz
   CALL MPI_Type_size (blaze_restart_t, tsize, ierr)
   CALL MPI_Type_get_extent (blaze_restart_t, tmplb, text, ierr)
   
-  WRITE (*,*) 'restart_blaze struct blocks, size, extent and lb: ',rank,bidx,tsize,text,tmplb
+  !WRITE (*,*) 'restart_blaze struct blocks, size, extent and lb: ',rank,bidx,tsize,text,tmplb
   
   ! MPI: check whether total size of received data equals total
   ! data sent by all the workers
@@ -870,7 +870,7 @@ SUBROUTINE worker_blaze_types(comm, mp, BLAZE, blaze_restart_t, blaze_in_t, blaz
   CALL MPI_Type_size (blaze_out_t, tsize, ierr)
   CALL MPI_Type_get_extent (blaze_out_t, tmplb, text, ierr)
   
-  WRITE (*,*) 'restart struct blocks, size, extent and lb: ',rank,bidx,tsize,text,tmplb
+  !WRITE (*,*) 'restart struct blocks, size, extent and lb: ',rank,bidx,tsize,text,tmplb
   
   ! MPI: check whether total size of received data equals total
   ! data sent by all the workers
@@ -989,8 +989,8 @@ SUBROUTINE master_simfire_types(comm, wland, wnp, mp, SF, simfire_restart_ts, si
      CALL MPI_Type_size (simfire_restart_ts(rank), tsize, ierr)
      CALL MPI_Type_get_extent (simfire_restart_ts(rank), tmplb, text, ierr)
 
-     WRITE (*,*) 'restart results recv from worker, size, extent, lb: ', &
-   &       rank,tsize,text,tmplb
+     !WRITE (*,*) 'restart results recv from worker, size, extent, lb: ', &
+   !&       rank,tsize,text,tmplb
 
      totalrecv = totalrecv + tsize
 
@@ -1001,7 +1001,7 @@ SUBROUTINE master_simfire_types(comm, wland, wnp, mp, SF, simfire_restart_ts, si
 
   END DO
     
-  WRITE (*,*) 'total size of simfire restart fields received from all workers: ', totalrecv
+  !WRITE (*,*) 'total size of simfire restart fields received from all workers: ', totalrecv
    
   ! MPI: check whether total size of received data equals total
   ! data sent by all the workers
@@ -1009,7 +1009,7 @@ SUBROUTINE master_simfire_types(comm, wland, wnp, mp, SF, simfire_restart_ts, si
   CALL MPI_Reduce (MPI_IN_PLACE, totalsend, 1, MPI_INTEGER, MPI_SUM, &
     &     0, comm, ierr)
 
-  WRITE (*,*) 'total size of simfire restart fields sent by all workers: ', totalsend
+  !WRITE (*,*) 'total size of simfire restart fields sent by all workers: ', totalsend
 
   IF (totalrecv /= totalsend) THEN
           WRITE (*,*) 'error: simfire restart fields totalsend and totalrecv differ',totalsend,totalrecv
@@ -1068,8 +1068,8 @@ SUBROUTINE master_simfire_types(comm, wland, wnp, mp, SF, simfire_restart_ts, si
      CALL MPI_Type_size (simfire_inp_ts(rank), tsize, ierr)
      CALL MPI_Type_get_extent (simfire_inp_ts(rank), tmplb, text, ierr)
      
-     WRITE (*,*) 'restart results recv from worker, size, extent, lb: ', &
-          &       rank,tsize,text,tmplb
+     !WRITE (*,*) 'restart results recv from worker, size, extent, lb: ', &
+     !     &       rank,tsize,text,tmplb
      
      totalrecv = totalrecv + tsize
      
@@ -1080,7 +1080,7 @@ SUBROUTINE master_simfire_types(comm, wland, wnp, mp, SF, simfire_restart_ts, si
 
   END DO
 
-  WRITE (*,*) 'total size of simfire input fields received from all workers: ', totalrecv
+  !WRITE (*,*) 'total size of simfire input fields received from all workers: ', totalrecv
 
   ! MPI: check whether total size of received data equals total
   ! data sent by all the workers
@@ -1088,7 +1088,7 @@ SUBROUTINE master_simfire_types(comm, wland, wnp, mp, SF, simfire_restart_ts, si
   CALL MPI_Reduce (MPI_IN_PLACE, totalsend, 1, MPI_INTEGER, MPI_SUM, &
     &     0, comm, ierr)
 
-  WRITE (*,*) 'total size of restart fields sent by all workers: ', totalsend
+  !WRITE (*,*) 'total size of restart fields sent by all workers: ', totalsend
 
   IF (totalrecv /= totalsend) THEN
           WRITE (*,*) 'error: restart fields totalsend and totalrecv differ',totalsend,totalrecv
@@ -1168,8 +1168,8 @@ SUBROUTINE master_simfire_types(comm, wland, wnp, mp, SF, simfire_restart_ts, si
         CALL MPI_Type_size (simfire_out_ts(rank), tsize, ierr)
         CALL MPI_Type_get_extent (simfire_out_ts(rank), tmplb, text, ierr)
         
-        WRITE (*,*) 'restart results recv from worker, size, extent, lb: ', &
-             &       rank,tsize,text,tmplb
+        !WRITE (*,*) 'restart results recv from worker, size, extent, lb: ', &
+        !     &       rank,tsize,text,tmplb
         
         totalrecv = totalrecv + tsize
         
@@ -1180,7 +1180,7 @@ SUBROUTINE master_simfire_types(comm, wland, wnp, mp, SF, simfire_restart_ts, si
         
      END DO
      
-     WRITE (*,*) 'total size of restart fields received from all workers: ', totalrecv
+     !WRITE (*,*) 'total size of restart fields received from all workers: ', totalrecv
      
      ! MPI: check whether total size of received data equals total
      ! data sent by all the workers
@@ -1188,7 +1188,7 @@ SUBROUTINE master_simfire_types(comm, wland, wnp, mp, SF, simfire_restart_ts, si
      CALL MPI_Reduce (MPI_IN_PLACE, totalsend, 1, MPI_INTEGER, MPI_SUM, &
           &     0, comm, ierr)
      
-     WRITE (*,*) 'total size of restart fields sent by all workers: ', totalsend
+     !WRITE (*,*) 'total size of restart fields sent by all workers: ', totalsend
      
      IF (totalrecv /= totalsend) THEN
         WRITE (*,*) 'error4: restart fields totalsend and totalrecv differ',totalsend,totalrecv
@@ -1280,7 +1280,7 @@ SUBROUTINE worker_simfire_types(comm, mp, SF, simfire_restart_t, simfire_inp_t, 
   CALL MPI_Type_size (simfire_restart_t, tsize, ierr)
   CALL MPI_Type_get_extent (simfire_restart_t, tmplb, text, ierr)
   
-  WRITE (*,*) 'restart struct blocks, size, extent and lb: ',rank,bidx,tsize,text,tmplb
+  !WRITE (*,*) 'restart struct blocks, size, extent and lb: ',rank,bidx,tsize,text,tmplb
   
   ! MPI: check whether total size of received data equals total
   ! data sent by all the workers
@@ -1317,7 +1317,7 @@ SUBROUTINE worker_simfire_types(comm, mp, SF, simfire_restart_t, simfire_inp_t, 
   CALL MPI_Type_size (simfire_inp_t, tsize, ierr)
   CALL MPI_Type_get_extent (simfire_inp_t, tmplb, text, ierr)
   
-  WRITE (*,*) 'restart struct blocks, size, extent and lb: ',rank,bidx,tsize,text,tmplb
+  !WRITE (*,*) 'restart struct blocks, size, extent and lb: ',rank,bidx,tsize,text,tmplb
   
   ! MPI: check whether total size of received data equals total
   ! data sent by all the workers
@@ -1371,7 +1371,7 @@ SUBROUTINE worker_simfire_types(comm, mp, SF, simfire_restart_t, simfire_inp_t, 
      CALL MPI_Type_size (simfire_out_t, tsize, ierr)
      CALL MPI_Type_get_extent (simfire_out_t, tmplb, text, ierr)
   
-     WRITE (*,*) 'restart struct blocks, size, extent and lb: ',rank,bidx,tsize,text,tmplb
+     !WRITE (*,*) 'restart struct blocks, size, extent and lb: ',rank,bidx,tsize,text,tmplb
      
      ! MPI: check whether total size of received data equals total
      ! data sent by all the workers
