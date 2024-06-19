@@ -409,7 +409,8 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
 
     ! CRU%CTStep is the current day, which we use to index the netCDF arrays
     CALL read_metvals(CRU%MetDatasets(VarIndx), CRU%Met(VarIndx)%MetVals,&
-      land_x, land_y, MetYear, CRU%CTStep, CRU%LeapYears)
+      land_x, land_y, MetYear, CRU%CTStep, CRU%LeapYears, CRU%xDimSize,&
+      CRU%yDimSize, CRU%DirectRead)
   END DO IterateVariables
 
   ! Only read the DiffFrac sometimes, with the same process as the rest of the
@@ -422,7 +423,8 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
     END IF
 
     CALL read_metvals(CRU%MetDatasets(10), CRU%Met(10)%MetVals, land_x, land_y,&
-      MetYear, CRU%CTStep, CRU%LeapYears)
+      MetYear, CRU%CTStep, CRU%LeapYears, CRU%xDimSize, CRU%yDimSize,&
+      CRU%DirectRead)
   END IF
 
   ! Now the variables with special handling- nextTmin and prevTmax
@@ -465,7 +467,8 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
   ! Now we just need to call cru_read_metvals with the Tmax Dataset reader and
   ! the prevTmax array to write to
   CALL read_metvals(CRU%MetDatasets(6), CRU%Met(11)%MetVals, land_x, land_y,&
-    DummyYear, DummyDay, CRU%LeapYears)
+    DummyYear, DummyDay, CRU%LeapYears, CRU%xDimSize, CRU%yDimSize,&
+    CRU%DirectRead)
 
   ! Now do nextTmin
   ! Check what the day is, and whether we need to change the year
@@ -491,7 +494,8 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
   END IF
 
   CALL read_metvals(CRU%MetDatasets(7), CRU%Met(12)%MetVals, land_x, land_y,&
-    DummyYear, DummyDay, CRU%LeapYears)
+    DummyYear, DummyDay, CRU%LeapYears, CRU%xDimSize, CRU%yDimSize,&
+    CRU%DirectRead)
 
 END SUBROUTINE cru_get_daily_met
 
@@ -1015,15 +1019,30 @@ SUBROUTINE get_cru_ndep(CRU)
   ! And finally grab the data. Since we're using landmask, we have to extract
   ! the full set of data first and then read the unmasked points into the NDep
   ! values.
-  ALLOCATE(TmpArray(CRU%xDimSize, CRU%yDimSize))
+  IF (CRU%DirectRead) THEN
 
-  ApplyLandmask: DO GridCell = 1, CRU%mLand
-    ok = NF90_GET_VAR(CRU%NDepFID, CRU%NDepVID, CRU%NDepVals(GridCell),&
-    START = (/land_x(GridCell), land_y(GridCell), TimeIndex/))
+    ApplyLandmaskDirect: DO GridCell = 1, CRU%mLand
+      ok = NF90_GET_VAR(CRU%NDepFID, CRU%NDepVID, CRU%NDepVals(GridCell),&
+      START = (/land_x(GridCell), land_y(GridCell), TimeIndex/))
+      IF (ok /= NF90_NOERR) THEN
+        CALL handle_err(ok, "Reading from NDep")
+      END IF
+    END DO ApplyLandMaskDirect
+  ELSE
+
+    ALLOCATE(TmpArray(CRU%xDimSize, CRU%yDimSize))
+
+    ok = NF90_GET_VAR(CRU%NDepFID, CRU%NDepVID, TmpArray,&
+      START = (/1, 1, TimeIndex/), COUNT = (/CRU%xDimSize, CRU%yDimSize, 1/))
     IF (ok /= NF90_NOERR) THEN
       CALL handle_err(ok, "Reading from NDep")
     END IF
-  END DO ApplyLandMask
+
+    ApplyLandmaskIndirect: DO GridCell = 1, CRU%mLand
+      CRU%NDepVals(GridCell) = TmpArray(land_x(GridCell), land_y(GridCell))
+    END DO ApplyLandmaskIndirect
+  END IF
+
 
 END SUBROUTINE get_cru_ndep
 

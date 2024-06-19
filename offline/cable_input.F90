@@ -3167,7 +3167,7 @@ END SUBROUTINE find_variable_ID
 !==============================================================================
 
 SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
-    LeapYears)
+    LeapYears, xDimSize, yDimSize, DirectRead)
   !*## Purpose
   !
   ! Read the met forcing values for a given date into the met data array.
@@ -3184,7 +3184,10 @@ SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
   INTEGER, DIMENSION(:), POINTER, INTENT(IN)    :: LandIDx, LandIDy
 
   INTEGER, INTENT(IN) :: DayOfYear, Year
-  LOGICAL, INTENT(IN) :: LeapYears
+  LOGICAL, INTENT(IN) :: LeapYears, DirectRead
+  
+  ! Size of the global data array
+  INTEGER, INTENT(IN) :: xDimSize, yDimSize
 
   ! We'll need to compute the record index to grab
   INTEGER     :: YearIndex, TimeIndex
@@ -3194,6 +3197,9 @@ SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
 
   ! Status checker
   INTEGER  :: ok
+
+  ! Temporary array to store the data read from file
+  REAL, DIMENSION(:, :), ALLOCATABLE  :: TmpArray
 
   TimeIndex = DayOfYear
   YearIndex = Year
@@ -3255,20 +3261,37 @@ SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
       END IF
     END DO CountDays
   ELSE
-    TimeIndex = TimeIndex + 365 * (YearIndex - STD%StartYear(STD%CurrentFileIndx))
+    TimeIndex = TimeIndex + 365 * (YearIndex -&
+      STD%StartYear(STD%CurrentFileIndx))
   END IF
   ! Now we have the index, we can grab the data
 
   ! Read from the netCDF file to the masked array point by point
-  ApplyMask: DO LandCell = 1, SIZE(LandIDx)
-    ok = NF90_GET_VAR(STD%CurrentFileID,&
-      STD%CurrentVarID, DataArr(LandCell), START = (/LandIDx(LandCell),&
-      LandIDy(LandCell), TimeIndex/))
+  IF (DirectRead) THEN
+    ApplyMaskDirect: DO LandCell = 1, SIZE(LandIDx)
+      ok = NF90_GET_VAR(STD%CurrentFileID,&
+        STD%CurrentVarID, DataArr(LandCell), START = (/LandIDx(LandCell),&
+        LandIDy(LandCell), TimeIndex/))
       IF (ok /= NF90_NOERR) THEN
         CALL handle_err(ok, "Failed reading "//STD%FileNames&
           (STD%CurrentFileIndx)//" in read_metvals.")
       END IF
-  END DO ApplyMask
+    END DO ApplyMaskDirect
+  ELSE
+
+    ALLOCATE(TmpArray(xDimSize, yDimSize))
+
+    ok = NF90_GET_VAR(STD%CurrentFileID, STD%CurrentVarID, TmpArray,&
+      START = (/1, 1, TimeIndex/), COUNT = (/xDimSize, yDimSize, 1/))
+    IF (ok /= NF90_NOERR) THEN
+      CALL handle_err(ok, "Failed reading "//STD%FileNames&
+        (STD%CurrentFileIndx)//" in read_metvals.")
+    END IF
+
+    ApplyLandmaskIndirect: DO LandCell = 1, SIZE(LandIDx)
+      DataArr(LandCell) = TmpArray(LandIDx(LandCell), LandIDy(LandCell))
+    END DO ApplyLandmaskIndirect
+  END IF
 
 END SUBROUTINE read_metvals
 
