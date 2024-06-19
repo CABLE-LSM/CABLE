@@ -1139,7 +1139,8 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
     integer(i4b)   :: iday
     integer(i4b)   :: iland       ! Loop counter through mland land cells
     integer(i4b)   :: is, ie      ! For each land cell, the start and ending index position within the larger cable spatial
-                                  ! vectors of the first and last tile for that land cell. 
+                                  ! vectors of the first and last tile for that land cell.
+    real(sp),parameter:: min_vp = 0.1   !minimum value of vapour pressure allowed (hPa)
 
     met%hod (landpt(:)%cstart) = REAL(MOD( (ktau-1) * NINT(dels), INT(SecDay)) ) / 3600.
     met%doy (landpt(:)%cstart) = INT(REAL(ktau-1) * dels / SecDay ) + 1
@@ -1247,17 +1248,18 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
 
        WG%VapPmbDay = esatf(tairmin_day)
 
+       !apply minimum value to vapour pressure to prevent negaive values
        IF (TRIM(vp0900_file) .NE. 'none') THEN
-          WG%VapPmb0900 = vp0900
-          WG%VapPmb1500 = vp1500
-          WG%VapPmb1500Prev = prev_vp1500
-          WG%VapPmb0900Next = next_vp0900
+          WG%VapPmb0900 = MAX(vp0900, min_vp)
+          WG%VapPmb1500 = MAX(vp1500, min_vp)
+          WG%VapPmb1500Prev = MAX(prev_vp1500, min_vp)
+          WG%VapPmb0900Next = MAX(next_vp0900, min_vp)
        
        ELSE
-          WG%VapPmb0900 =  WG%VapPmbDay 
-          WG%VapPmb1500 =   WG%VapPmbDay 
-          WG%VapPmb1500Prev =  WG%VapPmbDay 
-          WG%VapPmb0900Next =  WG%VapPmbDay
+          WG%VapPmb0900 =  MAX(WG%VapPmbDay, min_vp) 
+          WG%VapPmb1500 =   MAX(WG%VapPmbDay, min_vp) 
+          WG%VapPmb1500Prev =  MAX(WG%VapPmbDay, min_vp) 
+          WG%VapPmb0900Next =  MAX(WG%VapPmbDay, min_vp)
        ENDIF
 
        if (swdown_file(1:4) .eq. 'rsds') then
