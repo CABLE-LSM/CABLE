@@ -3110,10 +3110,8 @@ SUBROUTINE open_at_first_file(Dataset)
 
   ok = NF90_OPEN(Dataset%FileNames(Dataset%CurrentFileIndx), NF90_NOWRITE,&
     Dataset%CurrentFileID)
-  IF (ok /= NF90_NOERR) THEN
-    CALL handle_err(ok, "Error opening "//Dataset%FileNames&
-      (Dataset%CurrentFileIndx)//" in open_at_first_file.")
-  END IF
+  CALL handle_err(ok, "Error opening "//Dataset%FileNames&
+    (Dataset%CurrentFileIndx)//" in open_at_first_file.")
 
   ! Find the NetCDF name associated with the variable
   CALL find_variable_ID(Dataset)
@@ -3145,10 +3143,8 @@ SUBROUTINE find_variable_ID(Dataset)
   END DO FindVar
 
   ! Handle the case where we don't find the variable
-  IF (ok /= NF90_NOERR) THEN
-    CALL handle_err(ok, "Error finding desired variable in "//Dataset%FileNames&
-      (Dataset%CurrentFileIndx))
-  END IF
+  CALL handle_err(ok, "Error finding desired variable in "//Dataset%FileNames&
+    (Dataset%CurrentFileIndx))
 
 END SUBROUTINE find_variable_ID
 
@@ -3272,10 +3268,8 @@ SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
       ok = NF90_GET_VAR(STD%CurrentFileID,&
         STD%CurrentVarID, DataArr(LandCell), START = (/LandIDx(LandCell),&
         LandIDy(LandCell), TimeIndex/))
-      IF (ok /= NF90_NOERR) THEN
-        CALL handle_err(ok, "Failed reading "//STD%FileNames&
-          (STD%CurrentFileIndx)//" in read_metvals.")
-      END IF
+      CALL handle_err(ok, "Failed reading "//STD%FileNames&
+        (STD%CurrentFileIndx)//" in read_metvals.")
     END DO ApplyMaskDirect
   ELSE
 
@@ -3283,10 +3277,8 @@ SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
 
     ok = NF90_GET_VAR(STD%CurrentFileID, STD%CurrentVarID, TmpArray,&
       START = (/1, 1, TimeIndex/), COUNT = (/xDimSize, yDimSize, 1/))
-    IF (ok /= NF90_NOERR) THEN
-      CALL handle_err(ok, "Failed reading "//STD%FileNames&
-        (STD%CurrentFileIndx)//" in read_metvals.")
-    END IF
+    CALL handle_err(ok, "Failed reading "//STD%FileNames&
+      (STD%CurrentFileIndx)//" in read_metvals.")
 
     ApplyLandmaskIndirect: DO LandCell = 1, SIZE(LandIDx)
       DataArr(LandCell) = TmpArray(LandIDx(LandCell), LandIDy(LandCell))

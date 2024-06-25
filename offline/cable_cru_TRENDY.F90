@@ -1026,9 +1026,7 @@ SUBROUTINE get_cru_ndep(CRU)
     ApplyLandmaskDirect: DO GridCell = 1, CRU%mLand
       ok = NF90_GET_VAR(CRU%NDepFID, CRU%NDepVID, CRU%NDepVals(GridCell),&
       START = (/land_x(GridCell), land_y(GridCell), TimeIndex/))
-      IF (ok /= NF90_NOERR) THEN
-        CALL handle_err(ok, "Reading from NDep")
-      END IF
+      CALL handle_err(ok, "Reading from NDep")
     END DO ApplyLandMaskDirect
   ELSE
 
@@ -1036,9 +1034,7 @@ SUBROUTINE get_cru_ndep(CRU)
 
     ok = NF90_GET_VAR(CRU%NDepFID, CRU%NDepVID, TmpArray,&
       START = (/1, 1, TimeIndex/), COUNT = (/CRU%xDimSize, CRU%yDimSize, 1/))
-    IF (ok /= NF90_NOERR) THEN
-      CALL handle_err(ok, "Reading from NDep")
-    END IF
+    CALL handle_err(ok, "Reading from NDep")
 
     ApplyLandmaskIndirect: DO GridCell = 1, CRU%mLand
       CRU%NDepVals(GridCell) = TmpArray(land_x(GridCell), land_y(GridCell))
