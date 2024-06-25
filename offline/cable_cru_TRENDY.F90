@@ -114,29 +114,19 @@ SUBROUTINE CRU_INIT(CRU)
   ! Read the landmask and allocate appropriate memory for the array variables
   CALL read_landmask(InputFiles(13), CRU)
 
-  ! We know that the first 9 Met variables (indices 1-9) are always going to be
-  ! time series, so always build their SPATIO_TEMPORAL_DATASET derived types.
-  BuildKeys: DO VarIndx = 1, 9
+  ! Build the spatio-temporal datasets for each necessary datatype
+  BuildKeys: DO VarIndx = 1, CRU%nMet
     CALL prepare_spatiotemporal_dataset(InputFiles(VarIndx),&
       CRU%MetDatasets(VarIndx))
   END DO BuildKeys
-
-  ! Build the SPATIO_TEMPORAL_DATASET for fdiff if requested
-  IF (CRU%ReadDiffFrac) THEN
-    CALL prepare_spatiotemporal_dataset(InputFiles(10), CRU%MetDatasets(10))
-  END IF
 
   ! Set the possible variable names for the main Met variables
   CALL read_variable_names(CRU%MetDatasets)
 
   ! Open the datasets at the first file so we don't need CALL1 behaviour later
-  InitialiseDatasets: DO VarIndx = 1, 9
+  InitialiseDatasets: DO VarIndx = 1, CRU%nMet
     CALL open_at_first_file(CRU%MetDatasets(VarIndx))
   END DO InitialiseDatasets
-
-  IF (CRU%ReadDiffFrac) THEN
-    CALL open_at_first_file(CRU%MetDatasets(10))
-  END IF
 
   ! Set up the carbon reader
   CALL prepare_temporal_dataset(InputFiles(11), CRU%CO2Vals)
@@ -344,7 +334,7 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)
      !       met%precip_sn(is:ie) = 0.6* met%precip(is:ie)
      !    elseif ((WG%Temp(iland) <= 2.0) .and. (WG%Temp(iland) > 0.0)) then
      !       ! this factor can be > 1 !!!
-     !       met%precip_sn(is:ie) = (1.0 - (54.62 - 0.2 *(WG%Temp(iland) + 273.15)))* met%precip(is:ie)trailer made it look like a Godzilla story told from the personal perspective of Bryan Cranston as an 'everyman' type character. But then
+     !       met%precip_sn(is:ie) = (1.0 - (54.62 - 0.2 *(WG%Temp(iland) + 273.15)))* met%precip(is:ie)
      !    elseif (WG%Temp(iland) <= 0.0) then
      !       met%precip_sn(is:ie) = met%precip(is:ie)
      !    endif
@@ -379,18 +369,14 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
   TYPE(CRU_TYPE), INTENT(INOUT)   :: CRU
   LOGICAL, INTENT(IN)             :: LastDayOfYear
 
-  ! One of the tricky things here is the requirement to have the previous and
-  ! next days Tmax and Tmin. This is handled by the dataset reader, if we try to
-  ! read outside the range of our data, we just use the first/last record.
-
   ! The year of met forcing we use depends on our choice of configuration.
   ! Sometimes, recycle through a subset of data, and others we use the sim year.
   ! So we want to store both.
   INTEGER   :: RecycledYear, MetYear
 
   ! We want to handle the nextTmin and prevTmax things separately so we don't
-  ! mess with the data stored in CRU
-  INTEGER   :: DummyYear, DummyDay
+  ! mess with the data stored in CRU, initialise variables to handle this
+  INTEGER   :: DummyYear, DummyDay, LastDayOfYear
 
   ! Define iteration variable
   INTEGER   :: VarIndx
@@ -399,12 +385,11 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
   RecycledYear = 1901 + MOD(CRU%cYear - 1501, CRU%metRecyc)
 
   ! Iterate through the base variables
-  IterateVariables: DO VarIndx = 1, 9
+  IterateVariables: DO VarIndx = 1, CRU%nMet
+    MetYear = CRU%cYear
     ! If the variable is time recycled
     IF (CRU%isRecycled(VarIndx)) THEN
       MetYear = RecycledYear
-    ELSE
-      MetYear = CRU%cYear
     END IF
 
     ! CRU%CTStep is the current day, which we use to index the netCDF arrays
@@ -412,20 +397,6 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
       land_x, land_y, MetYear, CRU%CTStep, CRU%LeapYears, CRU%xDimSize,&
       CRU%yDimSize, CRU%DirectRead)
   END DO IterateVariables
-
-  ! Only read the DiffFrac sometimes, with the same process as the rest of the
-  ! met variables
-  IF (CRU%ReadDiffFrac) THEN
-    IF (CRU%isRecycled(10)) THEN
-      MetYear = RecycledYear
-    ELSE
-      MetYear = CRU%cYear
-    END IF
-
-    CALL read_metvals(CRU%MetDatasets(10), CRU%Met(10)%MetVals, land_x, land_y,&
-      MetYear, CRU%CTStep, CRU%LeapYears, CRU%xDimSize, CRU%yDimSize,&
-      CRU%DirectRead)
-  END IF
 
   ! Now the variables with special handling- nextTmin and prevTmax
   ! The easiest way to do this is to simply change the day by 1, check if we
@@ -436,7 +407,11 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
   ! evil.
 
   ! Address prevTmax first
-  ! Check what the day is, and whether we need to change the year
+  ! Assume it's a regular day of the year
+  DummyYear = CRU%cYear
+  DummyDay = CRU%CTStep - 1
+
+  ! Special handling at the first day of the year
   IF (CRU%CTSTEP == 1) THEN
     ! Go back to previous year
     DummyYear = CRU%cYear - 1
@@ -451,50 +426,43 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
       ! No leapyears
       DummyDay = 365
     END IF
-  ELSE
-    ! Not the first day of the year, treat normally
-    DummyYear = CRU%cYear
-    DummyDay = CRU%CTStep - 1
   END IF
 
   ! Was the Tmax recycled?
-  IF (CRU%isRecycled(6)) THEN
+  IF (CRU%isRecycled(Tmax)) THEN
     DummyYear = 1901 + MOD(DummyYear - 1501, CRU%metRecyc)
-  ELSE
-    DummyYear = DummyYear
   END IF
 
   ! Now we just need to call cru_read_metvals with the Tmax Dataset reader and
   ! the prevTmax array to write to
-  CALL read_metvals(CRU%MetDatasets(6), CRU%Met(11)%MetVals, land_x, land_y,&
-    DummyYear, DummyDay, CRU%LeapYears, CRU%xDimSize, CRU%yDimSize,&
+  CALL read_metvals(CRU%MetDatasets(Tmax), CRU%Met(prevTmax)%MetVals, land_x,&
+    land_y, DummyYear, DummyDay, CRU%LeapYears, CRU%xDimSize, CRU%yDimSize,&
     CRU%DirectRead)
 
   ! Now do nextTmin
-  ! Check what the day is, and whether we need to change the year
-  ! This changes whether its a leapyear or not
-  IF ((CRU%LeapYears) .AND. (CRU%CTStep == 366)) THEN
-    ! We're at the last day of a leapyear
+  ! Assume it's a regular day of the year
+  DummyDay = CRU%CTStep + 1
+  DummyYear = CRU%cYear
+
+  ! Special handling at the last day of the year
+  LastDayOfYear = 365
+  IF (CRU%LeapYears) THEN
+    LastDayOfYear = 366
+  END IF
+
+  IF (CRU%CTStep == LastDayOfYear) THEN
+    ! We're at the end of a year
     DummyDay = 1
     DummyYear = CRU%cYear + 1
-  ELSEIF (CRU%CTStep == 365) THEN
-    ! We're at the end of a normal year
-    DummyDay = 1
-    DummyYear = CRU%cYear + 1
-  ELSE
-    DummyDay = CRU%CTStep + 1
-    DummyYear = CRU%cYear
   END IF
 
   ! Was the Tmin recycled?
-  IF (CRU%isRecycled(7)) THEN
+  IF (CRU%isRecycled(Tmin)) THEN
     DummyYear = 1901 + MOD(DummyYear - 1501, CRU%metRecyc)
-  ELSE
-    DummyYear = DummyYear
   END IF
 
-  CALL read_metvals(CRU%MetDatasets(7), CRU%Met(12)%MetVals, land_x, land_y,&
-    DummyYear, DummyDay, CRU%LeapYears, CRU%xDimSize, CRU%yDimSize,&
+  CALL read_metvals(CRU%MetDatasets(Tmin), CRU%Met(nextTmin)%MetVals, land_x,&
+    land_y, DummyYear, DummyDay, CRU%LeapYears, CRU%xDimSize, CRU%yDimSize,&
     CRU%DirectRead)
 
 END SUBROUTINE cru_get_daily_met
@@ -591,31 +559,31 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   CLOSE(nmlUnit)
 
   ! Now pack the filepaths into the data structure we want to transport around
-  InputFiles(1) = rainFile
-  InputFiles(2) = lwdnFile
-  InputFiles(3) = swdnFile
-  InputFiles(4) = presFile
-  InputFiles(5) = qairFile
-  InputFiles(6) = TmaxFile
-  InputFiles(7) = TminFile
-  InputFiles(8) = uwindFile
-  InputFiles(9) = vwindFile
-  InputFiles(10) = fdiffFile
+  InputFiles(rain) = rainFile
+  InputFiles(lwdn) = lwdnFile
+  InputFiles(swdn) = swdnFile
+  InputFiles(pres) = presFile
+  InputFiles(qair) = qairFile
+  InputFiles(Tmax) = TmaxFile
+  InputFiles(Tmin) = TminFile
+  InputFiles(uwind) = uwindFile
+  InputFiles(vwind) = vwindFile
+  InputFiles(fdiff) = fdiffFile
   InputFiles(11) = CO2File
   InputFiles(12) = NDepFile
   InputFiles(13) = landmaskFile
 
   ! Set the recycling booleans in the CRU struct
-  CRU%IsRecycled(1) = rainRecycle
-  CRU%IsRecycled(2) = lwdnRecycle
-  CRU%IsRecycled(3) = swdnRecycle
-  CRU%IsRecycled(4) = presRecycle
-  CRU%IsRecycled(5) = qairRecycle
-  CRU%IsRecycled(6) = TmaxRecycle
-  CRU%IsRecycled(7) = TminRecycle
-  CRU%IsRecycled(8) = uwindRecycle
-  CRU%IsRecycled(9) = vwindRecycle
-  CRU%IsRecycled(10) = fdiffRecycle
+  CRU%IsRecycled(rain) = rainRecycle
+  CRU%IsRecycled(lwdn) = lwdnRecycle
+  CRU%IsRecycled(swdn) = swdnRecycle
+  CRU%IsRecycled(pres) = presRecycle
+  CRU%IsRecycled(qair) = qairRecycle
+  CRU%IsRecycled(Tmax) = TmaxRecycle
+  CRU%IsRecycled(Tmin) = TminRecycle
+  CRU%IsRecycled(uwind) = uwindRecycle
+  CRU%IsRecycled(vwind) = vwindRecycle
+  CRU%IsRecycled(fdiff) = fdiffRecycle
 
   ! Bind the remaining config variables to the CRU structure
   CRU%CO2Method = CO2Method
@@ -626,6 +594,14 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   CRU%ReadDiffFrac = ReadDiffFrac
   CRU%LeapYears = LeapYears
   CRU%DirectRead = DirectRead
+
+  ! Set the number of met variables, based on ReadDiffFrac
+  IF (CRU%ReadDiffFrac) THEN
+    CRU%nMet = 10
+  ELSE
+    CRU%nMet = 9
+  END IF
+
 END SUBROUTINE read_MET_namelist_cbl
 
 !------------------------------------------------------------------------------!
@@ -838,7 +814,7 @@ END SUBROUTINE read_landmask
 SUBROUTINE prepare_temporal_dataset(FileName, TargetArray)
   !*## Purpose
   !
-  ! Read the CO2 dataset.
+  ! Read a temporally varying dataset that exists as a text file.
   !
   !## Method
   !
