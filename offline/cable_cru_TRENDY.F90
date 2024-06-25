@@ -684,13 +684,10 @@ SUBROUTINE read_landmask(LandmaskFile, CRU)
   TYPE(cru_type), INTENT(INOUT)   :: CRU
 
   ! Assign an integer to store the file ID, and to record the error status
-  INTEGER       :: FileID, ErrStatus
+  INTEGER       :: FileID, ok
 
   ! And some IDs to store the latitude, longitude and mask variable IDs
   INTEGER       :: LatID, LonID, LandID
-
-  ! Need the lengths of the axes
-  !INTEGER       :: xDimSize, yDimSize
 
   ! And then the actual values along the axes
   REAL, DIMENSION(:), ALLOCATABLE :: Latitudes, Longitudes
@@ -701,48 +698,47 @@ SUBROUTINE read_landmask(LandmaskFile, CRU)
   INTEGER, DIMENSION(:,:), ALLOCATABLE :: LandMask
 
   ! Now we attempt to read the netCDF file
-  ErrStatus = NF90_OPEN(TRIM(LandmaskFile), nf90_nowrite, FileID)
-  IF (ErrStatus /= NF90_NOERR) THEN
-    CALL NC_ABORT(ErrStatus, "Error reading the landmask file.")
-  END IF
+  ok = NF90_OPEN(TRIM(LandmaskFile), nf90_nowrite, FileID)
+  handle_err(ok, "Error opening landmask file at "//TRIM(LandmaskFile))
 
   ! Inquire about the latitude and longitude dimensions
-  ErrStatus = nf90_inq_dimid(FileID, 'latitude', LatID)
-  IF (ErrStatus /= NF90_NOERR) THEN
-    CALL NC_ABORT(ErrStatus, "Error reading the latitude ID.")
-  END IF
-  ErrStatus = nf90_inquire_dimension(FileID, LatID, LEN = yDimSize)
-  IF (ErrStatus /= NF90_NOERR) THEN
-    CALL NC_ABORT(ErrStatus, "Error reading the latitude length.")
-  END IF
+  ok = NF90_INQ_DIMID(FileID, 'latitude', LatID)
+  CALL handle_err(ok, "Error finding latitude DIMID.")
 
-  ErrStatus = nf90_inq_dimid(FileID, 'longitude', LonID)
-  IF (ErrStatus /= NF90_NOERR) THEN
-    CALL NC_ABORT(ErrStatus, "Error reading the longitude ID.")
-  END IF
-  ErrStatus = nf90_inquire_dimension(FileID, LonID, LEN = xDimSize)
-  IF (ErrStatus /= NF90_NOERR) THEN
-    CALL NC_ABORT(ErrStatus, "Error reading the longitude length.")
-  END IF
+  ok = NF90_INQUIRE_DIMENSION(FileID, LatID, LEN = yDimSize)
+  CALL handle_err(ok, "Error inquiring latitude dimension.")
+
+  ok = NF90_INQ_DIMID(FileID, 'longitude', LonID)
+  CALL handle_err(ok, "Error finding longitude DIMID.")
+
+  ok = NF90_INQUIRE_DIMENSION(FileID, LonID, LEN = xDimSize)
+  CALL handle_err(ok, "Error inquiring longitude dimension.")
 
   ! And read the dimensions into arrays
   ALLOCATE(Latitudes(yDimSize))
-  ErrStatus = nf90_inq_varid(FileID, 'latitude', LatID)
-  ErrStatus = nf90_get_var(FileID, LatID, Latitudes)
+  ok = NF90_INQ_VARID(FileID, 'latitude', LatID)
+  call handle_err(ok, "Error finding latitude VARID.")
+  ok = NF90_GET_VAR(FileID, LatID, Latitudes)
+  call handle_err(ok, "Error reading latitude variable.")
 
   ALLOCATE(Longitudes(xDimSize))
-  ErrStatus = nf90_inq_varid(FileID, 'longitude', LonID)
-  ErrStatus = nf90_get_var(FileID, LonID, Longitudes)
+  ok = NF90_INQ_VARID(FileID, 'longitude', LonID)
+  call handle_err(ok, "Error finding longitude VARID.")
+  ok = NF90_GET_VAR(FileID, LonID, Longitudes)
+  call handle_err(ok, "Error reading longitude variable.")
 
   ! Now read the mask, this mask is an integer (0/1) version
   ALLOCATE(mask(xDimSize, yDimSize))
   ALLOCATE(LandMask(xDimSize, yDimSize))
   ALLOCATE(CRU%LandMask(xDimSize, yDimSize))
-  ErrStatus = nf90_inq_varid(FileID, 'land', LandID)
-  ErrStatus = nf90_get_var(FileID, LandID, LandMask)
+  ok = NF90_INQ_VARID(FileID, 'land', LandID)
+  CALL handle_err(ok, "Error finding land VARID.")
+  ok = NF90_GET_VAR(FileID, LandID, LandMask)
+  CALL handle_err(ok, "Error reading land variable.")
 
   ! Finally close the mask file
-  ErrStatus = nf90_close(FileID)
+  ok = NF90_CLOSE(FileID)
+  CALL handle_err(ok, "Error closing landmask file.")
 
   ! For some reason we also want a logical version
   !CRU%LandMask = to_logical(mask)
