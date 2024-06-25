@@ -3117,6 +3117,64 @@ SUBROUTINE open_at_first_file(Dataset)
   CALL find_variable_ID(Dataset)
 END SUBROUTINE open_at_first_file
 
+SUBROUTINE open_new_data_file(STD, Year, TimeIndex)
+  !*## Purpose
+  !
+  ! Open the correct file for the given year and time index.
+  !
+  !## Method
+  !
+  ! Inspect the dates attached to each of the files and compare them to the
+  ! current year to determine which file to open.
+
+  TYPE(SPATIO_TEMPORAL_DATASET), INTENT(INOUT) :: STD
+  INTEGER, INTENT(INOUT) :: TimeIndex
+
+  ! Start by closing the currently open file
+  ok = NF90_CLOSE(STD%FileNames(STD%CurrentFileID))
+  handle_err(ok, "Failed closing "//STD%FileNames(STD%CurrentFileIndx))
+  
+  ! If the requested is:
+  !   - Before the time-range of our data, then use the first day from the
+  !     first file in the dataset
+  !   - After the time-range of our data, then use the last day from the last
+  !     file in the dataset
+  
+  IF (Year < STD%StartYear(1)) THEN
+    ! Before the first year
+    STD%CurrentFileIndx = 1
+    YearIndex = STD%StartYear(1)
+    TimeIndex = 1
+
+  ELSE IF (Year > STD%EndYear(SIZE(STD%EndYear))) THEN
+    ! After the last year
+    STD%CurrentFileIndx = SIZE(STD%EndYear)
+    YearIndex = STD%EndYear(SIZE(STD%EndYear))
+    IF ((LeapYears) .AND. (is_leapyear(YearIndex))) THEN
+      TimeIndex = 366
+    ELSE
+      TimeIndex = 365
+    END IF
+
+  ELSE
+    ! Normal operation, we're in the era of our data
+    ! Find the correct file in the dataset
+    FindFile: DO FileIndx = 1, SIZE(STD%FileNames)
+      IF ((Year >= STD%StartYear(FileIndx)) .AND. &
+        (Year <= STD%EndYear(FileIndx))) THEN
+        STD%CurrentFileIndx = FileIndx
+        EXIT FindFile
+      END IF
+    END DO FindFile
+  END IF
+
+  ! Now we've selected our file, open it and find the variable ID
+  ok = NF90_OPEN(STD%FileNames(STD%CurrentFileIndx), NF90_NOWRITE,&
+    STD%CurrentFileID)
+  handle_err(ok, "Failed opening "//STD%FileNames(STD%CurrentFileIndx))
+  CALL find_variable_id(STD)
+END SUBROUTINE open_new_data_file
+
 SUBROUTINE find_variable_ID(Dataset)
   !*## Purpose
   !
@@ -3147,20 +3205,6 @@ SUBROUTINE find_variable_ID(Dataset)
     (Dataset%CurrentFileIndx))
 
 END SUBROUTINE find_variable_ID
-
-!==============================================================================
-!
-! Name: read_metvals
-!
-! Purpose: Read a record from a SPATIO_TEMPORAL_DATASET from the year and
-!         day specified into the provided DataArr provided using the
-!         landmask (specified with LandIDx, LandIDy).
-!
-! Called from: cable_cru_TRENDY.F90
-!
-! Calls: find_variable_ID
-!
-!==============================================================================
 
 SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
     LeapYears, xDimSize, yDimSize, DirectRead)
@@ -3200,49 +3244,11 @@ SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
   TimeIndex = DayOfYear
   YearIndex = Year
 
-  ! We've already opened a file, check whether the current year is open
-  IF ((Year >= STD%StartYear(STD%CurrentFileIndx)) .AND.&
-    (Year <= STD%EndYear(STD%CurrentFileIndx))) THEN
-    ! In this instance, we don't need to do anything
-    CONTINUE
-  ELSE
-    ok = NF90_CLOSE(STD%CurrentFileID)
-
-    ! If the requested is:
-    !   - Before the time-range of our data, then use the first day from the
-    !     first file in the dataset
-    !   - After the time-range of our data, then use the last day from the last
-    !     file in the datasetc
-    IF (YEAR < STD%StartYear(1)) THEN
-      ! Before the first year
-      STD%CurrentFileIndx = 1
-      YearIndex = STD%StartYear(1)
-      TimeIndex = 1
-    ELSE IF (YEAR > STD%EndYear(SIZE(STD%EndYear))) THEN
-      ! After the last year
-      STD%CurrentFileIndx = SIZE(STD%EndYear)
-      YearIndex = STD%EndYear(STD%CurrentFileIndx)
-      IF ((LeapYears) .AND. (is_leapyear(YearIndex))) THEN
-        TimeIndex = 366
-      ELSE
-        TimeIndex = 365
-      END IF
-    ELSE
-      ! Normal operation, we're in the year of our data
-      FindFile: DO FileIndx = 1, SIZE(STD%FileNames)
-        IF ((Year >= STD%StartYear(FileIndx)) .AND. &
-          (Year <= STD%EndYear(FileIndx))) THEN
-          STD%CurrentFileIndx = FileIndx
-          EXIT FindFile
-        END IF
-      END DO FindFile
-    END IF
-
-    ! Open the new file
-    ok = NF90_OPEN(STD%FileNames(STD%CurrentFileIndx), NF90_NOWRITE,&
-      STD%CurrentFileID)
-
-    CALL find_variable_id(STD)
+  ! We've already opened a file, check whether the file containing the relevant
+  ! data is the one open
+  IF (.NOT. ((Year >= STD%StartYear(STD%CurrentFileIndx)) .AND.&
+    (Year <= STD%EndYear(STD%CurrentFileIndx)))) THEN
+    CALL open_new_data_file(STD, Year, TimeIndex)
   END IF
 
   ! Now read the desired time step
@@ -3260,8 +3266,8 @@ SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
     TimeIndex = TimeIndex + 365 * (YearIndex -&
       STD%StartYear(STD%CurrentFileIndx))
   END IF
-  ! Now we have the index, we can grab the data
 
+  ! Now we have the index, we can grab the data
   ! Read from the netCDF file to the masked array point by point
   IF (DirectRead) THEN
     ApplyMaskDirect: DO LandCell = 1, SIZE(LandIDx)
