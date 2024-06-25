@@ -376,7 +376,7 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
 
   ! We want to handle the nextTmin and prevTmax things separately so we don't
   ! mess with the data stored in CRU, initialise variables to handle this
-  INTEGER   :: DummyYear, DummyDay, LastDayOfYear
+  INTEGER   :: DummyYear, DummyDay, DaysInYear
 
   ! Define iteration variable
   INTEGER   :: VarIndx
@@ -415,16 +415,9 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
   IF (CRU%CTSTEP == 1) THEN
     ! Go back to previous year
     DummyYear = CRU%cYear - 1
-    IF (CRU%LeapYears) THEN
-      ! Check what the day should be
-      IF (is_leapyear(DummyYear)) THEN
-        DummyDay = 366
-      ELSE
-        DummyDay = 365
-      END IF
-    ELSE
-      ! No leapyears
-      DummyDay = 365
+    DummyDay = 365
+    IF ((CRU%LeapYears) .AND. (is_leapyear(DummyYear))) THEN
+      DummyDay = 366
     END IF
   END IF
 
@@ -445,9 +438,9 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
   DummyYear = CRU%cYear
 
   ! Special handling at the last day of the year
-  LastDayOfYear = 365
+  DaysInYear = 365
   IF (CRU%LeapYears) THEN
-    LastDayOfYear = 366
+    DaysInYear = 366
   END IF
 
   IF (CRU%CTStep == LastDayOfYear) THEN
@@ -699,7 +692,7 @@ SUBROUTINE read_landmask(LandmaskFile, CRU)
 
   ! Now we attempt to read the netCDF file
   ok = NF90_OPEN(TRIM(LandmaskFile), nf90_nowrite, FileID)
-  handle_err(ok, "Error opening landmask file at "//TRIM(LandmaskFile))
+  CALL handle_err(ok, "Error opening landmask file at "//TRIM(LandmaskFile))
 
   ! Inquire about the latitude and longitude dimensions
   ok = NF90_INQ_DIMID(FileID, 'latitude', LatID)

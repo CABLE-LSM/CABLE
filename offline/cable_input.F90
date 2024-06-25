@@ -3117,7 +3117,7 @@ SUBROUTINE open_at_first_file(Dataset)
   CALL find_variable_ID(Dataset)
 END SUBROUTINE open_at_first_file
 
-SUBROUTINE open_new_data_file(STD, Year, TimeIndex)
+SUBROUTINE open_new_data_file(STD, YearIndex, TimeIndex, LeapYears)
   !*## Purpose
   !
   ! Open the correct file for the given year and time index.
@@ -3128,11 +3128,16 @@ SUBROUTINE open_new_data_file(STD, Year, TimeIndex)
   ! current year to determine which file to open.
 
   TYPE(SPATIO_TEMPORAL_DATASET), INTENT(INOUT) :: STD
-  INTEGER, INTENT(INOUT) :: TimeIndex
+  INTEGER, INTENT(INOUT) :: YearIndex, TimeIndex
+  LOGICAL, INTENT(IN) :: LeapYears
+
+  ! Iterator for files in the dataset
+  INTEGER :: FileIndx
 
   ! Start by closing the currently open file
-  ok = NF90_CLOSE(STD%FileNames(STD%CurrentFileID))
-  handle_err(ok, "Failed closing "//STD%FileNames(STD%CurrentFileIndx))
+  ok = NF90_CLOSE(STD%CurrentFileID)
+  CALL handle_err(ok, "Failed closing "//STD%FileNames(STD%CurrentFileIndx)//" in&
+    open_new_data_file.")
   
   ! If the requested is:
   !   - Before the time-range of our data, then use the first day from the
@@ -3140,13 +3145,13 @@ SUBROUTINE open_new_data_file(STD, Year, TimeIndex)
   !   - After the time-range of our data, then use the last day from the last
   !     file in the dataset
   
-  IF (Year < STD%StartYear(1)) THEN
+  IF (YearIndex < STD%StartYear(1)) THEN
     ! Before the first year
     STD%CurrentFileIndx = 1
     YearIndex = STD%StartYear(1)
     TimeIndex = 1
 
-  ELSE IF (Year > STD%EndYear(SIZE(STD%EndYear))) THEN
+  ELSE IF (YearIndex > STD%EndYear(SIZE(STD%EndYear))) THEN
     ! After the last year
     STD%CurrentFileIndx = SIZE(STD%EndYear)
     YearIndex = STD%EndYear(SIZE(STD%EndYear))
@@ -3160,10 +3165,11 @@ SUBROUTINE open_new_data_file(STD, Year, TimeIndex)
     ! Normal operation, we're in the era of our data
     ! Find the correct file in the dataset
     FindFile: DO FileIndx = 1, SIZE(STD%FileNames)
-      IF ((Year >= STD%StartYear(FileIndx)) .AND. &
-        (Year <= STD%EndYear(FileIndx))) THEN
+      IF ((YearIndex >= STD%StartYear(FileIndx)) .AND. &
+        (YearIndex <= STD%EndYear(FileIndx))) THEN
 
         STD%CurrentFileIndx = FileIndx
+
         EXIT FindFile
       END IF
     END DO FindFile
@@ -3172,7 +3178,7 @@ SUBROUTINE open_new_data_file(STD, Year, TimeIndex)
   ! Now we've selected our file, open it and find the variable ID
   ok = NF90_OPEN(STD%FileNames(STD%CurrentFileIndx), NF90_NOWRITE,&
     STD%CurrentFileID)
-  handle_err(ok, "Failed opening "//STD%FileNames(STD%CurrentFileIndx))
+  CALL handle_err(ok, "Failed opening "//STD%FileNames(STD%CurrentFileIndx))
   CALL find_variable_id(STD)
 END SUBROUTINE open_new_data_file
 
@@ -3254,7 +3260,7 @@ SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
   ! data is the one open
   IF (.NOT. ((Year >= STD%StartYear(STD%CurrentFileIndx)) .AND.&
     (Year <= STD%EndYear(STD%CurrentFileIndx)))) THEN
-    CALL open_new_data_file(STD, Year, TimeIndex)
+    CALL open_new_data_file(STD, YearIndex, TimeIndex, LeapYears)
   END IF
 
   ! Now read the desired time step
