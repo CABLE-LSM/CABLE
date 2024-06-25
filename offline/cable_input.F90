@@ -3162,6 +3162,7 @@ SUBROUTINE open_new_data_file(STD, Year, TimeIndex)
     FindFile: DO FileIndx = 1, SIZE(STD%FileNames)
       IF ((Year >= STD%StartYear(FileIndx)) .AND. &
         (Year <= STD%EndYear(FileIndx))) THEN
+
         STD%CurrentFileIndx = FileIndx
         EXIT FindFile
       END IF
@@ -3217,6 +3218,11 @@ SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
   ! Uses the ```Year``` and ```DayOfYear``` to read a specific record from the
   ! ```SPATIO_TEMPORAL_DATASET```. Reads from the 2D met data into a 1D array
   ! using the point IDs in ```LandIDx``` and ```LandIDy```.
+  ! 
+  ! **Warning**: The handling of data for times outside the period covered by
+  ! the dataset is designed for handling instances where we step outside by
+  ! short periods, for example querying previous day values. It is not equipped
+  ! to handle instances far from the period of the dataset.
 
   ! Get the data from a day
   TYPE(SPATIO_TEMPORAL_DATASET), INTENT(INOUT)  :: STD
