@@ -3047,7 +3047,7 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
     ELSEIF (ios /= 0) THEN
       ! Read failed for some other reason
       CALL EXIT(5)
-    END If
+    END IF
     ! Otherwise, we read a line, so increase the counter
     FileCounter = FileCounter + 1
   END DO CountFiles
