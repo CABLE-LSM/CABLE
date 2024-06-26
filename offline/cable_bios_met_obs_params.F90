@@ -554,8 +554,8 @@ MODULE cable_bios_met_obs_params
   TYPE(dmydate)       :: dummydate     ! Dummy date for when keeping the date is not required
   TYPE(dmydate),SAVE  :: MetDate       ! Date of met to access (equals current date for normals runs, but
                                        ! must be calculated for spinup and initialisation runs (for dates before 1900)
-  INTEGER(i4b),PARAMETER :: recycle_met_startdate = 1981 ! range for met to be recycled for spinup and initialisation AB: TEST 1951 start (old value 1981)
-  INTEGER(i4b),PARAMETER :: recycle_met_enddate = 2010 ! AB: TEST 1980 end(old value 2010)
+  INTEGER(i4b),PARAMETER :: recycle_met_startdate = 1951 ! range for met to be recycled for spinup and initialisation 
+  INTEGER(i4b),PARAMETER :: recycle_met_enddate = 1980 ! 
   INTEGER(i4b)   :: skipdays                        ! Days of met to skip when user_startdate is after bios_startdate
   TYPE(dmydate), SAVE  :: bios_startdate, bios_enddate    ! First and last dates found in bios met files (read from rain file)
   REAL(sp), PRIVATE, PARAMETER :: SecDay = 86400.
@@ -926,7 +926,7 @@ CONTAINS
       sdoy        = 1
       smoy        = 1
       !syear       = 1690
-      syear = 1981 ! AB TEST old value 1981
+      syear = 1951 ! 
       write(*,*) 'prev:',previous_date%year,previous_date%month,previous_date%day
       write(*,*) 'run:',  user_startdate%year, user_startdate%month,  user_startdate%day      
       ! For spinup and initialisation before bios met begins (1900),
@@ -936,9 +936,10 @@ CONTAINS
       MetDate%day = 1
       MetDate%month = 1
       IF (TRIM(MetForcing) .EQ. 'recycled') THEN
-         MetDate%Year = recycle_met_startdate + MOD(curyear-syear,recycle_met_enddate-recycle_met_startdate+1)
-         write(*,*) 'metdatestart,: ',  MetDate%Year,  recycle_met_startdate,  curyear, syear, &
-                       recycle_met_enddate, recycle_met_startdate,  MOD(curyear-syear,recycle_met_enddate-recycle_met_startdate+1)
+         !AB 6/2024 use MODULO not MOD here to avoid negative values
+         MetDate%Year = recycle_met_startdate + MODULO(curyear-syear,recycle_met_enddate-recycle_met_startdate+1) 
+                  write(*,*) 'metdatestart,: ',  MetDate%Year,  recycle_met_startdate,  curyear, syear, &
+                       recycle_met_enddate, recycle_met_startdate,  MODULO(curyear-syear,recycle_met_enddate-recycle_met_startdate+1)
       ELSE IF (TRIM(MetForcing) .EQ. 'actual' ) THEN
         MetDate%Year = curyear
       ENDIF
@@ -1133,9 +1134,10 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
     TYPE(MET_TYPE), INTENT(INOUT)       :: MET
 
     LOGICAL(lgt)   :: newday
-!    real(sp),parameter:: RMW       = 0.018016 ! molecular wt of water     [kg/mol]
-!    real(sp),parameter:: RMA       = 0.02897 ! atomic wt of C            [kg/mol]
-    real(sp),parameter:: RMWbyRMA  = 0.62188471 ! molecular wt of water [kg/mol] / atomic wt of C [kg/mol]
+!    real(sp),parameter:: RMW     = 0.018016 ! molecular wt of water     [kg/mol]
+!    real(sp),parameter:: RMA     = 0.02897 ! atomic wt of C            [kg/mol]
+    real(sp),parameter:: RMWbyRMA = 0.62188471 ! molecular wt of water [kg/mol] / atomic wt of C [kg/mol]
+    real(sp),parameter:: vp_min   = 0.01 ! minimum value of vapour pressure [hPa]
     integer(i4b)   :: iday
     integer(i4b)   :: iland       ! Loop counter through mland land cells
     integer(i4b)   :: is, ie      ! For each land cell, the start and ending index position within the larger cable spatial
@@ -1236,6 +1238,7 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
        !   BACKSPACE(tairmin_unit)
        !endif
 
+        
        next_tairmin_day =   tairmin_day
        prev_vp1500 = vp1500
        next_vp0900 = vp0900
@@ -1252,10 +1255,10 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
        WG%VapPmbDay = esatf(tairmin_day)
 
        IF (TRIM(vp0900_file) .NE. 'none') THEN
-          WG%VapPmb0900 = vp0900
-          WG%VapPmb1500 = vp1500
-          WG%VapPmb1500Prev = prev_vp1500
-          WG%VapPmb0900Next = next_vp0900
+          WG%VapPmb0900 = MAX(vp0900, vp_min)
+          WG%VapPmb1500 = MAX(vp1500, vp_min)
+          WG%VapPmb1500Prev = MAX(prev_vp1500, vp_min)
+          WG%VapPmb0900Next = MAX(next_vp0900, vp_min)
        
        ELSE
           WG%VapPmb0900 =  WG%VapPmbDay 
