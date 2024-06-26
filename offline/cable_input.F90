@@ -3110,8 +3110,8 @@ SUBROUTINE open_at_first_file(Dataset)
 
   ok = NF90_OPEN(Dataset%FileNames(Dataset%CurrentFileIndx), NF90_NOWRITE,&
     Dataset%CurrentFileID)
-  CALL handle_err(ok, "Error opening "//Dataset%FileNames&
-    (Dataset%CurrentFileIndx)//" in open_at_first_file.")
+  CALL handle_err(ok, "Error opening "//TRIM(Dataset%FileNames&
+    (Dataset%CurrentFileIndx))//" in open_at_first_file.")
 
   ! Find the NetCDF name associated with the variable
   CALL find_variable_ID(Dataset)
@@ -3136,8 +3136,8 @@ SUBROUTINE open_new_data_file(STD, YearIndex, TimeIndex, LeapYears)
 
   ! Start by closing the currently open file
   ok = NF90_CLOSE(STD%CurrentFileID)
-  CALL handle_err(ok, "Failed closing "//STD%FileNames(STD%CurrentFileIndx)//" in&
-    open_new_data_file.")
+  CALL handle_err(ok, "Error closing "//TRIM(STD%FileNames&
+    (STD%CurrentFileIndx))//" in open_new_data_file.")
   
   ! If the requested is:
   !   - Before the time-range of our data, then use the first day from the
@@ -3178,7 +3178,8 @@ SUBROUTINE open_new_data_file(STD, YearIndex, TimeIndex, LeapYears)
   ! Now we've selected our file, open it and find the variable ID
   ok = NF90_OPEN(STD%FileNames(STD%CurrentFileIndx), NF90_NOWRITE,&
     STD%CurrentFileID)
-  CALL handle_err(ok, "Failed opening "//STD%FileNames(STD%CurrentFileIndx))
+  CALL handle_err(ok, "Failed opening "//&
+    TRIM(STD%FileNames(STD%CurrentFileIndx)))
   CALL find_variable_id(STD)
 END SUBROUTINE open_new_data_file
 
@@ -3208,8 +3209,8 @@ SUBROUTINE find_variable_ID(Dataset)
   END DO FindVar
 
   ! Handle the case where we don't find the variable
-  CALL handle_err(ok, "Error finding desired variable in "//Dataset%FileNames&
-    (Dataset%CurrentFileIndx))
+  CALL handle_err(ok, "Error finding desired variable in "//&
+    TRIM(Dataset%FileNames(Dataset%CurrentFileIndx)))
 
 END SUBROUTINE find_variable_ID
 
@@ -3256,6 +3257,7 @@ SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
   TimeIndex = DayOfYear
   YearIndex = Year
 
+  WRITE(*,*) "Time index at start:", TimeIndex
   ! We've already opened a file, check whether the file containing the relevant
   ! data is the one open
   IF (.NOT. ((Year >= STD%StartYear(STD%CurrentFileIndx)) .AND.&
@@ -3279,6 +3281,7 @@ SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
       STD%StartYear(STD%CurrentFileIndx))
   END IF
 
+  WRITE(*,*) "Time index at end:", TimeIndex
   ! Now we have the index, we can grab the data
   ! Read from the netCDF file to the masked array point by point
   IF (DirectRead) THEN
@@ -3286,8 +3289,8 @@ SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
       ok = NF90_GET_VAR(STD%CurrentFileID,&
         STD%CurrentVarID, DataArr(LandCell), START = (/LandIDx(LandCell),&
         LandIDy(LandCell), TimeIndex/))
-      CALL handle_err(ok, "Failed reading "//STD%FileNames&
-        (STD%CurrentFileIndx)//" in read_metvals.")
+      CALL handle_err(ok, "Failed reading "//TRIM(STD%FileNames&
+        (STD%CurrentFileIndx))//" in read_metvals.")
     END DO ApplyMaskDirect
   ELSE
 
@@ -3295,8 +3298,8 @@ SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
 
     ok = NF90_GET_VAR(STD%CurrentFileID, STD%CurrentVarID, TmpArray,&
       START = (/1, 1, TimeIndex/), COUNT = (/xDimSize, yDimSize, 1/))
-    CALL handle_err(ok, "Failed reading "//STD%FileNames&
-      (STD%CurrentFileIndx)//" in read_metvals.")
+    CALL handle_err(ok, "Failed reading "//TRIM(STD%FileNames&
+      (STD%CurrentFileIndx))//" in read_metvals.")
 
     ApplyLandmaskIndirect: DO LandCell = 1, SIZE(LandIDx)
       DataArr(LandCell) = TmpArray(LandIDx(LandCell), LandIDy(LandCell))
