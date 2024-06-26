@@ -1352,9 +1352,41 @@ END SUBROUTINE cable_bios_read_met
 
 !******************************************************************************
 
+SUBROUTINE bios_read_ancillary_data(filename, vname, array)
+
+  USE cable_read_module, ONLY: check_settings, check_nf90, default_inq_get_nf90
+  USE netcdf
+
+  CHARACTER(LEN=*), INTENT(IN) :: filename
+  CHARACTER(LEN=*), INTENT(IN) :: vname
+  REAL(sp), INTENT(INOUT) :: array(:)
+
+  INTEGER  :: ncid
+  TYPE(check_settings) :: settings
+
+  CHARACTER(LEN=256) :: abs_path
+  CHARACTER(LEN=256) :: message
+
+  abs_path = TRIM(param_path//TRIM(filename))
+
+  settings = check_settings("bios_read_ancillary_data", message=message)
+  ! TODO: For now, these are different files, but later single file
+  settings%message = "STOP - File not found: "//abs_path
+  CALL check_nf90(NF90_OPEN(abs_path, NF90_NOWRITE, ncid=ncid), settings)
+
+  settings%message = "Error getting value from file"
+  CALL default_inq_get_nf90(ncid, vname, array, settings)
+
+  settings%message = "Error closing file"
+  CALL check_nf90(NF90_CLOSE(ncid), settings)
+
+END SUBROUTINE bios_read_ancillary_data
+
 SUBROUTINE cable_bios_load_params(soil)
 
 USE cable_def_types_mod,  ONLY: mland, soil_parameter_type
+USE cable_read_module, ONLY: check_settings
+USE netcdf
 
 IMPLICIT NONE
 
@@ -1366,7 +1398,7 @@ INTEGER(i4b) :: param_unit    ! Unit number for reading (all) parameter files.
 INTEGER(i4b) :: error_status  ! Error status returned by OPENs
 
 TYPE(soil_parameter_type), INTENT(INOUT) :: soil
-
+TYPE(check_settings) :: settings
 
 ! Temporary soil parameter variables. Varnames match corresponding bios parameter filenames (roughly).
 ! Dimensions are mland, which will be mapped to the more complicated mland+tiles dimensions of the 
@@ -1407,214 +1439,34 @@ ALLOCATE (wvol1fc_m3m3(mland), wvol2fc_m3m3(mland), wvol1sat_m3m3(mland), wvol2s
 ALLOCATE (wvol1w_m3m3(mland), wvol2w_m3m3(mland))
 !ALLOCATE (slope_deg(mland))
 
+settings = check_settings("cable_bios_load_params")
+
 CALL GET_UNIT(param_unit)  ! Obtain an unused unit number for file reading, reused for all soil vars.
 
 ! Open, read, and close each soil parameter in turn, stopping for any missing file.
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(b1_file), &
-     ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(b1_file) ; STOP ''
-ELSE
-  READ (param_unit) b1
-  CLOSE (param_unit)
-END IF
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(b2_file), &
-     ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(b2_file) ; STOP ''
-ELSE
-  READ (param_unit) b2
-  CLOSE (param_unit)
-END IF
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(bulkdens1_kgm3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
-     IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(bulkdens1_kgm3_file) ; STOP ''
-ELSE
-  READ (param_unit) bulkdens1_kgm3
-  CLOSE (param_unit)
-END IF
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(bulkdens2_kgm3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
-     IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(bulkdens2_kgm3_file) ; STOP ''
-ELSE
-  READ (param_unit) bulkdens2_kgm3
-  CLOSE (param_unit)
-END IF
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(clayfrac1_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
-     IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(clayfrac1_file) ; STOP ''
-ELSE
-  READ (param_unit) clayfrac1
-  CLOSE (param_unit)
-END IF
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(clayfrac2_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
-     IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(clayfrac2_file) ; STOP ''
-ELSE
-  READ (param_unit) clayfrac2
-  CLOSE (param_unit)
-END IF
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(csoil1_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
-     IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(csoil1_file) ; STOP ''
-ELSE
-  READ (param_unit) csoil1
-  CLOSE (param_unit)
-END IF
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(csoil2_file), &
-     ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(csoil2_file) ; STOP ''
-ELSE
-  READ (param_unit) csoil2
-  CLOSE (param_unit)
-END IF
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(depth1_m_file), &
-     ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(depth1_m_file) ; STOP ''
-ELSE
-  READ (param_unit) depth1_m
-  CLOSE (param_unit)
-END IF
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(depth2_m_file), &
-     ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(depth2_m_file) ; STOP ''
-ELSE
-  READ (param_unit) depth2_m
-  CLOSE (param_unit)
-END IF
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(hyk1sat_ms_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
-     IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(hyk1sat_ms_file) ; STOP ''
-ELSE
-  READ (param_unit) hyk1sat_ms
-  CLOSE (param_unit)
-END IF
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(hyk2sat_ms_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
-     IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(hyk2sat_ms_file) ; STOP ''
-ELSE
-  READ (param_unit) hyk2sat_ms
-  CLOSE (param_unit)
-END IF
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(psie1_m_file), &
-     ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(psie1_m_file); STOP ''
-ELSE
-  READ (param_unit) psie1_m
-  CLOSE (param_unit)
-END IF
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(psie2_m_file), &
-     ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(psie2_m_file); STOP ''
-ELSE
-  READ (param_unit) psie2_m
-  CLOSE (param_unit)
-END IF
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(siltfrac1_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
-     IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(siltfrac1_file); STOP ''
-ELSE
-  READ (param_unit) siltfrac1
-  CLOSE (param_unit)
-END IF
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(siltfrac2_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
-     IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(siltfrac2_file) ; STOP ''
-ELSE
-  READ (param_unit) siltfrac2
-  CLOSE (param_unit)
-END IF
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol1fc_m3m3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
-     IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(wvol1fc_m3m3_file); STOP ''
-ELSE
-  READ (param_unit) wvol1fc_m3m3
-  CLOSE (param_unit)
-END IF
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol2fc_m3m3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
-     IOSTAT=error_status)   
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(wvol2fc_m3m3_file); STOP ''
-ELSE
-  READ (param_unit) wvol2fc_m3m3
-  CLOSE (param_unit)
-END IF
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol1sat_m3m3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
-     IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(wvol1sat_m3m3_file) ; STOP ''
-ELSE
-  READ (param_unit) wvol1sat_m3m3
-  CLOSE (param_unit)
-END IF
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol2sat_m3m3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
-     IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(wvol2sat_m3m3_file) ; STOP ''
-ELSE
-  READ (param_unit) wvol2sat_m3m3
-  CLOSE (param_unit)
-END IF
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol1w_m3m3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
-     IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(wvol1w_m3m3_file) ; STOP ''
-ELSE
-  READ (param_unit) wvol1w_m3m3
-  CLOSE (param_unit)
-END IF
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol2w_m3m3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
-     IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(wvol2w_m3m3_file) ; STOP ''
-ELSE
-  READ (param_unit) wvol2w_m3m3
-  CLOSE (param_unit)
-END IF
-
-!OPEN (param_unit, FILE=TRIM(param_path)//TRIM(slope_deg_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
-!IF (error_status > 0) THEN
-!  WRITE (*,'("STOP - File not found: ",  LEN_TRIM(TRIM(param_path)//TRIM(slope_deg_file)))') ; STOP ''
-!ELSE
-!  READ (param_unit) slope_deg
-!  CLOSE (param_unit)
-!END IF
+CALL bios_read_ancillary_data(b1_file, "b1", b1)
+CALL bios_read_ancillary_data(b1_file, "b2", b2)
+CALL bios_read_ancillary_data(bulkdens1_kgm3_file, "bulkdens1_kgm3", bulkdens1_kgm3)
+CALL bios_read_ancillary_data(bulkdens2_kgm3_file, "bulkdens2_kgm3", bulkdens2_kgm3)
+CALL bios_read_ancillary_data(clayfrac1_file, "clayfrac1", clayfrac1)
+CALL bios_read_ancillary_data(clayfrac2_file, "clayfrac2", clayfrac2)
+CALL bios_read_ancillary_data(csoil1_file, "csoil1", csoil1)
+CALL bios_read_ancillary_data(csoil2_file, "csoil2", csoil2)
+CALL bios_read_ancillary_data(depth1_m_file, "depth1_m", depth1_m)
+CALL bios_read_ancillary_data(depth2_m_file, "depth2_m", depth2_m)
+CALL bios_read_ancillary_data(hyk1sat_ms_file, "hyk1sat_ms", hyk1sat_ms)
+CALL bios_read_ancillary_data(hyk2sat_ms_file, "hyk2sat_ms", hyk2sat_ms)
+CALL bios_read_ancillary_data(psie1_m_file, "psie1_m", psie1_m)
+CALL bios_read_ancillary_data(psie2_m_file, "psie2_m", psie2_m)
+CALL bios_read_ancillary_data(siltfrac1_file, "siltfrac1", siltfrac1)
+CALL bios_read_ancillary_data(siltfrac2_file, "siltfrac2", siltfrac2)
+CALL bios_read_ancillary_data(wvol1fc_m3m3_file, "wvol1fc_m3m3", wvol1fc_m3m3)
+CALL bios_read_ancillary_data(wvol2fc_m3m3_file, "wvol2fc_m3m3", wvol2fc_m3m3)
+CALL bios_read_ancillary_data(wvol1sat_m3m3_file, "wvol1sat_m3m3", wvol1sat_m3m3)
+CALL bios_read_ancillary_data(wvol2sat_m3m3_file, "wvol2sat_m3m3", wvol2sat_m3m3)
+CALL bios_read_ancillary_data(wvol1w_m3m3_file, "wvol1w_m3m3", wvol1w_m3m3)
+CALL bios_read_ancillary_data(wvol2w_m3m3_file, "wvol2w_m3m3", wvol2w_m3m3)
+! CALL bios_read_ancillary_data(slope_deg_file, "slope_deg", slope_deg)
 
 ! Map the values of each soil parameter read from bios parameter files (one value
 ! for each of mland land cells) onto the equivalent CABLE parameter, overwriting
