@@ -44,7 +44,7 @@ MODULE cable_read_module
 
    PRIVATE
 
-   PUBLIC :: readpar, redistr_i, redistr_r, redistr_rd, redistr_r2, redistr_r2d
+   PUBLIC :: readpar, redistr_i, redistr_r, redistr_rd, redistr_r2, redistr_r2d, default_inq_get_nf90, check_nf90, check_settings
 
   INTEGER :: ok ! netcdf error status
 #ifdef __MPI__
@@ -67,7 +67,42 @@ MODULE cable_read_module
   !   MODULE PROCEDURE redistr_r2d
   ! END INTERFACE
 
+  TYPE check_settings
+    CHARACTER(LEN=64) :: subroutine_str
+    ! Optional
+    CHARACTER(LEN=256) :: message = ""
+    LOGICAL :: exit = .TRUE.
+  END TYPE check_settings
+
 CONTAINS
+
+
+  SUBROUTINE check_nf90(stat, settings)
+   INTEGER, INTENT(IN) :: stat
+   TYPE(check_settings), INTENT(IN) :: settings
+
+   IF (stat /= NF90_NOERR) THEN
+    IF (settings%exit) THEN
+       CALL nc_abort(stat, settings%subroutine_str)
+    END IF
+   END IF
+
+  END SUBROUTINE check_nf90
+
+  !! Note: Only works with sp type for now, can make a generic interface when other functions need it
+  SUBROUTINE default_inq_get_nf90(ncid, vname, array, settings)
+    INTEGER, INTENT(IN) :: ncid
+    CHARACTER(LEN=*), INTENT(IN) :: vname
+    !! TODO: dependency issue if using sp
+    REAL(KIND(1.0)), INTENT(INOUT) :: array(:)
+    TYPE(check_settings), INTENT(IN) :: settings
+
+    INTEGER :: varid
+
+    CALL check_nf90(NF90_INQ_VARID(ncid, vname, varid), settings)
+    CALL check_nf90(NF90_GET_VAR(ncid, varid, array), settings)
+  
+  END SUBROUTINE default_inq_get_nf90
 
   SUBROUTINE readpar_i(ncid, parname, completeSet, var_i, filename, &
                        npatch, dimswitch, from_restart, INpatch)
