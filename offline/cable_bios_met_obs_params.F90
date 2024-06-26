@@ -1137,12 +1137,12 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
 !    real(sp),parameter:: RMW     = 0.018016 ! molecular wt of water     [kg/mol]
 !    real(sp),parameter:: RMA     = 0.02897 ! atomic wt of C            [kg/mol]
     real(sp),parameter:: RMWbyRMA = 0.62188471 ! molecular wt of water [kg/mol] / atomic wt of C [kg/mol]
-    real(sp),parameter:: vp_min   = 0.01 ! minimum value of vapour pressure [hPa]
+    real(sp),parameter:: vp_min   = 0.1 ! minimum value of vapour pressure [hPa]
     integer(i4b)   :: iday
     integer(i4b)   :: iland       ! Loop counter through mland land cells
     integer(i4b)   :: is, ie      ! For each land cell, the start and ending index position within the larger cable spatial
-                                  ! vectors of the first and last tile for that land cell. 
-
+                                  ! vectors of the first and last tile for that land cell.
+    
     met%hod (landpt(:)%cstart) = REAL(MOD( (ktau-1) * NINT(dels), INT(SecDay)) ) / 3600.
     met%doy (landpt(:)%cstart) = INT(REAL(ktau-1) * dels / SecDay ) + 1
     met%year(landpt(:)%cstart) = Curyear  
@@ -1254,17 +1254,17 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
 
        WG%VapPmbDay = esatf(tairmin_day)
 
+       !apply minimum value to vapour pressure to prevent negaive values
        IF (TRIM(vp0900_file) .NE. 'none') THEN
           WG%VapPmb0900 = MAX(vp0900, vp_min)
           WG%VapPmb1500 = MAX(vp1500, vp_min)
           WG%VapPmb1500Prev = MAX(prev_vp1500, vp_min)
-          WG%VapPmb0900Next = MAX(next_vp0900, vp_min)
-       
+          WG%VapPmb0900Next = MAX(next_vp0900, vp_min)     
        ELSE
-          WG%VapPmb0900 =  WG%VapPmbDay 
-          WG%VapPmb1500 =   WG%VapPmbDay 
-          WG%VapPmb1500Prev =  WG%VapPmbDay 
-          WG%VapPmb0900Next =  WG%VapPmbDay
+          WG%VapPmb0900 =  MAX(WG%VapPmbDay, vp_min) 
+          WG%VapPmb1500 =   MAX(WG%VapPmbDay, vp_min) 
+          WG%VapPmb1500Prev =  MAX(WG%VapPmbDay, vp_min) 
+          WG%VapPmb0900Next =  MAX(WG%VapPmbDay, vp_min)
        ENDIF
 
        if (swdown_file(1:4) .eq. 'rsds') then

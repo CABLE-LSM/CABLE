@@ -41,7 +41,6 @@
 #PBS -q normal
 # Typical for global or Aust continent at 0.25, 192 GB memory and 48 cpus,
 # maybe 12 hours walltime
-
 # Typical for small runs, fewer cpus than pixels
 #PBS -l walltime=02:00:00
 #PBS -l mem=48GB
@@ -53,13 +52,11 @@
 #PBS -l wd
 #PBS -j oe
 #PBS -S /bin/bash
-#PBS -M matthias.cuntz@inrae.fr
+#PBS -M ian.harman@csiro.au
 #PBS -m ae
 
-
-# cuntz@explor, cuntz@mcinra, moc801@gadi cuntz@gadi
+# cuntz@explor, cuntz@mc16, cuntz@mcinra, moc801@gadi cuntz@gadi
 # kna016@pearcey knauer@pearcey, jk8585@gadi knauer@gadi
-
 # bri220@pearcey, pcb599@gadi briggs@gadi
 # yc3714@gadi villalobos@gadi
 # nieradzik@aurora
@@ -118,7 +115,7 @@ nproc=4   # Number of cores for MPI runs
 #    but
 #    namelistpath="$(dirname ${workpath})/namelists"
 #    with
-#workpath="/home/599/jk8585/CABLE_run/gm_acclim_coord/global_runs"
+#      workpath="/home/599/jk8585/CABLE_run/gm_acclim_coord/global_runs"
 #      cablehome="/home/599/jk8585/CABLE_code"
 #    -> changed to similar of ScriptsPath="$(dirname ${workpath})/scripts"
 # 3. Need plume.nml, bios.nml, gm_LUT_*.nc
@@ -127,7 +124,7 @@ nproc=4   # Number of cores for MPI runs
 # 6. Why is YearEnd different for plume (1849) compared to cru (1699) in 5a. First dynamic land use?
 # 7. Do we need chunking in 5a, 5b, 6, and 7? [PB: unnecessary at this point, but possibly for 0.05degs]
 # 8. Do we need cropping output to latlon region at the end: is this not in step 0 with ${doextractsite} -eq 1? [PB: Not needed for # BIOS
-
+#
 #ASKJK - changes in comparison to gm_acclim_coord
 
 # --------------------------------------------------------------------
@@ -138,13 +135,12 @@ imeteo=0        # 0: Use global meteo, land use and mask
                 # 1: Use local mask, but global meteo and land use (doextractsite=1)
                 # 2: Use local meteo, land use and mask (doextractsite=2)
 # Step 0
-purge_restart=1 # 1/0: Do/Do not delete all restart files (completely new run, e.g. if settings changed)
+purge_restart=0 # 1/0: Do/Do not delete all restart files (completely new run, e.g. if settings changed)
 doextractsite=0 # 0: Do not extract local meteo, land use nor mask
                 # 1: Do extract only mask at specific site/region (imeteo=1)
                 # 2: Do extract meteo, land use and mask at specific site/region (imeteo=2)
                 #    Does not work with randompoints /= 0 but with latlon
-
-    experiment=blaze02
+    experiment=ext_newblazempi_off
     randompoints=0   # <0: use -1*randompoints from file ${LandMaskFilePath}/${experiment}_points.csv if existing
                      # 0:  use latlon
                      # >0: generate and use randompoints random grid points from GlobalLandMaskFile
@@ -154,7 +150,6 @@ doextractsite=0 # 0: Do not extract local meteo, land use nor mask
     # latlon=42.5,43.5,109.5,110.5
     # latlon=-44.0,-10.0,110.0,155.0  # Australia
 
-
 # Step 1
 doclimate=1     # 1/0: Do/Do not create climate restart file
 # Step 2
@@ -163,14 +158,14 @@ dofromzero=1    # 1/0: Do/Do not first spinup phase from zero biomass stocks
 doequi1=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
 nequi1=4       #      number of times to repeat steps in doequi1
 # Step 4
-doequi2=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
+doequi2=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
 nequi2=4        #      number of times to repeat steps in doequi2
 # Step 5a
 doiniluc=0      # 1/0: Do/Do not spinup with dynamic land use (5a)
 # Step 5b
-doinidyn=0      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
+doinidyn=1      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
 # Step 6
-dofinal=0       # 1/0: Do/Do not final run from 1900 to 2017
+dofinal=1       # 1/0: Do/Do not final run from 1900 to 2017
 # Step 7
 dofuture=0      # 1/0: Do/Do not future runs (plume only)
 
@@ -180,7 +175,7 @@ dofuture=0      # 1/0: Do/Do not future runs (plume only)
 
 # MetType
 mettype='bios'     # 'cru', 'plume', 'bios'
-degrees=0.05       #  bios only: resolution of met and LUC (0.05 or 0.25)
+degrees=0.25       #  bios only: resolution of met and LUC (0.05 or 0.25)
 metmodel='hadgem2' # 'hadgem2', 'ipsl' (only used if mettype='plume')
 RCP='hist'         # 'hist', '2.6', '4.5', '6.0', '8.5' (no future runs if RCP='hist')
 
@@ -194,8 +189,6 @@ acclimate_photosyn=1  # 1/0: Do/Do not acclimate photosynthesis
 call_pop=1          # 1/0: Do/Do not use POP population dynamics model, coupled to CASA
 doc13o2=0           # 1/0: Do/Do not calculate 13C
 c13o2_simple_disc=0 # 1/0: simple or full 13C leaf discrimination
-
-####### PB NOTE COMPARE SETUPS FROM HERE DOWN
 
 # --------------------------------------------------------------------
 # Setup
@@ -537,10 +530,8 @@ elif [[ "${system}" == "yc3714@gadi" || "${system}" == "villalobos@gadi" ]] ; th
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
     aux="/g/data/x45/CABLE-AUX"
     # Global Mask
-
     SurfaceFile="${aux}/offline/gridinfo_CSIRO_CRU05x05_4tiles.nc"   # note that SurfaceFile does not need subsetting
-
-  # Global Met
+    # Global Met
     if [[ "${mettype}" == "cru" ]] ; then
 	      GlobalLandMaskFile="/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
         GlobalMetPath="/g/data/x45/CRUJRA2020/daily_1deg"
@@ -564,7 +555,8 @@ elif [[ "${system}" == "inh599@gadi" || "${system}" == "harman@gadi" ]] ; then
     #sitepath="/g/data/x45/BIOS3_output/${experiment}" # Results
     sitepath="/scratch/x45/inh599/BIOStests/${experiment}" # Results
     workpath="/home/599/inh599/JAC/CABLE/BLAZEruns" # run directory
-    cablehome="/home/599/inh599/JAC/CABLE/BLAZE_9184" # model home
+    #cablehome="/home/599/inh599/JAC/CABLE/BLAZE_9184" # model home
+    cablehome="/home/599/inh599/JAC/git/CABLE/" # model home
     # Cable executable
     if [[ ${dompi} -eq 1 ]] ; then
         exe="${cablehome}/offline/cable-mpi"
@@ -573,6 +565,7 @@ elif [[ "${system}" == "inh599@gadi" || "${system}" == "harman@gadi" ]] ; then
     fi
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
     aux="/g/data/x45/CABLE-AUX"
+    BlazeDataPath="/g/data/x45/Data_BLAZE"
     # Global Mask
     SurfaceFile="${aux}/offline/gridinfo_CSIRO_CRU05x05_4tiles.nc"   # note that SurfaceFile does not need subsetting
     # Global Met
@@ -587,7 +580,7 @@ elif [[ "${system}" == "inh599@gadi" || "${system}" == "harman@gadi" ]] ; then
 	      NdepPath="/g/data/x45/ipbes/ndep"
     elif [[ "${mettype}" == "bios" ]] ; then
     	  GlobalLandMaskFile="/g/data/x45/BIOS3_forcing/acttest9/acttest9" # no file extension
-        GlobalMetPath="/g/data/x45/BIOS3_forcing/acttest9/met/"          # last slash is needed
+        GlobalMetPath="/g/data/x45/BIOS3_forcing/acttest9/met/"          # last slash is needed - updated 29/3/2024
 	      ParamPath="/g/data/x45/BIOS3_forcing/acttest9/params/"           # only in bios.nml
         GlobalTransitionFilePath="/g/data/x45/LUH2/v3h/${degrees}deg_aust/EXTRACT"
     fi
@@ -623,7 +616,6 @@ elif [[ "${system}" == "pcb599@gadi" || "${system}" == "briggs@gadi" ]] ; then
 	      exe="${cablehome}/offline/cable-mpi"
     else
 	      exe="${cablehome}/offline/cable"
-
     fi
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
     aux="/g/data/x45/CABLE-AUX"
@@ -727,10 +719,7 @@ else
     fi
 fi
 # LUC
-#TransitionFilePath="${sitepath}/LUH2/v3/1deg"
-TransitionFilePath="/g/data/x45/LUH2/v3h/${degrees}deg_aust/EXTRACT"
-#TransitionFilePath="/home/x_larni/STOREDIR/DATA/CABLE_INPUT/LUH2/v3h/${degrees}deg_aust/EXTRACT" # LN
-
+TransitionFilePath="${sitepath}/LUH2/v3/1deg"
 # gm lookup tables
 gm_lut_bernacchi_2002="${cablehome}/params/gm_LUT_351x3601x7_1pt8245_Bernacchi2002.nc"
 gm_lut_walker_2013="${cablehome}/params/gm_LUT_351x3601x7_1pt8245_Walker2013.nc"
@@ -1073,20 +1062,37 @@ EOF
         sed -i -e "/Forcing/s/=.*/= 'ipsl-cm5a-lr'/" ${tmp}/sedtmp.${pid}
     fi
     applysed ${tmp}/sedtmp.${pid} ${ndir}/plume.nml ${rdir}/plume_${experiment}.nml
+#elif [[ "${mettype}" == "bios" ]] ; then
+#    cat > ${tmp}/sedtmp.${pid} << EOF
+#        met_path         = "${MetPath}/"
+#        param_path       = "${ParamPath}"
+#        landmaskflt_file = "${GlobalLandMaskFile}.flt"
+#        landmaskhdr_file = "${GlobalLandMaskFile}.hdr"
+#        rain_file        = "1900010120201231_rain_b2003.bin"
+#        swdown_file      = "1900010120201231_rad_b2003.bin"
+#        tairmax_file     = "1900010120201231_tmax_noclim_b2003.bin"
+#        tairmin_file     = "1900010120201231_tmin_noclim_b2003.bin"
+#        wind_file        = "1900010120201231_windspeed_ms_b2003.bin"
+#        vp0900_file      = "1900010120201231_vph09_b2003.bin"
+#        vp1500_file      = "1900010120201231_vph15_b2003.bin"
+#        co2_file         = "1750_2020_globalCO2_time_series.bin"
+#EOF
+#    applysed ${tmp}/sedtmp.${pid} ${ndir}/bios.nml ${rdir}/bios_${experiment}.nml
+#fi
 elif [[ "${mettype}" == "bios" ]] ; then
     cat > ${tmp}/sedtmp.${pid} << EOF
         met_path         = "${MetPath}/"
         param_path       = "${ParamPath}"
         landmaskflt_file = "${GlobalLandMaskFile}.flt"
         landmaskhdr_file = "${GlobalLandMaskFile}.hdr"
-        rain_file        = "1900010120201231_rain_b2003.bin"
-        swdown_file      = "1900010120201231_rad_b2003.bin"
-        tairmax_file     = "1900010120201231_tmax_noclim_b2003.bin"
-        tairmin_file     = "1900010120201231_tmin_noclim_b2003.bin"
-        wind_file        = "1900010120201231_windspeed_ms_b2003.bin"
-        vp0900_file      = "1900010120201231_vph09_b2003.bin"
-        vp1500_file      = "1900010120201231_vph15_b2003.bin"
-        co2_file         = "1750_2020_globalCO2_time_series.bin"
+        rain_file        = "1900010120231231_rain_recal_b2311.bin"
+        swdown_file      = "1900010120231231_rad_b2311.bin"
+        tairmax_file     = "1900010120231231_tmax_noclim_b2311.bin"
+        tairmin_file     = "1900010120231231_tmin_noclim_b2311.bin"
+        wind_file        = "1900010120231231_windspeed_ms_b2311.bin"
+        vp0900_file      = "1900010120231231_vph09_b2311.bin"
+        vp1500_file      = "1900010120231231_vph15_b2311.bin"
+        co2_file         = "1700_2023_trendy_global_co2_ann.bin"
 EOF
     applysed ${tmp}/sedtmp.${pid} ${ndir}/bios.nml ${rdir}/bios_${experiment}.nml
 fi
@@ -1101,7 +1107,6 @@ EOF
 applysed ${tmp}/sedtmp.${pid} ${ndir}/LUC.nml ${rdir}/LUC_${experiment}.nml
 
 # Blaze namelist !CLN CHECK
-
 cat > ${tmp}/sedtmp.${pid} << EOF
     blazeTStep       = "annually"  ! Call frequency ("daily", "monthly", "annually")
     BurnedAreaSource = "SIMFIRE"   ! Burnt Area ("PRESCRIBED", "SIMFIRE", "GFED4")
@@ -1156,7 +1161,7 @@ cat > ${tmp}/sedtmp.${pid} << EOF
     cable_user%c13o2_restart_out_pools = "restart/${mettype}_c13o2_pools_rst.nc"
     cable_user%c13o2_restart_in_luc    = "restart/${mettype}_c13o2_luc_rst.nc"
     cable_user%c13o2_restart_out_luc   = "restart/${mettype}_c13o2_luc_rst.nc"
-    cable_user%CALL_BLAZE              = .TRUE.
+    cable_user%CALL_BLAZE              = .false.
 EOF
 if [[ ${call_pop} -eq 1 ]] ; then
     sed -i -e "/cable_user%CALL_POP/s/=.*/= .true./" ${tmp}/sedtmp.${pid}
@@ -1290,7 +1295,6 @@ EOF
         cable_user%CASA_fromZero          = .true.
         cable_user%CASA_DUMP_READ         = .false.
         cable_user%CASA_DUMP_WRITE        = .true.
-        output%averaging                  = "all"
         cable_user%CASA_SPIN_STARTYEAR    = 1860
         cable_user%CASA_SPIN_ENDYEAR      = 1869
         cable_user%limit_labile           = .true.
@@ -1356,8 +1360,8 @@ EOF
         #MCTEST
         cat > ${tmp}/sedtmp.${pid} << EOF
             cable_user%CLIMATE_fromZero    = .false.
-            cable_user%YearStart           = 1840
-            cable_user%YearEnd             = 1859
+            cable_user%YearStart           = 1860
+            cable_user%YearEnd             = 1889
             icycle                         = 2
             spincasa                       = .false.
             cable_user%CASA_fromZero       = .false.
@@ -1417,15 +1421,15 @@ EOF
         #MCTEST
         cat > ${tmp}/sedtmp.${pid} << EOF
             cable_user%CLIMATE_fromZero    = .false.
-            cable_user%YearStart           = 1840
-            cable_user%YearEnd             = 1859
+            cable_user%YearStart           = 1860
+            cable_user%YearEnd             = 1889
             icycle                         = 12
             spincasa                       = .true.
             cable_user%CASA_fromZero       = .false.
             cable_user%CASA_DUMP_READ      = .true.
             cable_user%CASA_DUMP_WRITE     = .false.
-            cable_user%CASA_SPIN_STARTYEAR = 1840
-            cable_user%CASA_SPIN_ENDYEAR   = 1859
+            cable_user%CASA_SPIN_STARTYEAR = 1860
+            cable_user%CASA_SPIN_ENDYEAR   = 1889
             cable_user%limit_labile        = .true.
             cable_user%POP_fromZero        = .false.
             cable_user%POP_out             = "ini"
@@ -1488,8 +1492,8 @@ EOF
         #MCTEST
         cat > ${tmp}/sedtmp.${pid} << EOF
             cable_user%CLIMATE_fromZero    = .false.
-            cable_user%YearStart           = 1840
-            cable_user%YearEnd             = 1859
+            cable_user%YearStart           = 1860
+            cable_user%YearEnd             = 1889
             icycle                         = 2
             spincasa                       = .false.
             cable_user%CASA_fromZero       = .false.
@@ -1549,15 +1553,15 @@ EOF
         #MCTEST
         cat > ${tmp}/sedtmp.${pid} << EOF
             cable_user%CLIMATE_fromZero    = .false.
-            cable_user%YearStart           = 1840
-            cable_user%YearEnd             = 1859
+            cable_user%YearStart           = 1860
+            cable_user%YearEnd             = 1889
             icycle                         = 12
             spincasa                       = .true.
             cable_user%CASA_fromZero       = .false.
             cable_user%CASA_DUMP_READ      = .true.
             cable_user%CASA_DUMP_WRITE     = .false.
-            cable_user%CASA_SPIN_STARTYEAR = 1840
-            cable_user%CASA_SPIN_ENDYEAR   = 1859
+            cable_user%CASA_SPIN_STARTYEAR = 1860
+            cable_user%CASA_SPIN_ENDYEAR   = 1889
             cable_user%limit_labile        = .false.
             cable_user%POP_fromZero        = .false.
             cable_user%POP_out             = "ini"
@@ -1633,8 +1637,8 @@ EOF
         cable_user%CASA_fromZero        = .false.
         cable_user%CASA_DUMP_READ       = .true.
         cable_user%CASA_DUMP_WRITE      = .false.
-        cable_user%CASA_SPIN_STARTYEAR  = 1840
-        cable_user%CASA_SPIN_ENDYEAR    = 1859
+        cable_user%CASA_SPIN_STARTYEAR  = 1860
+        cable_user%CASA_SPIN_ENDYEAR    = 1889
         cable_user%limit_labile         = .false.
         cable_user%POP_fromZero         = .false.
         cable_user%POP_out              = "ini"
@@ -1717,13 +1721,13 @@ EOF
         cable_user%CASA_fromZero       = .false.
         cable_user%CASA_DUMP_READ      = .false.
         cable_user%CASA_DUMP_WRITE     = .false.
-        cable_user%CASA_SPIN_STARTYEAR = 1850
-        cable_user%CASA_SPIN_ENDYEAR   = 1859
+        cable_user%CASA_SPIN_STARTYEAR = 1860
+        cable_user%CASA_SPIN_ENDYEAR   = 1889
         cable_user%limit_labile        = .false.
         cable_user%POP_fromZero        = .false.
         cable_user%POP_out             = "ini"
         cable_user%POPLUC              = .true.
-        cable_user%POPLUC_RunType      = "restart"
+        cable_user%POPLUC_RunType      = "static"
 EOF
     applysed ${tmp}/sedtmp.${pid} ${rdir}/cable_${experiment}.nml ${rdir}/cable.nml
     # run model
@@ -1774,7 +1778,7 @@ EOF
         applysed ${tmp}/sedtmp.${pid} ${rdir}/plume_${experiment}.nml ${rdir}/plume.nml
     elif [[ "${mettype}" == "bios" ]] ; then
         YearStart=1900
-        YearEnd=2019
+        YearEnd=2022
         cat > ${tmp}/sedtmp.${pid} << EOF
 	          Run = "standard"
 EOF
@@ -1802,13 +1806,13 @@ EOF
         cable_user%CASA_fromZero       = .false.
         cable_user%CASA_DUMP_READ      = .false.
         cable_user%CASA_DUMP_WRITE     = .false.
-        cable_user%CASA_SPIN_STARTYEAR = 1850
-        cable_user%CASA_SPIN_ENDYEAR   = 1859
+        cable_user%CASA_SPIN_STARTYEAR = 1860
+        cable_user%CASA_SPIN_ENDYEAR   = 1889
         cable_user%limit_labile        = .false.
         cable_user%POP_fromZero        = .false.
         cable_user%POP_out             = "ini"
         cable_user%POPLUC              = .true.
-        cable_user%POPLUC_RunType      = "restart"
+        cable_user%POPLUC_RunType      = "static"
 EOF
     applysed ${tmp}/sedtmp.${pid} ${rdir}/cable_${experiment}.nml ${rdir}/cable.nml
     # run model
@@ -1875,8 +1879,8 @@ EOF
         cable_user%CASA_fromZero       = .false.
         cable_user%CASA_DUMP_READ      = .false.
         cable_user%CASA_DUMP_WRITE     = .false.
-        cable_user%CASA_SPIN_STARTYEAR = 1850
-        cable_user%CASA_SPIN_ENDYEAR   = 1851
+        cable_user%CASA_SPIN_STARTYEAR = 1860
+        cable_user%CASA_SPIN_ENDYEAR   = 1869
         cable_user%limit_labile        = .false.
         cable_user%POP_fromZero        = .false.
         cable_user%POP_out             = "ini"

@@ -275,6 +275,8 @@ PROGRAM cable_offline_driver
   !___ unique unit/file identifiers for cable_diag: arbitrarily 5 here
   INTEGER :: iDiagZero=0
 
+  INTEGER :: i
+
   ! switches etc defined thru namelist (by default cable.nml)
   NAMELIST /CABLE/ &
        filename,         & ! TYPE, containing input filenames
@@ -794,7 +796,7 @@ PRINT*,"CLN SIMFIRE INIT"
 
               ! increment total timstep counter
               ktau_tot = ktau_tot + 1
-
+              
               ! globally (WRT code) accessible kend through USE cable_common_module
               ktau_gl = ktau_tot
 
@@ -1009,12 +1011,12 @@ PRINT*,"CLN SIMFIRE INIT"
 
                  IF (liseod) THEN ! end of day
                     IF ( cable_user%CALL_BLAZE ) THEN
-       PRINT*,"CLN CAlling BLAZE"
+                       PRINT*,"CLN CAlling BLAZE"
                        CALL BLAZE_ACCOUNTING(BLAZE, climate, ktau, dels, YYYY, idoy)
 
                        call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
                             casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg)
-
+                       
                        call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
                     ENDIF
                  ENDIF
@@ -1085,8 +1087,10 @@ PRINT*,"CLN SIMFIRE INIT"
                        if ( (ktau == kend) .and. (YYYY == cable_user%YearEnd) .and. (RRRR == NRRRR) ) &
                             call c13o2_close_output(c13o2_outfile_id)
                     end if
+                    
                     count_sum_casa = 0
                     CALL zero_sum_casa(sum_casapool, sum_casaflux)
+                    
                     ! 13C
                     if (cable_user%c13o2) call c13o2_zero_sum_pools(sum_c13o2pools)
                  ENDIF
