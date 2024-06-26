@@ -439,11 +439,11 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
 
   ! Special handling at the last day of the year
   DaysInYear = 365
-  IF (CRU%LeapYears) THEN
+  IF ((CRU%LeapYears) .AND. (is_leapyear(DummyYear))) THEN
     DaysInYear = 366
   END IF
 
-  IF (CRU%CTStep == LastDayOfYear) THEN
+  IF (CRU%CTStep == DaysInYear) THEN
     ! We're at the end of a year
     DummyDay = 1
     DummyYear = CRU%cYear + 1

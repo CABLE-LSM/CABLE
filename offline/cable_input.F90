@@ -3257,7 +3257,6 @@ SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
   TimeIndex = DayOfYear
   YearIndex = Year
 
-  WRITE(*,*) "Time index at start:", TimeIndex
   ! We've already opened a file, check whether the file containing the relevant
   ! data is the one open
   IF (.NOT. ((Year >= STD%StartYear(STD%CurrentFileIndx)) .AND.&
@@ -3281,7 +3280,6 @@ SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
       STD%StartYear(STD%CurrentFileIndx))
   END IF
 
-  WRITE(*,*) "Time index at end:", TimeIndex
   ! Now we have the index, we can grab the data
   ! Read from the netCDF file to the masked array point by point
   IF (DirectRead) THEN
