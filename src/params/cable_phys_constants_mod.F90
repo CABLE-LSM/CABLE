@@ -25,23 +25,23 @@ REAL, PARAMETER :: tfrz   = 273.16        ! Temp (K) corresp. to 0 C
 REAL, PARAMETER :: sboltz = 5.67e-8       ! Stefan-Boltz. const (W/m2/K4)
 REAL, PARAMETER :: emsoil = 1.0           ! soil emissivity
 REAL, PARAMETER :: emleaf = 1.0           ! leaf emissivity
-REAL, PARAMETER :: capp   = 1004.64    ! air spec. heat (J/kg/K)
-REAL, PARAMETER :: hl = 2.5014e6       ! latent heat of vaporization (J/s/m2)
+REAL, PARAMETER :: capp   = 1004.64       ! air spec. heat (J/kg/K)
+REAL, PARAMETER :: hl     = 2.5014e6      ! latent heat of vaporization (J/kg)
 !Below are constants used in CABLE model which are not as yet used in JAC-6.2
-REAL, PARAMETER :: hlf = 0.334e6          ! latent heat of fusion
-REAL, PARAMETER :: hls = 2.8350e6         ! latent heatOFsublimation (J/kg)
-REAL, PARAMETER :: dheat  = 21.5e-6       ! molecular diffusivity for heat
+REAL, PARAMETER :: hlf    = 0.334e6       ! latent heat of fusion (J/kg)
+REAL, PARAMETER :: hls    = 2.8350e6      ! latent heat of sublimation (J/kg)
+REAL, PARAMETER :: dheat  = 21.5e-6       ! molecular diffusivity for heat (cm2/s)
 REAL, PARAMETER :: grav   = 9.8086        ! gravity acceleration (m/s2)
-REAL, PARAMETER :: rgas   = 8.3143        ! universal gas const  (J/mol/K)
+REAL, PARAMETER :: rgas   = 8.3143        ! universal gas const (J/mol/K)
 REAL, PARAMETER :: rmair  = 0.02897       ! molecular wt: dry air (kg/mol)
 REAL, PARAMETER :: rmh2o  = 0.018016      ! molecular wt: water (kg/mol)
 REAL, PARAMETER :: cgsnow = 2090.0        ! specific heat for snow (J/kg/K)
-REAL, PARAMETER :: cs_rho_ice = 1.9341e6  !heat capacity * density ice
+REAL, PARAMETER :: cs_rho_ice = 1.9341e6  ! heat capacity * density ice
 REAL, PARAMETER :: cs_rho_wat = 4.218e6   ! heat capacity * density  water
 REAL, PARAMETER :: csice = 2.100e3        ! specific heat for ice (J/kg/K)
 REAL, PARAMETER :: cswat = 4.218e3        ! specific heat for water at 0°C (J/kg/K)
 REAL, PARAMETER :: density_liq = 1000.0   ! density of liquid water
-REAL, PARAMETER :: density_ice = 921.0    ! denisty of ice
+REAL, PARAMETER :: density_ice = 921.0    ! density of ice                              
 
 ! Teten coefficients
 REAL, PARAMETER :: tetena = 6.106         ! Magnus Tetans (Murray 1967)
