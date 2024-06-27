@@ -532,6 +532,8 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   CO2Method = "Yearly"
   NDepMethod = "Yearly"
   MetRecyc = 20
+  DtHrs = 3.0
+  LeapYears = .FALSE.
   ReadDiffFrac = .TRUE.
   DirectRead = .FALSE.
 
@@ -745,6 +747,8 @@ SUBROUTINE read_landmask(LandmaskFile, CRU)
 
   ! Set the total number of land cells by counting the TRUEs in the landmask.
   CRU%mLand = COUNT(CRU%LandMask)
+  CRU%xDimSize = xDimSize
+  CRU%yDimSize = yDimSize
 
   ! Now we know how many elements in our specific region, allocate global (!!!)
   ! arrays for latitude and longitude value/indices.
