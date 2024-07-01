@@ -554,7 +554,7 @@ MODULE cable_bios_met_obs_params
   TYPE(dmydate)       :: dummydate     ! Dummy date for when keeping the date is not required
   TYPE(dmydate),SAVE  :: MetDate       ! Date of met to access (equals current date for normals runs, but
                                        ! must be calculated for spinup and initialisation runs (for dates before 1900)
-  INTEGER(i4b),PARAMETER :: recycle_met_startdate = 1951 ! range for met to be recycled for spinup and initialisation 
+  INTEGER(i4b),PARAMETER :: recycle_met_startdate = 1951 ! range for met to be recycled for spinup and initialisation also need to set syear below
   INTEGER(i4b),PARAMETER :: recycle_met_enddate = 1980 ! 
   INTEGER(i4b)   :: skipdays                        ! Days of met to skip when user_startdate is after bios_startdate
   TYPE(dmydate), SAVE  :: bios_startdate, bios_enddate    ! First and last dates found in bios met files (read from rain file)
@@ -926,7 +926,7 @@ CONTAINS
       sdoy        = 1
       smoy        = 1
       !syear       = 1690
-      syear = 1951 ! 
+      syear = 1951 ! AB 6/2024 set to 1951 for 1951-1980 spin period.
       write(*,*) 'prev:',previous_date%year,previous_date%month,previous_date%day
       write(*,*) 'run:',  user_startdate%year, user_startdate%month,  user_startdate%day      
       ! For spinup and initialisation before bios met begins (1900),
