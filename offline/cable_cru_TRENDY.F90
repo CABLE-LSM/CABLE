@@ -40,6 +40,7 @@ TYPE CRU_TYPE
   INTEGER   :: CTStep             ! Day of year I think?
   INTEGER   :: DtSecs             ! Size of the timestep in seconds
   INTEGER   :: MetRecyc           ! Period of the met forcing recycling
+  INTEGER   :: RecycStartYear     ! Year to start the met recycling
   INTEGER   :: Ktau
 
   INTEGER, DIMENSION(10)    :: FileID, VarId    ! File and variable IDs for
@@ -382,7 +383,7 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
   INTEGER   :: VarIndx
 
   ! Determine the recycled and sim year
-  RecycledYear = 1901 + MOD(CRU%cYear - 1501, CRU%metRecyc)
+  RecycledYear = CRU%RecycStartYear + MOD(CRU%cYear - 1501, CRU%metRecyc)
 
   ! Iterate through the base variables
   IterateVariables: DO VarIndx = 1, CRU%nMet
@@ -423,7 +424,7 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
 
   ! Was the Tmax recycled?
   IF (CRU%isRecycled(Tmax)) THEN
-    DummyYear = 1901 + MOD(DummyYear - 1501, CRU%metRecyc)
+    DummyYear = CRU%RecycStartYear + MOD(DummyYear - 1501, CRU%metRecyc)
   END IF
 
   ! Now we just need to call cru_read_metvals with the Tmax Dataset reader and
@@ -451,7 +452,7 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
 
   ! Was the Tmin recycled?
   IF (CRU%isRecycled(Tmin)) THEN
-    DummyYear = 1901 + MOD(DummyYear - 1501, CRU%metRecyc)
+    DummyYear = CRU%RecycStartYear + MOD(DummyYear - 1501, CRU%metRecyc)
   END IF
 
   CALL read_metvals(CRU%MetDatasets(Tmin), CRU%Met(nextTmin)%MetVals, land_x,&
@@ -492,7 +493,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
                          qairRecycle, TmaxRecycle, TminRecycle, uwindRecycle,&
                          vwindRecycle, fdiffRecycle
   CHARACTER(LEN=16)   :: CO2Method, NDepMethod
-  INTEGER             :: MetRecyc
+  INTEGER             :: MetRecyc, RecycStartYear
   REAL                :: DtHrs
   LOGICAL             :: ReadDiffFrac, LeapYears, DirectRead
 
@@ -532,6 +533,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   CO2Method = "Yearly"
   NDepMethod = "Yearly"
   MetRecyc = 20
+  RecycStartYear = 1901
   DtHrs = 3.0
   LeapYears = .FALSE.
   ReadDiffFrac = .TRUE.
@@ -545,7 +547,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
                     qairRecycle, TmaxRecycle, TminRecycle, uwindRecycle,&
                     vwindRecycle, fdiffRecycle,&
                     ReadDiffFrac, CO2Method, NDepMethod, MetRecyc, LeapYears,&
-                    DtHrs, DirectRead
+                    RecycStartYear, DtHrs, DirectRead
 
   ! Get a temporary unique ID and use it to read the namelist
   CALL get_unit(nmlUnit)
@@ -586,6 +588,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   ! Convert the hourly timestep to seconds
   CRU%DtSecs = int(DtHrs * 3600.)
   CRU%MetRecyc = MetRecyc
+  CRU%RecycStartYear = RecycStartYear
   CRU%ReadDiffFrac = ReadDiffFrac
   CRU%LeapYears = LeapYears
   CRU%DirectRead = DirectRead
