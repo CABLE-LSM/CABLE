@@ -1693,7 +1693,7 @@ CONTAINS
             !       ! We don't have sufficent water to supply demand, extract only
             !       ! the remaining SW in the layer
                    ssnow%wb(:,k) = ssnow%wb(:,k) - supply(:,k) / &
-                    (real(soil%zse(k),r_2)**1000.0_r_2)
+                    (real(soil%zse(k),r_2)*1000.0_r_2)
                    supply(:,k) = difference
                 ELSEWHERE
                  
