@@ -9,8 +9,3 @@ Table 1 lists the various types of constants used in CABLE. A list of the numeri
 |------------------------|
 | Physical constants   	 |
 | Mathematical constants |
-| 			 |
-| 			 |
-| 			 |
-| 			 |
-|          	         |
