@@ -1155,10 +1155,7 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
        READ (swdown_unit) bios_rundate, swdown_day        ! Packed vector of daily AWAP/BIOS swdown (MJ)
        READ (tairmax_unit) bios_rundate, tairmax_day       ! Packed vector of daily AWAP/BIOS max air temp (deg C)
        READ (tairmin_unit) bios_rundate, tairmin_day       ! Packed vector of daily AWAP/BIOS min air temp (deg C)
-       
-       !PRINT*, "bios rundate tairmax", bios_rundate, tairmax_day ! added for debugging AB 14/8/2024
-       !PRINT*, "bios rundate tairmin", bios_rundate, tairmin_day ! added for debugging AB 14/8/2024
-       
+              
        IF (TRIM(wind_file) .NE. 'none') THEN
           READ (wind_unit) bios_rundate, wind_day          !
        ENDIF
