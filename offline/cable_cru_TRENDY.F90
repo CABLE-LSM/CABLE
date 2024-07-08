@@ -1018,33 +1018,6 @@ END SUBROUTINE get_cru_ndep
 
 !!------------------------------------------------------------------------------!
 
-ELEMENTAL FUNCTION Esatf(TC)
-! ------------------------------------------------------------------------------
-! At temperature TC [deg C], return saturation water vapour pressure Esatf [mb]
-! from Teten formula.
-! MRR, xx/1987
-! PRB, 09/1999:   Convert to F95 elemental function; works on scalars and arrays
-!                 just like intrinsic functions.
-! MRR, 12-mar-02: Convert Qsatf (specific humidity routine) to Esatf
-! ------------------------------------------------------------------------------
-IMPLICIT NONE
-
-REAL(sp), INTENT(IN) :: TC          ! temp [deg C]
-REAL(sp)             :: Esatf       ! saturation vapour pressure [mb]
-
-REAL(sp) :: TCtmp                   ! local
-REAL(sp),PARAMETER:: A = 6.106      ! Teten coefficients
-REAL(sp),PARAMETER:: B = 17.27      ! Teten coefficients
-REAL(sp),PARAMETER:: C = 237.3      ! Teten coefficients
-
-TCtmp = TC                            ! preserve TC
-IF (TCtmp > 100.0) TCtmp = 100.0   ! constrain TC to (-40.0, 100.0)
-IF (TCtmp < -40.0) TCtmp = -40.0
-
-Esatf = A*exp(B*TCtmp/(C+TCtmp))    ! sat vapour pressure (mb)
-
-END FUNCTION Esatf
-
 SUBROUTINE cru_close(CRU)
   !*## Purpose
   !
