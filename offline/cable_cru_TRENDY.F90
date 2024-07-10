@@ -22,9 +22,9 @@ USE cable_def_types_mod,    ONLY: MET_TYPE, r_2, mLand
 USE cable_weathergenerator, ONLY: WEATHER_GENERATOR_TYPE, WGEN_INIT,&
                                 WGEN_DAILY_CONSTANTS, WGEN_SUBDIURNAL_MET
 USE mo_utils,               ONLY: eq
-#IFDEF __MPI__
+#ifdef __MPI__
 USE mpi,                    ONLY: MPI_Abort
-#ENDIF
+#endif
 
 IMPLICIT NONE
 
@@ -500,6 +500,16 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   ! Need a unit to handle the io
   INTEGER             :: nmlUnit
 
+  ! Set up and read the namelist
+  NAMELIST /crunml/ rainFile, lwdnFile, swdnFile, presFile, qairFile,&
+                    TmaxFile, TminFile, uwindFile, vwindFile, fdiffFile,&
+                    CO2File, NDepFile, landmaskFile,&
+                    rainRecycle, lwdnRecycle, swdnRecycle, presRecycle,&
+                    qairRecycle, TmaxRecycle, TminRecycle, uwindRecycle,&
+                    vwindRecycle, fdiffRecycle,&
+                    ReadDiffFrac, CO2Method, NDepMethod, MetRecyc, LeapYears,&
+                    RecycStartYear, DtHrs, DirectRead
+
   ! Set the initial values for the filenames, as there are many instances where
   ! not all are required. We will set them all initially to "None", which we
   ! can easily check against later.
@@ -538,16 +548,6 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   LeapYears = .FALSE.
   ReadDiffFrac = .TRUE.
   DirectRead = .FALSE.
-
-  ! Set up and read the namelist
-  NAMELIST /crunml/ rainFile, lwdnFile, swdnFile, presFile, qairFile,&
-                    TmaxFile, TminFile, uwindFile, vwindFile, fdiffFile,&
-                    CO2File, NDepFile, landmaskFile,&
-                    rainRecycle, lwdnRecycle, swdnRecycle, presRecycle,&
-                    qairRecycle, TmaxRecycle, TminRecycle, uwindRecycle,&
-                    vwindRecycle, fdiffRecycle,&
-                    ReadDiffFrac, CO2Method, NDepMethod, MetRecyc, LeapYears,&
-                    RecycStartYear, DtHrs, DirectRead
 
   ! Get a temporary unique ID and use it to read the namelist
   CALL get_unit(nmlUnit)
@@ -874,7 +874,7 @@ SUBROUTINE prepare_temporal_dataset(FileName, TargetArray)
       ! Read the line of data as a (time, value) pair. We don't want to use the
       ! value this time around because we haven't yet allocated the array to
       ! store it.
-      READ(LineInFile, FMT = '(I4, F)') Time, DummyValue
+      READ(LineInFile, *) Time, DummyValue
     END IF
 
     ! If the LineCounter is 1, we just read the first line of data, so get the
@@ -898,7 +898,7 @@ SUBROUTINE prepare_temporal_dataset(FileName, TargetArray)
   ! Now the useful contents of the file into the array
   ReadValues: DO iter = StartTime, EndTime
     READ(FileID, FMT = '(A)', IOSTAT = ios) LineInFile
-    READ(LineInFile, FMT = '(I4, F)', IOSTAT = ios) Time, TargetArray(iter)
+    READ(LineInFile, *, IOSTAT = ios) Time, TargetArray(iter)
   END DO ReadValues
   CLOSE(FileID)
 END SUBROUTINE prepare_temporal_dataset
@@ -940,7 +940,7 @@ SUBROUTINE get_cru_co2(CRU, CO2Air)
     CO2Air(:) = CRU%CO2Vals(CO2Year)
   ELSE
     ! The user has specified the year
-    READ(CRU%CO2Method, '(I)') CO2Year
+    READ(CRU%CO2Method, *) CO2Year
     CO2Air(:) = CRU%CO2Vals(CO2Year)
   END IF
 END SUBROUTINE get_cru_co2
