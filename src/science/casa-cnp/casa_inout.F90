@@ -153,7 +153,7 @@ USE casa_offline_inout_module, ONLY : READ_CASA_RESTART_NC
     casaflux%Clabloss     = 0.
     casaflux%fracClabile  = 0.
     casaflux%stemnpp      = 0.
-    casaflux%frac_sapwood = 0.
+    casaflux%frac_sapwood = 1.0
     casaflux%sapwood_area = 0.
     casaflux%FluxCtohwp = 0.
     casaflux%FluxCtoClear = 0.
