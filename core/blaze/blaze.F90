@@ -176,7 +176,7 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   BLAZE%KBDI      = 0.
   BLAZE%AB        = 0.
   BLAZE%DEADWOOD  = 0.
-  BLAZE%FSTEP     = 'DAILY'
+  BLAZE%FSTEP     = TRIM(blazeTStep)
 
   BLAZE%LAT       = LAT
   BLAZE%LON       = LON
@@ -805,7 +805,6 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
      ! CALL SIMFIRE DAILY FOR ACOUNTING OF PARAMETERS
      CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB , climate)
 
-WRITE(900+BLAZE%IAM,*)"BLAZE doy,AB",doy,BLAZE%AB(532)
      DO np = 1, BLAZE%NCELLS
         IF ( AVAIL_FUEL(1, CPLANT_w(np,:), CPLANT_g(np,:),BLAZE%AGLit_w(np,:),BLAZE%AGLit_g(np,:) ) .LE. MIN_FUEL ) &
              BLAZE%AB(np) = 0.
@@ -816,6 +815,8 @@ WRITE(900+BLAZE%IAM,*)"BLAZE doy,AB",doy,BLAZE%AB(532)
      WRITE(*,*) "Wrong ignition type chosen: ", BLAZE%BURNT_AREA_SRC
      STOP -1
   ENDIF
+
+  !CALL PRINT_BLAZE(BLAZE)
 
   ! Apply half of former deadwood to atm now How to distribut (str
   ! set following Fraver 2013 pinus rosinosa (hardwood/decid. wood to be added

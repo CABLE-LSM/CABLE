@@ -41,6 +41,7 @@
 #PBS -q normal
 # Typical for global or Aust continent at 0.25, 192 GB memory and 48 cpus,
 # maybe 12 hours walltime
+
 # Typical for small runs, fewer cpus than pixels
 #PBS -l walltime=02:00:00
 #PBS -l mem=48GB
@@ -55,8 +56,10 @@
 #PBS -M matthias.cuntz@inrae.fr
 #PBS -m ae
 
-# cuntz@explor, cuntz@mc16, cuntz@mcinra, moc801@gadi cuntz@gadi
+
+# cuntz@explor, cuntz@mcinra, moc801@gadi cuntz@gadi
 # kna016@pearcey knauer@pearcey, jk8585@gadi knauer@gadi
+
 # bri220@pearcey, pcb599@gadi briggs@gadi
 # yc3714@gadi villalobos@gadi
 # nieradzik@aurora
@@ -115,7 +118,7 @@ nproc=4   # Number of cores for MPI runs
 #    but
 #    namelistpath="$(dirname ${workpath})/namelists"
 #    with
-#      workpath="/home/599/jk8585/CABLE_run/gm_acclim_coord/global_runs"
+#workpath="/home/599/jk8585/CABLE_run/gm_acclim_coord/global_runs"
 #      cablehome="/home/599/jk8585/CABLE_code"
 #    -> changed to similar of ScriptsPath="$(dirname ${workpath})/scripts"
 # 3. Need plume.nml, bios.nml, gm_LUT_*.nc
@@ -124,7 +127,7 @@ nproc=4   # Number of cores for MPI runs
 # 6. Why is YearEnd different for plume (1849) compared to cru (1699) in 5a. First dynamic land use?
 # 7. Do we need chunking in 5a, 5b, 6, and 7? [PB: unnecessary at this point, but possibly for 0.05degs]
 # 8. Do we need cropping output to latlon region at the end: is this not in step 0 with ${doextractsite} -eq 1? [PB: Not needed for # BIOS
-#
+
 #ASKJK - changes in comparison to gm_acclim_coord
 
 # --------------------------------------------------------------------
@@ -140,6 +143,7 @@ doextractsite=0 # 0: Do not extract local meteo, land use nor mask
                 # 1: Do extract only mask at specific site/region (imeteo=1)
                 # 2: Do extract meteo, land use and mask at specific site/region (imeteo=2)
                 #    Does not work with randompoints /= 0 but with latlon
+
     experiment=blaze02
     randompoints=0   # <0: use -1*randompoints from file ${LandMaskFilePath}/${experiment}_points.csv if existing
                      # 0:  use latlon
@@ -149,6 +153,7 @@ doextractsite=0 # 0: Do not extract local meteo, land use nor mask
     # latlon=-34.5,-33.5,149.5,156.5
     # latlon=42.5,43.5,109.5,110.5
     # latlon=-44.0,-10.0,110.0,155.0  # Australia
+
 
 # Step 1
 doclimate=1     # 1/0: Do/Do not create climate restart file
@@ -189,6 +194,8 @@ acclimate_photosyn=1  # 1/0: Do/Do not acclimate photosynthesis
 call_pop=1          # 1/0: Do/Do not use POP population dynamics model, coupled to CASA
 doc13o2=0           # 1/0: Do/Do not calculate 13C
 c13o2_simple_disc=0 # 1/0: simple or full 13C leaf discrimination
+
+####### PB NOTE COMPARE SETUPS FROM HERE DOWN
 
 # --------------------------------------------------------------------
 # Setup
@@ -530,8 +537,10 @@ elif [[ "${system}" == "yc3714@gadi" || "${system}" == "villalobos@gadi" ]] ; th
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
     aux="/g/data/x45/CABLE-AUX"
     # Global Mask
+
     SurfaceFile="${aux}/offline/gridinfo_CSIRO_CRU05x05_4tiles.nc"   # note that SurfaceFile does not need subsetting
-    # Global Met
+
+  # Global Met
     if [[ "${mettype}" == "cru" ]] ; then
 	      GlobalLandMaskFile="/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
         GlobalMetPath="/g/data/x45/CRUJRA2020/daily_1deg"
@@ -614,6 +623,7 @@ elif [[ "${system}" == "pcb599@gadi" || "${system}" == "briggs@gadi" ]] ; then
 	      exe="${cablehome}/offline/cable-mpi"
     else
 	      exe="${cablehome}/offline/cable"
+
     fi
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
     aux="/g/data/x45/CABLE-AUX"
@@ -717,7 +727,10 @@ else
     fi
 fi
 # LUC
-TransitionFilePath="${sitepath}/LUH2/v3/1deg"
+#TransitionFilePath="${sitepath}/LUH2/v3/1deg"
+TransitionFilePath="/g/data/x45/LUH2/v3h/${degrees}deg_aust/EXTRACT"
+#TransitionFilePath="/home/x_larni/STOREDIR/DATA/CABLE_INPUT/LUH2/v3h/${degrees}deg_aust/EXTRACT" # LN
+
 # gm lookup tables
 gm_lut_bernacchi_2002="${cablehome}/params/gm_LUT_351x3601x7_1pt8245_Bernacchi2002.nc"
 gm_lut_walker_2013="${cablehome}/params/gm_LUT_351x3601x7_1pt8245_Walker2013.nc"
@@ -1088,6 +1101,7 @@ EOF
 applysed ${tmp}/sedtmp.${pid} ${ndir}/LUC.nml ${rdir}/LUC_${experiment}.nml
 
 # Blaze namelist !CLN CHECK
+
 cat > ${tmp}/sedtmp.${pid} << EOF
     blazeTStep       = "annually"  ! Call frequency ("daily", "monthly", "annually")
     BurnedAreaSource = "SIMFIRE"   ! Burnt Area ("PRESCRIBED", "SIMFIRE", "GFED4")
@@ -1142,6 +1156,7 @@ cat > ${tmp}/sedtmp.${pid} << EOF
     cable_user%c13o2_restart_out_pools = "restart/${mettype}_c13o2_pools_rst.nc"
     cable_user%c13o2_restart_in_luc    = "restart/${mettype}_c13o2_luc_rst.nc"
     cable_user%c13o2_restart_out_luc   = "restart/${mettype}_c13o2_luc_rst.nc"
+    cable_user%CALL_BLAZE              = .TRUE.
 EOF
 if [[ ${call_pop} -eq 1 ]] ; then
     sed -i -e "/cable_user%CALL_POP/s/=.*/= .true./" ${tmp}/sedtmp.${pid}

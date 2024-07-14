@@ -399,6 +399,7 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
                  wTOT  = wTOT  + LAND_AREA(ix,jy)
 
                  !write(*,*) 'RVAL: ',   RVAL(ix,jy), ix, jy
+
               END DO
            END DO
 

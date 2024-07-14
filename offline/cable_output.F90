@@ -1247,7 +1247,7 @@ CONTAINS
        out%dCdt = zero4 ! initialise
 
        CALL define_ovar(ncid_out, ovid%TotSoilCarb, 'TotSoilCarb', 'kg C/m^2', &
-            'Total Soil and Litter Carbon', patchout%TotSoilCarb, &
+            'Total Soil Carbon', patchout%TotSoilCarb, &
             'dummy', xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%TotSoilCarb(mp))
        out%TotSoilCarb = zero4 ! initialise

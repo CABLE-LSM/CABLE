@@ -1666,6 +1666,9 @@ CONTAINS
     deltlfy = abs_deltlf
     k = 0
 
+    !CLN as yet uninitialised
+    cx2(:) = 0.
+
     !kdcorbin, 08/10 - doing all points all the time
     DO WHILE (k < C%MAXITER)
        k = k + 1
@@ -1809,8 +1812,8 @@ CONTAINS
              !                             + C%gam2 * tdiff(i) * tdiff(i) )
              cx2(i) = 2.0 * gam0 * EXP( ( egam / (C%rgas*C%trefk) ) &
                   * ( 1.0 - C%trefk/tlfx(i) ) )
-
-             ! All equations below in appendix E in Wang and Leuning 1998 are
+           
+            ! All equations below in appendix E in Wang and Leuning 1998 are
              ! for calculating anx, csx and gswx for Rubisco limited,
              ! RuBP limited, sink limited.
              ! JK: vx4 changed to correspond to formulation in Collatz et al. 1992

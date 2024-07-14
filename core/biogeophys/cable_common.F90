@@ -980,4 +980,20 @@ CONTAINS
 
   END FUNCTION Esatf
 
+!CLN  SUBROUTINE PRINT_PER_PROC(TXT)
+!CLN
+!CLN    ! Write out process specific output into files called 
+!CLN    ! "cable_log_"//cRank as defined in 
+!CLN    USE cable_IO_vars_module, ONLY: wlogn
+!CLN    
+!CLN    IMPLICIT NONE 
+!CLN    CHARACTER(LEN=200) :: TXT 
+!CLN
+!CLN#ifndef __MPI__
+!CLN    RETURN
+!CLN#endif
+!CLN
+!CLN  END SUBROUTINE PRINT_PER_PROC
+
+
 END MODULE cable_common_module

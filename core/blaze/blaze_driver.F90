@@ -162,9 +162,6 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
   ! POP cohorts and then interpolating fire_mortality between POP patches
   if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))
   Iw = POP%Iwood
-  WRITE(900+BLAZE%IAM,*) 'IW', POP%Iwood
-  WRITE(900+BLAZE%IAM,*) 'BA: ', BLAZE%AB
-  WRITE(900+BLAZE%IAM,*) 'dist: ', int(veg%disturbance_interval(Iw,:), i4b)
   
   CALL ADJUST_POP_FOR_FIRE(pop,int(veg%disturbance_interval(Iw,:), i4b), &
      veg%disturbance_intensity(Iw,1), veg%disturbance_intensity(Iw,2)  )
@@ -177,14 +174,15 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
   DO i = 1, BLAZE%NCELLS
      DO p = 1, landpt(i)%nap  ! loop over number of active patches
         patch_index = landpt(i)%cstart + p - 1 ! patch index in CABLE vector
-        WRITE(900+BLAZE%IAM,*)" Pidx",patch_index,patch(:)%frac
-
+ 
         IF ( casamet%lnonwood(patch_index) == 1 ) THEN ! Here non-wood
-
-           casaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i), r_2) &
-                * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac, r_2)
-           casaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i), r_2) &
-                * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac, r_2)
+!CLN wrong for kplant. Take out cmass here
+           !CLNcasaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i), r_2) &
+           !CLN     * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac, r_2)
+           !CLNcasaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i), r_2) &
+           !CLN     * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac, r_2)
+           casaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i), r_2)
+           casaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i), r_2)
            casaflux%kplant_fire(patch_index,WOOD)  = 0.0_r_2
 
            casaflux%klitter_fire(patch_index,METB) = real(BLAZE%AB(i) * ag_litter_frac, r_2)
@@ -214,17 +212,12 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
            BLAZE%FLUXES(i,14) = BLAZE%FLUXES(i,14) + casaflux%klitter_fire(patch_index,STR ) &
                 * real(casapool%clitter(patch_index,STR )*patch(patch_index)%frac, r_2)
            
-           WRITE(900+BLAZE%IAM,*)" Grass", BLAZE%FLUXES(i,11) , casaflux%kplant_fire(patch_index,LEAF ), &
-                 casapool%cplant(patch_index,LEAF ),patch(patch_index)%frac
-    
-
         ELSEIF ( casamet%lnonwood(patch_index) == 0 ) THEN ! Here woody patches
 
            !CLN increment iwood for pop_grid
            
            rkill=POP%pop_grid(pidx)%rkill
-           IF (rkill .GT. 0.) WRITE(900+BLAZE%IAM,*)" driver rkill", i, p,pidx,rkill
-
+ 
            pidx = pidx + 1
            ! Check if there is mortality and COMBUST has only computed non-woody TO
            ! When POP is involved these fluxes need to sum up to 1, assuming that
@@ -279,16 +272,6 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
            BLAZE%FLUXES(i,10) = BLAZE%FLUXES(i,10) + casaflux%fromPtoL_fire(patch_index,CWD,WOOD )  &
                 * real(casapool%clitter(patch_index,WOOD)*patch(patch_index)%frac, r_2)
            
-           WRITE(900+BLAZE%IAM,*)" Wood", BLAZE%FLUXES(i, 1) , casaflux%kplant_fire(patch_index,WOOD ), &
-                 casapool%cplant(patch_index,WOOD ),patch(patch_index)%frac,rkill
-           WRITE(900+BLAZE%IAM,*)" TO(i, LEAF )%TO_STR",i,TO(i, LEAF )%TO_STR
-           WRITE(900+BLAZE%IAM,*)" TO(i, FROOT)%TO_STR",i,TO(i, FROOT)%TO_STR
-           WRITE(900+BLAZE%IAM,*)" TO(i, WOOD )%TO_STR",i,TO(i, WOOD )%TO_STR
-           WRITE(900+BLAZE%IAM,*)" TO(i, WOOD )%TO_CWD",i,TO(i, WOOD )%TO_CWD
-           WRITE(900+BLAZE%IAM,*)" TO(i, WOOD )%TO_ATM",i,TO(i, WOOD )%TO_ATM
-
-           !CLN IF ( EOY ) STOP "CLN1"
-
         ENDIF
 
       ENDDO ! number of active patches

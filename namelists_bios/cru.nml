@@ -1,0 +1,8 @@
+&CRUNML
+	BasePath     = "/OSM/CBR/OA_GLOBALCABLE/work/CRUJRA2019/daily_1deg"
+	MetPath      = "/OSM/CBR/OA_GLOBALCABLE/work/CRUJRA2019/daily_1deg"
+        LandMaskFile = "/OSM/CBR/OA_GLOBALCABLE/work/Vanessa/MASKS/test_savanna_1x1.nc"
+	Run          = "S0_TRENDY"        ! Run types are "spinup" (spinup), "1750_1900" (initialisation), "1901_2014" (run)
+	DThrs        = 3.0                ! **CABLE** timestep hours (not the met timestep)
+	DirectRead   = .FALSE.
+&end

@@ -554,8 +554,8 @@ MODULE cable_bios_met_obs_params
   TYPE(dmydate)       :: dummydate     ! Dummy date for when keeping the date is not required
   TYPE(dmydate),SAVE  :: MetDate       ! Date of met to access (equals current date for normals runs, but
                                        ! must be calculated for spinup and initialisation runs (for dates before 1900)
-  INTEGER(i4b),PARAMETER :: recycle_met_startdate = 1981 ! range for met to be recycled for spinup and initialisation
-  INTEGER(i4b),PARAMETER :: recycle_met_enddate = 2010
+  INTEGER(i4b),PARAMETER :: recycle_met_startdate = 1951 ! range for met to be recycled for spinup and initialisation also need to set syear below
+  INTEGER(i4b),PARAMETER :: recycle_met_enddate = 1980 ! 
   INTEGER(i4b)   :: skipdays                        ! Days of met to skip when user_startdate is after bios_startdate
   TYPE(dmydate), SAVE  :: bios_startdate, bios_enddate    ! First and last dates found in bios met files (read from rain file)
   REAL(sp), PRIVATE, PARAMETER :: SecDay = 86400.
@@ -926,7 +926,7 @@ CONTAINS
       sdoy        = 1
       smoy        = 1
       !syear       = 1690
-      syear = 1981
+      syear = 1951 ! AB 6/2024 set to 1951 for 1951-1980 spin period.
       write(*,*) 'prev:',previous_date%year,previous_date%month,previous_date%day
       write(*,*) 'run:',  user_startdate%year, user_startdate%month,  user_startdate%day      
       ! For spinup and initialisation before bios met begins (1900),
@@ -936,9 +936,10 @@ CONTAINS
       MetDate%day = 1
       MetDate%month = 1
       IF (TRIM(MetForcing) .EQ. 'recycled') THEN
-         MetDate%Year = recycle_met_startdate + MOD(curyear-syear,recycle_met_enddate-recycle_met_startdate+1)
-         write(*,*) 'metdatestart,: ',  MetDate%Year,  recycle_met_startdate,  curyear, syear, &
-                       recycle_met_enddate, recycle_met_startdate,  MOD(curyear-syear,recycle_met_enddate-recycle_met_startdate+1)
+         !AB 6/2024 use MODULO not MOD here to avoid negative values
+         MetDate%Year = recycle_met_startdate + MODULO(curyear-syear,recycle_met_enddate-recycle_met_startdate+1) 
+                  write(*,*) 'metdatestart,: ',  MetDate%Year,  recycle_met_startdate,  curyear, syear, &
+                       recycle_met_enddate, recycle_met_startdate,  MODULO(curyear-syear,recycle_met_enddate-recycle_met_startdate+1)
       ELSE IF (TRIM(MetForcing) .EQ. 'actual' ) THEN
         MetDate%Year = curyear
       ENDIF
@@ -1133,15 +1134,15 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
     TYPE(MET_TYPE), INTENT(INOUT)       :: MET
 
     LOGICAL(lgt)   :: newday
-!    real(sp),parameter:: RMW       = 0.018016 ! molecular wt of water     [kg/mol]
-!    real(sp),parameter:: RMA       = 0.02897 ! atomic wt of C            [kg/mol]
-    real(sp),parameter:: RMWbyRMA  = 0.62188471 ! molecular wt of water [kg/mol] / atomic wt of C [kg/mol]
+!    real(sp),parameter:: RMW     = 0.018016 ! molecular wt of water     [kg/mol]
+!    real(sp),parameter:: RMA     = 0.02897 ! atomic wt of C            [kg/mol]
+    real(sp),parameter:: RMWbyRMA = 0.62188471 ! molecular wt of water [kg/mol] / atomic wt of C [kg/mol]
+    real(sp),parameter:: vp_min   = 0.1 ! minimum value of vapour pressure [hPa]
     integer(i4b)   :: iday
     integer(i4b)   :: iland       ! Loop counter through mland land cells
     integer(i4b)   :: is, ie      ! For each land cell, the start and ending index position within the larger cable spatial
                                   ! vectors of the first and last tile for that land cell.
-    real(sp),parameter:: min_vp = 0.1   !minimum value of vapour pressure allowed (hPa)
-
+    
     met%hod (landpt(:)%cstart) = REAL(MOD( (ktau-1) * NINT(dels), INT(SecDay)) ) / 3600.
     met%doy (landpt(:)%cstart) = INT(REAL(ktau-1) * dels / SecDay ) + 1
     met%year(landpt(:)%cstart) = Curyear  
@@ -1154,6 +1155,7 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
        READ (swdown_unit) bios_rundate, swdown_day        ! Packed vector of daily AWAP/BIOS swdown (MJ)
        READ (tairmax_unit) bios_rundate, tairmax_day       ! Packed vector of daily AWAP/BIOS max air temp (deg C)
        READ (tairmin_unit) bios_rundate, tairmin_day       ! Packed vector of daily AWAP/BIOS min air temp (deg C)
+              
        IF (TRIM(wind_file) .NE. 'none') THEN
           READ (wind_unit) bios_rundate, wind_day          !
        ENDIF
@@ -1201,7 +1203,7 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
              READ (swdown_unit) dummydate, swdown_day
              READ (tairmax_unit) dummydate, tairmax_day
              READ (tairmin_unit) dummydate, tairmin_day
-             
+                          
              IF (TRIM(wind_file) .NE. 'none') THEN
                 READ (wind_unit) dummydate, wind_day
              ENDIF
@@ -1233,6 +1235,7 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
        !   BACKSPACE(tairmin_unit)
        !endif
 
+        
        next_tairmin_day =   tairmin_day
        prev_vp1500 = vp1500
        next_vp0900 = vp0900
@@ -1250,16 +1253,15 @@ write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
 
        !apply minimum value to vapour pressure to prevent negaive values
        IF (TRIM(vp0900_file) .NE. 'none') THEN
-          WG%VapPmb0900 = MAX(vp0900, min_vp)
-          WG%VapPmb1500 = MAX(vp1500, min_vp)
-          WG%VapPmb1500Prev = MAX(prev_vp1500, min_vp)
-          WG%VapPmb0900Next = MAX(next_vp0900, min_vp)
-       
+          WG%VapPmb0900 = MAX(vp0900, vp_min)
+          WG%VapPmb1500 = MAX(vp1500, vp_min)
+          WG%VapPmb1500Prev = MAX(prev_vp1500, vp_min)
+          WG%VapPmb0900Next = MAX(next_vp0900, vp_min)     
        ELSE
-          WG%VapPmb0900 =  MAX(WG%VapPmbDay, min_vp) 
-          WG%VapPmb1500 =   MAX(WG%VapPmbDay, min_vp) 
-          WG%VapPmb1500Prev =  MAX(WG%VapPmbDay, min_vp) 
-          WG%VapPmb0900Next =  MAX(WG%VapPmbDay, min_vp)
+          WG%VapPmb0900 =  MAX(WG%VapPmbDay, vp_min) 
+          WG%VapPmb1500 =   MAX(WG%VapPmbDay, vp_min) 
+          WG%VapPmb1500Prev =  MAX(WG%VapPmbDay, vp_min) 
+          WG%VapPmb0900Next =  MAX(WG%VapPmbDay, vp_min)
        ENDIF
 
        if (swdown_file(1:4) .eq. 'rsds') then

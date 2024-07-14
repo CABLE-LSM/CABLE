@@ -1,0 +1,116 @@
+&cable
+   filename%met = ''
+   filename%path = './'
+   filename%type    = 'surface_data/gridinfo_CSIRO_CRU05x05_4tiles.nc'
+   filename%veg    =  'driver_files/def_veg_params.txt'
+   filename%soil    = 'driver_files/def_soil_params.txt'
+   filename%log = 'logs/log_cable.txt'
+   filename%out = 'outputs/bios_out_cable.nc'
+   filename%restart_in = 'restart/bios_cable_rst.nc'
+   filename%restart_out = 'restart/bios_cable_rst.nc'
+   casafile%out = 'outputs/bios_out_casa.nc'   ! casa 
+   casafile%cnpipool= 'restart/bios_casa_rst.nc'   ! casa restart_in
+   casafile%cnpepool='restart/bios_casa_rst.nc'    ! casa restart_out
+   cable_user%POP_outfile =''
+   cable_user%POP_restart_in             = 'restart/pop_bios_ini.nc'        ! POP restart_in
+   cable_user%POP_restart_out             = 'restart/pop_bios_ini.nc'        ! POP restart_out
+   cable_user%climate_restart_in             = 'restart/bios_climate_rst.nc'        ! climate restart_in
+   cable_user%climate_restart_out             = 'restart/bios_climate_rst.nc'        ! climate restart_out
+   vegparmnew = .TRUE.  ! using new format when true
+   soilparmnew = .TRUE.  ! using new format when true
+   spinup = .FALSE.  ! do we spin up the model?
+   delsoilM = 0.01   ! allowed variation in soil moisture for spin up
+   delsoilT = 0.1    ! allowed variation in soil temperature for spin up
+   output%grid = 'land'  ! should a restart file be created?
+   output%restart = .TRUE.  ! should a restart file be created?
+   output%met = .TRUE.  ! input met data
+   output%flux = .TRUE.  ! convective, runoff, NEE
+   output%soil = .TRUE.  ! soil states
+   output%snow = .TRUE.  ! snow states
+   output%radiation = .TRUE.  ! net rad, albedo
+   output%casa = .TRUE.
+   output%carbon    = .TRUE.  ! NEE, GPP, NPP, stores
+   output%veg       = .TRUE.  ! vegetation states
+   output%params    = .TRUE.  ! input parameters used to produce run
+   output%balances  = .TRUE.  ! energy and water balances
+   output%patch = .TRUE. 
+   output%averaging = 'all'     
+   check%ranges     = .FALSE.  ! variable ranges, input and output
+   check%energy_bal = .TRUE.  ! energy balance
+   check%mass_bal   = .TRUE.  ! water/mass balance
+   verbose = .FALSE. ! write details of every grid cell init and params to log?
+   leaps = .TRUE. ! calculate timing with leap years?
+   logn = 88      ! log file number - declared in input module
+   fixedCO2 = 350.0   ! if not found in met file, in ppmv
+   spincasainput = .FALSE.    ! input required to spin casacnp offline
+   spincasa      = .FALSE.     ! spin casa before running the model if TRUE, and should be 
+   		   	       !set to FALSE if spincasainput = .TRUE.
+   l_casacnp     = .TRUE.  ! using casaCNP with CABLE  (! DEPRECATED!!! use icycle instead!))
+   l_laiFeedbk   = .TRUE.  ! using prognostic LAI
+   l_vcmaxFeedbk = .TRUE.  ! using prognostic Vcmax
+   icycle = 2   ! BP pull it out from casadimension and put here; 0 for not using casaCNP, 
+   	    	! 1 for C, 2 for C+N, 3 for C+N+P
+   casafile%cnpbiome='/short/x45/surface_data_PLUME/pftlookup_csiro_v16_17tiles_Cumberland.csv'  ! biome specific BGC parameters
+   casafile%cnpmetout='casamet.nc'                ! output daily met forcing for spinning casacnp
+   casafile%cnpmetin=''          ! list of daily met files for spinning casacnp
+   casafile%phen='/short/x45/surface_data_PLUME/modis_phenology_csiro.txt'        ! modis phenology
+   casafile%cnpflux='cnpfluxOut.csv'
+   ncciy = 0 ! 0 for not using gswp; 4-digit year input for year of gswp met
+   gswpfile%rainf = '/data/nie06a/MET/PLUMBER/Rainf_gswp_1986_plumber.nc'
+   gswpfile%snowf = '/data/nie06a/MET/PLUMBER/Snowf_gswp_1986_plumber.nc'
+   gswpfile%LWdown= '/data/nie06a/MET/PLUMBER/LWdown_srb_1986_plumber.nc'
+   gswpfile%SWdown= '/data/nie06a/MET/PLUMBER/SWdown_srb_1986_plumber.nc'
+   gswpfile%PSurf = '/data/nie06a/MET/PLUMBER/PSurf_ecor_1986_plumber.nc'
+   gswpfile%Qair  = '/data/nie06a/MET/PLUMBER/Qair_cru_1986_plumber.nc'
+   gswpfile%Tair  = '/data/nie06a/MET/PLUMBER/Tair_cru_1986_plumber.nc'
+   gswpfile%wind  = '/data/nie06a/MET/PLUMBER/Wind_ncep_1986_plumber.nc'
+   redistrb = .FALSE.  ! Turn on/off the hydraulic redistribution
+   wiltParam = 0.5
+   satuParam = 0.8
+   cable_user%FWSOIL_SWITCH    = 'Haverd2013'     ! choices are: 
+                                                 ! 1. standard 
+                                                 ! 2. non-linear extrapolation 
+                                                 ! 3. Lai and Ktaul 2000 
+                                                 ! 4. Haverd2013
+   cable_user%litter = .true. 
+   cable_user%DIAG_SOIL_RESP   = 'ON ' 
+   cable_user%LEAF_RESPIRATION = 'ON ' 
+   cable_user%RUN_DIAG_LEVEL   = 'BASIC'        ! choices are: 
+                                                 ! 1. BASIC
+                                                 ! 1. NONE
+   cable_user%CONSISTENCY_CHECK   = .TRUE.      ! TRUE outputs combined fluxes at each timestep for comparisson to A control run 
+   cable_user%CASA_DUMP_READ      = .FALSE.     ! TRUE reads CASA forcing from netcdf format
+   cable_user%CASA_DUMP_WRITE     = .FALSE.     ! TRUE outputs CASA forcing in netcdf format
+   cable_user%CASA_SPIN_STARTYEAR = 1850        ! default = 1950
+   cable_user%CASA_SPIN_ENDYEAR   = 1859        ! default = 1960
+   cable_user%CASA_NREP           = 0          ! number of times to repeat CASA forcing
+   cable_user%LogWorker           = .FALSE.	 
+   cable_user%SSNOW_POTEV         = 'P-M'       ! Humidity Deficit Method
+   cable_user%SOIL_STRUC          = 'sli'       ! 'default','sli'
+   cable_user%CALL_POP            = .FALSE.     ! TRUE uses POP population dynamics model, coupled to CASA.
+   cable_user%POP_out             = 'epi'       ! ! Pop-output file either 'rst':Standard restart OR 'epi' for whole episode
+   cable_user%POP_rst             = './'        ! Pop-output file to read restart values from (default is rst-file)
+   cable_user%POP_fromZero        = .T.     ! Start POP from Zero, don't read restart file
+   cable_user%CASA_fromZero        = .T.  
+   cable_user%RunIden       = 'Cumberland' ! Unique identifier for model Run, will be used in Filenames 
+   cable_user%YearStart     = 1831         ! YYYY 4 digit year
+   cable_user%YearEnd       = 1851       ! YYYY 4 digit year
+   cable_user%MetType       = 'site'        ! Either 'gswp' or 'plum' for PLUME
+   cable_user%CASA_OUT_FREQ = 'monthly'        ! casa standard output freq 'daily','monthly' or 'annually'
+   cable_user%CLIMATE_fromZero =.T.	
+   cable_user%CALL_CLIMATE =.T.
+   cable_user%PHENOLOGY_SWITCH = 'climate'
+   cable_user%POPLUC = .F.	 
+   cable_user%POPLUC_RunType = 'static'
+   cable_user%vcmax = 'Walker2014'
+   cable_user%gs_switch = 'medlyn'
+   cable_user%explicit_gm = .TRUE.
+   cable_user%coordinate_photosyn = .TRUE.
+   cable_user%g0_switch = 'maximum'
+   cable_user%acclimate_photosyn = .FALSE.
+   cable_user%limit_labile = .F.
+   cable_user%SRF = .T.
+   cable_user%SMRF_NAME = 'DAMM'
+   cable_user%STRF_NAME = 'DAMM'
+
+&end

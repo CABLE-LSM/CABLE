@@ -255,8 +255,7 @@ contains
                    casabal%Crootmean = casapool%cplant(:,3) / real(LOY,dp) / 1000._dp
                 else
                    casaflux%stemnpp  = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
-                   !#9238
-                   casaflux%potstemnpp = casaflux%potstemnpp + (casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp + &
+                                      casaflux%potstemnpp = casaflux%potstemnpp + (casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp + &
                                                                casaflux%fracClabile * casaflux%cgpp)
                    casabal%LAImax    = max(casamet%glai, casabal%LAImax)
                    casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1) / real(LOY,dp) / 1000.0_dp

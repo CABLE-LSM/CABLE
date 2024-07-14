@@ -36,24 +36,32 @@ host_gadi()
         . /etc/kshrc
     fi
     module purge
-    module load intel-compiler/2019.5.281
-    module load intel-mpi/2019.5.281
-    module load netcdf/4.6.3
+    # module load intel-compiler/2019.5.281
+    # module load intel-mpi/2019.5.281
+    # module load netcdf/4.6.3
+    module load intel-compiler-llvm/2023.0.0
+    module load intel-mpi/2021.8.0
+    module load netcdf/4.9.2
 
-    export FC=mpif90
+    # export FC=mpif90
+    export FC=mpiifort
     export NCMOD=${NETCDF_ROOT}"/include/Intel"
+    # -diag-disable=10382  <- e.g., option '-xHOST' setting '-xCORE-AVX2'
+    # -diag-disable=15009  <- has been targeted for automatic cpu dispatch
     if [[ ${1} == "debug" ]]; then
         # debug
         # export CFLAGS='-O0 -fpp -traceback -g -fp-model precise -ftz -fpe0'
-        export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv"
+        export CFLAGS="-fpp -O0 -debug extended -traceback -g -check all,noarg_temp_created -warn all -fp-stack-check -nofixed -assume byterecl -fp-model precise -diag-disable=10382,15009 -fpe0" # -fpe-all=0 -no-ftz -ftrapuv"
         export LDFLAGS="-O0"
         OPTFLAG=""
     else
         # release
         # export CFLAGS='-O2 -fpp -fp-model precise'
-        export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ip -diag-disable=10382"
-        export LDFLAGS="-O3"
-        OPTFLAG="-xCASCADELAKE"
+        # -ip or -ipo
+        export CFLAGS="-fpp -O3 -nofixed -assume byterecl -fp-model precise -ipo -diag-disable=10382,15009"
+        export LDFLAGS="-O3 -ipo"
+        # OPTFLAG="-xCASCADELAKE"
+        OPTFLAG="-march=broadwell -axSKYLAKE-AVX512,CASCADELAKE,SAPPHIRERAPIDS"
         # OPTFLAG="-xCORE-AVX2 -axSKYLAKE-AVX512,CASCADELAKE" # given in user training: does not work
         # OPTFLAG="-xCASCADELAKE" # or -xCORE-AVX512;                           queues: express / normal
         # OPTFLAG="-xBROADWELL"   # or -xCORE-AVX512;                           queues: expressbw / normalbw
@@ -88,10 +96,10 @@ host_petr()
     #module add intel-cc/16.0.1.150 intel-fc/16.0.1.150
     #module add netcdf/4.3.3.1 openmpi/1.8.8
 
-    module del intel-cc intel-fc 
+    module del intel-cc intel-fc
     module add intel-cc/2020.4.304 intel-fc/2020.4.304
     module add netcdf/4.8.0-intel20 openmpi/4.1.4-ofed54-intel20
-    
+
     export NCDIR=$NETCDF_ROOT'/lib/'
     export NCMOD=$NETCDF_ROOT'/include/'
     export FC='mpifort' #'mpif90'
@@ -399,7 +407,8 @@ host_vm_o()
         # OPTFLAG="${CFLAGS} -mtune=ivybridge"     # ivy / k20
         export CFLAGS="${CFLAGS} -D__INTEL__ -D__INTEL_COMPILER__"
         export LD=""
-        export NCROOT="/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-ifort2018.0"
+        export NCCROOT="/home/oqx29/shared/local.save"
+        export NCROOT="${NCCROOT}/netcdf-fortran-4.4.4-ifort2018.0"
     else
         # GFORTRAN # 6.3.0 because of netcdf-fortran
         module load gcc/6.3.0
@@ -422,17 +431,17 @@ host_vm_o()
         # OPTFLAG="${CFLAGS} -mavx"                # ivy / k20
         export CFLAGS="${CFLAGS} -D__GFORTRAN__ -D__gFortran__"
         export LD=""
-        export NCROOT="/home/oqx29/zzy20/local/netcdf-fortran-4.4.4-gfortran63"
+        export NCCROOT="/home/oqx29/shared/local.gnu"
+        export NCROOT=${NCCROOT}
     fi
 
     # All compilers
     export CFLAGS="${CFLAGS} ${OPTFLAG}"
     export CFLAGS="${CFLAGS} -D__MPI__"
     # export CFLAGS="${CFLAGS} -D__C13DEBUG__"
-    export CFLAGS="${CFLAGS} -D__CRU2017__"
+    export CFLAGS="${CFLAGS} -D__CRU2020__"
     export CFLAGS="${CFLAGS} -D__NETCDF3__"
 
-    export NCCROOT="/home/oqx29/zzy20/local"
     export NCCLIB=${NCCROOT}"/lib"
     export NCLIB=${NCROOT}"/lib"
     export NCMOD=${NCROOT}"/include"
