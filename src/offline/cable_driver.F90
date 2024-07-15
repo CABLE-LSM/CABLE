@@ -621,7 +621,7 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
                    casamet, casabal, phen, POP, spinup,        &
                    CEMSOIL, CTFRZ, LUC_EXPT, POPLUC )
 
-              IF (check%ranges) THEN
+              IF (check%ranges > 0) THEN
                   WRITE (*, *) "Checking parameter ranges"
                   CALL constant_check_range(soil, veg, 0, met)
               END IF
