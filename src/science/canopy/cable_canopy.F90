@@ -645,7 +645,7 @@ write(6,*) "SLI is not an option right now"
        !radiation weighted soil and canopy contributions
        !Note: If PM routine corrected then match changes here
        canopy%epot = ((1.-rad%transd)*canopy%fevw_pot +                         &
-            rad%transd*ssnow%potev*ssnow%cls) * dels/air%rlam
+            rad%transd*ssnow%potev/ssnow%cls) * dels/air%rlam
 
 
 

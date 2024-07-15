@@ -84,7 +84,7 @@ MODULE cable_checks_module
       ESoil = [-0.0015, 0.0015], &
       TVeg = [-0.0003, 0.0003], &
       ECanop = [-0.0003, 0.0003], &
-      PotEvap = [-0.0006, 0.0006], &
+      PotEvap = [-0.005, 0.005], &  !note should encompass Evap
       ACond = [0.0, 1.0], &
       SoilWet = [-0.4, 1.2], &
       Albedo = [0.0, 1.0], &

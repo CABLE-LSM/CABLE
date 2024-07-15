@@ -494,6 +494,7 @@ CONTAINS
       output%Qsb = .TRUE.
       output%Evap = .TRUE.
       output%ECanop = .TRUE.
+      output%PotEvap = .TRUE.
       output%TVeg = .TRUE.
       output%ESoil = .TRUE.
       output%HVeg = .TRUE.
