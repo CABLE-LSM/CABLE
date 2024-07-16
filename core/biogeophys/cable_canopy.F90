@@ -1230,15 +1230,14 @@ CONTAINS
       ! for momentum, using the businger-dyer form for unstable cases
       ! and the Beljaars and Holtslag (1991) form for stable cases.
 
-      use cable_def_types_mod, only : mp
       use mo_constants, only: pi => pi_sp
 
       implicit none
 
-      real, dimension(mp), intent(in) :: zeta !
-      real, dimension(mp)             :: r    ! function result
+      real, dimension(:), intent(in) :: zeta !
+      real, dimension(size(zeta, 1)) :: r    ! function result
 
-      real, dimension(mp) :: &
+      real, dimension(size(zeta, 1)) :: &
            x,       & !
            z,       & !
            stable,  & !
@@ -1253,13 +1252,13 @@ CONTAINS
            xc = 5.0,   & !
            d  = 0.35     !
 
-      z = 0.5 + sign(0.5,zeta) ! z=1 in stable, 0 in unstable
+      z = 0.5 + sign(0.5, zeta) ! z=1 in stable, 0 in unstable
 
       ! Beljaars and Holtslag (1991) for stable
-      stable   = -a*zeta - b*(zeta-xc/d)*exp(-d*zeta) - b*xc/d
-      x        = (1.0 + gu*abs(zeta))**0.25
-      unstable = log((1.0+x*x) * (1.0+x)**2 / 8.) - 2.0*atan(x) + pi*0.5
-      r        = z*stable + (1.0-z)*unstable
+      stable = -a * zeta - b * (zeta - xc / d) * exp(-d * zeta) - b * xc / d
+      x = (1.0 + gu * abs(zeta))**0.25
+      unstable = log((1.0 + x * x) * (1.0 + x)**2 / 8.) - 2.0 * atan(x) + pi * 0.5
+      r = z * stable + (1.0 - z) * unstable
 
     END FUNCTION psim
 
