@@ -196,6 +196,7 @@ CONTAINS
 
       END DO
       !write(logn,*),'psi_rootzone mp1: ',ssnow%psi_rootzone(1)
+      print *, 'psi_rootzone:', ssnow%psi_rootzone(1)
 
       !ENDIF
 

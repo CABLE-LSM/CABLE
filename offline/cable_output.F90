@@ -3782,6 +3782,7 @@ CONTAINS
          ! Divide accumulated variable by number of accumulated time steps:
          out%psi_rootzone = out%psi_rootzone &
                                / REAL(output%interval, 4)
+          print *, 'write daily psi rootzone: ', out%psi_rootzone 
          ! Write value to file:
          CALL write_ovar(out_timestep, ncid_out, ovid%psi_rootzone, &
                          'psi_rootzone', out%psi_rootzone, &

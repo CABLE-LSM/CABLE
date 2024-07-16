@@ -283,7 +283,7 @@ contains
        stop 94
 #endif
     ENDIF
-
+    print *, 'pop_IO action:', typ
     ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! WRITE POP VALUES TO OUTPUT FILE
     ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -319,7 +319,7 @@ contains
           fname = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//'_'//TRIM(dum)//'_pop_'//typ//'.nc'
        ENDIF
     ENDIF
-
+    print *, 'pop_IO file name:', fname
     IF ( INDEX(ACTION,"WRITE") .GT. 0 ) THEN
 
        IF ( typ .EQ. 'out' ) THEN
@@ -411,7 +411,7 @@ contains
              END DO
 
           ELSE  ! file doesn't already exist, or is RST or INI
-
+            print *, '! create pop restart file :', fname
              ! Create NetCDF file:
 #ifdef __NETCDF3__
              STATUS = NF90_create(trim(fname), cmode=ior(nf90_clobber,nf90_64bit_offset), ncid=FILE_ID)
