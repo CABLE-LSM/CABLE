@@ -67,7 +67,7 @@ MODULE cable_param_module
   PRIVATE
   PUBLIC get_default_params, write_default_params, derived_parameters,         &
        check_parameter_values, report_parameters, parID_type,                &
-       write_cnp_params
+       write_cnp_params, consistency_ice_veg_soil 
   INTEGER :: patches_in_parfile=4 ! # patches in default global parameter
   ! file
 
@@ -2064,7 +2064,195 @@ CONTAINS
     END WHERE
 
   END SUBROUTINE check_parameter_values
+  
   !===============================================================================
+
+  SUBROUTINE consistency_ice_veg_soil(soil, veg)  
+    ! Ensure that when an active patch has a veg type of ice then its soil type is also ice and vice versa
+    ! Any change effected to enforce this consistency includes correcting the appropriate paramter values 
+
+    USE grid_constants_mod_cbl, ONLY : ICE_SoilType, ICE_VegType
+    USE cable_phys_constants_mod, ONLY : csice, density_ice
+    
+    TYPE (soil_parameter_type), INTENT(INOUT) :: soil  ! soil parameter data
+    TYPE (veg_parameter_type),  INTENT(INOUT) :: veg   ! vegetation parameter
+
+    INTEGER :: i, j, k, kIVP
+    LOGICAL :: LIceVegPatch
+
+    
+    LIceVegPatch = .FALSE.
+
+    look_for_ice_veg_patch:     DO i = 1, mland                 ! loop over all gridcells
+       DO j = 1, landpt(i)%nap      ! loop over all active patches in every gridcell
+          
+          k = landpt(i)%cstart + j - 1    ! absolute position of active veg patch 
+          
+          IF(veg%iveg(k) == ICE_VegType) THEN  ! check to see if there is at least one ice veg patch already
+             LIceVegPatch = .TRUE.
+             kIVP = k    ! remember which patch it is 
+             EXIT look_for_ice_veg_patch ! exit as we only need to find one ice veg patch 
+          END IF
+          
+       END DO
+    END DO look_for_ice_veg_patch
+
+    
+    DO i = 1, mland                 ! loop over all gridcells 
+       DO j = 1, landpt(i)%nap      ! loop over all active patches in every gridcell 
+          
+          k = landpt(i)%cstart + j - 1    ! absolute position of active patch 
+          
+          IF(soil%isoilm(k) == ICE_SoilType) THEN  ! check to see if ice soil patch
+
+             WRITE(*,*) 'SUBROUTINE load_parameters:'
+             WRITE(*,*) 'At land point number ', i
+             WRITE(*,*) 'And patch number ', k
+             WRITE(*,*) 'isoilm is ICE_SoilType'
+             WRITE(*,*) 'Set rhosoil = density_ice from CABLE physical constants'
+             WRITE(*,*) 'Set css     = csice from CABLE physical constants'
+             
+             soil%rhosoil(k) = density_ice   
+             soil%css(k) =     csice         
+
+          END IF
+          
+       END DO
+    END DO
+    
+    
+    DO i = 1, mland                 ! loop over all gridcells 
+       DO j = 1, landpt(i)%nap      ! loop over all active patches in every gridcell 
+          
+          k = landpt(i)%cstart + j - 1    ! absolute position of active patch 
+
+          IF((veg%iveg(k) == ICE_VegType) .AND. (soil%isoilm(k) /= ICE_SoilType)) THEN
+
+
+             WRITE(*,*) 'SUBROUTINE load_parameters:'
+             WRITE(*,*) 'At land point number ', i
+             WRITE(*,*) 'And patch number ', k
+             WRITE(*,*) 'iveg is ICE_VegType but isoilm is not ICE_SoilType'
+             WRITE(*,*) 'Changed isoilm to ICE_SoilType with appropriate parameter corrections'
+
+             soil%isoilm(k) = ICE_SoilType
+             
+      ! correct appropriately parameters and derived parameters 
+      
+             soil%rhosoil(k) = density_ice   
+             soil%css(k) =     csice         
+
+             
+          ELSE IF ((veg%iveg(k) /= ICE_VegType) .AND. (soil%isoilm(k) == ICE_SoilType)) THEN
+
+             WRITE(*,*) 'SUBROUTINE load_parameters:'
+             WRITE(*,*) 'At land point number ', i
+             WRITE(*,*) 'And patch number ', k
+             WRITE(*,*) 'iveg is not ICE_VegType but isoilm is ICE_SoilType'
+             WRITE(*,*) 'Changed iveg to ICE_VegType with appropriate parameter corrections'
+
+             
+             veg%iveg(k) = ICE_VegType
+
+             ! correct appropriately parameters and derived parameters 
+             
+             IF (LIceVegPatch) THEN   ! if there is at least one ice veg patch already
+                                      ! use the parameter values from this ice veg patch for the new ice veg patch
+
+                veg%frac4(k)    =        veg%frac4(kIVP)   
+                veg%taul(k,1)   =        veg%taul(kIVP,1)  
+                veg%taul(k,2)   =        veg%taul(kIVP,2)  
+                veg%refl(k,1)   =        veg%refl(kIVP,1)  
+                veg%refl(k,2)   =        veg%refl(kIVP,2)  
+                veg%canst1(k)   =        veg%canst1(kIVP)  
+                veg%dleaf(k)    =        veg%dleaf(kIVP)   
+                veg%vcmax(k)    =        veg%vcmax(kIVP)   
+                veg%ejmax(k)    =        veg%ejmax(kIVP)   
+                veg%hc(k)       =        veg%hc(kIVP)      
+                veg%xfang(k)    =        veg%xfang(kIVP)   
+                veg%vbeta(k)    =        veg%vbeta(kIVP)   
+                veg%xalbnir(k)  =        veg%xalbnir(kIVP) 
+                veg%rp20(k)     =        veg%rp20(kIVP)    
+                veg%rpcoef(k)   =        veg%rpcoef(kIVP)  
+                veg%rs20(k)     =        veg%rs20(kIVP)    
+                veg%shelrb(k)   =        veg%shelrb(kIVP)  
+                veg%wai(k)      =        veg%wai(kIVP)     
+                veg%a1gs(k)     =        veg%a1gs(kIVP)    
+                veg%d0gs(k)     =        veg%d0gs(kIVP)    
+                veg%vegcf(k)    =        veg%vegcf(kIVP)   
+                veg%extkn(k)    =        veg%extkn(kIVP)   
+                veg%tminvj(k)   =        veg%tminvj(kIVP)  
+                veg%tmaxvj(k)   =        veg%tmaxvj(kIVP)  
+                veg%g0(k)       =        veg%g0(kIVP)      
+                veg%g1(k)       =        veg%g1(kIVP)      
+                veg%a1gs(k)     =        veg%a1gs(kIVP)    
+                veg%d0gs(k)     =        veg%d0gs(kIVP)    
+                veg%alpha(k)    =        veg%alpha(kIVP)   
+                veg%convex(k)   =        veg%convex(kIVP)  
+                veg%cfrd(k)     =        veg%cfrd(kIVP)    
+                veg%gswmin(k)   =        veg%gswmin(kIVP)  
+                veg%conkc0(k)   =        veg%conkc0(kIVP)  
+                veg%conko0(k)   =        veg%conko0(kIVP)  
+                veg%ekc(k)      =        veg%ekc(kIVP)     
+                veg%eko(k)      =        veg%eko(kIVP)     
+                veg%rootbeta(k) =        veg%rootbeta(kIVP)
+                veg%zr(k)       =        veg%zr(kIVP)      
+                veg%clitt(k)    =        veg%clitt(kIVP)   
+
+             ELSE           ! otherwise use default parameter values for ice 
+                
+                veg%frac4(k)    = vegin%frac4(ICE_VegType)
+                veg%taul(k,1)   = vegin%taul1(ICE_VegType)
+                veg%taul(k,2)   = vegin%taul2(ICE_VegType)
+                veg%refl(k,1)   = vegin%refl1(ICE_VegType)
+                veg%refl(k,2)   = vegin%refl2(ICE_VegType)
+                veg%canst1(k)   = vegin%canst1(ICE_VegType)
+                veg%dleaf(k)    = vegin%dleaf(ICE_VegType)
+                veg%vcmax(k)    = vegin%vcmax(ICE_VegType)
+                veg%ejmax(k)    = vegin%ejmax(ICE_VegType)
+                veg%hc(k)       = vegin%hc(ICE_VegType)
+                veg%xfang(k)    = vegin%xfang(ICE_VegType)
+                veg%vbeta(k)    = vegin%vbeta(ICE_VegType)
+                veg%xalbnir(k)  = vegin%xalbnir(ICE_VegType)
+                veg%rp20(k)     = vegin%rp20(ICE_VegType)
+                veg%rpcoef(k)   = vegin%rpcoef(ICE_VegType)
+                veg%rs20(k)     = vegin%rs20(ICE_VegType)
+                veg%shelrb(k)   = vegin%shelrb(ICE_VegType)
+                veg%wai(k)      = vegin%wai(ICE_VegType)
+                veg%a1gs(k)     = vegin%a1gs(ICE_VegType)
+                veg%d0gs(k)     = vegin%d0gs(ICE_VegType)
+                veg%vegcf(k)    = vegin%vegcf(ICE_VegType)
+                veg%extkn(k)    = vegin%extkn(ICE_VegType)
+                veg%tminvj(k)   = vegin%tminvj(ICE_VegType)
+                veg%tmaxvj(k)   = vegin%tmaxvj(ICE_VegType)
+                veg%g0(k)       = vegin%g0(ICE_VegType) 
+                veg%g1(k)       = vegin%g1(ICE_VegType) 
+                veg%a1gs(k)     = vegin%a1gs(ICE_VegType)
+                veg%d0gs(k)     = vegin%d0gs(ICE_VegType)
+                veg%alpha(k)    = vegin%alpha(ICE_VegType)
+                veg%convex(k)   = vegin%convex(ICE_VegType)
+                veg%cfrd(k)     = vegin%cfrd(ICE_VegType)
+                veg%gswmin(k)   = vegin%gswmin(ICE_VegType)
+                veg%conkc0(k)   = vegin%conkc0(ICE_VegType)
+                veg%conko0(k)   = vegin%conko0(ICE_VegType)
+                veg%ekc(k)      = vegin%ekc(ICE_VegType)
+                veg%eko(k)      = vegin%eko(ICE_VegType)
+                veg%rootbeta(k) = vegin%rootbeta(ICE_VegType)
+                veg%zr(k)       = vegin%zr(ICE_VegType)
+                veg%clitt(k)    = vegin%clitt(ICE_VegType)
+                
+             END IF
+             
+          END IF
+          
+       END DO
+    END DO
+
+    
+  END SUBROUTINE consistency_ice_veg_soil
+
+  !===============================================================================
+
   SUBROUTINE report_parameters(logn, soil, veg, bgc, rough,                    &
        ssnow, canopy, casamet, casapool, casaflux,     &
        phen, vegparmnew, verbose )
