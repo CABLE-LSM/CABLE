@@ -1,6 +1,6 @@
 &cable
-   filename%met = 'TumbaFluxnet.1.3_met.nc'
-   filename%out = 'out_cable.nc'
+   filename%met = 'TumbaFluxnet.1.3_lake.nc'
+   filename%out = 'out_cable_lake.nc'
    filename%log = 'log_cable.txt'
    filename%restart_in  = ' ' 
    filename%restart_out = './restart_out.nc'
@@ -23,7 +23,7 @@
    output%params    = .TRUE.  ! input parameters used to produce run
    output%patch     = .TRUE.  ! write per patch  
    output%balances  = .TRUE.  ! energy and water balances
-   check%ranges     = .FALSE.  ! variable ranges, input and output
+   check%ranges     = 0       ! variable ranges, input and output
    check%energy_bal = .TRUE.  ! energy balance
    check%mass_bal   = .TRUE.  ! water/mass balance
    verbose = .TRUE. ! write details of every grid cell init and params to log?
