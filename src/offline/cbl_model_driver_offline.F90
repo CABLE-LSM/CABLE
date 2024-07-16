@@ -53,6 +53,7 @@ USE cable_phys_constants_mod, ONLY : CCAPP   => CAPP
 USE cable_phys_constants_mod, ONLY : CEMLEAF => EMLEAF
 USE cable_phys_constants_mod, ONLY : CEMSOIL => EMSOIL
 USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
+USE cable_phys_constants_mod, ONLY : density_liq
     !mrd561
     USE cable_gw_hydro_module, ONLY : sli_hydrology,&
          soil_snow_gw
@@ -104,6 +105,20 @@ REAL :: xk(mp,nrb)
 
 !iFor testing
 cable_user%soil_struc="default"
+
+!At start of each time step ensure that lakes surface soil layer is fully saturated.
+!Diagnose any water needed to maintain this - this will be removed from 
+!runoff, drainage and/or deepest soil layer in surfbv
+!For offline case retain the water imbalance between timesteps - permits
+!balance to be maintained in the longer term. This differs to the coupled model
+!where %wb_lake is zero'd each time step (and river outflow is rescaled)
+WHERE( veg%iveg == lakes_cable .AND. ssnow%wb(:,1) < soil%ssat ) 
+  ssnow%wbtot1(:)  = REAL( ssnow%wb(:,1) ) * density_liq * soil%zse(1)
+  ssnow%wb(:,1) = soil%ssat
+  ssnow%wbtot2  = REAL( ssnow%wb(:,1) ) * density_liq * soil%zse(1)
+ENDWHERE
+ssnow%wb_lake = ssnow%wb_lake + MAX( ssnow%wbtot2 - ssnow%wbtot1, 0.)
+
 
 CALL ruff_resist( veg, rough, ssnow, canopy, veg%vlai, veg%hc, canopy%vlaiw )
 
