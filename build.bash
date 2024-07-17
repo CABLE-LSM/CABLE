@@ -66,7 +66,7 @@ while [ ${#} -gt 0 ]; do
     shift
 done
 
-if hostname -f | grep gadi.nci.org.au > /dev/null; then
+if hostname -f | grep gadi.nci.org.au > /dev/null ; then
     : "${compiler:=intel}"
 
     . /etc/bashrc
@@ -109,7 +109,7 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
         prepend_path CMAKE_PREFIX_PATH "${OPENMPI_BASE}/include/${compiler_lib_install_dir}"
     fi
 
-elif hostname -f | grep -E '(mc16|mcmini)' > /dev/null; then
+elif hostname -f | grep -E '(mc16|mcmini)' > /dev/null ; then
     : "${compiler:=gnu}"
 
     case ${compiler} in
@@ -120,6 +120,22 @@ elif hostname -f | grep -E '(mc16|mcmini)' > /dev/null; then
             ;;
         ?*)
             echo -e "\nError: compiler ${compiler} is not supported.\n"
+            exit 1
+            ;;
+    esac
+
+elif hostname | grep biocomp > /dev/null ; then
+    : "${compiler:=gnu}"
+
+    eval "$(${HOME}/miniconda3/bin/conda 'shell.bash' 'hook' 2> /dev/null)"
+    conda activate pystd
+    case ${compiler} in
+        gnu)
+            export PKG_CONFIG_PATH=${HOME}/miniconda3/envs/pystd/lib/pkgconfig:${PKG_CONFIG_PATH}
+            cmake_args+=(-DCMAKE_Fortran_COMPILER=gfortran)
+            ;;
+        ?*)
+            echo -e "\nError: compiler ${compiler} is not supported yet.\n"
             exit 1
             ;;
     esac
