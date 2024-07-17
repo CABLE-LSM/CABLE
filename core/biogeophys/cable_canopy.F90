@@ -564,7 +564,7 @@ CONTAINS
        canopy%rnet = canopy%fnv + canopy%fns
 
        canopy%epot = ((1.-rad%transd)*canopy%fevw_pot + &
-            rad%transd*ssnow%potev*ssnow%cls) * dels/air%rlam
+            rad%transd*ssnow%potev/ssnow%cls) * dels/air%rlam
 
        canopy%rniso = sum(rad%rniso,2) + rad%qssabs + rad%transd*met%fld + &
             (1.0-rad%transd)*C%EMLEAF* &

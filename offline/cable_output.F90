@@ -59,7 +59,7 @@ MODULE cable_output_module
           Qle, Qh, Qg, NEE, fbeam, SWnet,                            &
           LWnet, SoilMoist, SoilTemp, Albedo,                        &
           visAlbedo, nirAlbedo, SoilMoistIce,                        &
-          Qs, Qsb, Evap, BaresoilT, SWE, SnowT,                      &
+          Qs, Qsb, Evap, PotEvap, BaresoilT, SWE, SnowT,             &
           RadT, VegT, Ebal, Wbal, AutoResp, RootResp,                &
           StemResp,LeafResp, HeteroResp, GPP, NPP, LAI,              &
           ECanop, TVeg, ESoil, CanopInt, SnowDepth,                  &
@@ -573,6 +573,13 @@ CONTAINS
        ALLOCATE(out%Evap(mp))
        out%Evap = zero4 ! initialise
     END IF
+    IF(output%flux .OR. output%PotEvap) THEN
+     CALL define_ovar(ncid_out, ovid%PotEvap,'PotEvap', 'kg/m^2/s',             &
+          'Potential evaporation', patchout%PotEvap, 'dummy',    &
+          xID, yID, zID, landID, patchID, tID)
+     ALLOCATE(out%PotEvap(mp))
+     out%PotEvap = zero4 ! initialise
+  END IF
     IF(output%flux .OR. output%ECanop) THEN
        CALL define_ovar(ncid_out, ovid%Ecanop, 'ECanop', 'kg/m^2/s',           &
             'Wet canopy evaporation', patchout%ECanop, 'dummy',    &
@@ -2224,6 +2231,20 @@ CONTAINS
                ranges%Evap, patchout%Evap, 'default', met)
           ! Reset temporary output variable:
           out%Evap = zero4
+       END IF
+    END IF
+    ! PotEvap: Potential evaporation [kg/m^2/s]
+    IF(output%flux .OR. output%Evap) THEN
+       ! Add current timestep's value to total of temporary output variable:
+       out%PotEvap = out%PotEvap + toreal4(canopy%epot / dels)
+       IF(writenow) THEN
+          ! Divide accumulated variable by number of accumulated time steps:
+          out%PotEvap = out%PotEvap * rinterval
+          ! Write value to file:
+          CALL write_ovar(out_timestep, ncid_out, ovid%PotEvap, 'PotEvap', out%PotEvap, &
+               ranges%PotEvap, patchout%PotEvap, 'default', met)
+          ! Reset temporary output variable:
+          out%PotEvap = zero4
        END IF
     END IF
     ! ECanop: interception evaporation [kg/m^2/s]
