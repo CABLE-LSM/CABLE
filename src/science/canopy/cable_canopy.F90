@@ -645,7 +645,7 @@ write(6,*) "SLI is not an option right now"
        !radiation weighted soil and canopy contributions
        !Note: If PM routine corrected then match changes here
        canopy%epot = ((1.-rad%transd)*canopy%fevw_pot +                         &
-            rad%transd*ssnow%potev/ssnow%cls) * dels/air%rlam
+            rad%transd*ssnow%potev*ssnow%cls) * dels/air%rlam
 
 
 
@@ -667,6 +667,10 @@ write(6,*) "SLI is not an option right now"
                REAL(canopy%fes(j))/ssnow%potev(j) ) ) )
 
        ENDDO
+
+       ! INH #335 - we don't need to weight components of %epot by %transd
+       ! however coupled model uses %wetfac_cs so overwrite here before testing in ACCESS
+       canopy%epot = (canopy%fevw_pot + ssnow%potev/ssnow%cls) * dels/air%rlam
 
   CALL update_zetar( mp, iterplus, NITER, canopy%zetar, iter, nrb, CVONK, CGRAV, CCAPP,  &
                      CLAI_THRESH, CZETmul, CZETPOS, CZETNEG,          &
