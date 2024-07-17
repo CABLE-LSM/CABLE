@@ -2235,7 +2235,7 @@ CONTAINS
 
                      CALL optimisation(canopy, rad, vpd, press, tlfx(i), &
                         csx, ssnow%psi_rootzone(i), &
-                        kcmax, veg%kmax(i), veg%PLCcrit(i), &
+                        kcmax(i), veg%kmax(i), veg%PLCcrit(i), &
                         veg%b_plant(i), veg%c_plant(i), resolution, vcmxt3, &
                         ejmxt3, rdx, vx3, cx1(i), an_canopy, e_canopy, &
                         avg_kcan, cx2(i)/2, p, i, gswmin(i,:))
