@@ -63,7 +63,8 @@ PROGRAM cable_offline_driver
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
        verbose, fixedCO2,output,check,patchout,    &
        patch_type,landpt,soilparmnew,&
-       defaultLAI, sdoy, smoy, syear, timeunits, exists, calendar, set_group_output_values
+       defaultLAI, sdoy, smoy, syear, timeunits, exists, calendar, set_group_output_values, &
+       NO_CHECK
   USE casa_ncdf_module, ONLY: is_casa_time
   USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
        cable_runtime, filename, myhome,            &
@@ -621,7 +622,7 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
                    casamet, casabal, phen, POP, spinup,        &
                    CEMSOIL, CTFRZ, LUC_EXPT, POPLUC )
 
-              IF (check%ranges) THEN
+              IF (check%ranges /= NO_CHECK) THEN
                   WRITE (*, *) "Checking parameter ranges"
                   CALL constant_check_range(soil, veg, 0, met)
               END IF

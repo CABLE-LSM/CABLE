@@ -2481,7 +2481,7 @@ CONTAINS
     ! initialise within canopy air temp
     met%tvair = met%tk
     met%tvrad = met%tk
-    IF(check%ranges) THEN
+    IF(check%ranges /= NO_CHECK) THEN
        ! Check ranges are okay:
        CALL check_range("SWdown", met%fsd, ranges%SWdown, 0, met)
        CALL check_range("LWdown", met%fld, ranges%LWdown, 0, met)

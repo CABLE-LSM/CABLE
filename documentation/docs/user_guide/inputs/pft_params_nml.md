@@ -156,7 +156,8 @@ The CABLE default values of the vegetation parameters in Table 2 for the vegetat
 
 
 The CABLE distribution provides the default vegetation parameter values from Table 3 in the namelist file pft_params.nml, including the vegetation types from Table 1 in the top part.
-The chosen parameter values in offline cases can be checked against the pre-defined realistic parameter value ranges using the CABLE namelist variable check%ranges=.true. in cable.nml. 
+The chosen parameter values in offline cases can be checked against the pre-defined realistic parameter value ranges using the CABLE namelist variable [`check%ranges`][nml_desc] in cable.nml. 
+
 ## Example pft_params.nml file
 
 !!! Note "Namelist file format explanation"
@@ -243,3 +244,4 @@ vegin%zr=1.800000,3.000000,2.000000,2.000000,2.500000,5*0.500000,1.800000,3.1000
 | vegin%wai | real | 0.0 – 5.0 | 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 | Wood area index (stem+branches+twigs) (not used) \( (-) \) |
 | vegin%xalbnir | real | 0.0 – 1.5 | 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 | ? (not used) |
 
+[nml_desc]: cable_nml.md#list-of-namelist-variables
