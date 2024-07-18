@@ -597,7 +597,8 @@ PROGRAM cable_offline_driver
                  call cru_init(cru)
                  dels         = cru%dtsecs
                  koffset      = 0
-                 if (CRU%MetVersion == "VERIFY_2021") then
+                 IF (CRU%LeapYears) THEN
+                 !if (CRU%MetVersion == "VERIFY_2021") then
                     leaps = .true.
                     calendar = "standard"
                     if (IS_LEAPYEAR(CurYear)) then
