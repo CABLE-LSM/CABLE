@@ -1201,8 +1201,9 @@ CONTAINS
       mp = size(var, 1)
       
       DO j=1, mp
-         var(j) = C%RMH2O / C%rmair * C%TETENA * &
-              EXP(C%TETENB * tair(j) / (C%TETENC + tair(j))) / pmb(j)
+         var(j) = (C%RMH2O / C%rmair) * ( C%TETENA * &
+              EXP( C%TETENB * tair(j) / (C%TETENC + tair(j)) ) ) &
+              / pmb(j)
       ENDDO
 
     END SUBROUTINE qsatfjh
