@@ -109,18 +109,6 @@ CONTAINS
    ! if acceptable this routine does the same thing but with r_2 soil params
    ! if max_ice_frac always set to frozen_limit and tgg_tmp is always CTFRZ
    !
-   !## Method
-   !
-   ! The subroutine takes a float as input, prints its value then adds 2/3, 
-   ! prints it and returns it. 
-   ! 
-   ! The equation used is:
-   ! \[ myarg = myarg + !frac{2.}{3.} \]
-   !
-   !## References
-   !
-   ! The guidelines for documentation can be found in:  
-   ! [CABLE developer guide](https://cable-lsm.github.io/CABLE/developer_guide/doc_guide/science_doc/)
 
     REAL, INTENT(IN)                    :: dels ! integration time step (s)
     TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow
