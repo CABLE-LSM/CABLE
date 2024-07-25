@@ -11,7 +11,7 @@ CONTAINS
        veg, canopy, soil, ssnow, dsx,                             &
        fwsoil, tlfx,  tlfy,  ecy, hcy,                            &
        rny, gbhu, gbhf, csx,                                      &
-       cansat, ghwet, iter,climate )
+       cansat, ghwet, iter,climate, sum_rad_gradis, sum_rad_rniso )
 
     USE cable_def_types_mod
     USE cable_common_module
@@ -71,6 +71,10 @@ USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
 
     REAL, INTENT(IN)     :: dels ! integration time step (s)
 
+    ! Sums of radiation quantities over rad bands
+    REAL, INTENT(IN) :: sum_rad_rniso(mp)
+    REAL, INTENT(IN) :: sum_rad_gradis(mp)
+
     !local variables
     REAL, PARAMETER  ::                                                         &
          co2cp3 = 0.0,  & ! CO2 compensation pt C3
@@ -88,8 +92,6 @@ USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
          deltlfy,       & ! del temp successive iter.
          gras,          & ! Grashof coeff
          evapfb,        & !
-         sum_rad_rniso, & !
-         sum_rad_gradis,& !
          gwwet,         & ! cond for water for a wet canopy
          ghrwet,        & ! wet canopy cond: heat & thermal rad
          sum_gbh,       & !
@@ -170,13 +172,12 @@ USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
     lower_limit2 = rad%scalex * gsw_term
     gswmin = MAX(1.e-6,lower_limit2)
 
-
     gw = 1.0e-3 ! default values of conductance
     gh = 1.0e-3
     ghr= 1.0e-3
     rdx = 0.0
     anx = 0.0
-    rnx = SUM(rad%rniso,2)
+    rnx = sum_rad_rniso
     abs_deltlf = 999.0
 
 
@@ -185,7 +186,7 @@ USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
     hcx = 0.0              ! init sens heat iteration memory variable
     hcy = 0.0
     rdy = 0.0
-    ecx = SUM(rad%rniso,2) ! init lat heat iteration memory variable
+    ecx = sum_rad_rniso ! init lat heat iteration memory variable
     tlfxx = tlfx
     psycst(:,:) = SPREAD(air%psyc,2,mf)
     canopy%fevc = 0.0
@@ -197,8 +198,6 @@ USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
     canopy%fevw = 0.0
     canopy%fhvw = 0.0
     sum_gbh = SUM((gbhu+gbhf),2)
-    sum_rad_rniso = SUM(rad%rniso,2)
-    sum_rad_gradis = SUM(rad%gradis,2)
 
     DO kk=1,mp
 
@@ -528,17 +527,17 @@ USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
 
              ENDIF
              ! Update canopy sensible heat flux:
-             hcx(i) = (SUM(rad%rniso(i,:))-ecx(i)                               &
+             hcx(i) = (sum_rad_rniso(i)-ecx(i)                               &
                   - Ccapp*Crmair*(met%tvair(i)-met%tk(i))                       &
-                  * SUM(rad%gradis(i,:)))                                         &
+                  * sum_rad_gradis(i))                                         &
                   * SUM(gh(i,:))/ SUM(ghr(i,:))
              ! Update leaf temperature:
              tlfx(i)=met%tvair(i)+REAL(hcx(i))/(Ccapp*Crmair*SUM(gh(i,:)))
 
              ! Update net radiation for canopy:
-             rnx(i) = SUM( rad%rniso(i,:)) -                                    &
+             rnx(i) = sum_rad_rniso(i) -                                    &
                   CCAPP * Crmair *( tlfx(i)-met%tk(i) ) *                 &
-                  SUM( rad%gradis(i,:) )
+                  sum_rad_gradis(i)
 
              ! Update leaf surface vapour pressure deficit:
              dsx(i) = met%dva(i) + air%dsatdk(i) * (tlfx(i)-met%tvair(i))
