@@ -3022,8 +3022,8 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
   ! Now we've processed the supplied string, pass it to the ls unix command.
   ! We need to write the output to a temporary file and read it back in to
   ! get the date ranges for each file.
-  CALL execute_command_line("ls -1 "//TRIM(CurrentFile)//" >&
-     __FileNameWithNoClashes__.txt", EXITSTAT = ExStat, CMDSTAT = CStat)
+  CALL execute_command_line("ls -1 "//TRIM(CurrentFile)//" >"// &
+     "__FileNameWithNoClashes__.txt", EXITSTAT = ExStat, CMDSTAT = CStat)
 
   ! Now we want to read this temporary file back in and inspect the contents
   ! to determine the date ranges for each file. We then write back to a
