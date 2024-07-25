@@ -225,7 +225,7 @@ CONTAINS
 
     DO index = 1, SIZE(parameter_r1)
       IF (parameter_r1(index) < parameter_range(1) .OR. parameter_r1(index) > parameter_range(2)) THEN
-        CALL range_abort(vname, ktau, met, parameter_r1(index), \
+        CALL range_abort(vname, ktau, met, parameter_r1(index),               &
         parameter_range, index, patch(index)%latitude, patch(index)%longitude)
       END IF
     END DO

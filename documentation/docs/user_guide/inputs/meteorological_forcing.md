@@ -127,5 +127,6 @@ CABLE’s time step size is calculated from the first two values of the time var
 
 ## Checking ranges
 
-It is possible to check that the ranges of the meteorological variables are physically possible using `check%ranges=.TRUE.` in the `cable.nml` namelist variable.
+It is possible to check that the ranges of the meteorological variables are physically possible using `check%ranges=1` or`check%ranges=2` (see [explanation][nml_desc]) in the `cable.nml` namelist variable.
 
+[nml_desc]: cable_nml.md#list-of-namelist-variables
