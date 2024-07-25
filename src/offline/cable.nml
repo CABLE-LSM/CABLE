@@ -1,6 +1,6 @@
 &cable
-   filename%met = 'TumbaFluxnet.1.3_lake.nc'
-   filename%out = 'out_cable_lake.nc'
+   filename%met = 'TumbaFluxnet.1.3_met.nc'
+   filename%out = 'out_cable.nc'
    filename%log = 'log_cable.txt'
    filename%restart_in  = ' ' 
    filename%restart_out = './restart_out.nc'
