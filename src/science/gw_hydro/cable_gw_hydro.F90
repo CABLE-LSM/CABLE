@@ -1385,7 +1385,7 @@ CONTAINS
   SUBROUTINE calc_srf_wet_fraction(ssnow,soil,met,veg)
     !* Calculate the wet fraction of the surafce
     !  following [Decker, 2015](http://doi.wiley.com/10.1002/2015MS000507)
-    !* This subrountine is called in subrountine surf_wetness_fact in cable_canopy.F90
+  
 
     IMPLICIT NONE
     TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow  ! soil+snow variables
