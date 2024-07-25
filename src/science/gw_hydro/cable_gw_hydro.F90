@@ -905,18 +905,6 @@ CONTAINS
   !  This is the main subroutine for Mark Decker's new hydrology scheme. 
   !  This subroutine should be called in subroutine cbm but not yet.
   ! 
-  !## Method
-  !
-  ! The subroutine takes a float as input, prints its value then adds 2/3, 
-  ! prints it and returns it. 
-  ! 
-  ! The equation used is:
-  ! \[ myarg = myarg + !frac{2.}{3.} \]
-  !
-  !## References
-  !
-  ! The guidelines for documentation can be found in:  
-  ! [CABLE developer guide](https://cable-lsm.github.io/CABLE/developer_guide/doc_guide/science_doc/)
   !
 
   ! Inputs:
