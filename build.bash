@@ -68,6 +68,7 @@ done
 
 if hostname -f | grep gadi.nci.org.au > /dev/null ; then
     : "${compiler:=intel}"
+    # Gadi at NCI, Australia
 
     . /etc/bashrc
     module purge
@@ -111,6 +112,7 @@ if hostname -f | grep gadi.nci.org.au > /dev/null ; then
 
 elif hostname -f | grep -E '(mc16|mcmini)' > /dev/null ; then
     : "${compiler:=gnu}"
+    # macOS, netcd-c with homebrew and local netcdf-fortran
 
     case ${compiler} in
         gnu)
@@ -126,12 +128,32 @@ elif hostname -f | grep -E '(mc16|mcmini)' > /dev/null ; then
 
 elif hostname | grep biocomp > /dev/null ; then
     : "${compiler:=gnu}"
+    # Linux cluster in Nancy, France, with miniconda
 
     eval "$(${HOME}/miniconda3/bin/conda 'shell.bash' 'hook' 2> /dev/null)"
     conda activate pystd
     case ${compiler} in
         gnu)
             export PKG_CONFIG_PATH=${HOME}/miniconda3/envs/pystd/lib/pkgconfig:${PKG_CONFIG_PATH}
+            cmake_args+=(-DCMAKE_Fortran_COMPILER=gfortran)
+            ;;
+        ?*)
+            echo -e "\nError: compiler ${compiler} is not supported yet.\n"
+            exit 1
+            ;;
+    esac
+
+elif uname -r | grep microsoft-standard-WSL2 > /dev/null ; then
+    : "${compiler:=gnu}"
+    # Ubuntu on WSL2 of Windows
+
+    case ${compiler} in
+        gnu)
+            export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:${PKG_CONFIG_PATH}
+            # pkg-config --cflags netcdf-fortran
+            # only gives include path for hdf5 -> set include path by hand
+            cmake_args+=(-DCMAKE_Fortran_FLAGS_RELEASE_INIT="-I/usr/include")
+            cmake_args+=(-DCMAKE_Fortran_FLAGS_DEBUG_INIT="-I/usr/include")
             cmake_args+=(-DCMAKE_Fortran_COMPILER=gfortran)
             ;;
         ?*)
