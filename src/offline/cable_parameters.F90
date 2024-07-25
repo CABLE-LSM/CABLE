@@ -2288,7 +2288,7 @@ CONTAINS
     END DO
     bal%osnowd0 = ssnow%osnowd
 
-    !! vh_js !! comment out hide% condition
+    ! vh_js ! comment out hide% condition
     ! IF (hide%Ticket49Bug6) THEN
 
     IF(cable_user%SOIL_STRUC=='sli') THEN
