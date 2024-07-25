@@ -77,6 +77,8 @@ add_library(
     core/biogeophys/cable_sli_solve.F90
     core/biogeophys/cable_sli_utils.F90
     core/biogeophys/cable_soilsnow.F90
+    core/biogeophys/cable_soil_hydraulics.F90
+    core/biogeophys/cable_veg_hydraulics.F90
     core/biogeophys/mo_c13o2_photosynthesis.f90
     core/biogeophys/mo_constants.f90
     core/biogeophys/mo_isotope.f90
