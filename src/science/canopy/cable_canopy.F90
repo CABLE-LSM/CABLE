@@ -234,6 +234,9 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
     canopy%zetash(:,1) = CZETA0 ! stability correction terms
     canopy%zetash(:,2) = CZETPOS + 1
 
+    sum_rad_rniso = SUM(rad%rniso,2)
+    sum_rad_gradis = SUM(rad%gradis,2)
+
 
     DO iter = 1, NITER
 
@@ -389,8 +392,6 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
        hcy = 0.0              ! init current estimate lat heat
        ecy = rny - hcy        ! init current estimate lat heat
 
-       sum_rad_rniso = SUM(rad%rniso,2)
-
        CALL dryLeaf( dels, rad, rough, air, met,                             &
                   veg, canopy, soil, ssnow, dsx,                             &
                   fwsoil, tlfx, tlfy, ecy, hcy,                              &
@@ -418,8 +419,6 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
        canopy%fnv = REAL(ftemp)
 
        ! canopy rad. temperature calc from long-wave rad. balance
-       sum_rad_gradis = SUM(rad%gradis,2)
-
        DO j=1,mp
 
           IF ( canopy%vlaiw(j) > CLAI_THRESH .AND.                             &
