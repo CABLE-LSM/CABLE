@@ -1,6 +1,6 @@
 !==============================================================================
 ! This source code is part of the
-! Austrian Community Atmosphere Biosphere Land Exchange (CABLE) model.
+! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
 ! This work is licensed under the CABLE Academic User Licence Agreement
 ! (the "Licence").
 ! You may not use this file except in compliance with the Licence.
