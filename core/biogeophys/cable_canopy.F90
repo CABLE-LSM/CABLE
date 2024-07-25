@@ -1168,24 +1168,29 @@ CONTAINS
 
       END SUBROUTINE update_zetar
 
-      ! -----------------------------------------------------------------------------
+    ! -----------------------------------------------------------------------------
 
-      ! not used
-      ! FUNCTION qsatf(j,tair,pmb) RESULT(r)
-      !   ! MRR, 1987
-      !   ! AT TEMP tair (DEG C) AND PRESSURE pmb (MB), GET SATURATION SPECIFIC
-      !   ! HUMIDITY (KG/KG) FROM TETEN FORMULA
+    ! not used
+    ! FUNCTION qsatf(j,tair,pmb) RESULT(r)
+    !   ! MRR, 1987
+    !   ! AT TEMP tair (DEG C) AND PRESSURE pmb (MB), GET SATURATION SPECIFIC
+    !   ! HUMIDITY (KG/KG) FROM TETEN FORMULA
 
-      !   REAL, INTENT(IN) :: &
-      !        tair,         & ! air temperature (C)
-      !        pmb             ! pressure PMB (mb)
-      !   INTEGER, INTENT(IN) :: j
+    !   REAL, INTENT(IN) :: &
+    !        tair,         & ! air temperature (C)
+    !        pmb             ! pressure PMB (mb)
+    !   INTEGER, INTENT(IN) :: j
 
-      !   REAL           :: r    ! result; sat sp humidity
+    !   REAL           :: r    ! result; sat sp humidity
 
-      !   r = (C%RMH2o/C%rmair) * (C%TETENA*EXP(C%TETENB*tair/(C%TETENC+tair))) / pmb
+    !   r = (C%RMH2o/C%rmair) * (C%TETENA*EXP(C%TETENB*tair/(C%TETENC+tair))) / pmb
 
-<<<<<<< HEAD
+    ! END FUNCTION qsatf
+
+    ! -----------------------------------------------------------------------------
+
+    SUBROUTINE qsatfjh(var, tair, pmb)
+
       implicit none
 
       REAL, INTENT(OUT), DIMENSION(:) :: var ! result; sat sp humidity
@@ -1202,54 +1207,36 @@ CONTAINS
               EXP( C%TETENB * tair(j) / (C%TETENC + tair(j)) ) ) &
               / pmb(j)
       ENDDO
-=======
-      ! END FUNCTION qsatf
 
-      ! -----------------------------------------------------------------------------
+    END SUBROUTINE qsatfjh
 
-      SUBROUTINE qsatfjh(var, tair, pmb)
+    ! -----------------------------------------------------------------------------
 
-         USE cable_def_types_mod, only: mp
+    SUBROUTINE qsatfjh2(var, tair, pmb)
 
-         implicit none
->>>>>>> a500069... add cable_user%calSoilMean to calculate psi_rootzone using multiple weighting methods  except that in calc_weighted_swp_and_frac_uptake
+      implicit none
 
-         REAL, INTENT(OUT), DIMENSION(mp) :: var ! result; sat sp humidity
-         REAL, INTENT(IN),  DIMENSION(mp) :: &
-            tair, & ! air temperature (C)
-            pmb     ! pressure PMB (mb)
+      REAL, INTENT(OUT) :: var ! result; sat sp humidity
+      REAL, INTENT(IN)  :: &
+           tair, & ! air temperature (C)
+           pmb     ! pressure PMB (mb)
 
-         INTEGER :: j
+      var = (C%RMH2O/C%rmair) * (C%TETENA*EXP(C%TETENB*tair/(C%TETENC+tair))) / pmb
 
-         DO j=1,mp
-            var(j) = (C%RMH2O/C%rmair) * (C%TETENA*EXP(C%TETENB*tair(j)/(C%TETENC+tair(j)))) &
-               / pmb(j)
-         ENDDO
+    END SUBROUTINE qsatfjh2
 
-      END SUBROUTINE qsatfjh
+    ! -----------------------------------------------------------------------------
 
-      ! -----------------------------------------------------------------------------
+    FUNCTION psim(zeta) RESULT(r)
+      ! mrr, 16-sep-92 (from function psi: mrr, edinburgh 1977)
+      ! computes integrated stability function psim(z/l) (z/l=zeta)
+      ! for momentum, using the businger-dyer form for unstable cases
+      ! and the Beljaars and Holtslag (1991) form for stable cases.
 
-      SUBROUTINE qsatfjh2(var, tair, pmb)
-
-         implicit none
-
-         REAL, INTENT(OUT) :: var ! result; sat sp humidity
-         REAL, INTENT(IN)  :: &
-            tair, & ! air temperature (C)
-            pmb     ! pressure PMB (mb)
-
-         var = (C%RMH2O/C%rmair) * (C%TETENA*EXP(C%TETENB*tair/(C%TETENC+tair))) / pmb
-
-<<<<<<< HEAD
       use mo_constants, only: pi => pi_sp
-=======
-      END SUBROUTINE qsatfjh2
->>>>>>> a500069... add cable_user%calSoilMean to calculate psi_rootzone using multiple weighting methods  except that in calc_weighted_swp_and_frac_uptake
 
-      ! -----------------------------------------------------------------------------
+      implicit none
 
-<<<<<<< HEAD
       real, dimension(:), intent(in) :: zeta !
       real, dimension(size(zeta, 1)) :: r    ! function result
 
@@ -1285,86 +1272,38 @@ CONTAINS
       ! computes integrated stability function psis(z/l) (z/l=zeta)
       ! for scalars, using the businger-dyer form for unstable cases
       ! and the webb form for stable cases. see paulson (1970).
-=======
-      FUNCTION psim(zeta) RESULT(r)
-         ! mrr, 16-sep-92 (from function psi: mrr, edinburgh 1977)
-         ! computes integrated stability function psim(z/l) (z/l=zeta)
-         ! for momentum, using the businger-dyer form for unstable cases
-         ! and the Beljaars and Holtslag (1991) form for stable cases.
 
-         use cable_def_types_mod, only : mp
-         use mo_constants, only: pi => pi_sp
->>>>>>> a500069... add cable_user%calSoilMean to calculate psi_rootzone using multiple weighting methods  except that in calc_weighted_swp_and_frac_uptake
+      implicit none
 
-         implicit none
+      real, intent(in) :: zeta
+      real             :: r
 
-         real, dimension(mp), intent(in) :: zeta !
-         real, dimension(mp)             :: r    ! function result
+      REAL, PARAMETER :: &
+           gu = 16.0,  & !
+                                ! gs = 5.0,   & !
+           a = 1.0,    & !
+           b = 0.667,  & !
+           c = 5.0,    & !
+           d = 0.35
 
-         real, dimension(mp) :: &
-            x,       & !
-            z,       & !
-            stable,  & !
-            unstable   !
+      REAL :: &
+           stzeta,   & !
+           z,        & !
+           y,        & !
+           stable,   & !
+           unstable
 
-         real, parameter :: &
-            gu = 16.0 ! ,  & !
-         ! gs = 5.0
-         real, parameter :: &
-            a  = 1.0,   & !
-            b  = 0.667, & !
-            xc = 5.0,   & !
-            d  = 0.35     !
+      z = 0.5 + sign(0.5,zeta) ! z=1 in stable, 0 in unstable
 
-         z = 0.5 + sign(0.5,zeta) ! z=1 in stable, 0 in unstable
+      ! Beljaars and Holtslag (1991) for stable
+      stzeta = max(0., zeta)
+      stable = -(1.+2./3.*a*stzeta)**(3./2.) - &
+           b*(stzeta-c/d)*exp(-d*stzeta) - b*c/d + 1.
+      y      = (1.0 + gu*abs(zeta))**0.5
+      unstable = 2.0 * alog((1.0+y)*0.5)
+      r      = z*stable + (1.0-z)*unstable
 
-         ! Beljaars and Holtslag (1991) for stable
-         stable   = -a*zeta - b*(zeta-xc/d)*exp(-d*zeta) - b*xc/d
-         x        = (1.0 + gu*abs(zeta))**0.25
-         unstable = log((1.0+x*x) * (1.0+x)**2 / 8.) - 2.0*atan(x) + pi*0.5
-         r        = z*stable + (1.0-z)*unstable
-
-      END FUNCTION psim
-
-      ! -----------------------------------------------------------------------------
-
-      ELEMENTAL FUNCTION psis(zeta) RESULT(r)
-         ! mrr, 16-sep-92 (from function psi: mrr, edinburgh 1977)
-         ! computes integrated stability function psis(z/l) (z/l=zeta)
-         ! for scalars, using the businger-dyer form for unstable cases
-         ! and the webb form for stable cases. see paulson (1970).
-
-         implicit none
-
-         real, intent(in) :: zeta
-         real             :: r
-
-         REAL, PARAMETER :: &
-            gu = 16.0,  & !
-         ! gs = 5.0,   & !
-            a = 1.0,    & !
-            b = 0.667,  & !
-            c = 5.0,    & !
-            d = 0.35
-
-         REAL :: &
-            stzeta,   & !
-            z,        & !
-            y,        & !
-            stable,   & !
-            unstable
-
-         z = 0.5 + sign(0.5,zeta) ! z=1 in stable, 0 in unstable
-
-         ! Beljaars and Holtslag (1991) for stable
-         stzeta = max(0., zeta)
-         stable = -(1.+2./3.*a*stzeta)**(3./2.) - &
-            b*(stzeta-c/d)*exp(-d*stzeta) - b*c/d + 1.
-         y      = (1.0 + gu*abs(zeta))**0.5
-         unstable = 2.0 * alog((1.0+y)*0.5)
-         r      = z*stable + (1.0-z)*unstable
-
-      END FUNCTION psis
+    END FUNCTION psis
 
       ! -----------------------------------------------------------------------------
 
@@ -2719,25 +2658,14 @@ CONTAINS
       vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz, qs, &
       gmes, kc4, anrubiscoz, anrubpz, ansinkz, eta, dA )
 
-<<<<<<< HEAD
     use cable_def_types_mod, only: r_2
     use cable_common_module, only: cable_user
-=======
-      use cable_def_types_mod, only : mp, mf, r_2
-      use cable_common_module, only: cable_user
->>>>>>> a500069... add cable_user%calSoilMean to calculate psi_rootzone using multiple weighting methods  except that in calc_weighted_swp_and_frac_uptake
 
       implicit none
 
-<<<<<<< HEAD
     real(r_2), dimension(:, :), intent(in) :: csxz
     real,      dimension(:, :), intent(in) :: gmes
     real,      dimension(:, :), intent(in) :: &
-=======
-      real(r_2), dimension(mp,mf), intent(in) :: csxz
-      real,      dimension(mp,mf), intent(in) :: gmes
-      real,      dimension(mp,mf), intent(in) :: &
->>>>>>> a500069... add cable_user%calSoilMean to calculate psi_rootzone using multiple weighting methods  except that in calc_weighted_swp_and_frac_uptake
          cx1z,       & !
          cx2z,       & !
          rdxz,       & !
@@ -2749,7 +2677,6 @@ CONTAINS
          vlaiz,      & !
          deltlfz,    & !
          kc4           !
-<<<<<<< HEAD
     real,      dimension(:),    intent(in)    :: fwsoilz
     real,                       intent(in)    :: qs
     real,      dimension(:, :), intent(inout) :: gswminz
@@ -2807,62 +2734,6 @@ CONTAINS
                       ! get partial derivative of A wrt cs
                       if (cable_user%explicit_gm) then
                          call fAmdAm_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
-=======
-      real,      dimension(mp),    intent(in)    :: fwsoilz
-      real,                        intent(in)    :: qs
-      real,      dimension(mp,mf), intent(inout) :: gswminz
-      real,      dimension(mp,mf), intent(inout) :: anxz, anrubiscoz, anrubpz, ansinkz
-      real(r_2), dimension(mp,mf), intent(out)   :: eta, dA
-
-      ! local variables
-      real(r_2), dimension(mp,mf) :: dAmp, dAme, dAmc, eta_p, eta_e, eta_c
-      !real, dimension(mp) :: fwsoilz  ! why was this local??
-      real(r_2) :: gamma, beta, gammast, gm, g0, X, Rd, cs
-      real(r_2) :: cc, gsm
-      real(r_2) :: Am
-      integer :: i, j
-      ! for minimum of 3 rates and corresponding elasticities
-      real,      dimension(3) :: tmp3
-      real(r_2), dimension(3) :: dtmp3
-      integer,   dimension(1) :: ii
-
-      do i=1, mp
-
-         do j=1, mf
-
-            if (vlaiz(i,j) > C%lai_thresh) then
-
-               if (deltlfz(i,j) > 0.1) then
-
-                  anxz(i,j)       = -rdxz(i,j)
-                  anrubiscoz(i,j) = -rdxz(i,j)
-                  anrubpz(i,j)    = -rdxz(i,j)
-                  ansinkz(i,j)    = -rdxz(i,j)
-                  dAmc(i,j)       = 0.0_r_2
-                  dAme(i,j)       = 0.0_r_2
-                  dAmp(i,j)       = 0.0_r_2
-                  dA(i,j)         = 0.0_r_2
-                  eta_c(i,j)      = 0.0_r_2
-                  eta_e(i,j)      = 0.0_r_2
-                  eta_p(i,j)      = 0.0_r_2
-                  eta(i,j)        = 0.0_r_2
-
-                  ! C3, Rubisco limited, accounting for explicit mesophyll conductance
-                  if ((vcmxt3z(i,j) > 1.0e-8) .and. (gs_coeffz(i,j) > 100.)) then
-                     cs      = csxz(i,j)
-                     g0      = real(gswminz(i,j) * fwsoilz(i)**qs / C%RGSWC, r_2)
-                     X       = real(gs_coeffz(i,j), r_2)
-                     gamma   = real(vcmxt3z(i,j), r_2)
-                     beta    = real(cx1z(i,j), r_2)
-                     gammast = real(cx2z(i,j) / 2.0, r_2)
-                     Rd      = real(rdxz(i,j), r_2)
-                     gm      = gmes(i,j)
-
-                     if (trim(cable_user%g0_switch) == 'default') then
-                        ! get partial derivative of A wrt cs
-                        if (cable_user%explicit_gm) then
-                           call fAmdAm_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
->>>>>>> a500069... add cable_user%calSoilMean to calculate psi_rootzone using multiple weighting methods  except that in calc_weighted_swp_and_frac_uptake
                               gm, Am, dAmc(i,j))
                         else
                            call fAndAn_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
