@@ -1797,7 +1797,6 @@ CONTAINS
 
     REAL(r_2), DIMENSION(:,:), ALLOCATABLE :: ssat_bounded,rho_soil_bulk ! added by rk4417 - phase2
 
-! line below inserted by rk4417 - phase2
   
     
 !    soil_depth(1) = REAL(soil%zse(1),r_2)
