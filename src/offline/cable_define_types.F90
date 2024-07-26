@@ -162,6 +162,8 @@ MODULE cable_def_types_mod
           rhosoil_vec,& !soil density  [kg/m3]
           ssat_vec, & !volumetric water content at saturation [mm3/mm3]
           watr,   & !residual water content of the soil [mm3/mm3]
+          smpc_vec, &  ! Hutson Cass SWC potential cutoff ! 2 lines inserted by rk4417 - phase2
+          wbc_vec,  &  ! Hutson Cass SWC volumetric water cutoff
           sfc_vec, & !field capcacity (hk = 1 mm/day)
           swilt_vec     ! wilting point (hk = 0.02 mm/day)
 
@@ -187,6 +189,8 @@ MODULE cable_def_types_mod
           GWssat_vec,  & !saturated water content of the aquifer [mm3/mm3]
           GWwatr,    & !residual water content of the aquifer [mm3/mm3]
           GWz,       & !node depth of the aquifer    [m]
+          smpc_GW, &  ! Hutson Cass SWC potential cutoff ! 2 lines inserted by rk4417 - phase2
+          wbc_GW,  &  ! Hutson Cass SWC volumetric water cutoff
           GWdz,      & !thickness of the aquifer   [m]
           GWrhosoil_vec    !density of the aquifer substrate [kg/m3]
 
@@ -240,7 +244,7 @@ MODULE cable_def_types_mod
           owetfac, & ! surface wetness fact. at previous time step
           t_snwlr, & ! top snow layer depth in 3 layer snowpack
           tggav,   & ! mean soil temperature in K
-          otgg,    & ! soil temperature in K
+!          otgg,    & ! soil temperature in K  ! moved below by rk4417 - phase2
           otss,    & ! surface temperature (weighted soil, snow)
           otss_0,  & ! surface temperature (weighted soil, snow)
           tprecip, &
@@ -267,6 +271,7 @@ MODULE cable_def_types_mod
           sdepth,     & ! snow depth
           smass,      & ! snow mass
           ssdn,       & ! snow densities
+          otgg,       & ! soil temperature in K  ! moved here from above by rk4417 - phase2
           tgg,        & ! soil temperature in K
           tggsn,      & ! snow temperature in K
           dtmlt,      & ! water flux to the soil
@@ -880,6 +885,10 @@ CONTAINS
     ALLOCATE( var%ssat_vec(mp,ms) )
     ALLOCATE( var%watr(mp,ms) )
     var%watr(:,:) = 0.05
+    ALLOCATE( var%wbc_GW(mp) )  ! block inserted by rk4417 - phase2
+    ALLOCATE( var%smpc_GW(mp) )
+    ALLOCATE( var%wbc_vec(mp,ms) )
+    ALLOCATE( var%smpc_vec(mp,ms) ) ! end - rk4417 - phase
     ALLOCATE( var%sfc_vec(mp,ms) )
     ALLOCATE( var%swilt_vec(mp,ms) )
     ALLOCATE( var%sand_vec(mp,ms) )
@@ -977,7 +986,8 @@ CONTAINS
     ALLOCATE( var%t_snwlr(mp) )
     ALLOCATE( var%wbfice(mp,ms) )
     ALLOCATE( var%tggav(mp) )
-    ALLOCATE( var%otgg(mp) )
+!    ALLOCATE( var%otgg(mp) )  ! replaced by below - rk4417 - phase2
+    ALLOCATE( var%otgg(mp,ms) )
     ALLOCATE( var%otss(mp) )
     ALLOCATE( var%otss_0(mp) )
     ALLOCATE( var%tprecip(mp) )
@@ -1520,6 +1530,10 @@ CONTAINS
     DEALLOCATE( var% cnsd_vec )
     DEALLOCATE( var%hyds_vec )
     DEALLOCATE( var%sucs_vec )
+    DEALLOCATE( var%wbc_GW )    ! block inserted by rk4417 - phase2 
+    DEALLOCATE( var%smpc_GW )
+    DEALLOCATE( var%wbc_vec )
+    DEALLOCATE( var%smpc_vec ) ! end - rk4417 - phase
     DEALLOCATE( var%bch_vec )
     DEALLOCATE( var%ssat_vec )
     DEALLOCATE( var%watr )
