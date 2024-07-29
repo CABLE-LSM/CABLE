@@ -362,7 +362,7 @@ CONTAINS
                      start=(/land_x(k),land_y(k),1/), &
                      count=(/1,1,tdimsize/) )
                 CALL HANDLE_ERR(STATUS, "Reading direct from "//LUC_EXPT%TransFile(i) )
-                !IF (sum(tmpvec).gt.1e-3 .OR. LUC_EXPT%primaryf(k).lt.0.99) LUC_EXPT%prim_only(k) = .FALSE.
+                !IF (sum(tmpvec).gt.1e-3 .OR. LUC_EXPT%primary_veg(k).lt.0.99) LUC_EXPT%prim_only(k) = .FALSE.
                 IF (sum(tmpvec).gt.1e-3) LUC_EXPT%prim_only(k) = .FALSE.
              END DO
           ELSE
@@ -371,7 +371,7 @@ CONTAINS
              CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
              DO k = 1, mland
                 tmpvec = tmparr3(  land_x(k), land_y(k) , :)
-                ! IF (sum(tmpvec).gt.1e-3.OR. LUC_EXPT%primaryf(k).lt.0.99) LUC_EXPT%prim_only(k) = .FALSE.
+                ! IF (sum(tmpvec).gt.1e-3.OR. LUC_EXPT%primary_veg(k).lt.0.99) LUC_EXPT%prim_only(k) = .FALSE.
                 IF (sum(tmpvec).gt.1e-3) LUC_EXPT%prim_only(k) = .FALSE.
              END DO
           ENDIF
@@ -973,17 +973,20 @@ CONTAINS
     endif
 
     ! Adjust transition areas based on primary wooded fraction
+    ! Note that the new transitions (ctor, qtor, rtoc, rtoq, qtoc, ctoq) 
+    ! are not corrected for woodfrac because they occur entirely 
+    ! within the 'grass' land use type.
     LUC_EXPT%INPUT(ptos)%VAL   =  LUC_EXPT%INPUT(ptos)%VAL   * LUC_EXPT%woodfrac
-    LUC_EXPT%INPUT(ptog)%VAL   =  LUC_EXPT%INPUT(ptog)%VAL   * LUC_EXPT%woodfrac
+    LUC_EXPT%INPUT(ptog)%VAL   =  LUC_EXPT%INPUT(ptog)%VAL   * (1.0 - LUC_EXPT%woodfrac)
     LUC_EXPT%INPUT(gtos)%VAL   =  LUC_EXPT%INPUT(gtos)%VAL   * LUC_EXPT%woodfrac
-    LUC_EXPT%INPUT(stog)%VAL   =  LUC_EXPT%INPUT(stog)%VAL   * LUC_EXPT%woodfrac
+    LUC_EXPT%INPUT(stog)%VAL   =  LUC_EXPT%INPUT(stog)%VAL   * (1.0 - LUC_EXPT%woodfrac)
     LUC_EXPT%INPUT(smharv)%VAL =  LUC_EXPT%INPUT(smharv)%VAL * LUC_EXPT%woodfrac
     LUC_EXPT%INPUT(syharv)%VAL =  LUC_EXPT%INPUT(syharv)%VAL * LUC_EXPT%woodfrac
 
-    LUC_EXPT%INPUT(ptoc)%VAL = LUC_EXPT%INPUT(ptoc)%VAL * LUC_EXPT%woodfrac
-    LUC_EXPT%INPUT(ptoq)%VAL = LUC_EXPT%INPUT(ptoq)%VAL * LUC_EXPT%woodfrac
-    LUC_EXPT%INPUT(stoc)%VAL = LUC_EXPT%INPUT(stoc)%VAL * LUC_EXPT%woodfrac
-    LUC_EXPT%INPUT(stoq)%VAL = LUC_EXPT%INPUT(stoq)%VAL * LUC_EXPT%woodfrac
+    LUC_EXPT%INPUT(ptoc)%VAL = LUC_EXPT%INPUT(ptoc)%VAL * (1.0 - LUC_EXPT%woodfrac)
+    LUC_EXPT%INPUT(ptoq)%VAL = LUC_EXPT%INPUT(ptoq)%VAL * (1.0 - LUC_EXPT%woodfrac)
+    LUC_EXPT%INPUT(stoc)%VAL = LUC_EXPT%INPUT(stoc)%VAL * (1.0 - LUC_EXPT%woodfrac)
+    LUC_EXPT%INPUT(stoq)%VAL = LUC_EXPT%INPUT(stoq)%VAL * (1.0 - LUC_EXPT%woodfrac)
     LUC_EXPT%INPUT(ctos)%VAL = LUC_EXPT%INPUT(ctos)%VAL * LUC_EXPT%woodfrac
     LUC_EXPT%INPUT(qtos)%VAL = LUC_EXPT%INPUT(qtos)%VAL * LUC_EXPT%woodfrac
 

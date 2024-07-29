@@ -1772,7 +1772,6 @@ CONTAINS
     ALLOCATE(POPLUC%crop(arraysize))
     ALLOCATE(POPLUC%past(arraysize))
     ALLOCATE(POPLUC%ptos(arraysize))
-    ALLOCATE(POPLUC%ptog(arraysize))
     ALLOCATE(POPLUC%stog(arraysize))
     ALLOCATE(POPLUC%gtop(arraysize))
     ALLOCATE(POPLUC%gtos(arraysize))
