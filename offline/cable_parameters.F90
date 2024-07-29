@@ -1446,6 +1446,7 @@ CONTAINS
           veg%convex(h)   = vegin%convex(veg%iveg(h))
           ! Alexis, adding gamma
           veg%gamma(h)    = real(vegin%gamma(veg%iveg(h)),r_2)
+          print *,'veg gamma in haverd2013 fwsoil: ', veg%gamma(:) 
           veg%cfrd(h)     = vegin%cfrd(veg%iveg(h))
           veg%gswmin(h)   = vegin%gswmin(veg%iveg(h))
           veg%conkc0(h)   = vegin%conkc0(veg%iveg(h))
