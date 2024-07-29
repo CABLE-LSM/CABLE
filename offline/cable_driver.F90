@@ -132,6 +132,7 @@ PROGRAM cable_offline_driver
   use cable_bios_met_obs_params,   only:  cable_bios_read_met, cable_bios_init, &
                                           cable_bios_load_params, &
                                           cable_bios_load_climate_params
+  use cable_param_module, only: derived_parameters
 
   ! LUC_EXPT only
   use CABLE_LUC_EXPT, only: LUC_EXPT_TYPE, LUC_EXPT_INIT, close_luh2
@@ -695,8 +696,10 @@ PROGRAM cable_offline_driver
 
               ! Having read the default parameters, if this is a bios run we
               ! will now overwrite the subset of them required for bios.
-              if (trim(cable_user%MetType) .eq. 'bios') &
+              if (trim(cable_user%MetType) .eq. 'bios') then
                    call cable_bios_load_params(soil)
+                   call derived_parameters(soil, sum_flux, bal, ssnow, veg, rough)
+              end if
 
               ! Open output file
               if (.not. CASAONLY) then
