@@ -698,7 +698,7 @@ PROGRAM cable_offline_driver
               ! will now overwrite the subset of them required for bios.
               if (trim(cable_user%MetType) .eq. 'bios') then
                    call cable_bios_load_params(soil)
-                   call derived_parameters(soil, sum_flux, bal, ssnow, veg, rough)
+                  !  call derived_parameters(soil, sum_flux, bal, ssnow, veg, rough)
               end if
 
               ! Open output file
