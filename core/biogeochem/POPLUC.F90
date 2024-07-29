@@ -74,7 +74,8 @@ MODULE POPLUC_Types
      REAL(dp), DIMENSION(:),POINTER :: crop => null(), past => null() ! components of managed grass (crop,pasture)
      ! transitions associated with crop (c) and pasture (q)
      REAL(dp), DIMENSION(:),POINTER :: ptoc => null(), ptoq => null(), stoc => null(), stoq => null(), &
-          qtos => null(), ctos => null()
+          qtos => null(), ctos => null(), ctor => null(), qtor => null(), rtoc => null(), rtoq => null(), &
+          qtoc => null(), ctoq => null()
      REAL(dp), DIMENSION(:,:),POINTER ::  freq_age_primary => null(), freq_age_secondary => null(), &
           biomass_age_primary => null(), biomass_age_secondary => null()
      REAL(dp), DIMENSION(:,:),POINTER :: age_history_secdf => null(), area_history_secdf => null()
@@ -159,6 +160,12 @@ CONTAINS
     popluc%stoq                    = 0.0_dp
     popluc%qtos                    = 0.0_dp
     popluc%ctos                    = 0.0_dp
+    popluc%ctor                    = 0.0_dp
+    popluc%qtor                    = 0.0_dp
+    popluc%rtoc                    = 0.0_dp
+    popluc%rtoq                    = 0.0_dp
+    popluc%qtoc                    = 0.0_dp
+    popluc%ctoq                    = 0.0_dp
     popluc%frac_forest             = 0.0_dp
     popluc%frac_primf              = 0.0_dp
     popluc%area_history_secdf      = 0.0_dp
@@ -232,6 +239,12 @@ CONTAINS
     write(*,*) 'stoq ', popluc%stoq
     write(*,*) 'qtos ', popluc%qtos
     write(*,*) 'ctos ', popluc%ctos
+    write(*,*) 'ctor ', popluc%ctor
+    write(*,*) 'qtor ', popluc%qtor
+    write(*,*) 'rtoc ', popluc%rtoc
+    write(*,*) 'rtoq ', popluc%rtoq
+    write(*,*) 'qtoc ', popluc%qtoc
+    write(*,*) 'ctoq ', popluc%ctoq
     write(*,*) 'frac_forest ', popluc%frac_forest
     write(*,*) 'frac_primf ', popluc%frac_primf
     write(*,*) 'area_history_secdf ', popluc%area_history_secdf
@@ -1446,11 +1459,12 @@ CONTAINS
                    POPLUC%freq_age_secondary(g,:) = 0.0_dp
                 endif
              elseif (ilu == gr) then
+                ! Update grass and pasture fraction within the grass land use type 
                 POPLUC%grass(g) = max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp)
-                POPLUC%past(g) = min(max(POPLUC%past(g) + POPLUC%ptoq(g) + POPLUC%stoq(g) &
-                     - POPLUC%qtos(g),0.0_dp), POPLUC%grass(g))
-                POPLUC%crop(g) =min( max(POPLUC%crop(g) + POPLUC%ptoc(g) + POPLUC%stoc(g) &
-                     - POPLUC%ctos(g),0.0_dp), POPLUC%grass(g) - POPLUC%past(g))
+                POPLUC%past(g) = min(max(POPLUC%past(g) + (POPLUC%ptoq(g) + POPLUC%stoq(g) + POPLUC%ctoq(g) + POPLUC%rtoq(g)) &
+                     - (POPLUC%qtos(g) + POPLUC%qtoc(g) + POPLUC%qtor(g)),0.0_dp), POPLUC%grass(g))
+                POPLUC%crop(g) =min( max(POPLUC%crop(g) + (POPLUC%ptoc(g) + POPLUC%stoc(g) + POPLUC%qtoc(g) + POPLUC%rtoc(g)) &
+                     - (POPLUC%ctos(g) + POPLUC%ctoq(g) + POPLUC%ctor(g)),0.0_dp), POPLUC%grass(g) - POPLUC%past(g))
              endif
 
              POPLUC%csoil(g,ilu) = sum(casapool%csoil(irp,:))* &
@@ -1769,6 +1783,12 @@ CONTAINS
     ALLOCATE(POPLUC%stoq(arraysize))
     ALLOCATE(POPLUC%ctos(arraysize))
     ALLOCATE(POPLUC%qtos(arraysize))
+    ALLOCATE(POPLUC%ctor(arraysize))
+    ALLOCATE(POPLUC%qtor(arraysize))
+    ALLOCATE(POPLUC%rtoc(arraysize))
+    ALLOCATE(POPLUC%rtoq(arraysize))
+    ALLOCATE(POPLUC%qtoc(arraysize))
+    ALLOCATE(POPLUC%ctoq(arraysize))
     ALLOCATE(POPLUC%pharv(arraysize))
     ALLOCATE(POPLUC%smharv(arraysize))
     ALLOCATE(POPLUC%syharv(arraysize))
@@ -1859,7 +1879,7 @@ CONTAINS
     ! 1 dim arrays (mp )
     CHARACTER(len=20),DIMENSION(2) :: A0
     ! 2 dim real arrays (mp,t)
-    CHARACTER(len=20),DIMENSION(24):: A1
+    CHARACTER(len=20),DIMENSION(30):: A1
     ! 2 dim integer arrays (mp,t)
     CHARACTER(len=20),DIMENSION(1):: AI1
     ! 3 dim real arrays (mp,age_max,t)
@@ -1915,6 +1935,12 @@ CONTAINS
     A1(22) = 'AgProd'
     A1(23) = 'AgProdLoss'
     A1(24) = 'FAg'
+    A1(25) = 'ctor'
+    A1(26) = 'qtor'
+    A1(27) = 'rtoc'
+    A1(28) = 'rtoq'
+    A1(29) = 'qtoc'
+    A1(30) = 'ctoq'
 
     AI1(1) = 'n_event'
 
@@ -2146,7 +2172,18 @@ CONTAINS
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
     STATUS = NF90_PUT_VAR(FILE_ID, VID1( 24), real(POPLUC%FAg,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 25), real(POPLUC%ctor,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 26), real(POPLUC%qtor,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 27), real(POPLUC%rtoc,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 28), real(POPLUC%rtoq,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 29), real(POPLUC%qtoc,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 30), real(POPLUC%ctoq,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
     STATUS = NF90_PUT_VAR(FILE_ID, VIDI1(1), POPLUC%n_event, start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
@@ -2517,7 +2554,7 @@ CONTAINS
     ! 1 dim arrays (mp )
     CHARACTER(len=20),DIMENSION(2) :: A0
     ! 2 dim real arrays (mp,t)
-    CHARACTER(len=20),DIMENSION(24):: A1
+    CHARACTER(len=20),DIMENSION(30):: A1
     ! 2 dim integer arrays (mp,t)
     CHARACTER(len=20),DIMENSION(1) :: AI1
     ! 3 dim real arrays (mp,age_max,t)
@@ -2602,6 +2639,12 @@ CONTAINS
     A1(22) = 'AgProd'
     A1(23) = 'AgProdLoss'
     A1(24) = 'FAg'
+    A1(25) = 'ctor'
+    A1(26) = 'qtor'
+    A1(27) = 'rtoc'
+    A1(28) = 'rtoq'
+    A1(29) = 'qtoc'
+    A1(30) = 'ctoq'
 
     AI1(1) = 'n_event'
 
@@ -2995,6 +3038,30 @@ CONTAINS
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     STATUS = NF90_PUT_VAR(FILE_ID, VID1( 24), real(UNPACK(POPLUC%FAg,landmask, fieldr),sp), &
+         start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 25), real(UNPACK(POPLUC%ctor,landmask, fieldr),sp), &
+         start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 26), real(UNPACK(POPLUC%qtor,landmask, fieldr),sp), &
+         start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 27), real(UNPACK(POPLUC%rtoc,landmask, fieldr),sp), &
+         start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 28), real(UNPACK(POPLUC%rtoq,landmask, fieldr),sp), &
+         start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 29), real(UNPACK(POPLUC%qtoc,landmask, fieldr),sp), &
+         start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 30), real(UNPACK(POPLUC%ctoq,landmask, fieldr),sp), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 

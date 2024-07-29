@@ -16,6 +16,7 @@ MODULE CABLE_LUC_EXPT
      logical, allocatable :: prim_only(:)
      logical, allocatable :: ptos(:), ptog(:), stog(:), gtos(:)
      logical, allocatable :: ptoc(:), ptoq(:), stoc(:), stoq(:), ctos(:), qtos(:)
+     logical, allocatable :: ctor(:), qtor(:), rtoc(:), rtoq(:), qtoc(:), ctoq(:)
      integer, allocatable :: ivegp(:)
      integer, allocatable :: biome(:)
      integer :: YearStart, YearEnd, nfile
@@ -23,10 +24,10 @@ MODULE CABLE_LUC_EXPT
      real,    allocatable :: primaryf(:), grass(:), secdf(:), crop(:), past(:)
      real,    allocatable :: mtemp_min20(:)
      real,    allocatable :: woodfrac(:)
-     character(len=200),   dimension(17) :: TransFile
-     character(len=12) ,   dimension(17) :: var_name
-     integer,              dimension(17) :: f_id, v_id
-     type(luc_input_type), dimension(17) :: input
+     character(len=200),   dimension(23) :: TransFile
+     character(len=12) ,   dimension(23) :: var_name
+     integer,              dimension(23) :: f_id, v_id
+     type(luc_input_type), dimension(23) :: input
      integer :: year, ydimsize, xdimsize, nrec, FirstYear
   end type luc_expt_type
   type(luc_expt_type), save :: luc_expt
@@ -48,7 +49,13 @@ MODULE CABLE_LUC_EXPT
        ctos      = 14, &
        qtos      = 15, &
        cropfrac  = 16, &
-       pastfrac  = 17
+       pastfrac  = 17, &
+       ctor      = 18, &
+       qtor      = 19, &
+       rtoc      = 20, &
+       rtoq      = 21, &
+       qtoc      = 22, &
+       ctoq      = 23
 
 CONTAINS
 
@@ -99,6 +106,12 @@ CONTAINS
     ALLOCATE( LUC_EXPT%qtos(mland) )
     ALLOCATE( LUC_EXPT%stoc(mland) )
     ALLOCATE( LUC_EXPT%stoq(mland) )
+    ALLOCATE( LUC_EXPT%ctor(mland) )
+    ALLOCATE( LUC_EXPT%qtor(mland) )
+    ALLOCATE( LUC_EXPT%rtoc(mland) )
+    ALLOCATE( LUC_EXPT%rtoq(mland) )
+    ALLOCATE( LUC_EXPT%qtoc(mland) )
+    ALLOCATE( LUC_EXPT%ctoq(mland) )
     ALLOCATE( LUC_EXPT%primaryf(mland) )
     ALLOCATE( LUC_EXPT%secdf(mland) )
     ALLOCATE( LUC_EXPT%grass(mland) )
@@ -147,6 +160,13 @@ CONTAINS
     LUC_EXPT%TransFile(16) = TRIM(LUC_EXPT%TransitionFilePath)//"/crop.nc"
     LUC_EXPT%TransFile(17) = TRIM(LUC_EXPT%TransitionFilePath)//"/past.nc"
 
+    LUC_EXPT%TransFile(18) = TRIM(LUC_EXPT%TransitionFilePath)//"/ctor.nc"
+    LUC_EXPT%TransFile(19) = TRIM(LUC_EXPT%TransitionFilePath)//"/qtor.nc"
+    LUC_EXPT%TransFile(20) = TRIM(LUC_EXPT%TransitionFilePath)//"/rtoc.nc"
+    LUC_EXPT%TransFile(21) = TRIM(LUC_EXPT%TransitionFilePath)//"/rtoq.nc"
+    LUC_EXPT%TransFile(22) = TRIM(LUC_EXPT%TransitionFilePath)//"/qtoc.nc"
+    LUC_EXPT%TransFile(23) = TRIM(LUC_EXPT%TransitionFilePath)//"/ctoq.nc"
+
     LUC_EXPT%VAR_NAME(1) = 'ptos'
     LUC_EXPT%VAR_NAME(2) = 'ptog'
     LUC_EXPT%VAR_NAME(3) = 'stog'
@@ -166,7 +186,14 @@ CONTAINS
     LUC_EXPT%VAR_NAME(16) = 'crop'
     LUC_EXPT%VAR_NAME(17) = 'past'
 
-    LUC_EXPT%nfile = 17
+    LUC_EXPT%VAR_NAME(18) = 'ctor' 
+    LUC_EXPT%VAR_NAME(19) = 'qtor'
+    LUC_EXPT%VAR_NAME(20) = 'rtoc'
+    LUC_EXPT%VAR_NAME(21) = 'rtoq'
+    LUC_EXPT%VAR_NAME(22) = 'qtoc'
+    LUC_EXPT%VAR_NAME(23) = 'ctoq'
+
+    LUC_EXPT%nfile = 23
     DO x = 1, LUC_EXPT%nfile
        ALLOCATE( LUC_EXPT%INPUT(x)%VAL(mland) )
     END DO
@@ -405,6 +432,12 @@ CONTAINS
     luc_expt%qtos        = .false.
     luc_expt%stoc        = .false.
     luc_expt%stoq        = .false.
+    luc_expt%ctor        = .false.
+    luc_expt%qtor        = .false.
+    luc_expt%rtoc        = .false.
+    luc_expt%rtoq        = .false.
+    luc_expt%qtoc        = .false.
+    luc_expt%ctoq        = .false.
     luc_expt%primaryf    = 0.
     luc_expt%secdf       = 0.
     luc_expt%grass       = 0.

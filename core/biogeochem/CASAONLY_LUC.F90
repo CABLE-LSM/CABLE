@@ -225,7 +225,15 @@ contains
                    POPLUC%ctos(k) = real(LUC_EXPT%INPUT(ctos)%VAL(k), dp)
                    POPLUC%qtos(k) = real(LUC_EXPT%INPUT(qtos)%VAL(k), dp)
 
+                   POPLUC%ctor(k) = real(LUC_EXPT%INPUT(ctor)%VAL(k), dp)
+                   POPLUC%qtor(k) = real(LUC_EXPT%INPUT(qtor)%VAL(k), dp)
+                   POPLUC%rtoc(k) = real(LUC_EXPT%INPUT(rtoc)%VAL(k), dp)
+                   POPLUC%rtoq(k) = real(LUC_EXPT%INPUT(rtoq)%VAL(k), dp)
+                   POPLUC%qtoc(k) = real(LUC_EXPT%INPUT(qtoc)%VAL(k), dp)
+                   POPLUC%ctoq(k) = real(LUC_EXPT%INPUT(ctoq)%VAL(k), dp)
+
                    POPLUC%thisyear = yyyy
+                   
                 ENDDO
                 !stop
                 ! set landuse index for secondary forest POP landscapes

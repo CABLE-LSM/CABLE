@@ -1586,6 +1586,13 @@ SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg,
      POPLUC%ctos(k) = real(LUC_EXPT%INPUT(ctos)%VAL(k), r_2)
      POPLUC%qtos(k) = real(LUC_EXPT%INPUT(qtos)%VAL(k), r_2)
 
+     POPLUC%ctor(k) = real(LUC_EXPT%INPUT(ctor)%VAL(k), r_2)
+     POPLUC%qtor(k) = real(LUC_EXPT%INPUT(qtor)%VAL(k), r_2)
+     POPLUC%rtoc(k) = real(LUC_EXPT%INPUT(rtoc)%VAL(k), r_2)
+     POPLUC%rtoq(k) = real(LUC_EXPT%INPUT(rtoq)%VAL(k), r_2)
+     POPLUC%qtoc(k) = real(LUC_EXPT%INPUT(qtoc)%VAL(k), r_2)
+     POPLUC%ctoq(k) = real(LUC_EXPT%INPUT(ctoq)%VAL(k), r_2)
+
      POPLUC%thisyear  = yyyy
 
   END DO
