@@ -21,6 +21,7 @@ MODULE CABLE_LUC_EXPT
      integer, allocatable :: biome(:)
      integer :: YearStart, YearEnd, nfile
      integer :: ctstep
+     real,    allocatable :: primary_veg(:)
      real,    allocatable :: primaryf(:), grass(:), secdf(:), crop(:), past(:)
      real,    allocatable :: mtemp_min20(:)
      real,    allocatable :: woodfrac(:)
@@ -33,29 +34,29 @@ MODULE CABLE_LUC_EXPT
   type(luc_expt_type), save :: luc_expt
 
   integer, parameter :: &
-       ptos      = 1, &
-       ptog      = 2, &
-       stog      = 3, &
-       gtos      = 4, &
-       grassfrac = 5, &
-       primffrac = 6, &
-       pharv     = 7, &
-       smharv    = 8, &
-       syharv    = 9, &
-       ptoc      = 10, &
-       ptoq      = 11, &
-       stoc      = 12, &
-       stoq      = 13, &
-       ctos      = 14, &
-       qtos      = 15, &
-       cropfrac  = 16, &
-       pastfrac  = 17, &
-       ctor      = 18, &
-       qtor      = 19, &
-       rtoc      = 20, &
-       rtoq      = 21, &
-       qtoc      = 22, &
-       ctoq      = 23
+       ptos        = 1, &
+       ptog        = 2, &
+       stog        = 3, &
+       gtos        = 4, &
+       grassfrac   = 5, &
+       primvegfrac = 6, &
+       pharv       = 7, &
+       smharv      = 8, &
+       syharv      = 9, &
+       ptoc        = 10, &
+       ptoq        = 11, &
+       stoc        = 12, &
+       stoq        = 13, &
+       ctos        = 14, &
+       qtos        = 15, &
+       cropfrac    = 16, &
+       pastfrac    = 17, &
+       ctor        = 18, &
+       qtor        = 19, &
+       rtoc        = 20, &
+       rtoq        = 21, &
+       qtoc        = 22, &
+       ctoq        = 23
 
 CONTAINS
 
@@ -112,6 +113,7 @@ CONTAINS
     ALLOCATE( LUC_EXPT%rtoq(mland) )
     ALLOCATE( LUC_EXPT%qtoc(mland) )
     ALLOCATE( LUC_EXPT%ctoq(mland) )
+    ALLOCATE( LUC_EXPT%primary_veg(mland) )
     ALLOCATE( LUC_EXPT%primaryf(mland) )
     ALLOCATE( LUC_EXPT%secdf(mland) )
     ALLOCATE( LUC_EXPT%grass(mland) )
@@ -146,7 +148,7 @@ CONTAINS
     LUC_EXPT%TransFile(3) = TRIM(LUC_EXPT%TransitionFilePath)//"/stog.nc"
     LUC_EXPT%TransFile(4) = TRIM(LUC_EXPT%TransitionFilePath)//"/gtos.nc"
     LUC_EXPT%TransFile(5) = TRIM(LUC_EXPT%TransitionFilePath)//"/grass.nc"
-    LUC_EXPT%TransFile(6) = TRIM(LUC_EXPT%TransitionFilePath)//"/primaryf.nc"
+    LUC_EXPT%TransFile(6) = TRIM(LUC_EXPT%TransitionFilePath)//"/primary_veg.nc"
     LUC_EXPT%TransFile(7) = TRIM(LUC_EXPT%TransitionFilePath)//"/pharv.nc"
     LUC_EXPT%TransFile(8) = TRIM(LUC_EXPT%TransitionFilePath)//"/smharv.nc"
     LUC_EXPT%TransFile(9) = TRIM(LUC_EXPT%TransitionFilePath)//"/syharv.nc"
@@ -172,7 +174,7 @@ CONTAINS
     LUC_EXPT%VAR_NAME(3) = 'stog'
     LUC_EXPT%VAR_NAME(4) = 'gtos'
     LUC_EXPT%VAR_NAME(5) = 'grass'
-    LUC_EXPT%VAR_NAME(6) = 'primaryf'
+    LUC_EXPT%VAR_NAME(6) = 'primary_veg'
     LUC_EXPT%VAR_NAME(7) = 'pharv'
     LUC_EXPT%VAR_NAME(8) = 'smharv'
     LUC_EXPT%VAR_NAME(9) = 'syharv'
@@ -269,20 +271,20 @@ CONTAINS
        END DO
     ENDIF
 
-    i = primffrac
+    i = primvegfrac
     IF ( LUC_EXPT%DirectRead ) THEN
        DO k = 1, mland
           STATUS = NF90_GET_VAR( LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmp, &
                start=(/land_x(k),land_y(k),LUC_EXPT%CTSTEP/) )
           CALL HANDLE_ERR(STATUS, "Reading direct from "//LUC_EXPT%TransFile(i) )
-          LUC_EXPT%primaryf(k) = tmp
+          LUC_EXPT%primary_veg(k) = tmp
        END DO
     ELSE
        STATUS = NF90_GET_VAR(LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmparr, &
             start=(/1,1,LUC_EXPT%CTSTEP/),count=(/xds,yds,1/) )
        CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
        DO k = 1, mland
-          LUC_EXPT%primaryf(k) = tmparr( land_x(k), land_y(k) )
+          LUC_EXPT%primary_veg(k) = tmparr( land_x(k), land_y(k) )
        END DO
 
     ENDIF
@@ -321,10 +323,14 @@ CONTAINS
        END DO
     ENDIF
 
-    LUC_EXPT%grass    = min(LUC_EXPT%grass, 1.0)
-    LUC_EXPT%primaryf = min(LUC_EXPT%primaryf, 1.0-LUC_EXPT%grass)
+    ! Determine woody fraction (forest and shrub cover).
+    call get_woody_fraction(LUC_EXPT)
+
+    ! Determine initial land use types
+    LUC_EXPT%primaryf = LUC_EXPT%primary_veg * LUC_EXPT%woodfrac
+    LUC_EXPT%grass    = LUC_EXPT%grass + LUC_EXPT%primary_veg * (1.0 - LUC_EXPT%woodfrac)
     LUC_EXPT%secdf    = max(1.0-LUC_EXPT%grass-LUC_EXPT%primaryf, 0.0)
-    
+
     !! JK Debug
     ! For some reason the transition from secdf does not work correctly
     ! if there is secdf = 0.0 at first timestep (1580). This is a bandaid
@@ -342,14 +348,6 @@ CONTAINS
     
     LUC_EXPT%crop     = max(min(LUC_EXPT%crop, LUC_EXPT%grass), 0.0)
     LUC_EXPT%past     = max(min(LUC_EXPT%grass-LUC_EXPT%crop, LUC_EXPT%past), 0.0)
-
-   ! Determine woody fraction (forest and shrub cover).
-    call get_woody_fraction(LUC_EXPT)
-
-    ! Adjust grass and forest fractions based on LUC_EXPT%woodfrac as determined in get_woody_fraction.
-    LUC_EXPT%grass    = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf) * (1.0-LUC_EXPT%woodfrac)
-    LUC_EXPT%primaryf = LUC_EXPT%primaryf * LUC_EXPT%woodfrac
-    LUC_EXPT%secdf    = LUC_EXPT%secdf    * LUC_EXPT%woodfrac
 
     ! write(59,*) TRIM(LUC_EXPT%NotPrimOnlyFile), (TRIM(LUC_EXPT%NotPrimOnlyFile).EQ.'none')
     ! READ transitions from primary to see if primary remains primary
@@ -404,11 +402,10 @@ CONTAINS
     ! set secondary vegetation area to be zero where land use transitions don't occur
     ! set grass component of primary vegetation cover
     WHERE (LUC_EXPT%prim_only .eqv. .TRUE.)
-      LUC_EXPT%secdf    = 0.0
-      LUC_EXPT%primaryf = 1.0
-      LUC_EXPT%grass    = 0.0
-      LUC_EXPT%grass    = LUC_EXPT%primaryf * (1.0-LUC_EXPT%woodfrac)
-      LUC_EXPT%primaryf = LUC_EXPT%primaryf * LUC_EXPT%woodfrac
+      LUC_EXPT%primary_veg = 1.0
+      LUC_EXPT%primaryf    = min(1.0,max(0.0, LUC_EXPT%primary_veg * LUC_EXPT%woodfrac))
+      LUC_EXPT%secdf       = 0.0
+      LUC_EXPT%grass       = 1.0 - LUC_EXPT%primaryf - LUC_EXPT%secdf
     ENDWHERE
     
   END SUBROUTINE LUC_EXPT_INIT
@@ -438,6 +435,7 @@ CONTAINS
     luc_expt%rtoq        = .false.
     luc_expt%qtoc        = .false.
     luc_expt%ctoq        = .false.
+    luc_expt%primary_veg = 0.
     luc_expt%primaryf    = 0.
     luc_expt%secdf       = 0.
     luc_expt%grass       = 0.
@@ -642,13 +640,15 @@ CONTAINS
 
        ! don't consider LUC events in desert or tundra
        if (inveg(m,n,1)==14 .OR.  inveg(m,n,1)==8 ) THEN
-          LUC_EXPT%prim_only(k) = .TRUE.
-          LUC_EXPT%primaryf(k)  = 1.0
-          LUC_EXPT%secdf(k)     = 0.0
-          LUC_EXPT%grass(k)     = 0.0
-          inPFrac(m,n,1)   = 1.0
-          inPFrac(m,n,2:3) = 0.0
-          inVeg(m,n,2:3)   = 0
+          LUC_EXPT%prim_only(k)   = .TRUE.
+          LUC_EXPT%primary_veg(k) = 1.0
+          LUC_EXPT%primaryf(k)    = min(1.0,max(0.0, LUC_EXPT%primary_veg(k) * LUC_EXPT%woodfrac(k)))
+          LUC_EXPT%secdf(k)       = 0.0
+          LUC_EXPT%grass(k)       = 1.0 - LUC_EXPT%primaryf(k) - LUC_EXPT%secdf(k)
+          inPFrac(m,n,1)          = LUC_EXPT%primaryf(k)
+          inPFrac(m,n,2)          = LUC_EXPT%grass(k)
+          inPFrac(m,n,3)          = 0.0
+          inVeg(m,n,3)            = 0
        endif
 
     ENDDO
