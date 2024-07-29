@@ -574,7 +574,7 @@ CONTAINS
 
          LUC_EXPT%woodfrac = 0.8
 
-      ELSEWHERE (LUC_EXPT%biome .eq. 5 .or. LUC_EXPT%biome .eq. 6 
+      ELSEWHERE (LUC_EXPT%biome .eq. 5 .or. LUC_EXPT%biome .eq. 6 &
                  .or. LUC_EXPT%biome .eq. 14)  ! DBL and tundra
          
          LUC_EXPT%woodfrac = 0.7

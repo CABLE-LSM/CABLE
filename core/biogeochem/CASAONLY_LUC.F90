@@ -22,7 +22,8 @@ contains
     USE TypeDef,              ONLY: dp
     USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, read_LUH2, &
          ptos, ptog, stog, gtos, pharv, smharv, syharv, &
-         ptoc, ptoq, stoc, stoq, ctos, qtos
+         ptoc, ptoq, stoc, stoq, ctos, qtos, & 
+         ctor, qtor, rtoc, rtoq, qtoc, ctoq
     USE POPLUC_Types
     USE POPLUC_Module,        ONLY: POPLUCStep, POPLUC_weights_Transfer, & ! WRITE_LUC_OUTPUT_NC, &
          POP_LUC_CASA_transfer, WRITE_LUC_RESTART_NC, &

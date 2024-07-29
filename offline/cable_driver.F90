@@ -1542,7 +1542,8 @@ SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg,
   USE POPMODULE,            ONLY: POP_init_single
   USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, read_LUH2, &
        ptos, ptog, stog, gtos, pharv, smharv, syharv, &
-       ptoc, ptoq, stoc, stoq, ctos, qtos
+       ptoc, ptoq, stoc, stoq, ctos, qtos, &
+       ctor, qtor, rtoc, rtoq, qtoc, ctoq
   USE POPLUC_Types
   USE POPLUC_Module,        ONLY: POPLUCStep, POPLUC_weights_Transfer
   ! 13C
