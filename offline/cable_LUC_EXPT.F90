@@ -303,9 +303,9 @@ CONTAINS
     ! if there is secdf = 0.0 at first timestep (1580). This is a bandaid
     ! solution that allows a 'correct' transition. Minimum fraction of 0.01
     ! was required for it to work correctly.
-    where (LUC_EXPT%secdf < 0.01 .and. LUC_EXPT%prim_only .eqv. .FALSE. )
-    LUC_EXPT%primaryf = LUC_EXPT%primaryf + LUC_EXPT%secdf - 0.01  
-    LUC_EXPT%secdf = 0.01
+    where ((LUC_EXPT%secdf < 0.01) .and. (LUC_EXPT%prim_only .eqv. .FALSE.))
+      LUC_EXPT%primaryf = LUC_EXPT%primaryf + LUC_EXPT%secdf - 0.01  
+      LUC_EXPT%secdf = 0.01
     endwhere
     where (LUC_EXPT%primaryf < 0.0)
       LUC_EXPT%grass = LUC_EXPT%grass + LUC_EXPT%primaryf
@@ -522,8 +522,12 @@ CONTAINS
          LUC_EXPT%ivegp = 14
       ENDWHERE
 
+      WHERE (LUC_EXPT%biome .eq. 1 .or. LUC_EXPT%biome .eq. 2 &
+             .or. LUC_EXPT%biome .eq. 4) ! tropical forest and temperate evergreen forest
 
-      WHERE (LUC_EXPT%biome .eq. 3 .or. LUC_EXPT%biome .eq. 11) ! savanna/ xerophytic woods
+         LUC_EXPT%woodfrac = 1.0
+
+      ELSEWHERE (LUC_EXPT%biome .eq. 3 .or. LUC_EXPT%biome .eq. 11) ! savanna/ xerophytic woods
          
          LUC_EXPT%woodfrac = 0.4
 
@@ -537,7 +541,8 @@ CONTAINS
 
          LUC_EXPT%woodfrac = 0.8
 
-      ELSEWHERE (LUC_EXPT%biome .eq. 5 .or. LUC_EXPT%biome .eq. 6 ) ! DBL
+      ELSEWHERE (LUC_EXPT%biome .eq. 5 .or. LUC_EXPT%biome .eq. 6 
+                 .or. LUC_EXPT%biome .eq. 14)  ! DBL and tundra
          
          LUC_EXPT%woodfrac = 0.7
 
