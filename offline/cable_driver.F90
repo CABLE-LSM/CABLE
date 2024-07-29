@@ -680,8 +680,12 @@ PROGRAM cable_offline_driver
                    C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC, &
                    c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
                if (trim(cable_user%MetType) == 'site' .and. site%zr > 0) then
-               veg%zr = site%zr
+               veg%zr(:) = site%zr
                end if
+               if (trim(cable_user%MetType) == 'site' .and. site%gamma > 0) then
+                  veg%gamma(:) = site%gamma
+               end if
+               print *,'gamma from site.nml is:', site%gamma
          
               ! 13C
               if (cable_user%c13o2) then

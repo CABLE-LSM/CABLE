@@ -56,6 +56,7 @@ MODULE CABLE_site
      REAL :: Ndep  ! Ndep for current time step
      REAL :: Pdep  ! Pdep for current time step
      REAL :: zr ! root length
+     REAL :: gamma
   END TYPE site_TYPE
 
   TYPE (site_TYPE):: site  ! Define the variable CRU, of type CRU_TYPE
@@ -88,11 +89,11 @@ CONTAINS
     REAL :: spinNdep  ! kgNha-1y-1 (pre-industrial)
     REAL :: spinPdep  ! kgPha-1y-1 (pre-industrial)
     REAL :: zr ! root maximum length, zihanlu
- 
+    REAL :: gamma ! parameter in fwsoil calculation in haverd2013 zihanlu
     ! Flag for errors
 
     NAMELIST /siteNML/ RunType, CO2NdepFile, spinstartyear, spinendyear, spinCO2, &
-         spinNdep, spinPdep, zr
+         spinNdep, spinPdep, zr, gamma
 
     ! Read site namelist settings
     CALL GET_UNIT(nmlunit)  ! CABLE routine finds spare unit number
@@ -109,6 +110,7 @@ CONTAINS
     site%spinNdep = spinNdep    
     site%spinPdep = spinPdep
     site%zr = zr
+    site%gamma = gamma
     ! Print settings
     WRITE(*   ,*)"========================================= SITE INFO  ============"
     WRITE(*   ,*)"site settings chosen:"
