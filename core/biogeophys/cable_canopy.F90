@@ -3326,7 +3326,8 @@ CONTAINS
       type(veg_parameter_type),  intent(in)  :: veg
 
       integer :: ns
-      real, parameter :: rootgamma = 0.01   ! (19may2010)
+      ! original is 0.01, 
+      real, parameter :: rootgamma = 0.012    ! (19may2010)
       real, dimension(mp) :: dummy, normfac
       !--- local level dependent rwater
       real, dimension(mp,ms) :: frwater
