@@ -685,7 +685,7 @@ PROGRAM cable_offline_driver
                if (trim(cable_user%MetType) == 'site' .and. site%gamma > 0) then
                   veg%gamma(:) = site%gamma
                end if
-               print *,'gamma from site.nml is:', site%gamma
+               print *,'zr from site.nml is:', veg%zr(:)
          
               ! 13C
               if (cable_user%c13o2) then
