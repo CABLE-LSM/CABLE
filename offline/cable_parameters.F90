@@ -1715,6 +1715,9 @@ CONTAINS
     REAL(r_2) :: temp(mp)
     REAL      :: tmp2(mp)
 
+    logical :: CALL1 = .true.
+
+    if (CALL1) then
     ! Construct derived parameters and zero initialisations,
     ! regardless of where parameters and other initialisations
     ! have loaded from:
@@ -1790,6 +1793,16 @@ CONTAINS
        soil%ishorizon = 1
     END IF
     ! END IF
+    end if
+    if (.NOT. CALL1) then
+    soil%hsbh   = soil%hyds*ABS(soil%sucs) * soil%bch ! difsat*etasat
+    soil%ibp2   = NINT(soil%bch) + 2
+    ! Ticket #66
+    where( soil%ssat > 0.) & ! Avoid divide by
+    soil%pwb_min = (soil%swilt/soil%ssat)**soil%ibp2
+    soil%i2bp3  = 2 * NINT(soil%bch) + 3
+    end if
+    CALL1 = .false.
 
   END SUBROUTINE derived_parameters
   !============================================================================
