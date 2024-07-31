@@ -678,9 +678,6 @@ CONTAINS
          if (POPLUC%ptog(g) .gt. 0.0_dp) &
               CALL execute_luc_event('PRIMF','C3ANN',POPLUC%ptog(g),g,POPLUC)
 
-         ! if (POPLUC%stog(g) .gt.0.0_dp) &
-         !      CALL execute_luc_event('SECDF','C3ANN',POPLUC%stog(g),g,POPLUC)
-
          if (POPLUC%gtop(g) .gt.0.0_dp) &
               CALL execute_luc_event('C3ANN','PRIMF',POPLUC%gtop(g),g,POPLUC)
          if (POPLUC%gtos(g) .gt.0.0_dp) &
@@ -1452,18 +1449,19 @@ CONTAINS
              irp = ilu + j -1
              ! Update tile area
              if (ilu == p) then
-                POPLUC%primf(g)  = max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp)
+                POPLUC%primf(g) = min(1.0, max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp))
              elseif (ilu == s) then
-                POPLUC%secdf(g) = max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp)
+                POPLUC%secdf(g) = min(1.0, max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp))
                 if (eq(POPLUC%secdf(g), 0.0_dp)) then
                    POPLUC%freq_age_secondary(g,:) = 0.0_dp
                 endif
              elseif (ilu == gr) then
-                ! Update grass and pasture fraction within the grass land use type 
-                POPLUC%grass(g) = max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp)
+                POPLUC%grass(g) = min(1.0, max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp))
+
+                ! Update crop and pasture fraction within the grass land use type 
                 POPLUC%past(g) = min(max(POPLUC%past(g) + (POPLUC%ptoq(g) + POPLUC%stoq(g) + POPLUC%ctoq(g) + POPLUC%rtoq(g)) &
                      - (POPLUC%qtos(g) + POPLUC%qtoc(g) + POPLUC%qtor(g)),0.0_dp), POPLUC%grass(g))
-                POPLUC%crop(g) =min( max(POPLUC%crop(g) + (POPLUC%ptoc(g) + POPLUC%stoc(g) + POPLUC%qtoc(g) + POPLUC%rtoc(g)) &
+                POPLUC%crop(g) = min(max(POPLUC%crop(g) + (POPLUC%ptoc(g) + POPLUC%stoc(g) + POPLUC%qtoc(g) + POPLUC%rtoc(g)) &
                      - (POPLUC%ctos(g) + POPLUC%ctoq(g) + POPLUC%ctor(g)),0.0_dp), POPLUC%grass(g) - POPLUC%past(g))
              endif
 
