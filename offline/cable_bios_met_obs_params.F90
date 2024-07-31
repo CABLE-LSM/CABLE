@@ -498,7 +498,7 @@ MODULE cable_bios_met_obs_params
 
   USE cable_IO_vars_module, ONLY: &
       logn, landpt , nmetpatches         ! Unit number for writing logfile entries and land point array
-  USE cable_def_types_mod,   ONLY: MET_TYPE, soil_parameter_type, mland
+  USE cable_def_types_mod,   ONLY: MET_TYPE, soil_snow_type, veg_parameter_type, soil_parameter_type, sum_flux_type, balances_type, roughness_type, mland
   
   USE cable_weathergenerator,ONLY: WEATHER_GENERATOR_TYPE, WGEN_INIT, &
                                    WGEN_DAILY_CONSTANTS, WGEN_SUBDIURNAL_MET
@@ -1352,7 +1352,7 @@ END SUBROUTINE cable_bios_read_met
 
 !******************************************************************************
 
-SUBROUTINE cable_bios_load_params(soil)
+SUBROUTINE cable_bios_load_params(soil, sum_flux, bal, ssnow, veg, rough)
 
 USE cable_def_types_mod,  ONLY: mland, soil_parameter_type
 
@@ -1365,7 +1365,12 @@ INTEGER(i4b) :: iland         ! loop counter through mland land cells
 INTEGER(i4b) :: param_unit    ! Unit number for reading (all) parameter files.
 INTEGER(i4b) :: error_status  ! Error status returned by OPENs
 
-TYPE(soil_parameter_type), INTENT(INOUT) :: soil
+TYPE (soil_snow_type),      INTENT(INOUT)    :: ssnow
+TYPE (veg_parameter_type),  INTENT(IN)    :: veg
+TYPE (soil_parameter_type), INTENT(INOUT) :: soil
+TYPE (sum_flux_type),       INTENT(INOUT) :: sum_flux
+TYPE (balances_type),       INTENT(INOUT) :: bal
+TYPE (roughness_type),      INTENT(INOUT) :: rough
 
 
 ! Temporary soil parameter variables. Varnames match corresponding bios parameter filenames (roughly).
@@ -1626,6 +1631,18 @@ END IF
 ! are incorporated within the same dimension as mland. Within the larger vector
 ! an index keeps track of the location of the first and last tile of each land cell.
 ! This index is landpt, which for each of mland cells has as cstart and cend index.
+DO iland = 1,mland ! For each land cell...
+  is = landpt(iland)%cstart  ! Index position for the first tile of this land cell.
+  ie = landpt(iland)%cend    ! Index position for the last tile of this land cell.
+  soil%bch(is:ie)     = min(b1(iland),16.0) 
+END DO
+
+soil%hsbh   = soil%hyds*ABS(soil%sucs) * soil%bch ! difsat*etasat
+soil%ibp2   = NINT(soil%bch) + 2
+! Ticket #66
+where( soil%ssat > 0.) & ! Avoid divide by
+soil%pwb_min = (soil%swilt/soil%ssat)**soil%ibp2
+soil%i2bp3  = 2 * NINT(soil%bch) + 3
 
 DO iland = 1,mland ! For each land cell...
   is = landpt(iland)%cstart  ! Index position for the first tile of this land cell.
