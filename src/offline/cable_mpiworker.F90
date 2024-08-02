@@ -127,13 +127,14 @@ CONTAINS
     USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps, globalMetfile,  &
          verbose, fixedCO2,output,check,patchout,    &
          patch_type,soilparmnew,&
-         defaultLAI, wlogn
+         defaultLAI, wlogn, NO_CHECK
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, filename, myhome,            &
          redistrb, wiltParam, satuParam, CurYear,    &
          IS_LEAPYEAR, calcsoilalbedo,                &
          kwidth_gl, gw_params
-  USE casa_ncdf_module, ONLY: is_casa_time
+    USE cable_checks_module, ONLY: constant_check_range
+    USE casa_ncdf_module, ONLY: is_casa_time
     USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
          get_met_data,close_met_file
     USE cable_output_module,  ONLY: create_restart,open_output_file,            &
@@ -462,6 +463,11 @@ USE cbl_soil_snow_init_special_module
              WRITE(wlogn,*) ' sfc_vec min',MINVAL(soil%sfc_vec),MINLOC(soil%sfc_vec)
              WRITE(wlogn,*) ' wb min',MINVAL(ssnow%wb),MINLOC(ssnow%wb)
              CALL flush(wlogn)
+
+             IF (check%ranges /= NO_CHECK) THEN
+               WRITE (*, *) "Checking parameter ranges"
+               CALL constant_check_range(soil, veg, 0, met)
+             END IF
 
              IF (cable_user%call_climate) THEN
                 CALL worker_climate_types(comm, climate, ktauday )
