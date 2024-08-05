@@ -610,9 +610,9 @@ contains
 
   !*******************************************************************************
 
-
+  !NB changes in here due to svn 9635 - replacing StemNPP_av with StemNPP_pot 5/4/2024
   subroutine POPStep(POP, StemNPP, disturbance_interval, disturbance_intensity,LAI,Cleaf,Croot, &
-       NPPtoGPP, StemNPP_av,frac_intensity1,precip)
+       NPPtoGPP, StemNPP_pot,frac_intensity1,precip)
 
     implicit none
 
@@ -625,7 +625,7 @@ contains
     real(dp), intent(IN) ::  Croot(:)
     real(dp), intent(IN) ::  NPPtoGPP(:)
     real(dp), intent(IN), optional :: frac_intensity1(:), precip(:)
-    real(dp), intent(IN), optional :: StemNPP_av(:)
+    real(dp), intent(IN), optional :: StemNPP_pot(:)
 
     integer(i4b) :: idisturb,np,g
     integer(i4b), allocatable :: it(:)
@@ -647,14 +647,14 @@ contains
 
     !call flush(wlogn)
     if (present(precip)) then
-       if(present(StemNPP_av)) then
-          call PatchAnnualDynamics(POP, StemNPP, NPPtoGPP, it, precip=precip, StemNPP_av=StemNPP_av)
+       if(present(StemNPP_pot)) then
+          call PatchAnnualDynamics(POP, StemNPP, NPPtoGPP, it, precip=precip, StemNPP_pot=StemNPP_pot)
        else
           call PatchAnnualDynamics(POP, StemNPP, NPPtoGPP, it, precip=precip)
        endif
     else
-       if(present(StemNPP_av)) then
-          call PatchAnnualDynamics(POP, StemNPP, NPPtoGPP, it, StemNPP_av=StemNPP_av)
+       if(present(StemNPP_pot)) then
+          call PatchAnnualDynamics(POP, StemNPP, NPPtoGPP, it, StemNPP_pot=StemNPP_pot)
        else
           call PatchAnnualDynamics(POP, StemNPP, NPPtoGPP, it)
        endif
@@ -700,8 +700,8 @@ contains
 
   !*******************************************************************************
 
-
-  subroutine PatchAnnualDynamics(pop, StemNPP, NPPtoGPP, it, StemNPP_av, precip)
+  !NB changes in here due to svn 9635 - replacing StemNPP_av with StemNPP_pot 5/4/2024
+  subroutine PatchAnnualDynamics(pop, StemNPP, NPPtoGPP, it, StemNPP_pot, precip)
 
     implicit none
 
@@ -709,7 +709,7 @@ contains
     real(dp), intent(IN)            :: StemNPP(:,:)
     real(dp), intent(IN)            :: NPPtoGPP(:)
     real(dp), intent(IN), optional  :: precip(:)
-    real(dp), optional, intent(IN)            :: StemNPP_av(:)
+    real(dp), optional, intent(IN)            :: StemNPP_pot(:)
     integer(i4b), intent(IN)        :: it(:)
 
     real(dp) :: densindiv
@@ -1029,9 +1029,9 @@ contains
              cmass_stem = pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%biomass
              cmass_stem_inc=StemNPP(j,1)*pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_resource_uptake
 
-             if (present(StemNPP_av)) then
+             if (present(StemNPP_pot)) then
                 growth_efficiency=pop%pop_grid(j)%patch(k)%Layer(1)%cohort(c)%frac_resource_uptake* &
-                     StemNPP_av(j)  /(cmass_stem**(POWERGrowthEfficiency))
+                     StemNPP_pot(j)  /(cmass_stem**(POWERGrowthEfficiency))
              else
                 growth_efficiency=cmass_stem_inc/(cmass_stem**(POWERGrowthEfficiency))
              endif

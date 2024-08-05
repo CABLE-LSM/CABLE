@@ -6686,6 +6686,11 @@ CONTAINS
     CALL MPI_Get_address(casaflux%stemnpp(off), displs(bidx), ierr)
     blocks(bidx) = r2len
 
+    !this is equivalent MPI code to parts of #9238
+    bidx = bidx + 1
+    CALL MPI_Get_address(casaflux%potstemnpp(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
     bidx = bidx + 1
     CALL MPI_Get_address(casaflux%fNMinloss(off), displs(bidx), ierr)
     blocks(bidx) = r2len
@@ -8858,11 +8863,16 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
            if (mod(ktau/ktauday,loy)==1) then
               ! (assumes 70% of wood NPP is allocated above ground)
               casaflux%stemnpp  = casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
+              !#9238
+              casaflux%potstemnpp = casaflux%stemnpp + (casaflux%fracClabile * casaflux%cgpp)
               casabal%LAImax    = casamet%glai
               casabal%Cleafmean = casapool%cplant(:,1) / real(LOY,dp) / 1000.0_dp
               casabal%Crootmean = casapool%cplant(:,3) / real(LOY,dp) / 1000.0_dp
            else
               casaflux%stemnpp  = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
+              !#9238
+              casaflux%potstemnpp = casaflux%potstemnpp + (casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp + &
+                                                           casaflux%fracClabile * casaflux%cgpp)
               casabal%LAImax    = max(casamet%glai, casabal%LAImax)
               casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1) / real(LOY,dp) / 1000.0_dp
               casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3) / real(LOY,dp) / 1000.0_dp
@@ -8873,6 +8883,7 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
            endif  ! end of year
         else
            casaflux%stemnpp = 0.0_dp
+           casaflux%potstemnpp = 0.0_dp  !#9238
         endif ! CALL_POP
 
         !CLN CALL BLAZE_DRIVER(...)
@@ -9020,11 +9031,15 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
               if (mod(ktau/ktauday,LOY) == 1) then
                  casaflux%stemnpp  =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
                  ! (assumes 70% of wood NPP is allocated above ground)
+                 !#9238
+                 casaflux%potstemnpp = casaflux%stemnpp + (casaflux%fracClabile * casaflux%cgpp)
                  casabal%LAImax    = casamet%glai
                  casabal%Cleafmean = casapool%cplant(:,1) / real(LOY,dp) / 1000.0_dp
                  casabal%Crootmean = casapool%cplant(:,3) / real(LOY,dp) / 1000.0_dp
               else
                  casaflux%stemnpp  = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
+                 casaflux%potstemnpp = casaflux%potstemnpp + (casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp + &
+                                                              casaflux%fracClabile * casaflux%cgpp)
                  casabal%LAImax    = max(casamet%glai, casabal%LAImax)
                  casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1) / real(LOY,dp) / 1000.0_dp
                  casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3) / real(LOY,dp) / 1000.0_dp
@@ -9041,6 +9056,7 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
               endif  ! end of year
            else
               casaflux%stemnpp = 0.0_dp
+              casaflux%potstemnpp = 0.0_dp
            endif ! CALL_POP
            write(wlogn,*) 'idoy ', idoy
 
@@ -9117,6 +9133,7 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
 
   ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
   real(dp) :: StemNPP(mp,2)
+  real(dp) :: PotStemNPP(mp)    !#9238
 
   integer :: stat(MPI_STATUS_SIZE)
   integer :: ierr, rank
@@ -9159,11 +9176,15 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
         IF (idoy==1) THEN
            ! (assumes 70% of wood NPP is allocated above ground)
            casaflux%stemnpp  =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
+           !#9238
+           casaflux%potstemnpp = casaflux%stemnpp + (casaflux%fracClabile * casaflux%cgpp)
            casabal%LAImax    = casamet%glai
            casabal%Cleafmean = casapool%cplant(:,1) / real(mdyear,dp) / 1000.0_dp
            casabal%Crootmean = casapool%cplant(:,3) / real(mdyear,dp) / 1000.0_dp
         ELSE
            casaflux%stemnpp = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
+           casaflux%potstemnpp = casaflux%potstemnpp + (casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp + &
+                                                        casaflux%fracClabile * casaflux%cgpp)
            casabal%LAImax    = max(casamet%glai, casabal%LAImax)
            casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1) / real(mdyear,dp) / 1000.0_dp
            casabal%Crootmean = casabal%Crootmean +casapool%cplant(:,3) / real(mdyear,dp) / 1000.0_dp
@@ -9184,6 +9205,7 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
            flush(wlogn)
            StemNPP(:,1) = casaflux%stemnpp
            StemNPP(:,2) = 0.0_dp
+           PotStemNPP(:) = casaflux%potstemnpp  !#9238
 
            CALL MPI_Comm_rank(icomm, rank, ierr)
            write(wlogn,*)

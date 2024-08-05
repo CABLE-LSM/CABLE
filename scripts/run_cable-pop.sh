@@ -1,34 +1,47 @@
-#!/bin/bash 
-#
-# Explor / Pearcey (launch with:  sbatch --ignore-pbs)
+#!/usr/bin/env bash
+
+# Explor / Pearcey / Aurora
 # https://slurm.schedmd.com/sbatch.html
 #SBATCH --ignore-pbs
 # Name - 8 letters and digits
-#SBATCH -J lpnA
-#SBATCH -o %x-%j.out
-#SBATCH -e %x-%j.out
-# Explor partitions (sinfo): std (2x16, parallel), sky (2x16, parallel, AVX512), hf (2x4, serial),
-#                            P100 (2x16, GPU), GTX (2x16, GPU), ivy (2x8, parallel), k20 (2x8, GPU)
-###SBATCH --qos=test -t 15:00 
-# -N Nodes / -n tasks (mpiexec, srun, ...) / -c cpus_per_task (OpenMP, make-j, ...)
-###SBATCH -N 3
-#SBATCH -n 27
-###SBATCH --ntasks-per-node=20
+#SBATCH --job-name=bios9
+#SBATCH --output=%x-%j.out
+#SBATCH --error=%x-%j.out
+# -N nodes / -n tasks (mpiexec, srun, ...)
+# -c cpus_per_task (OpenMP, make -j, ...)
+#SBATCH --nodes=1
+#SBATCH --ntasks=4
+#SBATCH --ntasks-per-node=4
 # Check memory on *nix with /usr/bin/time -v ./prog
-# time (day-hh:mm:memory) / ss (optional, units K,M,G,T)
-#SBATCH -t 3:00:00
-#CLNSBATCH --mem=100G
-# notify: Valid type values are NONE,BEGIN,END,FAIL,REQUEUE,ALL,STAGE_OUT,TIME_LIMIT,TIME_LIMIT_90/80/50,ARRAY_TASKS
-#SBATCH --mail-type=FAIL,STAGE_OUT,TIME_LIMIT
-#SBATCH --mail-user=lars.nieradzik@nateko.lu.se
-#
+# time (day-hh:mm:ss) / memory (optional, units K,M,G,T)
+#SBATCH --time=01:00:00
+#SBATCH --mem=4G
+#SBATCH --mail-type=FAIL,STAGE_OUT,TIME_LIMIT,INVALID_DEPEND,END
+
+# section cuntz@explor
+#SBATCH --account=oqx29
+# Explor partitions (sinfo):
+# https://explor.univ-lorraine.fr/new_queue/
+#     debug, std, gpu
+#SBATCH --partition=std
+# old hf partitions are cne[01-16]
+# #SBATCH --constraint=HF
+#SBATCH --exclude=cnf[01-08],cnh[01-02],cni[01-24],cnj[01-64],cnk[01-08]
+#SBATCH --mail-user=matthias.cuntz@inrae.fr
+
+# # section nieradzik@aurora
+# #SBATCH --qos=test -t 15:00
+# #SBATCH --mail-user=lars.nieradzik@nateko.lu.se
+
 # Gadi
 # https://opus.nci.org.au/display/Help/How+to+submit+a+job
-#PBS -N yc_01
+#PBS -N mc_01
 #PBS -P x45
 # express / normal / copyq (2x24, cascadelake)
-#PBS -q express
-# Typical for global or Aust continent at 0.25, 192 GB memory and 48 cpus, maybe 12 hours walltime
+#PBS -q normal
+# Typical for global or Aust continent at 0.25, 192 GB memory and 48 cpus,
+# maybe 12 hours walltime
+
 # Typical for small runs, fewer cpus than pixels
 #PBS -l walltime=02:00:00
 #PBS -l mem=48GB
@@ -40,17 +53,19 @@
 #PBS -l wd
 #PBS -j oe
 #PBS -S /bin/bash
-#PBS -M Yohanna.Villaloboscortes@csiro.au
-#PBS -m be
+#PBS -M matthias.cuntz@inrae.fr
+#PBS -m ae
 
 
 # cuntz@explor, cuntz@mcinra, moc801@gadi cuntz@gadi
 # kna016@pearcey knauer@pearcey, jk8585@gadi knauer@gadi
-# bri220@pearcey pcb599@gadi, briggs@gadi
-# vil029@percey yc3714@gadi villalobos@gadi
-# nieradzik@aurora
 
-system=villalobos@gadi
+# bri220@pearcey, pcb599@gadi briggs@gadi
+# yc3714@gadi villalobos@gadi
+# nieradzik@aurora
+# inh599@gadi harman@gadi 
+
+system=inh599@gadi
 
 # MPI run or single processor run
 # nproc should fit with job tasks
@@ -112,7 +127,7 @@ nproc=4   # Number of cores for MPI runs
 # 6. Why is YearEnd different for plume (1849) compared to cru (1699) in 5a. First dynamic land use?
 # 7. Do we need chunking in 5a, 5b, 6, and 7? [PB: unnecessary at this point, but possibly for 0.05degs]
 # 8. Do we need cropping output to latlon region at the end: is this not in step 0 with ${doextractsite} -eq 1? [PB: Not needed for # BIOS
-#    
+
 #ASKJK - changes in comparison to gm_acclim_coord
 
 # --------------------------------------------------------------------
@@ -128,22 +143,24 @@ doextractsite=0 # 0: Do not extract local meteo, land use nor mask
                 # 1: Do extract only mask at specific site/region (imeteo=1)
                 # 2: Do extract meteo, land use and mask at specific site/region (imeteo=2)
                 #    Does not work with randompoints /= 0 but with latlon
-experiment=ln_acttst
-randompoints=0   # <0: use -1*randompoints from file ${LandMaskFilePath}/${experiment}_points.csv if existing
+
+    experiment=blaze02
+    randompoints=0   # <0: use -1*randompoints from file ${LandMaskFilePath}/${experiment}_points.csv if existing
                      # 0:  use latlon
                      # >0: generate and use randompoints random grid points from GlobalLandMaskFile
-# lat,lon  or  latmin,latmax,lonmin,lonmax   # must have . in numbers otherwise indexes taken
-latlon=42.536875,-72.172602 # PB
-# latlon=-34.5,-33.5,149.5,156.5 
-# latlon=42.5,43.5,109.5,110.5
-#latlon=-44.0,-10.0,110.0,155.0  # Australia
-    
+    # lat,lon  or  latmin,latmax,lonmin,lonmax   # must have . in numbers otherwise indexes taken
+    latlon=42.536875,-72.172602
+    # latlon=-34.5,-33.5,149.5,156.5
+    # latlon=42.5,43.5,109.5,110.5
+    # latlon=-44.0,-10.0,110.0,155.0  # Australia
+
+
 # Step 1
 doclimate=1     # 1/0: Do/Do not create climate restart file
 # Step 2
 dofromzero=1    # 1/0: Do/Do not first spinup phase from zero biomass stocks
 # Step 3
-doequi1=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
+doequi1=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
 nequi1=4       #      number of times to repeat steps in doequi1
 # Step 4
 doequi2=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
@@ -163,7 +180,7 @@ dofuture=0      # 1/0: Do/Do not future runs (plume only)
 
 # MetType
 mettype='bios'     # 'cru', 'plume', 'bios'
-degrees=0.25       #  bios only: resolution of met and LUC (0.05 or 0.25)
+degrees=0.05       #  bios only: resolution of met and LUC (0.05 or 0.25)
 metmodel='hadgem2' # 'hadgem2', 'ipsl' (only used if mettype='plume')
 RCP='hist'         # 'hist', '2.6', '4.5', '6.0', '8.5' (no future runs if RCP='hist')
 
@@ -212,20 +229,20 @@ if [[ "${sys}" == "explor" ]] ; then
     # unset I_MPI_PMI_LIBRARY
     # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-ifort2018.0/lib
     # export mpiexecdir=/soft/env/soft/all/intel/2018.3/compilers_and_libraries_2018.5.274/linux/mpi/intel64/bin
-    # # INTEL / OpenMPI - load mpi module first, otherwise intel module will not pre-pend LD_LIBRARY_PATH
-    # module load openmpi/3.0.0/intel18
-    # module load intel/2018.5
-    # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-ifort2018.0/lib
-    # export mpiexecdir=/opt/soft/hf/openmpi-3.0.0-intel18/bin
-    # GNU / OpenMPI
-    module load gcc/6.3.0
-    module load openmpi/3.0.1/gcc/6.3.0
-    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-gfortran63/lib
-    export mpiexecdir=/opt/soft/hf/openmpi/3.0.1/gcc/6.3.0/bin
+    # INTEL / OpenMPI - load mpi module first, otherwise intel module will not pre-pend LD_LIBRARY_PATH
+    module load openmpi/3.0.0/intel18
+    module load intel/2018.5
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/home/oqx29/shared/local.save/lib:/home/oqx29/shared/local.save/netcdf-fortran-4.4.4-ifort2018.0/lib
+    export mpiexecdir=/opt/soft/hf/openmpi-3.0.0-intel18/bin
+    # # GNU / OpenMPI
+    # module load gcc/6.3.0
+    # module load openmpi/3.0.1/gcc/6.3.0
+    # export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${HOME}/local/lib:${HOME}/local/netcdf-fortran-4.4.4-gfortran63/lib
+    # export mpiexecdir=/opt/soft/hf/openmpi/3.0.1/gcc/6.3.0/bin
     if [[ ${doextractsite} -ge 1 ]] ; then module load python/intel/2019/3 ; fi
 elif [[ "${sys}" == "mc16" ]] ; then
-    # export mpiexecdir=/usr/local/openmpi-4.0.4-gfortran/bin
-    export mpiexecdir=/usr/local/openmpi-4.0.5-ifort/bin
+    # export mpiexecdir=/usr/local/openmpi-4.1.1-gfortran/bin
+    export mpiexecdir=/usr/local/openmpi-4.1.1-ifort/bin
 elif [[ "${sys}" == "mcinra" ]] ; then
     export mpiexecdir=/usr/local/openmpi-3.1.4-gfortran/bin
     # export mpiexecdir=/usr/local/openmpi-3.1.5-ifort/bin
@@ -240,10 +257,16 @@ elif [[ "${sys}" == "gadi" ]] ; then
     pdir=${isdir}
     . /etc/bashrc
     module purge
-    module load intel-compiler/2019.5.281
-    module load intel-mpi/2019.5.281
-    module load netcdf/4.6.3
-    # module load hdf5/1.10.5
+    # module load intel-compiler/2019.5.281
+    # module load intel-mpi/2019.5.281
+    # module load netcdf/4.6.3
+    # module load intel-compiler/2021.5.0
+    # module load intel-mpi/2021.5.1
+    # module load netcdf/4.8.0
+    # # module load hdf5/1.10.5
+    module load intel-compiler-llvm/2023.0.0
+    module load intel-mpi/2021.8.0
+    module load netcdf/4.9.2
     if [[ ${doextractsite} -ge 1 ]] ; then
         module load python3/3.7.4
         export PYTHONPATH=${PYTHONPATH}:/g/data/x45/python/lib/python3.7/site-packages
@@ -257,26 +280,11 @@ elif [[ "${sys}" == "aurora" ]] ; then
     module load netCDF-Fortran/4.5.2
     if [[ ${doextractsite} -ge 1 ]] ; then
         module load GCCcore/10.3.0 Python/3.9.5
-        export PYTHONPATH=${PYTHONPATH}#CLN not copied!#:/g/data/x45/python/lib/python3.7/site-packages
-	echo 'Extraction not possible at the moment. Set Py-Path!'
-	exit -666
+        export PYTHONPATH=${PYTHONPATH}  #CLN not copied!#:/g/data/x45/python/lib/python3.7/site-packages
+	      echo 'Extraction not possible at the moment. Set Py-Path!'
+	      exit -666
     fi
     export mpiexecdir=""
- 
-elif [[ "${sys}" == "cosmos" ]] ; then
-    pdir=${isdir}
-    module purge
-    #module --force purge
-    module load GCC/11.3.0  OpenMPI/4.1.4 #foss/2022b
-    module load netCDF-Fortran/4.6.0
-    if [[ ${doextractsite} -ge 1 ]] ; then
-        module load GCCcore/11.3.0 Python/3.9.5
-        export PYTHONPATH=${PYTHONPATH}#CLN not copied!#:/g/data/x45/python/lib/python3.7/site-packages
-	echo 'Extraction not possible at the moment. Set Py-Path!'
-	exit -666
-    fi
-    export mpiexecdir=""
- 
 fi
 if [[ ! -z ${mpiexecdir} ]] ; then export mpiexecdir="${mpiexecdir}/" ; fi
 
@@ -342,8 +350,11 @@ fi
 if [[ "${system}" == "cuntz@explor" ]] ; then
     # Run directory: runpath="${sitepath}/run_xxx"
     cablebase="/home/oqx29/zzy20/prog/cable"
-    sitepath="${cablebase}/runs/single_sites/${experiment}"
+    sitepath="${cablebase}/runs/bios9/${experiment}"
     cablehome="${cablebase}/branches/NESP2pt9_BLAZE"
+    cabledata="/home/oqx29/shared/cable"
+    metdata="/home/oqx29/shared/met_forcing"
+    workpath=${cablehome}
     # Cable executable
     if [[ ${dompi} -eq 1 ]] ; then
         exe="${cablehome}/offline/cable-mpi"
@@ -351,16 +362,43 @@ if [[ "${system}" == "cuntz@explor" ]] ; then
         exe="${cablehome}/offline/cable"
     fi
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
-    aux="${cablebase}/CABLE-AUX"
-    # Global Mask - for create_landmask.py
-    GlobalLandMaskFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"
-    SurfaceFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"   # note that SurfaceFile does not need subsetting
-    # # Global Mask - for global run
-    # GlobalLandMaskFile="/home/oqx29/zzy20/data/crujra/daily_1deg/glob_ipsl_1x1.nc"
-    # Global CRU
-    GlobalMetPath="/home/oqx29/zzy20/data/crujra/daily_1deg"
-    # Global LUC
-    GlobalTransitionFilePath="/home/oqx29/zzy20/data/LUH2_v3_1deg/"
+    aux="${cabledata}/CABLE-AUX"
+    # BLAZE directory
+    BlazeDataPath="${cabledata}/Data_BLAZE"
+    # Global MET, MASK, LUH
+    if [[ "${mettype}" == "cru" ]] ; then
+        # Global MASK
+        SurfaceFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"   # note that SurfaceFile does not need subsetting
+        # Global MET
+        # GlobalLandMaskFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"
+        GlobalLandMaskFile="${cabledata}/ipbes/masks/glob_ipsl_1x1.nc"
+        # GlobalMetPath="${cabledata}/CRUJRA2022/daily_1deg"
+        GlobalMetPath="${metdata}/CRUJRA2022/daily_1deg"
+        # Global LUC
+        GlobalTransitionFilePath="${cabledata}/LUH2/GCB_2019/1deg/EXTRACT"
+    elif [[ "${mettype}" == "plume" ]] ; then
+        # Global MASK
+        SurfaceFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"   # note that SurfaceFile does not need subsetting
+        # Global MET
+	      # GlobalLandMaskFile="/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
+	      GlobalLandMaskFile="${cabledata}/ipbes/masks/gridinfo_CSIRO_1x1.nc"
+	      GlobalMetPath="${cabledata}/ipbes/${metmodel}/1deg"
+        # only in plume.nml
+        CO2Path="${cabledata}/ipbes/co2"
+	      NdepPath="${cabledata}/ipbes/ndep"
+        # Global LUC
+        GlobalTransitionFilePath="${cabledata}/LUH2/GCB_2019/1deg/EXTRACT"
+    elif [[ "${mettype}" == "bios" ]] ; then
+        # Global MASK
+        SurfaceFile="${aux}/offline/gridinfo_CSIRO_CRU05x05_4tiles.nc"   # note that SurfaceFile does not need subsetting
+        # Global MET
+        GlobalLandMaskFile="${cabledata}/BIOS3_forcing/acttest9/acttest9"  # no file extension
+        GlobalMetPath="${cabledata}/BIOS3_forcing/acttest9/met/"  # last slash is needed
+	      ParamPath="${cabledata}/BIOS3_forcing/acttest9/params/"  # only in bios.nml
+        # Global LUC
+        GlobalTransitionFilePath="${cabledata}/LUH2/v3h/${degrees}deg_aust/EXTRACT"
+    fi
+
 elif [[ "${system}" == "cuntz@mc16" || "${system}" == "cuntz@mcinra" ]] ; then
     # Run directory: runpath="${sitepath}/run_xxx"
     cablebase="/Users/cuntz/prog/vanessa/cable"
@@ -380,11 +418,13 @@ elif [[ "${system}" == "cuntz@mc16" || "${system}" == "cuntz@mcinra" ]] ; then
     SurfaceFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"   # note that SurfaceFile does not need subsetting
     GlobalMetPath=
     GlobalTransitionFilePath=
+
 elif [[ "${system}" == "moc801@gadi" || "${system}" == "cuntz@gadi" ]] ; then
     # Run directory: runpath="${sitepath}/run_xxx"
     # sitepath="/home/801/moc801/prog/cable/runs/single_sites/${experiment}"
     sitepath="/scratch/x45/moc801/cable/c13"
     cablehome="/home/801/moc801/prog/cable/branches/NESP2pt9_BLAZE"
+    workpath=${cablehome}
     # Cable executable
     if [[ ${dompi} -eq 1 ]] ; then
         exe="${cablehome}/offline/cable-mpi"
@@ -393,13 +433,41 @@ elif [[ "${system}" == "moc801@gadi" || "${system}" == "cuntz@gadi" ]] ; then
     fi
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
     aux="/g/data/x45/CABLE-AUX"
-    # Global Mask
-    # GlobalLandMaskFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"
-    GlobalLandMaskFile="/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
-    # Global CRU
-    GlobalMetPath="/g/data/x45/crujra/daily_1deg"
-    # Global LUC
-    GlobalTransitionFilePath="/g/data/x45/LUH2/GCB_2018/1deg/EXTRACT"
+    # BLAZE directory
+    BlazeDataPath="/g/data/x45/Data_BLAZE"
+    # Global MET, MASK, LUH
+    if [[ "${mettype}" == "cru" ]] ; then
+        # Global MASK
+        SurfaceFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"   # note that SurfaceFile does not need subsetting
+        # Global MET
+        # GlobalLandMaskFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"
+        GlobalLandMaskFile="/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
+        GlobalMetPath="/g/data/x45/CRUJRA2020/daily_1deg"
+        # Global LUC
+        GlobalTransitionFilePath="/g/data/x45/LUH2/GCB_2019/1deg/EXTRACT"
+    elif [[ "${mettype}" == "plume" ]] ; then
+        # Global MASK
+        SurfaceFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"   # note that SurfaceFile does not need subsetting
+        # Global MET
+	      # GlobalLandMaskFile="/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
+	      GlobalLandMaskFile="/g/data/x45/ipbes/masks/gridinfo_CSIRO_1x1.nc"
+	      GlobalMetPath="/g/data/x45/ipbes/${metmodel}/1deg"
+        # only in plume.nml
+        CO2Path="/g/data/x45/ipbes/co2"
+	      NdepPath="/g/data/x45/ipbes/ndep"
+        # Global LUC
+        GlobalTransitionFilePath="/g/data/x45/LUH2/GCB_2019/1deg/EXTRACT"
+    elif [[ "${mettype}" == "bios" ]] ; then
+        # Global MASK
+        SurfaceFile="${aux}/offline/gridinfo_CSIRO_CRU05x05_4tiles.nc"   # note that SurfaceFile does not need subsetting
+        # Global MET
+        GlobalLandMaskFile="/g/data/x45/BIOS3_forcing/acttest9/acttest9"  # no file extension
+        GlobalMetPath="/g/data/x45/BIOS3_forcing/acttest9/met/"  # last slash is needed
+	      ParamPath="/g/data/x45/BIOS3_forcing/acttest9/params/"  # only in bios.nml
+        # Global LUC
+        GlobalTransitionFilePath="/g/data/x45/LUH2/v3h/${degrees}deg_aust/EXTRACT"
+    fi
+
 elif [[ "${system}" == "kna016@pearcey" || "${system}" == "knauer@pearcey" ]] ; then
     # Run directory: runpath="${sitepath}/run_xxx"
     sitepath="/OSM/CBR/OA_GLOBALCABLE/work/Juergen/CABLE_run/parallel_runs/${experiment}"
@@ -419,6 +487,7 @@ elif [[ "${system}" == "kna016@pearcey" || "${system}" == "knauer@pearcey" ]] ; 
     GlobalMetPath="/OSM/CBR/OA_GLOBALCABLE/work/CRU-JRA55/crujra/daily_1deg"
     # Global LUC
     GlobalTransitionFilePath="/OSM/CBR/OA_GLOBALCABLE/work/LUH2/v3/1deg"
+
 elif [[ "${system}" == "jk8585@gadi" || "${system}" == "knauer@gadi" ]] ; then
     # Run directory: runpath="${sitepath}/run"
     sitepath="/g/data/x45/jk8585/global_runs/gm_acclim_coord/${experiment}"
@@ -445,18 +514,15 @@ elif [[ "${system}" == "jk8585@gadi" || "${system}" == "knauer@gadi" ]] ; then
         # only in plume.nml
         CO2Path="/g/data/x45/ipbes/co2"
 	      NdepPath="/g/data/x45/ipbes/ndep"
-    elif [[ "${mettype}" == "bios" ]] ; then  
-    	GlobalLandMaskFile="/g/data/x45/BIOS3_forcing/acttest9/acttest9" # no file extension
-        GlobalMetPath="/g/data/x45/BIOS3_forcing/acttest9/met/"          # last slash is needed
-	ParamPath="/g/data/x45/BIOS3_forcing/acttest9/params/"           # only in bios.nml
-        GlobalTransitionFilePath="/g/data/x45/LUH2/v3h/${degrees}deg_aust/EXTRACT"   
+    elif [[ "${mettype}" == "bios" ]] ; then
+    	  GlobalLandMaskFile="/g/data/x45/BIOS3_forcing/acttest9/acttest9"  # no file extension
+        GlobalMetPath="/g/data/x45/BIOS3_forcing/acttest9/met/"  # last slash is needed
+	      ParamPath="/g/data/x45/BIOS3_forcing/acttest9/params/"  # only in bios.nml
+        GlobalTransitionFilePath="/g/data/x45/LUH2/v3h/${degrees}deg_aust/EXTRACT"
     fi
     # Global LUC
     GlobalTransitionFilePath="/g/data/x45/LUH2/GCB_2019/1deg/EXTRACT"
 
-
-### SETUP YVC
-    
 elif [[ "${system}" == "yc3714@gadi" || "${system}" == "villalobos@gadi" ]] ; then
     # Run directory: runpath="${sitepath}/run"
     sitepath="/g/data/x45/BIOS3_output/${experiment}" # Results 
@@ -471,8 +537,44 @@ elif [[ "${system}" == "yc3714@gadi" || "${system}" == "villalobos@gadi" ]] ; th
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
     aux="/g/data/x45/CABLE-AUX"
     # Global Mask
-    SurfaceFile="${aux}/offline/gridinfo_CSIRO_CRU05x05_4tiles.nc"   # note that SurfaceFile does not subsetting need
-    BlazeDataPath="/g/data/x45/Data_BLAZE"
+
+    SurfaceFile="${aux}/offline/gridinfo_CSIRO_CRU05x05_4tiles.nc"   # note that SurfaceFile does not need subsetting
+
+  # Global Met
+    if [[ "${mettype}" == "cru" ]] ; then
+	      GlobalLandMaskFile="/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
+        GlobalMetPath="/g/data/x45/CRUJRA2020/daily_1deg"
+    elif [[ "${mettype}" == "plume" ]] ; then
+	      GlobalLandMaskFile="/g/data/x45/ipbes/masks/gridinfo_CSIRO_1x1.nc"
+	      GlobalMetPath="/g/data/x45/ipbes/${metmodel}/1deg"
+        # only in plume.nml
+        CO2Path="/g/data/x45/ipbes/co2"
+	      NdepPath="/g/data/x45/ipbes/ndep"
+    elif [[ "${mettype}" == "bios" ]] ; then
+    	  GlobalLandMaskFile="/g/data/x45/BIOS3_forcing/acttest9/acttest9" # no file extension
+        GlobalMetPath="/g/data/x45/BIOS3_forcing/acttest9/met/"          # last slash is needed
+	      ParamPath="/g/data/x45/BIOS3_forcing/acttest9/params/"           # only in bios.nml
+        GlobalTransitionFilePath="/g/data/x45/LUH2/v3h/${degrees}deg_aust/EXTRACT"
+    fi
+    # Global LUC
+    # GlobalTransitionFilePath="/g/data/x45/LUH2/GCB_2019/1deg/EXTRACT"
+
+elif [[ "${system}" == "inh599@gadi" || "${system}" == "harman@gadi" ]] ; then
+    # Run directory: runpath="${sitepath}/run"
+    #sitepath="/g/data/x45/BIOS3_output/${experiment}" # Results
+    sitepath="/scratch/x45/inh599/BIOStests/${experiment}" # Results
+    workpath="/home/599/inh599/JAC/CABLE/BLAZEruns" # run directory
+    cablehome="/home/599/inh599/JAC/CABLE/BLAZE_9184" # model home
+    # Cable executable
+    if [[ ${dompi} -eq 1 ]] ; then
+        exe="${cablehome}/offline/cable-mpi"
+    else
+        exe="${cablehome}/offline/cable"
+    fi
+    # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
+    aux="/g/data/x45/CABLE-AUX"
+    # Global Mask
+    SurfaceFile="${aux}/offline/gridinfo_CSIRO_CRU05x05_4tiles.nc"   # note that SurfaceFile does not need subsetting
     # Global Met
     if [[ "${mettype}" == "cru" ]] ; then
 	      GlobalLandMaskFile="/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
@@ -483,23 +585,15 @@ elif [[ "${system}" == "yc3714@gadi" || "${system}" == "villalobos@gadi" ]] ; th
         # only in plume.nml
         CO2Path="/g/data/x45/ipbes/co2"
 	      NdepPath="/g/data/x45/ipbes/ndep"
-    elif [[ "${mettype}" == "bios" ]] ; then  
-    	#GlobalLandMaskFile="/g/data/x45/BIOS3_forcing/acttest9/acttest9" # no file extension
-        #GlobalMetPath="/g/data/x45/BIOS3_forcing/acttest9/met/"          # last slash is needed
-	#ParamPath="/g/data/x45/BIOS3_forcing/acttest9/params/"           # only in bios.nml
-	GlobalLandMaskFile="/g/data/x45/BIOS3_forcing/acttest9/acttest9" # no file extension
-	#GlobalLandMaskFile="/scratch/x45/yc3714/australia_op_maskv2ctr25" # no file extension
-      
+    elif [[ "${mettype}" == "bios" ]] ; then
+    	  GlobalLandMaskFile="/g/data/x45/BIOS3_forcing/acttest9/acttest9" # no file extension
         GlobalMetPath="/g/data/x45/BIOS3_forcing/acttest9/met/"          # last slash is needed
-	ParamPath="/g/data/x45/BIOS3_forcing/acttest9/params/"           # only in bios.nml		
-        GlobalTransitionFilePath="/g/data/x45/LUH2/v3h/${degrees}deg_aust/EXTRACT"   
+	      ParamPath="/g/data/x45/BIOS3_forcing/acttest9/params/"           # only in bios.nml
+        GlobalTransitionFilePath="/g/data/x45/LUH2/v3h/${degrees}deg_aust/EXTRACT"
     fi
     # Global LUC
-    #GlobalTransitionFilePath="/g/data/x45/LUH2/GCB_2019/1deg/EXTRACT"
+    # GlobalTransitionFilePath="/g/data/x45/LUH2/GCB_2019/1deg/EXTRACT"
 
-#
-# Setups for PRB on pearcey
-#       
 elif [[ "${system}" == "bri220@pearcey" || "${system}" == "briggs@pearcey" ]] ; then
     # Run directory: runpath="${sitepath}/run_xxx"
     sitepath="/OSM/CBR/OA_GLOBALCABLE/work/Peter/CABLE_run/parallel_runs/${experiment}"
@@ -518,10 +612,7 @@ elif [[ "${system}" == "bri220@pearcey" || "${system}" == "briggs@pearcey" ]] ; 
     GlobalMetPath="/OSM/CBR/OA_GLOBALCABLE/work/CRU-JRA55/crujra/daily_1deg"
     # Global LUC
     GlobalTransitionFilePath="/OSM/CBR/OA_GLOBALCABLE/work/LUH2/v3/1deg"
-    
-#
-# Setup for PRB on gadi
-#    
+
 elif [[ "${system}" == "pcb599@gadi" || "${system}" == "briggs@gadi" ]] ; then
     # Run directory: runpath="${sitepath}/run_xxx"
     sitepath="/g/data/x45/BIOS3_output/${experiment}"
@@ -529,9 +620,10 @@ elif [[ "${system}" == "pcb599@gadi" || "${system}" == "briggs@gadi" ]] ; then
     cablehome="/home/599/pcb599/CABLE_code/NESP2pt9_BLAZE"
     # Cable executable
     if [[ ${dompi} -eq 1 ]] ; then
-	exe="${cablehome}/offline/cable-mpi"
+	      exe="${cablehome}/offline/cable-mpi"
     else
-	exe="${cablehome}/offline/cable"
+	      exe="${cablehome}/offline/cable"
+
     fi
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
     aux="/g/data/x45/CABLE-AUX"
@@ -542,24 +634,21 @@ elif [[ "${system}" == "pcb599@gadi" || "${system}" == "briggs@gadi" ]] ; then
     GlobalTransitionFilePath="/g/data/x45/LUH2/GCB_2019/1deg/EXTRACT"
     # Global Met
     if [[ "${mettype}" == 'plume' ]] ; then
-	GlobalMetPath="/g/data/x45/ipbes/${metmodel}/1deg"
+	      GlobalMetPath="/g/data/x45/ipbes/${metmodel}/1deg"
         CO2Path="/g/data/x45/ipbes/co2"
-	NdepPath="/g/data/x45/ipbes/ndep"
-	GlobalLandMaskFile="/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
-	GlobalLandMaskFile="/g/data/x45/ipbes/masks/gridinfo_CSIRO_1x1.nc"
+	      NdepPath="/g/data/x45/ipbes/ndep"
+	      GlobalLandMaskFile="/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
+	      GlobalLandMaskFile="/g/data/x45/ipbes/masks/gridinfo_CSIRO_1x1.nc"
     elif [[ "${mettype}" == 'bios' ]] ; then
-	GlobalLandMaskFile="/g/data/x45/BIOS3_forcing/acttest9/acttest9" # no file extension
+	      GlobalLandMaskFile="/g/data/x45/BIOS3_forcing/acttest9/acttest9" # no file extension
         GlobalMetPath="/g/data/x45/BIOS3_forcing/acttest9/met/"  # last slash is needed
-	ParamPath="/g/data/x45/BIOS3_forcing/acttest9/params/"
+	      ParamPath="/g/data/x45/BIOS3_forcing/acttest9/params/"
         GlobalTransitionFilePath="/g/data/x45/LUH2/v3h/${degrees}deg_aust/EXTRACT"
     elif [[ "${mettype}" == 'cru' ]] ; then
-	GlobalLandMaskFile="/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
+	      GlobalLandMaskFile="/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
         GlobalMetPath="/g/data/x45/CRUJRA2020/daily_1deg"
-    fi    
-    
-#
-# Setup for LPN on aurora
-#    
+    fi
+
 elif [[ "${system}" == "nieradzik@aurora" ]] ; then
     # Run directory: runpath="${sitepath}/run_xxx"
     sitepath="/home/x_larni/STOREDIR/RUNDIR/CABLE/${experiment}"
@@ -567,14 +656,12 @@ elif [[ "${system}" == "nieradzik@aurora" ]] ; then
     cablehome="/home/x_larni/SRC/CABLE/NESP2pt9_BLAZE"
     # Cable executable
     if [[ ${dompi} -eq 1 ]] ; then
-	exe="${cablehome}/offline/cable-mpi"
+	      exe="${cablehome}/offline/cable-mpi"
     else
-	exe="${cablehome}/offline/cable"
+	      exe="${cablehome}/offline/cable"
     fi
     # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
     aux="/home/x_larni/STOREDIR/DATA/CABLE-AUX"
-    # BLAZE directory
-    BlazeDataPath="${cabledata}/Data_BLAZE"
     # Global Mask
     GlobalLandMaskFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"
     SurfaceFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"   # note that SurfaceFile does not need subsetting
@@ -582,63 +669,21 @@ elif [[ "${system}" == "nieradzik@aurora" ]] ; then
     GlobalTransitionFilePath="/g/data/x45/LUH2/GCB_2019/1deg/EXTRACT"
     # Global Met
     if [[ "${mettype}" == 'plume' ]] ; then
-	GlobalMetPath="/g/data/x45/ipbes/${metmodel}/1deg"
+	      GlobalMetPath="/g/data/x45/ipbes/${metmodel}/1deg"
         CO2Path="/g/data/x45/ipbes/co2"
-	NdepPath="/g/data/x45/ipbes/ndep"
-	GlobalLandMaskFile="/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
-	GlobalLandMaskFile="/g/data/x45/ipbes/masks/gridinfo_CSIRO_1x1.nc"
+	      NdepPath="/g/data/x45/ipbes/ndep"
+	      GlobalLandMaskFile="/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
+	      GlobalLandMaskFile="/g/data/x45/ipbes/masks/gridinfo_CSIRO_1x1.nc"
     elif [[ "${mettype}" == 'bios' ]] ; then
-	GlobalLandMaskFile="/home/x_larni/STOREDIR/DATA/CABLE_INPUT/acttest9/acttest9" # no file extension
+	      GlobalLandMaskFile="/home/x_larni/STOREDIR/DATA/CABLE_INPUT/acttest9/acttest9" # no file extension
         GlobalMetPath="/home/x_larni/STOREDIR/DATA/CABLE_INPUT/acttest9/met/"  # last slash is needed
-	ParamPath="/home/x_larni/STOREDIR/DATA/CABLE_INPUT/acttest9/params/"
+	      ParamPath="/home/x_larni/STOREDIR/DATA/CABLE_INPUT/acttest9/params/"
         GlobalTransitionFilePath="/home/x_larni/STOREDIR/DATA/CABLE_INPUT/LUH2/v3h/${degrees}deg_aust/EXTRACT"
     elif [[ "${mettype}" == 'cru' ]] ; then
-	GlobalLandMaskFile="/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
+	      GlobalLandMaskFile="/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
         GlobalMetPath="/g/data/x45/CRUJRA2020/daily_1deg"
-    fi    
-
-elif [[ "${system}" == "nieradzik@cosmos" ]] ; then
-    # Run directory: runpath="${sitepath}/run_xxx"
-    sitepath="/home/x_larni/STOREDIR/RUNDIR/CABLE/${experiment}"
-    workpath="/home/x_larni/SRC/CABLE/NESP2pt9_BLAZE"
-    cablehome="/home/x_larni/SRC/CABLE/NESP2pt9_BLAZE"
-    # Cable executable
-    if [[ ${dompi} -eq 1 ]] ; then
-	exe="${cablehome}/offline/cable-mpi"
-    else
-	exe="${cablehome}/offline/cable"
     fi
-    # CABLE-AUX directory (uses offline/gridinfo_CSIRO_1x1.nc and offline/modis_phenology_csiro.txt)
-    aux="/home/x_larni/STOREDIR/DATA/CABLE-AUX"
-    # BLAZE directory
-    BlazeDataPath="/g/data/x45/Data_BLAZE"
-    # Global Mask
-    GlobalLandMaskFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"
-    SurfaceFile="${aux}/offline/gridinfo_CSIRO_1x1.nc"   # note that SurfaceFile does not need subsetting
-    # Global LUC
-    GlobalTransitionFilePath="/g/data/x45/LUH2/GCB_2019/1deg/EXTRACT"
-     # BLAZE directory
-    BlazeDataPath="/home/x_larni/STOREDIR/DATA/Data_BLAZE"
-   # Global Met
-    if [[ "${mettype}" == 'plume' ]] ; then
-	GlobalMetPath="/g/data/x45/ipbes/${metmodel}/1deg"
-        CO2Path="/g/data/x45/ipbes/co2"
-	NdepPath="/g/data/x45/ipbes/ndep"
-	GlobalLandMaskFile="/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
-	GlobalLandMaskFile="/g/data/x45/ipbes/masks/gridinfo_CSIRO_1x1.nc"
-    elif [[ "${mettype}" == 'bios' ]] ; then
-        CLNSurfaceFile="${aux}/offline/gridinfo_CSIRO_CRU05x05_4tiles.nc"   # note that SurfaceFile does not n
-	GlobalLandMaskFile="/home/x_larni/STOREDIR/DATA/CABLE_INPUT/BIOS3_FORCING/acttest9/acttest9" # no file extension
-        GlobalMetPath="/home/x_larni/STOREDIR/DATA/CABLE_INPUT/BIOS3_FORCING/acttest9/met/"  # last slash is needed
-	ParamPath="/home/x_larni/STOREDIR/DATA/CABLE_INPUT/BIOS3_FORCING/acttest9/params/"
-        GlobalTransitionFilePath="/home/x_larni/STOREDIR/DATA/CABLE_INPUT/LUH2/v3h/${degrees}deg_aust/EXTRACT"
-    elif [[ "${mettype}" == 'cru' ]] ; then
-	GlobalLandMaskFile="/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
-        GlobalMetPath="/g/data/x45/CRUJRA2020/daily_1deg"
-    fi    
-    
 
-    
 else
     echo "System not known."
     exit 1
@@ -1055,7 +1100,8 @@ cat > ${tmp}/sedtmp.${pid} << EOF
 EOF
 applysed ${tmp}/sedtmp.${pid} ${ndir}/LUC.nml ${rdir}/LUC_${experiment}.nml
 
-# Blaze namelist !CLN CHECK 
+# Blaze namelist !CLN CHECK
+
 cat > ${tmp}/sedtmp.${pid} << EOF
     blazeTStep       = "annually"  ! Call frequency ("daily", "monthly", "annually")
     BurnedAreaSource = "SIMFIRE"   ! Burnt Area ("PRESCRIBED", "SIMFIRE", "GFED4")
@@ -1066,7 +1112,6 @@ cat > ${tmp}/sedtmp.${pid} << EOF
 EOF
 applysed ${tmp}/sedtmp.${pid} ${ndir}/blaze.nml ${rdir}/blaze_${experiment}.nml
 cp ${rdir}/blaze_${experiment}.nml ${rdir}/blaze.nml
-
 
 # global Cable namelist
 cat > ${tmp}/sedtmp.${pid} << EOF
@@ -1174,7 +1219,7 @@ EOF
         cable_user%CASA_DUMP_READ      = .false.
         cable_user%CASA_DUMP_WRITE     = .true.
         cable_user%CASA_SPIN_STARTYEAR = 1860
-        cable_user%CASA_SPIN_ENDYEAR   = 1889
+        cable_user%CASA_SPIN_ENDYEAR   = 1869
         cable_user%limit_labile        = .true.
         casafile%cnpipool              = ""
         cable_user%POP_fromZero        = .true.
@@ -1673,7 +1718,7 @@ EOF
         cable_user%CASA_DUMP_READ      = .false.
         cable_user%CASA_DUMP_WRITE     = .false.
         cable_user%CASA_SPIN_STARTYEAR = 1850
-        cable_user%CASA_SPIN_ENDYEAR   = 1859 
+        cable_user%CASA_SPIN_ENDYEAR   = 1859
         cable_user%limit_labile        = .false.
         cable_user%POP_fromZero        = .false.
         cable_user%POP_out             = "ini"

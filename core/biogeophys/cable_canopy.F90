@@ -582,6 +582,10 @@ CONTAINS
                real(canopy%fes(j))/ssnow%potev(j) ) ) )
        ENDDO
 
+       ! INH #335 - we don't need to weight components of %epot by %transd
+       ! however coupled model uses %wetfac_cs so overwrite here before testing in ACCESS
+       canopy%epot = (canopy%fevw_pot + ssnow%potev/ssnow%cls) * dels/air%rlam
+
        CALL update_zetar()
 
     END DO           ! do iter = 1, NITER
