@@ -687,8 +687,8 @@ PROGRAM cable_offline_driver
                end if
                print *,'zr from site.nml is:', veg%zr(:)
                DO kk = 1, mland ! over all land grid points
-                  print *, 'land ', e, ' latindex in gridinfo:', landpt(e)%ilat
-                  print *, 'land ', e, ' lonindex in gridinfo:', landpt(e)%ilon
+                  print *, 'land ', kk, ' latindex in gridinfo:', landpt(kk)%ilat
+                  print *, 'land ', kk, ' lonindex in gridinfo:', landpt(kk)%ilon
                ENDDO
          
               ! 13C
