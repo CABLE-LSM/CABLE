@@ -321,6 +321,8 @@ USE cbl_soil_snow_init_special_module
        WRITE(cRank,FMT='(I4.4)')rank
        wlogn = 1000+rank
        OPEN(wlogn,FILE="cable_log_"//cRank,STATUS="REPLACE")
+       logn = wlogn
+       write(wlogn,*) 'ccc logn, wlogn values: ', logn, wlogn
     ELSE
        wlogn = 1000
        OPEN(wlogn, FILE="/dev/null")
@@ -465,7 +467,7 @@ USE cbl_soil_snow_init_special_module
              CALL flush(wlogn)
 
              IF (check%ranges /= NO_CHECK) THEN
-               WRITE (*, *) "Checking parameter ranges"
+               WRITE (wlogn, *) "Checking parameter ranges"
                CALL constant_check_range(soil, veg, 0, met)
              END IF
 
