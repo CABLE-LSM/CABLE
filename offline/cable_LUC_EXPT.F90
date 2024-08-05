@@ -973,22 +973,25 @@ CONTAINS
     endif
 
     ! Adjust transition areas based on primary wooded fraction
-    ! Note that the new transitions (ctor, qtor, rtoc, rtoq, qtoc, ctoq) 
-    ! are not corrected for woodfrac because they occur entirely 
-    ! within the 'grass' land use type.
+    ! Note that the following transitions are not corrected for woodfrac, as they
+    ! are only used to adjust LU-subtypes within the 'grass' land use type!
+    ! For the same reason, the new transitions considered (ctor, qtor, rtoc, rtoq, qtoc, ctoq) 
+    ! are not corrected for woodfrac.
     LUC_EXPT%INPUT(ptos)%VAL   =  LUC_EXPT%INPUT(ptos)%VAL   * LUC_EXPT%woodfrac
-    LUC_EXPT%INPUT(ptog)%VAL   =  LUC_EXPT%INPUT(ptog)%VAL   * (1.0 - LUC_EXPT%woodfrac)
+    LUC_EXPT%INPUT(ptog)%VAL   =  LUC_EXPT%INPUT(ptog)%VAL   * LUC_EXPT%woodfrac
     LUC_EXPT%INPUT(gtos)%VAL   =  LUC_EXPT%INPUT(gtos)%VAL   * LUC_EXPT%woodfrac
-    LUC_EXPT%INPUT(stog)%VAL   =  LUC_EXPT%INPUT(stog)%VAL   * (1.0 - LUC_EXPT%woodfrac)
+    LUC_EXPT%INPUT(stog)%VAL   =  LUC_EXPT%INPUT(stog)%VAL   * LUC_EXPT%woodfrac
     LUC_EXPT%INPUT(smharv)%VAL =  LUC_EXPT%INPUT(smharv)%VAL * LUC_EXPT%woodfrac
     LUC_EXPT%INPUT(syharv)%VAL =  LUC_EXPT%INPUT(syharv)%VAL * LUC_EXPT%woodfrac
 
-    LUC_EXPT%INPUT(ptoc)%VAL = LUC_EXPT%INPUT(ptoc)%VAL * (1.0 - LUC_EXPT%woodfrac)
-    LUC_EXPT%INPUT(ptoq)%VAL = LUC_EXPT%INPUT(ptoq)%VAL * (1.0 - LUC_EXPT%woodfrac)
-    LUC_EXPT%INPUT(stoc)%VAL = LUC_EXPT%INPUT(stoc)%VAL * (1.0 - LUC_EXPT%woodfrac)
-    LUC_EXPT%INPUT(stoq)%VAL = LUC_EXPT%INPUT(stoq)%VAL * (1.0 - LUC_EXPT%woodfrac)
-    LUC_EXPT%INPUT(ctos)%VAL = LUC_EXPT%INPUT(ctos)%VAL * LUC_EXPT%woodfrac
-    LUC_EXPT%INPUT(qtos)%VAL = LUC_EXPT%INPUT(qtos)%VAL * LUC_EXPT%woodfrac
+    ! The following four lines are the main LU transitions considered in the code
+    ! All other transitions exclusively happen within the 'grass' type!
+    LUC_EXPT%INPUT(ptoc)%VAL = LUC_EXPT%INPUT(ptoc)%VAL
+    LUC_EXPT%INPUT(ptoq)%VAL = LUC_EXPT%INPUT(ptoq)%VAL
+    LUC_EXPT%INPUT(stoc)%VAL = LUC_EXPT%INPUT(stoc)%VAL
+    LUC_EXPT%INPUT(stoq)%VAL = LUC_EXPT%INPUT(stoq)%VAL
+    LUC_EXPT%INPUT(ctos)%VAL = LUC_EXPT%INPUT(ctos)%VAL
+    LUC_EXPT%INPUT(qtos)%VAL = LUC_EXPT%INPUT(qtos)%VAL
 
   END SUBROUTINE READ_LUH2
 
