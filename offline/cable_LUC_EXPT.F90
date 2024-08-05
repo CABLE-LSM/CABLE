@@ -219,7 +219,7 @@ CONTAINS
           yearstr = time_units(Idash-4:Idash-1)
           read(yearstr,*)  LUC_EXPT%FirstYEAR
           ! write(*,*) 'LUH2 time units: ', TRIM(time_units), Idash, time_units(Idash-4:Idash-1)
-          write(*,*) 'LUH2 first year', LUC_EXPT%FirstYEAR
+          !write(*,*) 'LUH2 first year', LUC_EXPT%FirstYEAR
           xds = LUC_EXPT%xdimsize
           yds = LUC_EXPT%ydimsize
        ENDIF
@@ -246,9 +246,9 @@ CONTAINS
             start=(/1,1,LUC_EXPT%CTSTEP/),count=(/xds,yds,1/) )
        CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
        DO k = 1, mland
-          WRITE(*,*) "land kxy   ",k, land_x(k), land_y(k)
-          CALL FLUSH(6)
-          WRITE(*,*) "land tmparr",tmparr( land_x(k), land_y(k) )
+          !WRITE(*,*) "land kxy   ",k, land_x(k), land_y(k)
+          !CALL FLUSH(6)
+          !WRITE(*,*) "land tmparr",tmparr( land_x(k), land_y(k) )
           LUC_EXPT%grass(k) = tmparr( land_x(k), land_y(k) )
        END DO
     ENDIF
@@ -396,7 +396,7 @@ CONTAINS
        LUC_EXPT%grass    = LUC_EXPT%grass + (LUC_EXPT%primaryf+LUC_EXPT%secdf) * (1.0-CPC)
        LUC_EXPT%primaryf = LUC_EXPT%primaryf * CPC
        LUC_EXPT%secdf    = LUC_EXPT%secdf    * CPC
-       write(*,*)  LUC_EXPT%grass(93), LUC_EXPT%primaryf(93), LUC_EXPT%secdf(93)
+       !write(*,*)  LUC_EXPT%grass(93), LUC_EXPT%primaryf(93), LUC_EXPT%secdf(93)
     ELSE
        CALL READ_ClimateFile(LUC_EXPT)
        ! hot desert
