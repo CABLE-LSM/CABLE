@@ -1938,45 +1938,9 @@ contains
     a1(18) = 'FCNeeyear'
     a1(19) = 'vcmax'
     !INH BLAZE na1 = 19
-    ! N
-    !a1(20) = 'sumnbal'
-    !a1(21) = 'Nminfix'
-    !a1(22) = 'Nmindep'
-    !a1(23) = 'Nminloss'
-    !a1(24) = 'Nminleach'
-    !a1(25) = 'Nupland'
-    !a1(26) = 'Nlittermin'
-    !a1(27) = 'Nsmin'
-    !a1(28) = 'Nsimm'
-    !a1(29) = 'Nsnet'
-    !a1(30) = 'fNMinloss'
-    !a1(31) = 'Nsoilmin'
-    !if (icycle==2) na1 = 31
-    !! P
-    !a1(32) = 'psoillab'
-    !a1(33) = 'psoilsorb'
-    !a1(34) = 'psoilocc'
-    !a1(35) = 'sumpbal'
-    !a1(36) = 'Plabuptake'
-    !a1(37) = 'Pdep'
-    !a1(38) = 'pwea'
-    !a1(39) = 'Pleach'
-    !a1(40) = 'Ploss'
-    !a1(41) = 'Pupland'
-    !a1(42) = 'Plittermin'
-    !a1(43) = 'Psmin'
-    !a1(44) = 'Psimm'
-    !a1(45) = 'Psnet'
-    !a1(46) = 'fPleach'
-    !a1(47) = 'kPlab'
-    !a1(48) = 'kPsorb'
-    !a1(49) = 'kpocc'
-    !a1(50) = 'kmlabP'
-    !a1(51) = 'Psorbmax'
-    !if (icycle==3) na1 = 51
     a1(20) = 'fluxCtoCO2_plant_fire'
     a1(21) = 'fluxCtoCO2_litter_fire'
-    na1 = 19
+    na1 = 21
     ! N
     a1(22) = 'sumnbal'
     a1(23) = 'Nminfix'
@@ -2022,14 +1986,6 @@ contains
     a2(5) = 'kplant_fire'
     !INH BLAZE a2(6) = 'fluxCtoCO2_plant_fire'
     !na2 = 6
-    ! N
-    !a2(7) = 'nplant'
-    !a2(8) = 'fracNalloc'
-    !if (icycle==2) na2 = na2 + 2
-    !! P
-    !a2(9) = 'pplant'
-    !a2(10)= 'fracPalloc'
-    !if (icycle==3) na2 = na2 + 2
     na2 = 5
     ! N
     a2(6) = 'nplant'
@@ -2048,14 +2004,6 @@ contains
     a3(5) = 'klitter_fire'
     !INH BLAZE a3(6) = 'fluxCtoCO2_litter_fire'
     !na3 = 6
-    !! N
-    !a3(7) = 'nlitter'
-    !a3(8) = 'FluxNtolitter'
-    !if (icycle==2) na3 = na3 + 2
-    !! P
-    !a3(9) = 'plitter'
-    !a3(10)= 'FluxPtolitter'
-    !if (icycle==3) na3 = na3 + 2
     na3 = 5
     ! N
     a3(6) = 'nlitter'
