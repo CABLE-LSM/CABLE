@@ -111,7 +111,7 @@ USE bgcdriver_mod, ONLY : bgcdriver
   INTEGER :: restart_t
 
   ! worker's logfile unit
-  !INTEGER :: wlogn
+  !INTEGER :: logn
   !debug moved to iovars -- easy to pass around
 
   PUBLIC :: mpidrv_worker
@@ -127,7 +127,7 @@ CONTAINS
     USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps, globalMetfile,  &
          verbose, fixedCO2,output,check,patchout,    &
          patch_type,soilparmnew,&
-         defaultLAI, wlogn, NO_CHECK
+         defaultLAI, NO_CHECK
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, filename, myhome,            &
          redistrb, wiltParam, satuParam, CurYear,    &
@@ -319,13 +319,11 @@ USE cbl_soil_snow_init_special_module
     IF ( CABLE_USER%LogWorker ) THEN
        CALL MPI_Comm_rank (comm, rank, ierr)
        WRITE(cRank,FMT='(I4.4)')rank
-       wlogn = 1000+rank
-       OPEN(wlogn,FILE="cable_log_"//cRank,STATUS="REPLACE")
-       logn = wlogn
-       write(wlogn,*) 'ccc logn, wlogn values: ', logn, wlogn
+       logn = 1000+rank
+       OPEN(logn,FILE="cable_log_"//cRank,STATUS="REPLACE")
     ELSE
-       wlogn = 1000
-       OPEN(wlogn, FILE="/dev/null")
+       logn = 1000
+       OPEN(logn, FILE="/dev/null")
     ENDIF
 
     ! INITIALISATION depending on nml settings
@@ -461,13 +459,13 @@ USE cbl_soil_snow_init_special_module
                   &                        rough,rad,sum_flux,bal)
 
              !mrd561 debug
-             WRITE(wlogn,*) ' ssat_vec min',MINVAL(soil%ssat_vec),MINLOC(soil%ssat_vec)
-             WRITE(wlogn,*) ' sfc_vec min',MINVAL(soil%sfc_vec),MINLOC(soil%sfc_vec)
-             WRITE(wlogn,*) ' wb min',MINVAL(ssnow%wb),MINLOC(ssnow%wb)
-             CALL flush(wlogn)
+             WRITE(logn,*) ' ssat_vec min',MINVAL(soil%ssat_vec),MINLOC(soil%ssat_vec)
+             WRITE(logn,*) ' sfc_vec min',MINVAL(soil%sfc_vec),MINLOC(soil%sfc_vec)
+             WRITE(logn,*) ' wb min',MINVAL(ssnow%wb),MINLOC(ssnow%wb)
+             CALL flush(logn)
 
              IF (check%ranges /= NO_CHECK) THEN
-               WRITE (wlogn, *) "Checking parameter ranges"
+               WRITE (logn, *) "Checking parameter ranges"
                CALL constant_check_range(soil, veg, 0, met)
              END IF
 
@@ -509,9 +507,9 @@ USE cbl_soil_snow_init_special_module
 
                 IF ( CABLE_USER%CASA_DUMP_READ .OR. CABLE_USER%CASA_DUMP_WRITE ) &
                      CALL worker_casa_dump_types(comm, casamet, casaflux, phen, climate)
-                WRITE(wlogn,*) 'cable_mpiworker, POPLUC: ',  CABLE_USER%POPLUC
+                WRITE(logn,*) 'cable_mpiworker, POPLUC: ',  CABLE_USER%POPLUC
                 WRITE(*,*) 'cable_mpiworker, POPLUC: ',  CABLE_USER%POPLUC
-                CALL flush(wlogn)
+                CALL flush(logn)
                 IF ( CABLE_USER%POPLUC ) &
                      CALL worker_casa_LUC_types( comm, casapool, casabal)
 
@@ -544,7 +542,7 @@ USE cbl_soil_snow_init_special_module
 
 
              IF( icycle>0 .AND. spincasa) THEN
-                WRITE(wlogn,*) 'EXT spincasacnp enabled with mloop= ', mloop
+                WRITE(logn,*) 'EXT spincasacnp enabled with mloop= ', mloop
                 CALL worker_spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
                      casaflux,casamet,casabal,phen,POP,climate,LALLOC, icomm, ocomm)
                 SPINconv = .FALSE.
@@ -599,8 +597,8 @@ USE cbl_soil_snow_init_special_module
              ! increment total timstep counter
              ktau_tot = ktau_tot + 1
 
-             WRITE(wlogn,*) 'ktau -',ktau_tot
-             CALL flush(wlogn)
+             WRITE(logn,*) 'ktau -',ktau_tot
+             CALL flush(logn)
 
              ! globally (WRT code) accessible kend through USE cable_common_module
              ktau_gl = ktau_gl + 1
@@ -639,7 +637,7 @@ USE cbl_soil_snow_init_special_module
 
                 ! MPI: receive casa_dump_data for this step from the master
              ELSEIF ( IS_CASA_TIME("dread", yyyy, ktau, kstart, koffset, &
-                  kend, ktauday, wlogn) ) THEN
+                  kend, ktauday, logn) ) THEN
                 CALL MPI_Recv (MPI_BOTTOM, 1, casa_dump_t, 0, ktau_gl, icomm, stat, ierr)
              END IF
 
@@ -689,8 +687,8 @@ USE cbl_soil_snow_init_special_module
                 !  ENDIF
 
                 IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, &
-                     koffset, kend, ktauday, wlogn) ) THEN
-                   ! write(wlogn,*), 'IN IS_CASA', casapool%cplant(:,1)
+                     koffset, kend, ktauday, logn) ) THEN
+                   ! write(logn,*), 'IN IS_CASA', casapool%cplant(:,1)
                    !      CALL MPI_Send (MPI_BOTTOM,1, casa_t,0,ktau_gl,ocomm,ierr)
                 ENDIF
 
@@ -730,15 +728,15 @@ USE cbl_soil_snow_init_special_module
           ! ENDIF
 
 
-          CALL flush(wlogn)
+          CALL flush(logn)
           IF (icycle >0 .AND.   cable_user%CALL_POP) THEN
 
              IF (CABLE_USER%POPLUC) THEN
 
-                WRITE(wlogn,*), 'before MPI_Send casa_LUC'
+                WRITE(logn,*), 'before MPI_Send casa_LUC'
                 ! worker sends casa updates required for LUC calculations here
                 CALL MPI_Send (MPI_BOTTOM, 1, casa_LUC_t, 0, 0, ocomm, ierr)
-                WRITE(wlogn,*), 'after MPI_Send casa_LUC'
+                WRITE(logn,*), 'after MPI_Send casa_LUC'
                 ! master calls LUCDriver here
                 ! worker receives casa and POP updates
                 CALL MPI_Recv( POP%pop_grid(1), POP%np, pop_t, 0, 0, icomm, stat, ierr )
@@ -790,7 +788,7 @@ USE cbl_soil_snow_init_special_module
        !   ! Write to screen and log file:
        !   WRITE(*,'(A18,I3,A24)') ' Spinning up: run ',INT(ktau_tot/kend),      &
        !         ' of data set complete...'
-       !   WRITE(wlogn,'(A18,I3,A24)') ' Spinning up: run ',INT(ktau_tot/kend),   &
+       !   WRITE(logn,'(A18,I3,A24)') ' Spinning up: run ',INT(ktau_tot/kend),   &
        !         ' of data set complete...'
        !
        !   ! IF not 1st run through whole dataset:
@@ -885,7 +883,7 @@ USE cbl_soil_snow_init_special_module
 
     ! Close log file
     ! MPI: closes handle to /dev/null in workers
-    CLOSE(wlogn)
+    CLOSE(logn)
 
 
     RETURN
@@ -6800,7 +6798,7 @@ USE cbl_soil_snow_init_special_module
     !mcd287  CALL MPI_Reduce (tsize, tsize, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr)
     WRITE(*,*) 'b4 reduce wk', tsize, MPI_DATATYPE_NULL, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr
     CALL flush(6)
-    !call flush(wlogn)
+    !call flush(logn)
     CALL MPI_Reduce (tsize, MPI_DATATYPE_NULL, 1, MPI_INTEGER, MPI_SUM, 0, comm, ierr)
 
     DEALLOCATE(types)
@@ -7234,7 +7232,7 @@ USE cbl_soil_snow_init_special_module
   USE biogeochem_mod, ONLY : biogeochem 
 
     !mrd561 debug
-    USE cable_IO_vars_module, ONLY: wlogn
+    USE cable_IO_vars_module, ONLY: logn
 
     IMPLICIT NONE
     !CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
@@ -7576,11 +7574,11 @@ USE cbl_soil_snow_init_special_module
        ENDDO   ! end of nyear
 
     ENDDO     ! end of nloop
-    WRITE(wlogn,*) 'b4 MPI_SEND'
+    WRITE(logn,*) 'b4 MPI_SEND'
     CALL MPI_Send (MPI_BOTTOM, 1, casa_t, 0, 0, ocomm, ierr)
-    WRITE(wlogn,*) 'after MPI_SEND'
+    WRITE(logn,*) 'after MPI_SEND'
     IF(CABLE_USER%CALL_POP) CALL worker_send_pop (POP, ocomm)
-    WRITE(wlogn,*) 'cplant', casapool%cplant
+    WRITE(logn,*) 'cplant', casapool%cplant
 
   END SUBROUTINE worker_spincasacnp
 
@@ -7604,7 +7602,7 @@ USE cbl_soil_snow_init_special_module
   USE biogeochem_mod, ONLY : biogeochem 
 
     !mrd561 debug
-    USE cable_IO_vars_module, ONLY: wlogn
+    USE cable_IO_vars_module, ONLY: logn
 
     IMPLICIT NONE
     !CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
@@ -7703,45 +7701,45 @@ USE cbl_soil_snow_init_special_module
           ENDIF
 
           IF(idoy==mdyear) THEN ! end of year
-             WRITE(wlogn,*) 'b4 MPI_SEND,casa_LUC_t', casapool%cplant(:,2)
-             CALL flush(wlogn)
+             WRITE(logn,*) 'b4 MPI_SEND,casa_LUC_t', casapool%cplant(:,2)
+             CALL flush(logn)
              CALL MPI_Send (MPI_BOTTOM, 1, casa_LUC_t, 0, 0, ocomm, ierr)
-             WRITE(wlogn,*) 'after MPI_SEND,casa_LUC_t', casapool%cplant(:,2)
-             CALL flush(wlogn)
+             WRITE(logn,*) 'after MPI_SEND,casa_LUC_t', casapool%cplant(:,2)
+             CALL flush(logn)
              StemNPP(:,1) = casaflux%stemnpp
              StemNPP(:,2) = 0.0
 
              CALL MPI_Comm_rank (icomm, rank, ierr)
-             WRITE(wlogn,*)
-             WRITE(wlogn,*),'rank receiving pop_grid from master', rank
-!$           write(wlogn,*) 'b4 MPI_Recv, pop_t cmass: ', POP%pop_grid%cmass_sum
-!$           write(wlogn,*) 'b4 MPI_Recv, pop_t LU: ', POP%pop_grid%LU
+             WRITE(logn,*)
+             WRITE(logn,*),'rank receiving pop_grid from master', rank
+!$           write(logn,*) 'b4 MPI_Recv, pop_t cmass: ', POP%pop_grid%cmass_sum
+!$           write(logn,*) 'b4 MPI_Recv, pop_t LU: ', POP%pop_grid%LU
              CALL MPI_Recv( POP%pop_grid(1), POP%np, pop_t, 0, 0, icomm, stat, ierr )
-!$           write(wlogn,*)
-!$           write(wlogn,*) 'after MPI_Recv, pop_t cmass: ', POP%pop_grid%cmass_sum
-             WRITE(wlogn,*) 'after MPI_Recv, pop_t '
-             CALL flush(wlogn)
+!$           write(logn,*)
+!$           write(logn,*) 'after MPI_Recv, pop_t cmass: ', POP%pop_grid%cmass_sum
+             WRITE(logn,*) 'after MPI_Recv, pop_t '
+             CALL flush(logn)
              IF (cable_user%CALL_POP .AND. POP%np.GT.0) THEN ! CALL_POP
-                WRITE(wlogn,*), 'b4  POPdriver', POP%pop_grid%cmass_sum
+                WRITE(logn,*), 'b4  POPdriver', POP%pop_grid%cmass_sum
                 CALL POPdriver(casaflux,casabal,veg, POP)
 
              ENDIF
-!$           write(wlogn,*)
-!$           write(wlogn,*) 'after POPstep cmass: ', POP%pop_grid%cmass_sum
-             WRITE(wlogn,*) 'after POPstep ',  POP%pop_grid%cmass_sum
-             CALL flush(wlogn)
+!$           write(logn,*)
+!$           write(logn,*) 'after POPstep cmass: ', POP%pop_grid%cmass_sum
+             WRITE(logn,*) 'after POPstep ',  POP%pop_grid%cmass_sum
+             CALL flush(logn)
              CALL worker_send_pop (POP, ocomm)
-             WRITE(wlogn,*) 'after worker_send_pop'
-             CALL flush(wlogn)
+             WRITE(logn,*) 'after worker_send_pop'
+             CALL flush(logn)
           ENDIF
 
 
        ENDDO
        ! receive updates to CASA pools resulting from LUC
-       WRITE(wlogn,*)
-       WRITE(wlogn,*) 'b4 mpi_recv casa_LUC_t '
+       WRITE(logn,*)
+       WRITE(logn,*) 'b4 mpi_recv casa_LUC_t '
        CALL MPI_Recv (MPI_BOTTOM, 1, casa_LUC_t, 0, nyear, icomm, stat, ierr)
-       WRITE(wlogn,*) 'after mpi_recv casa_LUC_t: '
+       WRITE(logn,*) 'after mpi_recv casa_LUC_t: '
     ENDDO
 
   END SUBROUTINE WORKER_CASAONLY_LUC

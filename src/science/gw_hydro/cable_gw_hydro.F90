@@ -910,10 +910,9 @@ USE trimb_mod,                       ONLY : trimb
   ! Output
   !	 ssnow
   SUBROUTINE soil_snow_gw(dels, soil, ssnow, canopy, met, bal, veg)
-    USE cable_IO_vars_module, ONLY: wlogn
-
     USE cable_common_module
-USE snow_processes_soil_thermal_mod, ONLY : snow_processes_soil_thermal
+    USE snow_processes_soil_thermal_mod, ONLY : snow_processes_soil_thermal
+    
     REAL                     , INTENT(IN)     :: dels ! integration time step (s)
     TYPE(soil_parameter_type), INTENT(INOUT)  :: soil
     TYPE(soil_snow_type)     , INTENT(INOUT)  :: ssnow
