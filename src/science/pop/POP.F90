@@ -357,7 +357,6 @@ CONTAINS
     INTEGER(i4b), ALLOCATABLE :: it(:)
     REAL(dp):: dallocW
 
-    !INTEGER, INTENT(IN) :: wlogn
     pop%it_pop = pop%it_pop + 1
 
     !it = pop%it_pop(1)
@@ -373,7 +372,6 @@ CONTAINS
 !$
 !$    CALL GetPatchFrequencies(POP,it)
 
-    !call flush(wlogn)
     IF (PRESENT(precip)) THEN
        IF(PRESENT(StemNPP_av)) THEN
           CALL PatchAnnualDynamics(POP, StemNPP,NPPtoGPP,disturbance_interval, it, precip=precip,StemNPP_av=StemNPP_av)

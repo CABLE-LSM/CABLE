@@ -163,9 +163,8 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
        NRRRR,      &  !
        ctime,      &  ! day count for casacnp
        LOY, &         ! days in year
-       count_sum_casa, & ! number of time steps over which casa pools &
+       count_sum_casa ! number of time steps over which casa pools &
                                 !and fluxes are aggregated (for output)
-       wlogn = 10001
 
   REAL :: dels                        ! time step size in seconds
 

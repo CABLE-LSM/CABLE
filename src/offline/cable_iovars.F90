@@ -25,8 +25,6 @@ MODULE cable_IO_vars_module
 
   PUBLIC
   PRIVATE r_2, mvtype, mstype
-  !mrd561 debug
-  INTEGER :: wlogn
 
   ! ============ Timing variables =====================
   REAL :: shod ! start time hour-of-day

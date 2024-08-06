@@ -121,7 +121,7 @@ MODULE POPLUC_Module
   USE casavariable,         ONLY: casa_pool, casa_balance, casa_flux, casa_biome
   USE POP_Types,            ONLY: POP_TYPE
   USE cable_common_module,  ONLY: cable_user
-  USE cable_IO_vars_module, ONLY: landpt, patch, wlogn
+  USE cable_IO_vars_module, ONLY: landpt, patch
   USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE
   USE POPModule,            ONLY: pop_init_single
 
