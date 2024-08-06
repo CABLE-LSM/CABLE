@@ -1354,7 +1354,7 @@ END SUBROUTINE cable_bios_read_met
 
 SUBROUTINE cable_bios_load_params(soil, sum_flux, bal, ssnow, veg, rough)
 
-USE cable_def_types_mod,  ONLY: mland, soil_parameter_type
+USE cable_def_types_mod,  ONLY: mland, soil_parameter_type, r_2, ms
 
 IMPLICIT NONE
 
@@ -1643,6 +1643,7 @@ DO iland = 1,mland ! For each land cell...
   soil%sfc(is:ie)     = wvol1fc_m3m3(iland)
   soil%rhosoil(is:ie) = bulkdens1_kgm3(iland)
   soil%ssat(is:ie)    = max(0.4,wvol1sat_m3m3(iland))
+  soil%swilt(is:ie)   = min(0.2,wvol1w_m3m3(iland)) 
 END DO
 
 soil%hsbh   = soil%hyds*ABS(soil%sucs) * soil%bch ! difsat*etasat
@@ -1651,6 +1652,21 @@ soil%ibp2   = NINT(soil%bch) + 2
 where( soil%ssat > 0.) & ! Avoid divide by
 soil%pwb_min = (soil%swilt/soil%ssat)**soil%ibp2
 soil%i2bp3  = 2 * NINT(soil%bch) + 3
+! owetfac introduced by EAK apr2009
+ssnow%owetfac = MAX(0.0, MIN(1.0, &
+                (REAL(ssnow%wb(:, 1)) - soil%swilt) / &
+                (soil%sfc - soil%swilt)))
+!! vh_js !! comment out hide% condition
+! IF (hide%Ticket49Bug6) THEN
+soil%swilt_vec = SPREAD(real(soil%swilt,r_2),2,ms)
+soil%ssat_vec = SPREAD(real(soil%ssat,r_2),2,ms)
+IF(cable_user%SOIL_STRUC=='sli') THEN
+    soil%sfc_vec = SPREAD(real(soil%sfc,r_2),2,ms)
+    ! Only 1 horizon by default !
+    soil%nhorizons = 1
+    soil%ishorizon = 1
+END IF
+! END IF
 
 DO iland = 1,mland ! For each land cell...
   is = landpt(iland)%cstart  ! Index position for the first tile of this land cell.
