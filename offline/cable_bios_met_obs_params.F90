@@ -1635,6 +1635,13 @@ DO iland = 1,mland ! For each land cell...
   is = landpt(iland)%cstart  ! Index position for the first tile of this land cell.
   ie = landpt(iland)%cend    ! Index position for the last tile of this land cell.
   soil%bch(is:ie)     = min(b1(iland),16.0) 
+  soil%silt(is:ie)    = siltfrac1(iland)
+  soil%clay(is:ie)    = clayfrac1(iland)
+  soil%sand(is:ie)    = 1.0 - soil%silt(is:ie) - soil%clay(is:ie)
+  soil%css(is:ie)     = csoil1(iland)
+  soil%hyds(is:ie)    = max(hyk1sat_ms(iland),1.0e-8) 
+  soil%sfc(is:ie)     = wvol1fc_m3m3(iland)
+  soil%rhosoil(is:ie) = bulkdens1_kgm3(iland)
 END DO
 
 soil%hsbh   = soil%hyds*ABS(soil%sucs) * soil%bch ! difsat*etasat
