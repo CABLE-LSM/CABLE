@@ -1644,6 +1644,7 @@ DO iland = 1,mland ! For each land cell...
   soil%rhosoil(is:ie) = bulkdens1_kgm3(iland)
   soil%ssat(is:ie)    = max(0.4,wvol1sat_m3m3(iland))
   soil%swilt(is:ie)   = min(0.2,wvol1w_m3m3(iland)) 
+  soil%sucs(is:ie)    = max(psie1_m(iland),-2.0)         
 END DO
 
 soil%hsbh   = soil%hyds*ABS(soil%sucs) * soil%bch ! difsat*etasat
