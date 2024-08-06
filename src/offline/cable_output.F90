@@ -57,7 +57,7 @@ MODULE cable_output_module
           Qmom, Qle, Qh, Qg, NEE, SWnet,                             &
           LWnet, SoilMoist, SoilTemp, Albedo,                        &
           visAlbedo, nirAlbedo, SoilMoistIce,                        &
-          Qs, Qsb, Evap, BaresoilT, SWE, SnowT,                      &
+          Qs, Qsb, Evap, PotEvap, BaresoilT, SWE, SnowT,             &
           RadT, VegT, Ebal, Wbal, AutoResp, RootResp,                &
           StemResp, LeafResp, HeteroResp, GPP, NPP, LAI,             &
           ECanop, TVeg, ESoil, CanopInt, SnowDepth,                  &
@@ -548,6 +548,13 @@ CONTAINS
             xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%Evap(mp))
        out%Evap = 0.0 ! initialise
+    END IF
+    IF(output%PotEvap) THEN
+       CALL define_ovar(ncid_out, ovid%PotEvap,'PotEvap', 'kg/m^2/s',          &
+            'Potential evaporation', patchout%PotEvap, 'dummy',     &
+            xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%PotEvap(mp))
+       out%PotEvap = 0.0 ! initialise
     END IF
     IF(output%ECanop) THEN
        CALL define_ovar(ncid_out, ovid%Ecanop, 'ECanop', 'kg/m^2/s',           &
@@ -1732,6 +1739,8 @@ CONTAINS
     CALL generate_out_write_acc(output%Qsb, ovid%Qsb, 'Qsb', out%Qsb, REAL(ssnow%rnof2/dels, 4), ranges%Qsb, patchout%Qsb, out_settings)
     ! Evap: total evapotranspiration [kg/m^2/s]
     CALL generate_out_write_acc(output%Evap, ovid%Evap, 'Evap', out%Evap, REAL(canopy%fe/air%rlam, 4), ranges%Evap, patchout%Evap, out_settings)
+    ! PotEVap: potential evapotranspiration [kg/m^2/s]
+    CALL generate_out_write_acc(output%PotEvap, ovid%PotEvap, 'PotEvap', out%PotEvap, REAL(canopy%epot/dels, 4), ranges%PotEvap, patchout%PotEvap, out_settings)
     ! ECanop: interception evaporation [kg/m^2/s]
     CALL generate_out_write_acc(output%ECanop, ovid%ECanop, 'ECanop', out%ECanop, REAL(canopy%fevw/air%rlam, 4), ranges%ECanop, patchout%ECanop, out_settings)
     ! TVeg: vegetation transpiration [kg/m^2/s]
