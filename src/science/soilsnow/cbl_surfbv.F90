@@ -10,6 +10,8 @@ SUBROUTINE surfbv (dels, met, ssnow, soil, veg, canopy )
 
 USE smoisturev_mod,               ONLY: smoisturev
     USE cable_common_module
+    USE grid_constants_mod_cbl, ONLY : lakes_cable
+    
 IMPLICIT NONE
 
     REAL, INTENT(IN) :: dels ! integration time step (s)
@@ -102,7 +104,7 @@ IMPLICIT NONE
 
     !  Rescale drainage to remove water added to lakes (wb_lake)
     ssnow%sinfil = 0.0
-    WHERE( veg%iveg == 16 )
+    WHERE( veg%iveg == lakes_cable )
        ssnow%sinfil  = MIN( ssnow%rnof1, ssnow%wb_lake ) ! water that can be extracted from the rnof1
        ssnow%rnof1   = MAX( 0.0, ssnow%rnof1 - ssnow%sinfil )
        ssnow%wb_lake = MAX( 0.0, ssnow%wb_lake - ssnow%sinfil)

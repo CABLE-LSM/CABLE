@@ -326,6 +326,7 @@ IMPLICIT NONE
   !-------------------------------------------------------------------------
   SUBROUTINE ovrlndflx (dels, ssnow, soil,veg, canopy,sli_call )
     USE cable_common_module, ONLY : gw_params,cable_user
+    USE grid_constants_mod_cbl, ONLY : lakes_cable
 
     IMPLICIT NONE
     REAL, INTENT(IN)                         :: dels ! integration time step (s)
@@ -394,7 +395,7 @@ IMPLICIT NONE
 
     !add back to the lakes to keep saturated instead of drying
     DO i=1,mp
-       IF (veg%iveg(i) .EQ. 16) THEN
+       IF (veg%iveg(i) .EQ. lakes_cable) THEN
           ssnow%fwtop(i) = ssnow%fwtop(i) + ssnow%rnof1(i)
           ssnow%rnof1(i) = 0._r_2
        END IF
@@ -1273,6 +1274,8 @@ USE trimb_mod,                       ONLY : trimb
 
   SUBROUTINE calc_srf_wet_fraction(ssnow,soil,met,veg)
 
+    USE grid_constants_mod_cbl, ONLY : lakes_cable
+
     IMPLICIT NONE
     TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow  ! soil+snow variables
     TYPE(soil_parameter_type), INTENT(IN)    :: soil ! soil parameters
@@ -1297,11 +1300,11 @@ USE trimb_mod,                       ONLY : trimb
        DO i=1,mp
           IF( ssnow%snowd(i) > 0.1) ssnow%wetfac(i) = 0.9
 
-          IF ( veg%iveg(i) == 16 .AND. met%tk(i) >= CTFRZ + 5. )   &
-               ssnow%wetfac(i) = 1.0 ! lakes: hard-wired number to be removed
+          IF ( veg%iveg(i) == lakes_cable .AND. met%tk(i) >= CTFRZ + 5. )   &
+               ssnow%wetfac(i) = 1.0 
 
-          IF( veg%iveg(i) == 16 .AND. met%tk(i) < CTFRZ + 5. )   &
-               ssnow%wetfac(i) = 0.7 ! lakes: hard-wired number to be removed
+          IF( veg%iveg(i) == lakes_cable .AND. met%tk(i) < CTFRZ + 5. )   &
+               ssnow%wetfac(i) = 0.7
        END DO
 
     ELSEIF (cable_user%gw_model) THEN
@@ -1366,11 +1369,11 @@ USE trimb_mod,                       ONLY : trimb
 
           IF( ssnow%snowd(i) > 0.1) ssnow%wetfac(i) = 0.9
 
-          IF ( veg%iveg(i) == 16 .AND. met%tk(i) >= Ctfrz + 5. )   &
-               ssnow%wetfac(i) = 1.0 ! lakes: hard-wired number to be removed
+          IF ( veg%iveg(i) == lakes_cable .AND. met%tk(i) >= Ctfrz + 5. )   &
+               ssnow%wetfac(i) = 1.0 
 
-          IF( veg%iveg(i) == 16 .AND. met%tk(i) < Ctfrz + 5. )   &
-               ssnow%wetfac(i) = 0.7 ! lakes: hard-wired number to be removed
+          IF( veg%iveg(i) == lakes_cable .AND. met%tk(i) < Ctfrz + 5. )   &
+               ssnow%wetfac(i) = 0.7
 
        ENDDO
        ! owetfac introduced to reduce sharp changes in dry regions,
@@ -1713,6 +1716,7 @@ USE trimb_mod,                       ONLY : trimb
 
   SUBROUTINE subsurface_drainage(ssnow,soil,veg,dzmm)
     USE cable_common_module
+    USE grid_constants_mod_cbl, ONLY : lakes_cable
 
     IMPLICIT NONE
 
@@ -1841,7 +1845,7 @@ USE trimb_mod,                       ONLY : trimb
 
        !Keep "lakes" saturated forcing qhz = 0.  runoff only from lakes
        !overflowing
-       IF (soil%isoilm(i) .EQ. 9 .OR. veg%iveg(i) .GE. 16) THEN
+       IF (soil%isoilm(i) .EQ. 9 .OR. veg%iveg(i) .GE. lakes_cable) THEN
           ssnow%qhz(i) = 0._r_2
           ssnow%qhlev(i,:) = 0._r_2
        END IF
