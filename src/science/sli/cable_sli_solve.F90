@@ -84,7 +84,7 @@ MODULE sli_solve
        csat, slope_csat, potential_evap, tri, setsol, zerovars, &
        esat_ice, slope_esat_ice, Tfrozen, rtbis_Tfrozen, GTFrozen, &
        JSoilLayer, esat, forcerestore, SEB
-  USE cable_IO_vars_module, ONLY: wlogn
+  USE cable_IO_vars_module, ONLY: logn
 
   IMPLICIT NONE
 
@@ -1326,16 +1326,16 @@ CONTAINS
                    tmp1d4(kk) = thetalmax(tmp1d3(kk), S(i), par(i)%he, one/(par(i)%lambc*freezefac), &
                         par(i)%thre, par(i)%the) ! liquid content at solution for Tsoil
                 ELSE
-                   WRITE(wlogn,*) "Found no solution for Tfrozen 1. ", kk, i
-                   WRITE(wlogn,*) "Assume soil is totally frozen"
+                   WRITE(logn,*) "Found no solution for Tfrozen 1. ", kk, i
+                   WRITE(logn,*) "Assume soil is totally frozen"
                    var(i)%thetal = 0.0_r_2
                    var(i)%thetai = theta
                    IF (i.EQ.1) hice(kk) = h0(kk)
                    tmp1d3(kk) = (tmp1d2(kk) + rhow*lambdaf*(theta*dx(i) +  MERGE(h0(kk),zero,i==1)))/ &
                         (dx(i)*par(i)%css*par(i)%rho + rhow*csice*(theta*dx(i) + &
                         MERGE(h0(kk),zero,i==1)))
-                   WRITE(wlogn,*) "frozen soil temperature: ", tmp1d3(kk)
-                   WRITE(wlogn,*) nsteps(kk), S(i), Tsoil(i), dTsoil(i), h0(kk), tmp1, tmp2, tmp1d2(kk), theta, &
+                   WRITE(logn,*) "frozen soil temperature: ", tmp1d3(kk)
+                   WRITE(logn,*) nsteps(kk), S(i), Tsoil(i), dTsoil(i), h0(kk), tmp1, tmp2, tmp1d2(kk), theta, &
                         JSoilLayer(Tfreezing(kk), &
                         dx(i), theta,par(i)%css, par(i)%rho, &
                         MERGE(h0(kk),zero,i==1), par(i)%thre, par(i)%the, &
@@ -1994,16 +1994,16 @@ CONTAINS
        itmp(kk)  = itmp(kk) + 1
        accel(kk) = one - 0.05_r_2*REAL(MIN(10,MAX(0,itmp(kk)-4)),r_2) ! acceleration [0.5,1], start with 1
        IF (itmp(kk) > 1000) THEN
-          WRITE(wlogn,*) "Solve: too many iterations of equation solution"
-          WRITE(wlogn,*) " irec, kk, S"
-          WRITE(wlogn,*) irec, kk, S(:)
-          WRITE(wlogn,*) " irec, kk, Tsoil"
-          WRITE(wlogn,*) irec, kk, Tsoil(:)
-          WRITE(wlogn,*) " irec, kk, qex"
-          WRITE(wlogn,*) irec, kk, iqex(:)
-          WRITE(wlogn,*) " irec, kk, h0, hsnow, hsnowliq"
-          WRITE(wlogn,*) irec, kk, h0(kk), vsnow(kk)%hsnow, vsnow(kk)%hliq
-          WRITE(wlogn,*) nfac1(kk), nfac2(kk), nfac3(kk), nfac4(kk), nfac5(kk), &
+          WRITE(logn,*) "Solve: too many iterations of equation solution"
+          WRITE(logn,*) " irec, kk, S"
+          WRITE(logn,*) irec, kk, S(:)
+          WRITE(logn,*) " irec, kk, Tsoil"
+          WRITE(logn,*) irec, kk, Tsoil(:)
+          WRITE(logn,*) " irec, kk, qex"
+          WRITE(logn,*) irec, kk, iqex(:)
+          WRITE(logn,*) " irec, kk, h0, hsnow, hsnowliq"
+          WRITE(logn,*) irec, kk, h0(kk), vsnow(kk)%hsnow, vsnow(kk)%hliq
+          WRITE(logn,*) nfac1(kk), nfac2(kk), nfac3(kk), nfac4(kk), nfac5(kk), &
                nfac6(kk), nfac7(kk), nfac8(kk), nfac9(kk), nfac10(kk), nfac11(kk), nfac12(kk)
           err = 1
           RETURN
@@ -2172,8 +2172,8 @@ CONTAINS
             ff(nns(kk):n-1), ffh(nns(kk):n-1), gg(nns(kk):n), ggh(nns(kk):n), &
             dy(nns(kk):n), de(nns(kk):n), condition=condition, err=err)
        IF (err /= 0) THEN
-          WRITE(wlogn,*) "Sparse matrix solution failed ", irec, kk
-          WRITE(wlogn,*) Tsoil(1), S(1)
+          WRITE(logn,*) "Sparse matrix solution failed ", irec, kk
+          WRITE(logn,*) Tsoil(1), S(1)
           RETURN
        ENDIF
 
@@ -2518,7 +2518,7 @@ CONTAINS
        nsteps(kk) = nsteps(kk) + 1
 
 !$                if ((irec.eq.8992).and.(kk.eq.1) ) then
-!$                   !if ((irec.eq.5).and.(kk.eq.1626)  .and. wlogn == 1011) then
+!$                   !if ((irec.eq.5).and.(kk.eq.1626)  .and. logn == 1011) then
 !$                    write(*,*) 'writing diags', again(kk), nsteps(kk)
 !$
 !$                    ! if (.not. again(kk)) then
@@ -2540,9 +2540,9 @@ CONTAINS
 !$                 endif
 
        IF (nsteps(kk) > nsteps_max) THEN
-          WRITE(wlogn,*) "nsteps > nsteps_max ", irec, kk
-          WRITE(wlogn,*) Tsoil(1), S(1)
-          WRITE(wlogn,*) nfac1(kk), nfac2(kk), nfac3(kk), nfac4(kk), nfac5(kk), &
+          WRITE(logn,*) "nsteps > nsteps_max ", irec, kk
+          WRITE(logn,*) Tsoil(1), S(1)
+          WRITE(logn,*) nfac1(kk), nfac2(kk), nfac3(kk), nfac4(kk), nfac5(kk), &
                nfac6(kk), nfac7(kk), nfac8(kk), nfac9(kk), nfac10(kk), nfac11(kk), nfac12(kk)
           err = 1
           RETURN
@@ -3993,12 +3993,12 @@ CONTAINS
                 tmp1d4(kk) = thetalmax(tmp1d3(kk), S(1), par(1)%he, one/(par(1)%lambc*freezefac), &
                      par(1)%thre, par(1)%the) ! liquid content at new Tsoil
              ELSE
-                WRITE(wlogn,*) "Found no solution for Tfrozen 2. ", kk, i
-                WRITE(wlogn,*) "Assume soil is totally frozen"
+                WRITE(logn,*) "Found no solution for Tfrozen 2. ", kk, i
+                WRITE(logn,*) "Assume soil is totally frozen"
                 tmp1d3(kk) = (tmp1d2(kk) + rhow*lambdaf*(theta*dx(1) +  h0(kk))) / &
                      (dx(1)*par(1)%css*par(1)%rho + rhow*csice*(theta*dx(1) + h0(kk)))
                 tmp1d4(kk) = 0.0_r_2
-                WRITE(wlogn,*) "frozen soil temperature: ", tmp1d3(kk)
+                WRITE(logn,*) "frozen soil temperature: ", tmp1d3(kk)
              ENDIF
 
              hice_tmp(kk) = hice(kk)
@@ -4165,12 +4165,12 @@ CONTAINS
                       tmp1d4(kk) = thetalmax(tmp1d3(kk), S(1), par(1)%he, one/(par(1)%lambc*freezefac), &
                            par(1)%thre, par(1)%the) ! liquid content at new Tsoil
                    ELSE
-                      WRITE(wlogn,*) "Found no solution for Tfrozen 3. ", kk, i
-                      WRITE(wlogn,*) "Assume soil is totally frozen"
+                      WRITE(logn,*) "Found no solution for Tfrozen 3. ", kk, i
+                      WRITE(logn,*) "Assume soil is totally frozen"
                       tmp1d3(kk) = (Jsoil + rhow*lambdaf*(theta*dx(1) +  h0(kk))) / &
                            (dx(1)*par(1)%css*par(1)%rho + rhow*csice*(theta*dx(1) + h0(kk)))
                       tmp1d4(kk) = 0.0_r_2
-                      WRITE(wlogn,*) "frozen soil temperature: ", tmp1d3(kk)
+                      WRITE(logn,*) "frozen soil temperature: ", tmp1d3(kk)
                    ENDIF
 
                    var(1)%thetal = MAX(tmp1d4(kk), zero)
@@ -4416,11 +4416,11 @@ CONTAINS
                            par(1)%thre, par(1)%the) ! liquid content at new Tsoil
                    ELSE
                       WRITE(*,*) "Found no solution for Tfrozen 4.", irec, qmelt(1), h0(kk)
-                      WRITE(wlogn,*) "Assume soil is totally frozen"
+                      WRITE(logn,*) "Assume soil is totally frozen"
                       tmp1d3(kk) = (Jsoil + rhow*lambdaf*(theta*dx(1) +  h0(kk))) / &
                            (dx(1)*par(1)%css*par(1)%rho + rhow*csice*(theta*dx(1) + h0(kk)))
                       tmp1d4(kk) = 0.0_r_2
-                      WRITE(wlogn,*) "frozen soil temperature: ", tmp1d3(kk)
+                      WRITE(logn,*) "frozen soil temperature: ", tmp1d3(kk)
                    ENDIF
 
                    var(1)%thetal = MAX(tmp1d4(kk), zero)
@@ -4554,7 +4554,7 @@ CONTAINS
        ENDIF
 
        IF (vsnow(kk)%hsnow(1).LT.zero.OR.vsnow(kk)%hsnow(nsnow_max).LT.zero) THEN
-          WRITE(wlogn,*) "hsnow<0. Set it to 0 (irec, kk, hsnow):", irec, kk, vsnow(kk)%hsnow(1)
+          WRITE(logn,*) "hsnow<0. Set it to 0 (irec, kk, hsnow):", irec, kk, vsnow(kk)%hsnow(1)
           vsnow(kk)%hsnow(1) = zero
        ENDIF
 
