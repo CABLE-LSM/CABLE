@@ -2105,12 +2105,12 @@ CONTAINS
           
           IF(soil%isoilm(k) == ICE_SoilType) THEN  ! check to see if ice soil patch
 
-             WRITE(*,*) 'SUBROUTINE load_parameters:'
-             WRITE(*,*) 'At land point number ', i
-             WRITE(*,*) 'And patch number ', k
-             WRITE(*,*) 'isoilm is ICE_SoilType'
-             WRITE(*,*) 'Set rhosoil = density_ice from CABLE physical constants'
-             WRITE(*,*) 'Set css     = csice from CABLE physical constants'
+             WRITE(logn,*) 'SUBROUTINE load_parameters:'
+             WRITE(logn,*) 'At land point number ', i
+             WRITE(logn,*) 'And patch number ', k
+             WRITE(logn,*) 'isoilm is ICE_SoilType'
+             WRITE(logn,*) 'Set rhosoil = density_ice from CABLE physical constants'
+             WRITE(logn,*) 'Set css     = csice from CABLE physical constants'
              
              soil%rhosoil(k) = density_ice   
              soil%css(k) =     csice         
@@ -2129,11 +2129,11 @@ CONTAINS
           IF((veg%iveg(k) == ICE_VegType) .AND. (soil%isoilm(k) /= ICE_SoilType)) THEN
 
 
-             WRITE(*,*) 'SUBROUTINE load_parameters:'
-             WRITE(*,*) 'At land point number ', i
-             WRITE(*,*) 'And patch number ', k
-             WRITE(*,*) 'iveg is ICE_VegType but isoilm is not ICE_SoilType'
-             WRITE(*,*) 'Changed isoilm to ICE_SoilType with appropriate parameter corrections'
+             WRITE(logn,*) 'SUBROUTINE load_parameters:'
+             WRITE(logn,*) 'At land point number ', i
+             WRITE(logn,*) 'And patch number ', k
+             WRITE(logn,*) 'iveg is ICE_VegType but isoilm is not ICE_SoilType'
+             WRITE(logn,*) 'Changed isoilm to ICE_SoilType with appropriate parameter corrections'
 
              soil%isoilm(k) = ICE_SoilType
              
@@ -2145,11 +2145,11 @@ CONTAINS
              
           ELSE IF ((veg%iveg(k) /= ICE_VegType) .AND. (soil%isoilm(k) == ICE_SoilType)) THEN
 
-             WRITE(*,*) 'SUBROUTINE load_parameters:'
-             WRITE(*,*) 'At land point number ', i
-             WRITE(*,*) 'And patch number ', k
-             WRITE(*,*) 'iveg is not ICE_VegType but isoilm is ICE_SoilType'
-             WRITE(*,*) 'Changed iveg to ICE_VegType with appropriate parameter corrections'
+             WRITE(logn,*) 'SUBROUTINE load_parameters:'
+             WRITE(logn,*) 'At land point number ', i
+             WRITE(logn,*) 'And patch number ', k
+             WRITE(logn,*) 'iveg is not ICE_VegType but isoilm is ICE_SoilType'
+             WRITE(logn,*) 'Changed iveg to ICE_VegType with appropriate parameter corrections'
 
              
              veg%iveg(k) = ICE_VegType
