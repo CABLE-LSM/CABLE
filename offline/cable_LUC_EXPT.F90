@@ -323,34 +323,9 @@ CONTAINS
        END DO
     ENDIF
 
-    ! Determine woody fraction (forest and shrub cover).
-    call get_woody_fraction(LUC_EXPT)
 
-    ! Determine initial land use types
-    LUC_EXPT%primaryf = LUC_EXPT%primary_veg * LUC_EXPT%woodfrac
-    LUC_EXPT%grass    = LUC_EXPT%grass + LUC_EXPT%primary_veg * (1.0 - LUC_EXPT%woodfrac)
-    LUC_EXPT%secdf    = max(1.0-LUC_EXPT%grass-LUC_EXPT%primaryf, 0.0)
-
-    !! JK Debug
-    ! For some reason the transition from secdf does not work correctly
-    ! if there is secdf = 0.0 at first timestep (1580). This is a bandaid
-    ! solution that allows a 'correct' transition. Minimum fraction of 0.01
-    ! was required for it to work correctly.
-    where ((LUC_EXPT%secdf < 0.01) .and. (LUC_EXPT%prim_only .eqv. .FALSE.))
-      LUC_EXPT%primaryf = LUC_EXPT%primaryf + LUC_EXPT%secdf - 0.01  
-      LUC_EXPT%secdf = 0.01
-    endwhere
-    where (LUC_EXPT%primaryf < 0.0)
-      LUC_EXPT%grass = LUC_EXPT%grass + LUC_EXPT%primaryf
-      LUC_EXPT%primaryf = 0.0
-    endwhere
-    !! JK Debug
-    
-    LUC_EXPT%crop     = max(min(LUC_EXPT%crop, LUC_EXPT%grass), 0.0)
-    LUC_EXPT%past     = max(min(LUC_EXPT%grass-LUC_EXPT%crop, LUC_EXPT%past), 0.0)
-
-    ! write(59,*) TRIM(LUC_EXPT%PrimOnlyFile), (TRIM(LUC_EXPT%PrimOnlyFile).EQ.'none')
-    ! READ transitions from primary to see if primary remains primary
+    ! Determine if grid cell is primary vegetation throughout the entire simulation
+    ! JK: read this from an input file is recommended.
     if (TRIM(LUC_EXPT%PrimOnlyFile).EQ.'none')   THEN
        LUC_EXPT%prim_only = .TRUE.
        IF(.NOT.ALLOCATED(tmpvec)) ALLOCATE(tmpvec(tdimsize))
@@ -362,8 +337,8 @@ CONTAINS
                      start=(/land_x(k),land_y(k),1/), &
                      count=(/1,1,tdimsize/) )
                 CALL HANDLE_ERR(STATUS, "Reading direct from "//LUC_EXPT%TransFile(i) )
-                IF ((sum(tmpvec) .gt. 1e-3) .OR. (LUC_EXPT%primary_veg(k) .lt. 0.99)) LUC_EXPT%prim_only(k) = .FALSE.
-                !IF (sum(tmpvec).gt.1e-3) LUC_EXPT%prim_only(k) = .FALSE.
+                !IF ((sum(tmpvec) .gt. 1e-3) .OR. (LUC_EXPT%primary_veg(k) .lt. 0.99)) LUC_EXPT%prim_only(k) = .FALSE.
+                IF (sum(tmpvec).gt.1e-3) LUC_EXPT%prim_only(k) = .FALSE.
              END DO
           ELSE
              STATUS = NF90_GET_VAR(LUC_EXPT%F_ID(i), LUC_EXPT%V_ID(i), tmparr3, &
@@ -371,8 +346,8 @@ CONTAINS
              CALL HANDLE_ERR(STATUS, "Reading from "//LUC_EXPT%TransFile(i) )
              DO k = 1, mland
                 tmpvec = tmparr3(  land_x(k), land_y(k) , :)
-                IF ((sum(tmpvec) .gt. 1e-3) .OR. (LUC_EXPT%primary_veg(k) .lt. 0.99)) LUC_EXPT%prim_only(k) = .FALSE.
-                !IF (sum(tmpvec).gt.1e-3) LUC_EXPT%prim_only(k) = .FALSE.
+                !IF ((sum(tmpvec) .gt. 1e-3) .OR. (LUC_EXPT%primary_veg(k) .lt. 0.99)) LUC_EXPT%prim_only(k) = .FALSE.
+                IF (sum(tmpvec).gt.1e-3) LUC_EXPT%prim_only(k) = .FALSE.
              END DO
           ENDIF
        END DO
@@ -398,6 +373,32 @@ CONTAINS
        CALL HANDLE_ERR(STATUS, "Closing PrimOnly File "//TRIM(PrimOnlyFile))
        PrimOnly_fID = -1
     ENDIF
+
+    ! Determine woody fraction (forest and shrub cover).
+    call get_woody_fraction(LUC_EXPT)
+
+    ! Determine initial land use types
+    LUC_EXPT%primaryf = LUC_EXPT%primary_veg * LUC_EXPT%woodfrac
+    LUC_EXPT%grass    = LUC_EXPT%grass + LUC_EXPT%primary_veg * (1.0 - LUC_EXPT%woodfrac)
+    LUC_EXPT%secdf    = max(1.0-LUC_EXPT%grass-LUC_EXPT%primaryf, 0.0)
+
+    !! JK Debug
+    ! For some reason the transition from secdf does not work correctly
+    ! if there is secdf = 0.0 at first timestep (1580). This is a bandaid
+    ! solution that allows a 'correct' transition. Minimum fraction of 0.01
+    ! was required for it to work correctly.
+    where ((LUC_EXPT%secdf < 0.01) .and. (LUC_EXPT%prim_only .eqv. .FALSE.))
+      LUC_EXPT%primaryf = LUC_EXPT%primaryf + LUC_EXPT%secdf - 0.01  
+      LUC_EXPT%secdf = 0.01
+    endwhere
+    where (LUC_EXPT%primaryf < 0.0)
+      LUC_EXPT%grass = LUC_EXPT%grass + LUC_EXPT%primaryf
+      LUC_EXPT%primaryf = 0.0
+    endwhere
+    !! JK Debug
+    
+    LUC_EXPT%crop     = max(min(LUC_EXPT%crop, LUC_EXPT%grass), 0.0)
+    LUC_EXPT%past     = max(min(LUC_EXPT%grass-LUC_EXPT%crop, LUC_EXPT%past), 0.0)
 
     ! set secondary vegetation area to be zero where land use transitions don't occur
     ! set grass component of primary vegetation cover
