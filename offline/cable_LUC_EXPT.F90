@@ -783,11 +783,6 @@ CONTAINS
     LUC_EXPT%ivegp = climate%iveg
     LUC_EXPT%biome = climate%biome
 
-    ! non-woody potential vegetation not considered to undergo LU change
-    where (LUC_EXPT%ivegp > 5)
-       LUC_EXPT%prim_only = .true.
-    end where
-
   end subroutine READ_ClimateFile
 
 
