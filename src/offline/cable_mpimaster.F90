@@ -159,7 +159,7 @@ CONTAINS
          verbose, fixedCO2,output,check,patchout,    &
          patch_type,landpt,soilparmnew,&
          defaultLAI, sdoy, smoy, syear, timeunits, exists, output, &
-         latitude,longitude, calendar
+         latitude,longitude, calendar, set_group_output_values
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, fileName, myhome,            &
          redistrb, wiltParam, satuParam, CurYear,    &
@@ -407,6 +407,10 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
     ENDIF
 
     ! INITIALISATION depending on nml settings
+    ! Initialise flags to output individual variables according to group
+    ! options from the namelist file
+    CALL set_group_output_values()
+
     IF (TRIM(cable_user%MetType) .EQ. 'gswp' .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
        IF ( CABLE_USER%YearStart.EQ.0 .AND. ncciy.GT.0) THEN
           CABLE_USER%YearStart = ncciy
@@ -746,7 +750,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
              ENDIF
              IF (YYYY.EQ.CABLE_USER%YEARSTART) THEN
                 CALL nullify_write() ! nullify pointers
-                CALL open_output_file( dels, soil, veg, bgc, rough )
+                CALL open_output_file( dels, soil, veg, bgc, rough, met)
              ENDIF
           ENDIF
 
@@ -1448,7 +1452,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
 
        call WRITE_LANDUSE_CASA_RESTART_NC(cend(mland), lucmp, CASAONLY )
 
-       call create_landuse_cable_restart(logn, dels, ktau, soil, cend(mland),lucmp,cstart,cend,nap)
+       call create_landuse_cable_restart(logn, dels, ktau, soil, cend(mland),lucmp,cstart,cend,nap, met)
 
        call landuse_deallocate_mp(cend(mland),ms,msn,nrb,mplant,mlitter,msoil,mwood,lucmp)
      ENDIF

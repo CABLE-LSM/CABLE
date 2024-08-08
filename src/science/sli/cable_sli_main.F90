@@ -22,11 +22,9 @@ CONTAINS
     USE sli_roots,          ONLY: setroots, getrex
     USE sli_solve,          ONLY: solve
 
-    USE  cable_IO_vars_module, ONLY: wlogn, verbose
+    USE  cable_IO_vars_module, ONLY: verbose
 
     IMPLICIT NONE
-    !INTEGER, INTENT(IN)            :: wlogn
-    !INTEGER :: wlogn = 10001   !use correct value from io_vars module
     REAL,                      INTENT(IN)    :: dt
     TYPE(veg_parameter_type),  INTENT(INOUT) :: veg     ! all r_1
     TYPE(soil_parameter_type), INTENT(INOUT) :: soil    ! all r_1

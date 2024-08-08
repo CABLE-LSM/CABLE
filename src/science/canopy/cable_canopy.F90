@@ -668,6 +668,10 @@ write(6,*) "SLI is not an option right now"
 
        ENDDO
 
+       ! INH #335 - we don't need to weight components of %epot by %transd
+       ! however coupled model uses %wetfac_cs so overwrite here before testing in ACCESS
+       canopy%epot = (canopy%fevw_pot + ssnow%potev/ssnow%cls) * dels/air%rlam
+
   CALL update_zetar( mp, iterplus, NITER, canopy%zetar, iter, nrb, CVONK, CGRAV, CCAPP,  &
                      CLAI_THRESH, CZETmul, CZETPOS, CZETNEG,          &
                      cable_user%soil_struc, air%rho, met%tk,  met%fsd, &
@@ -746,12 +750,12 @@ write(6,*) "SLI is not an option right now"
 
           IF( zscl(j) < rough%disp(j) ) THEN
 
-             !Ticket #154
+             !Ticket #154 - issue #313
              !r_sc(j) = term5(j) * LOG(zscl(j)/rough%z0soilsn(j)) *              &
              !     ( EXP(2*CCSW*canopy%rghlai(j)) - term1(j) ) / term3(j)
              r_sc(j) = term5(j) * LOG(zscl(j)/rough%z0soilsn(j)) *              &
                   ( EXP(2*CCSW*canopy%rghlai(j)) - term2(j) ) / term3(j)
-             r_sc(j) = r_sc(j) + term5(j) * LOG(rough%disp(j)/rough%z0soilsn(j)) *  &
+             r_sc(j) = r_sc(j) + term5(j) * LOG(rough%disp(j)/zscl(j)) *        &
                   ( EXP(2*CCSW*canopy%rghlai(j)) - term1(j) ) / term3(j)
 
           ELSEIF( rough%disp(j) <= zscl(j) .AND.                                &

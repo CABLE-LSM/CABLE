@@ -63,7 +63,8 @@ PROGRAM cable_offline_driver
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
        verbose, fixedCO2,output,check,patchout,    &
        patch_type,landpt,soilparmnew,&
-       defaultLAI, sdoy, smoy, syear, timeunits, exists, calendar
+       defaultLAI, sdoy, smoy, syear, timeunits, exists, calendar, set_group_output_values, &
+       NO_CHECK
   USE casa_ncdf_module, ONLY: is_casa_time
   USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
        cable_runtime, filename, myhome,            &
@@ -91,6 +92,7 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
        ncid_wd,ncid_mask
   USE cable_output_module,  ONLY: create_restart,open_output_file,            &
        write_output,close_output_file
+   USE cable_checks_module, ONLY: constant_check_range
   USE cable_write_module,   ONLY: nullify_write
   USE cable_IO_vars_module, ONLY: timeunits,calendar
    USE cable_cbm_module, ONLY : cbm
@@ -161,9 +163,8 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
        NRRRR,      &  !
        ctime,      &  ! day count for casacnp
        LOY, &         ! days in year
-       count_sum_casa, & ! number of time steps over which casa pools &
+       count_sum_casa ! number of time steps over which casa pools &
                                 !and fluxes are aggregated (for output)
-       wlogn = 10001
 
   REAL :: dels                        ! time step size in seconds
 
@@ -337,6 +338,10 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
   ENDIF
 
   ! INITIALISATION depending on nml settings
+  ! Initialise flags to output individual variables according to group
+  ! options from the namelist file
+  CALL set_group_output_values()
+
   IF (TRIM(cable_user%MetType) .EQ. 'gswp' .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
      IF ( CABLE_USER%YearStart.EQ.0 .AND. ncciy.GT.0) THEN
         CABLE_USER%YearStart = ncciy
@@ -455,6 +460,7 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
 !$  YearStart = CABLE_USER%YearStart
 !$  YearEnd = CABLE_USER%YearEnd
 !$  cable_user%CASA_SPIN_ENDYEAR
+
 
   SPINLOOP:DO WHILE ( SPINon )
 
@@ -615,6 +621,11 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
                    casamet, casabal, phen, POP, spinup,        &
                    CEMSOIL, CTFRZ, LUC_EXPT, POPLUC )
 
+              IF (check%ranges /= NO_CHECK) THEN
+                  WRITE (*, *) "Checking parameter ranges"
+                  CALL constant_check_range(soil, veg, 0, met)
+              END IF
+
               IF ( CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
                    CABLE_USER%POPLUC= .FALSE.
               ! Open output file:
@@ -633,7 +644,7 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
                  ENDIF
                  IF (RRRR.EQ.1) THEN
                     CALL nullify_write() ! nullify pointers
-                    CALL open_output_file( dels, soil, veg, bgc, rough )
+                    CALL open_output_file( dels, soil, veg, bgc, rough, met)
                  ENDIF
               ENDIF
 
@@ -1220,7 +1231,7 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
       call WRITE_LANDUSE_CASA_RESTART_NC(cend(mland), lucmp, CASAONLY )
 
       print *, 'writing cable restart: land use'
-      call create_landuse_cable_restart(logn, dels, ktau, soil, cend(mland),lucmp,cstart,cend,nap)
+      call create_landuse_cable_restart(logn, dels, ktau, soil, cend(mland),lucmp,cstart,cend,nap, met)
 
       print *, 'deallocating'
       call landuse_deallocate_mp(cend(mland),ms,msn,nrb,mplant,mlitter,msoil,mwood,lucmp)

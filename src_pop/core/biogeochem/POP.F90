@@ -627,7 +627,6 @@ CONTAINS
     INTEGER(i4b) :: idisturb,np,g
     INTEGER(i4b), allocatable :: it(:)
 
-    !INTEGER, INTENT(IN) :: wlogn
     pop%it_pop = pop%it_pop + 1
     !it = pop%it_pop(1)
     np = SIZE(POP%POP_grid)
@@ -642,7 +641,6 @@ CONTAINS
 
     ! CALL GetPatchFrequencies(POP)
 
-    !call flush(wlogn)
     IF (PRESENT(precip)) THEN
        IF(PRESENT(StemNPP_av)) THEN
           CALL PatchAnnualDynamics(POP, StemNPP, NPPtoGPP, it, precip=precip, StemNPP_av=StemNPP_av)

@@ -57,6 +57,7 @@ MODULE cable_input_module
   USE casa_ncdf_module, ONLY: HANDLE_ERR
   USE casa_inout_module, ONLY: casa_readphen, casa_init
   USE casa_readbiome_module, ONLY: casa_readbiome
+  USE cable_checks_module, ONLY: check_range
 
   IMPLICIT NONE
 
@@ -2480,28 +2481,15 @@ CONTAINS
     ! initialise within canopy air temp
     met%tvair = met%tk
     met%tvrad = met%tk
-    IF(check%ranges) THEN
+    IF(check%ranges /= NO_CHECK) THEN
        ! Check ranges are okay:
-       !jhan:quick fix, use dimension 1 here arbitrarily
-       IF(ANY(met%fsd(:,1)<ranges%SWdown(1)).OR.ANY(met%fsd(:,1)>ranges%SWdown(2))) &
-            CALL abort('SWdown out of specified ranges!')
-       IF(ANY(met%fsd(:,2)<ranges%SWdown(1)).OR.ANY(met%fsd(:,2)>ranges%SWdown(2))) &
-            CALL abort('SWdown out of specified ranges!')
-       IF(ANY(met%fld<ranges%LWdown(1)).OR.ANY(met%fld>ranges%LWdown(2))) &
-            CALL abort('LWdown out of specified ranges!')
-       IF(ANY(met%qv<ranges%Qair(1)).OR.ANY(met%qv>ranges%Qair(2))) &
-            CALL abort('Qair out of specified ranges!')
-       IF(ANY(met%precip<ranges%Rainf(1)).OR.ANY(met%precip>ranges%Rainf(2))) THEN
-          CALL abort('Rainf out of specified ranges!')
-       ENDIF
-       IF(ANY(met%ua<ranges%Wind(1)).OR.ANY(met%ua>ranges%Wind(2))) &
-            CALL abort('Wind out of specified ranges!')
-       IF(ANY(met%tk<ranges%Tair(1)).OR.ANY(met%tk>ranges%Tair(2))) &
-            CALL abort('Tair out of specified ranges!')
-       IF(ANY(met%pmb<ranges%PSurf(1)).OR.ANY(met%pmb>ranges%PSurf(2))) THEN
-          WRITE(*,*) "min, max Psurf", MINVAL(met%pmb), MAXVAL(met%pmb),ranges%Psurf(1), ranges%Psurf(2)
-          CALL abort('PSurf out of specified ranges!')
-       ENDIF
+       CALL check_range("SWdown", met%fsd, ranges%SWdown, 0, met)
+       CALL check_range("LWdown", met%fld, ranges%LWdown, 0, met)
+       CALL check_range("Qair", met%qv, ranges%Qair, 0, met)
+       CALL check_range("Rainf", met%precip, ranges%Rainf, 0, met)
+       CALL check_range("Wind", met%ua, ranges%Wind, 0, met)
+       CALL check_range("Tair", met%tk, ranges%Tair, 0, met)
+       CALL check_range("PSurf", met%pmb, ranges%PSurf, 0, met)
     END IF
 
   END SUBROUTINE get_met_data
