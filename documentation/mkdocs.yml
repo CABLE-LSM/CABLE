@@ -86,6 +86,10 @@ nav:
       - Restart: user_guide/inputs/restart.md
     - Output files:
       - user_guide/outputs/index.md
+    - CABLE constants:
+      - user_guide/constants/index.md
+      - Physical constants: user_guide/constants/physical_constants.md 
+      - Mathematical constants: user_guide/constants/mathematical_constants.md
     - Other resources:
       - Existing configurations: user_guide/other_resources/configurations/config.md
       - Obsolete and deprecated features: user_guide/other_resources/obsolete_and_deprecated_features/obsolete_and_deprecated_features.md
