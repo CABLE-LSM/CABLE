@@ -234,6 +234,9 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
     canopy%zetash(:,1) = CZETA0 ! stability correction terms
     canopy%zetash(:,2) = CZETPOS + 1
 
+    sum_rad_rniso = SUM(rad%rniso,2)
+    sum_rad_gradis = SUM(rad%gradis,2)
+
 
     DO iter = 1, NITER
 
@@ -385,17 +388,15 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
        ENDDO
 
 
-       rny = SUM(rad%rniso,2) ! init current estimate net rad
+       rny = sum_rad_rniso ! init current estimate net rad
        hcy = 0.0              ! init current estimate lat heat
        ecy = rny - hcy        ! init current estimate lat heat
-
-       sum_rad_rniso = SUM(rad%rniso,2)
 
        CALL dryLeaf( dels, rad, rough, air, met,                             &
                   veg, canopy, soil, ssnow, dsx,                             &
                   fwsoil, tlfx, tlfy, ecy, hcy,                              &
                   rny, gbhu, gbhf, csx, cansat,                              &
-            ghwet,  iter,climate )
+            ghwet,  iter,climate, sum_rad_gradis, sum_rad_rniso )
 
 
       CALL wetLeaf( dels,                                 &
@@ -418,8 +419,6 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
        canopy%fnv = REAL(ftemp)
 
        ! canopy rad. temperature calc from long-wave rad. balance
-       sum_rad_gradis = SUM(rad%gradis,2)
-
        DO j=1,mp
 
           IF ( canopy%vlaiw(j) > CLAI_THRESH .AND.                             &
@@ -649,7 +648,7 @@ write(6,*) "SLI is not an option right now"
 
 
 
-       canopy%rniso = SUM(rad%rniso,2) + rad%qssabs + rad%transd*met%fld + &
+       canopy%rniso = sum_rad_rniso + rad%qssabs + rad%transd*met%fld + &
             (1.0-rad%transd)*CEMLEAF* &
             CSBOLTZ*met%tvrad**4 - CEMSOIL*CSBOLTZ*met%tvrad**4
 
@@ -1008,11 +1007,11 @@ ssnow%ddq_dtg = (Crmh2o/Crmair) /met%pmb * CTETENA*CTETENB * CTETENC   &
 ssnow%dfe_dtg = ssnow%dfe_ddq * ssnow%ddq_dtg
 canopy%dgdtg = ssnow%dfn_dtg - ssnow%dfh_dtg - ssnow%dfe_dtg
 
-bal%drybal = REAL(ecy+hcy) - SUM(rad%rniso,2)                               &
-     + CCAPP*Crmair*(tlfy-met%tk)*SUM(rad%gradis,2)  ! YP nov2009
+bal%drybal = REAL(ecy+hcy) - sum_rad_rniso                               &
+     + CCAPP*Crmair*(tlfy-met%tk)*sum_rad_gradis  ! YP nov2009
 
-bal%wetbal = canopy%fevw + canopy%fhvw - SUM(rad%rniso,2) * canopy%fwet      &
-     + CCAPP*Crmair * (tlfy-met%tk) * SUM(rad%gradis,2) *          &
+bal%wetbal = canopy%fevw + canopy%fhvw - sum_rad_rniso * canopy%fwet      &
+     + CCAPP*Crmair * (tlfy-met%tk) * sum_rad_gradis *          &
      canopy%fwet  ! YP nov2009
 
 DEALLOCATE(cansat,gbhu)
