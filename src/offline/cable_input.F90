@@ -2818,15 +2818,18 @@ CONTAINS
     END IF
     WRITE(logn,*)
 
-    !| 9. Construct derived parameters and zero initialisations for the
+    !> 9. Ensure the consistency of ice points between soil and vegetation 
+    CALL consistency_ice_veg_soil(soil, veg)
+    
+    !| 10. Construct derived parameters and zero initialisations for the
     ! groundwater routine, regardless of where parameters and other
     ! initialisations have loaded from
     CALL derived_parameters(soil,sum_flux,bal,ssnow,veg,rough)
 
-    !> 10. Check for basic inconsistencies in parameter values
+    !> 11. Check for basic inconsistencies in parameter values
     CALL check_parameter_values(soil,veg,ssnow)
 
-    !> 11. Write per-site parameter values to log file if requested
+    !> 12. Write per-site parameter values to log file if requested
     CALL report_parameters(logn,soil,veg,bgc,rough,ssnow,canopy, &
          casamet,casapool,casaflux,phen,vegparmnew,verbose)
 
