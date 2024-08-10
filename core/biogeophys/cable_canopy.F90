@@ -1670,6 +1670,8 @@ CONTAINS
                call fwsoil_calc_Lai_Katul(fwsoil, soil, ssnow, veg)
             elseif (cable_user%FWSOIL_SWITCH == 'profitmax') then
                fwsoil = 1.0
+            elseif (cable_user%FWSOIL_SWITCH == 'constant1') then
+               fwsoil = 0.98
             else
                write(*,*) 'fwsoil_switch failed.'
 #ifdef __MPI__
@@ -2292,7 +2294,7 @@ CONTAINS
                   met%dva(i) * ghr(i,2) ) / &
                   ( air%dsatdk(i) + psycst(i,2) ), r_2)
 
-               IF (cable_user%fwsoil_switch=='Haverd2013') then
+               IF (cable_user%SOIL_SCHE == 'Haverd2013') then
                   ! avoid root-water extraction when fwsoil is zero
                   if (fwsoil(i) < 1e-6) then
                      anx(i,:) = -rdx(i,:)
@@ -2308,17 +2310,23 @@ CONTAINS
                      max(canopy%fevc(i)/real(air%rlam(i),r_2)/1000.0_r_2, 0.0_r_2), &
                      veg%gamma(i), &
                      real(soil%zse, r_2), real(dels,r_2), veg%zr(i))
-
-                  fwsoil(i) = real(canopy%fwsoil(i))
-
-                  where (ssnow%rex(i,:) > tiny(1.0_r_2)) &
-                     ssnow%evapfbl(i,:) = real(ssnow%rex(i,:))*dels*1000. ! mm water &
-                  !(root water extraction) per time step
-
-                  if (cable_user%Cumberland_soil) then
-                     canopy%fwsoil(i) = max(canopy%fwsoil(i), 0.6_r_2)
+                  IF (cable_user%FWSOIL_SWITCH == 'Haverd2013') then
                      fwsoil(i) = real(canopy%fwsoil(i))
-                  endif
+
+                     where (ssnow%rex(i,:) > tiny(1.0_r_2)) &
+                        ssnow%evapfbl(i,:) = real(ssnow%rex(i,:))*dels*1000. ! mm water &
+                     !(root water extraction) per time step
+   
+                     if (cable_user%Cumberland_soil) then
+                        canopy%fwsoil(i) = max(canopy%fwsoil(i), 0.6_r_2)
+                        fwsoil(i) = real(canopy%fwsoil(i))
+                     endif
+                  ELSEIF (cable_user%FWSOIL_SWITCH == 'constant1') then
+                     canopy%fwsoil(i) = 0.98_r_2
+                     fwsoil(i) =  real(canopy%fwsoil(i))
+                     
+                  ENDIF
+
 
                ELSE IF (cable_user%FWSOIL_SWITCH == 'profitmax' .AND. cable_user%SOIL_SCHE == 'hydraulics') THEN
 
@@ -3487,7 +3495,6 @@ CONTAINS
       endif
 
    END SUBROUTINE getrex_1d
-
 
    ! ------------------------------------------------------------------------------
    ! not used
