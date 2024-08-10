@@ -1660,7 +1660,7 @@ CONTAINS
 
       ! Soil water limitation on stomatal conductance:
       if (iter==1) then
-         if ((cable_user%soil_struc=='default') .and. (cable_user%fwsoil_switch /= 'Haverd2013')) then
+         if ((cable_user%soil_struc=='default') .and. (cable_user%SOIL_SCHE /= 'Haverd2013')) then
             if (cable_user%fwsoil_switch == 'standard') then
                call fwsoil_calc_std(fwsoil, soil, ssnow, veg)
             elseif (cable_user%fwsoil_switch == 'non-linear extrapolation') then
