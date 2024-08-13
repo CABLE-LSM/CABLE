@@ -4373,9 +4373,9 @@ CONTAINS
     !             'Wood area index', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
     ! CALL define_ovar(ncid_restart, rpid%vegcf, 'vegcf', '-', &
     !                  'vegcf', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-    ! CALL define_ovar(ncid_restart, rpid%extkn, 'extkn', '-', &
-    !                  'Extinction coef for vertical nitrogen profile', &
-    !                  .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%extkn, 'extkn', '-', &
+                     'Extinction coef for vertical nitrogen profile', &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
     ! CALL define_ovar(ncid_restart, rpid%tminvj, 'tminvj', 'C', &
     !                  'Min temperature for the start of photosynthesis', &
     !                  .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
@@ -4616,8 +4616,8 @@ CONTAINS
     !                  ranges%wai, .TRUE., 'real', .TRUE.)
     ! CALL write_ovar (ncid_restart, rpid%vegcf, 'vegcf', toreal4(veg%vegcf), &
     !                  ranges%vegcf, .TRUE., 'real', .TRUE.)
-    ! CALL write_ovar (ncid_restart, rpid%extkn, 'extkn', toreal4(veg%extkn), &
-    !                  ranges%extkn, .TRUE., 'real', .TRUE.)
+    CALL write_ovar (ncid_restart, rpid%extkn, 'extkn', toreal4(veg%extkn), &
+                     ranges%extkn, .TRUE., 'real', .TRUE.)
     ! CALL write_ovar (ncid_restart, rpid%tminvj, 'tminvj', toreal4(veg%tminvj), &
     !                  ranges%tminvj, .TRUE., 'real', .TRUE.)
     ! CALL write_ovar (ncid_restart, rpid%tmaxvj, 'tmaxvj', toreal4(veg%tmaxvj), &
