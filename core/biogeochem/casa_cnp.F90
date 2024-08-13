@@ -1416,9 +1416,13 @@ CONTAINS
                   casaflux%FluxFromPtoCO2(npt,nP)
           enddo
 
-          ! Crop Harvest Flux
+          ! Crop and Pasture Harvest Flux
           casaflux%Charvest(npt) = casaflux%Charvest(npt) + &
                casaflux%fharvest(npt) * casaflux%kplant(npt,leaf) * casapool%cplant(npt,leaf)
+          casaflux%CharvestPast(npt) = casaflux%CharvestPast(npt) + &
+               casaflux%fharvestPast(npt) * casaflux%kplant(npt,leaf) * casapool%cplant(npt,leaf)
+          casaflux%CharvestCrop(npt) = casaflux%CharvestCrop(npt) + &
+               casaflux%fharvestCrop(npt) * casaflux%kplant(npt,leaf) * casapool%cplant(npt,leaf)
 
           ! ! MC - assure that sum(FluxFrom) = k*C  numerically
           ! dF = casaflux%kplant_tot(npt,leaf) * casapool%Cplant(npt,leaf) - &
@@ -1499,7 +1503,7 @@ CONTAINS
              nroot2met(npt) = -casapool%dNplantdt(npt,froot) - nroot2str(npt)
              nwood2cwd(npt) = -casapool%dNplantdt(npt,wood)
 
-             ! Nitrogen lost to harvest
+             ! Nitrogen lost to harvest (could be split up into pastures and crops)
              casaflux%Nharvest(npt) = casaflux%Nharvest(npt) + &
                   casaflux%kplant(npt,leaf) * casapool%nplant(npt,leaf) * casaflux%fharvest(npt)
 
