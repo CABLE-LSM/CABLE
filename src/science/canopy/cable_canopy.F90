@@ -186,6 +186,15 @@ logical :: sunlit_veg_mask(mp)
     canopy%tv = met%tvair
     canopy%fwsoil = 1.0
 
+    ! Initialise canopy%DvLitt and canopy%kthLitt. This value is only used if
+    ! cable_user%litter is .TRUE.
+    ! Reference:
+    ! Mathews (2006), A process-based model of offine fuel moisture,
+    !                 International Journal of Wildland Fire 15,155-168
+    ! assuming here u=1.0 ms-1, bulk litter density 63.5 kgm-3
+    canopy%kthLitt = 0.3_r_2 ! ~ 0.2992125984251969 = 0.2+0.14*0.045*1000.0/63.5
+    canopy%DvLitt = 3.1415841138194147e-05_r_2 ! = 2.17e-5*exp(1.0*2.6)*exp(-0.5*(2.08+(1.0*2.38)))
+
     CALL define_air (met, air)
 
     CALL qsatfjh(mp, qstvair, CRMH2o, Crmair, CTETENA, CTETENB, CTETENC, met%tvair-CTfrz,met%pmb)
@@ -314,14 +323,6 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
 
        ELSE ! NOT sli
           rt0 = MAX(rt_min,rough%rt0us / canopy%us)
-
-          IF (cable_user%litter) THEN
-             ! Mathews (2006), A process-based model of offine fuel moisture,
-             !                 International Journal of Wildland Fire 15,155-168
-             ! assuming here u=1.0 ms-1, bulk litter density 63.5 kgm-3
-             canopy%kthLitt = 0.3_r_2 ! ~ 0.2992125984251969 = 0.2+0.14*0.045*1000.0/63.5
-             canopy%DvLitt = 3.1415841138194147e-05_r_2 ! = 2.17e-5*exp(1.0*2.6)*exp(-0.5*(2.08+(1.0*2.38)))
-          ENDIF
 
        ENDIF
 
