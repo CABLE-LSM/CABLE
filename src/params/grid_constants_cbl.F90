@@ -47,8 +47,8 @@ INTEGER, PARAMETER :: nsCs      = 2  ! # soil carbon stores
 INTEGER, PARAMETER :: nvCs      = 3  ! # vegetation carbon stores
 INTEGER, PARAMETER :: ICE_SoilType = 9 ! SoilType Index (soilparm_cable.nml JAC)
 #ifndef UM_CBL
-INTEGER, PARAMETER :: lakes_cable  = 16! SoilType Index (soilparm_cable.nml JAC)
-                      ! CM3 gets this from cable_surface_types namelist
+INTEGER, PARAMETER :: lakes_cable  = 16 ! cable_surface_type (nml) Index 
+INTEGER, PARAMETER :: ice_cable    = 17 ! cable_surface_type (nml) Index
 #endif
 INTEGER, PARAMETER :: mf          = 2  ! # leaves (sunlit, shaded)
 INTEGER, PARAMETER :: niter       = 4  ! number of iterations for za/L
