@@ -1,3 +1,4 @@
+!#define UM_CBL YES
 !******************************************************************************
 ! This source code is part of the Community Atmosphere Biosphere Land Exchange
 ! (CABLE) model. This work is licensed under the CSIRO Open Source Software
