@@ -10,8 +10,13 @@ SUBROUTINE surfbv (dels, met, ssnow, soil, veg, canopy )
 
 USE smoisturev_mod,               ONLY: smoisturev
     USE cable_common_module
-    USE grid_constants_mod_cbl, ONLY : lakes_cable
-    
+! data
+#ifde UM_CBL
+USE cable_surface_types_mod, ONLY: lakes_cable
+#else
+USE grid_constants_mod_cbl,  ONLY: lakes_cable
+#endif
+
 IMPLICIT NONE
 
     REAL, INTENT(IN) :: dels ! integration time step (s)
@@ -29,7 +34,6 @@ IMPLICIT NONE
 
     REAL, DIMENSION(mp) ::                                                      &
          rnof5,      & !
-         sfact,      & !
          sgamm,      & !
          smasstot,   & !
          talb,       & ! snow albedo

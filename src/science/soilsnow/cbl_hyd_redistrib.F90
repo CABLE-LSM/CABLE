@@ -1,3 +1,4 @@
+!#define UM_CBL YES
 MODULE hydraulic_redistribution_mod
 
 USE cbl_ssnow_data_mod
@@ -13,6 +14,10 @@ CONTAINS
 SUBROUTINE hydraulic_redistribution(dels, soil, ssnow, canopy, veg, met)
 
     USE cable_common_module, ONLY : wiltParam, satuParam
+!data
+#ifde UM_CBL
+USE cable_surface_types_mod, ONLY: evergreen_broadleaf, c4_grassland
+#endif
 
 IMPLICIT NONE
     REAL, INTENT(IN) :: dels ! integration time step (s)
@@ -56,6 +61,11 @@ IMPLICIT NONE
 
     INTEGER :: j, k
 
+#ifnde UM_CBL
+INTEGER, PARAMETER :: evergreen_broadleaf = 2
+INTEGER, PARAMETER :: c4_grassland = 7
+#endif
+
     zsetot = SUM(soil%zse)
     totalmoist(:) = 0.0
     totalice(:) = 0.0
@@ -97,10 +107,9 @@ IMPLICIT NONE
           hr_perTime(:,k,j) = hr_perTime(:,k,j)/soil%zse(k)
           hr_perTime(:,j,k) = hr_perTime(:,j,k)/soil%zse(j)
 
-          ! Overwrite to give zero redistribution for all types except
-          ! evergreen broadleaf (2) and c4 grass (7)
-          ! NB: Hard-wired numbers should be removed in future version
-          WHERE( .NOT.(veg%iveg == 2 .OR. veg%iveg == 7 ) )
+          ! Zero redistribution: all types except evergreen broadleaf, c4 grass
+          WHERE( .NOT. ( veg%iveg == evergreen_broadleaf .OR.                  &
+                         veg%iveg == c4_grassland ) )
              hr_perTime(:,k,j) = 0.0
              hr_perTime(:,j,k) = 0.0
           ENDWHERE
@@ -175,10 +184,9 @@ IMPLICIT NONE
           hr_perTime(:,k,j) = hr_perTime(:,k,j)/soil%zse(k)
           hr_perTime(:,j,k) = hr_perTime(:,j,k)/soil%zse(j)
 
-          ! Overwrite to give zero redistribution for all types except
-          ! evergreen broadleaf (2) and c4 grass (7)
-          ! NB: Hard-wired numbers should be removed in future version
-          WHERE( .NOT.( veg%iveg == 2 .OR. veg%iveg == 7 ) )
+          ! Zero redistribution: all types except evergreen broadleaf, c4 grass
+          WHERE( .NOT. ( veg%iveg == evergreen_broadleaf .OR.                  &
+                         veg%iveg == c4_grassland ) )
              hr_perTime(:,k,j) = 0.0
              hr_perTime(:,j,k) = 0.0
           ENDWHERE

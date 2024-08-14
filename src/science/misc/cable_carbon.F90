@@ -68,6 +68,11 @@ CONTAINS
          coef_drght, & ! coeff. for drought stress (eq. 8)
          wbav          ! water stress index
 
+    REAL :: CampbellExp(mp)        
+    REAL :: EffStressIndexWater(mp)        
+    REAL :: EffStressIndexWilting(mp)        
+    REAL :: RelativeStress(mp)         
+    
     REAL, DIMENSION(:), ALLOCATABLE ::                                         &
          rw,      & !
          tfcl,    & !
@@ -76,7 +81,6 @@ CONTAINS
          trnr,    & !
          trnsf,   & !
          trnw
-
 
     ALLOCATE( rw(mvtype), tfcl(mvtype), tvclst(mvtype),                        &
          trnl(mvtype), trnr(mvtype), trnsf(mvtype), trnw(mvtype) )
@@ -149,9 +153,18 @@ CONTAINS
     wbav = SUM( veg%froot * REAL(ssnow%wb), 2)
     wbav = MAX( 0.01, wbav )  ! EAK Jan2011
 
+    
     ! drought stress
-    coef_drght = EXP( 5.*( MIN( 1., MAX( 1., wbav**( 2 - soil%ibp2 ) - 1.) /    &
-         ( soil%swilt**( 2 - soil%ibp2 ) - 1. ) ) - 1. ) )
+    CampbellExp         = 2.0 - soil%ibp2
+    EffStressIndexWater = wbav**( CampbellExp ) - 1.0
+    EffStressIndexWater = MAX( 1.0, EffStressIndexWater )
+
+    EffStressIndexWilting = soil%swilt**( CampbellExp ) - 1.0
+    
+    RelativeStress =  EffStressIndexWater / EffStressIndexWilting
+    RelativeStress = MIN( 1.0, RelativeStress ) 
+    
+    coef_drght = EXP( 5.0 * ( RelativeStress  - 1.0 ) )
 
     coef_cd = ( coef_cold + coef_drght ) * 2.0e-7
 
@@ -212,13 +225,13 @@ CONTAINS
 
     USE cable_common_module
 
-    TYPE (soil_snow_type), INTENT(IN)        :: ssnow
-    TYPE (bgc_pool_type), INTENT(IN)         :: bgc
-    TYPE (met_type), INTENT(IN)              :: met
-    TYPE (canopy_type), INTENT(INOUT)        :: canopy
+    TYPE (soil_snow_type), INTENT(IN)      :: ssnow
+    TYPE (bgc_pool_type),  INTENT(IN)      :: bgc
+    TYPE (met_type),       INTENT(IN)      :: met
+    TYPE (canopy_type),    INTENT(INOUT)   :: canopy
 
-    TYPE (soil_parameter_type), INTENT(IN)   :: soil
-    TYPE (veg_parameter_type), INTENT(IN)    :: veg
+    TYPE (soil_parameter_type), INTENT(IN) :: soil
+    TYPE (veg_parameter_type),  INTENT(IN) :: veg
 
     REAL, DIMENSION(mp) ::                                                      &
          den,        & ! sib3

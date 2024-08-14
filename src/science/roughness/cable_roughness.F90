@@ -1,3 +1,4 @@
+!#define UM_CBL YES
 !==============================================================================
 ! This source code is part of the 
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
@@ -22,17 +23,22 @@
 
 MODULE cable_roughness_module
 
-USE cable_phys_constants_mod, ONLY : CCSD   => CSD 
-USE cable_phys_constants_mod, ONLY : CCRD   => CRD 
-USE cable_phys_constants_mod, ONLY : CCCD   => CCD 
-USE cable_phys_constants_mod, ONLY : CCCW_C => CCW_C 
-USE cable_phys_constants_mod, ONLY : CUSUHM  => USUHM 
-USE cable_phys_constants_mod, ONLY : CVONK   => VONK
-USE cable_phys_constants_mod, ONLY : CA33    => A33 
-USE cable_phys_constants_mod, ONLY : CCTL    =>  CTL  
-USE cable_phys_constants_mod, ONLY : CZDLIN  => ZDLIN
-USE cable_phys_constants_mod, ONLY : CCSW    => CSW
-USE cable_phys_constants_mod, ONLY : CGRAV   => GRAV
+#ifde UM_CBL
+USE cable_surface_types_mod, ONLY: ICE_SurfaceType => ICE_cable
+#else
+USE grid_constants_mod_cbl,  ONLY: ICE_SurfaceType => ICE_cable
+#endif
+USE cable_phys_constants_mod,  ONLY: CCSD   => CSD 
+USE cable_phys_constants_mod,  ONLY: CCRD   => CRD 
+USE cable_phys_constants_mod,  ONLY: CCCD   => CCD 
+USE cable_phys_constants_mod,  ONLY: CCCW_C => CCW_C 
+USE cable_phys_constants_mod,  ONLY: CUSUHM  => USUHM 
+USE cable_phys_constants_mod,  ONLY: CVONK   => VONK
+USE cable_phys_constants_mod,  ONLY: CA33    => A33 
+USE cable_phys_constants_mod,  ONLY: CCTL    =>  CTL  
+USE cable_phys_constants_mod,  ONLY: CZDLIN  => ZDLIN
+USE cable_phys_constants_mod,  ONLY: CCSW    => CSW
+USE cable_phys_constants_mod,  ONLY: CGRAV   => GRAV
 USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH 
    
 !*# Overview
@@ -133,7 +139,7 @@ SUBROUTINE ruff_resist(veg, rough, ssnow, canopy, LAI_pft, HGT_pft, reducedLAIdu
 
 
 
-USE cable_common_module, ONLY : cable_user
+USE cable_common_module, ONLY : cable_user, cable_runtime
 USE cable_def_types_mod, ONLY : veg_parameter_type, roughness_type,         &
                                 soil_snow_type, canopy_type, mp  
 !subrs
@@ -171,12 +177,14 @@ call HgtAboveSnow( HeightAboveSnow, mp, z0soilsn_min, veg%hc, ssnow%snowd, &
 !* * evaluates the canopy height and leaf area given the presence of snow 
 !    (or not) using [[HgtAboveSnow]] and [[LAI_eff]]
 rough%hruff =  HeightAboveSnow
-
+!why are we using veg% for LAI and height-although this is synced now
+IF(cable_runtime%um_radiation .OR. cable_runtime%offline ) THEN
 ! LAI decreases due to snow: formerly canopy%vlaiw
 call LAI_eff( mp, veg%vlai, veg%hc, HeightAboveSnow, &
               reducedLAIdue2snow )
    
 canopy%vlaiw  = reducedLAIdue2snow
+ENDIF
 canopy%rghlai = canopy%vlaiw
 
 !* * sets the value of soil and snow roughness lengths
@@ -195,7 +203,7 @@ IF (cable_user%soil_struc=='default') THEN
   WHERE( ssnow%snowd .GT. 0.01   )  &
     rough%z0soilsn =  MAX(z0soilsn_min, &
     rough%z0soil - rough%z0soil*MIN(ssnow%snowd,10.)/10.)
-  WHERE( ssnow%snowd .GT. 0.01 .AND. veg%iveg == 17  )  &
+  WHERE( ssnow%snowd .GT. 0.01 .AND. veg%iveg == ICE_SurfaceType )  &
     rough%z0soilsn =  MAX(rough%z0soilsn, z0soilsn_min_PF )
 
 ELSEIF (cable_user%soil_struc=='sli') THEN
