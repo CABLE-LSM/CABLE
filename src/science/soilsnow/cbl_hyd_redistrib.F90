@@ -15,7 +15,7 @@ SUBROUTINE hydraulic_redistribution(dels, soil, ssnow, canopy, veg, met)
 
     USE cable_common_module, ONLY : wiltParam, satuParam
 !data
-#ifde UM_CBL
+#ifdef UM_CBL
 USE cable_surface_types_mod, ONLY: evergreen_broadleaf, c4_grassland
 #endif
 
@@ -61,7 +61,7 @@ IMPLICIT NONE
 
     INTEGER :: j, k
 
-#ifnde UM_CBL
+#ifndef UM_CBL
 INTEGER, PARAMETER :: evergreen_broadleaf = 2
 INTEGER, PARAMETER :: c4_grassland = 7
 #endif

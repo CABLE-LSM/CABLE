@@ -23,7 +23,7 @@
 
 MODULE cable_roughness_module
 
-#ifde UM_CBL
+#ifdef UM_CBL
 USE cable_surface_types_mod, ONLY: ICE_SurfaceType => ICE_cable
 #else
 USE grid_constants_mod_cbl,  ONLY: ICE_SurfaceType => ICE_cable
