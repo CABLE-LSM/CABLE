@@ -9,7 +9,6 @@ PUBLIC :: progs_cnp_vars_type
 PUBLIC :: nCpool_casa
 PUBLIC :: nNpool_casa
 PUBLIC :: nPPool_casa
-PRIVATE
 
 INTEGER, PARAMETER :: nCpool_casa = 10 
 INTEGER, PARAMETER :: nNpool_casa = 10 
