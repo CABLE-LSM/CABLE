@@ -969,25 +969,19 @@ CONTAINS
     endif
 
     ! Adjust transition areas based on primary wooded fraction
-    ! Note that the following transitions are not corrected for woodfrac, as they
-    ! are only used to adjust LU-subtypes within the 'grass' land use type!
-    ! For the same reason, the new transitions considered (ctor, qtor, rtoc, rtoq, qtoc, ctoq) 
-    ! are not corrected for woodfrac.
+    ! Note that only the four transitions ptos, ptog, gtos, and stog are 
+    ! corrected for woodfrac! All other transitions 
+    ! (ptoc, ptoq, stoc, stoq, ctos, qtos, ctor, qtor, rtoc, rtoq, qtoc, ctoq) 
+    ! are not corrected for woodfrac as they only occur within the 'grass' land use type.
+    ! That means, they only change crop and pasture fraction within the grass tile but do not 
+    ! represent a LUC event in CABLE. The associated LUC transitions are accounted for by 
+    ! the four main classes (e.g. ptoc is included in ptog).
     LUC_EXPT%INPUT(ptos)%VAL   =  LUC_EXPT%INPUT(ptos)%VAL   * LUC_EXPT%woodfrac
     LUC_EXPT%INPUT(ptog)%VAL   =  LUC_EXPT%INPUT(ptog)%VAL   * LUC_EXPT%woodfrac
     LUC_EXPT%INPUT(gtos)%VAL   =  LUC_EXPT%INPUT(gtos)%VAL   * LUC_EXPT%woodfrac
     LUC_EXPT%INPUT(stog)%VAL   =  LUC_EXPT%INPUT(stog)%VAL   * LUC_EXPT%woodfrac
     LUC_EXPT%INPUT(smharv)%VAL =  LUC_EXPT%INPUT(smharv)%VAL * LUC_EXPT%woodfrac
     LUC_EXPT%INPUT(syharv)%VAL =  LUC_EXPT%INPUT(syharv)%VAL * LUC_EXPT%woodfrac
-
-    ! The following four lines are the main LU transitions considered in the code
-    ! All other transitions exclusively happen within the 'grass' type!
-    LUC_EXPT%INPUT(ptoc)%VAL = LUC_EXPT%INPUT(ptoc)%VAL
-    LUC_EXPT%INPUT(ptoq)%VAL = LUC_EXPT%INPUT(ptoq)%VAL
-    LUC_EXPT%INPUT(stoc)%VAL = LUC_EXPT%INPUT(stoc)%VAL
-    LUC_EXPT%INPUT(stoq)%VAL = LUC_EXPT%INPUT(stoq)%VAL
-    LUC_EXPT%INPUT(ctos)%VAL = LUC_EXPT%INPUT(ctos)%VAL
-    LUC_EXPT%INPUT(qtos)%VAL = LUC_EXPT%INPUT(qtos)%VAL
 
   END SUBROUTINE READ_LUH2
 
