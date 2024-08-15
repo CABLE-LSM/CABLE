@@ -764,8 +764,13 @@ CONTAINS
        casaflux%fromPtoL(:,str,froot)   = 1.0 - casaflux%fromPtoL(:,metb,froot)
        casaflux%fromPtoL(:,cwd,wood)    = 1.0
 
-       ! calc. of casaflux%kplant drops scaling - see #242
-       casaflux%kplant(:,leaf)        = casabiome%plantrate(veg%iveg(:),leaf)
+       ! calc. of casaflux%kplant had dropped scaling for cold and drought stress
+       ! as noted in trac ticket #243
+       ! R. Law 23/7/2024 reinstate terms to account for cold and drought stress (#275)
+       ! which are calculated in casa_xrateplant
+       ! Needs 'btran' bug fix (#279) implemented with this.
+       casaflux%kplant(:,leaf)        = casabiome%plantrate(veg%iveg(:),leaf)*xkleaf(:) &
+                                   + xkleafcold(:) + xkleafdry(:)
 
        casaflux%kplant(:,wood)        = casabiome%plantrate(veg%iveg(:),wood)
        casaflux%kplant(:,froot)       = casabiome%plantrate(veg%iveg(:),froot)
@@ -1498,12 +1503,11 @@ END SUBROUTINE casa_delplant
                * casamet%tsoil(nland,ns)
           casamet%moistavg(nland)  = casamet%moistavg(nland)+ veg%froot(nland,ns) &
                * MIN(soil%sfc(nland),casamet%moist(nland,ns))
-          casamet%btran(nland)     = casamet%btran(nland)+ veg%froot(nland,ns)  &
-               * (MIN(soil%sfc(nland),casamet%moist(nland,ns))-soil%swilt(nland)) &
-               /(soil%sfc(nland)-soil%swilt(nland))
-
-          ! Ticket#121
-
+       
+          !R. Law 23/7/2024 Issue #279 
+          !both the alternate (ticket 121) btran calculation and the original btran 
+          !calculation were in the code meaning the summation was done twice. Removed
+          !original version and kept ticket 121 version
           casamet%btran(nland)     = casamet%btran(nland)+ veg%froot(nland,ns)  &
                * (MAX(MIN(soil%sfc(nland),casamet%moist(nland,ns))-soil%swilt(nland),0.0)) &
                /(soil%sfc(nland)-soil%swilt(nland))
