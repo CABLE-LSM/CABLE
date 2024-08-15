@@ -1,3 +1,4 @@
+!#define UM_CBL YES
 MODULE cbl_dryLeaf_module
 
 IMPLICIT NONE
@@ -18,6 +19,17 @@ CONTAINS
 USE cbl_photosynthesis_module,  ONLY : photosynthesis
 USE cbl_fwsoil_module,        ONLY : fwsoil_calc_std, fwsoil_calc_non_linear,           &
                                      fwsoil_calc_Lai_Ktaul, fwsoil_calc_sli
+!data
+#ifdef UM_CBL
+USE cable_surface_types_mod, ONLY: evergreen_broadleaf, deciduous_broadleaf    
+USE cable_surface_types_mod, ONLY: evergreen_needleleaf, deciduous_needleleaf
+USE cable_surface_types_mod, ONLY: c3_grassland, tundra, c3_cropland  
+#else
+USE grid_constants_mod_cbl,  ONLY: evergreen_broadleaf, deciduous_broadleaf    
+USE grid_constants_mod_cbl,  ONLY: evergreen_needleleaf, deciduous_needleleaf
+USE grid_constants_mod_cbl,  ONLY: c3_grassland, tundra, c3_cropland  
+#endif
+   
 ! maths & other constants
 USE cable_other_constants_mod, ONLY : CLAI_THRESH  => LAI_THRESH
 ! physical constants
@@ -34,6 +46,8 @@ USE cable_photo_constants_mod, ONLY : CGAM1  => GAM1
 USE cable_photo_constants_mod, ONLY : CGAM2  => GAM2
 USE cable_photo_constants_mod, ONLY : CRGSWC => RGSWC
 USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
+
+IMPLICIT NONE
 
     TYPE (radiation_type), INTENT(INOUT) :: rad
     TYPE (roughness_type), INTENT(INOUT) :: rough
@@ -143,7 +157,9 @@ USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
     ! END header
 
     ALLOCATE( gswmin(mp,mf ))
-   
+
+    gs_coeff(:,:) = 0.0   ! CABLE_ISSUE39
+
     ! Soil water limitation on stomatal conductance:
     IF( iter ==1) THEN
        IF ((cable_user%soil_struc=='default').AND.(cable_user%FWSOIL_SWITCH.NE.'Haverd2013')) THEN
@@ -320,27 +336,32 @@ USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
                 !1.2877 + (0.0116 × Vcmax,a25) – (0.0334 × TWQ)
                 !Shrubs: Rdark,a25 = 1.5758 + (0.0116 × Vcmax,a25) – (0.0334 × TWQ)
 
-                IF (veg%iveg(i).EQ.2 .OR. veg%iveg(i).EQ. 4  ) THEN ! broadleaf forest
+                ! broadleaf forest
+                IF ( veg%iveg(i) .EQ. evergreen_broadleaf .OR.                 &
+                     veg%iveg(i) .EQ. deciduous_broadleaf ) THEN 
 
-                   rdx(i,1) = 0.60*(1.2818e-6+0.0116*veg%vcmax(i)- &
-                        0.0334*climate%qtemp_max_last_year(i)*1e-6)
-                   rdx(i,2) = rdx(i,1)
+                   rdx(i,:) = 0.60 * ( 1.2818e-6 + 0.0116 * veg%vcmax(i) -     &
+                              0.0334 * climate%qtemp_max_last_year(i) * 1.0e-6 )
 
-                ELSEIF (veg%iveg(i).EQ.1 .OR. veg%iveg(i).EQ. 3  ) THEN ! needleleaf forest
-                   rdx(i,1) = 1.0*(1.2877e-6+0.0116*veg%vcmax(i)- &
-                        0.0334*climate%qtemp_max_last_year(i)*1e-6)
-                   rdx(i,2) = rdx(i,1)
+                ! needleleaf forest
+                ELSEIF ( veg%iveg(i) .EQ. evergreen_needleleaf .OR.            &
+                         veg%iveg(i) .EQ. deciduous_needleleaf ) THEN 
+                   
+                   rdx(i,:) = 1.0 * ( 1.2877e-6 + 0.0116 * veg%vcmax(i) -      &
+                              0.0334 * climate%qtemp_max_last_year(i) * 1.0e-6 )
 
-                ELSEIF (veg%iveg(i).EQ.6 .OR. veg%iveg(i).EQ.8 .OR. &
-                     veg%iveg(i).EQ. 9  ) THEN ! C3 grass, tundra, crop
-                   rdx(i,1) = 0.60*(1.6737e-6+0.0116*veg%vcmax(i)- &
-                        0.0334*climate%qtemp_max_last_year(i)*1e-6)
-                   rdx(i,2) = rdx(i,1)
+                ! C3 grass, tundra , C3 crop
+                ELSEIF ( veg%iveg(i) .EQ. c3_grassland .OR.                    &
+                         veg%iveg(i) .EQ. tundra       .OR.                    &
+                         veg%iveg(i) .EQ. c3_cropland ) THEN 
 
-                ELSE  ! shrubs and other (C4 grass and crop)
-                   rdx(i,1) = 0.60*(1.5758e-6+0.0116*veg%vcmax(i)- &
-                        0.0334*climate%qtemp_max_last_year(i)*1e-6)
-                   rdx(i,2) = rdx(i,1)
+                   rdx(i,:) = 0.60 * ( 1.6737e-6 + 0.0116 * veg%vcmax(i) -     &
+                              0.0334 * climate%qtemp_max_last_year(i) * 1e-6 )
+                
+                ! shrub & other (C4 grass and C4 crop) (wetlands, nveg) TBC
+                ELSE  
+                   rdx(i,:) = 0.60 * ( 1.5758e-6 + 0.0116 * veg%vcmax(i) -     &
+                              0.0334 * climate%qtemp_max_last_year(i) * 1.0e-6 )
                 ENDIF
 
 
@@ -370,15 +391,8 @@ USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
                      rdx(i,2) = rdx(i,2) * &
                      (0.5 - 0.05*LOG(jtomol*1.0e6*rad%qcan(i,1,2)))
 
-!$                xleuning(i,1) = ( fwsoil(i) / ( csx(i,1) - co2cp3 ) )              &
-!$                     * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
-!$                xleuning(i,2) = ( fwsoil(i) / ( csx(i,2) - co2cp3 ) )              &
-!$                     * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
-
              ELSE !cable_user%call_climate
 
-!$!Vanessa:note there is no xleuning to go into photosynthesis etc anymore
-!$             gs_coeff = xleuning
 
                 rdx(i,1) = (veg%cfrd(i)*vcmxt3(i,1) + veg%cfrd(i)*vcmxt4(i,1))
                 rdx(i,2) = (veg%cfrd(i)*vcmxt3(i,2) + veg%cfrd(i)*vcmxt4(i,2))
