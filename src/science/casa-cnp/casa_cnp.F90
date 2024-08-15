@@ -795,7 +795,7 @@ CONTAINS
     ! outputs:
     !     klitter(mp,mlitter):      decomposition rate of litter pool (1/day)
     !     ksoil(mp,msoil):          decomposition rate of soil pool (1/day)
-    !     fromLtoS(mp,mlitter,msoil):  fraction of decomposed litter to soil (fraction)
+    !     fromLtoS(mp,msoil,mlitter):  fraction of decomposed litter to soil (fraction)
     !     fromStoS(mp,msoil,msoil):    fraction of decomposed soil C to another soil pool (fraction)
     !     fromLtoCO2(mp,mlitter):      fraction of decomposed litter emitted as CO2 (fraction)
     !     fromStoCO2(mp,msoil):        fraction of decomposed soil C emitted as Co2 (fraction)
@@ -1483,8 +1483,8 @@ END SUBROUTINE casa_delplant
 
   SUBROUTINE avgsoil(veg,soil,casamet)
     ! Get avg soil moisture, avg soil temperature
-    ! need to estimate the land cell mean soil temperature and moisture weighted by the area fraction
-    ! of each tile within the land cell
+    ! need to estimate the mean soil temperature and moisture averaged over the
+    ! soil column and weighted by root fraction for each tile 
 
     IMPLICIT NONE
     TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
