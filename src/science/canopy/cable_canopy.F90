@@ -189,8 +189,9 @@ logical :: sunlit_veg_mask(mp)
     ! Initialise canopy%DvLitt and canopy%kthLitt. This value is only used if
     ! cable_user%litter is .TRUE.
     ! Reference:
-    ! Mathews (2006), A process-based model of offine fuel moisture,
+    ! Matthews (2006), A process-based model of fine fuel moisture,
     !                 International Journal of Wildland Fire 15,155-168
+    !                 https://doi.org/10.1071/WF05063
     ! assuming here u=1.0 ms-1, bulk litter density 63.5 kgm-3
     canopy%kthLitt = 0.3_r_2 ! ~ 0.2992125984251969 = 0.2+0.14*0.045*1000.0/63.5
     canopy%DvLitt = 3.1415841138194147e-05_r_2 ! = 2.17e-5*exp(1.0*2.6)*exp(-0.5*(2.08+(1.0*2.38)))
