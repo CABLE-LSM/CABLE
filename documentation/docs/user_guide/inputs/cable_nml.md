@@ -134,7 +134,7 @@ applications. The following are annotated examples of cable.nml:
 | cable_user%access13roots         | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Switch to use ACCESS1.3 %froot.                                                                         |
 | cable_user%l_limit_labile        | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Limit labile in spinup.                                                                                 |
 | cable_user%NtilesThruMetFile     | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Specify Ntiles through met file.                                                                        |
-
+| cable_user%l_ice_consistency     | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | If true, ensures consistency between soil and vegetation tiles with permanent ice. All tiles with permanent ice for soil will have ice for vegetation and vice-versa. All the parameters for these tiles are updated to the ice parameters.                       |
 
 ## For offline applications ##
 

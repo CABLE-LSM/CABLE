@@ -2819,7 +2819,9 @@ CONTAINS
     WRITE(logn,*)
 
     !> 9. Ensure the consistency of ice points between soil and vegetation 
-    CALL consistency_ice_veg_soil(soil, veg)
+    IF (cable_user%l_ice_consistency) THEN
+      CALL consistency_ice_veg_soil(soil, veg)
+    END IF
     
     !| 10. Construct derived parameters and zero initialisations for the
     ! groundwater routine, regardless of where parameters and other
