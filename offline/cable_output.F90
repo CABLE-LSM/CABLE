@@ -4604,9 +4604,9 @@ CONTAINS
     ! CALL write_ovar (ncid_restart, rpid%rp20, 'rp20', toreal4(veg%rp20), &
     !                  ranges%rp20, .TRUE., 'real', .TRUE.)
     CALL write_ovar (ncid_restart, rpid%g0, 'g0', toreal4(veg%g0), &
-                     ranges%g0, .TRUE., 'real', .TRUE.) ! Ticket #56
+          (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.) ! Ticket #56
     CALL write_ovar (ncid_restart, rpid%g1, 'g1', toreal4(veg%g1), &
-                     ranges%g1, .TRUE., 'real', .TRUE.) ! Ticket #56
+          (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.) ! Ticket #56
     ! CALL write_ovar (ncid_restart, rpid%rpcoef, 'rpcoef', toreal4(veg%rpcoef), &
     !                  ranges%rpcoef, .TRUE., 'real', .TRUE.)
     ! CALL write_ovar (ncid_restart, rpid%shelrb, 'shelrb', toreal4(veg%shelrb), &
