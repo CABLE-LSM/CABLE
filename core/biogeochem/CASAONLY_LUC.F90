@@ -22,7 +22,8 @@ contains
     USE TypeDef,              ONLY: dp
     USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, read_LUH2, &
          ptos, ptog, stog, gtos, pharv, smharv, syharv, &
-         ptoc, ptoq, stoc, stoq, ctos, qtos
+         ptoc, ptoq, stoc, stoq, ctos, qtos, & 
+         ctor, qtor, rtoc, rtoq, qtoc, ctoq
     USE POPLUC_Types
     USE POPLUC_Module,        ONLY: POPLUCStep, POPLUC_weights_Transfer, & ! WRITE_LUC_OUTPUT_NC, &
          POP_LUC_CASA_transfer, WRITE_LUC_RESTART_NC, &
@@ -225,7 +226,15 @@ contains
                    POPLUC%ctos(k) = real(LUC_EXPT%INPUT(ctos)%VAL(k), dp)
                    POPLUC%qtos(k) = real(LUC_EXPT%INPUT(qtos)%VAL(k), dp)
 
+                   POPLUC%ctor(k) = real(LUC_EXPT%INPUT(ctor)%VAL(k), dp)
+                   POPLUC%qtor(k) = real(LUC_EXPT%INPUT(qtor)%VAL(k), dp)
+                   POPLUC%rtoc(k) = real(LUC_EXPT%INPUT(rtoc)%VAL(k), dp)
+                   POPLUC%rtoq(k) = real(LUC_EXPT%INPUT(rtoq)%VAL(k), dp)
+                   POPLUC%qtoc(k) = real(LUC_EXPT%INPUT(qtoc)%VAL(k), dp)
+                   POPLUC%ctoq(k) = real(LUC_EXPT%INPUT(ctoq)%VAL(k), dp)
+
                    POPLUC%thisyear = yyyy
+                   
                 ENDDO
                 !stop
                 ! set landuse index for secondary forest POP landscapes
