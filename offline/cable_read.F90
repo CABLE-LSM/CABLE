@@ -97,9 +97,10 @@ CONTAINS
     IF (ok /= NF90_NOERR) THEN ! if it doesn't exist
        completeSet = .FALSE.
        ! If this routine is reading from the restart, abort
-       IF (PRESENT(from_restart)) &
-            write(*,*) ' Error reading '//parname//' in file ' &
-            //TRIM(filename)//' (SUBROUTINE readpar_i)'
+      ! temporarily commented by Zihan Lu, for add new paramter in get_restart_file
+      !  IF (PRESENT(from_restart)) &
+      !       write(*,*) ' Error reading '//parname//' in file ' &
+      !       //TRIM(filename)//' (SUBROUTINE readpar_i)'
     ELSE
        exists%parameters = .TRUE. ! Note that pars were found in file
        ! Check for grid type - restart file uses land type grid
@@ -203,9 +204,10 @@ CONTAINS
     IF (ok /= NF90_NOERR) THEN ! if it doesn't exist
        completeSet = .FALSE.
        ! If this routine is reading from the restart, abort
-       IF (PRESENT(from_restart)) &
-            CALL nc_abort(ok,'Error reading '//parname// &
-            ' in file '//TRIM(filename)// '(SUBROUTINE readpar_r)')
+       ! temporarily commented by Zihan Lu, for add new paramter in get_restart_file
+      !  IF (PRESENT(from_restart)) &
+      !       CALL nc_abort(ok,'Error reading '//parname// &
+      !       ' in file '//TRIM(filename)// '(SUBROUTINE readpar_r)')
     ELSE
        exists%parameters = .TRUE. ! Note that pars were found in file
        ! If block to distinguish params with non-spatial dimensions:
@@ -346,8 +348,9 @@ CONTAINS
     IF (ok /= NF90_NOERR) THEN ! if it doesn't exist
        completeSet = .FALSE.
        ! If this routine is reading from the restart, abort
-       IF (PRESENT(from_restart)) CALL nc_abort(ok,'Error reading '//parname//  &
-            ' in file '//TRIM(filename)// '(SUBROUTINE readpar_rd)')
+       ! temporarily commented by Zihan Lu, for add new paramter in get_restart_file
+      !  IF (PRESENT(from_restart)) CALL nc_abort(ok,'Error reading '//parname//  &
+      !       ' in file '//TRIM(filename)// '(SUBROUTINE readpar_rd)')
     ELSE
        exists%parameters = .TRUE. ! Note that pars were found in file
        ! If block to distinguish params with non-spatial dimensions:
@@ -552,8 +555,9 @@ CONTAINS
     IF (ok /= NF90_NOERR) THEN ! if it doesn't exist
        completeSet = .FALSE.
        ! If this routine is reading from the restart, abort
-       IF (PRESENT(from_restart)) CALL nc_abort(ok, 'Error reading '//parname &
-            //' in file '//TRIM(filename)// '(SUBROUTINE readpar_r2)')
+       ! temporarily commented by Zihan Lu, for add new paramter in get_restart_file
+      !  IF (PRESENT(from_restart)) CALL nc_abort(ok, 'Error reading '//parname &
+      !       //' in file '//TRIM(filename)// '(SUBROUTINE readpar_r2)')
     ELSE
        exists%parameters = .TRUE. ! Note that pars were found in file
        ! Decide which 2nd dimension of parameter/init state we're loading:
@@ -721,9 +725,10 @@ CONTAINS
     IF (ok /= NF90_NOERR) THEN ! if it doesn't exist
        completeSet = .FALSE.
        ! If this routine is reading from the restart, abort
-       IF (PRESENT(from_restart)) &
-            write(*,*) ' Error reading '//parname//' in file ' &
-            //TRIM(filename)//' (SUBROUTINE readpar_r2d)'
+       ! temporarily commented by Zihan Lu, for add new paramter in get_restart_file
+      !  IF (PRESENT(from_restart)) &
+      !       write(*,*) ' Error reading '//parname//' in file ' &
+      !       //TRIM(filename)//' (SUBROUTINE readpar_r2d)'
     ELSE
        exists%parameters = .TRUE. ! Note that pars were found in file
        ! Decide which 2nd dimension of parameter /init state we're loading:
