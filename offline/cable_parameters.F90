@@ -1687,6 +1687,7 @@ CONTAINS
       !  ENDIF
 
         ! fertilizer addition is included here
+        ! Note that at the moment, crops and pasture in iveg 6 and 7 are not fertilised!!
         IF (veg%iveg(hh) == cropland .OR. veg%iveg(hh) == croplnd2) then
           ! P fertilizer =13 Mt P globally in 1994
           casaflux%Pdep(hh)    = casaflux%Pdep(hh) &

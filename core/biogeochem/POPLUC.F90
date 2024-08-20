@@ -793,11 +793,12 @@ CONTAINS
 #endif
 
     ! Harvest indices (harvested component / total AG biomass)
-    ! see e.g. Yang et al. 2010, Journal of Experimental Botany (Table 1) for a range of HIs of major crops
-    ! similar HI of pastures (e.g. Carlassare et al. 2002, Agronomy Journal), certainly management-dependent
-    ! and thus varies with region.
+    ! see e.g. Yang et al. 2010, Journal of Experimental Botany (Table 1) for a range of HIs of major crops.
+    ! Biomass removal is similar for pastures (e.g. Carlassare et al. 2002, Agronomy Journal) but 
+    ! management- and region-specific. For pastures large parts of the removed biomass is added again as litter.
+    ! Here, we only account for the C ending up in the end product and being respired by livestock.
     REAL(dp), PARAMETER :: HIcrop = 0.5_dp
-    REAL(dp), PARAMETER :: HIpast = 0.5_dp
+    REAL(dp), PARAMETER :: HIpast = 0.2_dp
 
     ! turnover rates for harvest and clearance products (y-1)
     kHarvProd(1) = 1.0_dp ! / 1.0_dp
