@@ -47,6 +47,8 @@ INTEGER, PARAMETER :: nvCs      = 3  ! # vegetation carbon stores
 INTEGER, PARAMETER :: ICE_SoilType = 9 ! SoilType Index (soilparm_cable.nml JAC)
 INTEGER, PARAMETER :: lakes_cable  = 16! SoilType Index (soilparm_cable.nml JAC)
 
+INTEGER, PARAMETER :: ICE_VegType = 17  ! permanent ice index for veg
+
 INTEGER, PARAMETER :: mf = 2          ! # leaves (sunlit, shaded)
 INTEGER, PARAMETER :: niter = 4       ! number of iterations for za/L
 
