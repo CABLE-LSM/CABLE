@@ -60,7 +60,6 @@ MODULE casa_cnp_module
   USE casaparm
   USE casavariable
   USE phenvariable
-  USE cable_IO_vars_module, ONLY: wlogn
   USE cable_common_module,  only: cable_user ! Custom soil respiration: Ticket #42
 
   implicit none

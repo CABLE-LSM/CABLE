@@ -18,9 +18,9 @@
 !
 ! ==============================================================================
 
-
 MODULE cable_abort_module
 
+  USE cable_IO_vars_module, ONLY: check, logn
   IMPLICIT NONE
 
 CONTAINS
@@ -60,13 +60,12 @@ CONTAINS
   !
   !==============================================================================
 
-
-  SUBROUTINE abort( message )
+  SUBROUTINE abort(message)
 
     ! Input arguments
     CHARACTER(LEN=*), INTENT(IN) :: message
 
-    WRITE(*, *) message
+    WRITE (*, *) message
     STOP 1
 
   END SUBROUTINE abort
@@ -109,8 +108,7 @@ CONTAINS
   !
   !==============================================================================
 
-
-  SUBROUTINE nc_abort( ok, message )
+  SUBROUTINE nc_abort(ok, message)
 
     USE netcdf
 
@@ -118,8 +116,8 @@ CONTAINS
     CHARACTER(LEN=*), INTENT(IN) :: message
     INTEGER, INTENT(IN) :: ok
 
-    WRITE(*,*) message ! error from subroutine
-    WRITE(*,*) NF90_STRERROR(ok) ! netcdf error details
+    WRITE (*, *) message ! error from subroutine
+    WRITE (*, *) NF90_STRERROR(ok) ! netcdf error details
 
     STOP
 
@@ -140,59 +138,55 @@ CONTAINS
   !
   !==============================================================================
 
-
-
-  SUBROUTINE range_abort(message,ktau,met,value,var_range,                       &
-       i,xx,yy)
+  SUBROUTINE range_abort(vname, ktau, met, value, var_range, i, xx, yy)
 
     USE cable_def_types_mod, ONLY: met_type
-    USE cable_IO_vars_module, ONLY: latitude,longitude,landpt,lat_all,lon_all
+    USE cable_IO_vars_module, ONLY: latitude, longitude, &
+                                    landpt, lat_all, lon_all
 
     ! Input arguments
-    CHARACTER(LEN=*), INTENT(IN) :: message
+    CHARACTER(LEN=*), INTENT(IN) :: vname
 
-    INTEGER, INTENT(IN) ::                                                      &
-         ktau, & ! time step
-         i       ! landpt number of erroneous grid square
+    INTEGER, INTENT(IN) :: &
+      ktau, & ! time step
+      i       ! tile number along mp
 
-    INTEGER,INTENT(IN),OPTIONAL ::                                              &
-         xx, & ! coordinates of erroneous grid square
-         yy    ! coordinates of erroneous grid square
+    REAL, INTENT(IN) :: &
+      xx, & ! coordinates of erroneous grid square
+      yy    ! coordinates of erroneous grid square
 
+    TYPE(met_type), INTENT(IN) :: met  ! met data
 
-    TYPE(met_type),INTENT(IN) :: met  ! met data
+    REAL(4), INTENT(IN) :: value ! value deemed to be out of range
 
-    REAL,INTENT(IN) :: value ! value deemed to be out of range
+    REAL, INTENT(IN) :: var_range(2) ! appropriate var range
 
-    REAL,DIMENSION(2),INTENT(IN) :: var_range ! appropriate var range
+    INTEGER :: iunit
 
-    WRITE(*,*) "in SUBR range_abort"
-    WRITE(*,*) message ! error from subroutine
-
-    IF( PRESENT(yy) ) THEN ! i.e. using rectangular land/sea grid
-
-       WRITE(*,*) 'Site lat, lon:',lat_all(xx,yy),lon_all(xx,yy)
-       WRITE(*,*) 'Output timestep',ktau,                                       &
-            ', or ', met%hod(landpt(i)%cstart),' hod, ',                  &
-            INT( met%doy( landpt(i)%cstart) ),'doy, ',                   &
-            INT( met%year(landpt(i)%cstart) )
-
-    ELSE ! i.e. using compressed land only grid
-
-       WRITE(*,*) 'Site lat, lon:', latitude(i), longitude(i)
-       WRITE(*,*) 'Output timestep', ktau,                                       &
-            ', or ', met%hod( landpt(i)%cstart ), ' hod, ',               &
-            INT( met%doy( landpt(i)%cstart) ),'doy, ',                    &
-            INT( met%year( landpt(i)%cstart) )
-
+    IF (check%exit) THEN
+      iunit = 6
+    ELSE
+      iunit = logn ! warning
     END IF
 
-    WRITE(*,*) 'Specified acceptable range (checks.f90):', var_range(1),        &
-         'to',var_range(2)
+    WRITE (iunit, *) "in SUBR range_abort: Out of range"
+    WRITE (iunit, *) "for var ", vname ! error from subroutine
 
-    WRITE(*,*) 'Value:',value
+    ! patch(i)%latitude, patch(i)%longitude
+    WRITE (iunit, *) 'Site lat, lon:', xx, yy
+    WRITE (iunit, *) 'Output timestep', ktau, &
+      ', or ', met%hod(i), ' hod, ', &
+      INT(met%doy(i)), 'doy, ', &
+      INT(met%year(i))
 
-    STOP
+    WRITE (iunit, *) 'Specified acceptable range (cable_checks.f90):', &
+      var_range(1), 'to', var_range(2)
+
+    WRITE (iunit, *) 'Value:', value
+
+    IF (check%exit) THEN
+      STOP
+    END IF
 
   END SUBROUTINE range_abort
 

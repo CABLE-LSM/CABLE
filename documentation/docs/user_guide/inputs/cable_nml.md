@@ -50,7 +50,8 @@ applications. The following are annotated examples of cable.nml:
 | output%balances                  | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Output energy and water balances when .TRUE..                                                           |
 | output%grid                      | character(len=7)   | 'default' 'land' 'mask' 'ALMA'                             | 'default'                        | Output grid convention. `'land'` outputs land-only points, `'mask'` outputs masked spatial grids. `'ALMA'` uses the Assistance for Land-surface Modelling Activities convention. `'default'` uses the whichever convention the input meteorological file is using. |
 | output%averaging                 | character(len=7)   | 'all' 'daily' 'monthly' 'user6'                            | 'all'                            | Output averaging.                                                                                       |
-| check%ranges                     | logical            | .TRUE. .FALSE.                                             | uninitialised                    | Check input and output variables against valid ranges.                                                  |
+| check%ranges                     | integer            |  0 (`NO_CHECK`), 1 (`ON_TIMESTEP`), 2 (`ON_WRITE`)         | uninitialised                    | Check input and output variables at certain timesteps against valid ranges.                             |
+| check%exit                       | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Behaviour on failed range checks. If true , write to console and exit the program, else write to logfile as warning |
 | check%energy_bal                 | logical            | .TRUE. .FALSE.                                             | uninitialised                    | Check the energy balance.                                                                               |
 | check%mass_bal                   | logical            | .TRUE. .FALSE.                                             | uninttialised                    | Check the water/mass balance.                                                                           |
 | verbose                          | logical            | .TRUE. .FALSE.                                             | uninitialised                    | Write details of every grid cell initialisation and parameters to log.                                  |
@@ -133,7 +134,7 @@ applications. The following are annotated examples of cable.nml:
 | cable_user%access13roots         | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Switch to use ACCESS1.3 %froot.                                                                         |
 | cable_user%l_limit_labile        | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Limit labile in spinup.                                                                                 |
 | cable_user%NtilesThruMetFile     | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Specify Ntiles through met file.                                                                        |
-
+| cable_user%l_ice_consistency     | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | If true, ensures consistency between soil and vegetation tiles with permanent ice. All tiles with permanent ice for soil will have ice for vegetation and vice-versa. All the parameters for these new ice tiles are updated to the ice parameters.                       |
 
 ## For offline applications ##
 
@@ -160,7 +161,8 @@ applications. The following are annotated examples of cable.nml:
    output%veg       = .TRUE.  ! vegetation states
    output%params    = .TRUE.  ! input parameters used to produce run
    output%balances  = .TRUE.  ! energy and water balances
-   check%ranges     = .FALSE.  ! variable ranges, input and output
+   check%ranges     = 1  ! Range-checks on every timestep
+   check%exit = .TRUE.  ! Exit the program if range checks fail
    check%energy_bal = .TRUE.  ! energy balance
    check%mass_bal   = .TRUE.  ! water/mass balance
    verbose = .TRUE. ! write details of every grid cell init and params to log?

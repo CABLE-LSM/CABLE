@@ -23,7 +23,7 @@
    output%params    = .TRUE.  ! input parameters used to produce run
    output%patch     = .TRUE.  ! write per patch  
    output%balances  = .TRUE.  ! energy and water balances
-   check%ranges     = .FALSE.  ! variable ranges, input and output
+   check%ranges     = 0       ! variable ranges, input and output
    check%energy_bal = .TRUE.  ! energy balance
    check%mass_bal   = .TRUE.  ! water/mass balance
    verbose = .TRUE. ! write details of every grid cell init and params to log?
@@ -68,4 +68,5 @@
    cable_user%CASA_DUMP_READ = .FALSE.      ! TRUE reads CASA forcing from netcdf format
    cable_user%CASA_DUMP_WRITE = .FALSE.      ! TRUE outputs CASA forcing in netcdf format
    cable_user%SSNOW_POTEV= 'HDM'      ! Humidity Deficit Method
+   cable_user%l_ice_consistency = .FALSE.  ! TRUE add QA step for ice tiles input.
 &end
