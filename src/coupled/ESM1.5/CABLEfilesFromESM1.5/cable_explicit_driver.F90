@@ -311,8 +311,7 @@ LOGICAL, SAVE :: zero_points_warning= .true.
     
 IF( land_pts  ==  0 ) THEN
   IF( zero_points_warning ) THEN
-    WRITE(6,*) "Reached CABLE implicit "
-               " even though zero land_points on processor ", knode_gl 
+    WRITE(6,*) "Reached CABLE expl even though zero land_points on processor ", knode_gl 
   END IF
   zero_points_warning = .FALSE. 
   RETURN

@@ -83,12 +83,7 @@ module cable_data_module
       zeta0  = 0.0,  & ! initial value of za/L
       zetneg = -15.0, & ! negative limit on za/L when niter>=3
       zetpos = 1.0,  & ! positive limit on za/L when niter>=3
-      zdlin  = 1.0,  & ! height frac of d below which TL linear
-# ifdef ESM15    
-      umin   = 0.01
-# else 
-      umin   = 0.1 !CM2
-# endif
+      zdlin  = 1.0     ! height frac of d below which TL linear
        
    END TYPE physical_constants
 
@@ -195,7 +190,7 @@ module cable_data_module
       REAL, POINTER ::                                                         &
          ! physical constants
          TFRZ, RMAIR, RGAS, DHEAT, ZETNEG,                                     &
-         ZETMUL, ZETPOS, GRAV, UMIN, TETENA,                                   &
+         ZETMUL, ZETPOS, GRAV,       TETENA,                                   &
          TETENB, TETENC, RHOW, CTL, CSW,                                       &      
          EMLEAF, EMSOIL, SBOLTZ, PRANDT, CAPP,                                 &
          RMH2O, APOL, A33, VONK, ZETA0,                                        &
@@ -330,7 +325,6 @@ SUBROUTINE canopy_type_ptr(C)
    C%ZETMUL => PHYS%ZETMUL
    C%ZETPOS => PHYS%ZETPOS
    C%GRAV  => PHYS%GRAV            
-   C%UMIN  => PHYS%UMIN
    C%TETENA => PHYS%TETENA 
    C%TETENB => PHYS%TETENB 
    C%TETENC => PHYS%TETENC 
