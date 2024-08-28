@@ -52,7 +52,7 @@ USE cable_math_constants_mod,  ONLY: cpi180 => pi180
                                    met, canopy
    USE cable_um_init_subrs_mod, ONLY : update_kblum_radiation,  um2cable_met_rad,  &
                                    um2cable_lp 
-   USE cable_common_module, ONLY : cable_runtime, cable_user
+   USE cable_common_module, ONLY : cable_runtime, cable_user, knode_gl
    
 USE cbl_init_radiation_module, ONLY: Common_InitRad_Scalings
 USE grid_constants_mod_cbl, ONLY : ICE_SoilType, lakes_cable
