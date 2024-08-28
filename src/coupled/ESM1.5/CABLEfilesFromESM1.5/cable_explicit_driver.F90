@@ -307,7 +307,16 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
  
 integer :: j
 
-   
+LOGICAL, SAVE :: zero_points_warning= .true.
+    
+IF( land_pts  ==  0 ) THEN
+  IF( zero_points_warning ) THEN
+    WRITE(6,*) "Reached CABLE implicit "
+               " even though zero land_points on processor ", knode_gl 
+  END IF
+  zero_points_warning = .FALSE. 
+  RETURN
+END IF
 
    !--- initialize cable_runtime% switches 
    cable_runtime%um = .TRUE.

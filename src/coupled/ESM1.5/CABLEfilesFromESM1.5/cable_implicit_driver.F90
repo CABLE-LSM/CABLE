@@ -246,7 +246,17 @@ subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
 INTEGER, PARAMETER :: loy = 365 !fudge for ESM1.5 
 INTEGER, PARAMETER :: lalloc = 0 !fudge for ESM1.5 0 => call POP N/A 
 TYPE(POP_TYPE) :: POP
+LOGICAL, SAVE :: zero_points_warning= .true.
    
+IF( um1%land_pts  ==  0 ) THEN
+  IF( zero_points_warning ) THEN
+    WRITE(6,*) "Reached CABLE implicit "
+               " even though zero land_points on processor ", knode_gl 
+  END IF
+  zero_points_warning = .FALSE. 
+  RETURN
+END IF
+
       TFRZ => PHYS%TFRZ
    
       ! FLAGS def. specific call to CABLE from UM

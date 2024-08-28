@@ -108,6 +108,17 @@ REAL :: xvlai2(mp,nrb) ! 2D vlai
 REAL :: xphi1(mp)      ! leaf angle parmameter 1
 REAL :: xphi2(mp)      ! leaf angle parmameter 2
 
+LOGICAL, SAVE :: zero_points_warning= .true.
+    
+IF( um1%land_pts  ==  0 ) THEN
+  IF( zero_points_warning ) THEN
+    WRITE(6,*) "Reached CABLE implicit "
+               " even though zero land_points on processor ", knode_gl 
+  END IF
+  zero_points_warning = .FALSE. 
+  RETURN
+END IF
+
 !CALL init_active_tile_mask_cbl(l_tile_pts, um1%land_pts, um1%ntiles, um1%tile_frac )
  
       !jhan:check that these are reset after call done

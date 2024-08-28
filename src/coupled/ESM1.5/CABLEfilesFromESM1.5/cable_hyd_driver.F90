@@ -59,6 +59,17 @@ SUBROUTINE cable_hyd_driver( SNOW_TILE, LYING_SNOW, SURF_ROFF, SUB_SURF_ROFF,  &
    REAL :: miss =0. 
    REAL, POINTER :: TFRZ
       
+LOGICAL, SAVE :: zero_points_warning= .true.
+    
+IF( um1%land_pts  ==  0 ) THEN
+  IF( zero_points_warning ) THEN
+    WRITE(6,*) "Reached CABLE implicit "
+               " even though zero land_points on processor ", knode_gl 
+  END IF
+  zero_points_warning = .FALSE. 
+  RETURN
+END IF
+
       TFRZ => PHYS%TFRZ
    
       SNOW_TILE= UNPACK(ssnow%snowd, um1%L_TILE_PTS, miss) 
