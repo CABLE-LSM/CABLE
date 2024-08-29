@@ -707,7 +707,7 @@ CONTAINS
 
     ! Run through the possible names until we find the correct one
     CheckNames: DO i = 1, SIZE(LatNames)
-      ok = NF90_INQ_DIMID(FileID, TRIM(LatNames(i), latitude_dimid))
+      ok = NF90_INQ_DIMID(FileID, TRIM(LatNames(i)), latitude_dimid)
       IF (ok == NF90_NOERR) THEN
         EXIT CheckNames
       END IF
@@ -740,7 +740,7 @@ CONTAINS
 
     ! Run through the possible names until we find the correct one
     CheckNames: DO i = 1, SIZE(LonNames)
-      ok = NF90_INQ_DIMID(FileID, TRIM(LonNames(i), longitude_dimid))
+      ok = NF90_INQ_DIMID(FileID, TRIM(LonNames(i)), longitude_dimid)
       IF (ok == NF90_NOERR) THEN
         EXIT CheckNames
       END IF
@@ -772,7 +772,7 @@ CONTAINS
 
     ! Run through the possible names until we find the correct one
     CheckNames: DO i = 1, SIZE(TimeNames)
-      ok = NF90_INQ_DIMID(FileID, TRIM(TimeNames(i), time_dimid))
+      ok = NF90_INQ_DIMID(FileID, TRIM(TimeNames(i)), time_dimid)
       IF (ok == NF90_NOERR) THEN
         EXIT CheckNames
       END IF
