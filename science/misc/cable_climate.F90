@@ -1,4 +1,5 @@
-! ==============================================================================
+!#define UM_CBL YES
+!==============================================================================
 ! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
 ! This work is licensed under the CSIRO Open Source Software License
@@ -16,6 +17,7 @@
 ! History: Vanessa Haverd Jan 2015
 ! Aug 2017: additional leaf-level met variables stored for use in optimising ratio
 ! of Jmax to Vcmax
+#ifndef UM_CBL
 ! ==============================================================================
 module cable_climate_mod
 
@@ -937,3 +939,4 @@ contains
   end subroutine READ_CLIMATE_RESTART_NC
 
 end module cable_climate_mod
+#endif
