@@ -24,6 +24,7 @@
 
 MODULE cable_common_module
 
+  USE NetCDF,   only: NF90_INQ_DIMID, NF90_NOERR
   IMPLICIT NONE
 
   !---allows reference to "gl"obal timestep in run (from atm_step)

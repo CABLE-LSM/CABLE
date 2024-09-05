@@ -1,6 +1,6 @@
 MODULE CABLE_LUC_EXPT
 
-  use cable_common_module,  only: is_leapyear, leap_day, handle_err, get_unit,
+  use cable_common_module,  only: is_leapyear, leap_day, handle_err, get_unit,&
                                   latitude_dimid, longitude_dimid, time_dimid
   use cable_io_vars_module, only: logn, land_x, land_y, landpt, latitude, longitude
   use cable_def_types_mod,  only: mland
