@@ -698,13 +698,14 @@ CONTAINS
     INTEGER :: FileID, latitude_dimid
     INTEGER :: i, ok
 
-    CHARACTER(LEN=16), DIMENSION(4) :: LatNames
+    CHARACTER(LEN=16), DIMENSION(5) :: LatNames
 
     ! Assign a set of possible latitude names
-    LatNames(1) = "latitude"
-    LatNames(2) = "lat"
-    LatNames(3) = "lats"
-    LatNames(4) = "Latitude"
+    LatNames(1) = "y"
+    LatNames(2) = "latitude"
+    LatNames(3) = "lat"
+    LatNames(4) = "lats"
+    LatNames(5) = "Latitude"
 
     ! Run through the possible names until we find the correct one
     CheckNames: DO i = 1, SIZE(LatNames)
@@ -731,13 +732,14 @@ CONTAINS
     INTEGER :: FileID, longitude_dimid
     INTEGER :: i, ok
 
-    CHARACTER(LEN=16), DIMENSION(4) :: LonNames
+    CHARACTER(LEN=16), DIMENSION(5) :: LonNames
 
     ! Assign a set of possible longitude names
-    LonNames(1) = "longitude"
-    LonNames(2) = "lon"
-    LonNames(3) = "lons"
-    LonNames(4) = "Longitude"
+    LonNames(1) = "x"
+    LonNames(2) = "longitude"
+    LonNames(3) = "lon"
+    LonNames(4) = "lons"
+    LonNames(5) = "Longitude"
 
     ! Run through the possible names until we find the correct one
     CheckNames: DO i = 1, SIZE(LonNames)
