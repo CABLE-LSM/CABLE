@@ -72,8 +72,10 @@ END TYPE CRU_TYPE
 ! Set some private parameters
 REAL, PRIVATE, PARAMETER  :: SecDay = 86400.
 INTEGER, PRIVATE, PARAMETER  :: rain = 1, lwdn = 2, swdn = 3, pres = 4, qair = 5,&
-                                tmax = 6, tmin = 7, uwind = 8, vwind = 9, fdiff = 10,&
-                                prevTmax = 11, nextTmin = 12
+                                tmax = 6, tmin = 7, wind = 8, uwind = 8, vwind = 9,&
+                                vaporpres0900 = 10, vaporpres1500 = 11, fdiff = 12,&
+                                prevTmax = 13, nextTmin = 14, prevvaporpres0900 = 15,&
+                                prevvaporpres1500 = 16
 INTEGER, PRIVATE, PARAMETER  :: sp = kind(1.0)
 INTEGER, PRIVATE             :: ErrStatus
 
