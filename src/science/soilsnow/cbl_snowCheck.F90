@@ -7,10 +7,12 @@ PUBLIC  snowcheck
 CONTAINS
 
 SUBROUTINE snowcheck(dels, ssnow, soil, met )
-
+  !*## Purpose
+  !  Set up snow depth, snow mass, snow temp and snow layer used
+  
     USE cable_common_module
 
-IMPLICIT NONE
+    IMPLICIT NONE
     REAL, INTENT(IN) :: dels ! integration time step (s)
 
     TYPE(soil_snow_type), INTENT(INOUT) :: ssnow
@@ -23,7 +25,7 @@ IMPLICIT NONE
     DO j=1,mp
 
        IF( ssnow%snowd(j) <= 0.0 ) THEN
-
+          !> using a single snow layer but there is no snow yet 
           ssnow%isflag(j) = 0
           ssnow%ssdn(j,:) = 120.0
           ssnow%ssdnn(j) = 120.0
@@ -39,7 +41,7 @@ IMPLICIT NONE
 
           ! in loop: IF( ssnow%snowd(j) <= 0.0 ) THEN
        ELSEIF( ssnow%snowd(j) < snmin * ssnow%ssdnn(j) ) THEN
-
+       !> snow depth is between 0 and 1*snow density 
           IF( ssnow%isflag(j) == 1 ) THEN
              ssnow%ssdn(j,1) = ssnow%ssdnn(j)
              ssnow%tgg(j,1) = ssnow%tggsn(j,1)
@@ -60,10 +62,14 @@ IMPLICIT NONE
 
           ssnow%ssdn(j,:) = ssnow%ssdnn(j)
 
-
+          IF( .NOT.cable_user%CABLE_RUNTIME_COUPLED ) THEN  ! if block inserted by rk4417 - phase2
+             IF( soil%isoilm(j) == 9 .AND. ktau_gl <= 2 )                       &  ! 9 should probably be replaced here by ICE_SoilType - rk4417
+                  ! permanent ice: fixed hard-wired number in next version
+                  ssnow%ssdnn(j) = 700.0
+          ENDIF
 
        ELSE ! in loop: IF( ssnow%snowd(j) <= 0.0 ) THEN
-          ! sufficient snow now for 3 layer snowpack
+          !> sufficient snow now for 3 layer snowpack
 
           IF( ssnow%isflag(j) == 0 ) THEN
 
@@ -71,6 +77,15 @@ IMPLICIT NONE
 
              ssnow%ssdn(j,2) = ssnow%ssdn(j,1)
              ssnow%ssdn(j,3) = ssnow%ssdn(j,1)
+
+             IF( .NOT. cable_user%cable_runtime_coupled) THEN  ! if block inserted by rk4417 - phase2
+                IF( soil%isoilm(j) == 9 .AND. ktau_gl <= 2 ) THEN  ! 9 should probably be replaced here by ICE_SoilType - rk4417
+                   ! permanent ice: fix hard-wired number in next version
+                   ssnow%ssdn(j,1)  = 450.0
+                   ssnow%ssdn(j,2)  = 580.0
+                   ssnow%ssdn(j,3)  = 600.0
+                ENDIF
+             ENDIF
 
 
              ssnow%sdepth(j,1) = ssnow%t_snwlr(j)

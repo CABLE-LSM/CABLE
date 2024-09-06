@@ -46,7 +46,8 @@ INTEGER, PARAMETER :: nsCs      = 2  ! # soil carbon stores
 INTEGER, PARAMETER :: nvCs      = 3  ! # vegetation carbon stores
 INTEGER, PARAMETER :: ICE_SoilType = 9 ! SoilType Index (soilparm_cable.nml JAC)
 INTEGER, PARAMETER :: lakes_cable  = 16! SoilType Index (soilparm_cable.nml JAC)
-
+! I think lakes_cable is a not a good name choice, a better name might be LakesType for consistency - rk4417
+! The description on the lakes_cable line is a duplicate and needs updating - rk4417
 INTEGER, PARAMETER :: ICE_VegType = 17  ! permanent ice index for veg
 
 INTEGER, PARAMETER :: mf = 2          ! # leaves (sunlit, shaded)

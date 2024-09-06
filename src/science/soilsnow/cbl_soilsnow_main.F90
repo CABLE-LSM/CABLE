@@ -56,7 +56,7 @@ USE snowdensity_mod,              ONLY: snowDensity
     REAL(r_2), DIMENSION(mp) :: deltat,sinfil1,sinfil2,sinfil3
     REAL                :: zsetot
     INTEGER, SAVE :: ktau =0
-REAL :: wbliq(mp,ms)
+    REAL :: wbliq(mp,ms)
 
     ktau = ktau +1
   !this is the value it is initialized with in cable_common anyway 

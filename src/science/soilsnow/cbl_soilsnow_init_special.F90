@@ -28,7 +28,7 @@ REAL, DIMENSION(mp) :: xx, tgg_old, tggsn_old
 REAL(r_2), DIMENSION(mp) :: xxx,deltat,sinfil1,sinfil2,sinfil3
 REAL                :: zsetot
 INTEGER, SAVE :: ktau =0
-REAL :: heat_cap_lower_limit(mp,ms)
+REAL :: heat_cap_lower_limit(mp,ms)    ! best to declare INTENT - rk4417 - phase2 
 
 ktau = ktau +1
 

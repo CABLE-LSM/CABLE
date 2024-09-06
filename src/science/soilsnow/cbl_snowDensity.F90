@@ -7,8 +7,10 @@ PUBLIC  snowdensity
 CONTAINS
 
 SUBROUTINE snowdensity (dels, ssnow, soil)
-
-IMPLICIT NONE
+  !*## Purpose
+  !  Calculate snow density for either single snow layer and three snow layers
+  
+  IMPLICIT NONE
     REAL, INTENT(IN) :: dels   ! integration time step (s)
 
     TYPE(soil_snow_type),      INTENT(INOUT) :: ssnow
@@ -16,7 +18,7 @@ IMPLICIT NONE
     TYPE(soil_parameter_type), INTENT(INOUT) :: soil
 
     REAL, DIMENSION(mp) :: ssnow_tgg_min1
-   REAL, DIMENSION(mp,3) :: ssnow_tgg_min
+!   REAL, DIMENSION(mp,3) :: ssnow_tgg_min   ! not used, commented out by rk4417 - phase2
 
     ssnow_tgg_min1 = MIN( CTFRZ, ssnow%tgg(:,1) )
 

@@ -8,6 +8,9 @@ CONTAINS
 
 
 SUBROUTINE snow_accum ( dels,  canopy, met, ssnow, soil )
+  !*## Purpose
+  ! calcualte snowfall and snow evap and update snow depth, snow temp, snow mass, snow density
+    
 USE cable_common_module
 IMPLICIT NONE
 
