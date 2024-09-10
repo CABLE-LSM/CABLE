@@ -130,7 +130,6 @@ PROGRAM cable_offline_driver
 
   ! BIOS only
   use cable_bios_met_obs_params,   only:  cable_bios_read_met, cable_bios_init, &
-                                          cable_bios_load_params, &
                                           cable_bios_load_climate_params
 
   ! LUC_EXPT only
@@ -693,11 +692,6 @@ PROGRAM cable_offline_driver
               if (cable_user%POPLUC .and. &
                    (trim(cable_user%POPLUC_RunType) == 'static')) &
                    cable_user%POPLUC = .false.
-
-              ! Having read the default parameters, if this is a bios run we
-              ! will now overwrite the subset of them required for bios.
-              if (trim(cable_user%MetType) .eq. 'bios') &
-                   call cable_bios_load_params(soil)
 
               ! Open output file
               if (.not. CASAONLY) then
