@@ -83,8 +83,13 @@ FUNCTION Humidity_deficit_method( mp, Ctfrz, veg_clitt,cable_user_or_evap,     &
                                  canopy_DvLitt,      &
                                  ssnow_isflag, ssnow_satfrac, ssnow_rtsoil,    &
                                  ssnow_rtevap_sat, ssnow_rtevap_unsat,      & 
-                                 ssnow_snowd, ssnow_tgg &
+                                 ssnow_snowd, ssnow_tgg, &
+                                 veg_iveg, rtevap_max, canopy_sublayer_dz, &   ! inserted by rk4417 - phase2
+                                 rt_Dff &     ! inserted by rk4417 - phase2
                                  ) RESULT(ssnowpotev)
+
+USE cable_def_types_mod, ONLY : r_2    ! inserted by rk4417 - phase2
+
 IMPLICIT NONE
 
 INTEGER :: mp
@@ -106,6 +111,11 @@ REAL :: ssnow_satfrac(mp)    !
 REAL :: ssnow_rtsoil(mp)    !
 REAL :: ssnow_rtevap_sat(mp)    !
 REAL :: ssnow_rtevap_unsat(mp)    !
+
+INTEGER :: veg_iveg(mp)   ! inserted by rk4417 - phase2
+REAL(r_2) :: rtevap_max   ! inserted by rk4417 - phase2
+REAL(r_2) :: canopy_sublayer_dz(mp) ! inserted by rk4417 - phase2
+REAL(r_2) :: rt_Dff   ! inserted by rk4417 - phase2
 
 !local vars
 INTEGER :: j
@@ -129,26 +139,46 @@ DO j=1,mp
   ENDIF
 ENDDO
 
-IF (cable_user_or_evap .or. cable_user_gw_model) then
-  write(6,*) "GW or ORevepis not an option right now"
-  !H!        IF (cable_user_or_evap) THEN
-  !H!          do j=1,mp
-  !H!       
-  !H!             if (veg_iveg(j) .lt. 16 .and. ssnow_snowd(j) .lt. 1e-7) THEN
-  !H!       
-  !H!                if (dq(j) .le. 0.0) THEN
-  !H!                   ssnow_rtevap_sat(j) = min(rtevap_max,canopy_sublayer_dz(j)/rt_Dff)
-  !H!                end if
-  !H!       
-  !H!                if (dqu(j) .le. 0.0) THEN
-  !H!                   ssnow_rtevap_unsat(j) = min(rtevap_max,canopy_sublayer_dz(j)/rt_Dff)
-  !H!                end if
-  !H!       
-  !H!             end if
-  !H!
-  !H!          end do
-  !H!
-  !H!        END IF
+!IF (cable_user_or_evap .or. cable_user_gw_model) then
+!  write(6,*) "GW or ORevepis not an option right now"
+!  !H!        IF (cable_user_or_evap) THEN
+!  !H!          do j=1,mp
+!  !H!       
+!  !H!             if (veg_iveg(j) .lt. 16 .and. ssnow_snowd(j) .lt. 1e-7) THEN
+!  !H!       
+!  !H!                if (dq(j) .le. 0.0) THEN
+!  !H!                   ssnow_rtevap_sat(j) = min(rtevap_max,canopy_sublayer_dz(j)/rt_Dff)
+!  !H!                end if
+!  !H!       
+!  !H!                if (dqu(j) .le. 0.0) THEN
+!  !H!                   ssnow_rtevap_unsat(j) = min(rtevap_max,canopy_sublayer_dz(j)/rt_Dff)
+!  !H!                end if
+!  !H!       
+!  !H!             end if
+!  !H!
+!  !H!          end do
+!  !H!
+!  !H!        END IF
+
+! block above replaced by below - rk4417 - phase2
+
+      IF (cable_user_or_evap) THEN ! .or. cable_user_gw_model) then ! MMY
+
+            DO j=1,mp
+
+               IF (veg_iveg(j) .LT. 16 .AND. ssnow_snowd(j) .LT. 1e-7) THEN
+
+                  IF (dq(j) .LE. 0.0) THEN
+                     ssnow_rtevap_sat(j) = MIN(rtevap_max,canopy_sublayer_dz(j)/rt_Dff)
+                  END IF
+
+                  IF (dqu(j) .LE. 0.0) THEN
+                     ssnow_rtevap_unsat(j) = MIN(rtevap_max,canopy_sublayer_dz(j)/rt_Dff)
+                  END IF
+
+               END IF
+
+            END DO
 
   ssnowpotev = air_rho * air_rlam * ( &
                REAL(ssnow_satfrac) * dq /(ssnow_rtsoil + REAL(ssnow_rtevap_sat)) + &
@@ -161,7 +191,7 @@ IF (cable_user_or_evap .or. cable_user_gw_model) then
                           REAL((1-ssnow_isflag))* veg_clitt*0.003/canopy_DvLitt)
  ELSE
   ssnowpotev = air_rho * air_rlam * dq / ssnow_rtsoil
- ENDIF
+ENDIF
 
 RETURN
 END FUNCTION Humidity_deficit_method

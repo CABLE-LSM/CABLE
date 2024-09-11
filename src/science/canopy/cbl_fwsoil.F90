@@ -25,14 +25,38 @@ SUBROUTINE fwsoil_calc_std(fwsoil, soil, ssnow, veg)
 
     IF (.NOT.cable_user%gw_model) THEN
 
-       rwater = MAX(1.0e-9,                                                    &
-            SUM(veg%froot * MAX(1.0e-9,MIN(1.0, REAL(ssnow%wb) -                   &
-            SPREAD(soil%swilt, 2, ms))),2) /(soil%sfc-soil%swilt))
+!       rwater = MAX(1.0e-9,                                                    &
+!            SUM(veg%froot * MAX(1.0e-9,MIN(1.0, REAL(ssnow%wb) -                   &
+!            SPREAD(soil%swilt, 2, ms))),2) /(soil%sfc-soil%swilt))
+!
+!    ELSE
+!       rwater = MAX(1.0e-9,                                                    &
+!            SUM(veg%froot * MAX(1.0e-9,MIN(1.0, REAL((ssnow%wbliq -                 &
+!            soil%swilt_vec)/(soil%sfc_vec-soil%swilt_vec)) )),2) )
 
-    ELSE
+! block above replaced by below - rk4417 - phase2
+
+    ! ________________________________ MMY______________________________________
+      !rwater = MAX(1.0e-9,                                                    &
+      !     SUM(veg%froot * MAX(1.0e-9,MIN(1.0, real(ssnow%wb) -                   &
+      !     SPREAD(soil%swilt, 2, ms))),2) /(soil%sfc-soil%swilt))
+      ! fix range problems
        rwater = MAX(1.0e-9,                                                    &
-            SUM(veg%froot * MAX(1.0e-9,MIN(1.0, REAL((ssnow%wbliq -                 &
-            soil%swilt_vec)/(soil%sfc_vec-soil%swilt_vec)) )),2) )
+          SUM(veg%froot * MAX(1.0e-9, MIN( 1.0, &
+          MAX(0., (real(ssnow%wb) - SPREAD(soil%swilt, 2, ms)) )&
+          / (SPREAD(soil%sfc, 2, ms) - SPREAD(soil%swilt, 2, ms)) &
+           )) , 2))
+       ! MMY I didn't check gw-off, but think using wbliq may be better than wb above eq
+    else
+       ! rwater = MAX(1.0e-9,                                                    &
+       !      SUM(veg%froot * MAX(1.0e-9,MIN(1.0, real((ssnow%wbliq -                 &
+       !      soil%swilt_vec)/(soil%sfc_vec-soil%swilt_vec)) )),2) )
+       rwater = MAX(1.0e-9,                                                    &
+          SUM(veg%froot * MAX(1.0e-9, MIN( 1.0, &
+          MAX(0., (real(ssnow%wbliq) - real(soil%swilt_vec)) )&
+          / (real(soil%sfc_vec) - real(soil%swilt_vec)) &
+           )) , 2))
+    ! __________________________________________________________________________
 
     ENDIF
 
@@ -58,9 +82,17 @@ SUBROUTINE fwsoil_calc_std(fwsoil, soil, ssnow, veg)
     REAL, DIMENSION(mp,3)          :: xi, ti, si
     INTEGER :: j
 
-    rwater = MAX(1.0e-9,                                                    &
-         SUM(veg%froot * MAX(0.0,MIN(1.0, REAL(ssnow%wb) -                   &
-         SPREAD(soil%swilt, 2, ms))),2) /(soil%sfc-soil%swilt))
+!    rwater = MAX(1.0e-9,                                                    &
+!         SUM(veg%froot * MAX(0.0,MIN(1.0, REAL(ssnow%wb) -                   &
+!         SPREAD(soil%swilt, 2, ms))),2) /(soil%sfc-soil%swilt))
+
+! block above replaced by below - rk4417 - phase2
+    
+    rwater = MAX(1.0e-9,                                             &
+       SUM(veg%froot * MAX(1.0e-9, MIN( 1.0,                         &
+       MAX(0., (real(ssnow%wb) - SPREAD(soil%swilt, 2, ms)) )        &
+       / (SPREAD(soil%sfc, 2, ms) - SPREAD(soil%swilt, 2, ms))       &
+        )) , 2))    
 
     fwsoil = 1.
 

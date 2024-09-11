@@ -136,6 +136,10 @@ USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
 
     REAL, DIMENSION(mp,2) ::  gsw_term, lower_limit2  ! local temp var
 
+! Two lines inserted below  - rk4417 - phase2
+    REAL, DIMENSION(0:ms+1) :: diff ! MMY      ! Martin's fix on water extraction from soil
+    REAL :: xx,xxd                  ! MMY
+
     INTEGER :: i, j, k, kk  ! iteration count
     REAL :: vpd, g1 ! Ticket #56
     REAL, DIMENSION(mp,mf)  ::                                                  &
@@ -226,6 +230,11 @@ USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
              ghwet(i) = 2.0   * sum_gbh(i)
              gwwet(i) = 1.075 * sum_gbh(i)
              ghrwet(i) = sum_rad_gradis(i) + ghwet(i)
+
+! I checked with Claire...appears fine commented out - rk4417 - phase2             
+!             ! Calculate fraction of canopy which is wet:       ! inserted by rk4417 - phase2               
+!             canopy%fwet(i) = MAX( 0.0, MIN( 1.0, 0.8 * canopy%cansto(i)/ MAX(  &
+!                  cansat(i),0.01 ) ) )             
 
              ! Calculate lat heat from wet canopy, may be neg.
              ! if dew on wet canopy to avoid excessive evaporation:
@@ -508,14 +517,36 @@ USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
                    evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels      &
                         / air%rlam(i)
 
+!                   DO kk = 1,ms
+!
+!                      ssnow%evapfbl(i,kk) = MIN( evapfb(i) * veg%froot(i,kk),      &
+!                           MAX( 0.0, REAL( ssnow%wb(i,kk) ) -     &
+!                           1.1 * soil%swilt(i) ) *                &
+!                           soil%zse(kk) * 1000.0 )
+!
+!                   ENDDO
+
+! block above replaced by below - rk4417 - phase2
+                   ! MMY to fix the inconsistence in root water extraction between  ! FEEDBACK(MMY?)
+                   !     cable_gw_hydro and above
+                   xx      = 0._r_2 ! demand : transpiration
+                   xxd     = 0._r_2 ! difference : demand - supply
+                   diff(:) = 0._r_2 ! supply : water available
                    DO kk = 1,ms
+                      xx = evapfb(i) * veg%froot(i,kk) + diff(kk-1) ! demand for layer kk
+                      diff(kk) = max(0._r_2,ssnow%wbliq(i,kk)-soil%swilt_vec(i,kk)) * soil%zse(kk) * 1000.0
+                      ! supply for layer kk
+                      xxd = xx - diff(kk) ! deficit in layer kk
+                      if (xxd .gt. 0._r_2) then ! demand > supply
+                         ssnow%evapfbl(i,kk) = diff(kk) ! transpiration in layer kk is supply
+                         diff(kk) = xxd  ! deficit in layer kk
+                      else !  demand < supply
+                         ssnow%evapfbl(i,kk) = xx ! transpiration in layer kk is demand
+                         diff(kk) = 0._r_2 ! no deficit in layer kk
+                      end if
+                   END DO     !ms
+! end of replacement block - rk4417 - phase2             
 
-                      ssnow%evapfbl(i,kk) = MIN( evapfb(i) * veg%froot(i,kk),      &
-                           MAX( 0.0, REAL( ssnow%wb(i,kk) ) -     &
-                           1.1 * soil%swilt(i) ) *                &
-                           soil%zse(kk) * 1000.0 )
-
-                   ENDDO
                    IF (cable_user%soil_struc=='default') THEN
                       canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
                       ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
