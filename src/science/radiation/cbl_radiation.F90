@@ -110,6 +110,7 @@ real :: Ccapp
        ! Define radiative conductance (Leuning et al, 1995), eq. D7:
        rad%gradis(:,1) = ( 4.0 * Cemleaf / (Ccapp * air%rho) ) * flpwb        &
             / (met%tvrad) * rad%extkd                              &
+!            / (met%tk) * rad%extkd                              &    ! MMY has this line instead ? -- rk4417 ! MMY@23Apr2023 need to test whether tvrad and tk the same - FEEDBACK
             * ( ( 1.0 - rad%transb * rad%transd ) /                &
             ( rad%extkb + rad%extkd )                              &
             + ( rad%transd - rad%transb ) /                        &
@@ -117,6 +118,7 @@ real :: Ccapp
 
        rad%gradis(:,2) = ( 8.0 * Cemleaf / ( Ccapp * air%rho ) ) *            &
             flpwb / met%tvrad * rad%extkd *                        &
+!            flpwb / met%tk * rad%extkd *                        &    ! MMY has this line instead ? -- rk4417 ! MMY@23Apr2023 need to test whether tvrad and tk the same - FEEDBACK
             ( 1.0 - rad%transd ) / rad%extkd - rad%gradis(:,1)
 
        ! Longwave radiation absorbed by sunlit canopy fraction:
