@@ -5,6 +5,8 @@ MODULE cable_psm
        roughness_type
   USE cable_common_module, ONLY : cable_user
 
+! USE grid_constants_mod_cbl, ONLY : lakes_cable  !   should include this line to replace 16 everywhere below with lakes_cable - rk4417
+
   IMPLICIT NONE
 
 
@@ -14,6 +16,8 @@ MODULE cable_psm
        litter_thermal_diff=2.7e-5  !param based on vh thermal diffusivity
 
   REAL(r_2), PARAMETER :: rtevap_max = 10000.0
+! these precomputed values are taken by the sample code in Wikipedia,
+! and the sample itself takes them from the GNU Scientific Library  ! comment inserted by rk4417 - phase2
   REAL(r_2), DIMENSION(0:8), PARAMETER :: gamma_pre = &
        (/ 0.99999999999980993, 676.5203681218851, -1259.1392167224028, &
        771.32342877765313, -176.61502916214059, 12.507343278686905, &
@@ -69,7 +73,8 @@ CONTAINS
 
 
 
-    REAL(r_2), DIMENSION(mp) :: sublayer_dz, eddy_shape,eddy_mod,soil_moisture_mod, &
+!    REAL(r_2), DIMENSION(mp) :: sublayer_dz, eddy_shape,eddy_mod,soil_moisture_mod, &
+    REAL(r_2), DIMENSION(mp) :: eddy_shape,eddy_mod,soil_moisture_mod, & ! sublayer_dz is not used - rk4417 - phase2
          soil_moisture_mod_sat, wb_liq, &
          pore_size,pore_radius, rel_s,hk_zero,hk_zero_sat,time_scale  !note pore_size in m
 
@@ -81,22 +86,48 @@ CONTAINS
 
     INTEGER :: i,j,k
 
-    IF (cable_user%litter) THEN
-       litter_dz(:) = veg%clitt*0.003
-    ELSE
-       litter_dz(:) = 0.0
-    ENDIF
+!    canopy%sublayer_dz(:) = 0.005   ! this line appears in MMY code but will leave commented for now -- rk4417 ! MMY@23Apr2023 need to check whether it should be commented
+
+!    IF (cable_user%litter) THEN
+!       litter_dz(:) = veg%clitt*0.003
+!    ELSE
+!       litter_dz(:) = 0.0
+!    ENDIF
+
+! replaced above block by below - rk4417 - phase2
+
+   litter_dz(:) = 0.0  
+   if (cable_user%litter) then
+      where (ssnow%isflag .eq. 0 .or. ssnow%snowd .le. 0.1)
+         litter_dz(:) = veg%clitt*0.003
+      endwhere
+   endif
+
 
     pore_radius(:) = 0.148  / (1000.0*9.81*ABS(soil%sucs_vec(:,1))/1000.0)  !should replace 0.148 with surface tension, unit coversion, and angle
     pore_size(:) = pore_radius(:)*SQRT((pi_r_2))
 
     !scale ustar according to the exponential wind profile, assuming we are a mm from the surface
-    eddy_shape = 0.3*met%ua/ MAX(1.0e-4,MAX(1.0e-3,canopy%us)*&
-         EXP(-rough%coexp*(1.0-canopy%sublayer_dz/MAX(1e-2,rough%hruff))))
-    int_eddy_shape = FLOOR(eddy_shape)
-    eddy_mod(:) = 0.0
+
+!    eddy_shape = 0.3*met%ua/ MAX(1.0e-4,MAX(1.0e-3,canopy%us)*&
+!         EXP(-rough%coexp*(1.0-canopy%sublayer_dz/MAX(1e-2,rough%hruff))))
+!    int_eddy_shape = FLOOR(eddy_shape)
+!    eddy_mod(:) = 0.0
+
+! replaced above block by below - rk4417 - phase2
+
+    eddy_mod(:) = 0.0    
+    eddy_shape(:) = 1.0  
+    int_eddy_shape(:) = 0
+
     DO i=1,mp
-       IF (veg%iveg(i) .LT. 16) THEN
+       IF (veg%iveg(i) .LT. 16) THEN   ! should probably replace 16 with lakes_cable - rk4417
+
+! 2 statements below inserted by rk4417 - phase2
+          eddy_shape(i) = 0.3*met%ua(i)/ max(1.0e-4,max(1.0e-3,canopy%us(i))*&      
+          exp(-rough%coexp(i)*(1.0-canopy%sublayer_dz(i)/max(1e-2,rough%hruff(i)))))  
+          int_eddy_shape(i) = floor(eddy_shape(i)) 
+
           eddy_mod(i) = 2.2*SQRT(112.0*(pi_r_2)) / (2.0**(eddy_shape(i)+1.0) * SQRT(eddy_shape(i)+1.0))
 
           IF (int_eddy_shape(i) .GT. 0) THEN
@@ -117,7 +148,7 @@ CONTAINS
     END DO
 
     DO i=1,mp
-       IF (veg%iveg(i) .LT. 16) THEN
+       IF (veg%iveg(i) .LT. 16) THEN   ! should probably replace 16 with lakes_cable - rk4417
 
           wb_liq(i) = REAL(MAX(0.0001,MIN((pi_r_2)/4.0, &
                (ssnow%wb(i,1)-ssnow%wbice(i,1) - ssnow%satfrac(i)*soil%ssat_vec(i,1)) / &
@@ -145,6 +176,7 @@ CONTAINS
           END IF
 
           IF (canopy%sublayer_dz(i) .GE. 1.0e-7) THEN
+!      if (canopy%sublayer_dz(i) .ge. 1.0e-7 .and. hk_zero(i) .lt. 1.0e14) then  ! line replaces above one in MMY code -- rk4417  ! MMY@23Apr2023 I have no idea about it, need to check what hk_zero is
              ssnow%rtevap_unsat(i) = MIN(rtevap_max, &
                   rough%z0soil(i)/canopy%sublayer_dz(i) * (lm/ (4.0*hk_zero(i)) +&
                   (canopy%sublayer_dz(i) + pore_size(i) * soil_moisture_mod(i)) / rt_Dff))
@@ -161,6 +193,7 @@ CONTAINS
                   lm/ (4.0*hk_zero_sat(i)) + (canopy%sublayer_dz(i) + pore_size(i) * soil_moisture_mod_sat(i)) / rt_Dff)
 
              ssnow%rt_qh_sublayer(i) = 0.0
+!             ssnow%rt_qh_sublayer(i) = canopy%sublayer_dz(i) / litter_thermal_diff  ! line replaces above one in MMY code -- rk4417  ! MMY@23Apr2023 need to test, I have no idea why it is changed
           END IF
 
        ELSE
@@ -168,7 +201,7 @@ CONTAINS
           ssnow%rtevap_unsat(i) = 0.0
           ssnow%rt_qh_sublayer(i) = 0.0
           ssnow%satfrac(i) = 0.5
-          IF (veg%iveg(i) .EQ. 16 .AND. met%tk(i) .LT. 268.15 ) &
+          IF (veg%iveg(i) .EQ. 16 .AND. met%tk(i) .LT. 268.15 ) &    ! should probably replace 16 with lakes_cable - rk4417
                ssnow%rtevap_sat(i) = 0.41*ssnow%rtsoil(i)
 
        END IF
@@ -192,7 +225,7 @@ CONTAINS
 
     DO i=1,mp
 
-       IF (veg%iveg(i) .LT. 16 .AND. ssnow%snowd(i) .LT. 1e-7) THEN
+       IF (veg%iveg(i) .LT. 16 .AND. ssnow%snowd(i) .LT. 1e-7) THEN    ! should probably replace 16 with lakes_cable - rk4417
 
           IF (dq(i) .LE. 0.0) THEN
              ssnow%rtevap_sat(i) = MIN(rtevap_max,canopy%sublayer_dz(i)/rt_Dff)
