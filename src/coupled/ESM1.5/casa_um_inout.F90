@@ -281,6 +281,9 @@ IMPLICIT NONE
   casaflux%clabloss(:)   = 0.0
 !print *,'Lest - Crsoil',casaflux%Crsoil
 
+  ! R. Law 19/8/24 Initialise casaflux%frac_sapwood=1 (#373,#274,#163)
+  ! for correct calculation of rmplant(:,wood) in casa_rplant.
+  casaflux%frac_sapwood = 1.0
 
   ! Lest 19/2/14 - will work for coupled and amip
   ! mtau is the step number of the day (1,2,..47,0)
