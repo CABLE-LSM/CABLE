@@ -156,7 +156,7 @@ SUBROUTINE CRU_INIT(CRU)
   END IF
 END SUBROUTINE CRU_INIT
 
-SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)
+SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau)
 
   ! Obtain one day of CRU-NCEP meteorology, subdiurnalise it using a weather
   ! generator and return the result to the CABLE driver.
@@ -164,7 +164,7 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)
   IMPLICIT NONE
 
   TYPE(CRU_TYPE), INTENT(INOUT) :: CRU
-  INTEGER,        INTENT(IN)    :: CurYear, ktau, kend
+  INTEGER,        INTENT(IN)    :: CurYear, ktau
 
   ! Define MET the CABLE version, different from the MET defined and used
   ! within the CRU variable.
@@ -172,6 +172,8 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)
   type(MET_TYPE) :: MET
 
   ! Local variables
+I think the best approach would be to:
+
   logical   :: newday, LastDayOfYear  ! Flags for occurence of a new day (0 hrs) and the last day of the year.
   INTEGER   :: iland                  ! Loop counter through 'land' cells (cells in the spatial domain)
   INTEGER   :: itimestep              ! Loop counter through subdiurnal timesteps in a day
@@ -245,9 +247,8 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)
      !print *, CRU%CTSTEP, ktau, kend
      !   CALL CPU_TIME(etime)
      !   PRINT *, 'b4 daily ', etime, ' seconds needed '
-     LastDayOfYear = ktau == (kend-(nint(SecDay/dt)-1))
 
-     call CRU_GET_DAILY_MET(CRU)
+     call GET_DAILY_MET(CRU)
      ! Scale presuure to hPa
      CRU%Met(pres)%MetVals(:) = CRU%Met(pres)%MetVals(:) / 100.
 
@@ -375,7 +376,126 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)
 
 end subroutine CRU_GET_SUBDIURNAL_MET
 
-SUBROUTINE cru_get_daily_met(CRU)
+SUBROUTINE BIOS_GET_SUBDIURNAL_MET(CRU, Met, CurYear, ktau)
+  !*## Purpose
+  !
+  ! Use provided daily meteorology to prepare the inputs to the weather
+  ! generator.
+  !
+  !## Method
+  !
+  ! Uses the current date to retrieve the relevant entry from the respective
+  ! variable datasets, and process them into quantities appropriate for the
+  ! subdiurnal weather generator.
+
+  TYPE(CRU_TYPE), INTENT(INOUT) :: CRU  ! Meta information about the Met config
+  TYPE(MET_TYPE), INTENT(INOUT) :: Met  ! The Met data storage
+  INTEGER, INTENT(IN) :: CurYear, ktau  ! Time from the driver run loop
+
+  LOGICAL :: NewDay     ! New day checker
+  INTEGER :: iLand      ! Land point iterator
+  INTEGER :: is, ie     ! Tile iterators
+
+  REAL, DIMENSION(:), ALLOCATABLE :: CO2Air   ! CO2 concentration array
+  REAL, PARAMETER :: RMWbyRMA = 0.62188471  ! Mol wt H20 / atom wt C
+
+  ! Set the current time
+  Met%hod(:) = REAL(MOD( (ktau-1) * NINT(dels), INT(SecDay)) ) / 3600.
+  Met%doy(:) = INT(REAL(ktau-1) * dels / SecDay ) + 1
+  Met%year(:) = CurYear
+
+  CALL DOYSOD2YMDHMS(CurYear, INT(MET%doy(1)), INT(met%hod(1)) * 3600, dM, dD)
+  Met%moy(:) = dM
+
+  ! Check for a new day
+  NewDay = EQ(Met%hod(landpt(1)%cstart), 0.0)
+
+  ! Allocate CO2 memory
+  ALLOCATE(CO2Air(SIZE(Met%ca))
+
+  ! Beginning of year accounting
+  IF (ktau == 1) THEN
+    CRU%CTStep = 1
+    ! Read a new annual CO2 value and convert it from ppm to mol/mol
+    CALL GET_CRU_CO2(CRU, CO2air)
+    Met%ca(:) = CO2air(:) / 1.0e6
+
+    CALL GET_CRU_Ndep(CRU)
+    DO iland = 1, CRU%mland
+       Met%Ndep(landpt(iland)%cstart:landpt(iland)%cend) = &
+            CRU%NdepVALS(iland)*86400000.  ! kg/m2/s > g/m2/d (1000.*3600.*24.)
+    END DO
+  END IF
+
+  ! Beginning of day accounting
+  IF (NewDay) THEN
+    CALL GET_DAILY_MET(CRU)
+
+    ! Map to weather generator
+    WG%TempMinDay = CRU%Met(Tmin)%MetVals
+    WG%TempMaxDay = CRU%Met(Tmax)%MetVals
+
+    WG%VapPmbDay = ESATF(CRU%Met(Tmin)%MetVals
+    WG%VapPmb0900 = CRU%Met(vp0900)%MetVals
+    WG%VapPmb1500 = CRU%Met(vp1500)%MetVals
+
+    ! NOTE- this section is incorrect, and is currently left incorrect for
+    ! bitwise compatibility.
+    ! TODO: Correct this after bitwise comparisons to incorrect version
+    WG%TempMaxDayPrev = CRU%Met(Tmax)%MetVals
+    WG%TempMinDayNext = CRU%Met(Tmin)%MetVals
+    WG%VapPmb1500Prev = CRU%Met(vp1500)%MetVals
+    WG%VapPmb0900Next = CRU%Met(vp0900)%MetVals
+
+    ! End TODO
+    ! Continue mapping to weather generator
+    WG%WindDay = CRU%Met(wind)%MetVals
+    WG%SolarMJDay = CRU%Met(swdn)%MetVals
+    WG%PrecipDay = CRU%Met(rain)%MetVals / 1000
+    WG%PmbDay = 1000.0
+
+    ! Do snow conversion
+    SnowConversion: DO iLand = 1, SIZE(WG%TempMinDay)
+      IF WG%TempMinDay(iLand) < -2.0) THEN
+        WG%SnowDay(iLand) = WG%PrecipDay(iLand)
+        WG%PrecipDay(iLand) = 0.0
+      ELSE
+        WG%SnowDay(iLand) = 0.0
+      END IF
+    END DO SnowConversion
+  END IF  ! End start of day accounting
+
+  CALL WGEN_SUBDIURNAL_MET(WG, CRU%mLand, NINT(Met%hod(1) * 3600.0 / dt))
+
+  ! Now pass the data out to the land tiles
+  PassToTiles: DO iLand = 1, CRU%mLand
+    is = LandPt(iLand)%cStart
+    ie = LandPt(iLand)%cEnd
+
+    Met%Precip(is:ie)     = REAL(WG%Precip(iLand), sp)
+    Met%Precip_sn(is:ie)  = REAL(WG%Snow(iLand), sp)
+    ! Why is it done this way? Doesn't make much sense
+    Met%Precip(is:ie)     = Met%Precip(is:ie) + Met%Precip_sn(is:ie)
+    Met%fld(is:ie)        = REAL(WG%PhilD(iLand), sp)
+    Met%fsd(is:ie,1)      = REAL(WG%PhiSD(iLand) * 0.5_dp, sp)
+    Met%fsd(is:ie,2)      = REAL(WG%PhiSD(iLand) * 0.5_dp, sp)
+    Met%tk(is:ie)         = REAL(WG%Temp(iLand) + 273.15_dp, sp)
+    ! Factor of 2 to convert 2m screen height to 40m zref (??)
+    Met%ua(is:ie)         = REAL(WG%Wind(iLand) * 2.0_dp, sp)
+    Met%coszen(is:ie)     = REAL(WG%coszen(iLand), sp)
+    Met%qv(is:ie)         = REAL(WG%VapPmb(iLand) / WG%Pmb(iLand), sp) *&
+                            RMWbyRWA
+    Met%Pmb(is:ie)        = REAL(WG%Pmb(iLand), sp)
+    Met%rhum(is:ie)       = REAL(WG%VapPmb(iLand), sp) /&
+                            ESATF(REAL(WG%Temp(iLand), sp)) * 100.0
+    Met%u10(is:ie)        = Met%ua(is:ie)
+    Met%tvair(is:ie)      = Met%tk(is:ie)
+    Met%tvrad(is:ie)      = Met%tk(is:ie)
+  END DO PassToTiles
+
+END SUBROUTINE BIOS_GET_SUBDIURNAL_MET
+    
+SUBROUTINE get_daily_met(CRU)
   TYPE(CRU_TYPE), INTENT(INOUT)   :: CRU
 
   ! The year of met forcing we use depends on our choice of configuration.
@@ -800,6 +920,9 @@ SUBROUTINE read_landmask(LandmaskFile, CRU)
   ALLOCATE(LandMask(xDimSize, yDimSize))
   ALLOCATE(CRU%LandMask(xDimSize, yDimSize))
   ok = NF90_INQ_VARID(FileID, 'land', LandID)
+  IF (ok == NF90_NOERR) THEN
+    ok = NF90_INQ_VARID(FileID, 'AWAP BIOS Australia Mask (modelled=1, not modelled = -9999)', LandID)
+  END IF
   CALL handle_err(ok, "Error finding land VARID.")
   ok = NF90_GET_VAR(FileID, LandID, LandMask)
   CALL handle_err(ok, "Error reading land variable.")
