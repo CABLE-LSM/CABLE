@@ -125,7 +125,8 @@ PROGRAM cable_offline_driver
   use CABLE_PLUME_MIP,      only: PLUME_MIP_TYPE, PLUME_MIP_GET_MET, &
        PLUME_MIP_INIT
 
-  use CABLE_CRU,            only: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT, cru_close
+  use CABLE_CRU,            only: CRU_TYPE, CRU_GET_SUBDIURNAL_MET,&
+                                  BIOS_GET_SUBDIURNAL_MET, CRU_INIT, cru_close
   use CABLE_site,           only: site_TYPE, site_INIT, site_GET_CO2_Ndep
 
   ! BIOS only
@@ -516,7 +517,7 @@ PROGRAM cable_offline_driver
      NREP: do RRRR=1, NRRRR
 
         if (trim(cable_user%MetType) == "bios") then
-           call cable_bios_init(dels,curyear,met,kend,ktauday)
+           !call cable_bios_init(dels,curyear,met,kend,ktauday)
            koffset   = 0
            leaps = .true.
            write(str1,'(i4)') curyear
@@ -591,7 +592,8 @@ PROGRAM cable_offline_driver
            else if (trim(cable_user%MetType) == 'bios') then
               ! BIOS run
               kend = nint(24.0 * 3600.0 / dels) * LOY
-           else if (trim(cable_user%MetType) == 'cru') then
+           else if ((trim(cable_user%MetType) == 'cru') .OR. &
+             (TRIM(cable_user%MetType) == 'bios')) then
               ! TRENDY experiment using CRU-NCEP
               if (CALL1) then
                  call cru_init(cru)
@@ -837,11 +839,11 @@ PROGRAM cable_offline_driver
                  end if
               else if (trim(cable_user%MetType) == 'bios') then
                  if ((.not. CASAONLY) .or. (CASAONLY .and. CALL1)) then
-                    call cable_bios_read_met(MET, CurYear, ktau, dels)
+                    call BIOS_GET_SUBDIURNAL_MET(CRU, met, YYYY, ktau)
                  end if
               else if (trim(cable_user%MetType) == 'cru') then
                  if ((.not. CASAONLY) .or. (CASAONLY .and. CALL1)) then
-                    call CRU_GET_SUBDIURNAL_MET(CRU, met, YYYY, ktau, kend)
+                    call CRU_GET_SUBDIURNAL_MET(CRU, met, YYYY, ktau)
                  end if
               else
                  if (trim(cable_user%MetType) == 'site') &
@@ -1296,6 +1298,7 @@ PROGRAM cable_offline_driver
 
            CALL1 = .false.
 
+           WRITE(*,*) "Spinup:", spinup, "spinConv:", spinConv, "CASAONLY:", CASAONLY
            ! see if spinup (if conducting one) has converged
            if (spinup .and. (.not.spinConv) .and. (.not.CASAONLY)) then
 

@@ -42,8 +42,10 @@ INTEGER, PRIVATE, PARAMETER  :: rain = 1, lwdn = 2, swdn = 3, pres = 4,&
                                 fdiff = 13, prevTmax = 14, nextTmin = 15,&
                                 nextvp0900 = 16, prevvp1500 = 17
 INTEGER, PRIVATE, PARAMETER  :: sp = kind(1.0)
+INTEGER, PRIVATE, PARAMETER  :: dp = KIND(1.0d0)
 INTEGER, PRIVATE, PARAMETER  :: nVariables = 13
 INTEGER, PRIVATE             :: ErrStatus
+TYPE(WEATHER_GENERATOR_TYPE), PRIVATE :: WG
 
 TYPE CRU_MET_TYPE
   REAL, DIMENSION(:), ALLOCATABLE :: MetVals
@@ -154,6 +156,10 @@ SUBROUTINE CRU_INIT(CRU)
       CRU%NDepVID)
     CALL handle_err(ok, "Finding NDep variable")
   END IF
+
+  ! Initialise the weather generator
+  CALL WGEN_INIT(WG, CRU%mLand, Latitude, REAL(CRU%DtSecs))
+
 END SUBROUTINE CRU_INIT
 
 SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau)
@@ -172,7 +178,6 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau)
   type(MET_TYPE) :: MET
 
   ! Local variables
-I think the best approach would be to:
 
   logical   :: newday, LastDayOfYear  ! Flags for occurence of a new day (0 hrs) and the last day of the year.
   INTEGER   :: iland                  ! Loop counter through 'land' cells (cells in the spatial domain)
@@ -183,7 +188,6 @@ I think the best approach would be to:
   REAL      :: dt                     ! Timestep in seconds
  ! Store the CO2Air as an array
   REAL, DIMENSION(:), ALLOCATABLE    :: CO2air                 ! CO2 concentration in ppm
-  type(WEATHER_GENERATOR_TYPE), save :: WG
   logical,                      save :: CALL1 = .true.  ! A *local* variable recording the first call of this routine
   INTEGER :: VarIter
 
@@ -197,7 +201,6 @@ I think the best approach would be to:
         cable_user%calc_fdiff = .true.
      endif
 
-     call WGEN_INIT(WG, CRU%mland, latitude, dt)
   endif
 
   ! Pass time-step information to CRU
@@ -395,13 +398,18 @@ SUBROUTINE BIOS_GET_SUBDIURNAL_MET(CRU, Met, CurYear, ktau)
   LOGICAL :: NewDay     ! New day checker
   INTEGER :: iLand      ! Land point iterator
   INTEGER :: is, ie     ! Tile iterators
+  INTEGER :: dM, dD     ! date month and day
+  REAL    :: Dt         ! Timestep as real (why is not real originally?)
 
   REAL, DIMENSION(:), ALLOCATABLE :: CO2Air   ! CO2 concentration array
   REAL, PARAMETER :: RMWbyRMA = 0.62188471  ! Mol wt H20 / atom wt C
 
+  ! Convert timestep to real
+  Dt = CRU%DtSecs
+
   ! Set the current time
-  Met%hod(:) = REAL(MOD( (ktau-1) * NINT(dels), INT(SecDay)) ) / 3600.
-  Met%doy(:) = INT(REAL(ktau-1) * dels / SecDay ) + 1
+  Met%hod(:) = REAL(MOD((ktau-1) * NINT(Dt), INT(SecDay))) / 3600.
+  Met%doy(:) = INT(REAL(ktau-1) * Dt / SecDay ) + 1
   Met%year(:) = CurYear
 
   CALL DOYSOD2YMDHMS(CurYear, INT(MET%doy(1)), INT(met%hod(1)) * 3600, dM, dD)
@@ -411,7 +419,7 @@ SUBROUTINE BIOS_GET_SUBDIURNAL_MET(CRU, Met, CurYear, ktau)
   NewDay = EQ(Met%hod(landpt(1)%cstart), 0.0)
 
   ! Allocate CO2 memory
-  ALLOCATE(CO2Air(SIZE(Met%ca))
+  ALLOCATE(CO2Air(SIZE(Met%ca)))
 
   ! Beginning of year accounting
   IF (ktau == 1) THEN
@@ -435,7 +443,7 @@ SUBROUTINE BIOS_GET_SUBDIURNAL_MET(CRU, Met, CurYear, ktau)
     WG%TempMinDay = CRU%Met(Tmin)%MetVals
     WG%TempMaxDay = CRU%Met(Tmax)%MetVals
 
-    WG%VapPmbDay = ESATF(CRU%Met(Tmin)%MetVals
+    WG%VapPmbDay = ESATF(CRU%Met(Tmin)%MetVals)
     WG%VapPmb0900 = CRU%Met(vp0900)%MetVals
     WG%VapPmb1500 = CRU%Met(vp1500)%MetVals
 
@@ -456,7 +464,7 @@ SUBROUTINE BIOS_GET_SUBDIURNAL_MET(CRU, Met, CurYear, ktau)
 
     ! Do snow conversion
     SnowConversion: DO iLand = 1, SIZE(WG%TempMinDay)
-      IF WG%TempMinDay(iLand) < -2.0) THEN
+      IF (WG%TempMinDay(iLand) < -2.0) THEN
         WG%SnowDay(iLand) = WG%PrecipDay(iLand)
         WG%PrecipDay(iLand) = 0.0
       ELSE
@@ -465,7 +473,7 @@ SUBROUTINE BIOS_GET_SUBDIURNAL_MET(CRU, Met, CurYear, ktau)
     END DO SnowConversion
   END IF  ! End start of day accounting
 
-  CALL WGEN_SUBDIURNAL_MET(WG, CRU%mLand, NINT(Met%hod(1) * 3600.0 / dt))
+  CALL WGEN_SUBDIURNAL_MET(WG, CRU%mLand, NINT(Met%hod(1) * 3600.0 / Dt))
 
   ! Now pass the data out to the land tiles
   PassToTiles: DO iLand = 1, CRU%mLand
@@ -484,7 +492,7 @@ SUBROUTINE BIOS_GET_SUBDIURNAL_MET(CRU, Met, CurYear, ktau)
     Met%ua(is:ie)         = REAL(WG%Wind(iLand) * 2.0_dp, sp)
     Met%coszen(is:ie)     = REAL(WG%coszen(iLand), sp)
     Met%qv(is:ie)         = REAL(WG%VapPmb(iLand) / WG%Pmb(iLand), sp) *&
-                            RMWbyRWA
+                            RMWbyRMA
     Met%Pmb(is:ie)        = REAL(WG%Pmb(iLand), sp)
     Met%rhum(is:ie)       = REAL(WG%VapPmb(iLand), sp) /&
                             ESATF(REAL(WG%Temp(iLand), sp)) * 100.0
@@ -636,7 +644,7 @@ SUBROUTINE get_daily_met(CRU)
   CALL read_metvals(CRU%MetDatasets(vp0900), CRU%Met(nextvp0900)%MetVals,&
     land_x, land_y, DummyYear, DummyDay, CRU%LeapYears, CRU%xDimSize,&
     CRU%yDimSize, CRU%DirectRead)
-END SUBROUTINE cru_get_daily_met
+END SUBROUTINE get_daily_met
 
 SUBROUTINE read_MET_namelist_cbl(InputFiles, nDepFile, CO2File, LandmaskFile,&
     CRU)
