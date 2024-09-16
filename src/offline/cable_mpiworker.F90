@@ -5655,6 +5655,7 @@ USE cbl_soil_snow_init_special_module
 
   SUBROUTINE worker_time_update (met, kend, dels)
 
+    USE cable_abort_module, ONLY: abort
     USE cable_common_module, ONLY: ktau_gl
     USE cable_def_types_mod
     USE cable_IO_vars_module
