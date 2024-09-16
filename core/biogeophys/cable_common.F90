@@ -32,6 +32,14 @@ MODULE cable_common_module
   INTEGER, SAVE :: ktau_gl, kend_gl, knode_gl, kwidth_gl
   INTEGER, SAVE :: CurYear  ! current year of multiannual run
 
+  ! Dimension name lists for searching NetCDF dimensions IDs
+  CHARACTER(LEN=16), DIMENSION(5) :: LatNames = &
+    (/"latitude", "lat", "lats", "y", "Latitude"/)
+  CHARACTER(LEN=16), DIMENSION(5) :: LonNames = &
+    (/"longitude", "lon", "lons", "x", "Longitude"/)
+  CHARACTER(LEN=16), DIMENSION(3) :: TimeNames = &
+    (/"time", "t", "Time"/)
+
   ! user switches turned on/off by the user thru namelists
 
   ! trunk modifications protected by these switches
@@ -685,105 +693,136 @@ CONTAINS
 
   end subroutine get_unit
 
-  FUNCTION latitude_dimid(FileID)
+  FUNCTION get_dimid(FileID, DimNames)
     !*## Purpose
     !
-    ! Find the id of the latitude dimension
+    ! Find the id of the desired dimension using a list of possible names.
     !
-    !## Method
+    !##
     !
-    ! Run through a list of possible names for the latitude dimension, until one
-    ! is found in the NetCDF dimensions.
+    ! Run through a list of possible names for the dimensions as defined in the
+    ! cable_common module.
 
-    INTEGER :: FileID, latitude_dimid
-    INTEGER :: i, ok
+    ! Input and output
+    INTEGER :: FileID, get_dimid
+    CHARACTER(LEN=*), DIMENSION(:)  :: DimNames
 
-    CHARACTER(LEN=16), DIMENSION(5) :: LatNames
-
-    ! Assign a set of possible latitude names
-    LatNames(1) = "y"
-    LatNames(2) = "latitude"
-    LatNames(3) = "lat"
-    LatNames(4) = "lats"
-    LatNames(5) = "Latitude"
+    ! Iterator and status checker- use NF90_EINVAL so we throw error when an
+    ! empty list of names is passed.
+    INTEGER :: i, ok = NF90_EINVAL
 
     ! Run through the possible names until we find the correct one
-    CheckNames: DO i = 1, SIZE(LatNames)
-      ok = NF90_INQ_DIMID(FileID, TRIM(LatNames(i)), latitude_dimid)
+    CheckNames: DO i = 1, SIZE(DimNames)
+      ok = NF90_INQ_DIMID(FileID, TRIM(DimNames(i)), get_dimid)
       IF (ok == NF90_NOERR) THEN
         EXIT CheckNames
       END IF
     END DO CheckNames
 
-    CALL handle_err(ok, "Failed to find any latitude dimension from the list.")
+    CALL handle_err(ok, "Failed to find any "//TRIM(DimNames(1))//" dimensions&
+      from the list.")
 
-  END FUNCTION latitude_dimid
+  END FUNCTION get_dimid
 
-  FUNCTION longitude_dimid(FileID)
-    !*## Purpose
-    !
-    ! Find the id of the longitude dimension
-    !
-    !## Method
-    !
-    ! Run through a list of possible names for the longitude dimension, until 
-    ! one is found in the NetCDF dimensions.
+  !FUNCTION latitude_dimid(FileID)
+    !!*## Purpose
+    !!
+    !! Find the id of the latitude dimension
+    !!
+    !!## Method
+    !!
+    !! Run through a list of possible names for the latitude dimension, until one
+    !! is found in the NetCDF dimensions.
 
-    INTEGER :: FileID, longitude_dimid
-    INTEGER :: i, ok
+    !INTEGER :: FileID, latitude_dimid
+    !INTEGER :: i, ok
 
-    CHARACTER(LEN=16), DIMENSION(5) :: LonNames
+    !CHARACTER(LEN=16), DIMENSION(5) :: LatNames
 
-    ! Assign a set of possible longitude names
-    LonNames(1) = "x"
-    LonNames(2) = "longitude"
-    LonNames(3) = "lon"
-    LonNames(4) = "lons"
-    LonNames(5) = "Longitude"
+    !! Assign a set of possible latitude names
+    !LatNames(1) = "y"
+    !LatNames(2) = "latitude"
+    !LatNames(3) = "lat"
+    !LatNames(4) = "lats"
+    !LatNames(5) = "Latitude"
 
-    ! Run through the possible names until we find the correct one
-    CheckNames: DO i = 1, SIZE(LonNames)
-      ok = NF90_INQ_DIMID(FileID, TRIM(LonNames(i)), longitude_dimid)
-      IF (ok == NF90_NOERR) THEN
-        EXIT CheckNames
-      END IF
-    END DO CheckNames
+    !! Run through the possible names until we find the correct one
+    !CheckNames: DO i = 1, SIZE(LatNames)
+      !ok = NF90_INQ_DIMID(FileID, TRIM(LatNames(i)), latitude_dimid)
+      !IF (ok == NF90_NOERR) THEN
+        !EXIT CheckNames
+      !END IF
+    !END DO CheckNames
 
-    CALL handle_err(ok, "Failed to find any longitude dimension from the list.")
+    !CALL handle_err(ok, "Failed to find any latitude dimension from the list.")
 
-  END FUNCTION longitude_dimid
+  !END FUNCTION latitude_dimid
 
-  FUNCTION time_dimid(FileID)
-    !*## Purpose
-    !
-    ! Find the id of the time dimension
-    !
-    !## Method
-    !
-    ! Run through a list of possible names for the time dimension, until one
-    ! is found in the NetCDF dimensions.
+  !FUNCTION longitude_dimid(FileID)
+    !!*## Purpose
+    !!
+    !! Find the id of the longitude dimension
+    !!
+    !!## Method
+    !!
+    !! Run through a list of possible names for the longitude dimension, until 
+    !! one is found in the NetCDF dimensions.
 
-    INTEGER :: FileID, time_dimid
-    INTEGER :: i, ok
+    !INTEGER :: FileID, longitude_dimid
+    !INTEGER :: i, ok
 
-    CHARACTER(LEN=16), DIMENSION(3) :: TimeNames
+    !CHARACTER(LEN=16), DIMENSION(5) :: LonNames
 
-    ! Assign a set of possible latitude names
-    TimeNames(1) = "time"
-    TimeNames(2) = "t"
-    TimeNames(3) = "Time"
+    !! Assign a set of possible longitude names
+    !LonNames(1) = "x"
+    !LonNames(2) = "longitude"
+    !LonNames(3) = "lon"
+    !LonNames(4) = "lons"
+    !LonNames(5) = "Longitude"
 
-    ! Run through the possible names until we find the correct one
-    CheckNames: DO i = 1, SIZE(TimeNames)
-      ok = NF90_INQ_DIMID(FileID, TRIM(TimeNames(i)), time_dimid)
-      IF (ok == NF90_NOERR) THEN
-        EXIT CheckNames
-      END IF
-    END DO CheckNames
+    !! Run through the possible names until we find the correct one
+    !CheckNames: DO i = 1, SIZE(LonNames)
+      !ok = NF90_INQ_DIMID(FileID, TRIM(LonNames(i)), longitude_dimid)
+      !IF (ok == NF90_NOERR) THEN
+        !EXIT CheckNames
+      !END IF
+    !END DO CheckNames
 
-    CALL handle_err(ok, "Failed to find any time dimension from the list.")
+    !CALL handle_err(ok, "Failed to find any longitude dimension from the list.")
 
-  END FUNCTION time_dimid
+  !END FUNCTION longitude_dimid
+
+  !FUNCTION time_dimid(FileID)
+    !!*## Purpose
+    !!
+    !! Find the id of the time dimension
+    !!
+    !!## Method
+    !!
+    !! Run through a list of possible names for the time dimension, until one
+    !! is found in the NetCDF dimensions.
+
+    !INTEGER :: FileID, time_dimid
+    !INTEGER :: i, ok
+
+    !CHARACTER(LEN=16), DIMENSION(3) :: TimeNames
+
+    !! Assign a set of possible latitude names
+    !TimeNames(1) = "time"
+    !TimeNames(2) = "t"
+    !TimeNames(3) = "Time"
+
+    !! Run through the possible names until we find the correct one
+    !CheckNames: DO i = 1, SIZE(TimeNames)
+      !ok = NF90_INQ_DIMID(FileID, TRIM(TimeNames(i)), time_dimid)
+      !IF (ok == NF90_NOERR) THEN
+        !EXIT CheckNames
+      !END IF
+    !END DO CheckNames
+
+    !CALL handle_err(ok, "Failed to find any time dimension from the list.")
+
+  !END FUNCTION time_dimid
 
   elemental pure function is_leapyear(yyyy)
 

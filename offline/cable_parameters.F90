@@ -59,7 +59,7 @@ MODULE cable_param_module
   USE phenvariable
   USE cable_abort_module
   USE cable_IO_vars_module
-  USE cable_common_module, ONLY: cable_user, latitude_dimid, longitude_dimid
+  USE cable_common_module, ONLY: cable_user, get_dimid, LatNames, LonNames
   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, LUC_EXPT_SET_TILES, LUC_EXPT_SET_TILES_BIOS
 
   IMPLICIT NONE
@@ -219,11 +219,11 @@ CONTAINS
     ok = NF90_OPEN(trim(filename%type), 0, ncid)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error opening grid info file.')
 
-    xID = longitude_dimid(ncid)
+    xID = get_dimid(ncid, LonNames)
     ok = NF90_INQUIRE_DIMENSION(ncid, xID, LEN=nlon)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting x dimension.')
 
-    yID = latitude_dimid(ncid)
+    yID = get_dimid(ncid, LatNames)
     ok = NF90_INQUIRE_DIMENSION(ncid, yID, LEN=nlat)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting y dimension.')
 
@@ -766,11 +766,11 @@ CONTAINS
     ok = NF90_OPEN(trim(filename%soilcolor), 0, ncid)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error opening soil color file.')
 
-    xID = longitude_dimid(ncid)
+    xID = get_dimid(ncid, LonNames)
     ok = NF90_INQUIRE_DIMENSION(ncid, xID, LEN=nlon)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting x dimension.')
 
-    yID = latitude_dimid(ncid)
+    yID = get_dimid(ncid, LatNames)
     ok = NF90_INQUIRE_DIMENSION(ncid, yID, LEN=nlat)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting y dimension.')
 

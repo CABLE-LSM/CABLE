@@ -10,8 +10,8 @@ USE NetCDF,                 ONLY: NF90_OPEN, NF90_NOWRITE, NF90_INQ_DIMID,&
                                   NF90_GET_VAR, NF90_CLOSE, NF90_NOERR
 USE cable_abort_module,     ONLY: cable_abort, nc_abort
 USE cable_common_module,    ONLY: handle_err, get_unit, is_leapyear,&
-                                cable_user, doysod2ymdhms, latitude_dimid,&
-                                longitude_dimid
+                                cable_user, doysod2ymdhms, get_dimid, LatNames,&
+                                LonNames
 USE cable_io_vars_module,   ONLY: logn, land_x, land_y, exists, nMetPatches,&
                                 latitude, longitude, lat_all, lon_all, landPt,&
                                 xDimSize, yDimSize, sdoy, smoy, syear, shod,&
@@ -701,11 +701,11 @@ SUBROUTINE read_landmask(LandmaskFile, CRU)
   CALL handle_err(ok, "Error opening landmask file at "//TRIM(LandmaskFile))
 
   ! Inquire about the latitude and longitude dimensions
-  LatID = latitude_dimid(FileID)
+  LatID = get_dimid(FileID, LatNames)
   ok = NF90_INQUIRE_DIMENSION(FileID, LatID, LEN = yDimSize)
   CALL handle_err(ok, "Error inquiring latitude dimension.")
 
-  LonID = longitude_dimid(FileID)
+  LonID = get_dimid(FileID, LonNames)
   ok = NF90_INQUIRE_DIMENSION(FileID, LonID, LEN = xDimSize)
   CALL handle_err(ok, "Error inquiring longitude dimension.")
 
