@@ -5,6 +5,9 @@ IMPLICIT NONE
   ! hydraulic_redistribution parameters _soilsnow module
 REAL :: wiltParam = 0.0, satuParam = 0.0
 
+! should the above be instead:
+!   REAL :: wiltParam=0.5, satuParam=0.8 ! rk4417 - phase2
+
 ! user switches turned on/off by the user thru namelists
 ! CABLE-2.0 user switches all in single namelist file cable.nml
 ! clean these up for new namelist(s) format
@@ -107,13 +110,15 @@ TYPE kbl_user_switches
   LOGICAL :: or_evap = .FALSE.
   LOGICAL :: test_new_gw = .FALSE.
   LOGICAL :: sync_nc_file = .FALSE.
-  INTEGER :: max_spins = -1
+  INTEGER :: max_spins = -1 ! MMY-phase2 change from -1 to 30 - rk4417
   LOGICAL :: fix_access_roots = .FALSE.  !use pft dependent roots in ACCESS
   !ACCESS roots
   LOGICAL :: access13roots = .FALSE.     !switch to use ACCESS1.3 %froot
 
   LOGICAL :: l_limit_labile = .FALSE.    ! #237: limit Labile in spinup
   LOGICAL :: NtilesThruMetFile = .FALSE. ! #199: Specify Ntiles thru met file
+  !line below inserted to fix compilation error - rk4417 - phase2
+  INTEGER :: force_npatches_as=-1 
   ! #338 https://github.com/CABLE-LSM/CABLE/issues/338
   LOGICAL :: l_ice_consistency = .FALSE.
 

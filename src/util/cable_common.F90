@@ -27,6 +27,10 @@ USE cable_runtime_opts_mod ,ONLY : cable_user
 USE cable_runtime_opts_mod ,ONLY : satuparam
 USE cable_runtime_opts_mod ,ONLY : wiltparam
 
+! two imports below inserted by rk4417 - phase2
+USE cable_pft_params_mod, ONLY : vegin
+USE cable_soil_params_mod, ONLY : soilin
+
   IMPLICIT NONE
 
   !---allows reference to "gl"obal timestep in run (from atm_step)
@@ -77,18 +81,20 @@ USE cable_runtime_opts_mod ,ONLY : wiltparam
           soilcolor,  & ! file for soil color(soilcolor_global_1x1.nc)
           inits,      & ! name of file for initialisations
           soilIGBP,   & ! name of file for IGBP soil map
-          gw_elev,    & !name of file for gw/elevation data
+!          gw_elev,    & !name of file for gw/elevation data ! see below - rk4417 - phase2
           fxpft,      & !filename for PFT fraction and transition,wood harvest, secondary harvest
           fxluh2cable,& !filename for mapping 12 luc states into 17 CABLE PFT
-          gridnew       !filename for updated gridinfo file                       
-
+          gridnew,&     !filename for updated gridinfo file                       
+          gw_elev='', & !name of file for gw/elevation data ! 2 lines added by rk4417 - phase2
+          gw_soils=''   !tiled/layerd soil params
+                        !give default as not required
 
   END TYPE filenames_type
 
    TYPE(filenames_type) :: filename
 
   ! hydraulic_redistribution switch _soilsnow module
-  LOGICAL :: redistrb = .FALSE.  
+  LOGICAL :: redistrb = .FALSE.      ! Turn on/off the hydraulic redistribution
 
   TYPE organic_soil_params
      !Below are the soil properties for fully organic soil
