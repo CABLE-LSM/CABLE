@@ -24,7 +24,7 @@
 
 MODULE cable_common_module
 
-  USE NetCDF,   only: NF90_INQ_DIMID, NF90_NOERR
+  USE NetCDF,   only: NF90_INQ_DIMID, NF90_NOERR, NF90_EDIMMETA
   IMPLICIT NONE
 
   !---allows reference to "gl"obal timestep in run (from atm_step)
@@ -707,9 +707,9 @@ CONTAINS
     INTEGER :: FileID, get_dimid
     CHARACTER(LEN=*), DIMENSION(:)  :: DimNames
 
-    ! Iterator and status checker- use NF90_EINVAL so we throw error when an
+    ! Iterator and status checker- use NF90_EDIMMETA so we throw error when an
     ! empty list of names is passed.
-    INTEGER :: i, ok = NF90_EINVAL
+    INTEGER :: i, ok = NF90_EDIMMETA
 
     ! Run through the possible names until we find the correct one
     CheckNames: DO i = 1, SIZE(DimNames)
