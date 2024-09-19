@@ -1691,6 +1691,9 @@ CONTAINS
     IF(output%params .OR. output%extkn) CALL define_ovar(ncid_out, opid%extkn, &
          'extkn', '-', 'Nitrogen extinction coef for vert. canopy profile', &
          patchout%extkn, 'real', xID, yID, zID, landID, patchID)
+     IF(output%params .OR. output%alpha) CALL define_ovar(ncid_out, opid%alpha, &
+         'alpha', '-', 'quantum yield of electron transport', &
+         patchout%alpha, 'real', xID, yID, zID, landID, patchID)
     IF(output%params .OR. output%tminvj) CALL define_ovar(ncid_out, &
          opid%tminvj, 'tminvj', 'C', &
          'Min temperature for the start of photosynthesis', &
@@ -1906,6 +1909,8 @@ CONTAINS
          'vegcf', toreal4(veg%vegcf), ranges%vegcf, patchout%vegcf, 'real')
     IF(output%params .OR. output%extkn) CALL write_ovar(ncid_out, opid%extkn, &
          'extkn', toreal4(veg%extkn), ranges%extkn, patchout%extkn, 'real')
+    IF(output%params .OR. output%alpha) CALL write_ovar(ncid_out, opid%alpha, &
+         'alpha', toreal4(veg%alpha), ranges%alpha, patchout%alpha, 'real')
     IF(output%params .OR. output%tminvj) CALL write_ovar(ncid_out, &
          opid%tminvj, 'tminvj', toreal4(veg%tminvj), &
          ranges%tminvj, patchout%tminvj, 'real')
@@ -4376,7 +4381,9 @@ CONTAINS
     CALL define_ovar(ncid_restart, rpid%extkn, 'extkn', '-', &
                      'Extinction coef for vertical nitrogen profile', &
                      .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-
+     CALL define_ovar(ncid_restart, rpid%alpha, 'alpha', '-', &
+     'quantum yield of electron transport', &
+     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
     ! CALL define_ovar(ncid_restart, rpid%tminvj, 'tminvj', 'C', &
     !                  'Min temperature for the start of photosynthesis', &
     !                  .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
@@ -4618,6 +4625,8 @@ CONTAINS
     ! CALL write_ovar (ncid_restart, rpid%vegcf, 'vegcf', toreal4(veg%vegcf), &
     !                  ranges%vegcf, .TRUE., 'real', .TRUE.)
     CALL write_ovar (ncid_restart, rpid%extkn, 'extkn', toreal4(veg%extkn), &
+          (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
+    CALL write_ovar (ncid_restart, rpid%alpha, 'alpha', toreal4(veg%alpha), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
     ! CALL write_ovar (ncid_restart, rpid%tminvj, 'tminvj', toreal4(veg%tminvj), &
     !                  ranges%tminvj, .TRUE., 'real', .TRUE.)
