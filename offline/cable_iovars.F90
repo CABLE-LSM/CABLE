@@ -129,7 +129,7 @@ MODULE cable_IO_vars_module
           ssat,sucs,swilt,froot,zse,canst1,dleaf,meth,za_tq,za_uv,             &
           ejmax,frac4,hc,lai,rp20,rpcoef,shelrb, vbeta, xalbnir,               &
           vcmax,xfang,ratecp,ratecs,refsbare,isoil,iveg,albsoil,               &
-          taul,refl,tauw,refw,wai,vegcf,extkn,tminvj,tmaxvj,                   &
+          taul,refl,tauw,refw,wai,vegcf,extkn,alpha,tminvj,tmaxvj,                   &
           veg_class,soil_class,mvtype,mstype,patchfrac
      INTEGER :: ishorizon,nhorizons,clitt, &
           zeta,fsatmax, &
@@ -374,6 +374,7 @@ MODULE cable_IO_vars_module
          wai    = .FALSE.,    & ! wood area index
          vegcf  = .FALSE.,    & !
          extkn  = .FALSE.,    & !
+         alpha  = .FALSE.,    & !
          ratecp = .FALSE.,    & ! plant carbon pool rate constant (1/year)
          ratecs = .FALSE.,    & ! soil carbon pool rate constant (1/year)
          albsoil = .FALSE.,   & ! soil reflectance [-]
