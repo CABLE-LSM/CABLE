@@ -33,12 +33,12 @@ MODULE cable_common_module
   INTEGER, SAVE :: CurYear  ! current year of multiannual run
 
   ! Dimension name lists for searching NetCDF dimensions IDs
-  CHARACTER(LEN=16), DIMENSION(5) :: LatNames = &
-    (/"latitude", "lat", "lats", "y", "Latitude"/)
-  CHARACTER(LEN=16), DIMENSION(5) :: LonNames = &
-    (/"longitude", "lon", "lons", "x", "Longitude"/)
-  CHARACTER(LEN=16), DIMENSION(3) :: TimeNames = &
-    (/"time", "t", "Time"/)
+  CHARACTER(LEN=16), DIMENSION(5), PARAMETER :: LatNames = &
+    ["latitude", "lat", "lats", "y", "Latitude"]
+  CHARACTER(LEN=16), DIMENSION(5), PARAMETER :: LonNames = &
+    ["longitude", "lon", "lons", "x", "Longitude"]
+  CHARACTER(LEN=16), DIMENSION(3), PARAMETER :: TimeNames = &
+    ["time", "t", "Time"]
 
   ! user switches turned on/off by the user thru namelists
 
