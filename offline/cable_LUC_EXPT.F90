@@ -1,6 +1,7 @@
 MODULE CABLE_LUC_EXPT
 
-  use cable_common_module,  only: is_leapyear, leap_day, handle_err, get_unit
+  use cable_common_module,  only: is_leapyear, leap_day, handle_err, get_unit,&
+                                  get_dimid, LatNames, LonNames, TimeNames
   use cable_io_vars_module, only: logn, land_x, land_y, landpt, latitude, longitude
   use cable_def_types_mod,  only: mland
 
@@ -216,17 +217,17 @@ CONTAINS
        ! inquire dimensions
        IF (i.eq.1) THEN
           FID = LUC_EXPT%F_ID(i)
-          STATUS = NF90_INQ_DIMID(FID,'latitude',latID)
+          latID = get_dimid(FID, LatNames)
           STATUS = NF90_INQUIRE_DIMENSION(FID,latID,len=ydimsize)
           CALL HANDLE_ERR(STATUS, "Inquiring 'latitude'"//TRIM(LUC_EXPT%TransFile(i)))
           LUC_EXPT%ydimsize = ydimsize
 
-          STATUS = NF90_INQ_DIMID(FID,'longitude',lonID)
+          lonID = get_dimid(FID, LonNames)
           STATUS = NF90_INQUIRE_DIMENSION(FID,lonID,len=xdimsize)
           CALL HANDLE_ERR(STATUS, "Inquiring 'longitude'"//TRIM(LUC_EXPT%TransFile(i)))
           LUC_EXPT%xdimsize = xdimsize
 
-          STATUS = NF90_INQ_DIMID(FID,'time',timID)
+          timID = get_dimid(FID, TimeNames)
           STATUS = NF90_INQUIRE_Dimension(FID,timID,len=tdimsize)
           CALL HANDLE_ERR(STATUS, "Inquiring 'time'"//TRIM(LUC_EXPT%TransFile(i)))
           LUC_EXPT%nrec = tdimsize

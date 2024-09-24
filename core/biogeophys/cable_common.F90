@@ -24,12 +24,21 @@
 
 MODULE cable_common_module
 
+  USE NetCDF,   only: NF90_INQ_DIMID, NF90_NOERR, NF90_EBADDIM
   IMPLICIT NONE
 
   !---allows reference to "gl"obal timestep in run (from atm_step)
   !---total number of timesteps, and processing node
   INTEGER, SAVE :: ktau_gl, kend_gl, knode_gl, kwidth_gl
   INTEGER, SAVE :: CurYear  ! current year of multiannual run
+
+  ! Dimension name lists for searching NetCDF dimensions IDs
+  CHARACTER(LEN=16), DIMENSION(5), PARAMETER :: LatNames = &
+    ["latitude", "lat", "lats", "y", "Latitude"]
+  CHARACTER(LEN=16), DIMENSION(5), PARAMETER :: LonNames = &
+    ["longitude", "lon", "lons", "x", "Longitude"]
+  CHARACTER(LEN=16), DIMENSION(3), PARAMETER :: TimeNames = &
+    ["time", "t", "Time"]
 
   ! user switches turned on/off by the user thru namelists
 
@@ -684,6 +693,36 @@ CONTAINS
 
   end subroutine get_unit
 
+  FUNCTION get_dimid(FileID, DimNames)
+    !*## Purpose
+    !
+    ! Find the id of the desired dimension using a list of possible names.
+    !
+    !##
+    !
+    ! Run through a list of possible names for the dimensions as defined in the
+    ! cable_common module.
+
+    ! Input and output
+    INTEGER :: FileID, get_dimid
+    CHARACTER(LEN=*), DIMENSION(:)  :: DimNames
+
+    ! Iterator and status checker- use NF90_EDIMMETA so we throw error when an
+    ! empty list of names is passed.
+    INTEGER :: i, ok = NF90_EBADDIM
+
+    ! Run through the possible names until we find the correct one
+    CheckNames: DO i = 1, SIZE(DimNames)
+      ok = NF90_INQ_DIMID(FileID, TRIM(DimNames(i)), get_dimid)
+      IF (ok == NF90_NOERR) THEN
+        EXIT CheckNames
+      END IF
+    END DO CheckNames
+
+    CALL handle_err(ok, "Failed to find any "//TRIM(DimNames(1))//" dimensions&
+      from the list.")
+
+  END FUNCTION get_dimid
 
   elemental pure function is_leapyear(yyyy)
 
