@@ -687,7 +687,7 @@ CONTAINS
        out%Rnet = 0.0 ! initialise
     END IF
     IF(output%Albedo) THEN
-       CALL define_ovar(ncid_out, ovid%Albedo, 'Albedo', '-',                  &
+       CALL define_ovar(ncid_out, ovid%Albedo, 'Albedo', '1',                  &
             'Surface albedo', patchout%Albedo,                     &
             'dummy', xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%Albedo(mp))
@@ -697,14 +697,14 @@ CONTAINS
     ! output calc of soil albedo based on colour? - Ticket #27
     IF (calcsoilalbedo) THEN
        IF(output%visAlbedo) THEN
-          CALL define_ovar(ncid_out, ovid%visAlbedo, 'visAlbedo', '-',          &
+          CALL define_ovar(ncid_out, ovid%visAlbedo, 'visAlbedo', '1',          &
                'Surface vis albedo', patchout%visAlbedo,              &
                'dummy', xID, yID, zID, landID, patchID, tID)
           ALLOCATE(out%visAlbedo(mp))
           out%visAlbedo = 0.0 ! initialise
        END IF
        IF(output%nirAlbedo) THEN
-          CALL define_ovar(ncid_out, ovid%nirAlbedo, 'nirAlbedo', '-',          &
+          CALL define_ovar(ncid_out, ovid%nirAlbedo, 'nirAlbedo', '1',          &
                'Surface nir albedo', patchout%nirAlbedo,              &
                'dummy', xID, yID, zID, landID, patchID, tID)
           ALLOCATE(out%nirAlbedo(mp))
@@ -800,7 +800,7 @@ CONTAINS
        out%CanopInt = 0.0 ! initialise
     END IF
     IF(output%LAI) THEN
-       CALL define_ovar(ncid_out, ovid%LAI, 'LAI', '-',                        &
+       CALL define_ovar(ncid_out, ovid%LAI, 'LAI', '1',                        &
             'Leaf area index', patchout%LAI, 'dummy', xID,         &
             yID, zID, landID, patchID, tID)
        ALLOCATE(out%LAI(mp))
@@ -1073,12 +1073,12 @@ CONTAINS
 
     ! Define CABLE parameters in output file:
     IF(output%iveg) CALL define_ovar(ncid_out, opid%iveg,   &
-         'iveg', '-', 'Vegetation type', patchout%iveg, 'integer', &
+         'iveg', '1', 'Vegetation type', patchout%iveg, 'integer', &
          xID, yID, zID, landID, patchID)
 
     IF (cable_user%POPLUC) THEN
 
-       CALL define_ovar(ncid_out, opid%patchfrac, 'patchfrac', '-',          &
+       CALL define_ovar(ncid_out, opid%patchfrac, 'patchfrac', '1',          &
             'Fractional cover of vegetation patches', patchout%patchfrac, 'real', &
             xID, yID, zID, landID, patchID, tID)
 
@@ -1086,7 +1086,7 @@ CONTAINS
 
        IF((output%patchfrac)                                   &
             .AND. (patchout%patchfrac .OR. output%patch))                         &
-            CALL define_ovar(ncid_out, opid%patchfrac, 'patchfrac', '-',          &
+            CALL define_ovar(ncid_out, opid%patchfrac, 'patchfrac', '1',          &
             'Fractional cover of vegetation patches', patchout%patchfrac, 'real', &
             xID, yID, zID, landID, patchID)
 
@@ -1094,28 +1094,28 @@ CONTAINS
 
 
     IF(output%isoil) CALL define_ovar(ncid_out, opid%isoil, &
-         'isoil', '-', 'Soil type', patchout%isoil, 'integer', &
+         'isoil', '1', 'Soil type', patchout%isoil, 'integer', &
          xID, yID, zID, landID, patchID)
     IF(output%bch) CALL define_ovar(ncid_out, opid%bch,     &
-         'bch', '-', 'Parameter b, Campbell eqn 1985', patchout%bch, 'real', &
+         'bch', '1', 'Parameter b, Campbell eqn 1985', patchout%bch, 'real', &
          xID, yID, zID, landID, patchID)
     IF(output%clay) CALL define_ovar(ncid_out, opid%clay,   &
-         'clay', '-', 'Fraction of soil which is clay', patchout%clay, 'real', &
+         'clay', '1', 'Fraction of soil which is clay', patchout%clay, 'real', &
          xID, yID, zID, landID, patchID)
     IF(output%sand) CALL define_ovar(ncid_out, opid%sand,   &
-         'sand', '-', 'Fraction of soil which is sand', patchout%sand, 'real', &
+         'sand', '1', 'Fraction of soil which is sand', patchout%sand, 'real', &
          xID, yID, zID, landID, patchID)
     IF(output%silt) CALL define_ovar(ncid_out, opid%silt,   &
-         'silt', '-', 'Fraction of soil which is silt', patchout%silt, 'real', &
+         'silt', '1', 'Fraction of soil which is silt', patchout%silt, 'real', &
          xID, yID, zID, landID, patchID)
     IF(output%ssat) CALL define_ovar(ncid_out, opid%ssat,   &
-         'ssat', '-', 'Fraction of soil volume which is water @ saturation', &
+         'ssat', '1', 'Fraction of soil volume which is water @ saturation', &
          patchout%ssat, 'real', xID, yID, zID, landID, patchID)
     IF(output%sfc) CALL define_ovar(ncid_out, opid%sfc,     &
-         'sfc', '-', 'Fraction of soil volume which is water @ field capacity', &
+         'sfc', '1', 'Fraction of soil volume which is water @ field capacity', &
          patchout%sfc, 'real', xID, yID, zID, landID, patchID)
     IF(output%swilt) CALL define_ovar(ncid_out, opid%swilt, &
-         'swilt', '-', 'Fraction of soil volume which is water @ wilting point', &
+         'swilt', '1', 'Fraction of soil volume which is water @ wilting point', &
          patchout%swilt, 'real', xID, yID, zID, landID, patchID)
     IF(output%hyds) CALL define_ovar(ncid_out, opid%hyds,   &
          'hyds', 'm/s', 'Hydraulic conductivity @ saturation', &
@@ -1130,10 +1130,10 @@ CONTAINS
          opid%rhosoil, 'rhosoil', 'kg/m^3', 'Density of soil minerals', &
          patchout%rhosoil, 'real', xID, yID, zID, landID, patchID)
     IF(output%rs20) CALL define_ovar(ncid_out, opid%rs20,   &
-         'rs20', '-', 'Soil respiration coefficient at 20C', &
+         'rs20', '1', 'Soil respiration coefficient at 20C', &
          patchout%rs20, 'real', xID, yID, zID, landID, patchID)
     IF(output%albsoil) CALL define_ovar(ncid_out,           &
-         opid%albsoil, 'albsoil', '-', &
+         opid%albsoil, 'albsoil', '1', &
          'Snow free shortwave soil reflectance fraction', &
          patchout%albsoil, radID, 'radiation', xID, yID, zID, landID, patchID)
     ! vh_js !
@@ -1154,7 +1154,7 @@ CONTAINS
          'dleaf', 'm', 'Chararacteristic length of leaf', &
          patchout%dleaf, 'real', xID, yID, zID, landID, patchID)
     IF(output%frac4) CALL define_ovar(ncid_out, opid%frac4, &
-         'frac4', '-', 'Fraction of plants which are C4', &
+         'frac4', '1', 'Fraction of plants which are C4', &
          patchout%frac4, 'real', xID, yID, zID, landID, patchID)
     IF(output%ejmax) CALL define_ovar(ncid_out, opid%ejmax, &
          'ejmax', 'mol/m^2/s', 'Max potential electron transport rate top leaf', &
@@ -1163,14 +1163,14 @@ CONTAINS
          'vcmax', 'mol/m^2/s', 'Maximum RuBP carboxylation rate top leaf', &
          patchout%vcmax, 'real', xID, yID, zID, landID, patchID)
     IF(output%rp20) CALL define_ovar(ncid_out, opid%rp20,   &
-         'rp20', '-', 'Plant respiration coefficient at 20C', &
+         'rp20', '1', 'Plant respiration coefficient at 20C', &
          patchout%rp20, 'real', xID, yID, zID, landID, patchID)
     ! Ticket #56
     IF(output%g0) CALL define_ovar(ncid_out, opid%g0,   &
-         'g0', '-', 'g0 term in Medlyn Stom Cond. Param', &
+         'g0', '1', 'g0 term in Medlyn Stom Cond. Param', &
          patchout%g0, 'real', xID, yID, zID, landID, patchID)
     IF(output%g1) CALL define_ovar(ncid_out, opid%g1,   &
-         'g1', '-', 'g1 term in Medlyn Stom Cond. Param', &
+         'g1', '1', 'g1 term in Medlyn Stom Cond. Param', &
          patchout%g1, 'real', xID, yID, zID, landID, patchID)
     ! end Ticket #56
 
@@ -1179,19 +1179,19 @@ CONTAINS
          'Temperature coef nonleaf plant respiration', &
          patchout%rpcoef, 'real', xID, yID, zID, landID, patchID)
     IF(output%shelrb) CALL define_ovar(ncid_out,            &
-         opid%shelrb, 'shelrb', '-', 'Sheltering factor', patchout%shelrb, &
+         opid%shelrb, 'shelrb', '1', 'Sheltering factor', patchout%shelrb, &
          'real', xID, yID, zID, landID, patchID)
     IF(output%xfang) CALL define_ovar(ncid_out, opid%xfang, &
-         'xfang', '-', 'Leaf angle parameter',patchout%xfang, 'real', &
+         'xfang', '1', 'Leaf angle parameter',patchout%xfang, 'real', &
          xID, yID, zID, landID, patchID)
     IF(output%wai) CALL define_ovar(ncid_out, opid%wai,     &
-         'wai', '-', 'Wood area index', patchout%wai, 'real', &
+         'wai', '1', 'Wood area index', patchout%wai, 'real', &
          xID, yID, zID, landID, patchID)
     IF(output%vegcf) CALL define_ovar(ncid_out, opid%vegcf, &
-         'vegcf', '-', 'vegcf', patchout%vegcf, 'real', &
+         'vegcf', '1', 'vegcf', patchout%vegcf, 'real', &
          xID, yID, zID, landID, patchID)
     IF(output%extkn) CALL define_ovar(ncid_out, opid%extkn, &
-         'extkn', '-', 'Nitrogen extinction coef for vert. canopy profile', &
+         'extkn', '1', 'Nitrogen extinction coef for vert. canopy profile', &
          patchout%extkn, 'real', xID, yID, zID, landID, patchID)
     IF(output%tminvj) CALL define_ovar(ncid_out,            &
          opid%tminvj, 'tminvj', 'C', &
@@ -1201,13 +1201,13 @@ CONTAINS
          opid%tmaxvj, 'tmaxvj', 'C', 'Max temperature for photosynthesis', &
          patchout%tmaxvj, 'real', xID, yID, zID, landID, patchID)
     IF(output%vbeta) CALL define_ovar(ncid_out, opid%vbeta, &
-         'vbeta', '-', 'Stomatal sensitivity to soil water', &
+         'vbeta', '1', 'Stomatal sensitivity to soil water', &
          patchout%vbeta, 'real', xID, yID, zID, landID, patchID)
     IF(output%xalbnir) CALL define_ovar(ncid_out,           &
-         opid%xalbnir, 'xalbnir', '-', 'Modifier for albedo in near ir band', &
+         opid%xalbnir, 'xalbnir', '1', 'Modifier for albedo in near ir band', &
          patchout%xalbnir, 'real', xID, yID, zID, landID, patchID)
     IF(output%meth) CALL define_ovar(ncid_out, opid%meth,   &
-         'meth', '-', 'Canopy turbulence parameterisation choice', &
+         'meth', '1', 'Canopy turbulence parameterisation choice', &
          patchout%meth, 'real', xID, yID, zID, landID, patchID)
     IF(output%za) THEN
        CALL define_ovar(ncid_out, opid%za_uv, 'za_uv', 'm',                     &
@@ -1229,19 +1229,19 @@ CONTAINS
          'zse', 'm', 'Depth of each soil layer', &
          patchout%zse, soilID, 'soil', xID, yID, zID, landID, patchID)
     IF(output%froot) CALL define_ovar(ncid_out, opid%froot, &
-         'froot', '-', 'Fraction of roots in each soil layer', &
+         'froot', '1', 'Fraction of roots in each soil layer', &
          patchout%froot, soilID, 'soil', xID, yID, zID, landID, patchID)
 
     !    IF(output%slope) CALL define_ovar(ncid_out, opid%slope,   &
-    !           'slope', '-', 'Mean subgrid topographic slope', &
+    !           'slope', '1', 'Mean subgrid topographic slope', &
     !                          patchout%slope, 'real', xID, yID, zID, landID, patchID)
     !
     !    IF(output%slope_std) CALL define_ovar(ncid_out, opid%slope_std,   &
-    !           'slope_std', '-', 'Mean subgrid topographic slope_std', &
+    !           'slope_std', '1', 'Mean subgrid topographic slope_std', &
     !                          patchout%slope_std, 'real', xID, yID, zID, landID, patchID)
     !
     !    IF(output%GWdz) CALL define_ovar(ncid_out, opid%GWdz,   &
-    !           'GWdz', '-', 'Mean aquifer layer thickness ', &
+    !           'GWdz', '1', 'Mean aquifer layer thickness ', &
     !                          patchout%GWdz, 'real', xID, yID, zID, landID, patchID)
     !
     IF(output%params .AND. cable_user%gw_model) THEN
@@ -1252,7 +1252,7 @@ CONTAINS
             'QhmaxEfold', 'm', 'Maximum subsurface drainage decay rate', &
             patchout%QhmaxEfold, 'real', xID, yID, zID, landID, patchID)
        CALL define_ovar(ncid_out, opid%SatFracmax,   &
-            'SatFracmax', '-', 'Controls max saturated fraction ', &
+            'SatFracmax', '1', 'Controls max saturated fraction ', &
             patchout%SatFracmax, 'real', xID, yID, zID, landID, patchID)
        CALL define_ovar(ncid_out, opid%HKefold,   &
             'HKefold', '1/m', 'Rate HK decays with depth ', &
