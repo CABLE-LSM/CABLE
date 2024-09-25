@@ -268,6 +268,7 @@ MODULE cable_IO_vars_module
          !! vh_js ! added CanT and fwsoil to the list
          CanT = .FALSE.,      & ! within-canopy temperature [K]
          Fwsoil = .FALSE.,      & ! soil moisture modifier to stomatal conductance
+         Fwsoiltmp = .FALSE.,      & 
          Area = .FALSE., & ! patch area in km2
          GPP_components = .FALSE.,    & ! sunlit and shaded GPP, plus J and C limited components
          Qcan = .FALSE.,     & ! absorbed radiation by canopy
