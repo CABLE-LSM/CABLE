@@ -430,7 +430,7 @@ CONTAINS
          sum_rad_rniso = sum(rad%rniso,2)
          CALL dryLeaf( dels, rad, air, met,  &
             veg, canopy, soil, ssnow, dsx, &
-            fwsoil, tlfx, tlfy, ecy, hcy,  &
+            fwsoil, fwsoiltmp,tlfx, tlfy, ecy, hcy,  &
             rny, gbhu, gbhf, csx, cansat,  &
             ghwet, iter, climate)
 
@@ -1495,7 +1495,7 @@ CONTAINS
 
    SUBROUTINE dryLeaf( dels, rad, air, met, &
       veg, canopy, soil, ssnow, dsx, &
-      fwsoil, tlfx, tlfy, ecy, hcy, &
+      fwsoil, fwsoiltmp, tlfx, tlfy, ecy, hcy, &
       rny, gbhu, gbhf, csx, &
       cansat, ghwet, iter, climate)
 
@@ -1518,6 +1518,7 @@ CONTAINS
       real,      dimension(:),   intent(inout) :: &
          dsx,        & ! leaf surface vpd
          fwsoil,     & ! soil water modifier of stom. cond
+         fwsoiltmp
          tlfx,       & ! leaf temp prev. iter (K)
          tlfy          ! leaf temp (K)
       real(r_2), dimension(:),   intent(inout) :: &
@@ -1681,6 +1682,7 @@ CONTAINS
 #endif
             endif
             canopy%fwsoil = real(fwsoil, r_2)
+            canopy%fwsoiltmp = real(fwsoil, r_2)
          elseif ((cable_user%soil_struc=='sli') .or. (cable_user%fwsoil_switch=='Haverd2013')) then
             fwsoil = real(canopy%fwsoil)
          endif
@@ -2310,6 +2312,7 @@ CONTAINS
                      max(canopy%fevc(i)/real(air%rlam(i),r_2)/1000.0_r_2, 0.0_r_2), &
                      veg%gamma(i), &
                      real(soil%zse, r_2), real(dels,r_2), veg%zr(i))
+                  canopy%fwsoiltmp(i) = real(canopy%fwsoil(i))
                   IF (cable_user%FWSOIL_SWITCH == 'Haverd2013') then
                      fwsoil(i) = real(canopy%fwsoil(i))
 

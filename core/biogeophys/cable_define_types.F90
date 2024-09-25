@@ -493,6 +493,7 @@ module cable_def_types_mod
      REAL(r_2), DIMENSION(:,:),   POINTER :: ecxs => null()  ! sunlit and shaded leaf latent heat flux (sap flux)
      ! REAL(r_2), DIMENSION(:,:,:), POINTER :: ci => null()     ! intra-cellular CO2 vh 6/7/09
      real(r_2), dimension(:),     pointer :: fwsoil => null() !
+     real(r_2), dimension(:),     pointer :: fwsoiltmp => null() ! zihanlu 25/09/2024
 
      ! vh_js - litter thermal conductivity (Wm-2K-1) and vapour diffusivity (m2s-1)
      real(r_2), dimension(:), pointer :: kthLitt => null()
