@@ -1518,7 +1518,7 @@ CONTAINS
       real,      dimension(:),   intent(inout) :: &
          dsx,        & ! leaf surface vpd
          fwsoil,     & ! soil water modifier of stom. cond
-         fwsoiltmp
+         fwsoiltmp,  &
          tlfx,       & ! leaf temp prev. iter (K)
          tlfy          ! leaf temp (K)
       real(r_2), dimension(:),   intent(inout) :: &
