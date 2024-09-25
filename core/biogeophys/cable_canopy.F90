@@ -113,6 +113,7 @@ CONTAINS
          cansat => null(),        & ! max canopy intercept. (mm)
          dsx => null(),           & ! leaf surface vpd
          fwsoil => null(),        & ! soil water modifier of stom. cond
+         fwsoiltmp => null(),        & 
          tlfx => null(),          & ! leaf temp prev. iter (K)
          tlfy => null()             ! leaf temp (K)
 
@@ -147,7 +148,7 @@ CONTAINS
       IF (.NOT. cable_runtime%um) canopy%cansto = canopy%oldcansto
 
       ALLOCATE(cansat(mp), gbhu(mp,mf))
-      ALLOCATE(dsx(mp), fwsoil(mp), tlfx(mp), tlfy(mp))
+      ALLOCATE(dsx(mp), fwsoil(mp), fwsoiltmp(mp), tlfx(mp), tlfy(mp))
       ALLOCATE(ecy(mp), hcy(mp), rny(mp))
       ALLOCATE(gbhf(mp,mf), csx(mp,mf))
       ALLOCATE(ghwet(mp))
@@ -430,7 +431,7 @@ CONTAINS
          sum_rad_rniso = sum(rad%rniso,2)
          CALL dryLeaf( dels, rad, air, met,  &
             veg, canopy, soil, ssnow, dsx, &
-            fwsoil, fwsoiltmp,tlfx, tlfy, ecy, hcy,  &
+            fwsoil, fwsoiltmp, tlfx, tlfy, ecy, hcy,  &
             rny, gbhu, gbhf, csx, cansat,  &
             ghwet, iter, climate)
 
@@ -834,7 +835,7 @@ CONTAINS
          canopy%fwet  ! YP nov2009
 
       DEALLOCATE(cansat,gbhu)
-      DEALLOCATE(dsx, fwsoil, tlfx, tlfy)
+      DEALLOCATE(dsx, fwsoil, fwsoiltmp, tlfx, tlfy)
       DEALLOCATE(ecy, hcy, rny)
       DEALLOCATE(gbhf, csx)
       DEALLOCATE(ghwet)
