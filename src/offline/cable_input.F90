@@ -408,10 +408,19 @@ CONTAINS
          ENDIF
        ENDIF
 
+! I am assuming the above block is equivalent to the one below - rk4417 - phase2
+!       IF (TRIM(cable_user%MetType) .eq. "gswp") THEN ! MMY add if for using Princeton forcing
+!          ok = NF90_OPEN(gswpfile%snowf,0,ncid_snow)
+!          IF (ok /= NF90_NOERR) THEN
+!             PRINT*,'snow'
+!             CALL handle_err( ok )
+!          ENDIF
+!       END IF ! MMY
+
        IF( globalMetfile%l_gpcc ) THEN
        ok = NF90_OPEN(globalMetfile%LWdown,0,ncid_lw)
        ELSE
-         ok = NF90_OPEN(gswpfile     %LWdown,0,ncid_lw)
+         ok = NF90_OPEN(gswpfile%LWdown,0,ncid_lw)
        ENDIF
        IF (ok /= NF90_NOERR) THEN
           PRINT*,'lw'
@@ -497,9 +506,16 @@ CONTAINS
     IF(ok/=NF90_NOERR) THEN ! if failed
        ! Try 'lon' instead of x
        ok = NF90_INQ_DIMID(ncid_met,'lon', xdimID)
-       IF(ok/=NF90_NOERR) CALL nc_abort &
-            (ok,'Error finding x dimension in '&
-            //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
+       IF(ok/=NF90_NOERR) THEN                                          ! MMY
+          ok = NF90_INQ_DIMID(ncid_met,'longitude', xdimID)             ! MMY ! For princeton
+          IF(ok/=NF90_NOERR) CALL nc_abort &                            ! MMY
+               (ok,'Error finding x dimension in '&                     ! MMY
+               //TRIM(filename%met)//' (SUBROUTINE open_met_file)')     ! MMY
+       END IF                                                           ! MMY
+! replaced below IF by above IF block - rk4417 - phase2 
+!       IF(ok/=NF90_NOERR) CALL nc_abort &
+!            (ok,'Error finding x dimension in '&
+!            //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
     END IF
     ok = NF90_INQUIRE_DIMENSION(ncid_met,xdimID,len=xdimsize)
     IF(ok/=NF90_NOERR) CALL nc_abort &
@@ -510,9 +526,16 @@ CONTAINS
     IF(ok/=NF90_NOERR) THEN ! if failed
        ! Try 'lat' instead of y
        ok = NF90_INQ_DIMID(ncid_met,'lat', ydimID)
-       IF(ok/=NF90_NOERR) CALL nc_abort &
-            (ok,'Error finding y dimension in ' &
-            //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
+       IF(ok/=NF90_NOERR) THEN                                           ! MMY
+          ok = NF90_INQ_DIMID(ncid_met,'latitude', ydimID)               ! MMY ! For princeton
+          IF(ok/=NF90_NOERR) CALL nc_abort &                             ! MMY
+               (ok,'Error finding y dimension in ' &                     ! MMY
+               //TRIM(filename%met)//' (SUBROUTINE open_met_file)')      ! MMY
+       END IF                                                            ! MMY
+! replaced below IF by above IF block - rk4417 - phase2  
+!       IF(ok/=NF90_NOERR) CALL nc_abort &
+!            (ok,'Error finding y dimension in ' &
+!            //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
     END IF
     ok = NF90_INQUIRE_DIMENSION(ncid_met,ydimID,len=ydimsize)
     IF(ok/=NF90_NOERR) CALL nc_abort &
@@ -529,6 +552,18 @@ CONTAINS
     IF (ok /= NF90_NOERR) CALL nc_abort &
       (ok,'Error finding latitude variable in ' &
       //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
+! I am assuming the above is equivalent to below - rk4417 - phase2
+!    ok = NF90_INQ_VARID(ncid_met, 'latitude', latitudeID)
+!    IF(ok /= NF90_NOERR) THEN
+!       ok = NF90_INQ_VARID(ncid_met, 'nav_lat', latitudeID)
+!       IF(ok /= NF90_NOERR) THEN
+!          !MDeck allow for 1d lat called 'lat'
+!          ok = NF90_INQ_VARID(ncid_met, 'lat', latitudeID)
+!          IF (ok /= NF90_NOERR) CALL nc_abort &
+!               (ok,'Error finding latitude variable in ' &
+!               //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
+!       END IF
+!    END IF
 
     ! Allocate space for lat_all variable and its temp counterpart:
     ALLOCATE(lat_all(xdimsize,ydimsize))
@@ -556,6 +591,18 @@ CONTAINS
     IF(ok /= NF90_NOERR) CALL nc_abort &
       (ok,'Error finding longitude variable in ' &
       //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
+! I am assuming the above is equivalent to below - rk4417 - phase2
+!    ok = NF90_INQ_VARID(ncid_met, 'longitude', longitudeID)
+!    IF(ok /= NF90_NOERR) THEN
+!       ok = NF90_INQ_VARID(ncid_met, 'nav_lon', longitudeID)
+!       IF(ok /= NF90_NOERR) THEN
+!          !MDeck allow for 1d lon called 'lon'
+!          ok = NF90_INQ_VARID(ncid_met, 'lon', longitudeID)
+!          IF(ok /= NF90_NOERR) CALL nc_abort &
+!               (ok,'Error finding longitude variable in ' &
+!               //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
+!       END IF
+!    END IF
 
       ! Allocate space for lon_all variable:
     ALLOCATE(lon_all(xdimsize,ydimsize))
@@ -580,6 +627,13 @@ CONTAINS
     ! (and allow neither if only one gridpoint). "mask" is a 2D variable
     ! with dims x,y and "land" is a 1D variable.
     CALL find_metvarid(ncid_mask, possible_varnames%MaskNames, maskID, ok)
+! I am assuming the above line is equivalent to below IF block - rk4417 - phase2
+!    IF (.NOT.cable_user%gswp3) THEN
+!       ok = NF90_INQ_VARID(ncid_mask, 'mask', maskID) ! check for "mask"
+!    ELSE
+!       ok = NF90_INQ_VARID(ncid_mask, 'landsea', maskID) ! check for "mask"
+!    END IF
+
     IF(ok /= NF90_NOERR) THEN ! if error, i.e. no "mask" variable:
        ! Check for "land" variable:
        ok = NF90_INQ_VARID(ncid_met, 'land', landID)
@@ -737,6 +791,8 @@ CONTAINS
     !=========VV Determine simulation timing details VV================
     ! Inquire 'time' variable's ID:
     CALL find_metvarid(ncid_met, possible_varnames%TimeNames, timevarID, ok)
+! I am assuming the above line is equivalent to one below - rk4417 - phase2
+!    ok = NF90_INQ_VARID(ncid_met, 'time', timevarID)
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error finding time variable in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -821,7 +877,12 @@ CONTAINS
     !===== done bug fixing for timevar in PALS met file ===============
 
     !===== gswp input file has bug in timeunits ===========
-    IF (ncciy > 0) WRITE(timeunits(26:27),'(i2.2)') 0
+!    IF (ncciy > 0) WRITE(timeunits(26:27),'(i2.2)') 0
+! replaced above line by below IF block - rk4417 - phase2   
+    IF (TRIM(cable_user%MetType) .NE. "prin") THEN ! MMY
+       IF (ncciy > 0) WRITE(timeunits(26:27),'(i2.2)') 0
+    END IF ! MMY
+
     !===== done bug fixing for timeunits in gwsp file ========
     WRITE(logn,*) 'Time variable units: ', timeunits
     ! Get coordinate field:
@@ -847,11 +908,32 @@ CONTAINS
     ! Use internal files to convert "time" variable units (giving the run's
     ! start time) from character to integer; calculate starting hour-of-day,
     ! day-of-year, year:
+
+!    IF (.NOT.cable_user%GSWP3) THEN
+!       READ(timeunits(15:18),*) syear
+!       READ(timeunits(20:21),*) smoy ! integer month
+!       READ(timeunits(23:24),*) sdoytmp ! integer day of that month
+!       READ(timeunits(26:27),*) shod  ! starting hour of day
+!    ELSE
+!       syear=ncciy
+!       smoy=1
+!       sdoytmp=1
+!       shod=0
+!    END IF
+! replaced above IF block by below IF block - rk4417 - phase2   
+
     IF (.NOT.cable_user%GSWP3) THEN
-       READ(timeunits(15:18),*) syear
-       READ(timeunits(20:21),*) smoy ! integer month
-       READ(timeunits(23:24),*) sdoytmp ! integer day of that month
-       READ(timeunits(26:27),*) shod  ! starting hour of day
+       IF (cable_user%MetType .eq. "prin") THEN ! MMY
+          READ(timeunits(13:16),*) syear ! MMY
+          READ(timeunits(18:19),*) smoy ! integer month ! MMY
+          READ(timeunits(21:22),*) sdoytmp ! integer day of that month ! MMY
+          READ(timeunits(24:25),*) shod  ! starting hour of day ! MMY
+       ELSE ! MMY
+          READ(timeunits(15:18),*) syear
+          READ(timeunits(20:21),*) smoy ! integer month
+          READ(timeunits(23:24),*) sdoytmp ! integer day of that month
+          READ(timeunits(26:27),*) shod  ! starting hour of day
+       END IF ! MMY
     ELSE
        syear=ncciy
        smoy=1
@@ -859,6 +941,7 @@ CONTAINS
        shod=0
     END IF
 
+    
     ! if site data, shift start time to middle of timestep
     ! only do this if not already at middle of timestep
     ! vh_js !
@@ -980,6 +1063,17 @@ CONTAINS
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error finding SWdown in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
+
+! I am assuming the above block is equivalent to below block - rk4417 - phase2
+
+!    ok = NF90_INQ_VARID(ncid_met,'SWdown',id%SWdown)
+!    IF(ok /= NF90_NOERR) THEN                                     ! MMY
+!      ok = NF90_INQ_VARID(ncid_met,'dswrf',id%SWdown)             ! MMY ! For Princeton
+!      IF(ok /= NF90_NOERR) CALL nc_abort &                        ! MMY
+!         (ok,'Error finding SWdown in met data file ' &           ! MMY
+!         //TRIM(filename%met)//' (SUBROUTINE open_met_file)')     ! MMY
+!   END IF                                                         ! MMY
+
     ! Get SWdown units and check okay:
     ok = NF90_GET_ATT(ncid_met,id%SWdown,'units',metunits%SWdown)
     IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -996,10 +1090,20 @@ CONTAINS
     ! Look for Tair (essential):- - - - - - - - - - - - - - - - - - -
     IF (ncciy > 0) ncid_met = ncid_ta
     CALL find_metvarid(ncid_met, possible_varnames%TairNames, id%Tair, ok)
-
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error finding Tair in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
+
+! I am assuming the above block is equivalent to below block - rk4417 - phase2
+
+!    ok = NF90_INQ_VARID(ncid_met,'Tair',id%Tair)
+!    IF(ok /= NF90_NOERR) THEN                                         ! MMY
+!       ok = NF90_INQ_VARID(ncid_met,'tas',id%Tair)                    ! MMY ! For Princeton
+!       IF(ok /= NF90_NOERR) CALL nc_abort &                           ! MMY
+!            (ok,'Error finding Tair in met data file ' &              ! MMY
+!            //TRIM(filename%met)//' (SUBROUTINE open_met_file)')      ! MMY
+!    END IF                                                            ! MMY
+
     ! Get Tair units and check okay:
     ok = NF90_GET_ATT(ncid_met,id%Tair,'units',metunits%Tair)
     IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -1020,10 +1124,20 @@ CONTAINS
     ! Look for Qair (essential):- - - - - - - - - - - - - - - - - - -
     IF (ncciy > 0) ncid_met = ncid_qa
     Call find_metvarid(ncid_met, possible_varnames%QairNames, id%Qair, ok)
-
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error finding Qair in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
+
+! I am assuming the above block is equivalent to below block - rk4417 - phase2
+
+!    ok = NF90_INQ_VARID(ncid_met,'Qair',id%Qair)
+!    IF(ok /= NF90_NOERR) THEN                                         ! MMY
+!       ok = NF90_INQ_VARID(ncid_met,'shum',id%Qair)                   ! MMY ! For Princeton
+!       IF(ok /= NF90_NOERR) CALL nc_abort &                           ! MMY
+!            (ok,'Error finding Qair in met data file ' &              ! MMY
+!            //TRIM(filename%met)//' (SUBROUTINE open_met_file)')      ! MMY
+!    END IF                                                            ! MMY
+
     ! Get Qair units:
     ok = NF90_GET_ATT(ncid_met,id%Qair,'units',metunits%Qair)
     IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -1046,16 +1160,29 @@ CONTAINS
     ! Look for Rainf (essential):- - - - - - - - - - - - - - - - - -
     IF (ncciy > 0) ncid_met = ncid_rain
     CALL find_metvarid(ncid_met, possible_varnames%RainNames, id%Rainf, ok)
-
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error finding Rainf in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
+
+! I am assuming the above block is equivalent to below block - rk4417 - phase2
+    
+!    ok = NF90_INQ_VARID(ncid_met,'Rainf',id%Rainf)
+!    IF(ok .NE. NF90_NOERR) ok = NF90_INQ_VARID(ncid_met,'Precip',id%Rainf)
+!    IF(ok /= NF90_NOERR) THEN                                       ! MMY
+!       ok = NF90_INQ_VARID(ncid_met,'prcp',id%Rainf)                ! MMY ! For Princeton
+!       IF(ok /= NF90_NOERR) CALL nc_abort &                         ! MMY
+!            (ok,'Error finding Rainf in met data file ' &           ! MMY
+!            //TRIM(filename%met)//' (SUBROUTINE open_met_file)')    ! MMY
+!    END IF                                                          ! MMY
+
     ! Get Rainf units:
     ok = NF90_GET_ATT(ncid_met,id%Rainf,'units',metunits%Rainf)
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error finding Rainf units in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
-    IF(metunits%Rainf(1:8)=='kg/m^2/s'.OR.metunits%Rainf(1:6)=='kg/m2s'.OR.metunits%Rainf(1:10)== &
+!    IF(metunits%Rainf(1:8)=='kg/m^2/s'.OR.metunits%Rainf(1:6)=='kg/m2s'.OR.metunits%Rainf(1:10)== &
+! replaced line above by line below - rk4417 - phase2
+    IF(metunits%Rainf(1:8)=='kg/m^2/s'.OR.metunits%Rainf(1:7)=='kg/m2/s'.OR.metunits%Rainf(1:6)=='kg/m2s'.OR.metunits%Rainf(1:10)== & ! MMY@23Apr2023 edit for PLUMBER2
          'kgm^-2s^-1'.OR.metunits%Rainf(1:4)=='mm/s'.OR. &
          metunits%Rainf(1:6)=='mms^-1'.OR. &
          metunits%Rainf(1:7)=='kg/m^2s'.OR.metunits%Rainf(1:10)=='kg m-2 s-1'.OR.metunits%Wind(1:5)/='m s-1') THEN
@@ -1092,6 +1219,29 @@ CONTAINS
        exists%Wind = .TRUE. ! 'Wind' variable exists
     END IF
 
+! I am assuming the above block is equivalent to below block - rk4417 - phase2
+
+!    ok = NF90_INQ_VARID(ncid_met,'Wind',id%Wind)
+!    IF(ok /= NF90_NOERR) THEN                                     ! MMY
+!      ok = NF90_INQ_VARID(ncid_met,'wind',id%Wind)                ! MMY ! For Princeton
+!      IF(ok /= NF90_NOERR) THEN                                   ! MMY
+!         ! Look for vector wind:
+!         ok = NF90_INQ_VARID(ncid_met,'Wind_N',id%Wind)
+!         IF(ok /= NF90_NOERR) CALL nc_abort &
+!              (ok,'Error finding Wind in met data file ' &
+!              //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
+!         ok = NF90_INQ_VARID(ncid_met,'Wind_E',id%Wind_E)
+!         IF(ok /= NF90_NOERR) CALL nc_abort &
+!              (ok,'Error finding Wind_E in met data file ' &
+!              //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
+!         exists%Wind = .FALSE. ! Use vector wind when reading met
+!      ELSE                                                       ! MMY
+!         exists%Wind = .TRUE. ! 'Wind' variable exists           ! MMY
+!      END IF
+!    ELSE
+!       exists%Wind = .TRUE. ! 'Wind' variable exists
+!    END IF    
+
     ! The following does not work with vector winds. Do we want to keep
     ! vector winds?
     ! Get Wind units:
@@ -1108,6 +1258,8 @@ CONTAINS
     ! Look for LWdown (can be synthesised):- - - - - - - - - - - - - - -
     IF (ncciy > 0) ncid_met = ncid_lw
     CALL find_metvarid(ncid_met, possible_varnames%LWdownNames, id%LWdown, ok)
+! I am assuming the above line is equivalent to below line - rk4417 - phase2
+!    ok = NF90_INQ_VARID(ncid_met,'LWdown',id%LWdown)
 
     IF(ok == NF90_NOERR) THEN ! If inquiry is okay
        exists%LWdown = .TRUE. ! LWdown is present in met file
@@ -1129,15 +1281,40 @@ CONTAINS
                ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
        END IF
     ELSE
+! block below inserted by rk4417 - phase2
+       ok = NF90_INQ_VARID(ncid_met,'dlwrf',id%LWdown)                  ! MMY ! For Princeton
+       IF(ok == NF90_NOERR) THEN ! If inquiry is okay                   ! MMY
+          exists%LWdown = .TRUE. ! LWdown is present in met file        ! MMY
+! Get LWdown units and check okay:
+          ok = NF90_GET_ATT(ncid_met,id%LWdown,'units',metunits%LWdown) ! MMY
+          IF(ok /= NF90_NOERR) CALL nc_abort &                          ! MMY
+               (ok,'Error finding LWdown units in met data file ' &     ! MMY
+               //TRIM(filename%met)//' (SUBROUTINE open_met_file)')     ! MMY
+          IF(.NOT.(metunits%LWdown(1:4)/='W/m2'.OR.metunits%LWdown(1:5) & ! MMY
+               /='W/m^2'.OR.metunits%LWdown(1:5)/='Wm^-2' &               ! MMY
+               .OR.metunits%LWdown(1:4)/='Wm-2'.or.metunits%SWdown(1:5) /= 'W m-2')) THEN ! MMY
+             
+             WRITE(*,*) metunits%LWdown                                  ! MMY
+             CALL abort('Unknown units for LWdown'// &                   ! MMY
+                  ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)') ! MMY
+          END IF                                                         ! MMY
+       ELSE                                                              ! MMY
+! end of block - rk4417 - phase2
        exists%LWdown = .FALSE. ! LWdown is not present in met file
        all_met=.FALSE. ! not all met variables are present in file
        ! Note this in log file:
        WRITE(logn,*) 'LWdown not present in met file; ', &
             'values will be synthesised based on air temperature.'
     END IF
+ END IF ! inserted by rk4417 - phase2
+
     ! Look for PSurf (can be synthesised):- - - - - - - - - - - - - - - -
     IF (ncciy > 0) ncid_met = ncid_ps
     CALL find_metvarid(ncid_met, possible_varnames%PSurfNames, id%PSurf, ok)
+! I am assuming the above line is equivalent to the 3 lines below - rk4417 - phase2
+!   ok = NF90_INQ_VARID(ncid_met,'PSurf',id%PSurf)
+!   IF(ok .NE. NF90_NOERR) ok = NF90_INQ_VARID(ncid_met,'Psurf',id%PSurf)
+!   IF(ok .NE. NF90_NOERR) ok = NF90_INQ_VARID(ncid_met,'pres',id%PSurf) ! MMY ! For Princeton
 
     IF(ok == NF90_NOERR) THEN ! If inquiry is okay
        exists%PSurf = .TRUE. ! PSurf is present in met file
@@ -1171,6 +1348,8 @@ CONTAINS
        ! Look for "elevation" variable to approximate pressure based
        ! on elevation and temperature:
        CALL find_metvarid(ncid_met, possible_varnames%ElevNames, id%Elev, ok)
+! I am assuming the above line is equivalent to below line - rk4417 - phase2
+!       ok = NF90_INQ_VARID(ncid_met,'Elevation',id%Elev)
        IF(ok == NF90_NOERR) THEN ! elevation present
           ! Get elevation units:
           ok = NF90_GET_ATT(ncid_met,id%Elev,'units',metunits%Elev)
@@ -1219,6 +1398,8 @@ CONTAINS
     END IF
     ! Look for CO2air (can be assumed to be static):- - - - - - - - - - -
     CALL find_metvarid(ncid_met, possible_varnames%CO2Names, id%CO2air, ok)
+! I am assuming the above line is equivalent to below line - rk4417 - phase2
+!    ok = NF90_INQ_VARID(ncid_met,'CO2air',id%CO2air)
     IF(ok == NF90_NOERR) THEN ! If inquiry is okay
        exists%CO2air = .TRUE. ! CO2air is present in met file
        ! Get CO2air units:
@@ -1245,6 +1426,9 @@ CONTAINS
     END IF
 
     CALL find_metvarid(ncid_met, possible_varnames%SnowNames, id%Snowf, ok)
+! I am assuming the above line is equivalent to below line - rk4417 - phase2
+!    ok = NF90_INQ_VARID(ncid_met,'Snowf',id%Snowf)
+
     IF(ok == NF90_NOERR) THEN ! If inquiry is okay
        exists%Snowf = .TRUE. ! Snowf is present in met file
        ! Get Snowf units:
@@ -1265,6 +1449,8 @@ CONTAINS
     END IF
     ! Look for LAI - - - - - - - - - - - - - - - - - - - - - - - - -
     CALL find_metvarid(ncid_met, possible_varnames%LAINames, id%LAI, ok)
+! I am assuming the above line is equivalent to below line - rk4417 - phase2
+!    ok = NF90_INQ_VARID(ncid_met,'LAI',id%LAI)
     IF(ok == NF90_NOERR) THEN ! If inquiry is okay
        exists%LAI = .TRUE. ! LAI is present in met file
        ! LAI will be read in which ever land grid is used
@@ -1300,6 +1486,8 @@ CONTAINS
     IF(spinup) THEN
        ! Look for avPrecip variable (time invariant - used for spinup):
        CALL find_metvarid(ncid_met, possible_varnames%APrecipNames, id%avPrecip, ok)
+! I am assuming the above line is equivalent to below line - rk4417 - phase2
+!       ok = NF90_INQ_VARID(ncid_met,'avPrecip',id%avPrecip)
        IF(ok == NF90_NOERR) THEN ! If inquiry is okay and avPrecip exists
           ! Report to log file than modified spinup will be used:
           WRITE(logn,*) 'Spinup will use modified precip - avPrecip variable found'
@@ -1414,6 +1602,8 @@ CONTAINS
 
     ! Look for veg type - - - - - - - - - - - - - - - - -:
     CALL find_metvarid(ncid_met, possible_varnames%IVegNames, id%iveg, ok)
+! I am assuming the above line is equivalent to below line - rk4417 - phase2
+!    ok = NF90_INQ_VARID(ncid_met,'iveg',id%iveg)
     IF(ok == NF90_NOERR) THEN ! If 'iveg' exists in the met file
        ! Note existence of at least one model parameter in the met file:
        exists%parameters = .TRUE.
@@ -1439,6 +1629,8 @@ CONTAINS
              ! patchfrac variable with the same dimensions. So,
              ! Make sure that the patchfrac variable exists:
              CALL find_metvarid(ncid_met, possible_varnames%PFracNames, id%patchfrac, ok)
+! I am assuming the above line is equivalent to below line - rk4417 - phase2
+!             ok = NF90_INQ_VARID(ncid_met,'patchfrac',id%patchfrac)
              IF(ok /= NF90_NOERR) CALL nc_abort & ! check read ok
                   (ok,'Patch-specific vegetation type (iveg) must be accompanied '// &
                   'by a patchfrac variable - this was not found in met data file '&
@@ -1479,6 +1671,8 @@ CONTAINS
              ! patchfrac variable with same dimensions. So,
              ! Make sure that the patchfrac variable exists:
             CALL find_metvarid(ncid_met, possible_varnames%PFracNames, id%patchfrac, ok)
+! I am assuming the above line is equivalent to below line - rk4417 - phase2
+!            ok = NF90_INQ_VARID(ncid_met,'patchfrac',id%patchfrac)
             IF(ok /= NF90_NOERR) CALL nc_abort & ! check read ok
                   (ok,'Patch-specific vegetation type (iveg) must be accompanied'// &
                   'by a patchfrac variable - this was not found in met data file '&
@@ -1512,6 +1706,8 @@ CONTAINS
 
     ! Look for soil type:
     CALL find_metvarid(ncid_met, possible_varnames%ISoilNames, id%isoil, ok)
+! I am assuming the above line is equivalent to below line - rk4417 - phase2
+!    ok = NF90_INQ_VARID(ncid_met,'isoil',id%isoil)
     IF(ok == NF90_NOERR) THEN ! If inquiry is okay
        ! Note existence of at least one model parameter in the met file:
        exists%parameters = .TRUE.
@@ -1817,6 +2013,25 @@ CONTAINS
 
        ! Get SWdown data for mask grid:
        IF (cable_user%GSWP3) ncid_met=ncid_sw ! since GSWP3 multiple met files
+! IF to ELSE below inserted by rk4417 - phase2
+       ! ______________________ MMY _________________________
+       IF (TRIM(cable_user%MetType) .eq. "prin") THEN
+          ok= NF90_GET_VAR(ncid_met,id%SWdown,tmpDat4, &
+               start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+          IF(ok /= NF90_NOERR) CALL nc_abort &
+               (ok,'Error reading SWdown in met data file ' &
+               //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+          DO i=1,mland ! over all land points/grid cells
+             met%fsd(landpt(i)%cstart:landpt(i)%cend,1) = &
+                  0.5 * REAL(tmpDat4(land_x(i),land_y(i),1,1))
+             met%fsd(landpt(i)%cstart:landpt(i)%cend,2) = &
+                  0.5 * REAL(tmpDat4(land_x(i),land_y(i),1,1))
+          ENDDO
+          ! PRINT *, "========== MMY =========="
+          ! PRINT *, "met%fsd",met%fsd
+          ! ____________________________________________________
+       ELSE ! MMY
+
        ok= NF90_GET_VAR(ncid_met,id%SWdown,tmpDat3, &
             start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
        IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -1830,7 +2045,9 @@ CONTAINS
           met%fsd(landpt(i)%cstart:landpt(i)%cend,2) = &
                0.5 * REAL(tmpDat3(land_x(i),land_y(i),1))
        ENDDO
+    END IF ! MMY ! inserted by rk4417 - phase2
 
+! ================ MMY@23Apr2023 testing below ==============
        ! Get Tair data for mask grid:- - - - - - - - - - - - - - - - - -
        IF(cable_user%GSWP3) ncid_met = ncid_ta ! since GSWP3 multiple met files
        ! Find number of dimensions of Tair:
@@ -2019,9 +2236,24 @@ CONTAINS
            ENDDO
          END IF ! 3 or 4D for 'Wind_N' and 'Wind_E' variables
        END IF ! scalar or vector wind - 'Wind' or 'Wind_N'/'Wind_E'
+! ================ MMY@23Apr2023 testing above ==============
 
        ! Get Rainf and Snowf data for mask grid:- - - - - - - - - - - - -
        IF (cable_user%GSWP3) ncid_met = ncid_rain
+! IF to ELSE below inserted by rk4417 - phase2
+! ______________________ MMY _________________________
+       IF (TRIM(cable_user%MetType) .eq. "prin") THEN ! MMY
+          ok= NF90_GET_VAR(ncid_met,id%Rainf,tmpDat4, &
+               start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+          IF(ok /= NF90_NOERR) CALL nc_abort &
+               (ok,'Error reading Rainf in met data file ' &
+               //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+          DO i=1,mland ! over all land points/grid cells
+             met%precip(landpt(i)%cstart:landpt(i)%cend) = &
+                  REAL(tmpDat4(land_x(i),land_y(i),1,1)) ! store Rainf
+          ENDDO
+! ____________________________________________________
+       ELSE ! MMY
        ok= NF90_GET_VAR(ncid_met,id%Rainf,tmpDat3, &
             start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
        IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -2031,6 +2263,8 @@ CONTAINS
           met%precip(landpt(i)%cstart:landpt(i)%cend) = &
                REAL(tmpDat3(land_x(i),land_y(i),1)) ! store Rainf
        ENDDO
+    END IF ! MMY ! inserted by rk4417 - phase2
+
        IF(exists%Snowf) THEN
           IF (cable_user%GSWP3) ncid_met = ncid_snow
           ok= NF90_GET_VAR(ncid_met,id%Snowf,tmpDat3, &
@@ -2067,6 +2301,22 @@ CONTAINS
 
        ! Get LWdown data for mask grid: - - - - - - - - - - - - - - - - -
        IF (cable_user%GSWP3) ncid_met = ncid_lw
+! IF to ELSE below inserted by rk4417 - phase2
+      ! ______________________ MMY _________________________
+      IF (TRIM(cable_user%MetType) .eq. "prin") THEN
+        ok= NF90_GET_VAR(ncid_met,id%LWdown,tmpDat4, &
+             start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+        IF(ok /= NF90_NOERR) CALL nc_abort &
+             (ok,'Error reading LWdown in met data file ' &
+             //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+        DO i=1,mland ! over all land points/grid cells
+          met%fld(landpt(i)%cstart:landpt(i)%cend) = &
+               REAL(tmpDat4(land_x(i),land_y(i),1,1))
+        ENDDO
+        ! PRINT *, "========== MMY =========="
+        ! PRINT *, "met%fld",met%fld
+      ! ____________________________________________________
+      ELSE ! MMY
        IF(exists%LWdown) THEN ! If LWdown exists in met file
           ok= NF90_GET_VAR(ncid_met,id%LWdown,tmpDat3, &
                start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
@@ -2081,9 +2331,25 @@ CONTAINS
           ! Use Swinbank formula:
           met%fld(:) = 0.0000094*0.0000000567*(met%tk(:)**6.0)
        END IF
+    END IF  ! inserted by rk4417 - phase2
 
        ! Get CO2air data for mask grid:- - - - - - - - - - - - - - - - - -
        IF(exists%CO2air) THEN ! If CO2air exists in met file
+! 1 line and IF to ELSE below inserted by rk4417 - phase2
+! ____________ MMY@23Apr2023 to read CO2air from PLUMBER2 __________
+       ok = NF90_INQUIRE_VARIABLE(ncid_met,id%CO2air,ndims=ndims) 
+       IF(ndims==3) THEN                                                  
+          ok= NF90_GET_VAR(ncid_met,id%CO2air,tmpDat3, &
+               start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
+          IF(ok /= NF90_NOERR) CALL nc_abort &
+               (ok,'Error reading CO2air in met data file ' &
+               //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+          DO i=1,mland ! over all land points/grid cells
+             met%ca(landpt(i)%cstart:landpt(i)%cend) = &
+                  REAL(tmpDat3(land_x(i),land_y(i),1))/1000000.0
+          ENDDO
+       ELSE 
+! __________________________________________________________________
           ok= NF90_GET_VAR(ncid_met,id%CO2air,tmpDat4, &
                start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
           IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -2093,6 +2359,7 @@ CONTAINS
              met%ca(landpt(i)%cstart:landpt(i)%cend) = &
                   REAL(tmpDat4(land_x(i),land_y(i),1,1))/1000000.0
           ENDDO
+       END IF ! MMY@23Apr2023   ! inserted by rk4417 - phase2   
        ELSE
           ! Fix CO2 air concentration:
           met%ca(:) = fixedCO2 /1000000.0
@@ -2579,6 +2846,8 @@ CONTAINS
     USE POPLUC_module, ONLY: POPLUC_INIT
     USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE
 
+    USE cable_common_module,  ONLY: gw_params  ! inserted by rk4417 - phase2
+
     IMPLICIT NONE
 
     ! Input arguments
@@ -2659,6 +2928,12 @@ CONTAINS
     ! different dimension to what is declared here.
     CALL allocate_cable_vars(air,bgc,canopy,met,bal,rad,rough,soil,ssnow, &
          sum_flux,veg,mp)
+
+! call below inserted by rk4417 - phase2
+    !CALL for gw_model false and true sets constants when false
+    CALL GWspatialParameters(logn,soil,ssnow)    ! MMY gw_model = True read var from gridinfo
+    ! MMY gw_model = False use default values
+
     WRITE(logn,*) ' CABLE variables allocated with ', mp, ' patch(es).'
 
     IF (icycle > 0 .OR. CABLE_USER%CASA_DUMP_WRITE ) &

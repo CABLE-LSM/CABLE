@@ -185,7 +185,37 @@ CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate, su
     
 ssnow%owetfac = ssnow%wetfac
 
-CALL soil_snow(dels, soil, ssnow, canopy, met, bal,veg)
+
+    IF( cable_runtime%um ) THEN
+
+       IF( cable_runtime%um_implicit ) THEN
+          IF (cable_user%gw_model) THEN
+             CALL soil_snow_gw(dels, soil, ssnow, canopy, met, bal,veg)
+          ELSE
+             CALL soil_snow(dels, soil, ssnow, canopy, met, bal,veg)
+          ENDIF
+       ENDIF
+
+    ELSE
+       IF(cable_user%SOIL_STRUC=='default') THEN
+          IF (cable_user%gw_model) THEN
+             CALL soil_snow_gw(dels, soil, ssnow, canopy, met, bal,veg)
+          ELSE
+             CALL soil_snow(dels, soil, ssnow, canopy, met, bal,veg)
+          ENDIF
+       ELSEIF (cable_user%SOIL_STRUC=='sli') THEN
+
+          IF (cable_user%test_new_gw) &
+               CALL sli_hydrology(dels,ssnow,soil,veg,canopy)
+
+          CALL sli_main(ktau,dels,veg,soil,ssnow,met,canopy,air,rad,0)
+       ENDIF
+    ENDIF
+
+! I have inserted the above block from MMY code which was deleted from the trunk
+! soil_snow_gw and sli_hydrology are crucial in the GW module - rk4417 - phase2
+
+!CALL soil_snow(dels, soil, ssnow, canopy, met, bal,veg)   ! commented out by rk4417 - phase2
 
 ssnow%deltss = ssnow%tss-ssnow%otss
 

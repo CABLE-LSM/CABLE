@@ -139,8 +139,15 @@ MODULE cable_IO_vars_module
        logn          ! log file unit number
 
   LOGICAL ::                                                                  &
-       verbose,    & ! print init and param details of all grid cells?
-       soilparmnew   ! read IGBP new soil map. Q.Zhang @ 12/20/2010
+!       verbose,    & ! print init and param details of all grid cells?
+!       soilparmnew   ! read IGBP new soil map. Q.Zhang @ 12/20/2010
+
+! above replaced by below - rk4417 - phase2
+
+       verbose! print init and param details of all grid cells? ! MMY,    & 
+!   soilparmnew   ! read IGBP new soil map. Q.Zhang @ 12/20/2010
+! MMY @Oct2022 change to use soilparmnew by default
+
 
   ! ================ Veg and soil type variables ============================
   INTEGER, POINTER ::                                                         &
@@ -160,7 +167,9 @@ MODULE cable_IO_vars_module
           veg_class,soil_class,mvtype,mstype,patchfrac,                        &
           WatSat,GWWatSat,SoilMatPotSat,GWSoilMatPotSat,                       &
           HkSat,GWHkSat,FrcSand,FrcClay,Clappb,Watr,GWWatr,sfc_vec,forg,swilt_vec, &
-          slope,slope_std,GWdz,SatFracmax,Qhmax,QhmaxEfold,HKefold,HKdepth
+          slope,slope_std,GWdz,SatFracmax,Qhmax,QhmaxEfold,HKefold,HKdepth,   &
+          sand_vec,clay_vec,bch_vec,org_vec,elev,elev_std  ! inserted by rk4417 - phase2
+
      INTEGER :: ishorizon,nhorizons,clitt, &
           zeta,fsatmax, &
           gamma,ZR,F10
@@ -382,6 +391,8 @@ MODULE cable_IO_vars_module
           isoil  = .FALSE.,    & ! soil type from global index
           meth  = .FALSE.,     & ! method for solving turbulence in canopy scheme
           za  = .FALSE.,       & ! something to do with roughness ????
+          elev = .false.,&       !mean subgrid elev    ! inserted 2 lines - rk4417 - phase2
+          elev_std=.false.,&     !stddev of subgrid elev
           slope = .FALSE.,&      !mean subgrid slope
           slope_std=.FALSE.,&    !stddev of subgrid slope
           GWdz=.FALSE.,&         !aquifer thickness
@@ -389,7 +400,14 @@ MODULE cable_IO_vars_module
           Qhmax=.FALSE.,&
           QhmaxEfold=.FALSE.,&
           HKefold=.FALSE.,&
-          HKdepth
+!          HKdepth ! commented out by rk4417 - phase2
+          HKdepth=.false.,&  ! added this block - rk4417 - phase2
+          SMP=.false.,&
+          SMP_hys=.false.,&
+          WB_hys=.false.,&
+          SSAT_hys=.false.,&
+          WATR_hys=.false.,&
+          hys_fac=.false.
 
   END TYPE output_inclusion_type
 

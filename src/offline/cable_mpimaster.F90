@@ -157,9 +157,11 @@ CONTAINS
     USE cable_def_types_mod
     USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,globalMetfile, &
          verbose, fixedCO2,output,check,patchout,    &
-         patch_type,landpt,soilparmnew,&
+! change in line below by rk4417 - phase2
+         patch_type,landpt,& !soilparmnew, ! MMY @Oct2022 change to use soilparmnew by default
          defaultLAI, sdoy, smoy, syear, timeunits, exists, output, &
-         latitude,longitude, calendar, set_group_output_values
+         latitude,longitude, calendar, set_group_output_values,    &
+         patch    ! inserted by rk4417 - phase2
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, fileName, myhome,            &
          redistrb, wiltParam, satuParam, CurYear,    &
@@ -337,7 +339,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
     NAMELIST/CABLE/                  &
          filename,         & ! TYPE, containing input filenames
          vegparmnew,       & ! use new soil param. method
-         soilparmnew,      & ! use new soil param. method
+         !       soilparmnew,      & ! use new soil param. method ! MMY @Oct2022 change to use soilparmnew by default  - change by rk4417 - phase2
          calcsoilalbedo,   & ! ! vars intro for Ticket #27
          spinup,           & ! spinup model (soil) to steady state
          delsoilM,delsoilT,& !
@@ -411,7 +413,10 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
     ! options from the namelist file
     CALL set_group_output_values()
 
-    IF (TRIM(cable_user%MetType) .EQ. 'gswp' .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
+!    IF (TRIM(cable_user%MetType) .EQ. 'gswp' .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
+! line above replaced by below - rk4417 - phase2
+    IF (TRIM(cable_user%MetType) .EQ. 'gswp' .or. TRIM(cable_user%MetType) .EQ. 'gswp3' & ! MMY   
+         .or. TRIM(cable_user%MetType) .EQ. 'prin') THEN                                  ! MMY
        IF ( CABLE_USER%YearStart.EQ.0 .AND. ncciy.GT.0) THEN
           CABLE_USER%YearStart = ncciy
           CABLE_USER%YearEnd = ncciy
@@ -469,8 +474,8 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
          STOP 'casaCNP required to get prognostic LAI or Vcmax'
     IF( l_vcmaxFeedbk .AND. icycle < 2 )                                     &
          STOP 'icycle must be 2 to 3 to get prognostic Vcmax'
-    IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &
-         STOP 'casaCNP must use new soil parameters'
+!    IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &   ! commented out by rk4417 - phase2                  
+!         STOP 'casaCNP must use new soil parameters'                             ! MMY @Oct2022 change to use soilparmnew by default 
 
     ! casa time count
     ctime = 0
@@ -482,6 +487,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
     ! latitudes, longitudes, number of sites.
     IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
          TRIM(cable_user%MetType) .NE. "gswp3" .AND. &
+         TRIM(cable_user%MetType) .NE. "prin" .AND. & ! MMY ! inserted by rk4417 - phase2
          TRIM(cable_user%MetType) .NE. "gpgs" .AND. &
          TRIM(cable_user%MetType) .NE. "plum"  .AND. &
          TRIM(cable_user%MetType) .NE. "cru"  .AND. &
@@ -565,6 +571,11 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
              WRITE(*,*) 'Looking for global offline run info.'
              CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
 
+!  ELSE IF below inserted by rk4417 - phase2            
+          ELSE IF (TRIM(cable_user%MetType) .EQ. 'prin') THEN          ! MMY   
+             ncciy = CurYear                                           ! MMY
+             WRITE(*,*) 'Looking for global offline run info.'         ! MMY
+             CALL open_met_file( dels, koffset, kend, spinup, CTFRZ ) ! MMY
 
            ELSE IF ( globalMetfile%l_gpcc ) THEN
              ncciy = CurYear
@@ -803,8 +814,9 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
           canopy%oldcansto=canopy%cansto
 
           ! Zero out lai where there is no vegetation acc. to veg. index
-          WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
-
+!          WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
+! line above replaced by below - rk4417 - phase2
+          WHERE ( veg%iveg(:) .GE. 14 ) veg%vlai = 0. ! MMY change from iveg%vlai to veg%vlai
 
 
           IF ( .NOT. CASAONLY ) THEN
@@ -863,6 +875,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
 
              ENDIF
              IF ( (TRIM(cable_user%MetType) .NE. 'gswp') .AND. &
+                  (TRIM(cable_user%MetType) .NE. 'prin') .and. & ! MMY ! inserted by rk4417 - phase2
                   (TRIM(cable_user%MetType) .NE. 'gswp3') ) CurYear = met%year(1)
 
 !$             IF ( CASAONLY .AND. IS_CASA_TIME("dread", yyyy, iktau, kstart, koffset, &
@@ -945,8 +958,9 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
              canopy%oldcansto=canopy%cansto
 
              ! Zero out lai where there is no vegetation acc. to veg. index
-             WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
-
+!             WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
+! line above replaced by below - rk4417 - phase2
+             WHERE ( veg%iveg(:) .GE. 14 ) veg%vlai = 0. ! MMY change from iveg%vlai to veg%vlai     
              ! Write time step's output to file if either: we're not spinning up
              ! or we're spinning up and the spinup has converged:
              ! MPI: TODO: pull mass and energy balance calculation from write_output
@@ -973,6 +987,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
                    IF ( TRIM(cable_user%MetType) .EQ. 'plum'       &
                         .OR. TRIM(cable_user%MetType) .EQ. 'cru'   &
                         .OR. TRIM(cable_user%MetType) .EQ. 'gswp'  &
+                        .OR. TRIM(cable_user%MetType) .EQ. 'prin'  &  ! MMY ! inserted by rk4417 - phase2
                         .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
                       CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
                            casamet,ssnow,         &
@@ -1095,7 +1110,12 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
           met%ofsd = met%fsd(:,1) + met%fsd(:,2)
           canopy%oldcansto=canopy%cansto
 
-          IF ( (TRIM(cable_user%MetType) .EQ. "gswp") .OR. (TRIM(cable_user%MetType) .EQ. "gswp3") ) &
+!          IF ( (TRIM(cable_user%MetType) .EQ. "gswp") .OR. (TRIM(cable_user%MetType) .EQ. "gswp3") ) &
+!               CALL close_met_file
+! above IF replaced by below - rk4417 - phase2
+          IF ( (TRIM(cable_user%MetType) .EQ. "gswp") &           
+               .or. (TRIM(cable_user%MetType) .EQ. "prin") & ! MMY
+               .or. (TRIM(cable_user%MetType) .EQ. "gswp3") ) &
                CALL close_met_file
 
           IF (icycle>0 .AND.   cable_user%CALL_POP)  THEN
@@ -1192,6 +1212,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
                 IF ( TRIM(cable_user%MetType) .EQ. 'plum' &
                      .OR. TRIM(cable_user%MetType) .EQ. 'cru'   &
                      .OR. TRIM(cable_user%MetType) .EQ. 'gswp' &
+                     .OR. TRIM(cable_user%MetType) .EQ. 'prin' &   ! MMY  ! inserted by rk4417 - phase2
                      .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
 
                    CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
@@ -1462,6 +1483,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
     ! Close met data input file:
     IF ( TRIM(cable_user%MetType) .NE. "gswp"  .AND. &
          TRIM(cable_user%MetType) .NE. "gswp3" .AND. &
+         TRIM(cable_user%MetType) .NE. "prin"  .AND. & ! MMY ! inserted by rk4417 - phase2
          TRIM(cable_user%MetType) .NE. "plum"  .AND. &
          TRIM(cable_user%MetType) .NE. "cru") CALL close_met_file
     IF  (.NOT. CASAONLY) THEN
@@ -2762,6 +2784,10 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
        CALL MPI_Get_address (canopy%fwsoil(off), displs(bidx), ierr)
        blen(bidx) = r2len
 
+       bidx = bidx + 1    ! block inserted by rk4417 - phase2
+       CALL MPI_Get_address (canopy%sublayer_dz(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+
        bidx = bidx + 1
        CALL MPI_Get_address (canopy%gswx(off,1), displs(bidx), ierr)
        CALL MPI_Type_create_hvector (mf, r1len, r1stride, MPI_BYTE, &
@@ -3303,7 +3329,96 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
             &                             types(bidx), ierr)
        blen(bidx) = 1
 
+! block below inserted by rk4417 - phase2
 
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%css_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%rhosoil_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%cnsd_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%zse_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%sand_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%clay_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%silt_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (soil%org_vec(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%ssat_hys(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%watr_hys(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%smp_hys(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%wb_hys(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+  bidx = bidx + 1
+  CALL MPI_Get_address (ssnow%hys_fac(off,1), displs(bidx), ierr)
+  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+  &                             types(bidx), ierr)
+  blen(bidx) = 1
+
+! end of block - rk4417 - phase2
+ 
        !1D
        bidx = bidx + 1
        CALL MPI_Get_address (soil%GWssat_vec(off), displs(bidx), ierr)
@@ -3325,12 +3440,16 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
        CALL MPI_Get_address (soil%GWwatr(off), displs(bidx), ierr)
        blen(bidx) = r2len
 
-       bidx = bidx + 1
-       CALL MPI_Get_address (soil%GWz(off), displs(bidx), ierr)
-       blen(bidx) = r2len
+!       bidx = bidx + 1  ! commented out by rk4417 - phase2
+!       CALL MPI_Get_address (soil%GWz(off), displs(bidx), ierr)
+!       blen(bidx) = r2len
 
        bidx = bidx + 1
        CALL MPI_Get_address (soil%GWdz(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+
+       bidx = bidx + 1     ! inserted by rk4417 - phase2
+       CALL MPI_Get_address (soil%elev(off), displs(bidx), ierr)
        blen(bidx) = r2len
 
        bidx = bidx + 1
@@ -3341,6 +3460,43 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
        CALL MPI_Get_address (soil%slope_std(off), displs(bidx), ierr)
        blen(bidx) = r2len
 
+
+! block below inserted by rk4417 - phase2
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%drain_dens(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+       
+       
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%hkrz(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+       
+       
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%zdepth(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+       
+       
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%srf_frac_ma(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+       
+       
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%edepth_ma(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+       
+       
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%qhz_max(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+       
+       
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%qhz_efold(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+! end of block - rk4417 - phase2
+
        bidx = bidx + 1
        CALL MPI_Get_address (ssnow%GWwb(off), displs(bidx), ierr)
        blen(bidx) = r2len
@@ -3348,6 +3504,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
        ! MPI: sanity check
        IF (bidx /= ntyp) THEN
           WRITE (*,*) 'master: invalid number of param_t fields ',bidx,', fix it!'
+          WRITE (*,*) 'local counbt bidx is ',bidx,' while ntyp is ',ntyp ! inserted by rk4417 - phase2
           CALL MPI_Abort (comm, 1, ierr)
        END IF
 
@@ -4570,6 +4727,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
        ! MPI: sanity check
        IF (bidx /= ntyp) THEN
           WRITE (*,*) 'master: invalid number of casa_t param fields ',bidx,', fix it!'
+          WRITE (*,*) 'local counbt bidx is ',bidx,' while ntyp is ',ntyp ! inserted by rk4417 - phase2
           CALL MPI_Abort (comm, 1, ierr)
        END IF
 
@@ -5034,6 +5192,53 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
             &                        mat_t(midx, rank), ierr)
        CALL MPI_Type_commit (mat_t(midx, rank), ierr)
        midx = midx + 1
+
+! block below inserted by rk4417 - phase2
+     ! REAL(r_2)
+     CALL MPI_Get_address (ssnow%smp(off,1), maddr(midx), ierr) ! 12
+     CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+          &                        mat_t(midx, rank), ierr)
+     CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+     midx = midx + 1
+
+     ! REAL(r_2)
+     CALL MPI_Get_address (ssnow%wb_hys(off,1), maddr(midx), ierr) ! 12
+     CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+          &                        mat_t(midx, rank), ierr)
+     CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+     midx = midx + 1
+
+     ! REAL(r_2)
+     CALL MPI_Get_address (ssnow%smp_hys(off,1), maddr(midx), ierr) ! 12
+     CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+          &                        mat_t(midx, rank), ierr)
+     CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+     midx = midx + 1
+
+     ! REAL(r_2)
+     CALL MPI_Get_address (ssnow%ssat_hys(off,1), maddr(midx), ierr) ! 12
+     CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+          &                        mat_t(midx, rank), ierr)
+     CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+     midx = midx + 1
+
+
+     ! REAL(r_2)
+     CALL MPI_Get_address (ssnow%watr_hys(off,1), maddr(midx), ierr) ! 12
+     CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+          &                        mat_t(midx, rank), ierr)
+     CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+     midx = midx + 1
+
+
+     ! REAL(r_2)
+     CALL MPI_Get_address (ssnow%hys_fac(off,1), maddr(midx), ierr) ! 12
+     CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+          &                        mat_t(midx, rank), ierr)
+     CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+     midx = midx + 1
+! end of block - rk4417 - phase2
+
        ! REAL(r_1)
        CALL MPI_Get_address (ssnow%evapfbl(off,1), maddr(midx), ierr) ! 12
        CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
@@ -5542,6 +5747,11 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
        vidx = vidx + 1
        ! REAL(r_2)
        CALL MPI_Get_address (canopy%fwsoil(off), vaddr(vidx), ierr) ! 59
+       blen(vidx) = cnt * extr2
+
+       vidx = vidx + 1   ! block inserted by rk4417 - phase2
+       ! REAL(r_2)
+       CALL MPI_Get_address (canopy%sublayer_dz(off), vaddr(vidx), ierr) ! 59
        blen(vidx) = cnt * extr2
 
        ! MPI: 2D vars moved above
@@ -7619,7 +7829,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
             &                             types(bidx), ierr)
        blocks(bidx) = 1
 
-       ! #294 - Avoid malformed var write for now 
+       ! #294 - Avoid malformed var write for now  ! should this block be uncommented - rk4417 - phase2
        ! bidx = bidx + 1
        ! CALL MPI_Get_address (climate%mtemp_max(off), displs(bidx), ierr)
        ! blocks(bidx) = r1len

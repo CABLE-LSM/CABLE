@@ -62,7 +62,8 @@ PROGRAM cable_offline_driver
   USE cable_def_types_mod
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
        verbose, fixedCO2,output,check,patchout,    &
-       patch_type,landpt,soilparmnew,&
+! line below modified by rk4417 - phase2
+       patch_type,landpt,& !soilparmnew,! MMY @Oct2022 change to use soilparmnew by default
        defaultLAI, sdoy, smoy, syear, timeunits, exists, calendar, set_group_output_values, &
        NO_CHECK
   USE casa_ncdf_module, ONLY: is_casa_time
@@ -245,7 +246,8 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
   NAMELIST/CABLE/                  &
        filename,         & ! TYPE, containing input filenames
        vegparmnew,       & ! use new soil param. method
-       soilparmnew,      & ! use new soil param. method
+!line below commented out by rk4417 - phase2
+!       soilparmnew,      & ! use new soil param. method ! MMY @Oct2022 change to use soilparmnew by default
        calcsoilalbedo,   & ! albedo considers soil color Ticket #27
        spinup,           & ! spinup model (soil) to steady state
        delsoilM,delsoilT,& !
@@ -409,8 +411,9 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
   !   STOP 'casaCNP required to get prognostic LAI or Vcmax'
   IF( l_vcmaxFeedbk .AND. icycle < 1 )                                     &
        STOP 'icycle must be 2 to 3 to get prognostic Vcmax'
-  IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &
-       STOP 'casaCNP must use new soil parameters'
+!line below commented out by rk4417 - phase2
+!  IF( icycle > 0 .AND. ( .NOT. soilparmnew ) ) & ! MMY @Oct2022 change to use soilparmnew by default
+!       STOP 'casaCNP must use new soil parameters'
 
   NRRRR = MERGE(MAX(CABLE_USER%CASA_NREP,1), 1, CASAONLY)
   ! casa time count
@@ -511,6 +514,40 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
                  ncid_wd   = GSWP_MID(8,YYYY)
                  kend      = ktauday * LOY
               ENDIF
+
+! block below inserted by rk4417 - phase2
+! __________________________ MMY using Princeton _______________________________
+        ELSE IF ( TRIM(cable_user%MetType) .EQ. 'prin' ) THEN
+           ncciy = CurYear
+
+           CALL prepareFiles_princeton(ncciy) ! MMY
+           IF ( RRRR .EQ. 1 ) THEN
+           CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
+           IF (leaps.and.is_leapyear(YYYY).and.kend.eq.2920) THEN
+              STOP 'LEAP YEAR INCOMPATIBILITY WITH INPUT MET !'
+           ENDIF
+           IF ( NRRRR .GT. 1 ) THEN
+              GSWP_MID(1,YYYY) = ncid_rain
+              ! GSWP_MID(2,YYYY) = ncid_snow MMY
+              GSWP_MID(3,YYYY) = ncid_lw
+              GSWP_MID(4,YYYY) = ncid_sw
+              GSWP_MID(5,YYYY) = ncid_ps
+              GSWP_MID(6,YYYY) = ncid_qa
+              GSWP_MID(7,YYYY) = ncid_ta
+              GSWP_MID(8,YYYY) = ncid_wd
+           ENDIF
+           ELSE
+           ncid_rain = GSWP_MID(1,YYYY)
+           ! ncid_snow = GSWP_MID(2,YYYY) MMY
+           ncid_lw   = GSWP_MID(3,YYYY)
+           ncid_sw   = GSWP_MID(4,YYYY)
+           ncid_ps   = GSWP_MID(5,YYYY)
+           ncid_qa   = GSWP_MID(6,YYYY)
+           ncid_ta   = GSWP_MID(7,YYYY)
+           ncid_wd   = GSWP_MID(8,YYYY)
+           kend      = ktauday * LOY ! MMY
+           ENDIF
+! ______________________________________________________________________________
 
            ELSE IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
               ! PLUME experiment setup using WATCH
@@ -1049,9 +1086,17 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
                    YYYY.EQ. CABLE_USER%YearEnd ) THEN
 
                  ! evaluate spinup
+                 ! =================== MMY_phase2 commented out this region in favor of the one below - rk4417 =====================
                  IF( ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.               &
-                      ANY( ABS(ssnow%tgg-soilTtemp)>delsoilT) .OR. &
-                      MAXVAL(ABS(ssnow%GWwb-GWtemp),dim=1) > delgwM) THEN
+                 ANY( ABS(ssnow%tgg-soilTtemp)>delsoilT) .OR. &
+                 MAXVAL(ABS(ssnow%GWwb-GWtemp),dim=1) > delgwM) THEN
+
+                 ! =================== MMY_phase2 uncomment =====================                 
+!                 IF( (ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.                & 
+!                      ANY( ABS(ssnow%tgg-soilTtemp)>delsoilT) .or. &               
+!                      maxval(ABS(ssnow%GWwb-GWtemp),dim=1) > delgwM) .and. &
+!                      ( (int(ktau_tot/kend) .lt. cable_user%max_spins)  .and.&
+!                      (cable_user%max_spins .gt. 0) ) ) THEN
 
                     ! No complete convergence yet
                     PRINT *, 'ssnow%wb : ', ssnow%wb
@@ -1185,7 +1230,7 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
 
   IF (icycle > 0.and. .not.l_landuse) THEN
 
-     !CALL casa_poolout( ktau, veg, soil, casabiome,              &
+     !CALL casa_poolout( ktau, veg, soil, casabiome, & ! FEEDBACK (this call is uncommented in MMY code) --rk4417 
      ! casapool, casaflux, casamet, casabal, phen )
      CALL write_casa_restart_nc ( casamet, casapool,casaflux,phen, CASAONLY )
 
@@ -1306,6 +1351,50 @@ SUBROUTINE renameFiles(logn,inFile,ncciy,inName)
   WRITE(logn,*) TRIM(inName), ' global data from ', TRIM(inFile)
 
 END SUBROUTINE renameFiles
+
+
+! 2 subroutines below inserted by rk4417 - phase2
+! _______________________ MMY for Princeton input ______________________________
+SUBROUTINE prepareFiles_princeton(ncciy)
+  USE cable_IO_vars_module, ONLY: logn,gswpfile
+  IMPLICIT NONE
+  INTEGER, INTENT(IN) :: ncciy
+
+  WRITE(logn,*) 'CABLE offline global run using princeton forcing for ', ncciy
+  PRINT *,     'CABLE offline global run using princeton forcing for ', ncciy
+
+  CALL renameFiles_princeton(logn,gswpfile%rainf,ncciy,'rainf')
+  CALL renameFiles_princeton(logn,gswpfile%LWdown,ncciy,'LWdown')
+  CALL renameFiles_princeton(logn,gswpfile%SWdown,ncciy,'SWdown')
+  CALL renameFiles_princeton(logn,gswpfile%PSurf,ncciy,'PSurf')
+  CALL renameFiles_princeton(logn,gswpfile%Qair,ncciy,'Qair')
+  CALL renameFiles_princeton(logn,gswpfile%Tair,ncciy,'Tair')
+  CALL renameFiles_princeton(logn,gswpfile%wind,ncciy,'wind')
+
+END SUBROUTINE prepareFiles_princeton
+
+SUBROUTINE renameFiles_princeton(logn,inFile,ncciy,inName)
+  IMPLICIT NONE
+  INTEGER, INTENT(IN) :: logn,ncciy
+  INTEGER:: nn
+  CHARACTER(LEN=200), INTENT(INOUT) :: inFile
+  CHARACTER(LEN=*),  INTENT(IN)        :: inName
+  INTEGER :: idummy
+
+  nn = INDEX(inFile,'19')
+  READ(inFile(nn:nn+3),'(i4)') idummy
+  WRITE(inFile(nn:nn+3),'(i4.4)') ncciy
+  nn = INDEX(inFile,'19')
+  READ(inFile(nn:nn+3),'(i4)') idummy
+  WRITE(inFile(nn:nn+3),'(i4.4)') ncciy
+  READ(inFile(nn-5:nn-2),'(i4)') idummy
+  WRITE(inFile(nn-5:nn-2),'(i4.4)') ncciy
+  WRITE(logn,*) TRIM(inName), ' global data from ', TRIM(inFile)
+
+END SUBROUTINE renameFiles_princeton
+
+! ______________________________________________________________________________
+
 
 !==============================================================================
 ! subroutine for reading LU input data, zeroing biomass in empty secondary forest tiles

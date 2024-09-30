@@ -1,6 +1,9 @@
 MODULE cable_pft_params_mod
 USE grid_constants_mod_cbl, ONLY: ntype_max
 
+! line below added by rk4417 - phase2
+USE cable_def_types_mod, ONLY : ms, ncs, ncp, nrb
+
 IMPLICIT NONE 
 
 TYPE vegin_type
@@ -42,12 +45,17 @@ REAL ::                                                                        &
    g1(ntype_max),                                                              &
    zr(ntype_max),                                                              &
    clitt(ntype_max),                                                           &
+! froot1 - froot6 do not serve any purpose
+! their values inside offline/pft_params.nml are not used
+! veg%froot is initialized instead from formula inside offline/cable_parameters.F90
+! rk4417 - phase2
    froot1(ntype_max),                                                          &
    froot2(ntype_max),                                                          &
    froot3(ntype_max),                                                          &
    froot4(ntype_max),                                                          &
    froot5(ntype_max),                                                          &
    froot6(ntype_max),                                                          &
+! rk4417 - phase2
    csoil1(ntype_max),                                                          &
    csoil2(ntype_max),                                                          &
    ratecs1(ntype_max),                                                         &
@@ -60,12 +68,20 @@ REAL ::                                                                        &
    ratecp3(ntype_max),                                                         &
    refl1(ntype_max),                                                           &
    refl2(ntype_max),                                                           &
-   refl3(ntype_max),                                                           &
+   refl3(ntype_max), &  ! not used  - rk4417 - phase2
    taul1(ntype_max),                                                           &
    taul2(ntype_max),                                                           &
-   taul3(ntype_max),                                                           &
+   taul3(ntype_max), &  ! not used  - rk4417 - phase2
    dleaf(ntype_max),                                                           &
-   lai(ntype_max)
+   lai(ntype_max) !,                                                             &
+! block below added by rk4417 - phase2    
+!   froot(ms,ntype_max),          &     ! not needed really - rk4417 - phase2
+!   cplant(ncp,ntype_max),        &     ! not needed  - rk4417 - phase2
+!   csoil(ncs,ntype_max),         &     ! not needed  - rk4417 - phase2
+!   ratecp(ncp,ntype_max),        &     ! not needed  - rk4417 - phase2
+!   ratecs(ncs,ntype_max),        &     ! not needed  - rk4417 - phase2
+!   refl(nrb,ntype_max),          &     ! not needed  - rk4417 - phase2
+!   taul(nrb,ntype_max)                 ! not needed  - rk4417 - phase2
 
 END TYPE vegin_type
 

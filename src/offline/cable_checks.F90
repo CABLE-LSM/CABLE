@@ -84,7 +84,7 @@ MODULE cable_checks_module
       ESoil = [-0.0015, 0.0015], &
       TVeg = [-0.0003, 0.0003], &
       ECanop = [-0.0003, 0.0003], &
-      PotEvap = [-0.005, 0.005], &  !note should encompass Evap
+      PotEvap = [-0.005, 0.005], &  !note should encompass Evap  ! I have PotEvap = [-0.0006, 0.0006] if it makes a difference - rk4417
       ACond = [0.0, 1.0], &
       SoilWet = [-0.4, 1.2], &
       Albedo = [0.0, 1.0], &
@@ -133,12 +133,15 @@ MODULE cable_checks_module
       css = [700.0, 2200.0], &
       rhosoil = [300.0, 3000.0], &
       hyds = [5.0E-7, 8.5E-3], & ! vh_js ! sep14
+! MMY 8.5E-3->8.5 since hyds uses m/s, but hyds_vec uses mm/s
       rs20 = [0.0, 10.0], &
       sand = [0.0, 1.0], &
       sfc = [0.1, 0.5], &
       silt = [0.0, 1.0], &
       ssat = [0.35, 0.5], &
-      sucs = [-0.8, -0.03], &
+! 2 lines below changed by rk4417 - phase2
+!      sucs = [-0.8, -0.03],              & ! MMY@23Apr2023 keep this line commented since it works for CABLE-non GW
+      sucs = [30., 800.],                & ! MMY the range [-0.8, -0.03] doesn't suit for Mark Decker's version
       swilt = [0.05, 0.4], &
       froot = [0.0, 1.0], &
       zse = [0.0, 5.0], &
@@ -486,6 +489,8 @@ CONTAINS
 
     ! Local variables
     REAL(r_2), DIMENSION(:,:,:),POINTER, SAVE :: bwb         ! volumetric soil moisture
+! line below inserted by rk4417 - phase2
+    REAL(r_2), DIMENSION(:,:),POINTER, SAVE   :: bwb_gw ! volumetric gw soil moisture ! MMY
     REAL(r_2), DIMENSION(mp)                  :: delwb       ! change in soilmoisture
     ! b/w tsteps
     REAL, DIMENSION(mp)                  :: canopy_wbal !canopy water balance
@@ -494,12 +499,39 @@ CONTAINS
 
     IF(ktau==1) THEN
        ALLOCATE( bwb(mp,ms,2) )
-       ! initial vlaue of soil moisture
+       ALLOCATE( bwb_gw(mp,2) ) ! MMY  ! inserted by rk4417 - phase2
+       ! initial value of soil moisture
        bwb(:,:,1)=ssnow%wb
        bwb(:,:,2)=ssnow%wb
+       bwb_gw(:,1)=ssnow%GWwb ! MMY   ! 2 lines inserted by rk4417 - phase2
+       bwb_gw(:,2)=ssnow%GWwb ! MMY
        delwb(:) = 0.
     ELSE
        ! Calculate change in soil moisture b/w timesteps:
+
+      ! ________________ MMY, Water Balance Equation for GW_ON _______________
+      ! MMY to fix water balance bug when gw-on
+      IF ( cable_user%GW_MODEL) THEN ! MMY
+
+       IF(MOD(REAL(ktau),2.0)==1.0) THEN         ! if odd timestep
+          bwb(:,:,1)=ssnow%wb
+          bwb_gw(:,1)=ssnow%GWwb
+          DO k=1,mp           ! current smoist - prev tstep smoist
+             delwb(k) = ( SUM( (bwb(k,:,1) - bwb(k,:,2))*soil%zse ) +         &
+                          (bwb_gw(k,1) - bwb_gw(k,2))*soil%GWdz(k) ) *1000.0
+          END DO
+       ELSE IF(MOD(REAL(ktau),2.0)==0.0) THEN    ! if even timestep
+          bwb(:,:,2)=ssnow%wb
+          bwb_gw(:,2)=ssnow%GWwb
+          DO k=1,mp           !  current smoist - prev tstep smoist
+             delwb(k) = ( SUM( (bwb(k,:,2) - bwb(k,:,1))*soil%zse ) +         &
+                          (bwb_gw(k,2) -bwb_gw(k,1))*soil%GWdz(k) ) *1000.0
+          END DO
+       END IF
+      ! ______________________________________________________________________
+
+      ELSE ! MMY  ! IF part above inserted by rk4417 - phase2
+
        IF(MOD(REAL(ktau),2.0)==1.0) THEN         ! if odd timestep
           bwb(:,:,1)=ssnow%wb
           DO k=1,mp           ! current smoist - prev tstep smoist
@@ -513,7 +545,10 @@ CONTAINS
                   - (bwb(k,:,1)))*soil%zse)*1000.0
           END DO
        END IF
-    END IF
+
+    END IF ! MMY   ! inserted by rk4417 - phase2
+
+ END IF
 
 
 
@@ -523,9 +558,20 @@ CONTAINS
     !      it's included in change in canopy storage calculation))
     ! rml 28/2/11 ! BP changed rnof1+rnof2 to ssnow%runoff which also included rnof5
     ! which is used when nglacier=2 in soilsnow routines (BP feb2011)
+
+ IF ( cable_user%GW_MODEL) THEN ! MMY
+   ! ________________ MMY, Water Balance Equation for GW_ON _______________
+     bal%wbal = REAL(met%precip - canopy%delwc - ssnow%snowd+ssnow%osnowd       &
+         - ssnow%runoff-(canopy%fevw+canopy%fevc                                &
+         + canopy%fes/ssnow%cls)*dels/air%rlam - delwb) ! remove qrecharge
+   ! ______________________________________________________________________
+  ELSE ! MMY  ! IF part above inserted by rk4417 - phase2
+
     bal%wbal = REAL(met%precip - canopy%delwc - ssnow%snowd+ssnow%osnowd        &
          - ssnow%runoff-(canopy%fevw+canopy%fevc                                &
          + canopy%fes/ssnow%cls)*dels/air%rlam - delwb - ssnow%qrecharge)
+
+ END IF ! MMY   ! inserted by rk4417 - phase2
 
     ! Canopy water balance: precip-change.can.storage-throughfall-evap+dew
     canopy_wbal = REAL(met%precip-canopy%delwc-canopy%through                   &

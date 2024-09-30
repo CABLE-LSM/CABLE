@@ -210,8 +210,9 @@ MODULE cable_def_types_mod
 
   ! Soil and snow variables:
   TYPE soil_snow_type
-
-     INTEGER, DIMENSION(:), POINTER :: isflag ! 0 => no snow 1 => snow
+     !> isflag 0 => one snow layer 1 => three snow layer
+     INTEGER, DIMENSION(:), POINTER :: isflag
+! 0 => one snow layer 1 => three snow layer ! MMY ! above and here inserted by rk4417 - phase2
 
      REAL, DIMENSION(:), POINTER ::                                           &
           iantrct, & ! pointer to Antarctic land points

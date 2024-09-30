@@ -69,7 +69,9 @@ MODULE cable_output_module
           PlantTurnover, PlantTurnoverLeaf, PlantTurnoverFineRoot, &
           PlantTurnoverWood, PlantTurnoverWoodDist, PlantTurnoverWoodCrowding, &
           PlantTurnoverWoodResourceLim, dCdt, Area, LandUseFlux, patchfrac, &
-          vcmax,hc,WatTable,GWMoist,SatFrac,Qrecharge
+          vcmax,hc,WatTable,GWMoist,SatFrac,Qrecharge, &
+          SMP,SMP_hys,WB_hys,SSAT_hys, WATR_hys,hys_fac  ! added by rk4417 - phase2
+
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
   TYPE(parID_type) :: opid ! netcdf variable IDs for output variables
@@ -229,6 +231,17 @@ MODULE cable_output_module
 
      REAL(KIND=4), POINTER, DIMENSION(:) :: RootResp   !  autotrophic root respiration [umol/m2/s]
      REAL(KIND=4), POINTER, DIMENSION(:) :: StemResp   !  autotrophic stem respiration [umol/m2/s]
+
+! remainder of TYPE block below added by rk4417 - phase2
+     
+     REAL(KIND=4), POINTER, DIMENSION(:,:) :: SMP      ! soil pressure [m] 
+     REAL(KIND=4), POINTER, DIMENSION(:,:) :: SMP_hys  ! soil pressure [m]
+     REAL(KIND=4), POINTER, DIMENSION(:,:) :: WB_hys    ! soil pressure [m]
+    
+     REAL(KIND=4), POINTER, DIMENSION(:,:) :: SSAT_hys   ! soil pressure [m]
+     REAL(KIND=4), POINTER, DIMENSION(:,:) :: WATR_hys   ! soil pressure [m]
+     REAL(KIND=4), POINTER, DIMENSION(:,:) :: hys_fac   ! soil pressure [m]
+
   END TYPE output_temporary_type
 
   TYPE output_var_settings_type
@@ -627,6 +640,44 @@ CONTAINS
        ALLOCATE(out%SoilTemp(mp,ms))
        out%SoilTemp = 0.0 ! initialise
     END IF
+
+! block below inserted by rk4417 - phase2 
+    IF(output%soil .OR. output%SMP) THEN
+       CALL define_ovar(ncid_out, ovid%SMP, 'SMP', 'm',      &
+                        'Average layer soil pressure', patchout%SMP,     &
+                        'soil', xID, yID, zID, landID, patchID, soilID, tID)
+       ALLOCATE(out%SMP(mp,ms))
+       out%SMP = 0.0 ! initialise
+    ENDIF
+    if (cable_user%gw_model .and. gw_params%BC_hysteresis) then
+       CALL define_ovar(ncid_out, ovid%SMP_hys, 'SMP_hys', 'm',      &
+                        'Average layer soil pressure at hys trans', patchout%SMP_hys,     &
+                        'soil', xID, yID, zID, landID, patchID, soilID, tID)
+       ALLOCATE(out%SMP_hys(mp,ms))
+       out%SMP_hys = 0.0 ! initialise
+       CALL define_ovar(ncid_out, ovid%WB_hys, 'WB_hys', 'm',      &
+                        'wb at wet/dry or dry/wet transition', patchout%WB_hys,     &
+                        'soil', xID, yID, zID, landID, patchID, soilID, tID)
+       ALLOCATE(out%WB_hys(mp,ms))
+       out%WB_hys = 0.0 ! initialise
+       CALL define_ovar(ncid_out, ovid%SSAT_hys, 'SSAT_hys', 'm',      &
+                        'hysteresis adj  ssat', patchout%SSAT_hys,     &
+                        'soil', xID, yID, zID, landID, patchID, soilID, tID)
+       ALLOCATE(out%SSAT_hys(mp,ms))
+       out%SSAT_hys = 0.0 ! initialise
+       CALL define_ovar(ncid_out, ovid%WATR_hys, 'WATR_hys', 'm',      &
+                        'hysteresis adj watr', patchout%WATR_hys,     &
+                        'soil', xID, yID, zID, landID, patchID, soilID, tID)
+       ALLOCATE(out%WATR_hys(mp,ms))
+       out%WATR_hys = 0.0 ! initialise
+       CALL define_ovar(ncid_out, ovid%hys_fac, 'hys_fac', 'm',      &
+                        '1.0 wet 0.5 dry', patchout%hys_fac,     &
+                        'soil', xID, yID, zID, landID, patchID, soilID, tID)
+       ALLOCATE(out%hys_fac(mp,ms))
+       out%hys_fac = 0.0 ! initialise
+    end if
+! end of block - rk4417 - phase2   
+
     IF(output%BaresoilT) THEN
        CALL define_ovar(ncid_out, ovid%BaresoilT, 'BaresoilT',                 &
             'K', 'Bare soil temperature', patchout%BaresoilT,      &
@@ -1097,38 +1148,60 @@ CONTAINS
          'isoil', '-', 'Soil type', patchout%isoil, 'integer', &
          xID, yID, zID, landID, patchID)
     IF(output%bch) CALL define_ovar(ncid_out, opid%bch,     &
-         'bch', '-', 'Parameter b, Campbell eqn 1985', patchout%bch, 'real', &
+!         'bch', '-', 'Parameter b, Campbell eqn 1985', patchout%bch, 'real', &
+! replaced above by below - rk4417 - phase2
+         'bch', '-', 'Parameter b, Campbell eqn 1985', patchout%bch, soilID,'soil', &
          xID, yID, zID, landID, patchID)
     IF(output%clay) CALL define_ovar(ncid_out, opid%clay,   &
-         'clay', '-', 'Fraction of soil which is clay', patchout%clay, 'real', &
+!         'clay', '-', 'Fraction of soil which is clay', patchout%clay, 'real', &
+! replaced above by below - rk4417 - phase2
+         'clay', '-', 'Fraction of soil which is clay', patchout%clay, soilID,'soil', &
          xID, yID, zID, landID, patchID)
     IF(output%sand) CALL define_ovar(ncid_out, opid%sand,   &
-         'sand', '-', 'Fraction of soil which is sand', patchout%sand, 'real', &
+!         'sand', '-', 'Fraction of soil which is sand', patchout%sand, 'real', &
+! replaced above by below - rk4417 - phase2
+         'sand', '-', 'Fraction of soil which is sand', patchout%sand, soilID,'soil', &
          xID, yID, zID, landID, patchID)
     IF(output%silt) CALL define_ovar(ncid_out, opid%silt,   &
-         'silt', '-', 'Fraction of soil which is silt', patchout%silt, 'real', &
+!         'silt', '-', 'Fraction of soil which is silt', patchout%silt, 'real', &
+! replaced above by below - rk4417 - phase2
+         'silt', '-', 'Fraction of soil which is silt', patchout%silt, soilID,'soil', &
          xID, yID, zID, landID, patchID)
     IF(output%ssat) CALL define_ovar(ncid_out, opid%ssat,   &
          'ssat', '-', 'Fraction of soil volume which is water @ saturation', &
-         patchout%ssat, 'real', xID, yID, zID, landID, patchID)
+!         patchout%ssat, 'real', xID, yID, zID, landID, patchID)
+! replaced above by below - rk4417 - phase2
+         patchout%ssat, soilID,'soil', xID, yID, zID, landID, patchID)
     IF(output%sfc) CALL define_ovar(ncid_out, opid%sfc,     &
          'sfc', '-', 'Fraction of soil volume which is water @ field capacity', &
-         patchout%sfc, 'real', xID, yID, zID, landID, patchID)
+!         patchout%sfc, 'real', xID, yID, zID, landID, patchID)
+! replaced above by below - rk4417 - phase2
+         patchout%sfc, soilID,'soil', xID, yID, zID, landID, patchID)
     IF(output%swilt) CALL define_ovar(ncid_out, opid%swilt, &
          'swilt', '-', 'Fraction of soil volume which is water @ wilting point', &
-         patchout%swilt, 'real', xID, yID, zID, landID, patchID)
+!         patchout%swilt, 'real', xID, yID, zID, landID, patchID)
+! replaced above by below - rk4417 - phase2
+         patchout%swilt, soilID,'soil', xID, yID, zID, landID, patchID) 
     IF(output%hyds) CALL define_ovar(ncid_out, opid%hyds,   &
          'hyds', 'm/s', 'Hydraulic conductivity @ saturation', &
-         patchout%hyds, 'real', xID, yID, zID, landID, patchID)
+!         patchout%hyds, 'real', xID, yID, zID, landID, patchID)
+! replaced above by below - rk4417 - phase2
+         patchout%hyds, soilID,'soil', xID, yID, zID, landID, patchID)
     IF(output%sucs) CALL define_ovar(ncid_out, opid%sucs,   &
          'sucs', 'm', 'Suction @ saturation', &
-         patchout%sucs, 'real', xID, yID, zID, landID, patchID)
+!         patchout%sucs, 'real', xID, yID, zID, landID, patchID)
+! replaced above by below - rk4417 - phase2
+         patchout%sucs, soilID,'soil', xID, yID, zID, landID, patchID)
     IF(output%css) CALL define_ovar(ncid_out, opid%css,     &
          'css', 'J/kg/C', 'Heat capacity of soil minerals', &
-         patchout%css, 'real', xID, yID, zID, landID, patchID)
+!         patchout%css, 'real', xID, yID, zID, landID, patchID)
+! replaced above by below - rk4417 - phase2
+         patchout%css, soilID,'soil', xID, yID, zID, landID, patchID)
     IF(output%rhosoil) CALL define_ovar(ncid_out,           &
          opid%rhosoil, 'rhosoil', 'kg/m^3', 'Density of soil minerals', &
-         patchout%rhosoil, 'real', xID, yID, zID, landID, patchID)
+!         patchout%rhosoil, 'real', xID, yID, zID, landID, patchID)
+! replaced above by below - rk4417 - phase2
+         patchout%rhosoil, soilID,'soil', xID, yID, zID, landID, patchID) 
     IF(output%rs20) CALL define_ovar(ncid_out, opid%rs20,   &
          'rs20', '-', 'Soil respiration coefficient at 20C', &
          patchout%rs20, 'real', xID, yID, zID, landID, patchID)
@@ -1245,6 +1318,24 @@ CONTAINS
     !                          patchout%GWdz, 'real', xID, yID, zID, landID, patchID)
     !
     IF(output%params .AND. cable_user%gw_model) THEN
+
+! block below inserted by rk4417 - phase2 
+            call define_ovar(ncid_out, opid%slope,   &
+           'slope', '-', 'mean subgrid topographic slope', &
+                          patchout%slope, 'real', xid, yid, zid, landid, patchid)
+            call define_ovar(ncid_out, opid%elev,   &
+           'elev', '-', 'mean subgrid topographic elev', &
+                          patchout%elev, 'real', xid, yid, zid, landid, patchid)
+
+           CALL define_ovar(ncid_out, opid%slope_std,   &
+           'slope_std', '-', 'Mean subgrid topographic slope_std', &
+                          patchout%slope_std, 'real', xID, yID, zID, landID, patchID)
+
+           CALL define_ovar(ncid_out, opid%GWdz,   &
+           'GWdz', '-', 'Mean aquifer layer thickness ', &
+                          patchout%GWdz, 'real', xID, yID, zID, landID, patchID)
+! end of block - rk4417 - phase2 
+
        CALL define_ovar(ncid_out, opid%Qhmax,   &
             'Qhmax', 'mm/s', 'Maximum subsurface drainage ', &
             patchout%Qhmax, 'real', xID, yID, zID, landID, patchID)
@@ -1365,7 +1456,7 @@ CONTAINS
 
     !~ Patch
     out_settings%dimswitch = "real"
-    CALL  check_and_write(output%patchfrac .AND. (patchout%patchfrac .OR. output%patch), opid%patchfrac, 'patchfrac',                  &
+    CALL  check_and_write(output%patchfrac .AND. (patchout%patchfrac .OR. output%patch), opid%patchfrac, 'patchfrac', &
           REAL(patch(:)%frac, 4), ranges%patchfrac, patchout%patchfrac, out_settings)
 
     !~ Soil
@@ -1374,31 +1465,53 @@ CONTAINS
          'isoil', REAL(soil%isoilm, 4), ranges%isoil, patchout%isoil, out_settings)
     out_settings%dimswitch = "real"
     CALL  check_and_write(output%bch, opid%bch,      &
-         'bch', REAL(soil%bch, 4), ranges%bch, patchout%bch, out_settings)
+!         'bch', REAL(soil%bch, 4), ranges%bch, patchout%bch, out_settings)
+! replaced above by below - rk4417 - phase2
+         'bch', REAL(soil%bch_vec, 4), ranges%bch, patchout%bch, out_settings)
     CALL  check_and_write(output%clay, opid%clay,    &
-         'clay', REAL(soil%clay, 4), ranges%clay, patchout%clay, out_settings)
+!         'clay', REAL(soil%clay, 4), ranges%clay, patchout%clay, out_settings)
+! replaced above by below - rk4417 - phase2
+         'clay', REAL(soil%clay_vec, 4), ranges%clay, patchout%clay, out_settings)
     CALL  check_and_write(output%sand, opid%sand,    &
-         'sand', REAL(soil%sand, 4), ranges%sand, patchout%sand, out_settings)
+!         'sand', REAL(soil%sand, 4), ranges%sand, patchout%sand, out_settings)
+! replaced above by below - rk4417 - phase2
+         'sand', REAL(soil%sand_vec, 4), ranges%sand, patchout%sand, out_settings)
     CALL  check_and_write(output%silt, opid%silt,    &
-         'silt', REAL(soil%silt, 4), ranges%silt, patchout%silt, out_settings)
+!         'silt', REAL(soil%silt, 4), ranges%silt, patchout%silt, out_settings)
+! replaced above by below - rk4417 - phase2
+         'silt', REAL(soil%silt_vec, 4), ranges%silt, patchout%silt, out_settings)
     CALL  check_and_write(output%css, opid%css,      &
-         'css', REAL(soil%css, 4), ranges%css, patchout%css, out_settings)
+!         'css', REAL(soil%css, 4), ranges%css, patchout%css, out_settings)
+! replaced above by below - rk4417 - phase2
+         'css', REAL(soil%css_vec, 4), ranges%css, patchout%css, out_settings)
     CALL  check_and_write(output%rhosoil,            &
-         opid%rhosoil, 'rhosoil',REAL(soil%rhosoil,4), &
+!         opid%rhosoil, 'rhosoil',REAL(soil%rhosoil,4), &
+! replaced above by below - rk4417 - phase2
+         opid%rhosoil, 'rhosoil',REAL(soil%rhosoil_vec,4), &
          ranges%rhosoil, patchout%rhosoil, out_settings)
     CALL  check_and_write(output%hyds, opid%hyds,    &
-         'hyds', REAL(soil%hyds, 4), ranges%hyds, patchout%hyds, out_settings)
+!         'hyds', REAL(soil%hyds, 4), ranges%hyds, patchout%hyds, out_settings)
+! replaced above by below - rk4417 - phase2
+         'hyds', REAL(soil%hyds_vec, 4), ranges%hyds, patchout%hyds, out_settings)
     CALL  check_and_write(output%sucs, opid%sucs,    &
-         'sucs', REAL(soil%sucs, 4), ranges%sucs, patchout%sucs, out_settings)
+!         'sucs', REAL(soil%sucs, 4), ranges%sucs, patchout%sucs, out_settings)
+! replaced above by below - rk4417 - phase2
+         'sucs', REAL(soil%sucs_vec, 4), ranges%sucs, patchout%sucs, out_settings)   
     CALL  check_and_write(output%rs20, opid%rs20,    &
          'rs20', REAL(veg%rs20, 4), ranges%rs20, patchout%rs20, out_settings)
     !         'rs20',REAL(soil%rs20,4),ranges%rs20,patchout%rs20,out_settings)
     CALL  check_and_write(output%ssat, opid%ssat,    &
-         'ssat', REAL(soil%ssat, 4), ranges%ssat, patchout%ssat, out_settings)
+!         'ssat', REAL(soil%ssat, 4), ranges%ssat, patchout%ssat, out_settings)
+! replaced above by below - rk4417 - phase2
+         'ssat', REAL(soil%ssat_vec, 4), ranges%ssat, patchout%ssat, out_settings)
     CALL  check_and_write(output%sfc, opid%sfc,      &
-         'sfc', REAL(soil%sfc, 4), ranges%sfc, patchout%sfc, out_settings)
+!         'sfc', REAL(soil%sfc, 4), ranges%sfc, patchout%sfc, out_settings)
+! replaced above by below - rk4417 - phase2
+         'sfc', REAL(soil%sfc_vec, 4), ranges%sfc, patchout%sfc, out_settings)
     CALL  check_and_write(output%swilt, opid%swilt,  &
-         'swilt', REAL(soil%swilt, 4), ranges%swilt, patchout%swilt, out_settings)
+!         'swilt', REAL(soil%swilt, 4), ranges%swilt, patchout%swilt, out_settings)
+! replaced above by below - rk4417 - phase2
+         'swilt', REAL(soil%swilt_vec, 4), ranges%swilt, patchout%swilt, out_settings)
 
     !    CALL  check_and_write(output%slope ,ncid_out, opid%slope,    &
     !                 'slope', REAL(soil%slope, 4), ranges%slope, patchout%slope, out_settings)
@@ -1414,7 +1527,9 @@ CONTAINS
 
     out_settings%dimswitch = "soil"
     CALL  check_and_write(output%zse, opid%zse,      &
-         'zse', SPREAD(REAL(soil%zse, 4), 1, mp),ranges%zse, &
+!         'zse', SPREAD(REAL(soil%zse, 4), 1, mp),ranges%zse, &
+! replaced above by below - rk4417 - phase2
+         'zse', REAL(soil%zse_vec, 4),ranges%zse, &
          patchout%zse, out_settings)! no spatial dim at present
 
     !~ Veg
@@ -1496,27 +1611,62 @@ CONTAINS
          patchout%ratecs, out_settings)! no spatial dim at present
 
    !~ gwmodel
+
+    IF(output%params .AND. cable_user%gw_model) THEN  ! line inserted by rk4417 - phase2 
+
      out_settings%dimswitch = "real"
+
+! block below inserted by rk4417 - phase2 
+!          CALL write_ovar(ncid_out, opid%slope,    &     ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                'slope', REAL(soil%slope, 4), &
+!                 (/0.0,9999.0/), patchout%slope, 'real')
+
+!          CALL write_ovar(ncid_out, opid%elev,    &     ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                'elev', REAL(soil%elev, 4),&
+!                  (/0.0,9999999.0/), patchout%elev, 'real')
+
+!          CALL write_ovar(ncid_out, opid%slope_std,    &     ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                'slope_std', REAL(soil%slope_std, 4),&
+!                 (/0.0,9999.0/), patchout%slope_std, 'real')
+
+!          CALL write_ovar(ncid_out, opid%GWdz,    &     ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                'GWdz', REAL(soil%GWdz, 4), &
+!                 (/0.0,999999.0/), patchout%GWdz, 'real')
+
+!          CALL write_ovar(ncid_out, opid%QhmaxEfold,    &     ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!             '  QhmaxEfold', REAL(soil%drain_dens, 4), &
+!                (/0.0,999999.0/), patchout%QhmaxEfold, 'real')
+! end of block - rk4417 - phase2 
+
     CALL  check_and_write(output%params .AND. cable_user%gw_model, opid%SatFracmax,    &
-         'SatFracmax', SPREAD(REAL(gw_params%MaxSatFraction,4),1,mp), &
-         ranges%gw_default, patchout%SatFracmax, out_settings)
+!         'SatFracmax', SPREAD(REAL(gw_params%MaxSatFraction,4),1,mp), &
+! replaced above by below - rk4417 - phase2
+            'SatFracmax', spread(REAL(sqrt(gw_params%MaxSatFraction),4),1,mp), &
+         ranges%gw_default, patchout%SatFracmax, out_settings)  ! note specially for ranges%gw_default that I have instead (/0.0,1000000.0/) - rk4417 - phase2
 
     CALL  check_and_write(output%params .AND. cable_user%gw_model, opid%Qhmax,    &
-         'Qhmax', SPREAD(REAL(gw_params%MaxHorzDrainRate, 4),1,mp), &
-         ranges%gw_default, patchout%Qhmax, out_settings)
+!         'Qhmax', SPREAD(REAL(gw_params%MaxHorzDrainRate, 4),1,mp), &
+! replaced above by below - rk4417 - phase2
+            'Qhmax', REAL(soil%qhz_max, 4), &
+         ranges%gw_default, patchout%Qhmax, out_settings) ! note specially for ranges%gw_default that I have instead (/0.0,1000000.0/) - rk4417 - phase2
 
-    CALL  check_and_write(output%params .AND. cable_user%gw_model, opid%QhmaxEfold,    &
-         'QhmaxEfold', SPREAD(REAL(gw_params%EfoldHorzDrainRate, 4),1,mp), &
-         ranges%gw_default, patchout%QhmaxEfold, out_settings)
+! part below commented out by rk4417 - phase2
+!    CALL  check_and_write(output%params .AND. cable_user%gw_model, opid%QhmaxEfold,    &
+!         'QhmaxEfold', SPREAD(REAL(gw_params%EfoldHorzDrainRate, 4),1,mp), &
+!         ranges%gw_default, patchout%QhmaxEfold, out_settings)
 
     CALL  check_and_write(output%params .AND. cable_user%gw_model, opid%HKefold,    &
-         'HKefold', SPREAD(REAL(gw_params%hkrz, 4),1,mp), &
-         ranges%gw_default, patchout%HKefold, out_settings)
+!         'HKefold', SPREAD(REAL(gw_params%hkrz, 4),1,mp), &
+! replaced above by below - rk4417 - phase2
+            'HKefold', REAL(soil%hkrz, 4), &
+         ranges%gw_default, patchout%HKefold, out_settings) ! note specially for ranges%gw_default that I have instead (/0.0,1000000.0/) - rk4417 - phase2
 
     CALL  check_and_write(output%params .AND. cable_user%gw_model, opid%HKdepth,    &
-         'HKdepth', SPREAD(REAL(gw_params%zdepth, 4),1,mp), &
-          ranges%gw_default, patchout%HKdepth, out_settings)
-
+!         'HKdepth', SPREAD(REAL(gw_params%zdepth, 4),1,mp), &
+! replaced above by below - rk4417 - phase2
+            'HKdepth', REAL(soil%zdepth, 4), &
+          ranges%gw_default, patchout%HKdepth, out_settings) ! note specially for ranges%gw_default that I have instead (/0.0,1000000.0/) - rk4417 - phase2
+ END IF ! line inserted by rk4417 - phase2 
 
   END SUBROUTINE open_output_file
 
@@ -1782,6 +1932,64 @@ CONTAINS
     !write(*,*) 'Qinfl'    !MDeck
     CALL generate_out_write_acc(output%SatFrac .AND. cable_user%GW_MODEL, ovid%SatFrac, 'SatFrac', out%SatFrac, REAL(ssnow%satfrac, 4), ranges%SatFrac, patchout%SatFrac, out_settings)
 
+
+! block below inserted by rk4417 - phase2 
+    IF((output%soil .OR. output%SMP)  .and. cable_user%GW_MODEL) THEN
+       !write(*,*) 'Qinfl'    !MDeck
+       ! Add current timestep's value to total of temporary output variable:
+       out%SMP = out%SMP + REAL(ssnow%smp, 4)
+       IF(out_settings%writenow) THEN  ! modified "IF(writenow) THEN" to "IF(out_settings%writenow) THEN" - rk4417 - phase2
+          out%SMP = out%SMP / REAL(output%interval, 4)
+          ! Write value to file:
+! CALL write_ovar(out_timestep, ncid_out, ovid%SMP, 'SMP', & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!               out%SMP, (/-1.0e36,1.0e36/), patchout%SMP, 'soil', met)
+          ! Reset temporary output variable:
+          out%SMP = 0.0
+       END IF
+    END IF
+
+    IF(gw_params%bc_hysteresis .and. cable_user%GW_MODEL) THEN
+       !write(*,*) 'Qinfl'    !MDeck
+       ! Add current timestep's value to total of temporary output variable:
+       out%smp_hys  = out%smp_hys  + REAL(ssnow%smp_hys, 4)
+       out%wb_hys   = out%wb_hys   + REAL(ssnow%wb_hys, 4)
+       out%ssat_hys = out%ssat_hys + REAL(ssnow%ssat_hys, 4)
+       out%watr_hys = out%watr_hys + REAL(ssnow%watr_hys, 4)
+       out%hys_fac  = out%hys_fac  + REAL(ssnow%hys_fac, 4)
+
+        IF(out_settings%writenow) THEN  ! modified "IF(writenow) THEN" to "IF(out_settings%writenow) THEN" - rk4417 - phase2 
+          out%smp_hys = out%smp_hys / REAL(output%interval, 4)
+          out%wb_hys   = out%wb_hys  / REAL(output%interval, 4)
+          out%ssat_hys = out%ssat_hys/ REAL(output%interval, 4)
+          out%watr_hys = out%watr_hys/ REAL(output%interval, 4)
+          out%hys_fac  = out%hys_fac / REAL(output%interval, 4)
+
+          ! Write value to file:
+! CALL write_ovar(out_timestep, ncid_out, ovid%SMP_hys, 'SMP_hys', & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!               out%SMP_hys, (/-1.0e36,1.0e36/), patchout%SMP_hys, 'soil', met)
+
+! CALL write_ovar(out_timestep, ncid_out, ovid%WB_hys, 'WB_hys', & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!               out%WB_hys, (/-1.0e36,1.0e36/), patchout%wb_hys, 'soil', met)
+
+! CALL write_ovar(out_timestep, ncid_out, ovid%SSAT_hys, 'SSAT_hys', & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!               out%SSAT_hys, (/-1.0e36,1.0e36/), patchout%ssat_hys, 'soil', met)
+
+! CALL write_ovar(out_timestep, ncid_out, ovid%WATR_hys, 'WATR_hys', & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!               out%WATR_hys, (/-1.0e36,1.0e36/), patchout%watr_hys, 'soil', met)
+
+! CALL write_ovar(out_timestep, ncid_out, ovid%hys_fac, 'hys_fac', & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!               out%hys_fac, (/-1.0e36,1.0e36/), patchout%hys_fac, 'soil', met)
+
+          ! Reset temporary output variable:
+          out%smp_hys = 0.0
+          out%wb_hys   =0.0
+          out%ssat_hys =0.0
+          out%watr_hys =0.0
+          out%hys_fac  =0.0
+       END IF
+    END IF
+! end of block - rk4417 - phase2 
+
     ! recharge rate
     CALL generate_out_write_acc(output%Qrecharge, ovid%Qrecharge, 'Qrecharge', out%Qrecharge, REAL(ssnow%Qrecharge, 4), ranges%Qrecharge, patchout%Qrecharge, out_settings)
 
@@ -1969,7 +2177,7 @@ CONTAINS
       IF (cable_user%POPLUC) THEN
         temp_acc = -(casaflux%Crsoil - casaflux%cnpp &
                      - casapool%dClabiledt)/86400.0 &
-                   /1.201E-5 !-  &
+                   /1.201E-5 !-  & ! FEEDBACK (this bit is not commented out in MMY code) --rk4417
         !REAL((casaflux%FluxCtohwp + casaflux%FluxCtoclear  )/86400.0 &
         !/ 1.201E-5, 4)
       ELSE
@@ -2286,8 +2494,9 @@ CONTAINS
          canstoID, albsoilsnID, gammzzID, tggsnID, sghfluxID,       &
          ghfluxID, runoffID, rnof1ID, rnof2ID, gaID, dgdtgID,       &
          fevID, fesID, fhsID, wbtot0ID, osnowd0ID, cplantID,        &
-         csoilID, tradID, albedoID, gwID
+         csoilID, tradID, albedoID, gwID, subdzID ! added subdzID - rk4417 - phase2
     INTEGER :: h0ID, snowliqID, SID, TsurfaceID, scondsID, nsnowID, TsoilID
+    INTEGER :: hys(6) ! inserted by rk4417 - phase2
     CHARACTER(LEN=10) :: todaydate, nowtime ! used to timestamp netcdf file
     ! CHARACTER         :: FRST_OUT*100, CYEAR*4
     CHARACTER         :: FRST_OUT*200, CYEAR*4
@@ -2298,10 +2507,16 @@ CONTAINS
 
     WRITE(logn, '(A24)') ' Writing restart file...'
     frst_out = TRIM(filename%restart_out)
+! should above line be replaced by below 2 lines? - rk4417 - phase2
+!    IF ( TRIM(filename%path) .EQ. '' ) filename%path = './'
+!    frst_out = TRIM(filename%path)//'/'//TRIM(filename%restart_out)
     ! Look for explicit restart file (netCDF). If not, asssume input is path
     IF ( INDEX(TRIM(frst_out),'.nc',BACK=.TRUE.) .NE. LEN_TRIM(frst_out)-2 ) THEN
        WRITE( CYEAR,FMT="(I4)" ) CurYear + 1
        frst_out = TRIM(cable_user%RunIden)//'_'//CYEAR//'_cable_rst.nc'
+! should above line be replaced by below 2 lines? - rk4417 - phase2
+!       frst_out = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//&
+!            '_'//CYEAR//'_cable_rst.nc'
     ENDIF
 
     ! Create output file:
@@ -2541,6 +2756,28 @@ CONTAINS
 !$    CALL define_ovar(ncid_restart, rpid%swilt, 'swilt', '-',                   &
 !$                     'Fraction of soil volume which is water @ wilting point', &
 !$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+
+! inserted block below - rk4417 - phase2 (same as commented one above, I know)
+    CALL define_ovar(ncid_restart, rpid%clay, 'clay', '-',                     &
+                     'Fraction of soil which is clay',                         &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%sand, 'sand', '-',                     &
+                     'Fraction of soil which is sand',                         &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%silt, 'silt', '-',                     &
+                     'Fraction of soil which is silt',                         &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%ssat, 'ssat', '-',                     &
+                     'Fraction of soil volume which is water @ saturation',    &
+                    .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%sfc, 'sfc', '-',                       &
+                    'Fraction of soil volume which is water @ field capacity', &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%swilt, 'swilt', '-',                   &
+                     'Fraction of soil volume which is water @ wilting point', &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+! end of block - rk4417 - phase2 
+
     ! zse (depth of each soil layer):
     ok = NF90_DEF_VAR(ncid_restart, 'zse', NF90_FLOAT, (/soilID/), rpid%zse)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
@@ -2570,6 +2807,31 @@ CONTAINS
 !$    CALL define_ovar(ncid_restart, rpid%rs20, 'rs20', '-',                     &
 !$                     'Soil respiration coefficient at 20C',                    &
 !$                      .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+
+! inserted block below - rk4417 - phase2
+    CALL define_ovar(ncid_restart, rpid%froot, 'froot', '-',                   &
+                     'Fraction of roots in each soil layer',                   &
+                      .TRUE., soilID, 'soil', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%bch, 'bch', '-',                       &
+                     'Parameter b, Campbell eqn 1985',                         &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%hyds, 'hyds', 'mm/s',  & ! MMY m/s->mm/s                 &
+                     'Hydraulic conductivity @ saturation',                    &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%sucs, 'sucs', 'mm',        & ! MMY m->mm                     &
+                     'Suction @ saturation', .TRUE.,                           &
+                     'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%css, 'css', 'J/kg/C',                  &
+                     'Heat capacity of soil minerals',                         &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%rhosoil, 'rhosoil', 'kg/m^3',          &
+                     'Density of soil minerals',                               &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%rs20, 'rs20', '-',                     &
+                     'Soil respiration coefficient at 20C',                    &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+! end of block - rk4417 - phase2 
+
     CALL define_ovar(ncid_restart, rpid%albsoil, 'albsoil', '-',               &
          'Soil reflectance', .TRUE.,                               &
          radID, 'radiation', 0, 0, 0, mpID, dummy, .TRUE.)
@@ -2653,7 +2915,96 @@ CONTAINS
 !$    CALL define_ovar(ncid_restart, rpid%za_tq, 'za_tq', 'm',                   &
 !$                     'Reference height (lowest atm. model layer) for scalars', &
 !$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+
+
+! inserted block below - rk4417 - phase2 (same as commented one above, I know)
+    CALL define_ovar(ncid_restart, rpid%hc, 'hc', 'm',                         &
+                     'Height of canopy', .TRUE.,                               &
+                     'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%canst1, 'canst1', 'mm/LAI',            &
+                     'Max water intercepted by canopy',                        &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%dleaf, 'dleaf', 'm',                   &
+                     'Chararacteristic length of leaf',                        &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%frac4, 'frac4', '-',                   &
+                     'Fraction of plants which are C4',                        &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%ejmax, 'ejmax', 'mol/m^2/s',           &
+                     'Max potential electron transport rate top leaf', .TRUE., &
+                     'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%vcmax, 'vcmax', 'mol/m^2/s',           &
+                     'Maximum RuBP carboxylation rate top leaf', .TRUE.,       &
+                     'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%rp20, 'rp20', '-',                     &
+                     'Plant respiration coefficient at 20C', .TRUE., 'real',   &
+                     0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%g0, 'g0', '-',                     &
+                     'g0 term in Medlyn Stomatal Cond. Param', .TRUE.,'real',&
+                     0, 0, 0, mpID, dummy, .TRUE.) ! Ticket #56
+    CALL define_ovar(ncid_restart, rpid%g1, 'g1', '-',                     &
+                     'g1 term in Medlyn Stomatal Cond. Param', .TRUE.,'real',&
+                     0, 0, 0, mpID, dummy, .TRUE.)  ! Ticket #56
+    CALL define_ovar(ncid_restart, rpid%rpcoef, 'rpcoef', '1/C',               &
+                     'Temperature coef nonleaf plant respiration', .TRUE.,     &
+                     'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%shelrb, 'shelrb', '-',                 &
+              'Sheltering factor', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%xfang, 'xfang', '-',                   &
+           'Leaf angle parameter', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%wai, 'wai', '-',                       &
+                'Wood area index', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%vegcf, 'vegcf', '-',                   &
+                     'vegcf', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%extkn, 'extkn', '-',                   &
+                     'Extinction coef for vertical nitrogen profile',          &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%tminvj, 'tminvj', 'C',                 &
+                     'Min temperature for the start of photosynthesis',        &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%tmaxvj, 'tmaxvj', 'C',                 &
+                     'Max temperature for the start of photosynthesis',        &
+                      .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%vbeta, 'vbeta', '-',                   &
+                     'Stomatal sensitivity to soil water',                     &
+                      .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%xalbnir, 'xalbnir', '-',               &
+                     'modifier for albedo in near ir band',                    &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    ! ratecp (Plant carbon rate constant):
+    ok = NF90_DEF_VAR(ncid_restart, 'ratecp', NF90_FLOAT, (/plantcarbID/),     &
+                      rpid%ratecp)
+    IF (ok /= NF90_NOERR) CALL nc_abort                                        &
+                     (ok, 'Error defining ratecp variable in restart file. '// &
+                      '(SUBROUTINE create_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecp, "long_name",                  &
+                      "Plant carbon rate constant")
+    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecp, "units", "1/year")
+    ! ratecs (Soil carbon rate constant):
+    ok = NF90_DEF_VAR(ncid_restart, 'ratecs', NF90_FLOAT, (/soilcarbID/),      &
+                      rpid%ratecs)
+    IF (ok /= NF90_NOERR) CALL nc_abort                                        &
+                     (ok, 'Error defining ratecs variable in restart file. '// &
+                      '(SUBROUTINE create_restart)')
+    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecs, "long_name",                  &
+                      "Soil carbon rate constant")
+    ok = NF90_PUT_ATT(ncid_restart, rpid%ratecs, "units", "1/year")
+    CALL define_ovar(ncid_restart, rpid%meth, 'meth', '-',                     &
+                     'Canopy turbulence parameterisation switch',              &
+                     .TRUE., 'integer', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%za_uv, 'za_uv', 'm',                   &
+                    'Reference height (lowest atm. model layer) for momentum', &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%za_tq, 'za_tq', 'm',                   &
+                     'Reference height (lowest atm. model layer) for scalars', &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+! end of block - rk4417 - phase2 
+
     CALL define_ovar(ncid_restart, gwID, 'GWwb', 'mm3/mm3','GW water content', &
+         .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+
+! inserted call below - rk4417 - phase2
+    CALL define_ovar(ncid_restart, subdzID, 'sublayer_dz', 'm','depth of viscous sublayer',&
          .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
 
 !$    IF(cable_user%SOIL_STRUC=='sli'.OR.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
@@ -2661,6 +3012,13 @@ CONTAINS
 !$            'Parameter in root efficiency function (Lai and Katul 2000)', &
 !$            .TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
 !$    ENDIF
+! inserted block below - rk4417 - phase2 (same as commented one above, I know)
+    IF(cable_user%SOIL_STRUC=='sli'.OR.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
+      CALL define_ovar(ncid_restart,rpid%gamma,'gamma','-', &
+            'Parameter in root efficiency function (Lai and Katul 2000)', &
+            .TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
+    ENDIF
+
     ! Soil-Litter-Iso soil model
     IF(cable_user%SOIL_STRUC=='sli') THEN
        ! Parameters for SLI:
@@ -2679,6 +3037,25 @@ CONTAINS
 !$       CALL define_ovar(ncid_restart,rpid%F10,'F10','-', &
 !$            'Fraction of roots in top 10 cm', &
 !$            .TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
+       
+! inserted block below - rk4417 - phase2 (same as commented one above, I know)
+       CALL define_ovar(ncid_restart,rpid%nhorizons,'nhorizons','-', &
+            'Number of soil horizons',.TRUE.,'integer',0,0,0,mpID,dummy,.TRUE.)
+       CALL define_ovar(ncid_restart,rpid%zeta,'zeta','[ ]', &
+            'exponent factor in Topmodel eq',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
+       CALL define_ovar(ncid_restart,rpid%fsatmax,'fsatmax','[ ]', &
+            'param in Topmodel eq',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
+       CALL define_ovar(ncid_restart,rpid%ishorizon,'ishorizon','-', &
+            'Horizon number',.TRUE., soilID, 'soil', 0, 0, 0, mpID, dummy, .TRUE.)
+       CALL define_ovar(ncid_restart,rpid%clitt,'clitt','tC/ha', &
+            'Litter layer carbon content',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
+       CALL define_ovar(ncid_restart,rpid%ZR,'ZR','cm', &
+            'Maximum rooting depth',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
+       CALL define_ovar(ncid_restart,rpid%F10,'F10','-', &
+            'Fraction of roots in top 10 cm', &
+            .TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
+! end of block - rk4417 - phase2
+
        ! Variables for SLI:
        CALL define_ovar(ncid_restart,SID,'S','-',&
             'Fractional soil moisture content relative to saturated value', &
@@ -2702,6 +3079,26 @@ CONTAINS
             'soil or snow surface T', &
             .TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
     END IF ! SLI soil model
+
+! inserted block below - rk4417 - phase2
+    if (cable_user%gw_model) then            
+       CALL define_ovar(ncid_restart,hys(1),'wb_hys','-',&
+            'water (volumetric) at dry/wet switch', &
+            .TRUE.,soilID,'soil',0,0,0,mpID,dummy,.TRUE.)
+       CALL define_ovar(ncid_restart,hys(2),'smp_hys','-',&
+            'smp [mm] at dry/wet switch', &
+            .TRUE.,soilID,'soil',0,0,0,mpID,dummy,.TRUE.)
+       CALL define_ovar(ncid_restart,hys(3),'ssat_hys','-',&
+            'ssat water (volumetric) from hyst', &
+            .TRUE.,soilID,'soil',0,0,0,mpID,dummy,.TRUE.)
+       CALL define_ovar(ncid_restart,hys(4),'watr_hys','-',&
+            'ssat water (volumetric) from hyst', &
+            .TRUE.,soilID,'soil',0,0,0,mpID,dummy,.TRUE.)
+       CALL define_ovar(ncid_restart,hys(5),'hys_fac','-',&
+            'water (volumetric) at dry/wet switch', &
+            .TRUE.,soilID,'soil',0,0,0,mpID,dummy,.TRUE.)
+    end if
+! end of block - rk4417 - phase2
 
     ! Write global attributes for file:
     CALL DATE_AND_TIME(todaydate, nowtime)
@@ -2802,6 +3199,39 @@ CONTAINS
 !$  CALL check_and_write(output_var, rpid%froot, 'froot', REAL(veg%froot, 4), &
 !$                       ranges%froot, patchout_var, out_settings)
 
+! inserted block below - rk4417 - phase2 (same as commented one above, I know)
+!    CALL write_ovar (ncid_restart, rpid%bch, 'bch', REAL(soil%bch, 4),         & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%bch, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%clay, 'clay', REAL(soil%clay, 4),      & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%clay, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%sand, 'sand', REAL(soil%sand, 4),      & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%sand, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%silt, 'silt', REAL(soil%silt, 4),      & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%silt, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%css, 'css', REAL(soil%css, 4),         & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%css, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%rhosoil, 'rhosoil',                    & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     REAL(soil%rhosoil,4), ranges%rhosoil, .TRUE., 'real',     &
+!                     .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%hyds, 'hyds', REAL(soil%hyds, 4),      & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%hyds, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%sucs, 'sucs', REAL(soil%sucs, 4),      & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%sucs, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%rs20, 'rs20', REAL(veg%rs20, 4),       & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%rs20, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%ssat, 'ssat', REAL(soil%ssat, 4),      & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%ssat, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%sfc, 'sfc', REAL(soil%sfc, 4),         & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%sfc, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%swilt, 'swilt', REAL(soil%swilt, 4),   & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%swilt, .TRUE., 'real', .TRUE.)
+
+    ! Soil dimensioned variables/parameters:
+
+!    CALL write_ovar (ncid_restart, rpid%froot, 'froot', REAL(veg%froot, 4),    & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%froot, .TRUE., 'soil', .TRUE.)
+! end of block - rk4417 - phase2
+
     !~ ssnow
     !~~ Soil dimensioned variables/parameters:
     out_settings%dimswitch = "soil"
@@ -2898,6 +3328,65 @@ CONTAINS
 !$                       ranges%za, patchout_var, out_settings)
 !$  CALL check_and_write(output_var, rpid%za_tq, 'za_tq', REAL(rough%za_tq, 4), &
 !$                       ranges%za, patchout_var, out_settings)
+
+! inserted block below - rk4417 - phase2 (same as commented one above, I know)
+!    CALL write_ovar (ncid_restart, rpid%canst1, 'canst1', REAL(veg%canst1, 4), & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%canst1, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%dleaf, 'dleaf', REAL(veg%dleaf, 4),    & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%dleaf, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%ejmax, 'ejmax', REAL(veg%ejmax, 4),    & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%ejmax, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%vcmax, 'vcmax', REAL(veg%vcmax, 4),    & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%vcmax, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%frac4, 'frac4', REAL(veg%frac4, 4),    & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%frac4, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%hc, 'hc', REAL(veg%hc, 4),             & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%hc, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%rp20, 'rp20', REAL(veg%rp20, 4),       & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%rp20, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%g0, 'g0', REAL(veg%g0, 4),       & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%g0, .TRUE., 'real', .TRUE.) ! Ticket #56
+!    CALL write_ovar (ncid_restart, rpid%g1, 'g1', REAL(veg%g1, 4),       & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%g1, .TRUE., 'real', .TRUE.) ! Ticket #56
+!    CALL write_ovar (ncid_restart, rpid%rpcoef, 'rpcoef', REAL(veg%rpcoef, 4), & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%rpcoef, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%shelrb, 'shelrb', REAL(veg%shelrb, 4), & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%shelrb, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%xfang, 'xfang', REAL(veg%xfang, 4),    & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%xfang, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%wai, 'wai', REAL(veg%wai, 4),          & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%wai, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%vegcf, 'vegcf', REAL(veg%vegcf, 4),    & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%vegcf, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%extkn, 'extkn', REAL(veg%extkn, 4),    & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%extkn, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%tminvj, 'tminvj', REAL(veg%tminvj, 4), & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%tminvj, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%tmaxvj, 'tmaxvj', REAL(veg%tmaxvj, 4), & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%tmaxvj, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%vbeta, 'vbeta', REAL(veg%vbeta, 4),    & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%vbeta, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%xalbnir, 'xalbnir',                    & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     REAL(veg%xalbnir, 4), ranges%xalbnir, .TRUE.,             &
+!                     'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%tmaxvj, 'tmaxvj', REAL(veg%tmaxvj, 4), & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%tmaxvj, .TRUE., 'real', .TRUE.)
+    ok = NF90_PUT_VAR(ncid_restart, rpid%ratecp, REAL(bgc%ratecp, 4))
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok,                                     &
+                                       'Error writing ratecp parameter to '    &
+         //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+    ok = NF90_PUT_VAR(ncid_restart, rpid%ratecs, REAL(bgc%ratecs, 4))
+    IF(ok /= NF90_NOERR) CALL nc_abort(ok,                                     &
+                                       'Error writing ratecs parameter to '    &
+         //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+!    CALL write_ovar (ncid_restart, rpid%meth, 'meth', REAL(veg%meth, 4),       & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%meth, .TRUE., 'integer', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%za_uv, 'za_uv', REAL(rough%za_uv, 4),  & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%za, .TRUE., 'real', .TRUE.)
+!    CALL write_ovar (ncid_restart, rpid%za_tq, 'za_tq', REAL(rough%za_tq, 4),  & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!                     ranges%za, .TRUE., 'real', .TRUE.)
+! end of block - rk4417 - phase2 
+
     out_settings%dimswitch = "r2"
     CALL check_and_write(output_var, dgdtgID, 'dgdtg', REAL(canopy%dgdtg, 4), &
                          ranges%default_l, patchout_var, out_settings)
@@ -2907,6 +3396,7 @@ CONTAINS
     out_settings%dimswitch = "real"
     CALL check_and_write(output_var, gwID, 'GWwb', REAL(ssnow%GWwb, 4), &
                          ranges%GWwb, patchout_var, out_settings)
+
     CALL check_and_write(output_var, tssID, 'tss', REAL(ssnow%tss, 4), &
                          ranges%default_l, patchout_var, out_settings)
     CALL check_and_write(output_var, ssdnnID, 'ssdnn', REAL(ssnow%ssdnn, 4), &
@@ -2953,11 +3443,21 @@ CONTAINS
     CALL check_and_write(output_var, tradID, 'trad', &
                          REAL(rad%trad, 4), ranges%RadT, patchout_var, out_settings)
 
+! inserted call below - rk4417 - phase2
+!    CALL write_ovar (ncid_restart, subdzID, 'sublayer_dz', REAL(canopy%sublayer_dz, 4), &  ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!         (/0.0,1.0e2/), .TRUE., 'real', .TRUE.)
+
+
 !$  IF (cable_user%SOIL_STRUC == 'sli' .OR. cable_user%FWSOIL_SWITCH == 'Haverd2013') THEN
 !$    CALL check_and_write(output_var, rpid%gamma, 'gamma', &
 !$                         REAL(veg%gamma, 4), ranges%default_s, patchout_var, out_settings)
 !$  END IF
 !$
+! inserted block below - rk4417 - phase2 (same as commented one above, I know)
+!    IF(cable_user%SOIL_STRUC=='sli'.OR.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
+!       CALL write_ovar (ncid_restart,rpid%gamma,'gamma', & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!            REAL(veg%gamma,4),(/-99999.0,99999.0/),.TRUE.,'real',.TRUE.)
+!    ENDIF
 
     IF (cable_user%SOIL_STRUC == 'sli') THEN
       ! Write SLI parameters:
@@ -2989,7 +3489,57 @@ CONTAINS
                            ranges%default_s, patchout_var, out_settings)
       CALL check_and_write(output_var, scondsID, 'sconds', REAL(ssnow%sconds, 4), &
                            ranges%default_s, patchout_var, out_settings)
-    END IF
+   END IF
+
+
+! the endif block below is what I have for the one above - rk4417 - phase2
+!    IF(cable_user%SOIL_STRUC=='sli') THEN
+!       ! Write SLI parameters:
+!
+!       CALL write_ovar (ncid_restart,rpid%nhorizons,'nhorizons', &
+!            REAL(soil%nhorizons,4),(/-99999.0,99999.0/),.TRUE.,'integer',.TRUE.)
+!       CALL write_ovar (ncid_restart,rpid%ishorizon,'ishorizon', &
+!            REAL(soil%ishorizon,4),(/-99999.0,99999.0/),.TRUE.,'soil',.TRUE.)
+!       CALL write_ovar (ncid_restart,rpid%clitt,'clitt', &
+!            REAL(veg%clitt,4),(/-99999.0,99999.0/),.TRUE.,'real',.TRUE.)
+!       CALL write_ovar (ncid_restart,rpid%ZR,'ZR', &
+!            REAL(veg%ZR,4),(/-99999.0,99999.0/),.TRUE.,'real',.TRUE.)
+!       CALL write_ovar (ncid_restart,rpid%F10,'F10', &
+!            REAL(veg%F10,4),(/-99999.0,99999.0/),.TRUE.,'real',.TRUE.)
+!
+!       ! Write SLI variables:
+!       CALL write_ovar (ncid_restart,SID,'S',REAL(ssnow%S,4), &
+!            (/0.0,1.5/),.TRUE.,'soil',.TRUE.)
+!       CALL write_ovar (ncid_restart,TsoilID,'Tsoil',REAL(ssnow%Tsoil,4), &
+!            (/-100.0,100.0/),.TRUE.,'soil',.TRUE.)
+!       CALL write_ovar (ncid_restart,snowliqID,'snowliq',REAL(ssnow%snowliq,4), &
+!            (/-99999.0,99999.0/),.TRUE.,'snow',.TRUE.)
+!       CALL write_ovar (ncid_restart,scondsID,'sconds',REAL(ssnow%sconds,4), &
+!            (/-99999.0,99999.0/),.TRUE.,'snow',.TRUE.)
+!       CALL write_ovar (ncid_restart,h0ID,'h0',REAL(ssnow%h0,4), &
+!            (/-99999.0,99999.0/),.TRUE.,'real',.TRUE.)
+!       CALL write_ovar (ncid_restart,nsnowID,'nsnow',REAL(ssnow%nsnow,4), &
+!            (/-99999.0,99999.0/),.TRUE.,'integer',.TRUE.)
+!       CALL write_ovar (ncid_restart,TsurfaceID,'Tsurface',REAL(ssnow%Tsurface,4), &
+!            (/-99999.0,99999.0/),.TRUE.,'real',.TRUE.)
+!
+!    END IF  ! endif block  - rk4417 - phase2
+
+
+    
+! inserted IF block below - rk4417 - phase2    
+!    IF (cable_user%gw_model) THEN           
+!       CALL write_ovar (ncid_restart,hys(1),'wb_hys',REAL(ssnow%wb_hys,4), & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!            (/0.0,1.0/),.TRUE.,'soil',.TRUE.)
+!       CALL write_ovar (ncid_restart,hys(2),'smp_hys',REAL(ssnow%smp_hys,4), & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!            (/-1.0e10,1.0e10/),.TRUE.,'soil',.TRUE.)
+!       CALL write_ovar (ncid_restart,hys(3),'ssat_hys',REAL(ssnow%ssat_hys,4), & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!            (/0.0,1.0/),.TRUE.,'soil',.TRUE.)
+!       CALL write_ovar (ncid_restart,hys(4),'watr_hys',REAL(ssnow%watr_hys,4), & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!            (/0.0,1.0/),.TRUE.,'soil',.TRUE.)
+!       CALL write_ovar (ncid_restart,hys(5),'watr_hys',REAL(ssnow%hys_fac,4), & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
+!            (/0.0,1.0/),.TRUE.,'soil',.TRUE.)
+!    END IF
 
     ! Close restart file
     ok = NF90_CLOSE(ncid_restart)
