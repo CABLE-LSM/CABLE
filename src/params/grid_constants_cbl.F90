@@ -32,28 +32,24 @@ PUBLIC
 ! should these be arbitrarily changed at runtime
 
 ! # of land-cover/soil types. Types of land-cover for veg+nonveg i.e.(13+4)
-!-----------------------------------------------------------------------------
 ! Req'd to be defined at compile time to read in pars. strictly speaking these
 ! only need to be greater than ntiles, nsoils (below). However, there is no
 ! point in allocating useless space here
-INTEGER, PARAMETER :: ntype_max = 17 ! Max # tiles ! compile time constant
-INTEGER, PARAMETER :: nsoil_max = 9  ! Max # soils ! req'd to read in pars
-INTEGER, PARAMETER :: nsl       = 6  ! # soil layers !sm_levels in JULES IO
-INTEGER, PARAMETER :: nsnl      = 3  ! # snow layers
-INTEGER, PARAMETER :: nrb       = 3  ! # rad bands VISual/NIR + Legacy incl LW
-INTEGER, PARAMETER :: nrs       = 4  ! # streams (VIS+NIR)*(Direct+Diffuse)=4
-INTEGER, PARAMETER :: nsCs      = 2  ! # soil carbon stores
-INTEGER, PARAMETER :: nvCs      = 3  ! # vegetation carbon stores
-INTEGER, PARAMETER :: ICE_SoilType = 9 ! SoilType Index (soilparm_cable.nml JAC)
-INTEGER, PARAMETER :: lakes_cable  = 16! SoilType Index (soilparm_cable.nml JAC)
+INTEGER, PARAMETER :: ntype_max    = 17 ! Max # tiles ! compile time constant
+INTEGER, PARAMETER :: nsoil_max    = 9  ! Max # soils ! req'd to read in pars
 
-INTEGER, PARAMETER :: ICE_VegType = 17  ! permanent ice index for veg
-
-INTEGER, PARAMETER :: mf = 2          ! # leaves (sunlit, shaded)
-INTEGER, PARAMETER :: niter = 4       ! number of iterations for za/L
+INTEGER, PARAMETER :: nsl          = 6  ! # soil layers !sm_levels in JULES IO
+INTEGER, PARAMETER :: nsnl         = 3  ! # snow layers
+INTEGER, PARAMETER :: nrb          = 3  ! # rad bands VISual/NIR + Legacy LW
+INTEGER, PARAMETER :: nrs          = 4  ! # streams (VIS+NIR)*(Direct+Diffuse)=4
+INTEGER, PARAMETER :: swb          = 2  ! # SW bands (VIS+NIR)
+INTEGER, PARAMETER :: nsCs         = 2  ! # soil carbon stores
+INTEGER, PARAMETER :: nvCs         = 3  ! # vegetation carbon stores
+INTEGER, PARAMETER :: mf           = 2  ! # leaves (sunlit, shaded)
+INTEGER, PARAMETER :: niter        = 4  ! number of iterations for za/L
+INTEGER, PARAMETER :: ICE_SoilType = 9  ! SoilType Index soilparm_cable.nml -JAC
 
 ! Strictly NOT a constant. # of active tiles, length of CABLE working vectors
 INTEGER :: mp
-
 
 END MODULE grid_constants_mod_cbl

@@ -66,6 +66,7 @@ USE cable_cbm_module,  ONLY: cbm_expl
 
 ! data
 USE grid_constants_mod_cbl,   ONLY: ICE_SoilType, nsl, nsnl
+USE progs_cnp_vars_mod,       ONLY: nCpool_casa, nNpool_casa, nPPool_casa
 USE cable_phys_constants_mod, ONLY: density_liq, density_ice, tfrz
 USE cable_surface_types_mod,  ONLY: ICE_SurfaceType => ICE_cable
 

@@ -28,6 +28,7 @@ USE cable_pack_mod,                ONLY: cable_pack_rr
 ! data
 USE cable_other_constants_mod,     ONLY: LAI_THRESH
 USE grid_constants_mod_cbl,        ONLY: nsnl, nsoil_max
+USE progs_cnp_vars_mod,            ONLY: nCpool_casa, nNpool_casa, nPPool_casa
 USE cable_def_types_mod,           ONLY: veg_parameter_type, canopy_type,      &
                                          soil_parameter_type, soil_snow_type,  &
                                          bgc_pool_type, sum_flux_type
