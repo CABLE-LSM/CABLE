@@ -33,7 +33,6 @@ PUBLIC
 ! should these be arbitrarily changed at runtime
 
 ! # of land-cover/soil types. Types of land-cover for veg+nonveg i.e.(13+4)
-!-----------------------------------------------------------------------------
 ! Req'd to be defined at compile time to read in pars. strictly speaking these
 ! only need to be greater than ntiles, nsoils (below). However, there is no
 ! point in allocating useless space here
@@ -46,22 +45,9 @@ INTEGER, PARAMETER :: nrs       = 4  ! # streams (VIS+NIR)*(Direct+Diffuse)=4
 INTEGER, PARAMETER :: nsCs      = 2  ! # soil carbon stores
 INTEGER, PARAMETER :: nvCs      = 3  ! # vegetation carbon stores
 INTEGER, PARAMETER :: ICE_SoilType = 9 ! SoilType Index (soilparm_cable.nml JAC)
-<<<<<<< HEAD
 INTEGER, PARAMETER :: mf           = 2 ! # leaves (sunlit, shaded)
 INTEGER, PARAMETER :: niter        = 4 ! number of iterations for za/L
 INTEGER, PARAMETER :: swb          = 2 ! # SW bands (VIS+NIR) - CM3 alloc TYPEs
-=======
-#ifndef UM_CBL
-INTEGER, PARAMETER :: lakes_cable  = 16 ! cable_surface_type (nml) Index 
-INTEGER, PARAMETER :: ice_cable    = 17 ! cable_surface_type (nml) Index
-#endif
-INTEGER, PARAMETER :: mf          = 2  ! # leaves (sunlit, shaded)
-INTEGER, PARAMETER :: niter       = 4  ! number of iterations for za/L
-INTEGER, PARAMETER :: swb         = 2  ! # SW bands (VIS+NIR) - CM3 alloc TYPEs
-INTEGER, PARAMETER :: nCpool_casa = 10 
-INTEGER, PARAMETER :: nNpool_casa = 10 
-INTEGER, PARAMETER :: nPPool_casa = 12 
->>>>>>> b5bf063 (add ice_cable index to grid_constants)
 
 ! Strictly NOT a constant. # of active tiles, length of CABLE working vectors
 INTEGER :: mp
