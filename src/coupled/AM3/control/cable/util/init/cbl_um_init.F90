@@ -9,13 +9,20 @@ CONTAINS
 SUBROUTINE init_data( row_length, rows, land_pts, nsurft, npft, ms, msn,       &
                       soil_zse, mp, nrb, CO2_MMR, tfrz, ICE_SurfaceType,       &
                       ICE_SoilType, land_index, surft_pts, surft_index,        &
-                      tile_frac, L_tile_pts, albsoil, bexp, hcon, satcon,      &
+                      tile_frac, L_casacnp, latitude, longitude, L_tile_pts,   &
+                      albsoil, bexp, hcon, satcon,                             &
                       sathh, smvcst, smvcwt, smvccl, pars, tl_1, snow_tile,    &
                       SoilTemp, SoilMoisture, FrozenSoilFrac,                  &
                       OneLyrSnowDensity, SnowAge, ThreeLayerSnowFlag,          &
-                      SnowDensity, SnowDepth, SnowTemp, SnowMass, rad_trad,    &
-                      met_tk, veg, soil, canopy, ssnow, bgc, sum_flux,         &
-                      SurfaceType, SoilType, npp_pft_acc, resp_w_pft_acc )
+                      SnowDensity, SnowDepth, SnowTemp, SnowMass,              & 
+                      C_pool, N_pool, P_pool, soil_order, N_dep,   N_fix,      &
+                      P_dust, P_weath, LAI_casa, phenphase, wood_hvest_C,      &
+                      wood_hvest_N, wood_hvest_P, thinning, rad_trad, met_tk,  &
+                      veg, soil, canopy, ssnow, bgc, sum_flux,                 & 
+                      casapool, casaflux, sum_casapool, sum_casaflux,          &
+                      casabiome, casamet,  casabal,  phen, SurfaceType,        &
+                      SoilType, npp_pft_acc, resp_w_pft_acc )
+                      
 ! subrs
 USE cbl_um_init_veg_mod,           ONLY: initialize_veg
 USE cbl_um_init_soil_mod,          ONLY: initialize_soil
@@ -24,14 +31,23 @@ USE cable_um_init_respiration_mod, ONLY: init_respiration
 USE cable_um_init_bgc_mod,         ONLY: init_bgc_vars
 USE cable_um_init_sumflux_mod,     ONLY: init_sumflux_zero
 USE cable_pack_mod,                ONLY: cable_pack_rr
+USE casa_um_inout_mod,             ONLY: init_casacnp, casa_ndep_pk
 
 ! data
 USE cable_other_constants_mod,     ONLY: LAI_THRESH
 USE grid_constants_mod_cbl,        ONLY: nsnl, nsoil_max
+USE progs_cnp_vars_mod,            ONLY: nCpool_casa, nNpool_casa, nPPool_casa
 USE cable_def_types_mod,           ONLY: veg_parameter_type, canopy_type,      &
                                          soil_parameter_type, soil_snow_type,  &
                                          bgc_pool_type, sum_flux_type
 USE params_io_mod_cbl,             ONLY: params_io_data_type
+
+USE casa_pool_type_mod,    ONLY: casa_pool    => casa_pool_type
+USE casa_flux_type_mod,    ONLY: casa_flux    => casa_flux_type
+USE casa_biome_type_mod,   ONLY: casa_biome   => casa_biome_type
+USE casa_met_type_mod,     ONLY: casa_met     => casa_met_type
+USE casa_balance_type_mod, ONLY: casa_balance => casa_bal_type
+USE phenology_type_mod,    ONLY: phenology_type
 
 IMPLICIT NONE
 
@@ -48,35 +64,61 @@ INTEGER, INTENT(IN) :: mp                ! # active land points
 INTEGER, INTENT(IN) :: nrb
 INTEGER, INTENT(IN) :: ICE_SoilType
 REAL,    INTENT(IN) :: co2_mmr
-INTEGER, INTENT(IN) :: surft_pts(nsurft)             ! # land points per tile
-INTEGER, INTENT(IN) :: surft_index(land_pts, nsurft) ! land_pt index of point
-INTEGER, INTENT(IN) :: land_index(land_pts)          ! cell index of land_pt
-LOGICAL, INTENT(IN) :: L_tile_pts(land_pts, nsurft)  ! TRUE if active tile
-REAL,    INTENT(IN) :: tile_frac(land_pts, nsurft)
-REAL,    INTENT(IN) :: bexp (land_pts, ms)           ! b in Campbell equation
-REAL,    INTENT(IN) :: satcon(land_pts, ms)
-                                    ! hydraulic conductivity @ saturation [mm/s]
-REAL,    INTENT(IN) :: sathh(land_pts, ms)
-REAL,    INTENT(IN) :: smvcst(land_pts, ms)
-REAL,    INTENT(IN) :: smvcwt(land_pts, ms)
-REAL,    INTENT(IN) :: smvccl(land_pts, ms)
-REAL,    INTENT(IN) :: hcon(land_pts)      ! Soil thermal conductivity (W/m/K).
-REAL,    INTENT(IN) :: albsoil(land_pts)
-REAL,    INTENT(IN) :: tl_1(row_length,rows)
-REAL,    INTENT(IN) :: snow_tile(land_pts, nsurft)
-REAL,    INTENT(IN) :: SoilTemp(land_pts, nsurft, ms)
-REAL,    INTENT(IN) :: SoilMoisture(land_pts, nsurft, ms)
-REAL,    INTENT(IN) :: FrozenSoilFrac(land_pts, nsurft, ms)
-REAL,    INTENT(IN) :: SnowDepth(land_pts, nsurft,nsnl)
-REAL,    INTENT(IN) :: SnowTemp(land_pts, nsurft,nsnl)
-REAL,    INTENT(IN) :: SnowMass(land_pts, nsurft,nsnl)
-REAL,    INTENT(IN) :: SnowDensity(land_pts, nsurft,nsnl)
-REAL,    INTENT(IN) :: OneLyrSnowDensity(land_pts, nsurft)
-REAL,    INTENT(IN) :: SnowAge(land_pts, nsurft)
-REAL,    INTENT(IN) :: npp_pft_acc(land_pts,npft)
-REAL,    INTENT(IN) :: resp_w_pft_acc(land_pts,npft)
-INTEGER, INTENT(IN) :: ThreeLayerSnowFlag(land_pts, nsurft)
-INTEGER, INTENT(IN) :: ICE_SurfaceType !CABLE surface tile PFT/nveg
+INTEGER, INTENT(IN) :: surft_pts   ( nsurft)            ! #land points per tile
+INTEGER, INTENT(IN) :: surft_index ( land_pts, nsurft ) ! land_pt index of point
+INTEGER, INTENT(IN) :: land_index  ( land_pts)          ! cell index of land_pt
+LOGICAL, INTENT(IN) :: L_tile_pts  ( land_pts, nsurft ) ! TRUE if active tile
+LOGICAL, INTENT(IN) :: L_casacnp
+REAL,    INTENT(IN) :: tile_frac ( land_pts, nsurft )
+REAL,    INTENT(IN) :: latitude  ( row_length, rows )
+REAL,    INTENT(IN) :: longitude ( row_length, rows )
+
+REAL,    INTENT(IN) :: bexp    ( land_pts, ms )  ! b in Campbell equation
+REAL,    INTENT(IN) :: satcon  ( land_pts, ms )
+                               ! hydraulic conductivity @ saturation [mm/s]
+REAL,    INTENT(IN) :: sathh   ( land_pts, ms )
+REAL,    INTENT(IN) :: smvcst  ( land_pts, ms )
+REAL,    INTENT(IN) :: smvcwt  ( land_pts, ms )
+REAL,    INTENT(IN) :: smvccl  ( land_pts, ms )
+REAL,    INTENT(IN) :: hcon    ( land_pts )     ! Soil therm. cond. (W/m/K)
+REAL,    INTENT(IN) :: albsoil ( land_pts )
+REAL,    INTENT(IN) :: tl_1    ( row_length, rows )
+REAL,    INTENT(IN) :: snow_tile          ( land_pts, nsurft )
+REAL,    INTENT(IN) :: SoilTemp           ( land_pts, nsurft, ms )
+REAL,    INTENT(IN) :: SoilMoisture       ( land_pts, nsurft, ms )
+REAL,    INTENT(IN) :: FrozenSoilFrac     ( land_pts, nsurft, ms )
+REAL,    INTENT(IN) :: SnowDepth          ( land_pts, nsurft, nsnl )
+REAL,    INTENT(IN) :: SnowTemp           ( land_pts, nsurft, nsnl )
+REAL,    INTENT(IN) :: SnowMass           ( land_pts, nsurft, nsnl )
+REAL,    INTENT(IN) :: SnowDensity        ( land_pts, nsurft, nsnl )
+REAL,    INTENT(IN) :: OneLyrSnowDensity  ( land_pts, nsurft)
+REAL,    INTENT(IN) :: SnowAge            ( land_pts, nsurft)
+REAL,    INTENT(IN) :: npp_pft_acc        ( land_pts,npft)
+REAL,    INTENT(IN) :: resp_w_pft_acc     ( land_pts,npft)
+INTEGER, INTENT(IN) :: ThreeLayerSnowFlag ( land_pts, nsurft)
+
+REAL,    INTENT(INOUT) :: C_pool       ( land_pts, nsurft, nCpool_casa )
+REAL,    INTENT(INOUT) :: N_pool       ( land_pts, nsurft, nNpool_casa )
+REAL,    INTENT(INOUT) :: P_pool       ( land_pts, nsurft, nPpool_casa )
+REAL,    INTENT(INOUT) :: soil_order   ( land_pts )
+REAL,    INTENT(INOUT) :: N_dep        ( land_pts )
+REAL,    INTENT(INOUT) :: N_fix        ( land_pts )
+REAL,    INTENT(INOUT) :: P_dust       ( land_pts )
+REAL,    INTENT(INOUT) :: P_weath      ( land_pts )
+REAL,    INTENT(INOUT) :: LAI_casa     ( land_pts, nsurft )
+REAL,    INTENT(INOUT) :: phenphase    ( land_pts, nsurft )
+REAL,    INTENT(INOUT) :: wood_hvest_C ( land_pts, nsurft, 3 )
+REAL,    INTENT(INOUT) :: wood_hvest_N ( land_pts, nsurft, 3 )
+REAL,    INTENT(INOUT) :: wood_hvest_P ( land_pts, nsurft, 3 )
+REAL,    INTENT(INOUT) :: thinning     ( land_pts, nsurft )
+!jh:follow up on this. ESM seems to block as a prognostic
+REAL                   :: prev_yr_sfrac     ( land_pts, nsurft )
+!jh:follow up on this. ESM seems to intro as a  diagnostic?
+REAL                   :: wresp_C    ( land_pts, nsurft, 3 )
+REAL                   :: wresp_N    ( land_pts, nsurft, 3 )
+REAL                   :: wresp_P    ( land_pts, nsurft, 3 )
+
+INTEGER, INTENT(IN)  :: ICE_SurfaceType !CABLE surface tile PFT/nveg
 INTEGER, INTENT(IN)  :: SurfaceType(mp) ! surface tile PFT/nveg
 INTEGER, INTENT(IN)  :: SoilType(mp)    ! soil type per tile
 REAL,    INTENT(OUT) :: rad_trad(mp)
@@ -90,12 +132,25 @@ TYPE(params_io_data_type), INTENT(IN)  :: pars
 TYPE(bgc_pool_type),       INTENT(OUT) :: bgc
 TYPE(sum_flux_type),       INTENT(OUT) :: sum_flux
 
+TYPE (casa_flux),          INTENT(INOUT) :: casaflux
+TYPE (casa_pool),          INTENT(INOUT) :: casapool
+TYPE (casa_flux),          INTENT(INOUT) :: sum_casaflux
+TYPE (casa_pool),          INTENT(INOUT) :: sum_casapool
+TYPE (casa_met),           INTENT(INOUT) :: casamet
+TYPE (casa_biome),         INTENT(INOUT) :: casabiome
+TYPE (casa_balance),       INTENT(INOUT) :: casabal
+TYPE (phenology_type),     INTENT(INOUT) :: phen 
+
+!jh: follow ESM. fudge for now
+INTEGER :: iday
+
 ! only needed to set rad%otrad on the first timestep. 
 canopy%ga      = 0.0
 canopy%fes_cor = 0.0
 canopy%fhs_cor = 0.0
 canopy%us      = 0.01
 canopy%fwsoil  = 1.0
+iday = 1
 
 CALL initialize_veg( SurfaceType, SoilType, mp, ms,  &
                      nrb, npft, nsurft, land_pts, l_tile_pts, ICE_SurfaceType, &
@@ -105,7 +160,7 @@ CALL initialize_veg( SurfaceType, SoilType, mp, ms,  &
                    
 
 CALL initialize_soil( nsurft, land_pts, ms, mp, nsoil_max, ICE_soiltype,       &
-                      surft_pts, surft_index, L_tile_pts, soiltype,            &
+                      surft_pts, surft_index, L_tile_pts, SoilType,            &
                       bexp, hcon, satcon, sathh, smvcst, smvcwt,               &
                       smvccl, albsoil, soil_zse, pars, soil )
 
@@ -122,11 +177,31 @@ CALL initialize_soilsnow( mp, msn, ms, TFRZ, land_pts, nsurft, row_length,     &
                           SnowMass, SnowTemp, soil, ssnow, veg%iveg, met_tk )
 
 CALL init_bgc_vars( pars, bgc, veg ) 
+
 CALL init_sumflux_zero( sum_flux ) 
-CALL init_respiration( land_pts, nsurft, npft, L_tile_pts,                   &
-                       npp_pft_acc, resp_w_pft_acc, canopy )
+
+CALL init_respiration( land_pts, nsurft, npft, L_tile_pts, npp_pft_acc,        &
+                       resp_w_pft_acc, canopy )
 
 rad_trad = met_tk
+
+IF (l_casacnp) THEN
+  
+  CALL init_casacnp( mp, land_pts, nsurft, row_length, rows, l_tile_pts,       &
+                     surft_pts, surft_index, land_index, nsoil_max,            &
+                     ICE_soiltype, SoilType, tile_frac, latitude, longitude,   &
+                     smvcst, SoilTemp, FrozenSoilFrac, veg, soil, canopy,      &
+                     C_pool, N_pool, P_pool, soil_order, N_dep, N_fix, P_weath,& 
+                     P_dust, wood_hvest_C, wood_hvest_N, wood_hvest_P,         & 
+                     wresp_C, wresp_N, wresp_P, thinning, LAI_casa, phenphase, &
+                     prev_yr_sfrac, iday, casapool, casaflux, sum_casapool,    &
+                     sum_casaflux, casabiome, casamet, casabal, phen )
+  
+  CALL casa_ndep_pk( nsurft, land_pts, mp, nsoil_max, ICE_soiltype,            &
+                     surft_pts, surft_index, L_tile_pts, N_dep, SoilType,      &
+                     casaflux )
+
+ENDIF
 
 RETURN
 END SUBROUTINE init_data

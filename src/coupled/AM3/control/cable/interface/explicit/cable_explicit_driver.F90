@@ -7,7 +7,7 @@ SUBROUTINE cable_explicit_driver(                                              &
       mype, row_length, rows, land_pts, nsurft, npft, sm_levels, dzsoil,       &
       timestep, timestep_number, mp, nrb, land_index, surft_pts, surft_index,  &
       l_tile_pts, latitude, longitude, cos_zenith_angle, Fland, tile_frac,     &
-      
+      L_casacnp,                                                               & 
       ! IN: soil parameters !1 is only allowable index in UM
       bexp, hcon, satcon, sathh, smvcst, smvcwt, smvccl, albsoil,              &
       
@@ -34,8 +34,21 @@ SUBROUTINE cable_explicit_driver(                                              &
       progs_SnowTemp, progs_SnowDensity, progs_snowage, progs_snowosurft,      &
       progs_OneLyrSnowDensity,                                                 &  
       
+      ! IN: casa-CNP prognostics - IN here. INOUT @ implicit  
+      progscnp_C_pool_casa,  progscnp_N_pool_casa, progscnp_P_pool_casa,       &
+      progscnp_soil_order_casa,                                                &
+      progscnp_N_dep_casa,   progscnp_N_fix_casa,                              &
+      progscnp_P_dust_casa,  progscnp_P_weath_casa,                            &
+      progscnp_LAI_casa,     progscnp_phenphase_casa,                          &
+      progscnp_wood_hvest_C, progscnp_wood_hvest_N, progscnp_wood_hvest_P,     &
+      progscnp_thinning,                                                       &
+  
       ! INOUT: CABLE TYPEs roughly grouped fields per module 
       rad, met, rough, canopy, veg, soil, ssnow, bal, air, bgc, sum_flux,      &
+      
+      ! INOUT: CASA TYPEs roughly grouped fields per module 
+      casapool, casaflux, sum_casapool, sum_casaflux, casabiome,               &
+      casamet,  casabal,  phen,                                       &
       
       !OUT: currently being passed back to UM in veg%iveg, soil%isoilm      
       SurfaceType, SoilType,                                                   &
@@ -52,9 +65,6 @@ SUBROUTINE cable_explicit_driver(                                              &
           !GW
           !visc_sublayer_depth, smgw_tile, slope_avg, slope_std,
           !dz_gw, perm_gw, drain_gw,                           
-          !casa progs
-          !CPOOL_TILE, NPOOL_TILE, PPOOL_TILE, SOIL_ORDER, NIDEP,
-          !NIFIX, PWEA, PDUST, GLAI, PHENPHASE,
       
       !IN: if not passed a dangling argument would ensue 
       npp_pft_acc, resp_w_pft_acc )
@@ -66,13 +76,12 @@ USE cable_cbm_module,  ONLY: cbm_expl
 
 ! data
 USE grid_constants_mod_cbl,   ONLY: ICE_SoilType, nsl, nsnl
+USE progs_cnp_vars_mod,       ONLY: nCpool_casa, nNpool_casa, nPPool_casa
 USE cable_phys_constants_mod, ONLY: density_liq, density_ice, tfrz
 USE cable_surface_types_mod,  ONLY: ICE_SurfaceType => ICE_cable
 
-
 USE params_io_mod_cbl, ONLY: params_io_data_type
 USE params_io_mod_cbl, ONLY: params_io_type
-
 
 USE cable_def_types_mod, ONLY : climate_type
 USE cable_def_types_mod, ONLY : met_type, radiation_type, veg_parameter_type,  &
@@ -80,10 +89,15 @@ USE cable_def_types_mod, ONLY : met_type, radiation_type, veg_parameter_type,  &
                                 canopy_type, soil_snow_type, balances_type,    &
                                 air_type, bgc_pool_type, sum_flux_type
 
+USE casa_pool_type_mod,    ONLY: casa_pool    => casa_pool_type
+USE casa_flux_type_mod,    ONLY: casa_flux    => casa_flux_type
+USE casa_biome_type_mod,   ONLY: casa_biome   => casa_biome_type
+USE casa_met_type_mod,     ONLY: casa_met     => casa_met_type
+USE casa_balance_type_mod, ONLY: casa_balance => casa_bal_type
+USE phenology_type_mod,          ONLY: phenology_type
+
 !--- processor number, timestep number, timestep width !ultimately get rid of these - pass %runtime through parent
 USE cable_common_module, ONLY : knode_gl, ktau_gl, kwidth_gl, cable_runtime, cable_user, redistrb, satuparam,wiltparam
-!block!USE casavariable
-!block!USE casa_types_mod
 
 IMPLICIT NONE
   
@@ -103,6 +117,7 @@ INTEGER, INTENT(IN) :: surft_pts(nsurft)    ! # land points on each tile
 INTEGER, INTENT(IN) :: land_index(land_pts) ! index of land points
 INTEGER, INTENT(IN) :: surft_index(land_pts, nsurft) ! index of tile points
 LOGICAL, INTENT(IN) :: l_tile_pts(land_pts, nsurft)
+LOGICAL, INTENT(IN) :: L_casacnp
 
 REAL, INTENT(IN) :: canht_pft(land_pts, npft) 
 REAL, INTENT(IN) :: lai_pft(land_pts, npft)
@@ -189,27 +204,35 @@ REAL, INTENT(OUT)   :: LAI_pft_cbl(mp)
 !!REAL,  DIMENSION(land_pts, nsurft) ::                         &
 !!   !visc_sublayer_depth 
 !GW progs: End
-  
-!CASA progs:
-!!REAL, DIMENSION(land_pts,nsurft,10) :: &
-!!  CPOOL_TILE,    & ! Carbon Pools
-!!  NPOOL_TILE       ! Nitrogen Pools
 
-!!REAL, DIMENSION(land_pts,nsurft,12) :: &
-!!  PPOOL_TILE       ! Phosphorus Pools
+REAL, INTENT(INOUT) :: progscnp_C_pool_casa     ( land_pts, nsurft, nCpool_casa )
+REAL, INTENT(INOUT) :: progscnp_N_pool_casa     ( land_pts, nsurft, nNpool_casa )
+REAL, INTENT(INOUT) :: progscnp_P_pool_casa     ( land_pts, nsurft, nPpool_casa )
+REAL, INTENT(INOUT) :: progscnp_soil_order_casa ( land_pts )
+REAL, INTENT(INOUT) :: progscnp_N_dep_casa      ( land_pts )
+REAL, INTENT(INOUT) :: progscnp_N_fix_casa      ( land_pts )
+REAL, INTENT(INOUT) :: progscnp_P_dust_casa     ( land_pts )
+REAL, INTENT(INOUT) :: progscnp_P_weath_casa    ( land_pts )
+REAL, INTENT(INOUT) :: progscnp_LAI_casa        ( land_pts, nsurft )
+REAL, INTENT(INOUT) :: progscnp_phenphase_casa  ( land_pts, nsurft )
+REAL, INTENT(INOUT) :: progscnp_wood_hvest_C    ( land_pts, nsurft, 3 )
+REAL, INTENT(INOUT) :: progscnp_wood_hvest_N    ( land_pts, nsurft, 3 )
+REAL, INTENT(INOUT) :: progscnp_wood_hvest_P    ( land_pts, nsurft, 3 )
+REAL, INTENT(INOUT) :: progscnp_thinning        ( land_pts, nsurft )
 
-!!REAL, DIMENSION(land_pts) :: &
-!!  SOIL_ORDER,    & ! Soil Order (1 to 12)
-!!  NIDEP,         & ! Nitrogen Deposition
-!!  NIFIX,         & ! Nitrogen Fixation
-!!  PWEA,          & ! Phosphorus from Weathering
-!!  PDUST            ! Phosphorus from Dust
+TYPE (casa_flux),          INTENT(INOUT) :: casaflux
+TYPE (casa_pool),          INTENT(INOUT) :: casapool
+TYPE (casa_flux),          INTENT(INOUT) :: sum_casaflux
+TYPE (casa_pool),          INTENT(INOUT) :: sum_casapool
+TYPE (casa_met),           INTENT(INOUT) :: casamet
+TYPE (casa_biome),         INTENT(INOUT) :: casabiome
+TYPE (casa_balance),       INTENT(INOUT) :: casabal
+TYPE (phenology_type),      INTENT(INOUT) :: phen 
 
-!!  GLAI,         &  ! Leaf Area Index for Prognostics LAI
-!!  PHENPHASE,    &  ! Phenology Phase for Casa-CNP
+!REAL, ALLOCATABLE :: prev_yr_sfrac(:)
+
 REAL, INTENT(IN) :: npp_pft_acc(land_pts,npft)
 REAL, INTENT(IN) :: resp_w_pft_acc(land_pts,npft) 
-!CASA progs: End
   
 !___ local vars
 !jhan: this can be moved and USEd - needed  to pass arg
@@ -231,13 +254,25 @@ IF(first_call) THEN
   CALL init_data( row_length, rows, land_pts, nsurft, npft, sm_levels,         &
                   nsnl, dzsoil, mp, nrb, CO2_MMR, tfrz, ICE_SurfaceType,       &
                   ICE_SoilType, land_index, surft_pts, surft_index, tile_frac, &
-                  L_tile_pts, albsoil, bexp, hcon, satcon, sathh, smvcst,      &
-                  smvcwt, smvccl, pars, tl_1, snow_tile, progs_soiltemp,       &
-                  progs_soilmoisture, progs_FrozenSoilFrac,                    &
-                  progs_OneLyrSnowDensity, progs_snowage,                      &
-                  progs_ThreeLayerSnowFlag, progs_SnowDensity, progs_SnowDepth,&
-                  progs_SnowTemp, progs_SnowMass, rad%trad, met%tk, veg, soil, &
-                  canopy, ssnow, bgc, sum_flux, SurfaceType, SoilType,         &
+                  L_casacnp, latitude, longitude, L_tile_pts,                  &
+                  albsoil, bexp, hcon, satcon, sathh, smvcst,                  &
+                  smvcwt, smvccl, pars, tl_1, snow_tile,                       &
+                  progs_soiltemp, progs_soilmoisture, progs_FrozenSoilFrac,    &
+                  progs_OneLyrSnowDensity,  progs_snowage,                     &
+                  progs_ThreeLayerSnowFlag, progs_SnowDensity,                 &
+                  progs_SnowDepth, progs_SnowTemp, progs_SnowMass,             &
+                  progscnp_C_pool_casa,  progscnp_N_pool_casa,                 &
+                  progscnp_P_pool_casa,  progscnp_soil_order_casa,             &
+                  progscnp_N_dep_casa,   progscnp_N_fix_casa,                  &
+                  progscnp_P_dust_casa,  progscnp_P_weath_casa,                &
+                  progscnp_LAI_casa,     progscnp_phenphase_casa,              &
+                  progscnp_wood_hvest_C, progscnp_wood_hvest_N,                &
+                  progscnp_wood_hvest_P, progscnp_thinning,                    &
+                  rad%trad, met%tk, veg, soil,                                 &
+                  canopy, ssnow, bgc, sum_flux,                                &
+                  ! INOUT: CASA TYPEs roughly grouped fields per module 
+                  casapool, casaflux, sum_casapool, sum_casaflux, casabiome,   &
+                  casamet,  casabal, phen, SurfaceType, SoilType,              &
                   npp_pft_acc,resp_w_pft_acc )
 
   !CALL init_data_sci( nsl, nsnl, soil%zse, mp, tfrz, ICE_SoilType, rad%trad,   &
@@ -261,7 +296,8 @@ CALL update_data( row_length, rows, land_pts, nsurft, npft, sm_levels,         &
 
 !CALL update_data_sci( mp, rad, met, veg, soil, canopy, ssnow, &
 !                      canopy%vlaiw )
- 
+
+!jhan:test these 
 !---------------------------------------------------------------------!
 !--- Feedback prognostic vcmax and daily LAI from casaCNP to CABLE ---!
 !---------------------------------------------------------------------!
