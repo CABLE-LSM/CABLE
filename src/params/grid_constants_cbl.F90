@@ -48,6 +48,11 @@ INTEGER, PARAMETER :: nvCs         = 3  ! # vegetation carbon stores
 INTEGER, PARAMETER :: mf           = 2  ! # leaves (sunlit, shaded)
 INTEGER, PARAMETER :: niter        = 4  ! number of iterations for za/L
 INTEGER, PARAMETER :: ICE_SoilType = 9  ! SoilType Index soilparm_cable.nml -JAC
+#ifndef UM_CBL
+! UM_CBL gets from cable_surface_types namelist
+INTEGER, PARAMETER :: lakes_cable  = 16 ! cable_surface_type (nml) Index 
+INTEGER, PARAMETER :: ice_cable    = 17 ! cable_surface_type (nml) Index
+#endif
 
 ! Strictly NOT a constant. # of active tiles, length of CABLE working vectors
 INTEGER :: mp
