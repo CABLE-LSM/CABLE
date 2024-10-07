@@ -6,7 +6,14 @@ PUBLIC :: progs_cnp_vars_alloc
 PUBLIC :: progs_cnp_vars_assoc
 PUBLIC :: progs_cnp_vars_data_type
 PUBLIC :: progs_cnp_vars_type
+PUBLIC :: nCpool_casa
+PUBLIC :: nNpool_casa
+PUBLIC :: nPPool_casa
 PRIVATE
+
+INTEGER, PARAMETER :: nCpool_casa = 10 
+INTEGER, PARAMETER :: nNpool_casa = 10 
+INTEGER, PARAMETER :: nPPool_casa = 12 
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='PROGS_CNP_VARS_MOD'
 ! Prognostic Fields for CASA-CNP to be initialized from IO
@@ -54,7 +61,6 @@ CONTAINS
 
 SUBROUTINE progs_cnp_vars_alloc(land_pts, nsurft, progs_cnp_vars_data )
                                 
-USE grid_constants_mod_cbl, ONLY : nCpool_casa, nNpool_casa, nPpool_casa
 USE casadimension,          ONLY: mwood
 
 IMPLICIT NONE

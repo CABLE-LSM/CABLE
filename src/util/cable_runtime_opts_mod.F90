@@ -12,7 +12,7 @@ TYPE kbl_user_switches
   !jhan:make this logical
   CHARACTER(LEN=3) :: diag_soil_resp=''
 
-  CHARACTER(LEN=20) :: fwsoil_switch=''
+  CHARACTER(LEN=20) :: fwsoil_switch='standard'
 
   ! Ticket #56
   !jhan:options?
