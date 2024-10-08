@@ -1,3 +1,4 @@
+!#define UM_CBL YES
 !==============================================================================
 ! This source code is part of the 
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
@@ -22,7 +23,15 @@
 
 MODULE cable_roughness_module
 
+<<<<<<< HEAD
 USE cable_surface_types_mod, ONLY: ICE_SurfaceType => ICE_cable
+=======
+#ifdef UM_CBL
+USE cable_surface_types_mod, ONLY: ICE_SurfaceType => ICE_cable
+#else
+USE grid_constants_mod_cbl,  ONLY: ICE_SurfaceType => ICE_cable
+#endif
+>>>>>>> 657a839 (modifications from AM3 development)
 USE cable_phys_constants_mod,  ONLY: CCSD   => CSD 
 USE cable_phys_constants_mod,  ONLY: CCRD   => CRD 
 USE cable_phys_constants_mod,  ONLY: CCCD   => CCD 
