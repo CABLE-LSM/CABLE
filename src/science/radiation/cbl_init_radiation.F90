@@ -378,9 +378,8 @@ REAL, INTENT(IN) :: SW_down(mp,nrb)           ! Downward SW [met%fsd]
 
 
 ! Define beam fraction, fbeam:
-! #355 beam fraction defined using total SW_down; applies to VIS&NIR equally
-RadFbeam(:,1) = spitter(mp, cpi, metDoy, coszen, SW_down(:,1)+SW_down(:,2))
-RadFbeam(:,2) = RadFbeam(:,1)
+RadFbeam(:,1) = spitter(mp, cpi, metDoy, coszen, SW_down(:,1))
+RadfBeam(:,2) = spitter(mp, cpi, metDoy, coszen, SW_down(:,2))
 
 ! coszen is set during met data read in.
 WHERE (coszen < Ccoszen_tols_huge )
