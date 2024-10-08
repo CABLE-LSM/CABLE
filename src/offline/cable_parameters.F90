@@ -67,7 +67,7 @@ MODULE cable_param_module
   PRIVATE
   PUBLIC get_default_params, write_default_params, derived_parameters,         &
        check_parameter_values, report_parameters, parID_type,                &
-       write_cnp_params, consistency_ice_veg_soil 
+      write_cnp_params, consistency_ice_veg_soil 
   INTEGER :: patches_in_parfile=4 ! # patches in default global parameter
   ! file
 
@@ -1757,20 +1757,6 @@ CONTAINS
   END SUBROUTINE write_cnp_params
   !============================================================================
   SUBROUTINE derived_parameters(soil, sum_flux, bal, ssnow, veg, rough)
-
-    ! ______ MMY: derived_parameters is changed by MMY @ 13 Oct 2022 ______
-    ! MMY required input sand_vec, silt_vec, clay_vec ,rhosoil_vec and org_vec
-    ! MMY units: soil%hyds_vec : mm/s
-    !            soil%sand_vec, soil%clay_vec, soil%silt_vec : fraction           
-    !            soil%sucs_vec : mm, positive
-    !            soil%bch_vec : -
-    !            soil%watr, soil%swilt_vec, soil%sfc_vec, soil%ssat_vec: m3/m3
-    !            soil%org_vec : m3/m3
-    !            soil%rhosoil_vec : kg/m3
-    !            soil%css: "J/kg/K" 
-    !            soil%cnsd: "W/m/K" 
-    !            soil%wbc_vec, soil%smpc_vec
-    
     ! Gives values to parameters that are derived from other parameters.
     TYPE (soil_snow_type),      INTENT(INOUT)    :: ssnow
     TYPE (veg_parameter_type),  INTENT(IN)    :: veg
@@ -1779,42 +1765,21 @@ CONTAINS
     TYPE (balances_type),       INTENT(INOUT) :: bal
     TYPE (roughness_type),      INTENT(INOUT) :: rough
 
-!    INTEGER :: j,i,klev ! do loop counter
     INTEGER :: j,i,klev,k ! do loop counter  ! replaces line above - rk4417 - phase2
     REAL(r_2)    :: temp(mp)
     REAL    :: tmp2(mp)
 
     REAL(r_2), DIMENSION(mp,ms) :: perc_frac
-    REAL(r_2), DIMENSION(17)    :: psi_o,psi_c  ! psi_o is not needed - rk4417 - phase2
-
-!    REAL(r_2), DIMENSION(mp,ms) :: psi_tmp
-!    REAL(r_2), DIMENSION(ms) :: soil_depth
-    
-! 2 lines above replaced by below - rk4417 - phase2
-
+    REAL(r_2), DIMENSION(17)    :: psi_c            ! rk4417 - phase2
     REAL(r_2), DIMENSION(mp,ms) :: psi_tmp, sst_tmp ! MMY add sst_tmp
-    REAL(r_2), DIMENSION(mp,ms) :: soil_depth ! MMY,rhosoil_temp
-
+    REAL(r_2), DIMENSION(mp,ms) :: soil_depth       ! MMY,rhosoil_temp
     REAL(r_2), DIMENSION(:,:), ALLOCATABLE :: ssat_bounded,rho_soil_bulk ! added by rk4417 - phase2
 
-  
-    
-!    soil_depth(1) = REAL(soil%zse(1),r_2)
-!    DO klev=2,ms
-!       soil_depth(klev) = soil_depth(klev-1) + REAL(soil%zse(klev),r_2)
-!    END DO
-
-! block above replaced by block below - rk4417 - phase2
-
+    ! replaced block below - rk4417 - phase2
     soil_depth(:,1) = soil%zse_vec(:,1)
     do klev=2,ms
        soil_depth(:,klev) = soil_depth(:,klev-1) + soil%zse_vec(:,klev)
     end do
-    
-!    psi_o(1:3)  = -66000._r_2   ! not needed - rk4417 - phase2
-!    psi_o(4)    = -35000._r_2
-!    psi_o(5)    = -83000._r_2
-!    psi_o(6:17) = -74000._r_2
     
     psi_c(1:3)  = -2550000._r_2  ! used to be in the old cable_common.F90 - rk4417 - phase2
     psi_c(4)    = -2240000._r_2
@@ -1826,159 +1791,14 @@ CONTAINS
     ! regardless of where parameters and other initialisations
     ! have loaded from:
     soil%zshh(1) = 0.5 * soil%zse(1) ! distance between consecutive layer
-                                     ! midpoints:
+    ! midpoints:
     soil%zshh(ms + 1) = 0.5 * soil%zse(ms)
     soil%zshh(2:ms)   = 0.5 * (soil%zse(1:ms-1) + soil%zse(2:ms))
 
     !MD aquifer node depth
     soil%GWz = 0.5*soil%GWdz + SUM(soil%zse)  !node is halfway through aquifer depth
-! MMY note: GWz doesn't function, kept for later
 
-!    IF (cable_user%GW_MODEL) THEN
-!
-!       DO klev=1,ms
-!          soil%hyds_vec(:,klev) = 0.0070556*10.0**(-0.884 + 0.0153*soil%Sand_Vec(:,klev)*100.0)* &
-!               EXP(-gw_params%hkrz*(MAX(0.,soil_depth(klev)-gw_params%zdepth)))
-!          soil%sucs_vec(:,klev) = 10.0 * 10.0**(1.88 -0.0131*soil%Sand_Vec(:,klev)*100.0)
-!          soil%bch_vec(:,klev) = 2.91 + 0.159*soil%Clay_Vec(:,klev)*100.0
-!          soil%ssat_vec(:,klev) = 0.489 - 0.00126*soil%Sand_Vec(:,klev)*100.0
-!          soil%watr(:,klev) = 0.02 + 0.00018*soil%Clay_Vec(:,klev)*100.0
-!       ENDDO
-!       !aquifer share non-organic with last layer if not found in param file
-!       IF (found_explicit_gw_parameters .EQV. .FALSE.) THEN
-!          soil%GWhyds_vec(:)  = soil%hyds_vec(:,ms)
-!          soil%GWsucs_vec(:) = soil%sucs_vec(:,ms)
-!          soil%GWbch_vec(:) = soil%bch_vec(:,ms)
-!          soil%GWssat_vec(:) = soil%ssat_vec(:,ms)
-!          soil%GWwatr(:)   = soil%watr(:,ms)
-!       ENDIF
-!       !include organin impact.  fraction of grid cell where percolation through
-!       !organic macropores dominates
-!       soil%Org_Vec = MAX(0._r_2,soil%Org_Vec)
-!       soil%Org_Vec = MIN(1._r_2,soil%Org_Vec)
-!       DO klev=1,3  !0-23.3 cm, data really is to 30cm
-!          soil%hyds_vec(:,klev)  = (1.-soil%Org_Vec(:,klev))*soil%hyds_vec(:,klev) + &
-!               soil%Org_Vec(:,klev)*gw_params%org%hyds_vec_organic
-!          soil%sucs_vec(:,klev) = (1.-soil%Org_Vec(:,klev))*soil%sucs_vec(:,klev) + &
-!               soil%Org_Vec(:,klev)*gw_params%org%sucs_vec_organic
-!          soil%bch_vec(:,klev) = (1.-soil%Org_Vec(:,klev))*soil%bch_vec(:,klev) +&
-!               soil%Org_Vec(:,klev)*gw_params%org%clappb_organic
-!          soil%ssat_vec(:,klev) = (1.-soil%Org_Vec(:,klev))*soil%ssat_vec(:,klev) + &
-!               soil%Org_Vec(:,klev)*gw_params%org%ssat_vec_organic
-!          soil%watr(:,klev)   = (1.-soil%Org_Vec(:,klev))*soil%watr(:,klev) + &
-!               soil%Org_Vec(:,klev)*gw_params%org%watr_organic
-!       END DO
-!
-!       !vegetation dependent field capacity (point plants get stressed) and
-!       !wilting point
-!       DO i=1,mp
-!          psi_tmp(i,:) = -psi_c(veg%iveg(i))
-!       END DO
-!       soil%sfc_vec = (soil%ssat_vec-soil%watr) * (ABS(psi_tmp)/(ABS(soil%sucs_vec)))**(-1.0/soil%bch_vec)+&
-!            soil%watr
-!       DO i=1,mp
-!          psi_tmp(i,:) = -psi_c(veg%iveg(i))
-!       END DO
-!       soil%swilt_vec = (soil%ssat_vec-soil%watr) * (ABS(psi_tmp)/(ABS(soil%sucs_vec)))**(-1.0/soil%bch_vec)+&
-!            soil%watr
-!
-!       !set the non-vectored values to srf value
-!       soil%sfc(:) = REAL(soil%sfc_vec(:,1))
-!       soil%swilt(:) = REAL(soil%swilt_vec(:,1))
-!
-!       !convert the units back to what default uses and GW only uses the
-!       !vectored versions
-!       soil%hyds = REAL(soil%hyds_vec(:,1))/1000.0
-!       soil%sucs = REAL(soil%sucs_vec(:,1))/1000.0
-!       soil%ssat = REAL(soil%ssat_vec(:,1))
-!       soil%bch  = REAL(soil%bch_vec(:,1))
-!
-!       DO i=1,mp
-!          soil%slope(i) = MIN(0.9,MAX(1e-9,soil%slope(i)))
-!          soil%slope_std(i) = MIN(0.9,MAX(1e-9,soil%slope_std(i)))
-!       END DO
-!
-!       IF ((gw_params%MaxSatFraction .LT. -9999.9) .AND. (mp .EQ. 1)) soil%slope(:) = 0.01
-!
-!    ELSE
-!
-!       soil%sfc_vec = REAL(SPREAD(soil%sfc(:),2,ms),r_2)
-!       soil%swilt_vec = REAL(SPREAD(soil%swilt(:),2,ms),r_2)
-!       !These are not used when gw_model == false
-!       soil%watr = 0._r_2
-!       soil%GWwatr = 0._r_2
-!
-!    END IF
-!
-!
-!    IF ( .NOT. soilparmnew) THEN  ! Q,Zhang @ 12/20/2010
-!       soil%cnsd  = soil%sand * 0.3 + soil%clay * 0.25                          &
-!            + soil%silt * 0.265 ! set dry soil thermal conductivity
-!       ! [W/m/K]
-!    END IF
-!
-!    soil%hsbh   = soil%hyds*ABS(soil%sucs) * soil%bch ! difsat*etasat
-!    soil%ibp2   = NINT(soil%bch) + 2
-!    ! Ticket #66
-!    WHERE( soil%ssat > 0.) & ! Avoid divide by
-!         soil%pwb_min = (soil%swilt/soil%ssat)**soil%ibp2
-!    soil%i2bp3  = 2 * NINT(soil%bch) + 3
-!    rough%hruff = MAX(0.01, veg%hc - 1.2 * ssnow%snowd/MAX(ssnow%ssdnn, 100.))
-!    rough%hruff_grmx = rough%hruff
-!    ! owetfac introduced by EAK apr2009
-!    ssnow%owetfac = MAX(0.0, MIN(1.0,                                          &
-!         (REAL(ssnow%wb(:, 1)) - soil%swilt) /                  &
-!         (soil%sfc - soil%swilt)))
-!    temp(:) = 0.0
-!    tmp2(:) = 0.0
-!    WHERE ( ssnow%wbice(:, 1) > 0. ) ! Prevents divide by zero at glaciated
-!       ! points where wb and wbice=0.
-!       temp(:) = ssnow%wbice(:, 1) / ssnow%wb(:, 1)
-!       tmp2(:) = REAL(temp(:))
-!       ssnow%owetfac = ssnow%owetfac * (1.0 - tmp2(:)) ** 2
-!
-!    END WHERE
-!    ssnow%pudsto = 0.0
-!    ssnow%pudsmx = 0.0
-!
-!    ! Initialise sum flux variables:
-!    sum_flux%sumpn  = 0.0
-!    sum_flux%sumrp  = 0.0
-!    sum_flux%sumrpw = 0.0
-!    sum_flux%sumrpr = 0.0
-!    sum_flux%sumrs  = 0.0
-!    sum_flux%sumrd  = 0.0
-!    sum_flux%dsumpn = 0.0
-!    sum_flux%dsumrp = 0.0
-!    sum_flux%dsumrd = 0.0
-!    ! Initialise conservation variables:
-!    bal%precip_tot = 0.0
-!    bal%rnoff_tot  = 0.0
-!    bal%evap_tot   = 0.0
-!    bal%wbal_tot   = 0.0
-!    bal%ebal_tot   = 0.0
-!    bal%ebal_tot_cncheck = 0.0
-!    bal%drybal = 0.0
-!    bal%wetbal = 0.0
-!    bal%wbtot0 = 0.0
-!    bal%RadbalSum = 0.0
-!    DO j=1, ms
-!       bal%wbtot0 = bal%wbtot0 + REAL(ssnow%wb(:, j)) * soil%zse(j)       &
-!            * 1000.0
-!    END DO
-!    bal%osnowd0 = ssnow%osnowd
-!
-!    ! vh_js ! comment out hide% condition
-!    ! IF (hide%Ticket49Bug6) THEN
-!
-!    IF(cable_user%SOIL_STRUC=='sli') THEN
-!       ! Only 1 horizon by default !
-!       soil%nhorizons = 1
-!       soil%ishorizon = 1
-!    END IF
-!    ! END IF
-
-! above commented-out portion replaced by remainder of subroutine below - rk4417 - phase2
+! replaced by remainder of subroutine below - rk4417 - phase2
     
     IF (cable_user%GW_MODEL) then
 
