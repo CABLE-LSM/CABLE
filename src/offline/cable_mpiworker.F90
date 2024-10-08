@@ -69,7 +69,7 @@ MODULE cable_mpiworker
   USE cable_common_module,  ONLY: cable_user
   USE casa_inout_module
   USE casa_cable
-USE bgcdriver_mod, ONLY : bgcdriver
+  USE bgcdriver_mod, ONLY : bgcdriver
 
 
   IMPLICIT NONE
@@ -79,12 +79,6 @@ USE bgcdriver_mod, ONLY : bgcdriver
 
 
   PRIVATE
-
-  ! MPI: MPI derived datatype for receiving parameters from the master
-  INTEGER :: param_t
-
-  ! MPI: MPI derived datatype for receiving casa parameters from the master
-  INTEGER :: casaparam_t
 
   ! MPI: MPI derived datatype for receiving input from the master
   INTEGER :: inp_t
@@ -127,9 +121,9 @@ CONTAINS
     USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps, globalMetfile,  &
          verbose, fixedCO2,output,check,patchout,    &
          patch_type,soilparmnew,&
-         defaultLAI, NO_CHECK
+         NO_CHECK
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
-         cable_runtime, filename, myhome,            &
+         cable_runtime, filename,            &
          redistrb, wiltParam, satuParam, CurYear,    &
          IS_LEAPYEAR, calcsoilalbedo,                &
          kwidth_gl, gw_params
@@ -158,9 +152,9 @@ CONTAINS
     USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE
 
     USE cable_namelist_util, ONLY : get_namelist_file_name,&
-         CABLE_NAMELIST,arg_not_namelist
+         CABLE_NAMELIST
     
-USE cbl_soil_snow_init_special_module
+    USE cbl_soil_snow_init_special_module
     IMPLICIT NONE
 
     ! MPI:
@@ -182,14 +176,9 @@ USE cbl_soil_snow_init_special_module
          ktauday,    &  ! day counter for CASA-CNP
          idoy,       &  ! day of year (1:365) counter for CASA-CNP
          nyear,      &  ! year counter for CASA-CNP
-         casa_it,    &  ! number of calls to CASA-CNP
-         ctime,      &  ! day count for casacnp
          YYYY,       &  !
          LOY,        &  ! Length of Year
-         count_sum_casa, & ! number of time steps over which casa pools &
-                                !and fluxes are aggregated (for output)
-         rank,       &  ! Rank of this worker
-         maxdiff(2)     ! location of maximum in convergence test
+         rank           ! Rank of this worker
 
     REAL      :: dels    ! time step size in seconds
     CHARACTER :: cRank*4 ! for worker-logfiles
@@ -219,9 +208,6 @@ USE cbl_soil_snow_init_special_module
     TYPE (casa_balance)   :: casabal
     TYPE (phen_variable)  :: phen
     TYPE (POP_TYPE)       :: POP
-    TYPE (PLUME_MIP_TYPE) :: PLUME
-    CHARACTER             :: cyear*4
-    CHARACTER             :: ncfile*99
 
     ! declare vars for switches (default .FALSE.) etc declared thru namelist
     LOGICAL, SAVE           :: &
@@ -240,18 +226,12 @@ USE cbl_soil_snow_init_special_module
          delsoilM,         & ! allowed variation in soil moisture for spin up
          delsoilT            ! allowed variation in soil temperature for spin up
 
-    ! temporary storage for soil moisture/temp. in spin up mode
-    REAL, ALLOCATABLE, DIMENSION(:,:)  :: &
-         soilMtemp,                         &
-         soilTtemp
-
     ! MPI:
     LOGICAL :: loop_exit     ! MPI: exit flag for bcast to workers
     INTEGER :: stat(MPI_STATUS_SIZE)
     INTEGER :: icomm ! separate dupes of MPI communicator for send and recv
     INTEGER :: ocomm ! separate dupes of MPI communicator for send and recv
     INTEGER :: ierr
-    CHARACTER(len=200):: Run
 
     ! switches etc defined thru namelist (by default cable.nml)
     NAMELIST/CABLE/                  &
@@ -284,12 +264,11 @@ USE cbl_soil_snow_init_special_module
          cable_user,       &  ! additional USER switches
          gw_params
 
-    INTEGER :: i,x,kk
-    INTEGER :: LALLOC, iu
-!For consistency w JAC
-  REAL,ALLOCATABLE, SAVE :: c1(:,:)
-  REAL,ALLOCATABLE, SAVE :: rhoch(:,:)
-  REAL,ALLOCATABLE, SAVE :: xk(:,:)
+    INTEGER :: LALLOC
+    !For consistency w JAC
+    REAL,ALLOCATABLE, SAVE :: c1(:,:)
+    REAL,ALLOCATABLE, SAVE :: rhoch(:,:)
+    REAL,ALLOCATABLE, SAVE :: xk(:,:)
     ! END header
 
     ! Maciej: make sure the variable does not go out of scope
@@ -430,7 +409,7 @@ USE cbl_soil_snow_init_special_module
 
           IF ( CALL1 ) THEN
 
-             IF (.NOT.spinup)	spinConv=.TRUE.
+             IF (.NOT.spinup) spinConv=.TRUE.
 
              ! MPI: bcast to workers so that they don't need to open the met
              ! file themselves
@@ -485,7 +464,7 @@ USE cbl_soil_snow_init_special_module
                      &                        casabal,phen)
 
                 ! MPI: POP restart received only if pop module AND casa are active
-                IF ( CABLE_USER%CALL_POP ) CALL worker_pop_types (comm,veg,casamet,pop)
+                IF ( CABLE_USER%CALL_POP ) CALL worker_pop_types (comm,veg,pop)
 
              END IF
 
@@ -506,7 +485,7 @@ USE cbl_soil_snow_init_special_module
                      casamet,casabal, phen)
 
                 IF ( CABLE_USER%CASA_DUMP_READ .OR. CABLE_USER%CASA_DUMP_WRITE ) &
-                     CALL worker_casa_dump_types(comm, casamet, casaflux, phen, climate)
+                     CALL worker_casa_dump_types(comm, casamet, casaflux, phen)
                 WRITE(logn,*) 'cable_mpiworker, POPLUC: ',  CABLE_USER%POPLUC
                 WRITE(*,*) 'cable_mpiworker, POPLUC: ',  CABLE_USER%POPLUC
                 CALL flush(logn)
@@ -688,7 +667,7 @@ USE cbl_soil_snow_init_special_module
 
                 IF ( IS_CASA_TIME("write", yyyy, ktau, kstart, &
                      koffset, kend, ktauday, logn) ) THEN
-                   ! write(logn,*), 'IN IS_CASA', casapool%cplant(:,1)
+                   ! write(logn,*) 'IN IS_CASA', casapool%cplant(:,1)
                    !      CALL MPI_Send (MPI_BOTTOM,1, casa_t,0,ktau_gl,ocomm,ierr)
                 ENDIF
 
@@ -733,10 +712,10 @@ USE cbl_soil_snow_init_special_module
 
              IF (CABLE_USER%POPLUC) THEN
 
-                WRITE(logn,*), 'before MPI_Send casa_LUC'
+                WRITE(logn,*) 'before MPI_Send casa_LUC'
                 ! worker sends casa updates required for LUC calculations here
                 CALL MPI_Send (MPI_BOTTOM, 1, casa_LUC_t, 0, 0, ocomm, ierr)
-                WRITE(logn,*), 'after MPI_Send casa_LUC'
+                WRITE(logn,*) 'after MPI_Send casa_LUC'
                 ! master calls LUCDriver here
                 ! worker receives casa and POP updates
                 CALL MPI_Recv( POP%pop_grid(1), POP%np, pop_t, 0, 0, icomm, stat, ierr )
@@ -970,7 +949,7 @@ USE cbl_soil_snow_init_special_module
     INTEGER :: bidx ! block index
     INTEGER :: ntyp ! total number of blocks
 
-    INTEGER :: rank,  off, ierr2, rcount, pos
+    INTEGER :: rank,  ierr2, rcount, pos
 
     CHARACTER, DIMENSION(:), ALLOCATABLE :: rbuf
 
@@ -2480,9 +2459,9 @@ USE cbl_soil_snow_init_special_module
        pos = 0
        CALL MPI_Unpack (rbuf, tsize, pos, MPI_BOTTOM, rcount, param_t, &
             comm, ierr)
-       IF (ierr /= MPI_SUCCESS) WRITE(*,*),'cable param unpack error, rank: ',rank,ierr
+       IF (ierr /= MPI_SUCCESS) WRITE(*,*)'cable param unpack error, rank: ',rank,ierr
     ELSE
-       WRITE(*,*),'cable param recv rank err err2 rcount: ',rank, ierr, ierr2, rcount
+       WRITE(*,*)'cable param recv rank err err2 rcount: ',rank, ierr, ierr2, rcount
     END IF
 
     DEALLOCATE(rbuf)
@@ -3493,9 +3472,9 @@ USE cbl_soil_snow_init_special_module
        pos = 0
        CALL MPI_Unpack (rbuf, tsize, pos, MPI_BOTTOM, rcount, casa_t, &
             comm, ierr)
-       IF (ierr /= MPI_SUCCESS) WRITE(*,*),'casa params unpack error, rank: ',rank,ierr
+       IF (ierr /= MPI_SUCCESS) WRITE(*,*)'casa params unpack error, rank: ',rank,ierr
     ELSE
-       WRITE(*,*),'casa params recv rank err err2 rcount: ',rank, ierr, ierr2, rcount
+       WRITE(*,*)'casa params recv rank err err2 rcount: ',rank, ierr, ierr2, rcount
     END IF
 
     DEALLOCATE(rbuf)
@@ -3723,15 +3702,10 @@ USE cbl_soil_snow_init_special_module
     INTEGER :: r1len, r2len, I1LEN, llen
 
     INTEGER :: rank, off, cnt
-    INTEGER :: bidx, midx, vidx, ierr
+    INTEGER :: bidx, ierr
 
     INTEGER :: tsize
     INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
-
-    ! base index to make types indexing easier
-    INTEGER :: istart
-
-    INTEGER :: i
 
     CALL MPI_Comm_rank (comm, rank, ierr)
 
@@ -5653,199 +5627,6 @@ USE cbl_soil_snow_init_special_module
 
   END SUBROUTINE worker_outtype
 
-  SUBROUTINE worker_time_update (met, kend, dels)
-
-    USE cable_common_module, ONLY: ktau_gl
-    USE cable_def_types_mod
-    USE cable_IO_vars_module
-
-    IMPLICIT NONE
-
-    TYPE(met_type), INTENT(INOUT) :: met
-    INTEGER, INTENT(IN) :: kend ! number of time steps in simulation
-    REAL, INTENT(IN) :: dels ! time step size
-
-    INTEGER :: i
-
-    DO i=1,mland ! over all land points/grid cells
-       ! First set timing variables:
-       ! All timing details below are initially written to the first patch
-       ! of each gridcell, then dumped to all patches for the gridcell.
-       IF(ktau_gl==1) THEN ! initialise...
-          SELECT CASE(time_coord)
-          CASE('LOC')! i.e. use local time by default
-             ! hour-of-day = starting hod
-             met%hod(landpt(i)%cstart) = shod
-             met%doy(landpt(i)%cstart) = sdoy
-             met%moy(landpt(i)%cstart) = smoy
-             met%year(landpt(i)%cstart) = syear
-          CASE('GMT')! use GMT
-             ! hour-of-day = starting hod + offset from GMT time:
-             met%hod(landpt(i)%cstart) = shod + (longitude(i)/180.0)*12.0
-             ! Note above that all met%* vars have dim mp,
-             ! while longitude and latitude have dimension mland.
-             met%doy(landpt(i)%cstart) = sdoy
-             met%moy(landpt(i)%cstart) = smoy
-             met%year(landpt(i)%cstart) = syear
-          CASE DEFAULT
-             CALL abort('Unknown time coordinate! ' &
-                  //' (SUBROUTINE get_met_data)')
-          END SELECT
-       ELSE
-          ! increment hour-of-day by time step size:
-          met%hod(landpt(i)%cstart) = met%hod(landpt(i)%cstart) + dels/3600.0
-       END IF
-       !
-       IF(met%hod(landpt(i)%cstart)<0.0) THEN ! may be -ve since longitude
-          ! has range [-180,180]
-          ! Reduce day-of-year by one and ammend hour-of-day:
-          met%doy(landpt(i)%cstart) = met%doy(landpt(i)%cstart) - 1
-          met%hod(landpt(i)%cstart) = met%hod(landpt(i)%cstart) + 24.0
-          ! If a leap year AND we're using leap year timing:
-          IF(((MOD(syear,4)==0.AND.MOD(syear,100)/=0).OR. &
-               (MOD(syear,4)==0.AND.MOD(syear,400)==0)).AND.leaps) THEN
-             SELECT CASE(INT(met%doy(landpt(i)%cstart)))
-             CASE(0) ! ie Dec previous year
-                met%moy(landpt(i)%cstart) = 12
-                met%year(landpt(i)%cstart) = met%year(landpt(i)%cstart) - 1
-                met%doy(landpt(i)%cstart) = 365 ! prev year not leap year as this is
-             CASE(31) ! Jan
-                met%moy(landpt(i)%cstart) = 1
-             CASE(60) ! Feb
-                met%moy(landpt(i)%cstart) = 2
-             CASE(91) ! Mar
-                met%moy(landpt(i)%cstart) = 3
-             CASE(121)
-                met%moy(landpt(i)%cstart) = 4
-             CASE(152)
-                met%moy(landpt(i)%cstart) = 5
-             CASE(182)
-                met%moy(landpt(i)%cstart) = 6
-             CASE(213)
-                met%moy(landpt(i)%cstart) = 7
-             CASE(244)
-                met%moy(landpt(i)%cstart) = 8
-             CASE(274)
-                met%moy(landpt(i)%cstart) = 9
-             CASE(305)
-                met%moy(landpt(i)%cstart) = 10
-             CASE(335)
-                met%moy(landpt(i)%cstart) = 11
-             END SELECT
-          ELSE ! not a leap year or not using leap year timing
-             SELECT CASE(INT(met%doy(landpt(i)%cstart)))
-             CASE(0) ! ie Dec previous year
-                met%moy(landpt(i)%cstart) = 12
-                met%year(landpt(i)%cstart) = met%year(landpt(i)%cstart) - 1
-                ! If previous year is a leap year
-                IF((MOD(syear,4)==0.AND.MOD(syear,100)/=0).OR. &
-                     (MOD(syear,4)==0.AND.MOD(syear,400)==0)) THEN
-                   met%doy(landpt(i)%cstart) = 366
-                ELSE
-                   met%doy(landpt(i)%cstart) = 365
-                END IF
-             CASE(31) ! Jan
-                met%moy(landpt(i)%cstart) = 1
-             CASE(59) ! Feb
-                met%moy(landpt(i)%cstart) = 2
-             CASE(90)
-                met%moy(landpt(i)%cstart) = 3
-             CASE(120)
-                met%moy(landpt(i)%cstart) = 4
-             CASE(151)
-                met%moy(landpt(i)%cstart) = 5
-             CASE(181)
-                met%moy(landpt(i)%cstart) = 6
-             CASE(212)
-                met%moy(landpt(i)%cstart) = 7
-             CASE(243)
-                met%moy(landpt(i)%cstart) = 8
-             CASE(273)
-                met%moy(landpt(i)%cstart) = 9
-             CASE(304)
-                met%moy(landpt(i)%cstart) = 10
-             CASE(334)
-                met%moy(landpt(i)%cstart) = 11
-             END SELECT
-          END IF ! if leap year or not
-       ELSE IF(met%hod(landpt(i)%cstart)>=24.0) THEN
-          ! increment or GMT adj has shifted day
-          ! Adjust day-of-year and hour-of-day:
-          met%doy(landpt(i)%cstart) = met%doy(landpt(i)%cstart) + 1
-          met%hod(landpt(i)%cstart) = met%hod(landpt(i)%cstart) - 24.0
-          ! If a leap year AND we're using leap year timing:
-          IF(((MOD(syear,4)==0.AND.MOD(syear,100)/=0).OR. &
-               (MOD(syear,4)==0.AND.MOD(syear,400)==0)).AND.leaps) THEN
-             SELECT CASE(INT(met%doy(landpt(i)%cstart)))
-             CASE(32) ! Feb
-                met%moy(landpt(i)%cstart) = 2
-             CASE(61) ! Mar
-                met%moy(landpt(i)%cstart) = 3
-             CASE(92)
-                met%moy(landpt(i)%cstart) = 4
-             CASE(122)
-                met%moy(landpt(i)%cstart) = 5
-             CASE(153)
-                met%moy(landpt(i)%cstart) = 6
-             CASE(183)
-                met%moy(landpt(i)%cstart) = 7
-             CASE(214)
-                met%moy(landpt(i)%cstart) = 8
-             CASE(245)
-                met%moy(landpt(i)%cstart) = 9
-             CASE(275)
-                met%moy(landpt(i)%cstart) = 10
-             CASE(306)
-                met%moy(landpt(i)%cstart) = 11
-             CASE(336)
-                met%moy(landpt(i)%cstart) = 12
-             CASE(367)! end of year; increment
-                met%year(landpt(i)%cstart) = met%year(landpt(i)%cstart) + 1
-                met%moy(landpt(i)%cstart) = 1
-                met%doy(landpt(i)%cstart) = 1
-             END SELECT
-             ! ELSE IF not leap year and Dec 31st, increment year
-          ELSE
-             SELECT CASE(INT(met%doy(landpt(i)%cstart)))
-             CASE(32) ! Feb
-                met%moy(landpt(i)%cstart) = 2
-             CASE(60) ! Mar
-                met%moy(landpt(i)%cstart) = 3
-             CASE(91)
-                met%moy(landpt(i)%cstart) = 4
-             CASE(121)
-                met%moy(landpt(i)%cstart) = 5
-             CASE(152)
-                met%moy(landpt(i)%cstart) = 6
-             CASE(182)
-                met%moy(landpt(i)%cstart) = 7
-             CASE(213)
-                met%moy(landpt(i)%cstart) = 8
-             CASE(244)
-                met%moy(landpt(i)%cstart) = 9
-             CASE(274)
-                met%moy(landpt(i)%cstart) = 10
-             CASE(305)
-                met%moy(landpt(i)%cstart) = 11
-             CASE(335)
-                met%moy(landpt(i)%cstart) = 12
-             CASE(366)! end of year; increment
-                met%year(landpt(i)%cstart) = met%year(landpt(i)%cstart) + 1
-                met%moy(landpt(i)%cstart) = 1
-                met%doy(landpt(i)%cstart) = 1
-             END SELECT
-          END IF ! if leap year or not
-       END IF ! if increment has pushed hod to a different day
-       ! Now copy these values to all veg/soil patches in the current grid cell:
-       met%hod(landpt(i)%cstart:landpt(i)%cend) = met%hod(landpt(i)%cstart)
-       met%doy(landpt(i)%cstart:landpt(i)%cend) = met%doy(landpt(i)%cstart)
-       met%moy(landpt(i)%cstart:landpt(i)%cend) = met%moy(landpt(i)%cstart)
-       met%year(landpt(i)%cstart:landpt(i)%cend) = met%year(landpt(i)%cstart)
-    ENDDO
-
-    RETURN
-
-  END SUBROUTINE worker_time_update
 
   ! creates MPI types for sending casa results back to the master at
   ! the end of the simulation
@@ -5890,8 +5671,8 @@ USE cbl_soil_snow_init_special_module
     ! MPI: block lengths and strides for hvector representing matrices
     INTEGER :: r1len, r2len, I1LEN, llen
 
-    INTEGER :: rank, off, cnt
-    INTEGER :: bidx, midx, vidx, ierr
+    INTEGER :: off, cnt
+    INTEGER :: bidx, ierr
 
     INTEGER :: tsize
     INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
@@ -6410,20 +6191,14 @@ USE cbl_soil_snow_init_special_module
     INTEGER, ALLOCATABLE, DIMENSION(:) :: types
     INTEGER :: ntyp ! number of worker's types
 
-    INTEGER :: last2d, i
-
-    ! MPI: block lenghts for hindexed representing all vectors
-    INTEGER, ALLOCATABLE, DIMENSION(:) :: blen
-
     ! MPI: block lengths and strides for hvector representing matrices
     INTEGER :: r1len, r2len, I1LEN
-    INTEGER(KIND=MPI_ADDRESS_KIND) :: r1stride, r2stride
 
-    INTEGER :: tsize, totalrecv, totalsend
+    INTEGER :: tsize, totalrecv
     INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
 
-    INTEGER :: rank, off, cnt
-    INTEGER :: bidx, midx, vidx, ierr, ny, nd, ndq
+    INTEGER :: rank, off
+    INTEGER :: bidx, ierr, ny, nd, ndq
     INTEGER :: stat(MPI_STATUS_SIZE), ierr2, rcount, pos
 
 
@@ -6649,9 +6424,9 @@ USE cbl_soil_snow_init_special_module
        pos = 0
        CALL MPI_Unpack (rbuf, tsize, pos, MPI_BOTTOM, rcount, climate_t, &
             comm, ierr)
-       IF (ierr /= MPI_SUCCESS) WRITE(*,*),'climate unpack error, rank: ',rank,ierr
+       IF (ierr /= MPI_SUCCESS) WRITE(*,*)'climate unpack error, rank: ',rank,ierr
     ELSE
-       WRITE(*,*),'climate recv rank err err2 rcount: ',rank, ierr, ierr2, rcount
+       WRITE(*,*)'climate recv rank err err2 rcount: ',rank, ierr, ierr2, rcount
     END IF
 
     DEALLOCATE(rbuf)
@@ -6690,7 +6465,7 @@ USE cbl_soil_snow_init_special_module
     INTEGER :: r1len, r2len, I1LEN, llen
 
     INTEGER :: rank, off, cnt
-    INTEGER :: bidx, midx, vidx, ierr, nd, ny
+    INTEGER :: bidx, ierr
 
     INTEGER :: tsize
     INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
@@ -6809,7 +6584,7 @@ USE cbl_soil_snow_init_special_module
 
   END SUBROUTINE worker_restart_type
 
-  SUBROUTINE worker_casa_dump_types(comm, casamet, casaflux, phen, climate)
+  SUBROUTINE worker_casa_dump_types(comm, casamet, casaflux, phen)
 
     USE mpi
 
@@ -6824,7 +6599,6 @@ USE cbl_soil_snow_init_special_module
     TYPE (casa_flux)   , INTENT(INOUT) :: casaflux
     TYPE (casa_met)    , INTENT(INOUT) :: casamet
     TYPE (phen_variable), INTENT(INOUT)  :: phen
-    TYPE (climate_type):: climate
 
     ! local vars
 
@@ -6837,10 +6611,9 @@ USE cbl_soil_snow_init_special_module
     INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
     INTEGER :: tsize
 
-    INTEGER :: stat(MPI_STATUS_SIZE), ierr
-    INTEGER :: landp_t, patch_t, param_t
+    INTEGER :: ierr
 
-    INTEGER :: r1len, r2len, I1LEN, llen ! block lengths
+    INTEGER :: r1len, r2len, I1LEN ! block lengths
     INTEGER :: bidx ! block index
     INTEGER :: ntyp ! total number of blocks
 
@@ -6976,10 +6749,9 @@ USE cbl_soil_snow_init_special_module
     INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
     INTEGER :: tsize
 
-    INTEGER :: stat(MPI_STATUS_SIZE), ierr
-    INTEGER :: landp_t, patch_t, param_t
+    INTEGER :: ierr
 
-    INTEGER :: r1len, r2len, I1LEN, llen ! block lengths
+    INTEGER :: r1len, r2len, I1LEN ! block lengths
     INTEGER :: bidx ! block index
     INTEGER :: ntyp ! total number of blocks
 
@@ -7088,7 +6860,7 @@ USE cbl_soil_snow_init_special_module
   END SUBROUTINE worker_casa_LUC_types
 
 
-  SUBROUTINE worker_pop_types(comm, veg, casamet, pop)
+  SUBROUTINE worker_pop_types(comm, veg, pop)
 
     USE mpi
     USE POP_mpi
@@ -7101,7 +6873,6 @@ USE cbl_soil_snow_init_special_module
     IMPLICIT NONE
 
     INTEGER,         INTENT(IN)    :: comm
-    TYPE (casa_met), INTENT(IN)    :: casamet
     TYPE (pop_type), INTENT(INOUT) :: pop
     TYPE (veg_parameter_type),INTENT(IN) :: veg
 
@@ -7114,31 +6885,31 @@ USE cbl_soil_snow_init_special_module
 
     ! Get POP relevant info from Master
     CALL MPI_Recv ( mp_pop, 1, MPI_INTEGER, 0, 0, comm, stat, ierr )
-    WRITE(*,*),'worker iwood to allocate', rank, mp_pop, mp
-    !write(*,*),'worker mppop', rank, mp_pop
+    WRITE(*,*)'worker iwood to allocate', rank, mp_pop, mp
+    !write(*,*)'worker mppop', rank, mp_pop
     !ALLOCATE( POP%Iwood( mp_pop ) )
     ALLOCATE( Iwood( mp_pop ) )
-    WRITE(*,*),'worker iwood allocated', rank, mp_pop
+    WRITE(*,*)'worker iwood allocated', rank, mp_pop
     !CALL MPI_Recv ( POP%Iwood, mp_pop, MPI_INTEGER, 0, 0, comm, stat, ierr )
     CALL MPI_Recv ( Iwood, mp_pop, MPI_INTEGER, 0, 0, comm, stat, ierr )
-    !write(*,*),'worker Iwood', rank, POP%Iwood
+    !write(*,*)'worker Iwood', rank, POP%Iwood
     ! Maciej
     IF (ANY (Iwood < 1) .OR. ANY (Iwood > mp)) THEN
-       WRITE(*,*),'worker iwood values outside valid ranges', rank
+       WRITE(*,*) 'worker iwood values outside valid ranges', rank
        inv = COUNT(Iwood < 1)
        IF (inv .GT. 0) THEN
-          WRITE(*,*),'no of values below 1: ', inv
+          WRITE(*,*) 'no of values below 1: ', inv
           ALLOCATE (ainv(inv))
           ainv = PACK (Iwood, Iwood .LT. 1)
-          WRITE (*,*),'values below 1: ', ainv
+          WRITE (*,*) 'values below 1: ', ainv
           DEALLOCATE (ainv)
        END IF
        inv = COUNT(Iwood > mp)
        IF (inv .GT. 0) THEN
-          WRITE(*,*),'no of values above mp ', mp, inv
+          WRITE(*,*) 'no of values above mp ', mp, inv
           ALLOCATE (ainv(inv))
           ainv = PACK (Iwood, Iwood .GT. mp)
-          WRITE (*,*),'values above mp: ', ainv
+          WRITE (*,*) 'values above mp: ', ainv
           DEALLOCATE (ainv)
        END IF
 
@@ -7155,7 +6926,7 @@ USE cbl_soil_snow_init_special_module
     CALL create_pop_gridcell_type (pop_t, comm)
 
     IF (.NOT. CABLE_USER%POP_fromZero ) THEN
-       WRITE(*,*),'rank receiving pop_grid from master', rank
+       WRITE(*,*) 'rank receiving pop_grid from master', rank
        CALL MPI_Recv( POP%pop_grid(1), mp_pop, pop_t, 0, 0, comm, stat, ierr )
     END IF
 
@@ -7229,7 +7000,7 @@ USE cbl_soil_snow_init_special_module
     USE POPMODULE,            ONLY: POPStep
     USE TypeDef,              ONLY: i4b, dp
     USE mpi
-  USE biogeochem_mod, ONLY : biogeochem 
+    USE biogeochem_mod, ONLY : biogeochem
 
     !mrd561 debug
     USE cable_IO_vars_module, ONLY: logn
@@ -7256,7 +7027,6 @@ USE cbl_soil_snow_init_special_module
 
     ! communicator for error-messages
     INTEGER, INTENT(IN)  :: icomm, ocomm
-    TYPE (casa_met)  :: casaspin
 
     ! local variables
     REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
@@ -7268,36 +7038,22 @@ USE cbl_soil_snow_init_special_module
     REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_ratioNCsoilmic,  avg_ratioNCsoilslow,  avg_ratioNCsoilpass
     REAL(r_2), DIMENSION(:), ALLOCATABLE, SAVE  :: avg_xnplimit,  avg_xkNlimiting,avg_xklitter, avg_xksoil
 
-  REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_af
-  REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_aw
-  REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_ar
-  REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_lf
-  REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_lw
-  REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_lr
-  REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_annual_cnpp
+    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_af
+    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_aw
+    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_ar
+    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_lf
+    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_lw
+    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_lr
+    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_annual_cnpp
 
     ! local variables
     INTEGER                  :: myearspin,nyear, nloop1, LOY
-    CHARACTER(LEN=99)        :: ncfile
-    CHARACTER(LEN=4)         :: cyear
-    INTEGER                  :: ktau,ktauday,nday,idoy,ktaux,ktauy,nloop
-    INTEGER, SAVE            :: ndays
+    INTEGER                  :: ktau,ktauday,nday,idoy,ktauy,nloop
     REAL,      DIMENSION(mp)      :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
     REAL,      DIMENSION(mp)      :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
     REAL,      DIMENSION(mp)      :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-    REAL,      DIMENSION(mp)      :: xcgpp,     xcnpp,     xnuptake,  xpuptake
-    REAL,      DIMENSION(mp)      :: xnsoilmin, xpsoillab, xpsoilsorb,xpsoilocc
     REAL(r_2), DIMENSION(mp)      :: xnplimit,  xkNlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
 
-    ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
-    REAL,      DIMENSION(5,mvtype,mplant)  :: bmcplant,  bmnplant,  bmpplant
-    REAL,      DIMENSION(5,mvtype,mlitter) :: bmclitter, bmnlitter, bmplitter
-    REAL,      DIMENSION(5,mvtype,msoil)   :: bmcsoil,   bmnsoil,   bmpsoil
-    REAL,      DIMENSION(5,mvtype)         :: bmnsoilmin,bmpsoillab,bmpsoilsorb, bmpsoilocc
-    REAL,      DIMENSION(mvtype)           :: bmarea
-    INTEGER nptx,nvt,kloop
-
-    REAL(dp)                               :: StemNPP(mp,2)
     INTEGER, ALLOCATABLE :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
 
 
@@ -7452,57 +7208,57 @@ USE cbl_soil_snow_init_special_module
        ENDDO
     ENDDO
 
- ! Average the plant allocation fraction
-  avg_af = avg_af / REAL(nday)
-  avg_aw = avg_aw / REAL(nday)
-  avg_ar = avg_ar / REAL(nday)
+    ! Average the plant allocation fraction
+    avg_af = avg_af / REAL(nday)
+    avg_aw = avg_aw / REAL(nday)
+    avg_ar = avg_ar / REAL(nday)
 
-  ! Average the plant turnover fraction
-  avg_lf = avg_lf / REAL(nday)
-  avg_lw = avg_lw / REAL(nday)
-  avg_lr = avg_lr / REAL(nday)
+    ! Average the plant turnover fraction
+    avg_lf = avg_lf / REAL(nday)
+    avg_lw = avg_lw / REAL(nday)
+    avg_lr = avg_lr / REAL(nday)
 
-  ! Need the annual NPP to solve plant pools g C m-2 y-1
-  avg_annual_cnpp = avg_cnpp / REAL(myearspin)
+    ! Need the annual NPP to solve plant pools g C m-2 y-1
+    avg_annual_cnpp = avg_cnpp / REAL(myearspin)
 
-  avg_cleaf2met = avg_cleaf2met/REAL(nday)
-  avg_cleaf2str = avg_cleaf2str/REAL(nday)
-  avg_croot2met = avg_croot2met/REAL(nday)
-  avg_croot2str = avg_croot2str/REAL(nday)
-  avg_cwood2cwd = avg_cwood2cwd/REAL(nday)
+    avg_cleaf2met = avg_cleaf2met/REAL(nday)
+    avg_cleaf2str = avg_cleaf2str/REAL(nday)
+    avg_croot2met = avg_croot2met/REAL(nday)
+    avg_croot2str = avg_croot2str/REAL(nday)
+    avg_cwood2cwd = avg_cwood2cwd/REAL(nday)
 
-  avg_nleaf2met = avg_nleaf2met/REAL(nday)
-  avg_nleaf2str = avg_nleaf2str/REAL(nday)
-  avg_nroot2met = avg_nroot2met/REAL(nday)
-  avg_nroot2str = avg_nroot2str/REAL(nday)
-  avg_nwood2cwd = avg_nwood2cwd/REAL(nday)
+    avg_nleaf2met = avg_nleaf2met/REAL(nday)
+    avg_nleaf2str = avg_nleaf2str/REAL(nday)
+    avg_nroot2met = avg_nroot2met/REAL(nday)
+    avg_nroot2str = avg_nroot2str/REAL(nday)
+    avg_nwood2cwd = avg_nwood2cwd/REAL(nday)
 
-  avg_pleaf2met = avg_pleaf2met/REAL(nday)
-  avg_pleaf2str = avg_pleaf2str/REAL(nday)
-  avg_proot2met = avg_proot2met/REAL(nday)
-  avg_proot2str = avg_proot2str/REAL(nday)
-  avg_pwood2cwd = avg_pwood2cwd/REAL(nday)
+    avg_pleaf2met = avg_pleaf2met/REAL(nday)
+    avg_pleaf2str = avg_pleaf2str/REAL(nday)
+    avg_proot2met = avg_proot2met/REAL(nday)
+    avg_proot2str = avg_proot2str/REAL(nday)
+    avg_pwood2cwd = avg_pwood2cwd/REAL(nday)
 
-  avg_cgpp      = avg_cgpp/REAL(nday)
-  avg_cnpp      = avg_cnpp/REAL(nday)
+    avg_cgpp      = avg_cgpp/REAL(nday)
+    avg_cnpp      = avg_cnpp/REAL(nday)
 
-  avg_nuptake   = avg_nuptake/REAL(nday)
-  avg_puptake   = avg_puptake/REAL(nday)
+    avg_nuptake   = avg_nuptake/REAL(nday)
+    avg_puptake   = avg_puptake/REAL(nday)
 
-  avg_xnplimit    = avg_xnplimit/REAL(nday)
-  avg_xkNlimiting = avg_xkNlimiting/REAL(nday)
-  avg_xklitter    = avg_xklitter/REAL(nday)
+    avg_xnplimit    = avg_xnplimit/REAL(nday)
+    avg_xkNlimiting = avg_xkNlimiting/REAL(nday)
+    avg_xklitter    = avg_xklitter/REAL(nday)
 
-  avg_xksoil      = avg_xksoil/REAL(nday)
+    avg_xksoil      = avg_xksoil/REAL(nday)
 
-  avg_nsoilmin    = avg_nsoilmin/REAL(nday)
-  avg_psoillab    = avg_psoillab/REAL(nday)
-  avg_psoilsorb   = avg_psoilsorb/REAL(nday)
-  avg_psoilocc    = avg_psoilocc/REAL(nday)
+    avg_nsoilmin    = avg_nsoilmin/REAL(nday)
+    avg_psoillab    = avg_psoillab/REAL(nday)
+    avg_psoilsorb   = avg_psoilsorb/REAL(nday)
+    avg_psoilocc    = avg_psoilocc/REAL(nday)
 
-  avg_rationcsoilmic  = avg_rationcsoilmic  /REAL(nday)
-  avg_rationcsoilslow = avg_rationcsoilslow /REAL(nday)
-  avg_rationcsoilpass = avg_rationcsoilpass /REAL(nday)
+    avg_rationcsoilmic  = avg_rationcsoilmic  /REAL(nday)
+    avg_rationcsoilslow = avg_rationcsoilslow /REAL(nday)
+    avg_rationcsoilpass = avg_rationcsoilpass /REAL(nday)
 
     CALL analyticpool(kend,veg,soil,casabiome,casapool,                                          &
          casaflux,casamet,casabal,phen,                                         &
@@ -7599,7 +7355,7 @@ USE cbl_soil_snow_init_special_module
     USE POPMODULE,            ONLY: POPStep
     USE TypeDef,              ONLY: i4b, dp
     USE mpi
-  USE biogeochem_mod, ONLY : biogeochem 
+    USE biogeochem_mod, ONLY : biogeochem
 
     !mrd561 debug
     USE cable_IO_vars_module, ONLY: logn
@@ -7625,38 +7381,14 @@ USE cbl_soil_snow_init_special_module
 
     ! communicator for error-messages
     INTEGER, INTENT(IN)  :: icomm, ocomm
-    TYPE (casa_met)  :: casaspin
 
     ! local variables
-    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
-    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_nleaf2met, avg_nleaf2str, avg_nroot2met, avg_nroot2str, avg_nwood2cwd
-    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_pleaf2met, avg_pleaf2str, avg_proot2met, avg_proot2str, avg_pwood2cwd
-    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_cgpp,      avg_cnpp,      avg_nuptake,   avg_puptake
-    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_nsoilmin,  avg_psoillab,  avg_psoilsorb, avg_psoilocc
-    !chris 12/oct/2012 for spin up casa
-    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_ratioNCsoilmic,  avg_ratioNCsoilslow,  avg_ratioNCsoilpass
-    REAL(r_2), DIMENSION(:), ALLOCATABLE, SAVE  :: avg_xnplimit,  avg_xkNlimiting,avg_xklitter, avg_xksoil
-
-    ! local variables
-    INTEGER                  :: myearspin,nyear, nloop1
-    CHARACTER(LEN=99)        :: ncfile
-    CHARACTER(LEN=4)         :: cyear
-    INTEGER                  :: ktau,ktauday,nday,idoy,ktaux,ktauy,nloop
-    INTEGER, SAVE            :: ndays
+    INTEGER                  :: myearspin,nyear
+    INTEGER                  :: ktau,ktauday,nday,idoy
     REAL,      DIMENSION(mp)      :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
     REAL,      DIMENSION(mp)      :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
     REAL,      DIMENSION(mp)      :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-    REAL,      DIMENSION(mp)      :: xcgpp,     xcnpp,     xnuptake,  xpuptake
-    REAL,      DIMENSION(mp)      :: xnsoilmin, xpsoillab, xpsoilsorb,xpsoilocc
     REAL(r_2), DIMENSION(mp)      :: xnplimit,  xkNlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
-
-    ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
-    REAL,      DIMENSION(5,mvtype,mplant)  :: bmcplant,  bmnplant,  bmpplant
-    REAL,      DIMENSION(5,mvtype,mlitter) :: bmclitter, bmnlitter, bmplitter
-    REAL,      DIMENSION(5,mvtype,msoil)   :: bmcsoil,   bmnsoil,   bmpsoil
-    REAL,      DIMENSION(5,mvtype)         :: bmnsoilmin,bmpsoillab,bmpsoilsorb, bmpsoilocc
-    REAL,      DIMENSION(mvtype)           :: bmarea
-    INTEGER nptx,nvt,kloop
 
     REAL(dp)                               :: StemNPP(mp,2)
 
@@ -7711,7 +7443,7 @@ USE cbl_soil_snow_init_special_module
 
              CALL MPI_Comm_rank (icomm, rank, ierr)
              WRITE(logn,*)
-             WRITE(logn,*),'rank receiving pop_grid from master', rank
+             WRITE(logn,*) 'rank receiving pop_grid from master', rank
 !$           write(logn,*) 'b4 MPI_Recv, pop_t cmass: ', POP%pop_grid%cmass_sum
 !$           write(logn,*) 'b4 MPI_Recv, pop_t LU: ', POP%pop_grid%LU
              CALL MPI_Recv( POP%pop_grid(1), POP%np, pop_t, 0, 0, icomm, stat, ierr )
@@ -7720,7 +7452,7 @@ USE cbl_soil_snow_init_special_module
              WRITE(logn,*) 'after MPI_Recv, pop_t '
              CALL flush(logn)
              IF (cable_user%CALL_POP .AND. POP%np.GT.0) THEN ! CALL_POP
-                WRITE(logn,*), 'b4  POPdriver', POP%pop_grid%cmass_sum
+                WRITE(logn,*) 'b4  POPdriver', POP%pop_grid%cmass_sum
                 CALL POPdriver(casaflux,casabal,veg, POP)
 
              ENDIF
