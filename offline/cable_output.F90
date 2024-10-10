@@ -934,9 +934,11 @@ CONTAINS
        out%Fwsoil = zero4 ! initialise
     END IF
     IF(output%veg) THEN
+      print *, 'try to define fwsoiltmp variable:'
      CALL define_ovar(ncid_out, ovid%Fwsoiltmp, 'Fwsoiltmp', '[-]', &
           'soil moisture modifier to stomatal conductance', patchout%Fwsoiltmp, &
           'dummy', xID, yID, zID, landID, patchID, tID)
+     print *, 'define fwsoiltmp variable: DONE!'
      ALLOCATE(out%Fwsoiltmp(mp))
      out%Fwsoiltmp = zero4 ! initialise
   END IF
