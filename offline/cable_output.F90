@@ -2813,7 +2813,7 @@ CONTAINS
         CALL write_ovar(out_timestep, ncid_out, ovid%Fwsoiltmp, 'Fwsoiltmp', out%Fwsoiltmp, &
              ranges%Fwsoiltmp, patchout%Fwsoiltmp, 'default', met)
         ! Reset temporary output variable:
-        out%Fwsoil = zero4
+        out%Fwsoiltmp = zero4
      END IF
   END IF
     ! CanopInt: total canopy water storage [kg/m^2]
