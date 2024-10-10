@@ -131,6 +131,28 @@ USE cable_runtime_opts_mod ,ONLY : wiltparam
 
   TYPE gw_parameters_type
 
+!     REAL ::                   &
+!          MaxHorzDrainRate=2e-4,  & !anisintropy * q_max [qsub]
+!          EfoldHorzDrainRate=2.0, & !e fold rate of q_horz
+!          MaxSatFraction=2500.0,     & !parameter controll max sat fraction
+!          hkrz=0.5,               & !hyds_vec variation with z
+!          zdepth=1.5,             & !level where hyds_vec(z) = hyds_vec(no z)
+!          frozen_frac=0.05,       & !ice fraction to determine first non-frozen layer for qsub
+!          SoilEvapAlpha = 1.0,    & !modify field capacity dependence of soil evap limit
+!          IceAlpha=3.0,           &
+!          IceBeta=1.0
+!
+!     REAL :: ice_impedence=5.0
+!
+!     TYPE(organic_soil_params) :: org
+!
+!     INTEGER :: level_for_satfrac = 6
+!     LOGICAL :: ssgw_ice_switch = .FALSE.
+!
+!     LOGICAL :: subsurface_sat_drainage = .TRUE.
+ 
+! replaced above block by below - rk4417 - phase2
+
      REAL ::                   &
           MaxHorzDrainRate=2e-4,  & !anisintropy * q_max [qsub]
           EfoldHorzDrainRate=2.0, & !e fold rate of q_horz
@@ -154,6 +176,9 @@ USE cable_runtime_opts_mod ,ONLY : wiltparam
      INTEGER :: level_for_satfrac = 6
      LOGICAL :: ssgw_ice_switch = .FALSE.
 
+     !LOGICAL :: derive_soil_param = .FALSE. ! MMY TRUE: derive soil parameters by cosby or HC-SWC equations hard-coded in CABLE-GW
+                                            ! MMY       however, sand/silt/clay/org/rhosoil_vec are read from gridinfo 
+                                            ! MMY FALSE: read soil parameters from land gridinfo file
      LOGICAL :: subsurface_sat_drainage = .TRUE.
      LOGICAL :: cosby_univariate=.false. 
      LOGICAL :: cosby_multivariate=.false.
