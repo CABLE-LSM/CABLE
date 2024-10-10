@@ -1691,7 +1691,6 @@ CONTAINS
       
       endif
      ! write(logn,*) 'fwsoil of ', cable_user%fwsoil_switch, ': ', fwsoil(1)
-     print*, 'fwsoiltmp: ', canopy%fwsoiltmp
       MOL_TO_UMOL = 1E6
       J_TO_MOL = 4.6E-6  ! Convert from J to Mol for light
       MOL_WATER_2_G_WATER = 18.02

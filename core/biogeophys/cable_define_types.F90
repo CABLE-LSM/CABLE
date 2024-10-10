@@ -1232,6 +1232,7 @@ contains
     allocate(canopy%ecx(mp,mf))    ! sunlit and shaded leaf latent heat flux
     ! allocate(canopy%ci(mp,mf,3))   ! intra-cellular CO2 vh 6/7/09
     allocate(canopy%fwsoil(mp))
+    allocate(canopy%fwsoiltmp(mp))
     ! vh_js - litter resistances to heat and vapour transfer
     allocate(canopy%kthLitt(mp))
     allocate(canopy%DvLitt(mp))
@@ -1854,6 +1855,7 @@ contains
     deallocate(canopy%zetar)
     deallocate(canopy%zetash)
     deallocate(canopy%fwsoil)
+    deallocate(canopy%fwsoiltmp)
     deallocate(canopy%ofes)
     !! vh_js !! litter resistances to heat and vapour transfer
     deallocate(canopy%kthLitt)
@@ -2400,7 +2402,7 @@ contains
     canopy%tlfy   = 0
     canopy%ecy    = 0
     canopy%ecx    = 0
-    canopy%fwsoil = 0
+    canopy%fwsoiltmp = 0
     canopy%kthLitt = 0
     canopy%DvLitt  = 0
     canopy%An        = 0
@@ -3058,7 +3060,7 @@ contains
     write(*,*) 'canopy%tlfy ', canopy%tlfy
     write(*,*) 'canopy%ecy ', canopy%ecy
     write(*,*) 'canopy%ecx ', canopy%ecx
-    write(*,*) 'canopy%fwsoil ', canopy%fwsoil
+    write(*,*) 'canopy%fwsoiltmp ', canopy%fwsoiltmp
     write(*,*) 'canopy%kthLitt ', canopy%kthLitt
     write(*,*) 'canopy%DvLitt ', canopy%DvLitt
     write(*,*) 'canopy%An ', canopy%An
