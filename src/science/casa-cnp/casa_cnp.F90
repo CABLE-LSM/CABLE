@@ -764,8 +764,13 @@ CONTAINS
        casaflux%fromPtoL(:,str,froot)   = 1.0 - casaflux%fromPtoL(:,metb,froot)
        casaflux%fromPtoL(:,cwd,wood)    = 1.0
 
-       ! calc. of casaflux%kplant drops scaling - see #242
-       casaflux%kplant(:,leaf)        = casabiome%plantrate(veg%iveg(:),leaf)
+       ! calc. of casaflux%kplant had dropped scaling for cold and drought stress
+       ! as noted in trac ticket #243
+       ! R. Law 23/7/2024 reinstate terms to account for cold and drought stress (#275)
+       ! which are calculated in casa_xrateplant
+       ! Needs 'btran' bug fix (#279) implemented with this.
+       casaflux%kplant(:,leaf)        = casabiome%plantrate(veg%iveg(:),leaf)*xkleaf(:) &
+                                   + xkleafcold(:) + xkleafdry(:)
 
        casaflux%kplant(:,wood)        = casabiome%plantrate(veg%iveg(:),wood)
        casaflux%kplant(:,froot)       = casabiome%plantrate(veg%iveg(:),froot)
@@ -790,7 +795,7 @@ CONTAINS
     ! outputs:
     !     klitter(mp,mlitter):      decomposition rate of litter pool (1/day)
     !     ksoil(mp,msoil):          decomposition rate of soil pool (1/day)
-    !     fromLtoS(mp,mlitter,msoil):  fraction of decomposed litter to soil (fraction)
+    !     fromLtoS(mp,msoil,mlitter):  fraction of decomposed litter to soil (fraction)
     !     fromStoS(mp,msoil,msoil):    fraction of decomposed soil C to another soil pool (fraction)
     !     fromLtoCO2(mp,mlitter):      fraction of decomposed litter emitted as CO2 (fraction)
     !     fromStoCO2(mp,msoil):        fraction of decomposed soil C emitted as Co2 (fraction)
@@ -1477,8 +1482,8 @@ END SUBROUTINE casa_delplant
 
   SUBROUTINE avgsoil(veg,soil,casamet)
     ! Get avg soil moisture, avg soil temperature
-    ! need to estimate the land cell mean soil temperature and moisture weighted by the area fraction
-    ! of each tile within the land cell
+    ! need to estimate the mean soil temperature and moisture averaged over the
+    ! soil column and weighted by root fraction for each tile 
 
     IMPLICIT NONE
     TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
@@ -1497,12 +1502,11 @@ END SUBROUTINE casa_delplant
                * casamet%tsoil(nland,ns)
           casamet%moistavg(nland)  = casamet%moistavg(nland)+ veg%froot(nland,ns) &
                * MIN(soil%sfc(nland),casamet%moist(nland,ns))
-          casamet%btran(nland)     = casamet%btran(nland)+ veg%froot(nland,ns)  &
-               * (MIN(soil%sfc(nland),casamet%moist(nland,ns))-soil%swilt(nland)) &
-               /(soil%sfc(nland)-soil%swilt(nland))
-
-          ! Ticket#121
-
+       
+          !R. Law 23/7/2024 Issue #279 
+          !both the alternate (ticket 121) btran calculation and the original btran 
+          !calculation were in the code meaning the summation was done twice. Removed
+          !original version and kept ticket 121 version
           casamet%btran(nland)     = casamet%btran(nland)+ veg%froot(nland,ns)  &
                * (MAX(MIN(soil%sfc(nland),casamet%moist(nland,ns))-soil%swilt(nland),0.0)) &
                /(soil%sfc(nland)-soil%swilt(nland))
