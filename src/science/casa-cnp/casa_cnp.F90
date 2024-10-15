@@ -51,18 +51,28 @@
 !   phenology
 
 MODULE casa_cnp_module
+
   USE cable_def_types_mod
   USE casadimension
   USE casaparm
-  USE casavariable
-  USE phenvariable
+
+  USE phenology_type_mod,    ONLY: phenology_type
+  USE casa_biome_type_mod,   ONLY: casa_biome   => casa_biome_type
+  USE casa_pool_type_mod,    ONLY: casa_pool    => casa_pool_type
+  USE casa_flux_type_mod,    ONLY: casa_flux    => casa_flux_type
+  USE casa_met_type_mod,     ONLY: casa_met     => casa_met_type
+  USE casa_balance_type_mod, ONLY: casa_balance => casa_bal_type             
+
   USE cable_common_module, ONLY: cable_user,l_landuse ! Custom soil respiration: Ticket #42
+
   USE landuse_constant
+
   IMPLICIT NONE
+
   REAL(r_2), PARAMETER :: zero = 0.0_r_2
   REAL(r_2), PARAMETER :: one  = 1.0_r_2
-CONTAINS
 
+CONTAINS
 
   SUBROUTINE casa_xnp(xnplimit,xNPuptake,veg,casabiome,casapool,casaflux,casamet)
 
@@ -202,7 +212,7 @@ CONTAINS
     TYPE (casa_flux),           INTENT(INOUT) :: casaflux
     TYPE (casa_pool),           INTENT(INOUT) :: casapool
     TYPE (casa_met),            INTENT(INOUT) :: casamet
-    TYPE (phen_variable),       INTENT(INOUT) :: phen
+    TYPE (phenology_type),       INTENT(INOUT) :: phen
     INTEGER , INTENT(IN) :: LALLOC
     ! local variables
     INTEGER :: npt,ns,is,iv
@@ -548,7 +558,7 @@ CONTAINS
     TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
     TYPE (casa_biome),            INTENT(INOUT) :: casabiome
     TYPE (casa_met),              INTENT(INOUT) :: casamet
-    TYPE (phen_variable),         INTENT(INOUT) :: phen
+    TYPE (phenology_type),        INTENT(INOUT) :: phen
 
     ! local variables
     REAL(r_2), DIMENSION(mp)              :: xcoldleaf
@@ -739,7 +749,7 @@ CONTAINS
     TYPE (casa_pool),             INTENT(INOUT) :: casapool
     TYPE (casa_flux),             INTENT(INOUT) :: casaflux
     TYPE (casa_met),              INTENT(INOUT) :: casamet
-    TYPE (phen_variable),       INTENT(IN) :: phen
+    TYPE (phenology_type),        INTENT(IN) :: phen
 
     ! local variables
     REAL(r_2), DIMENSION(mp)  :: xk
@@ -1028,10 +1038,9 @@ DO npt=1,mp
       ENDIF
 
       casapool%dNplantdt(npt,wood) = 0.0
-#ifndef ESM15
-      ! offline/trunk uses this condition
+#     ifndef ESM15 ! offline/trunk uses this condition
       IF (casamet%lnonwood(npt)==0)                                            & 
-#endif
+#     endif
       casapool%dNplantdt(npt,wood) = - casaflux%kplant(npt,wood)             &
                                      * casapool%Nplant(npt,wood)               &
                                      * casabiome%ftransNPtoL(veg%iveg(npt),wood)
@@ -1402,14 +1411,6 @@ END SUBROUTINE casa_delplant
                   - casaflux%Nupland(nland)
 
           ENDIF
-!$if (nland==1) write(59,91) casaflux%Nsnet(nland) , &
-!$                                 casaflux%Nlittermin(nland),  &
-!$                                 casaflux%Nsmin(nland),   &
-!$                                 casaflux%Nsimm(nland)
-!$                                 , casaflux%Nmindep(nland) ,casaflux%Nminfix(nland)   &
-!$                                 , casaflux%Nminloss(nland)   &
-!$                                 , casaflux%Nminleach(nland)   &
-!$                                 , casaflux%Nupland(nland)
 
 91        FORMAT(20(e12.4,2x))
           IF(icycle >2) THEN
@@ -1902,9 +1903,10 @@ END SUBROUTINE casa_delplant
   END SUBROUTINE casa_Prequire
 
 
-  SUBROUTINE casa_cnpcycle(veg,casabiome,casapool,casaflux,casamet,casabal, LALLOC)
+SUBROUTINE casa_cnpcycle( veg, casabiome, casapool, casaflux, casamet,         &
+                          casabal, LALLOC)
     ! update all pool sizes
-    !
+
     IMPLICIT NONE
     TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
     TYPE (casa_biome),            INTENT(INOUT) :: casabiome
@@ -2152,34 +2154,6 @@ END SUBROUTINE casa_delplant
 
     casabal%cbalance(:) = Cbalplant(:) + Cbalsoil(:)
 
-
-    DO npt=1,mp
-       IF(ABS(casabal%cbalance(npt))>1e-10.and.casapool%cplant(npt,1) >1.0e-3) THEN
-       
-          WRITE(*,*) 'cbalance',   npt, casamet%lat(npt),casamet%lon(npt), &
-                                   casamet%iveg2(npt),Cbalplant(npt), Cbalsoil(npt)
-          WRITE(*,*) 'gpp, npp',   casaflux%Cgpp(npt), casaflux%Cnpp(npt)
-          WRITE(*,*) 'rmplant, rgplant',  casaflux%crmplant(npt,:) , casaflux%crgplant(npt)
-          WRITE(*,*) 'DIFF cplant',  SUM(casapool%cplant(npt,:)) -SUM(casabal%cplantlast(npt,:))
-          WRITE(*,*) 'dcplandt',   casapool%dcplantdt(npt,:), SUM(casapool%dcplantdt(npt,:))
-          WRITE(*,*) 'litterfall', casaflux%kplant(npt,:) * casabal%cplantlast(npt,:)*deltpool, &
-                                   SUM((casaflux%kplant(npt,:)*casabal%cplantlast(npt,:)))*deltpool
-          write(*,*) 'deplantdt-1', casapool%dcplantdt(npt,1), casapool%cplant(npt,1)-casabal%cplantlast(npt,1), &
-                      casaflux%Cnpp(npt) * casaflux%fracCalloc(npt,1) - casaflux%kplant(npt,1)  * casabal%cplantlast(npt,1)
-          write(*,*) 'deplantdt-2', casapool%dcplantdt(npt,2), casapool%cplant(npt,2)-casabal%cplantlast(npt,2),  &
-                      casaflux%Cnpp(npt) * casaflux%fracCalloc(npt,2) - casaflux%kplant(npt,2)  * casabal%cplantlast(npt,2)
-          write(*,*) 'deplantdt-3', casapool%dcplantdt(npt,3),   casapool%cplant(npt,3)-casabal%cplantlast(npt,3),&
-                      casaflux%Cnpp(npt) * casaflux%fracCalloc(npt,3) - casaflux%kplant(npt,3)  * casabal%cplantlast(npt,3)
-
-          WRITE(*,*) 'delclabile', casabal%Clabilelast(npt)-casapool%clabile(npt)
-          WRITE(*,*), 'dclabile',  casapool%dClabiledt(npt)* deltpool
-
-       ENDIF
-    ENDDO
-
-
-
-
     casapool%ctot_0 = SUM(casabal%cplantlast,2)+SUM(casabal%clitterlast,2) &
          + SUM(casabal%csoillast,2)+ casabal%clabilelast
     casapool%ctot = SUM(casapool%cplant,2)+SUM(casapool%clitter,2) &
@@ -2301,9 +2275,9 @@ END SUBROUTINE casa_delplant
 
   SUBROUTINE phenology(iday,veg,phen)
     IMPLICIT NONE
-    INTEGER,              INTENT(IN)    :: iday
-    TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
-    TYPE (phen_variable), INTENT(INOUT) :: phen
+    INTEGER,                   INTENT(IN)    :: iday
+    TYPE (veg_parameter_type), INTENT(INOUT) :: veg  ! vegetation parameters
+    TYPE (phenology_type),     INTENT(INOUT) :: phen
 
     ! local variables (temprary)
     INTEGER :: np
