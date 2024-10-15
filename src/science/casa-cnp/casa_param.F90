@@ -27,7 +27,8 @@
 !   phenvariable with subroutine alloc_phenvariable
 
 MODULE casaparm
-  USE casadimension
+
+USE cable_def_types_mod, ONLY : r_2
 
   IMPLICIT NONE
   INTEGER, PARAMETER :: initcasa= 1   ! =0 spin; 1 restart file
