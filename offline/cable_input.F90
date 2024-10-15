@@ -3269,7 +3269,7 @@ SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
   ! Due to leapyears, we can't just do add 365 * number of years from startyear.
   IF (LeapYears) THEN
     CountDays: DO YearIter = STD%StartYear(STD%CurrentFileIndx), YearIndex-1
-      IF (is_leapyear(YearIndex)) THEN
+      IF (is_leapyear(YearIter)) THEN
         TimeIndex = TimeIndex + 366
       ELSE
         TimeIndex = TimeIndex + 365
