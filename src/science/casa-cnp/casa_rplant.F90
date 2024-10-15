@@ -43,7 +43,6 @@ MODULE casa_rplant_module
   USE casadimension
   USE casaparm
   USE casavariable
-  USE phenvariable
   USE cable_common_module, ONLY: cable_user,l_landuse ! Custom soil respiration: Ticket #42
 #ifndef UM_CBL
   USE landuse_constant
