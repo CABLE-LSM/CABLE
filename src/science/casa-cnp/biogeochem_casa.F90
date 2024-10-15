@@ -14,7 +14,10 @@ USE cable_common_module, ONLY : cable_runtime, cable_user
 USE casadimension
 USE casa_cnp_module
 USE casa_inout_module, ONLY : casa_cnpflux
-USE POP_TYPES,            ONLY: POP_TYPE
+
+USE pop_types,           ONLY: pop_type
+uSE phenology_type_mod,  ONLY: phenology_type
+
 USE casa_rplant_module, ONLY: casa_rplant 
 
 IMPLICIT NONE
@@ -29,7 +32,8 @@ TYPE (casa_pool),             INTENT(INOUT) :: casapool
 TYPE (casa_flux),             INTENT(INOUT) :: casaflux
 TYPE (casa_met),              INTENT(INOUT) :: casamet
 TYPE (casa_balance),          INTENT(INOUT) :: casabal
-TYPE (phen_variable),         INTENT(INOUT) :: phen
+TYPE ( phenology_type ),         INTENT(INOUT) :: phen
+
 TYPE(POP_TYPE),             INTENT(IN) :: POP
 TYPE(climate_TYPE),             INTENT(IN) :: climate
 
@@ -83,7 +87,7 @@ IF (cable_user%CALL_POP) THEN
 
              casaflux%kplant(POP%Iwood,2) =  1.0 -  &
                   (1.0-  MAX( MIN((POP%pop_grid(:)%stress_mortality + &
-                  POP%pop_grid(:)%crowding_mortality+ &
+                  POP%pop_grid(:)%crowding_mortality  &
                   + POP%pop_grid(:)%fire_mortality ) &
                   /(POP%pop_grid(:)%cmass_sum+POP%pop_grid(:)%growth) + &
                   1.0/veg%disturbance_interval(POP%Iwood,1), 0.99), 0.0))**(1.0/365.0)
