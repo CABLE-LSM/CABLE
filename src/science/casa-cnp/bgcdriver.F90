@@ -15,8 +15,12 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    USE cable_common_module, only: cable_runtime
    USE casadimension
    USE casaparm
-   USE casavariable
-   USE phenvariable
+   USE casa_biome_type_mod,    ONLY: casa_biome => casa_biome_type
+   USE casa_pool_type_mod,     ONLY: casa_pool  => casa_pool_type
+   USE casa_flux_type_mod,     ONLY: casa_flux  => casa_flux_type
+   USE casa_met_type_mod,      ONLY: casa_met   =>  casa_met_type
+   USE casa_balance_type_mod,  ONLY: casa_bal   => casa_bal_type             
+   USE phenology_type_mod,     ONLY: phenology_type  
    USE cable_common_module,  ONLY: CurYear, CABLE_USER
    USE TypeDef,              ONLY: i4b, dp
 #  ifndef UM_CBL
@@ -24,7 +28,7 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    USE cable_phenology_module, ONLY: cable_phenology_clim
 #  endif
    USE POP_TYPES,            ONLY: POP_TYPE
-  USE biogeochem_mod, ONLY : biogeochem 
+   USE biogeochem_mod, ONLY : biogeochem 
    IMPLICIT NONE
 
    INTEGER,      INTENT(IN) :: ktau ! integration step number
@@ -47,8 +51,8 @@ SUBROUTINE bgcdriver(ktau,kstart,kend,dels,met,ssnow,canopy,veg,soil, &
    TYPE (casa_pool),           INTENT(INOUT) :: casapool
    TYPE (casa_flux),           INTENT(INOUT) :: casaflux
    TYPE (casa_met),            INTENT(INOUT) :: casamet
-   TYPE (casa_balance),        INTENT(INOUT) :: casabal
-   TYPE (phen_variable),       INTENT(INOUT) :: phen
+   TYPE (casa_bal),            INTENT(INOUT) :: casabal
+   TYPE (phenology_type),      INTENT(INOUT) :: phen
    TYPE(POP_TYPE),             INTENT(INOUT) :: POP
    TYPE (climate_type), INTENT(IN)       :: climate  ! climate variables
 
