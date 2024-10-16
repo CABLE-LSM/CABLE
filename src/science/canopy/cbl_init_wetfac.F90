@@ -8,8 +8,8 @@ SUBROUTINE initialize_wetfac( mp, ssnow_wetfac, soil_swilt, soil_sfc,          &
                               ssnow_wb, ssnow_wbice, ssnow_snowd,              &
                               veg_iveg, met_tk, Ctfrz )
 
-USE cable_surface_types_mod, ONLY: lakes => lakes_cable        
-USE cable_def_types_mod,  ONLY : r_2
+USE cable_surface_types_mod,   ONLY: lakes => lakes_cable        
+USE cable_def_types_mod,       ONLY : r_2
 USE cable_other_constants_mod, ONLY : wilt_limitfactor
                           
 IMPLICIT NONE                     

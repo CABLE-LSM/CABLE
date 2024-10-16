@@ -19,8 +19,8 @@ MODULE cable_other_constants_mod
 !CABLE science not yet in JAC uses msn to describe number of snow layers
 USE grid_constants_mod_cbl, ONLY: nrb, nsl, nsCs, nvCs, msn => nsnl
 USE grid_constants_mod_cbl, ONLY: n_soiltypes => nsoil_max ! # of soil types [9]
-USE grid_constants_mod_cbl, ONLY: niter                    ! # iterations za/L
-USE grid_constants_mod_cbl, ONLY: mf                       !sunlit/shaded leaves
+USE grid_constants_mod_cbl, ONLY: niter               ! # iterations for za/L
+USE grid_constants_mod_cbl, ONLY: mf                  ! # leaves (sunlit, shaded)
 USE grid_constants_mod_cbl, ONLY: swb  ! 2 shortwave bands (VIS,NIR)
 
 IMPLICIT NONE

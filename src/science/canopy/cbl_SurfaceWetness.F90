@@ -79,8 +79,8 @@ INTEGER :: j, i
     !This is updating wetfac iusing same calc as initialization
     !originally code in canopy used 1e-6 as MIN
     CALL initialize_wetfac( mp, ssnow%wetfac, soil%swilt, soil%sfc,            &
-                            ssnow%wb(:,1), ssnow%wbice(:,1), ssnow%snowd,      &
-                            veg%iveg, met%tk, Ctfrz ) 
+                            REAL(ssnow%wb(:,1)), REAL(ssnow%wbice(:,1)),       &
+                            ssnow%snowd, veg%iveg, met%tk, Ctfrz )
    
     ! owetfac introduced to reduce sharp changes in dry regions,
     ! especially in offline runs in which there may be discrepancies b/n

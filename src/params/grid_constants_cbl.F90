@@ -21,6 +21,11 @@ MODULE grid_constants_mod_cbl
 ! Where it fits in the model flow:https://trac.nci.org.au/trac/cable/wiki/TBC
 !******************************************************************************
 
+#ifndef UM_CBL
+! UM_CBL gets from cable_surface_types namelist
+USE cable_surface_types_mod, ONLY: lakes_cable, ice_cable     
+#endif
+
 IMPLICIT NONE
 
 PUBLIC

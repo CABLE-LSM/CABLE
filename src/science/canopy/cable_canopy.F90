@@ -8,24 +8,20 @@ MODULE cable_canopy_module
 CONTAINS
 
 SUBROUTINE define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate, sunlit_veg_mask, reducedLAIdue2snow )
-    USE cable_def_types_mod
-   USE cbl_radiation_module, ONLY : radiation
-    USE cable_air_module
-    USE cable_common_module
-USE cable_common_module,    ONLY: cable_runtime
-!USE cable_common_module,    ONLY: knode_gl, ktau_gl, kwidth_gl
-    USE cable_roughness_module
-
-USE cbl_friction_vel_module,  ONLY : comp_friction_vel, psim, psis
-USE cbl_pot_evap_snow_module, ONLY : Penman_Monteith, Humidity_deficit_method
-USE cbl_qsat_module,          ONLY : qsatfjh,  qsatfjh2
-USE cbl_zetar_module,         ONLY : update_zetar
-USE cable_latent_heat_module, ONLY : latent_heat_flux
-USE cable_wetleaf_module,     ONLY : wetleaf 
-USE cbl_dryLeaf_module,       ONLY : dryLeaf
+! subrs
+USE cbl_radiation_module, ONLY : radiation
+USE cbl_friction_vel_module,    ONLY : comp_friction_vel, psim, psis
+USE cbl_pot_evap_snow_module,   ONLY : Penman_Monteith, Humidity_deficit_method
+USE cbl_qsat_module,            ONLY : qsatfjh,  qsatfjh2
+USE cbl_zetar_module,           ONLY : update_zetar
+USE cable_latent_heat_module,   ONLY : latent_heat_flux
+USE cable_wetleaf_module,       ONLY : wetleaf 
+USE cbl_dryLeaf_module,         ONLY : dryLeaf
 USE cable_within_canopy_module, ONLY : within_canopy
 USE cbl_SurfaceWetness_module,  ONLY : Surf_wetness_fact
 
+! data
+USE cable_common_module,     ONLY: cable_runtime, cable_user
 ! physical constants
 USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
 USE cable_phys_constants_mod, ONLY : CRMAIR  => RMAIR
@@ -67,6 +63,10 @@ USE cable_photo_constants_mod, ONLY : CMAXITER  => MAXITER ! only integer here
 USE cable_math_constants_mod,  ONLY : CPI_C  => PI
 USE cable_other_constants_mod, ONLY : CLAI_THRESH  => LAI_THRESH
 
+    USE cable_def_types_mod
+    USE cable_air_module
+    USE cable_roughness_module
+
   IMPLICIT NONE
 
     TYPE (balances_type), INTENT(INOUT)  :: bal
@@ -82,7 +82,7 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH  => LAI_THRESH
     TYPE (veg_parameter_type), INTENT(INOUT)    :: veg
 
 REAL :: reducedLAIdue2snow(mp)
-logical :: sunlit_veg_mask(mp) 
+LOGICAL :: sunlit_veg_mask(mp) 
     REAL, INTENT(IN)               :: dels ! integration time setp (s)
     INTEGER  ::                                                                 &
          iter,  & ! iteration #
@@ -165,7 +165,7 @@ REAL :: Surf_conductance(mp)
 ! END header
 
     ! Not sure that this is appropriate for JULES standalone - HaC either
-    IF( .NOT. cable_runtime%um ) THEN                                                &
+    IF( .NOT. cable_runtime%um ) THEN
       canopy%cansto =  canopy%oldcansto
     ENDIF  
     ALLOCATE( cansat(mp), gbhu(mp,mf))
