@@ -12,6 +12,8 @@ SUBROUTINE define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,clima
    USE cbl_radiation_module, ONLY : radiation
     USE cable_air_module
     USE cable_common_module
+USE cable_common_module,    ONLY: cable_runtime
+!USE cable_common_module,    ONLY: knode_gl, ktau_gl, kwidth_gl
     USE cable_roughness_module
 
 USE cbl_friction_vel_module,  ONLY : comp_friction_vel, psim, psis
@@ -151,16 +153,21 @@ logical :: sunlit_veg_mask(mp)
 
     INTEGER :: j
 
-    INTEGER, SAVE :: call_number =0
+! local vars in calc of Surface conductance
+REAL :: LAI_min(mp)
+REAL :: Rel_bigLeafLAI_sun(mp)
+REAL :: Rel_bigLeafLAI_shd(mp)
+REAL :: minCanopyCond(mp)
+REAL :: canopy_conductance(mp)
+REAL :: Rel_moisture(mp)
+REAL :: soil_conductance(mp)
+REAL :: Surf_conductance(mp)
+! END header
 
-    ! END header
-
-    call_number = call_number + 1
-
-    !H! vNot sure that this is appropriate for JULES standalone - HaC
-    !H!IF( .NOT. cable_runtime%um)                                                 &
-         canopy%cansto =  canopy%oldcansto
-
+    ! Not sure that this is appropriate for JULES standalone - HaC either
+    IF( .NOT. cable_runtime%um ) THEN                                                &
+      canopy%cansto =  canopy%oldcansto
+    ENDIF  
     ALLOCATE( cansat(mp), gbhu(mp,mf))
     ALLOCATE( dsx(mp), fwsoil(mp), tlfx(mp), tlfy(mp) )
     ALLOCATE( ecy(mp), hcy(mp), rny(mp))
@@ -394,22 +401,16 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
        hcy = 0.0              ! init current estimate lat heat
        ecy = rny - hcy        ! init current estimate lat heat
 
-       CALL dryLeaf( dels, rad, rough, air, met,                             &
-                  veg, canopy, soil, ssnow, dsx,                             &
-                  fwsoil, tlfx, tlfy, ecy, hcy,                              &
-                  rny, gbhu, gbhf, csx, cansat,                              &
-            ghwet,  iter,climate, sum_rad_gradis, sum_rad_rniso )
+       CALL dryLeaf( dels, rad, rough, air, met, veg, canopy, soil, ssnow,     &
+                     dsx, fwsoil, tlfx, tlfy, ecy, hcy, rny, gbhu, gbhf, csx,  &
+                     cansat, ghwet, iter, climate, sum_rad_gradis,             &
+                     sum_rad_rniso )
 
-
-      CALL wetLeaf( dels,                                 &
-                    cansat, tlfy,                                 &
-                    gbhu, gbhf, ghwet, &
-                    mp, CLAI_thresh, CCAPP, CRmair, & 
-                    reducedLAIdue2snow, sum_rad_rniso, sum_rad_gradis, & 
-                    canopy%fevw, canopy%fevw_pot, canopy%fhvw, &
-                    canopy%fwet, canopy%cansto, air%rlam, air%dsatdk, &
+      CALL wetLeaf( dels, cansat, tlfy, gbhu, gbhf, ghwet, mp, CLAI_thresh,    &
+                    CCAPP, CRmair, reducedLAIdue2snow, sum_rad_rniso,          &
+                    sum_rad_gradis, canopy%fevw, canopy%fevw_pot, canopy%fhvw, & 
+                    canopy%fwet, canopy%cansto, air%rlam, air%dsatdk,          &
                     met%tvair, met%tk, met%dva, air%psyc )
-
 
        ! Calculate latent heat from vegetation:
        ! Calculate sensible heat from vegetation:
@@ -688,16 +689,34 @@ write(6,*) "SLI is not an option right now"
 
     canopy%cduv = canopy%us * canopy%us / (MAX(met%ua,CUMIN))**2
 
-    !---diagnostic purposes
-    canopy%gswx_T = rad%fvlai(:,1)/MAX( CLAI_THRESH, canopy%vlaiw(:) )         &
-         * canopy%gswx(:,1) + rad%fvlai(:,2) / MAX(CLAI_THRESH,     &
-         canopy%vlaiw(:))*canopy%gswx(:,2)
+! Evaluate Total Surface conductance !---diagnostic purposes
 
-    ! The surface conductance below is required by dust scheme; it is composed from canopy and soil conductances
-    canopy%gswx_T = (1.-rad%transd)*MAX(1.e-06,canopy%gswx_T ) +  &   !contribution from  canopy conductance
-         rad%transd*(.01*ssnow%wb(:,1)/soil%sfc)**2 ! + soil conductance; this part is done as in Moses
-    WHERE ( soil%isoilm == 9 ) canopy%gswx_T = 1.e6   ! this is a value taken from Moses for ice points
+!vlaiw is already limted?
+LAI_min(:)            = MAX( CLAI_THRESH, canopy%vlaiw(:) )
+Rel_bigLeafLAI_sun(:) = rad%fvlai(:,1) / LAI_min(:)
+Rel_bigLeafLAI_shd(:) = rad%fvlai(:,2) / LAI_min(:)
 
+!total stomatal conductance
+canopy_conductance(:) = Rel_bigLeafLAI_sun(:)  * canopy%gswx(:,1)              & 
+                      + Rel_bigLeafLAI_shd(:)  * canopy%gswx(:,2) 
+
+! The surface conductance below is required by dust scheme; it is composed from canopy and soil 
+
+! Canopy conductance
+minCanopyCond(:)      = MAX( 1.e-06, canopy_conductance(:) )
+canopy_conductance(:) = (1.-rad%transd(:))* minCanopyCond(:)
+
+! Soil conductance
+Rel_moisture(:) = ssnow%wb(:,1) / soil%sfc(:)
+soil_conductance(:) = rad%transd(:) * ( 0.01*Rel_moisture )**2 ! + soil conductance; this part is done as in Moses
+
+! Combined Surface conductance
+Surf_conductance(:) = canopy_conductance(:) + soil_conductance(:) 
+
+WHERE ( soil%isoilm == 9 ) Surf_conductance = 1.e6   ! this is a value taken from Moses for ice points
+
+canopy%gswx_T(:)    = Surf_conductance(:)               !fill CABLE type for now
+    
     canopy%cdtq = canopy%cduv * &
                     ( LOG( rough%zref_uv / rough%z0m) -              &
                       psim( canopy%zetar(:,NITER) * rough%zref_uv/rough%zref_tq, mp, CPI_C )   &

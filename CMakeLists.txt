@@ -67,7 +67,8 @@ add_library(
     src/offline/cbl_model_driver_offline.F90
     src/offline/landuse_inout.F90
     src/offline/spincasacnp.F90
-    src/params/cable_maths_constants_mod.F90
+    src/offline/cable_surface_types.F90
+		src/params/cable_maths_constants_mod.F90
     src/params/cable_other_constants_mod.F90
     src/params/cable_photo_constants_mod.F90
     src/params/cable_phys_constants_mod.F90
