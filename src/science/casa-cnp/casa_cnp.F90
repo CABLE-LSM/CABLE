@@ -1451,23 +1451,16 @@ END SUBROUTINE casa_delplant
              casapool%dPsoillabdt(nland)= casaflux%Psnet(nland) + fluxptase(nland)         &
                   + casaflux%Pdep(nland) + casaflux%Pwea(nland)      &
                   - casaflux%Pleach(nland)-casaflux%pupland(nland)   &
-!jhan: ESM15 is effectively using xkpsorb**2 - inadvertently?!?!?!?!
-#           ifdef ESM15
-                  - casabiome%xkpsorb(casamet%isorder(nland))*casaflux%kpsorb(nland)*casapool%Psoilsorb(nland) &
-#           else
+                  !R. Law 23/08/2024 Removed ESM15 case as inconsistent with how xkpsorb now input (#283)
                   - casaflux%kpsorb(nland)*casapool%Psoilsorb(nland) &
-#           endif
                   + casaflux%kpocc(nland) * casapool%Psoilocc(nland)
              ! here the dPsoillabdt =(dPsoillabdt+dPsoilsorbdt)
              ! dPsoilsorbdt  = xdplabsorb
              casapool%dPsoillabdt(nland)  = casapool%dPsoillabdt(nland)/xdplabsorb(nland)
              casapool%dPsoilsorbdt(nland) = 0.0
 
-#           ifdef ESM15
-             casapool%dPsoiloccdt(nland) = casabiome%xkpsorb(casamet%isorder(nland))*casaflux%kpsorb(nland)* casapool%Psoilsorb(nland) &
-#           else
+            !R. Law 23/08/2024 Removed ESM15 case as inconsistent with how xkpsorb now input (#283)
              casapool%dPsoiloccdt(nland) = casaflux%kpsorb(nland)* casapool%Psoilsorb(nland) &
-#           endif
                                          - casaflux%kpocc(nland) * casapool%Psoilocc(nland)
              ! P loss to non-available P pools
              !      casaflux%Ploss(nland)        = casaflux%kpocc(nland) * casapool%Psoilocc(nland)
