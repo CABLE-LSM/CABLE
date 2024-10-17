@@ -29,6 +29,25 @@ USE mpi,                    ONLY: MPI_Abort
 
 IMPLICIT NONE
 
+! Set some private parameters
+! To start the work on generalising the Met and subdiurnalisation process,
+! we give each possible variable an index to refer to in the subdiurnalisation
+! routine. The namelist can accept files for every variable, with unsupplied
+! filenames defaulting to empty strings. Since we're still passing every
+! possible file name to the Dataset generator, we need a consistent string
+! to stop the building process.
+REAL, PRIVATE, PARAMETER  :: SecDay = 86400.
+INTEGER, PRIVATE, PARAMETER  :: rain = 1, lwdn = 2, swdn = 3, pres = 4,&
+                                qair = 5, tmax = 6, tmin = 7, uwind = 8,&
+                                vwind = 9, wind = 10, vp0900 = 11, vp1500 = 12,&
+                                fdiff = 13, prevTmax = 14, nextTmin = 15,&
+                                nextvp0900 = 16, prevvp1500 = 17
+INTEGER, PRIVATE, PARAMETER  :: sp = kind(1.0)
+INTEGER, PRIVATE, PARAMETER  :: dp = KIND(1.0d0)
+INTEGER, PRIVATE, PARAMETER  :: nVariables = 13
+INTEGER, PRIVATE             :: ErrStatus
+TYPE(WEATHER_GENERATOR_TYPE), PRIVATE :: WG
+
 TYPE CRU_MET_TYPE
   REAL, DIMENSION(:), ALLOCATABLE :: MetVals
 END TYPE CRU_MET_TYPE
@@ -40,11 +59,11 @@ TYPE CRU_TYPE
   INTEGER   :: cYear              ! CABLE main year
   INTEGER   :: CTStep             ! Day of year I think?
   INTEGER   :: DtSecs             ! Size of the timestep in seconds
-  INTEGER   :: MetRecyc           ! Period of the met forcing recycling
+  INTEGER   :: MetRecycPeriod     ! Period of the met forcing recycling
   INTEGER   :: RecycStartYear     ! Year to start the met recycling
   INTEGER   :: Ktau
 
-  INTEGER, DIMENSION(10)    :: FileID, VarId    ! File and variable IDs for
+  INTEGER, DIMENSION(nVariables)    :: FileID, VarId    ! File and variable IDs for
   INTEGER                   :: NDepFId, NDepVId ! reading netCDF
 
   REAL, DIMENSION(:), ALLOCATABLE ::  avg_lwdn  ! Average longwave down rad,
@@ -57,26 +76,18 @@ TYPE CRU_TYPE
   LOGICAL   :: ReadDiffFrac       ! Read diff fraction or calculate it
   LOGICAL   :: LeapYears
 
-  LOGICAL, DIMENSION(10)    :: isRecycled
+  LOGICAL, DIMENSION(nVariables)    :: isRecycled
   LOGICAL, DIMENSION(:,:), ALLOCATABLE  :: LandMask ! The logical landmask
 
   CHARACTER(LEN=16)   :: CO2Method   ! Method for choosing atmospheric CO2
   CHARACTER(LEN=16)   :: NDepMethod     ! Method for choosing N deposition
 
-  TYPE(CRU_MET_TYPE), DIMENSION(12)   :: Met
+  TYPE(CRU_MET_TYPE), DIMENSION(nVariables) :: Met
 
   ! The spatio-temporal datasets we use to generate the forcing data.
-  TYPE(SPATIO_TEMPORAL_DATASET), DIMENSION(10)  :: MetDatasets
-  TYPE(SPATIO_TEMPORAL_DATASET)                 :: NDepDataset
+  TYPE(SPATIO_TEMPORAL_DATASET), DIMENSION(nVariables)  :: MetDatasets
+  TYPE(SPATIO_TEMPORAL_DATASET)                         :: NDepDataset
 END TYPE CRU_TYPE
-
-! Set some private parameters
-REAL, PRIVATE, PARAMETER  :: SecDay = 86400.
-INTEGER, PRIVATE, PARAMETER  :: rain = 1, lwdn = 2, swdn = 3, pres = 4, qair = 5,&
-                                tmax = 6, tmin = 7, uwind = 8, vwind = 9, fdiff = 10,&
-                                prevTmax = 11, nextTmin = 12
-INTEGER, PRIVATE, PARAMETER  :: sp = kind(1.0)
-INTEGER, PRIVATE             :: ErrStatus
 
 CONTAINS
 
@@ -96,10 +107,11 @@ SUBROUTINE CRU_INIT(CRU)
   TYPE(CRU_TYPE), INTENT(OUT)    :: CRU
 
   ! We want one filename for each variable, stored in a predefined index.
-  CHARACTER(LEN=256), dimension(13) :: InputFiles
+  CHARACTER(LEN=256), DIMENSION(nVariables) :: InputFiles
+  CHARACTER(LEN=256)  :: nDepFile, CO2File, LandmaskFile
 
   ! Landmask to spatially filter the data
-  INTEGER, DIMENSION(:,:), ALLOCATABLE  :: LandMask
+  INTEGER, DIMENSION(:,:), ALLOCATABLE  :: Landmask
 
   ! Iterator variable for the variables
   INTEGER   :: VarIndx
@@ -111,52 +123,55 @@ SUBROUTINE CRU_INIT(CRU)
   ! Start with the things we want from the namelist. The namelist must set
   ! the filenames to read from, the method of choosing atmospheric carbon and
   ! nitrogen deposition, and the timestep.
-  CALL read_MET_namelist_cbl(InputFiles, CRU)
+  CALL read_MET_namelist_cbl(InputFiles, nDepFile, CO2File, LandmaskFile, CRU)
 
   ! Read the landmask and allocate appropriate memory for the array variables
-  CALL read_landmask(InputFiles(13), CRU)
+  CALL read_landmask(LandmaskFile, CRU)
 
   ! Build the spatio-temporal datasets for each necessary datatype
-  BuildKeys: DO VarIndx = 1, CRU%nMet
-    CALL prepare_spatiotemporal_dataset(InputFiles(VarIndx),&
-      CRU%MetDatasets(VarIndx))
+  BuildKeys: DO VarIndx = 1, nVariables
+    ! Check whether the file has been defined in the namelist
+    IF (TRIM(InputFiles(VarIndx)) /= "None") THEN
+      CALL prepare_spatiotemporal_dataset(InputFiles(VarIndx),&
+        CRU%MetDatasets(VarIndx))
+    END IF
   END DO BuildKeys
 
   ! Set the possible variable names for the main Met variables
   CALL read_variable_names(CRU%MetDatasets)
 
-  ! Open the datasets at the first file so we don't need CALL1 behaviour later
-  InitialiseDatasets: DO VarIndx = 1, CRU%nMet
-    CALL open_at_first_file(CRU%MetDatasets(VarIndx))
-  END DO InitialiseDatasets
-
   ! Set up the carbon reader
-  CALL prepare_temporal_dataset(InputFiles(11), CRU%CO2Vals)
+  CALL prepare_temporal_dataset(CO2File, CRU%CO2Vals)
 
-  ! Set up the nitrogen deposition reader
-  CALL prepare_spatiotemporal_dataset(InputFiles(12), CRU%NDepDataset)
-  ! For now, set the file index to 1 since we know its only one file
-  CRU%NDepDataset%CurrentFileIndx = 1
+  ! Set up the nitrogen deposition reader (if defined in the namelist)
+  IF (TRIM(nDepFile) /= "None") THEN
+    CALL prepare_spatiotemporal_dataset(nDepFile, CRU%NDepDataset)
+    ! For now, set the file index to 1 since we know its only one file
+    CRU%NDepDataset%CurrentFileIndx = 1
 
-  ok = NF90_OPEN(CRU%NDepDataset%Filenames(1), NF90_NOWRITE,&
-    CRU%NDepFID)
-  CALL handle_err(ok, "Opening NDep file")
+    ok = NF90_OPEN(CRU%NDepDataset%Filenames(1), NF90_NOWRITE,&
+      CRU%NDepFID)
+    CALL handle_err(ok, "Opening NDep file")
 
-  ok = NF90_INQ_VARID(CRU%NDepFID, "N_deposition",&
-    CRU%NDepVID)
-  CALL handle_err(ok, "Finding NDep variable")
+    ok = NF90_INQ_VARID(CRU%NDepFID, "N_deposition",&
+      CRU%NDepVID)
+    CALL handle_err(ok, "Finding NDep variable")
+  END IF
+
+  ! Initialise the weather generator
+  CALL WGEN_INIT(WG, CRU%mLand, Latitude, REAL(CRU%DtSecs))
+
 END SUBROUTINE CRU_INIT
 
-
-SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)
+SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau)
 
   ! Obtain one day of CRU-NCEP meteorology, subdiurnalise it using a weather
   ! generator and return the result to the CABLE driver.
 
   IMPLICIT NONE
 
-  TYPE(CRU_TYPE), INTENT(inout) :: CRU
-  INTEGER,        INTENT(IN)    :: CurYear, ktau, kend
+  TYPE(CRU_TYPE), INTENT(INOUT) :: CRU
+  INTEGER,        INTENT(IN)    :: CurYear, ktau
 
   ! Define MET the CABLE version, different from the MET defined and used
   ! within the CRU variable.
@@ -164,6 +179,7 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)
   type(MET_TYPE) :: MET
 
   ! Local variables
+
   logical   :: newday, LastDayOfYear  ! Flags for occurence of a new day (0 hrs) and the last day of the year.
   INTEGER   :: iland                  ! Loop counter through 'land' cells (cells in the spatial domain)
   INTEGER   :: itimestep              ! Loop counter through subdiurnal timesteps in a day
@@ -173,7 +189,6 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)
   REAL      :: dt                     ! Timestep in seconds
  ! Store the CO2Air as an array
   REAL, DIMENSION(:), ALLOCATABLE    :: CO2air                 ! CO2 concentration in ppm
-  type(WEATHER_GENERATOR_TYPE), save :: WG
   logical,                      save :: CALL1 = .true.  ! A *local* variable recording the first call of this routine
   INTEGER :: VarIter
 
@@ -187,7 +202,6 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)
         cable_user%calc_fdiff = .true.
      endif
 
-     call WGEN_INIT(WG, CRU%mland, latitude, dt)
   endif
 
   ! Pass time-step information to CRU
@@ -237,9 +251,8 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)
      !print *, CRU%CTSTEP, ktau, kend
      !   CALL CPU_TIME(etime)
      !   PRINT *, 'b4 daily ', etime, ' seconds needed '
-     LastDayOfYear = ktau == (kend-(nint(SecDay/dt)-1))
 
-     call CRU_GET_DAILY_MET(CRU, LastDayOfYear)
+     call GET_DAILY_MET(CRU)
      ! Scale presuure to hPa
      CRU%Met(pres)%MetVals(:) = CRU%Met(pres)%MetVals(:) / 100.
 
@@ -367,9 +380,132 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)
 
 end subroutine CRU_GET_SUBDIURNAL_MET
 
-SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
+SUBROUTINE BIOS_GET_SUBDIURNAL_MET(CRU, Met, CurYear, ktau)
+  !*## Purpose
+  !
+  ! Use provided daily meteorology to prepare the inputs to the weather
+  ! generator.
+  !
+  !## Method
+  !
+  ! Uses the current date to retrieve the relevant entry from the respective
+  ! variable datasets, and process them into quantities appropriate for the
+  ! subdiurnal weather generator.
+
+  TYPE(CRU_TYPE), INTENT(INOUT) :: CRU  ! Meta information about the Met config
+  TYPE(MET_TYPE), INTENT(INOUT) :: Met  ! The Met data storage
+  INTEGER, INTENT(IN) :: CurYear, ktau  ! Time from the driver run loop
+
+  LOGICAL :: NewDay     ! New day checker
+  INTEGER :: iLand      ! Land point iterator
+  INTEGER :: is, ie     ! Tile iterators
+  INTEGER :: dM, dD     ! date month and day
+  REAL    :: Dt         ! Timestep as real (why is not real originally?)
+
+  REAL, DIMENSION(:), ALLOCATABLE :: CO2Air   ! CO2 concentration array
+  REAL, PARAMETER :: RMWbyRMA = 0.62188471  ! Mol wt H20 / atom wt C
+
+  ! Convert timestep to real
+  Dt = CRU%DtSecs
+
+  ! Set the current time
+  Met%hod(:) = REAL(MOD((ktau-1) * NINT(Dt), INT(SecDay))) / 3600.
+  Met%doy(:) = INT(REAL(ktau-1) * Dt / SecDay ) + 1
+  Met%year(:) = CurYear
+
+  CALL DOYSOD2YMDHMS(CurYear, INT(MET%doy(1)), INT(met%hod(1)) * 3600, dM, dD)
+  Met%moy(:) = dM
+
+  ! Check for a new day
+  NewDay = EQ(Met%hod(landpt(1)%cstart), 0.0)
+
+  ! Allocate CO2 memory
+  ALLOCATE(CO2Air(SIZE(Met%ca)))
+
+  ! Beginning of year accounting
+  IF (ktau == 1) THEN
+    CRU%CTStep = 1
+    ! Read a new annual CO2 value and convert it from ppm to mol/mol
+    CALL GET_CRU_CO2(CRU, CO2air)
+    Met%ca(:) = CO2air(:) / 1.0e6
+
+    CALL GET_CRU_Ndep(CRU)
+    DO iland = 1, CRU%mland
+       Met%Ndep(landpt(iland)%cstart:landpt(iland)%cend) = &
+            CRU%NdepVALS(iland)*86400000.  ! kg/m2/s > g/m2/d (1000.*3600.*24.)
+    END DO
+  END IF
+
+  ! Beginning of day accounting
+  IF (NewDay) THEN
+    CALL GET_DAILY_MET(CRU)
+
+    ! Map to weather generator
+    WG%TempMinDay = CRU%Met(Tmin)%MetVals
+    WG%TempMaxDay = CRU%Met(Tmax)%MetVals
+
+    WG%VapPmbDay = ESATF(CRU%Met(Tmin)%MetVals)
+    WG%VapPmb0900 = CRU%Met(vp0900)%MetVals
+    WG%VapPmb1500 = CRU%Met(vp1500)%MetVals
+
+    ! NOTE- this section is incorrect, and is currently left incorrect for
+    ! bitwise compatibility.
+    ! TODO: Correct this after bitwise comparisons to incorrect version
+    WG%TempMaxDayPrev = CRU%Met(Tmax)%MetVals
+    WG%TempMinDayNext = CRU%Met(Tmin)%MetVals
+    WG%VapPmb1500Prev = CRU%Met(vp1500)%MetVals
+    WG%VapPmb0900Next = CRU%Met(vp0900)%MetVals
+
+    ! End TODO
+    ! Continue mapping to weather generator
+    WG%WindDay = CRU%Met(wind)%MetVals
+    WG%SolarMJDay = CRU%Met(swdn)%MetVals
+    WG%PrecipDay = CRU%Met(rain)%MetVals / 1000
+    WG%PmbDay = 1000.0
+
+    ! Do snow conversion
+    SnowConversion: DO iLand = 1, SIZE(WG%TempMinDay)
+      IF (WG%TempMinDay(iLand) < -2.0) THEN
+        WG%SnowDay(iLand) = WG%PrecipDay(iLand)
+        WG%PrecipDay(iLand) = 0.0
+      ELSE
+        WG%SnowDay(iLand) = 0.0
+      END IF
+    END DO SnowConversion
+  END IF  ! End start of day accounting
+
+  CALL WGEN_SUBDIURNAL_MET(WG, CRU%mLand, NINT(Met%hod(1) * 3600.0 / Dt))
+
+  ! Now pass the data out to the land tiles
+  PassToTiles: DO iLand = 1, CRU%mLand
+    is = LandPt(iLand)%cStart
+    ie = LandPt(iLand)%cEnd
+
+    Met%Precip(is:ie)     = REAL(WG%Precip(iLand), sp)
+    Met%Precip_sn(is:ie)  = REAL(WG%Snow(iLand), sp)
+    ! Why is it done this way? Doesn't make much sense
+    Met%Precip(is:ie)     = Met%Precip(is:ie) + Met%Precip_sn(is:ie)
+    Met%fld(is:ie)        = REAL(WG%PhilD(iLand), sp)
+    Met%fsd(is:ie,1)      = REAL(WG%PhiSD(iLand) * 0.5_dp, sp)
+    Met%fsd(is:ie,2)      = REAL(WG%PhiSD(iLand) * 0.5_dp, sp)
+    Met%tk(is:ie)         = REAL(WG%Temp(iLand) + 273.15_dp, sp)
+    ! Factor of 2 to convert 2m screen height to 40m zref (??)
+    Met%ua(is:ie)         = REAL(WG%Wind(iLand) * 2.0_dp, sp)
+    Met%coszen(is:ie)     = REAL(WG%coszen(iLand), sp)
+    Met%qv(is:ie)         = REAL(WG%VapPmb(iLand) / WG%Pmb(iLand), sp) *&
+                            RMWbyRMA
+    Met%Pmb(is:ie)        = REAL(WG%Pmb(iLand), sp)
+    Met%rhum(is:ie)       = REAL(WG%VapPmb(iLand), sp) /&
+                            ESATF(REAL(WG%Temp(iLand), sp)) * 100.0
+    Met%u10(is:ie)        = Met%ua(is:ie)
+    Met%tvair(is:ie)      = Met%tk(is:ie)
+    Met%tvrad(is:ie)      = Met%tk(is:ie)
+  END DO PassToTiles
+
+END SUBROUTINE BIOS_GET_SUBDIURNAL_MET
+    
+SUBROUTINE get_daily_met(CRU)
   TYPE(CRU_TYPE), INTENT(INOUT)   :: CRU
-  LOGICAL, INTENT(IN)             :: LastDayOfYear
 
   ! The year of met forcing we use depends on our choice of configuration.
   ! Sometimes, recycle through a subset of data, and others we use the sim year.
@@ -384,7 +520,7 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
   INTEGER   :: VarIndx
 
   ! Determine the recycled and sim year
-  RecycledYear = CRU%RecycStartYear + MOD(CRU%cYear - 1501, CRU%metRecyc)
+  RecycledYear = CRU%RecycStartYear + MOD(CRU%cYear - 1501, CRU%MetRecycPeriod)
 
   ! Iterate through the base variables
   IterateVariables: DO VarIndx = 1, CRU%nMet
@@ -408,7 +544,7 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
   ! opening and closing the io stream unnecessarily, but I think it's a minor
   ! evil.
 
-  ! Address prevTmax first
+  ! Address previous variables first
   ! Assume it's a regular day of the year
   DummyYear = CRU%cYear
   DummyDay = CRU%CTStep - 1
@@ -423,9 +559,10 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
     END IF
   END IF
 
-  ! Was the Tmax recycled?
+  ! Now we have to handle each of the "prev" variables individually
+  ! Tmax
   IF (CRU%isRecycled(Tmax)) THEN
-    DummyYear = CRU%RecycStartYear + MOD(DummyYear - 1501, CRU%metRecyc)
+    DummyYear = CRU%RecycStartYear + MOD(DummyYear - 1501, CRU%MetRecycPeriod)
   END IF
 
   ! Now we just need to call cru_read_metvals with the Tmax Dataset reader and
@@ -434,7 +571,31 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
     land_y, DummyYear, DummyDay, CRU%LeapYears, CRU%xDimSize, CRU%yDimSize,&
     CRU%DirectRead)
 
-  ! Now do nextTmin
+  ! vp0900
+  DummyYear = CRU%cYear
+  DummyDay = CRU%CTStep - 1
+
+  ! Special handling at the first day of the year
+  IF (CRU%CTSTEP == 1) THEN
+    ! Go back to previous year
+    DummyYear = CRU%cYear - 1
+    DummyDay = 365
+    IF ((CRU%LeapYears) .AND. (is_leapyear(DummyYear))) THEN
+      DummyDay = 366
+    END IF
+  END IF
+
+  IF (CRU%isRecycled(vp1500)) THEN
+    DummyYear = CRU%RecycStartYear + MOD(DummyYear - 1501, CRU%MetRecycPeriod)
+  END IF
+
+  ! Now we just need to call cru_read_metvals with the Tmax Dataset reader and
+  ! the prevTmax array to write to
+  CALL read_metvals(CRU%MetDatasets(vp1500), CRU%Met(prevvp1500)%MetVals, land_x,&
+    land_y, DummyYear, DummyDay, CRU%LeapYears, CRU%xDimSize, CRU%yDimSize,&
+    CRU%DirectRead)
+
+  ! Now do "next" variables
   ! Assume it's a regular day of the year
   DummyDay = CRU%CTStep + 1
   DummyYear = CRU%cYear
@@ -451,18 +612,43 @@ SUBROUTINE cru_get_daily_met(CRU, LastDayOfYear)
     DummyYear = CRU%cYear + 1
   END IF
 
-  ! Was the Tmin recycled?
+  ! Now we have to handle each of the "next" variables individually
+  ! Tmax
   IF (CRU%isRecycled(Tmin)) THEN
-    DummyYear = CRU%RecycStartYear + MOD(DummyYear - 1501, CRU%metRecyc)
+    DummyYear = CRU%RecycStartYear + MOD(DummyYear - 1501, CRU%MetRecycPeriod)
   END IF
 
   CALL read_metvals(CRU%MetDatasets(Tmin), CRU%Met(nextTmin)%MetVals, land_x,&
     land_y, DummyYear, DummyDay, CRU%LeapYears, CRU%xDimSize, CRU%yDimSize,&
     CRU%DirectRead)
 
-END SUBROUTINE cru_get_daily_met
+  ! vp1500
+  DummyDay = CRU%CTStep + 1
+  DummyYear = CRU%cYear
 
-SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
+  ! Special handling at the last day of the year
+  DaysInYear = 365
+  IF ((CRU%LeapYears) .AND. (is_leapyear(DummyYear))) THEN
+    DaysInYear = 366
+  END IF
+
+  IF (CRU%CTStep == DaysInYear) THEN
+    ! We're at the end of a year
+    DummyDay = 1
+    DummyYear = CRU%cYear + 1
+  END IF
+
+  IF (CRU%isRecycled(vp0900)) THEN
+    DummyYear = CRU%RecycStartYear + MOD(DummyYear - 1501, CRU%MetRecycPeriod)
+  END IF
+
+  CALL read_metvals(CRU%MetDatasets(vp0900), CRU%Met(nextvp0900)%MetVals,&
+    land_x, land_y, DummyYear, DummyDay, CRU%LeapYears, CRU%xDimSize,&
+    CRU%yDimSize, CRU%DirectRead)
+END SUBROUTINE get_daily_met
+
+SUBROUTINE read_MET_namelist_cbl(InputFiles, nDepFile, CO2File, LandmaskFile,&
+    CRU)
   !*## Purpose
   !
   ! Set the metadata for the met forcing.
@@ -478,7 +664,8 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   ! pack them into a more convenient data structure. We don't expect the user
   ! to know the order in which we store the MET inputs internally, so we need
   ! to access them by name.
-  CHARACTER(LEN=256), DIMENSION(13), INTENT(OUT) :: InputFiles
+  CHARACTER(LEN=256), DIMENSION(nVariables), INTENT(OUT) :: InputFiles
+  CHARACTER(LEN=256), INTENT(OUT) :: CO2File, nDepFile, LandmaskFile
 
   TYPE(CRU_TYPE), INTENT(OUT)  :: CRU    ! The master CRU structure
 
@@ -488,13 +675,14 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   ! expected in. So we first read them from a recognisable name, then pass them
   ! to the array.
   CHARACTER(LEN=256)  :: rainFile, lwdnFile, swdnFile, presFile, qairFile,&
-                         TmaxFile, TminFile, uwindFile, vwindFile, fdiffFile,&
-                         CO2File, NDepFile, landmaskFile
+                         TmaxFile, TminFile, uwindFile, vwindFile, windFile,&
+                         vp0900File, vp1500File, fdiffFile
   LOGICAL             :: rainRecycle, lwdnRecycle, swdnRecycle, presRecycle,&
                          qairRecycle, TmaxRecycle, TminRecycle, uwindRecycle,&
-                         vwindRecycle, fdiffRecycle
+                         vwindRecycle, windRecycle, vp0900Recycle,&
+                         vp1500Recycle, fdiffRecycle
   CHARACTER(LEN=16)   :: CO2Method, NDepMethod
-  INTEGER             :: MetRecyc, RecycStartYear
+  INTEGER             :: MetRecycPeriod, RecycStartYear
   REAL                :: DtHrs
   LOGICAL             :: ReadDiffFrac, LeapYears, DirectRead
 
@@ -507,9 +695,9 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
                     CO2File, NDepFile, landmaskFile,&
                     rainRecycle, lwdnRecycle, swdnRecycle, presRecycle,&
                     qairRecycle, TmaxRecycle, TminRecycle, uwindRecycle,&
-                    vwindRecycle, fdiffRecycle,&
-                    ReadDiffFrac, CO2Method, NDepMethod, MetRecyc, LeapYears,&
-                    RecycStartYear, DtHrs, DirectRead
+                    vwindRecycle, windRecycle, vp0900Recycle, vp1500Recycle,&
+                    fdiffRecycle, ReadDiffFrac, CO2Method, NDepMethod,&
+                    MetRecycPeriod, LeapYears, RecycStartYear, DtHrs, DirectRead
 
   ! Set the initial values for the filenames, as there are many instances where
   ! not all are required. We will set them all initially to "None", which we
@@ -523,10 +711,13 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   TminFile = "None"
   uwindFile = "None"
   vwindFile = "None"
+  windFile = "None"
+  vp0900File = "None"
+  vp1500File = "None"
   fdiffFile = "None"
   CO2File = "None"
   NDepFile = "None"
-  landmaskFile = "None"
+  LandmaskFile = "None"
 
   ! For the recycling booleans
   rainRecycle = .FALSE.
@@ -538,12 +729,15 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   TminRecycle = .FALSE.
   uwindRecycle = .FALSE.
   vwindRecycle = .FALSE.
+  windRecycle = .FALSE.
+  vp0900Recycle = .FALSE.
+  vp1500Recycle = .FALSE.
   fdiffRecycle = .FALSE.
 
   ! Defaults for the other inputs
   CO2Method = "Yearly"
   NDepMethod = "Yearly"
-  MetRecyc = 20
+  MetRecycPeriod = 20
   RecycStartYear = 1901
   DtHrs = 3.0
   LeapYears = .FALSE.
@@ -566,10 +760,10 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   InputFiles(Tmin) = TminFile
   InputFiles(uwind) = uwindFile
   InputFiles(vwind) = vwindFile
+  InputFiles(wind) = windFile
+  InputFiles(vp0900) = vp0900File
+  InputFiles(vp1500) = vp1500File
   InputFiles(fdiff) = fdiffFile
-  InputFiles(11) = CO2File
-  InputFiles(12) = NDepFile
-  InputFiles(13) = landmaskFile
 
   ! Set the recycling booleans in the CRU struct
   CRU%IsRecycled(rain) = rainRecycle
@@ -588,7 +782,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   CRU%NDepMethod = NDepMethod
   ! Convert the hourly timestep to seconds
   CRU%DtSecs = int(DtHrs * 3600.)
-  CRU%MetRecyc = MetRecyc
+  CRU%MetRecycPeriod= MetRecycPeriod
   CRU%RecycStartYear = RecycStartYear
   CRU%ReadDiffFrac = ReadDiffFrac
   CRU%LeapYears = LeapYears
@@ -617,27 +811,25 @@ SUBROUTINE read_variable_names(STDatasets)
   ! contains, for each variable, the number of possible names to ```ALLOCATE```
   ! string arrays, and then the string arrays themselves.
 
-  TYPE(SPATIO_TEMPORAL_DATASET), DIMENSION(10)  :: STDatasets
+  TYPE(SPATIO_TEMPORAL_DATASET), DIMENSION(nVariables)  :: STDatasets
 
   ! We need a unit to reference the namelist file, arrays to store the set of
   ! names for each variable, and integers to store how many names there are for
-  ! each variable. We set the size of the name arrays to 10 for now, because it
-  ! seems sufficient. If it ever ends up requiring more, it's probably an
-  ! indication we should switch to option 1.
+  ! each variable.
   INTEGER   :: nmlUnit
-  CHARACTER(LEN=32), DIMENSION(10)    :: rainNames, lwdnNames, swdnNames,&
-                                         presNames, qairNames, TmaxNames,&
-                                         TminNames, uWindNames, vWindNames,&
-                                         fdiffNames
+  CHARACTER(LEN=32)   :: rainNames, lwdnNames, swdnNames, presNames, qairNames,&
+                         TmaxNames, TminNames, uWindNames, vWindNames,&
+                         windNames, vp0900Names, vp1500Names, fdiffNames
 
   INTEGER   :: rainNo, lwdnNo, swdnNo, presNo, qairNo, TmaxNo, TminNo, uwindNo,&
-               vwindNo, fdiffNo
+               vwindNo, windNo, vp0900No, vp1500No, fdiffNo
 
   ! Set up and read the namelist
   NAMELIST /MetNames/ rainNames, lwdnNames, swdnNames, presNames, qairNames,&
-                    TmaxNames, TminNames, uwindNames, vwindNames, fdiffNames,&
+                    TmaxNames, TminNames, uwindNames, vwindNames, windNames,&
+                    vp0900Names, vp1500Names, fdiffNames,&
                     rainNo, lwdnNo, swdnNo, presNo, qairNo, TmaxNo, TminNo,&
-                    uwindNo, vwindNo, fdiffNo
+                    uwindNo, vwindNo, windNo, vp0900No, vp1500No, fdiffNo
 
   CALL get_unit(nmlUnit)
   OPEN(nmlUnit, FILE = "met_names.nml", STATUS = 'old', ACTION = 'read')
@@ -649,7 +841,9 @@ SUBROUTINE read_variable_names(STDatasets)
     STDatasets(3)%VarNames(swdnNo), STDatasets(4)%VarNames(presNo),&
     STDatasets(5)%VarNames(qairNo), STDatasets(6)%VarNames(TmaxNo),&
     STDatasets(7)%VarNames(TminNo), STDatasets(8)%VarNames(uwindNo),&
-    STDatasets(9)%VarNames(vwindNo), STDatasets(10)%VarNames(fdiffNo))
+    STDatasets(9)%VarNames(vwindNo), STDatasets(10)%VarNames(windNo),&
+    STDatasets(11)%VarNames(vp0900No), STDatasets(12)%VarNames(vp1500No),&
+    STDatasets(13)%VarNames(fdiffNo))
 
   STDatasets(1)%VarNames = rainNames(1:rainNo)
   STDatasets(2)%VarNames = lwdnNames(1:lwdnNo)
@@ -660,7 +854,11 @@ SUBROUTINE read_variable_names(STDatasets)
   STDatasets(7)%VarNames = TminNames(1:TminNo)
   STDatasets(8)%VarNames = uwindNames(1:uwindNo)
   STDatasets(9)%VarNames = vwindNames(1:vwindNo)
-  STDatasets(10)%VarNames = fdiffNames(1:fdiffNo)
+  STDatasets(10)%VarNames = windNames(1:windNo)
+  STDatasets(11)%VarNames = vp0900Names(1:vp0900No)
+  STDatasets(12)%VarNames = vp1500Names(1:vp1500No)
+  STDatasets(13)%VarNames = fdiffNames(1:fdiffNo)
+
 END SUBROUTINE read_variable_names
 
 !------------------------------------------------------------------------------!
@@ -727,6 +925,9 @@ SUBROUTINE read_landmask(LandmaskFile, CRU)
   ALLOCATE(LandMask(xDimSize, yDimSize))
   ALLOCATE(CRU%LandMask(xDimSize, yDimSize))
   ok = NF90_INQ_VARID(FileID, 'land', LandID)
+  IF (ok == NF90_NOERR) THEN
+    ok = NF90_INQ_VARID(FileID, 'AWAP BIOS Australia Mask (modelled=1, not modelled = -9999)', LandID)
+  END IF
   CALL handle_err(ok, "Error finding land VARID.")
   ok = NF90_GET_VAR(FileID, LandID, LandMask)
   CALL handle_err(ok, "Error reading land variable.")
