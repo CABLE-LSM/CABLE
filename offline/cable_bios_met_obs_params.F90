@@ -622,734 +622,7 @@ CONTAINS
   READ (iunit, NML=biosnml)
   CLOSE(iunit)
 
-  metgrid = 'land'
-
-!%%%%%%%%%%%%%%%
-
-!print *,Run, met_path, param_path, landmaskflt_file, landmaskhdr_file, &
-!    rain_file, swdown_file, tairmax_file, tairmin_file, co2_file, &
-!    b1_file, b2_file, bulkdens1_kgm3_file, bulkdens2_kgm3_file, clayfrac1_file, clayfrac2_file, &
-!    csoil1_file, csoil2_file, depth1_m_file, depth2_m_file, hyk1sat_ms_file, hyk2sat_ms_file, & 
-!    psie1_m_file, psie2_m_file, siltfrac1_file, siltfrac2_file, wvol1fc_m3m3_file, wvol2fc_m3m3_file, &
-!    wvol1sat_m3m3_file, wvol2sat_m3m3_file, wvol1w_m3m3_file, wvol2w_m3m3_file
-
-!stop 'end test'
-
-  ! Assign MetForcing, CO2 and Ndep cases based only on the value of Run from bios namelist file
-  SELECT CASE (TRIM(Run))
-  CASE( "spinup" )       ! corresponds to S0_TRENDY in CRU
-    MetForcing = "recycled"
-    CO2     = "preind"
-    Ndep    = "preind"
-    WRITE(*   ,*)"Run = 'spinup': Therefore MetForcing = 'recycled', CO2 = 'preind', Ndep = 'preind'"
-    WRITE(logn,*)"Run = 'spinup': Therefore MetForcing = 'recycled', CO2 = 'preind', Ndep = 'preind'"
-  CASE( "premet" )    ! corresponds to S1_TRENDY in CRU
-    MetForcing = "recycled"
-    CO2     = "actual"
-    Ndep     = "actual"
-    WRITE(*   ,*)"Run = 'premet': Therefore MetForcing = 'recycled', CO2 = 'actual', Ndep = 'actual'"
-    WRITE(logn,*)"Run = 'premet': Therefore MetForcing = 'recycled', CO2 = 'actual', Ndep = 'actual'"
-  CASE( "standard" )    ! corresponds to S2_TRENDY in CRU
-    MetForcing = "actual"
-    CO2     = "actual"
-    Ndep     = "actual"
-    WRITE(*   ,*)"Run = 'standard': Therefore MetForcing = 'actual', CO2 = 'actual', Ndep = 'actual'"
-    WRITE(logn,*)"Run = 'standard': Therefore MetForcing = 'actual', CO2 = 'actual', Ndep = 'actual'"
-  CASE  default
-    WRITE(*   ,*)"Wrong Run in bios nml file: ",Run
-    WRITE(*   ,*)"Use: spinup, premet or standard!"
-    WRITE(*   ,*)"Program stopped"
-    WRITE(logn,*)"Wrong Run in bios nml file: ",Run
-    WRITE(logn,*)"Use: spinup, premet or standard!"
-    WRITE(logn,*)"Program stopped"
-    STOP  
-  END SELECT
-
-  ! Print settings
-  WRITE(*   ,*)"========================================= BIOS ============"
-  WRITE(*   ,*)"BIOS settings chosen:"
-  WRITE(*   ,*)" Run      = ",TRIM(Run)
-  WRITE(*   ,*)" MetForcing (assigned) : ",TRIM(MetForcing)
-  WRITE(*   ,*)" CO2     (assigned) : ",TRIM(CO2)
-  WRITE(*   ,*)" Ndep     (assigned) : ",TRIM(Ndep)
-  WRITE(*   ,*)" met_path      = ",TRIM(met_path)
-  WRITE(*   ,*)" param_path    = ",TRIM(param_path)
-  WRITE(*   ,*)" landmaskflt_file  = ",TRIM(landmaskflt_file)
-  WRITE(*   ,*)" landmaskhdr_file  = ",TRIM(landmaskhdr_file)
-  WRITE(*   ,*)" rain_file     = ",TRIM(rain_file)
-  WRITE(*   ,*)" swdown_file   = ",TRIM(swdown_file)
-  WRITE(*   ,*)" tairmax_file  = ",TRIM(tairmax_file)
-  WRITE(*   ,*)" tairmin_file  = ",TRIM(tairmin_file)
-  WRITE(*   ,*)" wind_file  = ",TRIM(wind_file)
-  WRITE(*   ,*)" vp0900_file  = ",TRIM(vp0900_file)
-  WRITE(*   ,*)" vp1500_file  = ",TRIM(vp1500_file)
-  WRITE(*   ,*)" co2_file      = ",TRIM(co2_file)
-  WRITE(*   ,*)" b1_file             = ",TRIM(b1_file)
-  WRITE(*   ,*)" b2_file             = ",TRIM(b2_file)
-  WRITE(*   ,*)" bulkdens1_kgm3_file = ",TRIM(bulkdens1_kgm3_file)
-  WRITE(*   ,*)" bulkdens2_kgm3_file = ",TRIM(bulkdens2_kgm3_file)
-  WRITE(*   ,*)" clayfrac1_file      = ",TRIM(clayfrac1_file)
-  WRITE(*   ,*)" clayfrac2_file      = ",TRIM(clayfrac2_file)
-  WRITE(*   ,*)" csoil1_file         = ",TRIM(csoil1_file)
-  WRITE(*   ,*)" csoil2_file         = ",TRIM(csoil2_file)
-  WRITE(*   ,*)" depth1_m_file       = ",TRIM(depth1_m_file)
-  WRITE(*   ,*)" depth2_m_file       = ",TRIM(depth2_m_file)
-  WRITE(*   ,*)" hyk1sat_ms_file     = ",TRIM(hyk1sat_ms_file)
-  WRITE(*   ,*)" hyk2sat_ms_file     = ",TRIM(hyk2sat_ms_file)
-  WRITE(*   ,*)" psie1_m_file        = ",TRIM(psie1_m_file)
-  WRITE(*   ,*)" psie2_m_file        = ",TRIM(psie2_m_file)
-  WRITE(*   ,*)" siltfrac1_file      = ",TRIM(siltfrac1_file)
-  WRITE(*   ,*)" siltfrac2_file      = ",TRIM(siltfrac2_file)
-  WRITE(*   ,*)" wvol1fc_m3m3_file   = ",TRIM(wvol1fc_m3m3_file)
-  WRITE(*   ,*)" wvol2fc_m3m3_file   = ",TRIM(wvol2fc_m3m3_file)
-  WRITE(*   ,*)" wvol1sat_m3m3_file  = ",TRIM(wvol1sat_m3m3_file)
-  WRITE(*   ,*)" wvol2sat_m3m3_file  = ",TRIM(wvol2sat_m3m3_file)
-  WRITE(*   ,*)" wvol1w_m3m3_file    = ",TRIM(wvol1w_m3m3_file)
-  WRITE(*   ,*)" wvol2w_m3m3_file    = ",TRIM(wvol2w_m3m3_file)
-  WRITE(*   ,*)" MVG_file    = ",TRIM(MVG_file)
-  WRITE(*   ,*)" c4frac_file    = ",TRIM(c4frac_file)
-  WRITE(*   ,*)" vegtypeigbp_file    = ",TRIM(vegtypeigbp_file)
-  WRITE(*   ,*)" avgannmax_fapar_file   = ",TRIM(avgannmax_fapar_file)
-  !WRITE(*   ,*)" slope_deg_file      = ",TRIM(slope_deg_file)
-  WRITE(*   ,*)" DT(secs): ",dels
-
-  WRITE(logn,*)"========================================= BIOS ============"
-  WRITE(logn,*)"BIOS settings chosen:"
-  WRITE(logn,*)" Run      = ",TRIM(Run)
-  WRITE(logn,*)" MetForcing (assigned) : ",TRIM(MetForcing)
-  WRITE(logn,*)" CO2     (assigned) : ",TRIM(CO2)
-  WRITE(logn,*)" Ndep     (assigned) : ",TRIM(Ndep)
-  WRITE(logn,*)" met_path      = ",TRIM(met_path)
-  WRITE(logn,*)" param_path    = ",TRIM(param_path)
-  WRITE(logn,*)" landmaskflt_file  = ",TRIM(landmaskflt_file)
-  WRITE(logn,*)" landmaskhdr_file  = ",TRIM(landmaskhdr_file)
-  WRITE(logn,*)" rain_file     = ",TRIM(rain_file)
-  WRITE(logn,*)" swdown_file   = ",TRIM(swdown_file)
-  WRITE(logn,*)" tairmax_file  = ",TRIM(tairmax_file)
-  WRITE(logn,*)" tairmin_file  = ",TRIM(tairmin_file)
-  WRITE(logn,*)" co2_file      = ",TRIM(co2_file)
-  WRITE(logn,*)" b1_file             = ",TRIM(b1_file)
-  WRITE(logn,*)" b2_file             = ",TRIM(b2_file)
-  WRITE(logn,*)" bulkdens1_kgm3_file = ",TRIM(bulkdens1_kgm3_file)
-  WRITE(logn,*)" bulkdens2_kgm3_file = ",TRIM(bulkdens2_kgm3_file)
-  WRITE(logn,*)" clayfrac1_file      = ",TRIM(clayfrac1_file)
-  WRITE(logn,*)" clayfrac2_file      = ",TRIM(clayfrac2_file)
-  WRITE(logn,*)" csoil1_file         = ",TRIM(csoil1_file)
-  WRITE(logn,*)" csoil2_file         = ",TRIM(csoil2_file)
-  WRITE(logn,*)" depth1_m_file       = ",TRIM(depth1_m_file)
-  WRITE(logn,*)" depth2_m_file       = ",TRIM(depth2_m_file)
-  WRITE(logn,*)" hyk1sat_ms_file     = ",TRIM(hyk1sat_ms_file)
-  WRITE(logn,*)" hyk2sat_ms_file     = ",TRIM(hyk2sat_ms_file)
-  WRITE(logn,*)" psie1_m_file        = ",TRIM(psie1_m_file)
-  WRITE(logn,*)" psie2_m_file        = ",TRIM(psie2_m_file)
-  WRITE(logn,*)" siltfrac1_file      = ",TRIM(siltfrac1_file)
-  WRITE(logn,*)" siltfrac2_file      = ",TRIM(siltfrac2_file)
-  WRITE(logn,*)" wvol1fc_m3m3_file   = ",TRIM(wvol1fc_m3m3_file)
-  WRITE(logn,*)" wvol2fc_m3m3_file   = ",TRIM(wvol2fc_m3m3_file)
-  WRITE(logn,*)" wvol1sat_m3m3_file  = ",TRIM(wvol1sat_m3m3_file)
-  WRITE(logn,*)" wvol2sat_m3m3_file  = ",TRIM(wvol2sat_m3m3_file)
-  WRITE(logn,*)" wvol1w_m3m3_file    = ",TRIM(wvol1w_m3m3_file)
-  WRITE(logn,*)" wvol2w_m3m3_file    = ",TRIM(wvol2w_m3m3_file)
-  WRITE(logn,*)" MVG_file    = ",TRIM(MVG_file)
-  WRITE(logn ,*)" c4frac_file    = ",TRIM(c4frac_file)
-  WRITE(logn,*)" vegtypeigbp_file    = ",TRIM(vegtypeigbp_file)
-  WRITE(logn,*)" avgannmax_fapar_file   = ",TRIM(avgannmax_fapar_file)
-  !WRITE(logn,*)" slope_deg_file      = ",TRIM(slope_deg_file)
-  WRITE(logn,*)" timestep in secs  = ",dels
-  WRITE(logn,*)" DT(secs): ",dels
-
-  WRITE(*   ,*)"========================================= BIOS ============"
-  WRITE(logn,*)"========================================= BIOS ============"
-  
-  ! Read the header file for the landmask file and parse it for dimensions
-  ! and no-data value. Allocate logical, integer (CABLE) and real (temporary
-  ! arrays for land masks.
-  
-  CALL GET_UNIT(iunit)
-  CALL ReadArcFltHeader(iunit,landmaskhdr_file,MaskCols,MaskRows,MaskBndW, & 
-       MaskBndS,MaskRes,NoDataVal)
-  CLOSE (iunit) 
- 
-  xdimsize = MaskCols
-  ydimsize = MaskRows
-  write(*,*) ' MaskCols,MaskRows', MaskCols, MaskRows 
-  ALLOCATE (LandMaskLogical(MaskCols,MaskRows))
-  ALLOCATE (mask           (MaskCols,MaskRows))   ! mask: CABLE's integer land mask
-  ALLOCATE (LandMaskReal   (MaskCols,MaskRows))
-  
-  ! Read the real land mask.
-  
-  CALL GET_UNIT(iunit)
-  OPEN (iunit,file=landmaskflt_file,access='stream',form='unformatted',status='old')
-  write(*,*) 'after landmask_flt_file open'
-  !READ (iunit) tmp
-  !READ (iunit) tmp
-  !write(*,*) tmp
-  REWIND (iunit) 
-  READ (iunit) LandMaskReal
-  write(*,*) 'after landmask_flt_file read'
-  CLOSE (iunit)
-  
-  ! Initialise CABLE (mask) and logical landmasks, and assign them from the  
-  ! real land mask. 
-  
-  mask = 0
-  LandMaskLogical = .false.
-  WHERE (NINT(LandMaskReal) > NINT(NoDataVal)) ! Where land...
-      mask = 1
-      LandMaskLogical = .true.
-  END WHERE
-  DEALLOCATE (LandMaskReal)
-    
-  mland = COUNT(LandMaskLogical)         ! mland: CABLE's count of land points
-  nmetpatches = 1
-  
-  ! Allocate vectors for supplying the lat/long and col/row pairs of each
-  ! land cell to cable.
-  ALLOCATE( latitude(mland), longitude(mland) )
-  ALLOCATE( land_y  (mland), land_x   (mland) )
-  
-  ! Populate a temporary integer grid with column numbers, then row numbers,
-  ! packing them with the landmask into the cable vectors that record the 
-  ! column and row numbers of the land cells.
-  ALLOCATE (ColRowGrid(MaskCols,MaskRows))
-  FORALL (icol=1:MaskCols) ColRowGrid(icol,:) = icol
-  land_x = PACK(ColRowGrid,mask=LandMaskLogical)
-  FORALL (irow=1:MaskRows) ColRowGrid(:,irow) = irow
-  land_y = PACK(ColRowGrid,mask=LandMaskLogical)
-
-! convert latitude and longitude to array
-  ALLOCATE (lat_all(MaskCols,MaskRows))
-  ALLOCATE (lon_all(MaskCols,MaskRows))
-  
-! Using the landmask grid boundaries and dimensions, translate the land  
-! cell cols and rows of land_x and land_y into corresponding lats and longs.
-  MaskCtrW = MaskBndW + (MaskRes / 2.0) ! Convert western and southern 
-  MaskCtrS = MaskBndS + (MaskRes / 2.0) ! boundaries to cell centres.
-
-  ! Populate the entirety of lon_all and lat_all grids with lons and lats
-! calculated from the dimensions of the mask from the mask header file.
-! This replaces the UNPACK of the latitude and longitude vectors to
-! eliminate occurrence of mask values anywhere on the grid, i.e.:
-!  lat_all = UNPACK(latitude,mask=LandMaskLogical,field=-9999.)
-  !  lon_all = UNPACK(longitude,mask=LandMaskLogical,field=-9999.)
- 
-  FORALL (icol=1:MaskCols) lon_all(icol,:) = MaskCtrW + (real(icol-1) * MaskRes)
- 
-  FORALL (irow=1:MaskRows) lat_all(:,irow) = (real(MaskRows - irow) * MaskRes) + MaskCtrS
-
- 
-  
-  DO iLand = 1,mland
-    longitude(iLand) = MaskRes * real((land_x(iLand) - 1)) + MaskCtrW
-    latitude(iLand) = MaskCtrS + (real(MaskRows - land_y(iLand)) * MaskRes)
-  END DO
-
-  !lat_all = UNPACK(latitude,mask=LandMaskLogical,field=-9999.)
-  !lon_all = UNPACK(longitude,mask=LandMaskLogical,field=-9999.)
-
-  
-
-  !Finished reading grids. Only mland vectors from now on.
-  DEALLOCATE (ColRowGrid)
-  DEALLOCATE (LandMaskLogical)
-
-! If this is the first ever initialisation, open the met files, sort
-! out the run's date range with respect to the available met data,
-! and allocate memory for met vars. Otherwise, just rewind the  
-! already-open met files.
-  IF (call1) then
-      
-    CALL open_bios_met()
-    ALLOCATE (   rain_day(mland))
-    ALLOCATE ( swdown_day(mland))
-    ALLOCATE (tairmax_day(mland))
-    ALLOCATE (tairmin_day(mland))
-    ALLOCATE (prev_tairmax_day(mland))
-    ALLOCATE (next_tairmin_day(mland))
-    ALLOCATE (wind_day(mland))
-    ALLOCATE (vp0900(mland))
-    ALLOCATE (vp1500(mland))
-    ALLOCATE (prev_vp1500(mland))
-    ALLOCATE (next_vp0900(mland))
-
-! Whether start and end dates are user specified or not, we need to know 
-! what the date range in the met files is, so dummy-read the rainfall.r
-    READ (rain_unit,IOSTAT=error_status) bios_startdate, rain_day
-    DO WHILE (error_status > 0)
-       READ (rain_unit,IOSTAT=error_status) bios_enddate, rain_day
-    END DO
-    REWIND (rain_unit)
-    
-! If the user-specified dates are zero, this means we should define the 
-! run length by the first and last dates in the met file. 
-    IF (cable_user%yearstart == 0 .and. cable_user%yearend == 0) THEN
-
-! Using date arithmetic, calculate the number of days in the bios run. 
-      bios_rundays =  DayDifference(bios_enddate, bios_startdate) + 1
-      skipdays = 0
-
-! Initialise the previous_date as one day before the bios_startdate,
-! using date arithmetic
-      previous_date = bios_startdate - 1
-      
-! Set the CABLE timing vars
-      curyear = bios_startdate%year  ! Current CABLE year set to BIOS start year
-      kend = ktauday * bios_rundays  ! Run endpoint is the number of timesteps
-                                     ! per day (ktauday) * num of days in run.
-
-      shod        = 0.
-      sdoy        = 1
-      smoy        = 1
-      syear       = curyear
-
-!      met%hod (landpt(:)%cstart) = 0 ! Cable run always starts at midnight
-!      met%doy (landpt(:)%cstart) = 1 ! Cable run always starts on Jan 1...
-!      met%year(landpt(:)%cstart) = curyear ! ...of the current year
-
-      cable_user%yearstart = bios_startdate%year
-      cable_user%yearend = bios_enddate%year
-      
-    ELSE
-! Dates are user specified, so they must be tested for compliance with the 
-! available met, and the CABLE timing parameters estimated.
-        
-! User-specified start & end dates are just years: convert them to dmy dates.
-      user_startdate = dmydate(1,1,cable_user%yearstart)
-      user_enddate   = dmydate(31,12,cable_user%yearend)
-      curyear = user_startdate%year  ! The initial current year is set prior to any skipping.
-      
-! Initialise the previous_date as one day before the user_startdate,
-! using date arithmetic.
-      previous_date = user_startdate - 1
-      shod        = 0.
-      sdoy        = 1
-      smoy        = 1
-      !syear       = 1690
-      syear = 1981
-      write(*,*) 'prev:',previous_date%year,previous_date%month,previous_date%day
-      write(*,*) 'run:',  user_startdate%year, user_startdate%month,  user_startdate%day      
-      ! For spinup and initialisation before bios met begins (1900),
-      ! calculate the required met year for repeatedly cycling through the
-      ! spinup meteorology between recycle_met_startdate - recycle_met_enddate (1900-1929).
-      ! For normal runs (e.g. 1900-2016), MetDate%Year = curyear.
-      MetDate%day = 1
-      MetDate%month = 1
-      IF (TRIM(MetForcing) .EQ. 'recycled') THEN
-         MetDate%Year = recycle_met_startdate + MOD(curyear-syear,recycle_met_enddate-recycle_met_startdate+1)
-         write(*,*) 'metdatestart,: ',  MetDate%Year,  recycle_met_startdate,  curyear, syear, &
-                       recycle_met_enddate, recycle_met_startdate,  MOD(curyear-syear,recycle_met_enddate-recycle_met_startdate+1)
-      ELSE IF (TRIM(MetForcing) .EQ. 'actual' ) THEN
-        MetDate%Year = curyear
-      ENDIF
-
-! The user-specified run startdate must be no earlier than the first available met.
-! Stop if the user startdate is mis-specified in this way.
-write(6,*) 'MetDate, bios_startdate=',MetDate, bios_startdate
-      skipdays = DayDifference(MetDate, bios_startdate)
-      IF (skipdays < 0) THEN
-        STOP "ERROR in cable_bios_init: user_startdate < bios_startdate"
-      END IF
-      
-      ! In this case the bios run is what is left of the bios met
-      ! after skipping to the user startdate.
-      bios_rundays = DayDifference(bios_enddate , user_startdate) + 1
-      kend = bios_rundays * ktauday  ! Final timestep
-
-!      met%hod (landpt(:)%cstart) = 0
-!      met%doy (landpt(:)%cstart) = 1
-!      met%year(landpt(:)%cstart) = curyear
-
-    END IF  ! End of test for user start/end dates set to zero.
-    
-! CO2 is handled as a special case because it is annual. 
-! Dummy-read the CO2 file to get the date range, of which
-! only the year is relevant to preserve.
-    READ (co2_unit,IOSTAT=error_status) dummydate, co2air_year
-    co2_startyear = dummydate%year
-
-    
-    DO WHILE (error_status > 0)
-       READ (co2_unit,IOSTAT=error_status) dummydate, co2air_year
-       co2_endyear = dummydate%year
-    END DO
-    REWIND (co2_unit)
-
-! From the curyear (the first year of relevant met), calculate how many
-! years of annual co2 records to skip so as to position so that the next
-! record to read will be the current year.
-    co2_skipyears = curyear - co2_startyear
-    
-! Initialise Weather Generator
-    CALL WGEN_INIT( WG, mland, latitude, dels )
-    
-! Record that the first call is now over.
-    call1 = .FALSE.
-     
-  ELSE ! Not the first ever initialisation, so just rewind the met files.
-    REWIND (rain_unit)
-    REWIND (swdown_unit)
-    REWIND (tairmax_unit)  
-    REWIND (tairmin_unit)
-     IF (TRIM(wind_file) .NE. 'none') THEN
-        REWIND (wind_unit)
-     ENDIF
-     IF (TRIM(vp0900_file) .NE. 'none') THEN
-        REWIND (vp0900_unit)
-     ENDIF
-     IF (TRIM(vp1500_file) .NE. 'none') THEN
-        REWIND (vp1500_unit)
-     ENDIF
-    REWIND (co2_unit)
-  END IF
-  
-  ! Regardless of whether this is the first or subsequent initialisation:
-  ! If skipdays > 0, the user_startdate is after the start of the met files, so
-  ! all the BIOS met files must be repositioned to that date by reading skipdays 
-  ! daily met records. 
-  DO iday = 1,skipdays
-    READ (rain_unit) dummydate, rain_day
-    READ (swdown_unit) dummydate, swdown_day
-    READ (tairmax_unit) dummydate, tairmax_day
-    READ (tairmin_unit) dummydate, tairmin_day
-    IF (TRIM(wind_file) .NE. 'none') THEN
-       READ (wind_unit) dummydate, wind_day          !
-    ENDIF
-    IF (TRIM(vp0900_file) .NE. 'none') THEN
-       READ (vp0900_unit) dummydate, vp0900          !
-    ENDIF
-    IF (TRIM(vp1500_file) .NE. 'none') THEN     
-       READ (vp1500_unit) dummydate, vp1500
-    ENDIF!
-
-  END DO
-  dummydate = dummydate + 1
-  IF (skipdays .gt. 0) THEN
-    write(*,*) 'Met skipped, ready to read from ',dummydate
-    write(logn,*) 'Met skipped, ready to read from ',dummydate
-  END IF
-  
-  ! Likewise, skip through the annual CO2 records to position for reading
-  ! the first relevant year.
-  DO iyear = 1,co2_skipyears
-     READ (co2_unit) dummydate, co2air_year
-  END DO
-  
-  CONTAINS
-
-    SUBROUTINE open_bios_met
-
-    IMPLICIT NONE
-    INTEGER :: error_status
-  
-  ! Open each met file for the first time, stopping if the file is not found.
-  
-    CALL GET_UNIT(rain_unit)  ! Rainfall
-    OPEN (rain_unit, FILE=TRIM(met_path)//TRIM(rain_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
-    IF (error_status > 0) THEN
-      WRITE (*,*) "STOP - File not found: ", TRIM(met_path)//TRIM(rain_file)
-      STOP ''
-    END IF
-  
-    CALL GET_UNIT(swdown_unit)  ! Shortwave downward solar radiation
-    OPEN (swdown_unit, FILE=TRIM(met_path)//TRIM(swdown_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
-         IOSTAT=error_status)
-    IF (error_status > 0) THEN
-      WRITE (*,*) "STOP - File not found: ", TRIM(met_path)//TRIM(swdown_file)
-      STOP ''
-    END IF
-  
-    CALL GET_UNIT(tairmax_unit)  ! Maximum air temperature
-    OPEN (tairmax_unit, FILE=TRIM(met_path)//TRIM(tairmax_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
-         IOSTAT=error_status)
-    IF (error_status > 0) THEN
-      WRITE (*,*) "STOP - File not found: ", TRIM(met_path)//TRIM(tairmax_file)
-      STOP ''
-    END IF   
-  
-    CALL GET_UNIT(tairmin_unit)  ! Minimum air temperature  
-    OPEN (tairmin_unit, FILE=TRIM(met_path)//TRIM(tairmin_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
-         IOSTAT=error_status)
-    IF (error_status > 0) THEN
-      WRITE (*,*) "STOP - File not found: ", TRIM(met_path)//TRIM(tairmin_file)
-      STOP ''
-   END IF
-
-   IF (TRIM(wind_file) .NE. 'none') THEN
-      CALL GET_UNIT(wind_unit)  ! wind speed  
-      OPEN (wind_unit, FILE=TRIM(met_path)//TRIM(wind_file), &
-           ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
-      IF (error_status > 0) THEN
-         WRITE (*,*) "STOP - File not found: ", TRIM(met_path)//TRIM(wind_file)
-         STOP ''
-      END IF
-   ENDIF
-   
-   IF (TRIM(vp0900_file) .NE. 'none') THEN
-      CALL GET_UNIT(vp0900_unit)  ! vp 0900  
-      OPEN (vp0900_unit, FILE=TRIM(met_path)//TRIM(vp0900_file), &
-           ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
-      IF (error_status > 0) THEN
-         WRITE (*,*) "STOP - File not found: ", TRIM(met_path)//TRIM(vp0900_file)
-         STOP ''
-      END IF
-   ENDIF
-   
-   IF (TRIM(vp1500_file) .NE. 'none') THEN
-      CALL GET_UNIT(vp1500_unit)  ! vp 1500
-      OPEN (vp1500_unit, FILE=TRIM(met_path)//TRIM(vp1500_file), &
-           ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
-      IF (error_status > 0) THEN
-         WRITE (*,*) "STOP - File not found: ", TRIM(met_path)//TRIM(vp1500_file)
-         STOP ''
-      END IF
-   ENDIF
-  
-    CALL GET_UNIT(co2_unit)  ! CO2
-    OPEN (co2_unit, FILE=TRIM(met_path)//TRIM(co2_file),&
-         ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
-    IF (error_status > 0) THEN
-      WRITE (*,*) "STOP - File not found: ", TRIM(met_path)//TRIM(co2_file)
-      STOP ''
-    END IF
-  
-    END SUBROUTINE open_bios_met 
-  
-  
-  END SUBROUTINE cable_bios_init 
-
-!******************************************************************************
-  
-  SUBROUTINE cable_bios_read_met(MET, CurYear, ktau, dels )
-  
-    ! Read a single day of meteorology from all bios met files, updating the bios_rundate
-    ! If a change of year has occurred, read an annual CO2 record
-    use mo_utils, only: eq
-    
-    IMPLICIT NONE
-
-    INTEGER, INTENT(IN)  :: CurYear, ktau
-    REAL, INTENT(IN) :: dels                        ! time step size in seconds
-    TYPE(MET_TYPE), INTENT(INOUT)       :: MET
-
-    LOGICAL(lgt)   :: newday
-!    real(sp),parameter:: RMW       = 0.018016 ! molecular wt of water     [kg/mol]
-!    real(sp),parameter:: RMA       = 0.02897 ! atomic wt of C            [kg/mol]
-    real(sp),parameter:: RMWbyRMA  = 0.62188471 ! molecular wt of water [kg/mol] / atomic wt of C [kg/mol]
-    integer(i4b)   :: iday
-    integer(i4b)   :: iland       ! Loop counter through mland land cells
-    integer(i4b)   :: is, ie      ! For each land cell, the start and ending index position within the larger cable spatial
-                                  ! vectors of the first and last tile for that land cell. 
-
-    met%hod (landpt(:)%cstart) = REAL(MOD( (ktau-1) * NINT(dels), INT(SecDay)) ) / 3600.
-    met%doy (landpt(:)%cstart) = INT(REAL(ktau-1) * dels / SecDay ) + 1
-    met%year(landpt(:)%cstart) = Curyear  
-
-    newday = eq(met%hod(landpt(1)%cstart), 0.0)
-    IF ( newday ) THEN
-       ! get current day's met
-       READ (rain_unit) bios_rundate, rain_day          ! Packed vector of daily AWAP/BIOS rain (mm) 
-
-       READ (swdown_unit) bios_rundate, swdown_day        ! Packed vector of daily AWAP/BIOS swdown (MJ)
-       READ (tairmax_unit) bios_rundate, tairmax_day       ! Packed vector of daily AWAP/BIOS max air temp (deg C)
-       READ (tairmin_unit) bios_rundate, tairmin_day       ! Packed vector of daily AWAP/BIOS min air temp (deg C)
-       IF (TRIM(wind_file) .NE. 'none') THEN
-          READ (wind_unit) bios_rundate, wind_day          !
-       ENDIF
-       IF (TRIM(vp0900_file) .NE. 'none') THEN
-          READ (vp0900_unit) bios_rundate, vp0900          !
-       ENDIF
-       IF (TRIM(vp1500_file) .NE. 'none') THEN     
-          READ (vp1500_unit) bios_rundate, vp1500
-       ENDIF
-
-       IF (MetDate /= bios_rundate) THEN
-         write(*,*) 'Expecting to read met for ',MetDate, &
-              'but actually read met for ',bios_rundate
-         write(*,*) 'Program stopped'
-         STOP
-       END IF
-
-       ! Increment MetDate. 
-       MetDate = MetDate + 1
-  
-       ! If MetForcing is 'recycled', check whether we need to rewind files and skip to correct position
-       if (MetForcing .eq. 'recycled') then
-         if (MetDate%Year .gt. recycle_met_enddate) then
-           MetDate%Day = 1
-           MetDate%Month = 1
-           MetDate%Year = recycle_met_startdate
-           skipdays = DayDifference(MetDate, bios_startdate)
-           write(*,*) 'skipdays', skipdays
-           REWIND (rain_unit)
-           REWIND (swdown_unit)
-           REWIND (tairmax_unit)
-           REWIND (tairmin_unit)
-           IF (TRIM(wind_file) .NE. 'none') THEN
-              REWIND (wind_unit)
-           ENDIF
-           IF (TRIM(vp0900_file) .NE. 'none') THEN
-              REWIND (vp0900_unit)
-           ENDIF
-           IF (TRIM(vp1500_file) .NE. 'none') THEN       
-              REWIND (vp1500_unit)
-           ENDIF
-           !REWIND (co2_unit)
-           DO iday = 1,skipdays
-             READ (rain_unit) dummydate, rain_day
-             READ (swdown_unit) dummydate, swdown_day
-             READ (tairmax_unit) dummydate, tairmax_day
-             READ (tairmin_unit) dummydate, tairmin_day
-             
-             IF (TRIM(wind_file) .NE. 'none') THEN
-                READ (wind_unit) dummydate, wind_day
-             ENDIF
-             IF (TRIM(vp0900_file) .NE. 'none') THEN           
-                READ (vp0900_unit) dummydate, vp0900
-             ENDIF
-             IF (TRIM(vp1500_file) .NE. 'none') THEN   
-                READ (vp1500_unit) dummydate, vp1500
-             ENDIF
-          END DO
-           dummydate = dummydate + 1
-           IF (skipdays .gt. 0) THEN
-              write(*,*) 'Met skipped, ready to read from ',dummydate
-            
-             write(logn,*) 'Met skipped, ready to read from ',dummydate
-           END IF
-         endif
-       endif
-
-       !! NB !! Peter to fix as in Cabledyn !!
-       !if (ktau.eq.1) then       
-       !    WG%TempMaxDayPrev =  tairmax_day
-       !else
-          WG%TempMaxDayPrev = WG%TempMaxDay
-       !endif
-
-       !if (ktau.ne.kend) then
-       !   READ (tairmin_unit) bios_rundate, next_tairmin_day       ! Packed vector of daily AWAP/BIOS min air temp (deg C)
-       !   BACKSPACE(tairmin_unit)
-       !endif
-
-       next_tairmin_day =   tairmin_day
-       prev_vp1500 = vp1500
-       next_vp0900 = vp0900
-
-        IF (TRIM(wind_file) .NE. 'none') THEN
-           WG%WindDay        = wind_day
-        ELSE
-           WG%WindDay        = 3.0
-        ENDIF
-       WG%TempMinDay     = tairmin_day  
-       WG%TempMaxDay     = tairmax_day  
-       WG%TempMinDayNext =  next_tairmin_day
-
-       WG%VapPmbDay = esatf(tairmin_day)
-
-       IF (TRIM(vp0900_file) .NE. 'none') THEN
-          WG%VapPmb0900 = vp0900
-          WG%VapPmb1500 = vp1500
-          WG%VapPmb1500Prev = prev_vp1500
-          WG%VapPmb0900Next = next_vp0900
-       
-       ELSE
-          WG%VapPmb0900 =  WG%VapPmbDay 
-          WG%VapPmb1500 =   WG%VapPmbDay 
-          WG%VapPmb1500Prev =  WG%VapPmbDay 
-          WG%VapPmb0900Next =  WG%VapPmbDay
-       ENDIF
-
-       if (swdown_file(1:4) .eq. 'rsds') then
-          WG%SolarMJDay     = swdown_day *3600.*24. *1.0e-6 ! Wm-2 -> MJm-2/Day
-       else
-          WG%SolarMJDay     = swdown_day
-       endif
-       WG%PrecipDay      = rain_day / 1000. ! ->[m/d]
-       where ( WG%TempMinDay.lt.-2.0) 
-          WG%SnowDay        =  rain_day / 1000. ! ->[m/d]
-          WG%PrecipDay      = 0.0
-       elsewhere
-          WG%SnowDay        = 0.0
-       end where
-  
-       WG%PmbDay = 1000.0 ! Air pressure in mb fixed in space and time
-
-       IF (previous_date%year .ne. bios_rundate%year) THEN
-         IF ( TRIM(CO2) .EQ. "preind") THEN
-           met%ca(:) = 286.42 / 1.e+6  ! CO2 for 1860
-         ELSE
-           READ (co2_unit) dummydate, co2air_year          ! Single global value of co2 (ppm)
-           met%ca(:) = CO2air_year / 1.e+6   
-        END IF
-         ! write(596,*), previous_date%year, bios_rundate%year, dummydate,  CO2air_year,  met%ca(1)*1.0e6
-      END IF
-
-      ! Finished operations for this day, so the current date becomes the previous date.  
-       previous_date = bios_rundate
-
-       CALL WGEN_DAILY_CONSTANTS( WG, mland, INT(met%doy(1))+1 )
-  
-    END IF
-
- CALL WGEN_SUBDIURNAL_MET( WG, mland, NINT(met%hod(1)*3600./dels) )
- 
- DO iland = 1,mland ! For each land cell...
-   is = landpt(iland)%cstart  ! Index position for the first tile of this land cell.
-   ie = landpt(iland)%cend    ! Index position for the last tile of this land cell.
-
-   met%precip(is:ie)    = real(WG%Precip(iland),sp)
-   met%precip_sn(is:ie) = real(WG%Snow(iland),sp)
-   ! combine Rainf and Snowf inputs
-   met%precip(is:ie)    = met%precip(is:ie) + met%precip_sn(is:ie)
-   met%fld(is:ie)       = real(WG%PhiLD(iland),sp)
-   met%fsd(is:ie,1)     = real(WG%PhiSD(iland) * 0.5_dp,sp)
-   met%fsd(is:ie,2)     = real(WG%PhiSD(iland) * 0.5_dp,sp)
-   met%tk(is:ie)        = real(WG%Temp(iland) + 273.15_dp,sp)
-   ! factor of 2 to convert from 2m screen height to 40 m zref, assuming logarithmic profile
-   met%ua(is:ie)        = real(WG%Wind(iland) * 2.0_dp,sp)
-   met%coszen(is:ie)    = real(WG%coszen(iland),sp)
-   met%qv(is:ie)        = real(WG%VapPmb(iland)/WG%Pmb(iland),sp)*RMWbyRMA ! specific humidity (kg/kg)
-   met%pmb(is:ie)       = real(WG%Pmb(iland),sp)
-   met%rhum(is:ie)      = real(WG%VapPmb(iland),sp)/esatf(real(WG%Temp(iland),sp)) * 100.0 ! rel humidity (%)
-   met%u10(is:ie)       = met%ua(is:ie) 
-   ! initialise within canopy air temp
-   met%tvair(is:ie)     = met%tk(is:ie) 
-   met%tvrad(is:ie)     = met%tk(is:ie)
-end do
-
-  
-
-!*******************************************************************************
-CONTAINS
-  ELEMENTAL FUNCTION Esatf(TC)
-!-------------------------------------------------------------------------------
-! At temperature TC [deg C], return saturation water vapour pressure Esatf [mb] 
-! from Teten formula.
-! MRR, xx/1987
-! PRB, 09/1999:   Convert to F95 elemental function; works on scalars and arrays
-!                 just like intrinsic functions.
-! MRR, 12-mar-02: Convert Qsatf (specific humidity routine) to Esatf
-!-------------------------------------------------------------------------------
-  implicit none
-  real(sp), intent(in):: TC           ! temp [deg C]
-  real(sp):: Esatf                    ! saturation vapour pressure [mb]
-  real(sp):: TCtmp                    ! local
-  real(sp),parameter:: A = 6.106      ! Teten coefficients
-  real(sp),parameter:: B = 17.27      ! Teten coefficients
-  real(sp),parameter:: C = 237.3      ! Teten coefficients
-!-------------------------------------------------------------------------------
-  TCtmp = TC                          ! preserve TC
-  if (TCtmp.gt.100.0) TCtmp = 100.0   ! constrain TC to (-40.0,100.0)
-  if (TCtmp.lt.-40.0) TCtmp = -40.0
-  Esatf = A*EXP(B*TCtmp/(C+TCtmp))    ! sat vapour pressure (mb)
- 
-  END FUNCTION Esatf
-
-!*******************************************************************************
- 
-END SUBROUTINE cable_bios_read_met
-
+END SUBROUTINE cable_bios_init
 !******************************************************************************
 
 SUBROUTINE cable_bios_load_params(soil)
@@ -1412,8 +685,9 @@ CALL GET_UNIT(param_unit)  ! Obtain an unused unit number for file reading, reus
 ! Open, read, and close each soil parameter in turn, stopping for any missing file.
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(b1_file), &
      ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+WRITE(*,*) "Param path: ", TRIM(param_path), " b1 file: ", b1_file
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(b1_file) ; STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(b1_file) ; STOP 1
 ELSE
   READ (param_unit) b1
   CLOSE (param_unit)
@@ -1422,7 +696,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(b2_file), &
      ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(b2_file) ; STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(b2_file) ; STOP 2
 ELSE
   READ (param_unit) b2
   CLOSE (param_unit)
@@ -1431,7 +705,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(bulkdens1_kgm3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
      IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(bulkdens1_kgm3_file) ; STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(bulkdens1_kgm3_file) ; STOP 3
 ELSE
   READ (param_unit) bulkdens1_kgm3
   CLOSE (param_unit)
@@ -1440,7 +714,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(bulkdens2_kgm3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
      IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(bulkdens2_kgm3_file) ; STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(bulkdens2_kgm3_file) ; STOP 4
 ELSE
   READ (param_unit) bulkdens2_kgm3
   CLOSE (param_unit)
@@ -1449,7 +723,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(clayfrac1_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
      IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(clayfrac1_file) ; STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(clayfrac1_file) ; STOP 5
 ELSE
   READ (param_unit) clayfrac1
   CLOSE (param_unit)
@@ -1458,7 +732,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(clayfrac2_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
      IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(clayfrac2_file) ; STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(clayfrac2_file) ; STOP 6
 ELSE
   READ (param_unit) clayfrac2
   CLOSE (param_unit)
@@ -1467,7 +741,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(csoil1_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
      IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(csoil1_file) ; STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(csoil1_file) ; STOP 7
 ELSE
   READ (param_unit) csoil1
   CLOSE (param_unit)
@@ -1476,7 +750,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(csoil2_file), &
      ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(csoil2_file) ; STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(csoil2_file) ; STOP 8
 ELSE
   READ (param_unit) csoil2
   CLOSE (param_unit)
@@ -1485,7 +759,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(depth1_m_file), &
      ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(depth1_m_file) ; STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(depth1_m_file) ; STOP 9
 ELSE
   READ (param_unit) depth1_m
   CLOSE (param_unit)
@@ -1494,7 +768,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(depth2_m_file), &
      ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(depth2_m_file) ; STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(depth2_m_file) ; STOP 10
 ELSE
   READ (param_unit) depth2_m
   CLOSE (param_unit)
@@ -1503,7 +777,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(hyk1sat_ms_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
      IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(hyk1sat_ms_file) ; STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(hyk1sat_ms_file) ; STOP 11
 ELSE
   READ (param_unit) hyk1sat_ms
   CLOSE (param_unit)
@@ -1512,7 +786,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(hyk2sat_ms_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
      IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(hyk2sat_ms_file) ; STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(hyk2sat_ms_file) ; STOP 12
 ELSE
   READ (param_unit) hyk2sat_ms
   CLOSE (param_unit)
@@ -1521,7 +795,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(psie1_m_file), &
      ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(psie1_m_file); STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(psie1_m_file); STOP 13
 ELSE
   READ (param_unit) psie1_m
   CLOSE (param_unit)
@@ -1530,7 +804,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(psie2_m_file), &
      ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(psie2_m_file); STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(psie2_m_file); STOP 14
 ELSE
   READ (param_unit) psie2_m
   CLOSE (param_unit)
@@ -1539,7 +813,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(siltfrac1_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
      IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(siltfrac1_file); STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(siltfrac1_file); STOP 15
 ELSE
   READ (param_unit) siltfrac1
   CLOSE (param_unit)
@@ -1548,7 +822,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(siltfrac2_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
      IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(siltfrac2_file) ; STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(siltfrac2_file) ; STOP 16
 ELSE
   READ (param_unit) siltfrac2
   CLOSE (param_unit)
@@ -1557,7 +831,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol1fc_m3m3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
      IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(wvol1fc_m3m3_file); STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(wvol1fc_m3m3_file); STOP 17
 ELSE
   READ (param_unit) wvol1fc_m3m3
   CLOSE (param_unit)
@@ -1566,7 +840,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol2fc_m3m3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
      IOSTAT=error_status)   
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(wvol2fc_m3m3_file); STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(wvol2fc_m3m3_file); STOP 18
 ELSE
   READ (param_unit) wvol2fc_m3m3
   CLOSE (param_unit)
@@ -1575,7 +849,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol1sat_m3m3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
      IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(wvol1sat_m3m3_file) ; STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(wvol1sat_m3m3_file) ; STOP 19
 ELSE
   READ (param_unit) wvol1sat_m3m3
   CLOSE (param_unit)
@@ -1584,7 +858,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol2sat_m3m3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
      IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(wvol2sat_m3m3_file) ; STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(wvol2sat_m3m3_file) ; STOP 20
 ELSE
   READ (param_unit) wvol2sat_m3m3
   CLOSE (param_unit)
@@ -1593,7 +867,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol1w_m3m3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
      IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(wvol1w_m3m3_file) ; STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(wvol1w_m3m3_file) ; STOP 21
 ELSE
   READ (param_unit) wvol1w_m3m3
   CLOSE (param_unit)
@@ -1602,7 +876,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(wvol2w_m3m3_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD', &
      IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(wvol2w_m3m3_file) ; STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(wvol2w_m3m3_file) ; STOP 22
 ELSE
   READ (param_unit) wvol2w_m3m3
   CLOSE (param_unit)
@@ -1610,7 +884,7 @@ END IF
 
 !OPEN (param_unit, FILE=TRIM(param_path)//TRIM(slope_deg_file), ACCESS='STREAM',FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 !IF (error_status > 0) THEN
-!  WRITE (*,'("STOP - File not found: ",  LEN_TRIM(TRIM(param_path)//TRIM(slope_deg_file)))') ; STOP ''
+!  WRITE (*,'("STOP - File not found: ",  LEN_TRIM(TRIM(param_path)//TRIM(slope_deg_file)))') ; STOP -1
 !ELSE
 !  READ (param_unit) slope_deg
 !  CLOSE (param_unit)
@@ -1718,7 +992,7 @@ SUBROUTINE cable_bios_load_biome(MVG)
   OPEN (param_unit, FILE=TRIM(param_path)//TRIM(MVG_file), ACCESS='STREAM', &
        FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
   IF (error_status > 0) THEN
-     WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(MVG_file) ; STOP ''
+     WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(MVG_file) ; STOP -1
   ELSE
      READ (param_unit) tmp
      CLOSE (param_unit)
@@ -1758,7 +1032,7 @@ SUBROUTINE cable_bios_load_fracC4(fracC4)
   OPEN (param_unit, FILE=TRIM(param_path)//TRIM(c4frac_file), ACCESS='STREAM', &
        FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
   IF (error_status > 0) THEN
-     WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(c4frac_file) ; STOP ''
+     WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(c4frac_file) ; STOP -1
   ELSE
      READ (param_unit) tmp
      CLOSE (param_unit)
@@ -1795,7 +1069,7 @@ CALL GET_UNIT(param_unit)  ! Obtain an unused unit number for file reading, reus
 OPEN(param_unit, FILE=TRIM(param_path)//TRIM(vegtypeigbp_file), ACCESS='STREAM', &
      FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(vegtypeigbp_file) ; STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(vegtypeigbp_file) ; STOP -1
 ELSE
   READ (param_unit) vegtypeigbp
   CLOSE (param_unit)
@@ -1806,7 +1080,7 @@ END IF
 OPEN (param_unit, FILE=TRIM(param_path)//TRIM(avgannmax_fapar_file), ACCESS='STREAM', &
      FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
 IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(avgannmax_fapar_file) ; STOP ''
+  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(avgannmax_fapar_file) ; STOP -1
 ELSE
   READ (param_unit) avgannmax_fapar
   CLOSE (param_unit)
