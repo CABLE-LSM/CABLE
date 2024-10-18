@@ -167,7 +167,7 @@ TYPE SPATIO_TEMPORAL_DATASET
   ! The start and end years of each dataset
   INTEGER, DIMENSION(:), ALLOCATABLE            :: StartYear, EndYear
   ! List of possible variable names for the desired variable in the dataset
-  CHARACTER(LEN=16), DIMENSION(:), ALLOCATABLE  :: VarNames
+  CHARACTER(LEN=32), DIMENSION(:), ALLOCATABLE  :: VarNames
 
   ! Metadata about the currently open file
   INTEGER :: CurrentFileID, CurrentVarID, CurrentFileIndx
