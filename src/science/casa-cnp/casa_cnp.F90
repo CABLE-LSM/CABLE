@@ -1341,13 +1341,11 @@ END SUBROUTINE casa_delplant
                   +casaflux%Psimm(nland)
              ! net mineralization
 
-#           ifdef ESM15  
-             casaflux%Pleach(nland)  =  (1.0e-4) &
-                                              * max(0.0,casapool%Psoillab(nland))
-#           else
+             !rml 14/10/24 #278 remove ESM15 specific version as can be 
+             !accommodated by setting appropriate parameter in pftlookup
              casaflux%Pleach(nland)  =  casaflux%fPleach(nland) &
                   * MAX(0.0,casapool%Psoillab(nland))
-#            endif
+
              DO k=1,msoil
                 DO j=1,mlitter
                    casaflux%FluxPtosoil(nland,k) =  casaflux%FluxPtosoil(nland,k)  &
