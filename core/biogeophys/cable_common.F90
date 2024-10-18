@@ -33,12 +33,12 @@ MODULE cable_common_module
   INTEGER, SAVE :: CurYear  ! current year of multiannual run
 
   ! Dimension name lists for searching NetCDF dimensions IDs
-  CHARACTER(LEN=16), DIMENSION(5), PARAMETER :: LatNames = &
-    ["latitude", "lat", "lats", "y", "Latitude"]
-  CHARACTER(LEN=16), DIMENSION(5), PARAMETER :: LonNames = &
-    ["longitude", "lon", "lons", "x", "Longitude"]
-  CHARACTER(LEN=16), DIMENSION(3), PARAMETER :: TimeNames = &
-    ["time", "t", "Time"]
+  CHARACTER(LEN=*), DIMENSION(*), PARAMETER :: LatNames = &
+    [CHARACTER(LEN=8) :: "latitude", "lat", "lats", "y", "Latitude"]
+  CHARACTER(LEN=*), DIMENSION(*), PARAMETER :: LonNames = &
+    [CHARACTER(LEN=9) :: "longitude", "lon", "lons", "x", "Longitude"]
+  CHARACTER(LEN=*), DIMENSION(*), PARAMETER :: TimeNames = &
+    [CHARACTER(LEN=4) :: "time", "t", "Time"]
 
   ! user switches turned on/off by the user thru namelists
 
@@ -719,8 +719,8 @@ CONTAINS
       END IF
     END DO CheckNames
 
-    CALL handle_err(ok, "Failed to find any "//TRIM(DimNames(1))//" dimensions&
-      from the list.")
+    CALL handle_err(ok, "Failed to find any "//TRIM(DimNames(1))// &
+         " dimensions from the list.")
 
   END FUNCTION get_dimid
 

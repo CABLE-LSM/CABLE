@@ -76,7 +76,7 @@ INTEGER, PRIVATE, PARAMETER  :: rain = 1, lwdn = 2, swdn = 3, pres = 4, qair = 5
                                 tmax = 6, tmin = 7, uwind = 8, vwind = 9, fdiff = 10,&
                                 prevTmax = 11, nextTmin = 12
 INTEGER, PRIVATE, PARAMETER  :: sp = kind(1.0)
-INTEGER, PRIVATE             :: ErrStatus
+! INTEGER, PRIVATE             :: ErrStatus
 
 CONTAINS
 
@@ -98,15 +98,11 @@ SUBROUTINE CRU_INIT(CRU)
   ! We want one filename for each variable, stored in a predefined index.
   CHARACTER(LEN=256), dimension(13) :: InputFiles
 
-  ! Landmask to spatially filter the data
-  INTEGER, DIMENSION(:,:), ALLOCATABLE  :: LandMask
-
   ! Iterator variable for the variables
   INTEGER   :: VarIndx
 
   ! Checker for the NetCDF io
   INTEGER   :: ok
-  LOGICAL :: IsOpen
 
   ! Start with the things we want from the namelist. The namelist must set
   ! the filenames to read from, the method of choosing atmospheric carbon and
@@ -167,7 +163,6 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)
   logical   :: newday, LastDayOfYear  ! Flags for occurence of a new day (0 hrs) and the last day of the year.
   INTEGER   :: iland                  ! Loop counter through 'land' cells (cells in the spatial domain)
   INTEGER   :: itimestep              ! Loop counter through subdiurnal timesteps in a day
-  INTEGER   :: imetvar                ! Loop counter through met variables
   INTEGER   :: dM, dD                 ! Met date as year, month, and day returned from DOYSOD2YMDHMS
   INTEGER   :: is, ie                 ! Starting and ending vegetation type per land cell
   REAL      :: dt                     ! Timestep in seconds
@@ -175,7 +170,6 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau, kend)
   REAL, DIMENSION(:), ALLOCATABLE    :: CO2air                 ! CO2 concentration in ppm
   type(WEATHER_GENERATOR_TYPE), save :: WG
   logical,                      save :: CALL1 = .true.  ! A *local* variable recording the first call of this routine
-  INTEGER :: VarIter
 
   ! Purely for readability...
   dt = CRU%DTsecs

@@ -2110,7 +2110,7 @@ contains
     use casavariable,         only: casa_met, casa_pool, casa_balance, casa_flux, &
          casafile, casa_timeunits
     use cable_common_module,  only: cable_user, filename, handle_err
-    use cable_def_types_mod,  only: veg_parameter_type, mp
+    use cable_def_types_mod,  only: veg_parameter_type
 !    use netcdf,               only: nf90_noerr, &
 !         nf90_put_var, nf90_clobber, nf90_create, nf90_global, nf90_put_att, &
 !#ifdef __NETCDF3__
@@ -2764,7 +2764,6 @@ contains
 
    ! writes casa vars to file with dimensions x,y,patch,t
    
-   use casadimension, only: mplant, mlitter, msoil, icycle
    use cable_common_module,  only: handle_err
 
    implicit none
@@ -2810,7 +2809,6 @@ SUBROUTINE put_casa_var_grid_patch_average(file_id,var_id,var_vals,outdim,cnt,tm
    ! writes casa vars to file with dimensions x,y,outdim,t
    ! averages 3rd dimension (outdim) over patches
 
-   use casadimension, only: mplant, mlitter, msoil, icycle
    use cable_common_module,  only: handle_err
 
    implicit none
@@ -2866,7 +2864,7 @@ END SUBROUTINE put_casa_var_grid_patch_average
     use casavariable,         only: casa_met, casa_pool, casa_balance, casa_flux, &
          casafile, casa_timeunits
     use cable_common_module,  only: cable_user, filename, handle_err
-    use cable_def_types_mod,  only: veg_parameter_type, mp
+    use cable_def_types_mod,  only: veg_parameter_type
 !    use netcdf,               only: nf90_noerr, &
 !         nf90_put_var, nf90_clobber, nf90_create, nf90_global, nf90_put_att, &
 !#ifdef __NETCDF3__
@@ -3534,7 +3532,6 @@ END SUBROUTINE put_casa_var_grid_patch_average
 
    ! writes casa vars to file with dimensions land,patch,t
    
-   use casadimension, only: mplant, mlitter, msoil, icycle
    use cable_common_module,  only: handle_err
 
    implicit none
@@ -3573,7 +3570,6 @@ SUBROUTINE put_casa_var_patch_average(file_id,var_id,var_vals,outdim,cnt,tmp_arr
 
    ! writes casa vars to file with dimensions land,outdim,t
 
-   use casadimension, only: mplant, mlitter, msoil, icycle
    use cable_common_module,  only: handle_err
 
    implicit none

@@ -167,7 +167,7 @@ TYPE SPATIO_TEMPORAL_DATASET
   ! The start and end years of each dataset
   INTEGER, DIMENSION(:), ALLOCATABLE            :: StartYear, EndYear
   ! List of possible variable names for the desired variable in the dataset
-  CHARACTER(LEN=16), DIMENSION(:), ALLOCATABLE  :: VarNames
+  CHARACTER(LEN=32), DIMENSION(:), ALLOCATABLE  :: VarNames
 
   ! Metadata about the currently open file
   INTEGER :: CurrentFileID, CurrentVarID, CurrentFileIndx
@@ -2958,9 +2958,6 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
   ! without destroying the original template.
   CHARACTER(len=256):: CurrentFile
 
-  ! We read the start and end years to strings before writing them to the key.
-  CHARACTER(len=4)  :: StartYear, EndYear
-
   ! Integers to store the status of the command.
   INTEGER           :: ExStat, CStat
 
@@ -2979,7 +2976,7 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
   INTEGER           :: FileCounter
 
   ! Iterators
-  INTEGER           :: CharIndx, FileIndx
+  INTEGER           :: FileIndx
 
   ! Get a unique file ID here.
   CALL get_unit(InputUnit)
@@ -3246,7 +3243,7 @@ SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
   INTEGER     :: YearIndex, TimeIndex
 
   ! Loop Iterators
-  INTEGER     :: FileIndx, VarNameIndx, YearIter, LandCell
+  INTEGER     :: YearIter, LandCell
 
   ! Status checker
   INTEGER  :: ok
