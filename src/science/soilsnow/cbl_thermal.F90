@@ -6,7 +6,11 @@ PUBLIC snow_processes_soil_thermal
 
 CONTAINS
 
-SUBROUTINE snow_processes_soil_thermal(dels,ssnow,soil,veg,canopy,met,bal,snowmlt)
+!SUBROUTINE snow_processes_soil_thermal(dels,ssnow,soil,veg,canopy,met,bal,snowmlt) ! replaced by rk4417 - phase2
+! snowmlt is not used in cable_gw_hydro_module and as far as I can tell serves no purpose in the code - rk4417
+  
+SUBROUTINE snow_processes_soil_thermal(dels,ssnow,soil,veg,canopy,met,bal)
+!* calculate snow processes and thermal soil
 
 USE snowl_adjust_mod,             ONLY: snowl_adjust
 USE snowCheck_mod,                ONLY: snowCheck
@@ -24,10 +28,12 @@ IMPLICIT NONE
     TYPE(veg_parameter_type), INTENT(INOUT)  :: veg
     TYPE(met_type), INTENT(INOUT)            :: met ! all met forcing
     TYPE (balances_type), INTENT(INOUT)      :: bal
-    REAL, DIMENSION(:),  INTENT(INOUT)       :: snowmlt
-
+    REAL, DIMENSION(mp)                      :: snowmlt !track snow melt 
+!    REAL, DIMENSION(:),  INTENT(INOUT)       :: snowmlt  ! replaced by rk4417 - phase2
     INTEGER             :: k,i
 
+    snowmlt = 0.0  ! inserted by rk4417 - phase2
+    
     CALL snowcheck (dels, ssnow, soil, met )
 
     CALL snowdensity (dels, ssnow, soil)

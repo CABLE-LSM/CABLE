@@ -58,9 +58,6 @@ SUBROUTINE POPdriver(casaflux,casabal,veg, POP)
   !! vh_js !!
   INTEGER, allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
 
-  ! INTEGER, INTENT(IN) :: wlogn
-  INTEGER , parameter :: wlogn=6
-
   if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))
   if (.NOT.Allocated(Cleafmean))  allocate(Cleafmean(mp))
   if (.NOT.Allocated(Crootmean)) allocate(Crootmean(mp))

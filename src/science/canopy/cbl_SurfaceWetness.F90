@@ -11,6 +11,7 @@ SUBROUTINE Surf_wetness_fact( cansat, canopy, ssnow,veg, met, soil, dels )
 
     USE cable_common_module
     USE cable_def_types_mod
+    USE grid_constants_mod_cbl, ONLY : lakes_cable
 ! physical constants
 USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
     !H!USE cable_gw_hydro_module, ONLY : calc_srf_wet_fraction
@@ -75,11 +76,11 @@ USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
    
           IF( ssnow%snowd(i) > 0.1) ssnow%wetfac(i) = 0.9
    
-          IF ( veg%iveg(i) == 16 .and. met%tk(i) >= Ctfrz + 5. )   &
-               ssnow%wetfac(i) = 1.0 ! lakes: hard-wired number to be removed
+          IF ( veg%iveg(i) == lakes_cable .and. met%tk(i) >= Ctfrz + 5. )   &
+               ssnow%wetfac(i) = 1.0
    
-          IF( veg%iveg(i) == 16 .and. met%tk(i) < Ctfrz + 5. )   &
-               ssnow%wetfac(i) = 0.7 ! lakes: hard-wired number to be removed
+          IF( veg%iveg(i) == lakes_cable .and. met%tk(i) < Ctfrz + 5. )   &
+               ssnow%wetfac(i) = 0.7
    
        ENDDO
        ! owetfac introduced to reduce sharp changes in dry regions,

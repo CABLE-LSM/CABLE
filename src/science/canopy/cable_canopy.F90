@@ -186,6 +186,16 @@ logical :: sunlit_veg_mask(mp)
     canopy%tv = met%tvair
     canopy%fwsoil = 1.0
 
+    ! Initialise canopy%DvLitt and canopy%kthLitt. This value is only used if
+    ! cable_user%litter is .TRUE.
+    ! Reference:
+    ! Matthews (2006), A process-based model of fine fuel moisture,
+    !                 International Journal of Wildland Fire 15,155-168
+    !                 https://doi.org/10.1071/WF05063
+    ! assuming here u=1.0 ms-1, bulk litter density 63.5 kgm-3
+    canopy%kthLitt = 0.3_r_2 ! ~ 0.2992125984251969 = 0.2+0.14*0.045*1000.0/63.5
+    canopy%DvLitt = 3.1415841138194147e-05_r_2 ! = 2.17e-5*exp(1.0*2.6)*exp(-0.5*(2.08+(1.0*2.38)))
+
     CALL define_air (met, air)
 
     CALL qsatfjh(mp, qstvair, CRMH2o, Crmair, CTETENA, CTETENB, CTETENC, met%tvair-CTfrz,met%pmb)
@@ -233,6 +243,9 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
     canopy%zetar(:,2) = CZETPOS + 1
     canopy%zetash(:,1) = CZETA0 ! stability correction terms
     canopy%zetash(:,2) = CZETPOS + 1
+
+    sum_rad_rniso = SUM(rad%rniso,2)
+    sum_rad_gradis = SUM(rad%gradis,2)
 
 
     DO iter = 1, NITER
@@ -312,14 +325,6 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
        ELSE ! NOT sli
           rt0 = MAX(rt_min,rough%rt0us / canopy%us)
 
-          IF (cable_user%litter) THEN
-             ! Mathews (2006), A process-based model of offine fuel moisture,
-             !                 International Journal of Wildland Fire 15,155-168
-             ! assuming here u=1.0 ms-1, bulk litter density 63.5 kgm-3
-             canopy%kthLitt = 0.3_r_2 ! ~ 0.2992125984251969 = 0.2+0.14*0.045*1000.0/63.5
-             canopy%DvLitt = 3.1415841138194147e-05_r_2 ! = 2.17e-5*exp(1.0*2.6)*exp(-0.5*(2.08+(1.0*2.38)))
-          ENDIF
-
        ENDIF
 
 !       ! Aerodynamic resistance (sum 3 height integrals)/us
@@ -385,17 +390,15 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
        ENDDO
 
 
-       rny = SUM(rad%rniso,2) ! init current estimate net rad
+       rny = sum_rad_rniso ! init current estimate net rad
        hcy = 0.0              ! init current estimate lat heat
        ecy = rny - hcy        ! init current estimate lat heat
-
-       sum_rad_rniso = SUM(rad%rniso,2)
 
        CALL dryLeaf( dels, rad, rough, air, met,                             &
                   veg, canopy, soil, ssnow, dsx,                             &
                   fwsoil, tlfx, tlfy, ecy, hcy,                              &
                   rny, gbhu, gbhf, csx, cansat,                              &
-            ghwet,  iter,climate )
+            ghwet,  iter,climate, sum_rad_gradis, sum_rad_rniso )
 
 
       CALL wetLeaf( dels,                                 &
@@ -418,8 +421,6 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
        canopy%fnv = REAL(ftemp)
 
        ! canopy rad. temperature calc from long-wave rad. balance
-       sum_rad_gradis = SUM(rad%gradis,2)
-
        DO j=1,mp
 
           IF ( canopy%vlaiw(j) > CLAI_THRESH .AND.                             &
@@ -649,7 +650,7 @@ write(6,*) "SLI is not an option right now"
 
 
 
-       canopy%rniso = SUM(rad%rniso,2) + rad%qssabs + rad%transd*met%fld + &
+       canopy%rniso = sum_rad_rniso + rad%qssabs + rad%transd*met%fld + &
             (1.0-rad%transd)*CEMLEAF* &
             CSBOLTZ*met%tvrad**4 - CEMSOIL*CSBOLTZ*met%tvrad**4
 
@@ -667,6 +668,10 @@ write(6,*) "SLI is not an option right now"
                REAL(canopy%fes(j))/ssnow%potev(j) ) ) )
 
        ENDDO
+
+       ! INH #335 - we don't need to weight components of %epot by %transd
+       ! however coupled model uses %wetfac_cs so overwrite here before testing in ACCESS
+       canopy%epot = (canopy%fevw_pot + ssnow%potev/ssnow%cls) * dels/air%rlam
 
   CALL update_zetar( mp, iterplus, NITER, canopy%zetar, iter, nrb, CVONK, CGRAV, CCAPP,  &
                      CLAI_THRESH, CZETmul, CZETPOS, CZETNEG,          &
@@ -746,12 +751,12 @@ write(6,*) "SLI is not an option right now"
 
           IF( zscl(j) < rough%disp(j) ) THEN
 
-             !Ticket #154
+             !Ticket #154 - issue #313
              !r_sc(j) = term5(j) * LOG(zscl(j)/rough%z0soilsn(j)) *              &
              !     ( EXP(2*CCSW*canopy%rghlai(j)) - term1(j) ) / term3(j)
              r_sc(j) = term5(j) * LOG(zscl(j)/rough%z0soilsn(j)) *              &
                   ( EXP(2*CCSW*canopy%rghlai(j)) - term2(j) ) / term3(j)
-             r_sc(j) = r_sc(j) + term5(j) * LOG(rough%disp(j)/rough%z0soilsn(j)) *  &
+             r_sc(j) = r_sc(j) + term5(j) * LOG(rough%disp(j)/zscl(j)) *        &
                   ( EXP(2*CCSW*canopy%rghlai(j)) - term1(j) ) / term3(j)
 
           ELSEIF( rough%disp(j) <= zscl(j) .AND.                                &
@@ -1004,11 +1009,11 @@ ssnow%ddq_dtg = (Crmh2o/Crmair) /met%pmb * CTETENA*CTETENB * CTETENC   &
 ssnow%dfe_dtg = ssnow%dfe_ddq * ssnow%ddq_dtg
 canopy%dgdtg = ssnow%dfn_dtg - ssnow%dfh_dtg - ssnow%dfe_dtg
 
-bal%drybal = REAL(ecy+hcy) - SUM(rad%rniso,2)                               &
-     + CCAPP*Crmair*(tlfy-met%tk)*SUM(rad%gradis,2)  ! YP nov2009
+bal%drybal = REAL(ecy+hcy) - sum_rad_rniso                               &
+     + CCAPP*Crmair*(tlfy-met%tk)*sum_rad_gradis  ! YP nov2009
 
-bal%wetbal = canopy%fevw + canopy%fhvw - SUM(rad%rniso,2) * canopy%fwet      &
-     + CCAPP*Crmair * (tlfy-met%tk) * SUM(rad%gradis,2) *          &
+bal%wetbal = canopy%fevw + canopy%fhvw - sum_rad_rniso * canopy%fwet      &
+     + CCAPP*Crmair * (tlfy-met%tk) * sum_rad_gradis *          &
      canopy%fwet  ! YP nov2009
 
 DEALLOCATE(cansat,gbhu)

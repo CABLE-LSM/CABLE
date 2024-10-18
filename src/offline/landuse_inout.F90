@@ -1125,7 +1125,7 @@ END SUBROUTINE landuse_getdata
   END SUBROUTINE WRITE_LANDUSE_CASA_RESTART_NC
 
 
-  SUBROUTINE create_landuse_cable_restart(logn,dels,ktau,soil,mpx,lucmp,cstart,cend,nap)
+  SUBROUTINE create_landuse_cable_restart(logn,dels,ktau,soil,mpx,lucmp,cstart,cend,nap, met)
     ! Creates a restart file for CABLE using a land only grid cell area occupied by a '//  &
     ! Creates a restart file for CABLE using a land only grid with mland
     ! land points and max_vegpatches veg/soil patches (some of which may
@@ -1134,10 +1134,11 @@ END SUBROUTINE landuse_getdata
     ! if any additional variables are added to CABLE restart file, they should be repeated here
     !
     use netcdf
-    USE cable_def_types_mod,        ONLY : r_2, mland, mvtype, mstype,nrb,ncs,ncp,ms,msn,soil_parameter_type
+    USE cable_def_types_mod,        ONLY : r_2, mland, mvtype, mstype,nrb,ncs,ncp,ms,msn,soil_parameter_type, met_type
     use cable_abort_module,         ONLY : nc_abort
     USE cable_IO_vars_module,       ONLY : latitude,longitude,timeunits,calendar,time_coord, timevar
     USE cable_checks_module,        ONLY : ranges
+    USE cable_output_module,        ONLY: check_and_write, output_par_settings_type
     USE cable_write_module
     USE cable_common_module,        ONLY : filename,CurYear,cable_user
     USE landuse_variable,           ONLY : landuse_mp
@@ -1151,6 +1152,8 @@ END SUBROUTINE landuse_getdata
     INTEGER, INTENT(IN)                    :: ktau ! timestep number in loop which include spinup
     INTEGER, INTENT(IN)                    :: mpx  ! timestep number in loop which include spinup
     INTEGER, DIMENSION(mland), INTENT(in)  :: cstart,cend,nap
+
+    TYPE(met_type), TARGET, INTENT(IN)                         :: met
 !    TYPE (soil_parameter_type),INTENT(IN)  :: soil    ! from "cable_de_types_mod"
 !    TYPE (ranges_type),        INTENT(IN)  :: ranges  ! from "cable_checks_module"
 
@@ -1176,6 +1179,12 @@ END SUBROUTINE landuse_getdata
     CHARACTER         :: FRST_OUT*200, CYEAR*4
 
     INTEGER              ok
+
+    TYPE(output_par_settings_type) :: out_settings
+
+    LOGICAL, PARAMETER :: output_var = .TRUE., patchout_var = .TRUE.
+
+    out_settings = output_par_settings_type(met=met, restart=.TRUE.)
 
     dummy = 0 ! initialise
 
@@ -1531,99 +1540,111 @@ END SUBROUTINE landuse_getdata
     IF(ok /= NF90_NOERR) CALL nc_abort(ok,                                     &
          'Error writing mstype parameter to '    &
          //TRIM(frst_out)// '(SUBROUTINE create_restart)')
-
+     
 
     ! Write parameters:
-    CALL write_ovar (ncid_restart, iveg_id, 'iveg', REAL(lucmp%iveg, 4),       &
-         ranges%iveg, .TRUE., 'integer', .TRUE.)
-    CALL write_ovar (ncid_restart, isoil_id, 'isoil', REAL(lucmp%isoil, 4),  &
-         ranges%isoil, .TRUE., 'integer', .TRUE.)
-    CALL write_ovar (ncid_restart, tggID, 'tgg', REAL(lucmp%tgg, 4),           &
-         ranges%SoilTemp, .TRUE., 'soil', .TRUE.)
-    CALL write_ovar (ncid_restart, wbID, 'wb', lucmp%wb, ranges%SoilMoist,     &
-         .TRUE., 'soil', .TRUE.)
-    CALL write_ovar (ncid_restart, wbiceID, 'wbice', lucmp%wbice,              &
-         ranges%SoilMoist, .TRUE., 'soil', .TRUE.)
-    CALL write_ovar (ncid_restart, gammzzID, 'gammzz', lucmp%gammzz,           &
-         (/-99999.0, 9999999.0/), .TRUE., 'soil', .TRUE.)
+    out_settings%dimswitch = "integer"
+    CALL check_and_write(output_var, iveg_id, 'iveg', REAL(lucmp%iveg, 4), ranges%iveg, &
+                         patchout_var, out_settings)
+    CALL check_and_write(output_var, isoil_id, 'isoil', REAL(lucmp%tgg, 4), ranges%isoil, &
+                         patchout_var, out_settings)
+    CALL check_and_write(output_var, isflagID, 'isflag', REAL(lucmp%isflag, 4), &
+                         ranges%default_l, patchout_var, out_settings)
+    out_settings%dimswitch = "soil"
+    CALL check_and_write(output_var, tggID, 'tgg', REAL(lucmp%tgg, 4), &
+                         ranges%SoilTemp, patchout_var, out_settings)
+    CALL check_and_write(output_var, wbID, 'wb', REAL(lucmp%wb, 4), ranges%SoilMoist, &
+                         patchout_var, out_settings)
+    CALL check_and_write(output_var, wbiceID, 'wbice', REAL(lucmp%wbice, 4), &
+                         ranges%SoilMoist, patchout_var, out_settings)
+    CALL check_and_write(output_var, gammzzID, 'gammzz', REAL(lucmp%gammzz, 4), &
+                         ranges%default_l, patchout_var, out_settings)
     ! Snow dimensioned variables/parameters:
-    CALL write_ovar (ncid_restart, ssdnID, 'ssdn', REAL(lucmp%ssdn, 4),        &
-         (/0.0, 9999.0/), .TRUE., 'snow', .TRUE.)
-    CALL write_ovar (ncid_restart, smassID, 'smass', REAL(lucmp%smass, 4),     &
-         (/0.0, 9999.0/), .TRUE., 'snow', .TRUE.)
-    CALL write_ovar (ncid_restart, sdepthID, 'sdepth', REAL(lucmp%sdepth, 4),  &
-         (/0.0, 9999.0/), .TRUE., 'snow', .TRUE.)
-    CALL write_ovar (ncid_restart, tggsnID, 'tggsn', REAL(lucmp%tggsn, 4),     &
-         (/100.0, 300.0/), .TRUE., 'snow', .TRUE.)
+    out_settings%dimswitch = "snow"
+    CALL check_and_write(output_var, ssdnID, 'ssdn', REAL(lucmp%ssdn, 4), &
+                         ranges%ssdn, patchout_var, out_settings)
+    CALL check_and_write(output_var, smassID, 'smass', REAL(lucmp%smass, 4), &
+                         ranges%smass, patchout_var, out_settings)
+    CALL check_and_write(output_var, sdepthID, 'sdepth', REAL(lucmp%sdepth, 4), &
+                         ranges%sdepth, patchout_var, out_settings)
+    CALL check_and_write(output_var, tggsnID, 'tggsn', REAL(lucmp%tggsn, 4), &
+                         ranges%tggsn, patchout_var, out_settings)
     ! Other dims
-    CALL write_ovar (ncid_restart, albsoilsnID, 'albsoilsn',                   &
-         REAL(lucmp%albsoilsn, 4), (/0.0, 1.0/), .TRUE., 'radiation', .TRUE.)
-    CALL write_ovar (ncid_restart, cplantID, 'cplant', REAL(lucmp%cplantx, 4),    &
-         (/-99999.0, 9999999.0/), .TRUE., 'plantcarbon', .TRUE.)
-    CALL write_ovar (ncid_restart, csoilID, 'csoil', REAL(lucmp%csoilx, 4),       &
-         (/-99999.0, 9999999.0/), .TRUE., 'soilcarbon', .TRUE.)
+    out_settings%dimswitch = "radiation"
+    CALL check_and_write(output_var, albsoilsnID, 'albsoilsn', &
+                         REAL(lucmp%albsoilsn, 4), ranges%albsoiln, patchout_var, out_settings)
+    out_settings%dimswitch = "plantcarbon"
+    CALL check_and_write(output_var, cplantID, 'cplant', REAL(lucmp%cplantx, 4), &
+                         ranges%default_l, patchout_var, out_settings)
+    out_settings%dimswitch = "soilcarbon"
+    CALL check_and_write(output_var, csoilID, 'csoil', REAL(lucmp%csoilx, 4), &
+                         ranges%default_l, patchout_var, out_settings)
     ok = NF90_PUT_VAR(ncid_restart, zse_id, REAL(soil%zse, 4))
-    IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing zse parameter to '   &
-         //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+    IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing zse parameter to ' &
+                                        //TRIM(frst_out)//'(SUBROUTINE create_restart)')
     ! Single dim:
-    CALL write_ovar (ncid_restart, albsoil_id, 'albsoil',                    &
-         REAL(lucmp%albsoil, 4), ranges%albsoil, .TRUE.,            &
-         'radiation', .TRUE.)
+    out_settings%dimswitch = "radiation"
+    CALL check_and_write(output_var, albsoil_id, 'albsoil', &
+                         REAL(lucmp%albsoil, 4), ranges%albsoil, patchout_var, &
+                         out_settings)
 
-    CALL write_ovar (ncid_restart, tssID, 'tss', REAL(lucmp%tss, 4),           &
-         (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-    CALL write_ovar (ncid_restart, ssdnnID, 'ssdnn', REAL(lucmp%ssdnn, 4),     &
-         (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-    CALL write_ovar (ncid_restart, osnowdID, 'osnowd', REAL(lucmp%osnowd, 4),  &
-         (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-    CALL write_ovar (ncid_restart, snageID, 'snage', REAL(lucmp%snage, 4),     &
-         (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-    CALL write_ovar (ncid_restart, snowdID, 'snowd', REAL(lucmp%snowd, 4),     &
-         (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-    CALL write_ovar (ncid_restart, rtsoilID, 'rtsoil', REAL(lucmp%rtsoil, 4),  &
-         (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-    CALL write_ovar (ncid_restart, isflagID, 'isflag', REAL(lucmp%isflag, 4),  &
-         (/-99999.0, 9999999.0/), .TRUE., 'integer', .TRUE.)
-    CALL write_ovar (ncid_restart, canstoID, 'cansto', REAL(lucmp%cansto, 4), &
-         (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-    CALL write_ovar (ncid_restart, sghfluxID, 'sghflux',                       &
-         REAL(lucmp%sghflux, 4), (/-99999.0, 9999999.0/),         &
-         .TRUE., 'real', .TRUE.)
-    CALL write_ovar (ncid_restart, ghfluxID, 'ghflux', REAL(lucmp%ghflux, 4), &
-         (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-    CALL write_ovar (ncid_restart, runoffID, 'runoff', REAL(lucmp%runoff, 4),  &
-         (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-    CALL write_ovar (ncid_restart, rnof1ID, 'rnof1', REAL(lucmp%rnof1, 4),     &
-         (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-    CALL write_ovar (ncid_restart, rnof2ID, 'rnof2', REAL(lucmp%rnof2, 4),     &
-         (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-    CALL write_ovar (ncid_restart, gaID, 'ga', REAL(lucmp%ga, 4),             &
-         (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-    CALL write_ovar (ncid_restart, dgdtgID, 'dgdtg', lucmp%dgdtg,             &
-         (/-99999.0, 9999999.0/), .TRUE., 'r2', .TRUE.)
-    CALL write_ovar (ncid_restart, fevID, 'fev', REAL(lucmp%fev, 4),          &
-         (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-    CALL write_ovar (ncid_restart, fesID, 'fes', REAL(lucmp%fes, 4),          &
-         (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-    CALL write_ovar (ncid_restart, fhsID, 'fhs', REAL(lucmp%fhs, 4),          &
-         (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-    CALL write_ovar (ncid_restart, wbtot0ID, 'wbtot0', REAL(lucmp%wbtot0, 4),    &
-         (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-    CALL write_ovar (ncid_restart, osnowd0ID, 'osnowd0', REAL(lucmp%osnowd0, 4), &
-         (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-    CALL write_ovar (ncid_restart, albedoID, 'albedo', REAL(lucmp%albedo, 4),    &
-         ranges%Albedo, .TRUE., 'radiation', .TRUE.)
-    CALL write_ovar (ncid_restart, tradID, 'trad',                             &
-         REAL(lucmp%trad, 4), ranges%RadT, .TRUE., 'real', .TRUE.)
+    out_settings%dimswitch = "real"
 
-    CALL write_ovar (ncid_restart, gwID, 'GWwb', REAL(lucmp%GWwb, 4),       &
-         ranges%GWwb, .TRUE., 'real', .TRUE.)
+    CALL check_and_write(output_var, tssID, 'tss', REAL(lucmp%tss, 4), &
+                         ranges%default_l, patchout_var, out_settings)
+    CALL check_and_write(output_var, ssdnnID, 'ssdnn', REAL(lucmp%ssdnn, 4), &
+                         ranges%default_l, patchout_var, out_settings)
+    CALL check_and_write(output_var, osnowdID, 'osnowd', REAL(lucmp%osnowd, 4), &
+                         ranges%default_l, patchout_var, out_settings)
+    CALL check_and_write(output_var, snageID, 'snage', REAL(lucmp%snage, 4), &
+                         ranges%default_l, patchout_var, out_settings)
+    CALL check_and_write(output_var, snowdID, 'snowd', REAL(lucmp%snowd, 4), &
+                         ranges%default_l, patchout_var, out_settings)
+    CALL check_and_write(output_var, rtsoilID, 'rtsoil', REAL(lucmp%rtsoil, 4), &
+                         ranges%default_l, patchout_var, out_settings)
+    CALL check_and_write(output_var, canstoID, 'cansto', REAL(lucmp%cansto, 4), &
+                         ranges%default_l, patchout_var, out_settings)
+    CALL check_and_write(output_var, sghfluxID, 'sghflux', &
+                         REAL(lucmp%sghflux, 4), ranges%default_l, &
+                         patchout_var, out_settings)
+    CALL check_and_write(output_var, ghfluxID, 'ghflux', REAL(lucmp%ghflux, 4), &
+                         ranges%default_l, patchout_var, out_settings)
+    CALL check_and_write(output_var, runoffID, 'runoff', REAL(lucmp%runoff, 4), &
+                         ranges%default_l, patchout_var, out_settings)
+    CALL check_and_write(output_var, rnof1ID, 'rnof1', REAL(lucmp%rnof1, 4), &
+                         ranges%default_l, patchout_var, out_settings)
+    CALL check_and_write(output_var, rnof2ID, 'rnof2', REAL(lucmp%rnof2, 4), &
+                         ranges%default_l, patchout_var, out_settings)
+    CALL check_and_write(output_var, gaID, 'ga', REAL(lucmp%ga, 4), &
+                         ranges%default_l, patchout_var, out_settings)
+    CALL check_and_write(output_var, fevID, 'fev', REAL(lucmp%fev, 4), &
+                         ranges%default_l, patchout_var, out_settings)
+    CALL check_and_write(output_var, fesID, 'fes', REAL(lucmp%fes, 4), &
+                         ranges%default_l, patchout_var, out_settings)
+    CALL check_and_write(output_var, fhsID, 'fhs', REAL(lucmp%fhs, 4), &
+                         ranges%default_l, patchout_var, out_settings)
+    CALL check_and_write(output_var, wbtot0ID, 'wbtot0', REAL(lucmp%wbtot0, 4), &
+                         ranges%default_l, patchout_var, out_settings)
+    CALL check_and_write(output_var, osnowd0ID, 'osnowd0', REAL(lucmp%osnowd0, 4), &
+                         ranges%default_l, patchout_var, out_settings)
+    CALL check_and_write(output_var, tradID, 'trad', &
+                         REAL(lucmp%trad, 4), ranges%RadT, patchout_var, out_settings)
 
+    CALL check_and_write(output_var, gwID, 'GWwb', REAL(lucmp%GWwb, 4), &
+                         ranges%GWwb, patchout_var, out_settings)
+
+    out_settings%dimswitch = "r2"
+    CALL check_and_write(output_var, dgdtgID, 'dgdtg', REAL(lucmp%dgdtg, 4), &
+                         ranges%default_l, patchout_var, out_settings)
+
+    out_settings%dimswitch = "radiation"
+    CALL check_and_write(output_var, albedoID, 'albedo', REAL(lucmp%albedo, 4), &
+                         ranges%Albedo, patchout_var, out_settings)
 
     ! Close restart file
     ok = NF90_CLOSE(ncid_restart)
 
-    write(logn,*) ' landuse on'
-    WRITE(logn, '(A36)') '   Restart file complete and closed.'
+    write (logn, *) ' landuse on'
+    WRITE (logn, '(A36)') '   Restart file complete and closed.'
 
   END SUBROUTINE create_landuse_cable_restart

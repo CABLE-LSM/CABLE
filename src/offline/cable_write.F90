@@ -45,11 +45,11 @@
 MODULE cable_write_module
 
 
-  USE cable_abort_module
+  USE cable_abort_module, ONLY: nc_abort, abort
   USE cable_def_types_mod
   USE cable_IO_vars_module, ONLY: landpt, patch, max_vegpatches, parID_type,           &
        metGrid, land_x, land_y, logn, output,               &
-       xdimsize, ydimsize, check, mask
+       xdimsize, ydimsize, mask
   USE netcdf
   IMPLICIT NONE
   PRIVATE
@@ -823,14 +823,12 @@ CONTAINS
   END SUBROUTINE define_output_parameter_r2
   !=============================================================================
   SUBROUTINE write_output_variable_r1(ktau, ncid, varID, vname, var_r1,        &
-       vrange, writepatch, dimswitch, met)
+       writepatch, dimswitch, met)
     ! Subroutine for writing a real valued 1D variable
     INTEGER, INTENT(IN) :: ktau ! current time step #
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID
     INTEGER, INTENT(IN) :: varID ! variable's netcdf ID
     REAL(KIND=4), DIMENSION(:), INTENT(IN) :: var_r1 ! variable values
-    REAL, DIMENSION(2), INTENT(IN) :: vrange ! max and min for variable
-    ! error checking
     LOGICAL, INTENT(IN) :: writepatch ! write patch-specific info for this var?
     CHARACTER(LEN=*), INTENT(IN) :: vname ! name of variable
     CHARACTER(LEN=*), INTENT(IN) :: dimswitch ! indicates dimesnion of parameter
@@ -854,15 +852,6 @@ CONTAINS
              ! Then write data for inactive patches (if any) as dummy value:
              IF(landpt(i)%nap < max_vegpatches) otmp4xypt(land_x(i),           &
                   land_y(i), (landpt(i)%nap + 1):max_vegpatches, 1) = ncmissingr
-             IF(check%ranges) THEN  ! Check ranges:
-                DO j = 1, landpt(i)%nap ! only check active patches
-                   IF((otmp4xypt(land_x(i), land_y(i), j, 1) < vrange(1)) .OR. &
-                        (otmp4xypt(land_x(i), land_y(i), j, 1) > vrange(2)))   &
-                        CALL range_abort(vname//' is out of specified ranges!',&
-                        ktau, met, otmp4xypt(land_x(i), land_y(i), j, 1),      &
-                        vrange, i, land_x(i),land_y(i))
-                END DO
-             END IF
           END DO
           ! Fill non-land points with dummy value:
           DO j = 1, max_vegpatches
@@ -882,13 +871,6 @@ CONTAINS
                 otmp4xyzt(land_x(i), land_y(i), 1, 1) =                           &
                      SUM(var_r1(landpt(i)%cstart: &
                      landpt(i)%cend) * patch(landpt(i)%cstart:landpt(i)%cend)%frac)
-                IF(check%ranges) THEN  ! Check ranges:
-                   IF((otmp4xyzt(land_x(i), land_y(i), 1, 1) < vrange(1)) .OR.      &
-                        (otmp4xyzt(land_x(i), land_y(i), 1, 1) > vrange(2)))          &
-                        CALL range_abort(vname//' is out of specified ranges!',       &
-                        ktau, met, otmp4xyzt(land_x(i), land_y(i), 1, 1), vrange, i, &
-                        land_x(i), land_y(i))
-                END IF
              END DO
              ! Fill non-land points with dummy value:
              WHERE(mask /= 1) otmp4xyzt(:, :, 1, 1) = ncmissingr ! not land
@@ -901,13 +883,6 @@ CONTAINS
                 ! patches):
                 otmp3xyt(land_x(i), land_y(i), 1) = SUM(var_r1(landpt(i)%cstart:   &
                      landpt(i)%cend) * patch(landpt(i)%cstart:landpt(i)%cend)%frac)
-                IF(check%ranges) THEN  ! Check ranges:
-                   IF((otmp3xyt(land_x(i), land_y(i), 1) < vrange(1)) .OR.          &
-                        (otmp3xyt(land_x(i), land_y(i), 1) > vrange(2)))              &
-                        CALL range_abort(vname//' is out of specified ranges!',       &
-                        ktau, met, otmp3xyt(land_x(i), land_y(i), 1), vrange, i, &
-                        land_x(i), land_y(i))
-                END IF
              END DO
              ! Fill non-land points with dummy value:
              WHERE(mask /= 1) otmp3xyt(:, :, 1) = ncmissingr ! not land
@@ -927,14 +902,6 @@ CONTAINS
              ! Then write data for inactive patches as dummy value:
              IF(landpt(i)%nap < max_vegpatches)                                  &
                   otmp3lpt(i, (landpt(i)%nap + 1):max_vegpatches, 1) = ncmissingr
-             IF(check%ranges) THEN  ! Check ranges for active patches:
-                DO j = 1,landpt(i)%nap
-                   IF((otmp3lpt(i, j, 1) < vrange(1)) .OR.                          &
-                        (otmp3lpt(i, j, 1) > vrange(2)))                            &
-                        CALL range_abort(vname//' is out of specified ranges!',     &
-                        ktau, met, otmp3lpt(i, j, 1), vrange, i)
-                END DO
-             END IF
           END DO
           ! write data to file
           ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lpt(:, :, 1), 4),             &
@@ -945,12 +912,6 @@ CONTAINS
              ! patches):
              otmp2lt(i, 1) = SUM(var_r1(landpt(i)%cstart:                         &
                   landpt(i)%cend) * patch(landpt(i)%cstart:landpt(i)%cend)%frac)
-             IF(check%ranges) THEN  ! Check ranges:
-                IF((otmp2lt(i, 1) < vrange(1)) .OR.                                &
-                     (otmp2lt(i, 1) > vrange(2)))                                  &
-                     CALL range_abort(vname//' is out of specified ranges!',       &
-                     ktau, met, otmp2lt(i, 1), vrange, i)
-             END IF
           END DO
           ok = NF90_PUT_VAR(ncid, varID, REAL(otmp2lt, 4),                       &
                start = (/1, ktau/), count = (/mland, 1/)) ! write data to file
@@ -966,14 +927,12 @@ CONTAINS
   END SUBROUTINE write_output_variable_r1
   !=============================================================================
   SUBROUTINE write_output_variable_r2(ktau, ncid, varID, vname, var_r2,        &
-       vrange, writepatch, dimswitch, met)
+       writepatch, dimswitch, met)
     ! Subroutine for writing a real valued 2D variable
     INTEGER, INTENT(IN) :: ktau ! current time step #
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID
     INTEGER, INTENT(IN) :: varID ! variable's netcdf ID
     REAL(KIND=4), DIMENSION(:, :), INTENT(IN) :: var_r2 ! variable values
-    REAL, DIMENSION(2), INTENT(IN) :: vrange ! max and min for variable
-    ! error checking
     LOGICAL, INTENT(IN) :: writepatch ! write patch-specific info for this var?
     CHARACTER(LEN=*), INTENT(IN) :: vname ! name of variable
     CHARACTER(LEN=*), INTENT(IN) :: dimswitch ! indicates dimesnion of parameter
@@ -999,17 +958,6 @@ CONTAINS
                 ! Then write data for inactive patches (if any) as dummy value:
                 IF(landpt(i)%nap < max_vegpatches) otmp5xypst(land_x(i),          &
                      land_y(i), (landpt(i)%nap+1):max_vegpatches,:,1) = ncmissingr
-                IF(check%ranges) THEN  ! Check ranges for active patches:
-                   DO j = 1, landpt(i)%nap
-                      DO k = 1, ms
-                         IF((otmp5xypst(land_x(i), land_y(i), j, k, 1) < vrange(1))   &
-                              .OR. (otmp5xypst(land_x(i), land_y(i), j, k, 1) > vrange(2)))&
-                              CALL range_abort(vname//' is out of specified ranges!', &
-                              ktau, met, otmp5xypst(land_x(i), land_y(i), j, k, 1),   &
-                              vrange, i, land_x(i), land_y(i))
-                      END DO
-                   END DO
-                END IF
              END DO
              ! Fill non-land points with dummy value:
              DO j = 1, max_vegpatches
@@ -1029,17 +977,6 @@ CONTAINS
                 ! Then write data for inactive patches as dummy value:
                 IF(landpt(i)%nap < max_vegpatches) otmp5xypsnt(land_x(i),         &
                      land_y(i), (landpt(i)%nap + 1):max_vegpatches, :, 1) = ncmissingr
-                IF(check%ranges) THEN  ! Check ranges for active patches:
-                   DO j = 1, landpt(i)%nap
-                      DO k = 1, msn
-                         IF((otmp5xypsnt(land_x(i), land_y(i), j, k, 1) < vrange(1))  &
-                              .OR. (otmp5xypsnt(land_x(i),land_y(i),j,k,1)>vrange(2)))  &
-                              CALL range_abort(vname//' is out of specified ranges!', &
-                              ktau, met, otmp5xypsnt(land_x(i), land_y(i), j, k, 1),  &
-                              vrange, i, land_x(i), land_y(i))
-                      END DO
-                   END DO
-                END IF
              END DO
              ! Fill non-land points with dummy value:
              DO j = 1, max_vegpatches
@@ -1060,18 +997,6 @@ CONTAINS
                 ! Then write data for inactive patches as dummy value:
                 IF(landpt(i)%nap < max_vegpatches) otmp5xyprt(land_x(i),         &
                      land_y(i), (landpt(i)%nap + 1):max_vegpatches, :, 1) = ncmissingr
-                IF(check%ranges) THEN  ! Check ranges for active patches:
-                   DO j = 1, landpt(i)%nap
-                      DO k = 1, nrb
-                         IF((otmp5xyprt(land_x(i), land_y(i), j, k, 1) < vrange(1))   &
-                              .OR. (otmp5xyprt(land_x(i), land_y(i), j, k, 1) >        &
-                              vrange(2)))                                              &
-                              CALL range_abort(vname//' is out of specified ranges!',  &
-                              ktau, met, otmp5xyprt(land_x(i), land_y(i), j, k, 1),    &
-                              vrange, i, land_x(i), land_y(i))
-                      END DO
-                   END DO
-                END IF
              END DO
              ! Fill non-land points with dummy value:
              DO j = 1, max_vegpatches
@@ -1093,18 +1018,6 @@ CONTAINS
                 ! Then write data for inactive patches (if any) as dummy value:
                 IF(landpt(i)%nap < max_vegpatches) otmp5xyppct(land_x(i),        &
                      land_y(i), (landpt(i)%nap + 1):max_vegpatches, :, 1) = ncmissingr
-                IF(check%ranges) THEN  ! Check ranges for active patches:
-                   DO j = 1, landpt(i)%nap
-                      DO k = 1, ncp
-                         IF((otmp5xyppct(land_x(i), land_y(i), j, k, 1) < vrange(1))  &
-                              .OR. (otmp5xyppct(land_x(i), land_y(i), j, k, 1) >        &
-                              vrange(2)))                                               &
-                              CALL range_abort(vname//' is out of specified ranges!',   &
-                              ktau, met, otmp5xyppct(land_x(i), land_y(i), j, k, 1),    &
-                              vrange, i, land_x(i), land_y(i))
-                      END DO
-                   END DO
-                END IF
              END DO
              ! Fill non-land points with dummy value:
              DO j = 1, max_vegpatches
@@ -1125,18 +1038,6 @@ CONTAINS
                 ! Then write data for inactive patches as dummy value:
                 IF(landpt(i)%nap < max_vegpatches) otmp5xypsct(land_x(i),         &
                      land_y(i), (landpt(i)%nap + 1):max_vegpatches, :, 1) = ncmissingr
-                IF(check%ranges) THEN  ! Check ranges for active patches:
-                   DO j = 1, landpt(i)%nap
-                      DO k = 1, ncs
-                         IF((otmp5xypsct(land_x(i), land_y(i), j, k, 1) < vrange(1))  &
-                              .OR. (otmp5xypsct(land_x(i), land_y(i), j, k, 1) >       &
-                              vrange(2)))                                              &
-                              CALL range_abort(vname//' is out of specified ranges!',  &
-                              ktau, met, otmp5xypsct(land_x(i), land_y(i), j, k, 1),   &
-                              vrange, i, land_x(i), land_y(i))
-                      END DO
-                   END DO
-                END IF
              END DO
              ! Fill non-land points with dummy value:
              DO j = 1, max_vegpatches
@@ -1165,15 +1066,6 @@ CONTAINS
                         var_r2(landpt(i)%cstart:landpt(i)%cend, j) *  &
                         patch(landpt(i)%cstart:landpt(i)%cend)%frac)
                 END DO
-                IF(check%ranges) THEN  ! Check ranges:
-                   DO j = 1, ms
-                      IF((otmp4xyst(land_x(i), land_y(i), j, 1) < vrange(1)) .OR.    &
-                           (otmp4xyst(land_x(i), land_y(i), j, 1) > vrange(2)))      &
-                           CALL range_abort(vname//' is out of specified ranges!',   &
-                           ktau, met, otmp4xyst(land_x(i), land_y(i), j, 1),         &
-                           vrange, i, land_x(i), land_y(i))
-                   END DO
-                END IF
              END DO
              ! Fill non-land points with dummy value:
              DO j = 1, ms
@@ -1191,15 +1083,6 @@ CONTAINS
                         var_r2(landpt(i)%cstart:landpt(i)%cend, j) *  &
                         patch(landpt(i)%cstart:landpt(i)%cend)%frac)
                 END DO
-                IF(check%ranges) THEN  ! Check ranges:
-                   DO j = 1, msn
-                      IF((otmp4xysnt(land_x(i), land_y(i), j, 1) < vrange(1)) .OR.   &
-                           (otmp4xysnt(land_x(i), land_y(i), j, 1) > vrange(2)))     &
-                           CALL range_abort(vname//' is out of specified ranges!',   &
-                           ktau, met, otmp4xysnt(land_x(i), land_y(i), j, 1),        &
-                           vrange, i, land_x(i), land_y(i))
-                   END DO
-                END IF
              END DO
              ! Fill non-land points with dummy value:
              DO j = 1, msn
@@ -1217,15 +1100,6 @@ CONTAINS
                         var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
                         patch(landpt(i)%cstart:landpt(i)%cend)%frac)
                 END DO
-                IF(check%ranges) THEN  ! Check ranges:
-                   DO j = 1, nrb
-                      IF((otmp4xyrt(land_x(i), land_y(i), j, 1) < vrange(1)) .OR.    &
-                           (otmp4xyrt(land_x(i), land_y(i), j, 1) > vrange(2)))      &
-                           CALL range_abort(vname//' is out of specified ranges!',   &
-                           ktau, met, otmp4xyrt(land_x(i), land_y(i), j, 1),         &
-                           vrange, i, land_x(i), land_y(i))
-                   END DO
-                END IF
              END DO
              ! Fill non-land points with dummy value:
              DO j = 1, nrb
@@ -1243,15 +1117,6 @@ CONTAINS
                         var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
                         patch(landpt(i)%cstart:landpt(i)%cend)%frac)
                 END DO
-                IF(check%ranges) THEN  ! Check ranges:
-                   DO j = 1, ncp
-                      IF((otmp4xypct(land_x(i), land_y(i), j, 1) < vrange(1)) .OR.   &
-                           (otmp4xypct(land_x(i), land_y(i), j, 1) > vrange(2)))     &
-                           CALL range_abort(vname//' is out of specified ranges!',   &
-                           ktau, met, otmp4xypct(land_x(i), land_y(i), j, 1),        &
-                           vrange, i, land_x(i), land_y(i))
-                   END DO
-                END IF
              END DO
              ! Fill non-land points with dummy value:
              DO j = 1, ncp
@@ -1268,15 +1133,6 @@ CONTAINS
                         var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
                         patch(landpt(i)%cstart:landpt(i)%cend)%frac)
                 END DO
-                IF(check%ranges) THEN  ! Check ranges:
-                   DO j = 1, ncs
-                      IF((otmp4xysct(land_x(i), land_y(i), j, 1) < vrange(1)) .OR.   &
-                           (otmp4xysct(land_x(i), land_y(i), j, 1) > vrange(2)))     &
-                           CALL range_abort(vname//' is out of specified ranges!',   &
-                           ktau, met, otmp4xysct(land_x(i), land_y(i), j, 1),        &
-                           vrange, i, land_x(i), land_y(i))
-                   END DO
-                END IF
              END DO
              ! Fill non-land points with dummy value:
              DO j = 1, ncs
@@ -1306,16 +1162,6 @@ CONTAINS
                 ! Then write data for inactive patches (if any) as dummy value:
                 IF(landpt(i)%nap < max_vegpatches) otmp4lpst(i,                  &
                      (landpt(i)%nap + 1):max_vegpatches, :, 1) = ncmissingr
-                IF(check%ranges) THEN  ! Check ranges for active patches:
-                   DO j = 1, landpt(i)%nap
-                      DO k = 1, ms
-                         IF((otmp4lpst(i, j, k, 1) < vrange(1)) .OR.                  &
-                              (otmp4lpst(i, j, k, 1) > vrange(2)))                    &
-                              CALL range_abort(vname//' is out of specified ranges!', &
-                              ktau, met, otmp4lpst(i, j, k, 1), vrange, i)
-                      END DO
-                   END DO
-                END IF
              END DO
              ! Write data to file:
              ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4lpst(:, :, :, 1), 4),       &
@@ -1329,16 +1175,6 @@ CONTAINS
                 ! Then write data for inactive patches as dummy value:
                 IF(landpt(i)%nap < max_vegpatches) otmp4lpsnt(i,                 &
                      (landpt(i)%nap + 1):max_vegpatches, :, 1) = ncmissingr
-                IF(check%ranges) THEN  ! Check ranges for active patches:
-                   DO j = 1, landpt(i)%nap
-                      DO k = 1, msn
-                         IF((otmp4lpsnt(i, j, k, 1) < vrange(1)) .OR.                 &
-                              (otmp4lpsnt(i, j, k, 1) > vrange(2)))                   &
-                              CALL range_abort(vname//' is out of specified ranges!', &
-                              ktau, met, otmp4lpsnt(i, j, k, 1), vrange, i)
-                      END DO
-                   END DO
-                END IF
              END DO
              ! write data to file
              ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4lpsnt(:, :, :, 1), 4),      &
@@ -1352,16 +1188,6 @@ CONTAINS
                 ! Then write data for inactive patches as dummy value:
                 IF(landpt(i)%nap < max_vegpatches) otmp4lprt(i,                  &
                      (landpt(i)%nap + 1):max_vegpatches, :, 1) = ncmissingr
-                IF(check%ranges) THEN  ! Check ranges for active patches:
-                   DO j = 1, landpt(i)%nap
-                      DO k = 1, nrb
-                         IF((otmp4lprt(i, j, k, 1) < vrange(1)) .OR.                  &
-                              (otmp4lprt(i, j, k, 1) > vrange(2)))                    &
-                              CALL range_abort(vname//' is out of specified ranges!', &
-                              ktau, met, otmp4lprt(i, j, k, 1), vrange, i)
-                      END DO
-                   END DO
-                END IF
              END DO
              ! write data to file
              ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4lprt(:, :, :, 1), 4),       &
@@ -1376,16 +1202,6 @@ CONTAINS
                 ! Then write data for inactive patches as dummy value:
                 IF(landpt(i)%nap < max_vegpatches) otmp4lppct(i,                 &
                      (landpt(i)%nap + 1):max_vegpatches, :, 1) = ncmissingr
-                IF(check%ranges) THEN  ! Check ranges for active patches:
-                   DO j = 1, landpt(i)%nap
-                      DO k = 1, ncp
-                         IF((otmp4lppct(i, j, k, 1) < vrange(1)) .OR.                 &
-                              (otmp4lppct(i, j, k, 1) > vrange(2)))                   &
-                              CALL range_abort(vname//' is out of specified ranges!', &
-                              ktau, met, otmp4lppct(i, j, k, 1), vrange, i)
-                      END DO
-                   END DO
-                END IF
              END DO
              ! write data to file
              ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4lppct(:, :, :, 1), 4),      &
@@ -1399,16 +1215,6 @@ CONTAINS
                 ! Then write data for inactive patches as dummy value:
                 IF(landpt(i)%nap < max_vegpatches) otmp4lpsct(i,                 &
                      (landpt(i)%nap + 1):max_vegpatches, :, 1) = ncmissingr
-                IF(check%ranges) THEN  ! Check ranges for active patches:
-                   DO j = 1, landpt(i)%nap
-                      DO k = 1, ncs
-                         IF((otmp4lpsct(i, j, k, 1) < vrange(1)) .OR.                 &
-                              (otmp4lpsct(i, j, k, 1) > vrange(2)))                   &
-                              CALL range_abort(vname//' is out of specified ranges!', &
-                              ktau, met, otmp4lpsct(i, j, k, 1), vrange, i)
-                      END DO
-                   END DO
-                END IF
              END DO
              ! write data to file
              ok = NF90_PUT_VAR(ncid, varID, REAL(otmp4lpsct(:, :, :, 1), 4),      &
@@ -1430,14 +1236,6 @@ CONTAINS
                         var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
                         patch(landpt(i)%cstart:landpt(i)%cend)%frac)
                 END DO
-                IF(check%ranges) THEN  ! Check ranges:
-                   DO j = 1, ms
-                      IF((otmp3lst(i, j, 1) < vrange(1)) .OR.                        &
-                           (otmp3lst(i, j, 1) > vrange(2)))                          &
-                           CALL range_abort(vname//' is out of specified ranges!',   &
-                           ktau, met, otmp3lst(i, j, 1), vrange, i)
-                   END DO
-                END IF
              END DO
              ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lst, 4),                    &
                   start = (/1, 1, ktau/),                            &
@@ -1451,14 +1249,6 @@ CONTAINS
                         var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
                         patch(landpt(i)%cstart:landpt(i)%cend)%frac)
                 END DO
-                IF(check%ranges) THEN  ! Check ranges:
-                   DO j = 1, msn
-                      IF((otmp3lsnt(i, j, 1) < vrange(1)) .OR.                       &
-                           (otmp3lsnt(i, j, 1) > vrange(2)))                         &
-                           CALL range_abort(vname//' is out of specified ranges!',   &
-                           ktau, met, otmp3lsnt(i, j, 1), vrange, i)
-                   END DO
-                END IF
              END DO
              ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lsnt, 4),                   &
                   start = (/1, 1, ktau/),                            &
@@ -1471,14 +1261,6 @@ CONTAINS
                         var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
                         patch(landpt(i)%cstart:landpt(i)%cend)%frac)
                 END DO
-                IF(check%ranges) THEN  ! Check ranges:
-                   DO j = 1, nrb
-                      IF((otmp3lrt(i, j, 1) < vrange(1)) .OR.                        &
-                           (otmp3lrt(i, j, 1) > vrange(2)))                          &
-                           CALL range_abort(vname//' is out of specified ranges!',   &
-                           ktau, met, otmp3lrt(i, j, 1), vrange, i)
-                   END DO
-                END IF
              END DO
              ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lrt, 4),                    &
                   start = (/1, 1, ktau/),                            &
@@ -1492,14 +1274,6 @@ CONTAINS
                         var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
                         patch(landpt(i)%cstart:landpt(i)%cend)%frac)
                 END DO
-                IF(check%ranges) THEN  ! Check ranges:
-                   DO j = 1, ncp
-                      IF((otmp3lpct(i, j, 1) < vrange(1)) .OR.                       &
-                           (otmp3lpct(i, j, 1) > vrange(2)))                         &
-                           CALL range_abort(vname//' is out of specified ranges!',   &
-                           ktau, met, otmp3lpct(i, j, 1), vrange, i)
-                   END DO
-                END IF
              END DO
              ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lpct, 4),                   &
                   start = (/1, 1, ktau/),                            &
@@ -1512,14 +1286,6 @@ CONTAINS
                         var_r2(landpt(i)%cstart:landpt(i)%cend, j) * &
                         patch(landpt(i)%cstart:landpt(i)%cend)%frac)
                 END DO
-                IF(check%ranges) THEN  ! Check ranges:
-                   DO j = 1, ncs
-                      IF((otmp3lsct(i, j, 1) < vrange(1)) .OR.                       &
-                           (otmp3lsct(i, j, 1) > vrange(2)))                         &
-                           CALL range_abort(vname//' is out of specified ranges!',   &
-                           ktau, met, otmp3lsct(i, j, 1), vrange, i)
-                   END DO
-                END IF
              END DO
              ok = NF90_PUT_VAR(ncid, varID, REAL(otmp3lsct, 4),                   &
                   start = (/1, 1, ktau/),                            &
@@ -1542,15 +1308,13 @@ CONTAINS
   END SUBROUTINE write_output_variable_r2
   !=============================================================================
   SUBROUTINE write_output_parameter_r1(ncid, parID, pname, par_r1,             &
-       prange, writepatch, dimswitch, restart)
+       writepatch, dimswitch, restart)
     ! Subroutine for writing a real valued 1D parameter (time invariant)
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID
     INTEGER, INTENT(IN) :: parID ! variable's netcdf ID
     REAL(KIND=4), DIMENSION(:), INTENT(IN) :: par_r1 ! variable values
-    REAL, DIMENSION(2), INTENT(IN) :: prange ! max and min for variable
-    ! error checking
     LOGICAL, INTENT(IN) :: writepatch ! write patch-specific info for this var?
-    LOGICAL, INTENT(IN), OPTIONAL :: restart ! are we writing to a restart file?
+    LOGICAL, INTENT(IN) :: restart ! are we writing to a restart file?
     CHARACTER(LEN=*), INTENT(IN) :: pname ! name of variable
     CHARACTER(LEN=*), INTENT(IN) :: dimswitch ! indicates dimesnion of parameter
 
@@ -1560,7 +1324,7 @@ CONTAINS
     ! in the namelist file, use this grid. Else use format of met file.
     IF((output%grid(1:3) == 'mas' .OR.                                         &
          (output%grid(1:3) == 'def' .AND. metGrid == 'mask') .OR.                &
-         output%grid(1:3) == 'ALM') .AND. .NOT. PRESENT(restart)) THEN
+         output%grid(1:3) == 'ALM') .AND. .NOT. restart) THEN
        ! Should patch-specific info be written for this parameter
        ! (no patches in ALMA format)?
        IF((writepatch .OR. output%patch) .AND. (.NOT. output%grid(1:3)         &
@@ -1576,18 +1340,6 @@ CONTAINS
              ELSE IF(dimswitch(1:1) == 'i') THEN
                 IF(landpt(i)%nap < max_vegpatches) otmp3xyp(land_x(i),         &
                      land_y(i), (landpt(i)%nap + 1):max_vegpatches) = ncmissingi
-             END IF
-             IF(check%ranges) THEN  ! Check ranges over active patches:
-                DO j = 1, landpt(i)%nap
-                   IF((otmp3xyp(land_x(i), land_y(i), j) < prange(1)) .OR.     &
-                        (otmp3xyp(land_x(i), land_y(i), j) > prange(2))) THEN
-                      WRITE(*, *) 'Parameter '//pname//                        &
-                           ' is set at a value out of specified ranges!'
-                      WRITE(*, *) 'Land point # ',i, 'patch #', j
-                      WRITE(*, *) 'Value: ', otmp3xyp(land_x(i), land_y(i), j)
-                      CALL abort('Aborting.')
-                   END IF
-                END DO
              END IF
           END DO
           ! Write data to file:
@@ -1613,16 +1365,6 @@ CONTAINS
              ! Write to temporary variable. Use dominant patch info only,
              ! as averaging parameters over patches wouldn't make nec sense:
              otmp2xy(land_x(i), land_y(i)) = par_r1(landpt(i)%cstart)
-             IF(check%ranges) THEN  ! Check ranges:
-                IF((otmp2xy(land_x(i), land_y(i)) < prange(1)) .OR.            &
-                     (otmp2xy(land_x(i), land_y(i)) > prange(2))) THEN
-                   WRITE(*, *) 'Parameter '//pname//                           &
-                        ' is set at a value out of specified ranges!'
-                   WRITE(*, *) 'Land point # ',i
-                   WRITE(*, *) 'Value: ', otmp2xy(land_x(i),land_y(i))
-                   CALL abort('Aborting.')
-                END IF
-             END IF
           END DO
           ! Write data to file:
           IF(dimswitch(1:1) == 'r') THEN
@@ -1640,12 +1382,12 @@ CONTAINS
        END IF
     ELSE IF(output%grid(1:3) == 'lan'                                          &
          .OR. (output%grid(1:3) == 'def' .AND. metGrid == 'land')           &
-         .OR. PRESENT(restart)) THEN
+         .OR. restart) THEN
        ! Is patch-specific info written for this variable?
        ! If this variable has been requested by user with patch-specific info
        ! (writepatch) OR all have been (output%patch) AND we're NOT writing
        ! a restart file (which uses a different technique to store patch info):
-       IF((writepatch .OR. output%patch) .AND. .NOT. PRESENT(restart)) THEN
+       IF((writepatch .OR. output%patch) .AND. .NOT. restart) THEN
           DO i = 1, mland ! over all land grid points
              ! First write data for active patches:
              otmp2lp(i, 1:landpt(i)%nap) = par_r1(landpt(i)%cstart:            &
@@ -1657,18 +1399,6 @@ CONTAINS
                 ELSE IF(dimswitch(1:1)=='i') THEN
                    otmp2lp(i, (landpt(i)%nap + 1):max_vegpatches) = ncmissingi
                 END IF
-             END IF
-             IF(check%ranges) THEN  ! Check ranges over active patches:
-                DO j = 1, landpt(i)%nap
-                   IF((otmp2lp(i, j) < prange(1)) .OR.                         &
-                        (otmp2lp(i, j) > prange(2))) THEN
-                      WRITE(*, *) 'Parameter '//pname//                        &
-                           ' is set at a value out of specified ranges!'
-                      WRITE(*, *) 'Land point # ',i, 'patch #', j
-                      WRITE(*, *) 'Value: ', otmp2lp(i, j)
-                      CALL abort('Aborting.')
-                   END IF
-                END DO
              END IF
           END DO
           ! Write data to file
@@ -1682,7 +1412,7 @@ CONTAINS
        ELSE ! only grid point values without patch-specific info UNLESS restart
           ! file
           ! All 1D single precision restart file variables are written here.
-          IF(PRESENT(restart)) THEN ! If writing restart data:
+          IF(restart) THEN ! If writing restart data:
              ! Write output:
              IF(dimswitch(1:1) == 'r') THEN
                 ok = NF90_PUT_VAR(ncid, parID, REAL(par_r1, 4),                &
@@ -1695,16 +1425,6 @@ CONTAINS
              DO i = 1, mland ! over all land grid points
                 ! Write to temporary variable (use dominant patch info only!):
                 otmp1l(i) = par_r1(landpt(i)%cstart)
-                IF(check%ranges) THEN  ! Check ranges:
-                   IF((otmp1l(i) < prange(1)) .OR.                             &
-                        (otmp1l(i) > prange(2))) THEN
-                      WRITE(*, *) 'Parameter '//pname//                        &
-                           ' is set at a value out of specified ranges!'
-                      WRITE(*, *) 'Land point # ',i
-                      WRITE(*, *) 'Value: ', otmp1l(i)
-                      CALL abort('Aborting.')
-                   END IF
-                END IF
              END DO
              ! Write output:
              IF(dimswitch(1:1) == 'r') THEN
@@ -1728,22 +1448,20 @@ CONTAINS
   END SUBROUTINE write_output_parameter_r1
   !=============================================================================
   SUBROUTINE write_output_parameter_r1d(ncid, parID, pname, par_r1d,           &
-       prange, writepatch, dimswitch, restart)
+       writepatch, dimswitch, restart)
     ! Subroutine for writing a double precision 1D parameter (time invariant)
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID
     INTEGER, INTENT(IN) :: parID ! variable's netcdf ID
     REAL(r_2), DIMENSION(:), INTENT(IN) :: par_r1d ! variable values
-    REAL, DIMENSION(2), INTENT(IN) :: prange ! max and min for variable
-    ! error checking
     LOGICAL, INTENT(IN) :: writepatch ! write patch-specific info for this var?
-    LOGICAL,INTENT(IN),OPTIONAL :: restart ! are we writing to a restart file?
+    LOGICAL,INTENT(IN) :: restart ! are we writing to a restart file?
     CHARACTER(LEN=*), INTENT(IN) :: pname ! name of variable
     CHARACTER(LEN=*), INTENT(IN) :: dimswitch ! indicates dimesnion of parameter
 
     INTEGER :: i, j ! do loop counter
     REAL(r_2), POINTER, DIMENSION(:, :) :: tmpout
 
-    IF(PRESENT(restart)) THEN ! If writing to a a restart file
+    IF(restart) THEN ! If writing to a a restart file
        ! Write parameter data:
        ok = NF90_PUT_VAR(ncid, parID, par_r1d,                                 &
             start = (/1, 1/), count = (/mp/)) ! write data to file
@@ -1759,18 +1477,6 @@ CONTAINS
           IF(landpt(i)%nap < max_vegpatches)                                   &
                tmpout(i, (landpt(i)%nap + 1):max_vegpatches) =                 &
                REAL(ncmissingr, r_2)
-          IF(check%ranges) THEN  ! Check ranges over active patches:
-             DO j = 1, landpt(i)%nap
-                IF((tmpout(i, j) < prange(1)) .OR.                             &
-                     (tmpout(i, j) > prange(2))) THEN
-                   WRITE(*, *) 'Parameter '//pname//                           &
-                        ' is set at a value out of specified ranges!'
-                   WRITE(*, *) 'Land point # ',i, 'patch #', j
-                   WRITE(*, *) 'Value: ', tmpout(i, j)
-                   CALL abort('Aborting.')
-                END IF
-             END DO
-          END IF
        END DO
        ok = NF90_PUT_VAR(ncid, parID, REAL(tmpout(:, :), 8), start = (/1, 1/), &
             count = (/mland, max_vegpatches/)) ! write data to file
@@ -1782,14 +1488,12 @@ CONTAINS
 
   END SUBROUTINE write_output_parameter_r1d
   !=============================================================================
-  SUBROUTINE write_output_parameter_r2(ncid, parID, pname, par_r2, prange,     &
+  SUBROUTINE write_output_parameter_r2(ncid, parID, pname, par_r2,     &
        writepatch, dimswitch, restart)
     ! Subroutine for writing a real valued 2D parameter (time invariant)
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID
     INTEGER, INTENT(IN) :: parID ! variable's netcdf ID
     REAL(KIND=4), DIMENSION(:, :), INTENT(IN) :: par_r2 ! variable values
-    REAL, DIMENSION(2), INTENT(IN) :: prange ! max and min for variable
-    ! error checking
     LOGICAL, INTENT(IN) :: writepatch ! write patch-specific info for this var?
     LOGICAL,INTENT(IN),OPTIONAL :: restart ! are we writing to a restart file?
     CHARACTER(LEN=*), INTENT(IN) :: pname ! name of variable
@@ -1801,7 +1505,7 @@ CONTAINS
     ! in the namelist file, use this grid. Else use format of met file.
     IF((output%grid(1:3) == 'mas' .OR.                                         &
          (output%grid(1:3) == 'def' .AND. metGrid == 'mask') .OR.                &
-         output%grid(1:3) == 'ALM') .AND. .NOT. PRESENT(restart)) THEN
+         output%grid(1:3) == 'ALM') .AND. .NOT. restart) THEN
        ! Should patch-specific info be written for this parameter
        ! (no patches in ALMA format)?
        IF((writepatch .OR. output%patch) .AND. (.NOT. output%grid(1:3)          &
@@ -1816,18 +1520,6 @@ CONTAINS
                 ! Then write data for inactive patches as dummy value:
                 IF(landpt(i)%nap < max_vegpatches) otmp4xyps(land_x(i),           &
                      land_y(i), (landpt(i)%nap + 1):max_vegpatches, :) = ncmissingr
-                IF(check%ranges) THEN  ! Check ranges:
-                   DO j = 1, landpt(i)%nap
-                      IF(ANY(otmp4xyps(land_x(i), land_y(i), j, :) < prange(1)) .OR. &
-                           ANY(otmp4xyps(land_x(i), land_y(i), j, :) > prange(2))) THEN
-                         WRITE(*, *) 'Parameter '//pname//                            &
-                              ' is set at a value out of specified ranges!'
-                         WRITE(*, *) 'Land point # ', i, 'patch #', j
-                         WRITE(*, *) 'Values: ', otmp4xyps(land_x(i), land_y(i), j, :)
-                         CALL abort('Aborting.')
-                      END IF
-                   END DO
-                END IF
              END DO
              ! Fill non-land points with dummy value:
              DO j =1, max_vegpatches
@@ -1848,19 +1540,6 @@ CONTAINS
                 ! Then write data for inactive patches as dummy value:
                 IF(landpt(i)%nap < max_vegpatches) otmp4xyppc(land_x(i),          &
                      land_y(i), (landpt(i)%nap + 1):max_vegpatches, :) = ncmissingr
-                IF(check%ranges) THEN  ! Check ranges:
-                   DO j = 1, landpt(i)%nap
-                      IF(ANY(otmp4xyppc(land_x(i), land_y(i), j, :) < prange(1))     &
-                           .OR. ANY(otmp4xyppc(land_x(i), land_y(i), j, :) >           &
-                           prange(2))) THEN
-                         WRITE(*, *) 'Parameter '//pname//                            &
-                              ' is set at a value out of specified ranges!'
-                         WRITE(*, *) 'Land point # ', i, 'patch #', j
-                         WRITE(*, *) 'Values: ', otmp4xyppc(land_x(i), land_y(i), j, :)
-                         CALL abort('Aborting.')
-                      END IF
-                   END DO
-                END IF
              END DO
              ! Fill non-land points with dummy value:
              DO j = 1, max_vegpatches
@@ -1881,19 +1560,6 @@ CONTAINS
                 ! Then write data for inactive patches as dummy value:
                 IF(landpt(i)%nap < max_vegpatches) otmp4xypsc(land_x(i),          &
                      land_y(i), (landpt(i)%nap + 1):max_vegpatches, :) = ncmissingr
-                IF(check%ranges) THEN  ! Check ranges:
-                   DO j = 1, landpt(i)%nap
-                      IF(ANY(otmp4xypsc(land_x(i), land_y(i), j, :) < prange(1))     &
-                           .OR. ANY(otmp4xypsc(land_x(i), land_y(i), j, :) >           &
-                           prange(2)))  THEN
-                         WRITE(*, *) 'Parameter '//pname//                            &
-                              ' is set at a value out of specified ranges!'
-                         WRITE(*, *) 'Land point # ', i, 'patch #', j
-                         WRITE(*, *) 'Values: ', otmp4xypsc(land_x(i), land_y(i), j, :)
-                         CALL abort('Aborting.')
-                      END IF
-                   END DO
-                END IF
              END DO
              ! Fill non-land points with dummy value:
              DO j = 1, max_vegpatches
@@ -1914,19 +1580,6 @@ CONTAINS
                 ! Then write data for inactive patches as dummy value:
                 IF(landpt(i)%nap < max_vegpatches) otmp4xypr(land_x(i),           &
                      land_y(i), (landpt(i)%nap + 1):max_vegpatches, :) = ncmissingr
-                IF(check%ranges) THEN  ! Check ranges:
-                   DO j = 1, landpt(i)%nap
-                      IF(ANY(otmp4xypr(land_x(i), land_y(i), j, :) < prange(1))      &
-                           .OR. ANY(otmp4xypr(land_x(i), land_y(i), j, :) >            &
-                           prange(2)))  THEN
-                         WRITE(*, *) 'Parameter '//pname//                            &
-                              ' is set at a value out of specified ranges!'
-                         WRITE(*, *) 'Land point # ', i, 'patch #', j
-                         WRITE(*, *) 'Values: ', otmp4xypr(land_x(i), land_y(i), j, :)
-                         CALL abort('Aborting.')
-                      END IF
-                   END DO
-                END IF
              END DO
              ! Fill non-land points with dummy value:
              DO j = 1, max_vegpatches
@@ -1949,16 +1602,6 @@ CONTAINS
              DO i = 1, mland ! over all land grid points
                 ! Write to temporary variable (use dominant patch info only!):
                 otmp3xys(land_x(i), land_y(i), :) = par_r2(landpt(i)%cstart, :)
-                IF(check%ranges) THEN  ! Check ranges:
-                   IF(ANY(otmp3xys(land_x(i), land_y(i), :) < prange(1)) .OR.       &
-                        ANY(otmp3xys(land_x(i), land_y(i), :) > prange(2))) THEN
-                      WRITE(*, *) 'Parameter '//pname//                              &
-                           ' is set at a value out of specified ranges!'
-                      WRITE(*, *) 'Land point # ', i
-                      WRITE(*, *) 'Values: ', otmp3xys(land_x(i), land_y(i), :)
-                      CALL abort('Aborting.')
-                   END IF
-                END IF
              END DO
              ! Fill non-land points with dummy value:
              DO j = 1, ms
@@ -1971,16 +1614,6 @@ CONTAINS
              DO i = 1, mland ! over all land grid points
                 ! Write to temporary variable (use dominant patch info only!):
                 otmp3xypc(land_x(i), land_y(i), :) = par_r2(landpt(i)%cstart, :)
-                IF(check%ranges) THEN  ! Check ranges:
-                   IF(ANY(otmp3xypc(land_x(i), land_y(i), :) < prange(1)) .OR.      &
-                        ANY(otmp3xypc(land_x(i), land_y(i), :) > prange(2))) THEN
-                      WRITE(*, *) 'Parameter '//pname//                              &
-                           ' is set at a value out of specified ranges!'
-                      WRITE(*, *) 'Land point # ', i
-                      WRITE(*, *) 'Values: ', otmp3xypc(land_x(i), land_y(i), :)
-                      CALL abort('Aborting.')
-                   END IF
-                END IF
              END DO
              ! Fill non-land points with dummy value:
              DO j = 1, ncp
@@ -1993,16 +1626,6 @@ CONTAINS
              DO i = 1, mland ! over all land grid points
                 ! Write to temporary variable (use dominant patch info only!):
                 otmp3xysc(land_x(i), land_y(i), :) = par_r2(landpt(i)%cstart, :)
-                IF(check%ranges) THEN  ! Check ranges:
-                   IF(ANY(otmp3xysc(land_x(i), land_y(i), :) < prange(1)) .OR.      &
-                        ANY(otmp3xysc(land_x(i), land_y(i), :) > prange(2))) THEN
-                      WRITE(*, *) 'Parameter '//pname//                              &
-                           ' is set at a value out of specified ranges!'
-                      WRITE(*, *) 'Land point # ', i
-                      WRITE(*, *) 'Values: ', otmp3xysc(land_x(i), land_y(i), :)
-                      CALL abort('Aborting.')
-                   END IF
-                END IF
              END DO
              ! Fill non-land points with dummy value:
              DO j = 1, ncs
@@ -2015,16 +1638,6 @@ CONTAINS
              DO i = 1, mland ! over all land grid points
                 ! Write to temporary variable (use dominant patch info only!):
                 otmp3xyr(land_x(i), land_y(i), :) = par_r2(landpt(i)%cstart, :)
-                IF(check%ranges) THEN  ! Check ranges:
-                   IF(ANY(otmp3xyr(land_x(i), land_y(i), :) < prange(1)) .OR.       &
-                        ANY(otmp3xyr(land_x(i), land_y(i), :) > prange(2))) THEN
-                      WRITE(*, *) 'Parameter '//pname//                              &
-                           ' is set at a value out of specified ranges!'
-                      WRITE(*, *) 'Land point # ', i
-                      WRITE(*, *) 'Values: ', otmp3xyr(land_x(i), land_y(i), :)
-                      CALL abort('Aborting.')
-                   END IF
-                END IF
              END DO
              ! Fill non-land points with dummy value:
              DO j = 1, nrb
@@ -2037,16 +1650,6 @@ CONTAINS
              DO i = 1, mland ! over all land grid points
                 ! Write to temporary variable (surf fraction only has mp dimension):
                 otmp3xysf(land_x(i), land_y(i), :) = par_r2(i, :)
-                IF(check%ranges) THEN  ! Check ranges:
-                   IF(ANY(otmp3xysf(land_x(i), land_y(i), :) < prange(1)) .OR.      &
-                        ANY(otmp3xysf(land_x(i), land_y(i), :) > prange(2))) THEN
-                      WRITE(*, *) 'Parameter '//pname//                              &
-                           ' is set at a value out of specified ranges!'
-                      WRITE(*, *) 'Land point # ', i
-                      WRITE(*, *) 'Values: ', otmp3xysf(land_x(i), land_y(i), :)
-                      CALL abort('Aborting.')
-                   END IF
-                END IF
              END DO
              ! Fill non-land points with dummy value:
              DO j = 1, 4
@@ -2063,10 +1666,10 @@ CONTAINS
        END IF
     ELSE IF(output%grid(1:3) == 'lan'                                          &
          .OR.(output%grid(1:3) == 'def' .AND. metGrid == 'land')            &
-         .OR. PRESENT(restart)) THEN
+         .OR. restart) THEN
        ! Does this variable have a patch dimension (restart does not)?
        IF((writepatch .OR. output%patch) .AND. (dimswitch /= 'surftype')        &
-            .AND. .NOT. PRESENT(restart)) THEN
+            .AND. .NOT. restart) THEN
           ! Check the nature of the parameter's second dimension:
           IF(dimswitch == 'soil') THEN ! i.e. spatial and soil
              DO i = 1, mland ! over all land grid points
@@ -2076,18 +1679,6 @@ CONTAINS
                 ! Then write data for inactive patches as dummy value:
                 IF(landpt(i)%nap < max_vegpatches)                                &
                      otmp3lps(i, (landpt(i)%nap + 1):max_vegpatches, :) = ncmissingr
-                IF(check%ranges) THEN  ! Check ranges over active patches:
-                   DO j = 1, landpt(i)%nap
-                      IF(ANY(otmp3lps(i, j, :) < prange(1)) .OR.                     &
-                           ANY(otmp3lps(i, j, :) > prange(2)))  THEN
-                         WRITE(*, *) 'Parameter '//pname// &
-                              ' is set at a value out of specified ranges!'
-                         WRITE(*, *) 'Land point # ', i, 'patch #', j
-                         WRITE(*, *) 'Values: ', otmp3lps(i, j, :)
-                         CALL abort('Aborting.')
-                      END IF
-                   END DO
-                END IF
              END DO
              ! write data to file
              ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3lps(:, :, :), 4),           &
@@ -2100,18 +1691,6 @@ CONTAINS
                 ! Then write data for inactive patches as dummy value:
                 IF(landpt(i)%nap < max_vegpatches)                                &
                      otmp3lppc(i, (landpt(i)%nap + 1):max_vegpatches, :) = ncmissingr
-                IF(check%ranges) THEN  ! Check ranges over active patches:
-                   DO j = 1, landpt(i)%nap
-                      IF(ANY(otmp3lppc(i, j, :) < prange(1)) .OR.                    &
-                           ANY(otmp3lppc(i, j, :) > prange(2)))  THEN
-                         WRITE(*, *) 'Parameter '//pname//                            &
-                              ' is set at a value out of specified ranges!'
-                         WRITE(*, *) 'Land point # ', i, 'patch #', j
-                         WRITE(*, *) 'Values: ', otmp3lppc(i, j, :)
-                         CALL abort('Aborting.')
-                      END IF
-                   END DO
-                END IF
              END DO
              ! write data to file
              ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3lppc(:, :, :), 4),          &
@@ -2124,18 +1703,6 @@ CONTAINS
                 ! Then write data for inactive patches as dummy value:
                 IF(landpt(i)%nap < max_vegpatches)                                &
                      otmp3lpsc(i, (landpt(i)%nap + 1):max_vegpatches, :) = ncmissingr
-                IF(check%ranges) THEN  ! Check ranges over active patches:
-                   DO j = 1, landpt(i)%nap
-                      IF(ANY(otmp3lpsc(i, j, :) < prange(1)) .OR.                    &
-                           ANY(otmp3lpsc(i, j, :) > prange(2))) THEN
-                         WRITE(*, *) 'Parameter '//pname//                            &
-                              ' is set at a value out of specified ranges!'
-                         WRITE(*, *) 'Land point # ', i, 'patch #', j
-                         WRITE(*, *) 'Values: ', otmp3lpsc(i, j, :)
-                         CALL abort('Aborting.')
-                      END IF
-                   END DO
-                END IF
              END DO
              ! write data to file
              ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3lpsc(:, :, :), 4),          &
@@ -2149,18 +1716,6 @@ CONTAINS
                 ! Then write data for inactive patches as dummy value:
                 IF(landpt(i)%nap < max_vegpatches)                                &
                      otmp3lpr(i, (landpt(i)%nap + 1):max_vegpatches, :) = ncmissingr
-                IF(check%ranges) THEN  ! Check ranges over active patches:
-                   DO j = 1,landpt(i)%nap
-                      IF(ANY(otmp3lpr(i, j, :) < prange(1)) .OR.                     &
-                           ANY(otmp3lpr(i, j, :) > prange(2))) THEN
-                         WRITE(*, *) 'Parameter '//pname//                            &
-                              ' is set at a value out of specified ranges!'
-                         WRITE(*, *) 'Land point # ', i, 'patch #', j
-                         WRITE(*, *) 'Values: ', otmp3lpr(i, j, :)
-                         CALL abort('Aborting.')
-                      END IF
-                   END DO
-                END IF
              END DO
              ! write data to file
              ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3lpr(:, :, :), 4),           &
@@ -2173,18 +1728,6 @@ CONTAINS
                 ! Then write data for inactive patches as dummy value:
                 IF(landpt(i)%nap < max_vegpatches)                                &
                      otmp3lpsn(i, (landpt(i)%nap + 1):max_vegpatches, :) = ncmissingr
-                IF(check%ranges) THEN  ! Check ranges over active patches:
-                   DO j = 1, landpt(i)%nap
-                      IF(ANY(otmp3lpsn(i, j, :) < prange(1)) .OR.                    &
-                           ANY(otmp3lpsn(i, j, :) > prange(2))) THEN
-                         WRITE(*, *) 'Parameter '//pname//                            &
-                              ' is set at a value out of specified ranges!'
-                         WRITE(*, *) 'Land point # ', i, 'patch #', j
-                         WRITE(*, *) 'Values: ', otmp3lpsn(i, j, :)
-                         CALL abort('Aborting.')
-                      END IF
-                   END DO
-                END IF
              END DO
              ! write data to file
              ok = NF90_PUT_VAR(ncid, parID, REAL(otmp3lpsn(:, :, :), 4),          &
@@ -2197,7 +1740,7 @@ CONTAINS
        ELSE ! Varaible has no patch dimension
           ! Check the nature of the parameter's second dimension:
           IF(dimswitch=='soil') THEN ! i.e. spatial and soil
-             IF(PRESENT(restart)) THEN
+             IF(restart) THEN
                 ! Write data to restart file
                 ok=NF90_PUT_VAR(ncid,parID,REAL(par_r2,4), &
                      start=(/1,1/),count=(/mp,ms/))
@@ -2205,22 +1748,12 @@ CONTAINS
                 DO i = 1, mland ! over all land grid points
                    ! Write to temporary variable (use dominant patch info only!):
                    otmp2ls(i,:) = par_r2(landpt(i)%cstart,:)
-                   IF(check%ranges) THEN  ! Check ranges:
-                      IF(ANY(otmp2ls(i,:)<prange(1)).OR. &
-                           ANY(otmp2ls(i,:)>prange(2))) THEN
-                         WRITE(*,*) 'Parameter '//pname// &
-                              ' is set at a value out of specified ranges!'
-                         WRITE(*,*) 'Land point # ',i
-                         WRITE(*,*) 'Values: ', otmp2ls(i,:)
-                         CALL abort('Aborting.')
-                      END IF
-                   END IF
                 END DO
                 ok=NF90_PUT_VAR(ncid,parID,REAL(otmp2ls,4), &
                      start=(/1,1/),count=(/mland,ms/)) ! write data to file
              END IF
           ELSE IF(dimswitch == 'plantcarbon') THEN ! i.e. spatial and plant carbon
-             IF(PRESENT(restart)) THEN
+             IF(restart) THEN
                 ! Write data to restart file
                 ok = NF90_PUT_VAR(ncid, parID, REAL(par_r2, 4),                  &
                      start = (/1, 1/), count = (/mp, ncp/))
@@ -2228,22 +1761,12 @@ CONTAINS
                 DO i = 1, mland ! over all land grid points
                    ! Write to temporary variable (use dominant patch info only!):
                    otmp2lpc(i, :) = par_r2(landpt(i)%cstart, :)
-                   IF(check%ranges) THEN  ! Check ranges:
-                      IF(ANY(otmp2lpc(i, :) < prange(1)) .OR.                    &
-                           ANY(otmp2lpc(i, :) > prange(2))) THEN
-                         WRITE(*, *) 'Parameter '//pname//                       &
-                              ' is set at a value out of specified ranges!'
-                         WRITE(*, *) 'Land point # ', i
-                         WRITE(*, *) 'Values: ', otmp2lpc(i, :)
-                         CALL abort('Aborting.')
-                      END IF
-                   END IF
                 END DO
                 ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2lpc, 4),                &
                      start = (/1, 1/), count = (/mland, ncp/)) ! write data to file
              END IF
           ELSE IF(dimswitch == 'soilcarbon') THEN ! i.e. spatial and soil carbon
-             IF(PRESENT(restart)) THEN
+             IF(restart) THEN
                 ! Write data to restart file
                 ok = NF90_PUT_VAR(ncid, parID, REAL(par_r2, 4),                  &
                      start = (/1, 1/), count = (/mp, ncs/))
@@ -2251,23 +1774,13 @@ CONTAINS
                 DO i = 1, mland ! over all land grid points
                    ! Write to temporary variable (use dominant patch info only!):
                    otmp2lsc(i, :) = par_r2(landpt(i)%cstart, :)
-                   IF(check%ranges) THEN  ! Check ranges:
-                      IF(ANY(otmp2lsc(i, :) < prange(1)) .OR.                    &
-                           ANY(otmp2lsc(i, :) > prange(2))) THEN
-                         WRITE(*, *) 'Parameter '//pname//                       &
-                              ' is set at a value out of specified ranges!'
-                         WRITE(*, *) 'Land point # ', i
-                         WRITE(*, *) 'Values: ', otmp2lsc(i, :)
-                         CALL abort('Aborting.')
-                      END IF
-                   END IF
                 END DO
                 ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2lsc, 4),                &
                      start = (/1, 1/), count=(/mland, ncs/)) ! write data to file
              END IF
           ELSE IF(dimswitch == 'radiation') THEN ! i.e. spatial and radiation
              ! bands
-             IF(PRESENT(restart)) THEN
+             IF(restart) THEN
                 ! Write data to restart file
                 ok = NF90_PUT_VAR(ncid, parID, REAL(par_r2, 4),                  &
                      start = (/1, 1/), count = (/mp, nrb/))
@@ -2275,22 +1788,12 @@ CONTAINS
                 DO i = 1, mland ! over all land grid points
                    ! Write to temporary variable (use dominant patch info only!):
                    otmp2lr(i, :) = par_r2(landpt(i)%cstart, :)
-                   IF(check%ranges) THEN  ! Check ranges:
-                      IF(ANY(otmp2lr(i, :) < prange(1)) .OR.                     &
-                           ANY(otmp2lr(i, :) > prange(2))) THEN
-                         WRITE(*, *) 'Parameter '//pname//                       &
-                              ' is set at a value out of specified ranges!'
-                         WRITE(*, *) 'Land point # ', i
-                         WRITE(*, *) 'Values: ', otmp2lr(i, :)
-                         CALL abort('Aborting.')
-                      END IF
-                   END IF
                 END DO
                 ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2lr, 4),                 &
                      start = (/1, 1/), count = (/mland, nrb/)) ! write data to file
              END IF
           ELSE IF(dimswitch == 'snow') THEN ! i.e. spatial and radiation bands
-             IF(PRESENT(restart)) THEN
+             IF(restart) THEN
                 ! Write data to restart file
                 ok = NF90_PUT_VAR(ncid, parID, REAL(par_r2, 4),                  &
                      start = (/1, 1/), count = (/mp, msn/))
@@ -2298,16 +1801,6 @@ CONTAINS
                 DO i = 1, mland ! over all land grid points
                    ! Write to temporary variable (use dominant patch info only!):
                    otmp2lsn(i, :) = par_r2(landpt(i)%cstart, :)
-                   IF(check%ranges) THEN  ! Check ranges:
-                      IF(ANY(otmp2lsn(i, :) < prange(1)) .OR.                    &
-                           ANY(otmp2lsn(i, :) > prange(2))) THEN
-                         WRITE(*, *) 'Parameter '//pname//                       &
-                              ' is set at a value out of specified ranges!'
-                         WRITE(*, *) 'Land point # ', i
-                         WRITE(*, *) 'Values: ', otmp2lsn(i, :)
-                         CALL abort('Aborting.')
-                      END IF
-                   END IF
                 END DO
                 ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2lsn, 4),                &
                      start = (/1, 1/), count = (/mland, msn/)) ! write data to file
@@ -2316,16 +1809,6 @@ CONTAINS
              DO i = 1, mland ! over all land grid points
                 ! Write to temporary variable (use dominant patch info only!):
                 otmp2lsf(i, :) = par_r2(i, :)
-                IF(check%ranges) THEN  ! Check ranges:
-                   IF(ANY(otmp2lsf(i, :) < prange(1)) .OR.                          &
-                        ANY(otmp2lsf(i, :) > prange(2))) THEN
-                      WRITE(*, *) 'Parameter '//pname//                              &
-                           ' is set at a value out of specified ranges!'
-                      WRITE(*, *) 'Land point # ', i
-                      WRITE(*, *) 'Values: ', otmp2lsf(i, :)
-                      CALL abort('Aborting.')
-                   END IF
-                END IF
              END DO
              ok = NF90_PUT_VAR(ncid, parID, REAL(otmp2lsf, 4),                    &
                   start = (/1, 1/), count = (/mland, 4/)) ! write data to file
@@ -2345,15 +1828,13 @@ CONTAINS
 
   END SUBROUTINE write_output_parameter_r2
   !==============================================================================
-  SUBROUTINE write_output_parameter_r2d(ncid, parID, pname, par_r2d, prange,   &
+  SUBROUTINE write_output_parameter_r2d(ncid, parID, pname, par_r2d,  &
        writepatch, dimswitch, restart)
     ! Subroutine for writing a double precision 2D parameter (time invariant)
     ! ONLY USED FOR RESTART FILE.
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID
     INTEGER, INTENT(IN) :: parID ! variable's netcdf ID
     REAL(r_2), DIMENSION(:, :), INTENT(IN) :: par_r2d ! variable values
-    REAL, DIMENSION(2), INTENT(IN) :: prange ! max and min for variable
-    ! error checking
     LOGICAL, INTENT(IN) :: writepatch ! write patch-specific info for this var?
     LOGICAL,INTENT(IN),OPTIONAL :: restart ! are we writing to a restart file?
     CHARACTER(LEN=*), INTENT(IN) :: pname ! name of variable
@@ -2364,7 +1845,7 @@ CONTAINS
 
     ! Check the nature of the parameter's second dimension:
     IF(dimswitch == 'soil') THEN ! i.e. spatial and soil
-       IF(PRESENT(restart)) THEN
+       IF(restart) THEN
           ! Write data to restart file
           ok = NF90_PUT_VAR(ncid, parID, par_r2d,                              &
                start = (/1, 1/), count = (/mp, ms/))
@@ -2378,18 +1859,6 @@ CONTAINS
              IF(landpt(i)%nap < max_vegpatches)                                &
                   tmpout(i, (landpt(i)%nap + 1):max_vegpatches, :) =           &
                   REAL(ncmissingr, r_2)
-             IF(check%ranges) THEN  ! Check ranges over active patches:
-                DO j = 1, landpt(i)%nap
-                   IF(ANY(tmpout(i, j, :) < prange(1)) .OR.                    &
-                        ANY(tmpout(i, j, :) > prange(2)))  THEN
-                      WRITE(*, *) 'Parameter '//pname//                        &
-                           ' is set at a value out of specified ranges!'
-                      WRITE(*, *) 'Land point # ',i, 'patch #', j
-                      WRITE(*, *) 'Values: ', tmpout(i, j, :)
-                      CALL abort('Aborting.')
-                   END IF
-                END DO
-             END IF
           END DO
           ok = NF90_PUT_VAR(ncid, parID, REAL(tmpout(:, :, :), 8),             &
                start = (/1, 1, 1/),                               &

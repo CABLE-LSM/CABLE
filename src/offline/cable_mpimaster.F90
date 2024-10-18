@@ -158,19 +158,19 @@ CONTAINS
     USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,globalMetfile, &
          verbose, fixedCO2,output,check,patchout,    &
          patch_type,landpt,soilparmnew,&
-         defaultLAI, sdoy, smoy, syear, timeunits, exists, output, &
-         latitude,longitude, calendar
+         timeunits, exists, output, &
+         calendar, set_group_output_values
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
-         cable_runtime, fileName, myhome,            &
+         cable_runtime, fileName,            &
          redistrb, wiltParam, satuParam, CurYear,    &
          IS_LEAPYEAR, calcsoilalbedo,                &
          kwidth_gl, gw_params
-  USE casa_ncdf_module, ONLY: is_casa_time
-! physical constants
-USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
-USE cable_phys_constants_mod, ONLY : CEMLEAF => EMLEAF
-USE cable_phys_constants_mod, ONLY : CEMSOIL => EMSOIL
-USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
+    USE casa_ncdf_module, ONLY: is_casa_time
+    ! physical constants
+    USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
+    USE cable_phys_constants_mod, ONLY : CEMLEAF => EMLEAF
+    USE cable_phys_constants_mod, ONLY : CEMSOIL => EMSOIL
+    USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
     USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
          get_met_data,close_met_file
     USE cable_output_module,  ONLY: create_restart,open_output_file,            &
@@ -205,12 +205,12 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
     USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT
 
     USE cable_namelist_util,  ONLY : get_namelist_file_name,&
-                                     CABLE_NAMELIST,arg_not_namelist
+                                     CABLE_NAMELIST
 
     USE landuse_constant,     ONLY: mstate,mvmax,mharvw
     USE landuse_variable
-USE bgcdriver_mod, ONLY : bgcdriver
-USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_NC 
+    USE bgcdriver_mod, ONLY : bgcdriver
+    USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_NC
     IMPLICIT NONE
 
     ! MPI:
@@ -231,12 +231,9 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
          ktauday,    &  ! day counter for CASA-CNP
          idoy,       &  ! day of year (1:365) counter for CASA-CNP
          nyear,      &  ! year counter for CASA-CNP
-         casa_it,    &  ! number of calls to CASA-CNP
          ctime,      &  ! day count for casacnp
          YYYY,       &  !
          LOY,        &  ! Length of Year
-         count_sum_casa, & ! number of time steps over which casa pools and fluxes are aggregated (for output)
-
          maxdiff(2)     ! location of maximum in convergence test
 
     REAL      :: dels   ! time step size in seconds
@@ -310,11 +307,10 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
     LOGICAL :: loop_exit     ! MPI: exit flag for bcast to workers
     INTEGER :: iktau    ! read ahead index of time step = 1 ..  kend
     INTEGER :: oktau    ! ktau = 1 ..  kend for output
-    INTEGER :: tmp_kgl    ! temp for ktau_gl
     INTEGER :: icomm ! separate dupes of MPI communicator for send and recv
     INTEGER :: ocomm ! separate dupes of MPI communicator for send and recv
     INTEGER :: ierr
-    INTEGER :: rank, count, off, cnt
+    INTEGER :: rank, off, cnt
 
     ! Vars for standard for quasi-bitwise reproducability b/n runs
     ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
@@ -364,13 +360,13 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
          cable_user,       &  ! additional USER switches
          gw_params        
  
-    INTEGER :: i,x,kk,m,np,ivt
+    INTEGER :: kk,m,np,ivt
     INTEGER :: LALLOC
-    INTEGER, PARAMETER ::	 mloop	= 30   ! CASA-CNP PreSpinup loops
+    INTEGER, PARAMETER :: mloop = 30   ! CASA-CNP PreSpinup loops
     REAL    :: etime
 
 ! for landuse
-    integer     mlon,mlat,mpx
+    integer     mlon,mlat
     real(r_2), dimension(:,:,:),   allocatable,  save  :: luc_atransit
     real(r_2), dimension(:,:),     allocatable,  save  :: luc_fharvw
     real(r_2), dimension(:,:,:),   allocatable,  save  :: luc_xluh2cable
@@ -407,6 +403,10 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
     ENDIF
 
     ! INITIALISATION depending on nml settings
+    ! Initialise flags to output individual variables according to group
+    ! options from the namelist file
+    CALL set_group_output_values()
+
     IF (TRIM(cable_user%MetType) .EQ. 'gswp' .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
        IF ( CABLE_USER%YearStart.EQ.0 .AND. ncciy.GT.0) THEN
           CABLE_USER%YearStart = ncciy
@@ -530,7 +530,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
                 CALL CPU_TIME(etime)
                 CALL CRU_INIT( CRU )
 
-                dels	   = CRU%dtsecs
+                dels = CRU%dtsecs
                 koffset   = 0
                 leaps = .FALSE.         ! No leap years in CRU-NCEP
                 exists%Snowf = .FALSE.  ! No snow in CRU-NCEP, so ensure it will
@@ -594,11 +594,11 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
 
 
              ! vh_js !
-             CALL load_parameters( met, air, ssnow, veg,climate,bgc,		&
-                  soil, canopy, rough, rad, sum_flux,			 &
-                  bal, logn, vegparmnew, casabiome, casapool,		 &
+             CALL load_parameters( met, air, ssnow, veg,climate,bgc, &
+                  soil, canopy, rough, rad, sum_flux, &
+                  bal, logn, vegparmnew, casabiome, casapool, &
                   casaflux, sum_casapool, sum_casaflux, &
-                  casamet, casabal, phen, POP, spinup,	       &
+                  casamet, casabal, phen, POP, spinup, &
                   CEMSOIL, CTFRZ, LUC_EXPT, POPLUC )
 
              IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
@@ -612,7 +612,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
              met%ofsd = 0.1
 
 
-             IF (.NOT.spinup)	spinConv=.TRUE.
+             IF (.NOT.spinup) spinConv=.TRUE.
 
              ! MPI: above was standard serial code
              ! now it's time to initialize the workers
@@ -630,7 +630,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
              CALL find_extents
 
              ! MPI: calculate and broadcast landpoint decomposition to the workers
-             CALL master_decomp(comm, mland, mp)
+             CALL master_decomp(comm, mland)
 
              ! MPI: set up stuff for new irecv isend code that separates completion
              ! from posting of requests
@@ -666,7 +666,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
                 CALL master_casa_params (comm,casabiome,casapool,casaflux,casamet,&
                      &                        casabal,phen)
 
-                IF ( CABLE_USER%CALL_POP ) CALL master_pop_types (comm,casamet,pop)
+                IF ( CABLE_USER%CALL_POP ) CALL master_pop_types (comm,pop)
              END IF
 
              ! MPI: allocate read ahead buffers for input met and veg data
@@ -691,7 +691,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
                      casamet, casabal, phen)
 
                 IF ( CABLE_USER%CASA_DUMP_READ .OR. CABLE_USER%CASA_DUMP_WRITE ) &
-                     CALL master_casa_dump_types( comm, casamet, casaflux, phen, climate )
+                     CALL master_casa_dump_types( comm, casamet, casaflux, phen )
                 WRITE(*,*) 'cable_mpimaster, POPLUC: ' ,  CABLE_USER%POPLUC
                 IF ( CABLE_USER%POPLUC ) &
                      CALL master_casa_LUC_types( comm, casapool, casabal)
@@ -711,15 +711,15 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
              IF( icycle>0 .AND. spincasa) THEN
                 PRINT *, 'EXT spincasacnp enabled with mloop= ', mloop, dels, kstart, kend
                 CALL master_spincasacnp(dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
-                     casaflux,casamet,casabal,phen,POP,climate,LALLOC, icomm, ocomm)
+                     casaflux,casamet,casabal,phen,POP,climate,icomm, ocomm)
                 SPINconv = .FALSE.
                 CASAONLY                   = .TRUE.
                 ktau_gl = 0
                 ktau = 0
 
              ELSEIF ( casaonly .AND. (.NOT. spincasa) .AND. cable_user%popluc) THEN
-                CALL master_CASAONLY_LUC(dels,kstart,kend,veg,soil,casabiome,casapool, &
-                     casaflux,casamet,casabal,phen,POP,climate,LALLOC, LUC_EXPT, POPLUC, &
+                CALL master_CASAONLY_LUC(dels,kstart,kend,veg,casabiome,casapool, &
+                     casaflux,casamet,casabal,phen,POP,climate,LUC_EXPT, POPLUC, &
                      icomm, ocomm)
                 SPINconv = .FALSE.
                 ktau_gl = 0
@@ -746,7 +746,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
              ENDIF
              IF (YYYY.EQ.CABLE_USER%YEARSTART) THEN
                 CALL nullify_write() ! nullify pointers
-                CALL open_output_file( dels, soil, veg, bgc, rough )
+                CALL open_output_file( dels, soil, veg, bgc, rough, met)
              ENDIF
           ENDIF
 
@@ -1095,7 +1095,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
                CALL close_met_file
 
           IF (icycle>0 .AND.   cable_user%CALL_POP)  THEN
-             WRITE(*,*), 'b4 annual calcs'
+             WRITE(*,*)  'b4 annual calcs'
 
              IF (CABLE_USER%POPLUC) THEN
 
@@ -1217,12 +1217,12 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
                 IF (ktau == kend) PRINT*, "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
                      new_sumfe/count_bal, new_sumfpn/count_bal
                 IF (ktau == kend) WRITE(logn,*)
-                IF (ktau == kend) WRITE(logn,*), "time-space-averaged energy & water balances"
-                IF (ktau == kend) WRITE(logn,*),"Ebal_tot[Wm-2], Wbal_tot[mm per timestep]", &
+                IF (ktau == kend) WRITE(logn,*)  "time-space-averaged energy & water balances"
+                IF (ktau == kend) WRITE(logn,*) "Ebal_tot[Wm-2], Wbal_tot[mm per timestep]", &
                      SUM(bal%ebal_tot)/mp/count_bal, SUM(bal%wbal_tot)/mp/count_bal
-                IF (ktau == kend) WRITE(logn,*), "time-space-averaged latent heat and &
+                IF (ktau == kend) WRITE(logn,*)  "time-space-averaged latent heat and &
                      net photosynthesis"
-                IF (ktau == kend) WRITE(logn,*), "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
+                IF (ktau == kend) WRITE(logn,*)  "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
                      new_sumfe/count_bal, new_sumfpn/count_bal
 
 
@@ -1448,7 +1448,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
 
        call WRITE_LANDUSE_CASA_RESTART_NC(cend(mland), lucmp, CASAONLY )
 
-       call create_landuse_cable_restart(logn, dels, ktau, soil, cend(mland),lucmp,cstart,cend,nap)
+       call create_landuse_cable_restart(logn, dels, ktau, soil, cend(mland),lucmp,cstart,cend,nap, met)
 
        call landuse_deallocate_mp(cend(mland),ms,msn,nrb,mplant,mlitter,msoil,mwood,lucmp)
      ENDIF
@@ -1560,17 +1560,16 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
 
 
   ! MPI: calculates and sends grid decomposition info to the workers
-  SUBROUTINE master_decomp (comm, mland, mp)
+  SUBROUTINE master_decomp (comm, mland)
 
     USE mpi
 
-    USE cable_IO_vars_module, ONLY : landpt, patch
+    USE cable_IO_vars_module, ONLY : landpt
 
     IMPLICIT NONE
 
     INTEGER, INTENT(IN)   :: comm ! MPI communicator to talk to the workers
     INTEGER, INTENT(IN)   :: mland ! total number of landpoints in the global grid
-    INTEGER, INTENT(IN)   :: mp ! total number of land patches in the global grid
 
     INTEGER :: lpw  ! average number of landpoints per worker
     INTEGER :: rank, rest, nxt, pcnt, ierr, i, tmp
@@ -1696,7 +1695,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
     INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
     INTEGER :: tsize, localtotal, remotetotal
 
-    INTEGER :: stat(MPI_STATUS_SIZE), ierr
+    INTEGER :: ierr
     INTEGER, ALLOCATABLE, DIMENSION(:) :: param_ts
 
     INTEGER(KIND=MPI_ADDRESS_KIND) :: r1stride, r2stride, istride
@@ -3432,7 +3431,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
     INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
     INTEGER :: tsize, localtotal, remotetotal
 
-    INTEGER :: stat(MPI_STATUS_SIZE), ierr
+    INTEGER :: ierr
     ! INTEGER :: landp_t, patch_t, param_t
     INTEGER, ALLOCATABLE, DIMENSION(:) :: casa_ts
 
@@ -6219,9 +6218,6 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
 
     INTEGER :: last2d, i
 
-    ! MPI: block lenghts for hindexed representing all vectors
-    INTEGER, ALLOCATABLE, DIMENSION(:) :: blen
-
     ! MPI: block lengths and strides for hvector representing matrices
     INTEGER :: r1len, r2len, I1LEN
     INTEGER(KIND=MPI_ADDRESS_KIND) :: r1stride, r2stride, istride
@@ -6230,7 +6226,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
     INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
 
     INTEGER :: rank, off, cnt
-    INTEGER :: bidx, midx, vidx, ierr
+    INTEGER :: bidx, ierr
 
     ALLOCATE (casa_ts(wnp))
 
@@ -6862,10 +6858,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
     INTEGER, ALLOCATABLE, DIMENSION(:) :: types
     INTEGER :: ntyp ! number of worker's types
 
-    INTEGER :: last2d, i, ktauday
-
-    ! MPI: block lenghts for hindexed representing all vectors
-    INTEGER, ALLOCATABLE, DIMENSION(:) :: blen
+    INTEGER :: ktauday
 
     ! MPI: block lengths and strides for hvector representing matrices
     INTEGER :: r1len, r2len, I1LEN
@@ -6875,7 +6868,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
     INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
 
     INTEGER :: rank, off, cnt
-    INTEGER :: bidx, midx, vidx, ierr, ny, nd, ndq
+    INTEGER :: bidx, ierr, ny, nd, ndq
 
     IF (cable_user%call_climate) CALL climate_init ( climate, mp, ktauday )
     IF (cable_user%call_climate .AND.(.NOT.cable_user%climate_fromzero)) &
@@ -7340,9 +7333,6 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
 
     INTEGER :: last2d, i
 
-    ! MPI: block lenghts for hindexed representing all vectors
-    INTEGER, ALLOCATABLE, DIMENSION(:) :: blen
-
     ! MPI: block lengths and strides for hvector representing matrices
     INTEGER :: r1len, r2len
     INTEGER(KIND=MPI_ADDRESS_KIND) :: r1stride, r2stride
@@ -7351,7 +7341,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
     INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
 
     INTEGER :: rank, off, cnt
-    INTEGER :: bidx, midx, vidx, ierr
+    INTEGER :: bidx, ierr
 
     ALLOCATE (restart_ts(wnp))
 
@@ -7503,7 +7493,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
   END SUBROUTINE master_restart_types
 
   ! MPI: Casa - dump read and write
-  SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate )
+  SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen )
 
     USE mpi
 
@@ -7516,7 +7506,6 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
     TYPE (casa_flux)   , INTENT(INOUT) :: casaflux
     TYPE (casa_met)    , INTENT(INOUT) :: casamet
     TYPE (phen_variable), INTENT(INOUT)  :: phen
-    TYPE(climate_type):: climate
 
     ! local vars
 
@@ -7530,7 +7519,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
     INTEGER :: tsize, localtotal, remotetotal
 
     INTEGER(KIND=MPI_ADDRESS_KIND) :: r1stride, r2stride, Istride
-    INTEGER :: r1len, r2len, I1LEN, llen ! block lengths
+    INTEGER :: r1len, r2len, I1LEN ! block lengths
     INTEGER :: bidx ! block index
     INTEGER :: ntyp ! total number of blocks
     INTEGER :: rank ! worker rank
@@ -7704,7 +7693,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
     INTEGER :: tsize, localtotal, remotetotal
 
     INTEGER(KIND=MPI_ADDRESS_KIND) :: r1stride, r2stride, Istride
-    INTEGER :: r1len, r2len, I1LEN, llen ! block lengths
+    INTEGER :: r1len, r2len, I1LEN ! block lengths
     INTEGER :: bidx ! block index
     INTEGER :: ntyp ! total number of blocks
     INTEGER :: rank ! worker rank
@@ -7872,39 +7861,24 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
   ! Creates pop_ts types to broadcast/cscatter the default POP parameters
   ! to all workers
 
-  SUBROUTINE master_pop_types(comm, casamet, pop)
+  SUBROUTINE master_pop_types(comm, pop)
 
     USE mpi
     USE POP_mpi
     USE POP_types,          ONLY: pop_type
     USE cable_common_module,ONLY: cable_user
-    USE casavariable,       ONLY: casa_met
 
     IMPLICIT NONE
 
     INTEGER,INTENT(IN) :: comm
-    TYPE (casa_met)          , INTENT(IN)    :: casamet
     TYPE (pop_type)          , INTENT(INOUT) :: pop
 
-    ! temp arrays for marshalling all fields into a single struct
-    INTEGER, ALLOCATABLE, DIMENSION(:) :: blocks
-    INTEGER(KIND=MPI_ADDRESS_KIND), ALLOCATABLE, DIMENSION(:) :: displs
-    INTEGER, ALLOCATABLE, DIMENSION(:) :: types
-
-    ! temp vars for verifying block number and total length of inp_t
-    INTEGER(KIND=MPI_ADDRESS_KIND) :: text, tmplb
-    INTEGER :: tsize, localtotal, remotetotal
-
-    INTEGER(KIND=MPI_ADDRESS_KIND) :: r2stride, ilstride, idstride
-    INTEGER :: r2len, illen,idlen ! block lengths
-    INTEGER :: bidx ! block index
-    INTEGER :: ntyp ! total number of blocks
     INTEGER :: rank ! worker rank
     INTEGER :: off  ! first patch index for a worker
     INTEGER :: cnt  ! mp for a worker
     INTEGER :: ierr
-    INTEGER :: x, l, prev_mp
-    INTEGER, ALLOCATABLE :: w_iwood(:), nwoodcells(:)
+    INTEGER :: prev_mp
+    INTEGER, ALLOCATABLE :: w_iwood(:)
 
     ! Also send Pop relevant info to workers.
 
@@ -7965,7 +7939,6 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
     USE MPI
     USE POP_mpi
     USE POP_Types,           ONLY: pop_type
-    USE cable_common_module, ONLY: cable_user
 
     IMPLICIT NONE
 
@@ -8155,7 +8128,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
   END SUBROUTINE master_end
 
   SUBROUTINE master_spincasacnp( dels,kstart,kend,mloop,veg,soil,casabiome,casapool, &
-       casaflux,casamet,casabal,phen,POP,climate,LALLOC, icomm, ocomm )
+       casaflux,casamet,casabal,phen,POP,climate,icomm, ocomm )
 
     !USE cable_mpimaster
     USE cable_def_types_mod
@@ -8168,7 +8141,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
     USE POP_Types,  ONLY: POP_TYPE
     USE POPMODULE,            ONLY: POPStep
     USE TypeDef,              ONLY: i4b, dp
-USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC
+    USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC
 
     IMPLICIT NONE
     !CLN  CHARACTER(LEN=99), INTENT(IN)  :: fcnpspin
@@ -8176,7 +8149,6 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC
     INTEGER, INTENT(IN)    :: kstart
     INTEGER, INTENT(IN)    :: kend
     INTEGER, INTENT(IN)    :: mloop
-    INTEGER, INTENT(IN)    :: LALLOC
     TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
     TYPE (soil_parameter_type),   INTENT(INOUT) :: soil ! soil parameters
     TYPE (casa_biome),            INTENT(INOUT) :: casabiome
@@ -8191,39 +8163,11 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC
     ! communicator for error-messages
     INTEGER, INTENT(IN)  :: icomm, ocomm
 
-    TYPE (casa_met)  :: casaspin
-
-    ! local variables
-    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
-    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_nleaf2met, avg_nleaf2str, avg_nroot2met, avg_nroot2str, avg_nwood2cwd
-    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_pleaf2met, avg_pleaf2str, avg_proot2met, avg_proot2str, avg_pwood2cwd
-    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_cgpp,      avg_cnpp,      avg_nuptake,   avg_puptake
-    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_nsoilmin,  avg_psoillab,  avg_psoilsorb, avg_psoilocc
-    !chris 12/oct/2012 for spin up casa
-    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_ratioNCsoilmic,  avg_ratioNCsoilslow,  avg_ratioNCsoilpass
-    REAL(r_2), DIMENSION(:), ALLOCATABLE, SAVE  :: avg_xnplimit,  avg_xkNlimiting,avg_xklitter, avg_xksoil
-
     ! local variables
     INTEGER                  :: myearspin,nyear, nloop1
     CHARACTER(LEN=99)        :: ncfile
     CHARACTER(LEN=4)         :: cyear
-    INTEGER                  :: ktau,ktauday,nday,idoy,ktaux,ktauy,nloop
-    INTEGER, SAVE            :: ndays
-    REAL,      DIMENSION(mp)      :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
-    REAL,      DIMENSION(mp)      :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
-    REAL,      DIMENSION(mp)      :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-    REAL,      DIMENSION(mp)      :: xcgpp,     xcnpp,     xnuptake,  xpuptake
-    REAL,      DIMENSION(mp)      :: xnsoilmin, xpsoillab, xpsoilsorb,xpsoilocc
-    REAL(r_2), DIMENSION(mp)      :: xnplimit,  xkNlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
-
-    ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
-    REAL,      DIMENSION(5,mvtype,mplant)  :: bmcplant,  bmnplant,  bmpplant
-    REAL,      DIMENSION(5,mvtype,mlitter) :: bmclitter, bmnlitter, bmplitter
-    REAL,      DIMENSION(5,mvtype,msoil)   :: bmcsoil,   bmnsoil,   bmpsoil
-    REAL,      DIMENSION(5,mvtype)         :: bmnsoilmin,bmpsoillab,bmpsoilsorb, bmpsoilocc
-    REAL,      DIMENSION(mvtype)           :: bmarea
-    INTEGER nptx,nvt,kloop
-
+    INTEGER                  :: ktau,ktauday,nday,idoy,ktauy,nloop
 
     ktauday=INT(24.0*3600.0/dels)
     nday=(kend-kstart+1)/ktauday
@@ -8334,16 +8278,16 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC
   END SUBROUTINE master_spincasacnp
   !============================================================================
 
-  SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,soil,casabiome,casapool, &
-       casaflux,casamet,casabal,phen,POP,climate,LALLOC,LUC_EXPT, POPLUC, &
+  SUBROUTINE master_CASAONLY_LUC( dels,kstart,kend,veg,casabiome,casapool, &
+       casaflux,casamet,casabal,phen,POP,climate,LUC_EXPT, POPLUC, &
        icomm, ocomm )
 
 
     USE cable_def_types_mod
     USE cable_carbon_module
     USE cable_common_module, ONLY: CABLE_USER
-  USE casa_ncdf_module, ONLY: is_casa_time
-    USE cable_IO_vars_module, ONLY: logn, landpt, patch, output
+    USE casa_ncdf_module, ONLY: is_casa_time
+    USE cable_IO_vars_module, ONLY: landpt, output
     USE casadimension
     USE casaparm
     USE casavariable
@@ -8357,7 +8301,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC
     USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
          POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC, &
          POPLUC_set_patchfrac,  WRITE_LUC_OUTPUT_GRID_NC
-USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC
+    USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC
 
 
 
@@ -8365,9 +8309,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC
     REAL,    INTENT(IN)    :: dels
     INTEGER, INTENT(IN)    :: kstart
     INTEGER, INTENT(IN)    :: kend
-    INTEGER, INTENT(IN)    :: LALLOC
     TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
-    TYPE (soil_parameter_type),   INTENT(INOUT) :: soil ! soil parameters
     TYPE (casa_biome),            INTENT(INOUT) :: casabiome
     TYPE (casa_pool),             INTENT(INOUT) :: casapool
     TYPE (casa_flux),             INTENT(INOUT) :: casaflux
@@ -8382,46 +8324,15 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC
     !TYPE (casa_flux)   , INTENT(INOUT) :: sum_casaflux
     ! communicator for error-messages
     INTEGER, INTENT(IN)  :: icomm, ocomm
-    TYPE (casa_met)  :: casaspin
-
-    ! local variables
-    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
-    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_nleaf2met, avg_nleaf2str, avg_nroot2met, avg_nroot2str, avg_nwood2cwd
-    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_pleaf2met, avg_pleaf2str, avg_proot2met, avg_proot2str, avg_pwood2cwd
-    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_cgpp,      avg_cnpp,      avg_nuptake,   avg_puptake
-    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_nsoilmin,  avg_psoillab,  avg_psoilsorb, avg_psoilocc
-    !chris 12/oct/2012 for spin up casa
-    REAL,      DIMENSION(:), ALLOCATABLE, SAVE  :: avg_ratioNCsoilmic,  avg_ratioNCsoilslow,  avg_ratioNCsoilpass
-    REAL(r_2), DIMENSION(:), ALLOCATABLE, SAVE  :: avg_xnplimit,  avg_xkNlimiting,avg_xklitter, avg_xksoil
 
     ! local variables
     INTEGER                  :: myearspin,nyear, yyyy, nyear_dump
     CHARACTER(LEN=99)        :: ncfile
     CHARACTER(LEN=4)         :: cyear
-    INTEGER                  :: ktau,ktauday,nday,idoy,ktaux,ktauy,nloop
-    INTEGER, SAVE            :: ndays
-    REAL,      DIMENSION(mp)      :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
-    REAL,      DIMENSION(mp)      :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
-    REAL,      DIMENSION(mp)      :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-    REAL,      DIMENSION(mp)      :: xcgpp,     xcnpp,     xnuptake,  xpuptake
-    REAL,      DIMENSION(mp)      :: xnsoilmin, xpsoillab, xpsoilsorb,xpsoilocc
-    REAL(r_2), DIMENSION(mp)      :: xnplimit,  xkNlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
+    INTEGER                  :: ktau,ktauday,nday,idoy
 
-    ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
-    REAL,      DIMENSION(5,mvtype,mplant)  :: bmcplant,  bmnplant,  bmpplant
-    REAL,      DIMENSION(5,mvtype,mlitter) :: bmclitter, bmnlitter, bmplitter
-    REAL,      DIMENSION(5,mvtype,msoil)   :: bmcsoil,   bmnsoil,   bmpsoil
-    REAL,      DIMENSION(5,mvtype)         :: bmnsoilmin,bmpsoillab,bmpsoilsorb, bmpsoilocc
-    REAL,      DIMENSION(mvtype)           :: bmarea
-    INTEGER :: nptx,nvt,kloop, ctime, k, j, l
-
-    REAL(dp)                               :: StemNPP(mp,2)
-    REAL(dp), ALLOCATABLE, SAVE ::  LAImax(:)    , Cleafmean(:),  Crootmean(:)
-    REAL(dp), ALLOCATABLE :: NPPtoGPP(:)
-    INTEGER, ALLOCATABLE :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
-    INTEGER :: count_sum_casa ! number of time steps over which casa pools &
-    !and fluxes are aggregated (for output)
-    INTEGER :: rank, count, off, cnt, ierr
+    INTEGER :: k, j, l
+    INTEGER :: rank, off, cnt, ierr
 !$  if (.NOT.Allocated(LAIMax)) allocate(LAIMax(mp))
 !$  if (.NOT.Allocated(Cleafmean))  allocate(Cleafmean(mp))
 !$  if (.NOT.Allocated(Crootmean)) allocate(Crootmean(mp))
@@ -8646,9 +8557,9 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC
 
     USE cable_def_types_mod , ONLY: veg_parameter_type, mland
     USE cable_carbon_module
-    USE cable_common_module, ONLY: CABLE_USER, CurYear
-  USE casa_ncdf_module, ONLY: is_casa_time
-    USE cable_IO_vars_module, ONLY: logn, landpt, patch
+    USE cable_common_module, ONLY: CurYear
+    USE casa_ncdf_module, ONLY: is_casa_time
+    USE cable_IO_vars_module, ONLY: landpt
     USE casadimension
     USE casaparm
     USE casavariable

@@ -107,7 +107,7 @@ on soil, vegetation carbon and nutrients dynamics.
 | fpptoL(frt)    | `casabiome%ftransPPtoL(nv,froot)`             | Flux factor of root phosphorus to litter pools \( (-) \) |
 | xkmlabp        | `xkmlabp(iso)`                                | Phosphorus absorption \( (gP \cdot m^{-2}) \)  |
 | xpsorbmax      | `xpsorbmax(iso)`                              | Maximum phosphorus absorption \( (gP \cdot m^{-2}) \) |
-| xfpleach       | `xfPleach(iso)`                               | Phosphorus leaching \( (-) \) |
+| xfpleach       | `xfPleach(iso)`                               | Phosphorus leaching \( (-) \) (hard-wired in the code for CABLE2.4/ACCESS-ESM1.5 at 1.e-4 independent of pft) |
 | N:Psoil (mic)  | `ratioNPsoil(iso,mic)`                        | Nitrogen to phosphorus ratio in microbial soil pool \( (gN \cdot gP^{-2}) \) |
 | N:Psoil (slow) | `ratioNPsoil(iso,slow)`                       | Nitrogen to phosphorus ratio in slow soil pool \( (gN \cdot gP^{-2}) \) |
 | N:Psoil (pass) | `ratioNPsoil(iso,pass)`                       | Nitrogen to phosphorus ratio in passive soil pool \( (gN \cdot gP^{-2}) \) |

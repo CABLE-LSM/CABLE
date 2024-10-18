@@ -764,8 +764,13 @@ CONTAINS
        casaflux%fromPtoL(:,str,froot)   = 1.0 - casaflux%fromPtoL(:,metb,froot)
        casaflux%fromPtoL(:,cwd,wood)    = 1.0
 
-       ! calc. of casaflux%kplant drops scaling - see #242
-       casaflux%kplant(:,leaf)        = casabiome%plantrate(veg%iveg(:),leaf)
+       ! calc. of casaflux%kplant had dropped scaling for cold and drought stress
+       ! as noted in trac ticket #243
+       ! R. Law 23/7/2024 reinstate terms to account for cold and drought stress (#275)
+       ! which are calculated in casa_xrateplant
+       ! Needs 'btran' bug fix (#279) implemented with this.
+       casaflux%kplant(:,leaf)        = casabiome%plantrate(veg%iveg(:),leaf)*xkleaf(:) &
+                                   + xkleafcold(:) + xkleafdry(:)
 
        casaflux%kplant(:,wood)        = casabiome%plantrate(veg%iveg(:),wood)
        casaflux%kplant(:,froot)       = casabiome%plantrate(veg%iveg(:),froot)
@@ -790,7 +795,7 @@ CONTAINS
     ! outputs:
     !     klitter(mp,mlitter):      decomposition rate of litter pool (1/day)
     !     ksoil(mp,msoil):          decomposition rate of soil pool (1/day)
-    !     fromLtoS(mp,mlitter,msoil):  fraction of decomposed litter to soil (fraction)
+    !     fromLtoS(mp,msoil,mlitter):  fraction of decomposed litter to soil (fraction)
     !     fromStoS(mp,msoil,msoil):    fraction of decomposed soil C to another soil pool (fraction)
     !     fromLtoCO2(mp,mlitter):      fraction of decomposed litter emitted as CO2 (fraction)
     !     fromStoCO2(mp,msoil):        fraction of decomposed soil C emitted as Co2 (fraction)
@@ -1023,9 +1028,10 @@ DO npt=1,mp
       ENDIF
 
       casapool%dNplantdt(npt,wood) = 0.0
-#     ifndef ESM15 ! offline/trunk uses this condition
+#ifndef ESM15
+      ! offline/trunk uses this condition
       IF (casamet%lnonwood(npt)==0)                                            & 
-#     endif
+#endif
       casapool%dNplantdt(npt,wood) = - casaflux%kplant(npt,wood)             &
                                      * casapool%Nplant(npt,wood)               &
                                      * casabiome%ftransNPtoL(veg%iveg(npt),wood)
@@ -1335,13 +1341,11 @@ END SUBROUTINE casa_delplant
                   +casaflux%Psimm(nland)
              ! net mineralization
 
-#           ifdef ESM15  
-             casaflux%Pleach(nland)  =  (1.0e-4) &
-                                              * max(0.0,casapool%Psoillab(nland))
-#           else
+             !rml 14/10/24 #278 remove ESM15 specific version as can be 
+             !accommodated by setting appropriate parameter in pftlookup
              casaflux%Pleach(nland)  =  casaflux%fPleach(nland) &
                   * MAX(0.0,casapool%Psoillab(nland))
-#            endif
+
              DO k=1,msoil
                 DO j=1,mlitter
                    casaflux%FluxPtosoil(nland,k) =  casaflux%FluxPtosoil(nland,k)  &
@@ -1445,23 +1449,16 @@ END SUBROUTINE casa_delplant
              casapool%dPsoillabdt(nland)= casaflux%Psnet(nland) + fluxptase(nland)         &
                   + casaflux%Pdep(nland) + casaflux%Pwea(nland)      &
                   - casaflux%Pleach(nland)-casaflux%pupland(nland)   &
-!jhan: ESM15 is effectively using xkpsorb**2 - inadvertently?!?!?!?!
-#           ifdef ESM15
-                  - casabiome%xkpsorb(casamet%isorder(nland))*casaflux%kpsorb(nland)*casapool%Psoilsorb(nland) &
-#           else
+                  !R. Law 23/08/2024 Removed ESM15 case as inconsistent with how xkpsorb now input (#283)
                   - casaflux%kpsorb(nland)*casapool%Psoilsorb(nland) &
-#           endif
                   + casaflux%kpocc(nland) * casapool%Psoilocc(nland)
              ! here the dPsoillabdt =(dPsoillabdt+dPsoilsorbdt)
              ! dPsoilsorbdt  = xdplabsorb
              casapool%dPsoillabdt(nland)  = casapool%dPsoillabdt(nland)/xdplabsorb(nland)
              casapool%dPsoilsorbdt(nland) = 0.0
 
-#           ifdef ESM15
-             casapool%dPsoiloccdt(nland) = casabiome%xkpsorb(casamet%isorder(nland))*casaflux%kpsorb(nland)* casapool%Psoilsorb(nland) &
-#           else
+            !R. Law 23/08/2024 Removed ESM15 case as inconsistent with how xkpsorb now input (#283)
              casapool%dPsoiloccdt(nland) = casaflux%kpsorb(nland)* casapool%Psoilsorb(nland) &
-#           endif
                                          - casaflux%kpocc(nland) * casapool%Psoilocc(nland)
              ! P loss to non-available P pools
              !      casaflux%Ploss(nland)        = casaflux%kpocc(nland) * casapool%Psoilocc(nland)
@@ -1477,8 +1474,8 @@ END SUBROUTINE casa_delplant
 
   SUBROUTINE avgsoil(veg,soil,casamet)
     ! Get avg soil moisture, avg soil temperature
-    ! need to estimate the land cell mean soil temperature and moisture weighted by the area fraction
-    ! of each tile within the land cell
+    ! need to estimate the mean soil temperature and moisture averaged over the
+    ! soil column and weighted by root fraction for each tile 
 
     IMPLICIT NONE
     TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
@@ -1497,12 +1494,11 @@ END SUBROUTINE casa_delplant
                * casamet%tsoil(nland,ns)
           casamet%moistavg(nland)  = casamet%moistavg(nland)+ veg%froot(nland,ns) &
                * MIN(soil%sfc(nland),casamet%moist(nland,ns))
-          casamet%btran(nland)     = casamet%btran(nland)+ veg%froot(nland,ns)  &
-               * (MIN(soil%sfc(nland),casamet%moist(nland,ns))-soil%swilt(nland)) &
-               /(soil%sfc(nland)-soil%swilt(nland))
-
-          ! Ticket#121
-
+       
+          !R. Law 23/7/2024 Issue #279 
+          !both the alternate (ticket 121) btran calculation and the original btran 
+          !calculation were in the code meaning the summation was done twice. Removed
+          !original version and kept ticket 121 version
           casamet%btran(nland)     = casamet%btran(nland)+ veg%froot(nland,ns)  &
                * (MAX(MIN(soil%sfc(nland),casamet%moist(nland,ns))-soil%swilt(nland),0.0)) &
                /(soil%sfc(nland)-soil%swilt(nland))
