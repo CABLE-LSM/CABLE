@@ -719,8 +719,8 @@ CONTAINS
       END IF
     END DO CheckNames
 
-    CALL handle_err(ok, "Failed to find any "//TRIM(DimNames(1))//" dimensions&
-      from the list.")
+    CALL handle_err(ok, "Failed to find any "//TRIM(DimNames(1))// &
+         " dimensions from the list.")
 
   END FUNCTION get_dimid
 
