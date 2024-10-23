@@ -50,4 +50,6 @@ REAL, PARAMETER :: coszen_tols = 1.0e-4
 REAL, PARAMETER :: z0surf_min = 1.0e-7 ! min. roughness of bare soil surface
 !H!REAL, PARAMETER :: z0snow_min = 1.e-7 ! min. roughness of bare snow surface
 
+REAL, PARAMETER :: wilt_limitfactor = 2.0 ! Used in lower limit of soil moisture
+
 END MODULE cable_other_constants_mod
