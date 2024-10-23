@@ -155,6 +155,7 @@ target_link_libraries(cable_common_objlib PRIVATE PkgConfig::NETCDF)
 add_executable(
     cable
     src/offline/cable_driver.F90
+    src/offline/cable_driver_init.F90
     "$<TARGET_OBJECTS:cable_common_objlib>"
 )
 target_link_libraries(cable PRIVATE PkgConfig::NETCDF)
@@ -163,6 +164,7 @@ install(TARGETS cable RUNTIME)
 if(CABLE_MPI)
     add_executable(
         cable-mpi
+        src/offline/cable_driver_init.F90
         src/offline/cable_mpicommon.F90
         src/offline/cable_mpidrv.F90
         src/offline/cable_mpimaster.F90
@@ -170,6 +172,7 @@ if(CABLE_MPI)
         src/science/pop/pop_mpi.F90
         "$<TARGET_OBJECTS:cable_common_objlib>"
     )
+    target_compile_definitions(cable-mpi PRIVATE __MPI__)
     target_link_libraries(cable-mpi PRIVATE PkgConfig::NETCDF MPI::MPI_Fortran)
     install(TARGETS cable-mpi RUNTIME)
 endif()

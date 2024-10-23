@@ -20,6 +20,7 @@
 PROGRAM mpi_driver
 
   USE mpi
+  USE cable_driver_init_mod
 
   USE cable_mpicommon
   USE cable_mpimaster
@@ -31,7 +32,7 @@ PROGRAM mpi_driver
   INTEGER :: comm, np, rank, ierr
   REAL    :: etime ! Declare the type of etime()
 
-
+  CALL cable_driver_init()
 
   CALL MPI_Init (ierr)
   CALL MPI_Comm_dup (MPI_COMM_WORLD, comm, ierr)

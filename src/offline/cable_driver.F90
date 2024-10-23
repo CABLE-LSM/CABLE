@@ -59,6 +59,7 @@
 !==============================================================================
 
 PROGRAM cable_offline_driver
+  USE cable_driver_init_mod
   USE cable_def_types_mod
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
        verbose, fixedCO2,output,check,patchout,    &
@@ -306,6 +307,8 @@ integer,   dimension(:),       allocatable,  save  :: cstart,cend,nap
 real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
 
 ! END header
+
+  CALL cable_driver_init()
 
   cable_runtime%offline = .TRUE.
   !check to see if first argument passed to cable is
