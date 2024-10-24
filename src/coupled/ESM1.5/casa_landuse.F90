@@ -1,5 +1,3 @@
-# define ESM15 YES
-#ifdef ESM15
 module landuse_mod
 
 contains
@@ -212,8 +210,7 @@ SUBROUTINE newlitter_thin( casabiome,frac_x,ifpre_x,frac_y,ifpre_y, &
 
       DO nL=1,mlitter
         DO nP=1,mplant
-           dclitter(nv,nL) = fromPtoL(nv,nL,nP) *dcplant(nv,nP)
-           !clitter_g(nv,nL) = clitter_g(nv,nL) + fromPtoL(nv,nL,nP) *dcplant(nv,nP)
+           dclitter(nv,nL) = dclitter(nv,nL) + fromPtoL(nv,nL,nP)*dcplant(nv,nP)
         ENDDO
       ENDDO
 
@@ -230,15 +227,11 @@ SUBROUTINE newlitter_thin( casabiome,frac_x,ifpre_x,frac_y,ifpre_y, &
          dplitter(nv,metb) = dpplant(nv,leaf) + dpplant(nv,froot)-dplitter(nv,str)
          dplitter(nv,CWD) = dpplant(nv,wood)
       ENDIF  !of "icycle >2"
-    ENDIF
-  END DO
 
-                  clitter_g = clitter_g + dclitter
-  IF (icycle > 1) nlitter_g = nlitter_g + dnlitter
-  IF (icycle > 2) plitter_g = plitter_g + dplitter
+                      clitter_g(nv,:) = clitter_g(nv,:) + dclitter(nv,:)
+      IF (icycle > 1) nlitter_g(nv,:) = nlitter_g(nv,:) + dnlitter(nv,:)
+      IF (icycle > 2) plitter_g(nv,:) = plitter_g(nv,:) + dplitter(nv,:)
 
-  DO nv=1,mforest
-    IF (ifpre_y(nv)) THEN   ! pft exist in the 2nd year
                       clitter_y(nv,:) = clitter_g(nv,:)/frac_y(nv)
       IF (icycle > 1) nlitter_y(nv,:) = nlitter_g(nv,:)/frac_y(nv)
       IF (icycle > 2) plitter_y(nv,:) = plitter_g(nv,:)/frac_y(nv)

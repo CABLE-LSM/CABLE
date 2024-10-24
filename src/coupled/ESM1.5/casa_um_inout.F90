@@ -444,9 +444,9 @@ SUBROUTINE casa_reinit_pk(casabiome,casamet,casapool,casabal,veg,phen, &
    !REAL(r_2), DIMENSION(3) :: pool_frac, pool_time
    REAL,PARAMETER:: POOL_FRAC(3) =(/0.33, 0.33, 0.34/)
    REAL,PARAMETER:: POOL_TIME(3) =(/1.00, 0.10, 0.01/)
-   REAL(r_2) :: cplant_z(um1%land_pts,um1%ntiles,mplant)
-   REAL(r_2) :: nplant_z(um1%land_pts,um1%ntiles,mplant)
-   REAL(r_2) :: pplant_z(um1%land_pts,um1%ntiles,mplant)
+   REAL(r_2) :: cplant_z(um1%land_pts,um1%ntiles,mplant) ! Plant carbon pools after thinning.
+   REAL(r_2) :: nplant_z(um1%land_pts,um1%ntiles,mplant) ! Plant nitrogen pools after thinning.
+   REAL(r_2) :: pplant_z(um1%land_pts,um1%ntiles,mplant) ! Plant phosphorus pools after thinning.
 
    ! check if all of them are required
    INTEGER   :: g, p, k, y ! np
@@ -506,8 +506,6 @@ SUBROUTINE casa_reinit_pk(casabiome,casamet,casapool,casabal,veg,phen, &
   wresp_c = 0.
   wresp_n = 0.
   wresp_p = 0.
-
-  thinning = 0.
 
   ! assign "old" cnp pool values (from last dump file, initilization)
   clabile_x(:,:)   = cpool_tile(:,:,1)
@@ -675,9 +673,15 @@ SUBROUTINE casa_reinit_pk(casabiome,casamet,casapool,casabal,veg,phen, &
 
      ! TEST Lestevens 6june18 - thinning forests after luc ----
      IF (l_thinforest) THEN
+        ! Initialize local arrays for cnp pools after thinning
                       cplant_z(g,:,:) = cplant_y(g,:,:)
       if (icycle > 1) nplant_z(g,:,:) = nplant_y(g,:,:)
       if (icycle > 2) pplant_z(g,:,:) = pplant_y(g,:,:)
+        ! The removed wood needs to be added to the wood_flux variable
+                        logc(g,:) = logc(g,:) + (1 - thinning(g,:))*cplant_y(g,:,wood)
+        IF (icycle > 1) logn(g,:) = logn(g,:) + (1 - thinning(g,:))*nplant_y(g,:,wood)
+        IF (icycle > 2) logp(g,:) = logp(g,:) + (1 - thinning(g,:))*pplant_y(g,:,wood)
+
       DO y=1,3 ! pools for whvest
                         woodhvest_c(g,:,y) = woodhvest_c(g,:,y) + &
                                    (1-thinning(g,:)) * pool_frac(y) * cplant_y(g,:,wood)
@@ -686,16 +690,23 @@ SUBROUTINE casa_reinit_pk(casabiome,casamet,casapool,casabal,veg,phen, &
         if (icycle > 2) woodhvest_p(g,:,y) = woodhvest_p(g,:,y) + &
                                    (1-thinning(g,:)) * pool_frac(y) * pplant_y(g,:,wood)
       END DO
+
+      ! Calculate cnp pools after thinning
       DO y=1,mplant
                         cplant_z(g,:,y) = thinning(g,:) * cplant_y(g,:,y)
         if (icycle > 1) nplant_z(g,:,y) = thinning(g,:) * nplant_y(g,:,y)
         if (icycle > 2) pplant_z(g,:,y) = thinning(g,:) * pplant_y(g,:,y)
       END DO
+
+      ! Remove thinned mass from plant pools
+
+      ! Redistribute the harvested plant mass to litter pools
       CALL newlitter_thin(casabiome,frac_y(g,:),ifpre_y(g,:),frac_y(g,:),ifpre_y(g,:), &
                      cplant_y(g,:,:),nplant_y(g,:,:),pplant_y(g,:,:), &
                      cplant_z(g,:,:),nplant_z(g,:,:),pplant_z(g,:,:), &
                      clitter_y(g,:,:),nlitter_y(g,:,:),plitter_y(g,:,:), &
                      clitter_y(g,:,:),nlitter_y(g,:,:),plitter_y(g,:,:),thinning(g,:))
+      ! Restore the new plant pools to output arrays.
                       cplant_y(g,:,:) = cplant_z(g,:,:)
       if (icycle > 1) nplant_y(g,:,:) = nplant_z(g,:,:)
       if (icycle > 2) pplant_y(g,:,:) = pplant_z(g,:,:)
