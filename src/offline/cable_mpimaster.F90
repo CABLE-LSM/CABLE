@@ -204,8 +204,7 @@ CONTAINS
          PLUME_MIP_INIT
     USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT
 
-    USE cable_namelist_util,  ONLY : get_namelist_file_name,&
-                                     CABLE_NAMELIST
+    USE cable_namelist_util,  ONLY : CABLE_NAMELIST
 
     USE landuse_constant,     ONLY: mstate,mvmax,mharvw
     USE landuse_variable

@@ -151,9 +151,8 @@ CONTAINS
     ! PLUME-MIP only
     USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE
 
-    USE cable_namelist_util, ONLY : get_namelist_file_name,&
-         CABLE_NAMELIST
-    
+    USE cable_namelist_util, ONLY : CABLE_NAMELIST
+
     USE cbl_soil_snow_init_special_module
     IMPLICIT NONE
 

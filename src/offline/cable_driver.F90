@@ -73,8 +73,7 @@ PROGRAM cable_offline_driver
        IS_LEAPYEAR, calcsoilalbedo,              &
        kwidth_gl, gw_params
 
-  USE cable_namelist_util, ONLY : get_namelist_file_name,&
-       CABLE_NAMELIST,arg_not_namelist
+  USE cable_namelist_util, ONLY : CABLE_NAMELIST, arg_not_namelist
 ! physical constants
 USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
 USE cable_phys_constants_mod, ONLY : CEMLEAF => EMLEAF
@@ -311,10 +310,6 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
   CALL cable_driver_init()
 
   cable_runtime%offline = .TRUE.
-  !check to see if first argument passed to cable is
-  !the name of the namelist file
-  !if not use cable.nml
-  CALL get_namelist_file_name()
 
   WRITE(*,*) "THE NAME LIST IS ",CABLE_NAMELIST
   ! Open, read and close the namelist file.
