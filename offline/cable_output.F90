@@ -70,7 +70,7 @@ MODULE cable_output_module
           snm, snmsl, tran, albs, albsn, cw, lqsn, lwsnl, mrfsofr, &
           mrlqso, mrlsl, snc, snd, snw, snwc, tcs, tgs, ts, tsl, &
           tsn, tsns, &
-          NBP, TotSoilCarb, TotLivBiomass, &
+          NBP, NEP, TotSoilCarb, TotLivBiomass, &
           TotLittCarb, SoilCarbFast, SoilCarbSlow, SoilCarbPassive, &
           LittCarbMetabolic, LittCarbStructural, LittCarbCWD, &
           PlantCarbLeaf, PlantCarbFineRoot, PlantCarbWood, &
@@ -202,6 +202,7 @@ MODULE cable_output_module
 
      ! [umol/m2/s]
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: NBP => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: NEP => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: dCdt => null()
      ! [kg C /m2]
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: TotSoilCarb => null()
@@ -1238,11 +1239,20 @@ CONTAINS
 
     IF(output%carbon .OR. output%NBP) THEN
        CALL define_ovar(ncid_out, ovid%NBP, 'NBP', 'umol/m^2/s', &
-            'Net Biosphere Production (uptake +ve)' &
+            'Net Biosphere Production (uptake +ve, , includes fire and harvest fluxes)' &
             , patchout%NBP, &
             'dummy', xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%NBP(mp))
        out%NBP = zero4 ! initialise
+    ENDIF
+
+    IF(output%carbon .OR. output%NEP) THEN
+       CALL define_ovar(ncid_out, ovid%NEP, 'NEP', 'umol/m^2/s', &
+            'Net Ecosystem Production (uptake +ve)'           &
+            , patchout%NEP, &
+            'dummy', xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%NEP(mp))
+       out%NEP = zero4 ! initialise
     ENDIF
 
     IF (output%casa) THEN
@@ -3283,16 +3293,23 @@ CONTAINS
     END IF
 
     ! NBP and turnover fluxes [umol/m^2/s]
+    ! use variable NEP if wish to access NBP without the disturbance fluxes
     IF (output%carbon .OR. output%NBP) THEN
        ! Add current timestep's value to total of temporary output variable:
        IF (cable_user%POPLUC) THEN
           out%NBP = out%NBP + (-toreal4((casaflux%Crsoil-casaflux%cnpp &
-               - casapool%dClabiledt) * gd2umols)) !- &
-          !REAL((casaflux%FluxCtohwp + casaflux%FluxCtoclear  )/86400.0_r_2 &
-          !/ 1.201E-5_r_2, 4)
+               - casapool%dClabiledt +                                 &
+               REAL(casaflux%FluxCtohwp + casaflux%FluxCtoclear))      &
+               * gd2umols))
        ELSE
           out%NBP = out%NBP + (-toreal4((casaflux%Crsoil-casaflux%cnpp &
                - casapool%dClabiledt) * gd2umols))
+       ENDIF
+
+       !add on fire fluxes iff BLAZE active
+       IF (cable_user%call_blaze) THEN
+          out%NBP = out%NBP - toreal4((casaflux%fluxCtoCO2_plant_fire          &
+               + casaflux%fluxCtoCO2_litter_fire) * gd2umols)
        ENDIF
 
        IF (writenow) THEN
@@ -3305,6 +3322,24 @@ CONTAINS
           out%NBP = zero4
        END IF
     ENDIF
+
+    IF (output%carbon .OR. output%NEP) THEN
+          ! Add current timestep's value to total of temporary output variable:
+          ! NOte NEP doesn't include fire or harvest fluxes   
+          out%NEP = out%NEP + (-toreal4((casaflux%Crsoil-casaflux%cnpp &
+               - casapool%dClabiledt) * gd2umols))
+     
+          IF (writenow) THEN
+               ! Divide accumulated variable by number of accumulated time steps:
+               out%NEP = out%NEP * rinterval
+               ! Write value to file:
+               CALL write_ovar(out_timestep, ncid_out, ovid%NEP, 'NEP', out%NEP,    &
+                    ranges%NEE, patchout%NEP, 'default', met)
+               ! Reset temporary output variable:
+               out%NEP = zero4
+          END IF
+     ENDIF
+
     IF (output%casa) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%dCdt = out%dCdt + toreal4((casapool%ctot-casapool%ctot_0) * gd2umols)
