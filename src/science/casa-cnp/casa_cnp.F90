@@ -1,4 +1,3 @@
-!#define ESM15 YES
 !==============================================================================
 ! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
@@ -1027,14 +1026,15 @@ DO npt=1,mp
                                       * casabiome%ftransNPtoL(veg%iveg(npt),leaf)
       ENDIF
 
-      casapool%dNplantdt(npt,wood) = 0.0
-#ifndef ESM15
-      ! offline/trunk uses this condition
-      IF (casamet%lnonwood(npt)==0)                                            & 
-#endif
-      casapool%dNplantdt(npt,wood) = - casaflux%kplant(npt,wood)             &
+      !R. Law 25/10/24 removed ESM15 case as no need to exclude the condition
+      !that is in offline/trunk. Also re-write as IF / THEN
+      IF (casamet%lnonwood(npt)==0) THEN                                          
+        casapool%dNplantdt(npt,wood) = - casaflux%kplant(npt,wood)             &
                                      * casapool%Nplant(npt,wood)               &
                                      * casabiome%ftransNPtoL(veg%iveg(npt),wood)
+      ELSE
+        casapool%dNplantdt(npt,wood) = 0.0
+      ENDIF
 
       casapool%dNplantdt(npt,froot) = - casaflux%kplant(npt,froot)             &
                                     * casapool%Nplant(npt,froot)               &
@@ -1066,9 +1066,14 @@ DO npt=1,mp
                                      * casabiome%ftransPPtoL(veg%iveg(npt),leaf)
       ENDIF
   
-      casapool%dPplantdt(npt,wood) = - casaflux%kplant(npt,wood)               &
+      !R. Law 25/10/24 Add similar lnonwood condition as used in nitrogen case
+      IF (casamet%lnonwood(npt)==0) THEN                                          
+        casapool%dPplantdt(npt,wood) = - casaflux%kplant(npt,wood)             &
                                    * casapool%Pplant(npt,wood)                 &
                                    * casabiome%ftransPPtoL(veg%iveg(npt),wood)
+      ELSE
+        casapool%dPplantdt(npt,wood) = 0.0
+      ENDIF
   
       casapool%dPplantdt(npt,froot) = - casaflux%kplant(npt,froot)             &
                                     * casapool%Pplant(npt,froot)               &
