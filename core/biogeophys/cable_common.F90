@@ -24,7 +24,8 @@
 
 MODULE cable_common_module
 
-  USE NetCDF,   only: NF90_INQ_DIMID, NF90_NOERR, NF90_EBADDIM
+  USE iso_fortran_env,ONLY: ERROR_UNIT, OUTPUT_UNIT  
+  USE NetCDF,         ONLY: NF90_INQ_DIMID, NF90_NOERR, NF90_EBADDIM
   IMPLICIT NONE
 
   !---allows reference to "gl"obal timestep in run (from atm_step)
@@ -693,12 +694,41 @@ CONTAINS
 
   end subroutine get_unit
 
+  SUBROUTINE handle_namelist_iostat(nmlunit, ios, iomessage)
+    !*## Purpose
+    !
+    ! Take the return status of a namelist read and return an informative error
+    ! message on failure status.
+    !
+    !## Method
+    !
+    ! Use a combination of the new IOMSG specifier introduced in Fortran 2003
+    ! and the namelist checking routine [here]
+    ! (https://degenerateconic.com/namelist-error-checking.html) to throw an
+    ! informative error message when the reading of the namelist fails.
+
+    INTEGER, INTENT(IN) :: nmlUnit, ios
+    CHARACTER(LEN=*), INTENT(IN) :: ioMessage
+    CHARACTER(LEN=*) :: BadLine
+
+    IF (ios /= 0) THEN
+      ! Read of namelist failed
+      WRITE(ERROR_UNIT, FMT='(A)') ioMessage
+
+      BACKSPACE(nmlUnit)
+      READ(nmlUnit, FMT='(A)') BadLine
+      WRITE(ERROR_UNIT, FMT='(A)') "Invalid line in namelist: "//TRIM(BadLine)
+      STOP 1
+    END IF
+
+  END SUBROUTINE handle_namelist_iostat
+
   FUNCTION get_dimid(FileID, DimNames)
     !*## Purpose
     !
     ! Find the id of the desired dimension using a list of possible names.
     !
-    !##
+    !## Method
     !
     ! Run through a list of possible names for the dimensions as defined in the
     ! cable_common module.
