@@ -270,6 +270,7 @@ MODULE POP_Types
      REAL(dp), DIMENSION(NYEAR_HISTORY) :: cat_mortality_history
      REAL(dp), DIMENSION(AGEMAX) :: freq_age ! age weighting (by age in y: 0:AGE_MAX-1)
      REAL(dp), DIMENSION(AGEMAX) :: biomass_age
+     REAL(dp) :: rkill
   END TYPE Landscape
 
   TYPE POP_TYPE

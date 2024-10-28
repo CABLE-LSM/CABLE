@@ -77,7 +77,7 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
 
   ! SF%RES    = 1./12.
 
-  ! SF%RES = 0.5
+  SF%RES = 0.5       ! CLN should stay 0.5 deg becasue SIMFIRE was trained on it. 
   SF%NCELLS = NCELLS
 
   ALLOCATE( SF%IGBP        (NCELLS) )
@@ -275,12 +275,13 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
   ELSE
      ISTEP = 5
   END IF
-  SF%RES    = HYRES
+
+  !CLN WROOONGGG!!!! SF%RES    = HYRES  !see note about calibration of SIMFIRE
   IF ( CALL1 ) THEN
      RF = NINT(SF%RES/HYRES)
      ! Check for Res being an integral multiple of 5' [RES] = fract. deg
      IF ( REAL(RF) .NE. SF%RES/HYRES .OR. SF%RES .LT. HYRES ) THEN
-        WRITE(*,*) 'Spatial resolution must be integral multiple of HYDE res. '
+        WRITE(*,*) 'Spatial resolution must be integer multiple of HYDE res. '
         WRITE(*,*) "RES:",SF%RES,"/ HYDE:",HYRES," = ",SF%RES/HYRES
         STOP "get_popdens in simfire_mod.f90"
      END IF
@@ -336,7 +337,7 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
      NREAD = 0
   END IF
 
-  SF%RES = 1./12.
+  !CLN SF%RES = 1./12.  !see note about calibration of SIMFIRE
   RF = NINT(SF%RES/HYRES)
 
 
