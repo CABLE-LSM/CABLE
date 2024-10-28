@@ -133,8 +133,8 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
         SF%BIOME(i) = IGBP2BIOME(SF%IGBP(i),1)
      ENDIF
 
-     WRITE(*,FMT='(A5,I2,A17,I1,(1X,F7.2))')"IGBP ",SF%IGBP(i)," -> SIMFIREBIOME ", &
-          SF%BIOME(i),SF%LAT(i), SF%LON(i)
+     !WRITE(*,FMT='(A5,I2,A17,I1,(1X,F7.2))')"IGBP ",SF%IGBP(i)," -> SIMFIREBIOME ", &
+     !     SF%BIOME(i),SF%LAT(i), SF%LON(i)
 
      IF ( TRIM(SIMFIRE_REGION) == "GLOBAL" ) THEN ! GLOBAL
         SF%REGION(i) = 1
@@ -320,7 +320,7 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
         Y(i) = INT( (SF%LAT(i) +  90.) / SF%RES ) + 1
      END DO
 
-     write(*,*) 'X,Y:', X, Y,SF%RES
+     !write(*,*) 'X,Y:', X, Y,SF%RES
      NREAD = 2
      CALL1 = .FALSE.
   ELSE IF ( YEAR .GE. FINAL_YEAR ) THEN
@@ -377,7 +377,7 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
            READ(iu,*)
         END DO
         ! Read data backwards ( llcorner is -180E, 90N )
-        write(*,*) NLAT, NLON
+        !write(*,*) NLAT, NLON
         DO j = NLAT, 1, -1
            READ(iu,*)(RVAL(i,j),i=1,NLON)
           ! write(3334,"(4320e16.6)") (RVAL(i,j),i=1,NLON)
@@ -400,7 +400,7 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
                  wPOPD = wPOPD + RVAL(ix,jy) * LAND_AREA(ix,jy)
                  wTOT  = wTOT  + LAND_AREA(ix,jy)
 
-                 write(*,*) 'RVAL: ',   RVAL(ix,jy), ix, jy
+                 !write(*,*) 'RVAL: ',   RVAL(ix,jy), ix, jy
               END DO
            END DO
 
