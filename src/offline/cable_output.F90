@@ -2125,32 +2125,6 @@ CONTAINS
 
   END SUBROUTINE write_output
 
-  PURE ELEMENTAL REAL(4) FUNCTION acc_out_var(out_var, acc_val, writenow) RESULT(res)
-    REAL(4), INTENT(IN) :: out_var
-    REAL(4), INTENT(IN) :: acc_val
-    LOGICAL, INTENT(IN) :: writenow
-
-    ! Accumulate out_var until interval timesteps
-    res = out_var + acc_val
-    IF (writenow) THEN
-      res = res/REAL(output%interval, 4)
-    END IF
-
-  END FUNCTION acc_out_var
-
-  PURE ELEMENTAL REAL(4) FUNCTION reset_on_write(out_var, writenow) RESULT(res)
-    REAL(4), INTENT(IN) :: out_var
-    LOGICAL, INTENT(IN) :: writenow
-
-    ! Reset the value if it has been written to file
-    IF (writenow) THEN
-      res = 0.0
-    ELSE
-      res = out_var
-    END IF
-
-  END FUNCTION reset_on_write
-
   SUBROUTINE check_and_write_d1(varID, vname, out_var, acc_val, vrange, writepatch, out_settings)
     INTEGER, INTENT(IN) :: varID ! variable's netcdf ID
     CHARACTER(LEN=*), INTENT(IN) :: vname ! name of variable
@@ -2248,9 +2222,18 @@ CONTAINS
     TYPE(output_var_settings_type), INTENT(IN) :: out_settings ! met data
 
     IF (output_var) THEN
-      out_var = acc_out_var(out_var, acc_val, out_settings%writenow)
+      ! Accumulate out_var until interval timesteps
+      out_var = out_var + acc_val
+      IF (out_settings%writenow) THEN
+        out_var = out_var/REAL(output%interval, 4)
+      END IF
+
       CALL check_and_write(varID, vname, out_var, acc_val, vrange, writepatch, out_settings)
-      out_var = reset_on_write(out_var, out_settings%writenow)
+
+      ! Reset the value if it has been written to file
+      IF (out_settings%writenow) THEN
+        out_var = 0.0
+      END IF
     END IF
 
   END SUBROUTINE generate_out_write_acc_d1
@@ -2266,9 +2249,18 @@ CONTAINS
     TYPE(output_var_settings_type), INTENT(IN) :: out_settings ! met data
 
     IF (output_var) THEN
-      out_var = acc_out_var(out_var, acc_val, out_settings%writenow)
+      ! Accumulate out_var until interval timesteps
+      out_var = out_var + acc_val
+      IF (out_settings%writenow) THEN
+        out_var = out_var/REAL(output%interval, 4)
+      END IF
+
       CALL check_and_write(varID, vname, out_var, acc_val, vrange, writepatch, out_settings)
-      out_var = reset_on_write(out_var, out_settings%writenow)
+
+      ! Reset the value if it has been written to file
+      IF (out_settings%writenow) THEN
+        out_var = 0.0
+      END IF
     END IF
 
   END SUBROUTINE generate_out_write_acc_d2
