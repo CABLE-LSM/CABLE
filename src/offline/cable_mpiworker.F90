@@ -65,6 +65,15 @@
 !==============================================================================
 MODULE cable_mpiworker
 
+  USE cable_driver_init_mod, ONLY : &
+    vegparmnew,                     &
+    spinup,                         &
+    spincasa,                       &
+    l_casacnp,                      &
+    l_laiFeedbk,                    &
+    l_vcmaxFeedbk,                  &
+    delsoilM,                       &
+    delsoilT
   USE cable_mpicommon
   USE cable_common_module,  ONLY: cable_user
   USE casa_inout_module
@@ -118,15 +127,15 @@ CONTAINS
     USE mpi
 
     USE cable_def_types_mod
-    USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps, globalMetfile,  &
-         verbose, fixedCO2,output,check,patchout,    &
+    USE cable_IO_vars_module, ONLY: logn,leaps, &
+         output,check,&
          patch_type,soilparmnew,&
          NO_CHECK
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, filename,            &
-         redistrb, wiltParam, satuParam, CurYear,    &
+         CurYear,    &
          IS_LEAPYEAR, calcsoilalbedo,                &
-         kwidth_gl, gw_params
+         kwidth_gl
     USE cable_checks_module, ONLY: constant_check_range
     USE casa_ncdf_module, ONLY: is_casa_time
     USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
@@ -208,22 +217,10 @@ CONTAINS
     TYPE (phen_variable)  :: phen
     TYPE (POP_TYPE)       :: POP
 
-    ! declare vars for switches (default .FALSE.) etc declared thru namelist
     LOGICAL, SAVE           :: &
-         vegparmnew    = .FALSE., & ! using new format input file (BP dec 2007)
-         spinup        = .FALSE., & ! model spinup to soil state equilibrium?
          spinConv      = .FALSE., & ! has spinup converged?
-         spincasa      = .FALSE., & ! TRUE: CASA-CNP Will spin mloop times,
-         l_casacnp     = .FALSE., & ! using CASA-CNP with CABLE
-         l_landuse     = .FALSE., & ! using LANDUSE                 
-         l_laiFeedbk   = .FALSE., & ! using prognostic LAI
-         l_vcmaxFeedbk = .FALSE., & ! using prognostic Vcmax
          CASAONLY      = .FALSE., & ! ONLY Run CASA-CNP
          CALL1         = .TRUE.
-
-    REAL              :: &
-         delsoilM,         & ! allowed variation in soil moisture for spin up
-         delsoilT            ! allowed variation in soil temperature for spin up
 
     ! MPI:
     LOGICAL :: loop_exit     ! MPI: exit flag for bcast to workers
@@ -231,37 +228,6 @@ CONTAINS
     INTEGER :: icomm ! separate dupes of MPI communicator for send and recv
     INTEGER :: ocomm ! separate dupes of MPI communicator for send and recv
     INTEGER :: ierr
-
-    ! switches etc defined thru namelist (by default cable.nml)
-    NAMELIST/CABLE/                  &
-         filename,         & ! TYPE, containing input filenames
-         vegparmnew,       & ! use new soil param. method
-         soilparmnew,      & ! use new soil param. method
-         calcsoilalbedo,   & ! switch: soil colour albedo - Ticket #27
-         spinup,           & ! spinup model (soil) to steady state
-         delsoilM,delsoilT,& !
-         output,           &
-         patchout,         &
-         check,            &
-         verbose,          &
-         leaps,            &
-         logn,             &
-         fixedCO2,         &
-         spincasa,         &
-         l_casacnp,        &
-         l_landuse,        &
-         l_laiFeedbk,      &
-         l_vcmaxFeedbk,    &
-         icycle,           &
-         casafile,         &
-         ncciy,            &
-         gswpfile,         &
-         globalMetfile,    &   
-         redistrb,         &
-         wiltParam,        &
-         satuParam,        &
-         cable_user,       &  ! additional USER switches
-         gw_params
 
     INTEGER :: LALLOC
     !For consistency w JAC
@@ -272,11 +238,6 @@ CONTAINS
 
     ! Maciej: make sure the variable does not go out of scope
     mp = 0
-
-    ! Open, read and close the namelist file.
-    OPEN( 10, FILE = CABLE_NAMELIST )
-    READ( 10, NML=CABLE )   !where NML=CABLE defined above
-    CLOSE(10)
 
     IF( IARGC() > 0 ) THEN
        CALL GETARG(1, filename%met)

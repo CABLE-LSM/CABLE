@@ -59,19 +59,30 @@
 !==============================================================================
 
 PROGRAM cable_offline_driver
-  USE cable_driver_init_mod
+  USE cable_driver_init_mod, ONLY : &
+    cable_driver_init,              &
+    vegparmnew,                     &
+    spinup,                         &
+    spincasa,                       &
+    l_casacnp,                      &
+    l_landuse,                      &
+    l_laiFeedbk,                    &
+    l_vcmaxFeedbk,                  &
+    delsoilM,                       &
+    delsoilT,                       &
+    delgwM
   USE cable_def_types_mod
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
-       verbose, fixedCO2,output,check,patchout,    &
+       fixedCO2,output,check,&
        patch_type,landpt,soilparmnew,&
        defaultLAI, sdoy, smoy, syear, timeunits, exists, calendar, set_group_output_values, &
        NO_CHECK
   USE casa_ncdf_module, ONLY: is_casa_time
   USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
        cable_runtime, filename, myhome,            &
-       redistrb, wiltParam, satuParam, CurYear,    &
-       IS_LEAPYEAR, calcsoilalbedo,              &
-       kwidth_gl, gw_params
+       CurYear,    &
+       IS_LEAPYEAR, &
+       kwidth_gl
 
   USE cable_namelist_util, ONLY : CABLE_NAMELIST, arg_not_namelist
 ! physical constants
@@ -209,27 +220,13 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
   CHARACTER             :: cyear*4
   CHARACTER             :: ncfile*99
 
-  ! declare vars for switches (default .FALSE.) etc declared thru namelist
   LOGICAL, SAVE           :: &
-       vegparmnew = .FALSE.,       & ! using new format input file (BP dec 2007)
-       spinup = .FALSE.,           & ! model spinup to soil state equilibrium?
        spinConv = .FALSE.,         & ! has spinup converged?
-       spincasa = .FALSE.,         & ! TRUE: CASA-CNP Will spin mloop times,
-                                ! FALSE: no spin up
-       l_casacnp = .FALSE.,        & ! using CASA-CNP with CABLE
-       l_landuse = .FALSE.,        & ! using CASA-CNP with CABLE
-       l_laiFeedbk = .FALSE.,      & ! using prognostic LAI
-       l_vcmaxFeedbk = .FALSE.,    & ! using prognostic Vcmax
        CASAONLY      = .FALSE.,    & ! ONLY Run CASA-CNP
        CALL1 = .TRUE.,             &
        SPINon= .TRUE.
 
-  REAL              :: &
-       delsoilM,         & ! allowed variation in soil moisture for spin up
-       delsoilT            ! allowed variation in soil temperature for spin up
-
   INTEGER :: Metyear, Y, LOYtmp
-  REAL :: delgwM = 1e-4
 
   ! temporary storage for soil moisture/temp. in spin up mode
   REAL, ALLOCATABLE, DIMENSION(:,:)  :: &
@@ -241,36 +238,6 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
   ! timing
   REAL:: etime ! Declare the type of etime(), For receiving user and system time, total time
   REAL, allocatable  :: heat_cap_lower_limit(:,:)
-  ! switches etc defined thru namelist (by default cable.nml)
-  NAMELIST/CABLE/                  &
-       filename,         & ! TYPE, containing input filenames
-       vegparmnew,       & ! use new soil param. method
-       soilparmnew,      & ! use new soil param. method
-       calcsoilalbedo,   & ! albedo considers soil color Ticket #27
-       spinup,           & ! spinup model (soil) to steady state
-       delsoilM,delsoilT,& !
-       delgwM,           &
-       output,           &
-       patchout,         &
-       check,            &
-       verbose,          &
-       leaps,            &
-       logn,             &
-       fixedCO2,         &
-       spincasa,         &
-       l_casacnp,        &
-       l_landuse,        &
-       l_laiFeedbk,      &
-       l_vcmaxFeedbk,    &
-       icycle,           &
-       casafile,         &
-       ncciy,            &
-       gswpfile,         &
-       redistrb,         &
-       wiltParam,        &
-       satuParam,        &
-       cable_user,       &   ! additional USER switches
-       gw_params
 
   !mpidiff
   INTEGER :: i,x,kk,m,np,ivt
@@ -310,12 +277,6 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
   CALL cable_driver_init()
 
   cable_runtime%offline = .TRUE.
-
-  WRITE(*,*) "THE NAME LIST IS ",CABLE_NAMELIST
-  ! Open, read and close the namelist file.
-  OPEN( 10, FILE = CABLE_NAMELIST )
-  READ( 10, NML=CABLE )   !where NML=CABLE defined above
-  CLOSE(10)
 
   ! Open, read and close the consistency check file.
   ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
