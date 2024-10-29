@@ -709,7 +709,7 @@ CONTAINS
 
     INTEGER, INTENT(IN) :: nmlUnit, ios
     CHARACTER(LEN=*), INTENT(IN) :: ioMessage
-    CHARACTER(LEN=*) :: BadLine
+    CHARACTER(LEN=200) :: BadLine
 
     IF (ios /= 0) THEN
       ! Read of namelist failed
