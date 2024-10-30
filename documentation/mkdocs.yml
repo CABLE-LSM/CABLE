@@ -114,3 +114,4 @@ nav:
       - Obsolete and deprecated features: developer_guide/other_resources/obsolete_and_deprecated_features/obsolete_and_deprecated_features.md
   - How-to:
     - Set up a sensitivity experiment: how-to/sensitivity_exp.md      
+  - API Reference: api
