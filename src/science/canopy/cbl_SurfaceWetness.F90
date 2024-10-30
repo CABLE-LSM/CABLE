@@ -11,9 +11,11 @@ SUBROUTINE Surf_wetness_fact( cansat, canopy, ssnow,veg, met, soil, dels )
 
     USE cable_common_module
     USE cable_def_types_mod
-    USE grid_constants_mod_cbl, ONLY : lakes_cable
-! physical constants
-USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
+
+! data                  
+USE cable_surface_types_mod,  ONLY: lakes_cable
+USE cable_phys_constants_mod, ONLY: CTFRZ => TFRZ
+
     !H!USE cable_gw_hydro_module, ONLY : calc_srf_wet_fraction
 
     TYPE (veg_parameter_type), INTENT(INOUT)    :: veg

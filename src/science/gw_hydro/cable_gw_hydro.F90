@@ -338,7 +338,7 @@ CONTAINS
     
     USE cable_common_module, ONLY : gw_params,cable_user
 
-    USE grid_constants_mod_cbl, ONLY : lakes_cable
+    USE cable_surface_types_mod, ONLY: lakes_cable
 
     IMPLICIT NONE
     REAL, INTENT(IN)                         :: dels ! integration time step (s)
@@ -1388,7 +1388,7 @@ CONTAINS
     !  following [Decker, 2015](http://doi.wiley.com/10.1002/2015MS000507)
   
 
-    USE grid_constants_mod_cbl, ONLY : lakes_cable
+    USE cable_surface_types_mod, ONLY: lakes_cable
 
     IMPLICIT NONE
     TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow  ! soil+snow variables
@@ -1756,7 +1756,7 @@ CONTAINS
  !  [Decker, 2015](http://doi.wiley.com/10.1002/2015MS000507)
 
     USE cable_common_module
-    USE grid_constants_mod_cbl, ONLY : lakes_cable
+    USE cable_surface_types_mod, ONLY: lakes_cable
 
     IMPLICIT NONE
 

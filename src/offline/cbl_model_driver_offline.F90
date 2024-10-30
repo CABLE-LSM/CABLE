@@ -62,15 +62,16 @@ USE cable_phys_constants_mod, ONLY : density_liq
     USE sli_main_mod, ONLY : sli_main
     USE snow_aging_mod,               ONLY: snow_aging
     
-!data !jhan:pass these
-USE cable_other_constants_mod, ONLY : CLAI_THRESH => lai_thresh
-USE cable_other_constants_mod,  ONLY : Crad_thresh => rad_thresh
-USE cable_other_constants_mod,  ONLY : Ccoszen_tols => coszen_tols
-USE cable_other_constants_mod, ONLY : CGAUSS_W => gauss_w
-USE cable_math_constants_mod, ONLY : CPI => pi
-USE cable_math_constants_mod, ONLY : CPI180 => pi180
-use cbl_masks_mod, ONLY :  fveg_mask,  fsunlit_mask,  fsunlit_veg_mask
-USE grid_constants_mod_cbl, ONLY : ICE_SoilType, lakes_cable
+!data 
+USE cable_other_constants_mod, ONLY: CLAI_THRESH  => lai_thresh
+USE cable_other_constants_mod, ONLY: Crad_thresh  => rad_thresh
+USE cable_other_constants_mod, ONLY: Ccoszen_tols => coszen_tols
+USE cable_other_constants_mod, ONLY: CGAUSS_W     => gauss_w
+USE cable_math_constants_mod,  ONLY: CPI          => pi
+USE cable_math_constants_mod,  ONLY: CPI180       => pi180
+USE cbl_masks_mod,             ONLY: fveg_mask, fsunlit_mask, fsunlit_veg_mask
+USE cable_surface_types_mod,   ONLY: lakes_cable
+USE grid_constants_mod_cbl,    ONLY: ICE_SoilType
 
     ! CABLE model variables
     TYPE (air_type),       INTENT(INOUT) :: air
