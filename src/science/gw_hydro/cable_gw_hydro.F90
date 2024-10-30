@@ -47,7 +47,6 @@ MODULE cable_gw_hydro_module
 !  USE cbl_soil_snow_subrs_module, ONLY : trimb, snow_processes_soil_thermal ! replaced below by rk4417 - phase2
 
 ! line below commented out by rk4417 - phase2
-!  USE cable_data_module, only: C=>PHYS ! all constants used in this module belong to PHYS
 
 
 !distribute these per sbr   ! added by rk4417 - phase2

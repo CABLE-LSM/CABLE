@@ -34,10 +34,8 @@ USE grid_constants_mod_cbl, ONLY : ICE_SoilType, lakes_cable
    USE cable_def_types_mod
    USE cable_roughness_module
    USE cable_air_module
-#ifndef NO_CASA_YET
-   USE casadimension,     only : icycle ! used in casa_cnp
-#endif
-   USE cable_data_module, ONLY : icbm_type, point2constants 
+   USE casadimension,            ONLY: icycle 
+   USE cable_phys_constants_mod, ONLY: GRAV, CAPP 
    
    !ptrs to local constants 
    TYPE( icbm_type ) :: C
@@ -69,15 +67,11 @@ LOGICAL :: jls_standalone= .FALSE.
 LOGICAL :: jls_radiation= .FALSE.
 LOGICAL :: cbl_standalone = .FALSE.    
 
-
-   ! assign local ptrs to constants defined in cable_data_module
-   CALL point2constants(C)    
-
       cable_runtime%um_radiation = .FALSE.
       
       IF( cable_runtime%um_explicit ) THEN
         CALL ruff_resist( veg, rough, ssnow, canopy, veg%vlai, veg%hc, canopy%vlaiw )
-         met%tk = met%tk + C%grav/C%capp*(rough%zref_tq + 0.9*rough%z0m)
+         met%tk = met%tk + GRAV/CAPP*(rough%zref_tq + 0.9*rough%z0m)
       ENDIF
       
       CALL define_air (met, air)

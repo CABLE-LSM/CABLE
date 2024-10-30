@@ -29,10 +29,6 @@
 !
 ! ==============================================================================
 
-
-   !USE cable_data_module,   ONLY : PHYS
-   !REAL, POINTER :: TFRZ
-   !   TFRZ => PHYS%TFRZ
 subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
                                   DTL_1,DQW_1, TSOIL, TSOIL_TILE, SMCL,        &
                                   SMCL_TILE, timestep, SMVCST,STHF, STHF_TILE, &
@@ -57,9 +53,9 @@ subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
                                   NPP_FT_ACC,RESP_W_FT_ACC,RESP_S_ACC,          &
                                   FNSNET,FNLEACH,FNUP,FNLOSS,FNDEP,FNFIX,idoy )
 
-   USE cable_def_types_mod, ONLY : mp
-   USE cable_data_module,   ONLY : PHYS
-   USE cable_um_tech_mod,   ONLY : um1, conv_rain_prevstep, conv_snow_prevstep,&
+   USE cable_def_types_mod,      ONLY: mp
+   USE cable_phys_constants_mod, ONLY: TFRZ
+   USE cable_um_tech_mod,        ONLY: um1, conv_rain_prevstep, conv_snow_prevstep,&
                                   air, bgc, canopy, met, bal, rad, rough, soil,&
                                   ssnow, sum_flux, veg, climate
    USE cable_common_module, ONLY : cable_runtime, cable_user, l_casacnp,       &
@@ -242,12 +238,9 @@ subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
       dtlc, & 
       dqwc
 
-   REAL, POINTER :: TFRZ
 INTEGER, PARAMETER :: loy = 365 !fudge for ESM1.5 
 INTEGER, PARAMETER :: lalloc = 0 !fudge for ESM1.5 0 => call POP N/A 
 TYPE(POP_TYPE) :: POP
-   
-      TFRZ => PHYS%TFRZ
    
       ! FLAGS def. specific call to CABLE from UM
       cable_runtime%um_explicit = .FALSE.
@@ -363,10 +356,10 @@ SUBROUTINE implicit_unpack( TSOIL, TSOIL_TILE, SMCL, SMCL_TILE,                &
                             TRANSP_TILE, NPP_FT_ACC, RESP_W_FT_ACC, RESP_S_ACC,&
                             FNSNET,FNLEACH,FNUP,FNLOSS,FNDEP,FNFIX)
  
-   USE cable_def_types_mod, ONLY : mp
-   USE cable_data_module,   ONLY : PHYS
-   USE cable_um_tech_mod,   ONLY : um1 ,canopy, rad, soil, ssnow, air
-   USE cable_common_module, ONLY : cable_runtime, cable_user
+   USE cable_def_types_mod,      ONLY: mp
+   USE cable_phys_constants_mod, ONLY: TFRZ
+   USE cable_um_tech_mod,        ONLY: um1 ,canopy, rad, soil, ssnow, air
+   USE cable_common_module,      ONLY: cable_runtime, cable_user
    USE casa_types_mod
    IMPLICIT NONE
  
@@ -505,11 +498,6 @@ SUBROUTINE implicit_unpack( TSOIL, TSOIL_TILE, SMCL, SMCL_TILE,                &
    INTEGER:: i_miss = 0
    REAL :: miss = 0.0
    
-   REAL, POINTER :: TFRZ
-   
-   
-      TFRZ => PHYS%TFRZ
-  
       !--- set UM vars to zero
       TSOIL_CAB = 0.; SMCL_CAB = 0.; TSOIL_TILE = 0.; 
       SMCL_TILE = 0.; STHF_TILE = 0.; STHU_TILE = 0.
