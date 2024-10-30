@@ -133,6 +133,7 @@ USE landuse_constant, ONLY: mstate,mvmax,mharvw
 USE landuse_variable
 USE bgcdriver_mod, ONLY : bgcdriver
 USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_NC 
+USE atebcable_module
   IMPLICIT NONE
 
   ! CABLE namelist: model configuration, runtime/user switches
@@ -222,7 +223,8 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
        l_vcmaxFeedbk = .FALSE.,    & ! using prognostic Vcmax
        CASAONLY      = .FALSE.,    & ! ONLY Run CASA-CNP
        CALL1 = .TRUE.,             &
-       SPINon= .TRUE.
+       SPINon= .TRUE.,             &
+       urban = .FALSE.
 
   REAL              :: &
        delsoilM,         & ! allowed variation in soil moisture for spin up
@@ -270,7 +272,8 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
        wiltParam,        &
        satuParam,        &
        cable_user,       &   ! additional USER switches
-       gw_params
+       gw_params,        &
+       urban
 
   !mpidiff
   INTEGER :: i,x,kk,m,np,ivt
@@ -616,7 +619,7 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
               ! vh_js !
               CALL load_parameters( met, air, ssnow, veg,climate,bgc,           &
                    soil, canopy, rough, rad, sum_flux,                   &
-                   bal, logn, vegparmnew, casabiome, casapool,           &
+                   bal, logn, vegparmnew, urban, casabiome, casapool,           &
                    casaflux, sum_casapool, sum_casaflux, &
                    casamet, casabal, phen, POP, spinup,        &
                    CEMSOIL, CTFRZ, LUC_EXPT, POPLUC )
@@ -1267,6 +1270,10 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
   CLOSE(logn)
   CALL CPU_TIME(etime)
   PRINT *, 'Finished. ', etime, ' seconds needed for ', kend,' hours'
+  ! start ateb run
+  IF(urban) THEN
+  call atebcable()
+  ENDIF
 
 END PROGRAM cable_offline_driver
 

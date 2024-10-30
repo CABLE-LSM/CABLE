@@ -144,6 +144,9 @@ add_library(
     src/science/soilsnow/cbl_surfbv.F90
     src/science/soilsnow/cbl_thermal.F90
     src/science/soilsnow/cbl_trimb.F90
+    src/science/urban/ateb.f90
+    src/science/urban/atebcable.f90
+    src/science/urban/zenith.f90
     src/util/cable_climate_type_mod.F90
     src/util/cable_common.F90
     src/util/cable_runtime_opts_mod.F90
