@@ -328,22 +328,43 @@ END SUBROUTINE initialize_veg
 !========================================================================
    
 SUBROUTINE init_veg_pars_fr_vegin( soil_zse ) 
-   USE cable_params_mod, ONLY : vegin
-   USE cable_um_tech_mod,   ONLY : veg, soil 
-  USE cable_def_types_mod, ONLY : mp, ms
 
-  real, dimension(ms) :: soil_zse 
+USE cable_common_module, ONLY: cable_user
+USE cable_params_mod,    ONLY: vegin
+USE cable_um_tech_mod,   ONLY: veg, soil 
+USE cable_def_types_mod, ONLY: mp, ms
 
-  CALL init_veg_from_vegin(1, mp, veg, soil_zse) 
+IMPLICIT NONE
 
-      !froot fixed here for all vegetation types for ACCESS
-      !need more flexibility in next version to read in or parameterise
-    veg%froot(:,1) = 0.05
-    veg%froot(:,2) = 0.20
-    veg%froot(:,3) = 0.20
-    veg%froot(:,4) = 0.20
-    veg%froot(:,5) = 0.20
-    veg%froot(:,6) = 0.15
+REAL :: soil_zse(ms) 
+
+CALL init_veg_from_vegin(1, mp, veg, soil_zse) 
+
+IF (cable_user%access13roots) THEN
+  ! default prescribed values used in CMIP6 ACCESS-ESM1.5
+  veg%froot(:,1) = 0.05
+  veg%froot(:,2) = 0.20
+  veg%froot(:,3) = 0.20
+  veg%froot(:,4) = 0.20
+  veg%froot(:,5) = 0.20
+  veg%froot(:,6) = 0.15
+ELSE
+  ! parametrized values used in CMIP6 ACCESS-CM2
+  ! calculate vegin%froot from using rootbeta and soil depth
+  ! (Jackson et al. 1996, Oceologica, 108:389-411)
+  totdepth = 0.0
+  DO is = 1, ms-1
+    totdepth = totdepth + soil_zse(is) * 100.0  ! unit in centimetres
+    veg%froot(:, is) = MIN( 1.0, 1.0-veg%rootbeta(:)**totdepth )
+  END DO
+  veg%froot(:, ms) = 1.0 - veg%froot(:, ms-1)
+  DO is = ms-1, 2, -1
+    veg%froot(:, is) = veg%froot(:, is)-veg%froot(:,is-1)
+  END DO
+
+ENDIF
+
+RETURN
 
 END SUBROUTINE init_veg_pars_fr_vegin
 
