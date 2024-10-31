@@ -6,7 +6,7 @@ MODULE cable_canopy_module
   PRIVATE
 
 CONTAINS
-
+ 
 SUBROUTINE define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate, sunlit_veg_mask, reducedLAIdue2snow )
 ! subrs
 USE cbl_radiation_module, ONLY : radiation
@@ -62,6 +62,8 @@ USE cable_photo_constants_mod, ONLY : CMAXITER  => MAXITER ! only integer here
 ! maths & other constants
 USE cable_math_constants_mod,  ONLY : CPI_C  => PI
 USE cable_other_constants_mod, ONLY : CLAI_THRESH  => LAI_THRESH
+
+USE grid_constants_mod_cbl, ONLY: ICE_SoilType 
 
     USE cable_def_types_mod
     USE cable_air_module
@@ -713,7 +715,7 @@ soil_conductance(:) = rad%transd(:) * ( 0.01*Rel_moisture )**2 ! + soil conducta
 ! Combined Surface conductance
 Surf_conductance(:) = canopy_conductance(:) + soil_conductance(:) 
 
-WHERE ( soil%isoilm == 9 ) Surf_conductance = 1.e6   ! this is a value taken from Moses for ice points
+WHERE ( soil%isoilm == ICE_SoilType ) Surf_conductance = 1.e6   ! this is a value taken from Moses for ice points
 
 canopy%gswx_T(:)    = Surf_conductance(:)               !fill CABLE type for now
     
