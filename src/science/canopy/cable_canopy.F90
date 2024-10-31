@@ -702,20 +702,22 @@ Rel_bigLeafLAI_shd(:) = rad%fvlai(:,2) / LAI_min(:)
 canopy_conductance(:) = Rel_bigLeafLAI_sun(:)  * canopy%gswx(:,1)              & 
                       + Rel_bigLeafLAI_shd(:)  * canopy%gswx(:,2) 
 
-! The surface conductance below is required by dust scheme; it is composed from canopy and soil 
-
+! Surface conductance required by dust scheme
 ! Canopy conductance
 minCanopyCond(:)      = MAX( 1.e-06, canopy_conductance(:) )
 canopy_conductance(:) = (1.-rad%transd(:))* minCanopyCond(:)
 
-! Soil conductance
+! Soil conductance - following MOSES method
 Rel_moisture(:) = ssnow%wb(:,1) / soil%sfc(:)
-soil_conductance(:) = rad%transd(:) * ( 0.01*Rel_moisture )**2 ! + soil conductance; this part is done as in Moses
+soil_conductance(:) = rad%transd(:) * ( 0.01*Rel_moisture )**2 
 
 ! Combined Surface conductance
 Surf_conductance(:) = canopy_conductance(:) + soil_conductance(:) 
 
-WHERE ( soil%isoilm == ICE_SoilType ) Surf_conductance = 1.e6   ! this is a value taken from Moses for ice points
+! this is a value taken from MOSES for ice points
+WHERE ( soil%isoilm == ICE_SoilType ) 
+  Surf_conductance = 1.e6   
+END WHERE
 
 canopy%gswx_T(:)    = Surf_conductance(:)               !fill CABLE type for now
     
