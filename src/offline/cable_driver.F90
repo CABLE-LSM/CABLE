@@ -59,6 +59,7 @@
 !==============================================================================
 
 PROGRAM cable_offline_driver
+  USE cable_mpi_mod, ONLY : mpi_grp_t, mpi_mod_init, mpi_mod_end
   USE cable_driver_init_mod, ONLY : &
     cable_driver_init,              &
     vegparmnew,                     &
@@ -272,9 +273,15 @@ integer,   dimension(:,:),     allocatable,  save  :: landmask
 integer,   dimension(:),       allocatable,  save  :: cstart,cend,nap
 real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
 
+  ! mpi group info
+  TYPE(mpi_grp_t) :: mpi_grp
+
 ! END header
 
-  CALL cable_driver_init()
+  CALL mpi_mod_init()
+  mpi_grp = mpi_grp_t()
+
+  CALL cable_driver_init(mpi_grp)
 
   cable_runtime%offline = .TRUE.
 
@@ -1226,6 +1233,8 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
   CLOSE(logn)
   CALL CPU_TIME(etime)
   PRINT *, 'Finished. ', etime, ' seconds needed for ', kend,' hours'
+
+  CALL mpi_mod_end()
 
 END PROGRAM cable_offline_driver
 

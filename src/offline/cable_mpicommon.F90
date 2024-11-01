@@ -27,13 +27,6 @@ MODULE cable_mpicommon
 
   PUBLIC
 
-  ! MPI commicator and rank are declared as global variables (see
-  ! cable_driver_init_mod for their initialisation). This is done so that the comm
-  ! and rank variables are only accessible in cable_driver_init_mod when MPI
-  ! compilation is enabled.
-  ! TODO(Sean): revise which module to declare these variables in
-  INTEGER :: comm, rank
-
   ! base number of input fields: must correspond to CALLS to 
   ! MPI_address (field ) in *_mpimaster/ *_mpiworker
   INTEGER, PARAMETER :: nparam = 330

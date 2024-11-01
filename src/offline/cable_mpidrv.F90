@@ -18,28 +18,35 @@
 ! ==============================================================================
 !
 PROGRAM mpi_driver
-
   USE mpi
+  USE cable_mpi_mod, ONLY : mpi_grp_t, mpi_mod_init, mpi_mod_end, mpi_check_error
   USE cable_driver_init_mod
 
-  USE cable_mpicommon, ONLY : comm, rank
   USE cable_mpimaster
   USE cable_mpiworker
 
   IMPLICIT NONE
 
-  INTEGER :: ierr
   REAL    :: etime ! Declare the type of etime()
+  TYPE(mpi_grp_t) :: mpi_grp
 
-  CALL cable_driver_init()
+  call mpi_mod_init()
+  mpi_grp = mpi_grp_t()
 
-  IF (rank == 0) THEN
-     CALL mpidrv_master (comm)
-  ELSE
-     CALL mpidrv_worker (comm)
+  CALL cable_driver_init(mpi_grp)
+
+  IF (mpi_grp%size < 2) THEN
+    WRITE(*,*) 'This program needs at least 2 processes to run!'
+    CALL mpi_grp%abort()
   END IF
 
-  CALL MPI_Finalize (ierr)
+  IF (mpi_grp%rank == 0) THEN
+     CALL mpidrv_master (mpi_grp%comm)
+  ELSE
+     CALL mpidrv_worker (mpi_grp%comm)
+  END IF
+
+  CALL mpi_mod_end()
 
   CALL CPU_TIME(etime)
   PRINT *, 'Finished. ', etime, ' seconds needed for '
