@@ -32,12 +32,6 @@ MODULE hruff_eff_LAI_mod_cbl
 !
 !-----------------------------------------------------------------------------
 
-!* The first procedure in this module evaluates the canopy height
-!  given the effect of any snow present.
-
-!* The secone procedure in this module computes the effective LAI of a canopy
-!  given the effect of any snow present
-
 IMPLICIT NONE
 
 PUBLIC :: HgtAboveSnow
