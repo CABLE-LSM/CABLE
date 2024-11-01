@@ -161,10 +161,10 @@ CONTAINS
 
     EffStressIndexWilting = soil%swilt**( CampbellExp ) - 1.0
     
-    RelativeStress =  EffStressIndexWater / EffStressIndexWilting
+    RelativeStress =  EffStressIndexWater / EffStressIndexWilting - 1.0
     RelativeStress = MIN( 1.0, RelativeStress ) 
     
-    coef_drght = EXP( 5.0 * ( RelativeStress  - 1.0 ) )
+    coef_drght = EXP( 5.0 * RelativeStress )
 
     coef_cd = ( coef_cold + coef_drght ) * 2.0e-7
 
