@@ -103,6 +103,7 @@ MODULE cable_param_module
   REAL,    DIMENSION(:, :),     ALLOCATABLE :: inclay
   REAL,    DIMENSION(:, :),     ALLOCATABLE :: insilt
   REAL,    DIMENSION(:, :),     ALLOCATABLE :: insand
+  REAL,    DIMENSION(:, :),     ALLOCATABLE :: infracC4
 
   ! vars intro for Ticket #27
   INTEGER, DIMENSION(:, :),     ALLOCATABLE :: inSoilColor
@@ -143,7 +144,7 @@ CONTAINS
     IF (CABLE_USER%POPLUC) then
        CALL get_land_index(nlon, nlat)
        IF (TRIM(cable_user%MetType) .EQ. "bios") THEN
-          CALL LUC_EXPT_SET_TILES_BIOS(inVeg, inPfrac, LUC_EXPT)
+          CALL LUC_EXPT_SET_TILES_BIOS(inVeg, inPfrac, infracC4, LUC_EXPT)
        ELSE
           CALL LUC_EXPT_SET_TILES(inVeg, inPfrac, LUC_EXPT)
        ENDIF
@@ -306,6 +307,10 @@ CONTAINS
 
     endif
 
+    IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%MetType) .EQ. "bios") THEN
+      ALLOCATE (infracC4(nlon, nlat))
+    END IF
+
     ok = NF90_INQ_VARID(ncid, 'longitude', varID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, &
                                         'Error finding variable longitude.')
@@ -439,6 +444,14 @@ CONTAINS
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error finding variable LAI.')
     ok = NF90_GET_VAR(ncid,varID,inLAI)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading variable LAI.')
+
+   
+    IF (CABLE_USER%POPLUC .AND. TRIM(cable_user%MetType) .EQ. "bios") THEN
+      ok = NF90_INQ_VARID(ncid, 'c4frac', varID)
+      IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error finding c4frac.')
+      ok = NF90_GET_VAR(ncid, varID, infracC4)
+      IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading c4frac.')
+    END IF
 
     IF (icycle > 0) THEN
       ! casaCNP parameters
@@ -1499,6 +1512,7 @@ CONTAINS
     IF (calcsoilalbedo) DEALLOCATE(inSoilColor) ! vars intro for Ticket #27
     DEALLOCATE(inVeg, inPFrac, inSoil, inWB, inTGG)
     DEALLOCATE(inLAI, inSND, inALB)
+    IF (allocated(infracC4)) DEALLOCATE(infracC4)
     !    DEALLOCATE(soiltemp_temp,soilmoist_temp,patchfrac_temp,isoilm_temp, &
     !         frac4_temp,iveg_temp)
     !    IF(ASSOCIATED(vegtype_metfile)) DEALLOCATE(vegtype_metfile)

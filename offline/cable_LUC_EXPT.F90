@@ -2,6 +2,7 @@ MODULE CABLE_LUC_EXPT
 
   use cable_common_module,  only: is_leapyear, leap_day, handle_err, get_unit
   use cable_io_vars_module, only: logn, land_x, land_y, landpt, latitude, longitude
+  USE cable_common_module, ONLY: cable_user
   use cable_def_types_mod,  only: mland
 
   implicit none
@@ -660,20 +661,16 @@ CONTAINS
   ! ------------------------------------------------------------------
 
 
-  SUBROUTINE LUC_EXPT_SET_TILES_BIOS(inVeg, inPfrac, LUC_EXPT )
-
-    USE cable_bios_met_obs_params, ONLY: cable_bios_load_fracC4
+  SUBROUTINE LUC_EXPT_SET_TILES_BIOS(inVeg, inPfrac, infracC4, LUC_EXPT )
 
     IMPLICIT NONE
 
     INTEGER,              INTENT(INOUT) :: inVeg(:,:,:)
     REAL,                 INTENT(INOUT) :: inPFrac(:,:,:)
-    TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
+    REAL,                 INTENT(IN)    :: infracC4(:,:)
+    TYPE (LUC_EXPT_TYPE), INTENT(IN) :: LUC_EXPT
 
-    REAL :: fracC4(mland)
     INTEGER :: k, m, n
-
-    CALL cable_bios_load_fracC4(fracC4)
 
     DO k=1, mland
        m = landpt(k)%ilon
@@ -686,7 +683,7 @@ CONTAINS
           inPFrac(m,n,2:3) = 0.0
           inPFrac(m,n,1)   = 1.0
           if ( LUC_EXPT%grass(k) .gt. 0.01 ) then
-             if (fracC4(k).gt.0.5) then
+             if (infracC4(m, n).gt.0.5) then
                 inVeg(m,n,2) = 7 ! C4 grass
              else
                 inVeg(m,n,2) = 6 ! C3 grass
@@ -699,7 +696,7 @@ CONTAINS
 
           inVeg(m,n,1) = LUC_EXPT%ivegp(k)
           inVeg(m,n,2) = LUC_EXPT%ivegp(k)
-          if (fracC4(k).gt.0.5) then
+          if (infracC4(m, n).gt.0.5) then
              inVeg(m,n,3) = 7 ! C4 grass
           else
              inVeg(m,n,3) = 6 ! C3 grass
