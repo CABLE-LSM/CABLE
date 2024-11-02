@@ -278,7 +278,8 @@ MODULE cable_common_module
           P50, &
           P88, &
           g2, &
-          g3
+          g3, &
+          psi_ref
      REAL, DIMENSION(:,:), ALLOCATABLE :: &
           froot,      & !
           cplant,     & !
@@ -390,7 +391,7 @@ CONTAINS
          vegin%zr(mvtype), vegin%clitt(mvtype), vegin%gamma(mvtype), &
          vegin%kmax(mvtype), vegin%PLCcrit(mvtype), &
          vegin%P50(mvtype), vegin%P88(mvtype),&
-         vegin%g2(mvtype), vegin%g3(mvtype))
+         vegin%g2(mvtype), vegin%g3(mvtype), vegin%psi_ref(mvtype))
     ! set default vcmaxcc and ejmaxcc to 0. because not used yet
     vegin%vcmaxcc = 0
     vegin%ejmaxcc = 0
@@ -439,6 +440,7 @@ CONTAINS
           READ(40,*) vegin%kmax(jveg), vegin%PLCcrit(jveg)
           READ(40,*) vegin%P50(jveg), vegin%P88(jveg)
           READ(40,*) vegin%g2(jveg), vegin%g3(jveg)
+          READ(40,*) vegin%psi_ref(jveg), vegin%psi_ref(jveg)
        END DO
 
     ELSE
@@ -988,6 +990,7 @@ CONTAINS
        veg%P88(h)     = vegin%P88(veg%iveg(h))
        veg%g2(h)     = vegin%g2(veg%iveg(h))
        veg%g3(h)     = vegin%g3(veg%iveg(h))
+       veg%psi_ref(h)     = vegin%psi_ref(veg%iveg(h))
 
     END DO ! over each veg patch in land point
       

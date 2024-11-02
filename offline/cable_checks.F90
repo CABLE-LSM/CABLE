@@ -194,8 +194,9 @@ MODULE cable_checks_module
           day_plc_stem = (/0.0, 100.0/),      &
           day_plc_can = (/0.0, 100.0/),       &
           gswx = (/-1.0, 10.0/),              &
-          g2 = (/0.0, 10.0/),                              &
-          g3 = (/0.0, 10.0/) 
+          g2 = (/-10.0, 10.0/),               &
+          g3 = (/-10.0, 10.0/),               &
+          psi_ref = (/-10.0, 0.0/)
    END TYPE ranges_type
    TYPE(ranges_type),SAVE :: ranges
 

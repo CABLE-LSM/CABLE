@@ -366,8 +366,8 @@ module cable_def_types_mod
           kmax => null(),    & ! maximum hydraulic conductance in the soil-plant continuum, mmol m-2 s-1 MPa-1
           PLCcrit => null(), &    ! critical maximum percentage loss of hydraulic conductivity above which no xylem recovery can occur, %
           g2 => null(),      & !  coefficient in Paschalis 2023 equation converting psi_can to fwpsi
-          g3 => null()       !  coefficient in Paschalis 2023 equation converting psi_can to fwpsi
-
+          g3 => null(),      &       !  coefficient in Paschalis 2023 equation converting psi_can to fwpsi
+          psi_ref => null()
 
      logical, dimension(:), pointer :: &
           deciduous => null() ! flag used for phenology fix
@@ -1137,6 +1137,7 @@ contains
     allocate( veg%PLCcrit(mp) ) 
     allocate( veg%g2(mp) ) 
     allocate( veg%g3(mp) ) 
+    allocate( veg%psi_ref(mp) ) 
 
   end subroutine alloc_veg_parameter_type
 
@@ -1782,6 +1783,7 @@ contains
     deallocate( veg%PLCcrit )
     deallocate( veg%g2 ) 
     deallocate( veg%g3 ) 
+    deallocate( veg%psi_ref ) 
 
   end subroutine dealloc_veg_parameter_type
 
@@ -2313,6 +2315,7 @@ contains
     veg%PLCcrit = 0
     veg%g2 = 0
     veg%g3 = 0
+    veg%psi_ref = 0
    
   end subroutine zero_veg_parameter_type
 
@@ -2973,6 +2976,7 @@ contains
     write(*,*) 'veg%PLCcrit ', veg%PLCcrit
     write(*,*) 'veg%g2 ', veg%g2
     write(*,*) 'veg%g3 ', veg%g3
+    write(*,*) 'veg%psi_ref ', veg%psi_ref
 
   end subroutine print_veg_parameter_type
 

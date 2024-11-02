@@ -1679,11 +1679,13 @@ CONTAINS
          patchout%g1, 'real', xID, yID, zID, landID, patchID)
      IF(output%params .OR. output%g2) CALL define_ovar(ncid_out, opid%g2, &
          'g2', '-', 'g2 term in fwpsi', &
-         patchout%g1, 'real', xID, yID, zID, landID, patchID)
+         patchout%g2, 'real', xID, yID, zID, landID, patchID)
      IF(output%params .OR. output%g3) CALL define_ovar(ncid_out, opid%g3, &
          'g3', '-', 'g3 term in fwpsi', &
-         patchout%g1, 'real', xID, yID, zID, landID, patchID)
-   
+         patchout%g3, 'real', xID, yID, zID, landID, patchID)
+     IF(output%params .OR. output%psi_ref) CALL define_ovar(ncid_out, opid%psi_ref, &
+         'psi_ref', '-', 'psi_ref term in fwpsi', &
+         patchout%psi_ref, 'real', xID, yID, zID, landID, patchID)
 
     IF(output%params .OR. output%rpcoef) CALL define_ovar(ncid_out, &
          opid%rpcoef, 'rpcoef', '1/C', &
@@ -1912,6 +1914,8 @@ CONTAINS
          'g2', toreal4(veg%g2),ranges%g2, patchout%g2, 'real')
      IF(output%params .OR. output%g3) CALL write_ovar(ncid_out, opid%g3, &
          'g3', toreal4(veg%g3),ranges%g3, patchout%g3, 'real')
+     IF(output%params .OR. output%psi_ref) CALL write_ovar(ncid_out, opid%psi_ref, &
+         'g3', toreal4(veg%psi_ref),ranges%psi_ref, patchout%psi_ref, 'real')
     IF(output%params .OR. output%rpcoef) CALL write_ovar(ncid_out, &
          opid%rpcoef, 'rpcoef', toreal4(veg%rpcoef), &
          ranges%rpcoef, patchout%rpcoef, 'real')
@@ -4403,6 +4407,9 @@ CONTAINS
      CALL define_ovar(ncid_restart, rpid%g3, 'g3', '-', &
                      'g3 term in fwpsi', .TRUE.,'real',&
                      0, 0, 0, mpID, dummy, .TRUE.) 
+     CALL define_ovar(ncid_restart, rpid%psi_ref, 'psi_ref', '-', &
+                     'psi_ref term in fwpsi', .TRUE.,'real',&
+                     0, 0, 0, mpID, dummy, .TRUE.) 
     ! CALL define_ovar(ncid_restart, rpid%rpcoef, 'rpcoef', '1/C', &
     !                  'Temperature coef nonleaf plant respiration', .TRUE., &
     !                  'real', 0, 0, 0, mpID, dummy, .TRUE.)
@@ -4653,7 +4660,9 @@ CONTAINS
      CALL write_ovar (ncid_restart, rpid%g2, 'g2', toreal4(veg%g2), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
      CALL write_ovar (ncid_restart, rpid%g3, 'g3', toreal4(veg%g3), &
-          (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.) ! Ticket #56
+          (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.) 
+     CALL write_ovar (ncid_restart, rpid%psi_ref, 'psi_ref', toreal4(veg%psi_ref), &
+          (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.) 
     ! CALL write_ovar (ncid_restart, rpid%rpcoef, 'rpcoef', toreal4(veg%rpcoef), &
     !                  ranges%rpcoef, .TRUE., 'real', .TRUE.)
     ! CALL write_ovar (ncid_restart, rpid%shelrb, 'shelrb', toreal4(veg%shelrb), &

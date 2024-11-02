@@ -683,9 +683,11 @@ CONTAINS
     CALL readpar(ncid_rin,'g1',dummy,veg%g1,filename%restart_in, &
                 max_vegpatches,'def',from_restart,mp) ! Ticket #56
      CALL readpar(ncid_rin,'g2',dummy,veg%g2,filename%restart_in, &
-                max_vegpatches,'def',from_restart,mp) ! Ticket #56
+                max_vegpatches,'def',from_restart,mp) 
     CALL readpar(ncid_rin,'g3',dummy,veg%g3,filename%restart_in, &
-                max_vegpatches,'def',from_restart,mp) ! Ticket #56
+                max_vegpatches,'def',from_restart,mp) 
+     CALL readpar(ncid_rin,'psi_ref',dummy,veg%psi_ref,filename%restart_in, &
+                max_vegpatches,'def',from_restart,mp) 
     ! CALL readpar(ncid_rin,'meth',dummy,veg%meth,filename%restart_in, &
     !      max_vegpatches,'def',from_restart,mp)
     ! ! special treatment of za with the introduction of za_uv and za_tq
