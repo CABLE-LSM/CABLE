@@ -364,7 +364,9 @@ module cable_def_types_mod
           b_plant => null(), & ! sensitivity of hydraulic vulnerability curve, MPa (higher = less sensitive to SW)
           c_plant => null(), & ! shape of hydraulic VC, [-]
           kmax => null(),    & ! maximum hydraulic conductance in the soil-plant continuum, mmol m-2 s-1 MPa-1
-          PLCcrit => null()    ! critical maximum percentage loss of hydraulic conductivity above which no xylem recovery can occur, %
+          PLCcrit => null(), &    ! critical maximum percentage loss of hydraulic conductivity above which no xylem recovery can occur, %
+          g2 => null(),      & !  coefficient in Paschalis 2023 equation converting psi_can to fwpsi
+          g3 => null()       !  coefficient in Paschalis 2023 equation converting psi_can to fwpsi
 
 
      logical, dimension(:), pointer :: &
@@ -1133,6 +1135,8 @@ contains
     allocate( veg%c_plant(mp) )
     allocate( veg%kmax(mp) ) 
     allocate( veg%PLCcrit(mp) ) 
+    allocate( veg%g2(mp) ) 
+    allocate( veg%g3(mp) ) 
 
   end subroutine alloc_veg_parameter_type
 
@@ -1776,6 +1780,8 @@ contains
     deallocate( veg%c_plant ) 
     deallocate( veg%kmax )
     deallocate( veg%PLCcrit )
+    deallocate( veg%g2 ) 
+    deallocate( veg%g3 ) 
 
   end subroutine dealloc_veg_parameter_type
 
@@ -2305,6 +2311,8 @@ contains
     veg%c_plant = 0
     veg%kmax = 0
     veg%PLCcrit = 0
+    veg%g2 = 0
+    veg%g3 = 0
    
   end subroutine zero_veg_parameter_type
 
@@ -2963,7 +2971,9 @@ contains
     write(*,*) 'veg%c_plant ', veg%c_plant
     write(*,*) 'veg%kmax ', veg%kmax
     write(*,*) 'veg%PLCcrit ', veg%PLCcrit
-  
+    write(*,*) 'veg%g2 ', veg%g2
+    write(*,*) 'veg%g3 ', veg%g3
+
   end subroutine print_veg_parameter_type
 
 

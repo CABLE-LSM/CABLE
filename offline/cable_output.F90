@@ -1677,7 +1677,13 @@ CONTAINS
     IF(output%params .OR. output%g1) CALL define_ovar(ncid_out, opid%g1, &
          'g1', '-', 'g1 term in Medlyn Stom Cond. Param', &
          patchout%g1, 'real', xID, yID, zID, landID, patchID)
-    ! end Ticket #56
+     IF(output%params .OR. output%g2) CALL define_ovar(ncid_out, opid%g2, &
+         'g2', '-', 'g2 term in fwpsi', &
+         patchout%g1, 'real', xID, yID, zID, landID, patchID)
+     IF(output%params .OR. output%g3) CALL define_ovar(ncid_out, opid%g3, &
+         'g3', '-', 'g3 term in fwpsi', &
+         patchout%g1, 'real', xID, yID, zID, landID, patchID)
+   
 
     IF(output%params .OR. output%rpcoef) CALL define_ovar(ncid_out, &
          opid%rpcoef, 'rpcoef', '1/C', &
@@ -1902,6 +1908,10 @@ CONTAINS
     IF(output%params .OR. output%g1) CALL write_ovar(ncid_out, opid%g1, &
          'g1', toreal4(veg%g1),ranges%g1, patchout%g1, 'real')
     ! End Ticket #56
+     IF(output%params .OR. output%g2) CALL write_ovar(ncid_out, opid%g2, &
+         'g2', toreal4(veg%g2),ranges%g2, patchout%g2, 'real')
+     IF(output%params .OR. output%g3) CALL write_ovar(ncid_out, opid%g3, &
+         'g3', toreal4(veg%g3),ranges%g3, patchout%g3, 'real')
     IF(output%params .OR. output%rpcoef) CALL write_ovar(ncid_out, &
          opid%rpcoef, 'rpcoef', toreal4(veg%rpcoef), &
          ranges%rpcoef, patchout%rpcoef, 'real')
@@ -4387,6 +4397,12 @@ CONTAINS
     CALL define_ovar(ncid_restart, rpid%g1, 'g1', '-', &
                      'g1 term in Medlyn Stomatal Cond. Param', .TRUE.,'real',&
                      0, 0, 0, mpID, dummy, .TRUE.)  ! Ticket #56
+     CALL define_ovar(ncid_restart, rpid%g2, 'g2', '-', &
+                     'g2 term in fwpsi', .TRUE.,'real',&
+                     0, 0, 0, mpID, dummy, .TRUE.) 
+     CALL define_ovar(ncid_restart, rpid%g3, 'g3', '-', &
+                     'g3 term in fwpsi', .TRUE.,'real',&
+                     0, 0, 0, mpID, dummy, .TRUE.) 
     ! CALL define_ovar(ncid_restart, rpid%rpcoef, 'rpcoef', '1/C', &
     !                  'Temperature coef nonleaf plant respiration', .TRUE., &
     !                  'real', 0, 0, 0, mpID, dummy, .TRUE.)
@@ -4633,6 +4649,10 @@ CONTAINS
     CALL write_ovar (ncid_restart, rpid%g0, 'g0', toreal4(veg%g0), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.) ! Ticket #56
     CALL write_ovar (ncid_restart, rpid%g1, 'g1', toreal4(veg%g1), &
+          (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.) ! Ticket #56
+     CALL write_ovar (ncid_restart, rpid%g2, 'g2', toreal4(veg%g2), &
+          (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
+     CALL write_ovar (ncid_restart, rpid%g3, 'g3', toreal4(veg%g3), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.) ! Ticket #56
     ! CALL write_ovar (ncid_restart, rpid%rpcoef, 'rpcoef', toreal4(veg%rpcoef), &
     !                  ranges%rpcoef, .TRUE., 'real', .TRUE.)

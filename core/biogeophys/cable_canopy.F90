@@ -113,6 +113,7 @@ CONTAINS
          cansat => null(),        & ! max canopy intercept. (mm)
          dsx => null(),           & ! leaf surface vpd
          fwsoil => null(),        & ! soil water modifier of stom. cond
+         fwpsi => null(),        & ! psi leaf modifier of stom. cond zihan lu 02/11/2024
          fwsoiltmp => null(),        & 
          tlfx => null(),          & ! leaf temp prev. iter (K)
          tlfy => null()             ! leaf temp (K)
@@ -2153,7 +2154,12 @@ CONTAINS
                      gs_coeff(i,1) = (1.0 + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,1))
                      gs_coeff(i,2) = (1.0 + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,2))
                   endif
-               ELSE IF (cable_user%GS_SWITCH == 'medlyn' .AND. &
+               ELSE IF (cable_user%GS_SWITCH == 'tuzet' .AND. &
+                  cable_user%FWSOIL_SWITCH == 'LWP') THEN
+                     fwpsi = exp(ABS(veg%psi_can(i)))
+                     gs_coeff(i,1) =veg%psi_can(i) / real(csx(i,1))
+
+               ELSE IF (cable_user%GS_SWITCH == 'profitmax' .AND. &
                   cable_user%FWSOIL_SWITCH == 'profitmax') THEN
                   ! write(logn,*) '1:gs_coeff of 1', gs_coeff(1,1)
                   ! write(logn,*) '1:gs_coeff of 2', gs_coeff(1,2)
