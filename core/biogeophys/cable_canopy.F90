@@ -125,12 +125,14 @@ CONTAINS
          ecy => null(),           & ! lat heat fl dry big leaf
          hcy => null(),           & ! veg. sens heat
          rny => null(),           & ! net rad
-         ghwet => null()            ! cond for heat for a wet canopy
+         ghwet => null(),         &   ! cond for heat for a wet canopy
+         psil => null() 
 
       REAL(r_2), DIMENSION(:,:), POINTER :: &
          gbhu => null(),          & ! forcedConvectionBndryLayerCond
          gbhf => null(),          & ! freeConvectionBndryLayerCond
-         csx => null()              ! leaf surface CO2 concentration
+         csx => null()               ! leaf surface CO2 concentration
+
 
       REAL :: rt_min
       REAL, DIMENSION(mp) :: zstar, rL, phist, csw, psihat,rt0bus
@@ -150,7 +152,7 @@ CONTAINS
 
       ALLOCATE(cansat(mp), gbhu(mp,mf))
       ALLOCATE(dsx(mp), fwsoil(mp), fwsoiltmp(mp), tlfx(mp), tlfy(mp))
-      ALLOCATE(ecy(mp), hcy(mp), rny(mp))
+      ALLOCATE(ecy(mp), hcy(mp), rny(mp),psil(mp))
       ALLOCATE(gbhf(mp,mf), csx(mp,mf))
       ALLOCATE(ghwet(mp))
 
@@ -431,7 +433,7 @@ CONTAINS
 
          sum_rad_rniso = sum(rad%rniso,2)
          CALL dryLeaf( dels, rad, air, met,  &
-            veg, canopy, soil, ssnow, dsx, &
+            veg, canopy, soil, ssnow, dsx, psil, &
             fwsoil, fwsoiltmp, tlfx, tlfy, ecy, hcy,  &
             rny, gbhu, gbhf, csx, cansat,  &
             ghwet, iter, climate)
@@ -1496,7 +1498,7 @@ CONTAINS
 
 
    SUBROUTINE dryLeaf( dels, rad, air, met, &
-      veg, canopy, soil, ssnow, dsx, &
+      veg, canopy, soil, ssnow, dsx,psil, &
       fwsoil, fwsoiltmp, tlfx, tlfy, ecy, hcy, &
       rny, gbhu, gbhf, csx, &
       cansat, ghwet, iter, climate)
@@ -1526,7 +1528,8 @@ CONTAINS
       real(r_2), dimension(:),   intent(inout) :: &
          ecy,        & ! lat heat fl dry big leaf
          hcy,        & ! veg. sens heat
-         rny         !& !
+         rny,        & !& !
+         psil
       real(r_2), dimension(:,:), intent(inout) :: &
          gbhu,       & ! forcedConvectionBndryLayerCond
          gbhf,       & ! freeConvectionBndryLayerCond
@@ -1569,7 +1572,8 @@ CONTAINS
          ecx,        & ! lat. hflux big leaf
          hcx,        & ! sens heat fl big leaf prev iteration
          rnx, &          ! net rad prev timestep
-         ecxs ! lat. hflux big leaf (sap flux)
+         ecxs, &! lat. hflux big leaf (sap flux)
+         ex  !transpiration, mmol(H2O) m-2 s-1
 
       real, dimension(mp,ms)  :: oldevapfbl
 
@@ -1775,6 +1779,7 @@ CONTAINS
             rnx(kk) = 0.0_r_2 ! intialise
             ecx(kk) = 0.0_r_2 ! intialise
             ecy(kk) = ecx(kk) ! store initial values
+            psil(kk) = 0.0_r_2 ! intialise
             ecxs(kk) = 0.0_r_2 ! initialise
             abs_deltlf(kk) = 0.0
             rny(kk) = rnx(kk) ! store initial values
@@ -2156,8 +2161,10 @@ CONTAINS
                   endif
                ELSE IF (cable_user%GS_SWITCH == 'tuzet' .AND. &
                   cable_user%FWSOIL_SWITCH == 'LWP') THEN
-                     fwpsi = exp(ABS(veg%psi_can(i)))
-                     gs_coeff(i,1) =veg%psi_can(i) / real(csx(i,1))
+                     g1 = veg%g1(i)
+                     fwpsi = (1+exp(veg%g2(i) * veg%psi_ref(i))) / (1+exp(veg%g2(i) * (veg%psi_ref(i)-psil(i))))
+                     gs_coeff(i,1) =fwpsi * g1 / real(csx(i,1))
+                     gs_coeff(i,2) =fwpsi * g1 / real(csx(i,2))
 
                ELSE IF (cable_user%GS_SWITCH == 'profitmax' .AND. &
                   cable_user%FWSOIL_SWITCH == 'profitmax') THEN
@@ -2221,7 +2228,7 @@ CONTAINS
          ENDDO !i=1,mp
 
          ! gmes is 0.0 if explicit_gm = FALSE (easier to debug)
-         IF (cable_user%FWSOIL_SWITCH /= 'profitmax') THEN
+         IF (cable_user%GS_SWITCH /= 'profitmax') THEN
             CALL photosynthesis_gm( csx(:,:), &
                spread(cx1(:),2,mf), &
                spread(cx2(:),2,mf), &
@@ -2303,7 +2310,12 @@ CONTAINS
                   met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair * &
                   met%dva(i) * ghr(i,2) ) / &
                   ( air%dsatdk(i) + psycst(i,2) ), r_2)
+               IF (cable_user%FWSOIL_SWITCH == 'LWP') then
+             
+                  ex(i) = ecx(i) * (1.0_r_2-real(canopy%fwet(i),r_2))/air%rlam(i) * 1.0e6_r_2/18.0_r_2  !mmol m-2 s-1
+                  psil(i) = canopy%psi_rootzone(i)-ex(i)/canopy%kplant(i)
 
+               ENDIF
                IF (cable_user%SOIL_SCHE == 'Haverd2013') then
                   ! avoid root-water extraction when fwsoil is zero
                   if (fwsoil(i) < 1e-6) then
@@ -2479,7 +2491,6 @@ CONTAINS
       END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
 
       ! dry canopy flux
-
       canopy%fevc = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
       !write(logn,*) 'fevc', canopy%fevc(1)
       ! print*, 'DD45 ', canopy%fwet
@@ -2527,7 +2538,7 @@ CONTAINS
          END DO
 
       ENDIF
-
+      canopy%psi_can = psil
       canopy%frday = 12.0 * SUM(rdy, 2)
       !! vh !! inserted min to avoid -ve values of GPP
       canopy%fpn = min(-12.0 * SUM(an_y, 2), canopy%frday)

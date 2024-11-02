@@ -517,7 +517,7 @@ module cable_def_types_mod
      REAL(r_1), DIMENSION(:), POINTER :: &
         psi_stem => null(), &
         psi_can => null(), & 
-        kplant => null()
+        kplant => null()   ! mmol m-2 s-1 Mpa-1
      REAL(r_1), DIMENSION(:), POINTER :: plc_sat, plc_stem, plc_can, day_plc_sat, day_plc_stem, day_plc_can
 
   end type canopy_type
