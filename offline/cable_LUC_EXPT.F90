@@ -67,13 +67,14 @@ CONTAINS
 
   ! ------------------------------------------------------------------
 
-  SUBROUTINE LUC_EXPT_INIT(LUC_EXPT)
+  SUBROUTINE LUC_EXPT_INIT(inMVG, LUC_EXPT)
 
     use netcdf,                    only: nf90_open, nf90_nowrite, nf90_inq_varid, nf90_inq_dimid, &
          nf90_inquire_dimension, nf90_inq_varid, nf90_get_att, nf90_get_var, nf90_close
 
     implicit none
 
+    INTEGER, INTENT(IN) :: inMVG(:, :)
     type(luc_expt_type), intent(inout) :: luc_expt
 
     REAL :: tmp
@@ -375,6 +376,12 @@ CONTAINS
        PrimOnly_fID = -1
     ENDIF
 
+    IF (TRIM(cable_user%MetType) .EQ. "bios") THEN
+       DO k = 1, mland
+          LUC_EXPT%biome(k) = inMVG(landpt(k)%ilon,landpt(k)%ilat) 
+       ENDDO
+    END IF
+
     ! Determine woody fraction (forest and shrub cover).
     call get_woody_fraction(LUC_EXPT)
 
@@ -453,14 +460,12 @@ CONTAINS
   subroutine get_woody_fraction(LUC_EXPT) 
     ! Determine woody fraction (forest and shrub cover) from ancillary data.
     
-    use cable_bios_met_obs_params, only: cable_bios_load_biome
     use cable_common_module,       only: cable_user
 
     implicit none
 
     type(LUC_EXPT_type), intent(inout) :: LUC_EXPT
     real    :: CPC(mland)
-    integer :: MVG(mland)
     real    :: projection_factor
 
     if (TRIM(cable_user%MetType) .EQ. "bios") then
@@ -469,10 +474,8 @@ CONTAINS
       ! Woody fraction (woodfrac) is then calculated from CPC.
       
       ! read bios parameter file to NVIS Major Vegetation Group "biomes"
-      call cable_bios_load_biome(MVG)
       
       ! adjust fraction woody cover based on Major Vegetation Group
-      LUC_EXPT%biome = MVG
       LUC_EXPT%ivegp = 2
       projection_factor = 0.65
       WHERE (LUC_EXPT%biome .eq. 1)
