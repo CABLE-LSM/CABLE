@@ -337,7 +337,7 @@ PROGRAM cable_offline_driver
   ! Open, read and close the namelist file.
   open(10, file=cable_namelist)
   read(10, nml=cablenml, IOSTAT=ios, IOMSG=ioMessage)   !where nml=cable defined above
-  CALL handle_namelist_iostat(10, ios, ioMessage)
+  CALL handle_namelist_iostat(ios, ioMessage)
   close(10)
 
   ! Open, read and close the consistency check file.

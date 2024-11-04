@@ -694,7 +694,7 @@ CONTAINS
 
   end subroutine get_unit
 
-  SUBROUTINE handle_namelist_iostat(nmlunit, ios, iomessage)
+  SUBROUTINE handle_namelist_iostat(ios, iomessage)
     !*## Purpose
     !
     ! Take the return status of a namelist read and return an informative error
@@ -707,7 +707,7 @@ CONTAINS
     ! (https://degenerateconic.com/namelist-error-checking.html) to throw an
     ! informative error message when the reading of the namelist fails.
 
-    INTEGER, INTENT(IN) :: nmlUnit, ios
+    INTEGER, INTENT(IN) :: ios
     CHARACTER(LEN=*), INTENT(IN) :: ioMessage
     CHARACTER(LEN=200) :: BadLine
 
@@ -715,10 +715,20 @@ CONTAINS
       ! Read of namelist failed
       WRITE(ERROR_UNIT, FMT='(A)') ioMessage
 
-      BACKSPACE(nmlUnit)
-      READ(nmlUnit, FMT='(A)') BadLine
-      WRITE(ERROR_UNIT, FMT='(A)') "Invalid line in namelist: "//TRIM(BadLine)
-      STOP 1
+      ! This section was originally included, based on a method found [here]
+      ! (https://degenerateconic.com/namelist-error-checking.html), which would
+      ! also write the incriminating line to the error stream. However, it
+      ! relies on undefined behaviour, as the position in a file becomes
+      ! indeterminate if an error condition occurs during input/output (see
+      ! [this
+      ! thread](https://community.intel.com/t5/Intel-Fortran-Compiler/
+      ! Regression-with-quot-backspace-quot-in-2023-0/m-p/1448175)). While
+      ! it may work as desired for most compilers, it is not guaranteed, and
+      ! may change without warning at any time as evidenced by said thread.
+      !BACKSPACE(nmlUnit)
+      !READ(nmlUnit, FMT='(A)') BadLine
+      !WRITE(ERROR_UNIT, FMT='(A)') "Invalid line in namelist: "//TRIM(BadLine)
+      STOP ios
     END IF
 
   END SUBROUTINE handle_namelist_iostat
