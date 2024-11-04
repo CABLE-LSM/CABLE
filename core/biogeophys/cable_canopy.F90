@@ -434,7 +434,7 @@ CONTAINS
          sum_rad_rniso = sum(rad%rniso,2)
          CALL dryLeaf(ktau, dels, rad, air, met,  &
             veg, canopy, soil, ssnow, dsx, psil, &
-            fwsoil, fwsoiltmp, tlfx, tlfy, ecy, hcy,  &
+            fwsoil, fwsoiltmp,fwpsi, tlfx, tlfy, ecy, hcy,  &
             rny, gbhu, gbhf, csx, cansat,  &
             ghwet, iter, climate)
 
@@ -1499,7 +1499,7 @@ CONTAINS
 
    SUBROUTINE dryLeaf(ktau, dels, rad, air, met, &
       veg, canopy, soil, ssnow, dsx,psil, &
-      fwsoil, fwsoiltmp, tlfx, tlfy, ecy, hcy, &
+      fwsoil, fwsoiltmp,fwpsi, tlfx, tlfy, ecy, hcy, &
       rny, gbhu, gbhf, csx, &
       cansat, ghwet, iter, climate)
 
@@ -1523,6 +1523,7 @@ CONTAINS
          dsx,        & ! leaf surface vpd
          fwsoil,     & ! soil water modifier of stom. cond
          fwsoiltmp,  &
+         fwpsi,      &
          tlfx,       & ! leaf temp prev. iter (K)
          tlfy          ! leaf temp (K)
       real(r_2), dimension(:),   intent(inout) :: &
@@ -1658,6 +1659,7 @@ CONTAINS
       REAL, DIMENSION(mp) :: kcmax, avg_kcan
       REAL :: new_plc_sat, new_plc_stem, new_plc_can
       REAL :: MOL_TO_UMOL, J_TO_MOL
+      CHARACTER(LEN=200) :: txtname
 #ifdef __MPI__
       integer :: ierr
 #endif
@@ -2167,7 +2169,7 @@ CONTAINS
                      gswmin(i,1) = veg%g0(i) * rad%scalex(i,1)
                      gswmin(i,2) = veg%g0(i) * rad%scalex(i,2)
                      g1 = veg%g1(i)
-                     fwpsi = (1+exp(veg%g2(i) * veg%psi_ref(i))) / (1+exp(veg%g2(i) * (veg%psi_ref(i)-psil(i))))
+                     fwpsi(i) = (1+exp(veg%g2(i) * veg%psi_ref(i))) / (1+exp(veg%g2(i) * (veg%psi_ref(i)-psil(i))))
                      gs_coeff(i,1) =fwpsi * g1 / real(csx(i,1))
                      gs_coeff(i,2) =fwpsi * g1 / real(csx(i,2))
 
@@ -2318,7 +2320,7 @@ CONTAINS
                IF (cable_user%FWSOIL_SWITCH == 'LWP') then
              
                   ex(i) = ecx(i) * (1.0_r_2-real(canopy%fwet(i),r_2))/air%rlam(i) * 1.0e6_r_2/18.0_r_2  !mmol m-2 s-1
-                  psil(i) = canopy%psi_rootzone(i)-ex(i)/canopy%kplant(i)
+                  psil(i) = ssnow%psi_rootzone(i)-ex(i)/canopy%kplant(i)
 
                ENDIF
                IF (cable_user%SOIL_SCHE == 'Haverd2013') then
@@ -2490,7 +2492,7 @@ CONTAINS
                ! save last values calculated for ssnow%evapfbl
                oldevapfbl(i,:) = ssnow%evapfbl(i,:)
             END IF
-            write(134,*) ktau, iter, i, k, flfx(i),deltlf(i), dsx(i),psil(i) ,csx(i,1),csx(i,2),anx(i,1),anx(i,2),gswx(i,1),gswx(i,2)
+            write(134,*) ktau, iter, i, k, flfx(i), deltlf(i), dsx(i), psil(i), csx(i,1), csx(i,2), anx(i,1), anx(i,2), gswx(i,1), gswx(i,2)
          END DO !over mp
          
 
