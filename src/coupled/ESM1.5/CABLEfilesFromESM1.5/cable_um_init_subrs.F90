@@ -491,7 +491,6 @@ SUBROUTINE initialize_radiation( sw_down, lw_down, cos_zenith_angle,           &
                    CO2_MMR,CO2_3D,CO2_DIM_LEN,CO2_DIM_ROW,L_CO2_INTERACTIVE )   
 
    USE cable_def_types_mod, ONLY : mp
-   USE cable_phys_constants_mod,  ONLY: TFRZ
    USE cable_other_constants_mod, ONLY: RAD_thresh
    USE cable_um_tech_mod,   ONLY : um1, rad, soil, met,                        & 
                                    conv_rain_prevstep, conv_snow_prevstep
@@ -639,7 +638,6 @@ SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
                                 sin_theta_latitude ) 
 
    USE cable_def_types_mod,  ONLY : mp, msn
-   USE cable_phys_constants_mod, ONLY: TFRZ
    USE cable_um_tech_mod,   ONLY : um1, soil, ssnow, met, bal, veg
    USE cable_common_module, ONLY : cable_runtime, cable_user
    
