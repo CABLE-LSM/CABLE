@@ -2493,7 +2493,7 @@ CONTAINS
             END IF
             write(134,*) ktau, iter, i, k, tlfy(i), deltlf(i), &
             dsx(i), psil(i), csx(i,1), csx(i,2), &
-            anx(i,1), anx(i,2), gswx(i,1), gswx(i,2)
+            anx(i,1), anx(i,2), canopy%gswx(i,1), canopy%gswx(i,2)
          END DO !over mp
          
 
