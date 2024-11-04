@@ -2959,14 +2959,11 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
 
   ! Specify the intent of the arguments
   CHARACTER(len=256), INTENT(IN)  :: FileTemplate
-  TYPE(SPATIO_TEMPORAL_DATASET), INTENT(OUT)  :: Dataset
+  TYPE(SPATIO_TEMPORAL_DATASET), INTENT(INOUT)  :: Dataset
 
   ! This string contains a copy of the original FileTemplate, so we can mutate
   ! without destroying the original template.
   CHARACTER(len=256):: CurrentFile
-
-  ! We read the start and end years to strings before writing them to the key.
-  CHARACTER(len=4)  :: StartYear, EndYear
 
   ! Integers to store the status of the command.
   INTEGER           :: ExStat, CStat
@@ -2986,7 +2983,7 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
   INTEGER           :: FileCounter
 
   ! Iterators
-  INTEGER           :: CharIndx, FileIndx
+  INTEGER           :: FileIndx
 
   ! Get a unique file ID here.
   CALL get_unit(InputUnit)
@@ -3092,6 +3089,10 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
   ! Finished the work (we assign the VarNames later). Now delete the temporary
   ! file we used to store the `ls` output.
   CALL execute_command_line("rm __FileNameWithNoClashes__.txt")
+
+  ! Open the dataset at the first file, so that it's ready for reading
+  CALL open_at_first_file(Dataset)
+  Dataset%IsInitialised = .TRUE.
 END SUBROUTINE prepare_spatiotemporal_dataset
 
 SUBROUTINE open_at_first_file(Dataset)
@@ -3253,7 +3254,7 @@ SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
   INTEGER     :: YearIndex, TimeIndex
 
   ! Loop Iterators
-  INTEGER     :: FileIndx, VarNameIndx, YearIter, LandCell
+  INTEGER     :: YearIter, LandCell
 
   ! Status checker
   INTEGER  :: ok

@@ -55,12 +55,11 @@ END TYPE CRU_MET_TYPE
 
 TYPE CRU_TYPE
   INTEGER   :: mLand              ! Number of land cells in the run
-  INTEGER   :: nMet               ! Number of Meteorological variables
   INTEGER   :: xDimSize, yDimSize ! Size of longitude and latitude dimensions
   INTEGER   :: cYear              ! CABLE main year
   INTEGER   :: CTStep             ! Day of year I think?
   INTEGER   :: DtSecs             ! Size of the timestep in seconds
-  INTEGER   :: MetRecyc           ! Period of the met forcing recycling
+  INTEGER   :: MetRecycPeriod     ! Period of the met forcing recycling
   INTEGER   :: RecycStartYear     ! Year to start the met recycling
   INTEGER   :: Ktau
 
@@ -111,15 +110,11 @@ SUBROUTINE CRU_INIT(CRU)
   CHARACTER(LEN=256), DIMENSION(nVariables) :: InputFiles
   CHARACTER(LEN=256)  :: nDepFile, CO2File, LandmaskFile
 
-  ! Landmask to spatially filter the data
-  INTEGER, DIMENSION(:,:), ALLOCATABLE  :: Landmask
-
   ! Iterator variable for the variables
   INTEGER   :: VarIndx
 
   ! Checker for the NetCDF io
   INTEGER   :: ok
-  LOGICAL :: IsOpen
 
   ! Start with the things we want from the namelist. The namelist must set
   ! the filenames to read from, the method of choosing atmospheric carbon and
@@ -182,17 +177,15 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau)
 
   ! Local variables
 
-  logical   :: newday, LastDayOfYear  ! Flags for occurence of a new day (0 hrs) and the last day of the year.
+  logical   :: newday                 ! Flags for occurence of a new day (0 hrs) and the last day of the year.
   INTEGER   :: iland                  ! Loop counter through 'land' cells (cells in the spatial domain)
   INTEGER   :: itimestep              ! Loop counter through subdiurnal timesteps in a day
-  INTEGER   :: imetvar                ! Loop counter through met variables
   INTEGER   :: dM, dD                 ! Met date as year, month, and day returned from DOYSOD2YMDHMS
   INTEGER   :: is, ie                 ! Starting and ending vegetation type per land cell
   REAL      :: dt                     ! Timestep in seconds
  ! Store the CO2Air as an array
   REAL, DIMENSION(:), ALLOCATABLE    :: CO2air                 ! CO2 concentration in ppm
   logical,                      save :: CALL1 = .true.  ! A *local* variable recording the first call of this routine
-  INTEGER :: VarIter
 
   ! Purely for readability...
   dt = CRU%DTsecs
@@ -483,6 +476,7 @@ SUBROUTINE BIOS_GET_SUBDIURNAL_MET(CRU, Met, CurYear, ktau)
     is = LandPt(iLand)%cStart
     ie = LandPt(iLand)%cEnd
 
+    WRITE(*,*) WG%Temp
     Met%Precip(is:ie)     = REAL(WG%Precip(iLand), sp)
     Met%Precip_sn(is:ie)  = REAL(WG%Snow(iLand), sp)
     ! Why is it done this way? Doesn't make much sense
@@ -824,13 +818,6 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, nDepFile, CO2File, LandmaskFile,&
   CRU%LeapYears = LeapYears
   CRU%DirectRead = DirectRead
 
-  ! Set the number of met variables, based on ReadDiffFrac
-  IF (CRU%ReadDiffFrac) THEN
-    CRU%nMet = 10
-  ELSE
-    CRU%nMet = 9
-  END IF
-
 END SUBROUTINE read_MET_namelist_cbl
 
 !------------------------------------------------------------------------------!
@@ -947,12 +934,18 @@ SUBROUTINE read_landmask(LandmaskFile, CRU)
   ! And read the dimensions into arrays
   ALLOCATE(Latitudes(yDimSize))
   ok = NF90_INQ_VARID(FileID, 'latitude', LatID)
+  IF (ok /= NF90_NOERR) THEN
+    ok = NF90_INQ_VARID(FileID, 'lat', LatID)
+  END IF
   call handle_err(ok, "Error finding latitude VARID.")
   ok = NF90_GET_VAR(FileID, LatID, Latitudes)
   call handle_err(ok, "Error reading latitude variable.")
 
   ALLOCATE(Longitudes(xDimSize))
   ok = NF90_INQ_VARID(FileID, 'longitude', LonID)
+  IF (ok /= NF90_NOERR) THEN
+    ok = NF90_INQ_VARID(FileID, 'lon', LonID)
+  END IF
   call handle_err(ok, "Error finding longitude VARID.")
   ok = NF90_GET_VAR(FileID, LonID, Longitudes)
   call handle_err(ok, "Error reading longitude variable.")
