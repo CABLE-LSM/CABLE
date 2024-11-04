@@ -494,7 +494,7 @@ MODULE cable_bios_met_obs_params
   USE bios_date_functions
   USE bios_misc_io
   
-  USE CABLE_COMMON_MODULE, ONLY: GET_UNIT, cable_user ! Subr assigns an unique unit number for file opens.
+  USE CABLE_COMMON_MODULE, ONLY: GET_UNIT, cable_user, handle_iostat ! Subr assigns an unique unit number for file opens.
 
   USE cable_IO_vars_module, ONLY: &
       logn, landpt , nmetpatches         ! Unit number for writing logfile entries and land point array
@@ -519,6 +519,9 @@ MODULE cable_bios_met_obs_params
   CHARACTER(len=15) :: Ndep        ! Ndep takes value      : "preind","actual"
   CHARACTER(len=15) :: MetForcing  ! MetForcing takes value: "recycled", "actual"
 
+  ! I/O checker
+  INTEGER :: ios
+  CHARACTER(LEN=200) :: ioMessage
 
   CHARACTER(200) :: met_path, param_path, landmaskflt_file, landmaskhdr_file, &
        rain_file, swdown_file, tairmax_file, tairmin_file, wind_file, &
@@ -617,9 +620,9 @@ CONTAINS
   
   ! Open and read the BIOS namelist file.
   
-  CALL GET_UNIT(iunit)
-  OPEN (iunit, FILE="bios.nml")
-  READ (iunit, NML=biosnml)
+  OPEN (NEWUNIT=iunit, FILE="bios.nml")
+  READ (iunit, NML=biosnml, IOSTAT=ios, IOMSG=ioMessage)
+  CALL handle_iostat(ios, ioMessage)
   CLOSE(iunit)
 
   metgrid = 'land'

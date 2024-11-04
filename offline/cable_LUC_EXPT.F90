@@ -1,6 +1,6 @@
 MODULE CABLE_LUC_EXPT
 
-  use cable_common_module,  only: is_leapyear, leap_day, handle_err, get_unit,&
+  use cable_common_module,  only: is_leapyear, leap_day, handle_err, handle_iostat,&
                                   get_dimid, LatNames, LonNames, TimeNames
   use cable_io_vars_module, only: logn, land_x, land_y, landpt, latitude, longitude
   use cable_def_types_mod,  only: mland
@@ -92,6 +92,10 @@ CONTAINS
     CHARACTER(len=100)    :: time_units
     CHARACTER(len=4) :: yearstr
 
+    ! I/O checker
+    INTEGER :: ios
+    CHARACTER(LEN=200) :: ioMessage
+
     namelist /lucnml/  TransitionFilePath, ClimateFile, Run, DirectRead, YearStart, YearEnd, &
          PrimOnlyFile
 
@@ -127,9 +131,9 @@ CONTAINS
 
     LUC_EXPT%PrimOnlyFile = 'none'
     ! READ LUC_EXPT settings
-    call get_unit(iu)
-    open(iu, file="luc.nml", status='old', action='read')
-    read(iu, nml=lucnml)
+    open(NEWUNIT=iu, file="luc.nml", status='old', action='read')
+    read(iu, nml=lucnml, IOSTAT=ios, IOMSG=ioMessage)
+    CALL handle_iostat(ios, ioMessage)
     close(iu)
     LUC_EXPT%TransitionFilePath = TransitionFilePath
     LUC_EXPT%ClimateFile        = ClimateFile

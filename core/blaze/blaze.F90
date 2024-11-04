@@ -1,5 +1,6 @@
 MODULE BLAZE_MOD
 
+USE cable_common_module, ONLY: handle_iostat
 TYPE TYPE_BLAZE
    INTEGER,  DIMENSION(:),  ALLOCATABLE :: DSLR,ilon, jlat, Flix
    REAL,     DIMENSION(:),  ALLOCATABLE :: RAINF, KBDI, LR, U10,RH,TMAX,TMIN,AREA, w_prior, FDI
@@ -80,9 +81,6 @@ CONTAINS
 
 SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
 
-  !! Called from cable_driver now
-  USE cable_common_module, ONLY: get_unit
-
   IMPLICIT NONE
 
   INTEGER            , INTENT(IN)    :: np
@@ -92,15 +90,18 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   CHARACTER(len=400)  :: BurnedAreaFile = "", OutputMode="full" 
   CHARACTER(len=10)   :: BurnedAreaSource = "SIMFIRE", blazeTStep = "annually"
   INTEGER :: iu
+  ! I/O checkers
+  INTEGER :: ios
+  CHARACTER(LEN=200) :: ioMessage
 
   !CLNNAMELIST /blazenml/ HydePath,  BurnedAreaSource, BurnedAreaFile, BurnedAreaClimatologyFile, &
   !CLN     SIMFIRE_REGION
   namelist /blazenml/ blazeTStep,  BurnedAreaSource, BurnedAreaFile, OutputMode
 
   ! READ BLAZE settings
-  call get_unit(iu)
-  open(iu, file="blaze.nml", status='old', action='read')
-  read(iu, nml=blazenml)
+  open(NEWUNIT=iu, file="blaze.nml", status='old', action='read')
+  read(iu, nml=blazenml, IOSTAT=ios, IOMSG=ioMessage)
+  CALL handle_iostat(ios, ioMessage)
   close(iu)
 
   ! READ ini-nml
