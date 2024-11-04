@@ -56,7 +56,7 @@ MODULE cable_canopy_module
 
 CONTAINS
 
-   SUBROUTINE define_canopy(bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate)
+   SUBROUTINE define_canopy(ktau, bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate)
 
       USE cable_def_types_mod
       USE cable_radiation_module
@@ -67,7 +67,7 @@ CONTAINS
       use mo_utils,       only: eq
 
       implicit none
-
+      INTEGER,                   INTENT(IN)    :: ktau
       TYPE(balances_type),       INTENT(INOUT) :: bal
       TYPE(radiation_type),      INTENT(INOUT) :: rad
       TYPE(roughness_type),      INTENT(INOUT) :: rough
@@ -432,7 +432,7 @@ CONTAINS
          ecy = rny - hcy        ! init current estimate latent heat
 
          sum_rad_rniso = sum(rad%rniso,2)
-         CALL dryLeaf( dels, rad, air, met,  &
+         CALL dryLeaf(ktau, dels, rad, air, met,  &
             veg, canopy, soil, ssnow, dsx, psil, &
             fwsoil, fwsoiltmp, tlfx, tlfy, ecy, hcy,  &
             rny, gbhu, gbhf, csx, cansat,  &
@@ -1497,7 +1497,7 @@ CONTAINS
    ! -----------------------------------------------------------------------------
 
 
-   SUBROUTINE dryLeaf( dels, rad, air, met, &
+   SUBROUTINE dryLeaf(ktau, dels, rad, air, met, &
       veg, canopy, soil, ssnow, dsx,psil, &
       fwsoil, fwsoiltmp, tlfx, tlfy, ecy, hcy, &
       rny, gbhu, gbhf, csx, &
@@ -1510,7 +1510,7 @@ CONTAINS
 #endif
 
       implicit none
-
+      INTEGER,                   INTENT(IN)    :: ktau
       real,                      intent(in)    :: dels ! integration time step (s)
       type(radiation_type),      intent(inout) :: rad
       type(air_type),            intent(inout) :: air
@@ -1796,7 +1796,10 @@ CONTAINS
             get_xylem_vulnerability(ssnow%psi_rootzone(i), &
             veg%b_plant(i), veg%c_plant(i))
       END DO
-      !kdcorbin, 08/10 - doing all points all the time
+      !kdcorbin, 08/10 - doing all points all the time'
+      txtname = trim(filename%path) // '/' // &
+      'testIteration_cable_out.txt'
+      open(134,txtname)
       DO WHILE (k < C%MAXITER)
          k = k + 1
          ! print*, 'DD07 ', k, C%MAXITER, canopy%cansto
@@ -2161,6 +2164,8 @@ CONTAINS
                   endif
                ELSE IF (cable_user%GS_SWITCH == 'tuzet' .AND. &
                   cable_user%FWSOIL_SWITCH == 'LWP') THEN
+                     gswmin(i,1) = veg%g0(i) * rad%scalex(i,1)
+                     gswmin(i,2) = veg%g0(i) * rad%scalex(i,2)
                      g1 = veg%g1(i)
                      fwpsi = (1+exp(veg%g2(i) * veg%psi_ref(i))) / (1+exp(veg%g2(i) * (veg%psi_ref(i)-psil(i))))
                      gs_coeff(i,1) =fwpsi * g1 / real(csx(i,1))
@@ -2485,11 +2490,14 @@ CONTAINS
                ! save last values calculated for ssnow%evapfbl
                oldevapfbl(i,:) = ssnow%evapfbl(i,:)
             END IF
-
+            write(134,*) ktau, iter, i, k, flfx(i),deltlf(i), dsx(i),psil(i) ,csx(i,1),csx(i,2),anx(i,1),anx(i,2),gswx(i,1),gswx(i,2)
          END DO !over mp
+         
 
       END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
-
+      if (ktau==100) THEN
+         close(134)
+      END IF
       ! dry canopy flux
       canopy%fevc = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
       !write(logn,*) 'fevc', canopy%fevc(1)

@@ -73,6 +73,8 @@ PROGRAM cable_offline_driver
   use cable_input_module,   only: open_met_file, load_parameters, get_met_data, close_met_file, &
        ncid_rain, ncid_snow, ncid_lw, ncid_sw, ncid_ps, ncid_qa, ncid_ta, ncid_wd
   use cable_output_module,  only: create_restart, open_output_file, write_output, close_output_file
+  ! for test iterative solutions 04/11/2024
+  !use cable_output_iteration_module,  only: open_output_file_iteration, write_output_iteration
   use cable_write_module,   only: nullify_write
   use cable_cbm_module
   use cable_diag_module
@@ -730,6 +732,26 @@ PROGRAM cable_offline_driver
                  end if
               end if
 
+            ! ! Open output iteration file for test iterative solutions 04/11/2024
+            !   if (.not. CASAONLY) then
+            !    if (trim(filename%out_iteration) == '' ) then
+            !       if (CABLE_USER%YEARSTART > 0) then
+            !          write(dum, FMT="(I4,'_',I4)") CABLE_USER%YEARSTART, &
+            !               CABLE_USER%YEAREND
+            !          filename%out_iteration = trim(filename%path) // '/' // &
+            !               trim(cable_user%RunIden) // '_' // &
+            !               trim(dum) // '_cable_out_iteration.nc'
+            !       else
+            !          filename%out_iteration = trim(filename%path) // '/' // &
+            !               trim(cable_user%RunIden) // '_cable_out_iteration.nc'
+            !       end if
+            !    end if
+            !    if (RRRR == 1) then
+            !       call nullify_write() ! nullify pointers
+            !       call open_output_file_iteration(dels, soil, veg, bgc, rough)
+            !    end if
+            ! end if
+
               canopy%fes_cor = 0.0_r_2
               canopy%fhs_cor = 0.0
               met%ofsd       = 0.1 ! not used
@@ -1232,7 +1254,22 @@ PROGRAM cable_offline_driver
                          C%SBOLTZ, C%EMLEAF, C%EMSOIL, c13o2pools, c13o2flux )
                  end if
               end if
-
+            ! write output file iteration for test 04/11/2024
+            !   if ((.not. CASAONLY) .and. spinConv) then
+            !    if ( trim(cable_user%MetType) == 'plume' .or. &
+            !         trim(cable_user%MetType) == 'cru' .or. &
+            !         trim(cable_user%MetType) == 'bios' .or. &
+            !         trim(cable_user%MetType) == 'gswp' .or. &
+            !         trim(cable_user%MetType) == 'site' ) then
+            !       call write_output_iteration(dels, ktau_tot, met, canopy, casaflux, &
+            !            casapool, casamet, ssnow, rad, bal, air, soil, veg, &
+            !            C%SBOLTZ, C%EMLEAF, C%EMSOIL, c13o2pools, c13o2flux)
+            !    else
+            !       call write_output_iteration(dels, ktau, met, canopy, casaflux, &
+            !            casapool, casamet, ssnow, rad, bal, air, soil, veg, &
+            !            C%SBOLTZ, C%EMLEAF, C%EMSOIL, c13o2pools, c13o2flux )
+            !    end if
+            ! end if
               ! dump bitwise reproducible testing data
               if (cable_user%RUN_DIAG_LEVEL == 'zero') then
                  if (.not. CASAONLY) then
