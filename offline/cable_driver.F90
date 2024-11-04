@@ -588,10 +588,8 @@ PROGRAM cable_offline_driver
               end if
               if (.not. PLUME%LeapYears) LOY = 365
               kend = nint(24.0 * 3600.0 / dels) * LOY
-           else if (trim(cable_user%MetType) == 'bios') then
-              ! BIOS run
-              kend = nint(24.0 * 3600.0 / dels) * LOY
-           else if (trim(cable_user%MetType) == 'cru') then
+           else if ((trim(cable_user%MetType) == 'cru') .OR. &
+             (TRIM(cable_user%MetType) == 'bios')) then
               ! TRENDY experiment using CRU-NCEP
               if (CALL1) then
                  call cru_init(cru)
@@ -837,7 +835,7 @@ PROGRAM cable_offline_driver
                  end if
               else if (trim(cable_user%MetType) == 'bios') then
                  if ((.not. CASAONLY) .or. (CASAONLY .and. CALL1)) then
-                    call cable_bios_read_met(MET, CurYear, ktau, dels)
+                    call BIOS_GET_SUBDIURNAL_MET(MET, CurYear, ktau, dels)
                  end if
               else if (trim(cable_user%MetType) == 'cru') then
                  if ((.not. CASAONLY) .or. (CASAONLY .and. CALL1)) then

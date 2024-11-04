@@ -162,6 +162,13 @@ TYPE SPATIO_TEMPORAL_DATASET
 ! index of the currently open file with the associated NetCDF file and variable
 ! ID.
 
+  ! A logical to check whether we should proceed with reading. With the merging
+  ! of the Met input interfaces, we have many more "possible" Met variables
+  ! than is required for a given weather generator. However, when we perform a
+  ! GET_SUBDIURNAL_MET call, we still iterate over all possible variables. This
+  ! gives us an easy out for variables that are not valid for the current set of
+  ! inputs.
+  LOGICAL :: IsInitialised = .FALSE.
   ! List of filenames in the dataset
   CHARACTER(LEN=256), DIMENSION(:), ALLOCATABLE :: FileNames
   ! The start and end years of each dataset
@@ -3254,54 +3261,57 @@ SUBROUTINE read_metvals(STD, DataArr, LandIDx, LandIDy, Year, DayOfYear,&
   ! Temporary array to store the data read from file
   REAL, DIMENSION(:, :), ALLOCATABLE  :: TmpArray
 
-  TimeIndex = DayOfYear
-  YearIndex = Year
+  ! Only act if the dataset is initialised
+  IF (STD%IsInitialised) THEN
+    TimeIndex = DayOfYear
+    YearIndex = Year
 
-  ! We've already opened a file, check whether the file containing the relevant
-  ! data is the one open
-  IF (.NOT. ((Year >= STD%StartYear(STD%CurrentFileIndx)) .AND.&
-    (Year <= STD%EndYear(STD%CurrentFileIndx)))) THEN
-    CALL open_new_data_file(STD, YearIndex, TimeIndex, LeapYears)
-  END IF
+    ! We've already opened a file, check whether the file containing the relevant
+    ! data is the one open
+    IF (.NOT. ((Year >= STD%StartYear(STD%CurrentFileIndx)) .AND.&
+      (Year <= STD%EndYear(STD%CurrentFileIndx)))) THEN
+      CALL open_new_data_file(STD, YearIndex, TimeIndex, LeapYears)
+    END IF
 
-  ! Now read the desired time step
+    ! Now read the desired time step
 
-  ! Due to leapyears, we can't just do add 365 * number of years from startyear.
-  IF (LeapYears) THEN
-    CountDays: DO YearIter = STD%StartYear(STD%CurrentFileIndx), YearIndex-1
-      IF (is_leapyear(YearIter)) THEN
-        TimeIndex = TimeIndex + 366
-      ELSE
-        TimeIndex = TimeIndex + 365
-      END IF
-    END DO CountDays
-  ELSE
-    TimeIndex = TimeIndex + 365 * (YearIndex -&
-      STD%StartYear(STD%CurrentFileIndx))
-  END IF
+    ! Due to leapyears, we can't just do add 365 * number of years from startyear.
+    IF (LeapYears) THEN
+      CountDays: DO YearIter = STD%StartYear(STD%CurrentFileIndx), YearIndex-1
+        IF (is_leapyear(YearIter)) THEN
+          TimeIndex = TimeIndex + 366
+        ELSE
+          TimeIndex = TimeIndex + 365
+        END IF
+      END DO CountDays
+    ELSE
+      TimeIndex = TimeIndex + 365 * (YearIndex -&
+        STD%StartYear(STD%CurrentFileIndx))
+    END IF
 
-  ! Now we have the index, we can grab the data
-  ! Read from the netCDF file to the masked array point by point
-  IF (DirectRead) THEN
-    ApplyMaskDirect: DO LandCell = 1, SIZE(LandIDx)
-      ok = NF90_GET_VAR(STD%CurrentFileID,&
-        STD%CurrentVarID, DataArr(LandCell), START = (/LandIDx(LandCell),&
-        LandIDy(LandCell), TimeIndex/))
+    ! Now we have the index, we can grab the data
+    ! Read from the netCDF file to the masked array point by point
+    IF (DirectRead) THEN
+      ApplyMaskDirect: DO LandCell = 1, SIZE(LandIDx)
+        ok = NF90_GET_VAR(STD%CurrentFileID,&
+          STD%CurrentVarID, DataArr(LandCell), START = (/LandIDx(LandCell),&
+          LandIDy(LandCell), TimeIndex/))
+        CALL handle_err(ok, "Failed reading "//TRIM(STD%FileNames&
+          (STD%CurrentFileIndx))//" in read_metvals.")
+      END DO ApplyMaskDirect
+    ELSE
+
+      ALLOCATE(TmpArray(xDimSize, yDimSize))
+
+      ok = NF90_GET_VAR(STD%CurrentFileID, STD%CurrentVarID, TmpArray,&
+        START = (/1, 1, TimeIndex/), COUNT = (/xDimSize, yDimSize, 1/))
       CALL handle_err(ok, "Failed reading "//TRIM(STD%FileNames&
         (STD%CurrentFileIndx))//" in read_metvals.")
-    END DO ApplyMaskDirect
-  ELSE
 
-    ALLOCATE(TmpArray(xDimSize, yDimSize))
-
-    ok = NF90_GET_VAR(STD%CurrentFileID, STD%CurrentVarID, TmpArray,&
-      START = (/1, 1, TimeIndex/), COUNT = (/xDimSize, yDimSize, 1/))
-    CALL handle_err(ok, "Failed reading "//TRIM(STD%FileNames&
-      (STD%CurrentFileIndx))//" in read_metvals.")
-
-    ApplyLandmaskIndirect: DO LandCell = 1, SIZE(LandIDx)
-      DataArr(LandCell) = TmpArray(LandIDx(LandCell), LandIDy(LandCell))
-    END DO ApplyLandmaskIndirect
+      ApplyLandmaskIndirect: DO LandCell = 1, SIZE(LandIDx)
+        DataArr(LandCell) = TmpArray(LandIDx(LandCell), LandIDy(LandCell))
+      END DO ApplyLandmaskIndirect
+    END IF
   END IF
 
 END SUBROUTINE read_metvals
