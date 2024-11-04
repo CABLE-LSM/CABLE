@@ -1,5 +1,6 @@
 MODULE SIMFIRE_MOD
 
+USE cable_common_module, ONLY: handle_iostat
 TYPE TYPE_SIMFIRE
    INTEGER, DIMENSION(:), ALLOCATABLE    :: IGBP, BIOME, REGION, NDAY
    REAL,    DIMENSION(:), ALLOCATABLE    :: POPD, MAX_NESTEROV, CNEST, LAT, LON, FLI, FAPAR, POPDENS
@@ -71,6 +72,10 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   REAL, DIMENSION(360):: lat_BA
   integer :: status
 
+  ! I/O checkers
+  INTEGER :: ios
+  CHARACTER :: ioMessage
+
   namelist /simfirenml/ SIMFIRE_REGION, HydePath, BurnedAreaClimatologyFile
 
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -113,9 +118,9 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   ! inherit modis_igbp from climate variable
 
   ! READ BLAZE settings
-  call get_unit(iu)
-  open(iu, file="blaze.nml", status='old', action='read')
-  read(iu, nml=simfirenml)
+  open(NEWUNIT=iu, file="blaze.nml", status='old', action='read')
+  read(iu, nml=simfirenml, IOSTAT=ios, IOMSG=ioMessage)
+  CALL handle_iostat(ios, ioMessage)
   close(iu)
 
   SF%HYDEPATH = TRIM(HydePath)

@@ -9,7 +9,7 @@ USE NetCDF,                 ONLY: NF90_OPEN, NF90_NOWRITE, NF90_INQ_DIMID,&
                                   NF90_INQUIRE_DIMENSION, NF90_INQ_VARID,&
                                   NF90_GET_VAR, NF90_CLOSE, NF90_NOERR
 USE cable_abort_module,     ONLY: cable_abort, nc_abort
-USE cable_common_module,    ONLY: handle_err, get_unit, is_leapyear,&
+USE cable_common_module,    ONLY: handle_err, handle_iostat, is_leapyear,&
                                 cable_user, doysod2ymdhms, get_dimid, LatNames,&
                                 LonNames
 USE cable_io_vars_module,   ONLY: logn, land_x, land_y, exists, nMetPatches,&
@@ -501,6 +501,10 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   ! Need a unit to handle the io
   INTEGER             :: nmlUnit
 
+  ! I/O checker
+  INTEGER :: ios
+  CHARACTER(LEN=200) :: ioMessage
+
   ! Set up and read the namelist
   NAMELIST /crunml/ rainFile, lwdnFile, swdnFile, presFile, qairFile,&
                     TmaxFile, TminFile, uwindFile, vwindFile, fdiffFile,&
@@ -551,9 +555,9 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, CRU)
   DirectRead = .FALSE.
 
   ! Get a temporary unique ID and use it to read the namelist
-  CALL get_unit(nmlUnit)
-  OPEN(nmlUnit, file = "cru.nml", status = 'old', action = 'read')
-  READ(nmlUnit, nml = crunml)
+  OPEN(NEWUNIT=nmlUnit, file = "cru.nml", status = 'old', action = 'read')
+  READ(nmlUnit, nml = crunml, IOSTAT=ios, IOMSG=ioMessage)
+  CALL handle_iostat(ios, ioMessage)
   CLOSE(nmlUnit)
 
   ! Now pack the filepaths into the data structure we want to transport around
@@ -633,15 +637,19 @@ SUBROUTINE read_variable_names(STDatasets)
   INTEGER   :: rainNo, lwdnNo, swdnNo, presNo, qairNo, TmaxNo, TminNo, uwindNo,&
                vwindNo, fdiffNo
 
+  ! I/O checker
+  INTEGER :: ios
+  CHARACTER(LEN=200) :: ioMessage
+
   ! Set up and read the namelist
   NAMELIST /MetNames/ rainNames, lwdnNames, swdnNames, presNames, qairNames,&
                     TmaxNames, TminNames, uwindNames, vwindNames, fdiffNames,&
                     rainNo, lwdnNo, swdnNo, presNo, qairNo, TmaxNo, TminNo,&
                     uwindNo, vwindNo, fdiffNo
 
-  CALL get_unit(nmlUnit)
-  OPEN(nmlUnit, FILE = "met_names.nml", STATUS = 'old', ACTION = 'read')
-  READ(nmlUnit, NML = MetNames)
+  OPEN(NEWUNIT=nmlUnit, FILE="met_names.nml", STATUS='old', ACTION='read')
+  READ(nmlUnit, NML=MetNames, IOSTAT=ios, IOMSG=ioMessage)
+  CALL handle_iostat(ios, ioMessage)
   CLOSE(nmlUnit)
 
   ! Allocate memory for the names in the SpatioTemporalDataset struct
@@ -838,8 +846,7 @@ SUBROUTINE prepare_temporal_dataset(FileName, TargetArray)
   ! We need to iterate through the file twice, first to inspect the number of
   ! entries in the file to allocate the correct amount of memory, second to
   ! actually write the data to the array.
-  CALL get_unit(FileID)
-  OPEN(FileID, FILE = FileName, STATUS = "old", ACTION = "read", IOSTAT = ios)
+  OPEN(NEWUNIT=FileID, FILE = FileName, STATUS = "old", ACTION = "read", IOSTAT = ios)
   IF (ios < 0) THEN
     WRITE(*,*) "Open of temporal dataset file failed with status:", ios
     CALL EXIT(5)

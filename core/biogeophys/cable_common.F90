@@ -694,22 +694,19 @@ CONTAINS
 
   end subroutine get_unit
 
-  SUBROUTINE handle_namelist_iostat(ios, iomessage)
+  SUBROUTINE handle_iostat(ios, iomessage)
     !*## Purpose
     !
-    ! Take the return status of a namelist read and return an informative error
+    ! Take the return status of a read call and return an informative error
     ! message on failure status.
     !
     !## Method
     !
-    ! Use a combination of the new IOMSG specifier introduced in Fortran 2003
-    ! and the namelist checking routine [here]
-    ! (https://degenerateconic.com/namelist-error-checking.html) to throw an
-    ! informative error message when the reading of the namelist fails.
+    ! Use the IOSTAT and the new IOMSG specifier introduced in Fortran 2003
+    ! to throw an informative error message when the read errors.
 
     INTEGER, INTENT(IN) :: ios
     CHARACTER(LEN=*), INTENT(IN) :: ioMessage
-    CHARACTER(LEN=200) :: BadLine
 
     IF (ios /= 0) THEN
       ! Read of namelist failed
@@ -731,7 +728,7 @@ CONTAINS
       STOP ios
     END IF
 
-  END SUBROUTINE handle_namelist_iostat
+  END SUBROUTINE handle_iostat
 
   FUNCTION get_dimid(FileID, DimNames)
     !*## Purpose

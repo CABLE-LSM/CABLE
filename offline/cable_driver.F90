@@ -68,7 +68,7 @@ PROGRAM cable_offline_driver
        cable_runtime, filename, &
        redistrb, wiltParam, satuParam, CurYear, &
        IS_LEAPYEAR, IS_CASA_TIME, calcsoilalbedo, get_unit, &
-       report_version_no, kwidth_gl, handle_namelist_iostat
+       report_version_no, kwidth_gl, handle_iostat
   use cable_data_module,    only: driver_type, point2constants
   use cable_input_module,   only: open_met_file, load_parameters, get_met_data, close_met_file, &
        ncid_rain, ncid_snow, ncid_lw, ncid_sw, ncid_ps, ncid_qa, ncid_ta, ncid_wd
@@ -145,6 +145,7 @@ PROGRAM cable_offline_driver
   ! CABLE namelist: model configuration, runtime/user switches
   character(len=200), parameter :: cable_namelist='cable.nml'
   CHARACTER(LEN=200) :: ioMessage
+  INTEGER :: cablenml_unit
 
   ! timing variables
   integer, parameter :: kstart = 1   ! start of simulation
@@ -335,10 +336,10 @@ PROGRAM cable_offline_driver
   ! END header
 
   ! Open, read and close the namelist file.
-  open(10, file=cable_namelist)
-  read(10, nml=cablenml, IOSTAT=ios, IOMSG=ioMessage)   !where nml=cable defined above
-  CALL handle_namelist_iostat(ios, ioMessage)
-  close(10)
+  open(NEWUNIT=cablenml_unit, file=cable_namelist)
+  read(cablenml_unit, nml=cablenml, IOSTAT=ios, IOMSG=ioMessage)   !where nml=cable defined above
+  CALL handle_iostat(ios, ioMessage)
+  close(cablenml_unit)
 
   ! Open, read and close the consistency check file.
   ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
