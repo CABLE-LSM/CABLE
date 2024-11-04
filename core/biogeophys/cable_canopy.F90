@@ -1799,9 +1799,8 @@ CONTAINS
             veg%b_plant(i), veg%c_plant(i))
       END DO
       !kdcorbin, 08/10 - doing all points all the time'
-      txtname = trim(filename%path) // '/' // &
-      'testIteration_cable_out.txt'
-      open(134,txtname)
+      txtname = trim(filename%path) // '/testIteration_cable_out.txt'
+      open(134, txtname)
       DO WHILE (k < C%MAXITER)
          k = k + 1
          ! print*, 'DD07 ', k, C%MAXITER, canopy%cansto
@@ -2170,8 +2169,8 @@ CONTAINS
                      gswmin(i,2) = veg%g0(i) * rad%scalex(i,2)
                      g1 = veg%g1(i)
                      fwpsi(i) = (1+exp(veg%g2(i) * veg%psi_ref(i))) / (1+exp(veg%g2(i) * (veg%psi_ref(i)-psil(i))))
-                     gs_coeff(i,1) =fwpsi * g1 / real(csx(i,1))
-                     gs_coeff(i,2) =fwpsi * g1 / real(csx(i,2))
+                     gs_coeff(i,1) =fwpsi(i) * g1 / real(csx(i,1))
+                     gs_coeff(i,2) =fwpsi(i) * g1 / real(csx(i,2))
 
                ELSE IF (cable_user%GS_SWITCH == 'profitmax' .AND. &
                   cable_user%FWSOIL_SWITCH == 'profitmax') THEN
@@ -2492,7 +2491,9 @@ CONTAINS
                ! save last values calculated for ssnow%evapfbl
                oldevapfbl(i,:) = ssnow%evapfbl(i,:)
             END IF
-            write(134,*) ktau, iter, i, k, flfx(i), deltlf(i), dsx(i), psil(i), csx(i,1), csx(i,2), anx(i,1), anx(i,2), gswx(i,1), gswx(i,2)
+            write(134,*) ktau, iter, i, k, tlfy(i), deltlf(i), &
+            dsx(i), psil(i), csx(i,1), csx(i,2), &
+            anx(i,1), anx(i,2), gswx(i,1), gswx(i,2)
          END DO !over mp
          
 
