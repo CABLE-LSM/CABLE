@@ -1572,40 +1572,35 @@ CONTAINS
           bgc%ratecs(1)   = vegin%ratecs1(  veg%iveg(h))
           bgc%ratecs(2)   = vegin%ratecs2(  veg%iveg(h))
 
-! IF block below commented out by rk4417 - phase2
-          
-          ! MMY@13April keep it in the code but commented, here removed soilparmnew option and take soilparmnew=true as default
-          ! ____ MMY @Oct2022 comment out since soilparmnew should be the default ____          
-!          IF (.NOT. soilparmnew) THEN   ! Q,Zhang @ 12/20/2010
-!             soil%swilt(h)   =  soilin%swilt(soil%isoilm(h))
-!             soil%sfc(h)     =  soilin%sfc(soil%isoilm(h))
-!             soil%ssat(h)    =  soilin%ssat(soil%isoilm(h))
-!             soil%bch(h)     =  soilin%bch(soil%isoilm(h))
-!             soil%hyds(h)    =  soilin%hyds(soil%isoilm(h))
-!             soil%sucs(h)    =  soilin%sucs(soil%isoilm(h))
-!             soil%rhosoil(h) =  soilin%rhosoil(soil%isoilm(h))
-!             soil%css(h)     =  soilin%css(soil%isoilm(h))
-!
-!             soil%silt(h)    =  soilin%silt(soil%isoilm(h))
-!             soil%clay(h)    =  soilin%clay(soil%isoilm(h))
-!             soil%sand(h)    =  soilin%sand(soil%isoilm(h))
-!             !MDeck
-!             DO klev=1,ms
-!                soil%clay_vec(h,klev) = REAL(soilin%clay(soil%isoilm(h)),r_2)
-!                soil%sand_vec(h,klev) = REAL(soilin%sand(soil%isoilm(h)),r_2)
-!                soil%silt_vec(h,klev) = REAL(soilin%silt(soil%isoilm(h)),r_2)
-!                soil%rhosoil_vec(h,klev) = REAL(soilin%rhosoil(soil%isoilm(h)),r_2)
-!                soil%watr(h,klev)    = 0.01
-!             END DO
-!             soil%GWsucs_vec(h)  = REAL(ABS(soilin%sucs(soil%isoilm(h)))*1000.0,r_2)
-!             soil%GWhyds_vec(h)   = REAL(soilin%hyds(soil%isoilm(h))*1000.0,r_2)
-!             soil%GWbch_vec(h)  = REAL(soilin%bch(soil%isoilm(h)),r_2)
-!             soil%GWrhosoil_vec(h) = REAL(soilin%rhosoil(soil%isoilm(h)),r_2)
-!             soil%GWssat_vec(h)  = REAL(soilin%ssat(soil%isoilm(h)),r_2)
-!             soil%GWwatr(h)    = 0.01
-!
-!          END IF   ! MMY @Oct2022 change to use soilparmnew by default
+          IF (.NOT. soilparmnew) THEN   ! Q,Zhang @ 12/20/2010
+             soil%swilt(h)   =  soilin%swilt(soil%isoilm(h))
+             soil%sfc(h)     =  soilin%sfc(soil%isoilm(h))
+             soil%ssat(h)    =  soilin%ssat(soil%isoilm(h))
+             soil%bch(h)     =  soilin%bch(soil%isoilm(h))
+             soil%hyds(h)    =  soilin%hyds(soil%isoilm(h))
+             soil%sucs(h)    =  soilin%sucs(soil%isoilm(h))
+             soil%rhosoil(h) =  soilin%rhosoil(soil%isoilm(h))
+             soil%css(h)     =  soilin%css(soil%isoilm(h))
 
+             soil%silt(h)    =  soilin%silt(soil%isoilm(h))
+             soil%clay(h)    =  soilin%clay(soil%isoilm(h))
+             soil%sand(h)    =  soilin%sand(soil%isoilm(h))
+             !MDeck
+             DO klev=1,ms
+                soil%clay_vec(h,klev) = REAL(soilin%clay(soil%isoilm(h)),r_2)
+                soil%sand_vec(h,klev) = REAL(soilin%sand(soil%isoilm(h)),r_2)
+                soil%silt_vec(h,klev) = REAL(soilin%silt(soil%isoilm(h)),r_2)
+                soil%rhosoil_vec(h,klev) = REAL(soilin%rhosoil(soil%isoilm(h)),r_2)
+                soil%watr(h,klev)    = 0.01
+             END DO
+             soil%GWsucs_vec(h)  = REAL(ABS(soilin%sucs(soil%isoilm(h)))*1000.0,r_2)
+             soil%GWhyds_vec(h)   = REAL(soilin%hyds(soil%isoilm(h))*1000.0,r_2)
+             soil%GWbch_vec(h)  = REAL(soilin%bch(soil%isoilm(h)),r_2)
+             soil%GWrhosoil_vec(h) = REAL(soilin%rhosoil(soil%isoilm(h)),r_2)
+             soil%GWssat_vec(h)  = REAL(soilin%ssat(soil%isoilm(h)),r_2)
+             soil%GWwatr(h)    = 0.01
+
+          END IF
           rad%latitude(h) = latitude(e)
           !IF(hide%Ticket49Bug4) &
           rad%longitude(h) = longitude(e)
