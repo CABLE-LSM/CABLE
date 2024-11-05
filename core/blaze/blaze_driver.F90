@@ -14,6 +14,8 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
   USE POP_TYPES,            ONLY: POP_TYPE, i4b, dp
   USE cable_def_types_mod, ONLY: veg_parameter_type
 
+  !CLN implement k_tun_XXX here
+
 
 
   IMPLICIT NONE
