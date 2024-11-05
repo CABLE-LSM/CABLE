@@ -368,9 +368,8 @@ USE cbl_soil_snow_init_special_module
          STOP 'casaCNP required to get prognostic LAI or Vcmax'
     IF( l_vcmaxFeedbk .AND. icycle < 2 )                                     &
          STOP 'icycle must be 2 to 3 to get prognostic Vcmax'
-! IF below commented out by rk4417 - phase2
-!    IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &  ! MMY@Feb2023
-!         STOP 'casaCNP must use new soil parameters'
+    IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &  
+         STOP 'casaCNP must use new soil parameters'
 
     ! Open log file:
     ! MPI: worker logs go to the black hole
