@@ -1800,7 +1800,7 @@ CONTAINS
       END DO
       !kdcorbin, 08/10 - doing all points all the time'
       txtname = trim(filename%path) // '/testIteration_cable_out.txt'
-      !open(unit=134, file=txtname)
+      open(unit=134, file=txtname)
       DO WHILE (k < C%MAXITER)
          k = k + 1
          ! print*, 'DD07 ', k, C%MAXITER, canopy%cansto
@@ -2491,9 +2491,11 @@ CONTAINS
                ! save last values calculated for ssnow%evapfbl
                oldevapfbl(i,:) = ssnow%evapfbl(i,:)
             END IF
+            if (ktau<=100) then
             write(134,*) ktau, iter, i, k, tlfy(i), deltlf(i), &
             dsx(i), psil(i), csx(i,1), csx(i,2), &
             anx(i,1), anx(i,2), canopy%gswx(i,1), canopy%gswx(i,2)
+            END IF
          END DO !over mp
          
 
