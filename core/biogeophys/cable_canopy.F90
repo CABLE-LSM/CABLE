@@ -1660,7 +1660,7 @@ CONTAINS
       REAL, DIMENSION(mp) :: kcmax, avg_kcan
       REAL :: new_plc_sat, new_plc_stem, new_plc_can
       REAL :: MOL_TO_UMOL, J_TO_MOL
-      CHARACTER(LEN=200) :: txtname
+      CHARACTER(LEN=200) :: txtname, num_str
 #ifdef __MPI__
       integer :: ierr
 #endif
