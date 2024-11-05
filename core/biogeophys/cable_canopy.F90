@@ -1802,7 +1802,8 @@ CONTAINS
       !kdcorbin, 08/10 - doing all points all the time'
       nktau=1440
       write(num_str, '(I0)') nktau
-      txtname = trim(filename%path) // '/testIteration_cable_out_' // num_str // '.txt'
+      txtname = trim(filename%path) // '/testIteration_cable_out_' // num_str &
+      // '.txt'
       
       if (ktau==nktau) then
       open(unit=134, file=txtname)
