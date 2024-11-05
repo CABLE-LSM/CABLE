@@ -157,8 +157,7 @@ CONTAINS
     USE cable_def_types_mod
     USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,globalMetfile, &
          verbose, fixedCO2,output,check,patchout,    &
-! change in line below by rk4417 - phase2
-         patch_type,landpt,& !soilparmnew, ! MMY @Oct2022 change to use soilparmnew by default
+         patch_type,landpt,soilparmnew, &
          defaultLAI, sdoy, smoy, syear, timeunits, exists, output, &
          latitude,longitude, calendar, set_group_output_values,    &
          patch    ! inserted by rk4417 - phase2
