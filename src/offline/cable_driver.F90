@@ -62,8 +62,7 @@ PROGRAM cable_offline_driver
   USE cable_def_types_mod
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
        verbose, fixedCO2,output,check,patchout,    &
-! line below modified by rk4417 - phase2
-       patch_type,landpt,& !soilparmnew,! MMY @Oct2022 change to use soilparmnew by default
+       patch_type,landpt,soilparmnew, &
        defaultLAI, sdoy, smoy, syear, timeunits, exists, calendar, set_group_output_values, &
        NO_CHECK
   USE casa_ncdf_module, ONLY: is_casa_time
