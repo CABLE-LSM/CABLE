@@ -257,8 +257,7 @@ USE cbl_soil_snow_init_special_module
     NAMELIST/CABLE/                  &
          filename,         & ! TYPE, containing input filenames
          vegparmnew,       & ! use new soil param. method
-! line below commented out by rk4417 - phase2
-!         soilparmnew,      & ! use new soil param. method ! MMY@Feb2023
+         soilparmnew,      & ! use new soil param. method ! MMY@Feb2023
          calcsoilalbedo,   & ! switch: soil colour albedo - Ticket #27
          spinup,           & ! spinup model (soil) to steady state
          delsoilM,delsoilT,& !
