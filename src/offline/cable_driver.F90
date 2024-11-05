@@ -245,8 +245,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
   NAMELIST/CABLE/                  &
        filename,         & ! TYPE, containing input filenames
        vegparmnew,       & ! use new soil param. method
-!line below commented out by rk4417 - phase2
-!       soilparmnew,      & ! use new soil param. method ! MMY @Oct2022 change to use soilparmnew by default
+       soilparmnew,      & ! use new soil param. method 
        calcsoilalbedo,   & ! albedo considers soil color Ticket #27
        spinup,           & ! spinup model (soil) to steady state
        delsoilM,delsoilT,& !
@@ -410,9 +409,9 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
   !   STOP 'casaCNP required to get prognostic LAI or Vcmax'
   IF( l_vcmaxFeedbk .AND. icycle < 1 )                                     &
        STOP 'icycle must be 2 to 3 to get prognostic Vcmax'
-!line below commented out by rk4417 - phase2
-!  IF( icycle > 0 .AND. ( .NOT. soilparmnew ) ) & ! MMY @Oct2022 change to use soilparmnew by default
-!       STOP 'casaCNP must use new soil parameters'
+
+  IF( icycle > 0 .AND. ( .NOT. soilparmnew ) ) & 
+       STOP 'casaCNP must use new soil parameters'
 
   NRRRR = MERGE(MAX(CABLE_USER%CASA_NREP,1), 1, CASAONLY)
   ! casa time count
