@@ -1628,11 +1628,8 @@ CONTAINS
        rough%za_tq = 2.0 + veg%hc
     END IF
     ! Deallocate temporary variables:
-!    IF (soilparmnew) DEALLOCATE(inswilt, insfc, inssat, inbch, inhyds,         &
-!         insucs, inrhosoil, incss, incnsd) ! Q,Zhang @ 12/20/2010
-! Above line replaced by below - rk4417 - phase2
-    DEALLOCATE(inswilt, insfc, inssat, inbch, inhyds, insucs, inrhosoil, & 
-                incss, incnsd) ! MMY remove IF (soilparmnew) 
+    IF (soilparmnew) DEALLOCATE(inswilt, insfc, inssat, inbch, inhyds,         &
+         insucs, inrhosoil, incss, incnsd) ! Q,Zhang @ 12/20/2010
 
     IF (calcsoilalbedo) DEALLOCATE(inSoilColor) ! vars intro for Ticket #27
     DEALLOCATE(inVeg, inPFrac, inSoil, inWB, inTGG)
