@@ -338,7 +338,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
     NAMELIST/CABLE/                  &
          filename,         & ! TYPE, containing input filenames
          vegparmnew,       & ! use new soil param. method
-         !       soilparmnew,      & ! use new soil param. method ! MMY @Oct2022 change to use soilparmnew by default  - change by rk4417 - phase2
+       soilparmnew,      & ! use new soil param. method
          calcsoilalbedo,   & ! ! vars intro for Ticket #27
          spinup,           & ! spinup model (soil) to steady state
          delsoilM,delsoilT,& !
