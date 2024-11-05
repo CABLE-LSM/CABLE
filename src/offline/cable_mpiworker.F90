@@ -126,9 +126,7 @@ CONTAINS
     USE cable_def_types_mod
     USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps, globalMetfile,  &
          verbose, fixedCO2,output,check,patchout,    &
-!         patch_type,soilparmnew,&
-! above line changed to below - rk4417 - phase2
-         patch_type,                                 &      ! MMY@Feb2023 soilparmnew, 
+         patch_type,soilparmnew,&
          defaultLAI, NO_CHECK
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, filename, myhome,            &
