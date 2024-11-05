@@ -105,7 +105,7 @@ SUBROUTINE cable_diag_desc1( iDiag, filename, dimx, dimy, vname1 )
    character(len=*), intent(in) :: filename, vname1
    integer, save :: gopenstatus = 1
 
-     open(NEWUNIT=iDiag,file=filename//'.dat', status="replace", &
+     open(unit=iDiag,file=filename//'.dat', status="replace", &
           action="write", iostat=gopenstatus )
 
       if(gopenstatus==gok) then
