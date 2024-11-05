@@ -178,12 +178,12 @@ CONTAINS
        CALL LUC_EXPT_SET_TILES(inVeg, inPfrac, LUC_EXPT)
     ENDIF
 
-    ! ____ MMY make using spatially-specific soil properties as model default ____
-!    IF (soilparmnew) THEN   ! IF condition commented out by rk4417 - phase2
+
+    IF (soilparmnew) THEN  
        PRINT *,      'Use spatially-specific soil properties; ', nlon, nlat
        WRITE(logn,*) 'Use spatially-specific soil properties; ', nlon, nlat
        CALL spatialSoil(nlon, nlat, logn)
-!    ENDIF
+    ENDIF
 
 ! Block below moved to the top - rk4417 - phase2
 !    ! Get parameter values for all default veg and soil types:
