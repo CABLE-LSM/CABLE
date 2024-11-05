@@ -440,7 +440,7 @@ CONTAINS
           READ(40,*) vegin%kmax(jveg), vegin%PLCcrit(jveg)
           READ(40,*) vegin%P50(jveg), vegin%P88(jveg)
           READ(40,*) vegin%g2(jveg), vegin%g3(jveg)
-          READ(40,*) vegin%psi_ref(jveg), vegin%psi_ref(jveg)
+          READ(40,*) vegin%psi_ref(jveg)
        END DO
 
     ELSE
