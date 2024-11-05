@@ -1638,6 +1638,7 @@ CONTAINS
       real, dimension(mp,2) ::  gsw_term, lower_limit2  ! local temp var
 
       integer :: i, k, kk, h ! iteration count
+      integer :: nktau
       real :: vpd, g1, ktot, fw, refill  ! Ticket #56
       REAL, PARAMETER :: & ! Ref. params from Bernacchi et al. (2001)
          co2cp325 = 42.75, & ! CO2 compensation pt C3 at 25 degrees, umol mol-1
@@ -1799,8 +1800,11 @@ CONTAINS
             veg%b_plant(i), veg%c_plant(i))
       END DO
       !kdcorbin, 08/10 - doing all points all the time'
-      txtname = trim(filename%path) // '/testIteration_cable_out.txt'
-      if (ktau==1) then
+      nktau=1440
+      write(num_str, '(I0)') nktau
+      txtname = trim(filename%path) // '/testIteration_cable_out_' // num_str // '.txt'
+      
+      if (ktau==nktau) then
       open(unit=134, file=txtname)
       end if
       DO WHILE (k < C%MAXITER)
@@ -2493,7 +2497,7 @@ CONTAINS
                ! save last values calculated for ssnow%evapfbl
                oldevapfbl(i,:) = ssnow%evapfbl(i,:)
             END IF
-            if (ktau<=100) then
+            if (ktau<=(nktau+100)) then
             write(134,*) ktau, iter, i, k, tlfy(i), deltlf(i), &
             dsx(i), psil(i), csx(i,1), csx(i,2), &
             anx(i,1), anx(i,2), canopy%gswx(i,1), canopy%gswx(i,2)
@@ -2502,7 +2506,7 @@ CONTAINS
          
 
       END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
-      if (ktau==100) THEN
+      if (ktau==(nktau+100)) THEN
          close(134)
       END IF
       ! dry canopy flux
