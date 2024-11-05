@@ -178,21 +178,23 @@ contains
     REAL(r_2), DIMENSION(mvtype)       :: la_to_sa, vcmax_scalar, disturbance_interval
     REAL(r_2), DIMENSION(mvtype)       :: DAMM_EnzPool, DAMM_KMO2,DAMM_KMcp, DAMM_Ea, DAMM_alpha
     REAL(r_2), DIMENSION(mso)          :: xxkplab,xxkpsorb,xxkpocc
+    
+    INTEGER :: biomeunit
 
 
-    OPEN(101,file=casafile%cnpbiome)
+    OPEN(NEWUNIT=biomeunit,file=casafile%cnpbiome)
     DO i=1,3
-       READ(101,*)
+       READ(biomeunit,*)
     ENDDO
 
     DO nv=1,mvtype
-       READ(101,*) nv0,casabiome%ivt2(nv)
+       READ(biomeunit,*) nv0,casabiome%ivt2(nv)
     ENDDO
 
-    READ(101,*)
-    READ(101,*)
+    READ(biomeunit,*)
+    READ(biomeunit,*)
     DO nv=1,mvtype
-       READ(101,*) nv1,casabiome%kroot(nv),casabiome%rootdepth(nv),      &
+       READ(biomeunit,*) nv1,casabiome%kroot(nv),casabiome%rootdepth(nv),      &
             casabiome%kuptake(nv),casabiome%krootlen(nv),         &
             casabiome%kminN(nv), casabiome%kuplabP(nv),           &
             xfherbivore(nv),leafage(nv),woodage(nv),frootage(nv), &
@@ -203,19 +205,19 @@ contains
        !             micage(nv),slowage(nv),passage(nv)
     ENDDO
 
-    READ(101,*)
-    READ(101,*)
+    READ(biomeunit,*)
+    READ(biomeunit,*)
     DO nv=1,mvtype
-       READ(101,*) nv2, &
+       READ(biomeunit,*) nv2, &
             casabiome%fracnpptoP(nv,leaf),casabiome%fracnpptoP(nv,wood), &
             casabiome%fracnpptoP(nv,froot),casabiome%rmplant(nv,leaf),   &
             casabiome%rmplant(nv,wood),casabiome%rmplant(nv,froot)
     ENDDO
 
-    READ(101,*)
-    READ(101,*)
+    READ(biomeunit,*)
+    READ(biomeunit,*)
     DO nv=1,mvtype
-       READ(101,*) nv2, ratioCNplant(nv,leaf),ratioCNplant(nv,wood),   &
+       READ(biomeunit,*) nv2, ratioCNplant(nv,leaf),ratioCNplant(nv,wood),   &
             ratioCNplant(nv,froot),                                         &
             casabiome%ftransNPtoL(nv,leaf), casabiome%ftransNPtoL(nv,wood), &
             casabiome%ftransNPtoL(nv,froot),                                &
@@ -229,50 +231,50 @@ contains
             casabiome%glaimax(nv),casabiome%glaimin(nv)
     ENDDO
 
-    READ(101,*)
-    READ(101,*)
+    READ(biomeunit,*)
+    READ(biomeunit,*)
     DO nv=1,mvtype
-       READ(101,*) nv3, cleaf(nv),cwood(nv),cfroot(nv),cmet(nv),   &
+       READ(biomeunit,*) nv3, cleaf(nv),cwood(nv),cfroot(nv),cmet(nv),   &
             cstr(nv),ccwd(nv), cmic(nv), cslow(nv),cpass(nv)
     ENDDO
 
-    READ(101,*)
-    READ(101,*)
+    READ(biomeunit,*)
+    READ(biomeunit,*)
     DO nv=1,mvtype
-       READ(101,*) nv4, &
+       READ(biomeunit,*) nv4, &
             phen%TKshed(nv),xxkleafcoldmax(nv),casabiome%xkleafcoldexp(nv), &
             xxkleafdrymax(nv),casabiome%xkleafdryexp(nv)
     ENDDO
-    !  READ(101,*)
-    !  READ(101,*)
+    !  READ(biomeunit,*)
+    !  READ(biomeunit,*)
     !  DO nv=1,mvtype
-    !    READ(101,*) nv5, &
+    !    READ(biomeunit,*) nv5, &
     !         xxkleafcoldmax(nv),casabiome%xkleafcoldexp(nv),   &
     !         xxkleafdrymax(nv),casabiome%xkleafdryexp(nv)
     !  ENDDO
 
-    READ(101,*)
-    READ(101,*)
+    READ(biomeunit,*)
+    READ(biomeunit,*)
     DO nv=1,mvtype
-       READ(101,*) nv6, &
+       READ(biomeunit,*) nv6, &
             casabiome%ratioNCplantmin(nv,leaf),casabiome%ratioNCplantmax(nv,leaf), &
             casabiome%ratioNCplantmin(nv,wood),casabiome%ratioNCplantmax(nv,wood), &
             casabiome%ratioNCplantmin(nv,froot),casabiome%ratioNCplantmax(nv,froot), &
             xfNminloss(nv), xfNminleach(nv),xnfixrate(nv)
     ENDDO
 
-    READ(101,*)
-    READ(101,*)
+    READ(biomeunit,*)
+    READ(biomeunit,*)
     DO nv=1,mvtype
-       READ(101,*) nv7,nleaf(nv),nwood(nv),nfroot(nv), &
+       READ(biomeunit,*) nv7,nleaf(nv),nwood(nv),nfroot(nv), &
             nmet(nv),nstr(nv), ncwd(nv), &
             nmic(nv),nslow(nv),npass(nv),xnsoilmin(nv)
     ENDDO
 
-    READ(101,*)
-    READ(101,*)
+    READ(biomeunit,*)
+    READ(biomeunit,*)
     DO nv=1,mvtype
-       READ(101,*) nv8,xratioNPleafmin,xratioNPleafmax,      &
+       READ(biomeunit,*) nv8,xratioNPleafmin,xratioNPleafmax,      &
             xratioNPwoodmin,xratioNPwoodmax,                      &
             xratioNPfrootmin,xratioNPfrootmax,                    &
             casabiome%ftransPPtoL(nv,leaf), casabiome%ftransPPtoL(nv,wood), &
@@ -294,44 +296,44 @@ contains
 
     ENDDO
 
-    READ(101,*)
-    READ(101,*)
+    READ(biomeunit,*)
+    READ(biomeunit,*)
     DO iso=1,mso
-       READ(101,*) nv9,xkmlabp(iso),xpsorbmax(iso),xfPleach(iso), &
+       READ(biomeunit,*) nv9,xkmlabp(iso),xpsorbmax(iso),xfPleach(iso), &
             ratioNPsoil(iso,mic),ratioNPsoil(iso,slow),ratioNPsoil(iso,pass), &
             xxkplab(iso),xxkpsorb(iso),xxkpocc(iso)
     ENDDO
-    READ(101,*)
-    READ(101,*)
+    READ(biomeunit,*)
+    READ(biomeunit,*)
     DO nv=1,mvtype
-       READ(101,*) nv10, &
+       READ(biomeunit,*) nv10, &
             xpleaf(nv),xpwood(nv),xpfroot(nv),xpmet(nv),xpstr(nv),xpcwd(nv), &
             xpmic(nv),xpslow(nv),xppass(nv),xplab(nv),xpsorb(nv),xpocc(nv)
     ENDDO
 
-    READ(101,*)
-    READ(101,*)
+    READ(biomeunit,*)
+    READ(biomeunit,*)
     DO nv=1,mvtype
-       READ(101,*) nv11, &
+       READ(biomeunit,*) nv11, &
             xxnpmax(nv),xq10soil(nv),xxkoptlitter(nv),xxkoptsoil(nv),xprodptase(nv), &
             xcostnpup(nv),xmaxfinelitter(nv),xmaxcwd(nv),xnintercept(nv),xnslope(nv)
     ENDDO
 
-    READ(101,*)
-    READ(101,*)
+    READ(biomeunit,*)
+    READ(biomeunit,*)
     DO nv=1,mvtype
-       READ(101,*) nv12, &
+       READ(biomeunit,*) nv12, &
             la_to_sa(nv),disturbance_interval(nv),vcmax_scalar(nv)
     ENDDO
 
-    READ(101,*)
-    READ(101,*)
+    READ(biomeunit,*)
+    READ(biomeunit,*)
     DO nv=1,mvtype
-       READ(101,*) nv13, &
+       READ(biomeunit,*) nv13, &
             DAMM_EnzPool(nv), DAMM_KMO2(nv),DAMM_KMcp(nv), DAMM_Ea(nv), DAMM_alpha(nv)
     ENDDO
 
-    CLOSE(101)
+    CLOSE(biomeunit)
 
     fracroot   = 0.0_r_2
     depthsoila = 0.0_r_2
@@ -514,17 +516,19 @@ contains
     INTEGER, DIMENSION(npheno)     :: ivtx
     REAL(r_2), DIMENSION(271)      :: xlat
 
+    INTEGER :: phenunit
+
     ! initilize for evergreen PFTs
     greenup(:,:) = -50
     fall(:,:)    = 367
     phendoy1(:,:)= 2
 
-    OPEN(101, file=casafile%phen)
-    READ(101, *)
-    READ(101, *) (ivtx(nx), nx=1, npheno) ! fixed at 10, as only 10 of 17 IGBP PFT
+    OPEN(phenunit, file=casafile%phen)
+    READ(phenunit, *)
+    READ(phenunit, *) (ivtx(nx), nx=1, npheno) ! fixed at 10, as only 10 of 17 IGBP PFT
     ! have seasonal leaf phenology
     DO ilat=271,1,-1
-       READ(101,*) xlat(ilat), (greenupx(nx), nx=1, npheno), &
+       READ(phenunit,*) xlat(ilat), (greenupx(nx), nx=1, npheno), &
             (fallx(nx), nx=1, npheno), (xphendoy1(nx), nx=1, npheno)
        DO nx=1, npheno
           greenup(ilat,ivtx(nx)) = greenupx(nx)
@@ -533,7 +537,7 @@ contains
        ENDDO
     ENDDO
 
-    CLOSE(101)
+    CLOSE(phenunit)
 
     DO np=1,mp
        ilat = nint((casamet%lat(np)+55.25)/0.5)+1

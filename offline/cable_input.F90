@@ -2978,9 +2978,6 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
   ! Iterators
   INTEGER           :: FileIndx
 
-  ! Get a unique file ID here.
-  CALL get_unit(InputUnit)
-
   ! First thing we have to do is determine the location of the <startdate>
   ! and <enddate> strings in the supplied filenames. To do that, we compare
   ! substrings of the relevant length, with the substring moving along the
@@ -3028,7 +3025,7 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
   ! the year ranges for each file as described in the opening preamble to
   ! this subroutine.
 
-  OPEN(InputUnit, FILE = "__FileNameWithNoClashes__.txt", IOSTAT = ios)
+  OPEN(NEWUNIT=InputUnit, FILE = "__FileNameWithNoClashes__.txt", IOSTAT = ios)
 
   ! Now iterate through this temporary file and check how many files are in the
   ! dataset, so we can allocate memory in the SpatioTemporalDataset
