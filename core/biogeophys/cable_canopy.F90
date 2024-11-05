@@ -1660,8 +1660,8 @@ CONTAINS
       REAL, DIMENSION(mp) :: kcmax, avg_kcan
       REAL :: new_plc_sat, new_plc_stem, new_plc_can
       REAL :: MOL_TO_UMOL, J_TO_MOL
-      CHARACTER(LEN=200) :: txtname
-      character(:), allocatable :: num_str
+      CHARACTER(LEN=200) :: txtname,num_str
+  
 #ifdef __MPI__
       integer :: ierr
 #endif
@@ -1803,7 +1803,7 @@ CONTAINS
       !kdcorbin, 08/10 - doing all points all the time'
       nktau=1440
       write(num_str, '(I0)') nktau
-      txtname = trim(filename%path) // '/testIteration_cable_out_' // num_str &
+      txtname = trim(filename%path) // '/testIteration_cable_out_' // trim(num_str) &
       // '.txt'
       
       if (ktau==nktau) then
