@@ -473,8 +473,8 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
          STOP 'casaCNP required to get prognostic LAI or Vcmax'
     IF( l_vcmaxFeedbk .AND. icycle < 2 )                                     &
          STOP 'icycle must be 2 to 3 to get prognostic Vcmax'
-!    IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &   ! commented out by rk4417 - phase2                  
-!         STOP 'casaCNP must use new soil parameters'                             ! MMY @Oct2022 change to use soilparmnew by default 
+    IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &      
+         STOP 'casaCNP must use new soil parameters'                             
 
     ! casa time count
     ctime = 0
