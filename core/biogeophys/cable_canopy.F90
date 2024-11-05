@@ -1800,7 +1800,9 @@ CONTAINS
       END DO
       !kdcorbin, 08/10 - doing all points all the time'
       txtname = trim(filename%path) // '/testIteration_cable_out.txt'
+      if (ktau==1) then
       open(unit=134, file=txtname)
+      end if
       DO WHILE (k < C%MAXITER)
          k = k + 1
          ! print*, 'DD07 ', k, C%MAXITER, canopy%cansto
