@@ -35,9 +35,7 @@ MODULE cable_init_module
   USE cable_def_types_mod
   USE cable_IO_vars_module,       ONLY: latitude,longitude, patch,            &
        landpt,smoy,ncid_rin,max_vegpatches,          &
-! change below by rk4417 - phase2
-!       soilparmnew,ncciy, vegtype_metfile,           &
-       ncciy, vegtype_metfile,           & ! soilparmnew, ! MMY @Oct2022 change to use soilparmnew by default
+       soilparmnew,ncciy, vegtype_metfile,           &
        soiltype_metfile
   USE cable_read_module
   USE netcdf
