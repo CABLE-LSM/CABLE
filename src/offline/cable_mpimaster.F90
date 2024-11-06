@@ -3328,95 +3328,83 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
             &                             types(bidx), ierr)
        blen(bidx) = 1
 
-! block below inserted by rk4417 - phase2
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%css_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+       &                             types(bidx), ierr)
+       blen(bidx) = 1
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (soil%css_vec(off,1), displs(bidx), ierr)
-  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
-  &                             types(bidx), ierr)
-  blen(bidx) = 1
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%rhosoil_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+       &                             types(bidx), ierr)
+       blen(bidx) = 1
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (soil%rhosoil_vec(off,1), displs(bidx), ierr)
-  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
-  &                             types(bidx), ierr)
-  blen(bidx) = 1
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%cnsd_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+       &                             types(bidx), ierr)
+       blen(bidx) = 1
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (soil%cnsd_vec(off,1), displs(bidx), ierr)
-  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
-  &                             types(bidx), ierr)
-  blen(bidx) = 1
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%zse_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+       &                             types(bidx), ierr)
+       blen(bidx) = 1
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (soil%zse_vec(off,1), displs(bidx), ierr)
-  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
-  &                             types(bidx), ierr)
-  blen(bidx) = 1
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%sand_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+       &                             types(bidx), ierr)
+       blen(bidx) = 1
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (soil%sand_vec(off,1), displs(bidx), ierr)
-  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
-  &                             types(bidx), ierr)
-  blen(bidx) = 1
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%clay_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+       &                             types(bidx), ierr)
+       blen(bidx) = 1
 
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%silt_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+       &                             types(bidx), ierr)
+       blen(bidx) = 1
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (soil%clay_vec(off,1), displs(bidx), ierr)
-  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
-  &                             types(bidx), ierr)
-  blen(bidx) = 1
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%org_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+       &                             types(bidx), ierr)
+       blen(bidx) = 1
 
+       bidx = bidx + 1
+       CALL MPI_Get_address (ssnow%ssat_hys(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+       &                             types(bidx), ierr)
+       blen(bidx) = 1
 
+       bidx = bidx + 1
+       CALL MPI_Get_address (ssnow%watr_hys(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+       &                             types(bidx), ierr)
+       blen(bidx) = 1
 
-  bidx = bidx + 1
-  CALL MPI_Get_address (soil%silt_vec(off,1), displs(bidx), ierr)
-  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
-  &                             types(bidx), ierr)
-  blen(bidx) = 1
+       bidx = bidx + 1
+       CALL MPI_Get_address (ssnow%smp_hys(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+       &                             types(bidx), ierr)
+       blen(bidx) = 1
 
+       bidx = bidx + 1
+       CALL MPI_Get_address (ssnow%wb_hys(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+       &                             types(bidx), ierr)
+       blen(bidx) = 1
 
-
-  bidx = bidx + 1
-  CALL MPI_Get_address (soil%org_vec(off,1), displs(bidx), ierr)
-  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
-  &                             types(bidx), ierr)
-  blen(bidx) = 1
-
-  bidx = bidx + 1
-  CALL MPI_Get_address (ssnow%ssat_hys(off,1), displs(bidx), ierr)
-  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
-  &                             types(bidx), ierr)
-  blen(bidx) = 1
-
-
-  bidx = bidx + 1
-  CALL MPI_Get_address (ssnow%watr_hys(off,1), displs(bidx), ierr)
-  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
-  &                             types(bidx), ierr)
-  blen(bidx) = 1
-
-
-  bidx = bidx + 1
-  CALL MPI_Get_address (ssnow%smp_hys(off,1), displs(bidx), ierr)
-  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
-  &                             types(bidx), ierr)
-  blen(bidx) = 1
-
-
-  bidx = bidx + 1
-  CALL MPI_Get_address (ssnow%wb_hys(off,1), displs(bidx), ierr)
-  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
-  &                             types(bidx), ierr)
-  blen(bidx) = 1
-
-  bidx = bidx + 1
-  CALL MPI_Get_address (ssnow%hys_fac(off,1), displs(bidx), ierr)
-  CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
-  &                             types(bidx), ierr)
-  blen(bidx) = 1
-
-! end of block - rk4417 - phase2
+       bidx = bidx + 1
+       CALL MPI_Get_address (ssnow%hys_fac(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+       &                             types(bidx), ierr)
+       blen(bidx) = 1
  
        !1D
        bidx = bidx + 1
