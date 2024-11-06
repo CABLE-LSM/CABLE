@@ -89,7 +89,7 @@ MODULE cable_init_wetfac_mod
 
             END IF
 
-            ! If snow depth is greater than 0.1m then soil is at 90% saturation
+            ! If snow depth is greater than 0.1m then soil is at 90% of the total available water
             IF (ssnow_snowd(i) > 0.1) THEN
                 ssnow_wetfac(i) = 0.9
             END IF
@@ -97,12 +97,12 @@ MODULE cable_init_wetfac_mod
             ! If we are on a lake
             IF (veg_iveg(i) == lakes_cable) THEN
 
-                ! When the air temperature is >= +5 deg above freezing it at 100% saturation
+                ! When the air temperature is >= +5 deg above freezing it at 100% of the total available water
                 IF ( met_tk(i) >= Ctfrz + 5. ) THEN
                     ssnow_wetfac(i) = 1.0
                 END IF
 
-                ! When the air temperature is < +5 deg above freezing it is at 70% saturation
+                ! When the air temperature is < +5 deg above freezing it is at 70% of the total available water
                 IF( met_tk(i) < Ctfrz + 5. ) THEN
                     ssnow_wetfac(i) = 0.7
                 END IF
