@@ -1,4 +1,3 @@
-!#define UM_CBL YES
 !******************************************************************************
 ! This source code is part of the Community Atmosphere Biosphere Land Exchange
 ! (CABLE) model. This work is licensed under the CSIRO Open Source Software
@@ -21,6 +20,8 @@ MODULE grid_constants_mod_cbl
 ! Module specific documentation:https://trac.nci.org.au/trac/cable/wiki/TBC
 ! Where it fits in the model flow:https://trac.nci.org.au/trac/cable/wiki/TBC
 !******************************************************************************
+
+USE cable_surface_types_mod, ONLY: lakes_cable, ice_cable     
 
 IMPLICIT NONE
 
@@ -46,11 +47,6 @@ INTEGER, PARAMETER :: nrs       = 4  ! # streams (VIS+NIR)*(Direct+Diffuse)=4
 INTEGER, PARAMETER :: nsCs      = 2  ! # soil carbon stores
 INTEGER, PARAMETER :: nvCs      = 3  ! # vegetation carbon stores
 INTEGER, PARAMETER :: ICE_SoilType = 9 ! SoilType Index (soilparm_cable.nml JAC)
-#ifndef UM_CBL
-! UM_CBL gets from cable_surface_types namelist
-INTEGER, PARAMETER :: lakes_cable  = 16 ! cable_surface_type (nml) Index 
-INTEGER, PARAMETER :: ice_cable    = 17 ! cable_surface_type (nml) Index
-#endif
 INTEGER, PARAMETER :: mf          = 2  ! # leaves (sunlit, shaded)
 INTEGER, PARAMETER :: niter       = 4  ! number of iterations for za/L
 INTEGER, PARAMETER :: swb         = 2  ! # SW bands (VIS+NIR) - CM3 alloc TYPEs

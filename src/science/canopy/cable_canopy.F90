@@ -1,69 +1,70 @@
 MODULE cable_canopy_module
 
-  IMPLICIT NONE
+IMPLICIT NONE
 
-  PUBLIC define_canopy
-  PRIVATE
+PUBLIC define_canopy
+PRIVATE
 
 CONTAINS
-
-SUBROUTINE define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate, sunlit_veg_mask, reducedLAIdue2snow )
-    USE cable_def_types_mod
-   USE cbl_radiation_module, ONLY : radiation
-    USE cable_air_module
-    USE cable_common_module
-    USE cable_roughness_module
-
-USE cbl_friction_vel_module,  ONLY : comp_friction_vel, psim, psis
-USE cbl_pot_evap_snow_module, ONLY : Penman_Monteith, Humidity_deficit_method
-USE cbl_qsat_module,          ONLY : qsatfjh,  qsatfjh2
-USE cbl_zetar_module,         ONLY : update_zetar
-USE cable_latent_heat_module, ONLY : latent_heat_flux
-USE cable_wetleaf_module,     ONLY : wetleaf 
-USE cbl_dryLeaf_module,       ONLY : dryLeaf
+ 
+SUBROUTINE define_canopy( bal, rad, rough, air, met, dels, ssnow, soil, veg,   &
+                          canopy, climate, sunlit_veg_mask, reducedLAIdue2snow )
+! subrs
+USE cbl_radiation_module,       ONLY : radiation
+USE cbl_friction_vel_module,    ONLY : comp_friction_vel, psim, psis
+USE cbl_pot_evap_snow_module,   ONLY : Penman_Monteith, Humidity_deficit_method
+USE cbl_qsat_module,            ONLY : qsatfjh,  qsatfjh2
+USE cbl_zetar_module,           ONLY : update_zetar
+USE cable_latent_heat_module,   ONLY : latent_heat_flux
+USE cable_wetleaf_module,       ONLY : wetleaf 
+USE cbl_dryLeaf_module,         ONLY : dryLeaf
 USE cable_within_canopy_module, ONLY : within_canopy
 USE cbl_SurfaceWetness_module,  ONLY : Surf_wetness_fact
 
-! physical constants
-USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
-USE cable_phys_constants_mod, ONLY : CRMAIR  => RMAIR
-USE cable_phys_constants_mod, ONLY : CRGAS   => RGAS
-USE cable_phys_constants_mod, ONLY : CDHEAT  => DHEAT
-USE cable_phys_constants_mod, ONLY : CZETNEG => ZETNEG
-USE cable_phys_constants_mod, ONLY : CZETMUL => ZETMUL
-USE cable_phys_constants_mod, ONLY : CZETPOS => ZETPOS
-USE cable_phys_constants_mod, ONLY : CGRAV   => GRAV
-USE cable_phys_constants_mod, ONLY : CUMIN   => UMIN
-USE cable_phys_constants_mod, ONLY : CRHOW   => RHOW
-USE cable_phys_constants_mod, ONLY : CCTL    => CTL
-USE cable_phys_constants_mod, ONLY : CCSW    => CSW
-USE cable_phys_constants_mod, ONLY : CEMLEAF => EMLEAF
-USE cable_phys_constants_mod, ONLY : CEMSOIL => EMSOIL
-USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
-USE cable_phys_constants_mod, ONLY : CPRANDT => PRANDT
-USE cable_phys_constants_mod, ONLY : CCAPP   => CAPP
-USE cable_phys_constants_mod, ONLY : CRMH2O  => RMH2O
-USE cable_phys_constants_mod, ONLY : CAPOL   => APOL
-USE cable_phys_constants_mod, ONLY : CA33    => A33
-USE cable_phys_constants_mod, ONLY : CVONK   => VONK
-USE cable_phys_constants_mod, ONLY : CZETA0  => ZETA0
-USE cable_phys_constants_mod, ONLY : CTETENA     => TETENA
-USE cable_phys_constants_mod, ONLY : CTETENB     => TETENB
-USE cable_phys_constants_mod, ONLY : CTETENC     => TETENC
-USE cable_phys_constants_mod, ONLY : CTETENA_ICE => TETENA_ICE
-USE cable_phys_constants_mod, ONLY : CTETENB_ICE => TETENB_ICE
-USE cable_phys_constants_mod, ONLY : CTETENC_ICE => TETENC_ICE
-! photosynthetic constants
-USE cable_photo_constants_mod, ONLY : CRGSWC => RGSWC
-USE cable_photo_constants_mod, ONLY : CGAM0  => GAM0
-USE cable_photo_constants_mod, ONLY : CGAM2  => GAM2
-USE cable_photo_constants_mod, ONLY : CRGBWC => RGBWC
-USE cable_photo_constants_mod, ONLY : CGAM1  => GAM1
-USE cable_photo_constants_mod, ONLY : CTREFK => TREFK
-USE cable_photo_constants_mod, ONLY : CMAXITER  => MAXITER ! only integer here
-! maths & other constants
-USE cable_math_constants_mod,  ONLY : CPI_C  => PI
-USE cable_other_constants_mod, ONLY : CLAI_THRESH  => LAI_THRESH
+! data
+USE cable_common_module,       ONLY: cable_runtime, cable_user
+USE cable_phys_constants_mod,  ONLY: CTFRZ       => TFRZ,                      &
+                                     CRMAIR      => RMAIR,                     &
+                                     CRGAS       => RGAS,                      &
+                                     CDHEAT      => DHEAT,                     &
+                                     CZETNEG     => ZETNEG,                    &
+                                     CZETMUL     => ZETMUL,                    &
+                                     CZETPOS     => ZETPOS,                    &
+                                     CGRAV       => GRAV,                      &
+                                     CUMIN       => UMIN,                      &
+                                     CRHOW       => RHOW,                      &
+                                     CCTL        => CTL,                       &
+                                     CCSW        => CSW,                       &
+                                     CEMLEAF     => EMLEAF,                    &
+                                     CEMSOIL     => EMSOIL,                    &
+                                     CSBOLTZ     => SBOLTZ,                    &
+                                     CPRANDT     => PRANDT,                    &
+                                     CCAPP       => CAPP,                      &
+                                     CRMH2O      => RMH2O,                     &
+                                     CAPOL       => APOL,                      &
+                                     CA33        => A33,                       &
+                                     CVONK       => VONK,                      &
+                                     CZETA0      => ZETA0,                     &
+                                     CTETENA     => TETENA,                    &
+                                     CTETENB     => TETENB,                    &
+                                     CTETENC     => TETENC,                    &
+                                     CTETENA_ICE => TETENA_ICE,                &
+                                     CTETENB_ICE => TETENB_ICE,                &
+                                     CTETENC_ICE => TETENC_ICE
+USE cable_photo_constants_mod, ONLY: CRGSWC      => RGSWC,                     &
+                                     CGAM0       => GAM0,                      &
+                                     CGAM2       => GAM2,                      &
+                                     CRGBWC      => RGBWC,                     &
+                                     CGAM1       => GAM1,                      &
+                                     CTREFK      => TREFK,                     &
+                                     CMAXITER    => MAXITER
+USE cable_math_constants_mod,  ONLY: CPI_C       => PI
+USE cable_other_constants_mod, ONLY: CLAI_THRESH => LAI_THRESH
+USE grid_constants_mod_cbl,    ONLY: ICE_SoilType 
+
+    USE cable_def_types_mod
+    USE cable_air_module
+    USE cable_roughness_module
 
   IMPLICIT NONE
 
@@ -79,9 +80,9 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH  => LAI_THRESH
     TYPE (soil_parameter_type), INTENT(INOUT)   :: soil
     TYPE (veg_parameter_type), INTENT(INOUT)    :: veg
 
-REAL :: reducedLAIdue2snow(mp)
-logical :: sunlit_veg_mask(mp) 
-    REAL, INTENT(IN)               :: dels ! integration time setp (s)
+REAL, INTENT(IN)               :: dels ! integration time setp (s)
+  REAL :: reducedLAIdue2snow(mp)
+  LOGICAL :: sunlit_veg_mask(mp) 
     INTEGER  ::                                                                 &
          iter,  & ! iteration #
          iterplus !
@@ -151,16 +152,21 @@ logical :: sunlit_veg_mask(mp)
 
     INTEGER :: j
 
-    INTEGER, SAVE :: call_number =0
+! local vars in calc of Surface conductance
+REAL :: LAI_min(mp)
+REAL :: Rel_bigLeafLAI_sun(mp)
+REAL :: Rel_bigLeafLAI_shd(mp)
+REAL :: minCanopyCond(mp)
+REAL :: canopy_conductance(mp)
+REAL :: Rel_moisture(mp)
+REAL :: soil_conductance(mp)
+REAL :: Surf_conductance(mp)
+! END header
 
-    ! END header
-
-    call_number = call_number + 1
-
-    !H! vNot sure that this is appropriate for JULES standalone - HaC
-    !H!IF( .NOT. cable_runtime%um)                                                 &
-         canopy%cansto =  canopy%oldcansto
-
+    ! Not sure that this is appropriate for JULES standalone - HaC either
+    IF( .NOT. cable_runtime%um ) THEN
+      canopy%cansto =  canopy%oldcansto
+    ENDIF  
     ALLOCATE( cansat(mp), gbhu(mp,mf))
     ALLOCATE( dsx(mp), fwsoil(mp), tlfx(mp), tlfy(mp) )
     ALLOCATE( ecy(mp), hcy(mp), rny(mp))
@@ -394,22 +400,16 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
        hcy = 0.0              ! init current estimate lat heat
        ecy = rny - hcy        ! init current estimate lat heat
 
-       CALL dryLeaf( dels, rad, rough, air, met,                             &
-                  veg, canopy, soil, ssnow, dsx,                             &
-                  fwsoil, tlfx, tlfy, ecy, hcy,                              &
-                  rny, gbhu, gbhf, csx, cansat,                              &
-            ghwet,  iter,climate, sum_rad_gradis, sum_rad_rniso )
+       CALL dryLeaf( dels, rad, rough, air, met, veg, canopy, soil, ssnow,     &
+                     dsx, fwsoil, tlfx, tlfy, ecy, hcy, rny, gbhu, gbhf, csx,  &
+                     cansat, ghwet, iter, climate, sum_rad_gradis,             &
+                     sum_rad_rniso )
 
-
-      CALL wetLeaf( dels,                                 &
-                    cansat, tlfy,                                 &
-                    gbhu, gbhf, ghwet, &
-                    mp, CLAI_thresh, CCAPP, CRmair, & 
-                    reducedLAIdue2snow, sum_rad_rniso, sum_rad_gradis, & 
-                    canopy%fevw, canopy%fevw_pot, canopy%fhvw, &
-                    canopy%fwet, canopy%cansto, air%rlam, air%dsatdk, &
+      CALL wetLeaf( dels, cansat, tlfy, gbhu, gbhf, ghwet, mp, CLAI_thresh,    &
+                    CCAPP, CRmair, reducedLAIdue2snow, sum_rad_rniso,          &
+                    sum_rad_gradis, canopy%fevw, canopy%fevw_pot, canopy%fhvw, & 
+                    canopy%fwet, canopy%cansto, air%rlam, air%dsatdk,          &
                     met%tvair, met%tk, met%dva, air%psyc )
-
 
        ! Calculate latent heat from vegetation:
        ! Calculate sensible heat from vegetation:
@@ -688,16 +688,36 @@ write(6,*) "SLI is not an option right now"
 
     canopy%cduv = canopy%us * canopy%us / (MAX(met%ua,CUMIN))**2
 
-    !---diagnostic purposes
-    canopy%gswx_T = rad%fvlai(:,1)/MAX( CLAI_THRESH, canopy%vlaiw(:) )         &
-         * canopy%gswx(:,1) + rad%fvlai(:,2) / MAX(CLAI_THRESH,     &
-         canopy%vlaiw(:))*canopy%gswx(:,2)
+! Evaluate Total Surface conductance !---diagnostic purposes
 
-    ! The surface conductance below is required by dust scheme; it is composed from canopy and soil conductances
-    canopy%gswx_T = (1.-rad%transd)*MAX(1.e-06,canopy%gswx_T ) +  &   !contribution from  canopy conductance
-         rad%transd*(.01*ssnow%wb(:,1)/soil%sfc)**2 ! + soil conductance; this part is done as in Moses
-    WHERE ( soil%isoilm == 9 ) canopy%gswx_T = 1.e6   ! this is a value taken from Moses for ice points
+!jh:vlaiw is already limted?
+LAI_min(:)            = MAX( CLAI_THRESH, canopy%vlaiw(:) )
+Rel_bigLeafLAI_sun(:) = rad%fvlai(:,1) / LAI_min(:)
+Rel_bigLeafLAI_shd(:) = rad%fvlai(:,2) / LAI_min(:)
 
+!total stomatal conductance
+canopy_conductance(:) = Rel_bigLeafLAI_sun(:)  * canopy%gswx(:,1)              & 
+                      + Rel_bigLeafLAI_shd(:)  * canopy%gswx(:,2) 
+
+! Surface conductance required by dust scheme
+! Canopy conductance
+minCanopyCond(:)      = MAX( 1.e-06, canopy_conductance(:) )
+canopy_conductance(:) = (1.-rad%transd(:))* minCanopyCond(:)
+
+! Soil conductance - following MOSES method
+Rel_moisture(:) = ssnow%wb(:,1) / soil%sfc(:)
+soil_conductance(:) = rad%transd(:) * ( 0.01*Rel_moisture )**2 
+
+! Combined Surface conductance
+Surf_conductance(:) = canopy_conductance(:) + soil_conductance(:) 
+
+! this is a value taken from MOSES for ice points
+WHERE ( soil%isoilm == ICE_SoilType ) 
+  Surf_conductance = 1.e6   
+END WHERE
+
+canopy%gswx_T(:)    = Surf_conductance(:)               !fill CABLE type for now
+    
     canopy%cdtq = canopy%cduv * &
                     ( LOG( rough%zref_uv / rough%z0m) -              &
                       psim( canopy%zetar(:,NITER) * rough%zref_uv/rough%zref_tq, mp, CPI_C )   &

@@ -67,6 +67,7 @@ add_library(
     src/offline/cbl_model_driver_offline.F90
     src/offline/landuse_inout.F90
     src/offline/spincasacnp.F90
+    src/offline/cable_surface_types.F90
     src/params/cable_maths_constants_mod.F90
     src/params/cable_other_constants_mod.F90
     src/params/cable_photo_constants_mod.F90
@@ -88,6 +89,7 @@ add_library(
     src/science/canopy/cbl_wetleaf.F90
     src/science/canopy/cbl_within_canopy.F90
     src/science/canopy/cbl_zetar.F90
+    src/science/canopy/cbl_init_wetfac.F90
     src/science/casa-cnp/bgcdriver.F90
     src/science/casa-cnp/biogeochem_casa.F90
     src/science/casa-cnp/casa_cnp.F90
