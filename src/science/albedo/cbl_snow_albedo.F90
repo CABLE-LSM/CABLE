@@ -76,6 +76,9 @@ REAL, PARAMETER ::                                                             &
      alvo  = 0.95,  &  ! albedo for vis. on a new snow
      aliro = 0.70      ! albedo for near-infr. on a new snow
 
+REAL, PARAMETER :: sfact_default = 0.68
+REAL, PARAMETER :: sfact_dark    = 0.62  
+REAL, PARAMETER :: sfact_darker  = 0.5    
 INTEGER :: i    !looping variable
 
 !initialise to the no-snow value for albedo for all land points
@@ -89,11 +92,12 @@ WHERE (SnowDepth > snow_depth_thresh .AND. SurfaceType == lakes_cable )
   SoilAlbsoilF = 0.85
 END WHERE
 
-sfact(:) = 0.68
+!initialize all land points 
+sfact(:) = sfact_default 
 WHERE (SoilAlbsoilF <= 0.14)
-  sfact = 0.5
+  sfact = sfact_darker     ! NB: .14 corresponds to snow albedo < liq lakes
 ELSE WHERE (SoilAlbsoilF > 0.14 .AND. SoilAlbsoilF <= 0.20)
-  sfact = 0.62
+  sfact = sfact_dark     ! captures liq lakes & similar snow albedo cells 
 END WHERE
 
 !first estimate of snow-affected surface albedos
