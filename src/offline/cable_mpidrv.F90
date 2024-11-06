@@ -24,8 +24,7 @@ PROGRAM mpi_driver
   USE cable_mpicommon
   USE cable_mpimaster
   USE cable_mpiworker
-  USE cable_namelist_util, ONLY: get_namelist_file_name,&
-       CABLE_NAMELIST,arg_not_namelist
+  USE cable_namelist_util, ONLY: get_namelist_file_name
 
   IMPLICIT NONE
 

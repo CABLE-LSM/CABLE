@@ -54,9 +54,6 @@ INTEGER, PARAMETER :: ice_cable    = 17 ! cable_surface_type (nml) Index
 INTEGER, PARAMETER :: mf          = 2  ! # leaves (sunlit, shaded)
 INTEGER, PARAMETER :: niter       = 4  ! number of iterations for za/L
 INTEGER, PARAMETER :: swb         = 2  ! # SW bands (VIS+NIR) - CM3 alloc TYPEs
-INTEGER, PARAMETER :: nCpool_casa = 10 
-INTEGER, PARAMETER :: nNpool_casa = 10 
-INTEGER, PARAMETER :: nPPool_casa = 12 
 
 ! Strictly NOT a constant. # of active tiles, length of CABLE working vectors
 INTEGER :: mp

@@ -45,7 +45,7 @@
 MODULE cable_write_module
 
 
-  USE cable_abort_module, ONLY: nc_abort
+  USE cable_abort_module, ONLY: nc_abort, abort
   USE cable_def_types_mod
   USE cable_IO_vars_module, ONLY: landpt, patch, max_vegpatches, parID_type,           &
        metGrid, land_x, land_y, logn, output,               &

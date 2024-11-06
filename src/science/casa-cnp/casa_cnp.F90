@@ -1,4 +1,3 @@
-!#define ESM15 YES
 !==============================================================================
 ! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
@@ -1027,14 +1026,15 @@ DO npt=1,mp
                                       * casabiome%ftransNPtoL(veg%iveg(npt),leaf)
       ENDIF
 
-      casapool%dNplantdt(npt,wood) = 0.0
-#ifndef ESM15
-      ! offline/trunk uses this condition
-      IF (casamet%lnonwood(npt)==0)                                            & 
-#endif
-      casapool%dNplantdt(npt,wood) = - casaflux%kplant(npt,wood)             &
+      !R. Law 25/10/24 removed ESM15 case as no need to exclude the condition
+      !that is in offline/trunk. Also re-write as IF / THEN
+      IF (casamet%lnonwood(npt)==0) THEN                                          
+        casapool%dNplantdt(npt,wood) = - casaflux%kplant(npt,wood)             &
                                      * casapool%Nplant(npt,wood)               &
                                      * casabiome%ftransNPtoL(veg%iveg(npt),wood)
+      ELSE
+        casapool%dNplantdt(npt,wood) = 0.0
+      ENDIF
 
       casapool%dNplantdt(npt,froot) = - casaflux%kplant(npt,froot)             &
                                     * casapool%Nplant(npt,froot)               &
@@ -1066,9 +1066,14 @@ DO npt=1,mp
                                      * casabiome%ftransPPtoL(veg%iveg(npt),leaf)
       ENDIF
   
-      casapool%dPplantdt(npt,wood) = - casaflux%kplant(npt,wood)               &
+      !R. Law 25/10/24 Add similar lnonwood condition as used in nitrogen case
+      IF (casamet%lnonwood(npt)==0) THEN                                          
+        casapool%dPplantdt(npt,wood) = - casaflux%kplant(npt,wood)             &
                                    * casapool%Pplant(npt,wood)                 &
                                    * casabiome%ftransPPtoL(veg%iveg(npt),wood)
+      ELSE
+        casapool%dPplantdt(npt,wood) = 0.0
+      ENDIF
   
       casapool%dPplantdt(npt,froot) = - casaflux%kplant(npt,froot)             &
                                     * casapool%Pplant(npt,froot)               &
@@ -1341,13 +1346,11 @@ END SUBROUTINE casa_delplant
                   +casaflux%Psimm(nland)
              ! net mineralization
 
-#           ifdef ESM15  
-             casaflux%Pleach(nland)  =  (1.0e-4) &
-                                              * max(0.0,casapool%Psoillab(nland))
-#           else
+             !rml 14/10/24 #278 remove ESM15 specific version as can be 
+             !accommodated by setting appropriate parameter in pftlookup
              casaflux%Pleach(nland)  =  casaflux%fPleach(nland) &
                   * MAX(0.0,casapool%Psoillab(nland))
-#            endif
+
              DO k=1,msoil
                 DO j=1,mlitter
                    casaflux%FluxPtosoil(nland,k) =  casaflux%FluxPtosoil(nland,k)  &
@@ -1451,23 +1454,16 @@ END SUBROUTINE casa_delplant
              casapool%dPsoillabdt(nland)= casaflux%Psnet(nland) + fluxptase(nland)         &
                   + casaflux%Pdep(nland) + casaflux%Pwea(nland)      &
                   - casaflux%Pleach(nland)-casaflux%pupland(nland)   &
-!jhan: ESM15 is effectively using xkpsorb**2 - inadvertently?!?!?!?!
-#           ifdef ESM15
-                  - casabiome%xkpsorb(casamet%isorder(nland))*casaflux%kpsorb(nland)*casapool%Psoilsorb(nland) &
-#           else
+                  !R. Law 23/08/2024 Removed ESM15 case as inconsistent with how xkpsorb now input (#283)
                   - casaflux%kpsorb(nland)*casapool%Psoilsorb(nland) &
-#           endif
                   + casaflux%kpocc(nland) * casapool%Psoilocc(nland)
              ! here the dPsoillabdt =(dPsoillabdt+dPsoilsorbdt)
              ! dPsoilsorbdt  = xdplabsorb
              casapool%dPsoillabdt(nland)  = casapool%dPsoillabdt(nland)/xdplabsorb(nland)
              casapool%dPsoilsorbdt(nland) = 0.0
 
-#           ifdef ESM15
-             casapool%dPsoiloccdt(nland) = casabiome%xkpsorb(casamet%isorder(nland))*casaflux%kpsorb(nland)* casapool%Psoilsorb(nland) &
-#           else
+            !R. Law 23/08/2024 Removed ESM15 case as inconsistent with how xkpsorb now input (#283)
              casapool%dPsoiloccdt(nland) = casaflux%kpsorb(nland)* casapool%Psoilsorb(nland) &
-#           endif
                                          - casaflux%kpocc(nland) * casapool%Psoilocc(nland)
              ! P loss to non-available P pools
              !      casaflux%Ploss(nland)        = casaflux%kpocc(nland) * casapool%Psoilocc(nland)
