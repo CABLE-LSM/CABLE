@@ -658,14 +658,6 @@ USE cbl_soil_snow_init_special_module
                   CALL cable_climate(ktau_tot,kstart,kend,ktauday,idoy,LOY,met, &
                   climate, canopy, air, rad, dels, mp)
 
-! Is the block below needed here ? rk4417 - phase2
-!             do i=1,mp                                      
-!                if (met%ua(i) .gt. 50.0) then
-!                   write(logn,*) 'ua error',i,met%ua(i)
-!                   write(logn,*) 't error',i,met%tk(i)
-!                end if
-!             end do
-
    IF (.NOT. allocated(c1)) ALLOCATE( c1(mp,nrb), rhoch(mp,nrb), xk(mp,nrb) )
              ! CALL land surface scheme for this timestep, all grid points:
    CALL cbm( ktau, dels, air, bgc, canopy, met, bal,                             &
