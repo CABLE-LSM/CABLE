@@ -1,3 +1,7 @@
+! CSIRO Open Source Software License Agreement (variation of the BSD / MIT License)
+! Copyright (c) 2015, Commonwealth Scientific and Industrial Research Organisation 
+! (CSIRO) ABN 41 687 119 230.
+
 MODULE cable_driver_init_mod
   !! Module for CABLE offline driver initialisation.
   USE cable_common_module, ONLY : &
