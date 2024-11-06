@@ -668,64 +668,6 @@ USE cbl_soil_snow_init_special_module
              ssnow%rnof2  = ssnow%rnof2*dels
              ssnow%runoff = ssnow%runoff*dels
 
-! block below inserted by rk4417 - phase2
-
-! check for Nans in biophysical outputs and abort if there are any
-             DO kk=1,mp
-                
-                IF (canopy%fe(kk).NE. canopy%fe(kk)) THEN
-                   WRITE(logn,*) 'Nan in evap flux'
-                   write(logn,*) 'mp ',kk
-                   write(logn,*) 'ktau ',ktau
-                   write(logn,*) 'qv-',met%qv(kk)
-                   write(logn,*) 'precip',met%precip(kk)
-                   write(logn,*) 'sn-',met%precip_sn(kk)
-                   write(logn,*) 'fld-',met%fld(kk)
-                   write(logn,*) 'fsd1',met%fsd(kk,1)
-                   write(logn,*) 'fsd2',met%fsd(kk,2)
-                   write(logn,*) 'tk', met%tk(kk)
-                   write(logn,*) 'ua', met%ua(kk)
-                   write(logn,*) 'potev',ssnow%potev(kk)
-                   write(logn,*) 'pmb', met%pmb(kk)
-                   write(logn,*) 'ga', canopy%ga(kk)
-                   do klev=1,ms
-                      write(logn,*) 'lvl',klev,'tgg',ssnow%tgg(kk,klev)
-                      write(logn,*) 'lvl',klev,'wb',ssnow%wb(kk,klev)
-                      write(logn,*) 'lvl',klev,'wbliq',ssnow%wbliq(kk,klev)
-                      write(logn,*) 'lvl',klev,'wbice',ssnow%wbice   (kk,klev)
-                      write(logn,*) 'lvl',klev,'smp',ssnow%smp     (kk,klev)
-                      write(logn,*) 'lvl',klev,'hk',ssnow%hk      (kk,klev)
-                      write(logn,*) 'lvl',klev,'smp_hys',ssnow%smp_hys (kk,klev)
-                      write(logn,*) 'lvl',klev,'ssat_hys',ssnow%ssat_hys(kk,klev)
-                      write(logn,*) 'lvl',klev,'watr_hys',ssnow%watr_hys(kk,klev)
-                      write(logn,*) 'lvl',klev,'wb_hys',ssnow%wb_hys  (kk,klev)
-                      write(logn,*) 'lvl',klev,'hys_fac',ssnow%hys_fac (kk,klev)
-                      
-                      write(logn,*) 'lvl',klev,'ssuc_vec',soil%sucs_vec(kk,klev)
-                      write(logn,*) 'lvl',klev,'ssat_vec',soil%ssat_vec(kk,klev)
-                      write(logn,*) 'lvl',klev,'watr_hys',soil%watr(kk,klev)
-                   end do
-                   write(logn,*) 'rh',ssnow%rh_srf(kk)
-                   write(logn,*) 'or sat',ssnow%rtevap_sat(kk)
-                   write(logn,*) 'or unsat',ssnow%rtevap_unsat(kk)
-                   write(logn,*) 'sub dz',canopy%sublayer_dz(kk)
-                   write(logn,*) 'fwsoil',canopy%fwsoil(kk)
-                   write(logn,*) 'vlai1',rad%fvlai(kk,1)
-                   write(logn,*) 'vlai2',rad%fvlai(kk,2)
-                   write(logn,*) 'vlaiw', canopy%vlaiw(kk)
-                   write(logn,*) 'snowd',ssnow%snowd(kk)
-                   write(logn,*) 'satfrac',ssnow%satfrac(kk)
-                   write(logn,*) 'GWwb',ssnow%GWwb(kk)
-                   write(logn,*) 'wtd',ssnow%wtd(kk)
-                   write(logn,*) 'rnof1',ssnow%rnof1(kk)
-                   write(logn,*) 'rnof2',ssnow%rnof2(kk)
-                   write(logn,*) 'isoil',soil%isoilm(kk)
-                   write(logn,*) 'iveg',veg%iveg(kk)
-                end if
-                
-             ENDDO
-! end of block - rk4417 - phase2
-
              !jhan this is insufficient testing. condition for
              !spinup=.false. & we want CASA_dump.nc (spinConv=.true.)
 
