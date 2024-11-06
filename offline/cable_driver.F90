@@ -279,6 +279,8 @@ PROGRAM cable_offline_driver
   !___ unique unit/file identifiers for cable_diag: arbitrarily 5 here
   integer :: iDiagZero=0
 
+  INTEGER :: Ftrunk_unit, Fnew_unit
+
   ! switches etc defined thru namelist (by default cable.nml)
   namelist /cablenml/ &
        filename, &       ! TYPE, containing input filenames
