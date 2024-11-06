@@ -7816,7 +7816,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
             &                             types(bidx), ierr)
        blocks(bidx) = 1
 
-       ! #294 - Avoid malformed var write for now  ! should this block be uncommented - rk4417 - phase2
+       ! #294 - Avoid malformed var write for now 
        ! bidx = bidx + 1
        ! CALL MPI_Get_address (climate%mtemp_max(off), displs(bidx), ierr)
        ! blocks(bidx) = r1len
