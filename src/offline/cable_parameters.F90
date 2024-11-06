@@ -3339,12 +3339,12 @@ CONTAINS
     ! (Jackson et al. 1996, Oceologica, 108:389-411)
     totdepth = 0.0
     DO is = 1, ms-1
-       totdepth = totdepth + soil_zse(is) * 100.0  ! unit in centimetres
-       veg%froot(:, is) = MIN( 1.0, 1.0-veg%rootbeta(:)**totdepth )
+      totdepth = totdepth + soil_zse(is) * 100.0  ! unit in centimetres
+      veg%froot(ifmp:fmp, is) = MIN( 1.0, 1.0-veg%rootbeta(ifmp:fmp)**totdepth )
     END DO
-    veg%froot(:, ms) = 1.0 - veg%froot(:, ms-1)
+    veg%froot(ifmp:fmp, ms) = 1.0 - veg%froot(ifmp:fmp, ms-1)
     DO is = ms-1, 2, -1
-       veg%froot(:, is) = veg%froot(:, is)-veg%froot(:,is-1)
+      veg%froot(ifmp:fmp, is) = veg%froot(ifmp:fmp, is)-veg%froot(ifmp:fmp,is-1)
     END DO
 
   END SUBROUTINE init_veg_from_vegin
