@@ -18,6 +18,9 @@ USE cable_phys_constants_mod, ONLY: CTFRZ => TFRZ
 
     !H!USE cable_gw_hydro_module, ONLY : calc_srf_wet_fraction
 
+
+    use cable_init_wetfac_mod, ONLY: initialize_wetfac
+
     TYPE (veg_parameter_type), INTENT(INOUT)    :: veg
     TYPE (soil_snow_type), INTENT(inout):: ssnow
     TYPE (soil_parameter_type), INTENT(inout)   :: soil
@@ -65,30 +68,14 @@ USE cable_phys_constants_mod, ONLY: CTFRZ => TFRZ
        ssnow%satfrac(:) = 1.0e-8
        ssnow%rh_srf(:)  = 1.0
 
-       ssnow%wetfac = MAX( 1.e-6, MIN( 1.0,&
-            ( REAL (ssnow%wb(:,1) ) - soil%swilt/ 2.0 )                  &
-            / ( soil%sfc - soil%swilt/2.0 ) ) )
-   
-       DO i=1,mp
-   
-          IF( ssnow%wbice(i,1) > 0. )&
-               ssnow%wetfac(i) = ssnow%wetfac(i) * &
-                                real(MAX( 0.5_r_2, 1._r_2 - MIN( 0.2_r_2, &
-                                 ( ssnow%wbice(i,1) / ssnow%wb(i,1) )**2 ) ) )
-   
-          IF( ssnow%snowd(i) > 0.1) ssnow%wetfac(i) = 0.9
-   
-          IF ( veg%iveg(i) == lakes_cable .and. met%tk(i) >= Ctfrz + 5. )   &
-               ssnow%wetfac(i) = 1.0
-   
-          IF( veg%iveg(i) == lakes_cable .and. met%tk(i) < Ctfrz + 5. )   &
-               ssnow%wetfac(i) = 0.7
-   
-       ENDDO
+     CALL initialize_wetfac(mp, ssnow%wetfac, soil%swilt, soil%sfc, ssnow%wb, ssnow%wbice, ssnow%snowd, veg%iveg, met%tk, Ctfrz)
+
        ! owetfac introduced to reduce sharp changes in dry regions,
        ! especially in offline runs in which there may be discrepancies b/n
        ! timing of precip and temperature change (EAK apr2009)
        ssnow%wetfac = 0.5*(ssnow%wetfac + ssnow%owetfac)
+
+
 
 
   END SUBROUTINE Surf_wetness_fact

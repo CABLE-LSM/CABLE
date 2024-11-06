@@ -1,3 +1,4 @@
+!#define UM_CBL YES
 MODULE surfbv_mod
 
 USE cbl_ssnow_data_mod
@@ -14,7 +15,7 @@ USE smoisturev_mod,          ONLY: smoisturev
 USE cable_surface_types_mod, ONLY: lakes_cable
 
     USE cable_common_module
-    
+
 IMPLICIT NONE
 
     REAL, INTENT(IN) :: dels ! integration time step (s)
@@ -32,7 +33,6 @@ IMPLICIT NONE
 
     REAL, DIMENSION(mp) ::                                                      &
          rnof5,      & !
-         sfact,      & !
          sgamm,      & !
          smasstot,   & !
          talb,       & ! snow albedo

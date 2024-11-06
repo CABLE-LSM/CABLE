@@ -80,6 +80,7 @@ add_library(
     src/science/canopy/cbl_dryLeaf.F90
     src/science/canopy/cbl_friction_vel.F90
     src/science/canopy/cbl_fwsoil.F90
+    src/science/canopy/cbl_init_wetfac_mod.f90
     src/science/canopy/cbl_latent_heat.F90
     src/science/canopy/cbl_photosynthesis.F90
     src/science/canopy/cbl_pot_evap_snow.F90
