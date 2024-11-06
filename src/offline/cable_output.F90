@@ -675,7 +675,7 @@ CONTAINS
                         'soil', xID, yID, zID, landID, patchID, soilID, tID)
        ALLOCATE(out%hys_fac(mp,ms))
        out%hys_fac = 0.0 ! initialise
-    end if
+    END IF
 ! end of block - rk4417 - phase2   
 
     IF(output%BaresoilT) THEN
