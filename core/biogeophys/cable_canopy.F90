@@ -2177,6 +2177,7 @@ CONTAINS
                      gswmin(i,1) = veg%g0(i) * rad%scalex(i,1)
                      gswmin(i,2) = veg%g0(i) * rad%scalex(i,2)
                      g1 = veg%g1(i)
+                     print *, '!!!!!!!!!!!!!!! g2 and psi_ref:', veg%g2(i), veg%psi_ref(i)
                      fwpsi(i) = (1+exp(veg%g2(i) * veg%psi_ref(i))) / (1+exp(veg%g2(i) * (veg%psi_ref(i)-psil(i))))
                      gs_coeff(i,1) =fwpsi(i) * g1 / real(csx(i,1))
                      gs_coeff(i,2) =fwpsi(i) * g1 / real(csx(i,2))
