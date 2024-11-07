@@ -185,6 +185,7 @@ CONTAINS
       ssnow%rex       = 0.0_r_2
       ! Initialise in-canopy temperatures and humidity:
       csx = SPREAD(real(met%ca,r_2), 2, mf) ! initialise leaf surface CO2 concentration
+      psil = real(ssnow%psi_rootzone,r_2) ! initialise leaf surface CO2 concentration
       met%tvair = met%tk
       met%qvair = met%qv
       canopy%tv = met%tvair
@@ -1801,7 +1802,7 @@ CONTAINS
             veg%b_plant(i), veg%c_plant(i))
       END DO
       !kdcorbin, 08/10 - doing all points all the time'
-      nktau=1440
+      nktau=7200
       write(num_str, '(I0)') nktau
       txtname = trim(filename%path) // '/testIteration_cable_out_' // trim(num_str) &
       // '.txt'
@@ -2179,6 +2180,7 @@ CONTAINS
                      fwpsi(i) = (1+exp(veg%g2(i) * veg%psi_ref(i))) / (1+exp(veg%g2(i) * (veg%psi_ref(i)-psil(i))))
                      gs_coeff(i,1) =fwpsi(i) * g1 / real(csx(i,1))
                      gs_coeff(i,2) =fwpsi(i) * g1 / real(csx(i,2))
+                     print *, 'fwpsi:', fwpsi(i)
 
                ELSE IF (cable_user%GS_SWITCH == 'profitmax' .AND. &
                   cable_user%FWSOIL_SWITCH == 'profitmax') THEN
