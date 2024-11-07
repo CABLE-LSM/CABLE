@@ -1,3 +1,14 @@
+!******************************COPYRIGHT********************************************
+! (c) CSIRO 2022.
+! All rights reserved.
+!
+! This routine has been licensed to the other JULES partners for use and
+! distribution under the JULES collaboration agreement, subject to the terms and
+! conditions set out therein.
+!
+! [Met Office Ref SC0237]
+!******************************COPYRIGHT********************************************
+
 MODULE cable_surface_types_mod
 
 !-----------------------------------------------------------------------------
@@ -5,8 +16,22 @@ MODULE cable_surface_types_mod
 !   Contains CABLE surface type information and a namelist for setting them
 !   The CABLE equivalent of jules_surface_types_mod
 !
+! This MODULE is USEd by:
+!      surf_couple_radiation_mod.F90,
+!      init_surface_types.F90
+!
+! This MODULE contains public Subroutines:
+!      check_cable_surface_types,
+!      print_nlist_cable_surface_types,
+!      read_nml_cable_surface_types,
+!      set_derived_variables_cable_surface_types
+!
 ! Code Owner: Please refer to ModuleLeaders.txt
 ! This file belongs in CABLE SCIENCE
+!
+! Code Description:
+!   Language: Fortran 90.
+!   This code is written to JULES coding standards v1.
 !-----------------------------------------------------------------------------
 
 USE missing_data_mod, ONLY: imdi
@@ -87,17 +112,12 @@ CONTAINS
 
 SUBROUTINE check_cable_surface_types()
 
+! Description:
+!   Checks CABLE_SURFACE_TYPES namelist for consistency
+
 USE max_dimensions, ONLY: npft_max, ncpft_max, nnvg_max
 
 USE ereport_mod, ONLY: ereport
-
-!-----------------------------------------------------------------------------
-! Description:
-!   Checks CABLE_SURFACE_TYPES namelist for consistency
-!
-! Code Owner: Please refer to ModuleLeaders.txt
-! This file belongs in CABLE SCIENCE
-!-----------------------------------------------------------------------------
 
 IMPLICIT NONE
 
@@ -168,6 +188,9 @@ END SUBROUTINE check_cable_surface_types
 SUBROUTINE print_nlist_cable_surface_types()
 
 USE jules_print_mgr, ONLY: jules_print
+
+! Description:
+!   Nicely prints the namelist content to log file
 
 IMPLICIT NONE
 
@@ -243,15 +266,15 @@ END SUBROUTINE print_nlist_cable_surface_types
 #if defined(UM_JULES) && !defined(LFRIC)
 SUBROUTINE read_nml_cable_surface_types (unitnumber)
 
-! Description:
-!  Read the CABLE_SURFACE_TYPES namelist
-
 USE setup_namelist,   ONLY: setup_nml_type
 USE check_iostat_mod, ONLY: check_iostat
 USE UM_parcore,       ONLY: mype
 USE parkind1,         ONLY: jprb, jpim
 USE yomhook,          ONLY: lhook, dr_hook
 USE errormessagelength_mod, ONLY: errormessagelength
+
+! Description:
+!  Read the CABLE_SURFACE_TYPES namelist
 
 IMPLICIT NONE
 
@@ -367,11 +390,11 @@ END SUBROUTINE read_nml_cable_surface_types
 
 SUBROUTINE set_derived_variables_cable_surface_types()
 
+! Description:
+!   Derive ntype_cable and nnpft_cable from the namelist values
+
 IMPLICIT NONE
 
-!-----------------------------------------------------------------------------
-! Derive ntype_cable and nnpft_cable from the namelist values
-!-----------------------------------------------------------------------------
 ntype_cable = npft_cable + nnvg_cable
 nnpft_cable = npft_cable - ncpft_cable
 
