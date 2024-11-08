@@ -590,7 +590,10 @@ PROGRAM cable_offline_driver
               kend = nint(24.0 * 3600.0 / dels) * LOY
            else if ((trim(cable_user%MetType) == 'cru') .OR. &
              (TRIM(cable_user%MetType) == 'bios')) then
-              ! TRENDY experiment using CRU-NCEP
+              ! This begins an attempt to unifying the met input routines. The
+              ! effort began with the CRU pipeline, which was then applied to
+              ! the BIOS routine. End goal is to have a single pipeline for met
+              ! inputs.
               if (CALL1) then
                  call cru_init(cru)
                  dels         = cru%dtsecs
