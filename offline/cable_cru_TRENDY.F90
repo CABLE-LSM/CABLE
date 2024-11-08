@@ -39,13 +39,21 @@ IMPLICIT NONE
 REAL, PRIVATE, PARAMETER  :: SecDay = 86400.
 INTEGER, PRIVATE, PARAMETER  :: rain = 1, lwdn = 2, swdn = 3, pres = 4,&
                                 qair = 5, tmax = 6, tmin = 7, uwind = 8,&
-                                vwind = 9, wind = 10, vph0900 = 11, vph1500 = 12,&
-                                fdiff = 13, prevTmax = 14, nextTmin = 15,&
-                                nextvph0900 = 16, prevvph1500 = 17
+                                vwind = 9, wind = 10, vph0900 = 11,&
+                                vph1500 = 12, fdiff = 13, prevTmax = 14,&
+                                nextTmin = 15, nextvph0900 = 16,&
+                                prevvph1500 = 17
 INTEGER, PRIVATE, PARAMETER  :: sp = kind(1.0)
 INTEGER, PRIVATE, PARAMETER  :: dp = KIND(1.0d0)
-INTEGER, PRIVATE, PARAMETER  :: nVariables = 13
-INTEGER, PRIVATE, PARAMETER  :: nExtraVariables = 4
+! We have two separate "classes" variables- the "core" variables, which each are
+! assigned their own reader, and "derived" variables, which are derived in a
+! sense from the core variables. At the moment, these "derived" variables are
+! all next and previous day values required for subdiurnalisation.
+! The distinction is required because we don't need additional readers for the
+! derived variables, we just use the associated core variable reader, but we do
+! need to assign storage for the derived variables.
+INTEGER, PRIVATE, PARAMETER  :: nCoreVariables = 13
+INTEGER, PRIVATE, PARAMETER  :: nDerivedVariables = 4
 INTEGER, PRIVATE             :: ErrStatus
 TYPE(WEATHER_GENERATOR_TYPE), PRIVATE :: WG
 
@@ -63,8 +71,7 @@ TYPE CRU_TYPE
   INTEGER   :: RecycStartYear     ! Year to start the met recycling
   INTEGER   :: Ktau
 
-  INTEGER, DIMENSION(13)    :: FileID, VarId    ! File and variable IDs for
-  INTEGER                   :: NDepFId, NDepVId ! reading netCDF
+  INTEGER                   :: NDepFId, NDepVId ! netcdf IDs for ndep
 
   REAL, DIMENSION(:), ALLOCATABLE ::  avg_lwdn  ! Average longwave down rad,
                                                 ! for Swinbank method
@@ -76,17 +83,17 @@ TYPE CRU_TYPE
   LOGICAL   :: ReadDiffFrac       ! Read diff fraction or calculate it
   LOGICAL   :: LeapYears
 
-  LOGICAL, DIMENSION(13)    :: isRecycled
+  LOGICAL, DIMENSION(nCoreVariables)    :: isRecycled
   LOGICAL, DIMENSION(:,:), ALLOCATABLE  :: LandMask ! The logical landmask
 
   CHARACTER(LEN=16)   :: CO2Method   ! Method for choosing atmospheric CO2
   CHARACTER(LEN=16)   :: NDepMethod     ! Method for choosing N deposition
 
-  TYPE(CRU_MET_TYPE), DIMENSION(17)   :: Met
+  TYPE(CRU_MET_TYPE), DIMENSION(nCoreVariables + nDerivedVariables)   :: Met
 
   ! The spatio-temporal datasets we use to generate the forcing data.
-  TYPE(SPATIO_TEMPORAL_DATASET), DIMENSION(13)  :: MetDatasets
-  TYPE(SPATIO_TEMPORAL_DATASET)                 :: NDepDataset
+  TYPE(SPATIO_TEMPORAL_DATASET), DIMENSION(nCoreVariables)  :: MetDatasets
+  TYPE(SPATIO_TEMPORAL_DATASET)                             :: NDepDataset
 END TYPE CRU_TYPE
 
 CONTAINS
@@ -107,7 +114,7 @@ SUBROUTINE CRU_INIT(CRU)
   TYPE(CRU_TYPE), INTENT(OUT)    :: CRU
 
   ! We want one filename for each variable, stored in a predefined index.
-  CHARACTER(LEN=256), DIMENSION(nVariables) :: InputFiles
+  CHARACTER(LEN=256), DIMENSION(nCoreVariables) :: InputFiles
   CHARACTER(LEN=256)  :: nDepFile, CO2File, LandmaskFile
 
   ! Iterator variable for the variables
@@ -128,7 +135,7 @@ SUBROUTINE CRU_INIT(CRU)
   CALL read_variable_names(CRU%MetDatasets)
 
   ! Build the spatio-temporal datasets for each necessary datatype
-  BuildKeys: DO VarIndx = 1, nVariables
+  BuildKeys: DO VarIndx = 1, nCoreVariables
     ! Check whether the file has been defined in the namelist
     IF (TRIM(InputFiles(VarIndx)) /= "None") THEN
       CALL prepare_spatiotemporal_dataset(InputFiles(VarIndx),&
@@ -476,7 +483,6 @@ SUBROUTINE BIOS_GET_SUBDIURNAL_MET(CRU, Met, CurYear, ktau)
     is = LandPt(iLand)%cStart
     ie = LandPt(iLand)%cEnd
 
-    WRITE(*,*) WG%Temp
     Met%Precip(is:ie)     = REAL(WG%Precip(iLand), sp)
     Met%Precip_sn(is:ie)  = REAL(WG%Snow(iLand), sp)
     ! Why is it done this way? Doesn't make much sense
@@ -526,11 +532,11 @@ SUBROUTINE get_daily_met(CRU)
   ! Define iteration variable
   INTEGER   :: VarIndx
 
-  ! Determine the recycled and sim year
+  ! Determine the recycled year from the sim year
   RecycledYear = CRU%RecycStartYear + MOD(CRU%cYear - 1501, CRU%MetRecycPeriod)
 
   ! Iterate through the base variables
-  IterateVariables: DO VarIndx = 1, nVariables
+  IterateVariables: DO VarIndx = 1, nCoreVariables
     MetYear = CRU%cYear
     ! If the variable is time recycled
     IF (CRU%isRecycled(VarIndx)) THEN
@@ -593,7 +599,7 @@ SUBROUTINE get_daily_met(CRU)
     land_y, DummyYear, DummyDay, CRU%LeapYears, CRU%xDimSize, CRU%yDimSize,&
     CRU%DirectRead)
 
-  ! vph0900
+  ! vph1500
   DummyYear = CRU%cYear
   DummyDay = CRU%CTStep - 1
 
@@ -602,7 +608,7 @@ SUBROUTINE get_daily_met(CRU)
     DummyYear = CRU%cYear - 1
   END IF
   
-  IF (CRU%isRecycled(vph0900)) THEN
+  IF (CRU%isRecycled(vph1500)) THEN
     DummyYear = CRU%RecycStartYear + MOD(DummyYear - 1501, CRU%MetRecycPeriod)
   END IF
 
@@ -637,7 +643,7 @@ SUBROUTINE get_daily_met(CRU)
   END IF
 
   ! Now we have to handle each of the "next" variables individually
-  ! Tmax
+  ! Tmin
   IF (CRU%isRecycled(Tmin)) THEN
     DummyYear = CRU%RecycStartYear + MOD(DummyYear - 1501, CRU%MetRecycPeriod)
   END IF
@@ -646,7 +652,7 @@ SUBROUTINE get_daily_met(CRU)
     land_y, DummyYear, DummyDay, CRU%LeapYears, CRU%xDimSize, CRU%yDimSize,&
     CRU%DirectRead)
 
-  ! vph1500
+  ! vph0900
   DummyDay = CRU%CTStep + 1
   DummyYear = CRU%cYear
 
@@ -688,7 +694,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, nDepFile, CO2File, LandmaskFile,&
   ! pack them into a more convenient data structure. We don't expect the user
   ! to know the order in which we store the MET inputs internally, so we need
   ! to access them by name.
-  CHARACTER(LEN=256), DIMENSION(nVariables), INTENT(OUT) :: InputFiles
+  CHARACTER(LEN=256), DIMENSION(nCoreVariables), INTENT(OUT) :: InputFiles
   CHARACTER(LEN=256), INTENT(OUT) :: CO2File, nDepFile, LandmaskFile
 
   TYPE(CRU_TYPE), INTENT(OUT)  :: CRU    ! The master CRU structure
@@ -834,7 +840,7 @@ SUBROUTINE read_variable_names(STDatasets)
   ! contains, for each variable, the number of possible names to ```ALLOCATE```
   ! string arrays, and then the string arrays themselves.
 
-  TYPE(SPATIO_TEMPORAL_DATASET), DIMENSION(nVariables)  :: STDatasets
+  TYPE(SPATIO_TEMPORAL_DATASET), DIMENSION(nCoreVariables)  :: STDatasets
 
   ! We need a unit to reference the namelist file, arrays to store the set of
   ! names for each variable, and integers to store how many names there are for
