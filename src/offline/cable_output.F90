@@ -1463,7 +1463,7 @@ CONTAINS
     out_settings%dimswitch = "integer"
     CALL  check_and_write(output%isoil, opid%isoil,  &
          'isoil', REAL(soil%isoilm, 4), ranges%isoil, patchout%isoil, out_settings)
-    out_settings%dimswitch = "real"
+    out_settings%dimswitch = "soil"
     CALL  check_and_write(output%bch, opid%bch,      &
 !         'bch', REAL(soil%bch, 4), ranges%bch, patchout%bch, out_settings)
 ! replaced above by below - rk4417 - phase2
