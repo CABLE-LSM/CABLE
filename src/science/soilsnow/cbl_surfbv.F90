@@ -1,4 +1,3 @@
-!#define UM_CBL YES
 MODULE surfbv_mod
 
 USE cbl_ssnow_data_mod
@@ -12,11 +11,7 @@ SUBROUTINE surfbv (dels, met, ssnow, soil, veg, canopy )
 USE smoisturev_mod,               ONLY: smoisturev
     USE cable_common_module
 ! data
-#ifdef UM_CBL
 USE cable_surface_types_mod, ONLY: lakes_cable
-#else
-USE grid_constants_mod_cbl,  ONLY: lakes_cable
-#endif
 
 IMPLICIT NONE
 

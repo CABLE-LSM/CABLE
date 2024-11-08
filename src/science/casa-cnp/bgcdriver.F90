@@ -1,4 +1,4 @@
-!# define UM_CBL YES
+# define UM_CBL YES
 
 MODULE bgcdriver_mod
 

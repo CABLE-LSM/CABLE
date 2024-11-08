@@ -26,7 +26,8 @@ USE cable_other_constants_mod, ONLY: clai_thresh => lai_thresh
 USE cable_other_constants_mod, ONLY: cgauss_w => gauss_w
 USE cable_math_constants_mod,  ONLY: cpi => pi
 USE cable_math_constants_mod,  ONLY: cpi180 => pi180
-USE grid_constants_mod_cbl, ONLY : ICE_SoilType, lakes_cable
+USE grid_constants_mod_cbl,    ONLY: ICE_SoilType
+USE cable_surface_types_mod,   ONLY: lakes_cable
 
 
    USE cable_common_module
