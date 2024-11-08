@@ -1684,6 +1684,9 @@ CONTAINS
                fwsoil = 1.0
             elseif (cable_user%FWSOIL_SWITCH == 'constant1') then
                fwsoil = 0.98
+            ! that could be changed later  zihanlu 
+            elseif (cable_user%FWSOIL_SWITCH == 'tuzet') then
+               fwsoil = 1.0
             else
                write(*,*) 'fwsoil_switch failed.'
 #ifdef __MPI__
