@@ -9,7 +9,7 @@ USE NetCDF,                 ONLY: NF90_OPEN, NF90_NOWRITE, NF90_INQ_DIMID,&
                                   NF90_INQUIRE_DIMENSION, NF90_INQ_VARID,&
                                   NF90_GET_VAR, NF90_CLOSE, NF90_NOERR
 USE cable_abort_module,     ONLY: cable_abort, nc_abort
-USE cable_common_module,    ONLY: handle_err, get_unit, is_leapyear,&
+USE cable_common_module,    ONLY: handle_err, get_unit, is_leapyear, leap_day,
                                 cable_user, doysod2ymdhms, get_dimid, LatNames,&
                                 LonNames
 USE cable_io_vars_module,   ONLY: logn, land_x, land_y, exists, nMetPatches,&
@@ -523,160 +523,267 @@ SUBROUTINE get_daily_met(CRU)
   ! The year of met forcing we use depends on our choice of configuration.
   ! Sometimes, recycle through a subset of data, and others we use the sim year.
   ! So we want to store both.
-  INTEGER   :: RecycledYear, MetYear
-
-  ! We want to handle the nextTmin and prevTmax things separately so we don't
-  ! mess with the data stored in CRU, initialise variables to handle this
-  INTEGER   :: DummyYear, DummyDay, DaysInYear
+  INTEGER   :: MetYear, MetDay
 
   ! Define iteration variable
   INTEGER   :: VarIndx
 
-  ! Determine the recycled year from the sim year
-  RecycledYear = CRU%RecycStartYear + MOD(CRU%cYear - 1501, CRU%MetRecycPeriod)
-
   ! Iterate through the base variables
   IterateVariables: DO VarIndx = 1, nCoreVariables
-    MetYear = CRU%cYear
-    ! If the variable is time recycled
-    IF (CRU%isRecycled(VarIndx)) THEN
-      MetYear = RecycledYear
-    END IF
-
-    ! CRU%CTStep is the current day, which we use to index the netCDF arrays
+    CALL get_met_date(CRU%cYear, CRU%CTStep, CRU%IsRecycled(VarIndx),&
+      CRU%RecycStartYear, CRU%MetRecycPeriod, CRU%LeapYears, MetYear,&
+      MetDay)
     CALL read_metvals(CRU%MetDatasets(VarIndx), CRU%Met(VarIndx)%MetVals,&
-      land_x, land_y, MetYear, CRU%CTStep, CRU%LeapYears, CRU%xDimSize,&
+      land_x, land_y, MetYear, MetDay, CRU%LeapYears, CRU%xDimSize,&
       CRU%yDimSize, CRU%DirectRead)
+
+    !MetYear = CRU%cYear
+    !! If the variable is time recycled
+    !IF (CRU%isRecycled(VarIndx)) THEN
+      !MetYear = RecycledYear
+    !END IF
+
+    !! CRU%CTStep is the current day, which we use to index the netCDF arrays
+    !CALL read_metvals(CRU%MetDatasets(VarIndx), CRU%Met(VarIndx)%MetVals,&
+      !land_x, land_y, MetYear, CRU%CTStep, CRU%LeapYears, CRU%xDimSize,&
+      !CRU%yDimSize, CRU%DirectRead)
   END DO IterateVariables
 
-  ! Now the variables with special handling- nextTmin and prevTmax
-  ! The easiest way to do this is to simply change the day by 1, check if we
-  ! need to change the year, and go through the same read process. This is a
-  ! little inefficient as we'll be messing with the Tmin and Tmax dataset
-  ! structs and in select instances (at the end of the era of a particular file)
-  ! opening and closing the io stream unnecessarily, but I think it's a minor
-  ! evil.
-
-  ! There's a serious (?) question to be answered here- what do we do about leap
-  ! years? There are two ideas which are at odds with eachother:
-  ! 1. We want to retrieve that correct data for the relevant year used for
-  !   recycling, which implies leap years should be based on the met recycling
-  !   year. This prevents instances where we try to access the 366th day of a
-  !   year with 365 days, or only get 365 days from a 366 day year.
-  ! 2. We often want to perform yearly averages or accumulations over a year.
-  !   These accumulations/averages occur elsewhere in the code, and thus use the
-  !   number of days from the core simulation year. This imples leap years
-  !   should be based on the core simulation year, to prevent instances where
-  !   we accumulate meteorology over 366 days but average over 365 days and vice
-  !   versa.
-  ! Address previous variables first
-  ! Assume it's a regular day of the year
-  DummyYear = CRU%cYear
-  DummyDay = CRU%CTStep - 1
-
-  ! Special handling at the first day of the year
-  ! We need to be very careful with start of year handling due to leap years.
-  ! If we do things in the incorrect order, we can end up with asking for the
-  ! 366th day of a non-leap year
-  IF (CRU%CTStep == 1) THEN
-    ! Go back to previous year
-    DummyYear = CRU%cYear - 1
-  END IF
-
-  ! Now we have to handle each of the "prev" variables individually
+  ! Previous day variables
   ! Tmax
-  IF (CRU%isRecycled(Tmax)) THEN
-    DummyYear = CRU%RecycStartYear + MOD(DummyYear - 1501, CRU%MetRecycPeriod)
-  END IF
-
-  DummyDay = 365
-  IF ((CRU%LeapYears) .AND. (is_leapyear(DummyYear))) THEN
-    DummyDay = 366
-  END IF
-  ! Now we just need to call cru_read_metvals with the Tmax Dataset reader and
-  ! the prevTmax array to write to
-  CALL read_metvals(CRU%MetDatasets(Tmax), CRU%Met(prevTmax)%MetVals, land_x,&
-    land_y, DummyYear, DummyDay, CRU%LeapYears, CRU%xDimSize, CRU%yDimSize,&
-    CRU%DirectRead)
+  CALL get_met_date(CRU%cYear, CRU%CTStep-1, CRU%IsRecycled(Tmax),&
+    CRU%RecycStartYear, CRU%MetRecycPeriod, CRU%LeapYears, MetYear,&
+    MetDay)
+  CALL read_metvals(CRU%MetDatasets(Tmax), CRU%Met(prevTmax)%MetVals,&
+    land_x, land_y, MetYear, MetDay, CRU%LeapYears, CRU%xDimSize,&
+    CRU%yDimSize, CRU%DirectRead)
 
   ! vph1500
-  DummyYear = CRU%cYear
-  DummyDay = CRU%CTStep - 1
+  CALL get_met_date(CRU%cYear, CRU%CTStep-1, CRU%IsRecycled(vph1500),&
+    CRU%RecycStartYear, CRU%MetRecycPeriod, CRU%LeapYears, MetYear,&
+    MetDay)
+  CALL read_metvals(CRU%MetDatasets(vph1500), CRU%Met(prevvph1500)%MetVals,&
+    land_x, land_y, MetYear, MetDay, CRU%LeapYears, CRU%xDimSize,&
+    CRU%yDimSize, CRU%DirectRead)
 
-  IF (CRU%CTStep == 1) THEN
-    ! Go back to previous year
-    DummyYear = CRU%cYear - 1
-  END IF
-  
-  IF (CRU%isRecycled(vph1500)) THEN
-    DummyYear = CRU%RecycStartYear + MOD(DummyYear - 1501, CRU%MetRecycPeriod)
-  END IF
-
-  DummyDay = 365
-  IF ((CRU%LeapYears) .AND. (is_leapyear(DummyYear))) THEN
-    DummyDay = 366
-  END IF
-
-  ! Now we just need to call cru_read_metvals with the Tmax Dataset reader and
-  ! the prevTmax array to write to
-  CALL read_metvals(CRU%MetDatasets(vph1500), CRU%Met(prevvph1500)%MetVals, land_x,&
-    land_y, DummyYear, DummyDay, CRU%LeapYears, CRU%xDimSize, CRU%yDimSize,&
-    CRU%DirectRead)
-
-  ! Now do "next" variables
-  ! Assume it's a regular day of the year
-  DummyDay = CRU%CTStep + 1
-  DummyYear = CRU%cYear
-
-  ! Special handling at the last day of the year
-  ! We have a dilemna here- how do we determine how many days in the Met year
-  ! when using Met recycling? 
-  DaysInYear = 365
-  IF ((CRU%LeapYears) .AND. (is_leapyear(DummyYear))) THEN
-    DaysInYear = 366
-  END IF
-
-  IF (CRU%CTStep == DaysInYear) THEN
-    ! We're at the end of a year
-    DummyDay = 1
-    DummyYear = CRU%cYear + 1
-  END IF
-
-  ! Now we have to handle each of the "next" variables individually
+  ! Next day variables
   ! Tmin
-  IF (CRU%isRecycled(Tmin)) THEN
-    DummyYear = CRU%RecycStartYear + MOD(DummyYear - 1501, CRU%MetRecycPeriod)
-  END IF
-
-  CALL read_metvals(CRU%MetDatasets(Tmin), CRU%Met(nextTmin)%MetVals, land_x,&
-    land_y, DummyYear, DummyDay, CRU%LeapYears, CRU%xDimSize, CRU%yDimSize,&
-    CRU%DirectRead)
+  CALL get_met_date(CRU%cYear, CRU%CTStep+1, CRU%IsRecycled(Tmin),&
+    CRU%RecycStartYear, CRU%MetRecycPeriod, CRU%LeapYears, MetYear,&
+    MetDay)
+  CALL read_metvals(CRU%MetDatasets(Tmin), CRU%Met(nextTmin)%MetVals,&
+    land_x, land_y, MetYear, MetDay, CRU%LeapYears, CRU%xDimSize,&
+    CRU%yDimSize, CRU%DirectRead)
 
   ! vph0900
-  DummyDay = CRU%CTStep + 1
-  DummyYear = CRU%cYear
-
-  ! Special handling at the last day of the year
-  DaysInYear = 365
-  IF ((CRU%LeapYears) .AND. (is_leapyear(DummyYear))) THEN
-    DaysInYear = 366
-  END IF
-
-  IF (CRU%CTStep == DaysInYear) THEN
-    ! We're at the end of a year
-    DummyDay = 1
-    DummyYear = CRU%cYear + 1
-  END IF
-
-  IF (CRU%isRecycled(vph0900)) THEN
-    DummyYear = CRU%RecycStartYear + MOD(DummyYear - 1501, CRU%MetRecycPeriod)
-  END IF
-
+  CALL get_met_date(CRU%cYear, CRU%CTStep-1, CRU%IsRecycled(vph0900),&
+    CRU%RecycStartYear, CRU%MetRecycPeriod, CRU%LeapYears, MetYear,&
+    MetDay)
   CALL read_metvals(CRU%MetDatasets(vph0900), CRU%Met(nextvph0900)%MetVals,&
-    land_x, land_y, DummyYear, DummyDay, CRU%LeapYears, CRU%xDimSize,&
+    land_x, land_y, MetYear, MetDay, CRU%LeapYears, CRU%xDimSize,&
     CRU%yDimSize, CRU%DirectRead)
+
+  !! Now the variables with special handling- nextTmin and prevTmax
+  !! The easiest way to do this is to simply change the day by 1, check if we
+  !! need to change the year, and go through the same read process. This is a
+  !! little inefficient as we'll be messing with the Tmin and Tmax dataset
+  !! structs and in select instances (at the end of the era of a particular file)
+  !! opening and closing the io stream unnecessarily, but I think it's a minor
+  !! evil.
+
+  !! There's a serious (?) question to be answered here- what do we do about leap
+  !! years? There are two ideas which are at odds with eachother:
+  !! 1. We want to retrieve that correct data for the relevant year used for
+  !!   recycling, which implies leap years should be based on the met recycling
+  !!   year. This prevents instances where we try to access the 366th day of a
+  !!   year with 365 days, or only get 365 days from a 366 day year.
+  !! 2. We often want to perform yearly averages or accumulations over a year.
+  !!   These accumulations/averages occur elsewhere in the code, and thus use the
+  !!   number of days from the core simulation year. This imples leap years
+  !!   should be based on the core simulation year, to prevent instances where
+  !!   we accumulate meteorology over 366 days but average over 365 days and vice
+  !!   versa.
+  !! Address previous variables first
+  !! Assume it's a regular day of the year
+  !DummyYear = CRU%cYear
+  !DummyDay = CRU%CTStep - 1
+
+  !! Special handling at the first day of the year
+  !! We need to be very careful with start of year handling due to leap years.
+  !! If we do things in the incorrect order, we can end up with asking for the
+  !! 366th day of a non-leap year
+  !IF (CRU%CTStep == 1) THEN
+    !! Go back to previous year
+    !DummyYear = CRU%cYear - 1
+  !END IF
+
+  !! Now we have to handle each of the "prev" variables individually
+  !! Tmax
+  !IF (CRU%isRecycled(Tmax)) THEN
+    !DummyYear = CRU%RecycStartYear + MOD(DummyYear - 1501, CRU%MetRecycPeriod)
+  !END IF
+
+  !DummyDay = 365
+  !IF ((CRU%LeapYears) .AND. (is_leapyear(DummyYear))) THEN
+    !DummyDay = 366
+  !END IF
+  !! Now we just need to call cru_read_metvals with the Tmax Dataset reader and
+  !! the prevTmax array to write to
+  !CALL read_metvals(CRU%MetDatasets(Tmax), CRU%Met(prevTmax)%MetVals, land_x,&
+    !land_y, DummyYear, DummyDay, CRU%LeapYears, CRU%xDimSize, CRU%yDimSize,&
+    !CRU%DirectRead)
+
+  !! vph1500
+  !DummyYear = CRU%cYear
+  !DummyDay = CRU%CTStep - 1
+
+  !IF (CRU%CTStep == 1) THEN
+    !! Go back to previous year
+    !DummyYear = CRU%cYear - 1
+  !END IF
+  
+  !IF (CRU%isRecycled(vph1500)) THEN
+    !DummyYear = CRU%RecycStartYear + MOD(DummyYear - 1501, CRU%MetRecycPeriod)
+  !END IF
+
+  !DummyDay = 365
+  !IF ((CRU%LeapYears) .AND. (is_leapyear(DummyYear))) THEN
+    !DummyDay = 366
+  !END IF
+
+  !! Now we just need to call cru_read_metvals with the Tmax Dataset reader and
+  !! the prevTmax array to write to
+  !CALL read_metvals(CRU%MetDatasets(vph1500), CRU%Met(prevvph1500)%MetVals, land_x,&
+    !land_y, DummyYear, DummyDay, CRU%LeapYears, CRU%xDimSize, CRU%yDimSize,&
+    !CRU%DirectRead)
+
+  !! Now do "next" variables
+  !! Assume it's a regular day of the year
+  !DummyDay = CRU%CTStep + 1
+  !DummyYear = CRU%cYear
+
+  !! Special handling at the last day of the year
+  !! We have a dilemna here- how do we determine how many days in the Met year
+  !! when using Met recycling? 
+  !DaysInYear = 365
+  !IF ((CRU%LeapYears) .AND. (is_leapyear(DummyYear))) THEN
+    !DaysInYear = 366
+  !END IF
+
+  !IF (CRU%CTStep == DaysInYear) THEN
+    !! We're at the end of a year
+    !DummyDay = 1
+    !DummyYear = CRU%cYear + 1
+  !END IF
+
+  !! Now we have to handle each of the "next" variables individually
+  !! Tmin
+  !IF (CRU%isRecycled(Tmin)) THEN
+    !DummyYear = CRU%RecycStartYear + MOD(DummyYear - 1501, CRU%MetRecycPeriod)
+  !END IF
+
+  !CALL read_metvals(CRU%MetDatasets(Tmin), CRU%Met(nextTmin)%MetVals, land_x,&
+    !land_y, DummyYear, DummyDay, CRU%LeapYears, CRU%xDimSize, CRU%yDimSize,&
+    !CRU%DirectRead)
+
+  !! vph0900
+  !DummyDay = CRU%CTStep + 1
+  !DummyYear = CRU%cYear
+
+  !! Special handling at the last day of the year
+  !DaysInYear = 365
+  !IF ((CRU%LeapYears) .AND. (is_leapyear(DummyYear))) THEN
+    !DaysInYear = 366
+  !END IF
+
+  !IF (CRU%CTStep == DaysInYear) THEN
+    !! We're at the end of a year
+    !DummyDay = 1
+    !DummyYear = CRU%cYear + 1
+  !END IF
+
+  !IF (CRU%isRecycled(vph0900)) THEN
+    !DummyYear = CRU%RecycStartYear + MOD(DummyYear - 1501, CRU%MetRecycPeriod)
+  !END IF
+
+  !CALL read_metvals(CRU%MetDatasets(vph0900), CRU%Met(nextvph0900)%MetVals,&
+    !land_x, land_y, DummyYear, DummyDay, CRU%LeapYears, CRU%xDimSize,&
+    !CRU%yDimSize, CRU%DirectRead)
 END SUBROUTINE get_daily_met
 
+SUBROUTINE get_met_date(SimYear, SimDay, IsRecycled, RecycleStart,&
+    RecyclePeriod, LeapYears, MetYear, MetDay)
+  !*## Purpose
+  !
+  ! Get the day and year to be used for the meteorology input.
+  !
+  !## Method
+  !
+  ! Use the SimYear and the recycling parameters to determine the date to use
+  ! for the meteorology. The SimDay is checked for validity, as it may be called
+  ! with SimDay+-N at the calling site. If the meteorology is recycled, then
+  ! the year is determined by:
+  ! ```
+  ! RecycleStart + MODULO(SimYear - 1501, RecyclePriod)
+  ! ```
+
+  INTEGER, INTENT(IN) :: SimYear, SimDay, RecycleStart, RecyclePeriod
+  LOGICAL, INTENT(IN) :: IsRecycled, LeapYears
+
+  INTEGER, INTENT(OUT) :: MetYear, MetDay
+
+  ! On leap years and the next/previous day values, and the tricky handling at
+  ! the start and end of recycling periods. The approach for now is to only
+  ! check for recycling at the start of the routine, before doing any year
+  ! shifts when the day = 0 or DaysInYear. This means it is possible to retrieve
+  ! meteorology from outside the recycling period when handling neighbouring
+  ! days.
+  ! For example, we have a recycling period from 1951 to 1960, and we want the
+  ! meteorology from 01/01/1951, and consequently some of the previos day's
+  ! meteorology. The "previous day" with respect to the meteorology can be
+  ! either 31/12/1950 or 31/12/1960, depending on when the MODULO is applied.
+  ! The current approach would use 31/12/1949 as the previous day, which is less
+  ! likely to cause issues with large jumps in the time-local conditions.
+  ! Also simplifies leap year handling. In that instance, we can simply check
+  ! whether the new year is a leap year or not, instead of passing the new year
+  ! through the MODULO calculation again.
+
+  ! We need to know how many days we expect in the year so check for end of year
+  ! behaviour
+  INTEGER :: DaysInYear = 365
+
+  ! Set up the first pass at recycling
+  MetYear = SimYear
+  IF (IsRecycled) THEN
+    MetYear = RecycleStart + MODULO(MetYear - 1501, RecyclePeriod)
+  END IF
+
+  ! How many days in the year, for correct end of year handling
+  IF (LeapYears) THEN
+    DaysInYear = DaysInYear + leap_day(MetYear)
+  END IF
+
+  ! Check the validity of the passed day
+  IF (SimDay <= 0) THEN
+    ! Go back to last year- set the day later, once we know whether the MetYear
+    ! is a leapyear or not
+    MetYear = SimYear - 1
+
+    ! This handles any future scenarios where we may change the day by >1
+    MetDay = 365 + SimDay
+    IF ((LeapYears) .AND. is_leapyear(MetYear)) THEN
+      MetDay = 366 + SimDay
+    END IF
+  ELSEIF (SimDay == (DaysInYear + 1)) THEN
+    MetYear = SimYear + 1
+    MetDay = SimDay - DaysInYear
+  ELSE
+    MetDay = SimDay
+  END IF
+
+END SUBROUTINE get_met_date
+    
+  ! Start by doing any 
 SUBROUTINE read_MET_namelist_cbl(InputFiles, nDepFile, CO2File, LandmaskFile,&
     CRU)
   !*## Purpose
