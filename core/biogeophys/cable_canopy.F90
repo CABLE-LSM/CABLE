@@ -1672,7 +1672,8 @@ CONTAINS
 
       ! Soil water limitation on stomatal conductance:
       if (iter==1) then
-         if ((cable_user%soil_struc=='default') .and. (cable_user%SOIL_SCHE /= 'Haverd2013')) then
+         if ((cable_user%soil_struc=='default') .and. (cable_user%SOIL_SCHE /= 'Haverd2013') &
+         .and. (cable_user%SOIL_SCHE /= 'LWP')) then
             if (cable_user%fwsoil_switch == 'standard') then
                call fwsoil_calc_std(fwsoil, soil, ssnow, veg)
             elseif (cable_user%fwsoil_switch == 'non-linear extrapolation') then
@@ -1684,9 +1685,7 @@ CONTAINS
                fwsoil = 1.0
             elseif (cable_user%FWSOIL_SWITCH == 'constant1') then
                fwsoil = 0.98
-            ! that could be changed later  zihanlu 
-            elseif (cable_user%FWSOIL_SWITCH == 'LWP') then
-               fwsoil = 1.0
+
             else
                write(*,*) 'fwsoil_switch failed.'
 #ifdef __MPI__
@@ -1703,6 +1702,13 @@ CONTAINS
          endif
       
       endif
+      ! that could be changed later  zihanlu 
+      if (cable_user%FWSOIL_SWITCH == 'LWP') then
+         print*, 'fwsoil switch:  LWP'
+         fwsoil = 1.0
+         canopy%fwsoil = real(fwsoil, r_2)
+         canopy%fwsoiltmp = real(fwsoil, r_2)
+      end if
      ! write(logn,*) 'fwsoil of ', cable_user%fwsoil_switch, ': ', fwsoil(1)
       MOL_TO_UMOL = 1E6
       J_TO_MOL = 4.6E-6  ! Convert from J to Mol for light
