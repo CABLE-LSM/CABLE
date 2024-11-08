@@ -9,7 +9,7 @@ USE NetCDF,                 ONLY: NF90_OPEN, NF90_NOWRITE, NF90_INQ_DIMID,&
                                   NF90_INQUIRE_DIMENSION, NF90_INQ_VARID,&
                                   NF90_GET_VAR, NF90_CLOSE, NF90_NOERR
 USE cable_abort_module,     ONLY: cable_abort, nc_abort
-USE cable_common_module,    ONLY: handle_err, get_unit, is_leapyear, leap_day,
+USE cable_common_module,    ONLY: handle_err, get_unit, is_leapyear, leap_day,&
                                 cable_user, doysod2ymdhms, get_dimid, LatNames,&
                                 LonNames
 USE cable_io_vars_module,   ONLY: logn, land_x, land_y, exists, nMetPatches,&

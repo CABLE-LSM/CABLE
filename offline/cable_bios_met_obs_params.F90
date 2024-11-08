@@ -1116,7 +1116,7 @@ CONTAINS
     !END SUBROUTINE open_bios_met 
   
   
-  !END SUBROUTINE cable_bios_init 
+  END SUBROUTINE cable_bios_init
 
 !!******************************************************************************
   
