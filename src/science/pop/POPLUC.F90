@@ -12,7 +12,7 @@
 ! Purpose: module for land-use change which interacts with POP demography
 ! via secondary forest age-distribution, and updates casa stocks according to land-use transitions
 !
-! Called from: cable_driver or cable_mpimaster
+! Called from: cable_serial or cable_mpimaster
 !
 ! SUBROUTINES
 ! ZeroPOPLUC(POPLUC)

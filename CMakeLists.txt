@@ -59,6 +59,7 @@ add_library(
     src/offline/cable_plume_mip.F90
     src/offline/cable_read.F90
     src/offline/cable_site.F90
+    src/offline/cable_serial.F90
     src/offline/cable_soil_params.F90
     src/offline/cable_weathergenerator.F90
     src/offline/cable_write.F90
@@ -158,22 +159,24 @@ if(CABLE_MPI)
   target_link_libraries(cable_common PRIVATE MPI::MPI_Fortran)
 endif()
 
-add_executable(
-    cable
-    src/offline/cable_driver.F90
-)
-target_link_libraries(cable PRIVATE cable_common)
-install(TARGETS cable RUNTIME)
-
 if(CABLE_MPI)
     add_executable(
         cable-mpi
         src/offline/cable_mpicommon.F90
-        src/offline/cable_mpidrv.F90
         src/offline/cable_mpimaster.F90
         src/offline/cable_mpiworker.F90
         src/science/pop/pop_mpi.F90
+        src/offline/cable_offline_driver.F90
     )
     target_link_libraries(cable-mpi PRIVATE cable_common MPI::MPI_Fortran)
     install(TARGETS cable-mpi RUNTIME)
+else()
+    add_executable(
+        cable
+        src/offline/cable_mpimaster_stub.F90
+        src/offline/cable_mpiworker_stub.F90
+        src/offline/cable_offline_driver.F90
+    )
+    target_link_libraries(cable PRIVATE cable_common)
+    install(TARGETS cable RUNTIME)
 endif()
