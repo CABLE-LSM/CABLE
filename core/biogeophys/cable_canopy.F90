@@ -1685,7 +1685,7 @@ CONTAINS
             elseif (cable_user%FWSOIL_SWITCH == 'constant1') then
                fwsoil = 0.98
             ! that could be changed later  zihanlu 
-            elseif (cable_user%FWSOIL_SWITCH == 'tuzet') then
+            elseif (cable_user%FWSOIL_SWITCH == 'LWP') then
                fwsoil = 1.0
             else
                write(*,*) 'fwsoil_switch failed.'
