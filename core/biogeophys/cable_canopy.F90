@@ -2174,6 +2174,7 @@ CONTAINS
                   endif
                ELSE IF (cable_user%GS_SWITCH == 'tuzet' .AND. &
                   cable_user%FWSOIL_SWITCH == 'LWP') THEN
+                     print *, '!!!!!!!!!!!!!!! TUZET & LWP'
                      gswmin(i,1) = veg%g0(i) * rad%scalex(i,1)
                      gswmin(i,2) = veg%g0(i) * rad%scalex(i,2)
                      g1 = veg%g1(i)
@@ -2502,7 +2503,7 @@ CONTAINS
                ! save last values calculated for ssnow%evapfbl
                oldevapfbl(i,:) = ssnow%evapfbl(i,:)
             END IF
-            if (ktau<=(nktau+100)) then
+            if (ktau>=nkatu .and. ktau<=(nktau+100)) then
             write(134,*) ktau, iter, i, k, tlfy(i), deltlf(i), &
             dsx(i), psil(i), csx(i,1), csx(i,2), &
             anx(i,1), anx(i,2), canopy%gswx(i,1), canopy%gswx(i,2)
