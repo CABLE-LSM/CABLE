@@ -1704,7 +1704,7 @@ CONTAINS
       endif
       ! that could be changed later  zihanlu 
       if (cable_user%FWSOIL_SWITCH == 'LWP') then
-         print*, 'fwsoil switch:  LWP'
+         !print*, 'fwsoil switch:  LWP'
          fwsoil = 1.0
          canopy%fwsoil = real(fwsoil, r_2)
          canopy%fwsoiltmp = real(fwsoil, r_2)
@@ -2253,7 +2253,7 @@ CONTAINS
             ENDIF !IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. abs_deltlf(i) > 0.1)
 
          ENDDO !i=1,mp
-
+         print*, '!!!!!!!!!!! check before  photosynthesis_gm'
          ! gmes is 0.0 if explicit_gm = FALSE (easier to debug)
          IF (cable_user%GS_SWITCH /= 'profitmax') THEN
             CALL photosynthesis_gm( csx(:,:), &
@@ -2267,6 +2267,7 @@ CONTAINS
                anx(:,:), fwsoil(:), qs, gmes(:,:), kc4(:,:), &
                anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:) )
          ENDIF
+         print*, '!!!!!!!!!!! check after  photosynthesis_gm'
          ! print*, 'DD28 ', rad%fvlai
          ! print*, 'DD29 ', met%ca
          ! print*, 'DD30 ', canopy%gswx
@@ -2360,11 +2361,10 @@ CONTAINS
                      veg%gamma(i), &
                      real(soil%zse, r_2), real(dels,r_2), veg%zr(i))
                   canopy%fwsoiltmp(i) = real(canopy%fwsoil(i))
+                  where (ssnow%rex(i,:) > tiny(1.0_r_2)) &
+                  ssnow%evapfbl(i,:) = real(ssnow%rex(i,:))*dels*1000. ! mm water &
                   IF (cable_user%FWSOIL_SWITCH == 'Haverd2013') then
                      fwsoil(i) = real(canopy%fwsoil(i))
-
-                     where (ssnow%rex(i,:) > tiny(1.0_r_2)) &
-                        ssnow%evapfbl(i,:) = real(ssnow%rex(i,:))*dels*1000. ! mm water &
                      !(root water extraction) per time step
    
                      if (cable_user%Cumberland_soil) then
@@ -2374,7 +2374,9 @@ CONTAINS
                   ELSEIF (cable_user%FWSOIL_SWITCH == 'constant1') then
                      canopy%fwsoil(i) = 0.98_r_2
                      fwsoil(i) =  real(canopy%fwsoil(i))
-                     
+                  ELSEIF (cable_user%FWSOIL_SWITCH == 'LWP') then
+                        canopy%fwsoil(i) = 1.0_r_2
+                        fwsoil(i) =  real(canopy%fwsoil(i))   
                   ENDIF
 
 
@@ -2460,6 +2462,7 @@ CONTAINS
             ENDIF !lai/abs_deltlf
 
          ENDDO !i=1,mp
+         print*, 'check after getrex_1d '
          ! Where leaf temp change b/w iterations is significant, and
          ! difference is smaller than the previous iteration, store results:
          DO i=1,mp
@@ -2512,6 +2515,7 @@ CONTAINS
                ! save last values calculated for ssnow%evapfbl
                oldevapfbl(i,:) = ssnow%evapfbl(i,:)
             END IF
+            print*, 'check after k==1 '
             if (ktau>=nktau .and. ktau<=(nktau+100)) then
             write(134,*) ktau, iter, i, k, tlfy(i), deltlf(i), &
             dsx(i), psil(i), csx(i,1), csx(i,2), &
