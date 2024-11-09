@@ -59,6 +59,7 @@ CONTAINS
       USE cable_soil_snow_module, ONLY : soil_snow
       USE cable_soil_hydraulics_module, ONLY : calc_soil_root_resistance, &
          calc_swp, calc_weighted_swp_and_frac_uptake
+      use cable_veg_hydraulics_module, only: get_xylem_vulnerability
       USE cable_IO_vars_module, ONLY: logn
       ! CABLE model variables
       INTEGER,                   INTENT(IN)    :: ktau
