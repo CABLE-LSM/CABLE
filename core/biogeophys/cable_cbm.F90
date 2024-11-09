@@ -192,14 +192,17 @@ CONTAINS
          endif
          !SoilMoistPFTtemp = real(sum(ssnow%wb * 1000.0_r_2 * real(spread(soil%zse,1,mp),r_2),2),r_2)
 
-
+         ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
+          canopy%kplant(i)= veg%kmax(i) * &
+            get_xylem_vulnerability(ssnow%psi_rootzone(i), &
+            veg%b_plant(i), veg%c_plant(i))
 
       END DO
       !write(logn,*),'psi_rootzone mp1: ',ssnow%psi_rootzone(1)
       !print *, 'psi_rootzone:', ssnow%psi_rootzone(1)
 
       !ENDIF
-
+      
 
       ! Calculate canopy variables
       CALL define_canopy(ktau,bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate)

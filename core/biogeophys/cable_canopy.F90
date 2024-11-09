@@ -1575,7 +1575,7 @@ CONTAINS
          hcx,        & ! sens heat fl big leaf prev iteration
          rnx, &          ! net rad prev timestep
          ecxs, &! lat. hflux big leaf (sap flux)
-         ex  !transpiration, mmol(H2O) m-2 s-1
+         ex  !transpiration, kg m-2 s-1
 
       real, dimension(mp,ms)  :: oldevapfbl
 
@@ -1804,12 +1804,7 @@ CONTAINS
 
       deltlfy = abs_deltlf
       k = 0
-      DO i=1,mp
-         ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
-         kcmax(i) = veg%kmax(i) * &
-            get_xylem_vulnerability(ssnow%psi_rootzone(i), &
-            veg%b_plant(i), veg%c_plant(i))
-      END DO
+
       !kdcorbin, 08/10 - doing all points all the time'
       nktau=1
       write(num_str, '(I0)') nktau
@@ -2338,9 +2333,13 @@ CONTAINS
                   met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair * &
                   met%dva(i) * ghr(i,2) ) / &
                   ( air%dsatdk(i) + psycst(i,2) ), r_2)
+               print*, 'LAI>thre check after ecx '
+               
                IF (cable_user%FWSOIL_SWITCH == 'LWP') then
              
-                  ex(i) = ecx(i) * (1.0_r_2-real(canopy%fwet(i),r_2))/air%rlam(i) * 1.0e6_r_2/18.0_r_2  !mmol m-2 s-1
+                  ex(i) = ecx(i) * (1.0_r_2-real(canopy%fwet(i),r_2))/air%rlam(i) 
+                  ! convert from kg m-2 ground s-1 to mmol m-2 leaf s-1*
+                  ex(i)= ex(i) * 1.0e6_r_2/18.0_r_2 * canopy%vlaiw(i) 
                   psil(i) = ssnow%psi_rootzone(i)-ex(i)/canopy%kplant(i)
 
                ENDIF

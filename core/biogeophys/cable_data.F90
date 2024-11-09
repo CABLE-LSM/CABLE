@@ -30,7 +30,7 @@ module cable_data_module
    TYPE physical_constants
       real :: &
       capp = 1004.64, & ! air spec. heat (J/kg/K)
-      hl   = 2.5014e6, & ! air spec. heat (J/kg/K)
+      hl   = 2.5014e6, & ! latent heat of vaporization of water at 0°C(J/kg)
       hlf  = 0.334e6, & ! latent heat of fusion
       hls  = 2.8350e6, & ! latent heat of sublimation (J/kg)
       ! hl   = 2.5104e6, & ! air spec. heat (J/kg/K)
