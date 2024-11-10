@@ -839,7 +839,7 @@ CONTAINS
          canopy%fwet  ! YP nov2009
 
       DEALLOCATE(cansat,gbhu)
-      DEALLOCATE(dsx, fwsoil, fwsoiltmp, tlfx, tlfy)
+      DEALLOCATE(dsx, fwsoil, fwsoiltmp,fwpsi, tlfx, tlfy)
       DEALLOCATE(ecy, hcy, rny)
       DEALLOCATE(gbhf, csx)
       DEALLOCATE(ghwet)
@@ -1708,6 +1708,7 @@ CONTAINS
          fwsoil = 1.0
          canopy%fwsoil = real(fwsoil, r_2)
          canopy%fwsoiltmp = real(fwsoil, r_2)
+         canopy%fwpsi = real(fwpsi, r_2)
       end if
      ! write(logn,*) 'fwsoil of ', cable_user%fwsoil_switch, ': ', fwsoil(1)
       MOL_TO_UMOL = 1E6
@@ -2372,6 +2373,7 @@ CONTAINS
                   ELSEIF (cable_user%FWSOIL_SWITCH == 'LWP') then
                         canopy%fwsoil(i) = 1.0_r_2
                         fwsoil(i) =  real(canopy%fwsoil(i))   
+                        canopy%fwpsi(i) = real(fwpsi(i), r_2)
                   ENDIF
 
 

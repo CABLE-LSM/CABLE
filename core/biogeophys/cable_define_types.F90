@@ -496,7 +496,7 @@ module cable_def_types_mod
      ! REAL(r_2), DIMENSION(:,:,:), POINTER :: ci => null()     ! intra-cellular CO2 vh 6/7/09
      real(r_2), dimension(:),     pointer :: fwsoil => null() !
      real(r_2), dimension(:),     pointer :: fwsoiltmp => null() ! zihanlu 25/09/2024
-
+     real(r_2), dimension(:),     pointer :: fwpsi => null() ! zihanlu 10/11/2024
      ! vh_js - litter thermal conductivity (Wm-2K-1) and vapour diffusivity (m2s-1)
      real(r_2), dimension(:), pointer :: kthLitt => null()
      real(r_2), dimension(:), pointer :: DvLitt => null()
@@ -1238,6 +1238,7 @@ contains
     ! allocate(canopy%ci(mp,mf,3))   ! intra-cellular CO2 vh 6/7/09
     allocate(canopy%fwsoil(mp))
     allocate(canopy%fwsoiltmp(mp))
+    allocate(canopy%fwpsi(mp))
     ! vh_js - litter resistances to heat and vapour transfer
     allocate(canopy%kthLitt(mp))
     allocate(canopy%DvLitt(mp))
@@ -1864,6 +1865,7 @@ contains
     deallocate(canopy%zetash)
     deallocate(canopy%fwsoil)
     deallocate(canopy%fwsoiltmp)
+    deallocate(canopy%fwpsi)
     deallocate(canopy%ofes)
     !! vh_js !! litter resistances to heat and vapour transfer
     deallocate(canopy%kthLitt)
@@ -2407,6 +2409,7 @@ contains
     canopy%zetar     = 0
     canopy%zetash    = 0
     canopy%fwsoil    = 0
+    canopy%fwpsi    = 0
     canopy%ofes      = 0
     canopy%gw     = 0
     canopy%ancj   = 0
