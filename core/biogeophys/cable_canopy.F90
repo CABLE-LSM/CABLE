@@ -1671,9 +1671,8 @@ CONTAINS
       ! allocate(gswmin(mp,mf))
 
       ! Soil water limitation on stomatal conductance:
-      if (iter==1) then
-         if ((cable_user%soil_struc=='default') .and. (cable_user%SOIL_SCHE /= 'Haverd2013') &
-         .and. (cable_user%SOIL_SCHE /= 'LWP')) then
+      if (iter==1) then 
+         if ((cable_user%soil_struc=='default') .and. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') <= 0)) then
             if (cable_user%fwsoil_switch == 'standard') then
                call fwsoil_calc_std(fwsoil, soil, ssnow, veg)
             elseif (cable_user%fwsoil_switch == 'non-linear extrapolation') then
@@ -1685,6 +1684,8 @@ CONTAINS
                fwsoil = 1.0
             elseif (cable_user%FWSOIL_SWITCH == 'constant1') then
                fwsoil = 0.98
+            elseif (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
+               fwsoil = 1.0
 
             else
                write(*,*) 'fwsoil_switch failed.'
@@ -1696,18 +1697,18 @@ CONTAINS
             endif
             canopy%fwsoil = real(fwsoil, r_2)
             canopy%fwsoiltmp = real(fwsoil, r_2)
-         elseif ((cable_user%soil_struc=='sli') .or. (cable_user%fwsoil_switch=='Haverd2013')) then
+         elseif ((cable_user%soil_struc=='sli') .or. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0)) then
             fwsoil = real(canopy%fwsoil)
             canopy%fwsoiltmp = real(fwsoil, r_2)
          endif
       
       endif
       ! that could be changed later  zihanlu 
-      if (cable_user%FWSOIL_SWITCH == 'LWP') then
+      if (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
          !print*, 'fwsoil switch:  LWP'
-         fwsoil = 1.0
-         canopy%fwsoil = real(fwsoil, r_2)
-         canopy%fwsoiltmp = real(fwsoil, r_2)
+         ! fwsoil = 1.0
+         ! canopy%fwsoil = real(fwsoil, r_2)
+         ! canopy%fwsoiltmp = real(fwsoil, r_2)
          canopy%fwpsi = real(fwpsi, r_2)
       end if
      ! write(logn,*) 'fwsoil of ', cable_user%fwsoil_switch, ': ', fwsoil(1)
@@ -2178,7 +2179,7 @@ CONTAINS
                      gs_coeff(i,2) = (1.0 + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,2))
                   endif
                ELSE IF (cable_user%GS_SWITCH == 'tuzet' .AND. &
-                  cable_user%FWSOIL_SWITCH == 'LWP') THEN
+                  INDEX(cable_user%FWSOIL_SWITCH,'LWP')>0) THEN
                      gswmin(i,1) = veg%g0(i) * rad%scalex(i,1)
                      gswmin(i,2) = veg%g0(i) * rad%scalex(i,2)
                      g1 = veg%g1(i)
@@ -2332,7 +2333,7 @@ CONTAINS
                   met%dva(i) * ghr(i,2) ) / &
                   ( air%dsatdk(i) + psycst(i,2) ), r_2)
                
-               IF (cable_user%FWSOIL_SWITCH == 'LWP') then
+               IF (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
              
                   ex(i) = ecx(i) * (1.0_r_2-real(canopy%fwet(i),r_2))/air%rlam(i) 
                   ! convert from kg m-2 ground s-1 to mmol m-2 leaf s-1*
@@ -2359,7 +2360,7 @@ CONTAINS
                   canopy%fwsoiltmp(i) = real(canopy%fwsoil(i))
                   where (ssnow%rex(i,:) > tiny(1.0_r_2)) &
                   ssnow%evapfbl(i,:) = real(ssnow%rex(i,:))*dels*1000. ! mm water &
-                  IF (cable_user%FWSOIL_SWITCH == 'Haverd2013') then
+                  IF (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0) then
                      fwsoil(i) = real(canopy%fwsoil(i))
                      !(root water extraction) per time step
    
@@ -2370,9 +2371,11 @@ CONTAINS
                   ELSEIF (cable_user%FWSOIL_SWITCH == 'constant1') then
                      canopy%fwsoil(i) = 0.98_r_2
                      fwsoil(i) =  real(canopy%fwsoil(i))
-                  ELSEIF (cable_user%FWSOIL_SWITCH == 'LWP') then
-                        canopy%fwsoil(i) = 1.0_r_2
-                        fwsoil(i) =  real(canopy%fwsoil(i))   
+                  ELSE
+                     canopy%fwsoil(i) = 1.0_r_2
+                     fwsoil(i) =  real(canopy%fwsoil(i))                     
+                  ENDIF
+                  IF (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
                         canopy%fwpsi(i) = real(fwpsi(i), r_2)
                   ENDIF
 
