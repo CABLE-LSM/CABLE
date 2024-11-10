@@ -1526,8 +1526,7 @@ CONTAINS
          fwsoiltmp,  &
          fwpsi,      &
          tlfx,       & ! leaf temp prev. iter (K)
-         tlfy,       &  ! leaf temp (K)
-         a
+         tlfy  ! leaf temp (K)
       real(r_2), dimension(:),   intent(inout) :: &
          ecy,        & ! lat heat fl dry big leaf
          hcy,        & ! veg. sens heat
@@ -1663,6 +1662,7 @@ CONTAINS
       REAL :: new_plc_sat, new_plc_stem, new_plc_can
       REAL :: MOL_TO_UMOL, J_TO_MOL
       CHARACTER(LEN=200) :: txtname,num_str
+      real, dimension(:)  :: a
   
 #ifdef __MPI__
       integer :: ierr
