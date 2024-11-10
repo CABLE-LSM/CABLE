@@ -2493,7 +2493,9 @@ CONTAINS
                oldevapfbl(i,:) = ssnow%evapfbl(i,:)
 
             ENDIF
-            !print*, 'check y=x ',ktau,k
+            if (ktau>=5184) then
+            print*, 'check y=x ktau & k= ',ktau,k
+            end if
             if ( abs_deltlf(i) > 0.1 ) then
                ! after 4 iterations, take mean of current & previous estimates
                ! as the next estimate of leaf temperature, to avoid oscillation
@@ -2501,7 +2503,9 @@ CONTAINS
                   ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
                   * tlfx(i)
             endif
-            !print*, 'check tlfx ',ktau,k
+            if (ktau>=5184) then
+            print*, 'check tlfx ktau & k= ',ktau,k
+            end if
             IF (k==1) THEN
                ! take the first iterated estimates as the defaults
                tlfy(i) = tlfx(i)
