@@ -2808,7 +2808,7 @@ CONTAINS
                    gammast = real(cx2z(i,j) / 2.0, r_2)
                    Rd      = real(rdxz(i,j), r_2)
                    gm      = gmes(i,j)
-
+                  print*, 'before rubisco'
                    if (trim(cable_user%g0_switch) == 'default') then
                       ! get partial derivative of A wrt cs
                       if (cable_user%explicit_gm) then
@@ -2837,7 +2837,7 @@ CONTAINS
                         endif
                      endif
                      anrubiscoz(i,j) = real(Am)
-
+                     print*, 'after rubisco'
                      if (cable_user%explicit_gm) then
                         gsm = (gm * (g0+X*Am)) / (gm + (g0+X*Am))
                         cc  = cs - Am / max(gsm, 1.0e-4_r_2)
@@ -2863,7 +2863,7 @@ CONTAINS
                      gammast = real(cx2z(i,j) / 2.0, r_2)
                      Rd      = real(rdxz(i,j), r_2)
                      gm      = gmes(i,j)
-
+                     print*, 'before RuBP'
                      if (trim(cable_user%g0_switch) == 'default') then
                         if (cable_user%explicit_gm) then
                            call fAmdAm_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
@@ -2892,7 +2892,7 @@ CONTAINS
                         endif
                      endif
                      anrubpz(i,j) = real(Am)
-
+                     print*, 'after RuBP'
                      if (cable_user%explicit_gm) then
                         gsm = (gm * (g0+X*Am)) / (gm + (g0+X*Am))
                         cc  = cs - Am / max(gsm, 1.0e-4_r_2)
@@ -2906,7 +2906,7 @@ CONTAINS
                      dAme(i,j)  = 0.0_r_2
                      eta_e(i,j) = 0.0_r_2
                   endif
-
+                  print*, 'before sink limit'
                   ! Sink limited, accounting for explicit mesophyll conductance
                   if (vcmxt3z(i,j) > 1.0e-10) then ! C3
 
@@ -2950,7 +2950,7 @@ CONTAINS
                         endif
                      endif
                      ansinkz(i,j) = real(Am)
-
+                     print*, 'before after limit'
                      dAmp(i,j)  = 0.0_r_2
                      eta_p(i,j) = 0.0_r_2
                      if (Am > 0.0_r_2) eta_p(i,j) = dAmp(i,j) * cs / Am
