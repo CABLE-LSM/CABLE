@@ -2537,7 +2537,7 @@ CONTAINS
       if (ktau==(nktau+100)) THEN
          close(134)
       END IF
-      print*, 'End k loop: ktau & iter & k= ',ktau,inter,k
+      print*, 'End k loop: ktau & iter & k= ',ktau,iter,k
       ! dry canopy flux
       canopy%fevc = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
       !write(logn,*) 'fevc', canopy%fevc(1)
