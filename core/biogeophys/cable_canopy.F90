@@ -1526,7 +1526,8 @@ CONTAINS
          fwsoiltmp,  &
          fwpsi,      &
          tlfx,       & ! leaf temp prev. iter (K)
-         tlfy          ! leaf temp (K)
+         tlfy,       &  ! leaf temp (K)
+         a
       real(r_2), dimension(:),   intent(inout) :: &
          ecy,        & ! lat heat fl dry big leaf
          hcy,        & ! veg. sens heat
@@ -2184,8 +2185,9 @@ CONTAINS
                      g1 = veg%g1(i)
                      print *, '!!!!!!!!!!!!!!! g2 and psi_ref:', veg%g2(i), veg%psi_ref(i)
                      print *, '!!!!!!!!!!!!!!! psil:', psil(i)
-                     fwpsi(i) = (1+exp(veg%g2(i) * veg%psi_ref(i))) / (1+exp(veg%g2(i) * (veg%psi_ref(i)-psil(i))))
-                     print *, '!!!!!!!!!!!!!!! fwpsi:', fwpsi(i)
+                     !fwpsi(i) = (1+exp(veg%g2(i) * veg%psi_ref(i))) / (1+exp(veg%g2(i) * (veg%psi_ref(i)-psil(i))))
+                     a = (1+exp(veg%g2(i) * veg%psi_ref(i))) / (1+exp(veg%g2(i) * (veg%psi_ref(i)-psil(i))))  
+                     print *, '!!!!!!!!!!!!!!! a:', a
                      gs_coeff(i,1) =fwpsi(i) * g1 / real(csx(i,1))
                      gs_coeff(i,2) =fwpsi(i) * g1 / real(csx(i,2))
                      print *, 'fwpsi:', fwpsi(i)
