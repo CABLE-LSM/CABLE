@@ -2487,7 +2487,7 @@ CONTAINS
                oldevapfbl(i,:) = ssnow%evapfbl(i,:)
 
             ENDIF
-
+            print*, 'check y=x ',ktau,k
             if ( abs_deltlf(i) > 0.1 ) then
                ! after 4 iterations, take mean of current & previous estimates
                ! as the next estimate of leaf temperature, to avoid oscillation
@@ -2495,7 +2495,7 @@ CONTAINS
                   ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
                   * tlfx(i)
             endif
-
+            print*, 'check tlfx ',ktau,k
             IF (k==1) THEN
                ! take the first iterated estimates as the defaults
                tlfy(i) = tlfx(i)
@@ -2514,12 +2514,14 @@ CONTAINS
                ! save last values calculated for ssnow%evapfbl
                oldevapfbl(i,:) = ssnow%evapfbl(i,:)
             END IF
-            !print*, 'check after k==1 '
+            print*, 'check after k==1 ',ktau,k
             !if (ktau>=nktau .and. ktau<=(nktau+100)) then
             write(134,*) ktau, iter, i, k, tlfy(i), deltlf(i), &
             dsx(i), psil(i), csx(i,1), csx(i,2), &
             anx(i,1), anx(i,2), canopy%gswx(i,1), canopy%gswx(i,2)
             !END IF
+            print*, 'write 134 ',ktau,k
+
          END DO !over mp
          
 
