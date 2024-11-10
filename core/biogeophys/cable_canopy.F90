@@ -1662,7 +1662,7 @@ CONTAINS
       REAL :: new_plc_sat, new_plc_stem, new_plc_can
       REAL :: MOL_TO_UMOL, J_TO_MOL
       CHARACTER(LEN=200) :: txtname,num_str
-      real, dimension(:)  :: a
+      real, dimension(mp)  :: a
   
 #ifdef __MPI__
       integer :: ierr
@@ -2186,7 +2186,7 @@ CONTAINS
                      print *, '!!!!!!!!!!!!!!! g2 and psi_ref:', veg%g2(i), veg%psi_ref(i)
                      print *, '!!!!!!!!!!!!!!! psil:', psil(i)
                      !fwpsi(i) = (1+exp(veg%g2(i) * veg%psi_ref(i))) / (1+exp(veg%g2(i) * (veg%psi_ref(i)-psil(i))))
-                     a = (1+exp(veg%g2(i) * veg%psi_ref(i))) / (1+exp(veg%g2(i) * (veg%psi_ref(i)-psil(i))))  
+                     a(i) = (1+exp(veg%g2(i) * veg%psi_ref(i))) / (1+exp(veg%g2(i) * (veg%psi_ref(i)-psil(i))))  
                      print *, '!!!!!!!!!!!!!!! a:', a
                      gs_coeff(i,1) =fwpsi(i) * g1 / real(csx(i,1))
                      gs_coeff(i,2) =fwpsi(i) * g1 / real(csx(i,2))
