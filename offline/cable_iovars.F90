@@ -269,6 +269,7 @@ MODULE cable_IO_vars_module
          CanT = .FALSE.,      & ! within-canopy temperature [K]
          Fwsoil = .FALSE.,      & ! soil moisture modifier to stomatal conductance
          Fwsoiltmp = .FALSE.,      & 
+         fwpsi = .FALSE.,      & 
          Area = .FALSE., & ! patch area in km2
          GPP_components = .FALSE.,    & ! sunlit and shaded GPP, plus J and C limited components
          Qcan = .FALSE.,     & ! absorbed radiation by canopy

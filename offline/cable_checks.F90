@@ -121,6 +121,7 @@ MODULE cable_checks_module
            Fwsoil = (/0.0,1.0/),                          &
                                 ! parameters:
            Fwsoiltmp = (/0.0,1.0/),                          &
+           fwpsi = (/0.0,1.0/),                          &
            albsoil = (/0.0,0.9/),                         &
            isoil = (/1.0,30.0/),                          &
            iveg = (/1.0,30.0/),                           &
