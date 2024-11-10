@@ -1806,7 +1806,7 @@ CONTAINS
       k = 0
 
       !kdcorbin, 08/10 - doing all points all the time'
-      nktau=1
+      nktau=5184
       write(num_str, '(I0)') nktau
       txtname = trim(filename%path) // '/testIteration_cable_out_' // trim(num_str) &
       // '.txt'
@@ -2525,11 +2525,11 @@ CONTAINS
                oldevapfbl(i,:) = ssnow%evapfbl(i,:)
             END IF
             !print*, 'check after k==1 ',ktau,k
-            !if (ktau>=nktau .and. ktau<=(nktau+100)) then
+            if (ktau>=nktau .and. ktau<=(nktau+100)) then
             write(134,*) ktau, iter, i, k, tlfy(i), deltlf(i), &
             dsx(i), psil(i), csx(i,1), csx(i,2), &
             anx(i,1), anx(i,2), canopy%gswx(i,1), canopy%gswx(i,2)
-            !END IF
+            END IF
             if (ktau>=5184) then
             print*, 'write 134 ',ktau,k
             end if
@@ -2780,7 +2780,7 @@ CONTAINS
 
     mp = size(csxz, 1)
     mf = size(csxz, 2)
-    print*, 'into photosyntheis_gm'
+    !print*, 'into photosyntheis_gm'
     do i=1, mp
 
        do j=1, mf
