@@ -2248,7 +2248,7 @@ CONTAINS
             ENDIF !IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. abs_deltlf(i) > 0.1)
 
          ENDDO !i=1,mp
-         print*, '!!!!!!!!!!! check before  photosynthesis_gm'
+         !print*, '!!!!!!!!!!! check before  photosynthesis_gm'
          ! gmes is 0.0 if explicit_gm = FALSE (easier to debug)
          IF (cable_user%GS_SWITCH /= 'profitmax') THEN
             CALL photosynthesis_gm( csx(:,:), &
@@ -2262,7 +2262,7 @@ CONTAINS
                anx(:,:), fwsoil(:), qs, gmes(:,:), kc4(:,:), &
                anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:) )
          ENDIF
-         print*, '!!!!!!!!!!! check after  photosynthesis_gm'
+         !print*, '!!!!!!!!!!! check after  photosynthesis_gm'
          ! print*, 'DD28 ', rad%fvlai
          ! print*, 'DD29 ', met%ca
          ! print*, 'DD30 ', canopy%gswx
@@ -2514,7 +2514,7 @@ CONTAINS
                ! save last values calculated for ssnow%evapfbl
                oldevapfbl(i,:) = ssnow%evapfbl(i,:)
             END IF
-            print*, 'check after k==1 '
+            !print*, 'check after k==1 '
             !if (ktau>=nktau .and. ktau<=(nktau+100)) then
             write(134,*) ktau, iter, i, k, tlfy(i), deltlf(i), &
             dsx(i), psil(i), csx(i,1), csx(i,2), &
