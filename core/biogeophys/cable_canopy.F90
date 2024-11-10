@@ -2181,9 +2181,9 @@ CONTAINS
                      gswmin(i,1) = veg%g0(i) * rad%scalex(i,1)
                      gswmin(i,2) = veg%g0(i) * rad%scalex(i,2)
                      g1 = veg%g1(i)
-                     print *, '!!!!!!!!!!!!!!! psil:', psil(i),ktau,k
+                     
                      fwpsi(i) = (1+exp(veg%g2(i) * veg%psi_ref(i))) / (1+exp(veg%g2(i) * (veg%psi_ref(i)-psil(i))))  
-                     print *, '!!!!!!!!!!!!!!! fwpsi:', fwpsi(i),ktau,k
+                     !print *, '!!!!!!!!!!!!!!! fwpsi:', fwpsi(i),ktau,k
                      gs_coeff(i,1) =fwpsi(i) * g1 / real(csx(i,1))
                      gs_coeff(i,2) =fwpsi(i) * g1 / real(csx(i,2))
 
@@ -2247,9 +2247,6 @@ CONTAINS
             ENDIF !IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. abs_deltlf(i) > 0.1)
 
          ENDDO !i=1,mp
-         if (ktau>=5184) then
-         print*, '!!!!!!!!!!! check before  photosynthesis_gm, ',ktau,k
-         end if
          ! gmes is 0.0 if explicit_gm = FALSE (easier to debug)
          IF (cable_user%GS_SWITCH /= 'profitmax') THEN
             CALL photosynthesis_gm( csx(:,:), &
@@ -2263,9 +2260,7 @@ CONTAINS
                anx(:,:), fwsoil(:), qs, gmes(:,:), kc4(:,:), &
                anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:) )
          ENDIF
-         if (ktau>=5184) then
-         print*, '!!!!!!!!!!! check after  photosynthesis_gm ',ktau,k
-         end if
+
          ! print*, 'DD28 ', rad%fvlai
          ! print*, 'DD29 ', met%ca
          ! print*, 'DD30 ', canopy%gswx
@@ -2285,7 +2280,6 @@ CONTAINS
          DO i=1,mp
 
             IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. abs_deltlf(i) > 0.1 ) Then
-               print*, 'LAI>threshold but deltaT > 0.1, ktau & k= ',ktau,k
                DO kk=1, mf
 
                   IF (rad%fvlai(i,kk)>C%LAI_THRESH) THEN
@@ -2336,7 +2330,6 @@ CONTAINS
                   met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair * &
                   met%dva(i) * ghr(i,2) ) / &
                   ( air%dsatdk(i) + psycst(i,2) ), r_2)
-               print*, 'LAI>threshold but deltaT > 0.1: check after ecx '
                
                IF (cable_user%FWSOIL_SWITCH == 'LWP') then
              
@@ -2464,9 +2457,9 @@ CONTAINS
             ENDIF !lai/abs_deltlf
 
          ENDDO !i=1,mp
-         if (ktau>=5184) then
-         print*, 'check after getrex_1d: ktau & k= ',ktau,k
-         end if
+         ! if (ktau>=5184) then
+         ! print*, 'check after getrex_1d: ktau & k= ',ktau,k
+         ! end if
          ! Where leaf temp change b/w iterations is significant, and
          ! difference is smaller than the previous iteration, store results:
          DO i=1,mp
@@ -2492,9 +2485,9 @@ CONTAINS
                oldevapfbl(i,:) = ssnow%evapfbl(i,:)
 
             ENDIF
-            if (ktau>=5184) then
-            print*, 'check y=x ktau & k= ',ktau,k
-            end if
+            ! if (ktau>=5184) then
+            ! print*, 'check y=x ktau & k= ',ktau,k
+            ! end if
             if ( abs_deltlf(i) > 0.1 ) then
                ! after 4 iterations, take mean of current & previous estimates
                ! as the next estimate of leaf temperature, to avoid oscillation
@@ -2502,9 +2495,9 @@ CONTAINS
                   ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
                   * tlfx(i)
             endif
-            if (ktau>=5184) then
-            print*, 'check tlfx ktau & k= ',ktau,k
-            end if
+            ! if (ktau>=5184) then
+            ! print*, 'check tlfx ktau & k= ',ktau,k
+            ! end if
             IF (k==1) THEN
                ! take the first iterated estimates as the defaults
                tlfy(i) = tlfx(i)
@@ -2524,23 +2517,23 @@ CONTAINS
                oldevapfbl(i,:) = ssnow%evapfbl(i,:)
             END IF
             !print*, 'check after k==1 ',ktau,k
-            if (ktau>=nktau .and. ktau<=(nktau+100)) then
+            if (ktau>=nktau .and. ktau<=(nktau+400)) then
             write(134,*) ktau, iter, i, k, tlfy(i), deltlf(i), &
             dsx(i), psil(i), csx(i,1), csx(i,2), &
             anx(i,1), anx(i,2), canopy%gswx(i,1), canopy%gswx(i,2)
             END IF
-            if (ktau>=5184) then
-            print*, 'write 134 ',ktau,k
-            end if
+            ! if (ktau>=5184) then
+            ! print*, 'write 134 ',ktau,k
+            ! end if
 
          END DO !over mp
          
 
       END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
-      if (ktau==(nktau+100)) THEN
+      if (ktau==(nktau+400)) THEN
          close(134)
       END IF
-      print*, 'End k loop: ktau & iter & k= ',ktau,iter,k
+      ! print*, 'End k loop: ktau & iter & k= ',ktau,iter,k
       ! dry canopy flux
       canopy%fevc = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
       !write(logn,*) 'fevc', canopy%fevc(1)
@@ -2589,7 +2582,7 @@ CONTAINS
          END DO
 
       ENDIF
-      print*, 'Recalculate ssnow%evapfbl: ktau: ',ktau
+      ! print*, 'Recalculate ssnow%evapfbl: ktau: ',ktau
       canopy%psi_can = psil
       canopy%frday = 12.0 * SUM(rdy, 2)
       !! vh !! inserted min to avoid -ve values of GPP
@@ -2779,7 +2772,6 @@ CONTAINS
 
     mp = size(csxz, 1)
     mf = size(csxz, 2)
-    !print*, 'into photosyntheis_gm'
     do i=1, mp
 
        do j=1, mf
@@ -2811,7 +2803,7 @@ CONTAINS
                    gammast = real(cx2z(i,j) / 2.0, r_2)
                    Rd      = real(rdxz(i,j), r_2)
                    gm      = gmes(i,j)
-                  print*, 'before rubisco'
+
                    if (trim(cable_user%g0_switch) == 'default') then
                       ! get partial derivative of A wrt cs
                       if (cable_user%explicit_gm) then
@@ -2840,7 +2832,7 @@ CONTAINS
                         endif
                      endif
                      anrubiscoz(i,j) = real(Am)
-                     print*, 'after rubisco'
+
                      if (cable_user%explicit_gm) then
                         gsm = (gm * (g0+X*Am)) / (gm + (g0+X*Am))
                         cc  = cs - Am / max(gsm, 1.0e-4_r_2)
@@ -2866,7 +2858,7 @@ CONTAINS
                      gammast = real(cx2z(i,j) / 2.0, r_2)
                      Rd      = real(rdxz(i,j), r_2)
                      gm      = gmes(i,j)
-                     print*, 'before RuBP'
+
                      if (trim(cable_user%g0_switch) == 'default') then
                         if (cable_user%explicit_gm) then
                            call fAmdAm_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
@@ -2895,7 +2887,7 @@ CONTAINS
                         endif
                      endif
                      anrubpz(i,j) = real(Am)
-                     print*, 'after RuBP'
+
                      if (cable_user%explicit_gm) then
                         gsm = (gm * (g0+X*Am)) / (gm + (g0+X*Am))
                         cc  = cs - Am / max(gsm, 1.0e-4_r_2)
@@ -2909,7 +2901,7 @@ CONTAINS
                      dAme(i,j)  = 0.0_r_2
                      eta_e(i,j) = 0.0_r_2
                   endif
-                  print*, 'before sink limit'
+
                   ! Sink limited, accounting for explicit mesophyll conductance
                   if (vcmxt3z(i,j) > 1.0e-10) then ! C3
 
@@ -2953,7 +2945,7 @@ CONTAINS
                         endif
                      endif
                      ansinkz(i,j) = real(Am)
-                     print*, 'before after limit'
+
                      dAmp(i,j)  = 0.0_r_2
                      eta_p(i,j) = 0.0_r_2
                      if (Am > 0.0_r_2) eta_p(i,j) = dAmp(i,j) * cs / Am
