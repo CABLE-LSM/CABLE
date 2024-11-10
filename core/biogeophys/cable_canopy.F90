@@ -2461,7 +2461,7 @@ CONTAINS
             ENDIF !lai/abs_deltlf
 
          ENDDO !i=1,mp
-         print*, 'check after getrex_1d '
+         print*, 'check after getrex_1d: ktau & k= ',ktau,k
          ! Where leaf temp change b/w iterations is significant, and
          ! difference is smaller than the previous iteration, store results:
          DO i=1,mp
