@@ -2776,7 +2776,7 @@ CONTAINS
 
     mp = size(csxz, 1)
     mf = size(csxz, 2)
-    
+    print*, 'into photosyntheis_gm'
     do i=1, mp
 
        do j=1, mf
