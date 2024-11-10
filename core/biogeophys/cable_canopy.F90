@@ -2521,7 +2521,7 @@ CONTAINS
             !print*, 'check after k==1 ',ktau,k
             if (ktau>=nktau .and. ktau<=(nktau+400)) then
             write(134,*) ktau, iter, i, k, tlfy(i), deltlf(i), &
-            dsx(i), psil(i), csx(i,1), csx(i,2), &
+            dsx(i), psil(i), canopy%fwpsi(i),csx(i,1), csx(i,2), &
             anx(i,1), anx(i,2), canopy%gswx(i,1), canopy%gswx(i,2)
             END IF
             ! if (ktau>=5184) then
