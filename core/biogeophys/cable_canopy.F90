@@ -2282,7 +2282,7 @@ CONTAINS
          DO i=1,mp
 
             IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. abs_deltlf(i) > 0.1 ) Then
-
+               print*, 'LAI>threshold but deltaT > 0.1, ktau & k= ',ktau,k
                DO kk=1, mf
 
                   IF (rad%fvlai(i,kk)>C%LAI_THRESH) THEN
@@ -2333,7 +2333,7 @@ CONTAINS
                   met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair * &
                   met%dva(i) * ghr(i,2) ) / &
                   ( air%dsatdk(i) + psycst(i,2) ), r_2)
-               print*, 'LAI>thre check after ecx '
+               print*, 'LAI>threshold but deltaT > 0.1: check after ecx '
                
                IF (cable_user%FWSOIL_SWITCH == 'LWP') then
              
