@@ -2527,6 +2527,7 @@ CONTAINS
       if (ktau==(nktau+100)) THEN
          close(134)
       END IF
+      print*, 'End k loop: ktau & k= ',ktau,k
       ! dry canopy flux
       canopy%fevc = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
       !write(logn,*) 'fevc', canopy%fevc(1)
@@ -2575,6 +2576,7 @@ CONTAINS
          END DO
 
       ENDIF
+      print*, 'Recalculate ssnow%evapfbl: ktau: ',ktau
       canopy%psi_can = psil
       canopy%frday = 12.0 * SUM(rdy, 2)
       !! vh !! inserted min to avoid -ve values of GPP
