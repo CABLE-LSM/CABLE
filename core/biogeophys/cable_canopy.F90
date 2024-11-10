@@ -151,7 +151,7 @@ CONTAINS
       IF (.NOT. cable_runtime%um) canopy%cansto = canopy%oldcansto
 
       ALLOCATE(cansat(mp), gbhu(mp,mf))
-      ALLOCATE(dsx(mp), fwsoil(mp), fwsoiltmp(mp), tlfx(mp), tlfy(mp))
+      ALLOCATE(dsx(mp), fwsoil(mp), fwsoiltmp(mp), fwpsi(mp),tlfx(mp), tlfy(mp))
       ALLOCATE(ecy(mp), hcy(mp), rny(mp),psil(mp))
       ALLOCATE(gbhf(mp,mf), csx(mp,mf))
       ALLOCATE(ghwet(mp))
@@ -1662,7 +1662,6 @@ CONTAINS
       REAL :: new_plc_sat, new_plc_stem, new_plc_can
       REAL :: MOL_TO_UMOL, J_TO_MOL
       CHARACTER(LEN=200) :: txtname,num_str
-      real, dimension(mp)  :: a
   
 #ifdef __MPI__
       integer :: ierr
@@ -2179,18 +2178,14 @@ CONTAINS
                   endif
                ELSE IF (cable_user%GS_SWITCH == 'tuzet' .AND. &
                   cable_user%FWSOIL_SWITCH == 'LWP') THEN
-                     print *, '!!!!!!!!!!!!!!! TUZET & LWP'
                      gswmin(i,1) = veg%g0(i) * rad%scalex(i,1)
                      gswmin(i,2) = veg%g0(i) * rad%scalex(i,2)
                      g1 = veg%g1(i)
-                     print *, '!!!!!!!!!!!!!!! g2 and psi_ref:', veg%g2(i), veg%psi_ref(i)
-                     print *, '!!!!!!!!!!!!!!! psil:', psil(i)
-                     !fwpsi(i) = (1+exp(veg%g2(i) * veg%psi_ref(i))) / (1+exp(veg%g2(i) * (veg%psi_ref(i)-psil(i))))
-                     a(i) = (1+exp(veg%g2(i) * veg%psi_ref(i))) / (1+exp(veg%g2(i) * (veg%psi_ref(i)-psil(i))))  
-                     print *, '!!!!!!!!!!!!!!! a:', a
+                     print *, '!!!!!!!!!!!!!!! psil:', psil(i),ktau,k
+                     fwpsi(i) = (1+exp(veg%g2(i) * veg%psi_ref(i))) / (1+exp(veg%g2(i) * (veg%psi_ref(i)-psil(i))))  
+                     print *, '!!!!!!!!!!!!!!! fwpsi:', fwpsi(i),ktau,k
                      gs_coeff(i,1) =fwpsi(i) * g1 / real(csx(i,1))
                      gs_coeff(i,2) =fwpsi(i) * g1 / real(csx(i,2))
-                     print *, 'fwpsi:', fwpsi(i)
 
                ELSE IF (cable_user%GS_SWITCH == 'profitmax' .AND. &
                   cable_user%FWSOIL_SWITCH == 'profitmax') THEN
