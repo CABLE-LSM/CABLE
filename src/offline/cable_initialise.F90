@@ -622,13 +622,13 @@ CONTAINS
     ENDIF
     !    CALL readpar(ncid_rin,'isoil',dummy,soil%isoilm,filename%restart_in,       &
     !         max_vegpatches,'def',from_restart,mp)
-! block below uncommented by rk4417 - phase2
-   CALL readpar(ncid_rin,'clay',dummy,soil%clay,filename%restart_in,           &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'sand',dummy,soil%sand,filename%restart_in,           &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'silt',dummy,soil%silt,filename%restart_in,           &
-                max_vegpatches,'def',from_restart,mp)
+    
+    !   CALL readpar(ncid_rin,'clay',dummy,soil%clay,filename%restart_in,           &
+    !                max_vegpatches,'def',from_restart,mp)
+    !   CALL readpar(ncid_rin,'sand',dummy,soil%sand,filename%restart_in,           &
+    !                max_vegpatches,'def',from_restart,mp)
+    !  CALL readpar(ncid_rin,'silt',dummy,soil%silt,filename%restart_in,           &
+    !               max_vegpatches,'def',from_restart,mp)
     ! MMY@Feb2023 soilparmnew=True as default, then comment out soilparmnew=False
     !   IF ( .NOT. soilparmnew) THEN  ! Q.Zhang @12/20/2010
     !      CALL readpar(ncid_rin,'ssat',dummy,soil%ssat,filename%restart_in,        &
