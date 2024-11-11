@@ -1228,7 +1228,7 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
 
   IF (icycle > 0.and. .not.l_landuse) THEN
 
-     !CALL casa_poolout( ktau, veg, soil, casabiome, & ! FEEDBACK (this call is uncommented in MMY code) --rk4417 
+     !CALL casa_poolout( ktau, veg, soil, casabiome, & 
      ! casapool, casaflux, casamet, casabal, phen )
      CALL write_casa_restart_nc ( casamet, casapool,casaflux,phen, CASAONLY )
 
