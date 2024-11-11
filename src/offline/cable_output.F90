@@ -1641,7 +1641,7 @@ CONTAINS
     CALL  check_and_write(output%params .AND. cable_user%gw_model, opid%SatFracmax,    &
 !         'SatFracmax', SPREAD(REAL(gw_params%MaxSatFraction,4),1,mp), &
 ! replaced above by below - rk4417 - phase2
-            'SatFracmax', spread(REAL(sqrt(gw_params%MaxSatFraction),4),1,mp), &
+            'SatFracmax', SPREAD(REAL(SQRT(gw_params%MaxSatFraction),4),1,mp), &
          ranges%gw_default, patchout%SatFracmax, out_settings)  ! note specially for ranges%gw_default that I have instead (/0.0,1000000.0/) - rk4417 - phase2
 
     CALL  check_and_write(output%params .AND. cable_user%gw_model, opid%Qhmax,    &
