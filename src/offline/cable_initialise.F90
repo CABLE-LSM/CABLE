@@ -718,19 +718,19 @@ CONTAINS
     !   ! special treatment of za with the introduction of za_uv and za_tq
     ! in case an old restart file is used
 
-! block below uncommented by rk4417 - phase2
-   ok = NF90_INQ_VARID(ncid_rin,'za',parID)
-   IF(ok == NF90_NOERR) THEN ! if it does exist
-      CALL readpar(ncid_rin,'za',dummy,rough%za_uv,filename%restart_in,        &
-                   max_vegpatches,'def',from_restart,mp)
-      CALL readpar(ncid_rin,'za',dummy,rough%za_tq,filename%restart_in,        &
-                   max_vegpatches,'def',from_restart,mp)
-   ELSE
-      CALL readpar(ncid_rin,'za_uv',dummy,rough%za_uv,filename%restart_in,     &
-                   max_vegpatches,'def',from_restart,mp)
-      CALL readpar(ncid_rin,'za_tq',dummy,rough%za_tq,filename%restart_in,     &
-                   max_vegpatches,'def',from_restart,mp)
-   ENDIF
+
+!   ok = NF90_INQ_VARID(ncid_rin,'za',parID)
+!   IF(ok == NF90_NOERR) THEN ! if it does exist
+!      CALL readpar(ncid_rin,'za',dummy,rough%za_uv,filename%restart_in,        &
+!                   max_vegpatches,'def',from_restart,mp)
+!      CALL readpar(ncid_rin,'za',dummy,rough%za_tq,filename%restart_in,        &
+!                   max_vegpatches,'def',from_restart,mp)
+!   ELSE
+!      CALL readpar(ncid_rin,'za_uv',dummy,rough%za_uv,filename%restart_in,     &
+!                   max_vegpatches,'def',from_restart,mp)
+!      CALL readpar(ncid_rin,'za_tq',dummy,rough%za_tq,filename%restart_in,     &
+!                   max_vegpatches,'def',from_restart,mp)
+!   ENDIF
 
     CALL readpar(ncid_rin,'zse',dummy,soil%zse,filename%restart_in,             &
          max_vegpatches,'ms',from_restart,mp)
