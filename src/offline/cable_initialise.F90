@@ -734,11 +734,11 @@ CONTAINS
 
     CALL readpar(ncid_rin,'zse',dummy,soil%zse,filename%restart_in,             &
          max_vegpatches,'ms',from_restart,mp)
-! block below uncommented by rk4417 - phase2
-   CALL readpar(ncid_rin,'ratecp',dummy,bgc%ratecp,filename%restart_in,        &
-                max_vegpatches,'ncp',from_restart,mp)
-   CALL readpar(ncid_rin,'ratecs',dummy,bgc%ratecs,filename%restart_in,        &
-                max_vegpatches,'ncs',from_restart,mp)
+
+!   CALL readpar(ncid_rin,'ratecp',dummy,bgc%ratecp,filename%restart_in,        &
+!                max_vegpatches,'ncp',from_restart,mp)
+!   CALL readpar(ncid_rin,'ratecs',dummy,bgc%ratecs,filename%restart_in,        &
+!                max_vegpatches,'ncs',from_restart,mp)
 !
 ! Close restart file:
     ok = NF90_CLOSE(ncid_rin)
