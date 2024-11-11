@@ -667,52 +667,52 @@ CONTAINS
     !   END IF
     !    CALL readpar(ncid_rin,'rs20',dummy,soil%rs20,filename%restart_in,          &
     !         max_vegpatches,'def',from_restart,mp)
-! block below uncommented by rk4417 - phase2
-   CALL readpar(ncid_rin,'rs20',dummy,veg%rs20,filename%restart_in,            &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'froot',dummy,veg%froot,filename%restart_in,          &
-                max_vegpatches,'ms',from_restart,mp)
-   CALL readpar(ncid_rin,'hc',dummy,veg%hc,filename%restart_in,                &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'canst1',dummy,veg%canst1,filename%restart_in,        &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'dleaf',dummy,veg%dleaf,filename%restart_in,          &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'frac4',dummy,veg%frac4,filename%restart_in,          &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'ejmax',dummy,veg%ejmax,filename%restart_in,          &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'vcmax',dummy,veg%vcmax,filename%restart_in,          &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'rp20',dummy,veg%rp20,filename%restart_in,            &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'rpcoef',dummy,veg%rpcoef,filename%restart_in,        &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'shelrb',dummy,veg%shelrb,filename%restart_in,        &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'xfang',dummy,veg%xfang,filename%restart_in,          &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'wai',dummy,veg%wai,filename%restart_in,              &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'vegcf',dummy,veg%vegcf,filename%restart_in,          &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'extkn',dummy,veg%extkn,filename%restart_in,          &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'tminvj',dummy,veg%tminvj,filename%restart_in,        &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'tmaxvj',dummy,veg%tmaxvj,filename%restart_in,        &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'vbeta',dummy,veg%vbeta,filename%restart_in,          &
-                max_vegpatches,'def',from_restart,mp)
-   CALL readpar(ncid_rin,'xalbnir',dummy,veg%xalbnir,filename%restart_in,      &
-                max_vegpatches,'def',from_restart,mp)
-   veg%xalbnir = 1.0   ! xalbnir will soon be removed totally
-   CALL readpar(ncid_rin,'g0',dummy,veg%g0,filename%restart_in,            &
-                max_vegpatches,'def',from_restart,mp) ! Ticket #56
-   CALL readpar(ncid_rin,'g1',dummy,veg%g1,filename%restart_in,            &
-                max_vegpatches,'def',from_restart,mp) ! Ticket #56
-   CALL readpar(ncid_rin,'meth',dummy,veg%meth,filename%restart_in,            &
-                max_vegpatches,'def',from_restart,mp)
+
+ !  CALL readpar(ncid_rin,'rs20',dummy,veg%rs20,filename%restart_in,            &
+ !               max_vegpatches,'def',from_restart,mp)
+ !  CALL readpar(ncid_rin,'froot',dummy,veg%froot,filename%restart_in,          &
+ !               max_vegpatches,'ms',from_restart,mp)
+ !  CALL readpar(ncid_rin,'hc',dummy,veg%hc,filename%restart_in,                &
+ !               max_vegpatches,'def',from_restart,mp)
+ !  CALL readpar(ncid_rin,'canst1',dummy,veg%canst1,filename%restart_in,        &
+ !               max_vegpatches,'def',from_restart,mp)
+ !  CALL readpar(ncid_rin,'dleaf',dummy,veg%dleaf,filename%restart_in,          &
+ !               max_vegpatches,'def',from_restart,mp)
+ !  CALL readpar(ncid_rin,'frac4',dummy,veg%frac4,filename%restart_in,          &
+ !               max_vegpatches,'def',from_restart,mp)
+ !  CALL readpar(ncid_rin,'ejmax',dummy,veg%ejmax,filename%restart_in,          &
+ !               max_vegpatches,'def',from_restart,mp)
+ !  CALL readpar(ncid_rin,'vcmax',dummy,veg%vcmax,filename%restart_in,          &
+ !               max_vegpatches,'def',from_restart,mp)
+ !  CALL readpar(ncid_rin,'rp20',dummy,veg%rp20,filename%restart_in,            &
+ !               max_vegpatches,'def',from_restart,mp)
+ !  CALL readpar(ncid_rin,'rpcoef',dummy,veg%rpcoef,filename%restart_in,        &
+ !               max_vegpatches,'def',from_restart,mp)
+ !  CALL readpar(ncid_rin,'shelrb',dummy,veg%shelrb,filename%restart_in,        &
+ !               max_vegpatches,'def',from_restart,mp)
+ !  CALL readpar(ncid_rin,'xfang',dummy,veg%xfang,filename%restart_in,          &
+ !               max_vegpatches,'def',from_restart,mp)
+ !  CALL readpar(ncid_rin,'wai',dummy,veg%wai,filename%restart_in,              &
+ !               max_vegpatches,'def',from_restart,mp)
+ !  CALL readpar(ncid_rin,'vegcf',dummy,veg%vegcf,filename%restart_in,          &
+ !               max_vegpatches,'def',from_restart,mp)
+ !  CALL readpar(ncid_rin,'extkn',dummy,veg%extkn,filename%restart_in,          &
+ !               max_vegpatches,'def',from_restart,mp)
+ !  CALL readpar(ncid_rin,'tminvj',dummy,veg%tminvj,filename%restart_in,        &
+ !               max_vegpatches,'def',from_restart,mp)
+ !  CALL readpar(ncid_rin,'tmaxvj',dummy,veg%tmaxvj,filename%restart_in,        &
+ !               max_vegpatches,'def',from_restart,mp)
+ !  CALL readpar(ncid_rin,'vbeta',dummy,veg%vbeta,filename%restart_in,          &
+ !               max_vegpatches,'def',from_restart,mp)
+ !  CALL readpar(ncid_rin,'xalbnir',dummy,veg%xalbnir,filename%restart_in,      &
+ !               max_vegpatches,'def',from_restart,mp)
+ !  veg%xalbnir = 1.0   ! xalbnir will soon be removed totally
+ !  CALL readpar(ncid_rin,'g0',dummy,veg%g0,filename%restart_in,            &
+ !               max_vegpatches,'def',from_restart,mp) ! Ticket #56
+ !  CALL readpar(ncid_rin,'g1',dummy,veg%g1,filename%restart_in,            &
+ !               max_vegpatches,'def',from_restart,mp) ! Ticket #56
+ !  CALL readpar(ncid_rin,'meth',dummy,veg%meth,filename%restart_in,            &
+ !               max_vegpatches,'def',from_restart,mp)
 
 
     !   ! special treatment of za with the introduction of za_uv and za_tq
