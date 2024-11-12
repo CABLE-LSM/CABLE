@@ -513,39 +513,37 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
                  kend      = ktauday * LOY
               ENDIF
 
-! block below inserted by rk4417 - phase2
 ! __________________________ MMY using Princeton _______________________________
-        ELSE IF ( TRIM(cable_user%MetType) .EQ. 'prin' ) THEN
-           ncciy = CurYear
+           ELSE IF ( TRIM(cable_user%MetType) .EQ. 'prin' ) THEN
+              ncciy = CurYear
 
-           CALL prepareFiles_princeton(ncciy) ! MMY
-           IF ( RRRR .EQ. 1 ) THEN
-           CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
-           IF (leaps.and.is_leapyear(YYYY).and.kend.eq.2920) THEN
-              STOP 'LEAP YEAR INCOMPATIBILITY WITH INPUT MET !'
-           ENDIF
-           IF ( NRRRR .GT. 1 ) THEN
-              GSWP_MID(1,YYYY) = ncid_rain
-              ! GSWP_MID(2,YYYY) = ncid_snow MMY
-              GSWP_MID(3,YYYY) = ncid_lw
-              GSWP_MID(4,YYYY) = ncid_sw
-              GSWP_MID(5,YYYY) = ncid_ps
-              GSWP_MID(6,YYYY) = ncid_qa
-              GSWP_MID(7,YYYY) = ncid_ta
-              GSWP_MID(8,YYYY) = ncid_wd
-           ENDIF
-           ELSE
-           ncid_rain = GSWP_MID(1,YYYY)
-           ! ncid_snow = GSWP_MID(2,YYYY) MMY
-           ncid_lw   = GSWP_MID(3,YYYY)
-           ncid_sw   = GSWP_MID(4,YYYY)
-           ncid_ps   = GSWP_MID(5,YYYY)
-           ncid_qa   = GSWP_MID(6,YYYY)
-           ncid_ta   = GSWP_MID(7,YYYY)
-           ncid_wd   = GSWP_MID(8,YYYY)
-           kend      = ktauday * LOY ! MMY
-           ENDIF
-! ______________________________________________________________________________
+              CALL prepareFiles_princeton(ncciy) ! MMY
+              IF ( RRRR .EQ. 1 ) THEN
+                 CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
+                 IF (leaps.and.is_leapyear(YYYY).and.kend.eq.2920) THEN
+                    STOP 'LEAP YEAR INCOMPATIBILITY WITH INPUT MET !'
+                 ENDIF
+                 IF ( NRRRR .GT. 1 ) THEN
+                    GSWP_MID(1,YYYY) = ncid_rain
+                    ! GSWP_MID(2,YYYY) = ncid_snow MMY
+                    GSWP_MID(3,YYYY) = ncid_lw
+                    GSWP_MID(4,YYYY) = ncid_sw
+                    GSWP_MID(5,YYYY) = ncid_ps
+                    GSWP_MID(6,YYYY) = ncid_qa
+                    GSWP_MID(7,YYYY) = ncid_ta
+                    GSWP_MID(8,YYYY) = ncid_wd
+                 ENDIF
+              ELSE
+                 ncid_rain = GSWP_MID(1,YYYY)
+                 ! ncid_snow = GSWP_MID(2,YYYY) MMY
+                 ncid_lw   = GSWP_MID(3,YYYY)
+                 ncid_sw   = GSWP_MID(4,YYYY)
+                 ncid_ps   = GSWP_MID(5,YYYY)
+                 ncid_qa   = GSWP_MID(6,YYYY)
+                 ncid_ta   = GSWP_MID(7,YYYY)
+                 ncid_wd   = GSWP_MID(8,YYYY)
+                 kend      = ktauday * LOY ! MMY
+              ENDIF
 
            ELSE IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
               ! PLUME experiment setup using WATCH
