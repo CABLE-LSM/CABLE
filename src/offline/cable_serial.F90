@@ -80,7 +80,7 @@ MODULE cable_serial
        NO_CHECK
   USE casa_ncdf_module, ONLY: is_casa_time
   USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
-       cable_runtime, filename, myhome,            &
+       filename, myhome,            &
        CurYear,    &
        IS_LEAPYEAR, &
        kwidth_gl
@@ -152,9 +152,11 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
 
 CONTAINS
 
-SUBROUTINE serialdrv()
+SUBROUTINE serialdrv(trunk_sumbal)
   !! Offline serial driver.
-  
+  DOUBLE PRECISION, INTENT(IN) :: trunk_sumbal
+    !! Reference value for quasi-bitwise reproducibility checks.
+
   ! CABLE namelist: model configuration, runtime/user switches
   !CHARACTER(LEN=200), PARAMETER :: CABLE_NAMELIST='cable.nml'
   ! try to read in namelist from command line argument
@@ -251,14 +253,7 @@ SUBROUTINE serialdrv()
   !mpidiff
   INTEGER :: i,x,kk,m,np,ivt
 
-  ! Vars for standard for quasi-bitwise reproducability b/n runs
-  ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
-  CHARACTER(len=30), PARAMETER ::                                             &
-       Ftrunk_sumbal  = ".trunk_sumbal",                                        &
-       Fnew_sumbal    = "new_sumbal"
-
   DOUBLE PRECISION ::                                                                     &
-       trunk_sumbal = 0.0, & !
        new_sumbal = 0.0, &
        new_sumfpn = 0.0, &
        new_sumfe = 0.0
@@ -268,7 +263,6 @@ SUBROUTINE serialdrv()
   REAL,ALLOCATABLE, SAVE :: xk(:,:)
 
   INTEGER :: nkend=0
-  INTEGER :: ioerror
   INTEGER :: count_bal = 0
 
   ! for landuse
@@ -282,16 +276,6 @@ SUBROUTINE serialdrv()
   real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
 
 ! END header
-
-  ! Open, read and close the consistency check file.
-  ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
-  IF(cable_user%consistency_check) THEN
-     OPEN( 11, FILE = Ftrunk_sumbal,STATUS='old',ACTION='READ',IOSTAT=ioerror )
-     IF(ioerror==0) THEN
-        READ( 11, * ) trunk_sumbal  ! written by previous trunk version
-     ENDIF
-     CLOSE(11)
-  ENDIF
 
   ! Open log file:
   OPEN(logn,FILE=filename%log)
@@ -974,9 +958,9 @@ SUBROUTINE serialdrv()
                        PRINT *, &
                             "Internal check shows in this version new_sumbal != trunk sumbal"
                        PRINT *, &
-                            "Writing new_sumbal to the file:", TRIM(Fnew_sumbal)
+                            "Writing new_sumbal to the file:", TRIM(filename%new_sumbal)
 
-                       OPEN( 12, FILE = Fnew_sumbal )
+                       OPEN( 12, FILE = filename%new_sumbal )
                        WRITE( 12, '(F20.7)' ) new_sumbal  ! written by previous trunk version
                        CLOSE(12)
 

@@ -11,7 +11,8 @@ MODULE cable_driver_init_mod
     wiltParam,                    &
     satuParam,                    &
     cable_user,                   &
-    gw_params
+    gw_params,                    &
+    cable_runtime
   USE cable_IO_vars_module, ONLY : &
     soilparmnew,                   &
     output,                        &
@@ -81,10 +82,13 @@ MODULE cable_driver_init_mod
 
 CONTAINS
 
-  SUBROUTINE cable_driver_init(mpi_grp)
-    TYPE(mpi_grp_t), INTENT(IN) :: mpi_grp !! MPI group to use
-
+  SUBROUTINE cable_driver_init(mpi_grp, trunk_sumbal)
     !! Model initialisation routine for the CABLE offline driver.
+    TYPE(mpi_grp_t), INTENT(IN) :: mpi_grp !! MPI group to use
+    DOUBLE PRECISION, INTENT(OUT) :: trunk_sumbal
+      !! Reference value for quasi-bitwise reproducibility checks.
+
+    INTEGER :: ioerror
 
     !check to see if first argument passed to cable is
     !the name of the namelist file
@@ -101,6 +105,16 @@ CONTAINS
     CLOSE(10)
 
     cable_runtime%offline = .TRUE.
+
+    ! Open, read and close the consistency check file.
+    ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
+    IF (mpi_grp%rank == 0 .AND. cable_user%consistency_check) THEN
+      OPEN(11, FILE=filename%trunk_sumbal, STATUS='old', ACTION='READ', IOSTAT=ioerror)
+      IF(ioerror == 0) THEN
+        READ(11, *) trunk_sumbal  ! written by previous trunk version
+      END IF
+      CLOSE(11)
+    END IF
 
   END SUBROUTINE cable_driver_init
 

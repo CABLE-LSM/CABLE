@@ -11,9 +11,10 @@ MODULE cable_mpimaster
 
 CONTAINS
 
-  SUBROUTINE mpidrv_master(comm)
+  SUBROUTINE mpidrv_master(comm, trunk_sumbal)
     !! Stub for when MPI is not available
     INTEGER, INTENT(IN) :: comm
+    DOUBLE PRECISION, INTENT(IN) :: trunk_sumbal
 
     ! This should never be called!
     STOP

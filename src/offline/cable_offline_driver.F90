@@ -12,17 +12,19 @@ PROGRAM cable_offline_driver
 
   REAL    :: etime ! Declare the type of etime()
   TYPE(mpi_grp_t) :: mpi_grp
+  DOUBLE PRECISION :: trunk_sumbal
+    !! Reference value for quasi-bitwise reproducibility checks.
 
   call mpi_mod_init()
   mpi_grp = mpi_grp_t()
 
-  CALL cable_driver_init(mpi_grp)
+  CALL cable_driver_init(mpi_grp, trunk_sumbal)
 
   IF (mpi_grp%size == 1) THEN
-    CALL serialdrv()
+    CALL serialdrv(trunk_sumbal)
   ELSE
     IF (mpi_grp%rank == 0) THEN
-      CALL mpidrv_master(mpi_grp%comm)
+      CALL mpidrv_master(mpi_grp%comm, trunk_sumbal)
     ELSE
       CALL mpidrv_worker(mpi_grp%comm)
     END IF

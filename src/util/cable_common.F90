@@ -60,29 +60,46 @@ USE cable_runtime_opts_mod ,ONLY : wiltparam
   ! instantiate internal switches
   TYPE(kbl_internal_switches), SAVE :: cable_runtime
 
-  ! external files read/written by CABLE
   TYPE filenames_type
-
-     CHARACTER(LEN=500) ::                                                        &
-          met,        & ! name of file for CABLE input
-          path='./',       & ! path for output and restart files for CABLE and CASA
-          out,        & ! name of file for CABLE output
-          log,        & ! name of file for execution log
-          restart_in = ' ', & ! name of restart file to read
-          restart_out,& ! name of restart file to read
-          LAI,        & ! name of file for default LAI
-          TYPE,       & ! file for default veg/soil type
-          veg,        & ! file for vegetation parameters
-          soil,       & ! name of file for soil parameters
-          soilcolor,  & ! file for soil color(soilcolor_global_1x1.nc)
-          inits,      & ! name of file for initialisations
-          soilIGBP,   & ! name of file for IGBP soil map
-          gw_elev,    & !name of file for gw/elevation data
-          fxpft,      & !filename for PFT fraction and transition,wood harvest, secondary harvest
-          fxluh2cable,& !filename for mapping 12 luc states into 17 CABLE PFT
-          gridnew       !filename for updated gridinfo file                       
-
-
+    !! External files read/written by CABLE
+    CHARACTER(LEN=500) :: met
+      !! name of file for CABLE input
+    CHARACTER(LEN=500) :: path='./'
+      !! path for output and restart files for CABLE and CASA
+    CHARACTER(LEN=500) :: out
+      !! name of file for CABLE output
+    CHARACTER(LEN=500) :: log
+      !! name of file for execution log
+    CHARACTER(LEN=500) :: restart_in = ' '
+      !! name of restart file to read
+    CHARACTER(LEN=500) :: restart_out
+      !! name of restart file to read
+    CHARACTER(LEN=500) :: LAI
+      !! name of file for default LAI
+    CHARACTER(LEN=500) :: TYPE
+      !! file for default veg/soil type
+    CHARACTER(LEN=500) :: veg
+      !! file for vegetation parameters
+    CHARACTER(LEN=500) :: soil
+      !! name of file for soil parameters
+    CHARACTER(LEN=500) :: soilcolor
+      !! file for soil color(soilcolor_global_1x1.nc)
+    CHARACTER(LEN=500) :: inits
+      !! name of file for initialisations
+    CHARACTER(LEN=500) :: soilIGBP
+      !! name of file for IGBP soil map
+    CHARACTER(LEN=500) :: gw_elev
+      !! name of file for gw/elevation data
+    CHARACTER(LEN=500) :: fxpft
+      !! filename for PFT fraction and transition,wood harvest, secondary harvest
+    CHARACTER(LEN=500) :: fxluh2cable
+      !! filename for mapping 12 luc states into 17 CABLE PFT
+    CHARACTER(LEN=500) :: gridnew
+      !! filename for updated gridinfo file                       
+    CHARACTER(LEN=500) :: trunk_sumbal = ".trunk_sumbal"
+      !! input filename for combined fluxes at each timestep (control run)
+    CHARACTER(LEN=500) :: new_sumbal = "new_sumbal"
+      !! output filename for combined fluxes at each timestep (current run)
   END TYPE filenames_type
 
    TYPE(filenames_type) :: filename
