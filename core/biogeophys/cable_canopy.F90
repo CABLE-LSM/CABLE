@@ -1639,7 +1639,7 @@ CONTAINS
       real, dimension(mp,2) ::  gsw_term, lower_limit2  ! local temp var
 
       integer :: i, k, kk, h ! iteration count
-      integer :: nktau
+      integer :: nktau,NN
       real :: vpd, g1, ktot, fw, refill  ! Ticket #56
       REAL, PARAMETER :: & ! Ref. params from Bernacchi et al. (2001)
          co2cp325 = 42.75, & ! CO2 compensation pt C3 at 25 degrees, umol mol-1
@@ -1808,7 +1808,8 @@ CONTAINS
       k = 0
 
       !kdcorbin, 08/10 - doing all points all the time'
-      nktau=5184
+      nktau=5547
+      NN=1
       write(num_str, '(I0)') nktau
       txtname = trim(filename%path) // '/testIteration_cable_out_' // trim(num_str) &
       // '.txt'
@@ -2522,10 +2523,11 @@ CONTAINS
                oldevapfbl(i,:) = ssnow%evapfbl(i,:)
             END IF
             !print*, 'check after k==1 ',ktau,k
-            if (ktau>=nktau .and. ktau<=(nktau+400)) then
+            if (ktau>=nktau .and. ktau<=(nktau+NN-1)) then
             write(134,*) ktau, iter, i, k, tlfy(i), deltlf(i), &
             dsx(i), psil(i), canopy%fwpsi(i),csx(i,1), csx(i,2), &
-            anx(i,1), anx(i,2), canopy%gswx(i,1), canopy%gswx(i,2)
+            anx(i,1), anx(i,2), canopy%gswx(i,1), canopy%gswx(i,2),vcmxt3(i,1),vcmxt3(i,2), &
+            gs_coeff(i,1),gs_coeff(i,2)
             END IF
             ! if (ktau>=5184) then
             ! print*, 'write 134 ',ktau,k
@@ -2535,7 +2537,7 @@ CONTAINS
          
 
       END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
-      if (ktau==(nktau+400)) THEN
+      if (ktau==(nktau+NN-1)) THEN
          close(134)
       END IF
       ! print*, 'End k loop: ktau & iter & k= ',ktau,iter,k
