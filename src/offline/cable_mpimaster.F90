@@ -416,8 +416,6 @@ CONTAINS
        cable_user%MetType = 'gswp'
     ENDIF
 
-    cable_runtime%offline = .TRUE.
-
     IF( l_casacnp  .AND. ( icycle == 0 .OR. icycle > 3 ) )                   &
          STOP 'icycle must be 1 to 3 when using casaCNP'
     IF( ( l_laiFeedbk .OR. l_vcmaxFeedbk ) .AND. ( .NOT. l_casacnp ) )       &

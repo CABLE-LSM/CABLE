@@ -283,8 +283,6 @@ SUBROUTINE serialdrv()
 
 ! END header
 
-  cable_runtime%offline = .TRUE.
-
   ! Open, read and close the consistency check file.
   ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
   IF(cable_user%consistency_check) THEN

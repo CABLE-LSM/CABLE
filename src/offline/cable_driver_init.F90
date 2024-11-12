@@ -100,6 +100,8 @@ CONTAINS
     READ(10, NML=CABLE)
     CLOSE(10)
 
+    cable_runtime%offline = .TRUE.
+
   END SUBROUTINE cable_driver_init
 
 END MODULE cable_driver_init_mod
