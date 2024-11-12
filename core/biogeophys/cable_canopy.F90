@@ -2527,7 +2527,7 @@ CONTAINS
             write(134,*) ktau, iter, i, k, tlfy(i), deltlf(i), &
             dsx(i), psil(i), canopy%fwpsi(i),csx(i,1), csx(i,2), &
             anx(i,1), anx(i,2), canopy%gswx(i,1), canopy%gswx(i,2),vcmxt3(i,1),vcmxt3(i,2), &
-            gs_coeff(i,1),gs_coeff(i,2)
+            gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2)
             END IF
             ! if (ktau>=5184) then
             ! print*, 'write 134 ',ktau,k
