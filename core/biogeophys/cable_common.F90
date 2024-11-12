@@ -270,6 +270,7 @@ MODULE cable_common_module
           eko,        &
           g0,         & !  Ticket #56
           g1,         & !  Ticket #56
+          g1tuzet,    &
           zr,         &
           clitt,      &
           gamma, &
@@ -386,7 +387,7 @@ CONTAINS
          vegin%gswmin(mvtype),vegin%conkc0(mvtype), vegin%conko0(mvtype), &
          vegin%ekc(mvtype), vegin%eko(mvtype),                            &
          ! Ticket #56
-         vegin%g0( mvtype ), vegin%g1( mvtype ),                          &
+         vegin%g0( mvtype ), vegin%g1( mvtype ),vegin%g1tuzet( mvtype ),       &
          !! vh_veg_params !!
          vegin%zr(mvtype), vegin%clitt(mvtype), vegin%gamma(mvtype), &
          vegin%kmax(mvtype), vegin%PLCcrit(mvtype), &
@@ -435,7 +436,7 @@ CONTAINS
           READ(40,*) vegin%ratecp(1:3,jveg), vegin%ratecs(1:2,jveg)
           READ(40,*) vegin%a1gs(jveg), vegin%d0gs(jveg), vegin%alpha(jveg), vegin%convex(jveg), vegin%cfrd(jveg)
           READ(40,*) vegin%gswmin(jveg), vegin%conkc0(jveg), vegin%conko0(jveg), vegin%ekc(jveg), vegin%eko(jveg)
-          READ(40,*) vegin%g0(jveg), vegin%g1(jveg)      ! Ticket #56
+          READ(40,*) vegin%g0(jveg), vegin%g1(jveg),vegin%g1tuzet(jveg)      ! Ticket #56
           READ(40,*) vegin%gamma(jveg), vegin%gmmax(jveg)
           READ(40,*) vegin%kmax(jveg), vegin%PLCcrit(jveg)
           READ(40,*) vegin%P50(jveg), vegin%P88(jveg)
@@ -961,6 +962,7 @@ CONTAINS
        veg%tmaxvj(h)  = vegin%tmaxvj(veg%iveg(h))
        veg%g0(h)      = vegin%g0(veg%iveg(h)) ! Ticket #56
        veg%g1(h)      = vegin%g1(veg%iveg(h)) ! Ticket #56
+       veg%g1tuzet(h) = vegin%g1tuzet(veg%iveg(h))
        veg%a1gs(h)    = vegin%a1gs(veg%iveg(h))
        veg%d0gs(h)    = vegin%d0gs(veg%iveg(h))
        veg%alpha(h)   = vegin%alpha(veg%iveg(h))

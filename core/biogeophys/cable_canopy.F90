@@ -2183,7 +2183,7 @@ CONTAINS
                   INDEX(cable_user%FWSOIL_SWITCH,'LWP')>0) THEN
                      gswmin(i,1) = veg%g0(i) * rad%scalex(i,1)
                      gswmin(i,2) = veg%g0(i) * rad%scalex(i,2)
-                     g1 = veg%g1(i)
+                     g1 = veg%g1tuzet(i)
                      
                      fwpsi(i) = (1+exp(veg%g2(i) * veg%psi_ref(i))) / (1+exp(veg%g2(i) * (veg%psi_ref(i)-psil(i))))  
                      !print *, '!!!!!!!!!!!!!!! fwpsi:', fwpsi(i),ktau,k

@@ -682,6 +682,8 @@ CONTAINS
                 max_vegpatches,'def',from_restart,mp) ! Ticket #56
     CALL readpar(ncid_rin,'g1',dummy,veg%g1,filename%restart_in, &
                 max_vegpatches,'def',from_restart,mp) ! Ticket #56
+     CALL readpar(ncid_rin,'g1tuzet',dummy,veg%g1tuzet,filename%restart_in, &
+                max_vegpatches,'def',from_restart,mp) 
      CALL readpar(ncid_rin,'g2',dummy,veg%g2,filename%restart_in, &
                 max_vegpatches,'def',from_restart,mp) 
     CALL readpar(ncid_rin,'g3',dummy,veg%g3,filename%restart_in, &

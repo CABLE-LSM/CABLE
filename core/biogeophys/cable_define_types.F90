@@ -351,6 +351,7 @@ module cable_def_types_mod
           eko => null(),     & ! acvtivation enegery for oxygenase
           g0 => null(),      & ! Belinda's stomatal model intercept, Ticket #56.
           g1 => null(),      & ! Belinda's stomatal model slope, Ticket #56.
+          g1tuzet => null(), & ! tuzet gs model coefficient
           vcmaxcc => null(), & ! max Cc-based carboxylation rate top leaf (mol/m2/s)
           ejmaxcc => null(), & ! max Cc-based RuBP regeneration rate top leaf (mol/m2/s)
           gmmax => null(),   & ! max. mesophyll conductance at 25degC top leaf (mol/2/s)
@@ -1109,6 +1110,7 @@ contains
     allocate(veg%eko(mp))
     allocate(veg%g0(mp))   ! Ticket #56.
     allocate(veg%g1(mp))   ! Ticket #56.
+    allocate(veg%g1tuzet(mp))
     allocate(veg%vcmaxcc(mp))
     allocate(veg%ejmaxcc(mp))
     allocate(veg%gmmax(mp))
@@ -1766,6 +1768,7 @@ contains
     deallocate(veg%eko)
     deallocate(veg%g0) ! Ticket #56.
     deallocate(veg%g1) ! Ticket #56.
+    deallocate(veg%g1tuzet)
     ! Deallocate variables for SLI soil model:
     deallocate(veg%rootbeta)
     deallocate(veg%gamma) ! vh 20/07/09
@@ -2294,6 +2297,7 @@ contains
     veg%eko         = 0
     veg%g0          = 0
     veg%g1          = 0
+    veg%g1tuzet     = 0
     veg%vcmaxcc     = 0
     veg%ejmaxcc     = 0
     veg%gmmax       = 0

@@ -1685,6 +1685,9 @@ CONTAINS
     IF(output%params .OR. output%g1) CALL define_ovar(ncid_out, opid%g1, &
          'g1', '-', 'g1 term in Medlyn Stom Cond. Param', &
          patchout%g1, 'real', xID, yID, zID, landID, patchID)
+     IF(output%params .OR. output%g1tuzet) CALL define_ovar(ncid_out, opid%g1tuzet, &
+         'g1tuzet', '-', 'g1tuzet term in tuzet Stom Cond. Param', &
+         patchout%g1tuzet, 'real', xID, yID, zID, landID, patchID)
      IF(output%params .OR. output%g2) CALL define_ovar(ncid_out, opid%g2, &
          'g2', '-', 'g2 term in fwpsi', &
          patchout%g2, 'real', xID, yID, zID, landID, patchID)
@@ -1917,6 +1920,8 @@ CONTAINS
          'g0', toreal4(veg%g0),ranges%g0, patchout%g0, 'real')
     IF(output%params .OR. output%g1) CALL write_ovar(ncid_out, opid%g1, &
          'g1', toreal4(veg%g1),ranges%g1, patchout%g1, 'real')
+     IF(output%params .OR. output%g1tuzet) CALL write_ovar(ncid_out, opid%g1tuzet, &
+         'g1tuzet', toreal4(veg%g1tuzet),ranges%g1tuzet, patchout%g1tuzet, 'real')
     ! End Ticket #56
      IF(output%params .OR. output%g2) CALL write_ovar(ncid_out, opid%g2, &
          'g2', toreal4(veg%g2),ranges%g2, patchout%g2, 'real')
@@ -4422,6 +4427,9 @@ CONTAINS
     CALL define_ovar(ncid_restart, rpid%g1, 'g1', '-', &
                      'g1 term in Medlyn Stomatal Cond. Param', .TRUE.,'real',&
                      0, 0, 0, mpID, dummy, .TRUE.)  ! Ticket #56
+     CALL define_ovar(ncid_restart, rpid%g1tuzet, 'g1tuzet', '-', &
+                     'g1tuzet term in tuzet Stomatal Cond. Param', .TRUE.,'real',&
+                     0, 0, 0, mpID, dummy, .TRUE.) 
      CALL define_ovar(ncid_restart, rpid%g2, 'g2', '-', &
                      'g2 term in fwpsi', .TRUE.,'real',&
                      0, 0, 0, mpID, dummy, .TRUE.) 
@@ -4678,6 +4686,8 @@ CONTAINS
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.) ! Ticket #56
     CALL write_ovar (ncid_restart, rpid%g1, 'g1', toreal4(veg%g1), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.) ! Ticket #56
+     CALL write_ovar (ncid_restart, rpid%g1tuzet, 'g1tuzet', toreal4(veg%g1tuzet), &
+          (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
      CALL write_ovar (ncid_restart, rpid%g2, 'g2', toreal4(veg%g2), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
      CALL write_ovar (ncid_restart, rpid%g3, 'g3', toreal4(veg%g3), &

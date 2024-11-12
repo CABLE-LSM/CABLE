@@ -135,7 +135,7 @@ MODULE cable_IO_vars_module
           zeta,fsatmax, &
           gamma,ZR,F10
 
-     INTEGER :: g0,g1,g2,g3,psi_ref ! Ticket #56
+     INTEGER :: g0,g1,g1tuzet,g2,g3,psi_ref ! Ticket #56
 
    END TYPE parID_type
 
@@ -366,6 +366,7 @@ MODULE cable_IO_vars_module
                                 ! 20 C [-] 0.1 - 10 (frp 0 - 15e-6 mol/m2/s)
          g0   = .FALSE.,      & ! Ticket #56
          g1   = .FALSE.,      & ! Ticket #56
+         g1tuzet  = .FALSE., &
          g2   = .FALSE.,      & 
          g3   = .FALSE.,      & 
          psi_ref = .FALSE.,      & 

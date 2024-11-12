@@ -151,6 +151,7 @@ MODULE cable_checks_module
            vbeta =(/-999999.0,999999.0/),                 &
            g0 = (/-0.5,0.5/),                             & ! Ticket #56 (must find better range)
            g1 = (/0.0,20.0/),                             & ! Ticket #56 (must find better range)
+           g1tuzet = (/0.0,20.0/),                             &
            xalbnir = (/0.0,1.5/),                         &
            meth = (/0.0,1.0/),                            &
            za =(/0.0,150.0/),                             &
