@@ -1814,7 +1814,7 @@ CONTAINS
       txtname = trim(filename%path) // '/testIteration_cable_out_' // trim(num_str) &
       // '.txt'
       
-      if (ktau==nktau) then
+      if (ktau==nktau .and. iter==1) then
       open(unit=134, file=txtname)
       end if
       DO WHILE (k < C%MAXITER)
@@ -2537,7 +2537,7 @@ CONTAINS
          
 
       END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
-      if (ktau==(nktau+NN-1)) THEN
+      if (ktau==(nktau+NN-1)  .and. iter==4) THEN
          close(134)
       END IF
       ! print*, 'End k loop: ktau & iter & k= ',ktau,iter,k
