@@ -1422,7 +1422,7 @@ CONTAINS
           veg%g1tuzet(h)  = vegin%g1tuzet(veg%iveg(h))
           veg%g2(h)      = vegin%g2(veg%iveg(h))
           veg%g3(h)      = vegin%g3(veg%iveg(h))
-          veg%psiref(h)      = vegin%psiref(veg%iveg(h))
+          veg%psi_ref(h) = vegin%psi_ref(veg%iveg(h))
           veg%xalbnir(h) = vegin%xalbnir(veg%iveg(h))
           veg%rp20(h)    = vegin%rp20(veg%iveg(h))
           veg%rpcoef(h)  = vegin%rpcoef(veg%iveg(h))
