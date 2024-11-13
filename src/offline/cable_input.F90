@@ -2846,8 +2846,6 @@ CONTAINS
     USE POPLUC_module, ONLY: POPLUC_INIT
     USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE
 
-    USE cable_common_module,  ONLY: gw_params  ! inserted by rk4417 - phase2
-
     IMPLICIT NONE
 
     ! Input arguments
