@@ -408,15 +408,6 @@ CONTAINS
          ENDIF
        ENDIF
 
-! I am assuming the above block is equivalent to the one below - rk4417 - phase2
-!       IF (TRIM(cable_user%MetType) .eq. "gswp") THEN ! MMY add if for using Princeton forcing
-!          ok = NF90_OPEN(gswpfile%snowf,0,ncid_snow)
-!          IF (ok /= NF90_NOERR) THEN
-!             PRINT*,'snow'
-!             CALL handle_err( ok )
-!          ENDIF
-!       END IF ! MMY
-
        IF( globalMetfile%l_gpcc ) THEN
        ok = NF90_OPEN(globalMetfile%LWdown,0,ncid_lw)
        ELSE
