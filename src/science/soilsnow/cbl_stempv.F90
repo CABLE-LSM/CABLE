@@ -54,7 +54,7 @@ IMPLICIT NONE
     ct = 0.0
     coeff = 0.0
 
-    ssnow%otgg(:,:) = ssnow%tgg  ! FEEDBACK (OK to insert this line as per MMY code?) --rk4417 
+    ssnow%otgg(:,:) = ssnow%tgg 
 
     IF (cable_user%soil_thermal_fix) THEN
        ccnsw = total_soil_conductivity(ssnow,soil)
