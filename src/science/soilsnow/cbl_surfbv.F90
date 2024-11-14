@@ -42,13 +42,8 @@ IMPLICIT NONE
     REAL :: wb_lake_T, rnof2_T, ratio
     INTEGER :: k,j
 
-!    IF( .NOT. cable_runtime%UM  .OR. cable_runtime%esm15 ) THEN  ! rk4417 - phase2
-!       nglacier = 2
-!    ENDIF
-
-    IF( cable_runtime%UM ) THEN
-       nglacier = 0
-    ELSE
+    nglacier = 0
+    IF( .NOT. cable_runtime%UM  .OR. cable_runtime%esm15 ) THEN
        nglacier = 2
     ENDIF
 
