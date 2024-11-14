@@ -5,9 +5,6 @@ IMPLICIT NONE
   ! hydraulic_redistribution parameters _soilsnow module
 REAL :: wiltParam = 0.0, satuParam = 0.0
 
-! should the above be instead:
-!   REAL :: wiltParam=0.5, satuParam=0.8 ! rk4417 - phase2
-
 ! user switches turned on/off by the user thru namelists
 ! CABLE-2.0 user switches all in single namelist file cable.nml
 ! clean these up for new namelist(s) format
