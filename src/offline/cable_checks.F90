@@ -139,9 +139,7 @@ MODULE cable_checks_module
       sfc = [0.1, 0.5], &
       silt = [0.0, 1.0], &
       ssat = [0.35, 0.5], &
-! 2 lines below changed by rk4417 - phase2
-!      sucs = [-0.8, -0.03],              & ! MMY@23Apr2023 keep this line commented since it works for CABLE-non GW
-      sucs = [30., 800.],                & ! MMY the range [-0.8, -0.03] doesn't suit for Mark Decker's version
+      sucs = [-0.8, -0.03], &   ! MMY@23Apr2023 works for CABLE non-GW
       swilt = [0.05, 0.4], &
       froot = [0.0, 1.0], &
       zse = [0.0, 5.0], &
@@ -206,6 +204,8 @@ MODULE cable_checks_module
   END TYPE ranges_type
 
   TYPE(ranges_type), SAVE :: ranges
+
+  IF (cable_user%GW_MODEL) ranges%sucs = [30., 800.]   ! MMY the range [-0.8, -0.03] doesn't suit Mark Decker's version
 
   INTERFACE check_range
     MODULE PROCEDURE :: check_range_d1
