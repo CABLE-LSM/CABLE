@@ -1697,7 +1697,9 @@ CONTAINS
      IF(output%params .OR. output%psi_ref) CALL define_ovar(ncid_out, opid%psi_ref, &
          'psi_ref', '-', 'psi_ref term in fwpsi', &
          patchout%psi_ref, 'real', xID, yID, zID, landID, patchID)
-
+     IF(output%params .OR. output%kmax) CALL define_ovar(ncid_out, opid%kmax, &
+         'kmax', '-', 'Kmax of plant conductivity for water', &
+         patchout%kmax, 'real', xID, yID, zID, landID, patchID)
     IF(output%params .OR. output%rpcoef) CALL define_ovar(ncid_out, &
          opid%rpcoef, 'rpcoef', '1/C', &
          'Temperature coef nonleaf plant respiration', &
@@ -1929,6 +1931,8 @@ CONTAINS
          'g3', toreal4(veg%g3),ranges%g3, patchout%g3, 'real')
      IF(output%params .OR. output%psi_ref) CALL write_ovar(ncid_out, opid%psi_ref, &
          'g3', toreal4(veg%psi_ref),ranges%psi_ref, patchout%psi_ref, 'real')
+     IF(output%params .OR. output%kmax) CALL write_ovar(ncid_out, opid%kmax, &
+         'kmax', toreal4(veg%kmax),ranges%kmax, patchout%kmax, 'real')
     IF(output%params .OR. output%rpcoef) CALL write_ovar(ncid_out, &
          opid%rpcoef, 'rpcoef', toreal4(veg%rpcoef), &
          ranges%rpcoef, patchout%rpcoef, 'real')
@@ -4439,6 +4443,9 @@ CONTAINS
      CALL define_ovar(ncid_restart, rpid%psi_ref, 'psi_ref', '-', &
                      'psi_ref term in fwpsi', .TRUE.,'real',&
                      0, 0, 0, mpID, dummy, .TRUE.) 
+     CALL define_ovar(ncid_restart, rpid%kmax, 'kmax', '-', &
+                     'kmax', .TRUE.,'real',&
+                     0, 0, 0, mpID, dummy, .TRUE.) 
     ! CALL define_ovar(ncid_restart, rpid%rpcoef, 'rpcoef', '1/C', &
     !                  'Temperature coef nonleaf plant respiration', .TRUE., &
     !                  'real', 0, 0, 0, mpID, dummy, .TRUE.)
@@ -4693,6 +4700,8 @@ CONTAINS
      CALL write_ovar (ncid_restart, rpid%g3, 'g3', toreal4(veg%g3), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.) 
      CALL write_ovar (ncid_restart, rpid%psi_ref, 'psi_ref', toreal4(veg%psi_ref), &
+          (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.) 
+     CALL write_ovar (ncid_restart, rpid%kmax, 'kmax', toreal4(veg%kmax), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.) 
     ! CALL write_ovar (ncid_restart, rpid%rpcoef, 'rpcoef', toreal4(veg%rpcoef), &
     !                  ranges%rpcoef, .TRUE., 'real', .TRUE.)

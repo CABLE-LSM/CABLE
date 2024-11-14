@@ -690,6 +690,8 @@ CONTAINS
                 max_vegpatches,'def',from_restart,mp) 
      CALL readpar(ncid_rin,'psi_ref',dummy,veg%psi_ref,filename%restart_in, &
                 max_vegpatches,'def',from_restart,mp) 
+     CALL readpar(ncid_rin,'kmax',dummy,veg%kmax,filename%restart_in, &
+                max_vegpatches,'def',from_restart,mp) 
     ! CALL readpar(ncid_rin,'meth',dummy,veg%meth,filename%restart_in, &
     !      max_vegpatches,'def',from_restart,mp)
     ! ! special treatment of za with the introduction of za_uv and za_tq

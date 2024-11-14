@@ -135,7 +135,7 @@ MODULE cable_IO_vars_module
           zeta,fsatmax, &
           gamma,ZR,F10
 
-     INTEGER :: g0,g1,g1tuzet,g2,g3,psi_ref ! Ticket #56
+     INTEGER :: g0,g1,g1tuzet,g2,g3,psi_ref,kmax ! Ticket #56
 
    END TYPE parID_type
 
@@ -401,6 +401,7 @@ MODULE cable_IO_vars_module
          za  = .FALSE.,       & ! something to do with roughness ????
          c13o2 = .false., &      ! carbon pools and flux output for 13C isotopes
          psi_soil = .FALSE.,       & 
+         kmax = .FALSE.,    &
          psi_rootzone = .FALSE.,       & 
          psi_stem = .FALSE.,       & 
          psi_can = .FALSE.,       & 

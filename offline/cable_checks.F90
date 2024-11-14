@@ -198,6 +198,7 @@ MODULE cable_checks_module
           gswx = (/-1.0, 10.0/),              &
           g2 = (/-10.0, 10.0/),               &
           g3 = (/-10.0, 10.0/),               &
+          kmax = (/0.0, 50.0/),               &
           psi_ref = (/-10.0, 0.0/)
    END TYPE ranges_type
    TYPE(ranges_type),SAVE :: ranges
