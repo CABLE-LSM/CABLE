@@ -2901,12 +2901,6 @@ CONTAINS
 !$            'Parameter in root efficiency function (Lai and Katul 2000)', &
 !$            .TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
 !$    ENDIF
-! inserted block below - rk4417 - phase2 (same as commented one above, I know)
-    IF(cable_user%SOIL_STRUC=='sli'.OR.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
-      CALL define_ovar(ncid_restart,rpid%gamma,'gamma','-', &
-            'Parameter in root efficiency function (Lai and Katul 2000)', &
-            .TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
-    ENDIF
 
     ! Soil-Litter-Iso soil model
     IF(cable_user%SOIL_STRUC=='sli') THEN
