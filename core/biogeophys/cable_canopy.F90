@@ -116,7 +116,7 @@ CONTAINS
          fwpsi => null(),        & ! psi leaf modifier of stom. cond zihan lu 02/11/2024
          fwsoiltmp => null(),        & 
          tlfx => null(),          & ! leaf temp prev. iter (K)
-         tlfy => null(),             ! leaf temp (K)
+         tlfy => null()             ! leaf temp (K)
 
       REAL(r_2), DIMENSION(mp) :: &
          gbvtop                   ! bnd layer cond. top leaf
