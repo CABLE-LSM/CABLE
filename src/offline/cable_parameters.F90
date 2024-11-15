@@ -198,7 +198,7 @@ CONTAINS
     END IF
 
 ! line below inserted by rk4417 - phase2
-    IF (cable_user%force_npatches_as .gt. 0) npatch=cable_user%force_npatches_as
+    IF (cable_user%force_npatches_as .GT. 0) npatch=cable_user%force_npatches_as
 ! MMY@13April force_npatches_as seems a new flag read from cable.nml             
 !          the default value is -1 set in TYPE kbl_user_switches in cable_common
 ! TYPE kbl_user_switches was moved from cable_common_module to cable_runtime_opts_mod - rk4417 - phase2
