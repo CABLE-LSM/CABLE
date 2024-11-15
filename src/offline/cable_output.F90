@@ -2177,7 +2177,7 @@ CONTAINS
       IF (cable_user%POPLUC) THEN
         temp_acc = -(casaflux%Crsoil - casaflux%cnpp &
                      - casapool%dClabiledt)/86400.0 &
-                   /1.201E-5 !-  & ! FEEDBACK (this bit is not commented out in MMY code) --rk4417
+                   /1.201E-5 !-  & 
         !REAL((casaflux%FluxCtohwp + casaflux%FluxCtoclear  )/86400.0 &
         !/ 1.201E-5, 4)
       ELSE
