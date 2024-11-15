@@ -2751,28 +2751,7 @@ CONTAINS
 !$    CALL define_ovar(ncid_restart, rpid%swilt, 'swilt', '-',                   &
 !$                     'Fraction of soil volume which is water @ wilting point', &
 !$                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-
-! inserted block below - rk4417 - phase2 (same as commented one above, I know)
-    CALL define_ovar(ncid_restart, rpid%clay, 'clay', '-',                     &
-                     'Fraction of soil which is clay',                         &
-                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, rpid%sand, 'sand', '-',                     &
-                     'Fraction of soil which is sand',                         &
-                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, rpid%silt, 'silt', '-',                     &
-                     'Fraction of soil which is silt',                         &
-                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, rpid%ssat, 'ssat', '-',                     &
-                     'Fraction of soil volume which is water @ saturation',    &
-                    .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, rpid%sfc, 'sfc', '-',                       &
-                    'Fraction of soil volume which is water @ field capacity', &
-                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-    CALL define_ovar(ncid_restart, rpid%swilt, 'swilt', '-',                   &
-                     'Fraction of soil volume which is water @ wilting point', &
-                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-! end of block - rk4417 - phase2 
-
+    
     ! zse (depth of each soil layer):
     ok = NF90_DEF_VAR(ncid_restart, 'zse', NF90_FLOAT, (/soilID/), rpid%zse)
     IF (ok /= NF90_NOERR) CALL nc_abort                                        &
