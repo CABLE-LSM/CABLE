@@ -3881,7 +3881,7 @@ CONTAINS
    END IF
 
    ! mgk576, 19/2/2019
-   IF(output%veg .and. cable_user%FWSOIL_SWITCH == 'profitmax') THEN
+   IF(output%veg) THEN
    !IF(output%veg) THEN
       ! Add current timestep's value to total of temporary output variable:
       out%psi_can = out%psi_can + REAL(canopy%psi_can, 4)
