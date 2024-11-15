@@ -2187,7 +2187,7 @@ CONTAINS
                      gswmin(i,2) = veg%g0(i) * rad%scalex(i,2)
                      g1 = veg%g1tuzet(i)
                      
-                     fwpsi(i) = (1+exp(veg%g2(i) * veg%psi_ref(i))) / (1+exp(veg%g2(i) * (veg%psi_ref(i)-psil(i))))  
+                     fwpsi(i) = (1+exp(veg%g2(i) * veg%psi_ref(i))) / (1+exp(veg%g2(i) * (veg%psi_ref(i)-psilx(i))))  
                      !print *, '!!!!!!!!!!!!!!! fwpsi:', fwpsi(i),ktau,k
                      gs_coeff(i,1) =fwpsi(i) * g1 / real(csx(i,1))
                      gs_coeff(i,2) =fwpsi(i) * g1 / real(csx(i,2))
@@ -2341,7 +2341,7 @@ CONTAINS
                   ex(i) = ecx(i) * (1.0_r_2-real(canopy%fwet(i),r_2))/air%rlam(i) 
                   ! convert from kg m-2 ground s-1 to mmol m-2 leaf s-1*
                   ex(i)= ex(i) * 1.0e6_r_2/18.0_r_2 * canopy%vlaiw(i) 
-                  psil(i) = ssnow%psi_rootzone(i)-ex(i)/canopy%kplant(i)
+                  psilx(i) = ssnow%psi_rootzone(i)-ex(i)/canopy%kplant(i)
 
                ENDIF
                IF (cable_user%SOIL_SCHE == 'Haverd2013') then
