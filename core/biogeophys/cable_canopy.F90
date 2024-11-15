@@ -2340,6 +2340,7 @@ CONTAINS
                   ! convert from kg m-2 ground s-1 to mmol m-2 leaf s-1*
                   ex(i)= ex(i) * 1.0e6_r_2/18.0_r_2 * canopy%vlaiw(i) 
                   psil(i) = ssnow%psi_rootzone(i)-ex(i)/canopy%kplant(i)
+                  canopy%psi_can(i) = real(psil(i), r_2)
 
                ENDIF
                IF (cable_user%SOIL_SCHE == 'Haverd2013') then
