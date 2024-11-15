@@ -2893,9 +2893,8 @@ CONTAINS
     CALL define_ovar(ncid_restart, gwID, 'GWwb', 'mm3/mm3','GW water content', &
          .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
 
-! inserted call below - rk4417 - phase2
-    CALL define_ovar(ncid_restart, subdzID, 'sublayer_dz', 'm','depth of viscous sublayer',&
-         .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+ !   CALL define_ovar(ncid_restart, subdzID, 'sublayer_dz', 'm','depth of viscous sublayer',&
+ !        .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
 
 !$    IF(cable_user%SOIL_STRUC=='sli'.OR.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
 !$      CALL define_ovar(ncid_restart,rpid%gamma,'gamma','-', &
