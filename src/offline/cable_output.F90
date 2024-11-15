@@ -2920,24 +2920,6 @@ CONTAINS
 !$       CALL define_ovar(ncid_restart,rpid%F10,'F10','-', &
 !$            'Fraction of roots in top 10 cm', &
 !$            .TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
-       
-! inserted block below - rk4417 - phase2 (same as commented one above, I know)
-       CALL define_ovar(ncid_restart,rpid%nhorizons,'nhorizons','-', &
-            'Number of soil horizons',.TRUE.,'integer',0,0,0,mpID,dummy,.TRUE.)
-       CALL define_ovar(ncid_restart,rpid%zeta,'zeta','[ ]', &
-            'exponent factor in Topmodel eq',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
-       CALL define_ovar(ncid_restart,rpid%fsatmax,'fsatmax','[ ]', &
-            'param in Topmodel eq',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
-       CALL define_ovar(ncid_restart,rpid%ishorizon,'ishorizon','-', &
-            'Horizon number',.TRUE., soilID, 'soil', 0, 0, 0, mpID, dummy, .TRUE.)
-       CALL define_ovar(ncid_restart,rpid%clitt,'clitt','tC/ha', &
-            'Litter layer carbon content',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
-       CALL define_ovar(ncid_restart,rpid%ZR,'ZR','cm', &
-            'Maximum rooting depth',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
-       CALL define_ovar(ncid_restart,rpid%F10,'F10','-', &
-            'Fraction of roots in top 10 cm', &
-            .TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
-! end of block - rk4417 - phase2
 
        ! Variables for SLI:
        CALL define_ovar(ncid_restart,SID,'S','-',&
