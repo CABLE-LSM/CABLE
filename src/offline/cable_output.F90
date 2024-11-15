@@ -3236,14 +3236,14 @@ CONTAINS
 !                     'real', .TRUE.)
 !    CALL write_ovar (ncid_restart, rpid%tmaxvj, 'tmaxvj', REAL(veg%tmaxvj, 4), & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
 !                     ranges%tmaxvj, .TRUE., 'real', .TRUE.)
-    ok = NF90_PUT_VAR(ncid_restart, rpid%ratecp, REAL(bgc%ratecp, 4))
-    IF(ok /= NF90_NOERR) CALL nc_abort(ok,                                     &
-                                       'Error writing ratecp parameter to '    &
-         //TRIM(frst_out)// '(SUBROUTINE create_restart)')
-    ok = NF90_PUT_VAR(ncid_restart, rpid%ratecs, REAL(bgc%ratecs, 4))
-    IF(ok /= NF90_NOERR) CALL nc_abort(ok,                                     &
-                                       'Error writing ratecs parameter to '    &
-         //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+!    ok = NF90_PUT_VAR(ncid_restart, rpid%ratecp, REAL(bgc%ratecp, 4))
+!    IF(ok /= NF90_NOERR) CALL nc_abort(ok,                                     &
+!                                       'Error writing ratecp parameter to '    &
+!         //TRIM(frst_out)// '(SUBROUTINE create_restart)')
+!    ok = NF90_PUT_VAR(ncid_restart, rpid%ratecs, REAL(bgc%ratecs, 4))
+!    IF(ok /= NF90_NOERR) CALL nc_abort(ok,                                     &
+!                                       'Error writing ratecs parameter to '    &
+!         //TRIM(frst_out)// '(SUBROUTINE create_restart)')
 !    CALL write_ovar (ncid_restart, rpid%meth, 'meth', REAL(veg%meth, 4),       & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
 !                     ranges%meth, .TRUE., 'integer', .TRUE.)
 !    CALL write_ovar (ncid_restart, rpid%za_uv, 'za_uv', REAL(rough%za_uv, 4),  & ! write_ovar call here will not compile anymore because of recent changes made by others in cable_write.F90, needs to be adapted - rk4417 -phase2 
