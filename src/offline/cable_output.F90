@@ -2507,9 +2507,7 @@ CONTAINS
 
     WRITE(logn, '(A24)') ' Writing restart file...'
     frst_out = TRIM(filename%restart_out)
-! should above line be replaced by below 2 lines? - rk4417 - phase2
-!    IF ( TRIM(filename%path) .EQ. '' ) filename%path = './'
-!    frst_out = TRIM(filename%path)//'/'//TRIM(filename%restart_out)
+
     ! Look for explicit restart file (netCDF). If not, asssume input is path
     IF ( INDEX(TRIM(frst_out),'.nc',BACK=.TRUE.) .NE. LEN_TRIM(frst_out)-2 ) THEN
        WRITE( CYEAR,FMT="(I4)" ) CurYear + 1
