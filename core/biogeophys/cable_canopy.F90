@@ -116,7 +116,7 @@ CONTAINS
          fwpsi => null(),        & ! psi leaf modifier of stom. cond zihan lu 02/11/2024
          fwsoiltmp => null(),        & 
          tlfx => null(),          & ! leaf temp prev. iter (K)
-         tlfy => null()             ! leaf temp (K)
+         tlfy => null(),             ! leaf temp (K)
 
       REAL(r_2), DIMENSION(mp) :: &
          gbvtop                   ! bnd layer cond. top leaf
@@ -126,7 +126,8 @@ CONTAINS
          hcy => null(),           & ! veg. sens heat
          rny => null(),           & ! net rad
          ghwet => null(),         &   ! cond for heat for a wet canopy
-         psil => null() 
+         psily => null() ,        &
+         psilx => null()
 
       REAL(r_2), DIMENSION(:,:), POINTER :: &
          gbhu => null(),          & ! forcedConvectionBndryLayerCond
@@ -151,8 +152,8 @@ CONTAINS
       IF (.NOT. cable_runtime%um) canopy%cansto = canopy%oldcansto
 
       ALLOCATE(cansat(mp), gbhu(mp,mf))
-      ALLOCATE(dsx(mp), fwsoil(mp), fwsoiltmp(mp), fwpsi(mp),tlfx(mp), tlfy(mp))
-      ALLOCATE(ecy(mp), hcy(mp), rny(mp),psil(mp))
+      ALLOCATE(dsx(mp), fwsoil(mp), fwsoiltmp(mp), fwpsi(mp),tlfx(mp), tlfy(mp),psilx(mp))
+      ALLOCATE(ecy(mp), hcy(mp), rny(mp),psily(mp))
       ALLOCATE(gbhf(mp,mf), csx(mp,mf))
       ALLOCATE(ghwet(mp))
 
@@ -185,7 +186,8 @@ CONTAINS
       ssnow%rex       = 0.0_r_2
       ! Initialise in-canopy temperatures and humidity:
       csx = SPREAD(real(met%ca,r_2), 2, mf) ! initialise leaf surface CO2 concentration
-      psil = real(ssnow%psi_rootzone,r_2) ! initialise leaf surface CO2 concentration
+      psilx = real(ssnow%psi_rootzone,r_2) 
+      psily = real(ssnow%psi_rootzone,r_2) 
       met%tvair = met%tk
       met%qvair = met%qv
       canopy%tv = met%tvair
@@ -434,7 +436,7 @@ CONTAINS
 
          sum_rad_rniso = sum(rad%rniso,2)
          CALL dryLeaf(ktau, dels, rad, air, met,  &
-            veg, canopy, soil, ssnow, dsx, psil, &
+            veg, canopy, soil, ssnow, dsx, psilx, psily,&
             fwsoil, fwsoiltmp,fwpsi, tlfx, tlfy, ecy, hcy,  &
             rny, gbhu, gbhf, csx, cansat,  &
             ghwet, iter, climate)
@@ -1499,7 +1501,7 @@ CONTAINS
 
 
    SUBROUTINE dryLeaf(ktau, dels, rad, air, met, &
-      veg, canopy, soil, ssnow, dsx,psil, &
+      veg, canopy, soil, ssnow, dsx, psilx, psily, &
       fwsoil, fwsoiltmp,fwpsi, tlfx, tlfy, ecy, hcy, &
       rny, gbhu, gbhf, csx, &
       cansat, ghwet, iter, climate)
@@ -1531,7 +1533,8 @@ CONTAINS
          ecy,        & ! lat heat fl dry big leaf
          hcy,        & ! veg. sens heat
          rny,        & !& !
-         psil
+         psilx,      &
+         psily       
       real(r_2), dimension(:,:), intent(inout) :: &
          gbhu,       & ! forcedConvectionBndryLayerCond
          gbhf,       & ! freeConvectionBndryLayerCond
@@ -1795,7 +1798,6 @@ CONTAINS
             rnx(kk) = 0.0_r_2 ! intialise
             ecx(kk) = 0.0_r_2 ! intialise
             ecy(kk) = ecx(kk) ! store initial values
-            psil(kk) = 0.0_r_2 ! intialise
             ecxs(kk) = 0.0_r_2 ! initialise
             abs_deltlf(kk) = 0.0
             rny(kk) = rnx(kk) ! store initial values
@@ -2340,7 +2342,6 @@ CONTAINS
                   ! convert from kg m-2 ground s-1 to mmol m-2 leaf s-1*
                   ex(i)= ex(i) * 1.0e6_r_2/18.0_r_2 * canopy%vlaiw(i) 
                   psil(i) = ssnow%psi_rootzone(i)-ex(i)/canopy%kplant(i)
-                  canopy%psi_can(i) = real(psil(i), r_2)
 
                ENDIF
                IF (cable_user%SOIL_SCHE == 'Haverd2013') then
@@ -2475,6 +2476,7 @@ CONTAINS
 
                deltlfy(i)       = deltlf(i)
                tlfy(i)          = tlfx(i)
+               psily(i)         = psilx(i)
                rny(i)           = rnx(i)
                hcy(i)           = hcx(i)
                ecy(i)           = ecx(i)
@@ -2508,6 +2510,7 @@ CONTAINS
             IF (k==1) THEN
                ! take the first iterated estimates as the defaults
                tlfy(i) = tlfx(i)
+               psily(i) = psilx(i)
                rny(i) = rnx(i)
                hcy(i) = hcx(i)
                ecy(i) = ecx(i)
@@ -2526,7 +2529,7 @@ CONTAINS
             !print*, 'check after k==1 ',ktau,k
             if (ktau>=nktau .and. ktau<=(nktau+NN-1)) then
             write(134,*) ktau, iter, i, k, tlfy(i), deltlf(i), &
-            dsx(i), psil(i), canopy%fwpsi(i),csx(i,1), csx(i,2), &
+            dsx(i), psily(i), canopy%fwpsi(i),csx(i,1), csx(i,2), &
             anx(i,1), anx(i,2), canopy%gswx(i,1), canopy%gswx(i,2),vcmxt3(i,1),vcmxt3(i,2), &
             gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2)
             END IF
@@ -2591,7 +2594,7 @@ CONTAINS
 
       ENDIF
       ! print*, 'Recalculate ssnow%evapfbl: ktau: ',ktau
-      !canopy%psi_can = psil
+      canopy%psi_can = real(psily, r_2)
       canopy%frday = 12.0 * SUM(rdy, 2)
       !! vh !! inserted min to avoid -ve values of GPP
       canopy%fpn = min(-12.0 * SUM(an_y, 2), canopy%frday)
