@@ -337,9 +337,6 @@ CONTAINS
 
     ! END header
 
-    ! Open log file:
-    OPEN(logn,FILE=filename%log)
-
     IF( IARGC() > 0 ) THEN
        CALL GETARG(1, filename%met)
        CALL GETARG(2, casafile%cnpipool)

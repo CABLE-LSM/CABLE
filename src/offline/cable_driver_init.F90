@@ -88,7 +88,8 @@ CONTAINS
     DOUBLE PRECISION, INTENT(OUT) :: trunk_sumbal
       !! Reference value for quasi-bitwise reproducibility checks.
 
-    INTEGER :: ioerror
+    INTEGER :: ioerror, unit
+    CHARACTER(len=4) :: cRank ! for worker-logfiles
 
     !check to see if first argument passed to cable is
     !the name of the namelist file
@@ -100,20 +101,30 @@ CONTAINS
     END IF
 
     ! Open, read and close the namelist file.
-    OPEN(10, FILE=CABLE_NAMELIST, STATUS="OLD", ACTION="READ")
-    READ(10, NML=CABLE)
-    CLOSE(10)
+    OPEN(NEWUNIT=unit, FILE=CABLE_NAMELIST, STATUS="OLD", ACTION="READ")
+    READ(unit, NML=CABLE)
+    CLOSE(unit)
 
     cable_runtime%offline = .TRUE.
 
     ! Open, read and close the consistency check file.
     ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
     IF (mpi_grp%rank == 0 .AND. cable_user%consistency_check) THEN
-      OPEN(11, FILE=filename%trunk_sumbal, STATUS='old', ACTION='READ', IOSTAT=ioerror)
+      OPEN(NEWUNIT=unit, FILE=filename%trunk_sumbal, STATUS='old', ACTION='READ', IOSTAT=ioerror)
       IF(ioerror == 0) THEN
-        READ(11, *) trunk_sumbal  ! written by previous trunk version
+        READ(unit, *) trunk_sumbal  ! written by previous trunk version
       END IF
-      CLOSE(11)
+      CLOSE(unit)
+    END IF
+
+    ! Open log file:
+    IF (mpi_grp%rank == 0) THEN
+      OPEN(logn, FILE=filename%log)
+    ELSE IF (cable_user%logworker) THEN
+      WRITE(cRank, FMT='(I4.4)') mpi_grp%rank
+      OPEN(NEWUNIT=logn, FILE="cable_log_"//cRank, STATUS="REPLACE")
+    ELSE
+      OPEN(NEWUNIT=logn, FILE="/dev/null")
     END IF
 
   END SUBROUTINE cable_driver_init

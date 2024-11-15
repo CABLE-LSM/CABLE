@@ -277,9 +277,6 @@ SUBROUTINE serialdrv(trunk_sumbal)
 
 ! END header
 
-  ! Open log file:
-  OPEN(logn,FILE=filename%log)
-
   IF( (IARGC() > 0 ) .AND. (arg_not_namelist)) THEN
      CALL GETARG(1, filename%met)
      CALL GETARG(2, casafile%cnpipool)

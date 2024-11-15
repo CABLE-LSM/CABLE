@@ -189,7 +189,6 @@ CONTAINS
          rank           ! Rank of this worker
 
     REAL      :: dels    ! time step size in seconds
-    CHARACTER :: cRank*4 ! for worker-logfiles
 
     ! CABLE variables
     TYPE (met_type)       :: met     ! met input variables
@@ -248,23 +247,6 @@ CONTAINS
     IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
          CABLE_USER%POPLUC= .FALSE.
 
-    ! Get worker's rank and determine logfile-unit
-
-    ! MPI: TODO: find a way to preserve workers log messages somewhere
-    ! (either separate files or collated by the master to a single file
-    ! or perhaps use MPI-IO - but probably not gonna work with random length
-    ! text strings)
-    ! LN: Done!
-    IF ( CABLE_USER%LogWorker ) THEN
-       CALL MPI_Comm_rank (comm, rank, ierr)
-       WRITE(cRank,FMT='(I4.4)')rank
-       logn = 1000+rank
-       OPEN(logn,FILE="cable_log_"//cRank,STATUS="REPLACE")
-    ELSE
-       logn = 1000
-       OPEN(logn, FILE="/dev/null")
-    ENDIF
-
     ! INITIALISATION depending on nml settings
 
     CurYear = CABLE_USER%YearStart
@@ -307,13 +289,6 @@ CONTAINS
          STOP 'icycle must be 2 to 3 to get prognostic Vcmax'
     IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &
          STOP 'casaCNP must use new soil parameters'
-
-    ! Open log file:
-    ! MPI: worker logs go to the black hole
-    ! by opening the file we don't need to touch any of the code that writes
-    ! to it and may be called somewhere by a worker
-    ! OPEN(logn,FILE=filename%log)
-
 
     ! Check for gswp run
     ! MPI: done by the master only; if check fails then master MPI_Aborts
