@@ -2591,7 +2591,7 @@ CONTAINS
 
       ENDIF
       ! print*, 'Recalculate ssnow%evapfbl: ktau: ',ktau
-      canopy%psi_can = psil
+      !canopy%psi_can = psil
       canopy%frday = 12.0 * SUM(rdy, 2)
       !! vh !! inserted min to avoid -ve values of GPP
       canopy%fpn = min(-12.0 * SUM(an_y, 2), canopy%frday)
