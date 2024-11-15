@@ -2512,9 +2512,6 @@ CONTAINS
     IF ( INDEX(TRIM(frst_out),'.nc',BACK=.TRUE.) .NE. LEN_TRIM(frst_out)-2 ) THEN
        WRITE( CYEAR,FMT="(I4)" ) CurYear + 1
        frst_out = TRIM(cable_user%RunIden)//'_'//CYEAR//'_cable_rst.nc'
-! should above line be replaced by below 2 lines? - rk4417 - phase2
-!       frst_out = TRIM(filename%path)//'/'//TRIM(cable_user%RunIden)//&
-!            '_'//CYEAR//'_cable_rst.nc'
     ENDIF
 
     ! Create output file:
