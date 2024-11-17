@@ -3653,7 +3653,7 @@ END SUBROUTINE Allometry
   !*******************************************************************************
 
 
-  SUBROUTINE POP_init(POP, disturbance_interval, np, Iwood, precip)
+  SUBROUTINE POP_init(POP, disturbance_interval, np, Iwood, veg, precip)
 
     USE POP_types, ONLY: POP_TYPE
     USE TypeDef,   ONLY: i4b
@@ -3665,6 +3665,9 @@ END SUBROUTINE Allometry
     INTEGER(i4b),   INTENT(IN)    :: np
     INTEGER(i4b),   INTENT(IN)    :: Iwood(:)
     REAL(dp),       INTENT(IN), OPTIONAL :: precip(:)
+
+    ! Add veg an input parameter
+    TYPE(veg_parameter_type), INTENT(INOUT) :: 
 
     INTEGER(i4b) :: j, k
 
@@ -3749,6 +3752,65 @@ END SUBROUTINE Allometry
   END SUBROUTINE alloc_POP
 
   !*******************************************************************************
+
+  SUBROUTINE update_POP_parameters(disturbance_interval, disturbance_intensity)
+    !*## Purpose
+    !
+    ! Update any POP parameters defined by the user in the namelist.
+    !
+    !## Method
+    !
+    ! Read the pop.nml namelist and use the values in said namelist to write
+    ! over the default values defined in the POP_Constants module.
+
+    ! The POP_Constants contains all the values which parameterise the POP
+    ! algorithm. At the moment, all the values from said module are imported
+    ! into the POP module via USE, which we want to move away from in the
+    ! future. For now, given they're defined within the scope of this module,
+    ! we can just write over them with minimal effort.
+    ! There are two veg parameters that have come into play in the POP routines,
+    ! which are veg%disturbance_interval and veg%disturbance_intensity. Going to
+    ! import the veg_parameter_type we pass around to make those parameters
+    ! modifiable here, but might not be a good idea in the long term.
+
+    INTEGER, DIMENSION(:,:), POINTER, INTENT(INOUT) :: disturbance_interval
+    REAL(dp), DIMENSION(:,:), POINTER, INTENT(INOUT) :: disturbance_intensity
+
+    ! Status checker for namelist
+    INTEGER :: nmlUnit, ios
+    CHARACTER(LEN=200) :: ioMessage
+
+    ! This is just in the order they appear in POP_Constants module
+    NAMELIST /popnml/ fulton_alpha, densindiv_max, densindiv_min, kbiometric,
+                      wd, growth_efficiency, pmort, mort_max, theta_recruit,
+                      cmass_stem_init, powerbiomass, powergrowthefficiency,
+                      crowdingfactor, alpha_cpc, k_allom1, k_rp, ksapwood,
+                      Q, shootfrac, CtoNw, NtoNl, CtoNr, N_extent, Nlayer,
+                      ncohort_max, ndisturb, patch_reps, nage_max, patch_reps1,
+                      patch_reps2, npatch, npatch2D, height_bins, bin_power,
+                      timebase_factor, allom_switch, max_height_switch,
+                      resource_switch, interp_switch, smooth_switch,
+                      nyear_window, nyear_smooth, agemax, disturbance_interval,
+                      disturbance_intensity
+
+    OPEN(NEWUNIT=nmlUnit, FILE='pop.nml', STATUS='OLD', ACTION='read',&
+      IOSTAT=ios)
+
+    IF (ios == 29) THEN
+      ! Until this change is reflected in the common configuration, leave the
+      ! option to continue if the namelist doesn't exist. File not found returns
+      ! an IOSTAT=29.
+      CONTINUE
+    ELSE
+      ! In all other instances, handle the namelist reading as usual
+      READ(nmlUnit, NML=popnml, IOSTAT=ios, IOMSG=iomsg)
+      CALL handle_iostat(ios, ioMessage)
+    END IF
+
+    ! Any parameters that are defined strictly in relation to other parameters
+    Nyear_history = nyear_smooth - nyear_window
+
+
 
 END MODULE POPModule
 
