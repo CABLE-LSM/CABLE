@@ -24,7 +24,8 @@ MODULE cable_driver_init_mod
     fixedCO2,                      &
     ncciy,                         &
     gswpfile,                      &
-    globalMetfile
+    globalMetfile,                 &
+    set_group_output_values
   USE casadimension, ONLY : icycle
   USE casavariable, ONLY : casafile
   USE cable_namelist_util, ONLY : &
@@ -131,6 +132,12 @@ CONTAINS
     IF (IARGC() > 0 .AND. arg_not_namelist) THEN
       CALL GETARG(1, filename%met)
       CALL GETARG(2, casafile%cnpipool)
+    END IF
+
+    ! Initialise flags to output individual variables according to group
+    ! options from the namelist file
+    IF (mpi_grp%rank == 0) THEN
+      CALL set_group_output_values()
     END IF
 
   END SUBROUTINE cable_driver_init

@@ -76,7 +76,7 @@ MODULE cable_serial
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
        fixedCO2,output,check,&
        patch_type,landpt,soilparmnew,&
-       defaultLAI, sdoy, smoy, syear, timeunits, exists, calendar, set_group_output_values, &
+       defaultLAI, sdoy, smoy, syear, timeunits, exists, calendar, &
        NO_CHECK
   USE casa_ncdf_module, ONLY: is_casa_time
   USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
@@ -269,11 +269,6 @@ SUBROUTINE serialdrv(trunk_sumbal)
   real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
 
 ! END header
-
-  ! INITIALISATION depending on nml settings
-  ! Initialise flags to output individual variables according to group
-  ! options from the namelist file
-  CALL set_group_output_values()
 
   IF (TRIM(cable_user%MetType) .EQ. 'gswp' .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
      IF ( CABLE_USER%YearStart.EQ.0 .AND. ncciy.GT.0) THEN

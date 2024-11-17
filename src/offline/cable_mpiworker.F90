@@ -236,8 +236,6 @@ CONTAINS
     IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
          CABLE_USER%POPLUC= .FALSE.
 
-    ! INITIALISATION depending on nml settings
-
     CurYear = CABLE_USER%YearStart
 
     IF ( icycle .GE. 11 ) THEN

@@ -170,7 +170,7 @@ CONTAINS
          output,check,&
          patch_type,landpt,soilparmnew,&
          timeunits, exists, output, &
-         calendar, set_group_output_values
+         calendar
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, fileName,            &
          CurYear,    &
@@ -331,11 +331,6 @@ CONTAINS
 
 
     ! END header
-
-    ! INITIALISATION depending on nml settings
-    ! Initialise flags to output individual variables according to group
-    ! options from the namelist file
-    CALL set_group_output_values()
 
     IF (TRIM(cable_user%MetType) .EQ. 'gswp' .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
        IF ( CABLE_USER%YearStart.EQ.0 .AND. ncciy.GT.0) THEN
