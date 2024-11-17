@@ -47,6 +47,9 @@ while [ ${#} -gt 0 ]; do
             mpi=1
             cmake_args+=(-DCABLE_MPI="ON")
             ;;
+        -l|--library)
+            cmake_args+=(-DBUILD_LIBRARY="ON")
+            ;;
         -C|--compiler)
             compiler=${2}
             shift
