@@ -160,16 +160,11 @@ CONTAINS
     ! PLUME-MIP only
     USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE
 
-    USE cable_namelist_util, ONLY : CABLE_NAMELIST
-
     USE cbl_soil_snow_init_special_module
     IMPLICIT NONE
 
     ! MPI:
     INTEGER               :: comm ! MPI communicator for comms with the workers
-
-    ! CABLE namelist: model configuration, runtime/user switches
-    !CHARACTER(LEN=200), PARAMETER :: CABLE_NAMELIST='cable.nml'
 
     ! timing variables
     INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
@@ -237,12 +232,6 @@ CONTAINS
 
     ! Maciej: make sure the variable does not go out of scope
     mp = 0
-
-    IF( IARGC() > 0 ) THEN
-       CALL GETARG(1, filename%met)
-       CALL GETARG(2, casafile%cnpipool)
-    ENDIF
-
 
     IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
          CABLE_USER%POPLUC= .FALSE.

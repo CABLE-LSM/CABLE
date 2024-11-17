@@ -29,7 +29,8 @@ MODULE cable_driver_init_mod
   USE casavariable, ONLY : casafile
   USE cable_namelist_util, ONLY : &
     get_namelist_file_name,       &
-    CABLE_NAMELIST
+    CABLE_NAMELIST,               &
+    arg_not_namelist
   USE cable_mpi_mod, ONLY : mpi_grp_t
   IMPLICIT NONE
   PRIVATE
@@ -125,6 +126,11 @@ CONTAINS
       OPEN(NEWUNIT=logn, FILE="cable_log_"//cRank, STATUS="REPLACE")
     ELSE
       OPEN(NEWUNIT=logn, FILE="/dev/null")
+    END IF
+
+    IF (IARGC() > 0 .AND. arg_not_namelist) THEN
+      CALL GETARG(1, filename%met)
+      CALL GETARG(2, casafile%cnpipool)
     END IF
 
   END SUBROUTINE cable_driver_init

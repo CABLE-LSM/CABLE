@@ -215,8 +215,6 @@ CONTAINS
          PLUME_MIP_INIT
     USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT
 
-    USE cable_namelist_util,  ONLY : CABLE_NAMELIST
-
     USE landuse_constant,     ONLY: mstate,mvmax,mharvw
     USE landuse_variable
     USE bgcdriver_mod, ONLY : bgcdriver
@@ -227,9 +225,6 @@ CONTAINS
     INTEGER               :: comm ! MPI communicator for comms with the workers
     DOUBLE PRECISION, INTENT(IN) :: trunk_sumbal
       !! Reference value for quasi-bitwise reproducibility checks.
-
-    ! CABLE namelist: model configuration, runtime/user switches
-    !CHARACTER(LEN=200), PARAMETER :: CABLE_NAMELIST='cable.nml'
 
     ! timing variables
     INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
@@ -336,11 +331,6 @@ CONTAINS
 
 
     ! END header
-
-    IF( IARGC() > 0 ) THEN
-       CALL GETARG(1, filename%met)
-       CALL GETARG(2, casafile%cnpipool)
-    ENDIF
 
     ! INITIALISATION depending on nml settings
     ! Initialise flags to output individual variables according to group

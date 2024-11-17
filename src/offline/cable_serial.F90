@@ -85,7 +85,6 @@ MODULE cable_serial
        IS_LEAPYEAR, &
        kwidth_gl
 
-  USE cable_namelist_util, ONLY : CABLE_NAMELIST, arg_not_namelist
 ! physical constants
 USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
 USE cable_phys_constants_mod, ONLY : CEMLEAF => EMLEAF
@@ -156,12 +155,6 @@ SUBROUTINE serialdrv(trunk_sumbal)
   !! Offline serial driver.
   DOUBLE PRECISION, INTENT(IN) :: trunk_sumbal
     !! Reference value for quasi-bitwise reproducibility checks.
-
-  ! CABLE namelist: model configuration, runtime/user switches
-  !CHARACTER(LEN=200), PARAMETER :: CABLE_NAMELIST='cable.nml'
-  ! try to read in namelist from command line argument
-  ! allows simple way of not hard coding cable.nml
-  ! defaults to using cable.nml if no file specified
 
   ! timing variables
   INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
@@ -276,11 +269,6 @@ SUBROUTINE serialdrv(trunk_sumbal)
   real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
 
 ! END header
-
-  IF( (IARGC() > 0 ) .AND. (arg_not_namelist)) THEN
-     CALL GETARG(1, filename%met)
-     CALL GETARG(2, casafile%cnpipool)
-  ENDIF
 
   ! INITIALISATION depending on nml settings
   ! Initialise flags to output individual variables according to group
