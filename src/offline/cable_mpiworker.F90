@@ -236,8 +236,6 @@ CONTAINS
     IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
          CABLE_USER%POPLUC= .FALSE.
 
-    CurYear = CABLE_USER%YearStart
-
     IF ( icycle .GE. 11 ) THEN
        icycle                     = icycle - 10
        CASAONLY                   = .TRUE.

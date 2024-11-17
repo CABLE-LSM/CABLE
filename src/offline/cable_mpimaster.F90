@@ -351,8 +351,6 @@ CONTAINS
        ENDIF
     ENDIF
 
-    CurYear = CABLE_USER%YearStart
-
     IF ( icycle .GE. 11 ) THEN
        icycle                     = icycle - 10
        CASAONLY                   = .TRUE.
