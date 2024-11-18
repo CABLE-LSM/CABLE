@@ -537,16 +537,6 @@ SUBROUTINE get_daily_met(CRU)
       land_x, land_y, MetYear, MetDay, CRU%LeapYears, CRU%xDimSize,&
       CRU%yDimSize, CRU%DirectRead)
 
-    !MetYear = CRU%cYear
-    !! If the variable is time recycled
-    !IF (CRU%isRecycled(VarIndx)) THEN
-      !MetYear = RecycledYear
-    !END IF
-
-    !! CRU%CTStep is the current day, which we use to index the netCDF arrays
-    !CALL read_metvals(CRU%MetDatasets(VarIndx), CRU%Met(VarIndx)%MetVals,&
-      !land_x, land_y, MetYear, CRU%CTStep, CRU%LeapYears, CRU%xDimSize,&
-      !CRU%yDimSize, CRU%DirectRead)
   END DO IterateVariables
 
   ! Previous day variables
@@ -576,7 +566,7 @@ SUBROUTINE get_daily_met(CRU)
     CRU%yDimSize, CRU%DirectRead)
 
   ! vph0900
-  CALL get_met_date(CRU%cYear, CRU%CTStep-1, CRU%IsRecycled(vph0900),&
+  CALL get_met_date(CRU%cYear, CRU%CTStep+1, CRU%IsRecycled(vph0900),&
     CRU%RecycStartYear, CRU%MetRecycPeriod, CRU%LeapYears, MetYear,&
     MetDay)
   CALL read_metvals(CRU%MetDatasets(vph0900), CRU%Met(nextvph0900)%MetVals,&
@@ -742,7 +732,7 @@ SUBROUTINE get_met_date(SimYear, SimDay, IsRecycled, RecycleStart,&
   ! meteorology from 01/01/1951, and consequently some of the previos day's
   ! meteorology. The "previous day" with respect to the meteorology can be
   ! either 31/12/1950 or 31/12/1960, depending on when the MODULO is applied.
-  ! The current approach would use 31/12/1949 as the previous day, which is less
+  ! The current approach would use 31/12/1950 as the previous day, which is less
   ! likely to cause issues with large jumps in the time-local conditions.
   ! Also simplifies leap year handling. In that instance, we can simply check
   ! whether the new year is a leap year or not, instead of passing the new year
@@ -764,7 +754,14 @@ SUBROUTINE get_met_date(SimYear, SimDay, IsRecycled, RecycleStart,&
   END IF
 
   ! Check the validity of the passed day
-  IF (SimDay <= 0) THEN
+  IF ((SimDay < -364) .OR. (SimDay > (DaysInYear + 365)) THEN
+    ! Looking more than a year into the past/future- this routine was never
+    ! meant for such tasks.
+    WRITE(ERROR_UNIT,*) "Looking too far into the past/future. "//&
+      "The get_met_date routine was only intended for nearby temporal "//&
+      "searching, not more than a year in the future/past."
+    EXIT 5
+  IF (SimDay < 1) THEN
     ! Go back to last year- set the day later, once we know whether the MetYear
     ! is a leapyear or not
     MetYear = SimYear - 1
@@ -774,7 +771,7 @@ SUBROUTINE get_met_date(SimYear, SimDay, IsRecycled, RecycleStart,&
     IF ((LeapYears) .AND. is_leapyear(MetYear)) THEN
       MetDay = 366 + SimDay
     END IF
-  ELSEIF (SimDay == (DaysInYear + 1)) THEN
+  ELSEIF (SimDay > DaysInYear) THEN
     MetYear = SimYear + 1
     MetDay = SimDay - DaysInYear
   ELSE
