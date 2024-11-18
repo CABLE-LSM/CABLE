@@ -67,7 +67,7 @@ MODULE cable_param_module
   PRIVATE
   PUBLIC get_default_params, write_default_params, derived_parameters,         &
        check_parameter_values, report_parameters, parID_type,                &
-       write_cnp_params, consistency_ice_veg_soil 
+       write_cnp_params, consistency_ice_veg_soil, GWspatialParameters 
   INTEGER :: patches_in_parfile=4 ! # patches in default global parameter
   ! file
 
