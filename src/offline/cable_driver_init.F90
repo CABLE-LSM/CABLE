@@ -36,9 +36,12 @@ MODULE cable_driver_init_mod
   IMPLICIT NONE
   PRIVATE
 
+  INTEGER, PARAMETER :: CASAONLY_ICYCLE_MIN = 10
+
   LOGICAL, SAVE, PUBLIC :: vegparmnew    = .FALSE. ! using new format input file (BP dec 2007)
   LOGICAL, SAVE, PUBLIC :: spinup        = .FALSE. ! model spinup to soil state equilibrium?
   LOGICAL, SAVE, PUBLIC :: spincasa      = .FALSE. ! TRUE: CASA-CNP Will spin mloop times, FALSE: no spin up
+  LOGICAL, SAVE, PUBLIC :: CASAONLY      = .FALSE. ! ONLY Run CASA-CNP
   LOGICAL, SAVE, PUBLIC :: l_casacnp     = .FALSE. ! using CASA-CNP with CABLE
   LOGICAL, SAVE, PUBLIC :: l_landuse     = .FALSE. ! using CASA-CNP with CABLE
   LOGICAL, SAVE, PUBLIC :: l_laiFeedbk   = .FALSE. ! using prognostic LAI
@@ -69,6 +72,7 @@ MODULE cable_driver_init_mod
     l_landuse,      &
     l_laiFeedbk,    &
     l_vcmaxFeedbk,  &
+    CASAONLY,       &
     icycle,         &
     casafile,       &
     ncciy,          &
@@ -138,6 +142,39 @@ CONTAINS
     ! options from the namelist file
     IF (mpi_grp%rank == 0) THEN
       CALL set_group_output_values()
+    END IF
+
+    ! TODO(Sean): we should not be setting namelist parameters in the following if
+    ! block - all options are all configurable via the namelist file and is
+    ! unclear that these options are being overwritten. A better approach would be
+    ! to error for bad combinations of namelist parameters.
+    IF (icycle > CASAONLY_ICYCLE_MIN) THEN
+      icycle                     = icycle - CASAONLY_ICYCLE_MIN
+      CASAONLY                   = .TRUE.
+      CABLE_USER%CASA_DUMP_READ  = .TRUE.
+      CABLE_USER%CASA_DUMP_WRITE = .FALSE.
+    ELSE IF (icycle == 0) THEN
+      CABLE_USER%CASA_DUMP_READ  = .FALSE.
+      spincasa                   = .FALSE.
+      CABLE_USER%CALL_POP        = .FALSE.
+    END IF
+
+    ! TODO(Sean): overwriting l_casacnp defeats the purpose of it being a namelist
+    ! option - we should either deprecate the l_casacnp option or not overwrite
+    ! its value.
+    l_casacnp = icycle > 0
+
+    IF (l_casacnp .AND. (icycle == 0 .OR. icycle > 3)) THEN
+      STOP 'icycle must be 1 to 3 when using casaCNP'
+    END IF
+    IF ((l_laiFeedbk .OR. l_vcmaxFeedbk) .AND. (.NOT. l_casacnp)) THEN
+      STOP 'casaCNP required to get prognostic LAI or Vcmax'
+    END IF
+    IF (l_vcmaxFeedbk .AND. (icycle < 2 .OR. icycle > 3)) THEN
+      STOP 'icycle must be 2 to 3 to get prognostic Vcmax'
+    END IF
+    IF (icycle > 0 .AND. (.NOT. soilparmnew)) THEN
+      STOP 'casaCNP must use new soil parameters'
     END IF
 
   END SUBROUTINE cable_driver_init

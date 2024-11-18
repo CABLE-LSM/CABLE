@@ -79,10 +79,8 @@ MODULE cable_mpimaster
     vegparmnew,                     &
     spinup,                         &
     spincasa,                       &
-    l_casacnp,                      &
+    CASAONLY,                       &
     l_landuse,                      &
-    l_laiFeedbk,                    &
-    l_vcmaxFeedbk,                  &
     delsoilM,                       &
     delsoilT,                       &
     delgwM
@@ -168,7 +166,7 @@ CONTAINS
     USE cable_def_types_mod
     USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,globalMetfile, &
          output,check,&
-         patch_type,landpt,soilparmnew,&
+         patch_type,landpt,&
          timeunits, exists, output, &
          calendar
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
@@ -283,7 +281,6 @@ CONTAINS
 
     LOGICAL, SAVE           :: &
          spinConv      = .FALSE., & ! has spinup converged?
-         CASAONLY      = .FALSE., & ! ONLY Run CASA-CNP
          CALL1         = .TRUE.
 
     ! temporary storage for soil moisture/temp. in spin up mode
@@ -351,23 +348,6 @@ CONTAINS
        ENDIF
     ENDIF
 
-    IF ( icycle .GE. 11 ) THEN
-       icycle                     = icycle - 10
-       CASAONLY                   = .TRUE.
-       CABLE_USER%CASA_DUMP_READ  = .TRUE.
-       CABLE_USER%CASA_DUMP_WRITE = .FALSE.
-    ELSEIF ( icycle .EQ. 0 ) THEN
-       CABLE_USER%CASA_DUMP_READ  = .FALSE.
-       CABLE_USER%CALL_POP        = .FALSE.
-    ENDIF
-
-    ! vh_js !
-    IF (icycle.GT.0) THEN
-       l_casacnp = .TRUE.
-    ELSE
-       l_casacnp = .FALSE.
-    ENDIF
-
     ! vh_js ! suggest LALLOC should ulitmately be a switch in the .nml file
     IF (CABLE_USER%CALL_POP) THEN
        LALLOC = 3 ! for use with POP: makes use of pipe model to partition between stem and leaf
@@ -379,15 +359,6 @@ CONTAINS
        leaps = .TRUE.
        cable_user%MetType = 'gswp'
     ENDIF
-
-    IF( l_casacnp  .AND. ( icycle == 0 .OR. icycle > 3 ) )                   &
-         STOP 'icycle must be 1 to 3 when using casaCNP'
-    IF( ( l_laiFeedbk .OR. l_vcmaxFeedbk ) .AND. ( .NOT. l_casacnp ) )       &
-         STOP 'casaCNP required to get prognostic LAI or Vcmax'
-    IF( l_vcmaxFeedbk .AND. icycle < 2 )                                     &
-         STOP 'icycle must be 2 to 3 to get prognostic Vcmax'
-    IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &
-         STOP 'casaCNP must use new soil parameters'
 
     ! casa time count
     ctime = 0

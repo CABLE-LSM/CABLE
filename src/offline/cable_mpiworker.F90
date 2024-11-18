@@ -69,7 +69,7 @@ MODULE cable_mpiworker
     vegparmnew,                     &
     spinup,                         &
     spincasa,                       &
-    l_casacnp,                      &
+    CASAONLY,                       &
     l_laiFeedbk,                    &
     l_vcmaxFeedbk,                  &
     delsoilM,                       &
@@ -129,7 +129,7 @@ CONTAINS
     USE cable_def_types_mod
     USE cable_IO_vars_module, ONLY: logn,leaps, &
          output,check,&
-         patch_type,soilparmnew,&
+         patch_type,&
          NO_CHECK
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, filename,            &
@@ -213,7 +213,6 @@ CONTAINS
 
     LOGICAL, SAVE           :: &
          spinConv      = .FALSE., & ! has spinup converged?
-         CASAONLY      = .FALSE., & ! ONLY Run CASA-CNP
          CALL1         = .TRUE.
 
     ! MPI:
@@ -236,24 +235,6 @@ CONTAINS
     IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
          CABLE_USER%POPLUC= .FALSE.
 
-    IF ( icycle .GE. 11 ) THEN
-       icycle                     = icycle - 10
-       CASAONLY                   = .TRUE.
-       CABLE_USER%CASA_DUMP_READ  = .TRUE.
-       CABLE_USER%CASA_DUMP_WRITE = .FALSE.
-    ELSEIF ( icycle .EQ. 0 ) THEN
-       CABLE_USER%CASA_DUMP_READ  = .FALSE.
-       spincasa                   = .FALSE.
-       CABLE_USER%CALL_POP        = .FALSE.
-    ENDIF
-
-    ! vh_js !
-    IF (icycle.GT.0) THEN
-       l_casacnp = .TRUE.
-    ELSE
-       l_casacnp = .FALSE.
-    ENDIF
-
     ! vh_js ! suggest LALLOC should ulitmately be a switch in the .nml file
     IF (CABLE_USER%CALL_POP) THEN
        LALLOC = 3 ! for use with POP: makes use of pipe model to partition between stem and leaf
@@ -265,15 +246,6 @@ CONTAINS
        leaps = .TRUE.
        cable_user%MetType = 'gswp'
     ENDIF
-
-    IF( l_casacnp  .AND. ( icycle == 0 .OR. icycle > 3 ) )                   &
-         STOP 'icycle must be 1 to 3 when using casaCNP'
-    IF( ( l_laiFeedbk .OR. l_vcmaxFeedbk ) .AND. ( .NOT. l_casacnp ) )       &
-         STOP 'casaCNP required to get prognostic LAI or Vcmax'
-    IF( l_vcmaxFeedbk .AND. icycle < 2 )                                     &
-         STOP 'icycle must be 2 to 3 to get prognostic Vcmax'
-    IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &
-         STOP 'casaCNP must use new soil parameters'
 
     ! Check for gswp run
     ! MPI: done by the master only; if check fails then master MPI_Aborts
