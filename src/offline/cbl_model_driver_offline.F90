@@ -15,7 +15,7 @@
 !          twice per timestep in the ACCESS case. Not all parts of cbm
 !          are executed in each of the ACCESS calls.
 !
-! Called from: cable_driver for offline version
+! Called from: cable_serial for offline version
 !              cable_explicit_driver, cable_implicit_driver for ACCESS
 !
 ! Contact: Yingping.Wang@csiro.au

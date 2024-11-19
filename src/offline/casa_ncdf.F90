@@ -406,7 +406,7 @@ USE cable_common_module, ONLY: IS_LEAPYEAR
 
   USE cable_common_module, ONLY: CABLE_USER 
     ! Correctly determine if it is time to dump-read or standard-write
-    ! casa output from cable_driver.
+    ! casa output from cable_serial.
     ! Writing casa-dump data is handled in casa_cable and therefore not \
     ! captured here
     !cable_common module was intended to be unequivocally common to all

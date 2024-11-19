@@ -1154,8 +1154,8 @@ CONTAINS
    !> 18. update variables ! MMY??? where is pudsto calculated
     DO i=1,mp
        ssnow%pudsto(i) = 0.0  !no puddle
-       ssnow%smelt(i)  = ssnow%smelt(i)/dels    !change units to mm/s.  cable_driver then reverts back to mm
-       ssnow%runoff(i) = (ssnow%rnof1(i) + ssnow%rnof2(i))!*dels  !cable_driver converts from mm/s to mm
+       ssnow%smelt(i)  = ssnow%smelt(i)/dels    !change units to mm/s.  cable_serial then reverts back to mm
+       ssnow%runoff(i) = (ssnow%rnof1(i) + ssnow%rnof2(i))!*dels  !cable_serial converts from mm/s to mm
        !rnof1 and rnof2 are already in mm/s
        ! Set weighted soil/snow surface temperature
        ssnow%tss(i) =  (1-ssnow%isflag(i))*ssnow%tgg(i,1) + ssnow%isflag(i)*ssnow%tggsn(i,1)

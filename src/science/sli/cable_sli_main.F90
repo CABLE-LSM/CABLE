@@ -236,7 +236,7 @@ CONTAINS
     END WHERE
     h0         = ssnow%h0
 
-    ! zero runoff here, in case error is returned to avoid excessive runoff from previous time-step. (Runoff is multipled by dt in cable_driver.F90)
+    ! zero runoff here, in case error is returned to avoid excessive runoff from previous time-step. (Runoff is multipled by dt in cable_serial.F90)
     ssnow%rnof1 = 0.0
     ssnow%rnof2 = 0.0
     ssnow%runoff = 0.0

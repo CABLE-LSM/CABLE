@@ -58,7 +58,8 @@
 !              poolcnpOut.csv -- from CASA-CNP
 !==============================================================================
 
-PROGRAM cable_offline_driver
+MODULE cable_serial
+  !! Offline serial driver for CABLE.
   USE cable_driver_init_mod, ONLY : &
     cable_driver_init,              &
     vegparmnew,                     &
@@ -146,6 +147,14 @@ USE bgcdriver_mod, ONLY : bgcdriver
 USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_NC 
   IMPLICIT NONE
 
+  PRIVATE
+  PUBLIC :: serialdrv
+
+CONTAINS
+
+SUBROUTINE serialdrv()
+  !! Offline serial driver.
+  
   ! CABLE namelist: model configuration, runtime/user switches
   !CHARACTER(LEN=200), PARAMETER :: CABLE_NAMELIST='cable.nml'
   ! try to read in namelist from command line argument
@@ -253,7 +262,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
        new_sumbal = 0.0, &
        new_sumfpn = 0.0, &
        new_sumfe = 0.0
-!For consistency w JAC
+  !For consistency w JAC
   REAL,ALLOCATABLE, SAVE :: c1(:,:)
   REAL,ALLOCATABLE, SAVE :: rhoch(:,:)
   REAL,ALLOCATABLE, SAVE :: xk(:,:)
@@ -262,19 +271,17 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
   INTEGER :: ioerror
   INTEGER :: count_bal = 0
 
-! for landuse
-integer     mlon,mlat, mpx
-real(r_2), dimension(:,:,:),   allocatable,  save  :: luc_atransit
-real(r_2), dimension(:,:),     allocatable,  save  :: luc_fharvw
-real(r_2), dimension(:,:,:),   allocatable,  save  :: luc_xluh2cable
-real(r_2), dimension(:),       allocatable,  save  :: arealand        
-integer,   dimension(:,:),     allocatable,  save  :: landmask
-integer,   dimension(:),       allocatable,  save  :: cstart,cend,nap
-real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
+  ! for landuse
+  integer     mlon,mlat, mpx
+  real(r_2), dimension(:,:,:),   allocatable,  save  :: luc_atransit
+  real(r_2), dimension(:,:),     allocatable,  save  :: luc_fharvw
+  real(r_2), dimension(:,:,:),   allocatable,  save  :: luc_xluh2cable
+  real(r_2), dimension(:),       allocatable,  save  :: arealand
+  integer,   dimension(:,:),     allocatable,  save  :: landmask
+  integer,   dimension(:),       allocatable,  save  :: cstart,cend,nap
+  real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
 
 ! END header
-
-  CALL cable_driver_init()
 
   cable_runtime%offline = .TRUE.
 
@@ -1227,7 +1234,7 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
   CALL CPU_TIME(etime)
   PRINT *, 'Finished. ', etime, ' seconds needed for ', kend,' hours'
 
-END PROGRAM cable_offline_driver
+END SUBROUTINE serialdrv
 
 
 SUBROUTINE prepareFiles(ncciy)
@@ -1363,3 +1370,5 @@ SUBROUTINE LUCdriver( casabiome,casapool, &
   CALL POPLUC_weights_transfer(POPLUC,POP,LUC_EXPT)
 
 END SUBROUTINE LUCdriver
+
+END MODULE cable_serial

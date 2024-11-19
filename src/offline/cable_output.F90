@@ -18,7 +18,7 @@
 !
 !
 ! ==============================================================================
-! CALLed from:    cable_driver.F90
+! CALLed from:    cable_serial.F90
 !
 ! MODULEs used:   cable_abort_module
 !                 cable_common_module

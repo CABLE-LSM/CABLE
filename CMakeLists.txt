@@ -38,17 +38,19 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
 endif()
 
 add_library(
-    cable_common_objlib
-    OBJECT
+    cable_common
+    STATIC
     src/offline/cable_abort.F90
     src/offline/cable_checks.F90
     src/offline/cable_cru_TRENDY.F90
     src/offline/cable_define_types.F90
+    src/offline/cable_driver_init.F90
     src/offline/cable_initialise.F90
     src/offline/cable_input.F90
     src/offline/cable_iovars.F90
     src/offline/cable_LUC_EXPT.F90
     src/offline/cable_metutils.F90
+    src/offline/cable_mpi.F90
     src/offline/cable_namelist_input.F90
     src/offline/cable_output.F90
     src/offline/cable_parameters.F90
@@ -57,6 +59,7 @@ add_library(
     src/offline/cable_plume_mip.F90
     src/offline/cable_read.F90
     src/offline/cable_site.F90
+    src/offline/cable_serial.F90
     src/offline/cable_soil_params.F90
     src/offline/cable_weathergenerator.F90
     src/offline/cable_write.F90
@@ -150,29 +153,30 @@ add_library(
     src/util/cable_runtime_opts_mod.F90
     src/util/masks_cbl.F90
 )
-target_link_libraries(cable_common_objlib PRIVATE PkgConfig::NETCDF)
-
-add_executable(
-    cable
-    src/offline/cable_driver.F90
-    src/offline/cable_driver_init.F90
-    "$<TARGET_OBJECTS:cable_common_objlib>"
-)
-target_link_libraries(cable PRIVATE PkgConfig::NETCDF)
-install(TARGETS cable RUNTIME)
+target_link_libraries(cable_common PRIVATE PkgConfig::NETCDF)
+if(CABLE_MPI)
+  target_compile_definitions(cable_common PRIVATE __MPI__)
+  target_link_libraries(cable_common PRIVATE MPI::MPI_Fortran)
+endif()
 
 if(CABLE_MPI)
     add_executable(
         cable-mpi
-        src/offline/cable_driver_init.F90
         src/offline/cable_mpicommon.F90
-        src/offline/cable_mpidrv.F90
         src/offline/cable_mpimaster.F90
         src/offline/cable_mpiworker.F90
         src/science/pop/pop_mpi.F90
-        "$<TARGET_OBJECTS:cable_common_objlib>"
+        src/offline/cable_offline_driver.F90
     )
-    target_compile_definitions(cable-mpi PRIVATE __MPI__)
-    target_link_libraries(cable-mpi PRIVATE PkgConfig::NETCDF MPI::MPI_Fortran)
+    target_link_libraries(cable-mpi PRIVATE cable_common MPI::MPI_Fortran)
     install(TARGETS cable-mpi RUNTIME)
+else()
+    add_executable(
+        cable
+        src/offline/cable_mpimaster_stub.F90
+        src/offline/cable_mpiworker_stub.F90
+        src/offline/cable_offline_driver.F90
+    )
+    target_link_libraries(cable PRIVATE cable_common)
+    install(TARGETS cable RUNTIME)
 endif()
