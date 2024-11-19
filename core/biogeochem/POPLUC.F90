@@ -1651,6 +1651,8 @@ CONTAINS
        ENDDO
     ENDIF
 
+    ! Set the disturbance interval from the veg type
+    disturbance_interval = veg%disturbance_interval
 
   END SUBROUTINE POPLUC_Init
 

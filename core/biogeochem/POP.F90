@@ -106,23 +106,22 @@ MODULE POP_Constants
   REAL(dp), PARAMETER :: CtoNw = 400.0_dp
   REAL(dp), PARAMETER ::  CtoNl = 60.0_dp
   REAL(dp), PARAMETER :: CtoNr = 70.0_dp
-  REAL(dp), PARAMETER :: N_EXTENT = 2.0_dp ! multiple of crown diameters within which tree competes with other cohorts
   REAL(dp), PARAMETER :: EPS = 1.0e-12_dp
   INTEGER(i4b), PARAMETER :: NLAYER = 1 ! number of vertical veg layers (1 is currently the only option)
   INTEGER(i4b), PARAMETER :: NCOHORT_MAX = 20 ! maximum number of cohorts
   INTEGER(i4b), PARAMETER :: NDISTURB = 1 ! number of disturbance regimes (1 (total only)  or 2 (partial and total))
   INTEGER(i4b), PARAMETER :: PATCH_REPS = 10 ! higher number reduces 'noise'
-  INTEGER(i4b), PARAMETER :: NAGE_MAX = 1 ! number of maxium ages
   INTEGER(i4b), PARAMETER :: PATCH_REPS1 = 60 ! number of first dist years
   INTEGER(i4b), PARAMETER :: PATCH_REPS2 = 1 ! number of second dist years
   INTEGER(i4b), PARAMETER :: NPATCH = PATCH_REPS1*PATCH_REPS2
-  INTEGER(i4b), PARAMETER :: NPATCH1D = NPATCH
   INTEGER(i4b), PARAMETER :: NPATCH2D = NPATCH
   INTEGER(i4b), PARAMETER ::  HEIGHT_BINS = 12 ! number of height categories to keep track of for diagnostics
   REAL(dp), PARAMETER :: BIN_POWER = 1.4_dp ! bins have muscles
-  ! Time base factor (to be multiplied by mean dist interval to give TIMEBASE)
-  ! for sampling disturbance probabilities from Poisson distribution
-  INTEGER(i4b), PARAMETER :: TIMEBASE_FACTOR=50
+
+  ! This seems like it should be meaningful for sampling the distribution
+  !! Time base factor (to be multiplied by mean dist interval to give TIMEBASE)
+  !! for sampling disturbance probabilities from Poisson distribution
+  !INTEGER(i4b), PARAMETER :: TIMEBASE_FACTOR=50
   REAL(dp), PARAMETER :: PI=3.14159265358979323846264_dp
   ! 0 == default; 1 = top-end allometry (requires precip as input to POPSTEP); 2 = Allometry following Williams 2005, Model 5b
   INTEGER(i4b), PARAMETER :: ALLOM_SWITCH = 2
@@ -3785,10 +3784,10 @@ END SUBROUTINE Allometry
                       wd, growth_efficiency, pmort, mort_max, theta_recruit,
                       cmass_stem_init, powerbiomass, powergrowthefficiency,
                       crowdingfactor, alpha_cpc, k_allom1, k_rp, ksapwood,
-                      Q, shootfrac, CtoNw, NtoNl, CtoNr, N_extent, Nlayer,
-                      ncohort_max, ndisturb, patch_reps, nage_max, patch_reps1,
+                      shootfrac, CtoNw, NtoNl, CtoNr, N_extent, Nlayer,
+                      ncohort_max, ndisturb, patch_reps, patch_reps1,
                       patch_reps2, npatch, npatch2D, height_bins, bin_power,
-                      timebase_factor, allom_switch, max_height_switch,
+                      allom_switch, max_height_switch,
                       resource_switch, interp_switch, smooth_switch,
                       nyear_window, nyear_smooth, agemax, disturbance_interval,
                       disturbance_intensity
