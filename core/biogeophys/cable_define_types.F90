@@ -497,7 +497,7 @@ module cable_def_types_mod
      ! REAL(r_2), DIMENSION(:,:,:), POINTER :: ci => null()     ! intra-cellular CO2 vh 6/7/09
      real(r_2), dimension(:),     pointer :: fwsoil => null() !
      real(r_2), dimension(:),     pointer :: fwsoiltmp => null() ! zihanlu 25/09/2024
-     real(r_2), dimension(:),     pointer :: fwpsi => null() ! zihanlu 10/11/2024
+     real(r_2), dimension(:,:),     pointer :: fwpsi => null() ! zihanlu 10/11/2024
      ! vh_js - litter thermal conductivity (Wm-2K-1) and vapour diffusivity (m2s-1)
      real(r_2), dimension(:), pointer :: kthLitt => null()
      real(r_2), dimension(:), pointer :: DvLitt => null()
@@ -513,11 +513,10 @@ module cable_def_types_mod
      real(r_2), dimension(:,:), pointer :: gbc => null()       ! leaf boundary layer conductance for CO2 [mol(CO2)/m^2/s]
      real(r_2), dimension(:,:), pointer :: gac => null()       ! aerodynamic conductance for CO2 [mol(CO2)/m^2/s]
      real(r_2), dimension(:,:), pointer :: ci => null()        ! stomatal CO2 concentration [mol(CO2)/mol(air)]
-
+     real(r_2), dimension(:,:), pointer :: psi_can => null() 
      ! plant hydraulics; mgk576 2017; ms835 2022
      REAL(r_1), DIMENSION(:), POINTER :: &
         psi_stem => null(), &
-        psi_can => null(), & 
         kplant => null()   ! mmol m-2 s-1 Mpa-1
      REAL(r_1), DIMENSION(:), POINTER :: plc_sat, plc_stem, plc_can, day_plc_sat, day_plc_stem, day_plc_can
 
@@ -1240,7 +1239,7 @@ contains
     ! allocate(canopy%ci(mp,mf,3))   ! intra-cellular CO2 vh 6/7/09
     allocate(canopy%fwsoil(mp))
     allocate(canopy%fwsoiltmp(mp))
-    allocate(canopy%fwpsi(mp))
+    allocate(canopy%fwpsi(mp,mf))
     ! vh_js - litter resistances to heat and vapour transfer
     allocate(canopy%kthLitt(mp))
     allocate(canopy%DvLitt(mp))
@@ -1258,7 +1257,7 @@ contains
     allocate ( canopy%ecxs(mp,mf) )    ! sunlit and shaded leaf latent heat flux (sap flux)
   ! plant hydraulics; mgk576 2017; ms8355 2022
     allocate( canopy%psi_stem(mp) )
-    allocate( canopy%psi_can(mp) )
+    allocate( canopy%psi_can(mp,mf) )
     allocate( canopy%kplant(mp) )
     allocate( canopy%plc_sat(mp) )
     allocate( canopy%plc_stem(mp) )

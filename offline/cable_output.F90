@@ -63,7 +63,7 @@ MODULE cable_output_module
           RadT, VegT, Ebal, Wbal, AutoResp, RootResp, &
           StemResp,LeafResp, HeteroResp, GPP, NPP, LAI, &
           ECanop, TVeg, ESoil, CanopInt, SnowDepth, &
-          HVeg, HSoil, Rnet, tvar, CanT,Fwsoil,Fwsoiltmp,fwpsi, RnetSoil, SnowMelt, &
+          HVeg, HSoil, Rnet, tvar, CanT,Fwsoil,Fwsoiltmp,fwpsi_sl, fwpsi_sh, RnetSoil, SnowMelt, &
                                 ! vh_mc ! additional variables for ESM-SnowMIP
           hfds, hfdsn, hfls, hfmlt, hfrs, hfsbl, hfss, rlus, rsus, &
           esn, evspsbl, evspsblsoi, evspsblveg, mrrob, mrros, sbl, &
@@ -84,7 +84,7 @@ MODULE cable_output_module
           vcmax_ts, jmax_ts, qcan_sl, qcan_sh, &
           An, Rd, cplant, clitter, csoil, clabile, &
           A13n, aDisc13, c13plant, c13litter, c13soil, c13labile, &
-          TSap, psi_soil, psi_rootzone, psi_stem, psi_can,                 &
+          TSap, psi_soil, psi_rootzone, psi_stem, psi_can_sl, psi_can_sh, &
           plc_sat, plc_stem, plc_can, gsw_sun, gsw_sha
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
@@ -202,7 +202,8 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: CanT => null()  ! within-canopy temperature [K]
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: Fwsoil => null()  ! soil-moisture modfier to stomatal conductance [-]
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: Fwsoiltmp => null()  !
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: fwpsi => null()  !
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: fwpsi_sl => null()  !
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: fwpsi_sh => null()  !
      ! [umol/m2/s]
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: NBP => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: dCdt => null()
@@ -276,7 +277,8 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:,:) :: psi_soil  => null()    ! ms8355
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_rootzone => null()  ! ms8355
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_stem  => null()    ! mgk576
-     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_can  => null()     ! ms8355
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_can_sl  => null()     !
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_can_sh  => null()     !
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: plc_sat  => null()    ! ms8355
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: plc_stem => null()     ! ms8355
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: plc_can  => null()     ! ms8355
@@ -766,14 +768,21 @@ CONTAINS
   END IF
 
   IF(output%veg) THEN
-     CALL define_ovar(ncid_out, ovid%psi_can, &
-                      'psi_can', 'MPa', 'Canopy water potential', &
+     CALL define_ovar(ncid_out, ovid%psi_can_sl, &
+                      'psi_can_sl', 'MPa', 'sun-lit Canopy water potential', &
                       patchout%psi_can, 'dummy', xID, yID, zID, &
                       landID, patchID, tID)
-     ALLOCATE(out%psi_can(mp))
-     out%psi_can = 0.0 ! initialise
+     ALLOCATE(out%psi_can_sl(mp))
+     out%psi_can_sl = 0.0 ! initialise
   END IF
-
+  IF(output%veg) THEN
+     CALL define_ovar(ncid_out, ovid%psi_can_sh, &
+                      'psi_can_sh', 'MPa', 'shaded Canopy water potential', &
+                      patchout%psi_can, 'dummy', xID, yID, zID, &
+                      landID, patchID, tID)
+     ALLOCATE(out%psi_can_sh(mp))
+     out%psi_can_sh = 0.0 ! initialise
+  END IF
   IF(output%veg) THEN
      CALL define_ovar(ncid_out, ovid%plc_sat, &
                       'plc_sat', '%', 'Percentage loss of hydraulic conductivity at saturation of the xylem', &
@@ -934,13 +943,20 @@ CONTAINS
        ALLOCATE(out%Fwsoil(mp))
        out%Fwsoil = zero4 ! initialise
     END IF
-    IF(output%veg .OR. output%fwpsi) THEN
-     CALL define_ovar(ncid_out, ovid%fwpsi, 'fwpsi', '[-]', &
-          'leaf psi modifier to stomatal conductance', patchout%fwpsi, &
+    IF(output%veg .OR. output%fwpsi_sl) THEN
+     CALL define_ovar(ncid_out, ovid%fwpsi_sl, 'fwpsi_sl', '[-]', &
+          'sun-lit leaf psi modifier to stomatal conductance', patchout%fwpsi, &
           'dummy', xID, yID, zID, landID, patchID, tID)
-     ALLOCATE(out%fwpsi(mp))
-     out%fwpsi = zero4 ! initialise
-  END IF
+     ALLOCATE(out%fwpsi_sl(mp))
+     out%fwpsi_sl = zero4 ! initialise
+     END IF
+     IF(output%veg .OR. output%fwpsi_sh) THEN
+          CALL define_ovar(ncid_out, ovid%fwpsi_sh, 'fwpsi_sh', '[-]', &
+               'shaded leaf psi modifier to stomatal conductance', patchout%fwpsi, &
+               'dummy', xID, yID, zID, landID, patchID, tID)
+          ALLOCATE(out%fwpsi_sh(mp))
+          out%fwpsi_sh = zero4 ! initialise
+     END IF
     IF(output%veg) THEN
      CALL define_ovar(ncid_out, ovid%Fwsoiltmp, 'Fwsoiltmp', '[-]', &
           'soil moisture modifier to stomatal conductance', patchout%Fwsoiltmp, &
@@ -2849,15 +2865,28 @@ CONTAINS
      END IF
      IF (output%veg) THEN
           ! Add current timestep's value to total of temporary output variable:
-          out%fwpsi = out%fwpsi + toreal4(canopy%fwpsi)
+          out%fwpsi_sl = out%fwpsi_sl + toreal4(canopy%fwpsi(:,1))
           IF (writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
-          out%fwpsi = out%fwpsi * rinterval
+          out%fwpsi_sl = out%fwpsi_sl * rinterval
           ! Write value to file:
-          CALL write_ovar(out_timestep, ncid_out, ovid%fwpsi, 'fwpsi', out%fwpsi, &
+          CALL write_ovar(out_timestep, ncid_out, ovid%fwpsi_sl, 'fwpsi_sl', out%fwpsi_sl, &
                ranges%fwpsi, patchout%fwpsi, 'default', met)
           ! Reset temporary output variable:
-          out%fwpsi = zero4
+          out%fwpsi_sl = zero4
+          END IF
+     END IF
+     IF (output%veg) THEN
+          ! Add current timestep's value to total of temporary output variable:
+          out%fwpsi_sh = out%fwpsi_sh + toreal4(canopy%fwpsi(:,2))
+          IF (writenow) THEN
+          ! Divide accumulated variable by number of accumulated time steps:
+          out%fwpsi_sh = out%fwpsi_sh * rinterval
+          ! Write value to file:
+          CALL write_ovar(out_timestep, ncid_out, ovid%fwpsi_sh, 'fwpsi_sh', out%fwpsi_sh, &
+               ranges%fwpsi, patchout%fwpsi, 'default', met)
+          ! Reset temporary output variable:
+          out%fwpsi_sh = zero4
           END IF
      END IF
     ! CanopInt: total canopy water storage [kg/m^2]
@@ -3884,21 +3913,37 @@ CONTAINS
    IF(output%veg) THEN
    !IF(output%veg) THEN
       ! Add current timestep's value to total of temporary output variable:
-      out%psi_can = out%psi_can + REAL(canopy%psi_can, 4)
+      out%psi_can_sl = out%psi_can_sl + REAL(canopy%psi_can(:,1), 4)
       IF(writenow) THEN
          ! Divide accumulated variable by number of accumulated time steps:
-         out%psi_can = out%psi_can / REAL(output%interval, 4)
+         out%psi_can_sl = out%psi_can_sl / REAL(output%interval, 4)
          ! Write value to file:
-         CALL write_ovar(out_timestep, ncid_out, ovid%psi_can, &
-                        'psi_can', &
-                         out%psi_can, ranges%psi_can, &
+         CALL write_ovar(out_timestep, ncid_out, ovid%psi_can_sl, &
+                        'psi_can_sl', &
+                         out%psi_can_sl, ranges%psi_can, &
                          patchout%psi_can, &
                         'default', met)
          ! Reset temporary output variable:
-         out%psi_can = 0.0
+         out%psi_can_sl = 0.0
       END IF
    END IF
-
+   IF(output%veg) THEN
+     !IF(output%veg) THEN
+        ! Add current timestep's value to total of temporary output variable:
+        out%psi_can_sh = out%psi_can_sh + REAL(canopy%psi_can(:,1), 4)
+        IF(writenow) THEN
+           ! Divide accumulated variable by number of accumulated time steps:
+           out%psi_can_sh = out%psi_can_sh / REAL(output%interval, 4)
+           ! Write value to file:
+           CALL write_ovar(out_timestep, ncid_out, ovid%psi_can_sh, &
+                          'psi_can_sh', &
+                           out%psi_can_sh, ranges%psi_can, &
+                           patchout%psi_can, &
+                          'default', met)
+           ! Reset temporary output variable:
+           out%psi_can_sh = 0.0
+        END IF
+     END IF
    IF(output%veg .and. cable_user%FWSOIL_SWITCH == 'profitmax') THEN
       ! Add current timestep's value to total of temporary output variable:
       out%gsw_sun = out%gsw_sun + REAL(canopy%gswx(:,1), 4)

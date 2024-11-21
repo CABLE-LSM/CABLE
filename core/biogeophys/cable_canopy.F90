@@ -113,7 +113,6 @@ CONTAINS
          cansat => null(),        & ! max canopy intercept. (mm)
          dsx => null(),           & ! leaf surface vpd
          fwsoil => null(),        & ! soil water modifier of stom. cond
-         fwpsi => null(),        & ! psi leaf modifier of stom. cond zihan lu 02/11/2024
          fwsoiltmp => null(),        & 
          tlfx => null(),          & ! leaf temp prev. iter (K)
          tlfy => null()             ! leaf temp (K)
@@ -125,15 +124,16 @@ CONTAINS
          ecy => null(),           & ! lat heat fl dry big leaf
          hcy => null(),           & ! veg. sens heat
          rny => null(),           & ! net rad
-         ghwet => null(),         &   ! cond for heat for a wet canopy
-         psily => null() ,        &
-         psilx => null()
+         ghwet => null()         &   ! cond for heat for a wet canopy
+
 
       REAL(r_2), DIMENSION(:,:), POINTER :: &
          gbhu => null(),          & ! forcedConvectionBndryLayerCond
          gbhf => null(),          & ! freeConvectionBndryLayerCond
-         csx => null()               ! leaf surface CO2 concentration
-
+         csx => null(),           &   ! leaf surface CO2 concentration
+         psily => null() ,        &
+         psilx => null(),         &
+         fwpsi => null()      ! psi leaf modifier of stom. cond zihan lu 02/11/2024
 
       REAL :: rt_min
       REAL, DIMENSION(mp) :: zstar, rL, phist, csw, psihat,rt0bus
@@ -152,9 +152,9 @@ CONTAINS
       IF (.NOT. cable_runtime%um) canopy%cansto = canopy%oldcansto
 
       ALLOCATE(cansat(mp), gbhu(mp,mf))
-      ALLOCATE(dsx(mp), fwsoil(mp), fwsoiltmp(mp), fwpsi(mp),tlfx(mp), tlfy(mp),psilx(mp))
-      ALLOCATE(ecy(mp), hcy(mp), rny(mp),psily(mp))
-      ALLOCATE(gbhf(mp,mf), csx(mp,mf))
+      ALLOCATE(dsx(mp), fwsoil(mp), fwsoiltmp(mp),tlfx(mp), tlfy(mp))
+      ALLOCATE(ecy(mp), hcy(mp), rny(mp))
+      ALLOCATE(gbhf(mp,mf), csx(mp,mf),psilx(mp,mf),psily(mp,mf), fwpsi(mp,mf))
       ALLOCATE(ghwet(mp))
 
 
@@ -186,8 +186,8 @@ CONTAINS
       ssnow%rex       = 0.0_r_2
       ! Initialise in-canopy temperatures and humidity:
       csx = SPREAD(real(met%ca,r_2), 2, mf) ! initialise leaf surface CO2 concentration
-      psilx = real(ssnow%psi_rootzone,r_2) 
-      psily = real(ssnow%psi_rootzone,r_2) 
+      psilx = SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
+      psily = SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
       met%tvair = met%tk
       met%qvair = met%qv
       canopy%tv = met%tvair
@@ -1526,19 +1526,20 @@ CONTAINS
          dsx,        & ! leaf surface vpd
          fwsoil,     & ! soil water modifier of stom. cond
          fwsoiltmp,  &
-         fwpsi,      &
          tlfx,       & ! leaf temp prev. iter (K)
          tlfy  ! leaf temp (K)
       real(r_2), dimension(:),   intent(inout) :: &
          ecy,        & ! lat heat fl dry big leaf
          hcy,        & ! veg. sens heat
-         rny,        & !& !
-         psilx,      &
-         psily       
+         rny         !& !
+    
       real(r_2), dimension(:,:), intent(inout) :: &
          gbhu,       & ! forcedConvectionBndryLayerCond
          gbhf,       & ! freeConvectionBndryLayerCond
-         csx           ! leaf surface CO2 concentration
+         csx,        &  ! leaf surface CO2 concentration
+         psilx,      &
+         psily,      &
+         fwpsi   
       real,      dimension(:),   intent(in)    :: cansat
       real(r_2), dimension(:),   intent(out)   :: ghwet  ! cond for heat for a wet canopy
       integer,                   intent(in)    :: iter
@@ -1577,8 +1578,8 @@ CONTAINS
          ecx,        & ! lat. hflux big leaf
          hcx,        & ! sens heat fl big leaf prev iteration
          rnx, &          ! net rad prev timestep
-         ecxs, &! lat. hflux big leaf (sap flux)
-         ex  !transpiration, kg m-2 s-1
+         ecxs ! lat. hflux big leaf (sap flux)
+
 
       real, dimension(mp,ms)  :: oldevapfbl
 
@@ -1623,7 +1624,8 @@ CONTAINS
          dAnsinky, &  ! (sink limited)
          dAn_y, & !(actual rate)
          eta_y, &
-         eta_x
+         eta_x, &
+         ex  !transpiration, kg m-2 s-1
 
       real ::  gam0,    &
          conkc0,  &
@@ -2187,10 +2189,12 @@ CONTAINS
                      gswmin(i,2) = veg%g0(i) * rad%scalex(i,2)
                      g1 = veg%g1tuzet(i)
                      
-                     fwpsi(i) = (1+exp(veg%g2(i) * veg%psi_ref(i))) / (1+exp(veg%g2(i) * (veg%psi_ref(i)-psilx(i))))  
+                     fwpsi(i,1) = (1.0_r_2 +exp(veg%g2(i) * veg%psi_ref(i))) / (1.0_r_2+exp(veg%g2(i) * (veg%psi_ref(i)-psilx(i,1))))
+                     fwpsi(i,2) = (1.0_r_2 +exp(veg%g2(i) * veg%psi_ref(i))) / (1.0_r_2+exp(veg%g2(i) * (veg%psi_ref(i)-psilx(i,2))))
+                     !print*, 1.0, real(1.0, r_2), 1.0 / 3.0_r_2, 1.0_r_2 / 3.0  
                      !print *, '!!!!!!!!!!!!!!! fwpsi:', fwpsi(i),ktau,k
-                     gs_coeff(i,1) =fwpsi(i) * g1 / real(csx(i,1))
-                     gs_coeff(i,2) =fwpsi(i) * g1 / real(csx(i,2))
+                     gs_coeff(i,1) =fwpsi(i,1) * g1 / real(csx(i,1))
+                     gs_coeff(i,2) =fwpsi(i,2) * g1 / real(csx(i,2))
 
                ELSE IF (cable_user%GS_SWITCH == 'profitmax' .AND. &
                   cable_user%FWSOIL_SWITCH == 'profitmax') THEN
@@ -2337,11 +2341,21 @@ CONTAINS
                   ( air%dsatdk(i) + psycst(i,2) ), r_2)
                
                IF (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
-             
-                  ex(i) = ecx(i) * (1.0_r_2-real(canopy%fwet(i),r_2))/air%rlam(i) 
+                  ex(i,1) = real( ( air%dsatdk(i) * ( rad%rniso(i,1) - C%capp * C%rmair &
+                  * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,1) ) &
+                  + C%capp * C%rmair * met%dva(i) * ghr(i,1) ) &
+                  / ( air%dsatdk(i) + psycst(i,1) )
+                  ex(i,2) = ( air%dsatdk(i) &
+                  * ( rad%rniso(i,2) - C%capp * C%rmair * ( met%tvair(i) - &
+                  met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair * &
+                  met%dva(i) * ghr(i,2) ) / &
+                  ( air%dsatdk(i) + psycst(i,2) ), r_2)   
+                      
+                  ex(i,:) = ex(i,:) * (1.0_r_2-real(spread(canopy%fwet(i), 2, mf), r_2)) / real(spread(air%rlam(i), 2, mf), r_2) 
                   ! convert from kg m-2 ground s-1 to mmol m-2 leaf s-1*
-                  ex(i)= ex(i) * 1.0e6_r_2/18.0_r_2 * canopy%vlaiw(i) 
-                  psilx(i) = ssnow%psi_rootzone(i)-ex(i)/canopy%kplant(i)
+                  ex(i,:)= ex(i,:) * 1.0e6_r_2/18.0_r_2  
+                  psilx(i,1) = ssnow%psi_rootzone(i)-ex(i,1)/canopy%kplant(i)
+                  psilx(i,2) = ssnow%psi_rootzone(i)-ex(i,2)/canopy%kplant(i)
 
                ENDIF
                IF (cable_user%SOIL_SCHE == 'Haverd2013') then
@@ -2379,7 +2393,7 @@ CONTAINS
                      fwsoil(i) =  real(canopy%fwsoil(i))                     
                   ENDIF
                   IF (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
-                        canopy%fwpsi(i) = real(fwpsi(i), r_2)
+                        canopy%fwpsi(i,:) = real(fwpsi(i,:), r_2)
                   ENDIF
 
 
@@ -2476,7 +2490,7 @@ CONTAINS
 
                deltlfy(i)       = deltlf(i)
                tlfy(i)          = tlfx(i)
-               psily(i)         = psilx(i)
+               psily(i,:)         = psilx(i,:)
                rny(i)           = rnx(i)
                hcy(i)           = hcx(i)
                ecy(i)           = ecx(i)
@@ -2510,7 +2524,7 @@ CONTAINS
             IF (k==1) THEN
                ! take the first iterated estimates as the defaults
                tlfy(i) = tlfx(i)
-               psily(i) = psilx(i)
+               psily(i,:) = psilx(i,:)
                rny(i) = rnx(i)
                hcy(i) = hcx(i)
                ecy(i) = ecx(i)
@@ -2529,7 +2543,7 @@ CONTAINS
             !print*, 'check after k==1 ',ktau,k
             if (ktau>=nktau .and. ktau<=(nktau+NN-1)) then
             write(134,*) ktau, iter, i, k, tlfy(i), deltlf(i), &
-            dsx(i), psily(i), canopy%fwpsi(i),csx(i,1), csx(i,2), &
+            dsx(i), psily(i,1), psily(i,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2),csx(i,1), csx(i,2), &
             anx(i,1), anx(i,2), canopy%gswx(i,1), canopy%gswx(i,2),vcmxt3(i,1),vcmxt3(i,2), &
             gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2)
             END IF
