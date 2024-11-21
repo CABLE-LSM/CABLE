@@ -72,7 +72,8 @@ MODULE cable_serial
     l_vcmaxFeedbk,                  &
     delsoilM,                       &
     delsoilT,                       &
-    delgwM
+    delgwM,                         &
+    LALLOC
   USE cable_def_types_mod
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
        fixedCO2,output,check,&
@@ -160,7 +161,6 @@ SUBROUTINE serialdrv(trunk_sumbal)
   ! timing variables
   INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
   INTEGER, PARAMETER ::  mloop  = 30   ! CASA-CNP PreSpinup loops
-  INTEGER :: LALLOC ! allocation coefficient for passing to spincasa
 
   INTEGER        ::                                                           &
        ktau,       &  ! increment equates to timestep, resets if spinning up
@@ -285,13 +285,6 @@ SUBROUTINE serialdrv(trunk_sumbal)
 
         STOP
      ENDIF
-  ENDIF
-
-  ! vh_js ! suggest LALLOC should ulitmately be a switch in the .nml file
-  IF (CABLE_USER%CALL_POP) THEN
-     LALLOC = 3 ! for use with POP: makes use of pipe model to partition between stem and leaf
-  ELSE
-     LALLOC = 0 ! default
   ENDIF
 
 !$   IF ( .NOT. spinup ) THEN

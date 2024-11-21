@@ -51,6 +51,8 @@ MODULE cable_driver_init_mod
   REAL, SAVE, PUBLIC :: delsoilT ! allowed variation in soil temperature for spin up
   REAL, SAVE, PUBLIC :: delgwM = 1e-4
 
+  INTEGER, SAVE, PUBLIC :: LALLOC = 0 ! allocation coefficient for passing to spincasa
+
   NAMELIST /CABLE/  &
     filename,       & ! TYPE, containing input filenames
     vegparmnew,     & ! use new soil param. method
@@ -175,6 +177,11 @@ CONTAINS
     END IF
     IF (icycle > 0 .AND. (.NOT. soilparmnew)) THEN
       STOP 'casaCNP must use new soil parameters'
+    END IF
+
+    ! vh_js ! suggest LALLOC should ulitmately be a switch in the .nml file
+    IF (cable_user%CALL_POP) THEN
+      LALLOC = 3 ! for use with POP: makes use of pipe model to partition between stem and leaf
     END IF
 
   END SUBROUTINE cable_driver_init

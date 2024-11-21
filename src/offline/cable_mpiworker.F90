@@ -73,7 +73,8 @@ MODULE cable_mpiworker
     l_laiFeedbk,                    &
     l_vcmaxFeedbk,                  &
     delsoilM,                       &
-    delsoilT
+    delsoilT,                       &
+    LALLOC
   USE cable_mpicommon
   USE cable_common_module,  ONLY: cable_user
   USE casa_inout_module
@@ -222,7 +223,6 @@ CONTAINS
     INTEGER :: ocomm ! separate dupes of MPI communicator for send and recv
     INTEGER :: ierr
 
-    INTEGER :: LALLOC
     !For consistency w JAC
     REAL,ALLOCATABLE, SAVE :: c1(:,:)
     REAL,ALLOCATABLE, SAVE :: rhoch(:,:)
@@ -234,13 +234,6 @@ CONTAINS
 
     IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
          CABLE_USER%POPLUC= .FALSE.
-
-    ! vh_js ! suggest LALLOC should ulitmately be a switch in the .nml file
-    IF (CABLE_USER%CALL_POP) THEN
-       LALLOC = 3 ! for use with POP: makes use of pipe model to partition between stem and leaf
-    ELSE
-       LALLOC = 0 ! default
-    ENDIF
 
     IF ( TRIM(cable_user%MetType) .EQ. 'gpgs' ) THEN
        leaps = .TRUE.
