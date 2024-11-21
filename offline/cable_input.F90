@@ -2431,7 +2431,7 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
    !   landpt%type    - via cable_IO_vars_module (nap,cstart,cend,ilon,ilat)
    !   max_vegpatches - via cable_IO_vars_module
    !! vh_js !!
-   USE POPmodule,       ONLY: POP_INIT
+   USE POPmodule,       ONLY: POP_INIT, adjust_POP_parameters
    USE POPLUC_module,   ONLY: POPLUC_INIT
    USE CABLE_LUC_EXPT,  ONLY: LUC_EXPT_TYPE
    use casaparm,        only: initcasa
@@ -2588,7 +2588,7 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
          ! module, so we're going to do a bit of modifying module data and a bit
          ! of modifying argument data. This is far from a perfect solution, but
          ! an acceptable temporary one.
-         CALL read_POP_namelist(veg%disturbance_interval,&
+         CALL update_POP_parameters(veg%disturbance_interval,&
            veg%disturbance_intensity)
 
          CALL POP_init(POP, veg%disturbance_interval(Iwood,:), mp_POP, Iwood)
