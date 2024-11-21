@@ -153,10 +153,11 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
 
 CONTAINS
 
-SUBROUTINE serialdrv(trunk_sumbal)
+SUBROUTINE serialdrv(trunk_sumbal, NRRRR)
   !! Offline serial driver.
   DOUBLE PRECISION, INTENT(IN) :: trunk_sumbal
     !! Reference value for quasi-bitwise reproducibility checks.
+  INTEGER, INTENT(IN) :: NRRRR !! Number of repeated spin-up cycles
 
   ! timing variables
   INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
@@ -176,7 +177,6 @@ SUBROUTINE serialdrv(trunk_sumbal)
        YYYY,       &  !
        RYEAR,      &  !
        RRRR,       &  !
-       NRRRR,      &  !
        ctime,      &  ! day count for casacnp
        LOY, &         ! days in year
        count_sum_casa ! number of time steps over which casa pools &
@@ -302,7 +302,6 @@ SUBROUTINE serialdrv(trunk_sumbal)
      cable_user%MetType = 'gswp'
   ENDIF
 
-  NRRRR = MERGE(MAX(CABLE_USER%CASA_NREP,1), 1, CASAONLY)
   ! casa time count
   ctime = 0
 

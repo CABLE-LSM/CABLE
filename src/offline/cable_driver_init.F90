@@ -90,11 +90,12 @@ MODULE cable_driver_init_mod
 
 CONTAINS
 
-  SUBROUTINE cable_driver_init(mpi_grp, trunk_sumbal)
+  SUBROUTINE cable_driver_init(mpi_grp, trunk_sumbal, NRRRR)
     !! Model initialisation routine for the CABLE offline driver.
     TYPE(mpi_grp_t), INTENT(IN) :: mpi_grp !! MPI group to use
     DOUBLE PRECISION, INTENT(OUT) :: trunk_sumbal
       !! Reference value for quasi-bitwise reproducibility checks.
+    INTEGER, INTENT(OUT) :: NRRRR !! Number of repeated spin-up cycles
 
     INTEGER :: ioerror, unit
     CHARACTER(len=4) :: cRank ! for worker-logfiles
@@ -183,6 +184,8 @@ CONTAINS
     IF (cable_user%CALL_POP) THEN
       LALLOC = 3 ! for use with POP: makes use of pipe model to partition between stem and leaf
     END IF
+
+    NRRRR = MERGE(MAX(cable_user%CASA_NREP,1), 1, CASAONLY)
 
   END SUBROUTINE cable_driver_init
 

@@ -14,14 +14,15 @@ PROGRAM cable_offline_driver
   TYPE(mpi_grp_t) :: mpi_grp
   DOUBLE PRECISION :: trunk_sumbal
     !! Reference value for quasi-bitwise reproducibility checks.
+  INTEGER :: NRRRR !! Number of repeated spin-up cycles
 
   call mpi_mod_init()
   mpi_grp = mpi_grp_t()
 
-  CALL cable_driver_init(mpi_grp, trunk_sumbal)
+  CALL cable_driver_init(mpi_grp, trunk_sumbal, NRRRR)
 
   IF (mpi_grp%size == 1) THEN
-    CALL serialdrv(trunk_sumbal)
+    CALL serialdrv(trunk_sumbal, NRRRR)
   ELSE
     IF (mpi_grp%rank == 0) THEN
       CALL mpidrv_master(mpi_grp%comm, trunk_sumbal)
