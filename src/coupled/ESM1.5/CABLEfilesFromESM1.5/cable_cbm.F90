@@ -34,10 +34,10 @@ USE grid_constants_mod_cbl, ONLY : ICE_SoilType, lakes_cable
    USE cable_def_types_mod
    USE cable_roughness_module
    USE cable_air_module
-   USE cable_data_module, ONLY : icbm_type, point2constants 
+   USE casadimension,            ONLY: icycle 
+   USE cable_phys_constants_mod, ONLY: GRAV, CAPP 
+
    
-   !ptrs to local constants 
-   TYPE( icbm_type ) :: C
    ! CABLE model variables
    TYPE (air_type),       INTENT(INOUT) :: air
    TYPE (bgc_pool_type),  INTENT(INOUT) :: bgc
