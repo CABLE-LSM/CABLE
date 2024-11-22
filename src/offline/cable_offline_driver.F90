@@ -2,11 +2,13 @@
 ! Copyright (c) 2015, Commonwealth Scientific and Industrial Research Organisation
 ! (CSIRO) ABN 41 687 119 230.
 PROGRAM cable_offline_driver
+  USE iso_fortran_env, ONLY : error_unit
   USE cable_mpi_mod, ONLY : mpi_grp_t, mpi_mod_init, mpi_mod_end
   USE cable_driver_init_mod
   USE cable_serial
   USE cable_mpimaster
   USE cable_mpiworker
+  USE cable_common_module, ONLY : cable_user
 
   IMPLICIT NONE
 
@@ -20,6 +22,18 @@ PROGRAM cable_offline_driver
   mpi_grp = mpi_grp_t()
 
   CALL cable_driver_init(mpi_grp, trunk_sumbal, NRRRR)
+
+  SELECT CASE(TRIM(cable_user%MetType))
+  CASE('gswp', 'gswp3')
+    CALL cable_driver_init_gswp(mpi_grp)
+  CASE('plum')
+  CASE('cru')
+  CASE('site')
+  CASE('')
+  CASE DEFAULT
+    WRITE(error_unit,*) "Error: unknown value for cable_user%MetType (", TRIM(cable_user%MetType), ")."
+    STOP
+  END SELECT
 
   IF (mpi_grp%size == 1) THEN
     CALL serialdrv(trunk_sumbal, NRRRR)

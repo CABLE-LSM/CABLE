@@ -270,23 +270,6 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR)
 
 ! END header
 
-  IF (TRIM(cable_user%MetType) .EQ. 'gswp' .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
-     IF ( CABLE_USER%YearStart.EQ.0 .AND. ncciy.GT.0) THEN
-        CABLE_USER%YearStart = ncciy
-        CABLE_USER%YearEnd = ncciy
-     ELSEIF  ( CABLE_USER%YearStart.EQ.0 .AND. ncciy.EQ.0) THEN
-        PRINT*, 'undefined start year for gswp met: '
-        PRINT*, 'enter value for ncciy or'
-        PRINT*, '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) in cable.nml'
-
-        WRITE(logn,*) 'undefined start year for gswp met: '
-        WRITE(logn,*) 'enter value for ncciy or'
-        WRITE(logn,*) '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) in cable.nml'
-
-        STOP
-     ENDIF
-  ENDIF
-
 ! INISTUFF
 
   ! Open met data and get site information from netcdf file. (NON-GSWP ONLY!)

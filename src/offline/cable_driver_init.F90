@@ -87,6 +87,7 @@ MODULE cable_driver_init_mod
     gw_params
 
   PUBLIC :: cable_driver_init
+  PUBLIC :: cable_driver_init_gswp
 
 CONTAINS
 
@@ -192,5 +193,27 @@ CONTAINS
     NRRRR = MERGE(MAX(cable_user%CASA_NREP,1), 1, CASAONLY)
 
   END SUBROUTINE cable_driver_init
+
+  SUBROUTINE cable_driver_init_gswp(mpi_grp)
+    !! Model initialisation routine (GSWP specific).
+    TYPE(mpi_grp_t), INTENT(IN) :: mpi_grp !! MPI group to use
+
+    IF (cable_user%YearStart == 0) THEN
+      IF (ncciy == 0) THEN
+        IF (mpi_grp%rank == 0) THEN
+          PRINT*, 'undefined start year for gswp met: '
+          PRINT*, 'enter value for ncciy or'
+          PRINT*, '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) in cable.nml'
+        END IF
+        WRITE(logn,*) 'undefined start year for gswp met: '
+        WRITE(logn,*) 'enter value for ncciy or'
+        WRITE(logn,*) '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) in cable.nml'
+        STOP
+      END IF
+      cable_user%YearStart = ncciy
+      cable_user%YearEnd = ncciy
+    END IF
+
+  END SUBROUTINE cable_driver_init_gswp
 
 END MODULE cable_driver_init_mod
