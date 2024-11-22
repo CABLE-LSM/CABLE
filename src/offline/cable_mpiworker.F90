@@ -235,11 +235,6 @@ CONTAINS
     IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
          CABLE_USER%POPLUC= .FALSE.
 
-    IF ( TRIM(cable_user%MetType) .EQ. 'gpgs' ) THEN
-       leaps = .TRUE.
-       cable_user%MetType = 'gswp'
-    ENDIF
-
     ! Check for gswp run
     ! MPI: done by the master only; if check fails then master MPI_Aborts
     ! everyone

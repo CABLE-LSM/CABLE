@@ -348,11 +348,6 @@ CONTAINS
        ENDIF
     ENDIF
 
-    IF ( TRIM(cable_user%MetType) .EQ. 'gpgs' ) THEN
-       leaps = .TRUE.
-       cable_user%MetType = 'gswp'
-    ENDIF
-
     ! casa time count
     ctime = 0
 
@@ -363,7 +358,6 @@ CONTAINS
     ! latitudes, longitudes, number of sites.
     IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
          TRIM(cable_user%MetType) .NE. "gswp3" .AND. &
-         TRIM(cable_user%MetType) .NE. "gpgs" .AND. &
          TRIM(cable_user%MetType) .NE. "plum"  .AND. &
          TRIM(cable_user%MetType) .NE. "cru"  .AND. &
          TRIM(cable_user%MetType) .NE. "gpcc") THEN

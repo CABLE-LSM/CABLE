@@ -287,21 +287,6 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR)
      ENDIF
   ENDIF
 
-!$   IF ( .NOT. spinup ) THEN
-!$       IF ( spincasa ) THEN
-!$          spincasa = .FALSE.
-!$          WRITE(*,*)   "spinup == .FALSE. -> spincasa set to .F."
-!$          WRITE(logn,*)"spinup == .FALSE. -> spincasa set to .F."
-!$       ENDIF
-!$   ENDIF
-!$
-
-  IF ( TRIM(cable_user%MetType) .EQ. 'gpgs' ) THEN
-     leaps = .TRUE.
-     calendar = "standard"
-     cable_user%MetType = 'gswp'
-  ENDIF
-
   ! casa time count
   ctime = 0
 
