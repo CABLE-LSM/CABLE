@@ -61,6 +61,7 @@ CONTAINS
          calc_swp, calc_weighted_swp_and_frac_uptake
       use cable_veg_hydraulics_module, only: get_xylem_vulnerability
       USE cable_IO_vars_module, ONLY: logn
+      use mo_constants, only: pi => pi_sp
       ! CABLE model variables
       INTEGER,                   INTENT(IN)    :: ktau
       REAL,                      INTENT(IN)    :: dels ! time setp size (s)
@@ -86,6 +87,7 @@ CONTAINS
 #endif
       REAL(KIND=r_2) :: SoilMoistPFTtemp
       REAL, DIMENSION(ms) :: a
+      real :: k1, k2, pd, BAI, WD
 
       ! assign local ptrs to constants defined in cable_data_module
       CALL point2constants(C)
@@ -194,7 +196,13 @@ CONTAINS
          !SoilMoistPFTtemp = real(sum(ssnow%wb * 1000.0_r_2 * real(spread(soil%zse,1,mp),r_2),2),r_2)
 
          ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
-          canopy%kplant(i)= veg%kmax(i) * &
+         k1 = 50.0_r_2
+         k2 = 1.5_r_2
+         WD = 300.0_r_2
+         pd = 4.0_r_2 * real((SUM(casapool%cplant,2)) / 1000.0_r_2,r_2) / (WD * pi * veg%hc * (veg%hc / k1)**(2.0_r_2*k2))
+         DBH = (veg%hc/k1)**k2
+         BAI = (DBH/2.0_r_2)**2.0_r_2*pi*pd
+         canopy%kplant(i)= veg%kmax(i) * BAI / veg%hc &
             get_xylem_vulnerability(ssnow%psi_rootzone(i), &
             veg%b_plant(i), veg%c_plant(i))
 
