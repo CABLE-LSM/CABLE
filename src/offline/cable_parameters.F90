@@ -1291,7 +1291,7 @@ CONTAINS
     END SELECT
 
 ! line below added by rk4417 - phase2
-    soil%zse_vec = real(spread(soil%zse,1,mp),r_2)    ! MMY@13April, this line is needed since zec_vec is defined in UM/init/cable_um_init_subrs.F90, 
+    soil%zse_vec = REAL(SPREAD(soil%zse,1,mp),r_2)    ! MMY@13April, this line is needed since zec_vec is defined in UM/init/cable_um_init_subrs.F90, 
                                                       !      but it isn't used in offline CABLE 
     !ELSE
 
