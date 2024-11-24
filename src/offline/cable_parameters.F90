@@ -282,10 +282,6 @@ CONTAINS
     ok = NF90_INQUIRE_DIMENSION(ncid, bID, LEN=nband)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting rad dimension.')
 
-    !pass npatch to the def_types module  ! rk4417 - not sure if this comment is useful to keep
-    !enables a future where npatch can be set to any value by reading in
-    !tile info from gridinfo like file
-
     ! check dimensions of soil-layers and time
     ! vh_js !
     IF ( (nslayer /= ms) .OR. (ntime /= 12)) THEN
