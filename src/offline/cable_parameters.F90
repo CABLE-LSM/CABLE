@@ -1159,11 +1159,9 @@ CONTAINS
        soil, canopy, rough, rad, logn,              &
        vegparmnew, month, TFRZ, LUC_EXPT)
 
-    ! MMY write other parameters except for soil hydraulic parameters
-
     ! Initialize many canopy_type, soil_snow_type, soil_parameter_type and
     ! roughness_type variables;
-    ! Calculate 'froot' from 'rootbeta' parameter;
+    ! Calculate 'froot' from 'rootbeta' parameter. Does not assign values to the soil hydraulic parameters.
     ! Assign values from input file to their proper variables in soil_snow_type,
     ! soil_parameter_type, veg_parameter_type and patch_type;
     ! Prescribe parameters for each point based on its veg/soil type.
