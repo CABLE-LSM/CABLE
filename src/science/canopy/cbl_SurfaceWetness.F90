@@ -9,32 +9,32 @@ CONTAINS
 
 SUBROUTINE Surf_wetness_fact( cansat, canopy, ssnow,veg, met, soil, dels )
 
-    USE cable_common_module
-    USE cable_def_types_mod
+USE cable_common_module
+USE cable_def_types_mod
 
 ! data                  
 USE cable_surface_types_mod,  ONLY: lakes_cable
 USE cable_phys_constants_mod, ONLY: CTFRZ => TFRZ
 
-    !H!USE cable_gw_hydro_module, ONLY : calc_srf_wet_fraction
+!H!USE cable_gw_hydro_module, ONLY : calc_srf_wet_fraction
 
 
-    use cable_init_wetfac_mod, ONLY: initialize_wetfac
+use cable_init_wetfac_mod, ONLY: initialize_wetfac
 
-    TYPE (veg_parameter_type), INTENT(INOUT)    :: veg
-    TYPE (soil_snow_type), INTENT(inout):: ssnow
-    TYPE (soil_parameter_type), INTENT(inout)   :: soil
-    TYPE (canopy_type), INTENT(INOUT)   :: canopy
-    TYPE (met_type), INTENT(INOUT)   :: met
+TYPE (veg_parameter_type), INTENT(INOUT)    :: veg
+TYPE (soil_snow_type), INTENT(inout):: ssnow
+TYPE (soil_parameter_type), INTENT(inout)   :: soil
+TYPE (canopy_type), INTENT(INOUT)   :: canopy
+TYPE (met_type), INTENT(INOUT)   :: met
 
-    REAL, INTENT(IN) :: dels ! integration time setp (s)
+REAL, INTENT(IN) :: dels ! integration time setp (s)
 
-    REAL,INTENT(IN), DIMENSION(:) :: cansat ! max canopy intercept. (mm)
+REAL,INTENT(IN), DIMENSION(:) :: cansat ! max canopy intercept. (mm)
 
-    !local variables
-    REAL, DIMENSION(mp)  :: lower_limit, upper_limit,ftemp
+!local variables
+REAL, DIMENSION(mp)  :: lower_limit, upper_limit,ftemp
 
-    INTEGER :: j, i
+INTEGER :: j, i
 
     ! Rainfall variable is limited so canopy interception is limited,
     ! used to stabilise latent fluxes.
