@@ -460,7 +460,6 @@ CONTAINS
   END SUBROUTINE read_gridinfo
   !============================================================================
   SUBROUTINE spatialSoil(nlon, nlat, logn)
-    ! MMY this subroutine aims to read the variables provided by standard CABLE input
     ! Read in spatially-specific soil properties including snow-free albedo
     ! plus soil texture; all these from UM ancilliary file
     !
