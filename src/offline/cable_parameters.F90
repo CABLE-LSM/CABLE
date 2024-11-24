@@ -516,16 +516,6 @@ CONTAINS
     ALLOCATE(    insilt(nlon, nlat) )
     ALLOCATE(    insand(nlon, nlat) )
 
-    !MD Aquifer properties                 ! block commented out by rk4417 - phase2
-!    ALLOCATE(    inGWssat(nlon, nlat) )
-!    ALLOCATE(     inGWbch(nlon, nlat) )
-!    ALLOCATE(    inGWhyds(nlon, nlat) )
-!    ALLOCATE(    inGWsucs(nlon, nlat) )
-!    ALLOCATE( inGWrhosoil(nlon, nlat) )
-!    ALLOCATE(    inGWWatr(nlon, nlat) )
-!    ALLOCATE(      inWatr(nlon, nlat) )
-!    ALLOCATE(       inORG(nlon, nlat) )
-
     ! MMY start reading from gridinfo file  ! 2 lines inserted by rk4417 - phase2
     ok = NF90_OPEN(filename%type, 0, ncid)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error MMY finding gridinfo file.') ! MMY
