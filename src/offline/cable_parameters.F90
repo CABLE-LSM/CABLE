@@ -746,9 +746,6 @@ CONTAINS
     !    in2alb(:,:) = indummy(:,:,1,1)
     !    CALL NSflip(nlon,nlat,in2alb)
 
-!    ok = NF90_CLOSE(ncid)     ! 2 lines commented out - rk4417 - phase2 
-!    IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error closing IGBP soil map.')
-
     ! Code if using UM soil file
     ! unit change and glacial-point check were done in preprocessing
     !    ! change unit to m/s
