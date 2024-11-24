@@ -1258,7 +1258,6 @@ CONTAINS
     canopy%fe    = 0.0  ! sensible heat flux
     !mrd
     ssnow%qrecharge = 0.0
-!    ssnow%GWwb = -1.0  ! commented out by rk4417 - phase2
     ssnow%wtd = 1.0
     canopy%sublayer_dz = 0.001  !could go into restart to ensure starting/stopping runs gives identical results
     !however the impact is negligible
