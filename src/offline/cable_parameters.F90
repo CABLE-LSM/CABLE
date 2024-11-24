@@ -1801,10 +1801,8 @@ CONTAINS
              ! P fertilizer =13 Mt P globally in 1994
              casaflux%Pdep(hh)    = casaflux%Pdep(hh)                             &
                   + 0.7 / 365.0
-!  + patch(hh)%frac * 0.7 / 365.0  ! my code has this line instead of above - rk4417 - phase2
              casaflux%Nmindep(hh) = casaflux%Nmindep(hh)                          &
                   + 4.0 / 365.0
-!  + patch(hh)%frac * 4.0 / 365.0  ! my code has this line instead of above - rk4417 - phase2
           ENDIF
        ENDDO
     ENDDO
