@@ -153,11 +153,15 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
 
 CONTAINS
 
-SUBROUTINE serialdrv(trunk_sumbal, NRRRR)
+SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID)
   !! Offline serial driver.
   DOUBLE PRECISION, INTENT(IN) :: trunk_sumbal
     !! Reference value for quasi-bitwise reproducibility checks.
   INTEGER, INTENT(IN) :: NRRRR !! Number of repeated spin-up cycles
+  REAL, INTENT(INOUT) :: dels !! Time step size in seconds
+  INTEGER, INTENT(INOUT) :: koffset !! Timestep to start at
+  INTEGER, INTENT(INOUT) :: kend !! No. of time steps in run
+  INTEGER, ALLOCATABLE, INTENT(INOUT) :: GSWP_MID(:,:) !! NetCDF file IDs for GSWP met forcing
 
   ! timing variables
   INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
@@ -166,9 +170,6 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR)
   INTEGER        ::                                                           &
        ktau,       &  ! increment equates to timestep, resets if spinning up
        ktau_tot = 0, &  ! NO reset when spinning up, total timesteps by model
-       kend,       &  ! no. of time steps in run
-                                !CLN      kstart = 1, &  ! timestep to start at
-       koffset = 0, &  ! timestep to start at
        koffset_met = 0, &  !offfset for site met data ('site' only)
        ktauday,    &  ! day counter for CASA-CNP
        idoy,       &  ! day of year (1:365) counter for CASA-CNP
@@ -182,9 +183,6 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR)
        count_sum_casa ! number of time steps over which casa pools &
                                 !and fluxes are aggregated (for output)
 
-  REAL :: dels                        ! time step size in seconds
-
-  INTEGER,DIMENSION(:,:),ALLOCATABLE :: GSWP_MID
   CHARACTER     :: dum*9, str1*9, str2*9, str3*9
 
   ! CABLE variables
@@ -272,40 +270,6 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR)
 
 ! INISTUFF
 
-  ! Open met data and get site information from netcdf file. (NON-GSWP ONLY!)
-  ! This retrieves time step size, number of timesteps, starting date,
-  ! latitudes, longitudes, number of sites.
-  IF (TRIM(cable_user%MetType) .EQ. 'site' ) THEN
-
-     IF (l_casacnp) THEN
-
-        CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
-        IF ( koffset .NE. 0 .AND. CABLE_USER%CALL_POP ) THEN
-           WRITE(*,*)"When using POP, episode must start at Jan 1st!"
-           STOP 991
-        ENDIF
-
-     ELSE
-
-        WRITE(*,*)"MetType=site only works with CASA-CNP turned on"
-        STOP 991
-
-     ENDIF !l_casacnp
-
-  ELSEIF (TRIM(cable_user%MetType) .EQ. '') THEN
-
-     CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
-     IF ( koffset .NE. 0 .AND. CABLE_USER%CALL_POP ) THEN
-        WRITE(*,*)"When using POP, episode must start at Jan 1st!"
-        STOP 991
-     ENDIF
-
-  ELSE IF ( NRRRR .GT. 1 ) THEN
-
-     IF(.NOT.ALLOCATED(GSWP_MID)) &
-          ALLOCATE( GSWP_MID( 8, CABLE_USER%YearStart:CABLE_USER%YearEnd ) )
-
-  ENDIF !cable_user%MetType
 
   ! outer loop - spinup loop no. ktau_tot :
   SPINLOOP:DO WHILE ( SPINon )

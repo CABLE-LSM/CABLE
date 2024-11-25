@@ -17,6 +17,10 @@ PROGRAM cable_offline_driver
   DOUBLE PRECISION :: trunk_sumbal
     !! Reference value for quasi-bitwise reproducibility checks.
   INTEGER :: NRRRR !! Number of repeated spin-up cycles
+  REAL :: dels !! Time step size in seconds
+  INTEGER :: koffset = 0 !! Timestep to start at
+  INTEGER :: kend !! No. of time steps in run
+  INTEGER, ALLOCATABLE :: GSWP_MID(:,:) !! NetCDF file IDs for GSWP met forcing
 
   call mpi_mod_init()
   mpi_grp = mpi_grp_t()
@@ -24,22 +28,27 @@ PROGRAM cable_offline_driver
   CALL cable_driver_init(mpi_grp, trunk_sumbal, NRRRR)
 
   SELECT CASE(TRIM(cable_user%MetType))
-  CASE('gswp', 'gswp3')
+  CASE('gswp')
+    CALL cable_driver_init_gswp(mpi_grp, GSWP_MID, NRRRR)
+  CASE('gswp3')
     CALL cable_driver_init_gswp(mpi_grp)
   CASE('plum')
   CASE('cru')
   CASE('site')
+    CALL cable_driver_init_site()
+    CALL cable_driver_init_default(dels, koffset, kend)
   CASE('')
+    CALL cable_driver_init_default(dels, koffset, kend)
   CASE DEFAULT
     WRITE(error_unit,*) "Error: unknown value for cable_user%MetType (", TRIM(cable_user%MetType), ")."
     STOP
   END SELECT
 
   IF (mpi_grp%size == 1) THEN
-    CALL serialdrv(trunk_sumbal, NRRRR)
+    CALL serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID)
   ELSE
     IF (mpi_grp%rank == 0) THEN
-      CALL mpidrv_master(mpi_grp%comm, trunk_sumbal)
+      CALL mpidrv_master(mpi_grp%comm, trunk_sumbal, dels, koffset, kend)
     ELSE
       CALL mpidrv_worker(mpi_grp%comm)
     END IF

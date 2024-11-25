@@ -33,10 +33,14 @@ MODULE cable_driver_init_mod
     CABLE_NAMELIST,               &
     arg_not_namelist
   USE cable_mpi_mod, ONLY : mpi_grp_t
+  USE cable_phys_constants_mod, ONLY : CTFRZ => TFRZ
+  USE cable_input_module, ONLY : open_met_file
   IMPLICIT NONE
   PRIVATE
 
   INTEGER, PARAMETER :: CASAONLY_ICYCLE_MIN = 10
+  INTEGER, PARAMETER :: N_MET_FORCING_VARIABLES_GSWP = 8
+    !! Number of GSWP met forcing variables (rain, snow, lw, sw, ps, qa, ta, wd)
 
   LOGICAL, SAVE, PUBLIC :: vegparmnew    = .FALSE. ! using new format input file (BP dec 2007)
   LOGICAL, SAVE, PUBLIC :: spinup        = .FALSE. ! model spinup to soil state equilibrium?
@@ -88,6 +92,8 @@ MODULE cable_driver_init_mod
 
   PUBLIC :: cable_driver_init
   PUBLIC :: cable_driver_init_gswp
+  PUBLIC :: cable_driver_init_site
+  PUBLIC :: cable_driver_init_default
 
 CONTAINS
 
@@ -194,9 +200,11 @@ CONTAINS
 
   END SUBROUTINE cable_driver_init
 
-  SUBROUTINE cable_driver_init_gswp(mpi_grp)
+  SUBROUTINE cable_driver_init_gswp(mpi_grp, GSWP_MID, NRRRR)
     !! Model initialisation routine (GSWP specific).
     TYPE(mpi_grp_t), INTENT(IN) :: mpi_grp !! MPI group to use
+    INTEGER, ALLOCATABLE, INTENT(OUT), OPTIONAL :: GSWP_MID(:,:) !! NetCDF file IDs for GSWP met forcing
+    INTEGER, INTENT(IN), OPTIONAL :: NRRRR !! Number of repeated spin-up cycles
 
     IF (cable_user%YearStart == 0) THEN
       IF (ncciy == 0) THEN
@@ -214,6 +222,39 @@ CONTAINS
       cable_user%YearEnd = ncciy
     END IF
 
+    IF (.NOT. (PRESENT(GSWP_MID) .AND. PRESENT(NRRRR))) RETURN
+
+    IF (NRRRR > 1 .AND. (.NOT. ALLOCATED(GSWP_MID))) THEN
+      ALLOCATE(GSWP_MID(N_MET_FORCING_VARIABLES_GSWP, cable_user%YearStart:cable_user%YearEnd))
+    END IF
+
   END SUBROUTINE cable_driver_init_gswp
+
+  SUBROUTINE cable_driver_init_site()
+    !* Model initialisation routine (site met specific).
+
+    IF (.NOT. l_casacnp) THEN
+      WRITE(*,*) "MetType=site only works with CASA-CNP turned on"
+      STOP 991
+    END IF
+
+  END SUBROUTINE cable_driver_init_site
+
+  SUBROUTINE cable_driver_init_default(dels, koffset, kend)
+    !! Model initialisation routine (default met specific).
+    REAL, INTENT(OUT) :: dels !! Time step size in seconds
+    INTEGER, INTENT(OUT) :: koffset !! Timestep to start at
+    INTEGER, INTENT(OUT) :: kend !! No. of time steps in run
+
+    ! Open met data and get site information from netcdf file.
+    ! This retrieves time step size, number of timesteps, starting date,
+    ! latitudes, longitudes, number of sites.
+    CALL open_met_file(dels, koffset, kend, spinup, CTFRZ)
+    IF (koffset /= 0 .AND. cable_user%CALL_POP) THEN
+      WRITE(*,*) "When using POP, episode must start at Jan 1st!"
+      STOP 991
+    END IF
+
+  END SUBROUTINE cable_driver_init_default
 
 END MODULE cable_driver_init_mod

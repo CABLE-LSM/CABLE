@@ -160,7 +160,7 @@ MODULE cable_mpimaster
 
 CONTAINS
 
-  SUBROUTINE mpidrv_master (comm, trunk_sumbal)
+  SUBROUTINE mpidrv_master (comm, trunk_sumbal, dels, koffset, kend)
 
     USE mpi
 
@@ -224,6 +224,9 @@ CONTAINS
     INTEGER               :: comm ! MPI communicator for comms with the workers
     DOUBLE PRECISION, INTENT(IN) :: trunk_sumbal
       !! Reference value for quasi-bitwise reproducibility checks.
+    REAL, INTENT(INOUT) :: dels !! Time step size in seconds
+    INTEGER, INTENT(INOUT) :: koffset !! Timestep to start at
+    INTEGER, INTENT(INOUT) :: kend !! No. of time steps in run
 
     ! timing variables
     INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
@@ -231,9 +234,7 @@ CONTAINS
     INTEGER        ::                                                           &
          ktau,       &  ! increment equates to timestep, resets if spinning up
          ktau_tot = 0,   &  ! NO reset when spinning up, total timesteps by model
-         kend,       &  ! no. of time steps in run
                                 !CLN      kstart = 1, &  ! timestep to start at
-         koffset = 0, &  ! timestep to start at
          ktauday,    &  ! day counter for CASA-CNP
          idoy,       &  ! day of year (1:365) counter for CASA-CNP
          nyear,      &  ! year counter for CASA-CNP
@@ -242,7 +243,6 @@ CONTAINS
          LOY,        &  ! Length of Year
          maxdiff(2)     ! location of maximum in convergence test
 
-    REAL      :: dels   ! time step size in seconds
     CHARACTER :: dum*9, str1*9, str2*9, str3*9  ! dummy char for fileName generation
 
     ! CABLE variables
@@ -328,23 +328,6 @@ CONTAINS
 
 
     ! END header
-
-    ! Iinitialise settings depending on met dataset
-
-    ! Open met data and get site information from netcdf file. (NON-GSWP ONLY!)
-    ! This retrieves time step size, number of timesteps, starting date,
-    ! latitudes, longitudes, number of sites.
-    IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
-         TRIM(cable_user%MetType) .NE. "gswp3" .AND. &
-         TRIM(cable_user%MetType) .NE. "plum"  .AND. &
-         TRIM(cable_user%MetType) .NE. "cru"  .AND. &
-         TRIM(cable_user%MetType) .NE. "gpcc") THEN
-       CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
-       IF ( koffset .NE. 0 .AND. CABLE_USER%CALL_POP ) THEN
-          WRITE(*,*)"When using POP, episode must start at Jan 1st!"
-          STOP 991
-       ENDIF
-    ENDIF
 
     ! outer loop - spinup loop no. ktau_tot :
     ktau     = 0
