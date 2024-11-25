@@ -1,4 +1,3 @@
-!#define UM_CBL YES
 MODULE surfbv_mod
 
 USE cbl_ssnow_data_mod
