@@ -299,7 +299,7 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
         STOP -1
      END IF
 
-     OPEN(iu, FILE=TRIM(FNAME), ACTION="READ", STATUS="OLD")
+     OPEN(NEWUNIT=iu, FILE=TRIM(FNAME), ACTION="READ", STATUS="OLD")
      ! Skip header
      DO i = 1, 6
         READ(iu,*)
@@ -376,7 +376,7 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
            STOP -1
         ENDIF
 
-        OPEN(iu, FILE=TRIM(FNAME), ACTION="READ", STATUS="OLD")
+        OPEN(NEWUNIT=iu, FILE=TRIM(FNAME), ACTION="READ", STATUS="OLD")
         ! Skip header
         DO i = 1, 6
            READ(iu,*)

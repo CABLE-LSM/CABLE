@@ -279,6 +279,8 @@ PROGRAM cable_offline_driver
   !___ unique unit/file identifiers for cable_diag: arbitrarily 5 here
   integer :: iDiagZero=0
 
+  INTEGER :: Ftrunk_unit, Fnew_unit
+
   ! switches etc defined thru namelist (by default cable.nml)
   namelist /cablenml/ &
        filename, &       ! TYPE, containing input filenames
@@ -293,7 +295,6 @@ PROGRAM cable_offline_driver
        check, &
        verbose, &
        leaps, &
-       logn, &
        fixedCO2, &
        spincasainput, &
        spincasa, &
@@ -344,15 +345,16 @@ PROGRAM cable_offline_driver
   ! Open, read and close the consistency check file.
   ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
   if (cable_user%consistency_check) then
-     open(11, file=Ftrunk_sumbal, status='old', action='READ', iostat=ioerror)
+     open(NEWUNIT=Ftrunk_unit, file=Ftrunk_sumbal, status='old', action='READ',&
+       iostat=ioerror)
      if (ioerror==0) then
-        read(11,*) trunk_sumbal  ! written by previous trunk version
+        read(Ftrunk_unit,*) trunk_sumbal  ! written by previous trunk version
      end if
-     close(11)
+     close(Ftrunk_unit)
   end if
 
   ! Open log file:
-  open(logn, file=filename%log)
+  open(NEWUNIT=logn, file=filename%log)
 
   call report_version_no(logn)
 
@@ -483,9 +485,8 @@ PROGRAM cable_offline_driver
   ! Read atmospheric delta-13C values
   if (cable_user%c13o2) then
      ! get start and end year
-     call get_unit(iunit)
-     open(iunit, file=trim(cable_user%c13o2_delta_atm_file), status="old", &
-          action="read")
+     open(NEWUNIT=iunit, file=trim(cable_user%c13o2_delta_atm_file),&
+       status="old", action="read")
      read(iunit, fmt=*, iostat=ios) header
      read(iunit, fmt=*, iostat=ios) iyear
      c13o2_atm_syear = floor(iyear)
@@ -1285,9 +1286,9 @@ PROGRAM cable_offline_driver
                        write(*,*) "NB. Offline-serial runs spinup cycles:", nkend
                        write(*,*) "Internal check shows in this version new_sumbal != trunk sumbal"
                        write(*,*) "Writing new_sumbal to the file:", trim(Fnew_sumbal)
-                       open(12, file=Fnew_sumbal)
-                       write(12, '(F20.7)') new_sumbal  ! written by previous trunk version
-                       close(12)
+                       open(NEWUNIT=Fnew_unit, file=Fnew_sumbal)
+                       write(Fnew_unit, '(F20.7)') new_sumbal  ! written by previous trunk version
+                       close(Fnew_unit)
                     end if
                  end if
 
