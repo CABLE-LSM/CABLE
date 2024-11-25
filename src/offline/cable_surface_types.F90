@@ -8,29 +8,28 @@
 
 MODULE cable_surface_types_mod 
 
-IMPLICIT NONE
+  IMPLICIT NONE
 
-PUBLIC
+  PUBLIC
 
-!-----------------------------------------------------------------------------
-! cable_surface_type (nml) Index
-INTEGER, PARAMETER :: evergreen_needleleaf = 1
-INTEGER, PARAMETER :: evergreen_broadleaf  = 2 
-INTEGER, PARAMETER :: deciduous_needleleaf = 3
-INTEGER, PARAMETER :: deciduous_broadleaf  = 4   
-INTEGER, PARAMETER :: shrub_cable          = 5
-INTEGER, PARAMETER :: c3_grassland         = 6 
-INTEGER, PARAMETER :: c4_grassland         = 7 
-INTEGER, PARAMETER :: tundra               = 8
-INTEGER, PARAMETER :: c3_cropland          = 9  
-INTEGER, PARAMETER :: c4_cropland          = 10 
-INTEGER, PARAMETER :: wetland              = 11 
-INTEGER, PARAMETER :: empty1               = 12
-INTEGER, PARAMETER :: empty2               = 13
-INTEGER, PARAMETER :: barren_cable         = 14
-INTEGER, PARAMETER :: urban_cable          = 15
-INTEGER, PARAMETER :: lakes_cable          = 16 
-INTEGER, PARAMETER :: ice_cable            = 17 
+  ! cable_surface_type (nml) Index
+  INTEGER, PARAMETER :: evergreen_needleleaf = 1
+  INTEGER, PARAMETER :: evergreen_broadleaf  = 2 
+  INTEGER, PARAMETER :: deciduous_needleleaf = 3
+  INTEGER, PARAMETER :: deciduous_broadleaf  = 4   
+  INTEGER, PARAMETER :: shrub_cable          = 5
+  INTEGER, PARAMETER :: c3_grassland         = 6 
+  INTEGER, PARAMETER :: c4_grassland         = 7 
+  INTEGER, PARAMETER :: tundra               = 8
+  INTEGER, PARAMETER :: c3_cropland          = 9  
+  INTEGER, PARAMETER :: c4_cropland          = 10 
+  INTEGER, PARAMETER :: wetland              = 11 
+  INTEGER, PARAMETER :: empty1               = 12
+  INTEGER, PARAMETER :: empty2               = 13
+  INTEGER, PARAMETER :: barren_cable         = 14
+  INTEGER, PARAMETER :: urban_cable          = 15
+  INTEGER, PARAMETER :: lakes_cable          = 16 
+  INTEGER, PARAMETER :: ice_cable            = 17 
 
 END MODULE cable_surface_types_mod
 
