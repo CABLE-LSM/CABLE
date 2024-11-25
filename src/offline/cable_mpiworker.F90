@@ -69,11 +69,12 @@ MODULE cable_mpiworker
     vegparmnew,                     &
     spinup,                         &
     spincasa,                       &
-    l_casacnp,                      &
+    CASAONLY,                       &
     l_laiFeedbk,                    &
     l_vcmaxFeedbk,                  &
     delsoilM,                       &
-    delsoilT
+    delsoilT,                       &
+    LALLOC
   USE cable_mpicommon
   USE cable_common_module,  ONLY: cable_user
   USE casa_inout_module
@@ -129,7 +130,7 @@ CONTAINS
     USE cable_def_types_mod
     USE cable_IO_vars_module, ONLY: logn,leaps, &
          output,check,&
-         patch_type,soilparmnew,&
+         patch_type,&
          NO_CHECK
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, filename,            &
@@ -160,16 +161,11 @@ CONTAINS
     ! PLUME-MIP only
     USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE
 
-    USE cable_namelist_util, ONLY : CABLE_NAMELIST
-
     USE cbl_soil_snow_init_special_module
     IMPLICIT NONE
 
     ! MPI:
     INTEGER               :: comm ! MPI communicator for comms with the workers
-
-    ! CABLE namelist: model configuration, runtime/user switches
-    !CHARACTER(LEN=200), PARAMETER :: CABLE_NAMELIST='cable.nml'
 
     ! timing variables
     INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
@@ -189,7 +185,6 @@ CONTAINS
          rank           ! Rank of this worker
 
     REAL      :: dels    ! time step size in seconds
-    CHARACTER :: cRank*4 ! for worker-logfiles
 
     ! CABLE variables
     TYPE (met_type)       :: met     ! met input variables
@@ -219,7 +214,6 @@ CONTAINS
 
     LOGICAL, SAVE           :: &
          spinConv      = .FALSE., & ! has spinup converged?
-         CASAONLY      = .FALSE., & ! ONLY Run CASA-CNP
          CALL1         = .TRUE.
 
     ! MPI:
@@ -229,7 +223,6 @@ CONTAINS
     INTEGER :: ocomm ! separate dupes of MPI communicator for send and recv
     INTEGER :: ierr
 
-    INTEGER :: LALLOC
     !For consistency w JAC
     REAL,ALLOCATABLE, SAVE :: c1(:,:)
     REAL,ALLOCATABLE, SAVE :: rhoch(:,:)
@@ -239,83 +232,13 @@ CONTAINS
     ! Maciej: make sure the variable does not go out of scope
     mp = 0
 
-    IF( IARGC() > 0 ) THEN
-       CALL GETARG(1, filename%met)
-       CALL GETARG(2, casafile%cnpipool)
-    ENDIF
-
-
     IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
          CABLE_USER%POPLUC= .FALSE.
-
-    ! Get worker's rank and determine logfile-unit
-
-    ! MPI: TODO: find a way to preserve workers log messages somewhere
-    ! (either separate files or collated by the master to a single file
-    ! or perhaps use MPI-IO - but probably not gonna work with random length
-    ! text strings)
-    ! LN: Done!
-    IF ( CABLE_USER%LogWorker ) THEN
-       CALL MPI_Comm_rank (comm, rank, ierr)
-       WRITE(cRank,FMT='(I4.4)')rank
-       logn = 1000+rank
-       OPEN(logn,FILE="cable_log_"//cRank,STATUS="REPLACE")
-    ELSE
-       logn = 1000
-       OPEN(logn, FILE="/dev/null")
-    ENDIF
-
-    ! INITIALISATION depending on nml settings
-
-    CurYear = CABLE_USER%YearStart
-
-    IF ( icycle .GE. 11 ) THEN
-       icycle                     = icycle - 10
-       CASAONLY                   = .TRUE.
-       CABLE_USER%CASA_DUMP_READ  = .TRUE.
-       CABLE_USER%CASA_DUMP_WRITE = .FALSE.
-    ELSEIF ( icycle .EQ. 0 ) THEN
-       CABLE_USER%CASA_DUMP_READ  = .FALSE.
-       spincasa                   = .FALSE.
-       CABLE_USER%CALL_POP        = .FALSE.
-    ENDIF
-
-    ! vh_js !
-    IF (icycle.GT.0) THEN
-       l_casacnp = .TRUE.
-    ELSE
-       l_casacnp = .FALSE.
-    ENDIF
-
-    ! vh_js ! suggest LALLOC should ulitmately be a switch in the .nml file
-    IF (CABLE_USER%CALL_POP) THEN
-       LALLOC = 3 ! for use with POP: makes use of pipe model to partition between stem and leaf
-    ELSE
-       LALLOC = 0 ! default
-    ENDIF
 
     IF ( TRIM(cable_user%MetType) .EQ. 'gpgs' ) THEN
        leaps = .TRUE.
        cable_user%MetType = 'gswp'
     ENDIF
-
-    cable_runtime%offline = .TRUE.
-
-    IF( l_casacnp  .AND. ( icycle == 0 .OR. icycle > 3 ) )                   &
-         STOP 'icycle must be 1 to 3 when using casaCNP'
-    IF( ( l_laiFeedbk .OR. l_vcmaxFeedbk ) .AND. ( .NOT. l_casacnp ) )       &
-         STOP 'casaCNP required to get prognostic LAI or Vcmax'
-    IF( l_vcmaxFeedbk .AND. icycle < 2 )                                     &
-         STOP 'icycle must be 2 to 3 to get prognostic Vcmax'
-    IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &
-         STOP 'casaCNP must use new soil parameters'
-
-    ! Open log file:
-    ! MPI: worker logs go to the black hole
-    ! by opening the file we don't need to touch any of the code that writes
-    ! to it and may be called somewhere by a worker
-    ! OPEN(logn,FILE=filename%log)
-
 
     ! Check for gswp run
     ! MPI: done by the master only; if check fails then master MPI_Aborts

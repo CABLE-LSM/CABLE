@@ -65,27 +65,28 @@ MODULE cable_serial
     vegparmnew,                     &
     spinup,                         &
     spincasa,                       &
+    CASAONLY,                       &
     l_casacnp,                      &
     l_landuse,                      &
     l_laiFeedbk,                    &
     l_vcmaxFeedbk,                  &
     delsoilM,                       &
     delsoilT,                       &
-    delgwM
+    delgwM,                         &
+    LALLOC
   USE cable_def_types_mod
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
        fixedCO2,output,check,&
-       patch_type,landpt,soilparmnew,&
-       defaultLAI, sdoy, smoy, syear, timeunits, exists, calendar, set_group_output_values, &
+       patch_type,landpt,&
+       defaultLAI, sdoy, smoy, syear, timeunits, exists, calendar, &
        NO_CHECK
   USE casa_ncdf_module, ONLY: is_casa_time
   USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
-       cable_runtime, filename, myhome,            &
+       filename, myhome,            &
        CurYear,    &
        IS_LEAPYEAR, &
        kwidth_gl
 
-  USE cable_namelist_util, ONLY : CABLE_NAMELIST, arg_not_namelist
 ! physical constants
 USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
 USE cable_phys_constants_mod, ONLY : CEMLEAF => EMLEAF
@@ -152,19 +153,15 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
 
 CONTAINS
 
-SUBROUTINE serialdrv()
+SUBROUTINE serialdrv(trunk_sumbal, NRRRR)
   !! Offline serial driver.
-  
-  ! CABLE namelist: model configuration, runtime/user switches
-  !CHARACTER(LEN=200), PARAMETER :: CABLE_NAMELIST='cable.nml'
-  ! try to read in namelist from command line argument
-  ! allows simple way of not hard coding cable.nml
-  ! defaults to using cable.nml if no file specified
+  DOUBLE PRECISION, INTENT(IN) :: trunk_sumbal
+    !! Reference value for quasi-bitwise reproducibility checks.
+  INTEGER, INTENT(IN) :: NRRRR !! Number of repeated spin-up cycles
 
   ! timing variables
   INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
   INTEGER, PARAMETER ::  mloop  = 30   ! CASA-CNP PreSpinup loops
-  INTEGER :: LALLOC ! allocation coefficient for passing to spincasa
 
   INTEGER        ::                                                           &
        ktau,       &  ! increment equates to timestep, resets if spinning up
@@ -180,7 +177,6 @@ SUBROUTINE serialdrv()
        YYYY,       &  !
        RYEAR,      &  !
        RRRR,       &  !
-       NRRRR,      &  !
        ctime,      &  ! day count for casacnp
        LOY, &         ! days in year
        count_sum_casa ! number of time steps over which casa pools &
@@ -231,7 +227,6 @@ SUBROUTINE serialdrv()
 
   LOGICAL, SAVE           :: &
        spinConv = .FALSE.,         & ! has spinup converged?
-       CASAONLY      = .FALSE.,    & ! ONLY Run CASA-CNP
        CALL1 = .TRUE.,             &
        SPINon= .TRUE.
 
@@ -251,14 +246,7 @@ SUBROUTINE serialdrv()
   !mpidiff
   INTEGER :: i,x,kk,m,np,ivt
 
-  ! Vars for standard for quasi-bitwise reproducability b/n runs
-  ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
-  CHARACTER(len=30), PARAMETER ::                                             &
-       Ftrunk_sumbal  = ".trunk_sumbal",                                        &
-       Fnew_sumbal    = "new_sumbal"
-
   DOUBLE PRECISION ::                                                                     &
-       trunk_sumbal = 0.0, & !
        new_sumbal = 0.0, &
        new_sumfpn = 0.0, &
        new_sumfe = 0.0
@@ -268,7 +256,6 @@ SUBROUTINE serialdrv()
   REAL,ALLOCATABLE, SAVE :: xk(:,:)
 
   INTEGER :: nkend=0
-  INTEGER :: ioerror
   INTEGER :: count_bal = 0
 
   ! for landuse
@@ -282,31 +269,6 @@ SUBROUTINE serialdrv()
   real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
 
 ! END header
-
-  cable_runtime%offline = .TRUE.
-
-  ! Open, read and close the consistency check file.
-  ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
-  IF(cable_user%consistency_check) THEN
-     OPEN( 11, FILE = Ftrunk_sumbal,STATUS='old',ACTION='READ',IOSTAT=ioerror )
-     IF(ioerror==0) THEN
-        READ( 11, * ) trunk_sumbal  ! written by previous trunk version
-     ENDIF
-     CLOSE(11)
-  ENDIF
-
-  ! Open log file:
-  OPEN(logn,FILE=filename%log)
-
-  IF( (IARGC() > 0 ) .AND. (arg_not_namelist)) THEN
-     CALL GETARG(1, filename%met)
-     CALL GETARG(2, casafile%cnpipool)
-  ENDIF
-
-  ! INITIALISATION depending on nml settings
-  ! Initialise flags to output individual variables according to group
-  ! options from the namelist file
-  CALL set_group_output_values()
 
   IF (TRIM(cable_user%MetType) .EQ. 'gswp' .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
      IF ( CABLE_USER%YearStart.EQ.0 .AND. ncciy.GT.0) THEN
@@ -325,35 +287,6 @@ SUBROUTINE serialdrv()
      ENDIF
   ENDIF
 
-  CurYear = CABLE_USER%YearStart
-
-  IF ( icycle .GE. 11 ) THEN
-     icycle                     = icycle - 10
-     CASAONLY                   = .TRUE.
-     CABLE_USER%CASA_DUMP_READ  = .TRUE.
-     CABLE_USER%CASA_DUMP_WRITE = .FALSE.
-  ELSEIF ( icycle .EQ. 0 ) THEN
-     CABLE_USER%CASA_DUMP_READ  = .FALSE.
-     spincasa                   = .FALSE.
-
-     ! vh_js !
-     CABLE_USER%CALL_POP        = .FALSE.
-  ENDIF
-
-  ! vh_js !
-  IF (icycle.GT.0) THEN
-     l_casacnp = .TRUE.
-  ELSE
-     l_casacnp = .FALSE.
-  ENDIF
-
-  ! vh_js ! suggest LALLOC should ulitmately be a switch in the .nml file
-  IF (CABLE_USER%CALL_POP) THEN
-     LALLOC = 3 ! for use with POP: makes use of pipe model to partition between stem and leaf
-  ELSE
-     LALLOC = 0 ! default
-  ENDIF
-
 !$   IF ( .NOT. spinup ) THEN
 !$       IF ( spincasa ) THEN
 !$          spincasa = .FALSE.
@@ -369,16 +302,6 @@ SUBROUTINE serialdrv()
      cable_user%MetType = 'gswp'
   ENDIF
 
-  IF( l_casacnp  .AND. ( icycle == 0 .OR. icycle > 3 ) )                   &
-       STOP 'icycle must be 1 to 3 when using casaCNP'
-  !IF( ( l_laiFeedbk .OR. l_vcmaxFeedbk ) )       &
-  !   STOP 'casaCNP required to get prognostic LAI or Vcmax'
-  IF( l_vcmaxFeedbk .AND. icycle < 1 )                                     &
-       STOP 'icycle must be 2 to 3 to get prognostic Vcmax'
-  IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &
-       STOP 'casaCNP must use new soil parameters'
-
-  NRRRR = MERGE(MAX(CABLE_USER%CASA_NREP,1), 1, CASAONLY)
   ! casa time count
   ctime = 0
 
@@ -976,9 +899,9 @@ SUBROUTINE serialdrv()
                        PRINT *, &
                             "Internal check shows in this version new_sumbal != trunk sumbal"
                        PRINT *, &
-                            "Writing new_sumbal to the file:", TRIM(Fnew_sumbal)
+                            "Writing new_sumbal to the file:", TRIM(filename%new_sumbal)
 
-                       OPEN( 12, FILE = Fnew_sumbal )
+                       OPEN( 12, FILE = filename%new_sumbal )
                        WRITE( 12, '(F20.7)' ) new_sumbal  ! written by previous trunk version
                        CLOSE(12)
 
