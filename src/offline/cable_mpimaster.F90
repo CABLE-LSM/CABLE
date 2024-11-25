@@ -365,9 +365,6 @@ CONTAINS
        ENDIF
     ENDIF
 
-    ! Tell the workers if we're leaping
-    CALL MPI_Bcast (leaps, 1, MPI_LOGICAL, 0, comm, ierr)
-
     ! outer loop - spinup loop no. ktau_tot :
     ktau     = 0
     SPINLOOP:DO

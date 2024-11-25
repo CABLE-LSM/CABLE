@@ -271,9 +271,6 @@ CONTAINS
     !                      casaflux, casamet, casabal, phen, C%EMSOIL,        &
     !                      C%TFRZ )
 
-    ! Check for leap-year settings
-    CALL MPI_Bcast (leaps, 1, MPI_LOGICAL, 0, comm, ierr)
-
     SPINLOOP:DO
        YEAR: DO YYYY= CABLE_USER%YearStart,  CABLE_USER%YearEnd
           CurYear = YYYY
