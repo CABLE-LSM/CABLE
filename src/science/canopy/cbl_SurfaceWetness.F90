@@ -11,7 +11,6 @@ SUBROUTINE Surf_wetness_fact( cansat, canopy, ssnow,veg, met, soil, dels )
 
 USE cable_common_module
 USE cable_def_types_mod
-
 ! data                  
 USE cable_surface_types_mod,  ONLY: lakes_cable
 USE cable_phys_constants_mod, ONLY: CTFRZ => TFRZ
