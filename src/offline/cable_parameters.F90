@@ -1260,19 +1260,7 @@ CONTAINS
     rough%za_tq = 40.0
 
     veg%meth = 1 ! canopy turbulence parameterisation method: 0 or 1
-
-    ! I brought this in with manual merge of #199 BUT Am i bringing this back in ?
-    ! calculate vegin%froot from using rootbeta and soil depth
-    ! (Jackson et al. 1996, Oceologica, 108:389-411)
-    !totdepth = 0.0
-    !DO is = 1, ms
-    !   totdepth = totdepth + soil%zse(is) * 100.0  ! unit in centimetres
-    !   vegin%froot(is, :) = MIN(1.0, 1.0-vegin%rootbeta(:)**totdepth)
-    !END DO
-    !DO is = ms, 2, -1
-    !   vegin%froot(is, :) = vegin%froot(is, :)-vegin%froot(is-1, :)
-    !END DO
-
+    
     ALLOCATE(defaultLAI(mp, 12))
 
     DO e = 1, mland ! over all land grid points
