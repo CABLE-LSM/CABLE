@@ -2461,8 +2461,9 @@ CONTAINS
     ! Ensure that when an active patch has a veg type of ice then its soil type is also ice and vice versa
     ! Any change effected to enforce this consistency includes correcting the appropriate paramter values 
 
-    USE grid_constants_mod_cbl, ONLY : ICE_SoilType, ICE_VegType => ice_cable
-    USE cable_phys_constants_mod, ONLY : csice, density_ice
+    USE grid_constants_mod_cbl,   ONLY: ICE_SoilType
+    USE cable_surface_types_mod,  ONLY: ICE_VegType => ice_cable
+    USE cable_phys_constants_mod, ONLY: csice, density_ice
     
     TYPE (soil_parameter_type), INTENT(INOUT) :: soil  ! soil parameter data
     TYPE (veg_parameter_type),  INTENT(INOUT) :: veg   ! vegetation parameter

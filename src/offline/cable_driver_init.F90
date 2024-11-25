@@ -29,10 +29,7 @@ MODULE cable_driver_init_mod
   USE cable_namelist_util, ONLY : &
     get_namelist_file_name,       &
     CABLE_NAMELIST
-#ifdef __MPI__
-  USE mpi
-  USE cable_mpicommon, ONLY : comm, rank
-#endif
+  USE cable_mpi_mod, ONLY : mpi_grp_t
   IMPLICIT NONE
   PRIVATE
 
@@ -84,37 +81,24 @@ MODULE cable_driver_init_mod
 
 CONTAINS
 
-  SUBROUTINE cable_driver_init()
+  SUBROUTINE cable_driver_init(mpi_grp)
+    TYPE(mpi_grp_t), INTENT(IN) :: mpi_grp !! MPI group to use
+
     !! Model initialisation routine for the CABLE offline driver.
-#ifdef __MPI__
-    INTEGER :: np, ierr
-#endif
 
     !check to see if first argument passed to cable is
     !the name of the namelist file
     !if not use cable.nml
     CALL get_namelist_file_name()
 
-#ifndef __MPI__
-    WRITE(*,*) "THE NAME LIST IS ", CABLE_NAMELIST
-#endif
+    IF (mpi_grp%rank == 0) THEN
+      WRITE(*,*) "THE NAME LIST IS ", CABLE_NAMELIST
+    END IF
+
     ! Open, read and close the namelist file.
     OPEN(10, FILE=CABLE_NAMELIST, STATUS="OLD", ACTION="READ")
     READ(10, NML=CABLE)
     CLOSE(10)
-
-#ifdef __MPI__
-    CALL MPI_Init(ierr)
-    CALL MPI_Comm_dup(MPI_COMM_WORLD, comm, ierr)
-    CALL MPI_Comm_size(comm, np, ierr)
-
-    IF (np < 2) THEN
-      WRITE (*,*) 'This program needs at least 2 processes to run!'
-      CALL MPI_Abort(comm, 0, ierr)
-    END IF
-
-    CALL MPI_Comm_rank(comm, rank, ierr)
-#endif
 
   END SUBROUTINE cable_driver_init
 

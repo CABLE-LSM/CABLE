@@ -12,7 +12,7 @@
 ! Purpose: 
 !          sumcflux  - accumulating carbon fluxes (not required for UM)
 !
-! Called from: cable_driver for offline version
+! Called from: cable_serial for offline version
 !              Not currently called/available for ACCESS version
 !
 ! Contact: Yingping.Wang@csiro.au

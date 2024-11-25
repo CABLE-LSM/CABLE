@@ -18,7 +18,7 @@
 !          soil_snow_type now ssnow (instead of ssoil)
 !
 !          MPI wrapper developed by Maciej Golebiewski (2012)
-!          Modified from cable_driver.F90 in CABLE-2.0_beta r171 by B Pak
+!          Modified from cable_serial.F90 in CABLE-2.0_beta r171 by B Pak
 !
 ! ==============================================================================
 ! Uses:           mpi

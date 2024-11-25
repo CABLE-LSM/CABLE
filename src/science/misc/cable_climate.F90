@@ -12,7 +12,7 @@
 ! ==============================================================================
 ! Purpose: tracking climate variables for use in phenology and potential pft modules
 !
-! Called from: cable_driver
+! Called from: cable_serial
 !
 ! History: Vanessa Haverd Jan 2015
 

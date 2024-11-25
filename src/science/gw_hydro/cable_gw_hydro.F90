@@ -47,7 +47,6 @@ MODULE cable_gw_hydro_module
 !  USE cbl_soil_snow_subrs_module, ONLY : trimb, snow_processes_soil_thermal ! replaced below by rk4417 - phase2
 
 ! line below commented out by rk4417 - phase2
-!  USE cable_data_module, only: C=>PHYS ! all constants used in this module belong to PHYS
 
 
 !distribute these per sbr   ! added by rk4417 - phase2
@@ -338,7 +337,7 @@ CONTAINS
     
     USE cable_common_module, ONLY : gw_params,cable_user
 
-    USE grid_constants_mod_cbl, ONLY : lakes_cable
+    USE cable_surface_types_mod, ONLY: lakes_cable
 
     IMPLICIT NONE
     REAL, INTENT(IN)                         :: dels ! integration time step (s)
@@ -1154,8 +1153,8 @@ CONTAINS
    !> 18. update variables ! MMY??? where is pudsto calculated
     DO i=1,mp
        ssnow%pudsto(i) = 0.0  !no puddle
-       ssnow%smelt(i)  = ssnow%smelt(i)/dels    !change units to mm/s.  cable_driver then reverts back to mm
-       ssnow%runoff(i) = (ssnow%rnof1(i) + ssnow%rnof2(i))!*dels  !cable_driver converts from mm/s to mm
+       ssnow%smelt(i)  = ssnow%smelt(i)/dels    !change units to mm/s.  cable_serial then reverts back to mm
+       ssnow%runoff(i) = (ssnow%rnof1(i) + ssnow%rnof2(i))!*dels  !cable_serial converts from mm/s to mm
        !rnof1 and rnof2 are already in mm/s
        ! Set weighted soil/snow surface temperature
        ssnow%tss(i) =  (1-ssnow%isflag(i))*ssnow%tgg(i,1) + ssnow%isflag(i)*ssnow%tggsn(i,1)
@@ -1388,7 +1387,7 @@ CONTAINS
     !  following [Decker, 2015](http://doi.wiley.com/10.1002/2015MS000507)
   
 
-    USE grid_constants_mod_cbl, ONLY : lakes_cable
+    USE cable_surface_types_mod, ONLY: lakes_cable
 
     IMPLICIT NONE
     TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow  ! soil+snow variables
@@ -1756,7 +1755,7 @@ CONTAINS
  !  [Decker, 2015](http://doi.wiley.com/10.1002/2015MS000507)
 
     USE cable_common_module
-    USE grid_constants_mod_cbl, ONLY : lakes_cable
+    USE cable_surface_types_mod, ONLY: lakes_cable
 
     IMPLICIT NONE
 

@@ -35,7 +35,7 @@ CONTAINS
 
 !jhan: code under development for future release
 !   subroutine initialize_maps(latitude,longitude, tile_index_mp)
-!      use cable_data_module, only : cable, const 
+!   USE cable_phys_constants_mod, ONLY: 
 !      use cable_um_tech_mod, only : um1
 !      use define_dimensions, only : mp
 !
@@ -491,7 +491,7 @@ SUBROUTINE initialize_radiation( sw_down, lw_down, cos_zenith_angle,           &
                    CO2_MMR,CO2_3D,CO2_DIM_LEN,CO2_DIM_ROW,L_CO2_INTERACTIVE )   
 
    USE cable_def_types_mod, ONLY : mp
-   USE cable_data_module,   ONLY : PHYS, OTHER
+   USE cable_other_constants_mod, ONLY: RAD_thresh
    USE cable_um_tech_mod,   ONLY : um1, rad, soil, met,                        & 
                                    conv_rain_prevstep, conv_snow_prevstep
    USE cable_common_module, ONLY : cable_runtime, cable_user
@@ -524,11 +524,6 @@ SUBROUTINE initialize_radiation( sw_down, lw_down, cos_zenith_angle,           &
              
    !___defs 1st call to CABLE in this run. OK in UM & coupled
    LOGICAL, SAVE :: first_call= .TRUE.
-     
-   REAL, POINTER :: TFRZ, RAD_THRESH
-      
-      TFRZ => PHYS%TFRZ
-      RAD_THRESH => OTHER%RAD_THRESH
      
       IF( first_call ) THEN
          rad%albedo_T = soil%albsoil(:,1)
@@ -643,7 +638,6 @@ SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
                                 sin_theta_latitude ) 
 
    USE cable_def_types_mod,  ONLY : mp, msn
-   USE cable_data_module,   ONLY : PHYS
    USE cable_um_tech_mod,   ONLY : um1, soil, ssnow, met, bal, veg
    USE cable_common_module, ONLY : cable_runtime, cable_user
    
@@ -677,7 +671,6 @@ SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
    INTEGER :: i,j,k,L,n
    REAL  :: zsetot, max_snow_depth=50000.
    REAL, ALLOCATABLE:: fwork(:,:,:), sfact(:), fvar(:), rtemp(:)
-   REAL, POINTER :: TFRZ
    LOGICAL :: skip =.TRUE. 
    LOGICAL :: first_call = .TRUE.
 
@@ -686,8 +679,6 @@ SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
       ssnow%wbtot1 = 0
       ssnow%wbtot2 = 0
       ssnow%wb_lake = 0.
-
-      TFRZ => PHYS%TFRZ
 
       snow_tile = MIN(max_snow_depth, snow_tile)
 

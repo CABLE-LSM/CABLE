@@ -17,7 +17,7 @@
 !
 !
 ! ==============================================================================
-! CALLed from:    cable_driver.f90
+! CALLed from:    cable_serial.f90
 ! MODULEs used:   cable_abort_module
 !                 cable_IO_vars_module
 !                 netcdf
