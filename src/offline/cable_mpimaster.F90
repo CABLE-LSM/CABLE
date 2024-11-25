@@ -230,14 +230,14 @@ CONTAINS
 
     INTEGER        ::                                                           &
          ktau,       &  ! increment equates to timestep, resets if spinning up
-         ktau_tot,   &  ! NO reset when spinning up, total timesteps by model
+         ktau_tot = 0,   &  ! NO reset when spinning up, total timesteps by model
          kend,       &  ! no. of time steps in run
                                 !CLN      kstart = 1, &  ! timestep to start at
          koffset = 0, &  ! timestep to start at
          ktauday,    &  ! day counter for CASA-CNP
          idoy,       &  ! day of year (1:365) counter for CASA-CNP
          nyear,      &  ! year counter for CASA-CNP
-         ctime,      &  ! day count for casacnp
+         ctime = 0,  &  ! day count for casacnp
          YYYY,       &  !
          LOY,        &  ! Length of Year
          maxdiff(2)     ! location of maximum in convergence test
@@ -348,9 +348,6 @@ CONTAINS
        ENDIF
     ENDIF
 
-    ! casa time count
-    ctime = 0
-
     ! Iinitialise settings depending on met dataset
 
     ! Open met data and get site information from netcdf file. (NON-GSWP ONLY!)
@@ -372,7 +369,6 @@ CONTAINS
     CALL MPI_Bcast (leaps, 1, MPI_LOGICAL, 0, comm, ierr)
 
     ! outer loop - spinup loop no. ktau_tot :
-    ktau_tot = 0
     ktau     = 0
     SPINLOOP:DO
        YEARLOOP: DO YYYY= CABLE_USER%YearStart,  CABLE_USER%YearEnd

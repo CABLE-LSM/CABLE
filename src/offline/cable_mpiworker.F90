@@ -173,7 +173,7 @@ CONTAINS
 
     INTEGER        ::                                                           &
          ktau,       &  ! increment equates to timestep, resets if spinning up
-         ktau_tot,   &  ! NO reset when spinning up, total timesteps by model
+         ktau_tot = 0, &  ! NO reset when spinning up, total timesteps by model
          kend,       &  ! no. of time steps in run
                                 !CLN      kstart = 1, &  ! timestep to start at
          koffset = 0, &  ! timestep to start at
@@ -274,7 +274,6 @@ CONTAINS
     ! Check for leap-year settings
     CALL MPI_Bcast (leaps, 1, MPI_LOGICAL, 0, comm, ierr)
 
-    ktau_tot = 0
     SPINLOOP:DO
        YEAR: DO YYYY= CABLE_USER%YearStart,  CABLE_USER%YearEnd
           CurYear = YYYY

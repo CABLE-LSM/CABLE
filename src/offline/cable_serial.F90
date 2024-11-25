@@ -165,7 +165,7 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR)
 
   INTEGER        ::                                                           &
        ktau,       &  ! increment equates to timestep, resets if spinning up
-       ktau_tot,   &  ! NO reset when spinning up, total timesteps by model
+       ktau_tot = 0, &  ! NO reset when spinning up, total timesteps by model
        kend,       &  ! no. of time steps in run
                                 !CLN      kstart = 1, &  ! timestep to start at
        koffset = 0, &  ! timestep to start at
@@ -175,9 +175,9 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR)
        nyear,      &  ! year counter for CASA-CNP
        casa_it,    &  ! number of calls to CASA-CNP
        YYYY,       &  !
-       RYEAR,      &  !
+       RYEAR = 0,  &  ! current repeat year
        RRRR,       &  !
-       ctime,      &  ! day count for casacnp
+       ctime = 0,  &  ! day count for casacnp
        LOY, &         ! days in year
        count_sum_casa ! number of time steps over which casa pools &
                                 !and fluxes are aggregated (for output)
@@ -287,9 +287,6 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR)
      ENDIF
   ENDIF
 
-  ! casa time count
-  ctime = 0
-
 ! INISTUFF
 
   ! Open met data and get site information from netcdf file. (NON-GSWP ONLY!)
@@ -328,14 +325,6 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR)
   ENDIF !cable_user%MetType
 
   ! outer loop - spinup loop no. ktau_tot :
-  RYEAR = 0
-  ktau_tot = 0
-  SPINon   = .TRUE.
-!$  YearStart = CABLE_USER%YearStart
-!$  YearEnd = CABLE_USER%YearEnd
-!$  cable_user%CASA_SPIN_ENDYEAR
-
-
   SPINLOOP:DO WHILE ( SPINon )
 
      NREP: DO RRRR = 1, NRRRR
