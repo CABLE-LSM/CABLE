@@ -147,6 +147,10 @@ CONTAINS
       CALL set_group_output_values()
     END IF
 
+    IF (TRIM(cable_user%POPLUC_RunType) == 'static') THEN
+      cable_user%POPLUC= .FALSE.
+    END IF
+
     ! TODO(Sean): we should not be setting namelist parameters in the following if
     ! block - all options are all configurable via the namelist file and is
     ! unclear that these options are being overwritten. A better approach would be

@@ -232,9 +232,6 @@ CONTAINS
     ! Maciej: make sure the variable does not go out of scope
     mp = 0
 
-    IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
-         CABLE_USER%POPLUC= .FALSE.
-
     ! Check for gswp run
     ! MPI: done by the master only; if check fails then master MPI_Aborts
     ! everyone
