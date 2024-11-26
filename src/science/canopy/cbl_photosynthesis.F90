@@ -44,6 +44,11 @@ USE cable_photo_constants_mod, ONLY : CRGSWC => RGSWC
 
     INTEGER :: i,j
 
+  anrubpz(:,:)    = 0.0
+  ansinkz(:,:)    = 0.0   
+  anxz(:,:)       = 0.0    
+  anrubiscoz(:,:) = 0.0
+
     DO i=1,mp
 
        IF (SUM(vlaiz(i,:)) .GT. CLAI_THRESH) THEN
