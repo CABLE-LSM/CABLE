@@ -22,7 +22,7 @@
 
 MODULE cable_roughness_module
 
-USE cable_surface_types_mod, ONLY: ICE_SurfaceType => ICE_cable
+USE cable_surface_types_mod,   ONLY: ICE_SurfaceType => ICE_cable
 USE cable_phys_constants_mod,  ONLY: CCSD   => CSD 
 USE cable_phys_constants_mod,  ONLY: CCRD   => CRD 
 USE cable_phys_constants_mod,  ONLY: CCCD   => CCD 
