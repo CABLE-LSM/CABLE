@@ -160,7 +160,7 @@ MODULE cable_mpimaster
 
 CONTAINS
 
-  SUBROUTINE mpidrv_master (comm, trunk_sumbal, dels, koffset, kend, PLUME)
+  SUBROUTINE mpidrv_master (comm, trunk_sumbal, dels, koffset, kend, PLUME, CRU)
 
     USE mpi
 
@@ -168,7 +168,7 @@ CONTAINS
     USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,globalMetfile, &
          output,check,&
          patch_type,landpt,&
-         timeunits, exists, output, &
+         timeunits, output, &
          calendar
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, fileName,            &
@@ -212,7 +212,7 @@ CONTAINS
     ! PLUME-MIP only
     USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE, PLUME_MIP_GET_MET,&
          PLUME_MIP_INIT
-    USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT
+    USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET
 
     USE landuse_constant,     ONLY: mstate,mvmax,mharvw
     USE landuse_variable
@@ -228,6 +228,7 @@ CONTAINS
     INTEGER, INTENT(INOUT) :: koffset !! Timestep to start at
     INTEGER, INTENT(INOUT) :: kend !! No. of time steps in run
     TYPE(PLUME_MIP_TYPE), INTENT(IN) :: PLUME
+    TYPE(CRU_TYPE), INTENT(IN) :: CRU
 
     ! timing variables
     INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
@@ -275,7 +276,6 @@ CONTAINS
     TYPE (POP_TYPE)       :: POP
     TYPE(POPLUC_TYPE) :: POPLUC
     TYPE (LUC_EXPT_TYPE) :: LUC_EXPT
-    TYPE (CRU_TYPE)       :: CRU
     TYPE (landuse_mp)     :: lucmp
     CHARACTER             :: cyear*4
     CHARACTER             :: ncfile*99
@@ -342,33 +342,8 @@ CONTAINS
           ENDIF
 
           IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
-             ! CLN HERE PLUME modfications
              kend = NINT(24.0*3600.0/dels) * LOY
           ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
-             ! CLN HERE CRU modfications
-             IF ( CALL1 ) THEN
-
-                CALL CPU_TIME(etime)
-                CALL CRU_INIT( CRU )
-
-                dels = CRU%dtsecs
-                koffset   = 0
-                leaps = .FALSE.         ! No leap years in CRU-NCEP
-                exists%Snowf = .FALSE.  ! No snow in CRU-NCEP, so ensure it will
-                ! be determined from temperature in CABLE
-
-                WRITE(str1,'(i4)') CurYear
-                str1 = ADJUSTL(str1)
-                WRITE(str2,'(i2)') 1
-                str2 = ADJUSTL(str2)
-                WRITE(str3,'(i2)') 1
-                str3 = ADJUSTL(str3)
-                timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//" &
-                     00:00"
-
-
-             ENDIF
-
              LOY = 365
              kend = NINT(24.0*3600.0/dels) * LOY
           ELSE IF (TRIM(cable_user%MetType) .EQ. 'gswp') THEN

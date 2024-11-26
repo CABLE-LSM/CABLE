@@ -78,7 +78,7 @@ MODULE cable_serial
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
        fixedCO2,output,check,&
        patch_type,landpt,&
-       defaultLAI, sdoy, smoy, syear, timeunits, exists, calendar, &
+       defaultLAI, sdoy, smoy, syear, timeunits, calendar, &
        NO_CHECK
   USE casa_ncdf_module, ONLY: is_casa_time
   USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
@@ -131,7 +131,7 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
   USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE, PLUME_MIP_GET_MET,&
        PLUME_MIP_INIT
 
-  USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT
+  USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET
   USE CABLE_site,           ONLY: site_TYPE, site_INIT, site_GET_CO2_Ndep
 
   ! LUC_EXPT only
@@ -153,7 +153,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
 
 CONTAINS
 
-SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME)
+SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU)
   !! Offline serial driver.
   DOUBLE PRECISION, INTENT(IN) :: trunk_sumbal
     !! Reference value for quasi-bitwise reproducibility checks.
@@ -163,6 +163,7 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME)
   INTEGER, INTENT(INOUT) :: kend !! No. of time steps in run
   INTEGER, ALLOCATABLE, INTENT(INOUT) :: GSWP_MID(:,:) !! NetCDF file IDs for GSWP met forcing
   TYPE(PLUME_MIP_TYPE), INTENT(IN) :: PLUME
+  TYPE(CRU_TYPE), INTENT(IN) :: CRU
 
   ! timing variables
   INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
@@ -216,7 +217,6 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME)
   ! vh_js !
   TYPE (POP_TYPE)       :: POP
   TYPE(POPLUC_TYPE) :: POPLUC
-  TYPE (CRU_TYPE)       :: CRU
   TYPE (site_TYPE)       :: site
   TYPE (LUC_EXPT_TYPE) :: LUC_EXPT
   TYPE (landuse_mp)     :: lucmp
@@ -328,27 +328,6 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME)
               kend = NINT(24.0*3600.0/dels) * LOY
            ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
               ! TRENDY experiment using CRU-NCEP
-              IF ( CALL1 ) THEN
-
-                 CALL CPU_TIME(etime)
-                 CALL CRU_INIT( CRU )
-
-                 dels      = CRU%dtsecs
-                 koffset   = 0
-                 leaps = .FALSE.         ! No leap years in CRU-NCEP
-                 exists%Snowf = .FALSE.  ! No snow in CRU-NCEP, so ensure it will
-                 ! be determined from temperature in CABLE
-
-                 WRITE(str1,'(i4)') CurYear
-                 str1 = ADJUSTL(str1)
-                 WRITE(str2,'(i2)') 1
-                 str2 = ADJUSTL(str2)
-                 WRITE(str3,'(i2)') 1
-                 str3 = ADJUSTL(str3)
-                 timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//"00:00"
-                 calendar = "noleap"
-
-              ENDIF
               LOY = 365
               kend = NINT(24.0*3600.0/dels) * LOY
            ELSE IF ( TRIM(cable_user%MetType) .EQ. 'site' ) THEN

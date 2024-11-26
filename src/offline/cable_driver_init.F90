@@ -26,7 +26,8 @@ MODULE cable_driver_init_mod
     gswpfile,                      &
     globalMetfile,                 &
     set_group_output_values,       &
-    timeunits
+    timeunits,                     &
+    exists
   USE casadimension, ONLY : icycle
   USE casavariable, ONLY : casafile
   USE cable_namelist_util, ONLY : &
@@ -37,6 +38,7 @@ MODULE cable_driver_init_mod
   USE cable_phys_constants_mod, ONLY : CTFRZ => TFRZ
   USE cable_input_module, ONLY : open_met_file
   USE CABLE_PLUME_MIP, ONLY : PLUME_MIP_TYPE, PLUME_MIP_INIT
+  USE CABLE_CRU, ONLY : CRU_TYPE, CRU_INIT
   IMPLICIT NONE
   PRIVATE
 
@@ -95,6 +97,7 @@ MODULE cable_driver_init_mod
   PUBLIC :: cable_driver_init
   PUBLIC :: cable_driver_init_gswp
   PUBLIC :: cable_driver_init_plume
+  PUBLIC :: cable_driver_init_cru
   PUBLIC :: cable_driver_init_site
   PUBLIC :: cable_driver_init_default
 
@@ -282,5 +285,31 @@ CONTAINS
     timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//"00:00"
 
   END SUBROUTINE cable_driver_init_plume
+
+  SUBROUTINE cable_driver_init_cru(dels, koffset, CRU)
+    !* Model initialisation routine (CRU specific).
+    ! TRENDY experiment using CRU-NCEP.
+    REAL, INTENT(OUT) :: dels !! Time step size in seconds
+    INTEGER, INTENT(OUT) :: koffset !! Timestep to start at
+    TYPE(CRU_TYPE), INTENT(OUT) :: CRU
+
+    CHARACTER(len=9) :: str1, str2, str3
+
+    CALL CRU_INIT(CRU)
+    dels = CRU%dtsecs
+    koffset = 0
+    leaps = .FALSE. ! No leap years in CRU-NCEP
+    exists%Snowf = .FALSE.
+      ! No snow in CRU-NCEP, so ensure it will be determined from temperature
+      ! in CABLE
+    WRITE(str1,'(i4)') cable_user%YearStart
+    str1 = ADJUSTL(str1)
+    WRITE(str2,'(i2)') 1
+    str2 = ADJUSTL(str2)
+    WRITE(str3,'(i2)') 1
+    str3 = ADJUSTL(str3)
+    timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//"00:00"
+
+  END SUBROUTINE cable_driver_init_cru
 
 END MODULE cable_driver_init_mod
