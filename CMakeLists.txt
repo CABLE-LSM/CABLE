@@ -61,6 +61,7 @@ add_library(
     src/offline/cable_site.F90
     src/offline/cable_serial.F90
     src/offline/cable_soil_params.F90
+    src/offline/cable_surface_types.F90
     src/offline/cable_weathergenerator.F90
     src/offline/cable_write.F90
     src/offline/casa_cable.F90

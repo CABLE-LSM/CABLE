@@ -1,4 +1,3 @@
-!#define UM_CBL YES
 !******************************************************************************
 ! This source code is part of the Community Atmosphere Biosphere Land Exchange
 ! (CABLE) model. This work is licensed under the CSIRO Open Source Software
@@ -13,7 +12,6 @@ IMPLICIT NONE
 
 PUBLIC
 
-!-----------------------------------------------------------------------------
 ! cable_surface_type (nml) Index
 INTEGER, PARAMETER :: evergreen_needleleaf = 1
 INTEGER, PARAMETER :: evergreen_broadleaf  = 2 
