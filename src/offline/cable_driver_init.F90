@@ -25,7 +25,8 @@ MODULE cable_driver_init_mod
     ncciy,                         &
     gswpfile,                      &
     globalMetfile,                 &
-    set_group_output_values
+    set_group_output_values,       &
+    timeunits
   USE casadimension, ONLY : icycle
   USE casavariable, ONLY : casafile
   USE cable_namelist_util, ONLY : &
@@ -35,6 +36,7 @@ MODULE cable_driver_init_mod
   USE cable_mpi_mod, ONLY : mpi_grp_t
   USE cable_phys_constants_mod, ONLY : CTFRZ => TFRZ
   USE cable_input_module, ONLY : open_met_file
+  USE CABLE_PLUME_MIP, ONLY : PLUME_MIP_TYPE, PLUME_MIP_INIT
   IMPLICIT NONE
   PRIVATE
 
@@ -92,6 +94,7 @@ MODULE cable_driver_init_mod
 
   PUBLIC :: cable_driver_init
   PUBLIC :: cable_driver_init_gswp
+  PUBLIC :: cable_driver_init_plume
   PUBLIC :: cable_driver_init_site
   PUBLIC :: cable_driver_init_default
 
@@ -256,5 +259,28 @@ CONTAINS
     END IF
 
   END SUBROUTINE cable_driver_init_default
+
+  SUBROUTINE cable_driver_init_plume(dels, koffset, PLUME)
+    !* Model initialisation routine (PLUME specific).
+    ! PLUME experiment setup using WATCH.
+    REAL, INTENT(OUT) :: dels !! Time step size in seconds
+    INTEGER, INTENT(OUT) :: koffset !! Timestep to start at
+    TYPE(PLUME_MIP_TYPE), INTENT(OUT) :: PLUME
+
+    CHARACTER(len=9) :: str1, str2, str3
+
+    CALL PLUME_MIP_INIT(PLUME)
+    dels = PLUME%dt
+    koffset = 0
+    leaps = PLUME%LeapYears
+    WRITE(str1,'(i4)') cable_user%YearStart
+    str1 = ADJUSTL(str1)
+    WRITE(str2,'(i2)') 1
+    str2 = ADJUSTL(str2)
+    WRITE(str3,'(i2)') 1
+    str3 = ADJUSTL(str3)
+    timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//"00:00"
+
+  END SUBROUTINE cable_driver_init_plume
 
 END MODULE cable_driver_init_mod

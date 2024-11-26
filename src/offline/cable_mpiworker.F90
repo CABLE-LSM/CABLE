@@ -158,9 +158,6 @@ CONTAINS
     USE POP_Types,            ONLY: POP_TYPE
     USE POP_Constants,        ONLY: HEIGHT_BINS, NCOHORT_MAX
 
-    ! PLUME-MIP only
-    USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE
-
     USE cbl_soil_snow_init_special_module
     IMPLICIT NONE
 

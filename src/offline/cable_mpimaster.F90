@@ -160,7 +160,7 @@ MODULE cable_mpimaster
 
 CONTAINS
 
-  SUBROUTINE mpidrv_master (comm, trunk_sumbal, dels, koffset, kend)
+  SUBROUTINE mpidrv_master (comm, trunk_sumbal, dels, koffset, kend, PLUME)
 
     USE mpi
 
@@ -227,6 +227,7 @@ CONTAINS
     REAL, INTENT(INOUT) :: dels !! Time step size in seconds
     INTEGER, INTENT(INOUT) :: koffset !! Timestep to start at
     INTEGER, INTENT(INOUT) :: kend !! No. of time steps in run
+    TYPE(PLUME_MIP_TYPE), INTENT(IN) :: PLUME
 
     ! timing variables
     INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
@@ -274,7 +275,6 @@ CONTAINS
     TYPE (POP_TYPE)       :: POP
     TYPE(POPLUC_TYPE) :: POPLUC
     TYPE (LUC_EXPT_TYPE) :: LUC_EXPT
-    TYPE (PLUME_MIP_TYPE) :: PLUME
     TYPE (CRU_TYPE)       :: CRU
     TYPE (landuse_mp)     :: lucmp
     CHARACTER             :: cyear*4
@@ -343,21 +343,6 @@ CONTAINS
 
           IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
              ! CLN HERE PLUME modfications
-             IF ( CALL1 ) THEN
-                CALL PLUME_MIP_INIT( PLUME )
-                dels      = PLUME%dt
-                koffset   = 0
-                leaps = PLUME%LeapYears
-                WRITE(str1,'(i4)') CurYear
-                str1 = ADJUSTL(str1)
-                WRITE(str2,'(i2)') 1
-                str2 = ADJUSTL(str2)
-                WRITE(str3,'(i2)') 1
-                str3 = ADJUSTL(str3)
-                timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//" &
-                     00:00"
-
-             ENDIF
              kend = NINT(24.0*3600.0/dels) * LOY
           ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
              ! CLN HERE CRU modfications
