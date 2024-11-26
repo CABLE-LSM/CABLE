@@ -84,7 +84,7 @@ add_library(
     src/science/canopy/cbl_dryLeaf.F90
     src/science/canopy/cbl_friction_vel.F90
     src/science/canopy/cbl_fwsoil.F90
-    src/science/canopy/cbl_init_wetfac_mod.f90
+    src/science/canopy/cbl_init_wetfac_mod.F90
     src/science/canopy/cbl_latent_heat.F90
     src/science/canopy/cbl_photosynthesis.F90
     src/science/canopy/cbl_pot_evap_snow.F90
@@ -93,7 +93,6 @@ add_library(
     src/science/canopy/cbl_wetleaf.F90
     src/science/canopy/cbl_within_canopy.F90
     src/science/canopy/cbl_zetar.F90
-    src/science/canopy/cbl_init_wetfac.F90
     src/science/casa-cnp/bgcdriver.F90
     src/science/casa-cnp/biogeochem_casa.F90
     src/science/casa-cnp/casa_cnp.F90
