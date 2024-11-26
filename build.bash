@@ -63,6 +63,7 @@ while [ ${#} -gt 0 ]; do
             ;;
         -l|--library)
             build_args+=(--target cable_science)
+            cmake_args+=(-DCABLE_LIBRARY="ON")
             do_install=0 # Disable installation when only building the science library
             ;;
         -C|--compiler)
