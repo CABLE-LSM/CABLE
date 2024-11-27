@@ -3336,7 +3336,6 @@ CONTAINS
        veg%clitt(h)    = vegin%clitt(veg%iveg(h))
     END DO ! over each veg patch in land point
 
-    ! MMY @Oct2022 note replace the look-up table froot with Jackson eq
     ! calculate vegin%froot from using rootbeta and soil depth
     ! (Jackson et al. 1996, Oceologica, 108:389-411)
     totdepth = 0.0
