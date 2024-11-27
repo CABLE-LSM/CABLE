@@ -5,6 +5,7 @@ MODULE CABLE_CRU
 ! The master module to handle the meteorological forcing when using the CRU
 ! dataset.
 
+USE iso_fortran_env,        ONLY: ERROR_UNIT
 USE NetCDF,                 ONLY: NF90_OPEN, NF90_NOWRITE, NF90_INQ_DIMID,&
                                   NF90_INQUIRE_DIMENSION, NF90_INQ_VARID,&
                                   NF90_GET_VAR, NF90_CLOSE, NF90_NOERR
@@ -754,14 +755,14 @@ SUBROUTINE get_met_date(SimYear, SimDay, IsRecycled, RecycleStart,&
   END IF
 
   ! Check the validity of the passed day
-  IF ((SimDay < -364) .OR. (SimDay > (DaysInYear + 365)) THEN
+  IF ((SimDay < -364) .OR. (SimDay > (DaysInYear + 365))) THEN
     ! Looking more than a year into the past/future- this routine was never
     ! meant for such tasks.
     WRITE(ERROR_UNIT,*) "Looking too far into the past/future. "//&
       "The get_met_date routine was only intended for nearby temporal "//&
       "searching, not more than a year in the future/past."
-    EXIT 5
-  IF (SimDay < 1) THEN
+    CALL EXIT(5)
+  ELSEIF (SimDay < 1) THEN
     ! Go back to last year- set the day later, once we know whether the MetYear
     ! is a leapyear or not
     MetYear = SimYear - 1
@@ -1179,7 +1180,7 @@ SUBROUTINE prepare_temporal_dataset(FileName, TargetArray)
   CALL get_unit(FileID)
   OPEN(FileID, FILE = FileName, STATUS = "old", ACTION = "read", IOSTAT = ios)
   IF (ios < 0) THEN
-    WRITE(*,*) "Open of temporal dataset file failed with status:", ios
+    WRITE(ERROR_UNIT,*) "Open of temporal dataset file failed with status:", ios
     CALL EXIT(5)
   END IF
 
