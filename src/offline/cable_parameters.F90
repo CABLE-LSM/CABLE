@@ -2365,7 +2365,6 @@ CONTAINS
                 write(*,*) '~~~~~~~~~~~~~~soil%isoilm',soil%isoilm(j)
              END IF
           ENDDO
-          WRITE(*,*) 'Land point number:',i
           CALL abort('Unknown soil type! Aborting.')
        END IF
 
