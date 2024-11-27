@@ -2161,12 +2161,6 @@ CONTAINS
 
        if ((gw_params%MaxSatFraction .lt. -9999.9) .and. (mp .eq. 1)) soil%slope(:) = 0.01
 
-    ELSE  !not gw model
-
-      !These are not used when gw_model == false
-      soil%watr = 0._r_2
-      soil%GWwatr = 0._r_2
-
    END IF
 
     IF (cable_user%soil_thermal_fix) then
