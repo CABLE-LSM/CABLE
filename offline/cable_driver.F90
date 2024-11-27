@@ -294,6 +294,7 @@ PROGRAM cable_offline_driver
        patchout, &
        check, &
        verbose, &
+       logn, &
        leaps, &
        fixedCO2, &
        spincasainput, &
