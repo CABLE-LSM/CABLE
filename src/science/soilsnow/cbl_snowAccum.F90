@@ -173,11 +173,8 @@ IMPLICIT NONE
              ssnow%sdepth(i,1) = MAX( 0.02, ssnow%smass(i,1) / ssnow%ssdn(i,1) )
           ENDIF
 
-          canopy%segg(i) = 0.0
-
-          !INH: cls package
-          !we still need to conserve moisture/energy when evapsn is limited
-          !this is a key point of moisture non-conservation
+          ! Use any remaining energy for evaporation of soil water
+          canopy%segg(i) =  (CHL + CHLF) * (xxx(i) - ssnow%evapsn(i)) / CHL / dels
 
        ENDIF
 
