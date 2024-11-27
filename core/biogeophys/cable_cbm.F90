@@ -87,7 +87,7 @@ CONTAINS
 #endif
       REAL(KIND=r_2) :: SoilMoistPFTtemp
       REAL, DIMENSION(ms) :: a
-      real :: k1, k2, pd, BAI, WD
+      real :: k1, k2, pd, BAI, WD, AGB_pl
 
       ! assign local ptrs to constants defined in cable_data_module
       CALL point2constants(C)
@@ -196,12 +196,18 @@ CONTAINS
          !SoilMoistPFTtemp = real(sum(ssnow%wb * 1000.0_r_2 * real(spread(soil%zse,1,mp),r_2),2),r_2)
 
          ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
-         k1 = 50.0_r_2
-         k2 = 1.5_r_2
-         WD = 300.0_r_2
-         pd = 4.0_r_2 * real((SUM(casapool%cplant,2)) / 1000.0_r_2,r_2) / (WD * pi * veg%hc * (veg%hc / k1)**(2.0_r_2*k2))
-         DBH = (veg%hc/k1)**k2
-         BAI = (DBH/2.0_r_2)**2.0_r_2*pi*pd
+         ! k1 = 50.0_r_2
+         ! k2 = 1.5_r_2
+         k1 = 0.2351 ! coefficient in 
+         k2 = 2.3226
+         WD = 300.0_r_2 ! kgC m-2
+         !Biomass = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r_2
+         !pd = 4.0_r_2 * real(casapool%cplant(i,2) / 1000.0_r_2,r_2) / (WD * pi * veg%hc * (veg%hc / k1)**(2.0_r_2*k2))
+         pd = 0.07_r_2 ! pl m-2
+         !DBH = (veg%hc/k1)**k2
+         AGB_pl = casapool%cplant(i,2)/1000.0_r_2*2.0_r_2 / pd ! kg pl-1
+         DBH = (AGB_pl/k1)**(1.0_r_2/k2) ! cm 
+         BAI = (DBH/200.0_r_2)**2.0_r_2*pi*pd ! m2 m-2
          canopy%kplant(i)= veg%kmax(i) * BAI / veg%hc &
             get_xylem_vulnerability(ssnow%psi_rootzone(i), &
             veg%b_plant(i), veg%c_plant(i))
