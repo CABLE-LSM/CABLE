@@ -2353,7 +2353,7 @@ CONTAINS
                       
                   ex(i,:) = ex(i,:) * (1.0_r_2-real(spread(canopy%fwet(i), 2, mf), r_2)) / real(spread(air%rlam(i), 2, mf), r_2) 
                   ! convert from kg m-2 ground s-1 to mmol m-2 leaf s-1*
-                  ex(i,:)= ex(i,:) * 1.0e6_r_2/18.0_r_2  
+                  !ex(i,:)= ex(i,:) * 1.0e6_r_2/18.0_r_2  
                   psilx(i,1) = ssnow%psi_rootzone(i)-ex(i,1)/canopy%kplant(i)
                   psilx(i,2) = ssnow%psi_rootzone(i)-ex(i,2)/canopy%kplant(i)
 
