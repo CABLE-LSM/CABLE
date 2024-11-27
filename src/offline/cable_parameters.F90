@@ -1380,6 +1380,11 @@ CONTAINS
                incnsd(landpt(e)%ilon, landpt(e)%ilat)
 
           !possibly heterogeneous soil properties
+          ! Set all heterogeneous soil properties to their equivalent uniform values.
+          ! These values can be overridden later on by input values in files.
+          ! `smpc_vec` and `wbc_vec` are only used in the ground water and have no
+          ! equivalent in the uniform parameters (non _vec). So we do not initialise
+          ! these variables when we are not using the ground water scheme.
           DO klev=1,ms
 
              soil%clay_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
@@ -1399,6 +1404,15 @@ CONTAINS
 
              soil%watr(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
                   REAL(inWatr(landpt(e)%ilon, landpt(e)%ilat),r_2)
+
+             soil%zse_vec(landpt(e)%cstart:landpt(e)%cend,klev) =              &
+                  REAL(soil%zse(landpt(e)%cstart:landpt(e)%cend), r_2)
+
+             soil%css_vec(landpt(e)%cstart:landpt(e)%cend, klev) =             &
+                  REAL(incss(landpt(e)%ilon, landpt(e)%ilat), r_2)
+
+             soil%cnsd_vec(landpt(e)%cstart:landpt(e)%cend, klev) =            &
+                  REAL(incnsd(landpt(e)%ilon, landpt(e)%ilat), r_2)
 
           END DO
 
