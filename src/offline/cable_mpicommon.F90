@@ -29,7 +29,7 @@ MODULE cable_mpicommon
 
   ! base number of input fields: must correspond to CALLS to 
   ! MPI_address (field ) in *_mpimaster/ *_mpiworker
-  INTEGER, PARAMETER :: nparam = 330
+  INTEGER, PARAMETER :: nparam = 340
    
   ! MPI: extra params sent only if nsoilparmnew is true
   INTEGER, PARAMETER :: nsoilnew = 1
