@@ -973,7 +973,7 @@ PROGRAM cable_offline_driver
 
                  call cbm(ktau, dels, air, bgc, canopy, met, &
                       bal, rad, rough, soil, ssnow, &
-                      veg, climate)
+                      veg, climate,casapool)
 
                  ! if ((ktau == kstart) .or. (ktau == kend)) then
                  ! if ((ktau == 9) .or. (ktau == kend)) then

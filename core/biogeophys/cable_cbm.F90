@@ -42,7 +42,7 @@ CONTAINS
 
    SUBROUTINE cbm(ktau, dels, air, bgc, canopy, met, &
       bal, rad, rough, soil, &
-      ssnow, veg, climate )
+      ssnow, veg, climate,casapool )
 
       USE cable_common_module
       USE cable_carbon_module
@@ -62,6 +62,7 @@ CONTAINS
       use cable_veg_hydraulics_module, only: get_xylem_vulnerability
       USE cable_IO_vars_module, ONLY: logn
       use mo_constants, only: pi => pi_sp
+      USE casavariable
       ! CABLE model variables
       INTEGER,                   INTENT(IN)    :: ktau
       REAL,                      INTENT(IN)    :: dels ! time setp size (s)
@@ -76,6 +77,7 @@ CONTAINS
       TYPE(soil_snow_type),      INTENT(INOUT) :: ssnow
       TYPE(veg_parameter_type),  INTENT(INOUT) :: veg
       TYPE(climate_type),        INTENT(IN)    :: climate
+      TYPE(casa_pool),        INTENT(IN)    :: casapool
 
       ! ptrs to local constants
       TYPE(icbm_type) :: C
