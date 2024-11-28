@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Exit immediately on error
+set -e
+
 ncpus_default=4
 
 script_name=$(basename "${0}")
@@ -19,6 +22,8 @@ Options:
   -n, --ncpus <ncpus>
                 Specify the number of parallel jobs in the compilation. By
                 default this value is set to ${ncpus_default}.
+  -l, --library
+                Build just CABLE science library (libscable_science.a)
   -h, --help    Show this screen.
 
 Enabling debug mode:
@@ -34,18 +39,32 @@ Enabling verbose output from Makefile builds:
 EOF
 }
 
+# DEFAULTS
+
+# Configure
 cmake_args=(-DCMAKE_BUILD_TYPE=Release -DCABLE_MPI=OFF)
+
+# Build
+build_args=()
+
+# Install
+do_install=1
 
 # Argument parsing adapted and stolen from http://mywiki.wooledge.org/BashFAQ/035#Complex_nonstandard_add-on_utilities
 while [ ${#} -gt 0 ]; do
     case ${1} in
         -c|--clean)
-            rm -r build bin
+            rm -rf build bin
             exit
             ;;
         -m|--mpi)
             mpi=1
             cmake_args+=(-DCABLE_MPI="ON")
+            ;;
+        -l|--library)
+            build_args+=(--target cable_science)
+            cmake_args+=(-DCABLE_LIBRARY="ON")
+            do_install=0 # Disable installation when only building the science library
             ;;
         -C|--compiler)
             compiler=${2}
@@ -118,6 +137,13 @@ fi
 
 export CMAKE_BUILD_PARALLEL_LEVEL="${CMAKE_BUILD_PARALLEL_LEVEL:=${ncpus_default}}"
 
-cmake -S . -B build "${cmake_args[@]}" &&\
-cmake --build build &&\
-cmake --install build --prefix .
+# Configure by default
+cmake -S . -B build "${cmake_args[@]}"
+
+# Build requested targets
+cmake --build build "${build_args[@]}"
+
+# Install if requested
+if [ $do_install -eq 1 ]; then
+    cmake --install build --prefix .
+fi
