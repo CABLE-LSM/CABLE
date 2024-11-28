@@ -770,7 +770,7 @@ CONTAINS
   IF(output%veg) THEN
      CALL define_ovar(ncid_out, ovid%psi_can_sl, &
                       'psi_can_sl', 'MPa', 'sun-lit Canopy water potential', &
-                      patchout%psi_can, 'dummy', xID, yID, zID, &
+                      patchout%psi_can_sl, 'dummy', xID, yID, zID, &
                       landID, patchID, tID)
      ALLOCATE(out%psi_can_sl(mp))
      out%psi_can_sl = 0.0 ! initialise
@@ -778,7 +778,7 @@ CONTAINS
   IF(output%veg) THEN
      CALL define_ovar(ncid_out, ovid%psi_can_sh, &
                       'psi_can_sh', 'MPa', 'shaded Canopy water potential', &
-                      patchout%psi_can, 'dummy', xID, yID, zID, &
+                      patchout%psi_can_sh, 'dummy', xID, yID, zID, &
                       landID, patchID, tID)
      ALLOCATE(out%psi_can_sh(mp))
      out%psi_can_sh = 0.0 ! initialise
@@ -945,14 +945,14 @@ CONTAINS
     END IF
     IF(output%veg .OR. output%fwpsi_sl) THEN
      CALL define_ovar(ncid_out, ovid%fwpsi_sl, 'fwpsi_sl', '[-]', &
-          'sun-lit leaf psi modifier to stomatal conductance', patchout%fwpsi, &
+          'sun-lit leaf psi modifier to stomatal conductance', patchout%fwpsi_sl, &
           'dummy', xID, yID, zID, landID, patchID, tID)
      ALLOCATE(out%fwpsi_sl(mp))
      out%fwpsi_sl = zero4 ! initialise
      END IF
      IF(output%veg .OR. output%fwpsi_sh) THEN
           CALL define_ovar(ncid_out, ovid%fwpsi_sh, 'fwpsi_sh', '[-]', &
-               'shaded leaf psi modifier to stomatal conductance', patchout%fwpsi, &
+               'shaded leaf psi modifier to stomatal conductance', patchout%fwpsi_sh, &
                'dummy', xID, yID, zID, landID, patchID, tID)
           ALLOCATE(out%fwpsi_sh(mp))
           out%fwpsi_sh = zero4 ! initialise
@@ -2871,7 +2871,7 @@ CONTAINS
           out%fwpsi_sl = out%fwpsi_sl * rinterval
           ! Write value to file:
           CALL write_ovar(out_timestep, ncid_out, ovid%fwpsi_sl, 'fwpsi_sl', out%fwpsi_sl, &
-               ranges%fwpsi, patchout%fwpsi, 'default', met)
+               ranges%fwpsi, patchout%fwpsi_sl, 'default', met)
           ! Reset temporary output variable:
           out%fwpsi_sl = zero4
           END IF
@@ -2884,7 +2884,7 @@ CONTAINS
           out%fwpsi_sh = out%fwpsi_sh * rinterval
           ! Write value to file:
           CALL write_ovar(out_timestep, ncid_out, ovid%fwpsi_sh, 'fwpsi_sh', out%fwpsi_sh, &
-               ranges%fwpsi, patchout%fwpsi, 'default', met)
+               ranges%fwpsi, patchout%fwpsi_sh, 'default', met)
           ! Reset temporary output variable:
           out%fwpsi_sh = zero4
           END IF
@@ -3921,7 +3921,7 @@ CONTAINS
          CALL write_ovar(out_timestep, ncid_out, ovid%psi_can_sl, &
                         'psi_can_sl', &
                          out%psi_can_sl, ranges%psi_can, &
-                         patchout%psi_can, &
+                         patchout%psi_can_sl, &
                         'default', met)
          ! Reset temporary output variable:
          out%psi_can_sl = 0.0
@@ -3930,7 +3930,7 @@ CONTAINS
    IF(output%veg) THEN
      !IF(output%veg) THEN
         ! Add current timestep's value to total of temporary output variable:
-        out%psi_can_sh = out%psi_can_sh + REAL(canopy%psi_can(:,1), 4)
+        out%psi_can_sh = out%psi_can_sh + REAL(canopy%psi_can(:,2), 4)
         IF(writenow) THEN
            ! Divide accumulated variable by number of accumulated time steps:
            out%psi_can_sh = out%psi_can_sh / REAL(output%interval, 4)
@@ -3938,7 +3938,7 @@ CONTAINS
            CALL write_ovar(out_timestep, ncid_out, ovid%psi_can_sh, &
                           'psi_can_sh', &
                            out%psi_can_sh, ranges%psi_can, &
-                           patchout%psi_can, &
+                           patchout%psi_can_sh, &
                           'default', met)
            ! Reset temporary output variable:
            out%psi_can_sh = 0.0
