@@ -2353,7 +2353,7 @@ CONTAINS
                   met%dva(i) * ghr(i,2) ) / &
                   ( air%dsatdk(i) + psycst(i,2) ), r_2)   
                       
-                  ex(i,:) = ex(i,:) * (1.0_r_2-real(spread(canopy%fwet(i), 2, mf), r_2)) / real(spread(air%rlam(i), 2, mf), r_2) 
+                  ex(i,:) = ex(i,:) * (1.0_r_2-real(canopy%fwet(i), r_2)) / real(air%rlam(i), r_2) 
                   ! convert from kg m-2 ground s-1 to mmol m-2 leaf s-1*
                   !ex(i,:)= ex(i,:) * 1.0e6_r_2/18.0_r_2  
                   psilx(i,1) = ssnow%psi_rootzone(i)-ex(i,1)/canopy%kplant(i)
@@ -2701,7 +2701,7 @@ CONTAINS
 
             new_plc_sat = calc_plc(kcmax(i), veg%kmax(i), veg%PLCcrit(i))
 
-            IF (canopy%psi_can(i) < ssnow%psi_rootzone(i) .AND. ecxs(i) > 1E-9) THEN
+            IF (canopy%psi_can_opt(i) < ssnow%psi_rootzone(i) .AND. ecxs(i) > 1E-9) THEN
                IF (avg_kcan(i) > 1E-9 .AND. avg_kcan(i) < veg%kmax(i)) THEN
 
                   ! Partitioning ratios from Drake et al. (2015), PC&E, 38: 1628-1636.
