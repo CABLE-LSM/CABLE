@@ -2189,8 +2189,10 @@ CONTAINS
                      gswmin(i,2) = veg%g0(i) * rad%scalex(i,2)
                      g1 = veg%g1tuzet(i)
                      
-                     fwpsi(i,1) = (1.0_r_2 +exp(veg%g2(i) * veg%psi_ref(i))) / (1.0_r_2+exp(veg%g2(i) * (veg%psi_ref(i)-psilx(i,1))))
-                     fwpsi(i,2) = (1.0_r_2 +exp(veg%g2(i) * veg%psi_ref(i))) / (1.0_r_2+exp(veg%g2(i) * (veg%psi_ref(i)-psilx(i,2))))
+                     fwpsi(i,1) = (1.0_r_2 +exp(veg%g2(i) * veg%psi_ref(i))) / &
+                      (1.0_r_2+exp(veg%g2(i) * (veg%psi_ref(i)-psilx(i,1))))
+                     fwpsi(i,2) = (1.0_r_2 +exp(veg%g2(i) * veg%psi_ref(i))) / &
+                      (1.0_r_2+exp(veg%g2(i) * (veg%psi_ref(i)-psilx(i,2))))
                      !print*, 1.0, real(1.0, r_2), 1.0 / 3.0_r_2, 1.0_r_2 / 3.0  
                      !print *, '!!!!!!!!!!!!!!! fwpsi:', fwpsi(i),ktau,k
                      gs_coeff(i,1) =fwpsi(i,1) * g1 / real(csx(i,1))
