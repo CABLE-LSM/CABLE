@@ -335,8 +335,7 @@ CONTAINS
   SUBROUTINE ovrlndflx (dels, ssnow, soil,veg, canopy,sli_call )
     !* Calculate surface runoff
     
-    USE cable_common_module, ONLY : gw_params,cable_user
-
+    USE cable_common_module,     ONLY: gw_params,cable_user
     USE cable_surface_types_mod, ONLY: lakes_cable
 
     IMPLICIT NONE

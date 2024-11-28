@@ -22,7 +22,7 @@
 
 MODULE cable_roughness_module
 
-USE cable_surface_types_mod, ONLY: ICE_SurfaceType => ICE_cable
+USE cable_surface_types_mod,   ONLY: ICE_SurfaceType => ICE_cable
 USE cable_phys_constants_mod,  ONLY: CCSD   => CSD 
 USE cable_phys_constants_mod,  ONLY: CCRD   => CRD 
 USE cable_phys_constants_mod,  ONLY: CCCD   => CCD 
@@ -173,12 +173,15 @@ call HgtAboveSnow( HeightAboveSnow, mp, z0soilsn_min, veg%hc, ssnow%snowd, &
 !    (or not) using [[HgtAboveSnow]] and [[LAI_eff]]
 rough%hruff =  HeightAboveSnow
 !why are we using veg% for LAI and height-although this is synced now
-IF(cable_runtime%um_radiation .OR. cable_runtime%offline ) THEN
-! LAI decreases due to snow: formerly canopy%vlaiw
-call LAI_eff( mp, veg%vlai, veg%hc, HeightAboveSnow, &
+IF(cable_runtime%um_radiation .OR. cable_runtime%esm15                         &
+                              .OR. cable_runtime%offline ) THEN
+
+  ! LAI decreases due to snow: formerly canopy%vlaiw
+  CALL LAI_eff( mp, veg%vlai, veg%hc, HeightAboveSnow, &
               reducedLAIdue2snow )
    
-canopy%vlaiw  = reducedLAIdue2snow
+  canopy%vlaiw  = reducedLAIdue2snow
+
 ENDIF
 canopy%rghlai = canopy%vlaiw
 

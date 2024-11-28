@@ -61,8 +61,8 @@ USE cable_canopy_module, ONLY : define_canopy
 USE cbl_albedo_mod, ONLY : albedo
 USE sli_main_mod, ONLY : sli_main
 USE snow_aging_mod,               ONLY: snow_aging
-
-!data 
+    
+! scalar data USEd through modules
 USE cable_other_constants_mod, ONLY: CLAI_THRESH  => lai_thresh
 USE cable_other_constants_mod, ONLY: Crad_thresh  => rad_thresh
 USE cable_other_constants_mod, ONLY: Ccoszen_tols => coszen_tols

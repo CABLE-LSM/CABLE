@@ -36,9 +36,9 @@ MODULE cable_init_wetfac_mod
         
 
         ! Imports
-        USE cable_surface_types_mod, ONLY: lakes_cable
-        USE cable_def_types_mod,  ONLY : r_2
-        USE cable_other_constants_mod, ONLY : wilt_limitfactor
+        USE cable_surface_types_mod,   ONLY: lakes_cable
+        USE cable_def_types_mod,       ONLY: r_2
+        USE cable_other_constants_mod, ONLY: wilt_limitfactor
                                 
         IMPLICIT NONE                     
 
