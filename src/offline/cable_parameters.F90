@@ -67,7 +67,7 @@ MODULE cable_param_module
   PRIVATE
   PUBLIC get_default_params, write_default_params, derived_parameters,         &
        check_parameter_values, report_parameters, parID_type,                &
-       write_cnp_params, consistency_ice_veg_soil 
+       write_cnp_params, consistency_ice_veg_soil, GWspatialParameters 
   INTEGER :: patches_in_parfile=4 ! # patches in default global parameter
   ! file
 
@@ -1214,7 +1214,7 @@ CONTAINS
     canopy%fe    = 0.0  ! sensible heat flux
     !mrd
     ssnow%qrecharge = 0.0
-    ssnow%GWwb = -1.0
+!    ssnow%GWwb = -1.0
     ssnow%wtd = 1.0
     canopy%sublayer_dz = 0.001  !could go into restart to ensure starting/stopping runs gives identical results
     !however the impact is negligible
@@ -1357,90 +1357,90 @@ CONTAINS
                inLAI(landpt(e)%ilon,landpt(e)%ilat,is)
        END DO
 
-       ! Set IGBP soil texture values, Q.Zhang @ 12/20/2010.
-       IF (soilparmnew) THEN
+      !  ! Set IGBP soil texture values, Q.Zhang @ 12/20/2010.
+      !  IF (soilparmnew) THEN
 
-          soil%swilt(landpt(e)%cstart:landpt(e)%cend) =                            &
-               inswilt(landpt(e)%ilon, landpt(e)%ilat)
-          soil%sfc(landpt(e)%cstart:landpt(e)%cend) =                              &
-               insfc(landpt(e)%ilon, landpt(e)%ilat)
-          soil%ssat(landpt(e)%cstart:landpt(e)%cend) =                             &
-               inssat(landpt(e)%ilon, landpt(e)%ilat)
-          soil%bch(landpt(e)%cstart:landpt(e)%cend) =                              &
-               inbch(landpt(e)%ilon, landpt(e)%ilat)
-          soil%hyds(landpt(e)%cstart:landpt(e)%cend) =                             &
-               inhyds(landpt(e)%ilon, landpt(e)%ilat)
-          soil%sucs(landpt(e)%cstart:landpt(e)%cend) =                             &
-               -1.* ABS(insucs(landpt(e)%ilon, landpt(e)%ilat)) !ensure negative
-          soil%rhosoil(landpt(e)%cstart:landpt(e)%cend) =                          &
-               inrhosoil(landpt(e)%ilon, landpt(e)%ilat)
-          soil%css(landpt(e)%cstart:landpt(e)%cend) =                              &
-               incss(landpt(e)%ilon, landpt(e)%ilat)
-          soil%cnsd(landpt(e)%cstart:landpt(e)%cend) =                             &
-               incnsd(landpt(e)%ilon, landpt(e)%ilat)
+      !     soil%swilt(landpt(e)%cstart:landpt(e)%cend) =                            &
+      !          inswilt(landpt(e)%ilon, landpt(e)%ilat)
+      !     soil%sfc(landpt(e)%cstart:landpt(e)%cend) =                              &
+      !          insfc(landpt(e)%ilon, landpt(e)%ilat)
+      !     soil%ssat(landpt(e)%cstart:landpt(e)%cend) =                             &
+      !          inssat(landpt(e)%ilon, landpt(e)%ilat)
+      !     soil%bch(landpt(e)%cstart:landpt(e)%cend) =                              &
+      !          inbch(landpt(e)%ilon, landpt(e)%ilat)
+      !     soil%hyds(landpt(e)%cstart:landpt(e)%cend) =                             &
+      !          inhyds(landpt(e)%ilon, landpt(e)%ilat)
+      !     soil%sucs(landpt(e)%cstart:landpt(e)%cend) =                             &
+      !          -1.* ABS(insucs(landpt(e)%ilon, landpt(e)%ilat)) !ensure negative
+      !     soil%rhosoil(landpt(e)%cstart:landpt(e)%cend) =                          &
+      !          inrhosoil(landpt(e)%ilon, landpt(e)%ilat)
+      !     soil%css(landpt(e)%cstart:landpt(e)%cend) =                              &
+      !          incss(landpt(e)%ilon, landpt(e)%ilat)
+      !     soil%cnsd(landpt(e)%cstart:landpt(e)%cend) =                             &
+      !          incnsd(landpt(e)%ilon, landpt(e)%ilat)
 
-          !possibly heterogeneous soil properties
-          DO klev=1,ms
+      !     !possibly heterogeneous soil properties
+      !     DO klev=1,ms
 
-             soil%clay_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
-                  REAL(inclay(landpt(e)%ilon, landpt(e)%ilat),r_2)
+      !        soil%clay_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
+      !             REAL(inclay(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-             soil%sand_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
-                  REAL(insand(landpt(e)%ilon, landpt(e)%ilat),r_2)
+      !        soil%sand_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
+      !             REAL(insand(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-             soil%silt_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
-                  REAL(insilt(landpt(e)%ilon, landpt(e)%ilat),r_2)
+      !        soil%silt_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
+      !             REAL(insilt(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-             soil%rhosoil_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                  &
-                  REAL(inrhosoil(landpt(e)%ilon, landpt(e)%ilat),r_2)
+      !        soil%rhosoil_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                  &
+      !             REAL(inrhosoil(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-             soil%org_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
-                  REAL(inORG(landpt(e)%ilon, landpt(e)%ilat),r_2)
+      !        soil%org_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
+      !             REAL(inORG(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-             soil%watr(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
-                  REAL(inWatr(landpt(e)%ilon, landpt(e)%ilat),r_2)
+      !        soil%watr(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
+      !             REAL(inWatr(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-          END DO
+      !     END DO
 
-          !Aquifer properties  same as bottom soil layer for now
-          soil%GWsucs_vec(landpt(e)%cstart:landpt(e)%cend) =                        &
-               REAL(inGWsucs(landpt(e)%ilon, landpt(e)%ilat),r_2)
+      !     !Aquifer properties  same as bottom soil layer for now
+      !     soil%GWsucs_vec(landpt(e)%cstart:landpt(e)%cend) =                        &
+      !          REAL(inGWsucs(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-          soil%GWhyds_vec(landpt(e)%cstart:landpt(e)%cend) =                         &
-               REAL(inGWhyds(landpt(e)%ilon, landpt(e)%ilat),r_2)
+      !     soil%GWhyds_vec(landpt(e)%cstart:landpt(e)%cend) =                         &
+      !          REAL(inGWhyds(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-          soil%GWbch_vec(landpt(e)%cstart:landpt(e)%cend) =                        &
-               REAL(inGWbch(landpt(e)%ilon, landpt(e)%ilat),r_2)
+      !     soil%GWbch_vec(landpt(e)%cstart:landpt(e)%cend) =                        &
+      !          REAL(inGWbch(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-          soil%GWrhosoil_vec(landpt(e)%cstart:landpt(e)%cend) =                       &
-               REAL(inGWrhosoil(landpt(e)%ilon, landpt(e)%ilat),r_2)
+      !     soil%GWrhosoil_vec(landpt(e)%cstart:landpt(e)%cend) =                       &
+      !          REAL(inGWrhosoil(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-          soil%GWssat_vec(landpt(e)%cstart:landpt(e)%cend) =                        &
-               REAL(inGWssat(landpt(e)%ilon, landpt(e)%ilat),r_2)
+      !     soil%GWssat_vec(landpt(e)%cstart:landpt(e)%cend) =                        &
+      !          REAL(inGWssat(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-          soil%GWwatr(landpt(e)%cstart:landpt(e)%cend) =                          &
-               soil%watr(landpt(e)%cstart:landpt(e)%cend,ms)
+      !     soil%GWwatr(landpt(e)%cstart:landpt(e)%cend) =                          &
+      !          soil%watr(landpt(e)%cstart:landpt(e)%cend,ms)
 
-          soil%slope(landpt(e)%cstart:landpt(e)%cend) =                           &
-               MIN(MAX(inSlope(landpt(e)%ilon,landpt(e)%ilat),1e-8),0.95)
+      !     soil%slope(landpt(e)%cstart:landpt(e)%cend) =                           &
+      !          MIN(MAX(inSlope(landpt(e)%ilon,landpt(e)%ilat),1e-8),0.95)
 
-          soil%slope_std(landpt(e)%cstart:landpt(e)%cend) =                       &
-               MIN(MAX(inSlopeSTD(landpt(e)%ilon,landpt(e)%ilat),1e-8),0.95)
+      !     soil%slope_std(landpt(e)%cstart:landpt(e)%cend) =                       &
+      !          MIN(MAX(inSlopeSTD(landpt(e)%ilon,landpt(e)%ilat),1e-8),0.95)
 
-          soil%GWdz(landpt(e)%cstart:landpt(e)%cend) =                           &
-               inGWdz(landpt(e)%ilon,landpt(e)%ilat)
+      !     soil%GWdz(landpt(e)%cstart:landpt(e)%cend) =                           &
+      !          inGWdz(landpt(e)%ilon,landpt(e)%ilat)
 
-          ! vh !
-          soil%silt(landpt(e)%cstart:landpt(e)%cend) =                             &
-               insilt(landpt(e)%ilon, landpt(e)%ilat)
+      !     ! vh !
+      !     soil%silt(landpt(e)%cstart:landpt(e)%cend) =                             &
+      !          insilt(landpt(e)%ilon, landpt(e)%ilat)
 
-          soil%sand(landpt(e)%cstart:landpt(e)%cend) =                             &
-               insand(landpt(e)%ilon, landpt(e)%ilat)
+      !     soil%sand(landpt(e)%cstart:landpt(e)%cend) =                             &
+      !          insand(landpt(e)%ilon, landpt(e)%ilat)
 
-          soil%clay(landpt(e)%cstart:landpt(e)%cend) =                             &
-               inclay(landpt(e)%ilon, landpt(e)%ilat)
+      !     soil%clay(landpt(e)%cstart:landpt(e)%cend) =                             &
+      !          inclay(landpt(e)%ilon, landpt(e)%ilat)
 
-       ENDIF
+      !  ENDIF
 
        ! vars intro for Ticket #27
        IF (calcsoilalbedo) THEN

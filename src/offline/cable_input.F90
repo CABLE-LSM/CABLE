@@ -2661,6 +2661,11 @@ CONTAINS
          sum_flux,veg,mp)
     WRITE(logn,*) ' CABLE variables allocated with ', mp, ' patch(es).'
 
+! call below inserted by rk4417 - phase2
+    !CALL for gw_model false and true sets constants when false
+    CALL GWspatialParameters(logn,soil,ssnow)    ! MMY gw_model = True read var from gridinfo
+    ! MMY gw_model = False use default values
+
     IF (icycle > 0 .OR. CABLE_USER%CASA_DUMP_WRITE ) &
          CALL alloc_casavariable(casabiome,casapool,casaflux, &
          casamet,casabal,mp)
