@@ -124,7 +124,7 @@ CONTAINS
          ecy => null(),           & ! lat heat fl dry big leaf
          hcy => null(),           & ! veg. sens heat
          rny => null(),           & ! net rad
-         ghwet => null()         &   ! cond for heat for a wet canopy
+         ghwet => null()            ! cond for heat for a wet canopy
 
 
       REAL(r_2), DIMENSION(:,:), POINTER :: &
