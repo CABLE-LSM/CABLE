@@ -2346,8 +2346,8 @@ CONTAINS
                   ex(i,1) = real( ( air%dsatdk(i) * ( rad%rniso(i,1) - C%capp * C%rmair &
                   * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,1) ) &
                   + C%capp * C%rmair * met%dva(i) * ghr(i,1) ) &
-                  / ( air%dsatdk(i) + psycst(i,1) )
-                  ex(i,2) = ( air%dsatdk(i) &
+                  / ( air%dsatdk(i) + psycst(i,1) ),r_2)
+                  ex(i,2) = real( ( air%dsatdk(i) &
                   * ( rad%rniso(i,2) - C%capp * C%rmair * ( met%tvair(i) - &
                   met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair * &
                   met%dva(i) * ghr(i,2) ) / &
