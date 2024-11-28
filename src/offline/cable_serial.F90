@@ -132,7 +132,7 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
        PLUME_MIP_INIT
 
   USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET
-  USE CABLE_site,           ONLY: site_TYPE, site_INIT, site_GET_CO2_Ndep
+  USE CABLE_site,           ONLY: site_TYPE, site_GET_CO2_Ndep
 
   ! LUC_EXPT only
   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, LUC_EXPT_INIT
@@ -153,7 +153,7 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
 
 CONTAINS
 
-SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU)
+SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
   !! Offline serial driver.
   DOUBLE PRECISION, INTENT(IN) :: trunk_sumbal
     !! Reference value for quasi-bitwise reproducibility checks.
@@ -164,6 +164,7 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
   INTEGER, ALLOCATABLE, INTENT(INOUT) :: GSWP_MID(:,:) !! NetCDF file IDs for GSWP met forcing
   TYPE(PLUME_MIP_TYPE), INTENT(IN) :: PLUME
   TYPE(CRU_TYPE), INTENT(IN) :: CRU
+  TYPE (site_TYPE), INTENT(IN) :: site
 
   ! timing variables
   INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
@@ -185,7 +186,7 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
        count_sum_casa ! number of time steps over which casa pools &
                                 !and fluxes are aggregated (for output)
 
-  CHARACTER     :: dum*9, str1*9, str2*9, str3*9
+  CHARACTER     :: dum*9
 
   ! CABLE variables
   TYPE (met_type)       :: met     ! met input variables
@@ -217,7 +218,6 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
   ! vh_js !
   TYPE (POP_TYPE)       :: POP
   TYPE(POPLUC_TYPE) :: POPLUC
-  TYPE (site_TYPE)       :: site
   TYPE (LUC_EXPT_TYPE) :: LUC_EXPT
   TYPE (landuse_mp)     :: lucmp
   CHARACTER             :: cyear*4
@@ -332,20 +332,6 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
               kend = NINT(24.0*3600.0/dels) * LOY
            ELSE IF ( TRIM(cable_user%MetType) .EQ. 'site' ) THEN
               ! site experiment eg AmazonFace (spinup or  transient run type)
-
-              IF ( CALL1 ) THEN
-                 CALL CPU_TIME(etime)
-                 CALL site_INIT( site )
-                 WRITE(str1,'(i4)') CurYear
-                 str1 = ADJUSTL(str1)
-                 WRITE(str2,'(i2)') 1
-                 str2 = ADJUSTL(str2)
-                 WRITE(str3,'(i2)') 1
-                 str3 = ADJUSTL(str3)
-                 timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//"00:00"
-                 calendar = 'standard'
-
-              ENDIF
               kend = NINT(24.0*3600.0/dels) * LOY
               ! get koffset to add to time-step of sitemet
               IF (TRIM(site%RunType)=='historical') THEN

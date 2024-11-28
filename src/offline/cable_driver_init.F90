@@ -27,7 +27,8 @@ MODULE cable_driver_init_mod
     globalMetfile,                 &
     set_group_output_values,       &
     timeunits,                     &
-    exists
+    exists,                        &
+    calendar
   USE casadimension, ONLY : icycle
   USE casavariable, ONLY : casafile
   USE cable_namelist_util, ONLY : &
@@ -39,6 +40,7 @@ MODULE cable_driver_init_mod
   USE cable_input_module, ONLY : open_met_file
   USE CABLE_PLUME_MIP, ONLY : PLUME_MIP_TYPE, PLUME_MIP_INIT
   USE CABLE_CRU, ONLY : CRU_TYPE, CRU_INIT
+  USE CABLE_site, ONLY : site_TYPE, site_INIT
   IMPLICIT NONE
   PRIVATE
 
@@ -236,13 +238,27 @@ CONTAINS
 
   END SUBROUTINE cable_driver_init_gswp
 
-  SUBROUTINE cable_driver_init_site()
+  SUBROUTINE cable_driver_init_site(site)
     !* Model initialisation routine (site met specific).
+    ! Site experiment, e.g. AmazonFace (spinup or transient run type).
+    TYPE (site_TYPE), INTENT(OUT) :: site
+
+    CHARACTER(len=9) :: str1, str2, str3
 
     IF (.NOT. l_casacnp) THEN
       WRITE(*,*) "MetType=site only works with CASA-CNP turned on"
       STOP 991
     END IF
+
+    CALL site_INIT( site )
+    WRITE(str1,'(i4)') cable_user%YearStart
+    str1 = ADJUSTL(str1)
+    WRITE(str2,'(i2)') 1
+    str2 = ADJUSTL(str2)
+    WRITE(str3,'(i2)') 1
+    str3 = ADJUSTL(str3)
+    timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//"00:00"
+    calendar = 'standard'
 
   END SUBROUTINE cable_driver_init_site
 
