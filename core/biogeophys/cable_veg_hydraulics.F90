@@ -230,18 +230,18 @@ CONTAINS
       ! sunlit/shaded weighted components
       IF (apar(1) > 0. .AND. apar(2) > 0.) THEN
 
-         canopy%psi_can(i) = (p_leaves(1) * fsun(1)) + (p_leaves(2) * fsun(2))
+         canopy%psi_can_opt(i) = (p_leaves(1) * fsun(1)) + (p_leaves(2) * fsun(2))
          avg_kcan(i) = SUM(fsun) / (fsun(1) / kc_leaves(1) + fsun(2) / &
             kc_leaves(2))
 
       ELSE IF (apar(1) > 0.) THEN
 
-         canopy%psi_can(i) = p_leaves(1)
+         canopy%psi_can_opt(i) = p_leaves(1)
          avg_kcan(i) = kc_leaves(1)
 
       ELSE IF (apar(2) > 0.) THEN
 
-         canopy%psi_can(i) = p_leaves(2)
+         canopy%psi_can_opt(i) = p_leaves(2)
          avg_kcan(i) = kc_leaves(2)
 
       ELSE ! nothing has happened, we're in the roots
@@ -251,7 +251,7 @@ CONTAINS
          ! the
          ! basis that there is some evidence the leaf and soil water potential
          ! come back into equilibrium overnight.
-         canopy%psi_can(i) = psi_soil
+         canopy%psi_can_opt(i) = psi_soil
 
          ! Unclear what should happen to the conductance too...
          avg_kcan(i) = kcmax(i)
