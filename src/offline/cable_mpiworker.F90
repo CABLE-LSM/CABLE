@@ -2248,6 +2248,46 @@ CONTAINS
     bidx = bidx + 1
     CALL MPI_Get_address (soil%sfc_vec, displs(bidx), ierr)
     blen(bidx) = ms * r2len
+ 
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%zse_vec, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+ 
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%css_vec, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+ 
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%cnsd_vec, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+ 
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%clay_vec, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+ 
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%sand_vec, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+ 
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%silt_vec, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+ 
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%org_vec, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+ 
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%rhosoil_vec, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+ 
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%smpc_vec, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+ 
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%wbc_vec, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
 
 
     !1d

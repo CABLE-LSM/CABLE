@@ -3094,6 +3094,66 @@ CONTAINS
             &                             types(bidx), ierr)
        blen(bidx) = 1
 
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%zse_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%css_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%cnsd_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%clay_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%sand_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%silt_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%org_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%rhosoil_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%smpc_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%wbc_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
 
        !1D
        bidx = bidx + 1
