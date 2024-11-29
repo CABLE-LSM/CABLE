@@ -25,7 +25,10 @@ MODULE cable_driver_init_mod
     ncciy,                         &
     gswpfile,                      &
     globalMetfile,                 &
-    set_group_output_values
+    set_group_output_values,       &
+    timeunits,                     &
+    exists,                        &
+    calendar
   USE casadimension, ONLY : icycle
   USE casavariable, ONLY : casafile
   USE cable_namelist_util, ONLY : &
@@ -33,10 +36,17 @@ MODULE cable_driver_init_mod
     CABLE_NAMELIST,               &
     arg_not_namelist
   USE cable_mpi_mod, ONLY : mpi_grp_t
+  USE cable_phys_constants_mod, ONLY : CTFRZ => TFRZ
+  USE cable_input_module, ONLY : open_met_file
+  USE CABLE_PLUME_MIP, ONLY : PLUME_MIP_TYPE, PLUME_MIP_INIT
+  USE CABLE_CRU, ONLY : CRU_TYPE, CRU_INIT
+  USE CABLE_site, ONLY : site_TYPE, site_INIT
   IMPLICIT NONE
   PRIVATE
 
   INTEGER, PARAMETER :: CASAONLY_ICYCLE_MIN = 10
+  INTEGER, PARAMETER :: N_MET_FORCING_VARIABLES_GSWP = 8
+    !! Number of GSWP met forcing variables (rain, snow, lw, sw, ps, qa, ta, wd)
 
   LOGICAL, SAVE, PUBLIC :: vegparmnew    = .FALSE. ! using new format input file (BP dec 2007)
   LOGICAL, SAVE, PUBLIC :: spinup        = .FALSE. ! model spinup to soil state equilibrium?
@@ -87,6 +97,11 @@ MODULE cable_driver_init_mod
     gw_params
 
   PUBLIC :: cable_driver_init
+  PUBLIC :: cable_driver_init_gswp
+  PUBLIC :: cable_driver_init_plume
+  PUBLIC :: cable_driver_init_cru
+  PUBLIC :: cable_driver_init_site
+  PUBLIC :: cable_driver_init_default
 
 CONTAINS
 
@@ -147,6 +162,10 @@ CONTAINS
       CALL set_group_output_values()
     END IF
 
+    IF (TRIM(cable_user%POPLUC_RunType) == 'static') THEN
+      cable_user%POPLUC= .FALSE.
+    END IF
+
     ! TODO(Sean): we should not be setting namelist parameters in the following if
     ! block - all options are all configurable via the namelist file and is
     ! unclear that these options are being overwritten. A better approach would be
@@ -188,5 +207,125 @@ CONTAINS
     NRRRR = MERGE(MAX(cable_user%CASA_NREP,1), 1, CASAONLY)
 
   END SUBROUTINE cable_driver_init
+
+  SUBROUTINE cable_driver_init_gswp(mpi_grp, GSWP_MID, NRRRR)
+    !! Model initialisation routine (GSWP specific).
+    TYPE(mpi_grp_t), INTENT(IN) :: mpi_grp !! MPI group to use
+    INTEGER, ALLOCATABLE, INTENT(OUT), OPTIONAL :: GSWP_MID(:,:) !! NetCDF file IDs for GSWP met forcing
+    INTEGER, INTENT(IN), OPTIONAL :: NRRRR !! Number of repeated spin-up cycles
+
+    IF (cable_user%YearStart == 0) THEN
+      IF (ncciy == 0) THEN
+        IF (mpi_grp%rank == 0) THEN
+          PRINT*, 'undefined start year for gswp met: '
+          PRINT*, 'enter value for ncciy or'
+          PRINT*, '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) in cable.nml'
+        END IF
+        WRITE(logn,*) 'undefined start year for gswp met: '
+        WRITE(logn,*) 'enter value for ncciy or'
+        WRITE(logn,*) '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) in cable.nml'
+        STOP
+      END IF
+      cable_user%YearStart = ncciy
+      cable_user%YearEnd = ncciy
+    END IF
+
+    IF (.NOT. (PRESENT(GSWP_MID) .AND. PRESENT(NRRRR))) RETURN
+
+    IF (NRRRR > 1 .AND. (.NOT. ALLOCATED(GSWP_MID))) THEN
+      ALLOCATE(GSWP_MID(N_MET_FORCING_VARIABLES_GSWP, cable_user%YearStart:cable_user%YearEnd))
+    END IF
+
+  END SUBROUTINE cable_driver_init_gswp
+
+  SUBROUTINE cable_driver_init_site(site)
+    !* Model initialisation routine (site met specific).
+    ! Site experiment, e.g. AmazonFace (spinup or transient run type).
+    TYPE (site_TYPE), INTENT(OUT) :: site
+
+    CHARACTER(len=9) :: str1, str2, str3
+
+    IF (.NOT. l_casacnp) THEN
+      WRITE(*,*) "MetType=site only works with CASA-CNP turned on"
+      STOP 991
+    END IF
+
+    CALL site_INIT( site )
+    WRITE(str1,'(i4)') cable_user%YearStart
+    str1 = ADJUSTL(str1)
+    WRITE(str2,'(i2)') 1
+    str2 = ADJUSTL(str2)
+    WRITE(str3,'(i2)') 1
+    str3 = ADJUSTL(str3)
+    timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//"00:00"
+    calendar = 'standard'
+
+  END SUBROUTINE cable_driver_init_site
+
+  SUBROUTINE cable_driver_init_default(dels, koffset, kend)
+    !! Model initialisation routine (default met specific).
+    REAL, INTENT(OUT) :: dels !! Time step size in seconds
+    INTEGER, INTENT(OUT) :: koffset !! Timestep to start at
+    INTEGER, INTENT(OUT) :: kend !! No. of time steps in run
+
+    ! Open met data and get site information from netcdf file.
+    ! This retrieves time step size, number of timesteps, starting date,
+    ! latitudes, longitudes, number of sites.
+    CALL open_met_file(dels, koffset, kend, spinup, CTFRZ)
+    IF (koffset /= 0 .AND. cable_user%CALL_POP) THEN
+      WRITE(*,*) "When using POP, episode must start at Jan 1st!"
+      STOP 991
+    END IF
+
+  END SUBROUTINE cable_driver_init_default
+
+  SUBROUTINE cable_driver_init_plume(dels, koffset, PLUME)
+    !* Model initialisation routine (PLUME specific).
+    ! PLUME experiment setup using WATCH.
+    REAL, INTENT(OUT) :: dels !! Time step size in seconds
+    INTEGER, INTENT(OUT) :: koffset !! Timestep to start at
+    TYPE(PLUME_MIP_TYPE), INTENT(OUT) :: PLUME
+
+    CHARACTER(len=9) :: str1, str2, str3
+
+    CALL PLUME_MIP_INIT(PLUME)
+    dels = PLUME%dt
+    koffset = 0
+    leaps = PLUME%LeapYears
+    WRITE(str1,'(i4)') cable_user%YearStart
+    str1 = ADJUSTL(str1)
+    WRITE(str2,'(i2)') 1
+    str2 = ADJUSTL(str2)
+    WRITE(str3,'(i2)') 1
+    str3 = ADJUSTL(str3)
+    timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//"00:00"
+
+  END SUBROUTINE cable_driver_init_plume
+
+  SUBROUTINE cable_driver_init_cru(dels, koffset, CRU)
+    !* Model initialisation routine (CRU specific).
+    ! TRENDY experiment using CRU-NCEP.
+    REAL, INTENT(OUT) :: dels !! Time step size in seconds
+    INTEGER, INTENT(OUT) :: koffset !! Timestep to start at
+    TYPE(CRU_TYPE), INTENT(OUT) :: CRU
+
+    CHARACTER(len=9) :: str1, str2, str3
+
+    CALL CRU_INIT(CRU)
+    dels = CRU%dtsecs
+    koffset = 0
+    leaps = .FALSE. ! No leap years in CRU-NCEP
+    exists%Snowf = .FALSE.
+      ! No snow in CRU-NCEP, so ensure it will be determined from temperature
+      ! in CABLE
+    WRITE(str1,'(i4)') cable_user%YearStart
+    str1 = ADJUSTL(str1)
+    WRITE(str2,'(i2)') 1
+    str2 = ADJUSTL(str2)
+    WRITE(str3,'(i2)') 1
+    str3 = ADJUSTL(str3)
+    timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//"00:00"
+
+  END SUBROUTINE cable_driver_init_cru
 
 END MODULE cable_driver_init_mod

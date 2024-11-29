@@ -13,11 +13,15 @@ Other content of potential interest: [obsolete and deprecated developer features
 
 Enter obsolete user features in the table below:
 
-| Feature name | <div style="width:150px"> Removal reason </div> | Replacement? | CABLE version | Pull Request |
-| ------------ | ------------------------------------------------------- | ------------ | ------------- | ------------ |
-| Namelist variable `filename%veg` | Now uses namelist file `pft_params.nml` | `pft_params.nml` | CABLE3 | N/A |
-| Namelist variable `filename%soil` | Now uses namelist file `cable_soilparm.nml` | `cable_soilparm` | CABLE3 | N/A |
-| exact feature syntax | short deprecation reason | current alternative if any | version number | [#pull request number](copy PR's URL) |
+| Feature name                                    | <div style="width:150px"> Removal reason </div> | Replacement?                                           | CABLE version                                                | Pull Request                                        |
+| ----------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------ | --------------------------------------------------- |
+| Namelist variable `filename%veg`                | Now uses namelist file `pft_params.nml`         | `pft_params.nml`                                       | CABLE3                                                       | N/A                                                 |
+| Namelist variable `filename%soil`               | Now uses namelist file `cable_soilparm.nml`     | `cable_soilparm`                                       | CABLE3                                                       | N/A                                                 |
+| Namelist variable `cable_user%MetType = 'gpgs'` | Redundant namelist option.                      | Set `cable_user%MetType = 'gswp'` and `leaps = .TRUE.` | CABLE main ([3e87bc3](https://github.com/CABLE-LSM/CABLE/commit/3e87bc321cdafdc81b3f8913bd2e96da3e597fbd)) | [#498](https://github.com/CABLE-LSM/CABLE/pull/498) |
+| exact feature syntax                            | short deprecation reason                        | current alternative if any                             | version number                                               | [#pull request number](copy PR's URL)               |
+
+
+
 
 
 

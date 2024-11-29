@@ -158,9 +158,6 @@ CONTAINS
     USE POP_Types,            ONLY: POP_TYPE
     USE POP_Constants,        ONLY: HEIGHT_BINS, NCOHORT_MAX
 
-    ! PLUME-MIP only
-    USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE
-
     USE cbl_soil_snow_init_special_module
     IMPLICIT NONE
 
@@ -173,7 +170,7 @@ CONTAINS
 
     INTEGER        ::                                                           &
          ktau,       &  ! increment equates to timestep, resets if spinning up
-         ktau_tot,   &  ! NO reset when spinning up, total timesteps by model
+         ktau_tot = 0, &  ! NO reset when spinning up, total timesteps by model
          kend,       &  ! no. of time steps in run
                                 !CLN      kstart = 1, &  ! timestep to start at
          koffset = 0, &  ! timestep to start at
@@ -232,14 +229,6 @@ CONTAINS
     ! Maciej: make sure the variable does not go out of scope
     mp = 0
 
-    IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
-         CABLE_USER%POPLUC= .FALSE.
-
-    IF ( TRIM(cable_user%MetType) .EQ. 'gpgs' ) THEN
-       leaps = .TRUE.
-       cable_user%MetType = 'gswp'
-    ENDIF
-
     ! Check for gswp run
     ! MPI: done by the master only; if check fails then master MPI_Aborts
     ! everyone
@@ -276,10 +265,6 @@ CONTAINS
     !                      casaflux, casamet, casabal, phen, C%EMSOIL,        &
     !                      C%TFRZ )
 
-    ! Check for leap-year settings
-    CALL MPI_Bcast (leaps, 1, MPI_LOGICAL, 0, comm, ierr)
-
-    ktau_tot = 0
     SPINLOOP:DO
        YEAR: DO YYYY= CABLE_USER%YearStart,  CABLE_USER%YearEnd
           CurYear = YYYY

@@ -160,7 +160,7 @@ MODULE cable_mpimaster
 
 CONTAINS
 
-  SUBROUTINE mpidrv_master (comm, trunk_sumbal)
+  SUBROUTINE mpidrv_master (comm, trunk_sumbal, dels, koffset, kend, PLUME, CRU)
 
     USE mpi
 
@@ -168,7 +168,7 @@ CONTAINS
     USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,globalMetfile, &
          output,check,&
          patch_type,landpt,&
-         timeunits, exists, output, &
+         timeunits, output, &
          calendar
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, fileName,            &
@@ -212,7 +212,7 @@ CONTAINS
     ! PLUME-MIP only
     USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE, PLUME_MIP_GET_MET,&
          PLUME_MIP_INIT
-    USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT
+    USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET
 
     USE landuse_constant,     ONLY: mstate,mvmax,mharvw
     USE landuse_variable
@@ -224,25 +224,27 @@ CONTAINS
     INTEGER               :: comm ! MPI communicator for comms with the workers
     DOUBLE PRECISION, INTENT(IN) :: trunk_sumbal
       !! Reference value for quasi-bitwise reproducibility checks.
+    REAL, INTENT(INOUT) :: dels !! Time step size in seconds
+    INTEGER, INTENT(INOUT) :: koffset !! Timestep to start at
+    INTEGER, INTENT(INOUT) :: kend !! No. of time steps in run
+    TYPE(PLUME_MIP_TYPE), INTENT(IN) :: PLUME
+    TYPE(CRU_TYPE), INTENT(IN) :: CRU
 
     ! timing variables
     INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
 
     INTEGER        ::                                                           &
          ktau,       &  ! increment equates to timestep, resets if spinning up
-         ktau_tot,   &  ! NO reset when spinning up, total timesteps by model
-         kend,       &  ! no. of time steps in run
+         ktau_tot = 0,   &  ! NO reset when spinning up, total timesteps by model
                                 !CLN      kstart = 1, &  ! timestep to start at
-         koffset = 0, &  ! timestep to start at
          ktauday,    &  ! day counter for CASA-CNP
          idoy,       &  ! day of year (1:365) counter for CASA-CNP
          nyear,      &  ! year counter for CASA-CNP
-         ctime,      &  ! day count for casacnp
+         ctime = 0,  &  ! day count for casacnp
          YYYY,       &  !
          LOY,        &  ! Length of Year
          maxdiff(2)     ! location of maximum in convergence test
 
-    REAL      :: dels   ! time step size in seconds
     CHARACTER :: dum*9, str1*9, str2*9, str3*9  ! dummy char for fileName generation
 
     ! CABLE variables
@@ -274,8 +276,6 @@ CONTAINS
     TYPE (POP_TYPE)       :: POP
     TYPE(POPLUC_TYPE) :: POPLUC
     TYPE (LUC_EXPT_TYPE) :: LUC_EXPT
-    TYPE (PLUME_MIP_TYPE) :: PLUME
-    TYPE (CRU_TYPE)       :: CRU
     TYPE (landuse_mp)     :: lucmp
     CHARACTER             :: cyear*4
     CHARACTER             :: ncfile*99
@@ -329,56 +329,7 @@ CONTAINS
 
     ! END header
 
-    IF (TRIM(cable_user%MetType) .EQ. 'gswp' .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
-       IF ( CABLE_USER%YearStart.EQ.0 .AND. ncciy.GT.0) THEN
-          CABLE_USER%YearStart = ncciy
-          CABLE_USER%YearEnd = ncciy
-       ELSEIF  ( CABLE_USER%YearStart.EQ.0 .AND. ncciy.EQ.0) THEN
-          PRINT*, 'undefined start year for gswp met: '
-          PRINT*, 'enter value for ncciy or'
-          PRINT*, '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) &
-               in cable.nml'
-
-          WRITE(logn,*) 'undefined start year for gswp met: '
-          WRITE(logn,*) 'enter value for ncciy or'
-          WRITE(logn,*) '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) &
-               in cable.nml'
-
-          STOP
-       ENDIF
-    ENDIF
-
-    IF ( TRIM(cable_user%MetType) .EQ. 'gpgs' ) THEN
-       leaps = .TRUE.
-       cable_user%MetType = 'gswp'
-    ENDIF
-
-    ! casa time count
-    ctime = 0
-
-    ! Iinitialise settings depending on met dataset
-
-    ! Open met data and get site information from netcdf file. (NON-GSWP ONLY!)
-    ! This retrieves time step size, number of timesteps, starting date,
-    ! latitudes, longitudes, number of sites.
-    IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
-         TRIM(cable_user%MetType) .NE. "gswp3" .AND. &
-         TRIM(cable_user%MetType) .NE. "gpgs" .AND. &
-         TRIM(cable_user%MetType) .NE. "plum"  .AND. &
-         TRIM(cable_user%MetType) .NE. "cru"  .AND. &
-         TRIM(cable_user%MetType) .NE. "gpcc") THEN
-       CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
-       IF ( koffset .NE. 0 .AND. CABLE_USER%CALL_POP ) THEN
-          WRITE(*,*)"When using POP, episode must start at Jan 1st!"
-          STOP 991
-       ENDIF
-    ENDIF
-
-    ! Tell the workers if we're leaping
-    CALL MPI_Bcast (leaps, 1, MPI_LOGICAL, 0, comm, ierr)
-
     ! outer loop - spinup loop no. ktau_tot :
-    ktau_tot = 0
     ktau     = 0
     SPINLOOP:DO
        YEARLOOP: DO YYYY= CABLE_USER%YearStart,  CABLE_USER%YearEnd
@@ -391,48 +342,8 @@ CONTAINS
           ENDIF
 
           IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
-             ! CLN HERE PLUME modfications
-             IF ( CALL1 ) THEN
-                CALL PLUME_MIP_INIT( PLUME )
-                dels      = PLUME%dt
-                koffset   = 0
-                leaps = PLUME%LeapYears
-                WRITE(str1,'(i4)') CurYear
-                str1 = ADJUSTL(str1)
-                WRITE(str2,'(i2)') 1
-                str2 = ADJUSTL(str2)
-                WRITE(str3,'(i2)') 1
-                str3 = ADJUSTL(str3)
-                timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//" &
-                     00:00"
-
-             ENDIF
              kend = NINT(24.0*3600.0/dels) * LOY
           ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
-             ! CLN HERE CRU modfications
-             IF ( CALL1 ) THEN
-
-                CALL CPU_TIME(etime)
-                CALL CRU_INIT( CRU )
-
-                dels = CRU%dtsecs
-                koffset   = 0
-                leaps = .FALSE.         ! No leap years in CRU-NCEP
-                exists%Snowf = .FALSE.  ! No snow in CRU-NCEP, so ensure it will
-                ! be determined from temperature in CABLE
-
-                WRITE(str1,'(i4)') CurYear
-                str1 = ADJUSTL(str1)
-                WRITE(str2,'(i2)') 1
-                str2 = ADJUSTL(str2)
-                WRITE(str3,'(i2)') 1
-                str3 = ADJUSTL(str3)
-                timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//" &
-                     00:00"
-
-
-             ENDIF
-
              LOY = 365
              kend = NINT(24.0*3600.0/dels) * LOY
           ELSE IF (TRIM(cable_user%MetType) .EQ. 'gswp') THEN

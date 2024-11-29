@@ -78,7 +78,7 @@ MODULE cable_serial
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
        fixedCO2,output,check,&
        patch_type,landpt,&
-       defaultLAI, sdoy, smoy, syear, timeunits, exists, calendar, &
+       defaultLAI, sdoy, smoy, syear, timeunits, calendar, &
        NO_CHECK
   USE casa_ncdf_module, ONLY: is_casa_time
   USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
@@ -131,8 +131,8 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
   USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE, PLUME_MIP_GET_MET,&
        PLUME_MIP_INIT
 
-  USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT
-  USE CABLE_site,           ONLY: site_TYPE, site_INIT, site_GET_CO2_Ndep
+  USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET
+  USE CABLE_site,           ONLY: site_TYPE, site_GET_CO2_Ndep
 
   ! LUC_EXPT only
   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, LUC_EXPT_INIT
@@ -153,11 +153,18 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
 
 CONTAINS
 
-SUBROUTINE serialdrv(trunk_sumbal, NRRRR)
+SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
   !! Offline serial driver.
   DOUBLE PRECISION, INTENT(IN) :: trunk_sumbal
     !! Reference value for quasi-bitwise reproducibility checks.
   INTEGER, INTENT(IN) :: NRRRR !! Number of repeated spin-up cycles
+  REAL, INTENT(INOUT) :: dels !! Time step size in seconds
+  INTEGER, INTENT(INOUT) :: koffset !! Timestep to start at
+  INTEGER, INTENT(INOUT) :: kend !! No. of time steps in run
+  INTEGER, ALLOCATABLE, INTENT(INOUT) :: GSWP_MID(:,:) !! NetCDF file IDs for GSWP met forcing
+  TYPE(PLUME_MIP_TYPE), INTENT(IN) :: PLUME
+  TYPE(CRU_TYPE), INTENT(IN) :: CRU
+  TYPE (site_TYPE), INTENT(IN) :: site
 
   ! timing variables
   INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
@@ -165,27 +172,21 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR)
 
   INTEGER        ::                                                           &
        ktau,       &  ! increment equates to timestep, resets if spinning up
-       ktau_tot,   &  ! NO reset when spinning up, total timesteps by model
-       kend,       &  ! no. of time steps in run
-                                !CLN      kstart = 1, &  ! timestep to start at
-       koffset = 0, &  ! timestep to start at
+       ktau_tot = 0, &  ! NO reset when spinning up, total timesteps by model
        koffset_met = 0, &  !offfset for site met data ('site' only)
        ktauday,    &  ! day counter for CASA-CNP
        idoy,       &  ! day of year (1:365) counter for CASA-CNP
        nyear,      &  ! year counter for CASA-CNP
        casa_it,    &  ! number of calls to CASA-CNP
        YYYY,       &  !
-       RYEAR,      &  !
+       RYEAR = 0,  &  ! current repeat year
        RRRR,       &  !
-       ctime,      &  ! day count for casacnp
+       ctime = 0,  &  ! day count for casacnp
        LOY, &         ! days in year
        count_sum_casa ! number of time steps over which casa pools &
                                 !and fluxes are aggregated (for output)
 
-  REAL :: dels                        ! time step size in seconds
-
-  INTEGER,DIMENSION(:,:),ALLOCATABLE :: GSWP_MID
-  CHARACTER     :: dum*9, str1*9, str2*9, str3*9
+  CHARACTER     :: dum*9
 
   ! CABLE variables
   TYPE (met_type)       :: met     ! met input variables
@@ -217,9 +218,6 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR)
   ! vh_js !
   TYPE (POP_TYPE)       :: POP
   TYPE(POPLUC_TYPE) :: POPLUC
-  TYPE (PLUME_MIP_TYPE) :: PLUME
-  TYPE (CRU_TYPE)       :: CRU
-  TYPE (site_TYPE)       :: site
   TYPE (LUC_EXPT_TYPE) :: LUC_EXPT
   TYPE (landuse_mp)     :: lucmp
   CHARACTER             :: cyear*4
@@ -270,87 +268,10 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR)
 
 ! END header
 
-  IF (TRIM(cable_user%MetType) .EQ. 'gswp' .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
-     IF ( CABLE_USER%YearStart.EQ.0 .AND. ncciy.GT.0) THEN
-        CABLE_USER%YearStart = ncciy
-        CABLE_USER%YearEnd = ncciy
-     ELSEIF  ( CABLE_USER%YearStart.EQ.0 .AND. ncciy.EQ.0) THEN
-        PRINT*, 'undefined start year for gswp met: '
-        PRINT*, 'enter value for ncciy or'
-        PRINT*, '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) in cable.nml'
-
-        WRITE(logn,*) 'undefined start year for gswp met: '
-        WRITE(logn,*) 'enter value for ncciy or'
-        WRITE(logn,*) '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) in cable.nml'
-
-        STOP
-     ENDIF
-  ENDIF
-
-!$   IF ( .NOT. spinup ) THEN
-!$       IF ( spincasa ) THEN
-!$          spincasa = .FALSE.
-!$          WRITE(*,*)   "spinup == .FALSE. -> spincasa set to .F."
-!$          WRITE(logn,*)"spinup == .FALSE. -> spincasa set to .F."
-!$       ENDIF
-!$   ENDIF
-!$
-
-  IF ( TRIM(cable_user%MetType) .EQ. 'gpgs' ) THEN
-     leaps = .TRUE.
-     calendar = "standard"
-     cable_user%MetType = 'gswp'
-  ENDIF
-
-  ! casa time count
-  ctime = 0
-
 ! INISTUFF
 
-  ! Open met data and get site information from netcdf file. (NON-GSWP ONLY!)
-  ! This retrieves time step size, number of timesteps, starting date,
-  ! latitudes, longitudes, number of sites.
-  IF (TRIM(cable_user%MetType) .EQ. 'site' ) THEN
-
-     IF (l_casacnp) THEN
-
-        CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
-        IF ( koffset .NE. 0 .AND. CABLE_USER%CALL_POP ) THEN
-           WRITE(*,*)"When using POP, episode must start at Jan 1st!"
-           STOP 991
-        ENDIF
-
-     ELSE
-
-        WRITE(*,*)"MetType=site only works with CASA-CNP turned on"
-        STOP 991
-
-     ENDIF !l_casacnp
-
-  ELSEIF (TRIM(cable_user%MetType) .EQ. '') THEN
-
-     CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
-     IF ( koffset .NE. 0 .AND. CABLE_USER%CALL_POP ) THEN
-        WRITE(*,*)"When using POP, episode must start at Jan 1st!"
-        STOP 991
-     ENDIF
-
-  ELSE IF ( NRRRR .GT. 1 ) THEN
-
-     IF(.NOT.ALLOCATED(GSWP_MID)) &
-          ALLOCATE( GSWP_MID( 8, CABLE_USER%YearStart:CABLE_USER%YearEnd ) )
-
-  ENDIF !cable_user%MetType
 
   ! outer loop - spinup loop no. ktau_tot :
-  RYEAR = 0
-  ktau_tot = 0
-  SPINon   = .TRUE.
-!$  YearStart = CABLE_USER%YearStart
-!$  YearEnd = CABLE_USER%YearEnd
-!$  cable_user%CASA_SPIN_ENDYEAR
-
-
   SPINLOOP:DO WHILE ( SPINon )
 
      NREP: DO RRRR = 1, NRRRR
@@ -403,68 +324,14 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR)
 
            ELSE IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
               ! PLUME experiment setup using WATCH
-              IF ( CALL1 ) THEN
-
-                 CALL CPU_TIME(etime)
-                 CALL PLUME_MIP_INIT( PLUME )
-
-
-
-                 dels      = PLUME%dt
-                 koffset   = 0
-                 leaps = PLUME%LeapYears
-
-                 WRITE(str1,'(i4)') CurYear
-                 str1 = ADJUSTL(str1)
-                 WRITE(str2,'(i2)') 1
-                 str2 = ADJUSTL(str2)
-                 WRITE(str3,'(i2)') 1
-                 str3 = ADJUSTL(str3)
-                 timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//"00:00"
-              ENDIF
               IF ( .NOT. PLUME%LeapYears ) LOY = 365
               kend = NINT(24.0*3600.0/dels) * LOY
            ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
               ! TRENDY experiment using CRU-NCEP
-              IF ( CALL1 ) THEN
-
-                 CALL CPU_TIME(etime)
-                 CALL CRU_INIT( CRU )
-
-                 dels      = CRU%dtsecs
-                 koffset   = 0
-                 leaps = .FALSE.         ! No leap years in CRU-NCEP
-                 exists%Snowf = .FALSE.  ! No snow in CRU-NCEP, so ensure it will
-                 ! be determined from temperature in CABLE
-
-                 WRITE(str1,'(i4)') CurYear
-                 str1 = ADJUSTL(str1)
-                 WRITE(str2,'(i2)') 1
-                 str2 = ADJUSTL(str2)
-                 WRITE(str3,'(i2)') 1
-                 str3 = ADJUSTL(str3)
-                 timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//"00:00"
-                 calendar = "noleap"
-
-              ENDIF
               LOY = 365
               kend = NINT(24.0*3600.0/dels) * LOY
            ELSE IF ( TRIM(cable_user%MetType) .EQ. 'site' ) THEN
               ! site experiment eg AmazonFace (spinup or  transient run type)
-
-              IF ( CALL1 ) THEN
-                 CALL CPU_TIME(etime)
-                 CALL site_INIT( site )
-                 WRITE(str1,'(i4)') CurYear
-                 str1 = ADJUSTL(str1)
-                 WRITE(str2,'(i2)') 1
-                 str2 = ADJUSTL(str2)
-                 WRITE(str3,'(i2)') 1
-                 str3 = ADJUSTL(str3)
-                 timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//"00:00"
-                 calendar = 'standard'
-
-              ENDIF
               kend = NINT(24.0*3600.0/dels) * LOY
               ! get koffset to add to time-step of sitemet
               IF (TRIM(site%RunType)=='historical') THEN
