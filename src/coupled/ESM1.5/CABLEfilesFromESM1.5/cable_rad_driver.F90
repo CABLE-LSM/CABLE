@@ -55,7 +55,8 @@ USE cable_math_constants_mod,  ONLY: cpi180 => pi180
    USE cable_common_module, ONLY : cable_runtime, cable_user
    
 USE cbl_init_radiation_module, ONLY: Common_InitRad_Scalings
-USE grid_constants_mod_cbl, ONLY : ICE_SoilType, lakes_cable
+USE grid_constants_mod_cbl,  ONLY: ICE_SoilType
+USE cable_surface_types_mod, ONLY: lakes_cable
 
    IMPLICIT NONE                     
 

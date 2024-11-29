@@ -1171,7 +1171,6 @@ CONTAINS
     INTEGER :: e,f,h,i,klev  ! do loop counter
     INTEGER :: is     ! YP oct07
     INTEGER :: ir     ! BP sep2010
-    REAL :: totdepth  ! YP oct07
     REAL :: tmp       ! BP sep2010
 
     !    The following is for the alternate method to calculate froot by Zeng 2001
@@ -1260,18 +1259,6 @@ CONTAINS
     rough%za_tq = 40.0
 
     veg%meth = 1 ! canopy turbulence parameterisation method: 0 or 1
-
-    ! I brought this in with manual merge of #199 BUT Am i bringing this back in ?
-    ! calculate vegin%froot from using rootbeta and soil depth
-    ! (Jackson et al. 1996, Oceologica, 108:389-411)
-    !totdepth = 0.0
-    !DO is = 1, ms
-    !   totdepth = totdepth + soil%zse(is) * 100.0  ! unit in centimetres
-    !   vegin%froot(is, :) = MIN(1.0, 1.0-vegin%rootbeta(:)**totdepth)
-    !END DO
-    !DO is = ms, 2, -1
-    !   vegin%froot(is, :) = vegin%froot(is, :)-vegin%froot(is-1, :)
-    !END DO
 
     ALLOCATE(defaultLAI(mp, 12))
 
@@ -1393,6 +1380,11 @@ CONTAINS
                incnsd(landpt(e)%ilon, landpt(e)%ilat)
 
           !possibly heterogeneous soil properties
+          ! Set all heterogeneous soil properties to their equivalent uniform values.
+          ! These values can be overridden later on by input values in files.
+          ! `smpc_vec` and `wbc_vec` are only used in the ground water and have no
+          ! equivalent in the uniform parameters (non _vec). So we do not initialise
+          ! these variables when we are not using the ground water scheme.
           DO klev=1,ms
 
              soil%clay_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
@@ -1412,6 +1404,15 @@ CONTAINS
 
              soil%watr(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
                   REAL(inWatr(landpt(e)%ilon, landpt(e)%ilat),r_2)
+
+             soil%zse_vec(landpt(e)%cstart:landpt(e)%cend,klev) =              &
+                  REAL(soil%zse(landpt(e)%cstart:landpt(e)%cend), r_2)
+
+             soil%css_vec(landpt(e)%cstart:landpt(e)%cend, klev) =             &
+                  REAL(incss(landpt(e)%ilon, landpt(e)%ilat), r_2)
+
+             soil%cnsd_vec(landpt(e)%cstart:landpt(e)%cend, klev) =            &
+                  REAL(incnsd(landpt(e)%ilon, landpt(e)%ilat), r_2)
 
           END DO
 
@@ -2160,12 +2161,6 @@ CONTAINS
 
        if ((gw_params%MaxSatFraction .lt. -9999.9) .and. (mp .eq. 1)) soil%slope(:) = 0.01
 
-    ELSE  !not gw model
-
-      !These are not used when gw_model == false
-      soil%watr = 0._r_2
-      soil%GWwatr = 0._r_2
-
    END IF
 
     IF (cable_user%soil_thermal_fix) then
@@ -2474,8 +2469,9 @@ CONTAINS
     ! Ensure that when an active patch has a veg type of ice then its soil type is also ice and vice versa
     ! Any change effected to enforce this consistency includes correcting the appropriate paramter values 
 
-    USE grid_constants_mod_cbl, ONLY : ICE_SoilType, ICE_VegType
-    USE cable_phys_constants_mod, ONLY : csice, density_ice
+    USE grid_constants_mod_cbl,   ONLY: ICE_SoilType
+    USE cable_surface_types_mod,  ONLY: ICE_VegType => ice_cable
+    USE cable_phys_constants_mod, ONLY: csice, density_ice
     
     TYPE (soil_parameter_type), INTENT(INOUT) :: soil  ! soil parameter data
     TYPE (veg_parameter_type),  INTENT(INOUT) :: veg   ! vegetation parameter
@@ -3339,12 +3335,12 @@ CONTAINS
     ! (Jackson et al. 1996, Oceologica, 108:389-411)
     totdepth = 0.0
     DO is = 1, ms-1
-       totdepth = totdepth + soil_zse(is) * 100.0  ! unit in centimetres
-       veg%froot(:, is) = MIN( 1.0, 1.0-veg%rootbeta(:)**totdepth )
+      totdepth = totdepth + soil_zse(is) * 100.0  ! unit in centimetres
+      veg%froot(ifmp:fmp, is) = MIN( 1.0, 1.0-veg%rootbeta(ifmp:fmp)**totdepth )
     END DO
-    veg%froot(:, ms) = 1.0 - veg%froot(:, ms-1)
+    veg%froot(ifmp:fmp, ms) = 1.0 - veg%froot(ifmp:fmp, ms-1)
     DO is = ms-1, 2, -1
-       veg%froot(:, is) = veg%froot(:, is)-veg%froot(:,is-1)
+      veg%froot(ifmp:fmp, is) = veg%froot(ifmp:fmp, is)-veg%froot(ifmp:fmp,is-1)
     END DO
 
   END SUBROUTINE init_veg_from_vegin

@@ -18,6 +18,10 @@ MODULE cable_other_constants_mod
 !-----------------------------------------------------------------------------
 !CABLE science not yet in JAC uses msn to describe number of snow layers
 USE grid_constants_mod_cbl, ONLY: nrb, nsl, nsCs, nvCs, msn => nsnl
+USE grid_constants_mod_cbl, ONLY: n_soiltypes => nsoil_max ! # of soil types [9]
+USE grid_constants_mod_cbl, ONLY: niter                    ! # iterations za/L
+USE grid_constants_mod_cbl, ONLY: mf                       !sunlit/shaded leaves
+USE grid_constants_mod_cbl, ONLY: swb  ! 2 shortwave bands (VIS,NIR)
 
 IMPLICIT NONE
 
@@ -28,17 +32,7 @@ REAL, PARAMETER :: gauss_w(nrb)=[0.308,0.514,0.178 ] ! Gaussian integ. weights
 REAL, PARAMETER :: rad_thresh = 0.001 ! min. zenithal angle for downward SW
 REAL, PARAMETER :: lai_thresh = 0.001 ! min. LAI to be considered as vegetated
 
-INTEGER, PARAMETER ::                                                          &
-  swb = 2,           & ! 2 shortwave bands (initial division - visible /
-                       ! near infrared)
-  n_sw_bands = 4,    & ! total number of shortwave radiation bands
-                       ! (above divided into direct / diffuse)
-  mf = 2,            & ! types of leaves (sunlit / shaded)
-  r_2  = SELECTED_REAL_KIND(12, 50), &!this will be removed
-                       ! double precision real dimension
-  niter = 4,         & ! number of iterations for za/L
-  n_assim_rates = 3, & ! Rubisco, RuBP and Sink-limited rates of photosynthesis
-  n_soiltypes = 9      ! number of soil types
+INTEGER, PARAMETER :: r_2  = KIND(1.d0) ! SELECTED_REAL_KIND(12, 50)
 
 REAL, PARAMETER ::                                                             &
   max_snow_depth = 50000.0,  & ! maximum depth of lying snow on tiles (kg/m2)
@@ -49,5 +43,7 @@ REAL, PARAMETER :: coszen_tols = 1.0e-4
 
 REAL, PARAMETER :: z0surf_min = 1.0e-7 ! min. roughness of bare soil surface
 !H!REAL, PARAMETER :: z0snow_min = 1.e-7 ! min. roughness of bare snow surface
+
+REAL, PARAMETER :: wilt_limitfactor = 2.0 ! Used in lower limit of soil moisture
 
 END MODULE cable_other_constants_mod

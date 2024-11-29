@@ -18,7 +18,7 @@
 !          soil_snow_type now ssnow (instead of ssoil)
 !
 !          MPI wrapper developed by Maciej Golebiewski (2012)
-!          Modified from cable_driver.F90 in CABLE-2.0_beta r171 by B Pak
+!          Modified from cable_serial.F90 in CABLE-2.0_beta r171 by B Pak
 !
 ! ==============================================================================
 ! Uses:           mpi
@@ -75,6 +75,16 @@
 !==============================================================================
 MODULE cable_mpimaster
 
+  USE cable_driver_init_mod, ONLY : &
+    vegparmnew,                     &
+    spinup,                         &
+    spincasa,                       &
+    CASAONLY,                       &
+    l_landuse,                      &
+    delsoilM,                       &
+    delsoilT,                       &
+    delgwM,                         &
+    LALLOC
   USE cable_mpicommon
   USE casa_cable
   USE casa_inout_module
@@ -150,21 +160,21 @@ MODULE cable_mpimaster
 
 CONTAINS
 
-  SUBROUTINE mpidrv_master (comm)
+  SUBROUTINE mpidrv_master (comm, trunk_sumbal, dels, koffset, kend, PLUME, CRU)
 
     USE mpi
 
     USE cable_def_types_mod
     USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,globalMetfile, &
-         verbose, fixedCO2,output,check,patchout,    &
-         patch_type,landpt,soilparmnew,&
-         timeunits, exists, output, &
-         calendar, set_group_output_values
+         output,check,&
+         patch_type,landpt,&
+         timeunits, output, &
+         calendar
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, fileName,            &
-         redistrb, wiltParam, satuParam, CurYear,    &
+         CurYear,    &
          IS_LEAPYEAR, calcsoilalbedo,                &
-         kwidth_gl, gw_params
+         kwidth_gl
     USE casa_ncdf_module, ONLY: is_casa_time
     ! physical constants
     USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
@@ -202,10 +212,7 @@ CONTAINS
     ! PLUME-MIP only
     USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE, PLUME_MIP_GET_MET,&
          PLUME_MIP_INIT
-    USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT
-
-    USE cable_namelist_util,  ONLY : get_namelist_file_name,&
-                                     CABLE_NAMELIST
+    USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET
 
     USE landuse_constant,     ONLY: mstate,mvmax,mharvw
     USE landuse_variable
@@ -215,28 +222,29 @@ CONTAINS
 
     ! MPI:
     INTEGER               :: comm ! MPI communicator for comms with the workers
-
-    ! CABLE namelist: model configuration, runtime/user switches
-    !CHARACTER(LEN=200), PARAMETER :: CABLE_NAMELIST='cable.nml'
+    DOUBLE PRECISION, INTENT(IN) :: trunk_sumbal
+      !! Reference value for quasi-bitwise reproducibility checks.
+    REAL, INTENT(INOUT) :: dels !! Time step size in seconds
+    INTEGER, INTENT(INOUT) :: koffset !! Timestep to start at
+    INTEGER, INTENT(INOUT) :: kend !! No. of time steps in run
+    TYPE(PLUME_MIP_TYPE), INTENT(IN) :: PLUME
+    TYPE(CRU_TYPE), INTENT(IN) :: CRU
 
     ! timing variables
     INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
 
     INTEGER        ::                                                           &
          ktau,       &  ! increment equates to timestep, resets if spinning up
-         ktau_tot,   &  ! NO reset when spinning up, total timesteps by model
-         kend,       &  ! no. of time steps in run
+         ktau_tot = 0,   &  ! NO reset when spinning up, total timesteps by model
                                 !CLN      kstart = 1, &  ! timestep to start at
-         koffset = 0, &  ! timestep to start at
          ktauday,    &  ! day counter for CASA-CNP
          idoy,       &  ! day of year (1:365) counter for CASA-CNP
          nyear,      &  ! year counter for CASA-CNP
-         ctime,      &  ! day count for casacnp
+         ctime = 0,  &  ! day count for casacnp
          YYYY,       &  !
          LOY,        &  ! Length of Year
          maxdiff(2)     ! location of maximum in convergence test
 
-    REAL      :: dels   ! time step size in seconds
     CHARACTER :: dum*9, str1*9, str2*9, str3*9  ! dummy char for fileName generation
 
     ! CABLE variables
@@ -268,30 +276,13 @@ CONTAINS
     TYPE (POP_TYPE)       :: POP
     TYPE(POPLUC_TYPE) :: POPLUC
     TYPE (LUC_EXPT_TYPE) :: LUC_EXPT
-    TYPE (PLUME_MIP_TYPE) :: PLUME
-    TYPE (CRU_TYPE)       :: CRU
     TYPE (landuse_mp)     :: lucmp
     CHARACTER             :: cyear*4
     CHARACTER             :: ncfile*99
 
-    ! declare vars for switches (default .FALSE.) etc declared thru namelist
     LOGICAL, SAVE           :: &
-         vegparmnew    = .FALSE., & ! using new format input file (BP dec 2007)
-         spinup        = .FALSE., & ! model spinup to soil state equilibrium?
          spinConv      = .FALSE., & ! has spinup converged?
-         spincasa      = .FALSE., & ! TRUE: CASA-CNP Will spin mloop times,
-         l_casacnp     = .FALSE., & ! using CASA-CNP with CABLE
-         l_landuse     = .FALSE., & ! using LANDUSE             
-         l_laiFeedbk   = .FALSE., & ! using prognostic LAI
-         l_vcmaxFeedbk = .FALSE., & ! using prognostic Vcmax
-         CASAONLY      = .FALSE., & ! ONLY Run CASA-CNP
          CALL1         = .TRUE.
-
-    REAL              :: &
-         delsoilM,         & ! allowed variation in soil moisture for spin up
-         delsoilT            ! allowed variation in soil temperature for spin up
-
-    REAL :: delgwM = 1e-4
 
     ! temporary storage for soil moisture/temp. in spin up mode
     REAL, ALLOCATABLE, DIMENSION(:,:)  :: &
@@ -312,56 +303,15 @@ CONTAINS
     INTEGER :: ierr
     INTEGER :: rank, off, cnt
 
-    ! Vars for standard for quasi-bitwise reproducability b/n runs
-    ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
-    CHARACTER(len=30), PARAMETER ::                                             &
-         Ftrunk_sumbal  = ".trunk_sumbal",                                        &
-         Fnew_sumbal    = "new_sumbal"
-
     DOUBLE PRECISION, SAVE ::                                                         &
-         trunk_sumbal = 0.0, & !
          new_sumbal   = 0.0, &
          new_sumfpn   = 0.0, &
          new_sumfe    = 0.0
 
     INTEGER :: count_bal = 0
     INTEGER :: nkend=0
-    INTEGER :: ioerror=0
 
-
-    ! switches etc defined thru namelist (by default cable.nml)
-    NAMELIST/CABLE/                  &
-         filename,         & ! TYPE, containing input filenames
-         vegparmnew,       & ! use new soil param. method
-         soilparmnew,      & ! use new soil param. method
-         calcsoilalbedo,   & ! ! vars intro for Ticket #27
-         spinup,           & ! spinup model (soil) to steady state
-         delsoilM,delsoilT,& !
-         output,           &
-         patchout,         &
-         check,            &
-         verbose,          &
-         leaps,            &
-         logn,             &
-         fixedCO2,         &
-         spincasa,         &
-         l_casacnp,        &
-         l_landuse,        &
-         l_laiFeedbk,      &
-         l_vcmaxFeedbk,    &
-         icycle,           &
-         casafile,         &
-         ncciy,            &
-         gswpfile,         &
-         globalMetfile,    &
-         redistrb,         &
-         wiltParam,        &
-         satuParam,        &
-         cable_user,       &  ! additional USER switches
-         gw_params        
- 
     INTEGER :: kk,m,np,ivt
-    INTEGER :: LALLOC
     INTEGER, PARAMETER :: mloop = 30   ! CASA-CNP PreSpinup loops
     REAL    :: etime
 
@@ -379,121 +329,7 @@ CONTAINS
 
     ! END header
 
-    ! Open, read and close the namelist file.
-    OPEN( 10, FILE = CABLE_NAMELIST, STATUS="OLD", ACTION="READ" )
-    READ( 10, NML=CABLE )   !where NML=CABLE defined above
-    CLOSE(10)
-
-    ! Open, read and close the consistency check file.
-    ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
-    IF(cable_user%consistency_check) THEN
-       OPEN( 11, FILE = Ftrunk_sumbal,STATUS='old',ACTION='READ',IOSTAT=ioerror )
-       IF(ioerror==0) THEN
-          READ( 11, * ) trunk_sumbal  ! written by previous trunk version
-       ENDIF
-       CLOSE(11)
-    ENDIF
-
-    ! Open log file:
-    OPEN(logn,FILE=filename%log)
-
-    IF( IARGC() > 0 ) THEN
-       CALL GETARG(1, filename%met)
-       CALL GETARG(2, casafile%cnpipool)
-    ENDIF
-
-    ! INITIALISATION depending on nml settings
-    ! Initialise flags to output individual variables according to group
-    ! options from the namelist file
-    CALL set_group_output_values()
-
-    IF (TRIM(cable_user%MetType) .EQ. 'gswp' .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
-       IF ( CABLE_USER%YearStart.EQ.0 .AND. ncciy.GT.0) THEN
-          CABLE_USER%YearStart = ncciy
-          CABLE_USER%YearEnd = ncciy
-       ELSEIF  ( CABLE_USER%YearStart.EQ.0 .AND. ncciy.EQ.0) THEN
-          PRINT*, 'undefined start year for gswp met: '
-          PRINT*, 'enter value for ncciy or'
-          PRINT*, '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) &
-               in cable.nml'
-
-          WRITE(logn,*) 'undefined start year for gswp met: '
-          WRITE(logn,*) 'enter value for ncciy or'
-          WRITE(logn,*) '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) &
-               in cable.nml'
-
-          STOP
-       ENDIF
-    ENDIF
-
-    CurYear = CABLE_USER%YearStart
-
-    IF ( icycle .GE. 11 ) THEN
-       icycle                     = icycle - 10
-       CASAONLY                   = .TRUE.
-       CABLE_USER%CASA_DUMP_READ  = .TRUE.
-       CABLE_USER%CASA_DUMP_WRITE = .FALSE.
-    ELSEIF ( icycle .EQ. 0 ) THEN
-       CABLE_USER%CASA_DUMP_READ  = .FALSE.
-       CABLE_USER%CALL_POP        = .FALSE.
-    ENDIF
-
-    ! vh_js !
-    IF (icycle.GT.0) THEN
-       l_casacnp = .TRUE.
-    ELSE
-       l_casacnp = .FALSE.
-    ENDIF
-
-    ! vh_js ! suggest LALLOC should ulitmately be a switch in the .nml file
-    IF (CABLE_USER%CALL_POP) THEN
-       LALLOC = 3 ! for use with POP: makes use of pipe model to partition between stem and leaf
-    ELSE
-       LALLOC = 0 ! default
-    ENDIF
-
-    IF ( TRIM(cable_user%MetType) .EQ. 'gpgs' ) THEN
-       leaps = .TRUE.
-       cable_user%MetType = 'gswp'
-    ENDIF
-
-    cable_runtime%offline = .TRUE.
-
-    IF( l_casacnp  .AND. ( icycle == 0 .OR. icycle > 3 ) )                   &
-         STOP 'icycle must be 1 to 3 when using casaCNP'
-    IF( ( l_laiFeedbk .OR. l_vcmaxFeedbk ) .AND. ( .NOT. l_casacnp ) )       &
-         STOP 'casaCNP required to get prognostic LAI or Vcmax'
-    IF( l_vcmaxFeedbk .AND. icycle < 2 )                                     &
-         STOP 'icycle must be 2 to 3 to get prognostic Vcmax'
-    IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &
-         STOP 'casaCNP must use new soil parameters'
-
-    ! casa time count
-    ctime = 0
-
-    ! Iinitialise settings depending on met dataset
-
-    ! Open met data and get site information from netcdf file. (NON-GSWP ONLY!)
-    ! This retrieves time step size, number of timesteps, starting date,
-    ! latitudes, longitudes, number of sites.
-    IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
-         TRIM(cable_user%MetType) .NE. "gswp3" .AND. &
-         TRIM(cable_user%MetType) .NE. "gpgs" .AND. &
-         TRIM(cable_user%MetType) .NE. "plum"  .AND. &
-         TRIM(cable_user%MetType) .NE. "cru"  .AND. &
-         TRIM(cable_user%MetType) .NE. "gpcc") THEN
-       CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
-       IF ( koffset .NE. 0 .AND. CABLE_USER%CALL_POP ) THEN
-          WRITE(*,*)"When using POP, episode must start at Jan 1st!"
-          STOP 991
-       ENDIF
-    ENDIF
-
-    ! Tell the workers if we're leaping
-    CALL MPI_Bcast (leaps, 1, MPI_LOGICAL, 0, comm, ierr)
-
     ! outer loop - spinup loop no. ktau_tot :
-    ktau_tot = 0
     ktau     = 0
     SPINLOOP:DO
        YEARLOOP: DO YYYY= CABLE_USER%YearStart,  CABLE_USER%YearEnd
@@ -506,48 +342,8 @@ CONTAINS
           ENDIF
 
           IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
-             ! CLN HERE PLUME modfications
-             IF ( CALL1 ) THEN
-                CALL PLUME_MIP_INIT( PLUME )
-                dels      = PLUME%dt
-                koffset   = 0
-                leaps = PLUME%LeapYears
-                WRITE(str1,'(i4)') CurYear
-                str1 = ADJUSTL(str1)
-                WRITE(str2,'(i2)') 1
-                str2 = ADJUSTL(str2)
-                WRITE(str3,'(i2)') 1
-                str3 = ADJUSTL(str3)
-                timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//" &
-                     00:00"
-
-             ENDIF
              kend = NINT(24.0*3600.0/dels) * LOY
           ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
-             ! CLN HERE CRU modfications
-             IF ( CALL1 ) THEN
-
-                CALL CPU_TIME(etime)
-                CALL CRU_INIT( CRU )
-
-                dels = CRU%dtsecs
-                koffset   = 0
-                leaps = .FALSE.         ! No leap years in CRU-NCEP
-                exists%Snowf = .FALSE.  ! No snow in CRU-NCEP, so ensure it will
-                ! be determined from temperature in CABLE
-
-                WRITE(str1,'(i4)') CurYear
-                str1 = ADJUSTL(str1)
-                WRITE(str2,'(i2)') 1
-                str2 = ADJUSTL(str2)
-                WRITE(str3,'(i2)') 1
-                str3 = ADJUSTL(str3)
-                timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//" &
-                     00:00"
-
-
-             ENDIF
-
              LOY = 365
              kend = NINT(24.0*3600.0/dels) * LOY
           ELSE IF (TRIM(cable_user%MetType) .EQ. 'gswp') THEN
@@ -1039,9 +835,9 @@ CONTAINS
                            "Internal check shows in this version new_sumbal != trunk sumbal"
                       PRINT *, "The difference is: ", new_sumbal - trunk_sumbal
                       PRINT *, &
-                           "Writing new_sumbal to the file:", TRIM(Fnew_sumbal)
+                           "Writing new_sumbal to the file:", TRIM(filename%new_sumbal)
 
-                      !CLN                      OPEN( 12, FILE = Fnew_sumbal )
+                      !CLN                      OPEN( 12, FILE = filename%new_sumbal )
                       !CLN                      WRITE( 12, '(F20.7)' ) new_sumbal  ! written by previous trunk version
                       !CLN                      CLOSE(12)
 
@@ -3294,6 +3090,66 @@ CONTAINS
 
        bidx = bidx + 1
        CALL MPI_Get_address (soil%sfc_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%zse_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%css_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%cnsd_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%clay_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%sand_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%silt_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%org_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%rhosoil_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%smpc_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%wbc_vec(off,1), displs(bidx), ierr)
        CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
             &                             types(bidx), ierr)
        blen(bidx) = 1

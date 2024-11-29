@@ -15,7 +15,7 @@
 !          twice per timestep in the ACCESS case. Not all parts of cbm
 !          are executed in each of the ACCESS calls.
 !
-! Called from: cable_driver for offline version
+! Called from: cable_serial for offline version
 !              cable_explicit_driver, cable_implicit_driver for ACCESS
 !
 ! Contact: Yingping.Wang@csiro.au
@@ -39,14 +39,14 @@ SUBROUTINE cbm( ktau,dels, air, bgc, canopy, met,                               
        bal, rad, rough, soil,                                      &
        ssnow, sum_flux, veg, climate, xk, c1, rhoch, urban)
 
-    USE cable_common_module
-    USE cable_carbon_module
-    USE cbl_soil_snow_main_module, ONLY : soil_snow
-    USE cable_def_types_mod
-    USE cable_roughness_module, ONLY : ruff_resist
-    USE cbl_init_radiation_module, ONLY : init_radiation
-    USE cable_air_module, ONLY : define_air
-    USE casadimension,     ONLY : icycle ! used in casa_cnp
+USE cable_common_module
+USE cable_carbon_module
+USE cbl_soil_snow_main_module, ONLY : soil_snow
+USE cable_def_types_mod
+USE cable_roughness_module, ONLY : ruff_resist
+USE cbl_init_radiation_module, ONLY : init_radiation
+USE cable_air_module, ONLY : define_air
+USE casadimension,     ONLY : icycle ! used in casa_cnp
 ! physical constants
 USE cable_phys_constants_mod, ONLY : CGRAV  => GRAV
 USE cable_phys_constants_mod, ONLY : CCAPP   => CAPP
@@ -54,42 +54,43 @@ USE cable_phys_constants_mod, ONLY : CEMLEAF => EMLEAF
 USE cable_phys_constants_mod, ONLY : CEMSOIL => EMSOIL
 USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
 USE cable_phys_constants_mod, ONLY : density_liq
-    !mrd561
-    USE cable_gw_hydro_module, ONLY : sli_hydrology,&
-         soil_snow_gw
-    USE cable_canopy_module, ONLY : define_canopy
-    USE cbl_albedo_mod, ONLY : albedo
-    USE sli_main_mod, ONLY : sli_main
-    USE snow_aging_mod,               ONLY: snow_aging
+!mrd561
+USE cable_gw_hydro_module, ONLY : sli_hydrology,&
+      soil_snow_gw
+USE cable_canopy_module, ONLY : define_canopy
+USE cbl_albedo_mod, ONLY : albedo
+USE sli_main_mod, ONLY : sli_main
+USE snow_aging_mod,               ONLY: snow_aging
     
-!data !jhan:pass these
-USE cable_other_constants_mod, ONLY : CLAI_THRESH => lai_thresh
-USE cable_other_constants_mod,  ONLY : Crad_thresh => rad_thresh
-USE cable_other_constants_mod,  ONLY : Ccoszen_tols => coszen_tols
-USE cable_other_constants_mod, ONLY : CGAUSS_W => gauss_w
-USE cable_math_constants_mod, ONLY : CPI => pi
-USE cable_math_constants_mod, ONLY : CPI180 => pi180
-use cbl_masks_mod, ONLY :  fveg_mask,  fsunlit_mask,  fsunlit_veg_mask
-USE grid_constants_mod_cbl, ONLY : ICE_SoilType, lakes_cable
+! scalar data USEd through modules
+USE cable_other_constants_mod, ONLY: CLAI_THRESH  => lai_thresh
+USE cable_other_constants_mod, ONLY: Crad_thresh  => rad_thresh
+USE cable_other_constants_mod, ONLY: Ccoszen_tols => coszen_tols
+USE cable_other_constants_mod, ONLY: CGAUSS_W     => gauss_w
+USE cable_math_constants_mod,  ONLY: CPI          => pi
+USE cable_math_constants_mod,  ONLY: CPI180       => pi180
+USE cbl_masks_mod,             ONLY: fveg_mask, fsunlit_mask, fsunlit_veg_mask
+USE cable_surface_types_mod,   ONLY: lakes_cable
+USE grid_constants_mod_cbl,    ONLY: ICE_SoilType
 
-    ! CABLE model variables
-    TYPE (air_type),       INTENT(INOUT) :: air
-    TYPE (bgc_pool_type),  INTENT(INOUT) :: bgc
-    TYPE (canopy_type),    INTENT(INOUT) :: canopy
-    TYPE (met_type),       INTENT(INOUT) :: met
-    TYPE (balances_type),  INTENT(INOUT) :: bal
-    TYPE (radiation_type), INTENT(INOUT) :: rad
-    TYPE (roughness_type), INTENT(INOUT) :: rough
-    TYPE (soil_snow_type), INTENT(INOUT) :: ssnow
-    TYPE (sum_flux_type),  INTENT(INOUT) :: sum_flux
-    TYPE (climate_type), INTENT(IN)      :: climate
+! CABLE model variables
+TYPE (air_type),       INTENT(INOUT) :: air
+TYPE (bgc_pool_type),  INTENT(INOUT) :: bgc
+TYPE (canopy_type),    INTENT(INOUT) :: canopy
+TYPE (met_type),       INTENT(INOUT) :: met
+TYPE (balances_type),  INTENT(INOUT) :: bal
+TYPE (radiation_type), INTENT(INOUT) :: rad
+TYPE (roughness_type), INTENT(INOUT) :: rough
+TYPE (soil_snow_type), INTENT(INOUT) :: ssnow
+TYPE (sum_flux_type),  INTENT(INOUT) :: sum_flux
+TYPE (climate_type), INTENT(IN)      :: climate
 
-    TYPE (soil_parameter_type), INTENT(INOUT)   :: soil
-    TYPE (veg_parameter_type),  INTENT(INOUT)    :: veg
+TYPE (soil_parameter_type), INTENT(INOUT)   :: soil
+TYPE (veg_parameter_type),  INTENT(INOUT)    :: veg
 
-    REAL, INTENT(IN)               :: dels ! time setp size (s)
-    INTEGER, INTENT(IN) :: ktau
-    INTEGER :: k,kk,j
+REAL, INTENT(IN)               :: dels ! time setp size (s)
+INTEGER, INTENT(IN) :: ktau
+INTEGER :: k,kk,j
 
 LOGICAL :: veg_mask(mp), sunlit_mask(mp), sunlit_veg_mask(mp)
 

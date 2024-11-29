@@ -52,7 +52,8 @@ SUBROUTINE Latent_heat_flux( mp, CTFRZ, dels, soil_zse, soil_swilt,           &
   ! over snow. And the value for points with new snow could be smaller.
 
 
-USE cable_def_types_mod, ONLY : r_2
+USE cable_def_types_mod,      ONLY : r_2
+
 IMPLICIT NONE
 
 INTEGER :: mp

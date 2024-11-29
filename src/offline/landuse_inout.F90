@@ -1182,7 +1182,7 @@ END SUBROUTINE landuse_getdata
 
     TYPE(output_par_settings_type) :: out_settings
 
-    LOGICAL, PARAMETER :: output_var = .TRUE., patchout_var = .TRUE.
+    LOGICAL, PARAMETER :: patchout_var = .TRUE.
 
     out_settings = output_par_settings_type(met=met, restart=.TRUE.)
 
@@ -1544,101 +1544,101 @@ END SUBROUTINE landuse_getdata
 
     ! Write parameters:
     out_settings%dimswitch = "integer"
-    CALL check_and_write(output_var, iveg_id, 'iveg', REAL(lucmp%iveg, 4), ranges%iveg, &
+    CALL check_and_write(iveg_id, 'iveg', REAL(lucmp%iveg, 4), ranges%iveg, &
                          patchout_var, out_settings)
-    CALL check_and_write(output_var, isoil_id, 'isoil', REAL(lucmp%tgg, 4), ranges%isoil, &
+    CALL check_and_write(isoil_id, 'isoil', REAL(lucmp%tgg, 4), ranges%isoil, &
                          patchout_var, out_settings)
-    CALL check_and_write(output_var, isflagID, 'isflag', REAL(lucmp%isflag, 4), &
+    CALL check_and_write(isflagID, 'isflag', REAL(lucmp%isflag, 4), &
                          ranges%default_l, patchout_var, out_settings)
     out_settings%dimswitch = "soil"
-    CALL check_and_write(output_var, tggID, 'tgg', REAL(lucmp%tgg, 4), &
+    CALL check_and_write(tggID, 'tgg', REAL(lucmp%tgg, 4), &
                          ranges%SoilTemp, patchout_var, out_settings)
-    CALL check_and_write(output_var, wbID, 'wb', REAL(lucmp%wb, 4), ranges%SoilMoist, &
+    CALL check_and_write(wbID, 'wb', REAL(lucmp%wb, 4), ranges%SoilMoist, &
                          patchout_var, out_settings)
-    CALL check_and_write(output_var, wbiceID, 'wbice', REAL(lucmp%wbice, 4), &
+    CALL check_and_write(wbiceID, 'wbice', REAL(lucmp%wbice, 4), &
                          ranges%SoilMoist, patchout_var, out_settings)
-    CALL check_and_write(output_var, gammzzID, 'gammzz', REAL(lucmp%gammzz, 4), &
+    CALL check_and_write(gammzzID, 'gammzz', REAL(lucmp%gammzz, 4), &
                          ranges%default_l, patchout_var, out_settings)
     ! Snow dimensioned variables/parameters:
     out_settings%dimswitch = "snow"
-    CALL check_and_write(output_var, ssdnID, 'ssdn', REAL(lucmp%ssdn, 4), &
+    CALL check_and_write(ssdnID, 'ssdn', REAL(lucmp%ssdn, 4), &
                          ranges%ssdn, patchout_var, out_settings)
-    CALL check_and_write(output_var, smassID, 'smass', REAL(lucmp%smass, 4), &
+    CALL check_and_write(smassID, 'smass', REAL(lucmp%smass, 4), &
                          ranges%smass, patchout_var, out_settings)
-    CALL check_and_write(output_var, sdepthID, 'sdepth', REAL(lucmp%sdepth, 4), &
+    CALL check_and_write(sdepthID, 'sdepth', REAL(lucmp%sdepth, 4), &
                          ranges%sdepth, patchout_var, out_settings)
-    CALL check_and_write(output_var, tggsnID, 'tggsn', REAL(lucmp%tggsn, 4), &
+    CALL check_and_write(tggsnID, 'tggsn', REAL(lucmp%tggsn, 4), &
                          ranges%tggsn, patchout_var, out_settings)
     ! Other dims
     out_settings%dimswitch = "radiation"
-    CALL check_and_write(output_var, albsoilsnID, 'albsoilsn', &
+    CALL check_and_write(albsoilsnID, 'albsoilsn', &
                          REAL(lucmp%albsoilsn, 4), ranges%albsoiln, patchout_var, out_settings)
     out_settings%dimswitch = "plantcarbon"
-    CALL check_and_write(output_var, cplantID, 'cplant', REAL(lucmp%cplantx, 4), &
+    CALL check_and_write(cplantID, 'cplant', REAL(lucmp%cplantx, 4), &
                          ranges%default_l, patchout_var, out_settings)
     out_settings%dimswitch = "soilcarbon"
-    CALL check_and_write(output_var, csoilID, 'csoil', REAL(lucmp%csoilx, 4), &
+    CALL check_and_write(csoilID, 'csoil', REAL(lucmp%csoilx, 4), &
                          ranges%default_l, patchout_var, out_settings)
     ok = NF90_PUT_VAR(ncid_restart, zse_id, REAL(soil%zse, 4))
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing zse parameter to ' &
                                         //TRIM(frst_out)//'(SUBROUTINE create_restart)')
     ! Single dim:
     out_settings%dimswitch = "radiation"
-    CALL check_and_write(output_var, albsoil_id, 'albsoil', &
+    CALL check_and_write(albsoil_id, 'albsoil', &
                          REAL(lucmp%albsoil, 4), ranges%albsoil, patchout_var, &
                          out_settings)
 
     out_settings%dimswitch = "real"
 
-    CALL check_and_write(output_var, tssID, 'tss', REAL(lucmp%tss, 4), &
+    CALL check_and_write(tssID, 'tss', REAL(lucmp%tss, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, ssdnnID, 'ssdnn', REAL(lucmp%ssdnn, 4), &
+    CALL check_and_write(ssdnnID, 'ssdnn', REAL(lucmp%ssdnn, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, osnowdID, 'osnowd', REAL(lucmp%osnowd, 4), &
+    CALL check_and_write(osnowdID, 'osnowd', REAL(lucmp%osnowd, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, snageID, 'snage', REAL(lucmp%snage, 4), &
+    CALL check_and_write(snageID, 'snage', REAL(lucmp%snage, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, snowdID, 'snowd', REAL(lucmp%snowd, 4), &
+    CALL check_and_write(snowdID, 'snowd', REAL(lucmp%snowd, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, rtsoilID, 'rtsoil', REAL(lucmp%rtsoil, 4), &
+    CALL check_and_write(rtsoilID, 'rtsoil', REAL(lucmp%rtsoil, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, canstoID, 'cansto', REAL(lucmp%cansto, 4), &
+    CALL check_and_write(canstoID, 'cansto', REAL(lucmp%cansto, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, sghfluxID, 'sghflux', &
+    CALL check_and_write(sghfluxID, 'sghflux', &
                          REAL(lucmp%sghflux, 4), ranges%default_l, &
                          patchout_var, out_settings)
-    CALL check_and_write(output_var, ghfluxID, 'ghflux', REAL(lucmp%ghflux, 4), &
+    CALL check_and_write(ghfluxID, 'ghflux', REAL(lucmp%ghflux, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, runoffID, 'runoff', REAL(lucmp%runoff, 4), &
+    CALL check_and_write(runoffID, 'runoff', REAL(lucmp%runoff, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, rnof1ID, 'rnof1', REAL(lucmp%rnof1, 4), &
+    CALL check_and_write(rnof1ID, 'rnof1', REAL(lucmp%rnof1, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, rnof2ID, 'rnof2', REAL(lucmp%rnof2, 4), &
+    CALL check_and_write(rnof2ID, 'rnof2', REAL(lucmp%rnof2, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, gaID, 'ga', REAL(lucmp%ga, 4), &
+    CALL check_and_write(gaID, 'ga', REAL(lucmp%ga, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, fevID, 'fev', REAL(lucmp%fev, 4), &
+    CALL check_and_write(fevID, 'fev', REAL(lucmp%fev, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, fesID, 'fes', REAL(lucmp%fes, 4), &
+    CALL check_and_write(fesID, 'fes', REAL(lucmp%fes, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, fhsID, 'fhs', REAL(lucmp%fhs, 4), &
+    CALL check_and_write(fhsID, 'fhs', REAL(lucmp%fhs, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, wbtot0ID, 'wbtot0', REAL(lucmp%wbtot0, 4), &
+    CALL check_and_write(wbtot0ID, 'wbtot0', REAL(lucmp%wbtot0, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, osnowd0ID, 'osnowd0', REAL(lucmp%osnowd0, 4), &
+    CALL check_and_write(osnowd0ID, 'osnowd0', REAL(lucmp%osnowd0, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, tradID, 'trad', &
+    CALL check_and_write(tradID, 'trad', &
                          REAL(lucmp%trad, 4), ranges%RadT, patchout_var, out_settings)
 
-    CALL check_and_write(output_var, gwID, 'GWwb', REAL(lucmp%GWwb, 4), &
+    CALL check_and_write(gwID, 'GWwb', REAL(lucmp%GWwb, 4), &
                          ranges%GWwb, patchout_var, out_settings)
 
     out_settings%dimswitch = "r2"
-    CALL check_and_write(output_var, dgdtgID, 'dgdtg', REAL(lucmp%dgdtg, 4), &
+    CALL check_and_write(dgdtgID, 'dgdtg', REAL(lucmp%dgdtg, 4), &
                          ranges%default_l, patchout_var, out_settings)
 
     out_settings%dimswitch = "radiation"
-    CALL check_and_write(output_var, albedoID, 'albedo', REAL(lucmp%albedo, 4), &
+    CALL check_and_write(albedoID, 'albedo', REAL(lucmp%albedo, 4), &
                          ranges%Albedo, patchout_var, out_settings)
 
     ! Close restart file

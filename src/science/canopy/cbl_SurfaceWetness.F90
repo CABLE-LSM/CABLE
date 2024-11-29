@@ -9,27 +9,31 @@ CONTAINS
 
 SUBROUTINE Surf_wetness_fact( cansat, canopy, ssnow,veg, met, soil, dels )
 
-    USE cable_common_module
-    USE cable_def_types_mod
-    USE grid_constants_mod_cbl, ONLY : lakes_cable
-! physical constants
-USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
-    !H!USE cable_gw_hydro_module, ONLY : calc_srf_wet_fraction
+USE cable_common_module
+USE cable_def_types_mod
+! data                  
+USE cable_surface_types_mod,  ONLY: lakes_cable
+USE cable_phys_constants_mod, ONLY: CTFRZ => TFRZ
 
-    TYPE (veg_parameter_type), INTENT(INOUT)    :: veg
-    TYPE (soil_snow_type), INTENT(inout):: ssnow
-    TYPE (soil_parameter_type), INTENT(inout)   :: soil
-    TYPE (canopy_type), INTENT(INOUT)   :: canopy
-    TYPE (met_type), INTENT(INOUT)   :: met
+!H!USE cable_gw_hydro_module, ONLY : calc_srf_wet_fraction
 
-    REAL, INTENT(IN) :: dels ! integration time setp (s)
 
-    REAL,INTENT(IN), DIMENSION(:) :: cansat ! max canopy intercept. (mm)
+use cable_init_wetfac_mod, ONLY: initialize_wetfac
 
-    !local variables
-    REAL, DIMENSION(mp)  :: lower_limit, upper_limit,ftemp
+TYPE (veg_parameter_type), INTENT(INOUT)    :: veg
+TYPE (soil_snow_type), INTENT(inout):: ssnow
+TYPE (soil_parameter_type), INTENT(inout)   :: soil
+TYPE (canopy_type), INTENT(INOUT)   :: canopy
+TYPE (met_type), INTENT(INOUT)   :: met
 
-    INTEGER :: j, i
+REAL, INTENT(IN) :: dels ! integration time setp (s)
+
+REAL,INTENT(IN), DIMENSION(:) :: cansat ! max canopy intercept. (mm)
+
+!local variables
+REAL, DIMENSION(mp)  :: lower_limit, upper_limit,ftemp
+
+INTEGER :: j, i
 
     ! Rainfall variable is limited so canopy interception is limited,
     ! used to stabilise latent fluxes.
@@ -62,31 +66,19 @@ USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
        !call saturated_fraction(ssnow,soil,veg)
        ssnow%satfrac(:) = 1.0e-8
        ssnow%rh_srf(:)  = 1.0
+    
+    !This is updating wetfac iusing same calc as initialization
+    !originally code in canopy used 1e-6 as MIN
+    CALL initialize_wetfac( mp, ssnow%wetfac, soil%swilt, soil%sfc,            &
+                            ssnow%wb(:,1), ssnow%wbice(:,1), ssnow%snowd,      &
+                            veg%iveg, met%tk, Ctfrz )
+   
+    ! owetfac introduced to reduce sharp changes in dry regions,
+    ! especially in offline runs in which there may be discrepancies b/n
+    ! timing of precip and temperature change (EAK apr2009)
+    ssnow%wetfac = 0.5*(ssnow%wetfac + ssnow%owetfac)
 
-       ssnow%wetfac = MAX( 1.e-6, MIN( 1.0,&
-            ( REAL (ssnow%wb(:,1) ) - soil%swilt/ 2.0 )                  &
-            / ( soil%sfc - soil%swilt/2.0 ) ) )
-   
-       DO i=1,mp
-   
-          IF( ssnow%wbice(i,1) > 0. )&
-               ssnow%wetfac(i) = ssnow%wetfac(i) * &
-                                real(MAX( 0.5_r_2, 1._r_2 - MIN( 0.2_r_2, &
-                                 ( ssnow%wbice(i,1) / ssnow%wb(i,1) )**2 ) ) )
-   
-          IF( ssnow%snowd(i) > 0.1) ssnow%wetfac(i) = 0.9
-   
-          IF ( veg%iveg(i) == lakes_cable .and. met%tk(i) >= Ctfrz + 5. )   &
-               ssnow%wetfac(i) = 1.0
-   
-          IF( veg%iveg(i) == lakes_cable .and. met%tk(i) < Ctfrz + 5. )   &
-               ssnow%wetfac(i) = 0.7
-   
-       ENDDO
-       ! owetfac introduced to reduce sharp changes in dry regions,
-       ! especially in offline runs in which there may be discrepancies b/n
-       ! timing of precip and temperature change (EAK apr2009)
-       ssnow%wetfac = 0.5*(ssnow%wetfac + ssnow%owetfac)
+
 
 
   END SUBROUTINE Surf_wetness_fact

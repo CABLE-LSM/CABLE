@@ -18,7 +18,7 @@
 !          soil_snow_type now ssnow (instead of ssoil)
 !
 !          MPI wrapper developed by Maciej Golebiewski (2012)
-!          Modified from cable_driver.F90 in CABLE-2.0_beta r171 by B Pak
+!          Modified from cable_serial.F90 in CABLE-2.0_beta r171 by B Pak
 !
 ! ==============================================================================
 ! Uses:           mpi
@@ -65,6 +65,16 @@
 !==============================================================================
 MODULE cable_mpiworker
 
+  USE cable_driver_init_mod, ONLY : &
+    vegparmnew,                     &
+    spinup,                         &
+    spincasa,                       &
+    CASAONLY,                       &
+    l_laiFeedbk,                    &
+    l_vcmaxFeedbk,                  &
+    delsoilM,                       &
+    delsoilT,                       &
+    LALLOC
   USE cable_mpicommon
   USE cable_common_module,  ONLY: cable_user
   USE casa_inout_module
@@ -118,15 +128,15 @@ CONTAINS
     USE mpi
 
     USE cable_def_types_mod
-    USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps, globalMetfile,  &
-         verbose, fixedCO2,output,check,patchout,    &
-         patch_type,soilparmnew,&
+    USE cable_IO_vars_module, ONLY: logn,leaps, &
+         output,check,&
+         patch_type,&
          NO_CHECK
     USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
          cable_runtime, filename,            &
-         redistrb, wiltParam, satuParam, CurYear,    &
+         CurYear,    &
          IS_LEAPYEAR, calcsoilalbedo,                &
-         kwidth_gl, gw_params
+         kwidth_gl
     USE cable_checks_module, ONLY: constant_check_range
     USE casa_ncdf_module, ONLY: is_casa_time
     USE cable_input_module,   ONLY: open_met_file,load_parameters,              &
@@ -148,20 +158,11 @@ CONTAINS
     USE POP_Types,            ONLY: POP_TYPE
     USE POP_Constants,        ONLY: HEIGHT_BINS, NCOHORT_MAX
 
-    ! PLUME-MIP only
-    USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE
-
-    USE cable_namelist_util, ONLY : get_namelist_file_name,&
-         CABLE_NAMELIST
-    
     USE cbl_soil_snow_init_special_module
     IMPLICIT NONE
 
     ! MPI:
     INTEGER               :: comm ! MPI communicator for comms with the workers
-
-    ! CABLE namelist: model configuration, runtime/user switches
-    !CHARACTER(LEN=200), PARAMETER :: CABLE_NAMELIST='cable.nml'
 
     ! timing variables
     INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
@@ -169,7 +170,7 @@ CONTAINS
 
     INTEGER        ::                                                           &
          ktau,       &  ! increment equates to timestep, resets if spinning up
-         ktau_tot,   &  ! NO reset when spinning up, total timesteps by model
+         ktau_tot = 0, &  ! NO reset when spinning up, total timesteps by model
          kend,       &  ! no. of time steps in run
                                 !CLN      kstart = 1, &  ! timestep to start at
          koffset = 0, &  ! timestep to start at
@@ -181,7 +182,6 @@ CONTAINS
          rank           ! Rank of this worker
 
     REAL      :: dels    ! time step size in seconds
-    CHARACTER :: cRank*4 ! for worker-logfiles
 
     ! CABLE variables
     TYPE (met_type)       :: met     ! met input variables
@@ -209,22 +209,9 @@ CONTAINS
     TYPE (phen_variable)  :: phen
     TYPE (POP_TYPE)       :: POP
 
-    ! declare vars for switches (default .FALSE.) etc declared thru namelist
     LOGICAL, SAVE           :: &
-         vegparmnew    = .FALSE., & ! using new format input file (BP dec 2007)
-         spinup        = .FALSE., & ! model spinup to soil state equilibrium?
          spinConv      = .FALSE., & ! has spinup converged?
-         spincasa      = .FALSE., & ! TRUE: CASA-CNP Will spin mloop times,
-         l_casacnp     = .FALSE., & ! using CASA-CNP with CABLE
-         l_landuse     = .FALSE., & ! using LANDUSE                 
-         l_laiFeedbk   = .FALSE., & ! using prognostic LAI
-         l_vcmaxFeedbk = .FALSE., & ! using prognostic Vcmax
-         CASAONLY      = .FALSE., & ! ONLY Run CASA-CNP
          CALL1         = .TRUE.
-
-    REAL              :: &
-         delsoilM,         & ! allowed variation in soil moisture for spin up
-         delsoilT            ! allowed variation in soil temperature for spin up
 
     ! MPI:
     LOGICAL :: loop_exit     ! MPI: exit flag for bcast to workers
@@ -233,38 +220,6 @@ CONTAINS
     INTEGER :: ocomm ! separate dupes of MPI communicator for send and recv
     INTEGER :: ierr
 
-    ! switches etc defined thru namelist (by default cable.nml)
-    NAMELIST/CABLE/                  &
-         filename,         & ! TYPE, containing input filenames
-         vegparmnew,       & ! use new soil param. method
-         soilparmnew,      & ! use new soil param. method
-         calcsoilalbedo,   & ! switch: soil colour albedo - Ticket #27
-         spinup,           & ! spinup model (soil) to steady state
-         delsoilM,delsoilT,& !
-         output,           &
-         patchout,         &
-         check,            &
-         verbose,          &
-         leaps,            &
-         logn,             &
-         fixedCO2,         &
-         spincasa,         &
-         l_casacnp,        &
-         l_landuse,        &
-         l_laiFeedbk,      &
-         l_vcmaxFeedbk,    &
-         icycle,           &
-         casafile,         &
-         ncciy,            &
-         gswpfile,         &
-         globalMetfile,    &   
-         redistrb,         &
-         wiltParam,        &
-         satuParam,        &
-         cable_user,       &  ! additional USER switches
-         gw_params
-
-    INTEGER :: LALLOC
     !For consistency w JAC
     REAL,ALLOCATABLE, SAVE :: c1(:,:)
     REAL,ALLOCATABLE, SAVE :: rhoch(:,:)
@@ -273,89 +228,6 @@ CONTAINS
 
     ! Maciej: make sure the variable does not go out of scope
     mp = 0
-
-    ! Open, read and close the namelist file.
-    OPEN( 10, FILE = CABLE_NAMELIST )
-    READ( 10, NML=CABLE )   !where NML=CABLE defined above
-    CLOSE(10)
-
-    IF( IARGC() > 0 ) THEN
-       CALL GETARG(1, filename%met)
-       CALL GETARG(2, casafile%cnpipool)
-    ENDIF
-
-
-    IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
-         CABLE_USER%POPLUC= .FALSE.
-
-    ! Get worker's rank and determine logfile-unit
-
-    ! MPI: TODO: find a way to preserve workers log messages somewhere
-    ! (either separate files or collated by the master to a single file
-    ! or perhaps use MPI-IO - but probably not gonna work with random length
-    ! text strings)
-    ! LN: Done!
-    IF ( CABLE_USER%LogWorker ) THEN
-       CALL MPI_Comm_rank (comm, rank, ierr)
-       WRITE(cRank,FMT='(I4.4)')rank
-       logn = 1000+rank
-       OPEN(logn,FILE="cable_log_"//cRank,STATUS="REPLACE")
-    ELSE
-       logn = 1000
-       OPEN(logn, FILE="/dev/null")
-    ENDIF
-
-    ! INITIALISATION depending on nml settings
-
-    CurYear = CABLE_USER%YearStart
-
-    IF ( icycle .GE. 11 ) THEN
-       icycle                     = icycle - 10
-       CASAONLY                   = .TRUE.
-       CABLE_USER%CASA_DUMP_READ  = .TRUE.
-       CABLE_USER%CASA_DUMP_WRITE = .FALSE.
-    ELSEIF ( icycle .EQ. 0 ) THEN
-       CABLE_USER%CASA_DUMP_READ  = .FALSE.
-       spincasa                   = .FALSE.
-       CABLE_USER%CALL_POP        = .FALSE.
-    ENDIF
-
-    ! vh_js !
-    IF (icycle.GT.0) THEN
-       l_casacnp = .TRUE.
-    ELSE
-       l_casacnp = .FALSE.
-    ENDIF
-
-    ! vh_js ! suggest LALLOC should ulitmately be a switch in the .nml file
-    IF (CABLE_USER%CALL_POP) THEN
-       LALLOC = 3 ! for use with POP: makes use of pipe model to partition between stem and leaf
-    ELSE
-       LALLOC = 0 ! default
-    ENDIF
-
-    IF ( TRIM(cable_user%MetType) .EQ. 'gpgs' ) THEN
-       leaps = .TRUE.
-       cable_user%MetType = 'gswp'
-    ENDIF
-
-    cable_runtime%offline = .TRUE.
-
-    IF( l_casacnp  .AND. ( icycle == 0 .OR. icycle > 3 ) )                   &
-         STOP 'icycle must be 1 to 3 when using casaCNP'
-    IF( ( l_laiFeedbk .OR. l_vcmaxFeedbk ) .AND. ( .NOT. l_casacnp ) )       &
-         STOP 'casaCNP required to get prognostic LAI or Vcmax'
-    IF( l_vcmaxFeedbk .AND. icycle < 2 )                                     &
-         STOP 'icycle must be 2 to 3 to get prognostic Vcmax'
-    IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &
-         STOP 'casaCNP must use new soil parameters'
-
-    ! Open log file:
-    ! MPI: worker logs go to the black hole
-    ! by opening the file we don't need to touch any of the code that writes
-    ! to it and may be called somewhere by a worker
-    ! OPEN(logn,FILE=filename%log)
-
 
     ! Check for gswp run
     ! MPI: done by the master only; if check fails then master MPI_Aborts
@@ -393,10 +265,6 @@ CONTAINS
     !                      casaflux, casamet, casabal, phen, C%EMSOIL,        &
     !                      C%TFRZ )
 
-    ! Check for leap-year settings
-    CALL MPI_Bcast (leaps, 1, MPI_LOGICAL, 0, comm, ierr)
-
-    ktau_tot = 0
     SPINLOOP:DO
        YEAR: DO YYYY= CABLE_USER%YearStart,  CABLE_USER%YearEnd
           CurYear = YYYY
@@ -2379,6 +2247,46 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (soil%sfc_vec, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+ 
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%zse_vec, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+ 
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%css_vec, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+ 
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%cnsd_vec, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+ 
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%clay_vec, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+ 
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%sand_vec, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+ 
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%silt_vec, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+ 
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%org_vec, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+ 
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%rhosoil_vec, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+ 
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%smpc_vec, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+ 
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%wbc_vec, displs(bidx), ierr)
     blen(bidx) = ms * r2len
 
 
