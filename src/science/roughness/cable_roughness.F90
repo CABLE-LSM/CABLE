@@ -60,7 +60,7 @@ PUBLIC ruff_resist
 
 CONTAINS
 
-SUBROUTINE ruff_resist(veg, rough, ssnow, canopy, LAI_pft, HGT_pft, reducedLAIdue2snow )
+SUBROUTINE ruff_resist(veg, rough, ssnow, canopy, LAI_pft, HGT_pft, reducedLAIdue2snow, urban )
 !* Calculates the roughness parameters and the aerodynamic contribution to the
 ! resistances controlling the fluxes between the land and atmosphere for each 
 ! land point.
@@ -158,6 +158,7 @@ TYPE (veg_parameter_type),  INTENT(INOUT) :: veg
 
 real :: LAI_pft(mp)
 real :: HGT_pft(mp)
+LOGICAL :: urban
 
 
 REAL, DIMENSION(mp) ::                                                      &
@@ -171,6 +172,7 @@ call HgtAboveSnow( HeightAboveSnow, mp, z0soilsn_min, veg%hc, ssnow%snowd, &
 !* * evaluates the canopy height and leaf area given the presence of snow 
 !    (or not) using [[HgtAboveSnow]] and [[LAI_eff]]
 rough%hruff =  HeightAboveSnow
+
 
 ! LAI decreases due to snow: formerly canopy%vlaiw
 call LAI_eff( mp, veg%vlai, veg%hc, HeightAboveSnow, &
@@ -214,8 +216,14 @@ ENDIF
 do i=1,mp
   if( canopy%vlaiw(i) .LE. CLAI_THRESH  .OR.                                          &
       rough%hruff(i) .LT. rough%z0soilsn(i) ) then ! BARE SOIL SURFACE
-
     rough%z0m(i) = rough%z0soilsn(i)
+    !JL
+    IF (veg%iveg(i) == 15 .AND. urban) THEN
+         WRITE(*,*) 'cable default roughness value',rough%z0m(i)
+         rough%z0m(i) = 0.4 ! idealized roughness value for urban surface
+         WRITE(*,*) 'Using idealized urban roughness value',rough%z0m(i)
+    ENDIF
+
     rough%rt0us(i) = 0.0
     rough%disp(i) = 0.0
 
@@ -248,7 +256,6 @@ do i=1,mp
     rough%coexp(i) = rough%usuh(i) / ( CVONK * CCCW_C * ( 1.0 - dh(i) ) )
 
   ELSE ! VEGETATED SURFACE
-
     ! Friction velocity/windspeed at canopy height
     ! eq. 7 Raupach 1994, BLM, vol 71, p211-216
     ! (CUSUHM set in physical_constants module):
@@ -266,7 +273,11 @@ do i=1,mp
     ! Calculate roughness length:
     rough%z0m(i) = ( (1.0 - dh(i)) * EXP( LOG( CCCW_C ) - 1. + 1. / CCCW_C       &
                     - CVONK / rough%usuh(i) ) ) * rough%hruff(i)
-
+     IF (veg%iveg(i) == 15 .AND. urban) THEN
+          WRITE(*,*) 'cable default roughness value',rough%z0m(i)
+          rough%z0m(i) = 0.4 ! idealized roughness value for urban surface
+          WRITE(*,*) 'Using idealized urban roughness value',rough%z0m(i)
+     ENDIF
     ! Reference height zref is height above the displacement height
      ! Reference height zref is height above the displacement height
      ! Ticket #148: Reference height is height above the displacement height

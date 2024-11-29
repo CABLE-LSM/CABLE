@@ -7,7 +7,7 @@ MODULE cable_canopy_module
 
 CONTAINS
 
-SUBROUTINE define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate, sunlit_veg_mask, reducedLAIdue2snow )
+SUBROUTINE define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate, sunlit_veg_mask, reducedLAIdue2snow,urban )
     USE cable_def_types_mod
    USE cbl_radiation_module, ONLY : radiation
     USE cable_air_module
@@ -85,7 +85,7 @@ logical :: sunlit_veg_mask(mp)
     INTEGER  ::                                                                 &
          iter,  & ! iteration #
          iterplus !
-
+LOGICAL :: urban
     REAL, DIMENSION(mp) ::                                                      &
          rt0,           & ! turbulent resistance
          ortsoil,       & ! turb. resist. prev t-step
@@ -259,7 +259,7 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
 
        ! E.Kowalczyk 2014
        IF (cable_user%l_new_roughness_soil)                                     &
-        CALL ruff_resist( veg, rough, ssnow, canopy, veg%vlai, veg%hc, canopy%vlaiw )
+        CALL ruff_resist( veg, rough, ssnow, canopy, veg%vlai, veg%hc, canopy%vlaiw, urban )
 
 
        ! Turbulent aerodynamic resistance from roughness sublayer depth
