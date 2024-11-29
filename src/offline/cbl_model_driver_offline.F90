@@ -37,7 +37,7 @@ CONTAINS
 
 SUBROUTINE cbm( ktau,dels, air, bgc, canopy, met,                                &
        bal, rad, rough, soil,                                      &
-       ssnow, sum_flux, veg, climate, xk, c1, rhoch )
+       ssnow, sum_flux, veg, climate, xk, c1, rhoch, urban)
 
     USE cable_common_module
     USE cable_carbon_module
@@ -97,6 +97,7 @@ character(len=*), parameter :: subr_name = "cbm"
 LOGICAL :: cbl_standalone= .true.
 LOGICAL :: jls_standalone= .false.
 LOGICAL :: jls_radiation= .false.
+LOGICAL :: urban
 
 !co-efficients usoughout init_radiation ` called from _albedo as well
 REAL :: c1(mp,nrb)
@@ -120,7 +121,7 @@ ENDWHERE
 ssnow%wb_lake = ssnow%wb_lake + MAX( ssnow%wbtot2 - ssnow%wbtot1, 0.)
 
 
-CALL ruff_resist( veg, rough, ssnow, canopy, veg%vlai, veg%hc, canopy%vlaiw )
+CALL ruff_resist( veg, rough, ssnow, canopy, veg%vlai, veg%hc, canopy%vlaiw,urban )
 
 !jhan: this call to define air may be redundant
 CALL define_air (met, air)
@@ -181,7 +182,7 @@ call Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
 ssnow%otss_0 = ssnow%otss  ! vh should be before call to canopy?
 ssnow%otss = ssnow%tss
 
-CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate, sunlit_veg_mask,  canopy%vlaiw)
+CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate, sunlit_veg_mask,  canopy%vlaiw,urban)
     
 ssnow%owetfac = ssnow%wetfac
 

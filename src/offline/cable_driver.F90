@@ -799,7 +799,7 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
    IF (.NOT. allocated(c1)) ALLOCATE( c1(mp,nrb), rhoch(mp,nrb), xk(mp,nrb) )
                  ! Call land surface scheme for this timestep, all grid points:
    CALL cbm( ktau, dels, air, bgc, canopy, met, bal,                             &
-             rad, rough, soil, ssnow, sum_flux, veg, climate, xk, c1, rhoch )
+             rad, rough, soil, ssnow, sum_flux, veg, climate, xk, c1, rhoch,urban )
 
                  IF (cable_user%CALL_climate) &
                       CALL cable_climate(ktau_tot,kstart,kend,ktauday,idoy,LOY,met, &
