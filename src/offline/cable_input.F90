@@ -2549,7 +2549,7 @@ CONTAINS
   !==============================================================================
 
   SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad,        &
-       sum_flux,bal,logn,vegparmnew,casabiome,casapool,    &
+       sum_flux,bal,logn,vegparmnew,urban,casabiome,casapool,    &
        casaflux,sum_casapool, sum_casaflux,casamet,casabal,phen,POP,spinup,EMSOIL, &
        TFRZ, LUC_EXPT, POPLUC)
     !* Defines the priority order of sources of parameter
@@ -2609,7 +2609,8 @@ CONTAINS
     LOGICAL,INTENT(IN)                      :: &
          vegparmnew, &  ! are we using the new format?
                                 ! vh_js !
-         spinup         ! for POP (initialize pop)
+         spinup,     &  ! for POP (initialize pop)
+         urban
     REAL, INTENT(IN) :: TFRZ, EMSOIL
 
     ! Local variables
