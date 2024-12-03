@@ -14,8 +14,6 @@ USE smoisturev_mod,          ONLY: smoisturev
 USE cable_surface_types_mod, ONLY: lakes_cable
 USE cable_common_module
 
-USE cable_common_module
-
 IMPLICIT NONE
 
     REAL, INTENT(IN) :: dels ! integration time step (s)

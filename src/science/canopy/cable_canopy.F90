@@ -166,10 +166,8 @@ REAL :: soil_conductance(mp)
 REAL :: Surf_conductance(mp)
 ! END header
 
-    ! Not sure that this is appropriate for JULES standalone - HaC either
-    IF( .NOT. cable_runtime%um ) THEN
-      canopy%cansto =  canopy%oldcansto
-    ENDIF  
+canopy%cansto =  canopy%oldcansto
+
     ALLOCATE( cansat(mp), gbhu(mp,mf))
     ALLOCATE( dsx(mp), fwsoil(mp), tlfx(mp), tlfy(mp) )
     ALLOCATE( ecy(mp), hcy(mp), rny(mp))
