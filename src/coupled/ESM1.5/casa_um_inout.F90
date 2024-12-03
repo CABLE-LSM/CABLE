@@ -133,8 +133,8 @@ SUBROUTINE casa_readpoint_pk(sin_theta_latitude,veg,soil,casaflux,casamet, &
     USE cable_um_tech_mod, ONLY : um1
     USE casavariable
     USE casaparm
-    USE cable_um_init_subrs_mod, ONLY : um2cable_rr, um2cable_lp
-    USE cable_data_module, ONLY : MATH
+    USE cable_um_init_subrs_mod,  ONLY: um2cable_rr, um2cable_lp
+    USE cable_math_constants_mod, ONLY: PI180
 !    USE math_constants
 
 IMPLICIT NONE
@@ -178,7 +178,7 @@ IMPLICIT NONE
     annNfert = 4.3/365.0
 
 ! pack variables
-    call um2cable_rr((asin(sin_theta_latitude)/math%pi180) ,casamet%lat)
+    call um2cable_rr((asin(sin_theta_latitude)/PI180) ,casamet%lat)
     !call um2cable_rr(um1%latitude ,casamet%lat)
     call um2cable_rr(um1%longitude,casamet%lon)
 ! Lest Nov2011 - not correct, but areacell not needed/used for UM ?

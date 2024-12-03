@@ -18,7 +18,7 @@
 !
 !
 ! ==============================================================================
-! CALLed from:    cable_driver.F90
+! CALLed from:    cable_serial.F90
 !
 ! MODULEs used:   cable_abort_module
 !                 cable_common_module
@@ -1365,158 +1365,238 @@ CONTAINS
 
     !~ Patch
     out_settings%dimswitch = "real"
-    CALL  check_and_write(output%patchfrac .AND. (patchout%patchfrac .OR. output%patch), opid%patchfrac, 'patchfrac',                  &
-          REAL(patch(:)%frac, 4), ranges%patchfrac, patchout%patchfrac, out_settings)
+    IF (output%patchfrac .AND. (patchout%patchfrac .OR. output%patch)) THEN
+      CALL check_and_write(opid%patchfrac, 'patchfrac',                  &
+           REAL(patch(:)%frac, 4), ranges%patchfrac, patchout%patchfrac, out_settings)
+    END IF
 
     !~ Soil
     out_settings%dimswitch = "integer"
-    CALL  check_and_write(output%isoil, opid%isoil,  &
-         'isoil', REAL(soil%isoilm, 4), ranges%isoil, patchout%isoil, out_settings)
+    IF (output%isoil) THEN
+      CALL check_and_write(opid%isoil,  &
+           'isoil', REAL(soil%isoilm, 4), ranges%isoil, patchout%isoil, out_settings)
+    END IF
     out_settings%dimswitch = "real"
-    CALL  check_and_write(output%bch, opid%bch,      &
-         'bch', REAL(soil%bch, 4), ranges%bch, patchout%bch, out_settings)
-    CALL  check_and_write(output%clay, opid%clay,    &
-         'clay', REAL(soil%clay, 4), ranges%clay, patchout%clay, out_settings)
-    CALL  check_and_write(output%sand, opid%sand,    &
-         'sand', REAL(soil%sand, 4), ranges%sand, patchout%sand, out_settings)
-    CALL  check_and_write(output%silt, opid%silt,    &
-         'silt', REAL(soil%silt, 4), ranges%silt, patchout%silt, out_settings)
-    CALL  check_and_write(output%css, opid%css,      &
-         'css', REAL(soil%css, 4), ranges%css, patchout%css, out_settings)
-    CALL  check_and_write(output%rhosoil,            &
-         opid%rhosoil, 'rhosoil',REAL(soil%rhosoil,4), &
-         ranges%rhosoil, patchout%rhosoil, out_settings)
-    CALL  check_and_write(output%hyds, opid%hyds,    &
-         'hyds', REAL(soil%hyds, 4), ranges%hyds, patchout%hyds, out_settings)
-    CALL  check_and_write(output%sucs, opid%sucs,    &
-         'sucs', REAL(soil%sucs, 4), ranges%sucs, patchout%sucs, out_settings)
-    CALL  check_and_write(output%rs20, opid%rs20,    &
-         'rs20', REAL(veg%rs20, 4), ranges%rs20, patchout%rs20, out_settings)
-    !         'rs20',REAL(soil%rs20,4),ranges%rs20,patchout%rs20,out_settings)
-    CALL  check_and_write(output%ssat, opid%ssat,    &
-         'ssat', REAL(soil%ssat, 4), ranges%ssat, patchout%ssat, out_settings)
-    CALL  check_and_write(output%sfc, opid%sfc,      &
-         'sfc', REAL(soil%sfc, 4), ranges%sfc, patchout%sfc, out_settings)
-    CALL  check_and_write(output%swilt, opid%swilt,  &
-         'swilt', REAL(soil%swilt, 4), ranges%swilt, patchout%swilt, out_settings)
+    IF (output%bch) THEN
+      CALL check_and_write(opid%bch,      &
+           'bch', REAL(soil%bch, 4), ranges%bch, patchout%bch, out_settings)
+    END IF
+    IF (output%clay) THEN
+      CALL check_and_write(opid%clay,    &
+           'clay', REAL(soil%clay, 4), ranges%clay, patchout%clay, out_settings)
+    END IF
+    IF (output%sand) THEN
+      CALL check_and_write(opid%sand,    &
+           'sand', REAL(soil%sand, 4), ranges%sand, patchout%sand, out_settings)
+    END IF
+    IF (output%silt) THEN
+      CALL check_and_write(opid%silt,    &
+           'silt', REAL(soil%silt, 4), ranges%silt, patchout%silt, out_settings)
+    END IF
+    IF (output%css) THEN
+      CALL check_and_write(opid%css,      &
+           'css', REAL(soil%css, 4), ranges%css, patchout%css, out_settings)
+    END IF
+    IF (output%rhosoil) THEN
+      CALL check_and_write(opid%rhosoil, 'rhosoil',REAL(soil%rhosoil,4), &
+           ranges%rhosoil, patchout%rhosoil, out_settings)
+    END IF
+    IF (output%hyds) THEN
+      CALL check_and_write(opid%hyds,    &
+           'hyds', REAL(soil%hyds, 4), ranges%hyds, patchout%hyds, out_settings)
+    END IF
+    IF (output%sucs) THEN
+      CALL check_and_write(opid%sucs,    &
+           'sucs', REAL(soil%sucs, 4), ranges%sucs, patchout%sucs, out_settings)
+    END IF
+    IF (output%rs20) THEN
+      CALL check_and_write(opid%rs20,    &
+           'rs20', REAL(veg%rs20, 4), ranges%rs20, patchout%rs20, out_settings)
+    !           'rs20',REAL(soil%rs20,4),ranges%rs20,patchout%rs20,out_settings)
+    END IF
+    IF (output%ssat) THEN
+      CALL check_and_write(opid%ssat,    &
+           'ssat', REAL(soil%ssat, 4), ranges%ssat, patchout%ssat, out_settings)
+    END IF
+    IF (output%sfc) THEN
+      CALL check_and_write(opid%sfc,      &
+           'sfc', REAL(soil%sfc, 4), ranges%sfc, patchout%sfc, out_settings)
+    END IF
+    IF (output%swilt) THEN
+      CALL check_and_write(opid%swilt,  &
+           'swilt', REAL(soil%swilt, 4), ranges%swilt, patchout%swilt, out_settings)
+    END IF
 
-    !    CALL  check_and_write(output%slope ,ncid_out, opid%slope,    &
-    !                 'slope', REAL(soil%slope, 4), ranges%slope, patchout%slope, out_settings)
-    !    CALL  check_and_write(output%slope_std, opid%slope_std,    &
-    !                 'slope_std', REAL(soil%slope_std, 4), ranges%slope_std, patchout%slope_std, out_settings)
-    !    CALL  check_and_write(output%GWdz, opid%GWdz,    &
-    !                 'GWdz', REAL(soil%GWdz, 4), ranges%GWdz, patchout%GWdz, out_settings)
+    !    IF (output%slope) THEN
+    !      CALL check_and_write(ncid_out, opid%slope,    &
+    !                   'slope', REAL(soil%slope, 4), ranges%slope, patchout%slope, out_settings)
+    !    END IF
+    !    IF (output%slope_std) THEN
+    !      CALL check_and_write(opid%slope_std,    &
+    !                   'slope_std', REAL(soil%slope_std, 4), ranges%slope_std, patchout%slope_std, out_settings)
+    !    END IF
+    !    IF (output%GWdz) THEN
+    !      CALL check_and_write(opid%GWdz,    &
+    !                   'GWdz', REAL(soil%GWdz, 4), ranges%GWdz, patchout%GWdz, out_settings)
+    !    END IF
 
-    out_settings%dimswitch = "radiation"
-    CALL  check_and_write(output%albsoil,            &
-         opid%albsoil, 'albsoil', REAL(soil%albsoil, 4), &
-         ranges%albsoil, patchout%albsoil, out_settings)
+    IF (output%albsoil) THEN
+      out_settings%dimswitch = "radiation"
+      CALL  check_and_write(opid%albsoil, 'albsoil', REAL(soil%albsoil, 4), &
+            ranges%albsoil, patchout%albsoil, out_settings)
+    END IF
 
-    out_settings%dimswitch = "soil"
-    CALL  check_and_write(output%zse, opid%zse,      &
-         'zse', SPREAD(REAL(soil%zse, 4), 1, mp),ranges%zse, &
-         patchout%zse, out_settings)! no spatial dim at present
+    IF (output%zse) THEN
+      out_settings%dimswitch = "soil"
+      CALL  check_and_write(opid%zse,      &
+            'zse', SPREAD(REAL(soil%zse, 4), 1, mp),ranges%zse, &
+            patchout%zse, out_settings)! no spatial dim at present
+    END IF
 
     !~ Veg
     out_settings%dimswitch = "integer"
-    CALL   check_and_write(output%iveg, opid%iveg,    &
-         'iveg', REAL(veg%iveg, 4), ranges%iveg, patchout%iveg, out_settings)
-    CALL  check_and_write(output%meth, opid%meth,    &
-         'meth', REAL(veg%meth, 4), ranges%meth, patchout%meth, out_settings)
+    IF (output%iveg) THEN
+      CALL check_and_write(opid%iveg,    &
+           'iveg', REAL(veg%iveg, 4), ranges%iveg, patchout%iveg, out_settings)
+    END IF
+    IF (output%meth) THEN
+      CALL check_and_write(opid%meth,    &
+           'meth', REAL(veg%meth, 4), ranges%meth, patchout%meth, out_settings)
+    END IF
 
-    out_settings%dimswitch = "real" 
-    CALL  check_and_write(output%canst1,             &
-         opid%canst1, 'canst1', REAL(veg%canst1, 4), &
-         ranges%canst1, patchout%canst1, out_settings)
-    CALL  check_and_write(output%dleaf, opid%dleaf,  &
-         'dleaf', REAL(veg%dleaf, 4), ranges%dleaf, patchout%dleaf, out_settings)
-    CALL  check_and_write(output%ejmax, opid%ejmax,  &
-         'ejmax', REAL(veg%ejmax, 4), ranges%ejmax, patchout%ejmax, out_settings)
-    CALL  check_and_write(output%vcmax, opid%vcmax,  &
+    out_settings%dimswitch = "real"
+    IF (output%canst1) THEN
+      CALL check_and_write(opid%canst1, 'canst1', REAL(veg%canst1, 4), &
+           ranges%canst1, patchout%canst1, out_settings)
+    END IF
+    IF (output%dleaf) THEN
+      CALL  check_and_write(opid%dleaf,  &
+           'dleaf', REAL(veg%dleaf, 4), ranges%dleaf, patchout%dleaf, out_settings)
+    END IF
+    IF (output%ejmax) THEN
+      CALL check_and_write(opid%ejmax,  &
+           'ejmax', REAL(veg%ejmax, 4), ranges%ejmax, patchout%ejmax, out_settings)
+    END IF
+    IF (output%vcmax) THEN
+    CALL check_and_write(opid%vcmax,  &
          'vcmax', REAL(veg%vcmax, 4), ranges%vcmax, patchout%vcmax, out_settings)
-    CALL  check_and_write(output%frac4, opid%frac4,  &
-         'frac4', REAL(veg%frac4, 4), ranges%frac4, patchout%frac4, out_settings)
-
-    IF (.NOT.cable_user%CALL_POP) THEN
-       CALL  check_and_write(output%hc, opid%hc,        &
+    END IF
+    IF (output%frac4) THEN
+      CALL check_and_write(opid%frac4,  &
+           'frac4', REAL(veg%frac4, 4), ranges%frac4, patchout%frac4, out_settings)
+    END IF
+    IF (.NOT.cable_user%CALL_POP .and. output%hc) THEN
+      CALL check_and_write(opid%hc,        &
             'hc', REAL(veg%hc, 4), ranges%hc, patchout%hc, out_settings)
-    ENDIF
-    CALL  check_and_write(output%rp20, opid%rp20,    &
-         'rp20', REAL(veg%rp20, 4),ranges%rp20, patchout%rp20, out_settings)
+    END IF
+    IF (output%rp20) THEN
+      CALL check_and_write(opid%rp20,    &
+           'rp20', REAL(veg%rp20, 4),ranges%rp20, patchout%rp20, out_settings)
+    END IF
+
     ! Ticket #56
-    CALL  check_and_write(output%g0, opid%g0,    &
-         'g0', REAL(veg%g0, 4),ranges%g0, patchout%g0, out_settings)
-    CALL  check_and_write(output%g1, opid%g1,    &
-         'g1', REAL(veg%g1, 4),ranges%g1, patchout%g1, out_settings)
+    IF (output%g0) THEN
+      CALL check_and_write(opid%g0,    &
+           'g0', REAL(veg%g0, 4),ranges%g0, patchout%g0, out_settings)
+    END IF
+    IF (output%g1) THEN
+      CALL check_and_write(opid%g1,    &
+           'g1', REAL(veg%g1, 4),ranges%g1, patchout%g1, out_settings)
+    END IF
+
     ! End Ticket #56
-    CALL  check_and_write(output%rpcoef,             &
-         opid%rpcoef, 'rpcoef', REAL(veg%rpcoef, 4), &
-         ranges%rpcoef, patchout%rpcoef, out_settings)
-    CALL  check_and_write(output%shelrb,             &
-         opid%shelrb, 'shelrb', REAL(veg%shelrb, 4), &
-         ranges%shelrb, patchout%shelrb, out_settings)
-    CALL  check_and_write(output%xfang, opid%xfang,  &
-         'xfang', REAL(veg%xfang, 4), ranges%xfang, patchout%xfang, out_settings)
-    CALL  check_and_write(output%wai, opid%wai,      &
-         'wai', REAL(veg%wai, 4), ranges%wai, patchout%wai, out_settings)
-    CALL  check_and_write(output%vegcf, opid%vegcf,  &
-         'vegcf', REAL(veg%vegcf, 4), ranges%vegcf, patchout%vegcf, out_settings)
-    CALL  check_and_write(output%extkn, opid%extkn,  &
-         'extkn', REAL(veg%extkn, 4), ranges%extkn, patchout%extkn, out_settings)
-    CALL  check_and_write(output%tminvj,             &
-         opid%tminvj, 'tminvj', REAL(veg%tminvj, 4), &
-         ranges%tminvj, patchout%tminvj, out_settings)
-    CALL  check_and_write(output%tmaxvj,             &
-         opid%tmaxvj, 'tmaxvj', REAL(veg%tmaxvj, 4), &
-         ranges%tmaxvj, patchout%tmaxvj, out_settings)
-    CALL  check_and_write(output%vbeta, opid%vbeta,  &
-         'vbeta', REAL(veg%vbeta, 4), ranges%vbeta, patchout%vbeta, out_settings)
-    CALL  check_and_write(output%xalbnir,            &
-         opid%xalbnir, 'xalbnir', REAL(veg%xalbnir, 4), &
+    IF (output%rpcoef) THEN
+      CALL check_and_write(opid%rpcoef, 'rpcoef', REAL(veg%rpcoef, 4), &
+           ranges%rpcoef, patchout%rpcoef, out_settings)
+    END IF
+    IF (output%shelrb) THEN
+      CALL check_and_write(opid%shelrb, 'shelrb', REAL(veg%shelrb, 4), &
+           ranges%shelrb, patchout%shelrb, out_settings)
+    END IF
+    IF (output%xfang) THEN
+      CALL check_and_write(opid%xfang,  &
+           'xfang', REAL(veg%xfang, 4), ranges%xfang, patchout%xfang, out_settings)
+    END IF
+    IF (output%wai) THEN
+      CALL  check_and_write(opid%wai,      &
+           'wai', REAL(veg%wai, 4), ranges%wai, patchout%wai, out_settings)
+    END IF
+    IF (output%vegcf) THEN
+      CALL check_and_write(opid%vegcf,  &
+           'vegcf', REAL(veg%vegcf, 4), ranges%vegcf, patchout%vegcf, out_settings)
+    END IF
+    IF (output%extkn) THEN
+      CALL check_and_write(opid%extkn,  &
+           'extkn', REAL(veg%extkn, 4), ranges%extkn, patchout%extkn, out_settings)
+    END IF
+    IF (output%tminvj) THEN
+      CALL check_and_write(opid%tminvj, 'tminvj', REAL(veg%tminvj, 4), &
+           ranges%tminvj, patchout%tminvj, out_settings)
+    END IF
+    IF (output%tmaxvj) THEN
+      CALL check_and_write(opid%tmaxvj, 'tmaxvj', REAL(veg%tmaxvj, 4), &
+           ranges%tmaxvj, patchout%tmaxvj, out_settings)
+    END IF
+    IF (output%vbeta) THEN
+    CALL check_and_write(opid%vbeta,  &
+        'vbeta', REAL(veg%vbeta, 4), ranges%vbeta, patchout%vbeta, out_settings)
+    END IF
+    IF (output%xalbnir) THEN
+    CALL check_and_write(opid%xalbnir, 'xalbnir', REAL(veg%xalbnir, 4), &
          ranges%xalbnir, patchout%xalbnir, out_settings)
+    END IF
+    IF (output%froot) THEN
+      out_settings%dimswitch = "soil"
+      CALL check_and_write(opid%froot, &
+           'froot', REAL(veg%froot, 4), ranges%froot, patchout%froot, out_settings)
+    END IF
 
-    out_settings%dimswitch = "soil"
-    CALL  check_and_write (output%froot, opid%froot, &
-         'froot', REAL(veg%froot, 4), ranges%froot, patchout%froot, out_settings)
+    !~ Rough
+    out_settings%dimswitch = "real"
+    IF (output%za) THEN
+      CALL check_and_write(opid%za_uv,                                    &
+           'za_uv', REAL(rough%za_uv, 4), ranges%za, patchout%za, out_settings)
+    END IF
+    IF (output%za) THEN
+      CALL check_and_write(opid%za_tq,                                    &
+           'za_tq', REAL(rough%za_tq, 4), ranges%za, patchout%za, out_settings)
+    END IF
 
-     !~ Rough
-     out_settings%dimswitch = "real"
-    CALL  check_and_write(output%za, opid%za_uv,                                    &
-         'za_uv', REAL(rough%za_uv, 4), ranges%za, patchout%za, out_settings)
-    CALL  check_and_write(output%za, opid%za_tq,                                    &
-         'za_tq', REAL(rough%za_tq, 4), ranges%za, patchout%za, out_settings)
-     !~ bgc
-     out_settings%dimswitch = "plantcarbon"
-    CALL  check_and_write(output%ratecp,             &
-         opid%ratecp, 'ratecp',SPREAD(REAL(bgc%ratecp,4),1,mp), ranges%ratecp, &
-         patchout%ratecp, out_settings)! no spatial dim at present
-     out_settings%dimswitch = "soilcarbon"
-    CALL  check_and_write(output%ratecs,             &
-         opid%ratecs, 'ratecs', SPREAD(REAL(bgc%ratecs, 4), 1, mp), ranges%ratecs,  &
-         patchout%ratecs, out_settings)! no spatial dim at present
+    !~ bgc
+    IF (output%ratecp) THEN
+      out_settings%dimswitch = "plantcarbon"
+      CALL check_and_write(opid%ratecp, 'ratecp',SPREAD(REAL(bgc%ratecp,4),1,mp), ranges%ratecp, &
+           patchout%ratecp, out_settings)! no spatial dim at present
+    END IF
+    IF (output%ratecs) THEN
+      out_settings%dimswitch = "soilcarbon"
+      CALL check_and_write(opid%ratecs, 'ratecs', SPREAD(REAL(bgc%ratecs, 4), 1, mp), ranges%ratecs,  &
+           patchout%ratecs, out_settings)! no spatial dim at present
+    END IF
 
-   !~ gwmodel
-     out_settings%dimswitch = "real"
-    CALL  check_and_write(output%params .AND. cable_user%gw_model, opid%SatFracmax,    &
-         'SatFracmax', SPREAD(REAL(gw_params%MaxSatFraction,4),1,mp), &
-         ranges%gw_default, patchout%SatFracmax, out_settings)
+    !~ gwmodel
+    out_settings%dimswitch = "real"
+    IF (output%params .AND. cable_user%gw_model) THEN
+      CALL check_and_write(opid%SatFracmax,    &
+           'SatFracmax', SPREAD(REAL(gw_params%MaxSatFraction,4),1,mp), &
+           ranges%gw_default, patchout%SatFracmax, out_settings)
 
-    CALL  check_and_write(output%params .AND. cable_user%gw_model, opid%Qhmax,    &
-         'Qhmax', SPREAD(REAL(gw_params%MaxHorzDrainRate, 4),1,mp), &
-         ranges%gw_default, patchout%Qhmax, out_settings)
+      CALL check_and_write(opid%Qhmax,    &
+           'Qhmax', SPREAD(REAL(gw_params%MaxHorzDrainRate, 4),1,mp), &
+           ranges%gw_default, patchout%Qhmax, out_settings)
 
-    CALL  check_and_write(output%params .AND. cable_user%gw_model, opid%QhmaxEfold,    &
-         'QhmaxEfold', SPREAD(REAL(gw_params%EfoldHorzDrainRate, 4),1,mp), &
-         ranges%gw_default, patchout%QhmaxEfold, out_settings)
+      CALL check_and_write(opid%QhmaxEfold,    &
+           'QhmaxEfold', SPREAD(REAL(gw_params%EfoldHorzDrainRate, 4),1,mp), &
+           ranges%gw_default, patchout%QhmaxEfold, out_settings)
 
-    CALL  check_and_write(output%params .AND. cable_user%gw_model, opid%HKefold,    &
-         'HKefold', SPREAD(REAL(gw_params%hkrz, 4),1,mp), &
-         ranges%gw_default, patchout%HKefold, out_settings)
+      CALL check_and_write(opid%HKefold,    &
+           'HKefold', SPREAD(REAL(gw_params%hkrz, 4),1,mp), &
+           ranges%gw_default, patchout%HKefold, out_settings)
 
-    CALL  check_and_write(output%params .AND. cable_user%gw_model, opid%HKdepth,    &
-         'HKdepth', SPREAD(REAL(gw_params%zdepth, 4),1,mp), &
-          ranges%gw_default, patchout%HKdepth, out_settings)
-
+      CALL check_and_write(opid%HKdepth,    &
+           'HKdepth', SPREAD(REAL(gw_params%zdepth, 4),1,mp), &
+            ranges%gw_default, patchout%HKdepth, out_settings)
+    END IF
 
   END SUBROUTINE open_output_file
 
@@ -1702,130 +1782,215 @@ CONTAINS
 
     !-----------------------WRITE MET DATA-------------------------------------
     out_settings%dimswitch = 'default'
-    ! SWdown:  downward short-wave radiation [W/m^2]
-    CALL generate_out_write_acc(output%SWdown, ovid%SWdown, 'SWdown', out%SWdown, REAL(met%fsd(:, 1) + met%fsd(:, 2)), ranges%SWdown, patchout%SWdown, out_settings)
-    ! LWdown: downward long-wave radiation [W/m^2]
-    CALL generate_out_write_acc(output%LWdown, ovid%LWdown, 'LWdown', out%LWdown, REAL(met%fld, 4), ranges%LWdown, patchout%LWdown, out_settings)
-    ! Rainf: rainfall [kg/m^2/s]
-    CALL generate_out_write_acc(output%Rainf, ovid%Rainf, 'Rainf', out%Rainf, REAL(met%precip/dels, 4), ranges%Rainf, patchout%Rainf, out_settings)
-    ! Snowf: snowfall [kg/m^2/s]
-    CALL generate_out_write_acc(output%Snowf, ovid%Snowf, 'Snowf', out%Snowf, REAL(met%precip_sn/dels, 4), ranges%Snowf, patchout%Snowf, out_settings)
-    ! PSurf: surface pressure [Pa]
-    CALL generate_out_write_acc(output%PSurf, ovid%PSurf, 'PSurf', out%PSurf, REAL(met%pmb, 4), ranges%PSurf, patchout%PSurf, out_settings)
+    IF (output%SWdown) THEN
+      ! SWdown:  downward short-wave radiation [W/m^2]
+      CALL generate_out_write_acc(ovid%SWdown, 'SWdown', out%SWdown, REAL(met%fsd(:, 1) + met%fsd(:, 2)), ranges%SWdown, patchout%SWdown, out_settings)
+    END IF
+    IF (output%LWdown) THEN
+      ! LWdown: downward long-wave radiation [W/m^2]
+      CALL generate_out_write_acc(ovid%LWdown, 'LWdown', out%LWdown, REAL(met%fld, 4), ranges%LWdown, patchout%LWdown, out_settings)
+    END IF
+    IF (output%Rainf) THEN
+      ! Rainf: rainfall [kg/m^2/s]
+      CALL generate_out_write_acc(ovid%Rainf, 'Rainf', out%Rainf, REAL(met%precip/dels, 4), ranges%Rainf, patchout%Rainf, out_settings)
+    END IF
+    IF (output%Snowf) THEN
+      ! Snowf: snowfall [kg/m^2/s]
+      CALL generate_out_write_acc(ovid%Snowf, 'Snowf', out%Snowf, REAL(met%precip_sn/dels, 4), ranges%Snowf, patchout%Snowf, out_settings)
+    END IF
+    IF (output%PSurf) THEN
+      ! PSurf: surface pressure [Pa]
+      CALL generate_out_write_acc(ovid%PSurf, 'PSurf', out%PSurf, REAL(met%pmb, 4), ranges%PSurf, patchout%PSurf, out_settings)
+    END IF
 
     out_settings%dimswitch = 'ALMA'
-    ! Tair: surface air temperature [K]
-    CALL generate_out_write_acc(output%Tair, ovid%Tair, 'Tair', out%Tair, REAL(met%tk, 4), ranges%Tair, patchout%Tair, out_settings)
-    ! Qair: specific humidity [kg/kg]
-    CALL generate_out_write_acc(output%Qair, ovid%Qair, 'Qair', out%Qair, REAL(met%qv, 4), ranges%Qair, patchout%Qair, out_settings)
-    ! Wind: windspeed [m/s]
-    CALL generate_out_write_acc(output%Wind, ovid%Wind, 'Wind', out%Wind, REAL(met%ua, 4), ranges%Wind, patchout%Wind, out_settings)
-    ! CO2air: CO2 concentration [ppmv]
-    CALL generate_out_write_acc(output%CO2air, ovid%CO2air, 'CO2air', out%CO2air, REAL(met%ca*1000000.0, 4), ranges%CO2air, patchout%CO2air, out_settings)
+    IF (output%Tair) THEN
+      ! Tair: surface air temperature [K]
+      CALL generate_out_write_acc(ovid%Tair, 'Tair', out%Tair, REAL(met%tk, 4), ranges%Tair, patchout%Tair, out_settings)
+    END IF
+    IF (output%Qair) THEN
+      ! Qair: specific humidity [kg/kg]
+      CALL generate_out_write_acc(ovid%Qair, 'Qair', out%Qair, REAL(met%qv, 4), ranges%Qair, patchout%Qair, out_settings)
+    END IF
+    IF (output%Wind) THEN
+      ! Wind: windspeed [m/s]
+      CALL generate_out_write_acc(ovid%Wind, 'Wind', out%Wind, REAL(met%ua, 4), ranges%Wind, patchout%Wind, out_settings)
+    END IF
+    IF (output%CO2air) THEN
+      ! CO2air: CO2 concentration [ppmv]
+      CALL generate_out_write_acc(ovid%CO2air, 'CO2air', out%CO2air, REAL(met%ca*1000000.0, 4), ranges%CO2air, patchout%CO2air, out_settings)
+    END IF
 
     !-----------------------WRITE FLUX DATA-------------------------------------
     out_settings%dimswitch = 'default'
     ! Qmom: momentum flux [kg/m/s2] INH
-    CALL generate_out_write_acc(output%Qmom, ovid%Qmom, 'Qmom', out%Qmom, REAL(air%rho, 4)*(REAL(canopy%us, 4)**2.), ranges%Qmom, patchout%Qmom, out_settings)
-    ! Qle: latent heat flux [W/m^2]
-    CALL generate_out_write_acc(output%Qmom, ovid%Qle, 'Qle', out%Qle, REAL(canopy%fe, 4), ranges%Qle, patchout%Qle, out_settings)
-    ! Qh: sensible heat flux [W/m^2]
-    CALL generate_out_write_acc(output%Qh, ovid%Qh, 'Qh', out%Qh, REAL(canopy%fh, 4), ranges%Qh, patchout%Qh, out_settings)
-    ! Qg: ground heat flux [W/m^2]
-    CALL generate_out_write_acc(output%Qg, ovid%Qg, 'Qg', out%Qg, REAL(canopy%ga, 4), ranges%Qg, patchout%Qg, out_settings)
-    ! Qs: surface runoff [kg/m^2/s]
-    CALL generate_out_write_acc(output%Qs, ovid%Qs, 'Qs', out%Qs, REAL(ssnow%rnof1/dels, 4), ranges%Qs, patchout%Qs, out_settings)
-    ! Qsb: subsurface runoff [kg/m^2/s]
-    CALL generate_out_write_acc(output%Qsb, ovid%Qsb, 'Qsb', out%Qsb, REAL(ssnow%rnof2/dels, 4), ranges%Qsb, patchout%Qsb, out_settings)
-    ! Evap: total evapotranspiration [kg/m^2/s]
-    CALL generate_out_write_acc(output%Evap, ovid%Evap, 'Evap', out%Evap, REAL(canopy%fe/air%rlam, 4), ranges%Evap, patchout%Evap, out_settings)
-    ! PotEVap: potential evapotranspiration [kg/m^2/s]
-    CALL generate_out_write_acc(output%PotEvap, ovid%PotEvap, 'PotEvap', out%PotEvap, REAL(canopy%epot/dels, 4), ranges%PotEvap, patchout%PotEvap, out_settings)
-    ! ECanop: interception evaporation [kg/m^2/s]
-    CALL generate_out_write_acc(output%ECanop, ovid%ECanop, 'ECanop', out%ECanop, REAL(canopy%fevw/air%rlam, 4), ranges%ECanop, patchout%ECanop, out_settings)
-    ! TVeg: vegetation transpiration [kg/m^2/s]
-    CALL generate_out_write_acc(output%TVeg, ovid%TVeg, 'TVeg', out%TVeg, REAL(canopy%fevc/air%rlam, 4), ranges%TVeg, patchout%TVeg, out_settings)
-
-    ! ESoil: bare soil evaporation [kg/m^2/s]
-    IF (cable_user%SOIL_STRUC == 'sli') THEN
-      temp_acc = ssnow%evap/dels !vh!
-    ELSE
-      temp_acc = canopy%fes/air%rlam
+    IF (output%Qmom) THEN
+    CALL generate_out_write_acc(ovid%Qmom, 'Qmom', out%Qmom, REAL(air%rho, 4)*(REAL(canopy%us, 4)**2.), ranges%Qmom, patchout%Qmom, out_settings)
     END IF
-    CALL generate_out_write_acc(output%Esoil, ovid%Esoil, 'Esoil', out%Esoil, temp_acc, ranges%Esoil, patchout%Esoil, out_settings)
+    IF (output%Qmom) THEN
+      ! Qle: latent heat flux [W/m^2]
+      CALL generate_out_write_acc(ovid%Qle, 'Qle', out%Qle, REAL(canopy%fe, 4), ranges%Qle, patchout%Qle, out_settings)
+    END IF
+    IF (output%Qh) THEN
+      ! Qh: sensible heat flux [W/m^2]
+      CALL generate_out_write_acc(ovid%Qh, 'Qh', out%Qh, REAL(canopy%fh, 4), ranges%Qh, patchout%Qh, out_settings)
+    END IF
+    IF (output%Qg) THEN
+      ! Qg: ground heat flux [W/m^2]
+      CALL generate_out_write_acc(ovid%Qg, 'Qg', out%Qg, REAL(canopy%ga, 4), ranges%Qg, patchout%Qg, out_settings)
+    END IF
+    IF (output%Qs) THEN
+      ! Qs: surface runoff [kg/m^2/s]
+      CALL generate_out_write_acc(ovid%Qs, 'Qs', out%Qs, REAL(ssnow%rnof1/dels, 4), ranges%Qs, patchout%Qs, out_settings)
+    END IF
+    IF (output%Qsb) THEN
+      ! Qsb: subsurface runoff [kg/m^2/s]
+      CALL generate_out_write_acc(ovid%Qsb, 'Qsb', out%Qsb, REAL(ssnow%rnof2/dels, 4), ranges%Qsb, patchout%Qsb, out_settings)
+    END IF
+    IF (output%Evap) THEN
+      ! Evap: total evapotranspiration [kg/m^2/s]
+      CALL generate_out_write_acc(ovid%Evap, 'Evap', out%Evap, REAL(canopy%fe/air%rlam, 4), ranges%Evap, patchout%Evap, out_settings)
+    END IF
+    IF (output%PotEvap) THEN
+      ! PotEVap: potential evapotranspiration [kg/m^2/s]
+      CALL generate_out_write_acc(ovid%PotEvap, 'PotEvap', out%PotEvap, REAL(canopy%epot/dels, 4), ranges%PotEvap, patchout%PotEvap, out_settings)
+    END IF
+    IF (output%ECanop) THEN
+      ! ECanop: interception evaporation [kg/m^2/s]
+      CALL generate_out_write_acc(ovid%ECanop, 'ECanop', out%ECanop, REAL(canopy%fevw/air%rlam, 4), ranges%ECanop, patchout%ECanop, out_settings)
+    END IF
+    IF (output%TVeg) THEN
+      ! TVeg: vegetation transpiration [kg/m^2/s]
+      CALL generate_out_write_acc(ovid%TVeg, 'TVeg', out%TVeg, REAL(canopy%fevc/air%rlam, 4), ranges%TVeg, patchout%TVeg, out_settings)
+    END IF
 
-    ! HVeg: sensible heat from vegetation [W/m^2]
-    CALL generate_out_write_acc(output%HVeg, ovid%HVeg, 'HVeg', out%HVeg, REAL(canopy%fhv, 4), ranges%HVeg, patchout%HVeg, out_settings)
-    ! HSoil: sensible heat from soil [W/m^2]
-    CALL generate_out_write_acc(output%HSoil, ovid%HSoil, 'HSoil', out%HSoil, REAL(canopy%fhs, 4), ranges%HSoil, patchout%HSoil, out_settings)
-    CALL generate_out_write_acc(output%RNetSoil, ovid%RNetSoil, 'RNetSoil', out%RNetSoil, REAL(canopy%fns, 4), ranges%HSoil, patchout%HSoil, out_settings)
-    ! NEE: net ecosystem exchange [umol/m^2/s]
-    CALL generate_out_write_acc(output%NEE, ovid%NEE, 'NEE', out%NEE, REAL(canopy%fnee/1.201E-5, 4), ranges%NEE, patchout%NEE, out_settings)
+    IF (output%Esoil) THEN
+      ! ESoil: bare soil evaporation [kg/m^2/s]
+      IF (cable_user%SOIL_STRUC == 'sli') THEN
+        temp_acc = ssnow%evap/dels !vh!
+      ELSE
+        temp_acc = canopy%fes/air%rlam
+      END IF
+      CALL generate_out_write_acc(ovid%Esoil, 'Esoil', out%Esoil, temp_acc, ranges%Esoil, patchout%Esoil, out_settings)
+    END IF
+
+    IF (output%HVeg) THEN
+      ! HVeg: sensible heat from vegetation [W/m^2]
+      CALL generate_out_write_acc(ovid%HVeg, 'HVeg', out%HVeg, REAL(canopy%fhv, 4), ranges%HVeg, patchout%HVeg, out_settings)
+    END IF
+    IF (output%HSoil) THEN
+      ! HSoil: sensible heat from soil [W/m^2]
+    CALL generate_out_write_acc(ovid%HSoil, 'HSoil', out%HSoil, REAL(canopy%fhs, 4), ranges%HSoil, patchout%HSoil, out_settings)
+    END IF
+    IF (output%RNetSoil) THEN
+      CALL generate_out_write_acc(ovid%RNetSoil, 'RNetSoil', out%RNetSoil, REAL(canopy%fns, 4), ranges%HSoil, patchout%HSoil, out_settings)
+    END IF
+    IF (output%NEE) THEN
+      ! NEE: net ecosystem exchange [umol/m^2/s]
+      CALL generate_out_write_acc(ovid%NEE, 'NEE', out%NEE, REAL(canopy%fnee/1.201E-5, 4), ranges%NEE, patchout%NEE, out_settings)
+    END IF
 
     !-----------------------WRITE SOIL STATE DATA-------------------------------
 
     out_settings%dimswitch = 'soil'
-    ! SoilMoist: av.layer soil moisture [kg/m^2]
-    CALL generate_out_write_acc(output%SoilMoist, ovid%SoilMoist, 'SoilMoist', out%SoilMoist, REAL(ssnow%wb, 4), ranges%SoilMoist, patchout%SoilMoistIce, out_settings)
-    CALL generate_out_write_acc(output%SoilMoist, ovid%SoilMoistIce, 'SoilMoistIce', out%SoilMoistIce, REAL(ssnow%wbice, 4), ranges%SoilMoist, patchout%SoilMoistIce, out_settings)
-    ! SoilTemp: av.layer soil temperature [K]
-    CALL generate_out_write_acc(output%SoilTemp, ovid%SoilTemp, 'SoilTemp', out%SoilTemp, REAL(ssnow%tgg, 4), ranges%SoilTemp, patchout%SoilTemp, out_settings)
+    IF (output%SoilMoist) THEN
+      ! SoilMoist: av.layer soil moisture [kg/m^2]
+      CALL generate_out_write_acc(ovid%SoilMoist, 'SoilMoist', out%SoilMoist, REAL(ssnow%wb, 4), ranges%SoilMoist, patchout%SoilMoistIce, out_settings)
+      CALL generate_out_write_acc(ovid%SoilMoistIce, 'SoilMoistIce', out%SoilMoistIce, REAL(ssnow%wbice, 4), ranges%SoilMoist, patchout%SoilMoistIce, out_settings)
+    END IF
+    IF (output%SoilTemp) THEN
+      ! SoilTemp: av.layer soil temperature [K]
+      CALL generate_out_write_acc(ovid%SoilTemp, 'SoilTemp', out%SoilTemp, REAL(ssnow%tgg, 4), ranges%SoilTemp, patchout%SoilTemp, out_settings)
+    END IF
 
     out_settings%dimswitch = 'default'
-    ! BaresoilT: surface bare soil temp [K]
-    CALL generate_out_write_acc(output%BaresoilT, ovid%BaresoilT, 'BaresoilT', out%BaresoilT, REAL(ssnow%tgg(:, 1), 4), ranges%BaresoilT, patchout%BaresoilT, out_settings)
+    IF (output%BaresoilT) THEN
+      ! BaresoilT: surface bare soil temp [K]
+      CALL generate_out_write_acc(ovid%BaresoilT, 'BaresoilT', out%BaresoilT, REAL(ssnow%tgg(:, 1), 4), ranges%BaresoilT, patchout%BaresoilT, out_settings)
+    END IF
     !MD Write the hydrology output data from the groundwater module calculations
-    !water table depth
-    CALL generate_out_write_acc(output%WatTable .AND. cable_user%GW_MODEL, ovid%WatTable, 'WatTable', out%WatTable, REAL(ssnow%wtd/1000.0, 4), ranges%WatTable, patchout%WatTable, out_settings)
-    !aquifer water content
-    CALL generate_out_write_acc(output%GWMoist .AND. cable_user%GW_MODEL, ovid%GWMoist, 'GWMoist', out%GWMoist, REAL(ssnow%GWwb, 4), ranges%GWwb, patchout%GWMoist, out_settings)
-    !write(*,*) 'Qinfl'    !MDeck
-    CALL generate_out_write_acc(output%SatFrac .AND. cable_user%GW_MODEL, ovid%SatFrac, 'SatFrac', out%SatFrac, REAL(ssnow%satfrac, 4), ranges%SatFrac, patchout%SatFrac, out_settings)
+    IF (cable_user%GW_MODEL) THEN
+      IF (output%WatTable) THEN
+        !water table depth
+        CALL generate_out_write_acc(ovid%WatTable, 'WatTable', out%WatTable, REAL(ssnow%wtd/1000.0, 4), ranges%WatTable, patchout%WatTable, out_settings)
+      END IF
+      IF (output%GWMoist) THEN
+        !aquifer water content
+        CALL generate_out_write_acc(ovid%GWMoist, 'GWMoist', out%GWMoist, REAL(ssnow%GWwb, 4), ranges%GWwb, patchout%GWMoist, out_settings)
+      END IF
+      IF (output%SatFrac) THEN
+        !write(*,*) 'Qinfl'    !MDeck
+        CALL generate_out_write_acc(ovid%SatFrac, 'SatFrac', out%SatFrac, REAL(ssnow%satfrac, 4), ranges%SatFrac, patchout%SatFrac, out_settings)
+      END IF
+    END IF
 
-    ! recharge rate
-    CALL generate_out_write_acc(output%Qrecharge, ovid%Qrecharge, 'Qrecharge', out%Qrecharge, REAL(ssnow%Qrecharge, 4), ranges%Qrecharge, patchout%Qrecharge, out_settings)
+    IF (output%Qrecharge) THEN
+      ! recharge rate
+      CALL generate_out_write_acc(ovid%Qrecharge, 'Qrecharge', out%Qrecharge, REAL(ssnow%Qrecharge, 4), ranges%Qrecharge, patchout%Qrecharge, out_settings)
+    END IF
 
     !----------------------WRITE SNOW STATE DATA--------------------------------
-    ! SWE: snow water equivalent [kg/m^2]
-    CALL generate_out_write_acc(output%SWE, ovid%SWE, 'SWE', out%SWE, REAL(ssnow%snowd, 4), ranges%SWE, patchout%SWE, out_settings)
-    CALL generate_out_write_acc(output%SWE, ovid%SnowMelt, 'SnowMelt', out%SnowMelt, REAL(ssnow%smelt/dels, 4), ranges%SnowMelt, patchout%SnowMelt, out_settings)
+    IF (output%SWE) THEN
+      ! SWE: snow water equivalent [kg/m^2]
+      CALL generate_out_write_acc(ovid%SWE, 'SWE', out%SWE, REAL(ssnow%snowd, 4), ranges%SWE, patchout%SWE, out_settings)
+      CALL generate_out_write_acc(ovid%SnowMelt, 'SnowMelt', out%SnowMelt, REAL(ssnow%smelt/dels, 4), ranges%SnowMelt, patchout%SnowMelt, out_settings)
+    END IF
 
-    ! SnowT: snow surface temp [K]
-    CALL generate_out_write_acc(output%SnowT, ovid%SnowT, 'SnowT', out%SnowT, REAL(ssnow%tggsn(:, 1), 4), ranges%SnowT, patchout%SnowT, out_settings)
-    ! SnowDepth: actual depth of snow in [m]
-    CALL generate_out_write_acc(output%SnowDepth, ovid%SnowDepth, 'SnowDepth', out%SnowDepth, REAL(SUM(ssnow%sdepth, 2), 4), ranges%SnowDepth, patchout%SnowDepth, out_settings)
+    IF (output%SnowT) THEN
+      ! SnowT: snow surface temp [K]
+      CALL generate_out_write_acc(ovid%SnowT, 'SnowT', out%SnowT, REAL(ssnow%tggsn(:, 1), 4), ranges%SnowT, patchout%SnowT, out_settings)
+    END IF
+    IF (output%SnowDepth) THEN
+      ! SnowDepth: actual depth of snow in [m]
+      CALL generate_out_write_acc(ovid%SnowDepth, 'SnowDepth', out%SnowDepth, REAL(SUM(ssnow%sdepth, 2), 4), ranges%SnowDepth, patchout%SnowDepth, out_settings)
+    END IF
 
     !-------------------------WRITE RADIATION DATA------------------------------
-    ! SWnet: net shortwave [W/m^2]
-    temp_acc = SUM(rad%qcan(:, :, 1), 2) + SUM(rad%qcan(:, :, 2), 2) + rad%qssabs
-    CALL generate_out_write_acc(output%Swnet, ovid%Swnet, 'Swnet', out%Swnet, temp_acc, ranges%Swnet, patchout%Swnet, out_settings)
-    ! LWnet: net longwave [W/m^2]
-    temp_acc = met%fld - sboltz*emleaf*canopy%tv**4*(1 - rad%transd) - &
-               rad%flws*rad%transd
-    CALL generate_out_write_acc(output%Lwnet, ovid%Lwnet, 'Lwnet', out%Lwnet, temp_acc, ranges%Lwnet, patchout%Lwnet, out_settings)
-    ! Rnet: net absorbed radiation [W/m^2]
-    temp_acc = met%fld - sboltz*emleaf*canopy%tv**4* &
-               (1 - rad%transd) - rad%flws*rad%transd + &
-               SUM(rad%qcan(:, :, 1), 2) + &
-               SUM(rad%qcan(:, :, 2), 2) + rad%qssabs
-    CALL generate_out_write_acc(output%Rnet, ovid%Rnet, 'Rnet', out%Rnet, temp_acc, ranges%Rnet, patchout%Rnet, out_settings)
+    IF (output%Swnet) THEN
+      ! SWnet: net shortwave [W/m^2]
+      temp_acc = SUM(rad%qcan(:, :, 1), 2) + SUM(rad%qcan(:, :, 2), 2) + rad%qssabs
+      CALL generate_out_write_acc(ovid%Swnet, 'Swnet', out%Swnet, temp_acc, ranges%Swnet, patchout%Swnet, out_settings)
+    END IF
+    IF (output%Lwnet) THEN
+      ! LWnet: net longwave [W/m^2]
+      temp_acc = met%fld - sboltz*emleaf*canopy%tv**4*(1 - rad%transd) - &
+                 rad%flws*rad%transd
+      CALL generate_out_write_acc(ovid%Lwnet, 'Lwnet', out%Lwnet, temp_acc, ranges%Lwnet, patchout%Lwnet, out_settings)
+    END IF
+    IF (output%Rnet) THEN
+      ! Rnet: net absorbed radiation [W/m^2]
+      temp_acc = met%fld - sboltz*emleaf*canopy%tv**4* &
+                 (1 - rad%transd) - rad%flws*rad%transd + &
+                 SUM(rad%qcan(:, :, 1), 2) + &
+                 SUM(rad%qcan(:, :, 2), 2) + rad%qssabs
+      CALL generate_out_write_acc(ovid%Rnet, 'Rnet', out%Rnet, temp_acc, ranges%Rnet, patchout%Rnet, out_settings)
+    END IF
 
-    ! Albedo:
-    CALL generate_out_write_acc(output%Albedo, ovid%Albedo, 'Albedo', out%Albedo, REAL((rad%albedo(:, 1) + rad%albedo(:, 2)) &
+    IF (output%Albedo) THEN
+      ! Albedo:
+      CALL generate_out_write_acc(ovid%Albedo, 'Albedo', out%Albedo, REAL((rad%albedo(:, 1) + rad%albedo(:, 2)) &
                                                                                        *0.5, 4), ranges%Albedo, patchout%Albedo, out_settings)
-    CALL generate_out_write_acc(output%Albedo .AND. calcsoilalbedo, ovid%visAlbedo, 'visAlbedo', out%visAlbedo, REAL(rad%albedo(:, 1), 4), ranges%visAlbedo, patchout%visAlbedo, out_settings)
-    CALL generate_out_write_acc(output%Albedo .AND. calcsoilalbedo, ovid%nirAlbedo, 'nirAlbedo', out%nirAlbedo, REAL(rad%albedo(:, 2), 4), ranges%nirAlbedo, patchout%nirAlbedo, out_settings)
+      IF (calcsoilalbedo) THEN
+        CALL generate_out_write_acc(ovid%visAlbedo, 'visAlbedo', out%visAlbedo, REAL(rad%albedo(:, 1), 4), ranges%visAlbedo, patchout%visAlbedo, out_settings)
+        CALL generate_out_write_acc(ovid%nirAlbedo, 'nirAlbedo', out%nirAlbedo, REAL(rad%albedo(:, 2), 4), ranges%nirAlbedo, patchout%nirAlbedo, out_settings)
+      END IF
+    END IF
+
 
     ! RadT: Radiative surface temperature [K]
-    temp_acc = (((1.0 - rad%transd)*emleaf*sboltz* &
-                 canopy%tv**4 + rad%transd*emsoil*sboltz*(ssnow%tss)**4)/sboltz)**0.25
-    CALL generate_out_write_acc(output%RadT, ovid%RadT, 'RadT', out%RadT, temp_acc, ranges%RadT, patchout%RadT, out_settings)
+    IF (output%RadT) THEN
+      temp_acc = (((1.0 - rad%transd)*emleaf*sboltz* &
+                   canopy%tv**4 + rad%transd*emsoil*sboltz*(ssnow%tss)**4)/sboltz)**0.25
+      CALL generate_out_write_acc(ovid%RadT, 'RadT', out%RadT, temp_acc, ranges%RadT, patchout%RadT, out_settings)
+    END IF
 
     !------------------------WRITE VEGETATION DATA------------------------------
 
     out_settings%dimswitch = 'ALMA'
-    ! Tscrn: screen level air temperature [oC]
-    CALL generate_out_write_acc(output%Tscrn, ovid%Tscrn, 'Tscrn', out%Tscrn, REAL(canopy%tscrn, 4), ranges%Tscrn, patchout%Tscrn, out_settings)
+    IF (output%Tscrn) THEN
+      ! Tscrn: screen level air temperature [oC]
+      CALL generate_out_write_acc(ovid%Tscrn, 'Tscrn', out%Tscrn, REAL(canopy%tscrn, 4), ranges%Tscrn, patchout%Tscrn, out_settings)
+    END IF
 
     !INH - extremes in screen level air temperature [oC]
     IF (output%Tex) THEN
@@ -1836,9 +2001,9 @@ CONTAINS
           out%Tnn(iy) = MIN(out%Tnn(iy), REAL(canopy%tscrn(iy), 4))
         END DO
         IF (out_settings%writenow) THEN
-          CALL check_and_write(.TRUE., ovid%Txx, 'Txx', &
+          CALL check_and_write(ovid%Txx, 'Txx', &
                                out%Txx, out%Txx, ranges%Tscrn, patchout%Tex, out_settings)
-          CALL check_and_write(.TRUE., ovid%Tnn, 'Tnn', &
+          CALL check_and_write(ovid%Tnn, 'Tnn', &
                                out%Tnn, out%Tnn, ranges%Tscrn, patchout%Tex, out_settings)
           !Reset temporary output variables:
           out%Txx = -1.0E6
@@ -1866,13 +2031,13 @@ CONTAINS
           out%Tmx = REAL(86400, 4)*out%Tmx/REAL(output%interval*INT(dels), 4)
           out%Tmn = REAL(86400, 4)*out%Tmn/REAL(output%interval*INT(dels), 4)
           !write to file
-          CALL check_and_write(.TRUE., ovid%Txx, 'Txx', &
+          CALL check_and_write(ovid%Txx, 'Txx', &
                                out%Txx, out%Txx, ranges%Tscrn, patchout%Tex, out_settings)
-          CALL check_and_write(.TRUE., ovid%Tnn, 'Tnn', &
+          CALL check_and_write(ovid%Tnn, 'Tnn', &
                                out%Tnn, out%Tnn, ranges%Tscrn, patchout%Tex, out_settings)
-          CALL check_and_write(.TRUE., ovid%Tmx, 'Tmx', &
+          CALL check_and_write(ovid%Tmx, 'Tmx', &
                                out%Tmx, out%Tmx, ranges%Tscrn, patchout%Tex, out_settings)
-          CALL check_and_write(.TRUE., ovid%Tmn, 'Tmn', &
+          CALL check_and_write(ovid%Tmn, 'Tmn', &
                                out%Tmn, out%Tmn, ranges%Tscrn, patchout%Tex, out_settings)
           !Reset temporary output variables:
           out%Txx = -1.0E6
@@ -1882,32 +2047,51 @@ CONTAINS
         END IF
       END IF
     END IF
-    ! Qscrn: screen level specific humdity [kg/kg]
-    CALL generate_out_write_acc(output%Qscrn, ovid%qscrn, 'Qscrn', out%qscrn, REAL(canopy%qscrn, 4), ranges%Qscrn, patchout%Qscrn, out_settings)
+
+    IF (output%Qscrn) THEN
+      ! Qscrn: screen level specific humdity [kg/kg]
+      CALL generate_out_write_acc(ovid%qscrn, 'Qscrn', out%qscrn, REAL(canopy%qscrn, 4), ranges%Qscrn, patchout%Qscrn, out_settings)
+    END IF
 
     out_settings%dimswitch = 'default'
-    ! VegT: vegetation temperature [K]
-    CALL generate_out_write_acc(output%VegT, ovid%VegT, 'VegT', out%VegT, REAL(canopy%tv, 4), ranges%VegT, patchout%VegT, out_settings)
-    ! CanT: within-canopy temperature [K]
-    CALL generate_out_write_acc(output%CanT, ovid%CanT, 'CanT', out%CanT, REAL(met%tvair, 4), ranges%CanT, patchout%CanT, out_settings)
-    ! Fwsoil
-    CALL generate_out_write_acc(output%Fwsoil, ovid%Fwsoil, 'Fwsoil', out%Fwsoil, REAL(canopy%fwsoil, 4), ranges%Fwsoil, patchout%Fwsoil, out_settings)
-    ! CanopInt: total canopy water storage [kg/m^2]
-    CALL generate_out_write_acc(output%CanopInt, ovid%CanopInt, 'CanopInt', out%CanopInt, REAL(canopy%cansto, 4), ranges%CanopInt, patchout%CanopInt, out_settings)
-    ! LAI:
-    CALL generate_out_write_acc(output%LAI, ovid%LAI, 'LAI', out%LAI, REAL(veg%vlai, 4), ranges%LAI, patchout%LAI, out_settings)
+    IF (output%VegT) THEN
+      ! VegT: vegetation temperature [K]
+      CALL generate_out_write_acc(ovid%VegT, 'VegT', out%VegT, REAL(canopy%tv, 4), ranges%VegT, patchout%VegT, out_settings)
+    END IF
+    IF (output%CanT) THEN
+      ! CanT: within-canopy temperature [K]
+      CALL generate_out_write_acc(ovid%CanT, 'CanT', out%CanT, REAL(met%tvair, 4), ranges%CanT, patchout%CanT, out_settings)
+    END IF
+    IF (output%Fwsoil) THEN
+      ! Fwsoil
+      CALL generate_out_write_acc(ovid%Fwsoil, 'Fwsoil', out%Fwsoil, REAL(canopy%fwsoil, 4), ranges%Fwsoil, patchout%Fwsoil, out_settings)
+    END IF
+    IF (output%CanopInt) THEN
+      ! CanopInt: total canopy water storage [kg/m^2]
+      CALL generate_out_write_acc(ovid%CanopInt, 'CanopInt', out%CanopInt, REAL(canopy%cansto, 4), ranges%CanopInt, patchout%CanopInt, out_settings)
+    END IF
+    IF (output%LAI) THEN
+      ! LAI:
+      CALL generate_out_write_acc(ovid%LAI, 'LAI', out%LAI, REAL(veg%vlai, 4), ranges%LAI, patchout%LAI, out_settings)
+    END IF
     !------------------------WRITE BALANCES DATA--------------------------------
-    ! Ebal: cumulative energy balance [W/m^2]
-    CALL generate_out_write_acc(output%Ebal, ovid%Ebal, 'Ebal', out%Ebal, REAL(bal%ebal_tot, 4), ranges%Ebal, patchout%Ebal, out_settings)
-    ! Wbal: cumulative water balance  [kg/m^2/s]
-    CALL generate_out_write_acc(output%Wbal, ovid%Wbal, 'Wbal', out%Wbal, REAL(bal%wbal_tot, 4), ranges%Wbal, patchout%Wbal, out_settings)
+    IF (output%Ebal) THEN
+      ! Ebal: cumulative energy balance [W/m^2]
+      CALL generate_out_write_acc(ovid%Ebal, 'Ebal', out%Ebal, REAL(bal%ebal_tot, 4), ranges%Ebal, patchout%Ebal, out_settings)
+    END IF
+    IF (output%Wbal) THEN
+      ! Wbal: cumulative water balance  [kg/m^2/s]
+      CALL generate_out_write_acc(ovid%Wbal, 'Wbal', out%Wbal, REAL(bal%wbal_tot, 4), ranges%Wbal, patchout%Wbal, out_settings)
+    END IF
     !------------------------WRITE CARBON DATA----------------------------------
     ! GPP: gross primary production C by veg [umol/m^2/s]
     !      added frday in the calculation of GPP (BP may08)
 
     ! temp_acc = REAL((-1.0 * canopy%fpn) / 1.201E-5, 4)
-    CALL generate_out_write_acc(output%GPP, ovid%GPP, 'GPP', out%GPP, REAL((-1.0*canopy%fpn + canopy%frday) &
-                                                                           /1.201E-5, 4), ranges%GPP, patchout%GPP, out_settings)
+    IF (output%GPP) THEN
+      CALL generate_out_write_acc(ovid%GPP, 'GPP', out%GPP, REAL((-1.0*canopy%fpn + canopy%frday) &
+        /1.201E-5, 4), ranges%GPP, patchout%GPP, out_settings)
+    END IF
 
     ! NPP: net primary production of C by veg [umol/m^2/s]
     IF (output%NPP) THEN
@@ -1923,8 +2107,8 @@ CONTAINS
       ELSE
         temp_acc = (-1.0*canopy%fpn - canopy%frp)/1.201E-5 ! &
       END IF
+      CALL generate_out_write_acc(ovid%NPP, 'NPP', out%NPP, temp_acc, ranges%NPP, patchout%NPP, out_settings)
     END IF
-    CALL generate_out_write_acc(output%NPP, ovid%NPP, 'NPP', out%NPP, temp_acc, ranges%NPP, patchout%NPP, out_settings)
 
     ! AutoResp: autotrophic respiration [umol/m^2/s]
     IF (output%AutoResp) THEN
@@ -1943,134 +2127,115 @@ CONTAINS
       ELSE
         temp_acc = (canopy%frp + canopy%frday)/1.201E-5
       END IF
+      CALL generate_out_write_acc(ovid%AutoResp, 'AutoResp', out%AutoResp, temp_acc, ranges%AutoResp, patchout%AutoResp, out_settings)
+      IF (output%casa) THEN
+        ! rootresp alt: REAL(0.3*casaflux%crmplant(:,2)/86400.0/ 1.201E-5, 4)
+        CALL generate_out_write_acc(ovid%RootResp, 'RootResp', out%RootResp, &
+                                    REAL(casaflux%crmplant(:, 3)/86400.0/1.201E-5, 4), ranges%AutoResp, patchout%AutoResp, out_settings)
+        CALL generate_out_write_acc(ovid%StemResp, 'StemResp', out%StemResp, &
+                                    REAL(casaflux%crmplant(:, 2)/86400.0/1.201E-5, 4), ranges%AutoResp, patchout%AutoResp, out_settings)
+      END IF
     END IF
-    CALL generate_out_write_acc(output%AutoResp, ovid%AutoResp, 'AutoResp', out%AutoResp, temp_acc, ranges%AutoResp, patchout%AutoResp, out_settings)
-    ! rootresp alt: REAL(0.3*casaflux%crmplant(:,2)/86400.0/ 1.201E-5, 4)
-    CALL generate_out_write_acc(output%AutoResp .AND. output%casa, ovid%RootResp, 'RootResp', out%RootResp, &
-                                REAL(casaflux%crmplant(:, 3)/86400.0/1.201E-5, 4), ranges%AutoResp, patchout%AutoResp, out_settings)
-    CALL generate_out_write_acc(output%AutoResp .AND. output%casa, ovid%StemResp, 'StemResp', out%StemResp, &
-                                REAL(casaflux%crmplant(:, 2)/86400.0/1.201E-5, 4), ranges%AutoResp, patchout%AutoResp, out_settings)
 
-    ! LeafResp: Leaf respiration [umol/m^2/s]
-    CALL generate_out_write_acc(output%LeafResp, ovid%LeafResp, 'LeafResp', out%LeafResp, REAL(canopy%frday/1.201E-5, 4), ranges%LeafResp, patchout%LeafResp, out_settings)
-    ! HeteroResp: heterotrophic respiration [umol/m^2/s]
-    CALL generate_out_write_acc(output%HeteroResp, ovid%HeteroResp, 'HeteroResp', out%HeteroResp, REAL(canopy%frs/1.201E-5, 4), ranges%HeteroResp, patchout%HeteroResp, out_settings)
+    IF (output%LeafResp) THEN
+      ! LeafResp: Leaf respiration [umol/m^2/s]
+      CALL generate_out_write_acc(ovid%LeafResp, 'LeafResp', out%LeafResp, REAL(canopy%frday/1.201E-5, 4), ranges%LeafResp, patchout%LeafResp, out_settings)
+    END IF
+    IF (output%HeteroResp) THEN
+      ! HeteroResp: heterotrophic respiration [umol/m^2/s]
+      CALL generate_out_write_acc(ovid%HeteroResp, 'HeteroResp', out%HeteroResp, REAL(canopy%frs/1.201E-5, 4), ranges%HeteroResp, patchout%HeteroResp, out_settings)
+    END IF
 
     ! output patch area
     IF (output%casa) THEN
       out%Area = casamet%areacell/1e6 ! km2
-    END IF
-    CALL check_and_write(output%casa, ovid%Area, 'Area', out%Area, out%Area, ranges%Area, patchout%Area, out_settings)
-    CALL check_and_write(output%casa .AND. cable_user%POPLUC, ovid%patchfrac, 'patchfrac', REAL(patch(:)%frac, 4), REAL(patch(:)%frac, 4), ranges%Area, patchout%Area, out_settings)
-    CALL check_and_write(output%casa .AND. cable_user%CALL_POP, ovid%hc, 'hc', REAL(veg%hc, 4), REAL(veg%hc, 4), ranges%hc, patchout%hc, out_settings)
 
-    ! NBP and turnover fluxes [umol/m^2/s]
-    IF (output%NBP .AND. output%casa) THEN
+      CALL check_and_write(ovid%Area, 'Area', out%Area, out%Area, ranges%Area, patchout%Area, out_settings)
       IF (cable_user%POPLUC) THEN
-        temp_acc = -(casaflux%Crsoil - casaflux%cnpp &
-                     - casapool%dClabiledt)/86400.0 &
-                   /1.201E-5 !-  &
-        !REAL((casaflux%FluxCtohwp + casaflux%FluxCtoclear  )/86400.0 &
-        !/ 1.201E-5, 4)
-      ELSE
-        temp_acc = -(casaflux%Crsoil - casaflux%cnpp &
-                     - casapool%dClabiledt)/86400.0 &
-                   /1.201E-5
+        CALL check_and_write(ovid%patchfrac, 'patchfrac', REAL(patch(:)%frac, 4), REAL(patch(:)%frac, 4), ranges%Area, patchout%Area, out_settings)
       END IF
-    END IF
-    CALL generate_out_write_acc(output%NBP .AND. output%casa, ovid%NBP, 'NBP', out%NBP, temp_acc, ranges%NEE, patchout%NBP, out_settings)
+      IF (cable_user%CALL_POP) THEN
+        CALL check_and_write(ovid%hc, 'hc', REAL(veg%hc, 4), REAL(veg%hc, 4), ranges%hc, patchout%hc, out_settings)
+      END IF
 
-    !------------------------WRITE REMAINING CASA DATA----------------------------------
-    CALL generate_out_write_acc(output%casa, ovid%dCdt, 'dCdt', out%dCdt, &
-                                REAL((casapool%ctot - casapool%ctot_0)/86400.0/1.201E-5, 4), ranges%NEE, patchout%dCdt, out_settings)
-    CALL generate_out_write_acc(output%casa, ovid%PlantTurnover, 'PlantTurnover', out%PlantTurnover, &
-                                REAL((SUM(casaflux%Cplant_turnover, 2))/86400.0/1.201E-5, 4), ranges%NEE, patchout%PlantTurnover, out_settings)
-    CALL generate_out_write_acc(output%casa, ovid%PlantTurnoverLeaf, 'PlantTurnoverLeaf', out%PlantTurnoverLeaf, &
-                                REAL((casaflux%Cplant_turnover(:, 1))/86400.0/1.201E-5, 4), ranges%NEE, patchout%PlantTurnoverLeaf, out_settings)
-    CALL generate_out_write_acc(output%casa, ovid%PlantTurnoverFineRoot, 'PlantTurnoverFineRoot', out%PlantTurnoverFineRoot, &
-                                REAL((casaflux%Cplant_turnover(:, 3))/86400.0/1.201E-5, 4), ranges%NEE, patchout%PlantTurnoverFineRoot, out_settings)
-    CALL generate_out_write_acc(output%casa, ovid%PlantTurnoverWood, 'PlantTurnoverWood', out%PlantTurnoverWood, &
-                                REAL((casaflux%Cplant_turnover(:, 2))/86400.0/1.201E-5, 4), ranges%NEE, patchout%PlantTurnoverWood, out_settings)
-    CALL generate_out_write_acc(output%casa, ovid%PlantTurnoverWoodDist, 'PlantTurnoverWoodDist', out%PlantTurnoverWoodDist, &
-                                REAL(casaflux%Cplant_turnover_disturbance/86400.0/1.201E-5, 4), ranges%NEE, patchout%PlantTurnoverWoodDist, out_settings)
-    CALL generate_out_write_acc(output%casa, ovid%PlantTurnoverWoodCrowding, 'PlantTurnoverWoodCrowding', out%PlantTurnoverWoodCrowding, &
-                                REAL(casaflux%Cplant_turnover_crowding/86400.0/1.201E-5, 4), ranges%NEE, patchout%PlantTurnoverWoodCrowding, out_settings)
-    CALL generate_out_write_acc(output%casa, ovid%PlantTurnoverWoodResourceLim, 'PlantTurnoverWoodResourceLim', out%PlantTurnoverWoodResourceLim, &
-                                REAL((casaflux%Cplant_turnover_resource_limitation)/86400.0/1.201E-5, 4), ranges%NEE, patchout%PlantTurnoverWoodResourceLim, out_settings)
-    CALL generate_out_write_acc(output%casa .AND. cable_user%POPLUC, ovid%LandUseFlux, 'LandUseFlux', out%LandUseFlux, &
-                                REAL((casaflux%FluxCtohwp + casaflux%FluxCtoclear)/86400.0/1.201E-5, 4), ranges%NEE, patchout%LandUseFlux, out_settings)
+      ! NBP and turnover fluxes [umol/m^2/s]
+      IF (output%NBP) THEN
+        IF (cable_user%POPLUC) THEN
+          temp_acc = -(casaflux%Crsoil - casaflux%cnpp &
+                       - casapool%dClabiledt)/86400.0 &
+                     /1.201E-5 !-  &
+          !REAL((casaflux%FluxCtohwp + casaflux%FluxCtoclear  )/86400.0 &
+          !/ 1.201E-5, 4)
+        ELSE
+          temp_acc = -(casaflux%Crsoil - casaflux%cnpp &
+                       - casapool%dClabiledt)/86400.0 &
+                     /1.201E-5
+        END IF
+        CALL generate_out_write_acc(ovid%NBP, 'NBP', out%NBP, temp_acc, ranges%NEE, patchout%NBP, out_settings)
+      END IF
 
-    ! plant carbon [kg C m-2]
-    CALL generate_out_write_acc(output%casa, ovid%TotSoilCarb, 'TotSoilCarb', out%TotSoilCarb, REAL((SUM(casapool%csoil, 2) + SUM(casapool%clitter, 2)) &
+      !------------------------WRITE REMAINING CASA DATA----------------------------------
+      CALL generate_out_write_acc(ovid%dCdt, 'dCdt', out%dCdt, &
+                                  REAL((casapool%ctot - casapool%ctot_0)/86400.0/1.201E-5, 4), ranges%NEE, patchout%dCdt, out_settings)
+      CALL generate_out_write_acc(ovid%PlantTurnover, 'PlantTurnover', out%PlantTurnover, &
+                                  REAL((SUM(casaflux%Cplant_turnover, 2))/86400.0/1.201E-5, 4), ranges%NEE, patchout%PlantTurnover, out_settings)
+      CALL generate_out_write_acc(ovid%PlantTurnoverLeaf, 'PlantTurnoverLeaf', out%PlantTurnoverLeaf, &
+                                  REAL((casaflux%Cplant_turnover(:, 1))/86400.0/1.201E-5, 4), ranges%NEE, patchout%PlantTurnoverLeaf, out_settings)
+      CALL generate_out_write_acc(ovid%PlantTurnoverFineRoot, 'PlantTurnoverFineRoot', out%PlantTurnoverFineRoot, &
+                                  REAL((casaflux%Cplant_turnover(:, 3))/86400.0/1.201E-5, 4), ranges%NEE, patchout%PlantTurnoverFineRoot, out_settings)
+      CALL generate_out_write_acc(ovid%PlantTurnoverWood, 'PlantTurnoverWood', out%PlantTurnoverWood, &
+                                  REAL((casaflux%Cplant_turnover(:, 2))/86400.0/1.201E-5, 4), ranges%NEE, patchout%PlantTurnoverWood, out_settings)
+      CALL generate_out_write_acc(ovid%PlantTurnoverWoodDist, 'PlantTurnoverWoodDist', out%PlantTurnoverWoodDist, &
+                                  REAL(casaflux%Cplant_turnover_disturbance/86400.0/1.201E-5, 4), ranges%NEE, patchout%PlantTurnoverWoodDist, out_settings)
+      CALL generate_out_write_acc(ovid%PlantTurnoverWoodCrowding, 'PlantTurnoverWoodCrowding', out%PlantTurnoverWoodCrowding, &
+                                  REAL(casaflux%Cplant_turnover_crowding/86400.0/1.201E-5, 4), ranges%NEE, patchout%PlantTurnoverWoodCrowding, out_settings)
+      CALL generate_out_write_acc(ovid%PlantTurnoverWoodResourceLim, 'PlantTurnoverWoodResourceLim', out%PlantTurnoverWoodResourceLim, &
+                                  REAL((casaflux%Cplant_turnover_resource_limitation)/86400.0/1.201E-5, 4), ranges%NEE, patchout%PlantTurnoverWoodResourceLim, out_settings)
+      IF (cable_user%POPLUC) THEN
+        CALL generate_out_write_acc(ovid%LandUseFlux, 'LandUseFlux', out%LandUseFlux, &
+                                    REAL((casaflux%FluxCtohwp + casaflux%FluxCtoclear)/86400.0/1.201E-5, 4), ranges%NEE, patchout%LandUseFlux, out_settings)
+      END IF
+
+      ! plant carbon [kg C m-2]
+      CALL generate_out_write_acc(ovid%TotSoilCarb, 'TotSoilCarb', out%TotSoilCarb, REAL((SUM(casapool%csoil, 2) + SUM(casapool%clitter, 2)) &
                                                                                                     /1000.0, 4), ranges%TotSoilCarb, patchout%TotSoilCarb, out_settings)
-    CALL generate_out_write_acc(output%casa, ovid%TotLittCarb, 'TotLittCarb', out%TotLittCarb, REAL(SUM(casapool%clitter, 2)/1000.0, 4) &
-                                , ranges%TotLittCarb, patchout%TotLittCarb, out_settings)
+      CALL generate_out_write_acc(ovid%TotLittCarb, 'TotLittCarb', out%TotLittCarb, REAL(SUM(casapool%clitter, 2)/1000.0, 4), &
+                                  ranges%TotLittCarb, patchout%TotLittCarb, out_settings)
 
-    ! csoil
-    CALL generate_out_write_acc(output%casa, ovid%SoilCarbFast, 'SoilCarbFast', out%SoilCarbFast, REAL(casapool%csoil(:, 1)/1000.0, 4) &
-                                , ranges%TotLittCarb, patchout%SoilCarbFast, out_settings)
-    CALL generate_out_write_acc(output%casa, ovid%SoilCarbSlow, 'SoilCarbSlow', out%SoilCarbSlow, REAL(casapool%csoil(:, 2)/1000.0, 4) &
-                                , ranges%TotSoilCarb, patchout%SoilCarbSlow, out_settings)
-    CALL generate_out_write_acc(output%casa, ovid%SoilCarbPassive, 'SoilCarbPassive', out%SoilCarbPassive, REAL(casapool%csoil(:, 3)/1000.0, 4) &
-                                , ranges%TotSoilCarb, patchout%SoilCarbPassive, out_settings)
+      ! csoil
+      CALL generate_out_write_acc(ovid%SoilCarbFast, 'SoilCarbFast', out%SoilCarbFast, REAL(casapool%csoil(:, 1)/1000.0, 4), &
+                                  ranges%TotLittCarb, patchout%SoilCarbFast, out_settings)
+      CALL generate_out_write_acc(ovid%SoilCarbSlow, 'SoilCarbSlow', out%SoilCarbSlow, REAL(casapool%csoil(:, 2)/1000.0, 4), &
+                                  ranges%TotSoilCarb, patchout%SoilCarbSlow, out_settings)
+      CALL generate_out_write_acc(ovid%SoilCarbPassive, 'SoilCarbPassive', out%SoilCarbPassive, REAL(casapool%csoil(:, 3)/1000.0, 4), &
+                                  ranges%TotSoilCarb, patchout%SoilCarbPassive, out_settings)
 
-    ! clitter
-    CALL generate_out_write_acc(output%casa, ovid%LittCarbMetabolic, 'LittCarbMetabolic', out%LittCarbMetabolic, REAL(casapool%clitter(:, 1)/1000.0, 4) &
-                                , ranges%TotLittCarb, patchout%LittCarbMetabolic, out_settings)
-    CALL generate_out_write_acc(output%casa, ovid%LittCarbStructural, 'LittCarbStructural', out%LittCarbStructural, REAL(casapool%clitter(:, 2)/1000.0, 4) &
-                                , ranges%TotLittCarb, patchout%LittCarbStructural, out_settings)
-    CALL generate_out_write_acc(output%casa, ovid%LittCarbCWD, 'LittCarbCWD', out%LittCarbCWD, REAL(casapool%clitter(:, 3)/1000.0, 4) &
-                                , ranges%TotLittCarb, patchout%LittCarbCWD, out_settings)
+      ! clitter
+      CALL generate_out_write_acc(ovid%LittCarbMetabolic, 'LittCarbMetabolic', out%LittCarbMetabolic, REAL(casapool%clitter(:, 1)/1000.0, 4), &
+                                  ranges%TotLittCarb, patchout%LittCarbMetabolic, out_settings)
+      CALL generate_out_write_acc(ovid%LittCarbStructural, 'LittCarbStructural', out%LittCarbStructural, REAL(casapool%clitter(:, 2)/1000.0, 4), &
+                                  ranges%TotLittCarb, patchout%LittCarbStructural, out_settings)
+      CALL generate_out_write_acc(ovid%LittCarbCWD, 'LittCarbCWD', out%LittCarbCWD, REAL(casapool%clitter(:, 3)/1000.0, 4), &
+                                  ranges%TotLittCarb, patchout%LittCarbCWD, out_settings)
 
-    ! cplant
-    CALL generate_out_write_acc(output%casa, ovid%PlantCarbLeaf, 'PlantCarbLeaf', out%PlantCarbLeaf, REAL(casapool%cplant(:, 1)/1000.0, 4) &
-                                , ranges%TotLittCarb, patchout%PlantCarbLeaf, out_settings)
-    CALL generate_out_write_acc(output%casa, ovid%PlantCarbWood, 'PlantCarbWood', out%PlantCarbWood, REAL(casapool%cplant(:, 2)/1000.0, 4) &
-                                , ranges%TotLittCarb, patchout%PlantCarbWood, out_settings)
-    CALL generate_out_write_acc(output%casa, ovid%PlantCarbFineRoot, 'PlantCarbFineRoot', out%PlantCarbFineRoot, REAL(casapool%cplant(:, 3)/1000.0, 4) &
-                                , ranges%TotLittCarb, patchout%PlantCarbFineRoot, out_settings)
+      ! cplant
+      CALL generate_out_write_acc(ovid%PlantCarbLeaf, 'PlantCarbLeaf', out%PlantCarbLeaf, REAL(casapool%cplant(:, 1)/1000.0, 4), &
+                                  ranges%TotLittCarb, patchout%PlantCarbLeaf, out_settings)
+      CALL generate_out_write_acc(ovid%PlantCarbWood, 'PlantCarbWood', out%PlantCarbWood, REAL(casapool%cplant(:, 2)/1000.0, 4), &
+                                  ranges%TotLittCarb, patchout%PlantCarbWood, out_settings)
+      CALL generate_out_write_acc(ovid%PlantCarbFineRoot, 'PlantCarbFineRoot', out%PlantCarbFineRoot, REAL(casapool%cplant(:, 3)/1000.0, 4), &
+                                  ranges%TotLittCarb, patchout%PlantCarbFineRoot, out_settings)
 
-    CALL generate_out_write_acc(output%casa, ovid%TotLivBiomass, 'TotLivBiomass', out%TotLivBiomass, REAL((SUM(casapool%cplant, 2)) &
-                                                                                                          /1000.0, 4), ranges%TotLivBiomass, patchout%TotLivBiomass, out_settings)
+      CALL generate_out_write_acc(ovid%TotLivBiomass, 'TotLivBiomass', out%TotLivBiomass, REAL((SUM(casapool%cplant, 2)) &
+                                                                                                /1000.0, 4), ranges%TotLivBiomass, patchout%TotLivBiomass, out_settings)
+    END IF
 
     IF (cable_user%sync_nc_file) &
       ok = NF90_SYNC(ncid_out)
 
   END SUBROUTINE write_output
 
-  PURE ELEMENTAL REAL(4) FUNCTION acc_out_var(output_var, out_var, acc_val, writenow) RESULT(res)
-    LOGICAL, INTENT(IN) :: output_var ! Whether to write the current variable
-    REAL(4), INTENT(IN) :: out_var
-    REAL(4), INTENT(IN) :: acc_val
-    LOGICAL, INTENT(IN) :: writenow
-
-    IF (output_var) THEN
-      ! Accumulate out_var until interval timesteps
-      res = out_var + acc_val
-      IF (writenow) THEN
-        res = res/REAL(output%interval, 4)
-      END IF
-    ELSE
-      res = out_var
-    END IF
-  END FUNCTION acc_out_var
-
-  PURE ELEMENTAL REAL(4) FUNCTION reset_on_write(output_var, out_var, writenow) RESULT(res)
-    LOGICAL, INTENT(IN) :: output_var ! Whether to write the current variable
-    REAL(4), INTENT(IN) :: out_var
-    LOGICAL, INTENT(IN) :: writenow
-
-    res = out_var
-
-    ! Reset the value if it has been written to file
-    IF (output_var .AND. writenow) THEN
-      res = 0.0
-    END IF
-
-  END FUNCTION reset_on_write
-
-  SUBROUTINE check_and_write_d1(output_var, varID, vname, out_var, acc_val, vrange, writepatch, out_settings)
-    LOGICAL, INTENT(IN) :: output_var ! Whether to write the current variable
+  SUBROUTINE check_and_write_d1(varID, vname, out_var, acc_val, vrange, writepatch, out_settings)
     INTEGER, INTENT(IN) :: varID ! variable's netcdf ID
     CHARACTER(LEN=*), INTENT(IN) :: vname ! name of variable
     REAL(4), INTENT(IN) :: out_var(:)
@@ -2083,15 +2248,14 @@ CONTAINS
       CALL check_range(vname, acc_val, vrange, out_timestep, out_settings%met)
     END IF
 
-    IF (output_var .AND. out_settings%writenow) THEN
+    IF (out_settings%writenow) THEN
       ! Write value to file:
       CALL write_ovar(out_timestep, ncid_out, varID, vname, &
                       out_var, writepatch, out_settings%dimswitch, out_settings%met)
     END IF
   END SUBROUTINE check_and_write_d1
 
-  SUBROUTINE check_and_write_d2(output_var, varID, vname, out_var, acc_val, vrange, writepatch, out_settings)
-    LOGICAL, INTENT(IN) :: output_var ! Whether to write the current variable
+  SUBROUTINE check_and_write_d2(varID, vname, out_var, acc_val, vrange, writepatch, out_settings)
     INTEGER, INTENT(IN) :: varID ! variable's netcdf ID
     CHARACTER(LEN=*), INTENT(IN) :: vname ! name of variable
     REAL(4), INTENT(IN) :: out_var(:, :)
@@ -2104,16 +2268,14 @@ CONTAINS
       CALL check_range(vname, acc_val, vrange, out_timestep, out_settings%met)
     END IF
 
-    IF (output_var .AND. out_settings%writenow) THEN
+    IF (out_settings%writenow) THEN
       ! Write value to file:
       CALL write_ovar(out_timestep, ncid_out, varID, vname, &
                       out_var, writepatch, out_settings%dimswitch, out_settings%met)
     END IF
   END SUBROUTINE check_and_write_d2
 
-  SUBROUTINE check_and_write_d1_p(output_par, parID, pname, out_par, prange, writepatch, out_settings)
-
-    LOGICAL, INTENT(IN) :: output_par ! Whether to write the current parameter
+  SUBROUTINE check_and_write_d1_p(parID, pname, out_par, prange, writepatch, out_settings)
     INTEGER, INTENT(IN) :: parID ! parameter netcdf ID
     CHARACTER(LEN=*), INTENT(IN) :: pname ! name of parameter
     REAL(4), INTENT(IN) :: out_par(:)
@@ -2125,22 +2287,18 @@ CONTAINS
 
     CALL check_range(pname, out_par, prange, out_timestep, out_settings%met)
 
-    IF (output_par) THEN
-      IF (out_settings%restart) THEN
-        ncid_file = ncid_restart
-      ELSE
-        ncid_file = ncid_out
-      END IF
-      ! Write value to file:
-      CALL write_ovar(ncid_file, parID, pname, out_par, &
-                      writepatch, out_settings%dimswitch, out_settings%restart)
+    IF (out_settings%restart) THEN
+      ncid_file = ncid_restart
+    ELSE
+      ncid_file = ncid_out
     END IF
+    ! Write value to file:
+    CALL write_ovar(ncid_file, parID, pname, out_par, &
+                    writepatch, out_settings%dimswitch, out_settings%restart)
 
   END SUBROUTINE check_and_write_d1_p
 
-  SUBROUTINE check_and_write_d2_p(output_par, parID, pname, out_par, prange, writepatch, out_settings)
-
-    LOGICAL, INTENT(IN) :: output_par ! Whether to write the current parameter
+  SUBROUTINE check_and_write_d2_p(parID, pname, out_par, prange, writepatch, out_settings)
     INTEGER, INTENT(IN) :: parID ! parameter netcdf ID
     CHARACTER(LEN=*), INTENT(IN) :: pname ! name of parameter
     REAL(4), INTENT(IN) :: out_par(:, :)
@@ -2152,21 +2310,18 @@ CONTAINS
 
     CALL check_range(pname, out_par, prange, out_timestep, out_settings%met)
 
-    IF (output_par) THEN
-      IF (out_settings%restart) THEN
-        ncid_file = ncid_restart
-      ELSE
-        ncid_file = ncid_out
-      END IF
-      ! Write value to file:
-      CALL write_ovar(ncid_file, parID, pname, out_par, &
-                      writepatch, out_settings%dimswitch, out_settings%restart)
+    IF (out_settings%restart) THEN
+      ncid_file = ncid_restart
+    ELSE
+      ncid_file = ncid_out
     END IF
+    ! Write value to file:
+    CALL write_ovar(ncid_file, parID, pname, out_par, &
+                      writepatch, out_settings%dimswitch, out_settings%restart)
 
   END SUBROUTINE check_and_write_d2_p
 
-  SUBROUTINE generate_out_write_acc_d1(output_var, varID, vname, out_var, acc_val, vrange, writepatch, out_settings)
-    LOGICAL, INTENT(IN) :: output_var ! Whether to write the current variable
+  SUBROUTINE generate_out_write_acc_d1(varID, vname, out_var, acc_val, vrange, writepatch, out_settings)
     INTEGER, INTENT(IN) :: varID ! variable's netcdf ID
     CHARACTER(LEN=*), INTENT(IN) :: vname ! name of variable
     REAL(4), INTENT(INOUT) :: out_var(:)
@@ -2175,14 +2330,22 @@ CONTAINS
     LOGICAL, INTENT(IN) :: writepatch ! write patch-specific info for this var?
     TYPE(output_var_settings_type), INTENT(IN) :: out_settings ! met data
 
-    out_var = acc_out_var(output_var, out_var, acc_val, out_settings%writenow)
-    CALL check_and_write(output_var, varID, vname, out_var, acc_val, vrange, writepatch, out_settings)
-    out_var = reset_on_write(output_var, out_var, out_settings%writenow)
+    ! Accumulate out_var until interval timesteps
+    out_var = out_var + acc_val
+    IF (out_settings%writenow) THEN
+      out_var = out_var/REAL(output%interval, 4)
+    END IF
+
+    CALL check_and_write(varID, vname, out_var, acc_val, vrange, writepatch, out_settings)
+
+    ! Reset the value if it has been written to file
+    IF (out_settings%writenow) THEN
+      out_var = 0.0
+    END IF
 
   END SUBROUTINE generate_out_write_acc_d1
 
-  SUBROUTINE generate_out_write_acc_d2(output_var, varID, vname, out_var, acc_val, vrange, writepatch, out_settings)
-    LOGICAL, INTENT(IN) :: output_var ! Whether to write the current variable
+  SUBROUTINE generate_out_write_acc_d2(varID, vname, out_var, acc_val, vrange, writepatch, out_settings)
     INTEGER, INTENT(IN) :: varID ! variable's netcdf ID
     CHARACTER(LEN=*), INTENT(IN) :: vname ! name of variable
     REAL(4), INTENT(INOUT) :: out_var(:, :)
@@ -2191,9 +2354,18 @@ CONTAINS
     LOGICAL, INTENT(IN) :: writepatch ! write patch-specific info for this var?
     TYPE(output_var_settings_type), INTENT(IN) :: out_settings ! met data
 
-    out_var = acc_out_var(output_var, out_var, acc_val, out_settings%writenow)
-    CALL check_and_write(output_var, varID, vname, out_var, acc_val, vrange, writepatch, out_settings)
-    out_var = reset_on_write(output_var, out_var, out_settings%writenow)
+    ! Accumulate out_var until interval timesteps
+    out_var = out_var + acc_val
+    IF (out_settings%writenow) THEN
+      out_var = out_var/REAL(output%interval, 4)
+    END IF
+
+    CALL check_and_write(varID, vname, out_var, acc_val, vrange, writepatch, out_settings)
+
+    ! Reset the value if it has been written to file
+    IF (out_settings%writenow) THEN
+      out_var = 0.0
+    END IF
 
   END SUBROUTINE generate_out_write_acc_d2
 
@@ -2272,7 +2444,7 @@ CONTAINS
 
     TYPE(output_par_settings_type) :: out_settings
 
-    LOGICAL, PARAMETER :: output_var = .TRUE., patchout_var = .TRUE.
+    LOGICAL, PARAMETER :: patchout_var = .TRUE.
 
     ! REAL, POINTER, :: surffrac(:, :) ! fraction of each surf type
     INTEGER :: dummy ! dummy argument in subroutine call
@@ -2765,196 +2937,196 @@ CONTAINS
     ! Write parameters:
     !~ veg and soil
     out_settings%dimswitch = "integer"
-    CALL check_and_write(output_var, rpid%iveg, &
+    CALL check_and_write(rpid%iveg, &
                          'iveg', REAL(veg%iveg, 4), ranges%iveg, patchout_var, out_settings)
-    CALL check_and_write(output_var, rpid%isoil, 'isoil', REAL(soil%isoilm, 4), &
+    CALL check_and_write(rpid%isoil, 'isoil', REAL(soil%isoilm, 4), &
                          ranges%isoil, patchout_var, out_settings)
     out_settings%dimswitch = "real"
-!$  CALL check_and_write(output_var, rpid%bch, 'bch', REAL(soil%bch, 4), &
+!$  CALL check_and_write(rpid%bch, 'bch', REAL(soil%bch, 4), &
 !$                       ranges%bch, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%bch, 'bch', REAL(soil%bch, 4), &
+!$  CALL check_and_write(rpid%bch, 'bch', REAL(soil%bch, 4), &
 !$                       ranges%bch, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%clay, 'clay', REAL(soil%clay, 4), &
+!$  CALL check_and_write(rpid%clay, 'clay', REAL(soil%clay, 4), &
 !$                       ranges%clay, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%sand, 'sand', REAL(soil%sand, 4), &
+!$  CALL check_and_write(rpid%sand, 'sand', REAL(soil%sand, 4), &
 !$                       ranges%sand, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%silt, 'silt', REAL(soil%silt, 4), &
+!$  CALL check_and_write(rpid%silt, 'silt', REAL(soil%silt, 4), &
 !$                       ranges%silt, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%css, 'css', REAL(soil%css, 4), &
+!$  CALL check_and_write(rpid%css, 'css', REAL(soil%css, 4), &
 !$                       ranges%css, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%rhosoil, 'rhosoil', &
+!$  CALL check_and_write(rpid%rhosoil, 'rhosoil', &
 !$                       REAL(soil%rhosoil, 4), ranges%rhosoil, patchout_var, &
 !$                       out_settings)
-!$  CALL check_and_write(output_var, rpid%hyds, 'hyds', REAL(soil%hyds, 4), &
+!$  CALL check_and_write(rpid%hyds, 'hyds', REAL(soil%hyds, 4), &
 !$                       ranges%hyds, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%sucs, 'sucs', REAL(soil%sucs, 4), &
+!$  CALL check_and_write(rpid%sucs, 'sucs', REAL(soil%sucs, 4), &
 !$                       ranges%sucs, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%rs20, 'rs20', REAL(veg%rs20, 4), &
+!$  CALL check_and_write(rpid%rs20, 'rs20', REAL(veg%rs20, 4), &
 !$                       ranges%rs20, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%ssat, 'ssat', REAL(soil%ssat, 4), &
+!$  CALL check_and_write(rpid%ssat, 'ssat', REAL(soil%ssat, 4), &
 !$                       ranges%ssat, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%sfc, 'sfc', REAL(soil%sfc, 4), &
+!$  CALL check_and_write(rpid%sfc, 'sfc', REAL(soil%sfc, 4), &
 !$                       ranges%sfc, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%swilt, 'swilt', REAL(soil%swilt, 4), &
+!$  CALL check_and_write(rpid%swilt, 'swilt', REAL(soil%swilt, 4), &
 !$                       ranges%swilt, patchout_var, out_settings)
     ! Soil dimensioned variables/parameters:
     out_settings%dimswitch = "soil"
-!$  CALL check_and_write(output_var, rpid%froot, 'froot', REAL(veg%froot, 4), &
+!$  CALL check_and_write(rpid%froot, 'froot', REAL(veg%froot, 4), &
 !$                       ranges%froot, patchout_var, out_settings)
 
     !~ ssnow
     !~~ Soil dimensioned variables/parameters:
     out_settings%dimswitch = "soil"
-    CALL check_and_write(output_var, tggID, 'tgg', REAL(ssnow%tgg, 4), &
+    CALL check_and_write(tggID, 'tgg', REAL(ssnow%tgg, 4), &
                          ranges%SoilTemp, patchout_var, out_settings)
-    CALL check_and_write(output_var, wbID, 'wb', REAL(ssnow%wb, 4), ranges%SoilMoist, &
+    CALL check_and_write(wbID, 'wb', REAL(ssnow%wb, 4), ranges%SoilMoist, &
                          patchout_var, out_settings)
-    CALL check_and_write(output_var, wbiceID, 'wbice', REAL(ssnow%wbice, 4), &
+    CALL check_and_write(wbiceID, 'wbice', REAL(ssnow%wbice, 4), &
                          ranges%SoilMoist, patchout_var, out_settings)
-    CALL check_and_write(output_var, gammzzID, 'gammzz', REAL(ssnow%gammzz, 4), &
+    CALL check_and_write(gammzzID, 'gammzz', REAL(ssnow%gammzz, 4), &
                          ranges%default_l, patchout_var, out_settings)
     !~~ Snow dimensioned variables/parameters:
     out_settings%dimswitch = "snow"
-    CALL check_and_write(output_var, ssdnID, 'ssdn', REAL(ssnow%ssdn, 4), &
+    CALL check_and_write(ssdnID, 'ssdn', REAL(ssnow%ssdn, 4), &
                          ranges%ssdn, patchout_var, out_settings)
-    CALL check_and_write(output_var, smassID, 'smass', REAL(ssnow%smass, 4), &
+    CALL check_and_write(smassID, 'smass', REAL(ssnow%smass, 4), &
                          ranges%smass, patchout_var, out_settings)
-    CALL check_and_write(output_var, sdepthID, 'sdepth', REAL(ssnow%sdepth, 4), &
+    CALL check_and_write(sdepthID, 'sdepth', REAL(ssnow%sdepth, 4), &
                          ranges%sdepth, patchout_var, out_settings)
-    CALL check_and_write(output_var, tggsnID, 'tggsn', REAL(ssnow%tggsn, 4), &
+    CALL check_and_write(tggsnID, 'tggsn', REAL(ssnow%tggsn, 4), &
                          ranges%tggsn, patchout_var, out_settings)
     !~~ Other dims
     out_settings%dimswitch = "radiation"
-    CALL check_and_write(output_var, albsoilsnID, 'albsoilsn', &
+    CALL check_and_write(albsoilsnID, 'albsoilsn', &
                          REAL(ssnow%albsoilsn, 4), ranges%albsoiln, patchout_var, out_settings)
     out_settings%dimswitch = "plantcarbon"
-    CALL check_and_write(output_var, cplantID, 'cplant', REAL(bgc%cplant, 4), &
+    CALL check_and_write(cplantID, 'cplant', REAL(bgc%cplant, 4), &
                          ranges%default_l, patchout_var, out_settings)
     out_settings%dimswitch = "soilcarbon"
-    CALL check_and_write(output_var, csoilID, 'csoil', REAL(bgc%csoil, 4), &
+    CALL check_and_write(csoilID, 'csoil', REAL(bgc%csoil, 4), &
                          ranges%default_l, patchout_var, out_settings)
     ok = NF90_PUT_VAR(ncid_restart, rpid%zse, REAL(soil%zse, 4))
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing zse parameter to ' &
                                         //TRIM(frst_out)//'(SUBROUTINE create_restart)')
     ! Single dim:
     out_settings%dimswitch = "radiation"
-    CALL check_and_write(output_var, rpid%albsoil, 'albsoil', &
+    CALL check_and_write(rpid%albsoil, 'albsoil', &
                          REAL(soil%albsoil, 4), ranges%albsoil, patchout_var, out_settings)
 !$  out_settings%dimswitch = "real"
-!$  CALL check_and_write(output_var, rpid%canst1, 'canst1', REAL(veg%canst1, 4), &
+!$  CALL check_and_write(rpid%canst1, 'canst1', REAL(veg%canst1, 4), &
 !$                       ranges%canst1, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%dleaf, 'dleaf', REAL(veg%dleaf, 4), &
+!$  CALL check_and_write(rpid%dleaf, 'dleaf', REAL(veg%dleaf, 4), &
 !$                       ranges%dleaf, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%ejmax, 'ejmax', REAL(veg%ejmax, 4), &
+!$  CALL check_and_write(rpid%ejmax, 'ejmax', REAL(veg%ejmax, 4), &
 !$                       ranges%ejmax, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%vcmax, 'vcmax', REAL(veg%vcmax, 4), &
+!$  CALL check_and_write(rpid%vcmax, 'vcmax', REAL(veg%vcmax, 4), &
 !$                       ranges%vcmax, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%frac4, 'frac4', REAL(veg%frac4, 4), &
+!$  CALL check_and_write(rpid%frac4, 'frac4', REAL(veg%frac4, 4), &
 !$                       ranges%frac4, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%hc, 'hc', REAL(veg%hc, 4), &
+!$  CALL check_and_write(rpid%hc, 'hc', REAL(veg%hc, 4), &
 !$                       ranges%hc, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%rp20, 'rp20', REAL(veg%rp20, 4), &
+!$  CALL check_and_write(rpid%rp20, 'rp20', REAL(veg%rp20, 4), &
 !$                       ranges%rp20, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%g0, 'g0', REAL(veg%g0, 4), &
+!$  CALL check_and_write(rpid%g0, 'g0', REAL(veg%g0, 4), &
 !$                       ranges%g0, patchout_var, out_settings) ! Ticket #56
-!$  CALL check_and_write(output_var, rpid%g1, 'g1', REAL(veg%g1, 4), &
+!$  CALL check_and_write(rpid%g1, 'g1', REAL(veg%g1, 4), &
 !$                       ranges%g1, patchout_var, out_settings) ! Ticket #56
-!$  CALL check_and_write(output_var, rpid%rpcoef, 'rpcoef', REAL(veg%rpcoef, 4), &
+!$  CALL check_and_write(rpid%rpcoef, 'rpcoef', REAL(veg%rpcoef, 4), &
 !$                       ranges%rpcoef, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%shelrb, 'shelrb', REAL(veg%shelrb, 4), &
+!$  CALL check_and_write(rpid%shelrb, 'shelrb', REAL(veg%shelrb, 4), &
 !$                       ranges%shelrb, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%xfang, 'xfang', REAL(veg%xfang, 4), &
+!$  CALL check_and_write(rpid%xfang, 'xfang', REAL(veg%xfang, 4), &
 !$                       ranges%xfang, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%wai, 'wai', REAL(veg%wai, 4), &
+!$  CALL check_and_write(rpid%wai, 'wai', REAL(veg%wai, 4), &
 !$                       ranges%wai, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%vegcf, 'vegcf', REAL(veg%vegcf, 4), &
+!$  CALL check_and_write(rpid%vegcf, 'vegcf', REAL(veg%vegcf, 4), &
 !$                       ranges%vegcf, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%extkn, 'extkn', REAL(veg%extkn, 4), &
+!$  CALL check_and_write(rpid%extkn, 'extkn', REAL(veg%extkn, 4), &
 !$                       ranges%extkn, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%tminvj, 'tminvj', REAL(veg%tminvj, 4), &
+!$  CALL check_and_write(rpid%tminvj, 'tminvj', REAL(veg%tminvj, 4), &
 !$                       ranges%tminvj, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%tmaxvj, 'tmaxvj', REAL(veg%tmaxvj, 4), &
+!$  CALL check_and_write(rpid%tmaxvj, 'tmaxvj', REAL(veg%tmaxvj, 4), &
 !$                       ranges%tmaxvj, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%vbeta, 'vbeta', REAL(veg%vbeta, 4), &
+!$  CALL check_and_write(rpid%vbeta, 'vbeta', REAL(veg%vbeta, 4), &
 !$                       ranges%vbeta, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%xalbnir, 'xalbnir', &
+!$  CALL check_and_write(rpid%xalbnir, 'xalbnir', &
 !$                       REAL(veg%xalbnir, 4), ranges%xalbnir, patchout_var, &
 !$                       out_settings)
-!$  CALL check_and_write(output_var, rpid%tmaxvj, 'tmaxvj', REAL(veg%tmaxvj, 4), &
+!$  CALL check_and_write(rpid%tmaxvj, 'tmaxvj', REAL(veg%tmaxvj, 4), &
 !$                       ranges%tmaxvj, patchout_var, out_settings)
-!$  ok = NF90_PUT_VAR(output_var, rpid%ratecp, REAL(bgc%ratecp, 4))
+!$  ok = NF90_PUT_VAR(rpid%ratecp, REAL(bgc%ratecp, 4))
 !$  IF (ok /= NF90_NOERR) CALL nc_abort(ok, &
 !$                                      'Error writing ratecp parameter to ' &
 !$                                      //TRIM(frst_out)//'(SUBROUTINE create_restart)')
-!$  ok = NF90_PUT_VAR(output_var, rpid%ratecs, REAL(bgc%ratecs, 4))
+!$  ok = NF90_PUT_VAR(rpid%ratecs, REAL(bgc%ratecs, 4))
 !$  IF (ok /= NF90_NOERR) CALL nc_abort(ok, &
 !$                                      'Error writing ratecs parameter to ' &
 !$                                      //TRIM(frst_out)//'(SUBROUTINE create_restart)')
 !$  out_settings%dimswitch = "integer"
-!$  CALL check_and_write(output_var, rpid%meth, 'meth', REAL(veg%meth, 4), &
+!$  CALL check_and_write(rpid%meth, 'meth', REAL(veg%meth, 4), &
 !$                       ranges%meth, patchout_var, out_settings)
 !$  out_settings%dimswitch = "real"
-!$  CALL check_and_write(output_var, rpid%za_uv, 'za_uv', REAL(rough%za_uv, 4), &
+!$  CALL check_and_write(rpid%za_uv, 'za_uv', REAL(rough%za_uv, 4), &
 !$                       ranges%za, patchout_var, out_settings)
-!$  CALL check_and_write(output_var, rpid%za_tq, 'za_tq', REAL(rough%za_tq, 4), &
+!$  CALL check_and_write(rpid%za_tq, 'za_tq', REAL(rough%za_tq, 4), &
 !$                       ranges%za, patchout_var, out_settings)
     out_settings%dimswitch = "r2"
-    CALL check_and_write(output_var, dgdtgID, 'dgdtg', REAL(canopy%dgdtg, 4), &
+    CALL check_and_write(dgdtgID, 'dgdtg', REAL(canopy%dgdtg, 4), &
                          ranges%default_l, patchout_var, out_settings)
     out_settings%dimswitch = "integer"
-    CALL check_and_write(output_var, isflagID, 'isflag', REAL(ssnow%isflag, 4), &
+    CALL check_and_write(isflagID, 'isflag', REAL(ssnow%isflag, 4), &
                          ranges%default_l, patchout_var, out_settings)
     out_settings%dimswitch = "real"
-    CALL check_and_write(output_var, gwID, 'GWwb', REAL(ssnow%GWwb, 4), &
+    CALL check_and_write(gwID, 'GWwb', REAL(ssnow%GWwb, 4), &
                          ranges%GWwb, patchout_var, out_settings)
-    CALL check_and_write(output_var, tssID, 'tss', REAL(ssnow%tss, 4), &
+    CALL check_and_write(tssID, 'tss', REAL(ssnow%tss, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, ssdnnID, 'ssdnn', REAL(ssnow%ssdnn, 4), &
+    CALL check_and_write(ssdnnID, 'ssdnn', REAL(ssnow%ssdnn, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, osnowdID, 'osnowd', REAL(ssnow%osnowd, 4), &
+    CALL check_and_write(osnowdID, 'osnowd', REAL(ssnow%osnowd, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, snageID, 'snage', REAL(ssnow%snage, 4), &
+    CALL check_and_write(snageID, 'snage', REAL(ssnow%snage, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, snowdID, 'snowd', REAL(ssnow%snowd, 4), &
+    CALL check_and_write(snowdID, 'snowd', REAL(ssnow%snowd, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, rtsoilID, 'rtsoil', REAL(ssnow%rtsoil, 4), &
+    CALL check_and_write(rtsoilID, 'rtsoil', REAL(ssnow%rtsoil, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, canstoID, 'cansto', REAL(canopy%cansto, 4), &
+    CALL check_and_write(canstoID, 'cansto', REAL(canopy%cansto, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, sghfluxID, 'sghflux', &
+    CALL check_and_write(sghfluxID, 'sghflux', &
                          REAL(canopy%sghflux, 4), ranges%default_l, &
                          patchout_var, out_settings)
-    CALL check_and_write(output_var, ghfluxID, 'ghflux', REAL(canopy%ghflux, 4), &
+    CALL check_and_write(ghfluxID, 'ghflux', REAL(canopy%ghflux, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, runoffID, 'runoff', REAL(ssnow%runoff, 4), &
+    CALL check_and_write(runoffID, 'runoff', REAL(ssnow%runoff, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, rnof1ID, 'rnof1', REAL(ssnow%rnof1, 4), &
+    CALL check_and_write(rnof1ID, 'rnof1', REAL(ssnow%rnof1, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, rnof2ID, 'rnof2', REAL(ssnow%rnof2, 4), &
+    CALL check_and_write(rnof2ID, 'rnof2', REAL(ssnow%rnof2, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, gaID, 'ga', REAL(canopy%ga, 4), &
+    CALL check_and_write(gaID, 'ga', REAL(canopy%ga, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, fevID, 'fev', REAL(canopy%fev, 4), &
+    CALL check_and_write(fevID, 'fev', REAL(canopy%fev, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, fesID, 'fes', REAL(canopy%fes, 4), &
+    CALL check_and_write(fesID, 'fes', REAL(canopy%fes, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, fhsID, 'fhs', REAL(canopy%fhs, 4), &
+    CALL check_and_write(fhsID, 'fhs', REAL(canopy%fhs, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, wbtot0ID, 'wbtot0', REAL(bal%wbtot0, 4), &
+    CALL check_and_write(wbtot0ID, 'wbtot0', REAL(bal%wbtot0, 4), &
                          ranges%default_l, patchout_var, out_settings)
-    CALL check_and_write(output_var, osnowd0ID, 'osnowd0', REAL(bal%osnowd0, 4), &
+    CALL check_and_write(osnowd0ID, 'osnowd0', REAL(bal%osnowd0, 4), &
                          ranges%default_l, patchout_var, out_settings)
 
     !~ Radiation
     out_settings%dimswitch = "radiation"
-    CALL check_and_write(output_var, albedoID, 'albedo', REAL(rad%albedo, 4), &
+    CALL check_and_write(albedoID, 'albedo', REAL(rad%albedo, 4), &
                          ranges%Albedo, patchout_var, out_settings)
     out_settings%dimswitch = "real"
-    CALL check_and_write(output_var, tradID, 'trad', &
+    CALL check_and_write(tradID, 'trad', &
                          REAL(rad%trad, 4), ranges%RadT, patchout_var, out_settings)
 
 !$  IF (cable_user%SOIL_STRUC == 'sli' .OR. cable_user%FWSOIL_SWITCH == 'Haverd2013') THEN
-!$    CALL check_and_write(output_var, rpid%gamma, 'gamma', &
+!$    CALL check_and_write(rpid%gamma, 'gamma', &
 !$                         REAL(veg%gamma, 4), ranges%default_s, patchout_var, out_settings)
 !$  END IF
 !$
@@ -2962,32 +3134,32 @@ CONTAINS
     IF (cable_user%SOIL_STRUC == 'sli') THEN
       ! Write SLI parameters:
       out_settings%dimswitch = "integer"
-!$    CALL check_and_write(output_var, rpid%nhorizons, 'nhorizons', &
+!$    CALL check_and_write(rpid%nhorizons, 'nhorizons', &
 !$                         REAL(soil%nhorizons, 4), ranges%default_s, patchout_var, out_settings)
-      CALL check_and_write(output_var, nsnowID, 'nsnow', REAL(ssnow%nsnow, 4), &
+      CALL check_and_write(nsnowID, 'nsnow', REAL(ssnow%nsnow, 4), &
                            ranges%default_s, patchout_var, out_settings)
       out_settings%dimswitch = "soil"
-!$    CALL check_and_write(output_var, rpid%ishorizon, 'ishorizon', &
+!$    CALL check_and_write(rpid%ishorizon, 'ishorizon', &
 !$                         REAL(soil%ishorizon, 4), ranges%default_s, patchout_var, out_settings)
-      CALL check_and_write(output_var, SID, 'S', REAL(ssnow%S, 4), &
+      CALL check_and_write(SID, 'S', REAL(ssnow%S, 4), &
                          ranges%S, patchout_var, out_settings)
-      CALL check_and_write(output_var, TsoilID, 'Tsoil', REAL(ssnow%Tsoil, 4), &
+      CALL check_and_write(TsoilID, 'Tsoil', REAL(ssnow%Tsoil, 4), &
                          ranges%Tsoil, patchout_var, out_settings)
       out_settings%dimswitch = "real"
-!$    CALL check_and_write(output_var, rpid%clitt, 'clitt', &
+!$    CALL check_and_write(rpid%clitt, 'clitt', &
 !$                         REAL(veg%clitt, 4), ranges%default_s, patchout_var, out_settings)
-!$    CALL check_and_write(output_var, rpid%ZR, 'ZR', &
+!$    CALL check_and_write(rpid%ZR, 'ZR', &
 !$                         REAL(veg%ZR, 4), ranges%default_s, patchout_var, out_settings)
-!$    CALL check_and_write(output_var, rpid%F10, 'F10', &
+!$    CALL check_and_write(rpid%F10, 'F10', &
 !$                         REAL(veg%F10, 4), ranges%default_s, patchout_var, out_settings)
-      CALL check_and_write(output_var, TsurfaceID, 'Tsurface', REAL(ssnow%Tsurface, 4), &
+      CALL check_and_write(TsurfaceID, 'Tsurface', REAL(ssnow%Tsurface, 4), &
                            ranges%default_s, patchout_var, out_settings)
-      CALL check_and_write(output_var, h0ID, 'h0', REAL(ssnow%h0, 4), &
+      CALL check_and_write(h0ID, 'h0', REAL(ssnow%h0, 4), &
                            ranges%default_s, patchout_var, out_settings)
       out_settings%dimswitch = "snow"
-      CALL check_and_write(output_var, snowliqID, 'snowliq', REAL(ssnow%snowliq, 4), &
+      CALL check_and_write(snowliqID, 'snowliq', REAL(ssnow%snowliq, 4), &
                            ranges%default_s, patchout_var, out_settings)
-      CALL check_and_write(output_var, scondsID, 'sconds', REAL(ssnow%sconds, 4), &
+      CALL check_and_write(scondsID, 'sconds', REAL(ssnow%sconds, 4), &
                            ranges%default_s, patchout_var, out_settings)
     END IF
 

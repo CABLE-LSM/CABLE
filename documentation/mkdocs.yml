@@ -110,7 +110,8 @@ nav:
       - Build System: developer_guide/other_resources/build_system.md
       - Cheat Sheets: developer_guide/other_resources/cheat_sheets.md
       - CABLE's release process: developer_guide/other_resources/release_process.md
-      - API documentation: developer_guide/other_resources/api.md
+      - API documentation: api
       - Obsolete and deprecated features: developer_guide/other_resources/obsolete_and_deprecated_features/obsolete_and_deprecated_features.md
   - How-to:
     - Set up a sensitivity experiment: how-to/sensitivity_exp.md      
+  - API Reference: api

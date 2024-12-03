@@ -26,7 +26,8 @@ USE cable_other_constants_mod, ONLY: clai_thresh => lai_thresh
 USE cable_other_constants_mod, ONLY: cgauss_w => gauss_w
 USE cable_math_constants_mod,  ONLY: cpi => pi
 USE cable_math_constants_mod,  ONLY: cpi180 => pi180
-USE grid_constants_mod_cbl, ONLY : ICE_SoilType, lakes_cable
+USE cable_surface_types_mod,   ONLY: lakes_cable
+USE grid_constants_mod_cbl,    ONLY: ICE_SoilType
 
 
    USE cable_common_module
@@ -34,13 +35,10 @@ USE grid_constants_mod_cbl, ONLY : ICE_SoilType, lakes_cable
    USE cable_def_types_mod
    USE cable_roughness_module
    USE cable_air_module
-#ifndef NO_CASA_YET
-   USE casadimension,     only : icycle ! used in casa_cnp
-#endif
-   USE cable_data_module, ONLY : icbm_type, point2constants 
+   USE casadimension,            ONLY: icycle 
+   USE cable_phys_constants_mod, ONLY: GRAV, CAPP 
+
    
-   !ptrs to local constants 
-   TYPE( icbm_type ) :: C
    ! CABLE model variables
    TYPE (air_type),       INTENT(INOUT) :: air
    TYPE (bgc_pool_type),  INTENT(INOUT) :: bgc
@@ -64,27 +62,23 @@ REAL :: rhoch(mp,nrb)
 REAL :: xk(mp,nrb)
 
 LOGICAL :: veg_mask(mp), sunlit_mask(mp), sunlit_veg_mask(mp)
-CHARACTER(LEN=*), PARAMETER :: subr_name = "cbl_model_driver"
-LOGICAL :: jls_standalone= .FALSE.
-LOGICAL :: jls_radiation= .FALSE.
+LOGICAL :: jls_standalone = .FALSE.
+LOGICAL :: jls_radiation  = .FALSE.
 LOGICAL :: cbl_standalone = .FALSE.    
+CHARACTER(LEN=*), PARAMETER :: subr_name = "cbl_model_driver"
 
 
-   ! assign local ptrs to constants defined in cable_data_module
-   CALL point2constants(C)    
-
-      cable_runtime%um_radiation = .FALSE.
+cable_runtime%um_radiation = .FALSE.
       
-      IF( cable_runtime%um_explicit ) THEN
-        CALL ruff_resist( veg, rough, ssnow, canopy, veg%vlai, veg%hc, canopy%vlaiw )
-         met%tk = met%tk + C%grav/C%capp*(rough%zref_tq + 0.9*rough%z0m)
-      ENDIF
+IF( cable_runtime%um_explicit ) THEN
+  CALL ruff_resist( veg, rough, ssnow, canopy, veg%vlai, veg%hc, canopy%vlaiw )
+ENDIF
       
-      CALL define_air (met, air)
+CALL define_air (met, air)
    
-call fveg_mask( veg_mask, mp, Clai_thresh, canopy%vlaiw )
-call fsunlit_mask( sunlit_mask, mp, CRAD_THRESH,( met%fsd(:,1)+met%fsd(:,2) ) )
-call fsunlit_veg_mask( sunlit_veg_mask, veg_mask, sunlit_mask, mp )
+CALL fveg_mask( veg_mask, mp, Clai_thresh, canopy%vlaiw )
+CALL fsunlit_mask( sunlit_mask, mp, CRAD_THRESH,( met%fsd(:,1)+met%fsd(:,2) ) )
+CALL fsunlit_veg_mask( sunlit_veg_mask, veg_mask, sunlit_mask, mp )
 
 CALL init_radiation( rad%extkb, rad%extkd,                                     &
                      !ExtCoeff_beam, ExtCoeff_dif,

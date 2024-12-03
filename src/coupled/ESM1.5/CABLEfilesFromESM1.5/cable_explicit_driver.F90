@@ -439,11 +439,12 @@ SUBROUTINE cable_expl_unpack( FTL_TILE_CAB, FTL_CAB, FTL_TILE, FQW_TILE,       &
                            canopy_zetar, canopy_epot, met_ua, rad_trad,        &
                            rad_transd, rough_z0m, rough_zref_tq )
 
-   USE cable_def_types_mod, ONLY : mp, NITER 
-   USE cable_data_module,   ONLY : PHYS
-   USE cable_um_tech_mod,   ONLY : um1
-   USE cable_common_module, ONLY : cable_runtime, cable_user, &
-                                   ktau_gl, knode_gl 
+! data
+USE cable_phys_constants_mod, ONLY: CAPP 
+USE cable_def_types_mod,      ONLY : mp, NITER 
+USE cable_um_tech_mod,        ONLY : um1
+USE cable_common_module,      ONLY : cable_runtime, cable_user, &
+                                     ktau_gl, knode_gl 
    IMPLICIT NONE         
 
 
@@ -561,10 +562,7 @@ SUBROUTINE cable_expl_unpack( FTL_TILE_CAB, FTL_CAB, FTL_TILE, FQW_TILE,       &
    INTEGER :: i,j,k,N,L
    REAL :: miss = 0.0
    LOGICAL, SAVE :: first_cable_call = .true.
-   REAL, POINTER :: CAPP 
    
-      CAPP => PHYS%CAPP
-      
       !___return fluxes
       FTL_TILE_CAB = UNPACK(canopy_fh,  um1%l_tile_pts, miss)
       FTL_CAB = SUM(um1%TILE_FRAC * FTL_TILE_CAB,2)

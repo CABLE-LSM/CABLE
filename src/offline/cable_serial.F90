@@ -58,22 +58,35 @@
 !              poolcnpOut.csv -- from CASA-CNP
 !==============================================================================
 
-PROGRAM cable_offline_driver
+MODULE cable_serial
+  !! Offline serial driver for CABLE.
+  USE cable_driver_init_mod, ONLY : &
+    cable_driver_init,              &
+    vegparmnew,                     &
+    spinup,                         &
+    spincasa,                       &
+    CASAONLY,                       &
+    l_casacnp,                      &
+    l_landuse,                      &
+    l_laiFeedbk,                    &
+    l_vcmaxFeedbk,                  &
+    delsoilM,                       &
+    delsoilT,                       &
+    delgwM,                         &
+    LALLOC
   USE cable_def_types_mod
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
-       verbose, fixedCO2,output,check,patchout,    &
-       patch_type,landpt,soilparmnew,&
-       defaultLAI, sdoy, smoy, syear, timeunits, exists, calendar, set_group_output_values, &
+       fixedCO2,output,check,&
+       patch_type,landpt,&
+       defaultLAI, sdoy, smoy, syear, timeunits, calendar, &
        NO_CHECK
   USE casa_ncdf_module, ONLY: is_casa_time
   USE cable_common_module,  ONLY: ktau_gl, kend_gl, knode_gl, cable_user,     &
-       cable_runtime, filename, myhome,            &
-       redistrb, wiltParam, satuParam, CurYear,    &
-       IS_LEAPYEAR, calcsoilalbedo,              &
-       kwidth_gl, gw_params
+       filename, myhome,            &
+       CurYear,    &
+       IS_LEAPYEAR, &
+       kwidth_gl
 
-  USE cable_namelist_util, ONLY : get_namelist_file_name,&
-       CABLE_NAMELIST,arg_not_namelist
 ! physical constants
 USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
 USE cable_phys_constants_mod, ONLY : CEMLEAF => EMLEAF
@@ -118,8 +131,8 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
   USE CABLE_PLUME_MIP,      ONLY: PLUME_MIP_TYPE, PLUME_MIP_GET_MET,&
        PLUME_MIP_INIT
 
-  USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT
-  USE CABLE_site,           ONLY: site_TYPE, site_INIT, site_GET_CO2_Ndep
+  USE CABLE_CRU,            ONLY: CRU_TYPE, CRU_GET_SUBDIURNAL_MET
+  USE CABLE_site,           ONLY: site_TYPE, site_GET_CO2_Ndep
 
   ! LUC_EXPT only
   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, LUC_EXPT_INIT
@@ -135,41 +148,45 @@ USE bgcdriver_mod, ONLY : bgcdriver
 USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_NC 
   IMPLICIT NONE
 
-  ! CABLE namelist: model configuration, runtime/user switches
-  !CHARACTER(LEN=200), PARAMETER :: CABLE_NAMELIST='cable.nml'
-  ! try to read in namelist from command line argument
-  ! allows simple way of not hard coding cable.nml
-  ! defaults to using cable.nml if no file specified
+  PRIVATE
+  PUBLIC :: serialdrv
+
+CONTAINS
+
+SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
+  !! Offline serial driver.
+  DOUBLE PRECISION, INTENT(IN) :: trunk_sumbal
+    !! Reference value for quasi-bitwise reproducibility checks.
+  INTEGER, INTENT(IN) :: NRRRR !! Number of repeated spin-up cycles
+  REAL, INTENT(INOUT) :: dels !! Time step size in seconds
+  INTEGER, INTENT(INOUT) :: koffset !! Timestep to start at
+  INTEGER, INTENT(INOUT) :: kend !! No. of time steps in run
+  INTEGER, ALLOCATABLE, INTENT(INOUT) :: GSWP_MID(:,:) !! NetCDF file IDs for GSWP met forcing
+  TYPE(PLUME_MIP_TYPE), INTENT(IN) :: PLUME
+  TYPE(CRU_TYPE), INTENT(IN) :: CRU
+  TYPE (site_TYPE), INTENT(IN) :: site
 
   ! timing variables
   INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
   INTEGER, PARAMETER ::  mloop  = 30   ! CASA-CNP PreSpinup loops
-  INTEGER :: LALLOC ! allocation coefficient for passing to spincasa
 
   INTEGER        ::                                                           &
        ktau,       &  ! increment equates to timestep, resets if spinning up
-       ktau_tot,   &  ! NO reset when spinning up, total timesteps by model
-       kend,       &  ! no. of time steps in run
-                                !CLN      kstart = 1, &  ! timestep to start at
-       koffset = 0, &  ! timestep to start at
+       ktau_tot = 0, &  ! NO reset when spinning up, total timesteps by model
        koffset_met = 0, &  !offfset for site met data ('site' only)
        ktauday,    &  ! day counter for CASA-CNP
        idoy,       &  ! day of year (1:365) counter for CASA-CNP
        nyear,      &  ! year counter for CASA-CNP
        casa_it,    &  ! number of calls to CASA-CNP
        YYYY,       &  !
-       RYEAR,      &  !
+       RYEAR = 0,  &  ! current repeat year
        RRRR,       &  !
-       NRRRR,      &  !
-       ctime,      &  ! day count for casacnp
+       ctime = 0,  &  ! day count for casacnp
        LOY, &         ! days in year
        count_sum_casa ! number of time steps over which casa pools &
                                 !and fluxes are aggregated (for output)
 
-  REAL :: dels                        ! time step size in seconds
-
-  INTEGER,DIMENSION(:,:),ALLOCATABLE :: GSWP_MID
-  CHARACTER     :: dum*9, str1*9, str2*9, str3*9
+  CHARACTER     :: dum*9
 
   ! CABLE variables
   TYPE (met_type)       :: met     ! met input variables
@@ -201,35 +218,17 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
   ! vh_js !
   TYPE (POP_TYPE)       :: POP
   TYPE(POPLUC_TYPE) :: POPLUC
-  TYPE (PLUME_MIP_TYPE) :: PLUME
-  TYPE (CRU_TYPE)       :: CRU
-  TYPE (site_TYPE)       :: site
   TYPE (LUC_EXPT_TYPE) :: LUC_EXPT
   TYPE (landuse_mp)     :: lucmp
   CHARACTER             :: cyear*4
   CHARACTER             :: ncfile*99
 
-  ! declare vars for switches (default .FALSE.) etc declared thru namelist
   LOGICAL, SAVE           :: &
-       vegparmnew = .FALSE.,       & ! using new format input file (BP dec 2007)
-       spinup = .FALSE.,           & ! model spinup to soil state equilibrium?
        spinConv = .FALSE.,         & ! has spinup converged?
-       spincasa = .FALSE.,         & ! TRUE: CASA-CNP Will spin mloop times,
-                                ! FALSE: no spin up
-       l_casacnp = .FALSE.,        & ! using CASA-CNP with CABLE
-       l_landuse = .FALSE.,        & ! using CASA-CNP with CABLE
-       l_laiFeedbk = .FALSE.,      & ! using prognostic LAI
-       l_vcmaxFeedbk = .FALSE.,    & ! using prognostic Vcmax
-       CASAONLY      = .FALSE.,    & ! ONLY Run CASA-CNP
        CALL1 = .TRUE.,             &
        SPINon= .TRUE.
 
-  REAL              :: &
-       delsoilM,         & ! allowed variation in soil moisture for spin up
-       delsoilT            ! allowed variation in soil temperature for spin up
-
   INTEGER :: Metyear, Y, LOYtmp
-  REAL :: delgwM = 1e-4
 
   ! temporary storage for soil moisture/temp. in spin up mode
   REAL, ALLOCATABLE, DIMENSION(:,:)  :: &
@@ -241,227 +240,38 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
   ! timing
   REAL:: etime ! Declare the type of etime(), For receiving user and system time, total time
   REAL, allocatable  :: heat_cap_lower_limit(:,:)
-  ! switches etc defined thru namelist (by default cable.nml)
-  NAMELIST/CABLE/                  &
-       filename,         & ! TYPE, containing input filenames
-       vegparmnew,       & ! use new soil param. method
-       soilparmnew,      & ! use new soil param. method
-       calcsoilalbedo,   & ! albedo considers soil color Ticket #27
-       spinup,           & ! spinup model (soil) to steady state
-       delsoilM,delsoilT,& !
-       delgwM,           &
-       output,           &
-       patchout,         &
-       check,            &
-       verbose,          &
-       leaps,            &
-       logn,             &
-       fixedCO2,         &
-       spincasa,         &
-       l_casacnp,        &
-       l_landuse,        &
-       l_laiFeedbk,      &
-       l_vcmaxFeedbk,    &
-       icycle,           &
-       casafile,         &
-       ncciy,            &
-       gswpfile,         &
-       redistrb,         &
-       wiltParam,        &
-       satuParam,        &
-       cable_user,       &   ! additional USER switches
-       gw_params
 
   !mpidiff
   INTEGER :: i,x,kk,m,np,ivt
 
-  ! Vars for standard for quasi-bitwise reproducability b/n runs
-  ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
-  CHARACTER(len=30), PARAMETER ::                                             &
-       Ftrunk_sumbal  = ".trunk_sumbal",                                        &
-       Fnew_sumbal    = "new_sumbal"
-
   DOUBLE PRECISION ::                                                                     &
-       trunk_sumbal = 0.0, & !
        new_sumbal = 0.0, &
        new_sumfpn = 0.0, &
        new_sumfe = 0.0
-!For consistency w JAC
+  !For consistency w JAC
   REAL,ALLOCATABLE, SAVE :: c1(:,:)
   REAL,ALLOCATABLE, SAVE :: rhoch(:,:)
   REAL,ALLOCATABLE, SAVE :: xk(:,:)
 
   INTEGER :: nkend=0
-  INTEGER :: ioerror
   INTEGER :: count_bal = 0
 
-! for landuse
-integer     mlon,mlat, mpx
-real(r_2), dimension(:,:,:),   allocatable,  save  :: luc_atransit
-real(r_2), dimension(:,:),     allocatable,  save  :: luc_fharvw
-real(r_2), dimension(:,:,:),   allocatable,  save  :: luc_xluh2cable
-real(r_2), dimension(:),       allocatable,  save  :: arealand        
-integer,   dimension(:,:),     allocatable,  save  :: landmask
-integer,   dimension(:),       allocatable,  save  :: cstart,cend,nap
-real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
+  ! for landuse
+  integer     mlon,mlat, mpx
+  real(r_2), dimension(:,:,:),   allocatable,  save  :: luc_atransit
+  real(r_2), dimension(:,:),     allocatable,  save  :: luc_fharvw
+  real(r_2), dimension(:,:,:),   allocatable,  save  :: luc_xluh2cable
+  real(r_2), dimension(:),       allocatable,  save  :: arealand
+  integer,   dimension(:,:),     allocatable,  save  :: landmask
+  integer,   dimension(:),       allocatable,  save  :: cstart,cend,nap
+  real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
 
 ! END header
 
-  cable_runtime%offline = .TRUE.
-  !check to see if first argument passed to cable is
-  !the name of the namelist file
-  !if not use cable.nml
-  CALL get_namelist_file_name()
-
-  WRITE(*,*) "THE NAME LIST IS ",CABLE_NAMELIST
-  ! Open, read and close the namelist file.
-  OPEN( 10, FILE = CABLE_NAMELIST )
-  READ( 10, NML=CABLE )   !where NML=CABLE defined above
-  CLOSE(10)
-
-  ! Open, read and close the consistency check file.
-  ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
-  IF(cable_user%consistency_check) THEN
-     OPEN( 11, FILE = Ftrunk_sumbal,STATUS='old',ACTION='READ',IOSTAT=ioerror )
-     IF(ioerror==0) THEN
-        READ( 11, * ) trunk_sumbal  ! written by previous trunk version
-     ENDIF
-     CLOSE(11)
-  ENDIF
-
-  ! Open log file:
-  OPEN(logn,FILE=filename%log)
-
-  IF( (IARGC() > 0 ) .AND. (arg_not_namelist)) THEN
-     CALL GETARG(1, filename%met)
-     CALL GETARG(2, casafile%cnpipool)
-  ENDIF
-
-  ! INITIALISATION depending on nml settings
-  ! Initialise flags to output individual variables according to group
-  ! options from the namelist file
-  CALL set_group_output_values()
-
-  IF (TRIM(cable_user%MetType) .EQ. 'gswp' .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
-     IF ( CABLE_USER%YearStart.EQ.0 .AND. ncciy.GT.0) THEN
-        CABLE_USER%YearStart = ncciy
-        CABLE_USER%YearEnd = ncciy
-     ELSEIF  ( CABLE_USER%YearStart.EQ.0 .AND. ncciy.EQ.0) THEN
-        PRINT*, 'undefined start year for gswp met: '
-        PRINT*, 'enter value for ncciy or'
-        PRINT*, '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) in cable.nml'
-
-        WRITE(logn,*) 'undefined start year for gswp met: '
-        WRITE(logn,*) 'enter value for ncciy or'
-        WRITE(logn,*) '(CABLE_USER%YearStart and  CABLE_USER%YearEnd) in cable.nml'
-
-        STOP
-     ENDIF
-  ENDIF
-
-  CurYear = CABLE_USER%YearStart
-
-  IF ( icycle .GE. 11 ) THEN
-     icycle                     = icycle - 10
-     CASAONLY                   = .TRUE.
-     CABLE_USER%CASA_DUMP_READ  = .TRUE.
-     CABLE_USER%CASA_DUMP_WRITE = .FALSE.
-  ELSEIF ( icycle .EQ. 0 ) THEN
-     CABLE_USER%CASA_DUMP_READ  = .FALSE.
-     spincasa                   = .FALSE.
-
-     ! vh_js !
-     CABLE_USER%CALL_POP        = .FALSE.
-  ENDIF
-
-  ! vh_js !
-  IF (icycle.GT.0) THEN
-     l_casacnp = .TRUE.
-  ELSE
-     l_casacnp = .FALSE.
-  ENDIF
-
-  ! vh_js ! suggest LALLOC should ulitmately be a switch in the .nml file
-  IF (CABLE_USER%CALL_POP) THEN
-     LALLOC = 3 ! for use with POP: makes use of pipe model to partition between stem and leaf
-  ELSE
-     LALLOC = 0 ! default
-  ENDIF
-
-!$   IF ( .NOT. spinup ) THEN
-!$       IF ( spincasa ) THEN
-!$          spincasa = .FALSE.
-!$          WRITE(*,*)   "spinup == .FALSE. -> spincasa set to .F."
-!$          WRITE(logn,*)"spinup == .FALSE. -> spincasa set to .F."
-!$       ENDIF
-!$   ENDIF
-!$
-
-  IF ( TRIM(cable_user%MetType) .EQ. 'gpgs' ) THEN
-     leaps = .TRUE.
-     calendar = "standard"
-     cable_user%MetType = 'gswp'
-  ENDIF
-
-  IF( l_casacnp  .AND. ( icycle == 0 .OR. icycle > 3 ) )                   &
-       STOP 'icycle must be 1 to 3 when using casaCNP'
-  !IF( ( l_laiFeedbk .OR. l_vcmaxFeedbk ) )       &
-  !   STOP 'casaCNP required to get prognostic LAI or Vcmax'
-  IF( l_vcmaxFeedbk .AND. icycle < 1 )                                     &
-       STOP 'icycle must be 2 to 3 to get prognostic Vcmax'
-  IF( icycle > 0 .AND. ( .NOT. soilparmnew ) )                             &
-       STOP 'casaCNP must use new soil parameters'
-
-  NRRRR = MERGE(MAX(CABLE_USER%CASA_NREP,1), 1, CASAONLY)
-  ! casa time count
-  ctime = 0
-
 ! INISTUFF
 
-  ! Open met data and get site information from netcdf file. (NON-GSWP ONLY!)
-  ! This retrieves time step size, number of timesteps, starting date,
-  ! latitudes, longitudes, number of sites.
-  IF (TRIM(cable_user%MetType) .EQ. 'site' ) THEN
-
-     IF (l_casacnp) THEN
-
-        CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
-        IF ( koffset .NE. 0 .AND. CABLE_USER%CALL_POP ) THEN
-           WRITE(*,*)"When using POP, episode must start at Jan 1st!"
-           STOP 991
-        ENDIF
-
-     ELSE
-
-        WRITE(*,*)"MetType=site only works with CASA-CNP turned on"
-        STOP 991
-
-     ENDIF !l_casacnp
-
-  ELSEIF (TRIM(cable_user%MetType) .EQ. '') THEN
-
-     CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
-     IF ( koffset .NE. 0 .AND. CABLE_USER%CALL_POP ) THEN
-        WRITE(*,*)"When using POP, episode must start at Jan 1st!"
-        STOP 991
-     ENDIF
-
-  ELSE IF ( NRRRR .GT. 1 ) THEN
-
-     IF(.NOT.ALLOCATED(GSWP_MID)) &
-          ALLOCATE( GSWP_MID( 8, CABLE_USER%YearStart:CABLE_USER%YearEnd ) )
-
-  ENDIF !cable_user%MetType
 
   ! outer loop - spinup loop no. ktau_tot :
-  RYEAR = 0
-  ktau_tot = 0
-  SPINon   = .TRUE.
-!$  YearStart = CABLE_USER%YearStart
-!$  YearEnd = CABLE_USER%YearEnd
-!$  cable_user%CASA_SPIN_ENDYEAR
-
-
   SPINLOOP:DO WHILE ( SPINon )
 
      NREP: DO RRRR = 1, NRRRR
@@ -514,68 +324,14 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
 
            ELSE IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
               ! PLUME experiment setup using WATCH
-              IF ( CALL1 ) THEN
-
-                 CALL CPU_TIME(etime)
-                 CALL PLUME_MIP_INIT( PLUME )
-
-
-
-                 dels      = PLUME%dt
-                 koffset   = 0
-                 leaps = PLUME%LeapYears
-
-                 WRITE(str1,'(i4)') CurYear
-                 str1 = ADJUSTL(str1)
-                 WRITE(str2,'(i2)') 1
-                 str2 = ADJUSTL(str2)
-                 WRITE(str3,'(i2)') 1
-                 str3 = ADJUSTL(str3)
-                 timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//"00:00"
-              ENDIF
               IF ( .NOT. PLUME%LeapYears ) LOY = 365
               kend = NINT(24.0*3600.0/dels) * LOY
            ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
               ! TRENDY experiment using CRU-NCEP
-              IF ( CALL1 ) THEN
-
-                 CALL CPU_TIME(etime)
-                 CALL CRU_INIT( CRU )
-
-                 dels      = CRU%dtsecs
-                 koffset   = 0
-                 leaps = .FALSE.         ! No leap years in CRU-NCEP
-                 exists%Snowf = .FALSE.  ! No snow in CRU-NCEP, so ensure it will
-                 ! be determined from temperature in CABLE
-
-                 WRITE(str1,'(i4)') CurYear
-                 str1 = ADJUSTL(str1)
-                 WRITE(str2,'(i2)') 1
-                 str2 = ADJUSTL(str2)
-                 WRITE(str3,'(i2)') 1
-                 str3 = ADJUSTL(str3)
-                 timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//"00:00"
-                 calendar = "noleap"
-
-              ENDIF
               LOY = 365
               kend = NINT(24.0*3600.0/dels) * LOY
            ELSE IF ( TRIM(cable_user%MetType) .EQ. 'site' ) THEN
               ! site experiment eg AmazonFace (spinup or  transient run type)
-
-              IF ( CALL1 ) THEN
-                 CALL CPU_TIME(etime)
-                 CALL site_INIT( site )
-                 WRITE(str1,'(i4)') CurYear
-                 str1 = ADJUSTL(str1)
-                 WRITE(str2,'(i2)') 1
-                 str2 = ADJUSTL(str2)
-                 WRITE(str3,'(i2)') 1
-                 str3 = ADJUSTL(str3)
-                 timeunits="seconds since "//TRIM(str1)//"-"//TRIM(str2)//"-"//TRIM(str3)//"00:00"
-                 calendar = 'standard'
-
-              ENDIF
               kend = NINT(24.0*3600.0/dels) * LOY
               ! get koffset to add to time-step of sitemet
               IF (TRIM(site%RunType)=='historical') THEN
@@ -1010,9 +766,9 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
                        PRINT *, &
                             "Internal check shows in this version new_sumbal != trunk sumbal"
                        PRINT *, &
-                            "Writing new_sumbal to the file:", TRIM(Fnew_sumbal)
+                            "Writing new_sumbal to the file:", TRIM(filename%new_sumbal)
 
-                       OPEN( 12, FILE = Fnew_sumbal )
+                       OPEN( 12, FILE = filename%new_sumbal )
                        WRITE( 12, '(F20.7)' ) new_sumbal  ! written by previous trunk version
                        CLOSE(12)
 
@@ -1268,7 +1024,7 @@ real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
   CALL CPU_TIME(etime)
   PRINT *, 'Finished. ', etime, ' seconds needed for ', kend,' hours'
 
-END PROGRAM cable_offline_driver
+END SUBROUTINE serialdrv
 
 
 SUBROUTINE prepareFiles(ncciy)
@@ -1404,3 +1160,5 @@ SUBROUTINE LUCdriver( casabiome,casapool, &
   CALL POPLUC_weights_transfer(POPLUC,POP,LUC_EXPT)
 
 END SUBROUTINE LUCdriver
+
+END MODULE cable_serial

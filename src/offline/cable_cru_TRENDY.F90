@@ -1260,7 +1260,7 @@ CONTAINS
 
     CRU%ktau  = ktau     ! ktau is the current timestep in the year.
 
-!  this only works with CANBERRA cable_driver, as ktau    !
+!  this only works with CANBERRA cable_serial, as ktau    !
 !  restarts on Jan 1                                      !
     ! Based on the ktau timestep, calculate date and time information (the same for the whole spatial dimension.)
     met%hod (:) = REAL(MOD( (ktau-1) * NINT(dt), INT(SecDay)) ) / 3600.  ! Hour of the day

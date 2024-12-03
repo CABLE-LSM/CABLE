@@ -34,7 +34,6 @@
 SUBROUTINE cable_hyd_driver( SNOW_TILE, LYING_SNOW, SURF_ROFF, SUB_SURF_ROFF,  &
                              TOT_TFALL, WB_LAKE )
 
-   USE cable_data_module,   ONLY : PHYS, OTHER
    USE cable_common_module!, only : cable_runtime, cable_user
    USE cable_um_tech_mod, only : um1, ssnow, canopy, veg
    IMPLICIT NONE
@@ -57,9 +56,6 @@ SUBROUTINE cable_hyd_driver( SNOW_TILE, LYING_SNOW, SURF_ROFF, SUB_SURF_ROFF,  &
       WB_LAKE         ! unpack CABLE wb_lake
 
    REAL :: miss =0. 
-   REAL, POINTER :: TFRZ
-      
-      TFRZ => PHYS%TFRZ
    
       SNOW_TILE= UNPACK(ssnow%snowd, um1%L_TILE_PTS, miss) 
       LYING_SNOW = SUM(um1%TILE_FRAC * SNOW_TILE,2) !gridbox snow mass

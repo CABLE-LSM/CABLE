@@ -951,7 +951,7 @@ CONTAINS
     PLUME%CYEAR = CurYear
     PLUME%ktau  = ktau
 
-!  this only works with CANBERRA cable_driver, as ktau    !
+!  this only works with CANBERRA cable_serial, as ktau    !
 !  restarts on Jan 1                                      !
 
     met%hod (:) = REAL(MOD( (ktau-1) * NINT(dt), INT(SecDay)) ) / 3600.
