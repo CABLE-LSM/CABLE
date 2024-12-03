@@ -231,6 +231,7 @@ MODULE cable_IO_vars_module
          visAlbedo = .FALSE., & ! vars intro for Ticket #27
          nirAlbedo = .FALSE., & ! vars intro for Ticket #27
          VegT = .FALSE.,      & ! 31 vegetation temperature [K]
+         LeafT = .FALSE.,      & ! leaf temperature [K]
          SoilTemp = .FALSE.,  & ! 32 av.layer soil temperature [K]
          SoilMoist = .FALSE., & ! 33 av.layer soil moisture [kg/m2]
          SoilMoistPFT = .FALSE., & ! Total soil moisture per PFT [kg/m2]
