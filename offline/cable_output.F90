@@ -2838,12 +2838,12 @@ CONTAINS
         ! Divide accumulated variable by number of accumulated time steps:
         out%LeafT = out%LeafT * r2interval
         ! Write value to file:
-        CALL write_ovar(out_timestep, ncid_out, ovid%LeafT, 'LeafT', out%LeafT, &
+        CALL write_ovar(out_timestep, ncid_out, ovid%LeafT, 'LeafT', toreal4(out%LeafT), &
              ranges%VegT, patchout%LeafT, 'default', met)
         ! Reset temporary output variable:
         out%LeafT = 0.0_r_2
      END IF
-  END IF
+     END IF
     ! CanT: within-canopy temperature [K]
     IF (output%veg .OR. output%CanT) THEN
        ! Add current timestep's value to total of temporary output variable:
