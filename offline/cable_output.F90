@@ -935,7 +935,7 @@ CONTAINS
           'dry leaf temperature', patchout%LeafT, &
           'dummy', xID, yID, zID, landID, patchID, tID)
      ALLOCATE(out%LeafT(mp))
-     out%LeafT = zero4 ! initialise
+     out%LeafT = 0.0_r_2 ! initialise
   END IF
     IF(output%veg .OR. output%CanT) THEN
        CALL define_ovar(ncid_out, ovid%CanT, 'CanT', 'K', &
@@ -2833,15 +2833,15 @@ CONTAINS
     END IF
     IF(output%veg) THEN
      ! Add current timestep's value to total of temporary output variable:
-     out%LeafT = out%LeafT + toreal4(canopy%tlf)
+     out%LeafT = out%LeafT + canopy%tlf
      IF(writenow) THEN
         ! Divide accumulated variable by number of accumulated time steps:
-        out%LeafT = out%LeafT * rinterval
+        out%LeafT = out%LeafT * r2interval
         ! Write value to file:
         CALL write_ovar(out_timestep, ncid_out, ovid%LeafT, 'LeafT', out%LeafT, &
              ranges%VegT, patchout%LeafT, 'default', met)
         ! Reset temporary output variable:
-        out%LeafT = zero4
+        out%LeafT = 0.0_r_2
      END IF
   END IF
     ! CanT: within-canopy temperature [K]
