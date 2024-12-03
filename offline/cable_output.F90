@@ -85,7 +85,7 @@ MODULE cable_output_module
           An, Rd, cplant, clitter, csoil, clabile, &
           A13n, aDisc13, c13plant, c13litter, c13soil, c13labile, &
           TSap, psi_soil, psi_rootzone, psi_stem, psi_can_sl, psi_can_sh, &
-          plc_sat, plc_stem, plc_can, gsw_sun, gsw_sha
+          plc_sat, plc_stem, plc_can, gsw_sun, gsw_sha, LeafT
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
 
@@ -271,6 +271,7 @@ MODULE cable_output_module
      REAL(KIND=r_2), POINTER, DIMENSION(:,:) :: c13litter => null() ! 13C litter carbon pools
      REAL(KIND=r_2), POINTER, DIMENSION(:,:) :: c13soil => null()   ! 13C soil carbon pools
      REAL(KIND=r_2), POINTER, DIMENSION(:)   :: c13labile => null() ! 13C excess carbon pools
+     REAL(KIND=r_2), POINTER, DIMENSION(:)   :: LeafT => null()
 
      ! [kg/m2/s]
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: TSap => null()  ! 25b trans. from sapflux, ms8355
@@ -929,6 +930,13 @@ CONTAINS
        ALLOCATE(out%VegT(mp))
        out%VegT = zero4 ! initialise
     END IF
+    IF(output%veg) THEN
+     CALL define_ovar(ncid_out, ovid%LeafT, 'LeafT', 'K', &
+          'dry leaf temperature', patchout%LeafT, &
+          'dummy', xID, yID, zID, landID, patchID, tID)
+     ALLOCATE(out%LeafT(mp))
+     out%LeafT = zero4 ! initialise
+  END IF
     IF(output%veg .OR. output%CanT) THEN
        CALL define_ovar(ncid_out, ovid%CanT, 'CanT', 'K', &
             'Within-canopy temperature', patchout%CanT, &
@@ -2823,6 +2831,19 @@ CONTAINS
           out%VegT = zero4
        END IF
     END IF
+    IF(output%veg) THEN
+     ! Add current timestep's value to total of temporary output variable:
+     out%LeafT = out%LeafT + toreal4(canopy%tlf)
+     IF(writenow) THEN
+        ! Divide accumulated variable by number of accumulated time steps:
+        out%LeafT = out%LeafT * rinterval
+        ! Write value to file:
+        CALL write_ovar(out_timestep, ncid_out, ovid%LeafT, 'LeafT', out%LeafT, &
+             ranges%VegT, patchout%LeafT, 'default', met)
+        ! Reset temporary output variable:
+        out%LeafT = zero4
+     END IF
+  END IF
     ! CanT: within-canopy temperature [K]
     IF (output%veg .OR. output%CanT) THEN
        ! Add current timestep's value to total of temporary output variable:
