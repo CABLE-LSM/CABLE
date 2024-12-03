@@ -1718,6 +1718,12 @@ CONTAINS
      IF(output%params .OR. output%g3) CALL define_ovar(ncid_out, opid%g3, &
          'g3', '-', 'g3 term in fwpsi', &
          patchout%g3, 'real', xID, yID, zID, landID, patchID)
+     IF(output%params .OR. output%a1gs) CALL define_ovar(ncid_out, opid%a1gs, &
+         'a1gs', '-', 'a1gs term in leuning model', &
+         patchout%a1gs, 'real', xID, yID, zID, landID, patchID)
+     IF(output%params .OR. output%d0gs) CALL define_ovar(ncid_out, opid%d0gs, &
+         'd0gs', '-', 'd0gs term in leuning model', &
+         patchout%d0gs, 'real', xID, yID, zID, landID, patchID)
      IF(output%params .OR. output%psi_ref) CALL define_ovar(ncid_out, opid%psi_ref, &
          'psi_ref', '-', 'psi_ref term in fwpsi', &
          patchout%psi_ref, 'real', xID, yID, zID, landID, patchID)
@@ -1953,6 +1959,10 @@ CONTAINS
          'g2', toreal4(veg%g2),ranges%g2, patchout%g2, 'real')
      IF(output%params .OR. output%g3) CALL write_ovar(ncid_out, opid%g3, &
          'g3', toreal4(veg%g3),ranges%g3, patchout%g3, 'real')
+     IF(output%params .OR. output%a1gs) CALL write_ovar(ncid_out, opid%a1gs, &
+         'a1gs', toreal4(veg%a1gs),ranges%a1gs, patchout%a1gs, 'real')
+     IF(output%params .OR. output%d0gs) CALL write_ovar(ncid_out, opid%d0gs, &
+         'd0gs', toreal4(veg%d0gs),ranges%d0gs, patchout%d0gs, 'real')
      IF(output%params .OR. output%psi_ref) CALL write_ovar(ncid_out, opid%psi_ref, &
          'g3', toreal4(veg%psi_ref),ranges%psi_ref, patchout%psi_ref, 'real')
      IF(output%params .OR. output%kmax) CALL write_ovar(ncid_out, opid%kmax, &
@@ -4506,6 +4516,12 @@ CONTAINS
      CALL define_ovar(ncid_restart, rpid%g3, 'g3', '-', &
                      'g3 term in fwpsi', .TRUE.,'real',&
                      0, 0, 0, mpID, dummy, .TRUE.) 
+     CALL define_ovar(ncid_restart, rpid%a1gs, 'a1gs', '-', &
+                     'a1gs term in leuning model', .TRUE.,'real',&
+                     0, 0, 0, mpID, dummy, .TRUE.)
+     CALL define_ovar(ncid_restart, rpid%d0gs, 'd0gs', '-', &
+                     'd0gs term in leuning model', .TRUE.,'real',&
+                     0, 0, 0, mpID, dummy, .TRUE.)  
      CALL define_ovar(ncid_restart, rpid%psi_ref, 'psi_ref', '-', &
                      'psi_ref term in fwpsi', .TRUE.,'real',&
                      0, 0, 0, mpID, dummy, .TRUE.) 
@@ -4765,6 +4781,10 @@ CONTAINS
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
      CALL write_ovar (ncid_restart, rpid%g3, 'g3', toreal4(veg%g3), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.) 
+     CALL write_ovar (ncid_restart, rpid%a1gs, 'a1gs', toreal4(veg%a1gs), &
+          (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
+     CALL write_ovar (ncid_restart, rpid%d0gs, 'd0gs', toreal4(veg%d0gs), &
+          (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
      CALL write_ovar (ncid_restart, rpid%psi_ref, 'psi_ref', toreal4(veg%psi_ref), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.) 
      CALL write_ovar (ncid_restart, rpid%kmax, 'kmax', toreal4(veg%kmax), &
