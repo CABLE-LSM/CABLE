@@ -263,10 +263,6 @@ IMPLICIT NONE
   REAL   , INTENT(INOUT) ::THINNING(um1%land_pts,um1%ntiles)
   INTEGER :: idoy,mtau
 
-  print *, 'LUC1', l_luc
-  !l_luc = .TRUE.
-  print *, 'LUC2', l_luc
-
 !  PRINT *, 'initcasa,mp ', initcasa,mp
 
 ! Lest 6dec11 - moved from bgcdriver
@@ -292,19 +288,13 @@ IMPLICIT NONE
 
   IF (initcasa==1) THEN
      IF (l_luc .and. idoy == 1 .and. mtau == 1) THEN
-
-        print *, 'Lest LUC', mtau
         CALL casa_reinit_pk(casabiome,casamet,casapool,casabal,veg,phen, &
                           cpool_tile,npool_tile,ppool_tile,&
                           wood_hvest_c,wood_hvest_n,wood_hvest_p,&
                           wood_flux_c,wood_flux_n,wood_flux_p,&
                           wresp_c,wresp_n,wresp_p,thinning,&
                           GLAI,PHENPHASE,PREV_YR_SFRAC)
-        print *, 'TEST_LS reinit DONE'
-
      ELSE
-
-        print *, 'Lest No LUC', mtau
         ! CALL pack_cnppool(casamet,casapool,casabal,phen,um1,cpool_tile,npool_tile, &
         CALL pack_cnppool(casamet,casapool,casabal,phen,cpool_tile,npool_tile, &
                           ppool_tile,GLAI,PHENPHASE)
@@ -444,9 +434,9 @@ SUBROUTINE casa_reinit_pk(casabiome,casamet,casapool,casabal,veg,phen, &
    !REAL(r_2), DIMENSION(3) :: pool_frac, pool_time
    REAL,PARAMETER:: POOL_FRAC(3) =(/0.33, 0.33, 0.34/)
    REAL,PARAMETER:: POOL_TIME(3) =(/1.00, 0.10, 0.01/)
-   REAL(r_2) :: cplant_z(um1%land_pts,um1%ntiles,mplant)
-   REAL(r_2) :: nplant_z(um1%land_pts,um1%ntiles,mplant)
-   REAL(r_2) :: pplant_z(um1%land_pts,um1%ntiles,mplant)
+   REAL(r_2) :: cplant_z(um1%land_pts,um1%ntiles,mplant) ! Plant carbon pools after thinning.
+   REAL(r_2) :: nplant_z(um1%land_pts,um1%ntiles,mplant) ! Plant nitrogen pools after thinning.
+   REAL(r_2) :: pplant_z(um1%land_pts,um1%ntiles,mplant) ! Plant phosphorus pools after thinning.
 
    ! check if all of them are required
    INTEGER   :: g, p, k, y ! np
@@ -506,8 +496,6 @@ SUBROUTINE casa_reinit_pk(casabiome,casamet,casapool,casabal,veg,phen, &
   wresp_c = 0.
   wresp_n = 0.
   wresp_p = 0.
-
-  thinning = 0.
 
   ! assign "old" cnp pool values (from last dump file, initilization)
   clabile_x(:,:)   = cpool_tile(:,:,1)
@@ -595,8 +583,6 @@ SUBROUTINE casa_reinit_pk(casabiome,casamet,casapool,casabal,veg,phen, &
                                  frac_x(g,iceland), frac_y(g,iceland)
             STOP "Glacier fraction .ne. 1"
          ELSE
-            print *, 'Lest cycle', g,ifpre_x(g,iceland),ifpre_y(g,iceland),&
-                                 frac_x(g,iceland), frac_y(g,iceland)
             cycle
          END IF
      ELSEIF (.not.ifpre_x(g,iceland) .and. .not.ifpre_y(g,iceland)) THEN
@@ -613,8 +599,6 @@ SUBROUTINE casa_reinit_pk(casabiome,casamet,casapool,casabal,veg,phen, &
          STOP "Glacier tiles not consistent"
      END IF
 
-     !write(6,*)"TEST_TZ just before call newplant"
-
      ! For none glacier tiles
      ! Re-calculate plant C, N, P pools
      CALL newplant(cplant_x(g,:,:),frac_x(g,:),ifpre_x(g,:), &
@@ -623,8 +607,6 @@ SUBROUTINE casa_reinit_pk(casabiome,casamet,casapool,casabal,veg,phen, &
                                    nplant_y(g,:,:),frac_y(g,:),ifpre_y(g,:),logn(g,:))
      IF (icycle > 2) CALL newplant(pplant_x(g,:,:),frac_x(g,:),ifpre_x(g,:), &
                                    pplant_y(g,:,:),frac_y(g,:),ifpre_y(g,:),logp(g,:))
-
-     write(6,*)"TEST_TZ just after call newplant"
 
 ! Lestevens 24 Nov 2017 - Implement Yingping's flux to state pools
      !DATA pool_frac/0.33,0.33,0.34/
@@ -672,38 +654,64 @@ SUBROUTINE casa_reinit_pk(casabiome,casamet,casapool,casabal,veg,phen, &
                      psoilocc_y(g,:),frac_y(g,:),ifpre_y(g,:))
      ENDIF
 
-
-     ! TEST Lestevens 6june18 - thinning forests after luc ----
-     IF (l_thinforest) THEN
+    !! Thinning forests after land-use change.
+    IF (l_thinforest) THEN
+      ! Initialize local arrays for CNP pools after thinning.
                       cplant_z(g,:,:) = cplant_y(g,:,:)
-      if (icycle > 1) nplant_z(g,:,:) = nplant_y(g,:,:)
-      if (icycle > 2) pplant_z(g,:,:) = pplant_y(g,:,:)
-      DO y=1,3 ! pools for whvest
-                        woodhvest_c(g,:,y) = woodhvest_c(g,:,y) + &
-                                   (1-thinning(g,:)) * pool_frac(y) * cplant_y(g,:,wood)
-        if (icycle > 1) woodhvest_n(g,:,y) = woodhvest_n(g,:,y) + &
-                                   (1-thinning(g,:)) * pool_frac(y) * nplant_y(g,:,wood)
-        if (icycle > 2) woodhvest_p(g,:,y) = woodhvest_p(g,:,y) + &
-                                   (1-thinning(g,:)) * pool_frac(y) * pplant_y(g,:,wood)
-      END DO
-      DO y=1,mplant
-                        cplant_z(g,:,y) = thinning(g,:) * cplant_y(g,:,y)
-        if (icycle > 1) nplant_z(g,:,y) = thinning(g,:) * nplant_y(g,:,y)
-        if (icycle > 2) pplant_z(g,:,y) = thinning(g,:) * pplant_y(g,:,y)
-      END DO
-      CALL newlitter_thin(casabiome,frac_y(g,:),ifpre_y(g,:),frac_y(g,:),ifpre_y(g,:), &
-                     cplant_y(g,:,:),nplant_y(g,:,:),pplant_y(g,:,:), &
-                     cplant_z(g,:,:),nplant_z(g,:,:),pplant_z(g,:,:), &
-                     clitter_y(g,:,:),nlitter_y(g,:,:),plitter_y(g,:,:), &
-                     clitter_y(g,:,:),nlitter_y(g,:,:),plitter_y(g,:,:),thinning(g,:))
-                      cplant_y(g,:,:) = cplant_z(g,:,:)
-      if (icycle > 1) nplant_y(g,:,:) = nplant_z(g,:,:)
-      if (icycle > 2) pplant_y(g,:,:) = pplant_z(g,:,:)
-     ENDIF
-     ! TEST Lestevens 6june18 - thinning forests after luc ----
+      IF (icycle > 1) nplant_z(g,:,:) = nplant_y(g,:,:)
+      IF (icycle > 2) pplant_z(g,:,:) = pplant_y(g,:,:)
 
-! Lestevens 24 Nov 2017 - Implement Yingping's flux to state pools
-! Lestevens 7 June 2018 - Moved to after thinning
+      DO k=1,mlogmax
+        IF (ifpre_y(g,k) .AND. thinning(g,k)<1.0) THEN
+          !! 1. Calculate CNP pools after thinning.
+          DO y=1,mplant
+                          cplant_z(g,k,y) = thinning(g,k)*cplant_y(g,k,y)
+            IF (icycle>1) nplant_z(g,k,y) = thinning(g,k)*nplant_y(g,k,y)
+            IF (icycle>2) pplant_z(g,k,y) = thinning(g,k)*pplant_y(g,k,y)
+          END DO
+
+          !! 2. Add the removed wood to the wood_flux variable.
+                        logc(g,k) = logc(g,k) &
+                            + (1 - thinning(g,k))*cplant_y(g,k,wood)
+          IF (icycle>1) logn(g,k) = logn(g,k) &
+                            + (1 - thinning(g,k))*nplant_y(g,k,wood)
+          IF (icycle>2) logp(g,k) = logp(g,k) &
+                            + (1 - thinning(g,k))*pplant_y(g,k,wood)
+
+          !! 3. Add the wood harvest from thinning to the product pools.
+          DO p=1,3 ! pools for whvest
+                          woodhvest_c(g,k,p) = woodhvest_c(g,k,p) &
+                           + (1 - thinning(g,k))*pool_frac(p)*cplant_y(g,k,wood)
+            IF (icycle>1) woodhvest_n(g,k,p) = woodhvest_n(g,k,p) &
+                           + (1 - thinning(g,k))*pool_frac(p)*nplant_y(g,k,wood)
+            IF (icycle>2) woodhvest_p(g,k,p) = woodhvest_p(g,k,p) &
+                           + (1 - thinning(g,k))*pool_frac(p)*pplant_y(g,k,wood)
+          END DO
+        END IF
+      END DO
+
+      !! 4. Redistribute the harvested plant mass to litter pools.
+       CALL newlitter_thin( &
+             casabiome, &
+             ifpre_y(g,:), &
+             cplant_y(g,:,:), &
+             nplant_y(g,:,:), &
+             pplant_y(g,:,:), &
+             cplant_z(g,:,:), &
+             nplant_z(g,:,:), &
+             pplant_z(g,:,:), &
+             clitter_y(g,:,:), &
+             nlitter_y(g,:,:), &
+             plitter_y(g,:,:), &
+             thinning(g,:))
+
+      ! Restore the new plant pools to output arrays.
+                    cplant_y(g,:,:) = cplant_z(g,:,:)
+      IF (icycle>1) nplant_y(g,:,:) = nplant_z(g,:,:)
+      IF (icycle>2) pplant_y(g,:,:) = pplant_z(g,:,:)
+    END IF ! End thinning forests after LUC.
+
+     ! Lestevens 24 Nov 2017 - Implement Yingping's flux to state pools
      !DATA pool_frac/0.33,0.33,0.34/
      !DATA pool_time/1.0 ,0.1 ,0.01/
      DO y = 1,3 ! pools NOT leaf/wood/root
@@ -714,34 +722,37 @@ SUBROUTINE casa_reinit_pk(casabiome,casamet,casapool,casabal,veg,phen, &
       IF (icycle > 1) woodhvest_n(g,:,y) = woodhvest_n(g,:,y) - wresp_n(g,:,y)
       IF (icycle > 2) woodhvest_p(g,:,y) = woodhvest_p(g,:,y) - wresp_p(g,:,y)
      END DO
-! Lestevens 24 Nov 2017 - Implement Yingping's flux to state pools
-
+     ! Lestevens 24 Nov 2017 - Implement Yingping's flux to state pools
 
      ! Balance check
      cbal = sum((sum(cplant_x(g,:,:),2) + sum(clitter_x(g,:,:),2)  &
-          + sum(csoil_x(g,:,:),2) + clabile_x(g,:)) * frac_x(g,:))  &
+          + sum(csoil_x(g,:,:),2) + clabile_x(g,:))*frac_x(g,:))  &
           - (sum((sum(cplant_y(g,:,:),2) + sum(clitter_y(g,:,:),2)  &
-          + sum(csoil_y(g,:,:),2) + clabile_y(g,:)) * frac_y(g,:)) + sum(logc(g,:)))
+          + sum(csoil_y(g,:,:),2) + clabile_y(g,:))*frac_y(g,:)) &
+          + sum(frac_y(g,:)*logc(g,:)))
 
      IF (icycle > 1) nbal = sum((sum(nplant_x(g,:,:),2) + sum(nlitter_x(g,:,:),2)  &
-                          + sum(nsoil_x(g,:,:),2) + nsoilmin_x(g,:)) * frac_x(g,:))  &
+                          + sum(nsoil_x(g,:,:),2) + nsoilmin_x(g,:))*frac_x(g,:))  &
                           - (sum((sum(nplant_y(g,:,:),2) + sum(nlitter_y(g,:,:),2)  &
-                          + sum(nsoil_y(g,:,:),2) + nsoilmin_y(g,:)) * frac_y(g,:)) + sum(logn(g,:)))
+                          + sum(nsoil_y(g,:,:),2) + nsoilmin_y(g,:))*frac_y(g,:)) &
+                          + sum(frac_y(g,:)*logn(g,:)))
 
      IF (icycle > 2) pbal = sum((sum(pplant_x(g,:,:),2) + sum(plitter_x(g,:,:),2)  &
                           + sum(psoil_x(g,:,:),2) + psoillab_x(g,:)  &
-                          + psoilsorb_x(g,:) + psoilocc_x(g,:)) * frac_x(g,:))  &
+                          + psoilsorb_x(g,:) + psoilocc_x(g,:))*frac_x(g,:))  &
                           - (sum((sum(pplant_y(g,:,:),2) + sum(plitter_y(g,:,:),2)  &
                           + sum(psoil_y(g,:,:),2) + psoillab_y(g,:) + psoilsorb_y(g,:)  &
-                          + psoilocc_y(g,:)) * frac_y(g,:)) + sum(logp(g,:)))
+                          + psoilocc_y(g,:))*frac_y(g,:)) + sum(frac_y(g,:)*logp(g,:)))
 
 
-     IF(abs(cbal)>1.e-3 .or.abs(nbal)>1.e-4 .or.abs(pbal)>1.e-4) THEN
-        print*, 'imbalance on grid:',g,cbal,nbal,pbal
+     IF(ABS(cbal)>1.0E-3 .or. ABS(nbal)>1.0E-4 .or. ABS(pbal)>1.0E-4) THEN
+       PRINT *, "WARNING: CNP conservation imbalance"
+       IF (ABS(cbal)>1.0E-3) PRINT *, 'C imbalance on grid at point',g,"of",cbal
+       IF (ABS(nbal)>1.0E-4) PRINT *, 'N imbalance on grid at point',g,"of",nbal
+       IF (ABS(pbal)>1.0E-4) PRINT *, 'P imbalance on grid at point',g,"of",pbal
      END IF
 
   END DO ! end main loop
-  !END DO ! end main loop
 
   ! write values back into cnp pool files
   cpool_tile(:,:,1)  = clabile_y(:,:)

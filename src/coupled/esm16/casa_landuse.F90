@@ -1,5 +1,3 @@
-# define ESM15 YES
-#ifdef ESM15
 module landuse_mod
 
 contains
@@ -137,114 +135,149 @@ SUBROUTINE newlitter( casabiome,frac_x,ifpre_x,frac_y,ifpre_y, &
 END SUBROUTINE newlitter
 
 
-SUBROUTINE newlitter_thin( casabiome,frac_x,ifpre_x,frac_y,ifpre_y, &
-                      cplant_x,nplant_x,pplant_x,cplant_y,nplant_y,pplant_y,&
-                      clitter_x,nlitter_x,plitter_x,clitter_y,nlitter_y,plitter_y,&
-                      thinRatio)
-! Used for THINNING FOREST
-! Call by casa_reinit
-! Transfer the deforest C to litter, and re-allocate litter pools.
-! Q.Zhang @ 29/05/2011
-! L.Stevens @ 8/06/2018
-  USE cable_def_types_mod
-  USE casadimension
-  USE casaparm
-  USE casavariable
+SUBROUTINE newlitter_thin( &
+      casabiome, &
+      tile_exists, &
+      cplant_x, &
+      nplant_x, &
+      pplant_x, &
+      cplant_y, &
+      nplant_y, &
+      pplant_y, &
+      clitter, &
+      nlitter, &
+      plitter, &
+      thinning)
+   !* Transfer the thinned forest leaf and root biomass to litter pools.
+   !
+   ! ## Procedure
+   !
+   ! 1. Find the difference between the plant biomass pools before and after
+   !    thinning.
+   ! 2. Ignore wood biomass (because it's already transferred to wood harvest)
+   ! 3. Calculate the plant to litter ratio matrix based on C/N
+   ! 4. Transfer biomass to litter pools
+   USE cable_def_types_mod
+   USE casadimension
+   USE casaparm
+   USE casavariable
 
-  implicit none
+   IMPLICIT NONE
 
-  TYPE (casa_biome),        INTENT(IN) :: casabiome
-  logical,DIMENSION(mvtype),INTENT(in) :: ifpre_x,ifpre_y
-  real,DIMENSION(mvtype),INTENT(in) :: frac_x,frac_y,thinRatio
-  real(r_2),DIMENSION(mvtype,mplant),INTENT(in) ::cplant_x,nplant_x,pplant_x
-  real(r_2),DIMENSION(mvtype,mlitter),INTENT(in) ::clitter_x,nlitter_x,plitter_x
-  real(r_2),DIMENSION(mvtype,mplant),INTENT(inout) ::cplant_y,nplant_y,pplant_y
-  real(r_2),DIMENSION(mvtype,mlitter),INTENT(inout) ::clitter_y,nlitter_y,plitter_y
+   TYPE (casa_biome), INTENT (IN) :: casabiome
+   LOGICAL, INTENT (IN) :: tile_exists(mvtype)
+   REAL, INTENT (IN) :: thinning(mvtype) !! Thinning fraction (1 = no thinning)
+   REAL (r_2), INTENT (IN) :: cplant_x(mvtype,mplant) !! Plant C before thinning
+   REAL (r_2), INTENT (IN) :: nplant_x(mvtype,mplant) !! Plant N before thinning
+   REAL (r_2), INTENT (IN) :: pplant_x(mvtype,mplant) !! Plant P before thinning
+   REAL (r_2), INTENT (IN) :: cplant_y(mvtype,mplant) !! Plant C after thinning
+   REAL (r_2), INTENT (IN) :: nplant_y(mvtype,mplant) !! Plant N after thinning
+   REAL (r_2), INTENT (IN) :: pplant_y(mvtype,mplant) !! Plant P after thinning
+   REAL (r_2), INTENT (INOUT) :: clitter(mvtype,mlitter) !! Litter C
+   REAL (r_2), INTENT (INOUT) :: nlitter(mvtype,mlitter) !! Litter N
+   REAL (r_2), INTENT (INOUT) :: plitter(mvtype,mlitter) !! Litter P
 
-  ! local variable
-  real(r_2),DIMENSION(mvtype,mlitter,mplant) :: fromPtoL
-  real(r_2),DIMENSION(mvtype,mplant) ::dcplant,dnplant,dpplant,ratioLignintoN
-  real(r_2),DIMENSION(mvtype,mlitter) :: dclitter,dnlitter,dplitter,clitter_g,nlitter_g,plitter_g
-  integer nL, nP, nv
-  integer, parameter :: mforest = 4
+   ! Local variables
+   REAL (r_2) :: fromPtoL(mvtype,mlitter,mplant)
+   REAL (r_2) :: dcplant(mvtype,mplant)
+   REAL (r_2) :: dnplant(mvtype,mplant)
+   REAL (r_2) :: dpplant(mvtype,mplant)
+   REAL (r_2) :: ratioLignintoN(mvtype,mplant)
+   REAL (r_2) :: dclitter(mvtype,mlitter)
+   REAL (r_2) :: dnlitter(mvtype,mlitter)
+   REAL (r_2) :: dplitter(mvtype,mlitter)
+   REAL (r_2) :: imbalance
+   INTEGER :: nl, np, nv
 
-  dcplant = 0.
-  dnplant = 0.
-  dpplant = 0.
-  ratioLignintoN = 0.
-  fromPtoL = 0.
-  dclitter = 0.
-  dnlitter = 0.
-  dplitter = 0.
+   dcplant = 0.0
+   dnplant = 0.0
+   dpplant = 0.0
+   ratioLignintoN = 0.0
+   fromPtoL = 0.0
+   dclitter = 0.0
+   dnlitter = 0.0
+   dplitter = 0.0
 
-! I. transfer removed plant to litter
-  DO nP =1,mplant
-                    dcplant(:,nP) = cplant_x(:,nP) * frac_x(:) -cplant_y(:,nP) *frac_y(:)
-    IF (icycle > 1) dnplant(:,nP) = nplant_x(:,nP) * frac_x(:) -nplant_y(:,nP) * frac_y(:)
-    IF (icycle > 2) dpplant(:,nP) = pplant_x(:,nP) * frac_x(:) -pplant_y(:,nP) * frac_y(:)
-  END DO
-! NB: logged wood should not be transfered to litter
-                  dcplant(1:mlogmax,wood) = 0.
-  IF (icycle > 1) dnplant(1:mlogmax,wood) = 0.
-  IF (icycle > 2) dpplant(1:mlogmax,wood) = 0.
+   ! Find the change in the plant pools
+   DO np=1,mplant
+                      dcplant(:,np) = cplant_x(:,np) - cplant_y(:,np)
+      IF (icycle > 1) dnplant(:,np) = nplant_x(:,np) - nplant_y(:,np)
+      IF (icycle > 2) dpplant(:,np) = pplant_x(:,np) - pplant_y(:,np)
+   END DO
 
-  WHERE(sum(dcplant,2) > 0.)
-  ! In land use, all plant nutient is allocated to litter pools without re-asorbsion.Q.Zhang 11/08/2011
-    ratioLignintoN(:,leaf) =cplant_x(:,leaf)/max(1.0e-10,nplant_x(:,leaf)) &
-                             * casabiome%fracLigninplant(:,leaf)
-    ratioLignintoN(:,froot)=cplant_x(:,froot)/max(1.0e-10,nplant_x(:,froot)) &
-                             * casabiome%fracLigninplant(:,froot)
+   ! Wood should not be transfered to litter, it has already gone to products
+                   dcplant(:,wood) = 0.0
+   IF (icycle > 1) dnplant(:,wood) = 0.0
+   IF (icycle > 2) dpplant(:,wood) = 0.0
 
-    fromPtoL(:,metb,leaf)   = max(0.001, 0.85 - 0.018*ratioLignintoN(:,leaf))
-    fromPtoL(:,metb,froot)  = max(0.001, 0.85 - 0.018*ratioLignintoN(:,froot))
-    fromPtoL(:,str,leaf)    = 1.0 - fromPtoL(:,metb,leaf)
-    fromPtoL(:,str,froot)   = 1.0 - fromPtoL(:,metb,froot)
-    fromPtoL(:,cwd,wood)    = 1.0
-  ENDWHERE
+   ! Calculate plant->litter allocation ratios from C/N.
+   ! All plant nutients are allocated to litter pools without re-asorpsion.
+   WHERE (SUM(dcplant, 2) > 0.0)
+      ratioLignintoN(:,leaf) = &
+            cplant_x(:,leaf)/MAX(1.0e-10, nplant_x(:,leaf)) &
+            *casabiome%fracLigninplant(:,leaf)
+      ratioLignintoN(:,froot) = &
+            cplant_x(:,froot)/MAX(1.0e-10, nplant_x(:,froot)) &
+            *casabiome%fracLigninplant(:,froot)
 
-  DO nv=1, mforest
-  ! average litter pools on gridcell
-     clitter_g(nv,:) = clitter_x(nv,:) *  frac_x(nv)
-     nlitter_g(nv,:) = nlitter_x(nv,:) *  frac_x(nv)
-     plitter_g(nv,:) = plitter_x(nv,:) *  frac_x(nv)
-  ! transfer removed C,N,P pools from plant to litter
-    IF(ifpre_x(nv) .and. thinRatio(nv)<1.0)THEN
+      fromPtoL(:,metb,leaf) = MAX(0.001, 0.85 - 0.018*ratioLignintoN(:,leaf))
+      fromPtoL(:,metb,froot) = MAX(0.001, 0.85 - 0.018*ratioLignintoN(:,froot))
+      fromPtoL(:,str,leaf) = 1.0 - fromPtoL(:,metb,leaf)
+      fromPtoL(:,str,froot) = 1.0 - fromPtoL(:,metb,froot)
+      fromPtoL(:,cwd,wood) = 0.0
+   END WHERE
 
-      DO nL=1,mlitter
-        DO nP=1,mplant
-           dclitter(nv,nL) = fromPtoL(nv,nL,nP) *dcplant(nv,nP)
-           !clitter_g(nv,nL) = clitter_g(nv,nL) + fromPtoL(nv,nL,nP) *dcplant(nv,nP)
-        ENDDO
-      ENDDO
+   DO nv=1,mlogmax
+      IF (tile_exists(nv) .AND. thinning(nv)<1.0) THEN
+         ! Caluclate the change in each litter pools.
+         DO nl=1,mlitter
+            DO np=1,mplant
+               dclitter(nv,nl) = &
+                     dclitter(nv,nl) + fromPtoL(nv,nl,np)*dcplant(nv,np)
+            END DO
+         END DO
 
-      IF(icycle > 1) THEN
-         dnlitter(nv,str) = (fromPtoL(nv,str,leaf) * dcplant(nv,leaf) &
-                           + fromPtoL(nv,str,froot) * dcplant(nv,froot))* ratioNCstrfix
-         dnlitter(nv,metb) = dnplant(nv,leaf) + dnplant(nv,froot) -dnlitter(nv,str)
-         dnlitter(nv,CWD) = dnplant(nv,wood)
-      ENDIF !end "icycle >1"
+         IF (icycle > 1) THEN
+            dnlitter(nv,str) = &
+                    (fromPtoL(nv,str,leaf)*dcplant(nv,leaf) &
+                  + fromPtoL(nv,str,froot)*dcplant(nv,froot)) &
+                  *ratioNCstrfix
+            dnlitter(nv,metb) = &
+                    dnplant(nv,leaf) &
+                  + dnplant(nv,froot) &
+                  - dnlitter(nv,str)
+            dnlitter(nv,CWD) = dnplant(nv,wood)
+         END IF
 
-      IF(icycle > 2) THEN
-         dplitter(nv,str) = (fromPtoL(nv,str,leaf) * dcplant(nv,leaf) &
-                           + fromPtoL(nv,str,froot)* dcplant(nv,froot))* ratioPCstrfix
-         dplitter(nv,metb) = dpplant(nv,leaf) + dpplant(nv,froot)-dplitter(nv,str)
-         dplitter(nv,CWD) = dpplant(nv,wood)
-      ENDIF  !of "icycle >2"
-    ENDIF
-  END DO
+         IF (icycle > 2) THEN
+            dplitter(nv,str) = &
+                    (fromPtoL(nv,str,leaf)*dcplant(nv,leaf) &
+                  + fromPtoL(nv,str,froot)*dcplant(nv,froot)) &
+                  *ratioPCstrfix
+            dplitter(nv,metb) = &
+                    dpplant(nv,leaf) &
+                  + dpplant(nv,froot) &
+                  - dplitter(nv,str)
+            dplitter(nv,CWD) = dpplant(nv,wood)
+         END IF
 
-                  clitter_g = clitter_g + dclitter
-  IF (icycle > 1) nlitter_g = nlitter_g + dnlitter
-  IF (icycle > 2) plitter_g = plitter_g + dplitter
+         ! Modify the litter pools.
+                         clitter(nv,:) = clitter(nv,:) + dclitter(nv,:)
+         IF (icycle > 1) nlitter(nv,:) = nlitter(nv,:) + dnlitter(nv,:)
+         IF (icycle > 2) plitter(nv,:) = plitter(nv,:) + dplitter(nv,:)
+      END IF
+   END DO
 
-  DO nv=1,mforest
-    IF (ifpre_y(nv)) THEN   ! pft exist in the 2nd year
-                      clitter_y(nv,:) = clitter_g(nv,:)/frac_y(nv)
-      IF (icycle > 1) nlitter_y(nv,:) = nlitter_g(nv,:)/frac_y(nv)
-      IF (icycle > 2) plitter_y(nv,:) = plitter_g(nv,:)/frac_y(nv)
-    ENDIF
-  END DO
-
+   ! Check for conservation of mass
+   imbalance = ABS(SUM(dcplant(1:mlogmax,:)) - SUM(dclitter(1:mlogmax,:)))
+   IF (imbalance > 1.0E-10) THEN
+      WRITE (6,*) "Violation of carbon conservation in newlitter_thin"
+      WRITE (6,*) "difference", &
+            SUM(dcplant(1:mlogmax,:)) - SUM(dclitter(1:mlogmax,:))
+      WRITE (6,*) "dcplant", dcplant
+      WRITE (6,*) "dclitter", dclitter
+      WRITE (6,*) "tile_exists", tile_exists
+   END IF
 END SUBROUTINE newlitter_thin
 
 
@@ -341,4 +374,3 @@ SUBROUTINE newsoil(nd,csoil_x,frac_x,ifpre_x,csoil_y,frac_y,ifpre_y)
 END SUBROUTINE newsoil
 
 End module landuse_mod
-#endif
