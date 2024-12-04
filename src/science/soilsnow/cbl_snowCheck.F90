@@ -69,7 +69,7 @@ SUBROUTINE snowcheck(dels, ssnow, soil, met )
           ENDIF
 
        ELSE ! in loop: IF( ssnow%snowd(j) <= 0.0 ) THEN
-          !> sufficient snow now for 3 layer snowpack
+          ! sufficient snow now for 3 layer snowpack
 
           IF( ssnow%isflag(j) == 0 ) THEN
 
