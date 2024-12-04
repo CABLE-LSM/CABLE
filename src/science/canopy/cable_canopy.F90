@@ -444,34 +444,22 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
              rad%lwabv(j) = CCAPP * Crmair * ( tlfy(j) - met%tk(j) ) *        &
                   sum_rad_gradis(j)
              ! vh_js !
-
-! FEEDBACK
-             ! (
-             ! ____ MMY@23Apr2023 need to check whether met%tvrad and met%tk are the same, leave these comments for now ____
-             !print *, "MMY point 1, check met%tvrad and met%tk values", met%tk(j), met%tvrad(j) ! MMY@23Apr2023
-! ) -- rk4417
              
              IF (  (rad%lwabv(j) / (2.0*(1.0-rad%transd(j))            &
                   * CSBOLTZ*CEMLEAF)+met%tvrad(j)**4) .GT. 0.0) THEN
-!                  * CSBOLTZ*CEMLEAF)+met%tk(j)**4) .gt. 0.0) THEN ! MMY has this line instead ? -- rk4417 - FEEDBACK
 
                 canopy%tv(j) = (rad%lwabv(j) / (2.0*(1.0-rad%transd(j))            &
                      * CSBOLTZ*CEMLEAF)+met%tvrad(j)**4)**0.25
-!                     * CSBOLTZ*CEMLEAF)+met%tk(j)**4)**0.25 ! MMY has this line instead ? -- rk4417 - FEEDBACK
              ELSE
                 canopy%tv(j) = met%tvrad(j)
-!                canopy%tv(j) = met%tk(j)  ! MMY has this line instead ? -- rk4417 - FEEDBACK
              ENDIF
 
 
           ELSE! sparse canopy
 
              canopy%tv(j) = met%tvrad(j)
-!             canopy%tv(j) = met%tk(j)  ! MMY has this line instead ? -- rk4417 - FEEDBACK
           ENDIF
-! FEEDBACK (end of requested feedback) -- rk4417
        ENDDO
-
 
 
        ! Calculate net rad to soil:
