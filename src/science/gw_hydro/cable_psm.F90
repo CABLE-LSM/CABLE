@@ -192,7 +192,6 @@ CONTAINS
                   lm/ (4.0*hk_zero_sat(i)) + (canopy%sublayer_dz(i) + pore_size(i) * soil_moisture_mod_sat(i)) / rt_Dff)
 
              ssnow%rt_qh_sublayer(i) = 0.0
-!             ssnow%rt_qh_sublayer(i) = canopy%sublayer_dz(i) / litter_thermal_diff  ! line replaces above one in MMY code -- rk4417  ! MMY@23Apr2023 need to test, I have no idea why it is changed
           END IF
 
        ELSE
