@@ -62,12 +62,6 @@ SUBROUTINE snowcheck(dels, ssnow, soil, met )
 
           ssnow%ssdn(j,:) = ssnow%ssdnn(j)
 
-          IF( .NOT.cable_user%CABLE_RUNTIME_COUPLED ) THEN  ! if block inserted by rk4417 - phase2
-             IF( soil%isoilm(j) == 9 .AND. ktau_gl <= 2 )                       &  ! 9 should probably be replaced here by ICE_SoilType - rk4417
-                  ! permanent ice: fixed hard-wired number in next version
-                  ssnow%ssdnn(j) = 700.0
-          ENDIF
-
        ELSE ! in loop: IF( ssnow%snowd(j) <= 0.0 ) THEN
           ! sufficient snow now for 3 layer snowpack
 
