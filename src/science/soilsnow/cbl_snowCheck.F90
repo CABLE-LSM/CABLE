@@ -25,7 +25,7 @@ SUBROUTINE snowcheck(dels, ssnow, soil, met )
     DO j=1,mp
 
        IF( ssnow%snowd(j) <= 0.0 ) THEN
-          !> using a single snow layer but there is no snow yet 
+          ! using a single snow layer but there is no snow yet 
           ssnow%isflag(j) = 0
           ssnow%ssdn(j,:) = 120.0
           ssnow%ssdnn(j) = 120.0
