@@ -176,7 +176,6 @@ CONTAINS
           END IF
 
           IF (canopy%sublayer_dz(i) .GE. 1.0e-7) THEN
-!      if (canopy%sublayer_dz(i) .ge. 1.0e-7 .and. hk_zero(i) .lt. 1.0e14) then  ! line replaces above one in MMY code -- rk4417  ! MMY@23Apr2023 I have no idea about it, need to check what hk_zero is
              ssnow%rtevap_unsat(i) = MIN(rtevap_max, &
                   rough%z0soil(i)/canopy%sublayer_dz(i) * (lm/ (4.0*hk_zero(i)) +&
                   (canopy%sublayer_dz(i) + pore_size(i) * soil_moisture_mod(i)) / rt_Dff))
