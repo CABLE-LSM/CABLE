@@ -41,7 +41,7 @@ SUBROUTINE snowcheck(dels, ssnow, soil, met )
 
           ! in loop: IF( ssnow%snowd(j) <= 0.0 ) THEN
        ELSEIF( ssnow%snowd(j) < snmin * ssnow%ssdnn(j) ) THEN
-       !> snow depth is between 0 and 1*snow density 
+       ! snow depth is between 0 and 1*snow density 
           IF( ssnow%isflag(j) == 1 ) THEN
              ssnow%ssdn(j,1) = ssnow%ssdnn(j)
              ssnow%tgg(j,1) = ssnow%tggsn(j,1)
