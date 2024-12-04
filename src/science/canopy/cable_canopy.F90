@@ -782,7 +782,7 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
              !     ( EXP(2*CCSW*canopy%rghlai(j)) - term1(j) ) / term3(j)
              r_sc(j) = term5(j) * LOG(zscl(j)/rough%z0soilsn(j)) *              &
                   ( EXP(2*CCSW*canopy%rghlai(j)) - term2(j) ) / term3(j)
-             r_sc(j) = r_sc(j) + term5(j) * LOG(rough%disp(j)/zscl(j)) *        & ! are you sure zscl(j) rather than rough%z0soilsn(j) - rk4417
+             r_sc(j) = r_sc(j) + term5(j) * LOG(rough%disp(j)/zscl(j)) *        & 
                   ( EXP(2*CCSW*canopy%rghlai(j)) - term1(j) ) / term3(j)
 
           ELSEIF( rough%disp(j) <= zscl(j) .AND.                                &
