@@ -80,7 +80,7 @@ MODULE cable_output_module
           vcmax, ejmax, hc, &
           GPP_sl, GPP_sh, GPP_slC, GPP_shC, GPP_slJ, GPP_shJ, &
           eta_GPP_cs,  eta_TVeg_cs, dGPPdcs, CO2s, gsw_sl, gsw_sh, gsw_TVeg, &
-          An_sl, An_sh, ci_sl, ci_sh, scalex_sl, scalex_sh, dlf, &
+          An_sl, An_sh, ci_sl, ci_sh, cs_sl, cs_sh, scalex_sl, scalex_sh, dlf, &
           vcmax_ts, jmax_ts, qcan_sl, qcan_sh, &
           An, Rd, cplant, clitter, csoil, clabile, &
           A13n, aDisc13, c13plant, c13litter, c13soil, c13labile, &
@@ -243,6 +243,8 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: An_sh=> null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: ci_sl => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: ci_sh => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: cs_sl => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: cs_sh => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: scalex_sl => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: scalex_sh => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: dlf => null()
@@ -1083,10 +1085,22 @@ CONTAINS
        out%ci_sl = zero4 ! initialise
 
        CALL define_ovar(ncid_out, ovid%ci_sh, 'ci_sh', 'ppm', &
-            'ci, sunlit leaves', patchout%TVeg, 'dummy', &
+            'ci, shaded leaves', patchout%TVeg, 'dummy', &
             xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%ci_sh(mp))
        out%ci_sh = zero4 ! initialise
+
+       CALL define_ovar(ncid_out, ovid%cs_sl, 'cs_sl', 'ppm', &
+       'cs, sunlit leaves', patchout%TVeg, 'dummy', &
+       xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%cs_sl(mp))
+       out%cs_sl = zero4 ! initialise
+       
+       CALL define_ovar(ncid_out, ovid%cs_sh, 'cs_sh', 'ppm', &
+       'cs, shaded leaves', patchout%TVeg, 'dummy', &
+       xID, yID, zID, landID, patchID, tID)
+       ALLOCATE(out%cs_sh(mp))
+       out%cs_sh = zero4 ! initialise
 
        CALL define_ovar(ncid_out, ovid%GPP_sl, 'GPP_sunlit', 'umol/m^2/s', &
             'Gross primary production from sunlit leaves', patchout%GPP, &
@@ -3031,6 +3045,8 @@ CONTAINS
        out%An_sh       = out%An_sh       + toreal4(canopy%A_sh*1.0e6_r_2)
        out%ci_sl       = out%ci_sl       + toreal4(canopy%ci(:,1)*1.0e6_r_2)
        out%ci_sh       = out%ci_sh       + toreal4(canopy%ci(:,2)*1.0e6_r_2)
+       out%cs_sl       = out%cs_sl       + toreal4(canopy%cs_sl)
+       out%cs_sh       = out%cs_sh       + toreal4(canopy%cs_sh)
        out%GPP_sl      = out%GPP_sl      + toreal4(canopy%GPP_sl*1.0e6_r_2)
        out%GPP_sh      = out%GPP_sh      + toreal4(canopy%GPP_sh*1.0e6_r_2)
        out%GPP_slC     = out%GPP_slC     + toreal4(canopy%A_slC*1.0e6_r_2)
@@ -3068,6 +3084,8 @@ CONTAINS
           out%An_sh       = out%An_sh       * rinterval
           out%ci_sl       = out%ci_sl       * rinterval
           out%ci_sh       = out%ci_sh       * rinterval
+          out%cs_sl       = out%cs_sl       * rinterval
+          out%cs_sh       = out%cs_sh       * rinterval
           out%GPP_sl      = out%GPP_sl      * rinterval
           out%GPP_sh      = out%GPP_sh      * rinterval
           out%GPP_slC     = out%GPP_slC     * rinterval
@@ -3102,6 +3120,12 @@ CONTAINS
                ranges%CO2air, patchout%GPP, 'default', met)
 
           CALL write_ovar(out_timestep, ncid_out, ovid%ci_sh, 'ci_sh', out%ci_sh, &
+               ranges%CO2air, patchout%GPP, 'default', met)
+
+          CALL write_ovar(out_timestep, ncid_out, ovid%cs_sl, 'cs_sl', out%cs_sl, &
+               ranges%CO2air, patchout%GPP, 'default', met)
+
+          CALL write_ovar(out_timestep, ncid_out, ovid%cs_sh, 'cs_sh', out%cs_sh, &
                ranges%CO2air, patchout%GPP, 'default', met)
 
           CALL write_ovar(out_timestep, ncid_out, ovid%GPP_sl, 'GPP_sl', out%GPP_sl, &
@@ -3158,6 +3182,8 @@ CONTAINS
           out%An_sh       = zero4
           out%ci_sl       = zero4
           out%ci_sh       = zero4
+          out%cs_sl       = zero4
+          out%cs_sh       = zero4
           out%GPP_sl      = zero4
           out%GPP_sh      = zero4
           out%GPP_slC     = zero4
