@@ -27,10 +27,6 @@ USE cable_runtime_opts_mod ,ONLY : cable_user
 USE cable_runtime_opts_mod ,ONLY : satuparam
 USE cable_runtime_opts_mod ,ONLY : wiltparam
 
-! two imports below inserted by rk4417 - phase2
-USE cable_pft_params_mod, ONLY : vegin
-USE cable_soil_params_mod, ONLY : soilin
-
   IMPLICIT NONE
 
   !---allows reference to "gl"obal timestep in run (from atm_step)
