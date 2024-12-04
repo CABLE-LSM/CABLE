@@ -679,18 +679,10 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
        canopy%epot = ((1.-rad%transd)*canopy%fevw_pot +                         &
             rad%transd*ssnow%potev*ssnow%cls) * dels/air%rlam
 
-       ! FEEDBACK
-       ! (
-       ! ____ MMY@23Apr2023 need to check whether met%tvrad and met%tk are the same, leave these comments for now ____
-       !print *, "MMY point 1, check met%tvrad and met%tk values", met%tk(j), met%tvrad(j) ! MMY@23Apr2023
-       ! ) -- rk4417
 
        canopy%rniso = sum_rad_rniso + rad%qssabs + rad%transd*met%fld + &
             (1.0-rad%transd)*CEMLEAF* &
             CSBOLTZ*met%tvrad**4 - CEMSOIL*CSBOLTZ*met%tvrad**4
-!            CSBOLTZ*met%tk**4 - CEMSOIL*CSBOLTZ*met%tk**4  ! MMY has this line instead ? -- rk4417 - FEEDBACK
-
-! FEEDBACK (end of requested feedback) -- rk4417
 
        rlower_limit = canopy%epot * air%rlam / dels
        WHERE (rlower_limit == 0 ) rlower_limit = 1.e-7 !prevent from 0. by adding 1.e-7 (W/m2)
