@@ -1812,7 +1812,7 @@ CONTAINS
       k = 0
 
       !kdcorbin, 08/10 - doing all points all the time'
-      nktau=25104
+      nktau=77712
       NN=2
       write(num_str, '(I0)') nktau
       txtname = trim(filename%path) // '/testIteration_cable_out_' // trim(num_str) &
