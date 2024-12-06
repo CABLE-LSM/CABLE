@@ -1820,6 +1820,7 @@ CONTAINS
       
       if (ktau==nktau .and. iter==1) then
       open(unit=134, file=txtname)
+      print*, 'write iteration file '
       end if
       DO WHILE (k < C%MAXITER)
          k = k + 1
