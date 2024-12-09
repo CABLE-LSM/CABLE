@@ -56,7 +56,7 @@ MODULE cable_canopy_module
 
 CONTAINS
 
-   SUBROUTINE define_canopy(ktau, bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate)
+   SUBROUTINE define_canopy(ktau,ktau_tot, bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate)
 
       USE cable_def_types_mod
       USE cable_radiation_module
@@ -68,6 +68,7 @@ CONTAINS
 
       implicit none
       INTEGER,                   INTENT(IN)    :: ktau
+      INTEGER,                   INTENT(IN)    :: ktau_tot
       TYPE(balances_type),       INTENT(INOUT) :: bal
       TYPE(radiation_type),      INTENT(INOUT) :: rad
       TYPE(roughness_type),      INTENT(INOUT) :: rough
@@ -435,7 +436,7 @@ CONTAINS
          ecy = rny - hcy        ! init current estimate latent heat
 
          sum_rad_rniso = sum(rad%rniso,2)
-         CALL dryLeaf(ktau, dels, rad, air, met,  &
+         CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
             veg, canopy, soil, ssnow, dsx, psilx, psily,&
             fwsoil, fwsoiltmp,fwpsi, tlfx, tlfy, ecy, hcy,  &
             rny, gbhu, gbhf, csx, cansat,  &
@@ -1500,7 +1501,7 @@ CONTAINS
    ! -----------------------------------------------------------------------------
 
 
-   SUBROUTINE dryLeaf(ktau, dels, rad, air, met, &
+   SUBROUTINE dryLeaf(ktau,ktau_tot, dels, rad, air, met, &
       veg, canopy, soil, ssnow, dsx, psilx, psily, &
       fwsoil, fwsoiltmp,fwpsi, tlfx, tlfy, ecy, hcy, &
       rny, gbhu, gbhf, csx, &
@@ -1514,6 +1515,7 @@ CONTAINS
 
       implicit none
       INTEGER,                   INTENT(IN)    :: ktau
+      INTEGER,                   INTENT(IN)    :: ktau_tot
       real,                      intent(in)    :: dels ! integration time step (s)
       type(radiation_type),      intent(inout) :: rad
       type(air_type),            intent(inout) :: air
@@ -1818,7 +1820,7 @@ CONTAINS
       txtname = trim(filename%path) // '/testIteration_cable_out_' // trim(num_str) &
       // '.txt'
       
-      if (ktau==nktau .and. iter==1) then
+      if (ktau_tot==nktau .and. iter==1) then
       open(unit=134, file=txtname)
       print*, 'write iteration file '
       end if
@@ -2544,7 +2546,7 @@ CONTAINS
                oldevapfbl(i,:) = ssnow%evapfbl(i,:)
             END IF
             !print*, 'check after k==1 ',ktau,k
-            if (ktau>=nktau .and. ktau<=(nktau+NN-1)) then
+            if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
             write(134,*) ktau, iter, i, k, tlfy(i), deltlf(i), &
             dsx(i), psily(i,1), psily(i,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2),csx(i,1), csx(i,2), &
             anx(i,1), anx(i,2), canopy%gswx(i,1), canopy%gswx(i,2),vcmxt3(i,1),vcmxt3(i,2), &
@@ -2558,7 +2560,7 @@ CONTAINS
          
 
       END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
-      if (ktau==(nktau+NN-1)  .and. iter==4) THEN
+      if (ktau_tot==(nktau+NN-1)  .and. iter==4) THEN
          close(134)
       END IF
       ! print*, 'End k loop: ktau & iter & k= ',ktau,iter,k

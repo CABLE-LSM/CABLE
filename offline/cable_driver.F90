@@ -971,7 +971,7 @@ PROGRAM cable_offline_driver
                  !    call print_cbm_var(canopy)
                  ! end if
 
-                 call cbm(ktau, dels, air, bgc, canopy, met, &
+                 call cbm(ktau,ktau_tot, dels, air, bgc, canopy, met, &
                       bal, rad, rough, soil, ssnow, &
                       veg, climate,casapool)
 
