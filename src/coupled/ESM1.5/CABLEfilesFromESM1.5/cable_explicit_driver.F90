@@ -389,15 +389,14 @@ integer :: j
    IF(l_vcmaxFeedbk) call casa_feedback(ktau_gl,veg,casabiome,casapool,casamet)
    IF(l_laiFeedbk) veg%vlai(:) = casamet%glai(:)
 
-   canopy%oldcansto=canopy%cansto
-
-
    !---------------------------------------------------------------------!
    !--- real(timestep) width, CABLE types passed to CABLE "engine" as ---!  
    !--- req'd by Mk3L  --------------------------------------------------!
    !---------------------------------------------------------------------!
    CALL cbm( timestep, air, bgc, canopy, met, bal,                             &
              rad, rough, soil, ssnow, sum_flux, veg, climate  )
+
+   canopy%cansto=canopy%oldcansto
 
    !---------------------------------------------------------------------!
    !--- pass land-surface quantities calc'd by CABLE in explicit call ---!

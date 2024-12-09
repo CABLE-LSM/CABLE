@@ -166,7 +166,7 @@ REAL :: soil_conductance(mp)
 REAL :: Surf_conductance(mp)
 ! END header
 
-canopy%cansto =  canopy%oldcansto
+canopy%oldcansto =  canopy%cansto
 
     ALLOCATE( cansat(mp), gbhu(mp,mf))
     ALLOCATE( dsx(mp), fwsoil(mp), tlfx(mp), tlfy(mp) )

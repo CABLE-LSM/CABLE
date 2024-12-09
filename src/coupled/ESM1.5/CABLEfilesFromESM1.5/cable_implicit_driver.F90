@@ -276,8 +276,6 @@ TYPE(POP_TYPE) :: POP
       met%tvrad = met%tk
       met%doy = idoy + 1
  
-      canopy%cansto = canopy%oldcansto
-
       CALL cbm(TIMESTEP, air, bgc, canopy, met, bal,  &
            rad, rough, soil, ssnow, sum_flux, veg, climate )
 

@@ -296,7 +296,6 @@ USE cable_phys_constants_mod,  ONLY: density_liq, density_ice
   !CM2!IF(l_vcmaxFeedbk) call casa_feedback(ktau_gl,veg,casabiome,casapool,casamet)
   !CM2!IF(l_laiFeedbk) veg%vlai(:) = casamet%glai(:)
 
-  canopy%oldcansto=canopy%cansto
   rad%otrad = rad%trad
 
   !---------------------------------------------------------------------!
@@ -305,7 +304,7 @@ USE cable_phys_constants_mod,  ONLY: density_liq, density_ice
   CALL cbm( ktau_gl,timestep, air, bgc, canopy, met, bal,                      &
             rad, rough, soil, ssnow, sum_flux, veg, climate )
   
-  !-------- End Unique subroutine body -----------
+  canopy%cansto=canopy%oldcansto
 
   return
 

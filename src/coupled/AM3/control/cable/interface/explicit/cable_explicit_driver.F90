@@ -274,6 +274,8 @@ CALL update_data( row_length, rows, land_pts, nsurft, npft, sm_levels,         &
 CALL cbm_expl( mp, nrb, timestep_number, timestep, air, bgc, canopy, met, bal, &
           rad, rough, soil, ssnow, sum_flux, veg, climate )
 
+canopy%cansto =  canopy%oldcansto
+
 RETURN
 END SUBROUTINE cable_explicit_driver
 

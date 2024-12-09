@@ -530,7 +530,6 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
                  ENDIF
               ENDIF
               met%ofsd = met%fsd(:,1) + met%fsd(:,2)
-              canopy%oldcansto=canopy%cansto
               ! Zero out lai where there is no vegetation acc. to veg. index
               WHERE ( veg%iveg(:) .GE. 14 ) veg%vlai = 0.
 

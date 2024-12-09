@@ -306,8 +306,6 @@ USE cable_phys_constants_mod,  ONLY: TFRZ, CAPP
   met%tvair = met%tk
   met%tvrad = met%tk
 
-  canopy%cansto = canopy%oldcansto
-
   CALL cbm( ktau_gl,timestep, air, bgc, canopy, met, bal,                             &
             rad, rough, soil, ssnow, sum_flux, veg, climate )
 
@@ -419,7 +417,7 @@ subroutine cable_store_prognostics()
   PB(ipb)%snow_age  = ssnow%snage
   PB(ipb)%snow_flg3l= ssnow%isflag
   PB(ipb)%snow_tile = ssnow%snowd
-  PB(ipb)%ocanopy   = canopy%oldcansto
+  PB(ipb)%ocanopy   = canopy%cansto
   !Jan 2018 new PB variables
   PB(ipb)%fes_cor   = canopy%fes_cor
   PB(ipb)%puddle    = ssnow%pudsto
@@ -462,7 +460,7 @@ SUBROUTINE cable_reinstate_prognostics()
   ssnow%snage   = PB(1)%snow_age
   ssnow%isflag  = PB(1)%snow_flg3l
   ssnow%snowd   = PB(1)%snow_tile
-  canopy%oldcansto = PB(1)%ocanopy
+  canopy%cansto = PB(1)%ocanopy
   !Jan 2018 new PB variables 
   canopy%fes_cor = PB(1)%fes_cor
   ssnow%pudsto  = PB(1)%puddle
