@@ -523,7 +523,7 @@ contains
     fall(:,:)    = 367
     phendoy1(:,:)= 2
 
-    OPEN(phenunit, file=casafile%phen)
+    OPEN(NEWUNIT=phenunit, file=casafile%phen)
     READ(phenunit, *)
     READ(phenunit, *) (ivtx(nx), nx=1, npheno) ! fixed at 10, as only 10 of 17 IGBP PFT
     ! have seasonal leaf phenology
@@ -913,7 +913,7 @@ contains
 
     write(*,*) 'Within casa_poolout, mp = ', mp
     nout=103
-    OPEN(nout,file=casafile%cnpepool)
+    OPEN(NEWUNIT=nout,file=casafile%cnpepool)
     write(*,*) 'Opened file ', casafile%cnpepool
 
     casabal%sumcbal = MIN(9999.0_r_2, MAX(-9999.0_r_2, casabal%sumcbal))
@@ -1065,7 +1065,7 @@ contains
     !  csoilinput   = csoilinput   * xyear
 
     write(*,*) 'writing CNP fluxes out to file ', casafile%cnpflux
-    OPEN(nout,file=casafile%cnpflux)
+    OPEN(NEWUNIT=nout,file=casafile%cnpflux)
     DO npt =1,mp
        SELECT CASE(icycle)
        CASE(1)

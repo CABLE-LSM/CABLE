@@ -510,7 +510,7 @@ CONTAINS
     vegin%dleaf = SQRT(vegin%width * vegin%length)
 
     !================= Read in soil type specifications: ============
-    OPEN(soilunit, FILE=trim(filename%soil), STATUS='old', ACTION='READ', IOSTAT=ioerror)
+    OPEN(NEWUNIT=soilunit, FILE=trim(filename%soil), STATUS='old', ACTION='READ', IOSTAT=ioerror)
 
     IF(ioerror/=0) then
        write(*,*) 'CABLE_log: Cannot open soil type definitions.'
@@ -930,7 +930,7 @@ CONTAINS
     CALL getenv("HOME", myhome)
     fcablerev = TRIM(myhome)//TRIM("/.cable_rev")
 
-    OPEN(revunit, FILE=TRIM(fcablerev), STATUS='old', ACTION='READ', IOSTAT=ioerror)
+    OPEN(NEWUNIT=revunit, FILE=TRIM(fcablerev), STATUS='old', ACTION='READ', IOSTAT=ioerror)
 
     IF(ioerror==0) then
        ! get svn revision number (see WRITE comments)
