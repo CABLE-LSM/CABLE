@@ -208,7 +208,7 @@ CONTAINS
          !pd = 4.0_r_2 * real(casapool%cplant(i,2) / 1000.0_r_2,r_2) / (WD * pi * veg%hc * (veg%hc / k1)**(2.0_r_2*k2))
          pd = 0.07_r_2 ! pl m-2
          !DBH = (veg%hc/k1)**k2
-         AGB_pl = casapool%cplant(i,2)/1000.0_r_2*2.0_r_2 / pd ! kg pl-1
+         AGB_pl = casapool%cplant(i,2) / 1000.0_r_2 * 2.0_r_2 / pd ! kg pl-1
          DBH = (AGB_pl/k1)**(1.0_r_2/k2) ! cm 
          BAI = (DBH/200.0_r_2)**2.0_r_2*pi*pd ! m2 m-2
          plc = get_xylem_vulnerability(ssnow%psi_rootzone(i), &

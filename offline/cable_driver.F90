@@ -532,7 +532,7 @@ PROGRAM cable_offline_driver
 
         YEAR: do YYYY=CABLE_USER%YearStart,  CABLE_USER%YearEnd
            call CPU_time(atime)
-
+            print*,'Year: ',YYYY
            CurYear = YYYY
            if (leaps .and. IS_LEAPYEAR(YYYY)) then
               LOY = 366
