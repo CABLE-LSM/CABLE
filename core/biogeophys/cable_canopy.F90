@@ -153,9 +153,9 @@ CONTAINS
       IF (.NOT. cable_runtime%um) canopy%cansto = canopy%oldcansto
 
       ALLOCATE(cansat(mp), gbhu(mp,mf))
-      ALLOCATE(dsx(mp), fwsoil(mp), fwsoiltmp(mp),tlfx(mp), tlfy(mp))
+      ALLOCATE(dsx(mp), fwsoil(mp), fwsoiltmp(mp), tlfx(mp), tlfy(mp))
       ALLOCATE(ecy(mp), hcy(mp), rny(mp))
-      ALLOCATE(gbhf(mp,mf), csx(mp,mf),psilx(mp,mf),psily(mp,mf), fwpsi(mp,mf))
+      ALLOCATE(gbhf(mp,mf), csx(mp,mf), psilx(mp,mf), psily(mp,mf), fwpsi(mp,mf))
       ALLOCATE(ghwet(mp))
 
 
@@ -189,6 +189,13 @@ CONTAINS
       csx = SPREAD(real(met%ca,r_2), 2, mf) ! initialise leaf surface CO2 concentration
       psilx = SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
       psily = SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
+      fwpsi(:, 1) = (1.0_r_2 +exp(veg%g2(:) * veg%psi_ref(:))) / &
+         (1.0_r_2 + exp(veg%g2(:) * (veg%psi_ref(:) - psilx(:, 1))))
+      fwpsi(:, 2) = (1.0_r_2 +exp(veg%g2(:) * veg%psi_ref(:))) / &
+         (1.0_r_2 + exp(veg%g2(:) * (veg%psi_ref(:) - psilx(:, 2))))
+      print*, 'Entry psi ', psilx(:, 1)
+      print*, 'Entry fwpsi ', fwpsi(:, 1)
+
       met%tvair = met%tk
       met%qvair = met%qv
       canopy%tv = met%tvair
@@ -438,7 +445,7 @@ CONTAINS
          sum_rad_rniso = sum(rad%rniso,2)
          CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
             veg, canopy, soil, ssnow, dsx, psilx, psily,&
-            fwsoil, fwsoiltmp,fwpsi, tlfx, tlfy, ecy, hcy,  &
+            fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy, ecy, hcy,  &
             rny, gbhu, gbhf, csx, cansat,  &
             ghwet, iter, climate)
 
@@ -842,7 +849,7 @@ CONTAINS
          canopy%fwet  ! YP nov2009
 
       DEALLOCATE(cansat,gbhu)
-      DEALLOCATE(dsx, fwsoil, fwsoiltmp,fwpsi, tlfx, tlfy)
+      DEALLOCATE(dsx, fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy)
       DEALLOCATE(ecy, hcy, rny)
       DEALLOCATE(gbhf, csx)
       DEALLOCATE(ghwet)
@@ -1503,7 +1510,7 @@ CONTAINS
 
    SUBROUTINE dryLeaf(ktau,ktau_tot, dels, rad, air, met, &
       veg, canopy, soil, ssnow, dsx, psilx, psily, &
-      fwsoil, fwsoiltmp,fwpsi, tlfx, tlfy, ecy, hcy, &
+      fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy, ecy, hcy, &
       rny, gbhu, gbhf, csx, &
       cansat, ghwet, iter, climate)
 
@@ -2359,8 +2366,8 @@ CONTAINS
                   ex(i,:) = ex(i,:) * (1.0_r_2-real(canopy%fwet(i), r_2)) / real(air%rlam(i), r_2) 
                   ! convert from kg m-2 ground s-1 to mmol m-2 leaf s-1*
                   !ex(i,:)= ex(i,:) * 1.0e6_r_2/18.0_r_2  
-                  psilx(i,1) = ssnow%psi_rootzone(i)-ex(i,1)/canopy%kplant(i)
-                  psilx(i,2) = ssnow%psi_rootzone(i)-ex(i,2)/canopy%kplant(i)
+                  psilx(i,1) = ssnow%psi_rootzone(i) - ex(i,1) / canopy%kplant(i)
+                  psilx(i,2) = ssnow%psi_rootzone(i) - ex(i,2) / canopy%kplant(i)
 
                ENDIF
                IF (cable_user%SOIL_SCHE == 'Haverd2013') then
@@ -2495,7 +2502,7 @@ CONTAINS
 
                deltlfy(i)       = deltlf(i)
                tlfy(i)          = tlfx(i)
-               psily(i,:)         = psilx(i,:)
+               psily(i,:)       = psilx(i,:)
                rny(i)           = rnx(i)
                hcy(i)           = hcx(i)
                ecy(i)           = ecx(i)
