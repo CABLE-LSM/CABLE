@@ -2197,7 +2197,7 @@ CONTAINS
                      fwpsi(i,2) = (1.0_r_2 +exp(veg%g2(i) * veg%psi_ref(i))) / &
                       (1.0_r_2+exp(veg%g2(i) * (veg%psi_ref(i)-psilx(i,2))))
                      !print*, 1.0, real(1.0, r_2), 1.0 / 3.0_r_2, 1.0_r_2 / 3.0  
-                     !print *, '!!!!!!!!!!!!!!! fwpsi:', fwpsi(i),ktau,k
+                     print *, '!!!!!!!!!!!!!!! fwpsi:', fwpsi(i,1),psilx(i,1)
                      gs_coeff(i,1) =fwpsi(i,1) * g1 / real(csx(i,1))
                      gs_coeff(i,2) =fwpsi(i,2) * g1 / real(csx(i,2))
 
