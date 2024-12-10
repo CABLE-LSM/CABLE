@@ -90,7 +90,7 @@ CONTAINS
 #endif
       REAL(KIND=r_2) :: SoilMoistPFTtemp
       REAL, DIMENSION(ms) :: a
-      real :: k1, k2, pd, BAI, WD, AGB_pl, DBH
+      real :: k1, k2, pd, BAI, WD, AGB_pl, DBH, plc
 
       ! assign local ptrs to constants defined in cable_data_module
       CALL point2constants(C)
@@ -211,9 +211,11 @@ CONTAINS
          AGB_pl = casapool%cplant(i,2)/1000.0_r_2*2.0_r_2 / pd ! kg pl-1
          DBH = (AGB_pl/k1)**(1.0_r_2/k2) ! cm 
          BAI = (DBH/200.0_r_2)**2.0_r_2*pi*pd ! m2 m-2
-         canopy%kplant(i) = veg%kmax(i) * BAI / veg%hc(i) * &
-            get_xylem_vulnerability(ssnow%psi_rootzone(i), &
-            veg%b_plant(i), veg%c_plant(i))
+         plc = get_xylem_vulnerability(ssnow%psi_rootzone(i), &
+         veg%b_plant(i), veg%c_plant(i))
+         canopy%kplant(i) = veg%kmax(i) * BAI / veg%hc(i) * plc
+            
+         print*,'Entry kplant: ',DBH,BAI,plc,kplant(i)
 
       END DO
       !write(logn,*),'psi_rootzone mp1: ',ssnow%psi_rootzone(1)
