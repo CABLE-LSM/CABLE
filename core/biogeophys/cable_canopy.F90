@@ -2368,6 +2368,7 @@ CONTAINS
                   !ex(i,:)= ex(i,:) * 1.0e6_r_2/18.0_r_2  
                   psilx(i,1) = ssnow%psi_rootzone(i) - ex(i,1) / canopy%kplant(i)
                   psilx(i,2) = ssnow%psi_rootzone(i) - ex(i,2) / canopy%kplant(i)
+                  print*, 'update psilx: ',ex(i,1), canopy%kplant(i), psilx(i,1)
 
                ENDIF
                IF (cable_user%SOIL_SCHE == 'Haverd2013') then
