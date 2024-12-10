@@ -215,7 +215,7 @@ CONTAINS
          veg%b_plant(i), veg%c_plant(i))
          canopy%kplant(i) = veg%kmax(i) * BAI / veg%hc(i) * plc
             
-         print*,'Entry kplant: ',DBH,BAI,plc,kplant(i)
+         print*,'Entry kplant: ',DBH,BAI,plc,canopy%kplant(i)
 
       END DO
       !write(logn,*),'psi_rootzone mp1: ',ssnow%psi_rootzone(1)
