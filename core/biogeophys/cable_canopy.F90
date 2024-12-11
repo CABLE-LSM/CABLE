@@ -2567,9 +2567,10 @@ CONTAINS
             !print*, 'check after k==1 ',ktau,k
             if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
             write(134,*) ktau, iter, i, k, tlfx(i), deltlf(i), &
-            dsx(i), psilx(i,1), psilx(i,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2),csx(i,1), csx(i,2),csx(i,1), csx(i,2), &
-            anx(i,1), anx(i,2), canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2),vcmxt3(i,1),vcmxt3(i,2), &
-            gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2)
+            dsx(i), psilx(i,1), psilx(i,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2), &
+            csx(i,1), csx(i,2),csx(i,1), csx(i,2),anx(i,1), anx(i,2), &
+            canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
+            vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2)
             END IF
             ! if (ktau>=5184) then
             ! print*, 'write 134 ',ktau,k
@@ -2583,9 +2584,10 @@ CONTAINS
       if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
       i = 1
       write(134,*) ktau, iter, i, 21, tlfy(i), deltlfy(i), &
-      dsx(i), psily(i,1), psily(i,2),fwpsiy(:,1),fwpsiy(:,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2),csy(i,1), csy(i,2),csx(i,1), csx(i,2), &
-      an_y(i,1), an_y(i,2), gswy(i,1), gswy(i,2),canopy%gswx(i,1), canopy%gswx(i,2), vcmxt3(i,1),vcmxt3(i,2), &
-      gs_coeff(i,1),gs_coeff(i,2),rdy(i,1),rdy(i,2)
+      dsx(i), psily(i,1), psily(i,2),fwpsiy(:,1),fwpsiy(:,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2),&
+      csy(i,1), csy(i,2),csx(i,1), csx(i,2), an_y(i,1), an_y(i,2), &
+      gswy(i,1), gswy(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
+      vcmxt3(i,1),vcmxt3(i,2), gs_coeff(i,1),gs_coeff(i,2),rdy(i,1),rdy(i,2)
       end if 
       if (ktau_tot==(nktau+NN-1)  .and. iter==4) THEN
          close(134)
