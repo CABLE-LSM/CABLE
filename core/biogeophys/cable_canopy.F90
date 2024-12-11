@@ -187,6 +187,9 @@ CONTAINS
       ssnow%rex       = 0.0_r_2
       ! Initialise in-canopy temperatures and humidity:
       csx = SPREAD(real(met%ca,r_2), 2, mf) ! initialise leaf surface CO2 concentration
+      if (ktau_tot==1) then
+         canopy%psi_can = SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
+      endif
       psilx = canopy%psi_can  ! SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
       psily = canopy%psi_can  ! SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
       fwpsi(:, 1) = (1.0_r_2 +exp(veg%g2(:) * veg%psi_ref(:))) / &
@@ -1474,6 +1477,7 @@ CONTAINS
 
       ! Add canopy interception to canopy storage term:
       canopy%cansto = canopy%cansto + canopy%wcint
+
 
       ! Calculate fraction of canopy which is wet:
       canopy%fwet   = MAX( 0.0, MIN( 0.9, 0.8 * canopy%cansto / &
