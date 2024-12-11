@@ -56,7 +56,7 @@ MODULE cable_canopy_module
 
 CONTAINS
 
-   SUBROUTINE define_canopy(ktau,ktau_tot, bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate)
+   SUBROUTINE define_canopy(ktau, ktau_tot, bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate)
 
       USE cable_def_types_mod
       USE cable_radiation_module
@@ -1508,7 +1508,7 @@ CONTAINS
    ! -----------------------------------------------------------------------------
 
 
-   SUBROUTINE dryLeaf(ktau,ktau_tot, dels, rad, air, met, &
+   SUBROUTINE dryLeaf(ktau, ktau_tot, dels, rad, air, met, &
       veg, canopy, soil, ssnow, dsx, psilx, psily, &
       fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy, ecy, hcy, &
       rny, gbhu, gbhf, csx, &
@@ -1622,7 +1622,9 @@ CONTAINS
          anrubiscoy, & ! net photosynthesis (rubisco limited)
          anrubpy,    & ! net photosynthesis (rubp limited)
          kc4,        & ! An-Ci slope in Collatz 1992 model
-         gmes          ! mesophyll conductance of big leaf
+         gmes,       & ! mesophyll conductance of big leaf
+         gswy,       &
+         csy
 
       real(r_2), dimension(mp,mf)  ::  dAnrubiscox, & ! CO2 elasticity of net photosynthesis (rubisco limited)
          dAnrubpx, &   !  (rubp limited)
@@ -1634,7 +1636,8 @@ CONTAINS
          dAn_y, & !(actual rate)
          eta_y, &
          eta_x, &
-         ex  !transpiration, kg m-2 s-1
+         ex,    &  !transpiration, kg m-2 s-1
+         fwpsiy
 
       real ::  gam0,    &
          conkc0,  &
@@ -2519,6 +2522,9 @@ CONTAINS
 
                ! save last values calculated for ssnow%evapfbl
                oldevapfbl(i,:) = ssnow%evapfbl(i,:)
+               gswy(i,:)        = canopy%gswx(i,:)
+               fwpsiy(i,:)     = canopy%fwpsi(i,:)
+               csy(i,:) = csx(i,:)
 
             ENDIF
             ! if (ktau>=5184) then
@@ -2552,11 +2558,14 @@ CONTAINS
                dAnsinky(i,:) = dAnsinkx(i,:)
                ! save last values calculated for ssnow%evapfbl
                oldevapfbl(i,:) = ssnow%evapfbl(i,:)
+               gswy(i,:)       = canopy%gswx(i,:)
+               fwpsiy(i,:)     = canopy%fwpsi(i,:)
+               csy(i,:) = csx(i,:)
             END IF
             !print*, 'check after k==1 ',ktau,k
             if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
-            write(134,*) ktau, iter, i, k, tlfy(i), deltlf(i), &
-            dsx(i), psily(i,1), psily(i,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2),csx(i,1), csx(i,2), &
+            write(134,*) ktau, iter, i, k, tlfx(i), deltlf(i), &
+            dsx(i), psilx(i,1), psilx(i,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2),csx(i,1), csx(i,2), &
             anx(i,1), anx(i,2), canopy%gswx(i,1), canopy%gswx(i,2),vcmxt3(i,1),vcmxt3(i,2), &
             gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2)
             END IF
@@ -2568,6 +2577,12 @@ CONTAINS
          
 
       END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
+      if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
+      write(134,*) ktau, iter, i, 21, tlfy(i), deltlfy(i), &
+      dsx(i), psily(i,1), psily(i,2),fwpsiy(:,1),fwpsiy(:,2),csy(i,1), csy(i,2), &
+      an_y(i,1), an_y(i,2), gswy(i,1), gswy(i,2),vcmxt3(i,1),vcmxt3(i,2), &
+      gs_coeff(i,1),gs_coeff(i,2),rdy(i,1),rdy(i,2)
+      end if 
       if (ktau_tot==(nktau+NN-1)  .and. iter==4) THEN
          close(134)
       END IF
