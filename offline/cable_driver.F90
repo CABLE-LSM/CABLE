@@ -125,11 +125,11 @@ PROGRAM cable_offline_driver
   use CABLE_PLUME_MIP,      only: PLUME_MIP_TYPE, PLUME_MIP_GET_MET, &
        PLUME_MIP_INIT
 
-  use CABLE_CRU,            only: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT, cru_close
+  use CABLE_CRU,            only: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT, cru_close, BIOS_GET_SUBDIURNAL_MET
   use CABLE_site,           only: site_TYPE, site_INIT, site_GET_CO2_Ndep
 
   ! BIOS only
-  use cable_bios_met_obs_params,   only:  cable_bios_read_met, cable_bios_init, &
+  use cable_bios_met_obs_params,   only:  cable_bios_init, &
                                           cable_bios_load_params, &
                                           cable_bios_load_climate_params
 
@@ -593,11 +593,12 @@ PROGRAM cable_offline_driver
               end if
               if (.not. PLUME%LeapYears) LOY = 365
               kend = nint(24.0 * 3600.0 / dels) * LOY
-           else if (trim(cable_user%MetType) == 'bios') then
-              ! BIOS run
-              kend = nint(24.0 * 3600.0 / dels) * LOY
-           else if (trim(cable_user%MetType) == 'cru') then
-              ! TRENDY experiment using CRU-NCEP
+           else if ((trim(cable_user%MetType) == 'cru') .OR. &
+             (TRIM(cable_user%MetType) == 'bios')) then
+              ! This begins an attempt to unifying the met input routines. The
+              ! effort began with the CRU pipeline, which was then applied to
+              ! the BIOS routine. End goal is to have a single pipeline for met
+              ! inputs.
               if (CALL1) then
                  call cru_init(cru)
                  dels         = cru%dtsecs
@@ -842,11 +843,11 @@ PROGRAM cable_offline_driver
                  end if
               else if (trim(cable_user%MetType) == 'bios') then
                  if ((.not. CASAONLY) .or. (CASAONLY .and. CALL1)) then
-                    call cable_bios_read_met(MET, CurYear, ktau, dels)
+                    call BIOS_GET_SUBDIURNAL_MET(CRU, met, YYYY, ktau)
                  end if
               else if (trim(cable_user%MetType) == 'cru') then
                  if ((.not. CASAONLY) .or. (CASAONLY .and. CALL1)) then
-                    call CRU_GET_SUBDIURNAL_MET(CRU, met, YYYY, ktau, kend)
+                    call CRU_GET_SUBDIURNAL_MET(CRU, met, YYYY, ktau)
                  end if
               else
                  if (trim(cable_user%MetType) == 'site') &
