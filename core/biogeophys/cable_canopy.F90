@@ -187,8 +187,8 @@ CONTAINS
       ssnow%rex       = 0.0_r_2
       ! Initialise in-canopy temperatures and humidity:
       csx = SPREAD(real(met%ca,r_2), 2, mf) ! initialise leaf surface CO2 concentration
-      psilx = SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
-      psily = SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
+      psilx = canopy%psi_can  ! SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
+      psily = canopy%psi_can  ! SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
       fwpsi(:, 1) = (1.0_r_2 +exp(veg%g2(:) * veg%psi_ref(:))) / &
          (1.0_r_2 + exp(veg%g2(:) * (veg%psi_ref(:) - psilx(:, 1))))
       fwpsi(:, 2) = (1.0_r_2 +exp(veg%g2(:) * veg%psi_ref(:))) / &
