@@ -193,8 +193,8 @@ CONTAINS
          (1.0_r_2 + exp(veg%g2(:) * (veg%psi_ref(:) - psilx(:, 1))))
       fwpsi(:, 2) = (1.0_r_2 +exp(veg%g2(:) * veg%psi_ref(:))) / &
          (1.0_r_2 + exp(veg%g2(:) * (veg%psi_ref(:) - psilx(:, 2))))
-      print*, 'Entry psi ', psilx(:, 1)
-      print*, 'Entry fwpsi ', fwpsi(:, 1)
+      !print*, 'Entry psi ', psilx(:, 1)
+      !print*, 'Entry fwpsi ', fwpsi(:, 1)
 
       met%tvair = met%tk
       met%qvair = met%qv
@@ -1832,7 +1832,7 @@ CONTAINS
       
       if (ktau_tot==nktau .and. iter==1) then
       open(unit=134, file=txtname)
-      print*, 'write iteration file '
+      !print*, 'write iteration file '
       end if
       DO WHILE (k < C%MAXITER)
          k = k + 1
@@ -2371,7 +2371,7 @@ CONTAINS
                   !ex(i,:)= ex(i,:) * 1.0e6_r_2/18.0_r_2  
                   psilx(i,1) = ssnow%psi_rootzone(i) - ex(i,1) / canopy%kplant(i)
                   psilx(i,2) = ssnow%psi_rootzone(i) - ex(i,2) / canopy%kplant(i)
-                  print*, 'update psilx: ',ex(i,1), canopy%kplant(i), psilx(i,1)
+                  !print*, 'update psilx: ',ex(i,1), canopy%kplant(i), psilx(i,1)
 
                ENDIF
                IF (cable_user%SOIL_SCHE == 'Haverd2013') then
@@ -2506,6 +2506,7 @@ CONTAINS
 
                deltlfy(i)       = deltlf(i)
                tlfy(i)          = tlfx(i)
+               print*,'when dT<last dT, tlfy: ', tlfy(i)
                psily(i,:)       = psilx(i,:)
                rny(i)           = rnx(i)
                hcy(i)           = hcx(i)
@@ -2543,6 +2544,7 @@ CONTAINS
             IF (k==1) THEN
                ! take the first iterated estimates as the defaults
                tlfy(i) = tlfx(i)
+               print*,'when k=1, tlfy: ', tlfy(i)
                psily(i,:) = psilx(i,:)
                rny(i) = rnx(i)
                hcy(i) = hcx(i)
@@ -2577,7 +2579,9 @@ CONTAINS
          
 
       END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
+      print*,'when k end, tlfy: ', tlfy(i)
       if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
+      i = 1
       write(134,*) ktau, iter, i, 21, tlfy(i), deltlfy(i), &
       dsx(i), psily(i,1), psily(i,2),fwpsiy(:,1),fwpsiy(:,2),csy(i,1), csy(i,2), &
       an_y(i,1), an_y(i,2), gswy(i,1), gswy(i,2),vcmxt3(i,1),vcmxt3(i,2), &
