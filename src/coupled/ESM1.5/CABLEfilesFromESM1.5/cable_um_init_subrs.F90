@@ -406,14 +406,18 @@ veg%clitt(h)    = vegin%clitt(veg%iveg(h))
          END DO ! over each veg patch in land point
  
 IF (cable_user%access13roots) THEN
-  ! default prescribed values used in CMIP6 ACCESS-ESM1.5
-  veg%froot(:,1) = 0.05
-  veg%froot(:,2) = 0.20
-  veg%froot(:,3) = 0.20
-  veg%froot(:,4) = 0.20
-  veg%froot(:,5) = 0.20
-  veg%froot(:,6) = 0.15
+
+  ! prescribed values from vegin%froot so can be set to ESM1.5 values
+  ! which were the same for all pfts (0.05, 0.2, 0.2, 0.2, 0.2, 0.15)
+  ! or alternate prescribed root fractions could be used with pft dependence
+  DO is = 1, ms
+    DO h=1, mp
+      veg%froot(h,is) = vegin%froot(is,veg%iveg(h))
+    ENDDO
+  ENDDO
+
 ELSE
+
   ! parametrized values used in CMIP6 ACCESS-CM2
   ! calculate vegin%froot from using rootbeta and soil depth
   ! (Jackson et al. 1996, Oceologica, 108:389-411)
