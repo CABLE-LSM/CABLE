@@ -2554,18 +2554,18 @@ CONTAINS
                   ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
                   * tlfx(i)
             endif
-            if (cable_user%GS_SWITCH == 'tuzet' .AND. &
-                  INDEX(cable_user%FWSOIL_SWITCH,'LWP') > 0 .AND. &
-                  Any(abs_deltpsil(i,:) > 0.5) ) then
-               ! after 4 iterations, take mean of current & previous estimates
-               ! as the next estimate of leaf temperature, to avoid oscillation
-               psilx(i,1) = ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) *psilxx(i,1) + &
-                  ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
-                  * psilx(i,1)
-               psilx(i,2) = ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) *psilxx(i,2) + &
-                  ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
-                  * psilx(i,2)
-            endif
+            ! if (cable_user%GS_SWITCH == 'tuzet' .AND. &
+            !       INDEX(cable_user%FWSOIL_SWITCH,'LWP') > 0 .AND. &
+            !       Any(abs_deltpsil(i,:) > 0.5) ) then
+            !    ! after 4 iterations, take mean of current & previous estimates
+            !    ! as the next estimate of leaf temperature, to avoid oscillation
+            !    psilx(i,1) = ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) *psilxx(i,1) + &
+            !       ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
+            !       * psilx(i,1)
+            !    psilx(i,2) = ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) *psilxx(i,2) + &
+            !       ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
+            !       * psilx(i,2)
+            ! endif
             ! if (ktau>=5184) then
             ! print*, 'check tlfx ktau & k= ',ktau,k
             ! end if
