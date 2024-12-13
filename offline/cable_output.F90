@@ -85,7 +85,7 @@ MODULE cable_output_module
           An, Rd, cplant, clitter, csoil, clabile, &
           A13n, aDisc13, c13plant, c13litter, c13soil, c13labile, &
           TSap, psi_soil, psi_rootzone, psi_stem, psi_can_sl, psi_can_sh, &
-          plc_sat, plc_stem, plc_can, gsw_sun, gsw_sha, LeafT
+          plc_sat, plc_stem, plc_can, gsw_sun, gsw_sha, LeafT, abs_deltpsil_sl, abs_deltpsil_sh
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
 
@@ -282,6 +282,8 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_stem  => null()    ! mgk576
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_can_sl  => null()     !
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_can_sh  => null()     !
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: abs_deltpsil_sl  => null()     !
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: abs_deltpsil_sh  => null()     !
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: plc_sat  => null()    ! ms8355
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: plc_stem => null()     ! ms8355
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: plc_can  => null()     ! ms8355
@@ -785,6 +787,22 @@ CONTAINS
                       landID, patchID, tID)
      ALLOCATE(out%psi_can_sh(mp))
      out%psi_can_sh = 0.0 ! initialise
+  END IF
+  IF(output%veg) THEN
+     CALL define_ovar(ncid_out, ovid%abs_deltpsil_sl, &
+                      'abs_deltpsil_sl', 'MPa', 'the last value of abs_deltpsil_sl during 4x20 iterations ', &
+                      patchout%abs_deltpsil_sl, 'dummy', xID, yID, zID, &
+                      landID, patchID, tID)
+     ALLOCATE(out%abs_deltpsil_sl(mp))
+     out%abs_deltpsil_sl = 0.0 ! initialise
+  END IF
+  IF(output%veg) THEN
+     CALL define_ovar(ncid_out, ovid%abs_deltpsil_sh, &
+                      'abs_deltpsil_sh', 'MPa', 'the last value of abs_deltpsil_sh during 4x20 iterations ', &
+                      patchout%abs_deltpsil_sh, 'dummy', xID, yID, zID, &
+                      landID, patchID, tID)
+     ALLOCATE(out%abs_deltpsil_sh(mp))
+     out%abs_deltpsil_sh = 0.0 ! initialise
   END IF
   IF(output%veg) THEN
      CALL define_ovar(ncid_out, ovid%plc_sat, &
@@ -4000,6 +4018,40 @@ CONTAINS
            ! Reset temporary output variable:
            out%psi_can_sh = 0.0
         END IF
+     END IF
+     IF(output%veg) THEN
+          !IF(output%veg) THEN
+             ! Add current timestep's value to total of temporary output variable:
+             out%abs_deltpsil_sl = out%abs_deltpsil_sl + REAL(canopy%abs_deltpsil(:,1), 4)
+             IF(writenow) THEN
+                ! Divide accumulated variable by number of accumulated time steps:
+                out%abs_deltpsil_sl = out%abs_deltpsil_sl / REAL(output%interval, 4)
+                ! Write value to file:
+                CALL write_ovar(out_timestep, ncid_out, ovid%abs_deltpsil_sl, &
+                               'abs_deltpsil_sl', &
+                                out%abs_deltpsil_sl, ranges%abs_deltpsil, &
+                                patchout%abs_deltpsil_sl, &
+                               'default', met)
+                ! Reset temporary output variable:
+                out%abs_deltpsil_sl = 0.0
+             END IF
+     END IF
+     IF(output%veg) THEN
+          !IF(output%veg) THEN
+             ! Add current timestep's value to total of temporary output variable:
+             out%abs_deltpsil_sh = out%abs_deltpsil_sh + REAL(canopy%abs_deltpsil(:,2), 4)
+             IF(writenow) THEN
+                ! Divide accumulated variable by number of accumulated time steps:
+                out%abs_deltpsil_sh = out%abs_deltpsil_sh / REAL(output%interval, 4)
+                ! Write value to file:
+                CALL write_ovar(out_timestep, ncid_out, ovid%abs_deltpsil_sh, &
+                               'abs_deltpsil_sh', &
+                                out%abs_deltpsil_sh, ranges%abs_deltpsil, &
+                                patchout%abs_deltpsil_sh, &
+                               'default', met)
+                ! Reset temporary output variable:
+                out%abs_deltpsil_sh = 0.0
+             END IF
      END IF
    IF(output%veg .and. cable_user%FWSOIL_SWITCH == 'profitmax') THEN
       ! Add current timestep's value to total of temporary output variable:

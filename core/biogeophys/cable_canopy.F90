@@ -1821,6 +1821,7 @@ CONTAINS
             ecy(kk) = ecx(kk) ! store initial values
             ecxs(kk) = 0.0_r_2 ! initialise
             abs_deltlf(kk) = 0.0
+            abs_deltpsil(kk,:) = 0.0
             rny(kk) = rnx(kk) ! store initial values
             ! calculate total thermal resistance, rthv in s/m
          END IF
@@ -2353,28 +2354,30 @@ CONTAINS
                   ENDIF
 
                ENDDO
-
-               ecx(i) = real( ( air%dsatdk(i) * ( rad%rniso(i,1) - C%capp * C%rmair &
-                  * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,1) ) &
-                  + C%capp * C%rmair * met%dva(i) * ghr(i,1) ) &
-                  / ( air%dsatdk(i) + psycst(i,1) ) + ( air%dsatdk(i) &
-                  * ( rad%rniso(i,2) - C%capp * C%rmair * ( met%tvair(i) - &
-                  met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair * &
-                  met%dva(i) * ghr(i,2) ) / &
-                  ( air%dsatdk(i) + psycst(i,2) ), r_2)
+               ex(i,1) = real( ( air%dsatdk(i) * ( rad%rniso(i,1) - C%capp * C%rmair &
+               * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,1) ) &
+               + C%capp * C%rmair * met%dva(i) * ghr(i,1) ) &
+               / ( air%dsatdk(i) + psycst(i,1) ),r_2)
+               ex(i,2) = real( ( air%dsatdk(i) &
+               * ( rad%rniso(i,2) - C%capp * C%rmair * ( met%tvair(i) - &
+               met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair * &
+               met%dva(i) * ghr(i,2) ) / &
+               ( air%dsatdk(i) + psycst(i,2) ), r_2)  
+               ecx(i) = sum(ex(i,:))
+               ex(i,:) = ex(i,:) * (1.0_r_2-real(canopy%fwet(i), r_2)) / real(air%rlam(i), r_2) 
+               ! ecx(i) = real( ( air%dsatdk(i) * ( rad%rniso(i,1) - C%capp * C%rmair &
+               !    * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,1) ) &
+               !    + C%capp * C%rmair * met%dva(i) * ghr(i,1) ) &
+               !    / ( air%dsatdk(i) + psycst(i,1) ) + ( air%dsatdk(i) &
+               !    * ( rad%rniso(i,2) - C%capp * C%rmair * ( met%tvair(i) - &
+               !    met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair * &
+               !    met%dva(i) * ghr(i,2) ) / &
+               !    ( air%dsatdk(i) + psycst(i,2) ), r_2)
                
                IF (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
-                  ex(i,1) = real( ( air%dsatdk(i) * ( rad%rniso(i,1) - C%capp * C%rmair &
-                  * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,1) ) &
-                  + C%capp * C%rmair * met%dva(i) * ghr(i,1) ) &
-                  / ( air%dsatdk(i) + psycst(i,1) ),r_2)
-                  ex(i,2) = real( ( air%dsatdk(i) &
-                  * ( rad%rniso(i,2) - C%capp * C%rmair * ( met%tvair(i) - &
-                  met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair * &
-                  met%dva(i) * ghr(i,2) ) / &
-                  ( air%dsatdk(i) + psycst(i,2) ), r_2)   
+ 
                       
-                  ex(i,:) = ex(i,:) * (1.0_r_2-real(canopy%fwet(i), r_2)) / real(air%rlam(i), r_2) 
+                  ! ex(i,:) = ex(i,:) * (1.0_r_2-real(canopy%fwet(i), r_2)) / real(air%rlam(i), r_2) 
                   ! convert from kg m-2 ground s-1 to mmol m-2 leaf s-1*
                   !ex(i,:)= ex(i,:) * 1.0e6_r_2/18.0_r_2  
                   psilx(i,1) = ssnow%psi_rootzone(i) - ex(i,1) / canopy%kplant(i)
@@ -2595,7 +2598,7 @@ CONTAINS
             dsx(i), psilx(i,1), psilx(i,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2), &
             csx(i,1), csx(i,2),csx(i,1), csx(i,2),anx(i,1), anx(i,2), &
             canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
-            vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2)
+            vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2)
             END IF
             ! if (ktau>=5184) then
             ! print*, 'write 134 ',ktau,k
@@ -2605,21 +2608,22 @@ CONTAINS
          
 
       END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
-      print*,'when k end, tlfy: ', tlfy(1)
-      if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
-      i = 1
-      write(134,*) ktau, iter, i, 21, tlfy(i), deltlfy(i), &
-      dsx(i), psily(i,1), psily(i,2),fwpsiy(:,1),fwpsiy(:,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2),&
-      csy(i,1), csy(i,2),csx(i,1), csx(i,2), an_y(i,1), an_y(i,2), &
-      gswy(i,1), gswy(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
-      vcmxt3(i,1),vcmxt3(i,2), gs_coeff(i,1),gs_coeff(i,2),rdy(i,1),rdy(i,2)
-      end if 
+      !print*,'when k end, tlfy: ', tlfy(1)
+      ! if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
+      ! i = 1
+      ! write(134,*) ktau, iter, i, 21, tlfy(i), deltlfy(i), &
+      ! dsx(i), psily(i,1), psily(i,2),fwpsiy(:,1),fwpsiy(:,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2),&
+      ! csy(i,1), csy(i,2),csx(i,1), csx(i,2), an_y(i,1), an_y(i,2), &
+      ! gswy(i,1), gswy(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
+      ! vcmxt3(i,1),vcmxt3(i,2), gs_coeff(i,1),gs_coeff(i,2),rdy(i,1),rdy(i,2)
+      ! end if 
       if (ktau_tot==(nktau+NN-1)  .and. iter==4) THEN
          close(134)
       END IF
       ! print*, 'End k loop: ktau & iter & k= ',ktau,iter,k
       ! dry canopy flux
       canopy%fevc = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
+      canopy%abs_deltpsil = abs_deltpsil
       !write(logn,*) 'fevc', canopy%fevc(1)
       ! print*, 'DD45 ', canopy%fwet
       ! print*, 'DD46 ', canopy%fevc

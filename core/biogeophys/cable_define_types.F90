@@ -515,6 +515,7 @@ module cable_def_types_mod
      real(r_2), dimension(:,:), pointer :: ci => null()        ! stomatal CO2 concentration [mol(CO2)/mol(air)]
      real(r_2), dimension(:,:), pointer :: psi_can => null() 
      real(r_2), dimension(:), pointer :: psi_can_opt => null() 
+     real(r_2), dimension(:,:), pointer :: abs_deltpsil => null() 
      ! plant hydraulics; mgk576 2017; ms835 2022
      REAL(r_1), DIMENSION(:), POINTER :: &
         psi_stem => null(), &
@@ -1259,6 +1260,7 @@ contains
   ! plant hydraulics; mgk576 2017; ms8355 2022
     allocate( canopy%psi_stem(mp) )
     allocate( canopy%psi_can(mp,mf) )
+    allocate( canopy%abs_deltpsil(mp,mf) )
     allocate( canopy%psi_can_opt(mp) )
     allocate( canopy%kplant(mp) )
     allocate( canopy%plc_sat(mp) )
@@ -1879,6 +1881,7 @@ contains
     deallocate( canopy%ecxs )
     deallocate( canopy%psi_stem )
     deallocate( canopy%psi_can )
+    deallocate( canopy%abs_deltpsil )
     deallocate( canopy%psi_can_opt )
     deallocate( canopy%kplant )
     deallocate( canopy%plc_sat )
@@ -2438,6 +2441,7 @@ contains
     canopy%ecxs = 0
     canopy%psi_stem = 0
     canopy%psi_can = 0
+    canopy%abs_deltpsil = 0
     canopy%psi_can_opt = 0
     canopy%kplant = 0
     canopy%plc_sat = 0

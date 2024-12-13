@@ -409,6 +409,8 @@ MODULE cable_IO_vars_module
          psi_stem = .FALSE.,       & 
          psi_can_sl = .FALSE.,       & 
          psi_can_sh = .FALSE.,       &
+         abs_deltpsil_sl = .FALSE.,       & 
+         abs_deltpsil_sh = .FALSE.,       &
          fwpsi_sl = .FALSE.,       &
          fwpsi_sh = .FALSE.,       &   
          plc_sat = .FALSE.,       & 
