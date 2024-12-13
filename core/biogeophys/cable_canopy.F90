@@ -196,8 +196,8 @@ CONTAINS
          (1.0_r_2 + exp(veg%g2(:) * (veg%psi_ref(:) - psilx(:, 1))))
       fwpsi(:, 2) = (1.0_r_2 +exp(veg%g2(:) * veg%psi_ref(:))) / &
          (1.0_r_2 + exp(veg%g2(:) * (veg%psi_ref(:) - psilx(:, 2))))
-      !print*, 'Entry psi ', psilx(:, 1)
-      !print*, 'Entry fwpsi ', fwpsi(:, 1)
+      print*, 'Entry psi ', psilx(:, 1)
+      print*, 'Entry fwpsi ', fwpsi(:, 1)
 
       met%tvair = met%tk
       met%qvair = met%qv
@@ -1641,7 +1641,9 @@ CONTAINS
          eta_y, &
          eta_x, &
          ex,    &  !transpiration, kg m-2 s-1
-         fwpsiy
+         fwpsiy, &
+         psilxx, &
+         abs_deltpsil 
 
       real ::  gam0,    &
          conkc0,  &
@@ -1775,6 +1777,7 @@ CONTAINS
       rdy   = 0.0
       ecx   = SUM(real(rad%rniso,r_2),2) ! init lat heat iteration memory variable
       tlfxx = tlfx
+      psilxx = psilx
       psycst(:,:)   = SPREAD(air%psyc,2,mf)
       canopy%fevc   = 0.0_r_2
       ssnow%evapfbl = 0.0
@@ -2205,6 +2208,7 @@ CONTAINS
                      gswmin(i,1) = veg%g0(i) * rad%scalex(i,1)
                      gswmin(i,2) = veg%g0(i) * rad%scalex(i,2)
                      g1 = veg%g1tuzet(i)
+                     psilxx(i,:) = psilx(i,:)
                      
                      fwpsi(i,1) = (1.0_r_2 +exp(veg%g2(i) * veg%psi_ref(i))) / &
                       (1.0_r_2+exp(veg%g2(i) * (veg%psi_ref(i)-psilx(i,1))))
@@ -2375,7 +2379,7 @@ CONTAINS
                   !ex(i,:)= ex(i,:) * 1.0e6_r_2/18.0_r_2  
                   psilx(i,1) = ssnow%psi_rootzone(i) - ex(i,1) / canopy%kplant(i)
                   psilx(i,2) = ssnow%psi_rootzone(i) - ex(i,2) / canopy%kplant(i)
-                  !print*, 'update psilx: ',ex(i,1), canopy%kplant(i), psilx(i,1)
+                  print*, 'update psilx: ',ex(i,1), canopy%kplant(i), psilx(i,1)
 
                ENDIF
                IF (cable_user%SOIL_SCHE == 'Haverd2013') then
@@ -2494,6 +2498,11 @@ CONTAINS
 
                ! Store change in leaf temperature between successive iterations:
                deltlf(i) = tlfxx(i)-tlfx(i)
+               
+               if (cable_user%GS_SWITCH == 'tuzet' .AND. &
+                  INDEX(cable_user%FWSOIL_SWITCH,'LWP')>0) then
+                  abs_deltpsil(i,:) = ABS(psilxx(i,:)-psilx(i,:))
+               endif
                abs_deltlf(i) = ABS(deltlf(i))
 
             ENDIF !lai/abs_deltlf
@@ -2542,6 +2551,18 @@ CONTAINS
                   ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
                   * tlfx(i)
             endif
+            if (cable_user%GS_SWITCH == 'tuzet' .AND. &
+                  INDEX(cable_user%FWSOIL_SWITCH,'LWP') > 0 .AND. &
+                  Any(abs_deltpsil(i,:) > 0.5) ) then
+               ! after 4 iterations, take mean of current & previous estimates
+               ! as the next estimate of leaf temperature, to avoid oscillation
+               psilx(i,1) = ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) *psilxx(i,1) + &
+                  ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
+                  * psilx(i,1)
+               psilx(i,2) = ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) *psilxx(i,2) + &
+                  ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
+                  * psilx(i,2)
+            endif
             ! if (ktau>=5184) then
             ! print*, 'check tlfx ktau & k= ',ktau,k
             ! end if
@@ -2584,7 +2605,7 @@ CONTAINS
          
 
       END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
-      print*,'when k end, tlfy: ', tlfy(i)
+      print*,'when k end, tlfy: ', tlfy(1)
       if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
       i = 1
       write(134,*) ktau, iter, i, 21, tlfy(i), deltlfy(i), &
