@@ -2826,7 +2826,7 @@ CONTAINS
 
       implicit none
 
-    real(r_2), dimension(:, :), intent(in) :: csxz
+    real(r_2), dimension(:, :), intent(in) :: csxz, deltlfz
     real,      dimension(:, :), intent(in) :: gmes
     real,      dimension(:, :), intent(in) :: &
          cx1z,       & !
@@ -2838,7 +2838,6 @@ CONTAINS
          vx3z,       & !
          gs_coeffz,  & ! Ticket #56, xleuningz repalced with gs_coeffz
          vlaiz,      & !
-         deltlfz,    & !
          deltapsiz, &
          kc4           !
     real,      dimension(:),    intent(in)    :: fwsoilz
