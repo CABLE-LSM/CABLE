@@ -1867,7 +1867,7 @@ CONTAINS
          ! print*, 'DD27 ', veg%g0
          DO i=1,mp
 
-            IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. abs_deltlf(i) > 0.1) THEN
+            IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1)) ) THEN
 
                ghwet(i)  = 2.0_r_2 * real(sum_gbh(i),r_2)
                gwwet(i)  = 1.075 * sum_gbh(i)
@@ -2289,7 +2289,7 @@ CONTAINS
                vcmxt4(:,:), vx3(:,:), vx4(:,:), &
             ! Ticket #56, xleuning replaced with gs_coeff here
                gs_coeff(:,:), rad%fvlai(:,:), &
-               spread(abs_deltlf,2,mf), &
+               spread(abs_deltlf,2,mf), abs_deltpsil, &
                anx(:,:), fwsoil(:), qs, gmes(:,:), kc4(:,:), &
                anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:) )
          ENDIF
@@ -2312,7 +2312,7 @@ CONTAINS
          ! print*, 'DD43 ', ssnow%evapfbl
          DO i=1,mp
 
-            IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. abs_deltlf(i) > 0.1 ) Then
+            IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1))) Then
                DO kk=1, mf
 
                   IF (rad%fvlai(i,kk)>C%LAI_THRESH) THEN
@@ -2818,7 +2818,7 @@ CONTAINS
    ! JK: subroutine photosynthesis_gm now used with and without explicit gm (cable_user%explicit_gm)
    SUBROUTINE photosynthesis_gm( csxz, cx1z, cx2z, gswminz, &
       rdxz, vcmxt3z, vcmxt4z, vx3z, &
-      vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz, qs, &
+      vx4z, gs_coeffz, vlaiz, deltlfz, deltapsiz, anxz, fwsoilz, qs, &
       gmes, kc4, anrubiscoz, anrubpz, ansinkz, eta, dA )
 
     use cable_def_types_mod, only: r_2
@@ -2839,6 +2839,7 @@ CONTAINS
          gs_coeffz,  & ! Ticket #56, xleuningz repalced with gs_coeffz
          vlaiz,      & !
          deltlfz,    & !
+         deltapsiz, &
          kc4           !
     real,      dimension(:),    intent(in)    :: fwsoilz
     real,                       intent(in)    :: qs
@@ -2866,7 +2867,7 @@ CONTAINS
 
           if (vlaiz(i,j) > C%lai_thresh) then
 
-             if (deltlfz(i,j) > 0.1) then
+             if (deltlfz(i,j) > 0.1 .or. deltapsiz(i,j) > 0.1) then
 
                 anxz(i,j)       = -rdxz(i,j)
                 anrubiscoz(i,j) = -rdxz(i,j)
