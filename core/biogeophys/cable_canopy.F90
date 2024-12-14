@@ -2169,7 +2169,7 @@ CONTAINS
                      * ( 1.0 / ( 1.0/veg%a1gs(i) + (vpd/(veg%d0gs(i)*veg%a1gs(i)))))
 
                   gs_coeff(i,2) = ( fwsoil(i)**qs / ( real(csx(i,2)) - co2cp(i,2) ) ) &
-                     * ( 1.0 / ( 1.0/veg%a1gs(i) + (vpd/(veg%d0gs(i)*veg%a1gs(i))))
+                     * ( 1.0 / ( 1.0/veg%a1gs(i) + (vpd/(veg%d0gs(i)*veg%a1gs(i)))))
 
                   ! gs_coeff(i,1) = ( fwsoil(i)**qs / ( csx(i,1) - co2cp3 ) ) &
                   !      * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
