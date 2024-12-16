@@ -328,28 +328,26 @@ END SUBROUTINE initialize_veg
 !========================================================================
    
 SUBROUTINE init_veg_pars_fr_vegin( soil_zse ) 
-   USE cable_params_mod, ONLY : vegin
-   USE cable_um_tech_mod,   ONLY : veg, soil 
-  USE cable_def_types_mod, ONLY : mp, ms
 
-  real, dimension(ms) :: soil_zse 
+USE cable_um_tech_mod,   ONLY: veg, soil 
+USE cable_def_types_mod, ONLY: mp, ms
 
-  CALL init_veg_from_vegin(1, mp, veg, soil_zse) 
+IMPLICIT NONE
 
-      !froot fixed here for all vegetation types for ACCESS
-      !need more flexibility in next version to read in or parameterise
-    veg%froot(:,1) = 0.05
-    veg%froot(:,2) = 0.20
-    veg%froot(:,3) = 0.20
-    veg%froot(:,4) = 0.20
-    veg%froot(:,5) = 0.20
-    veg%froot(:,6) = 0.15
+REAL :: soil_zse(ms) 
+
+CALL init_veg_from_vegin(1, mp, veg, soil_zse) 
+
+
+RETURN
 
 END SUBROUTINE init_veg_pars_fr_vegin
 
 SUBROUTINE init_veg_from_vegin(ifmp,fmp, veg, soil_zse ) 
-     use cable_def_types_mod, ONLY : veg_parameter_type, ms, mp 
-   USE cable_params_mod, ONLY : vegin
+
+USE cable_def_types_mod, ONLY: veg_parameter_type, ms, mp 
+USE cable_params_mod,    ONLY: vegin
+USE cable_common_module, ONLY: cable_user
 
      integer ::  ifmp,  & ! start local mp, # landpoints (jhan:when is this not 1 )      
                  fmp     ! local mp, # landpoints       
@@ -407,7 +405,20 @@ veg%zr(h)       = vegin%zr(veg%iveg(h))
 veg%clitt(h)    = vegin%clitt(veg%iveg(h))
          END DO ! over each veg patch in land point
  
-!used in CM2 - overwritten here
+IF (cable_user%access13roots) THEN
+
+  ! prescribed values from vegin%froot so can be set to ESM1.5 values
+  ! which were the same for all pfts (0.05, 0.2, 0.2, 0.2, 0.2, 0.15)
+  ! or alternate prescribed root fractions could be used with pft dependence
+  DO is = 1, ms
+    DO h=1, mp
+      veg%froot(h,is) = vegin%froot(is,veg%iveg(h))
+    ENDDO
+  ENDDO
+
+ELSE
+
+  ! parametrized values used in CMIP6 ACCESS-CM2
   ! calculate vegin%froot from using rootbeta and soil depth
   ! (Jackson et al. 1996, Oceologica, 108:389-411)
   totdepth = 0.0
@@ -420,7 +431,9 @@ veg%clitt(h)    = vegin%clitt(veg%iveg(h))
     veg%froot(:, is) = veg%froot(:, is)-veg%froot(:,is-1)
   END DO
 
+ENDIF
 
+RETURN
 END SUBROUTINE init_veg_from_vegin
 
 

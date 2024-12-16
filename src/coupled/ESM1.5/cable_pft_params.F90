@@ -39,18 +39,27 @@ USE cable_params_mod, ONLY : vegin
    vegin%tminvj(1) =      -15.000000
    vegin%tmaxvj(1) =      -10.000000
     vegin%vbeta(1) =        2.000000
+    !vegin%froot(soil-level,veg-type) ESM1.5 values (all pfts the same)
     vegin%froot(1,1) =        0.050000
-    vegin%froot(2,1) =        0.050000
-    vegin%froot(3,1) =        0.050000
-    vegin%froot(4,1) =        0.050000
-    vegin%froot(5,1) =        0.050000
-    vegin%froot(6,1) =        0.050000
+    vegin%froot(2,1) =        0.200000
+    vegin%froot(3,1) =        0.200000
+    vegin%froot(4,1) =        0.200000
+    vegin%froot(5,1) =        0.200000
+    vegin%froot(6,1) =        0.150000
+    
+    ! CM2 refl/taul values
      vegin%refl(1,1) =        0.090000
      vegin%taul(1,1) =        0.090000
      vegin%refl(2,1) =        0.300000
      vegin%taul(2,1) =        0.300000
      vegin%refl(3,1) =        0.010000
      vegin%taul(3,1) =        0.010000
+    !ESM1.5 refl/taul values
+     !vegin%refl( 1,1) =  6.200000000000000E-002
+     !vegin%refl( 2,1) =  0.302000000000000     
+     !vegin%taul( 1,1) =  5.000000000000000E-002
+     !vegin%taul( 2,1) =  0.100000000000000     
+     
     vegin%csoil(1,1) =      184.000000
    vegin%ratecs(1,1) =        2.000000
     vegin%csoil(2,1) =      367.000000
@@ -71,8 +80,9 @@ USE cable_params_mod, ONLY : vegin
    vegin%conko0(1) =        0.256000
       vegin%ekc(1) =    59430.000000
       vegin%eko(1) =    36000.000000
-       vegin%g0(1) =        0.000000
-       vegin%g1(1) =        2.346064
+      ! g1 as Trendy-v13, g0=0.005 recommended by JK
+       vegin%g0(1) =        0.005000
+       vegin%g1(1) =        2.35
        vegin%zr(1) =        1.800000
     vegin%clitt(1) =       20.000000
  
@@ -98,18 +108,26 @@ USE cable_params_mod, ONLY : vegin
    vegin%tminvj(2) =      -15.000000
    vegin%tmaxvj(2) =      -10.000000
     vegin%vbeta(2) =        2.000000
-    vegin%froot(1,2) =        0.200000
+    vegin%froot(1,2) =        0.050000
     vegin%froot(2,2) =        0.200000
     vegin%froot(3,2) =        0.200000
     vegin%froot(4,2) =        0.200000
     vegin%froot(5,2) =        0.200000
-    vegin%froot(6,2) =        0.200000
+    vegin%froot(6,2) =        0.150000
+
+     ! CM2 refl/taul
      vegin%refl(1,2) =        0.090000
      vegin%taul(1,2) =        0.090000
      vegin%refl(2,2) =        0.290000
      vegin%taul(2,2) =        0.290000
      vegin%refl(3,2) =        0.010000
      vegin%taul(3,2) =        0.010000
+     ! ESM1.5 refl/taul
+     !vegin%refl( 1,2) = 7.600000000000000E-002
+     !vegin%refl( 2,2) = 0.350000000000000     
+     !vegin%taul( 1,2) = 5.000000000000000E-002
+     !vegin%taul( 2,2) = 0.250000000000000     
+
     vegin%csoil(1,2) =      303.000000
    vegin%ratecs(1,2) =        2.000000
     vegin%csoil(2,2) =      606.000000
@@ -130,8 +148,11 @@ USE cable_params_mod, ONLY : vegin
    vegin%conko0(2) =        0.256000
       vegin%ekc(2) =    59430.000000
       vegin%eko(2) =    36000.000000
-       vegin%g0(2) =        0.000000
-       vegin%g1(2) =        4.114762
+      ! g1 as Trendy-v13, g0=0.005 recommended by JK
+      ! JK noted g1 for EGBL ~twice as large as literature get get
+      ! reasonable GPP/LAI/biomass in tropics
+       vegin%g0(2) =        0.005000
+       vegin%g1(2) =        6.5
        vegin%zr(2) =        3.000000
     vegin%clitt(2) =        6.000000
  
@@ -157,18 +178,26 @@ USE cable_params_mod, ONLY : vegin
    vegin%tminvj(3) =        5.000000
    vegin%tmaxvj(3) =       10.000000
     vegin%vbeta(3) =        2.000000
-    vegin%froot(1,3) =        0.200000
+    vegin%froot(1,3) =        0.050000
     vegin%froot(2,3) =        0.200000
     vegin%froot(3,3) =        0.200000
     vegin%froot(4,3) =        0.200000
     vegin%froot(5,3) =        0.200000
-    vegin%froot(6,3) =        0.200000
+    vegin%froot(6,3) =        0.150000
+
+     ! CM2 refl/taul
      vegin%refl(1,3) =        0.075000
      vegin%taul(1,3) =        0.075000
      vegin%refl(2,3) =        0.300000
      vegin%taul(2,3) =        0.300000
      vegin%refl(3,3) =        0.010000
      vegin%taul(3,3) =        0.010000
+     ! ESM1.5 refl/taul
+     !vegin%refl( 1,3) =  5.600000000000000E-002
+     !vegin%refl( 2,3) =  0.275000000000000     
+     !vegin%taul( 1,3) =  4.500000000000000E-002
+     !vegin%taul( 2,3) =  0.144000000000000     
+
     vegin%csoil(1,3) =      107.000000
    vegin%ratecs(1,3) =        2.000000
     vegin%csoil(2,3) =      214.000000
@@ -189,8 +218,9 @@ USE cable_params_mod, ONLY : vegin
    vegin%conko0(3) =        0.256000
       vegin%ekc(3) =    59430.000000
       vegin%eko(3) =    36000.000000
-       vegin%g0(3) =        0.000000
-       vegin%g1(3) =        2.346064
+      ! g1 as Trendy-v13, g0=0.005 recommended by JK
+       vegin%g0(3) =        0.005000
+       vegin%g1(3) =        2.35
        vegin%zr(3) =        2.000000
     vegin%clitt(3) =       10.000000
  
@@ -216,18 +246,26 @@ USE cable_params_mod, ONLY : vegin
    vegin%tminvj(4) =        5.000000
    vegin%tmaxvj(4) =       15.000000
     vegin%vbeta(4) =        2.000000
-    vegin%froot(1,4) =        0.200000
+    vegin%froot(1,4) =        0.050000
     vegin%froot(2,4) =        0.200000
     vegin%froot(3,4) =        0.200000
     vegin%froot(4,4) =        0.200000
     vegin%froot(5,4) =        0.200000
-    vegin%froot(6,4) =        0.200000
+    vegin%froot(6,4) =        0.150000
+
+     ! CM2 refl/taul
      vegin%refl(1,4) =        0.090000
      vegin%taul(1,4) =        0.090000
      vegin%refl(2,4) =        0.290000
      vegin%taul(2,4) =        0.290000
      vegin%refl(3,4) =        0.010000
      vegin%taul(3,4) =        0.010000
+     ! ESM1.5 refl/taul
+     !vegin%refl( 1,4) =  9.200000000000000E-002
+     !vegin%refl( 2,4) =  0.380000000000000     
+     !vegin%taul( 1,4) =  5.000000000000000E-002
+     !vegin%taul( 2,4) =  0.250000000000000     
+
     vegin%csoil(1,4) =      216.000000
    vegin%ratecs(1,4) =        2.000000
     vegin%csoil(2,4) =      432.000000
@@ -248,8 +286,9 @@ USE cable_params_mod, ONLY : vegin
    vegin%conko0(4) =        0.256000
       vegin%ekc(4) =    59430.000000
       vegin%eko(4) =    36000.000000
-       vegin%g0(4) =        0.000000
-       vegin%g1(4) =        4.447321
+      ! g1 as Trendy-v13, g0=0.005 recommended by JK
+       vegin%g0(4) =        0.005000
+       vegin%g1(4) =        4.64
        vegin%zr(4) =        2.000000
     vegin%clitt(4) =       13.000000
  
@@ -275,18 +314,26 @@ USE cable_params_mod, ONLY : vegin
    vegin%tminvj(5) =      -15.000000
    vegin%tmaxvj(5) =      -10.000000
     vegin%vbeta(5) =        4.000000
-    vegin%froot(1,5) =        0.200000
+    vegin%froot(1,5) =        0.050000
     vegin%froot(2,5) =        0.200000
     vegin%froot(3,5) =        0.200000
     vegin%froot(4,5) =        0.200000
     vegin%froot(5,5) =        0.200000
-    vegin%froot(6,5) =        0.200000
+    vegin%froot(6,5) =        0.150000
+
+     ! CM2 refl/taul
      vegin%refl(1,5) =        0.090000
      vegin%taul(1,5) =        0.090000
      vegin%refl(2,5) =        0.300000
      vegin%taul(2,5) =        0.300000
      vegin%refl(3,5) =        0.010000
      vegin%taul(3,5) =        0.010000
+     ! ESM1.5 refl/taul
+     !vegin%refl( 1,5) =  0.100000000000000     
+     !vegin%refl( 2,5) =  0.400000000000000     
+     !vegin%taul( 1,5) =  5.000000000000000E-002
+     !vegin%taul( 2,5) =  0.240000000000000     
+
     vegin%csoil(1,5) =      100.000000
    vegin%ratecs(1,5) =        2.000000
     vegin%csoil(2,5) =      250.000000
@@ -307,8 +354,9 @@ USE cable_params_mod, ONLY : vegin
    vegin%conko0(5) =        0.256000
       vegin%ekc(5) =    59430.000000
       vegin%eko(5) =    36000.000000
-       vegin%g0(5) =        0.000000
-       vegin%g1(5) =        4.694803
+      ! g1 as Trendy-v13, g0=0.005 recommended by JK
+       vegin%g0(5) =        0.005000
+       vegin%g1(5) =        4.22
        vegin%zr(5) =        2.500000
     vegin%clitt(5) =        2.000000
  
@@ -334,18 +382,26 @@ USE cable_params_mod, ONLY : vegin
    vegin%tminvj(6) =      -15.000000
    vegin%tmaxvj(6) =      -10.000000
     vegin%vbeta(6) =        4.000000
-    vegin%froot(1,6) =        0.150000
-    vegin%froot(2,6) =        0.150000
-    vegin%froot(3,6) =        0.150000
-    vegin%froot(4,6) =        0.150000
-    vegin%froot(5,6) =        0.150000
+    vegin%froot(1,6) =        0.050000
+    vegin%froot(2,6) =        0.200000
+    vegin%froot(3,6) =        0.200000
+    vegin%froot(4,6) =        0.200000
+    vegin%froot(5,6) =        0.200000
     vegin%froot(6,6) =        0.150000
+
+     ! CM2 refl/taul
      vegin%refl(1,6) =        0.110000
      vegin%taul(1,6) =        0.110000
      vegin%refl(2,6) =        0.340000
      vegin%taul(2,6) =        0.340000
      vegin%refl(3,6) =        0.010000
      vegin%taul(3,6) =        0.010000
+     ! ESM1.5 refl/taul
+     !vegin%refl( 1,6) =  0.110000000000000     
+     !vegin%refl( 2,6) =  0.470000000000000     
+     !vegin%taul( 1,6) =  7.000000000000001E-002
+     !vegin%taul( 2,6) =  0.250000000000000     
+
     vegin%csoil(1,6) =      275.000000
    vegin%ratecs(1,6) =        2.000000
     vegin%csoil(2,6) =      314.000000
@@ -366,8 +422,9 @@ USE cable_params_mod, ONLY : vegin
    vegin%conko0(6) =        0.256000
       vegin%ekc(6) =    59430.000000
       vegin%eko(6) =    36000.000000
-       vegin%g0(6) =        0.000000
-       vegin%g1(6) =        5.248500
+      ! g1 as Trendy-v13, g0=0.005 recommended by JK
+       vegin%g0(6) =        0.005000
+       vegin%g1(6) =        4.5
        vegin%zr(6) =        0.500000
     vegin%clitt(6) =        2.000000
  
@@ -393,18 +450,26 @@ USE cable_params_mod, ONLY : vegin
    vegin%tminvj(7) =      -15.000000
    vegin%tmaxvj(7) =      -10.000000
     vegin%vbeta(7) =        4.000000
-    vegin%froot(1,7) =        0.000000
-    vegin%froot(2,7) =        0.000000
-    vegin%froot(3,7) =        0.000000
-    vegin%froot(4,7) =        0.000000
-    vegin%froot(5,7) =        0.000000
-    vegin%froot(6,7) =        0.000000
+    vegin%froot(1,7) =        0.050000
+    vegin%froot(2,7) =        0.200000
+    vegin%froot(3,7) =        0.200000
+    vegin%froot(4,7) =        0.200000
+    vegin%froot(5,7) =        0.200000
+    vegin%froot(6,7) =        0.150000
+
+     ! CM2 refl/taul
      vegin%refl(1,7) =        0.110000
      vegin%taul(1,7) =        0.110000
      vegin%refl(2,7) =        0.340000
      vegin%taul(2,7) =        0.340000
      vegin%refl(3,7) =        0.010000
      vegin%taul(3,7) =        0.010000
+     ! ESM1.5 refl/taul
+     !vegin%refl( 1,7) =  0.100000000000000     
+     !vegin%refl( 2,7) =  0.400000000000000     
+     !vegin%taul( 1,7) =  0.100000000000000     
+     !vegin%taul( 2,7) =  0.150000000000000     
+
     vegin%csoil(1,7) =      275.000000
    vegin%ratecs(1,7) =        2.000000
     vegin%csoil(2,7) =      314.000000
@@ -425,8 +490,9 @@ USE cable_params_mod, ONLY : vegin
    vegin%conko0(7) =        0.256000
       vegin%ekc(7) =    59430.000000
       vegin%eko(7) =    36000.000000
-       vegin%g0(7) =        0.000000
-       vegin%g1(7) =        1.616178
+      ! g1 as Trendy-v13, g0=0.005 recommended by JK
+       vegin%g0(7) =        0.005000
+       vegin%g1(7) =        1.62
        vegin%zr(7) =        0.500000
     vegin%clitt(7) =        0.300000
  
@@ -452,18 +518,26 @@ USE cable_params_mod, ONLY : vegin
    vegin%tminvj(8) =      -15.000000
    vegin%tmaxvj(8) =      -10.000000
     vegin%vbeta(8) =        4.000000
-    vegin%froot(1,8) =        0.000000
-    vegin%froot(2,8) =        0.000000
-    vegin%froot(3,8) =        0.000000
-    vegin%froot(4,8) =        0.000000
-    vegin%froot(5,8) =        0.000000
-    vegin%froot(6,8) =        0.000000
+    vegin%froot(1,8) =        0.050000
+    vegin%froot(2,8) =        0.200000
+    vegin%froot(3,8) =        0.200000
+    vegin%froot(4,8) =        0.200000
+    vegin%froot(5,8) =        0.200000
+    vegin%froot(6,8) =        0.150000
+
+     ! CM2 refl/taul
      vegin%refl(1,8) =        0.075000
      vegin%taul(1,8) =        0.075000
      vegin%refl(2,8) =        0.320000
      vegin%taul(2,8) =        0.320000
      vegin%refl(3,8) =        0.010000
      vegin%taul(3,8) =        0.010000
+     ! ESM1.5 refl/taul
+     !vegin%refl( 1,8) =  0.117000000000000     
+     !vegin%refl( 2,8) =  0.343000000000000     
+     !vegin%taul( 1,8) =  8.000000000000000E-002
+     !vegin%taul( 2,8) =  0.124000000000000     
+
     vegin%csoil(1,8) =      275.000000
    vegin%ratecs(1,8) =        2.000000
     vegin%csoil(2,8) =      314.000000
@@ -484,8 +558,9 @@ USE cable_params_mod, ONLY : vegin
    vegin%conko0(8) =        0.256000
       vegin%ekc(8) =    59430.000000
       vegin%eko(8) =    36000.000000
-       vegin%g0(8) =        0.000000
-       vegin%g1(8) =        2.222156
+      ! g1 as Trendy-v13, g0=0.005 recommended by JK
+       vegin%g0(8) =        0.005000
+       vegin%g1(8) =        2.22
        vegin%zr(8) =        0.500000
     vegin%clitt(8) =        0.300000
  
@@ -511,18 +586,26 @@ USE cable_params_mod, ONLY : vegin
    vegin%tminvj(9) =      -15.000000
    vegin%tmaxvj(9) =      -10.000000
     vegin%vbeta(9) =        2.000000
-    vegin%froot(1,9) =        0.000000
-    vegin%froot(2,9) =        0.000000
-    vegin%froot(3,9) =        0.000000
-    vegin%froot(4,9) =        0.000000
-    vegin%froot(5,9) =        0.000000
-    vegin%froot(6,9) =        0.000000
+    vegin%froot(1,9) =        0.050000
+    vegin%froot(2,9) =        0.200000
+    vegin%froot(3,9) =        0.200000
+    vegin%froot(4,9) =        0.200000
+    vegin%froot(5,9) =        0.200000
+    vegin%froot(6,9) =        0.150000
+
+     ! CM2 refl/taul
      vegin%refl(1,9) =        0.110000
      vegin%taul(1,9) =        0.110000
      vegin%refl(2,9) =        0.340000
      vegin%taul(2,9) =        0.340000
      vegin%refl(3,9) =        0.010000
      vegin%taul(3,9) =        0.010000
+     ! ESM1.5 refl/taul
+     !vegin%refl( 1,9) =  0.100000000000000     
+     !vegin%refl( 2,9) =  0.400000000000000     
+     !vegin%taul( 1,9) =  0.100000000000000     
+     !vegin%taul( 2,9) =  0.150000000000000     
+
     vegin%csoil(1,9) =      149.000000
    vegin%ratecs(1,9) =        2.000000
     vegin%csoil(2,9) =      300.000000
@@ -543,8 +626,9 @@ USE cable_params_mod, ONLY : vegin
    vegin%conko0(9) =        0.256000
       vegin%ekc(9) =    59430.000000
       vegin%eko(9) =    36000.000000
-       vegin%g0(9) =        0.000000
-       vegin%g1(9) =        5.789377
+      ! g1 as Trendy-v13, g0=0.005 recommended by JK
+       vegin%g0(9) =        0.005000
+       vegin%g1(9) =        5.79
        vegin%zr(9) =        0.500000
     vegin%clitt(9) =        0.000000
  
@@ -570,18 +654,26 @@ USE cable_params_mod, ONLY : vegin
    vegin%tminvj(10) =      -15.000000
    vegin%tmaxvj(10) =      -10.000000
     vegin%vbeta(10) =        2.000000
-    vegin%froot( 1,10) =        0.000000
-    vegin%froot( 2,10) =        0.000000
-    vegin%froot( 3,10) =        0.000000
-    vegin%froot( 4,10) =        0.000000
-    vegin%froot( 5,10) =        0.000000
-    vegin%froot( 6,10) =        0.000000
+    vegin%froot( 1,10) =        0.050000
+    vegin%froot( 2,10) =        0.200000
+    vegin%froot( 3,10) =        0.200000
+    vegin%froot( 4,10) =        0.200000
+    vegin%froot( 5,10) =        0.200000
+    vegin%froot( 6,10) =        0.150000
+
+     ! CM2 refl/taul
      vegin%refl( 1,10) =        0.110000
      vegin%taul( 1,10) =        0.110000
      vegin%refl( 2,10) =        0.340000
      vegin%taul( 2,10) =        0.340000
      vegin%refl( 3,10) =        0.010000
      vegin%taul( 3,10) =        0.010000
+     ! ESM1.5 refl/taul
+     !vegin%refl( 1,10) = 9.000000000000000E-002
+     !vegin%refl( 2,10) = 0.360000000000000     
+     !vegin%taul( 1,10) = 9.000000000000000E-002
+     !vegin%taul( 2,10) = 0.225000000000000         
+
     vegin%csoil( 1,10) =      149.000000
    vegin%ratecs( 1,10) =        2.000000
     vegin%csoil( 2,10) =      300.000000
@@ -602,8 +694,9 @@ USE cable_params_mod, ONLY : vegin
    vegin%conko0(10) =        0.256000
       vegin%ekc(10) =    59430.000000
       vegin%eko(10) =    36000.000000
-       vegin%g0(10) =        0.000000
-       vegin%g1(10) =        1.616178
+      ! g1 as Trendy-v13, g0=0.005 recommended by JK
+       vegin%g0(10) =        0.005000
+       vegin%g1(10) =        1.62
        vegin%zr(10) =        0.500000
     vegin%clitt(10) =        0.000000
  
@@ -629,12 +722,12 @@ USE cable_params_mod, ONLY : vegin
    vegin%tminvj(11) =      -15.000000
    vegin%tmaxvj(11) =      -10.000000
     vegin%vbeta(11) =        4.000000
-    vegin%froot( 1,11) =        0.000000
-    vegin%froot( 2,11) =        0.000000
-    vegin%froot( 3,11) =        0.000000
-    vegin%froot( 4,11) =        0.000000
-    vegin%froot( 5,11) =        0.000000
-    vegin%froot( 6,11) =        0.000000
+    vegin%froot( 1,11) =        0.050000
+    vegin%froot( 2,11) =        0.200000
+    vegin%froot( 3,11) =        0.200000
+    vegin%froot( 4,11) =        0.200000
+    vegin%froot( 5,11) =        0.200000
+    vegin%froot( 6,11) =        0.150000
      vegin%refl( 1,11) =        0.108000
      vegin%taul( 1,11) =        0.075000
      vegin%refl( 2,11) =        0.343000
@@ -661,8 +754,9 @@ USE cable_params_mod, ONLY : vegin
    vegin%conko0(11) =        0.256000
       vegin%ekc(11) =    59430.000000
       vegin%eko(11) =    36000.000000
-       vegin%g0(11) =        0.000000
-       vegin%g1(11) =        5.248500
+      ! g1 as Trendy-v13, g0=0.005 recommended by JK
+       vegin%g0(11) =        0.005000
+       vegin%g1(11) =        4.5
        vegin%zr(11) =        1.800000
     vegin%clitt(11) =        2.000000
  
@@ -688,12 +782,12 @@ USE cable_params_mod, ONLY : vegin
    vegin%tminvj(12) =      -15.000000
    vegin%tmaxvj(12) =      -10.000000
     vegin%vbeta(12) =        4.000000
-    vegin%froot( 1,12) =        0.000000
-    vegin%froot( 2,12) =        0.000000
-    vegin%froot( 3,12) =        0.000000
-    vegin%froot( 4,12) =        0.000000
-    vegin%froot( 5,12) =        0.000000
-    vegin%froot( 6,12) =        0.000000
+    vegin%froot( 1,12) =        0.050000
+    vegin%froot( 2,12) =        0.200000
+    vegin%froot( 3,12) =        0.200000
+    vegin%froot( 4,12) =        0.200000
+    vegin%froot( 5,12) =        0.200000
+    vegin%froot( 6,12) =        0.150000
      vegin%refl( 1,12) =        0.055000
      vegin%taul( 1,12) =        0.023000
      vegin%refl( 2,12) =        0.190000
@@ -720,8 +814,9 @@ USE cable_params_mod, ONLY : vegin
    vegin%conko0(12) =        0.256000
       vegin%ekc(12) =    59430.000000
       vegin%eko(12) =    36000.000000
-       vegin%g0(12) =        0.000000
-       vegin%g1(12) =        5.248500
+      ! g1 as Trendy-v13, g0=0.005 recommended by JK
+       vegin%g0(12) =        0.005000
+       vegin%g1(12) =        4.5
        vegin%zr(12) =        3.100000
     vegin%clitt(12) =        2.000000
  
@@ -747,12 +842,12 @@ USE cable_params_mod, ONLY : vegin
    vegin%tminvj(13) =      -15.000000
    vegin%tmaxvj(13) =      -10.000000
     vegin%vbeta(13) =        2.000000
-    vegin%froot( 1,13) =        0.000000
-    vegin%froot( 2,13) =        0.000000
-    vegin%froot( 3,13) =        0.000000
-    vegin%froot( 4,13) =        0.000000
-    vegin%froot( 5,13) =        0.000000
-    vegin%froot( 6,13) =        0.000000
+    vegin%froot( 1,13) =        0.050000
+    vegin%froot( 2,13) =        0.200000
+    vegin%froot( 3,13) =        0.200000
+    vegin%froot( 4,13) =        0.200000
+    vegin%froot( 5,13) =        0.200000
+    vegin%froot( 6,13) =        0.150000
      vegin%refl( 1,13) =        0.091000
      vegin%taul( 1,13) =        0.059000
      vegin%refl( 2,13) =        0.310000
@@ -779,8 +874,9 @@ USE cable_params_mod, ONLY : vegin
    vegin%conko0(13) =        0.256000
       vegin%ekc(13) =    59430.000000
       vegin%eko(13) =    36000.000000
-       vegin%g0(13) =        0.000000
-       vegin%g1(13) =        0.000000
+      ! g1 as pft12, g0=0.005 recommended by JK
+       vegin%g0(13) =        0.005000
+       vegin%g1(13) =        4.5
        vegin%zr(13) =        3.000000
     vegin%clitt(13) =        0.000000
  
@@ -806,12 +902,12 @@ USE cable_params_mod, ONLY : vegin
    vegin%tminvj(14) =      -15.000000
    vegin%tmaxvj(14) =      -10.000000
     vegin%vbeta(14) =        4.000000
-    vegin%froot( 1,14) =        0.000000
-    vegin%froot( 2,14) =        0.000000
-    vegin%froot( 3,14) =        0.000000
-    vegin%froot( 4,14) =        0.000000
-    vegin%froot( 5,14) =        0.000000
-    vegin%froot( 6,14) =        0.000000
+    vegin%froot( 1,14) =        0.050000
+    vegin%froot( 2,14) =        0.200000
+    vegin%froot( 3,14) =        0.200000
+    vegin%froot( 4,14) =        0.200000
+    vegin%froot( 5,14) =        0.200000
+    vegin%froot( 6,14) =        0.150000
      vegin%refl( 1,14) =        0.238000
      vegin%taul( 1,14) =        0.039000
      vegin%refl( 2,14) =        0.457000
@@ -838,8 +934,9 @@ USE cable_params_mod, ONLY : vegin
    vegin%conko0(14) =        0.256000
       vegin%ekc(14) =    59430.000000
       vegin%eko(14) =    36000.000000
-       vegin%g0(14) =        0.000000
-       vegin%g1(14) =        5.248500
+      ! g1 as Trendy-v13, g0=0.005 recommended by JK
+       vegin%g0(14) =        0.005000
+       vegin%g1(14) =        4.5
        vegin%zr(14) =        1.000000
     vegin%clitt(14) =        0.000000
  
@@ -865,12 +962,12 @@ USE cable_params_mod, ONLY : vegin
    vegin%tminvj(15) =      -15.000000
    vegin%tmaxvj(15) =      -10.000000
     vegin%vbeta(15) =        4.000000
-    vegin%froot( 1,15) =        0.000000
-    vegin%froot( 2,15) =        0.000000
-    vegin%froot( 3,15) =        0.000000
-    vegin%froot( 4,15) =        0.000000
-    vegin%froot( 5,15) =        0.000000
-    vegin%froot( 6,15) =        0.000000
+    vegin%froot( 1,15) =        0.050000
+    vegin%froot( 2,15) =        0.200000
+    vegin%froot( 3,15) =        0.200000
+    vegin%froot( 4,15) =        0.200000
+    vegin%froot( 5,15) =        0.200000
+    vegin%froot( 6,15) =        0.150000
      vegin%refl( 1,15) =        0.143000
      vegin%taul( 1,15) =        0.023000
      vegin%refl( 2,15) =        0.275000
@@ -897,7 +994,8 @@ USE cable_params_mod, ONLY : vegin
    vegin%conko0(15) =        0.256000
       vegin%ekc(15) =    59430.000000
       vegin%eko(15) =    36000.000000
-       vegin%g0(15) =        0.000000
+      ! g1 as Trendy-v13, g0=0.005 recommended by JK
+       vegin%g0(15) =        0.005000
        vegin%g1(15) =        5.248500
        vegin%zr(15) =        1.000000
     vegin%clitt(15) =        0.000000
@@ -924,12 +1022,12 @@ USE cable_params_mod, ONLY : vegin
    vegin%tminvj(16) =      -15.000000
    vegin%tmaxvj(16) =      -10.000000
     vegin%vbeta(16) =        4.000000
-    vegin%froot( 1,16) =        0.000000
-    vegin%froot( 2,16) =        0.000000
-    vegin%froot( 3,16) =        0.000000
-    vegin%froot( 4,16) =        0.000000
-    vegin%froot( 5,16) =        0.000000
-    vegin%froot( 6,16) =        0.000000
+    vegin%froot( 1,16) =        0.050000
+    vegin%froot( 2,16) =        0.200000
+    vegin%froot( 3,16) =        0.200000
+    vegin%froot( 4,16) =        0.200000
+    vegin%froot( 5,16) =        0.200000
+    vegin%froot( 6,16) =        0.1500000
      vegin%refl( 1,16) =        0.143000
      vegin%taul( 1,16) =        0.023000
      vegin%refl( 2,16) =        0.275000
@@ -956,8 +1054,9 @@ USE cable_params_mod, ONLY : vegin
    vegin%conko0(16) =        0.256000
       vegin%ekc(16) =    59430.000000
       vegin%eko(16) =    36000.000000
-       vegin%g0(16) =        0.000000
-       vegin%g1(16) =        5.248500
+      ! g1 as Trendy-v13, g0=0.005 recommended by JK
+       vegin%g0(16) =        0.005000
+       vegin%g1(16) =        4.5
        vegin%zr(16) =        1.000000
     vegin%clitt(16) =        0.000000
  
@@ -983,12 +1082,12 @@ USE cable_params_mod, ONLY : vegin
    vegin%tminvj(17) =      -15.000000
    vegin%tmaxvj(17) =      -10.000000
     vegin%vbeta(17) =        4.000000
-    vegin%froot( 1,17) =        0.000000
-    vegin%froot( 2,17) =        0.000000
-    vegin%froot( 3,17) =        0.000000
-    vegin%froot( 4,17) =        0.000000
-    vegin%froot( 5,17) =        0.000000
-    vegin%froot( 6,17) =        0.000000
+    vegin%froot( 1,17) =        0.050000
+    vegin%froot( 2,17) =        0.200000
+    vegin%froot( 3,17) =        0.200000
+    vegin%froot( 4,17) =        0.200000
+    vegin%froot( 5,17) =        0.200000
+    vegin%froot( 6,17) =        0.150000
      vegin%refl( 1,17) =        0.159000
      vegin%taul( 1,17) =        0.026000
      vegin%refl( 2,17) =        0.305000
@@ -1015,62 +1114,12 @@ USE cable_params_mod, ONLY : vegin
    vegin%conko0(17) =        0.256000
       vegin%ekc(17) =    59430.000000
       vegin%eko(17) =    36000.000000
-       vegin%g0(17) =        0.000000
-       vegin%g1(17) =        5.248500
+      ! g1 as Trendy-v13, g0=0.005 recommended by JK
+       vegin%g0(17) =        0.005000
+       vegin%g1(17) =        4.5
        vegin%zr(17) =        1.000000
     vegin%clitt(17) =        0.000000
 
-!to match vegin parameters used in ESM1.5
- vegin%refl( 1,1) =  6.200000000000000E-002
- vegin%refl( 2,1) =  0.302000000000000     
- vegin%taul( 1,1) =  5.000000000000000E-002
- vegin%taul( 2,1) =  0.100000000000000     
-
- vegin%refl( 1,2) = 7.600000000000000E-002
- vegin%refl( 2,2) = 0.350000000000000     
- vegin%taul( 1,2) = 5.000000000000000E-002
- vegin%taul( 2,2) = 0.250000000000000     
-
- vegin%refl( 1,3) =  5.600000000000000E-002
- vegin%refl( 2,3) =  0.275000000000000     
- vegin%taul( 1,3) =  4.500000000000000E-002
- vegin%taul( 2,3) =  0.144000000000000     
- 
- vegin%refl( 1,4) =  9.200000000000000E-002
- vegin%refl( 2,4) =  0.380000000000000     
- vegin%taul( 1,4) =  5.000000000000000E-002
- vegin%taul( 2,4) =  0.250000000000000     
-
- vegin%refl( 1,5) =  0.100000000000000     
- vegin%refl( 2,5) =  0.400000000000000     
- vegin%taul( 1,5) =  5.000000000000000E-002
- vegin%taul( 2,5) =  0.240000000000000     
-
- vegin%refl( 1,6) =  0.110000000000000     
- vegin%refl( 2,6) =  0.470000000000000     
- vegin%taul( 1,6) =  7.000000000000001E-002
- vegin%taul( 2,6) =  0.250000000000000     
-
- vegin%refl( 1,7) =  0.100000000000000     
- vegin%refl( 2,7) =  0.400000000000000     
- vegin%taul( 1,7) =  0.100000000000000     
- vegin%taul( 2,7) =  0.150000000000000     
-
- vegin%refl( 1,8) =  0.117000000000000     
- vegin%refl( 2,8) =  0.343000000000000     
- vegin%taul( 1,8) =  8.000000000000000E-002
- vegin%taul( 2,8) =  0.124000000000000     
-
- vegin%refl( 1,9) =  0.100000000000000     
- vegin%refl( 2,9) =  0.400000000000000     
- vegin%taul( 1,9) =  0.100000000000000     
- vegin%taul( 2,9) =  0.150000000000000     
-
- vegin%refl( 1,10) = 9.000000000000000E-002
- vegin%refl( 2,10) = 0.360000000000000     
- vegin%taul( 1,10) = 9.000000000000000E-002
- vegin%taul( 2,10) = 0.225000000000000         
-      
    ! new calculation dleaf since April 2012 (cable v1.8 did not use width)
    vegin%dleaf = SQRT(vegin%width * vegin%length)
     
