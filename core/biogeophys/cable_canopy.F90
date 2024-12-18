@@ -1683,7 +1683,7 @@ CONTAINS
       REAL :: MOL_WATER_2_G_WATER, G_TO_KG, UMOL_TO_MOL, MB_TO_KPA, PA_TO_KPA
       REAL, DIMENSION(mp) :: kcmax, avg_kcan
       REAL :: new_plc_sat, new_plc_stem, new_plc_can
-      REAL :: MOL_TO_UMOL, J_TO_MOL
+      REAL :: MOL_TO_UMOL, J_TO_MOL, dc
       CHARACTER(LEN=200) :: txtname,num_str
   
 #ifdef __MPI__
@@ -2547,12 +2547,14 @@ CONTAINS
             ! if (ktau>=5184) then
             ! print*, 'check y=x ktau & k= ',ktau,k
             ! end if
-            if ( abs_deltlf(i) > 0.1 ) then
+            if ( abs_deltlf(i) > 0.1 .AND. k > 4 ) then
                ! after 4 iterations, take mean of current & previous estimates
                ! as the next estimate of leaf temperature, to avoid oscillation
-               tlfx(i) = ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) *tlfxx(i) + &
-                  ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
-                  * tlfx(i)
+               dc = 0.5
+               ! tlfx(i) = ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) *tlfxx(i) + &
+               !    ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
+               !    * tlfx(i)
+               tlfx(i) = dc *tlfxx(i) + ( 1.0 - dc ) * tlfx(i)
             endif
             ! if (cable_user%GS_SWITCH == 'tuzet' .AND. &
             !       INDEX(cable_user%FWSOIL_SWITCH,'LWP') > 0 .AND. &
