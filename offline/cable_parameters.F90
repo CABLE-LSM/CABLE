@@ -1438,6 +1438,7 @@ CONTAINS
           veg%a1gs(h)    = vegin%a1gs(veg%iveg(h))
           veg%d0gs(h)    = vegin%d0gs(veg%iveg(h))
           veg%alpha(h)   = vegin%alpha(veg%iveg(h))
+          veg%dc(h)   = vegin%dc(veg%iveg(h))
           if (cable_user%POPLUC) THEN
              if (LUC_EXPT%biome(e).eq.4 .and.veg%iveg(h).eq.2 .and. &
                   TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
@@ -1522,7 +1523,7 @@ CONTAINS
                                 ! gamma added by Alexis below
          vegin%g0, vegin%g1, vegin%gamma, &
          vegin%a1gs, vegin%d0gs, vegin%alpha, vegin%convex, vegin%cfrd, &
-         vegin%gswmin, vegin%conkc0,vegin%conko0,vegin%ekc,vegin%eko   )
+         vegin%gswmin, vegin%conkc0,vegin%conko0,vegin%ekc,vegin%eko, vegin%dc   )
     !         vegf_temp,urbanf_temp,lakef_temp,icef_temp, &
 
     ! if using old format veg_parm input file, need to define veg%deciduous

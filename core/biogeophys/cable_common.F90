@@ -280,7 +280,8 @@ MODULE cable_common_module
           P88, &
           g2, &
           g3, &
-          psi_ref
+          psi_ref, &
+          dc ! used for iteration in dryLeaf, maybe abandoned later, Zihanlu, 19/12/2024
      REAL, DIMENSION(:,:), ALLOCATABLE :: &
           froot,      & !
           cplant,     & !
@@ -396,6 +397,7 @@ CONTAINS
     ! set default vcmaxcc and ejmaxcc to 0. because not used yet
     vegin%vcmaxcc = 0
     vegin%ejmaxcc = 0
+    vegin%dc = 0
 
     IF( vegparmnew ) THEN    ! added to read new format (BP dec 2007)
 
@@ -992,6 +994,7 @@ CONTAINS
        veg%g2(h)     = vegin%g2(veg%iveg(h))
        veg%g3(h)     = vegin%g3(veg%iveg(h))
        veg%psi_ref(h)     = vegin%psi_ref(veg%iveg(h))
+       veg%dc(h)      = vegin%dc(veg%iveg(h)) ! used in iteration in dryLeaf
 
     END DO ! over each veg patch in land point
       

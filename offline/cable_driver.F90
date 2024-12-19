@@ -688,6 +688,11 @@ PROGRAM cable_offline_driver
                   veg%gamma(:) = site%gamma
                end if
                print *,'zr from site.nml is:', veg%zr(:)
+               if (trim(cable_user%MetType) == 'site' .and. site%dc > 0) then
+                  veg%dc(:) = site%dc
+               else
+                  veg%dc(:) = 0.5
+               end if
                DO kk = 1, mland ! over all land grid points
                   print *, 'land ', kk, ' latindex in gridinfo:', landpt(kk)%ilat
                   print *, 'land ', kk, ' lonindex in gridinfo:', landpt(kk)%ilon
