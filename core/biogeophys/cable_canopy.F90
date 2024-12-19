@@ -1643,6 +1643,7 @@ CONTAINS
          ex,    &  !transpiration, kg m-2 s-1
          fwpsiy, &
          psilxx, &
+         csxx, &
          abs_deltpsil 
 
       real ::  gam0,    &
@@ -1777,6 +1778,7 @@ CONTAINS
       rdy   = 0.0
       ecx   = SUM(real(rad%rniso,r_2),2) ! init lat heat iteration memory variable
       tlfxx = tlfx
+      csxx = csx
       psilxx = psilx
       psycst(:,:)   = SPREAD(air%psyc,2,mf)
       canopy%fevc   = 0.0_r_2
@@ -2547,7 +2549,7 @@ CONTAINS
             ! if (ktau>=5184) then
             ! print*, 'check y=x ktau & k= ',ktau,k
             ! end if
-            if ( abs_deltlf(i) > 0.1 .AND. k > 4 ) then
+            if ( abs_deltlf(i) > 0.1 .AND. k > 5 ) then
                ! after 4 iterations, take mean of current & previous estimates
                ! as the next estimate of leaf temperature, to avoid oscillation
                dc = 0.5
@@ -2555,6 +2557,10 @@ CONTAINS
                !    ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
                !    * tlfx(i)
                tlfx(i) = dc *tlfxx(i) + ( 1.0 - dc ) * tlfx(i)
+               csx(i,1) = dc *csxx(i,1) + ( 1.0 - dc ) * csx(i,1)
+               csx(i,2) = dc *csxx(i,2) + ( 1.0 - dc ) * csx(i,2)
+               psilx(i,1) = dc *psilxx(i,1) + ( 1.0 - dc ) * psilx(i,1)
+               psilx(i,2) = dc *psilxx(i,2) + ( 1.0 - dc ) * psilx(i,2)
             endif
             ! if (cable_user%GS_SWITCH == 'tuzet' .AND. &
             !       INDEX(cable_user%FWSOIL_SWITCH,'LWP') > 0 .AND. &
