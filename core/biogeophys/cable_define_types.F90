@@ -368,7 +368,8 @@ module cable_def_types_mod
           PLCcrit => null(), &    ! critical maximum percentage loss of hydraulic conductivity above which no xylem recovery can occur, %
           g2 => null(),      & !  coefficient in Paschalis 2023 equation converting psi_can to fwpsi
           g3 => null(),      &       !  coefficient in Paschalis 2023 equation converting psi_can to fwpsi
-          psi_ref => null()
+          psi_ref => null(), &
+          dc => null() !used in iteration in dryLeaf
 
      logical, dimension(:), pointer :: &
           deciduous => null() ! flag used for phenology fix
@@ -1140,7 +1141,8 @@ contains
     allocate( veg%PLCcrit(mp) ) 
     allocate( veg%g2(mp) ) 
     allocate( veg%g3(mp) ) 
-    allocate( veg%psi_ref(mp) ) 
+    allocate( veg%psi_ref(mp) )
+    allocate(veg%dc(mp)) 
 
   end subroutine alloc_veg_parameter_type
 
@@ -1791,6 +1793,7 @@ contains
     deallocate( veg%g2 ) 
     deallocate( veg%g3 ) 
     deallocate( veg%psi_ref ) 
+    deallocate( veg%dc ) 
 
   end subroutine dealloc_veg_parameter_type
 
@@ -2327,6 +2330,7 @@ contains
     veg%g2 = 0
     veg%g3 = 0
     veg%psi_ref = 0
+    veg%dc = 0
    
   end subroutine zero_veg_parameter_type
 

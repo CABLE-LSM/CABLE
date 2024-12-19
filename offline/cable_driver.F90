@@ -693,6 +693,7 @@ PROGRAM cable_offline_driver
                else
                   veg%dc(:) = 0.5
                end if
+               print *,'dc from site.nml is:', veg%dc(:)
                DO kk = 1, mland ! over all land grid points
                   print *, 'land ', kk, ' latindex in gridinfo:', landpt(kk)%ilat
                   print *, 'land ', kk, ' lonindex in gridinfo:', landpt(kk)%ilon
