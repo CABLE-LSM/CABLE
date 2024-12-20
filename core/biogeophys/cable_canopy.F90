@@ -113,6 +113,7 @@ CONTAINS
       REAL, DIMENSION(:), POINTER :: &
          cansat => null(),        & ! max canopy intercept. (mm)
          dsx => null(),           & ! leaf surface vpd
+         dsy => null(),           & 
          fwsoil => null(),        & ! soil water modifier of stom. cond
          fwsoiltmp => null(),        & 
          tlfx => null(),          & ! leaf temp prev. iter (K)
@@ -153,7 +154,7 @@ CONTAINS
       IF (.NOT. cable_runtime%um) canopy%cansto = canopy%oldcansto
 
       ALLOCATE(cansat(mp), gbhu(mp,mf))
-      ALLOCATE(dsx(mp), fwsoil(mp), fwsoiltmp(mp), tlfx(mp), tlfy(mp))
+      ALLOCATE(dsx(mp), dsy(mp),fwsoil(mp), fwsoiltmp(mp), tlfx(mp), tlfy(mp))
       ALLOCATE(ecy(mp), hcy(mp), rny(mp))
       ALLOCATE(gbhf(mp,mf), csx(mp,mf), psilx(mp,mf), psily(mp,mf), fwpsi(mp,mf))
       ALLOCATE(ghwet(mp))
@@ -251,6 +252,7 @@ CONTAINS
       met%dva = (qstvair - met%qvair) *  C%rmair/C%rmh2o * met%pmb * 100.0
       dsx     = met%dva     ! init. leaf surface vpd
       dsx     = max(dsx, 0.0)
+      dsy = dsx
       tlfx    = met%tk  ! initialise leaf temp iteration memory variable (K)
       tlfy    = met%tk  ! initialise current leaf temp (K)
 
@@ -447,7 +449,7 @@ CONTAINS
 
          sum_rad_rniso = sum(rad%rniso,2)
          CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
-            veg, canopy, soil, ssnow, dsx, psilx, psily,&
+            veg, canopy, soil, ssnow, dsx, dsy, psilx, psily,&
             fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy, ecy, hcy,  &
             rny, gbhu, gbhf, csx, cansat,  &
             ghwet, iter, climate)
@@ -852,7 +854,7 @@ CONTAINS
          canopy%fwet  ! YP nov2009
 
       DEALLOCATE(cansat,gbhu)
-      DEALLOCATE(dsx, fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy)
+      DEALLOCATE(dsx,dsy, fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy)
       DEALLOCATE(ecy, hcy, rny)
       DEALLOCATE(gbhf, csx)
       DEALLOCATE(ghwet)
@@ -1513,7 +1515,7 @@ CONTAINS
 
 
    SUBROUTINE dryLeaf(ktau, ktau_tot, dels, rad, air, met, &
-      veg, canopy, soil, ssnow, dsx, psilx, psily, &
+      veg, canopy, soil, ssnow, dsx, dsy, psilx, psily, &
       fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy, ecy, hcy, &
       rny, gbhu, gbhf, csx, &
       cansat, ghwet, iter, climate)
@@ -1537,6 +1539,7 @@ CONTAINS
       type(soil_snow_type),      intent(inout) :: ssnow
       real,      dimension(:),   intent(inout) :: &
          dsx,        & ! leaf surface vpd
+         dsy,        & ! leaf surface vpd
          fwsoil,     & ! soil water modifier of stom. cond
          fwsoiltmp,  &
          tlfx,       & ! leaf temp prev. iter (K)
@@ -1566,6 +1569,7 @@ CONTAINS
          conkot,        & ! Michaelis Menton const.
          cx1,           & ! "d_{3}" in Wang and Leuning,
          cx2,           & !     1998, appendix E
+         cx2y,         &
          tdiff,         & ! leaf air temp diff.
          tlfxx,         & ! leaf temp of current iteration (K)
          abs_deltlf,    & ! ABS(deltlf)
@@ -1609,6 +1613,8 @@ CONTAINS
          ejmxt3,     & ! jmax big leaf C3 plants
          vcmxt3,     & ! vcmax big leaf C3
          vcmxt4,     & ! vcmax big leaf C4
+         vcmxt3y,     & ! vcmax big leaf C3
+         vcmxt4y,     & ! vcmax big leaf C4
          vx3,        & ! carboxylation C3 plants
          vx4,        & ! carboxylation C4 plants
          co2cp,      & ! CO2 compensation point (needed for Leuing stomatal conductance)
@@ -1617,6 +1623,7 @@ CONTAINS
       ! is "leuning", it's the same, if "medlyn", then the new Medlyn model
       ! xleuning,   & ! leuning stomatal coeff
          gs_coeff,   & ! stom coeff, Ticket #56
+         gs_coeffy,   & 
          psycst,     & ! modified pych. constant
          frac42,     & ! 2D frac4
          temp2,      &
@@ -1776,6 +1783,8 @@ CONTAINS
       hcx   = 0.0_r_2              ! init sens heat iteration memory variable
       hcy   = 0.0_r_2
       rdy   = 0.0
+      vcmxt3y      = 0.0
+      vcmxt4y      = 0.0
       ecx   = SUM(real(rad%rniso,r_2),2) ! init lat heat iteration memory variable
       tlfxx = tlfx
       csxx = csx
@@ -2524,6 +2533,7 @@ CONTAINS
 
                deltlfy(i)       = deltlf(i)
                tlfy(i)          = tlfx(i)
+               dsy(i) = dsx(i)
                !print*,'when dT<last dT, tlfy: ', tlfy(i)
                psily(i,:)       = psilx(i,:)
                rny(i)           = rnx(i)
@@ -2544,24 +2554,14 @@ CONTAINS
                gswy(i,:)        = canopy%gswx(i,:)
                fwpsiy(i,:)     = canopy%fwpsi(i,:)
                csy(i,:) = csx(i,:)
-
+               gs_coeffy(i,:) = gs_coeff(i,:)
+               vcmxt3y(i,:) = vcmxt3(i,:)
+               vcmxt4y(i,:) = vcmxt4(i,:)
+               c2xy(i) = c2x(i)
             ENDIF
             ! if (ktau>=5184) then
             ! print*, 'check y=x ktau & k= ',ktau,k
             ! end if
-            if ( abs_deltlf(i) > 0.1 .AND. k > 5 ) then
-               ! after 4 iterations, take mean of current & previous estimates
-               ! as the next estimate of leaf temperature, to avoid oscillation
-               dc = veg%dc(i)
-               ! tlfx(i) = ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) *tlfxx(i) + &
-               !    ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
-               !    * tlfx(i)
-               tlfx(i) = dc *tlfxx(i) + ( 1.0 - dc ) * tlfx(i)
-               csx(i,1) = dc *csxx(i,1) + ( 1.0 - dc ) * csx(i,1)
-               csx(i,2) = dc *csxx(i,2) + ( 1.0 - dc ) * csx(i,2)
-               psilx(i,1) = dc *psilxx(i,1) + ( 1.0 - dc ) * psilx(i,1)
-               psilx(i,2) = dc *psilxx(i,2) + ( 1.0 - dc ) * psilx(i,2)
-            endif
             ! if (cable_user%GS_SWITCH == 'tuzet' .AND. &
             !       INDEX(cable_user%FWSOIL_SWITCH,'LWP') > 0 .AND. &
             !       Any(abs_deltpsil(i,:) > 0.5) ) then
@@ -2580,6 +2580,7 @@ CONTAINS
             IF (k==1) THEN
                ! take the first iterated estimates as the defaults
                tlfy(i) = tlfx(i)
+               dsy(i) = dsx(i)
                !print*,'when k=1, tlfy: ', tlfy(i)
                psily(i,:) = psilx(i,:)
                rny(i) = rnx(i)
@@ -2599,6 +2600,10 @@ CONTAINS
                gswy(i,:)       = canopy%gswx(i,:)
                fwpsiy(i,:)     = canopy%fwpsi(i,:)
                csy(i,:) = csx(i,:)
+               gs_coeffy(i,:) = gs_coeff(i,:)
+               vcmxt3y(i,:) = vcmxt3
+               vcmxt4y(i,:) = vcmxt4
+               c2xy(i) = c2x(i)
             END IF
             !print*, 'check after k==1 ',ktau,k
             if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
@@ -2611,6 +2616,19 @@ CONTAINS
             ! if (ktau>=5184) then
             ! print*, 'write 134 ',ktau,k
             ! end if
+            if ( abs_deltlf(i) > 0.1 .AND. k > 5 .AND. k < C%MAXITER ) then
+               ! after 4 iterations, take mean of current & previous estimates
+               ! as the next estimate of leaf temperature, to avoid oscillation
+               dc = veg%dc(i)
+               ! tlfx(i) = ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) *tlfxx(i) + &
+               !    ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
+               !    * tlfx(i)
+               tlfx(i) = dc *tlfxx(i) + ( 1.0 - dc ) * tlfx(i)
+               csx(i,1) = dc *csxx(i,1) + ( 1.0 - dc ) * csx(i,1)
+               csx(i,2) = dc *csxx(i,2) + ( 1.0 - dc ) * csx(i,2)
+               psilx(i,1) = dc *psilxx(i,1) + ( 1.0 - dc ) * psilx(i,1)
+               psilx(i,2) = dc *psilxx(i,2) + ( 1.0 - dc ) * psilx(i,2)
+            endif
 
          END DO !over mp
          
@@ -2683,7 +2701,8 @@ CONTAINS
       canopy%frday = 12.0 * SUM(rdy, 2)
       !! vh !! inserted min to avoid -ve values of GPP
       canopy%fpn = min(-12.0 * SUM(an_y, 2), canopy%frday)
-
+      ! change canopy%gswx from gswx to gswy, zihanlu, 19/12/2024
+      canopy%gswx = gswy
       ! additional diagnostic variables for assessing contributions of rubisco and rubp limited photosynthesis to
       ! net photosynthesis in sunlit and shaded leaves.
       canopy%A_sh = real(an_y(:,2), r_2)
@@ -2713,20 +2732,20 @@ CONTAINS
       elsewhere
          canopy%eta_GPP_cs = canopy%eta_A_cs
       end where
-
+      ! change from gs_coeff to gs_coeffy
       where (canopy%A_sl > 0.0_r_2)
          canopy%eta_A_cs_sl    =  min(eta_y(:,1),5.0_r_2)
          canopy%eta_fevc_cs_sl = (min(eta_y(:,1),5.0_r_2) - 1.0_r_2) * &
-            real(max(0.0, gs_coeff(:,1)*an_y(:,1)), r_2) / real(canopy%gswx(:,1), r_2)
+            real(max(0.0, gs_coeffy(:,1)*an_y(:,1)), r_2) / real(canopy%gswx(:,1), r_2)
       elsewhere
          canopy%eta_A_cs_sl    = 0.0_r_2
          canopy%eta_fevc_cs_sl = 0.0_r_2
       endwhere
-
+      ! change from gs_coeff to gs_coeffy
       where (canopy%A_sh > 0.0_r_2)
          canopy%eta_A_cs_sh    =  min(eta_y(:,2),5.0_r_2)
          canopy%eta_fevc_cs_sh = (min(eta_y(:,2),5.0_r_2) - 1.0_r_2) * &
-            real(max(0.0, gs_coeff(:,2)*an_y(:,2)), r_2) / real(canopy%gswx(:,2), r_2)
+            real(max(0.0, gs_coeffy(:,2)*an_y(:,2)), r_2) / real(canopy%gswx(:,2), r_2)
       elsewhere
          canopy%eta_A_cs_sh    = 0.0_r_2
          canopy%eta_fevc_cs_sh = 0.0_r_2
@@ -2739,13 +2758,20 @@ CONTAINS
       elsewhere
          canopy%eta_fevc_cs = 0.0_r_2
       endwhere
+      ! canopy%cs_sl = csx(:,1) * 1.0e6_r_2
+      ! canopy%cs_sh = csx(:,2) * 1.0e6_r_2
+      ! change canopy%cs from csx to csy, zihanlu, 19/12/2024
+      canopy%cs_sl = csy(:,1) * 1.0e6_r_2
+      canopy%cs_sh = csy(:,2) * 1.0e6_r_2
 
       canopy%dAdcs = canopy%A_sl * dAn_y(:,1) + canopy%A_sh * dAn_y(:,2)
-      canopy%cs    = canopy%A_sl * csx(:,1) * 1.0e6_r_2 + canopy%A_sh * csx(:,2) * 1.0e6_r_2
-      canopy%cs_sl = csx(:,1) * 1.0e6_r_2
-      canopy%cs_sh = csx(:,2) * 1.0e6_r_2
+      canopy%cs    = canopy%A_sl * canopy%cs_sl * 1.0e6_r_2 + canopy%A_sh * canopy%cs_sh * 1.0e6_r_2
+
       canopy%tlf   = real(tlfy, r_2)
-      canopy%dlf   = real(dsx, r_2)
+      ! change canopy%dlf from dsx to dsy, zihanlu, 19/12/2024
+      !canopy%dlf   = real(dsx, r_2)
+      canopy%dlf   = real(dsy, r_2)
+
 
       ! print*, 'DD47 ', ssnow%evapfbl
       canopy%evapfbl = ssnow%evapfbl
@@ -2754,8 +2780,10 @@ CONTAINS
       canopy%An        = real(an_y, r_2)
       canopy%Rd        = real(rdy, r_2)
       canopy%isc3      = (1.0-veg%frac4) > epsilon(1.0)
-      canopy%vcmax     = real(merge(vcmxt3, vcmxt4, spread(canopy%isc3,2,mf)), r_2)
-      canopy%gammastar = real(spread(cx2*0.5,2,mf), r_2)
+      ! change from vcmxt3 to vcmxt3y, 
+      canopy%vcmax     = real(merge(vcmxt3y, vcmxt4y, spread(canopy%isc3,2,mf)), r_2)
+       ! change from cx2 to cx2y, 
+      canopy%gammastar = real(spread(cx2y*0.5,2,mf), r_2)
       canopy%gsc       = real(canopy%gswx / C%rgswc, r_2)
       canopy%gbc       = (gbhu + gbhf) / real(C%rgbwc, r_2)
       canopy%gac       = huge(1.0_r_2)
