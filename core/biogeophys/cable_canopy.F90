@@ -2601,8 +2601,8 @@ CONTAINS
                fwpsiy(i,:)     = canopy%fwpsi(i,:)
                csy(i,:) = csx(i,:)
                gs_coeffy(i,:) = gs_coeff(i,:)
-               vcmxt3y(i,:) = vcmxt3
-               vcmxt4y(i,:) = vcmxt4
+               vcmxt3y(i,:) = vcmxt3(i,:)
+               vcmxt4y(i,:) = vcmxt4(i,:)
                cx2y(i) = cx2(i)
             END IF
             !print*, 'check after k==1 ',ktau,k
