@@ -2557,7 +2557,7 @@ CONTAINS
                gs_coeffy(i,:) = gs_coeff(i,:)
                vcmxt3y(i,:) = vcmxt3(i,:)
                vcmxt4y(i,:) = vcmxt4(i,:)
-               c2xy(i) = c2x(i)
+               cx2y(i) = cx2(i)
             ENDIF
             ! if (ktau>=5184) then
             ! print*, 'check y=x ktau & k= ',ktau,k
@@ -2603,7 +2603,7 @@ CONTAINS
                gs_coeffy(i,:) = gs_coeff(i,:)
                vcmxt3y(i,:) = vcmxt3
                vcmxt4y(i,:) = vcmxt4
-               c2xy(i) = c2x(i)
+               cx2y(i) = cx2(i)
             END IF
             !print*, 'check after k==1 ',ktau,k
             if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
