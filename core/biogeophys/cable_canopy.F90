@@ -2631,7 +2631,7 @@ CONTAINS
             endif
 
          END DO !over mp
-      if (k = C%MAXITER) then
+      if (k == C%MAXITER) then
          print*, 'last value x:',anrubiscox(:,1),anx(:,1)
       endif
 
