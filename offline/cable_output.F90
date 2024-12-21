@@ -3154,6 +3154,9 @@ CONTAINS
 
           CALL write_ovar(out_timestep, ncid_out, ovid%GPP_slC, 'GPP_slC', out%GPP_slC, &
                ranges%GPP, patchout%GPP, 'default', met)
+          if (ktau>=5760 .AND. ktau<=11664) then
+               print*,'GPP_sunlit_C: ',out%GPP_slC,out%GPP_sl
+          endif
 
           CALL write_ovar(out_timestep, ncid_out, ovid%GPP_shC, 'GPP_shC', out%GPP_shC, &
                ranges%GPP, patchout%GPP, 'default', met)
