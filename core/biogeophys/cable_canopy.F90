@@ -2631,10 +2631,11 @@ CONTAINS
             endif
 
          END DO !over mp
-      if (k == C%MAXITER .AND. ktau>=5760 .AND. ktau<=11664) then
-         print*, 'value x:',anrubiscox(:,1),anx(:,1)
-      endif
-
+         !if (k == C%MAXITER .AND. ktau>=5760 .AND. ktau<=11664) then
+      if (k == C%MAXITER .AND. ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
+      !if (k == C%MAXITER .AND. ktau>=5760 .AND. ktau<=11664) then
+             print*, 'value x:',anrubiscox(:,1),anx(:,1)
+         endif
       END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
       !print*,'when k end, tlfy: ', tlfy(1)
       ! if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
@@ -2721,7 +2722,8 @@ CONTAINS
       
       canopy%A_slC = real(anrubiscoy(:,1), r_2)
       canopy%A_slJ = real(anrubpy(:,1), r_2)
-      if (ktau>=5760 .AND. ktau<=11664) then
+      !if (ktau>=5760 .AND. ktau<=11664) then
+      if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
          print*, 'value y:',canopy%A_slC, canopy%A_sl
       endif
       where (anrubiscoy(:,1) > an_y(:,1)) canopy%A_slC = 0.0_r_2
