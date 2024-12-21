@@ -2054,7 +2054,7 @@ CONTAINS
 
   !=============================================================================
 
-  SUBROUTINE write_output(dels, ktau, met, canopy, casaflux, casapool, casamet, ssnow, &
+  SUBROUTINE write_output(dels, ktau_in_year, ktau, met, canopy, casaflux, casapool, casamet, ssnow, &
        rad, bal, air, soil, veg, SBOLTZ, EMLEAF, EMSOIL, c13o2pools, c13o2flux)
     ! Writes model output variables and, if requested, calls
     ! energy and mass balance routines. This subroutine is called
@@ -2062,6 +2062,7 @@ CONTAINS
     ! depending on whether the user has specified that output should be
     ! aggregated, e.g. to monthly or 6-hourly averages.
     REAL, INTENT(IN)              :: dels ! time step size
+    INTEGER, INTENT(IN)           :: ktau_in_year ! timestep number from 1.1 in each year
     INTEGER, INTENT(IN)           :: ktau ! timestep number in loop which include spinup
     REAL, INTENT(IN) :: SBOLTZ, EMLEAF, EMSOIL
     TYPE(met_type), INTENT(IN)         :: met  ! met data
@@ -3154,7 +3155,7 @@ CONTAINS
 
           CALL write_ovar(out_timestep, ncid_out, ovid%GPP_slC, 'GPP_slC', out%GPP_slC, &
                ranges%GPP, patchout%GPP, 'default', met)
-          if (ktau>=5760 .AND. ktau<=11664) then
+          if (ktau_in_year>=5760 .AND. ktau_in_year<=11664) then
                print*,'GPP_sunlit_C: ',out%GPP_slC,out%GPP_sl
           endif
 

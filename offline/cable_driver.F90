@@ -1251,11 +1251,11 @@ PROGRAM cable_offline_driver
                       trim(cable_user%MetType) == 'bios' .or. &
                       trim(cable_user%MetType) == 'gswp' .or. &
                       trim(cable_user%MetType) == 'site' ) then
-                    call write_output(dels, ktau_tot, met, canopy, casaflux, &
+                    call write_output(dels, ktau, ktau_tot, met, canopy, casaflux, &
                          casapool, casamet, ssnow, rad, bal, air, soil, veg, &
                          C%SBOLTZ, C%EMLEAF, C%EMSOIL, c13o2pools, c13o2flux)
                  else
-                    call write_output(dels, ktau, met, canopy, casaflux, &
+                    call write_output(dels, ktau, ktau, met, canopy, casaflux, &
                          casapool, casamet, ssnow, rad, bal, air, soil, veg, &
                          C%SBOLTZ, C%EMLEAF, C%EMSOIL, c13o2pools, c13o2flux )
                  end if
