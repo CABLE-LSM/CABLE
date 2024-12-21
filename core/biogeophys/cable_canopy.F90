@@ -2624,14 +2624,16 @@ CONTAINS
                !    ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
                !    * tlfx(i)
                tlfx(i) = dc *tlfxx(i) + ( 1.0 - dc ) * tlfx(i)
-               csx(i,1) = dc *csxx(i,1) + ( 1.0 - dc ) * csx(i,1)
-               csx(i,2) = dc *csxx(i,2) + ( 1.0 - dc ) * csx(i,2)
-               psilx(i,1) = dc *psilxx(i,1) + ( 1.0 - dc ) * psilx(i,1)
-               psilx(i,2) = dc *psilxx(i,2) + ( 1.0 - dc ) * psilx(i,2)
+               ! csx(i,1) = dc *csxx(i,1) + ( 1.0 - dc ) * csx(i,1)
+               ! csx(i,2) = dc *csxx(i,2) + ( 1.0 - dc ) * csx(i,2)
+               ! psilx(i,1) = dc *psilxx(i,1) + ( 1.0 - dc ) * psilx(i,1)
+               ! psilx(i,2) = dc *psilxx(i,2) + ( 1.0 - dc ) * psilx(i,2)
             endif
 
          END DO !over mp
-         
+      if (k = C%MAXITER) then
+         print*, 'last value x:',anrubiscox(:,1),anx(:,1)
+      endif
 
       END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
       !print*,'when k end, tlfy: ', tlfy(1)
@@ -2716,10 +2718,10 @@ CONTAINS
 
       where (anrubiscoy(:,2) > an_y(:,2)) canopy%A_shC = 0.0_r_2
       where (anrubpy(:,2) > an_y(:,2))    canopy%A_shJ = 0.0_r_2
-
+      
       canopy%A_slC = real(anrubiscoy(:,1), r_2)
       canopy%A_slJ = real(anrubpy(:,1), r_2)
-
+      print*, 'value y:',canopy%A_slC,canopy%A_sl
       where (anrubiscoy(:,1) > an_y(:,1)) canopy%A_slC = 0.0_r_2
       where (anrubpy(:,1)    > an_y(:,1)) canopy%A_slJ = 0.0_r_2
 
