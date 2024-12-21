@@ -2706,6 +2706,7 @@ CONTAINS
       canopy%fpn = min(-12.0 * SUM(an_y, 2), canopy%frday)
       ! change canopy%gswx from gswx to gswy, zihanlu, 19/12/2024
       canopy%gswx = gswy
+      canopy%fwpsi = fwpsiy
       ! additional diagnostic variables for assessing contributions of rubisco and rubp limited photosynthesis to
       ! net photosynthesis in sunlit and shaded leaves.
       canopy%A_sh = real(an_y(:,2), r_2)
