@@ -669,6 +669,8 @@ CONTAINS
          max_vegpatches,'def',from_restart,mp)
     CALL readpar(ncid_rin,'alpha',dummy,veg%alpha,filename%restart_in, &
          max_vegpatches,'def',from_restart,mp)
+     CALL readpar(ncid_rin,'vcmax_scalar',dummy,veg%vcmax_scalar,filename%restart_in, &
+         max_vegpatches,'def',from_restart,mp)
     ! CALL readpar(ncid_rin,'tminvj',dummy,veg%tminvj,filename%restart_in, &
     !      max_vegpatches,'def',from_restart,mp)
     ! CALL readpar(ncid_rin,'tmaxvj',dummy,veg%tmaxvj,filename%restart_in, &

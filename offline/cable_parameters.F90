@@ -1433,6 +1433,7 @@ CONTAINS
           veg%d0gs(h)    = vegin%d0gs(veg%iveg(h))
           veg%vegcf(h)   = vegin%vegcf(veg%iveg(h))
           veg%extkn(h)   = vegin%extkn(veg%iveg(h))
+          veg%vcmax_scalar(h)   = vegin%vcmax_scalar(veg%iveg(h))
           veg%tminvj(h)  = vegin%tminvj(veg%iveg(h))
           veg%tmaxvj(h)  = vegin%tmaxvj(veg%iveg(h))
           veg%a1gs(h)    = vegin%a1gs(veg%iveg(h))
@@ -1516,7 +1517,7 @@ CONTAINS
          vegin%vcmax, vegin%ejmax, vegin%vcmaxcc, vegin%ejmaxcc, vegin%gmmax, &
          vegin%hc, vegin%xfang, vegin%rp20, &
          vegin%rpcoef, vegin%rs20, vegin%shelrb, vegin%frac4, &
-         vegin%wai, vegin%vegcf, vegin%extkn, vegin%tminvj, &
+         vegin%wai, vegin%vegcf, vegin%extkn, vegin%vcmax_scalar, vegin%tminvj, &
          vegin%tmaxvj, vegin%vbeta,vegin%clitt, vegin%zr, vegin%rootbeta, vegin%froot, &
          vegin%cplant, vegin%csoil, vegin%ratecp, vegin%ratecs, &
          vegin%xalbnir, vegin%length, vegin%width, &

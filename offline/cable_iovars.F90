@@ -135,7 +135,7 @@ MODULE cable_IO_vars_module
           zeta,fsatmax, &
           gamma,ZR,F10
 
-     INTEGER :: g0,g1,g1tuzet,g2,g3,psi_ref,kmax, a1gs, d0gs ! Ticket #56
+     INTEGER :: g0,g1,g1tuzet,g2,g3,psi_ref,kmax, a1gs, d0gs, vcmax_scalar ! Ticket #56
 
    END TYPE parID_type
 
@@ -382,6 +382,7 @@ MODULE cable_IO_vars_module
                                 ! (v leaf -1.0 horiz 1.0 sphere 0 (-1 - 1))
          wai    = .FALSE.,    & ! wood area index
          vegcf  = .FALSE.,    & !
+         vcmax_scalar = .FALSE., & !
          extkn  = .FALSE.,    & !
          alpha  = .FALSE.,    & !
          ratecp = .FALSE.,    & ! plant carbon pool rate constant (1/year)

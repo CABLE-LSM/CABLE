@@ -337,6 +337,7 @@ module cable_def_types_mod
           vcmax_sun => null(),   & ! max RuBP carboxylation rate top leaf (mol/m2/s)
           xfang => null(),   & ! leaf angle PARAMETER
           extkn => null(),   & ! extinction coef for vertical
+          vcmax_scalar => null(),   & ! considering to change the casabiome%vcmax_scalar to veg%vcmax_scalar
           vlaimax => null(), & ! extinction coef for vertical
           wai => null(),     & ! wood area index (stem+branches+twigs)
           a1gs => null(),    & ! a1 parameter in stomatal conductance model
@@ -1098,6 +1099,7 @@ contains
     allocate(veg%vcmax_sun(mp))
     allocate(veg%xfang(mp))
     allocate(veg%extkn(mp))
+    allocate(veg%vcmax_scalar(mp))
     allocate(veg%vlaimax(mp))
     allocate(veg%wai(mp))
     allocate(veg%a1gs(mp))
@@ -1756,6 +1758,7 @@ contains
     deallocate(veg%vcmax_sun)
     deallocate(veg%xfang)
     deallocate(veg%extkn)
+    deallocate(veg%vcmax_scalar)
     deallocate(veg%wai)
     deallocate(veg%deciduous)
     deallocate(veg%froot)
@@ -2287,6 +2290,7 @@ contains
     veg%vcmax_sun   = 0
     veg%xfang       = 0
     veg%extkn       = 0
+    veg%vcmax_scalar = 0
     veg%wai         = 0
     veg%deciduous   = .false.
     veg%froot       = 0

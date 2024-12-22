@@ -168,6 +168,7 @@ MODULE cable_checks_module
            refw = (/0.0,0.5/),                            &
            extkn = (/0.0,10.0/),                          & ! YP oct07
            alpha = (/0.0,10.0/),                          & ! Zihanlu 19/09/2024
+           vcmax_scalar = (/0.0,50.0/),                   & ! Zihanlu 19/09/2024
            wai = (/0.0,5.0/),                             & ! YP oct07
            vegcf = (/0.0,100.0/),                         & ! YP oct07
            tminvj = (/-20.0,15.0/),                       &
