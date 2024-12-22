@@ -394,7 +394,7 @@ CONTAINS
          vegin%zr(mvtype), vegin%clitt(mvtype), vegin%gamma(mvtype), &
          vegin%kmax(mvtype), vegin%PLCcrit(mvtype), &
          vegin%P50(mvtype), vegin%P88(mvtype),&
-         vegin%g2(mvtype), vegin%g3(mvtype), vegin%psi_ref(mvtype), vegin%vcmax_scalar(mvtype))
+         vegin%g2(mvtype), vegin%g3(mvtype), vegin%psi_ref(mvtype),vegin%dc(mvtype), vegin%vcmax_scalar(mvtype))
     ! set default vcmaxcc and ejmaxcc to 0. because not used yet
     vegin%vcmaxcc = 0
     vegin%ejmaxcc = 0
