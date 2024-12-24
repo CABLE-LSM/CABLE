@@ -2026,8 +2026,8 @@ CONTAINS
          'vcmax_scalar', toreal4(veg%vcmax_scalar), ranges%vcmax_scalar, patchout%vcmax_scalar, 'real')
      IF(output%params .OR. output%P50) CALL write_ovar(ncid_out, opid%P50, &
          'P50', toreal4(veg%P50), ranges%P50, patchout%P50, 'real')
-     IF(output%params .OR. output%P88d50) CALL write_ovar(ncid_out, opid%P88d50, &
-         'P88d50', toreal4(veg%P88d50), ranges%P88d50, patchout%P88d50, 'real')
+     IF(output%params .OR. output%P88dP50) CALL write_ovar(ncid_out, opid%P88dP50, &
+         'P88dP50', toreal4(veg%P88dP50), ranges%P88dP50, patchout%P88dP50, 'real')
     IF(output%params .OR. output%alpha) CALL write_ovar(ncid_out, opid%alpha, &
          'alpha', toreal4(veg%alpha), ranges%alpha, patchout%alpha, 'real')
     IF(output%params .OR. output%tminvj) CALL write_ovar(ncid_out, &
@@ -4648,8 +4648,8 @@ CONTAINS
                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
      CALL define_ovar(ncid_restart, rpid%P50, 'P50', '-', &
                     'P50', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
-     CALL define_ovar(ncid_restart, rpid%P88d50, 'P88d50', '-', &
-                    'P88d50', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+     CALL define_ovar(ncid_restart, rpid%P88dP50, 'P88dP50', '-', &
+                    'P88dP50', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
     ! CALL define_ovar(ncid_restart, rpid%tminvj, 'tminvj', 'C', &
     !                  'Min temperature for the start of photosynthesis', &
     !                  .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
@@ -4912,7 +4912,7 @@ CONTAINS
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
      CALL write_ovar (ncid_restart, rpid%P50, 'P50', toreal4(veg%P50), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-     CALL write_ovar (ncid_restart, rpid%P88d50, 'P88d50', toreal4(veg%P88d50), &
+     CALL write_ovar (ncid_restart, rpid%P88dP50, 'P88dP50', toreal4(veg%P88dP50), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
     ! CALL write_ovar (ncid_restart, rpid%tminvj, 'tminvj', toreal4(veg%tminvj), &
     !                  ranges%tminvj, .TRUE., 'real', .TRUE.)
