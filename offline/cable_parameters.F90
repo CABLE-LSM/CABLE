@@ -1723,7 +1723,7 @@ CONTAINS
     ! INTEGER :: j ! do loop counter
     REAL(r_2) :: temp(mp)
     REAL      :: tmp2(mp)
-    real :: p88
+    real, dimension(mp) :: p88
 
     ! Construct derived parameters and zero initialisations,
     ! regardless of where parameters and other initialisations
