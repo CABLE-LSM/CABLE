@@ -2624,10 +2624,10 @@ CONTAINS
                !    ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
                !    * tlfx(i)
                tlfx(i) = dc *tlfxx(i) + ( 1.0 - dc ) * tlfx(i)
-               ! csx(i,1) = dc *csxx(i,1) + ( 1.0 - dc ) * csx(i,1)
-               ! csx(i,2) = dc *csxx(i,2) + ( 1.0 - dc ) * csx(i,2)
-               ! psilx(i,1) = dc *psilxx(i,1) + ( 1.0 - dc ) * psilx(i,1)
-               ! psilx(i,2) = dc *psilxx(i,2) + ( 1.0 - dc ) * psilx(i,2)
+               csx(i,1) = dc *csxx(i,1) + ( 1.0 - dc ) * csx(i,1)
+               csx(i,2) = dc *csxx(i,2) + ( 1.0 - dc ) * csx(i,2)
+               psilx(i,1) = dc *psilxx(i,1) + ( 1.0 - dc ) * psilx(i,1)
+               psilx(i,2) = dc *psilxx(i,2) + ( 1.0 - dc ) * psilx(i,2)
             endif
 
          END DO !over mp
