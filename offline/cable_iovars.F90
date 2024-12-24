@@ -135,7 +135,7 @@ MODULE cable_IO_vars_module
           zeta,fsatmax, &
           gamma,ZR,F10
 
-     INTEGER :: g0,g1,g1tuzet,g2,g3,psi_ref,kmax, a1gs, d0gs, vcmax_scalar ! Ticket #56
+     INTEGER :: g0,g1,g1tuzet,g2,g3,psi_ref,kmax, a1gs, d0gs, vcmax_scalar, P50, P88dP50 ! Ticket #56
 
    END TYPE parID_type
 
@@ -373,6 +373,8 @@ MODULE cable_IO_vars_module
          a1gs   = .FALSE.,      & 
          d0gs   = .FALSE.,      & 
          psi_ref = .FALSE.,      & 
+         P50 = .FALSE., &
+         P88dP50 = .FALSE., &
          rpcoef  = .FALSE.,   & ! temperature coef nonleaf plant
                                 ! respiration [1/C] (0.8 - 1.5)
          shelrb  = .FALSE.,   & ! sheltering factor [-] {avoid - insensitive?}

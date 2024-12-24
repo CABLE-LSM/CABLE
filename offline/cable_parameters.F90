@@ -1723,6 +1723,7 @@ CONTAINS
     ! INTEGER :: j ! do loop counter
     REAL(r_2) :: temp(mp)
     REAL      :: tmp2(mp)
+    real :: p88
 
     ! Construct derived parameters and zero initialisations,
     ! regardless of where parameters and other initialisations
@@ -1801,23 +1802,24 @@ CONTAINS
     ! END IF
     ! hydraulics, ms8355 2022
     ! calculate the sensitivity and shape of the vulnerability curve
+    p88 = veg%P50 + veg%P88dP50
     IF (veg%P12(1) < -1.E-3) THEN
 
       IF (veg%P50(1) < -1.E-3) THEN
 
          veg%c_plant = LOG(LOG(0.88) / LOG(0.5)) / (LOG(ABS(veg%P12)) - LOG(ABS(veg%P50))) ! shape parameter, unitless
 
-      ELSE IF (veg%P88(1) < -1.E-3) THEN
+      ELSE IF (p88(1) < -1.E-3) THEN
 
-         veg%c_plant = LOG(LOG(0.88) / LOG(0.12)) / (LOG(ABS(veg%P12)) - LOG(ABS(veg%P88))) ! shape parameter, unitless
+         veg%c_plant = LOG(LOG(0.88) / LOG(0.12)) / (LOG(ABS(veg%P12)) - LOG(ABS(P88))) ! shape parameter, unitless
 
       END IF
 
       veg%b_plant = ABS(veg%P12) / ((-LOG(0.88)) ** (1.0 / veg%c_plant)) ! sensitivity parameter, MPa
 
-   ELSE IF (veg%P50(1) < -1.E-3 .AND. veg%P88(1) < -1.E-3) THEN
+   ELSE IF (veg%P50(1) < -1.E-3 .AND. P88(1) < -1.E-3) THEN
 
-      veg%c_plant = LOG(LOG(0.5) / LOG(0.12)) / (LOG(ABS(veg%P50)) - LOG(ABS(veg%P88))) ! shape parameter, unitless
+      veg%c_plant = LOG(LOG(0.5) / LOG(0.12)) / (LOG(ABS(veg%P50)) - LOG(ABS(P88))) ! shape parameter, unitless
       veg%b_plant = ABS(veg%P50) / ((-LOG(0.5)) ** (1.0 / veg%c_plant)) ! sensitivity parameter, MPa
 
    ELSE IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN

@@ -362,7 +362,7 @@ module cable_def_types_mod
           bjv => null(),&        ! Jmax-Vcmax ratio at 25degC
           P12 => null(),     &
           P50 => null(),     &
-          P88 => null(),     &
+          P88dP50 => null(),     &
           b_plant => null(), & ! sensitivity of hydraulic vulnerability curve, MPa (higher = less sensitive to SW)
           c_plant => null(), & ! shape of hydraulic VC, [-]
           kmax => null(),    & ! maximum hydraulic conductance in the soil-plant continuum, mmol m-2 s-1 MPa-1
@@ -1136,7 +1136,7 @@ contains
     allocate(veg%disturbance_intensity(mp,2))
     allocate( veg%P12(mp) )
     allocate( veg%P50(mp) )
-    allocate( veg%P88(mp) )
+    allocate( veg%P88dP50(mp) )
     allocate( veg%b_plant(mp) )
     allocate( veg%c_plant(mp) )
     allocate( veg%kmax(mp) ) 
@@ -1788,7 +1788,7 @@ contains
       ! plant hydraulics; mgk576 2019; ms8355 2022 
     deallocate( veg%P12 )
     deallocate( veg%P50 )
-    deallocate( veg%P88 )
+    deallocate( veg%P88dP50 )
     deallocate( veg%b_plant ) 
     deallocate( veg%c_plant ) 
     deallocate( veg%kmax )
@@ -2326,7 +2326,7 @@ contains
     veg%disturbance_intensity = 0
     veg%P12 = 0
     veg%P50 = 0
-    veg%P88 = 0
+    veg%P88dP50 = 0
     veg%b_plant = 0
     veg%c_plant = 0
     veg%kmax = 0
@@ -2991,7 +2991,7 @@ contains
     write(*,*) 'veg%disturbance_intensity ', veg%disturbance_intensity
     write(*,*) 'veg%P12 ', veg%P12
     write(*,*) 'veg%P50 ', veg%P50
-    write(*,*) 'veg%P88 ', veg%P88
+    write(*,*) 'veg%P88dP50 ', veg%P88dP50
     write(*,*) 'veg%b_plant ', veg%b_plant
     write(*,*) 'veg%c_plant ', veg%c_plant
     write(*,*) 'veg%kmax ', veg%kmax

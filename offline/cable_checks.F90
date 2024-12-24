@@ -204,7 +204,9 @@ MODULE cable_checks_module
           kmax = (/0.0, 50.0/),               &
           psi_ref = (/-10.0, 0.0/),          &
           a1gs = (/0.0, 5000./),            &
-          d0gs = (/0.0, 5000./)
+          d0gs = (/0.0, 5000./),   &
+          P50 = (/-50.0, 0.0/),          &
+          P88dP50 = (/-50.0, 0.0/)
    END TYPE ranges_type
    TYPE(ranges_type),SAVE :: ranges
 

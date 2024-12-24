@@ -1784,6 +1784,12 @@ CONTAINS
      IF(output%params .OR. output%vcmax_scalar) CALL define_ovar(ncid_out, opid%vcmax_scalar, &
          'vcmax_scalar', '-', 'vcmax correct coefficient', &
          patchout%vcmax_scalar, 'real', xID, yID, zID, landID, patchID)
+     IF(output%params .OR. output%P50) CALL define_ovar(ncid_out, opid%P50, &
+         'P50', '-', 'P50', &
+     patchout%P50, 'real', xID, yID, zID, landID, patchID)
+         IF(output%params .OR. output%P88dP50) CALL define_ovar(ncid_out, opid%P88dP50, &
+         'P88dP50', '-', 'P88 - P50', &
+         patchout%P88dP50, 'real', xID, yID, zID, landID, patchID)
      IF(output%params .OR. output%alpha) CALL define_ovar(ncid_out, opid%alpha, &
          'alpha', '-', 'quantum yield of electron transport', &
          patchout%alpha, 'real', xID, yID, zID, landID, patchID)
@@ -2018,6 +2024,10 @@ CONTAINS
          'extkn', toreal4(veg%extkn), ranges%extkn, patchout%extkn, 'real')
      IF(output%params .OR. output%vcmax_scalar) CALL write_ovar(ncid_out, opid%vcmax_scalar, &
          'vcmax_scalar', toreal4(veg%vcmax_scalar), ranges%vcmax_scalar, patchout%vcmax_scalar, 'real')
+     IF(output%params .OR. output%P50) CALL write_ovar(ncid_out, opid%P50, &
+         'P50', toreal4(veg%P50), ranges%P50, patchout%P50, 'real')
+     IF(output%params .OR. output%P88d50) CALL write_ovar(ncid_out, opid%P88d50, &
+         'P88d50', toreal4(veg%P88d50), ranges%P88d50, patchout%P88d50, 'real')
     IF(output%params .OR. output%alpha) CALL write_ovar(ncid_out, opid%alpha, &
          'alpha', toreal4(veg%alpha), ranges%alpha, patchout%alpha, 'real')
     IF(output%params .OR. output%tminvj) CALL write_ovar(ncid_out, &
@@ -4636,6 +4646,10 @@ CONTAINS
      CALL define_ovar(ncid_restart, rpid%vcmax_scalar, 'vcmax_scalar', '-', &
                     'vcmax correct coefficient', &
                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+     CALL define_ovar(ncid_restart, rpid%P50, 'P50', '-', &
+                    'P50', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+     CALL define_ovar(ncid_restart, rpid%P88d50, 'P88d50', '-', &
+                    'P88d50', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
     ! CALL define_ovar(ncid_restart, rpid%tminvj, 'tminvj', 'C', &
     !                  'Min temperature for the start of photosynthesis', &
     !                  .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
@@ -4895,6 +4909,10 @@ CONTAINS
     CALL write_ovar (ncid_restart, rpid%alpha, 'alpha', toreal4(veg%alpha), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
      CALL write_ovar (ncid_restart, rpid%vcmax_scalar, 'vcmax_scalar', toreal4(veg%vcmax_scalar), &
+          (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
+     CALL write_ovar (ncid_restart, rpid%P50, 'P50', toreal4(veg%P50), &
+          (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
+     CALL write_ovar (ncid_restart, rpid%P88d50, 'P88d50', toreal4(veg%P88d50), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
     ! CALL write_ovar (ncid_restart, rpid%tminvj, 'tminvj', toreal4(veg%tminvj), &
     !                  ranges%tminvj, .TRUE., 'real', .TRUE.)

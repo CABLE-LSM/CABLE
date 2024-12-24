@@ -2866,7 +2866,7 @@ SUBROUTINE get_parameters_met(soil,veg,bgc,rough,completeSet)
          nmetpatches,'def')
    CALL readpar(ncid_met,'P50',completeSet,veg%P50,filename%met,               & ! hydraulics; mgk576; ms8355
          nmetpatches,'def')
-   CALL readpar(ncid_met,'P88',completeSet,veg%P88,filename%met,               & ! hydraulics; mgk576; ms8355
+   CALL readpar(ncid_met,'P88dP50',completeSet,veg%P88dP50,filename%met,               & ! hydraulics; mgk576; ms8355
          nmetpatches,'def')
    CALL readpar(ncid_met,'b_plant',completeSet,veg%b_plant,filename%met,       & ! hydraulics; mgk576; ms8355
          nmetpatches,'def')
