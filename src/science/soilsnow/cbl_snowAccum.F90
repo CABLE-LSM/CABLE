@@ -47,6 +47,8 @@ IMPLICIT NONE
 
              ssnow%tgg(i,1) = ssnow%tgg(i,1) + canopy%precis(i) * CHLF               &
                   / ( REAL( ssnow%gammzz(i,1) ) + Ccswat *canopy%precis(i) )
+             ssnow%dtmlt(i,1) = ssnow%dtmlt(i,1) + canopy%precis(i) * CHLF           &
+                  / ( REAL( ssnow%gammzz(i,1) ) + Ccswat *canopy%precis(i) )
              ! change density due to water being added
              ssnow%ssdn(i,1) = MIN( max_ssdn, MAX( 120.0, ssnow%ssdn(i,1)          &
                   * ssnow%osnowd(i) / MAX( 0.01, ssnow%snowd(i) ) + Cdensity_liq  &
@@ -86,6 +88,8 @@ IMPLICIT NONE
              osm(i) = ssnow%smass(i,1)
 
              ssnow%tggsn(i,1) = ssnow%tggsn(i,1) + canopy%precis(i) * CHLF           &
+                  * osm(i) / (sgamm(i) * ssnow%osnowd(i) )
+             ssnow%dtmlt(i,1) = ssnow%dtmlt(i,1) + canopy%precis(i) * CHLF           &
                   * osm(i) / (sgamm(i) * ssnow%osnowd(i) )
              ssnow%smass(i,1) = ssnow%smass(i,1) + canopy%precis(i)                   &
                   * osm(i)/ssnow%osnowd(i)
