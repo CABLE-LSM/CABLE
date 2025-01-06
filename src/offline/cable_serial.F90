@@ -408,10 +408,8 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
                     TRIM(cable_user%RunIden)//'_cable_out.nc'
               ENDIF
             ENDIF
-            IF (RRRR.EQ.1) THEN
-              CALL nullify_write() ! nullify pointers
-              CALL open_output_file( dels, soil, veg, bgc, rough, met)
-            ENDIF
+            CALL nullify_write() ! nullify pointers
+            CALL open_output_file( dels, soil, veg, bgc, rough, met)
           ENDIF
 
           ssnow%otss_0 = ssnow%tgg(:,1)

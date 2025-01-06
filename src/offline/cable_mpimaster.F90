@@ -432,10 +432,8 @@ CONTAINS
                   TRIM(cable_user%RunIden)//'_cable_out.nc'
               ENDIF
             ENDIF
-            IF (YYYY.EQ.CABLE_USER%YEARSTART) THEN
-              CALL nullify_write() ! nullify pointers
-              CALL open_output_file( dels, soil, veg, bgc, rough, met)
-            ENDIF
+            CALL nullify_write() ! nullify pointers
+            CALL open_output_file( dels, soil, veg, bgc, rough, met)
           ENDIF
 
           ssnow%otss_0 = ssnow%tgg(:,1)
