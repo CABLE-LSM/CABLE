@@ -60,20 +60,23 @@
 
 MODULE cable_serial
   !! Offline serial driver for CABLE.
-  USE cable_driver_init_mod, ONLY : &
-    cable_driver_init,              &
-    vegparmnew,                     &
-    spinup,                         &
-    spincasa,                       &
-    CASAONLY,                       &
-    l_casacnp,                      &
-    l_landuse,                      &
-    l_laiFeedbk,                    &
-    l_vcmaxFeedbk,                  &
-    delsoilM,                       &
-    delsoilT,                       &
-    delgwM,                         &
-    LALLOC
+  USE cable_driver_common_mod, ONLY : &
+    cable_driver_init,                &
+    vegparmnew,                       &
+    spinup,                           &
+    spincasa,                         &
+    CASAONLY,                         &
+    l_casacnp,                        &
+    l_landuse,                        &
+    l_laiFeedbk,                      &
+    l_vcmaxFeedbk,                    &
+    delsoilM,                         &
+    delsoilT,                         &
+    delgwM,                           &
+    LALLOC,                           &
+    prepareFiles,                     &
+    renameFiles,                      &
+    LUCdriver
   USE cable_def_types_mod
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
        fixedCO2,output,check,&
@@ -1026,140 +1029,5 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
   PRINT *, 'Finished. ', etime, ' seconds needed for ', kend,' hours'
 
 END SUBROUTINE serialdrv
-
-
-SUBROUTINE prepareFiles(ncciy)
-  USE cable_IO_vars_module, ONLY: logn,gswpfile
-  IMPLICIT NONE
-  INTEGER, INTENT(IN) :: ncciy
-
-  WRITE(logn,*) 'CABLE offline global run using gswp forcing for ', ncciy
-  PRINT *,      'CABLE offline global run using gswp forcing for ', ncciy
-
-  CALL renameFiles(logn,gswpfile%rainf,ncciy,'rainf')
-  CALL renameFiles(logn,gswpfile%snowf,ncciy,'snowf')
-  CALL renameFiles(logn,gswpfile%LWdown,ncciy,'LWdown')
-  CALL renameFiles(logn,gswpfile%SWdown,ncciy,'SWdown')
-  CALL renameFiles(logn,gswpfile%PSurf,ncciy,'PSurf')
-  CALL renameFiles(logn,gswpfile%Qair,ncciy,'Qair')
-  CALL renameFiles(logn,gswpfile%Tair,ncciy,'Tair')
-  CALL renameFiles(logn,gswpfile%wind,ncciy,'wind')
-
-END SUBROUTINE prepareFiles
-
-
-
-SUBROUTINE renameFiles(logn,inFile,ncciy,inName)
-  IMPLICIT NONE
-  INTEGER, INTENT(IN) :: logn,ncciy
-  INTEGER:: nn
-  CHARACTER(LEN=200), INTENT(INOUT) :: inFile
-  CHARACTER(LEN=*),  INTENT(IN)    :: inName
-  INTEGER :: idummy
-
-  nn = INDEX(inFile,'19')
-  READ(inFile(nn:nn+3),'(i4)') idummy
-  WRITE(inFile(nn:nn+3),'(i4.4)') ncciy
-  WRITE(logn,*) TRIM(inName), ' global data from ', TRIM(inFile)
-
-END SUBROUTINE renameFiles
-
-!==============================================================================
-! subroutine for reading LU input data, zeroing biomass in empty secondary forest tiles
-! and tranferring LUC-based age weights for secondary forest to POP structure
-
-
-SUBROUTINE LUCdriver( casabiome,casapool, &
-     casaflux,POP,LUC_EXPT, POPLUC, veg )
-
-
-  USE cable_def_types_mod , ONLY: veg_parameter_type, mland
-  USE cable_carbon_module
-  USE cable_common_module, ONLY: CABLE_USER, CurYear
-  USE casa_ncdf_module, ONLY: is_casa_time
-  USE cable_IO_vars_module, ONLY: logn, landpt, patch
-  USE casadimension
-  USE casaparm
-  USE casavariable
-  USE POP_Types,  ONLY: POP_TYPE
-  USE POPMODULE,            ONLY: POPStep, POP_init_single
-  USE TypeDef,              ONLY: i4b, dp
-  USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, read_LUH2,&
-       ptos,ptog,stog,gtos,grassfrac, pharv, smharv, syharv
-  USE POPLUC_Types
-  USE POPLUC_Module, ONLY: POPLUCStep, POPLUC_weights_Transfer, WRITE_LUC_OUTPUT_NC, &
-       POP_LUC_CASA_transfer,  WRITE_LUC_RESTART_NC, READ_LUC_RESTART_NC
-
-
-
-  IMPLICIT NONE
-
-  TYPE (casa_biome),            INTENT(INOUT) :: casabiome
-  TYPE (casa_pool),             INTENT(INOUT) :: casapool
-  TYPE (casa_flux),             INTENT(INOUT) :: casaflux
-  TYPE (POP_TYPE), INTENT(INOUT)     :: POP
-  TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
-  TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
-  TYPE (veg_parameter_type),    INTENT(IN) :: veg  ! vegetation parameters
-
-  INTEGER ::  k, j, l, yyyy
-
-
-
-  WRITE(*,*) 'cablecasa_LUC', CurYear
-  yyyy = CurYear
-
-
-
-  LUC_EXPT%CTSTEP = yyyy -  LUC_EXPT%FirstYear + 1
-
-  CALL READ_LUH2(LUC_EXPT)
-
-  DO k=1,mland
-     POPLUC%ptos(k) = LUC_EXPT%INPUT(ptos)%VAL(k)
-     POPLUC%ptog(k) = LUC_EXPT%INPUT(ptog)%VAL(k)
-     POPLUC%stop(k) = 0.0
-     POPLUC%stog(k) = LUC_EXPT%INPUT(stog)%VAL(k)
-     POPLUC%gtop(k) = 0.0
-     POPLUC%gtos(k) = LUC_EXPT%INPUT(gtos)%VAL(k)
-     POPLUC%pharv(k) = LUC_EXPT%INPUT(pharv)%VAL(k)
-     POPLUC%smharv(k) = LUC_EXPT%INPUT(smharv)%VAL(k)
-     POPLUC%syharv(k) = LUC_EXPT%INPUT(syharv)%VAL(k)
-     POPLUC%thisyear = yyyy
-  ENDDO
-
-  ! zero secondary forest tiles in POP where secondary forest area is zero
-  DO k=1,mland
-     IF ((POPLUC%frac_primf(k)-POPLUC%frac_forest(k))==0.0 &
-          .AND. (.NOT.LUC_EXPT%prim_only(k))) THEN
-        j = landpt(k)%cstart+1
-        DO l=1,SIZE(POP%Iwood)
-           IF( POP%Iwood(l) == j) THEN
-              CALL POP_init_single(POP,veg%disturbance_interval,l)
-              EXIT
-           ENDIF
-        ENDDO
-
-        casapool%cplant(j,leaf) = 0.01
-        casapool%nplant(j,leaf)= casabiome%ratioNCplantmin(veg%iveg(j),leaf)* casapool%cplant(j,leaf)
-        casapool%pplant(j,leaf)= casabiome%ratioPCplantmin(veg%iveg(j),leaf)* casapool%cplant(j,leaf)
-
-        casapool%cplant(j,froot) = 0.01
-        casapool%nplant(j,froot)= casabiome%ratioNCplantmin(veg%iveg(j),froot)* casapool%cplant(j,froot)
-        casapool%pplant(j,froot)= casabiome%ratioPCplantmin(veg%iveg(j),froot)* casapool%cplant(j,froot)
-
-        casapool%cplant(j,wood) = 0.01
-        casapool%nplant(j,wood)= casabiome%ratioNCplantmin(veg%iveg(j),wood)* casapool%cplant(j,wood)
-        casapool%pplant(j,wood)= casabiome%ratioPCplantmin(veg%iveg(j),wood)* casapool%cplant(j,wood)
-        casaflux%frac_sapwood(j) = 1.0
-
-     ENDIF
-  ENDDO
-
-  CALL POPLUCStep(POPLUC,yyyy)
-
-  CALL POPLUC_weights_transfer(POPLUC,POP,LUC_EXPT)
-
-END SUBROUTINE LUCdriver
 
 END MODULE cable_serial

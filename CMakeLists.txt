@@ -227,7 +227,7 @@ else()
         src/offline/cable_abort.F90
         src/offline/cable_checks.F90
         src/offline/cable_cru_TRENDY.F90
-        src/offline/cable_driver_init.F90
+        src/offline/cable_driver_common.F90
         src/offline/cable_initialise.F90
         src/offline/cable_input.F90
         src/offline/cable_metutils.F90

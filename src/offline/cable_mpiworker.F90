@@ -65,15 +65,15 @@
 !==============================================================================
 MODULE cable_mpiworker
 
-  USE cable_driver_init_mod, ONLY : &
-    vegparmnew,                     &
-    spinup,                         &
-    spincasa,                       &
-    CASAONLY,                       &
-    l_laiFeedbk,                    &
-    l_vcmaxFeedbk,                  &
-    delsoilM,                       &
-    delsoilT,                       &
+  USE cable_driver_common_mod, ONLY : &
+    vegparmnew,                       &
+    spinup,                           &
+    spincasa,                         &
+    CASAONLY,                         &
+    l_laiFeedbk,                      &
+    l_vcmaxFeedbk,                    &
+    delsoilM,                         &
+    delsoilT,                         &
     LALLOC
   USE cable_mpicommon
   USE cable_common_module,  ONLY: cable_user
