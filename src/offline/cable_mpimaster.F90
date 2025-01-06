@@ -339,42 +339,47 @@ CONTAINS
 
         CurYear = YYYY
 
+        !ccc Set calendar attribute: dependant on the value of `leaps`
+        ! that is set in the MetType if conditions above.
+        calendar = "noleap"
         LOY = 365
+        IF ( leaps ) THEN
+          calendar = "standard"
+        ENDIF
         IF ( leaps .AND. IS_LEAPYEAR( YYYY ) ) THEN
           LOY = 366
         ENDIF
 
-        IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
-          kend = NINT(24.0*3600.0/dels) * LOY
-        ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
-          LOY = 365
-          kend = NINT(24.0*3600.0/dels) * LOY
-        ELSE IF (TRIM(cable_user%MetType) .EQ. 'gswp') THEN
+        SELECT CASE (TRIM(cable_user%MetType))
+        CASE ('gswp')
           ncciy = CurYear
+
           WRITE(*,*) 'Looking for global offline run info.'
           CALL prepareFiles(ncciy)
           CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
 
-        ELSE IF (TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
+        CASE ('plum')
+          kend = NINT(24.0*3600.0/dels) * LOY
+
+        CASE ('cru')
+          LOY = 365
+          kend = NINT(24.0*3600.0/dels) * LOY
+
+        CASE ('gswp3')
           ncciy = CurYear
           WRITE(*,*) 'Looking for global offline run info.'
           CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
 
+        CASE DEFAULT
+          IF ( globalMetfile%l_gpcc ) THEN
+            ncciy = CurYear
+            WRITE(*,*) 'Looking for global offline run info.'
+            CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
 
-        ELSE IF ( globalMetfile%l_gpcc ) THEN
-          ncciy = CurYear
-          WRITE(*,*) 'Looking for global offline run info.'
-          CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
+          ENDIF
+        END SELECT
 
-        ENDIF
-
-        !ccc Set calendar attribute: dependant on the value of `leaps`
-        ! that is set in the MetType if conditions above.
-        calendar = "noleap"
-        IF ( leaps ) THEN
-          calendar = "standard"
-        ENDIF
-
+        CALL MPI_Bcast (kend, 1, MPI_INTEGER, 0, comm, ierr)
 
         ! somethings (e.g. CASA-CNP) only need to be done once per day
         ktauday=INT(24.0*3600.0/dels)
@@ -386,12 +391,9 @@ CONTAINS
         ! the lat/lon coordinates. Allocation of CABLE's main variables also here.
         IF ( CALL1 ) THEN
 
-
           IF (cable_user%POPLUC) THEN
             CALL LUC_EXPT_INIT (LUC_EXPT)
           ENDIF
-
-
           ! vh_js !
           CALL load_parameters( met, air, ssnow, veg,climate,bgc, &
                soil, canopy, rough, rad, sum_flux, &
@@ -420,11 +422,6 @@ CONTAINS
           ! file themselves
           CALL MPI_Bcast (dels, 1, MPI_REAL, 0, comm, ierr)
 
-        ENDIF
-
-        CALL MPI_Bcast (kend, 1, MPI_INTEGER, 0, comm, ierr)
-
-        IF ( CALL1 ) THEN
           ! MPI: need to know extents before creating datatypes
           CALL find_extents
 
@@ -569,21 +566,22 @@ CONTAINS
         ktau_gl = iktau
 
         IF (.NOT.casaonly) THEN
-          IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
+          SELECT CASE (TRIM(cable_user%MetType))
+          CASE ('plum')
             CALL PLUME_MIP_GET_MET(PLUME, iMET, YYYY, 1, kend, &
                  (YYYY.EQ.CABLE_USER%YearEnd .AND. 1.EQ.kend))
 
-          ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
+          CASE ('cru')
 
             CALL CRU_GET_SUBDIURNAL_MET(CRU, imet, YYYY, 1, kend, &
                  (YYYY.EQ.CABLE_USER%YearEnd))
 
-          ELSE
+          CASE DEFAULT
             CALL get_met_data( spinup, spinConv, imet, soil,                 &
                  rad, iveg, kend, dels, CTFRZ, iktau+koffset,                &
                  kstart+koffset )
 
-          ENDIF
+          END SELECT
         ENDIF
 
 
@@ -643,20 +641,21 @@ CONTAINS
           ! Get met data and LAI, set time variables.
           ! Rainfall input may be augmented for spinup purposes:
           !          met%ofsd = met%fsd(:,1) + met%fsd(:,2)
-          IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
+          SELECT CASE (TRIM(cable_user%MetType))
+          CASE ('plum')
             CALL PLUME_MIP_GET_MET(PLUME, iMET, YYYY, iktau, kend, &
                  (YYYY.EQ.CABLE_USER%YearEnd .AND. iktau.EQ.kend))
 
-          ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
+          CASE ('cru')
             CALL CRU_GET_SUBDIURNAL_MET(CRU, imet, YYYY, iktau, kend, &
                  (YYYY.EQ.CABLE_USER%YearEnd) )
-          ELSE
+          CASE DEFAULT
 
             CALL get_met_data( spinup, spinConv, imet, soil,                 &
                  rad, iveg, kend, dels, CTFRZ, iktau+koffset,                &
                  kstart+koffset )
 
-          ENDIF
+          END SELECT
           IF ( (TRIM(cable_user%MetType) .NE. 'gswp') .AND. &
                (TRIM(cable_user%MetType) .NE. 'gswp3') ) CurYear = met%year(1)
 
@@ -765,20 +764,18 @@ CONTAINS
 
             IF ( (.NOT. CASAONLY).AND. spinConv  ) THEN
 
-              IF ( TRIM(cable_user%MetType) .EQ. 'plum'       &
-                   .OR. TRIM(cable_user%MetType) .EQ. 'cru'   &
-                   .OR. TRIM(cable_user%MetType) .EQ. 'gswp'  &
-                   .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
+              SELECT CASE (TRIM(cable_user%MetType))
+              CASE ('plum', 'cru', 'gswp', 'gswp3')
                 CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
                      casamet,ssnow,         &
                      rad, bal, air, soil, veg, CSBOLTZ,     &
                      CEMLEAF, CEMSOIL )
-              ELSE
+              CASE DEFAULT
                 CALL write_output( dels, ktau, met, canopy, casaflux, casapool, &
                      casamet, ssnow,   &
                      rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
 
-              ENDIF
+              END SELECT
             END IF
           ENDIF
 
@@ -984,21 +981,15 @@ CONTAINS
           ENDIF
 
           IF ( (.NOT. CASAONLY) .AND. spinConv ) THEN
-            IF ( TRIM(cable_user%MetType) .EQ. 'plum' &
-                 .OR. TRIM(cable_user%MetType) .EQ. 'cru'   &
-                 .OR. TRIM(cable_user%MetType) .EQ. 'gswp' &
-                 .OR. TRIM(cable_user%MetType) .EQ. 'gswp3') THEN
-
-              CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
-                   casamet, ssnow,         &
-                   rad, bal, air, soil, veg, CSBOLTZ,     &
-                   CEMLEAF, CEMSOIL )
-            ELSE
+            SELECT CASE (TRIM(cable_user%MetType))
+            CASE ('plum', 'cru', 'gswp', 'gswp3')
+              CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, casamet, &
+                   ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
+            CASE DEFAULT
               CALL write_output( dels, ktau, met, canopy, casaflux, casapool, casamet, &
-                   ssnow,   &
-                   rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
+                   ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
 
-            ENDIF
+            END SELECT
           END IF
 
           IF(cable_user%consistency_check) THEN

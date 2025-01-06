@@ -275,6 +275,9 @@ CONTAINS
           LOY = 365
         ENDIF
 
+        ! MPI: receive from master ending time fields
+        CALL MPI_Bcast (kend, 1, MPI_INTEGER, 0, comm, ierr)
+
         IF ( CALL1 ) THEN
 
           IF (.NOT.spinup) spinConv=.TRUE.
@@ -282,13 +285,7 @@ CONTAINS
           ! MPI: bcast to workers so that they don't need to open the met
           ! file themselves
           CALL MPI_Bcast (dels, 1, MPI_REAL, 0, comm, ierr)
-        ENDIF
 
-        ! MPI: receive from master ending time fields
-        CALL MPI_Bcast (kend, 1, MPI_INTEGER, 0, comm, ierr)
-
-
-        IF ( CALL1 ) THEN
           ! MPI: need to know extents before creating datatypes
           CALL find_extents
 

@@ -295,7 +295,8 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
         END IF
 
         ! Check for gswp run
-        IF ( TRIM(cable_user%MetType) .EQ. 'gswp' ) THEN
+        SELECT CASE (TRIM(cable_user%MetType))
+        CASE ('gswp')
           ncciy = CurYear
 
           CALL prepareFiles(ncciy)
@@ -326,27 +327,30 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
             kend      = ktauday * LOY
           ENDIF
 
-        ELSE IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
+        CASE ('plum')
           ! PLUME experiment setup using WATCH
           IF ( .NOT. PLUME%LeapYears ) LOY = 365
           kend = NINT(24.0*3600.0/dels) * LOY
-        ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
+
+        CASE ('cru')
           ! TRENDY experiment using CRU-NCEP
           LOY = 365
           kend = NINT(24.0*3600.0/dels) * LOY
-        ELSE IF ( TRIM(cable_user%MetType) .EQ. 'site' ) THEN
+
+        CASE ('site')
           ! site experiment eg AmazonFace (spinup or  transient run type)
           kend = NINT(24.0*3600.0/dels) * LOY
           ! get koffset to add to time-step of sitemet
-          IF (TRIM(site%RunType)=='historical') THEN
+          SELECT CASE (TRIM(site%RunType))
+          CASE ('historical')
             MetYear = CurYear
-          ELSEIF (TRIM(site%RunType)=='spinup' .OR. TRIM(site%RunType)=='transient') THEN
+          CASE ('spinup', 'transient')
             ! setting met year so we end the spin-up at the end of the site data-years.
             MetYear = site%spinstartyear + &
                 MOD(CurYear- &
                 (site%spinstartyear-(site%spinendyear-site%spinstartyear +1)*100), &
                 (site%spinendyear-site%spinstartyear +1))
-          ENDIF
+          END SELECT
           WRITE(*,*) 'MetYear: ', MetYear
           WRITE(*,*) 'Simulation Year: ', CurYear
           koffset_met = 0
@@ -358,7 +362,7 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
             ENDDO
           ENDIF
 
-        ENDIF
+        END SELECT
 
         ! somethings (e.g. CASA-CNP) only need to be done once per day
         ktauday=INT(24.0*3600.0/dels)
@@ -482,48 +486,58 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
 
           ! Get met data and LAI, set time variables.
           ! Rainfall input may be augmented for spinup purposes:
-          IF ( TRIM(cable_user%MetType) .EQ. 'plum' ) THEN
-
-            IF (( .NOT. CASAONLY ) .OR. (CASAONLY.AND.CALL1))  THEN
+          IF (CALL1 .AND. CASAONLY) THEN
+            SELECT CASE (TRIM(cable_user%MetType))
+            CASE ('plum')
               CALL PLUME_MIP_GET_MET(PLUME, MET, YYYY, ktau, kend, &
                    (YYYY.EQ.CABLE_USER%YearEnd .AND. ktau.EQ.kend))
 
-            ENDIF
-
-          ELSE IF ( TRIM(cable_user%MetType) .EQ. 'cru' ) THEN
-            IF (( .NOT. CASAONLY ).OR. (CASAONLY.AND.CALL1))  THEN
+            CASE ('cru')
               CALL CRU_GET_SUBDIURNAL_MET(CRU, met, &
                    YYYY, ktau, kend, &
                    YYYY.EQ.CABLE_USER%YearEnd)
-            ENDIF
-          ELSE
-            IF (TRIM(cable_user%MetType) .EQ. 'site') &
-                CALL get_met_data( spinup, spinConv, met, soil,            &
-                rad, veg, kend, dels, CTFRZ, ktau+koffset_met,             &
-                kstart+koffset_met )
-            IF (TRIM(cable_user%MetType) .EQ. '') &
-                CALL get_met_data( spinup, spinConv, met, soil,            &
-                rad, veg, kend, dels, CTFRZ, ktau+koffset,                 &
-                kstart+koffset )
+            END SELECT
+          END IF
 
-            IF (TRIM(cable_user%MetType) .EQ. 'site' ) THEN
-              CALL site_get_CO2_Ndep(site)
+          SELECT CASE (TRIM(cable_user%MetType))
+          CASE ('plum')
+            IF (.NOT. CASAONLY) THEN
+              CALL PLUME_MIP_GET_MET(PLUME, MET, YYYY, ktau, kend, &
+                   (YYYY.EQ.CABLE_USER%YearEnd .AND. ktau.EQ.kend))
+            END IF
 
-              ! Two options: (i) if we have sub-annual varying CO2, then
-              ! these data should be put into the met file and in site.nml
-              ! CO2 should be set to -9999; or (ii) if we only have annual
-              ! CO2 numbers then these should be read from the site csv file
-              WHERE (met%ca .EQ. fixedCO2/1000000.0)
-                met%ca = site%CO2 / 1.e+6
-              END WHERE
+          CASE ('cru')
+            IF (.NOT. CASAONLY) THEN
+              CALL CRU_GET_SUBDIURNAL_MET(CRU, met, &
+                   YYYY, ktau, kend, &
+                   YYYY.EQ.CABLE_USER%YearEnd)
+            END IF
 
-              met%Ndep = site%Ndep  *1000./10000./365. ! kg ha-1 y-1 > g m-2 d-1
-              met%Pdep = site%Pdep  *1000./10000./365. ! kg ha-1 y-1 > g m-2 d-1
-              met%fsd = MAX(met%fsd,0.0)
-            ENDIF
+          CASE ('site')
+            CALL get_met_data( spinup, spinConv, met, soil,            &
+                 rad, veg, kend, dels, CTFRZ, ktau+koffset_met,             &
+                 kstart+koffset_met )
 
+            CALL site_get_CO2_Ndep(site)
 
-          ENDIF
+            ! Two options: (i) if we have sub-annual varying CO2, then
+            ! these data should be put into the met file and in site.nml
+            ! CO2 should be set to -9999; or (ii) if we only have annual
+            ! CO2 numbers then these should be read from the site csv file
+            WHERE (met%ca .EQ. fixedCO2/1000000.0)
+              met%ca = site%CO2 / 1.e+6
+            END WHERE
+
+            met%Ndep = site%Ndep  *1000./10000./365. ! kg ha-1 y-1 > g m-2 d-1
+            met%Pdep = site%Pdep  *1000./10000./365. ! kg ha-1 y-1 > g m-2 d-1
+            met%fsd = MAX(met%fsd,0.0)
+
+          CASE ('')
+            CALL get_met_data( spinup, spinConv, met, soil,            &
+              rad, veg, kend, dels, CTFRZ, ktau+koffset,                 &
+              kstart+koffset )
+
+          END SELECT
 
           IF (TRIM(cable_user%MetType).EQ.'' ) THEN
             CurYear = met%year(1)
@@ -647,14 +661,13 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
                  MOD((ktau-kstart+1),ktauday)==0) THEN
               IF ( CABLE_USER%CASA_DUMP_WRITE )  THEN
 
-                IF (TRIM(cable_user%MetType).EQ.'' .OR. &
-                    TRIM(cable_user%MetType).EQ.'site' ) THEN
-
+                SELECT CASE (TRIM(cable_user%MetType))
+                CASE ('', 'site')
                   WRITE(CYEAR,FMT="(I4)") CurYear
-                ELSE
+                CASE DEFAULT
                   !CLN CHECK FOR LEAP YEAR
                   WRITE(CYEAR,FMT="(I4)") CurYear + INT((ktau-kstart)/(LOY*ktauday))
-                ENDIF
+                END SELECT
                 ncfile = TRIM(casafile%c2cdumppath)//'c2c_'//CYEAR//'_dump.nc'
 
                 IF (TRIM(cable_user%MetType).EQ.'' ) THEN
@@ -688,19 +701,14 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
 
           IF ( (.NOT. CASAONLY) .AND. spinConv ) THEN
             !mpidiff
-            IF ( TRIM(cable_user%MetType) .EQ. 'plum'  .OR.  &
-                 TRIM(cable_user%MetType) .EQ. 'cru'   .OR.  &
-                 TRIM(cable_user%MetType) .EQ. 'bios'  .OR.  &
-                 TRIM(cable_user%MetType) .EQ. 'gswp'  .OR.  &
-                 TRIM(cable_user%MetType) .EQ. 'site' ) THEN
-
-
+            SELECT CASE (TRIM(cable_user%MetType))
+            CASE ('plum', 'cru', 'bios', 'gswp', 'site')
               CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, casamet, &
-                   ssnow,   rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
-            ELSE
+                   ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
+            CASE DEFAULT
               CALL write_output( dels, ktau, met, canopy, casaflux, casapool, casamet, &
-                   ssnow,rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
-            ENDIF
+                   ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
+            END SELECT
           ENDIF
 
 
