@@ -89,8 +89,10 @@ MODULE cable_mpimaster
     renameFiles,                      &
     LUCdriver
   USE cable_mpicommon
+  USE cable_IO_vars_module, ONLY : NO_CHECK
   USE casa_cable
   USE casa_inout_module
+  USE cable_checks_module, ONLY: constant_check_range
 
   IMPLICIT NONE
 
@@ -359,9 +361,12 @@ CONTAINS
           CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
 
         CASE ('plum')
+          ! PLUME experiment setup using WATCH
+          IF ( .NOT. PLUME%LeapYears ) LOY = 365
           kend = NINT(24.0*3600.0/dels) * LOY
 
         CASE ('cru')
+          ! TRENDY experiment using CRU-NCEP
           LOY = 365
           kend = NINT(24.0*3600.0/dels) * LOY
 
@@ -369,6 +374,9 @@ CONTAINS
           ncciy = CurYear
           WRITE(*,*) 'Looking for global offline run info.'
           CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
+
+        CASE ('site')
+          STOP 'MetType "site" can only be used in serial'
 
         CASE DEFAULT
           IF ( globalMetfile%l_gpcc ) THEN
@@ -402,8 +410,33 @@ CONTAINS
                casamet, casabal, phen, POP, spinup, &
                CEMSOIL, CTFRZ, LUC_EXPT, POPLUC )
 
+          IF (check%ranges /= NO_CHECK) THEN
+            WRITE (*, *) "Checking parameter ranges"
+            CALL constant_check_range(soil, veg, 0, met)
+          END IF
+
           IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
             CABLE_USER%POPLUC= .FALSE.
+
+          ! Open output file:
+          IF (.NOT.CASAONLY) THEN
+            IF ( TRIM(filename%out) .EQ. '' ) THEN
+              IF ( CABLE_USER%YEARSTART .GT. 0 ) THEN
+                WRITE( dum, FMT="(I4,'_',I4)")CABLE_USER%YEARSTART, &
+                  CABLE_USER%YEAREND
+                filename%out = TRIM(filename%path)//'/'//&
+                  TRIM(cable_user%RunIden)//'_'//&
+                  TRIM(dum)//'_cable_out.nc'
+              ELSE
+                filename%out = TRIM(filename%path)//'/'//&
+                  TRIM(cable_user%RunIden)//'_cable_out.nc'
+              ENDIF
+            ENDIF
+            IF (YYYY.EQ.CABLE_USER%YEARSTART) THEN
+              CALL nullify_write() ! nullify pointers
+              CALL open_output_file( dels, soil, veg, bgc, rough, met)
+            ENDIF
+          ENDIF
 
           ssnow%otss_0 = ssnow%tgg(:,1)
           ssnow%otss = ssnow%tgg(:,1)
@@ -525,28 +558,6 @@ CONTAINS
           ! MPI: mostly original serial code follows...
         ENDIF ! CALL1
 
-
-        ! Open output file:
-        IF (.NOT.CASAONLY) THEN
-          IF ( TRIM(filename%out) .EQ. '' ) THEN
-            IF ( CABLE_USER%YEARSTART .GT. 0 ) THEN
-              WRITE( dum, FMT="(I4,'_',I4)")CABLE_USER%YEARSTART, &
-                CABLE_USER%YEAREND
-              filename%out = TRIM(filename%path)//'/'//&
-                TRIM(cable_user%RunIden)//'_'//&
-                TRIM(dum)//'_cable_out.nc'
-            ELSE
-              filename%out = TRIM(filename%path)//'/'//&
-                TRIM(cable_user%RunIden)//'_cable_out.nc'
-            ENDIF
-          ENDIF
-          IF (YYYY.EQ.CABLE_USER%YEARSTART) THEN
-            CALL nullify_write() ! nullify pointers
-            CALL open_output_file( dels, soil, veg, bgc, rough, met)
-          ENDIF
-        ENDIF
-
-
         ! globally (WRT code) accessible kend through USE cable_common_module
         ktau_gl = 0
         kwidth_gl = INT(dels)
@@ -575,6 +586,9 @@ CONTAINS
 
             CALL CRU_GET_SUBDIURNAL_MET(CRU, imet, YYYY, 1, kend, &
                  (YYYY.EQ.CABLE_USER%YearEnd))
+
+          CASE ('site')
+            STOP 'MetType "site" can only be used in serial'
 
           CASE DEFAULT
             CALL get_met_data( spinup, spinConv, imet, soil,                 &
@@ -1134,6 +1148,13 @@ CONTAINS
 
     END DO SPINLOOP
 
+    IF ( SpinConv .AND. .NOT. CASAONLY) THEN
+      ! Close output file and deallocate main variables:
+      CALL close_output_file( bal, air, bgc, canopy, met,                         &
+           rad, rough, soil, ssnow,                            &
+           sum_flux, veg )
+    ENDIF
+
     IF (icycle > 0 .AND. (.NOT.spincasa).AND. (.NOT.casaonly)) THEN
       ! MPI: gather casa results from all the workers
 
@@ -1236,10 +1257,13 @@ CONTAINS
 
       call create_new_gridinfo(filename%type,filename%gridnew,mlon,mlat,landmask,patchfrac_new)
 
+      print *, 'writing casapools: land use'
       call WRITE_LANDUSE_CASA_RESTART_NC(cend(mland), lucmp, CASAONLY )
 
+      print *, 'writing cable restart: land use'
       call create_landuse_cable_restart(logn, dels, ktau, soil, cend(mland),lucmp,cstart,cend,nap, met)
 
+      print *, 'deallocating'
       call landuse_deallocate_mp(cend(mland),ms,msn,nrb,mplant,mlitter,msoil,mwood,lucmp)
     ENDIF
 
@@ -1250,14 +1274,6 @@ CONTAINS
          TRIM(cable_user%MetType) .NE. "gswp3" .AND. &
          TRIM(cable_user%MetType) .NE. "plum"  .AND. &
          TRIM(cable_user%MetType) .NE. "cru") CALL close_met_file
-    IF  (.NOT. CASAONLY) THEN
-       ! Close output file and deallocate main variables:
-      CALL close_output_file( bal, air, bgc, canopy, met,                         &
-           rad, rough, soil, ssnow,                            &
-           sum_flux, veg )
-
-      ! WRITE(logn,*) bal%wbal_tot, bal%ebal_tot, bal%ebal_tot_cncheck
-    ENDIF
 
     ! Close log file
     CLOSE(logn)

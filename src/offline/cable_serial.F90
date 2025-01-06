@@ -275,6 +275,7 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
 
 
   ! outer loop - spinup loop no. ktau_tot :
+  ktau     = 0
   SPINLOOP:DO WHILE ( SPINon )
 
     NREP: DO RRRR = 1, NRRRR
@@ -290,7 +291,7 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
         IF ( leaps ) THEN
           calendar = "standard"
         END IF
-        IF ( IS_LEAPYEAR( YYYY ) ) THEN
+        IF ( leaps .AND. IS_LEAPYEAR( YYYY ) ) THEN
           LOY = 366
         END IF
 
@@ -392,6 +393,7 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
 
           IF ( CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%POPLUC_RunType) .EQ. 'static') &
                CABLE_USER%POPLUC= .FALSE.
+
           ! Open output file:
           IF (.NOT.CASAONLY) THEN
             IF ( TRIM(filename%out) .EQ. '' ) THEN
