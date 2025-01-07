@@ -528,7 +528,102 @@ FUNCTION p_surv_OzSavanna(hgt, fli)
 
 END FUNCTION p_surv_OzSavanna
 
+FUNCTION P_SURV_BOREAL (fli)
+  ! Following Dalziel et al. 2008
 
+  IMPLICIT NONE
+
+  REAL, INTENT(IN) :: fli ! kW/m
+  REAL             :: p_surv_boreal
+  
+  p_surv_boreal = exp(-fli/500.)
+
+END FUNCTION P_SURV_BOREAL
+
+FUNCTION P_SURV_TEMP_NL(dbh, fli, mass_cwd ) 
+  ! Following Kobziar et al. 2006
+  
+  IMPLICIT NONE
+
+  REAL, INTENT(IN)  :: dbh, fli,  mass_cwd ! m, kW/m, kg/m2
+  REAL              :: dbh_cm, p_surv_750, p_surv_temp_nl, cwd
+  
+  dbh_cm = dbh * 100.     ! m -> cm
+  cwd    = mass_cwd * 0.1 ! kg/m2 -> Mg/ha
+
+  IF ( fli .lt. 750. ) THEN
+     p_surv_750    = 1. - &
+          (1./(1.+ exp(-(1.0337 + 0.000151 * 750. - .221*dbh_cm + .0219*cwd))))
+     p_surv_temp_nl = 1. - (fli/750. * (1. - p_surv_750) )
+  ELSE
+     p_surv_temp_nl = 1. - &
+          (1./(1.+ exp(-(1.0337 + 0.000151 * fli  - .221*dbh_cm + .0219*cwd))))
+  END IF
+
+END FUNCTION P_SURV_TEMP_NL
+
+FUNCTION P_SURV_TEMP_BL(dbh, fli, is_resprouter)
+  ! Following Hickler et al. 2004
+  
+  IMPLICIT NONE
+
+  REAL   , INTENT(IN) :: dbh, fli ! m, kW/m
+  LOGICAL, INTENT(IN) :: is_resprouter ! yes=1,no=0
+  REAL                :: p_surv_3000, p_surv_temp_bl, resilience
+
+  IF ( is_resprouter ) THEN
+     resilience = 0.04
+  ELSE
+     resilience = 0.07
+  END IF
+
+  p_surv_3000 = 0.95 - 1./(1.+ (dbh/resilience) ** 1.5)
+
+  IF ( fli > 7000. ) THEN
+     p_surv_temp_bl = 0.001
+  ELSE IF ( fli > 3000. ) THEN
+     p_surv_temp_bl = p_surv_3000 * (1. - (fli - 3000.)/ 4000. )
+  ELSE
+     p_surv_temp_bl = exp(fli / 3000. * log(p_surv_3000)) !CLN check log!!!!
+  END IF
+
+END FUNCTION P_SURV_TEMP_BL
+
+FUNCTION P_SURV_TROPICS (dbh, fli)
+  ! Following Nieustad 2005
+  
+  IMPLICIT NONE
+  
+  REAL, INTENT(IN) :: dbh, fli ! m, kW/m
+  REAL             :: dbh_cm, p_surv_3000, scal_fac, p_surv_tropics
+
+  p_surv_3000 = 1. - max( 0.82 - 0.035 * (dbh ** 0.7) , 0.)
+  IF ( fli > 7000.) THEN
+     scal_fac = 1. - log(fli/7000.)
+     p_surv_tropics =scal_fac * p_surv_3000
+  ELSE IF ( fli > 3000. ) THEN
+     p_surv_tropics = p_surv_3000
+  ELSE
+     p_surv_tropics = exp(fli/3000. * log(p_surv_3000))
+  END IF
+
+  p_surv_tropics = MAX( MIN( 1., p_surv_tropics ), 0. )
+
+END FUNCTION P_SURV_TROPICS
+
+FUNCTION P_SURV_SAVANNA (height, fli)
+  !Following Bond et al. 2008
+  
+  IMPLICIT NONE
+
+  REAL, INTENT(IN) :: height, fli ! m, kW/m
+  REAL             :: fli_MWm, p_surv_savanna
+
+  fli_MWm = fli / 1000. ! kW/m -> MW/m
+
+  p_surv_savanna = max(0.,1. - ( 1./(1. + exp(1.5*(height - 0.5 * intensity - 1. )))))
+  
+END FUNCTION P_SURV_SAVANNA
 
 FUNCTION BURNTIME( YEAR, DOY, FSTEP )
 
