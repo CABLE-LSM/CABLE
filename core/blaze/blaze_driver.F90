@@ -49,7 +49,20 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
 
   BLAZE%shootfrac = shootfrac
   IF (.not.allocated(TO)) ALLOCATE(TO(BLAZE%NCELLS,7))
-
+  IF ( idoy .EQ. 1) THEN
+     DO i = 1, BLAZE%NCELLS
+        IF ( ABS(BLAZE%LAT(i)) .GT. 50.) THEN
+           BLAZE%K_TUNE_LITTER(i) = K_LITTER_BOREAL
+        ELSE IF ( ABS(BLAZE%LAT(i)) .GT. 30.) THEN
+           BLAZE%K_TUNE_LITTER(i) = K_LITTER_TEMPERATE
+        ELSE IF ( SF%BIOME(i) .EQ. 6 ) THEN ! Savanna
+           BLAZE%K_TUNE_LITTER(i) = K_LITTER_SAVANNA
+        ELSE ! Tropics
+           BLAZE%K_TUNE_LITTER(i) = K_LITTER_TROPICS
+        END IF
+     END DO
+  END IF
+  
 !!$  IF (CALL1) THEN
 !!$     StartYear = CurYear
 !!$     CALL1 = .FALSE.

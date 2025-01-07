@@ -1,7 +1,7 @@
 MODULE BLAZE_MOD
 
 TYPE TYPE_BLAZE
-   INTEGER,  DIMENSION(:),  ALLOCATABLE :: DSLR,ilon, jlat, Flix
+   INTEGER,  DIMENSION(:),  ALLOCATABLE :: DSLR,ilon, jlat, Flix,k_tune_litter
    REAL,     DIMENSION(:),  ALLOCATABLE :: RAINF, KBDI, LR, U10,RH,TMAX,TMIN,AREA, w_prior, FDI
    REAL,     DIMENSION(:),  ALLOCATABLE :: FFDI,FLI,ROS,Z,D,w, LAT, LON,DFLI,AB,CAvgAnnRainf
    REAL,     DIMENSION(:),  ALLOCATABLE :: DEADWOOD,POP_TO, POP_CWD, POP_STR,shootfrac
@@ -70,10 +70,27 @@ REAL, DIMENSION(5,12),PARAMETER   ::   &
               .6 , .65, .85, 1. , 1. , &   ! 11 Bark Litter -> ATM
               .6 , .65, .85, 1. , 1. /), & ! 12 Leaf Litter -> ATM
               (/5,12/) )
-!CLN DEADWOOD!!!
+! CLN DEADWOOD!!!
 !CLN              .7 , .75, .8, .8 , .8 , &  ! 10 Deadwood    -> ATM
 !CLN              .9 , .95, .95, 1. , 1. , &  ! 11 Bark Litter -> ATM
 !CLN              .9 , .95, .95, 1. , 1. /)   ! 12 Leaf Litter -> ATM
+! Tuning factors for litter ready for combustion
+! Boreal
+REAL, PARAMETER ::  K_LITTER_BOREAL    = 0.38;
+! Temperate region
+REAL, PARAMETER ::  K_LITTER_TEMPERATE = 0.0025;
+// Tropics
+REAL, PARAMETER ::  K_LITTER_TROPICS   = 0.15;
+// Savanna
+REAL, PARAMETER ::  K_LITTER_SAVANNA   = 0.75 ;
+
+!CLN// Grassy vegetation burn-rate for cohort and individual mode
+!CLNconst double MAX_GRASS_BURN = 0.75;
+!CLN
+!CLN// fraction of life woody biomass that is branch
+!CLNconst double F_BRANCH   = 0.05;
+!CLN// fraction of life woody biomass that is bark
+!CLNconst double F_BARK     = 0.01;
 
 REAL, PARAMETER :: MIN_FUEL = 120. ! Min fuel to spark a fire [g(C)/m2]
 
@@ -113,6 +130,7 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   ALLOCATE ( BLAZE%LR      ( np ) )
   ALLOCATE ( BLAZE%KBDI    ( np ) )
   ALLOCATE ( BLAZE%FTYPE   ( np ) )
+  ALLOCATE ( BLAZE%K_TUNE_LITTER  ( np ) )
   BLAZE%FTYPE(:) = "Seeder"
   ALLOCATE ( BLAZE%AB      ( np ) )
   ALLOCATE ( BLAZE%AREA    ( np ) )
@@ -196,49 +214,50 @@ subroutine zero_blaze(blaze)
 
   type(type_blaze), intent(inout) :: blaze
 
-  blaze%DSLR         = 0
-  blaze%ilon         = 0
-  blaze%jlat         = 0
-  blaze%Flix         = 0
-  blaze%RAINF        = 0
-  blaze%KBDI         = 0
-  blaze%LR           = 0
-  blaze%U10          = 0
-  blaze%RH           = 0
-  blaze%TMAX         = 0
-  blaze%TMIN         = 0
-  blaze%AREA         = 0
-  blaze%w_prior      = 0
-  !blaze%FDI          = 0
-  blaze%FFDI         = 0
-  blaze%FLI          = 0
-  blaze%ROS          = 0
-  blaze%Z            = 0
-  blaze%D            = 0
-  blaze%w            = 0
-  blaze%LAT          = 0
-  blaze%LON          = 0
-  blaze%DFLI         = 0
-  blaze%AB           = 0
-  Blaze%CAvgAnnRainf = 0
-  blaze%DEADWOOD     = 0
-  blaze%POP_TO       = 0
-  blaze%POP_CWD      = 0
-  blaze%POP_STR      = 0
-  blaze%shootfrac    = 0
-  Blaze%AnnRAINF     = 0
-  !blaze%ABM          = 0
-  blaze%TO           = 0
-  !blaze%AGC_g        = 0
-  !blaze%AGC_w        = 0
-  blaze%AGLit_w      = 0
-  blaze%AGLit_g      = 0
-  blaze%BGLit_w      = 0
-  blaze%BGLit_g      = 0
-  blaze%CPLANT_g     = 0
-  blaze%CPLANT_w     = 0
-  blaze%AvgAnnRAINF  = 0
-  blaze%FLUXES       = 0
+  blaze%DSLR          = 0
+  blaze%ilon          = 0
+  blaze%jlat          = 0
+  blaze%Flix          = 0
+  blaze%RAINF         = 0
+  blaze%KBDI          = 0
+  blaze%k_tune_litter = 1.
+  blaze%LR            = 0
+  blaze%U10           = 0
+  blaze%RH            = 0
+  blaze%TMAX          = 0
+  blaze%TMIN          = 0
+  blaze%AREA          = 0
+  blaze%w_prior       = 0
+  !blaze%FDI           = 0
+  blaze%FFDI          = 0
+  blaze%FLI           = 0
+  blaze%ROS           = 0
+  blaze%Z             = 0
+  blaze%D             = 0
+  blaze%w             = 0
+  blaze%LAT           = 0
+  blaze%LON           = 0
+  blaze%DFLI          = 0
+  blaze%AB            = 0
+  Blaze%CAvgAnnRainf  = 0
+  blaze%DEADWOOD      = 0
+  blaze%POP_TO        = 0
+  blaze%POP_CWD       = 0
+  blaze%POP_STR       = 0
+  blaze%shootfrac     = 0
+  Blaze%AnnRAINF      = 0
+  !blaze%ABM           = 0
+  blaze%TO            = 0
+  !blaze%AGC_g         = 0
+  !blaze%AGC_w         = 0
+  blaze%AGLit_w       = 0
+  blaze%AGLit_g       = 0
+  blaze%BGLit_w       = 0
+  blaze%BGLit_g       = 0
+  blaze%CPLANT_g      = 0
+  blaze%CPLANT_w      = 0
+  blaze%AvgAnnRAINF   = 0
+  blaze%FLUXES        = 0
 
 end subroutine zero_blaze
 
@@ -344,16 +363,17 @@ SUBROUTINE BLAZE_ACCOUNTING(BLAZE, climate,  ktau, dels, year, doy)
 
 END SUBROUTINE BLAZE_ACCOUNTING
 
-FUNCTION AVAIL_FUEL(FLIx, CPLANT_w, CPLANT_g, AGL_w, AGL_g)
+FUNCTION AVAIL_FUEL(FLIx, CPLANT_w, CPLANT_g, AGL_w, AGL_g, K_TUNE_LITTER)
 
   IMPLICIT NONE
 
   INTEGER, INTENT(IN)               :: FLIx
+  REAL, INTENT(IN)                  :: K_TUNE_LITTER
   REAL, DIMENSION(3), INTENT(IN)    :: CPLANT_w, CPLANT_g, AGL_w, AGL_g
   REAL                              :: AVAIL_FUEL
 
   AVAIL_FUEL = TOF(FLIx, 3) * fbark  * CPLANT_w(WOOD)             + &
-               TOF(FLIx,10)          * AGL_w(CWD)                 + &
+               TOF(FLIx,10)          * AGL_w(CWD) * K_TUNE_LITTER + &
                TOF(FLIx,12)          * (AGL_w(METB) + AGL_w(STR)) + &
                TOF(FLIx, 9)          * CPLANT_w(FROOT)            + &
                CPLANT_g(LEAF) + AGL_g(METB) + AGL_g(STR)
@@ -636,7 +656,8 @@ SUBROUTINE COMBUST (BLAZE, np, CPLANT_g, CPLANT_w, TO, BURN )
   ! Factor 0.6 / 0.5  taken from fires < 750 kW/m of Suravski et al. 2012
   FLIx = 1
 
-  w = AVAIL_FUEL(FLIx, CPLANT_w, CPLANT_g, BLAZE%AGLit_w(np,:), BLAZE%AGLit_g(np,:) )
+  w = AVAIL_FUEL(FLIx, CPLANT_w, CPLANT_g, BLAZE%AGLit_w(np,:), BLAZE%AGLit_g(np,:), &
+       BLAZE%K_TUNE_LITTER(np))
 
   BLAZE%w_prior(np) = w
 
@@ -677,7 +698,8 @@ SUBROUTINE COMBUST (BLAZE, np, CPLANT_g, CPLANT_w, TO, BURN )
      ENDIF
      ! End here if available fuel doesn't get you into next regime
      IF ( i .GE. FLIx ) EXIT
-     w = AVAIL_FUEL(FLIx, CPLANT_w, CPLANT_g, BLAZE%AGLit_w(np,:), BLAZE%AGLit_g(np,:) )
+     w = AVAIL_FUEL(FLIx, CPLANT_w, CPLANT_g, BLAZE%AGLit_w(np,:), BLAZE%AGLit_g(np,:), &
+          BLAZE%K_TUNE_LITTER(np) )
   END DO
 
   BLAZE%FLIX(np) = flix
@@ -806,7 +828,8 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
      CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB , climate)
 
      DO np = 1, BLAZE%NCELLS
-        IF ( AVAIL_FUEL(1, CPLANT_w(np,:), CPLANT_g(np,:),BLAZE%AGLit_w(np,:),BLAZE%AGLit_g(np,:) ) .LE. MIN_FUEL ) &
+        IF ( AVAIL_FUEL(1, CPLANT_w(np,:), CPLANT_g(np,:),BLAZE%AGLit_w(np,:), &
+             BLAZE%AGLit_g(np,:),BLAZE%K_TUNE_LITTER(np)) .LE. MIN_FUEL ) &
              BLAZE%AB(np) = 0.
      END DO
      popd = SF%POPD

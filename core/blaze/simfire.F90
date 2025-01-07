@@ -130,7 +130,7 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
      ELSE
         SF%BIOME(i) = IGBP2BIOME(SF%IGBP(i),1)
      ENDIF
-
+     
      !WRITE(*,FMT='(A5,I2,A17,I1,(1X,F7.2))')"IGBP ",SF%IGBP(i)," -> SIMFIREBIOME ", &
      !     SF%BIOME(i),SF%LAT(i), SF%LON(i)
 
