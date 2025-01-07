@@ -11,20 +11,17 @@ SUBROUTINE Surf_wetness_fact( cansat, canopy, ssnow,veg, met, soil, dels )
 
 USE cable_common_module
 USE cable_def_types_mod
-! data                  
-USE cable_surface_types_mod,  ONLY: lakes_cable
-USE cable_phys_constants_mod, ONLY: CTFRZ => TFRZ
+! data
+USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
 
 !H!USE cable_gw_hydro_module, ONLY : calc_srf_wet_fraction
+USE cable_init_wetfac_mod, ONLY: initialize_wetfac
 
-
-use cable_init_wetfac_mod, ONLY: initialize_wetfac
-
-TYPE (veg_parameter_type), INTENT(INOUT)    :: veg
-TYPE (soil_snow_type), INTENT(inout):: ssnow
-TYPE (soil_parameter_type), INTENT(inout)   :: soil
-TYPE (canopy_type), INTENT(INOUT)   :: canopy
-TYPE (met_type), INTENT(INOUT)   :: met
+TYPE (veg_parameter_type),  INTENT(INOUT) :: veg
+TYPE (soil_snow_type),      INTENT(INOUT) :: ssnow
+TYPE (soil_parameter_type), INTENT(INOUT) :: soil
+TYPE (canopy_type),         INTENT(INOUT) :: canopy
+TYPE (met_type),            INTENT(INOUT) :: met
 
 REAL, INTENT(IN) :: dels ! integration time setp (s)
 
@@ -71,17 +68,15 @@ INTEGER :: j, i
     !originally code in canopy used 1e-6 as MIN
     CALL initialize_wetfac( mp, ssnow%wetfac, soil%swilt, soil%sfc,            &
                             ssnow%wb(:,1), ssnow%wbice(:,1), ssnow%snowd,      &
-                            veg%iveg, met%tk, Ctfrz )
+                            veg%iveg, met%tk, Ctfrz ) 
    
     ! owetfac introduced to reduce sharp changes in dry regions,
     ! especially in offline runs in which there may be discrepancies b/n
     ! timing of precip and temperature change (EAK apr2009)
     ssnow%wetfac = 0.5*(ssnow%wetfac + ssnow%owetfac)
 
-
-
-
-  END SUBROUTINE Surf_wetness_fact
+RETURN
+END SUBROUTINE Surf_wetness_fact
 
 
 END MODULE cbl_SurfaceWetness_module

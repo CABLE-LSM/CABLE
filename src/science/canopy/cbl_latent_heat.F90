@@ -53,6 +53,8 @@ SUBROUTINE Latent_heat_flux( mp, CTFRZ, dels, soil_zse, soil_swilt,           &
 
 
 USE cable_def_types_mod,      ONLY : r_2
+USE cable_common_module,      ONLY : frozen_limit
+USE cable_phys_constants_mod, ONLY : density_liq
 
 IMPLICIT NONE
 
@@ -171,7 +173,7 @@ canopy_fess = canopy_fess * (1.-pwet)
 ! frescale is a factor used to convert an amount of water (in m3/m3)
 ! in the surface layer of the soil into a limit on the soil latent heat flux.
 ! 1000 is the density of water in kg/m3
-frescale = soil_zse * 1000. * air_rlam / dels
+frescale = soil_zse * density_liq * air_rlam / dels
 
 !| 3. (the main loop) The value for \(c_{ls}\) and additional limits
 ! on the latent heat flux(es) are applied, according to which of the four cases
@@ -208,8 +210,9 @@ DO j=1,mp
 !        frozen_limit=0.85.  This provides a second upper limit on the evaporation and
 !        soil latent flux. **WARNING** frozen_limit=0.85 is hard coded - if it is changed
 !        then the corresponding limit in [[cbl_soilsnow]] must also be changed.
-!
-     fupper_limit(j) = REAL(ssnow_wb(j)-ssnow_wbice(j)/0.85)*frescale(j)
+
+     fupper_limit(j) = REAL(ssnow_wb(j)-ssnow_wbice(j)/frozen_limit)*frescale(j)
+     
      fupper_limit(j) = MAX(REAL(fupper_limit(j),r_2),0.)
 
      canopy_fess(j) = MIN(canopy_fess(j), REAL(fupper_limit(j),r_2))
