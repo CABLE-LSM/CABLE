@@ -29,8 +29,8 @@ USE cbl_qsat_module, ONLY: qsatfjh, qsatfjh2
   TYPE(soil_snow_type),  INTENT(INOUT) :: ssnow
   TYPE (veg_parameter_type), INTENT(INOUT)    :: veg
 
-  REAL,  INTENT(INOUT)  :: qstvair(mp)        ! sat spec humidity at leaf temperature
   INTEGER, INTENT(IN) :: mp
+  REAL,  INTENT(INOUT)  :: qstvair(mp)        ! sat spec humidity at leaf temperature
   REAL, INTENT(IN) :: CRMH2o, Crmair, CTETENA, CTETENB, CTETENC
   REAL, INTENT(IN) :: CLAI_thresh, CCAPP, CTFRZ
 

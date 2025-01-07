@@ -6,17 +6,17 @@ MODULE cable_canopy_module
   PRIVATE
 
 CONTAINS
- 
+
 SUBROUTINE define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate, sunlit_veg_mask, reducedLAIdue2snow )
 ! subrs
 USE cbl_radiation_module, ONLY : radiation
-USE cbl_friction_vel_module,    ONLY : comp_friction_vel, psim, psis
-USE cbl_pot_evap_snow_module,   ONLY : Penman_Monteith, Humidity_deficit_method
-USE cbl_qsat_module,            ONLY : qsatfjh,  qsatfjh2
-USE cbl_zetar_module,           ONLY : update_zetar
-USE cable_latent_heat_module,   ONLY : latent_heat_flux
-USE cable_wetleaf_module,       ONLY : wetleaf 
-USE cbl_dryLeaf_module,         ONLY : dryLeaf
+USE cbl_friction_vel_module,  ONLY : comp_friction_vel, psim, psis
+USE cbl_pot_evap_snow_module, ONLY : Penman_Monteith, Humidity_deficit_method
+USE cbl_qsat_module,          ONLY : qsatfjh,  qsatfjh2
+USE cbl_zetar_module,         ONLY : update_zetar
+USE cable_latent_heat_module, ONLY : latent_heat_flux
+USE cable_wetleaf_module,     ONLY : wetleaf 
+USE cbl_dryLeaf_module,       ONLY : dryLeaf
 USE cable_within_canopy_module, ONLY : within_canopy
 USE cbl_SurfaceWetness_module,  ONLY : Surf_wetness_fact
 
@@ -232,7 +232,7 @@ canopy%cansto =  canopy%oldcansto
     canopy%fhs_cor = 0.0
     canopy%fns_cor = 0.0
     canopy%ga_cor = 0.0
-    canopy%fes_cor = 0.0
+    !!canopy%fes_cor = 0.0
 
     !L_REV_CORR - new working variables
     rttsoil = 0.
@@ -409,7 +409,7 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
       CALL wetLeaf( dels, cansat, tlfy, gbhu, gbhf, ghwet, mp, CLAI_thresh,    &
                     CCAPP, CRmair, reducedLAIdue2snow, sum_rad_rniso,          &
                     sum_rad_gradis, canopy%fevw, canopy%fevw_pot, canopy%fhvw, & 
-                    canopy%fwet, canopy%cansto, air%rlam, air%dsatdk,          &
+                    canopy%fwet, canopy%cansto, air%rlam, air%dsatdk, &
                     met%tvair, met%tk, met%dva, air%psyc )
 
        ! Calculate latent heat from vegetation:
@@ -420,7 +420,7 @@ CALL radiation( ssnow, veg, air, met, rad, canopy, sunlit_veg_mask, &
        canopy%fhv = REAL(ftemp)
        ftemp= (1.0-canopy%fwet)*REAL(rny)+canopy%fevw+canopy%fhvw
        canopy%fnv = REAL(ftemp)
-
+  
        ! canopy rad. temperature calc from long-wave rad. balance
        DO j=1,mp
 
@@ -883,14 +883,14 @@ canopy%gswx_T(:)    = Surf_conductance(:)               !fill CABLE type for now
 
     ! Calculate dewfall: from negative lh wet canopy + neg. lh dry canopy:
     canopy%dewmm = - (MIN(0.0,canopy%fevw) + MIN(0.0_r_2,canopy%fevc)) * &
-         dels * 1.0e3 / (CRHOW*air%rlam)
+         dels / air%rlam
 
     ! Add dewfall to canopy water storage:
     canopy%cansto = canopy%cansto + canopy%dewmm
 
     ! Modify canopy water storage for evaporation:
     canopy%cansto = MAX(canopy%cansto-MAX(0.0,REAL(canopy%fevw))*dels &
-         *1.0e3/(CRHOW*air%rlam), 0.0)
+         /air%rlam, 0.0)
 
     ! Calculate canopy water storage excess:
     canopy%spill=MAX(0.0, canopy%cansto-cansat)
