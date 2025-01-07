@@ -84,7 +84,7 @@ USE grid_constants_mod_cbl, ONLY: ICE_SoilType
     TYPE (veg_parameter_type), INTENT(INOUT)    :: veg
 
 REAL :: reducedLAIdue2snow(mp)
-logical :: sunlit_veg_mask(mp) 
+LOGICAL :: sunlit_veg_mask(mp) 
     REAL, INTENT(IN)               :: dels ! integration time setp (s)
     INTEGER  ::                                                                 &
          iter,  & ! iteration #
