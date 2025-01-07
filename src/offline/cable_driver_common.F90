@@ -332,9 +332,11 @@ CONTAINS
   END SUBROUTINE cable_driver_init_cru
 
   SUBROUTINE prepareFiles(ncciy)
+    !* Select the correct files given the year for filenames following the gswp format
+    
     USE cable_IO_vars_module, ONLY: logn,gswpfile
     IMPLICIT NONE
-    INTEGER, INTENT(IN) :: ncciy
+    INTEGER, INTENT(IN) :: ncciy !! Year to select met. forcing data.
 
     WRITE(logn,*) 'CABLE offline global run using gswp forcing for ', ncciy
     PRINT *,      'CABLE offline global run using gswp forcing for ', ncciy
@@ -351,8 +353,11 @@ CONTAINS
   END SUBROUTINE prepareFiles
 
   SUBROUTINE renameFiles(logn,inFile,ncciy,inName)
+    !! Replace the year in the filename with the value of ncciy.
+
     IMPLICIT NONE
-    INTEGER, INTENT(IN) :: logn,ncciy
+    INTEGER, INTENT(IN) :: logn !! Log file unit number
+    INTEGER, INTENT(IN) :: ncciy !! Year to use in replacement in filenames
     INTEGER:: nn
     CHARACTER(LEN=200), INTENT(INOUT) :: inFile
     CHARACTER(LEN=*),  INTENT(IN)    :: inName
@@ -366,11 +371,11 @@ CONTAINS
   END SUBROUTINE renameFiles
 
   !==============================================================================
-  ! subroutine for reading LU input data, zeroing biomass in empty secondary forest tiles
-  ! and tranferring LUC-based age weights for secondary forest to POP structure
+  ! subroutine for 
   SUBROUTINE LUCdriver( casabiome,casapool, &
     casaflux,POP,LUC_EXPT, POPLUC, veg )
-
+      !* Reading LU input data, zeroing biomass in empty secondary forest tiles
+      ! and tranferring LUC-based age weights for secondary forest to POP structure
     USE cable_def_types_mod , ONLY: veg_parameter_type, mland
     USE cable_carbon_module
     USE cable_common_module, ONLY: CABLE_USER, CurYear

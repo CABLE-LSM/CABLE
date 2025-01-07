@@ -4,7 +4,13 @@
 PROGRAM cable_offline_driver
   USE iso_fortran_env, ONLY : error_unit
   USE cable_mpi_mod, ONLY : mpi_grp_t, mpi_mod_init, mpi_mod_end
-  USE cable_driver_common_mod
+  USE cable_driver_common_mod, ONLY: &
+      cable_driver_init,             &
+      cable_driver_init_gswp,        &
+      cable_driver_init_plume,       &
+      cable_driver_init_cru,         &
+      cable_driver_init_site,        &
+      cable_driver_init_default
   USE cable_serial
   USE cable_mpimaster
   USE cable_mpiworker

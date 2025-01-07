@@ -342,7 +342,7 @@ CONTAINS
         CurYear = YYYY
 
         !ccc Set calendar attribute: dependant on the value of `leaps`
-        ! that is set in the MetType if conditions above.
+        ! dependant on the MetType and set during initialisation.
         calendar = "noleap"
         LOY = 365
         IF ( leaps ) THEN
