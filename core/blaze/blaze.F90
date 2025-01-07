@@ -74,15 +74,29 @@ REAL, DIMENSION(5,12),PARAMETER   ::   &
 !CLN              .7 , .75, .8, .8 , .8 , &  ! 10 Deadwood    -> ATM
 !CLN              .9 , .95, .95, 1. , 1. , &  ! 11 Bark Litter -> ATM
 !CLN              .9 , .95, .95, 1. , 1. /)   ! 12 Leaf Litter -> ATM
+
+!CLN BELOW CONVERTED TO INPUT PARAMETERS READ FROM blaze.nml
+!CLN! Tuning factors for litter ready for combustion
+!CLN! Boreal
+!CLNREAL, PARAMETER ::  K_LITTER_BOREAL    = 0.38;
+!CLN! Temperate region
+!CLNREAL, PARAMETER ::  K_LITTER_TEMPERATE = 0.0025;
+!CLN! Tropics
+!CLNREAL, PARAMETER ::  K_LITTER_TROPICS   = 0.15;
+!CLN! Savanna
+!CLNREAL, PARAMETER ::  K_LITTER_SAVANNA   = 0.75 ;
+
+!CLNREAL, PARAMETER :: MIN_FUEL = 120. ! Min fuel to spark a fire [g(C)/m2]
+
 ! Tuning factors for litter ready for combustion
 ! Boreal
-REAL, PARAMETER ::  K_LITTER_BOREAL    = 0.38;
+REAL ::  K_LITTER_BOREAL    = 0.38;
 ! Temperate region
-REAL, PARAMETER ::  K_LITTER_TEMPERATE = 0.0025;
-// Tropics
-REAL, PARAMETER ::  K_LITTER_TROPICS   = 0.15;
-// Savanna
-REAL, PARAMETER ::  K_LITTER_SAVANNA   = 0.75 ;
+REAL ::  K_LITTER_TEMPERATE = 0.0025;
+! Tropics
+REAL ::  K_LITTER_TROPICS   = 0.15;
+! Savanna
+REAL ::  K_LITTER_SAVANNA   = 0.75 ;
 
 !CLN// Grassy vegetation burn-rate for cohort and individual mode
 !CLNconst double MAX_GRASS_BURN = 0.75;
@@ -92,7 +106,7 @@ REAL, PARAMETER ::  K_LITTER_SAVANNA   = 0.75 ;
 !CLN// fraction of life woody biomass that is bark
 !CLNconst double F_BARK     = 0.01;
 
-REAL, PARAMETER :: MIN_FUEL = 120. ! Min fuel to spark a fire [g(C)/m2]
+REAL :: MIN_FUEL = 120. ! Min fuel to spark a fire [g(C)/m2]
 
 
 CONTAINS
@@ -114,7 +128,8 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
 
   !CLNNAMELIST /BLAZENML/ HydePath,  BurnedAreaSource, BurnedAreaFile, BurnedAreaClimatologyFile, &
   !CLN     SIMFIRE_REGION
-  NAMELIST /BLAZENML/ blazeTStep,  BurnedAreaSource, BurnedAreaFile, OutputMode
+  NAMELIST /BLAZENML/ blazeTStep,  BurnedAreaSource, BurnedAreaFile, OutputMode, &
+       K_LITTER_BOREAL, K_LITTER_TEMPERATE, K_LITTER_SAVANNA, K_LITTER_TROICS, MIN_FUEL
        
   ! READ BLAZE settings
   CALL GET_UNIT(iu)
