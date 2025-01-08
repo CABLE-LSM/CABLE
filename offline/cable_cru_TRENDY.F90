@@ -635,7 +635,7 @@ SUBROUTINE get_met_date(SimYear, SimDay, IsRecycled, RecycleStart,&
     WRITE(ERROR_UNIT,*) "Looking too far into the past/future. "//&
       "The get_met_date routine was only intended for nearby temporal "//&
       "searching, not more than a year in the future/past."
-    CALL EXIT(5)
+    STOP 5
   ELSEIF (SimDay < 1) THEN
     ! Go back to last year- set the day later, once we know whether the MetYear
     ! is a leapyear or not
@@ -1062,7 +1062,7 @@ SUBROUTINE prepare_temporal_dataset(FileName, TargetArray)
   OPEN(NEWUNIT=FileID, FILE = FileName, STATUS = "old", ACTION = "read", IOSTAT = ios)
   IF (ios < 0) THEN
     WRITE(ERROR_UNIT,*) "Open of temporal dataset file failed with status:", ios
-    CALL EXIT(5)
+    STOP 5
   END IF
 
   LineCounter = 0
