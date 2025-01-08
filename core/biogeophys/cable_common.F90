@@ -736,9 +736,9 @@ CONTAINS
 
     IF (ios /= 0) THEN
       ! Read of namelist failed
-      WRITE(ERROR_UNIT, FMT='(A)') ioMessage
+      WRITE(ERROR_UNIT, FMT='(I8,A)') ios, ioMessage
 
-      STOP ios
+      STOP
     END IF
 
   END SUBROUTINE handle_iostat
@@ -937,9 +937,6 @@ CONTAINS
   ! get svn revision number and status
   SUBROUTINE report_version_no( logn )
 
-#ifdef __NAG__
-    USE F90_UNIX_ENV, only: getenv
-#endif
     INTEGER, INTENT(IN) :: logn
     ! set from environment variable $HOME
     CHARACTER(LEN=200) ::                                                       &
@@ -952,7 +949,7 @@ CONTAINS
 
     INTEGER :: revunit
 
-    CALL getenv("HOME", myhome)
+    CALL get_environment_variable("HOME", myhome)
     fcablerev = TRIM(myhome)//TRIM("/.cable_rev")
 
     OPEN(NEWUNIT=revunit, FILE=TRIM(fcablerev), STATUS='old', ACTION='READ', IOSTAT=ioerror)

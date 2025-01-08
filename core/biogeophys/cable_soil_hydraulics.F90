@@ -237,7 +237,7 @@ CONTAINS
          ! The bounding here can be considered as a physical disconnection of the
          ! roots from the soil.
 
-         ssnow%psi_soil(i,j) = psi_sat * MAX(1.E-9, MIN(1.0, ssnow%wb(i,j) / &
+         ssnow%psi_soil(i,j) = psi_sat * MAX(1.E-9, MIN(1.0, real(ssnow%wb(i,j)) / &
             soil%ssat(i))) ** (-soil%bch(i))
 
          ! bound psi_soil by the wilting point in upper soil layers

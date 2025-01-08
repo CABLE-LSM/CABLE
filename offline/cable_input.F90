@@ -3019,7 +3019,7 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
   ! Check that both occurrences were found- this triggers if either remain 0
   IF ((IndxStartDate == 0) .OR. (IndxEndDate == 0)) THEN
     write(*,*) "File for "//CurrentFile//" does not match the template."
-    CALL EXIT(5)
+    STOP 5
   END IF
 
   ! Now we go and replace the <startdate> and <enddate> strings with "*" so
@@ -3061,7 +3061,7 @@ SUBROUTINE prepare_spatiotemporal_dataset(FileTemplate, Dataset)
       EXIT CountFiles
     ELSEIF (ios /= 0) THEN
       ! Read failed for some other reason
-      CALL EXIT(5)
+      STOP 5
     END IF
     ! Otherwise, we read a line, so increase the counter
     FileCounter = FileCounter + 1

@@ -1447,7 +1447,7 @@ CONTAINS
           veg%convex(h)   = vegin%convex(veg%iveg(h))
           ! Alexis, adding gamma
           veg%gamma(h)    = real(vegin%gamma(veg%iveg(h)),r_2)
-          print *,'veg gamma in haverd2013 fwsoil: ', veg%gamma(:) 
+          ! print *,'veg gamma in haverd2013 fwsoil: ', veg%gamma(:) 
           veg%cfrd(h)     = vegin%cfrd(veg%iveg(h))
           veg%gswmin(h)   = vegin%gswmin(veg%iveg(h))
           veg%conkc0(h)   = vegin%conkc0(veg%iveg(h))
@@ -1822,8 +1822,8 @@ CONTAINS
 
       IF (veg%b_plant(1) < 1.E-3 .AND. veg%c_plant(1) < 1.E-3) THEN
 
-         PRINT *, "/!\ The hydraulics parameters are not supplied, so the profitmax will crash /!\"
-         write(logn,*),'The hydraulics parameters are not supplied, so the profitmax will crash'
+         write(*, *) "/!\ The hydraulics parameters are not supplied, so profitmax will crash /!\"
+         write(logn,*) 'The hydraulics parameters are not supplied, so profitmax will crash'
          close(logn)
 
 

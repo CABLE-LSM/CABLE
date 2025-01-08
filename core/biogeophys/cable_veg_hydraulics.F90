@@ -515,7 +515,7 @@ CONTAINS
       ! local variables
       REAL, DIMENSION( SIZE(psi) ) :: weibull
 
-      weibull = min(1., max(1E-9, exp(-(-psi / b_plant)**c_plant)))
+      weibull = min(1., max(1E-9, real(exp(-(-psi / b_plant)**c_plant))))
 
    END FUNCTION get_xylem_vulnerabilityx
 ! ------------------------------------------------------------------------------
@@ -537,7 +537,7 @@ CONTAINS
       ! local variables
       REAL :: weibull
 
-      weibull = min(1., max(1E-9, exp(-(-psi / b_plant)**c_plant)))
+      weibull = min(1., max(1E-9, real(exp(-(-psi / b_plant)**c_plant))))
 
    END FUNCTION get_xylem_vulnerability
 ! ------------------------------------------------------------------------------
