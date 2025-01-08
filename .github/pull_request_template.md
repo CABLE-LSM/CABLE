@@ -23,8 +23,11 @@ Please delete options that are not relevant.
 - [ ] The new content is accessible and located in the appropriate section
 - [ ] I have checked that links are valid and point to the intended content
 - [ ] I have checked my code/text and corrected any misspellings
-- [ ] I have included relevant test results (i.e. benchcab outputs or path to readable logs) to ensure that the code compiles, runs and is bitwise compatible to the main branch*
 
-**Unless a a change in outputs is expected, in which case add someone with relevant scientific expertise as a reviewer*
+## Testing
+
+- [ ] Are the changes bitwise-compatible with the main branch? If working on an optional feature, are the results bitwise-compatible when this feature is off? If yes, copy benchcab output showing successful completion of the bitwise compatibility tests or equivalent results below this line.
+
+- [ ] Are the changes non bitwise-compatible with the main branch because of a bug fix or a feature being newly implemented or improved? If yes, add the link to the modelevaluation.org analysis versus the main branch or equivalent results below this line.
 
 Please add a reviewer when ready for review.
