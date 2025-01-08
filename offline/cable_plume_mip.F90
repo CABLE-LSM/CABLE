@@ -2,7 +2,7 @@ MODULE CABLE_PLUME_MIP
 
   USE netcdf
   USE CABLE_COMMON_MODULE, ONLY: IS_LEAPYEAR, LEAP_DAY, &
-       HANDLE_ERR, get_unit
+       HANDLE_ERR, get_unit, handle_iostat
 
   USE cable_IO_vars_module, ONLY: logn, land_x, land_y
 
@@ -85,14 +85,18 @@ CONTAINS
     REAL,DIMENSION(:)  ,ALLOCATABLE :: plume_lats, plume_lons
     INTEGER,DIMENSION(:,:),ALLOCATABLE :: landmask
 
+    ! I/O checker
+    INTEGER :: ios
+    CHARACTER(LEN=200) :: ioMessage
+
     namelist /plumenml/ BasePath, LandMaskFile, Run, Forcing, RCP, CO2, CO2file, &
          NDEP, NdepFILE, DT, DirectRead
 
     ! Read PLUME settings
 
-    call get_unit(iu)
-    open(iu, file="plume.nml", status='old', action='read')
-    read(iu, nml=plumenml)
+    open(NEWUNIT=iu, file="plume.nml", status='old', action='read')
+    read(iu, nml=plumenml, IOSTAT=ios, IOMSG=ioMessage)
+    CALL handle_iostat(ios, ioMessage)
     close(iu)
 
     PLUME%BasePath     = BasePath

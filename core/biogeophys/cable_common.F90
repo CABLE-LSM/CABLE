@@ -24,12 +24,22 @@
 
 MODULE cable_common_module
 
+  USE iso_fortran_env,ONLY: ERROR_UNIT, OUTPUT_UNIT  
+  USE NetCDF,         ONLY: NF90_INQ_DIMID, NF90_NOERR, NF90_EBADDIM
   IMPLICIT NONE
 
   !---allows reference to "gl"obal timestep in run (from atm_step)
   !---total number of timesteps, and processing node
   INTEGER, SAVE :: ktau_gl, kend_gl, knode_gl, kwidth_gl
   INTEGER, SAVE :: CurYear  ! current year of multiannual run
+
+  ! Dimension name lists for searching NetCDF dimensions IDs
+  CHARACTER(LEN=*), DIMENSION(*), PARAMETER :: LatNames = &
+    [CHARACTER(LEN=8) :: "latitude", "lat", "lats", "y", "Latitude"]
+  CHARACTER(LEN=*), DIMENSION(*), PARAMETER :: LonNames = &
+    [CHARACTER(LEN=9) :: "longitude", "lon", "lons", "x", "Longitude"]
+  CHARACTER(LEN=*), DIMENSION(*), PARAMETER :: TimeNames = &
+    [CHARACTER(LEN=4) :: "time", "t", "Time"]
 
   ! user switches turned on/off by the user thru namelists
 
@@ -334,8 +344,9 @@ CONTAINS
     integer :: ierr
 #endif
 
+    INTEGER :: vegunit, soilunit
     !================= Read in vegetation type specifications: ============
-    OPEN(40, FILE=trim(filename%veg), STATUS='old', ACTION='READ', IOSTAT=ioerror)
+    OPEN(NEWUNIT=vegunit, FILE=trim(filename%veg), STATUS='old', ACTION='READ', IOSTAT=ioerror)
 
     IF(ioerror/=0) then
        write(*,*) 'CABLE_log: Cannot open veg type definitions.'
@@ -348,17 +359,17 @@ CONTAINS
 
     IF (vegparmnew) THEN
        ! assume using IGBP/CSIRO vegetation types
-       READ(40,*) comments
-       READ(40,*) mvtype
+       READ(vegunit,*) comments
+       READ(vegunit,*) mvtype
        IF (present(classification)) WRITE(classification,'(a4)') comments(1:4)
     ELSE
        ! assume using CASA vegetation types
        !classification = 'CASA'
-       READ(40,*)
-       READ(40,*)
-       READ(40,*) mvtype ! read # vegetation types
-       READ(40,*)
-       READ(40,*)
+       READ(vegunit,*)
+       READ(vegunit,*)
+       READ(vegunit,*) mvtype ! read # vegetation types
+       READ(vegunit,*)
+       READ(vegunit,*)
        comments = 'CASA'
     END IF
 
@@ -404,9 +415,8 @@ CONTAINS
 
        ! Read in parameter values for each vegetation type:
        DO a = 1,mvtype
-         WRITE(logn, *) 'type No.',a
-        
-          READ(40,*) jveg, vegtypetmp, vegnametmp
+          WRITE(logn, *) 'type No.', a
+          READ(vegunit,*) jveg, vegtypetmp, vegnametmp
 
           IF ( jveg .GT. mvtype ) then
              write(*,*) 'jveg out of range in parameter file'
@@ -419,83 +429,88 @@ CONTAINS
 
           veg_desc(jveg) = vegnametmp
 
-          READ(40,*) vegin%hc(jveg), vegin%xfang(jveg), vegin%width(jveg),   &
+          READ(vegunit,*) vegin%hc(jveg), vegin%xfang(jveg), vegin%width(jveg),   &
                vegin%length(jveg), vegin%frac4(jveg)
           ! only refl(1:2) and taul(1:2) used
-          READ(40,*) vegin%refl(1:3,jveg) ! rhowood not used ! BP may2011
-          READ(40,*) vegin%taul(1:3,jveg) ! tauwood not used ! BP may2011
-          READ(40,*) notused, notused, notused, vegin%xalbnir(jveg)
-          READ(40,*) notused, vegin%wai(jveg), vegin%canst1(jveg),           &
+          READ(vegunit,*) vegin%refl(1:3,jveg) ! rhowood not used ! BP may2011
+          READ(vegunit,*) vegin%taul(1:3,jveg) ! tauwood not used ! BP may2011
+          READ(vegunit,*) notused, notused, notused, vegin%xalbnir(jveg)
+          READ(vegunit,*) notused, vegin%wai(jveg), vegin%canst1(jveg),           &
                vegin%shelrb(jveg), vegin%vegcf(jveg), vegin%extkn(jveg)
 
-          READ(40,*) vegin%vcmax(jveg), vegin%rp20(jveg),                    &
+          READ(vegunit,*) vegin%vcmax(jveg), vegin%rp20(jveg),                    &
                vegin%rpcoef(jveg),                                     &
                vegin%rs20(jveg)
-          READ(40,*) vegin%tminvj(jveg), vegin%tmaxvj(jveg),                 &
+          READ(vegunit,*) vegin%tminvj(jveg), vegin%tmaxvj(jveg),                 &
                vegin%vbeta(jveg), vegin%rootbeta(jveg),                      &
                vegin%zr(jveg), vegin%clitt(jveg)
-          READ(40,*) vegin%cplant(1:3,jveg), vegin%csoil(1:2,jveg)
+          READ(vegunit,*) vegin%cplant(1:3,jveg), vegin%csoil(1:2,jveg)
           ! rates not currently set to vary with veg type
-          READ(40,*) vegin%ratecp(1:3,jveg), vegin%ratecs(1:2,jveg)
-          READ(40,*) vegin%a1gs(jveg), vegin%d0gs(jveg), vegin%alpha(jveg), vegin%convex(jveg), vegin%cfrd(jveg)
-          READ(40,*) vegin%gswmin(jveg), vegin%conkc0(jveg), vegin%conko0(jveg), vegin%ekc(jveg), vegin%eko(jveg)
-          READ(40,*) vegin%g0(jveg), vegin%g1(jveg),vegin%g1tuzet(jveg)      ! Ticket #56
-          READ(40,*) vegin%gamma(jveg), vegin%gmmax(jveg)
-          READ(40,*) vegin%kmax(jveg), vegin%PLCcrit(jveg)
-          READ(40,*) vegin%P50(jveg), vegin%P88dP50(jveg)
-          READ(40,*) vegin%g2(jveg), vegin%g3(jveg), vegin%psi_ref(jveg), vegin%vcmax_scalar(jveg)
+          READ(vegunit,*) vegin%ratecp(1:3,jveg), vegin%ratecs(1:2,jveg)
+          READ(vegunit,*) vegin%a1gs(jveg), vegin%d0gs(jveg), vegin%alpha(jveg), &
+               vegin%convex(jveg), vegin%cfrd(jveg)
+          READ(vegunit,*) vegin%gswmin(jveg), vegin%conkc0(jveg), vegin%conko0(jveg), &
+               vegin%ekc(jveg), vegin%eko(jveg)
+          ! added g1tuzet in config file
+          READ(vegunit,*) vegin%g0(jveg), vegin%g1(jveg), vegin%g1tuzet(jveg) ! Ticket #56
+          READ(vegunit,*) vegin%gamma(jveg), vegin%gmmax(jveg)
+          ! added plant hydraulic parameters in config file
+          READ(vegunit,*) vegin%kmax(jveg), vegin%PLCcrit(jveg)
+          READ(vegunit,*) vegin%P50(jveg), vegin%P88dP50(jveg)
+          READ(vegunit,*) vegin%g2(jveg), vegin%g3(jveg), vegin%psi_ref(jveg), &
+               vegin%vcmax_scalar(jveg)
        END DO
 
     ELSE
 
        DO a = 1,mvtype
-          READ(40,'(8X,A70)') veg_desc(a) ! Read description of each veg type
+          READ(vegunit,'(8X,A70)') veg_desc(a) ! Read description of each veg type
        END DO
 
-       READ(40,*); READ(40,*)
-       READ(40,*) vegin%canst1
-       READ(40,*) vegin%width
-       READ(40,*) vegin%length
-       READ(40,*) vegin%vcmax
-       READ(40,*) vegin%hc
-       READ(40,*) vegin%xfang
-       READ(40,*) vegin%rp20
-       READ(40,*) vegin%rpcoef
-       READ(40,*) vegin%rs20
-       READ(40,*) vegin%shelrb
-       READ(40,*) vegin%frac4
-       READ(40,*) vegin%wai
-       READ(40,*) vegin%vegcf
-       READ(40,*) vegin%extkn
-       READ(40,*) vegin%tminvj
-       READ(40,*) vegin%tmaxvj
-       READ(40,*) vegin%vbeta
-       READ(40,*) vegin%xalbnir
-       READ(40,*) vegin%rootbeta
-       READ(40,*) vegin%cplant(1,:)
-       READ(40,*) vegin%cplant(2,:)
-       READ(40,*) vegin%cplant(3,:)
-       READ(40,*) vegin%csoil(1,:)
-       READ(40,*) vegin%csoil(2,:)
-       READ(40,*)
-       READ(40,*) vegin%ratecp(:,1)
-       READ(40,*) vegin%a1gs
-       READ(40,*) vegin%d0gs
-       READ(40,*) vegin%alpha
-       READ(40,*) vegin%convex
-       READ(40,*) vegin%cfrd
-       READ(40,*) vegin%gswmin
-       READ(40,*) vegin%conkc0
-       READ(40,*) vegin%conko0
-       READ(40,*) vegin%ekc
-       READ(40,*) vegin%eko
+       READ(vegunit,*); READ(vegunit,*)
+       READ(vegunit,*) vegin%canst1
+       READ(vegunit,*) vegin%width
+       READ(vegunit,*) vegin%length
+       READ(vegunit,*) vegin%vcmax
+       READ(vegunit,*) vegin%hc
+       READ(vegunit,*) vegin%xfang
+       READ(vegunit,*) vegin%rp20
+       READ(vegunit,*) vegin%rpcoef
+       READ(vegunit,*) vegin%rs20
+       READ(vegunit,*) vegin%shelrb
+       READ(vegunit,*) vegin%frac4
+       READ(vegunit,*) vegin%wai
+       READ(vegunit,*) vegin%vegcf
+       READ(vegunit,*) vegin%extkn
+       READ(vegunit,*) vegin%tminvj
+       READ(vegunit,*) vegin%tmaxvj
+       READ(vegunit,*) vegin%vbeta
+       READ(vegunit,*) vegin%xalbnir
+       READ(vegunit,*) vegin%rootbeta
+       READ(vegunit,*) vegin%cplant(1,:)
+       READ(vegunit,*) vegin%cplant(2,:)
+       READ(vegunit,*) vegin%cplant(3,:)
+       READ(vegunit,*) vegin%csoil(1,:)
+       READ(vegunit,*) vegin%csoil(2,:)
+       READ(vegunit,*)
+       READ(vegunit,*) vegin%ratecp(:,1)
+       READ(vegunit,*) vegin%a1gs
+       READ(vegunit,*) vegin%d0gs
+       READ(vegunit,*) vegin%alpha
+       READ(vegunit,*) vegin%convex
+       READ(vegunit,*) vegin%cfrd
+       READ(vegunit,*) vegin%gswmin
+       READ(vegunit,*) vegin%conkc0
+       READ(vegunit,*) vegin%conko0
+       READ(vegunit,*) vegin%ekc
+       READ(vegunit,*) vegin%eko
 
        ! Set ratecp to be the same for all veg types:
        vegin%ratecp(1,:)=vegin%ratecp(1,1)
        vegin%ratecp(2,:)=vegin%ratecp(2,1)
        vegin%ratecp(3,:)=vegin%ratecp(3,1)
-       READ(40,*)
-       READ(40,*) vegin%ratecs(:,1)
+       READ(vegunit,*)
+       READ(vegunit,*) vegin%ratecs(:,1)
        vegin%ratecs(1,:)=vegin%ratecs(1,1)
        vegin%ratecs(2,:)=vegin%ratecs(2,1)
 
@@ -507,20 +522,20 @@ CONTAINS
        vegin%refl(2,:) = 0.425
        vegin%refl(3,:) = 0.0
 
-       READ(40,*) vegin%g0 ! Ticket #56
-       READ(40,*) vegin%g1 ! Ticket #56
+       READ(vegunit,*) vegin%g0 ! Ticket #56
+       READ(vegunit,*) vegin%g1 ! Ticket #56
 
     ENDIF
 
     WRITE(6,*)'CABLE_log:Closing veg params file: ',trim(filename%veg)
 
-    CLOSE(40)
+    CLOSE(vegunit)
 
     ! new calculation dleaf since April 2012 (cable v1.8 did not use width)
     vegin%dleaf = SQRT(vegin%width * vegin%length)
 
     !================= Read in soil type specifications: ============
-    OPEN(40, FILE=trim(filename%soil), STATUS='old', ACTION='READ', IOSTAT=ioerror)
+    OPEN(NEWUNIT=soilunit, FILE=trim(filename%soil), STATUS='old', ACTION='READ', IOSTAT=ioerror)
 
     IF(ioerror/=0) then
        write(*,*) 'CABLE_log: Cannot open soil type definitions.'
@@ -531,9 +546,9 @@ CONTAINS
 #endif
     ENDIF
 
-    READ(40,*); READ(40,*)
-    READ(40,*) mstype ! Number of soil types
-    READ(40,*); READ(40,*)
+    READ(soilunit,*); READ(soilunit,*)
+    READ(soilunit,*) mstype ! Number of soil types
+    READ(soilunit,*); READ(soilunit,*)
 
     ALLOCATE ( soil_desc(mstype) )
     ALLOCATE ( soilin%silt(mstype), soilin%clay(mstype), soilin%sand(mstype) )
@@ -542,23 +557,23 @@ CONTAINS
     ALLOCATE ( soilin%rhosoil(mstype), soilin%css(mstype) )
 
     DO a = 1,mstype
-       READ(40,'(8X,A70)') soil_desc(a) ! Read description of each soil type
+       READ(soilunit,'(8X,A70)') soil_desc(a) ! Read description of each soil type
     END DO
 
-    READ(40,*); READ(40,*)
-    READ(40,*) soilin%silt
-    READ(40,*) soilin%clay
-    READ(40,*) soilin%sand
-    READ(40,*) soilin%swilt
-    READ(40,*) soilin%sfc
-    READ(40,*) soilin%ssat
-    READ(40,*) soilin%bch
-    READ(40,*) soilin%hyds
-    READ(40,*) soilin%sucs
-    READ(40,*) soilin%rhosoil
-    READ(40,*) soilin%css
+    READ(soilunit,*); READ(soilunit,*)
+    READ(soilunit,*) soilin%silt
+    READ(soilunit,*) soilin%clay
+    READ(soilunit,*) soilin%sand
+    READ(soilunit,*) soilin%swilt
+    READ(soilunit,*) soilin%sfc
+    READ(soilunit,*) soilin%ssat
+    READ(soilunit,*) soilin%bch
+    READ(soilunit,*) soilin%hyds
+    READ(soilunit,*) soilin%sucs
+    READ(soilunit,*) soilin%rhosoil
+    READ(soilunit,*) soilin%css
 
-    CLOSE(40)
+    CLOSE(soilunit)
 
     ! ! MCtest
     ! !     sed -e 's|.*cable|\&cable|' -e 's|=[ ]\{1,100\}|=|' \
@@ -705,6 +720,59 @@ CONTAINS
 
   end subroutine get_unit
 
+  SUBROUTINE handle_iostat(ios, iomessage)
+    !*## Purpose
+    !
+    ! Take the return status of a read call and return an informative error
+    ! message on failure status.
+    !
+    !## Method
+    !
+    ! Use the IOSTAT and the new IOMSG specifier introduced in Fortran 2003
+    ! to throw an informative error message when the read errors.
+
+    INTEGER, INTENT(IN) :: ios
+    CHARACTER(LEN=*), INTENT(IN) :: ioMessage
+
+    IF (ios /= 0) THEN
+      ! Read of namelist failed
+      WRITE(ERROR_UNIT, FMT='(A)') ioMessage
+
+      STOP ios
+    END IF
+
+  END SUBROUTINE handle_iostat
+
+  FUNCTION get_dimid(FileID, DimNames)
+    !*## Purpose
+    !
+    ! Find the id of the desired dimension using a list of possible names.
+    !
+    !## Method
+    !
+    ! Run through a list of possible names for the dimensions as defined in the
+    ! cable_common module.
+
+    ! Input and output
+    INTEGER :: FileID, get_dimid
+    CHARACTER(LEN=*), DIMENSION(:)  :: DimNames
+
+    ! Iterator and status checker- use NF90_EDIMMETA so we throw error when an
+    ! empty list of names is passed.
+    INTEGER :: i, ok = NF90_EBADDIM
+
+    ! Run through the possible names until we find the correct one
+    CheckNames: DO i = 1, SIZE(DimNames)
+      ok = NF90_INQ_DIMID(FileID, TRIM(DimNames(i)), get_dimid)
+      IF (ok == NF90_NOERR) THEN
+        EXIT CheckNames
+      END IF
+    END DO CheckNames
+
+    CALL handle_err(ok, "Failed to find any "//TRIM(DimNames(1))// &
+         " dimensions from the list.")
+
+  END FUNCTION get_dimid
 
   elemental pure function is_leapyear(yyyy)
 
@@ -882,14 +950,16 @@ CONTAINS
 
     INTEGER :: icable_rev, ioerror
 
+    INTEGER :: revunit
+
     CALL getenv("HOME", myhome)
     fcablerev = TRIM(myhome)//TRIM("/.cable_rev")
 
-    OPEN(440, FILE=TRIM(fcablerev), STATUS='old', ACTION='READ', IOSTAT=ioerror)
+    OPEN(NEWUNIT=revunit, FILE=TRIM(fcablerev), STATUS='old', ACTION='READ', IOSTAT=ioerror)
 
     IF(ioerror==0) then
        ! get svn revision number (see WRITE comments)
-       READ(440,*) icable_rev
+       READ(revunit,*) icable_rev
     ELSE
        icable_rev = 0 !default initialization
        write(*,'(a)') "We'll keep running but the generated revision number in the log & file will be meaningless."
@@ -909,7 +979,7 @@ CONTAINS
     WRITE(logn,*) 'SVN STATUS indicates that you have (at least) the following'
     WRITE(logn,*) 'local changes: '
     IF(ioerror==0) then
-       READ(440,'(A)',IOSTAT=ioerror) icable_status
+       READ(revunit,'(A)',IOSTAT=ioerror) icable_status
        WRITE(logn,*) TRIM(icable_status)
        WRITE(logn,*) ''
     else
@@ -917,7 +987,7 @@ CONTAINS
        WRITE(logn,*) ''
     endif
 
-    CLOSE(440)
+    CLOSE(revunit)
 
   END SUBROUTINE report_version_no
 

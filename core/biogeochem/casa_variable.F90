@@ -153,7 +153,7 @@ module casavariable
   ! used in write_netcdf and in MPI code
   integer, parameter, public :: ncasa_biome = 53
   integer, parameter, public :: ncasa_pool = 42
-  integer, parameter, public :: ncasa_flux = 98
+  integer, parameter, public :: ncasa_flux = 102
   integer, parameter, public :: ncasa_met = 47
   integer, parameter, public :: ncasa_bal = 47
 
@@ -289,10 +289,14 @@ module casavariable
           potstemnpp => null(), &
           frac_sapwood => null(), &
           sapwood_area => null(), &
-          Charvest => null(), &    ! leaf biomass removed due to crop or pasture management
+          Charvest => null(), &     ! leaf biomass removed due to crop and pasture management
+          CharvestPast => null(), & ! leaf biomass removed due to pasture management 
+          CharvestCrop => null(), & ! leaf biomass removed due to crop management
           Nharvest => null(), &    ! leaf N removed due to crop or pasture management
           Pharvest => null(), &    ! leaf P removed due to crop or pasture management
-          fHarvest => null(), &    ! fraction leaf biomass removed due to crop or pasture management
+          fHarvest => null(), &    ! fraction leaf biomass removed due to crop and pasture management
+          fHarvestPast => null(), &    ! fraction leaf biomass removed due to pasture management
+          fHarvestCrop => null(), &    ! fraction leaf biomass removed due to crop management
           fcrop => null(),    &    ! fraction of 'grass' that is crop
           CallocLeaf => null(), &  ! C allocation to leaves 
           CallocWood => null(), &  ! C allocation to wood
@@ -746,9 +750,13 @@ contains
          casaflux%frac_sapwood(arraysize), &
          casaflux%sapwood_area(arraysize), &
          casaflux%Charvest(arraysize), &
+         casaflux%CharvestPast(arraysize), &
+         casaflux%CharvestCrop(arraysize), &
          casaflux%Nharvest(arraysize), &
          casaflux%Pharvest(arraysize), &
          casaflux%fharvest(arraysize), &
+         casaflux%fharvestPast(arraysize), &
+         casaflux%fharvestCrop(arraysize), &
          casaflux%fcrop(arraysize), &
          casaflux%CallocLeaf(arraysize), &
          casaflux%CallocWood(arraysize), &
@@ -1115,9 +1123,13 @@ contains
     casaflux%frac_sapwood = 0.0_r_2
     casaflux%sapwood_area = 0.0_r_2
     casaflux%Charvest = 0.0_r_2
+    casaflux%CharvestPast = 0.0_r_2
+    casaflux%CharvestCrop = 0.0_r_2
     casaflux%Nharvest = 0.0_r_2
     casaflux%Pharvest = 0.0_r_2
     casaflux%fHarvest = 0.0_r_2
+    casaflux%fHarvestPast = 0.0_r_2
+    casaflux%fHarvestCrop = 0.0_r_2
     casaflux%fcrop = 0.0_r_2
     casaflux%CallocLeaf = 0.0_r_2
     casaflux%CallocWood = 0.0_r_2
@@ -1500,7 +1512,11 @@ contains
     write(*,*) 'frac_sapwood ', casaflux%frac_sapwood
     write(*,*) 'sapwood_area ', casaflux%sapwood_area
     write(*,*) 'fharvest ', casaflux%fharvest
+    write(*,*) 'fharvestPast ', casaflux%fharvestPast
+    write(*,*) 'fharvestCrop ', casaflux%fharvestCrop
     write(*,*) 'Charvest ', casaflux%Charvest
+    write(*,*) 'CharvestPast ', casaflux%CharvestPast
+    write(*,*) 'CharvestCrop ', casaflux%CharvestCrop
     write(*,*) 'Nharvest ', casaflux%Nharvest
     write(*,*) 'Pharvest ', casaflux%Pharvest
     write(*,*) 'fcrop ', casaflux%fcrop
@@ -2344,12 +2360,20 @@ contains
     call nc_err(nf90_get_var(fid, vid, casaflux%sapwood_area))
     call nc_err(nf90_inq_varid(fid, 'charvest', vid))
     call nc_err(nf90_get_var(fid, vid, casaflux%charvest))
+    call nc_err(nf90_inq_varid(fid, 'charvestpast', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%charvestpast))
+    call nc_err(nf90_inq_varid(fid, 'charvestcrop', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%charvestcrop))
     call nc_err(nf90_inq_varid(fid, 'nharvest', vid))
     call nc_err(nf90_get_var(fid, vid, casaflux%nharvest))
     call nc_err(nf90_inq_varid(fid, 'pharvest', vid))
     call nc_err(nf90_get_var(fid, vid, casaflux%pharvest))
     call nc_err(nf90_inq_varid(fid, 'fharvest', vid))
     call nc_err(nf90_get_var(fid, vid, casaflux%fharvest))
+    call nc_err(nf90_inq_varid(fid, 'fharvestpast', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fharvestpast))
+    call nc_err(nf90_inq_varid(fid, 'fharvestcrop', vid))
+    call nc_err(nf90_get_var(fid, vid, casaflux%fharvestcrop))
     call nc_err(nf90_inq_varid(fid, 'fcrop', vid))
     call nc_err(nf90_get_var(fid, vid, casaflux%fcrop))
     call nc_err(nf90_inq_varid(fid, 'CallocLeaf', vid))
@@ -3302,7 +3326,15 @@ contains
          [dimid1], vid(i)), i)
     call nc_err(nf90_def_var(fid, 'fharvest', nf90_double, &
          [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fharvestpast', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'fharvestcrop', nf90_double, &
+         [dimid1], vid(i)), i)
     call nc_err(nf90_def_var(fid, 'charvest', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'charvestpast', nf90_double, &
+         [dimid1], vid(i)), i)
+    call nc_err(nf90_def_var(fid, 'charvestcrop', nf90_double, &
          [dimid1], vid(i)), i)
     call nc_err(nf90_def_var(fid, 'nharvest', nf90_double, &
          [dimid1], vid(i)), i)
@@ -3479,7 +3511,11 @@ contains
     call nc_err(nf90_put_var(fid, vid(i), casaflux%frac_sapwood), i)
     call nc_err(nf90_put_var(fid, vid(i), casaflux%sapwood_area), i)
     call nc_err(nf90_put_var(fid, vid(i), casaflux%fharvest), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%fharvestpast), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%fharvestcrop), i)
     call nc_err(nf90_put_var(fid, vid(i), casaflux%Charvest), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%CharvestPast), i)
+    call nc_err(nf90_put_var(fid, vid(i), casaflux%CharvestCrop), i)
     call nc_err(nf90_put_var(fid, vid(i), casaflux%Nharvest), i)
     call nc_err(nf90_put_var(fid, vid(i), casaflux%Pharvest), i)
     call nc_err(nf90_put_var(fid, vid(i), casaflux%fcrop), i)

@@ -59,7 +59,7 @@ MODULE cable_param_module
   USE phenvariable
   USE cable_abort_module
   USE cable_IO_vars_module
-  USE cable_common_module, ONLY: cable_user
+  USE cable_common_module, ONLY: cable_user, get_dimid, LatNames, LonNames
   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, LUC_EXPT_SET_TILES, LUC_EXPT_SET_TILES_BIOS
 
   IMPLICIT NONE
@@ -219,16 +219,14 @@ CONTAINS
     ok = NF90_OPEN(trim(filename%type), 0, ncid)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error opening grid info file.')
 
-    ok = NF90_INQ_DIMID(ncid, 'longitude', xID)
-    IF (ok /= NF90_NOERR) ok = NF90_INQ_DIMID(ncid, 'x', xID)
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error inquiring x dimension.')
+    xID = get_dimid(ncid, LonNames)
     ok = NF90_INQUIRE_DIMENSION(ncid, xID, LEN=nlon)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting x dimension.')
-    ok = NF90_INQ_DIMID(ncid, 'latitude', yID)
-    IF (ok /= NF90_NOERR) ok = NF90_INQ_DIMID(ncid, 'y', yID)
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error inquiring y dimension.')
+
+    yID = get_dimid(ncid, LatNames)
     ok = NF90_INQUIRE_DIMENSION(ncid, yID, LEN=nlat)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting y dimension.')
+
     ok = NF90_INQ_DIMID(ncid, 'patch', pID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error inquiring patch dimension.')
     ok = NF90_INQUIRE_DIMENSION(ncid, pID, LEN=npatch)
@@ -768,14 +766,11 @@ CONTAINS
     ok = NF90_OPEN(trim(filename%soilcolor), 0, ncid)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error opening soil color file.')
 
-    ok = NF90_INQ_DIMID(ncid, 'longitude', xID)
-    IF (ok /= NF90_NOERR) ok = NF90_INQ_DIMID(ncid, 'x', xID)
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error inquiring x dimension.')
+    xID = get_dimid(ncid, LonNames)
     ok = NF90_INQUIRE_DIMENSION(ncid, xID, LEN=nlon)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting x dimension.')
-    ok = NF90_INQ_DIMID(ncid, 'latitude', yID)
-    IF (ok /= NF90_NOERR) ok = NF90_INQ_DIMID(ncid, 'y', yID)
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error inquiring y dimension.')
+
+    yID = get_dimid(ncid, LatNames)
     ok = NF90_INQUIRE_DIMENSION(ncid, yID, LEN=nlat)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting y dimension.')
 
@@ -1695,6 +1690,7 @@ CONTAINS
       !  ENDIF
 
         ! fertilizer addition is included here
+        ! Note that at the moment, crops and pasture in iveg 6 and 7 are not fertilised!!
         IF (veg%iveg(hh) == cropland .OR. veg%iveg(hh) == croplnd2) then
           ! P fertilizer =13 Mt P globally in 1994
           casaflux%Pdep(hh)    = casaflux%Pdep(hh) &

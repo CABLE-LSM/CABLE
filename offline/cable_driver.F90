@@ -68,7 +68,7 @@ PROGRAM cable_offline_driver
        cable_runtime, filename, &
        redistrb, wiltParam, satuParam, CurYear, &
        IS_LEAPYEAR, IS_CASA_TIME, calcsoilalbedo, get_unit, &
-       report_version_no, kwidth_gl
+       report_version_no, kwidth_gl, handle_iostat
   use cable_data_module,    only: driver_type, point2constants
   use cable_input_module,   only: open_met_file, load_parameters, get_met_data, close_met_file, &
        ncid_rain, ncid_snow, ncid_lw, ncid_sw, ncid_ps, ncid_qa, ncid_ta, ncid_wd
@@ -127,11 +127,11 @@ PROGRAM cable_offline_driver
   use CABLE_PLUME_MIP,      only: PLUME_MIP_TYPE, PLUME_MIP_GET_MET, &
        PLUME_MIP_INIT
 
-  use CABLE_CRU,            only: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT, cru_close
+  use CABLE_CRU,            only: CRU_TYPE, CRU_GET_SUBDIURNAL_MET, CRU_INIT, cru_close, BIOS_GET_SUBDIURNAL_MET
   use CABLE_site,           only: site_TYPE, site_INIT, site_GET_CO2_Ndep
 
   ! BIOS only
-  use cable_bios_met_obs_params,   only:  cable_bios_read_met, cable_bios_init, &
+  use cable_bios_met_obs_params,   only:  cable_bios_init, &
                                           cable_bios_load_params, &
                                           cable_bios_load_climate_params
 
@@ -146,6 +146,8 @@ PROGRAM cable_offline_driver
 
   ! CABLE namelist: model configuration, runtime/user switches
   character(len=200), parameter :: cable_namelist='cable.nml'
+  CHARACTER(LEN=200) :: ioMessage
+  INTEGER :: cablenml_unit
 
   ! timing variables
   integer, parameter :: kstart = 1   ! start of simulation
@@ -279,6 +281,8 @@ PROGRAM cable_offline_driver
   !___ unique unit/file identifiers for cable_diag: arbitrarily 5 here
   integer :: iDiagZero=0
 
+  INTEGER :: Ftrunk_unit, Fnew_unit
+
   ! switches etc defined thru namelist (by default cable.nml)
   namelist /cablenml/ &
        filename, &       ! TYPE, containing input filenames
@@ -292,8 +296,8 @@ PROGRAM cable_offline_driver
        patchout, &
        check, &
        verbose, &
-       leaps, &
        logn, &
+       leaps, &
        fixedCO2, &
        spincasainput, &
        spincasa, &
@@ -336,22 +340,24 @@ PROGRAM cable_offline_driver
   ! END header
 
   ! Open, read and close the namelist file.
-  open(10, file=cable_namelist)
-  read(10, nml=cablenml)   !where nml=cable defined above
-  close(10)
+  open(NEWUNIT=cablenml_unit, file=cable_namelist)
+  read(cablenml_unit, nml=cablenml, IOSTAT=ios, IOMSG=ioMessage)   !where nml=cable defined above
+  CALL handle_iostat(ios, ioMessage)
+  close(cablenml_unit)
 
   ! Open, read and close the consistency check file.
   ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
   if (cable_user%consistency_check) then
-     open(11, file=Ftrunk_sumbal, status='old', action='READ', iostat=ioerror)
+     open(NEWUNIT=Ftrunk_unit, file=Ftrunk_sumbal, status='old', action='READ',&
+       iostat=ioerror)
      if (ioerror==0) then
-        read(11,*) trunk_sumbal  ! written by previous trunk version
+        read(Ftrunk_unit,*) trunk_sumbal  ! written by previous trunk version
      end if
-     close(11)
+     close(Ftrunk_unit)
   end if
 
   ! Open log file:
-  open(logn, file=filename%log)
+  open(NEWUNIT=logn, file=filename%log)
 
   call report_version_no(logn)
 
@@ -482,9 +488,8 @@ PROGRAM cable_offline_driver
   ! Read atmospheric delta-13C values
   if (cable_user%c13o2) then
      ! get start and end year
-     call get_unit(iunit)
-     open(iunit, file=trim(cable_user%c13o2_delta_atm_file), status="old", &
-          action="read")
+     open(NEWUNIT=iunit, file=trim(cable_user%c13o2_delta_atm_file),&
+       status="old", action="read")
      read(iunit, fmt=*, iostat=ios) header
      read(iunit, fmt=*, iostat=ios) iyear
      c13o2_atm_syear = floor(iyear)
@@ -590,11 +595,12 @@ PROGRAM cable_offline_driver
               end if
               if (.not. PLUME%LeapYears) LOY = 365
               kend = nint(24.0 * 3600.0 / dels) * LOY
-           else if (trim(cable_user%MetType) == 'bios') then
-              ! BIOS run
-              kend = nint(24.0 * 3600.0 / dels) * LOY
-           else if (trim(cable_user%MetType) == 'cru') then
-              ! TRENDY experiment using CRU-NCEP
+           else if ((trim(cable_user%MetType) == 'cru') .OR. &
+             (TRIM(cable_user%MetType) == 'bios')) then
+              ! This begins an attempt to unifying the met input routines. The
+              ! effort began with the CRU pipeline, which was then applied to
+              ! the BIOS routine. End goal is to have a single pipeline for met
+              ! inputs.
               if (CALL1) then
                  call cru_init(cru)
                  dels         = cru%dtsecs
@@ -876,11 +882,11 @@ PROGRAM cable_offline_driver
                  end if
               else if (trim(cable_user%MetType) == 'bios') then
                  if ((.not. CASAONLY) .or. (CASAONLY .and. CALL1)) then
-                    call cable_bios_read_met(MET, CurYear, ktau, dels)
+                    call BIOS_GET_SUBDIURNAL_MET(CRU, met, YYYY, ktau)
                  end if
               else if (trim(cable_user%MetType) == 'cru') then
                  if ((.not. CASAONLY) .or. (CASAONLY .and. CALL1)) then
-                    call CRU_GET_SUBDIURNAL_MET(CRU, met, YYYY, ktau, kend)
+                    call CRU_GET_SUBDIURNAL_MET(CRU, met, YYYY, ktau)
                  end if
               else
                  if (trim(cable_user%MetType) == 'site') &
@@ -1336,9 +1342,9 @@ PROGRAM cable_offline_driver
                        write(*,*) "NB. Offline-serial runs spinup cycles:", nkend
                        write(*,*) "Internal check shows in this version new_sumbal != trunk sumbal"
                        write(*,*) "Writing new_sumbal to the file:", trim(Fnew_sumbal)
-                       open(12, file=Fnew_sumbal)
-                       write(12, '(F20.7)') new_sumbal  ! written by previous trunk version
-                       close(12)
+                       open(NEWUNIT=Fnew_unit, file=Fnew_sumbal)
+                       write(Fnew_unit, '(F20.7)') new_sumbal  ! written by previous trunk version
+                       close(Fnew_unit)
                     end if
                  end if
 
@@ -1596,7 +1602,8 @@ SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg,
   USE POPMODULE,            ONLY: POP_init_single
   USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, read_LUH2, &
        ptos, ptog, stog, gtos, pharv, smharv, syharv, &
-       ptoc, ptoq, stoc, stoq, ctos, qtos
+       ptoc, ptoq, stoc, stoq, ctos, qtos, &
+       ctor, qtor, rtoc, rtoq, qtoc, ctoq
   USE POPLUC_Types
   USE POPLUC_Module,        ONLY: POPLUCStep, POPLUC_weights_Transfer
   ! 13C
@@ -1639,6 +1646,13 @@ SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg,
      POPLUC%stoq(k) = real(LUC_EXPT%INPUT(stoq)%VAL(k), r_2)
      POPLUC%ctos(k) = real(LUC_EXPT%INPUT(ctos)%VAL(k), r_2)
      POPLUC%qtos(k) = real(LUC_EXPT%INPUT(qtos)%VAL(k), r_2)
+
+     POPLUC%ctor(k) = real(LUC_EXPT%INPUT(ctor)%VAL(k), r_2)
+     POPLUC%qtor(k) = real(LUC_EXPT%INPUT(qtor)%VAL(k), r_2)
+     POPLUC%rtoc(k) = real(LUC_EXPT%INPUT(rtoc)%VAL(k), r_2)
+     POPLUC%rtoq(k) = real(LUC_EXPT%INPUT(rtoq)%VAL(k), r_2)
+     POPLUC%qtoc(k) = real(LUC_EXPT%INPUT(qtoc)%VAL(k), r_2)
+     POPLUC%ctoq(k) = real(LUC_EXPT%INPUT(ctoq)%VAL(k), r_2)
 
      POPLUC%thisyear  = yyyy
 
