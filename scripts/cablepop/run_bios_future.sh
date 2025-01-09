@@ -31,7 +31,7 @@ system=ab7412@gadi
 # nproc should fit with job tasks
 dompi=1   # 0: normal run: ./cable
           # 1: MPI run: mpiexec -n ${nproc} ./cable_mpi
-nproc=4   # Number of cores for MPI runs
+nproc=48   # Number of cores for MPI runs
           # must be same as above: SBATCH -n nproc or PBS -l ncpus=nproc
 
 # --------------------------------------------------------------------
@@ -63,7 +63,7 @@ nproc=4   # Number of cores for MPI runs
 #      b) Run from 1700 to 1950 with dynamic land use, varying atmospheric CO2 and N deposition,
 #         but still with 30 years of repeated meteorology.
 #   6. Final historical run
-#          a) using AGCD forcing from 1900 to GCMstart, everything dynamic
+#          a) using AGCD forcing from 1951 to GCMstart, everything dynamic
 #          b) CCAM-derived historical data from GCMstart to GCMswitch, everything dynamic
 #   7. Future run, everything dynamic using CCAM-derived forcing
 #
@@ -84,30 +84,30 @@ nproc=4   # Number of cores for MPI runs
 experiment=AGCD_2023_0.25_6  #experiment name
 
 # Step 0
-purge_restart=1 # 1/0: Do/Do not delete all restart files (completely new run, e.g. if settings changed)
+purge_restart=0 # 1/0: Do/Do not delete all restart files (completely new run, e.g. if settings changed)
 # Step 1
-doclimate=1     # 1/0: Do/Do not create climate restart file
+doclimate=0     # 1/0: Do/Do not create climate restart file
 # Step 2
-dofromzero=1    # 1/0: Do/Do not first spinup phase from zero biomass stocks
+dofromzero=0    # 1/0: Do/Do not first spinup phase from zero biomass stocks
 # Step 3
-doequi1=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
+doequi1=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with restricted P and N pools
 nequi1=4       #      number of times to repeat steps in doequi1
 # Step 4
-doequi2=1       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
+doequi2=0       # 1/0: Do/Do not bring biomass stocks into quasi-equilibrium with unrestricted P and N pools
 nequi2=4        #      number of times to repeat steps in doequi2
 # Step 5a
 doiniluc=0      # 1/0: Do/Do not spinup with dynamic land use (5a)
 # Step 5b
-doinidyn=1      # 1/0: Do/Do not full dynamic spinup from 1700 to 1899 (5b)
+doinidyn=0      # 1/0: Do/Do not full dynamic spinup from 1700 to 1950 (5b)
 # Step 6
-dofinal1=1    # 1/0: Do/Do not final run from 1900 to GCMstart
+dofinal1=1    # 1/0: Do/Do not final run from 1951 to GCMstart
 dofinal2=0      # 1/0: Do/Do not final run from GCMstart to GCMswitch
 # Step 7
 dofuture=0      # 1/0: Do/Do not future runs GCMswtich to GCMend
 
 # --------------------------------------------------------------------
 # Other switches
-restarttype='' # 'None' 'AGCD_1950' 'AGCD_1978' 'GCM_2014'
+restarttype='AGCD_1951' # 'None' 'AGCD_1951' 'AGCD_1978' 'GCM_1951' 'GCM_2015'
 landmasktype='mask' # 'mask' 'land' # determines the GlobalLandMask. Must match output%grid: mask = gridded, land = points.
 
 # MetType
@@ -243,6 +243,9 @@ fi
         GlobalLandMaskFile="/g/data/x45/BIOS3_forcing/${domain}/australia_op_maskv2ctr${degrees_msk}"      # no file extension | ACB: Landmask file. 
     elif [[ "${landmasktype}" == "land" ]] ; then
         GlobalLandMaskFile="/g/data/x45/BIOS3_forcing/${domain}/${domain}"      # no file extension | ACB: Landmask file. 
+else
+        echo "Landmasktype not known. Check Landmasktype switch is defined correctly."
+        exit 1
     fi
    
   fi
@@ -256,7 +259,7 @@ if [[ "${mettype}" == 'bios' ]] ; then
     namelistpath="${workpath}/namelists_bios"
     filename_veg="${workpath}/params_bios/def_veg_params.txt"
     filename_soil="${workpath}/params_bios/def_soil_params.txt"
-    casafile_cnpbiome="${workpath}/params_bios/pftlookup.csv"
+    casafile_cnpbiome="${workpath}/params_bios/trendy_v11_pftlookup.csv"
 fi
 
 # Other scripts
@@ -291,7 +294,7 @@ filename_d13c_atm="${cablehome}/params/graven_et_al_gmd_2017-table_s1-delta_13c-
 # --------------------------------------------------------------------
 
 # --------------------------------------------------------------------
-# Helper functions, most functions are in plumber_cable-pop_lib.sh
+# Helper functions, most functions are in run_cable-pop_lib.sh
 #
 
 source ${pdir}/run_cable-pop_lib.sh
@@ -619,8 +622,7 @@ if [[ ${doclimate} -eq 1 ]] ; then
 EOF
         applysed ${tmp}/sedtmp.${pid} ${rdir}/bios_${experiment}.nml ${rdir}/bios.nml
     fi
-    echo "L605"
-    # LUC
+     # LUC
     cp ${rdir}/LUC_${experiment}.nml ${rdir}/LUC.nml
     # Cable
     #   do not calculate 13C because there is no 13C in the climate restart file
@@ -635,7 +637,7 @@ EOF
         cable_user%CASA_DUMP_READ      = .false.
         cable_user%CASA_DUMP_WRITE     = .true.
         cable_user%CASA_SPIN_STARTYEAR = 1951
-        cable_user%CASA_SPIN_ENDYEAR   = 1980
+        cable_user%CASA_SPIN_ENDYEAR   = 1960
         cable_user%limit_labile        = .true.
         casafile%cnpipool              = ""
         cable_user%POP_fromZero        = .true.
@@ -646,7 +648,6 @@ EOF
         cable_user%c13o2               = .false.
 EOF
     applysed ${tmp}/sedtmp.${pid} ${rdir}/cable_${experiment}.nml ${rdir}/cable.nml
-    echo "L632"
     # run model
     cd ${rdir}
     irm logs/log_cable.txt logs/log_out_cable.txt
@@ -655,7 +656,6 @@ EOF
     else
        ./${iexe} > logs/log_out_cable.txt
     fi
-    echo "L641"
     # save output
     renameid ${rid} ${mettype}.nml LUC.nml cable.nml
     imv *_${rid}.nml restart/
@@ -815,7 +815,7 @@ EOF
             cable_user%CASA_DUMP_READ      = .true.
             cable_user%CASA_DUMP_WRITE     = .false.
             cable_user%CASA_SPIN_STARTYEAR = 1951
-            cable_user%CASA_SPIN_ENDYEAR   = 1980
+            cable_user%CASA_SPIN_ENDYEAR   = 1960
             cable_user%limit_labile        = .true.
             cable_user%POP_fromZero        = .false.
             cable_user%POP_out             = "ini"
@@ -878,7 +878,7 @@ EOF
             cable_user%CASA_DUMP_READ      = .false.
             cable_user%CASA_DUMP_WRITE     = .true.
             cable_user%CASA_SPIN_STARTYEAR = 1951
-            cable_user%CASA_SPIN_ENDYEAR   = 1980
+            cable_user%CASA_SPIN_ENDYEAR   = 1960
             cable_user%limit_labile        = .false.
             cable_user%POP_fromZero        = .false.
             cable_user%POP_out             = "ini"
@@ -931,7 +931,7 @@ EOF
             cable_user%CASA_DUMP_READ      = .true.
             cable_user%CASA_DUMP_WRITE     = .false.
             cable_user%CASA_SPIN_STARTYEAR = 1951
-            cable_user%CASA_SPIN_ENDYEAR   = 1980
+            cable_user%CASA_SPIN_ENDYEAR   = 1960
             cable_user%limit_labile        = .false.
             cable_user%POP_fromZero        = .false.
             cable_user%POP_out             = "ini"
@@ -997,7 +997,7 @@ EOF
         cable_user%CASA_DUMP_READ       = .true.
         cable_user%CASA_DUMP_WRITE      = .false.
         cable_user%CASA_SPIN_STARTYEAR  = 1951
-        cable_user%CASA_SPIN_ENDYEAR    = 1980
+        cable_user%CASA_SPIN_ENDYEAR    = 1960
         cable_user%limit_labile         = .false.
         cable_user%POP_fromZero         = .false.
         cable_user%POP_out              = "ini"
@@ -1061,7 +1061,7 @@ EOF
         cable_user%CASA_DUMP_READ      = .false.
         cable_user%CASA_DUMP_WRITE     = .false.
         cable_user%CASA_SPIN_STARTYEAR = 1951
-        cable_user%CASA_SPIN_ENDYEAR   = 1980
+        cable_user%CASA_SPIN_ENDYEAR   = 1960
         cable_user%limit_labile        = .false.
         cable_user%POP_fromZero        = .false.
         cable_user%POP_out             = "ini"
@@ -1095,8 +1095,17 @@ fi
 
 
 # --------------------------------------------------------------------
-# 6a. Final run - 1900 to GCMstart
+# 6a. Final run - 1951 to GCMstart
 if [[ ${dofinal1} -eq 1 ]] ; then
+
+      # check restart switch and copy restarts if required
+    if [[ "${restarttype}" == "AGCD_1951" ]] ; then
+    restart_path="/g/data/x45/BIOS3_forcing/CCAM/restart_files/${restarttype}/${domain}/"
+    cd ${restart_path}
+    cp *.nc ${rdir}/restart
+    fi
+
+
     echo "6. Final run part 1"
     # Met forcing
     if [[ "${mettype}" == "bios" ]] ; then
@@ -1126,7 +1135,7 @@ EOF
         cable_user%CASA_DUMP_READ      = .false.
         cable_user%CASA_DUMP_WRITE     = .false.
         cable_user%CASA_SPIN_STARTYEAR = 1951
-        cable_user%CASA_SPIN_ENDYEAR   = 1980
+        cable_user%CASA_SPIN_ENDYEAR   = 1960
         cable_user%limit_labile        = .false.
         cable_user%POP_fromZero        = .false.
         cable_user%POP_out             = "ini"
@@ -1142,7 +1151,7 @@ EOF
     else
         ./${iexe} > logs/log_out_cable.txt
     fi
-    rid=${YearStart}_${YearEnd}_${rcpd}
+    rid=${YearStart}_${YearEnd}
     # save output
     renameid ${rid} ${mettype}.nml LUC.nml cable.nml
     mv *_${rid}.nml restart/
@@ -1175,7 +1184,7 @@ fi
 if [[ ${dofinal2} -eq 1 ]] ; then
     echo "6. Final run - part 2"
     # check restart switch and copy restarts if required
-    if [[ "${restarttype}" == "AGCD_1950" ]] ; then
+    if [[ "${restarttype}" == "AGCD_1951" ]] ; then
     restart_path="/g/data/x45/BIOS3_forcing/CCAM/restart_files/${restarttype}/${domain}/"
     cd ${restart_path}
     cp *.nc ${rdir}/restart
