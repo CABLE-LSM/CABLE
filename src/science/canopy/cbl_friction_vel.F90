@@ -64,7 +64,7 @@ SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
   !
   ![Kowalczyk et al. (2006)](http://www.cmar.csiro.au/e-print/open/kowalczykea_2006a.pdf)
   ! - section 3.1, equations 1-9.
-
+USE grid_constants_mod_cbl, ONLY: niter
 IMPLICIT NONE
 
 INTEGER, INTENT(IN) :: mp               !! size of cable vector of land points (-)
@@ -76,7 +76,7 @@ REAL, INTENT(IN):: CUMIN                !! minimum value of wind speed (ms\(^{-1
 ! maths & other constants
 REAL, INTENT(IN) :: CPI_C               !! \(\pi\) (-)
 
-REAL, INTENT(IN) :: zetar(mp,iter)      !! stability parameter - see [[update_zetar]] `canopy%zetar` (-)
+REAL, INTENT(IN) :: zetar(mp,niter)      !! stability parameter - see [[update_zetar]] `canopy%zetar` (-)
 REAL, INTENT(IN) :: zref_uv(mp)         !! reference height for wind `rough%zref_uv` (m)
 REAL, INTENT(IN) :: zref_tq(mp)         !! reference height for temperature and humidity `rough%zref_tq` (m)
 REAL, INTENT(IN) :: z0m(mp)             !! roughness length `rough%z0m` (m)
