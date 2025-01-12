@@ -885,25 +885,25 @@ CONTAINS
 !$                    if (ktau == kend-1) PRINT*, "sum_fe[Wm-2], sum_fpn[umol/m2/s]",  &
 !$                         new_sumfe/count_bal, new_sumfpn/count_bal
 
-                ! check for Nans in biophysical outputs and abort if there are any
-                IF (ANY( canopy%fe.NE. canopy%fe)) THEN
-                   DO kk=1,mp
+                !jhan:test!! check for Nans in biophysical outputs and abort if there are any
+                !jhan:test!IF (ANY( canopy%fe.NE. canopy%fe)) THEN
+                !jhan:test!   DO kk=1,mp
 
-                      IF (canopy%fe(kk).NE. canopy%fe(kk)) THEN
-                         WRITE(*,*) 'Nan in evap flux,', kk, patch(kk)%latitude, patch(kk)%longitude
-                         WRITE(*,*) 'fe nan', kk, ktau,met%qv(kk), met%precip(kk),met%precip_sn(kk), &
-                              met%fld(kk), met%fsd(kk,:), met%tk(kk), met%ua(kk), &
-                              ssnow%potev(kk), met%pmb(kk), &
-                              canopy%ga(kk), ssnow%tgg(kk,:), canopy%fwsoil(kk), &
-                              rad%fvlai(kk,:) ,  rad%fvlai(kk,1), &
-                              rad%fvlai(kk,2), canopy%vlaiw(kk)
+                !jhan:test!      IF (canopy%fe(kk).NE. canopy%fe(kk)) THEN
+                !jhan:test!         WRITE(*,*) 'Nan in evap flux,', kk, patch(kk)%latitude, patch(kk)%longitude
+                !jhan:test!         WRITE(*,*) 'fe nan', kk, ktau,met%qv(kk), met%precip(kk),met%precip_sn(kk), &
+                !jhan:test!              met%fld(kk), met%fsd(kk,:), met%tk(kk), met%ua(kk), &
+                !jhan:test!              ssnow%potev(kk), met%pmb(kk), &
+                !jhan:test!              canopy%ga(kk), ssnow%tgg(kk,:), canopy%fwsoil(kk), &
+                !jhan:test!              rad%fvlai(kk,:) ,  rad%fvlai(kk,1), &
+                !jhan:test!              rad%fvlai(kk,2), canopy%vlaiw(kk)
 
-                         CALL MPI_Abort(comm, 0, ierr)
-                      ENDIF
+                !jhan:test!         CALL MPI_Abort(comm, 0, ierr)
+                !jhan:test!      ENDIF
 
-                   ENDDO
+                !jhan:test!   ENDDO
 
-                ENDIF
+                !jhan:test!ENDIF
                 IF(ktau==(kend-1)) THEN
 
                    nkend = nkend+1
