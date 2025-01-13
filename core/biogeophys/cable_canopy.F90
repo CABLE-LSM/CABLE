@@ -1804,6 +1804,12 @@ CONTAINS
       sum_gbh        = real(SUM((gbhu+gbhf),2))
       sum_rad_rniso  = SUM(rad%rniso,2)
       sum_rad_gradis = SUM(rad%gradis,2)
+      IF (cable_user%GS_SWITCH == 'tuzet' .AND. &
+                  INDEX(cable_user%FWSOIL_SWITCH,'LWP')>0) then
+         abs_deltpsil(:,:)   = SPREAD(SPREAD(999.0_r_2,1,mp),2,mf)
+      else
+         abs_deltpsil(:,:)   = SPREAD(SPREAD(0.0_r_2,1,mp),2,mf)
+      endif
       ! print*, 'DD06 ', rad%gradis
 
       ! default for variable d_3 of RuBP-limited photosynthesis of
