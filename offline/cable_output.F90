@@ -85,7 +85,7 @@ MODULE cable_output_module
           An, Rd, cplant, clitter, csoil, clabile, &
           A13n, aDisc13, c13plant, c13litter, c13soil, c13labile, &
           TSap, psi_soil, psi_rootzone, psi_stem, psi_can_sl, psi_can_sh, &
-          plc_sat, plc_stem, plc_can, gsw_sun, gsw_sha, LeafT, abs_deltpsil_sl, abs_deltpsil_sh
+          plc_sat, plc_stem, plc_can, gsw_sun, gsw_sha, LeafT, abs_deltpsil_sl, abs_deltpsil_sh, kplant
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
 
@@ -289,6 +289,7 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: plc_can  => null()     ! ms8355
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: gsw_sun  => null()     ! mgk576
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: gsw_sha  => null()     ! mgk576
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: kplant  => null()     ! mgk576
 
   END TYPE output_temporary_type
   TYPE(output_temporary_type), SAVE :: out
@@ -787,6 +788,14 @@ CONTAINS
                       landID, patchID, tID)
      ALLOCATE(out%psi_can_sh(mp))
      out%psi_can_sh = 0.0 ! initialise
+  END IF
+  IF(output%veg) THEN
+     CALL define_ovar(ncid_out, ovid%kplant, &
+                      'kplant', 'mmol m-2 s-1 Mpa-1', 'actual conductivity', &
+                      patchout%kplant, 'dummy', xID, yID, zID, &
+                      landID, patchID, tID)
+     ALLOCATE(out%kplant(mp))
+     out%kplant = 0.0 ! initialise
   END IF
   IF(output%veg) THEN
      CALL define_ovar(ncid_out, ovid%abs_deltpsil_sl, &
@@ -4038,6 +4047,23 @@ CONTAINS
            ! Reset temporary output variable:
            out%psi_can_sh = 0.0
         END IF
+     END IF
+     IF(output%veg) THEN
+          !IF(output%veg) THEN
+             ! Add current timestep's value to total of temporary output variable:
+             out%kplant = out%kplant + REAL(canopy%kplant, 4)
+             IF(writenow) THEN
+                ! Divide accumulated variable by number of accumulated time steps:
+                out%kplant = out%kplant / REAL(output%interval, 4)
+                ! Write value to file:
+                CALL write_ovar(out_timestep, ncid_out, ovid%kplant, &
+                               'kplant', &
+                                out%kplant, ranges%kplant, &
+                                patchout%kplant, &
+                               'default', met)
+                ! Reset temporary output variable:
+                out%kplant = 0.0
+             END IF
      END IF
      IF(output%veg) THEN
           !IF(output%veg) THEN
