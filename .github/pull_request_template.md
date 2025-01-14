@@ -20,8 +20,14 @@ Please delete options that are not relevant.
 
 ## Checklist
 
-- [ ] The new content is accessible and located in the appropriate section.
-- [ ] I have checked that links are valid and point to the intended content.
+- [ ] The new content is accessible and located in the appropriate section
+- [ ] I have checked that links are valid and point to the intended content
 - [ ] I have checked my code/text and corrected any misspellings
+
+## Testing
+
+- [ ] Are the changes bitwise-compatible with the main branch? If working on an optional feature, are the results bitwise-compatible when this feature is off? If yes, copy benchcab output showing successful completion of the bitwise compatibility tests or equivalent results below this line.
+
+- [ ] Are the changes non bitwise-compatible with the main branch because of a bug fix or a feature being newly implemented or improved? If yes, add the link to the modelevaluation.org analysis versus the main branch or equivalent results below this line.
 
 Please add a reviewer when ready for review.
