@@ -736,24 +736,39 @@ CONTAINS
     ok = NF90_CLOSE(ncid)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error closing IGBP soil map.')
 
-    ! Code if using UM soil file
-    ! unit change and glacial-point check were done in preprocessing
-    !    ! change unit to m/s
-    !    inhyds = inhyds * 1.0E-3
-    !    ! Assign values to glacial points which are zeroes
-    !    WHERE(inswilt==0.)     inswilt = 0.216
-    !    WHERE( insfc ==0.)       insfc = 0.301
-    !    WHERE(inssat ==0.)      inssat = 0.479
-    !    WHERE( inbch ==0.)       inbch = 7.1
-    !    WHERE(inhyds ==0.)      inhyds = 1.E-3
-    !    WHERE(insucs ==0.)      insucs = 0.153
-    !    WHERE(inrhosoil==0.) inrhosoil = 1455
-    !    WHERE(incnsd ==0.)      incnsd = 0.272
-    !    WHERE(incss > 630000.0)
-    !      incss = incss / inrhosoil   ! normal points need unit conversion
-    !    ELSEWHERE
-    !      incss = 2100.0   ! glacial points
-    !    ENDWHERE
+!ice values from nml file
+!!soilin%bch     = 7.1
+!!soilin%clay    = 0.3
+!!soilin%css     = 2100
+!!soilin%hyds    = 0.000001
+!!soilin%rhosoil = 917
+!!soilin%sand    = 0.37
+!!soilin%sfc     = 0.301
+!!soilin%silt    = 0.33
+!!soilin%ssat    = 0.479
+!!soilin%sucs    = -0.153
+!!soilin%swilt   = 0.216
+
+     !IDK where this code came from. Some are == nml values (for ice)
+     !units change might be reasonable but others !!!!! e.g. density=1455??
+     !Code if using UM soil file
+     !unit change and glacial-point check were done in preprocessing
+     ! change unit to m/s
+     inhyds = inhyds * 1.0E-3
+     ! Assign values to glacial points which are zeroes
+     WHERE(inswilt==0.)     inswilt = 0.216
+     WHERE( insfc ==0.)       insfc = 0.301
+     WHERE(inssat ==0.)      inssat = 0.479
+     WHERE( inbch ==0.)       inbch = 7.1
+     WHERE(inhyds ==0.)      inhyds = 1.E-3
+     WHERE(insucs ==0.)      insucs = 0.153
+     WHERE(inrhosoil==0.) inrhosoil = 1455
+     WHERE(incnsd ==0.)      incnsd = 0.272
+     WHERE(incss > 630000.0)
+       incss = incss / inrhosoil   ! normal points need unit conversion
+     ELSEWHERE
+       incss = 2100.0   ! glacial points
+     ENDWHERE
 
     ! Calculate albedo for radiation bands and overwrite previous
     ! initialization
@@ -1656,6 +1671,17 @@ CONTAINS
     ! SLI specific initialisations:
     !  IF(cable_user%SOIL_STRUC=='sli') THEN
     ssnow%h0(:) = 0.0
+!!    DO i=1,mp 
+!!    !IF(i == 1852) THEN
+!!    IF( soil%ssat(i) == 0.0 ) THEN
+!!      write(*,*) "jh:soil%isoilm ", soil%isoilm(i)                          
+!!      !write(*,*) "jh:ssnow%S ",   ssnow%S(i,:)            
+!!      !write(*,*) "jh:ssnow%wb ",  ssnow%wb(i,:)            
+!!      !write(*,*) "jh:soil%ssat ", soil%ssat(i)                        
+!!      !write(*,*) "jh:SPREAD ",    SPREAD(soil%ssat,2,ms)
+!!    END IF
+!!    END DO
+!!!stop
     ssnow%S(:,:) = ssnow%wb(:,:)/SPREAD(soil%ssat,2,ms)
     ssnow%snowliq(:,:) = 0.0
     ssnow%Tsurface = 25.0
