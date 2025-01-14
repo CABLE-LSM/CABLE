@@ -64,17 +64,17 @@ IF( .NOT.cable_user%cable_runtime_coupled ) THEN
          ssnow%wb(:,4) = 0.95 * soil%ssat
          ssnow%wb(:,5) = 0.95 * soil%ssat
          ssnow%wb(:,6) = 0.95 * soil%ssat
-         ssnow%wbice(:,1) = 0.90 * ssnow%wb(:,1)
-         ssnow%wbice(:,2) = 0.90 * ssnow%wb(:,2)
-         ssnow%wbice(:,3) = 0.90 * ssnow%wb(:,3)
-         ssnow%wbice(:,4) = 0.90 * ssnow%wb(:,4)
-         ssnow%wbice(:,5) = 0.90 * ssnow%wb(:,5)
-         ssnow%wbice(:,6) = 0.90 * ssnow%wb(:,6)
+         ssnow%wbice(:,1) = frozen_limit * ssnow%wb(:,1)
+         ssnow%wbice(:,2) = frozen_limit * ssnow%wb(:,2)
+         ssnow%wbice(:,3) = frozen_limit * ssnow%wb(:,3)
+         ssnow%wbice(:,4) = frozen_limit * ssnow%wb(:,4)
+         ssnow%wbice(:,5) = frozen_limit * ssnow%wb(:,5)
+         ssnow%wbice(:,6) = frozen_limit * ssnow%wb(:,6)
       ENDWHERE
       xx=REAL(heat_cap_lower_limit(:,1))
       ssnow%gammzz(:,1) = MAX( (1.0 - soil%ssat) * soil%css * soil%rhosoil &
            & + (ssnow%wb(:,1) - ssnow%wbice(:,1) ) * Ccswat * Cdensity_liq &
-           & + ssnow%wbice(:,1) * Ccsice * Cdensity_liq * .9, xx ) * soil%zse(1)
+           & + ssnow%wbice(:,1) * Ccsice * Cdensity_ice, xx ) * soil%zse(1)
    END IF
 ENDIF  ! if(.NOT.cable_runtime_coupled)
 
@@ -82,7 +82,7 @@ IF (ktau <= 1)       THEN
   xx=heat_cap_lower_limit(:,1)
   ssnow%gammzz(:,1) = MAX( (1.0 - soil%ssat) * soil%css * soil%rhosoil      &
         & + (ssnow%wb(:,1) - ssnow%wbice(:,1) ) * Ccswat * Cdensity_liq           &
-        & + ssnow%wbice(:,1) * Ccsice * Cdensity_liq * .9, xx ) * soil%zse(1) +   &
+        & + ssnow%wbice(:,1) * Ccsice * Cdensity_ice, xx ) * soil%zse(1) +   &
         & (1. - ssnow%isflag) * Ccgsnow * ssnow%snowd
 END IF
 

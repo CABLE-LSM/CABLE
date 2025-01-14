@@ -31,14 +31,14 @@ SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
              ! which can be removed:
              xx = canopy%fevc * dels / CHL * veg%froot(:,k) + diff(:,k-1)   ! kg/m2
              diff(:,k) = MAX( 0.0_r_2, ssnow%wb(:,k) - soil%swilt) &      ! m3/m3
-                  * soil%zse(k)*1000.0
+                  * soil%zse(k)*Cdensity_liq
              xxd = xx - diff(:,k)
 
              WHERE ( xxd .GT. 0.0 )
-                ssnow%wb(:,k) = ssnow%wb(:,k) - diff(:,k) / (soil%zse(k)*1000.0)
+                ssnow%wb(:,k) = ssnow%wb(:,k) - diff(:,k) / (soil%zse(k)*Cdensity_liq)
                 diff(:,k) = xxd
              ELSEWHERE
-                ssnow%wb(:,k) = ssnow%wb(:,k) - xx / (soil%zse(k)*1000.0)
+                ssnow%wb(:,k) = ssnow%wb(:,k) - xx / (soil%zse(k)*Cdensity_liq)
                 diff(:,k) = 0.0
              ENDWHERE
 
@@ -52,10 +52,7 @@ SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
           canopy%fevc = 0.0_r_2
        END WHERE
        DO k = 1,ms
-          ssnow%wb(:,k) = ssnow%wb(:,k) - ssnow%evapfbl(:,k)/(soil%zse(k)*1000.0)
-
-          !  write(59,*) k,  ssnow%wb(:,k),  ssnow%evapfbl(:,k)/(soil%zse(k)*1000.0)
-          !  write(59,*)
+          ssnow%wb(:,k) = ssnow%wb(:,k) - ssnow%evapfbl(:,k)/(soil%zse(k)*Cdensity_liq)
        ENDDO
 
 

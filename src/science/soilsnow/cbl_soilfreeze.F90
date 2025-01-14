@@ -26,16 +26,22 @@ DO k = 1, ms  !loop over soil levels
     IF(ssnow%tgg(i,k) < CTFRZ &
        & .AND. frozen_limit*ssnow%wb(i,k) - ssnow%wbice(i,k) > .001) THEN
       
-      sicefreeze(i) = MIN( MAX( 0.0_r_2, ( frozen_limit * ssnow%wb(i,k) -     &
-                   ssnow%wbice(i,k) ) ) * soil%zse(k) * 1000.0,             &
-                   ( CTFRZ - ssnow%tgg(i,k) ) * ssnow%gammzz(i,k) / CHLF )
+      ! Limits on water mass that can be converted to ice due frozen_limit and saturation
+      sicefreeze(i) = MIN( frozen_limit * ssnow%wb(i,k) - ssnow%wbice(i,k) ,  &
+        (soil%ssat(i) - ssnow%wb(i,k)) / MAX((1.0-Cdensity_ice/Cdensity_liq),1.0E-3)  )
+      ! Apply limits on watermass to freeze by zero and the energy limit
+      sicefreeze(i) = MIN( MAX( 0.0_r_2, sicefreeze(i) ) * soil%zse(k) * Cdensity_ice,             &
+        ( CTFRZ - ssnow%tgg(i,k) ) * ssnow%gammzz(i,k) / CHLF )
+        
       ssnow%wbice(i,k) = MIN( ssnow%wbice(i,k) + sicefreeze(i) / (soil%zse(k)  &
-                         * 1000.0), frozen_limit * ssnow%wb(i,k) )
+                         * Cdensity_ice), frozen_limit * ssnow%wb(i,k) )
+      ssnow%wb(i,k) = ssnow%wb(i,k) + sicefreeze(i) / (soil%zse(k) * Cdensity_ice) &
+                      - sicefreeze(i) / (soil%zse(k) * Cdensity_liq)
       xx(i) = soil%css(i) * soil%rhosoil(i)
       max_arg1 = heat_cap_lower_limit(i,k) 
       max_arg2 = REAL((1.0 - soil%ssat(i)) * soil%css(i) * soil%rhosoil(i) ,r_2) &
           + (ssnow%wb(i,k) - ssnow%wbice(i,k)) * REAL(Ccswat * Cdensity_liq,r_2)  &
-          + ssnow%wbice(i,k) * REAL(Ccsice * Cdensity_liq * 0.9,r_2)
+          + ssnow%wbice(i,k) * REAL(Ccsice * Cdensity_ice,r_2)
       ssnow%gammzz(i,k) = MAX( max_arg1, max_arg2 ) * REAL( soil%zse(k),r_2 )
 
       IF (k == 1 .AND. ssnow%isflag(i) == 0)  &
@@ -46,16 +52,18 @@ DO k = 1, ms  !loop over soil levels
 
    ELSEIF( ssnow%tgg(i,k) > CTFRZ .AND. ssnow%wbice(i,k) > 0. ) THEN
 
-      sicemelt(i) = MIN( ssnow%wbice(i,k) * soil%zse(k) * 1000.0,              &
+      sicemelt(i) = MIN( ssnow%wbice(i,k) * soil%zse(k) * Cdensity_ice,              &
                  ( ssnow%tgg(i,k) - CTFRZ ) * ssnow%gammzz(i,k) / CHLF )
 
       ssnow%wbice(i,k) = MAX( 0.0_r_2, ssnow%wbice(i,k) - sicemelt(i)          &
-                         / (soil%zse(k) * 1000.0) )
+                         / (soil%zse(k) * Cdensity_ice) )
+      ssnow%wb(i,k) = ssnow%wb(i,k) - sicemelt(i) / (soil%zse(k) * Cdensity_ice) &
+            + sicemelt(i) / (soil%zse(k) * Cdensity_liq)
       xx(i) = soil%css(i) * soil%rhosoil(i)
       max_arg1 = heat_cap_lower_limit(i,k) 
       max_arg2 = REAL((1.0 - soil%ssat(i)) * soil%css(i) * soil%rhosoil(i) ,r_2) &
           + (ssnow%wb(i,k) - ssnow%wbice(i,k)) * REAL(Ccswat * Cdensity_liq,r_2)  &
-          + ssnow%wbice(i,k) * REAL(Ccsice * Cdensity_liq * 0.9,r_2)
+          + ssnow%wbice(i,k) * REAL(Ccsice * Cdensity_ice,r_2)
       
       ssnow%gammzz(i,k) = MAX( max_arg1, max_arg2 ) * REAL( soil%zse(k),r_2 )
 
