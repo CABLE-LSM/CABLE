@@ -736,13 +736,13 @@ CONTAINS
     ok = NF90_CLOSE(ncid)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error closing IGBP soil map.')
 
-!ice values from nml file
-!!dont even esxist in what we have
+!comparing mysterious existing loop with ice values from nml file
+!!dont even exist in what we have
 !!soilin%clay    = 0.3
 !!soilin%silt    = 0.33
 
-!!agreement with what we have
-!!soilin%css     = 2100
+!!quasi-agreement with what we have. Below have adpopted these values
+!!soilin%css     = 2100 (see WHERE() below )
 !!soilin%hyds    = 0.000001 (*1e3?)
 !!soilin%rhosoil = 917 (correct ice density)
 !!soilin%sucs    = -0.153 (sign)
