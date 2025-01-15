@@ -4139,7 +4139,7 @@ CONTAINS
      IF(output%veg) THEN
           !IF(output%veg) THEN
              ! Add current timestep's value to total of temporary output variable:
-             out%abs_deltcs_sl = out%abs_deltcs_sl + REAL(canopy%abs_deltcs_sl(:,1), 4)
+             out%abs_deltcs_sl = out%abs_deltcs_sl + REAL(canopy%abs_deltcs(:,1), 4)
              IF(writenow) THEN
                 ! Divide accumulated variable by number of accumulated time steps:
                 out%abs_deltcs_sl = out%abs_deltcs_sl / REAL(output%interval, 4)
@@ -4156,7 +4156,7 @@ CONTAINS
      IF(output%veg) THEN
           !IF(output%veg) THEN
              ! Add current timestep's value to total of temporary output variable:
-             out%abs_deltcs_sh = out%abs_deltcs_sh + REAL(canopy%abs_deltcs_sh(:,2), 4)
+             out%abs_deltcs_sh = out%abs_deltcs_sh + REAL(canopy%abs_deltcs(:,2), 4)
              IF(writenow) THEN
                 ! Divide accumulated variable by number of accumulated time steps:
                 out%abs_deltcs_sh = out%abs_deltcs_sh / REAL(output%interval, 4)
