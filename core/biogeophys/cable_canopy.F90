@@ -2793,8 +2793,6 @@ CONTAINS
       ! change canopy%cs from csx to csy, zihanlu, 19/12/2024
       canopy%cs_sl = csy(:,1) * 1.0e6_r_2
       canopy%cs_sh = csy(:,2) * 1.0e6_r_2
-      canopy%abs_deltcs_sl = abs_deltcs(:,1) * 1.0e6_r_2
-      canopy%abs_deltcs_sh = abs_deltcs(:,2) * 1.0e6_r_2
 
       canopy%dAdcs = canopy%A_sl * dAn_y(:,1) + canopy%A_sh * dAn_y(:,2)
       canopy%cs    = canopy%A_sl * canopy%cs_sl * 1.0e6_r_2 + canopy%A_sh * canopy%cs_sh * 1.0e6_r_2
