@@ -1572,6 +1572,7 @@ CONTAINS
          cx2y,         &
          tdiff,         & ! leaf air temp diff.
          tlfxx,         & ! leaf temp of current iteration (K)
+         dsxx,         & ! vpd at leaf surface of current iteration 
          abs_deltlf,    & ! ABS(deltlf)
          deltlf,        & ! deltlfy of prev iter.
          deltlfy,       & ! del temp successive iter.
@@ -1787,6 +1788,7 @@ CONTAINS
       vcmxt4y      = 0.0
       ecx   = SUM(real(rad%rniso,r_2),2) ! init lat heat iteration memory variable
       tlfxx = tlfx
+      dsxx = dsx
       csxx = csx
       psilxx = psilx
       psycst(:,:)   = SPREAD(air%psyc,2,mf)
@@ -2019,7 +2021,8 @@ CONTAINS
 
                ! Store leaf temperature
                tlfxx(i) = tlfx(i)
-
+               ! Store dsx zihanlu
+               dsxx(i) = dsx(i)
                ! "d_{3}" in Wang and Leuning, 1998, appendix E:
                cx1(i) = conkct(i) * (1.0+0.21/conkot(i))
                !cx2(i) = 2.0 * C%gam0 * ( 1.0 + C%gam1 * tdiff(i) &
@@ -2615,7 +2618,8 @@ CONTAINS
             if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
             write(134,*) ktau, iter, i, k, tlfx(i), deltlf(i), &
             dsx(i), psilx(i,1), psilx(i,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2), &
-            csx(i,1), csx(i,2),csx(i,1), csx(i,2),anx(i,1), anx(i,2), &
+            csx(i,1), csx(i,2),csx(i,1), csx(i,2),anx(i,1), anx(i,2),anrubiscox(i,1),anrubiscox(i,2), &
+            anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
             canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
             vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2)
             END IF
@@ -2630,6 +2634,7 @@ CONTAINS
                !    ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
                !    * tlfx(i)
                tlfx(i) = dc *tlfxx(i) + ( 1.0 - dc ) * tlfx(i)
+               dsx(i) = dc *dsxx(i) + ( 1.0 - dc ) * dsx(i)
                csx(i,1) = dc *csxx(i,1) + ( 1.0 - dc ) * csx(i,1)
                csx(i,2) = dc *csxx(i,2) + ( 1.0 - dc ) * csx(i,2)
                psilx(i,1) = dc *psilxx(i,1) + ( 1.0 - dc ) * psilx(i,1)
@@ -3088,7 +3093,7 @@ CONTAINS
                      if (Am > 0.0_r_2) eta_p(i,j) = dAmp(i,j) * cs / Am
                   endif ! C3/C4
 
-               endif ! deltlfz > 0.1
+            endif ! deltlfz > 0.1
 
                ! minimal of three limited rates
                tmp3      = (/ anrubiscoz(i,j), anrubpz(i,j), ansinkz(i,j) /)
@@ -3099,7 +3104,7 @@ CONTAINS
                dtmp3     = (/ eta_c(i,j), eta_e(i,j), eta_p(i,j) /)
                eta(i,j)  = dtmp3(ii(1))
 
-            else ! vlaiz(i,j) > C%lai_thresh
+         else ! vlaiz(i,j) > C%lai_thresh
 
                anxz(i,:)       = 0.0
                anrubiscoz(i,:) = 0.0
@@ -3114,11 +3119,11 @@ CONTAINS
                eta_p(i,:)      = 0.0_r_2
                eta(i,:)        = 0.0_r_2
 
-            endif ! vlaiz(i,j) > C%lai_thresh
+         endif ! vlaiz(i,j) > C%lai_thresh
 
-         enddo ! j=1, mf
+      enddo ! j=1, mf
 
-      enddo ! i=1, mp
+   enddo ! i=1, mp
 
    END SUBROUTINE photosynthesis_gm
 
