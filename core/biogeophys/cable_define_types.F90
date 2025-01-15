@@ -445,7 +445,8 @@ module cable_def_types_mod
           uscrn => null(),   & ! wind speed at screen height (m/s)
           vlaiw => null(),   & ! lai adj for snow depth for calc of resistances
           rghlai => null(),  & ! lai adj for snow depth for calc of resistances
-          fwet => null()       ! fraction of canopy wet
+          fwet => null(), &       ! fraction of canopy wet
+          abs_deltlf => null()
 
      real, dimension(:,:), pointer :: &
           evapfbl => null(), &
@@ -1237,6 +1238,7 @@ contains
     ! allocate(canopy%ci_sh(mp))
     allocate(canopy%tlf(mp))
     allocate(canopy%dlf(mp))
+    allocate(canopy%abs_deltlf(mp))
     allocate(canopy%gw(mp,mf))     ! dry canopy conductance (ms-1) edit vh 6/7/09
     allocate(canopy%ancj(mp,mf,3)) ! limiting photosynthetic rates (Rubisco,RuBP,sink) vh 6/7/09
     allocate(canopy%tlfy(mp,mf))   ! sunlit and shaded leaf temperatures
@@ -1896,6 +1898,7 @@ contains
     deallocate( canopy%day_plc_sat )
     deallocate( canopy%day_plc_stem )
     deallocate( canopy%day_plc_can )
+    deallocate( canopy%abs_deltlf )
 
   end subroutine dealloc_canopy_type
 
@@ -2458,6 +2461,7 @@ contains
     canopy%day_plc_sat = 0
     canopy%day_plc_stem = 0
     canopy%day_plc_can = 0
+    canopy%abs_deltlf = 0
 
   end subroutine zero_canopy_type
 

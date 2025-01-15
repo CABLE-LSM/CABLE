@@ -207,7 +207,8 @@ MODULE cable_checks_module
           d0gs = (/0.0, 5000./),   &
           P50 = (/-50.0, 0.0/),          &
           P88dP50 = (/-50.0, 0.0/),      &
-          kplant = (/0.0, 100.0/)
+          kplant = (/0.0, 100.0/), &
+          abs_deltlf = (/0.0, 50.0/)
    END TYPE ranges_type
    TYPE(ranges_type),SAVE :: ranges
 

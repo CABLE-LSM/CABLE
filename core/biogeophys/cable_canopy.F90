@@ -2664,6 +2664,7 @@ CONTAINS
       ! dry canopy flux
       canopy%fevc = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
       canopy%abs_deltpsil = abs_deltpsil
+      canopy%abs_deltlf = abs_deltlf
       !write(logn,*) 'fevc', canopy%fevc(1)
       ! print*, 'DD45 ', canopy%fwet
       ! print*, 'DD46 ', canopy%fevc

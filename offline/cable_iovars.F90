@@ -421,7 +421,8 @@ MODULE cable_IO_vars_module
          plc_can = .FALSE.,       & 
          gsw_sun = .FALSE.,       & 
          gsw_sha = .FALSE.,       &
-         kplant = .FALSE.
+         kplant = .FALSE.,       &
+         abs_deltlf = .FALSE.
    END TYPE output_inclusion_type
 
    TYPE(output_inclusion_type), SAVE :: output
