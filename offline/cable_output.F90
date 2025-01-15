@@ -85,7 +85,8 @@ MODULE cable_output_module
           An, Rd, cplant, clitter, csoil, clabile, &
           A13n, aDisc13, c13plant, c13litter, c13soil, c13labile, &
           TSap, psi_soil, psi_rootzone, psi_stem, psi_can_sl, psi_can_sh, &
-          plc_sat, plc_stem, plc_can, gsw_sun, gsw_sha, LeafT, abs_deltpsil_sl, abs_deltpsil_sh, kplant, abs_deltlf
+          plc_sat, plc_stem, plc_can, gsw_sun, gsw_sha, LeafT, abs_deltpsil_sl, abs_deltpsil_sh, kplant, &
+          abs_deltlf, abs_deltds, abs_deltcs_sl, abs_deltcs_sh
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
 
@@ -284,13 +285,15 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_can_sh  => null()     !
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: abs_deltpsil_sl  => null()     !
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: abs_deltpsil_sh  => null()     !
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: abs_deltcs_sl  => null()     !
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: abs_deltcs_sh  => null()     !
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: plc_sat  => null()    ! ms8355
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: plc_stem => null()     ! ms8355
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: plc_can  => null()     ! ms8355
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: gsw_sun  => null()     ! mgk576
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: gsw_sha  => null()     ! mgk576
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: kplant  => null()     ! mgk576
-     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: abs_deltlf  => null() ! zihanlu
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   ::   => null() ! zihanlu
 
   END TYPE output_temporary_type
   TYPE(output_temporary_type), SAVE :: out
@@ -659,7 +662,7 @@ CONTAINS
        ALLOCATE(out%scalex_sh(mp))
        out%scalex_sh = zero4 ! initialise
 
-       CALL define_ovar(ncid_out, ovid%dlf, 'leaf_to_air_vpd', 'kPa', &
+       CALL define_ovar(ncid_out, ovid%dlf, 'leaf_to_air_vpd', 'Pa', &
             'leaf to air vapour pressure difference', patchout%TVeg, 'dummy', &
             xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%dlf(mp))
@@ -815,12 +818,36 @@ CONTAINS
      out%abs_deltpsil_sh = 0.0 ! initialise
   END IF
   IF(output%veg) THEN
+     CALL define_ovar(ncid_out, ovid%abs_deltcs_sl, &
+                      'abs_deltcs_sl', 'ppm', 'the last value of abs_deltcs_sl during 4x20 iterations ', &
+                      patchout%abs_deltcs_sl, 'dummy', xID, yID, zID, &
+                      landID, patchID, tID)
+     ALLOCATE(out%abs_deltcs_sl(mp))
+     out%abs_deltcs_sl = 0.0 ! initialise
+  END IF
+  IF(output%veg) THEN
+     CALL define_ovar(ncid_out, ovid%abs_deltcs_sh, &
+                      'abs_deltcs_sh', 'ppm', 'the last value of abs_deltcs_sh during 4x20 iterations ', &
+                      patchout%abs_deltcs_sh, 'dummy', xID, yID, zID, &
+                      landID, patchID, tID)
+     ALLOCATE(out%abs_deltcs_sh(mp))
+     out%abs_deltcs_sh = 0.0 ! initialise
+  END IF
+  IF(output%veg) THEN
      CALL define_ovar(ncid_out, ovid%abs_deltlf, &
                       'abs_deltlf', 'K', 'the last value of abs_deltlf during 4x20 iterations ', &
                       patchout%abs_deltlf, 'dummy', xID, yID, zID, &
                       landID, patchID, tID)
      ALLOCATE(out%abs_deltlf(mp))
      out%abs_deltlf = 0.0 ! initialise
+  END IF
+  IF(output%veg) THEN
+     CALL define_ovar(ncid_out, ovid%abs_deltds, &
+                      'abs_deltds', 'pa', 'the last value of abs_deltds during 4x20 iterations ', &
+                      patchout%abs_deltds, 'dummy', xID, yID, zID, &
+                      landID, patchID, tID)
+     ALLOCATE(out%abs_deltds(mp))
+     out%abs_deltds = 0.0 ! initialise
   END IF
   IF(output%veg) THEN
      CALL define_ovar(ncid_out, ovid%plc_sat, &
@@ -4111,6 +4138,40 @@ CONTAINS
      IF(output%veg) THEN
           !IF(output%veg) THEN
              ! Add current timestep's value to total of temporary output variable:
+             out%abs_deltcs_sl = out%abs_deltcs_sl + REAL(canopy%abs_deltcs_sl(:,1), 4)
+             IF(writenow) THEN
+                ! Divide accumulated variable by number of accumulated time steps:
+                out%abs_deltcs_sl = out%abs_deltcs_sl / REAL(output%interval, 4)
+                ! Write value to file:
+                CALL write_ovar(out_timestep, ncid_out, ovid%abs_deltcs_sl, &
+                               'abs_deltcs_sl', &
+                                out%abs_deltcs_sl, ranges%abs_deltpsil, &
+                                patchout%abs_deltcs_sl, &
+                               'default', met)
+                ! Reset temporary output variable:
+                out%abs_deltcs_sl = 0.0
+             END IF
+     END IF
+     IF(output%veg) THEN
+          !IF(output%veg) THEN
+             ! Add current timestep's value to total of temporary output variable:
+             out%abs_deltcs_sh = out%abs_deltcs_sh + REAL(canopy%abs_deltcs_sh(:,2), 4)
+             IF(writenow) THEN
+                ! Divide accumulated variable by number of accumulated time steps:
+                out%abs_deltcs_sh = out%abs_deltcs_sh / REAL(output%interval, 4)
+                ! Write value to file:
+                CALL write_ovar(out_timestep, ncid_out, ovid%abs_deltcs_sh, &
+                               'abs_deltcs_sh', &
+                                out%abs_deltcs_sh, ranges%abs_deltpsil, &
+                                patchout%abs_deltcs_sh, &
+                               'default', met)
+                ! Reset temporary output variable:
+                out%abs_deltcs_sh = 0.0
+             END IF
+     END IF
+     IF(output%veg) THEN
+          !IF(output%veg) THEN
+             ! Add current timestep's value to total of temporary output variable:
              out%abs_deltlf = out%abs_deltlf + REAL(canopy%abs_deltlf, 4)
              IF(writenow) THEN
                 ! Divide accumulated variable by number of accumulated time steps:
@@ -4123,6 +4184,23 @@ CONTAINS
                                'default', met)
                 ! Reset temporary output variable:
                 out%abs_deltlf = 0.0
+             END IF
+     END IF
+     IF(output%veg) THEN
+          !IF(output%veg) THEN
+             ! Add current timestep's value to total of temporary output variable:
+             out%abs_deltds = out%abs_deltds + REAL(canopy%abs_deltds, 4)
+             IF(writenow) THEN
+                ! Divide accumulated variable by number of accumulated time steps:
+                out%abs_deltds = out%abs_deltds / REAL(output%interval, 4)
+                ! Write value to file:
+                CALL write_ovar(out_timestep, ncid_out, ovid%abs_deltds, &
+                               'abs_deltds', &
+                                out%abs_deltds, ranges%abs_deltlf, &
+                                patchout%abs_deltds, &
+                               'default', met)
+                ! Reset temporary output variable:
+                out%abs_deltds = 0.0
              END IF
      END IF
    IF(output%veg .and. cable_user%FWSOIL_SWITCH == 'profitmax') THEN

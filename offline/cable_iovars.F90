@@ -414,6 +414,8 @@ MODULE cable_IO_vars_module
          psi_can_sh = .FALSE.,       &
          abs_deltpsil_sl = .FALSE.,       & 
          abs_deltpsil_sh = .FALSE.,       &
+         abs_deltcs_sl = .FALSE.,       & 
+         abs_deltcs_sh = .FALSE.,       &
          fwpsi_sl = .FALSE.,       &
          fwpsi_sh = .FALSE.,       &   
          plc_sat = .FALSE.,       & 
@@ -422,7 +424,8 @@ MODULE cable_IO_vars_module
          gsw_sun = .FALSE.,       & 
          gsw_sha = .FALSE.,       &
          kplant = .FALSE.,       &
-         abs_deltlf = .FALSE.
+         abs_deltlf = .FALSE.,   &
+         abs_deltds = .FALSE.
    END TYPE output_inclusion_type
 
    TYPE(output_inclusion_type), SAVE :: output

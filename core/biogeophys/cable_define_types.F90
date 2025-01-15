@@ -446,7 +446,8 @@ module cable_def_types_mod
           vlaiw => null(),   & ! lai adj for snow depth for calc of resistances
           rghlai => null(),  & ! lai adj for snow depth for calc of resistances
           fwet => null(), &       ! fraction of canopy wet
-          abs_deltlf => null()
+          abs_deltlf => null(), &
+          abs_deltds => null()
 
      real, dimension(:,:), pointer :: &
           evapfbl => null(), &
@@ -519,6 +520,7 @@ module cable_def_types_mod
      real(r_2), dimension(:,:), pointer :: psi_can => null() 
      real(r_2), dimension(:), pointer :: psi_can_opt => null() 
      real(r_2), dimension(:,:), pointer :: abs_deltpsil => null() 
+     real(r_2), dimension(:,:), pointer :: abs_deltcs => null() 
      ! plant hydraulics; mgk576 2017; ms835 2022
      REAL(r_1), DIMENSION(:), POINTER :: &
         psi_stem => null(), &
@@ -1239,6 +1241,7 @@ contains
     allocate(canopy%tlf(mp))
     allocate(canopy%dlf(mp))
     allocate(canopy%abs_deltlf(mp))
+    allocate(canopy%abs_deltds(mp))
     allocate(canopy%gw(mp,mf))     ! dry canopy conductance (ms-1) edit vh 6/7/09
     allocate(canopy%ancj(mp,mf,3)) ! limiting photosynthetic rates (Rubisco,RuBP,sink) vh 6/7/09
     allocate(canopy%tlfy(mp,mf))   ! sunlit and shaded leaf temperatures
@@ -1267,6 +1270,7 @@ contains
     allocate( canopy%psi_stem(mp) )
     allocate( canopy%psi_can(mp,mf) )
     allocate( canopy%abs_deltpsil(mp,mf) )
+    allocate( canopy%abs_deltcs(mp,mf) )
     allocate( canopy%psi_can_opt(mp) )
     allocate( canopy%kplant(mp) )
     allocate( canopy%plc_sat(mp) )
@@ -1890,6 +1894,7 @@ contains
     deallocate( canopy%psi_stem )
     deallocate( canopy%psi_can )
     deallocate( canopy%abs_deltpsil )
+    deallocate( canopy%abs_deltcs )
     deallocate( canopy%psi_can_opt )
     deallocate( canopy%kplant )
     deallocate( canopy%plc_sat )
@@ -1899,6 +1904,7 @@ contains
     deallocate( canopy%day_plc_stem )
     deallocate( canopy%day_plc_can )
     deallocate( canopy%abs_deltlf )
+    deallocate( canopy%abs_deltds )
 
   end subroutine dealloc_canopy_type
 
@@ -2453,6 +2459,7 @@ contains
     canopy%psi_stem = 0
     canopy%psi_can = 0
     canopy%abs_deltpsil = 0
+    canopy%abs_deltcs = 0
     canopy%psi_can_opt = 0
     canopy%kplant = 0
     canopy%plc_sat = 0
@@ -2462,6 +2469,7 @@ contains
     canopy%day_plc_stem = 0
     canopy%day_plc_can = 0
     canopy%abs_deltlf = 0
+    canopy%abs_deltds = 0
 
   end subroutine zero_canopy_type
 

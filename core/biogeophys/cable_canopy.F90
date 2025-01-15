@@ -1574,6 +1574,7 @@ CONTAINS
          tlfxx,         & ! leaf temp of current iteration (K)
          dsxx,         & ! vpd at leaf surface of current iteration 
          abs_deltlf,    & ! ABS(deltlf)
+         abs_deltds,    &
          deltlf,        & ! deltlfy of prev iter.
          deltlfy,       & ! del temp successive iter.
          gras,          & ! Grashof coeff
@@ -1652,7 +1653,8 @@ CONTAINS
          fwpsiy, &
          psilxx, &
          csxx, &
-         abs_deltpsil 
+         abs_deltpsil , &
+         abs_deltcs
 
       real ::  gam0,    &
          conkc0,  &
@@ -1775,6 +1777,8 @@ CONTAINS
       eta_x       = 0.0_r_2
       rnx         = SUM(real(rad%rniso,r_2),2)
       abs_deltlf  = 999.0
+      abs_deltds  = 999.0
+      abs_deltcs(:,:)   = SPREAD(SPREAD(999.0_r_2,1,mp),2,mf)
       vcmxt3      = 0.0
       vcmxt4      = 0.0
       ! print*, 'DD05 ', rad%rniso
@@ -1840,7 +1844,9 @@ CONTAINS
             ecy(kk) = ecx(kk) ! store initial values
             ecxs(kk) = 0.0_r_2 ! initialise
             abs_deltlf(kk) = 0.0
+            abs_deltds(kk) = 0.0
             abs_deltpsil(kk,:) = 0.0
+            abs_deltcs(kk,:) = 0.0
             rny(kk) = rnx(kk) ! store initial values
             ! calculate total thermal resistance, rthv in s/m
          END IF
@@ -2527,7 +2533,8 @@ CONTAINS
                   abs_deltpsil(i,:) = ABS(psilxx(i,:)-psilx(i,:))
                endif
                abs_deltlf(i) = ABS(deltlf(i))
-
+               abs_deltds(i) = ABS(dsxx(i)-dsx(i))
+               abs_deltcs(i,:) = ABS(csxx(i,:)-csx(i,:))
             ENDIF !lai/abs_deltlf
 
          ENDDO !i=1,mp
@@ -2664,7 +2671,11 @@ CONTAINS
       ! dry canopy flux
       canopy%fevc = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
       canopy%abs_deltpsil = abs_deltpsil
+      canopy%abs_deltcs = abs_deltcs * 1.0e6_r_2
       canopy%abs_deltlf = abs_deltlf
+      canopy%abs_deltds = abs_deltds
+
+
       !write(logn,*) 'fevc', canopy%fevc(1)
       ! print*, 'DD45 ', canopy%fwet
       ! print*, 'DD46 ', canopy%fevc
@@ -2782,6 +2793,8 @@ CONTAINS
       ! change canopy%cs from csx to csy, zihanlu, 19/12/2024
       canopy%cs_sl = csy(:,1) * 1.0e6_r_2
       canopy%cs_sh = csy(:,2) * 1.0e6_r_2
+      canopy%abs_deltcs_sl = abs_deltcs(:,1) * 1.0e6_r_2
+      canopy%abs_deltcs_sh = abs_deltcs(:,2) * 1.0e6_r_2
 
       canopy%dAdcs = canopy%A_sl * dAn_y(:,1) + canopy%A_sh * dAn_y(:,2)
       canopy%cs    = canopy%A_sl * canopy%cs_sl * 1.0e6_r_2 + canopy%A_sh * canopy%cs_sh * 1.0e6_r_2
