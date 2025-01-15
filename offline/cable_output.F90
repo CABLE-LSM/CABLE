@@ -293,7 +293,7 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: gsw_sun  => null()     ! mgk576
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: gsw_sha  => null()     ! mgk576
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: kplant  => null()     ! mgk576
-     REAL(KIND=r_1), POINTER, DIMENSION(:)   ::   => null() ! zihanlu
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: abs_deltds  => null() ! zihanlu
 
   END TYPE output_temporary_type
   TYPE(output_temporary_type), SAVE :: out
