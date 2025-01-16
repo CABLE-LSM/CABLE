@@ -1674,7 +1674,7 @@ CONTAINS
 
       integer :: i, j, k, kk, h ! iteration count
       integer :: NN,m
-      integer, allocatable :: nktau(:),allktau(:),nktau_end(:)
+      integer, allocatable :: nktau(:), allktau(:), nktau_end(:)
       real :: vpd, g1, ktot, fw, refill  ! Ticket #56
       REAL, PARAMETER :: & ! Ref. params from Bernacchi et al. (2001)
          co2cp325 = 42.75, & ! CO2 compensation pt C3 at 25 degrees, umol mol-1
@@ -1858,6 +1858,7 @@ CONTAINS
       
 
       !kdcorbin, 08/10 - doing all points all the time'
+      allocate(nktau(3), nktau_end(3))
       nktau=[45492,78902,112186]
       NN=2
       nktau_end = nktau + NN - 1
@@ -1866,21 +1867,25 @@ CONTAINS
       do i = 1, size(nktau)
          do k = 0, NN-1
              j = (i - 1) * 48 + k
-             allktau(j) = nktau(i) + k
+             allktau(j+1) = nktau(i) + k
          end do
      end do
       !write(num_str, '(I0)') nktau
       ! txtname = trim(filename%path) // '/testIteration_cable_out_' // trim(num_str) &
       ! // '.txt'
       txtname = trim(filename%path) // 'testIteration_cable_out.txt'
-      if (any(nktau == ktau_tot) .and. iter==1) then
-         if (ktau_tot == nktau(1)) then
-             ! Open the file for overwrite if k is the first element
-             open(unit=134, file=txtname, status="unknown", action="write")
-         else
-             ! Open the file for appending otherwise
-             open(unit=134, file=txtname, status="unknown", position="append", action="write")
-         end if
+      ! if (any(nktau == ktau_tot) .and. iter==1) then
+      !    if (ktau_tot == nktau(1)) then
+      !        ! Open the file for overwrite if k is the first element
+      !        open(unit=134, file=txtname, status="unknown", action="write")
+      !    else
+      !        ! Open the file for appending otherwise
+      !        open(unit=134, file=txtname, status="unknown", position="append", action="write")
+      !    end if
+      ! end if
+      if (ktau_tot == nktau(1) .and. iter==1) then
+         ! Open the file for overwrite if k is the first element
+         open(unit=134, file=txtname, status="unknown", action="write")
       end if
       ! if (ktau_tot==nktau .and. iter==1) then
       ! open(unit=134, file=txtname)
@@ -2686,9 +2691,13 @@ CONTAINS
       ! vcmxt3(i,1),vcmxt3(i,2), gs_coeff(i,1),gs_coeff(i,2),rdy(i,1),rdy(i,2)
       ! end if 
       !if (ktau_tot==(nktau+NN-1)  .and. iter==4) THEN
-      if (any(nktau_end == ktau_tot) .and. iter==4) THEN
+      !if (any(nktau_end == ktau_tot) .and. iter==4) THEN
+      if (ktau_tot == nktau_end(size(nktau_end)) .and. iter==4) THEN
          close(134)
       END IF
+      deallocate(nktau) 
+      deallocate(nktau_end) 
+      deallocate(allktau) 
       ! print*, 'End k loop: ktau & iter & k= ',ktau,iter,k
       ! dry canopy flux
       canopy%fevc = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
