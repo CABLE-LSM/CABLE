@@ -1855,7 +1855,7 @@ CONTAINS
       ENDDO
 
       deltlfy = abs_deltlf
-      k = 0
+      
 
       !kdcorbin, 08/10 - doing all points all the time'
       nktau=[45492,78902,112186]
@@ -1872,7 +1872,7 @@ CONTAINS
       !write(num_str, '(I0)') nktau
       ! txtname = trim(filename%path) // '/testIteration_cable_out_' // trim(num_str) &
       ! // '.txt'
-      txtname = trim(filename%path) // '/testIteration_cable_out.txt'
+      txtname = trim(filename%path) // 'testIteration_cable_out.txt'
       if (any(nktau == ktau_tot) .and. iter==1) then
          if (ktau_tot == nktau(1)) then
              ! Open the file for overwrite if k is the first element
@@ -1886,6 +1886,7 @@ CONTAINS
       ! open(unit=134, file=txtname)
       ! !print*, 'write iteration file '
       ! end if
+      k = 0
       DO WHILE (k < C%MAXITER)
          k = k + 1
          ! print*, 'DD07 ', k, C%MAXITER, canopy%cansto
