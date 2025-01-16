@@ -736,44 +736,24 @@ CONTAINS
     ok = NF90_CLOSE(ncid)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error closing IGBP soil map.')
 
-!comparing mysterious existing loop with ice values from nml file
-!!dont even exist in what we have
-!!soilin%clay    = 0.3
-!!soilin%silt    = 0.33
-
-!!quasi-agreement with what we have. Below have adpopted these values
-!!soilin%css     = 2100 (see WHERE() below )
-!!soilin%hyds    = 0.000001 (*1e3?)
-!!soilin%rhosoil = 917 (correct ice density)
-!!soilin%sucs    = -0.153 (sign)
-
-!!agreement with what we have
-!!soilin%bch     = 7.1
-!!soilin%sand    = 0.37
-!!soilin%sfc     = 0.301
-!!soilin%ssat    = 0.479
-!!soilin%swilt   = 0.216
-
-!IDK where this code came from. Some are == nml values (for ice)
-!units change might be reasonable but others !!!!! e.g. density=1455??
-!Code if using UM soil file
-!unit change and glacial-point check were done in preprocessing
-! change unit to m/s
-! Assign values to glacial points which are zeroes
-WHERE( inswilt   == 0.0 ) inswilt   = 0.216
-WHERE( insfc     == 0.0 ) insfc     = 0.301
-WHERE( inssat    == 0.0 ) inssat    = 0.479
-WHERE( inbch     == 0.0 ) inbch     = 7.1
-WHERE( inhyds    == 0.0 ) inhyds    = 1.E-3
-WHERE( insucs    == 0.0 ) insucs    = -0.153
-WHERE( inrhosoil == 0.0 ) inrhosoil = 917 
-WHERE( incnsd    == 0.0 ) incnsd    = 0.272
-
-WHERE(incss > 630000.0)
-  incss = incss / inrhosoil   ! normal points need unit conversion
-ELSEWHERE
-  incss = 2100.0   ! glacial points
-ENDWHERE
+    ! Code if using UM soil file
+    ! unit change and glacial-point check were done in preprocessing
+    !    ! change unit to m/s
+    !    inhyds = inhyds * 1.0E-3
+    !    ! Assign values to glacial points which are zeroes
+    !    WHERE(inswilt==0.)     inswilt = 0.216
+    !    WHERE( insfc ==0.)       insfc = 0.301
+    !    WHERE(inssat ==0.)      inssat = 0.479
+    !    WHERE( inbch ==0.)       inbch = 7.1
+    !    WHERE(inhyds ==0.)      inhyds = 1.E-3
+    !    WHERE(insucs ==0.)      insucs = 0.153
+    !    WHERE(inrhosoil==0.) inrhosoil = 1455
+    !    WHERE(incnsd ==0.)      incnsd = 0.272
+    !    WHERE(incss > 630000.0)
+    !      incss = incss / inrhosoil   ! normal points need unit conversion
+    !    ELSEWHERE
+    !      incss = 2100.0   ! glacial points
+    !    ENDWHERE
 
     ! Calculate albedo for radiation bands and overwrite previous
     ! initialization
