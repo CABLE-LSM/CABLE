@@ -1673,7 +1673,8 @@ CONTAINS
       real, dimension(mp,2) ::  gsw_term, lower_limit2  ! local temp var
 
       integer :: i, k, kk, h ! iteration count
-      integer :: nktau,NN
+      integer :: NN,m
+      integer, allocatable :: nktau(:),allktau(:),nktau_end(:)
       real :: vpd, g1, ktot, fw, refill  ! Ticket #56
       REAL, PARAMETER :: & ! Ref. params from Bernacchi et al. (2001)
          co2cp325 = 42.75, & ! CO2 compensation pt C3 at 25 degrees, umol mol-1
@@ -1857,16 +1858,33 @@ CONTAINS
       k = 0
 
       !kdcorbin, 08/10 - doing all points all the time'
-      nktau=77712
-      NN=48
+      nktau=[45492,78902,112186]
+      nktau_end = nktau + NN - 1
+      NN=2
+      m = size(nktau) * NN
+      allocate(allktau(m))
+      do i = 1, size(nktau)
+         do k = 0, NN-1
+             j = (i - 1) * 48 + k
+             allktau(j) = nktau(i) + k
+         end do
+     end do
       write(num_str, '(I0)') nktau
       txtname = trim(filename%path) // '/testIteration_cable_out_' // trim(num_str) &
       // '.txt'
-      
-      if (ktau_tot==nktau .and. iter==1) then
-      open(unit=134, file=txtname)
-      !print*, 'write iteration file '
+      if (any(nktau == ktau_tot) .and. iter==1) then
+         if (ktau_tot == nktau(1)) then
+             ! Open the file for overwrite if k is the first element
+             open(unit=134, file=txtname, status="unknown", action="write")
+         else
+             ! Open the file for appending otherwise
+             open(unit=134, file=txtname, status="unknown", position="append", action="write")
+         end if
       end if
+      ! if (ktau_tot==nktau .and. iter==1) then
+      ! open(unit=134, file=txtname)
+      ! !print*, 'write iteration file '
+      ! end if
       DO WHILE (k < C%MAXITER)
          k = k + 1
          ! print*, 'DD07 ', k, C%MAXITER, canopy%cansto
@@ -2622,10 +2640,11 @@ CONTAINS
                cx2y(i) = cx2(i)
             END IF
             !print*, 'check after k==1 ',ktau,k
-            if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
-            write(134,*) ktau, iter, i, k, tlfx(i), deltlf(i), &
-            dsx(i), psilx(i,1), psilx(i,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2), &
-            csx(i,1), csx(i,2),csx(i,1), csx(i,2),anx(i,1), anx(i,2),anrubiscox(i,1),anrubiscox(i,2), &
+            !if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
+            if (any(allktau == ktau_tot)) then
+            write(134,*) ktau_tot, iter, i, k, tlfx(i), deltlf(i), &
+            dsx(i),abs_deltds(i), psilx(i,1), psilx(i,2),abs_deltpsil(i,1),abs_deltpsil(i,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2), &
+            csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2),anrubiscox(i,1),anrubiscox(i,2), &
             anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
             canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
             vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2)
@@ -2664,7 +2683,8 @@ CONTAINS
       ! gswy(i,1), gswy(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
       ! vcmxt3(i,1),vcmxt3(i,2), gs_coeff(i,1),gs_coeff(i,2),rdy(i,1),rdy(i,2)
       ! end if 
-      if (ktau_tot==(nktau+NN-1)  .and. iter==4) THEN
+      !if (ktau_tot==(nktau+NN-1)  .and. iter==4) THEN
+      if (any(nktau_end == ktau_tot) .and. iter==4) THEN
          close(134)
       END IF
       ! print*, 'End k loop: ktau & iter & k= ',ktau,iter,k
