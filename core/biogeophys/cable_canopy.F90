@@ -1869,9 +1869,10 @@ CONTAINS
              allktau(j) = nktau(i) + k
          end do
      end do
-      write(num_str, '(I0)') nktau
-      txtname = trim(filename%path) // '/testIteration_cable_out_' // trim(num_str) &
-      // '.txt'
+      !write(num_str, '(I0)') nktau
+      ! txtname = trim(filename%path) // '/testIteration_cable_out_' // trim(num_str) &
+      ! // '.txt'
+      txtname = trim(filename%path) // '/testIteration_cable_out.txt'
       if (any(nktau == ktau_tot) .and. iter==1) then
          if (ktau_tot == nktau(1)) then
              ! Open the file for overwrite if k is the first element
