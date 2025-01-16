@@ -1866,7 +1866,7 @@ CONTAINS
       allocate(allktau(m))
       do i = 1, size(nktau)
          do k = 0, NN-1
-             j = (i - 1) * 48 + k
+             j = (i - 1) * NN + k
              allktau(j+1) = nktau(i) + k
          end do
      end do
