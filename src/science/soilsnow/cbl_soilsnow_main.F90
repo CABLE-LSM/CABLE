@@ -122,7 +122,7 @@ USE cable_phys_constants_mod,  ONLY: density_liq, density_ice
     ! snow aging etc...
     CALL snowl_adjust(dels, ssnow, canopy )
 
-   CALL stempv(dels, canopy, ssnow, soil, REAL(soil%heat_cap_lower_limit) )
+   CALL stempv(dels, canopy, ssnow, soil, soil%heat_cap_lower_limit )
 
     ssnow%tss =  (1-ssnow%isflag)*ssnow%tgg(:,1) + ssnow%isflag*ssnow%tggsn(:,1)
 
@@ -133,8 +133,7 @@ USE cable_phys_constants_mod,  ONLY: density_liq, density_ice
 
     CALL remove_trans(dels, soil, ssnow, canopy, veg)
 
-   CALL  soilfreeze(dels, soil, ssnow, REAL(soil%heat_cap_lower_limit) )
-
+   CALL  soilfreeze(dels, soil, ssnow, soil%heat_cap_lower_limit )
 
     totwet = canopy%precis + ssnow%smelt
 
