@@ -1672,7 +1672,7 @@ CONTAINS
 
       real, dimension(mp,2) ::  gsw_term, lower_limit2  ! local temp var
 
-      integer :: i, k, kk, h ! iteration count
+      integer :: i, j, k, kk, h ! iteration count
       integer :: NN,m
       integer, allocatable :: nktau(:),allktau(:),nktau_end(:)
       real :: vpd, g1, ktot, fw, refill  ! Ticket #56
