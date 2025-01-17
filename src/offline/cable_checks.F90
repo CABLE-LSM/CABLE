@@ -205,8 +205,7 @@ MODULE cable_checks_module
 
   TYPE(ranges_type), SAVE :: ranges
 
-  IF (cable_user%GW_MODEL) ranges%sucs = [30., 800.]   ! MMY the range [-0.8, -0.03] doesn't suit Mark Decker's version
-
+ 
   INTERFACE check_range
     MODULE PROCEDURE :: check_range_d1
     MODULE PROCEDURE :: check_range_d2
