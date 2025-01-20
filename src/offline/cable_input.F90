@@ -1817,25 +1817,54 @@ CONTAINS
 
        ! Get SWdown data for mask grid:
        IF (cable_user%GSWP3) ncid_met=ncid_sw ! since GSWP3 multiple met files
-       ok= NF90_GET_VAR(ncid_met,id%SWdown,tmpDat3, &
-            start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
-       IF(ok /= NF90_NOERR) CALL nc_abort &
-            (ok,'Error reading SWdown in met data file ' &
-            //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
-       ! Assign value to met data variable (no units change required):
-       !jhan:quick fix, use (1/2) dimension 1 here arbitrarily
-       DO i=1,mland ! over all land points/grid cells
-          met%fsd(landpt(i)%cstart:landpt(i)%cend,1) = &
-               0.5 * REAL(tmpDat3(land_x(i),land_y(i),1))
-          met%fsd(landpt(i)%cstart:landpt(i)%cend,2) = &
-               0.5 * REAL(tmpDat3(land_x(i),land_y(i),1))
-       ENDDO
+       ! Find number of dimensions of Tair:
+       ok = NF90_INQUIRE_VARIABLE(ncid_met,id%SWdown,ndims=ndims)
+
+       SELECT CASE (ndims)
+       CASE (3)         ! 3D var, either on grid or new ALMA format single site
+         ok= NF90_GET_VAR(ncid_met,id%SWdown,tmpDat3, &
+               start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
+         IF(ok /= NF90_NOERR) CALL nc_abort &
+               (ok,'Error reading 3D SWdown in met data file ' &
+               //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+         ! Assign value to met data variable (no units change required):
+         !jhan:quick fix, use (1/2) dimension 1 here arbitrarily
+         DO i=1,mland ! over all land points/grid cells
+            met%fsd(landpt(i)%cstart:landpt(i)%cend,1) = &
+                  0.5 * REAL(tmpDat3(land_x(i),land_y(i),1))
+            met%fsd(landpt(i)%cstart:landpt(i)%cend,2) = &
+                  0.5 * REAL(tmpDat3(land_x(i),land_y(i),1))
+         ENDDO
+       CASE (4)
+         ok= NF90_GET_VAR(ncid_met,id%SWdown,tmpDat4, &
+               start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+         IF(ok /= NF90_NOERR) CALL nc_abort &
+               (ok,'Error reading 4D SWdown in met data file ' &
+               //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+         ! Assign value to met data variable (no units change required):
+         !jhan:quick fix, use (1/2) dimension 1 here arbitrarily
+         DO i=1,mland ! over all land points/grid cells
+            met%fsd(landpt(i)%cstart:landpt(i)%cend,1) = &
+                  0.5 * REAL(tmpDat4(land_x(i),land_y(i),1,1))
+            met%fsd(landpt(i)%cstart:landpt(i)%cend,2) = &
+                  0.5 * REAL(tmpDat4(land_x(i),land_y(i),1,1))
+         ENDDO
+
+       CASE DEFAULT
+         WRITE(logn, "(A,I,A)") "Error SWdown rank not supported. SWdown in &
+             &met file has ", ndims, " rank"
+         STOP
+       END SELECT 
+
+         
 
        ! Get Tair data for mask grid:- - - - - - - - - - - - - - - - - -
        IF(cable_user%GSWP3) ncid_met = ncid_ta ! since GSWP3 multiple met files
        ! Find number of dimensions of Tair:
        ok = NF90_INQUIRE_VARIABLE(ncid_met,id%Tair,ndims=ndims)
-       IF(ndims==3) THEN ! 3D var, either on grid or new ALMA format single site
+
+       SELECT CASE (ndims)
+       CASE (3) ! 3D var, either on grid or new ALMA format single site
          ok= NF90_GET_VAR(ncid_met,id%Tair,tmpDat3, &
               start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
          IF(ok /= NF90_NOERR) CALL nc_abort & ! check for error
@@ -1846,7 +1875,8 @@ CONTAINS
             met%tk(landpt(i)%cstart:landpt(i)%cend) = &
                  REAL(tmpDat3(land_x(i),land_y(i),1)) + convert%Tair
          ENDDO
-       ELSE ! i.e. ndims==4, the older ALMA format for Tair
+
+       CASE (4) ! i.e. ndims==4, the older ALMA format for Tair
          ok= NF90_GET_VAR(ncid_met,id%Tair,tmpDat4, &
               start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
          IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -1857,14 +1887,21 @@ CONTAINS
             met%tk(landpt(i)%cstart:landpt(i)%cend) = &
                  REAL(tmpDat4(land_x(i),land_y(i),1,1)) + convert%Tair
          ENDDO
-       END IF
+
+       CASE DEFAULT
+         WRITE(logn, "(A,I,A)") "Error Tair rank not supported. Tair in &
+             &met file has ", ndims, " rank"
+         STOP
+       END SELECT
 
        ! Get PSurf data for mask grid:- - - - - - - - - - - - - - - - - -
        IF (cable_user%GSWP3) ncid_met = ncid_ps ! since GSWP3 multiple met files
        IF(exists%PSurf) THEN ! IF PSurf is in met file:
          ! Find number of dimensions of PSurf:
          ok = NF90_INQUIRE_VARIABLE(ncid_met,id%PSurf,ndims=ndims)
-         IF(ndims==3) THEN ! 3D var, either grid or new ALMA format single site
+
+         SELECT CASE (ndims)
+         CASE (3) ! 3D var, either on grid or new ALMA format single site
            ok= NF90_GET_VAR(ncid_met,id%PSurf,tmpDat3, &
                 start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
            IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -1874,7 +1911,7 @@ CONTAINS
               met%pmb(landpt(i)%cstart:landpt(i)%cend) = &
                    REAL(tmpDat3(land_x(i),land_y(i),1)) * convert%PSurf
            ENDDO
-         ELSE ! i.e. ndims==4, the older ALMA format for PSurf
+         CASE (4) ! i.e. ndims==4, the older ALMA format for PSurf
            ok= NF90_GET_VAR(ncid_met,id%PSurf,tmpDat4, &
                 start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1/))
            IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -1884,7 +1921,12 @@ CONTAINS
               met%pmb(landpt(i)%cstart:landpt(i)%cend) = &
                    REAL(tmpDat4(land_x(i),land_y(i),1,1)) * convert%PSurf
            ENDDO
-         END IF
+         CASE DEFAULT
+           WRITE(logn, "(A,I,A)") "Error PSurf rank not supported. PSurf in &
+               &met file has ", ndims, " rank"
+           STOP
+         END SELECT
+
        ELSE ! PSurf must be fixed as a function of site elevation and T:
          DO i=1,mland ! over all land points/grid cells
             met%pmb(landpt(i)%cstart:landpt(i)%cend)=1013.25* &
@@ -1897,7 +1939,8 @@ CONTAINS
        IF(cable_user%GSWP3) ncid_met = ncid_qa ! since GSWP3 multiple met files
        ! Find number of dimensions of Qair:
        ok = NF90_INQUIRE_VARIABLE(ncid_met,id%Qair,ndims=ndims)
-       IF(ndims==3) THEN ! 3D var, either grid or new ALMA format single site
+       SELECT CASE (ndims)
+       CASE (3) ! 3D var, either on grid or new ALMA format single site
          ok= NF90_GET_VAR(ncid_met,id%Qair,tmpDat3, & ! read 3D Qair var
               start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
          IF(ok /= NF90_NOERR) CALL nc_abort & ! check for error
@@ -1918,7 +1961,7 @@ CONTAINS
                   REAL(tmpDat3(land_x(i),land_y(i),1))
            ENDDO
          END IF
-       ELSE   ! i.e. ndims==4, the older ALMA format for Qair
+       CASE (4)   ! i.e. ndims==4, the older ALMA format for Qair
          ok= NF90_GET_VAR(ncid_met,id%Qair,tmpDat4, &
             start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
          IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -1939,14 +1982,19 @@ CONTAINS
                     REAL(tmpDat4(land_x(i),land_y(i),1,1))
            ENDDO
          END IF
-       END IF
+       CASE DEFAULT
+         WRITE(logn, "(A,I,A)") "Error PSurf rank not supported. PSurf in &
+               &met file has ", ndims, " rank"
+         STOP
+       END SELECT
 
        ! Get Wind data for mask grid: - - - - - - - - - - - - - - - - - -
        IF(cable_user%GSWP3) ncid_met = ncid_wd ! since GSWP3 multiple met files
        IF(exists%Wind) THEN ! Scalar Wind
          ! Find number of dimensions of Wind:
          ok = NF90_INQUIRE_VARIABLE(ncid_met,id%Wind,ndims=ndims)
-         IF(ndims==3) THEN ! 3D var, either grid or new ALMA format single site
+         SELECT CASE (ndims)
+         CASE (3) ! 3D var, either on grid or new ALMA format single site
            ok= NF90_GET_VAR(ncid_met,id%Wind,tmpDat3, &
                 start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
            IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -1957,7 +2005,7 @@ CONTAINS
               met%ua(landpt(i)%cstart:landpt(i)%cend) = &
                    REAL(tmpDat3(land_x(i),land_y(i),1))
            ENDDO
-         ELSE ! i.e. ndims==4, the older ALMA format for Wind
+         CASE (4) ! i.e. ndims==4, the older ALMA format for Wind
            ok= NF90_GET_VAR(ncid_met,id%Wind,tmpDat4, &
                 start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
            IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -1968,11 +2016,16 @@ CONTAINS
               met%ua(landpt(i)%cstart:landpt(i)%cend) = &
                    REAL(tmpDat4(land_x(i),land_y(i),1,1))
            ENDDO
-         END IF ! 3 or 4D for 'Wind' variable
+         CASE DEFAULT
+           WRITE(logn, "(A,I,A)") "Error Wind rank not supported. Wind in &
+                  &met file has ", ndims, " rank"
+           STOP
+         END SELECT ! 3 or 4D for 'Wind' variable
        ELSE ! Vector wind
          ! Find number of dimensions of Wind_N:
          ok = NF90_INQUIRE_VARIABLE(ncid_met,id%Wind,ndims=ndims)
-         IF(ndims==3) THEN ! 3D var, either grid or new ALMA format single site
+         SELECT CASE (ndims)
+         CASE (3) ! 3D var, either on grid or new ALMA format single site
            ok= NF90_GET_VAR(ncid_met,id%Wind,tmpDat3, &
                 start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
            IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -1994,7 +2047,7 @@ CONTAINS
                    SQRT(met%ua(landpt(i)%cstart)**2 + &
                    REAL(tmpDat3(land_x(i),land_y(i),1))**2)
            ENDDO
-         ELSE ! i.e. ndims==4, the older ALMA format for Wind_N and _E
+         CASE (4) ! i.e. ndims==4, the older ALMA format for Wind_N and _E
            ! Get 4D Wind_N:
            ok= NF90_GET_VAR(ncid_met,id%Wind,tmpDat4, &
                 start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
@@ -2017,34 +2070,86 @@ CONTAINS
                    SQRT(met%ua(landpt(i)%cstart)**2 + &
                    REAL(tmpDat4(land_x(i),land_y(i),1,1))**2)
            ENDDO
-         END IF ! 3 or 4D for 'Wind_N' and 'Wind_E' variables
+         CASE DEFAULT
+           WRITE(logn, "(A,I,A)") "Error Wind_N rank not supported. Wind_N &
+                  &in met file has ", ndims, " rank"
+           STOP           
+         END SELECT ! 3 or 4D for 'Wind_N' and 'Wind_E' variables
        END IF ! scalar or vector wind - 'Wind' or 'Wind_N'/'Wind_E'
 
        ! Get Rainf and Snowf data for mask grid:- - - - - - - - - - - - -
        IF (cable_user%GSWP3) ncid_met = ncid_rain
-       ok= NF90_GET_VAR(ncid_met,id%Rainf,tmpDat3, &
+
+       ! Find number of dimensions of Rainf:
+       ok = NF90_INQUIRE_VARIABLE(ncid_met,id%Rainf,ndims=ndims)
+       SELECT CASE (ndims)
+       CASE (3) ! 3D var, either on grid or new ALMA format single site
+         ok= NF90_GET_VAR(ncid_met,id%Rainf,tmpDat3, &
             start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
-       IF(ok /= NF90_NOERR) CALL nc_abort &
+         IF(ok /= NF90_NOERR) CALL nc_abort &
             (ok,'Error reading Rainf in met data file ' &
             //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
-       DO i=1,mland ! over all land points/grid cells
-          met%precip(landpt(i)%cstart:landpt(i)%cend) = &
+         DO i=1,mland ! over all land points/grid cells
+           met%precip(landpt(i)%cstart:landpt(i)%cend) = &
                REAL(tmpDat3(land_x(i),land_y(i),1)) ! store Rainf
-       ENDDO
+         ENDDO
+      
+       CASE (4)
+         ok= NF90_GET_VAR(ncid_met,id%Rainf,tmpDat4, &
+            start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+         IF(ok /= NF90_NOERR) CALL nc_abort &
+            (ok,'Error reading Rainf in met data file ' &
+            //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+         DO i=1,mland ! over all land points/grid cells
+           met%precip(landpt(i)%cstart:landpt(i)%cend) = &
+               REAL(tmpDat4(land_x(i),land_y(i),1,1)) ! store Rainf
+         ENDDO
+
+       CASE DEFAULT
+         WRITE(logn, "(A,I,A)") "Error Rainf rank not supported. Rainf &
+               &in met file has ", ndims, " rank"
+         STOP           
+         
+       END SELECT
+
        IF(exists%Snowf) THEN
-          IF (cable_user%GSWP3) ncid_met = ncid_snow
-          ok= NF90_GET_VAR(ncid_met,id%Snowf,tmpDat3, &
+         IF (cable_user%GSWP3) ncid_met = ncid_snow
+
+         ! Find number of dimensions of Snowf:
+         ok = NF90_INQUIRE_VARIABLE(ncid_met,id%Snowf,ndims=ndims)
+         SELECT CASE (ndims)
+          CASE (3) ! 3D var, either on grid or new ALMA format single site
+            ok= NF90_GET_VAR(ncid_met,id%Snowf,tmpDat3, &
                start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
-          IF(ok /= NF90_NOERR) CALL nc_abort &
-               (ok,'Error reading Snowf in met data file ' &
-               //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
-          ! store Snowf value (EK nov2007)
-          DO i=1,mland ! over all land points/grid cells
-             met%precip_sn(landpt(i)%cstart:landpt(i)%cend) = &
-                  REAL(tmpDat3(land_x(i),land_y(i),1))
-          ENDDO
+            IF(ok /= NF90_NOERR) CALL nc_abort &
+                  (ok,'Error reading Snowf in met data file ' &
+                  //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+            ! store Snowf value (EK nov2007)
+            DO i=1,mland ! over all land points/grid cells
+               met%precip_sn(landpt(i)%cstart:landpt(i)%cend) = &
+                     REAL(tmpDat3(land_x(i),land_y(i),1))
+            ENDDO
+
+          CASE(4)
+             ok= NF90_GET_VAR(ncid_met,id%Snowf,tmpDat4, &
+               start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+            IF(ok /= NF90_NOERR) CALL nc_abort &
+                  (ok,'Error reading Snowf in met data file ' &
+                  //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+            ! store Snowf value (EK nov2007)
+            DO i=1,mland ! over all land points/grid cells
+               met%precip_sn(landpt(i)%cstart:landpt(i)%cend) = &
+                     REAL(tmpDat4(land_x(i),land_y(i),1,1))
+            ENDDO
+         
+          CASE DEFAULT
+            WRITE(logn, "(A,I,A)") "Error Snowf rank not supported. Snowf &
+               &in met file has ", ndims, " rank"
+            STOP           
+         
+          END SELECT
        ELSE
-          met%precip_sn(:) = 0.0
+         met%precip_sn(:) = 0.0
        END IF
        ! combine Rainf and Snowf data
        met%precip(:) = met%precip(:) + met%precip_sn(:)
@@ -2068,15 +2173,38 @@ CONTAINS
        ! Get LWdown data for mask grid: - - - - - - - - - - - - - - - - -
        IF (cable_user%GSWP3) ncid_met = ncid_lw
        IF(exists%LWdown) THEN ! If LWdown exists in met file
-          ok= NF90_GET_VAR(ncid_met,id%LWdown,tmpDat3, &
-               start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
-          IF(ok /= NF90_NOERR) CALL nc_abort &
-               (ok,'Error reading LWdown in met data file ' &
-               //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
-          DO i=1,mland ! over all land points/grid cells
-             met%fld(landpt(i)%cstart:landpt(i)%cend) = &
-                  REAL(tmpDat3(land_x(i),land_y(i),1))
-          ENDDO
+
+         ! Find number of dimensions of LWdown:
+         ok = NF90_INQUIRE_VARIABLE(ncid_met,id%LWdown,ndims=ndims)
+         SELECT CASE (ndims)
+          CASE (3) ! 3D var, either on grid or new ALMA format single site
+            ok= NF90_GET_VAR(ncid_met,id%LWdown,tmpDat3, &
+                  start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
+            IF(ok /= NF90_NOERR) CALL nc_abort &
+                  (ok,'Error reading LWdown in met data file ' &
+                  //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+            DO i=1,mland ! over all land points/grid cells
+                met%fld(landpt(i)%cstart:landpt(i)%cend) = &
+                     REAL(tmpDat3(land_x(i),land_y(i),1))
+            ENDDO
+
+          CASE (4)
+            ok= NF90_GET_VAR(ncid_met,id%LWdown,tmpDat4, &
+                  start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+            IF(ok /= NF90_NOERR) CALL nc_abort &
+                  (ok,'Error reading LWdown in met data file ' &
+                  //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+            DO i=1,mland ! over all land points/grid cells
+                met%fld(landpt(i)%cstart:landpt(i)%cend) = &
+                     REAL(tmpDat4(land_x(i),land_y(i),1,1))
+            ENDDO
+
+          CASE DEFAULT
+            WRITE(logn, "(A,I,A)") "Error LWdown rank not supported. LWdown &
+               &in met file has ", ndims, " rank"
+            STOP           
+         
+          END SELECT
        ELSE ! Synthesise LWdown based on temperature
           ! Use Swinbank formula:
           met%fld(:) = 0.0000094*0.0000000567*(met%tk(:)**6.0)
@@ -2084,15 +2212,37 @@ CONTAINS
 
        ! Get CO2air data for mask grid:- - - - - - - - - - - - - - - - - -
        IF(exists%CO2air) THEN ! If CO2air exists in met file
-          ok= NF90_GET_VAR(ncid_met,id%CO2air,tmpDat4, &
-               start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
-          IF(ok /= NF90_NOERR) CALL nc_abort &
-               (ok,'Error reading CO2air in met data file ' &
-               //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
-          DO i=1,mland ! over all land points/grid cells
-             met%ca(landpt(i)%cstart:landpt(i)%cend) = &
-                  REAL(tmpDat4(land_x(i),land_y(i),1,1))/1000000.0
-          ENDDO
+         ! Find number of dimensions of LWdown:
+         ok = NF90_INQUIRE_VARIABLE(ncid_met,id%LWdown,ndims=ndims)
+         SELECT CASE (ndims)
+         CASE (3) ! 3D var, either on grid or new ALMA format single site
+            ok= NF90_GET_VAR(ncid_met,id%CO2air,tmpDat3, &
+                  start=(/1,1,ktau/),count=(/xdimsize,ydimsize,1/))
+            IF(ok /= NF90_NOERR) CALL nc_abort &
+                  (ok,'Error reading CO2air in met data file ' &
+                  //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+            DO i=1,mland ! over all land points/grid cells
+               met%ca(landpt(i)%cstart:landpt(i)%cend) = &
+                     REAL(tmpDat3(land_x(i),land_y(i),1))/1000000.0
+            END DO
+
+         CASE (4)
+            ok= NF90_GET_VAR(ncid_met,id%CO2air,tmpDat4, &
+                  start=(/1,1,1,ktau/),count=(/xdimsize,ydimsize,1,1/))
+            IF(ok /= NF90_NOERR) CALL nc_abort &
+                  (ok,'Error reading CO2air in met data file ' &
+                  //TRIM(filename%met)//' (SUBROUTINE get_met_data)')
+            DO i=1,mland ! over all land points/grid cells
+               met%ca(landpt(i)%cstart:landpt(i)%cend) = &
+                     REAL(tmpDat4(land_x(i),land_y(i),1,1))/1000000.0
+            END DO
+         
+         CASE DEFAULT
+            WRITE(logn, "(A,I,A)") "Error CO2air rank not supported. CO2air &
+               &in met file has ", ndims, " rank"
+            STOP           
+         
+         END SELECT
        ELSE
           ! Fix CO2 air concentration:
           met%ca(:) = fixedCO2 /1000000.0
