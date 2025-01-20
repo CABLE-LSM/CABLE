@@ -1,4 +1,7 @@
 MODULE cable_climate_type_mod
+!* Description:
+! This module defines the climate and climate_data types and allocates 
+! arrays and pointers for these types.
 
 IMPLICIT NONE
 
@@ -14,40 +17,67 @@ TYPE climate_data_type
 
   INTEGER :: nyear_average = 20
   INTEGER :: nday_average  = 31
-  INTEGER :: nyears    ! number of years in climate record
-  INTEGER :: doy ! day of year
+  INTEGER :: nyears    
+    !! number of years in climate record
+  INTEGER :: doy 
+    !! day of year
 
-  INTEGER, ALLOCATABLE :: chilldays (:)          ! length of chilling period (period with T<5deg) 
-  INTEGER, ALLOCATABLE :: iveg      (:)          ! potential vegetation type based on climatic constraints 
+  INTEGER, ALLOCATABLE :: chilldays (:)          
+    !! length of chilling period (period with T<5deg) 
+  INTEGER, ALLOCATABLE :: iveg      (:)          
+    !! potential vegetation type based on climatic constraints 
   INTEGER, ALLOCATABLE :: biome     (:)  
 
-  REAL, ALLOCATABLE :: dtemp               (:)   ! daily temperature                                            
-  REAL, ALLOCATABLE :: dmoist              (:)   ! daily moisture availability                                  
-  REAL, ALLOCATABLE :: mtemp               (:)   ! mean temperature over the last 31 days                       
-  REAL, ALLOCATABLE :: qtemp               (:)   ! mean temperature over the last 91 days                       
-  REAL, ALLOCATABLE :: mmoist              (:)   ! monthly moisture availability                                
-  REAL, ALLOCATABLE :: mtemp_min           (:)   ! minimum monthly temperature                                  
-  REAL, ALLOCATABLE :: mtemp_max           (:)   ! maximum monhtly temperature                                  
-  REAL, ALLOCATABLE :: qtemp_max           (:)   ! mean temperature of the warmest quarter (so far this year)   
-  REAL, ALLOCATABLE :: mtemp_min20         (:)   ! minimum monthly temperature, averaged over 20 y              
-  REAL, ALLOCATABLE :: mtemp_max20         (:)   ! maximum monhtly temperature, averaged over 20 y              
-  REAL, ALLOCATABLE :: atemp_mean          (:)   ! annual average temperature                                   
+  REAL, ALLOCATABLE :: dtemp               (:)   
+    !! daily temperature                                            
+  REAL, ALLOCATABLE :: dmoist              (:)   
+    !! daily moisture availability                                  
+  REAL, ALLOCATABLE :: mtemp               (:)   
+    !! mean temperature over the last 31 days                       
+  REAL, ALLOCATABLE :: qtemp               (:)   
+    !! mean temperature over the last 91 days                       
+  REAL, ALLOCATABLE :: mmoist              (:)   
+    !! monthly moisture availability                                
+  REAL, ALLOCATABLE :: mtemp_min           (:)   
+    !! minimum monthly temperature                                  
+  REAL, ALLOCATABLE :: mtemp_max           (:)   
+    !! maximum monthly temperature                                  
+  REAL, ALLOCATABLE :: qtemp_max           (:)   
+    !! mean temperature of the warmest quarter (so far this year)   
+  REAL, ALLOCATABLE :: mtemp_min20         (:)   
+    !! minimum monthly temperature, averaged over 20 y              
+  REAL, ALLOCATABLE :: mtemp_max20         (:)   
+    !! maximum monthly temperature, averaged over 20 y              
+  REAL, ALLOCATABLE :: atemp_mean          (:)   
+    !! annual average temperature                                   
   REAL, ALLOCATABLE :: AGDD5               (:)                                                                  
-  REAL, ALLOCATABLE :: GDD5                (:)   ! growing degree day sum relative to 5deg base temperature     
+  REAL, ALLOCATABLE :: GDD5                (:)   
+    !! growing degree day sum relative to 5deg base temperature     
   REAL, ALLOCATABLE :: AGDD0               (:)                                                                  
-  REAL, ALLOCATABLE :: GDD0                (:)   ! growing degree day sum relative to 0deg base temperature     
-  REAL, ALLOCATABLE :: alpha_PT            (:)   ! ratio of annual evap to annual PT evap                       
-  REAL, ALLOCATABLE :: evap_PT             (:)   ! annual PT evap [mm]                                          
-  REAL, ALLOCATABLE :: aevap               (:)   ! annual evap [mm]                                             
+  REAL, ALLOCATABLE :: GDD0                (:)   
+    !! growing degree day sum relative to 0deg base temperature     
+  REAL, ALLOCATABLE :: alpha_PT            (:)   
+    !! ratio of annual evap to annual PT evap                       
+  REAL, ALLOCATABLE :: evap_PT             (:)   
+    !! annual PT evap [mm]                                          
+  REAL, ALLOCATABLE :: aevap               (:)   
+    !! annual evap [mm]                                             
   REAL, ALLOCATABLE :: alpha_PT20          (:)                                                                  
-  REAL, ALLOCATABLE :: qtemp_max_last_year (:)   ! mean temperature of the warmest quarter (last calendar year) 
+  REAL, ALLOCATABLE :: qtemp_max_last_year (:)   
+    !! mean temperature of the warmest quarter (last calendar year) 
 
-  REAL, ALLOCATABLE :: mtemp_min_20        (:,:) ! mimimum monthly temperatures for the last 20 y   
-  REAL, ALLOCATABLE :: mtemp_max_20        (:,:) ! maximum monthly temperatures for the last 20 y   
-  REAL, ALLOCATABLE :: dtemp_31            (:,:) ! daily temperature for the last 31 days           
-  REAL, ALLOCATABLE :: dmoist_31           (:,:) ! daily moisture availability for the last 31 days 
-  REAL, ALLOCATABLE :: alpha_PT_20         (:,:) ! priestley Taylor Coefft for last 20 y            
-  REAL, ALLOCATABLE :: dtemp_91            (:,:) ! daily temperature for the last 91 days           
+  REAL, ALLOCATABLE :: mtemp_min_20        (:,:) 
+    !! minimum monthly temperatures for the last 20 y   
+  REAL, ALLOCATABLE :: mtemp_max_20        (:,:) 
+    !! maximum monthly temperatures for the last 20 y   
+  REAL, ALLOCATABLE :: dtemp_31            (:,:) 
+    !! daily temperature for the last 31 days           
+  REAL, ALLOCATABLE :: dmoist_31           (:,:) 
+    !! daily moisture availability for the last 31 days 
+  REAL, ALLOCATABLE :: alpha_PT_20         (:,:) 
+    !! priestley Taylor Coefft for last 20 y            
+  REAL, ALLOCATABLE :: dtemp_91            (:,:) 
+    !! daily temperature for the last 91 days           
 
 END TYPE climate_data_type
 
@@ -55,46 +85,75 @@ TYPE climate_type
 
   INTEGER, POINTER :: nyear_average
   INTEGER, POINTER :: nday_average
-  INTEGER, POINTER :: nyears                 ! number of years in climate record
-  INTEGER, POINTER :: doy                    ! day of year
+  INTEGER, POINTER :: nyears                 
+    !! number of years in climate record
+  INTEGER, POINTER :: doy                    
+    !! day of year
 
-  INTEGER, POINTER :: chilldays (:)          ! length of chilling period (period with T<5deg) 
-  INTEGER, POINTER :: iveg      (:)          ! potential vegetation type based on climatic constraints 
+  INTEGER, POINTER :: chilldays (:)          
+    !! length of chilling period (period with T<5deg) 
+  INTEGER, POINTER :: iveg      (:)          
+    !! potential vegetation type based on climatic constraints 
   INTEGER, POINTER :: biome     (:)  
 
-  REAL, POINTER :: dtemp               (:)   ! daily temperature                                            
-  REAL, POINTER :: dmoist              (:)   ! daily moisture availability                                  
-  REAL, POINTER :: mtemp               (:)   ! mean temperature over the last 31 days                       
-  REAL, POINTER :: qtemp               (:)   ! mean temperature over the last 91 days                       
-  REAL, POINTER :: mmoist              (:)   ! monthly moisture availability                                
-  REAL, POINTER :: mtemp_min           (:)   ! minimum monthly temperature                                  
-  REAL, POINTER :: mtemp_max           (:)   ! maximum monhtly temperature                                  
-  REAL, POINTER :: qtemp_max           (:)   ! mean temperature of the warmest quarter (so far this year)   
-  REAL, POINTER :: mtemp_min20         (:)   ! minimum monthly temperature, averaged over 20 y              
-  REAL, POINTER :: mtemp_max20         (:)   ! maximum monhtly temperature, averaged over 20 y              
-  REAL, POINTER :: atemp_mean          (:)   ! annual average temperature                                   
+  REAL, POINTER :: dtemp               (:)   
+    !! daily temperature                                            
+  REAL, POINTER :: dmoist              (:)   
+    !! daily moisture availability                                  
+  REAL, POINTER :: mtemp               (:)   
+    !! mean temperature over the last 31 days                       
+  REAL, POINTER :: qtemp               (:)   
+    !! mean temperature over the last 91 days                       
+  REAL, POINTER :: mmoist              (:)   
+    !! monthly moisture availability                                
+  REAL, POINTER :: mtemp_min           (:)   
+    !! minimum monthly temperature                                  
+  REAL, POINTER :: mtemp_max           (:)   
+    !! maximum monthly temperature                                  
+  REAL, POINTER :: qtemp_max           (:)   
+    !! mean temperature of the warmest quarter (so far this year)   
+  REAL, POINTER :: mtemp_min20         (:)   
+    !! minimum monthly temperature, averaged over 20 y              
+  REAL, POINTER :: mtemp_max20         (:)   
+    !! maximum monthly temperature, averaged over 20 y              
+  REAL, POINTER :: atemp_mean          (:)   
+    !! annual average temperature                                   
   REAL, POINTER :: AGDD5               (:)                                                                  
-  REAL, POINTER :: GDD5                (:)   ! growing degree day sum relative to 5deg base temperature     
+  REAL, POINTER :: GDD5                (:)   
+    !! growing degree day sum relative to 5deg base temperature     
   REAL, POINTER :: AGDD0               (:)                                                                  
-  REAL, POINTER :: GDD0                (:)   ! growing degree day sum relative to 0deg base temperature     
-  REAL, POINTER :: alpha_PT            (:)   ! ratio of annual evap to annual PT evap                       
-  REAL, POINTER :: evap_PT             (:)   ! annual PT evap [mm]                                          
-  REAL, POINTER :: aevap               (:)   ! annual evap [mm]                                             
+  REAL, POINTER :: GDD0                (:)   
+    !! growing degree day sum relative to 0deg base temperature     
+  REAL, POINTER :: alpha_PT            (:)   
+    !! ratio of annual evap to annual PT evap                       
+  REAL, POINTER :: evap_PT             (:)   
+    !! annual PT evap [mm]                                          
+  REAL, POINTER :: aevap               (:)   
+    !! annual evap [mm]                                             
   REAL, POINTER :: alpha_PT20          (:)                                                                  
-  REAL, POINTER :: qtemp_max_last_year (:)   ! mean temperature of the warmest quarter (last calendar year) 
+  REAL, POINTER :: qtemp_max_last_year (:)   
+    !! mean temperature of the warmest quarter (last calendar year) 
 
-  REAL, POINTER :: mtemp_min_20        (:,:) ! mimimum monthly temperatures for the last 20 y   
-  REAL, POINTER :: mtemp_max_20        (:,:) ! maximum monthly temperatures for the last 20 y   
-  REAL, POINTER :: dtemp_31            (:,:) ! daily temperature for the last 31 days           
-  REAL, POINTER :: dmoist_31           (:,:) ! daily moisture availability for the last 31 days 
-  REAL, POINTER :: alpha_PT_20         (:,:) ! priestley Taylor Coefft for last 20 y            
-  REAL, POINTER :: dtemp_91            (:,:) ! daily temperature for the last 91 days           
+  REAL, POINTER :: mtemp_min_20        (:,:) 
+    !! minimum monthly temperatures for the last 20 y   
+  REAL, POINTER :: mtemp_max_20        (:,:) 
+    !! maximum monthly temperatures for the last 20 y   
+  REAL, POINTER :: dtemp_31            (:,:) 
+    !! daily temperature for the last 31 days           
+  REAL, POINTER :: dmoist_31           (:,:) 
+    !! daily moisture availability for the last 31 days 
+  REAL, POINTER :: alpha_PT_20         (:,:) 
+    !! priestley Taylor Coefft for last 20 y            
+  REAL, POINTER :: dtemp_91            (:,:) 
+    !! daily temperature for the last 91 days           
 
 END TYPE climate_type
 
 CONTAINS
 
 SUBROUTINE alloc_climate_type(climate, mp)
+!* Description:
+! Allocate and initialise arrays in the climate_data type
 
 USE grid_constants_mod_cbl,   ONLY: mf               ! # leaves (sunlit/shaded)
 USE grid_constants_mod_cbl,   ONLY: nsl              ! # soil layers                
@@ -104,6 +163,7 @@ IMPLICIT NONE
 
 TYPE(climate_data_type), INTENT(INOUT) :: climate
 INTEGER, INTENT(IN) :: mp
+!! Number of tiles/patches in the CABLE simulation
 
 ALLOCATE( climate% chilldays   (1) )
 ALLOCATE( climate% iveg        (1) )
@@ -169,6 +229,8 @@ RETURN
 END SUBROUTINE alloc_climate_type
 
 SUBROUTINE dealloc_climate_type(climate)
+!* Description:
+! Deallocate arrays in the climate_data type
 
 TYPE(climate_type), INTENT(inout) :: climate
 
@@ -206,9 +268,8 @@ RETURN
 END SUBROUTINE dealloc_climate_type
 
 SUBROUTINE assoc_climate_type(climate, climate_data )
-
-! Description:
-!   Associate the CABLE work pointers in the derived type structure
+!* Description:
+!   Associate the climate type pointers to the climate_data arrays.
 
 IMPLICIT NONE
 
@@ -255,9 +316,8 @@ RETURN
 END SUBROUTINE assoc_climate_type
 
 SUBROUTINE nullify_climate_cbl( climate )
-
-! Description:
-!   Nullify the CABLE work pointers in the derived type structure
+!* Description:
+!   Nullify the climate type pointers.
 
 IMPLICIT NONE
 
