@@ -158,6 +158,7 @@ SUBROUTINE alloc_climate_type(climate, mp)
 USE grid_constants_mod_cbl,   ONLY: mf               ! # leaves (sunlit/shaded)
 USE grid_constants_mod_cbl,   ONLY: nsl              ! # soil layers                
 USE grid_constants_mod_cbl,   ONLY: niter            ! number of iterations for za/L
+USE cable_common_module,      ONLY: cable_runtime
 
 IMPLICIT NONE
 
@@ -165,35 +166,77 @@ TYPE(climate_data_type), INTENT(INOUT) :: climate
 INTEGER, INTENT(IN) :: mp
 !! Number of tiles/patches in the CABLE simulation
 
-ALLOCATE( climate% chilldays   (1) )
-ALLOCATE( climate% iveg        (1) )
-ALLOCATE( climate% biome       (1) )
-ALLOCATE( climate% dtemp       (1) )
-ALLOCATE( climate% dmoist      (1) )
-ALLOCATE( climate% mtemp       (1) )
-ALLOCATE( climate% qtemp       (1) )
-ALLOCATE( climate% mmoist      (1) )
-ALLOCATE( climate% mtemp_min   (1) )
-ALLOCATE( climate% mtemp_max   (1) )
-ALLOCATE( climate% qtemp_max   (1) )
-ALLOCATE( climate% mtemp_min20 (1) )
-ALLOCATE( climate% mtemp_max20 (1) )
-ALLOCATE( climate% atemp_mean  (1) )
-ALLOCATE( climate% AGDD5       (1) )
-ALLOCATE( climate% GDD5        (1) )
-ALLOCATE( climate% AGDD0       (1) )
-ALLOCATE( climate% GDD0        (1) )
-ALLOCATE( climate% alpha_PT    (1) )
-ALLOCATE( climate% evap_PT     (1) )
-ALLOCATE( climate% aevap       (1) )
-ALLOCATE( climate% alpha_PT20  (1) )
-ALLOCATE( climate% qtemp_max_last_year (1) )
-ALLOCATE( climate% mtemp_min_20 (1,1) )
-ALLOCATE( climate% mtemp_max_20 (1,1) )
-ALLOCATE( climate% dtemp_31     (1,1) )
-ALLOCATE( climate% dmoist_31    (1,1) )
-ALLOCATE( climate% alpha_PT_20  (1,1) )
-ALLOCATE( climate% dtemp_91     (1,1) )
+INTEGER :: ny
+INTEGER :: nd
+INTEGER, PARAMETER :: ns = 91 
+
+ny = climate%nyear_average
+nd = climate%nday_average
+
+IF ( cable_runtime%um ) THEN
+  ALLOCATE( climate% chilldays   (1) )
+  ALLOCATE( climate% iveg        (1) )
+  ALLOCATE( climate% biome       (1) )
+  ALLOCATE( climate% dtemp       (1) )
+  ALLOCATE( climate% dmoist      (1) )
+  ALLOCATE( climate% mtemp       (1) )
+  ALLOCATE( climate% qtemp       (1) )
+  ALLOCATE( climate% mmoist      (1) )
+  ALLOCATE( climate% mtemp_min   (1) )
+  ALLOCATE( climate% mtemp_max   (1) )
+  ALLOCATE( climate% qtemp_max   (1) )
+  ALLOCATE( climate% mtemp_min20 (1) )
+  ALLOCATE( climate% mtemp_max20 (1) )
+  ALLOCATE( climate% atemp_mean  (1) )
+  ALLOCATE( climate% AGDD5       (1) )
+  ALLOCATE( climate% GDD5        (1) )
+  ALLOCATE( climate% AGDD0       (1) )
+  ALLOCATE( climate% GDD0        (1) )
+  ALLOCATE( climate% alpha_PT    (1) )
+  ALLOCATE( climate% evap_PT     (1) )
+  ALLOCATE( climate% aevap       (1) )
+  ALLOCATE( climate% alpha_PT20  (1) )
+  ALLOCATE( climate% qtemp_max_last_year (1) )
+  ALLOCATE( climate% mtemp_min_20 (1,1) )
+  ALLOCATE( climate% mtemp_max_20 (1,1) )
+  ALLOCATE( climate% dtemp_31     (1,1) )
+  ALLOCATE( climate% dmoist_31    (1,1) )
+  ALLOCATE( climate% alpha_PT_20  (1,1) )
+  ALLOCATE( climate% dtemp_91     (1,1) )
+
+ELSE
+
+  ALLOCATE( climate% chilldays   (mp) )
+  ALLOCATE( climate% iveg        (mp) )
+  ALLOCATE( climate% biome       (mp) )
+  ALLOCATE( climate% dtemp       (mp) )
+  ALLOCATE( climate% dmoist      (mp) )
+  ALLOCATE( climate% mtemp       (mp) )
+  ALLOCATE( climate% qtemp       (mp) )
+  ALLOCATE( climate% mmoist      (mp) )
+  ALLOCATE( climate% mtemp_min   (mp) )
+  ALLOCATE( climate% mtemp_max   (mp) )
+  ALLOCATE( climate% qtemp_max   (mp) )
+  ALLOCATE( climate% mtemp_min20 (mp) )
+  ALLOCATE( climate% mtemp_max20 (mp) )
+  ALLOCATE( climate% atemp_mean  (mp) )
+  ALLOCATE( climate% AGDD5       (mp) )
+  ALLOCATE( climate% GDD5        (mp) )
+  ALLOCATE( climate% AGDD0       (mp) )
+  ALLOCATE( climate% GDD0        (mp) )
+  ALLOCATE( climate% alpha_PT    (mp) )
+  ALLOCATE( climate% evap_PT     (mp) )
+  ALLOCATE( climate% aevap       (mp) )
+  ALLOCATE( climate% alpha_PT20  (mp) )
+  ALLOCATE( climate% qtemp_max_last_year (mp) )
+  ALLOCATE( climate% mtemp_min_20 (mp,ny) )
+  ALLOCATE( climate% mtemp_max_20 (mp,ny) )
+  ALLOCATE( climate% dtemp_31     (mp,nd) )
+  ALLOCATE( climate% dmoist_31    (mp,nd) )
+  ALLOCATE( climate% alpha_PT_20  (mp,ny) )
+  ALLOCATE( climate% dtemp_91     (mp,ns) )
+
+END  IF
 
 climate% chilldays    (:)   = 0.0      
 climate% iveg         (:)   = 0.0      
