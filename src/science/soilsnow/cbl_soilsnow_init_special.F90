@@ -31,11 +31,11 @@ INTEGER, SAVE :: ktau =0
 REAL :: heat_cap_lower_limit(mp,ms)
 
 ktau = ktau +1
-
-IF( .NOT.cable_user%cable_runtime_coupled ) THEN
+! since CMIP5 only ever (potentially) TRUE offline if special initialization
+IF( .NOT.cable_user%cable_runtime_coupled ) THEN 
 
    IF( ktau_gl <= 1 ) THEN
-      IF (cable_runtime%um) canopy%dgdtg = 0.0 ! RML added um condition
+
       ! after discussion with BP
       ! N.B. snmin should exceed sum of layer depths, i.e. .11 m
       ssnow%wbtot = 0.0
@@ -78,6 +78,8 @@ IF( .NOT.cable_user%cable_runtime_coupled ) THEN
    END IF
 ENDIF  ! if(.NOT.cable_runtime_coupled)
 
+! this is done in all cases? overwrites gammzz from above and mediates thru 
+! snowd% (but only for single layer snow)
 IF (ktau <= 1)       THEN
   xx=heat_cap_lower_limit(:,1)
   ssnow%gammzz(:,1) = MAX( (1.0 - soil%ssat) * soil%css * soil%rhosoil      &
