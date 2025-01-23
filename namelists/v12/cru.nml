@@ -1,10 +1,30 @@
 &crunml
-    BasePath     = "/g/data/x45/CRUJRA2021/daily_1deg"
-    MetPath      = "/g/data/x45/CRUJRA2021/daily_1deg"
-    MetVersion   = "CRUJRA_2022"
-    ReadDiffFrac = .FALSE.
+    rainFile = "/g/data/rp23/experiments/2024-03-12_CABLE4-dev/lw5085/data_links/pre/pre_<startdate>_<enddate>.nc"
+    lwdnFile = "/g/data/rp23/experiments/2024-03-12_CABLE4-dev/lw5085/data_links/dlwrf/dlwrf_<startdate>_<enddate>.nc"
+    swdnFile = "/g/data/rp23/experiments/2024-03-12_CABLE4-dev/lw5085/data_links/tswrf/tswrf_<startdate>_<enddate>.nc"
+    presFile = "/g/data/rp23/experiments/2024-03-12_CABLE4-dev/lw5085/data_links/pres/pres_<startdate>_<enddate>.nc"
+    qairFile = "/g/data/rp23/experiments/2024-03-12_CABLE4-dev/lw5085/data_links/spfh/spfh_<startdate>_<enddate>.nc"
+    TmaxFile = "/g/data/rp23/experiments/2024-03-12_CABLE4-dev/lw5085/data_links/tmax/tmax_<startdate>_<enddate>.nc"
+    TminFile = "/g/data/rp23/experiments/2024-03-12_CABLE4-dev/lw5085/data_links/tmin/tmin_<startdate>_<enddate>.nc"
+    uwindFile = "/g/data/rp23/experiments/2024-03-12_CABLE4-dev/lw5085/data_links/ugrd/ugrd_<startdate>_<enddate>.nc"
+    vwindFile = "/g/data/rp23/experiments/2024-03-12_CABLE4-dev/lw5085/data_links/vgrd/vgrd_<startdate>_<enddate>.nc"
+    fDiffFile = "/g/data/rp23/experiments/2024-03-12_CABLE4-dev/lw5085/data_links/fd/fd_<startdate>_<enddate>.nc"
+    CO2File = "/g/data/rp23/experiments/2024-03-12_CABLE4-dev/lw5085/data_links/co2/co2_17000101_20221231.txt"
+    NDepFile = "/g/data/rp23/experiments/2024-03-12_CABLE4-dev/lw5085/data_links/ndep/NDep_<startdate>_<enddate>.nc"
     LandMaskFile = "/g/data/x45/ipbes/masks/glob_ipsl_1x1.nc"
-    Run          = "S0_TRENDY"
+    rainRecycle = T
+    lwdnRecycle = T
+    swdnRecycle = T
+    presRecycle = T
+    qairRecycle = T
+    TmaxRecycle = T
+    TminRecycle = T
+    uWindRecycle = T
+    vWindRecycle = T
+    fDiffRecycle = T
+    CO2Method = "1700"
+    NDepMethod = "1850"
+    ReadDiffFrac = .FALSE.
     DThrs        = 3.0                ! **CABLE** timestep hours (not the met timestep)
-    DirectRead   = .TRUE.
+    LeapYears    = .FALSE.
 /

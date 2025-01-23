@@ -180,7 +180,7 @@ cable_sli_utils.o: cable_sli_utils.F90 cable_sli_numbers.o cable_define_types.o 
 cable_plume_mip.o: cable_plume_mip.F90 cable_iovars.o cable_define_types.o cable_checks.o cable_weathergenerator.o
 
 cable_cru_TRENDY.o: cable_cru_TRENDY.F90 cable_iovars.o cable_define_types.o cable_checks.o \
-                    cable_weathergenerator.o casa_variable.o
+                    cable_weathergenerator.o casa_variable.o cable_input.o
 
 cable_site.o: cable_site.F90 cable_iovars.o cable_common.o
 

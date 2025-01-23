@@ -41,8 +41,8 @@
 
 MODULE cable_canopy_module
 
-  use cable_data_module,    only: icanopy_type, point2constants
-  use cable_common_module,  only: cable_user
+  use cable_data_module,   only: icanopy_type, point2constants
+  use cable_common_module, only: cable_user
 
   implicit none
 
@@ -1189,19 +1189,20 @@ CONTAINS
 
     SUBROUTINE qsatfjh(var, tair, pmb)
 
-      USE cable_def_types_mod, only: mp
-
       implicit none
 
-      REAL, INTENT(OUT), DIMENSION(mp) :: var ! result; sat sp humidity
-      REAL, INTENT(IN),  DIMENSION(mp) :: &
+      REAL, INTENT(OUT), DIMENSION(:) :: var ! result; sat sp humidity
+      REAL, INTENT(IN),  DIMENSION(:) :: &
            tair, & ! air temperature (C)
-           pmb     ! pressure PMB (mb)
+           pmb     ! pressure (mbar)
 
-      INTEGER :: j
+      INTEGER :: j, mp
 
-      DO j=1,mp
-         var(j) = (C%RMH2O/C%rmair) * (C%TETENA*EXP(C%TETENB*tair(j)/(C%TETENC+tair(j)))) &
+      mp = size(var, 1)
+      
+      DO j=1, mp
+         var(j) = (C%RMH2O / C%rmair) * ( C%TETENA * &
+              EXP( C%TETENB * tair(j) / (C%TETENC + tair(j)) ) ) &
               / pmb(j)
       ENDDO
 
@@ -1230,15 +1231,14 @@ CONTAINS
       ! for momentum, using the businger-dyer form for unstable cases
       ! and the Beljaars and Holtslag (1991) form for stable cases.
 
-      use cable_def_types_mod, only : mp
       use mo_constants, only: pi => pi_sp
 
       implicit none
 
-      real, dimension(mp), intent(in) :: zeta !
-      real, dimension(mp)             :: r    ! function result
+      real, dimension(:), intent(in) :: zeta !
+      real, dimension(size(zeta, 1)) :: r    ! function result
 
-      real, dimension(mp) :: &
+      real, dimension(size(zeta, 1)) :: &
            x,       & !
            z,       & !
            stable,  & !
@@ -1253,13 +1253,13 @@ CONTAINS
            xc = 5.0,   & !
            d  = 0.35     !
 
-      z = 0.5 + sign(0.5,zeta) ! z=1 in stable, 0 in unstable
+      z = 0.5 + sign(0.5, zeta) ! z=1 in stable, 0 in unstable
 
       ! Beljaars and Holtslag (1991) for stable
-      stable   = -a*zeta - b*(zeta-xc/d)*exp(-d*zeta) - b*xc/d
-      x        = (1.0 + gu*abs(zeta))**0.25
-      unstable = log((1.0+x*x) * (1.0+x)**2 / 8.) - 2.0*atan(x) + pi*0.5
-      r        = z*stable + (1.0-z)*unstable
+      stable = -a * zeta - b * (zeta - xc / d) * exp(-d * zeta) - b * xc / d
+      x = (1.0 + gu * abs(zeta))**0.25
+      unstable = log((1.0 + x * x) * (1.0 + x)**2 / 8.) - 2.0 * atan(x) + pi * 0.5
+      r = z * stable + (1.0 - z) * unstable
 
     END FUNCTION psim
 
@@ -2474,14 +2474,14 @@ CONTAINS
        vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz, qs, &
        gmes, kc4, anrubiscoz, anrubpz, ansinkz, eta, dA )
 
-    use cable_def_types_mod, only : mp, mf, r_2
+    use cable_def_types_mod, only: r_2
     use cable_common_module, only: cable_user
 
     implicit none
 
-    real(r_2), dimension(mp,mf), intent(in) :: csxz
-    real,      dimension(mp,mf), intent(in) :: gmes
-    real,      dimension(mp,mf), intent(in) :: &
+    real(r_2), dimension(:, :), intent(in) :: csxz
+    real,      dimension(:, :), intent(in) :: gmes
+    real,      dimension(:, :), intent(in) :: &
          cx1z,       & !
          cx2z,       & !
          rdxz,       & !
@@ -2493,24 +2493,27 @@ CONTAINS
          vlaiz,      & !
          deltlfz,    & !
          kc4           !
-    real,      dimension(mp),    intent(in)    :: fwsoilz
-    real,                        intent(in)    :: qs
-    real,      dimension(mp,mf), intent(inout) :: gswminz
-    real,      dimension(mp,mf), intent(inout) :: anxz, anrubiscoz, anrubpz, ansinkz
-    real(r_2), dimension(mp,mf), intent(out)   :: eta, dA
+    real,      dimension(:),    intent(in)    :: fwsoilz
+    real,                       intent(in)    :: qs
+    real,      dimension(:, :), intent(inout) :: gswminz
+    real,      dimension(:, :), intent(inout) :: anxz, anrubiscoz, anrubpz, ansinkz
+    real(r_2), dimension(:, :), intent(out)   :: eta, dA
 
     ! local variables
-    real(r_2), dimension(mp,mf) :: dAmp, dAme, dAmc, eta_p, eta_e, eta_c
+    real(r_2), dimension(size(csxz, 1), size(csxz, 2)) :: dAmp, dAme, dAmc, eta_p, eta_e, eta_c
     !real, dimension(mp) :: fwsoilz  ! why was this local??
     real(r_2) :: gamma, beta, gammast, gm, g0, X, Rd, cs
     real(r_2) :: cc, gsm
     real(r_2) :: Am
-    integer :: i, j
+    integer :: i, j, mp, mf
     ! for minimum of 3 rates and corresponding elasticities
     real,      dimension(3) :: tmp3
     real(r_2), dimension(3) :: dtmp3
     integer,   dimension(1) :: ii
 
+    mp = size(csxz, 1)
+    mf = size(csxz, 2)
+    
     do i=1, mp
 
        do j=1, mf

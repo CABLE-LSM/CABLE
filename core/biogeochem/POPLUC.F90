@@ -74,7 +74,8 @@ MODULE POPLUC_Types
      REAL(dp), DIMENSION(:),POINTER :: crop => null(), past => null() ! components of managed grass (crop,pasture)
      ! transitions associated with crop (c) and pasture (q)
      REAL(dp), DIMENSION(:),POINTER :: ptoc => null(), ptoq => null(), stoc => null(), stoq => null(), &
-          qtos => null(), ctos => null()
+          qtos => null(), ctos => null(), ctor => null(), qtor => null(), rtoc => null(), rtoq => null(), &
+          qtoc => null(), ctoq => null()
      REAL(dp), DIMENSION(:,:),POINTER ::  freq_age_primary => null(), freq_age_secondary => null(), &
           biomass_age_primary => null(), biomass_age_secondary => null()
      REAL(dp), DIMENSION(:,:),POINTER :: age_history_secdf => null(), area_history_secdf => null()
@@ -83,7 +84,8 @@ MODULE POPLUC_Types
      REAL(dp), DIMENSION(:,:),POINTER :: FTransferGross => null()
      REAL(dp), DIMENSION(:),POINTER :: pharv => null(), smharv => null(), syharv => null()
      ! ag prod pool (grazing + crop harvest) and loss to atm, loss of C from biosphere due to crop/pasture harvest
-     REAL(dp), DIMENSION(:),POINTER :: AgProd => null(), AgProdLoss => null(), FAg => null()
+     REAL(dp), DIMENSION(:),POINTER :: AgProd => null(), AgProdPast => null(), AgProdCrop => null(), &
+          AgProdLoss => null(), AgProdLossPast => null(), AgProdLossCrop => null(), FAg => null()
      REAL(dp), DIMENSION(:,:),POINTER :: HarvProd => null(), ClearProd => null() ! wood harvest and clearance pools
      REAL(dp), DIMENSION(:,:),POINTER :: fracHarvProd => null(), fracClearProd => null()
      REAL(dp), DIMENSION(:,:),POINTER :: HarvProdLoss => null(), ClearProdLoss => null()
@@ -159,6 +161,12 @@ CONTAINS
     popluc%stoq                    = 0.0_dp
     popluc%qtos                    = 0.0_dp
     popluc%ctos                    = 0.0_dp
+    popluc%ctor                    = 0.0_dp
+    popluc%qtor                    = 0.0_dp
+    popluc%rtoc                    = 0.0_dp
+    popluc%rtoq                    = 0.0_dp
+    popluc%qtoc                    = 0.0_dp
+    popluc%ctoq                    = 0.0_dp
     popluc%frac_forest             = 0.0_dp
     popluc%frac_primf              = 0.0_dp
     popluc%area_history_secdf      = 0.0_dp
@@ -194,7 +202,11 @@ CONTAINS
     popluc%kClear                  = 0.0_dp
     popluc%cRelClear               = 0.0_dp
     popluc%AgProd                  = 0.0_dp
+    popluc%AgProdPast              = 0.0_dp
+    popluc%AgProdCrop              = 0.0_dp
     popluc%AgProdLoss              = 0.0_dp
+    popluc%AgProdLossPast          = 0.0_dp
+    popluc%AgProdLossCrop          = 0.0_dp
     popluc%FAg                     = 0.0_dp
     popluc%FluxPHarvResidtoLitter  = 0.0_dp
     popluc%FluxSHarvResidtoLitter  = 0.0_dp
@@ -232,6 +244,12 @@ CONTAINS
     write(*,*) 'stoq ', popluc%stoq
     write(*,*) 'qtos ', popluc%qtos
     write(*,*) 'ctos ', popluc%ctos
+    write(*,*) 'ctor ', popluc%ctor
+    write(*,*) 'qtor ', popluc%qtor
+    write(*,*) 'rtoc ', popluc%rtoc
+    write(*,*) 'rtoq ', popluc%rtoq
+    write(*,*) 'qtoc ', popluc%qtoc
+    write(*,*) 'ctoq ', popluc%ctoq
     write(*,*) 'frac_forest ', popluc%frac_forest
     write(*,*) 'frac_primf ', popluc%frac_primf
     write(*,*) 'area_history_secdf ', popluc%area_history_secdf
@@ -267,7 +285,11 @@ CONTAINS
     write(*,*) 'kClear ', popluc%kClear
     write(*,*) 'cRelClear ', popluc%cRelClear
     write(*,*) 'AgProd ', popluc%AgProd
+    write(*,*) 'AgProdPast ', popluc%AgProdPast
+    write(*,*) 'AgProdCrop ', popluc%AgProdCrop
     write(*,*) 'AgProdLoss ', popluc%AgProdLoss
+    write(*,*) 'AgProdLossPast ', popluc%AgProdLossPast
+    write(*,*) 'AgProdLossCrop ', popluc%AgProdLossCrop
     write(*,*) 'FAg ', popluc%FAg
     write(*,*) 'FluxPHarvResidtoLitter ', popluc%FluxPHarvResidtoLitter
     write(*,*) 'FluxSHarvResidtoLitter ', popluc%FluxSHarvResidtoLitter
@@ -665,9 +687,6 @@ CONTAINS
          if (POPLUC%ptog(g) .gt. 0.0_dp) &
               CALL execute_luc_event('PRIMF','C3ANN',POPLUC%ptog(g),g,POPLUC)
 
-         ! if (POPLUC%stog(g) .gt.0.0_dp) &
-         !      CALL execute_luc_event('SECDF','C3ANN',POPLUC%stog(g),g,POPLUC)
-
          if (POPLUC%gtop(g) .gt.0.0_dp) &
               CALL execute_luc_event('C3ANN','PRIMF',POPLUC%gtop(g),g,POPLUC)
          if (POPLUC%gtos(g) .gt.0.0_dp) &
@@ -774,11 +793,12 @@ CONTAINS
 #endif
 
     ! Harvest indices (harvested component / total AG biomass)
-    ! see e.g. Yang et al. 2010, Journal of Experimental Botany (Table 1) for a range of HIs of major crops
-    ! similar HI of pastures (e.g. Carlassare et al. 2002, Agronomy Journal), certainly management-dependent
-    ! and thus varies with region.
+    ! see e.g. Yang et al. 2010, Journal of Experimental Botany (Table 1) for a range of HIs of major crops.
+    ! Biomass removal is similar for pastures (e.g. Carlassare et al. 2002, Agronomy Journal) but 
+    ! management- and region-specific. For pastures large parts of the removed biomass is added again as litter.
+    ! Here, we only account for the C ending up in the end product and being respired by livestock.
     REAL(dp), PARAMETER :: HIcrop = 0.5_dp
-    REAL(dp), PARAMETER :: HIpast = 0.5_dp
+    REAL(dp), PARAMETER :: HIpast = 0.2_dp
 
     ! turnover rates for harvest and clearance products (y-1)
     kHarvProd(1) = 1.0_dp ! / 1.0_dp
@@ -1439,18 +1459,20 @@ CONTAINS
              irp = ilu + j -1
              ! Update tile area
              if (ilu == p) then
-                POPLUC%primf(g)  = max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp)
+                POPLUC%primf(g) = min(1.0, max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp))
              elseif (ilu == s) then
-                POPLUC%secdf(g) = max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp)
+                POPLUC%secdf(g) = min(1.0, max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp))
                 if (eq(POPLUC%secdf(g), 0.0_dp)) then
                    POPLUC%freq_age_secondary(g,:) = 0.0_dp
                 endif
              elseif (ilu == gr) then
-                POPLUC%grass(g) = max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp)
-                POPLUC%past(g) = min(max(POPLUC%past(g) + POPLUC%ptoq(g) + POPLUC%stoq(g) &
-                     - POPLUC%qtos(g),0.0_dp), POPLUC%grass(g))
-                POPLUC%crop(g) =min( max(POPLUC%crop(g) + POPLUC%ptoc(g) + POPLUC%stoc(g) &
-                     - POPLUC%ctos(g),0.0_dp), POPLUC%grass(g) - POPLUC%past(g))
+                POPLUC%grass(g) = min(1.0, max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp))
+
+                ! Update crop and pasture fraction within the grass land use type 
+                POPLUC%past(g) = min(max(POPLUC%past(g) + (POPLUC%ptoq(g) + POPLUC%stoq(g) + POPLUC%ctoq(g) + POPLUC%rtoq(g)) &
+                     - (POPLUC%qtos(g) + POPLUC%qtoc(g) + POPLUC%qtor(g)),0.0_dp), POPLUC%grass(g))
+                POPLUC%crop(g) = min(max(POPLUC%crop(g) + (POPLUC%ptoc(g) + POPLUC%stoc(g) + POPLUC%qtoc(g) + POPLUC%rtoc(g)) &
+                     - (POPLUC%ctos(g) + POPLUC%ctoq(g) + POPLUC%ctor(g)),0.0_dp), POPLUC%grass(g) - POPLUC%past(g))
              endif
 
              POPLUC%csoil(g,ilu) = sum(casapool%csoil(irp,:))* &
@@ -1493,17 +1515,27 @@ CONTAINS
 
        POPLUC%HarvProdLoss(g,:)  = kHarvProd * POPLUC%HarvProd(g,:)
        POPLUC%ClearProdLoss(g,:) = kClearProd * POPLUC%ClearProd(g,:)
-       POPLUC%AgProdLoss(g)      = kAgProd * POPLUC%AgProd(g)
+       POPLUC%AgProdLossPast(g)  = kAgProd * POPLUC%AgProdPast(g)
+       POPLUC%AgProdLossCrop(g)  = kAgProd * POPLUC%AgProdCrop(g) 
+       POPLUC%AgProdLoss(g)      = POPLUC%AgProdPast(g) + POPLUC%AgProdCrop(g)  
 
        if (POPLUC%grass(g).gt.0.0_dp .and. l.eq.j+2) then
+          ! Those quantities are calculated at grid cell level (hence multiplied by frac) 
           POPLUC%FAg(g)        = casaflux%Charvest(l)*patch(l)%frac
-          POPLUC%AgProd(g)     = POPLUC%AgProd(g) + casaflux%Charvest(l)*patch(l)%frac - POPLUC%AgProdLoss(g)
-          casaflux%charvest(l) = 0.0_dp
-          casaflux%nharvest(l) = 0.0_dp
-          casaflux%fharvest(l) = min(POPLUC%past(g)/POPLUC%grass(g),1.0_dp) * HIpast + &
-               min(POPLUC%crop(g)/POPLUC%grass(g),1.0_dp) * HIcrop !  fraction grass AGB to be removed next year
-          !write(*,*)'harvest', g,   patch(l)%frac,  casaflux%fharvest(l), POPLUC%crop(g),  POPLUC%past(g)
-          !casaflux%fharvest(l) = 0; ! test vh!
+          POPLUC%AgProdPast(g) = POPLUC%AgProdPast(g) + casaflux%CharvestPast(l) &
+                                 * patch(l)%frac - POPLUC%AgProdLossPast(g)
+          POPLUC%AgProdCrop(g) = POPLUC%AgProdCrop(g) + casaflux%CharvestCrop(l) & 
+                                 * patch(l)%frac - POPLUC%AgProdLossCrop(g)
+          POPLUC%AgProd(g)     = POPLUC%AgProdPast(g) + POPLUC%AgProdCrop(g)
+          casaflux%charvest(l)     = 0.0_dp
+          casaflux%charvestpast(l) = 0.0_dp
+          casaflux%charvestcrop(l) = 0.0_dp
+          ! Note: we are not keeping track of nharvest and pharvest for crops and pastures separately!
+          casaflux%nharvest(l)     = 0.0_dp
+          ! fraction grass AGB to be removed next year through grazing and harvest
+          casaflux%fharvestPast(l) = min(POPLUC%past(g)/POPLUC%grass(g),1.0_dp) * HIpast
+          casaflux%fharvestCrop(l) = min(POPLUC%crop(g)/POPLUC%grass(g),1.0_dp) * HIcrop
+          casaflux%fharvest(l)     = casaflux%fharvestPast(l) + casaflux%fharvestCrop(l)
           casaflux%fcrop(l) = min(POPLUC%crop(g)/POPLUC%grass(g), 1.0_dp)
        endif
        DO j=1, 3
@@ -1758,7 +1790,6 @@ CONTAINS
     ALLOCATE(POPLUC%crop(arraysize))
     ALLOCATE(POPLUC%past(arraysize))
     ALLOCATE(POPLUC%ptos(arraysize))
-    ALLOCATE(POPLUC%ptog(arraysize))
     ALLOCATE(POPLUC%stog(arraysize))
     ALLOCATE(POPLUC%gtop(arraysize))
     ALLOCATE(POPLUC%gtos(arraysize))
@@ -1769,6 +1800,12 @@ CONTAINS
     ALLOCATE(POPLUC%stoq(arraysize))
     ALLOCATE(POPLUC%ctos(arraysize))
     ALLOCATE(POPLUC%qtos(arraysize))
+    ALLOCATE(POPLUC%ctor(arraysize))
+    ALLOCATE(POPLUC%qtor(arraysize))
+    ALLOCATE(POPLUC%rtoc(arraysize))
+    ALLOCATE(POPLUC%rtoq(arraysize))
+    ALLOCATE(POPLUC%qtoc(arraysize))
+    ALLOCATE(POPLUC%ctoq(arraysize))
     ALLOCATE(POPLUC%pharv(arraysize))
     ALLOCATE(POPLUC%smharv(arraysize))
     ALLOCATE(POPLUC%syharv(arraysize))
@@ -1790,10 +1827,14 @@ CONTAINS
     ALLOCATE(POPLUC%FTransferGross(arraysize,nTrans))
     ALLOCATE(POPLUC%HarvProd(arraysize,3))
     ALLOCATE(POPLUC%AgProd(arraysize))
+    ALLOCATE(POPLUC%AgProdPast(arraysize))
+    ALLOCATE(POPLUC%AgProdCrop(arraysize))
     ALLOCATE(POPLUC%ClearProd(arraysize,3))
     ALLOCATE(POPLUC%HarvProdLoss(arraysize,3))
     ALLOCATE(POPLUC%ClearProdLoss(arraysize,3))
     ALLOCATE(POPLUC%AgProdLoss(arraysize))
+    ALLOCATE(POPLUC%AgProdLossPast(arraysize))
+    ALLOCATE(POPLUC%AgProdLossCrop(arraysize))
     ALLOCATE(POPLUC%FAg(arraysize))
     ALLOCATE(POPLUC%fracHarvProd(arraysize,3))
     ALLOCATE(POPLUC%fracClearProd(arraysize,3))
@@ -1859,7 +1900,7 @@ CONTAINS
     ! 1 dim arrays (mp )
     CHARACTER(len=20),DIMENSION(2) :: A0
     ! 2 dim real arrays (mp,t)
-    CHARACTER(len=20),DIMENSION(24):: A1
+    CHARACTER(len=20),DIMENSION(34):: A1
     ! 2 dim integer arrays (mp,t)
     CHARACTER(len=20),DIMENSION(1):: AI1
     ! 3 dim real arrays (mp,age_max,t)
@@ -1913,8 +1954,18 @@ CONTAINS
     A1(20) = 'qtos'
     A1(21) = 'ctos'
     A1(22) = 'AgProd'
-    A1(23) = 'AgProdLoss'
-    A1(24) = 'FAg'
+    A1(23) = 'AgProdPast'
+    A1(24) = 'AgProdCrop'
+    A1(25) = 'AgProdLoss'
+    A1(26) = 'AgProdLossPast'
+    A1(27) = 'AgProdLossCrop'
+    A1(28) = 'FAg'
+    A1(29) = 'ctor'
+    A1(30) = 'qtor'
+    A1(31) = 'rtoc'
+    A1(32) = 'rtoq'
+    A1(33) = 'qtoc'
+    A1(34) = 'ctoq'
 
     AI1(1) = 'n_event'
 
@@ -2142,11 +2193,30 @@ CONTAINS
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
     STATUS = NF90_PUT_VAR(FILE_ID, VID1( 22), real(POPLUC%AgProd,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 23), real(POPLUC%AgProdLoss,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 23), real(POPLUC%AgProdPast,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 24), real(POPLUC%FAg,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 24), real(POPLUC%AgProdCrop,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 25), real(POPLUC%AgProdLoss,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 26), real(POPLUC%AgProdLossPast,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 27), real(POPLUC%AgProdLossCrop,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 28), real(POPLUC%FAg,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 29), real(POPLUC%ctor,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 30), real(POPLUC%qtor,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 31), real(POPLUC%rtoc,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 32), real(POPLUC%rtoq,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 33), real(POPLUC%qtoc,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 34), real(POPLUC%ctoq,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
     STATUS = NF90_PUT_VAR(FILE_ID, VIDI1(1), POPLUC%n_event, start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
@@ -2238,7 +2308,7 @@ CONTAINS
     ! 1 dim arrays (mp )
     CHARACTER(len=20), DIMENSION(2) :: A0
     ! 2 dim real arrays (mp)
-    CHARACTER(len=20), DIMENSION(6) :: A1
+    CHARACTER(len=20), DIMENSION(8) :: A1
     ! 2 dim real arrays (mp,age_max)
     CHARACTER(len=25), DIMENSION(2) :: A2
     ! 2 dim real arrays (mp,nprod)
@@ -2261,6 +2331,8 @@ CONTAINS
     A1(4) = 'crop'
     A1(5) = 'past'
     A1(6) = 'AgProd'
+    A1(7) = 'AgProdPast'
+    A1(8) = 'AgProdCrop'
 
     A2(1) = 'biomass_age_secondary'
     A2(2) = 'freq_age_secondary'
@@ -2347,6 +2419,10 @@ CONTAINS
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
     STATUS = NF90_PUT_VAR(FILE_ID, VID1(6), POPLUC%AgProd)
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1(7), POPLUC%AgProdPast)
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1(8), POPLUC%AgProdCrop)
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     ! PUT 3D VARS ( mp, mage, t )
     STATUS = NF90_PUT_VAR(FILE_ID, VID2(1), POPLUC%biomass_age_secondary)
@@ -2386,7 +2462,7 @@ CONTAINS
     ! 1 dim arrays (mp )
     CHARACTER(len=20), DIMENSION(2) :: A0
     ! 2 dim real arrays (mp)
-    CHARACTER(len=20), DIMENSION(6) :: A1
+    CHARACTER(len=20), DIMENSION(8) :: A1
     ! 2 dim real arrays (mp,age_max)
     CHARACTER(len=25), DIMENSION(2) :: A2
     ! 2 dim real arrays (mp,nprod)
@@ -2406,6 +2482,8 @@ CONTAINS
     A1(4) = 'crop'
     A1(5) = 'past'
     A1(6) = 'AgProd'
+    A1(7) = 'AgProdPast'
+    A1(8) = 'AgProdCrop'
 
     A2(1) = 'biomass_age_secondary'
     A2(2) = 'freq_age_secondary'
@@ -2456,6 +2534,10 @@ CONTAINS
           POPLUC%past   = TMP
        CASE ('AgProd')
           POPLUC%AgProd = TMP
+       CASE ('AgProdPast')
+          POPLUC%AgProdPast = TMP
+       CASE ('AgProdCrop')
+          POPLUC%AgProdCrop = TMP
        END SELECT
     END DO
 
@@ -2517,7 +2599,7 @@ CONTAINS
     ! 1 dim arrays (mp )
     CHARACTER(len=20),DIMENSION(2) :: A0
     ! 2 dim real arrays (mp,t)
-    CHARACTER(len=20),DIMENSION(24):: A1
+    CHARACTER(len=20),DIMENSION(34):: A1
     ! 2 dim integer arrays (mp,t)
     CHARACTER(len=20),DIMENSION(1) :: AI1
     ! 3 dim real arrays (mp,age_max,t)
@@ -2600,8 +2682,18 @@ CONTAINS
     A1(20) = 'qtos'
     A1(21) = 'ctos'
     A1(22) = 'AgProd'
-    A1(23) = 'AgProdLoss'
-    A1(24) = 'FAg'
+    A1(23) = 'AgProdPast'
+    A1(24) = 'AgProdCrop'
+    A1(25) = 'AgProdLoss'
+    A1(26) = 'AgProdLossPast'
+    A1(27) = 'AgProdLossCrop'
+    A1(28) = 'FAg'
+    A1(29) = 'ctor'
+    A1(30) = 'qtor'
+    A1(31) = 'rtoc'
+    A1(32) = 'rtoq'
+    A1(33) = 'qtoc'
+    A1(34) = 'ctoq'
 
     AI1(1) = 'n_event'
 
@@ -2990,11 +3082,51 @@ CONTAINS
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 23), real(UNPACK(POPLUC%AgProdLoss,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 23), real(UNPACK(POPLUC%AgProdPast,landmask, fieldr),sp), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 24), real(UNPACK(POPLUC%FAg,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 24), real(UNPACK(POPLUC%AgProdCrop,landmask, fieldr),sp), &
+         start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 25), real(UNPACK(POPLUC%AgProdLoss,landmask, fieldr),sp), &
+         start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 26), real(UNPACK(POPLUC%AgProdLossPast,landmask, fieldr),sp), &
+         start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 27), real(UNPACK(POPLUC%AgProdLossCrop,landmask, fieldr),sp), &
+         start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 28), real(UNPACK(POPLUC%FAg,landmask, fieldr),sp), &
+         start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 29), real(UNPACK(POPLUC%ctor,landmask, fieldr),sp), &
+         start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 30), real(UNPACK(POPLUC%qtor,landmask, fieldr),sp), &
+         start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 31), real(UNPACK(POPLUC%rtoc,landmask, fieldr),sp), &
+         start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 32), real(UNPACK(POPLUC%rtoq,landmask, fieldr),sp), &
+         start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 33), real(UNPACK(POPLUC%qtoc,landmask, fieldr),sp), &
+         start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
+    IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 34), real(UNPACK(POPLUC%ctoq,landmask, fieldr),sp), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 

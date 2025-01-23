@@ -849,12 +849,19 @@ build_build()
         mv cable cable.`date +%d.%m.%y`
     fi
 
-    # directories contain source code
-    PHYS="../core/biogeophys"
-    UTIL="../core/utils"
-    DRV="."
-    CASA="../core/biogeochem"
-    BLAZE="../core/blaze"
+    # # directories contain source code (relative to offline/)
+    # PHYS="../core/biogeophys"
+    # UTIL="../core/utils"
+    # DRV="."
+    # CASA="../core/biogeochem"
+    # BLAZE="../core/blaze"
+
+    # directories contain source code (relative to offline/old/)
+    PHYS="../../core/biogeophys"
+    UTIL="../../core/utils"
+    DRV=".."
+    CASA="../../core/biogeochem"
+    BLAZE="../../core/blaze"
 
     /bin/cp -p $PHYS/*90  ./.tmp
     /bin/cp -p $UTIL/*90  ./.tmp

@@ -1,5 +1,5 @@
 # Set minimum CMake version to latest version on Gadi:
-cmake_minimum_required(VERSION 3.24.2)
+cmake_minimum_required(VERSION 3.22.1)
 
 project(
     CABLE

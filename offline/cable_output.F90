@@ -298,6 +298,7 @@ CONTAINS
     !    INTEGER :: surffracID         ! surface fraction varaible ID
     CHARACTER(LEN=10) :: todaydate, nowtime ! used to timestamp netcdf file
     integer :: nplantid, nlitterid, nsoilid
+    real, dimension(size(patch, 1)) :: frac
 
     real(kind=r_1), parameter :: zero4 = real(0.0,r_1)
 
@@ -1726,9 +1727,11 @@ CONTAINS
          'iveg', toreal4(veg%iveg), ranges%iveg, patchout%iveg, 'integer')
 
     IF (.not.cable_user%POPLUC) THEN
-       IF ((output%params .OR. output%patchfrac) .AND. (patchout%patchfrac .OR. output%patch)) &
-            CALL write_ovar(ncid_out, opid%patchfrac, 'patchfrac', &
-            toreal4(patch(:)%frac), (/0.0, 1.0/), patchout%patchfrac, 'real')
+       IF ((output%params .OR. output%patchfrac) .AND. (patchout%patchfrac .OR. output%patch)) then
+          frac = toreal4(patch(:)%frac)
+          CALL write_ovar(ncid_out, opid%patchfrac, 'patchfrac', &
+               frac, (/0.0, 1.0/), patchout%patchfrac, 'real')
+       endif
     ENDIF
     IF(output%params .OR. output%isoil) CALL write_ovar(ncid_out, opid%isoil, &
          'isoil', toreal4(soil%isoilm), ranges%isoil, patchout%isoil,'integer')
@@ -1876,6 +1879,7 @@ CONTAINS
     real(r_2)    :: r2interval, gd2umols
     real(kind=r_1), parameter :: zero4 = real(0.0,r_1)
     real, dimension(mp) :: totlai
+    real, dimension(size(patch, 1)) :: frac
 
     ! logical :: opened
     ! integer :: varid
@@ -3058,8 +3062,9 @@ CONTAINS
        IF (cable_user%POPLUC) THEN
           ! output patch fraction
           IF(writenow) THEN
+             frac = toreal4(patch(:)%frac)
              CALL write_ovar(out_timestep, ncid_out, opid%patchfrac, 'patchfrac', &
-                  toreal4(patch(:)%frac), (/0.0, 1.0/), patchout%patchfrac, 'default',met)
+                  frac, (/0.0, 1.0/), patchout%patchfrac, 'default',met)
 
           END IF
        ENDIF
@@ -3735,6 +3740,7 @@ CONTAINS
     character(len=10) :: todaydate, nowtime ! used to timestamp netcdf file
     ! character         :: FRST_OUT*100, CYEAR*4
     character :: frst_out*200, cyear*4
+    real(r_2), dimension(size(patch, 1)) :: frac
 
     dummy = 0 ! initialise
 
@@ -4219,8 +4225,9 @@ CONTAINS
          //TRIM(frst_out)// '(SUBROUTINE create_restart)')
 
     ! Write vegetated patch fractions
+    frac = patch(:)%frac
     ok = NF90_PUT_VAR(ncid_restart, rpid%patchfrac, &
-         patch(:)%frac, start = (/1/), count = (/mp/))
+         frac, start=(/1/), count=(/mp/))
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error writing patchfrac to ' &
          //TRIM(frst_out)// '(SUBROUTINE create_restart)')
 

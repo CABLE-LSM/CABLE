@@ -1,0 +1,22 @@
+&MetNames
+    rainNo = 3
+    rainNames = "rain" "Precipalign" "pre"
+    lwdnNo = 3
+    lwdnNames = "dlwrf" "LWdownnoalign" "rlds"
+    swdnNo = 4
+    swdnNames = "dswrf" "tswrf" "SWdownnoalign" "rsds"
+    presNo = 3
+    presNames = "pres" "Psurfnoalign" "ps"
+    qairNo = 3
+    qairNames = "spfh" "Qairnoalign" "huss"
+    TmaxNo = 3
+    TmaxNames = "tmax" "Tmaxnoalign" "tasmax"
+    TminNo = 3
+    TminNames = "tmin", "Tminnoalign" "tasmin"
+    uwindNo = 3
+    uwindNames = "ugrd", "Wind_Enoalign" "uas"
+    vwindNo = 3
+    vwindNames = "vgrd", "Wind_Nnoalign" "vas"
+    fdiffNo = 1
+    fdiffNames = "fd"
+/

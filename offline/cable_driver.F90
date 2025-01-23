@@ -130,11 +130,10 @@ PROGRAM cable_offline_driver
 
   ! BIOS only
   use cable_bios_met_obs_params,   only:  cable_bios_read_met, cable_bios_init, &
-                                          cable_bios_load_params, &
                                           cable_bios_load_climate_params
 
   ! LUC_EXPT only
-  use CABLE_LUC_EXPT, only: LUC_EXPT_TYPE, LUC_EXPT_INIT, close_luh2
+  use CABLE_LUC_EXPT, only: LUC_EXPT_TYPE, close_luh2
 
 #ifdef __NAG__
   use F90_UNIX
@@ -597,7 +596,8 @@ PROGRAM cable_offline_driver
                  call cru_init(cru)
                  dels         = cru%dtsecs
                  koffset      = 0
-                 if (CRU%MetVersion == "VERIFY_2021") then
+                 IF (CRU%LeapYears) THEN
+                 !if (CRU%MetVersion == "VERIFY_2021") then
                     leaps = .true.
                     calendar = "standard"
                     if (IS_LEAPYEAR(CurYear)) then
@@ -668,7 +668,6 @@ PROGRAM cable_offline_driver
            ! be chosen from a coarse global grid of veg and soil types, based on
            ! the lat/lon coordinates. Allocation of CABLE's main variables also here.
            if (CALL1) then
-              if (cable_user%POPLUC) call LUC_EXPT_INIT(LUC_EXPT)
 
               ! 13C
               call load_parameters(met, air, ssnow, veg, bgc, &
@@ -692,11 +691,6 @@ PROGRAM cable_offline_driver
               if (cable_user%POPLUC .and. &
                    (trim(cable_user%POPLUC_RunType) == 'static')) &
                    cable_user%POPLUC = .false.
-
-              ! Having read the default parameters, if this is a bios run we
-              ! will now overwrite the subset of them required for bios.
-              if (trim(cable_user%MetType) .eq. 'bios') &
-                   call cable_bios_load_params(soil)
 
               ! Open output file
               if (.not. CASAONLY) then
@@ -1541,7 +1535,8 @@ SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg,
   USE POPMODULE,            ONLY: POP_init_single
   USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, read_LUH2, &
        ptos, ptog, stog, gtos, pharv, smharv, syharv, &
-       ptoc, ptoq, stoc, stoq, ctos, qtos
+       ptoc, ptoq, stoc, stoq, ctos, qtos, &
+       ctor, qtor, rtoc, rtoq, qtoc, ctoq
   USE POPLUC_Types
   USE POPLUC_Module,        ONLY: POPLUCStep, POPLUC_weights_Transfer
   ! 13C
@@ -1584,6 +1579,13 @@ SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg,
      POPLUC%stoq(k) = real(LUC_EXPT%INPUT(stoq)%VAL(k), r_2)
      POPLUC%ctos(k) = real(LUC_EXPT%INPUT(ctos)%VAL(k), r_2)
      POPLUC%qtos(k) = real(LUC_EXPT%INPUT(qtos)%VAL(k), r_2)
+
+     POPLUC%ctor(k) = real(LUC_EXPT%INPUT(ctor)%VAL(k), r_2)
+     POPLUC%qtor(k) = real(LUC_EXPT%INPUT(qtor)%VAL(k), r_2)
+     POPLUC%rtoc(k) = real(LUC_EXPT%INPUT(rtoc)%VAL(k), r_2)
+     POPLUC%rtoq(k) = real(LUC_EXPT%INPUT(rtoq)%VAL(k), r_2)
+     POPLUC%qtoc(k) = real(LUC_EXPT%INPUT(qtoc)%VAL(k), r_2)
+     POPLUC%ctoq(k) = real(LUC_EXPT%INPUT(ctoq)%VAL(k), r_2)
 
      POPLUC%thisyear  = yyyy
 
