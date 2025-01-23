@@ -8,6 +8,7 @@ USE cable_phys_constants_mod, ONLY : CTFRZ => TFRZ
 USE cable_phys_constants_mod, ONLY : CHL => HL
 USE cable_phys_constants_mod, ONLY : CHLF => HLF
 USE cable_phys_constants_mod, ONLY : Cdensity_liq => density_liq
+USE cable_phys_constants_mod, ONLY : Cdensity_ice => density_ice
 USE cable_phys_constants_mod, ONLY : Ccgsnow => cgsnow
 USE cable_phys_constants_mod, ONLY : Ccswat => cswat
 USE cable_phys_constants_mod, ONLY : Ccsice => csice

@@ -13,6 +13,8 @@ CONTAINS
 SUBROUTINE hydraulic_redistribution(dels, soil, ssnow, canopy, veg, met)
 
     USE cable_common_module, ONLY : wiltParam, satuParam
+!data
+USE cable_surface_types_mod, ONLY: evergreen_broadleaf, c4_grassland
 
 IMPLICIT NONE
     REAL, INTENT(IN) :: dels ! integration time step (s)
@@ -97,10 +99,9 @@ IMPLICIT NONE
           hr_perTime(:,k,j) = hr_perTime(:,k,j)/soil%zse(k)
           hr_perTime(:,j,k) = hr_perTime(:,j,k)/soil%zse(j)
 
-          ! Overwrite to give zero redistribution for all types except
-          ! evergreen broadleaf (2) and c4 grass (7)
-          ! NB: Hard-wired numbers should be removed in future version
-          WHERE( .NOT.(veg%iveg == 2 .OR. veg%iveg == 7 ) )
+          ! Zero redistribution: all types except evergreen broadleaf, c4 grass
+          WHERE( .NOT. ( veg%iveg == evergreen_broadleaf .OR.                  &
+                         veg%iveg == c4_grassland ) )
              hr_perTime(:,k,j) = 0.0
              hr_perTime(:,j,k) = 0.0
           ENDWHERE
@@ -175,10 +176,9 @@ IMPLICIT NONE
           hr_perTime(:,k,j) = hr_perTime(:,k,j)/soil%zse(k)
           hr_perTime(:,j,k) = hr_perTime(:,j,k)/soil%zse(j)
 
-          ! Overwrite to give zero redistribution for all types except
-          ! evergreen broadleaf (2) and c4 grass (7)
-          ! NB: Hard-wired numbers should be removed in future version
-          WHERE( .NOT.( veg%iveg == 2 .OR. veg%iveg == 7 ) )
+          ! Zero redistribution: all types except evergreen broadleaf, c4 grass
+          WHERE( .NOT. ( veg%iveg == evergreen_broadleaf .OR.                  &
+                         veg%iveg == c4_grassland ) )
              hr_perTime(:,k,j) = 0.0
              hr_perTime(:,j,k) = 0.0
           ENDWHERE

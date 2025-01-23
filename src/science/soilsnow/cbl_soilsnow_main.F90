@@ -40,6 +40,8 @@ USE snow_melting_mod,             ONLY: snow_melting
 USE snow_accum_mod,               ONLY: snow_accum
 USE snowdensity_mod,              ONLY: snowDensity
 
+USE cable_phys_constants_mod,  ONLY: density_liq, density_ice
+
     REAL, INTENT(IN)                    :: dels ! integration time step (s)
     TYPE(soil_parameter_type), INTENT(INOUT) :: soil
     TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow
@@ -51,21 +53,20 @@ USE snowdensity_mod,              ONLY: snowDensity
     REAL, DIMENSION(mp) :: snowmlt
     REAL, DIMENSION(mp) :: totwet
     REAL, DIMENSION(mp) :: weting
-    REAL, DIMENSION(mp) :: xx
+    REAL(r_2), DIMENSION(mp) :: xx
     REAL(r_2), DIMENSION(mp) :: xxx
     REAL(r_2), DIMENSION(mp) :: deltat,sinfil1,sinfil2,sinfil3
     REAL                :: zsetot
     INTEGER, SAVE :: ktau =0
-REAL :: wbliq(mp,ms)
 
     ktau = ktau +1
   !this is the value it is initialized with in cable_common anyway 
   max_glacier_snowd = 1100.0 ! for ACCESS1.3 onwards. = 50000.0 for ACCESS1.0
 
     zsetot = SUM(soil%zse)
-    ssnow%tggav = 0.
+    ssnow%tggav(:) = 0.
     DO k = 1, ms
-      ssnow%tggav = ssnow%tggav  + soil%zse(k)*ssnow%tgg(:,k)/zsetot
+      ssnow%tggav(:) = ssnow%tggav(:) + ( (soil%zse(k)/zsetot) * ssnow%tgg(:,k) )
       soil%heat_cap_lower_limit(:,k) = MAX( 0.01, soil%css(:) * soil%rhosoil(:) )
     END DO
 
@@ -83,8 +84,7 @@ REAL :: wbliq(mp,ms)
     ssnow%dtmlt = 0.0
     ssnow%osnowd = ssnow%snowd
 
-
-    wbliq = ssnow%wb - ssnow%wbice
+    ssnow%wbliq = ssnow%wb - ssnow%wbice
 
   !%cable_runtime_coupled special initalizations in um_init NA for ESM1.5
 
@@ -92,7 +92,7 @@ REAL :: wbliq(mp,ms)
    IF (ktau <= 1)                                                              &
      ssnow%gammzz(:,1) = MAX( (1.0 - soil%ssat) * soil%css * soil%rhosoil      &
             & + (ssnow%wb(:,1) - ssnow%wbice(:,1) ) * Ccswat * Cdensity_liq           &
-            & + ssnow%wbice(:,1) * Ccsice * Cdensity_liq * .9, xx ) * soil%zse(1) +   &
+            & + ssnow%wbice(:,1) * Ccsice * Cdensity_ice, xx ) * soil%zse(1) +   &
             & (1. - ssnow%isflag) * Ccgsnow * ssnow%snowd
 
 
@@ -133,8 +133,7 @@ REAL :: wbliq(mp,ms)
 
     CALL remove_trans(dels, soil, ssnow, canopy, veg)
 
-   CALL  soilfreeze(dels, soil, ssnow, soil%heat_cap_lower_limit)
-
+   CALL  soilfreeze(dels, soil, ssnow, soil%heat_cap_lower_limit )
 
     totwet = canopy%precis + ssnow%smelt
 
@@ -191,11 +190,13 @@ ENDIF
     ! Set weighted soil/snow surface temperature
     ssnow%tss=(1-ssnow%isflag)*ssnow%tgg(:,1) + ssnow%isflag*ssnow%tggsn(:,1)
 
-    wbliq = ssnow%wb - ssnow%wbice
+    ssnow%wbliq = ssnow%wb - ssnow%wbice
 
     ssnow%wbtot = 0.0
     DO k = 1, ms
-       ssnow%wbtot = ssnow%wbtot + REAL(ssnow%wb(:,k)*1000.0*soil%zse(k),r_2)
+      ! tot moisture this timestep 
+      ssnow%wbtot(:) = ssnow%wbtot(:) +                                         &
+        (ssnow%wbliq(:,k)*density_liq + ssnow%wbice(:,k)*density_ice) * soil%zse(k)
     END DO
 
 

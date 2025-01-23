@@ -60,9 +60,9 @@ IMPLICIT NONE
          wbl_kp,     & !
          wh,         & !
          z3_k,       & !
-         pwb_wbh       !
+         pwb_wbh
 
-
+    REAL :: dfactor, sicemelt
     REAL, DIMENSION(mp,ms+1) :: z1mult
 
     ! change dimension of at,bt,ct from 3*ms to ms (BP Jun2010)
@@ -83,10 +83,7 @@ IMPLICIT NONE
          delt,       & !
          dtt           !
 
-    LOGICAL :: is_open     ! Is file open?
-    INTEGER ::                                                                  &
-         u,    & ! I/O unit
-         k
+    INTEGER :: i, k
 
     at = 0.0
     bt = 1.0
@@ -225,7 +222,7 @@ IMPLICIT NONE
 
        END DO
 
-       ssnow%rnof2 = dels * REAL( fluxh(:,ms) ) * 1000.0
+       ssnow%rnof2 = dels * REAL( fluxh(:,ms) ) * Cdensity_liq
 
        ! wbh_k represents wblf(k-.5)
        DO k = 2, ms
@@ -425,9 +422,23 @@ IMPLICIT NONE
     CALL trimb(at, bt, ct, ssnow%wblf, ms)
 
     DO k = 1, ms
-       ssatcurr(:,k) = soil%ssat - ssnow%wbice(:,k)
-       ssnow%wb(:,k) = ssnow%wblf(:,k) * ssatcurr(:,k) + ssnow%wbice(:,k)
-       ssnow%wbice(:,k) = MIN( ssnow%wbice(:,k), frozen_limit * ssnow%wb(:,k) )
+      ssatcurr(:,k) = soil%ssat - ssnow%wbice(:,k)
+      ssnow%wb(:,k) = ssnow%wblf(:,k) * ssatcurr(:,k) + ssnow%wbice(:,k)
+    END DO
+    ! If redistribution of liquid has caused a layer to exceed frozen limit
+    ! melt the excess and account for latent heat.
+    dfactor = 1.0 - Cdensity_ice / Cdensity_liq
+    DO k = 1, ms
+       DO i = 1, mp
+          IF (ssnow%wbice(i,k) > frozen_limit * ssnow%wb(i,k)) THEN
+             sicemelt = (ssnow%wbice(i,k) - frozen_limit * ssnow%wb(i,k)) / &
+                           (1.0 - frozen_limit*dfactor)
+             ssnow%wbice(i,k) = ssnow%wbice(i,k) - sicemelt
+             ssnow%wb(i,k) = ssnow%wb(i,k) - dfactor*sicemelt
+             ssnow%tgg(i,k) = ssnow%tgg(i,k) -                                 &
+                     sicemelt*soil%zse(k)*Cdensity_ice*CHLF / REAL(ssnow%gammzz(i,k) )
+          END IF
+       END DO
     END DO
 
 END SUBROUTINE smoisturev

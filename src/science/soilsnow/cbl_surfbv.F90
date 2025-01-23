@@ -7,12 +7,12 @@ PUBLIC  surfbv
 CONTAINS 
 
 SUBROUTINE surfbv (dels, met, ssnow, soil, veg, canopy )
-! subrs
-USE smoisturev_mod,          ONLY: smoisturev
 
+USE smoisturev_mod,               ONLY: smoisturev
+    USE cable_common_module
 ! data
-USE cable_surface_types_mod, ONLY: lakes_cable
-USE cable_common_module
+USE cable_surface_types_mod,   ONLY: lakes_cable
+USE cable_other_constants_mod, ONLY : wilt_limitfactor
 
 IMPLICIT NONE
 
@@ -51,15 +51,15 @@ IMPLICIT NONE
     DO k = 1, ms
        xxx = REAL( soil%ssat,r_2 )
        ssnow%rnof1 = ssnow%rnof1 + REAL( MAX( ssnow%wb(:,k) - xxx, 0.0_r_2 )  &
-            * 1000.0 )  * soil%zse(k)
-       ssnow%wb(:,k) = MAX( 0.01_r_2, MIN( ssnow%wb(:,k), xxx ) )
+            * Cdensity_liq )  * soil%zse(k)
+       ssnow%wb(:,k) = MAX( soil%swilt(:)/(2.*wilt_limitfactor), MIN( ssnow%wb(:,k), xxx ) )
     END DO
 
     ! for deep runoff use wb-sfc, but this value not to exceed .99*wb-wbice
     ! account for soil/ice cracking
     ! fracm = MIN(0.2, 1. - MIN(1., ssnow%wb(:,ms) / soil%sfc ) )
     ! ssnow%wb(:,ms) = ssnow%wb(:,ms) &
-    !                  + fracm*ssnow%rnof1/(1000.0*soil%zse(ms))
+    !                  + fracm*ssnow%rnof1/(Cdensity_liq*soil%zse(ms))
     ! ssnow%rnof1 = (1. - fracm) * ssnow%rnof1
 
     ! Scaling  runoff to kg/m^2/s to match rest of the model
@@ -112,13 +112,13 @@ IMPLICIT NONE
        ssnow%sinfil  = MIN( ssnow%rnof2, ssnow%wb_lake ) ! water that can be extracted from the rnof2
        ssnow%rnof2   = MAX( 0.0, ssnow%rnof2 - ssnow%sinfil )
        ssnow%wb_lake = MAX( 0.0, ssnow%wb_lake - ssnow%sinfil)
-       xxx = MAX(0.0_r_2, (ssnow%wb(:,ms) - REAL(soil%sfc(:),r_2))*soil%zse(ms)*1000.0)
+       xxx = MAX(0.0_r_2, (ssnow%wb(:,ms) - REAL(soil%sfc(:),r_2))*soil%zse(ms)*Cdensity_liq)
        ssnow%sinfil  = MIN( REAL(xxx), ssnow%wb_lake )
-       ssnow%wb(:,ms) = ssnow%wb(:,ms) - REAL(ssnow%sinfil / (soil%zse(ms)*1000.0), r_2)
+       ssnow%wb(:,ms) = ssnow%wb(:,ms) - REAL(ssnow%sinfil / (soil%zse(ms)*Cdensity_liq), r_2)
        ssnow%wb_lake = MAX( 0.0, ssnow%wb_lake - ssnow%sinfil)
-       xxx = MAX(0.0_r_2, (ssnow%wb(:,ms) - 0.5*(soil%sfc + soil%swilt))*soil%zse(ms)*1000.0)
+       xxx = MAX(0.0_r_2, (ssnow%wb(:,ms) - 0.5*(soil%sfc + soil%swilt))*soil%zse(ms)*Cdensity_liq)
        ssnow%sinfil  = MIN( REAL(xxx), ssnow%wb_lake )
-       ssnow%wb(:,ms) = ssnow%wb(:,ms) - ssnow%sinfil / (soil%zse(ms)*1000.0)
+       ssnow%wb(:,ms) = ssnow%wb(:,ms) - ssnow%sinfil / (soil%zse(ms)*Cdensity_liq)
        ssnow%wb_lake = MAX( 0.0, ssnow%wb_lake - ssnow%sinfil)
     ENDWHERE
 
