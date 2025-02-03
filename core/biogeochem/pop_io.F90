@@ -1329,13 +1329,13 @@ contains
           DO m = 1, mp
              SELECT CASE ( i )
              CASE( 1)
-                POP%pop_grid(m)%biomass = R2(m,:)
+                POP%pop_grid(m)%biomass = R2(m,nlayer)
              CASE( 2)
-                POP%pop_grid(m)%density = R2(m,:)
+                POP%pop_grid(m)%density = R2(m,nlayer)
              CASE( 3)
-                POP%pop_grid(m)%hmean   = R2(m,:)
+                POP%pop_grid(m)%hmean   = R2(m,nlayer)
              CASE( 4)
-                POP%pop_grid(m)%hmax    = R2(m,:)
+                POP%pop_grid(m)%hmax    = R2(m,nlayer)
              CASE default
                 write(*,*) "Parameter not assigned in pop_io.F90!"
 #ifdef __MPI__
