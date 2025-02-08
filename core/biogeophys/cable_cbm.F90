@@ -141,11 +141,11 @@ CONTAINS
 
       IF (cable_runtime%um) THEN
          IF (cable_runtime%um_implicit) THEN
-            CALL soil_snow(dels, soil, ssnow, canopy, met, veg)
+            CALL soil_snow(dels, soil, ssnow, canopy, met, veg, casapool)
          ENDIF
       ELSE
          IF (cable_user%SOIL_STRUC=='default') THEN
-            call soil_snow(dels, soil, ssnow, canopy, met, veg)
+            call soil_snow(dels, soil, ssnow, canopy, met, veg, casapool)
          ELSEIF (cable_user%SOIL_STRUC=='sli') THEN
             ! print*, 'SLIMAIN01 ', ktau, dels
             ! call print_cbm_var(veg)
@@ -166,7 +166,7 @@ CONTAINS
             ! call print_cbm_var(rad)
          ENDIF
       ENDIF
-      CALL calc_psix(ssnow, soil, canopy, veg, bgc, casapool)
+      CALL calc_psix(ssnow, soil, canopy, veg, casapool)
       ssnow%deltss = ssnow%tss-ssnow%otss
       ! correction required for energy balance in online simulations
       IF (cable_runtime%um) THEN

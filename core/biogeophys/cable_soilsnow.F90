@@ -1634,19 +1634,21 @@ CONTAINS
 
 ! -----------------------------------------------------------------------------
 
-   SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg, bgc)
+   SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg, casapool)
 
       USE cable_common_module, ONLY : cable_user
       USE cable_IO_vars_module, ONLY: logn
       USE cable_soil_hydraulics_module, ONLY : calc_soil_root_resistance, &
          calc_swp, calc_weighted_swp_and_frac_uptake
+      USE casavariable
       ! Removes transpiration water from soil.
       REAL, INTENT(IN)                    :: dels ! integration time step (s)
       TYPE(canopy_type), INTENT(INOUT)         :: canopy
       TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow
       TYPE(soil_parameter_type), INTENT(INOUT) :: soil
       TYPE(veg_parameter_type), INTENT(INOUT)  :: veg
-      TYPE (bgc_pool_type),  INTENT(IN)           :: bgc
+      TYPE (casa_pool),  INTENT(IN)           :: casapool
+
       REAL(r_2), DIMENSION(mp,ms) :: diff
       REAL(r_2), DIMENSION(mp)      :: xx, xxd
       INTEGER :: k, i
@@ -1660,7 +1662,7 @@ CONTAINS
       IF (cable_user%SOIL_SCHE == 'hydraulics') THEN
          DO i = 1, mp
 
-            CALL calc_soil_root_resistance(ssnow, soil, veg, bgc, root_length, i)
+            CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, i)
             CALL calc_swp(ssnow, soil, i)
             CALL calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, veg, &
                root_length, i)
@@ -1781,14 +1783,16 @@ CONTAINS
 !        ivegt - vegetation type
 ! Output
 !        ssnow
-   SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, veg)
+   SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, veg, casapool)
       USE cable_common_module
+      USE casavariable
       REAL, INTENT(IN)                    :: dels ! integration time step (s)
       TYPE(soil_parameter_type), INTENT(INOUT) :: soil
       TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow
       TYPE(canopy_type), INTENT(INOUT)         :: canopy
       TYPE(veg_parameter_type), INTENT(INOUT)  :: veg
       TYPE(met_type), INTENT(INOUT)            :: met ! all met forcing
+      TYPE (casa_pool),  INTENT(IN)           :: casapool
       INTEGER             :: k
       REAL, DIMENSION(mp) :: snowmlt
       REAL, DIMENSION(mp) :: totwet
@@ -1927,7 +1931,7 @@ CONTAINS
       ! Add new snow melt to global snow melt variable:
       ssnow%smelt = ssnow%smelt + snowmlt
 
-      CALL remove_trans(dels, soil, ssnow, canopy, veg)
+      CALL remove_trans(dels, soil, ssnow, canopy, veg, casapool)
 
       CALL soilfreeze_serial(soil, ssnow)
 

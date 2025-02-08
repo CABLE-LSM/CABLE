@@ -9,7 +9,7 @@ MODULE cable_soil_hydraulics_module
 
 CONTAINS
    ! ----------------------------------------------------------------------------
-   SUBROUTINE calc_soil_root_resistance(ssnow, soil, veg, bgc, root_length, i)
+   SUBROUTINE calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, i)
       ! Calculate root & soil hydraulic resistance following SPA approach
       ! (Williams et al.)
       !
@@ -44,13 +44,13 @@ CONTAINS
 
       USE cable_def_types_mod
       USE cable_common_module
-
+      USE casavariable
       IMPLICIT NONE
 
       TYPE (soil_snow_type), INTENT(INOUT)        :: ssnow
       TYPE (soil_parameter_type), INTENT(INOUT)   :: soil
       TYPE (veg_parameter_type), INTENT(INOUT)    :: veg
-      TYPE (bgc_pool_type),  INTENT(IN)           :: bgc
+      TYPE (casa_pool),  INTENT(IN)           :: casapool
 
       ! All from Williams et al. 2001, Tree phys
       REAL, PARAMETER :: pi = 3.1415927
@@ -99,7 +99,7 @@ CONTAINS
       !root_biomass = bgc%cplant(i,ROOT_INDEX) * gC2DM
       !root_biomass = 1443.0 * gC2DM ! EBF value
       root_biomass = 832.0 * gC2DM ! Eucface value
-
+      root_biomass = casapool%cplant(i,3) * gC2DM ! Eucface value g m-2
       !root_biomass = 318.9 * gC2DM ! Spruce experiment
 
       ! sensitivity experiment values
@@ -414,7 +414,7 @@ CONTAINS
 
    END SUBROUTINE calc_weighted_swp_and_frac_uptake
    ! ----------------------------------------------------------------------------
-   SUBROUTINE calc_psix(ssnow, soil, canopy, veg, bgc, casapool)
+   SUBROUTINE calc_psix(ssnow, soil, canopy, veg, casapool)
       USE cable_def_types_mod
       USE cable_common_module
       use cable_veg_hydraulics_module, only: get_xylem_vulnerability
@@ -426,7 +426,6 @@ CONTAINS
       TYPE (soil_parameter_type), INTENT(INOUT)   :: soil
       TYPE (veg_parameter_type), INTENT(INOUT)    :: veg
       TYPE(canopy_type), INTENT(INOUT)          :: canopy ! vegetation variables
-      TYPE (bgc_pool_type),  INTENT(IN)           :: bgc
       TYPE(casa_pool),        INTENT(IN)    :: casapool
       REAL, DIMENSION(ms) :: root_length, layer_depth, zsetmp, froottmp, frcuptmp
       REAL :: SoilMoistPFTtemp
@@ -441,7 +440,7 @@ CONTAINS
       !write(logn,*),'calculate soilMoistPFT'
       DO i = 1, mp
 
-         CALL calc_soil_root_resistance(ssnow, soil, veg, bgc, root_length, i)
+         CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, i)
          CALL calc_swp(ssnow, soil, i)
       end do
       layer_depth(1) = 0.0_r_2
