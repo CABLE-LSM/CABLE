@@ -84,7 +84,7 @@ MODULE cable_output_module
           vcmax_ts, jmax_ts, qcan_sl, qcan_sh, &
           An, Rd, cplant, clitter, csoil, clabile, &
           A13n, aDisc13, c13plant, c13litter, c13soil, c13labile, &
-          TSap, psi_soil, psi_rootzone, psi_stem, psi_can_sl, psi_can_sh, &
+          TSap, psi_soil, psi_rootzone, psix, psi_can_sl, psi_can_sh, &
           plc_sat, plc_stem, plc_can, gsw_sun, gsw_sha, LeafT, abs_deltpsil_sl, abs_deltpsil_sh, kplant, &
           abs_deltlf, abs_deltds, abs_deltcs_sl, abs_deltcs_sh
   END TYPE out_varID_type
@@ -280,7 +280,7 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: TSap => null()  ! 25b trans. from sapflux, ms8355
      REAL(KIND=r_1), POINTER, DIMENSION(:,:) :: psi_soil  => null()    ! ms8355
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_rootzone => null()  ! ms8355
-     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_stem  => null()    ! mgk576
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psix  => null()    ! mgk576
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_can_sl  => null()     !
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_can_sh  => null()     !
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: abs_deltpsil_sl  => null()     !
@@ -759,7 +759,6 @@ CONTAINS
 
           out%psi_soil = 0.0 ! initialise
      END IF
-   
        IF(output%soil) THEN
           CALL define_ovar(ncid_out, ovid%psi_rootzone, &
                            'psi_rootzone', 'MPa', 'Weighted root zone water potential', &
@@ -770,12 +769,12 @@ CONTAINS
        END IF
    
     IF(output%veg) THEN
-     CALL define_ovar(ncid_out, ovid%psi_stem, &
-                      'psi_stem', 'MPa', 'Stem water potential', &
-                      patchout%psi_stem, 'dummy', xID, yID, zID, &
+     CALL define_ovar(ncid_out, ovid%psix, &
+                      'psix', 'MPa', 'root xylem water potential', &
+                      patchout%psix, 'dummy', xID, yID, zID, &
                       landID, patchID, tID)
-     ALLOCATE(out%psi_stem(mp))
-     out%psi_stem = 0.0 ! initialise
+     ALLOCATE(out%psix(mp))
+     out%psix = 0.0 ! initialise
   END IF
 
   IF(output%veg) THEN
@@ -4291,20 +4290,20 @@ CONTAINS
 
    ! mgk576, 19/2/2019
    !IF((output%veg) .and. cable_user%FWSOIL_SWITCH == 'hydraulics') THEN
-   IF(output%veg .and. cable_user%FWSOIL_SWITCH == 'profitmax') THEN
+   IF(output%veg) THEN
       ! Add current timestep's value to total of temporary output variable:
-      out%psi_stem = out%psi_stem + REAL(canopy%psi_stem, 4)
+      out%psix = out%psix+ REAL(canopy%psix, 4)
       IF(writenow) THEN
          ! Divide accumulated variable by number of accumulated time steps:
-         out%psi_stem = out%psi_stem / REAL(output%interval, 4)
+         out%psix = out%psix / REAL(output%interval, 4)
          ! Write value to file:
-         CALL write_ovar(out_timestep, ncid_out, ovid%psi_stem, &
-                        'psi_stem', &
-                         out%psi_stem, ranges%psi_stem, &
-                         patchout%psi_stem, &
+         CALL write_ovar(out_timestep, ncid_out, ovid%psix, &
+                        'psix', &
+                         out%psix, ranges%psix, &
+                         patchout%psix, &
                         'default', met)
          ! Reset temporary output variable:
-         out%psi_stem = 0.0
+         out%psix = 0.0
       END IF
    END IF
   END SUBROUTINE write_output

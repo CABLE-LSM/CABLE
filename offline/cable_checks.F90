@@ -188,7 +188,7 @@ MODULE cable_checks_module
           c_plant = (/1.0, 20.0/),            &
           psi_rootzone = (/-50.0, 0.0/),      &
           psi_soil = (/-50.0, 0.0/),          &
-          psi_stem = (/-50.0, 0.0/),          &
+          psix = (/-50.0, 0.0/),          &
           psi_can = (/-50.0, 0.0/),           &
           abs_deltpsil = (/0.0, 50.0/),           &
           psi_can_opt = (/-50.0, 0.0/),       &

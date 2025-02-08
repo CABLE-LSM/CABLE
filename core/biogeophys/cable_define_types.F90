@@ -524,7 +524,6 @@ module cable_def_types_mod
      real(r_2), dimension(:), pointer :: psix => null()
      ! plant hydraulics; mgk576 2017; ms835 2022
      REAL(r_1), DIMENSION(:), POINTER :: &
-        psi_stem => null(), &
         kplant => null()   ! mmol m-2 s-1 Mpa-1
      REAL(r_1), DIMENSION(:), POINTER :: plc_sat, plc_stem, plc_can, day_plc_sat, day_plc_stem, day_plc_can
 
@@ -1270,7 +1269,6 @@ contains
     allocate( canopy%fevcs(mp) )
     allocate ( canopy%ecxs(mp,mf) )    ! sunlit and shaded leaf latent heat flux (sap flux)
   ! plant hydraulics; mgk576 2017; ms8355 2022
-    allocate( canopy%psi_stem(mp) )
     allocate( canopy%psi_can(mp,mf) )
     allocate( canopy%abs_deltpsil(mp,mf) )
     allocate( canopy%abs_deltcs(mp,mf) )
@@ -1896,7 +1894,6 @@ contains
     ! plant hydraulics; mgk576 2017; ms8355 2022
     deallocate( canopy%fevcs )
     deallocate( canopy%ecxs )
-    deallocate( canopy%psi_stem )
     deallocate( canopy%psi_can )
     deallocate( canopy%abs_deltpsil )
     deallocate( canopy%abs_deltcs )
@@ -2463,7 +2460,6 @@ contains
     canopy%ci        = 0
     canopy%fevcs = 0
     canopy%ecxs = 0
-    canopy%psi_stem = 0
     canopy%psi_can = 0
     canopy%abs_deltpsil = 0
     canopy%abs_deltcs = 0
@@ -3128,7 +3124,6 @@ contains
     write(*,*) 'canopy%gac ', canopy%gac
     write(*,*) 'canopy%fevcs ', canopy%fevcs
     write(*,*) 'canopy%ecxs ', canopy%ecxs
-    write(*,*) 'canopy%psi_stem ', canopy%psi_stem
     write(*,*) 'canopy%psi_can ', canopy%psi_can
     write(*,*) 'canopy%kplant ', canopy%kplant
     write(*,*) 'canopy%plc_sat ', canopy%plc_sat
