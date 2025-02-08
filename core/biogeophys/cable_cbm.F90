@@ -166,7 +166,7 @@ CONTAINS
             ! call print_cbm_var(rad)
          ENDIF
       ENDIF
-      CALL calc_psix(ssnow, soil, canopy, veg, bgc)
+      CALL calc_psix(ssnow, soil, canopy, veg, bgc, casapool)
       ssnow%deltss = ssnow%tss-ssnow%otss
       ! correction required for energy balance in online simulations
       IF (cable_runtime%um) THEN

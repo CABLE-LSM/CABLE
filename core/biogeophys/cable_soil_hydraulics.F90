@@ -414,11 +414,11 @@ CONTAINS
 
    END SUBROUTINE calc_weighted_swp_and_frac_uptake
    ! ----------------------------------------------------------------------------
-   SUBROUTINE calc_psix(ssnow, soil, canopy, veg, bgc)
+   SUBROUTINE calc_psix(ssnow, soil, canopy, veg, bgc, casapool)
       USE cable_def_types_mod
       USE cable_common_module
       use cable_veg_hydraulics_module, only: get_xylem_vulnerability
-
+      use mo_constants, only: pi => pi_sp
       IMPLICIT NONE
 
       TYPE (soil_snow_type), INTENT(INOUT)        :: ssnow
@@ -426,8 +426,10 @@ CONTAINS
       TYPE (veg_parameter_type), INTENT(INOUT)    :: veg
       TYPE(canopy_type), INTENT(INOUT)          :: canopy ! vegetation variables
       TYPE (bgc_pool_type),  INTENT(IN)           :: bgc
+      TYPE(casa_pool),        INTENT(IN)    :: casapool
       REAL, DIMENSION(ms) :: root_length, layer_depth, zsetmp, froottmp, frcuptmp
       REAL :: SoilMoistPFTtemp
+
       REAL, DIMENSION(ms) :: a
       INTEGER :: k, i
       real :: k1, k2, pd, BAI, WD, AGB_pl, DBH, plc, sumpsiksoil, sumksoil
@@ -480,10 +482,10 @@ CONTAINS
          sumksoil = 0.0
          sumpsiksoil = 0.0
          DO k = 1, ms
-            sumpsiksoil = sumpsiksoil + ssnow%psi_soil(i,k)* 1.0 / ssnow%soilR(i,j) 
+            sumpsiksoil = sumpsiksoil + ssnow%psi_soil(i,k)* 1.0 / ssnow%soilR(i,k) 
             sumksoil = sumksoil + 1.0 / ssnow%soilR(i,j) 
          END DO
-         canopy%psix(i) = (sum(real(ssnow%uptake_layer(i,:),r_2),2) - sumpsiksoil) / sumpsiksoil
+         canopy%psix(i) = (sum(real(ssnow%uptake_layer(i,:),r_2)) - sumpsiksoil) / sumpsiksoil
          ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
          ! k1 = 50.0_r_2
          ! k2 = 1.5_r_2
