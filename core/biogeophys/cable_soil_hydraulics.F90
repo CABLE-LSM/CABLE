@@ -486,7 +486,7 @@ CONTAINS
             sumpsiksoil = sumpsiksoil + ssnow%psi_soil(i,k)* 1.0 / ssnow%soilR(i,k) 
             sumksoil = sumksoil + 1.0 / ssnow%soilR(i,k) 
          END DO
-         canopy%psix(i) = (sum(real(ssnow%uptake_layer(i,:),r_2)) - sumpsiksoil) / sumksoil
+         canopy%psix(i) = (sumpsiksoil - sum(real(ssnow%uptake_layer(i,:),r_2))) / sumksoil
          ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
          ! k1 = 50.0_r_2
          ! k2 = 1.5_r_2
