@@ -90,9 +90,10 @@ CONTAINS
       REAL, PARAMETER    :: Kbiometric = 50.0 ! cst in height-diameter relationship
       REAL, PARAMETER    :: WD = 300.0 ! Wood density kgC/m3
       INTEGER, PARAMETER :: STEM_INDEX = 2
+      
+      ! stem_biomass = bgc%cplant(i,STEM_INDEX) * gC2DM
+      ! ht = (Kbiometric**(3.0/4.0))*(4.*stem_biomass/(WD*PI))**(1.0/4.0)
 
-      stem_biomass = bgc%cplant(i,STEM_INDEX) * gC2DM
-      ht = (Kbiometric**(3.0/4.0))*(4.*stem_biomass/(WD*PI))**(1.0/4.0)
       !print*, ht
 
       ! convert from gC to g biomass, i.e. twice the C content
