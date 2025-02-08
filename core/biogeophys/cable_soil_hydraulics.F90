@@ -418,6 +418,7 @@ CONTAINS
       USE cable_def_types_mod
       USE cable_common_module
       use cable_veg_hydraulics_module, only: get_xylem_vulnerability
+      USE casavariable
       use mo_constants, only: pi => pi_sp
       IMPLICIT NONE
 
