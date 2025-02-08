@@ -57,9 +57,7 @@ CONTAINS
       USE cable_data_module, ONLY: icbm_type, point2constants
       use cable_sli_main,    only: sli_main
       USE cable_soil_snow_module, ONLY : soil_snow
-      USE cable_soil_hydraulics_module, ONLY : calc_soil_root_resistance, &
-         calc_swp, calc_weighted_swp_and_frac_uptake
-      use cable_veg_hydraulics_module, only: get_xylem_vulnerability
+      USE cable_soil_hydraulics_module, ONLY : calc_psix
       USE cable_IO_vars_module, ONLY: logn
       use mo_constants, only: pi => pi_sp
       USE casavariable
@@ -82,15 +80,14 @@ CONTAINS
 
       ! ptrs to local constants
       TYPE(icbm_type) :: C
-      REAL, DIMENSION(ms) :: root_length, layer_depth, zsetmp, froottmp, frcuptmp
+
       integer :: i,k
 #ifdef NO_CASA_YET
       INTEGER :: ICYCLE
       ICYCLE = 0
 #endif
-      REAL :: SoilMoistPFTtemp
       REAL, DIMENSION(ms) :: a
-      real :: k1, k2, pd, BAI, WD, AGB_pl, DBH, plc
+
 
       ! assign local ptrs to constants defined in cable_data_module
       CALL point2constants(C)
@@ -125,100 +122,7 @@ CONTAINS
       ssnow%owetfac = ssnow%wetfac ! MC should also be before canopy
       ! PH: mgk576, 13/10/17, added two funcs
 
-      !IF (cable_user%SOIL_SCHE == 'hydraulics') THEN
 
-      DO i = 1, mp
-
-         CALL calc_soil_root_resistance(ssnow, soil, veg, bgc, root_length, i)
-         CALL calc_swp(ssnow, soil, i)
-         CALL calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, veg, &
-            root_length, i)
-
-      END DO
-      !ELSE
-      ! zihanlu: calculate psi_soil no matter which soil_sche is used
-      !DO i = 1, mp
-      !CALL calc_swp(ssnow, soil, i)
-      !write(logn,*),'calculate soilMoistPFT'
-      layer_depth(1) = 0.0_r_2
-      do k=2, ms
-         layer_depth(k) = sum(soil%zse(1:k-1))
-      enddo
-      DO i = 1, mp
-
-         zsetmp = soil%zse
-         where (layer_depth > veg%zr(i))
-            zsetmp = 0.
-         elsewhere
-            zsetmp = min(real(veg%zr(i)) - layer_depth, soil%zse)
-         endwhere
-         ! print *, 'zr:', veg%zr(i)
-         ! print *, 'zse:', soil%zse
-         ! print *, 'zsetmp:', zsetmp
-         ! SoilMoistPFTtemp = sum(ssnow%wb(i,:) * real(zsetmp,r_2),1) / real(sum(zsetmp),r_2)
-         ! ssnow%psi_rootzone(i) = soil%sucs(i) * 9.8 * 0.001 * MAX(1.E-9, MIN(1.0, SoilMoistPFTtemp / &
-         !    soil%ssat(i))) ** (-soil%bch(i))
-         ! print*, 'PSI_rootzone for ZW', SoilMoistPFTtemp,  ssnow%psi_rootzone(i)
-         ! froottmp = veg%froot(i,:)
-         ! SoilMoistPFTtemp = sum(ssnow%wb(i,:) * froottmp * zsetmp) / sum(froottmp * zsetmp)
-         ! ssnow%psi_rootzone(i) = soil%sucs(i) * 9.8 * 0.001 * MAX(1.E-9, MIN(1.0, SoilMoistPFTtemp / &
-         !    soil%ssat(i))) ** (-soil%bch(i))
-         ! print*, 'PSI_rootzone for froot', SoilMoistPFTtemp,  ssnow%psi_rootzone(i)
-         ! frcuptmp = ssnow%fraction_uptake(i,:)
-         ! where (layer_depth > veg%zr(i) )
-         !    frcuptmp = 0
-         ! endwhere
-         ! SoilMoistPFTtemp = sum(ssnow%wb(i,:) * frcuptmp) / sum(frcuptmp)
-         ! ssnow%psi_rootzone(i) = soil%sucs(i) * 9.8 * 0.001 * MAX(1.E-9, MIN(1.0, SoilMoistPFTtemp / &
-         !    soil%ssat(i))) ** (-soil%bch(i))
-         ! print*, 'PSI_rootzone for uptake', SoilMoistPFTtemp,  ssnow%psi_rootzone(i)
-        ! print *, 'zr:', veg%zr(i)
-
-         if (cable_user%calSoilMean == 'zW') then
-
-            SoilMoistPFTtemp = sum(real(ssnow%wb(i,:)) * zsetmp, 1) / sum(zsetmp)
-            ssnow%psi_rootzone(i) = soil%sucs(i) * 9.8 * 0.001 * MAX(1.E-9, MIN(1.0, SoilMoistPFTtemp / &
-               soil%ssat(i))) ** (-soil%bch(i))
-
-         elseif (cable_user%calSoilMean == 'frootW') then
-            froottmp = veg%froot(i,:)
-            SoilMoistPFTtemp = sum(real(ssnow%wb(i,:)) * froottmp * zsetmp) / sum(froottmp * zsetmp)
-            ssnow%psi_rootzone(i) = soil%sucs(i) * 9.8 * 0.001 * MAX(1.E-9, MIN(1.0, SoilMoistPFTtemp / &
-               soil%ssat(i))) ** (-soil%bch(i))
-         elseif (cable_user%calSoilMean == 'FrcUpW') then
-            frcuptmp = ssnow%fraction_uptake(i,:)
-            where (layer_depth > veg%zr(i) )
-               frcuptmp = 0
-            endwhere
-            SoilMoistPFTtemp = sum(real(ssnow%wb(i,:)) * frcuptmp) / sum(frcuptmp)
-            ssnow%psi_rootzone(i) = soil%sucs(i) * 9.8 * 0.001 * MAX(1.E-9, MIN(1.0, SoilMoistPFTtemp / &
-               soil%ssat(i))) ** (-soil%bch(i))
-
-         endif
-         !SoilMoistPFTtemp = real(sum(ssnow%wb * 1000.0_r_2 * real(spread(soil%zse,1,mp),r_2),2),r_2)
-
-         ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
-         ! k1 = 50.0_r_2
-         ! k2 = 1.5_r_2
-         k1 = 0.2351 ! coefficient in 
-         k2 = 2.3226
-         WD = 300.0_r_2 ! kgC m-2
-         !Biomass = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r_2
-         !pd = 4.0_r_2 * real(casapool%cplant(i,2) / 1000.0_r_2,r_2) / (WD * pi * veg%hc * (veg%hc / k1)**(2.0_r_2*k2))
-         pd = 0.07_r_2 ! pl m-2
-         !DBH = (veg%hc/k1)**k2
-         AGB_pl = casapool%cplant(i,2) / 1000.0_r_2 * 2.0_r_2 / pd ! kg pl-1
-         DBH = (AGB_pl/k1)**(1.0_r_2/k2) ! cm 
-         BAI = (DBH/200.0_r_2)**2.0_r_2*pi*pd ! m2 m-2
-         plc = get_xylem_vulnerability(ssnow%psi_rootzone(i), &
-         veg%b_plant(i), veg%c_plant(i))
-         canopy%kplant(i) = veg%kmax(i) * BAI / veg%hc(i) * plc
-            
-         !print*,'Entry kplant: ',casapool%cplant(i,2)/1000.0_r_2,AGB_pl,DBH,BAI,plc,canopy%kplant(i)
-
-      END DO
-      !write(logn,*),'psi_rootzone mp1: ',ssnow%psi_rootzone(1)
-      !print *, 'psi_rootzone:', ssnow%psi_rootzone(1)
 
       !ENDIF
       
@@ -262,7 +166,7 @@ CONTAINS
             ! call print_cbm_var(rad)
          ENDIF
       ENDIF
-
+      CALL calc_psix(ssnow, soil, canopy, veg, bgc)
       ssnow%deltss = ssnow%tss-ssnow%otss
       ! correction required for energy balance in online simulations
       IF (cable_runtime%um) THEN

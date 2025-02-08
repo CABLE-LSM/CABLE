@@ -1634,27 +1634,38 @@ CONTAINS
 
 ! -----------------------------------------------------------------------------
 
-   SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
+   SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg, bgc)
 
       USE cable_common_module, ONLY : cable_user
       USE cable_IO_vars_module, ONLY: logn
-
+      USE cable_soil_hydraulics_module, ONLY : calc_soil_root_resistance, &
+         calc_swp, calc_weighted_swp_and_frac_uptake
       ! Removes transpiration water from soil.
       REAL, INTENT(IN)                    :: dels ! integration time step (s)
       TYPE(canopy_type), INTENT(INOUT)         :: canopy
       TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow
       TYPE(soil_parameter_type), INTENT(INOUT) :: soil
       TYPE(veg_parameter_type), INTENT(INOUT)  :: veg
+      TYPE (bgc_pool_type),  INTENT(IN)           :: bgc
       REAL(r_2), DIMENSION(mp,ms) :: diff
       REAL(r_2), DIMENSION(mp)      :: xx, xxd
       INTEGER :: k, i
       REAL(r_2), DIMENSION(mp)      :: demand, difference
       REAL(r_2), DIMENSION(mp,ms) :: supply
+      REAL, DIMENSION(ms) :: root_length
 
 
 
 
       IF (cable_user%SOIL_SCHE == 'hydraulics') THEN
+         DO i = 1, mp
+
+            CALL calc_soil_root_resistance(ssnow, soil, veg, bgc, root_length, i)
+            CALL calc_swp(ssnow, soil, i)
+            CALL calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, veg, &
+               root_length, i)
+   
+         END DO
          ! This follows the default extraction logic, but instead of weighting
          ! by froot, we are weighting by the frac uptake we calculated when we
          ! were weighting the soil water potential.
@@ -1669,7 +1680,7 @@ CONTAINS
          xx  = 0.0_r_2
          xxd = 0.0_r_2
          diff(:,:) = 0.0_r_2
-        
+         ssnow%uptake_layer(:,:) = 0.0_r_2
          DO k = 1, ms
           !  WRITE(logn, *) 'fevc  is: ', canopy%fevc(1)
              WHERE (canopy%fevc > 0.0_r_2)
@@ -1704,16 +1715,17 @@ CONTAINS
 
                    supply(:,k) = 0.0_r_2
                 ENDWHERE
-
+               ssnow%uptake_layer(:,k) = supply(:,k) * 1000000.0_r_2 / 18.0_r_2 /  real(dels,r_2) ! mmol m-2 s-1
              END WHERE   !fvec > 0
 
 
          END DO   !ms
-      ELSEIF (cable_user%FWSOIL_switch .ne.'Haverd2013') THEN
+      ELSEIF (cable_user%SOIL_SCHE .ne.'Haverd2013') THEN
       !IF (cable_user%FWSOIL_switch .ne.'Haverd2013') THEN
          xx  = 0.0_r_2
          xxd = 0.0_r_2
          diff(:,:) = 0.0_r_2
+         ssnow%uptake_layer(:,:) = 0.0_r_2
          DO k = 1, ms
 
             ! Removing transpiration from soil:
@@ -1727,11 +1739,13 @@ CONTAINS
                WHERE ( xxd .GT. 0.0_r_2 )
                   ssnow%wb(:,k) = ssnow%wb(:,k) - diff(:,k) / real(soil%zse(k)*1000.0,r_2)
                   diff(:,k) = xxd
+                  ssnow%uptake_layer(:,k) = diff(:,k) * 1000000.0_r_2 / 18.0_r_2 /  real(dels,r_2) ! mmol m-2 s-1
                ELSEWHERE
                   ssnow%wb(:,k) = ssnow%wb(:,k) - xx / real(soil%zse(k)*1000.0,r_2)
                   diff(:,k) = 0.0_r_2
+                  ssnow%uptake_layer(:,k) = xx * 1000000.0_r_2 / 18.0_r_2 /  real(dels,r_2) ! mmol m-2 s-1
                ENDWHERE
-
+               
             END WHERE
 
          END DO
@@ -1743,6 +1757,7 @@ CONTAINS
          END WHERE
          DO k = 1,ms
             ssnow%wb(:,k) = ssnow%wb(:,k) - real(ssnow%evapfbl(:,k)/(soil%zse(k)*1000.0),r_2)
+            ssnow%uptake_layer(:,k) = ssnow%evapfbl(:,k) * 1000000.0_r_2 / 18.0_r_2 /  real(dels,r_2) ! mmol m-2 s-1
             !  write(59,*) k,  ssnow%wb(:,k),  ssnow%evapfbl(:,k)/(soil%zse(k)*1000.0)
             !  write(59,*)
          ENDDO

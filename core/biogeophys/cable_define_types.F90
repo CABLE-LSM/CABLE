@@ -287,7 +287,7 @@ module cable_def_types_mod
      real(r_2), dimension(:),   pointer :: evap_liq_sn => null()
      real(r_2), dimension(:),   pointer :: surface_melt => null()
      real(r_2), dimension(:),   pointer :: Qadv_rain_sn => null()
-
+     real(r_2), dimension(:,:),   pointer :: uptake_layer => null()
     REAL(r_1), DIMENSION(:,:), POINTER ::                                      &
           soilR => null(), & !
           psi_soil => null(), &
@@ -521,6 +521,7 @@ module cable_def_types_mod
      real(r_2), dimension(:), pointer :: psi_can_opt => null() 
      real(r_2), dimension(:,:), pointer :: abs_deltpsil => null() 
      real(r_2), dimension(:,:), pointer :: abs_deltcs => null() 
+     real(r_2), dimension(:), pointer :: psix => null()
      ! plant hydraulics; mgk576 2017; ms835 2022
      REAL(r_1), DIMENSION(:), POINTER :: &
         psi_stem => null(), &
@@ -1064,6 +1065,7 @@ contains
     allocate ( ssnow%Rsr(mp) )
     allocate ( ssnow%soilR(mp,ms) )
     allocate ( ssnow%fraction_uptake(mp,ms) )
+    allocate ( ssnow%uptake_layer(mp,ms) )
     allocate ( ssnow%psi_soil(mp,ms) )
     allocate ( ssnow%psi_rootzone(mp) )
   end subroutine alloc_soil_snow_type
@@ -1251,6 +1253,7 @@ contains
     allocate(canopy%fwsoil(mp))
     allocate(canopy%fwsoiltmp(mp))
     allocate(canopy%fwpsi(mp,mf))
+    allocate(canopy%psix(mp))
     ! vh_js - litter resistances to heat and vapour transfer
     allocate(canopy%kthLitt(mp))
     allocate(canopy%DvLitt(mp))
@@ -1727,6 +1730,7 @@ contains
     deallocate( ssnow%Rsr  )
     deallocate( ssnow%soilR  )
     deallocate( ssnow%fraction_uptake  )
+    deallocate( ssnow%uptake_layer  )
     deallocate( ssnow%psi_soil )
     deallocate( ssnow%psi_rootzone )
   end subroutine dealloc_soil_snow_type
@@ -1884,6 +1888,7 @@ contains
     deallocate(canopy%fwsoil)
     deallocate(canopy%fwsoiltmp)
     deallocate(canopy%fwpsi)
+    deallocate(canopy%psix)
     deallocate(canopy%ofes)
     !! vh_js !! litter resistances to heat and vapour transfer
     deallocate(canopy%kthLitt)
@@ -2259,6 +2264,7 @@ contains
     ssnow%Rsr              = 0
     ssnow%soilR            = 0
     ssnow%fraction_uptake  = 0
+    ssnow%uptake_layer  = 0
     ssnow%psi_soil         = 0
     ssnow%psi_rootzone     = 0
 
@@ -2436,6 +2442,7 @@ contains
     canopy%zetash    = 0
     canopy%fwsoil    = 0
     canopy%fwpsi    = 0
+    canopy%psix    = 0
     canopy%ofes      = 0
     canopy%gw     = 0
     canopy%ancj   = 0

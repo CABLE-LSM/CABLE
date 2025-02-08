@@ -189,7 +189,8 @@ CONTAINS
       ! Initialise in-canopy temperatures and humidity:
       csx = SPREAD(real(met%ca,r_2), 2, mf) ! initialise leaf surface CO2 concentration
       if (ktau_tot==1) then
-         canopy%psi_can = SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
+         !canopy%psi_can = SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
+         canopy%psi_can = SPREAD(real(canopy%psix,r_2), 2, mf)
       endif
       psilx = canopy%psi_can  ! SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
       psily = canopy%psi_can  ! SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
@@ -2431,8 +2432,10 @@ CONTAINS
                   ! ex(i,:) = ex(i,:) * (1.0_r_2-real(canopy%fwet(i), r_2)) / real(air%rlam(i), r_2) 
                   ! convert from kg m-2 ground s-1 to mmol m-2 leaf s-1*
                   !ex(i,:)= ex(i,:) * 1.0e6_r_2/18.0_r_2  
-                  psilx(i,1) = ssnow%psi_rootzone(i) - ex(i,1) / canopy%kplant(i)
-                  psilx(i,2) = ssnow%psi_rootzone(i) - ex(i,2) / canopy%kplant(i)
+                  ! psilx(i,1) = ssnow%psi_rootzone(i) - ex(i,1) / canopy%kplant(i)
+                  ! psilx(i,2) = ssnow%psi_rootzone(i) - ex(i,2) / canopy%kplant(i)
+                  psilx(i,1) = canopy%psix(i) - ex(i,1) / canopy%kplant(i)
+                  psilx(i,2) = canopy%psix(i) - ex(i,2) / canopy%kplant(i)
                   !print*, 'update psilx: ',ex(i,1), canopy%kplant(i), psilx(i,1)
 
                ENDIF

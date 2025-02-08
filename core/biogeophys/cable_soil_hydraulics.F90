@@ -414,7 +414,99 @@ CONTAINS
 
    END SUBROUTINE calc_weighted_swp_and_frac_uptake
    ! ----------------------------------------------------------------------------
+   SUBROUTINE calc_psix(ssnow, soil, canopy, veg, bgc)
+      USE cable_def_types_mod
+      USE cable_common_module
+      use cable_veg_hydraulics_module, only: get_xylem_vulnerability
 
+      IMPLICIT NONE
+
+      TYPE (soil_snow_type), INTENT(INOUT)        :: ssnow
+      TYPE (soil_parameter_type), INTENT(INOUT)   :: soil
+      TYPE (veg_parameter_type), INTENT(INOUT)    :: veg
+      TYPE(canopy_type), INTENT(INOUT)          :: canopy ! vegetation variables
+      TYPE (bgc_pool_type),  INTENT(IN)           :: bgc
+      REAL, DIMENSION(ms) :: root_length, layer_depth, zsetmp, froottmp, frcuptmp
+      REAL :: SoilMoistPFTtemp
+      REAL, DIMENSION(ms) :: a
+      INTEGER :: k, i
+      real :: k1, k2, pd, BAI, WD, AGB_pl, DBH, plc, sumpsiksoil, sumksoil
+      !ELSE
+      ! zihanlu: calculate psi_soil no matter which soil_sche is used
+      !DO i = 1, mp
+      !CALL calc_swp(ssnow, soil, i)
+      !write(logn,*),'calculate soilMoistPFT'
+      DO i = 1, mp
+
+         CALL calc_soil_root_resistance(ssnow, soil, veg, bgc, root_length, i)
+         CALL calc_swp(ssnow, soil, i)
+      end do
+      layer_depth(1) = 0.0_r_2
+      do k=2, ms
+         layer_depth(k) = sum(soil%zse(1:k-1))
+      enddo
+      DO i = 1, mp
+
+         ! zsetmp = soil%zse
+         ! where (layer_depth > veg%zr(i))
+         !    zsetmp = 0.
+         ! elsewhere
+         !    zsetmp = min(real(veg%zr(i)) - layer_depth, soil%zse)
+         ! endwhere
+
+
+         ! if (cable_user%calSoilMean == 'zW') then
+
+         !    SoilMoistPFTtemp = sum(real(ssnow%wb(i,:)) * zsetmp, 1) / sum(zsetmp)
+         !    ssnow%psi_rootzone(i) = soil%sucs(i) * 9.8 * 0.001 * MAX(1.E-9, MIN(1.0, SoilMoistPFTtemp / &
+         !       soil%ssat(i))) ** (-soil%bch(i))
+
+         ! elseif (cable_user%calSoilMean == 'frootW') then
+         !    froottmp = veg%froot(i,:)
+         !    SoilMoistPFTtemp = sum(real(ssnow%wb(i,:)) * froottmp * zsetmp) / sum(froottmp * zsetmp)
+         !    ssnow%psi_rootzone(i) = soil%sucs(i) * 9.8 * 0.001 * MAX(1.E-9, MIN(1.0, SoilMoistPFTtemp / &
+         !       soil%ssat(i))) ** (-soil%bch(i))
+         ! elseif (cable_user%calSoilMean == 'FrcUpW') then
+         !    frcuptmp = ssnow%fraction_uptake(i,:)
+         !    where (layer_depth > veg%zr(i) )
+         !       frcuptmp = 0
+         !    endwhere
+         !    SoilMoistPFTtemp = sum(real(ssnow%wb(i,:)) * frcuptmp) / sum(frcuptmp)
+         !    ssnow%psi_rootzone(i) = soil%sucs(i) * 9.8 * 0.001 * MAX(1.E-9, MIN(1.0, SoilMoistPFTtemp / &
+         !       soil%ssat(i))) ** (-soil%bch(i))
+
+         ! endif
+         !SoilMoistPFTtemp = real(sum(ssnow%wb * 1000.0_r_2 * real(spread(soil%zse,1,mp),r_2),2),r_2)
+         sumksoil = 0.0
+         sumpsiksoil = 0.0
+         DO k = 1, ms
+            sumpsiksoil = sumpsiksoil + ssnow%psi_soil(i,k)* 1.0 / ssnow%soilR(i,j) 
+            sumksoil = sumksoil + 1.0 / ssnow%soilR(i,j) 
+         END DO
+         canopy%psix(i) = (sum(real(ssnow%uptake_layer(i,:),r_2),2) - sumpsiksoil) / sumpsiksoil
+         ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
+         ! k1 = 50.0_r_2
+         ! k2 = 1.5_r_2
+         k1 = 0.2351 ! coefficient in 
+         k2 = 2.3226
+         WD = 300.0_r_2 ! kgC m-2
+         !Biomass = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r_2
+         !pd = 4.0_r_2 * real(casapool%cplant(i,2) / 1000.0_r_2,r_2) / (WD * pi * veg%hc * (veg%hc / k1)**(2.0_r_2*k2))
+         pd = 0.07_r_2 ! pl m-2
+         !DBH = (veg%hc/k1)**k2
+         AGB_pl = casapool%cplant(i,2) / 1000.0_r_2 * 2.0_r_2 / pd ! kg pl-1
+         DBH = (AGB_pl/k1)**(1.0_r_2/k2) ! cm 
+         BAI = (DBH/200.0_r_2)**2.0_r_2*pi*pd ! m2 m-2
+         ! plc = get_xylem_vulnerability(ssnow%psi_rootzone(i), &
+         ! veg%b_plant(i), veg%c_plant(i))
+         plc = get_xylem_vulnerability(canopy%psix(i), &
+         veg%b_plant(i), veg%c_plant(i))
+         canopy%kplant(i) = veg%kmax(i) * BAI / veg%hc(i) * plc
+            
+         !print*,'Entry kplant: ',casapool%cplant(i,2)/1000.0_r_2,AGB_pl,DBH,BAI,plc,canopy%kplant(i)
+
+      END DO
+   END SUBROUTINE calc_psix
 
 
 END MODULE cable_soil_hydraulics_module
