@@ -126,7 +126,7 @@ CONTAINS
 
       !ENDIF
       
-
+      CALL calc_psix(ssnow, soil, canopy, veg, casapool)
       ! Calculate canopy variables
       CALL define_canopy(ktau,ktau_tot,bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate)
 
@@ -166,7 +166,7 @@ CONTAINS
             ! call print_cbm_var(rad)
          ENDIF
       ENDIF
-      CALL calc_psix(ssnow, soil, canopy, veg, casapool)
+
       ssnow%deltss = ssnow%tss-ssnow%otss
       ! correction required for energy balance in online simulations
       IF (cable_runtime%um) THEN
