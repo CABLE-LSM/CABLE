@@ -156,8 +156,8 @@ CONTAINS
             soil_resist = LOG(rs / root_radius) / &
                (2.0 * pi * root_length(j) * soil%zse(j) * Ksoil)
 
-            ! convert from MPa s m2 m-3 to MPa s m2 mmol-1
-            soil_resist = soil_resist * 1E-6 * 18. * 0.001
+            ! convert from MPa s m2 m-3 to MPa s m2 kg-1
+            soil_resist = soil_resist * 0.001
 
             ! root_resistance is commented out : don't use root-component of
             ! resistance (is part of plant resistance)
@@ -415,7 +415,7 @@ CONTAINS
 
    END SUBROUTINE calc_weighted_swp_and_frac_uptake
    ! ----------------------------------------------------------------------------
-   SUBROUTINE calc_psix(ssnow, soil, canopy, veg, casapool)
+   SUBROUTINE calc_psix(ssnow, soil, canopy, veg, casapool, ex, psix, kplant, i)
       USE cable_def_types_mod
       USE cable_common_module
       use cable_veg_hydraulics_module, only: get_xylem_vulnerability
@@ -428,27 +428,29 @@ CONTAINS
       TYPE (veg_parameter_type), INTENT(INOUT)    :: veg
       TYPE(canopy_type), INTENT(INOUT)          :: canopy ! vegetation variables
       TYPE(casa_pool),        INTENT(IN)    :: casapool
+      real(r_2), INTENT(IN)    :: ex !kg m-2 s-1 
+      real(r_2), INTENT(OUT)    :: psix
+      real(r_2), INTENT(OUT)    :: kplant
+      INTEGER, INTENT(IN) :: i
       REAL, DIMENSION(ms) :: root_length, layer_depth, zsetmp, froottmp, frcuptmp
       REAL :: SoilMoistPFTtemp
 
       REAL, DIMENSION(ms) :: a
-      INTEGER :: k, i
+      INTEGER :: k
       real :: k1, k2, pd, BAI, WD, AGB_pl, DBH, plc, sumpsiksoil, sumksoil
+      real(r_2), DIMENSION(mp) :: psi_sr
       !ELSE
       ! zihanlu: calculate psi_soil no matter which soil_sche is used
       !DO i = 1, mp
       !CALL calc_swp(ssnow, soil, i)
       !write(logn,*),'calculate soilMoistPFT'
-      DO i = 1, mp
 
-         CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, i)
-         CALL calc_swp(ssnow, soil, i)
-      end do
+
       layer_depth(1) = 0.0_r_2
       do k=2, ms
          layer_depth(k) = sum(soil%zse(1:k-1))
       enddo
-      DO i = 1, mp
+
 
          ! zsetmp = soil%zse
          ! where (layer_depth > veg%zr(i))
@@ -486,7 +488,9 @@ CONTAINS
             sumpsiksoil = sumpsiksoil + ssnow%psi_soil(i,k)* 1.0 / ssnow%soilR(i,k) 
             sumksoil = sumksoil + 1.0 / ssnow%soilR(i,k) 
          END DO
-         canopy%psix(i) = (sumpsiksoil - sum(real(ssnow%uptake_layer(i,:),r_2))) / sumksoil
+         psi_sr = (sumpsiksoil - ex) / sumksoil
+         !canopy%psix(i) = psi_sr - ex / veg%kmax(i)
+         psix = psi_sr - ex / veg%kmax(i)
          ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
          ! k1 = 50.0_r_2
          ! k2 = 1.5_r_2
@@ -504,11 +508,11 @@ CONTAINS
          ! veg%b_plant(i), veg%c_plant(i))
          plc = get_xylem_vulnerability(canopy%psix(i), &
          veg%b_plant(i), veg%c_plant(i))
-         canopy%kplant(i) = veg%kmax(i) * BAI / veg%hc(i) * plc
-            
+         !canopy%kplant(i) = veg%kmax(i) * BAI / veg%hc(i) * plc
+         kplant = veg%kmax(i) * BAI / veg%hc(i) * plc
          !print*,'Entry kplant: ',casapool%cplant(i,2)/1000.0_r_2,AGB_pl,DBH,BAI,plc,canopy%kplant(i)
 
-      END DO
+   
    END SUBROUTINE calc_psix
 
 

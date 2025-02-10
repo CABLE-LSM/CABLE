@@ -126,7 +126,9 @@ CONTAINS
          ecy => null(),           & ! lat heat fl dry big leaf
          hcy => null(),           & ! veg. sens heat
          rny => null(),           & ! net rad
-         ghwet => null()            ! cond for heat for a wet canopy
+         ghwet => null(),         &  ! cond for heat for a wet canopy
+         psixx => null(),           & 
+         kplant => null()
 
 
       REAL(r_2), DIMENSION(:,:), POINTER :: &
@@ -194,6 +196,9 @@ CONTAINS
       endif
       psilx = canopy%psi_can  ! SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
       psily = canopy%psi_can  ! SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
+      psixx = real(canopy%psix,r_2)
+     
+      kplant = real(canopy%kplant,r_2)
       fwpsi(:, 1) = (1.0_r_2 +exp(veg%g2(:) * veg%psi_ref(:))) / &
          (1.0_r_2 + exp(veg%g2(:) * (veg%psi_ref(:) - psilx(:, 1))))
       fwpsi(:, 2) = (1.0_r_2 +exp(veg%g2(:) * veg%psi_ref(:))) / &
@@ -2434,8 +2439,9 @@ CONTAINS
                   !ex(i,:)= ex(i,:) * 1.0e6_r_2/18.0_r_2  
                   ! psilx(i,1) = ssnow%psi_rootzone(i) - ex(i,1) / canopy%kplant(i)
                   ! psilx(i,2) = ssnow%psi_rootzone(i) - ex(i,2) / canopy%kplant(i)
-                  psilx(i,1) = canopy%psix(i) - ex(i,1) / canopy%kplant(i)
-                  psilx(i,2) = canopy%psix(i) - ex(i,2) / canopy%kplant(i)
+                  CALL calc_psix(ssnow, soil, canopy, veg, casapool,sum(real(ex(i,:),r_2)),psixx,kplant,i)
+                  psilx(i,1) = psixx - ex(i,1) / kplant
+                  psilx(i,2) = psixx - ex(i,2) / kplant
                   !print*, 'update psilx: ',ex(i,1), canopy%kplant(i), psilx(i,1)
 
                ENDIF
@@ -2654,7 +2660,7 @@ CONTAINS
             if (any(allktau == ktau_tot)) then
             write(134,*) ktau_tot, iter, i, k, tlfx(i), deltlf(i), &
             dsx(i),abs_deltds(i), psilx(i,1), psilx(i,2),abs_deltpsil(i,1),abs_deltpsil(i,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2), &
-            csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2),anrubiscox(i,1),anrubiscox(i,2), &
+            psixx(i),csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2),anrubiscox(i,1),anrubiscox(i,2), &
             anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
             canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
             vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2)

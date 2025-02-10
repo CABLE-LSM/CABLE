@@ -87,6 +87,7 @@ CONTAINS
       ICYCLE = 0
 #endif
       REAL, DIMENSION(ms) :: a
+      real(r_2), DIMENSION(mp) :: psix, kplant
 
 
       ! assign local ptrs to constants defined in cable_data_module
@@ -125,8 +126,13 @@ CONTAINS
 
 
       !ENDIF
-      
-      CALL calc_psix(ssnow, soil, canopy, veg, casapool)
+      do i = 1, mp
+         CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, i)
+         CALL calc_swp(ssnow, soil, i)
+         CALL calc_psix(ssnow, soil, canopy, veg, casapool,sum(real(ssnow%uptake_layer(i,:),r_2)),psix,kplant,i)
+         canopy%psix(i) = psix
+         canopy%kplant(i) = kplant
+      end do
       ! Calculate canopy variables
       CALL define_canopy(ktau,ktau_tot,bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate)
 

@@ -1717,7 +1717,7 @@ CONTAINS
 
                    supply(:,k) = 0.0_r_2
                 ENDWHERE
-               ssnow%uptake_layer(:,k) = supply(:,k) * 1000000.0_r_2 / 18.0_r_2 /  real(dels,r_2) ! mmol m-2 s-1
+               ssnow%uptake_layer(:,k) = supply(:,k) /  real(dels,r_2) !kg m-2 s-1
              END WHERE   !fvec > 0
 
 
@@ -1741,11 +1741,11 @@ CONTAINS
                WHERE ( xxd .GT. 0.0_r_2 )
                   ssnow%wb(:,k) = ssnow%wb(:,k) - diff(:,k) / real(soil%zse(k)*1000.0,r_2)
                   diff(:,k) = xxd
-                  ssnow%uptake_layer(:,k) = diff(:,k) * 1000000.0_r_2 / 18.0_r_2 /  real(dels,r_2) ! mmol m-2 s-1
+                  ssnow%uptake_layer(:,k) = diff(:,k) /  real(dels,r_2) ! kg m-2 s-1
                ELSEWHERE
                   ssnow%wb(:,k) = ssnow%wb(:,k) - xx / real(soil%zse(k)*1000.0,r_2)
                   diff(:,k) = 0.0_r_2
-                  ssnow%uptake_layer(:,k) = xx * 1000000.0_r_2 / 18.0_r_2 /  real(dels,r_2) ! mmol m-2 s-1
+                  ssnow%uptake_layer(:,k) = xx  /  real(dels,r_2) ! kg m-2 s-1
                ENDWHERE
                
             END WHERE
@@ -1759,7 +1759,7 @@ CONTAINS
          END WHERE
          DO k = 1,ms
             ssnow%wb(:,k) = ssnow%wb(:,k) - real(ssnow%evapfbl(:,k)/(soil%zse(k)*1000.0),r_2)
-            ssnow%uptake_layer(:,k) = ssnow%evapfbl(:,k) * 1000000.0_r_2 / 18.0_r_2 /  real(dels,r_2) ! mmol m-2 s-1
+            ssnow%uptake_layer(:,k) = ssnow%evapfbl(:,k) /  real(dels,r_2) !kg m-2 s-1
             !  write(59,*) k,  ssnow%wb(:,k),  ssnow%evapfbl(:,k)/(soil%zse(k)*1000.0)
             !  write(59,*)
          ENDDO

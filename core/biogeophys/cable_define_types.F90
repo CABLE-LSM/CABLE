@@ -287,7 +287,7 @@ module cable_def_types_mod
      real(r_2), dimension(:),   pointer :: evap_liq_sn => null()
      real(r_2), dimension(:),   pointer :: surface_melt => null()
      real(r_2), dimension(:),   pointer :: Qadv_rain_sn => null()
-     real(r_2), dimension(:,:),   pointer :: uptake_layer => null()
+     real(r_2), dimension(:,:),   pointer :: uptake_layer => null() !kg m-2 s-1
     REAL(r_1), DIMENSION(:,:), POINTER ::                                      &
           soilR => null(), & !
           psi_soil => null(), &
