@@ -1272,32 +1272,12 @@ CONTAINS
                ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
        END IF
     ELSE
-! block below inserted by rk4417 - phase2
-       ok = NF90_INQ_VARID(ncid_met,'dlwrf',id%LWdown)                  ! MMY ! For Princeton
-       IF(ok == NF90_NOERR) THEN ! If inquiry is okay                   ! MMY
-          exists%LWdown = .TRUE. ! LWdown is present in met file        ! MMY
-! Get LWdown units and check okay:
-          ok = NF90_GET_ATT(ncid_met,id%LWdown,'units',metunits%LWdown) ! MMY
-          IF(ok /= NF90_NOERR) CALL nc_abort &                          ! MMY
-               (ok,'Error finding LWdown units in met data file ' &     ! MMY
-               //TRIM(filename%met)//' (SUBROUTINE open_met_file)')     ! MMY
-          IF(.NOT.(metunits%LWdown(1:4)/='W/m2'.OR.metunits%LWdown(1:5) & ! MMY
-               /='W/m^2'.OR.metunits%LWdown(1:5)/='Wm^-2' &               ! MMY
-               .OR.metunits%LWdown(1:4)/='Wm-2'.or.metunits%SWdown(1:5) /= 'W m-2')) THEN ! MMY
-             
-             WRITE(*,*) metunits%LWdown                                  ! MMY
-             CALL abort('Unknown units for LWdown'// &                   ! MMY
-                  ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)') ! MMY
-          END IF                                                         ! MMY
-       ELSE                                                              ! MMY
-! end of block - rk4417 - phase2
        exists%LWdown = .FALSE. ! LWdown is not present in met file
        all_met=.FALSE. ! not all met variables are present in file
        ! Note this in log file:
        WRITE(logn,*) 'LWdown not present in met file; ', &
             'values will be synthesised based on air temperature.'
     END IF
- END IF ! inserted by rk4417 - phase2
 
     ! Look for PSurf (can be synthesised):- - - - - - - - - - - - - - - -
     IF (ncciy > 0) ncid_met = ncid_ps
