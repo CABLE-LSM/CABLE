@@ -438,7 +438,7 @@ CONTAINS
       REAL, DIMENSION(ms) :: a
       INTEGER :: k
       real :: k1, k2, pd, BAI, WD, AGB_pl, DBH, plc, sumpsiksoil, sumksoil
-      real(r_2), DIMENSION(mp) :: psi_sr
+      real(r_2) :: psi_sr
       !ELSE
       ! zihanlu: calculate psi_soil no matter which soil_sche is used
       !DO i = 1, mp

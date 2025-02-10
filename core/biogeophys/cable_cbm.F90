@@ -57,7 +57,8 @@ CONTAINS
       USE cable_data_module, ONLY: icbm_type, point2constants
       use cable_sli_main,    only: sli_main
       USE cable_soil_snow_module, ONLY : soil_snow
-      USE cable_soil_hydraulics_module, ONLY : calc_psix
+      USE cable_soil_hydraulics_module, ONLY : calc_soil_root_resistance, &
+      calc_swp, calc_weighted_swp_and_frac_uptake,calc_psix
       USE cable_IO_vars_module, ONLY: logn
       use mo_constants, only: pi => pi_sp
       USE casavariable
@@ -86,8 +87,8 @@ CONTAINS
       INTEGER :: ICYCLE
       ICYCLE = 0
 #endif
-      REAL, DIMENSION(ms) :: a
-      real(r_2), DIMENSION(mp) :: psix, kplant
+      REAL, DIMENSION(ms) :: a, root_length
+      real(r_2) :: psix, kplant
 
 
       ! assign local ptrs to constants defined in cable_data_module
@@ -134,7 +135,7 @@ CONTAINS
          canopy%kplant(i) = kplant
       end do
       ! Calculate canopy variables
-      CALL define_canopy(ktau,ktau_tot,bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate)
+      CALL define_canopy(ktau,ktau_tot,bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate, casapool)
 
       ! write(*,*) 'hod, TVeg: ', met%hod(1), canopy%fevc(1), canopy%fwsoil(1)
       ! if (met%hod(1).gt.12.0) stop

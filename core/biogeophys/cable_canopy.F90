@@ -45,6 +45,8 @@ MODULE cable_canopy_module
    use cable_common_module,  only: cable_user
    use cable_veg_hydraulics_module, only: optimisation, arrh, get_xylem_vulnerability, calc_plc
    USE cable_IO_vars_module, ONLY: logn
+   USE cable_soil_hydraulics_module, ONLY : calc_psix
+
    implicit none
 
    public :: define_canopy, xvcmxt3, xejmxt3, ej3x, xrdt, xgmesT, &
@@ -56,7 +58,7 @@ MODULE cable_canopy_module
 
 CONTAINS
 
-   SUBROUTINE define_canopy(ktau, ktau_tot, bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate)
+   SUBROUTINE define_canopy(ktau, ktau_tot, bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate, casapool)
 
       USE cable_def_types_mod
       USE cable_radiation_module
@@ -65,7 +67,7 @@ CONTAINS
       USE cable_roughness_module
       use cable_sli_main, only: sli_main
       use mo_utils,       only: eq
-
+      USE casavariable
       implicit none
       INTEGER,                   INTENT(IN)    :: ktau
       INTEGER,                   INTENT(IN)    :: ktau_tot
@@ -80,6 +82,7 @@ CONTAINS
       TYPE(veg_parameter_type),  INTENT(INOUT) :: veg
       TYPE(canopy_type),         INTENT(INOUT) :: canopy
       TYPE(climate_type),        INTENT(IN)    :: climate
+      TYPE (casa_pool),  INTENT(IN)           :: casapool
       ! INTEGER,                  INTENT(IN)    :: wlogn
 
       INTEGER :: &
@@ -126,9 +129,8 @@ CONTAINS
          ecy => null(),           & ! lat heat fl dry big leaf
          hcy => null(),           & ! veg. sens heat
          rny => null(),           & ! net rad
-         ghwet => null(),         &  ! cond for heat for a wet canopy
-         psixx => null(),           & 
-         kplant => null()
+         ghwet => null()           ! cond for heat for a wet canopy
+
 
 
       REAL(r_2), DIMENSION(:,:), POINTER :: &
@@ -196,9 +198,7 @@ CONTAINS
       endif
       psilx = canopy%psi_can  ! SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
       psily = canopy%psi_can  ! SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
-      psixx = real(canopy%psix,r_2)
-     
-      kplant = real(canopy%kplant,r_2)
+
       fwpsi(:, 1) = (1.0_r_2 +exp(veg%g2(:) * veg%psi_ref(:))) / &
          (1.0_r_2 + exp(veg%g2(:) * (veg%psi_ref(:) - psilx(:, 1))))
       fwpsi(:, 2) = (1.0_r_2 +exp(veg%g2(:) * veg%psi_ref(:))) / &
@@ -455,7 +455,7 @@ CONTAINS
 
          sum_rad_rniso = sum(rad%rniso,2)
          CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
-            veg, canopy, soil, ssnow, dsx, dsy, psilx, psily,&
+            veg, canopy, soil, ssnow, casapool, dsx, dsy, psilx, psily,&
             fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy, ecy, hcy,  &
             rny, gbhu, gbhf, csx, cansat,  &
             ghwet, iter, climate)
@@ -1521,13 +1521,14 @@ CONTAINS
 
 
    SUBROUTINE dryLeaf(ktau, ktau_tot, dels, rad, air, met, &
-      veg, canopy, soil, ssnow, dsx, dsy, psilx, psily, &
+      veg, canopy, soil, ssnow,casapool, dsx, dsy, psilx, psily, &
       fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy, ecy, hcy, &
       rny, gbhu, gbhf, csx, &
       cansat, ghwet, iter, climate)
 
       use cable_def_types_mod
       use cable_common_module
+      USE casavariable
 #ifdef __MPI__
       use mpi, only: MPI_Abort
 #endif
@@ -1543,6 +1544,7 @@ CONTAINS
       type(canopy_type),         intent(inout) :: canopy
       type(soil_parameter_type), intent(inout) :: soil
       type(soil_snow_type),      intent(inout) :: ssnow
+      TYPE (casa_pool),  INTENT(IN)           :: casapool
       real,      dimension(:),   intent(inout) :: &
          dsx,        & ! leaf surface vpd
          dsy,        & ! leaf surface vpd
@@ -1603,9 +1605,9 @@ CONTAINS
          ecx,        & ! lat. hflux big leaf
          hcx,        & ! sens heat fl big leaf prev iteration
          rnx, &          ! net rad prev timestep
-         ecxs ! lat. hflux big leaf (sap flux)
-
-
+         ecxs  ! lat. hflux big leaf (sap flux)
+         
+      real(r_2) :: psixx, kplant
       real, dimension(mp,ms)  :: oldevapfbl
 
       real, dimension(mp,mf)  :: &
@@ -1752,6 +1754,7 @@ CONTAINS
          ! canopy%fwsoiltmp = real(fwsoil, r_2)
          canopy%fwpsi = real(fwpsi, r_2)
       end if
+
      ! write(logn,*) 'fwsoil of ', cable_user%fwsoil_switch, ': ', fwsoil(1)
       MOL_TO_UMOL = 1E6
       J_TO_MOL = 4.6E-6  ! Convert from J to Mol for light
@@ -2368,6 +2371,8 @@ CONTAINS
          ! print*, 'DD42 ', ssnow%rex
          ! print*, 'DD43 ', ssnow%evapfbl
          DO i=1,mp
+            psixx = real(canopy%psix(i),r_2)
+            kplant = real(canopy%kplant(i),r_2)
 
             IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1))) Then
                DO kk=1, mf
@@ -2660,7 +2665,7 @@ CONTAINS
             if (any(allktau == ktau_tot)) then
             write(134,*) ktau_tot, iter, i, k, tlfx(i), deltlf(i), &
             dsx(i),abs_deltds(i), psilx(i,1), psilx(i,2),abs_deltpsil(i,1),abs_deltpsil(i,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2), &
-            psixx(i),csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2),anrubiscox(i,1),anrubiscox(i,2), &
+            psixx, csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2),anrubiscox(i,1),anrubiscox(i,2), &
             anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
             canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
             vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2)
