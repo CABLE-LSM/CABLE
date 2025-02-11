@@ -377,6 +377,7 @@ CONTAINS
           ssnow%otss     = ssnow%tgg(:,1)
           ssnow%rtevap_sat(:) = 0.0
           ssnow%rtevap_unsat(:) = 0.0
+          ssnow%qrecharge(:) = 0.0
           canopy%fes_cor = 0.
           canopy%fhs_cor = 0.
           met%ofsd = 0.1
