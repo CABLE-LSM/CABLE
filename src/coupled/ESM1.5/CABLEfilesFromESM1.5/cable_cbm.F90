@@ -100,8 +100,9 @@ CALL init_radiation( rad%extkb, rad%extkd,                                     &
 IF( cable_runtime%um_explicit ) THEN
    
  !Ticket 331 refactored albedo code for JAC
- CALL snow_aging(ssnow%snage,mp,dels,ssnow%snowd,ssnow%osnowd,ssnow%tggsn(:,1),&
-         ssnow%tgg(:,1),ssnow%isflag,veg%iveg,soil%isoilm) 
+ !#539 move of snow_Aging routine  
+ !CALL snow_aging(ssnow%snage,mp,dels,ssnow%snowd,ssnow%osnowd,ssnow%tggsn(:,1),&
+ !        ssnow%tgg(:,1),ssnow%isflag,veg%iveg,soil%isoilm) 
          
 call Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
              mp, nrb, ICE_SoilType, lakes_cable, jls_radiation, veg_mask,       &
@@ -142,10 +143,16 @@ call Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
       
      IF( cable_runtime%um_implicit ) THEN
          CALL soil_snow(dels, soil, ssnow, canopy, met, bal,veg)
+         !#539 move of snow_Aging routine  
+         CALL snow_aging(ssnow%snage,mp,dels,ssnow%snowd,ssnow%osnowd,ssnow%tggsn(:,1),&
+                          ssnow%tgg(:,1),ssnow%isflag,veg%iveg,soil%isoilm) 
       ENDIF
 
    ELSE
       call soil_snow(dels, soil, ssnow, canopy, met, bal,veg)
+      !#539 move of snow_Aging routine  
+      CALL snow_aging(ssnow%snage,mp,dels,ssnow%snowd,ssnow%osnowd,ssnow%tggsn(:,1),&
+                       ssnow%tgg(:,1),ssnow%isflag,veg%iveg,soil%isoilm) 
    ENDIF
 
    ssnow%deltss = ssnow%tss-ssnow%otss

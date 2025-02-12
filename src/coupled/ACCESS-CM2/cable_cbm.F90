@@ -146,8 +146,9 @@ CALL init_radiation( rad%extkb, rad%extkd,                                     &
                    ) !reducedLAIdue2snow 
 
 !Ticket 331 refactored albedo code for JAC
-CALL snow_aging(ssnow%snage,mp,dels,ssnow%snowd,ssnow%osnowd,ssnow%tggsn(:,1),&
-         ssnow%tgg(:,1),ssnow%isflag,veg%iveg,soil%isoilm) 
+!#539 - move snow_aging
+!CALL snow_aging(ssnow%snage,mp,dels,ssnow%snowd,ssnow%osnowd,ssnow%tggsn(:,1),&
+!         ssnow%tgg(:,1),ssnow%isflag,veg%iveg,soil%isoilm) 
 
 IF( cable_runtime%um_explicit ) THEN
 
@@ -202,6 +203,9 @@ IF( cable_runtime%um_implicit ) THEN
    ELSE
        CALL soil_snow(dels, soil, ssnow, canopy, met, bal,veg)
     ENDIF
+    !#539 move call to snow aging
+    CALL snow_aging(ssnow%snage,mp,dels,ssnow%snowd,ssnow%osnowd,ssnow%tggsn(:,1),&
+         ssnow%tgg(:,1),ssnow%isflag,veg%iveg,soil%isoilm) 
  ENDIF
 
 ssnow%deltss = ssnow%tss-ssnow%otss

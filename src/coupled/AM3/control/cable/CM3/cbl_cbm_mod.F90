@@ -13,7 +13,7 @@ SUBROUTINE cbm_expl( mp, nrb, ktau,dels, air, bgc, canopy, met,                &
 USE cbl_albedo_mod,            ONLY: albedo
 USE cbl_init_radiation_module, ONLY: init_radiation
 USE cbl_masks_mod,             ONLY: fveg_mask, fsunlit_mask,  fsunlit_veg_mask
-USE snow_aging_mod,            ONLY: snow_aging
+!USE snow_aging_mod,            ONLY: snow_aging  !539 no longer needed
 USE cable_roughness_module,    ONLY: ruff_resist
 USE cable_air_module,          ONLY: define_air
 USE cable_canopy_module,       ONLY: define_canopy
@@ -110,8 +110,9 @@ CALL init_radiation( rad%extkb, rad%extkd,                                     &
                    ) !reducedLAIdue2snow 
 
 !Ticket 331 refactored albedo code for JAC
-CALL snow_aging(ssnow%snage,mp,dels,ssnow%snowd,ssnow%osnowd,ssnow%tggsn(:,1), &
-                ssnow%tgg(:,1),ssnow%isflag,veg%iveg,soil%isoilm) 
+!#539 - move snow aging. 
+!CALL snow_aging(ssnow%snage,mp,dels,ssnow%snowd,ssnow%osnowd,ssnow%tggsn(:,1), &
+!                ssnow%tgg(:,1),ssnow%isflag,veg%iveg,soil%isoilm) 
 
 !explicit ONLY
 CALL Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
@@ -302,6 +303,10 @@ CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate, su
 
 CALL soil_snow(dels, soil, ssnow, canopy, met, bal,veg)
 ssnow%deltss = ssnow%tss-ssnow%otss
+
+!#539 - move snow aging. 
+CALL snow_aging(ssnow%snage,mp,dels,ssnow%snowd,ssnow%osnowd,ssnow%tggsn(:,1), &
+                ssnow%tgg(:,1),ssnow%isflag,veg%iveg,soil%isoilm) 
 
 ! reset tss & wetfac to value corresponding to beginning of timestep 
 IF( cycleno .NE. numcycles ) THEN
