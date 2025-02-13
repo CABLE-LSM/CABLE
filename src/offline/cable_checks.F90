@@ -474,48 +474,46 @@ CONTAINS
 
   SUBROUTINE mass_balance(dels,ktau, ssnow,soil,canopy,met,                            &
        air,bal)
+    !* Calculates the energy and water balances at each time step as well as
+    ! the cumulative balance over the simulation.
 
     ! Input arguments
-    REAL,INTENT(IN)                           :: dels        ! time step size
-    INTEGER, INTENT(IN)                       :: ktau        ! timestep number
-    TYPE (soil_snow_type),INTENT(IN)          :: ssnow       ! soil data
-    TYPE (soil_parameter_type),INTENT(IN)     :: soil        ! soil data
-    TYPE (canopy_type),INTENT(IN)             :: canopy      ! canopy variable data
-    TYPE(met_type),INTENT(IN)                 :: met         ! met data
+    REAL,INTENT(IN)                           :: dels        
+      !! Time step length \(s\)
+    INTEGER, INTENT(IN)                       :: ktau        
+      !! Number of time steps since the start of the simulation \(-\)
+    TYPE (soil_snow_type),INTENT(IN)          :: ssnow       
+      !! Soil and snow variables data
+    TYPE (soil_parameter_type),INTENT(IN)     :: soil        
+      !! Soil parameters
+    TYPE (canopy_type),INTENT(IN)             :: canopy      
+      !! Canopy variables data
+    TYPE(met_type),INTENT(IN)                 :: met         
+      !! Met forcing data
     TYPE (air_type),INTENT(IN)                :: air
+      !! Air variables data
+    TYPE (balances_type),INTENT(INOUT)        :: bal         
+      !! Water balance variables data
 
     ! Local variables
-    REAL(r_2), DIMENSION(:,:,:),POINTER, SAVE :: bwb         ! volumetric soil moisture
+    REAL(r_2), DIMENSION(:),POINTER, SAVE     :: owb         ! volumetric soil moisture 
+                                                             ! at previous time step
     REAL(r_2), DIMENSION(mp)                  :: delwb       ! change in soilmoisture
     ! b/w tsteps
-    REAL, DIMENSION(mp)                  :: canopy_wbal !canopy water balance
-    TYPE (balances_type),INTENT(INOUT)        :: bal
-    INTEGER                              :: j, k        ! do loop counter
+    REAL, DIMENSION(mp)                       :: canopy_wbal !canopy water balance
+    INTEGER                                   :: j, k        ! do loop counter
 
     IF(ktau==1) THEN
-       ALLOCATE( bwb(mp,ms,2) )
+       ALLOCATE( owb(mp) )
        ! initial vlaue of soil moisture
-       bwb(:,:,1)=ssnow%wb
-       bwb(:,:,2)=ssnow%wb
-       delwb(:) = 0.
-    ELSE
-       ! Calculate change in soil moisture b/w timesteps:
-       IF(MOD(REAL(ktau),2.0)==1.0) THEN         ! if odd timestep
-          bwb(:,:,1)=ssnow%wb
-          DO k=1,mp           ! current smoist - prev tstep smoist
-             delwb(k) = SUM((bwb(k,:,1)                                         &
-                  - (bwb(k,:,2)))*soil%zse)*1000.0
-          END DO
-       ELSE IF(MOD(REAL(ktau),2.0)==0.0) THEN    ! if even timestep
-          bwb(:,:,2)=ssnow%wb
-          DO k=1,mp           !  current smoist - prev tstep smoist
-             delwb(k) = SUM((bwb(k,:,2)                                         &
-                  - (bwb(k,:,1)))*soil%zse)*1000.0
-          END DO
-       END IF
+       owb=ssnow%wbtot
     END IF
 
+    ! Calculate change in soil moisture b/w timesteps:
+    delwb = ssnow%wbtot - owb
 
+    ! Update old soil moisture to this timestep value.
+    owb = ssnow%wbtot
 
     ! net water into soil (precip-(change in canopy water storage)
     !  - (change in snow depth) - (surface runoff) - (deep drainage)
