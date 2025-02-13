@@ -86,9 +86,10 @@ CONTAINS
       INTEGER :: j
       INTEGER, PARAMETER :: ROOT_INDEX = 3
 
-      REAL               :: ht, stem_biomass
+      REAL               :: ht, stem_biomass, root_resist
       REAL, PARAMETER    :: Kbiometric = 50.0 ! cst in height-diameter relationship
       REAL, PARAMETER    :: WD = 300.0 ! Wood density kgC/m3
+      REAL, PARAMETER    :: root_conduc = 1e-7 ! kg s-1 Mpa-1 m-1(root length)
       INTEGER, PARAMETER :: STEM_INDEX = 2
       
       ! stem_biomass = bgc%cplant(i,STEM_INDEX) * gC2DM
@@ -100,7 +101,7 @@ CONTAINS
       !root_biomass = bgc%cplant(i,ROOT_INDEX) * gC2DM
       !root_biomass = 1443.0 * gC2DM ! EBF value
       root_biomass = 832.0 * gC2DM ! Eucface value
-      root_biomass = casapool%cplant(i,3) * gC2DM ! Eucface value g m-2
+      root_biomass = casapool%cplant(i,3) * gC2DM !  g m-2
       !root_biomass = 318.9 * gC2DM ! Spruce experiment
 
       ! sensitivity experiment values
@@ -140,12 +141,12 @@ CONTAINS
 
             ! Root biomass density (g biomass m-3 soil)
             ! Divide root mass up by the frac roots in the layer (g m-3)
-            ! plant carbon is g C m-2
-            root_mass = root_biomass * veg%froot(i,j)
+            ! plant carbon is g m-3
+            root_mass = root_biomass * veg%froot(i,j) / soil%zse(j)
 
             ! Root length density (m root m-3 soil)
             root_length(j) = root_mass / (root_density * root_xsec_area)
-
+            root_resist = 1.0 / (root_conduc * root_length(j) * soil%zse(j)) 
             ! Conductance of the soil-to-root pathway can be estimated
             ! assuming that the root system consists of one long root that
             ! has access to a surrounding cylinder of soil
@@ -162,7 +163,8 @@ CONTAINS
             ! root_resistance is commented out : don't use root-component of
             ! resistance (is part of plant resistance)
             ! MPa s m2 mmol-1 H2O
-            ssnow%soilR(i,j) = soil_resist !+ root_resist
+            !ssnow%soilR(i,j) = soil_resist !+ root_resist
+            ssnow%soilR(i,j) = soil_resist + root_resist
 
 
          END IF
@@ -432,13 +434,13 @@ CONTAINS
       real(r_2), INTENT(OUT)    :: psix
       real(r_2), INTENT(OUT)    :: kplant
       INTEGER, INTENT(IN) :: i
-      REAL, DIMENSION(ms) :: root_length, layer_depth, zsetmp, froottmp, frcuptmp
+      REAL, DIMENSION(ms) ::  layer_depth, zsetmp, froottmp, frcuptmp
       REAL :: SoilMoistPFTtemp
 
       REAL, DIMENSION(ms) :: a
       INTEGER :: k
       real :: k1, k2, pd, BAI, WD, AGB_pl, DBH, plc, sumpsiksoil, sumksoil
-      real(r_2) :: psi_sr
+      !real(r_2) :: psi_sr
       !ELSE
       ! zihanlu: calculate psi_soil no matter which soil_sche is used
       !DO i = 1, mp
@@ -488,9 +490,9 @@ CONTAINS
             sumpsiksoil = sumpsiksoil + ssnow%psi_soil(i,k)* 1.0 / ssnow%soilR(i,k) 
             sumksoil = sumksoil + 1.0 / ssnow%soilR(i,k) 
          END DO
-         psi_sr = (sumpsiksoil - ex) / sumksoil
+         psix = (sumpsiksoil - ex) / sumksoil
          !canopy%psix(i) = psi_sr - ex / veg%kmax(i)
-         psix = psi_sr - ex / veg%kmax(i)
+         !psix = psi_sr - ex / veg%kmax(i)
          ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
          ! k1 = 50.0_r_2
          ! k2 = 1.5_r_2
@@ -506,7 +508,7 @@ CONTAINS
          BAI = (DBH/200.0_r_2)**2.0_r_2*pi*pd ! m2 m-2
          ! plc = get_xylem_vulnerability(ssnow%psi_rootzone(i), &
          ! veg%b_plant(i), veg%c_plant(i))
-         plc = get_xylem_vulnerability(canopy%psix(i), &
+         plc = get_xylem_vulnerability(psix, &
          veg%b_plant(i), veg%c_plant(i))
          !canopy%kplant(i) = veg%kmax(i) * BAI / veg%hc(i) * plc
          kplant = veg%kmax(i) * BAI / veg%hc(i) * plc

@@ -2447,8 +2447,8 @@ CONTAINS
                   CALL calc_psix(ssnow, soil, canopy, veg, casapool,sum(real(ex(i,:),r_2)),psixx,kplant,i)
                   psilx(i,1) = psixx - ex(i,1) / kplant
                   psilx(i,2) = psixx - ex(i,2) / kplant
-                  !print*, 'update psilx: ',ex(i,1), canopy%kplant(i), psilx(i,1)
-
+                  print*, 'update psix and kplant: ',psixx, kplant
+                  print*, 'ex and psilx: ',ex(i,1), psilx(i,1)
                ENDIF
                IF (cable_user%SOIL_SCHE == 'Haverd2013') then
                   ! avoid root-water extraction when fwsoil is zero
