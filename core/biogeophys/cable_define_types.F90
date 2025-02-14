@@ -365,7 +365,7 @@ module cable_def_types_mod
           P88dP50 => null(),     &
           b_plant => null(), & ! sensitivity of hydraulic vulnerability curve, MPa (higher = less sensitive to SW)
           c_plant => null(), & ! shape of hydraulic VC, [-]
-          kmax => null(),    & ! maximum hydraulic conductance in the soil-plant continuum, mmol m-2 s-1 MPa-1
+          kmax => null(),    & ! maximum hydraulic conductance in the soil-plant continuum, kg m-1 s-1 Mpa-1
           PLCcrit => null(), &    ! critical maximum percentage loss of hydraulic conductivity above which no xylem recovery can occur, %
           g2 => null(),      & !  coefficient in Paschalis 2023 equation converting psi_can to fwpsi
           g3 => null(),      &       !  coefficient in Paschalis 2023 equation converting psi_can to fwpsi

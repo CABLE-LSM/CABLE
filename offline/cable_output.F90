@@ -795,7 +795,7 @@ CONTAINS
   END IF
   IF(output%veg) THEN
      CALL define_ovar(ncid_out, ovid%kplant, &
-                      'kplant', 'mmol m-2 s-1 Mpa-1', 'actual conductivity', &
+                      'kplant', 'kg m-2 s-1 Mpa-1', 'actual conductivity', &
                       patchout%kplant, 'dummy', xID, yID, zID, &
                       landID, patchID, tID)
      ALLOCATE(out%kplant(mp))
