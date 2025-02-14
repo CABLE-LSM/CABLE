@@ -2450,7 +2450,7 @@ CONTAINS
                   print*, 'update psix and kplant: ',psixx, kplant
                   print*, 'ex and psilx: ',ex(i,1), psilx(i,1)
                ENDIF
-               IF (cable_user%SOIL_SCHE == 'Haverd2013') then
+               IF (cable_user%SOIL_SCHE == 'Haverd2013' .or. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0)) then
                   ! avoid root-water extraction when fwsoil is zero
                   if (fwsoil(i) < 1e-6) then
                      anx(i,:) = -rdx(i,:)
@@ -2477,16 +2477,7 @@ CONTAINS
                         canopy%fwsoil(i) = max(canopy%fwsoil(i), 0.6_r_2)
                         fwsoil(i) = real(canopy%fwsoil(i))
                      endif
-                  ELSEIF (cable_user%FWSOIL_SWITCH == 'constant1') then
-                     canopy%fwsoil(i) = 0.98_r_2
-                     fwsoil(i) =  real(canopy%fwsoil(i))
-                  ELSE
-                     canopy%fwsoil(i) = 1.0_r_2
-                     fwsoil(i) =  real(canopy%fwsoil(i))                     
-                  ENDIF
-                  IF (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
-                        canopy%fwpsi(i,:) = real(fwpsi(i,:), r_2)
-                  ENDIF
+                  ENDIF 
 
 
                ELSE IF (cable_user%FWSOIL_SWITCH == 'profitmax' .AND. cable_user%SOIL_SCHE == 'hydraulics') THEN
@@ -2518,7 +2509,9 @@ CONTAINS
                      ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
                   ENDIF
 
-               ELSE
+               ENDIF
+
+               IF (cable_user%SOIL_SCHE .ne.'Haverd2013') THEN
 
                   if (ecx(i) > 0.0_r_2 .and. canopy%fwet(i) < 1.0) then
                      evapfb(i) = ( 1.0 - canopy%fwet(i)) * real(ecx(i)) *dels &
@@ -2607,7 +2600,7 @@ CONTAINS
                ! save last values calculated for ssnow%evapfbl
                oldevapfbl(i,:) = ssnow%evapfbl(i,:)
                gswy(i,:)        = canopy%gswx(i,:)
-               fwpsiy(i,:)     = canopy%fwpsi(i,:)
+               fwpsiy(i,:)     = fwpsi(i,:)
                csy(i,:) = csx(i,:)
                gs_coeffy(i,:) = gs_coeff(i,:)
                vcmxt3y(i,:) = vcmxt3(i,:)
@@ -2653,7 +2646,7 @@ CONTAINS
                ! save last values calculated for ssnow%evapfbl
                oldevapfbl(i,:) = ssnow%evapfbl(i,:)
                gswy(i,:)       = canopy%gswx(i,:)
-               fwpsiy(i,:)     = canopy%fwpsi(i,:)
+               fwpsiy(i,:)     = fwpsi(i,:)
                csy(i,:) = csx(i,:)
                gs_coeffy(i,:) = gs_coeff(i,:)
                vcmxt3y(i,:) = vcmxt3(i,:)
@@ -2664,7 +2657,7 @@ CONTAINS
             !if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
             if (any(allktau == ktau_tot)) then
             write(134,*) ktau_tot, iter, i, k, tlfx(i), deltlf(i), &
-            dsx(i),abs_deltds(i), psilx(i,1), psilx(i,2),abs_deltpsil(i,1),abs_deltpsil(i,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2), &
+            dsx(i),abs_deltds(i), psilx(i,1), psilx(i,2),abs_deltpsil(i,1),abs_deltpsil(i,2),fwpsi(i,1),fwpsi(i,2), &
             psixx, csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2),anrubiscox(i,1),anrubiscox(i,2), &
             anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
             canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
