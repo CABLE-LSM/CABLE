@@ -179,7 +179,7 @@ CONTAINS
       END DO
 
       ! rsum calc above is 1/rsum (i.e. conductance(, as we're combining in
-      ! parallel, turn back into resistance (MPa s m2 mmol-1 H2O)
+      ! parallel, turn back into resistance (MPa s m2 kg-1 H2O)
       ssnow%Rsr(i) = 1.0 / rsum
 
 

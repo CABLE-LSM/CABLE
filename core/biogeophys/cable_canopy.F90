@@ -1868,7 +1868,7 @@ CONTAINS
 
       !kdcorbin, 08/10 - doing all points all the time'
       allocate(nktau(3), nktau_end(3))
-      nktau=[45492,78902,112186]
+      nktau=[93546]
       NN=2
       nktau_end = nktau + NN - 1
       m = size(nktau) * NN
