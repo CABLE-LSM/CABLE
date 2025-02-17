@@ -1868,7 +1868,7 @@ CONTAINS
 
       !kdcorbin, 08/10 - doing all points all the time'
       allocate(nktau(3), nktau_end(3))
-      nktau=[93546]
+      nktau=[93456,93459]
       NN=2
       nktau_end = nktau + NN - 1
       m = size(nktau) * NN
@@ -2444,11 +2444,15 @@ CONTAINS
                   !ex(i,:)= ex(i,:) * 1.0e6_r_2/18.0_r_2  
                   ! psilx(i,1) = ssnow%psi_rootzone(i) - ex(i,1) / canopy%kplant(i)
                   ! psilx(i,2) = ssnow%psi_rootzone(i) - ex(i,2) / canopy%kplant(i)
-                  CALL calc_psix(ssnow, soil, canopy, veg, casapool,sum(real(ex(i,:),r_2)),psixx,kplant,i)
-                  psilx(i,1) = psixx - ex(i,1) / kplant
-                  psilx(i,2) = psixx - ex(i,2) / kplant
-                  print*, 'update psix and kplant: ',psixx, kplant
-                  print*, 'ex and psilx: ',ex(i,1), psilx(i,1)
+                  
+                  CALL calc_psix(ssnow, soil, canopy, veg, casapool,max(sum(real(ex(i,:),r_2)), 0.0_r_2),psixx,kplant,i)
+                  psilx(i,1) = psixx - max(ex(i,1),0.0_r_2) / kplant
+                  psilx(i,2) = psixx - max(ex(i,2),0.0_r_2) / kplant
+                  if (any(allktau == ktau_tot)) then
+                  print*,'ktau_tot, i and k',ktau_tot, iter, k
+                  print*, '         update ex, psix and kplant: ',sum(real(ex(i,:),r_2)), psixx, kplant
+                  print*, '         psilx: ',ex(i,1), psilx(i,1)
+                  endif
                ENDIF
                IF (cable_user%SOIL_SCHE == 'Haverd2013' .or. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0)) then
                   ! avoid root-water extraction when fwsoil is zero
