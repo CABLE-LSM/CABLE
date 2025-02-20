@@ -751,6 +751,8 @@ CONTAINS
 !$          CALL read_casa_dump( ncfile, casamet, casaflux, casa_it, kend, .FALSE. )
 !$        ENDIF
 
+          ! Zero out lai where there is no vegetation acc. to veg. index
+          WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
 
 !$        ! At first time step of year, set tile area according to updated LU areas
 !$        IF (ktau == 1 .and. CABLE_USER%POPLUC) THEN
@@ -820,9 +822,6 @@ CONTAINS
 
           met%ofsd = met%fsd(:,1) + met%fsd(:,2)
           canopy%oldcansto=canopy%cansto
-
-          ! Zero out lai where there is no vegetation acc. to veg. index
-          WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
 
           ! Write time step's output to file if either: we're not spinning up
           ! or we're spinning up and the spinup has converged:
