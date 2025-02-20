@@ -1605,9 +1605,11 @@ CONTAINS
          ecx,        & ! lat. hflux big leaf
          hcx,        & ! sens heat fl big leaf prev iteration
          rnx, &          ! net rad prev timestep
-         ecxs  ! lat. hflux big leaf (sap flux)
+         ecxs, &  ! lat. hflux big leaf (sap flux)
+         psixx, &
+         kplantx
          
-      real(r_2) :: psixx, kplant
+      real(r_2) :: psixxi, kplantxi
       real, dimension(mp,ms)  :: oldevapfbl
 
       real, dimension(mp,mf)  :: &
@@ -1754,7 +1756,8 @@ CONTAINS
          ! canopy%fwsoiltmp = real(fwsoil, r_2)
          canopy%fwpsi = real(fwpsi, r_2)
       end if
-
+      psixx = real(canopy%psix,r_2)
+      kplantx = real(canopy%kplant,r_2)
      ! write(logn,*) 'fwsoil of ', cable_user%fwsoil_switch, ': ', fwsoil(1)
       MOL_TO_UMOL = 1E6
       J_TO_MOL = 4.6E-6  ! Convert from J to Mol for light
@@ -2371,8 +2374,7 @@ CONTAINS
          ! print*, 'DD42 ', ssnow%rex
          ! print*, 'DD43 ', ssnow%evapfbl
          DO i=1,mp
-            psixx = real(canopy%psix(i),r_2)
-            kplant = real(canopy%kplant(i),r_2)
+
 
             IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1))) Then
                DO kk=1, mf
@@ -2445,14 +2447,30 @@ CONTAINS
                   ! psilx(i,1) = ssnow%psi_rootzone(i) - ex(i,1) / canopy%kplant(i)
                   ! psilx(i,2) = ssnow%psi_rootzone(i) - ex(i,2) / canopy%kplant(i)
                   
-                  CALL calc_psix(ssnow, soil, canopy, veg, casapool,max(sum(real(ex(i,:),r_2)), 0.0_r_2),psixx,kplant,i)
-                  psilx(i,1) = psixx - max(ex(i,1),0.0_r_2) / kplant
-                  psilx(i,2) = psixx - max(ex(i,2),0.0_r_2) / kplant
+                  CALL calc_psix(ssnow, soil, canopy, veg, casapool,max(sum(real(ex(i,:),r_2)), 0.0_r_2),psixxi,kplantxi,i)
+                  psixx(i) = psixxi
+                  kplantx(i) = kplantxi
+                  psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
+                  psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
                   if (any(allktau == ktau_tot)) then
                   print*,'ktau_tot, i and k',ktau_tot, iter, k
-                  print*, '         update ex, psix and kplant: ',sum(real(ex(i,:),r_2)), psixx, kplant
-                  print*, '         psilx: ',ex(i,1), psilx(i,1)
+                  print*, '         ex, psix and kplant: ',max(sum(real(ex(i,:),r_2)), 0.0_r_2), psixx(i), kplantx(i)
+                  print*, '         psilx: ', psilx(i,1)
                   endif
+                  !!!!!!!!!!!!!!!!!!! another option!!!!!!!!!!!!!!!!!!!!!!
+                  psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
+                  psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
+                  if (any(allktau == ktau_tot)) then
+                     print*,'ktau_tot, i and k',ktau_tot, iter, k
+                     print*, '         ex, psilx, Lastkplant: ', max(sum(real(ex(i,:),r_2)), 0.0_r_2), psilx(i,1), kplantx(i)
+                  endif
+                  CALL calc_psix(ssnow, soil, canopy, veg, casapool,max(sum(real(ex(i,:),r_2)), 0.0_r_2),psixxi,kplantxi,i)
+                  psixx(i) = psixxi
+                  kplantx(i) = kplantxi
+                  if (any(allktau == ktau_tot)) then
+                     print*, '         psixx and kplant: ', psixx(i), kplantx(i)
+                  endif
+
                ENDIF
                IF (cable_user%SOIL_SCHE == 'Haverd2013' .or. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0)) then
                   ! avoid root-water extraction when fwsoil is zero
@@ -2662,7 +2680,7 @@ CONTAINS
             if (any(allktau == ktau_tot)) then
             write(134,*) ktau_tot, iter, i, k, tlfx(i), deltlf(i), &
             dsx(i),abs_deltds(i), psilx(i,1), psilx(i,2),abs_deltpsil(i,1),abs_deltpsil(i,2),fwpsi(i,1),fwpsi(i,2), &
-            psixx, csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2),anrubiscox(i,1),anrubiscox(i,2), &
+            psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2),anrubiscox(i,1),anrubiscox(i,2), &
             anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
             canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
             vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2)

@@ -127,6 +127,7 @@ CONTAINS
 
 
       !ENDIF
+      if (ktau_tot==1) then
       do i = 1, mp
          CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, i)
          CALL calc_swp(ssnow, soil, i)
@@ -136,6 +137,7 @@ CONTAINS
          canopy%psix(i) = psix
          canopy%kplant(i) = kplant
       end do
+      endif
       ! Calculate canopy variables
       CALL define_canopy(ktau,ktau_tot,bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate, casapool)
 
@@ -175,6 +177,15 @@ CONTAINS
             ! call print_cbm_var(rad)
          ENDIF
       ENDIF
+      do i = 1, mp
+         CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, i)
+         CALL calc_swp(ssnow, soil, i)
+         CALL calc_psix(ssnow, soil, canopy, veg, casapool,sum(real(ssnow%uptake_layer(i,:),r_2)),psix,kplant,i)
+         print*,'uptake layer sum:',sum(real(ssnow%uptake_layer(i,:),r_2))
+         print*,'psix:',psix
+         canopy%psix(i) = psix
+         canopy%kplant(i) = kplant
+      end do
 
       ssnow%deltss = ssnow%tss-ssnow%otss
       ! correction required for energy balance in online simulations
