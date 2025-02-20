@@ -373,7 +373,8 @@ SUBROUTINE casa_reinit_pk(casabiome,casamet,casapool,casabal,veg,phen, &
    USE casaparm
    USE casavariable
    USE phenvariable
-   USE cable_common_module, ONLY : ktau_gl, l_thinforest
+   USE cable_common_module, ONLY : ktau_gl, l_thinforest, pool_frac, pool_time
+
    
    USE cable_um_tech_mod, ONLY : um1
 
@@ -431,9 +432,6 @@ SUBROUTINE casa_reinit_pk(casabiome,casamet,casapool,casabal,veg,phen, &
    REAL(r_2) :: woodhvest_c(um1%land_pts,um1%ntiles,3),woodhvest_n(um1%land_pts,um1%ntiles,3),woodhvest_p(um1%land_pts,um1%ntiles,3)
    REAL(r_2) :: wresp_c(um1%land_pts,um1%ntiles,3),wresp_n(um1%land_pts,um1%ntiles,3),wresp_p(um1%land_pts,um1%ntiles,3)
    REAL(r_2) :: thinning(um1%land_pts,um1%ntiles)
-   !REAL(r_2), DIMENSION(3) :: pool_frac, pool_time
-   REAL,PARAMETER:: POOL_FRAC(3) =(/0.33, 0.33, 0.34/)
-   REAL,PARAMETER:: POOL_TIME(3) =(/1.00, 0.10, 0.01/)
    REAL(r_2) :: cplant_z(um1%land_pts,um1%ntiles,mplant) ! Plant carbon pools after thinning.
    REAL(r_2) :: nplant_z(um1%land_pts,um1%ntiles,mplant) ! Plant nitrogen pools after thinning.
    REAL(r_2) :: pplant_z(um1%land_pts,um1%ntiles,mplant) ! Plant phosphorus pools after thinning.
