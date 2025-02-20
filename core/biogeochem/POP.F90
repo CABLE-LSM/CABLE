@@ -101,8 +101,8 @@ MODULE POP_Constants
   REAL(dp) :: k_rp = 1.67_dp  ! constant in crown area relation to tree diameter
   REAL(dp) :: ksapwood = 0.05_dp ! rate constant for conversion of sapwood to heartwood (y-1)
   REAL(dp) :: Q=7.0_dp ! governs rate of increase of mortality with age (2=exponential)
-  REAL, PARAMETER, PUBLIC :: rshootfrac = 0.63
-  REAL(dp) :: shootfrac = REAL(rshootfrac, dp)
+  REAL, PARAMETER :: rshootfrac = 0.63
+  REAL(dp) :: shootfrac = REAL(0.63, dp)
   REAL(dp) :: CtoNw = 400.0_dp
   REAL(dp) ::  CtoNl = 60.0_dp
   REAL(dp) :: CtoNr = 70.0_dp
