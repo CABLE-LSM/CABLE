@@ -44,7 +44,7 @@ MODULE POPLUC_CONSTANTS
   INTEGER(i4b), PARAMETER :: LENGTH_SECDF_HISTORY = 4000
   INTEGER(i4b), PARAMETER :: AGE_MAX = 1000
   ! N.B. needs to be the same as veg%disturbance_interval
-  INTEGER(i4b), PARAMETER :: disturbance_interval = 100
+  INTEGER(i4b) :: disturbance_interval
   LOGICAL,      PARAMETER :: IFHARVEST=.FALSE.
   INTEGER(i4b), PARAMETER :: ROTATION=70
   INTEGER(i4b), PARAMETER :: nLU=3    ! number of land-use tiles (pf, sf, grass)
@@ -1651,6 +1651,8 @@ CONTAINS
        ENDDO
     ENDIF
 
+    ! Set the disturbance interval from the veg type
+    disturbance_interval = veg%disturbance_interval(1, 1)
 
   END SUBROUTINE POPLUC_Init
 
