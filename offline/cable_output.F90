@@ -740,7 +740,7 @@ CONTAINS
     IF(output%soil) THEN
      CALL define_ovar(ncid_out, ovid%ksoil, &
                       'ksoil', 'kg m-2 s-1 Mpa-1', 'soil+root conductivity', &
-                      patchout%ksoil, 'dummy', xID, yID, zID, landID, patchID, soilID, tID)
+                      patchout%ksoil, 'soil', xID, yID, zID, landID, patchID, soilID, tID)
      ALLOCATE(out%ksoil(mp,ms))
      out%ksoil = zero4 ! initialise
     END IF
