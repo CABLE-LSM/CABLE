@@ -1147,6 +1147,10 @@ CONTAINS
     CALL MPI_Get_address (ssnow%wblf, displs(bidx), ierr)
     blen(bidx) = ms * r2len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%wbliq, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+
     ! additional  for sli
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%S, displs(bidx), ierr)
