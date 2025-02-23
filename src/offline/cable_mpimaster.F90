@@ -1885,6 +1885,12 @@ CONTAINS
             &                             types(bidx), ierr)
        blen(bidx) = 1
 
+       bidx = bidx + 1
+       CALL MPI_Get_address (ssnow%wbliq(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
        ! additional  for sli
        bidx = bidx + 1
        CALL MPI_Get_address (ssnow%S(off,1), displs(bidx), ierr)
