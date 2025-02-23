@@ -246,6 +246,7 @@ else()
         src/offline/casa_cable.F90
         src/offline/cbl_model_driver_offline.F90
         src/offline/landuse_inout.F90
+        src/offline/netcdf_utils.F90
         src/offline/spincasacnp.F90
         src/util/cable_climate_type_mod.F90
         src/util/masks_cbl.F90
