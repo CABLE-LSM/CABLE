@@ -5,8 +5,11 @@
 !==========================================================
 
 MODULE cable_soil_hydraulics_module
+   
+   use cable_data_module,    only: icanopy_type
+   type(icanopy_type) :: C
+   REAL, PARAMETER :: PA_2_MPa = 1E-6
    PUBLIC :: calc_soil_root_resistance, calc_swp, calc_weighted_swp_and_frac_uptake
-
 CONTAINS
    ! ----------------------------------------------------------------------------
    SUBROUTINE calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length_density, i)
@@ -63,7 +66,7 @@ CONTAINS
       ! unit conv
       REAL, PARAMETER :: head = 0.009807             ! head of pressure  (MPa/m)
       REAL, PARAMETER :: MM_TO_M = 0.001
-      REAL, PARAMETER :: PA_2_MPa = 1E-6
+      
       REAL, PARAMETER :: G_WATER_TO_MOLE = 1.0 / 18.01528
       REAL, PARAMETER :: CUBIC_M_WATER_2_GRAMS = 1E6
       REAL, PARAMETER :: MOL_2_MMOL = 1000.0
