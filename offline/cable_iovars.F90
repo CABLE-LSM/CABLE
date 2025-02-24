@@ -426,7 +426,8 @@ MODULE cable_IO_vars_module
          kplant = .FALSE.,       &
          abs_deltlf = .FALSE.,   &
          abs_deltds = .FALSE.,   &
-         ksoil = .FALSE.
+         ksoil = .FALSE.,  &
+         kroot = .FALSE.
    END TYPE output_inclusion_type
 
    TYPE(output_inclusion_type), SAVE :: output

@@ -290,6 +290,7 @@ module cable_def_types_mod
      real(r_2), dimension(:,:),   pointer :: uptake_layer => null() !kg m-2 s-1
     REAL(r_1), DIMENSION(:,:), POINTER ::                                      &
           soilR => null(), & !
+          rootR => null(), &
           psi_soil => null(), &
           fraction_uptake => null()
 
@@ -1063,6 +1064,7 @@ contains
       ! Allocate variables for plant hydraulics, mgk576, 9/10/17
     allocate ( ssnow%Rsr(mp) )
     allocate ( ssnow%soilR(mp,ms) )
+    allocate ( ssnow%rootR(mp,ms) )
     allocate ( ssnow%fraction_uptake(mp,ms) )
     allocate ( ssnow%uptake_layer(mp,ms) )
     allocate ( ssnow%psi_soil(mp,ms) )
@@ -1727,6 +1729,7 @@ contains
     deallocate(ssnow%Qadv_rain_sn)
     deallocate( ssnow%Rsr  )
     deallocate( ssnow%soilR  )
+    deallocate( ssnow%rootR  )
     deallocate( ssnow%fraction_uptake  )
     deallocate( ssnow%uptake_layer  )
     deallocate( ssnow%psi_soil )
@@ -2260,6 +2263,7 @@ contains
     ssnow%Qadv_rain_sn     = 0
     ssnow%Rsr              = 0
     ssnow%soilR            = 0
+    ssnow%rootR            = 0
     ssnow%fraction_uptake  = 0
     ssnow%uptake_layer  = 0
     ssnow%psi_soil         = 0

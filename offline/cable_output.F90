@@ -86,7 +86,7 @@ MODULE cable_output_module
           A13n, aDisc13, c13plant, c13litter, c13soil, c13labile, &
           TSap, psi_soil, psi_rootzone, psix, psi_can_sl, psi_can_sh, &
           plc_sat, plc_stem, plc_can, gsw_sun, gsw_sha, LeafT, abs_deltpsil_sl, abs_deltpsil_sh, kplant, &
-          abs_deltlf, abs_deltds, abs_deltcs_sl, abs_deltcs_sh, ksoil
+          abs_deltlf, abs_deltds, abs_deltcs_sl, abs_deltcs_sh, ksoil, kroot
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
 
@@ -294,6 +294,7 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: gsw_sha  => null()     ! mgk576
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: kplant  => null()     ! mgk576
      REAL(KIND=r_1), POINTER, DIMENSION(:,:)   :: ksoil  => null()     ! zihanlu
+     REAL(KIND=r_1), POINTER, DIMENSION(:,:)   :: kroot  => null()     ! zihanlu
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: abs_deltlf  => null() ! zihanlu
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: abs_deltds  => null() ! zihanlu
 
@@ -743,6 +744,13 @@ CONTAINS
                       patchout%ksoil, 'soil', xID, yID, zID, landID, patchID, soilID, tID)
      ALLOCATE(out%ksoil(mp,ms))
      out%ksoil = zero4 ! initialise
+    END IF
+    IF(output%soil) THEN
+     CALL define_ovar(ncid_out, ovid%kroot, &
+                      'kroot', 'kg m-2 s-1 Mpa-1', 'soil+root conductivity', &
+                      patchout%kroot, 'soil', xID, yID, zID, landID, patchID, soilID, tID)
+     ALLOCATE(out%kroot(mp,ms))
+     out%kroot = zero4 ! initialise
     END IF
     IF(output%soil .OR. output%SoilTemp) THEN
        CALL define_ovar(ncid_out, ovid%SoilTemp, 'SoilTemp', 'K', &
@@ -2715,6 +2723,7 @@ CONTAINS
     IF(output%soil) THEN
      ! Add current timestep's value to total of temporary output variable:
      out%ksoil = out%ksoil + 1.0_r_2 / toreal4(ssnow%soilR)
+     out%kroot= out%kroot + 1.0_r_2 / toreal4(ssnow%rootR)
      IF(writenow) THEN
         ! Divide accumulated variable by number of accumulated time steps:
         out%ksoil = out%ksoil * rinterval
@@ -2722,7 +2731,11 @@ CONTAINS
         CALL write_ovar(out_timestep, ncid_out, ovid%ksoil, 'ksoil', &
              out%ksoil, ranges%kplant, patchout%ksoil, 'soil', met)
         out%ksoil = zero4
-
+        out%kroot = out%kroot * rinterval
+        ! Write value to file:
+        CALL write_ovar(out_timestep, ncid_out, ovid%kroot, 'kroot', &
+             out%kroot, ranges%kplant, patchout%kroot, 'soil', met)
+        out%kroot = zero4
      END IF
     END IF
     ! SoilTemp: av.layer soil temperature [K]
