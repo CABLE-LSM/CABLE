@@ -2457,19 +2457,19 @@ CONTAINS
                   print*, '         ex, psix and kplant: ',max(sum(real(ex(i,:),r_2)), 0.0_r_2), psixx(i), kplantx(i)
                   print*, '         psilx: ', psilx(i,1)
                   endif
-                  !!!!!!!!!!!!!!!!!!! another option!!!!!!!!!!!!!!!!!!!!!!
-                  psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
-                  psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
-                  if (any(allktau == ktau_tot)) then
-                     print*,'ktau_tot, i and k',ktau_tot, iter, k
-                     print*, '         ex, psilx, Lastkplant: ', max(sum(real(ex(i,:),r_2)), 0.0_r_2), psilx(i,1), kplantx(i)
-                  endif
-                  CALL calc_psix(ssnow, soil, canopy, veg, casapool,max(sum(real(ex(i,:),r_2)), 0.0_r_2),psixxi,kplantxi,i)
-                  psixx(i) = psixxi
-                  kplantx(i) = kplantxi
-                  if (any(allktau == ktau_tot)) then
-                     print*, '         psixx and kplant: ', psixx(i), kplantx(i)
-                  endif
+                  ! !!!!!!!!!!!!!!!!!!! another option!!!!!!!!!!!!!!!!!!!!!!
+                  ! psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
+                  ! psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
+                  ! if (any(allktau == ktau_tot)) then
+                  !    print*,'ktau_tot, i and k',ktau_tot, iter, k
+                  !    print*, '         ex, psilx, Lastkplant: ', max(sum(real(ex(i,:),r_2)), 0.0_r_2), psilx(i,1), kplantx(i)
+                  ! endif
+                  ! CALL calc_psix(ssnow, soil, canopy, veg, casapool,max(sum(real(ex(i,:),r_2)), 0.0_r_2),psixxi,kplantxi,i)
+                  ! psixx(i) = psixxi
+                  ! kplantx(i) = kplantxi
+                  ! if (any(allktau == ktau_tot)) then
+                  !    print*, '         psixx and kplant: ', psixx(i), kplantx(i)
+                  ! endif
 
                ENDIF
                IF (cable_user%SOIL_SCHE == 'Haverd2013' .or. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0)) then
