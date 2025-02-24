@@ -1073,7 +1073,7 @@ CONTAINS
 
   SUBROUTINE write_default_params(met, ssnow, veg, bgc, &
        soil, canopy, rough, rad, logn, &
-       month, TFRZ, LUC_EXPT)
+       month, TFRZ, LUC_EXPT, site)
     ! Initialize many canopy_type, soil_snow_type, soil_parameter_type and
     ! roughness_type variables;
     ! Calculate 'froot' from 'rootbeta' parameter;
@@ -1097,6 +1097,7 @@ CONTAINS
 
     USE cable_common_module, only: vegin, soilin, calcsoilalbedo, cable_user, &
          init_veg_from_vegin
+    use CABLE_site,           only: site_TYPE
 #ifdef __MPI__
     use mpi,                 only: MPI_Abort
 #endif
@@ -1115,7 +1116,7 @@ CONTAINS
     TYPE(roughness_type),      INTENT(INOUT) :: rough
     TYPE(radiation_type),      INTENT(INOUT) :: rad
     TYPE(LUC_EXPT_TYPE),       INTENT(IN)    :: LUC_EXPT
-
+    type(site_TYPE),           intent(IN) :: site
     INTEGER :: e, f, h  ! do loop counter
     INTEGER :: is       ! YP oct07
     INTEGER :: ir       ! BP sep2010
@@ -1392,9 +1393,15 @@ CONTAINS
        ! call veg% init that is common
        CALL init_veg_from_vegin(landpt(e)%cstart, landpt(e)%cend, veg)
 
+
        ! Prescribe parameters for current gridcell based on veg/soil type (which
        ! may have loaded from default value file or met file):
        DO h = landpt(e)%cstart, landpt(e)%cend ! over each patch in current grid
+         if (trim(cable_user%MetType) == 'site') then
+         if (site%soiltype >0) then
+            soil%isoilm(h) = site%soiltype
+         endif
+         endif
           veg%frac4(h)   = vegin%frac4(veg%iveg(h))
           veg%taul(h,1)  = vegin%taul(1,veg%iveg(h))
           veg%taul(h,2)  = vegin%taul(2,veg%iveg(h))

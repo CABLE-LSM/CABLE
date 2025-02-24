@@ -59,6 +59,7 @@ MODULE CABLE_site
      REAL :: zr ! root length
      REAL :: gamma
      REAL :: dc ! fraction 0-1
+     INTEGER :: soiltype
   END TYPE site_TYPE
 
   TYPE (site_TYPE):: site  ! Define the variable CRU, of type CRU_TYPE
@@ -93,14 +94,14 @@ CONTAINS
     REAL :: zr ! root maximum length, zihanlu
     REAL :: gamma ! parameter in fwsoil calculation in haverd2013 zihanlu
     REAL :: dc ! parameter used in iteration in dryLeaf, maybe abandoned later
-
+    INTEGER :: soiltype
     ! I/O checker
     INTEGER :: ios
     CHARACTER(LEN=200) :: ioMessage
     ! Flag for errors
 
     NAMELIST /siteNML/ RunType, CO2NdepFile, spinstartyear, spinendyear, spinCO2, &
-         spinNdep, spinPdep, zr, gamma, dc
+         spinNdep, spinPdep, zr, gamma, dc, soiltype
 
     ! Read site namelist settings
     CALL GET_UNIT(nmlunit)  ! CABLE routine finds spare unit number
@@ -120,6 +121,7 @@ CONTAINS
     site%zr = zr
     site%gamma = gamma
     site%dc = dc
+    site%soiltype = soiltype
     ! Print settings
     WRITE(*   ,*)"========================================= SITE INFO  ============"
     WRITE(*   ,*)"site settings chosen:"

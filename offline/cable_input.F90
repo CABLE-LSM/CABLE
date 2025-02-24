@@ -2428,7 +2428,7 @@ END SUBROUTINE close_met_file
 SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, &
        sum_flux, bal, logn, vegparmnew, casabiome, casapool, &
        casaflux, sum_casapool, sum_casaflux, casamet, casabal, phen, POP, spinup, EMSOIL, &
-       TFRZ, LUC_EXPT, POPLUC, c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
+       TFRZ, LUC_EXPT, POPLUC, c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc,site)
    ! Input variables not listed:
    !   filename%type  - via cable_IO_vars_module
    !   exists%type    - via cable_IO_vars_module
@@ -2450,7 +2450,7 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
         c13o2_zero_flux, c13o2_zero_pools
    use cable_c13o2,     only: c13o2_init_flux, c13o2_init_pools, c13o2_init_luc
    use cable_c13o2,     only: c13o2_read_restart_flux, c13o2_read_restart_pools
-
+   use CABLE_site,      only: site_TYPE
    IMPLICIT NONE
 
    ! Input arguments
@@ -2480,6 +2480,7 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
    type(c13o2_flux),          intent(inout) :: c13o2flux
    type(c13o2_pool),          intent(inout) :: c13o2pools, sum_c13o2pools
    type(c13o2_luc),           intent(inout) :: c13o2luc
+   type(site_TYPE),           intent(IN) :: site
    INTEGER,                   INTENT(IN)    :: logn     ! log file unit number
    LOGICAL,                   INTENT(IN)    :: vegparmnew, spinup ! are we using the new format? ! for POP (initialize pop)
    REAL,                      INTENT(IN)    :: TFRZ, EMSOIL
@@ -2549,7 +2550,7 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
 
     ! Write parameter values to CABLE's parameter variables
     CALL write_default_params(met, ssnow, veg, bgc, soil, canopy, rough, &
-            rad, logn, smoy, TFRZ, LUC_EXPT)
+            rad, logn, smoy, TFRZ, LUC_EXPT, site)
     ! 13C
     if (cable_user%c13o2) then
        call c13o2_zero_flux(c13o2flux)

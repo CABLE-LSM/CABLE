@@ -686,7 +686,7 @@ PROGRAM cable_offline_driver
                    casaflux, sum_casapool, sum_casaflux, &
                    casamet, casabal, phen, POP, spinup, &
                    C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC, &
-                   c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
+                   c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc, site)
                if (trim(cable_user%MetType) == 'site' .and. site%zr > 0) then
                veg%zr(:) = site%zr
                end if
