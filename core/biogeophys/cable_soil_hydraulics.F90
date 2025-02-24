@@ -73,7 +73,7 @@ CONTAINS
       REAL, PARAMETER :: SMALL_NUMBER = 1E-9
 
       REAL, DIMENSION(ms) :: depth
-      REAL                :: root_mass, rs, Ksoil, root_biomass, root_depth
+      REAL                :: root_mass, rs, Ksoil, root_biomass, root_depth, root_mass_density
       REAL                :: soil_resist, rsum, conv
 
 
