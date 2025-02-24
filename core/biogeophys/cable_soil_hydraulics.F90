@@ -9,7 +9,7 @@ MODULE cable_soil_hydraulics_module
 
 CONTAINS
    ! ----------------------------------------------------------------------------
-   SUBROUTINE calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, i)
+   SUBROUTINE calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length_density, i)
       ! Calculate root & soil hydraulic resistance following SPA approach
       ! (Williams et al.)
       !
@@ -45,6 +45,7 @@ CONTAINS
       USE cable_def_types_mod
       USE cable_common_module
       USE casavariable
+      use mo_constants, only: pi => pi_dp
       IMPLICIT NONE
 
       TYPE (soil_snow_type), INTENT(INOUT)        :: ssnow
@@ -53,7 +54,6 @@ CONTAINS
       TYPE (casa_pool),  INTENT(IN)           :: casapool
 
       ! All from Williams et al. 2001, Tree phys
-      REAL, PARAMETER :: pi = 3.1415927
       REAL, PARAMETER :: root_radius = 0.0005                 ! m
       REAL, PARAMETER :: root_xsec_area = pi * root_radius**2 ! m2
       REAL, PARAMETER :: root_density = 0.5e6                ! g biomass m-3 root
@@ -63,8 +63,7 @@ CONTAINS
       ! unit conv
       REAL, PARAMETER :: head = 0.009807             ! head of pressure  (MPa/m)
       REAL, PARAMETER :: MM_TO_M = 0.001
-      REAL, PARAMETER :: KPA_2_MPa = 0.001
-      REAL, PARAMETER :: M_HEAD_TO_MPa = 9.8 * KPA_2_MPa
+      REAL, PARAMETER :: PA_2_MPa = 1E-6
       REAL, PARAMETER :: G_WATER_TO_MOLE = 1.0 / 18.01528
       REAL, PARAMETER :: CUBIC_M_WATER_2_GRAMS = 1E6
       REAL, PARAMETER :: MOL_2_MMOL = 1000.0
@@ -78,15 +77,14 @@ CONTAINS
       REAL                :: soil_resist, rsum, conv
 
 
-      REAL, DIMENSION(:), INTENT(INOUT) :: root_length
+      REAL, DIMENSION(:), INTENT(INOUT) :: root_length_density
       ! ratio Dry matter mass to g(C)
       REAL, PARAMETER                   :: gC2DM = 1./0.49
 
       INTEGER, INTENT(IN) :: i
       INTEGER :: j
-      INTEGER, PARAMETER :: ROOT_INDEX = 3
 
-      REAL               :: ht, stem_biomass, root_resist
+      REAL               :: ht, stem_biomass
       REAL, PARAMETER    :: Kbiometric = 50.0 ! cst in height-diameter relationship
       REAL, PARAMETER    :: WD = 300.0 ! Wood density kgC/m3
       REAL, PARAMETER    :: root_conduc = 1e-7 ! kg s-1 Mpa-1 m-1(root length)
@@ -127,7 +125,7 @@ CONTAINS
             (ssnow%wb(i,j) / soil%ssat(i))**(2.0 * soil%bch(i) + 3.0)
 
          ! converts from m s-1 to m2 s-1 MPa-1
-         Ksoil = Ksoil / head
+         Ksoil = Ksoil / (C%grav * C%RHOW *PA_2_MPa )
 
          ! Calculate soil-root hydraulic resistance
 
@@ -142,29 +140,31 @@ CONTAINS
             ! Root biomass density (g biomass m-3 soil)
             ! Divide root mass up by the frac roots in the layer (g m-3)
             ! plant carbon is g m-3
-            root_mass = root_biomass * veg%froot(i,j) / soil%zse(j)
+            root_mass_density = root_biomass * veg%froot(i,j) / soil%zse(j)
 
             ! Root length density (m root m-3 soil)
-            root_length(j) = root_mass / (root_density * root_xsec_area)
-            root_resist = 1.0 / (root_conduc * root_length(j) * soil%zse(j)) 
+            root_length_density(j) = root_mass_density / (root_density * root_xsec_area)
+            ! kg m-2 s-1 Mpa-1
+            ssnow%rootR(i,j) = 1.0 / (root_conduc * root_length_density(j) * soil%zse(j)) 
+
             ! Conductance of the soil-to-root pathway can be estimated
             ! assuming that the root system consists of one long root that
             ! has access to a surrounding cylinder of soil
             ! (Gardner 1960, Newman 1969)
-            rs = SQRT(1.0 / (root_length(j) * pi))
+            rs = SQRT(1.0 / (root_length_density(j) * pi))
 
-            ! Soil-to-root resistance (MPa s m2 (ground) mmol-1 H2O)
+            ! Soil-to-root resistance (MPa s m2 m-3)
             soil_resist = LOG(rs / root_radius) / &
-               (2.0 * pi * root_length(j) * soil%zse(j) * Ksoil)
+               (2.0 * pi * root_length_density(j) * soil%zse(j) * Ksoil)
 
             ! convert from MPa s m2 m-3 to MPa s m2 kg-1
-            soil_resist = soil_resist * 0.001
+            soil_resist = soil_resist / C%RHOW
 
             ! root_resistance is commented out : don't use root-component of
             ! resistance (is part of plant resistance)
             ! MPa s m2 mmol-1 H2O
             !ssnow%soilR(i,j) = soil_resist !+ root_resist
-            ssnow%soilR(i,j) = soil_resist + root_resist
+            ssnow%soilR(i,j) = soil_resist
 
 
          END IF
@@ -218,14 +218,12 @@ CONTAINS
       INTEGER, INTENT(IN) :: i
       REAL                :: psi_sat, psi_wilt
 
-      REAL, PARAMETER :: KPA_2_MPa = 0.001
-      REAL, PARAMETER :: M_HEAD_TO_MPa = 9.8 * KPA_2_MPa
       REAL, PARAMETER :: cmH2O_TO_MPa = 1.0 / (10.0 * 1036)
 
       ssnow%psi_soil(i,:) = 0.0 ! MPa
 
       ! Soil matric potential at saturation (m of head to MPa: 9.8 * KPA_2_MPA)
-      psi_sat = soil%sucs(i) * M_HEAD_TO_MPa
+      psi_sat = soil%sucs(i) * C%grav * C%RHOW *PA_2_MPa
 
       ! Soil matric potential at wilting point, MPa
       psi_wilt = psi_sat * MAX(1.E-9, MIN(1.0, soil%swilt(i) / soil%ssat(i))) &
@@ -285,10 +283,6 @@ CONTAINS
       TYPE (soil_parameter_type), INTENT(INOUT) :: soil
       TYPE(canopy_type), INTENT(INOUT)          :: canopy ! vegetation variables
       TYPE(veg_parameter_type), INTENT(IN)      :: veg
-
-      REAL, PARAMETER :: MM_TO_M = 0.001
-      REAL, PARAMETER :: KPA_2_MPa = 0.001
-      REAL, PARAMETER :: M_HEAD_TO_MPa = 9.8 * KPA_2_MPa
 
       ! The minimum root water potential (MPa), used in determining fractional
       ! water uptake in soil layers
@@ -487,8 +481,8 @@ CONTAINS
          sumksoil = 0.0
          sumpsiksoil = 0.0
          DO k = 1, ms
-            sumpsiksoil = sumpsiksoil + ssnow%psi_soil(i,k)* 1.0 / ssnow%soilR(i,k) 
-            sumksoil = sumksoil + 1.0 / ssnow%soilR(i,k) 
+            sumpsiksoil = sumpsiksoil + ssnow%psi_soil(i,k)* 1.0 / (ssnow%soilR(i,k) + ssnow%rootR(i,k) )
+            sumksoil = sumksoil + 1.0 / (ssnow%soilR(i,k) + ssnow%rootR(i,k) )
          END DO
          psix = (sumpsiksoil - ex) / sumksoil
          !canopy%psix(i) = psi_sr - ex / veg%kmax(i)
