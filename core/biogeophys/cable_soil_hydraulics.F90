@@ -6,10 +6,12 @@
 
 MODULE cable_soil_hydraulics_module
    
-   use cable_data_module,    only: icanopy_type
+   use cable_data_module,    only: icanopy_type, point2constants
    type(icanopy_type) :: C
    REAL, PARAMETER :: PA_2_MPa = 1E-6
+   REAL, PARAMETER                   :: gC2DM = 1./0.49
    PUBLIC :: calc_soil_root_resistance, calc_swp, calc_weighted_swp_and_frac_uptake
+
 CONTAINS
    ! ----------------------------------------------------------------------------
    SUBROUTINE calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length_density, i)
@@ -82,7 +84,7 @@ CONTAINS
 
       REAL, DIMENSION(:), INTENT(INOUT) :: root_length_density
       ! ratio Dry matter mass to g(C)
-      REAL, PARAMETER                   :: gC2DM = 1./0.49
+      
 
       INTEGER, INTENT(IN) :: i
       INTEGER :: j
@@ -97,7 +99,7 @@ CONTAINS
       ! ht = (Kbiometric**(3.0/4.0))*(4.*stem_biomass/(WD*PI))**(1.0/4.0)
 
       !print*, ht
-
+      call point2constants(C)
       ! convert from gC to g biomass, i.e. twice the C content
       !root_biomass = bgc%cplant(i,ROOT_INDEX) * gC2DM
       !root_biomass = 1443.0 * gC2DM ! EBF value
@@ -128,7 +130,7 @@ CONTAINS
             (ssnow%wb(i,j) / soil%ssat(i))**(2.0 * soil%bch(i) + 3.0)
 
          ! converts from m s-1 to m2 s-1 MPa-1
-         Ksoil = Ksoil / (C%grav * C%RHOW *PA_2_MPa )
+         Ksoil = Ksoil / (C%grav * C%RHOW * PA_2_MPa )
 
          ! Calculate soil-root hydraulic resistance
 
@@ -222,7 +224,7 @@ CONTAINS
       REAL                :: psi_sat, psi_wilt
 
       REAL, PARAMETER :: cmH2O_TO_MPa = 1.0 / (10.0 * 1036)
-
+      call point2constants(C)
       ssnow%psi_soil(i,:) = 0.0 ! MPa
 
       ! Soil matric potential at saturation (m of head to MPa: 9.8 * KPA_2_MPA)
@@ -443,7 +445,7 @@ CONTAINS
       !DO i = 1, mp
       !CALL calc_swp(ssnow, soil, i)
       !write(logn,*),'calculate soilMoistPFT'
-
+      call point2constants(C)
 
       layer_depth(1) = 0.0_r_2
       do k=2, ms
@@ -500,7 +502,7 @@ CONTAINS
          !pd = 4.0_r_2 * real(casapool%cplant(i,2) / 1000.0_r_2,r_2) / (WD * pi * veg%hc * (veg%hc / k1)**(2.0_r_2*k2))
          pd = 0.07_r_2 ! pl m-2
          !DBH = (veg%hc/k1)**k2
-         AGB_pl = casapool%cplant(i,2) / 1000.0_r_2 * 2.0_r_2 / pd ! kg pl-1
+         AGB_pl = casapool%cplant(i,2) / 1000.0_r_2 * gC2DM / pd ! kg pl-1
          DBH = (AGB_pl/k1)**(1.0_r_2/k2) ! cm 
          BAI = (DBH/200.0_r_2)**2.0_r_2*pi*pd ! m2 m-2
          ! plc = get_xylem_vulnerability(ssnow%psi_rootzone(i), &
