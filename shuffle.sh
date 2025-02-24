@@ -76,6 +76,7 @@ cp $UM7_ESM15_DIR/cable_implicit_driver.F90 $UM7_CABLE_DIR/
 cp $UM7_ESM15_DIR/cbl_um_init_soil.F90 $UM7_CABLE_DIR/
 cp $UM7_ESM15_DIR/cbl_um_init_soilsnow.F90 $UM7_CABLE_DIR/
 cp $UM7_ESM15_DIR/cbl_um_update_soilsnow.F90 $UM7_CABLE_DIR/
+cp $UM7_ESM15_DIR/cable_read_nml.F90 $UM7_CABLE_DIR/
 
 # casa_um_inout.F90 (currently in esm16/ but it needs to be deleted from there)
 # it is not there?
