@@ -40,7 +40,9 @@ SUBROUTINE interface_UM_data( row_length, rows, land_pts, ntiles,              &
                               npft, sm_levels, itimestep, latitude, longitude, &
                               land_index, tile_frac, tile_pts, tile_index,     &
                               bexp, hcon, satcon, sathh, smvcst, smvcwt,       &
-                              smvccl, albsoil, snow_tile, snow_rho1l,          &
+                              smvccl, albsoil,                                 &
+                              hcap, soil_clay, soil_silt, soil_sand,           &
+                              snow_tile, snow_rho1l,                           &
                               snage_tile, isnow_flg3l, snow_rho3l, snow_cond,  &
                               snow_depth3l, snow_tmp3l, snow_mass3l, sw_down,  &
                               lw_down, cos_zenith_angle, surf_down_sw, ls_rain,&
@@ -58,6 +60,10 @@ SUBROUTINE interface_UM_data( row_length, rows, land_pts, ntiles,              &
                               PREV_YR_SFRAC, NPP_FT_ACC, RESP_W_FT_ACC,        &
                               RESP_S_ACC, iday )
 
+USE cbl_um_init_soilsnow_mod,   ONLY: initialize_soilsnow
+USE cbl_um_init_soil_mod,       ONLY: initialize_soil
+USE cbl_um_update_soilsnow_mod, ONLY: update_soilsnow
+
    USE cable_um_init_subrs_mod          ! where most subrs called from here reside
    
    USE cable_um_tech_mod,   ONLY :                                             &
@@ -74,9 +80,6 @@ SUBROUTINE interface_UM_data( row_length, rows, land_pts, ntiles,              &
    USE cable_def_types_mod, ONLY : mp, mland ! number of points CABLE works on
 
    USE casa_um_inout_mod
-  ! veg and soil parameters READ subroutine  
-  USE cable_pft_params_mod,   ONLY: cable_pft_params
-  USE cable_soil_params_mod,  ONLY: cable_soil_params
 !CBL3
 !draft1!USE cbl_soil_snow_init_special_module, ONLY: spec_init_soil_snow
 USE cable_common_module, ONLY : kwidth_gl 
@@ -123,6 +126,11 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
       albsoil,&   !
       fland       !
        
+REAL, INTENT(IN) :: soil_clay ( row_length, rows )
+REAL, INTENT(IN) :: soil_silt ( row_length, rows )
+REAL, INTENT(IN) :: soil_sand ( row_length, rows )
+REAL, INTENT(IN) :: hcap(land_pts)
+
    REAL, INTENT(INOUT), DIMENSION(row_length,rows) ::                          &
       sw_down, &        !
       cos_zenith_angle  !
@@ -247,8 +255,6 @@ USE cable_other_constants_mod, ONLY : CLAI_THRESH => LAI_THRESH
 !CBL3
 REAL, DIMENSION(land_pts, ntiles) ::  clobbered_htveg
 
-soil%heat_cap_lower_limit = 0.01
-
       !---------------------------------------------------------------------!
       !--- code to create type um1% conaining UM basic vars describing    --! 
       !--- dimensions etc, which are used frequently throughout interfaces. !
@@ -305,34 +311,38 @@ soil%heat_cap_lower_limit = 0.01
       !if ( first_call ) & 
       !   call initialize_maps(latitude,longitude, tile_index_mp)
 
-
-
-      !--- read in soil (and veg) parameters 
-      IF(first_call ) then
-        call cable_pft_params()
-        call cable_soil_params()
-      endif
-
       !--- initialize veg   
 CALL initialize_veg( kblum_veg%htveg , land_pts, npft, ntiles, sm_levels, mp,     &
                      canht_ft, lai_ft, dzsoil, veg,         &
                     tile_pts, tile_index, tile_frac, L_tile_pts,                 &
                     CLAI_thresh )
  
-      !--- initialize soil
-      CALL initialize_soil( bexp, hcon, satcon, sathh, smvcst, smvcwt,      &
-                            smvccl, albsoil, tsoil_tile, sthu, sthu_tile,   &
-                            dzsoil ) 
+IF( first_call ) THEN
+  
+  !--- initialize soil
+  CALL initialize_soil( bexp, hcon, satcon, sathh, smvcst, smvcwt,   &
+                        smvccl, albsoil,                             & 
+                        hcap, soil_clay, soil_silt, soil_sand,       &
+                        tsoil_tile, sthu, sthu_tile, dzsoil )
+                        
         
-      !--- initialize roughness
-      CALL initialize_roughness( z1_tq, z1_uv, kblum_veg%htveg ) 
+ENDIF
+      
+!--- initialize roughness
+CALL initialize_roughness( z1_tq, z1_uv, kblum_veg%htveg ) 
        
+IF( first_call ) THEN
+  
       !--- initialize soilsnow
       CALL initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,   &
                                 snow_tile, snow_rho1l, snage_tile,          &
                                 isnow_flg3l, snow_rho3l, snow_cond,         &
                                 snow_depth3l, snow_mass3l, snow_tmp3l,      &
                                 fland, sin_theta_latitude ) 
+
+ENDIF
+
+CALL update_soilsnow( mp, soil, ssnow, veg%iveg )
 
       !--- initialize canopy   
       CALL initialize_canopy(CANOPY_TILE)
