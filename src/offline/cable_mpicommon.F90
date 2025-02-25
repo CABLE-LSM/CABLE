@@ -103,7 +103,7 @@ MODULE cable_mpicommon
   ! MPI: number of fields included in restart_t type for data
   ! that is returned only for creating a restart file at the end of the run
   ! MPI: gol124: canopy%rwater removed when Bernard ported to CABLE_r491
-  INTEGER, PARAMETER :: nrestart = 15
+  INTEGER, PARAMETER :: nrestart = 17
   INTEGER, PARAMETER :: nsumcasaflux = 62
   INTEGER, PARAMETER :: nsumcasapool = 40
   INTEGER, PARAMETER :: nclimate = 30

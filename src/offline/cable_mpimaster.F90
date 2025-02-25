@@ -599,7 +599,7 @@ CONTAINS
           ! MPI: create type to send restart data back to the master
           ! only if restart file is to be created
           IF(output%restart) THEN
-            CALL master_restart_types (comm, canopy, air)
+            CALL master_restart_types (comm, canopy, air, bgc)
           END IF
 
           !  CALL zero_sum_casa(sum_casapool, sum_casaflux)
@@ -7171,7 +7171,7 @@ CONTAINS
   !CLNEND SUBROUTINE master_casa_restart_types
 
   ! MPI: creates datatype handles to receive restart data from workers
-  SUBROUTINE master_restart_types (comm, canopy, air)
+  SUBROUTINE master_restart_types (comm, canopy, air, bgc)
 
     USE mpi
 
@@ -7185,6 +7185,7 @@ CONTAINS
 
     TYPE(canopy_type), INTENT(IN) :: canopy
     TYPE (air_type),INTENT(IN)        :: air
+    TYPE (bgc_pool_type), INTENT(IN) :: bgc
     !  TYPE (casa_pool),           INTENT(INOUT) :: casapool
     !  TYPE (casa_flux),           INTENT(INOUT) :: casaflux
     !  TYPE (casa_met),            INTENT(INOUT) :: casamet
@@ -7243,6 +7244,18 @@ CONTAINS
        CALL MPI_Get_address (canopy%evapfbl(off,1), displs(bidx), ierr) ! 2
        ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
        CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blocks(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (bgc%cplant(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ncp, r1len, r1stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blocks(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (bgc%csoil(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ncs, r1len, r1stride, MPI_BYTE, &
             &                             types(bidx), ierr)
        blocks(bidx) = 1
 

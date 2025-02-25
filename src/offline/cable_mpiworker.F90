@@ -365,7 +365,7 @@ CONTAINS
           ! only if restart file is to be created
           IF(output%restart) THEN
 
-            CALL worker_restart_type (comm, canopy, air)
+            CALL worker_restart_type (comm, canopy, air, bgc)
 
           END IF
 
@@ -6354,7 +6354,7 @@ CONTAINS
   ! MPI: creates restart_t type to send to the master the fields
   ! that are only required for the restart file but not included in the
   ! results sent at the end of each time step
-  SUBROUTINE worker_restart_type (comm, canopy, air)
+  SUBROUTINE worker_restart_type (comm, canopy, air, bgc)
 
     USE mpi
 
@@ -6366,6 +6366,7 @@ CONTAINS
 
     TYPE(canopy_type), INTENT(IN) :: canopy
     TYPE (air_type),INTENT(IN)     :: air
+    TYPE (bgc_pool_type), INTENT(IN) :: bgc
 
     ! MPI: temp arrays for marshalling all types into a struct
     INTEGER, ALLOCATABLE, DIMENSION(:) :: blocks
@@ -6407,6 +6408,14 @@ CONTAINS
     CALL MPI_Get_address (canopy%evapfbl(off,1), displs(bidx), ierr)
     ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
     blocks(bidx) = r1len * ms
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (bgc%cplant(off,1), displs(bidx), ierr)
+    blocks(bidx) = r1len * ncp
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (bgc%csoil(off,1), displs(bidx), ierr)
+    blocks(bidx) = r1len * ncs
 
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%cduv(off), displs(bidx), ierr)
