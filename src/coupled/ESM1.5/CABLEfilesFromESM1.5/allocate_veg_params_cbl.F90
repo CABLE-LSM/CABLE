@@ -12,7 +12,7 @@ CONTAINS
 
 SUBROUTINE allocate_veg_parameter_type(var, mp)
 
-USE cable_params_mod,           ONLY: veg_parameter_type
+USE cable_veg_type_mod,         ONLY: veg_parameter_type
 USE cable_other_constants_mod,  ONLY: nrb !used as ambiguosly AND inconsistently as # rad. bands
 USE cable_other_constants_mod,  ONLY: nscs ! number of soil carbon stores
 USE cable_other_constants_mod,  ONLY: nvcs ! number of vegetation carbon stores

@@ -35,7 +35,9 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
                                   sm_levels, timestep, latitude, longitude,    &
                                   land_index, tile_frac,  tile_pts, tile_index,&
                                   bexp, hcon, satcon, sathh, smvcst,           &
-                                  smvcwt,  smvccl, albsoil, snow_tile,         &
+                                  smvcwt,  smvccl, albsoil,                    & 
+                                  hcap, soil_clay, soil_silt, soil_sand,       &
+                                  snow_tile,                                   &
                                   snow_rho1l, snage_tile, isnow_flg3l,         &
                                   snow_rho3l, snow_cond, snow_depth3l,         &
                                   snow_tmp3l, snow_mass3l, sw_down, lw_down,   &
@@ -64,7 +66,7 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
                                   iday, endstep, timestep_number, mype )    
    
    !--- reads runtime and user switches and reports
-   USE cable_um_tech_mod, ONLY : cable_um_runtime_vars, air, bgc, canopy,      &
+   USE cable_um_tech_mod, ONLY : air, bgc, canopy,      &
                                  met, bal, rad, rough, soil, ssnow, sum_flux,  &
                                  veg, climate 
    
@@ -134,6 +136,11 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
       albsoil, &
       fland 
    
+REAL, INTENT(IN) :: soil_clay ( row_length, rows )
+REAL, INTENT(IN) :: soil_silt ( row_length, rows )
+REAL, INTENT(IN) :: soil_sand ( row_length, rows )
+REAL, INTENT(IN) :: hcap(land_pts)
+
    REAL, INTENT(INOUT), DIMENSION(row_length,rows) :: &
       sw_down,          & 
       cos_zenith_angle
@@ -293,22 +300,6 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    !--- end INPUT ARGS FROM sf_exch() ----------------------------------------
    !-------------------------------------------------------------------------- 
    
-
-
-   !___ declare local vars 
-   
-   !___ location of namelist file defining runtime vars
-   CHARACTER(LEN=200), PARAMETER ::                                            & 
-      runtime_vars_file = 'cable.nml'
-
-
-   !___ 1st call in RUN (!=ktau_gl -see below) 
-   LOGICAL, SAVE :: first_cable_call = .TRUE.
- 
-integer :: j
-
-   
-
    !--- initialize cable_runtime% switches 
    cable_runtime%um = .TRUE.
    cable_runtime%esm15= .TRUE.
@@ -326,15 +317,6 @@ integer :: j
    !--- from cable_common_module
    cable_runtime%um_explicit = .TRUE.
 
-   
-   !--- user FLAGS, variables etc def. in cable.nml is read on 
-   !--- first time step of each run. these variables are read at 
-   !--- runtime and for the most part do not require a model rebuild.
-   IF(first_cable_call) THEN
-      CALL cable_um_runtime_vars(runtime_vars_file) 
-      first_cable_call = .FALSE.
-   ENDIF      
-   
   mtau = mod(ktau_gl,int(24.*3600./timestep))
   if (l_luc .and. iday==1 .and. mtau==1) then
    ! resdistr(frac,in,out) - Lestevens 10oct17
@@ -364,7 +346,9 @@ integer :: j
                            sm_levels, itimestep, latitude, longitude,          &
                            land_index, tile_frac, tile_pts, tile_index,        &
                            bexp, hcon, satcon, sathh, smvcst, smvcwt,          &
-                           smvccl, albsoil, snow_tile, snow_rho1l,             &
+                           smvccl, albsoil,                                    &
+                           hcap, soil_clay, soil_silt, soil_sand,              &
+                           snow_tile, snow_rho1l,                              &
                            snage_tile, isnow_flg3l, snow_rho3l, snow_cond,     &
                            snow_depth3l, snow_tmp3l, snow_mass3l, sw_down,     &
                            lw_down, cos_zenith_angle, surf_down_sw, ls_rain,   &

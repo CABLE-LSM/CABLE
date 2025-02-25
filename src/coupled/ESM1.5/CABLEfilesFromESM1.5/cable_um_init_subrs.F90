@@ -121,151 +121,7 @@ CONTAINS
 !      
 !      return
 !   end subroutine initialize_maps
-  
-  
         
-SUBROUTINE initialize_soil( bexp, hcon, satcon, sathh, smvcst, smvcwt,         &
-                            smvccl, albsoil, tsoil_tile, sthu, sthu_tile,      &
-                            dzsoil ) 
-
-   USE cable_def_types_mod, ONLY : ms, mstype, mp, r_2
-   USE cable_um_tech_mod,   ONLY : um1, soil, veg, ssnow 
-   USE cable_common_module, ONLY : cable_runtime, cable_user
-  USE cable_params_mod, ONLY : soilin
-   
-   REAL, INTENT(IN), DIMENSION(um1%land_pts) :: &
-      bexp, &
-      hcon, &
-      satcon, & 
-      sathh, &
-      smvcst, &
-      smvcwt, &
-      smvccl, &
-      albsoil 
-   
-   REAL, INTENT(IN), DIMENSION(um1%land_pts, um1%sm_levels) :: sthu
-   
-   REAL, INTENT(IN), DIMENSION(um1%land_pts, um1%ntiles, um1%sm_levels) :: &
-      sthu_tile,     &
-      tsoil_tile
-
-   REAL, INTENT(IN), DIMENSION(um1%sm_levels) :: dzsoil
-
-   !___defs 1st call to CABLE in this run
-   LOGICAL, SAVE :: first_call= .TRUE.
-   INTEGER :: i,j,k,L,n
-   REAL, ALLOCATABLE :: tempvar(:), tempvar2(:)
-   LOGICAL, PARAMETER :: skip =.TRUE. 
-   REAL, DIMENSION(mstype) :: dummy 
-
-      dummy=0. 
-
-      IF( first_call ) THEN 
-
-         ssnow%pudsto = 0.0; ssnow%pudsmx = 0.0
-      
-         !--- soil%isoilm defines soiltype. 
-         ! currently is either 2 (arbitrarily) or 9.
-         ! type 9 -> permanent ice points which are dealt with by CABLE. 
-         ! Spatially explicit soil properties are used by 
-         ! the UM anyway, and is only really an issue for soil%css & 
-         ! soil%rhosoil, which are set to either 2 or 9. 
-         ! dealing with this in CASACNP is another issue.
-         !--- %isoilm=10 for Lakes
-         soil%isoilm  =  2
-            
-         ! set soil type for permanent ice based on where permanent ice 
-         ! located in vegetation map (in v1.8 set by soil albedo value)
-         ! hard-wired numbers to be removed in future release
-         WHERE( veg%iveg == 17 ) soil%isoilm = 9
-           
-         !--- set CABLE-var soil%albsoil from UM var albsoil
-         ! (see below ~ um2cable_lp)
-         CALL um2cable_lp( albsoil, dummy, soil%albsoil(:,1),                &
-                           soil%isoilm, skip )
-
-         !--- defined in soil_thick.h in UM
-         soil%zse = dzsoil
-         
-         ! distance between consecutive layer midpoints
-         soil%zshh(1)=0.5*soil%zse(1) 
-         soil%zshh(ms+1)=0.5*soil%zse(ms)
-         soil%zshh(2:ms) = 0.5 * (soil%zse(1:ms-1) + soil%zse(2:ms))
-
-
-
-         !-------------------------------------------------------------------
-         !--- UM met forcing vars needed by CABLE which have UM dimensions
-         !---(land_pts,ntiles)[_lp], which is no good to cable. These have to be 
-         !--- re-packed in a single vector of active tiles. Hence we use 
-         !--- conditional "mask" l_tile_pts(land_pts,ntiles) which is .true.
-         !--- if the land point is/has an active tile. generic format:
-         !---     um2cable_lp( UM var, 
-         !---                 default value for snow tile  where 
-         !---                 peranent ice point to be treatedas a snowtile, 
-         !---                 CABLE var, 
-         !---                 mask )
-         !--- where mask tells um2cable_lp whether or not to use default value 
-         !--- for snow tile 
-         !-------------------------------------------------------------------
-         
-         ! parameter b in Campbell equation 
-         CALL um2cable_lp( BEXP, soilin%bch, soil%bch, soil%isoilm)
-         
-         ALLOCATE( tempvar(mstype), tempvar2(mp) )
-         tempvar = soilin%sand(9) * 0.3  + soilin%clay(9) *0.25 +              &
-                   soilin%silt(9) * 0.265
-         
-         CALL um2cable_lp( HCON, tempvar, tempvar2, soil%isoilm)
-         soil%cnsd = REAL( tempvar2, r_2 )
-         DEALLOCATE( tempvar, tempvar2 )
-         
-         ! hydraulic conductivity @saturation (satcon[mm/s], soilin%hyds[m/s] )
-         CALL um2cable_lp( satcon,soilin%hyds*1000.0, soil%hyds, soil%isoilm)
-
-         CALL um2cable_lp( sathh, soilin%sucs, soil%sucs, soil%isoilm)
-         CALL um2cable_lp( smvcst, soilin%ssat, soil%ssat, soil%isoilm)
-         CALL um2cable_lp( smvcwt, soilin%swilt, soil%swilt, soil%isoilm)
-         CALL um2cable_lp( smvccl, soilin%sfc, soil%sfc, soil%isoilm)
-   
-    
-            
-         !--- (re)set values for CABLE
-         soil%ibp2    =  NINT(soil%bch)+2
-         soil%i2bp3   =  2*NINT(soil%bch)+3
-         
-         ! satcon in UM is in mm/s; Cable needs m/s
-         soil%hyds    =  soil%hyds / 1000.
-         soil%sucs    =  ABS( soil%sucs )
-         soil%sucs    =  MAX(0.106,soil%sucs)
-         
-         !jhan:coupled runs 
-         soil%hsbh    =  soil%hyds*ABS(soil%sucs)*soil%bch
-         soil%ssat    =  MAX( soil%ssat, soil%sfc + 0.01 )
-
-         WHERE(soil%ssat > 0. )                                                &
-            soil%pwb_min =  (soil%swilt / soil%ssat )**soil%ibp2
-           
-         !--- these are temporary 
-         soil%rhosoil =  soilin%rhosoil(soil%isoilm)
-         soil%css     =  soilin%css(soil%isoilm)
-
-         !--- Lestevens 28 Sept 2012 - Fix Init for soil% textures 
-         !--- needed for CASA-CNP
-         soil%clay = soilin%clay(soil%isoilm)
-         soil%silt = soilin%silt(soil%isoilm)
-         soil%sand = soilin%sand(soil%isoilm)
-         
-            
-         first_call= .FALSE.
-      ENDIF
-
-   END SUBROUTINE initialize_soil
- 
-!========================================================================
-!========================================================================
-!========================================================================
-          
 SUBROUTINE initialize_veg( clobbered_htveg, land_pts, npft, ntiles, ms, mp,      &
                            canht_ft, lai_ft, soil_zse, veg,                  &
                     tile_pts, tile_index, tile_frac, L_tile_pts,                 &
@@ -338,6 +194,8 @@ REAL :: soil_zse(ms)
 
 CALL init_veg_from_vegin(1, mp, veg, soil_zse) 
 
+!rml 20/11/24 needed for fwsoil_switch=Haverd2013
+veg%gamma = 3.e-2
 
 RETURN
 
@@ -345,9 +203,9 @@ END SUBROUTINE init_veg_pars_fr_vegin
 
 SUBROUTINE init_veg_from_vegin(ifmp,fmp, veg, soil_zse ) 
 
-USE cable_def_types_mod, ONLY: veg_parameter_type, ms, mp 
-USE cable_params_mod,    ONLY: vegin
-USE cable_common_module, ONLY: cable_user
+USE cable_def_types_mod,  ONLY: veg_parameter_type, ms, mp 
+USE cable_pft_params_mod, ONLY: vegin
+USE cable_common_module,  ONLY: cable_user
 
      integer ::  ifmp,  & ! start local mp, # landpoints (jhan:when is this not 1 )      
                  fmp     ! local mp, # landpoints       
@@ -359,62 +217,64 @@ USE cable_common_module, ONLY: cable_user
     REAL :: totdepth
      integer :: k,h
      
-      !! Prescribe parameters for current gridcell based on veg/soil type (which
-      !! may have loaded from default value file or met file):
-      DO h = 1, mp          ! over each patch in current grid
-         veg%canst1(h)   = vegin%canst1(veg%iveg(h))
-         veg%ejmax(h)    = vegin%ejmax(veg%iveg(h))
-         veg%ejmax(h)   = 2.*vegin%vcmax(veg%iveg(h))
-         veg%frac4(h)    = vegin%frac4(veg%iveg(h))
-         veg%tminvj(h)   = vegin%tminvj(veg%iveg(h))
-         veg%tmaxvj(h)   = vegin%tmaxvj(veg%iveg(h))
-            veg%vbeta(h)    = vegin%vbeta(veg%iveg(h))
-            veg%rp20(h)     = vegin%rp20(veg%iveg(h))
-            veg%rpcoef(h)   = vegin%rpcoef(veg%iveg(h))
-            veg%shelrb(h)   = vegin%shelrb(veg%iveg(h))
-            veg%vegcf(h)    = vegin%vegcf(veg%iveg(h))
-            veg%extkn(h)    = vegin%extkn(veg%iveg(h))
-         veg%vcmax(h)    = vegin%vcmax(veg%iveg(h))
-         veg%xfang(h)    = vegin%xfang(veg%iveg(h))
-         veg%dleaf(h)    = vegin%dleaf(veg%iveg(h))
-         veg%xalbnir(h)  = vegin%xalbnir(veg%iveg(h))
-         veg%rs20(h)     = vegin%rs20(veg%iveg(h))
-         
-         veg%taul(h,1)    = vegin%taul(1,veg%iveg(h))
-         veg%taul(h,2)    = vegin%taul(2,veg%iveg(h))
-         veg%refl(h,1)    = vegin%refl(1,veg%iveg(h))
-         veg%refl(h,2)    = vegin%refl(2,veg%iveg(h))
-            
-!veg%hc(h)       = vegin%hc(veg%iveg(h))
+!! Prescribe parameters for current gridcell based on veg/soil type (which
+!! may have loaded from default value file or met file):
+DO h = 1, mp          ! over each patch in current grid
 
-veg%wai(h)      = vegin%wai(veg%iveg(h))
-veg%a1gs(h)     = vegin%a1gs(veg%iveg(h))
-veg%d0gs(h)     = vegin%d0gs(veg%iveg(h))
-veg%g0(h)       = vegin%g0(veg%iveg(h)) ! Ticket #56
-veg%g1(h)       = vegin%g1(veg%iveg(h)) ! Ticket #56
-veg%alpha(h)  = vegin%alpha(veg%iveg(h))
-veg%convex(h) = vegin%convex(veg%iveg(h))
-veg%cfrd(h)   = vegin%cfrd(veg%iveg(h))
-veg%gswmin(h) = vegin%gswmin(veg%iveg(h))
-veg%conkc0(h) = vegin%conkc0(veg%iveg(h))
-veg%conko0(h) = vegin%conko0(veg%iveg(h))
-veg%ekc(h)    = vegin%ekc(veg%iveg(h))
-veg%eko(h)    = vegin%eko(veg%iveg(h))
-veg%rootbeta(h)  = vegin%rootbeta(veg%iveg(h))
-veg%zr(h)       = vegin%zr(veg%iveg(h))
-veg%clitt(h)    = vegin%clitt(veg%iveg(h))
-         END DO ! over each veg patch in land point
+  veg%canst1(h)   = vegin%canst1(veg%iveg(h))
+  veg%ejmax(h)    = 2.* vegin%vcmax(veg%iveg(h)) ! instead of read vegin%ejmax!?
+  veg%frac4(h)    = vegin%frac4(veg%iveg(h))
+  veg%tminvj(h)   = vegin%tminvj(veg%iveg(h))
+  veg%tmaxvj(h)   = vegin%tmaxvj(veg%iveg(h))
+  veg%vbeta(h)    = vegin%vbeta(veg%iveg(h))
+  veg%rp20(h)     = vegin%rp20(veg%iveg(h))
+  veg%rpcoef(h)   = vegin%rpcoef(veg%iveg(h))
+  veg%shelrb(h)   = vegin%shelrb(veg%iveg(h))
+  veg%vegcf(h)    = vegin%vegcf(veg%iveg(h))
+  veg%extkn(h)    = vegin%extkn(veg%iveg(h))
+  veg%vcmax(h)    = vegin%vcmax(veg%iveg(h))
+  veg%xfang(h)    = vegin%xfang(veg%iveg(h))
+  veg%dleaf(h)    = vegin%dleaf(veg%iveg(h))
+  veg%xalbnir(h)  = vegin%xalbnir(veg%iveg(h))
+  veg%rs20(h)     = vegin%rs20(veg%iveg(h))
+  veg%wai(h)      = vegin%wai(veg%iveg(h))
+  veg%a1gs(h)     = vegin%a1gs(veg%iveg(h))
+  veg%d0gs(h)     = vegin%d0gs(veg%iveg(h))
+  veg%g0(h)       = vegin%g0(veg%iveg(h))         ! Ticket #56
+  veg%g1(h)       = vegin%g1(veg%iveg(h))         ! Ticket #56
+  veg%alpha(h)    = vegin%alpha(veg%iveg(h))
+  veg%convex(h)   = vegin%convex(veg%iveg(h))
+  veg%cfrd(h)     = vegin%cfrd(veg%iveg(h))
+  veg%gswmin(h)   = vegin%gswmin(veg%iveg(h))
+  veg%conkc0(h)   = vegin%conkc0(veg%iveg(h))
+  veg%conko0(h)   = vegin%conko0(veg%iveg(h))
+  veg%ekc(h)      = vegin%ekc(veg%iveg(h))
+  veg%eko(h)      = vegin%eko(veg%iveg(h))
+  veg%rootbeta(h) = vegin%rootbeta(veg%iveg(h))
+  veg%zr(h)       = vegin%zr(veg%iveg(h))
+  veg%clitt(h)    = vegin%clitt(veg%iveg(h))
+  !veg%hc(h)       = vegin%hc(veg%iveg(h))
+  veg%taul(h,1)   = vegin%taul1(veg%iveg(h))
+  veg%taul(h,2)   = vegin%taul2(veg%iveg(h))
+  veg%refl(h,1)   = vegin%refl1(veg%iveg(h))
+  veg%refl(h,2)   = vegin%refl2(veg%iveg(h))
+            
+ 
+END DO ! over each veg patch in land point
  
 IF (cable_user%access13roots) THEN
 
-  ! prescribed values from vegin%froot so can be set to ESM1.5 values
-  ! which were the same for all pfts (0.05, 0.2, 0.2, 0.2, 0.2, 0.15)
-  ! or alternate prescribed root fractions could be used with pft dependence
-  DO is = 1, ms
-    DO h=1, mp
-      veg%froot(h,is) = vegin%froot(is,veg%iveg(h))
-    ENDDO
-  ENDDO
+  DO h = 1, mp          ! over each patch in current grid
+    ! prescribed values from vegin%froot so can be set to ESM1.5 values
+    ! which were the same for all pfts (0.05, 0.2, 0.2, 0.2, 0.2, 0.15)
+    ! or alternate prescribed root fractions could be used with pft dependence
+    veg%froot(h,1) = vegin%froot1(veg%iveg(h))
+    veg%froot(h,2) = vegin%froot2(veg%iveg(h))
+    veg%froot(h,3) = vegin%froot3(veg%iveg(h))
+    veg%froot(h,4) = vegin%froot4(veg%iveg(h))
+    veg%froot(h,5) = vegin%froot5(veg%iveg(h))
+    veg%froot(h,6) = vegin%froot6(veg%iveg(h))
+  END DO ! over each veg patch in land point
 
 ELSE
 
@@ -631,222 +491,20 @@ SUBROUTINE initialize_canopy(canopy_tile)
          canopy%us = 0.01
          canopy%fes_cor = 0.
          canopy%fhs_cor = 0.
+         ! rml 20/11/2024 may be needed to use fwsoil_switch=Haverd2013
+         canopy%fwsoil = 1.
          first_call = .FALSE.
       ENDIF
          
      !---set canopy storage (already in dim(land_pts,ntiles) ) 
      canopy%cansto = pack(CANOPY_TILE, um1%l_tile_pts)
-     canopy%oldcansto=canopy%cansto
 
 END SUBROUTINE initialize_canopy
 
 !========================================================================
 !========================================================================
 !========================================================================
- 
-SUBROUTINE initialize_soilsnow( smvcst, tsoil_tile, sthf_tile, smcl_tile,      &
-                                snow_tile, snow_rho1l, snage_tile, isnow_flg3l,&
-                                snow_rho3l, snow_cond, snow_depth3l,           &
-                                snow_mass3l, snow_tmp3l, fland,                &
-                                sin_theta_latitude ) 
 
-   USE cable_def_types_mod,  ONLY : mp, msn
-   USE cable_um_tech_mod,   ONLY : um1, soil, ssnow, met, bal, veg
-   USE cable_common_module, ONLY : cable_runtime, cable_user
-   
-   REAL, INTENT(IN), DIMENSION(um1%land_pts) :: smvcst
-   
-   REAL, INTENT(IN), DIMENSION(um1%land_pts, um1%ntiles, um1%sm_levels) ::    &
-      sthf_tile, &   !
-      smcl_tile, &   !
-      tsoil_tile     !
-
-   INTEGER, INTENT(IN), DIMENSION(um1%land_pts, um1%ntiles) :: isnow_flg3l 
-
-   REAL, INTENT(INOUT), DIMENSION(um1%land_pts, um1%ntiles) :: snow_tile
-
-   REAL, INTENT(IN), DIMENSION(um1%land_pts, um1%ntiles) ::                    &
-      snow_rho1l, &  !
-      snage_tile     !
-
-   REAL, INTENT(INOUT), DIMENSION(um1%land_pts, um1%ntiles,3) :: snow_cond
-
-   REAL, INTENT(IN), DIMENSION(um1%land_pts, um1%ntiles,3) ::                  & 
-      snow_rho3l,    & !
-      snow_depth3l,  & !
-      snow_mass3l,   & !
-      snow_tmp3l       !
-   
-   REAL, INTENT(IN), DIMENSION(um1%land_pts) :: fland 
-   
-   REAL, INTENT(IN), DIMENSION(um1%row_length, um1%rows) :: sin_theta_latitude
-   
-   INTEGER :: i,j,k,L,n
-   REAL  :: zsetot, max_snow_depth=50000.
-   REAL, ALLOCATABLE:: fwork(:,:,:), sfact(:), fvar(:), rtemp(:)
-   LOGICAL :: skip =.TRUE. 
-   LOGICAL :: first_call = .TRUE.
-
-!     not sure if this is in restart file hence repeated again
-      ssnow%pudsto = 0.0; ssnow%pudsmx = 0.0
-      ssnow%wbtot1 = 0
-      ssnow%wbtot2 = 0
-      ssnow%wb_lake = 0.
-
-      snow_tile = MIN(max_snow_depth, snow_tile)
-
-      ssnow%snowd  = PACK(SNOW_TILE,um1%l_tile_pts)
-      ssnow%ssdnn  = PACK(SNOW_RHO1L,um1%l_tile_pts)  
-      ssnow%isflag = PACK(ISNOW_FLG3L,um1%l_tile_pts)  
-      
-      DO J=1, msn
-         
-         ssnow%sdepth(:,J)= PACK(SNOW_DEPTH3L(:,:,J),um1%l_tile_pts)
-         ssnow%smass(:,J) = PACK(SNOW_MASS3L(:,:,J),um1%l_tile_pts)  
-         ssnow%ssdn(:,J)  = PACK(SNOW_RHO3L(:,:,J),um1%l_tile_pts)  
-         ssnow%tggsn(:,J) = PACK(SNOW_TMP3L(:,:,J),um1%l_tile_pts)  
-         ssnow%sconds(:,J)= PACK(SNOW_COND(:,:,J),um1%l_tile_pts)  
-         
-         !WHERE( veg%iveg == 16 .and. ssnow%wb(:,J) < soil%sfc ) ! lakes: remove hard-wired number in future version
-         !   ssnow%wbtot1 = ssnow%wbtot1 + REAL( ssnow%wb(:,J) ) * 1000.0 *     &
-         !                  soil%zse(J)
-         !   ssnow%wb(:,J) = soil%sfc
-         !   ssnow%wbtot2 = ssnow%wbtot2 + REAL( ssnow%wb(:,J) ) * 1000.0 *     &
-         !                  soil%zse(J)
-         !ENDWHERE
-      
-      ENDDO 
-      !ssnow%wb_lake = MAX( ssnow%wbtot2 - ssnow%wbtot1, 0.)
-       
-      DO J=1,um1%sm_levels
-         ssnow%tgg(:,J) = PACK(TSOIL_TILE(:,:,J),um1%l_tile_pts)
-      ENDDO 
-      
-      ssnow%snage = PACK(SNAGE_TILE, um1%l_tile_pts)
-
-      IF( first_call) THEN 
-        
-         ssnow%wbtot = 0.
-         ssnow%wb_lake = 0.0
-         ssnow%tggav = 0.
-         ssnow%rtsoil = 50.
-         ssnow%t_snwlr = 0.05
-
-         ! snow depth from prev timestep 
-         ssnow%osnowd  = PACK(SNOW_TILE,um1%l_tile_pts)  
-
-         zsetot = sum(soil%zse)
-         DO k = 1, um1%sm_levels
-            ssnow%tggav = ssnow%tggav  + soil%zse(k)*ssnow%tgg(:,k)/zsetot
-         END DO
-     
-         ! not updated 
-         ALLOCATE( sfact( mp ) )
-         sfact = 0.68
-         WHERE (soil%albsoil(:,1) <= 0.14) 
-            sfact = 0.5
-         ELSEWHERE (soil%albsoil(:,1) > 0.14 .and. soil%albsoil(:,1) <= 0.20)
-           sfact = 0.62
-         END WHERE
-         ssnow%albsoilsn(:,2) = 2. * soil%albsoil(:,1) / (1. + sfact)
-         ssnow%albsoilsn(:,1) = sfact * ssnow%albsoilsn(:,2)
-         DEALLOCATE( sfact )
-
-         ALLOCATE( fvar(um1%land_pts ) )
-         DO N=1,um1%NTILES
-            DO K=1,um1%TILE_PTS(N)
-               L = um1%TILE_INDEX(K,N)
-               fvar(L) = real(L)
-            ENDDO
-         ENDDO
-         CALL um2cable_lp( fland, fland, ssnow%fland, soil%isoilm, skip )
-         CALL um2cable_lp( fvar, fvar, ssnow%ifland, soil%isoilm, skip )
-         DEALLOCATE( fvar )
-         
-         !--- updated via smcl,sthf etc 
-         ALLOCATE( fwork(um1%land_pts,um1%ntiles,2*um1%sm_levels) )
-         DO N=1,um1%NTILES                                                   
-           DO K=1,um1%TILE_PTS(N)                                           
-           I = um1%TILE_INDEX(K,N)                                      
-             DO J = 1,um1%SM_LEVELS
-               fwork(I,N,J) = SMCL_TILE(I,N,J)/soil%zse(j) / um1%RHO_WATER
-               fwork(I,N,J+um1%SM_LEVELS) = STHF_TILE(I,N,J)*SMVCST(I)
-             ENDDO ! J
-           ENDDO
-         ENDDO
-   
-         DO J = 1,um1%SM_LEVELS
-            ssnow%wb(:,J)  = pack(fwork(:,:,J),um1%l_tile_pts)
-            ssnow%wbice(:,J) = pack(fwork(:,:,J+um1%SM_LEVELS),um1%l_tile_pts)
-            ssnow%wbice(:,J) = max(0.,ssnow%wbice(:,J))
-            ! lakes: removed hard-wired number in future version
-            !WHERE( veg%iveg == 16 ) ssnow%wb(:,J) = 0.95*soil%ssat
-            !WHERE( veg%iveg == 16 ) ssnow%wb(:,J) = soil%sfc
-         ENDDO
-         
-         DEALLOCATE( fwork )
-         
-         ssnow%owetfac = MAX( 0., MIN( 1.0,                                    &
-                         ( ssnow%wb(:,1) - soil%swilt ) /                      &
-                         ( soil%sfc - soil%swilt) ) )
-
-         ! Temporay fix for accounting for reduction of soil evaporation 
-         ! due to freezing
-         WHERE( ssnow%wbice(:,1) > 0. )                                        &
-            ! Prevents divide by zero at glaciated points where both 
-            ! wb and wbice=0.
-            ssnow%owetfac = ssnow%owetfac * ( 1.0 - ssnow%wbice(:,1) /         &
-                            ssnow%wb(:,1) )**2
-      
-         !jhan: do we want to do this before %owetfac is set 
-         DO J = 1, um1%sm_levels
-            WHERE( soil%isoilm == 9 ) ! permanent ice: remove hard-wired no. in future
-               ssnow%wb(:,J) = 0.95*soil%ssat
-               ssnow%wbice(:,J) = 0.8*soil%ssat
-            ENDWHERE
-            ssnow%wbtot  = ssnow%wbtot + ssnow%wb(:,j) * soil%zse(j) * 1000.0
-         ENDDO
-     
-         bal%wbtot0 = ssnow%wbtot
-
-         !---set antartic flag using  sin_theta_latitude(row_length,rows)
-         ALLOCATE( fwork(1,um1%land_pts,um1%ntiles) )
-         DO N=1,um1%NTILES                     
-            DO K=1,um1%TILE_PTS(N)
-               L = um1%TILE_INDEX(K,N)
-               J=(um1%LAND_INDEX(L)-1)/um1%row_length + 1
-               I = um1%LAND_INDEX(L) - (J-1)*um1%row_length
-               IF( sin_theta_latitude(I,J) .LT. -0.91 ) fwork(1,L,N) = 1.0
-            ENDDO
-         ENDDO
-         ssnow%iantrct = pack(fwork(1,:,:),um1%L_TILE_PTS)
-        
-         DEALLOCATE( fwork )
-
-         first_call = .FALSE.
-
-      ENDIF ! END: if (first_call)       
-
-!     DO J=1, msn
-      DO J=1, 1
-
-         WHERE( veg%iveg == 16 .and. ssnow%wb(:,J) < soil%sfc ) ! lakes: remove hard-wired number in future version
-            ssnow%wbtot1 = ssnow%wbtot1 + REAL( ssnow%wb(:,J) ) * 1000.0 *     &
-                           soil%zse(J)
-            ssnow%wb(:,J) = soil%sfc
-            ssnow%wbtot2 = ssnow%wbtot2 + REAL( ssnow%wb(:,J) ) * 1000.0 *     &
-                           soil%zse(J)
-         ENDWHERE
-
-      ENDDO
-      ssnow%wb_lake = MAX( ssnow%wbtot2 - ssnow%wbtot1, 0.)
-
-END SUBROUTINE initialize_soilsnow
- 
-!========================================================================
-!========================================================================
-!========================================================================
-          
 SUBROUTINE initialize_roughness( z1_tq, z1_uv, htveg )  
    USE cable_um_tech_mod,   ONLY : um1, rough, veg
    USE cable_common_module, ONLY : ktau_gl
@@ -1053,22 +711,34 @@ END SUBROUTINE um2cable_lp
 !========================================================================
 
 SUBROUTINE init_bgc_vars() 
-   USE cable_def_types_mod, ONLY : ncs, ncp 
-   USE cable_um_tech_mod,   ONLY : bgc, veg   
-   USE cable_params_mod, ONLY : vegin
+  
+USE cable_def_types_mod,  ONLY: ncs, ncp, mp  
+USE cable_um_tech_mod,    ONLY: bgc, veg   
+USE cable_pft_params_mod, ONLY: vegin
+
+IMPLICIT NONE
    
-   INTEGER :: k
+INTEGER :: h
 
-   ! note that ratecp and ratecs are the same for all veg at the moment. (BP)
-    DO k=1,ncp
-       bgc%cplant(:,k) = vegin%cplant(k,veg%iveg)
-       bgc%ratecp(k) = vegin%ratecp(k,1)
-    ENDDO
-    DO k=1,ncs
-      bgc%csoil(:,k) = vegin%csoil(k,veg%iveg)
-      bgc%ratecs(k) = vegin%ratecs(k,1)
-    ENDDO
+DO h=1,mp
+  bgc%cplant(h,1) = vegin%cplant1( veg%iveg(h) )
+  bgc%cplant(h,2) = vegin%cplant2( veg%iveg(h) )
+  bgc%cplant(h,3) = vegin%cplant3( veg%iveg(h) )
 
+  bgc%csoil(h,1)  = vegin%csoil1( veg%iveg(h) )
+  bgc%csoil(h,2)  = vegin%csoil2( veg%iveg(h) )
+END DO 
+
+! jhan: previous implementation was very mixed up version of what is already a 
+! shortcut intended to assume ratecp, ratecs are the same for all PFTs 
+bgc%ratecp(1)   = vegin%ratecp1(1)
+bgc%ratecp(2)   = vegin%ratecp2(1)
+bgc%ratecp(3)   = vegin%ratecp3(1)
+
+bgc%ratecs(1)   = vegin%ratecs1(1)
+bgc%ratecs(2)   = vegin%ratecs2(1)
+   
+RETURN
 END SUBROUTINE init_bgc_vars
 
 !========================================================================

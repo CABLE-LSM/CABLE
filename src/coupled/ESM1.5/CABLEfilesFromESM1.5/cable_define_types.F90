@@ -30,12 +30,12 @@
 
 MODULE cable_def_types_mod
 
+USE grid_constants_mod_cbl,   ONLY: ntype_max, nsoil_max  
 USE cable_canopy_type_mod,    ONLY: canopy_type
 USE cable_soil_snow_type_mod, ONLY: soil_snow_type
 USE cable_climate_type_mod,   ONLY: climate_type
-
-USE cable_params_mod,         ONLY: soil_parameter_type
-USE cable_params_mod,         ONLY: veg_parameter_type
+USE cable_soil_type_mod,      ONLY: soil_parameter_type
+USE cable_veg_type_mod,       ONLY: veg_parameter_type
 USE cable_other_constants_mod, ONLY: r_2
 
 !cbl3!USE cable_types_mod!!,          ONLY: mp, l_tile_pts
@@ -46,65 +46,64 @@ USE cable_other_constants_mod, ONLY: r_2
 !cbl3!USE cable_radiation_type_mod, ONLY: radiation_type
 !cbl3!USE cable_roughness_type_mod, ONLY: roughness_type
 !cbl3!USE cable_sum_flux_type_mod,  ONLY: sum_flux_type
-   IMPLICIT NONE
+IMPLICIT NONE
 
-   PUBLIC
+PUBLIC
    
-   !---CABLE default KINDs for representing INTEGER/REAL values   
-   !---at least 10-digit precision
+!---CABLE default KINDs for representing INTEGER/REAL values   
+!---at least 10-digit precision
    
-   INTEGER :: mp,    & ! # total no of patches/tiles 
-              mvtype,& ! total # vegetation types,   from input
-              mstype,& ! total # soil types,         from input
-              mland                           ! # land grid cells
+INTEGER :: mp,                 &     ! # total no of patches/tiles 
+  mvtype = ntype_max ,&     ! total # vegetation types
+  mstype = nsoil_max ,&     ! total # soil types
+  mland                     ! # land grid cells
    
-   INTEGER, PARAMETER ::                                                        &
-      n_tiles = 17,  & ! # possible no of different 
-      ncp = 3,       & ! # vegetation carbon stores
-      ncs = 2,       & ! # soil carbon stores
-      mf = 2,        & ! # leaves (sunlit, shaded)
-      nrb = 3,       & ! # radiation bands
-      msn = 3,       & ! max # snow layers
-      swb = 2,       & ! # shortwave bands 
-      niter = 4,     & ! number of iterations for za/L
-      ms = 6           ! # soil layers
-
+INTEGER, PARAMETER ::                                                        &
+  n_tiles = 17,  & ! # possible no of different 
+  ncp = 3,       & ! # vegetation carbon stores
+  ncs = 2,       & ! # soil carbon stores
+  mf = 2,        & ! # leaves (sunlit, shaded)
+  nrb = 3,       & ! # radiation bands
+  msn = 3,       & ! max # snow layers
+  swb = 2,       & ! # shortwave bands 
+  niter = 4,     & ! number of iterations for za/L
+  ms = 6           ! # soil layers
   
 ! .............................................................................
 
    ! Energy and water balance variables:
-   TYPE balances_type 
+TYPE balances_type 
 
-      REAL, DIMENSION(:), POINTER ::                                           &
-         drybal,           & ! energy balance for dry canopy
-         ebal,             & ! energy balance per time step (W/m^2)
-         ebal_tot,         & ! cumulative energy balance (W/m^2)
-         ebal_cncheck,     & ! energy balance consistency check (W/m^2)
-         ebal_tot_cncheck, & ! cumulative energy balance (W/m^2)
-         ebaltr,           & ! energy balance per time step (W/m^2)
-         ebal_tottr,       & ! cumulative energy balance (W/m^2)
-         evap_tot,         & ! cumulative evapotranspiration (mm/dels)
-         osnowd0,          & ! snow depth, first time step
-         precip_tot,       & ! cumulative precipitation (mm/dels)
-         rnoff_tot,        & ! cumulative runoff (mm/dels)
-         wbal,             & ! water balance per time step (mm/dels)
-         wbal_tot,         & ! cumulative water balance (mm/dels)
-         wbtot0,           & ! total soil water (mm), first time step
-         wetbal,           & ! energy balance for wet canopy
-         cansto0,          & ! canopy water storage (mm)
-         owbtot,           & ! total soil water (mm), first time step
-         evapc_tot,        & ! cumulative evapotranspiration (mm/dels)
-         evaps_tot,        & ! cumulative evapotranspiration (mm/dels)
-         rnof1_tot,        & ! cumulative runoff (mm/dels)
-         rnof2_tot,        & ! cumulative runoff (mm/dels)
-         snowdc_tot,       & ! cumulative runoff (mm/dels)
-         wbal_tot1,        & ! cumulative water balance (mm/dels)
-         delwc_tot,        & ! energy balance for wet canopy
-         qasrf_tot,        & ! heat advected to the snow by precip. 
-         qfsrf_tot,        & ! energy of snowpack phase changes 
-         qssrf_tot           ! energy of snowpack phase changes 
+  REAL, DIMENSION(:), POINTER ::                                               &
+    drybal,           & ! energy balance for dry canopy
+    ebal,             & ! energy balance per time step (W/m^2)
+    ebal_tot,         & ! cumulative energy balance (W/m^2)
+    ebal_cncheck,     & ! energy balance consistency check (W/m^2)
+    ebal_tot_cncheck, & ! cumulative energy balance (W/m^2)
+    ebaltr,           & ! energy balance per time step (W/m^2)
+    ebal_tottr,       & ! cumulative energy balance (W/m^2)
+    evap_tot,         & ! cumulative evapotranspiration (mm/dels)
+    osnowd0,          & ! snow depth, first time step
+    precip_tot,       & ! cumulative precipitation (mm/dels)
+    rnoff_tot,        & ! cumulative runoff (mm/dels)
+    wbal,             & ! water balance per time step (mm/dels)
+    wbal_tot,         & ! cumulative water balance (mm/dels)
+    wbtot0,           & ! total soil water (mm), first time step
+    wetbal,           & ! energy balance for wet canopy
+    cansto0,          & ! canopy water storage (mm)
+    owbtot,           & ! total soil water (mm), first time step
+    evapc_tot,        & ! cumulative evapotranspiration (mm/dels)
+    evaps_tot,        & ! cumulative evapotranspiration (mm/dels)
+    rnof1_tot,        & ! cumulative runoff (mm/dels)
+    rnof2_tot,        & ! cumulative runoff (mm/dels)
+    snowdc_tot,       & ! cumulative runoff (mm/dels)
+    wbal_tot1,        & ! cumulative water balance (mm/dels)
+    delwc_tot,        & ! energy balance for wet canopy
+    qasrf_tot,        & ! heat advected to the snow by precip. 
+    qfsrf_tot,        & ! energy of snowpack phase changes 
+    qssrf_tot           ! energy of snowpack phase changes 
 
-   END TYPE balances_type
+END TYPE balances_type
 
 ! .............................................................................
 

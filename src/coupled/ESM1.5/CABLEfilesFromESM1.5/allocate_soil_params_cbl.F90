@@ -12,7 +12,7 @@ CONTAINS
 
 SUBROUTINE allocate_soil_parameter_type(var, mp)
 
-USE cable_params_mod,           ONLY: soil_parameter_type
+USE cable_soil_type_mod,        ONLY: soil_parameter_type
 USE cable_other_constants_mod,  ONLY: nrb
 
 !-----------------------------------------------------------------------------
