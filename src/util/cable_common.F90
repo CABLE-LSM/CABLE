@@ -26,6 +26,7 @@ MODULE cable_common_module
 USE cable_runtime_opts_mod ,ONLY : cable_user
 USE cable_runtime_opts_mod ,ONLY : satuparam
 USE cable_runtime_opts_mod ,ONLY : wiltparam
+USE cable_runtime_opts_mod ,ONLY : snmin
 
   IMPLICIT NONE
 
@@ -207,7 +208,8 @@ USE cable_runtime_opts_mod ,ONLY : wiltparam
        snow_ccnsw = 2.0, &
                                 !jh!an:clobber - effectively force single layer snow
                                 !snmin = 100.0,      & ! for 1-layer;
-       snmin = 1.,          & ! for 3-layer;
+       ! moved to runtime option, set through cable.nml
+       !snmin = 1.,          & ! for 3-layer;
        max_ssdn = 750.0,    & !
        max_sconds = 2.51,   & !
        frozen_limit = 0.85    ! EAK Feb2011 (could be 0.95)
