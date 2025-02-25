@@ -47,6 +47,8 @@ IMPLICIT NONE
 
              ssnow%tgg(i,1) = ssnow%tgg(i,1) + canopy%precis(i) * CHLF               &
                   / ( REAL( ssnow%gammzz(i,1) ) + Ccswat *canopy%precis(i) )
+             ssnow%dtmlt(i,1) = ssnow%dtmlt(i,1) + canopy%precis(i) * CHLF           &
+                  / ( REAL( ssnow%gammzz(i,1) ) + Ccswat *canopy%precis(i) )
              ! change density due to water being added
              ssnow%ssdn(i,1) = MIN( max_ssdn, MAX( 120.0, ssnow%ssdn(i,1)          &
                   * ssnow%osnowd(i) / MAX( 0.01, ssnow%snowd(i) ) + Cdensity_liq  &
@@ -86,6 +88,8 @@ IMPLICIT NONE
              osm(i) = ssnow%smass(i,1)
 
              ssnow%tggsn(i,1) = ssnow%tggsn(i,1) + canopy%precis(i) * CHLF           &
+                  * osm(i) / (sgamm(i) * ssnow%osnowd(i) )
+             ssnow%dtmlt(i,1) = ssnow%dtmlt(i,1) + canopy%precis(i) * CHLF           &
                   * osm(i) / (sgamm(i) * ssnow%osnowd(i) )
              ssnow%smass(i,1) = ssnow%smass(i,1) + canopy%precis(i)                   &
                   * osm(i)/ssnow%osnowd(i)
@@ -173,11 +177,8 @@ IMPLICIT NONE
              ssnow%sdepth(i,1) = MAX( 0.02, ssnow%smass(i,1) / ssnow%ssdn(i,1) )
           ENDIF
 
-          canopy%segg(i) = 0.0
-
-          !INH: cls package
-          !we still need to conserve moisture/energy when evapsn is limited
-          !this is a key point of moisture non-conservation
+          ! Use any remaining energy for evaporation of soil water
+          canopy%segg(i) =  (CHL + CHLF) * (xxx(i) - ssnow%evapsn(i)) / CHL / dels
 
        ENDIF
 
