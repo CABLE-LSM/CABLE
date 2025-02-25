@@ -109,11 +109,6 @@ CALL init_radiation( rad%extkb, rad%extkd,                                     &
                      canopy%vlaiw                                              &
                    ) !reducedLAIdue2snow 
 
-!Ticket 331 refactored albedo code for JAC
-!#539 - move snow aging. 
-!CALL snow_aging(ssnow%snage,mp,dels,ssnow%snowd,ssnow%osnowd,ssnow%tggsn(:,1), &
-!                ssnow%tgg(:,1),ssnow%isflag,veg%iveg,soil%isoilm) 
-
 !explicit ONLY
 CALL Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
              !AlbSnow, AlbSoil,              
@@ -304,7 +299,7 @@ CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate, su
 CALL soil_snow(dels, soil, ssnow, canopy, met, bal,veg)
 ssnow%deltss = ssnow%tss-ssnow%otss
 
-!#539 - move snow aging. 
+!Ticket 331 refactored albedo code for JAC, #539 - moved snow aging. 
 CALL snow_aging(ssnow%snage,mp,dels,ssnow%snowd,ssnow%osnowd,ssnow%tggsn(:,1), &
                 ssnow%tgg(:,1),ssnow%isflag,veg%iveg,soil%isoilm) 
 
