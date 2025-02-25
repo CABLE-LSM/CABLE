@@ -149,8 +149,9 @@ CALL init_radiation( rad%extkb, rad%extkd,                                     &
                    ) !reducedLAIdue2snow 
 
 !Ticket 331 refactored albedo code for JAC
-CALL snow_aging(ssnow%snage,mp,dels,ssnow%snowd,ssnow%osnowd,ssnow%tggsn(:,1),&
-         ssnow%tgg(:,1),ssnow%isflag,veg%iveg,soil%isoilm) 
+!# Issue 539 - moving to after soil_snow
+!CALL snow_aging(ssnow%snage,mp,dels,ssnow%snowd,ssnow%osnowd,ssnow%tggsn(:,1),&
+!         ssnow%tgg(:,1),ssnow%isflag,veg%iveg,soil%isoilm) 
 
 call Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
              !AlbSnow, AlbSoil,              
@@ -182,11 +183,17 @@ call Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
 ssnow%otss_0 = ssnow%otss  ! vh should be before call to canopy?
 ssnow%otss = ssnow%tss
 
+!Evaluate the energy balance - includes updating canopy water storage
 CALL define_canopy(bal,rad,rough,air,met,dels,ssnow,soil,veg, canopy,climate, sunlit_veg_mask,  canopy%vlaiw)
-    
+
+!update the various biophysics state variables
 ssnow%owetfac = ssnow%wetfac
 
 CALL soil_snow(dels, soil, ssnow, canopy, met, bal,veg)
+
+!#539 - move snow_aging now after soil_snow - uses this timestep snow amount
+CALL snow_aging(ssnow%snage,mp,dels,ssnow%snowd,ssnow%osnowd,ssnow%tggsn(:,1),&
+         ssnow%tgg(:,1),ssnow%isflag,veg%iveg,soil%isoilm) 
 
 ssnow%deltss = ssnow%tss-ssnow%otss
 
