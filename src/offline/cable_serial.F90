@@ -493,7 +493,8 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
                          YYYY.EQ.CABLE_USER%YearEnd)
                  ENDIF
               ELSE
-                 IF (TRIM(cable_user%MetType) .EQ. 'site') &
+                 IF (TRIM(cable_user%MetType) .EQ. 'site' .OR.&
+                   TRIM(cable_user%MetType) == 'gswp') &
                       CALL get_met_data( spinup, spinConv, met, soil,            &
                       rad, veg, kend, dels, CTFRZ, ktau+koffset_met,             &
                       kstart+koffset_met )
@@ -530,6 +531,7 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
                  ENDIF
               ENDIF
               met%ofsd = met%fsd(:,1) + met%fsd(:,2)
+
               canopy%oldcansto=canopy%cansto
               ! Zero out lai where there is no vegetation acc. to veg. index
               WHERE ( veg%iveg(:) .GE. 14 ) veg%vlai = 0.
@@ -667,7 +669,6 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
 
               ENDIF
 
-
               IF ( .NOT. CASAONLY ) THEN
                  ! sumcflux is pulled out of subroutine cbm
                  ! so that casaCNP can be called before adding the fluxes
@@ -699,10 +700,8 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
                  ENDIF
               ENDIF
 
-
               ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
               IF(cable_user%consistency_check) THEN
-
                  count_bal = count_bal +1;
                  new_sumbal = new_sumbal + SUM(bal%wbal)/mp +  SUM(bal%ebal)/mp
                  new_sumfpn = new_sumfpn + SUM(canopy%fpn)/mp
