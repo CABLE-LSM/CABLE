@@ -2,8 +2,11 @@ MODULE cable_runtime_opts_mod
 
 IMPLICIT NONE
 
-  ! hydraulic_redistribution parameters _soilsnow module
-REAL :: wiltParam = 0.0, satuParam = 0.0
+! hydraulic_redistribution parameters _soilsnow module
+REAL :: wiltParam = 0.0
+REAL :: satuParam = 0.0
+! depth at which to switch to 3 layer snow, default is ESM1.5 value
+REAL :: snmin = 1.0
 
 ! user switches turned on/off by the user thru namelists
 ! CABLE-2.0 user switches all in single namelist file cable.nml
