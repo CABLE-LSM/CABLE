@@ -70,9 +70,9 @@ module CABLE_METUTILS_MODULE
                           /)
 
     ! Rain variable
-    CHARACTER(LEN=8),DIMENSION(5) :: RainNames=(/                            &
+    CHARACTER(LEN=8),DIMENSION(6) :: RainNames=(/                            &
                           'prcp    ', 'pr      ', 'RAIN    ', 'Rainf   ',       &
-                          'Precip  '                                            &
+                          'Precip  ', 'Rainf'                                   &
                           /)
 
     ! Downward longwave radiation variable

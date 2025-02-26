@@ -462,6 +462,7 @@ CONTAINS
        ok = NF90_OPEN(globalMetfile%wind,0,ncid_wd)
        ELSE
          ok = NF90_OPEN(gswpfile%wind,0,ncid_wd)
+
        ENDIF
        IF (ok /= NF90_NOERR) THEN
           PRINT*,'wind',ncid_wd
@@ -477,6 +478,10 @@ CONTAINS
        ELSE
           ncid_mask = ncid_rain
        END IF
+      ok = NF90_OPEN(gswpfile%mask,0,ncid_mask)
+      IF (ok .NE. NF90_NOERR) THEN
+         CALL nc_abort(ok, "Error opening GSWP3 mask file")
+      END IF
        ncid_met = ncid_rain
     ELSE
        WRITE(logn,*) 'Opening met data file: ', TRIM(filename%met)
@@ -658,7 +663,7 @@ CONTAINS
             (ok,'Error reading "mask" variable in ' &
             //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
        !gswp3 uses 1 for sea and 0 for land, make is opposite
-       IF (cable_user%gswp3) mask = 1-mask
+       IF (cable_user%gswp3 .AND. .NOT. cable_user%as_ACCESS) mask = 1-mask
 
        ! Allocate space for extracting land lat/lon values:
        ALLOCATE(lat_temp(ngridcells),lon_temp(ngridcells))
@@ -757,7 +762,7 @@ CONTAINS
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error reading time variable in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
-    IF (cable_user%gswp3) THEN         !Hack the GSWP3 time units to make from start of year
+    IF (cable_user%gswp3 .AND. .NOT. cable_user%as_ACCESS) THEN         !Hack the GSWP3 time units to make from start of year
        timevar(:) = (timevar(:)-timevar(1))*3600.0 + 1.5*3600.0  !convert hours to seconds
     END IF
     ! Set time step size:
@@ -790,7 +795,7 @@ CONTAINS
     WRITE(logn,'(1X,A17,F8.1,1X,A7)') 'Time step size:  ', dels, 'seconds'
     ! Get units for 'time' variable:
     ok = NF90_GET_ATT(ncid_met,timevarID,'units',timeunits)
-    IF (.NOT.cable_user%GSWP3) THEN
+    IF (.NOT.cable_user%GSWP3 .OR. cable_user%as_ACCESS) THEN
        ok = NF90_GET_ATT(ncid_met,timevarID,'units',timeunits)
        IF(ok /= NF90_NOERR) CALL nc_abort &
             (ok,'Error finding time variable units in met data file ' &
@@ -847,7 +852,7 @@ CONTAINS
     ! Use internal files to convert "time" variable units (giving the run's
     ! start time) from character to integer; calculate starting hour-of-day,
     ! day-of-year, year:
-    IF (.NOT.cable_user%GSWP3) THEN
+    IF (.NOT.cable_user%GSWP3 .OR. cable_user%as_ACCESS) THEN
        READ(timeunits(15:18),*) syear
        READ(timeunits(20:21),*) smoy ! integer month
        READ(timeunits(23:24),*) sdoytmp ! integer day of that month
@@ -1034,7 +1039,8 @@ CONTAINS
        convert%Qair = -999.0
        WRITE(logn,*) 'Humidity will be converted from relative to specific'
     ELSE IF(metunits%Qair(1:3)=='g/g'.OR.metunits%Qair(1:5)=='kg/kg' &
-         .OR.metunits%Qair(1:3)=='G/G'.OR.metunits%Qair(1:5)=='KG/KG'.OR.metunits%Qair(1:7)=='kg kg-1') THEN
+         .OR.metunits%Qair(1:3)=='G/G'.OR.metunits%Qair(1:5)=='KG/KG'.OR.&
+         metunits%Qair(1:7)=='kg kg-1' .OR. metunits%Qair(1:1)=='1') THEN
        ! Units are correct
        convert%Qair=1.0
     ELSE
@@ -1804,7 +1810,6 @@ CONTAINS
        met%moy(landpt(i)%cstart:landpt(i)%cend) = met%moy(landpt(i)%cstart)
        met%year(landpt(i)%cstart:landpt(i)%cend) = met%year(landpt(i)%cstart)
     ENDDO
-
     IF(metGrid=='mask') THEN
       ! N.B. not for GSWP runs, therefore only one met file here.
       ! Also, xdimsize and ydimsize are passed from io_variables.
@@ -1832,7 +1837,7 @@ CONTAINS
        ENDDO
 
        ! Get Tair data for mask grid:- - - - - - - - - - - - - - - - - -
-       IF(cable_user%GSWP3) ncid_met = ncid_ta ! since GSWP3 multiple met files
+       IF (cable_user%GSWP3) ncid_met = ncid_ta ! since GSWP3 multiple met files
        ! Find number of dimensions of Tair:
        ok = NF90_INQUIRE_VARIABLE(ncid_met,id%Tair,ndims=ndims)
        IF(ndims==3) THEN ! 3D var, either on grid or new ALMA format single site
@@ -1894,7 +1899,7 @@ CONTAINS
        END IF
 
        ! Get Qair data for mask grid: - - - - - - - - - - - - - - - - - -
-       IF(cable_user%GSWP3) ncid_met = ncid_qa ! since GSWP3 multiple met files
+       IF (cable_user%GSWP3) ncid_met = ncid_qa ! since GSWP3 multiple met files
        ! Find number of dimensions of Qair:
        ok = NF90_INQUIRE_VARIABLE(ncid_met,id%Qair,ndims=ndims)
        IF(ndims==3) THEN ! 3D var, either grid or new ALMA format single site
@@ -1942,7 +1947,7 @@ CONTAINS
        END IF
 
        ! Get Wind data for mask grid: - - - - - - - - - - - - - - - - - -
-       IF(cable_user%GSWP3) ncid_met = ncid_wd ! since GSWP3 multiple met files
+       IF (cable_user%GSWP3) ncid_met = ncid_wd ! since GSWP3 multiple met files
        IF(exists%Wind) THEN ! Scalar Wind
          ! Find number of dimensions of Wind:
          ok = NF90_INQUIRE_VARIABLE(ncid_met,id%Wind,ndims=ndims)
@@ -2182,7 +2187,6 @@ CONTAINS
 
           ENDDO
        END IF
-
 
        DEALLOCATE(tmpDat2,tmpDat3,tmpDat4,tmpDat3x,tmpDat4x)
 

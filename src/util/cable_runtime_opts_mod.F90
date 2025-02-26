@@ -104,6 +104,7 @@ TYPE kbl_user_switches
 
   !using GSWP3 forcing?
   LOGICAL :: gswp3 = .FALSE.
+  LOGICAL :: as_ACCESS = .FALSE.
   LOGICAL :: or_evap = .FALSE.
   LOGICAL :: test_new_gw = .FALSE.
   LOGICAL :: sync_nc_file = .FALSE.
