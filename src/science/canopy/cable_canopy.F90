@@ -643,21 +643,19 @@ write(6,*) "SLI is not an option right now"
 
        canopy%rnet = canopy%fnv + canopy%fns
 
-       !upwards flux density of water (kg/m2/s) - potential evapotranspiration 
-       !radiation weighted soil and canopy contributions
-       !Note: If PM routine corrected then match changes here
-       canopy%epot = ((1.-rad%transd)*canopy%fevw_pot +                         &
-            rad%transd*ssnow%potev*ssnow%cls) * dels/air%rlam
-
-
-
        canopy%rniso = sum_rad_rniso + rad%qssabs + rad%transd*met%fld + &
             (1.0-rad%transd)*CEMLEAF* &
             CSBOLTZ*met%tvrad**4 - CEMSOIL*CSBOLTZ*met%tvrad**4
 
+            
+       !upwards flux density of water (kg/m2/s) - potential evapotranspiration 
+       !radiation weighted soil and canopy contributions
+       !Note: If PM routine corrected then match changes here
+       !CABLE3 #335 - AM3 #250 - removing the transd weighting  
+       canopy%epot = (canopy%fevw_pot + ssnow%potev/ssnow%cls) * dels/air%rlam
+
        rlower_limit = canopy%epot * air%rlam / dels
        WHERE (rlower_limit == 0 ) rlower_limit = 1.e-7 !prevent from 0. by adding 1.e-7 (W/m2)
-
 
        canopy%wetfac_cs = MAX(0., MIN(1.0,canopy%fe / rlower_limit ))
 
@@ -670,12 +668,8 @@ write(6,*) "SLI is not an option right now"
 
        ENDDO
 
-       ! INH #335 - we don't need to weight components of %epot by %transd
-       ! however coupled model uses %wetfac_cs so overwrite here before testing in ACCESS
-       canopy%epot = (canopy%fevw_pot + ssnow%potev/ssnow%cls) * dels/air%rlam
-
-  CALL update_zetar( mp, iterplus, NITER, canopy%zetar, iter, nrb, CVONK, CGRAV, CCAPP,  &
-                     CLAI_THRESH, CZETmul, CZETPOS, CZETNEG,          &
+       CALL update_zetar( mp, iterplus, NITER, canopy%zetar, iter, nrb, CVONK, &
+                     CGRAV, CCAPP, CLAI_THRESH, CZETmul, CZETPOS, CZETNEG,     &
                      cable_user%soil_struc, air%rho, met%tk,  met%fsd, &
                      rough%zref_tq, rough%hruff, rough%term6a, rough%z0soilsn,   &
                      canopy%vlaiw, canopy%zetash,  canopy%us, &
