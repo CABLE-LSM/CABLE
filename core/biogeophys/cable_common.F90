@@ -572,7 +572,8 @@ CONTAINS
     READ(soilunit,*) soilin%sucs
     READ(soilunit,*) soilin%rhosoil
     READ(soilunit,*) soilin%css
-
+    READ(soilunit,*) soilin%cnsd
+    
     CLOSE(soilunit)
 
     ! ! MCtest

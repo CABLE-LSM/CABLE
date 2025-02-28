@@ -1481,6 +1481,7 @@ CONTAINS
              soil%silt(h)    = soilin%silt(soil%isoilm(h))
              soil%clay(h)    = soilin%clay(soil%isoilm(h))
              soil%sand(h)    = soilin%sand(soil%isoilm(h))
+             soil%cnsd(h)    = soilin%cnsd(soil%isoilm(h))
           END IF
           rad%latitude(h) = latitude(e)
           !IF(hide%Ticket49Bug4) &
