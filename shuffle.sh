@@ -92,4 +92,18 @@ cp $UM7_ESM15_DIR/cable_landuse.F90 $CABLE_ESM_DIR/
 cp $UM7_ESM15_DIR/cable_define_types.F90 $CABLE_ESM_DIR/
 cp $UM7_ESM15_DIR/cable_iovars.F90 $CABLE_ESM_DIR/
 
+# Remove unnecessary directories
+rm -r $CABLE_ESM16_DIR
+rm -r $CABLE_ESM15_DIR
+rm -r $CABLE_DIR/src/coupled/ACCESS-CM2
+
+# Replace CABLE directory in UM7 with the one with the reorganised files
+rm -r $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/src/
+cp -r $CABLE_DIR/src $UM7_DIR/umbase_hg3/src/atmosphere/
+rm -r $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/src/offline
+rm -r $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/src/AM3
+rm -r $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/src/JAC
+
+# Uncomment the #define lines for the pre-processor flags in the science code manually.
+
 # Perform the git commit/push manually once we verify this is all moved correctly.
