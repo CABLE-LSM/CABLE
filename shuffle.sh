@@ -44,6 +44,8 @@ mv $CABLE_DIR/src/offline/cable_LUC_EXPT.F90 $CABLE_SHARED_DIR/
 mv $CABLE_DIR/src/offline/cable_phenology.F90 $CABLE_SHARED_DIR/
 mv $CABLE_DIR/src/offline/casa_ncdf.F90 $CABLE_SHARED_DIR/
 mv $CABLE_DIR/src/offline/casa_offline_inout.F90 $CABLE_SHARED_DIR/
+mv $CABLE_DIR/src/offline/cable_pft_params.F90 $CABLE_SHARED_DIR/cable_pft_params_mod.F90
+mv $CABLE_DIR/src/offline/cable_soil_params.F90 $CABLE_SHARED_DIR/cable_soil_params_mod.F90
 
 # Remove them from offline (done in move above)
 
