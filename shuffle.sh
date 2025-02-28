@@ -12,11 +12,13 @@ CABLE_SHARED_DIR=$CABLE_DIR/src/shared
 CABLE_ESM15_DIR=$CABLE_DIR/src/coupled/ESM1.5
 CABLE_ESM16_DIR=$CABLE_DIR/src/coupled/esm16
 CABLE_ESM_DIR=$CABLE_DIR/src/coupled/esm
+CABLE_COUPLED_SHARED_DIR=$CABLE_DIR/src/coupled/shared
 
 UM7_REPO="git@github.com:ACCESS-NRI/UM7.git"
 UM7_BRANCH="64-the-great-library-shuffle"
 UM7_DIR="${WORK_DIR}/um7"
 UM7_ESM15_DIR=$UM7_DIR/umbase_hg3/src/atmosphere/CABLE/src/coupled/ESM1.5
+UM7_COUPLED_SHARED_DIR=$UM7_DIR/umbase_hg3/src/atmosphere/CABLE/src/coupled/shared
 UM7_ESM15_SUBDIR=$UM7_ESM15_DIR/CABLEfilesFromESM1.5
 UM7_CABLE_DIR=$UM7_DIR/umbase_hg3/src/atmosphere/land_surface/cable
 
@@ -108,18 +110,20 @@ rm -r $CABLE_DIR/src/coupled/ACCESS-CM2
 mv -v $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/src/science $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/
 mv -v $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/src/util $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/
 mv -v $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/src/params $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/
+mv -v $UM7_COUPLED_SHARED_DIR $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/
 rm -r $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/src/
 cp -r $CABLE_DIR/src $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/
 rm -r $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/src/offline
 rm -r $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/src/coupled/AM3
 rm -r $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/src/coupled/JAC
+rm -r $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/src/coupled/shared
 rm -r $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/src/params
 rm -r $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/src/science
 rm -r $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/src/util
 mv -v $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/params $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/src/
 mv -v $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/science $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/src/
 mv -v $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/util $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/src/ 
-
+mv -v $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/shared $UM7_DIR/umbase_hg3/src/atmosphere/CABLE/src/coupled/
 # Uncomment the #define lines for the pre-processor flags in the science code manually.
 
 # Perform the git commit/push manually once we verify this is all moved correctly.
