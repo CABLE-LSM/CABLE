@@ -82,8 +82,6 @@ cp $UM7_ESM15_DIR/cable_read_nml.F90 $UM7_CABLE_DIR/
 # it is not there?
 
 # Put in $CABLE_DIR/src/coupled/esm/, copied from $UM7_DIR/src/atmosphere/CABLE/src/coupled/ESM1.5/
-cp $UM7_ESM15_DIR/cable_pft_params.F90 $CABLE_ESM_DIR/
-cp $UM7_ESM15_DIR/cable_soil_params.F90 $CABLE_ESM_DIR/
 cp $UM7_ESM15_DIR/cable_surface_types.F90 $CABLE_ESM_DIR/
 cp $UM7_ESM15_DIR/cable_landuse.F90 $CABLE_ESM_DIR/
 cp $UM7_ESM15_DIR/cable_define_types.F90 $CABLE_ESM_DIR/
