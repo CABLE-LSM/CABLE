@@ -392,10 +392,10 @@ contains
        write(*,*) 'icycle must be 2 to 3 to get prognostic Vcmax'
        call MPI_Abort(comm, 52, ierr)
     end if
-    if ((icycle > 0) .and. (.not. soilparmnew)) then
-       write(*,*) 'casaCNP must use new soil parameters'
-       call MPI_Abort(comm, 53, ierr)
-    end if
+   !  if ((icycle > 0) .and. (.not. soilparmnew)) then
+   !     write(*,*) 'casaCNP must use new soil parameters'
+   !     call MPI_Abort(comm, 53, ierr)
+   !  end if
 
     ! gm lookup table
     if (cable_user%explicit_gm .and. (len_trim(cable_user%gm_LUT_file) > 1)) then

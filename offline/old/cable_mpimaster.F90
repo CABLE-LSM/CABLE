@@ -518,10 +518,10 @@ contains
        write(*,*) 'icycle must be 2 to 3 to get prognostic Vcmax'
        call MPI_Abort(comm, 11, ierr)
     end if
-    if ((icycle > 0) .and. (.not. soilparmnew) ) then
-       write(*,*) 'casaCNP must use new soil parameters'
-       call MPI_Abort(comm, 12, ierr)
-    end if
+   !  if ((icycle > 0) .and. (.not. soilparmnew) ) then
+   !     write(*,*) 'casaCNP must use new soil parameters'
+   !     call MPI_Abort(comm, 12, ierr)
+   !  end if
 
     ! casa time count
     ctime = 0
