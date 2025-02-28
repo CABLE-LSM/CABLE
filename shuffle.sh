@@ -88,6 +88,7 @@ cp $UM7_ESM15_SUBDIR/cbl_um_init_soil.F90 $UM7_CABLE_DIR/
 cp $UM7_ESM15_SUBDIR/cbl_um_init_soilsnow.F90 $UM7_CABLE_DIR/
 cp $UM7_ESM15_SUBDIR/cbl_um_update_soilsnow.F90 $UM7_CABLE_DIR/
 cp $UM7_ESM15_SUBDIR/cable_read_nml.F90 $UM7_CABLE_DIR/
+cp $UM7_ESM15_SUBDIR/casa_um_inout.F90 $UM7_CABLE_DIR/
 
 # casa_um_inout.F90 (currently in esm16/ but it needs to be deleted from there)
 # it is not there?
