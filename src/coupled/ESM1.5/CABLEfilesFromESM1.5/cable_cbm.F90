@@ -115,7 +115,6 @@ CALL init_radiation( rad%extkb, rad%extkd,                                     &
  
 IF( cable_runtime%um_explicit ) THEN
    
-         
   CALL Albedo( ssnow%AlbSoilsn, soil%AlbSoil,                                &
              mp, nrb, ICE_SoilType, lakes_cable, jls_radiation, veg_mask,       &
              Ccoszen_tols, cgauss_w,                                        & 
