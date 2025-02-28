@@ -445,9 +445,9 @@ PROGRAM cable_offline_driver
   if (l_vcmaxFeedbk .and. (icycle < 2)) then
      stop 'icycle must be 2 to 3 to get prognostic Vcmax'
   end if
-  if ((icycle > 0) .and. (.not. soilparmnew)) then
-     stop 'casaCNP must use new soil parameters'
-  end if
+!   if ((icycle > 0) .and. (.not. soilparmnew)) then
+!      stop 'casaCNP must use new soil parameters'
+!   end if
 
   NRRRR = merge(max(CABLE_USER%CASA_NREP, 1), 1, CASAONLY)
 
