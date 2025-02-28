@@ -1516,7 +1516,7 @@ CONTAINS
     !    IF(ASSOCIATED(soiltype_metfile)) DEALLOCATE(soiltype_metfile)
     DEALLOCATE(soilin%silt, soilin%clay, soilin%sand, soilin%swilt, &
          soilin%sfc, soilin%ssat, soilin%bch, soilin%hyds, soilin%sucs, &
-         soilin%rhosoil, soilin%css, vegin%canst1, vegin%dleaf, &
+         soilin%rhosoil, soilin%css, soilin%cnsd, vegin%canst1, vegin%dleaf, &
          vegin%vcmax, vegin%ejmax, vegin%vcmaxcc, vegin%ejmaxcc, vegin%gmmax, &
          vegin%hc, vegin%xfang, vegin%rp20, &
          vegin%rpcoef, vegin%rs20, vegin%shelrb, vegin%frac4, &
