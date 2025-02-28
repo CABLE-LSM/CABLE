@@ -74,6 +74,7 @@ mkdir -p $UM7_CABLE_DIR
 # Move source into it (not sure if we need to delete the src location?)
 cp $UM7_ESM15_DIR/casa_types.F90 $UM7_CABLE_DIR/
 cp $UM7_ESM15_DIR/pack_mod_cbl.F90 $UM7_CABLE_DIR/
+cp $UM7_ESM15_DIR/casa_um_inout.F90 $UM7_CABLE_DIR/
 cp $UM7_ESM15_SUBDIR/cable_rad_driver.F90 $UM7_CABLE_DIR/
 cp $UM7_ESM15_SUBDIR/cable_um_init.F90 $UM7_CABLE_DIR/
 cp $UM7_ESM15_SUBDIR/cable_um_init_subrs.F90 $UM7_CABLE_DIR/
@@ -88,7 +89,6 @@ cp $UM7_ESM15_SUBDIR/cbl_um_init_soil.F90 $UM7_CABLE_DIR/
 cp $UM7_ESM15_SUBDIR/cbl_um_init_soilsnow.F90 $UM7_CABLE_DIR/
 cp $UM7_ESM15_SUBDIR/cbl_um_update_soilsnow.F90 $UM7_CABLE_DIR/
 cp $UM7_ESM15_SUBDIR/cable_read_nml.F90 $UM7_CABLE_DIR/
-cp $UM7_ESM15_SUBDIR/casa_um_inout.F90 $UM7_CABLE_DIR/
 
 # casa_um_inout.F90 (currently in esm16/ but it needs to be deleted from there)
 # it is not there?
