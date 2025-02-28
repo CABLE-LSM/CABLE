@@ -50,8 +50,6 @@ mv -v $CABLE_DIR/src/offline/cable_LUC_EXPT.F90 $CABLE_SHARED_DIR/
 mv -v $CABLE_DIR/src/offline/cable_phenology.F90 $CABLE_SHARED_DIR/
 mv -v $CABLE_DIR/src/offline/casa_ncdf.F90 $CABLE_SHARED_DIR/
 mv -v $CABLE_DIR/src/offline/casa_offline_inout.F90 $CABLE_SHARED_DIR/
-mv -v $UM7_ESM15_DIR/cable_pft_params_mod.F90 $CABLE_SHARED_DIR/
-mv -v $UM7_ESM15_DIR/cable_soil_params_mod.F90 $CABLE_SHARED_DIR/
 
 echo rm $CABLE_DIR/src/offline/cable_pft_params.F90
 echo rm $CABLE_DIR/src/offline/cable_soil_params.F90
@@ -98,6 +96,8 @@ cp $UM7_ESM15_DIR/cable_surface_types.F90 $CABLE_ESM_DIR/
 cp $UM7_ESM15_DIR/casa_landuse.F90 $CABLE_ESM_DIR/
 cp $UM7_ESM15_SUBDIR/cable_define_types.F90 $CABLE_ESM_DIR/
 cp $UM7_ESM15_SUBDIR/cable_iovars.F90 $CABLE_ESM_DIR/
+cp $UM7_ESM15_DIR/cable_pft_params_mod.F90 $CABLE_SHARED_DIR/
+cp $UM7_ESM15_DIR/cable_soil_params_mod.F90 $CABLE_SHARED_DIR/
 
 # Remove unnecessary directories
 rm -r $CABLE_ESM16_DIR
