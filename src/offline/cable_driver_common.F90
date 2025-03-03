@@ -113,7 +113,7 @@ CONTAINS
   SUBROUTINE cable_driver_init(mpi_grp, trunk_sumbal, NRRRR)
     !! Model initialisation routine for the CABLE offline driver.
     TYPE(mpi_grp_t), INTENT(IN) :: mpi_grp !! MPI group to use
-    DOUBLE PRECISION, INTENT(OUT) :: trunk_sumbal
+    DOUBLE PRECISION, ALLOCATABLE, INTENT(OUT) :: trunk_sumbal
       !! Reference value for quasi-bitwise reproducibility checks.
     INTEGER, INTENT(OUT) :: NRRRR !! Number of repeated spin-up cycles
 
@@ -141,6 +141,7 @@ CONTAINS
     IF (mpi_grp%rank == 0 .AND. cable_user%consistency_check) THEN
       OPEN(NEWUNIT=unit, FILE=filename%trunk_sumbal, STATUS='old', ACTION='READ', IOSTAT=ioerror)
       IF(ioerror == 0) THEN
+        ALLOCATE(trunk_sumbal)
         READ(unit, *) trunk_sumbal  ! written by previous trunk version
       END IF
       CLOSE(unit)

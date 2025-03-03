@@ -158,7 +158,7 @@ CONTAINS
 
 SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
   !! Offline serial driver.
-  DOUBLE PRECISION, INTENT(IN) :: trunk_sumbal
+  DOUBLE PRECISION, ALLOCATABLE, INTENT(IN) :: trunk_sumbal
     !! Reference value for quasi-bitwise reproducibility checks.
   INTEGER, INTENT(IN) :: NRRRR !! Number of repeated spin-up cycles
   REAL, INTENT(INOUT) :: dels !! Time step size in seconds
@@ -258,6 +258,7 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
 
   INTEGER :: nkend=0
   INTEGER :: count_bal = 0
+  INTEGER :: unit
 
   ! for landuse
   integer     mlon,mlat, mpx
@@ -766,7 +767,7 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
             IF( ktau == kend ) THEN
               nkend = nkend+1
 
-              IF( ABS(new_sumbal-trunk_sumbal) < 1.e-7) THEN
+              IF(ALLOCATED(trunk_sumbal) .AND. ABS(new_sumbal-trunk_sumbal) < 1.e-7) THEN
 
                 PRINT *, ""
                 PRINT *, &
@@ -784,9 +785,9 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
                 PRINT *, &
                      "Writing new_sumbal to the file:", TRIM(filename%new_sumbal)
 
-                OPEN( 12, FILE = filename%new_sumbal )
-                WRITE( 12, '(F20.7)' ) new_sumbal  ! written by previous trunk version
-                CLOSE(12)
+                OPEN(newunit=unit, file=filename%new_sumbal)
+                WRITE(unit, '(F20.7)') new_sumbal  ! written by previous trunk version
+                CLOSE(unit)
 
               ENDIF
             ENDIF
