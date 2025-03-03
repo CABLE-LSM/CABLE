@@ -30,7 +30,10 @@
 ! ==============================================================================
 
 subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
-                                  DTL_1,DQW_1, TSOIL, TSOIL_TILE, SMCL,        &
+                                  DTL_1,DQW_1,                                 &
+                                  !additional inputs for new coupling #25
+                                  TL_1, QW_1, CT_CTQ_1,                        & 
+                                  TSOIL, TSOIL_TILE, SMCL,                     &
                                   SMCL_TILE, timestep, SMVCST,STHF, STHF_TILE, &
                                   STHU,STHU_TILE, snow_tile, SNOW_RHO1L,       &
                                   ISNOW_FLG3L, SNOW_DEPTH3L, SNOW_MASS3L,      &
@@ -54,6 +57,7 @@ subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
                                   FNSNET,FNLEACH,FNUP,FNLOSS,FNDEP,FNFIX,idoy )
 
    USE cable_def_types_mod,      ONLY: mp
+   USE cable_phys_constants_mod, ONLY: capp
    USE cable_um_tech_mod,        ONLY: um1, conv_rain_prevstep, conv_snow_prevstep,&
                                   air, bgc, canopy, met, bal, rad, rough, soil,&
                                   ssnow, sum_flux, veg, climate
@@ -77,8 +81,11 @@ subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
       LS_SNOW,  & ! IN Large scale snow
       CON_RAIN, & ! IN Convective rain
       CONV_SNOW,& ! IN Convective snow
-      DTL_1,    & ! IN Level 1 increment to T field 
-      DQW_1       ! IN Level 1 increment to q field 
+      DTL_1,    & ! IN Level 1 partial increment to T field 
+      DQW_1,    & ! IN Level 1 partial increment to q field
+      TL_1,     & ! IN Level 1 T field
+      QW_1,     & ! IN level 1 q field
+      CT_CTQ_1    ! IN boundary layer turbulent exchange coefficient (#25) 
 
    REAL :: timestep
 
@@ -236,6 +243,13 @@ subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
    REAL, DIMENSION(mp) ::                                                      & 
       dtlc, & 
       dqwc
+   
+   !additional working variables for updated coupling #25
+   REAL, DIMENSION(mp) ::                                                      &
+      ftl_1c,    &   !reshaped FTL_1
+      fqw_1c,    &   !reshaped FQW_1
+      ctctq1c        !reshaped CT_CTQ_1
+
 
 INTEGER, PARAMETER :: loy = 365 !fudge for ESM1.5 
 INTEGER, PARAMETER :: lalloc = 0 !fudge for ESM1.5 0 => call POP N/A 
@@ -262,19 +276,32 @@ TYPE(POP_TYPE) :: POP
       !-------------------------------------------------------------------
       CALL um2cable_rr( (LS_RAIN+CON_RAIN)*um1%TIMESTEP, met%precip)
       CALL um2cable_rr( (LS_SNOW+CONV_SNOW)*um1%TIMESTEP, met%precip_sn)
-      CALL um2cable_rr( dtl_1, dtlc)
-      CALL um2cable_rr( dqw_1, dqwc)
       
       !--- conv_rain(snow)_prevstep are added to precip. in explicit call
       CALL um2cable_rr( (CON_RAIN)*um1%TIMESTEP, conv_rain_prevstep)
       CALL um2cable_rr( (CONV_snow)*um1%TIMESTEP, conv_snow_prevstep)
       
       met%precip   =  met%precip + met%precip_sn
-      met%tk = met%tk + dtlc
-      met%qv = met%qv + dqwc
+
+      !revised coupling - #25. re-evaluate the temperature and humidity passed 
+      !into cable from scratch - involves values at start of time step (TL_1, QW_1), 
+      !the UM evaluated partial increments (dtl_1, dqw_1) and the compensatory 
+      !partial increments as consistent with coupling coefficient CT_CTQ_1 and the 
+      !explicit values for the grid-cell averaged fluxes FTL and FQW
+      CALL um2cable_rr( TL_1,  met%tk)
+      CALL um2cable_rr( QW_1, met%qv)
+      CALL um2cable_rr( dtl_1, dtlc)
+      CALL um2cable_rr( dqw_1, dqwc)
+      CALL um2cable_rr( FTL_1, ftl_1c)
+      CALL um2cable_rr( FQW_1, fqw_1c)
+      CALL um2cable_rr( CT_CTQ_1, ctctq1c)
+      !NB FTL_1 is in W/m2 at this point so divide through by CAPP,
+      !ctctq1 includes the density factor.
+      met%tk = met%tk + dtlc - ctctq1c * ftl_1c/capp
+      met%qv = met%qv + dqwc - ctctq1c * fqw_1c
       met%tvair = met%tk
       met%tvrad = met%tk
-      met%doy = idoy + 1
+      met%doy = REAL(idoy) + 1.0
  
       canopy%cansto = canopy%oldcansto
 
@@ -360,6 +387,8 @@ SUBROUTINE implicit_unpack( TSOIL, TSOIL_TILE, SMCL, SMCL_TILE,                &
    USE cable_um_tech_mod,        ONLY: um1 ,canopy, rad, soil, ssnow, air
    USE cable_common_module,      ONLY: cable_runtime, cable_user
    USE casa_types_mod
+USE cable_phys_constants_mod,  ONLY: density_ice
+
    IMPLICIT NONE
  
    !jhan:these need to be cleaned out to what is actualllly passed
@@ -498,35 +527,69 @@ SUBROUTINE implicit_unpack( TSOIL, TSOIL_TILE, SMCL, SMCL_TILE,                &
    REAL :: miss = 0.0
    
       !--- set UM vars to zero
-      TSOIL_CAB = 0.; SMCL_CAB = 0.; TSOIL_TILE = 0.; 
-      SMCL_TILE = 0.; STHF_TILE = 0.; STHU_TILE = 0.
+      TSOIL_CAB = 0.; SMCL_CAB = 0.
 
-      DO j = 1,um1%SM_LEVELS
-         TSOIL_TILE(:,:,j)= UNPACK(ssnow%tgg(:,j), um1%L_TILE_PTS, miss)
-         TSOIL_CAB(:,j) = SUM(um1%TILE_FRAC * TSOIL_TILE(:,:,j),2)
-         SMCL_TILE(:,:,j)= UNPACK(REAL(ssnow%wb(:,j)), um1%L_TILE_PTS, miss)
-         SMCL_TILE(:,:,j)=SMCL_TILE(:,:,j)*soil%zse(j)*um1%RHO_WATER
-         SMCL_CAB(:,j) = SUM(um1%TILE_FRAC * SMCL_TILE(:,:,j),2)
+smcl        = 0.0 
+sthf        = 0.0
+sthu        = 0.0
+tsoil       = 0.0
+smcl_tile   = 0.0 
+sthf_tile   = 0.0
+sthu_tile   = 0.0
+tsoil_tile  = 0.0
+snow_cond   = 0.0
+
+DO j = 1,um1%SM_LEVELS
+
+  TSOIL_TILE(:,:,j)= UNPACK(ssnow%tgg(:,j), um1%L_TILE_PTS, miss)
+  TSOIL_CAB(:,j) = SUM(um1%TILE_FRAC * TSOIL_TILE(:,:,j),2)
+  TSOIL(:,j) = SUM(um1%TILE_FRAC * TSOIL_TILE(:,:,j),2)
+
+  !liquid mass first
+  smcl_tile(:,:,j) = UNPACK( REAL( ssnow%wbliq(:,j)), um1%L_tile_pts, miss)
+  smcl_tile(:,:,j) = smcl_tile(:,:,j) * soil%zse(j) * um1%RHO_WATER
+    
+  SMCL_CAB(:,j) = SUM(um1%TILE_FRAC * SMCL_TILE(:,:,j),2)
+  SMCL(:,j) = SUM(um1%TILE_FRAC * SMCL_TILE(:,:,j),2)
+
+  !ice volumetric
          STHF_TILE(:,:,j)= UNPACK(REAL(ssnow%wbice(:,j)), um1%L_TILE_PTS, miss)
-         SMCL(:,j) = SUM(um1%TILE_FRAC * SMCL_TILE(:,:,j),2)
-         TSOIL(:,j) = SUM(um1%TILE_FRAC * TSOIL_TILE(:,:,j),2)
-         
-         DO N=1,um1%NTILES
-            DO K=1,um1%TILE_PTS(N)
-               I = um1%TILE_INDEX(K,N)
-               IF ( SMVCST(I) > 0. ) THEN ! Exclude permanent ice - mrd
-                  STHF_TILE(I,N,J)= STHF_TILE(I,N,J)/SMVCST(I)
-                  STHU_TILE(I,N,J)= MAX( 0., SMCL_TILE(I,N,J) -                &
-                                    STHF_TILE(I,N,J) * SMVCST(I) * soil%zse(J) &
-                                    * um1%RHO_WATER ) / ( soil%zse(J) *        &
-                                    um1%RHO_WATER * SMVCST(I) )
-               ENDIF
-            ENDDO
-         ENDDO
 
-         STHF(:,J) = SUM(um1%TILE_FRAC * STHF_TILE(:,:,J),2)
-         STHU(:,J) = SUM(um1%TILE_FRAC * STHU_TILE(:,:,J),2)
-      ENDDO
+END DO
+
+DO j = 1, um1%sm_levels
+
+  !calcualte sthu_tilebefore smcl_tile incoudes ice mass
+  DO n=1, um1%ntiles
+    
+    DO k=1, um1%tile_pts(n)
+       
+      i = um1%tile_index(k,n)
+
+      ! Exclude permanent ice 
+      IF ( smvcst(i) > 0.0 ) THEN !liq mass relaative to max
+        sthu_tile(i,n,j)= MAX( 0.0, smcl_tile(i,n,j) /                      &
+                            (soil%zse(j) * smvcst(i) * um1%RHO_WATER ) )
+      END IF
+       
+      !add ice mass to liq mass
+      smcl_tile(i,n,j) = smcl_tile(i,n,j) +                                 &
+                         sthf_tile(i,n,j) * soil%zse(j) * density_ice
+      !relative ice vol 
+      IF ( smvcst(i) > 0.0 ) THEN
+        sthf_tile(i,n,j) = sthf_tile(i,n,j) / smvcst(i)
+      END IF
+
+    ENDDO ! tile_pts(n)
+
+  ENDDO ! ntiles
+
+  tsoil(:,j) = SUM( um1%tile_frac * tsoil_tile(:,:,j),2)
+  smcl(:,j)  = SUM( um1%tile_frac * smcl_tile(:,:,j), 2)
+  sthf(:,j)  = SUM( um1%tile_frac * sthf_tile(:,:,j), 2)
+  sthu(:,j)  = SUM( um1%tile_frac * sthu_tile(:,:,j), 2)
+
+ENDDO ! SM_LEVELS
 
       !--- unpack snow vars 
       SNOW_RHO1L  = UNPACK(ssnow%ssdnn, um1%L_TILE_PTS, miss)
@@ -580,10 +643,18 @@ SUBROUTINE implicit_unpack( TSOIL, TSOIL_TILE, SMCL, SMCL_TILE,                &
       SURF_HTF_T_CAB = UNPACK(canopy%ga,um1%L_TILE_PTS,miss)
       SURF_HTF_CAB = SUM(um1%TILE_FRAC * SURF_HTF_T_CAB,2)
 
-     TOT_ALB=UNPACK(rad%albedo_T,um1%L_TILE_PTS, miss) 
-     ESOIL_TILE = UNPACK(fes_dlh, um1%L_TILE_PTS, miss)
+     TOT_ALB=UNPACK(rad%albedo_T,um1%L_TILE_PTS, miss)
+
+     !#69 need to split %fes into evaporation and sublimation
+     fes_dlh = 0.
+     WHERE (ssnow%cls==1.)  fes_dlh = canopy%fes/(air%rlam*ssnow%cls)
+     ESOIL_TILE = UNPACK(fes_dlh, um1%L_tile_pts, miss)
+  
+     fes_dlh = 0.
+     WHERE (ssnow%cls==1.1335) fes_dlh = canopy%fes/(air%rlam*ssnow%cls)
+     EI_TILE = UNPACK(fes_dlh, um1%L_TILE_PTS, miss)
      ECAN_TILE = UNPACK(fev_dlh,  um1%L_TILE_PTS, miss)
-     EI_TILE = 0.
+     !EI_TILE = 0.
      SNAGE_TILE = UNPACK(ssnow%snage, um1%L_TILE_PTS, miss) 
      TRANSP_TILE = UNPACK(canopy%fevc, um1%L_TILE_PTS, miss) 
 

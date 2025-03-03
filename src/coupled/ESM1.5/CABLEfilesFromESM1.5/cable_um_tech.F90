@@ -79,10 +79,6 @@ USE cable_def_types_mod, ONLY : air_type, bgc_pool_type, met_type,             &
          laift(:,:)       ! hruffmax(:.:)
    END TYPE derived_veg_pars
 
-   INTERFACE check_nmlvar 
-      MODULE PROCEDURE check_chvar, check_intvar, check_lgvar
-   END INTERFACE check_nmlvar 
- 
       TYPE(derived_rad_bands), SAVE :: kblum_rad    
       TYPE(derived_veg_pars),  SAVE :: kblum_veg    
       TYPE(um_dimensions),     SAVE :: um1
@@ -91,128 +87,6 @@ USE cable_def_types_mod, ONLY : air_type, bgc_pool_type, met_type,             &
 
 CONTAINS
 
-!========================================================================
-!========================================================================
-!========================================================================
-
-SUBROUTINE cable_um_runtime_vars(runtime_vars_file) 
-   USE cable_common_module, ONLY : cable_runtime, cable_user, filename,        &
-                                   cable_user, knode_gl, redistrb, wiltParam,  &
-                                   satuParam, l_casacnp, l_laiFeedbk,          &
-                                   l_vcmaxFeedbk, l_luc, l_thinforest
-   USE casavariable, ONLY : casafile
-   USE casadimension, ONLY : icycle
-
-
-   CHARACTER(LEN=*), INTENT(IN) :: runtime_vars_file
-   INTEGER :: funit=88
-   
-   !--- namelist for CABLE runtime vars, files, switches 
-   NAMELIST/CABLE/filename, l_thinforest, l_luc, l_casacnp, l_laiFeedbk, &
-                  l_vcmaxFeedbk, icycle,   &
-                  casafile, cable_user, redistrb, wiltParam, satuParam
-
-      !--- assume namelist exists. no iostatus check 
-      OPEN(unit=funit,FILE= runtime_vars_file)
-         READ(funit,NML=CABLE)
-         IF( knode_gl==0)  THEN
-            PRINT *, '  '; PRINT *, 'CABLE_log:' 
-            PRINT *, '  Opened file - '
-            PRINT *, '  ', trim(runtime_vars_file)
-            PRINT *, '  for reading runtime vars.' 
-            PRINT *, 'End CABLE_log:'; PRINT *, '  '
-        ENDIF
-      CLOSE(funit)
-
-      if (knode_gl==0) then
-        print *, '  '; print *, 'CASA_log:'
-        print *, '  icycle =',icycle
-        print *, '  l_casacnp =',l_casacnp
-        print *, '  l_laiFeedbk =',l_laiFeedbk
-        print *, '  l_vcmaxFeedbk =',l_vcmaxFeedbk
-        print *, 'End CASA_log:'; print *, '  '
-      endif
-      IF (l_casacnp  .AND. (icycle == 0 .OR. icycle > 3)) &
-          STOP 'CASA_log: icycle must be 1 to 3 when using casaCNP'
-      IF ((.NOT. l_casacnp)  .AND. (icycle >= 1)) &
-          STOP 'CASA_log: icycle must be <=0 when not using casaCNP'
-      IF ((l_laiFeedbk .OR. l_vcmaxFeedbk) .AND. (.NOT. l_casacnp)) &
-          STOP 'CASA_log: casaCNP required to get prognostic LAI or Vcmax'
-      IF (l_vcmaxFeedbk .AND. icycle < 2) &
-          STOP 'CASA_log: icycle must be 2 to 3 to get prognostic Vcmax'
-   
-      !--- check value of variable 
-      CALL check_nmlvar('filename%veg', filename%veg)
-      CALL check_nmlvar('filename%soil', filename%soil)
-      CALL check_nmlvar('cable_user%DIAG_SOIL_RESP', cable_user%DIAG_SOIL_RESP)
-      CALL check_nmlvar('cable_user%LEAF_RESPIRATION',                         &
-                        cable_user%LEAF_RESPIRATION)
-      CALL check_nmlvar('cable_user%FWSOIL_SWITCH', cable_user%FWSOIL_SWITCH)
-      CALL check_nmlvar('cable_user%RUN_DIAG_LEVEL', cable_user%RUN_DIAG_LEVEL)
-      CALL check_nmlvar('cable_user%l_new_roughness_soil',                     &
-                         cable_user%l_new_roughness_soil)
-      CALL check_nmlvar('cable_user%l_new_roughness_soil',                     &
-                         cable_user%l_new_roughness_soil)
-      CALL check_nmlvar('cable_user%l_new_roughness_soil',                     &
-                         cable_user%l_new_roughness_soil)
-
-END SUBROUTINE cable_um_runtime_vars
-
-!jhan: also add real, logical, int interfaces
-SUBROUTINE check_chvar(this_var, val_var)
-   USE cable_common_module, ONLY : knode_gl
-
-   CHARACTER(LEN=*), INTENT(IN) :: this_var, val_var 
-   
-      IF (knode_gl==0) THEN
-         PRINT *, '  '; PRINT *, 'CABLE_log:' 
-         PRINT *, '   run time variable - '
-         PRINT *, '  ', trim(this_var) 
-         PRINT *, '   defined as - '
-         PRINT *, '  ', trim(val_var) 
-         PRINT *, 'End CABLE_log:'; PRINT *, '  '
-      ENDIf
-
-END SUBROUTINE check_chvar
-
-SUBROUTINE check_intvar(this_var, val_var)
-   USE cable_common_module, ONLY : knode_gl
-
-   CHARACTER(LEN=*), INTENT(IN) :: this_var
-   INTEGER, INTENT(IN) :: val_var 
-
-      IF (knode_gl==0) THEN
-         PRINT *, '  '; PRINT *, 'CABLE_log:' 
-         PRINT *, '   run time variable - '
-         PRINT *, '  ', trim(this_var) 
-         PRINT *, '   defined as - '
-         PRINT *, '  ', val_var
-         PRINT *, 'End CABLE_log:'; PRINT *, '  '
-      ENDIF
-
-END SUBROUTINE check_intvar
-
-SUBROUTINE check_lgvar(this_var, val_var)
-   USE cable_common_module, ONLY : knode_gl
-
-   CHARACTER(LEN=*), INTENT(IN) :: this_var
-   LOGICAL, INTENT(IN) :: val_var
-
-      IF (knode_gl==0) THEN
-         PRINT *, '  '; PRINT *, 'CABLE_log:'
-         PRINT *, '   run time variable - '
-         PRINT *, '  ', trim(this_var)
-         PRINT *, '   defined as - '
-         PRINT *, '  ', (val_var)
-         PRINT *, 'End CABLE_log:'; PRINT *, '  '
-      ENDIf
-
-END SUBROUTINE check_lgvar
-    
-!========================================================================= 
-!=========================================================================
-!========================================================================= 
- 
 SUBROUTINE alloc_um_interface_types( row_length, rows, land_pts, ntiles,       &
                                      sm_levels )
       USE cable_common_module, ONLY : cable_runtime, cable_user
