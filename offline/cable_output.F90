@@ -1824,6 +1824,12 @@ CONTAINS
      IF(output%params .OR. output%kmax) CALL define_ovar(ncid_out, opid%kmax, &
          'kmax', '-', 'Kmax of plant conductivity for water', &
          patchout%kmax, 'real', xID, yID, zID, landID, patchID)
+     IF(output%params .OR. output%b_plant) CALL define_ovar(ncid_out, opid%b_plant, &
+         'b_plant', '-', 'sensitivity of hydraulic vulnerability curve, MPa', &
+         patchout%b_plant, 'real', xID, yID, zID, landID, patchID)
+     IF(output%params .OR. output%c_plant) CALL define_ovar(ncid_out, opid%c_plant, &
+         'c_plant', '-', 'shape of hydraulic VC, [-]', &
+         patchout%c_plant, 'real', xID, yID, zID, landID, patchID)
     IF(output%params .OR. output%rpcoef) CALL define_ovar(ncid_out, &
          opid%rpcoef, 'rpcoef', '1/C', &
          'Temperature coef nonleaf plant respiration', &
@@ -2070,6 +2076,10 @@ CONTAINS
          'g3', toreal4(veg%psi_ref),ranges%psi_ref, patchout%psi_ref, 'real')
      IF(output%params .OR. output%kmax) CALL write_ovar(ncid_out, opid%kmax, &
          'kmax', toreal4(veg%kmax),ranges%kmax, patchout%kmax, 'real')
+     IF(output%params .OR. output%b_plant) CALL write_ovar(ncid_out, opid%b_plant, &
+         'b_plant', toreal4(veg%b_plant),ranges%kmax, patchout%kmax, 'real')
+     IF(output%params .OR. output%c_plant) CALL write_ovar(ncid_out, opid%c_plant, &
+         'c_plant', toreal4(veg%c_plant),ranges%kmax, patchout%kmax, 'real')
     IF(output%params .OR. output%rpcoef) CALL write_ovar(ncid_out, &
          opid%rpcoef, 'rpcoef', toreal4(veg%rpcoef), &
          ranges%rpcoef, patchout%rpcoef, 'real')

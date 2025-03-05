@@ -1825,18 +1825,17 @@ CONTAINS
       veg%c_plant = LOG(LOG(0.5) / LOG(0.12)) / (LOG(ABS(veg%P50)) - LOG(ABS(P88))) ! shape parameter, unitless
       veg%b_plant = ABS(veg%P50) / ((-LOG(0.5)) ** (1.0 / veg%c_plant)) ! sensitivity parameter, MPa
 
-   ELSE IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
+   END IF
 
-      IF (veg%b_plant(1) < 1.E-3 .AND. veg%c_plant(1) < 1.E-3) THEN
+   IF (veg%b_plant(1) < 1.E-3 .AND. veg%c_plant(1) < 1.E-3) THEN
 
-         write(*, *) "/!\ The hydraulics parameters are not supplied, so profitmax will crash /!\"
-         write(logn,*) 'The hydraulics parameters are not supplied, so profitmax will crash'
-         close(logn)
+      write(*, *) "/!\ b_plant and c_plant are not supplied, crash /!\"
+      write(logn,*) 'b_plant and c_plant are not supplied, crash'
+      close(logn)
 
-
-      END IF
 
    END IF
+
   END SUBROUTINE derived_parameters
   !============================================================================
   SUBROUTINE check_parameter_values(soil, veg, ssnow)
