@@ -239,7 +239,6 @@ MODULE cable_common_module
           sucs,    & !
           rhosoil, & !
           css,     & !
-          cnsd,  & !
           c3         !
   END TYPE soilin_type
 
@@ -573,7 +572,6 @@ CONTAINS
     READ(soilunit,*) soilin%sucs
     READ(soilunit,*) soilin%rhosoil
     READ(soilunit,*) soilin%css
-    READ(soilunit,*) soilin%cnsd
 
     CLOSE(soilunit)
 
