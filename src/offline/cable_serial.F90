@@ -338,6 +338,10 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
           LOY = 365
           kend = NINT(24.0*3600.0/dels) * LOY
 
+        CASE ('gswp3')
+          ncciy = CurYear
+          CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
+
         CASE ('site')
           ! site experiment eg AmazonFace (spinup or  transient run type)
           kend = NINT(24.0*3600.0/dels) * LOY
@@ -532,7 +536,7 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
             met%Pdep = site%Pdep  *1000./10000./365. ! kg ha-1 y-1 > g m-2 d-1
             met%fsd = MAX(met%fsd,0.0)
 
-          CASE ('')
+          CASE DEFAULT
             CALL get_met_data( spinup, spinConv, met, soil,            &
               rad, veg, kend, dels, CTFRZ, ktau+koffset,                 &
               kstart+koffset )
@@ -702,7 +706,7 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
           IF ( (.NOT. CASAONLY) .AND. spinConv ) THEN
             !mpidiff
             SELECT CASE (TRIM(cable_user%MetType))
-            CASE ('plum', 'cru', 'bios', 'gswp', 'site')
+            CASE ('plum', 'cru', 'bios', 'gswp', 'gswp3', 'site')
               CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, casamet, &
                    ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
             CASE DEFAULT
@@ -911,6 +915,7 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
           IF ( YYYY .EQ. CABLE_USER%YearEnd .AND. &
                NRRRR .GT. 1 ) DEALLOCATE ( GSWP_MID )
         ENDIF
+        IF (TRIM(cable_user%MetType) == "gswp3") CALL close_met_file
 
         IF ((icycle.GT.0).AND.(.NOT.casaonly)) THEN
           ! re-initalise annual flux sums
@@ -1025,6 +1030,7 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
 
 
   IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
+       TRIM(cable_user%MetType) .NE. "gswp3" .AND. &
        TRIM(cable_user%MetType) .NE. "plum" .AND. &
        TRIM(cable_user%MetType) .NE. "cru" ) CALL close_met_file
 

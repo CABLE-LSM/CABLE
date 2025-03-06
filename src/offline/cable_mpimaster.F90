@@ -500,6 +500,77 @@ CONTAINS
           CALL alloc_cbm_var (imet, mp)
           CALL alloc_cbm_var (iveg, mp)
 
+          imet%ca(:) = met%ca(:)
+          imet%year(:) = met%year(:)
+          imet%moy(:) = met%moy(:)
+          imet%doy(:) = met%doy(:)
+          imet%hod(:) = met%hod(:)
+          imet%fsd(:,:) = met%fsd(:,:)
+          imet%ofsd(:) = met%ofsd(:)
+          imet%fld(:) = met%fld(:)
+          imet%precip(:) = met%precip(:)
+          imet%precip_sn(:) = met%precip_sn(:)
+          imet%tk(:) = met%tk(:)
+          imet%tvair(:) = met%tvair(:)
+          imet%tvrad(:) = met%tvrad(:)
+          imet%pmb(:) = met%pmb(:)
+          imet%ua(:) = met%ua(:)
+          imet%qv(:) = met%qv(:)
+          imet%qvair(:) = met%qvair(:)
+          imet%da(:) = met%da(:)
+          imet%dva(:) = met%dva(:)
+          imet%coszen(:) = met%coszen(:)
+          imet%Ndep(:) = met%Ndep(:)
+          imet%Pdep(:) = met%Pdep(:)
+
+          iveg%canst1(:) =  veg%canst1(:)
+          iveg%dleaf(:) = veg%dleaf(:)
+          iveg%ejmax(:) = veg%ejmax(:)
+          iveg%iveg(:) = veg%iveg(:)
+          iveg%iLU(:) = veg%iLU(:)
+          iveg%meth(:) = veg%meth(:)
+          iveg%frac4(:) = veg%frac4(:)
+          iveg%hc(:) = veg%hc(:)
+          iveg%vlai(:) = veg%vlai(:)
+          iveg%xalbnir(:) = veg%xalbnir(:)
+          iveg%rp20(:) = veg%rp20(:)
+          iveg%rpcoef(:) = veg%rpcoef(:)
+          iveg%rs20(:) = veg%rs20(:)
+          iveg%shelrb(:) = veg%shelrb(:)
+          iveg%vegcf(:) = veg%vegcf(:)
+          iveg%tminvj(:) = veg%tminvj(:)
+          iveg%toptvj(:) = veg%toptvj(:)
+          iveg%tmaxvj(:) = veg%tmaxvj(:)
+          iveg%vbeta(:) = veg%vbeta(:)
+          iveg%vcmax(:) = veg%vcmax(:)
+          iveg%xfang(:) = veg%xfang(:)
+          iveg%extkn(:) = veg%extkn(:)
+          iveg%wai(:) = veg%wai(:)
+          iveg%deciduous(:) = veg%deciduous(:)
+          iveg%froot(:,:) = veg%froot(:,:)
+          iveg%refl(:,:) = veg%refl(:,:)
+          iveg%taul(:,:) = veg%taul(:,:)
+          iveg%vlaimax(:) = veg%vlaimax(:)
+          iveg%a1gs(:) = veg%a1gs(:)
+          iveg%d0gs(:) = veg%d0gs(:)
+          iveg%alpha(:) = veg%alpha(:)
+          iveg%convex(:) = veg%convex(:)
+          iveg%cfrd(:) = veg%cfrd(:)
+          iveg%gswmin(:) = veg%gswmin(:)
+          iveg%conkc0(:) = veg%conkc0(:)
+          iveg%conko0(:) = veg%conko0(:)
+          iveg%ekc(:) = veg%ekc(:)
+          iveg%eko(:) = veg%eko(:)
+          iveg%g0(:) = veg%g0(:)
+          iveg%g1(:) = veg%g1(:)
+          iveg%rootbeta(:) = veg%rootbeta(:)
+          iveg%gamma(:) = veg%gamma(:)
+          iveg%F10(:) = veg%F10(:)
+          iveg%ZR(:) = veg%ZR(:)
+          iveg%clitt(:) = veg%clitt(:)
+          iveg%disturbance_interval(:,:) = veg%disturbance_interval(:,:)
+          iveg%disturbance_intensity(:,:) = veg%disturbance_intensity(:,:)
+
           ! MPI: create inp_t types to scatter input data to the workers
           ! at the start of every timestep
           !CALL master_intypes (comm,met,veg)
@@ -528,7 +599,7 @@ CONTAINS
           ! MPI: create type to send restart data back to the master
           ! only if restart file is to be created
           IF(output%restart) THEN
-            CALL master_restart_types (comm, canopy, air)
+            CALL master_restart_types (comm, canopy, air, bgc)
           END IF
 
           !  CALL zero_sum_casa(sum_casapool, sum_casaflux)
@@ -680,6 +751,8 @@ CONTAINS
 !$          CALL read_casa_dump( ncfile, casamet, casaflux, casa_it, kend, .FALSE. )
 !$        ENDIF
 
+          ! Zero out lai where there is no vegetation acc. to veg. index
+          WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
 
 !$        ! At first time step of year, set tile area according to updated LU areas
 !$        IF (ktau == 1 .and. CABLE_USER%POPLUC) THEN
@@ -749,9 +822,6 @@ CONTAINS
 
           met%ofsd = met%fsd(:,1) + met%fsd(:,2)
           canopy%oldcansto=canopy%cansto
-
-          ! Zero out lai where there is no vegetation acc. to veg. index
-          WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
 
           ! Write time step's output to file if either: we're not spinning up
           ! or we're spinning up and the spinup has converged:
@@ -1811,6 +1881,12 @@ CONTAINS
 
        bidx = bidx + 1
        CALL MPI_Get_address (ssnow%wblf(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (ssnow%wbliq(off,1), displs(bidx), ierr)
        CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
             &                             types(bidx), ierr)
        blen(bidx) = 1
@@ -7095,7 +7171,7 @@ CONTAINS
   !CLNEND SUBROUTINE master_casa_restart_types
 
   ! MPI: creates datatype handles to receive restart data from workers
-  SUBROUTINE master_restart_types (comm, canopy, air)
+  SUBROUTINE master_restart_types (comm, canopy, air, bgc)
 
     USE mpi
 
@@ -7109,6 +7185,7 @@ CONTAINS
 
     TYPE(canopy_type), INTENT(IN) :: canopy
     TYPE (air_type),INTENT(IN)        :: air
+    TYPE (bgc_pool_type), INTENT(IN) :: bgc
     !  TYPE (casa_pool),           INTENT(INOUT) :: casapool
     !  TYPE (casa_flux),           INTENT(INOUT) :: casaflux
     !  TYPE (casa_met),            INTENT(INOUT) :: casamet
@@ -7167,6 +7244,18 @@ CONTAINS
        CALL MPI_Get_address (canopy%evapfbl(off,1), displs(bidx), ierr) ! 2
        ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
        CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blocks(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (bgc%cplant(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ncp, r1len, r1stride, MPI_BYTE, &
+            &                             types(bidx), ierr)
+       blocks(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (bgc%csoil(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ncs, r1len, r1stride, MPI_BYTE, &
             &                             types(bidx), ierr)
        blocks(bidx) = 1
 
