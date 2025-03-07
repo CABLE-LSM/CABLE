@@ -290,6 +290,7 @@ MODULE casavariable
      LOGICAL           :: l_ndep
      ! added vh
      CHARACTER(LEN=199) :: c2cdumppath='' ! cable2casa dump for casa spinup
+     CHARACTER(LEN=199) :: out=''    ! casa output file
   END TYPE casafiles_type
   TYPE(casafiles_type) :: casafile
 

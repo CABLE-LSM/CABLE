@@ -746,7 +746,9 @@ CONTAINS
     IF ( CALL1 ) THEN
        ! Get File-Name
 
-       IF (TRIM(cable_user%MetType).NE.'' ) THEN
+       IF (len_trim(casafile%out) > 0) THEN
+         fname = trim(casafile%out)
+       ELSE IF (TRIM(cable_user%MetType).NE.'' ) THEN
 
           WRITE( dum, FMT="(I4,'_',I4)")CABLE_USER%YEARSTART,CABLE_USER%YEAREND
           IF (CABLE_USER%YEARSTART.LT.1000.AND.CABLE_USER%YEAREND.LT.1000) THEN
