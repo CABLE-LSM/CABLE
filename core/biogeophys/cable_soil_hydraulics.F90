@@ -130,7 +130,7 @@ CONTAINS
             (ssnow%wb(i,j) / soil%ssat(i))**(2.0 * soil%bch(i) + 3.0)
 
          ! converts from m s-1 to m2 s-1 MPa-1
-         Ksoil = Ksoil / (C%grav * C%RHOW * PA_2_MPa )
+         Ksoil = Ksoil * (C%grav * C%RHOW * PA_2_MPa )
 
          ! Calculate soil-root hydraulic resistance
 
