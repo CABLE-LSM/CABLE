@@ -164,7 +164,9 @@ CONTAINS
 
             ! convert from MPa s m2 m-3 to MPa s m2 kg-1
             soil_resist = soil_resist / C%RHOW
-
+            if (j==1) then
+               print*, 'ksoil',1.0/soil_resist
+            endif
             ! root_resistance is commented out : don't use root-component of
             ! resistance (is part of plant resistance)
             ! MPa s m2 mmol-1 H2O
