@@ -157,15 +157,20 @@ CONTAINS
             ! has access to a surrounding cylinder of soil
             ! (Gardner 1960, Newman 1969)
             rs = SQRT(1.0 / (root_length_density(j) * pi))
-
+            Ksoil = Ksoil * C%RHOW
+            if (j==1) then
+               print*, 'ksoil kg s-1 Mpa-1 m-1',Ksoil
+            endif
             ! Soil-to-root resistance (MPa s m2 m-3)
             soil_resist = LOG(rs / root_radius) / &
                (2.0 * pi * root_length_density(j) * soil%zse(j) * Ksoil)
-
-            ! convert from MPa s m2 m-3 to MPa s m2 kg-1
-            soil_resist = soil_resist / C%RHOW
             if (j==1) then
-               print*, 'ksoil',1.0/soil_resist
+                  print*, 'rs/root_radius',1.0/LOG(rs / root_radius)
+            endif 
+            !! convert from MPa s m2 m-3 to MPa s m2 kg-1
+            !soil_resist = soil_resist / C%RHOW
+            if (j==1) then
+               print*, 'ksoil kg m-2 Mpa-1 s-1',1.0/soil_resist
             endif
             ! root_resistance is commented out : don't use root-component of
             ! resistance (is part of plant resistance)
