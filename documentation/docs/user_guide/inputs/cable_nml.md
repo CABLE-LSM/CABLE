@@ -1,10 +1,8 @@
 
 # Namelist file cable.nml #
 
-The namelist file for CABLE is cable.nml. For offline applications it
-should be located in the directory in which you are running CABLE. For
-ACCESS cases, cable.nml should be located in ~/CABLE-AUX/UM on the
-machine that CABLE is being executed on.
+The control namelist file for CABLE is cable.nml. For offline applications an example is in the ```^/src/offline/``` directory. See below for
+ACCESS cases.
 
 The cable.nml file includes some settings that are common across all CABLE
 applications and others that are required only for offline
@@ -40,6 +38,7 @@ applications. The following are annotated examples of cable.nml:
 | spinup                           | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Spin up the model when .TRUE.                                                                           |
 | delsoilM                         | real               | any real number                                            | uninitialised                    | Allowed variation in soil moisture for spin up.                                                         |
 | delsoilT                         | real               | any real number                                            | uninitialised                    | Allowed variation in soil temperature for spin up.                                                      |
+| snmin                            | real               | any real number                                            | 1.0                              | Threshold/minimum snow depth[m] triggering 3-layer snow model.                                                      |
 | output%restart                   | logical            | .TRUE. .FALSE.                                             | uninitialised                    | Create a restart file when .TRUE..                                                                      |
 | output%met                       | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Output input meteorological data when .TRUE..                                                           |
 | output%flux                      | logical            | .TRUE. .FALSE.                                             | .FALSE.                          | Output convective, runoff, NEE when TRUE                                                                |
@@ -153,6 +152,7 @@ applications. The following are annotated examples of cable.nml:
    spinup = .TRUE.  ! do we spin up the model?
    delsoilM = 0.001   ! allowed variation in soil moisture for spin up
    delsoilT = 0.01    ! allowed variation in soil temperature for spin up
+   snmin = 1.0        ! Threshold/minimum snow depth[m] triggering 3-layer snow model
    output%restart = .TRUE.  ! should a restart file be created?
    output%met = .TRUE.  ! input met data
    output%flux = .TRUE.  ! convective, runoff, NEE
@@ -208,6 +208,7 @@ applications. The following are annotated examples of cable.nml:
 
 ## For ACCESS applications ##
 
+### For ACCESS-ESM1.5 ###
 
 ```fortran
 &cable
@@ -283,6 +284,107 @@ applications. The following are annotated examples of cable.nml:
   casafile%phen='~/CABLE-AUX/core/biogeochem/modis_phenology_csiro.txt' ! phenology by latitude (modis derived)
 &end
 ```
+### For ACCESS-CM2 ###
+
+Uses UM 10.6 as the atmospheric model, which is implemented via the rose-cylc system. cable.nml is specified in ^/app/um/rose-app.conf as:
+
+```
+[namelist:cable]
+cable_user%diag_soil_resp='ON'
+cable_user%fwsoil_switch='Haverd2013'
+cable_user%gs_switch='medlyn'
+cable_user%gw_model=.false.
+cable_user%l_rev_corr=.true.
+cable_user%l_revised_coupling=.true.
+cable_user%or_evap=.false.
+cable_user%soil_thermal_fix=.true.
+cable_user%ssnow_potev='HDM'
+icycle=0
+l_casacnp=.false.
+redistrb=.false.
+satuparam=0.8
+wiltparam=0.5
+```
+
+### For ACCESS-ESM1.6 ###
+
+Uses **payu** to manage simmulations. The cable.nml is
+
+```fortran
+&cable
+  snmin = 0.11        ! depth at which snow switches to 3-layer
+
+  cable_user%L_REV_CORR  = .TRUE.  !apply fix to correctly diagnose energy balance in ESM1.6 runs
+                                 !FALSE in ESM1.5 (as didnt exist)
+!
+!
+!! cable_user flags
+!
+  cable_user%GS_SWITCH = 'medlyn' ! alternative is 'leuning' - used for ESM1.5
+  cable_user%CABLE_RUNTIME_COUPLED = .TRUE. ! controls whether snow initialised if
+                                            ! ktau_gl=1
+                                            ! must be set true for coupled run
+                                            ! use true for atmosphere only runs if
+                                            ! want to take snow from start dump
+                                            ! default is .false.
+  cable_user%FWSOIL_SWITCH = 'Haverd2013' ! Controls root water uptake function
+                                        ! choices are:
+                                        ! 'standard' - used for ESM1.5
+                                        ! 'non-linear extrapolation'
+                                        ! 'Lai and Ktaul 2000' NB TYPO IS IN CODE (should be Katul)
+                                        ! 'Haverd2013'  - likely choice for ESM1.6
+  cable_user%DIAG_SOIL_RESP = 'ON '  ! Controls soil respiration scheme when CASA-CNP not used
+                                     ! 'ON' uses scheme tuned with parameter veg%vegcf
+                                     ! 'OFF' uses scheme tuned with parameter veg%rs20
+  cable_user%LEAF_RESPIRATION = 'OFF' ! Controls what is output into the GPP stash variable
+                                      ! 'OFF' is true GPP (photosynthesis + leaf respiration)
+                                      ! 'ON' is only photosynthesis, canopy%fpn
+  cable_user%RUN_DIAG_LEVEL= 'BASIC'  ! Controls output from CABLE to standard out
+                                      ! choices are:
+                                      ! 'BASIC'
+                                      ! 'NONE'
+                                      ! 'zero' (in cable_explicit_driver - what does this do?)
+  cable_user%ssnow_POTEV = ''    ! Controls method used for soil evaporation
+                                 ! Choices are:
+                                 ! 'P-M' Penman_Monteith, otherwise defaults to
+                                 ! humidity deficit method
+  cable_user%access13roots = .TRUE. ! TRUE uses prescribed froot values
+                                    ! FALSE uses 'rootbeta' parameterisation (as ACCESS-CM2)
+  cable_user%SOIL_THERMAL_FIX = .TRUE. ! TRUE used from CM2 onwards
+                                       ! FALSE as ESM1.5 (didnt exist then)
+!!--------------Test Switches--------------
+  cable_user%l_new_roughness_soil  = .FALSE.   ! for new soil roughness, E.Kowalczyk Mar14
+  cable_user%l_new_runoff_speed    = .FALSE.   ! for new increase in runoff speed, E.Kowalczyk Mar14
+  cable_user%l_new_reduce_soilevp  = .FALSE.   ! to reduce soil evaporation, E.Kowalczyk Mar14
+!!-----------------------------------------
+!
+! soilsnow options
+
+  redistrb = .FALSE.  ! Turn on/off the hydraulic redistribution
+  wiltParam = 0.5     ! only used if hydraulic redistribution .true.
+  satuParam = 0.8     ! only used if hydraulic redistribution .true.
+!
+! CASA-CNP flags
+  l_luc = .FALSE.
+  l_thinforest = .FALSE.
+  l_casacnp = .TRUE. ! redundant? actually controlled by icycle
+  icycle = 3 ! Controls whether CASA-CNP is run and for which species
+             ! Choices are:
+             ! 0 CASA-CNP not run
+             ! 1 Carbon only
+             ! 2 Carbon and nitrogen
+             ! 3 Carbon, nitrogen and phosphorus
+  l_laiFeedbk   = .TRUE.  ! using prognostic LAI
+  l_vcmaxFeedbk = .TRUE.  ! using prognostic Vcmax
+! filenames for CASA-CNP input files
+! updated pftlookup file for CABLE3 format
+  casafile%cnpbiome='INPUT/pftlookup_cable3.csv'  ! biome specific BGC parameters
+  casafile%phen='INPUT/modis_phenology_csiro.txt' ! phenology by latitude (modis derived)
+&end                                                                                                                                                   70,1          Bot
+```
+
+### For ACCESS-AM3 - TBC ###
+
 
 <!-- markdown-link-check-disable-line --> [Walker]: https://doi.org/10.1002/ece3.1173
 [obsolete]: ../other_resources/obsolete_and_deprecated_features/obsolete_and_deprecated_features.md
