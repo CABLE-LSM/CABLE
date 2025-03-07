@@ -10,6 +10,7 @@ MODULE cable_driver_common_mod
     redistrb,                     &
     wiltParam,                    &
     satuParam,                    &
+    snmin,                        &
     cable_user,                   &
     gw_params,                    &
     cable_runtime
@@ -93,6 +94,7 @@ MODULE cable_driver_common_mod
     redistrb,       &
     wiltParam,      &
     satuParam,      &
+    snmin,          &
     cable_user,     & ! additional USER switches
     gw_params
 
