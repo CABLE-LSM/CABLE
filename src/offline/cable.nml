@@ -54,7 +54,7 @@
    redistrb = .FALSE.  ! Turn on/off the hydraulic redistribution
    wiltParam = 0.5
    satuParam = 0.8
-	snmin = 1.0	
+   snmin = 1.0	
    cable_user%FWSOIL_SWITCH = 'standard'        ! choices are: 
                                                  ! 1. standard 
                                                  ! 2. non-linear extrapolation 
