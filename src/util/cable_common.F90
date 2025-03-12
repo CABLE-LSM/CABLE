@@ -206,10 +206,6 @@ USE cable_runtime_opts_mod ,ONLY : snmin
   REAL, SAVE ::        &!should be able to change parameters!
        max_glacier_snowd=1100.0,&
        snow_ccnsw = 2.0, &
-                                !jh!an:clobber - effectively force single layer snow
-                                !snmin = 100.0,      & ! for 1-layer;
-       ! moved to runtime option, set through cable.nml
-       !snmin = 1.,          & ! for 3-layer;
        max_ssdn = 750.0,    & !
        max_sconds = 2.51,   & !
        frozen_limit = 0.85    ! EAK Feb2011 (could be 0.95)
