@@ -1481,6 +1481,7 @@ CONTAINS
              soil%silt(h)    = soilin%silt(soil%isoilm(h))
              soil%clay(h)    = soilin%clay(soil%isoilm(h))
              soil%sand(h)    = soilin%sand(soil%isoilm(h))
+             soil%sres(h)    = soilin%sres(soil%isoilm(h))
           END IF
           rad%latitude(h) = latitude(e)
           !IF(hide%Ticket49Bug4) &
@@ -1515,7 +1516,7 @@ CONTAINS
     !    IF(ASSOCIATED(soiltype_metfile)) DEALLOCATE(soiltype_metfile)
     DEALLOCATE(soilin%silt, soilin%clay, soilin%sand, soilin%swilt, &
          soilin%sfc, soilin%ssat, soilin%bch, soilin%hyds, soilin%sucs, &
-         soilin%rhosoil, soilin%css, vegin%canst1, vegin%dleaf, &
+         soilin%rhosoil, soilin%css, soilin%sres, vegin%canst1, vegin%dleaf, &
          vegin%vcmax, vegin%ejmax, vegin%vcmaxcc, vegin%ejmaxcc, vegin%gmmax, &
          vegin%hc, vegin%xfang, vegin%rp20, &
          vegin%rpcoef, vegin%rs20, vegin%shelrb, vegin%frac4, &

@@ -239,7 +239,8 @@ MODULE cable_common_module
           sucs,    & !
           rhosoil, & !
           css,     & !
-          c3         !
+          c3,      &  !
+          sres
   END TYPE soilin_type
 
   TYPE vegin_type
@@ -554,7 +555,7 @@ CONTAINS
     ALLOCATE ( soilin%silt(mstype), soilin%clay(mstype), soilin%sand(mstype) )
     ALLOCATE ( soilin%swilt(mstype), soilin%sfc(mstype), soilin%ssat(mstype) )
     ALLOCATE ( soilin%bch(mstype), soilin%hyds(mstype), soilin%sucs(mstype) )
-    ALLOCATE ( soilin%rhosoil(mstype), soilin%css(mstype) )
+    ALLOCATE ( soilin%rhosoil(mstype), soilin%css(mstype),soilin%sres(mstype)  )
 
     DO a = 1,mstype
        READ(soilunit,'(8X,A70)') soil_desc(a) ! Read description of each soil type
@@ -572,6 +573,7 @@ CONTAINS
     READ(soilunit,*) soilin%sucs
     READ(soilunit,*) soilin%rhosoil
     READ(soilunit,*) soilin%css
+    READ(soilunit,*) soilin%sres
 
     CLOSE(soilunit)
 

@@ -1766,6 +1766,9 @@ CONTAINS
          opid%albsoil, 'albsoil', '-', &
          'Snow free shortwave soil reflectance fraction', &
          patchout%albsoil, radID, 'radiation', xID, yID, zID, landID, patchID)
+     IF(output%params .OR. output%sres) CALL define_ovar(ncid_out, opid%sres, &
+         'sres', '-', 'Fraction of residual soil volume', &
+         patchout%sres, 'real', xID, yID, zID, landID, patchID)
     !! vh_js !!
     IF (cable_user%CALL_POP) THEN
        IF(output%params .OR. output%hc) CALL define_ovar(ncid_out, opid%hc, &
@@ -2037,6 +2040,8 @@ CONTAINS
     IF(output%params .AND. output%albsoil) CALL write_ovar(ncid_out, &
          opid%albsoil, 'albsoil', toreal4(soil%albsoil), &
          ranges%albsoil, patchout%albsoil, 'radiation')
+     IF(output%params .OR. output%sres) CALL write_ovar(ncid_out, opid%sres, &
+         'sres', toreal4(soil%sres), ranges%sres, patchout%sres, 'real')
     IF(output%params .OR. output%canst1) CALL write_ovar(ncid_out, &
          opid%canst1, 'canst1', toreal4(veg%canst1), &
          ranges%canst1, patchout%canst1, 'real')

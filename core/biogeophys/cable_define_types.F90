@@ -148,6 +148,7 @@ module cable_def_types_mod
           ssat => null(),    & ! vol H2O @ saturation
           sucs => null(),    & ! suction at saturation (m)
           swilt => null(),   & ! vol H2O @ wilting
+          sres => null(),    & ! vol H2O residual
           zse => null(),     & ! thickness of each soil layer (1=top) in m
           zshh => null(),    & ! distance between consecutive layer midpoints (m)
                                 ! vars intro for Ticket #27
@@ -935,6 +936,7 @@ contains
     allocate(soil%ssat(mp))
     allocate(soil%sucs(mp))
     allocate(soil%swilt(mp))
+    allocate(soil%sres(mp))
     allocate(soil%zse(ms))
     allocate(soil%zshh(ms+1))
     allocate(soil%soilcol(mp))
@@ -1599,6 +1601,7 @@ contains
     deallocate(soil%ssat)
     deallocate(soil%sucs)
     deallocate(soil%swilt)
+    deallocate(soil%sres)
     deallocate(soil%zse)
     deallocate(soil%zshh)
     deallocate(soil%cnsd)
@@ -2133,6 +2136,7 @@ contains
     soil%ssat     = 0
     soil%sucs     = 0
     soil%swilt    = 0
+    soil%sres    = 0
     soil%zse      = 0
     soil%zshh     = 0
     soil%cnsd     = 0

@@ -126,7 +126,7 @@ MODULE cable_IO_vars_module
    TYPE parID_type ! model parameter IDs in netcdf file
 
       INTEGER :: bch,latitude,clay,css,rhosoil,hyds,rs20,sand,sfc,silt,        &
-          ssat,sucs,swilt,froot,zse,canst1,dleaf,meth,za_tq,za_uv,             &
+          ssat,sucs,swilt,sres,froot,zse,canst1,dleaf,meth,za_tq,za_uv,             &
           ejmax,frac4,hc,lai,rp20,rpcoef,shelrb, vbeta, xalbnir,               &
           vcmax,xfang,ratecp,ratecs,refsbare,isoil,iveg,albsoil,               &
           taul,refl,tauw,refw,wai,vegcf,extkn,alpha,tminvj,tmaxvj,                   &
@@ -353,6 +353,7 @@ MODULE cable_IO_vars_module
          ssat = .FALSE.,      & ! vol H2O @ saturation
          sucs = .FALSE.,      & ! suction at saturation [m]
          swilt = .FALSE.,     & ! vol H2O @ wilting
+         sres = .FALSE.,      & ! vol of residual in the soil
          froot = .FALSE.,     & ! fraction of roots in each soil layer
          zse = .FALSE.,       & ! thickness of each soil layer (1=top) (m)
          canst1 = .FALSE.,    & ! max intercepted water by canopy [mm/LAI]
