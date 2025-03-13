@@ -87,6 +87,7 @@ MODULE cable_mpimaster
     LALLOC,                           &
     prepareFiles,                     &
     renameFiles,                      &
+    prepareFiles_princeton,           &
     LUCdriver
   USE cable_mpicommon
   USE cable_IO_vars_module, ONLY : NO_CHECK
@@ -353,11 +354,17 @@ CONTAINS
         ENDIF
 
         SELECT CASE (TRIM(cable_user%MetType))
-        CASE ('gswp')
+        CASE ('gswp', 'prin')
           ncciy = CurYear
 
           WRITE(*,*) 'Looking for global offline run info.'
-          CALL prepareFiles(ncciy)
+
+          IF ( TRIM(cable_user%MetType) == 'gswp' ) THEN
+            CALL prepareFiles(ncciy)
+          ELSE ! cable_user%MetType == 'prin'
+            CALL prepareFiles_princeton(ncciy)
+          END IF
+          
           CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
 
         CASE ('plum')

@@ -44,6 +44,8 @@ PROGRAM cable_offline_driver
     CALL cable_driver_init_gswp(mpi_grp, GSWP_MID, NRRRR)
   CASE('gswp3')
     CALL cable_driver_init_gswp(mpi_grp)
+  CASE('prin')
+    CALL cable_driver_init_gswp(mpi_grp, GSWP_MID, NRRRR)
   CASE('plum')
     CALL cable_driver_init_plume(dels, koffset, PLUME)
   CASE('cru')
