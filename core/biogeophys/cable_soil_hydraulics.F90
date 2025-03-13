@@ -127,7 +127,7 @@ CONTAINS
 
          ! Soil Hydraulic conductivity (m s-1), Campbell 1974
          Ksoil = soil%hyds(i) * &
-            (max(ssnow%wb(i,j), soil%swilt(i)) / soil%ssat(i))**(2.0 * soil%bch(i) + 3.0)
+            (max(real(ssnow%wb(i,j)), soil%swilt(i)) / soil%ssat(i))**(2.0 * soil%bch(i) + 3.0)
 
          ! converts from m s-1 to m2 s-1 MPa-1
          Ksoil = Ksoil / (C%grav * C%RHOW * PA_2_MPa )
