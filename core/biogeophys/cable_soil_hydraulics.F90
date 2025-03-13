@@ -138,7 +138,7 @@ CONTAINS
          !IF (Ksoil < TINY_NUMBER) THEN
          IF (Ksoil < SMALL_NUMBER) THEN
             !ssnow%soilR(i,j) = HUGE_NUMBER
-            ssnow%soilR(i,j) = BIG_NUMBER
+            ssnow%soilR(i,j) = BIG_NUMBER / C%RHOW
             rsum = rsum + ( 1.0 / ssnow%soilR(i,j) )
          ELSE
 
@@ -493,7 +493,7 @@ CONTAINS
          sumksoil = 0.0
          sumpsiksoil = 0.0
          DO k = 1, ms
-            sumpsiksoil = sumpsiksoil + ssnow%psi_soil(i,k)* 1.0 / (ssnow%soilR(i,k) + ssnow%rootR(i,k) )
+            sumpsiksoil = sumpsiksoil + ssnow%psi_soil(i,k) / (ssnow%soilR(i,k) + ssnow%rootR(i,k) )
             sumksoil = sumksoil + 1.0 / (ssnow%soilR(i,k) + ssnow%rootR(i,k) )
          END DO
          psix = (sumpsiksoil - ex) / sumksoil
