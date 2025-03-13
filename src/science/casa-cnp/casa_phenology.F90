@@ -46,21 +46,24 @@ MODULE phenvariable
 CONTAINS
 
   SUBROUTINE alloc_phenvariable(phen,arraysize)
+    !* Allocate phen derived type instance.
+    ! Allocated arrays are initialised to zero.
 
-    IMPLICIT NONE
     TYPE(phen_variable), INTENT(INOUT) :: phen
-    INTEGER,             INTENT(IN) :: arraysize
+    INTEGER,             INTENT(IN   ) :: arraysize
 
-    ALLOCATE(phen%Tkshed(mvtype))
-    ALLOCATE(phen%phase(arraysize),         &
-         phen%doyphase(arraysize,mphase))
-    ALLOCATE(phen%phen(arraysize), &
-         phen%aphen(arraysize), &
-         phen%phasespin(arraysize,mdyear), &
-         phen%doyphasespin_1(arraysize,mdyear), &
-         phen%doyphasespin_2(arraysize,mdyear), &
-         phen%doyphasespin_3(arraysize,mdyear), &
-         phen%doyphasespin_4(arraysize,mdyear))
+    ALLOCATE(phen%Tkshed(mvtype), source=0.0_r_2)
+    ALLOCATE(phen%phen(arraysize), phen%aphen(arraysize), source=0.0)
+    ALLOCATE(                                &
+      phen%phase(arraysize),                 &
+      phen%doyphase(arraysize,mphase),       &
+      phen%phasespin(arraysize,mdyear),      &
+      phen%doyphasespin_1(arraysize,mdyear), &
+      phen%doyphasespin_2(arraysize,mdyear), &
+      phen%doyphasespin_3(arraysize,mdyear), &
+      phen%doyphasespin_4(arraysize,mdyear), &
+      source=0                               &
+    )
   END SUBROUTINE alloc_phenvariable
 
 END MODULE phenvariable
