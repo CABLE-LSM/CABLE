@@ -497,9 +497,12 @@ CONTAINS
     IF(ok/=NF90_NOERR) THEN ! if failed
        ! Try 'lon' instead of x
        ok = NF90_INQ_DIMID(ncid_met,'lon', xdimID)
-       IF(ok/=NF90_NOERR) CALL nc_abort &
-            (ok,'Error finding x dimension in '&
-            //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
+       IF(ok/=NF90_NOERR) THEN                                          ! MMY
+          ok = NF90_INQ_DIMID(ncid_met,'longitude', xdimID)             ! MMY ! For princeton
+          IF(ok/=NF90_NOERR) CALL nc_abort &                            ! MMY
+               (ok,'Error finding x dimension in '&                     ! MMY
+               //TRIM(filename%met)//' (SUBROUTINE open_met_file)')     ! MMY
+       END IF                                                           ! MMY
     END IF
     ok = NF90_INQUIRE_DIMENSION(ncid_met,xdimID,len=xdimsize)
     IF(ok/=NF90_NOERR) CALL nc_abort &
@@ -510,9 +513,12 @@ CONTAINS
     IF(ok/=NF90_NOERR) THEN ! if failed
        ! Try 'lat' instead of y
        ok = NF90_INQ_DIMID(ncid_met,'lat', ydimID)
-       IF(ok/=NF90_NOERR) CALL nc_abort &
-            (ok,'Error finding y dimension in ' &
-            //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
+       IF(ok/=NF90_NOERR) THEN                                           ! MMY
+          ok = NF90_INQ_DIMID(ncid_met,'latitude', ydimID)               ! MMY ! For princeton
+          IF(ok/=NF90_NOERR) CALL nc_abort &                             ! MMY
+               (ok,'Error finding y dimension in ' &                     ! MMY
+               //TRIM(filename%met)//' (SUBROUTINE open_met_file)')      ! MMY
+       END IF                                                            ! MMY
     END IF
     ok = NF90_INQUIRE_DIMENSION(ncid_met,ydimID,len=ydimsize)
     IF(ok/=NF90_NOERR) CALL nc_abort &
@@ -821,7 +827,10 @@ CONTAINS
     !===== done bug fixing for timevar in PALS met file ===============
 
     !===== gswp input file has bug in timeunits ===========
-    IF (ncciy > 0) WRITE(timeunits(26:27),'(i2.2)') 0
+    IF (TRIM(cable_user%MetType) .NE. "prin") THEN ! MMY
+       IF (ncciy > 0) WRITE(timeunits(26:27),'(i2.2)') 0
+    END IF ! MMY
+
     !===== done bug fixing for timeunits in gwsp file ========
     WRITE(logn,*) 'Time variable units: ', timeunits
     ! Get coordinate field:
@@ -848,16 +857,24 @@ CONTAINS
     ! start time) from character to integer; calculate starting hour-of-day,
     ! day-of-year, year:
     IF (.NOT.cable_user%GSWP3) THEN
-       READ(timeunits(15:18),*) syear
-       READ(timeunits(20:21),*) smoy ! integer month
-       READ(timeunits(23:24),*) sdoytmp ! integer day of that month
-       READ(timeunits(26:27),*) shod  ! starting hour of day
+       IF (cable_user%MetType .eq. "prin") THEN ! MMY
+          READ(timeunits(13:16),*) syear ! MMY
+          READ(timeunits(18:19),*) smoy ! integer month ! MMY
+          READ(timeunits(21:22),*) sdoytmp ! integer day of that month ! MMY
+          READ(timeunits(24:25),*) shod  ! starting hour of day ! MMY
+       ELSE ! MMY
+          READ(timeunits(15:18),*) syear
+          READ(timeunits(20:21),*) smoy ! integer month
+          READ(timeunits(23:24),*) sdoytmp ! integer day of that month
+         READ(timeunits(26:27),*) shod  ! starting hour of day
+       END IF
     ELSE
        syear=ncciy
        smoy=1
        sdoytmp=1
        shod=0
     END IF
+
 
     ! if site data, shift start time to middle of timestep
     ! only do this if not already at middle of timestep
@@ -1055,14 +1072,19 @@ CONTAINS
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error finding Rainf units in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
-    IF(metunits%Rainf(1:8)=='kg/m^2/s'.OR.metunits%Rainf(1:6)=='kg/m2s'.OR.metunits%Rainf(1:10)== &
-         'kgm^-2s^-1'.OR.metunits%Rainf(1:4)=='mm/s'.OR. &
-         metunits%Rainf(1:6)=='mms^-1'.OR. &
-         metunits%Rainf(1:7)=='kg/m^2s'.OR.metunits%Rainf(1:10)=='kg m-2 s-1'.OR.metunits%Wind(1:5)/='m s-1') THEN
+    IF(metunits%Rainf(1:8)=='kg/m^2/s'    .OR.                                &
+       metunits%Rainf(1:7)=='kg/m2/s'     .OR.                                &
+       metunits%Rainf(1:6)=='kg/m2s'      .OR.                                &
+       metunits%Rainf(1:10)=='kgm^-2s^-1' .OR.                                &
+       metunits%Rainf(1:4)=='mm/s'        .OR.                                &
+       metunits%Rainf(1:6)=='mms^-1'      .OR.                                &
+       metunits%Rainf(1:7)=='kg/m^2s'     .OR.                                &
+       metunits%Rainf(1:10)=='kg m-2 s-1' .OR.                                &
+       metunits%Wind(1:5)/='m s-1' ) THEN
        ! Change from mm/s to mm/time step:
        convert%Rainf = dels
-    ELSE IF(metunits%Rainf(1:4)=='mm/h'.OR.metunits%Rainf(1:6)== &
-         'mmh^-1') THEN
+    ELSE IF(metunits%Rainf(1:4)=='mm/h'   .OR.                                &
+            metunits%Rainf(1:6)== 'mmh^-1' ) THEN
        ! Change from mm/h to mm/time step:
        convert%Rainf = dels/3600.0
     ELSE

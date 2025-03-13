@@ -106,6 +106,7 @@ MODULE cable_driver_common_mod
   PUBLIC :: cable_driver_init_default
   PUBLIC :: prepareFiles
   PUBLIC :: renameFiles
+  PUBLIC :: prepareFiles_princeton
   PUBLIC :: LUCdriver
 
 CONTAINS
@@ -334,7 +335,8 @@ CONTAINS
   END SUBROUTINE cable_driver_init_cru
 
   SUBROUTINE prepareFiles(ncciy)
-    !* Select the correct files given the year for filenames following the gswp format
+    !* Select the correct files given the year for filenames following 
+    ! the gswp format
     
     USE cable_IO_vars_module, ONLY: logn,gswpfile
     IMPLICIT NONE
@@ -352,10 +354,11 @@ CONTAINS
     CALL renameFiles(logn,gswpfile%Tair,ncciy,'Tair')
     CALL renameFiles(logn,gswpfile%wind,ncciy,'wind')
 
-  END SUBROUTINE prepareFiles
+  END SUBROUTINE prepareFiles  
 
   SUBROUTINE renameFiles(logn,inFile,ncciy,inName)
-    !! Replace the year in the filename with the value of ncciy.
+    !* Replace the year in the filename with the value of ncciy 
+    ! for the gswp file format.
 
     IMPLICIT NONE
     INTEGER, INTENT(IN) :: logn !! Log file unit number
@@ -371,6 +374,48 @@ CONTAINS
     WRITE(logn,*) TRIM(inName), ' global data from ', TRIM(inFile)
 
   END SUBROUTINE renameFiles
+
+  SUBROUTINE prepareFiles_princeton(ncciy)
+    !* Select the correct files given the year for filenames following the 
+    ! princeton format
+    USE cable_IO_vars_module, ONLY: logn,gswpfile
+    IMPLICIT NONE
+    INTEGER, INTENT(IN) :: ncciy
+  
+    WRITE(logn,*) 'CABLE offline global run using princeton forcing for ', ncciy
+    PRINT *,     'CABLE offline global run using princeton forcing for ', ncciy
+  
+    CALL renameFiles_princeton(logn,gswpfile%rainf,ncciy,'rainf')
+    CALL renameFiles_princeton(logn,gswpfile%LWdown,ncciy,'LWdown')
+    CALL renameFiles_princeton(logn,gswpfile%SWdown,ncciy,'SWdown')
+    CALL renameFiles_princeton(logn,gswpfile%PSurf,ncciy,'PSurf')
+    CALL renameFiles_princeton(logn,gswpfile%Qair,ncciy,'Qair')
+    CALL renameFiles_princeton(logn,gswpfile%Tair,ncciy,'Tair')
+    CALL renameFiles_princeton(logn,gswpfile%wind,ncciy,'wind')
+ 
+  END SUBROUTINE prepareFiles_princeton
+ 
+  SUBROUTINE renameFiles_princeton(logn,inFile,ncciy,inName)
+    !* Replace the year in the filename with the value of ncciy for 
+    ! the princeton format
+    IMPLICIT NONE
+    INTEGER, INTENT(IN) :: logn,ncciy
+    INTEGER:: nn
+    CHARACTER(LEN=200), INTENT(INOUT) :: inFile
+    CHARACTER(LEN=*),  INTENT(IN)        :: inName
+    INTEGER :: idummy
+  
+    nn = INDEX(inFile,'19')
+    READ(inFile(nn:nn+3),'(i4)') idummy
+    WRITE(inFile(nn:nn+3),'(i4.4)') ncciy
+    nn = INDEX(inFile,'19')
+    READ(inFile(nn:nn+3),'(i4)') idummy
+    WRITE(inFile(nn:nn+3),'(i4.4)') ncciy
+    READ(inFile(nn-5:nn-2),'(i4)') idummy
+    WRITE(inFile(nn-5:nn-2),'(i4.4)') ncciy
+    WRITE(logn,*) TRIM(inName), ' global data from ', TRIM(inFile)
+ 
+  END SUBROUTINE renameFiles_princeton
 
   !==============================================================================
   ! subroutine for 
