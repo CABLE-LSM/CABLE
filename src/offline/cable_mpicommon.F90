@@ -99,7 +99,7 @@ MODULE cable_mpicommon
   ! MPI: number of final casa result matrices and vectors to receive
   ! by the master for casa_poolout and casa_fluxout
   INTEGER, PARAMETER :: ncasa_mat = 37    ! add three more wood product variables
-  INTEGER, PARAMETER :: ncasa_vec = 58   ! vh changed on 5-feb-2016 for adding sapwood area and frac_sapwood
+  INTEGER, PARAMETER :: ncasa_vec = 66
   ! MPI: number of fields included in restart_t type for data
   ! that is returned only for creating a restart file at the end of the run
   ! MPI: gol124: canopy%rwater removed when Bernard ported to CABLE_r491
