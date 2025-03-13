@@ -400,7 +400,7 @@ CONTAINS
           PRINT*,'rainf'
           CALL handle_err( ok )
        ENDIF
-       IF(.NOT. globalMetfile%l_gpcc) THEN
+       IF(.NOT. globalMetfile%l_gpcc .AND. cable_user%MetType .NE. "prin") THEN
          ok = NF90_OPEN(gswpfile%snowf,0,ncid_snow)
          IF (ok /= NF90_NOERR) THEN
             PRINT*,'snow'
