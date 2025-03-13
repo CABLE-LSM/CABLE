@@ -408,7 +408,7 @@ CONTAINS
     nn = INDEX(inFile,'19')
     READ(inFile(nn:nn+3),'(i4)') idummy
     WRITE(inFile(nn:nn+3),'(i4.4)') ncciy
-    nn = INDEX(inFile,'19')
+    nn = INDEX(inFile,'19', BACK=.TRUE.)
     READ(inFile(nn:nn+3),'(i4)') idummy
     WRITE(inFile(nn:nn+3),'(i4.4)') ncciy
     READ(inFile(nn-5:nn-2),'(i4)') idummy
