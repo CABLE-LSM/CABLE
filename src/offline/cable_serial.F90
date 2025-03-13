@@ -76,6 +76,7 @@ MODULE cable_serial
     LALLOC,                           &
     prepareFiles,                     &
     renameFiles,                      &
+    prepareFiles_princeton,           &
     LUCdriver
   USE cable_def_types_mod
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
@@ -297,10 +298,15 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
 
         ! Check for gswp run
         SELECT CASE (TRIM(cable_user%MetType))
-        CASE ('gswp')
+        CASE ('gswp', 'prin')
           ncciy = CurYear
 
-          CALL prepareFiles(ncciy)
+          IF (cable_user%MetType == 'gswp') THEN
+            CALL prepareFiles(ncciy)
+          ELSE ! cable_user%MetType == 'prin'
+            CALL prepareFiles_princeton(ncciy) ! MMY
+          END IF
+
           IF ( RRRR .EQ. 1 ) THEN
             CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
             IF (leaps.AND.is_leapyear(YYYY).AND.kend.EQ.2920) THEN
