@@ -127,7 +127,7 @@ CONTAINS
 
          ! Soil Hydraulic conductivity (m s-1), Campbell 1974
          Ksoil = soil%hyds(i) * &
-            (ssnow%wb(i,j) / soil%ssat(i))**(2.0 * soil%bch(i) + 3.0)
+            (max(ssnow%wb(i,j), ssnow%swilt(i,j)) / soil%ssat(i))**(2.0 * soil%bch(i) + 3.0)
 
          ! converts from m s-1 to m2 s-1 MPa-1
          Ksoil = Ksoil / (C%grav * C%RHOW * PA_2_MPa )
@@ -135,12 +135,13 @@ CONTAINS
          ! Calculate soil-root hydraulic resistance
 
          ! prevent floating point error
+         !ksoil = max(ksoil, small_number)
          !IF (Ksoil < TINY_NUMBER) THEN
-         IF (Ksoil < SMALL_NUMBER) THEN
-            !ssnow%soilR(i,j) = HUGE_NUMBER
-            ssnow%soilR(i,j) = BIG_NUMBER / C%RHOW
-            rsum = rsum + ( 1.0 / ssnow%soilR(i,j) )
-         ELSE
+         ! IF (Ksoil < SMALL_NUMBER) THEN
+         !    !ssnow%soilR(i,j) = HUGE_NUMBER
+         !    ssnow%soilR(i,j) = BIG_NUMBER / C%RHOW
+         !    rsum = rsum + ( 1.0 / ssnow%soilR(i,j) )
+         ! ELSE
 
             ! Root biomass density (g biomass m-3 soil)
             ! Divide root mass up by the frac roots in the layer (g m-3)
@@ -179,7 +180,7 @@ CONTAINS
             ssnow%soilR(i,j) = soil_resist
 
 
-         END IF
+         ! END IF
 
          !print*, "DEBUG soilR:", j,  ssnow%soilR(i,j), Ksoil, root_mass, root_biomass , rsum
 
