@@ -1,10 +1,10 @@
 MODULE BLAZE_MOD
 
 TYPE TYPE_BLAZE
-   INTEGER,  DIMENSION(:),  ALLOCATABLE :: DSLR,ilon, jlat, Flix,k_tune_litter
+   INTEGER,  DIMENSION(:),  ALLOCATABLE :: DSLR,ilon, jlat, Flix
    REAL,     DIMENSION(:),  ALLOCATABLE :: RAINF, KBDI, LR, U10,RH,TMAX,TMIN,AREA, w_prior, FDI
    REAL,     DIMENSION(:),  ALLOCATABLE :: FFDI,FLI,ROS,Z,D,w, LAT, LON,DFLI,AB,CAvgAnnRainf
-   REAL,     DIMENSION(:),  ALLOCATABLE :: DEADWOOD,POP_TO, POP_CWD, POP_STR,shootfrac
+   REAL,     DIMENSION(:),  ALLOCATABLE :: DEADWOOD,POP_TO, POP_CWD, POP_STR,shootfrac, k_tune_litter
    REAL,     DIMENSION(:,:),ALLOCATABLE :: AnnRAINF, ABM, TO, AGC_g, AGC_w
    REAL,     DIMENSION(:,:),ALLOCATABLE :: AGLit_w, AGLit_g, BGLit_w, BGLit_g
    REAL,     DIMENSION(:,:),ALLOCATABLE :: CPLANT_g, CPLANT_w
@@ -21,6 +21,7 @@ TYPE TYPE_BLAZE
    CHARACTER(len=6) :: SIMFIRE_REGION = "GLOBAL"    ! either GLOBAL, EUROPE, ANZ
    CHARACTER(len=7) :: BURNT_AREA_SRC = "SIMFIRE"   ! either SIMFIRE or NONE !CLN for now!
    INTEGER                              :: IAM ! number of master/worker for diagnostic output reasons
+   REAL                                 :: K_LITTER_BOREAL, K_LITTER_SAVANNA, K_LITTER_TEMPERATE, K_LITTER_TROPICS
 END TYPE TYPE_BLAZE
 
 TYPE TYPE_TURNOVER
@@ -129,7 +130,7 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   !CLNNAMELIST /BLAZENML/ HydePath,  BurnedAreaSource, BurnedAreaFile, BurnedAreaClimatologyFile, &
   !CLN     SIMFIRE_REGION
   NAMELIST /BLAZENML/ blazeTStep,  BurnedAreaSource, BurnedAreaFile, OutputMode, &
-       K_LITTER_BOREAL, K_LITTER_TEMPERATE, K_LITTER_SAVANNA, K_LITTER_TROICS, MIN_FUEL
+       K_LITTER_BOREAL, K_LITTER_TEMPERATE, K_LITTER_SAVANNA, K_LITTER_TROPICS, MIN_FUEL
        
   ! READ BLAZE settings
   CALL GET_UNIT(iu)
@@ -221,6 +222,12 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
 
   BLAZE%CPLANT_g = 0.0
   BLAZE%CPLANT_w = 0.0
+
+  !INH parse k_litter's into BLAZE TYPE
+  BLAZE%K_LITTER_BOREAL = K_LITTER_BOREAL
+  BLAZE%K_LITTER_SAVANNA = K_LITTER_SAVANNA
+  BLAZE%K_LITTER_TEMPERATE = K_LITTER_TEMPERATE
+  BLAZE%K_LITTER_TROPICS = K_LITTER_TROPICS
 
 END SUBROUTINE INI_BLAZE
 
@@ -616,10 +623,11 @@ FUNCTION P_SURV_SAVANNA (height, fli)
   
   IMPLICIT NONE
 
-  REAL, INTENT(IN) :: height, fli ! m, kW/m
-  REAL             :: fli_MWm, p_surv_savanna
+  REAL, INTENT(IN) :: height, fli  ! m, kW/m, ?
+  REAL             :: fli_MWm, p_surv_savanna, intensity
 
   fli_MWm = fli / 1000. ! kW/m -> MW/m
+  intensity = fli / 1000.  !INH just to get it to build
 
   p_surv_savanna = max(0.,1. - ( 1./(1. + exp(1.5*(height - 0.5 * intensity - 1. )))))
   
