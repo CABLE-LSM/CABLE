@@ -274,6 +274,7 @@ MODULE cable_IO_vars_module
          Area = .FALSE., & ! patch area in km2
          GPP_components = .FALSE.,    & ! sunlit and shaded GPP, plus J and C limited components
          Qcan = .FALSE.,     & ! absorbed radiation by canopy
+         uptake_layer = .FALSE.,     &
 
          ! vh_mc ! additional variables for ESM-SnowMIP
          hfds       = .false., & ! downward heat flux at ground surface [W/m2]

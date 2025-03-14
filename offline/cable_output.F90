@@ -86,7 +86,7 @@ MODULE cable_output_module
           A13n, aDisc13, c13plant, c13litter, c13soil, c13labile, &
           TSap, psi_soil, psi_rootzone, psix, psi_can_sl, psi_can_sh, &
           plc_sat, plc_stem, plc_can, gsw_sun, gsw_sha, LeafT, abs_deltpsil_sl, abs_deltpsil_sh, kplant, &
-          abs_deltlf, abs_deltds, abs_deltcs_sl, abs_deltcs_sh, ksoil, kroot
+          abs_deltlf, abs_deltds, abs_deltcs_sl, abs_deltcs_sh, ksoil, kroot, uptake_layer
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
 
@@ -132,6 +132,7 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:,:) :: SoilMoistIce => null() ! 33 av.layer soil frozen moisture [kg/m2]
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: Qs => null()  ! 34 surface runoff [kg/m2/s]
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: Qsb => null() ! 35 subsurface runoff [kg/m2/s]
+     REAL(KIND=r_1), POINTER, DIMENSION(:,:) :: uptake_layer => null() ! 33 water uptake rate from different soil layer [kg/m2/s]
      ! 36 change in soilmoisture (sum layers) [kg/m2]
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: DelSoilMoist => null()
      ! 37 change in snow water equivalent [kg/m2]
@@ -2753,6 +2754,19 @@ CONTAINS
         out%kroot = zero4
      END IF
     END IF
+    IF(output%soil .OR. output%uptake_layer) THEN
+     ! Add current timestep's value to total of temporary output variable:
+     out%uptake_layer = out%uptake_layer + toreal4(ssnow%uptake_layer)
+     IF(writenow) THEN
+        ! Divide accumulated variable by number of accumulated time steps:
+        out%uptake_layer = out%uptake_layer * rinterval
+        ! Write value to file:
+        CALL write_ovar(out_timestep, ncid_out, ovid%uptake_layer, 'uptake_layer', &
+             out%uptake_layer, ranges%TVeg, patchout%uptake_layer, 'soil', met)
+        ! Reset temporary output variable:
+        out%uptake_layer = zero4
+     END IF
+  END IF
     ! SoilTemp: av.layer soil temperature [K]
     IF(output%soil .OR. output%SoilTemp) THEN
        ! Add current timestep's value to total of temporary output variable:
