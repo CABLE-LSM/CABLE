@@ -227,7 +227,7 @@ CONTAINS
 
     ! MPI:
     INTEGER               :: comm ! MPI communicator for comms with the workers
-    DOUBLE PRECISION, INTENT(IN) :: trunk_sumbal
+    DOUBLE PRECISION, ALLOCATABLE, INTENT(IN) :: trunk_sumbal
       !! Reference value for quasi-bitwise reproducibility checks.
     REAL, INTENT(INOUT) :: dels !! Time step size in seconds
     INTEGER, INTENT(INOUT) :: koffset !! Timestep to start at
@@ -315,6 +315,7 @@ CONTAINS
 
     INTEGER :: count_bal = 0
     INTEGER :: nkend=0
+    INTEGER :: unit
 
     INTEGER :: kk,m,np,ivt
     INTEGER, PARAMETER :: mloop = 30   ! CASA-CNP PreSpinup loops
@@ -900,7 +901,7 @@ CONTAINS
             IF(ktau==(kend-1)) THEN
 
               nkend = nkend+1
-              IF( ABS(new_sumbal-trunk_sumbal) < 1.e-7) THEN
+              IF(ALLOCATED(trunk_sumbal) .AND. ABS(new_sumbal-trunk_sumbal) < 1.e-7) THEN
 
                 PRINT *, ""
                 PRINT *, &
@@ -915,13 +916,12 @@ CONTAINS
                       "NB. Offline-parallel runs spinup cycles:", nkend
                 PRINT *, &
                       "Internal check shows in this version new_sumbal != trunk sumbal"
-                PRINT *, "The difference is: ", new_sumbal - trunk_sumbal
                 PRINT *, &
                       "Writing new_sumbal to the file:", TRIM(filename%new_sumbal)
 
-                !CLN                      OPEN( 12, FILE = filename%new_sumbal )
-                !CLN                      WRITE( 12, '(F20.7)' ) new_sumbal  ! written by previous trunk version
-                !CLN                      CLOSE(12)
+                OPEN(newunit=unit, file=filename%new_sumbal)
+                WRITE(unit, '(F20.7)') new_sumbal  ! written by previous trunk version
+                CLOSE(unit)
 
               ENDIF
 

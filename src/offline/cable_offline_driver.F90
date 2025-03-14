@@ -23,7 +23,7 @@ PROGRAM cable_offline_driver
 
   REAL    :: etime ! Declare the type of etime()
   TYPE(mpi_grp_t) :: mpi_grp
-  DOUBLE PRECISION :: trunk_sumbal
+  DOUBLE PRECISION, ALLOCATABLE :: trunk_sumbal
     !! Reference value for quasi-bitwise reproducibility checks.
   INTEGER :: NRRRR !! Number of repeated spin-up cycles
   REAL :: dels !! Time step size in seconds
