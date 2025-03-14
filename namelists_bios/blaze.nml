@@ -1,8 +1,13 @@
 &blazenml
-    blazeTStep       = "annually"	! Call frequency ("daily","monthly","annually")
-    BurnedAreaSource = "SIMFIRE"    	! Burnt Area ("PRESCRIBED","SIMFIRE","GFED4") 
+    blazeTStep       = "annually"	  ! Call frequency ("daily","monthly","annually")
+    BurnedAreaSource = "SIMFIRE"      ! Burnt Area ("PRESCRIBED","SIMFIRE","GFED4") 
     BurnedAreaFile   = "/home/x_larni/STOREDIR/DATA/CABLE_INPUT/DATA_BLAZE/BA_Aust_2001-2019.nc"     		! used for Prescribed fires !CLN not available for now!
-    OutputMode       = "full"      	! "std" for standard vars, "full" for full set of BLAZE output
+    OutputMode       = "full"      	  ! "std" for standard vars, "full" for full set of BLAZE output
+    K_LITTER_BOREAL    = 0.38         ! tuning coeff - boreal
+    K_LITTER_SAVANNA   = 0.75         ! tuning coeff - savannah
+    K_LITTER_TEMPERATE = 0.0025       ! tuning coeff - temperate
+    K_LITTER_TROPICS   = 0.15         ! tuning coeff - tropics 
+    MIN_FUEL           = 120.         ! minimimum fuel (gC/m2)
 &end
 &simfirenml
     SIMFIRE_REGION   = "ANZ"  		! ("ANZ","EUROPE","GLOBAL") 
