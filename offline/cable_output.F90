@@ -740,6 +740,13 @@ CONTAINS
        out%SoilMoistIce = zero4 ! initialise
     END IF
     IF(output%soil) THEN
+     CALL define_ovar(ncid_out, ovid%uptake_layer, &
+                      'uptake_layer', 'kg m-2 s-1', 'soil water uptake rate', &
+                      patchout%uptake_layer, 'soil', xID, yID, zID, landID, patchID, soilID, tID)
+     ALLOCATE(out%uptake_layer(mp,ms))
+     out%uptake_layer = zero4 ! initialise
+    END IF
+    IF(output%soil) THEN
      CALL define_ovar(ncid_out, ovid%ksoil, &
                       'ksoil', 'kg m-2 s-1 Mpa-1', 'soil conductivity', &
                       patchout%ksoil, 'soil', xID, yID, zID, landID, patchID, soilID, tID)
