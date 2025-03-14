@@ -293,7 +293,9 @@ MODULE cable_common_module
           g2, &
           g3, &
           psi_ref, &
-          dc ! used for iteration in dryLeaf, maybe abandoned later, Zihanlu, 19/12/2024
+          dc, & ! used for iteration in dryLeaf, maybe abandoned later, Zihanlu, 19/12/2024
+          root_conduc ! root reference conductivity,  kg s-1 Mpa-1 m-1(root length)
+
      REAL, DIMENSION(:,:), ALLOCATABLE :: &
           froot,      & !
           cplant,     & !
@@ -406,7 +408,8 @@ CONTAINS
          vegin%zr(mvtype), vegin%clitt(mvtype), vegin%gamma(mvtype), &
          vegin%kmax(mvtype), vegin%PLCcrit(mvtype), &
          vegin%P50(mvtype), vegin%P88dP50(mvtype),&
-         vegin%g2(mvtype), vegin%g3(mvtype), vegin%psi_ref(mvtype),vegin%dc(mvtype), vegin%vcmax_scalar(mvtype))
+         vegin%g2(mvtype), vegin%g3(mvtype), vegin%psi_ref(mvtype), & 
+         vegin%dc(mvtype), vegin%vcmax_scalar(mvtype),vegin%root_conduc(mvtype) )
     ! set default vcmaxcc and ejmaxcc to 0. because not used yet
     vegin%vcmaxcc = 0
     vegin%ejmaxcc = 0
@@ -460,6 +463,7 @@ CONTAINS
           READ(vegunit,*) vegin%P50(jveg), vegin%P88dP50(jveg)
           READ(vegunit,*) vegin%g2(jveg), vegin%g3(jveg), vegin%psi_ref(jveg), &
                vegin%vcmax_scalar(jveg)
+          READ(vegunit,*) vegin%root_conduc(jveg)
        END DO
 
     ELSE
@@ -1051,6 +1055,7 @@ CONTAINS
        veg%clitt(h)   = vegin%clitt(veg%iveg(h))
           ! plant hydraulics; mgk576 2017; ms8355 2022
        veg%kmax(h)     = vegin%kmax(veg%iveg(h))
+       veg%root_conduc(h)     = vegin%root_conduc(veg%iveg(h))
 
        IF (veg%PLCcrit(h) < 1.E-3) THEN
           veg%PLCcrit(h)    = vegin%PLCcrit(veg%iveg(h))

@@ -4830,6 +4830,8 @@ CONTAINS
                     'P50', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
      CALL define_ovar(ncid_restart, rpid%P88dP50, 'P88dP50', '-', &
                     'P88dP50', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+     CALL define_ovar(ncid_restart, rpid%root_conduc, 'root_conduc', 'kg s-1 Mpa-1 m-1(root length)', &
+                    'root_conduc', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
     ! CALL define_ovar(ncid_restart, rpid%tminvj, 'tminvj', 'C', &
     !                  'Min temperature for the start of photosynthesis', &
     !                  .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
@@ -5093,6 +5095,8 @@ CONTAINS
      CALL write_ovar (ncid_restart, rpid%P50, 'P50', toreal4(veg%P50), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
      CALL write_ovar (ncid_restart, rpid%P88dP50, 'P88dP50', toreal4(veg%P88dP50), &
+          (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
+     CALL write_ovar (ncid_restart, rpid%root_conduc, 'root_conduc', toreal4(veg%root_conduc), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
     ! CALL write_ovar (ncid_restart, rpid%tminvj, 'tminvj', toreal4(veg%tminvj), &
     !                  ranges%tminvj, .TRUE., 'real', .TRUE.)

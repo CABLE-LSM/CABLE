@@ -92,7 +92,7 @@ CONTAINS
       REAL               :: ht, stem_biomass
       REAL, PARAMETER    :: Kbiometric = 50.0 ! cst in height-diameter relationship
       REAL, PARAMETER    :: WD = 300.0 ! Wood density kgC/m3
-      REAL, PARAMETER    :: root_conduc = 1e-7 ! kg s-1 Mpa-1 m-1(root length)
+      !REAL, PARAMETER    :: root_conduc = 1e-7 ! kg s-1 Mpa-1 m-1(root length)
       INTEGER, PARAMETER :: STEM_INDEX = 2
       
       ! stem_biomass = bgc%cplant(i,STEM_INDEX) * gC2DM
@@ -151,7 +151,7 @@ CONTAINS
             ! Root length density (m root m-3 soil)
             root_length_density(j) = root_mass_density / (root_density * root_xsec_area)
             ! kg m-2 s-1 Mpa-1
-            ssnow%rootR(i,j) = 1.0 / (root_conduc * root_length_density(j) * soil%zse(j)) 
+            ssnow%rootR(i,j) = 1.0 / (veg%root_conduc(i) * root_length_density(j) * soil%zse(j)) 
 
             ! Conductance of the soil-to-root pathway can be estimated
             ! assuming that the root system consists of one long root that

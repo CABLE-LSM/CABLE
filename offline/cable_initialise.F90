@@ -675,6 +675,8 @@ CONTAINS
          max_vegpatches,'def',from_restart,mp)
      CALL readpar(ncid_rin,'P88dP50',dummy,veg%P88dP50,filename%restart_in, &
          max_vegpatches,'def',from_restart,mp)
+     CALL readpar(ncid_rin,'root_conduc',dummy,veg%root_conduc,filename%restart_in, &
+         max_vegpatches,'def',from_restart,mp)
     ! CALL readpar(ncid_rin,'tminvj',dummy,veg%tminvj,filename%restart_in, &
     !      max_vegpatches,'def',from_restart,mp)
     ! CALL readpar(ncid_rin,'tmaxvj',dummy,veg%tmaxvj,filename%restart_in, &

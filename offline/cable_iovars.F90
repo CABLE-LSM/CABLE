@@ -135,7 +135,7 @@ MODULE cable_IO_vars_module
           zeta,fsatmax, &
           gamma,ZR,F10
 
-     INTEGER :: g0,g1,g1tuzet,g2,g3,psi_ref,kmax, a1gs, d0gs, vcmax_scalar, P50, P88dP50, b_plant, c_plant ! Ticket #56
+     INTEGER :: g0,g1,g1tuzet,g2,g3,psi_ref,kmax, a1gs, d0gs, vcmax_scalar, P50, P88dP50, b_plant, c_plant, root_conduc ! Ticket #56
 
    END TYPE parID_type
 
@@ -430,7 +430,8 @@ MODULE cable_IO_vars_module
          ksoil = .FALSE.,  &
          kroot = .FALSE.,  &
          b_plant = .FALSE.,  &
-         c_plant = .FALSE.
+         c_plant = .FALSE., &
+         root_conduc = .FALSE.
    END TYPE output_inclusion_type
 
    TYPE(output_inclusion_type), SAVE :: output

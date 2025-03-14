@@ -372,7 +372,8 @@ module cable_def_types_mod
           g2 => null(),      & !  coefficient in Paschalis 2023 equation converting psi_can to fwpsi
           g3 => null(),      &       !  coefficient in Paschalis 2023 equation converting psi_can to fwpsi
           psi_ref => null(), &
-          dc => null() !used in iteration in dryLeaf
+          dc => null(),  & !used in iteration in dryLeaf
+          root_conduc => null()
 
      logical, dimension(:), pointer :: &
           deciduous => null() ! flag used for phenology fix
@@ -1153,6 +1154,7 @@ contains
     allocate( veg%g3(mp) ) 
     allocate( veg%psi_ref(mp) )
     allocate(veg%dc(mp)) 
+    allocate( veg%root_conduc(mp) )
 
   end subroutine alloc_veg_parameter_type
 
@@ -1811,6 +1813,7 @@ contains
     deallocate( veg%g3 ) 
     deallocate( veg%psi_ref ) 
     deallocate( veg%dc ) 
+    deallocate( veg%root_conduc ) 
 
   end subroutine dealloc_veg_parameter_type
 
@@ -2355,6 +2358,7 @@ contains
     veg%g3 = 0
     veg%psi_ref = 0
     veg%dc = 0
+    veg%root_conduc = 0
    
   end subroutine zero_veg_parameter_type
 
