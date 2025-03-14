@@ -89,7 +89,7 @@ REAL, DIMENSION(5,12),PARAMETER   ::   &
 
 !CLNREAL, PARAMETER :: MIN_FUEL = 120. ! Min fuel to spark a fire [g(C)/m2]
 
-! Tuning factors for litter ready for combustion
+! Tuning factors for litter ready for combustion - overwritten by namelist
 ! Boreal
 REAL ::  K_LITTER_BOREAL    = 0.38;
 ! Temperate region
@@ -228,6 +228,9 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   BLAZE%K_LITTER_SAVANNA = K_LITTER_SAVANNA
   BLAZE%K_LITTER_TEMPERATE = K_LITTER_TEMPERATE
   BLAZE%K_LITTER_TROPICS = K_LITTER_TROPICS
+
+  write(*,*) "BLAZE tuning coeffs:", BLAZE%K_LITTER_BOREAL, BLAZE%K_LITTER_SAVANNA, & 
+      BLAZE%K_LITTER_TEMPERATE, BLAZE%K_LITTER_TROPICS, MIN_FUEL
 
 END SUBROUTINE INI_BLAZE
 
@@ -623,7 +626,7 @@ FUNCTION P_SURV_SAVANNA (height, fli)
   
   IMPLICIT NONE
 
-  REAL, INTENT(IN) :: height, fli  ! m, kW/m, ?
+  REAL, INTENT(IN) :: height, fli  ! m, kW/m
   REAL             :: fli_MWm, p_surv_savanna, intensity
 
   fli_MWm = fli / 1000. ! kW/m -> MW/m
