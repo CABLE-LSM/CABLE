@@ -615,7 +615,9 @@ SUBROUTINE get_met_date(SimYear, SimDay, IsRecycled, RecycleStart,&
 
   ! We need to know how many days we expect in the year so check for end of year
   ! behaviour
-  INTEGER :: DaysInYear = 365
+  INTEGER :: DaysInYear
+
+  DaysInYear = 365
 
   ! Set up the first pass at recycling
   MetYear = SimYear
@@ -639,7 +641,7 @@ SUBROUTINE get_met_date(SimYear, SimDay, IsRecycled, RecycleStart,&
   ELSEIF (SimDay < 1) THEN
     ! Go back to last year- set the day later, once we know whether the MetYear
     ! is a leapyear or not
-    MetYear = SimYear - 1
+    MetYear = MetYear - 1
 
     ! This handles any future scenarios where we may change the day by >1
     MetDay = 365 + SimDay
@@ -647,7 +649,7 @@ SUBROUTINE get_met_date(SimYear, SimDay, IsRecycled, RecycleStart,&
       MetDay = 366 + SimDay
     END IF
   ELSEIF (SimDay > DaysInYear) THEN
-    MetYear = SimYear + 1
+    MetYear = MetYear + 1
     MetDay = SimDay - DaysInYear
   ELSE
     MetDay = SimDay
