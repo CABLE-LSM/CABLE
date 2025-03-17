@@ -11,6 +11,5 @@
 &end
 &simfirenml
     SIMFIRE_REGION   = "ANZ"  		! ("ANZ","EUROPE","GLOBAL") 
-    HydePath         = "/home/x_larni/STOREDIR/DATA/CABLE_INPUT/DATA_BLAZE/HYDE3.1"	! PAth to Hyde3.1 population density data
     BurnedAreaClimatologyFile = "/home/x_larni/STOREDIR/DATA/CABLE_INPUT/DATA_BLAZE/simfire_monthly_ba.nc"	! BA climatology file (needed when blazeTStep!="annual"
 &end
