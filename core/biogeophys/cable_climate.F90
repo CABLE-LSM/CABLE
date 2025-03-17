@@ -117,7 +117,8 @@ SUBROUTINE cable_climate(ktau, kstart, ktauday, idoy, LOY, &
      climate%dmoist = climate%dmoist / real(ktauday)
      climate%drhum  = climate%drhum  / real(ktauday)
 
-     IF (cable_user%CALL_BLAZE) then
+     !call_blaze=0 if blaze off, >0 if blaze on to some extent
+     IF (cable_user%CALL_BLAZE>0) then
         ! update days since last rain and precip since last day without rain
         WHERE (climate%dprecip .gt. 0.01)
            WHERE (climate%DSLR .gt. 0)

@@ -475,9 +475,10 @@ CONTAINS
        cable_user%casa_dump_read  = .true.
        cable_user%casa_dump_write = .false.
     elseif (icycle .eq. 0) then
+       !call_blaze=0 if blaze off, >0 if blaze on to some extent
        cable_user%casa_dump_read  = .false.
        cable_user%call_pop        = .false.
-       cable_user%call_blaze      = .false.
+       cable_user%call_blaze      = 0 
     endif
 
     !! vh_js !!
@@ -806,8 +807,8 @@ CONTAINS
                    call master_pop_types(comm, pop)
                 endif
 
-                ! Fire init and
-                if (cable_user%call_blaze) then
+                ! Fire init - call_blaze=0 if blaze off, >0 if blaze on to some extent
+                if (cable_user%call_blaze>0) then
                    call ini_blaze( mland, rad%latitude(landpt(:)%cstart), &
                                    rad%longitude(landpt(:)%cstart), blaze )
 
@@ -1103,7 +1104,8 @@ CONTAINS
                       if (cable_user%c13o2) &
                            call c13o2_update_sum_pools(sum_c13o2pools, c13o2pools, .true., casa_time, count_sum_casa)
 
-                      if (cable_user%call_blaze) then
+                      !call_blaze=0 if blaze off, >0 if blaze on to some extent
+                      if (cable_user%call_blaze>0) then
                          !par recv blaze_out_ts
                          call master_receive(ocomm, oktau, blaze_out_ts)
                          BLAZE%time =  BLAZE%time + 86400
@@ -1297,7 +1299,8 @@ CONTAINS
                 CALL master_receive(ocomm, oktau, casa_ts)
                 ! 13C
                 if (cable_user%c13o2) call master_receive(ocomm, oktau, c13o2_pool_ts)
-                if (cable_user%call_blaze) then
+                !call_blaze=0 if blaze off, >0 if blaze on to some extent
+                if (cable_user%call_blaze>0) then
                   !par recv blaze_out_ts
                   call master_receive(ocomm, oktau, blaze_out_ts)
                   BLAZE%time =  BLAZE%time + 86400
@@ -1584,7 +1587,8 @@ CONTAINS
           call master_receive(ocomm, ktau_gl, c13o2_flux_ts)
           call master_receive(ocomm, ktau_gl, c13o2_pool_ts)
        endif
-       if (cable_user%call_blaze) then
+       !call_blaze=0 if blaze off, >0 if blaze on to some extent
+       if (cable_user%call_blaze>0) then
          !par recv blaze_out_ts
          call master_receive(ocomm, ktau_gl, blaze_out_ts)
        end if
@@ -8378,7 +8382,8 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2f
   ntyp = ncdumprw + icycle - 1
   ! 13C
   if (cable_user%c13o2) ntyp = ntyp + 2
-  if (cable_user%call_blaze) ntyp = ntyp + 11
+  !call_blaze=0 if blaze off, >0 if blaze on to some extent
+  if (cable_user%call_blaze>0) ntyp = ntyp + 11
 
   ALLOCATE(blocks(ntyp))
   ALLOCATE(displs(ntyp))
@@ -8460,9 +8465,8 @@ SUBROUTINE master_casa_dump_types(comm, casamet, casaflux, phen, climate, c13o2f
      CALL MPI_Get_address(climate%frec(off), displs(bidx), ierr)
      blocks(bidx) = r1len
 
-     ! climate fields (for BLAZE)
-
-     if (cable_user%call_blaze) then
+     ! climate fields (for BLAZE) - call_blaze=0 if blaze off, >0 if blaze on to some extent
+     if (cable_user%call_blaze>0) then
         bidx = bidx + 1
         CALL MPI_Get_address(climate%dprecip(off), displs(bidx), ierr)
         blocks(bidx) = r1len
@@ -10128,8 +10132,8 @@ SUBROUTINE master_spincasacnp(dels, kstart, kend, mloop, veg, soil, casabiome, c
            c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
            c13o2flux%cAn(:)   = casamet%cAn13spin(:,idoy)
         endif
-        ! BLAZE
-        if (cable_user%call_blaze) then
+        ! BLAZE - call_blaze=0 if blaze off, >0 if blaze on to some extent
+        if (cable_user%call_blaze>0) then
            climate%dprecip(:)      = real(casamet%dprecip_spin(:,idoy))
            climate%aprecip_av20(:) = real(casamet%aprecip_av20_spin(:,idoy))
            climate%du10_max(:)     = real(casamet%du10_max_spin(:,idoy))
@@ -10193,8 +10197,8 @@ SUBROUTINE master_spincasacnp(dels, kstart, kend, mloop, veg, soil, casabiome, c
               c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
               c13o2flux%cAn(:)   = casamet%cAn13spin(:,idoy)
            endif
-           ! BLAZE
-           if (cable_user%call_blaze) then
+           ! BLAZE - call_blaze=0 if blaze off, >0 if blaze on to some extent
+           if (cable_user%call_blaze>0) then
               climate%dprecip(:)      = real(casamet%dprecip_spin(:,idoy))
               climate%aprecip_av20(:) = real(casamet%aprecip_av20_spin(:,idoy))
               climate%du10_max(:)     = real(casamet%du10_max_spin(:,idoy))
@@ -10386,8 +10390,8 @@ SUBROUTINE master_CASAONLY_LUC(dels, kstart, kend, veg, casabiome, casapool, &
            c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
            c13o2flux%cAn(:)   = casamet%cAn13spin(:,idoy)
         endif
-        ! BLAZE
-        if (cable_user%call_blaze) then
+        ! BLAZE - call_blaze=0 if blaze off, >0 if blaze on to some extent
+        if (cable_user%call_blaze>0) then
            climate%dprecip(:)      = real(casamet%dprecip_spin(:,idoy))
            climate%aprecip_av20(:) = real(casamet%aprecip_av20_spin(:,idoy))
            climate%du10_max(:)     = real(casamet%du10_max_spin(:,idoy))

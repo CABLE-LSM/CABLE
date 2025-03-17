@@ -112,7 +112,7 @@ MODULE cable_common_module
           CALL_POP               = .FALSE., & !
           POP_fromZero           = .FALSE., &
           CALL_Climate           = .FALSE., &
-          CALL_BLAZE             = .FALSE., &
+          !CALL_BLAZE             = .FALSE., &
           Climate_fromZero       = .FALSE., &
           CASA_fromZero          = .FALSE., &
           POPLUC                 = .FALSE., &
@@ -132,7 +132,8 @@ MODULE cable_common_module
           CASA_SPIN_ENDYEAR   = 1960, &
           YEARSTART           = 0, &
           YEAREND             = 0, &
-          CASA_NREP           = 1
+          CASA_NREP           = 1, &
+          CALL_BLAZE          = 0                !switch = 0 if off, 1 if fire weather, 2 or 3 if active
      REAL :: &
           dva_T_perturbation = 1.0, &
           Ta_perturbation    = 1.0

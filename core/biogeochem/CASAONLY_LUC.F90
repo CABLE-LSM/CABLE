@@ -152,8 +152,8 @@ contains
              c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
              c13o2flux%cAn(:)   = casamet%cAn13spin(:,idoy)
           endif
-          ! BLAZE
-          if (cable_user%call_blaze) then
+          ! BLAZE - call_blaze=0 if blaze off, >0 if blaze on to some extent
+          if (cable_user%call_blaze >0) then
              climate%dprecip(:)      = real(casamet%dprecip_spin(:,idoy))
              climate%aprecip_av20(:) = real(casamet%aprecip_av20_spin(:,idoy))
              climate%du10_max(:)     = real(casamet%du10_max_spin(:,idoy))

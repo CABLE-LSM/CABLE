@@ -391,8 +391,8 @@ contains
              call get_var_nc(ncrid, var_name(17), cAn12, idoy)
              call get_var_nc(ncrid, var_name(18), cAn13, idoy)
           endif
-          ! blaze
-          if (cable_user%call_blaze) then
+          ! blaze - call_blaze=0 if blaze off, >0 if blaze on to some extent
+          if (cable_user%call_blaze > 0) then
              call get_var_nc(ncrid, var_name(19), dprecip, idoy)
              call get_var_nc(ncrid, var_name(20), aprecip_av20, idoy)
              call get_var_nc(ncrid, var_name(21), du10_max, idoy)
@@ -437,8 +437,8 @@ contains
              casamet%cAn12spin(:,idoy) = cAn12
              casamet%cAn13spin(:,idoy) = cAn13
           endif
-          !blaze
-          if (cable_user%call_blaze) then
+          !blaze - call_blaze=0 if blaze off, >0 if blaze on to some extent
+          if (cable_user%call_blaze > 0 ) then
              casamet%dprecip_spin(:,idoy)      = dprecip
              casamet%aprecip_av20_spin(:,idoy) = aprecip_av20
              casamet%du10_max_spin(:,idoy)     = du10_max
@@ -473,8 +473,8 @@ contains
           call get_var_nc(ncrid, var_name(17), cAn12, ncall)
           call get_var_nc(ncrid, var_name(18), cAn13, ncall)
        endif
-       ! blaze
-       if (cable_user%call_blaze) then
+       ! blaze - call_blaze=0 if blaze off, >0 if blaze on to some extent
+       if (cable_user%call_blaze > 0) then
           call get_var_nc(ncrid, var_name(19), dprecip, ncall)
           call get_var_nc(ncrid, var_name(20), aprecip_av20, ncall)
           call get_var_nc(ncrid, var_name(21), du10_max, ncall)
@@ -507,8 +507,8 @@ contains
           c13o2flux%cAn12 = cAn12
           c13o2flux%cAn   = cAn13
        endif
-       !blaze
-       if (cable_user%call_blaze) then
+       !blaze - call_blaze=0 if blaze off, >0 if blaze on to some extent
+       if (cable_user%call_blaze > 0) then
           climate%dprecip      = real(dprecip)
           climate%aprecip_av20 = real(aprecip_av20)
           climate%du10_max     = real(du10_max)
@@ -691,8 +691,8 @@ contains
        CALL put_var_nc(ncid, var_name(17), zeros, n_call)
        CALL put_var_nc(ncid, var_name(18), zeros, n_call)
     endif
-    ! BLAZE
-    if (cable_user%call_blaze) then
+    ! BLAZE - call_blaze=0 if blaze off, >0 if blaze on to some extent
+    if (cable_user%call_blaze > 0 ) then
        CALL put_var_nc(ncid, var_name(19), real(climate%dprecip, r_2), n_call)
        CALL put_var_nc(ncid, var_name(20), real(climate%aprecip_av20, r_2), n_call)
        CALL put_var_nc(ncid, var_name(21), real(climate%du10_max, r_2), n_call)

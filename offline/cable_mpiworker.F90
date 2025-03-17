@@ -353,10 +353,11 @@ CONTAINS
        CABLE_USER%CASA_DUMP_READ  = .TRUE.
        CABLE_USER%CASA_DUMP_WRITE = .FALSE.
     ELSEIF (icycle .EQ. 0) THEN
+       !call_blaze=0 if blaze off, >0 if blaze on to some extent
        CABLE_USER%CASA_DUMP_READ  = .FALSE.
        spincasa                   = .FALSE.
        CABLE_USER%CALL_POP        = .FALSE.
-       CABLE_USER%CALL_BLAZE      = .FALSE.
+       CABLE_USER%CALL_BLAZE      = 0
     ENDIF
 
     !! vh_js !!
@@ -514,8 +515,8 @@ CONTAINS
                    call worker_pop_types(comm, veg, pop)
                 endif
 
-                ! CLN:
-                if (cable_user%call_blaze) then
+                ! CLN - call_blaze=0 if blaze off, >0 if blaze on to some extent
+                if (cable_user%call_blaze>0) then
                    ! ! allocate biomass turnover pools when both pop and blaze are active
                    ! if (cable_user%call_pop) allocate(pop_to(mp), pop_cwd(mp), pop_str(mp))
                    call ini_blaze( mland, rad%latitude(landpt(:)%cstart), &
@@ -821,7 +822,8 @@ CONTAINS
                 ENDIF
 
                 IF (liseod) THEN
-                   IF ( cable_user%CALL_BLAZE ) THEN
+                   !call_blaze=0 if blaze off, >0 if blaze on to some extent
+                   IF ( cable_user%CALL_BLAZE>0) THEN
                       CALL BLAZE_ACCOUNTING(BLAZE, climate, ktau, dels, YYYY, idoy)
                       call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
                            casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg)
@@ -896,7 +898,8 @@ CONTAINS
              CALL POPdriver(casaflux, casabal, veg, POP)
 
              ! Call BLAZE again to compute turnovers depending on POP mortalities
-             IF ( cable_user%CALL_BLAZE ) THEN
+             ! call_blaze=0 if blaze off, >0 if blaze on to some extent
+             IF ( cable_user%CALL_BLAZE>0) THEN
                 !MC - this is different to serial code
                 call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
                      casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg)
@@ -954,7 +957,8 @@ CONTAINS
           call MPI_Send(MPI_BOTTOM, 1, c13o2_flux_t, 0, ktau_gl, ocomm, ierr)
           call MPI_Send(MPI_BOTTOM, 1, c13o2_pool_t, 0, ktau_gl, ocomm, ierr)
        endif
-       if (cable_user%call_blaze) then
+       !call_blaze=0 if blaze off, >0 if blaze on to some extent
+       if (cable_user%call_blaze>0) then
          !par send blaze_out back
          CALL MPI_Send(MPI_BOTTOM, 1, blaze_out_t, 0, ktau_gl, ocomm, ierr)
        end if
@@ -7412,6 +7416,7 @@ CONTAINS
     ntyp = ncdumprw + icycle - 1
     ! 13C
     if (cable_user%c13o2) ntyp = ntyp + 2
+    !call_blaze=0 if blaze off, >0 if blaze on to some extent
     if (cable_user%call_blaze) ntyp = ntyp + 11
 
     ALLOCATE(blen(ntyp))
@@ -7470,8 +7475,8 @@ CONTAINS
     blen(bidx) =r1len
 
     ! ------- climate (for BLAZE) ----
-
-    if (cable_user%call_blaze) then
+    ! call_blaze=0 if blaze off, >0 if blaze on to some extent
+    if (cable_user%call_blaze>0) then
        bidx = bidx + 1
        CALL MPI_Get_address(climate%dprecip, displs(bidx), ierr)
        blen(bidx) = r1len
@@ -9047,7 +9052,8 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
 
               if (idoy==mdyear) then ! end of year
                  call POPdriver(casaflux, casabal, veg, POP)
-                 !CLN Check here accounting missing
+                 ! CLN Check here accounting missing
+                 ! call_blaze=0 if blaze off, >0 if blaze on to some extent
                  if (cable_user%call_blaze) then
                     call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
                          casamet, climate, rshootfrac, idoy, 1900, 1, POP, veg)

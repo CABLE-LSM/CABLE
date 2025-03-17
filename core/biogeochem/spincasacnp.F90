@@ -232,7 +232,8 @@ contains
              call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
           endif
 
-          if (cable_user%CALL_BLAZE) then
+          !call_blaze=0 if blaze off, >0 if blaze on to some extent
+          if (cable_user%CALL_BLAZE>0) then
              CALL BLAZE_ACCOUNTING(BLAZE, climate, ktau, dels, YYYY , idoy)
 
              call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
@@ -456,8 +457,8 @@ contains
                 c13o2flux%cAn12(:) = casamet%cAn12spin(:,idoy)
                 c13o2flux%cAn(:)   = casamet%cAn13spin(:,idoy)
              endif
-             ! BLAZE
-             if (cable_user%call_blaze) then
+             ! BLAZE - call_blaze=0 if blaze off, >0 if blaze on to some extent
+             if (cable_user%call_blaze>0) then
                 climate%dprecip(:)      = real(casamet%dprecip_spin(:,idoy))
                 climate%aprecip_av20(:) = real(casamet%aprecip_av20_spin(:,idoy))
                 climate%du10_max(:)     = real(casamet%du10_max_spin(:,idoy))
@@ -491,7 +492,8 @@ contains
                 call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
              endif
 
-             if (cable_user%CALL_BLAZE) then
+             !call_blaze=0 if blaze off, >0 if blaze on to some extent
+             if (cable_user%CALL_BLAZE>0) then
                 CALL BLAZE_ACCOUNTING(BLAZE, climate, ktau, dels, YYYY, idoy)
 
                 call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
