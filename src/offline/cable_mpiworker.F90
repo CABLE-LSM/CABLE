@@ -6055,6 +6055,38 @@ CONTAINS
     CALL MPI_Get_address (casaflux%Cplant_turnover_resource_limitation(off), displs(bidx), ierr)
     blocks(bidx) = r2len
 
+    bidx = bidx + 1
+    CALL MPI_Get_address (casaflux%Pupland(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casaflux%Plittermin(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casaflux%Psmin(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casaflux%Psimm(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casaflux%kplab(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casaflux%kpsorb(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casaflux%kpocc(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (casaflux%FluxCtoco2(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE (*,*) 'worker: invalid number of casa fields, fix it!'
