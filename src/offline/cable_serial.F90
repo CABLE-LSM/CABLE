@@ -76,7 +76,8 @@ MODULE cable_serial
     LALLOC,                           &
     prepareFiles,                     &
     renameFiles,                      &
-    LUCdriver
+    LUCdriver,                        &
+    compare_consistency_check_values
   USE cable_def_types_mod
   USE cable_IO_vars_module, ONLY: logn,gswpfile,ncciy,leaps,                  &
        fixedCO2,output,check,&
@@ -156,10 +157,8 @@ USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_N
 
 CONTAINS
 
-SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
+SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
   !! Offline serial driver.
-  DOUBLE PRECISION, INTENT(IN) :: trunk_sumbal
-    !! Reference value for quasi-bitwise reproducibility checks.
   INTEGER, INTENT(IN) :: NRRRR !! Number of repeated spin-up cycles
   REAL, INTENT(INOUT) :: dels !! Time step size in seconds
   INTEGER, INTENT(INOUT) :: koffset !! Timestep to start at
@@ -765,30 +764,8 @@ SUBROUTINE serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, 
 
             IF( ktau == kend ) THEN
               nkend = nkend+1
-
-              IF( ABS(new_sumbal-trunk_sumbal) < 1.e-7) THEN
-
-                PRINT *, ""
-                PRINT *, &
-                     "NB. Offline-serial runs spinup cycles:", nkend
-                PRINT *, &
-                     "Internal check shows this version reproduces the trunk sumbal"
-
-              ELSE
-
-                PRINT *, ""
-                PRINT *, &
-                     "NB. Offline-serial runs spinup cycles:", nkend
-                PRINT *, &
-                     "Internal check shows in this version new_sumbal != trunk sumbal"
-                PRINT *, &
-                     "Writing new_sumbal to the file:", TRIM(filename%new_sumbal)
-
-                OPEN( 12, FILE = filename%new_sumbal )
-                WRITE( 12, '(F20.7)' ) new_sumbal  ! written by previous trunk version
-                CLOSE(12)
-
-              ENDIF
+              PRINT *, "NB. Offline-serial runs spinup cycles:", nkend
+              CALL compare_consistency_check_values(new_sumbal)
             ENDIF
 
           ENDIF

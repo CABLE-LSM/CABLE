@@ -48,6 +48,8 @@ MODULE cable_driver_common_mod
   INTEGER, PARAMETER :: CASAONLY_ICYCLE_MIN = 10
   INTEGER, PARAMETER :: N_MET_FORCING_VARIABLES_GSWP = 8
     !! Number of GSWP met forcing variables (rain, snow, lw, sw, ps, qa, ta, wd)
+  REAL, PARAMETER :: CONSISTENCY_CHECK_TOLERANCE = 1.e-7
+    !! Max tolerance value for quasi-bit reproducibility checks
 
   LOGICAL, SAVE, PUBLIC :: vegparmnew    = .FALSE. ! using new format input file (BP dec 2007)
   LOGICAL, SAVE, PUBLIC :: spinup        = .FALSE. ! model spinup to soil state equilibrium?
@@ -107,14 +109,13 @@ MODULE cable_driver_common_mod
   PUBLIC :: prepareFiles
   PUBLIC :: renameFiles
   PUBLIC :: LUCdriver
+  PUBLIC :: compare_consistency_check_values
 
 CONTAINS
 
-  SUBROUTINE cable_driver_init(mpi_grp, trunk_sumbal, NRRRR)
+  SUBROUTINE cable_driver_init(mpi_grp, NRRRR)
     !! Model initialisation routine for the CABLE offline driver.
     TYPE(mpi_grp_t), INTENT(IN) :: mpi_grp !! MPI group to use
-    DOUBLE PRECISION, INTENT(OUT) :: trunk_sumbal
-      !! Reference value for quasi-bitwise reproducibility checks.
     INTEGER, INTENT(OUT) :: NRRRR !! Number of repeated spin-up cycles
 
     INTEGER :: ioerror, unit
@@ -135,16 +136,6 @@ CONTAINS
     CLOSE(unit)
 
     cable_runtime%offline = .TRUE.
-
-    ! Open, read and close the consistency check file.
-    ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
-    IF (mpi_grp%rank == 0 .AND. cable_user%consistency_check) THEN
-      OPEN(NEWUNIT=unit, FILE=filename%trunk_sumbal, STATUS='old', ACTION='READ', IOSTAT=ioerror)
-      IF(ioerror == 0) THEN
-        READ(unit, *) trunk_sumbal  ! written by previous trunk version
-      END IF
-      CLOSE(unit)
-    END IF
 
     ! Open log file:
     IF (mpi_grp%rank == 0) THEN
@@ -460,5 +451,30 @@ CONTAINS
     CALL POPLUC_weights_transfer(POPLUC,POP,LUC_EXPT)
 
   END SUBROUTINE LUCdriver
+
+  SUBROUTINE compare_consistency_check_values(new_sumbal)
+    !* Compare reference values for quasi-bitwise reproducibility checks and write
+    ! reference value on failed reproducibility.
+    DOUBLE PRECISION, INTENT(IN) :: new_sumbal !! Reference value for current run.
+
+    DOUBLE PRECISION :: trunk_sumbal
+    INTEGER :: unit, ioerror
+
+    OPEN(newunit=unit, file=filename%trunk_sumbal, status='OLD', action='READ', iostat=ioerror)
+    IF(ioerror == 0) READ(unit, *) trunk_sumbal
+    CLOSE(unit)
+
+    IF(ioerror == 0 .AND. ABS(new_sumbal - trunk_sumbal) < CONSISTENCY_CHECK_TOLERANCE) THEN
+      PRINT *, "Internal check shows this version reproduces the trunk sumbal"
+      RETURN
+    END IF
+
+    PRINT *, "Internal check shows in this version new_sumbal != trunk sumbal"
+    PRINT *, "Writing new_sumbal to the file:", TRIM(filename%new_sumbal)
+    OPEN(newunit=unit, file=filename%new_sumbal)
+    WRITE(unit, '(F20.7)') new_sumbal
+    CLOSE(unit)
+
+  END SUBROUTINE compare_consistency_check_values
 
 END MODULE cable_driver_common_mod

@@ -87,7 +87,8 @@ MODULE cable_mpimaster
     LALLOC,                           &
     prepareFiles,                     &
     renameFiles,                      &
-    LUCdriver
+    LUCdriver,                        &
+    compare_consistency_check_values
   USE cable_mpicommon
   USE cable_IO_vars_module, ONLY : NO_CHECK
   USE casa_cable
@@ -165,7 +166,7 @@ MODULE cable_mpimaster
 
 CONTAINS
 
-  SUBROUTINE mpidrv_master (comm, trunk_sumbal, dels, koffset, kend, PLUME, CRU)
+  SUBROUTINE mpidrv_master (comm, dels, koffset, kend, PLUME, CRU)
 
     USE mpi
 
@@ -227,8 +228,6 @@ CONTAINS
 
     ! MPI:
     INTEGER               :: comm ! MPI communicator for comms with the workers
-    DOUBLE PRECISION, INTENT(IN) :: trunk_sumbal
-      !! Reference value for quasi-bitwise reproducibility checks.
     REAL, INTENT(INOUT) :: dels !! Time step size in seconds
     INTEGER, INTENT(INOUT) :: koffset !! Timestep to start at
     INTEGER, INTENT(INOUT) :: kend !! No. of time steps in run
@@ -898,33 +897,9 @@ CONTAINS
 
             ENDIF
             IF(ktau==(kend-1)) THEN
-
               nkend = nkend+1
-              IF( ABS(new_sumbal-trunk_sumbal) < 1.e-7) THEN
-
-                PRINT *, ""
-                PRINT *, &
-                      "NB. Offline-parallel runs spinup cycles:", nkend
-                PRINT *, &
-                      "Internal check shows this version reproduces the trunk sumbal"
-
-              ELSE
-
-                PRINT *, ""
-                PRINT *, &
-                      "NB. Offline-parallel runs spinup cycles:", nkend
-                PRINT *, &
-                      "Internal check shows in this version new_sumbal != trunk sumbal"
-                PRINT *, "The difference is: ", new_sumbal - trunk_sumbal
-                PRINT *, &
-                      "Writing new_sumbal to the file:", TRIM(filename%new_sumbal)
-
-                !CLN                      OPEN( 12, FILE = filename%new_sumbal )
-                !CLN                      WRITE( 12, '(F20.7)' ) new_sumbal  ! written by previous trunk version
-                !CLN                      CLOSE(12)
-
-              ENDIF
-
+              PRINT *, "NB. Offline-parallel runs spinup cycles:", nkend
+              CALL compare_consistency_check_values(new_sumbal)
             ENDIF
 
           ENDIF
