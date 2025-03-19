@@ -232,12 +232,13 @@ contains
              call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
           endif
 
-          !call_blaze=0 if blaze off, >0 if blaze on to some extent
-          if (cable_user%CALL_BLAZE>0) then
+          !call_blaze=0 if blaze off, >0 if blaze evaluating fire weather
+          ! blaze=2 if operating and =3 if on and coupled to casa
+          if (cable_user%CALL_BLAZE>1) then
              CALL BLAZE_ACCOUNTING(BLAZE, climate, ktau, dels, YYYY , idoy)
 
              call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                  casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg)
+                  casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg, cable_user%CALL_BLAZE)
 
           endif
 
@@ -492,12 +493,13 @@ contains
                 call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
              endif
 
-             !call_blaze=0 if blaze off, >0 if blaze on to some extent
-             if (cable_user%CALL_BLAZE>0) then
+             !call_blaze=0 if blaze off, >0 if blaze evaluating fire weather
+             ! blaze=2 if operating and =3 if on and coupled to casa
+             if (cable_user%CALL_BLAZE>1) then
                 CALL BLAZE_ACCOUNTING(BLAZE, climate, ktau, dels, YYYY, idoy)
 
                 call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                     casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg)
+                     casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg, cable_user%CALL_BLAZE)
 
                 if (nloop==mloop) then
                    if  (nyear ==myearspin .and. idoy == mdyear  ) then

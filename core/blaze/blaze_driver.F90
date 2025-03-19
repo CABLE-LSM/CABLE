@@ -1,5 +1,5 @@
 SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
-     climate, shootfrac, idoy, curyear, CTLFLAG, POP, veg )
+     climate, shootfrac, idoy, curyear, CTLFLAG, POP, veg, call_blaze )
 
   use cable_def_types_mod, only: r_2
   USE CABLE_COMMON_MODULE, ONLY: IS_LEAPYEAR, DOYSOD2YMDHMS !, Esatf
@@ -27,6 +27,8 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
   TYPE (veg_parameter_type),  INTENT(IN) :: veg  ! vegetation parameters
   INTEGER,          INTENT(IN)         :: idoy, CurYear, CTLFLAG,ncells
   REAL, INTENT(IN)    :: shootfrac
+  INTEGER, INTENT(IN) :: call_blaze    !=2 if blaze running but not coupled, 3 if coupled
+                                                 
 
   TYPE(TYPE_TURNOVER)   ,ALLOCATABLE,SAVE :: TO(:,:)
   REAL,   DIMENSION(NCELLS) :: POP_TO
@@ -177,13 +179,15 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
   ! POP cohorts and then interpolating fire_mortality between POP patches
   if (.NOT.Allocated(Iw)) allocate(Iw(POP%np))
   Iw = POP%Iwood
-  
-  CALL ADJUST_POP_FOR_FIRE(pop,int(veg%disturbance_interval(Iw,:), i4b), &
-     veg%disturbance_intensity(Iw,1), veg%disturbance_intensity(Iw,2)  )
+
+  !do not adjust POP if blaze not coupled to CASA-POP (i.e. call_blaze/=3
+  IF (call_blaze==3) THEN
+   CALL ADJUST_POP_FOR_FIRE(pop,int(veg%disturbance_interval(Iw,:), i4b), &
+        veg%disturbance_intensity(Iw,1), veg%disturbance_intensity(Iw,2)  )
+  ENDIF
 
   ! Apply turn-overs to biomass killed by fire in POP
 
-  BLAZE%FLUXES(:,:) = 0.
   ! pop_grid index
   pidx=1
   DO i = 1, BLAZE%NCELLS
@@ -196,6 +200,9 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
            !CLN     * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac, r_2)
            !CLNcasaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i), r_2) &
            !CLN     * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac, r_2)
+
+         !do not set k-terms if blaze not coupled to CASA (i.e. call_blaze/=3)
+         IF (call_blaze==3) THEN
            casaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i), r_2)
            casaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i), r_2)
            casaflux%kplant_fire(patch_index,WOOD)  = 0.0_r_2
@@ -215,6 +222,7 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
            casaflux%fromPtoL_fire(patch_index,CWD,LEAF)  = 0.0_r_2
            casaflux%fromPtoL_fire(patch_index,CWD,FROOT) = 0.0_r_2
            casaflux%fromPtoL_fire(patch_index,CWD,WOOD)  = 0.0_r_2
+         ENDIF
 
            ! BLAZE fluxes
            BLAZE%FLUXES(i,11) = BLAZE%FLUXES(i,11) + casaflux%kplant_fire(patch_index,LEAF ) &
@@ -246,6 +254,8 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
            ! Total wood turn-over
            twto = MAX(TO(i, WOOD)%TO_ATM * 0.7 + TO(i, WOOD )%TO_CWD + TO(i, WOOD )%TO_STR,1.e-7)
            
+           !do not set k-terms if blaze not coupled to CASA (i.e. call_blaze/=3)
+         IF (call_blaze==3) THEN
            casaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i) * TO(i, LEAF )%TO_ATM, r_2)
            casaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i) * (1.-rkill) * TO(i, FROOT)%TO_ATM, r_2)
            casaflux%kplant_fire(patch_index,WOOD ) = real(rkill/twto  * TO(i, WOOD )%TO_ATM * 0.7, r_2)
@@ -262,6 +272,7 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
            casaflux%fromPtoL_fire(patch_index,STR,WOOD) = real(rkill/twto  * TO(i, WOOD )%TO_STR, r_2)
  
            casaflux%fromPtoL_fire(patch_index,CWD,WOOD) = real(rkill/twto  * TO(i, WOOD )%TO_CWD, r_2)
+         ENDIF
 
            ! BLAZE fluxes 
            BLAZE%FLUXES(i, 1) = BLAZE%FLUXES(i, 1) + casaflux%kplant_fire(patch_index,LEAF ) &

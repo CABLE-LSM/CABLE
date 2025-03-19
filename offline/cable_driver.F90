@@ -325,15 +325,11 @@ PROGRAM cable_offline_driver
   INTEGER :: ioerror
   INTEGER :: count_bal = 0
   ! END header
- print*, "blaze debug, casa_fromzero, climate_fromzero, call_blaze, initcasa"
- print*, cable_user%CASA_fromZero, cable_user%CLIMATE_fromZero, cable_user%CALL_BLAZE
-  
+ 
   ! Open, read and close the namelist file.
   OPEN(10, FILE = CABLE_NAMELIST)
   READ(10, NML=CABLE)   !where NML=CABLE defined above
   CLOSE(10)
-
-  print*, cable_user%CASA_fromZero, cable_user%CLIMATE_fromZero, cable_user%CALL_BLAZE
 
   ! Open, read and close the consistency check file.
   ! Check triggered by cable_user%consistency_check = .TRUE. in cable.nml
@@ -386,6 +382,10 @@ PROGRAM cable_offline_driver
      CABLE_USER%CALL_POP        = .FALSE.
      CABLE_USER%CALL_BLAZE      = 0
   ENDIF
+  IF ((.NOT. CABLE_USER%CALL_POP) .and. (CABLE_USER%CALL_BLAZE>0)) THEN
+     write(*,*) 'BLAZE requires POP'
+     stop 202
+  ENDIF  
 
   !! vh_js !!
   IF (icycle.gt.0) THEN
@@ -672,9 +672,6 @@ PROGRAM cable_offline_driver
            IF ( CALL1 ) THEN
               IF (cable_user%POPLUC) CALL LUC_EXPT_INIT(LUC_EXPT)
 
-              print*, "blaze debug"
-              print*, cable_user%CASA_fromZero, cable_user%CLIMATE_fromZero, cable_user%CALL_BLAZE
-
               ! 13C
               CALL load_parameters( met, air, ssnow, veg, bgc, &
                    soil, canopy, rough, rad, sum_flux,         &
@@ -683,8 +680,6 @@ PROGRAM cable_offline_driver
                    casamet, casabal, phen, POP, spinup,        &
                    C%EMSOIL, C%TFRZ, LUC_EXPT, POPLUC,         &
                    c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc)
-print*, "blaze debug after load parameters"
-              print*, cable_user%CASA_fromZero, cable_user%CLIMATE_fromZero, cable_user%CALL_BLAZE
               
               ! 13C
               if (cable_user%c13o2) then
@@ -741,8 +736,6 @@ print*, "blaze debug after load parameters"
                  call climate_init(climate)
                  if (.not.cable_user%climate_fromzero) call read_climate_restart_nc(climate, ktauday)
               endif
-              print*, "blaze debug after climate restart read"
-              print*, cable_user%CASA_fromZero, cable_user%CLIMATE_fromZero, cable_user%CALL_BLAZE
 
               if (trim(cable_user%MetType) .eq. 'cru') then
                  casamet%glai = 1.0_r_2 ! initialise glai for use in cable_roughness
@@ -751,24 +744,20 @@ print*, "blaze debug after load parameters"
 
               ! additional params needed for BLAZE
               if ( trim(cable_user%MetType) .eq. 'bios' ) call cable_bios_load_climate_params(climate)
-              print*, "blaze debug after climate params reset"
-              print*, cable_user%CASA_fromZero, cable_user%CLIMATE_fromZero, cable_user%CALL_BLAZE
 
               !call_blaze=0 if blaze off, >0 if blaze on to some extent
               IF (cable_user%CALL_BLAZE>0) THEN
-PRINT*,"CLN BLAZE INIT"
+!PRINT*,"CLN BLAZE INIT"
                  CALL INI_BLAZE( mland, rad%latitude(landpt(:)%cstart), &
                       rad%longitude(landpt(:)%cstart), BLAZE )
 
 
                  IF ( TRIM(BLAZE%BURNT_AREA_SRC) == "SIMFIRE" ) THEN
-PRINT*,"CLN SIMFIRE INIT"
+!PRINT*,"CLN SIMFIRE INIT"
                     CALL INI_SIMFIRE(mland ,SIMFIRE, &
                          climate%modis_igbp(landpt(:)%cstart) ) !CLN here we need to check for the SIMFIRE biome setting
                  ENDIF
               ENDIF
-              print*, "blaze debug after first blaze"
-              print*, cable_user%CASA_fromZero, cable_user%CLIMATE_fromZero, cable_user%CALL_BLAZE
 
               IF ((icycle>0) .AND. spincasa) THEN
                  write(*,*) 'EXT spincasacnp enabled with mloop=', mloop
@@ -1026,13 +1015,14 @@ PRINT*,"CLN SIMFIRE INIT"
                  ! end if
 
                  IF (liseod) THEN ! end of day
-                  !call_blaze=0 if blaze off, >0 if blaze on to some extent
-                    IF ( cable_user%CALL_BLAZE>0) THEN
-                       PRINT*,"CLN CAlling BLAZE"
+                    !call_blaze=0 if blaze off, >0 if blaze evaluating fire weather
+                    ! blaze=2 if operating and =3 if on and coupled to casa
+                    IF ( cable_user%CALL_BLAZE>1) THEN
+                       !PRINT*,"CLN CAlling BLAZE"
                        CALL BLAZE_ACCOUNTING(BLAZE, climate, ktau, dels, YYYY, idoy)
 
                        call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                            casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg)
+                            casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg, cable_user%CALL_BLAZE)
                        
                        call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
                     ENDIF

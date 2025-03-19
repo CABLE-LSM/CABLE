@@ -3294,7 +3294,10 @@ CONTAINS
                - casapool%dClabiledt) * gd2umols))
        ENDIF
 
-       !call_blaze=0 if blaze off, >0 if blaze on to some extent
+       !call_blaze=0 if blaze off, >0 if blaze evaluating fire weather
+       ! blaze=2 if blaze operating and =3 if blaze on and coupled to casa
+       ! %NBP should be different to %NEP iff call_blaze=3
+       ! or harvesting active
        IF (cable_user%call_blaze>0) THEN
           out%NBP = out%NBP - toreal4((casaflux%fluxCtoCO2_plant_fire          &
                + casaflux%fluxCtoCO2_litter_fire) * gd2umols)

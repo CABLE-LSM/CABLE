@@ -359,6 +359,10 @@ CONTAINS
        CABLE_USER%CALL_POP        = .FALSE.
        CABLE_USER%CALL_BLAZE      = 0
     ENDIF
+    IF ((.NOT. CABLE_USER%CALL_POP) .and. (CABLE_USER%CALL_BLAZE>0)) THEN
+       write(*,*) 'BLAZE requires POP'
+       call MPI_Abort(comm, 181, ierr)
+    ENDIF
 
     !! vh_js !!
     IF (icycle.GT.0) THEN
@@ -537,7 +541,6 @@ CONTAINS
                       call MPI_recv(MPI_BOTTOM, 1, blaze_in_t, 0, ktau_gl, comm, stat, ierr)
                       !CLN here we need to check for the SIMFIRE biome setting
                       call INI_SIMFIRE(mland, SIMFIRE, climate%modis_igbp(landpt(:)%cstart))
-                      WRITE(wlogn,*)"After ini_simf"
                       CALL FLUSH(wlogn)
                       !par blaze restart not required uses climate data
                       !call worker_simfire_types(comm, mland, simfire, simfire_restart_t, simfire_inp_t, simfire_out_t)
@@ -580,13 +583,13 @@ CONTAINS
                    endif
                 endif
              end if
-
+             
              ! MPI: create type to send restart data back to the master
              ! only if restart file is to be created
              if (output%restart) then
                 call worker_restart_type(comm, canopy, air)
              end if
-
+             
              ! Open output file:
              ! MPI: only the master writes to the files
              ! CALL open_output_file( dels, soil, veg, bgc, rough )
@@ -627,7 +630,7 @@ CONTAINS
                 ktau_gl  = 0
                 ktau     = 0
              ENDIF
-
+             
           ELSE ! CALL1
 
              IF (icycle > 0) THEN
@@ -650,7 +653,7 @@ CONTAINS
           IF (spincasa .or. casaonly) THEN
              EXIT
           ENDIF
-
+          
           ! IF (.NOT.spincasa) THEN
           ! time step loop over ktau
           KTAULOOP:DO ktau=kstart, kend
@@ -822,12 +825,15 @@ CONTAINS
                 ENDIF
 
                 IF (liseod) THEN
-                   !call_blaze=0 if blaze off, >0 if blaze on to some extent
-                   IF ( cable_user%CALL_BLAZE>0) THEN
+                   !call_blaze=0 if blaze off, >0 if blaze evaluating fire weather
+                   ! blaze=2 if operating and =3 if on and coupled to casa
+                   IF ( cable_user%CALL_BLAZE>1) THEN
                       CALL BLAZE_ACCOUNTING(BLAZE, climate, ktau, dels, YYYY, idoy)
                       call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                           casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg)
-                      !par send blaze_out back
+                           casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg, cable_user%CALL_BLAZE)
+                   ENDIF
+                   !have to communicate back if call_blaze is 1 or more
+                   IF (cable_user%CALL_BLAZE>0) THEN
                       CALL MPI_Send(MPI_BOTTOM, 1, blaze_out_t, 0, ktau_gl, ocomm, ierr)
                    ENDIF
                 ENDIF
@@ -898,11 +904,12 @@ CONTAINS
              CALL POPdriver(casaflux, casabal, veg, POP)
 
              ! Call BLAZE again to compute turnovers depending on POP mortalities
-             ! call_blaze=0 if blaze off, >0 if blaze on to some extent
-             IF ( cable_user%CALL_BLAZE>0) THEN
+             ! call_blaze=0 if blaze off, >0 if blaze evaluating fire weather
+             ! blaze=2 if operating and =3 if on and coupled to casa
+             IF ( cable_user%CALL_BLAZE>1) THEN
                 !MC - this is different to serial code
                 call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                     casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg)
+                     casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg, cable_user%CALL_BLAZE)
              ENDIF
 
              CALL worker_send_pop(POP, ocomm)
@@ -7417,7 +7424,7 @@ CONTAINS
     ! 13C
     if (cable_user%c13o2) ntyp = ntyp + 2
     !call_blaze=0 if blaze off, >0 if blaze on to some extent
-    if (cable_user%call_blaze) ntyp = ntyp + 11
+    if (cable_user%call_blaze>0) ntyp = ntyp + 11
 
     ALLOCATE(blen(ntyp))
     ALLOCATE(displs(ntyp))
@@ -9053,10 +9060,11 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
               if (idoy==mdyear) then ! end of year
                  call POPdriver(casaflux, casabal, veg, POP)
                  ! CLN Check here accounting missing
-                 ! call_blaze=0 if blaze off, >0 if blaze on to some extent
-                 if (cable_user%call_blaze) then
+                 !call_blaze=0 if blaze off, >0 if blaze evaluating fire weather
+                 ! blaze=2 if operating and =3 if on and coupled to casa
+                 if (cable_user%CALL_BLAZE>1) then
                     call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                         casamet, climate, rshootfrac, idoy, 1900, 1, POP, veg)
+                         casamet, climate, rshootfrac, idoy, 1900, 1, POP, veg, cable_user%CALL_BLAZE)
                  endif
                  !! CLN BLAZE TURNOVER
               endif  ! end of year

@@ -133,7 +133,10 @@ MODULE cable_common_module
           YEARSTART           = 0, &
           YEAREND             = 0, &
           CASA_NREP           = 1, &
-          CALL_BLAZE          = 0                !switch = 0 if off, 1 if fire weather, 2 or 3 if active
+          CALL_BLAZE          = 0       !switch = 0 if blaze off
+                                        !1 if fire weather needed
+                                        !2 if fire fluxes evaluated
+                                        !3 if blaze coupled to POP and CASA
      REAL :: &
           dva_T_perturbation = 1.0, &
           Ta_perturbation    = 1.0

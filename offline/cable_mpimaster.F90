@@ -471,7 +471,6 @@ CONTAINS
 
     if (icycle .ge. 11) then
        icycle                     = icycle - 10
-       casaonly                   = .true.
        cable_user%casa_dump_read  = .true.
        cable_user%casa_dump_write = .false.
     elseif (icycle .eq. 0) then
@@ -480,6 +479,10 @@ CONTAINS
        cable_user%call_pop        = .false.
        cable_user%call_blaze      = 0 
     endif
+    IF ((.NOT. CABLE_USER%CALL_POP) .and. (CABLE_USER%CALL_BLAZE>0)) THEN
+       write(*,*) 'BLAZE requires POP'
+       call MPI_Abort(comm, 180, ierr)
+    ENDIF
 
     !! vh_js !!
     if (icycle.gt.0) then
@@ -829,7 +832,7 @@ CONTAINS
                       call master_send_input(comm, blaze_in_ts, ktau)
                       call INI_SIMFIRE(mland ,SIMFIRE, &
                          climate%modis_igbp(landpt(:)%cstart) ) !CLN here we need to check for the SIMFIRE biome setting
-                      WRITE(logn,*)"After ini_simf"
+                      WRITE(logn,*)"After ini_simf", cable_user%CALL_BLAZE
                       CALL FLUSH(logn)
 
                       !par blaze restart not required uses climate data
@@ -893,7 +896,7 @@ CONTAINS
              if (output%restart) then
                 call master_restart_types(comm, canopy, air)
              end if
-
+             
              ! CALL master_sumcasa_types(comm, sum_casapool, sum_casaflux)
              IF (icycle>0 .AND. spincasa) THEN
                 write(*,*) 'EXT spincasacnp enabled with mloop= ', mloop, dels, kstart, kend
@@ -1004,7 +1007,7 @@ CONTAINS
                 call MPI_Send(c13o2flux%ca(off), cnt, MPI_DOUBLE_PRECISION, rank, 0, icomm, ierr)
              end do
           endif
-
+          
           ! IF (.NOT.spincasa) THEN
           ! time step loop over ktau
           KTAULOOP: do ktau=kstart, kend-1
@@ -1048,7 +1051,7 @@ CONTAINS
                      rad, iveg, dels, c%tfrz, iktau+koffset, &
                      kstart+koffset)
              endif
-
+             
              IF (TRIM(cable_user%MetType) .EQ. '') THEN
                 CurYear = imet%year(1)
                 IF ( leaps .AND. IS_LEAPYEAR(CurYear) ) THEN
