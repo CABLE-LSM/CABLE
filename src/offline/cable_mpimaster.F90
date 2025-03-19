@@ -87,6 +87,7 @@ MODULE cable_mpimaster
     LALLOC,                           &
     prepareFiles,                     &
     renameFiles,                      &
+    prepareFiles_princeton,           &
     LUCdriver
   USE cable_mpicommon
   USE cable_IO_vars_module, ONLY : NO_CHECK
@@ -353,11 +354,17 @@ CONTAINS
         ENDIF
 
         SELECT CASE (TRIM(cable_user%MetType))
-        CASE ('gswp')
+        CASE ('gswp', 'prin')
           ncciy = CurYear
 
           WRITE(*,*) 'Looking for global offline run info.'
-          CALL prepareFiles(ncciy)
+
+          IF ( TRIM(cable_user%MetType) == 'gswp' ) THEN
+            CALL prepareFiles(ncciy)
+          ELSE ! cable_user%MetType == 'prin'
+            CALL prepareFiles_princeton(ncciy)
+          END IF
+          
           CALL open_met_file( dels, koffset, kend, spinup, CTFRZ )
 
         CASE ('plum')
@@ -740,7 +747,8 @@ CONTAINS
 
           END SELECT
           IF ( (TRIM(cable_user%MetType) .NE. 'gswp') .AND. &
-               (TRIM(cable_user%MetType) .NE. 'gswp3') ) CurYear = met%year(1)
+               (TRIM(cable_user%MetType) .NE. 'gswp3') .AND. &
+               (TRIM(cable_user%MetType) .NE. 'prin' )) CurYear = met%year(1)
 
 !$        IF ( CASAONLY .AND. IS_CASA_TIME("dread", yyyy, iktau, kstart, koffset, &
 !$              kend, ktauday, logn) )  THEN
@@ -847,7 +855,7 @@ CONTAINS
             IF ( (.NOT. CASAONLY).AND. spinConv  ) THEN
 
               SELECT CASE (TRIM(cable_user%MetType))
-              CASE ('plum', 'cru', 'gswp', 'gswp3')
+              CASE ('plum', 'cru', 'gswp', 'gswp3', 'prin')
                 CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, &
                      casamet,ssnow,         &
                      rad, bal, air, soil, veg, CSBOLTZ,     &
