@@ -1079,8 +1079,7 @@ CONTAINS
        metunits%Rainf(1:4)=='mm/s'        .OR.                                &
        metunits%Rainf(1:6)=='mms^-1'      .OR.                                &
        metunits%Rainf(1:7)=='kg/m^2s'     .OR.                                &
-       metunits%Rainf(1:10)=='kg m-2 s-1' .OR.                                &
-       metunits%Wind(1:5)/='m s-1' ) THEN
+       metunits%Rainf(1:10)=='kg m-2 s-1' ) THEN
        ! Change from mm/s to mm/time step:
        convert%Rainf = dels
     ELSE IF(metunits%Rainf(1:4)=='mm/h'   .OR.                                &
