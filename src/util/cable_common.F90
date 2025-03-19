@@ -47,8 +47,13 @@ USE cable_runtime_opts_mod ,ONLY : snmin
   !---Lestevens Sept2012
   !---CASACNP switches and cycle index
   LOGICAL, SAVE :: l_casacnp,l_laiFeedbk,l_vcmaxFeedbk
-   LOGICAL :: l_luc = .FALSE.
-   LOGICAL :: l_thinforest = .FALSE.
+  LOGICAL :: l_luc = .FALSE.
+  LOGICAL :: l_thinforest = .FALSE.
+  !! Fraction of harvested biomass allocated to the wood products pools
+  REAL :: pool_frac(3) = (/0.33,0.33,0.34/)
+  !! Timescale of wood product pool decay to the atmosphere (year^-1)
+  REAL :: pool_time(3) = (/1.00,0.10,0.01/)
+
    LOGICAL :: l_landuse = .FALSE.
 
   !---CABLE runtime switches def in this type
