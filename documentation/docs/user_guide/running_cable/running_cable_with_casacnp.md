@@ -31,7 +31,7 @@ To run CABLE with CASA-CNP (cold start), the following CABLE namelist options wi
 
 To run CABLE with CASA-CNP from a CASA restart file (warm start), set `cable_user%CASA_fromZero = .FALSE.` and `casafile%cnpipool` to the input file path of the CASA restart file.
 
-### Accelerated spin-up (semi-analyical solution method):
+### Accelerated spin-up (semi-analytical solution method):
 
 To avoid running long and computationally expensive spin-up simmulations, CABLE contains a semi-analytical solution method which reduces the spin-up time (TODO(Sean): cite 10.5194/gmd-5-1259-2012). Note, this method should be used only for simulations where the phosphorus cycle and its coupling with carbon and nitrogen cycles has been switched off (i.e. `icycle = 2`).
 
