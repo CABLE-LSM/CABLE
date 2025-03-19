@@ -338,8 +338,6 @@ CONTAINS
     !* Select the correct files given the year for filenames following 
     ! the gswp format
     
-    USE cable_IO_vars_module, ONLY: logn,gswpfile
-    IMPLICIT NONE
     INTEGER, INTENT(IN) :: ncciy !! Year to select met. forcing data.
 
     WRITE(logn,*) 'CABLE offline global run using gswp forcing for ', ncciy
@@ -354,7 +352,7 @@ CONTAINS
     CALL renameFiles(logn,gswpfile%Tair,ncciy,'Tair')
     CALL renameFiles(logn,gswpfile%wind,ncciy,'wind')
 
-  END SUBROUTINE prepareFiles  
+  END SUBROUTINE prepareFiles
 
   SUBROUTINE renameFiles(logn,inFile,ncciy,inName)
     !* Replace the year in the filename with the value of ncciy 
@@ -378,8 +376,6 @@ CONTAINS
   SUBROUTINE prepareFiles_princeton(ncciy)
     !* Select the correct files given the year for filenames following the 
     ! princeton format
-    USE cable_IO_vars_module, ONLY: logn,gswpfile
-    IMPLICIT NONE
     INTEGER, INTENT(IN) :: ncciy
   
     WRITE(logn,*) 'CABLE offline global run using princeton forcing for ', ncciy
@@ -398,7 +394,6 @@ CONTAINS
   SUBROUTINE renameFiles_princeton(logn,inFile,ncciy,inName)
     !* Replace the year in the filename with the value of ncciy for 
     ! the princeton format
-    IMPLICIT NONE
     INTEGER, INTENT(IN) :: logn,ncciy
     INTEGER:: nn
     CHARACTER(LEN=200), INTENT(INOUT) :: inFile
