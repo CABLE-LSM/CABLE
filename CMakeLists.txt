@@ -216,13 +216,13 @@ else()
         src/params/cable_maths_constants_mod.F90
         src/util/cable_runtime_opts_mod.F90
         src/util/cable_common.F90
-        src/offline/casa_offline_inout.F90
-        src/offline/casa_ncdf.F90
+        src/shared/casa_offline_inout.F90
+        src/shared/casa_ncdf.F90
         src/offline/cable_iovars.F90
         src/offline/cable_surface_types.F90
         src/offline/cable_define_types.F90
-        src/offline/cable_phenology.F90
-        src/offline/cable_LUC_EXPT.F90
+        src/shared/cable_phenology.F90
+        src/shared/cable_LUC_EXPT.F90
         src/offline/CASAONLY_LUC.F90
         src/offline/cable_abort.F90
         src/offline/cable_checks.F90
