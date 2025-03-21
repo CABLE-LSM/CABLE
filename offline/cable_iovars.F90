@@ -238,8 +238,7 @@ MODULE cable_IO_vars_module
          SoilMoistIce = .FALSE., & ! 33 av.layer soil frozen moisture [kg/m2]
          Qs = .FALSE.,        & ! 34 surface runoff [kg/m2/s]
          Qsb = .FALSE.,       &! 35 subsurface runoff [kg/m2/s]
-         DelSoilMoist = .FALSE., & ! 36 change in soilmoisture
-                                   ! (sum layers) [kg/m2]
+         DelSoilMoist = .FALSE., & ! 36 change in soilmoisture ! (sum layers) [kg/m2]
          DelSWE = .FALSE.,    & ! 37 change in snow water equivalent [kg/m2]
          DelIntercept = .FALSE.,& ! 38 change in interception storage [kg/m2]
          SnowT = .FALSE.,     & ! 39 snow surface temp [K]
@@ -432,7 +431,13 @@ MODULE cable_IO_vars_module
          kroot = .FALSE.,  &
          b_plant = .FALSE.,  &
          c_plant = .FALSE., &
-         root_conduc = .FALSE.
+         root_conduc = .FALSE., &
+         ksoilmean = .FALSE., &
+         krootmean = .FALSE., &
+         kbelowmean = .FALSE., &
+         psi_soilmean = .FALSE., &
+         psi_soilmean1 = .FALSE., &
+         psi_rootmean = .FALSE.
    END TYPE output_inclusion_type
 
    TYPE(output_inclusion_type), SAVE :: output

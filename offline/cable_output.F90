@@ -86,7 +86,8 @@ MODULE cable_output_module
           A13n, aDisc13, c13plant, c13litter, c13soil, c13labile, &
           TSap, psi_soil, psi_rootzone, psix, psi_can_sl, psi_can_sh, &
           plc_sat, plc_stem, plc_can, gsw_sun, gsw_sha, LeafT, abs_deltpsil_sl, abs_deltpsil_sh, kplant, &
-          abs_deltlf, abs_deltds, abs_deltcs_sl, abs_deltcs_sh, ksoil, kroot, uptake_layer
+          abs_deltlf, abs_deltds, abs_deltcs_sl, abs_deltcs_sh, ksoil, kroot, uptake_layer, &
+          ksoilmean, krootmean, kbelowmean, psi_soilmean, psi_soilmean1, psi_rootmean
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
 
@@ -298,6 +299,12 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:,:)   :: kroot  => null()     ! zihanlu
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: abs_deltlf  => null() ! zihanlu
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: abs_deltds  => null() ! zihanlu
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: ksoilmean => null() 
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: krootmean => null() 
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: kbelowmean => null() 
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_soilmean => null() 
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_soilmean1 => null() 
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_rootmean => null() 
 
   END TYPE output_temporary_type
   TYPE(output_temporary_type), SAVE :: out
@@ -755,10 +762,40 @@ CONTAINS
     END IF
     IF(output%soil) THEN
      CALL define_ovar(ncid_out, ovid%kroot, &
-                      'kroot', 'kg m-2 s-1 Mpa-1', 'soil+root conductivity', &
+                      'kroot', 'kg m-2 s-1 Mpa-1', 'root conductivity', &
                       patchout%kroot, 'soil', xID, yID, zID, landID, patchID, soilID, tID)
+     CALL define_ovar(ncid_out, ovid%krootmean, 'krootmean', 'kg m-2 s-1 Mpa-1', &
+     'Average root conductivity (whole soil column)', patchout%krootmean, &
+     'dummy', xID, yID, zID, landID, patchID, tID)
+     CALL define_ovar(ncid_out, ovid%ksoilmean, 'ksoilmean', 'kg m-2 s-1 Mpa-1', &
+     'Average soil conductivity (whole soil column)', patchout%ksoilmean, &
+     'dummy', xID, yID, zID, landID, patchID, tID)
+     CALL define_ovar(ncid_out, ovid%kbelowmean, 'kbelowmean', 'kg m-2 s-1 Mpa-1', &
+     'Average soil+root conductivity (whole soil column)', patchout%kbelowmean, &
+     'dummy', xID, yID, zID, landID, patchID, tID)
+     CALL define_ovar(ncid_out, ovid%psi_soilmean, 'psi_soilmean', 'Mpa', &
+     'Average soil water potential (whole soil column)', patchout%psi_soilmean, &
+     'dummy', xID, yID, zID, landID, patchID, tID)
+     CALL define_ovar(ncid_out, ovid%psi_soilmean1, 'psi_soilmean1', 'Mpa', &
+     'Average soil water potential (whole soil column)', patchout%psi_soilmean1, &
+     'dummy', xID, yID, zID, landID, patchID, tID)
+     CALL define_ovar(ncid_out, ovid%psi_rootmean, 'psi_rootmean', 'Mpa', &
+     'Average root surface water potential (whole soil column)', patchout%psi_rootmean, &
+     'dummy', xID, yID, zID, landID, patchID, tID)
      ALLOCATE(out%kroot(mp,ms))
+     ALLOCATE(out%krootmean(mp))
+     ALLOCATE(out%ksoilmean(mp))
+     ALLOCATE(out%kbelowmean(mp))
+     ALLOCATE(out%psi_soilmean(mp))
+     ALLOCATE(out%psi_soilmean1(mp))
+     ALLOCATE(out%psi_rootmean(mp))
      out%kroot = zero4 ! initialise
+     out%krootmean = zero4 
+     out%ksoilmean = zero4 
+     out%kbelowmean = zero4 
+     out%psi_soilmean = zero4 
+     out%psi_soilmean1 = zero4 
+     out%psi_rootmean = zero4 
     END IF
     IF(output%soil .OR. output%SoilTemp) THEN
        CALL define_ovar(ncid_out, ovid%SoilTemp, 'SoilTemp', 'K', &
@@ -2734,7 +2771,7 @@ CONTAINS
           CALL write_ovar(out_timestep, ncid_out, ovid%SoilMoist, 'SoilMoist', &
                out%SoilMoist, ranges%SoilMoist, patchout%SoilMoist, 'soil', met)
           CALL write_ovar(out_timestep, ncid_out, ovid%SoilMoistPFT, 'SoilMoistPFT', &
-               out%SoilMoistPFT, ranges%SoilMoistPFT, patchout%SoilMoist, 'default', met)
+               out%SoilMoistPFT, ranges%SoilMoistPFT, patchout%SoilMoistPFT, 'default', met)
           CALL write_ovar(out_timestep, ncid_out, ovid%SoilMoistIce, 'SoilMoistIce', &
                out%SoilMoistIce, ranges%SoilMoist, patchout%SoilMoistIce, 'soil', met)
           ! Reset temporary output variable:
@@ -2747,6 +2784,16 @@ CONTAINS
      ! Add current timestep's value to total of temporary output variable:
      out%ksoil = out%ksoil + 1.0_r_2 / toreal4(ssnow%soilR)
      out%kroot= out%kroot + 1.0_r_2 / toreal4(ssnow%rootR)
+     out%krootmean= out%krootmean + toreal4(sum(1.0_r_2 / toreal4(ssnow%rootR),2))
+     out%kbelowmean= out%kbelowmean + toreal4(sum(1.0_r_2 /(toreal4(ssnow%rootR) + toreal4(ssnow%soilR)) ,2)) 
+     out%ksoilmean= out%ksoilmean + toreal4(1.0_r_2 / ((1.0_r_2 / sum(1.0_r_2 / toreal4(ssnow%rootR),2)) &
+     + (1.0_r_2 /sum(1.0_r_2 /(toreal4(ssnow%rootR) + toreal4(ssnow%soilR)) ,2) ) ))
+     out%psi_soilmean= out%psi_soilmean +sum(toreal4(ssnow%uptake_layer),2) / &
+      toreal4(sum(1.0_r_2 /(toreal4(ssnow%rootR) + toreal4(ssnow%soilR)) ,2)) + toreal4(canopy%psix)
+     out%psi_rootmean= out%psi_rootmean +sum(toreal4(ssnow%uptake_layer),2) / &
+      toreal4(sum(1.0_r_2 / toreal4(ssnow%rootR),2)) + toreal4(canopy%psix)
+     out%psi_soilmean1= out%psi_soilmean1 +sum((1.0_r_2 /(toreal4(ssnow%rootR) + toreal4(ssnow%soilR))) &
+     * toreal4(ssnow%psi_soil) ,2) / toreal4(sum(1.0_r_2 /(toreal4(ssnow%rootR) + toreal4(ssnow%soilR)) ,2))
      IF(writenow) THEN
         ! Divide accumulated variable by number of accumulated time steps:
         out%ksoil = out%ksoil * rinterval
@@ -2754,11 +2801,42 @@ CONTAINS
         CALL write_ovar(out_timestep, ncid_out, ovid%ksoil, 'ksoil', &
              out%ksoil, ranges%kplant, patchout%ksoil, 'soil', met)
         out%ksoil = zero4
+
         out%kroot = out%kroot * rinterval
         ! Write value to file:
         CALL write_ovar(out_timestep, ncid_out, ovid%kroot, 'kroot', &
              out%kroot, ranges%kplant, patchout%kroot, 'soil', met)
         out%kroot = zero4
+
+        out%krootmean = out%krootmean * rinterval
+        CALL write_ovar(out_timestep, ncid_out, ovid%krootmean, 'krootmean', &
+        out%krootmean, ranges%kplant, patchout%krootmean, 'default', met)
+        out%krootmean = zero4
+
+        out%kbelowmean = out%kbelowmean * rinterval
+        CALL write_ovar(out_timestep, ncid_out, ovid%kbelowmean, 'kbelowmean', &
+        out%kbelowmean, ranges%kplant, patchout%kbelowmean, 'default', met)
+        out%kbelowmean = zero4
+
+        out%ksoilmean = out%ksoilmean * rinterval
+        CALL write_ovar(out_timestep, ncid_out, ovid%ksoilmean, 'ksoilmean', &
+        out%ksoilmean, ranges%kplant, patchout%ksoilmean, 'default', met)
+        out%ksoilmean = zero4
+
+        out%psi_soilmean = out%psi_soilmean * rinterval
+        CALL write_ovar(out_timestep, ncid_out, ovid%psi_soilmean, 'psi_soilmean', &
+        out%psi_soilmean, ranges%psi_soil, patchout%psi_soilmean, 'default', met)
+        out%psi_soilmean = zero4
+
+        out%psi_soilmean1 = out%psi_soilmean1 * rinterval
+        CALL write_ovar(out_timestep, ncid_out, ovid%psi_soilmean1, 'psi_soilmean1', &
+        out%psi_soilmean1, ranges%psi_soil, patchout%psi_soilmean1, 'default', met)
+        out%psi_soilmean1 = zero4
+
+        out%psi_rootmean = out%psi_rootmean * rinterval
+        CALL write_ovar(out_timestep, ncid_out, ovid%psi_rootmean, 'psi_rootmean', &
+        out%psi_rootmean, ranges%psi_soil, patchout%psi_rootmean, 'default', met)
+        out%psi_rootmean = zero4
      END IF
     END IF
     IF(output%soil .OR. output%uptake_layer) THEN
