@@ -2786,8 +2786,8 @@ CONTAINS
      out%kroot= out%kroot + 1.0_r_2 / toreal4(ssnow%rootR)
      out%krootmean= out%krootmean + toreal4(sum(1.0_r_2 / toreal4(ssnow%rootR),2))
      out%kbelowmean= out%kbelowmean + toreal4(sum(1.0_r_2 /(toreal4(ssnow%rootR) + toreal4(ssnow%soilR)) ,2)) 
-     out%ksoilmean= out%ksoilmean + toreal4(1.0_r_2 / ((1.0_r_2 / sum(1.0_r_2 / toreal4(ssnow%rootR),2)) &
-     - (1.0_r_2 /sum(1.0_r_2 /(toreal4(ssnow%rootR) + toreal4(ssnow%soilR)) ,2) ) ))
+     out%ksoilmean= out%ksoilmean + toreal4(1.0_r_2 / ( (1.0_r_2 /sum(1.0_r_2 /(toreal4(ssnow%rootR) + toreal4(ssnow%soilR)) ,2) ) &
+     - (1.0_r_2 / sum(1.0_r_2 / toreal4(ssnow%rootR),2)) ))
      out%psi_soilmean= out%psi_soilmean +sum(toreal4(ssnow%uptake_layer),2) / &
       toreal4(sum(1.0_r_2 /(toreal4(ssnow%rootR) + toreal4(ssnow%soilR)) ,2)) + toreal4(canopy%psix)
      out%psi_rootmean= out%psi_rootmean +sum(toreal4(ssnow%uptake_layer),2) / &
