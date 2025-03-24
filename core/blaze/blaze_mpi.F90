@@ -133,7 +133,7 @@ SUBROUTINE master_blaze_types (comm, wland, wnp, mp, BLAZE, blaze_restart_ts, bl
 
   END DO
 
-  WRITE (*,*) 'CLN rw1 blaze total size of input fields received from all workers: ', totalrecv
+  !WRITE (*,*) 'CLN rw1 blaze total size of input fields received from all workers: ', totalrecv
 
   ! MPI: check whether total size of received data equals total
   ! data sent by all the workers
@@ -141,7 +141,7 @@ SUBROUTINE master_blaze_types (comm, wland, wnp, mp, BLAZE, blaze_restart_ts, bl
   CALL MPI_Reduce (MPI_IN_PLACE, totalsend, 1, MPI_INTEGER, MPI_SUM, &
     &     0, comm, ierr)
 
-  WRITE (*,*) 'CLN rw1 blaze total size of input fields sent by all workers: ', totalsend
+  !WRITE (*,*) 'CLN rw1 blaze total size of input fields sent by all workers: ', totalsend
 
   IF (totalrecv /= totalsend) THEN
           WRITE (*,*) 'error: blaze input fields totalsend and totalrecv differ', totalsend,totalrecv
@@ -269,7 +269,7 @@ SUBROUTINE master_blaze_types (comm, wland, wnp, mp, BLAZE, blaze_restart_ts, bl
 
   END DO
 
-  WRITE (*,*) 'CLN rw1 blaze total size of restart fields received from all workers: ', totalrecv
+  !WRITE (*,*) 'CLN rw1 blaze total size of restart fields received from all workers: ', totalrecv
 
   ! MPI: check whether total size of received data equals total
   ! data sent by all the workers
@@ -277,7 +277,7 @@ SUBROUTINE master_blaze_types (comm, wland, wnp, mp, BLAZE, blaze_restart_ts, bl
   CALL MPI_Reduce (MPI_IN_PLACE, totalsend, 1, MPI_INTEGER, MPI_SUM, &
     &     0, comm, ierr)
 
-  WRITE (*,*) 'CLN rw1 blaze total size of restart fields sent by all workers: ', totalsend
+  !WRITE (*,*) 'CLN rw1 blaze total size of restart fields sent by all workers: ', totalsend
 
   IF (totalrecv /= totalsend) THEN
           WRITE (*,*) 'error: blaze restart fields totalsend and totalrecv differ', totalsend,totalrecv
@@ -510,7 +510,7 @@ SUBROUTINE master_blaze_types (comm, wland, wnp, mp, BLAZE, blaze_restart_ts, bl
 
   END DO
 
-  WRITE (*,*) 'total size of output fields received from all workers: ', totalrecv
+  !WRITE (*,*) 'total size of output fields received from all workers: ', totalrecv
 
   ! MPI: check whether total size of received data equals total
   ! data sent by all the workers
@@ -518,7 +518,7 @@ SUBROUTINE master_blaze_types (comm, wland, wnp, mp, BLAZE, blaze_restart_ts, bl
   CALL MPI_Reduce (MPI_IN_PLACE, totalsend, 1, MPI_INTEGER, MPI_SUM, &
     &     0, comm, ierr)
 
-  WRITE (*,*) 'blaze total size of output fields sent by all workers: ', totalsend
+  !WRITE (*,*) 'blaze total size of output fields sent by all workers: ', totalsend
 
   IF (totalrecv /= totalsend) THEN
           WRITE (*,*) 'error:  blaze output fields totalsend and totalrecv differ'

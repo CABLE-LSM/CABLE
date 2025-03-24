@@ -118,7 +118,7 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
   
   SF%HYDEPATH = TRIM(HydePath)
   SF%BA_CLIM_FILE = TRIM(BurnedAreaClimatologyFile)
-  WRITE(*,*)"SIMFIRENML :", SIMFIRE_REGION, HydePath, BurnedAreaClimatologyFile
+  !WRITE(*,*)"SIMFIRENML :", SIMFIRE_REGION, HydePath, BurnedAreaClimatologyFile
   SF%IGBP = modis_igbp
 
   DO i = 1, NCELLS
@@ -146,9 +146,9 @@ SUBROUTINE INI_SIMFIRE( NCELLS, SF, modis_igbp )
      ENDIF
   END DO
 
-  WRITE(*,*)"SIMFIRE Optimisation chosen:", TRIM(SIMFIRE_REGION)
+  !WRITE(*,*)"SIMFIRE Optimisation chosen:", TRIM(SIMFIRE_REGION)
 
-  WRITE(*,*) "reading monthly burned area fraction from: ", TRIM(SF%BA_CLIM_FILE)
+  !WRITE(*,*) "reading monthly burned area fraction from: ", TRIM(SF%BA_CLIM_FILE)
 
   STATUS = NF90_OPEN(TRIM(SF%BA_CLIM_FILE), NF90_NOWRITE, F_ID)
   CALL HANDLE_ERR(STATUS, "Opening BA Clim File "//SF%BA_CLIM_FILE )
@@ -375,7 +375,7 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
            READ(iu,*)
         END DO
         ! Read data backwards ( llcorner is -180E, 90N )
-        write(*,*) NLAT, NLON
+        !write(*,*) NLAT, NLON
         DO j = NLAT, 1, -1
            READ(iu,*)(RVAL(i,j),i=1,NLON)
           ! write(3334,"(4320e16.6)") (RVAL(i,j),i=1,NLON)

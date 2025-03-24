@@ -229,8 +229,8 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   BLAZE%K_LITTER_TEMPERATE = K_LITTER_TEMPERATE
   BLAZE%K_LITTER_TROPICS = K_LITTER_TROPICS
 
-  write(*,*) "BLAZE tuning coeffs:", BLAZE%K_LITTER_BOREAL, BLAZE%K_LITTER_SAVANNA, & 
-      BLAZE%K_LITTER_TEMPERATE, BLAZE%K_LITTER_TROPICS, MIN_FUEL
+  !write(*,*) "BLAZE tuning coeffs:", BLAZE%K_LITTER_BOREAL, BLAZE%K_LITTER_SAVANNA, & 
+  !    BLAZE%K_LITTER_TEMPERATE, BLAZE%K_LITTER_TROPICS, MIN_FUEL
 
 END SUBROUTINE INI_BLAZE
 
@@ -1106,7 +1106,7 @@ END SUBROUTINE RUN_BLAZE
        STATUS = NF90_def_var(FILE_ID,'time' ,NF90_INT,(/t_ID/),VIDtime )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
-       write(*,*) 'timeunits', TRIM(timeunits), t_ID, FILE_ID
+       !write(*,*) 'timeunits', TRIM(timeunits), t_ID, FILE_ID
 
        STATUS = NF90_PUT_ATT(FILE_ID, VIDtime, 'units', TRIM(timeunits))
        IF (STATUS /= NF90_NOERR)  CALL handle_err(STATUS)
@@ -1119,7 +1119,7 @@ END SUBROUTINE RUN_BLAZE
        DO i = 1, SIZE(A0)
           STATUS = NF90_def_var(FILE_ID,TRIM(A0(i)) ,NF90_FLOAT,(/land_ID/),VID0(i))
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-           write(*,*) 'def A0'
+           !write(*,*) 'def A0'
        END DO
 
        DO i = 1, SIZE(A1)
@@ -1130,13 +1130,13 @@ END SUBROUTINE RUN_BLAZE
        DO i = 1, SIZE(AI1)
           STATUS = NF90_def_var(FILE_ID,TRIM(AI1(i)) ,NF90_INT,(/land_ID,t_ID/),VIDI1(i))
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-          write(*,*) 'def AI1'
+          !write(*,*) 'def AI1'
        END DO
        
        DO i = 1, SIZE(A2)
           STATUS = NF90_def_var(FILE_ID,TRIM(A2(i)) ,NF90_FLOAT,(/land_ID,f_ID ,t_ID/),VID2(i))
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-          write(*,*) 'def A2'
+          !write(*,*) 'def A2'
        END DO
        
        ! End define mode:
