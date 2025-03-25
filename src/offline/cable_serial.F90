@@ -75,7 +75,6 @@ MODULE cable_serial
     delgwM,                           &
     LALLOC,                           &
     prepareFiles,                     &
-    renameFiles,                      &
     prepareFiles_princeton,           &
     LUCdriver
   USE cable_def_types_mod

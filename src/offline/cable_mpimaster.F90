@@ -86,7 +86,6 @@ MODULE cable_mpimaster
     delgwM,                           &
     LALLOC,                           &
     prepareFiles,                     &
-    renameFiles,                      &
     prepareFiles_princeton,           &
     LUCdriver
   USE cable_mpicommon
