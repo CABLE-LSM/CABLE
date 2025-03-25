@@ -13,10 +13,9 @@ MODULE cable_mpimaster
 
 CONTAINS
 
-  SUBROUTINE mpidrv_master(comm, trunk_sumbal, dels, koffset, kend, PLUME, CRU)
+  SUBROUTINE mpidrv_master(comm, dels, koffset, kend, PLUME, CRU)
     !! Stub for when MPI is not available
     INTEGER, INTENT(IN) :: comm
-    DOUBLE PRECISION, INTENT(IN) :: trunk_sumbal
     REAL, INTENT(INOUT) :: dels
     INTEGER, INTENT(INOUT) :: koffset
     INTEGER, INTENT(INOUT) :: kend

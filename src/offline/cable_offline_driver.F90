@@ -23,8 +23,6 @@ PROGRAM cable_offline_driver
 
   REAL    :: etime ! Declare the type of etime()
   TYPE(mpi_grp_t) :: mpi_grp
-  DOUBLE PRECISION :: trunk_sumbal
-    !! Reference value for quasi-bitwise reproducibility checks.
   INTEGER :: NRRRR !! Number of repeated spin-up cycles
   REAL :: dels !! Time step size in seconds
   INTEGER :: koffset = 0 !! Timestep to start at
@@ -37,7 +35,7 @@ PROGRAM cable_offline_driver
   call mpi_mod_init()
   mpi_grp = mpi_grp_t()
 
-  CALL cable_driver_init(mpi_grp, trunk_sumbal, NRRRR)
+  CALL cable_driver_init(mpi_grp, NRRRR)
 
   SELECT CASE(TRIM(cable_user%MetType))
   CASE('gswp')
@@ -61,10 +59,10 @@ PROGRAM cable_offline_driver
   END SELECT
 
   IF (mpi_grp%size == 1) THEN
-    CALL serialdrv(trunk_sumbal, NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
+    CALL serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
   ELSE
     IF (mpi_grp%rank == 0) THEN
-      CALL mpidrv_master(mpi_grp%comm, trunk_sumbal, dels, koffset, kend, PLUME, CRU)
+      CALL mpidrv_master(mpi_grp%comm, dels, koffset, kend, PLUME, CRU)
     ELSE
       CALL mpidrv_worker(mpi_grp%comm)
     END IF
