@@ -501,7 +501,8 @@ contains
                 call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
                      casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg, cable_user%CALL_BLAZE)
 
-                if (nloop==mloop) then
+                ! BLAZE output - only daily output is possible from spincasacnp (MPI considerations)
+                if ((nloop==mloop) .and. BLAZE%OUTTSTEP .eq. "daily") then
                    if  (nyear ==myearspin .and. idoy == mdyear  ) then
                       call write_blaze_output_nc( BLAZE, .true.)
                    else

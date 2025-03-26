@@ -6,7 +6,8 @@
     K_LITTER_BOREAL    = 0.38         ! tuning coeff - boreal
     K_LITTER_SAVANNA   = 0.75         ! tuning coeff - savannah
     K_LITTER_TEMPERATE = 0.0025       ! tuning coeff - temperate
-    K_LITTER_TROPICS   = 0.15         ! tuning coeff - tropics 
+    K_LITTER_TROPICS   = 0.15         ! tuning coeff - tropics
+    outtstep         = "daily"        ! output frequency for BLAZE ("daily", "ascasa") 
 &end
 &simfirenml
     SIMFIRE_REGION   = "ANZ"  		! ("ANZ","EUROPE","GLOBAL") 

@@ -100,7 +100,8 @@ PROGRAM cable_offline_driver
   use cable_pop_io,  only: pop_io
 
   ! Fire Model BLAZE
-  USE BLAZE_MOD,     ONLY: TYPE_BLAZE, INI_BLAZE, BLAZE_ACCOUNTING,  WRITE_BLAZE_OUTPUT_NC
+  USE BLAZE_MOD,     ONLY: TYPE_BLAZE, INI_BLAZE, BLAZE_ACCOUNTING, &
+      WRITE_BLAZE_OUTPUT_NC, zero_blaze, update_sumBLAZE
   USE SIMFIRE_MOD,   ONLY: TYPE_SIMFIRE, INI_SIMFIRE
 
   ! gm
@@ -215,7 +216,7 @@ PROGRAM cable_offline_driver
   CHARACTER             :: ncfile*99
 
   ! BLAZE variables
-  TYPE(TYPE_BLAZE)    :: BLAZE
+  TYPE(TYPE_BLAZE)    :: BLAZE, sumBLAZE
   TYPE(TYPE_SIMFIRE)  :: SIMFIRE
 
   ! 13C
@@ -748,8 +749,11 @@ PROGRAM cable_offline_driver
               !call_blaze=0 if blaze off, >0 if blaze on to some extent
               IF (cable_user%CALL_BLAZE>0) THEN
 !PRINT*,"CLN BLAZE INIT"
+               !BLAZE for current time step, sumBLAZE for outputting
                  CALL INI_BLAZE( mland, rad%latitude(landpt(:)%cstart), &
                       rad%longitude(landpt(:)%cstart), BLAZE )
+                 CALL INI_BLAZE( mland, rad%latitude(landpt(:)%cstart), &
+                      rad%longitude(landpt(:)%cstart), sumBLAZE )
 
 
                  IF ( TRIM(BLAZE%BURNT_AREA_SRC) == "SIMFIRE" ) THEN
@@ -1024,7 +1028,10 @@ PROGRAM cable_offline_driver
                        call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
                             casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg, cable_user%CALL_BLAZE)
                        
-                       call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
+                       !blaze output: daily or ascasa (ascasa option done alongside CASA output - see below)
+                       IF (TRIM(BLAZE%OUTTSTEP) .eq. "daily") THEN
+                           call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
+                       END IF
                     ENDIF
                  ENDIF
 
@@ -1073,8 +1080,12 @@ PROGRAM cable_offline_driver
                     ! 13C
                     if (cable_user%c13o2) call c13o2_update_sum_pools(sum_c13o2pools, c13o2pools, &
                          .true., CASA_TIME, count_sum_casa)
-                 ENDIF
 
+                    !BLAZE - update average of BLAZE over reporting period (sumBLAZE)
+                    if (cable_user%CALL_BLAZE>1) then
+                        call update_sumBLAZE(BLAZE, sumBLAZE, count_sum_casa)
+                    end if
+                 ENDIF
               ENDIF ! icycle > 0  or  casa_dump_write
 
               ! WRITE CASA OUTPUT
@@ -1094,7 +1105,14 @@ PROGRAM cable_offline_driver
                        if ( (ktau == kend) .and. (YYYY == cable_user%YearEnd) .and. (RRRR == NRRRR) ) &
                             call c13o2_close_output(c13o2_outfile_id)
                     end if
-                    
+
+                    !BLAZE output if ascasa - NB CASA called daily so will always be liseod
+                    !Only create output if BLAZE active to some extent CALL_BLAZE>1
+                    if (cable_user%CALL_BLAZE>1 .and. (TRIM(BLAZE%OUTTSTEP) .eq. "ascasa")) then
+                        call write_blaze_output_nc( sumBLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
+                        call zero_blaze(sumBLAZE)
+                    end if 
+
                     count_sum_casa = 0
                     CALL zero_sum_casa(sum_casapool, sum_casaflux)
                     

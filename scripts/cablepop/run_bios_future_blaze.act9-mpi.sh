@@ -533,6 +533,7 @@ cat > ${tmp}/sedtmp.${pid} << EOF
     blazeTStep       = "annually"  ! Call frequency ("daily", "monthly", "annually")
     BurnedAreaSource = "SIMFIRE"   ! Burnt Area ("PRESCRIBED", "SIMFIRE", "GFED4")
     BurnedAreaFile   = "${BlazeDataPath}/BA_Aust_2001-2019.nc"  ! used for Prescribed fires !CLN not available for now!
+    outtstep         = "daily"        ! output frequency for BLAZE ("daily", "ascasa")
     SIMFIRE_REGION   = "ANZ"       ! ("ANZ", "EUROPE", "GLOBAL")
     HydePath         = "${BlazeDataPath}/HYDE3.1"  ! Path to Hyde3.1 population density data
     BurnedAreaClimatologyFile = "${BlazeDataPath}/simfire_monthly_ba.nc"  ! BA climatology file (needed when blazeTStep!="annually")

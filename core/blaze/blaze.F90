@@ -16,6 +16,7 @@ TYPE TYPE_BLAZE
    REAL                                 :: FT,tstp
    LOGICAL                              :: USE_POP = .FALSE., ERR=.FALSE.
    CHARACTER                            :: GFEDP*80, FSTEP*7
+   CHARACTER(len=6) :: OUTTSTEP  !"daily" or "ascasa"
    CHARACTER(LEN=4)                     :: OUTMODE = "full" !"std" ! "full" for diagnostical purposes
    CHARACTER(len=8) :: BLAZE_TSTEP    = "annually"  ! Call frequency ("daily","monthly","annually")
    CHARACTER(len=6) :: SIMFIRE_REGION = "GLOBAL"    ! either GLOBAL, EUROPE, ANZ
@@ -125,12 +126,14 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   INTEGER, PARAMETER  :: NPOOLS = 3
   CHARACTER(len=400)  :: BurnedAreaFile = "", OutputMode="full" 
   CHARACTER(len=10)   :: BurnedAreaSource = "SIMFIRE", blazeTStep = "annually"
+  CHARACTER(len=6)    :: outtstep = "daily"
   INTEGER :: iu
 
+  !INH I think blazeTstep is now redundant
   !CLNNAMELIST /BLAZENML/ HydePath,  BurnedAreaSource, BurnedAreaFile, BurnedAreaClimatologyFile, &
   !CLN     SIMFIRE_REGION
   NAMELIST /BLAZENML/ blazeTStep,  BurnedAreaSource, BurnedAreaFile, OutputMode, &
-       K_LITTER_BOREAL, K_LITTER_TEMPERATE, K_LITTER_SAVANNA, K_LITTER_TROPICS, MIN_FUEL
+       K_LITTER_BOREAL, K_LITTER_TEMPERATE, K_LITTER_SAVANNA, K_LITTER_TROPICS, MIN_FUEL, outtstep
        
   ! READ BLAZE settings
   CALL GET_UNIT(iu)
@@ -188,6 +191,11 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   
   BLAZE%BURNT_AREA_SRC = trim(BurnedAreaSource)
   BLAZE%OUTMODE = TRIM(OutputMode)
+  BLAZE%OUTTSTEP = TRIM(outtstep)
+  IF ( (TRIM(BLAZE%OUTTSTEP) .ne. "daily") .and. (TRIM(BLAZE%OUTTSTEP) .ne. "ascasa") ) THEN
+     WRITE(*,*) "error: BLAZE outtstep needs to be daily or ascasa"
+     STOP
+  END IF
 
   ! SETTINGS FOR BLAZE (BLAZEFLAG)
   ! bit value:               0            | 1
@@ -636,6 +644,7 @@ FUNCTION P_SURV_SAVANNA (height, fli)
   
 END FUNCTION P_SURV_SAVANNA
 
+! INH - I'm under the impression that this is no longer utilised.
 FUNCTION BURNTIME( YEAR, DOY, FSTEP )
 
   USE CABLE_COMMON_MODULE, ONLY : DOYSOD2YMDHMS, IS_LEAPYEAR
@@ -1263,5 +1272,54 @@ END SUBROUTINE RUN_BLAZE
 
  END SUBROUTINE WRITE_BLAZE_OUTPUT_NC
 
+ SUBROUTINE update_sumBLAZE(BLAZE, sumBLAZE, count)
+
+   TYPE(TYPE_BLAZE), INTENT(IN) :: BLAZE
+   TYPE(TYPE_BLAZE), INTENT(INOUT) :: sumBLAZE
+   INTEGER, INTENT(IN)    :: count
+
+   INTEGER :: mland
+
+   !purpose: update running average of values in BLAZE TYPE variable
+   !into sumBLAZE for purposes of outputting.  
+   ! Only the 21 vars that will be output are updated
+   !
+   !for most variables this is a running mean - noting that count has been updated
+   !prior to the call
+   !
+   !for days_since_last_rain take the maximum over the reporting period
+
+   mland = BLAZE%ncells
+
+   !running averages - mland vectors
+   sumBLAZE%AB    = ( real(count-1)*sumBLAZE%AB    + BLAZE%AB)    / real(count)
+   sumBLAZE%Rainf = ( real(count-1)*sumBLAZE%Rainf + BLAZE%Rainf) / real(count)
+   sumBLAZE%KBDI  = ( real(count-1)*sumBLAZE%KBDI  + BLAZE%KBDI)  / real(count)
+   sumBLAZE%LR    = ( real(count-1)*sumBLAZE%LR    + BLAZE%LR)    / real(count)
+   sumBLAZE%U10   = ( real(count-1)*sumBLAZE%U10   + BLAZE%U10)   / real(count)
+   sumBLAZE%RH    = ( real(count-1)*sumBLAZE%RH    + BLAZE%RH)    / real(count)
+   sumBLAZE%TMAX  = ( real(count-1)*sumBLAZE%TMAX  + BLAZE%TMAX)  / real(count)
+   sumBLAZE%TMIN  = ( real(count-1)*sumBLAZE%TMIN  + BLAZE%TMIN)  / real(count)
+   sumBLAZE%FFDI  = ( real(count-1)*sumBLAZE%FFDI  + BLAZE%FFDI)  / real(count)
+   sumBLAZE%FLI   = ( real(count-1)*sumBLAZE%TMAX  + BLAZE%TMAX)  / real(count)
+   sumBLAZE%ROS   = ( real(count-1)*sumBLAZE%TMIN  + BLAZE%TMIN)  / real(count)
+   sumBLAZE%Z     = ( real(count-1)*sumBLAZE%Z     + BLAZE%Z)     / real(count)
+   sumBLAZE%D     = ( real(count-1)*sumBLAZE%D     + BLAZE%D)     / real(count)
+   sumBLAZE%w     = ( real(count-1)*sumBLAZE%w     + BLAZE%w)     / real(count)
+   sumBLAZE%w_prior = ( real(count-1)*sumBLAZE%w_prior  + BLAZE%w_prior)  / real(count)
+   
+   !running averages - mland arrays
+   sumBLAZE%CPLANT_w  = ( real(count-1)*sumBLAZE%CPLANT_w  + BLAZE%CPLANT_w) / real(count)
+   sumBLAZE%CPLANT_g  = ( real(count-1)*sumBLAZE%CPLANT_g  + BLAZE%CPLANT_g) / real(count)
+   sumBLAZE%AGLit_w   = ( real(count-1)*sumBLAZE%AGLit_w   + BLAZE%AGlit_w)  / real(count)
+   sumBLAZE%AGLit_g   = ( real(count-1)*sumBLAZE%AGLit_g   + BLAZE%AGlit_g)  / real(count)
+   sumBLAZE%FLUXES   =  ( real(count-1)*sumBLAZE%FLUXES    + BLAZE%FLUXES)   / real(count)
+    
+   !special case of days_since_last_rain
+   DO i = 1,mland
+      sumBLAZE%DSLR(i) = MAX(sumBLAZE%DSLR(i),BLAZE%DSLR(i))
+   END DO
+
+END SUBROUTINE update_sumBLAZE
 
 END MODULE BLAZE_MOD

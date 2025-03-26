@@ -8,6 +8,7 @@
     K_LITTER_TEMPERATE = 0.0025       ! tuning coeff - temperate
     K_LITTER_TROPICS   = 0.15         ! tuning coeff - tropics 
     MIN_FUEL           = 120.         ! minimimum fuel (gC/m2)
+    outtstep         = "daily"        ! output frequency for BLAZE ("daily", "ascasa")
 &end
 &simfirenml
     SIMFIRE_REGION   = "ANZ"  		! ("ANZ","EUROPE","GLOBAL")

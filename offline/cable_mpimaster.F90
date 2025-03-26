@@ -207,7 +207,7 @@ CONTAINS
     USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, LUC_EXPT_INIT, close_luh2
 
     ! modules related to fire
-    USE BLAZE_MOD,            ONLY: TYPE_BLAZE, INI_BLAZE, WRITE_BLAZE_OUTPUT_NC
+    USE BLAZE_MOD,            ONLY: TYPE_BLAZE, INI_BLAZE, WRITE_BLAZE_OUTPUT_NC, zero_blaze, update_sumBLAZE
     USE BLAZE_MPI,            ONLY: MASTER_BLAZE_TYPES ! , MASTER_SIMFIRE_TYPES
     USE SIMFIRE_MOD,          ONLY: TYPE_SIMFIRE, INI_SIMFIRE
 
@@ -300,8 +300,8 @@ CONTAINS
     CHARACTER            :: cyear*4
     CHARACTER            :: ncfile*99
 
-    ! BLAZE variables
-    TYPE(TYPE_BLAZE)    :: BLAZE
+    ! BLAZE variables - BLAZE for current timestep, sumBLAZE for averaging
+    TYPE(TYPE_BLAZE)    :: BLAZE, sumBLAZE
     TYPE(TYPE_SIMFIRE)  :: SIMFIRE
 
     ! 13C
@@ -811,9 +811,12 @@ CONTAINS
                 endif
 
                 ! Fire init - call_blaze=0 if blaze off, >0 if blaze on to some extent
+                ! sumBLAZE is for accounting/output purposes - only needed on master
                 if (cable_user%call_blaze>0) then
                    call ini_blaze( mland, rad%latitude(landpt(:)%cstart), &
                                    rad%longitude(landpt(:)%cstart), blaze )
+                   call ini_blaze( mland, rad%latitude(landpt(:)%cstart), &
+                                   rad%longitude(landpt(:)%cstart), sumBLAZE )
 
                    !par blaze restart not required uses climate data
                    !create handles for restart-data
@@ -1112,7 +1115,10 @@ CONTAINS
                          !par recv blaze_out_ts
                          call master_receive(ocomm, oktau, blaze_out_ts)
                          BLAZE%time =  BLAZE%time + 86400
-                         call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
+                         if ((cable_user%call_blaze>1) .and. (TRIM(BLAZE%OUTTSTEP) .eq. "daily") ) then
+                              call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
+                         end if
+                         call update_sumBLAZE(blaze, sumBLAZE, count_sum_casa)
                       endif
                    endif ! end of day
 
@@ -1206,6 +1212,14 @@ CONTAINS
                          endif
                          call c13o2_write_output(c13o2_outfile_id, c13o2_vars, c13o2_var_ids, ctime, sum_c13o2pools)
                       end if
+
+                      !BLAZE output if ascasa - NB CASA called daily so will always be liseod
+                      !Only create output if BLAZE active to some extent CALL_BLAZE>1
+                      if (cable_user%CALL_BLAZE>1 .and. (TRIM(BLAZE%OUTTSTEP) .eq. "ascasa")) then
+                         call write_blaze_output_nc( sumBLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
+                         call zero_blaze(sumBLAZE)
+                      end if 
+
                       if (casa_time) then
                          count_sum_casa = 0
                          call zero_sum_casa(sum_casapool, sum_casaflux)
@@ -1302,13 +1316,19 @@ CONTAINS
                 CALL master_receive(ocomm, oktau, casa_ts)
                 ! 13C
                 if (cable_user%c13o2) call master_receive(ocomm, oktau, c13o2_pool_ts)
+                
                 !call_blaze=0 if blaze off, >0 if blaze on to some extent
                 if (cable_user%call_blaze>0) then
                   !par recv blaze_out_ts
                   call master_receive(ocomm, oktau, blaze_out_ts)
                   BLAZE%time =  BLAZE%time + 86400
-                  call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
+                  if (TRIM(BLAZE%OUTTSTEP) .eq. "daily") then
+                     call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
+                  else !OUTTSTEP%asacasa
+                    call write_blaze_output_nc( sumBLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
+                  end if
                 end if
+
                 ! CALL MPI_Waitall(wnp, recv_req, recv_stats, ierr)
                 IF ( ((.NOT.spinup) .OR. (spinup.AND.spinConv)) .AND. &
                      IS_CASA_TIME("dwrit", yyyy, oktau, kstart, &
