@@ -1218,6 +1218,7 @@ CONTAINS
                       if (cable_user%CALL_BLAZE>1 .and. (TRIM(BLAZE%OUTTSTEP) .eq. "ascasa")) then
                          call write_blaze_output_nc( sumBLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
                          call zero_blaze(sumBLAZE)
+                         sumBLAZE%time = 0
                       end if 
 
                       if (casa_time) then
@@ -1322,10 +1323,13 @@ CONTAINS
                   !par recv blaze_out_ts
                   call master_receive(ocomm, oktau, blaze_out_ts)
                   BLAZE%time =  BLAZE%time + 86400
-                  if (TRIM(BLAZE%OUTTSTEP) .eq. "daily") then
-                     call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
-                  else !OUTTSTEP%asacasa
-                    call write_blaze_output_nc( sumBLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
+                  call update_sumBLAZE(blaze, sumBLAZE, count_sum_casa)
+                  if (cable_user%call_blaze>1) then
+                    if (TRIM(BLAZE%OUTTSTEP) .eq. "daily") then
+                          call write_blaze_output_nc( BLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
+                    else !OUTTSTEP%asacasa
+                          call write_blaze_output_nc( sumBLAZE, ktau.EQ.kend .AND. YYYY.EQ.cable_user%YearEnd)
+                    end if
                   end if
                 end if
 

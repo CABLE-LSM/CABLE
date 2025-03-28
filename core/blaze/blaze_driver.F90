@@ -187,7 +187,8 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
         veg%disturbance_intensity(Iw,1), veg%disturbance_intensity(Iw,2)  )
   ENDIF
 
-  ! Apply turn-overs to biomass killed by fire in POP
+  ! Apply turn-overs to biomass killed by fire in POP and evaluate fluxes for this call
+  BLAZE%FLUXES = 0.0
 
   ! pop_grid index
   pidx=1

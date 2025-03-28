@@ -247,50 +247,53 @@ subroutine zero_blaze(blaze)
 
   type(type_blaze), intent(inout) :: blaze
 
+  !integers
   blaze%DSLR          = 0
   blaze%ilon          = 0
   blaze%jlat          = 0
   blaze%Flix          = 0
-  blaze%RAINF         = 0
-  blaze%KBDI          = 0
-  blaze%k_tune_litter = 1.
-  blaze%LR            = 0
-  blaze%U10           = 0
-  blaze%RH            = 0
-  blaze%TMAX          = 0
-  blaze%TMIN          = 0
-  blaze%AREA          = 0
-  blaze%w_prior       = 0
-  !blaze%FDI           = 0
-  blaze%FFDI          = 0
-  blaze%FLI           = 0
-  blaze%ROS           = 0
-  blaze%Z             = 0
-  blaze%D             = 0
-  blaze%w             = 0
-  blaze%LAT           = 0
-  blaze%LON           = 0
-  blaze%DFLI          = 0
-  blaze%AB            = 0
-  Blaze%CAvgAnnRainf  = 0
-  blaze%DEADWOOD      = 0
-  blaze%POP_TO        = 0
-  blaze%POP_CWD       = 0
-  blaze%POP_STR       = 0
-  blaze%shootfrac     = 0
-  Blaze%AnnRAINF      = 0
-  !blaze%ABM           = 0
-  blaze%TO            = 0
-  !blaze%AGC_g         = 0
-  !blaze%AGC_w         = 0
-  blaze%AGLit_w       = 0
-  blaze%AGLit_g       = 0
-  blaze%BGLit_w       = 0
-  blaze%BGLit_g       = 0
-  blaze%CPLANT_g      = 0
-  blaze%CPLANT_w      = 0
-  blaze%AvgAnnRAINF   = 0
-  blaze%FLUXES        = 0
+
+  ! reals
+  blaze%RAINF         = 0.0
+  blaze%KBDI          = 0.0
+  blaze%k_tune_litter = 1.0
+  blaze%LR            = 0.0
+  blaze%U10           = 0.0
+  blaze%RH            = 0.0
+  blaze%TMAX          = 0.0
+  blaze%TMIN          = 0.0
+  blaze%AREA          = 0.0
+  blaze%w_prior       = 0.0
+  !blaze%FDI           = 0.0
+  blaze%FFDI          = 0.0
+  blaze%FLI           = 0.0
+  blaze%ROS           = 0.0
+  blaze%Z             = 0.0
+  blaze%D             = 0.0
+  blaze%w             = 0.0
+  blaze%LAT           = 0.0
+  blaze%LON           = 0.0
+  blaze%DFLI          = 0.0
+  blaze%AB            = 0.0
+  Blaze%CAvgAnnRainf  = 0.0
+  blaze%DEADWOOD      = 0.0
+  blaze%POP_TO        = 0.0
+  blaze%POP_CWD       = 0.0
+  blaze%POP_STR       = 0.0
+  blaze%shootfrac     = 0.0
+  Blaze%AnnRAINF      = 0.0
+  !blaze%ABM           = 0.0
+  blaze%TO            = 0.0
+  !blaze%AGC_g         = 0.0
+  !blaze%AGC_w         = 0.0
+  blaze%AGLit_w       = 0.0
+  blaze%AGLit_g       = 0.0
+  blaze%BGLit_w       = 0.0
+  blaze%BGLit_g       = 0.0
+  blaze%CPLANT_g      = 0.0
+  blaze%CPLANT_w      = 0.0
+  blaze%AvgAnnRAINF   = 0.0
+  blaze%FLUXES        = 0.0
 
 end subroutine zero_blaze
 
@@ -1319,6 +1322,13 @@ END SUBROUTINE RUN_BLAZE
    DO i = 1,mland
       sumBLAZE%DSLR(i) = MAX(sumBLAZE%DSLR(i),BLAZE%DSLR(i))
    END DO
+
+   !update sumBLAZE time - will take the value at the middle of the averaging period
+   if (count == 1) then
+      sumBLAZE%time = BLAZE%time
+   else
+      sumBLAZE%time = NINT( (real(count-1)*real(sumBLAZE%time) + real(BLAZE%time)) / real(count) )
+   end if
 
 END SUBROUTINE update_sumBLAZE
 

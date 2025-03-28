@@ -906,11 +906,12 @@ CONTAINS
              ! Call BLAZE again to compute turnovers depending on POP mortalities
              ! call_blaze=0 if blaze off, >0 if blaze evaluating fire weather
              ! blaze=2 if operating and =3 if on and coupled to casa
-             IF ( cable_user%CALL_BLAZE>1) THEN
-                !MC - this is different to serial code
-                call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                     casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg, cable_user%CALL_BLAZE)
-             ENDIF
+             !IF ( cable_user%CALL_BLAZE>1) THEN
+                !MC - this is different to serial code 
+               ! - INH I don't think we need this given that BLAZE is called daily above (and calls adjust_pop_for_fire)
+               ! call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
+               !      casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg, cable_user%CALL_BLAZE)
+             !ENDIF
 
              CALL worker_send_pop(POP, ocomm)
 
@@ -8898,6 +8899,10 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
            casaflux%potstemnpp = 0.0_dp  !#9238
         endif ! CALL_POP
 
+        ! INH - 28/3/2024 for MPI-spincasacnp BLAZE impacts felt through k_fire terms.
+        ! Currently these are not being updated even though available fuel evolves - nor are POP demographics
+        ! This is different to serial spincasacnp
+
         !CLN CALL BLAZE_DRIVER(...)
 
         ! WHERE(xkNlimiting .eq. 0)  !Chris Lu 4/June/2012
@@ -9034,6 +9039,10 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
               call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
            endif
 
+           ! INH - 28/3/2024 for MPI-spincasacnp BLAZE impacts felt through k_fire terms.
+           ! Currently these are not being updated even though available fuel evolves - nor are POP demographics
+           ! This is different ti serial spincasacnp
+
            !! CLN BLAZE here
            !!CLNblaze_spin_year = 1900 - myearspin + nyear
            !CLN CALL BLAZE_DRIVER(casapool,casaflux,shootfrac, met..., idoy,blaze_spin_year, DO_BLAZE_TO
@@ -9059,13 +9068,17 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
 
               if (idoy==mdyear) then ! end of year
                  call POPdriver(casaflux, casabal, veg, POP)
+                 
                  ! CLN Check here accounting missing
-                 !call_blaze=0 if blaze off, >0 if blaze evaluating fire weather
+                 ! call_blaze=0 if blaze off, >0 if blaze evaluating fire weather
                  ! blaze=2 if operating and =3 if on and coupled to casa
-                 if (cable_user%CALL_BLAZE>1) then
-                    call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                         casamet, climate, rshootfrac, idoy, 1900, 1, POP, veg, cable_user%CALL_BLAZE)
-                 endif
+                 !
+                 ! INH I don't think that blaze is needed here any longer - should be happening everyday if at all
+                 ! blaze now called daily and calls adjust_pop_for_fire as part of it
+                 !if (cable_user%CALL_BLAZE>1) then
+                 !   call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
+                 !        casamet, climate, rshootfrac, idoy, 1900, 1, POP, veg, cable_user%CALL_BLAZE)
+                 !endif
                  !! CLN BLAZE TURNOVER
               endif  ! end of year
            else
