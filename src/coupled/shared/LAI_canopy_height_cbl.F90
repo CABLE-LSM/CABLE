@@ -38,14 +38,49 @@ CONTAINS
 SUBROUTINE limit_HGT_LAI( LAI_pft_cbl, HGT_pft_cbl, mp, land_pts, ntiles,      &
                           npft, tile_pts, tile_index, tile_frac,L_tile_pts,    &
                           LAI_pft, HGT_pft, CLAI_thresh )
-
-! Description:
-!   Nothing further to add to module description.
+!*## Purpose
+!
+! This SUBROUTINE checks that input values of leaf area and canopy height
+! lie between set values (defined by PFT) and overwrites if necessary.
+! These limits are needed to ensure that the canopy roughness properties of
+! the land point are well behaved (see [[ruff_resist]]).
+!
+! The mapping from grid cells (land_pts,ntiles) to the (mp) structure
+! is also undertaken.
+!
+! **This SUBROUTINE is active when CABLE is run within a coupled model
+! (i.e. ACCESS)** 
+!
+!## Method
+!
+! The cell-level input (land_pts,ntile) variables for leaf area `LAI_pft` and
+! canopy height `HGT_pft` are checked for
+!
+! - whether the land_pt has a non-zero fraction of that tile (if zero
+!   fraction then LAI and canopy height are set to zero)
+! - whether the LAI lies above a minimum value `CLAI_thresh`
+! - whether the canopy height lies above a minimum value (which is PFT dependent)
+! - whether non-vegetated tiles have a non-zero canopy height.
+!
+! Outputs are `LAI_pft_cbl` and `HGT_pft_cbl`
+!
+! **WARNINGS**
+!
+! - INTENT statements need to be added to the argument lists
+! - hardwired indexing is used throughout.  This SUBROUTINE assumes that
+!     1. non-vegetated tiles take indexes 14 and onwards
+!     2. tall vegetation occupies tile indexes 1-4
+!     3. other vegetation (shrubs/grasses/crops/wetlands) occupy tile indexes
+!     5-13
+! - the limits on canopy height are hardwired
+!     1. canopy height for tall vegetation is limited to be greater than 1m
+!     2. canopy height for other vegetation is limited to be greater than 0.1m
 
 IMPLICIT NONE
-INTEGER, INTENT(IN) :: mp
-REAL, INTENT(OUT) :: LAI_pft_cbl(mp)
-REAL, INTENT(OUT) :: HGT_pft_cbl(mp)
+
+INTEGER, INTENT(IN)  :: mp
+REAL,    INTENT(OUT) :: LAI_pft_cbl(mp)
+REAL,    INTENT(OUT) :: HGT_pft_cbl(mp)
 INTEGER, INTENT(IN) :: land_pts, ntiles, npft
 REAL, INTENT(IN) :: LAI_pft(land_pts, npft)
 REAL, INTENT(IN) :: HGT_pft(land_pts, npft)
@@ -73,24 +108,24 @@ DO n=1,ntiles
     IF ( tile_frac(i,n)  >   0.0 ) THEN
       
       ! hard-wired vegetation type numbers need to be removed
-      ! LAI set either just below threshold OR from INput field
-      IF (n < 14) THEN
-        LAI_pft_temp(i,n) = MAX(CLAI_thresh*.99,LAI_pft(i,n))
+       IF(N < 5 ) THEN ! trees 
+        LAI_pft_temp(i,N) = max(CLAI_thresh,LAI_pft(i,N)) 
+          HGT_pft_temp(i,N) = max(1.,HGT_pft(i,N)) 
+      ELSE IF(N > 4 .AND. N < 14 ) THEN  ! shrubs/grass
+        LAI_pft_temp(i,N) = max(CLAI_thresh,LAI_pft(i,N)) 
+          HGT_pft_temp(i,N) = max(0.1, HGT_pft(i,N)) 
+      ELSE IF(N > 13 ) THEN ! non-vegetated
+        LAI_pft_temp(i,N) = 0.0
+        HGT_pft_temp(i,N) = 0.0
+       ENDIF
+
       ENDIF
      
-      ! sse. height
-      IF (n < 5 ) THEN
-        HGT_pft_temp(i,n) = MAX(1.0,HGT_pft(i,n))   ! trees 
-      ELSE IF (n > 4 .AND. n < 14 ) THEN 
-        HGT_pft_temp(i,n) = MAX(0.1, HGT_pft(i,n))  ! shrubs/grass
-      END IF
-
-    END IF
-
-  END DO
-END DO
+  ENDDO
+ENDDO
 
 ! pack filtered JULE/UM maps to CABLE variables
+!surface_type = PACK(surface_type_temp, um1%L_TILE_PTS)
 LAI_pft_cbl  = PACK(LAI_pft_temp, l_tile_pts)
 HGT_pft_cbl  = PACK(HGT_pft_temp, l_tile_pts)
 
