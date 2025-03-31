@@ -1,5 +1,7 @@
 MODULE cable_canopy_module
 
+USE cable_common_module,    ONLY : knode_gl, ktau_gl
+
   IMPLICIT NONE
 
   PUBLIC define_canopy
@@ -165,6 +167,32 @@ REAL :: Rel_moisture(mp)
 REAL :: soil_conductance(mp)
 REAL :: Surf_conductance(mp)
 ! END header
+
+!At the height of usage I might track a field through, or at least be writing from multiple files at once
+!it was therefore
+!CANGE THIS to anysubr
+CHARACTER(LEN=8),  PARAMETER :: subr_name = "canopy_E"
+CHARACTER(LEN=30), PARAMETER :: basename  = "/home/599/jxs599/temp/canopy_/"
+CHARACTER(LEN=30), PARAMETER :: basename0  = "/home/599/jxs599/temp/canopy0/"
+INTEGER,           PARAMETER :: iunit     = 171        
+INTEGER,           PARAMETER :: iunit0    = 170        
+
+CHARACTER(LEN=3)  :: chnode
+CHARACTER(LEN=41) :: filename
+CHARACTER(LEN=41) :: filename0
+
+WRITE(chnode,10) knode_gl
+10 FORMAT(i3.3)   
+filename=TRIM(TRIM(basename)//TRIM(subr_name)//TRIM(chnode))
+filename0=TRIM(TRIM(basename0)//TRIM(subr_name)//TRIM(chnode))
+
+OPEN( UNIT=iunit,FILE=filename//".dat", STATUS="unknown",ACTION="write", & 
+      POSITION='append' )
+OPEN( UNIT=iunit0,FILE=filename0//".dat", STATUS="unknown",ACTION="write", & 
+      POSITION='append' )
+
+WRITE (iunit,*) "dt  ", ktau_gl 
+WRITE (iunit0,*) "dt  ", ktau_gl 
 
 canopy%cansto =  canopy%oldcansto
 
@@ -643,10 +671,34 @@ write(6,*) "SLI is not an option right now"
 
        canopy%rnet = canopy%fnv + canopy%fns
 
+       !!upwards flux density of water (kg/m2/s) - potential evapotranspiration 
+       !!radiation weighted soil and canopy contributions
+       !!Note: If PM routine corrected then match changes here
+       canopy%epot = ((1.-rad%transd)*canopy%fevw_pot +                         &
+            rad%transd*ssnow%potev*ssnow%cls) * dels/air%rlam
+
+       rlower_limit = canopy%epot * air%rlam / dels
+       WHERE (rlower_limit == 0 ) rlower_limit = 1.e-7 !prevent from 0. by adding 1.e-7 (W/m2)
+
+       canopy%wetfac_cs = MAX(0., MIN(1.0,canopy%fe / rlower_limit ))
+
+
+       DO j=1,mp
+
+          WRITE (iunit0,*) ""
+          WRITE (iunit0,*) "transd       ", rad%transd(j)
+          !!WRITE (iunit0,*) "fevw_pot     ", canopy%fevw_pot(j)
+          !!WRITE (iunit0,*) "pot_ev       ", ssnow%potev(j)
+          WRITE (iunit0,*) "epot         ", canopy%epot(j)
+          WRITE (iunit0,*) "rlower_limit ", rlower_limit(j) 
+          WRITE (iunit0,*) "wetfac_cs    ", canopy%wetfac_cs(j)
+
+       ENDDO
+
        canopy%rniso = sum_rad_rniso + rad%qssabs + rad%transd*met%fld + &
             (1.0-rad%transd)*CEMLEAF* &
             CSBOLTZ*met%tvrad**4 - CEMSOIL*CSBOLTZ*met%tvrad**4
-
+            
             
        !upwards flux density of water (kg/m2/s) - potential evapotranspiration 
        !radiation weighted soil and canopy contributions
@@ -661,12 +713,29 @@ write(6,*) "SLI is not an option right now"
 
        DO j=1,mp
 
+          WRITE (iunit,*) ""
+          !!WRITE (iunit,*) "fevw_pot     ", canopy%fevw_pot(j)
+          !!WRITE (iunit,*) "pot_ev       ", ssnow%potev(j)
+          WRITE (iunit,*) "epot         ", canopy%epot(j)
+          WRITE (iunit,*) "rlower_limit ", rlower_limit(j) 
+          WRITE (iunit,*) "wetfac_cs    ", canopy%wetfac_cs(j)
+
+       ENDDO
+       
+       DO j=1,mp
+
           IF ( canopy%wetfac_cs(j) .LE. 0. )                                    &
                canopy%wetfac_cs(j) = MAX( 0., MIN( 1.,                            &
                MAX( canopy%fev(j)/canopy%fevw_pot(j),       &
                REAL(canopy%fes(j))/ssnow%potev(j) ) ) )
 
+          WRITE (iunit,*) "wetfac_csLESS ", canopy%wetfac_cs(j)
+
        ENDDO
+  
+       !! INH #335 - we don't need to weight components of %epot by %transd
+       !! however coupled model uses %wetfac_cs so overwrite here before testing in ACCESS
+       !canopy%epot = (canopy%fevw_pot + ssnow%potev/ssnow%cls) * dels/air%rlam
 
        CALL update_zetar( mp, iterplus, NITER, canopy%zetar, iter, nrb, CVONK, &
                      CGRAV, CCAPP, CLAI_THRESH, CZETmul, CZETPOS, CZETNEG,     &
@@ -1036,6 +1105,11 @@ DEALLOCATE(dsx, fwsoil, tlfx, tlfy)
 DEALLOCATE(ecy, hcy, rny)
 DEALLOCATE(gbhf, csx)
 DEALLOCATE(ghwet)
+
+WRITE (iunit,*) "End"
+WRITE (iunit0,*) "End"
+CLOSE(iunit)
+CLOSE(iunit0)
 
 RETURN
 
