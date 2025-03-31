@@ -106,8 +106,6 @@ DO n=1,ntiles
     i = tile_index(j,n)  ! It must be landpt index
 
     IF ( tile_frac(i,n)  >   0.0 ) THEN
-      
-      ! hard-wired vegetation type numbers need to be removed
        IF(N < 5 ) THEN ! trees 
         LAI_pft_temp(i,N) = max(CLAI_thresh,LAI_pft(i,N)) 
           HGT_pft_temp(i,N) = max(1.,HGT_pft(i,N)) 
@@ -119,7 +117,7 @@ DO n=1,ntiles
         HGT_pft_temp(i,N) = 0.0
        ENDIF
 
-      ENDIF
+    END IF
      
   ENDDO
 ENDDO
