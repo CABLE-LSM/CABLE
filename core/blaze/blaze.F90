@@ -10,7 +10,8 @@ TYPE TYPE_BLAZE
    REAL,     DIMENSION(:,:),ALLOCATABLE :: CPLANT_g, CPLANT_w
    REAL,     DIMENSION(:,:),ALLOCATABLE :: AvgAnnRAINF, FLUXES
    CHARACTER,DIMENSION(:),  ALLOCATABLE :: FTYPE*6
-   INTEGER                              :: T_AVG, YEAR, MONTH, DAY, DOY, NCELLS, time
+   INTEGER                              :: T_AVG, YEAR, MONTH, DAY, DOY, NCELLS !, time
+   REAL                                 :: time     !needs to be real for outputting purposes
    INTEGER                              :: BURNMODE ! 0=off, 1=BLAZE only, 2=BLAZE with POP
    !CRM INTEGER                              :: IGNITION ! 0=GFED3, 1=SIMFIRE
    REAL                                 :: FT,tstp
@@ -143,7 +144,7 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
 
   ! READ ini-nml
   BLAZE%NCELLS = np
-  BLAZE%time = 0
+  BLAZE%time = 0.0
   ALLOCATE ( BLAZE%DSLR    ( np ) )
   ALLOCATE ( BLAZE%RAINF   ( np ) )
   ALLOCATE ( BLAZE%LR      ( np ) )
@@ -1114,8 +1115,10 @@ END SUBROUTINE RUN_BLAZE
        STATUS = NF90_def_dim(FILE_ID, 'fluxes' , NFLUXES, f_ID)
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
-        ! Define variables
-       STATUS = NF90_def_var(FILE_ID,'time' ,NF90_INT,(/t_ID/),VIDtime )
+       ! Define variables - INH converting time to FLOAT
+       !STATUS = NF90_def_var(FILE_ID,'time' ,NF90_INT,(/t_ID/),VIDtime )
+       !IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+       STATUS = NF90_def_var(FILE_ID,'time' ,NF90_FLOAT,(/t_ID/),VIDtime )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
        !write(*,*) 'timeunits', TRIM(timeunits), t_ID, FILE_ID
@@ -1327,7 +1330,8 @@ END SUBROUTINE RUN_BLAZE
    if (count == 1) then
       sumBLAZE%time = BLAZE%time
    else
-      sumBLAZE%time = NINT( (real(count-1)*real(sumBLAZE%time) + real(BLAZE%time)) / real(count) )
+      !sumBLAZE%time = NINT( (real(count-1)*real(sumBLAZE%time) + real(BLAZE%time)) / real(count) )
+      sumBLAZE%time = (real(count-1)*sumBLAZE%time + BLAZE%time) / real(count) 
    end if
 
 END SUBROUTINE update_sumBLAZE

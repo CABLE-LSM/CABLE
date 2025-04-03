@@ -130,7 +130,7 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
      TSTP = 1./365.
   END IF
 
-  BLAZE%time =  BLAZE%time + 86400
+  BLAZE%time =  BLAZE%time + 86400.0
 
   ! MAIN  ============================================================
 
