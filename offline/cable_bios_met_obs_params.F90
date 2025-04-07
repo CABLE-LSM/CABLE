@@ -494,7 +494,7 @@ MODULE cable_bios_met_obs_params
   USE bios_date_functions
   USE bios_misc_io
   
-  USE CABLE_COMMON_MODULE, ONLY: GET_UNIT, cable_user ! Subr assigns an unique unit number for file opens.
+  USE CABLE_COMMON_MODULE, ONLY: GET_UNIT, HANDLE_ERR, cable_user ! Subr assigns an unique unit number for file opens.
 
   USE cable_IO_vars_module, ONLY: &
       logn, landpt , nmetpatches         ! Unit number for writing logfile entries and land point array
@@ -502,6 +502,8 @@ MODULE cable_bios_met_obs_params
   
   USE cable_weathergenerator,ONLY: WEATHER_GENERATOR_TYPE, WGEN_INIT, &
                                    WGEN_DAILY_CONSTANTS, WGEN_SUBDIURNAL_MET
+  
+  USE netcdf                             !for ncread of IGBP and FAPAR files for BLAZE
 
   IMPLICIT NONE
 
@@ -1773,57 +1775,242 @@ SUBROUTINE cable_bios_load_fracC4(fracC4)
 END SUBROUTINE cable_bios_load_fracC4
 
 !******************************************************************************
-SUBROUTINE cable_bios_load_climate_params(climate)
+SUBROUTINE cable_bios_load_climate_params(climate, invegfile, infaparfile)
 
 USE cable_def_types_mod,  ONLY: mland, climate_type
+USE cable_IO_vars_module, ONLY: latitude, longitude
 
   IMPLICIT NONE
 
+TYPE(climate_type), INTENT(INOUT)       :: climate ! climate variables
+CHARACTER(len=400), OPTIONAL :: invegfile, infaparfile
 
+!for both types of file read
 INTEGER(i4b) :: is, ie ! Index start/end points within cable spatial vectors
                                 ! for the current land-cell's tiles. These are just 
                                 ! aliases to improve code readability
 INTEGER(i4b) :: iland         ! loop counter through mland land cells
+CHARACTER(len=400) :: vegfile, faparfile  !full pathnames to the IGBP and FAPAR files
+CHARACTER(LEN=1) :: delims = '.'  !delimter used to identify file type
+CHARACTER(LEN=3) :: tag           !file type identifier - 'nc' or 'bin'
+INTEGER(i4b)     :: last, pos     !position indexes in filename
+
+!for binary file read
 INTEGER(i4b) :: param_unit    ! Unit number for reading (all) parameter files.
 INTEGER(i4b) :: error_status  ! Error status returned by OPENs
-TYPE(climate_type), INTENT(INOUT)       :: climate ! climate variables
-
 REAL(sp), ALLOCATABLE :: vegtypeigbp(:)
 REAL(sp), ALLOCATABLE :: avgannmax_fapar(:)
 
+!for nc file read - may need revising for sources
+INTEGER :: STATUS, fID, latID, lonID, vID, xdimsize, ydimsize, ilat, ilon, fail
+REAL(sp) ::  iclass, fillclass      !vars for IGBP vegtype read
+REAL(sp)  :: fapar,  fillfapar      !vars for fapar climatology read
+REAL(dp), DIMENSION(:), ALLOCATABLE :: vlat, vlon
 
-ALLOCATE (vegtypeigbp(mland),  avgannmax_fapar(mland))
-
-CALL GET_UNIT(param_unit)  ! Obtain an unused unit number for file reading, reused for all soil vars.
-
-OPEN(param_unit, FILE=TRIM(param_path)//TRIM(vegtypeigbp_file), ACCESS='STREAM', &
-     FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(vegtypeigbp_file) ; STOP ''
+!IGBP file first - set name of source, global runs in via invegfile, BIOS via param_path
+IF (PRESENT(invegfile)) THEN
+  vegfile = TRIM(invegfile)
 ELSE
-  READ (param_unit) vegtypeigbp
-  CLOSE (param_unit)
+  vegfile = TRIM(param_path)//TRIM(vegtypeigbp_file)
+ENDIF
+!determine whether vegtypeigbp file is binary or netcdf - will look to remove binary read option later
+last = LEN(TRIM(vegfile))
+pos =  SCAN( TRIM(vegfile), delims, BACK = .TRUE.)  !find the '.' at end of filename
+tag =  vegfile(pos+1:last)
+
+!read in IGBP vegtype according to filename type
+IF (TRIM(tag) .eq. 'bin') THEN
+  ALLOCATE (vegtypeigbp(mland))
+  CALL GET_UNIT(param_unit)  ! Obtain an unused unit number for file reading, reused for all soil vars.
+
+  OPEN(param_unit, FILE=TRIM(vegfile), ACCESS='STREAM', &
+      FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+  IF (error_status > 0) THEN
+    WRITE (*,*) "STOP - File not found: ", TRIM(vegfile) ; STOP ''
+  ELSE
+    READ (param_unit) vegtypeigbp
+    CLOSE (param_unit)
+  END IF
+
+  !map data across to output arrays accroding to land cell
+  DO iland = 1,mland 
+      is = landpt(iland)%cstart  ! Index position for the first tile of this land cell.
+      ie = landpt(iland)%cend    ! Index position for the last tile of this land cell.
+      climate%modis_igbp(is:ie) = INT(vegtypeigbp(iland))
+  ENDDO
+  DEALLOCATE(vegtypeigbp)
+
+ELSEIF (TRIM(tag) .eq. 'nc') THEN
+  !Read in IGBP "class" variable from netCDF file - will need some kind of search to deal with 
+  !resolution differences and mismatches in coast
+  STATUS = NF90_OPEN( TRIM(vegfile), NF90_NOWRITE, fID)
+  CALL HANDLE_ERR(STATUS, "Opening vegtypeigbp file "//TRIM(vegfile))
+  STATUS = NF90_INQ_VARID(fID,'vegtypeigbp_ctr05', vID)
+  CALL HANDLE_ERR(STATUS, "Inquiring if IGBP class var in "//TRIM(vegfile))
+  STATUS = nf90_get_att(fID, vID, "_FillValue", fillclass)
+
+  !get sizes of lat-lon from input file
+  STATUS = NF90_INQ_DIMID(fID,'lat',latID)
+  CALL HANDLE_ERR(STATUS, "Inquiring if lat in dimensions of "//TRIM(vegfile))
+  STATUS = NF90_INQUIRE_DIMENSION(fID,latID,len=ydimsize)
+  STATUS = NF90_INQ_DIMID(fID,'lon',lonID)
+  CALL HANDLE_ERR(STATUS, "Inquiring if lon in dimensions of "//TRIM(vegfile))
+  STATUS = NF90_INQUIRE_DIMENSION(fID,lonID,len=xdimsize)
+
+  !read in lat and lon variables
+  STATUS = NF90_INQ_VARID(fID,'lat',latID)
+  CALL HANDLE_ERR(STATUS, "Inquiring if lat in "//TRIM(vegfile))
+  STATUS = NF90_INQ_VARID(fID,'lon',lonID)
+  CALL HANDLE_ERR(STATUS, "Inquiring if lon in "//TRIM(vegfile))
+
+  IF (.NOT. ALLOCATED(vlat)) ALLOCATE(vlat(ydimsize))
+  IF (.NOT. ALLOCATED(vlon)) ALLOCATE(vlon(xdimsize))
+  STATUS = NF90_GET_VAR( fID, latID, vlat, start=(/1/)  )
+  CALL HANDLE_ERR(STATUS, "Reading latitude from "//TRIM(vegfile))
+  STATUS = NF90_GET_VAR( fID, lonID, vlon, start=(/1/)  )
+  CALL HANDLE_ERR(STATUS, "Reading longitude from "//TRIM(vegfile))
+
+  !check to see if input longitude spans range of requested longitude/latitude
+  IF ( (MINVAL(longitude)<MINVAL(vlon)) .OR. (MAXVAL(longitude)>MAXVAL(vlon))  & 
+         .OR. (MINVAL(latitude)<MINVAL(vlat)) .OR. (MAXVAL(latitude)>MAXVAL(vlat)) ) THEN
+    WRITE(*,*) "range of longitude/latitude from "//TRIM(vegfile)//" does not cover requested range"
+    WRITE(*,*) "max longitude requested ", MAXVAL(longitude), " max longitude in file ", MAXVAL(vlon)
+    WRITE(*,*) "min longitude requested ", MINVAL(longitude), " min longitude in file ", MINVAL(vlon)
+    WRITE(*,*) "max latitude requested ", MAXVAL(latitude), " max latitude in file ", MAXVAL(vlat)
+    WRITE(*,*) "min latitude requested ", MINVAL(latitude), " min latitude in file ", MINVAL(vlat)
+    STOP
+  END IF
+
+  fail = 0
+  DO iland = 1,mland
+    !find integer class info from file for the grid cell
+    ilat = MINLOC(ABS(vlat - latitude(iland)), DIM=1)
+    ilon = MINLOC(ABS(vlon - longitude(iland)),DIM=1)
+
+    !read into REAL() - remember need to switch the dmension order from that in ncdump!!
+    STATUS = NF90_GET_VAR( fID, vID, iclass, start=(/ilon,ilat/) ) 
+    CALL HANDLE_ERR(STATUS, "Reading direct from "//TRIM(vegfile))
+    !this section is where we may need to be more clever and do a search in region around IGBP grid cell
+    if (iclass .eq. fillclass) THEN
+      WRITE(*,*) "vegtypeigbp has picked up the fill value at (lon,lat) ", longitude(iland), latitude(iland)
+      fail = 1
+    ENDIF
+
+    !map class value to tiles - ensuring that take INTEGER
+    is = landpt(iland)%cstart  ! Index position for the first tile of this land cell.
+    ie = landpt(iland)%cend    ! Index position for the last tile of this land cell.
+    climate%modis_igbp(is:ie) = INT(iclass)
+  END DO
+  STATUS = NF90_CLOSE(fID)
+  IF (fail .eq. 1) STOP
+
+  DEALLOCATE(vlon,vlat)
+  
+ELSE
+  WRITE(*,*) "STOP - file extension needs to be bin or nc for ", TRIM(param_path)//TRIM(vegtypeigbp_file) ; STOP ''
 END IF
 
-
-
-OPEN (param_unit, FILE=TRIM(param_path)//TRIM(avgannmax_fapar_file), ACCESS='STREAM', &
-     FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
-IF (error_status > 0) THEN
-  WRITE (*,*) "STOP - File not found: ", TRIM(param_path)//TRIM(avgannmax_fapar_file) ; STOP ''
+!-------------------------------------
+!annual maximum fAPAR - set name of source, global runs in via invegfile, BIOS via param_path
+IF (PRESENT(infaparfile)) THEN
+  faparfile = TRIM(infaparfile)
 ELSE
-  READ (param_unit) avgannmax_fapar
-  CLOSE (param_unit)
+  faparfile = TRIM(param_path)//TRIM(avgannmax_fapar_file)
+ENDIF
+!determine whether using fapar_file is binary or netcdf - will look to remove binary read option later
+last = LEN(TRIM(faparfile))
+pos =  SCAN( TRIM(faparfile),delims, BACK = .TRUE.)  !find the '.' at end of filename
+tag = faparfile(pos+1:last)
+
+!read in FAPAR according to filenametype
+IF (TRIM(tag) .eq. 'bin') THEN
+  ALLOCATE (avgannmax_fapar(mland))
+  CALL GET_UNIT(param_unit)  ! Obtain an unused unit number for file reading
+
+  OPEN (param_unit, FILE=TRIM(faparfile), ACCESS='STREAM', &
+       FORM='UNFORMATTED', STATUS='OLD',IOSTAT=error_status)
+  IF (error_status > 0) THEN
+    WRITE (*,*) "STOP - File not found: ", TRIM(faparfile) ; STOP ''
+  ELSE
+    READ (param_unit) avgannmax_fapar
+    CLOSE (param_unit)
+  END IF
+
+  DO iland = 1,mland ! For each land cell...
+    is = landpt(iland)%cstart  ! Index position for the first tile of this land cell.
+    ie = landpt(iland)%cend    ! Index position for the last tile of this land cell.
+    !climate%AvgAnnRainf(is:ie) = MAP(iland)
+    climate%AvgAnnMaxFAPAR(is:ie) = avgannmax_fapar(iland)
+  ENDDO
+  DEALLOCATE (avgannmax_fapar)
+
+ELSEIF (TRIM(tag) .eq. 'nc') THEN
+  !Read in fAPAR variable from netCDF file - will need some kind of search to deal with 
+  !resolution differences and mismatches in coast
+  STATUS = NF90_OPEN( TRIM(faparfile), NF90_NOWRITE, fID)
+  CALL HANDLE_ERR(STATUS, "Opening avgannfapar file "//TRIM(faparfile))
+  STATUS = NF90_INQ_VARID(fID,'avgannmaxdata1998-2005_ctr05', vID)
+  CALL HANDLE_ERR(STATUS, "Inquiring if fapar var in "//TRIM(faparfile))
+  STATUS = nf90_get_att(fID, vID, "_FillValue", fillfapar)
+
+  !get sizes of lat-lon from input file
+  STATUS = NF90_INQ_DIMID(fID,'lat',latID)
+  CALL HANDLE_ERR(STATUS, "Inquiring if lat in dimensions of "//TRIM(faparfile))
+  STATUS = NF90_INQUIRE_DIMENSION(fID,latID,len=ydimsize)
+  STATUS = NF90_INQ_DIMID(fID,'lon',lonID)
+  CALL HANDLE_ERR(STATUS, "Inquiring if lon in dimensions of "//TRIM(faparfile))
+  STATUS = NF90_INQUIRE_DIMENSION(fID,lonID,len=xdimsize)
+
+  !read in lat and lon variables
+  STATUS = NF90_INQ_VARID(fID,'lat',latID)
+  CALL HANDLE_ERR(STATUS, "Inquiring if lat in "//TRIM(faparfile))
+  STATUS = NF90_INQ_VARID(fID,'lon',lonID)
+  CALL HANDLE_ERR(STATUS, "Inquiring if lon in "//TRIM(faparfile))
+
+  IF (.NOT. ALLOCATED(vlat)) ALLOCATE(vlat(ydimsize))
+  IF (.NOT. ALLOCATED(vlon)) ALLOCATE(vlon(xdimsize))
+  STATUS = NF90_GET_VAR( fID, latID, vlat, start=(/1/)  )
+  CALL HANDLE_ERR(STATUS, "Reading latitude from "//TRIM(faparfile))
+  STATUS = NF90_GET_VAR( fID, lonID, vlon, start=(/1/)  )
+  CALL HANDLE_ERR(STATUS, "Reading longitude from "//TRIM(faparfile))
+
+  !check to see if input longitude spans range of requested longitude/latitude
+  IF ( (MINVAL(longitude)<MINVAL(vlon)) .OR. (MAXVAL(longitude)>MAXVAL(vlon))  & 
+         .OR. (MINVAL(latitude)<MINVAL(vlat)) .OR. (MAXVAL(latitude)>MAXVAL(vlat)) ) THEN
+    WRITE(*,*) "range of longitude/latitude from "//TRIM(faparfile)//" does not cover requested range"
+    WRITE(*,*) "max longitude requested ", MAXVAL(longitude), " max longitude in file ", MAXVAL(vlon)
+    WRITE(*,*) "min longitude requested ", MINVAL(longitude), " min longitude in file ", MINVAL(vlon)
+    WRITE(*,*) "max latitude requested ", MAXVAL(latitude), " max latitude in file ", MAXVAL(vlat)
+    WRITE(*,*) "min latitude requested ", MINVAL(latitude), " min latitude in file ", MINVAL(vlat)
+    STOP
+  END IF
+
+  fail = 0
+  DO iland = 1,mland
+    !find integer class info from file for the grid cell
+    ilat = MINLOC(ABS(vlat - latitude(iland)), DIM=1)
+    ilon = MINLOC(ABS(vlon - longitude(iland)),DIM=1)
+
+    !read into REAL() - care on order of lat,lon - needs to be reverse of that from ncdump
+    STATUS = NF90_GET_VAR( fID, vID, fapar, start=(/ilon,ilat/) ) 
+    CALL HANDLE_ERR(STATUS, "Reading direct from "//TRIM(faparfile))
+    !this section is where we may need to be more clever and do a search in region around IGBP grid cell
+    if (fapar .eq. fillfapar) THEN
+      WRITE(*,*) "avgannmaxfapar has picked up the fill value at (lon,lat) ", longitude(iland), latitude(iland)
+      fail = 1
+    ENDIF
+
+    !map class value to tiles
+    is = landpt(iland)%cstart  ! Index position for the first tile of this land cell.
+    ie = landpt(iland)%cend    ! Index position for the last tile of this land cell.
+    climate%AvgAnnMaxFAPAR(is:ie) = fapar
+  END DO
+  STATUS = NF90_CLOSE(fID)
+  IF (fail .eq. 1) STOP
+  
+ELSE
+  WRITE(*,*) "STOP - file extension needs to be bin or nc for ", TRIM(faparfile) ; STOP ''
 END IF
-
-DO iland = 1,mland ! For each land cell...
-   is = landpt(iland)%cstart  ! Index position for the first tile of this land cell.
-   ie = landpt(iland)%cend    ! Index position for the last tile of this land cell.
-   climate%modis_igbp(is:ie) = INT(vegtypeigbp(iland))
-   !climate%AvgAnnRainf(is:ie) = MAP(iland)
-   climate%AvgAnnMaxFAPAR(is:ie) = avgannmax_fapar(iland)
-ENDDO
-
 
 END SUBROUTINE cable_bios_load_climate_params
 !******************************************************************************

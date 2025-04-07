@@ -818,6 +818,12 @@ CONTAINS
                    call ini_blaze( mland, rad%latitude(landpt(:)%cstart), &
                                    rad%longitude(landpt(:)%cstart), sumBLAZE )
 
+                    !load additional parameters needed for BLAZE/SIMFIRE after INI_BLAZE, before INI_SIMFIRE
+                    !global runs (BIOS done above)
+                    if ( trim(cable_user%MetType) .ne. 'bios' ) then
+                         call cable_bios_load_climate_params(climate,BLAZE%igbpfilename,BLAZE%faparfilename )
+                    endif 
+
                    !par blaze restart not required uses climate data
                    !create handles for restart-data
                    allocate(blaze_restart_ts(wnp))

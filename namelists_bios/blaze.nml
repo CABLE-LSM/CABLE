@@ -9,9 +9,12 @@
     K_LITTER_TROPICS   = 0.15         ! tuning coeff - tropics 
     MIN_FUEL           = 120.         ! minimimum fuel (gC/m2)
     outtstep         = "daily"        ! output frequency for BLAZE ("daily", "ascasa")
+    igbpfilename     = " "            ! full path to igbp veg class file (global runs)
+    faparfilename    = " "            ! full path to fapar climatology file (global runs)
+    faparsource      = "fromfile"     ! use climatology or inline fapar calculations (not active yet)
 &end
 &simfirenml
-    SIMFIRE_REGION   = "ANZ"  		! ("ANZ","EUROPE","GLOBAL")
+    SIMFIRE_REGION   = "ANZ"  		! ("ANZ","EUROPE","GLOBAL") 
     HydePath         = "/home/x_larni/STOREDIR/DATA/CABLE_INPUT/DATA_BLAZE/HYDE3.1"	! PAth to Hyde3.1 population density data
     BurnedAreaClimatologyFile = "/home/x_larni/STOREDIR/DATA/CABLE_INPUT/DATA_BLAZE/simfire_monthly_ba.nc"	! BA climatology file (needed when blazeTStep!="annual"
 &end

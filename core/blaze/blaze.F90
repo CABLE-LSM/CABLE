@@ -24,6 +24,8 @@ TYPE TYPE_BLAZE
    CHARACTER(len=7) :: BURNT_AREA_SRC = "SIMFIRE"   ! either SIMFIRE or NONE !CLN for now!
    INTEGER                              :: IAM ! number of master/worker for diagnostic output reasons
    REAL                                 :: K_LITTER_BOREAL, K_LITTER_SAVANNA, K_LITTER_TEMPERATE, K_LITTER_TROPICS
+   CHARACTER(len=400) :: igbpfilename, faparfilename  !full paths to IGBP (SIMFIRE) and fapar climataolgy files
+   CHARACTER(len=10) :: faparsource                   !source of fapar ("fromfile", "inline")
 END TYPE TYPE_BLAZE
 
 TYPE TYPE_TURNOVER
@@ -125,8 +127,8 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   REAL, DIMENSION(np), INTENT(IN)    :: LAT, LON
   TYPE(TYPE_BLAZE)   , INTENT(INOUT) :: BLAZE
   INTEGER, PARAMETER  :: NPOOLS = 3
-  CHARACTER(len=400)  :: BurnedAreaFile = "", OutputMode="full" 
-  CHARACTER(len=10)   :: BurnedAreaSource = "SIMFIRE", blazeTStep = "annually"
+  CHARACTER(len=400)  :: BurnedAreaFile = "", OutputMode="full", igbpfilename, faparfilename 
+  CHARACTER(len=10)   :: BurnedAreaSource = "SIMFIRE", blazeTStep = "annually", faparsource ="fromfile"
   CHARACTER(len=6)    :: outtstep = "daily"
   INTEGER :: iu
 
@@ -134,7 +136,8 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   !CLNNAMELIST /BLAZENML/ HydePath,  BurnedAreaSource, BurnedAreaFile, BurnedAreaClimatologyFile, &
   !CLN     SIMFIRE_REGION
   NAMELIST /BLAZENML/ blazeTStep,  BurnedAreaSource, BurnedAreaFile, OutputMode, &
-       K_LITTER_BOREAL, K_LITTER_TEMPERATE, K_LITTER_SAVANNA, K_LITTER_TROPICS, MIN_FUEL, outtstep
+       K_LITTER_BOREAL, K_LITTER_TEMPERATE, K_LITTER_SAVANNA, K_LITTER_TROPICS, MIN_FUEL, outtstep, &
+       igbpfilename, faparfilename, faparsource
        
   ! READ BLAZE settings
   CALL GET_UNIT(iu)
@@ -195,6 +198,14 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   BLAZE%OUTTSTEP = TRIM(outtstep)
   IF ( (TRIM(BLAZE%OUTTSTEP) .ne. "daily") .and. (TRIM(BLAZE%OUTTSTEP) .ne. "ascasa") ) THEN
      WRITE(*,*) "error: BLAZE outtstep needs to be daily or ascasa"
+     STOP
+  END IF
+
+  BLAZE%igbpfilename = TRIM(igbpfilename)
+  BLAZE%faparfilename = TRIM(faparfilename)
+  BLAZE%faparsource = TRIM(faparsource)
+  IF (( TRIM(BLAZE%faparsource) .ne. "inline") .and. (TRIM(BLAZE%faparsource) .ne. "fromfile") ) THEN
+     WRITE(*,*) "error: BLAZE faparsource needs to be inline or fromfile"
      STOP
   END IF
 

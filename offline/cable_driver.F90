@@ -743,7 +743,7 @@ PROGRAM cable_offline_driver
                  where (veg%iveg(:) .ge. 14) casamet%glai = 0.0_r_2
               endif
 
-              ! additional params needed for BLAZE
+              ! additional params needed for BIOS-BLAZE
               if ( trim(cable_user%MetType) .eq. 'bios' ) call cable_bios_load_climate_params(climate)
 
               !call_blaze=0 if blaze off, >0 if blaze on to some extent
@@ -755,13 +755,22 @@ PROGRAM cable_offline_driver
                  CALL INI_BLAZE( mland, rad%latitude(landpt(:)%cstart), &
                       rad%longitude(landpt(:)%cstart), sumBLAZE )
 
+                 !for non-bios runs need to read in the IGBP and FAPAR climatology after INI_BLAZE
+                 ! and before INI_SIMFIRE
+                 if (trim(cable_user%MetType) .ne. 'bios') then
+                     call cable_bios_load_climate_params(climate,BLAZE%igbpfilename,BLAZE%faparfilename )
+                 endif
 
                  IF ( TRIM(BLAZE%BURNT_AREA_SRC) == "SIMFIRE" ) THEN
 !PRINT*,"CLN SIMFIRE INIT"
                     CALL INI_SIMFIRE(mland ,SIMFIRE, &
                          climate%modis_igbp(landpt(:)%cstart) ) !CLN here we need to check for the SIMFIRE biome setting
                  ENDIF
+
               ENDIF
+
+              ! additional params needed for BLAZE
+              !if ( trim(cable_user%MetType) .eq. 'bios' ) call cable_bios_load_climate_params(climate)
 
               IF ((icycle>0) .AND. spincasa) THEN
                  write(*,*) 'EXT spincasacnp enabled with mloop=', mloop
