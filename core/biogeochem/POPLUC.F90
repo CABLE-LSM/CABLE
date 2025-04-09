@@ -1459,14 +1459,14 @@ CONTAINS
              irp = ilu + j -1
              ! Update tile area
              if (ilu == p) then
-                POPLUC%primf(g) = min(1.0, max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp))
+                POPLUC%primf(g) = min(1.0_dp, max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp))
              elseif (ilu == s) then
-                POPLUC%secdf(g) = min(1.0, max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp))
+                POPLUC%secdf(g) = min(1.0_dp, max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp))
                 if (eq(POPLUC%secdf(g), 0.0_dp)) then
                    POPLUC%freq_age_secondary(g,:) = 0.0_dp
                 endif
              elseif (ilu == gr) then
-                POPLUC%grass(g) = min(1.0, max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp))
+                POPLUC%grass(g) = min(1.0_dp, max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp))
 
                 ! Update crop and pasture fraction within the grass land use type 
                 POPLUC%past(g) = min(max(POPLUC%past(g) + (POPLUC%ptoq(g) + POPLUC%stoq(g) + POPLUC%ctoq(g) + POPLUC%rtoq(g)) &

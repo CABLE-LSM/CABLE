@@ -27,9 +27,10 @@ MODULE CABLE_site
 
 
   USE CABLE_COMMON_MODULE, ONLY: &   ! Selected cable_common.f90 routines:
-      HANDLE_ERR,  &                 ! Print error status info returned by netcdf file operations
+      HANDLE_ERR, &                 ! Print error status info returned by netcdf file operations
       GET_UNIT, &                       ! Finds an unused unit number for file opens
-      CurYear !  current year of multiannual run
+      CurYear, & !  current year of multiannual run
+      handle_iostat
 
   USE cable_IO_vars_module, ONLY: &  ! Selected cable_iovars.F90 variables:
       logn
@@ -86,6 +87,10 @@ CONTAINS
     REAL :: spinCO2 ! ppm (pre-industrial)
     REAL :: spinNdep  ! kgNha-1y-1 (pre-industrial)
     REAL :: spinPdep  ! kgPha-1y-1 (pre-industrial)
+
+    ! I/O checker
+    INTEGER :: ios
+    CHARACTER(LEN=200) :: ioMessage
  
     ! Flag for errors
 
@@ -94,8 +99,9 @@ CONTAINS
 
     ! Read site namelist settings
     CALL GET_UNIT(nmlunit)  ! CABLE routine finds spare unit number
-    OPEN (nmlunit,FILE="site.nml",STATUS='OLD',ACTION='READ')
-    READ (nmlunit,NML=siteNML)
+    OPEN (NEWUNIT=nmlunit,FILE="site.nml",STATUS='OLD',ACTION='READ')
+    READ (nmlunit, NML=siteNML, IOSTAT=ios, IOMSG=ioMessage)
+    CALL handle_iostat(ios, ioMessage)
     CLOSE(nmlunit)
 
     ! Assign namelist settings to corresponding CRU defined-type elements
