@@ -83,7 +83,7 @@ SUBROUTINE define_air(met,air)
    ! psychrometric constant
    air%psyc = met%pmb * 100.0 * C%CAPP * C%RMAIR / air%rlam / C%RMH2O
 
-   ! d(es)/dT (mb/K)
+   ! d(es)/dT (Pa/K or Pa /oC)
    air%dsatdk = 100.0*(C%TETENA*C%TETENB*C%TETENC)/((met%tvair-C%TFRZ) +      &
                 C%TETENC)**2 * EXP( C%TETENB * ( met%tvair-C%TFRZ ) /         &
                 ( (met%tvair-C%TFRZ) + C%TETENC) )

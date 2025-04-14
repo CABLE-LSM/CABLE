@@ -629,7 +629,7 @@ module cable_def_types_mod
           epsi => null(),    & ! d(qsat)/dT ((kg/kg)/K)
           visc => null(),    & ! air kinematic viscosity (m2/s)
           psyc => null(),    & ! psychrometric constant
-          dsatdk => null(),  & ! d(es)/dT (mb/K)
+          dsatdk => null(),  & ! d(es)/dT (Pa/K or Pa /oC)
           cmolar => null()     ! conv. from m/s to mol/m2/s
 
   end type air_type

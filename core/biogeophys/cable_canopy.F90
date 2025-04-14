@@ -939,6 +939,22 @@ CONTAINS
 
       END FUNCTION Penman_Monteith
 
+      FUNCTION Penman_Monteith_canopy(ground_H_flux) RESULT(canopypot)
+         ! FAO 56
+         implicit none
+
+         real, dimension(mp), intent(in)  :: ground_H_flux
+         real, dimension(mp)              :: canopypot ! returned result of function
+
+         real, dimension(mp) :: &
+            sss,              & ! var for Penman-Monteith soil evap
+            cc1,              & ! var for Penman-Monteith soil evap
+            cc2,              & ! var for Penman-Monteith soil evap
+            qsatfvar            !
+
+         ! Penman-Monteith formula
+         sss = air%dsatdk
+      END FUNCTION Penman_Monteith_canopy
       ! ------------------------------------------------------------------------------
 
       ! method alternative to P-M formula above
