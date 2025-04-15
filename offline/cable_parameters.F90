@@ -60,7 +60,7 @@ MODULE cable_param_module
   USE cable_abort_module
   USE cable_IO_vars_module
   USE cable_common_module, ONLY: cable_user, get_dimid, LatNames, LonNames
-  USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, LUC_EXPT_SET_TILES, LUC_EXPT_SET_TILES_BIOS
+  USE CABLE_LUC_EXPT, ONLY: LUC_EXPT_TYPE, LUC_EXPT_INIT, LUC_EXPT_SET_TILES, LUC_EXPT_SET_TILES_BIOS
 
   IMPLICIT NONE
 
@@ -103,6 +103,8 @@ MODULE cable_param_module
   REAL,    DIMENSION(:, :),     ALLOCATABLE :: inclay
   REAL,    DIMENSION(:, :),     ALLOCATABLE :: insilt
   REAL,    DIMENSION(:, :),     ALLOCATABLE :: insand
+  REAL,    DIMENSION(:, :),     ALLOCATABLE :: infracC4
+  INTEGER, DIMENSION(:, :),  ALLOCATABLE :: inMVG
 
   ! vars intro for Ticket #27
   INTEGER, DIMENSION(:, :),     ALLOCATABLE :: inSoilColor
@@ -142,8 +144,9 @@ CONTAINS
 ! Overwrite veg type and inital patch frac with land-use info
     IF (CABLE_USER%POPLUC) then
        CALL get_land_index(nlon, nlat)
+       CALL LUC_EXPT_INIT(inMVG, LUC_EXPT)
        IF (TRIM(cable_user%MetType) .EQ. "bios") THEN
-          CALL LUC_EXPT_SET_TILES_BIOS(inVeg, inPfrac, LUC_EXPT)
+          CALL LUC_EXPT_SET_TILES_BIOS(inVeg, inPfrac, infracC4, LUC_EXPT)
        ELSE
           CALL LUC_EXPT_SET_TILES(inVeg, inPfrac, LUC_EXPT)
        ENDIF
@@ -304,6 +307,11 @@ CONTAINS
 
     endif
 
+    IF (CABLE_USER%POPLUC .AND. TRIM(CABLE_USER%MetType) .EQ. "bios") THEN
+      ALLOCATE (infracC4(nlon, nlat))
+      ALLOCATE (inMVG(nlon, nlat))
+    END IF
+
     ok = NF90_INQ_VARID(ncid, 'longitude', varID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, &
                                         'Error finding variable longitude.')
@@ -437,6 +445,20 @@ CONTAINS
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error finding variable LAI.')
     ok = NF90_GET_VAR(ncid,varID,inLAI)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading variable LAI.')
+
+   
+    IF (CABLE_USER%POPLUC .AND. TRIM(cable_user%MetType) .EQ. "bios") THEN
+      ok = NF90_INQ_VARID(ncid, 'c4frac', varID)
+      IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error finding c4frac.')
+      ok = NF90_GET_VAR(ncid, varID, infracC4)
+      IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading c4frac.')
+
+
+      ok = NF90_INQ_VARID(ncid, 'mvg', varID)
+      IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error finding mvg.')
+      ok = NF90_GET_VAR(ncid, varID, inMVG)
+      IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading mvg.')
+    END IF
 
     IF (icycle > 0) THEN
       ! casaCNP parameters
@@ -1494,6 +1516,8 @@ CONTAINS
     IF (calcsoilalbedo) DEALLOCATE(inSoilColor) ! vars intro for Ticket #27
     DEALLOCATE(inVeg, inPFrac, inSoil, inWB, inTGG)
     DEALLOCATE(inLAI, inSND, inALB)
+    IF (allocated(infracC4)) DEALLOCATE(infracC4)
+    IF (allocated(inMVG)) DEALLOCATE(inMVG)
     !    DEALLOCATE(soiltemp_temp,soilmoist_temp,patchfrac_temp,isoilm_temp, &
     !         frac4_temp,iveg_temp)
     !    IF(ASSOCIATED(vegtype_metfile)) DEALLOCATE(vegtype_metfile)

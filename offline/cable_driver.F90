@@ -130,11 +130,10 @@ PROGRAM cable_offline_driver
 
   ! BIOS only
   use cable_bios_met_obs_params,   only:  cable_bios_init, &
-                                          cable_bios_load_params, &
                                           cable_bios_load_climate_params
 
   ! LUC_EXPT only
-  use CABLE_LUC_EXPT, only: LUC_EXPT_TYPE, LUC_EXPT_INIT, close_luh2
+  use CABLE_LUC_EXPT, only: LUC_EXPT_TYPE, close_luh2
 
 #ifdef __NAG__
   use F90_UNIX
@@ -675,7 +674,6 @@ PROGRAM cable_offline_driver
            ! be chosen from a coarse global grid of veg and soil types, based on
            ! the lat/lon coordinates. Allocation of CABLE's main variables also here.
            if (CALL1) then
-              if (cable_user%POPLUC) call LUC_EXPT_INIT(LUC_EXPT)
 
               ! 13C
               call load_parameters(met, air, ssnow, veg, bgc, &
@@ -699,11 +697,6 @@ PROGRAM cable_offline_driver
               if (cable_user%POPLUC .and. &
                    (trim(cable_user%POPLUC_RunType) == 'static')) &
                    cable_user%POPLUC = .false.
-
-              ! Having read the default parameters, if this is a bios run we
-              ! will now overwrite the subset of them required for bios.
-              if (trim(cable_user%MetType) .eq. 'bios') &
-                   call cable_bios_load_params(soil)
 
               ! Open output file
               if (.not. CASAONLY) then

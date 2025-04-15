@@ -3,6 +3,7 @@ MODULE CABLE_LUC_EXPT
   use cable_common_module,  only: is_leapyear, leap_day, handle_err, handle_iostat,&
                                   get_dimid, LatNames, LonNames, TimeNames
   use cable_io_vars_module, only: logn, land_x, land_y, landpt, latitude, longitude
+  USE cable_common_module, ONLY: cable_user
   use cable_def_types_mod,  only: mland
 
   implicit none
@@ -67,13 +68,14 @@ CONTAINS
 
   ! ------------------------------------------------------------------
 
-  SUBROUTINE LUC_EXPT_INIT(LUC_EXPT)
+  SUBROUTINE LUC_EXPT_INIT(inMVG, LUC_EXPT)
 
     use netcdf,                    only: nf90_open, nf90_nowrite, nf90_inq_varid, nf90_inq_dimid, &
          nf90_inquire_dimension, nf90_inq_varid, nf90_get_att, nf90_get_var, nf90_close
 
     implicit none
 
+    INTEGER, INTENT(IN) :: inMVG(:, :)
     type(luc_expt_type), intent(inout) :: luc_expt
 
     REAL :: tmp
@@ -379,6 +381,12 @@ CONTAINS
        PrimOnly_fID = -1
     ENDIF
 
+    IF (TRIM(cable_user%MetType) .EQ. "bios") THEN
+       DO k = 1, mland
+          LUC_EXPT%biome(k) = inMVG(landpt(k)%ilon,landpt(k)%ilat) 
+       ENDDO
+    END IF
+
     ! Determine woody fraction (forest and shrub cover).
     call get_woody_fraction(LUC_EXPT)
 
@@ -457,14 +465,12 @@ CONTAINS
   subroutine get_woody_fraction(LUC_EXPT) 
     ! Determine woody fraction (forest and shrub cover) from ancillary data.
     
-    use cable_bios_met_obs_params, only: cable_bios_load_biome
     use cable_common_module,       only: cable_user
 
     implicit none
 
     type(LUC_EXPT_type), intent(inout) :: LUC_EXPT
     real    :: CPC(mland)
-    integer :: MVG(mland)
     real    :: projection_factor
 
     if (TRIM(cable_user%MetType) .EQ. "bios") then
@@ -473,10 +479,8 @@ CONTAINS
       ! Woody fraction (woodfrac) is then calculated from CPC.
       
       ! read bios parameter file to NVIS Major Vegetation Group "biomes"
-      call cable_bios_load_biome(MVG)
       
       ! adjust fraction woody cover based on Major Vegetation Group
-      LUC_EXPT%biome = MVG
       LUC_EXPT%ivegp = 2
       projection_factor = 0.65
       WHERE (LUC_EXPT%biome .eq. 1)
@@ -665,20 +669,16 @@ CONTAINS
   ! ------------------------------------------------------------------
 
 
-  SUBROUTINE LUC_EXPT_SET_TILES_BIOS(inVeg, inPfrac, LUC_EXPT )
-
-    USE cable_bios_met_obs_params, ONLY: cable_bios_load_fracC4
+  SUBROUTINE LUC_EXPT_SET_TILES_BIOS(inVeg, inPfrac, infracC4, LUC_EXPT )
 
     IMPLICIT NONE
 
     INTEGER,              INTENT(INOUT) :: inVeg(:,:,:)
     REAL,                 INTENT(INOUT) :: inPFrac(:,:,:)
-    TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
+    REAL,                 INTENT(IN)    :: infracC4(:,:)
+    TYPE (LUC_EXPT_TYPE), INTENT(IN) :: LUC_EXPT
 
-    REAL :: fracC4(mland)
     INTEGER :: k, m, n
-
-    CALL cable_bios_load_fracC4(fracC4)
 
     DO k=1, mland
        m = landpt(k)%ilon
@@ -691,7 +691,7 @@ CONTAINS
           inPFrac(m,n,2:3) = 0.0
           inPFrac(m,n,1)   = 1.0
           if ( LUC_EXPT%grass(k) .gt. 0.01 ) then
-             if (fracC4(k).gt.0.5) then
+             if (infracC4(m, n).gt.0.5) then
                 inVeg(m,n,2) = 7 ! C4 grass
              else
                 inVeg(m,n,2) = 6 ! C3 grass
@@ -704,7 +704,7 @@ CONTAINS
 
           inVeg(m,n,1) = LUC_EXPT%ivegp(k)
           inVeg(m,n,2) = LUC_EXPT%ivegp(k)
-          if (fracC4(k).gt.0.5) then
+          if (infracC4(m, n).gt.0.5) then
              inVeg(m,n,3) = 7 ! C4 grass
           else
              inVeg(m,n,3) = 6 ! C3 grass
