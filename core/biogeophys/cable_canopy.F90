@@ -255,7 +255,7 @@ CONTAINS
       if (cable_user%perturb_dva_by_T) then
          CALL qsatfjh(qstvair, met%tvair-C%tfrz + cable_user%dva_T_perturbation, met%pmb)
       endif
-      met%dva = (qstvair - met%qvair) *  C%rmair/C%rmh2o * met%pmb * 100.0
+      met%dva = (qstvair - met%qvair) *  C%rmair/C%rmh2o * met%pmb * 100.0 
       dsx     = met%dva     ! init. leaf surface vpd
       dsx     = max(dsx, 0.0)
       dsy = dsx
@@ -858,7 +858,7 @@ CONTAINS
       bal%wetbal = canopy%fevw + canopy%fhvw - SUM(rad%rniso,2) * canopy%fwet &
          + C%CAPP*C%rmair * (tlfy-met%tk) * SUM(rad%gradis,2) * &
          canopy%fwet  ! YP nov2009
-
+      CALL Penman_Monteith_canopy(gbhu,gbhf)
       DEALLOCATE(cansat,gbhu)
       DEALLOCATE(dsx,dsy, fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy)
       DEALLOCATE(ecy, hcy, rny)
@@ -939,22 +939,52 @@ CONTAINS
 
       END FUNCTION Penman_Monteith
 
-      FUNCTION Penman_Monteith_canopy(ground_H_flux) RESULT(canopypot)
+      SUBROUTINE Penman_Monteith_canopy(gbhu,gbhf) 
+         !USE cable_def_types_mod, only : mp
          ! FAO 56
          implicit none
+         REAL(r_2), INTENT(IN), DIMENSION(:,:) :: &
+            gbhu, & ! forcedConvectionBndryLayerCond
+            gbhf    ! freeConvectionBndryLayerCond
+         !real, dimension(mp), intent(in)  :: ground_H_flux
+         real(r_2), dimension(mp)              :: canopypot1,canopypot2 ! returned result of functio
+         real(r_2), dimension(mp,mf)              :: gh,ghr,gs,gw,psycst,psycstr ! returned result of function
+         
+         real(r_2), parameter:: coe = 18.0_r_2 * 1.e-6 
+         INTEGER :: i
+         
+         gs =  spread((0.5_r_2 * veg%vlai) / 100.0_r_2, 2, mf) ! ! m s-1
+         DO i =1, mp
+            gh(i,:) = real(2.0_r_2 * (gbhu(i,:) + gbhf(i,:)))
+            ghr(i,:) = gh(i,:) + rad%gradis(i,:) ! mol m-2 s-1 
+            
+            gw(i,:) = 1.0 / ( 1.0 / gs(i,:) + &
+            1.0 / ( 1.075 * real(gbhu(i,:) + gbhf(i,:))*coe ) )
+            
+            psycst(i,:) = air%psyc(i) * REAL( gh(i,:) * coe / gw(i,:) ) ! for gh
+            psycstr(i,:) = air%psyc(i) * REAL( ghr(i,:) * coe / gw(i,:) ) ! for ghr
 
-         real, dimension(mp), intent(in)  :: ground_H_flux
-         real, dimension(mp)              :: canopypot ! returned result of function
+            canopypot1(i) = real( ( air%dsatdk(i) * ( rad%rniso(i,1) - C%capp * C%rmair &
+            * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,1) ) &
+            + C%capp * C%rmair * met%dva(i) * ghr(i,1) ) &
+            / ( air%dsatdk(i) + psycstr(i,1) ),r_2) + real( ( air%dsatdk(i) * ( rad%rniso(i,2) - C%capp * C%rmair &
+            * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,2) ) &
+            + C%capp * C%rmair * met%dva(i) * ghr(i,2) ) &
+            / ( air%dsatdk(i) + psycstr(i,2) ),r_2) 
 
-         real, dimension(mp) :: &
-            sss,              & ! var for Penman-Monteith soil evap
-            cc1,              & ! var for Penman-Monteith soil evap
-            cc2,              & ! var for Penman-Monteith soil evap
-            qsatfvar            !
-
+            canopypot2(i) = real( ( air%dsatdk(i) * ( rad%rniso(i,1) )  &
+            + C%capp * C%rmair * met%dva(i) * gh(i,1) ) &
+            / ( air%dsatdk(i) + psycst(i,1) ),r_2) + real( ( air%dsatdk(i) * ( rad%rniso(i,2) - C%capp * C%rmair &
+            * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,2) ) &
+            + C%capp * C%rmair * met%dva(i) * gh(i,2) ) &
+            / ( air%dsatdk(i) + psycst(i,2) ),r_2) 
+            canopy%epotcan1(i) = canopypot1(i) *  (1.0_r_2-real(canopy%fwet(i), r_2))
+            canopy%epotcan1(i) = canopypot2(i) * (1.0_r_2-real(canopy%fwet(i), r_2))
+         END DO
          ! Penman-Monteith formula
-         sss = air%dsatdk
-      END FUNCTION Penman_Monteith_canopy
+
+
+      END SUBROUTINE Penman_Monteith_canopy
       ! ------------------------------------------------------------------------------
 
       ! method alternative to P-M formula above

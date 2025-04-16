@@ -83,6 +83,7 @@ MODULE cable_checks_module
            TVeg = (/-0.0003,0.0003/),                     &
            ECanop = (/-0.0003,0.0003/),                   &
            PotEvap = (/-0.0006,0.0006/),                  &
+           epotcan = (/-1,1/),                  &
            ACond = (/0.0,1.0/),                           &
            SoilWet = (/-0.4,1.2/),                        &
            Albedo = (/0.0,1.0/),                          &

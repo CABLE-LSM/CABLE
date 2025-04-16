@@ -289,6 +289,7 @@ module cable_def_types_mod
      real(r_2), dimension(:),   pointer :: surface_melt => null()
      real(r_2), dimension(:),   pointer :: Qadv_rain_sn => null()
      real(r_2), dimension(:,:),   pointer :: uptake_layer => null() !kg m-2 s-1
+     real(r_2), dimension(:),   pointer :: total_est_evap => null()
     REAL(r_1), DIMENSION(:,:), POINTER ::                                      &
           soilR => null(), & !
           rootR => null(), &
@@ -450,7 +451,9 @@ module cable_def_types_mod
           rghlai => null(),  & ! lai adj for snow depth for calc of resistances
           fwet => null(), &       ! fraction of canopy wet
           abs_deltlf => null(), &
-          abs_deltds => null()
+          abs_deltds => null(), &
+          epotcan1  => null(), & 
+          epotcan2  => null()
 
      real, dimension(:,:), pointer :: &
           evapfbl => null(), &
@@ -1072,6 +1075,8 @@ contains
     allocate ( ssnow%uptake_layer(mp,ms) )
     allocate ( ssnow%psi_soil(mp,ms) )
     allocate ( ssnow%psi_rootzone(mp) )
+    allocate ( ssnow%total_est_evap(mp) )
+    
   end subroutine alloc_soil_snow_type
 
   ! ------------------------------------------------------------------
@@ -1286,6 +1291,8 @@ contains
     allocate( canopy%day_plc_sat(mp) )
     allocate( canopy%day_plc_stem(mp) )
     allocate( canopy%day_plc_can(mp) )
+    allocate(canopy%epotcan1(mp))
+    allocate(canopy%epotcan2(mp))
   end subroutine alloc_canopy_type
 
   ! ------------------------------------------------------------------
@@ -1739,6 +1746,8 @@ contains
     deallocate( ssnow%uptake_layer  )
     deallocate( ssnow%psi_soil )
     deallocate( ssnow%psi_rootzone )
+    deallocate( ssnow%total_est_evap )
+    
   end subroutine dealloc_soil_snow_type
 
   ! ------------------------------------------------------------------
@@ -1916,6 +1925,8 @@ contains
     deallocate( canopy%day_plc_can )
     deallocate( canopy%abs_deltlf )
     deallocate( canopy%abs_deltds )
+    deallocate(canopy%epotcan1)
+    deallocate(canopy%epotcan2)
 
   end subroutine dealloc_canopy_type
 
@@ -2275,6 +2286,8 @@ contains
     ssnow%uptake_layer  = 0
     ssnow%psi_soil         = 0
     ssnow%psi_rootzone     = 0
+    ssnow%total_est_evap     = 0
+    
 
   end subroutine zero_soil_snow_type
 
@@ -2485,6 +2498,8 @@ contains
     canopy%day_plc_can = 0
     canopy%abs_deltlf = 0
     canopy%abs_deltds = 0
+    canopy%epotcan1            = 0
+    canopy%epotcan2            = 0
 
   end subroutine zero_canopy_type
 

@@ -488,7 +488,7 @@ CONTAINS
          max_vegpatches, 'def', from_restart, mp)
     CALL readpar(ncid_rin, 'dgdtg', dummy, canopy%dgdtg, filename%restart_in, &
          max_vegpatches, 'def', from_restart, mp)
-    CALL readpar(ncid_rin,'fev',dummy,canopy%fev,filename%restart_in, &
+    CALL readpar(ncid_rin,'',dummy,canopy%fev,filename%restart_in, &
          max_vegpatches,'def',from_restart,mp)
     ! MC - 20220303 - add 2 canopy parameters to restart
     CALL readpar(ncid_rin, 'fwsoil', dummy, canopy%fwsoil, filename%restart_in, &

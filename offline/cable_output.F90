@@ -87,7 +87,7 @@ MODULE cable_output_module
           TSap, psi_soil, psi_rootzone, psix, psi_can_sl, psi_can_sh, &
           plc_sat, plc_stem, plc_can, gsw_sun, gsw_sha, LeafT, abs_deltpsil_sl, abs_deltpsil_sh, kplant, &
           abs_deltlf, abs_deltds, abs_deltcs_sl, abs_deltcs_sh, ksoil, kroot, uptake_layer, &
-          ksoilmean, krootmean, kbelowmean, psi_soilmean, psi_soilmean1, psi_rootmean
+          ksoilmean, krootmean, kbelowmean, psi_soilmean, psi_soilmean1, psi_rootmean, epotcan1, epotcan2, total_est_evap
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
 
@@ -305,6 +305,10 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_soilmean => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_soilmean1 => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_rootmean => null() 
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: epotcan1 => null()    ! zihanlu
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: epotcan2 => null()    ! zihanlu
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: total_est_evap => null()    ! zihanlu
+     
 
   END TYPE output_temporary_type
   TYPE(output_temporary_type), SAVE :: out
@@ -647,7 +651,21 @@ CONTAINS
        ALLOCATE(out%TVeg(mp))
        out%TVeg = zero4 ! initialise
     END IF
-
+    ! vars:
+    IF(output%flux .OR. output%epotcan1) THEN
+     CALL define_ovar(ncid_out, ovid%epotcan1, 'epotcan1', 'kg/m^2/s', &
+          'potential Surface latent heat flux',patchout%epotcan1,'dummy', &
+          xID, yID, zID, landID, patchID, tID)
+     ALLOCATE(out%epotcan1(mp))
+     out%epotcan1 = zero4 ! initialise
+     END IF
+     IF(output%flux .OR. output%epotcan2) THEN
+          CALL define_ovar(ncid_out, ovid%epotcan2, 'epotcan2', 'kg/m^2/s', &
+               'potential Surface latent heat flux',patchout%epotcan2,'dummy', &
+               xID, yID, zID, landID, patchID, tID)
+          ALLOCATE(out%epotcan2(mp))
+          out%epotcan2 = zero4 ! initialise
+     END IF
     IF(output%flux) THEN
        CALL define_ovar(ncid_out, ovid%gsw_sl, 'gsw_sl', 'mol/m^2/s', &
             'stomatal conductance sl leaves', patchout%TVeg, 'dummy', &
@@ -820,15 +838,23 @@ CONTAINS
 
           out%psi_soil = 0.0 ! initialise
      END IF
-       IF(output%soil) THEN
+     IF(output%soil) THEN
           CALL define_ovar(ncid_out, ovid%psi_rootzone, &
                            'psi_rootzone', 'MPa', 'Weighted root zone water potential', &
                            patchout%psi_rootzone, 'dummy', xID, yID, zID, &
                            landID, patchID, tID)
           ALLOCATE(out%psi_rootzone(mp))
           out%psi_rootzone = 0.0 ! initialise
-       END IF
-   
+     END IF
+     IF(output%soil) THEN
+          CALL define_ovar(ncid_out, ovid%total_est_evap, &
+                           'total_est_evap', 'kg/m^2/s', 'sum of maximum water transport possible', &
+                           patchout%total_est_evap, 'dummy', xID, yID, zID, &
+                           landID, patchID, tID)
+          ALLOCATE(out%total_est_evap(mp))
+          out%total_est_evap = 0.0 ! initialise
+     END IF
+
     IF(output%veg) THEN
      CALL define_ovar(ncid_out, ovid%psix, &
                       'psix', 'MPa', 'root xylem water potential', &
@@ -836,7 +862,7 @@ CONTAINS
                       landID, patchID, tID)
      ALLOCATE(out%psix(mp))
      out%psix = 0.0 ! initialise
-  END IF
+    END IF
 
   IF(output%veg) THEN
      CALL define_ovar(ncid_out, ovid%psi_can_sl, &
@@ -2614,6 +2640,32 @@ CONTAINS
           out%ECanop = zero4
        END IF
     END IF
+    IF(output%flux .OR. output%epotcan1) THEN
+     ! Add current timestep's value to total of temporary output variable:
+     out%epotcan1 = out%epotcan1 + toreal4(canopy%epotcan1 / air%rlam)
+     IF(writenow) THEN
+        ! Divide accumulated variable by number of accumulated time steps:
+        out%epotcan1 = out%epotcan1 * rinterval
+        ! Write value to file:
+        CALL write_ovar(out_timestep, ncid_out, ovid%epotcan1, 'epotcan1', out%epotcan1, &
+             ranges%epotcan, patchout%epotcan1, 'default', met)
+        ! Reset temporary output variable:
+        out%epotcan1 = zero4
+     END IF
+     END IF
+     IF(output%flux .OR. output%epotcan2) THEN
+          ! Add current timestep's value to total of temporary output variable:
+          out%epotcan2 = out%epotcan2 + toreal4(canopy%epotcan2 / air%rlam)
+          IF(writenow) THEN
+             ! Divide accumulated variable by number of accumulated time steps:
+             out%epotcan2 = out%epotcan2 * rinterval
+             ! Write value to file:
+             CALL write_ovar(out_timestep, ncid_out, ovid%epotcan2, 'epotcan2', out%epotcan2, &
+                  ranges%epotcan, patchout%epotcan2, 'default', met)
+             ! Reset temporary output variable:
+             out%epotcan2 = zero4
+          END IF
+     END IF
     IF(output%flux) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%gsw_sl = out%gsw_sl + toreal4(canopy%gswx(:,1))
@@ -4179,7 +4231,25 @@ CONTAINS
          out%psi_rootzone = 0.0
      END IF
    END IF
-
+   IF(output%soil) THEN
+     !IF(output%soil) THEN
+        ! Add current timestep's value to total of temporary output variable:
+        out%total_est_evap = out%total_est_evap + &
+                              REAL(ssnow%total_est_evap, 4)
+        IF(writenow) THEN
+            ! Divide accumulated variable by number of accumulated time steps:
+            out%total_est_evap = out%total_est_evap &
+                                  / REAL(output%interval, 4)
+            ! print *, 'write daily psi rootzone: ', out%psi_rootzone 
+            ! Write value to file:
+            CALL write_ovar(out_timestep, ncid_out, ovid%total_est_evap, &
+                            'total_est_evap', out%total_est_evap, &
+                            ranges%epotcan, &
+                            patchout%total_est_evap, 'soil', met)
+            ! Reset temporary output variable:
+            out%total_est_evap = 0.0
+        END IF
+      END IF
    ! mgk576, 19/2/2019
    IF(output%soil) THEN
    !IF(output%soil) THEN

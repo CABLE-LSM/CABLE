@@ -437,7 +437,11 @@ MODULE cable_IO_vars_module
          kbelowmean = .FALSE., &
          psi_soilmean = .FALSE., &
          psi_soilmean1 = .FALSE., &
-         psi_rootmean = .FALSE.
+         psi_rootmean = .FALSE., &
+         epotcan1 = .FALSE., &
+         epotcan2 = .FALSE., &
+         fevc = .FALSE., &
+         total_est_evap = .FALSE.
    END TYPE output_inclusion_type
 
    TYPE(output_inclusion_type), SAVE :: output
