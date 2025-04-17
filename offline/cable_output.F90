@@ -87,7 +87,7 @@ MODULE cable_output_module
           TSap, psi_soil, psi_rootzone, psix, psi_can_sl, psi_can_sh, &
           plc_sat, plc_stem, plc_can, gsw_sun, gsw_sha, LeafT, abs_deltpsil_sl, abs_deltpsil_sh, kplant, &
           abs_deltlf, abs_deltds, abs_deltcs_sl, abs_deltcs_sh, ksoil, kroot, uptake_layer, &
-          ksoilmean, krootmean, kbelowmean, psi_soilmean, psi_soilmean1, psi_rootmean, epotcan1, epotcan2, total_est_evap
+          ksoilmean, krootmean, kbelowmean, psi_soilmean, psi_soilmean1, psi_rootmean, epotcan1, epotcan2, epotcan3, total_est_evap
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
 
@@ -307,6 +307,7 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_rootmean => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: epotcan1 => null()    ! zihanlu
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: epotcan2 => null()    ! zihanlu
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: epotcan3 => null()    ! zihanlu
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: total_est_evap => null()    ! zihanlu
      
 
@@ -656,15 +657,20 @@ CONTAINS
      CALL define_ovar(ncid_out, ovid%epotcan1, 'epotcan1', 'kg/m^2/s', &
           'potential Surface latent heat flux',patchout%epotcan1,'dummy', &
           xID, yID, zID, landID, patchID, tID)
+     CALL define_ovar(ncid_out, ovid%epotcan2, 'epotcan2', 'kg/m^2/s', &
+          'potential Surface latent heat flux',patchout%epotcan2,'dummy', &
+          xID, yID, zID, landID, patchID, tID)
      ALLOCATE(out%epotcan1(mp))
+     ALLOCATE(out%epotcan2(mp))
      out%epotcan1 = zero4 ! initialise
+     out%epotcan2 = zero4 ! initialise
      END IF
-     IF(output%flux .OR. output%epotcan2) THEN
-          CALL define_ovar(ncid_out, ovid%epotcan2, 'epotcan2', 'kg/m^2/s', &
-               'potential Surface latent heat flux',patchout%epotcan2,'dummy', &
+     IF(output%flux .OR. output%epotcan3) THEN
+          CALL define_ovar(ncid_out, ovid%epotcan3, 'epotcan3', 'kg/m^2/s', &
+               'potential Surface latent heat flux',patchout%epotcan3,'dummy', &
                xID, yID, zID, landID, patchID, tID)
-          ALLOCATE(out%epotcan2(mp))
-          out%epotcan2 = zero4 ! initialise
+          ALLOCATE(out%epotcan3(mp))
+          out%epotcan3 = zero4 ! initialise
      END IF
     IF(output%flux) THEN
        CALL define_ovar(ncid_out, ovid%gsw_sl, 'gsw_sl', 'mol/m^2/s', &
@@ -2664,6 +2670,19 @@ CONTAINS
                   ranges%epotcan, patchout%epotcan2, 'default', met)
              ! Reset temporary output variable:
              out%epotcan2 = zero4
+          END IF
+     END IF
+     IF(output%flux .OR. output%epotcan3) THEN
+          ! Add current timestep's value to total of temporary output variable:
+          out%epotcan3 = out%epotcan3 + toreal4(canopy%epotcan3 / air%rlam)
+          IF(writenow) THEN
+             ! Divide accumulated variable by number of accumulated time steps:
+             out%epotcan3 = out%epotcan3 * rinterval
+             ! Write value to file:
+             CALL write_ovar(out_timestep, ncid_out, ovid%epotcan3, 'epotcan3', out%epotcan3, &
+                  ranges%epotcan, patchout%epotcan3, 'default', met)
+             ! Reset temporary output variable:
+             out%epotcan3 = zero4
           END IF
      END IF
     IF(output%flux) THEN

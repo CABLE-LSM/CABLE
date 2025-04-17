@@ -440,6 +440,7 @@ MODULE cable_IO_vars_module
          psi_rootmean = .FALSE., &
          epotcan1 = .FALSE., &
          epotcan2 = .FALSE., &
+         epotcan3 = .FALSE., &
          fevc = .FALSE., &
          total_est_evap = .FALSE.
    END TYPE output_inclusion_type

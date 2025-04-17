@@ -139,7 +139,8 @@ CONTAINS
          csx => null(),           &   ! leaf surface CO2 concentration
          psily => null() ,        &
          psilx => null(),         &
-         fwpsi => null()      ! psi leaf modifier of stom. cond zihan lu 02/11/2024
+         fwpsi => null(), &      ! psi leaf modifier of stom. cond zihan lu 02/11/2024
+         wbpsdo => null()
 
       REAL :: rt_min
       REAL, DIMENSION(mp) :: zstar, rL, phist, csw, psihat,rt0bus
@@ -162,6 +163,7 @@ CONTAINS
       ALLOCATE(ecy(mp), hcy(mp), rny(mp))
       ALLOCATE(gbhf(mp,mf), csx(mp,mf), psilx(mp,mf), psily(mp,mf), fwpsi(mp,mf))
       ALLOCATE(ghwet(mp))
+      ALLOCATE(wbpsdo(mp,ms))
 
 
       ! BATS-type canopy saturation proportional to LAI:
@@ -454,6 +456,15 @@ CONTAINS
          ecy = rny - hcy        ! init current estimate latent heat
 
          sum_rad_rniso = sum(rad%rniso,2)
+         if (iter==1) then
+            wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
+            CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
+            veg, canopy, soil, ssnow, casapool, dsx, dsy, psilx, psily,&
+            fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy, ecy, hcy,  &
+            rny, gbhu, gbhf, csx, cansat,  &
+            ghwet, iter, climate, wbpsdo)
+         endif
+
          CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
             veg, canopy, soil, ssnow, casapool, dsx, dsy, psilx, psily,&
             fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy, ecy, hcy,  &
@@ -1570,7 +1581,7 @@ CONTAINS
       veg, canopy, soil, ssnow,casapool, dsx, dsy, psilx, psily, &
       fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy, ecy, hcy, &
       rny, gbhu, gbhf, csx, &
-      cansat, ghwet, iter, climate)
+      cansat, ghwet, iter, climate, wbpsdo)
 
       use cable_def_types_mod
       use cable_common_module
@@ -1614,6 +1625,7 @@ CONTAINS
       real(r_2), dimension(:),   intent(out)   :: ghwet  ! cond for heat for a wet canopy
       integer,                   intent(in)    :: iter
       type(climate_type),        intent(in)    :: climate
+      real(r_2), dimension(:,:), intent(in), optional :: wbpsdo
 
       !local variables (JK: move parameters to different routine at some point)
       real, parameter :: jtomol = 4.6e-6  ! Convert from J to Mol for light
@@ -1727,7 +1739,7 @@ CONTAINS
       real, dimension(mp,mf) :: gswmin ! min stomatal conductance
 
       real, dimension(mp,2) ::  gsw_term, lower_limit2  ! local temp var
-
+      real(r_2), dimension(mp,ms) :: wbtmp
       integer :: i, j, k, kk, h ! iteration count
       integer :: NN,m
       integer, allocatable :: nktau(:), allktau(:), nktau_end(:)
@@ -1762,15 +1774,20 @@ CONTAINS
       ! allocate(gswmin(mp,mf))
 
       ! Soil water limitation on stomatal conductance:
+      if (present(wbpsdo)) then
+         wbtmp = wbpsdo
+      else
+         wbtmp = ssnow%wb
+      endif
       if (iter==1) then 
          if ((cable_user%soil_struc=='default') .and. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') <= 0)) then
             if (cable_user%fwsoil_switch == 'standard') then
-               call fwsoil_calc_std(fwsoil, soil, ssnow, veg)
+               call fwsoil_calc_std(fwsoil, soil, ssnow, veg, wbtmp)
             elseif (cable_user%fwsoil_switch == 'non-linear extrapolation') then
                !EAK, 09/10 - replace linear approx by polynomial fitting
-               call fwsoil_calc_non_linear(fwsoil, soil, ssnow, veg)
+               call fwsoil_calc_non_linear(fwsoil, soil, ssnow, veg, wbtmp)
             elseif (cable_user%fwsoil_switch == 'Lai and Katul 2000') then
-               call fwsoil_calc_Lai_Katul(fwsoil, soil, ssnow, veg)
+               call fwsoil_calc_Lai_Katul(fwsoil, soil, ssnow, veg, wbtmp)
             elseif (cable_user%FWSOIL_SWITCH == 'profitmax') then
                fwsoil = 1.0
             elseif (cable_user%FWSOIL_SWITCH == 'constant1') then
@@ -2527,7 +2544,7 @@ CONTAINS
 
                   canopy%fevc(i) = ecx(i) * (1.0_r_2-real(canopy%fwet(i),r_2))
 
-                  call getrex_1d(ssnow%wb(i,:)-real(ssnow%wbice(i,:),r_2), ssnow%rex(i,:), &
+                  call getrex_1d(wbtmp(i,:)-real(ssnow%wbice(i,:),r_2), ssnow%rex(i,:), &
                      canopy%fwsoil(i), &
                      real(veg%froot(i,:),r_2), SPREAD(real(soil%ssat(i),r_2),1,ms), &
                      SPREAD(real(soil%swilt(i),r_2),1,ms), &
@@ -2588,7 +2605,7 @@ CONTAINS
                      DO kk = 1,ms
 
                         ssnow%evapfbl(i,kk) = MIN( evapfb(i) * veg%froot(i,kk), &
-                           MAX( 0.0, REAL( ssnow%wb(i,kk) ) - &
+                           MAX( 0.0, REAL( wbtmp(i,kk) ) - &
                            1.1 * soil%swilt(i) ) * &
                            soil%zse(kk) * 1000.0 )
 
@@ -2773,9 +2790,15 @@ CONTAINS
       deallocate(nktau) 
       deallocate(nktau_end) 
       deallocate(allktau) 
+
+      
       ! print*, 'End k loop: ktau & iter & k= ',ktau,iter,k
       ! dry canopy flux
       canopy%fevc = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
+      if (present (wbpsdo)) then
+         canopy%epotcan3 = canopy%fevc
+      endif
+      if (.NOT. present (wbpsdo)) then
       canopy%abs_deltpsil = abs_deltpsil
       canopy%abs_deltcs = abs_deltcs * 1.0e6_r_2
       canopy%abs_deltlf = abs_deltlf
@@ -2980,6 +3003,7 @@ CONTAINS
          END DO
       ENDIF
       ! deallocate( gswmin )
+   endif ! if not present wbpsdo
 
    END SUBROUTINE dryLeaf
 
@@ -3561,7 +3585,7 @@ CONTAINS
    ! ------------------------------------------------------------------------------
 
 
-   subroutine fwsoil_calc_std(fwsoil, soil, ssnow, veg)
+   subroutine fwsoil_calc_std(fwsoil, soil, ssnow, veg, wb)
 
       use cable_def_types_mod
       use cable_common_module, only : cable_user
@@ -3573,11 +3597,11 @@ CONTAINS
       type(soil_parameter_type), intent(in)  :: soil
       type(soil_snow_type),      intent(in)  :: ssnow
       type(veg_parameter_type),  intent(in)  :: veg
-
+      real(r_2), dimension(:,:),  intent(in)  :: wb
       real, dimension(mp) :: rwater ! soil water availability
 
       rwater = max(1.0e-9, &
-         sum(veg%froot * max(1.0e-9, min(1.0, real(ssnow%wb) - &
+         sum(veg%froot * max(1.0e-9, min(1.0, real(wb) - &
          spread(soil%swilt, 2, ms))),2) / (soil%sfc-soil%swilt))
 
       ! Remove vbeta #56
@@ -3593,7 +3617,7 @@ CONTAINS
    ! ------------------------------------------------------------------------------
 
 
-   subroutine fwsoil_calc_non_linear(fwsoil, soil, ssnow, veg)
+   subroutine fwsoil_calc_non_linear(fwsoil, soil, ssnow, veg, wb)
 
       use cable_def_types_mod
 
@@ -3604,13 +3628,14 @@ CONTAINS
       type(soil_parameter_type), intent(in)  :: soil
       type(soil_snow_type),      intent(in)  :: ssnow
       type(veg_parameter_type),  intent(in)  :: veg
+      real(r_2), dimension(:,:),  intent(in)  :: wb
 
       real, dimension(mp)    :: rwater ! soil water availability
       real, dimension(mp, 3) :: xi, ti, si
       integer :: j
 
       rwater = max(1.0e-9, &
-         sum(veg%froot * max(0.0, min(1.0, real(ssnow%wb) - &
+         sum(veg%froot * max(0.0, min(1.0, real(wb) - &
          spread(soil%swilt, 2, ms))),2) / (soil%sfc-soil%swilt))
 
       fwsoil = 1.
@@ -3647,7 +3672,7 @@ CONTAINS
 
 
    ! ypw 19/may/2010 soil water uptake efficiency (see Lai and Katul 2000)
-   subroutine fwsoil_calc_Lai_Katul(fwsoil, soil, ssnow, veg)
+   subroutine fwsoil_calc_Lai_Katul(fwsoil, soil, ssnow, veg, wb)
 
       use cable_def_types_mod
 
@@ -3658,6 +3683,7 @@ CONTAINS
       type(soil_parameter_type), intent(in)  :: soil
       type(soil_snow_type),      intent(in)  :: ssnow
       type(veg_parameter_type),  intent(in)  :: veg
+      real(r_2), dimension(:,:),  intent(in)  :: wb
 
       integer :: ns
       ! original is 0.01, 
@@ -3670,10 +3696,10 @@ CONTAINS
       normFac(:) = 0.0
 
       do ns=1, ms
-         dummy(:) = rootgamma / max(1.0e-3,real(ssnow%wb(:,ns))-soil%swilt(:))
+         dummy(:) = rootgamma / max(1.0e-3,real(wb(:,ns))-soil%swilt(:))
 
          frwater(:,ns) = max( 1.0e-4, &
-            ((real(ssnow%wb(:,ns))-soil%swilt(:))/soil%ssat(:))**dummy )
+            ((real(wb(:,ns))-soil%swilt(:))/soil%ssat(:))**dummy )
 
          fwsoil(:) = min(1.0, max(fwsoil(:), frwater(:,ns)))
 
