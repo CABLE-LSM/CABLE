@@ -979,7 +979,7 @@ CONTAINS
             + C%capp * C%rmair * met%dva(i) * gh(i,2) ) &
             / ( air%dsatdk(i) + psycst(i,2) ),r_2) 
             canopy%epotcan1(i) = canopypot1(i) *  (1.0_r_2-real(canopy%fwet(i), r_2))
-            canopy%epotcan1(i) = canopypot2(i) * (1.0_r_2-real(canopy%fwet(i), r_2))
+            canopy%epotcan2(i) = canopypot2(i) * (1.0_r_2-real(canopy%fwet(i), r_2))
          END DO
          ! Penman-Monteith formula
 

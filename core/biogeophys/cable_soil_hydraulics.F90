@@ -421,6 +421,7 @@ CONTAINS
          ENDIF
 
       ENDIF
+      print*, 'total_est_evap kg s-1 m-2',total_est_evap
       ssnow%total_est_evap(i) = total_est_evap
 
    END SUBROUTINE calc_weighted_swp_and_frac_uptake
