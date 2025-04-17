@@ -21,6 +21,7 @@ TYPE TYPE_BLAZE
    CHARACTER(len=8) :: BLAZE_TSTEP    = "annually"  ! Call frequency ("daily","monthly","annually")
    CHARACTER(len=6) :: SIMFIRE_REGION = "GLOBAL"    ! either GLOBAL, EUROPE, ANZ
    CHARACTER(len=7) :: BURNT_AREA_SRC = "SIMFIRE"   ! either SIMFIRE or NONE !CLN for now!
+   INTEGER                              :: IAM ! number of master/worker for diagnostic output reasons
 END TYPE TYPE_BLAZE
 
 TYPE TYPE_TURNOVER
@@ -30,6 +31,7 @@ END TYPE TYPE_TURNOVER
 REAL, DIMENSION(:,:), ALLOCATABLE  :: BLAZEFLX ! To BLAZE!!!
 
 INTEGER, PARAMETER :: NTO     = 7 ! Number of TurnOver Parameters ,i.e. #lines below
+INTEGER, PARAMETER :: NFLUXES = 14! Number of FLUXES in BLAZE output
 INTEGER, PARAMETER :: LEAF    = 1
 INTEGER, PARAMETER :: WOOD    = 2
 INTEGER, PARAMETER :: FROOT   = 3
@@ -143,7 +145,7 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   ALLOCATE ( BLAZE%POP_TO  ( np ) )
   ALLOCATE ( BLAZE%POP_CWD ( np ) )
   ALLOCATE ( BLAZE%POP_STR ( np ) )
-  ALLOCATE ( BLAZE%FLUXES  ( np, 13 ) )
+  ALLOCATE ( BLAZE%FLUXES  ( np, NFLUXES ) )
 
   ALLOCATE( BLAZE%AGLit_g(np,NPOOLS),BLAZE%AGLit_w(np,NPOOLS) )
   ALLOCATE( BLAZE%BGLit_g(np,NPOOLS),BLAZE%BGLit_w(np,NPOOLS) )
@@ -176,6 +178,7 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   BLAZE%AB        = 0.
   BLAZE%DEADWOOD  = 0.
   BLAZE%FSTEP     = 'DAILY'
+  !NESP2pt9 has this as =TRIM(blazeTStep)
 
   BLAZE%LAT       = LAT
   BLAZE%LON       = LON
@@ -375,7 +378,7 @@ SUBROUTINE BLAZE_TURNOVER(AB, CPLANT_g, CPLANT_w, AGL_g, AGL_w, &
   REAL,               INTENT(IN)    :: AB, shootfrac
   REAL,               INTENT(INOUT) :: CPLANT_w(3) , CPLANT_g(3)
   REAL, DIMENSION(3), INTENT(INOUT) :: AGL_w, AGL_g, BGL_w, BGL_g
-  REAL,               INTENT(OUT)   :: BT(13)
+  REAL,               INTENT(OUT)   :: BT(NFLUXES)
   REAL,     OPTIONAL, INTENT(IN)    :: POP_TO
   TYPE(TYPE_TURNOVER)               :: MTO(7)
   REAL    :: fAB
@@ -397,22 +400,23 @@ SUBROUTINE BLAZE_TURNOVER(AB, CPLANT_g, CPLANT_w, AGL_g, AGL_w, &
   MTO(SLIT )%TO_ATM = fAB * TO(SLIT )%TO_ATM * AGL_w(STR  )
   MTO(CLIT )%TO_ATM = fAB * TO(CLIT )%TO_ATM * AGL_w(CWD  )
 
-  ! Diagnostics
+  ! Diagnostics (new order acc to blaze_driver.F90 ll 215ff)
   BT( 1) = MTO(LEAF )%TO_ATM
-  BT( 2) = MTO(WOOD )%TO_ATM
-  BT( 3) = MTO(LEAF )%TO_STR
-  BT( 4) = MTO(WOOD )%TO_STR
-  BT( 5) = MTO(WOOD )%TO_CWD
-  BT( 6) = MTO(MLIT )%TO_ATM
-  BT( 7) = MTO(SLIT )%TO_ATM
-  BT( 8) = MTO(CLIT )%TO_ATM
-  BT( 9) = MTO(FROOT)%TO_ATM
-  BT(10) = MTO(FROOT)%TO_STR
+  BT( 3) = MTO(WOOD )%TO_ATM
+  BT( 7) = MTO(LEAF )%TO_STR
+  BT( 9) = MTO(WOOD )%TO_STR
+  BT(10) = MTO(WOOD )%TO_CWD
+
+  BT( 4) = MTO(MLIT )%TO_ATM
+  BT( 5) = MTO(SLIT )%TO_ATM
+  BT( 6) = MTO(CLIT )%TO_ATM
+  BT( 2) = MTO(FROOT)%TO_ATM
+  BT( 8) = MTO(FROOT)%TO_STR
+
   BT(11) = AB * CPLANT_g (LEAF)
-  BT(12) = AB * AGL_g(METB)
-  BT(13) = AB * AGL_g(STR )
-
-
+  BT(12) = AB * CPLANT_g (FROOT)
+  BT(13) = AB * AGL_g(METB)
+  BT(14) = AB * AGL_g(STR )
 
 !CLN  PRINT*,'BT( 1) =  MTO(LEAF )%TO_ATM    ',MTO(LEAF)%TO_ATM
 !CLN  PRINT*,'BT( 2) =  MTO(WOOD )%TO_ATM    ',MTO(WOOD)%TO_ATM
@@ -803,7 +807,7 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
      ! CALL SIMFIRE DAILY FOR ACOUNTING OF PARAMETERS
      CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB , climate)
 
-PRINT*,"BLAZE doy,AB",doy,BLAZE%AB
+!PRINT*,"BLAZE doy,AB",doy,BLAZE%AB
      DO np = 1, BLAZE%NCELLS
         IF ( AVAIL_FUEL(1, CPLANT_w(np,:), CPLANT_g(np,:),BLAZE%AGLit_w(np,:),BLAZE%AGLit_g(np,:) ) .LE. MIN_FUEL ) &
              BLAZE%AB(np) = 0.
@@ -815,24 +819,22 @@ PRINT*,"BLAZE doy,AB",doy,BLAZE%AB
      STOP -1
   ENDIF
 
+  !CALL PRINT_BLAZE(BLAZE)
+
   ! Apply half of former deadwood to atm now How to distribut (str
   ! set following Fraver 2013 pinus rosinosa (hardwood/decid. wood to be added
 
   DO np = 1, BLAZE%NCELLS
 
-
-
      CALL COMBUST( BLAZE, np, CPLANT_g(np,:), CPLANT_w(np,:),TO(np,:),BLAZE%AB(np).GT.0 )
-
-
 
      BLAZE%DFLI(np) = BLAZE%FLI(np)
      BLAZE%TO(np,:) = 0.
 
      IF (BLAZE%AB(np) .GT. 0. ) THEN
         CALL BLAZE_TURNOVER( BLAZE%AB(np), CPLANT_g(np,:), CPLANT_w(np,:), &
-             AGL_g(np,:), AGL_w(np,:),BGL_g(np,:), BGL_w(np,:), &
-             BLAZE%shootfrac(np), TO(np,:), BLAZE%FLUXES(np,:), BLAZE%BURNMODE )
+            BLAZE%AGLit_g(np,:), BLAZE%AGLit_w(np,:),BLAZE%BGLit_g(np,:), BLAZE%BGLit_w(np,:), &
+            BLAZE%shootfrac(np), TO(np,:), BLAZE%FLUXES(np,:), BLAZE%BURNMODE)
      ENDIF
 
 
@@ -867,7 +869,7 @@ END SUBROUTINE RUN_BLAZE
     !INTEGER, INTENT(IN)    :: ctime
 
     INTEGER   :: STATUS
-    INTEGER   :: land_ID, t_ID
+    INTEGER   :: land_ID, t_ID, f_ID
     INTEGER   :: i, mp
     CHARACTER :: FNAME*99,dum*50
     LOGICAL, SAVE :: CALL1 = .TRUE.
@@ -878,8 +880,10 @@ END SUBROUTINE RUN_BLAZE
     CHARACTER(len=20),DIMENSION(25):: A1
     ! 2 dim integer arrays (mp,t)
     CHARACTER(len=20),DIMENSION(1):: AI1
+    ! 3 dim real arrays (mp,t,nfluxes)
+    CHARACTER(len=20),DIMENSION(1):: A2
 
-    INTEGER, SAVE :: VIDtime, VID0(SIZE(A0)),VID1(SIZE(A1)),VIDI1(SIZE(AI1))
+    INTEGER, SAVE :: VIDtime, VID0(SIZE(A0)),VID1(SIZE(A1)),VIDI1(SIZE(AI1)),VID2(SIZE(A2))
     INTEGER, SAVE :: FILE_ID, CNT = 0
 
     A0(1) = 'latitude'
@@ -913,6 +917,8 @@ END SUBROUTINE RUN_BLAZE
     A1(25) = 'AGL_g_str'
 
     AI1(1) = 'DaysSinceLastRain'
+
+    A2(1)  = 'BLAZE_fluxes'
 
     CNT = CNT + 1
 
@@ -952,6 +958,9 @@ END SUBROUTINE RUN_BLAZE
        STATUS = NF90_def_dim(FILE_ID, 'time'   , NF90_UNLIMITED, t_ID)
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
+       STATUS = NF90_def_dim(FILE_ID, 'fluxes' , NFLUXES, f_ID)
+       IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+
         ! Define variables
        STATUS = NF90_def_var(FILE_ID,'time' ,NF90_INT,(/t_ID/),VIDtime )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
@@ -981,6 +990,12 @@ END SUBROUTINE RUN_BLAZE
            STATUS = NF90_def_var(FILE_ID,TRIM(AI1(i)) ,NF90_INT,(/land_ID,t_ID/),VIDI1(i))
            IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
            write(*,*) 'def AI1'
+        END DO
+
+        DO i = 1, SIZE(A2)
+            STATUS = NF90_def_var(FILE_ID,TRIM(A2(i)) ,NF90_FLOAT,(/land_ID,f_ID ,t_ID/),VID2(i))
+            IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
+            write(*,*) 'def A2'
         END DO
 
        ! End define mode:
@@ -1092,6 +1107,12 @@ END SUBROUTINE RUN_BLAZE
 
     STATUS = NF90_PUT_VAR(FILE_ID, VIDI1(1), BLAZE%DSLR, start=(/ 1, CNT /), count=(/ mp, 1 /)  )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+
+    ! Float 3D
+    DO i=1,NFLUXES 
+      STATUS = NF90_PUT_VAR(FILE_ID, VID2(1),BLAZE%FLUXES(:,i), start=(/ 1, i, CNT /), count=(/ mp, 1, 1 /))  
+      IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
+    END DO
 
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 

@@ -270,6 +270,7 @@ MODULE POP_Types
      REAL(dp), DIMENSION(NYEAR_HISTORY) :: cat_mortality_history
      REAL(dp), DIMENSION(AGEMAX) :: freq_age ! age weighting (by age in y: 0:AGE_MAX-1)
      REAL(dp), DIMENSION(AGEMAX) :: biomass_age
+     REAL(dp) :: rkill
   END TYPE Landscape
 
   TYPE POP_TYPE
@@ -2844,7 +2845,7 @@ CONTAINS
                   pop%pop_grid(g)%patch(:)%age(1).LT.age_max)
           endif
 
-
+          tmp5_min = 0.0_dp
           if (i_min.ne.0.and.age_min.ne.0) then
              MASK = pop%pop_grid(g)%patch(:)%age(1).eq.age_min
              where (MASK)
@@ -2852,19 +2853,24 @@ CONTAINS
              elsewhere
                 tmp_array = 0.0_dp
              endwhere
-             tmp5_min = SUM(pop%pop_grid(g)%patch(:)%fire_mortality,MASK)/SUM(tmp_array)
+             if ( any(MASK) ) then
+               tmp5_min = SUM(pop%pop_grid(g)%patch(:)%fire_mortality,MASK)/SUM(tmp_array)
+             endif
           else
              tmp5_min = 0.0_dp
           endif
 
+          tmp5_max = 0.0_dp
           MASK = pop%pop_grid(g)%patch(:)%age(1).eq.age_max
           where (MASK)
              tmp_array = 1.0_dp
           elsewhere
              tmp_array = 0.0_dp
           endwhere
-          tmp5_max = SUM(pop%pop_grid(g)%patch(:)%fire_mortality,MASK)/SUM(tmp_array)
-
+          if ( any(MASK) ) then
+            tmp5_max = sum(pop%pop_grid(g)%patch(:)%fire_mortality,MASK)/sum(tmp_array)
+          endif
+          
           fire_mort_age(iage) = tmp5_min + (tmp5_max-tmp5_min)/real(age_max-age_min,dp)* &
                real(age(iage)-age_min,dp)
 
@@ -2954,6 +2960,17 @@ CONTAINS
        ! INTREPOLATE amongst patches to get total biomass lost to fire
        ! creates new value for  POP%pop_grid(g)%fire_mortality
        CALL INTERPOLATE_FIREMORTALITY(pop, disturbance_interval,it,g)
+
+       !CLN Kill ratio to be used within BLAZE to compute fluxes
+       POP%pop_grid(g)%rkill = 0.
+       if ( POP%pop_grid(g)%cmass_sum .gt. 0.) then
+          POP%pop_grid(g)%rkill = POP%pop_grid(g)%fire_mortality / POP%pop_grid(g)%cmass_sum
+       else
+          POP%pop_grid(g)%rkill = 0.
+       endif
+       if (POP%pop_grid(g)%rkill .GT. 0.) then
+          WRITE(*,*) "driver rkill",g,POP%pop_grid(g)%rkill
+       endif
 
        POP%pop_grid(g)%cmass_sum = POP%pop_grid(g)%cmass_sum - POP%pop_grid(g)%fire_mortality
 

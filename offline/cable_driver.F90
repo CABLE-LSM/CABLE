@@ -1069,7 +1069,7 @@ PROGRAM cable_offline_driver
 
                  if (liseod) then ! end of day
                     if (cable_user%CALL_BLAZE) then
-                       print*, "CLN CAlling BLAZE"
+                       !print*, "CLN CAlling BLAZE"
                        call BLAZE_ACCOUNTING(BLAZE, climate, ktau, dels, YYYY, idoy)
                        call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
                             casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg)

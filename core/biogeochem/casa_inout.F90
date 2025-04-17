@@ -1612,43 +1612,45 @@ contains
     a1(22) = 'CallocLeaf'
     a1(23) = 'CallocWood'
     a1(24) = 'CallocFineRoot'
-    na1 = 24
+    a1(25) = 'fluxCtoCO2_plant_fire'
+    a1(26) = 'fluxCtoCO2_litter_fire'
+    na1 = 26
     ! N
-    a1(25) = 'sumnbal'
-    a1(26) = 'Nminfix'
-    a1(27) = 'Nmindep'
-    a1(28) = 'Nminloss'
-    a1(29) = 'Nminleach'
-    a1(30) = 'Nupland'
-    a1(31) = 'Nlittermin'
-    a1(32) = 'Nsmin'
-    a1(33) = 'Nsimm'
-    a1(34) = 'Nsnet'
-    a1(35) = 'fNMinloss'
-    a1(36) = 'Nsoilmin'
-    if (icycle==2) na1 = 36
+    a1(27) = 'sumnbal'
+    a1(28) = 'Nminfix'
+    a1(29) = 'Nmindep'
+    a1(30) = 'Nminloss'
+    a1(31) = 'Nminleach'
+    a1(32) = 'Nupland'
+    a1(33) = 'Nlittermin'
+    a1(34) = 'Nsmin'
+    a1(35) = 'Nsimm'
+    a1(36) = 'Nsnet'
+    a1(37) = 'fNMinloss'
+    a1(38) = 'Nsoilmin'
+    if (icycle==2) na1 = 38
     ! P
-    a1(37) = 'psoillab'
-    a1(38) = 'psoilsorb'
-    a1(39) = 'psoilocc'
-    a1(40) = 'sumpbal'
-    a1(41) = 'Plabuptake'
-    a1(42) = 'Pdep'
-    a1(43) = 'pwea'
-    a1(44) = 'Pleach'
-    a1(45) = 'Ploss'
-    a1(46) = 'Pupland'
-    a1(47) = 'Plittermin'
-    a1(48) = 'Psmin'
-    a1(49) = 'Psimm'
-    a1(50) = 'Psnet'
-    a1(51) = 'fPleach'
-    a1(52) = 'kPlab'
-    a1(53) = 'kPsorb'
-    a1(54) = 'kpocc'
-    a1(55) = 'kmlabP'
-    a1(56) = 'Psorbmax'
-    if (icycle==3) na1 = 56
+    a1(39) = 'psoillab'
+    a1(40) = 'psoilsorb'
+    a1(41) = 'psoilocc'
+    a1(42) = 'sumpbal'
+    a1(43) = 'Plabuptake'
+    a1(44) = 'Pdep'
+    a1(45) = 'pwea'
+    a1(46) = 'Pleach'
+    a1(47) = 'Ploss'
+    a1(48) = 'Pupland'
+    a1(49) = 'Plittermin'
+    a1(50) = 'Psmin'
+    a1(51) = 'Psimm'
+    a1(52) = 'Psnet'
+    a1(53) = 'fPleach'
+    a1(54) = 'kPlab'
+    a1(55) = 'kPsorb'
+    a1(56) = 'kpocc'
+    a1(57) = 'kmlabP'
+    a1(58) = 'Psorbmax'
+    if (icycle==3) na1 = 58
 
     ! C
     a2(1) = 'cplant'
@@ -1921,74 +1923,79 @@ contains
     if(status /= nf90_noerr) call handle_err(status)
     status = nf90_put_var(file_id, vid1(24), real(casaflux%CallocFineRoot,sp), start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
+    !BLAZE outputs
+    status = nf90_put_var(file_id, vid1(25), real(casaflux%fluxCtoCO2_plant_fire,sp), start=(/1,cnt/), count=(/mp,1/) )
+    if(status /= nf90_noerr) call handle_err(status)
+    status = nf90_put_var(file_id, vid1(26), real(casaflux%fluxCtoCO2_litter_fire,sp), start=(/1,cnt/), count=(/mp,1/) )
+    if(status /= nf90_noerr) call handle_err(status)
     ! N
     if (icycle > 1) then
-       status = nf90_put_var(file_id, vid1(25), real(casabal%sumnbal,sp),      start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(27), real(casabal%sumnbal,sp),      start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(26), real(casaflux%nminfix,sp),     start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(28), real(casaflux%nminfix,sp),     start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(27), real(casaflux%nmindep,sp),     start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(29), real(casaflux%nmindep,sp),     start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(28), real(casaflux%nminloss,sp),    start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(30), real(casaflux%nminloss,sp),    start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(29), real(casaflux%nminleach,sp),   start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(31), real(casaflux%nminleach,sp),   start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(30), real(casaflux%nupland,sp),     start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(32), real(casaflux%nupland,sp),     start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(31), real(casaflux%nlittermin,sp),  start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(33), real(casaflux%nlittermin,sp),  start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(32), real(casaflux%nsmin,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(34), real(casaflux%nsmin,sp),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(33), real(casaflux%nsimm,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(35), real(casaflux%nsimm,sp),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(34), real(casaflux%nsnet,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(36), real(casaflux%nsnet,sp),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(35), real(casaflux%fnminloss,sp),   start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(37), real(casaflux%fnminloss,sp),   start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(36), real(casapool%nsoilmin,sp),    start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(38), real(casapool%nsoilmin,sp),    start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
     endif
     ! P
     if (icycle > 2) then
-       status = nf90_put_var(file_id, vid1(37), real(casapool%psoillab,sp),    start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(39), real(casapool%psoillab,sp),    start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(38), real(casapool%psoilsorb,sp),   start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(40), real(casapool%psoilsorb,sp),   start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(39), real(casapool%psoilocc,sp),    start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(41), real(casapool%psoilocc,sp),    start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(40), real(casabal%sumpbal,sp),      start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(42), real(casabal%sumpbal,sp),      start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(41), real(casaflux%plabuptake,sp),  start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(43), real(casaflux%plabuptake,sp),  start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(42), real(casaflux%pdep,sp),        start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(44), real(casaflux%pdep,sp),        start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(43), real(casaflux%pwea,sp),        start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(45), real(casaflux%pwea,sp),        start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(44), real(casaflux%pleach,sp),      start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(46), real(casaflux%pleach,sp),      start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(45), real(casaflux%ploss,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(47), real(casaflux%ploss,sp),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(46), real(casaflux%pupland,sp),     start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(48), real(casaflux%pupland,sp),     start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(47), real(casaflux%plittermin,sp),  start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(49), real(casaflux%plittermin,sp),  start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(48), real(casaflux%psmin,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(50), real(casaflux%psmin,sp),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(49), real(casaflux%psimm,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(51), real(casaflux%psimm,sp),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(50), real(casaflux%psnet,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(52), real(casaflux%psnet,sp),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(51), real(casaflux%fpleach,sp),     start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(53), real(casaflux%fpleach,sp),     start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(52), real(casaflux%kplab,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(54), real(casaflux%kplab,sp),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(53), real(casaflux%kpsorb,sp),      start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(55), real(casaflux%kpsorb,sp),      start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(54), real(casaflux%kpocc,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(56), real(casaflux%kpocc,sp),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(55), real(casaflux%kmlabp,sp),      start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(57), real(casaflux%kmlabp,sp),      start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(56), real(casaflux%psorbmax,sp),    start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(58), real(casaflux%psorbmax,sp),    start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
     endif
 
@@ -2215,7 +2222,9 @@ contains
     a1(22) = 'CallocLeaf'
     a1(23) = 'CallocWood'
     a1(24) = 'CallocFineRoot'
-    na1 = 24
+    a1(25) = 'fluxCtoCO2_plant_fire'
+    a1(26) = 'fluxCtoCO2_litter_fire'
+    na1 = 26
 
     u1(3)  = 'm2 m-2' 
     u1(4)  = 'g C m-2 d-1'
@@ -2239,26 +2248,26 @@ contains
     u1(22) = 'g C m-2 d-1'
     u1(23) = 'g C m-2 d-1'
     u1(24) = 'g C m-2 d-1'
+    u1(25) = 'g C m-2 d-1'
+    u1(26) = 'g C m-2 d-1'
 
 
     ! N
-    a1(25) = 'sumnbal'
-    a1(26) = 'Nminfix'
-    a1(27) = 'Nmindep'
-    a1(28) = 'Nminloss'
-    a1(29) = 'Nminleach'
-    a1(30) = 'Nupland'
-    a1(31) = 'Nlittermin'
-    a1(32) = 'Nsmin'
-    a1(33) = 'Nsimm'
-    a1(34) = 'Nsnet'
-    a1(35) = 'fNMinloss'
-    a1(36) = 'Nsoilmin'
-    if (icycle==2) na1 = 36
+    a1(27) = 'sumnbal'
+    a1(28) = 'Nminfix'
+    a1(29) = 'Nmindep'
+    a1(30) = 'Nminloss'
+    a1(31) = 'Nminleach'
+    a1(32) = 'Nupland'
+    a1(33) = 'Nlittermin'
+    a1(34) = 'Nsmin'
+    a1(35) = 'Nsimm'
+    a1(36) = 'Nsnet'
+    a1(37) = 'fNMinloss'
+    a1(38) = 'Nsoilmin'
+    if (icycle==2) na1 = 38
 
-    u1(25) = ''
-    u1(26) = 'g N m-2 d-1'
-    u1(27) = 'g N m-2 d-1'
+    u1(27) = ''
     u1(28) = 'g N m-2 d-1'
     u1(29) = 'g N m-2 d-1'
     u1(30) = 'g N m-2 d-1'
@@ -2268,37 +2277,37 @@ contains
     u1(34) = 'g N m-2 d-1'
     u1(35) = 'g N m-2 d-1'
     u1(36) = 'g N m-2 d-1'
+    u1(37) = 'g N m-2 d-1'
+    u1(38) = 'g N m-2 d-1'
 
 
     ! P
-    a1(37) = 'psoillab'
-    a1(38) = 'psoilsorb'
-    a1(39) = 'psoilocc'
-    a1(40) = 'sumpbal'
-    a1(41) = 'Plabuptake'
-    a1(42) = 'Pdep'
-    a1(43) = 'pwea'
-    a1(44) = 'Pleach'
-    a1(45) = 'Ploss'
-    a1(46) = 'Pupland'
-    a1(47) = 'Plittermin'
-    a1(48) = 'Psmin'
-    a1(49) = 'Psimm'
-    a1(50) = 'Psnet'
-    a1(51) = 'fPleach'
-    a1(52) = 'kPlab'
-    a1(53) = 'kPsorb'
-    a1(54) = 'kpocc'
-    a1(55) = 'kmlabP'
-    a1(56) = 'Psorbmax'
-    if (icycle==3) na1 = 56
+    a1(39) = 'psoillab'
+    a1(40) = 'psoilsorb'
+    a1(41) = 'psoilocc'
+    a1(42) = 'sumpbal'
+    a1(43) = 'Plabuptake'
+    a1(44) = 'Pdep'
+    a1(45) = 'pwea'
+    a1(46) = 'Pleach'
+    a1(47) = 'Ploss'
+    a1(48) = 'Pupland'
+    a1(49) = 'Plittermin'
+    a1(50) = 'Psmin'
+    a1(51) = 'Psimm'
+    a1(52) = 'Psnet'
+    a1(53) = 'fPleach'
+    a1(54) = 'kPlab'
+    a1(55) = 'kPsorb'
+    a1(56) = 'kpocc'
+    a1(57) = 'kmlabP'
+    a1(58) = 'Psorbmax'
+    if (icycle==3) na1 = 58
 
-    u1(37) = 'g P m-2 d-1'
-    u1(38) = 'g P m-2 d-1'
     u1(39) = 'g P m-2 d-1'
-    u1(40) = 'sumpbal'
+    u1(40) = 'g P m-2 d-1'
     u1(41) = 'g P m-2 d-1'
-    u1(42) = 'g P m-2 d-1'
+    u1(42) = 'sumpbal'
     u1(43) = 'g P m-2 d-1'
     u1(44) = 'g P m-2 d-1'
     u1(45) = 'g P m-2 d-1'
@@ -2307,12 +2316,14 @@ contains
     u1(48) = 'g P m-2 d-1'
     u1(49) = 'g P m-2 d-1'
     u1(50) = 'g P m-2 d-1'
-    u1(51) = ''
-    u1(52) = ''
+    u1(51) = 'g P m-2 d-1'
+    u1(52) = 'g P m-2 d-1'
     u1(53) = ''
     u1(54) = ''
     u1(55) = ''
     u1(56) = ''
+    u1(57) = ''
+    u1(58) = ''
 
     ! C
     a2(1) = 'cplant'
@@ -2629,45 +2640,48 @@ contains
     call put_casa_var_grid_patch(file_id, vid1(22), real(casaflux%CallocLeaf,sp), cnt, otmp4patch)
     call put_casa_var_grid_patch(file_id, vid1(23), real(casaflux%CallocWood,sp), cnt, otmp4patch)
     call put_casa_var_grid_patch(file_id, vid1(24), real(casaflux%CallocFineRoot,sp), cnt, otmp4patch)
+    !BLAZE outputs
+    call put_casa_var_grid_patch(file_id, vid1(25), real(casaflux%fluxCtoCO2_plant_fire,sp), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(26), real(casaflux%fluxCtoCO2_litter_fire,sp), cnt, otmp4patch)
 
     ! N
     if (icycle > 1) then
-       call put_casa_var_grid_patch(file_id, vid1(25), real(casabal%sumnbal,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(26), real(casaflux%nminfix,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(27), real(casaflux%nmindep,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(28), real(casaflux%nminloss,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(29), real(casaflux%nminleach,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(30), real(casaflux%nupland,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(31), real(casaflux%nlittermin,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(32), real(casaflux%nsmin,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(33), real(casaflux%nsimm,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(34), real(casaflux%nsnet,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(35), real(casaflux%fnminloss,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(36), real(casapool%nsoilmin,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(27), real(casabal%sumnbal,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(28), real(casaflux%nminfix,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(29), real(casaflux%nmindep,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(30), real(casaflux%nminloss,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(31), real(casaflux%nminleach,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(32), real(casaflux%nupland,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(33), real(casaflux%nlittermin,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(34), real(casaflux%nsmin,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(35), real(casaflux%nsimm,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(36), real(casaflux%nsnet,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(37), real(casaflux%fnminloss,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(38), real(casapool%nsoilmin,sp), cnt, otmp4patch )
     endif
 
     ! P
     if (icycle > 2) then
-       call put_casa_var_grid_patch(file_id, vid1(37), real(casapool%psoillab,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(38), real(casapool%psoilsorb,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(39), real(casapool%psoilocc,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(40), real(casabal%sumpbal,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(41), real(casaflux%plabuptake,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(42), real(casaflux%pdep,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(43), real(casaflux%pwea,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(44), real(casaflux%pleach,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(45), real(casaflux%ploss,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(46), real(casaflux%pupland,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(47), real(casaflux%plittermin,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(48), real(casaflux%psmin,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(49), real(casaflux%psimm,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(50), real(casaflux%psnet,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(51), real(casaflux%fpleach,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(52), real(casaflux%kplab,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(53), real(casaflux%kpsorb,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(54), real(casaflux%kpocc,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(55), real(casaflux%kmlabp,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(56), real(casaflux%psorbmax,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(39), real(casapool%psoillab,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(40), real(casapool%psoilsorb,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(41), real(casapool%psoilocc,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(42), real(casabal%sumpbal,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(43), real(casaflux%plabuptake,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(44), real(casaflux%pdep,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(45), real(casaflux%pwea,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(46), real(casaflux%pleach,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(47), real(casaflux%ploss,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(48), real(casaflux%pupland,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(49), real(casaflux%plittermin,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(50), real(casaflux%psmin,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(51), real(casaflux%psimm,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(52), real(casaflux%psnet,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(53), real(casaflux%fpleach,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(54), real(casaflux%kplab,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(55), real(casaflux%kpsorb,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(56), real(casaflux%kpocc,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(57), real(casaflux%kmlabp,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(58), real(casaflux%psorbmax,sp), cnt, otmp4patch )
     endif
 
     ! 4D vars (x,y,mplant,t)
@@ -2970,7 +2984,9 @@ END SUBROUTINE put_casa_var_grid_patch_average
     a1(22) = 'CallocLeaf'
     a1(23) = 'CallocWood'
     a1(24) = 'CallocFineRoot'
-    na1 = 24
+    a1(25) = 'fluxCtoCO2_plant_fire'
+    a1(26) = 'fluxCtoCO2_litter_fire'
+    na1 = 26
 
     u1(3)  = 'm2 m-2' 
     u1(4)  = 'g C m-2 d-1'
@@ -2994,25 +3010,25 @@ END SUBROUTINE put_casa_var_grid_patch_average
     u1(22) = 'g C m-2 d-1'
     u1(23) = 'g C m-2 d-1'
     u1(24) = 'g C m-2 d-1'
+    u1(25) = 'g C m-2 d-1'
+    u1(26) = 'g C m-2 d-1'
 
     ! N
-    a1(25) = 'sumnbal'
-    a1(26) = 'Nminfix'
-    a1(27) = 'Nmindep'
-    a1(28) = 'Nminloss'
-    a1(29) = 'Nminleach'
-    a1(30) = 'Nupland'
-    a1(31) = 'Nlittermin'
-    a1(32) = 'Nsmin'
-    a1(33) = 'Nsimm'
-    a1(34) = 'Nsnet'
-    a1(35) = 'fNMinloss'
-    a1(36) = 'Nsoilmin'
-    if (icycle==2) na1 = 36
+    a1(27) = 'sumnbal'
+    a1(28) = 'Nminfix'
+    a1(29) = 'Nmindep'
+    a1(30) = 'Nminloss'
+    a1(31) = 'Nminleach'
+    a1(32) = 'Nupland'
+    a1(33) = 'Nlittermin'
+    a1(34) = 'Nsmin'
+    a1(35) = 'Nsimm'
+    a1(36) = 'Nsnet'
+    a1(37) = 'fNMinloss'
+    a1(38) = 'Nsoilmin'
+    if (icycle==2) na1 = 38
 
-    u1(25) = ''
-    u1(26) = 'g N m-2 d-1'
-    u1(27) = 'g N m-2 d-1'
+    u1(27) = ''
     u1(28) = 'g N m-2 d-1'
     u1(29) = 'g N m-2 d-1'
     u1(30) = 'g N m-2 d-1'
@@ -3022,37 +3038,37 @@ END SUBROUTINE put_casa_var_grid_patch_average
     u1(34) = 'g N m-2 d-1'
     u1(35) = 'g N m-2 d-1'
     u1(36) = 'g N m-2 d-1'
+    u1(37) = 'g N m-2 d-1'
+    u1(38) = 'g N m-2 d-1'
 
 
     ! P
-    a1(37) = 'psoillab'
-    a1(38) = 'psoilsorb'
-    a1(39) = 'psoilocc'
-    a1(40) = 'sumpbal'
-    a1(41) = 'Plabuptake'
-    a1(42) = 'Pdep'
-    a1(43) = 'pwea'
-    a1(44) = 'Pleach'
-    a1(45) = 'Ploss'
-    a1(46) = 'Pupland'
-    a1(47) = 'Plittermin'
-    a1(48) = 'Psmin'
-    a1(49) = 'Psimm'
-    a1(50) = 'Psnet'
-    a1(51) = 'fPleach'
-    a1(52) = 'kPlab'
-    a1(53) = 'kPsorb'
-    a1(54) = 'kpocc'
-    a1(55) = 'kmlabP'
-    a1(56) = 'Psorbmax'
-    if (icycle==3) na1 = 56
+    a1(39) = 'psoillab'
+    a1(40) = 'psoilsorb'
+    a1(41) = 'psoilocc'
+    a1(42) = 'sumpbal'
+    a1(43) = 'Plabuptake'
+    a1(44) = 'Pdep'
+    a1(45) = 'pwea'
+    a1(46) = 'Pleach'
+    a1(47) = 'Ploss'
+    a1(48) = 'Pupland'
+    a1(49) = 'Plittermin'
+    a1(50) = 'Psmin'
+    a1(51) = 'Psimm'
+    a1(52) = 'Psnet'
+    a1(53) = 'fPleach'
+    a1(54) = 'kPlab'
+    a1(55) = 'kPsorb'
+    a1(56) = 'kpocc'
+    a1(57) = 'kmlabP'
+    a1(58) = 'Psorbmax'
+    if (icycle==3) na1 = 58
 
-    u1(37) = 'g P m-2 d-1'
-    u1(38) = 'g P m-2 d-1'
     u1(39) = 'g P m-2 d-1'
-    u1(40) = 'sumpbal'
+    u1(40) = 'g P m-2 d-1'
     u1(41) = 'g P m-2 d-1'
-    u1(42) = 'g P m-2 d-1'
+    u1(42) = 'sumpbal'
     u1(43) = 'g P m-2 d-1'
     u1(44) = 'g P m-2 d-1'
     u1(45) = 'g P m-2 d-1'
@@ -3061,12 +3077,14 @@ END SUBROUTINE put_casa_var_grid_patch_average
     u1(48) = 'g P m-2 d-1'
     u1(49) = 'g P m-2 d-1'
     u1(50) = 'g P m-2 d-1'
-    u1(51) = ''
-    u1(52) = ''
+    u1(51) = 'g P m-2 d-1'
+    u1(52) = 'g P m-2 d-1'
     u1(53) = ''
     u1(54) = ''
     u1(55) = ''
     u1(56) = ''
+    u1(57) = ''
+    u1(58) = ''
 
     ! C
     a2(1) = 'cplant'
@@ -3401,44 +3419,46 @@ END SUBROUTINE put_casa_var_grid_patch_average
     call put_casa_var_patch(file_id, vid1(22), real(casaflux%CallocLeaf,sp), cnt, otmp3patch)
     call put_casa_var_patch(file_id, vid1(23), real(casaflux%CallocWood,sp), cnt, otmp3patch)
     call put_casa_var_patch(file_id, vid1(24), real(casaflux%CallocFineRoot,sp), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(25), real(casaflux%fluxCtoCO2_plant_fire,sp), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(26), real(casaflux%fluxCtoCO2_litter_fire,sp), cnt, otmp3patch)
 
     ! N
     if (icycle > 1) then
-       call put_casa_var_patch(file_id, vid1(25), real(casabal%sumnbal,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(26), real(casaflux%nminfix,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(27), real(casaflux%nmindep,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(28), real(casaflux%nminloss,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(29), real(casaflux%nminleach,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(30), real(casaflux%nupland,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(31), real(casaflux%nlittermin,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(32), real(casaflux%nsmin,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(33), real(casaflux%nsimm,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(34), real(casaflux%nsnet,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(35), real(casaflux%fnminloss,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(36), real(casapool%nsoilmin,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(27), real(casabal%sumnbal,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(28), real(casaflux%nminfix,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(29), real(casaflux%nmindep,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(30), real(casaflux%nminloss,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(31), real(casaflux%nminleach,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(32), real(casaflux%nupland,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(33), real(casaflux%nlittermin,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(34), real(casaflux%nsmin,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(35), real(casaflux%nsimm,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(36), real(casaflux%nsnet,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(37), real(casaflux%fnminloss,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(38), real(casapool%nsoilmin,sp), cnt, otmp3patch )
     endif
     ! P
     if (icycle > 2) then
-       call put_casa_var_patch(file_id, vid1(37), real(casapool%psoillab,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(38), real(casapool%psoilsorb,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(39), real(casapool%psoilocc,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(40), real(casabal%sumpbal,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(41), real(casaflux%plabuptake,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(42), real(casaflux%pdep,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(43), real(casaflux%pwea,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(44), real(casaflux%pleach,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(45), real(casaflux%ploss,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(46), real(casaflux%pupland,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(47), real(casaflux%plittermin,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(48), real(casaflux%psmin,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(49), real(casaflux%psimm,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(50), real(casaflux%psnet,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(51), real(casaflux%fpleach,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(52), real(casaflux%kplab,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(53), real(casaflux%kpsorb,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(54), real(casaflux%kpocc,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(55), real(casaflux%kmlabp,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(56), real(casaflux%psorbmax,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(39), real(casapool%psoillab,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(40), real(casapool%psoilsorb,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(41), real(casapool%psoilocc,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(42), real(casabal%sumpbal,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(43), real(casaflux%plabuptake,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(44), real(casaflux%pdep,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(45), real(casaflux%pwea,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(46), real(casaflux%pleach,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(47), real(casaflux%ploss,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(48), real(casaflux%pupland,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(49), real(casaflux%plittermin,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(50), real(casaflux%psmin,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(51), real(casaflux%psimm,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(52), real(casaflux%psnet,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(53), real(casaflux%fpleach,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(54), real(casaflux%kplab,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(55), real(casaflux%kpsorb,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(56), real(casaflux%kpocc,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(57), real(casaflux%kmlabp,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(58), real(casaflux%psorbmax,sp), cnt, otmp3patch )
     endif
     ! 4D vars (land,patch,mplant,t)
     ! C
