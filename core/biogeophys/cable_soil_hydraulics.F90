@@ -275,7 +275,7 @@ CONTAINS
 
    ! ----------------------------------------------------------------------------
    SUBROUTINE calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, veg, &
-      root_length, i)
+      root_length, i, justTotalEst)
       !
       ! Determine weighted SWP given the the maximum rate of water supply from
       ! each rooted soil layer and hydraulic resistance of each layer. We are
@@ -304,6 +304,7 @@ CONTAINS
       REAL, DIMENSION(ms)            :: swp, est_evap
       REAL, DIMENSION(:), INTENT(IN) :: root_length
       REAL                           :: total_est_evap, swp_diff, depth_sum
+      Logical, INTENT(IN)  :: justTotalEst
 
       INTEGER, INTENT(IN) :: i
       INTEGER             :: j
@@ -314,8 +315,7 @@ CONTAINS
 
       total_est_evap = 0.0
       est_evap = 0.0
-      ssnow%psi_rootzone(i) = 0.0
-      ssnow%fraction_uptake(i,:) = 0.0
+
 
       ! Estimate max transpiration from gradient-gravity / soil resistance
       DO j = 1, ms ! Loop over 6 soil layers
@@ -333,96 +333,104 @@ CONTAINS
             est_evap(j) = 0.0
          ENDIF
 
-         IF (veg%froot(i,j) .GT. 0.0) THEN
-            ! Soil water potential weighted by layer Emax (from SPA)
-            ssnow%psi_rootzone(i) = ssnow%psi_rootzone(i) + &
-               ssnow%psi_soil(i,j) * est_evap(j)
+         IF (.NOT. justTotalEst) THEN
+            ssnow%psi_rootzone(i) = 0.0
+            ssnow%fraction_uptake(i,:) = 0.0
+            IF (veg%froot(i,j) .GT. 0.0) THEN
+               ! Soil water potential weighted by layer Emax (from SPA)
+               ssnow%psi_rootzone(i) = ssnow%psi_rootzone(i) + &
+                  ssnow%psi_soil(i,j) * est_evap(j)
+            ENDIF
          ENDIF
+
       END DO
       total_est_evap = SUM(est_evap)
-
-      ! calculate the weighted psi_soil, ms8355 2022
-      IF (total_est_evap > 0.0) THEN
-
-         ! Soil water potential is weighted by total_est_evap.
-         ssnow%psi_rootzone(i) = ssnow%psi_rootzone(i) / total_est_evap
-
-      ELSE
-
-         ssnow%psi_rootzone(i) = 0.0
-         depth_sum = 0.0
-
-         DO j = 1, ms ! Loop over 6 soil layers
-
-            IF (veg%froot(i,j) .GT. 0.0) THEN
-
-               ssnow%psi_rootzone(i) = ssnow%psi_rootzone(i) + &
-                  ssnow%psi_soil(i,j) * soil%zse(j)
-               depth_sum = depth_sum + soil%zse(j)
-
-            ENDIF
-
-         END DO
-
-         ssnow%psi_rootzone(i) = ssnow%psi_rootzone(i) / depth_sum
-
-      END IF
-
-      ! SPA method to figure out relative water uptake.
-      ! Fraction uptake in each layer by Emax in each layer
-      IF (SPA_relative_uptake) THEN
-
-         IF (total_est_evap > 0.0) THEN
-            DO j = 1, ms ! Loop over 6 soil layers
-
-               ! fraction of water taken from layer, I've lower bounded frac
-               ! uptake because when soilR is set to a huge number
-               ! (see calc_soil_root_resistance), then frac_uptake will be so
-               ! small you end up with numerical issues.
-               ssnow%fraction_uptake(i,j) = MAX(1E-09, &
-                  est_evap(j) / total_est_evap)
-
-               IF ((ssnow%fraction_uptake(i,j) > 1.0) .OR. &
-                  (ssnow%fraction_uptake(i,j) < 0.0)) THEN
-                  PRINT *, 'Problem with the uptake fraction (either >1 or 0<)'
-                  STOP
-               END IF
-
-            END DO
-         ELSE
-            ! No water was evaporated
-            ssnow%fraction_uptake(i,:) = 1.0 / FLOAT(ms)
-         END IF
-
-         ! Use Taylor-Keppler root water uptake distribution.
-      ELSE
-         ! Taylor and Keppler: relative water uptake is
-         ! proportional to root length density and Psi difference.
-         ! See : Taylor, H.M. and B. Keppler. 1975. Water uptake by cotton root
-         ! systems: an examination of assumptions in the single root model.
-         ! Soil Science. 120:57-67.
-         DO j = 1, ms ! Loop over 6 soil layers
-
-            IF (total_est_evap .GT. 0.) THEN
-               swp_diff = MAX(0., (ssnow%psi_soil(i,j) - min_root_wp))
-               ssnow%fraction_uptake(i,j) = root_length(j) * swp_diff
-            ELSE
-               ! no water uptake possible
-               ssnow%fraction_uptake(i,j) = 0.0
-            END IF
-         END DO
-
-         IF (SUM(ssnow%fraction_uptake) .GT. 0) THEN
-            ! Make sure that it sums to 1.
-            ssnow%fraction_uptake = ssnow%fraction_uptake / &
-               SUM(ssnow%fraction_uptake)
-         ELSE
-            ssnow%fraction_uptake = 0.0
-         ENDIF
-
-      ENDIF
       print*, 'total_est_evap kg s-1 m-2',total_est_evap
       ssnow%total_est_evap(i) = total_est_evap
+
+      IF (.NOT. justTotalEst) THEN
+         ! calculate the weighted psi_soil, ms8355 2022
+         IF (total_est_evap > 0.0) THEN
+
+            ! Soil water potential is weighted by total_est_evap.
+            ssnow%psi_rootzone(i) = ssnow%psi_rootzone(i) / total_est_evap
+
+         ELSE
+
+            ssnow%psi_rootzone(i) = 0.0
+            depth_sum = 0.0
+
+            DO j = 1, ms ! Loop over 6 soil layers
+
+               IF (veg%froot(i,j) .GT. 0.0) THEN
+
+                  ssnow%psi_rootzone(i) = ssnow%psi_rootzone(i) + &
+                     ssnow%psi_soil(i,j) * soil%zse(j)
+                  depth_sum = depth_sum + soil%zse(j)
+
+               ENDIF
+
+            END DO
+
+            ssnow%psi_rootzone(i) = ssnow%psi_rootzone(i) / depth_sum
+
+         END IF
+
+         ! SPA method to figure out relative water uptake.
+         ! Fraction uptake in each layer by Emax in each layer
+         IF (SPA_relative_uptake) THEN
+
+            IF (total_est_evap > 0.0) THEN
+               DO j = 1, ms ! Loop over 6 soil layers
+
+                  ! fraction of water taken from layer, I've lower bounded frac
+                  ! uptake because when soilR is set to a huge number
+                  ! (see calc_soil_root_resistance), then frac_uptake will be so
+                  ! small you end up with numerical issues.
+                  ssnow%fraction_uptake(i,j) = MAX(1E-09, &
+                     est_evap(j) / total_est_evap)
+
+                  IF ((ssnow%fraction_uptake(i,j) > 1.0) .OR. &
+                     (ssnow%fraction_uptake(i,j) < 0.0)) THEN
+                     PRINT *, 'Problem with the uptake fraction (either >1 or 0<)'
+                     STOP
+                  END IF
+
+               END DO
+            ELSE
+               ! No water was evaporated
+               ssnow%fraction_uptake(i,:) = 1.0 / FLOAT(ms)
+            END IF
+
+            ! Use Taylor-Keppler root water uptake distribution.
+         ELSE
+            ! Taylor and Keppler: relative water uptake is
+            ! proportional to root length density and Psi difference.
+            ! See : Taylor, H.M. and B. Keppler. 1975. Water uptake by cotton root
+            ! systems: an examination of assumptions in the single root model.
+            ! Soil Science. 120:57-67.
+            DO j = 1, ms ! Loop over 6 soil layers
+
+               IF (total_est_evap .GT. 0.) THEN
+                  swp_diff = MAX(0., (ssnow%psi_soil(i,j) - min_root_wp))
+                  ssnow%fraction_uptake(i,j) = root_length(j) * swp_diff
+               ELSE
+                  ! no water uptake possible
+                  ssnow%fraction_uptake(i,j) = 0.0
+               END IF
+            END DO
+
+            IF (SUM(ssnow%fraction_uptake) .GT. 0) THEN
+               ! Make sure that it sums to 1.
+               ssnow%fraction_uptake = ssnow%fraction_uptake / &
+                  SUM(ssnow%fraction_uptake)
+            ELSE
+               ssnow%fraction_uptake = 0.0
+            ENDIF
+
+         ENDIF
+      ENDIF
+
 
    END SUBROUTINE calc_weighted_swp_and_frac_uptake
    ! ----------------------------------------------------------------------------

@@ -1665,7 +1665,7 @@ CONTAINS
             CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, i)
             CALL calc_swp(ssnow, soil, i)
             CALL calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, veg, &
-               root_length, i)
+               root_length, i, .FALSE.)
    
          END DO
          ! This follows the default extraction logic, but instead of weighting
@@ -1728,6 +1728,10 @@ CONTAINS
          xxd = 0.0_r_2
          diff(:,:) = 0.0_r_2
          ssnow%uptake_layer(:,:) = 0.0_r_2
+         DO i = 1, mp
+            CALL calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, veg, &
+               root_length, i, .TRUE.)
+         END DO
          DO k = 1, ms
 
             ! Removing transpiration from soil:
@@ -1753,6 +1757,10 @@ CONTAINS
          END DO
 
       ELSE
+         DO i = 1, mp
+            CALL calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, veg, &
+               root_length, i, .TRUE.)
+         END DO
          WHERE (canopy%fevc .lt. 0.0_r_2)
             canopy%fevw = canopy%fevw + real(canopy%fevc)
             canopy%fevc = 0.0_r_2
