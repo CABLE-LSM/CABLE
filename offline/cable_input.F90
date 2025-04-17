@@ -70,7 +70,8 @@ MODULE cable_input_module
        ncid_ps,         &
        ncid_qa,         &
        ncid_ta,         &
-       ncid_wd
+       ncid_wd,         &
+       test_ancillary_bug
 
    INTEGER                      ::                                        &
         ncid_met,        & ! met data netcdf file ID
@@ -2717,6 +2718,25 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
          casamet, casapool, casaflux, phen, verbose)
 
 END SUBROUTINE load_parameters
+
+  SUBROUTINE test_ancillary_bug(soil)
+   ! Re-insert bug when reading from binary ancillary BIOS specific soil data
+
+    TYPE(soil_parameter_type), INTENT(INOUT) :: soil
+
+    soil%bch = soil%bch_copy
+    soil%silt = soil%silt_copy
+    soil%clay = soil%clay_copy
+    soil%sand = soil%sand_copy
+    soil%css = soil%css_copy
+    soil%hyds = soil%hyds_copy
+    soil%sfc = soil%sfc_copy
+    soil%ssat = soil%ssat_copy
+    soil%sucs = soil%sucs_copy
+    soil%swilt = soil%swilt_copy
+    soil%rhosoil = soil%rhosoil_copy
+
+  END SUBROUTINE test_ancillary_bug
 
 
 !==============================================================================

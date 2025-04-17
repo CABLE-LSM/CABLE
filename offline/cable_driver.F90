@@ -71,7 +71,7 @@ PROGRAM cable_offline_driver
        report_version_no, kwidth_gl, handle_iostat
   use cable_data_module,    only: driver_type, point2constants
   use cable_input_module,   only: open_met_file, load_parameters, get_met_data, close_met_file, &
-       ncid_rain, ncid_snow, ncid_lw, ncid_sw, ncid_ps, ncid_qa, ncid_ta, ncid_wd
+       ncid_rain, ncid_snow, ncid_lw, ncid_sw, ncid_ps, ncid_qa, ncid_ta, ncid_wd, test_ancillary_bug
   use cable_output_module,  only: create_restart, open_output_file, write_output, close_output_file
   use cable_write_module,   only: nullify_write
   use cable_cbm_module
@@ -697,6 +697,11 @@ PROGRAM cable_offline_driver
               if (cable_user%POPLUC .and. &
                    (trim(cable_user%POPLUC_RunType) == 'static')) &
                    cable_user%POPLUC = .false.
+
+              ! Having read the default parameters, if this is a bios run we
+              ! will now overwrite the subset of them required for bios.
+                   if (trim(cable_user%MetType) .eq. 'bios') &
+                   call test_ancillary_bug(soil)
 
               ! Open output file
               if (.not. CASAONLY) then

@@ -1375,6 +1375,28 @@ CONTAINS
           soil%clay(landpt(e)%cstart:landpt(e)%cend) = &
                inclay(landpt(e)%ilon, landpt(e)%ilat)
 
+          soil%bch_copy(landpt(e)%cstart:landpt(e)%cend) = &
+               inbch(landpt(e)%ilon, landpt(e)%ilat)
+          soil%silt_copy(landpt(e)%cstart:landpt(e)%cend) = &
+               insilt(landpt(e)%ilon, landpt(e)%ilat)
+          soil%clay_copy(landpt(e)%cstart:landpt(e)%cend) = &
+               inclay(landpt(e)%ilon, landpt(e)%ilat)
+          soil%sand_copy(landpt(e)%cstart:landpt(e)%cend) = &
+               insand(landpt(e)%ilon, landpt(e)%ilat)
+          soil%css_copy(landpt(e)%cstart:landpt(e)%cend) = &
+               incss(landpt(e)%ilon, landpt(e)%ilat)
+          soil%hyds_copy(landpt(e)%cstart:landpt(e)%cend) = &
+               inhyds(landpt(e)%ilon, landpt(e)%ilat)
+          soil%sfc_copy(landpt(e)%cstart:landpt(e)%cend) = &
+               insfc(landpt(e)%ilon, landpt(e)%ilat)
+          soil%ssat_copy(landpt(e)%cstart:landpt(e)%cend) = &
+               inssat(landpt(e)%ilon, landpt(e)%ilat)
+          soil%sucs_copy(landpt(e)%cstart:landpt(e)%cend) = &
+               -1.* insucs(landpt(e)%ilon, landpt(e)%ilat)
+          soil%swilt_copy(landpt(e)%cstart:landpt(e)%cend) = &
+               inswilt(landpt(e)%ilon, landpt(e)%ilat)
+          soil%rhosoil_copy(landpt(e)%cstart:landpt(e)%cend) = &
+               inrhosoil(landpt(e)%ilon, landpt(e)%ilat)
 
        ENDIF
 

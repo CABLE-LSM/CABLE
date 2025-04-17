@@ -152,7 +152,20 @@ module cable_def_types_mod
           zshh => null(),    & ! distance between consecutive layer midpoints (m)
                                 ! vars intro for Ticket #27
           soilcol => null(), & ! keep color for all patches/tiles
-          albsoilf => null()   ! soil reflectance
+          albsoilf => null(), &  ! soil reflectance
+
+
+          bch_copy => null(),     & !
+          silt_copy => null(),    & !
+          clay_copy => null(),    & !
+          sand_copy => null(),    & !
+          css_copy => null(),     & !
+          hyds_copy => null(),     & !
+          sfc_copy => null(),     & !
+          ssat_copy => null(),    & !
+          sucs_copy => null(),    & !
+          swilt_copy => null(),   & !
+          rhosoil_copy => null() 
 
      real(r_2), dimension(:), pointer :: &
           cnsd => null(),    & ! thermal conductivity of dry soil [W/m/K]
@@ -912,6 +925,19 @@ contains
     allocate(soil%ssat_vec(mp,ms))
     allocate(soil%sfc_vec(mp,ms))
 
+    ! Bug
+    allocate(soil%bch_copy(mp))
+    allocate(soil%silt_copy(mp))
+    allocate(soil%clay_copy(mp))
+    allocate(soil%sand_copy(mp))
+    allocate(soil%css_copy(mp))
+    allocate(soil%hyds_copy(mp))
+    allocate(soil%sfc_copy(mp))
+    allocate(soil%ssat_copy(mp))
+    allocate(soil%sucs_copy(mp))
+    allocate(soil%swilt_copy(mp))
+    allocate(soil%rhosoil_copy(mp))
+
   end subroutine alloc_soil_parameter_type
 
   ! ------------------------------------------------------------------
@@ -1542,6 +1568,18 @@ contains
     if (associated(soil%ssat_vec))  deallocate(soil%ssat_vec)
     if (associated(soil%sfc_vec))   deallocate(soil%sfc_vec)
 
+    ! Bug
+    deallocate(soil%bch_copy)
+    deallocate(soil%silt_copy)
+    deallocate(soil%clay_copy)
+    deallocate(soil%sand_copy)
+    deallocate(soil%css_copy)
+    deallocate(soil%hyds_copy)
+    deallocate(soil%sfc_copy)
+    deallocate(soil%ssat_copy)
+    deallocate(soil%sucs_copy)
+    deallocate(soil%swilt_copy)
+    deallocate(soil%rhosoil_copy)
   end subroutine dealloc_soil_parameter_type
 
   ! ------------------------------------------------------------------
