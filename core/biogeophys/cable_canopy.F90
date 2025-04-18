@@ -456,7 +456,7 @@ CONTAINS
          ecy = rny - hcy        ! init current estimate latent heat
 
          sum_rad_rniso = sum(rad%rniso,2)
-         if (iter==1) then
+         if (iter==4) then
             wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
             DO j = 1, mp
                CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, j, wbpsdo)
@@ -1938,7 +1938,7 @@ CONTAINS
 
       !kdcorbin, 08/10 - doing all points all the time'
       allocate(nktau(3), nktau_end(3))
-      nktau=[93456,93459]
+      nktau=[80861,96215,100102]
       NN=2
       nktau_end = nktau + NN - 1
       m = size(nktau) * NN
@@ -1952,7 +1952,11 @@ CONTAINS
       !write(num_str, '(I0)') nktau
       ! txtname = trim(filename%path) // '/testIteration_cable_out_' // trim(num_str) &
       ! // '.txt'
-      txtname = trim(filename%path) // 'testIteration_cable_out.txt'
+      if (present (wbpsdo)) then
+         txtname = trim(filename%path) // 'testIteration_wbpsdo_cable_out.txt'
+      else
+         txtname = trim(filename%path) // 'testIteration_cable_out.txt'
+      endif
       ! if (any(nktau == ktau_tot) .and. iter==1) then
       !    if (ktau_tot == nktau(1)) then
       !        ! Open the file for overwrite if k is the first element
