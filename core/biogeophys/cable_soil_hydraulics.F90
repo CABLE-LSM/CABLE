@@ -14,7 +14,7 @@ MODULE cable_soil_hydraulics_module
 
 CONTAINS
    ! ----------------------------------------------------------------------------
-   SUBROUTINE calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length_density, i)
+   SUBROUTINE calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length_density, i, wbpsdo)
       ! Calculate root & soil hydraulic resistance following SPA approach
       ! (Williams et al.)
       !
@@ -57,7 +57,9 @@ CONTAINS
       TYPE (soil_parameter_type), INTENT(INOUT)   :: soil
       TYPE (veg_parameter_type), INTENT(INOUT)    :: veg
       TYPE (casa_pool),  INTENT(IN)           :: casapool
-
+      REAL, DIMENSION(:), INTENT(INOUT) :: root_length_density
+      real(r_2), dimension(:,:), intent(in), optional :: wbpsdo
+      INTEGER, INTENT(IN) :: i
       ! All from Williams et al. 2001, Tree phys
       REAL, PARAMETER :: root_radius = 0.0005                 ! m
       REAL, PARAMETER :: root_xsec_area = pi * root_radius**2 ! m2
@@ -80,13 +82,8 @@ CONTAINS
       REAL, DIMENSION(ms) :: depth
       REAL                :: root_mass, rs, Ksoil, root_biomass, root_depth, root_mass_density
       REAL                :: soil_resist, rsum, conv
+      real(r_2), dimension(mp,ms) :: wbtmp
 
-
-      REAL, DIMENSION(:), INTENT(INOUT) :: root_length_density
-      ! ratio Dry matter mass to g(C)
-      
-
-      INTEGER, INTENT(IN) :: i
       INTEGER :: j
 
       REAL               :: ht, stem_biomass
@@ -95,6 +92,11 @@ CONTAINS
       !REAL, PARAMETER    :: root_conduc = 1e-7 ! kg s-1 Mpa-1 m-1(root length)
       INTEGER, PARAMETER :: STEM_INDEX = 2
       
+      if (present(wbpsdo)) then
+         wbtmp = wbpsdo
+      else
+         wbtmp = ssnow%wb
+      endif
       ! stem_biomass = bgc%cplant(i,STEM_INDEX) * gC2DM
       ! ht = (Kbiometric**(3.0/4.0))*(4.*stem_biomass/(WD*PI))**(1.0/4.0)
 
@@ -127,7 +129,7 @@ CONTAINS
 
          ! Soil Hydraulic conductivity (m s-1), Campbell 1974
          Ksoil = soil%hyds(i) * &
-            (max(real(ssnow%wb(i,j)), soil%sres(i)) / soil%ssat(i))**(2.0 * soil%bch(i) + 3.0)
+            (max(real(wbtmp(i,j)), soil%sres(i)) / soil%ssat(i))**(2.0 * soil%bch(i) + 3.0)
 
          ! converts from m s-1 to m2 s-1 MPa-1
          Ksoil = Ksoil / (C%grav * C%RHOW * PA_2_MPa )
@@ -200,7 +202,7 @@ CONTAINS
    ! ----------------------------------------------------------------------------
 
    ! ----------------------------------------------------------------------------
-   SUBROUTINE calc_swp(ssnow, soil, i)
+   SUBROUTINE calc_swp(ssnow, soil, i, wbpsdo)
       ! Calculate the soil water potential.
       !
       ! Martin De Kauwe, 2019; Manon Sabot, 2022
@@ -226,12 +228,18 @@ CONTAINS
 
       TYPE (soil_snow_type), INTENT(INOUT)        :: ssnow
       TYPE (soil_parameter_type), INTENT(INOUT)   :: soil
+      real(r_2), dimension(:,:), intent(in), optional :: wbpsdo
 
       INTEGER             :: j
       INTEGER, INTENT(IN) :: i
       REAL                :: psi_sat, psi_wilt
-
+      real(r_2), dimension(mp,ms) :: wbtmp
       REAL, PARAMETER :: cmH2O_TO_MPa = 1.0 / (10.0 * 1036)
+      if (present(wbpsdo)) then
+         wbtmp = wbpsdo
+      else
+         wbtmp = ssnow%wb
+      endif
       call point2constants(C)
       ssnow%psi_soil(i,:) = 0.0 ! MPa
 
@@ -251,7 +259,7 @@ CONTAINS
          ! The bounding here can be considered as a physical disconnection of the
          ! roots from the soil.
 
-         ssnow%psi_soil(i,j) = psi_sat * MAX(1.E-9, MIN(1.0, real(ssnow%wb(i,j)) / &
+         ssnow%psi_soil(i,j) = psi_sat * MAX(1.E-9, MIN(1.0, real(wbtmp(i,j)) / &
             soil%ssat(i))) ** (-soil%bch(i))
 
          ! bound psi_soil by the wilting point in upper soil layers
@@ -263,7 +271,7 @@ CONTAINS
          ELSE IF (ssnow%wb(i,j) < soil%swilt(i)) THEN
 
             ssnow%psi_soil(i,j) = (-10.0 ** ((LOG10(-psi_wilt / cmH2O_TO_MPa) &
-               - 6.8) * ssnow%wb(i,j) / soil%swilt(i) + 6.8)) &
+               - 6.8) * wbtmp(i,j) / soil%swilt(i) + 6.8)) &
                * cmH2O_TO_MPa
 
          END IF

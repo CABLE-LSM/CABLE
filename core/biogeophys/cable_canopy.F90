@@ -45,8 +45,7 @@ MODULE cable_canopy_module
    use cable_common_module,  only: cable_user
    use cable_veg_hydraulics_module, only: optimisation, arrh, get_xylem_vulnerability, calc_plc
    USE cable_IO_vars_module, ONLY: logn
-   USE cable_soil_hydraulics_module, ONLY : calc_psix
-
+   USE cable_soil_hydraulics_module, ONLY : calc_soil_root_resistance, calc_swp, calc_psix
    implicit none
 
    public :: define_canopy, xvcmxt3, xejmxt3, ej3x, xrdt, xgmesT, &
@@ -148,6 +147,7 @@ CONTAINS
       INTEGER :: j
 
       INTEGER, SAVE :: call_number =0
+      REAL, DIMENSION(ms) :: root_length
 
       ! END header
 
@@ -458,6 +458,10 @@ CONTAINS
          sum_rad_rniso = sum(rad%rniso,2)
          if (iter==1) then
             wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
+            DO j = 1, mp
+               CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, j, wbpsdo)
+               CALL calc_swp(ssnow, soil, j, wbpsdo)
+            END DO
             CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
             veg, canopy, soil, ssnow, casapool, dsx, dsy, psilx, psily,&
             fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy, ecy, hcy,  &
