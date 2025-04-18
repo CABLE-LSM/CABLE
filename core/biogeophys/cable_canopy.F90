@@ -1966,10 +1966,18 @@ CONTAINS
       !        open(unit=134, file=txtname, status="unknown", position="append", action="write")
       !    end if
       ! end if
-      if (ktau_tot == nktau(1) .and. iter==1) then
-         ! Open the file for overwrite if k is the first element
-         open(unit=134, file=txtname, status="unknown", action="write")
-      end if
+
+      if (present (wbpsdo)) then
+         if (ktau_tot == nktau(1) .and. iter==4) then
+            ! Open the file for overwrite if k is the first element
+            open(unit=134, file=txtname, status="unknown", action="write")
+         end if
+      else
+         if (ktau_tot == nktau(1) .and. iter==1) then
+            ! Open the file for overwrite if k is the first element
+            open(unit=134, file=txtname, status="unknown", action="write")
+         end if
+      endif
       ! if (ktau_tot==nktau .and. iter==1) then
       ! open(unit=134, file=txtname)
       ! !print*, 'write iteration file '
