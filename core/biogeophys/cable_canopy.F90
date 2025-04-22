@@ -468,7 +468,13 @@ CONTAINS
             rny, gbhu, gbhf, csx, cansat,  &
             ghwet, iter, climate, wbpsdo)
          endif
-
+         if (iter==4) then
+            DO j = 1, mp
+               ! reset psi_soil, soilR and rootR back to the realistic value
+               CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, j)
+               CALL calc_swp(ssnow, soil, j)
+            END DO
+         endif
          CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
             veg, canopy, soil, ssnow, casapool, dsx, dsy, psilx, psily,&
             fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy, ecy, hcy,  &
