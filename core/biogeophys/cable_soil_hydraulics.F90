@@ -268,7 +268,7 @@ CONTAINS
             ssnow%psi_soil(i,j) = MAX(psi_wilt, ssnow%psi_soil(i,j))
 
             ! below wilting point, apply dry soil correction from Webb 2000
-         ELSE IF (ssnow%wb(i,j) < soil%swilt(i)) THEN
+         ELSE IF (wbtmp(i,j) < soil%swilt(i)) THEN
 
             ssnow%psi_soil(i,j) = (-10.0 ** ((LOG10(-psi_wilt / cmH2O_TO_MPa) &
                - 6.8) * wbtmp(i,j) / soil%swilt(i) + 6.8)) &
