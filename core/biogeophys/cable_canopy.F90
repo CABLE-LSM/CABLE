@@ -1970,7 +1970,7 @@ CONTAINS
       if (present (wbpsdo)) then
          if (ktau_tot == nktau(1) .and. iter==4) then
             ! Open the file for overwrite if k is the first element
-            open(unit=134, file=txtname, status="unknown", action="write")
+            open(unit=135, file=txtname, status="unknown", action="write")
          end if
       else
          if (ktau_tot == nktau(1) .and. iter==1) then
@@ -2757,12 +2757,22 @@ CONTAINS
             !print*, 'check after k==1 ',ktau,k
             !if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
             if (any(allktau == ktau_tot)) then
-            write(134,*) ktau_tot, iter, i, k, tlfx(i), deltlf(i), &
-            dsx(i),abs_deltds(i), psilx(i,1), psilx(i,2),abs_deltpsil(i,1),abs_deltpsil(i,2),fwpsi(i,1),fwpsi(i,2), &
-            psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2),anrubiscox(i,1),anrubiscox(i,2), &
-            anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
-            canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
-            vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2)
+               if (present (wbpsdo)) then 
+                  write(135,*) ktau_tot, iter, i, k, tlfx(i), deltlf(i), &
+                  dsx(i),abs_deltds(i), psilx(i,1), psilx(i,2),abs_deltpsil(i,1),abs_deltpsil(i,2),fwpsi(i,1),fwpsi(i,2), &
+                  psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2),anrubiscox(i,1),anrubiscox(i,2), &
+                  anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
+                  canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
+                  vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2)
+               else
+                  write(134,*) ktau_tot, iter, i, k, tlfx(i), deltlf(i), &
+                  dsx(i),abs_deltds(i), psilx(i,1), psilx(i,2),abs_deltpsil(i,1),abs_deltpsil(i,2),fwpsi(i,1),fwpsi(i,2), &
+                  psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2),anrubiscox(i,1),anrubiscox(i,2), &
+                  anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
+                  canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
+                  vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2)
+               endif
+
             END IF
             ! if (ktau>=5184) then
             ! print*, 'write 134 ',ktau,k
@@ -2801,7 +2811,11 @@ CONTAINS
       !if (ktau_tot==(nktau+NN-1)  .and. iter==4) THEN
       !if (any(nktau_end == ktau_tot) .and. iter==4) THEN
       if (ktau_tot == nktau_end(size(nktau_end)) .and. iter==4) THEN
-         close(134)
+         if (present (wbpsdo)) then 
+            close(135)
+         else
+            close(134)
+         endif
       END IF
       deallocate(nktau) 
       deallocate(nktau_end) 
