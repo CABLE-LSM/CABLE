@@ -115,19 +115,28 @@ CONTAINS
       REAL, DIMENSION(:), POINTER :: &
          cansat => null(),        & ! max canopy intercept. (mm)
          dsx => null(),           & ! leaf surface vpd
+         dsxpsdo => null(),           & 
          dsy => null(),           & 
+         dsypsdo => null(),           & 
          fwsoil => null(),        & ! soil water modifier of stom. cond
+         fwsoilpsdo => null(),        &
          fwsoiltmp => null(),        & 
+         fwsoiltmppsdo => null(),        & 
          tlfx => null(),          & ! leaf temp prev. iter (K)
-         tlfy => null()             ! leaf temp (K)
+         tlfxpsdo => null(),          &
+         tlfy => null(),            & ! leaf temp (K)
+         tlfypsdo => null()
 
       REAL(r_2), DIMENSION(mp) :: &
          gbvtop                   ! bnd layer cond. top leaf
 
       REAL(r_2), DIMENSION(:), POINTER :: &
          ecy => null(),           & ! lat heat fl dry big leaf
+         ecypsdo => null(),           &
          hcy => null(),           & ! veg. sens heat
+         hcypsdo => null(),           &
          rny => null(),           & ! net rad
+         rnypsdo => null(),           &
          ghwet => null()           ! cond for heat for a wet canopy
 
 
@@ -136,9 +145,13 @@ CONTAINS
          gbhu => null(),          & ! forcedConvectionBndryLayerCond
          gbhf => null(),          & ! freeConvectionBndryLayerCond
          csx => null(),           &   ! leaf surface CO2 concentration
+         csxpsdo => null(),           &
          psily => null() ,        &
+         psilypsdo => null() ,        &
          psilx => null(),         &
+         psilxpsdo => null(),         &
          fwpsi => null(), &      ! psi leaf modifier of stom. cond zihan lu 02/11/2024
+         fwpsipsdo => null(), &  
          wbpsdo => null()
 
       REAL :: rt_min
@@ -159,9 +172,11 @@ CONTAINS
       IF (.NOT. cable_runtime%um) canopy%cansto = canopy%oldcansto
 
       ALLOCATE(cansat(mp), gbhu(mp,mf))
-      ALLOCATE(dsx(mp), dsy(mp),fwsoil(mp), fwsoiltmp(mp), tlfx(mp), tlfy(mp))
-      ALLOCATE(ecy(mp), hcy(mp), rny(mp))
-      ALLOCATE(gbhf(mp,mf), csx(mp,mf), psilx(mp,mf), psily(mp,mf), fwpsi(mp,mf))
+      ALLOCATE(dsx(mp),dsxpsdo(mp), dsy(mp),dsypsdo(mp),fwsoil(mp), fwsoilpsdo(mp),fwsoiltmp(mp),fwsoiltmppsdo(mp), &
+            tlfx(mp), tlfxpsdo(mp),tlfy(mp),tlfypsdo(mp))
+      ALLOCATE(ecy(mp), ecypsdo(mp), hcy(mp), hcypsdo(mp), rny(mp), rnypsdo(mp))
+      ALLOCATE(gbhf(mp,mf), csx(mp,mf), csxpsdo(mp,mf), psilx(mp,mf), psilxpsdo(mp,mf), psily(mp,mf), psilypsdo(mp,mf), &
+       fwpsi(mp,mf), fwpsipsdo(mp,mf))
       ALLOCATE(ghwet(mp))
       ALLOCATE(wbpsdo(mp,ms))
 
@@ -194,17 +209,21 @@ CONTAINS
       ssnow%rex       = 0.0_r_2
       ! Initialise in-canopy temperatures and humidity:
       csx = SPREAD(real(met%ca,r_2), 2, mf) ! initialise leaf surface CO2 concentration
+      csxpsdo = csx
       if (ktau_tot==1) then
          !canopy%psi_can = SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
          canopy%psi_can = SPREAD(real(canopy%psix,r_2), 2, mf)
       endif
       psilx = canopy%psi_can  ! SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
+      psilxpsdo = psilx
       psily = canopy%psi_can  ! SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
+      psilypsdo = psily
 
       fwpsi(:, 1) = (1.0_r_2 +exp(veg%g2(:) * veg%psi_ref(:))) / &
          (1.0_r_2 + exp(veg%g2(:) * (veg%psi_ref(:) - psilx(:, 1))))
       fwpsi(:, 2) = (1.0_r_2 +exp(veg%g2(:) * veg%psi_ref(:))) / &
          (1.0_r_2 + exp(veg%g2(:) * (veg%psi_ref(:) - psilx(:, 2))))
+      fwpsipsdo = fwpsi
       !print*, 'Entry psi ', psilx(:, 1)
       !print*, 'Entry fwpsi ', fwpsi(:, 1)
 
@@ -260,9 +279,13 @@ CONTAINS
       met%dva = (qstvair - met%qvair) *  C%rmair/C%rmh2o * met%pmb * 100.0 
       dsx     = met%dva     ! init. leaf surface vpd
       dsx     = max(dsx, 0.0)
+      dsxpsdo = dsx
       dsy = dsx
+      dsypsdo = dsy
       tlfx    = met%tk  ! initialise leaf temp iteration memory variable (K)
+      tlfxpsdo = tlfx
       tlfy    = met%tk  ! initialise current leaf temp (K)
+      tlfypsdo = tlfy
 
       ortsoil = ssnow%rtsoil
       IF (cable_user%soil_struc=='default') then
@@ -452,8 +475,11 @@ CONTAINS
          ! print*, 'RR26 ', rad%extkb
 
          rny = sum(real(rad%rniso,r_2), 2) ! init current estimate net rad
+         rnypsdo = rny
          hcy = 0.0_r_2          ! init current estimate sensible heat
+         hcypsdo = hcy
          ecy = rny - hcy        ! init current estimate latent heat
+         ecypsdo = ecy
 
          sum_rad_rniso = sum(rad%rniso,2)
          if (iter==4) then
@@ -463,9 +489,9 @@ CONTAINS
                CALL calc_swp(ssnow, soil, j, wbpsdo)
             END DO
             CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
-            veg, canopy, soil, ssnow, casapool, dsx, dsy, psilx, psily,&
-            fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy, ecy, hcy,  &
-            rny, gbhu, gbhf, csx, cansat,  &
+            veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo,&
+            fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
+            rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
             ghwet, iter, climate, wbpsdo)
          endif
          if (iter==4) then
@@ -2835,211 +2861,211 @@ CONTAINS
          canopy%epotcan3 = canopy%fevc
       endif
       if (.NOT. present (wbpsdo)) then
-      canopy%abs_deltpsil = abs_deltpsil
-      canopy%abs_deltcs = abs_deltcs * 1.0e6_r_2
-      canopy%abs_deltlf = abs_deltlf
-      canopy%abs_deltds = abs_deltds
+         canopy%abs_deltpsil = abs_deltpsil
+         canopy%abs_deltcs = abs_deltcs * 1.0e6_r_2
+         canopy%abs_deltlf = abs_deltlf
+         canopy%abs_deltds = abs_deltds
 
 
-      !write(logn,*) 'fevc', canopy%fevc(1)
-      ! print*, 'DD45 ', canopy%fwet
-      ! print*, 'DD46 ', canopy%fevc
-      IF (cable_user%fwsoil_switch.NE.'Haverd2013' .AND. cable_user%fwsoil_switch.NE.'profitmax') THEN
+         !write(logn,*) 'fevc', canopy%fevc(1)
+         ! print*, 'DD45 ', canopy%fwet
+         ! print*, 'DD46 ', canopy%fevc
+         IF (cable_user%fwsoil_switch.NE.'Haverd2013' .AND. cable_user%fwsoil_switch.NE.'profitmax') THEN
 
-         ! Recalculate ssnow%evapfbl as ecy may not be updated with the ecx
-         ! calculated in the last iteration.
-         ! DO NOT use simple scaling as there are times that ssnow%evapfbl is zero.
-         ! ** ssnow%evapfbl(i,:) = ssnow%evapfbl(i,:) * ecy(i) / ecx(i) **
-         DO i = 1, mp
+            ! Recalculate ssnow%evapfbl as ecy may not be updated with the ecx
+            ! calculated in the last iteration.
+            ! DO NOT use simple scaling as there are times that ssnow%evapfbl is zero.
+            ! ** ssnow%evapfbl(i,:) = ssnow%evapfbl(i,:) * ecy(i) / ecx(i) **
+            DO i = 1, mp
 
-            IF( ecy(i) > 0.0_r_2 .AND. canopy%fwet(i) < 1.0 ) THEN
+               IF( ecy(i) > 0.0_r_2 .AND. canopy%fwet(i) < 1.0 ) THEN
 
-               IF( ABS( ecy(i) - ecx(i) ) > 1.0e-6_r_2 ) THEN
+                  IF( ABS( ecy(i) - ecx(i) ) > 1.0e-6_r_2 ) THEN
 
-                  IF( ABS( canopy%fevc(i) - real(SUM(oldevapfbl(i,:)) * air%rlam(i) &
-                     /dels, r_2) ) > 1.0e-4_r_2 ) THEN
+                     IF( ABS( canopy%fevc(i) - real(SUM(oldevapfbl(i,:)) * air%rlam(i) &
+                        /dels, r_2) ) > 1.0e-4_r_2 ) THEN
 
-                     WRITE(*,*) 'ERROR! oldevapfbl not right.', ktau_gl, i
-                     WRITE(*,*) 'ecx, ecy = ', ecx(i), ecy(i)
-                     WRITE(*,*) 'or in mm = ', ecx(i) * ( 1.0 - canopy%fwet(i) ) &
-                        / air%rlam(i) * dels, &
-                        ecy(i) * ( 1.0 - canopy%fwet(i) ) / &
-                        air%rlam(i) * dels
+                        WRITE(*,*) 'ERROR! oldevapfbl not right.', ktau_gl, i
+                        WRITE(*,*) 'ecx, ecy = ', ecx(i), ecy(i)
+                        WRITE(*,*) 'or in mm = ', ecx(i) * ( 1.0 - canopy%fwet(i) ) &
+                           / air%rlam(i) * dels, &
+                           ecy(i) * ( 1.0 - canopy%fwet(i) ) / &
+                           air%rlam(i) * dels
 
-                     WRITE(*,*)'fevc = ', canopy%fevc(i), SUM( oldevapfbl(i,:) ) * &
-                        air%rlam(i) / dels
-                     WRITE(*,*) 'fwet = ', canopy%fwet(i)
-                     WRITE(*,*) 'oldevapfbl = ', oldevapfbl(i,:)
-                     WRITE(*,*) 'ssnow%evapfbl before rescaling: ', &
-                        ssnow%evapfbl(i,:)
-                     ! STOP
+                        WRITE(*,*)'fevc = ', canopy%fevc(i), SUM( oldevapfbl(i,:) ) * &
+                           air%rlam(i) / dels
+                        WRITE(*,*) 'fwet = ', canopy%fwet(i)
+                        WRITE(*,*) 'oldevapfbl = ', oldevapfbl(i,:)
+                        WRITE(*,*) 'ssnow%evapfbl before rescaling: ', &
+                           ssnow%evapfbl(i,:)
+                        ! STOP
 
-                  ELSE
+                     ELSE
 
-                     ssnow%evapfbl(i,:) = oldevapfbl(i,:)
+                        ssnow%evapfbl(i,:) = oldevapfbl(i,:)
+
+                     END IF
 
                   END IF
 
                END IF
 
-            END IF
+            END DO
 
-         END DO
+         ENDIF
+         ! print*, 'Recalculate ssnow%evapfbl: ktau: ',ktau
+         canopy%psi_can = real(psily, r_2)
+         canopy%frday = 12.0 * SUM(rdy, 2)
+         !! vh !! inserted min to avoid -ve values of GPP
+         canopy%fpn = min(-12.0 * SUM(an_y, 2), canopy%frday)
+         ! change canopy%gswx from gswx to gswy, zihanlu, 19/12/2024
+         canopy%gswx = gswy
+         canopy%fwpsi = fwpsiy
+         ! additional diagnostic variables for assessing contributions of rubisco and rubp limited photosynthesis to
+         ! net photosynthesis in sunlit and shaded leaves.
+         canopy%A_sh = real(an_y(:,2), r_2)
+         canopy%A_sl = real(an_y(:,1), r_2)
 
-      ENDIF
-      ! print*, 'Recalculate ssnow%evapfbl: ktau: ',ktau
-      canopy%psi_can = real(psily, r_2)
-      canopy%frday = 12.0 * SUM(rdy, 2)
-      !! vh !! inserted min to avoid -ve values of GPP
-      canopy%fpn = min(-12.0 * SUM(an_y, 2), canopy%frday)
-      ! change canopy%gswx from gswx to gswy, zihanlu, 19/12/2024
-      canopy%gswx = gswy
-      canopy%fwpsi = fwpsiy
-      ! additional diagnostic variables for assessing contributions of rubisco and rubp limited photosynthesis to
-      ! net photosynthesis in sunlit and shaded leaves.
-      canopy%A_sh = real(an_y(:,2), r_2)
-      canopy%A_sl = real(an_y(:,1), r_2)
+         canopy%GPP_sh = real(an_y(:,2) + rdy(:,2), r_2)
+         canopy%GPP_sl = real(an_y(:,1) + rdy(:,1), r_2)
 
-      canopy%GPP_sh = real(an_y(:,2) + rdy(:,2), r_2)
-      canopy%GPP_sl = real(an_y(:,1) + rdy(:,1), r_2)
+         canopy%A_shC = real(anrubiscoy(:,2), r_2)
+         canopy%A_shJ = real(anrubpy(:,2), r_2)
 
-      canopy%A_shC = real(anrubiscoy(:,2), r_2)
-      canopy%A_shJ = real(anrubpy(:,2), r_2)
+         where (anrubiscoy(:,2) > an_y(:,2)) canopy%A_shC = 0.0_r_2
+         where (anrubpy(:,2) > an_y(:,2))    canopy%A_shJ = 0.0_r_2
+         
+         canopy%A_slC = real(anrubiscoy(:,1), r_2)
+         canopy%A_slJ = real(anrubpy(:,1), r_2)
+         !if (ktau>=5760 .AND. ktau<=11664) then
+         ! if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
+         !    print*, 'value y:',canopy%A_slC, canopy%A_sl
+         ! endif
+         where (anrubiscoy(:,1) > an_y(:,1)) canopy%A_slC = 0.0_r_2
+         where (anrubpy(:,1)    > an_y(:,1)) canopy%A_slJ = 0.0_r_2
 
-      where (anrubiscoy(:,2) > an_y(:,2)) canopy%A_shC = 0.0_r_2
-      where (anrubpy(:,2) > an_y(:,2))    canopy%A_shJ = 0.0_r_2
-      
-      canopy%A_slC = real(anrubiscoy(:,1), r_2)
-      canopy%A_slJ = real(anrubpy(:,1), r_2)
-      !if (ktau>=5760 .AND. ktau<=11664) then
-      ! if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
-      !    print*, 'value y:',canopy%A_slC, canopy%A_sl
-      ! endif
-      where (anrubiscoy(:,1) > an_y(:,1)) canopy%A_slC = 0.0_r_2
-      where (anrubpy(:,1)    > an_y(:,1)) canopy%A_slJ = 0.0_r_2
+         canopy%eta_A_cs = canopy%A_sh * min(eta_y(:,2),5.0_r_2) + canopy%A_sl * min(eta_y(:,1),5.0_r_2)
+         where ((canopy%A_sl > 0.0_r_2) .and. (canopy%A_sh > 0.0_r_2))
+            canopy%eta_GPP_cs = canopy%GPP_sh  * min(eta_y(:,2),5.0_r_2) * canopy%GPP_sh/canopy%A_sh + &
+               canopy%GPP_sl * min(eta_y(:,1),5.0_r_2)* canopy%GPP_sl/canopy%A_sl
+         elsewhere ((canopy%A_sl .le. 0.0_r_2) .and. (canopy%A_sh > 0.0_r_2))
+            canopy%eta_GPP_cs = canopy%GPP_sh * min(eta_y(:,2),5.0_r_2) * canopy%GPP_sh/canopy%A_sh
+         elsewhere
+            canopy%eta_GPP_cs = canopy%eta_A_cs
+         end where
+         ! change from gs_coeff to gs_coeffy
+         where (canopy%A_sl > 0.0_r_2)
+            canopy%eta_A_cs_sl    =  min(eta_y(:,1),5.0_r_2)
+            canopy%eta_fevc_cs_sl = (min(eta_y(:,1),5.0_r_2) - 1.0_r_2) * &
+               real(max(0.0, gs_coeffy(:,1)*an_y(:,1)), r_2) / real(canopy%gswx(:,1), r_2)
+         elsewhere
+            canopy%eta_A_cs_sl    = 0.0_r_2
+            canopy%eta_fevc_cs_sl = 0.0_r_2
+         endwhere
+         ! change from gs_coeff to gs_coeffy
+         where (canopy%A_sh > 0.0_r_2)
+            canopy%eta_A_cs_sh    =  min(eta_y(:,2),5.0_r_2)
+            canopy%eta_fevc_cs_sh = (min(eta_y(:,2),5.0_r_2) - 1.0_r_2) * &
+               real(max(0.0, gs_coeffy(:,2)*an_y(:,2)), r_2) / real(canopy%gswx(:,2), r_2)
+         elsewhere
+            canopy%eta_A_cs_sh    = 0.0_r_2
+            canopy%eta_fevc_cs_sh = 0.0_r_2
+         endwhere
 
-      canopy%eta_A_cs = canopy%A_sh * min(eta_y(:,2),5.0_r_2) + canopy%A_sl * min(eta_y(:,1),5.0_r_2)
-      where ((canopy%A_sl > 0.0_r_2) .and. (canopy%A_sh > 0.0_r_2))
-         canopy%eta_GPP_cs = canopy%GPP_sh  * min(eta_y(:,2),5.0_r_2) * canopy%GPP_sh/canopy%A_sh + &
-            canopy%GPP_sl * min(eta_y(:,1),5.0_r_2)* canopy%GPP_sl/canopy%A_sl
-      elsewhere ((canopy%A_sl .le. 0.0_r_2) .and. (canopy%A_sh > 0.0_r_2))
-         canopy%eta_GPP_cs = canopy%GPP_sh * min(eta_y(:,2),5.0_r_2) * canopy%GPP_sh/canopy%A_sh
-      elsewhere
-         canopy%eta_GPP_cs = canopy%eta_A_cs
-      end where
-      ! change from gs_coeff to gs_coeffy
-      where (canopy%A_sl > 0.0_r_2)
-         canopy%eta_A_cs_sl    =  min(eta_y(:,1),5.0_r_2)
-         canopy%eta_fevc_cs_sl = (min(eta_y(:,1),5.0_r_2) - 1.0_r_2) * &
-            real(max(0.0, gs_coeffy(:,1)*an_y(:,1)), r_2) / real(canopy%gswx(:,1), r_2)
-      elsewhere
-         canopy%eta_A_cs_sl    = 0.0_r_2
-         canopy%eta_fevc_cs_sl = 0.0_r_2
-      endwhere
-      ! change from gs_coeff to gs_coeffy
-      where (canopy%A_sh > 0.0_r_2)
-         canopy%eta_A_cs_sh    =  min(eta_y(:,2),5.0_r_2)
-         canopy%eta_fevc_cs_sh = (min(eta_y(:,2),5.0_r_2) - 1.0_r_2) * &
-            real(max(0.0, gs_coeffy(:,2)*an_y(:,2)), r_2) / real(canopy%gswx(:,2), r_2)
-      elsewhere
-         canopy%eta_A_cs_sh    = 0.0_r_2
-         canopy%eta_fevc_cs_sh = 0.0_r_2
-      endwhere
+         where ((rad%fvlai(:,1)+rad%fvlai(:,2)) > 0.01)
+            canopy%eta_fevc_cs = ( canopy%eta_fevc_cs_sl *  real(rad%fvlai(:,1), r_2) + &
+               canopy%eta_fevc_cs_sh * real(rad%fvlai(:,2), r_2) ) * canopy%fevc / &
+               real(rad%fvlai(:,1)+rad%fvlai(:,2), r_2)
+         elsewhere
+            canopy%eta_fevc_cs = 0.0_r_2
+         endwhere
+         ! canopy%cs_sl = csx(:,1) * 1.0e6_r_2
+         ! canopy%cs_sh = csx(:,2) * 1.0e6_r_2
+         ! change canopy%cs from csx to csy, zihanlu, 19/12/2024
+         canopy%cs_sl = csy(:,1) * 1.0e6_r_2
+         canopy%cs_sh = csy(:,2) * 1.0e6_r_2
 
-      where ((rad%fvlai(:,1)+rad%fvlai(:,2)) > 0.01)
-         canopy%eta_fevc_cs = ( canopy%eta_fevc_cs_sl *  real(rad%fvlai(:,1), r_2) + &
-            canopy%eta_fevc_cs_sh * real(rad%fvlai(:,2), r_2) ) * canopy%fevc / &
-            real(rad%fvlai(:,1)+rad%fvlai(:,2), r_2)
-      elsewhere
-         canopy%eta_fevc_cs = 0.0_r_2
-      endwhere
-      ! canopy%cs_sl = csx(:,1) * 1.0e6_r_2
-      ! canopy%cs_sh = csx(:,2) * 1.0e6_r_2
-      ! change canopy%cs from csx to csy, zihanlu, 19/12/2024
-      canopy%cs_sl = csy(:,1) * 1.0e6_r_2
-      canopy%cs_sh = csy(:,2) * 1.0e6_r_2
+         canopy%dAdcs = canopy%A_sl * dAn_y(:,1) + canopy%A_sh * dAn_y(:,2)
+         canopy%cs    = canopy%A_sl * canopy%cs_sl * 1.0e6_r_2 + canopy%A_sh * canopy%cs_sh * 1.0e6_r_2
 
-      canopy%dAdcs = canopy%A_sl * dAn_y(:,1) + canopy%A_sh * dAn_y(:,2)
-      canopy%cs    = canopy%A_sl * canopy%cs_sl * 1.0e6_r_2 + canopy%A_sh * canopy%cs_sh * 1.0e6_r_2
-
-      canopy%tlf   = real(tlfy, r_2)
-      ! change canopy%dlf from dsx to dsy, zihanlu, 19/12/2024
-      !canopy%dlf   = real(dsx, r_2)
-      canopy%dlf   = real(dsy, r_2)
+         canopy%tlf   = real(tlfy, r_2)
+         ! change canopy%dlf from dsx to dsy, zihanlu, 19/12/2024
+         !canopy%dlf   = real(dsx, r_2)
+         canopy%dlf   = real(dsy, r_2)
 
 
-      ! print*, 'DD47 ', ssnow%evapfbl
-      canopy%evapfbl = ssnow%evapfbl
+         ! print*, 'DD47 ', ssnow%evapfbl
+         canopy%evapfbl = ssnow%evapfbl
 
-      ! 13C
-      canopy%An        = real(an_y, r_2)
-      canopy%Rd        = real(rdy, r_2)
-      canopy%isc3      = (1.0-veg%frac4) > epsilon(1.0)
-      ! change from vcmxt3 to vcmxt3y, 
-      canopy%vcmax     = real(merge(vcmxt3y, vcmxt4y, spread(canopy%isc3,2,mf)), r_2)
-       ! change from cx2 to cx2y, 
-      canopy%gammastar = real(spread(cx2y*0.5,2,mf), r_2)
-      canopy%gsc       = real(canopy%gswx / C%rgswc, r_2)
-      canopy%gbc       = (gbhu + gbhf) / real(C%rgbwc, r_2)
-      canopy%gac       = huge(1.0_r_2)
-      ! replace 1.0_r_2/canopy%gac by tiny(1.0_r_2) to avoid underflow
-      canopy%ci        = real(spread(met%ca, 2, mf), r_2) - &
-         canopy%An / &
-         (1.0_r_2 / (1.0_r_2/canopy%gbc + 1.0_r_2/canopy%gsc + tiny(1.0_r_2)))
-      IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
-         canopy%fevcs = (1.0-canopy%fwet) * ecxs  ! trans. from sapflux
+         ! 13C
+         canopy%An        = real(an_y, r_2)
+         canopy%Rd        = real(rdy, r_2)
+         canopy%isc3      = (1.0-veg%frac4) > epsilon(1.0)
+         ! change from vcmxt3 to vcmxt3y, 
+         canopy%vcmax     = real(merge(vcmxt3y, vcmxt4y, spread(canopy%isc3,2,mf)), r_2)
+         ! change from cx2 to cx2y, 
+         canopy%gammastar = real(spread(cx2y*0.5,2,mf), r_2)
+         canopy%gsc       = real(canopy%gswx / C%rgswc, r_2)
+         canopy%gbc       = (gbhu + gbhf) / real(C%rgbwc, r_2)
+         canopy%gac       = huge(1.0_r_2)
+         ! replace 1.0_r_2/canopy%gac by tiny(1.0_r_2) to avoid underflow
+         canopy%ci        = real(spread(met%ca, 2, mf), r_2) - &
+            canopy%An / &
+            (1.0_r_2 / (1.0_r_2/canopy%gbc + 1.0_r_2/canopy%gsc + tiny(1.0_r_2)))
+         IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
+            canopy%fevcs = (1.0-canopy%fwet) * ecxs  ! trans. from sapflux
 
-         DO i = 1, mp
+            DO i = 1, mp
 
-            new_plc_sat = calc_plc(kcmax(i), veg%kmax(i), veg%PLCcrit(i))
+               new_plc_sat = calc_plc(kcmax(i), veg%kmax(i), veg%PLCcrit(i))
 
-            IF (canopy%psi_can_opt(i) < ssnow%psi_rootzone(i) .AND. ecxs(i) > 1E-9) THEN
-               IF (avg_kcan(i) > 1E-9 .AND. avg_kcan(i) < veg%kmax(i)) THEN
+               IF (canopy%psi_can_opt(i) < ssnow%psi_rootzone(i) .AND. ecxs(i) > 1E-9) THEN
+                  IF (avg_kcan(i) > 1E-9 .AND. avg_kcan(i) < veg%kmax(i)) THEN
 
-                  ! Partitioning ratios from Drake et al. (2015), PC&E, 38: 1628-1636.
-                  new_plc_stem = calc_plc(5. / (2. / avg_kcan(i) + 3. / kcmax(i)), &
-                     veg%kmax(i), veg%PLCcrit(i)) ! 2:5 to 3:5
+                     ! Partitioning ratios from Drake et al. (2015), PC&E, 38: 1628-1636.
+                     new_plc_stem = calc_plc(5. / (2. / avg_kcan(i) + 3. / kcmax(i)), &
+                        veg%kmax(i), veg%PLCcrit(i)) ! 2:5 to 3:5
 
-                  new_plc_can = calc_plc(avg_kcan(i), veg%kmax(i), veg%PLCcrit(i))
+                     new_plc_can = calc_plc(avg_kcan(i), veg%kmax(i), veg%PLCcrit(i))
+
+                  ELSE
+                     new_plc_stem = 0.0
+                     new_plc_can = 0.0
+                  ENDIF
 
                ELSE
                   new_plc_stem = 0.0
                   new_plc_can = 0.0
                ENDIF
 
-            ELSE
-               new_plc_stem = 0.0
-               new_plc_can = 0.0
-            ENDIF
+               IF (new_plc_sat > canopy%day_plc_sat(i)) THEN
+                  canopy%day_plc_sat(:) = new_plc_sat
+               ENDIF
 
-            IF (new_plc_sat > canopy%day_plc_sat(i)) THEN
-               canopy%day_plc_sat(:) = new_plc_sat
-            ENDIF
+               IF (new_plc_stem > canopy%day_plc_stem(i)) THEN
+                  canopy%day_plc_stem(:) = new_plc_stem
+               ENDIF
 
-            IF (new_plc_stem > canopy%day_plc_stem(i)) THEN
-               canopy%day_plc_stem(:) = new_plc_stem
-            ENDIF
+               IF (new_plc_can > canopy%day_plc_can(i)) THEN
+                  canopy%day_plc_can(:) = new_plc_can
+               ENDIF
 
-            IF (new_plc_can > canopy%day_plc_can(i)) THEN
-               canopy%day_plc_can(:) = new_plc_can
-            ENDIF
+               ! set the day's PLC and reset the PLC tracker here
+               IF (met%hod(i) >= 24.0 - dels / (60.0 * 60.0) - 1E-6) THEN
+                  canopy%day_plc_sat(:) = 0.0
+                  canopy%day_plc_stem(:) = 0.0
+                  canopy%day_plc_can(:) = 0.0
 
-            ! set the day's PLC and reset the PLC tracker here
-            IF (met%hod(i) >= 24.0 - dels / (60.0 * 60.0) - 1E-6) THEN
-               canopy%day_plc_sat(:) = 0.0
-               canopy%day_plc_stem(:) = 0.0
-               canopy%day_plc_can(:) = 0.0
+               ELSE IF (met%hod(i) >= 24.0 - 2.0 * dels / (60.0 * 60.0) - 1E-6) THEN
+                  canopy%plc_sat(i) = canopy%day_plc_sat(i)
+                  canopy%plc_stem(i) = canopy%day_plc_stem(i)
+                  canopy%plc_can(i) = canopy%day_plc_can(i)
+               ENDIF
 
-            ELSE IF (met%hod(i) >= 24.0 - 2.0 * dels / (60.0 * 60.0) - 1E-6) THEN
-               canopy%plc_sat(i) = canopy%day_plc_sat(i)
-               canopy%plc_stem(i) = canopy%day_plc_stem(i)
-               canopy%plc_can(i) = canopy%day_plc_can(i)
-            ENDIF
-
-         END DO
-      ENDIF
-      ! deallocate( gswmin )
-   endif ! if not present wbpsdo
+            END DO
+         ENDIF
+         ! deallocate( gswmin )
+      endif ! if not present wbpsdo
 
    END SUBROUTINE dryLeaf
 
