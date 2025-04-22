@@ -215,9 +215,9 @@ CONTAINS
          canopy%psi_can = SPREAD(real(canopy%psix,r_2), 2, mf)
       endif
       psilx = canopy%psi_can  ! SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
-      psilxpsdo = psilx
+      
       psily = canopy%psi_can  ! SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
-      psilypsdo = psily
+      
 
       fwpsi(:, 1) = (1.0_r_2 +exp(veg%g2(:) * veg%psi_ref(:))) / &
          (1.0_r_2 + exp(veg%g2(:) * (veg%psi_ref(:) - psilx(:, 1))))
@@ -488,6 +488,19 @@ CONTAINS
                CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, j, wbpsdo)
                CALL calc_swp(ssnow, soil, j, wbpsdo)
             END DO
+            dsxpsdo = dsx
+            dsypsdo = dsy
+            psilxpsdo = psilx
+            psilypsdo = psily
+            fwsoilpsdo = fwsoil
+            fwsoiltmppsdo = fwsoiltmp
+            fwpsipsdo = fwpsi
+            tlfxpsdo = tlfx
+            tlfypsdo = tlfy
+            ecypsdo = ecy
+            hcypsdo = hcy
+            rnypsdo = rny
+            csxpsdo = csx
             CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
             veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo,&
             fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
