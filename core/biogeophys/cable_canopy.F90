@@ -1983,7 +1983,7 @@ CONTAINS
 
       !kdcorbin, 08/10 - doing all points all the time'
       !allocate(nktau(4), nktau_end(4))
-      nktau=[80861,96215,79029,82966]
+      nktau=[79029,80861,82966,96215]
       NN=2
       nktau_end = nktau + NN - 1
       
