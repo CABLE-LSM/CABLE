@@ -514,8 +514,13 @@ CONTAINS
          DO k = 1, ms
             sumpsiksoil = sumpsiksoil + ssnow%psi_soil(i,k) / (ssnow%soilR(i,k) + ssnow%rootR(i,k) )
             sumksoil = sumksoil + 1.0 / (ssnow%soilR(i,k) + ssnow%rootR(i,k) )
+            if (k==1) then
+               print*, 'calc_psix: psi_soil ',ssnow%psi_soil(i,k)
+               print*, 'calc_psix: ksoil, rootR ',1.0/ssnow%soilR(i,k), ssnow%rootR(i,k)
+            endif
          END DO
          psix = (sumpsiksoil - ex) / sumksoil
+         print*, 'calc_psix: psix ',psix
          !canopy%psix(i) = psi_sr - ex / veg%kmax(i)
          !psix = psi_sr - ex / veg%kmax(i)
          ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
