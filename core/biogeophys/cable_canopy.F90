@@ -1969,10 +1969,11 @@ CONTAINS
       
 
       !kdcorbin, 08/10 - doing all points all the time'
-      allocate(nktau(3), nktau_end(3))
-      nktau=[80861,96215,100102]
+      !allocate(nktau(4), nktau_end(4))
+      nktau=[80861,96215,79029,82966]
       NN=2
       nktau_end = nktau + NN - 1
+      
       m = size(nktau) * NN
       allocate(allktau(m))
       do i = 1, size(nktau)
@@ -2563,11 +2564,18 @@ CONTAINS
                   kplantx(i) = kplantxi
                   psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
                   psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
-                  if (any(allktau == ktau_tot)) then
+                  if (any(allktau == ktau_tot) .and. (iter==4)) then
                   print*,'ktau_tot, i and k',ktau_tot, iter, k
-                  print*, '         ex, psix and kplant: ',max(sum(real(ex(i,:),r_2)), 0.0_r_2), psixx(i), kplantx(i)
-                  print*, '         psilx: ', psilx(i,1)
+                  if (present(wbpsdo)) then
+                     print*, '    psdo ex, psix and kplant: ',max(sum(real(ex(i,:),r_2)), 0.0_r_2), psixx(i), kplantx(i)
+                     print*, '    psdo psilx: ', psilx(i,1)
+                  else
+
+                     print*, '         ex, psix and kplant: ',max(sum(real(ex(i,:),r_2)), 0.0_r_2), psixx(i), kplantx(i)
+                     print*, '         psilx: ', psilx(i,1)
                   endif
+                  endif
+
                   ! !!!!!!!!!!!!!!!!!!! another option!!!!!!!!!!!!!!!!!!!!!!
                   ! psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
                   ! psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
