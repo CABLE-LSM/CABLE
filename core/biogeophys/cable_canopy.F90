@@ -482,38 +482,38 @@ CONTAINS
          ecypsdo = ecy
 
          sum_rad_rniso = sum(rad%rniso,2)
-         if (iter==4) then
+         ! if (iter==4) then
             wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
             DO j = 1, mp
                CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, j, wbpsdo)
                CALL calc_swp(ssnow, soil, j, wbpsdo)
             END DO
-            dsxpsdo = dsx
-            dsypsdo = dsy
-            psilxpsdo = psilx
-            psilypsdo = psily
-            fwsoilpsdo = fwsoil
-            fwsoiltmppsdo = fwsoiltmp
-            fwpsipsdo = fwpsi
-            tlfxpsdo = tlfx
-            tlfypsdo = tlfy
-            ecypsdo = ecy
-            hcypsdo = hcy
-            rnypsdo = rny
-            csxpsdo = csx
+            ! dsxpsdo = dsx
+            ! dsypsdo = dsy
+            ! psilxpsdo = psilx
+            ! psilypsdo = psily
+            ! fwsoilpsdo = fwsoil
+            ! fwsoiltmppsdo = fwsoiltmp
+            ! fwpsipsdo = fwpsi
+            ! tlfxpsdo = tlfx
+            ! tlfypsdo = tlfy
+            ! ecypsdo = ecy
+            ! hcypsdo = hcy
+            ! rnypsdo = rny
+            ! csxpsdo = csx
             CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
             veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo,&
             fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
             rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
             ghwet, iter, climate, wbpsdo)
-         endif
-         if (iter==4) then
+         ! endif
+         ! if (iter==4) then
             DO j = 1, mp
                ! reset psi_soil, soilR and rootR back to the realistic value
                CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, j)
                CALL calc_swp(ssnow, soil, j)
             END DO
-         endif
+         ! endif
          CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
             veg, canopy, soil, ssnow, casapool, dsx, dsy, psilx, psily,&
             fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy, ecy, hcy,  &
@@ -920,9 +920,10 @@ CONTAINS
          canopy%fwet  ! YP nov2009
       CALL Penman_Monteith_canopy(gbhu,gbhf)
       DEALLOCATE(cansat,gbhu)
-      DEALLOCATE(dsx,dsy, fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy)
-      DEALLOCATE(ecy, hcy, rny)
-      DEALLOCATE(gbhf, csx)
+      DEALLOCATE(dsx,dsxpsdo,dsy, dsypsdo, fwsoil, fwsoilpsdo, &
+       fwsoiltmp,fwsoiltmppsdo, fwpsi,fwpsipsdo, tlfx, tlfxpsdo, tlfy, tlfypsdo)
+      DEALLOCATE(ecy,ecypsdo, hcy,hcypsdo, rny, rnypsdo)
+      DEALLOCATE(gbhf, csx, csxpsdo)
       DEALLOCATE(ghwet)
 
       RETURN
@@ -2014,7 +2015,7 @@ CONTAINS
       ! end if
 
       if (present (wbpsdo)) then
-         if (ktau_tot == nktau(1) .and. iter==4) then
+         if (ktau_tot == nktau(1) .and. iter==1) then
             ! Open the file for overwrite if k is the first element
             open(unit=135, file=txtname, status="unknown", action="write")
          end if
