@@ -482,38 +482,38 @@ CONTAINS
          ecypsdo = ecy
 
          sum_rad_rniso = sum(rad%rniso,2)
-         ! if (iter==4) then
+         if (iter==4) then
             wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
             DO j = 1, mp
                CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, j, wbpsdo)
                CALL calc_swp(ssnow, soil, j, wbpsdo)
             END DO
-            ! dsxpsdo = dsx
-            ! dsypsdo = dsy
-            ! psilxpsdo = psilx
-            ! psilypsdo = psily
-            ! fwsoilpsdo = fwsoil
-            ! fwsoiltmppsdo = fwsoiltmp
-            ! fwpsipsdo = fwpsi
-            ! tlfxpsdo = tlfx
-            ! tlfypsdo = tlfy
-            ! ecypsdo = ecy
-            ! hcypsdo = hcy
-            ! rnypsdo = rny
-            ! csxpsdo = csx
+            dsxpsdo = dsx
+            dsypsdo = dsy
+            psilxpsdo = psilx
+            psilypsdo = psily
+            fwsoilpsdo = fwsoil
+            fwsoiltmppsdo = fwsoiltmp
+            fwpsipsdo = fwpsi
+            tlfxpsdo = tlfx
+            tlfypsdo = tlfy
+            ecypsdo = ecy
+            hcypsdo = hcy
+            rnypsdo = rny
+            csxpsdo = csx
             CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
             veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo,&
             fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
             rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
             ghwet, iter, climate, wbpsdo)
-         ! endif
-         ! if (iter==4) then
+         endif
+         if (iter==4) then
             DO j = 1, mp
                ! reset psi_soil, soilR and rootR back to the realistic value
                CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, j)
                CALL calc_swp(ssnow, soil, j)
             END DO
-         ! endif
+         endif
          CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
             veg, canopy, soil, ssnow, casapool, dsx, dsy, psilx, psily,&
             fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy, ecy, hcy,  &
@@ -1011,19 +1011,20 @@ CONTAINS
          real(r_2), dimension(mp)              :: canopypot1,canopypot2 ! returned result of functio
          real(r_2), dimension(mp,mf)              :: gh,ghr,gs,gw,psycst,psycstr ! returned result of function
          
-         real(r_2), parameter:: coe = 18.0_r_2 * 1.e-6 
+         real(r_2), dimension(mp)   :: RhoA
          INTEGER :: i
+         RhoA = met%pmb * 100.0 / (8.314 * (met%tk)) ! air density [molA/m3]
          
-         gs =  spread((0.5_r_2 * veg%vlai) / 100.0_r_2, 2, mf) ! ! m s-1
          DO i =1, mp
+            gs =  spread((0.5_r_2 * veg%vlai) / 100.0_r_2, 2, mf) * RhoA(i) ! ! m s-1 to mol m-2 s-1
             gh(i,:) = real(2.0_r_2 * (gbhu(i,:) + gbhf(i,:)))
             ghr(i,:) = gh(i,:) + rad%gradis(i,:) ! mol m-2 s-1 
             
             gw(i,:) = 1.0 / ( 1.0 / gs(i,:) + &
-            1.0 / ( 1.075 * real(gbhu(i,:) + gbhf(i,:))*coe ) )
+            1.0 / ( 1.075 * real(gbhu(i,:) + gbhf(i,:)) ) )
             
-            psycst(i,:) = air%psyc(i) * REAL( gh(i,:) * coe / gw(i,:) ) ! for gh
-            psycstr(i,:) = air%psyc(i) * REAL( ghr(i,:) * coe / gw(i,:) ) ! for ghr
+            psycst(i,:) = air%psyc(i) * REAL( gh(i,:)  / gw(i,:) ) ! for gh
+            psycstr(i,:) = air%psyc(i) * REAL( ghr(i,:)  / gw(i,:) ) ! for ghr
 
             canopypot1(i) = real( ( air%dsatdk(i) * ( rad%rniso(i,1) - C%capp * C%rmair &
             * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,1) ) &
