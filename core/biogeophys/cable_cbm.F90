@@ -31,13 +31,23 @@ MODULE cable_cbm_module
 
    USE cable_canopy_module
    USE cable_albedo_module
-
+   USE cable_def_types_mod
+   USE cable_common_module
+   use cable_veg_hydraulics_module, only: get_xylem_vulnerability
+   USE casavariable
+   use mo_constants, only: pi => pi_sp
+   
    IMPLICIT NONE
 
    PRIVATE
 
    PUBLIC :: cbm
-
+   TYPE(soil_snow_type), SAVE :: ssnow_global
+   TYPE(veg_parameter_type), SAVE :: veg_global
+   TYPE(casa_pool),  SAVE   :: casapool_global
+   INTEGER, SAVE:: diff_Esr_Erl_i
+   REAL, PARAMETER :: l_bound = -6.0
+   REAL, PARAMETER :: u_bound = 0.0
 CONTAINS
 
    SUBROUTINE cbm(ktau,ktau_tot, dels, air, bgc, canopy, met, &
@@ -60,6 +70,7 @@ CONTAINS
       USE cable_soil_hydraulics_module, ONLY : calc_soil_root_resistance, &
       calc_swp, calc_weighted_swp_and_frac_uptake,calc_psix
       USE cable_IO_vars_module, ONLY: logn
+      use cable_optimise_JV_module, ONLY: rtbis
       use mo_constants, only: pi => pi_sp
       USE casavariable
       ! CABLE model variables
@@ -149,6 +160,15 @@ CONTAINS
 
       ! RML moved out of following IF after discussion with Eva
       ! ssnow%owetfac = ssnow%wetfac
+      ssnow_global = ssnow
+      veg_global = veg
+      casapool_global = casapool
+      do i = 1, mp
+         diff_Esr_Erl_i = i
+      
+         psix = rtbis(diff_Esr_Erl,l_bound, u_bound, 0.01)
+         ssnow%total_est_evap(i) = Esupply(psix)
+      end do
 
       IF (cable_runtime%um) THEN
          IF (cable_runtime%um_implicit) THEN
@@ -239,4 +259,50 @@ CONTAINS
 
    END SUBROUTINE cbm
 
+   REAL FUNCTION diff_Esr_Erl( psix)
+
+      use mo_constants, only: pi => pi_sp
+      IMPLICIT NONE
+      real, INTENT(IN) :: psix
+      INTEGER :: k, i
+      REAL :: Esr, Erl
+      real :: k1, k2, pd, BAI, WD, AGB_pl, DBH, plc, kplant, psilmin
+      REAL, PARAMETER                   :: gC2DM = 1./0.49
+      i = diff_Esr_Erl_i
+      psilmin = l_bound
+      Esr = 0.0
+      
+      DO k = 1, ms
+         Esr = Esr + (ssnow_global%psi_soil(i,k)-psix) / (ssnow_global%soilR(i,k)+ssnow_global%rootR(i,k))
+      END DO
+      k1 = 0.2351 ! coefficient in 
+      k2 = 2.3226
+      WD = 300.0_r_2 ! kgC m-2
+
+      pd = 0.07_r_2 ! pl m-2
+
+      AGB_pl = casapool_global%cplant(i,2) / 1000.0_r_2 * gC2DM / pd ! kg pl-1
+      DBH = (AGB_pl/k1)**(1.0_r_2/k2) ! cm 
+      BAI = (DBH/200.0_r_2)**2.0_r_2*pi*pd ! m2 m-2
+
+      plc = get_xylem_vulnerability(real(psix,r_2), &
+      veg_global%b_plant(i), veg_global%c_plant(i))
+      !canopy%kplant(i) = veg%kmax(i) * BAI / veg%hc(i) * plc
+      kplant = veg_global%kmax(i) * BAI / veg_global%hc(i) * plc
+      Erl = kplant * (psix-psilmin)
+      diff_Esr_Erl = Esr - Erl
+   end function diff_Esr_Erl
+
+   real function Esupply(psix)
+      IMPLICIT NONE
+      real(r_2), INTENT(IN) :: psix
+      INTEGER :: k,i
+      i = diff_Esr_Erl_i
+      Esupply = 0.0
+      
+      DO k = 1, ms
+         Esupply = Esupply + (ssnow_global%psi_soil(i,k)-psix) / (ssnow_global%soilR(i,k)+ssnow_global%rootR(i,k))
+      END DO
+
+   end function Esupply
 END MODULE cable_cbm_module
