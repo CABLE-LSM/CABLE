@@ -42,12 +42,8 @@ MODULE cable_cbm_module
    PRIVATE
 
    PUBLIC :: cbm
-   TYPE(soil_snow_type), SAVE :: ssnow_global
-   TYPE(veg_parameter_type), SAVE :: veg_global
-   TYPE(casa_pool),  SAVE   :: casapool_global
-   INTEGER, SAVE:: diff_Esr_Erl_i
-   REAL, PARAMETER :: l_bound = -6.0
-   REAL, PARAMETER :: u_bound = 0.0
+
+
 CONTAINS
 
    SUBROUTINE cbm(ktau,ktau_tot, dels, air, bgc, canopy, met, &
@@ -100,7 +96,9 @@ CONTAINS
 #endif
       REAL, DIMENSION(ms) :: a, root_length
       real(r_2) :: psix, kplant
-
+      INTEGER :: diff_Esr_Erl_i
+      REAL, PARAMETER :: l_bound = -6.0
+      REAL, PARAMETER :: u_bound = 0.0
 
       ! assign local ptrs to constants defined in cable_data_module
       CALL point2constants(C)
@@ -160,9 +158,6 @@ CONTAINS
 
       ! RML moved out of following IF after discussion with Eva
       ! ssnow%owetfac = ssnow%wetfac
-      ssnow_global = ssnow
-      veg_global = veg
-      casapool_global = casapool
       do i = 1, mp
          diff_Esr_Erl_i = i
       
@@ -257,8 +252,8 @@ CONTAINS
 
       ENDIF
 
-   END SUBROUTINE cbm
-
+   
+CONTAINS
    REAL FUNCTION diff_Esr_Erl( psix)
 
       use mo_constants, only: pi => pi_sp
@@ -273,7 +268,7 @@ CONTAINS
       Esr = 0.0
       
       DO k = 1, ms
-         Esr = Esr + (ssnow_global%psi_soil(i,k)-psix) / (ssnow_global%soilR(i,k)+ssnow_global%rootR(i,k))
+         Esr = Esr + (ssnow%psi_soil(i,k)-psix) / (ssnow%soilR(i,k)+ssnow%rootR(i,k))
       END DO
       k1 = 0.2351 ! coefficient in 
       k2 = 2.3226
@@ -281,14 +276,14 @@ CONTAINS
 
       pd = 0.07_r_2 ! pl m-2
 
-      AGB_pl = casapool_global%cplant(i,2) / 1000.0_r_2 * gC2DM / pd ! kg pl-1
+      AGB_pl = casapool%cplant(i,2) / 1000.0_r_2 * gC2DM / pd ! kg pl-1
       DBH = (AGB_pl/k1)**(1.0_r_2/k2) ! cm 
       BAI = (DBH/200.0_r_2)**2.0_r_2*pi*pd ! m2 m-2
 
       plc = get_xylem_vulnerability(real(psix,r_2), &
-      veg_global%b_plant(i), veg_global%c_plant(i))
+      veg%b_plant(i), veg%c_plant(i))
       !canopy%kplant(i) = veg%kmax(i) * BAI / veg%hc(i) * plc
-      kplant = veg_global%kmax(i) * BAI / veg_global%hc(i) * plc
+      kplant = veg%kmax(i) * BAI / veg%hc(i) * plc
       Erl = kplant * (psix-psilmin)
       diff_Esr_Erl = Esr - Erl
    end function diff_Esr_Erl
@@ -301,8 +296,9 @@ CONTAINS
       Esupply = 0.0
       
       DO k = 1, ms
-         Esupply = Esupply + (ssnow_global%psi_soil(i,k)-psix) / (ssnow_global%soilR(i,k)+ssnow_global%rootR(i,k))
+         Esupply = Esupply + (ssnow%psi_soil(i,k)-psix) / (ssnow%soilR(i,k)+ssnow%rootR(i,k))
       END DO
 
    end function Esupply
+END SUBROUTINE cbm
 END MODULE cable_cbm_module
