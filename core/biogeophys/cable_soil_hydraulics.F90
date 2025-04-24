@@ -283,7 +283,7 @@ CONTAINS
 
    ! ----------------------------------------------------------------------------
    SUBROUTINE calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, veg, &
-      root_length, i, justTotalEst)
+      root_length, i)
       !
       ! Determine weighted SWP given the the maximum rate of water supply from
       ! each rooted soil layer and hydraulic resistance of each layer. We are
@@ -312,7 +312,6 @@ CONTAINS
       REAL, DIMENSION(ms)            :: swp, est_evap
       REAL, DIMENSION(:), INTENT(IN) :: root_length
       REAL                           :: total_est_evap, swp_diff, depth_sum
-      Logical, INTENT(IN)  :: justTotalEst
 
       INTEGER, INTENT(IN) :: i
       INTEGER             :: j
@@ -341,7 +340,7 @@ CONTAINS
             est_evap(j) = 0.0
          ENDIF
 
-         IF (.NOT. justTotalEst) THEN
+    
             ssnow%psi_rootzone(i) = 0.0
             ssnow%fraction_uptake(i,:) = 0.0
             IF (veg%froot(i,j) .GT. 0.0) THEN
@@ -349,14 +348,13 @@ CONTAINS
                ssnow%psi_rootzone(i) = ssnow%psi_rootzone(i) + &
                   ssnow%psi_soil(i,j) * est_evap(j)
             ENDIF
-         ENDIF
+         
 
       END DO
       total_est_evap = SUM(est_evap)
-      print*, 'total_est_evap kg s-1 m-2',total_est_evap
-      ssnow%total_est_evap(i) = total_est_evap
 
-      IF (.NOT. justTotalEst) THEN
+
+     
          ! calculate the weighted psi_soil, ms8355 2022
          IF (total_est_evap > 0.0) THEN
 
@@ -437,7 +435,7 @@ CONTAINS
             ENDIF
 
          ENDIF
-      ENDIF
+   
 
 
    END SUBROUTINE calc_weighted_swp_and_frac_uptake
