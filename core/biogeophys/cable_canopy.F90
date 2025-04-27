@@ -1014,10 +1014,11 @@ CONTAINS
          real(r_2), dimension(mp)   :: RhoA, gsw_ratio
          INTEGER :: i
          RhoA = met%pmb * 100.0 / (8.314 * (met%tk)) ! air density [molA/m3]
-         gsw_ratio = canopy%gswx(:,2) / canopy%gswx(:,1)
+         ! gsw_ratio = canopy%gswx(:,2) / canopy%gswx(:,1)
          gs(:,1) =  (0.5_r_2 * veg%vlai) / 100.0_r_2 * RhoA! ! m s-1 to mol m-2 s-1
-         gs(:,2) = gs(:,1) * gsw_ratio
-         print*, "gs in penman_Monteith: ", gs
+         ! gs(:,2) = gs(:,1) * gsw_ratio
+         gs(:,2) = gs(:,1)
+         ! print*, "gs in penman_Monteith: ", gs
          DO i =1, mp
             
             gh(i,:) = real(2.0_r_2 * (gbhu(i,:) + gbhf(i,:)))
