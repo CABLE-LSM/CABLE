@@ -15,6 +15,7 @@ SUBROUTINE hydraulic_redistribution(dels, soil, ssnow, canopy, veg, met)
     USE cable_common_module, ONLY : wiltParam, satuParam
 !data
 USE cable_surface_types_mod, ONLY: evergreen_broadleaf, c4_grassland
+USE cable_surface_types_mod, ONLY: aust_temperate
 
 IMPLICIT NONE
     REAL, INTENT(IN) :: dels ! integration time step (s)
@@ -101,9 +102,12 @@ IMPLICIT NONE
 
           ! Zero redistribution: all types except evergreen broadleaf, c4 grass
           WHERE( .NOT. ( veg%iveg == evergreen_broadleaf .OR.                  &
-                         veg%iveg == c4_grassland ) )
+                         veg%iveg == c4_grassland        .OR.                  &
+                         veg%iveg == aust_temperate      ) )
+
              hr_perTime(:,k,j) = 0.0
              hr_perTime(:,j,k) = 0.0
+
           ENDWHERE
 
           WHERE( hr_perTime(:,k,j) < 0.0 )

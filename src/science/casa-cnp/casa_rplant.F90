@@ -56,8 +56,14 @@ SUBROUTINE casa_rplant(veg,casabiome,casapool,casaflux,casamet,climate)
 ! maintenance respiration of woody tisse and fineroots
 ! see Sitch et al. (2003), GCB, reqn (23)
 
-USE casa_cnp_module, ONLY : vcmax_np 
+USE casa_cnp_module,         ONLY: vcmax_np
+USE cable_surface_types_mod, ONLY: evergreen_broadleaf, deciduous_broadleaf
+USE cable_surface_types_mod, ONLY: evergreen_needleleaf, deciduous_needleleaf
+USE cable_surface_types_mod, ONLY: aust_temperate, aust_tropical
+USE cable_surface_types_mod, ONLY: c3_grassland, tundra, c3_cropland
+
     IMPLICIT NONE
+
     TYPE (veg_parameter_type),  INTENT(INOUT) :: veg  ! vegetation parameters
     TYPE (casa_biome),          INTENT(INOUT) :: casabiome
     TYPE (casa_pool),           INTENT(INOUT) :: casapool
@@ -108,7 +114,10 @@ USE casa_cnp_module, ONLY : vcmax_np
           ELSE
              vcmaxmax(npt) = vcmax_np(nleaf(npt), pleaf(npt))
           ENDIF
-          IF (veg%iveg(npt).EQ.2 .OR. veg%iveg(npt).EQ. 4  ) THEN
+          IF ( veg%iveg(npt) .EQ. evergreen_broadleaf .OR.                     &
+               veg%iveg(npt) .EQ. aust_temperate      .OR.                     &
+               veg%iveg(npt) .EQ. aust_tropical       .OR.                     &
+               veg%iveg(npt) .EQ. deciduous_broadleaf ) THEN
              ! broadleaf forest
 
              resp_coeff_root(npt) = (1.2818 * 1.e-6 *casapool%nplant(npt,froot)/ &
@@ -123,8 +132,8 @@ USE casa_cnp_module, ONLY : vcmax_np
                   0.0334* climate%qtemp_max_last_year(npt) * 1.e-6 *casapool%nplant(npt,wood) * &
                   casaflux%frac_sapwood(npt)/vcmaxmax(npt)/0.0116      )
 
-
-          ELSEIF (veg%iveg(npt).EQ.1 .OR. veg%iveg(npt).EQ. 3  ) THEN
+          ELSEIF ( veg%iveg(npt) .EQ. evergreen_needleleaf .OR.                &
+                   veg%iveg(npt) .EQ. deciduous_needleleaf ) THEN
              ! needleleaf forest
 
              resp_coeff_root(npt) = (1.2877 * 1.e-6 *casapool%nplant(npt,froot) &
@@ -139,9 +148,9 @@ USE casa_cnp_module, ONLY : vcmax_np
                   0.0334* climate%qtemp_max_last_year(npt) * 1.e-6 *casapool%nplant(npt,wood) * &
                   casaflux%frac_sapwood(npt)/vcmaxmax(npt)/0.0116      )
 
-
-
-          ELSEIF (veg%iveg(npt).EQ.6 .OR. veg%iveg(npt).EQ.8 .OR. veg%iveg(npt).EQ. 9  ) THEN
+          ELSEIF ( veg%iveg(npt) .EQ. c3_grassland .OR.                         &
+                   veg%iveg(npt) .EQ. tundra      .OR.                         &
+                   veg%iveg(npt) .EQ. c3_cropland ) THEN
              ! C3 grass, tundra, crop
 
              resp_coeff_root(npt) = (1.6737 * 1.e-6 *casapool%nplant(npt,froot)/ &
