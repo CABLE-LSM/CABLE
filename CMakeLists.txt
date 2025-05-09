@@ -122,13 +122,18 @@ if(CABLE_LIBRARY)
         src/params/cable_maths_constants_mod.F90
         src/util/cable_runtime_opts_mod.F90
         src/util/cable_common.F90
-        src/coupled/esm16/casa_offline_inout.F90
-        src/coupled/esm16/casa_ncdf.F90
-        src/coupled/esm16/cable_iovars.F90
-        src/coupled/esm16/cable_surface_types.F90
-        src/coupled/esm16/cable_define_types.F90
-        src/coupled/esm16/cable_phenology.F90
-        src/coupled/esm16/cable_LUC_EXPT.F90
+        src/coupled/esm/cable_iovars.F90
+        src/coupled/esm/cable_surface_types.F90
+        src/coupled/esm/cable_define_types.F90
+        src/shared/casa_offline_inout.F90
+        src/shared/casa_ncdf.F90
+        src/shared/cable_phenology.F90
+        src/shared/cable_LUC_EXPT.F90
+        src/coupled/shared/cable_canopy_type_mod.F90
+        src/coupled/shared/cable_soilsnow_type_mod.F90
+        src/coupled/shared/cable_soil_type_mod.F90
+        src/coupled/shared/cable_veg_type_mod.F90
+        src/util/cable_climate_type_mod.F90
     )
 
 else()
