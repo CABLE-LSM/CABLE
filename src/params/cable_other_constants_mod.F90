@@ -33,6 +33,7 @@ REAL, PARAMETER :: rad_thresh = 0.001 ! min. zenithal angle for downward SW
 REAL, PARAMETER :: lai_thresh = 0.001 ! min. LAI to be considered as vegetated
 
 INTEGER, PARAMETER :: r_2  = KIND(1.d0) ! SELECTED_REAL_KIND(12, 50)
+INTEGER, PARAMETER :: i_d = KIND(9)
 
 REAL, PARAMETER ::                                                             &
   max_snow_depth = 50000.0,  & ! maximum depth of lying snow on tiles (kg/m2)
