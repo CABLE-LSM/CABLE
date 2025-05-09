@@ -137,6 +137,7 @@ if(CABLE_LIBRARY)
     )
     target_compile_definitions(cable_science PRIVATE UM_CBL)
 
+    install(TARGETS cable_science)
 else()
 
     add_library(
