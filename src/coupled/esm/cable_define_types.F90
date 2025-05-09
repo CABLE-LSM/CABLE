@@ -36,7 +36,7 @@ USE cable_soil_snow_type_mod, ONLY: soil_snow_type
 USE cable_climate_type_mod,   ONLY: climate_type
 USE cable_soil_type_mod,      ONLY: soil_parameter_type
 USE cable_veg_type_mod,       ONLY: veg_parameter_type
-USE cable_other_constants_mod, ONLY: r_2
+USE cable_other_constants_mod, ONLY: r_2, i_d
 
 !cbl3!USE cable_types_mod!!,          ONLY: mp, l_tile_pts
 !cbl3!USE cable_air_type_mod,       ONLY: air_type

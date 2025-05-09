@@ -497,8 +497,8 @@ IMPLICIT NONE
                      ssnow%rex(i,:), &
                      canopy%fwsoil(i), &
                      REAL(veg%froot(i,:),r_2),&
-                     soil%ssat_vec(i,:), &
-                     soil%swilt_vec(i,:), &
+                     REAL(soil%ssat_vec(i,:), r_2), &
+                     REAL(soil%swilt_vec(i,:), r_2), &
                      MAX(REAL(canopy%fevc(i)/air%rlam(i)/density_liq,r_2),0.0_r_2), &
                      REAL(veg%gamma(i),r_2), &
                      REAL(soil%zse,r_2), REAL(dels,r_2), REAL(veg%zr(i),r_2))
