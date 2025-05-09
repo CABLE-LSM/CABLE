@@ -70,8 +70,8 @@ if(CABLE_LIBRARY)
         src/science/casa-cnp/casa_rplant.F90
         src/science/casa-cnp/casa_sumcflux.F90
         src/science/casa-cnp/casa_variable.F90
-        src/science/gw_hydro/cable_gw_hydro.F90
-        src/science/gw_hydro/cable_psm.F90
+        #src/science/gw_hydro/cable_gw_hydro.F90
+        #src/science/gw_hydro/cable_psm.F90
         src/science/landuse/landuse3.F90
         src/science/landuse/landuse_constant.F90
         src/science/misc/cable_air.F90
@@ -135,6 +135,7 @@ if(CABLE_LIBRARY)
         src/coupled/shared/cable_veg_type_mod.F90
         src/util/cable_climate_type_mod.F90
     )
+    target_compile_definitions(cable_science PRIVATE UM_CBL)
 
 else()
 
