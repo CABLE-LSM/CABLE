@@ -66,8 +66,8 @@ USE cable_surface_types_mod, ONLY: aust_temperate, aust_tropical
     DO np= 1,mp
 
        ! evergreen pfts
-       !!bitwiseIF ( veg%iveg(np) == evergreen_needleleaf .OR.                          &
-       IF ( veg%iveg(np) == evergreen_broadleaf  .OR.                          &
+       IF ( veg%iveg(np) == evergreen_needleleaf .OR.                          &
+            veg%iveg(np) == evergreen_broadleaf  .OR.                          &
             veg%iveg(np) == aust_temperate       .OR.                          &
             veg%iveg(np) == shrub_cable           ) THEN
 

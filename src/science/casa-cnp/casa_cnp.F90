@@ -844,8 +844,7 @@ USE cable_surface_types_mod,  ONLY: c3_cropland, c4_cropland
        casaflux%kpocc(:)          = xksoil(:) * casabiome%xkpocc(casamet%isorder(:))
 
 
-       !!bitwiseWHERE( veg%iveg == c3_cropland .OR. veg%iveg == c4_cropland )      ! for cultivated land type
-       WHERE( veg%iveg == c3_cropland )      ! for cultivated land type
+       WHERE( veg%iveg == c3_cropland .OR. veg%iveg == c4_cropland )      ! for cultivated land type
           casaflux%ksoil(:,mic)  = casaflux%ksoil(:,mic) * 1.25
           casaflux%ksoil(:,slow) = casaflux%ksoil(:,slow)* 1.5
           casaflux%ksoil(:,pass) = casaflux%ksoil(:,pass)* 1.5
