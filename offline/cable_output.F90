@@ -45,7 +45,8 @@ MODULE cable_output_module
   USE cable_common_module, ONLY: filename, CurYear,IS_LEAPYEAR, cable_user ! , calcsoilalbedo
   ! 13C
   USE cable_c13o2_def,     only: c13o2_pool,  c13o2_flux
-
+  use cable_data_module,    only: icanopy_type, point2constants
+  
   IMPLICIT NONE
 
   PRIVATE
@@ -87,7 +88,8 @@ MODULE cable_output_module
           TSap, psi_soil, psi_rootzone, psix, psi_can_sl, psi_can_sh, &
           plc_sat, plc_stem, plc_can, gsw_sun, gsw_sha, LeafT, abs_deltpsil_sl, abs_deltpsil_sh, kplant, &
           abs_deltlf, abs_deltds, abs_deltcs_sl, abs_deltcs_sh, ksoil, kroot, uptake_layer, &
-          ksoilmean, krootmean, kbelowmean, psi_soilmean, psi_soilmean1, psi_rootmean, epotcan1, epotcan2, epotcan3, total_est_evap
+          ksoilmean, krootmean, kbelowmean, psi_soilmean, wb_soilmean, psi_soilmean1, psi_rootmean, &
+           epotcan1, epotcan2, epotcan3, total_est_evap
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
 
@@ -303,6 +305,7 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: krootmean => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: kbelowmean => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_soilmean => null() 
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: wb_soilmean => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_soilmean1 => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_rootmean => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: epotcan1 => null()    ! zihanlu
@@ -800,6 +803,9 @@ CONTAINS
      CALL define_ovar(ncid_out, ovid%psi_soilmean, 'psi_soilmean', 'Mpa', &
      'Average soil water potential (whole soil column)', patchout%psi_soilmean, &
      'dummy', xID, yID, zID, landID, patchID, tID)
+     CALL define_ovar(ncid_out, ovid%wb_soilmean, 'wb_soilmean', 'm m-1', &
+     'Average soil water content converted from psi_soilmean', patchout%wb_soilmean, &
+     'dummy', xID, yID, zID, landID, patchID, tID)
      CALL define_ovar(ncid_out, ovid%psi_soilmean1, 'psi_soilmean1', 'Mpa', &
      'Average soil water potential (whole soil column)', patchout%psi_soilmean1, &
      'dummy', xID, yID, zID, landID, patchID, tID)
@@ -811,6 +817,7 @@ CONTAINS
      ALLOCATE(out%ksoilmean(mp))
      ALLOCATE(out%kbelowmean(mp))
      ALLOCATE(out%psi_soilmean(mp))
+     ALLOCATE(out%wb_soilmean(mp))
      ALLOCATE(out%psi_soilmean1(mp))
      ALLOCATE(out%psi_rootmean(mp))
      out%kroot = zero4 ! initialise
@@ -818,6 +825,7 @@ CONTAINS
      out%ksoilmean = zero4 
      out%kbelowmean = zero4 
      out%psi_soilmean = zero4 
+     out%wb_soilmean = zero4 
      out%psi_soilmean1 = zero4 
      out%psi_rootmean = zero4 
     END IF
@@ -2230,6 +2238,7 @@ CONTAINS
     ! each timestep, but may only write to the output file periodically,
     ! depending on whether the user has specified that output should be
     ! aggregated, e.g. to monthly or 6-hourly averages.
+    
     REAL, INTENT(IN)              :: dels ! time step size
     INTEGER, INTENT(IN)           :: ktau_in_year ! timestep number from 1.1 in each year
     INTEGER, INTENT(IN)           :: ktau ! timestep number in loop which include spinup
@@ -2248,8 +2257,9 @@ CONTAINS
     ! 13C
     TYPE(c13o2_pool), INTENT(IN) :: c13o2pools ! 13CO2 pools
     TYPE(c13o2_flux), INTENT(IN) :: c13o2flux  ! 13CO2 fluxes
-
+    type(icanopy_type) :: C
     REAL(r_2), DIMENSION(1) :: timetemp ! temporary variable for storing time
+    real(r_2), DIMENSION(mp) :: psi_sat
     ! value
     LOGICAL :: writenow ! write to output file during this time step?
     INTEGER, SAVE :: out_timestep ! counter for output time steps
@@ -2266,7 +2276,7 @@ CONTAINS
     real(kind=r_1), parameter :: zero4 = real(0.0,r_1)
     real, dimension(mp) :: totlai
     real, dimension(size(patch, 1)) :: frac
-
+     call point2constants(C)
     ! logical :: opened
     ! integer :: varid
     gd2umols = 1.0_r_2 / (86400.0_r_2 * 1.201e-5_r_2)
@@ -2895,9 +2905,15 @@ CONTAINS
         out%ksoilmean = zero4
 
         out%psi_soilmean = out%psi_soilmean * rinterval
+        psi_sat = toreal4(soil%sucs * C%grav * C%RHOW * 1E-6)
+        out%wb_soilmean=toreal4((out%psi_soilmean / psi_sat) ** (-1.0_r_2 / soil%bch) * soil%ssat)
         CALL write_ovar(out_timestep, ncid_out, ovid%psi_soilmean, 'psi_soilmean', &
         out%psi_soilmean, ranges%psi_soil, patchout%psi_soilmean, 'default', met)
         out%psi_soilmean = zero4
+
+        CALL write_ovar(out_timestep, ncid_out, ovid%wb_soilmean, 'wb_soilmean', &
+        out%wb_soilmean, ranges%SoilMoist, patchout%wb_soilmean, 'default', met)
+        out%wb_soilmean = zero4
 
         out%psi_soilmean1 = out%psi_soilmean1 * rinterval
         CALL write_ovar(out_timestep, ncid_out, ovid%psi_soilmean1, 'psi_soilmean1', &

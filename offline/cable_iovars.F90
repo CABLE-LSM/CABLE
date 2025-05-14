@@ -436,6 +436,7 @@ MODULE cable_IO_vars_module
          krootmean = .FALSE., &
          kbelowmean = .FALSE., &
          psi_soilmean = .FALSE., &
+         wb_soilmean = .FALSE., &
          psi_soilmean1 = .FALSE., &
          psi_rootmean = .FALSE., &
          epotcan1 = .FALSE., &
