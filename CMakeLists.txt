@@ -37,7 +37,7 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
     )
 endif()
 
-set (CMAKE_Fortran_MODULE_DIRECTRORY ${CMAKE_BINARY_DIR}/mod)
+set (CMAKE_Fortran_MODULE_DIRECTRORY ${CMAKE_BINARY_DIR}/include)
 if(CABLE_LIBRARY)
 
     add_library(
@@ -143,6 +143,7 @@ if(CABLE_LIBRARY)
       EXPORT CABLEFortranTargets
       LIBRARY DESTINATION lib
       INCLUDES DESTINATION include)
+
 else()
 
     add_library(
