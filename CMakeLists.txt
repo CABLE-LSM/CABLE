@@ -37,7 +37,6 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
     )
 endif()
 
-set (CMAKE_Fortran_MODULE_DIRECTRORY ${CMAKE_BINARY_DIR}/include)
 if(CABLE_LIBRARY)
 
     add_library(
@@ -137,7 +136,7 @@ if(CABLE_LIBRARY)
         src/util/cable_climate_type_mod.F90
     )
     target_compile_definitions(cable PRIVATE UM_CBL)
-    target_include_directories(cable PUBLIC ${CMAKE_Fortran_MODULE_DIRECTORY})
+    target_include_directories(cable PUBLIC "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 
     install(TARGETS cable
       EXPORT CABLEFortranTargets
