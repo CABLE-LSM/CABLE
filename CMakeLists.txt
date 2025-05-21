@@ -37,10 +37,11 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
     )
 endif()
 
+set (CMAKE_Fortran_MODULE_DIRECTRORY ${CMAKE_BINARY_DIR}/mod)
 if(CABLE_LIBRARY)
 
     add_library(
-        cable_science
+        cable
         STATIC
         src/science/albedo/cbl_albedo.F90
         src/science/albedo/cbl_snow_albedo.F90
@@ -135,9 +136,13 @@ if(CABLE_LIBRARY)
         src/coupled/shared/cable_veg_type_mod.F90
         src/util/cable_climate_type_mod.F90
     )
-    target_compile_definitions(cable_science PRIVATE UM_CBL)
+    target_compile_definitions(cable PRIVATE UM_CBL)
+    target_include_directories(cable PUBLIC ${CMAKE_Fortran_MODULE_DIRECTORY})
 
-    install(TARGETS cable_science)
+    install(TARGETS cable
+      EXPORT CABLEFortranTargets
+      LIBRARY DESTINATION lib
+      INCLUDES DESTINATION include)
 else()
 
     add_library(
