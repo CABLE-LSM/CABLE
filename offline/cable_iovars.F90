@@ -443,7 +443,11 @@ MODULE cable_IO_vars_module
          epotcan2 = .FALSE., &
          epotcan3 = .FALSE., &
          fevc = .FALSE., &
-         total_est_evap = .FALSE.
+         total_est_evap = .FALSE., &
+         wb_30 = .FALSE., &
+         psi_30 = .FALSE., &
+         wb_fr_rootzone = .FALSE., &
+         psi_fr_rootzone = .FALSE.
    END TYPE output_inclusion_type
 
    TYPE(output_inclusion_type), SAVE :: output

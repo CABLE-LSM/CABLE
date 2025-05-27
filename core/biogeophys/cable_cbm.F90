@@ -60,7 +60,7 @@ CONTAINS
 #ifndef NO_CASA_YET
       USE casadimension,     only: icycle ! used in casa_cnp
 #endif
-      USE cable_data_module, ONLY: icbm_type, point2constants
+      USE cable_data_module, ONLY: point2constants, icanopy_type
       use cable_sli_main,    only: sli_main
       USE cable_soil_snow_module, ONLY : soil_snow
       USE cable_soil_hydraulics_module, ONLY : calc_soil_root_resistance, &
@@ -87,7 +87,7 @@ CONTAINS
       TYPE(casa_pool),        INTENT(IN)    :: casapool
 
       ! ptrs to local constants
-      TYPE(icbm_type) :: C
+      TYPE(icanopy_type) :: C
 
       integer :: i,k
 #ifdef NO_CASA_YET
@@ -99,6 +99,7 @@ CONTAINS
       INTEGER :: diff_Esr_Erl_i
       REAL, PARAMETER :: l_bound = -6.0
       REAL, PARAMETER :: u_bound = 0.0
+      REAL, DIMENSION(ms) ::  layer_depth, zsetmp, froottmp
 
       ! assign local ptrs to constants defined in cable_data_module
       CALL point2constants(C)
@@ -201,7 +202,32 @@ CONTAINS
          canopy%psix(i) = psix
          canopy%kplant(i) = kplant
       end do
-
+      layer_depth(1) = 0.0_r_2
+      do k=2, ms
+         layer_depth(k) = sum(soil%zse(1:k-1))
+      enddo
+      zsetmp = soil%zse
+   
+      where (layer_depth > 30.0)
+         zsetmp = 0.0
+      elsewhere
+         zsetmp = min(real(30.0) - layer_depth, soil%zse)
+      endwhere
+      
+      ssnow%wb_30 = sum(ssnow%wb * reshape(zsetmp, [ms, 1]), dim=1) / sum(zsetmp)
+      ssnow%psi_30 = real(soil%sucs * C%grav * C%RHOW * 1E-6) * MAX(1.E-9, MIN(1.0, ssnow%wb_30 / &
+         soil%ssat)) ** (-soil%bch)
+      
+      do i = 1, mp
+         froottmp = veg%froot(i,:)
+         where (layer_depth > veg%zr(i))
+            froottmp = 0.0
+         endwhere
+         froottmp = froottmp / sum(froottmp)
+      ssnow%wb_fr_rootzone(i) = sum(ssnow%wb(i,:) * froottmp)
+      ssnow%psi_fr_rootzone(i) = real(soil%sucs(i) * C%grav * C%RHOW * 1E-6) * MAX(1.E-9, MIN(1.0, ssnow%wb_fr_rootzone(i) / &
+         soil%ssat(i))) ** (-soil%bch(i))
+      end do
       ssnow%deltss = ssnow%tss-ssnow%otss
       ! correction required for energy balance in online simulations
       IF (cable_runtime%um) THEN

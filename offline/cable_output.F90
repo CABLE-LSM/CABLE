@@ -89,7 +89,7 @@ MODULE cable_output_module
           plc_sat, plc_stem, plc_can, gsw_sun, gsw_sha, LeafT, abs_deltpsil_sl, abs_deltpsil_sh, kplant, &
           abs_deltlf, abs_deltds, abs_deltcs_sl, abs_deltcs_sh, ksoil, kroot, uptake_layer, &
           ksoilmean, krootmean, kbelowmean, psi_soilmean, wb_soilmean, psi_soilmean1, psi_rootmean, &
-           epotcan1, epotcan2, epotcan3, total_est_evap
+           epotcan1, epotcan2, epotcan3, total_est_evap, wb_30, psi_30, wb_fr_rootzone, psi_fr_rootzone
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
 
@@ -312,7 +312,10 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: epotcan2 => null()    ! zihanlu
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: epotcan3 => null()    ! zihanlu
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: total_est_evap => null()    ! zihanlu
-     
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: wb_30 => null() 
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_30 => null() 
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: wb_fr_rootzone => null() 
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_fr_rootzone => null()     
 
   END TYPE output_temporary_type
   TYPE(output_temporary_type), SAVE :: out
@@ -766,12 +769,32 @@ CONTAINS
        CALL define_ovar(ncid_out, ovid%SoilMoistIce, 'SoilMoistIce', 'm^3/m^3', &
             'Average layer frozen soil moisture', patchout%SoilMoistIce, &
             'soil', xID, yID, zID, landID, patchID, soilID, tID)
+       CALL define_ovar(ncid_out, ovid%wb_30, 'wb_30', 'm^3/m^3', &
+            'Average soil moisture for upper 30 cm', patchout%SoilMoist, &
+            'dummy', xID, yID, zID, landID, patchID, tID)
+       CALL define_ovar(ncid_out, ovid%psi_30, 'psi_30', 'Mpa', &
+            'soil water potential converted from wb_30', patchout%psi_soilmean, &
+            'dummy', xID, yID, zID, landID, patchID, tID)
+       CALL define_ovar(ncid_out, ovid%wb_fr_rootzone, 'wb_fr_rootzone', 'm^3/m^3', &
+            'Average soil moisture weighted by rootfraction in rootzone', patchout%SoilMoist, &
+            'dummy', xID, yID, zID, landID, patchID, tID)
+       CALL define_ovar(ncid_out, ovid%psi_fr_rootzone, 'psi_fr_rootzone', 'Mpa', &
+            'soil water potential converted from wb_fr_rootzone', patchout%psi_soilmean, &
+            'dummy', xID, yID, zID, landID, patchID, tID)
        ALLOCATE(out%SoilMoist(mp,ms))
        ALLOCATE(out%SoilMoistPFT(mp))
        ALLOCATE(out%SoilMoistIce(mp,ms))
+       ALLOCATE(out%wb_30(mp))
+       ALLOCATE(out%psi_30(mp))
+       ALLOCATE(out%wb_fr_rootzone(mp))
+       ALLOCATE(out%psi_fr_rootzone(mp))
        out%SoilMoist = zero4 ! initialise
        out%SoilMoistPFT = zero4 ! initialise
        out%SoilMoistIce = zero4 ! initialise
+       out%wb_30 = zero4
+       out%psi_30 = zero4
+       out%wb_fr_rootzone = zero4
+       out%psi_fr_rootzone = zero4
     END IF
     IF(output%soil) THEN
      CALL define_ovar(ncid_out, ovid%uptake_layer, &
@@ -2843,11 +2866,19 @@ CONTAINS
        out%SoilMoist = out%SoilMoist + toreal4(ssnow%wb)
        out%SoilMoistPFT = out%SoilMoistPFT + toreal4(sum(ssnow%wb * 1000.0_r_2 * real(spread(soil%zse,1,mp),r_2),2))
        out%SoilMoistIce = out%SoilMoistIce + toreal4(ssnow%wbice)
+       out%wb_30 = out%wb_30 + toreal4(ssnow%wb_30)
+       out%psi_30 = out%psi_30 + toreal4(ssnow%psi_30)
+       out%wb_fr_rootzone = out%wb_fr_rootzone + toreal4(ssnow%wb_fr_rootzone)
+       out%psi_fr_rootzone = out%psi_fr_rootzone + toreal4(ssnow%psi_fr_rootzone)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%SoilMoist = out%SoilMoist * rinterval
           out%SoilMoistPFT = out%SoilMoistPFT * rinterval
           out%SoilMoistIce = out%SoilMoistIce * rinterval
+          out%wb_30 = out%wb_30 * rinterval
+          out%psi_30 = out%psi_30 * rinterval
+          out%wb_fr_rootzone = out%wb_fr_rootzone * rinterval
+          out%psi_fr_rootzone = out%psi_fr_rootzone * rinterval
           ! Write value to file:
           CALL write_ovar(out_timestep, ncid_out, ovid%SoilMoist, 'SoilMoist', &
                out%SoilMoist, ranges%SoilMoist, patchout%SoilMoist, 'soil', met)
@@ -2855,10 +2886,22 @@ CONTAINS
                out%SoilMoistPFT, ranges%SoilMoistPFT, patchout%SoilMoistPFT, 'default', met)
           CALL write_ovar(out_timestep, ncid_out, ovid%SoilMoistIce, 'SoilMoistIce', &
                out%SoilMoistIce, ranges%SoilMoist, patchout%SoilMoistIce, 'soil', met)
+          CALL write_ovar(out_timestep, ncid_out, ovid%wb_30, 'wb_30', &
+               out%wb_30, ranges%SoilMoist, patchout%wb_30, 'default', met)
+          CALL write_ovar(out_timestep, ncid_out, ovid%psi_30, 'psi_30', &
+               out%psi_30, ranges%psi_soil, patchout%psi_30, 'default', met)
+          CALL write_ovar(out_timestep, ncid_out, ovid%wb_fr_rootzone, 'wb_fr_rootzone', &
+               out%wb_fr_rootzone, ranges%SoilMoist, patchout%wb_fr_rootzone, 'default', met)
+          CALL write_ovar(out_timestep, ncid_out, ovid%psi_fr_rootzone, 'psi_fr_rootzone', &
+               out%psi_fr_rootzone, ranges%psi_soil, patchout%psi_fr_rootzone, 'default', met)
           ! Reset temporary output variable:
           out%SoilMoist = zero4
           out%SoilMoistPFT = zero4
           out%SoilMoistIce = zero4
+          out%wb_30 = zero4
+          out%psi_30 = zero4
+          out%wb_fr_rootzone = zero4
+          out%psi_fr_rootzone = zero4
        END IF
     END IF
     IF(output%soil) THEN

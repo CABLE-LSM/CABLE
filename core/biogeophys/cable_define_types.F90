@@ -230,7 +230,11 @@ module cable_def_types_mod
           tss => null(),     & ! surface temperature (weighted soil, snow)
           tss_p => null(),   & ! surface temperature (weighted soil, snow)
           deltss => null(),  & ! surface temperature (weighted soil, snow)
-          owb1 => null()       ! surface temperature (weighted soil, snow)
+          owb1 => null(),  &       ! surface temperature (weighted soil, snow)
+          wb_30 => null(),  &
+          psi_30 => null(), &
+          wb_fr_rootzone => null(), &
+          psi_fr_rootzone => null()
 
      real, dimension(:,:), pointer :: &
           sconds => null(),     & !
@@ -1077,7 +1081,10 @@ contains
     allocate ( ssnow%psi_soil(mp,ms) )
     allocate ( ssnow%psi_rootzone(mp) )
     allocate ( ssnow%total_est_evap(mp) )
-    
+    allocate ( ssnow%wb_30(mp) )
+    allocate ( ssnow%psi_30(mp) )
+    allocate ( ssnow%wb_fr_rootzone(mp) )
+    allocate ( ssnow%psi_fr_rootzone(mp) )
   end subroutine alloc_soil_snow_type
 
   ! ------------------------------------------------------------------
@@ -1749,7 +1756,10 @@ contains
     deallocate( ssnow%psi_soil )
     deallocate( ssnow%psi_rootzone )
     deallocate( ssnow%total_est_evap )
-    
+    deallocate( ssnow%wb_30 )
+    deallocate( ssnow%psi_30 )
+    deallocate( ssnow%wb_fr_rootzone )
+    deallocate( ssnow%psi_fr_rootzone ) 
   end subroutine dealloc_soil_snow_type
 
   ! ------------------------------------------------------------------
@@ -2290,7 +2300,10 @@ contains
     ssnow%psi_soil         = 0
     ssnow%psi_rootzone     = 0
     ssnow%total_est_evap     = 0
-    
+    ssnow%wb_30     = 0
+    ssnow%psi_30     = 0
+    ssnow%wb_fr_rootzone     = 0
+    ssnow%psi_fr_rootzone     = 0   
 
   end subroutine zero_soil_snow_type
 
