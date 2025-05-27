@@ -133,7 +133,7 @@ MODULE cable_IO_vars_module
           veg_class,soil_class,mvtype,mstype,patchfrac
      INTEGER :: ishorizon,nhorizons,clitt, &
           zeta,fsatmax, &
-          gamma,ZR,F10
+          gamma,zr,F10
 
      INTEGER :: g0,g1,g1tuzet,g2,g3,psi_ref,kmax, a1gs, d0gs, vcmax_scalar, P50, P88dP50, b_plant, c_plant, root_conduc ! Ticket #56
 
@@ -364,6 +364,7 @@ MODULE cable_IO_vars_module
                                 ! top leaf[mol/m2/s](1e-5 - 3e-4) {use}
          frac4  = .FALSE.,    & ! fraction of c4 plants [-]
          hc = .FALSE.,        & ! height of canopy [m]
+         zr = .FALSE.,        &
          rp20  = .FALSE.,     & ! plant respiration coefficient at
                                 ! 20 C [-] 0.1 - 10 (frp 0 - 15e-6 mol/m2/s)
          g0   = .FALSE.,      & ! Ticket #56

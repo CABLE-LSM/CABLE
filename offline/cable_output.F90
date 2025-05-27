@@ -238,6 +238,7 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: ejmax => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: patchfrac => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: hc => null()
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: zr => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP_sl => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP_sh => null()
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP_slC => null()
@@ -1887,7 +1888,9 @@ CONTAINS
             'hc', 'm', 'Height of canopy', patchout%hc, &
             'real', xID, yID, zID, landID, patchID)
     ENDIF
-
+     IF(output%params) CALL define_ovar(ncid_out, opid%zr, &
+            'zr', 'm', 'maximum root depth', patchout%zr, &
+            'real', xID, yID, zID, landID, patchID,tID)
     IF(output%params .OR. output%canst1) CALL define_ovar(ncid_out, &
          opid%canst1, 'canst1', 'mm/LAI', 'Max water intercepted by canopy', &
          patchout%canst1, 'real', xID, yID, zID, landID, patchID)
@@ -2169,6 +2172,8 @@ CONTAINS
     ENDIF
     IF(output%params .OR. output%rp20) CALL write_ovar(ncid_out, opid%rp20, &
          'rp20', toreal4(veg%rp20),ranges%rp20, patchout%rp20, 'real')
+     IF(output%params .OR. output%zr) CALL write_ovar(ncid_out, opid%zr, &
+     'zr', toreal4(veg%zr),ranges%hc, patchout%zr, 'real')
     ! Ticket #56
     IF(output%params .OR. output%g0) CALL write_ovar(ncid_out, opid%g0, &
          'g0', toreal4(veg%g0),ranges%g0, patchout%g0, 'real')
@@ -3699,7 +3704,10 @@ CONTAINS
                'hc', toreal4(veg%hc), ranges%hc, patchout%hc, 'default', met)
        ENDIF
     ENDIF
-
+       IF(writenow) THEN
+          IF(output%params .OR. output%zr) CALL write_ovar(out_timestep,ncid_out, opid%zr, &
+               'zr', toreal4(veg%zr), ranges%hc, patchout%zr, 'default', met)
+       ENDIF
     ! vh_mc ! additional variables for ESM-SnowMIP
     IF (output%snowmip) THEN
        ! Add current timestep's value to total of temporary output variable
@@ -5079,6 +5087,8 @@ CONTAINS
                     'P88dP50', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
      CALL define_ovar(ncid_restart, rpid%root_conduc, 'root_conduc', 'kg s-1 Mpa-1 m-1(root length)', &
                     'root_conduc', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+     CALL define_ovar(ncid_restart,rpid%zr,'zr','m', &
+          'Maximum rooting depth',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
     ! CALL define_ovar(ncid_restart, rpid%tminvj, 'tminvj', 'C', &
     !                  'Min temperature for the start of photosynthesis', &
     !                  .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
@@ -5432,6 +5442,8 @@ CONTAINS
          toreal4(veg%vlai), (/-99999.0, 9999999.0/), .true., 'real', .true.)
     CALL write_ovar(ncid_restart, hcID, 'hc', &
          toreal4(veg%hc), (/-99999.0, 9999999.0/), .true., 'real', .true.)
+     CALL write_ovar (ncid_restart,rpid%zr,'zr', &
+          toreal4(veg%zr),(/-99999.0,99999.0/),.TRUE.,'real',.TRUE.)
     ! IF(cable_user%SOIL_STRUC=='sli'.OR.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
     !    CALL write_ovar (ncid_restart,rpid%gamma,'gamma', &
     !         toreal4(veg%gamma),(/-99999.0,99999.0/),.TRUE.,'real',.TRUE.)

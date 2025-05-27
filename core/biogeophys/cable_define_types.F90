@@ -391,7 +391,7 @@ module cable_def_types_mod
      ! Additional  veg parameters:
      real(r_2), dimension(:), pointer :: rootbeta => null() ! parameter for estimating vertical root mass distribution (froot)
      real(r_2), dimension(:), pointer :: gamma => null()    ! parameter in root efficiency function (Lai and Katul 2000)
-     real(r_2), dimension(:), pointer :: ZR => null()       ! maximum rooting depth (cm)
+     real(r_2), dimension(:), pointer :: ZR => null()       ! maximum rooting depth (m)
      real(r_2), dimension(:), pointer :: F10 => null()      ! fraction of roots in top 10 cm
 
      real(r_2), dimension(:), pointer :: clitt => null()     !
