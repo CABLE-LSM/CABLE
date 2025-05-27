@@ -219,6 +219,7 @@ else()
         src/shared/casa_offline_inout.F90
         src/shared/casa_ncdf.F90
         src/offline/cable_iovars.F90
+        src/offline/read_namelists_mod_cbl.F90
         src/offline/cable_surface_types.F90
         src/offline/cable_define_types.F90
         src/shared/cable_phenology.F90

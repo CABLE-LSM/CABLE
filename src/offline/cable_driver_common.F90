@@ -42,6 +42,8 @@ MODULE cable_driver_common_mod
   USE CABLE_PLUME_MIP, ONLY : PLUME_MIP_TYPE, PLUME_MIP_INIT
   USE CABLE_CRU, ONLY : CRU_TYPE, CRU_INIT
   USE CABLE_site, ONLY : site_TYPE, site_INIT
+USE read_namelists_mod_cbl, ONLY: read_cable_namelist
+
   IMPLICIT NONE
   PRIVATE
 
@@ -64,42 +66,9 @@ MODULE cable_driver_common_mod
   REAL, SAVE, PUBLIC :: delsoilT ! allowed variation in soil temperature for spin up
   REAL, SAVE, PUBLIC :: delgwM = 1e-4
 
-  INTEGER, SAVE, PUBLIC :: LALLOC = 0 ! allocation coefficient for passing to spincasa
-
-  NAMELIST /CABLE/  &
-    filename,       & ! TYPE, containing input filenames
-    vegparmnew,     & ! use new soil param. method
-    soilparmnew,    & ! use new soil param. method
-    calcsoilalbedo, & ! albedo considers soil color Ticket #27
-    spinup,         & ! spinup model (soil) to steady state
-    delsoilM,       &
-    delsoilT,       &
-    delgwM,         &
-    output,         &
-    patchout,       &
-    check,          &
-    verbose,        &
-    leaps,          &
-    logn,           &
-    fixedCO2,       &
-    spincasa,       &
-    l_casacnp,      &
-    l_landuse,      &
-    l_laiFeedbk,    &
-    l_vcmaxFeedbk,  &
-    CASAONLY,       &
-    icycle,         &
-    casafile,       &
-    ncciy,          &
-    gswpfile,       &
-    globalMetfile,  &
-    redistrb,       &
-    wiltParam,      &
-    satuParam,      &
-    snmin,          &
-    cable_user,     & ! additional USER switches
-    gw_params
-
+INTEGER, SAVE, PUBLIC :: LALLOC = 0            ! alloc coeff passed to spincasa
+INTEGER, PARAMETER    :: nmlunitnumber = 88813 ! this is to satisfy UM method 
+                                               ! where a shared_unitnumber is used
   PUBLIC :: cable_driver_init
   PUBLIC :: cable_driver_init_gswp
   PUBLIC :: cable_driver_init_plume
@@ -131,10 +100,14 @@ CONTAINS
       WRITE(*,*) "THE NAME LIST IS ", CABLE_NAMELIST
     END IF
 
-    ! Open, read and close the namelist file.
-    OPEN(NEWUNIT=unit, FILE=CABLE_NAMELIST, STATUS="OLD", ACTION="READ")
-    READ(unit, NML=CABLE)
-    CLOSE(unit)
+    CALL read_cable_namelist( nmlunitnumber, CABLE_NAMELIST, vegparmnew,      &
+                                             spinup    ,      &
+                                             spincasa  ,      &
+                                             CASAONLY  ,      &
+                                             l_casacnp ,      &
+                                             l_landuse ,      &
+                                             l_laiFeedbk ,    &
+                                             l_vcmaxFeedbk    )
 
     cable_runtime%offline = .TRUE.
 
