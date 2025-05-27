@@ -208,10 +208,10 @@ CONTAINS
       enddo
       zsetmp = soil%zse
    
-      where (layer_depth > 30.0)
+      where (layer_depth > 0.30)
          zsetmp = 0.0
       elsewhere
-         zsetmp = min(real(30.0) - layer_depth, soil%zse)
+         zsetmp = min(real(0.30) - layer_depth, soil%zse)
       endwhere
       
       ssnow%wb_30 = sum(ssnow%wb * reshape(zsetmp, [ms, 1]), dim=1) / sum(zsetmp)
