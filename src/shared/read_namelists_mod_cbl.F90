@@ -1,24 +1,45 @@
 MODULE read_namelists_mod_cbl
-
+  
 IMPLICIT NONE
 
 CHARACTER(LEN=*), PARAMETER, PRIVATE :: ModuleName='READ_NAMELISTS_MOD_CBL'
 
 CONTAINS
 
-SUBROUTINE     read_cable_namelist( unitnumber, cable_namelist, vegparmnew,     &
-                                             spinup    ,      &
-                                             spincasa  ,      &
-                                             CASAONLY  ,      &
-                                             l_casacnp ,      &
-                                             l_landuse ,      &
-                                             l_laiFeedbk ,    &
-                                             l_vcmaxFeedbk    )
+SUBROUTINE read_cable_namelists( unitnumber )
+
+! Description:
+!  Organize reading ALL cable namelists
+
+USE cable_common_module, ONLY: cable_runtime
+USE cable_namelist_util, ONLY: cable_namelist
+    
+IMPLICIT NONE
+
+! Subroutine arguments
+INTEGER, INTENT(IN) :: unitnumber
+
+CHARACTER(LEN=*), PARAMETER :: RoutineName='read_cable_namelists'
+
+CALL read_cable_namelist( unitnumber, cable_namelist )
+
+IF( cable_runtime%offline ) THEN
+  CALL read_offline_namelist( "offline.nml" )
+ENDIF
+
+RETURN
+END SUBROUTINE read_cable_namelists
+
+
+
+SUBROUTINE read_cable_namelist( unitnumber, cable_namelist )
 ! Description:
 !  Read the cable namelist
 
+!!USE cable_common_module_temp, ONLY: calcsoilalbedo, redistrb, wiltParam,       &
+!!                                    satuParam, snmin, cable_user, gw_params
+  
 USE cable_common_module, ONLY: &
-  filename,                    &
   calcsoilalbedo,              &
   redistrb,                    &
   wiltParam,                   &
@@ -27,18 +48,12 @@ USE cable_common_module, ONLY: &
   cable_user,                  &
   gw_params
   
-USE cable_IO_vars_module, ONLY: &
-  soilparmnew,                  &
-  output,                       &
-  patchout,                     &
-  check,                        &
-  verbose,                      &
-  leaps,                        &
-  logn,                         &
-  fixedCO2,                     &
-  ncciy,                        &
-  gswpfile,                     &
-  globalMetfile
+USE temp_module,   ONLY: l_casacnp,   &
+                       l_landuse,     &
+                       l_laiFeedbk,   &
+                       l_vcmaxFeedbk
+   
+USE cable_IO_vars_module, ONLY: fixedCO2
   
 USE casadimension, ONLY: icycle
 USE casavariable,  ONLY: casafile
@@ -49,28 +64,72 @@ IMPLICIT NONE
 INTEGER, INTENT(IN) :: unitnumber
 CHARACTER(LEN=*), INTENT(IN) :: cable_namelist
 
-! additional declarations to satisfy namelist dec
 CHARACTER(LEN=*), PARAMETER :: RoutineName='read_cable_namelist'
-LOGICAL, INTENT(OUT) :: vegparmnew     ! using new format input file (BP dec 2007)
-LOGICAL, INTENT(OUT) :: spinup         ! model spinup to soil state equilibrium?
-LOGICAL, INTENT(OUT) :: spincasa       ! TRUE: CASA-CNP Will spin mloop times, FALSE: no spin up
-LOGICAL, INTENT(OUT) :: CASAONLY       ! ONLY Run CASA-CNP
-LOGICAL, INTENT(OUT) :: l_casacnp      ! using CASA-CNP with CABLE
-LOGICAL, INTENT(OUT) :: l_landuse      ! using CASA-CNP with CABLE
-LOGICAL, INTENT(OUT) :: l_laiFeedbk    ! using prognostic LAI
-LOGICAL, INTENT(OUT) :: l_vcmaxFeedbk  ! using prognostic Vcmax
 
-REAL :: delsoilM ! allowed variation in soil moisture for spin up
-REAL :: delsoilT ! allowed variation in soil temperature for spin up
-REAL :: delgwM = 1e-4
+NAMELIST /CABLE/  &
+calcsoilalbedo, & ! albedo considers soil color Ticket #27
+fixedCO2,       &
+l_casacnp,      &
+l_landuse,      &
+l_laiFeedbk,    &
+l_vcmaxFeedbk,  &
+icycle,         &
+redistrb,       &
+wiltParam,      &
+satuParam,      &
+snmin,          &
+cable_user,     & 
+gw_params
 
-INTEGER :: LALLOC = 0            ! alloc coeff passed to spincasa
+! Open, read and close the namelist file.
+OPEN( UNIT=unitnumber, FILE=CABLE_NAMELIST, STATUS="OLD", ACTION="READ" )
+  READ( unitnumber, NML=CABLE )
+CLOSE( unitnumber )
+
+RETURN
+END SUBROUTINE read_cable_namelist
+
+
+
+SUBROUTINE read_offline_namelist( offline_namelist )
+! Description:
+!  Read the cable namelist for offline apps only
+
+USE cable_common_module, ONLY: filename
+USE casavariable,        ONLY: casafile
+  
+USE cable_IO_vars_module, ONLY: &
+  soilparmnew,                  &
+  output,                       &
+  patchout,                     &
+  check,                        &
+  verbose,                      &
+  leaps,                        &
+  logn,                         &
+  ncciy,                        &
+  gswpfile,                     &
+  globalMetfile
+  
+USE temp_module,   ONLY: vegparmnew,    &
+                       spinup,        &
+                       spincasa,      &
+                       CASAONLY,      &
+                       delsoilM,      &
+                       delsoilT,      &
+                       delgwM,        &
+                       LALLOC
+IMPLICIT NONE
+
+! Subroutine arguments
+CHARACTER(LEN=*), INTENT(IN) :: offline_namelist 
+
+INTEGER                     :: unitnumber
+CHARACTER(LEN=*), PARAMETER :: RoutineName='read_cable_namelist'
 
 NAMELIST /CABLE/  &
 filename,       & ! TYPE, containing input filenames
 vegparmnew,     & ! use new soil param. method
 soilparmnew,    & ! use new soil param. method
-calcsoilalbedo, & ! albedo considers soil color Ticket #27
 spinup,         & ! spinup model (soil) to steady state
 delsoilM,       &
 delsoilT,       &
@@ -81,32 +140,22 @@ check,          &
 verbose,        &
 leaps,          &
 logn,           &
-fixedCO2,       &
 spincasa,       &
-l_casacnp,      &
-l_landuse,      &
-l_laiFeedbk,    &
-l_vcmaxFeedbk,  &
 CASAONLY,       &
-icycle,         &
 casafile,       &
 ncciy,          &
 gswpfile,       &
-globalMetfile,  &
-redistrb,       &
-wiltParam,      &
-satuParam,      &
-snmin,          &
-cable_user,     & ! additional USER switches
-gw_params
+globalMetfile
 
 ! Open, read and close the namelist file.
-OPEN( UNIT=unitnumber, FILE=CABLE_NAMELIST, STATUS="OLD", ACTION="READ" )
+OPEN( NEWUNIT=unitnumber, FILE=offline_namelist, STATUS="OLD", ACTION="READ" )
   READ( unitnumber, NML=CABLE )
 CLOSE( unitnumber )
 
 RETURN
-END SUBROUTINE read_cable_namelist
+END SUBROUTINE read_offline_namelist
+
+
 
 !SUBROUTINE read_cable_model_environment(unitnumber)
 !
