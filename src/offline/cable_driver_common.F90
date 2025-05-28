@@ -22,7 +22,6 @@ MODULE cable_driver_common_mod
     verbose,                       &
     leaps,                         &
     logn,                          &
-    fixedCO2,                      &
     ncciy,                         &
     gswpfile,                      &
     globalMetfile,                 &

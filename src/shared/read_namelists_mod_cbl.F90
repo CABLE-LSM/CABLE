@@ -53,8 +53,6 @@ USE temp_module,   ONLY: l_casacnp,   &
                        l_laiFeedbk,   &
                        l_vcmaxFeedbk
    
-USE cable_IO_vars_module, ONLY: fixedCO2
-  
 USE casadimension, ONLY: icycle
 USE casavariable,  ONLY: casafile
    
@@ -68,7 +66,6 @@ CHARACTER(LEN=*), PARAMETER :: RoutineName='read_cable_namelist'
 
 NAMELIST /CABLE/  &
 calcsoilalbedo, & ! albedo considers soil color Ticket #27
-fixedCO2,       &
 l_casacnp,      &
 l_landuse,      &
 l_laiFeedbk,    &
@@ -100,6 +97,7 @@ USE casavariable,        ONLY: casafile
   
 USE cable_IO_vars_module, ONLY: &
   soilparmnew,                  &
+  fixedCO2,                     &
   output,                       &
   patchout,                     &
   check,                        &
@@ -124,9 +122,9 @@ IMPLICIT NONE
 CHARACTER(LEN=*), INTENT(IN) :: offline_namelist 
 
 INTEGER                     :: unitnumber
-CHARACTER(LEN=*), PARAMETER :: RoutineName='read_cable_namelist'
+CHARACTER(LEN=*), PARAMETER :: RoutineName='read_offline_cable_namelist'
 
-NAMELIST /CABLE/  &
+NAMELIST /offline/  &
 filename,       & ! TYPE, containing input filenames
 vegparmnew,     & ! use new soil param. method
 soilparmnew,    & ! use new soil param. method
@@ -134,6 +132,7 @@ spinup,         & ! spinup model (soil) to steady state
 delsoilM,       &
 delsoilT,       &
 delgwM,         &
+fixedCO2,       &
 output,         &
 patchout,       &
 check,          &
