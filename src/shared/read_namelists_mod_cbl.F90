@@ -148,7 +148,7 @@ globalMetfile
 
 ! Open, read and close the namelist file.
 OPEN( NEWUNIT=unitnumber, FILE=offline_namelist, STATUS="OLD", ACTION="READ" )
-  READ( unitnumber, NML=CABLE )
+  READ( unitnumber, NML=offline)
 CLOSE( unitnumber )
 
 RETURN

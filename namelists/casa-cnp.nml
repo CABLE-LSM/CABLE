@@ -1,0 +1,16 @@
+  l_luc = .FALSE.
+  l_thinforest = .FALSE. 
+  l_casacnp = .TRUE. ! redundant? actually controlled by icycle
+  icycle = 3 ! Controls whether CASA-CNP is run and for which species
+             ! Choices are:
+             ! 0 CASA-CNP not run
+             ! 1 Carbon only
+             ! 2 Carbon and nitrogen
+             ! 3 Carbon, nitrogen and phosphorus
+  l_laiFeedbk   = .TRUE.  ! using prognostic LAI
+  l_vcmaxFeedbk = .TRUE.  ! using prognostic Vcmax
+! filenames for CASA-CNP input files
+! updated pftlookup file for CABLE3 format
+  casafile%cnpbiome='INPUT/pftlookup_cable3.csv'  ! biome specific BGC parameters
+  casafile%phen='INPUT/modis_phenology_csiro.txt' ! phenology by latitude (modis derived)
+
