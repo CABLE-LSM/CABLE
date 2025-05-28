@@ -1,30 +1,30 @@
 &cable
 
-	 !BGC
-   l_casacnp     = .FALSE.  ! using casaCNP with CABLE 
-   l_laiFeedbk   = .FALSE.  ! using prognostic LAI
-   l_vcmaxFeedbk = .FALSE.  ! using prognostic Vcmax
-   icycle = 0               ! [0 (=NO casaCNP), 1 (=C), 2 (=C+N), 3 (=C+N+P) ]
-   cable_user%DIAG_SOIL_RESP   = 'ON ' 
-   cable_user%LEAF_RESPIRATION = 'ON ' 
+!BGC
+l_casacnp     = .FALSE.  ! using casaCNP with CABLE 
+l_laiFeedbk   = .FALSE.  ! using prognostic LAI
+l_vcmaxFeedbk = .FALSE.  ! using prognostic Vcmax
+icycle = 0               ! [0 (=NO casaCNP), 1 (=C), 2 (=C+N), 3 (=C+N+P) ]
+cable_user%DIAG_SOIL_RESP   = 'ON ' 
+cable_user%LEAF_RESPIRATION = 'ON ' 
 
-	 !canopy
-   wiltParam = 0.5											 !
-   satuParam = 0.8          						 !
-   cable_user%FWSOIL_SWITCH = 'standard' ! ['standard', 'non-linear extrapolation', 
-																								'Lai and Ktaul' 2000, 'Haverd2013'     ]   
-   cable_user%GS_SWITCH = 'leuning'      ! stomata model ['leuning', 'Medlyn'] 
-	 cable_user%SSNOW_POTEV = 'HDM' ! ['HDM' (Humidity Deficit Method), 
-																			'P-M' (Penmann-Monteith model) ] 
-	 !soilsnow  
-	 redistrb = .FALSE.				      ! Execute hydraulic redistribution model
-   snmin    = 1.0	                ! minimum snow depth to use 3 layer model
-   
-   ! offline ONLY 
-   cable_user%l_ice_consistency = .FALSE.     ! TRUE add QA step for ice tiles input.
-   cable_user%RUN_DIAG_LEVEL    = 'BASIC'     ! [ 'BASIC', 'NONE' ] 
-   cable_user%CONSISTENCY_CHECK = .TRUE.      ! TRUE outputs combined fluxes at each timestep for comparisson to A control run 
-   cable_user%CASA_DUMP_READ    = .FALSE.     ! TRUE reads CASA forcing from netcdf format
-   cable_user%CASA_DUMP_WRITE   = .FALSE.     ! TRUE outputs CASA forcing in netcdf format
+!canopy
+wiltParam = 0.5											 !
+satuParam = 0.8          						 !
+cable_user%FWSOIL_SWITCH = 'standard' ! ['standard', 'non-linear extrapolation', 
+ 																						'Lai and Ktaul' 2000, 'Haverd2013'     ]   
+cable_user%GS_SWITCH = 'leuning'      ! stomata model ['leuning', 'Medlyn'] 
+cable_user%SSNOW_POTEV = 'HDM' ! ['HDM' (Humidity Deficit Method), 
+ 																	'P-M' (Penmann-Monteith model) ] 
+!soilsnow  
+redistrb = .FALSE.				      ! Execute hydraulic redistribution model
+snmin    = 1.0	                ! minimum snow depth to use 3 layer model
+
+! offline ONLY 
+cable_user%l_ice_consistency = .FALSE.     ! TRUE add QA step for ice tiles input.
+cable_user%RUN_DIAG_LEVEL    = 'BASIC'     ! [ 'BASIC', 'NONE' ] 
+cable_user%CONSISTENCY_CHECK = .TRUE.      ! TRUE outputs combined fluxes at each timestep for comparisson to A control run 
+cable_user%CASA_DUMP_READ    = .FALSE.     ! TRUE reads CASA forcing from netcdf format
+cable_user%CASA_DUMP_WRITE   = .FALSE.     ! TRUE outputs CASA forcing in netcdf format
 
 &end
