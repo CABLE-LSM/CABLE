@@ -62,18 +62,6 @@ MODULE cable_serial
   !! Offline serial driver for CABLE.
   USE cable_driver_common_mod, ONLY : &
     cable_driver_init,                &
-    vegparmnew,                       &
-    spinup,                           &
-    spincasa,                         &
-    CASAONLY,                         &
-    l_casacnp,                        &
-    l_landuse,                        &
-    l_laiFeedbk,                      &
-    l_vcmaxFeedbk,                    &
-    delsoilM,                         &
-    delsoilT,                         &
-    delgwM,                           &
-    LALLOC,                           &
     prepareFiles,                     &
     prepareFiles_princeton,           &
     LUCdriver,                        &
@@ -150,6 +138,19 @@ USE landuse_constant, ONLY: mstate,mvmax,mharvw
 USE landuse_variable
 USE bgcdriver_mod, ONLY : bgcdriver
 USE casa_offline_inout_module, ONLY : WRITE_CASA_RESTART_NC, WRITE_CASA_OUTPUT_NC 
+USE temp_module, ONLY: vegparmnew,    &
+                       spinup,        &
+                       spincasa,      &
+                       CASAONLY,      &
+                       l_landuse,     &
+                       l_casacnp,     &
+                       l_laiFeedbk,   &
+                       l_vcmaxFeedbk, & 
+                       delsoilM,      &
+                       delsoilT,      &
+                       delgwM,        &
+                       LALLOC
+
   IMPLICIT NONE
 
   PRIVATE
