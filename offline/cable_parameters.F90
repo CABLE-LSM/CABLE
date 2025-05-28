@@ -1391,16 +1391,25 @@ CONTAINS
        END IF
        ! offline only above
        ! call veg% init that is common
-       CALL init_veg_from_vegin(landpt(e)%cstart, landpt(e)%cend, veg)
 
+       DO h = landpt(e)%cstart, landpt(e)%cend ! over each patch in current grid
+         if (trim(cable_user%MetType) == 'site') then
+            if (site%vegtype >0) then
+               veg%iveg(h) = site%vegtype
+            endif
+         endif
+      end do
+       CALL init_veg_from_vegin(landpt(e)%cstart, landpt(e)%cend, veg)
 
        ! Prescribe parameters for current gridcell based on veg/soil type (which
        ! may have loaded from default value file or met file):
+       !!!!! is this part really needed? 
+       !!!! the contents here already conducted in init_veg_from_vegin above,  Zihan LU
        DO h = landpt(e)%cstart, landpt(e)%cend ! over each patch in current grid
          if (trim(cable_user%MetType) == 'site') then
-         if (site%soiltype >0) then
-            soil%isoilm(h) = site%soiltype
-         endif
+            if (site%soiltype >0) then
+               soil%isoilm(h) = site%soiltype
+            endif
          endif
           veg%frac4(h)   = vegin%frac4(veg%iveg(h))
           veg%taul(h,1)  = vegin%taul(1,veg%iveg(h))
