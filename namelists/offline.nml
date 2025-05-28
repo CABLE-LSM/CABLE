@@ -1,0 +1,48 @@
+&offline
+
+   filename%met         = 'TumbaFluxnet.1.3_met.nc'
+   filename%out         = 'out_cable.nc'
+   filename%log         = 'log_cable.txt'
+   filename%restart_in  = ' ' 
+   filename%restart_out = './restart_out.nc'
+   filename%type        = 'gridinfo_CSIRO_1x1.nc'
+   
+	 vegparmnew  = .TRUE.  ! using new format when true
+   soilparmnew = .TRUE.  ! using new format when true
+   
+	 spinup   = .FALSE.    ! do we spin up the model?
+   delsoilM = 0.001      ! threshold variation in soil moisture for spin up
+   delsoilT = 0.01       ! threshold variation in soil temperature for spin up
+   spincasa = .FALSE.    ! spin casa before running the model if TRUE
+   
+	 output%restart   = .TRUE.  ! should a restart file be created?
+   output%met       = .TRUE.  ! input met data
+   output%flux      = .TRUE.  ! convective, runoff, NEE
+   output%soil      = .FALSE.  !see #354 soil statescrews up dimensions for ferret
+   output%snow      = .TRUE.  ! snow states
+   output%radiation = .TRUE.  ! net rad, albedo
+   output%carbon    = .TRUE.  ! NEE, GPP, NPP, stores
+   output%veg       = .TRUE.  ! vegetation states
+   output%params    = .TRUE.  ! input parameters used to produce run
+   output%patch     = .TRUE.  ! write per patch  
+   output%balances  = .TRUE.  ! energy and water balances
+   check%ranges     = 0       ! variable ranges, input and output
+   check%energy_bal = .TRUE.  ! energy balance
+   check%mass_bal   = .TRUE.  ! water/mass balance
+   
+	 verbose  = .TRUE. ! write details of every grid cell init and params to log?
+   leaps    = .TRUE. ! calculate timing with leap years?
+   logn     = 88      ! log file number - declared in input module
+   fixedCO2 = 350.0   ! if not found in met file, in ppmv
+   
+	 ncciy          = 0 ! 0 = NO GSWP2; 4-digit year input for year of GSWP2 met
+   gswpfile%rainf = 'gswp/Rainf_gswp1987.nc'
+   gswpfile%snowf = 'gswp/Snowf_gswp1987.nc'
+   gswpfile%LWdown= 'gswp/LWdown_srb1987.nc'
+   gswpfile%SWdown= 'gswp/SWdown_srb1987.nc'
+   gswpfile%PSurf = 'gswp/PSurf_ecor1987.nc'
+   gswpfile%Qair  = 'gswp/Qair_cru1987.nc'
+   gswpfile%Tair  = 'gswp/Tair_cru1987.nc'
+   gswpfile%wind  = 'gswp/Wind_ncep1987.nc'
+
+&end
