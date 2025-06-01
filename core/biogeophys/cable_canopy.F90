@@ -2020,7 +2020,7 @@ CONTAINS
       ! end if
 
       if (present (wbpsdo)) then
-         if (ktau_tot == nktau(1) .and. iter==1) then
+         if (ktau_tot == nktau(1) .and. iter==4) then
             ! Open the file for overwrite if k is the first element
             open(unit=135, file=txtname, status="unknown", action="write")
          end if
