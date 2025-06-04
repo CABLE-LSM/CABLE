@@ -78,9 +78,10 @@ CONTAINS
       REAL, PARAMETER :: HUGE_NUMBER = 1E35
       REAL, PARAMETER :: BIG_NUMBER = 1E9
       REAL, PARAMETER :: SMALL_NUMBER = 1E-9
+      REAL, PARAMETER :: SRA = 48.0 * 1e-3 !m2/gC, specific root area
 
       REAL, DIMENSION(ms) :: depth
-      REAL                :: root_mass, rs, Ksoil, root_biomass, root_depth, root_mass_density
+      REAL                :: root_mass, rs, Ksoil0, Ksoil, root_biomass, root_depth, root_mass_density, RAI, Lsr
       REAL                :: soil_resist, rsum, conv
       real(r_2), dimension(mp,ms) :: wbtmp
 
@@ -128,11 +129,8 @@ CONTAINS
       DO j = 1, ms ! Loop over 6 soil layers
 
          ! Soil Hydraulic conductivity (m s-1), Campbell 1974
-         Ksoil = soil%hyds(i) * &
+         Ksoil0 = soil%hyds(i) * &
             (max(real(wbtmp(i,j)), soil%sres(i)) / soil%ssat(i))**(2.0 * soil%bch(i) + 3.0)
-
-         ! converts from m s-1 to m2 s-1 MPa-1
-         Ksoil = Ksoil / (C%grav * C%RHOW * PA_2_MPa )
 
          ! Calculate soil-root hydraulic resistance
 
@@ -149,31 +147,44 @@ CONTAINS
             ! Divide root mass up by the frac roots in the layer (g m-3)
             ! plant carbon is g m-3
             root_mass_density = root_biomass * veg%froot(i,j) / soil%zse(j)
-
             ! Root length density (m root m-3 soil)
             root_length_density(j) = root_mass_density / (root_density * root_xsec_area)
             ! kg m-2 s-1 Mpa-1
             ssnow%rootR(i,j) = 1.0 / (veg%root_conduc(i) * root_length_density(j) * soil%zse(j)) 
-
+            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!method 1 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             ! Conductance of the soil-to-root pathway can be estimated
             ! assuming that the root system consists of one long root that
             ! has access to a surrounding cylinder of soil
             ! (Gardner 1960, Newman 1969)
             rs = SQRT(1.0 / (root_length_density(j) * pi))
+            ! converts from m s-1 to m2 s-1 MPa-1
+            Ksoil = Ksoil0 / (C%grav * C%RHOW * PA_2_MPa )
+            ! converts from m2 s-1 MPa-1 to kg s-1 Mpa-1 m-1
             Ksoil = Ksoil * C%RHOW
-            if (j==1) then
-               print*, 'ksoil kg s-1 Mpa-1 m-1',Ksoil
-            endif
+            ! if (j==1) then
+            !    print*, 'ksoil kg s-1 Mpa-1 m-1',Ksoil
+            ! endif
             ! Soil-to-root resistance (MPa s m2 m-3)
             soil_resist = LOG(rs / root_radius) / &
                (2.0 * pi * root_length_density(j) * soil%zse(j) * Ksoil)
-            if (j==1) then
-                  print*, 'rs/root_radius',1.0/LOG(rs / root_radius)
-            endif 
+            ! if (j==1) then
+            !       print*, 'rs/root_radius',1.0/LOG(rs / root_radius)
+            ! endif 
             !! convert from MPa s m2 m-3 to MPa s m2 kg-1
             !soil_resist = soil_resist / C%RHOW
             if (j==1) then
                print*, 'ksoil kg m-2 Mpa-1 s-1',1.0/soil_resist
+            endif
+         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! method in ED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            !!!! reference: Katul, G., Leuning, R., & Oren, R. (2003). Relationship between plant hydraulic and 
+            !!biochemical properties derived from a steady-state coupled water and carbon transport model.
+            !!! Plant, Cell & Environment, 26(3), 339–350. https://doi.org/10.1046/j.1365-3040.2003.00965.x
+
+            RAI = root_biomass / gC2DM * SRA * veg%froot(i,j) !! m2/m2
+            Lsr = pi * soil%zse(j) / sqrt(RAI)
+            soil_resist = Lsr / Ksoil0
+            if (j==1) then
+               print*, 'ED method: ksoil',1.0/soil_resist
             endif
             ! root_resistance is commented out : don't use root-component of
             ! resistance (is part of plant resistance)
