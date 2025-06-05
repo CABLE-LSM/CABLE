@@ -85,14 +85,15 @@ CONTAINS
       REAL                :: soil_resist, rsum, conv
       real(r_2), dimension(mp,ms) :: wbtmp
 
-      INTEGER :: j
+      INTEGER :: j,rootRM,soilRM
 
       REAL               :: ht, stem_biomass
       REAL, PARAMETER    :: Kbiometric = 50.0 ! cst in height-diameter relationship
       REAL, PARAMETER    :: WD = 300.0 ! Wood density kgC/m3
       !REAL, PARAMETER    :: root_conduc = 1e-7 ! kg s-1 Mpa-1 m-1(root length)
       INTEGER, PARAMETER :: STEM_INDEX = 2
-      
+      rootRM = 1 ! 1: ; 2: no rootR
+      soilRM = 1 ! 1: original, 2: ED
       if (present(wbpsdo)) then
          wbtmp = wbpsdo
       else
@@ -149,13 +150,20 @@ CONTAINS
             root_mass_density = root_biomass * veg%froot(i,j) / soil%zse(j)
             ! Root length density (m root m-3 soil)
             root_length_density(j) = root_mass_density / (root_density * root_xsec_area)
+            if (rootRM==1) then
             ! kg m-2 s-1 Mpa-1
             ssnow%rootR(i,j) = 1.0 / (veg%root_conduc(i) * root_length_density(j) * soil%zse(j)) 
-            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!method 1 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            elseif (rootRM==2) then
+            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  method2 for rootR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            ssnow%rootR(i,j) = SMALL_NUMBER
+            endif
+
+            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!method 1 for soilR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             ! Conductance of the soil-to-root pathway can be estimated
             ! assuming that the root system consists of one long root that
             ! has access to a surrounding cylinder of soil
             ! (Gardner 1960, Newman 1969)
+            if (soilRM == 1) then
             rs = SQRT(1.0 / (root_length_density(j) * pi))
             ! converts from m s-1 to m2 s-1 MPa-1
             Ksoil = Ksoil0 / (C%grav * C%RHOW * PA_2_MPa )
@@ -175,16 +183,18 @@ CONTAINS
             if (j==1) then
                print*, 'ksoil kg m-2 Mpa-1 s-1',1.0/soil_resist
             endif
-         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! method in ED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            endif
+         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! method 2 for soilR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             !!!! reference: Katul, G., Leuning, R., & Oren, R. (2003). Relationship between plant hydraulic and 
             !!biochemical properties derived from a steady-state coupled water and carbon transport model.
             !!! Plant, Cell & Environment, 26(3), 339–350. https://doi.org/10.1046/j.1365-3040.2003.00965.x
-
+            if (soilRM==2) then
             RAI = root_biomass / gC2DM * SRA * veg%froot(i,j) !! m2/m2
             Lsr = pi * soil%zse(j) / sqrt(RAI)
             soil_resist = Lsr / Ksoil0
             if (j==1) then
                print*, 'ED method: ksoil',1.0/soil_resist
+            endif
             endif
             ! root_resistance is commented out : don't use root-component of
             ! resistance (is part of plant resistance)
