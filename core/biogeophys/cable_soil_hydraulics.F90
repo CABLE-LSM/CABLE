@@ -193,7 +193,7 @@ CONTAINS
                ksoil  = ksoil / (C%grav * C%RHOW * PA_2_MPa )! kg m-1 Mpa-1 s-1
             RAI = root_biomass / gC2DM * SRA * veg%froot(i,j) !! m2/m2
             Lsr = pi * soil%zse(j) / sqrt(RAI)
-            soil_resist = Lsr / Ksoil0 ! kg m-2 Mpa-1 s-1
+            soil_resist = Lsr / Ksoil ! kg m-2 Mpa-1 s-1
             if (j==1) then
                print*, 'ED method: ksoil',1.0/soil_resist
             endif
