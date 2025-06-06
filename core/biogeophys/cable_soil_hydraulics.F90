@@ -189,9 +189,11 @@ CONTAINS
             !!biochemical properties derived from a steady-state coupled water and carbon transport model.
             !!! Plant, Cell & Environment, 26(3), 339–350. https://doi.org/10.1046/j.1365-3040.2003.00965.x
             if (soilRM==2) then
+               Ksoil = Ksoil0 * C%RHOW ! kg m-2 s-1
+               ksoil  = ksoil / (C%grav * C%RHOW * PA_2_MPa )! kg m-1 Mpa-1 s-1
             RAI = root_biomass / gC2DM * SRA * veg%froot(i,j) !! m2/m2
             Lsr = pi * soil%zse(j) / sqrt(RAI)
-            soil_resist = Lsr / Ksoil0
+            soil_resist = Lsr / Ksoil0 ! kg m-2 Mpa-1 s-1
             if (j==1) then
                print*, 'ED method: ksoil',1.0/soil_resist
             endif
