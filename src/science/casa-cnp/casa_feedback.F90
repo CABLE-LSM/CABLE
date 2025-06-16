@@ -34,7 +34,8 @@ module feedback_mod
 
 contains
 
- SUBROUTINE casa_feedback(ktau,veg,casabiome,casapool,casamet)
+SUBROUTINE casa_feedback( ktau, veg, casabiome, casapool, casamet )
+USE cable_surface_types_mod, ONLY: evergreen_broadleaf, aust_temperate
   USE cable_def_types_mod
   USE casadimension
   USE casaparm
@@ -73,7 +74,7 @@ contains
 
     IF (TRIM(cable_user%vcmax).eq.'standard') then
        IF (casamet%glai(np) > casabiome%glaimin(ivt)) THEN
-          IF (ivt/=2) THEN
+          IF ( ivt /= evergreen_broadleaf .AND. ivt /= aust_temperate ) THEN
              veg%vcmax(np) = ( casabiome%nintercept(ivt) &
                   + casabiome%nslope(ivt)*ncleafx(np)/casabiome%sla(ivt) ) * 1.0e-6
           ELSE
