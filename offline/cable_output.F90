@@ -1920,9 +1920,9 @@ CONTAINS
      IF(output%params .OR. output%g1tuzet) CALL define_ovar(ncid_out, opid%g1tuzet, &
          'g1tuzet', '-', 'g1tuzet term in tuzet Stom Cond. Param', &
          patchout%g1tuzet, 'real', xID, yID, zID, landID, patchID)
-     IF(output%params .OR. output%g2) CALL define_ovar(ncid_out, opid%g2, &
-         'g2', '-', 'g2 term in fwpsi', &
-         patchout%g2, 'real', xID, yID, zID, landID, patchID)
+     IF(output%params .OR. output%slope_leaf) CALL define_ovar(ncid_out, opid%slope_leaf, &
+         'slope_leaf', '-', 'slope_leaf term in fwpsi', &
+         patchout%slope_leaf, 'real', xID, yID, zID, landID, patchID)
      IF(output%params .OR. output%g3) CALL define_ovar(ncid_out, opid%g3, &
          'g3', '-', 'g3 term in fwpsi', &
          patchout%g3, 'real', xID, yID, zID, landID, patchID)
@@ -1932,9 +1932,9 @@ CONTAINS
      IF(output%params .OR. output%d0gs) CALL define_ovar(ncid_out, opid%d0gs, &
          'd0gs', '-', 'd0gs term in leuning model', &
          patchout%d0gs, 'real', xID, yID, zID, landID, patchID)
-     IF(output%params .OR. output%psi_ref) CALL define_ovar(ncid_out, opid%psi_ref, &
-         'psi_ref', '-', 'psi_ref term in fwpsi', &
-         patchout%psi_ref, 'real', xID, yID, zID, landID, patchID)
+     IF(output%params .OR. output%psi_50_leaf) CALL define_ovar(ncid_out, opid%psi_50_leaf, &
+         'psi_50_leaf', '-', 'psi_50_leaf term in fwpsi', &
+         patchout%psi_50_leaf, 'real', xID, yID, zID, landID, patchID)
      IF(output%params .OR. output%kmax) CALL define_ovar(ncid_out, opid%kmax, &
          'kmax', '-', 'Kmax of plant conductivity for water', &
          patchout%kmax, 'real', xID, yID, zID, landID, patchID)
@@ -2182,16 +2182,16 @@ CONTAINS
      IF(output%params .OR. output%g1tuzet) CALL write_ovar(ncid_out, opid%g1tuzet, &
          'g1tuzet', toreal4(veg%g1tuzet),ranges%g1tuzet, patchout%g1tuzet, 'real')
     ! End Ticket #56
-     IF(output%params .OR. output%g2) CALL write_ovar(ncid_out, opid%g2, &
-         'g2', toreal4(veg%g2),ranges%g2, patchout%g2, 'real')
+     IF(output%params .OR. output%slope_leaf) CALL write_ovar(ncid_out, opid%slope_leaf, &
+         'slope_leaf', toreal4(veg%slope_leaf),ranges%slope_leaf, patchout%slope_leaf, 'real')
      IF(output%params .OR. output%g3) CALL write_ovar(ncid_out, opid%g3, &
          'g3', toreal4(veg%g3),ranges%g3, patchout%g3, 'real')
      IF(output%params .OR. output%a1gs) CALL write_ovar(ncid_out, opid%a1gs, &
          'a1gs', toreal4(veg%a1gs),ranges%a1gs, patchout%a1gs, 'real')
      IF(output%params .OR. output%d0gs) CALL write_ovar(ncid_out, opid%d0gs, &
          'd0gs', toreal4(veg%d0gs),ranges%d0gs, patchout%d0gs, 'real')
-     IF(output%params .OR. output%psi_ref) CALL write_ovar(ncid_out, opid%psi_ref, &
-         'g3', toreal4(veg%psi_ref),ranges%psi_ref, patchout%psi_ref, 'real')
+     IF(output%params .OR. output%psi_50_leaf) CALL write_ovar(ncid_out, opid%psi_50_leaf, &
+         'psi_50_leaf', toreal4(veg%psi_50_leaf),ranges%psi_50_leaf, patchout%psi_50_leaf, 'real')
      IF(output%params .OR. output%kmax) CALL write_ovar(ncid_out, opid%kmax, &
          'kmax', toreal4(veg%kmax),ranges%kmax, patchout%kmax, 'real')
      IF(output%params .OR. output%b_plant) CALL write_ovar(ncid_out, opid%b_plant, &
@@ -5043,8 +5043,8 @@ CONTAINS
      CALL define_ovar(ncid_restart, rpid%g1tuzet, 'g1tuzet', '-', &
                      'g1tuzet term in tuzet Stomatal Cond. Param', .TRUE.,'real',&
                      0, 0, 0, mpID, dummy, .TRUE.) 
-     CALL define_ovar(ncid_restart, rpid%g2, 'g2', '-', &
-                     'g2 term in fwpsi', .TRUE.,'real',&
+     CALL define_ovar(ncid_restart, rpid%slope_leaf, 'slope_leaf', '-', &
+                     'slope_leaf term in fwpsi', .TRUE.,'real',&
                      0, 0, 0, mpID, dummy, .TRUE.) 
      CALL define_ovar(ncid_restart, rpid%g3, 'g3', '-', &
                      'g3 term in fwpsi', .TRUE.,'real',&
@@ -5055,8 +5055,8 @@ CONTAINS
      CALL define_ovar(ncid_restart, rpid%d0gs, 'd0gs', '-', &
                      'd0gs term in leuning model', .TRUE.,'real',&
                      0, 0, 0, mpID, dummy, .TRUE.)  
-     CALL define_ovar(ncid_restart, rpid%psi_ref, 'psi_ref', '-', &
-                     'psi_ref term in fwpsi', .TRUE.,'real',&
+     CALL define_ovar(ncid_restart, rpid%psi_50_leaf, 'psi_50_leaf', '-', &
+                     'psi_50_leaf term in fwpsi', .TRUE.,'real',&
                      0, 0, 0, mpID, dummy, .TRUE.) 
      CALL define_ovar(ncid_restart, rpid%kmax, 'kmax', '-', &
                      'kmax', .TRUE.,'real',&
@@ -5321,7 +5321,7 @@ CONTAINS
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.) ! Ticket #56
      CALL write_ovar (ncid_restart, rpid%g1tuzet, 'g1tuzet', toreal4(veg%g1tuzet), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-     CALL write_ovar (ncid_restart, rpid%g2, 'g2', toreal4(veg%g2), &
+     CALL write_ovar (ncid_restart, rpid%slope_leaf, 'slope_leaf', toreal4(veg%slope_leaf), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
      CALL write_ovar (ncid_restart, rpid%g3, 'g3', toreal4(veg%g3), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.) 
@@ -5329,7 +5329,7 @@ CONTAINS
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
      CALL write_ovar (ncid_restart, rpid%d0gs, 'd0gs', toreal4(veg%d0gs), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
-     CALL write_ovar (ncid_restart, rpid%psi_ref, 'psi_ref', toreal4(veg%psi_ref), &
+     CALL write_ovar (ncid_restart, rpid%psi_50_leaf, 'psi_50_leaf', toreal4(veg%psi_50_leaf), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.) 
      CALL write_ovar (ncid_restart, rpid%kmax, 'kmax', toreal4(veg%kmax), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.) 

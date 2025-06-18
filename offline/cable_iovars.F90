@@ -135,7 +135,7 @@ MODULE cable_IO_vars_module
           zeta,fsatmax, &
           gamma,zr,F10
 
-     INTEGER :: g0,g1,g1tuzet,g2,g3,psi_ref,kmax, a1gs, d0gs, vcmax_scalar, P50, P88dP50, b_plant, c_plant, root_conduc ! Ticket #56
+     INTEGER :: g0,g1,g1tuzet,slope_leaf,g3,psi_50_leaf,kmax, a1gs, d0gs, vcmax_scalar, P50, P88dP50, b_plant, c_plant, root_conduc ! Ticket #56
 
    END TYPE parID_type
 
@@ -370,11 +370,11 @@ MODULE cable_IO_vars_module
          g0   = .FALSE.,      & ! Ticket #56
          g1   = .FALSE.,      & ! Ticket #56
          g1tuzet  = .FALSE., &
-         g2   = .FALSE.,      & 
+         slope_leaf   = .FALSE.,      & 
          g3   = .FALSE.,      & 
          a1gs   = .FALSE.,      & 
          d0gs   = .FALSE.,      & 
-         psi_ref = .FALSE.,      & 
+         psi_50_leaf = .FALSE.,      & 
          P50 = .FALSE., &
          P88dP50 = .FALSE., &
          rpcoef  = .FALSE.,   & ! temperature coef nonleaf plant

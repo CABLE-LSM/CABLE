@@ -374,9 +374,9 @@ module cable_def_types_mod
           c_plant => null(), & ! shape of hydraulic VC, [-]
           kmax => null(),    & ! maximum hydraulic conductance in the soil-plant continuum, kg m-1 s-1 Mpa-1
           PLCcrit => null(), &    ! critical maximum percentage loss of hydraulic conductivity above which no xylem recovery can occur, %
-          g2 => null(),      & !  coefficient in Paschalis 2023 equation converting psi_can to fwpsi
+          slope_leaf => null(),      & !  coefficient in Paschalis 2023 equation converting psi_can to fwpsi
           g3 => null(),      &       !  coefficient in Paschalis 2023 equation converting psi_can to fwpsi
-          psi_ref => null(), &
+          psi_50_leaf => null(), &
           dc => null(),  & !used in iteration in dryLeaf
           root_conduc => null()
 
@@ -1163,9 +1163,9 @@ contains
     allocate( veg%c_plant(mp) )
     allocate( veg%kmax(mp) ) 
     allocate( veg%PLCcrit(mp) ) 
-    allocate( veg%g2(mp) ) 
+    allocate( veg%slope_leaf(mp) ) 
     allocate( veg%g3(mp) ) 
-    allocate( veg%psi_ref(mp) )
+    allocate( veg%psi_50_leaf(mp) )
     allocate(veg%dc(mp)) 
     allocate( veg%root_conduc(mp) )
 
@@ -1830,9 +1830,9 @@ contains
     deallocate( veg%c_plant ) 
     deallocate( veg%kmax )
     deallocate( veg%PLCcrit )
-    deallocate( veg%g2 ) 
+    deallocate( veg%slope_leaf ) 
     deallocate( veg%g3 ) 
-    deallocate( veg%psi_ref ) 
+    deallocate( veg%psi_50_leaf ) 
     deallocate( veg%dc ) 
     deallocate( veg%root_conduc ) 
 
@@ -2383,9 +2383,9 @@ contains
     veg%c_plant = 0
     veg%kmax = 0
     veg%PLCcrit = 0
-    veg%g2 = 0
+    veg%slope_leaf = 0
     veg%g3 = 0
-    veg%psi_ref = 0
+    veg%psi_50_leaf = 0
     veg%dc = 0
     veg%root_conduc = 0
    
@@ -3055,9 +3055,9 @@ contains
     write(*,*) 'veg%c_plant ', veg%c_plant
     write(*,*) 'veg%kmax ', veg%kmax
     write(*,*) 'veg%PLCcrit ', veg%PLCcrit
-    write(*,*) 'veg%g2 ', veg%g2
+    write(*,*) 'veg%slope_leaf ', veg%slope_leaf
     write(*,*) 'veg%g3 ', veg%g3
-    write(*,*) 'veg%psi_ref ', veg%psi_ref
+    write(*,*) 'veg%psi_50_leaf ', veg%psi_50_leaf
 
   end subroutine print_veg_parameter_type
 

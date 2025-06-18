@@ -219,10 +219,10 @@ CONTAINS
       psily = canopy%psi_can  ! SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
       
 
-      fwpsi(:, 1) = (1.0_r_2 +exp(veg%g2(:) * veg%psi_ref(:))) / &
-         (1.0_r_2 + exp(veg%g2(:) * (veg%psi_ref(:) - psilx(:, 1))))
-      fwpsi(:, 2) = (1.0_r_2 +exp(veg%g2(:) * veg%psi_ref(:))) / &
-         (1.0_r_2 + exp(veg%g2(:) * (veg%psi_ref(:) - psilx(:, 2))))
+      fwpsi(:, 1) = (1.0_r_2 +exp(veg%slope_leaf(:) * veg%psi_50_leaf(:))) / &
+         (1.0_r_2 + exp(veg%slope_leaf(:) * (veg%psi_50_leaf(:) - psilx(:, 1))))
+      fwpsi(:, 2) = (1.0_r_2 +exp(veg%slope_leaf(:) * veg%psi_50_leaf(:))) / &
+         (1.0_r_2 + exp(veg%slope_leaf(:) * (veg%psi_50_leaf(:) - psilx(:, 2))))
       fwpsipsdo = fwpsi
       !print*, 'Entry psi ', psilx(:, 1)
       !print*, 'Entry fwpsi ', fwpsi(:, 1)
@@ -2405,10 +2405,10 @@ CONTAINS
                      g1 = veg%g1tuzet(i)
                      psilxx(i,:) = psilx(i,:)
                      
-                     fwpsi(i,1) = (1.0_r_2 +exp(veg%g2(i) * veg%psi_ref(i))) / &
-                      (1.0_r_2+exp(veg%g2(i) * (veg%psi_ref(i)-psilx(i,1))))
-                     fwpsi(i,2) = (1.0_r_2 +exp(veg%g2(i) * veg%psi_ref(i))) / &
-                      (1.0_r_2+exp(veg%g2(i) * (veg%psi_ref(i)-psilx(i,2))))
+                     fwpsi(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
+                     fwpsi(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
                      !print*, 1.0, real(1.0, r_2), 1.0 / 3.0_r_2, 1.0_r_2 / 3.0  
                      !print *, '!!!!!!!!!!!!!!! fwpsi:', fwpsi(i,1),psilx(i,1)
                      gs_coeff(i,1) =fwpsi(i,1) * g1 / real(csx(i,1))

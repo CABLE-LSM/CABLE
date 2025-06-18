@@ -290,9 +290,9 @@ MODULE cable_common_module
           PLCcrit, &
           P50, &
           P88dP50, &
-          g2, &
+          slope_leaf, &
           g3, &
-          psi_ref, &
+          psi_50_leaf, &
           dc, & ! used for iteration in dryLeaf, maybe abandoned later, Zihanlu, 19/12/2024
           root_conduc ! root reference conductivity,  kg s-1 Mpa-1 m-1(root length)
 
@@ -408,7 +408,7 @@ CONTAINS
          vegin%zr(mvtype), vegin%clitt(mvtype), vegin%gamma(mvtype), &
          vegin%kmax(mvtype), vegin%PLCcrit(mvtype), &
          vegin%P50(mvtype), vegin%P88dP50(mvtype),&
-         vegin%g2(mvtype), vegin%g3(mvtype), vegin%psi_ref(mvtype), & 
+         vegin%slope_leaf(mvtype), vegin%g3(mvtype), vegin%psi_50_leaf(mvtype), & 
          vegin%dc(mvtype), vegin%vcmax_scalar(mvtype),vegin%root_conduc(mvtype) )
     ! set default vcmaxcc and ejmaxcc to 0. because not used yet
     vegin%vcmaxcc = 0
@@ -461,7 +461,7 @@ CONTAINS
           ! added plant hydraulic parameters in config file
           READ(vegunit,*) vegin%kmax(jveg), vegin%PLCcrit(jveg)
           READ(vegunit,*) vegin%P50(jveg), vegin%P88dP50(jveg)
-          READ(vegunit,*) vegin%g2(jveg), vegin%g3(jveg), vegin%psi_ref(jveg), &
+          READ(vegunit,*) vegin%slope_leaf(jveg), vegin%g3(jveg), vegin%psi_50_leaf(jveg), &
                vegin%vcmax_scalar(jveg)
           READ(vegunit,*) vegin%root_conduc(jveg)
        END DO
@@ -1067,9 +1067,9 @@ CONTAINS
        END IF
        veg%P50(h)     = vegin%P50(veg%iveg(h))
        veg%P88dP50(h)     = vegin%P88dP50(veg%iveg(h))
-       veg%g2(h)     = vegin%g2(veg%iveg(h))
+       veg%slope_leaf(h)     = vegin%slope_leaf(veg%iveg(h))
        veg%g3(h)     = vegin%g3(veg%iveg(h))
-       veg%psi_ref(h)     = vegin%psi_ref(veg%iveg(h))
+       veg%psi_50_leaf(h)     = vegin%psi_50_leaf(veg%iveg(h))
        veg%dc(h)      = vegin%dc(veg%iveg(h)) ! used in iteration in dryLeaf
 
     END DO ! over each veg patch in land point

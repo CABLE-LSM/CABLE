@@ -692,11 +692,11 @@ CONTAINS
                 max_vegpatches,'def',from_restart,mp) ! Ticket #56
      CALL readpar(ncid_rin,'g1tuzet',dummy,veg%g1tuzet,filename%restart_in, &
                 max_vegpatches,'def',from_restart,mp) 
-     CALL readpar(ncid_rin,'g2',dummy,veg%g2,filename%restart_in, &
+     CALL readpar(ncid_rin,'slope_leaf',dummy,veg%slope_leaf,filename%restart_in, &
                 max_vegpatches,'def',from_restart,mp) 
     CALL readpar(ncid_rin,'g3',dummy,veg%g3,filename%restart_in, &
                 max_vegpatches,'def',from_restart,mp) 
-     CALL readpar(ncid_rin,'psi_ref',dummy,veg%psi_ref,filename%restart_in, &
+     CALL readpar(ncid_rin,'psi_50_leaf',dummy,veg%psi_50_leaf,filename%restart_in, &
                 max_vegpatches,'def',from_restart,mp) 
      CALL readpar(ncid_rin,'kmax',dummy,veg%kmax,filename%restart_in, &
                 max_vegpatches,'def',from_restart,mp) 
