@@ -23,9 +23,12 @@ SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
       ssnow%evapfbl = 0.0_r_2
       
       DO i = 1, mp
-        ssnow%evapfbl(i,:) = trans_soil_water(dels, soil%swilt(i),            &
-                veg%froot(i,:), soil%zse, canopy%fevc(i), ssnow%wb(i,:))
-        ssnow%wb(i,:) = ssnow%wb(i,:) - ssnow%evapfbl(i,:) / (soil%zse(:)*Cdensity_liq)
+         ssnow%evapfbl(i,:) = trans_soil_water(dels, soil%swilt(i),            &
+                 veg%froot(i,:), soil%zse, canopy%fevc(i), ssnow%wb(i,:))
+         ssnow%wb(i,:) = ssnow%wb(i,:) - ssnow%evapfbl(i,:) / (soil%zse(:)*Cdensity_liq)
+         IF ( canopy%fevc(i) > 0.0_r_2 ) THEN
+            canopy%fevc(i) = SUM(ssnow%evapfbl(i,:)) * CHL / dels
+         END IF
       END DO
 
     ELSE
