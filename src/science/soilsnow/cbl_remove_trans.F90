@@ -29,9 +29,17 @@ SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
     END IF
 
     DO k = 1,ms
-      ssnow%wbliq(:,k) = ssnow%wbliq(:,k) - ssnow%evapfbl(:,k)/(soil%zse(k)*Cdensity_liq)
+      ssnow%wbliq(:,k) = ssnow%wbliq(:,k) - ssnow%evapfbl(:,k)/               &
+                                             (soil%zse_vec(:,k)*Cdensity_liq)
       ssnow%wb(:,k)    = ssnow%wbliq(:,k) + ssnow%wbice(:,k)
     END DO
+
+    IF (cable_user%gw_model) THEN
+       ssnow%wb    = ssnow%wbliq + den_rat * ssnow%wbice
+       ssnow%wmliq = ssnow%wbliq * zse_vec * Cdensity_liq !mass
+       ssnow%wmtot = ssnow%wmliq + ssnow%wmice  !mass
+
+    END IF
 
   END SUBROUTINE remove_trans
 
@@ -42,13 +50,13 @@ SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
     !
     REAL, INTENT(IN)                     :: dels
        !! integration time step (s)
-    REAL, INTENT(IN)                     :: swilt 
+    REAL(r_2), DIMENSION(ms), INTENT(IN) :: swilt 
        !! wilting point (m3/m3)
     REAL(r_2), INTENT(IN)                :: fevc 
        !! transpiration (kg/m2/s)
     REAL, DIMENSION(ms), INTENT(IN)      :: froot 
        !! root fraction (-)
-    REAL, DIMENSION(ms), INTENT(IN)      :: zse 
+    REAL(r_2), DIMENSION(ms), INTENT(IN) :: zse 
        !! soil depth (m)
     REAL(r_2), DIMENSION(ms), INTENT(IN) :: wbliq 
        !! liquid soil water (m3/m3)
@@ -67,7 +75,7 @@ SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
         ! Calculate the amount (perhaps moisture/ice limited)
         ! that can be removed:
         xx = fevc * dels / CHL * froot(k) + diff(k-1)   ! kg/m2
-        diff(k) = MAX( 0.0_r_2, wbliq(k) - 1.1 * swilt) * zse(k)*Cdensity_liq
+        diff(k) = MAX( 0.0_r_2, wbliq(k) - 1.1 * swilt(k)) * zse(k)*Cdensity_liq
         xxd = xx - diff(k)
 
         IF ( xxd > 0.0 ) THEN

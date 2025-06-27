@@ -523,8 +523,8 @@ CONTAINS
                 local_fevc(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) )
                 IF (local_fevc(i) > 0.0_r_2) THEN
                 
-                   ssnow%evapfbl(i,:) = transp_soil_water(dels, soil%swilt(i),     &
-                            veg%froot(i,:), soil%zse, local_fevc(i), ssnow%wbliq(i,:))
+                   ssnow%evapfbl(i,:) = transp_soil_water(dels, soil%swilt_vec(i,:),     &
+                            veg%froot(i,:), soil%zse_vec(i,:), local_fevc(i), ssnow%wbliq(i,:))
 
                    IF (cable_user%soil_struc=='default') THEN
                        canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
