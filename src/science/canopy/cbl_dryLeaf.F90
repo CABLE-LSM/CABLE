@@ -21,7 +21,7 @@ CONTAINS
                                            fwsoil_calc_Lai_Ktaul,             &
                                            fwsoil_calc_sli
 
-    USE remove_trans_mod, ONLY : trans_soil_water
+    USE remove_trans_mod, ONLY : transp_soil_water
 
     !data
     USE cable_surface_types_mod, ONLY: evergreen_broadleaf, deciduous_broadleaf    
@@ -523,7 +523,7 @@ CONTAINS
                 local_fevc(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) )
                 IF (local_fevc(i) > 0.0_r_2) THEN
                 
-                   ssnow%evapfbl(i,:) = trans_soil_water(dels, soil%swilt(i),     &
+                   ssnow%evapfbl(i,:) = transp_soil_water(dels, soil%swilt(i),     &
                             veg%froot(i,:), soil%zse, local_fevc(i), ssnow%wb(i,:))
 
                    IF (cable_user%soil_struc=='default') THEN
@@ -667,8 +667,19 @@ CONTAINS
  
  
    SUBROUTINE getrex_1d(theta, rex, fws, Fs, thetaS, thetaw, Etrans, gamma, dx, dt, zr)
+    !! Root extraction : Haverd et al. 2013
+    !! **Warning**: This subroutine has diverged from the other `getrex_1d` subroutine
+    !! in cable_sli_roots.F90. Considering this subroutine predates the other one,
+    !! it is likely this is an older version and should be updated. Although no,
+    !! tests has been done to quantify the differences.
+    !! Changes identified as of 27/06/2025:
+    !!  - `theta` and `thetas` arguments instead ot `thetaS` and `S=theta/thetaS`
+    !!  - `rex` is INTENT(OUT) in sli_roots module. Correct for this version as well.
+    !!  - Condition `WHERE (Fs(:) > zero .AND. layer_depth < zr ) ` changed to 
+    !!    `WHERE (Fs(:) > zero` (zr unused in sli_roots)
+    !!  -  `IF (ANY(((rex*dt) > MAX((theta(:)-thetaw(:)),zero)*dx(:)) .AND. (Etrans > zero))) THEN`
+    !!    changed to `IF (ANY(((rex*dt) > (theta(:)-thetaw(:))*dx(:)) .AND. ((rex*dt) > zero))) THEN`
 
-    ! root extraction : Haverd et al. 2013
     USE cable_def_types_mod, ONLY: r_2
 
     IMPLICIT NONE

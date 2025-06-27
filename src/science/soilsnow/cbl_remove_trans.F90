@@ -7,10 +7,12 @@ PUBLIC  remove_trans
 CONTAINS
 
 SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
+    !! Removes transpiration water from soil.
+    !! For Haverd2013, it also deals with negative canopy
+    !! transpiration.
 
     USE cable_common_module, ONLY : cable_user
 
-    ! Removes transpiration water from soil.
     REAL, INTENT(IN)                    :: dels ! integration time step (s)
     TYPE(canopy_type), INTENT(INOUT)         :: canopy
     TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow
@@ -18,34 +20,22 @@ SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
     TYPE(veg_parameter_type), INTENT(INOUT)  :: veg
     INTEGER i, k
 
-    IF (cable_user%FWSOIL_switch.NE.'Haverd2013') THEN
+    IF (cable_user%FWSOIL_switch == 'Haverd2013') THEN
 
-      ssnow%evapfbl = 0.0_r_2
-      
-      DO i = 1, mp
-         ssnow%evapfbl(i,:) = trans_soil_water(dels, soil%swilt(i),            &
-                 veg%froot(i,:), soil%zse, canopy%fevc(i), ssnow%wb(i,:))
-         ssnow%wb(i,:) = ssnow%wb(i,:) - ssnow%evapfbl(i,:) / (soil%zse(:)*Cdensity_liq)
-         IF ( canopy%fevc(i) > 0.0_r_2 ) THEN
-            canopy%fevc(i) = SUM(ssnow%evapfbl(i,:)) * CHL / dels
-         END IF
-      END DO
-
-    ELSE
-       WHERE (canopy%fevc .LT. 0.0_r_2)
+       WHERE (canopy%fevc < 0.0_r_2)
           canopy%fevw = canopy%fevw+canopy%fevc
           canopy%fevc = 0.0_r_2
        END WHERE
-       DO k = 1,ms
-          ssnow%wb(:,k) = ssnow%wb(:,k) - ssnow%evapfbl(:,k)/(soil%zse(k)*Cdensity_liq)
-       ENDDO
+    END IF
 
-
-    ENDIF
+    DO k = 1,ms
+      ssnow%wb(:,k) = ssnow%wb(:,k) - ssnow%evapfbl(:,k)/(soil%zse(k)*Cdensity_liq)
+    END DO
 
   END SUBROUTINE remove_trans
 
-  FUNCTION trans_soil_water(dels, swilt, froot, zse, fevc, wb) RESULT(evapfbl)
+
+  FUNCTION transp_soil_water(dels, swilt, froot, zse, fevc, wb) RESULT(evapfbl)
 
     !! Calculates the amount of water removed from the soil by transpiration.
     !
@@ -90,6 +80,6 @@ SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
       END DO
     END IF
    
-   END FUNCTION trans_soil_water
+   END FUNCTION transp_soil_water
 
 END MODULE remove_trans_mod
