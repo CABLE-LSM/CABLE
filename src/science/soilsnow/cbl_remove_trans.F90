@@ -29,13 +29,14 @@ SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
     END IF
 
     DO k = 1,ms
-      ssnow%wb(:,k) = ssnow%wb(:,k) - ssnow%evapfbl(:,k)/(soil%zse(k)*Cdensity_liq)
+      ssnow%wbliq(:,k) = ssnow%wbliq(:,k) - ssnow%evapfbl(:,k)/(soil%zse(k)*Cdensity_liq)
+      ssnow%wb(:,k)    = ssnow%wbliq(:,k) + ssnow%wbice(:,k)
     END DO
 
   END SUBROUTINE remove_trans
 
 
-  FUNCTION transp_soil_water(dels, swilt, froot, zse, fevc, wb) RESULT(evapfbl)
+  FUNCTION transp_soil_water(dels, swilt, froot, zse, fevc, wbliq) RESULT(evapfbl)
 
     !! Calculates the amount of water removed from the soil by transpiration.
     !
@@ -49,8 +50,8 @@ SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
        !! root fraction (-)
     REAL, DIMENSION(ms), INTENT(IN)      :: zse 
        !! soil depth (m)
-    REAL(r_2), DIMENSION(ms), INTENT(IN) :: wb 
-       !! water balance (m3/m3)
+    REAL(r_2), DIMENSION(ms), INTENT(IN) :: wbliq 
+       !! liquid soil water (m3/m3)
    
     ! Local variables
     REAL(r_2), DIMENSION(ms)   :: evapfbl
@@ -66,7 +67,7 @@ SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg)
         ! Calculate the amount (perhaps moisture/ice limited)
         ! that can be removed:
         xx = fevc * dels / CHL * froot(k) + diff(k-1)   ! kg/m2
-        diff(k) = MAX( 0.0_r_2, wb(k) - 1.1 * swilt) * zse(k)*Cdensity_liq
+        diff(k) = MAX( 0.0_r_2, wbliq(k) - 1.1 * swilt) * zse(k)*Cdensity_liq
         xxd = xx - diff(k)
 
         IF ( xxd > 0.0 ) THEN
