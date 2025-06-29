@@ -458,7 +458,8 @@ module cable_def_types_mod
           abs_deltds => null(), &
           epotcan1  => null(), & 
           epotcan2  => null(), &
-          epotcan3  => null()
+          epotcan3  => null(), &
+          epotvpd => null()
 
      real, dimension(:,:), pointer :: &
           evapfbl => null(), &
@@ -1302,6 +1303,7 @@ contains
     allocate(canopy%epotcan1(mp))
     allocate(canopy%epotcan2(mp))
     allocate(canopy%epotcan3(mp))
+    allocate(canopy%epotvpd(mp))
   end subroutine alloc_canopy_type
 
   ! ------------------------------------------------------------------
@@ -1940,6 +1942,7 @@ contains
     deallocate(canopy%epotcan1)
     deallocate(canopy%epotcan2)
     deallocate(canopy%epotcan3)
+    deallocate(canopy%epotvpd)
 
   end subroutine dealloc_canopy_type
 
@@ -2517,6 +2520,7 @@ contains
     canopy%epotcan1            = 0
     canopy%epotcan2            = 0
     canopy%epotcan3            = 0
+    canopy%epotvpd            = 0
 
   end subroutine zero_canopy_type
 

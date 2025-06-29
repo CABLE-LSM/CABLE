@@ -137,7 +137,8 @@ CONTAINS
          hcypsdo => null(),           &
          rny => null(),           & ! net rad
          rnypsdo => null(),           &
-         ghwet => null()           ! cond for heat for a wet canopy
+         ghwet => null(), &           ! cond for heat for a wet canopy
+         vpdpsdo => null()
 
 
 
@@ -279,13 +280,10 @@ CONTAINS
       met%dva = (qstvair - met%qvair) *  C%rmair/C%rmh2o * met%pmb * 100.0 
       dsx     = met%dva     ! init. leaf surface vpd
       dsx     = max(dsx, 0.0)
-      dsxpsdo = dsx
       dsy = dsx
-      dsypsdo = dsy
       tlfx    = met%tk  ! initialise leaf temp iteration memory variable (K)
-      tlfxpsdo = tlfx
       tlfy    = met%tk  ! initialise current leaf temp (K)
-      tlfypsdo = tlfy
+
 
       ortsoil = ssnow%rtsoil
       IF (cable_user%soil_struc=='default') then
@@ -482,6 +480,32 @@ CONTAINS
          ecypsdo = ecy
 
          sum_rad_rniso = sum(rad%rniso,2)
+         !!!!!!!!!!!!!!! vpd = 0.6Kpa!!!!!!!!!!!!!!!!!!!!!
+         if (iter==4) then
+            vpdpsdo = SPREAD(real(600,r_2), 1, mp) ! 600Pa
+            ! DO j = 1, mp
+            !    CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, j, wbpsdo)
+            !    CALL calc_swp(ssnow, soil, j, wbpsdo)
+            ! END DO
+            dsxpsdo = vpdpsdo
+            dsypsdo = vpdpsdo
+            psilxpsdo = psilx
+            psilypsdo = psily
+            fwsoilpsdo = fwsoil
+            fwsoiltmppsdo = fwsoiltmp
+            fwpsipsdo = fwpsi
+            tlfxpsdo = tlfx
+            tlfypsdo = tlfy
+            ecypsdo = ecy
+            hcypsdo = hcy
+            rnypsdo = rny
+            csxpsdo = csx
+            CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
+            veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo,&
+            fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
+            rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
+            ghwet, iter, climate, vpdpsdo=vpdpsdo)
+         endif
          if (iter==4) then
             wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
             DO j = 1, mp
@@ -505,7 +529,7 @@ CONTAINS
             veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo,&
             fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
             rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
-            ghwet, iter, climate, wbpsdo)
+            ghwet, iter, climate, wbpsdo=wbpsdo)
          endif
          if (iter==4) then
             DO j = 1, mp
@@ -1636,7 +1660,7 @@ CONTAINS
       veg, canopy, soil, ssnow,casapool, dsx, dsy, psilx, psily, &
       fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy, ecy, hcy, &
       rny, gbhu, gbhf, csx, &
-      cansat, ghwet, iter, climate, wbpsdo)
+      cansat, ghwet, iter, climate, wbpsdo, vpdpsdo)
 
       use cable_def_types_mod
       use cable_common_module
@@ -1680,6 +1704,7 @@ CONTAINS
       real(r_2), dimension(:),   intent(out)   :: ghwet  ! cond for heat for a wet canopy
       integer,                   intent(in)    :: iter
       type(climate_type),        intent(in)    :: climate
+      real(r_2), dimension(:), intent(in), optional :: vpdpsdo
       real(r_2), dimension(:,:), intent(in), optional :: wbpsdo
 
       !local variables (JK: move parameters to different routine at some point)
@@ -1795,6 +1820,7 @@ CONTAINS
 
       real, dimension(mp,2) ::  gsw_term, lower_limit2  ! local temp var
       real(r_2), dimension(mp,ms) :: wbtmp
+      real(r_2), dimension(mp):: vpdtmp
       integer :: i, j, k, kk, h ! iteration count
       integer :: NN,m
       integer, allocatable :: nktau(:), allktau(:), nktau_end(:)
@@ -1833,6 +1859,11 @@ CONTAINS
          wbtmp = wbpsdo
       else
          wbtmp = ssnow%wb
+      endif
+      if (present(vpdpsdo)) then
+         vpdtmp = vpdpsdo
+      else
+         vpdtmp = met%dva
       endif
       if (iter==1) then 
          if ((cable_user%soil_struc=='default') .and. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') <= 0)) then
@@ -2006,6 +2037,8 @@ CONTAINS
       ! // '.txt'
       if (present (wbpsdo)) then
          txtname = trim(filename%path) // 'testIteration_wbpsdo_cable_out.txt'
+      elseif (present (vpdpsdo)) then
+         txtname = trim(filename%path) // 'testIteration_vpdpsdo_cable_out.txt'
       else
          txtname = trim(filename%path) // 'testIteration_cable_out.txt'
       endif
@@ -2023,6 +2056,11 @@ CONTAINS
          if (ktau_tot == nktau(1) .and. iter==4) then
             ! Open the file for overwrite if k is the first element
             open(unit=135, file=txtname, status="unknown", action="write")
+         end if
+      elseif (present (vpdpsdo)) then
+         if (ktau_tot == nktau(1) .and. iter==4) then
+            ! Open the file for overwrite if k is the first element
+            open(unit=136, file=txtname, status="unknown", action="write")
          end if
       else
          if (ktau_tot == nktau(1) .and. iter==1) then
@@ -2551,12 +2589,12 @@ CONTAINS
                ENDDO
                ex(i,1) = real( ( air%dsatdk(i) * ( rad%rniso(i,1) - C%capp * C%rmair &
                * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,1) ) &
-               + C%capp * C%rmair * met%dva(i) * ghr(i,1) ) &
+               + C%capp * C%rmair * vpdtmp(i) * ghr(i,1) ) &
                / ( air%dsatdk(i) + psycst(i,1) ),r_2)
                ex(i,2) = real( ( air%dsatdk(i) &
                * ( rad%rniso(i,2) - C%capp * C%rmair * ( met%tvair(i) - &
                met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair * &
-               met%dva(i) * ghr(i,2) ) / &
+               vpdtmp(i) * ghr(i,2) ) / &
                ( air%dsatdk(i) + psycst(i,2) ), r_2)  
                ecx(i) = sum(ex(i,:))
                ex(i,:) = ex(i,:) * (1.0_r_2-real(canopy%fwet(i), r_2)) / real(air%rlam(i), r_2) 
@@ -2583,17 +2621,17 @@ CONTAINS
                   kplantx(i) = kplantxi
                   psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
                   psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
-                  if (any(allktau == ktau_tot) .and. (iter==4)) then
-                  print*,'ktau_tot, i and k',ktau_tot, iter, k
-                  if (present(wbpsdo)) then
-                     print*, '    psdo ex, psix and kplant: ',max(sum(real(ex(i,:),r_2)), 0.0_r_2), psixx(i), kplantx(i)
-                     print*, '    psdo psilx: ', psilx(i,1)
-                  else
+                  ! if (any(allktau == ktau_tot) .and. (iter==4)) then
+                  ! print*,'ktau_tot, i and k',ktau_tot, iter, k
+                  ! if (present(wbpsdo)) then
+                  !    print*, '    psdo ex, psix and kplant: ',max(sum(real(ex(i,:),r_2)), 0.0_r_2), psixx(i), kplantx(i)
+                  !    print*, '    psdo psilx: ', psilx(i,1)
+                  ! else
 
-                     print*, '         ex, psix and kplant: ',max(sum(real(ex(i,:),r_2)), 0.0_r_2), psixx(i), kplantx(i)
-                     print*, '         psilx: ', psilx(i,1)
-                  endif
-                  endif
+                  !    print*, '         ex, psix and kplant: ',max(sum(real(ex(i,:),r_2)), 0.0_r_2), psixx(i), kplantx(i)
+                  !    print*, '         psilx: ', psilx(i,1)
+                  ! endif
+                  ! endif
 
                   ! !!!!!!!!!!!!!!!!!!! another option!!!!!!!!!!!!!!!!!!!!!!
                   ! psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
@@ -2710,9 +2748,9 @@ CONTAINS
                   SUM( rad%gradis(i,:) ), r_2)
 
                ! Update leaf surface vapour pressure deficit:
-               dsx(i) = met%dva(i) + air%dsatdk(i) * (tlfx(i)-met%tvair(i))
+               dsx(i) = vpdtmp(i) + air%dsatdk(i) * (tlfx(i)-met%tvair(i))
                if (cable_user%perturb_dva_by_T) then
-                  dsx(i) = met%dva(i) + air%dsatdk(i) * (tlfx(i) -met%tvair(i) + cable_user%dva_T_perturbation )
+                  dsx(i) = vpdtmp(i) + air%dsatdk(i) * (tlfx(i) -met%tvair(i) + cable_user%dva_T_perturbation )
                endif
 
                dsx(i)=  max(dsx(i),0.0)
@@ -2826,6 +2864,16 @@ CONTAINS
                   ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4), &
                   ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4), &
                   kplantx(i)
+               elseif (present (vpdpsdo)) then 
+                  write(136,*) ktau_tot, iter, i, k, tlfx(i), deltlf(i), &
+                  dsx(i),abs_deltds(i), psilx(i,1), psilx(i,2),abs_deltpsil(i,1),abs_deltpsil(i,2),fwpsi(i,1),fwpsi(i,2), &
+                  psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
+                  anrubiscox(i,2), anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
+                  canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
+                  vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
+                  ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4), &
+                  ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4), &
+                  kplantx(i)
                else
                   write(134,*) ktau_tot, iter, i, k, tlfx(i), deltlf(i), &
                   dsx(i),abs_deltds(i), psilx(i,1), psilx(i,2),abs_deltpsil(i,1),abs_deltpsil(i,2),fwpsi(i,1),fwpsi(i,2), &
@@ -2879,6 +2927,8 @@ CONTAINS
       if (ktau_tot == nktau_end(size(nktau_end)) .and. iter==4) THEN
          if (present (wbpsdo)) then 
             close(135)
+         elseif (present (vpdpsdo)) then 
+            close(136)
          else
             close(134)
          endif
@@ -2893,8 +2943,9 @@ CONTAINS
       canopy%fevc = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
       if (present (wbpsdo)) then
          canopy%epotcan3 = canopy%fevc
-      endif
-      if (.NOT. present (wbpsdo)) then
+      elseif (present (wbpsdo)) then
+         canopy%epotvpd = canopy%fevc
+      else
          canopy%abs_deltpsil = abs_deltpsil
          canopy%abs_deltcs = abs_deltcs * 1.0e6_r_2
          canopy%abs_deltlf = abs_deltlf

@@ -443,6 +443,7 @@ MODULE cable_IO_vars_module
          epotcan1 = .FALSE., &
          epotcan2 = .FALSE., &
          epotcan3 = .FALSE., &
+         epotvpd = .FALSE., &
          fevc = .FALSE., &
          total_est_evap = .FALSE., &
          wb_30 = .FALSE., &
