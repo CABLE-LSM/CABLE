@@ -179,6 +179,7 @@ CONTAINS
       ALLOCATE(gbhf(mp,mf), csx(mp,mf), csxpsdo(mp,mf), psilx(mp,mf), psilxpsdo(mp,mf), psily(mp,mf), psilypsdo(mp,mf), &
        fwpsi(mp,mf), fwpsipsdo(mp,mf))
       ALLOCATE(ghwet(mp))
+      ALLOCATE(vpdpsdo(mp))
       ALLOCATE(wbpsdo(mp,ms))
 
 
@@ -949,7 +950,7 @@ CONTAINS
       DEALLOCATE(ecy,ecypsdo, hcy,hcypsdo, rny, rnypsdo)
       DEALLOCATE(gbhf, csx, csxpsdo)
       DEALLOCATE(ghwet)
-
+      DEALLOCATE(wbpsdo, vpdpsdo)
       RETURN
 
    CONTAINS
