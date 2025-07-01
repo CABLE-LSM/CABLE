@@ -16,7 +16,7 @@ SUBROUTINE remove_trans(soil, ssnow, canopy)
     TYPE(canopy_type), INTENT(INOUT)         :: canopy
     TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow
     TYPE(soil_parameter_type), INTENT(INOUT) :: soil
-    INTEGER i, k
+    INTEGER k
 
     IF (cable_user%FWSOIL_switch == 'Haverd2013') THEN
 
@@ -34,7 +34,7 @@ SUBROUTINE remove_trans(soil, ssnow, canopy)
 
     IF (cable_user%gw_model) THEN
        ssnow%wb    = ssnow%wbliq + den_rat * ssnow%wbice
-       ssnow%wmliq = ssnow%wbliq * zse_vec * Cdensity_liq !mass
+       ssnow%wmliq = ssnow%wbliq * soil%zse_vec * Cdensity_liq !mass
        ssnow%wmtot = ssnow%wmliq + ssnow%wmice  !mass
 
     END IF
