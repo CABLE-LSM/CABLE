@@ -2944,7 +2944,7 @@ CONTAINS
       canopy%fevc = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
       if (present (wbpsdo)) then
          canopy%epotcan3 = canopy%fevc
-      elseif (present (wbpsdo)) then
+      elseif (present (vpdpsdo)) then
          canopy%epotvpd = canopy%fevc
       else
          canopy%abs_deltpsil = abs_deltpsil
