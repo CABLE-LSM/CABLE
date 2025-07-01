@@ -1198,7 +1198,7 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%evapfbl, displs(bidx), ierr)
-    blen(bidx) = ms * r1len
+    blen(bidx) = ms * r2len
 
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%qstss, displs(bidx), ierr)
@@ -3780,7 +3780,7 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%evapfbl(off,1), displs(bidx), ierr)
-    blocks(bidx) = r1len * ms
+    blocks(bidx) = r2len * ms
 
     !midx = midx + 1
     ! REAL(r_1)
