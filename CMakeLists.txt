@@ -128,7 +128,7 @@ if(CABLE_LIBRARY)
         src/coupled/esm/cable_soil_params_mod.F90
         src/coupled/esm/cable_pft_params_mod.F90
         src/coupled/esm/casa_landuse.F90
-        src/coupled/esm/cbl_LAI_canopy_height.F90
+        src/coupled/esm/LAI_canopy_height_cbl.F90
         #src/shared/casa_offline_inout.F90
         #src/shared/casa_ncdf.F90
         #src/shared/cable_phenology.F90
