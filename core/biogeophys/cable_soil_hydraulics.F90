@@ -486,6 +486,9 @@ CONTAINS
       REAL, DIMENSION(ms) :: a
       INTEGER :: k
       real :: k1, k2, pd, BAI, WD, AGB_pl, DBH, plc, sumpsiksoil, sumksoil
+      real:: huber_value, SLA
+      huber_value = 3.65e-8 ! m2 cm-2 (sapwood area/leaf area) for Fagus sylvatica
+      SLA = 154 ! cm2 g-1 for Fagus sylvatica
       !real(r_2) :: psi_sr
       !ELSE
       ! zihanlu: calculate psi_soil no matter which soil_sche is used
@@ -557,8 +560,11 @@ CONTAINS
          AGB_pl = casapool%cplant(i,2) / 1000.0_r_2 * gC2DM / pd ! kg pl-1
          DBH = (AGB_pl/k1)**(1.0_r_2/k2) ! cm 
          BAI = (DBH/200.0_r_2)**2.0_r_2*pi*pd ! m2 m-2
+         print*, 'old BAI',BAI
          ! plc = get_xylem_vulnerability(ssnow%psi_rootzone(i), &
          ! veg%b_plant(i), veg%c_plant(i))
+         BAI = casapool%cplant(i,1) * gC2DM * SLA * huber_value !  m2 m-2
+         print*, 'new BAI',BAI
          plc = get_xylem_vulnerability(psix, &
          veg%b_plant(i), veg%c_plant(i))
          !canopy%kplant(i) = veg%kmax(i) * BAI / veg%hc(i) * plc
