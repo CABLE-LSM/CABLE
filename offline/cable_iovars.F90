@@ -418,6 +418,14 @@ MODULE cable_IO_vars_module
          abs_deltpsil_sh = .FALSE.,       &
          abs_deltcs_sl = .FALSE.,       & 
          abs_deltcs_sh = .FALSE.,       &
+         abs_deltpsil_sl_vpd = .FALSE.,       & 
+         abs_deltpsil_sh_vpd = .FALSE.,       &
+         abs_deltcs_sl_vpd = .FALSE.,       & 
+         abs_deltcs_sh_vpd = .FALSE.,       &
+         abs_deltpsil_sl_sw = .FALSE.,       & 
+         abs_deltpsil_sh_sw = .FALSE.,       &
+         abs_deltcs_sl_sw = .FALSE.,       & 
+         abs_deltcs_sh_sw = .FALSE.,       &
          fwpsi_sl = .FALSE.,       &
          fwpsi_sh = .FALSE.,       &   
          plc_sat = .FALSE.,       & 
@@ -428,6 +436,10 @@ MODULE cable_IO_vars_module
          kplant = .FALSE.,       &
          abs_deltlf = .FALSE.,   &
          abs_deltds = .FALSE.,   &
+         abs_deltlf_vpd = .FALSE.,   &
+         abs_deltds_vpd = .FALSE.,   &
+         abs_deltlf_sw = .FALSE.,   &
+         abs_deltds_sw = .FALSE.,   &
          ksoil = .FALSE.,  &
          kroot = .FALSE.,  &
          b_plant = .FALSE.,  &

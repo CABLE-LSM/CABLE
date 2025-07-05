@@ -456,6 +456,10 @@ module cable_def_types_mod
           fwet => null(), &       ! fraction of canopy wet
           abs_deltlf => null(), &
           abs_deltds => null(), &
+          abs_deltlf_vpd => null(), &
+          abs_deltds_vpd => null(), &
+          abs_deltlf_sw => null(), &
+          abs_deltds_sw => null(), &
           epotcan1  => null(), & 
           epotcan2  => null(), &
           epotcan3  => null(), &
@@ -533,6 +537,10 @@ module cable_def_types_mod
      real(r_2), dimension(:), pointer :: psi_can_opt => null() 
      real(r_2), dimension(:,:), pointer :: abs_deltpsil => null() 
      real(r_2), dimension(:,:), pointer :: abs_deltcs => null() 
+     real(r_2), dimension(:,:), pointer :: abs_deltpsil_vpd => null() 
+     real(r_2), dimension(:,:), pointer :: abs_deltcs_vpd => null() 
+     real(r_2), dimension(:,:), pointer :: abs_deltpsil_sw => null() 
+     real(r_2), dimension(:,:), pointer :: abs_deltcs_sw => null() 
      real(r_2), dimension(:), pointer :: psix => null()
      ! plant hydraulics; mgk576 2017; ms835 2022
      REAL(r_1), DIMENSION(:), POINTER :: &
@@ -1263,6 +1271,10 @@ contains
     allocate(canopy%dlf(mp))
     allocate(canopy%abs_deltlf(mp))
     allocate(canopy%abs_deltds(mp))
+    allocate(canopy%abs_deltlf_vpd(mp))
+    allocate(canopy%abs_deltds_vpd(mp))
+    allocate(canopy%abs_deltlf_sw(mp))
+    allocate(canopy%abs_deltds_sw(mp))
     allocate(canopy%gw(mp,mf))     ! dry canopy conductance (ms-1) edit vh 6/7/09
     allocate(canopy%ancj(mp,mf,3)) ! limiting photosynthetic rates (Rubisco,RuBP,sink) vh 6/7/09
     allocate(canopy%tlfy(mp,mf))   ! sunlit and shaded leaf temperatures
@@ -1292,6 +1304,10 @@ contains
     allocate( canopy%psi_can(mp,mf) )
     allocate( canopy%abs_deltpsil(mp,mf) )
     allocate( canopy%abs_deltcs(mp,mf) )
+    allocate( canopy%abs_deltpsil_vpd(mp,mf) )
+    allocate( canopy%abs_deltcs_vpd(mp,mf) )
+    allocate( canopy%abs_deltpsil_sw(mp,mf) )
+    allocate( canopy%abs_deltcs_sw(mp,mf) )
     allocate( canopy%psi_can_opt(mp) )
     allocate( canopy%kplant(mp) )
     allocate( canopy%plc_sat(mp) )
@@ -1929,6 +1945,10 @@ contains
     deallocate( canopy%psi_can )
     deallocate( canopy%abs_deltpsil )
     deallocate( canopy%abs_deltcs )
+    deallocate( canopy%abs_deltpsil_vpd )
+    deallocate( canopy%abs_deltcs_vpd )
+    deallocate( canopy%abs_deltpsil_sw )
+    deallocate( canopy%abs_deltcs_sw )
     deallocate( canopy%psi_can_opt )
     deallocate( canopy%kplant )
     deallocate( canopy%plc_sat )
@@ -1939,6 +1959,10 @@ contains
     deallocate( canopy%day_plc_can )
     deallocate( canopy%abs_deltlf )
     deallocate( canopy%abs_deltds )
+    deallocate( canopy%abs_deltlf_vpd )
+    deallocate( canopy%abs_deltds_vpd )
+    deallocate( canopy%abs_deltlf_sw )
+    deallocate( canopy%abs_deltds_sw )
     deallocate(canopy%epotcan1)
     deallocate(canopy%epotcan2)
     deallocate(canopy%epotcan3)
@@ -2507,6 +2531,10 @@ contains
     canopy%psi_can = 0
     canopy%abs_deltpsil = 0
     canopy%abs_deltcs = 0
+    canopy%abs_deltpsil_vpd = 0
+    canopy%abs_deltcs_vpd = 0
+    canopy%abs_deltpsil_sw = 0
+    canopy%abs_deltcs_sw = 0
     canopy%psi_can_opt = 0
     canopy%kplant = 0
     canopy%plc_sat = 0
@@ -2517,6 +2545,10 @@ contains
     canopy%day_plc_can = 0
     canopy%abs_deltlf = 0
     canopy%abs_deltds = 0
+    canopy%abs_deltlf_vpd = 0
+    canopy%abs_deltds_vpd = 0
+    canopy%abs_deltlf_sw = 0
+    canopy%abs_deltds_sw = 0
     canopy%epotcan1            = 0
     canopy%epotcan2            = 0
     canopy%epotcan3            = 0
