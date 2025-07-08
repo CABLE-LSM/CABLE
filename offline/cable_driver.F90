@@ -640,9 +640,13 @@ PROGRAM cable_offline_driver
               ! get koffset to add to time-step of sitemet
               if (trim(site%RunType) == 'historical') then
                  MetYear = CurYear
-                 leaps = .true.
-                 LOY = 365
-                 if (IS_LEAPYEAR(MetYear)) LOY = 366
+                 !leaps = .true.
+                 if (leaps) then
+                  LOY = 365
+                  if (IS_LEAPYEAR(MetYear)) LOY = 366
+                 else
+                  LOY = 365
+                 endif
                  kend = nint(24.0 * 3600.0 / dels) * LOY
               else if ((trim(site%RunType) == 'spinup') .or. &
                    trim(site%RunType) == 'transient') then
