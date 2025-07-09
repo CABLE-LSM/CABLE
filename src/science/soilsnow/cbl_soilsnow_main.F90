@@ -53,7 +53,7 @@ USE cable_phys_constants_mod,  ONLY: density_liq, density_ice
     REAL, DIMENSION(mp) :: snowmlt
     REAL, DIMENSION(mp) :: totwet
     REAL, DIMENSION(mp) :: weting
-    REAL(r_2), DIMENSION(mp) :: xx
+    REAL, DIMENSION(mp) :: xx
     REAL(r_2), DIMENSION(mp) :: xxx
     REAL(r_2), DIMENSION(mp) :: deltat,sinfil1,sinfil2,sinfil3
     REAL                :: zsetot
@@ -122,7 +122,7 @@ USE cable_phys_constants_mod,  ONLY: density_liq, density_ice
     ! snow aging etc...
     CALL snowl_adjust(dels, ssnow, canopy )
 
-   CALL stempv(dels, canopy, ssnow, soil, soil%heat_cap_lower_limit )
+   CALL stempv(dels, canopy, ssnow, soil, REAL(soil%heat_cap_lower_limit) )
 
     ssnow%tss =  (1-ssnow%isflag)*ssnow%tgg(:,1) + ssnow%isflag*ssnow%tggsn(:,1)
 
@@ -133,7 +133,8 @@ USE cable_phys_constants_mod,  ONLY: density_liq, density_ice
 
     CALL remove_trans(dels, soil, ssnow, canopy, veg)
 
-   CALL  soilfreeze(dels, soil, ssnow, soil%heat_cap_lower_limit )
+   CALL  soilfreeze(dels, soil, ssnow, REAL(soil%heat_cap_lower_limit) )
+
 
     totwet = canopy%precis + ssnow%smelt
 
@@ -196,7 +197,7 @@ ENDIF
     DO k = 1, ms
       ! tot moisture this timestep 
       ssnow%wbtot(:) = ssnow%wbtot(:) +                                         &
-        (ssnow%wbliq(:,k)*density_liq + ssnow%wbice(:,k)*density_ice) * soil%zse(k)
+        REAL( (ssnow%wbliq(:,k)*density_liq + ssnow%wbice(:,k)*density_ice) * soil%zse(k), r_2)
     END DO
 
 
