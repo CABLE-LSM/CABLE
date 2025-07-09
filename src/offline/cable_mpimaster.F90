@@ -4862,7 +4862,7 @@ CONTAINS
             &                        mat_t(midx, rank), ierr)
        CALL MPI_Type_commit (mat_t(midx, rank), ierr)
        midx = midx + 1
-       ! REAL(r_1)
+       ! REAL(r_2)
        CALL MPI_Get_address (ssnow%evapfbl(off,1), maddr(midx), ierr) ! 12
        CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
             &                        mat_t(midx, rank), ierr)
