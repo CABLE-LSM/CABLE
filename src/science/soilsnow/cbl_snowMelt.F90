@@ -7,9 +7,11 @@ PUBLIC  snow_melting
 CONTAINS
 
 SUBROUTINE snow_melting (dels, snowmlt, ssnow, soil )
+  !*## Purpose
+  ! Snow melting
 
     USE cable_common_module
-IMPLICIT NONE
+    IMPLICIT NONE
 
     REAL, INTENT(IN) :: dels   ! integration time step (s)
 

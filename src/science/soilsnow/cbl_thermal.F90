@@ -48,7 +48,8 @@ IMPLICIT NONE
     ! snow aging etc...
     CALL snowl_adjust(dels, ssnow, canopy )
 
-    IF (cable_user%gw_model) CALL GWstempv(dels, canopy, ssnow, soil)
+!    IF (cable_user%gw_model) CALL GWstempv(dels, canopy, ssnow, soil) ! replaced by rk4417 - phase2
+    CALL GWstempv(dels, canopy, ssnow, soil)
 
     !do the soil and snow melting, freezing prior to water movement
     DO i=1,mp
