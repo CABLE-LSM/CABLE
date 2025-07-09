@@ -656,7 +656,7 @@ PROGRAM cable_offline_driver
                       mod(CurYear - &
                       (site%spinstartyear-(site%spinendyear-site%spinstartyear +1)*100), &
                       (site%spinendyear-site%spinstartyear+1))
-                 leaps = .false.
+                 
                  LOY = 365
                  kend = nint(24.0 * 3600.0 / dels) * LOY
               end if
@@ -665,8 +665,12 @@ PROGRAM cable_offline_driver
               koffset_met = 0
               if (MetYear > site%spinstartyear) then
                  do Y = site%spinstartyear, MetYear-1
+                  if (leaps) then
                     LOYtmp = 365
                     if (IS_LEAPYEAR(Y)) LOYtmp = 366
+                  else
+                     LOYtmp = 365
+                  endif
                     koffset_met = koffset_met + int(real(LOYtmp) * 86400./real(dels))
                  end do
               end if
