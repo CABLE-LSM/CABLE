@@ -214,6 +214,9 @@ USE cable_climate_type_mod, ONLY: climate_type
   TYPE soil_snow_type
 
      INTEGER, DIMENSION(:), POINTER :: isflag ! 0 => no snow 1 => snow
+          !* Flag (0/1) to indicate if snow is present 
+          ! For isflag=1, if there is enough snow, it will use a 3 layer snowpack
+          ! If there isn't enough snow, it will use a single layer snowpack
 
      REAL, DIMENSION(:), POINTER ::                                           &
           iantrct, & ! pointer to Antarctic land points
