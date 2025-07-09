@@ -15,6 +15,8 @@ USE cable_def_types_mod
 USE cable_phys_constants_mod, ONLY : CTFRZ   => TFRZ
 
 !H!USE cable_gw_hydro_module, ONLY : calc_srf_wet_fraction
+! line above uncommented by rk4417 - phase2
+USE cable_gw_hydro_module, ONLY : calc_srf_wet_fraction
 USE cable_init_wetfac_mod, ONLY: initialize_wetfac
 
 TYPE (veg_parameter_type),  INTENT(INOUT) :: veg
@@ -56,24 +58,30 @@ INTEGER :: j, i
 
     !calc the surface wetness for soil evap in this routine
     !include the default wetfac when or_evap and gw_model are not used
-!H!gw n/a here and so copied default below
-!H!    CALL calc_srf_wet_fraction(ssnow,soil,met,veg)
-!H!   ELSE  !Default formulation
 
-       !call saturated_fraction(ssnow,soil,veg)
-       ssnow%satfrac(:) = 1.0e-8
-       ssnow%rh_srf(:)  = 1.0
+
+    CALL calc_srf_wet_fraction(ssnow,soil,met,veg)
+
+! line above replaces remaining code below - rk4417 - phase2
+
+!     !H!gw n/a here and so copied default below
+!     !H!    CALL calc_srf_wet_fraction(ssnow,soil,met,veg)
+!     !H!   ELSE  !Default formulation
+!    
+    !    !call saturated_fraction(ssnow,soil,veg)
+    !    ssnow%satfrac(:) = 1.0e-8
+    !    ssnow%rh_srf(:)  = 1.0
     
-    !This is updating wetfac iusing same calc as initialization
-    !originally code in canopy used 1e-6 as MIN
-    CALL initialize_wetfac( mp, ssnow%wetfac, soil%swilt, soil%sfc,            &
-                            ssnow%wb(:,1), ssnow%wbice(:,1), ssnow%snowd,      &
-                            veg%iveg, met%tk, Ctfrz ) 
+    ! !This is updating wetfac iusing same calc as initialization
+    ! !originally code in canopy used 1e-6 as MIN
+    ! CALL initialize_wetfac( mp, ssnow%wetfac, soil%swilt, soil%sfc,            &
+    !                         ssnow%wb(:,1), ssnow%wbice(:,1), ssnow%snowd,      &
+    !                         veg%iveg, met%tk, Ctfrz ) 
    
-    ! owetfac introduced to reduce sharp changes in dry regions,
-    ! especially in offline runs in which there may be discrepancies b/n
-    ! timing of precip and temperature change (EAK apr2009)
-    ssnow%wetfac = 0.5*(ssnow%wetfac + ssnow%owetfac)
+    ! ! owetfac introduced to reduce sharp changes in dry regions,
+    ! ! especially in offline runs in which there may be discrepancies b/n
+    ! ! timing of precip and temperature change (EAK apr2009)
+    ! ssnow%wetfac = 0.5*(ssnow%wetfac + ssnow%owetfac)
 
 RETURN
 END SUBROUTINE Surf_wetness_fact
