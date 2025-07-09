@@ -684,7 +684,9 @@ CONTAINS
         canopy%oldcansto=canopy%cansto
 
         ! Zero out lai where there is no vegetation acc. to veg. index
-        WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
+!          WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
+! line above replaced by below - rk4417 - phase2
+          WHERE ( veg%iveg(:) .GE. 14 ) veg%vlai = 0. ! MMY change from iveg%vlai to veg%vlai
 
 
 
@@ -758,7 +760,9 @@ CONTAINS
 !$        ENDIF
 
           ! Zero out lai where there is no vegetation acc. to veg. index
-          WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
+!             WHERE ( iveg%iveg(:) .GE. 14 ) iveg%vlai = 0.
+! line above replaced by below - rk4417 - phase2
+             WHERE ( veg%iveg(:) .GE. 14 ) veg%vlai = 0. ! MMY change from iveg%vlai to veg%vlai     
 
 !$        ! At first time step of year, set tile area according to updated LU areas
 !$        IF (ktau == 1 .and. CABLE_USER%POPLUC) THEN
@@ -951,7 +955,8 @@ CONTAINS
         met%ofsd = met%fsd(:,1) + met%fsd(:,2)
         canopy%oldcansto=canopy%cansto
 
-        IF ( (TRIM(cable_user%MetType) .EQ. "gswp") .OR. (TRIM(cable_user%MetType) .EQ. "gswp3") ) &
+        IF ( (TRIM(cable_user%MetType) .EQ. "gswp") .OR. (TRIM(cable_user%MetType) .EQ. "gswp3") &
+           .OR. (TRIM(cable_user%MetType) .EQ. "prin") ) & !MMY
           CALL close_met_file
 
         IF (icycle>0 .AND.   cable_user%CALL_POP)  THEN
@@ -1046,7 +1051,7 @@ CONTAINS
 
           IF ( (.NOT. CASAONLY) .AND. spinConv ) THEN
             SELECT CASE (TRIM(cable_user%MetType))
-            CASE ('plum', 'cru', 'gswp', 'gswp3')
+            CASE ('plum', 'cru', 'gswp', 'gswp3', 'prin')
               CALL write_output( dels, ktau_tot, met, canopy, casaflux, casapool, casamet, &
                    ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
             CASE DEFAULT
@@ -1113,9 +1118,19 @@ CONTAINS
         IF( INT( ktau_tot/kend ) > 1 ) THEN
 
           ! evaluate spinup
+          ! =================== MMY_phase2 
+          ! commented out this region in favor of the one below - rk4417 
+          ! =====================
           IF (ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.                     &
               ANY(ABS(ssnow%tgg-soilTtemp)>delsoilT) .OR. &
               MAXVAL(ABS(ssnow%GWwb-GWtemp),dim=1)>delgwM)  THEN
+
+          ! =================== MMY_phase2 uncomment =====================                 
+!          IF( (ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.                & 
+!               ANY( ABS(ssnow%tgg-soilTtemp)>delsoilT) .or. &               
+!               maxval(ABS(ssnow%GWwb-GWtemp),dim=1) > delgwM) .and. &
+!               ( (int(ktau_tot/kend) .lt. cable_user%max_spins)  .and.&
+!                 (cable_user%max_spins .gt. 0) ) ) THEN
 
             ! No complete convergence yet
             !               PRINT *, 'ssnow%wb : ', ssnow%wb
@@ -1323,7 +1338,8 @@ CONTAINS
     IF ( TRIM(cable_user%MetType) .NE. "gswp"  .AND. &
          TRIM(cable_user%MetType) .NE. "gswp3" .AND. &
          TRIM(cable_user%MetType) .NE. "plum"  .AND. &
-         TRIM(cable_user%MetType) .NE. "cru") CALL close_met_file
+         TRIM(cable_user%MetType) .NE. "cru"   .AND. &
+         TRIM(cable_user%MetType) .NE. "prin" ) CALL close_met_file
 
     ! Close log file
     CLOSE(logn)
@@ -2536,6 +2552,10 @@ CONTAINS
        CALL MPI_Get_address (canopy%fwsoil(off), displs(bidx), ierr)
        blen(bidx) = r2len
 
+       bidx = bidx + 1    ! block inserted by rk4417 - phase2
+       CALL MPI_Get_address (canopy%sublayer_dz(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+
        bidx = bidx + 1
        CALL MPI_Get_address (canopy%gswx(off,1), displs(bidx), ierr)
        CALL MPI_Type_create_hvector (mf, r1len, r1stride, MPI_BYTE, &
@@ -3124,19 +3144,36 @@ CONTAINS
        CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
             &                             types(bidx), ierr)
        blen(bidx) = 1
-
        bidx = bidx + 1
-       CALL MPI_Get_address (soil%smpc_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Get_address (ssnow%ssat_hys(off,1), displs(bidx), ierr)
        CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
-            &                             types(bidx), ierr)
+       &                             types(bidx), ierr)
        blen(bidx) = 1
 
        bidx = bidx + 1
-       CALL MPI_Get_address (soil%wbc_vec(off,1), displs(bidx), ierr)
+       CALL MPI_Get_address (ssnow%watr_hys(off,1), displs(bidx), ierr)
        CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
-            &                             types(bidx), ierr)
+       &                             types(bidx), ierr)
        blen(bidx) = 1
 
+       bidx = bidx + 1
+       CALL MPI_Get_address (ssnow%smp_hys(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+       &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (ssnow%wb_hys(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+       &                             types(bidx), ierr)
+       blen(bidx) = 1
+
+       bidx = bidx + 1
+       CALL MPI_Get_address (ssnow%hys_fac(off,1), displs(bidx), ierr)
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+       &                             types(bidx), ierr)
+       blen(bidx) = 1
+ 
 
        !1D
        bidx = bidx + 1
@@ -3159,12 +3196,16 @@ CONTAINS
        CALL MPI_Get_address (soil%GWwatr(off), displs(bidx), ierr)
        blen(bidx) = r2len
 
-       bidx = bidx + 1
-       CALL MPI_Get_address (soil%GWz(off), displs(bidx), ierr)
-       blen(bidx) = r2len
+    !    bidx = bidx + 1
+    !    CALL MPI_Get_address (soil%GWz(off), displs(bidx), ierr)
+    !    blen(bidx) = r2len
 
        bidx = bidx + 1
        CALL MPI_Get_address (soil%GWdz(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+
+       bidx = bidx + 1     ! inserted by rk4417 - phase2
+       CALL MPI_Get_address (soil%elev(off), displs(bidx), ierr)
        blen(bidx) = r2len
 
        bidx = bidx + 1
@@ -3175,6 +3216,43 @@ CONTAINS
        CALL MPI_Get_address (soil%slope_std(off), displs(bidx), ierr)
        blen(bidx) = r2len
 
+
+! block below inserted by rk4417 - phase2
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%drain_dens(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+       
+       
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%hkrz(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+       
+       
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%zdepth(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+       
+       
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%srf_frac_ma(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+       
+       
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%edepth_ma(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+       
+       
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%qhz_max(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+       
+       
+       bidx = bidx + 1
+       CALL MPI_Get_address (soil%qhz_efold(off), displs(bidx), ierr)
+       blen(bidx) = r2len
+! end of block - rk4417 - phase2
+
        bidx = bidx + 1
        CALL MPI_Get_address (ssnow%GWwb(off), displs(bidx), ierr)
        blen(bidx) = r2len
@@ -3182,6 +3260,7 @@ CONTAINS
        ! MPI: sanity check
        IF (bidx /= ntyp) THEN
           WRITE (*,*) 'master: invalid number of param_t fields ',bidx,', fix it!'
+          WRITE (*,*) 'local counbt bidx is ',bidx,' while ntyp is ',ntyp ! inserted by rk4417 - phase2
           CALL MPI_Abort (comm, 1, ierr)
        END IF
 
@@ -4404,6 +4483,7 @@ CONTAINS
        ! MPI: sanity check
        IF (bidx /= ntyp) THEN
           WRITE (*,*) 'master: invalid number of casa_t param fields ',bidx,', fix it!'
+          WRITE (*,*) 'local counbt bidx is ',bidx,' while ntyp is ',ntyp ! inserted by rk4417 - phase2
           CALL MPI_Abort (comm, 1, ierr)
        END IF
 
@@ -4862,6 +4942,51 @@ CONTAINS
             &                        mat_t(midx, rank), ierr)
        CALL MPI_Type_commit (mat_t(midx, rank), ierr)
        midx = midx + 1
+
+! block below inserted by rk4417 - phase2
+       ! REAL(r_2)
+       CALL MPI_Get_address (ssnow%smp(off,1), maddr(midx), ierr) ! 12
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                        mat_t(midx, rank), ierr)
+       CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+       midx = midx + 1
+
+       ! REAL(r_2)
+       CALL MPI_Get_address (ssnow%wb_hys(off,1), maddr(midx), ierr) ! 12
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                        mat_t(midx, rank), ierr)
+       CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+       midx = midx + 1
+
+       ! REAL(r_2)
+       CALL MPI_Get_address (ssnow%smp_hys(off,1), maddr(midx), ierr) ! 12
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                        mat_t(midx, rank), ierr)
+       CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+       midx = midx + 1
+
+       ! REAL(r_2)
+       CALL MPI_Get_address (ssnow%ssat_hys(off,1), maddr(midx), ierr) ! 12
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                        mat_t(midx, rank), ierr)
+       CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+       midx = midx + 1
+
+       ! REAL(r_2)
+       CALL MPI_Get_address (ssnow%watr_hys(off,1), maddr(midx), ierr) ! 12
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                        mat_t(midx, rank), ierr)
+       CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+       midx = midx + 1
+
+       ! REAL(r_2)
+       CALL MPI_Get_address (ssnow%hys_fac(off,1), maddr(midx), ierr) ! 12
+       CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
+            &                        mat_t(midx, rank), ierr)
+       CALL MPI_Type_commit (mat_t(midx, rank), ierr)
+       midx = midx + 1
+! end of block - rk4417 - phase2
+
        ! REAL(r_1)
        CALL MPI_Get_address (ssnow%evapfbl(off,1), maddr(midx), ierr) ! 12
        CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
@@ -5370,6 +5495,11 @@ CONTAINS
        vidx = vidx + 1
        ! REAL(r_2)
        CALL MPI_Get_address (canopy%fwsoil(off), vaddr(vidx), ierr) ! 59
+       blen(vidx) = cnt * extr2
+
+       vidx = vidx + 1   ! block inserted by rk4417 - phase2
+       ! REAL(r_2)
+       CALL MPI_Get_address (canopy%sublayer_dz(off), vaddr(vidx), ierr) ! 59
        blen(vidx) = cnt * extr2
 
        ! MPI: 2D vars moved above
