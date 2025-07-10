@@ -840,6 +840,7 @@ CONTAINS
 
     USE cable_common_module
     USE snow_processes_soil_thermal_mod, ONLY : snow_processes_soil_thermal ! inserted by rk4417 - phase2
+    USE remove_trans_mod,                ONLY : remove_trans
     
     REAL                     , INTENT(IN)     :: dels ! integration time step (s)
     TYPE(soil_parameter_type), INTENT(INOUT)  :: soil
