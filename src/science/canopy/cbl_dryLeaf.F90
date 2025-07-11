@@ -22,6 +22,7 @@ USE cbl_fwsoil_module,        ONLY : fwsoil_calc_std, fwsoil_calc_non_linear,   
 USE cable_surface_types_mod, ONLY: evergreen_broadleaf, deciduous_broadleaf    
 USE cable_surface_types_mod, ONLY: evergreen_needleleaf, deciduous_needleleaf
 USE cable_surface_types_mod, ONLY: c3_grassland, tundra, c3_cropland  
+USE cable_surface_types_mod, ONLY: aust_temperate, aust_tropical      
    
 ! maths & other constants
 USE cable_other_constants_mod, ONLY : CLAI_THRESH  => LAI_THRESH
@@ -331,7 +332,9 @@ IMPLICIT NONE
 
                 ! broadleaf forest
                 IF ( veg%iveg(i) .EQ. evergreen_broadleaf .OR.                 &
-                     veg%iveg(i) .EQ. deciduous_broadleaf ) THEN 
+                     veg%iveg(i) .EQ. deciduous_broadleaf .OR.                 &
+                     veg%iveg(i) .EQ. aust_temperate      .OR.                 &
+                     veg%iveg(i) .EQ. aust_tropical       ) THEN 
 
                    rdx(i,:) = 0.60 * ( 1.2818e-6 + 0.0116 * veg%vcmax(i) -     &
                               0.0334 * climate%qtemp_max_last_year(i) * 1.0e-6 )
@@ -350,7 +353,7 @@ IMPLICIT NONE
 
                    rdx(i,:) = 0.60 * ( 1.6737e-6 + 0.0116 * veg%vcmax(i) -     &
                               0.0334 * climate%qtemp_max_last_year(i) * 1e-6 )
-                
+
                 ! shrub & other (C4 grass and C4 crop) (wetlands, nveg) TBC
                 ELSE  
                    rdx(i,:) = 0.60 * ( 1.5758e-6 + 0.0116 * veg%vcmax(i) -     &

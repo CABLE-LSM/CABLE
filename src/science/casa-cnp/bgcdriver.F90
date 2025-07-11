@@ -1,5 +1,3 @@
-!# define UM_CBL YES
-
 MODULE bgcdriver_mod
 
 IMPLICIT NONE

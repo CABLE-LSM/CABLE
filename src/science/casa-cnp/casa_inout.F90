@@ -1,4 +1,3 @@
-!#define UM_CBL YES
 !==============================================================================
 ! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
@@ -53,31 +52,59 @@ CONTAINS
     TYPE (phen_variable),      INTENT(INOUT) :: phen
 
     ! local variables
-    INTEGER, PARAMETER            :: nphen=8! was 10(IGBP). changed by Q.Zhang @01/12/2011
+    INTEGER nphen ! read from file rather than fixed in code 
     INTEGER np,nx,ilat
     INTEGER, DIMENSION(271,mvtype) :: greenup, fall,  phendoy1
-    INTEGER, DIMENSION(nphen)     :: greenupx,fallx,xphendoy1
-    INTEGER, DIMENSION(nphen)     :: ivtx
+    INTEGER, DIMENSION(mvtype)     :: greenupx,fallx,xphendoy1
+    INTEGER, DIMENSION(mvtype)     :: ivtx
     REAL(r_2), DIMENSION(271)     :: xlat
 
-    ! initilize for evergreen PFTs
+    ! initialize for all PFTs, then overwrite from file input if pft vegetated and not evergreen
     greenup(:,:) = -50
     fall(:,:)    = 367
-    phendoy1(:,:)= 2
 
     OPEN(101,file=casafile%phen)
     READ(101,*)
-    READ(101,*) (ivtx(nx),nx=1,nphen) ! fixed at 10, as only 10 of 17 IGBP PFT
-    ! have seasonal leaf phenology
+    READ(101,*) nphen
+    READ(101,*) (ivtx(nx),nx=1,nphen) ! list of pfts that are not evergreen
+    ! and have seasonal leaf phenology defined by greenup and fall days
     DO ilat=271,1,-1
        READ(101,*) xlat(ilat),(greenupx(nx),nx=1,nphen), &
-            (fallx(nx),nx=1,nphen),(xphendoy1(nx),nx=1,nphen)
+            (fallx(nx),nx=1,nphen)
        DO nx=1,nphen
           greenup(ilat,ivtx(nx)) = greenupx(nx)
           fall(ilat,ivtx(nx))    = fallx(nx)
-          phendoy1(ilat,ivtx(nx))= xphendoy1(nx)
        ENDDO
-    ENDDO
+
+       ! rml 8/4/25 calculate phase at day 1 based on greenup and fall 
+       ! instead of reading from modis_phenology file
+       ! phase 0 is from fall+15 to greenup-1
+       ! phase 1 is from greenup to greenup+14
+       ! phase 2 is from greenup+15 to fall-1
+       ! phase 3 is from fall to fall+14
+       DO nx = 1,mvtype
+         IF (greenup(ilat,nx).gt.fall(ilat,nx)) then
+            ! growing season goes across end of year
+            IF (greenup(ilat,nx).gt.352.and.fall(ilat,nx).gt.1) then
+              phendoy1(ilat,nx) = 1
+            ELSE
+              phendoy1(ilat,nx) = 2
+            ENDIF
+         ELSE
+            IF (greenup(ilat,nx).gt.1.and.fall(ilat,nx).gt.352) then
+              phendoy1(ilat,nx) = 3
+            ELSEIF (greenup(ilat,nx).eq.1.and.fall(ilat,nx).gt.1) then
+              phendoy1(ilat,nx) = 1
+            ELSEIF (greenup(ilat,nx).lt.0.and.fall(ilat,nx).gt.365) then
+              ! defaults used for evergreen (and non-veg)
+              phendoy1(ilat,nx) = 2
+            ELSE
+              phendoy1(ilat,nx) = 0
+            ENDIF
+         ENDIF
+       ENDDO
+
+    ENDDO ! latitude loop
 
     DO np=1,mp
        ilat=(casamet%lat(np)+55.25)/0.5+1
