@@ -506,6 +506,24 @@ CONTAINS
             fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
             rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
             ghwet, iter, climate, vpdpsdo=vpdpsdo)
+            dsxpsdo = dsx
+            dsypsdo = dsy
+            ! psilxpsdo = psilx
+            ! psilypsdo = psily
+            fwsoilpsdo = fwsoil
+            ! fwsoiltmppsdo = fwsoiltmp
+            ! fwpsipsdo = fwpsi
+            tlfxpsdo = tlfx
+            tlfypsdo = tlfy
+            ecypsdo = ecy
+            hcypsdo = hcy
+            rnypsdo = rny
+            csxpsdo = csx
+            CALL dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
+               veg, canopy, soil, ssnow,casapool, dsxpsdo, dsypsdo, &
+               fwsoilpsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,&
+               rnypsdo, gbhu, gbhf, csxpsdo, &
+               cansat, ghwet, iter, climate,gspsdo = canopy%gs_epotvpd)
          endif
          if (iter==4) then
             wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
@@ -1822,7 +1840,7 @@ CONTAINS
       real, dimension(mp,2) ::  gsw_term, lower_limit2  ! local temp var
       real(r_2), dimension(mp,ms) :: wbtmp
       real(r_2), dimension(mp):: vpdtmp
-      integer :: i, j, k, kk, h ! iteration count
+      integer :: i, j, k, kk, h, iter_ini ! iteration count
       integer :: NN,m
       integer, allocatable :: nktau(:), allktau(:), nktau_end(:)
       real :: vpd, g1, ktot, fw, refill  ! Ticket #56
@@ -1856,17 +1874,20 @@ CONTAINS
       ! allocate(gswmin(mp,mf))
 
       ! Soil water limitation on stomatal conductance:
+      iter_ini = 1
       if (present(wbpsdo)) then
+         iter_ini = 4
          wbtmp = wbpsdo
       else
          wbtmp = ssnow%wb
       endif
       if (present(vpdpsdo)) then
+         iter_ini = 4
          vpdtmp = vpdpsdo
       else
          vpdtmp = met%dva
       endif
-      if (iter==1) then 
+      if (iter==iter_ini) then 
          if ((cable_user%soil_struc=='default') .and. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') <= 0)) then
             if (cable_user%fwsoil_switch == 'standard') then
                call fwsoil_calc_std(fwsoil, soil, ssnow, veg, wbtmp)
@@ -2944,12 +2965,14 @@ CONTAINS
       canopy%fevc = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
       if (present (wbpsdo)) then
          canopy%epotcan3 = canopy%fevc
+         canopy%gs_epotcan3 = canopy%gswx
          canopy%abs_deltpsil_sw = abs_deltpsil
          canopy%abs_deltcs_sw = abs_deltcs * 1.0e6_r_2
          canopy%abs_deltlf_sw = abs_deltlf
          canopy%abs_deltds_sw = abs_deltds
       elseif (present (vpdpsdo)) then
-         canopy%epotvpd = canopy%fevc
+         
+         canopy%gs_epotvpd = canopy%gswx
          canopy%abs_deltpsil_vpd = abs_deltpsil
          canopy%abs_deltcs_vpd = abs_deltcs * 1.0e6_r_2
          canopy%abs_deltlf_vpd = abs_deltlf
@@ -3163,7 +3186,1237 @@ CONTAINS
 
    END SUBROUTINE dryLeaf
 
+SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
+      veg, canopy, soil, ssnow,casapool, dsx, dsy, &
+      fwsoil,tlfx, tlfy, ecy, hcy, &
+      rny, gbhu, gbhf, csx, &
+      cansat, ghwet, iter, climate,gspsdo)
 
+      use cable_def_types_mod
+      use cable_common_module
+      USE casavariable
+#ifdef __MPI__
+      use mpi, only: MPI_Abort
+#endif
+
+      implicit none
+      INTEGER,                   INTENT(IN)    :: ktau
+      INTEGER,                   INTENT(IN)    :: ktau_tot
+      real,                      intent(in)    :: dels ! integration time step (s)
+      type(radiation_type),      intent(inout) :: rad
+      type(air_type),            intent(inout) :: air
+      type(met_type),            intent(inout) :: met
+      type(veg_parameter_type),  intent(inout) :: veg
+      type(canopy_type),         intent(inout) :: canopy
+      type(soil_parameter_type), intent(inout) :: soil
+      type(soil_snow_type),      intent(inout) :: ssnow
+      TYPE (casa_pool),  INTENT(IN)           :: casapool
+      real,      dimension(:),   intent(inout) :: &
+         dsx,        & ! leaf surface vpd
+         dsy,        & ! leaf surface vpd
+         fwsoil,     & ! soil water modifier of stom. cond
+         ! fwsoiltmp,  &
+         tlfx,       & ! leaf temp prev. iter (K)
+         tlfy  ! leaf temp (K)
+      real(r_2), dimension(:),   intent(inout) :: &
+         ecy,        & ! lat heat fl dry big leaf
+         hcy,        & ! veg. sens heat
+         rny         !& !
+    
+      real(r_2), dimension(:,:), intent(inout) :: &
+         gbhu,       & ! forcedConvectionBndryLayerCond
+         gbhf,       & ! freeConvectionBndryLayerCond
+         csx   ! leaf surface CO2 concentration
+         ! psilx,      &
+         ! psily,      &
+         ! fwpsi   
+      real,      dimension(:),   intent(in)    :: cansat
+      real(r_2), dimension(:),   intent(out)   :: ghwet  ! cond for heat for a wet canopy
+      integer,                   intent(in)    :: iter
+      type(climate_type),        intent(in)    :: climate
+      real(r_2), dimension(:,:), intent(in), optional :: gspsdo
+
+      !local variables (JK: move parameters to different routine at some point)
+      real, parameter :: jtomol = 4.6e-6  ! Convert from J to Mol for light
+
+      real, dimension(mp) :: &
+         conkct,        & ! Michaelis Menton const.
+         conkot,        & ! Michaelis Menton const.
+         cx1,           & ! "d_{3}" in Wang and Leuning,
+         cx2,           & !     1998, appendix E
+         cx2y,         &
+         tdiff,         & ! leaf air temp diff.
+         tlfxx,         & ! leaf temp of current iteration (K)
+         dsxx,         & ! vpd at leaf surface of current iteration 
+         abs_deltlf,    & ! ABS(deltlf)
+         abs_deltds,    &
+         deltlf,        & ! deltlfy of prev iter.
+         deltlfy,       & ! del temp successive iter.
+         gras,          & ! Grashof coeff
+         evapfb,        & !
+         sum_rad_rniso, & !
+         sum_rad_gradis,& !
+         gwwet,         & ! cond for water for a wet canopy
+         ghrwet,        & ! wet canopy cond: heat & thermal rad
+         sum_gbh,       & !
+         ccfevw,        & ! limitation term for
+      ! wet canopy evaporation rate
+         temp_c3,       & !
+         temp_c4,       & !
+         temp_sun_c3,   & !
+         temp_shade_c3, & !
+         temp_sun_c4,   & !
+         temp_shade_c4    !
+
+      real(r_2), dimension(mp)  :: &
+         ecx,        & ! lat. hflux big leaf
+         hcx,        & ! sens heat fl big leaf prev iteration
+         rnx, &          ! net rad prev timestep
+         ecxs, &  ! lat. hflux big leaf (sap flux)
+         psixx, &
+         kplantx
+         
+      real(r_2) :: psixxi, kplantxi
+      real, dimension(mp,ms)  :: oldevapfbl
+
+      real, dimension(mp,mf)  :: &
+         gw,         & ! cond for water for a dry canopy
+         gh,         & ! cond for heat for a dry canopy
+         ghr,        & ! dry canopy cond for heat & thermal rad
+         anx,        & ! net photos. prev iteration
+         an_y,       & ! net photosynthesis soln
+         rdx3,       & ! daytime leaf resp rate, prev iteration
+         rdx4,       & ! daytime leaf resp rate, prev iteration
+         rdx,        & ! daytime leaf resp rate, prev iteration
+         rdy,        & ! daytime leaf resp rate
+         ejmxt3,     & ! jmax big leaf C3 plants
+         vcmxt3,     & ! vcmax big leaf C3
+         vcmxt4,     & ! vcmax big leaf C4
+         vcmxt3y,     & ! vcmax big leaf C3
+         vcmxt4y,     & ! vcmax big leaf C4
+         vx3,        & ! carboxylation C3 plants
+         vx4,        & ! carboxylation C4 plants
+         co2cp,      & ! CO2 compensation point (needed for Leuing stomatal conductance)
+      ! Ticket #56, xleuning is no longer used, we replace it with gs_coeff,
+      ! which is computed differently based on the new GS_SWITCH. If GS_SWITCH
+      ! is "leuning", it's the same, if "medlyn", then the new Medlyn model
+      ! xleuning,   & ! leuning stomatal coeff
+         gs_coeff,   & ! stom coeff, Ticket #56
+         gs_coeffy,   & 
+         psycst,     & ! modified pych. constant
+         frac42,     & ! 2D frac4
+         temp2,      &
+         anrubiscox, & ! net photosynthesis (rubisco limited)
+         anrubpx,    & ! net photosynthesis (rubp limited)
+         ansinkx,    & ! net photosynthesis (sink limited)
+         anrubiscoy, & ! net photosynthesis (rubisco limited)
+         anrubpy,    & ! net photosynthesis (rubp limited)
+         kc4,        & ! An-Ci slope in Collatz 1992 model
+         gmes,       & ! mesophyll conductance of big leaf
+         gswy,       &
+         csy
+
+      real(r_2), dimension(mp,mf)  ::  dAnrubiscox, & ! CO2 elasticity of net photosynthesis (rubisco limited)
+         dAnrubpx, &   !  (rubp limited)
+         dAnsinkx, &  ! (sink limited)
+         dAnx, & !(actual rate)
+         dAnrubiscoy, & ! CO2 elasticity of net photosynthesis (rubisco limited)
+         dAnrubpy, &   !  (rubp limited)
+         dAnsinky, &  ! (sink limited)
+         dAn_y, & !(actual rate)
+         eta_y, &
+         eta_x, &
+         ex,    &  !transpiration, kg m-2 s-1
+         fwpsiy, &
+         psilxx, &
+         csxx, &
+         abs_deltpsil , &
+         abs_deltcs
+
+      real ::  gam0,    &
+         conkc0,  &
+         conko0,  &
+         egam,    &
+         ekc,     &
+         eko,     &
+         qs,      &
+         qm,      &
+         qb
+
+      ! real, dimension(:,:), pointer :: gswmin => null() ! min stomatal conductance
+      ! real, dimension(:,:), allocatable :: gswmin ! min stomatal conductance
+      real, dimension(mp,mf) :: gswmin ! min stomatal conductance
+
+      real, dimension(mp,2) ::  gsw_term, lower_limit2  ! local temp var
+      real(r_2), dimension(mp,ms) :: wbtmp
+      real(r_2), dimension(mp):: vpdtmp
+      integer :: i, j, k, kk, h,iter_ini ! iteration count
+      integer :: NN,m
+      integer, allocatable :: nktau(:), allktau(:), nktau_end(:)
+      real :: vpd, g1, ktot, fw, refill  ! Ticket #56
+      REAL, PARAMETER :: & ! Ref. params from Bernacchi et al. (2001)
+         co2cp325 = 42.75, & ! CO2 compensation pt C3 at 25 degrees, umol mol-1
+         Eaco2cp325 = 37830. ! activation energy for the CO2 compensation pt
+      REAL :: co2cp3 ! CO2 compensation pt C3, N.B.: this is set to 0 by default in CABLE
+
+      REAL :: trans_mmol, press
+      REAL, PARAMETER :: KG_2_G = 1000.0
+      REAL, PARAMETER :: G_WATER_TO_MOL = 1.0 / 18.01528
+      REAL, PARAMETER :: MOL_2_MMOL = 1000.0
+      REAL, PARAMETER :: MMOL_2_MOL = 1.0 / MOL_2_MMOL
+      REAL, PARAMETER :: MB_TO_PA = 100.
+      INTEGER, PARAMETER :: resolution = 800 ! jumps in Ci ~ 0.5 umol mol-1
+      REAL, DIMENSION(2) :: an_canopy
+      REAL :: e_canopy
+      REAL(r_2), DIMENSION(resolution) :: p
+
+      REAL :: MOL_WATER_2_G_WATER, G_TO_KG, UMOL_TO_MOL, MB_TO_KPA, PA_TO_KPA
+      REAL, DIMENSION(mp) :: kcmax, avg_kcan
+      REAL :: new_plc_sat, new_plc_stem, new_plc_can
+      REAL :: MOL_TO_UMOL, J_TO_MOL, dc
+      CHARACTER(LEN=200) :: txtname,num_str
+  
+#ifdef __MPI__
+      integer :: ierr
+#endif
+      iter_ini = 4
+      if (iter==iter_ini) then 
+         if ((cable_user%soil_struc=='default') .and. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') <= 0)) then
+            if (cable_user%fwsoil_switch == 'standard') then
+               call fwsoil_calc_std(fwsoil, soil, ssnow, veg, wbtmp)
+            elseif (cable_user%fwsoil_switch == 'non-linear extrapolation') then
+               !EAK, 09/10 - replace linear approx by polynomial fitting
+               call fwsoil_calc_non_linear(fwsoil, soil, ssnow, veg, wbtmp)
+            elseif (cable_user%fwsoil_switch == 'Lai and Katul 2000') then
+               call fwsoil_calc_Lai_Katul(fwsoil, soil, ssnow, veg, wbtmp)
+            elseif (cable_user%FWSOIL_SWITCH == 'profitmax') then
+               fwsoil = 1.0
+            elseif (cable_user%FWSOIL_SWITCH == 'constant1') then
+               fwsoil = 0.98
+            elseif (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
+               fwsoil = 1.0
+
+            else
+               write(*,*) 'fwsoil_switch failed.'
+#ifdef __MPI__
+               call MPI_Abort(0, 126, ierr) ! Do not know comm nor rank here
+#else
+               stop 126
+#endif
+            endif
+            ! canopy%fwsoil = real(fwsoil, r_2)
+            ! canopy%fwsoiltmp = real(fwsoil, r_2)
+         elseif ((cable_user%soil_struc=='sli') .or. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0)) then
+            fwsoil = real(canopy%fwsoil)
+            ! canopy%fwsoiltmp = real(fwsoil, r_2)
+         endif
+      
+      endif
+      ! END header
+      ! allocate(gswmin(mp,mf))
+
+
+      wbtmp = ssnow%wb
+
+      vpdtmp = met%dva
+
+     ! write(logn,*) 'fwsoil of ', cable_user%fwsoil_switch, ': ', fwsoil(1)
+      MOL_TO_UMOL = 1E6
+      J_TO_MOL = 4.6E-6  ! Convert from J to Mol for light
+      MOL_WATER_2_G_WATER = 18.02
+      G_TO_KG = 1E-03
+      UMOL_TO_MOL = 1E-06
+      MB_TO_KPA = 0.1
+      PA_TO_KPA = 1E-03
+      ! weight min stomatal conductance by C3 an C4 plant fractions
+      frac42       = spread(veg%frac4, 2, mf) ! frac C4 plants
+      gsw_term     = spread(veg%gswmin, 2, mf)
+      lower_limit2 = rad%scalex * gsw_term
+      gswmin       = max(1.e-6, lower_limit2)
+      ! print*, 'DD02 ', veg%frac4
+      ! print*, 'DD03 ', veg%gswmin
+      ! print*, 'DD04 ', rad%scalex
+
+      gw          = 1.0e-3 ! default values of conductance
+      gh          = 1.0e-3
+      ghr         = 1.0e-3
+      rdx         = 0.0
+      anx         = 0.0
+      anrubiscox  = 0.0
+      anrubpx     = 0.0
+      ansinkx     = 0.0
+      dAnrubiscox = 0.0_r_2
+      dAnrubpx    = 0.0_r_2
+      dAnsinkx    = 0.0_r_2
+      dAnx        = 0.0
+      eta_x       = 0.0_r_2
+      rnx         = SUM(real(rad%rniso,r_2),2)
+      abs_deltlf  = 999.0
+      abs_deltds  = 999.0
+      abs_deltcs(:,:)   = SPREAD(SPREAD(999.0_r_2,1,mp),2,mf)
+      vcmxt3      = 0.0
+      vcmxt4      = 0.0
+      ! print*, 'DD05 ', rad%rniso
+
+      gras  = 1.0e-6
+      an_y  = 0.0
+      hcx   = 0.0_r_2              ! init sens heat iteration memory variable
+      hcy   = 0.0_r_2
+      rdy   = 0.0
+      vcmxt3y      = 0.0
+      vcmxt4y      = 0.0
+      ecx   = SUM(real(rad%rniso,r_2),2) ! init lat heat iteration memory variable
+      tlfxx = tlfx
+      dsxx = dsx
+      csxx = csx
+      ! psilxx = psilx
+      psycst(:,:)   = SPREAD(air%psyc,2,mf)
+      canopy%fevc   = 0.0_r_2
+      ssnow%evapfbl = 0.0
+
+      ecxs = 0.0_r_2
+      canopy%fevcs = 0.0_r_2
+
+      ghwet = 1.0e-3_r_2
+      gwwet = 1.0e-3
+      ghrwet= 1.0e-3
+      canopy%fevw = 0.0
+      canopy%fhvw = 0.0
+      sum_gbh        = real(SUM((gbhu+gbhf),2))
+      sum_rad_rniso  = SUM(rad%rniso,2)
+      sum_rad_gradis = SUM(rad%gradis,2)
+
+      ! print*, 'DD06 ', rad%gradis
+
+      ! default for variable d_3 of RuBP-limited photosynthesis of
+      ! Wang and Leuning (1998), which is 2 * Gamma^star
+      if (cable_user%explicit_gm) then
+         if (trim(cable_user%Rubisco_parameters) == 'Bernacchi_2002') then
+            gam0 = C%gam0cc
+            egam = C%egamcc
+         else if (trim(cable_user%Rubisco_parameters) == 'Walker_2013') then
+            gam0 = C%gam0ccw
+            egam = C%egamccw
+         endif
+      else
+         gam0 = C%gam0
+         egam = C%egam
+      endif
+      cx2(:) = 2.0 * gam0 * exp( egam / (C%rgas * C%trefk) &
+         * (1.0 - C%trefk / tlfx(:)) )
+      !a = k25 * exp((Ea * (Tk - 298.15)) / (298.15 * RGAS * Tk))
+
+      DO kk=1,mp
+
+         IF(canopy%vlaiw(kk) <= C%LAI_THRESH) THEN
+            rnx(kk) = 0.0_r_2 ! intialise
+            ecx(kk) = 0.0_r_2 ! intialise
+            ecy(kk) = ecx(kk) ! store initial values
+            ecxs(kk) = 0.0_r_2 ! initialise
+            abs_deltlf(kk) = 0.0
+            abs_deltds(kk) = 0.0
+            ! abs_deltpsil(kk,:) = 0.0
+            abs_deltcs(kk,:) = 0.0
+            rny(kk) = rnx(kk) ! store initial values
+            ! calculate total thermal resistance, rthv in s/m
+         END IF
+
+      ENDDO
+
+      deltlfy = abs_deltlf
+      
+
+      !kdcorbin, 08/10 - doing all points all the time'
+      !allocate(nktau(4), nktau_end(4))
+      nktau=[79029,80861,82966,96215]
+      NN=2
+      nktau_end = nktau + NN - 1
+      
+      m = size(nktau) * NN
+      allocate(allktau(m))
+      do i = 1, size(nktau)
+         do k = 0, NN-1
+             j = (i - 1) * NN + k
+             allktau(j+1) = nktau(i) + k
+         end do
+     end do
+      !write(num_str, '(I0)') nktau
+      ! txtname = trim(filename%path) // '/testIteration_cable_out_' // trim(num_str) &
+
+      txtname = trim(filename%path) // 'testIteration_givengs_cable_out.txt'
+ 
+      ! if (any(nktau == ktau_tot) .and. iter==1) then
+      !    if (ktau_tot == nktau(1)) then
+      !        ! Open the file for overwrite if k is the first element
+      !        open(unit=134, file=txtname, status="unknown", action="write")
+      !    else
+      !        ! Open the file for appending otherwise
+      !        open(unit=134, file=txtname, status="unknown", position="append", action="write")
+      !    end if
+      ! end if
+
+ 
+         if (ktau_tot == nktau(1) .and. iter==4) then
+            ! Open the file for overwrite if k is the first element
+            open(unit=134, file=txtname, status="unknown", action="write")
+         end if
+   
+      ! if (ktau_tot==nktau .and. iter==1) then
+      ! open(unit=134, file=txtname)
+      ! !print*, 'write iteration file '
+      ! end if
+      k = 0
+      DO WHILE (k < C%MAXITER)
+         k = k + 1
+         ! print*, 'DD07 ', k, C%MAXITER, canopy%cansto
+         ! print*, 'DD08 ', canopy%vlaiw
+         ! print*, 'DD09 ', air%rlam
+         ! print*, 'DD10 ', met%tvair
+         ! print*, 'DD11 ', veg%dleaf
+         ! print*, 'DD12 ', rad%fvlai
+         ! print*, 'DD13 ', air%cmolar
+         ! print*, 'DD14 ', veg%vcmax_sun
+         ! print*, 'DD15 ', veg%vcmax_shade
+         ! print*, 'DD16 ', veg%frac4
+         ! print*, 'DD17 ', climate%mtemp
+         ! print*, 'DD18 ', veg%ejmax_sun
+         ! print*, 'DD19 ', veg%ejmax_shade
+         ! print*, 'DD20 ', veg%alpha
+         ! print*, 'DD21 ', veg%convex
+         ! print*, 'DD22 ', rad%qcan
+         ! print*, 'DD23 ', veg%cfrd
+         ! print*, 'DD24 ', climate%qtemp_max_last_year
+         ! print*, 'DD25 ', veg%a1gs
+         ! print*, 'DD26 ', veg%d0gs
+         ! print*, 'DD27 ', veg%g0
+         DO i=1,mp
+
+            IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. (abs_deltlf(i) > 0.1 )) THEN
+
+               ghwet(i)  = 2.0_r_2 * real(sum_gbh(i),r_2)
+               gwwet(i)  = 1.075 * sum_gbh(i)
+               ghrwet(i) = sum_rad_gradis(i) + real(ghwet(i))
+
+               ! Calculate fraction of canopy which is wet:
+               canopy%fwet(i) = MAX( 0.0, MIN( 1.0, 0.8 * canopy%cansto(i)/ MAX( &
+                  cansat(i),0.01 ) ) )
+
+               ! Calculate lat heat from wet canopy, may be neg.
+               ! if dew on wet canopy to avoid excessive evaporation:
+               ccfevw(i) = MIN(canopy%cansto(i) * air%rlam(i) / dels, &
+                  2.0 / (1440.0 / (dels/60.0)) * air%rlam(i) )
+
+               ! Grashof number (Leuning et al, 1995) eq E4:
+               gras(i) = MAX(1.0e-6, &
+                  1.595E8* ABS( tlfx(i)-met%tvair(i))* (veg%dleaf(i)**3.0) )
+
+               ! See Appendix E in (Leuning et al, 1995):
+               gbhf(i,1) = real( rad%fvlai(i,1) * air%cmolar(i) * 0.5*C%dheat &
+                  * ( gras(i)**0.25 ) / veg%dleaf(i), r_2)
+               gbhf(i,2) = real( rad%fvlai(i,2) * air%cmolar(i) * 0.5 * C%dheat &
+                  * ( gras(i)**0.25 ) / veg%dleaf(i), r_2)
+               gbhf(i,:) = max(1.e-6_r_2, gbhf(i,:))
+
+               ! Conductance for heat:
+               gh(i,:) = real(2.0_r_2 * (gbhu(i,:) + gbhf(i,:)))
+
+               if (cable_user%amphistomatous) then
+                  gbhf(i,:) = 2.0_r_2 * gbhf(i,:)
+                  gh(i,:)   = real(gbhu(i,:) + gbhf(i,:))
+               endif
+
+               ! Conductance for heat and longwave radiation:
+               ghr(i,:) = rad%gradis(i,:)+gh(i,:)
+
+               ! Choose Ci-based (implicit gm) or Cc-based (explicit gm) parameters
+               if (cable_user%explicit_gm) then
+                  if (trim(cable_user%Rubisco_parameters) == 'Bernacchi_2002') then
+                     gam0    = C%gam0cc
+                     conkc0  = C%conkc0cc
+                     conko0  = C%conko0cc
+                     egam    = C%egamcc
+                     ekc     = C%ekccc
+                     eko     = C%ekocc
+                  else if (trim(cable_user%Rubisco_parameters) == 'Walker_2013') then
+                     gam0    = C%gam0ccw
+                     conkc0  = C%conkc0ccw
+                     conko0  = C%conko0ccw
+                     egam    = C%egamccw
+                     ekc     = C%ekcccw
+                     eko     = C%ekoccw
+                  endif
+                  qs      = C%qs
+                  qm      = C%qm
+                  qb      = C%qb
+               else
+                  gam0   = C%gam0
+                  conkc0 = C%conkc0
+                  conko0 = C%conko0
+                  egam   = C%egam
+                  ekc    = C%ekc
+                  eko    = C%eko
+                  qs     = 0.5
+                  qm     = 0.0     ! not used
+                  qb     = 1.0
+               endif
+               ! JK: veg%vcmax_sun and veg%vcmax_shade are Cc-based if cable_user%explicit_gm = TRUE
+               !     and Ci-based otherwise. If cable_user%coordinate_photosyn = FALSE,
+               !     veg%vcmax_sun = veg%vcmax_shade = veg%vcmaxcc if cable_user%explicit_gm = TRUE
+               !     and veg%vcmax_sun = veg%vcmax_shade = veg%vcmax otherwise.
+               !     See also Subroutine 'casa_feedback' in casa_cable.F90. Same applies to ejmax.
+
+               ! Leuning 2002 (PCE) equation for temperature response
+               ! used for Vcmax for C3 plants:
+               if (.not. cable_user%acclimate_photosyn) then
+                  temp_sun_c3(i)   = xvcmxt3(tlfx(i)) * veg%vcmax_sun(i) * (1.0-veg%frac4(i))
+                  temp_shade_c3(i) = xvcmxt3(tlfx(i)) * veg%vcmax_shade(i) * (1.0-veg%frac4(i))
+                  temp_sun_c4(i)   = xvcmxt4(tlfx(i)) * veg%vcmax_sun(i) * veg%frac4(i)
+                  temp_shade_c4(i) = xvcmxt4(tlfx(i)) * veg%vcmax_shade(i) * veg%frac4(i)
+               else
+                  call xvcmxt3_acclim(tlfx(i), climate%mtemp(i) , temp_c3(i))
+                  call xvcmxt4_acclim(tlfx(i), climate%mtemp(i) , temp_c4(i))
+                  temp_sun_c3(i)   = temp_c3(i) * veg%vcmax_sun(i) * (1.0-veg%frac4(i))
+                  temp_shade_c3(i) = temp_c3(i) * veg%vcmax_shade(i) * (1.0-veg%frac4(i))
+                  temp_sun_c4(i)   = temp_c4(i) * veg%vcmax_sun(i) * veg%frac4(i)
+                  temp_shade_c4(i) = temp_c4(i) * veg%vcmax_shade(i) * veg%frac4(i)
+               endif
+               vcmxt3(i,1) = rad%scalex(i,1) * temp_sun_c3(i) * fwsoil(i)**qb
+               vcmxt3(i,2) = rad%scalex(i,2) * temp_shade_c3(i) * fwsoil(i)**qb
+               vcmxt4(i,1) = rad%scalex(i,1) * temp_sun_c4(i) * fwsoil(i)**qb
+               vcmxt4(i,2) = rad%scalex(i,2) * temp_shade_c4(i) * fwsoil(i)**qb
+               ! temperature response of the CO2 compensation point/gamma star used
+               ! for C3 plants (Bernacchi et al. 2001), umol mol-1
+               ! N.B.: this is always zero by default in CABLE, which is wrong.
+               co2cp3 = arrh(co2cp325, Eaco2cp325, tlfx(i)) ! CABLE's gamma_star
+
+               ! apply same scaling for k as for Vcmax in C4 plants
+               if (.not. cable_user%explicit_gm) then
+                  kc4(i,1) = veg%c4kci(i) * vcmxt4(i,1)/veg%vcmax_sun(i)
+                  kc4(i,2) = veg%c4kci(i) * vcmxt4(i,2)/veg%vcmax_shade(i)
+               else
+                  kc4(i,1) = veg%c4kcc(i) * vcmxt4(i,1)/veg%vcmax_sun(i)
+                  kc4(i,2) = veg%c4kcc(i) * vcmxt4(i,2)/veg%vcmax_shade(i)
+               endif
+
+               ! Leuning 2002 (PCE) equation for temperature response
+               ! used for Jmax for C3 plants:
+               if (.not.cable_user%acclimate_photosyn) then
+                  temp_sun_c3(i) = xejmxt3(tlfx(i)) * &
+                     veg%ejmax_sun(i) * (1.0-veg%frac4(i))
+                  temp_shade_c3(i) = xejmxt3(tlfx(i)) * &
+                     veg%ejmax_shade(i) * (1.0-veg%frac4(i))
+               else
+                  call xejmxt3_acclim(tlfx(i), climate%mtemp(i), climate%mtemp_max20(i), temp_c3(i))
+                  temp_sun_c3(i)   = temp_c3(i) * veg%ejmax_sun(i) * (1.0-veg%frac4(i))
+                  temp_shade_c3(i) = temp_c3(i) * veg%ejmax_shade(i) * (1.0-veg%frac4(i))
+               endif
+               ejmxt3(i,1) = rad%scalex(i,1) * temp_sun_c3(i) * fwsoil(i)**qb
+               ejmxt3(i,2) = rad%scalex(i,2) * temp_shade_c3(i) * fwsoil(i)**qb
+
+               ! Difference between leaf temperature and reference temperature:
+               tdiff(i) = tlfx(i) - C%TREFK
+
+               ! Michaelis menten constant of Rubisco for CO2:
+               conkct(i) = conkc0 * EXP( ( ekc / (C%rgas*C%trefk) ) &
+                  * ( 1.0 - C%trefk/tlfx(i) ) )
+
+               ! Michaelis menten constant of Rubisco for oxygen:
+               conkot(i) = conko0 * EXP( ( eko / (C%rgas*C%trefk) ) &
+                  * ( 1.0 - C%trefk/tlfx(i) ) )
+
+               ! Store leaf temperature
+               tlfxx(i) = tlfx(i)
+               ! Store dsx zihanlu
+               dsxx(i) = dsx(i)
+               ! "d_{3}" in Wang and Leuning, 1998, appendix E:
+               cx1(i) = conkct(i) * (1.0+0.21/conkot(i))
+               !cx2(i) = 2.0 * C%gam0 * ( 1.0 + C%gam1 * tdiff(i) &
+               !                             + C%gam2 * tdiff(i) * tdiff(i) )
+               cx2(i) = 2.0 * gam0 * EXP( ( egam / (C%rgas*C%trefk) ) &
+                  * ( 1.0 - C%trefk/tlfx(i) ) )
+
+               ! All equations below in appendix E in Wang and Leuning 1998 are
+               ! for calculating anx, csx and gswx for Rubisco limited,
+               ! RuBP limited, sink limited.
+               ! JK: vx4 changed to correspond to formulation in Collatz et al. 1992
+               temp2(i,:) = rad%qcan(i,:,1) * jtomol * (1.0-veg%frac4(i))
+               vx3(i,:)   = ej3x(temp2(i,:), veg%alpha(i), veg%convex(i), ejmxt3(i,:))
+               vx4(i,:)   = veg%alpha(i) * rad%qcan(i,:,1) * jtomol * veg%frac4(i) * fwsoil(i)**qb
+               !vx4(i,:)   = ej4x(temp2(i,:), veg%alpha(i), veg%convex(i), vcmxt4(i,:))
+               rdx(i,:)   = veg%cfrd(i)*Vcmxt3(i,:) + veg%cfrd(i)*vcmxt4(i,:)
+
+               !Vanessa - the trunk does not contain xleauning as of Ticket#56 inclusion
+               !as well as other inconsistencies here that need further investigation. In the
+               !interests of getting this into the trunk ASAP just isolate this code for now
+               !default side of this condition is to use trunk version
+
+               !#ifdef VanessasCanopy
+
+
+               if (cable_user%CALL_climate) then
+                  ! if (veg%iveg(i).eq.1) then
+                  !    temp2(i,1) = rad%qcan(i,1,1) * jtomol * (1.0-veg%frac4(i))
+                  !    temp2(i,2) = rad%qcan(i,2,1) * jtomol * (1.0-veg%frac4(i))
+                  !    vx3(i,1)  = ej3x(temp2(i,1),climate%frec(i)*veg%alpha(i), &
+                  !         veg%convex(i),ejmxt3(i,1))
+                  !    vx3(i,2)  = ej3x(temp2(i,2),climate%frec(i)*veg%alpha(i), &
+                  !         veg%convex(i),ejmxt3(i,2))
+                  !    temp(i) =  xvcmxt3(tlfx(i)) * veg%vcmax(i) * (1.0-veg%frac4(i))
+                  !    vcmxt3(i,1) = rad%scalex(i,1) * temp(i) * climate%frec(i)
+                  !    vcmxt3(i,2) = rad%scalex(i,2) * temp(i) * climate%frec(i)
+                  ! endif
+
+                  ! Atkin et al. 2015, Table S4,
+                  ! modified by scaling factor to reduce leaf respiration to
+                  ! expected proportion of GPP
+                  !Broad-leaved trees: Rdark a25 =
+                  !1.2818 + (0.0116 * Vcmax,a25) + (0.0334 * TWQ)
+                  !C3 herbs/grasses: Rdark,a25 =
+                  !1.6737 + (0.0116 * Vcmax,a25) + (0.0334 * TWQ)
+                  !Needle-leaved trees: Rdark,a25 =
+                  !1.2877 + (0.0116 * Vcmax,a25) + (0.0334 * TWQ)
+                  !Shrubs: Rdark,a25 = 1.5758 + (0.0116 * Vcmax,a25) + (0.0334 * TWQ)
+
+                  if (veg%iveg(i) == 2) then ! evergreen broadleaf forest
+
+                     rdx(i,1) = 1.0*(1.2818e-6+0.0116*veg%vcmax(i)- &
+                        0.0334*climate%qtemp_max_last_year(i)*1e-6)
+
+                     rdx(i,2) = rdx(i,1)
+
+                  elseif (veg%iveg(i) == 4) then ! decid broadleaf forest
+
+                     rdx(i,1) = 1.0*(1.2818e-6+0.0116*veg%vcmax(i)- &
+                        0.0334*climate%qtemp_max_last_year(i)*1e-6)
+
+                     rdx(i,2) = rdx(i,1)
+
+                  elseif (veg%iveg(i) == 1) then ! evergreen needleleaf forest
+
+                     rdx(i,1) = 1.0*(1.2877e-6+0.0116*veg%vcmax(i)- &
+                        0.0334*climate%qtemp_max_last_year(i)*1e-6)
+
+                     rdx(i,2) = rdx(i,1)
+
+                  elseif (veg%iveg(i) == 3) then ! decid needleleaf forest
+
+                     rdx(i,1) = 1.0*(1.2877e-6+0.0116*veg%vcmax(i)- &
+                        0.0334*climate%qtemp_max_last_year(i)*1e-6)
+
+                     rdx(i,2) = rdx(i,1)
+
+                  elseif ((veg%iveg(i) == 6) .or. (veg%iveg(i) == 8) .or. &
+                     (veg%iveg(i) == 9)) then ! C3 grass, tundra, crop
+
+                     rdx(i,1) = 0.8*(1.6737e-6+0.0116*veg%vcmax(i)- &
+                        0.0334*climate%qtemp_max_last_year(i)*1e-6)
+
+                     rdx(i,2) = rdx(i,1)
+
+                  else  ! shrubs and other (C4 grass and crop)
+
+                     rdx(i,1) = 0.7*(1.5758e-6+0.0116*veg%vcmax(i)- &
+                        0.0334*climate%qtemp_max_last_year(i)*1e-6)
+                     rdx(i,2) = rdx(i,1)
+
+                  endif
+                  veg%cfrd(i) = rdx(i,1) / veg%vcmax(i)
+                  ! modify for leaf area and instanteous temperature response (Rd25 -> Rd)
+                  rdx(i,1) = rdx(i,1) * xrdt(tlfx(i)) * rad%scalex(i,1) * fwsoil(i)**qb
+                  rdx(i,2) = rdx(i,2) * xrdt(tlfx(i)) * rad%scalex(i,2) * fwsoil(i)**qb
+
+                  ! reduction of daytime leaf dark-respiration to account for
+                  !photo-inhibition
+                  rdx(i,1) = rdx(i,1) * light_inhibition(rad%qcan(i,1,1)*jtomol*1.0e6)
+                  rdx(i,2) = rdx(i,2) * light_inhibition(rad%qcan(i,2,1)*jtomol*1.0e6)
+
+                  ! special for YP photosynthesis
+                  rdx3(i,1) = rdx(i,1);
+                  rdx3(i,2) = rdx(i,2);
+                  rdx4(i,1) = rdx(i,1);
+                  rdx4(i,2) = rdx(i,2);
+
+               else !cable_user%call_climate
+
+                  rdx(i,1) = (veg%cfrd(i)*vcmxt3(i,1) + veg%cfrd(i)*vcmxt4(i,1))
+                  rdx(i,2) = (veg%cfrd(i)*vcmxt3(i,2) + veg%cfrd(i)*vcmxt4(i,2))
+                  ! special for YP photosynthesis
+                  rdx3(i,1) = veg%cfrd(i)*vcmxt3(i,1)
+                  rdx3(i,2) = veg%cfrd(i)*vcmxt3(i,2)
+                  rdx4(i,1) = veg%cfrd(i)*vcmxt4(i,1)
+                  rdx4(i,2) = veg%cfrd(i)*vcmxt4(i,2)
+
+               endif !cable_user%call_climate
+
+               ! calculate canopy-level mesophyll conductance
+               if (cable_user%explicit_gm) then
+                  gmes(i,1) = veg%gm(i) * rad%scalex(i,1) * xgmesT(tlfx(i)) * max(0.15,fwsoil(i)**qm)
+                  gmes(i,2) = veg%gm(i) * rad%scalex(i,2) * xgmesT(tlfx(i)) * max(0.15,fwsoil(i)**qm)
+
+                  !gmes(i,1) = gmes(i,1) * MAX(0.15_r_2,real(fwsoil(i)**qm,r_2))
+                  !gmes(i,2) = gmes(i,2) * MAX(0.15_r_2,real(fwsoil(i)**qm,r_2))
+               else ! gmes = 0.0 easier to debug than inf
+                  gmes(i,1) = 0.0
+                  gmes(i,2) = 0.0
+               endif
+
+
+
+            ENDIF !IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. abs_deltlf(i) > 0.1)
+
+         ENDDO !i=1,mp
+         ! gmes is 0.0 if explicit_gm = FALSE (easier to debug)
+         IF (cable_user%GS_SWITCH /= 'profitmax') THEN
+            ! CALL photosynthesis_gm( csx(:,:), &
+            !    spread(cx1(:),2,mf), &
+            !    spread(cx2(:),2,mf), &
+            !    gswmin(:,:), rdx(:,:), vcmxt3(:,:), &
+            !    vcmxt4(:,:), vx3(:,:), vx4(:,:), &
+            ! ! Ticket #56, xleuning replaced with gs_coeff here
+            !    gs_coeff(:,:), rad%fvlai(:,:), &
+            !    spread(abs_deltlf,2,mf), abs_deltpsil, &
+            !    anx(:,:), fwsoil(:), qs, gmes(:,:), kc4(:,:), &
+            !    anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:) )
+         CALL photosynthesis_gm_givengs(csx(:,:),gspsdo(:,:), &
+              spread(cx1(:),2,mf), &
+               spread(cx2(:),2,mf), &
+               rdx(:,:), vcmxt3(:,:), &
+               vcmxt4(:,:), vx3(:,:), vx4(:,:), &
+               rad%fvlai(:,:), spread(abs_deltlf,2,mf), &
+               anx(:,:),gmes(:,:), kc4(:,:), &
+               anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:) )
+
+         ENDIF
+
+         ! print*, 'DD28 ', rad%fvlai
+         ! print*, 'DD29 ', met%ca
+         ! print*, 'DD30 ', canopy%gswx
+         ! print*, 'DD31 ', air%dsatdk
+         ! print*, 'DD32 ', ssnow%wbice
+         ! print*, 'DD33 ', ssnow%rex
+         ! print*, 'DD34 ', veg%froot
+         ! print*, 'DD35 ', soil%ssat
+         ! print*, 'DD36 ', soil%swilt
+         ! print*, 'DD37 ', canopy%fevc
+         ! print*, 'DD38 ', veg%gamma
+         ! print*, 'DD39 ', air%rlam
+         ! print*, 'DD40 ', veg%zr
+         ! print*, 'DD41 ', soil%zse
+         ! print*, 'DD42 ', ssnow%rex
+         ! print*, 'DD43 ', ssnow%evapfbl
+         DO i=1,mp
+
+
+            IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. (abs_deltlf(i) > 0.1)) Then
+               DO kk=1, mf
+
+                  IF (rad%fvlai(i,kk)>C%LAI_THRESH) THEN
+                     !  write(logn,*) '2: gs_coeff of ',kk, ': ',gs_coeff(i,kk)
+
+
+                     csx(i,kk) = real(met%ca(i),r_2) - real(C%RGBWC*anx(i,kk),r_2) / &
+                        (gbhu(i,kk) + gbhf(i,kk))
+                     csx(i,kk) = max(1.0e-4_r_2, csx(i,kk))
+
+                     ! write(logn,*) '3: gsw of ',kk, ': ', canopy%gswx(i,kk)
+                     !Recalculate conductance for water:
+                     gw(i,kk) = 1.0 / ( 1.0 / gspsdo(i,kk) + &
+                        1.0 / ( 1.075 * real(gbhu(i,kk) + gbhf(i,kk)) ) )
+                     gw(i,kk) = max(gw(i,kk), 0.00001)
+
+                     ! Modified psychrometric constant
+                     ! (Monteith and Unsworth, 1990)
+                     psycst(i,kk) = air%psyc(i) * REAL( ghr(i,kk) / gw(i,kk) )
+
+                  ENDIF
+
+               ENDDO
+               ex(i,1) = real( ( air%dsatdk(i) * ( rad%rniso(i,1) - C%capp * C%rmair &
+               * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,1) ) &
+               + C%capp * C%rmair * vpdtmp(i) * ghr(i,1) ) &
+               / ( air%dsatdk(i) + psycst(i,1) ),r_2)
+               ex(i,2) = real( ( air%dsatdk(i) &
+               * ( rad%rniso(i,2) - C%capp * C%rmair * ( met%tvair(i) - &
+               met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair * &
+               vpdtmp(i) * ghr(i,2) ) / &
+               ( air%dsatdk(i) + psycst(i,2) ), r_2)  
+               ecx(i) = sum(ex(i,:))
+               ex(i,:) = ex(i,:) * (1.0_r_2-real(canopy%fwet(i), r_2)) / real(air%rlam(i), r_2) 
+               ! ecx(i) = real( ( air%dsatdk(i) * ( rad%rniso(i,1) - C%capp * C%rmair &
+               !    * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,1) ) &
+               !    + C%capp * C%rmair * met%dva(i) * ghr(i,1) ) &
+               !    / ( air%dsatdk(i) + psycst(i,1) ) + ( air%dsatdk(i) &
+               !    * ( rad%rniso(i,2) - C%capp * C%rmair * ( met%tvair(i) - &
+               !    met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair * &
+               !    met%dva(i) * ghr(i,2) ) / &
+               !    ( air%dsatdk(i) + psycst(i,2) ), r_2)
+               !!!!!!!!!!!!!!! I don't think here we need use soil water to limit the fevc or ecx -zihanlu !!!!!!!!!!
+   
+               ! IF (cable_user%SOIL_SCHE == 'Haverd2013' .or. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0)) then
+               !    ! avoid root-water extraction when fwsoil is zero
+               !    if (fwsoil(i) < 1e-6) then
+               !       anx(i,:) = -rdx(i,:)
+               !       ecx(i)   = 0.0_r_2
+               !    endif
+
+               !    canopy%fevc(i) = ecx(i) * (1.0_r_2-real(canopy%fwet(i),r_2))
+
+               !    call getrex_1d(wbtmp(i,:)-real(ssnow%wbice(i,:),r_2), ssnow%rex(i,:), &
+               !       canopy%fwsoil(i), &
+               !       real(veg%froot(i,:),r_2), SPREAD(real(soil%ssat(i),r_2),1,ms), &
+               !       SPREAD(real(soil%swilt(i),r_2),1,ms), &
+               !       max(canopy%fevc(i)/real(air%rlam(i),r_2)/1000.0_r_2, 0.0_r_2), &
+               !       veg%gamma(i), &
+               !       real(soil%zse, r_2), real(dels,r_2), veg%zr(i))
+               !    canopy%fwsoiltmp(i) = real(canopy%fwsoil(i))
+               !    where (ssnow%rex(i,:) > tiny(1.0_r_2)) &
+               !    ssnow%evapfbl(i,:) = real(ssnow%rex(i,:))*dels*1000. ! mm water &
+               !    IF (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0) then
+               !       fwsoil(i) = real(canopy%fwsoil(i))
+               !       !(root water extraction) per time step
+   
+               !       if (cable_user%Cumberland_soil) then
+               !          canopy%fwsoil(i) = max(canopy%fwsoil(i), 0.6_r_2)
+               !          fwsoil(i) = real(canopy%fwsoil(i))
+               !       endif
+               !    ENDIF 
+
+
+               ! ELSE IF (cable_user%FWSOIL_SWITCH == 'profitmax' .AND. cable_user%SOIL_SCHE == 'hydraulics') THEN
+
+
+               !    IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
+               !       evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels  &
+               !          / air%rlam(i)
+
+               !       DO kk = 1,ms
+
+               !          !ssnow%evapfbl(i,kk) = MIN(evapfb(i) * &
+               !          !                          ssnow%fraction_uptake(i,kk),  &
+               !          !                          MAX(0.0, &
+               !          !                              REAL(ssnow%wb(i,kk)) -    &
+               !          !                              soil%swilt(i)) * &
+               !          !                          soil%zse(kk) * 1000.0)
+
+               !          ! ms8355: no bounding by swilt in this version, or the
+               !          ! "beneits" from hydraulics are cancelled
+               !          ssnow%evapfbl(i,kk) = evapfb(i) * &
+               !             ssnow%fraction_uptake(i,kk)
+
+
+
+               !       ENDDO
+               !       canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
+
+               !       ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
+               !    ENDIF
+
+               ! ENDIF
+
+               ! IF (cable_user%SOIL_SCHE .ne.'Haverd2013') THEN
+
+               !    if (ecx(i) > 0.0_r_2 .and. canopy%fwet(i) < 1.0) then
+               !       evapfb(i) = ( 1.0 - canopy%fwet(i)) * real(ecx(i)) *dels &
+               !          / air%rlam(i)
+
+               !       DO kk = 1,ms
+
+               !          ssnow%evapfbl(i,kk) = MIN( evapfb(i) * veg%froot(i,kk), &
+               !             MAX( 0.0, REAL( wbtmp(i,kk) ) - &
+               !             1.1 * soil%swilt(i) ) * &
+               !             soil%zse(kk) * 1000.0 )
+
+               !       ENDDO
+               !       IF (cable_user%soil_struc=='default') then
+               !          canopy%fevc(i) = real(sum(ssnow%evapfbl(i,:))*air%rlam(i)/dels, r_2)
+               !          ecx(i) = canopy%fevc(i) / (1.0_r_2-real(canopy%fwet(i),r_2))
+               !       ELSEIF (cable_user%soil_struc=='sli') then
+               !          canopy%fevc(i) = ecx(i) * (1.0_r_2-real(canopy%fwet(i),r_2))
+               !       ENDIF
+
+               !    ENDIF
+
+               ! ENDIF
+               ! Update canopy sensible heat flux:
+               hcx(i) = ( SUM(real(rad%rniso(i,:),r_2)) - ecx(i) &
+                  - real(C%capp*C%rmair*(met%tvair(i)-met%tk(i)), r_2) &
+                  * SUM(real(rad%gradis(i,:),r_2)) ) &
+                  * SUM(real(gh(i,:),r_2))/ SUM(real(ghr(i,:),r_2))
+
+               ! Update leaf temperature:
+               tlfx(i) = met%tvair(i)+REAL(hcx(i))/(C%capp*C%rmair*SUM(gh(i,:)))
+
+               ! Update net radiation for canopy:
+               rnx(i) = real( SUM( rad%rniso(i,:)) - &
+                  C%CAPP * C%rmair *( tlfx(i)-met%tk(i) ) * &
+                  SUM( rad%gradis(i,:) ), r_2)
+
+               ! Update leaf surface vapour pressure deficit:
+               dsx(i) = vpdtmp(i) + air%dsatdk(i) * (tlfx(i)-met%tvair(i))
+               if (cable_user%perturb_dva_by_T) then
+                  dsx(i) = vpdtmp(i) + air%dsatdk(i) * (tlfx(i) -met%tvair(i) + cable_user%dva_T_perturbation )
+               endif
+
+               dsx(i)=  max(dsx(i),0.0)
+
+               ! Store change in leaf temperature between successive iterations:
+               deltlf(i) = tlfxx(i)-tlfx(i)
+               
+  
+               abs_deltlf(i) = ABS(deltlf(i))
+               abs_deltds(i) = ABS(dsxx(i)-dsx(i))
+               abs_deltcs(i,:) = ABS(csxx(i,:)-csx(i,:))
+            ENDIF !lai/abs_deltlf
+
+         ENDDO !i=1,mp
+         ! if (ktau>=5184) then
+         ! print*, 'check after getrex_1d: ktau & k= ',ktau,k
+         ! end if
+         ! Where leaf temp change b/w iterations is significant, and
+         ! difference is smaller than the previous iteration, store results:
+         DO i=1,mp
+
+            IF ( abs_deltlf(i) < ABS( deltlfy(i) ) ) THEN
+
+               deltlfy(i)       = deltlf(i)
+               tlfy(i)          = tlfx(i)
+               dsy(i) = dsx(i)
+               !print*,'when dT<last dT, tlfy: ', tlfy(i)
+               ! psily(i,:)       = psilx(i,:)
+               rny(i)           = rnx(i)
+               hcy(i)           = hcx(i)
+               ecy(i)           = ecx(i)
+               rdy(i,:)         = rdx(i,:)
+               an_y(i,:)        = anx(i,:)
+               anrubiscoy(i,:)  = anrubiscox(i,:)
+               anrubpy(i,:)     = anrubpx(i,:)
+               ! save last values calculated for ssnow%evapfbl
+               ! oldevapfbl(i,:) = ssnow%evapfbl(i,:)
+               gswy(i,:)        = canopy%gswx(i,:)
+
+               csy(i,:) = csx(i,:)
+              
+               vcmxt3y(i,:) = vcmxt3(i,:)
+               vcmxt4y(i,:) = vcmxt4(i,:)
+               cx2y(i) = cx2(i)
+            ENDIF
+            ! if (ktau>=5184) then
+            ! print*, 'check y=x ktau & k= ',ktau,k
+            ! end if
+            ! if (cable_user%GS_SWITCH == 'tuzet' .AND. &
+            !       INDEX(cable_user%FWSOIL_SWITCH,'LWP') > 0 .AND. &
+            !       Any(abs_deltpsil(i,:) > 0.5) ) then
+            !    ! after 4 iterations, take mean of current & previous estimates
+            !    ! as the next estimate of leaf temperature, to avoid oscillation
+            !    psilx(i,1) = ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) *psilxx(i,1) + &
+            !       ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
+            !       * psilx(i,1)
+            !    psilx(i,2) = ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) *psilxx(i,2) + &
+            !       ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
+            !       * psilx(i,2)
+            ! endif
+            ! if (ktau>=5184) then
+            ! print*, 'check tlfx ktau & k= ',ktau,k
+            ! end if
+            IF (k==1) THEN
+               ! take the first iterated estimates as the defaults
+               tlfy(i) = tlfx(i)
+               dsy(i) = dsx(i)
+               !print*,'when k=1, tlfy: ', tlfy(i)
+               ! psily(i,:) = psilx(i,:)
+               rny(i) = rnx(i)
+               hcy(i) = hcx(i)
+               ecy(i) = ecx(i)
+               rdy(i,:) = rdx(i,:)
+               an_y(i,:) = anx(i,:)
+               anrubiscoy(i,:) = anrubiscox(i,:)
+               anrubpy(i,:) = anrubpx(i,:)
+
+               ! save last values calculated for ssnow%evapfbl
+               ! oldevapfbl(i,:) = ssnow%evapfbl(i,:)
+               gswy(i,:)       = canopy%gswx(i,:)
+         
+               csy(i,:) = csx(i,:)
+   
+               vcmxt3y(i,:) = vcmxt3(i,:)
+               vcmxt4y(i,:) = vcmxt4(i,:)
+               cx2y(i) = cx2(i)
+            END IF
+            !print*, 'check after k==1 ',ktau,k
+            !if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
+            if (any(allktau == ktau_tot)) then
+          
+                  write(134,*) ktau_tot, iter, i, k, tlfx(i), deltlf(i), &
+                  dsx(i),abs_deltds(i), 0, 0,0,0,0,0, &
+                  0, csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2),anrubiscox(i,1), &
+                  anrubiscox(i,2), anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
+                  canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
+                  vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
+                  ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4), &
+                  ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4), &
+                  kplantx(i)
+
+         
+
+            END IF
+            ! if (ktau>=5184) then
+            ! print*, 'write 134 ',ktau,k
+            ! end if
+            if ( abs_deltlf(i) > 0.1 .AND. k > 5 .AND. k < C%MAXITER ) then
+               ! after 4 iterations, take mean of current & previous estimates
+               ! as the next estimate of leaf temperature, to avoid oscillation
+               dc = veg%dc(i)
+               ! tlfx(i) = ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) *tlfxx(i) + &
+               !    ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
+               !    * tlfx(i)
+               tlfx(i) = dc *tlfxx(i) + ( 1.0 - dc ) * tlfx(i)
+               dsx(i) = dc *dsxx(i) + ( 1.0 - dc ) * dsx(i)
+               csx(i,1) = dc *csxx(i,1) + ( 1.0 - dc ) * csx(i,1)
+               csx(i,2) = dc *csxx(i,2) + ( 1.0 - dc ) * csx(i,2)
+
+            endif
+
+         END DO !over mp
+         !if (k == C%MAXITER .AND. ktau>=5760 .AND. ktau<=11664) then
+      ! if (k == C%MAXITER .AND. ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
+      ! !if (k == C%MAXITER .AND. ktau>=5760 .AND. ktau<=11664) then
+      !        print*, 'value x:',anrubiscox(:,1),anx(:,1)
+      ! endif
+      END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
+      !print*,'when k end, tlfy: ', tlfy(1)
+      ! if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
+      ! i = 1
+      ! write(134,*) ktau, iter, i, 21, tlfy(i), deltlfy(i), &
+      ! dsx(i), psily(i,1), psily(i,2),fwpsiy(:,1),fwpsiy(:,2),canopy%fwpsi(i,1),canopy%fwpsi(i,2),&
+      ! csy(i,1), csy(i,2),csx(i,1), csx(i,2), an_y(i,1), an_y(i,2), &
+      ! gswy(i,1), gswy(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
+      ! vcmxt3(i,1),vcmxt3(i,2), gs_coeff(i,1),gs_coeff(i,2),rdy(i,1),rdy(i,2)
+      ! end if 
+      !if (ktau_tot==(nktau+NN-1)  .and. iter==4) THEN
+      !if (any(nktau_end == ktau_tot) .and. iter==4) THEN
+      if (ktau_tot == nktau_end(size(nktau_end)) .and. iter==4) THEN
+
+         close(134)
+      
+      END IF
+      deallocate(nktau) 
+      deallocate(nktau_end) 
+      deallocate(allktau) 
+
+      
+      ! print*, 'End k loop: ktau & iter & k= ',ktau,iter,k
+      ! dry canopy flux
+      canopy%fevc = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
+      canopy%epotvpd = canopy%fevc
+      IF (.NOT. PRESENT(gspsdo)) THEN
+         canopy%abs_deltcs = abs_deltcs * 1.0e6_r_2
+         canopy%abs_deltlf = abs_deltlf
+         canopy%abs_deltds = abs_deltds
+
+
+         !write(logn,*) 'fevc', canopy%fevc(1)
+         ! print*, 'DD45 ', canopy%fwet
+         ! print*, 'DD46 ', canopy%fevc
+           !!!!!!!!!!!!!!!! since we don't have the evapfbl calculation before, we don't need that anymore -zihanLu !!!!!!!!!!!!!!!!!!
+         ! IF (cable_user%fwsoil_switch.NE.'Haverd2013' .AND. cable_user%fwsoil_switch.NE.'profitmax') THEN
+
+            ! Recalculate ssnow%evapfbl as ecy may not be updated with the ecx
+            ! calculated in the last iteration.
+            ! DO NOT use simple scaling as there are times that ssnow%evapfbl is zero.
+            ! ** ssnow%evapfbl(i,:) = ssnow%evapfbl(i,:) * ecy(i) / ecx(i) **
+
+         !    DO i = 1, mp
+
+         !       IF( ecy(i) > 0.0_r_2 .AND. canopy%fwet(i) < 1.0 ) THEN
+
+         !          IF( ABS( ecy(i) - ecx(i) ) > 1.0e-6_r_2 ) THEN
+
+         !             IF( ABS( canopy%fevc(i) - real(SUM(oldevapfbl(i,:)) * air%rlam(i) &
+         !                /dels, r_2) ) > 1.0e-4_r_2 ) THEN
+
+         !                WRITE(*,*) 'ERROR! oldevapfbl not right.', ktau_gl, i
+         !                WRITE(*,*) 'ecx, ecy = ', ecx(i), ecy(i)
+         !                WRITE(*,*) 'or in mm = ', ecx(i) * ( 1.0 - canopy%fwet(i) ) &
+         !                   / air%rlam(i) * dels, &
+         !                   ecy(i) * ( 1.0 - canopy%fwet(i) ) / &
+         !                   air%rlam(i) * dels
+
+         !                WRITE(*,*)'fevc = ', canopy%fevc(i), SUM( oldevapfbl(i,:) ) * &
+         !                   air%rlam(i) / dels
+         !                WRITE(*,*) 'fwet = ', canopy%fwet(i)
+         !                WRITE(*,*) 'oldevapfbl = ', oldevapfbl(i,:)
+         !                WRITE(*,*) 'ssnow%evapfbl before rescaling: ', &
+         !                   ssnow%evapfbl(i,:)
+         !                ! STOP
+
+         !             ELSE
+
+         !                ssnow%evapfbl(i,:) = oldevapfbl(i,:)
+
+         !             END IF
+
+         !          END IF
+
+         !       END IF
+
+         !    END DO
+
+         ! ENDIF
+         ! print*, 'Recalculate ssnow%evapfbl: ktau: ',ktau
+         ! canopy%psi_can = real(psily, r_2)
+         canopy%frday = 12.0 * SUM(rdy, 2)
+         !! vh !! inserted min to avoid -ve values of GPP
+         canopy%fpn = min(-12.0 * SUM(an_y, 2), canopy%frday)
+         ! change canopy%gswx from gswx to gswy, zihanlu, 19/12/2024
+         canopy%gswx = gswy
+         canopy%fwpsi = fwpsiy
+         ! additional diagnostic variables for assessing contributions of rubisco and rubp limited photosynthesis to
+         ! net photosynthesis in sunlit and shaded leaves.
+         canopy%A_sh = real(an_y(:,2), r_2)
+         canopy%A_sl = real(an_y(:,1), r_2)
+
+         canopy%GPP_sh = real(an_y(:,2) + rdy(:,2), r_2)
+         canopy%GPP_sl = real(an_y(:,1) + rdy(:,1), r_2)
+
+         canopy%A_shC = real(anrubiscoy(:,2), r_2)
+         canopy%A_shJ = real(anrubpy(:,2), r_2)
+
+         where (anrubiscoy(:,2) > an_y(:,2)) canopy%A_shC = 0.0_r_2
+         where (anrubpy(:,2) > an_y(:,2))    canopy%A_shJ = 0.0_r_2
+         
+         canopy%A_slC = real(anrubiscoy(:,1), r_2)
+         canopy%A_slJ = real(anrubpy(:,1), r_2)
+         !if (ktau>=5760 .AND. ktau<=11664) then
+         ! if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
+         !    print*, 'value y:',canopy%A_slC, canopy%A_sl
+         ! endif
+         where (anrubiscoy(:,1) > an_y(:,1)) canopy%A_slC = 0.0_r_2
+         where (anrubpy(:,1)    > an_y(:,1)) canopy%A_slJ = 0.0_r_2
+
+         canopy%eta_A_cs = canopy%A_sh * min(eta_y(:,2),5.0_r_2) + canopy%A_sl * min(eta_y(:,1),5.0_r_2)
+         where ((canopy%A_sl > 0.0_r_2) .and. (canopy%A_sh > 0.0_r_2))
+            canopy%eta_GPP_cs = canopy%GPP_sh  * min(eta_y(:,2),5.0_r_2) * canopy%GPP_sh/canopy%A_sh + &
+               canopy%GPP_sl * min(eta_y(:,1),5.0_r_2)* canopy%GPP_sl/canopy%A_sl
+         elsewhere ((canopy%A_sl .le. 0.0_r_2) .and. (canopy%A_sh > 0.0_r_2))
+            canopy%eta_GPP_cs = canopy%GPP_sh * min(eta_y(:,2),5.0_r_2) * canopy%GPP_sh/canopy%A_sh
+         elsewhere
+            canopy%eta_GPP_cs = canopy%eta_A_cs
+         end where
+         ! change from gs_coeff to gs_coeffy
+         where (canopy%A_sl > 0.0_r_2)
+            canopy%eta_A_cs_sl    =  min(eta_y(:,1),5.0_r_2)
+            canopy%eta_fevc_cs_sl = (min(eta_y(:,1),5.0_r_2) - 1.0_r_2) * &
+               real(max(0.0, gs_coeffy(:,1)*an_y(:,1)), r_2) / real(canopy%gswx(:,1), r_2)
+         elsewhere
+            canopy%eta_A_cs_sl    = 0.0_r_2
+            canopy%eta_fevc_cs_sl = 0.0_r_2
+         endwhere
+         ! change from gs_coeff to gs_coeffy
+         where (canopy%A_sh > 0.0_r_2)
+            canopy%eta_A_cs_sh    =  min(eta_y(:,2),5.0_r_2)
+            canopy%eta_fevc_cs_sh = (min(eta_y(:,2),5.0_r_2) - 1.0_r_2) * &
+               real(max(0.0, gs_coeffy(:,2)*an_y(:,2)), r_2) / real(canopy%gswx(:,2), r_2)
+         elsewhere
+            canopy%eta_A_cs_sh    = 0.0_r_2
+            canopy%eta_fevc_cs_sh = 0.0_r_2
+         endwhere
+
+         where ((rad%fvlai(:,1)+rad%fvlai(:,2)) > 0.01)
+            canopy%eta_fevc_cs = ( canopy%eta_fevc_cs_sl *  real(rad%fvlai(:,1), r_2) + &
+               canopy%eta_fevc_cs_sh * real(rad%fvlai(:,2), r_2) ) * canopy%fevc / &
+               real(rad%fvlai(:,1)+rad%fvlai(:,2), r_2)
+         elsewhere
+            canopy%eta_fevc_cs = 0.0_r_2
+         endwhere
+         ! canopy%cs_sl = csx(:,1) * 1.0e6_r_2
+         ! canopy%cs_sh = csx(:,2) * 1.0e6_r_2
+         ! change canopy%cs from csx to csy, zihanlu, 19/12/2024
+         canopy%cs_sl = csy(:,1) * 1.0e6_r_2
+         canopy%cs_sh = csy(:,2) * 1.0e6_r_2
+
+         canopy%dAdcs = canopy%A_sl * dAn_y(:,1) + canopy%A_sh * dAn_y(:,2)
+         canopy%cs    = canopy%A_sl * canopy%cs_sl * 1.0e6_r_2 + canopy%A_sh * canopy%cs_sh * 1.0e6_r_2
+
+         canopy%tlf   = real(tlfy, r_2)
+         ! change canopy%dlf from dsx to dsy, zihanlu, 19/12/2024
+         !canopy%dlf   = real(dsx, r_2)
+         canopy%dlf   = real(dsy, r_2)
+
+
+         ! print*, 'DD47 ', ssnow%evapfbl
+         canopy%evapfbl = ssnow%evapfbl
+
+         ! 13C
+         canopy%An        = real(an_y, r_2)
+         canopy%Rd        = real(rdy, r_2)
+         canopy%isc3      = (1.0-veg%frac4) > epsilon(1.0)
+         ! change from vcmxt3 to vcmxt3y, 
+         canopy%vcmax     = real(merge(vcmxt3y, vcmxt4y, spread(canopy%isc3,2,mf)), r_2)
+         ! change from cx2 to cx2y, 
+         canopy%gammastar = real(spread(cx2y*0.5,2,mf), r_2)
+         canopy%gsc       = real(canopy%gswx / C%rgswc, r_2)
+         canopy%gbc       = (gbhu + gbhf) / real(C%rgbwc, r_2)
+         canopy%gac       = huge(1.0_r_2)
+         ! replace 1.0_r_2/canopy%gac by tiny(1.0_r_2) to avoid underflow
+         canopy%ci        = real(spread(met%ca, 2, mf), r_2) - &
+            canopy%An / &
+            (1.0_r_2 / (1.0_r_2/canopy%gbc + 1.0_r_2/canopy%gsc + tiny(1.0_r_2)))
+         IF (cable_user%FWSOIL_SWITCH == 'profitmax') THEN
+            canopy%fevcs = (1.0-canopy%fwet) * ecxs  ! trans. from sapflux
+
+            DO i = 1, mp
+
+               new_plc_sat = calc_plc(kcmax(i), veg%kmax(i), veg%PLCcrit(i))
+
+               IF (canopy%psi_can_opt(i) < ssnow%psi_rootzone(i) .AND. ecxs(i) > 1E-9) THEN
+                  IF (avg_kcan(i) > 1E-9 .AND. avg_kcan(i) < veg%kmax(i)) THEN
+
+                     ! Partitioning ratios from Drake et al. (2015), PC&E, 38: 1628-1636.
+                     new_plc_stem = calc_plc(5. / (2. / avg_kcan(i) + 3. / kcmax(i)), &
+                        veg%kmax(i), veg%PLCcrit(i)) ! 2:5 to 3:5
+
+                     new_plc_can = calc_plc(avg_kcan(i), veg%kmax(i), veg%PLCcrit(i))
+
+                  ELSE
+                     new_plc_stem = 0.0
+                     new_plc_can = 0.0
+                  ENDIF
+
+               ELSE
+                  new_plc_stem = 0.0
+                  new_plc_can = 0.0
+               ENDIF
+
+               IF (new_plc_sat > canopy%day_plc_sat(i)) THEN
+                  canopy%day_plc_sat(:) = new_plc_sat
+               ENDIF
+
+               IF (new_plc_stem > canopy%day_plc_stem(i)) THEN
+                  canopy%day_plc_stem(:) = new_plc_stem
+               ENDIF
+
+               IF (new_plc_can > canopy%day_plc_can(i)) THEN
+                  canopy%day_plc_can(:) = new_plc_can
+               ENDIF
+
+               ! set the day's PLC and reset the PLC tracker here
+               IF (met%hod(i) >= 24.0 - dels / (60.0 * 60.0) - 1E-6) THEN
+                  canopy%day_plc_sat(:) = 0.0
+                  canopy%day_plc_stem(:) = 0.0
+                  canopy%day_plc_can(:) = 0.0
+
+               ELSE IF (met%hod(i) >= 24.0 - 2.0 * dels / (60.0 * 60.0) - 1E-6) THEN
+                  canopy%plc_sat(i) = canopy%day_plc_sat(i)
+                  canopy%plc_stem(i) = canopy%day_plc_stem(i)
+                  canopy%plc_can(i) = canopy%day_plc_can(i)
+               ENDIF
+
+            END DO
+         ENDIF
+         ! deallocate( gswmin )
+      endif ! if not present gspsdo
+
+   END SUBROUTINE dryLeaf_givengs
    ! ------------------------------------------------------------------------------
 
 
@@ -3425,7 +4678,228 @@ CONTAINS
 
    END SUBROUTINE photosynthesis_gm
 
+   SUBROUTINE photosynthesis_gm_givengs( csxz, gsz, cx1z, cx2z, &
+      rdxz, vcmxt3z, vcmxt4z, vx3z, &
+      vx4z, vlaiz, deltlfz, anxz, &
+      gmes, kc4, anrubiscoz, anrubpz, ansinkz )
 
+    use cable_def_types_mod, only: r_2
+    use cable_common_module, only: cable_user
+
+      implicit none
+
+    real(r_2), dimension(:, :), intent(in) :: csxz, gsz
+    real,      dimension(:, :), intent(in) :: gmes
+    real,      dimension(:, :), intent(in) :: &
+         cx1z,       & !
+         cx2z,       & !
+         rdxz,       & !
+         vcmxt3z,    & !
+         vcmxt4z,    & !
+         vx4z,       & !
+         vx3z,       & !
+         vlaiz,      & !
+         deltlfz, &
+         kc4           !
+
+    real,      dimension(:, :), intent(inout) :: anxz, anrubiscoz, anrubpz, ansinkz
+
+    ! local variables
+    real(r_2), dimension(size(csxz, 1), size(csxz, 2)) :: dAmp, dAme, dAmc, eta_p, eta_e, eta_c
+    !real, dimension(mp) :: fwsoilz  ! why was this local??
+    real(r_2) :: gamma, beta, gammast, gm, g0, X, Rd, cs,gss
+    real(r_2) :: Am
+    integer :: i, j, mp, mf
+    ! for minimum of 3 rates and corresponding elasticities
+    real,      dimension(3) :: tmp3
+    real(r_2), dimension(3) :: dtmp3
+    integer,   dimension(1) :: ii
+
+    mp = size(csxz, 1)
+    mf = size(csxz, 2)
+    do i=1, mp
+
+      do j=1, mf
+
+         if (vlaiz(i,j) > C%lai_thresh) then
+
+             if (deltlfz(i,j) > 0.1 ) then
+
+                anxz(i,j)       = -rdxz(i,j)
+                anrubiscoz(i,j) = -rdxz(i,j)
+                anrubpz(i,j)    = -rdxz(i,j)
+                ansinkz(i,j)    = -rdxz(i,j)
+               !  dAmc(i,j)       = 0.0_r_2
+               !  dAme(i,j)       = 0.0_r_2
+               !  dAmp(i,j)       = 0.0_r_2
+               !  dA(i,j)         = 0.0_r_2
+               !  eta_c(i,j)      = 0.0_r_2
+               !  eta_e(i,j)      = 0.0_r_2
+               !  eta_p(i,j)      = 0.0_r_2
+               !  eta(i,j)        = 0.0_r_2
+
+                ! C3, Rubisco limited, accounting for explicit mesophyll conductance
+                if ((vcmxt3z(i,j) > 1.0e-8)) then
+                   cs      = csxz(i,j)
+                   gss = gsz(i,j)
+                   gamma   = real(vcmxt3z(i,j), r_2)
+                   beta    = real(cx1z(i,j), r_2)
+                   gammast = real(cx2z(i,j) / 2.0, r_2)
+                   Rd      = real(rdxz(i,j), r_2)
+                   gm      = gmes(i,j)
+
+                  if (trim(cable_user%g0_switch) == 'default') then
+                      ! get partial derivative of A wrt cs
+         
+                        call fAndAn_c3_givengs(cs, gss, gamma, beta, gammast, Rd, Am)
+                     
+                  elseif (trim(cable_user%g0_switch) == 'maximum') then
+                        ! ! set g0 to zero initially
+                        ! if (cable_user%explicit_gm) then
+                        !    call fAmdAm_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
+                        !       gm, Am, dAmc(i,j))
+                        !    if (g0 > Am*X) then ! repeat calculation if g0 > A*X
+                        !       call fAmdAm_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
+                        !          gm, Am, dAmc(i,j))
+                        !    endif
+                        ! else
+                        !    call fAndAn_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
+                        !       Am, dAmc(i,j))
+                        !    if (g0 > Am*X) then ! repeat calculation if g0 > A*X
+                        !       call fAndAn_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
+                        !          Am, dAmc(i,j))
+                        !    endif
+                        ! endif
+                        Am = 0.0_r_2 ! temporaray
+                  endif
+                     anrubiscoz(i,j) = real(Am)
+                        
+                  endif  ! C3
+
+                  ! C4, Rubisco limited, accounting for explicit mesophyll conductance
+                  if (vcmxt4z(i,j) > 1.0e-8) then
+                     anrubiscoz(i,j) = vcmxt4z(i,j)- rdxz(i,j)
+                     dAmc(i,j)  = 0.0_r_2
+                     eta_c(i,j) = 0.0_r_2
+                  endif
+
+                  ! C3, RuBP regeneration-limited, accounting for explicit mesophyll conductance
+                  if ( (vcmxt3z(i,j) > 0.0) .and. &
+                     (vx3z(i,j) > 1.0e-8) ) then
+                     cs      = csxz(i,j)
+                     gss = gsz(i,j)
+                     gamma   = real(vx3z(i,j), r_2)
+                     beta    = real(cx2z(i,j), r_2)
+                     gammast = real(cx2z(i,j) / 2.0, r_2)
+                     Rd      = real(rdxz(i,j), r_2)
+                     gm      = gmes(i,j)
+
+                     if (trim(cable_user%g0_switch) == 'default') then
+                        call fAndAn_c3_givengs(cs, gss, gamma, beta, gammast, Rd, Am)
+                     elseif (trim(cable_user%g0_switch) == 'maximum') then
+                        ! if (cable_user%explicit_gm) then
+                        !    call fAmdAm_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
+                        !       gm, Am, dAme(i,j))
+                        !    ! repeat calculation if g0 > A*X
+                        !    if (g0 > Am*X) then
+                        !       call fAmdAm_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
+                        !          gm, Am, dAme(i,j))
+                        !    endif
+                        ! else
+                        !    call fAndAn_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
+                        !       Am, dAme(i,j))
+                        !    ! repeat calculation if g0 > A*X
+                        !    if (g0 > Am*X) then
+                        !       call fAndAn_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
+                        !          Am, dAme(i,j))
+                        !    endif
+                        ! endif
+                     Am = 0.0_r_2 ! temporaray
+                     endif
+                     anrubpz(i,j) = real(Am)
+
+                  endif  ! C3
+
+                  ! C4, RuBP limited, accounting for explicit mesophyll conductance
+                  if (vx4z(i,j) > 1.0e-8) then
+                     anrubpz(i,j) = vx4z(i,j) - rdxz(i,j)
+                     ! dAme(i,j)  = 0.0_r_2
+                     ! eta_e(i,j) = 0.0_r_2
+                  endif
+
+                  ! Sink limited, accounting for explicit mesophyll conductance
+                  if (vcmxt3z(i,j) > 1.0e-10) then ! C3
+
+                     ansinkz(i,j) = 0.5 * vcmxt3z(i,j) - rdxz(i,j)
+                     ! dAmp(i,j)  = 0.0_r_2
+                     ! eta_p(i,j) = 0.0_r_2
+
+                  elseif ((vcmxt4z(i,j) > 1.0e-10) ) then ! C4
+                     cs         = csxz(i,j)
+                     gamma      = real(kc4(i,j),r_2) ! k in Collatz 1992
+                     beta       = 0.0_r_2
+                     gammast    = 0.0_r_2
+                     Rd         = real(rdxz(i,j), r_2)
+                     gm         = gmes(i,j)
+
+                     if (trim(cable_user%g0_switch) == 'default') then
+                        if (cable_user%explicit_gm) then
+                        !    call fAmdAm_c4(cs, g0, X*cs, gamma, beta, gammast, Rd, gm, &
+                        !       Am, dAmp(i,j))
+                        ! else
+                        !    call fAndAn_c4(cs, g0, X*cs, gamma, beta, gammast, Rd, &
+                        !       Am, dAmp(i,j))
+                        Am = 0.0_r_2 ! temporaray
+                        endif
+                     elseif (trim(cable_user%g0_switch) == 'maximum') then
+                        if (cable_user%explicit_gm) then
+                        !    call fAmdAm_c4(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, gm, &
+                        !       Am, dAmp(i,j))
+                        !    if (g0 > Am*X) then
+                        !       call fAmdAm_c4(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, gm, &
+                        !          Am, dAmp(i,j))
+                        !    endif
+                        ! else
+                        !    call fAndAn_c4(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
+                        !       Am, dAmp(i,j))
+                        !    if (g0 > Am*X) then
+                        !       call fAndAn_c4(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
+                        !          Am, dAmp(i,j))
+                        !    endif
+                        ! endif
+                        Am = 0.0_r_2 ! temporaray
+                        endif
+                     endif
+                     ansinkz(i,j) = real(Am)
+
+                     ! dAmp(i,j)  = 0.0_r_2
+                     ! eta_p(i,j) = 0.0_r_2
+                     ! if (Am > 0.0_r_2) eta_p(i,j) = dAmp(i,j) * cs / Am
+                  endif ! C3/C4
+
+               endif ! deltlfz > 0.1
+
+               ! minimal of three limited rates
+               tmp3      = (/ anrubiscoz(i,j), anrubpz(i,j), ansinkz(i,j) /)
+               ii        = minloc(tmp3)
+               anxz(i,j) = tmp3(ii(1))
+
+
+         else ! vlaiz(i,j) > C%lai_thresh
+
+               anxz(i,:)       = 0.0
+               anrubiscoz(i,:) = 0.0
+               anrubpz(i,:)    = 0.0
+               ansinkz(i,:)    = 0.0
+
+
+         endif ! vlaiz(i,j) > C%lai_thresh
+
+      enddo ! j=1, mf
+
+   enddo ! i=1, mp
+
+   END SUBROUTINE photosynthesis_gm_givengs
    !---------------------------------------------------------------------------------------
 
 
@@ -4058,7 +5532,20 @@ CONTAINS
       c = -g0*(Rd-gamma)*Cs**2 - g0*(gamma*Gammastar+Rd*beta)*Cs
 
    end subroutine fabc
+   elemental pure subroutine fabc_givengs(Cs, gs, gamma, beta, Gammastar, Rd, a, b, c)
 
+      use cable_def_types_mod, only: r_2
+
+      implicit none
+
+      real(r_2), intent(in)  :: Cs, gamma, beta, Gammastar, Rd, gs
+      real(r_2), intent(out) :: a, b, c
+
+      a = 1.0_r_2
+      b = Rd - gamma - Cs*gs - beta*gs  
+      c = gamma*gs*(Cs-Gammastar) - gs*Rd*(Cs+beta)
+
+   end subroutine fabc_givengs
 
    elemental pure subroutine fabc_c4(Cs, g0, x, gamma, beta, Gammastar, Rd, a, b, c)
 
@@ -4196,7 +5683,21 @@ CONTAINS
 
    end subroutine fAndAn_c3
 
+   elemental pure subroutine fAndAn_c3_givengs(Cs, gs, gamma, beta, Gammastar, Rd, An)
 
+      use cable_def_types_mod, only: r_2
+
+      implicit none
+
+      real(r_2), intent(in)  :: Cs, gs, gamma, beta, Gammastar, Rd
+      real(r_2), intent(out) :: An
+
+      real(r_2) :: a, b, c
+
+      call fabc_givengs(Cs, gs, gamma, beta, Gammastar, Rd,a,b,c)
+      call fAn_c3(a, b, c, An)
+
+   end subroutine fAndAn_c3_givengs
    elemental pure subroutine fAndAn_c4(Cs, g0, x, gamma, beta, Gammastar, Rd, An, dAn)
 
       use cable_def_types_mod, only: r_2

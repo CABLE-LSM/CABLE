@@ -541,6 +541,9 @@ module cable_def_types_mod
      real(r_2), dimension(:,:), pointer :: abs_deltcs_vpd => null() 
      real(r_2), dimension(:,:), pointer :: abs_deltpsil_sw => null() 
      real(r_2), dimension(:,:), pointer :: abs_deltcs_sw => null() 
+     real(r_2), dimension(:,:), pointer :: gs_epotvpd => null() 
+     real(r_2), dimension(:,:), pointer :: gs_epotcan3 => null() 
+
      real(r_2), dimension(:), pointer :: psix => null()
      ! plant hydraulics; mgk576 2017; ms835 2022
      REAL(r_1), DIMENSION(:), POINTER :: &
@@ -1308,6 +1311,8 @@ contains
     allocate( canopy%abs_deltcs_vpd(mp,mf) )
     allocate( canopy%abs_deltpsil_sw(mp,mf) )
     allocate( canopy%abs_deltcs_sw(mp,mf) )
+    allocate( canopy%gs_epotvpd(mp,mf) )
+    allocate( canopy%gs_epotcan3(mp,mf) )
     allocate( canopy%psi_can_opt(mp) )
     allocate( canopy%kplant(mp) )
     allocate( canopy%plc_sat(mp) )
@@ -2553,6 +2558,8 @@ contains
     canopy%epotcan2            = 0
     canopy%epotcan3            = 0
     canopy%epotvpd            = 0
+    canopy%gs_epotvpd            = 0
+    canopy%gs_epotcan3            = 0
 
   end subroutine zero_canopy_type
 
