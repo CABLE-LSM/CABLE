@@ -4208,6 +4208,9 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
       ! dry canopy flux
       canopy%fevc = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
       canopy%epotvpd = canopy%fevc
+      canopy%abs_deltcs_vpd = abs_deltcs * 1.0e6_r_2
+      canopy%abs_deltlf_vpd = abs_deltlf
+      canopy%abs_deltds_vpd = abs_deltds
       IF (.NOT. PRESENT(gspsdo)) THEN
          canopy%abs_deltcs = abs_deltcs * 1.0e6_r_2
          canopy%abs_deltlf = abs_deltlf
