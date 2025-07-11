@@ -569,7 +569,7 @@ CONTAINS
          casabal%LAImax(arraysize),              &
          casabal%Cleafmean(arraysize),           &
          casabal%Crootmean(arraysize),           &
-         SOURCE=0.0_r_2                          &
+         SOURCE=0.0                          &
          )
 
 
