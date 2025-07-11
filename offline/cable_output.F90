@@ -729,7 +729,7 @@ CONTAINS
        CALL define_ovar(ncid_out, ovid%gs_epotvpd_sh, 'gs_epotvpd_sh', 'mol/m^2/s', &
             'stomatal conductance sl leaves when vpd=0.6Kpa', patchout%TVeg, 'dummy', &
             xID, yID, zID, landID, patchID, tID)
-       ALLOCATE(out%gs_epotvpd_sl(mp))
+       ALLOCATE(out%gs_epotvpd_sh(mp))
        out%gs_epotvpd_sh = zero4 ! initialise
 
      CALL define_ovar(ncid_out, ovid%gs_epotcan3_sl, 'gs_epotcan3_sl', 'mol/m^2/s', &
