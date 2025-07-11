@@ -210,7 +210,8 @@ MODULE cable_checks_module
           P50 = (/-50.0, 0.0/),          &
           P88dP50 = (/-50.0, 0.0/),      &
           kplant = (/0.0, 100.0/), &
-          abs_deltlf = (/0.0, 50.0/)
+          abs_deltlf = (/0.0, 50.0/), &
+          huber_value = (/0.0, 0.1/)
    END TYPE ranges_type
    TYPE(ranges_type),SAVE :: ranges
 

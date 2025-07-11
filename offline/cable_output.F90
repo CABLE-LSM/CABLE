@@ -5362,6 +5362,8 @@ CONTAINS
                     'root_conduc', .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
      CALL define_ovar(ncid_restart,rpid%zr,'zr','m', &
           'Maximum rooting depth',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
+     CALL define_ovar(ncid_restart,rpid%huber_value,'huber_value','m2 m-2', &
+          'sapwood area / leaf area',.TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
     ! CALL define_ovar(ncid_restart, rpid%tminvj, 'tminvj', 'C', &
     !                  'Min temperature for the start of photosynthesis', &
     !                  .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
@@ -5627,6 +5629,8 @@ CONTAINS
      CALL write_ovar (ncid_restart, rpid%P88dP50, 'P88dP50', toreal4(veg%P88dP50), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
      CALL write_ovar (ncid_restart, rpid%root_conduc, 'root_conduc', toreal4(veg%root_conduc), &
+          (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
+     CALL write_ovar (ncid_restart, rpid%huber_value, 'huber_value', toreal4(veg%huber_value), &
           (/-99999.0, 9999999.0/), .TRUE., 'real', .TRUE.)
     ! CALL write_ovar (ncid_restart, rpid%tminvj, 'tminvj', toreal4(veg%tminvj), &
     !                  ranges%tminvj, .TRUE., 'real', .TRUE.)

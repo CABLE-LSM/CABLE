@@ -487,7 +487,7 @@ CONTAINS
       INTEGER :: k
       real :: k1, k2, pd, BAI, WD, AGB_pl, DBH, plc, sumpsiksoil, sumksoil
       real:: huber_value, SLA
-      huber_value = 3.65e-4 ! m2 m-2 (sapwood area/leaf area) for Fagus sylvatica
+      !huber_value = 3.65e-4 ! m2 m-2 (sapwood area/leaf area) for Fagus sylvatica
       !SLA = 154 ! cm2 g-1 for Fagus sylvatica
       !real(r_2) :: psi_sr
       !ELSE
@@ -564,6 +564,7 @@ CONTAINS
          ! plc = get_xylem_vulnerability(ssnow%psi_rootzone(i), &
          ! veg%b_plant(i), veg%c_plant(i))
          !BAI = casapool%cplant(i,1) * gC2DM * SLA * huber_value !  m2 m-2
+         huber_value = veg%huber_value(i)
          BAI = veg%vlai(i) * huber_value !  m2 m-2 
          print*, 'new BAI',BAI
          plc = get_xylem_vulnerability(psix, &
