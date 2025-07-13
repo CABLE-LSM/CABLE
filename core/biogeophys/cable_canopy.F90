@@ -521,7 +521,7 @@ CONTAINS
             csxpsdo = csx
             CALL dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                veg, canopy, soil, ssnow,casapool, dsxpsdo, dsypsdo, &
-               fwsoilpsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,&
+               tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,&
                rnypsdo, gbhu, gbhf, csxpsdo, &
                cansat, iter, climate,gspsdo = canopy%gs_epotvpd)
          endif
@@ -3188,7 +3188,7 @@ CONTAINS
 
 SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
       veg, canopy, soil, ssnow,casapool, dsx, dsy, &
-      fwsoil,tlfx, tlfy, ecy, hcy, &
+      tlfx, tlfy, ecy, hcy, &
       rny, gbhu, gbhf, csx, &
       cansat, iter, climate,gspsdo)
 
@@ -3211,19 +3211,19 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
       type(soil_parameter_type), intent(in) :: soil
       type(soil_snow_type),      intent(in) :: ssnow
       TYPE (casa_pool),  INTENT(IN)           :: casapool
-      real,      dimension(:),   intent(in) :: &
+      real,      dimension(:),   intent(inout) :: &
          dsx,        & ! leaf surface vpd
          dsy,        & ! leaf surface vpd
-         fwsoil,     & ! soil water modifier of stom. cond
+
          ! fwsoiltmp,  &
          tlfx,       & ! leaf temp prev. iter (K)
          tlfy  ! leaf temp (K)
-      real(r_2), dimension(:),   intent(in) :: &
+      real(r_2), dimension(:),   intent(inout) :: &
          ecy,        & ! lat heat fl dry big leaf
          hcy,        & ! veg. sens heat
          rny         !& !
     
-      real(r_2), dimension(:,:), intent(in) :: &
+      real(r_2), dimension(:,:), intent(inout) :: &
          gbhu,       & ! forcedConvectionBndryLayerCond
          gbhf,       & ! freeConvectionBndryLayerCond
          csx   ! leaf surface CO2 concentration
@@ -3265,7 +3265,8 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
          temp_sun_c3,   & !
          temp_shade_c3, & !
          temp_sun_c4,   & !
-         temp_shade_c4    !
+         temp_shade_c4, &    !
+         fwsoil
 
       real(r_2), dimension(mp)  :: &
          ecx,        & ! lat. hflux big leaf
