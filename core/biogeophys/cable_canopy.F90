@@ -523,7 +523,7 @@ CONTAINS
                veg, canopy, soil, ssnow,casapool, dsxpsdo, dsypsdo, &
                fwsoilpsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,&
                rnypsdo, gbhu, gbhf, csxpsdo, &
-               cansat, ghwet, iter, climate,gspsdo = canopy%gs_epotvpd)
+               cansat, iter, climate,gspsdo = canopy%gs_epotvpd)
          endif
          if (iter==4) then
             wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
@@ -3190,7 +3190,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
       veg, canopy, soil, ssnow,casapool, dsx, dsy, &
       fwsoil,tlfx, tlfy, ecy, hcy, &
       rny, gbhu, gbhf, csx, &
-      cansat, ghwet, iter, climate,gspsdo)
+      cansat, iter, climate,gspsdo)
 
       use cable_def_types_mod
       use cable_common_module
@@ -3203,27 +3203,27 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
       INTEGER,                   INTENT(IN)    :: ktau
       INTEGER,                   INTENT(IN)    :: ktau_tot
       real,                      intent(in)    :: dels ! integration time step (s)
-      type(radiation_type),      intent(inout) :: rad
-      type(air_type),            intent(inout) :: air
-      type(met_type),            intent(inout) :: met
-      type(veg_parameter_type),  intent(inout) :: veg
-      type(canopy_type),         intent(inout) :: canopy
-      type(soil_parameter_type), intent(inout) :: soil
-      type(soil_snow_type),      intent(inout) :: ssnow
+      type(radiation_type),      intent(in) :: rad
+      type(air_type),            intent(in) :: air
+      type(met_type),            intent(in) :: met
+      type(veg_parameter_type),  intent(in) :: veg
+      type(canopy_type),         intent(in) :: canopy
+      type(soil_parameter_type), intent(in) :: soil
+      type(soil_snow_type),      intent(in) :: ssnow
       TYPE (casa_pool),  INTENT(IN)           :: casapool
-      real,      dimension(:),   intent(inout) :: &
+      real,      dimension(:),   intent(in) :: &
          dsx,        & ! leaf surface vpd
          dsy,        & ! leaf surface vpd
          fwsoil,     & ! soil water modifier of stom. cond
          ! fwsoiltmp,  &
          tlfx,       & ! leaf temp prev. iter (K)
          tlfy  ! leaf temp (K)
-      real(r_2), dimension(:),   intent(inout) :: &
+      real(r_2), dimension(:),   intent(in) :: &
          ecy,        & ! lat heat fl dry big leaf
          hcy,        & ! veg. sens heat
          rny         !& !
     
-      real(r_2), dimension(:,:), intent(inout) :: &
+      real(r_2), dimension(:,:), intent(in) :: &
          gbhu,       & ! forcedConvectionBndryLayerCond
          gbhf,       & ! freeConvectionBndryLayerCond
          csx   ! leaf surface CO2 concentration
@@ -3231,7 +3231,6 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
          ! psily,      &
          ! fwpsi   
       real,      dimension(:),   intent(in)    :: cansat
-      real(r_2), dimension(:),   intent(out)   :: ghwet  ! cond for heat for a wet canopy
       integer,                   intent(in)    :: iter
       type(climate_type),        intent(in)    :: climate
       real(r_2), dimension(:,:), intent(in), optional :: gspsdo
@@ -3274,7 +3273,8 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
          rnx, &          ! net rad prev timestep
          ecxs, &  ! lat. hflux big leaf (sap flux)
          psixx, &
-         kplantx
+         kplantx, &
+         ghwet
          
       real(r_2) :: psixxi, kplantxi
       real, dimension(mp,ms)  :: oldevapfbl
@@ -4206,8 +4206,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
       
       ! print*, 'End k loop: ktau & iter & k= ',ktau,iter,k
       ! dry canopy flux
-      canopy%fevc = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
-      canopy%epotvpd = canopy%fevc
+      canopy%epotvpd = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
       canopy%abs_deltcs_vpd = abs_deltcs * 1.0e6_r_2
       canopy%abs_deltlf_vpd = abs_deltlf
       canopy%abs_deltds_vpd = abs_deltds
