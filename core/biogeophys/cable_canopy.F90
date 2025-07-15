@@ -3921,7 +3921,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
 
                      ! write(logn,*) '3: gsw of ',kk, ': ', canopy%gswx(i,kk)
                      !Recalculate conductance for water:
-                     gw(i,kk) = 1.0 / ( 1.0 / gspsdo(i,kk) + &
+                     gw(i,kk) = 1.0 / ( 1.0 / (gspsdo(i,kk) * C%RGSWC) + &
                         1.0 / ( 1.075 * real(gbhu(i,kk) + gbhf(i,kk)) ) )
                      gw(i,kk) = max(gw(i,kk), 0.00001)
 
