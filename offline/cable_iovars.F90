@@ -427,10 +427,10 @@ MODULE cable_IO_vars_module
          abs_deltpsil_sh_sw = .FALSE.,       &
          abs_deltcs_sl_sw = .FALSE.,       & 
          abs_deltcs_sh_sw = .FALSE.,       &
-         gs_epotvpd_sl = .FALSE.,       &
-         gs_epotvpd_sh = .FALSE.,       &
-         gs_epotcan3_sl = .FALSE.,       &
-         gs_epotcan3_sh = .FALSE.,       &
+         gsw_epotvpd_sl = .FALSE.,       &
+         gsw_epotvpd_sh = .FALSE.,       &
+         gsw_epotcan3_sl = .FALSE.,       &
+         gsw_epotcan3_sh = .FALSE.,       &
          fwpsi_sl = .FALSE.,       &
          fwpsi_sh = .FALSE.,       &   
          plc_sat = .FALSE.,       & 

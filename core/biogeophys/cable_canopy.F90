@@ -523,7 +523,7 @@ CONTAINS
                veg, canopy, soil, ssnow,casapool, dsxpsdo, dsypsdo, &
                tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,&
                rnypsdo, gbhu, gbhf, csxpsdo, &
-               cansat, iter, climate,gspsdo = canopy%gs_epotvpd)
+               cansat, iter, climate,gspsdo = canopy%gsw_epotvpd)
          endif
          if (iter==4) then
             wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
@@ -2965,14 +2965,14 @@ CONTAINS
       canopy%fevc = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
       if (present (wbpsdo)) then
          canopy%epotcan3 = canopy%fevc
-         canopy%gs_epotcan3 = canopy%gswx
+         canopy%gsw_epotcan3 = canopy%gswx
          canopy%abs_deltpsil_sw = abs_deltpsil
          canopy%abs_deltcs_sw = abs_deltcs * 1.0e6_r_2
          canopy%abs_deltlf_sw = abs_deltlf
          canopy%abs_deltds_sw = abs_deltds
       elseif (present (vpdpsdo)) then
          
-         canopy%gs_epotvpd = canopy%gswx
+         canopy%gsw_epotvpd = canopy%gswx / C%RGSWC
          canopy%abs_deltpsil_vpd = abs_deltpsil
          canopy%abs_deltcs_vpd = abs_deltcs * 1.0e6_r_2
          canopy%abs_deltlf_vpd = abs_deltlf

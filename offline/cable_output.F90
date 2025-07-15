@@ -93,7 +93,7 @@ MODULE cable_output_module
           abs_deltcs_sl_sw, abs_deltcs_sh_sw, ksoil, kroot, uptake_layer, &
           ksoilmean, krootmean, kbelowmean, psi_soilmean, wb_soilmean, psi_soilmean1, psi_rootmean, &
            epotcan1, epotcan2, epotcan3, epotvpd, total_est_evap, wb_30, psi_30, wb_fr_rootzone, psi_fr_rootzone, &
-           gs_epotvpd_sh, gs_epotvpd_sl, gs_epotcan3_sh, gs_epotcan3_sl
+           gsw_epotvpd_sh, gsw_epotvpd_sl, gsw_epotcan3_sh, gsw_epotcan3_sl
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
 
@@ -329,10 +329,10 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: epotcan2 => null()    ! zihanlu
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: epotcan3 => null()    ! zihanlu
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: epotvpd => null()    ! zihanlu
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: gs_epotvpd_sl => null()    ! zihanlu
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: gs_epotvpd_sh => null()    ! zihanlu
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: gs_epotcan3_sl => null()    ! zihanlu
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: gs_epotcan3_sh => null()    ! zihanlu
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: gsw_epotvpd_sl => null()    ! zihanlu
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: gsw_epotvpd_sh => null()    ! zihanlu
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: gsw_epotcan3_sl => null()    ! zihanlu
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: gsw_epotcan3_sh => null()    ! zihanlu
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: total_est_evap => null()    ! zihanlu
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: wb_30 => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_30 => null() 
@@ -720,29 +720,29 @@ CONTAINS
        ALLOCATE(out%gsw_sh(mp))
        out%gsw_sh = zero4 ! initialise
 
-       CALL define_ovar(ncid_out, ovid%gs_epotvpd_sl, 'gs_epotvpd_sl', 'mol/m^2/s', &
+       CALL define_ovar(ncid_out, ovid%gsw_epotvpd_sl, 'gsw_epotvpd_sl', 'mol/m^2/s', &
             'stomatal conductance sl leaves when vpd=0.6Kpa', patchout%TVeg, 'dummy', &
             xID, yID, zID, landID, patchID, tID)
-       ALLOCATE(out%gs_epotvpd_sl(mp))
-       out%gs_epotvpd_sl = zero4 ! initialise
+       ALLOCATE(out%gsw_epotvpd_sl(mp))
+       out%gsw_epotvpd_sl = zero4 ! initialise
 
-       CALL define_ovar(ncid_out, ovid%gs_epotvpd_sh, 'gs_epotvpd_sh', 'mol/m^2/s', &
+       CALL define_ovar(ncid_out, ovid%gsw_epotvpd_sh, 'gsw_epotvpd_sh', 'mol/m^2/s', &
             'stomatal conductance sl leaves when vpd=0.6Kpa', patchout%TVeg, 'dummy', &
             xID, yID, zID, landID, patchID, tID)
-       ALLOCATE(out%gs_epotvpd_sh(mp))
-       out%gs_epotvpd_sh = zero4 ! initialise
+       ALLOCATE(out%gsw_epotvpd_sh(mp))
+       out%gsw_epotvpd_sh = zero4 ! initialise
 
-     CALL define_ovar(ncid_out, ovid%gs_epotcan3_sl, 'gs_epotcan3_sl', 'mol/m^2/s', &
+     CALL define_ovar(ncid_out, ovid%gsw_epotcan3_sl, 'gsw_epotcan3_sl', 'mol/m^2/s', &
             'stomatal conductance sl leaves when wb=ssat', patchout%TVeg, 'dummy', &
             xID, yID, zID, landID, patchID, tID)
-       ALLOCATE(out%gs_epotcan3_sl(mp))
-       out%gs_epotcan3_sl = zero4 ! initialise
+       ALLOCATE(out%gsw_epotcan3_sl(mp))
+       out%gsw_epotcan3_sl = zero4 ! initialise
 
-       CALL define_ovar(ncid_out, ovid%gs_epotcan3_sh, 'gs_epotcan3_sh', 'mol/m^2/s', &
+       CALL define_ovar(ncid_out, ovid%gsw_epotcan3_sh, 'gsw_epotcan3_sh', 'mol/m^2/s', &
             'stomatal conductance sl leaves when wb=ssat', patchout%TVeg, 'dummy', &
             xID, yID, zID, landID, patchID, tID)
-       ALLOCATE(out%gs_epotcan3_sh(mp))
-       out%gs_epotcan3_sh = zero4 ! initialise
+       ALLOCATE(out%gsw_epotcan3_sh(mp))
+       out%gsw_epotcan3_sh = zero4 ! initialise
 
        CALL define_ovar(ncid_out, ovid%scalex_sl, 'scale_factor_sunlit', '[ ]', &
             'canopy scaling factor sl leaves', patchout%TVeg, 'dummy', &
@@ -2884,46 +2884,47 @@ CONTAINS
           ! Reset temporary output variable:
           out%gsw_sh = zero4
        END IF
-       out%gs_epotvpd_sl = out%gs_epotvpd_sl + toreal4(canopy%gs_epotvpd(:,1))
+       ! because it is converted to gsc in cable_canopy, so need to be converted back here by x C%RGSWC
+       out%gsw_epotvpd_sl = out%gsw_epotvpd_sl + toreal4(canopy%gsw_epotvpd(:,1)) * C%RGSWC
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
-          out%gs_epotvpd_sl = out%gs_epotvpd_sl * rinterval
+          out%gsw_epotvpd_sl = out%gsw_epotvpd_sl * rinterval
           ! Write value to file:
-          CALL write_ovar(out_timestep, ncid_out, ovid%gs_epotvpd_sl, 'gs_epotvpd_sl', out%gs_epotvpd_sl, &
+          CALL write_ovar(out_timestep, ncid_out, ovid%gsw_epotvpd_sl, 'gsw_epotvpd_sl', out%gsw_epotvpd_sl, &
                ranges%gsw_sl, patchout%Tveg, 'default', met)
           ! Reset temporary output variable:
-          out%gs_epotvpd_sl = zero4
+          out%gsw_epotvpd_sl = zero4
        END IF
-       out%gs_epotvpd_sh = out%gs_epotvpd_sh + toreal4(canopy%gs_epotvpd(:,2))
+       out%gsw_epotvpd_sh = out%gsw_epotvpd_sh + toreal4(canopy%gsw_epotvpd(:,2)) * C%RGSWC
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
-          out%gs_epotvpd_sh = out%gs_epotvpd_sh * rinterval
+          out%gsw_epotvpd_sh = out%gsw_epotvpd_sh * rinterval
           ! Write value to file:
-          CALL write_ovar(out_timestep, ncid_out, ovid%gs_epotvpd_sh, 'gs_epotvpd_sh', out%gs_epotvpd_sh, &
+          CALL write_ovar(out_timestep, ncid_out, ovid%gsw_epotvpd_sh, 'gsw_epotvpd_sh', out%gsw_epotvpd_sh, &
                ranges%gsw_sh, patchout%Tveg, 'default', met)
           ! Reset temporary output variable:
-          out%gs_epotvpd_sh = zero4
+          out%gsw_epotvpd_sh = zero4
        END IF
 
-          out%gs_epotcan3_sl = out%gs_epotcan3_sl + toreal4(canopy%gs_epotcan3(:,1))
+          out%gsw_epotcan3_sl = out%gsw_epotcan3_sl + toreal4(canopy%gsw_epotcan3(:,1))
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
-          out%gs_epotcan3_sl = out%gs_epotcan3_sl * rinterval
+          out%gsw_epotcan3_sl = out%gsw_epotcan3_sl * rinterval
           ! Write value to file:
-          CALL write_ovar(out_timestep, ncid_out, ovid%gs_epotcan3_sl, 'gs_epotcan3_sl', out%gs_epotcan3_sl, &
+          CALL write_ovar(out_timestep, ncid_out, ovid%gsw_epotcan3_sl, 'gsw_epotcan3_sl', out%gsw_epotcan3_sl, &
                ranges%gsw_sl, patchout%Tveg, 'default', met)
           ! Reset temporary output variable:
-          out%gs_epotcan3_sl = zero4
+          out%gsw_epotcan3_sl = zero4
        END IF
-       out%gs_epotcan3_sh = out%gs_epotcan3_sh + toreal4(canopy%gs_epotcan3(:,2))
+       out%gsw_epotcan3_sh = out%gsw_epotcan3_sh + toreal4(canopy%gsw_epotcan3(:,2))
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
-          out%gs_epotcan3_sh = out%gs_epotcan3_sh * rinterval
+          out%gsw_epotcan3_sh = out%gsw_epotcan3_sh * rinterval
           ! Write value to file:
-          CALL write_ovar(out_timestep, ncid_out, ovid%gs_epotcan3_sh, 'gs_epotcan3_sh', out%gs_epotcan3_sh, &
+          CALL write_ovar(out_timestep, ncid_out, ovid%gsw_epotcan3_sh, 'gsw_epotcan3_sh', out%gsw_epotcan3_sh, &
                ranges%gsw_sh, patchout%Tveg, 'default', met)
           ! Reset temporary output variable:
-          out%gs_epotcan3_sh = zero4
+          out%gsw_epotcan3_sh = zero4
        END IF
     END IF
 
