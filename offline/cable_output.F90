@@ -91,7 +91,7 @@ MODULE cable_output_module
           abs_deltlf, abs_deltlf_vpd, abs_deltlf_sw, abs_deltds, abs_deltds_vpd, abs_deltds_sw, &
           abs_deltcs_sl, abs_deltcs_sh, abs_deltcs_sl_vpd, abs_deltcs_sh_vpd, &
           abs_deltcs_sl_sw, abs_deltcs_sh_sw, ksoil, kroot, uptake_layer, &
-          ksoilmean, krootmean, kbelowmean, psi_soilmean, wb_soilmean, psi_soilmean1, psi_rootmean, &
+          ksoilmean, krootmean, kbelowmean, psi_soilmean, wb_soilmean, rwc_soilmean, psi_soilmean1, psi_rootmean, &
            epotcan1, epotcan2, epotcan3, epotvpd, total_est_evap, wb_30, psi_30, wb_fr_rootzone, psi_fr_rootzone, &
            gsw_epotvpd_sh, gsw_epotvpd_sl, gsw_epotcan3_sh, gsw_epotcan3_sl
   END TYPE out_varID_type
@@ -323,6 +323,7 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: kbelowmean => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_soilmean => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: wb_soilmean => null() 
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: rwc_soilmean => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_soilmean1 => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_rootmean => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: epotcan1 => null()    ! zihanlu
@@ -882,6 +883,9 @@ CONTAINS
      CALL define_ovar(ncid_out, ovid%wb_soilmean, 'wb_soilmean', 'm m-1', &
      'Average soil water content converted from psi_soilmean', patchout%wb_soilmean, &
      'dummy', xID, yID, zID, landID, patchID, tID)
+     CALL define_ovar(ncid_out, ovid%rwc_soilmean, 'rwc_soilmean', '', &
+     'Relative Water Content converted from wb_soilmean', patchout%rwc_soilmean, &
+     'dummy', xID, yID, zID, landID, patchID, tID)
      CALL define_ovar(ncid_out, ovid%psi_soilmean1, 'psi_soilmean1', 'Mpa', &
      'Average soil water potential (whole soil column)', patchout%psi_soilmean1, &
      'dummy', xID, yID, zID, landID, patchID, tID)
@@ -894,6 +898,7 @@ CONTAINS
      ALLOCATE(out%kbelowmean(mp))
      ALLOCATE(out%psi_soilmean(mp))
      ALLOCATE(out%wb_soilmean(mp))
+     ALLOCATE(out%rwc_soilmean(mp))
      ALLOCATE(out%psi_soilmean1(mp))
      ALLOCATE(out%psi_rootmean(mp))
      out%kroot = zero4 ! initialise
@@ -901,7 +906,8 @@ CONTAINS
      out%ksoilmean = zero4 
      out%kbelowmean = zero4 
      out%psi_soilmean = zero4 
-     out%wb_soilmean = zero4 
+     out%wb_soilmean = zero4
+     out%rwc_soilmean = zero4  
      out%psi_soilmean1 = zero4 
      out%psi_rootmean = zero4 
     END IF
@@ -3133,7 +3139,10 @@ CONTAINS
 
         out%psi_soilmean = out%psi_soilmean * rinterval
         psi_sat = toreal4(soil%sucs * C%grav * C%RHOW * 1E-6)
+
         out%wb_soilmean=toreal4((out%psi_soilmean / psi_sat) ** (-1.0_r_2 / soil%bch) * soil%ssat)
+        out%rwc_soilmean =  toreal4((out%wb_soilmean - soil%swilt)/(soil%sfc - soil%swilt))
+
         CALL write_ovar(out_timestep, ncid_out, ovid%psi_soilmean, 'psi_soilmean', &
         out%psi_soilmean, ranges%psi_soil, patchout%psi_soilmean, 'default', met)
         out%psi_soilmean = zero4
@@ -3141,6 +3150,10 @@ CONTAINS
         CALL write_ovar(out_timestep, ncid_out, ovid%wb_soilmean, 'wb_soilmean', &
         out%wb_soilmean, ranges%SoilMoist, patchout%wb_soilmean, 'default', met)
         out%wb_soilmean = zero4
+
+        CALL write_ovar(out_timestep, ncid_out, ovid%rwc_soilmean, 'rwc_soilmean', &
+        out%rwc_soilmean, ranges%SoilMoist, patchout%rwc_soilmean, 'default', met)
+        out%rwc_soilmean = zero4
 
         out%psi_soilmean1 = out%psi_soilmean1 * rinterval
         CALL write_ovar(out_timestep, ncid_out, ovid%psi_soilmean1, 'psi_soilmean1', &
