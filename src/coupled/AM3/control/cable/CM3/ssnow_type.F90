@@ -74,11 +74,11 @@ TYPE soil_snow_data_type
   REAL, ALLOCATABLE :: tggsn        (:,:) ! snow temperature in K
   REAL, ALLOCATABLE :: dtmlt        (:,:) ! water flux to the soil
   REAL, ALLOCATABLE :: albsoilsn    (:,:) ! soil + snow reflectance
-  REAL, ALLOCATABLE :: evapfbl      (:,:) !
   REAL, ALLOCATABLE :: tilefrac     (:,:) ! factor for latent heat
   
   REAL(r_2), ALLOCATABLE :: wbtot      (:) ! total soil water (mm) 
   
+  REAL(r_2), ALLOCATABLE :: evapfbl     (:,:) !
   REAL(r_2), ALLOCATABLE :: gammzz      (:,:) ! heat capacity for each soil layer
   REAL(r_2), ALLOCATABLE :: wb          (:,:) ! volumetric soil moisture (solid+liq)
   REAL(r_2), ALLOCATABLE :: wbice       (:,:) ! soil ice 
@@ -209,11 +209,11 @@ TYPE soil_snow_type
   REAL, POINTER :: tggsn        (:,:) ! snow temperature in K
   REAL, POINTER :: dtmlt        (:,:) ! water flux to the soil
   REAL, POINTER :: albsoilsn    (:,:) ! soil + snow reflectance
-  REAL, POINTER :: evapfbl      (:,:) !
   REAL, POINTER :: tilefrac     (:,:) ! factor for latent heat
   
   REAL(r_2), POINTER :: wbtot      (:) ! total soil water (mm) 
   
+  REAL(r_2), POINTER :: evapfbl     (:,:) !
   REAL(r_2), POINTER :: gammzz      (:,:) ! heat capacity for each soil layer
   REAL(r_2), POINTER :: wb          (:,:) ! volumetric soil moisture (solid+liq)
   REAL(r_2), POINTER :: wbice       (:,:) ! soil ice 

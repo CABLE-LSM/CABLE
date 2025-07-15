@@ -1198,7 +1198,7 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%evapfbl, displs(bidx), ierr)
-    blen(bidx) = ms * r1len
+    blen(bidx) = ms * r2len
 
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%qstss, displs(bidx), ierr)
@@ -1741,11 +1741,6 @@ CONTAINS
     !  bidx = bidx + 1
     !  CALL MPI_Get_address (canopy%rwater, displs(bidx), ierr)
     !  blen(bidx) = ms * r1len
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%evapfbl, displs(bidx), ierr)
-    ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
-    blen(bidx) = ms * r1len
 
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%epot, displs(bidx), ierr)
@@ -3679,18 +3674,6 @@ CONTAINS
     !  CALL MPI_Get_address (canopy%rwater(off,1), displs(bidx), ierr)
     !  blocks(bidx) = r1len * ms
 
-    ! midx = midx + 1
-    ! REAL(r_2)
-    ! CALL MPI_Get_address (canopy%evapfbl(off,1), maddr(midx), ierr) ! 2
-    !CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
-    !  &            mat_t(midx, rank), ierr)
-
-    ! TODO: skip, used for restart but not output
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%evapfbl(off,1), displs(bidx), ierr)
-    ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
-    blocks(bidx) = r1len * ms
-
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%gswx(off,1), displs(bidx), ierr)
     blocks(bidx) = r1len * mf
@@ -3797,7 +3780,7 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%evapfbl(off,1), displs(bidx), ierr)
-    blocks(bidx) = r1len * ms
+    blocks(bidx) = r2len * ms
 
     !midx = midx + 1
     ! REAL(r_1)
@@ -6403,11 +6386,6 @@ CONTAINS
     !  bidx = bidx + 1
     !  CALL MPI_Get_address (canopy%rwater(off,1), displs(bidx), ierr)
     !  blocks(bidx) = r1len * ms
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%evapfbl(off,1), displs(bidx), ierr)
-    ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
-    blocks(bidx) = r1len * ms
 
     bidx = bidx + 1
     CALL MPI_Get_address (bgc%cplant(off,1), displs(bidx), ierr)

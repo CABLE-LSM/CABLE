@@ -1405,9 +1405,6 @@ CONTAINS
              soil%watr(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
                   REAL(inWatr(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-             soil%zse_vec(landpt(e)%cstart:landpt(e)%cend,klev) =              &
-                  REAL(soil%zse(landpt(e)%cstart:landpt(e)%cend), r_2)
-
              soil%css_vec(landpt(e)%cstart:landpt(e)%cend, klev) =             &
                   REAL(incss(landpt(e)%ilon, landpt(e)%ilat), r_2)
 
@@ -1684,12 +1681,13 @@ CONTAINS
     soil%GWdz = MAX(1.0,MIN(20.0,soil%GWdz - SUM(soil%zse,dim=1)))
 
     !set vectorized versions as same as defaut for now
-    soil%swilt_vec(:,:)  = REAL(SPREAD(soil%swilt(:),2,ms),r_2)
-    soil%sfc_vec(:,:)  = REAL(SPREAD(soil%sfc(:),2,ms),r_2)
+    soil%swilt_vec(:,:) = REAL(SPREAD(soil%swilt(:),2,ms),r_2)
+    soil%sfc_vec(:,:)   = REAL(SPREAD(soil%sfc(:),2,ms),r_2)
     soil%sucs_vec(:,:)  = REAL(SPREAD(soil%sucs(:),2,ms),r_2)
-    soil%bch_vec(:,:)  = REAL(SPREAD(soil%bch(:),2,ms),r_2)
+    soil%bch_vec(:,:)   = REAL(SPREAD(soil%bch(:),2,ms),r_2)
     soil%ssat_vec(:,:)  = REAL(SPREAD(soil%ssat(:),2,ms),r_2)
     soil%hyds_vec(:,:)  = REAL(SPREAD(soil%hyds(:),2,ms),r_2)
+    soil%zse_vec(:,:)   = REAL(SPREAD(soil%zse(:),1,mp),r_2)
 
   END SUBROUTINE write_default_params
   !=============================================================================
