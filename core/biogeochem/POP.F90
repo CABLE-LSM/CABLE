@@ -2,17 +2,56 @@
 ! a stand-alone tree demography and landscape structure module for Earth system models
 ! 17-01-2014
 ! Written by Vanessa Haverd, Ben Smith and Lars Nieradzik
-! Report Bugs to Vanessa.Haverd@csiro.au
 
-
-!CITATION
-!--------------------------------------------------------
-!When referring to this code in publications, please cite:
-! Haverd, V., Smith, B., Cook, G., Briggs, P.R., Nieradzik, L., Roxburgh, S.R., Liedloff, A.,
+!*
+! This MODULE contains code for the woody demography model POP. The principal components
+! of this MODULE are the initialisation SUBROUTINE [[InitPOP2D_Poisson]], time stepping
+! SUBROUTINE [[POPStep]] and routines for allometry, recruitment, mortality and disturbance.
+! The main SUBROUTINE is [[POPStep]] which is called from SUBROUTINE POPdriver in casa_cable.F90.
+! This SUBROUTINE calls most other subroutines and functions in POP.
+! POP receives StemNPP from CASA and returns woody turnover rate and vegetation height to the
+! main model. External inputs is disturbance regime (total or total and partial) and disturbance interval.
+! 
+! Main variables and their units are:
+!
+! **Inputs:**
+!
+! - Stem NPP (\(kgC.m^{-2}.yr^{-1}\))
+! - disturbance interval (\(yr\))
+!
+! **Outputs:**
+!
+! - mortality rates (\(kgC.m^{-2}.yr^{-1}\))
+!
+! These are converted into woody turnover rates in SUBROUTINE [[casa_inout.F90]]
+!
+! **Internal:**
+!
+! - vegetation height (\(m\))
+! - stem diameter (\(m\))
+! - basal area (\(m^{2}.ha^{-1}\))
+! - crown area (\(m^{2}.ha^{-1}\))
+! - stem biomass (\(kgC.m^{-2}\))
+! - population density (\(indiv.m^{-2}\))
+! - mortality rates (\(kgC.m^{-2}.yr^{-1}\))
+! - sapwood loss (\(kgC.m^{-2}.yr^{-1}\))
+!
+!### CITATION
+!
+! When referring to this code in publications, please cite:
+!
+! *Haverd, V., Smith, B., Cook, G., Briggs, P.R., Nieradzik, L., Roxburgh, S.R., Liedloff, A.,
 ! Meyer, C.P. and Canadell, J.G., 2013.
 ! A stand-alone tree demography and landscape structure module for Earth system models.
-! Geophysical Research Letters, 40: 1-6.
-
+! Geophysical Research Letters, 40,[DOI](https://doi.org/10.1002/grl.50972)*
+!
+! A more detailed description of the code and the equations
+! can be found in (Appendix):
+!
+! *Haverd, V., Smith, B., Nieradzik, L.P., Briggs, P.R., 2014.
+! A stand-alone tree demography and landscape structure module for Earth system models:
+! integration with inventory data from temperate and boreal forests.
+! Biogeosciences, 11, 4039-4055. [DOI](https://doi.org/10.5194/bg-11-4039-2014)*
 
 !DISCLAIMER, COPYRIGHT AND LICENCE
 
@@ -28,7 +67,7 @@
 
 ! Attribution-Share Alike 3.0 License:
 ! http://creativecommons.org/licenses/by-sa/3.0/
-!*******************************************************************************
+!---------------------------------------------------------------------------------
 
 MODULE TypeDef
   !-------------------------------------------------------------------------------
@@ -57,7 +96,7 @@ MODULE TypeDef
 END MODULE TypeDef
 
 
-!*******************************************************************************
+!------------------------------------------------------------------------------
 
 
 MODULE POP_Constants
@@ -82,65 +121,121 @@ MODULE POP_Constants
   ! REAL(dp),PARAMETER:: CrowdingFactor = 0.0128
   ! REAL(dp),PARAMETER:: ALPHA_CPC = 3.0
 
-  REAL(dp), PARAMETER :: FULTON_ALPHA = 3.5_dp ! recruitment scalar alpha in Fulton (1991)
-  REAL(dp), PARAMETER :: DENSINDIV_MAX = 0.2_dp  ! 0.5 !  Maximum density of individuals within a cohort indiv/m2
-  REAL(dp), PARAMETER :: DENSINDIV_MIN = 1.0e-9_dp !
-  REAL(dp), PARAMETER :: Kbiometric = 50.0_dp ! Constant in height-diameter relationship
-  REAL(dp), PARAMETER :: WD = 300.0_dp ! Wood density kgC/m3
-  ! threshold growth efficiency for enhanced mortality (higher value gives higher biomass turnover)
+  !!# Parameters
+  REAL(dp), PARAMETER :: FULTON_ALPHA = 3.5_dp 
+      !! Recruitment scalar alpha in Fulton (1991)
+  REAL(dp), PARAMETER :: DENSINDIV_MAX = 0.2_dp  ! 0.5 
+      !! Maximum density of individuals within a cohort \((indiv.m^{-2})\)  
+  REAL(dp), PARAMETER :: DENSINDIV_MIN = 1.0e-9_dp 
+      !! Minimum density of individuals within a cohort \((indiv.m^{-2})\)
+  REAL(dp), PARAMETER :: Kbiometric = 50.0_dp 
+      !! Constant in height-diameter relationship \((-)\)
+  REAL(dp), PARAMETER :: WD = 300.0_dp 
+      !! Wood density \((kgC.m^{-3})\)
   REAL(dp), PARAMETER :: GROWTH_EFFICIENCY_MIN = 0.009_dp ! 0.0095 ! 0.0089 ! 0.0084
-  REAL(dp), PARAMETER :: Pmort = 5.0_dp ! exponent in mortality formula
-  REAL(dp), PARAMETER :: MORT_MAX = 0.3_dp ! upper asymptote for enhanced mortality
-  REAL(dp), PARAMETER :: THETA_recruit = 0.95_dp ! shape parameter in recruitment equation
-  REAL(dp), PARAMETER :: CMASS_STEM_INIT = 1.0e-4_dp ! initial biomass kgC/m2
-  REAL(dp), PARAMETER :: POWERbiomass = 0.67_dp ! exponent for biomass in proportion to which cohorts preempt resources
+     !! Threshold growth efficiency for enhanced mortality 
+     !! (higher value gives higher biomass turnover) \((-)\)
+  REAL(dp), PARAMETER :: Pmort = 5.0_dp 
+      !! Exponent in stress mortality formula \((-)\)
+  REAL(dp), PARAMETER :: MORT_MAX = 0.3_dp 
+      !! Maximum mortality rate per year, upper asymptote (biomass fraction) \((-)\)
+  REAL(dp), PARAMETER :: THETA_recruit = 0.95_dp 
+      !! Shape parameter in recruitment equation \((-)\)
+  REAL(dp), PARAMETER :: CMASS_STEM_INIT = 1.0e-4_dp 
+      !! Initial biomass \((kgC.m^{2})\)
+  REAL(dp), PARAMETER :: POWERbiomass = 0.67_dp 
+      !! Exponent for biomass in proportion to which cohorts preempt resources \((-)\)
   REAL(dp), PARAMETER :: POWERGrowthEfficiency = 0.67_dp
+      !! Exponent in growth efficiency formulation \((-)\)
   REAL(dp), PARAMETER :: CrowdingFactor = 0.043_dp ! 0.043 ! 0.039  !0.029 ! 0.033
+      !! Parameter in crowding mortality formulation \((-)\)
   REAL(dp), PARAMETER :: ALPHA_CPC = 3.5_dp
-  REAL(dp), PARAMETER :: k_allom1 = 200.0_dp ! crown area =  k_allom1 * diam ** k_rp
-  REAL(dp), PARAMETER :: k_rp = 1.67_dp  ! constant in crown area relation to tree diameter
-  REAL(dp), PARAMETER :: ksapwood = 0.05_dp ! rate constant for conversion of sapwood to heartwood (y-1)
-  REAL(dp), PARAMETER :: Q=7.0_dp ! governs rate of increase of mortality with age (2=exponential)
+      !! Coefficient determining onset of crowding mortality with respect to cover
+  REAL(dp), PARAMETER :: k_allom1 = 200.0_dp 
+      !! Crown area: \((\texttt{k_allom1} * diam^{\texttt{k_rp}})\)
+  REAL(dp), PARAMETER :: k_rp = 1.67_dp  
+      !! Constant in crown area relation to tree diameter
+  REAL(dp), PARAMETER :: ksapwood = 0.05_dp 
+      !! Rate constant for conversion of sapwood to heartwood \((y^{-1})\)
+  REAL(dp), PARAMETER :: Q=7.0_dp 
+      !! Parameter governing rate of increase of mortality with age (2=exponential)
   REAL,     PARAMETER :: rshootfrac = 0.63
   REAL(dp), PARAMETER :: shootfrac = real(rshootfrac,dp)
   REAL(dp), PARAMETER :: CtoNw = 400.0_dp
+      !! Wood C:N ratio (used for calculation of respiration_scalar only) \((-)\)
   REAL(dp), PARAMETER ::  CtoNl = 60.0_dp
+      !! Leaf C:N ratio (used for calculation of respiration_scalar only) \((-)\)
   REAL(dp), PARAMETER :: CtoNr = 70.0_dp
-  REAL(dp), PARAMETER :: N_EXTENT = 2.0_dp ! multiple of crown diameters within which tree competes with other cohorts
+      !! Fine root C:N ratio (used for calculation of respiration_scalar only) \((-)\)
+  REAL(dp), PARAMETER :: N_EXTENT = 2.0_dp 
+      !! Multiple of crown diameters within which tree competes with other cohorts \((-)\)
   REAL(dp), PARAMETER :: EPS = 1.0e-12_dp
-  INTEGER(i4b), PARAMETER :: NLAYER = 1 ! number of vertical veg layers (1 is currently the only option)
-  INTEGER(i4b), PARAMETER :: NCOHORT_MAX = 20 ! maximum number of cohorts
-  INTEGER(i4b), PARAMETER :: NDISTURB = 1 ! number of disturbance regimes (1 (total only)  or 2 (partial and total))
-  INTEGER(i4b), PARAMETER :: PATCH_REPS = 10 ! higher number reduces 'noise'
-  INTEGER(i4b), PARAMETER :: NAGE_MAX = 1 ! number of maxium ages
-  INTEGER(i4b), PARAMETER :: PATCH_REPS1 = 60 ! number of first dist years
-  INTEGER(i4b), PARAMETER :: PATCH_REPS2 = 1 ! number of second dist years
+      !! Precision parameter representing
+  INTEGER(i4b), PARAMETER :: NLAYER = 1 
+      !! Number of vertical veg layers (1 is currently the only option)
+  INTEGER(i4b), PARAMETER :: NCOHORT_MAX = 20
+      !! Maximum number of cohorts
+  INTEGER(i4b), PARAMETER :: NDISTURB = 1 
+      !! Number of disturbance regimes (1=total only  or 2=partial and total)
+  INTEGER(i4b), PARAMETER :: PATCH_REPS = 10 
+      !! Higher number reduces 'noise'
+  INTEGER(i4b), PARAMETER :: NAGE_MAX = 1 
+      !! Number of maximum ages
+  INTEGER(i4b), PARAMETER :: PATCH_REPS1 = 60 
+      !! Number of first disturbance years
+  INTEGER(i4b), PARAMETER :: PATCH_REPS2 = 1 
+      !! Number of second disturbance years
   INTEGER(i4b), PARAMETER :: NPATCH = PATCH_REPS1*PATCH_REPS2
+      !! Number of Patches
   INTEGER(i4b), PARAMETER :: NPATCH1D = NPATCH
   INTEGER(i4b), PARAMETER :: NPATCH2D = NPATCH
-  INTEGER(i4b), PARAMETER ::  HEIGHT_BINS = 12 ! number of height categories to keep track of for diagnostics
-  REAL(dp), PARAMETER :: BIN_POWER = 1.4_dp ! bins have muscles
-  ! Time base factor (to be multiplied by mean dist interval to give TIMEBASE)
-  ! for sampling disturbance probabilities from Poisson distribution
+  INTEGER(i4b), PARAMETER ::  HEIGHT_BINS = 12 
+      !! Number of height categories to keep track of for diagnostics
+  REAL(dp), PARAMETER :: BIN_POWER = 1.4_dp 
+      !! Factor determining size of height bins
   INTEGER(i4b), PARAMETER :: TIMEBASE_FACTOR=50
+      !! Time base factor (to be multiplied by mean dist interval to give TIMEBASE)
+      !! for sampling disturbance probabilities from Poisson distribution
   REAL(dp), PARAMETER :: PI=3.14159265358979323846264_dp
-  ! 0 == default; 1 = top-end allometry (requires precip as input to POPSTEP); 2 = Allometry following Williams 2005, Model 5b
   INTEGER(i4b), PARAMETER :: ALLOM_SWITCH = 2
-  ! 0 == binnned max height variable; 1 = continuous (needs lots of memory); 2 = binned by integer heights
+      !! Allometry switch:
+      !!
+      !! - 0: default
+      !! - 1: top-end allometry (requires precip as input to POPSTEP)
+      !! - 2: Allometry following Model 5b from [Williams 2005](https://doi.org/10.1071/BT04149)
   INTEGER(i4b), PARAMETER :: MAX_HEIGHT_SWITCH = 2
-  INTEGER(i4b), PARAMETER :: RESOURCE_SWITCH = 1 ! 0 = default; 1  fraction net resource uptake
-  INTEGER(i4b), PARAMETER :: RECRUIT_SWITCH = 1 ! 0 = default, 1 = Pgap-dependence
-  INTEGER(i4b), PARAMETER :: INTERP_SWITCH = 1 ! 0 = sum over weighted patches, 1 = sum over interpolated patches
-  INTEGER(i4b), PARAMETER :: SMOOTH_SWITCH = 0 ! smooth disturbance flux
-  INTEGER(i4b), PARAMETER :: NYEAR_WINDOW  = 5                  ! one-side of smoothing window (y)
-  INTEGER(i4b), PARAMETER :: NYEAR_SMOOTH  = 2*NYEAR_WINDOW + 1 ! smoothing window (y)
+      !! Max height calculation:
+      !!
+      !! - 0: binned max height variable
+      !! - 1: continuous (needs lots of memory)
+      !! - 2: binned by integer heights
+  INTEGER(i4b), PARAMETER :: RESOURCE_SWITCH = 1 
+      !! - 0: default
+      !! - 1: fraction net resource uptake
+  INTEGER(i4b), PARAMETER :: RECRUIT_SWITCH = 1 
+      !! Recruitment switch:
+      !!
+      !! - 0: default
+      !! - 1: Pgap-dependence
+  INTEGER(i4b), PARAMETER :: INTERP_SWITCH = 1 
+      !! Biomass interpolation switch:
+      !!
+      !! - 0: sum over weighted patches
+      !! - 1: sum over interpolated patches
+  INTEGER(i4b), PARAMETER :: SMOOTH_SWITCH = 0 
+      !! Smooth disturbance flux switch
+  INTEGER(i4b), PARAMETER :: NYEAR_WINDOW  = 5 
+      !! Size of one-side of smoothing window \((y)\)
+  INTEGER(i4b), PARAMETER :: NYEAR_SMOOTH  = 2*NYEAR_WINDOW + 1 
+      !! Smoothing window size \((y)\)
   INTEGER(i4b), PARAMETER :: NYEAR_HISTORY = NYEAR_SMOOTH-NYEAR_WINDOW
   INTEGER(i4b), PARAMETER :: AGEMAX = 1000
+      !! Maximum age \((y)\)
 
 END MODULE POP_Constants
 
 
-!*******************************************************************************
+!------------------------------------------------------------------------------
 
 
 MODULE POP_Types
@@ -282,12 +377,12 @@ MODULE POP_Types
 END MODULE POP_Types
 
 
-!*******************************************************************************
+!------------------------------------------------------------------------------
 
 
 MODULE POPModule
   !-------------------------------------------------------------------------------
-  ! * This module contains all subroutines for POP calcs at a single time step.
+  !* This module contains all subroutines for POP calcs at a single time step.
   !-------------------------------------------------------------------------------
   USE TYPEdef, ONLY: sp, i4b
   USE POP_Types
@@ -297,9 +392,10 @@ MODULE POPModule
 
 CONTAINS
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
   SUBROUTINE ZeroPOP(POP,n)
+    !! Sets all variables in the POP structure to zero.
 
 #ifdef __MPI__
     use mpi, only: MPI_Abort
@@ -466,11 +562,11 @@ CONTAINS
   END SUBROUTINE ZeroPOP
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
 
   SUBROUTINE InitPOP2D_Poisson(POP, mean_disturbance_interval, m)
-    ! Initialises vector of patches with maximum age correpondding to 95% of pdf
+    !* Initialises vector of patches with maximum age correpondding to 95% of pdf.
     ! Starting year: uniform distribution up to maximum age
 
     IMPLICIT NONE
@@ -606,11 +702,12 @@ CONTAINS
   END SUBROUTINE InitPOP2D_Poisson
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
 
   SUBROUTINE POPStep(POP, StemNPP, disturbance_interval, disturbance_intensity,LAI,Cleaf,Croot, &
        NPPtoGPP, StemNPP_pot,frac_intensity1,precip)
+    !! Main subroutine of POP module, calling most other subroutines.
 
     IMPLICIT NONE
 
@@ -696,17 +793,42 @@ CONTAINS
   END SUBROUTINE POPStep
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
 
   SUBROUTINE PatchAnnualDynamics(pop, StemNPP, NPPtoGPP, it, StemNPP_pot, precip)
-
+    !*
+    ! Calculates the annual dynamics of each patch:
+    ! 
+    ! - Receives Stem NPP (biomass increment of stems) and distributes
+    ! it among the cohorts. Several options are implemented.  
+    ! - Updates allometry: basal area, stem diameter, crown area, height.
+    !   (within the [[get_allometry]] subroutine)
+    ! - Increments biomass, sapwood and heartwood areas and their turnover.
+    ! - Increments cohort age.
+    ! - Calculates growth efficiency as a function of StemNPP and existing biomass.
+    ! - Calculates mortality: 
+    !    1. resource mortality (= stress mortality)
+    !       as a function of growth efficiency
+    !    2. crowding mortality (function of crown area)
+    ! - Removes cohort if density is below a threshold
+    ! - Calculates recruitment based on the conditions (light avail.) in the seedling layer
+    !   and determines initial density and biomass (within the [[layer_recruitment]]
+    !   subroutine).
+    ! - Creates new cohorts
+    ! Most calculations happen within nested loops (grid cell > patch > cohort)
+    
+   
     IMPLICIT NONE
 
     TYPE( POP_TYPE ), INTENT(INOUT) :: pop
+       !! POP structure
     REAL(dp), INTENT(IN)            :: StemNPP(:,:)
+       !! Stem NPP (=biomass increment) (\(kgC.m^-2\))
     REAL(dp), INTENT(IN)            :: NPPtoGPP(:)
+       !! Npp to GPP ratio (\(-\))
     REAL(dp), INTENT(IN), OPTIONAL  :: precip(:)
+       !! Precipitation
     REAL(dp), OPTIONAL, INTENT(IN)  :: StemNPP_pot(:)
     INTEGER(i4b), INTENT(IN)        :: it(:)
 
@@ -817,7 +939,7 @@ CONTAINS
                 ENDIF
 
                 if (ALLOM_SWITCH.eq.1) then
-                   !! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
+                   ! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
                    crown_area = densindiv*PI*(diam*100.0_dp*0.1492_dp)**2
                 else
                    crown_area = densindiv*PI*(((k_allom1 * diam ** k_rp )/PI)**0.5_dp)**2
@@ -1146,10 +1268,15 @@ CONTAINS
   END SUBROUTINE PatchAnnualDynamics
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
 
   SUBROUTINE GetUniqueAgeFrequencies(pop, disturbance_interval, idisturb)
+    !! Determines patch weightings across the grid cell (landscape).
+    !! Fills array freq with weights (frequencies across landscape) for each unique age
+    !! given specified mean disturbance interval.
+    !! See [Haverd et al. 2014](https://doi.org/10.5194/bg-11-4039-2014) for details.
+
 
     IMPLICIT NONE
 
@@ -1169,9 +1296,6 @@ CONTAINS
     INTEGER(i4b) :: i_max, Poisson_age(1000), np
     REAL(dp):: CumPoisson_weight(1000)
     INTEGER(i4b), ALLOCATABLE :: bound(:,:), unique_age(:)
-
-    !Fills array freq with weights (frequencies across landscape) for each unique age
-    ! given specified mean disturbance interval
 
     np = SIZE(POP%POP_grid)
     DO g=1,np
@@ -1291,7 +1415,7 @@ CONTAINS
   END SUBROUTINE GetUniqueAgeFrequencies
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
 
   SUBROUTINE GetPatchFrequencies(pop)
@@ -1352,11 +1476,11 @@ CONTAINS
   END SUBROUTINE GetPatchFrequencies
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
 
   SUBROUTINE GetDiagnostics(pop,LAI,Cleaf,Croot,disturbance_interval, it, precip)
-    ! Gets diagnostic data for current landscape structure
+    !! Gets diagnostic data (all POP outputs) for current landscape structure
 
     IMPLICIT NONE
 
@@ -1508,12 +1632,12 @@ CONTAINS
 
              IF (diam*100.0_dp .GT. 5.0_dp) THEN
                 if (ALLOM_SWITCH.eq.1) then
-                   !! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
+                   ! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
                    ! assumes vertical radius = 1.5 * horizontal radius
                    pop%pop_grid(g)%crown_volume = pop%pop_grid(g)%crown_volume + &
                         freq*densindiv*(4.0_dp/3.0_dp)*PI*(diam*100.0_dp*0.1492_dp)**2*(1.5_dp*(diam*100.0_dp*0.1492_dp))
                 else
-                   !! global allometry
+                   ! global allometry
                    ! assumes vertical radius = 1.5 * horizontal radius
                    pop%pop_grid(g)%crown_volume = pop%pop_grid(g)%crown_volume + &
                         freq*densindiv*(4.0_dp/3.0_dp)*PI*1.5_dp*((k_allom1 * diam ** k_rp )/PI)**1.5_dp
@@ -1649,7 +1773,7 @@ CONTAINS
              IF (diam*100.0_dp .GT. 1.0_dp) THEN
 
                 if (ALLOM_SWITCH.eq.1) then
-                   !! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
+                   ! assumes crown radius (m) = 0.1492 * dbh (cm) (from G. Cook, pers. comm.)
                    pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area = densindiv*PI*(diam*100.0_dp*0.1492_dp)**2
                    Pwc = EXP(-0.5_dp * pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%LAI/ &
                         pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area)
@@ -1657,19 +1781,19 @@ CONTAINS
                         densindiv*PI*(diam*100.0_dp*0.1492_dp)**2*(1.0_dp-Pwc)
 
                 else
-                   !! global allometry
+                   ! global allometry
                    pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area = &
                         densindiv*PI*(((k_allom1 * diam ** k_rp )/PI)**0.5_dp)**2
                    Pwc = EXP(max(-0.5_dp * pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%LAI/ &
                         max(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area,1.e-3_dp),-20.0_dp))
 
                    pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area = &
-                        pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area*(1.0_dp-Pwc) !*1.4142
+                        pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area*(1.0_dp-Pwc) ! *1.4142
                 endif
 
              ELSE
                 pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area = &
-                     0.5_dp*pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%LAI !*1.4142
+                     0.5_dp*pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%LAI ! *1.4142
              ENDIF
              pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area= &
                   max(pop%pop_grid(g)%patch(p)%layer(1)%cohort(i)%crown_area,0.01_dp)
@@ -1770,10 +1894,12 @@ CONTAINS
   END SUBROUTINE GetDiagnostics
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
 
   SUBROUTINE Patch_partial_disturb(pop,idisturb,intensity,frac_intensity1)
+    !! Simulates a partial disturbance, i.e. removes a fraction of the biomass.
+    !! Only called if ndisturb=2 (partial disturbances considered on top of total dist.)
 
     IMPLICIT NONE
 
@@ -1901,11 +2027,15 @@ CONTAINS
   END SUBROUTINE Patch_partial_disturb
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
 
   SUBROUTINE Patch_partial_disturb2(pop,idisturb)
-
+    !! Simulates a partial disturbance, i.e. removes a fraction of the biomass.
+    !! Only called if ndisturb=1 (partial disturbances considered on top of total dist.)
+    !!
+    !! **Warning:** Potential redundancy to subroutine [[Patch_partial_disturb]]
+    
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
@@ -2006,21 +2136,27 @@ CONTAINS
   END SUBROUTINE Patch_partial_disturb2
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
 
   SUBROUTINE Patch_disturb(pop,idisturb,precip)
+    !* Simulates a disturbance event by killing all biomass in a patch.
+    ! Called when prescribed disturbance interval is reached.
+    ! Should be called after accounting for this year.
+    ! Sets all biomass and related variables to 0 and then calls
+    ! [[layer_recruitment_single_patch]] to initiate recruitment.
+
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT)  :: POP
+      !! POP structure
     REAL(dp), INTENT(IN), OPTIONAL :: precip(:)
     !INTEGER(i4b), INTENT(IN) :: it(:),idisturb
     INTEGER(i4b), INTENT(IN) :: idisturb
+      !! Disturbance regime (1=total only, 2=total and partial)
     INTEGER(i4b) :: j, k, np, nc
 
     np = SIZE(Pop%pop_grid)
-    ! Kills all biomass in patch when prescribed disturbance interval is reached
-    ! Should be called after accounting for this year
 
     DO j=1,np
        DO k=1,NPATCH2D
@@ -2119,14 +2255,22 @@ CONTAINS
   END SUBROUTINE Patch_disturb
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
 
   SUBROUTINE  layer_recruitment(pop,precip)
+    !* Calculates recruitment (establishment):
+    !
+    ! - Calculates a recruitment factor which mirrors the conditions in the seedling layer
+    ! (existing biomass or gap fraction).
+    ! - Recruitment factor is used to determine initial density of seedlings.
+    ! - Initial biomass calculated from initial density.
+    ! - New cohort created and height, diameter calculated from initial biomass.
 
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT)  :: POP
+      !! POP structure
     REAL(dp), INTENT(IN), OPTIONAL :: precip(:)
 
     REAL(dp) :: f, mu, densindiv, cmass, ht
@@ -2178,10 +2322,16 @@ CONTAINS
   END SUBROUTINE layer_recruitment
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
 
   SUBROUTINE  layer_recruitment_single_patch(pop, index, grid_index,precip)
+    !* This subroutine has the same function as subroutine [[layer_recruitment]].
+    ! It is supposed to be a copy of it with the grid index as additional input argument
+    !
+    ! **Warning:** This subroutine and [[layer_recruitment]] have diverged slightly.
+    ! Most notably, this subroutine does not include modifications for BLAZE while
+    ! they are in [[layer_recruitment]].
 
     IMPLICIT NONE
 
@@ -2234,7 +2384,7 @@ CONTAINS
 
   END SUBROUTINE layer_recruitment_single_patch
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
   ! Exponential distribution
   ! Returns probability of a given time-between-events (x)
   ! Given a Poisson process with expected frequency (events per unit time) lambda
@@ -2257,7 +2407,7 @@ CONTAINS
 
   END FUNCTION Exponential
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
   ! Exponential distribution
   ! Returns probability of a given time-between-events (x)
   ! Given a Poisson process with expected frequency (events per unit time) lambda
@@ -2280,7 +2430,7 @@ CONTAINS
 
   END FUNCTION REALExponential
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
   REAL(dp) FUNCTION CumExponential(lambda, x)
 
@@ -2297,7 +2447,7 @@ CONTAINS
 
   END FUNCTION CumExponential
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
   REAL(dp) FUNCTION Factorial(n)
 
@@ -2317,11 +2467,18 @@ CONTAINS
 
   END FUNCTION Factorial
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
   ! ALLOMETRY
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
   SUBROUTINE GET_ALLOMETRY( ALLOM_SWITCH,  biomass, density, ht, diam, basal, precip )
+    !* Subroutine to calculate height, diameter, and basal area from biomass and density.
+    ! Several approaches describing different allometric relationships are implemented
+    ! (input argument allom_switch):
+    !
+    ! 1. allom_switch=0, Standard allometry (reference needed)
+    ! 2. allom_switch=1, following G. Cook (pers. comm. 15/4/2013)
+    ! 3. allom_switch=2, following Model 5b in [Williams et al. 2005](https://doi.org/10.1071/BT04149)
 
 #ifdef __MPI__
     use mpi, only: MPI_Abort
@@ -2330,10 +2487,18 @@ CONTAINS
     IMPLICIT NONE
 
     INTEGER(i4b), INTENT(IN) :: ALLOM_SWITCH
+      !! Switch for allometric relationship
     REAL(dp),     INTENT(IN) :: biomass
+      !! Biomass (\(kgC.m^{-2}\))
     REAL(dp),     INTENT(IN) :: density
+      !! Stem density (\(indiv.m^{-2}\))
     REAL(dp),     INTENT(IN), OPTIONAL :: precip
-    REAL(dp),     INTENT(OUT):: ht, diam, basal
+    REAL(dp),     INTENT(OUT):: ht
+      !! Height (\(m\))
+    REAL(dp),     INTENT(OUT):: diam
+      !! Diameter (\(m\))
+    REAL(dp),     INTENT(OUT):: basal
+      !! Basal area (\(m^{2}.ha^{-1}\))
 
 #ifdef __MPI__
     integer :: ierr
@@ -2366,9 +2531,9 @@ CONTAINS
     ENDIF
 
   END SUBROUTINE GET_ALLOMETRY
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
   ! TOP-END ALLOMETRY STARTS HERE
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
   ! Tree height based on precipitation and Gary Cook Top-End allometry
   ! Bisection solution for tree height (m) based on modified height-DBH relationship
   ! from Garry Cook (pers. comm. 15/4/2013)
@@ -2434,14 +2599,20 @@ CONTAINS
   END FUNCTION GetHeight
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
 
   SUBROUTINE INTERPOLATE_BIOMASS_1D(pop, disturbance_interval,it,g)
+    !* Subroutine that interpolates biomass and mortality across patches
+    ! to the grid level by taking age distribution of patches (weighting)
+    ! into account.
+
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
+      !! POP structure
     INTEGER(i4b), INTENT(IN) ::  disturbance_interval(:,:)
+      !! Disturbance interval, dimensions (partial dist, total dist) (\(y\)) 
     INTEGER(i4b), INTENT(IN) ::  it,g
 
     INTEGER(i4b) :: nage,iage, i_min, i_max
@@ -2685,13 +2856,13 @@ CONTAINS
        POP%pop_grid(g)%sapwood_area =  POP%pop_grid(g)%sapwood_area + &
             freq_age(iage)*sapwood_area_age(iage)
 
-!!$if (g==2) then
-!!$write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage), growth_age(iage),  stress_mort_age(iage), &
-!!$ crowd_mort_age(iage), tmp_min, tmp_max, real(age_max_growth), real(age_min_growth)
-!!$endif
+!$if (g==2) then
+!$write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage), growth_age(iage),  stress_mort_age(iage), &
+!$ crowd_mort_age(iage), tmp_min, tmp_max, real(age_max_growth), real(age_min_growth)
+!$endif
 
-!!$if (g==2) write(72, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
-!!$if (g==1) write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
+!$if (g==2) write(72, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
+!$if (g==1) write(71, "(2i4, 350e16.6)")  it,  iage, freq_age(iage), cmass_age(iage)
        POP%pop_grid(g)%stress_mortality =  POP%pop_grid(g)%stress_mortality + &
             freq_age(iage)*stress_mort_age(iage)
        POP%pop_grid(g)%crowding_mortality =  POP%pop_grid(g)%crowding_mortality + &
@@ -2710,17 +2881,17 @@ CONTAINS
     POP%pop_grid(g)%fire_mortality = 0.0_dp
     POP%pop_grid(g)%res_mortality  = 0.0_dp
 
-!!$if (g==4) then
-!!$   write(*,*) 'it, nage, growth', it, nage
-!!$write(*,*) 'patch biomass', pop%pop_grid(g)%patch(1:5)%layer(1)%biomass
-!!$write(*,*) 'patch growth', pop%pop_grid(g)%patch(1:5)%growth
-!!$write(*,*) 'stress mort', pop%pop_grid(g)%patch(1:5)%stress_mortality
-!!$   write(591, "(350e16.6)") freq_age
-!!$   write(601,"(350e16.6)") cmass_age
-!!$   write(602,"(350e16.6)") stress_mort_age
-!!$   write(603,"(350e16.6)") real(age)
-!!$if (it==5) stop
-!!$endif
+!$if (g==4) then
+!$   write(*,*) 'it, nage, growth', it, nage
+!$write(*,*) 'patch biomass', pop%pop_grid(g)%patch(1:5)%layer(1)%biomass
+!$write(*,*) 'patch growth', pop%pop_grid(g)%patch(1:5)%growth
+!$write(*,*) 'stress mort', pop%pop_grid(g)%patch(1:5)%stress_mortality
+!$   write(591, "(350e16.6)") freq_age
+!$   write(601,"(350e16.6)") cmass_age
+!$   write(602,"(350e16.6)") stress_mort_age
+!$   write(603,"(350e16.6)") real(age)
+!$if (it==5) stop
+!$endif
     DEALLOCATE(age)
     DEALLOCATE(freq_age)
     DEALLOCATE(cmass_age)
@@ -2729,10 +2900,12 @@ CONTAINS
   END SUBROUTINE INTERPOLATE_BIOMASS_1D
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
 
   SUBROUTINE INTERPOLATE_FIREMORTALITY(pop, disturbance_interval,it,g)
+    !! Integrates fire mortality from patch to grid cell level.
+   
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
@@ -2881,12 +3054,13 @@ CONTAINS
   END SUBROUTINE INTERPOLATE_FIREMORTALITY
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
 
   SUBROUTINE ADJUST_POP_FOR_FIRE(pop,disturbance_interval, burned_area, FLI)
-    ! reduces biomass on a cohort basis according to mortality vs dbh function
-    ! interpolates patch-based fire mortality to get grid-cell mortality
+    !* Reduces biomass on a cohort basis according to mortality vs dbh function.
+    ! Interpolates patch-based fire mortality to get grid-cell mortality
+
     IMPLICIT NONE
 
     TYPE( POP_TYPE ), INTENT(INOUT)  :: pop
@@ -2964,10 +3138,13 @@ CONTAINS
    END SUBROUTINE ADJUST_POP_FOR_FIRE
 
 
-   !*******************************************************************************
+   !----------------------------------------------------------------------------
 
 
 SUBROUTINE INTERPOLATE_BIOMASS_2D(pop, disturbance_interval,it,g)
+    !! Subroutine equivalent to [[INTERPOLATE_BIOMASS_1D]] but for the
+    !! ndisturb=2 case, i.e. when both total and partial disturbances
+    !! are considered.
 
      use mo_utils, only: eq
 #ifdef __MPI__
@@ -3394,7 +3571,7 @@ DEALLOCATE(address)
 END SUBROUTINE INTERPOLATE_BIOMASS_2D
 
 
-!******************************************************************************
+!----------------------------------------------------------------------------
 
 
 SUBROUTINE SMOOTH_FLUX(POP,g,t)
@@ -3447,7 +3624,7 @@ SUBROUTINE SMOOTH_FLUX(POP,g,t)
 END SUBROUTINE SMOOTH_FLUX
 
 
-!******************************************************************************
+!----------------------------------------------------------------------------
 
 
 SUBROUTINE SMOOTH_FLUX_cat(POP,g,t)
@@ -3499,11 +3676,16 @@ SUBROUTINE SMOOTH_FLUX_cat(POP,g,t)
 END SUBROUTINE SMOOTH_FLUX_cat
 
 
-!******************************************************************************
+!----------------------------------------------------------------------------
 
 
 SUBROUTINE REGRESS(x, y, n, a, b, r)
-
+  !* Performs a linear regression of array y on array x (n values)
+  ! returning parameters a and b in the fitted model: y=a+bx.
+  ! Also returns Pearson r. 
+  !
+  ! Source: Press et al 1986, Sect 14.2
+ 
   IMPLICIT NONE
 
   REAL(dp), INTENT(IN) :: x(:), y(:)
@@ -3549,7 +3731,7 @@ SUBROUTINE REGRESS(x, y, n, a, b, r)
 END SUBROUTINE REGRESS
 
 
-!******************************************************************************
+!----------------------------------------------------------------------------
 
 
 REAL(dp) FUNCTION Area_Triangle(x1,y1,x2,y2,x3,y3)
@@ -3563,7 +3745,7 @@ REAL(dp) FUNCTION Area_Triangle(x1,y1,x2,y2,x3,y3)
 END FUNCTION Area_Triangle
 
 
-!******************************************************************************
+!----------------------------------------------------------------------------
 
 
 ! Fraction of topkill by DBH , according to Fig. 2 of Collins, J. Ec., 2020
@@ -3585,22 +3767,27 @@ REAL(dp) FUNCTION TopKill_Collins(dbh, FLI)
 END FUNCTION TopKill_Collins
 
 
-!******************************************************************************
+!----------------------------------------------------------------------------
 
-
-! Top-End Allometry
-! Computes tree stem diameter (m) and basal area (m2/ha)
-! given height (m), stem biomass (kgC/m2) and tree population density (indiv/m2)
 
 SUBROUTINE Allometry(height,biomass,density,diam,basal)
+  !* Top-End Allometry.
+  ! Computes tree stem diameter and basal area
+  ! given height, stem biomass and tree population density. 
+
 
   IMPLICIT NONE
 
   REAL(dp), INTENT(IN) :: height
+    !! Heigh (\(m\))
   REAL(dp), INTENT(IN) :: biomass
+    !! Stem biomass (\(kgC/m^{2}\))
   REAL(dp), INTENT(IN) :: density
+    !! Tree population density (\(indiv/m^{2}\))
   REAL(dp), INTENT(OUT) :: diam
+    !! Stem diameter (\(m\))
   REAL(dp), INTENT(OUT) :: basal
+    !! Basal area (\(m^{2}/ha\))
 
   REAL(dp) :: delta,rh
 
@@ -3613,25 +3800,25 @@ SUBROUTINE Allometry(height,biomass,density,diam,basal)
 END SUBROUTINE Allometry
 
 
-!*******************************************************************************
+!----------------------------------------------------------------------------
 
 
   SUBROUTINE Williams_Allometry(agBiomass, density, height, dbh, basal)
-
+    !* Allometry following [Williams et al. 2005](https://doi.org/10.1071/BT04149),
+    ! Model 5b (see table 2)
+  
     IMPLICIT NONE
-    ! Allometry following Williams 2005, Model 5b (see table 2)
-    ! Williams et al., "Allometry for estimating aboveground tree biomass in tropical
-    ! and subtropical eucalypt woodlands: towards general predictive equations",
-    ! Australian Journal of Botany, 2005, 53, 607-619
-    ! INPUT
-    ! agbiomass: above ground biomass [kg(C)/m2]
-    ! density  : tree population density [m-2]
-    ! OUTPUT
-    ! height   : tree height [m]
-    ! dbh      : Diameter at breast height [m]
-    ! basal    : Basal area [m2/ha]
-    REAL(dp), INTENT(IN) :: agbiomass, density
-    REAL(dp), INTENT(OUT):: height, dbh, basal
+
+    REAL(dp), INTENT(IN) :: agbiomass
+      !! Above ground biomass (\(kgC/m^{2}\))
+    REAL(dp), INTENT(IN) :: density
+      !! Tree population density (\(m^{-2}\))
+    REAL(dp), INTENT(OUT):: height
+      !! Tree height (\(m\))
+    REAL(dp), INTENT(OUT):: dbh
+      !! Diameter at breast height (\(m\))
+    REAL(dp), INTENT(OUT):: basal
+      !! Basal area (\(m^{2}/ha\))
 
     REAL(dp), PARAMETER  :: beta0 = -2.3046_dp
     REAL(dp), PARAMETER  :: beta1 = 2.5243_dp
@@ -3650,10 +3837,18 @@ END SUBROUTINE Allometry
   END SUBROUTINE Williams_Allometry
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
 
   SUBROUTINE POP_init(POP, disturbance_interval, np, Iwood, precip)
+    !*
+    ! Initialises POP:
+    !
+    ! - allocates POP structure
+    ! - sets POP structure to 0
+    ! - calls [[InitPOP2D_Poisson]] which determines disturbance interval
+    ! - calls [[layer_recruitment_single_patch]], which simulates recruitment of
+    !   first cohort.
 
     USE POP_types, ONLY: POP_TYPE
     USE TypeDef,   ONLY: i4b
@@ -3693,11 +3888,14 @@ END SUBROUTINE Allometry
   END SUBROUTINE POP_init
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
 
   SUBROUTINE POP_init_single(POP, disturbance_interval, n, precip)
-
+    !! Equivalent to POP_init.
+    !!
+    !! **Warning:** Code review needed to evaluate redundancy.
+ 
     USE POP_types, ONLY: POP_TYPE
     USE TypeDef,   ONLY: i4b
 
@@ -3729,7 +3927,7 @@ END SUBROUTINE Allometry
   END SUBROUTINE POP_init_single
 
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
 
   SUBROUTINE alloc_POP(POP, arraysize)
@@ -3748,8 +3946,8 @@ END SUBROUTINE Allometry
 
   END SUBROUTINE alloc_POP
 
-  !*******************************************************************************
+  !----------------------------------------------------------------------------
 
 END MODULE POPModule
 
-!*******************************************************************************
+!------------------------------------------------------------------------------
