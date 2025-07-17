@@ -141,6 +141,21 @@ CONTAINS
     canopy%fhs     = 0.0   ! sensible heat flux from soil (W/m2)
     canopy%us = 0.1 ! friction velocity (needed in roughness before first call to canopy: should in be in restart?)
 
+! block below added by rk4417 - phase2
+! ccc - These need to be set elsewhere since this subroutine is deprecated
+! (it is never called) and should be removed.
+    canopy%sublayer_dz = 0.001  
+    ssnow%rtevap_sat   = 0.0
+    ssnow%rtevap_unsat = 0.0
+    ssnow%satfrac    = 1.0e-12
+    ssnow%qhz        = 0.0
+    ssnow%wtd        = 1000.0
+    ssnow%wb_hys  = 0.99*soil%ssat_vec
+    ssnow%smp_hys = -0.99*soil%sucs_vec
+!ccc To come back to it    ssnow%ssat_hys = gw_params%ssat_wet_factor*soil%ssat_vec
+    ssnow%watr_hys = soil%watr
+    ssnow%hys_fac = 1.0
+
   END SUBROUTINE get_default_inits
 
   !==============================================================================
@@ -408,14 +423,73 @@ CONTAINS
     CALL readpar(ncid_rin,'runoff',dummy,ssnow%runoff,filename%restart_in,      &
          max_vegpatches,'def',from_restart,mp)
 
-    !MD
-    ok = NF90_INQ_VARID(ncid_rin,'GWwb',parID)
-    IF(ok == NF90_NOERR) THEN
-       CALL readpar(ncid_rin,'GWwb',dummy,ssnow%GWwb,filename%restart_in,            &
-            max_vegpatches,'def',from_restart,mp)
-    ELSE
-       ssnow%GWwb = 0.95*soil%ssat
+    IF (cable_user%gw_model) THEN   ! inserted by rk4417 - phase2
+      ok = NF90_INQ_VARID(ncid_rin,'GWwb',parID)
+      IF(ok == NF90_NOERR) THEN
+          CALL readpar(ncid_rin,'GWwb',dummy,ssnow%GWwb,filename%restart_in,   &
+               max_vegpatches,'def',from_restart,mp)
+      ELSE
+          ssnow%GWwb = 0.95*soil%ssat
+      END IF
+
+! below part until END IF inserted by rk4417 - phase2
+
+      ok = NF90_INQ_VARID(ncid_rin,'wb_hys',parID)
+      IF(ok == NF90_NOERR) THEN 
+          CALL readpar(ncid_rin,'wb_hys',dummy,ssnow%wb_hys,filename%restart_in,&
+               max_vegpatches,'msd',from_restart,mp)   
+      ELSE
+         ssnow%wb_hys = 0.99*soil%ssat_vec
+      END IF
+
+      ok = NF90_INQ_VARID(ncid_rin,'smp_hys',parID)
+      IF(ok == NF90_NOERR) THEN 
+          CALL readpar(ncid_rin,'smp_hys',dummy,ssnow%smp_hys,filename%restart_in,&
+               max_vegpatches,'msd',from_restart,mp)   
+      ELSE
+         ssnow%smp_hys = -1.0*abs(soil%sucs_vec)*0.99
+      END IF
+
+      ok = NF90_INQ_VARID(ncid_rin,'ssat_hys',parID)
+      IF(ok == NF90_NOERR) THEN 
+          CALL readpar(ncid_rin,'ssat_hys',dummy,ssnow%ssat_hys,filename%restart_in,&
+               max_vegpatches,'msd',from_restart,mp)   
+      ELSE
+          ssnow%ssat_hys = soil%ssat_vec
+      END IF
+
+      ok = NF90_INQ_VARID(ncid_rin,'watr_hys',parID)
+      IF(ok == NF90_NOERR) THEN 
+          CALL readpar(ncid_rin,'watr_hys',dummy,ssnow%watr_hys,filename%restart_in,&
+               max_vegpatches,'msd',from_restart,mp)   
+      ELSE
+          ssnow%watr_hys = soil%watr
+      END IF
+
+
+      ok = NF90_INQ_VARID(ncid_rin,'hys_fac',parID)
+      IF(ok == NF90_NOERR) THEN 
+          CALL readpar(ncid_rin,'hys_fac',dummy,ssnow%hys_fac,filename%restart_in,&
+               max_vegpatches,'msd',from_restart,mp)   
+      ELSE
+          ssnow%hys_fac = 1.0
+      END IF
     END IF
+
+    IF (cable_user%or_evap) THEN
+      ok = NF90_INQ_VARID(ncid_rin,'sublayer_dz',parID)
+      IF(ok == NF90_NOERR) THEN 
+         CALL readpar(ncid_rin,'sublayer_dz',dummy,canopy%sublayer_dz,filename%restart_in,&
+              max_vegpatches,'def',from_restart,mp)   
+      ELSE
+         canopy%sublayer_dz(:) = 0.01
+      END IF
+
+      IF (ANY(canopy%sublayer_dz < 0.0) .OR. ANY(canopy%sublayer_dz > 0.5)) THEN
+         WRITE(*,*) 'problem with sublayer_dz and restart.  check restart values!'
+      END IF
+    END IF
+
 
 !$   IF(cable_user%SOIL_STRUC=='sli'.or.cable_user%FWSOIL_SWITCH=='Haverd2013') THEN
 !$      CALL readpar(ncid_rin,'gamma',dummy,veg%gamma,filename%restart_in,           &

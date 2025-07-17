@@ -244,88 +244,6 @@ CONTAINS
   !
   !! -----------------------------------------------------------------------------
   !
-  SUBROUTINE remove_transGW(dels, soil, ssnow, canopy, veg)
-
-   !*## Purpose
-   !
-    
-    !NOTE: this is only included because gw_model uses parameters XXX_vec
-    !these are r_2.  this breaks bitwise compatibility with trunk
-    !if acceptable this routine does the same thing but with r_2 soil params
-
-    ! Removes transpiration water from soil.
-    REAL, INTENT(IN)                    :: dels ! integration time step (s)
-    TYPE(canopy_type), INTENT(INOUT)         :: canopy
-    TYPE(soil_snow_type), INTENT(INOUT)      :: ssnow
-    TYPE(soil_parameter_type), INTENT(INOUT)    :: soil
-    TYPE(veg_parameter_type), INTENT(INOUT)  :: veg
-    REAL(r_2), DIMENSION(mp,0:ms+1) :: diff
-    REAL(r_2), DIMENSION(mp)      :: xx,xxd
-    REAL(r_2), DIMENSION(mp,ms) :: zse_mp_mm
-    INTEGER :: k,i
-
-    DO k=1,ms
-       DO i=1,mp
-          zse_mp_mm(i,k)  = REAL(soil%zse_vec(i,k)*Cdensity_liq,r_2)
-       END DO
-    END DO
-
-    IF (cable_user%FWSOIL_switch.NE.'Haverd2013') THEN
-
-       xx(:) = 0._r_2
-       xxd(:) = 0._r_2
-       diff(:,:) = 0._r_2
-
-       DO k = 1,ms
-
-          DO i=1,mp
-
-             IF (canopy%fevc(i) .GT. 0._r_2) THEN
-
-                xx(i) = canopy%fevc(i) * dels / CHL * veg%froot(i,k) + diff(i,k-1)
-                diff(i,k) = MAX(0._r_2,ssnow%wbliq(i,k)-soil%swilt_vec(i,k)) &
-                     * zse_mp_mm(i,k)
-                xxd(i) = xx(i) - diff(i,k)
-
-                IF (xxd(i) .GT. 0._r_2) THEN
-                   ssnow%wbliq(i,k) = ssnow%wbliq(i,k) - diff(i,k)/zse_mp_mm(i,k)
-                   diff(i,k) = xxd(i)
-                ELSE
-                   ssnow%wbliq(i,k) = ssnow%wbliq(i,k) - xx(i)/zse_mp_mm(i,k)
-                   diff(i,k) = 0._r_2
-                END IF
-
-
-             END IF  !fvec > 0
-
-          END DO  !mp
-       END DO     !ms
-
-    ELSE
-
-       WHERE (canopy%fevc .LT. 0.0_r_2)
-          canopy%fevw = canopy%fevw+canopy%fevc
-          canopy%fevc = 0.0_r_2
-       END WHERE
-       DO k = 1,ms
-          ssnow%wbliq(:,k) = ssnow%wbliq(:,k) - ssnow%evapfbl(:,k)/(soil%zse_vec(:,k)*m2mm)
-       ENDDO
-
-    ENDIF
-
-    DO k=1,ms
-       DO i=1,mp
-          ssnow%wmliq(i,k) = ssnow%wbliq(i,k)*zse_mp_mm(i,k)!mass
-          ssnow%wmtot(i,k) = ssnow%wmliq(i,k) + ssnow%wmice(i,k)  !mass
-          ssnow%wb(i,k)    = ssnow%wbliq(i,k) + den_rat * ssnow%wbice(i,k)  !volume ! MMY
-       END DO
-    END DO
-
-
-  END SUBROUTINE remove_transGW
-
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!!!!!!!!!!!!!MD GW code from here on!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !----------------------------------------------------------------------
@@ -922,6 +840,7 @@ CONTAINS
 
     USE cable_common_module
     USE snow_processes_soil_thermal_mod, ONLY : snow_processes_soil_thermal ! inserted by rk4417 - phase2
+    USE remove_trans_mod,                ONLY : remove_trans
     
     REAL                     , INTENT(IN)     :: dels ! integration time step (s)
     TYPE(soil_parameter_type), INTENT(INOUT)  :: soil
@@ -1090,7 +1009,7 @@ CONTAINS
     CALL snow_processes_soil_thermal(dels,ssnow,soil,veg,canopy,met,bal) 
     
    !> 11. transpiration loss per soil layer ! leave here for now, could move into soilsnow as well
-    CALL remove_transGW(dels, soil, ssnow, canopy, veg)
+    CALL remove_trans(soil, ssnow, canopy)
 
    !> 12. Snow freezes and melts. 
     CALL  GWsoilfreeze(dels, soil, ssnow)           

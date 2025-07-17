@@ -59,7 +59,7 @@ MODULE cable_param_module
   USE phenvariable
   USE cable_abort_module
   USE cable_IO_vars_module
-  USE cable_common_module, ONLY: cable_user, gw_params
+  USE cable_common_module, ONLY: cable_user, gw_params, filename ! added 'filename' for now - rk4417 - phase2
   USE cable_pft_params_mod
   USE cable_soil_params_mod
   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT, LUC_EXPT_TYPE, LUC_EXPT_SET_TILES
@@ -67,7 +67,7 @@ MODULE cable_param_module
   PRIVATE
   PUBLIC get_default_params, write_default_params, derived_parameters,         &
        check_parameter_values, report_parameters, parID_type,                &
-       write_cnp_params, consistency_ice_veg_soil 
+       write_cnp_params, consistency_ice_veg_soil, GWspatialParameters ! GWspatialParameters added by rk4417 - phase2 
   INTEGER :: patches_in_parfile=4 ! # patches in default global parameter
   ! file
 
@@ -105,22 +105,22 @@ MODULE cable_param_module
   REAL,    DIMENSION(:, :),     ALLOCATABLE :: insilt
   REAL,    DIMENSION(:, :),     ALLOCATABLE :: insand
 
-  !MD temp vars for reading in aquifer properties
-  LOGICAL :: found_explicit_gw_parameters
-  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWbch
-  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWssat
-  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWhyds
-  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWsucs
-  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWrhosoil
-  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWclay
-  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWsilt
-  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWsand
-  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWWatr
-  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inWatr
-  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inSlope
-  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWdz
-  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inSlopeSTD
-  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inORG
+!  !MD temp vars for reading in aquifer properties  ! block commented out by rk4417 - phase2
+!  LOGICAL :: found_explicit_gw_parameters
+!  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWbch
+!  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWssat
+!  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWhyds
+!  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWsucs
+!  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWrhosoil
+!  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWclay
+!  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWsilt
+!  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWsand
+!  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWWatr
+!  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inWatr
+!  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inSlope
+!  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inGWdz
+!  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inSlopeSTD
+!  REAL,    DIMENSION(:, :),     ALLOCATABLE :: inORG
 
   ! vars intro for Ticket #27
   INTEGER, DIMENSION(:, :),     ALLOCATABLE :: inSoilColor
@@ -156,6 +156,12 @@ CONTAINS
     INTEGER :: nlon
     INTEGER :: nlat
 
+! Two calls below inserted by rk4417 - phase2
+    ! Get parameter values for all default veg and soil types:
+    !CALL get_type_parameters(logn, vegparmnew, classification)
+    CALL cable_pft_params()
+    CALL cable_soil_params()
+
     WRITE(logn,*) ' Reading grid info from ', TRIM(filename%type)
     WRITE(logn,*) ' And assigning C4 fraction according to veg classification.'
     WRITE(logn,*)
@@ -178,15 +184,23 @@ CONTAINS
        CALL spatialSoil(nlon, nlat, logn)
     ENDIF
 
-    ! Get parameter values for all default veg and soil types:
-    !CALL get_type_parameters(logn, vegparmnew, classification)
-    CALL cable_pft_params()
-    CALL cable_soil_params()
+! Block below moved to the top - rk4417 - phase2
+!    ! Get parameter values for all default veg and soil types:
+!    !CALL get_type_parameters(logn, vegparmnew, classification)
+!    CALL cable_pft_params()
+!    CALL cable_soil_params()
+
 
     ! include prescribed soil colour in determining albedo - Ticket #27
     IF (calcsoilalbedo) THEN
        CALL read_soilcolor(logn)
     END IF
+
+! line below inserted by rk4417 - phase2
+    IF (cable_user%force_npatches_as .GT. 0) npatch=cable_user%force_npatches_as
+! MMY@13April force_npatches_as seems a new flag read from cable.nml             
+!          the default value is -1 set in TYPE kbl_user_switches in cable_common
+! TYPE kbl_user_switches was moved from cable_common_module to cable_runtime_opts_mod - rk4417 - phase2
 
     ! count to obtain 'landpt', 'max_vegpatches' and 'mp'
     CALL countPatch(nlon, nlat, npatch)
@@ -249,7 +263,10 @@ CONTAINS
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error inquiring y dimension.')
     ok = NF90_INQUIRE_DIMENSION(ncid, yID, LEN=nlat)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error getting y dimension.')
-    IF(.NOT. exists%patch) THEN
+    IF(.NOT. exists%patch) THEN  ! MMY@13April here is right, when npatch doesn't exist in met file (i.e. exists%patch=False), 
+                                 !             read npatch from gridinfo file. Note that it is to say,                         
+                                 !             npatch in meteorology file has a priority over in gridinfo                      
+
       ok = NF90_INQ_DIMID(ncid, 'patch', pID)
       IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error inquiring patch dimension.')
       ok = NF90_INQUIRE_DIMENSION(ncid, pID, LEN=npatch)
@@ -473,14 +490,14 @@ CONTAINS
     INTEGER, INTENT(IN) :: logn ! log file unit number
 
     ! local variables
-    INTEGER :: ncid, ok, ii, jj, kk, ok2, ncid_elev
+    INTEGER :: ncid, ok, ii, jj, kk, ok2  !, ncid_elev  ! is not used - rk4417 - phase2
     INTEGER :: xID, yID, fieldID
     INTEGER :: xlon, xlat
-    REAL, DIMENSION(:,:,:,:), ALLOCATABLE :: indummy
+!    REAL, DIMENSION(:,:,:,:), ALLOCATABLE :: indummy  ! appears only in commented code - rk4417 - phase2
     REAL, DIMENSION(:,:),     ALLOCATABLE :: sfact, dummy2
     REAL, DIMENSION(:,:),     ALLOCATABLE :: in2alb
 
-    ok = NF90_OPEN(filename%type, 0, ncid)
+!    ok = NF90_OPEN(filename%type, 0, ncid)  ! moved below - rk4417 - phase2 
 
     ALLOCATE(    in2alb(nlon, nlat) ) ! local
     ALLOCATE(    dummy2(nlon, nlat) ) ! local
@@ -498,16 +515,9 @@ CONTAINS
     ALLOCATE(    insilt(nlon, nlat) )
     ALLOCATE(    insand(nlon, nlat) )
 
-    !MD Aquifer properties
-    ALLOCATE(    inGWssat(nlon, nlat) )
-    ALLOCATE(     inGWbch(nlon, nlat) )
-    ALLOCATE(    inGWhyds(nlon, nlat) )
-    ALLOCATE(    inGWsucs(nlon, nlat) )
-    ALLOCATE( inGWrhosoil(nlon, nlat) )
-    ALLOCATE(    inGWWatr(nlon, nlat) )
-    ALLOCATE(      inWatr(nlon, nlat) )
-    ALLOCATE(       inORG(nlon, nlat) )
-
+    ! MMY start reading from gridinfo file  ! 2 lines inserted by rk4417 - phase2
+    ok = NF90_OPEN(filename%type, 0, ncid)
+    IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error MMY finding gridinfo file.') ! MMY
     ! 1
     ok = NF90_INQ_VARID(ncid, 'swilt', fieldID)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error finding variable swilt.')
@@ -574,90 +584,17 @@ CONTAINS
     ok = NF90_GET_VAR(ncid, fieldID, in2alb)
     IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error reading variable UM albedo')
 
-    !MD try to read aquifer properties from the file
-    ! if they don't exist set aquifer properties to the same as the soil
-    ok = NF90_INQ_VARID(ncid, 'Watr', fieldID)
-    WRITE(*,*) NF90_NOERR
-    ok2= ok
-    IF (ok .EQ. NF90_NOERR) THEN
-       ok2 = NF90_GET_VAR(ncid, fieldID, inWatr)
-    END IF
-    IF ((ok2 .NE. NF90_NOERR) .OR. (ok .NE. NF90_NOERR)) THEN
-       inWatr(:,:) = 0.05
-    END IF
-
-    found_explicit_gw_parameters = .TRUE.
-
-    ok = NF90_INQ_VARID(ncid, 'GWssat', fieldID)
-    WRITE(*,*) NF90_NOERR
-    ok2= ok
-    IF (ok .EQ. NF90_NOERR) THEN
-       ok2 = NF90_GET_VAR(ncid, fieldID, inGWssat)
-    END IF
-    IF ((ok2 .NE. NF90_NOERR) .OR. (ok .NE. NF90_NOERR)) THEN
-       inGWssat(:,:) = inssat(:,:)
-       found_explicit_gw_parameters = .FALSE.
-    END IF
-
-    ok = NF90_INQ_VARID(ncid, 'GWWatr', fieldID)
-    ok2 = ok
-    IF (ok .EQ. NF90_NOERR) THEN
-       ok2 = NF90_GET_VAR(ncid, fieldID, inGWssat)
-    END IF
-    IF ((ok2 .NE. NF90_NOERR) .OR. (ok .NE. NF90_NOERR)) THEN
-       inGWWatr(:,:) = 0.05
-    END IF
-
-    ok = NF90_INQ_VARID(ncid, 'GWsucs', fieldID)
-    ok2 = ok
-    IF (ok .EQ. NF90_NOERR) THEN
-       ok2 = NF90_GET_VAR(ncid, fieldID, inGWsucs)
-    END IF
-    IF ((ok2 .NE. NF90_NOERR) .OR. (ok .NE. NF90_NOERR)) THEN
-       inGWsucs(:,:) = ABS(insucs(:,:)) * 1000.0
-       found_explicit_gw_parameters = .FALSE.
-    END IF
-
-    ok = NF90_INQ_VARID(ncid, 'GWbch', fieldID)
-    ok2 = ok
-    IF (ok .EQ. NF90_NOERR) THEN
-       ok2 = NF90_GET_VAR(ncid, fieldID, inGWbch)
-    END IF
-    IF ((ok2 .NE. NF90_NOERR) .OR. (ok .NE. NF90_NOERR)) THEN
-       inGWbch(:,:) = inbch(:,:)
-       found_explicit_gw_parameters = .FALSE.
-    END IF
-
-    ok = NF90_INQ_VARID(ncid, 'GWhyds', fieldID)
-    ok2 = ok
-    IF (ok .EQ. NF90_NOERR) THEN
-       ok2 = NF90_GET_VAR(ncid, fieldID, inGWhyds)
-    END IF
-    IF ((ok2 .NE. NF90_NOERR) .OR. (ok .NE. NF90_NOERR)) THEN
-       inGWhyds(:,:) = inhyds(:,:)*1000.0
-       found_explicit_gw_parameters = .FALSE.
-    END IF
-
-    ok = NF90_INQ_VARID(ncid, 'GWrhosoil', fieldID)
-    ok2 = ok
-    IF (ok .EQ. NF90_NOERR) THEN
-       ok2 = NF90_GET_VAR(ncid, fieldID, inGWrhosoil)
-    END IF
-    IF ((ok2 .NE. NF90_NOERR) .OR. (ok .NE. NF90_NOERR)) THEN
-       inGWrhosoil(:,:) = inrhosoil(:,:)
-    END IF
-
-    ok = NF90_INQ_VARID(ncid, 'organic', fieldID)
-    ok2 = ok
-    IF (ok .EQ. NF90_NOERR) THEN
-       ok2 = NF90_GET_VAR(ncid, fieldID, inORG)
-       WRITE(logn,*) 'READ FORG FROM THE DATA FILE, yeidling '
-       WRITE(logn,*) 'A maximum value of ',MAXVAL(inORG),' and min val of',MINVAL(inORG)
-    END IF
-    IF ((ok2 .NE. NF90_NOERR) .OR. (ok .NE. NF90_NOERR)) THEN
-       inORG(:,:) = 0.0
-       WRITE(logn,*) 'COULD NOT READ FORG FROM THR SRF FILE setting to 0.0'
-    END IF
+    ! ok = NF90_INQ_VARID(ncid, 'organic', fieldID)
+    ! ok2 = ok
+    ! IF (ok .EQ. NF90_NOERR) THEN
+    !    ok2 = NF90_GET_VAR(ncid, fieldID, inORG)
+    !    WRITE(logn,*) 'READ FORG FROM THE DATA FILE, yeidling '
+    !    WRITE(logn,*) 'A maximum value of ',MAXVAL(inORG),' and min val of',MINVAL(inORG)
+    ! END IF
+    ! IF ((ok2 .NE. NF90_NOERR) .OR. (ok .NE. NF90_NOERR)) THEN
+    !    inORG(:,:) = 0.0
+    !    WRITE(logn,*) 'COULD NOT READ FORG FROM THR SRF FILE setting to 0.0'
+    ! END IF
 
 
     ! Use this code if need to process original UM file soil fields into CABLE
@@ -734,7 +671,7 @@ CONTAINS
     !    CALL NSflip(nlon,nlat,in2alb)
 
     ok = NF90_CLOSE(ncid)
-    IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error closing IGBP soil map.')
+    IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error closing gridinfo file.')
 
     ! Code if using UM soil file
     ! unit change and glacial-point check were done in preprocessing
@@ -775,49 +712,49 @@ CONTAINS
     inALB(:, :, 1, 1) = sfact(:, :) * dummy2(:, :)
 
 
-    ALLOCATE(inSlope(nlon,nlat),stat=ok)
-    IF (ok .NE. 0) CALL nc_abort(ok, 'Error allocating inSlope ')
-    inSlope(:,:) = 0.0
+    ! ALLOCATE(inSlope(nlon,nlat),stat=ok)
+    ! IF (ok .NE. 0) CALL nc_abort(ok, 'Error allocating inSlope ')
+    ! inSlope(:,:) = 0.0
 
-    ALLOCATE(inSlopeSTD(nlon,nlat),stat=ok)
-    IF (ok .NE. 0) CALL nc_abort(ok, 'Error allocating inSlopeSTD ')
-    inSlopeSTD(:,:) = 0.0
+    ! ALLOCATE(inSlopeSTD(nlon,nlat),stat=ok)
+    ! IF (ok .NE. 0) CALL nc_abort(ok, 'Error allocating inSlopeSTD ')
+    ! inSlopeSTD(:,:) = 0.0
 
-    ALLOCATE(inGWdz(nlon,nlat),stat=ok)
-    IF (ok .NE. 0) CALL nc_abort(ok, 'Error allocating inGWdz ')
-    inGWdz(:,:) = 20.0
+    ! ALLOCATE(inGWdz(nlon,nlat),stat=ok)
+    ! IF (ok .NE. 0) CALL nc_abort(ok, 'Error allocating inGWdz ')
+    ! inGWdz(:,:) = 20.0
 
-    IF (cable_user%GW_MODEL) THEN
-       ok = NF90_OPEN(TRIM(filename%gw_elev),NF90_NOWRITE,ncid_elev)
-       IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error opening GW elev param file.')
+    ! IF (cable_user%GW_MODEL) THEN
+    !    ok = NF90_OPEN(TRIM(filename%gw_elev),NF90_NOWRITE,ncid_elev)
+    !    IF (ok /= NF90_NOERR) CALL nc_abort(ok, 'Error opening GW elev param file.')
 
-       ok = NF90_INQ_VARID(ncid_elev, 'slope', fieldID)
-       IF (ok /= NF90_NOERR) WRITE(logn,*) 'Error finding variable slope'
-       ok = NF90_GET_VAR(ncid_elev, fieldID, inSlope)
-       IF (ok /= NF90_NOERR) THEN
-          inSlope = 0.0
-          WRITE(logn, *) 'Could not read slope data for SSGW, set to 0.0'
-       END IF
+    !    ok = NF90_INQ_VARID(ncid_elev, 'slope', fieldID)
+    !    IF (ok /= NF90_NOERR) WRITE(logn,*) 'Error finding variable slope'
+    !    ok = NF90_GET_VAR(ncid_elev, fieldID, inSlope)
+    !    IF (ok /= NF90_NOERR) THEN
+    !       inSlope = 0.0
+    !       WRITE(logn, *) 'Could not read slope data for SSGW, set to 0.0'
+    !    END IF
 
-       ok = NF90_INQ_VARID(ncid_elev, 'slope_std', fieldID)   !slope_std
-       IF (ok /= NF90_NOERR) WRITE(logn,*) 'Error finding variable slope std'
-       ok = NF90_GET_VAR(ncid_elev, fieldID, inSlopeSTD)
-       IF (ok /= NF90_NOERR) THEN
-          inSlopeSTD = 0.0
-          WRITE(logn, *) 'Could not read slope stddev data for SSGW, set to 0.0'
-       END IF
+    !    ok = NF90_INQ_VARID(ncid_elev, 'slope_std', fieldID)   !slope_std
+    !    IF (ok /= NF90_NOERR) WRITE(logn,*) 'Error finding variable slope std'
+    !    ok = NF90_GET_VAR(ncid_elev, fieldID, inSlopeSTD)
+    !    IF (ok /= NF90_NOERR) THEN
+    !       inSlopeSTD = 0.0
+    !       WRITE(logn, *) 'Could not read slope stddev data for SSGW, set to 0.0'
+    !    END IF
 
-       ok = NF90_INQ_VARID(ncid_elev, 'dtb', fieldID)
-       IF (ok /= NF90_NOERR) WRITE(logn,*) 'Error finding variable dtb'
-       ok = NF90_GET_VAR(ncid_elev, fieldID, inGWdz)
-       IF (ok /= NF90_NOERR) THEN
-          inGWdz = 20.0
-          WRITE(logn, *) 'Could not read dtb data for SSGW, set to 0.0'
-       END IF
+    !    ok = NF90_INQ_VARID(ncid_elev, 'dtb', fieldID)
+    !    IF (ok /= NF90_NOERR) WRITE(logn,*) 'Error finding variable dtb'
+    !    ok = NF90_GET_VAR(ncid_elev, fieldID, inGWdz)
+    !    IF (ok /= NF90_NOERR) THEN
+    !       inGWdz = 20.0
+    !       WRITE(logn, *) 'Could not read dtb data for SSGW, set to 0.0'
+    !    END IF
 
-       ok = NF90_CLOSE(ncid_elev)
+    !    ok = NF90_CLOSE(ncid_elev)
 
-    ENDIF  !running gw model
+    ! ENDIF  !running gw model
 
 
     DEALLOCATE(in2alb, sfact, dummy2)
@@ -1064,7 +1001,9 @@ CONTAINS
              STOP
           END IF
           ! CLN added for npatches
-       ELSE IF ( npatch .GT. 1 ) THEN
+!       ELSE IF ( npatch .GT. 1 ) THEN
+! line above replaced by below - rk4417 - phase2
+       ELSE IF ( npatch .GT. 1 .AND. cable_user%force_npatches_as .LE. 0 ) THEN
           landpt(kk)%nap = 0
           DO tt = 1, npatch
 
@@ -1080,6 +1019,20 @@ CONTAINS
              PRINT *, 'vegtype_metfile = ', vegtype_metfile(kk,:)
              STOP
           END IF
+! inserted ELSE IF block below - rk4417 - phase2
+          ! CLN added for npatches
+       ELSE IF ( npatch .GT. 1 .AND. cable_user%force_npatches_as .EQ. npatch) THEN
+          !force the number of tiles per cell
+          !will read in the tile info from the GWspatial subroutine
+          landpt(kk)%nap = npatch
+          ncount = ncount + landpt(kk)%nap
+          landpt(kk)%cend = ncount
+          IF (landpt(kk)%cend < landpt(kk)%cstart) THEN
+             PRINT *, 'Land point ', kk, ' does not have veg type!'
+             PRINT *, 'landpt%cstart, cend = ', landpt(kk)%cstart, landpt(kk)%cend
+             PRINT *, 'vegtype_metfile = ', vegtype_metfile(kk,:)
+             STOP
+          END IF          
        ELSE
           ! assume nmetpatches to be 1
           IF (nmetpatches == 1) THEN
@@ -1130,7 +1083,8 @@ CONTAINS
        vegparmnew, month, TFRZ, LUC_EXPT)
     ! Initialize many canopy_type, soil_snow_type, soil_parameter_type and
     ! roughness_type variables;
-    ! Calculate 'froot' from 'rootbeta' parameter;
+    ! Calculate 'froot' from 'rootbeta' parameter. Does not assign values to 
+    ! the soil hydraulic parameters.
     ! Assign values from input file to their proper variables in soil_snow_type,
     ! soil_parameter_type, veg_parameter_type and patch_type;
     ! Prescribe parameters for each point based on its veg/soil type.
@@ -1150,6 +1104,12 @@ CONTAINS
     !   patch(mp)%type - via cable_IO_vars_module (%frac,longitude,latitude)
 
     USE cable_common_module, ONLY : calcsoilalbedo,cable_user
+
+    USE cable_pft_params_mod, ONLY : vegin    !added by rk4417 - phase2
+    USE cable_soil_params_mod, ONLY : soilin  !added by rk4417 - phase2
+
+! Note that subroutine init_veg_from_vegin has been moved from cable_common.F90
+! to cable_parameters.F90 (this file) and no longer needs to be imported - rk4417 - phase2
 
     IMPLICIT NONE
     INTEGER,               INTENT(IN)    :: logn  ! log file unit number
@@ -1214,7 +1174,6 @@ CONTAINS
     canopy%fe    = 0.0  ! sensible heat flux
     !mrd
     ssnow%qrecharge = 0.0
-    ssnow%GWwb = -1.0
     ssnow%wtd = 1.0
     canopy%sublayer_dz = 0.001  !could go into restart to ensure starting/stopping runs gives identical results
     !however the impact is negligible
@@ -1247,7 +1206,9 @@ CONTAINS
 
     END SELECT
 
-
+! line below added by rk4417 - phase2
+    soil%zse_vec = REAL(SPREAD(soil%zse,1,mp),r_2)    ! MMY@13April, this line is needed since zec_vec is defined in UM/init/cable_um_init_subrs.F90, 
+                                                      !      but it isn't used in offline CABLE 
     !ELSE
 
     !   ! parameters that are not spatially dependent
@@ -1335,6 +1296,7 @@ CONTAINS
        ! Set initial snow depth and snow-free soil albedo
 
 
+       ! MMY Note @Oct2022 Please notice ssnow%albsoilsn is set here rather than in GWspatialParameters
        DO is = 1, landpt(e)%cend - landpt(e)%cstart + 1  ! each patch
           DO ir = 1, nrb
              IF (CABLE_USER%POPLUC) THEN !vh! use same soilalbedo for all land-use tiles
@@ -1347,6 +1309,7 @@ CONTAINS
              ENDIF
           END DO
           ! total depth, change from m to mm !see Ticket #57
+          ! Ticket #57: changing the scaling factor from 1000 (water density) to 140 (old ice density) ! MMY @Oct2022 
           ssnow%snowd(landpt(e)%cstart + is - 1)                                 &
                = inSND(landpt(e)%ilon, landpt(e)%ilat, is, month) * 140.0
        END DO
@@ -1357,104 +1320,104 @@ CONTAINS
                inLAI(landpt(e)%ilon,landpt(e)%ilat,is)
        END DO
 
-       ! Set IGBP soil texture values, Q.Zhang @ 12/20/2010.
-       IF (soilparmnew) THEN
+    !    ! Set IGBP soil texture values, Q.Zhang @ 12/20/2010.
+    !    IF (soilparmnew) THEN
 
-          soil%swilt(landpt(e)%cstart:landpt(e)%cend) =                            &
-               inswilt(landpt(e)%ilon, landpt(e)%ilat)
-          soil%sfc(landpt(e)%cstart:landpt(e)%cend) =                              &
-               insfc(landpt(e)%ilon, landpt(e)%ilat)
-          soil%ssat(landpt(e)%cstart:landpt(e)%cend) =                             &
-               inssat(landpt(e)%ilon, landpt(e)%ilat)
-          soil%bch(landpt(e)%cstart:landpt(e)%cend) =                              &
-               inbch(landpt(e)%ilon, landpt(e)%ilat)
-          soil%hyds(landpt(e)%cstart:landpt(e)%cend) =                             &
-               inhyds(landpt(e)%ilon, landpt(e)%ilat)
-          soil%sucs(landpt(e)%cstart:landpt(e)%cend) =                             &
-               -1.* ABS(insucs(landpt(e)%ilon, landpt(e)%ilat)) !ensure negative
-          soil%rhosoil(landpt(e)%cstart:landpt(e)%cend) =                          &
-               inrhosoil(landpt(e)%ilon, landpt(e)%ilat)
-          soil%css(landpt(e)%cstart:landpt(e)%cend) =                              &
-               incss(landpt(e)%ilon, landpt(e)%ilat)
-          soil%cnsd(landpt(e)%cstart:landpt(e)%cend) =                             &
-               incnsd(landpt(e)%ilon, landpt(e)%ilat)
+    !       soil%swilt(landpt(e)%cstart:landpt(e)%cend) =                            &
+    !            inswilt(landpt(e)%ilon, landpt(e)%ilat)
+    !       soil%sfc(landpt(e)%cstart:landpt(e)%cend) =                              &
+    !            insfc(landpt(e)%ilon, landpt(e)%ilat)
+    !       soil%ssat(landpt(e)%cstart:landpt(e)%cend) =                             &
+    !            inssat(landpt(e)%ilon, landpt(e)%ilat)
+    !       soil%bch(landpt(e)%cstart:landpt(e)%cend) =                              &
+    !            inbch(landpt(e)%ilon, landpt(e)%ilat)
+    !       soil%hyds(landpt(e)%cstart:landpt(e)%cend) =                             &
+    !            inhyds(landpt(e)%ilon, landpt(e)%ilat)
+    !       soil%sucs(landpt(e)%cstart:landpt(e)%cend) =                             &
+    !            -1.* ABS(insucs(landpt(e)%ilon, landpt(e)%ilat)) !ensure negative
+    !       soil%rhosoil(landpt(e)%cstart:landpt(e)%cend) =                          &
+    !            inrhosoil(landpt(e)%ilon, landpt(e)%ilat)
+    !       soil%css(landpt(e)%cstart:landpt(e)%cend) =                              &
+    !            incss(landpt(e)%ilon, landpt(e)%ilat)
+    !       soil%cnsd(landpt(e)%cstart:landpt(e)%cend) =                             &
+    !            incnsd(landpt(e)%ilon, landpt(e)%ilat)
 
-          !possibly heterogeneous soil properties
-          ! Set all heterogeneous soil properties to their equivalent uniform values.
-          ! These values can be overridden later on by input values in files.
-          ! `smpc_vec` and `wbc_vec` are only used in the ground water and have no
-          ! equivalent in the uniform parameters (non _vec). So we do not initialise
-          ! these variables when we are not using the ground water scheme.
-          DO klev=1,ms
+    !       !possibly heterogeneous soil properties
+    !       ! Set all heterogeneous soil properties to their equivalent uniform values.
+    !       ! These values can be overridden later on by input values in files.
+    !       ! `smpc_vec` and `wbc_vec` are only used in the ground water and have no
+    !       ! equivalent in the uniform parameters (non _vec). So we do not initialise
+    !       ! these variables when we are not using the ground water scheme.
+    !       DO klev=1,ms
 
-             soil%clay_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
-                  REAL(inclay(landpt(e)%ilon, landpt(e)%ilat),r_2)
+    !          soil%clay_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
+    !               REAL(inclay(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-             soil%sand_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
-                  REAL(insand(landpt(e)%ilon, landpt(e)%ilat),r_2)
+    !          soil%sand_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
+    !               REAL(insand(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-             soil%silt_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
-                  REAL(insilt(landpt(e)%ilon, landpt(e)%ilat),r_2)
+    !          soil%silt_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
+    !               REAL(insilt(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-             soil%rhosoil_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                  &
-                  REAL(inrhosoil(landpt(e)%ilon, landpt(e)%ilat),r_2)
+    !          soil%rhosoil_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                  &
+    !               REAL(inrhosoil(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-             soil%org_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
-                  REAL(inORG(landpt(e)%ilon, landpt(e)%ilat),r_2)
+    !          soil%org_vec(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
+    !               REAL(inORG(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-             soil%watr(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
-                  REAL(inWatr(landpt(e)%ilon, landpt(e)%ilat),r_2)
+    !          soil%watr(landpt(e)%cstart:landpt(e)%cend,klev) =                    &
+    !               REAL(inWatr(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-             soil%zse_vec(landpt(e)%cstart:landpt(e)%cend,klev) =              &
-                  REAL(soil%zse(landpt(e)%cstart:landpt(e)%cend), r_2)
+    !          soil%zse_vec(landpt(e)%cstart:landpt(e)%cend,klev) =              &
+    !               REAL(soil%zse(landpt(e)%cstart:landpt(e)%cend), r_2)
 
-             soil%css_vec(landpt(e)%cstart:landpt(e)%cend, klev) =             &
-                  REAL(incss(landpt(e)%ilon, landpt(e)%ilat), r_2)
+    !          soil%css_vec(landpt(e)%cstart:landpt(e)%cend, klev) =             &
+    !               REAL(incss(landpt(e)%ilon, landpt(e)%ilat), r_2)
 
-             soil%cnsd_vec(landpt(e)%cstart:landpt(e)%cend, klev) =            &
-                  REAL(incnsd(landpt(e)%ilon, landpt(e)%ilat), r_2)
+    !          soil%cnsd_vec(landpt(e)%cstart:landpt(e)%cend, klev) =            &
+    !               REAL(incnsd(landpt(e)%ilon, landpt(e)%ilat), r_2)
 
-          END DO
+    !       END DO
 
-          !Aquifer properties  same as bottom soil layer for now
-          soil%GWsucs_vec(landpt(e)%cstart:landpt(e)%cend) =                        &
-               REAL(inGWsucs(landpt(e)%ilon, landpt(e)%ilat),r_2)
+    !       !Aquifer properties  same as bottom soil layer for now
+    !       soil%GWsucs_vec(landpt(e)%cstart:landpt(e)%cend) =                        &
+    !            REAL(inGWsucs(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-          soil%GWhyds_vec(landpt(e)%cstart:landpt(e)%cend) =                         &
-               REAL(inGWhyds(landpt(e)%ilon, landpt(e)%ilat),r_2)
+    !       soil%GWhyds_vec(landpt(e)%cstart:landpt(e)%cend) =                         &
+    !            REAL(inGWhyds(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-          soil%GWbch_vec(landpt(e)%cstart:landpt(e)%cend) =                        &
-               REAL(inGWbch(landpt(e)%ilon, landpt(e)%ilat),r_2)
+    !       soil%GWbch_vec(landpt(e)%cstart:landpt(e)%cend) =                        &
+    !            REAL(inGWbch(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-          soil%GWrhosoil_vec(landpt(e)%cstart:landpt(e)%cend) =                       &
-               REAL(inGWrhosoil(landpt(e)%ilon, landpt(e)%ilat),r_2)
+    !       soil%GWrhosoil_vec(landpt(e)%cstart:landpt(e)%cend) =                       &
+    !            REAL(inGWrhosoil(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-          soil%GWssat_vec(landpt(e)%cstart:landpt(e)%cend) =                        &
-               REAL(inGWssat(landpt(e)%ilon, landpt(e)%ilat),r_2)
+    !       soil%GWssat_vec(landpt(e)%cstart:landpt(e)%cend) =                        &
+    !            REAL(inGWssat(landpt(e)%ilon, landpt(e)%ilat),r_2)
 
-          soil%GWwatr(landpt(e)%cstart:landpt(e)%cend) =                          &
-               soil%watr(landpt(e)%cstart:landpt(e)%cend,ms)
+    !       soil%GWwatr(landpt(e)%cstart:landpt(e)%cend) =                          &
+    !            soil%watr(landpt(e)%cstart:landpt(e)%cend,ms)
 
-          soil%slope(landpt(e)%cstart:landpt(e)%cend) =                           &
-               MIN(MAX(inSlope(landpt(e)%ilon,landpt(e)%ilat),1e-8),0.95)
+    !       soil%slope(landpt(e)%cstart:landpt(e)%cend) =                           &
+    !            MIN(MAX(inSlope(landpt(e)%ilon,landpt(e)%ilat),1e-8),0.95)
 
-          soil%slope_std(landpt(e)%cstart:landpt(e)%cend) =                       &
-               MIN(MAX(inSlopeSTD(landpt(e)%ilon,landpt(e)%ilat),1e-8),0.95)
+    !       soil%slope_std(landpt(e)%cstart:landpt(e)%cend) =                       &
+    !            MIN(MAX(inSlopeSTD(landpt(e)%ilon,landpt(e)%ilat),1e-8),0.95)
 
-          soil%GWdz(landpt(e)%cstart:landpt(e)%cend) =                           &
-               inGWdz(landpt(e)%ilon,landpt(e)%ilat)
+    !       soil%GWdz(landpt(e)%cstart:landpt(e)%cend) =                           &
+    !            inGWdz(landpt(e)%ilon,landpt(e)%ilat)
 
-          ! vh !
-          soil%silt(landpt(e)%cstart:landpt(e)%cend) =                             &
-               insilt(landpt(e)%ilon, landpt(e)%ilat)
+    !       ! vh !
+    !       soil%silt(landpt(e)%cstart:landpt(e)%cend) =                             &
+    !            insilt(landpt(e)%ilon, landpt(e)%ilat)
 
-          soil%sand(landpt(e)%cstart:landpt(e)%cend) =                             &
-               insand(landpt(e)%ilon, landpt(e)%ilat)
+    !       soil%sand(landpt(e)%cstart:landpt(e)%cend) =                             &
+    !            insand(landpt(e)%ilon, landpt(e)%ilat)
 
-          soil%clay(landpt(e)%cstart:landpt(e)%cend) =                             &
-               inclay(landpt(e)%ilon, landpt(e)%ilat)
+    !       soil%clay(landpt(e)%cstart:landpt(e)%cend) =                             &
+    !            inclay(landpt(e)%ilon, landpt(e)%ilat)
 
-       ENDIF
+    !    ENDIF
 
        ! vars intro for Ticket #27
        IF (calcsoilalbedo) THEN
@@ -1583,18 +1546,20 @@ CONTAINS
     !               vegin%gswmin, vegin%conkc0,vegin%conko0,vegin%ekc,vegin%eko   )
     !    !         vegf_temp,urbanf_temp,lakef_temp,icef_temp, &
 
-    IF (ALLOCATED(inGWsucs  )) DEALLOCATE(inGWsucs)
-    IF (ALLOCATED(inGWhyds  )) DEALLOCATE(inGWhyds)
-    IF (ALLOCATED(inGWbch   )) DEALLOCATE(inGWbch)
-    IF (ALLOCATED(inGWsilt  )) DEALLOCATE(inGWsilt)
-    IF (ALLOCATED(inGWsand  )) DEALLOCATE(inGWsand)
-    IF (ALLOCATED(inGWclay  )) DEALLOCATE(inGWclay)
-    IF (ALLOCATED(inGWssat  )) DEALLOCATE(inGWssat)
-    IF (ALLOCATED(inGWWatr  )) DEALLOCATE(inGWWatr)
-    IF (ALLOCATED(inWatr    )) DEALLOCATE(inWatr)
-    IF (ALLOCATED(inSlope   )) DEALLOCATE(inSlope)
-    IF (ALLOCATED(inSlopeSTD)) DEALLOCATE(inSlopeSTD)
-    IF (ALLOCATED(inORG     )) DEALLOCATE(inORG)
+! Block below commented out by rk4417 - phase2   
+!    IF (ALLOCATED(inGWsucs  )) DEALLOCATE(inGWsucs)
+!    IF (ALLOCATED(inGWhyds  )) DEALLOCATE(inGWhyds)
+!    IF (ALLOCATED(inGWbch   )) DEALLOCATE(inGWbch)
+!    IF (ALLOCATED(inGWsilt  )) DEALLOCATE(inGWsilt)
+!    IF (ALLOCATED(inGWsand  )) DEALLOCATE(inGWsand)
+!    IF (ALLOCATED(inGWclay  )) DEALLOCATE(inGWclay)
+!    IF (ALLOCATED(inGWssat  )) DEALLOCATE(inGWssat)
+!    IF (ALLOCATED(inGWWatr  )) DEALLOCATE(inGWWatr)
+!    IF (ALLOCATED(inWatr    )) DEALLOCATE(inWatr)
+!    IF (ALLOCATED(inSlope   )) DEALLOCATE(inSlope)
+!    IF (ALLOCATED(inSlopeSTD)) DEALLOCATE(inSlopeSTD)
+!    IF (ALLOCATED(inORG     )) DEALLOCATE(inORG)
+
     ! if using old format veg_parm input file, need to define veg%deciduous
     ! BP dec 2007
     !    IF (.NOT. vegparmnew) THEN
@@ -1649,6 +1614,13 @@ CONTAINS
     ssnow%wbliq = ssnow%wb - ssnow%wbice
     ssnow%GWwb = 0.9*soil%ssat
 
+! 5 lines below inserted by rk4417 - phase2
+    ssnow%wb_hys = -1.0e+36     
+    ssnow%hys_fac = 1.0
+    ssnow%watr_hys = soil%watr
+    ssnow%ssat_hys = soil%ssat_vec
+    ssnow%smp_hys  = -1.0e+36
+
     !IF(hide%Ticket49Bug5) THEN
 
     ! vh_js ! neeed to remove this if to enable the code below
@@ -1681,15 +1653,18 @@ CONTAINS
        veg%disturbance_intensity = 0.
     ENDIF
 
+! MMY note @Oct2022 Important differ to MMY's trunk: assume depth to bedrock = 4.6m + aquifer
     soil%GWdz = MAX(1.0,MIN(20.0,soil%GWdz - SUM(soil%zse,dim=1)))
 
-    !set vectorized versions as same as defaut for now
-    soil%swilt_vec(:,:)  = REAL(SPREAD(soil%swilt(:),2,ms),r_2)
-    soil%sfc_vec(:,:)  = REAL(SPREAD(soil%sfc(:),2,ms),r_2)
-    soil%sucs_vec(:,:)  = REAL(SPREAD(soil%sucs(:),2,ms),r_2)
-    soil%bch_vec(:,:)  = REAL(SPREAD(soil%bch(:),2,ms),r_2)
-    soil%ssat_vec(:,:)  = REAL(SPREAD(soil%ssat(:),2,ms),r_2)
-    soil%hyds_vec(:,:)  = REAL(SPREAD(soil%hyds(:),2,ms),r_2)
+! Block below commented out by rk4417 - phase2
+! ____________ MMY @Oct2022 comment out ________
+    !set vectorized versions as same as default for now
+!    soil%swilt_vec(:,:)  = REAL(SPREAD(soil%swilt(:),2,ms),r_2)
+!    soil%sfc_vec(:,:)  = REAL(SPREAD(soil%sfc(:),2,ms),r_2)
+!    soil%sucs_vec(:,:)  = REAL(SPREAD(soil%sucs(:),2,ms),r_2)
+!    soil%bch_vec(:,:)  = REAL(SPREAD(soil%bch(:),2,ms),r_2)
+!    soil%ssat_vec(:,:)  = REAL(SPREAD(soil%ssat(:),2,ms),r_2)
+!    soil%hyds_vec(:,:)  = REAL(SPREAD(soil%hyds(:),2,ms),r_2)
 
   END SUBROUTINE write_default_params
   !=============================================================================
@@ -2160,6 +2135,11 @@ CONTAINS
        end do
 
        if ((gw_params%MaxSatFraction .lt. -9999.9) .and. (mp .eq. 1)) soil%slope(:) = 0.01
+    ELSE  !not gw model
+
+      !These are not used when gw_model == false
+      soil%watr = 0._r_2
+      soil%GWwatr = 0._r_2
 
    END IF
 
@@ -2368,10 +2348,30 @@ CONTAINS
        IF(ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart + landpt(i)%nap   &
             - 1)) < 1 ) .OR. ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart  &
             + landpt(i)%nap - 1)) > mstype)) THEN
-          WRITE(*,*) 'SUBROUTINE load_parameters:'
-          WRITE(*,*) 'Land point number:',i
+          WRITE(*,*) 'SUBROUTINE load_parameters: soil < 1 or > ',mstype
+          DO j=landpt(i)%cstart,landpt(i)%cend
+             IF (soil%isoilm(j) .LT. 1 .OR. soil%isoilm(j) .GT. mstype) THEN
+                WRITE(*,*) 'AT ',i,j,' indices '
+                WRITE(*,*) '~~~~~~~~~~~~~~lat=>',&
+                            patch(landpt(i)%cstart:landpt(i)%cend)%latitude
+                WRITE(*,*) '~~~~~~~~~~~~~~lon=>',&
+                            patch(landpt(i)%cstart:landpt(i)%cend)%longitude
+                WRITE(*,*) '~~~~~~~~~~~~~~soil%isoilm',soil%isoilm(j)
+             END IF
+          ENDDO
           CALL abort('Unknown soil type! Aborting.')
        END IF
+
+! IF block above replaces one below - rk4417 - phase2
+
+!       IF(ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart + landpt(i)%nap   &
+!            - 1)) < 1 ) .OR. ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart  &
+!            + landpt(i)%nap - 1)) > mstype)) THEN
+!          WRITE(*,*) 'SUBROUTINE load_parameters:'
+!          WRITE(*,*) 'Land point number:',i
+!          CALL abort('Unknown soil type! Aborting.')
+!       END IF
+
        ! Check patch fractions sum to 1 in each grid cell:
        IF((SUM(patch(landpt(i)%cstart:landpt(i)%cend)%frac) - 1.0)             &
             > 1.0E-6) THEN

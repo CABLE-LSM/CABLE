@@ -803,9 +803,19 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
                YYYY.EQ. CABLE_USER%YearEnd ) THEN
 
             ! evaluate spinup
+            ! =================== MMY_phase2 
+            ! commented out this region in favor of the one below - rk4417 
+            ! =====================
             IF( ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.               &
                  ANY( ABS(ssnow%tgg-soilTtemp)>delsoilT) .OR. &
                  MAXVAL(ABS(ssnow%GWwb-GWtemp),dim=1) > delgwM) THEN
+
+                 ! =================== MMY_phase2 uncomment =====================                 
+!                 IF( (ANY( ABS(ssnow%wb-soilMtemp)>delsoilM).OR.                & 
+!                      ANY( ABS(ssnow%tgg-soilTtemp)>delsoilT) .or. &               
+!                      maxval(ABS(ssnow%GWwb-GWtemp),dim=1) > delgwM) .and. &
+!                      ( (int(ktau_tot/kend) .lt. cable_user%max_spins)  .and.&
+!                      (cable_user%max_spins .gt. 0) ) ) THEN
 
               ! No complete convergence yet
               PRINT *, 'ssnow%wb : ', ssnow%wb

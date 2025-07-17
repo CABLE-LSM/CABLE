@@ -599,20 +599,6 @@ CONTAINS
 
         ENDIF
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         IF ( ((.NOT.spinup).OR.(spinup.AND.spinConv)).AND. &
              CABLE_USER%CALL_POP) THEN
 
@@ -1198,7 +1184,7 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%evapfbl, displs(bidx), ierr)
-    blen(bidx) = ms * r1len
+    blen(bidx) = ms * r2len
 
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%qstss, displs(bidx), ierr)
@@ -1743,11 +1729,6 @@ CONTAINS
     !  blen(bidx) = ms * r1len
 
     bidx = bidx + 1
-    CALL MPI_Get_address (canopy%evapfbl, displs(bidx), ierr)
-    ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
-    blen(bidx) = ms * r1len
-
-    bidx = bidx + 1
     CALL MPI_Get_address (canopy%epot, displs(bidx), ierr)
     blen(bidx) = r1len
 
@@ -1773,6 +1754,11 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%fwsoil, displs(bidx), ierr)
+    blen(bidx) = r2len
+
+! block below inserted by rk4417 - phase2
+    bidx = bidx + 1     
+    CALL MPI_Get_address (canopy%sublayer_dz, displs(bidx), ierr)
     blen(bidx) = r2len
 
     bidx = bidx + 1
@@ -2284,14 +2270,39 @@ CONTAINS
     bidx = bidx + 1
     CALL MPI_Get_address (soil%rhosoil_vec, displs(bidx), ierr)
     blen(bidx) = ms * r2len
- 
+
     bidx = bidx + 1
-    CALL MPI_Get_address (soil%smpc_vec, displs(bidx), ierr)
+    CALL MPI_Get_address (ssnow%ssat_hys, displs(bidx), ierr)
     blen(bidx) = ms * r2len
- 
+
+
     bidx = bidx + 1
-    CALL MPI_Get_address (soil%wbc_vec, displs(bidx), ierr)
+    CALL MPI_Get_address (ssnow%watr_hys, displs(bidx), ierr)
     blen(bidx) = ms * r2len
+
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%smp_hys, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%wb_hys, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%hys_fac, displs(bidx), ierr)
+    blen(bidx) = ms * r2len
+    ! end of block - rk4417 - phase2
+
+    ! bidx = bidx + 1
+    ! CALL MPI_Get_address (soil%smpc_vec, displs(bidx), ierr)
+    ! blen(bidx) = ms * r2len
+ 
+    ! bidx = bidx + 1
+    ! CALL MPI_Get_address (soil%wbc_vec, displs(bidx), ierr)
+    ! blen(bidx) = ms * r2len
 
 
     !1d
@@ -2315,12 +2326,18 @@ CONTAINS
     CALL MPI_Get_address (soil%GWwatr, displs(bidx), ierr)
     blen(bidx) = r2len
 
-    bidx = bidx + 1
-    CALL MPI_Get_address (soil%GWz, displs(bidx), ierr)
-    blen(bidx) = r2len
+! commented out by rk4417 - phase2    
+!    bidx = bidx + 1
+!    CALL MPI_Get_address (soil%GWz, displs(bidx), ierr)
+!    blen(bidx) = r2len
 
     bidx = bidx + 1
     CALL MPI_Get_address (soil%GWdz, displs(bidx), ierr)
+    blen(bidx) = r2len
+
+!  block below inserted by rk4417 - phase2
+    bidx = bidx + 1      
+    CALL MPI_Get_address (soil%elev, displs(bidx), ierr)
     blen(bidx) = r2len
 
     bidx = bidx + 1
@@ -2331,6 +2348,42 @@ CONTAINS
     CALL MPI_Get_address (soil%slope_std, displs(bidx), ierr)
     blen(bidx) = r2len
 
+! block below inserted by rk4417 - phase2
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%drain_dens, displs(bidx), ierr)
+    blen(bidx) = r2len
+
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%hkrz, displs(bidx), ierr)
+    blen(bidx) = r2len
+
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%zdepth, displs(bidx), ierr)
+    blen(bidx) = r2len
+
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%srf_frac_ma, displs(bidx), ierr)
+    blen(bidx) = r2len
+
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%edepth_ma, displs(bidx), ierr)
+    blen(bidx) = r2len
+
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%qhz_max, displs(bidx), ierr)
+    blen(bidx) = r2len
+
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (soil%qhz_efold, displs(bidx), ierr)
+    blen(bidx) = r2len
+! end of block - rk4417 - phase2
+
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%GWwb, displs(bidx), ierr)
     blen(bidx) = r2len
@@ -2338,6 +2391,7 @@ CONTAINS
     ! MPI: sanity check
     IF (bidx /= ntyp) THEN
        WRITE (*,*) 'worker ',rank,' invalid number of param_t fields',bidx,', fix it!'
+       WRITE (*,*) 'worker ',rank,' invalid number ntyp is ',ntyp,', fix it!' ! inserted by rk4417 - phase2
        CALL MPI_Abort (comm, 1, ierr)
     END IF
 
@@ -3679,18 +3733,6 @@ CONTAINS
     !  CALL MPI_Get_address (canopy%rwater(off,1), displs(bidx), ierr)
     !  blocks(bidx) = r1len * ms
 
-    ! midx = midx + 1
-    ! REAL(r_2)
-    ! CALL MPI_Get_address (canopy%evapfbl(off,1), maddr(midx), ierr) ! 2
-    !CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
-    !  &            mat_t(midx, rank), ierr)
-
-    ! TODO: skip, used for restart but not output
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%evapfbl(off,1), displs(bidx), ierr)
-    ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
-    blocks(bidx) = r1len * ms
-
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%gswx(off,1), displs(bidx), ierr)
     blocks(bidx) = r1len * mf
@@ -3797,7 +3839,33 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (ssnow%evapfbl(off,1), displs(bidx), ierr)
-    blocks(bidx) = r1len * ms
+    blocks(bidx) = r2len * ms
+
+! block below inserted by rk4417 - phase2
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%smp(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * ms
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%wb_hys(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * ms
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%smp_hys(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * ms
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%ssat_hys(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * ms
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%watr_hys(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * ms
+
+    bidx = bidx + 1
+    CALL MPI_Get_address (ssnow%hys_fac(off,1), displs(bidx), ierr)
+    blocks(bidx) = r2len * ms
+! end of block - rk4417 - phase2
 
     !midx = midx + 1
     ! REAL(r_1)
@@ -4556,6 +4624,11 @@ CONTAINS
 
     bidx = bidx + 1
     CALL MPI_Get_address (canopy%fwsoil(off), displs(bidx), ierr)
+    blocks(bidx) = r2len
+
+! block below inserted by rk4417 - phase2
+    bidx = bidx + 1   
+    CALL MPI_Get_address (canopy%sublayer_dz(off), displs(bidx), ierr)
     blocks(bidx) = r2len
 
     ! MPI: 2D vars moved above
@@ -6403,11 +6476,6 @@ CONTAINS
     !  bidx = bidx + 1
     !  CALL MPI_Get_address (canopy%rwater(off,1), displs(bidx), ierr)
     !  blocks(bidx) = r1len * ms
-
-    bidx = bidx + 1
-    CALL MPI_Get_address (canopy%evapfbl(off,1), displs(bidx), ierr)
-    ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
-    blocks(bidx) = r1len * ms
 
     bidx = bidx + 1
     CALL MPI_Get_address (bgc%cplant(off,1), displs(bidx), ierr)

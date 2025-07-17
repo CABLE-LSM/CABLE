@@ -131,7 +131,7 @@ USE cable_phys_constants_mod,  ONLY: density_liq, density_ice
     ! Add new snow melt to global snow melt variable:
     ssnow%smelt = ssnow%smelt + snowmlt
 
-    CALL remove_trans(dels, soil, ssnow, canopy, veg)
+    CALL remove_trans(soil, ssnow, canopy)
 
    CALL  soilfreeze(dels, soil, ssnow, soil%heat_cap_lower_limit )
 
