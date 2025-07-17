@@ -2417,13 +2417,25 @@ CONTAINS
                   gswmin(i,1) = veg%g0(i)*rad%scalex(i,1)
                   gswmin(i,2) = veg%g0(i)*rad%scalex(i,2)
                   vpd =  dsx(i)
+                  if (INDEX(cable_user%FWSOIL_SWITCH,'LWP')>0) then
+                     fwpsi(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
+                     fwpsi(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
+                     gs_coeff(i,1) = ( fwpsi(i,1)**qs / ( real(csx(i,1)) - co2cp(i,1) ) ) &
+                        * ( 1.0 / ( 1.0/veg%a1gs(i) + (vpd/(veg%d0gs(i)*veg%a1gs(i)))))
 
+                     gs_coeff(i,2) = ( fwpsi(i,2)**qs / ( real(csx(i,2)) - co2cp(i,2) ) ) &
+                        * ( 1.0 / ( 1.0/veg%a1gs(i) + (vpd/(veg%d0gs(i)*veg%a1gs(i)))))
+                  else
+                     gs_coeff(i,1) = ( fwsoil(i)**qs / ( real(csx(i,1)) - co2cp(i,1) ) ) &
+                        * ( 1.0 / ( 1.0/veg%a1gs(i) + (vpd/(veg%d0gs(i)*veg%a1gs(i)))))
+
+                     gs_coeff(i,2) = ( fwsoil(i)**qs / ( real(csx(i,2)) - co2cp(i,2) ) ) &
+                        * ( 1.0 / ( 1.0/veg%a1gs(i) + (vpd/(veg%d0gs(i)*veg%a1gs(i)))))
+                  endif
                   ! vh re-write so that a1 and d0 are not correlated
-                  gs_coeff(i,1) = ( fwsoil(i)**qs / ( real(csx(i,1)) - co2cp(i,1) ) ) &
-                     * ( 1.0 / ( 1.0/veg%a1gs(i) + (vpd/(veg%d0gs(i)*veg%a1gs(i)))))
 
-                  gs_coeff(i,2) = ( fwsoil(i)**qs / ( real(csx(i,2)) - co2cp(i,2) ) ) &
-                     * ( 1.0 / ( 1.0/veg%a1gs(i) + (vpd/(veg%d0gs(i)*veg%a1gs(i)))))
 
                   ! gs_coeff(i,1) = ( fwsoil(i)**qs / ( csx(i,1) - co2cp3 ) ) &
                   !      * ( veg%a1gs(i) / ( 1.0 + dsx(i)/veg%d0gs(i)))
@@ -2451,12 +2463,26 @@ CONTAINS
                   !gs_coeff(i,2) = (1.0* fwsoil(i)**qs + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / csx(i,2)
 
                   ! gs_coeff for CO2, hence no 1.6 factor as in the original model
-                  if (fwsoil(i) .LE. 0.05) then
-                     gs_coeff(i,1) = (1.0* fwsoil(i)**qs + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,1))
-                     gs_coeff(i,2) = (1.0* fwsoil(i)**qs + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,2))
+                  if (INDEX(cable_user%FWSOIL_SWITCH,'LWP')>0) then
+                     fwpsi(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
+                     fwpsi(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
+                        if (fwpsi(i,1) .LE. 0.05) then
+                           gs_coeff(i,1) = (1.0* fwpsi(i,1)**qs + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,1))
+                           gs_coeff(i,2) = (1.0* fwpsi(i,2)**qs + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,2))
+                        else
+                           gs_coeff(i,1) = (1.0 + (g1 * fwpsi(i,1)**qs) / SQRT(vpd)) / real(csx(i,1))
+                           gs_coeff(i,2) = (1.0 + (g1 * fwpsi(i,2)**qs) / SQRT(vpd)) / real(csx(i,2))
+                        endif
                   else
-                     gs_coeff(i,1) = (1.0 + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,1))
-                     gs_coeff(i,2) = (1.0 + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,2))
+                        if (fwsoil(i) .LE. 0.05) then
+                           gs_coeff(i,1) = (1.0* fwsoil(i)**qs + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,1))
+                           gs_coeff(i,2) = (1.0* fwsoil(i)**qs + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,2))
+                        else
+                           gs_coeff(i,1) = (1.0 + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,1))
+                           gs_coeff(i,2) = (1.0 + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,2))
+                        endif
                   endif
                ELSE IF (cable_user%GS_SWITCH == 'tuzet' .AND. &
                   INDEX(cable_user%FWSOIL_SWITCH,'LWP')>0) THEN
