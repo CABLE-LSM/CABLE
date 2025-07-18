@@ -10,6 +10,6 @@ on:
 jobs:
   build:
     name: Build ${{ github.repository }} via spack
-    uses: access-nri/build-ci/.github/workflows/model-1-build.yml@8c22a98df04c79ced53203461cf05cc8117544a0
+    uses: access-nri/build-ci/.github/workflows/model-1-build.yml@748f6d3a6b2cc93ccc7faa7b36a0ce10f70435b7
     permissions:
       packages: read
