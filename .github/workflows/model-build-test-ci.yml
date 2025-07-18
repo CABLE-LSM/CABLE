@@ -1,5 +1,5 @@
 name: CI
-# Testing --volumes-from with GitHub-hosted runners
+# Testing --volumes-from with GitHub-hosted runners (properly)
 on:
   pull_request:
 jobs:
