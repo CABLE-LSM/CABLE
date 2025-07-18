@@ -1,15 +1,9 @@
-name: Test model build
-
+name: CI
 on:
-  workflow_dispatch:
   pull_request:
-  push:
-    branches:
-      - "master"
-
 jobs:
-  build:
-    name: Build ${{ github.repository }} via spack
-    uses: access-nri/build-ci/.github/workflows/model-1-build.yml@8c22a98df04c79ced53203461cf05cc8117544a0
-    permissions:
-      packages: read
+  build-and-test:
+    name: Build and Test (GitHub-Hosted)
+    uses: access-nri/build-ci/.github/workflows/ci.yml@build-ci-2.0
+    with:
+      spack-manifest-path: .github/build-ci/manifests/spack.yaml.j2
