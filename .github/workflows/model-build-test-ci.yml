@@ -7,3 +7,4 @@ jobs:
     uses: access-nri/build-ci/.github/workflows/ci.yml@216-github-hosted-ci
     with:
       spack-manifest-path: .github/build-ci/manifests/spack.yaml.j2
+      allow-ssh-into-spack-install: true
