@@ -1,15 +1,11 @@
-name: Test model build
-
+name: CI
+# Testing --volumes-from with GitHub-hosted runners (properly)
 on:
-  workflow_dispatch:
   pull_request:
-  push:
-    branches:
-      - "master"
-
 jobs:
-  build:
-    name: Build ${{ github.repository }} via spack
-    uses: access-nri/build-ci/.github/workflows/model-1-build.yml@748f6d3a6b2cc93ccc7faa7b36a0ce10f70435b7
-    permissions:
-      packages: read
+  build-and-test:
+    name: Build and Test (GitHub-Hosted)
+    uses: access-nri/build-ci/.github/workflows/ci.yml@216-github-hosted-ci
+    with:
+      spack-manifest-path: .github/build-ci/manifests/spack.yaml.j2
+      allow-ssh-into-spack-install: true
