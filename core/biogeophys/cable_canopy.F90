@@ -484,10 +484,6 @@ CONTAINS
          !!!!!!!!!!!!!!! vpd = 0.6Kpa!!!!!!!!!!!!!!!!!!!!!
          if (iter==4) then
             vpdpsdo = SPREAD(real(600,r_2), 1, mp) ! 600Pa
-            ! DO j = 1, mp
-            !    CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, j, wbpsdo)
-            !    CALL calc_swp(ssnow, soil, j, wbpsdo)
-            ! END DO
             dsxpsdo = vpdpsdo
             dsypsdo = vpdpsdo
             psilxpsdo = psilx
@@ -549,6 +545,31 @@ CONTAINS
             fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
             rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
             ghwet, iter, climate, wbpsdo=wbpsdo)
+            !!!!!!!!!!!!!!  wb = ssat, & vpd = 0.6Kpa !!!!!!!!!!!!!!!!!!!!!!
+            wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
+            DO j = 1, mp
+               CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, j, wbpsdo)
+               CALL calc_swp(ssnow, soil, j, wbpsdo)
+            END DO
+            vpdpsdo = SPREAD(real(600,r_2), 1, mp) ! 600Pa
+            dsxpsdo = vpdpsdo
+            dsypsdo = vpdpsdo
+            psilxpsdo = psilx
+            psilypsdo = psily
+            fwsoilpsdo = fwsoil
+            fwsoiltmppsdo = fwsoiltmp
+            fwpsipsdo = fwpsi
+            tlfxpsdo = tlfx
+            tlfypsdo = tlfy
+            ecypsdo = ecy
+            hcypsdo = hcy
+            rnypsdo = rny
+            csxpsdo = csx
+            CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
+            veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo,&
+            fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
+            rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
+            ghwet, iter, climate, wbpsdo=wbpsdo,vpdpsdo=vpdpsdo)
          endif
          if (iter==4) then
             DO j = 1, mp
@@ -2057,7 +2078,9 @@ CONTAINS
       !write(num_str, '(I0)') nktau
       ! txtname = trim(filename%path) // '/testIteration_cable_out_' // trim(num_str) &
       ! // '.txt'
-      if (present (wbpsdo)) then
+      if (present(wbpsdo) .and. present(vpdpsdo)) then
+         txtname = trim(filename%path) // 'testIteration_refww_cable_out.txt'
+      elseif (present (wbpsdo)) then
          txtname = trim(filename%path) // 'testIteration_wbpsdo_cable_out.txt'
       elseif (present (vpdpsdo)) then
          txtname = trim(filename%path) // 'testIteration_vpdpsdo_cable_out.txt'
@@ -2073,8 +2096,12 @@ CONTAINS
       !        open(unit=134, file=txtname, status="unknown", position="append", action="write")
       !    end if
       ! end if
-
-      if (present (wbpsdo)) then
+      if (present(wbpsdo) .and. present(vpdpsdo)) then
+         if (ktau_tot == nktau(1) .and. iter==4) then
+            ! Open the file for overwrite if k is the first element
+            open(unit=137, file=txtname, status="unknown", action="write")
+         end if
+      elseif (present (wbpsdo)) then
          if (ktau_tot == nktau(1) .and. iter==4) then
             ! Open the file for overwrite if k is the first element
             open(unit=135, file=txtname, status="unknown", action="write")
@@ -2902,7 +2929,17 @@ CONTAINS
             !print*, 'check after k==1 ',ktau,k
             !if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
             if (any(allktau == ktau_tot)) then
-               if (present (wbpsdo)) then 
+               if (present(wbpsdo) .and. present(vpdpsdo)) then
+                  write(137,*) ktau_tot, iter, i, k, tlfx(i), deltlf(i), &
+                  dsx(i),abs_deltds(i), psilx(i,1), psilx(i,2),abs_deltpsil(i,1),abs_deltpsil(i,2),fwpsi(i,1),fwpsi(i,2), &
+                  psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
+                  anrubiscox(i,2), anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
+                  canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
+                  vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
+                  ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4), &
+                  ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4), &
+                  kplantx(i)
+               elseif (present (wbpsdo)) then 
                   write(135,*) ktau_tot, iter, i, k, tlfx(i), deltlf(i), &
                   dsx(i),abs_deltds(i), psilx(i,1), psilx(i,2),abs_deltpsil(i,1),abs_deltpsil(i,2),fwpsi(i,1),fwpsi(i,2), &
                   psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
@@ -2973,7 +3010,9 @@ CONTAINS
       !if (ktau_tot==(nktau+NN-1)  .and. iter==4) THEN
       !if (any(nktau_end == ktau_tot) .and. iter==4) THEN
       if (ktau_tot == nktau_end(size(nktau_end)) .and. iter==4) THEN
-         if (present (wbpsdo)) then 
+         if (present(wbpsdo) .and. present(vpdpsdo)) then
+            close(137)
+         elseif (present (wbpsdo)) then 
             close(135)
          elseif (present (vpdpsdo)) then 
             close(136)
@@ -2989,7 +3028,14 @@ CONTAINS
       ! print*, 'End k loop: ktau & iter & k= ',ktau,iter,k
       ! dry canopy flux
       canopy%fevc = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
-      if (present (wbpsdo)) then
+      if (present(wbpsdo) .and. present(vpdpsdo)) then
+         canopy%epotref = canopy%fevc
+         canopy%gsw_ref = canopy%gswx
+         canopy%abs_deltpsil_ref = abs_deltpsil
+         canopy%abs_deltcs_ref = abs_deltcs * 1.0e6_r_2
+         canopy%abs_deltlf_ref = abs_deltlf
+         canopy%abs_deltds_ref = abs_deltds
+      elseif (present (wbpsdo)) then
          canopy%epotcan3 = canopy%fevc
          canopy%gsw_epotcan3 = canopy%gswx
          canopy%abs_deltpsil_sw = abs_deltpsil

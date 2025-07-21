@@ -427,8 +427,14 @@ MODULE cable_IO_vars_module
          abs_deltpsil_sh_sw = .FALSE.,       &
          abs_deltcs_sl_sw = .FALSE.,       & 
          abs_deltcs_sh_sw = .FALSE.,       &
+         abs_deltpsil_sl_ref = .FALSE.,       & 
+         abs_deltpsil_sh_ref = .FALSE.,       &
+         abs_deltcs_sl_ref = .FALSE.,       & 
+         abs_deltcs_sh_ref = .FALSE.,       &
          gsw_epotvpd_sl = .FALSE.,       &
          gsw_epotvpd_sh = .FALSE.,       &
+         gsw_ref_sl = .FALSE.,       &
+         gsw_ref_sh = .FALSE.,       &
          gsw_epotcan3_sl = .FALSE.,       &
          gsw_epotcan3_sh = .FALSE.,       &
          fwpsi_sl = .FALSE.,       &
@@ -445,6 +451,8 @@ MODULE cable_IO_vars_module
          abs_deltds_vpd = .FALSE.,   &
          abs_deltlf_sw = .FALSE.,   &
          abs_deltds_sw = .FALSE.,   &
+         abs_deltlf_ref = .FALSE.,   &
+         abs_deltds_ref = .FALSE.,   &
          ksoil = .FALSE.,  &
          kroot = .FALSE.,  &
          b_plant = .FALSE.,  &
@@ -461,6 +469,7 @@ MODULE cable_IO_vars_module
          epotcan1 = .FALSE., &
          epotcan2 = .FALSE., &
          epotcan3 = .FALSE., &
+         epotref = .FALSE., &
          epotvpd = .FALSE., &
          fevc = .FALSE., &
          total_est_evap = .FALSE., &

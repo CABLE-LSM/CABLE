@@ -461,10 +461,13 @@ module cable_def_types_mod
           abs_deltds_vpd => null(), &
           abs_deltlf_sw => null(), &
           abs_deltds_sw => null(), &
+          abs_deltlf_ref => null(), &
+          abs_deltds_ref => null(), &
           epotcan1  => null(), & 
           epotcan2  => null(), &
           epotcan3  => null(), &
-          epotvpd => null()
+          epotvpd => null(), &
+          epotref => null()
 
      real, dimension(:,:), pointer :: &
           evapfbl => null(), &
@@ -542,8 +545,11 @@ module cable_def_types_mod
      real(r_2), dimension(:,:), pointer :: abs_deltcs_vpd => null() 
      real(r_2), dimension(:,:), pointer :: abs_deltpsil_sw => null() 
      real(r_2), dimension(:,:), pointer :: abs_deltcs_sw => null() 
+     real(r_2), dimension(:,:), pointer :: abs_deltpsil_ref => null() 
+     real(r_2), dimension(:,:), pointer :: abs_deltcs_ref => null() 
      real(r_2), dimension(:,:), pointer :: gsw_epotvpd => null() 
      real(r_2), dimension(:,:), pointer :: gsw_epotcan3 => null() 
+     real(r_2), dimension(:,:), pointer :: gsw_ref => null()
 
      real(r_2), dimension(:), pointer :: psix => null()
      ! plant hydraulics; mgk576 2017; ms835 2022
@@ -1280,6 +1286,8 @@ contains
     allocate(canopy%abs_deltds_vpd(mp))
     allocate(canopy%abs_deltlf_sw(mp))
     allocate(canopy%abs_deltds_sw(mp))
+    allocate(canopy%abs_deltlf_ref(mp))
+    allocate(canopy%abs_deltds_ref(mp))
     allocate(canopy%gw(mp,mf))     ! dry canopy conductance (ms-1) edit vh 6/7/09
     allocate(canopy%ancj(mp,mf,3)) ! limiting photosynthetic rates (Rubisco,RuBP,sink) vh 6/7/09
     allocate(canopy%tlfy(mp,mf))   ! sunlit and shaded leaf temperatures
@@ -1313,8 +1321,11 @@ contains
     allocate( canopy%abs_deltcs_vpd(mp,mf) )
     allocate( canopy%abs_deltpsil_sw(mp,mf) )
     allocate( canopy%abs_deltcs_sw(mp,mf) )
+    allocate( canopy%abs_deltpsil_ref(mp,mf) )
+    allocate( canopy%abs_deltcs_ref(mp,mf) )
     allocate( canopy%gsw_epotvpd(mp,mf) )
     allocate( canopy%gsw_epotcan3(mp,mf) )
+    allocate( canopy%gsw_ref(mp,mf) )
     allocate( canopy%psi_can_opt(mp) )
     allocate( canopy%kplant(mp) )
     allocate( canopy%plc_sat(mp) )
@@ -1327,6 +1338,7 @@ contains
     allocate(canopy%epotcan2(mp))
     allocate(canopy%epotcan3(mp))
     allocate(canopy%epotvpd(mp))
+    allocate(canopy%epotref(mp))
   end subroutine alloc_canopy_type
 
   ! ------------------------------------------------------------------
@@ -1957,6 +1969,8 @@ contains
     deallocate( canopy%abs_deltcs_vpd )
     deallocate( canopy%abs_deltpsil_sw )
     deallocate( canopy%abs_deltcs_sw )
+    deallocate( canopy%abs_deltpsil_ref )
+    deallocate( canopy%abs_deltcs_ref )
     deallocate( canopy%psi_can_opt )
     deallocate( canopy%kplant )
     deallocate( canopy%plc_sat )
@@ -1971,10 +1985,13 @@ contains
     deallocate( canopy%abs_deltds_vpd )
     deallocate( canopy%abs_deltlf_sw )
     deallocate( canopy%abs_deltds_sw )
+    deallocate( canopy%abs_deltlf_ref )
+    deallocate( canopy%abs_deltds_ref )
     deallocate(canopy%epotcan1)
     deallocate(canopy%epotcan2)
     deallocate(canopy%epotcan3)
     deallocate(canopy%epotvpd)
+    deallocate(canopy%epotref)
 
   end subroutine dealloc_canopy_type
 
@@ -2562,7 +2579,9 @@ contains
     canopy%epotcan2            = 0
     canopy%epotcan3            = 0
     canopy%epotvpd            = 0
+    canopy%epotref            = 0
     canopy%gsw_epotvpd            = 0
+    canopy%gsw_ref            = 0
     canopy%gsw_epotcan3            = 0
 
   end subroutine zero_canopy_type
