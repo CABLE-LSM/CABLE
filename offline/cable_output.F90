@@ -1086,12 +1086,12 @@ CONTAINS
                       landID, patchID, tID)
      ALLOCATE(out%abs_deltcs_sl_sw(mp))
      out%abs_deltcs_sl_sw = 0.0 ! initialise
-     CALL define_ovar(ncid_out, ovid%abs_deltcs_sl_sw, &
-                      'abs_deltcs_sl_sw', 'ppm', 'the last value of abs_deltcs_sl_sw during 1x20 iterations ', &
-                      patchout%abs_deltcs_sl_sw, 'dummy', xID, yID, zID, &
+     CALL define_ovar(ncid_out, ovid%abs_deltcs_sl_ref, &
+                      'abs_deltcs_sl_ref', 'ppm', 'the last value of abs_deltcs_sl_ref during 1x20 iterations ', &
+                      patchout%abs_deltcs_sl_ref, 'dummy', xID, yID, zID, &
                       landID, patchID, tID)
-     ALLOCATE(out%abs_deltcs_sl_sw(mp))
-     out%abs_deltcs_sl_sw = 0.0 ! initialise
+     ALLOCATE(out%abs_deltcs_sl_ref(mp))
+     out%abs_deltcs_sl_ref = 0.0 ! initialise
   END IF
   IF(output%veg) THEN
      CALL define_ovar(ncid_out, ovid%abs_deltcs_sh, &
