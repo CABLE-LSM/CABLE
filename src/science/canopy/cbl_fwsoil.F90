@@ -19,22 +19,13 @@ SUBROUTINE fwsoil_calc_std(fwsoil, soil, ssnow, veg)
     REAL, INTENT(OUT), DIMENSION(:):: fwsoil ! soil water modifier of stom. cond
     REAL, DIMENSION(mp) :: rwater ! soil water availability
 
-    !note even though swilt_vec is defined in default model it is r_2
-    !and even using real(_vec) gives results different from trunk (rounding
-    !errors)
+    ! Moving to use *_vec variables even outside of the groundwater
+    ! option for simplicity. It introduces small rounding differences.
 
-    IF (.NOT.cable_user%gw_model) THEN
+    rwater = MAX(1.0e-9,                                                       &
+        SUM(veg%froot * MAX(1.0e-9,MIN(1.0, REAL((ssnow%wbliq -                &
+        soil%swilt_vec)/(soil%sfc_vec-soil%swilt_vec)) )),2) )
 
-       rwater = MAX(1.0e-9,                                                    &
-            SUM(veg%froot * MAX(1.0e-9,MIN(1.0, REAL(ssnow%wb) -                   &
-            SPREAD(soil%swilt, 2, ms))),2) /(soil%sfc-soil%swilt))
-
-    ELSE
-       rwater = MAX(1.0e-9,                                                    &
-            SUM(veg%froot * MAX(1.0e-9,MIN(1.0, REAL((ssnow%wbliq -                 &
-            soil%swilt_vec)/(soil%sfc_vec-soil%swilt_vec)) )),2) )
-
-    ENDIF
 
     ! Remove vbeta #56
     IF(cable_user%GS_SWITCH == 'medlyn') THEN
@@ -59,8 +50,8 @@ SUBROUTINE fwsoil_calc_std(fwsoil, soil, ssnow, veg)
     INTEGER :: j
 
     rwater = MAX(1.0e-9,                                                    &
-         SUM(veg%froot * MAX(0.0,MIN(1.0, REAL(ssnow%wb) -                   &
-         SPREAD(soil%swilt, 2, ms))),2) /(soil%sfc-soil%swilt))
+         SUM(veg%froot * MAX(0.0,MIN(1.0, REAL((ssnow%wbliq) -                   &
+         SPREAD(soil%swilt, 2, ms)))),2) /(soil%sfc-soil%swilt))
 
     fwsoil = 1.
 
@@ -112,14 +103,15 @@ SUBROUTINE fwsoil_calc_std(fwsoil, soil, ssnow, veg)
 
     DO ns=1,ms
 
-       dummy(:) = rootgamma/MAX(1.0e-3_r_2,ssnow%wb(:,ns)-soil%swilt(:))
+       dummy(:) = rootgamma/MAX(1.0e-3_r_2,ssnow%wbliq(:,ns)-soil%swilt_vec(:,ns))
 
-       frwater(:,ns) = MAX(1.0e-4_r_2,((ssnow%wb(:,ns)-soil%swilt(:))/soil%ssat(:)) &
-            ** dummy)
+       frwater(:,ns) = MAX(1.0e-4_r_2,((ssnow%wbliq(:,ns)-soil%swilt_vec(:,ns))/ &
+                                        soil%ssat_vec(:,ns))** dummy)
 
        fwsoil(:) = MIN(1.0,MAX(fwsoil(:),frwater(:,ns)))
 
-       normFac(:) = normFac(:) + frwater(:,ns) * veg%froot(:,ns)
+       ! normFac unused.
+       !normFac(:) = normFac(:) + frwater(:,ns) * veg%froot(:,ns)
 
     ENDDO
 
@@ -134,8 +126,8 @@ SUBROUTINE fwsoil_calc_std(fwsoil, soil, ssnow, veg)
     REAL, INTENT(OUT), DIMENSION(:):: fwsoil ! soil water modifier of stom. cond
     REAL, DIMENSION(mp,ms):: tmp2d1, tmp2d2, delta_root, alpha2a_root, alpha2_root
     ! Lai and Katul formulation for root efficiency function  vh 17/07/09
-    alpha2a_root = MAX(ssnow%wb-soil%swilt_vec, 0.001_r_2)/(soil%ssat_vec)
-    tmp2d1 = ssnow%wb -soil%swilt_vec
+    alpha2a_root = MAX(ssnow%wbliq-soil%swilt_vec, 0.001_r_2)/(soil%ssat_vec)
+    tmp2d1 = ssnow%wbliq -soil%swilt_vec
     tmp2d2 = SPREAD(veg%gamma,2,ms)/tmp2d1*LOG(alpha2a_root)
     WHERE ((tmp2d1>0.001) .AND. (tmp2d2 > -10.0))
        alpha2_root = EXP(tmp2d2)

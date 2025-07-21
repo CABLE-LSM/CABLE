@@ -60,41 +60,51 @@ IMPLICIT NONE
 
 INTEGER :: mp
 REAL(KIND=r_2), INTENT(OUT) :: canopy_fes(mp)
-!! latent heat flux from the ground (Wm\(^{-2}\)) 
+   !! latent heat flux from the ground (Wm\(^{-2}\)) 
 REAL(KIND=r_2), INTENT(OUT) :: canopy_fess(mp)
-!! latent heat flux from the soil (Wm\(^{-2}\))
+   !! latent heat flux from the soil (Wm\(^{-2}\))
 REAL(KIND=r_2), INTENT(OUT) :: canopy_fesp(mp)
-!! latent heat flux from any puddles (Wm\(^{-2}\))
+   !! latent heat flux from any puddles (Wm\(^{-2}\))
 REAL, INTENT(OUT) :: ssnow_cls(mp)
-!! factor denoting phase of water flux (=1 if liquid, =1.1335 if ice)
+   !! factor denoting phase of water flux (=1 if liquid, =1.1335 if ice)
 REAL, INTENT(IN OUT) :: pwet(mp)
-!! factor to reduce soil evaporation due to presence of a puddle (-)
+   !! factor to reduce soil evaporation due to presence of a puddle (-)
 REAL, INTENT(IN OUT) :: ssnow_wetfac(mp)
-!! wetness factor for soil (between 0 and 1)
+   !! wetness factor for soil (between 0 and 1)
 
 
-REAL, INTENT(IN) :: CTFRZ                     !! temperature at freezing point (K) 
-REAL, INTENT(IN) :: dels                      !! time step of CABLE (s)
-REAL, INTENT(IN) :: soil_zse                  !! thickness of topmost soil layer (m)
+REAL, INTENT(IN) :: CTFRZ
+   !! temperature at freezing point (K) 
+REAL, INTENT(IN) :: dels
+   !! time step of CABLE (s)
+REAL, INTENT(IN) :: soil_zse
+   !! thickness of topmost soil layer (m)
 REAL, INTENT(IN) :: soil_swilt(mp)
-!! soil moisture content at wilting point (m\(^3\) water m\(^{-3}\) volume of soil)
+   !! soil moisture content at wilting point 
+   !! (m\(^3\) water m\(^{-3}\) volume of soil)
 LOGICAL , INTENT(IN) :: cable_user_l_new_reduce_soilevp
-!! NAMELIST switch to use alternate soil evaporation scheme
+   !! NAMELIST switch to use alternate soil evaporation scheme
 
-REAL, INTENT(IN) :: air_rlam(mp)              !! density of air (kgm\(^{-3}\))
+REAL, INTENT(IN) :: air_rlam(mp)
+   !! density of air (kgm\(^{-3}\))
 REAL, INTENT(IN) :: ssnow_snowd(mp)
-!! depth of snow in liquid water equivalent (mm m\(^{-2}\))
-REAL, INTENT(IN) :: ssnow_pudsto(mp)          !! amount of water in puddles (kgm\(^{-2}\))
+   !! depth of snow in liquid water equivalent (mm m\(^{-2}\))
+REAL, INTENT(IN) :: ssnow_pudsto(mp)
+   !! amount of water in puddles (kgm\(^{-2}\))
 REAL, INTENT(IN) :: ssnow_pudsmx(mp)
-!! maximum amount of water possible in puddles (kgm\(^{-2}\))
+   !! maximum amount of water possible in puddles (kgm\(^{-2}\))
 REAL, INTENT(IN) :: ssnow_potev(mp)
-!! latent heat flux associated potential evaporation (Wm\(^{-2}\))
-REAL, INTENT(IN) :: ssnow_evapfbl(mp)         !! flux of water from soil surface (kg m\(^{-2}\))
+   !! latent heat flux associated potential evaporation (Wm\(^{-2}\))
+REAL(KIND=r_2), INTENT(IN) :: ssnow_evapfbl(mp) 
+   !! flux of water from soil surface (kg m\(^{-2}\))
 REAL(KIND=r_2), INTENT(IN) :: ssnow_wb(mp)
-!! water content in surface soil layer (m\(^{3}\) liquid water m\(^{-3}\) volume of soil)
+   !! water content in surface soil layer 
+   !! (m\(^{3}\) liquid water m\(^{-3}\) volume of soil)
 REAL(KIND=r_2), INTENT(IN) :: ssnow_wbice(mp)
-!! ice content in surface soil layer (m\(^{3}\) frozen water m\(^{-3}\) volume of soil)
-REAL, INTENT(IN) :: ssnow_tss(mp)             !! temperature of surface soil/snow layer (K)
+   !! ice content in surface soil layer 
+   !! (m\(^{3}\) frozen water m\(^{-3}\) volume of soil)
+REAL, INTENT(IN) :: ssnow_tss(mp)
+   !! temperature of surface soil/snow layer (K)
 
 REAL, DIMENSION(mp) ::                                                      &
   frescale,  flower_limit, fupper_limit
