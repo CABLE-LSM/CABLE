@@ -27,12 +27,15 @@ REAL, DIMENSION(mp) :: weting
 REAL, DIMENSION(mp) :: xx, tgg_old, tggsn_old
 REAL(r_2), DIMENSION(mp) :: xxx,deltat,sinfil1,sinfil2,sinfil3
 REAL                :: zsetot
+INTEGER, SAVE :: ktau =0
 REAL :: heat_cap_lower_limit(mp,ms)
 
-! since CMIP5 only ever (potentially) TRUE offline if special initialization
-! requested and then only on first timestep
-IF( .NOT.cable_user%cable_runtime_coupled ) THEN 
+ktau = ktau +1
 
+IF( .NOT.cable_user%cable_runtime_coupled ) THEN
+
+   IF( ktau_gl <= 1 ) THEN
+      IF (cable_runtime%um) canopy%dgdtg = 0.0 ! RML added um condition
       ! after discussion with BP
       ! N.B. snmin should exceed sum of layer depths, i.e. .11 m
       ssnow%wbtot = 0.0
@@ -72,18 +75,16 @@ IF( .NOT.cable_user%cable_runtime_coupled ) THEN
       ssnow%gammzz(:,1) = MAX( (1.0 - soil%ssat) * soil%css * soil%rhosoil &
            & + (ssnow%wb(:,1) - ssnow%wbice(:,1) ) * Ccswat * Cdensity_liq &
            & + ssnow%wbice(:,1) * Ccsice * Cdensity_ice, xx ) * soil%zse(1)
-   
+   END IF
 ENDIF  ! if(.NOT.cable_runtime_coupled)
 
-! this is done in all cases? overwrites gammzz from above and mediates thru 
-! snowd% (but only for single layer snow)
-
-! Evaluated on first timestep offline/ ESM1.5
-xx=heat_cap_lower_limit(:,1)
-ssnow%gammzz(:,1) = MAX( (1.0 - soil%ssat) * soil%css * soil%rhosoil      &
-      & + (ssnow%wb(:,1) - ssnow%wbice(:,1) ) * Ccswat * Cdensity_liq           &
-      & + ssnow%wbice(:,1) * Ccsice * Cdensity_ice, xx ) * soil%zse(1) +   &
-      & (1. - ssnow%isflag) * Ccgsnow * ssnow%snowd
+IF (ktau <= 1)       THEN
+  xx=heat_cap_lower_limit(:,1)
+  ssnow%gammzz(:,1) = MAX( (1.0 - soil%ssat) * soil%css * soil%rhosoil      &
+        & + (ssnow%wb(:,1) - ssnow%wbice(:,1) ) * Ccswat * Cdensity_liq           &
+        & + ssnow%wbice(:,1) * Ccsice * Cdensity_ice, xx ) * soil%zse(1) +   &
+        & (1. - ssnow%isflag) * Ccgsnow * ssnow%snowd
+END IF
 
 END SUBROUTINE spec_init_soil_snow
 
