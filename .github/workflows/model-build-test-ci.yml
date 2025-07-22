@@ -4,8 +4,6 @@ on:
 jobs:
   build-and-test:
     name: Build and Test (GitHub-Hosted)
-    uses: access-nri/build-ci/.github/workflows/ci.yml@216-github-hosted-ci
+    uses: access-nri/build-ci/.github/workflows/ci-github-hosted.yml@216-github-hosted-ci
     with:
-      run-self-hosted: false
       spack-manifest-path: .github/build-ci/manifests/spack.yaml.j2
-      allow-ssh-into-spack-install: true
