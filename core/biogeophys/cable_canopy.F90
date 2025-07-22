@@ -3639,7 +3639,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
  
          if (ktau_tot == nktau(1) .and. iter==4) then
             ! Open the file for overwrite if k is the first element
-            open(unit=134, file=txtname, status="unknown", action="write")
+            open(unit=138, file=txtname, status="unknown", action="write")
          end if
    
       ! if (ktau_tot==nktau .and. iter==1) then
@@ -4227,7 +4227,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
             !if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
             if (any(allktau == ktau_tot)) then
           
-                  write(134,*) ktau_tot, iter, i, k, tlfx(i), deltlf(i), &
+                  write(138,*) ktau_tot, iter, i, k, tlfx(i), deltlf(i), &
                   dsx(i),abs_deltds(i), 0, 0,0,0,0,0, &
                   0, csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2),anrubiscox(i,1), &
                   anrubiscox(i,2), anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
@@ -4277,7 +4277,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
       !if (any(nktau_end == ktau_tot) .and. iter==4) THEN
       if (ktau_tot == nktau_end(size(nktau_end)) .and. iter==4) THEN
 
-         close(134)
+         close(138)
       
       END IF
       deallocate(nktau) 
