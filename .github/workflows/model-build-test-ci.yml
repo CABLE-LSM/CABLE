@@ -1,5 +1,4 @@
 name: CI
-# TODO: See if we can just use the upstream image directly for Github-hosted runners...
 on:
   pull_request:
 jobs:
