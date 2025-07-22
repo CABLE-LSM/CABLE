@@ -1777,7 +1777,8 @@ CONTAINS
          temp_sun_c3,   & !
          temp_shade_c3, & !
          temp_sun_c4,   & !
-         temp_shade_c4    !
+         temp_shade_c4, &    !
+         fwsoil_nongs 
 
       real(r_2), dimension(mp)  :: &
          ecx,        & ! lat. hflux big leaf
@@ -1886,6 +1887,7 @@ CONTAINS
       REAL :: new_plc_sat, new_plc_stem, new_plc_can
       REAL :: MOL_TO_UMOL, J_TO_MOL, dc
       CHARACTER(LEN=200) :: txtname,num_str
+      logical :: NonStoLim = .True.
   
 #ifdef __MPI__
       integer :: ierr
@@ -1948,6 +1950,12 @@ CONTAINS
          ! canopy%fwsoiltmp = real(fwsoil, r_2)
          canopy%fwpsi = real(fwpsi, r_2)
       end if
+      if ((INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) .or. (.NOT. NonStoLim)) Then
+         fwsoil_nongs = 1.0
+      else 
+         fwsoil_nongs = fwsoil
+      endif
+
       psixx = real(canopy%psix,r_2)
       kplantx = real(canopy%kplant,r_2)
      ! write(logn,*) 'fwsoil of ', cable_user%fwsoil_switch, ': ', fwsoil(1)
@@ -2236,10 +2244,10 @@ CONTAINS
                   temp_sun_c4(i)   = temp_c4(i) * veg%vcmax_sun(i) * veg%frac4(i)
                   temp_shade_c4(i) = temp_c4(i) * veg%vcmax_shade(i) * veg%frac4(i)
                endif
-               vcmxt3(i,1) = rad%scalex(i,1) * temp_sun_c3(i) * fwsoil(i)**qb
-               vcmxt3(i,2) = rad%scalex(i,2) * temp_shade_c3(i) * fwsoil(i)**qb
-               vcmxt4(i,1) = rad%scalex(i,1) * temp_sun_c4(i) * fwsoil(i)**qb
-               vcmxt4(i,2) = rad%scalex(i,2) * temp_shade_c4(i) * fwsoil(i)**qb
+               vcmxt3(i,1) = rad%scalex(i,1) * temp_sun_c3(i) * fwsoil_nongs(i)**qb
+               vcmxt3(i,2) = rad%scalex(i,2) * temp_shade_c3(i) * fwsoil_nongs(i)**qb
+               vcmxt4(i,1) = rad%scalex(i,1) * temp_sun_c4(i) * fwsoil_nongs(i)**qb
+               vcmxt4(i,2) = rad%scalex(i,2) * temp_shade_c4(i) * fwsoil_nongs(i)**qb
                ! temperature response of the CO2 compensation point/gamma star used
                ! for C3 plants (Bernacchi et al. 2001), umol mol-1
                ! N.B.: this is always zero by default in CABLE, which is wrong.
@@ -2266,8 +2274,8 @@ CONTAINS
                   temp_sun_c3(i)   = temp_c3(i) * veg%ejmax_sun(i) * (1.0-veg%frac4(i))
                   temp_shade_c3(i) = temp_c3(i) * veg%ejmax_shade(i) * (1.0-veg%frac4(i))
                endif
-               ejmxt3(i,1) = rad%scalex(i,1) * temp_sun_c3(i) * fwsoil(i)**qb
-               ejmxt3(i,2) = rad%scalex(i,2) * temp_shade_c3(i) * fwsoil(i)**qb
+               ejmxt3(i,1) = rad%scalex(i,1) * temp_sun_c3(i) * fwsoil_nongs(i)**qb
+               ejmxt3(i,2) = rad%scalex(i,2) * temp_shade_c3(i) * fwsoil_nongs(i)**qb
 
                ! Difference between leaf temperature and reference temperature:
                tdiff(i) = tlfx(i) - C%TREFK
@@ -2297,7 +2305,7 @@ CONTAINS
                ! JK: vx4 changed to correspond to formulation in Collatz et al. 1992
                temp2(i,:) = rad%qcan(i,:,1) * jtomol * (1.0-veg%frac4(i))
                vx3(i,:)   = ej3x(temp2(i,:), veg%alpha(i), veg%convex(i), ejmxt3(i,:))
-               vx4(i,:)   = veg%alpha(i) * rad%qcan(i,:,1) * jtomol * veg%frac4(i) * fwsoil(i)**qb
+               vx4(i,:)   = veg%alpha(i) * rad%qcan(i,:,1) * jtomol * veg%frac4(i) * fwsoil_nongs(i)**qb
                !vx4(i,:)   = ej4x(temp2(i,:), veg%alpha(i), veg%convex(i), vcmxt4(i,:))
                rdx(i,:)   = veg%cfrd(i)*Vcmxt3(i,:) + veg%cfrd(i)*vcmxt4(i,:)
 
@@ -2378,8 +2386,8 @@ CONTAINS
                   endif
                   veg%cfrd(i) = rdx(i,1) / veg%vcmax(i)
                   ! modify for leaf area and instanteous temperature response (Rd25 -> Rd)
-                  rdx(i,1) = rdx(i,1) * xrdt(tlfx(i)) * rad%scalex(i,1) * fwsoil(i)**qb
-                  rdx(i,2) = rdx(i,2) * xrdt(tlfx(i)) * rad%scalex(i,2) * fwsoil(i)**qb
+                  rdx(i,1) = rdx(i,1) * xrdt(tlfx(i)) * rad%scalex(i,1) * fwsoil_nongs(i)**qb
+                  rdx(i,2) = rdx(i,2) * xrdt(tlfx(i)) * rad%scalex(i,2) * fwsoil_nongs(i)**qb
 
                   ! reduction of daytime leaf dark-respiration to account for
                   !photo-inhibition
