@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         spack-manifest-path:
-          - .github/build-ci/manifests/spack.yaml.j2
+          - .github/build-ci/manifests/gcc.spack.yaml.j2
           - .github/build-ci/manifests/intel.spack.yaml.j2
     uses: access-nri/build-ci/.github/workflows/ci-github-hosted.yml@v2
     with:
