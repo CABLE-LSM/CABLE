@@ -3045,6 +3045,9 @@ CONTAINS
          canopy%abs_deltds_ref = abs_deltds
       elseif (present (wbpsdo)) then
          canopy%epotcan3 = canopy%fevc
+         canopy%frday_epotcan3 = 12.0 * SUM(rdy, 2)
+         !! vh !! inserted min to avoid -ve values of GPP
+         canopy%fpn_epotcan3 = min(-12.0 * SUM(an_y, 2), canopy%frday)
          canopy%gsw_epotcan3 = canopy%gswx
          canopy%abs_deltpsil_sw = abs_deltpsil
          canopy%abs_deltcs_sw = abs_deltcs * 1.0e6_r_2

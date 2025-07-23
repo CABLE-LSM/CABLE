@@ -469,6 +469,7 @@ MODULE cable_IO_vars_module
          epotcan1 = .FALSE., &
          epotcan2 = .FALSE., &
          epotcan3 = .FALSE., &
+         GPP_epotcan3 = .FALSE., &
          epotref = .FALSE., &
          epotvpd = .FALSE., &
          fevc = .FALSE., &

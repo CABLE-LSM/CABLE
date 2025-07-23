@@ -94,8 +94,8 @@ MODULE cable_output_module
           abs_deltcs_sl, abs_deltcs_sh, abs_deltcs_sl_vpd, abs_deltcs_sh_vpd, &
           abs_deltcs_sl_sw, abs_deltcs_sh_sw, ksoil, kroot, uptake_layer, &
           ksoilmean, krootmean, kbelowmean, psi_soilmean, wb_soilmean, rwc_soilmean, psi_soilmean1, psi_rootmean, &
-           epotcan1, epotcan2, epotcan3, epotvpd, epotref, total_est_evap, wb_30, psi_30, wb_fr_rootzone, psi_fr_rootzone, &
-           gsw_epotvpd_sh, gsw_epotvpd_sl, gsw_epotcan3_sh, gsw_epotcan3_sl, gsw_ref_sh, gsw_ref_sl 
+           epotcan1, epotcan2, epotcan3, GPP_epotcan3, epotvpd, epotref, total_est_evap, wb_30, psi_30, wb_fr_rootzone, &
+          psi_fr_rootzone, gsw_epotvpd_sh, gsw_epotvpd_sl, gsw_epotcan3_sh, gsw_epotcan3_sl, gsw_ref_sh, gsw_ref_sl 
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
 
@@ -337,6 +337,7 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: epotcan1 => null()    ! zihanlu
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: epotcan2 => null()    ! zihanlu
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: epotcan3 => null()    ! zihanlu
+     REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP_epotcan3 => null()    ! zihanlu
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: epotvpd => null()    ! zihanlu
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: epotref => null()    ! zihanlu
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: gsw_epotvpd_sl => null()    ! zihanlu
@@ -711,6 +712,13 @@ CONTAINS
                xID, yID, zID, landID, patchID, tID)
           ALLOCATE(out%epotcan3(mp))
           out%epotcan3 = zero4 ! initialise
+     END IF
+     IF(output%flux .OR. output%GPP_epotcan3) THEN
+          CALL define_ovar(ncid_out, ovid%GPP_epotcan3, 'GPP_epotcan3', 'umol/m^2/s', &
+               'potential dry canopy assimilation when wb=ssat',patchout%GPP_epotcan3,'dummy', &
+               xID, yID, zID, landID, patchID, tID)
+          ALLOCATE(out%GPP_epotcan3(mp))
+          out%GPP_epotcan3 = zero4 ! initialise
      END IF
      IF(output%flux .OR. output%epotvpd) THEN
           CALL define_ovar(ncid_out, ovid%epotvpd, 'epotvpd', 'kg/m^2/s', &
@@ -2918,6 +2926,19 @@ CONTAINS
                   ranges%epotcan, patchout%epotcan3, 'default', met)
              ! Reset temporary output variable:
              out%epotcan3 = zero4
+          END IF
+     END IF
+     IF(output%flux .OR. output%GPP_epotcan3) THEN
+          ! Add current timestep's value to total of temporary output variable:
+          out%GPP_epotcan3 = out%GPP_epotcan3 + toreal4((-1.0 * canopy%fpn_epotcan3 + canopy%frday_epotcan3) / 1.201E-5)
+          IF(writenow) THEN
+             ! Divide accumulated variable by number of accumulated time steps:
+             out%GPP_epotcan3 = out%GPP_epotcan3 * rinterval
+             ! Write value to file:
+             CALL write_ovar(out_timestep, ncid_out, ovid%GPP_epotcan3, 'GPP_epotcan3', out%GPP_epotcan3, &
+                  ranges%GPP, patchout%GPP, 'default', met)
+             ! Reset temporary output variable:
+             out%GPP_epotcan3 = zero4
           END IF
      END IF
      IF(output%flux .OR. output%epotvpd) THEN

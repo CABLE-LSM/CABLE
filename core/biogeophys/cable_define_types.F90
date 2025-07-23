@@ -416,12 +416,14 @@ module cable_def_types_mod
           fe => null(),      & ! total latent heat (W/m2)
           fh => null(),      & ! total sensible heat (W/m2)
           fpn => null(),     & ! plant photosynthesis (g C m-2 s-1)
+          fpn_epotcan3 => null(),     & ! plant photosynthesis (g C m-2 s-1)
           frp => null(),     & ! plant respiration (g C m-2 s-1)
           frpw => null(),    & ! plant respiration (woody component) (g C m-2 s-1)
           frpr => null(),    & ! plant respiration (root component) (g C m-2 s-1)
           frs => null(),     & ! soil respiration (g C m-2 s-1)
           fnee => null(),    & ! net carbon flux (g C m-2 s-1)
           frday => null(),   & ! daytime leaf resp
+          frday_epotcan3 => null(),   & 
           fnv => null(),     & ! net rad. avail. to canopy (W/m2)
           fev => null(),     & ! latent hf from canopy (W/m2)
           epot => null(),    & ! total potential evaporation
@@ -1205,12 +1207,14 @@ contains
     allocate(canopy%fe(mp))
     allocate(canopy%fh(mp))
     allocate(canopy%fpn(mp))
+    allocate(canopy%fpn_epotcan3(mp))
     allocate(canopy%frp(mp))
     allocate(canopy%frpw(mp))
     allocate(canopy%frpr(mp))
     allocate(canopy%frs(mp))
     allocate(canopy%fnee(mp))
     allocate(canopy%frday(mp))
+    allocate(canopy%frday_epotcan3(mp))
     allocate(canopy%fnv(mp))
     allocate(canopy%fev(mp))
     allocate(canopy%epot(mp))
@@ -1892,12 +1896,14 @@ contains
     deallocate(canopy%fe)
     deallocate(canopy%fh)
     deallocate(canopy%fpn)
+    deallocate(canopy%fpn_epotcan3)
     deallocate(canopy%frp)
     deallocate(canopy%frpw)
     deallocate(canopy%frpr)
     deallocate(canopy%frs)
     deallocate(canopy%fnee)
     deallocate(canopy%frday)
+    deallocate(canopy%frday_epotcan3)
     deallocate(canopy%fnv)
     deallocate(canopy%fev)
     deallocate(canopy%fevc)
@@ -2462,12 +2468,14 @@ contains
     canopy%fe             = 0
     canopy%fh             = 0
     canopy%fpn            = 0
+    canopy%fpn_epotcan3   = 0
     canopy%frp            = 0
     canopy%frpw           = 0
     canopy%frpr           = 0
     canopy%frs            = 0
     canopy%fnee           = 0
     canopy%frday          = 0
+    canopy%frday_epotcan3 = 0
     canopy%fnv            = 0
     canopy%fev            = 0
     canopy%fevc           = 0
