@@ -163,6 +163,18 @@ SUBROUTINE CRU_INIT(CRU)
     CALL handle_err(ok, "Finding NDep variable")
   END IF
 
+  ! Check for the diffuse fraction
+  IF (CRU%ReadDiffFrac) THEN
+    cable_user%calc_fdiff = .FALSE.
+    ! Make sure we have a dataset for fdiff
+    IF (TRIM(InputFiles(fdiff)) == "None") THEN
+      WRITE(ERROR_UNIT,*) "Specified to read diffuse fraction from"//&
+        " file, but no diffuse fraction file given."
+      ERROR STOP 1
+    END IF
+  ELSE
+    cable_user%calc_fdiff = .TRUE.
+  END IF
   ! Initialise the weather generator
   CALL WGEN_INIT(WG, CRU%mLand, Latitude, REAL(CRU%DtSecs))
 
@@ -197,15 +209,6 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau)
 
   ! Purely for readability...
   dt = CRU%DTsecs
-  ! On first step read and check CRU settings and read land-mask
-  if (CALL1) then
-     if (CRU%ReadDiffFrac) then
-        cable_user%calc_fdiff = .false.
-     else
-        cable_user%calc_fdiff = .true.
-     endif
-
-  endif
 
   ! Pass time-step information to CRU
   CRU%CYEAR = CurYear
