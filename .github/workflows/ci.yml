@@ -16,11 +16,3 @@ jobs:
     with:
       spack-manifest-path: ${{ matrix.spack-manifest-path }}
       allow-ssh-into-spack-install: false
-
-  post-ci:
-    needs: ci
-    runs-on: ubuntu-latest
-    steps:
-      - name: Output stuff
-        run: |
-          echo "${{ needs.ci.outputs.spec-concretization-graph }}"
