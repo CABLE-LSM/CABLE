@@ -1,0 +1,22 @@
+spack:
+  specs:
+    - cable@git.{{ ref }} %intel@2021.10.0
+  packages:
+    cmake:
+      require:
+      - '@3.24.4'
+    netcdf-fortran:
+      require:
+      - '@4.5.2'
+    netcdf-c:
+      require:
+      - '@4.9.2'
+    openmpi:
+      require:
+      - '@4.1.5'
+    all:
+      require:
+      - '%intel@2021.10.0'
+  concretizer:
+    unify: false
+  view: false
