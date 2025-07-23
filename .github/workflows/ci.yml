@@ -1,0 +1,25 @@
+name: CI
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  ci:
+    name: CI
+    strategy:
+      matrix:
+        spack-manifest-path:
+          - .github/build-ci/manifests/spack.yaml.j2
+          - .github/build-ci/manifests/intel.spack.yaml.j2
+    uses: access-nri/build-ci/.github/workflows/ci-github-hosted.yml@v2
+    with:
+      spack-manifest-path: ${{ matrix.spack-manifest-path }}
+      allow-ssh-into-spack-install: false
+
+  post-ci:
+    needs: ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output stuff
+        run: |
+          echo "${{ needs.ci.outputs.spec-concretization-graph }}"
