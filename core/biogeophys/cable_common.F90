@@ -138,7 +138,7 @@ MODULE cable_common_module
           amphistomatous           = .FALSE., &
           perturb_dva_by_T         = .FALSE., &  ! switch to perturb esat by dva_T_perturbation
           perturb_Ta               = .FALSE., &  ! switch to perturb air temp by Ta_perturbation (site met only)
-          calc_fdiff             = .FALSE.       ! switch to calculate diffuse radiation or prescribe from met
+          calc_fdiff             = .TRUE.       ! switch to calculate diffuse radiation or prescribe from met
      INTEGER ::  &
           CASA_SPIN_STARTYEAR = 1950, &
           CASA_SPIN_ENDYEAR   = 1960, &
@@ -666,7 +666,7 @@ CONTAINS
 #ifdef __MPI__
        call MPI_Abort(0, 131, ierr) ! Do not know comm nor rank here
 #else
-       stop 131
+       error stop 131
 #endif
     end if
 
