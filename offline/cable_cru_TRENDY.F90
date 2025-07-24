@@ -81,7 +81,6 @@ TYPE CRU_TYPE
   REAL, DIMENSION(:), ALLOCATABLE ::  NDepVals  ! Nitrogen deposition values
 
   LOGICAL   :: DirectRead         ! Whether to read in entire met array
-  LOGICAL   :: ReadDiffFrac       ! Read diff fraction or calculate it
   LOGICAL   :: LeapYears
 
   LOGICAL, DIMENSION(nCoreVariables)    :: isRecycled
@@ -164,17 +163,13 @@ SUBROUTINE CRU_INIT(CRU)
   END IF
 
   ! Check for the diffuse fraction
-  IF (CRU%ReadDiffFrac) THEN
-    cable_user%calc_fdiff = .FALSE.
-    ! Make sure we have a dataset for fdiff
-    IF (TRIM(InputFiles(fdiff)) == "None") THEN
-      WRITE(ERROR_UNIT,*) "Specified to read diffuse fraction from"//&
-        " file, but no diffuse fraction file given."
-      ERROR STOP 1
-    END IF
-  ELSE
-    cable_user%calc_fdiff = .TRUE.
+  IF ((.NOT. cable_user%calc_fdiff) .AND.&
+    (TRIM(InputFiles(fdiff)) == "NONE")) THEN
+    WRITE(ERROR_UNIT,*) "Specified to read diffuse fraction from"//&
+      " file, but no diffuse fraction file given."
+    ERROR STOP 1
   END IF
+
   ! Initialise the weather generator
   CALL WGEN_INIT(WG, CRU%mLand, Latitude, REAL(CRU%DtSecs))
 
@@ -321,7 +316,7 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau)
      met%fsd(is:ie,1) = real(WG%PhiSD(iland) * 0.5_r_2)  ! Visible
      met%fsd(is:ie,2) = real(WG%PhiSD(iland) * 0.5_r_2)  ! NIR
 
-     if (CRU%ReadDiffFrac) then ! read from met forcing, otherwise calculated in cable_radiation.F90
+     if (.NOT. cable_user%calc_fdiff) then ! read from met forcing, otherwise calculated in cable_radiation.F90
         met%fdiff(is:ie) = CRU%MET(fdiff)%METVALS(iland)
      endif
 
@@ -660,7 +655,6 @@ SUBROUTINE get_met_date(SimYear, SimDay, IsRecycled, RecycleStart,&
 
 END SUBROUTINE get_met_date
     
-  ! Start by doing any 
 SUBROUTINE read_MET_namelist_cbl(InputFiles, nDepFile, CO2File, LandmaskFile,&
     CRU)
   !*## Purpose
@@ -698,7 +692,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, nDepFile, CO2File, LandmaskFile,&
   CHARACTER(LEN=16)   :: CO2Method, NDepMethod
   INTEGER             :: MetRecycPeriod, RecycStartYear
   REAL                :: DtHrs
-  LOGICAL             :: ReadDiffFrac, LeapYears, DirectRead
+  LOGICAL             :: LeapYears, DirectRead
 
   ! Need a unit to handle the io
   INTEGER             :: nmlUnit
@@ -716,7 +710,7 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, nDepFile, CO2File, LandmaskFile,&
                     qairRecycle, TmaxRecycle, TminRecycle, uwindRecycle,&
                     vwindRecycle, windRecycle, vph0900Recycle, vph1500Recycle,&
                     fdiffRecycle,&
-                    ReadDiffFrac, CO2Method, NDepMethod,&
+                    CO2Method, NDepMethod,&
                     MetRecycPeriod, LeapYears, RecycStartYear, DtHrs,&
                     DirectRead
 
@@ -762,7 +756,6 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, nDepFile, CO2File, LandmaskFile,&
   RecycStartYear = 1901
   DtHrs = 3.0
   LeapYears = .FALSE.
-  ReadDiffFrac = .TRUE.
   DirectRead = .FALSE.
 
   ! Get a temporary unique ID and use it to read the namelist
@@ -808,7 +801,6 @@ SUBROUTINE read_MET_namelist_cbl(InputFiles, nDepFile, CO2File, LandmaskFile,&
   CRU%DtSecs = int(DtHrs * 3600.)
   CRU%MetRecycPeriod= MetRecycPeriod
   CRU%RecycStartYear = RecycStartYear
-  CRU%ReadDiffFrac = ReadDiffFrac
   CRU%LeapYears = LeapYears
   CRU%DirectRead = DirectRead
 
