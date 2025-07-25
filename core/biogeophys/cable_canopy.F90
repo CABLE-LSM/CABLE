@@ -139,7 +139,7 @@ CONTAINS
          rnypsdo => null(),           &
          ghwet => null(), &           ! cond for heat for a wet canopy
          vpdpsdo => null()
-
+      REAL(r_2) :: fwpsdo
 
 
       REAL(r_2), DIMENSION(:,:), POINTER :: &
@@ -546,6 +546,7 @@ CONTAINS
             rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
             ghwet, iter, climate, wbpsdo=wbpsdo)
             !!!!!!!!!!!!!!  wb = ssat, & vpd = 0.6Kpa !!!!!!!!!!!!!!!!!!!!!!
+            !!!!!!!!!!!!!!!! gs_ref
             wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
             DO j = 1, mp
                CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, j, wbpsdo)
@@ -570,6 +571,32 @@ CONTAINS
             fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
             rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
             ghwet, iter, climate, wbpsdo=wbpsdo,vpdpsdo=vpdpsdo)
+            !!!!!!!!!!!!!! gs_coeff = 1 !!!!!!!!!!!!!!!!!!!!!!
+            !!!!!!!!!!!!!!!! gs_ref1
+            wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
+            DO j = 1, mp
+               CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, j, wbpsdo)
+               CALL calc_swp(ssnow, soil, j, wbpsdo)
+            END DO
+            fwpsdo = 1.0_r_2
+            dsxpsdo = dsx
+            dsypsdo = dsy
+            psilxpsdo = psilx
+            psilypsdo = psily
+            fwsoilpsdo = fwsoil
+            fwsoiltmppsdo = fwsoiltmp
+            fwpsipsdo = fwpsi
+            tlfxpsdo = tlfx
+            tlfypsdo = tlfy
+            ecypsdo = ecy
+            hcypsdo = hcy
+            rnypsdo = rny
+            csxpsdo = csx
+            CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
+            veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo,&
+            fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
+            rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
+            ghwet, iter, climate, wbpsdo=wbpsdo,fwpsdo=fwpsdo)
          endif
          if (iter==4) then
             DO j = 1, mp
@@ -1700,7 +1727,7 @@ CONTAINS
       veg, canopy, soil, ssnow,casapool, dsx, dsy, psilx, psily, &
       fwsoil, fwsoiltmp, fwpsi, tlfx, tlfy, ecy, hcy, &
       rny, gbhu, gbhf, csx, &
-      cansat, ghwet, iter, climate, wbpsdo, vpdpsdo)
+      cansat, ghwet, iter, climate, wbpsdo, vpdpsdo,fwpsdo)
 
       use cable_def_types_mod
       use cable_common_module
@@ -1746,7 +1773,7 @@ CONTAINS
       type(climate_type),        intent(in)    :: climate
       real(r_2), dimension(:), intent(in), optional :: vpdpsdo
       real(r_2), dimension(:,:), intent(in), optional :: wbpsdo
-
+      real(r_2), intent(in), optional :: fwpsdo
       !local variables (JK: move parameters to different routine at some point)
       real, parameter :: jtomol = 4.6e-6  ! Convert from J to Mol for light
 
@@ -2088,6 +2115,7 @@ CONTAINS
       ! // '.txt'
       if (present(wbpsdo) .and. present(vpdpsdo)) then
          txtname = trim(filename%path) // 'testIteration_refww_cable_out.txt'
+      elseif (present(wbpsdo) .and. present(fwpsdo)) then
       elseif (present (wbpsdo)) then
          txtname = trim(filename%path) // 'testIteration_wbpsdo_cable_out.txt'
       elseif (present (vpdpsdo)) then
@@ -2109,6 +2137,7 @@ CONTAINS
             ! Open the file for overwrite if k is the first element
             open(unit=137, file=txtname, status="unknown", action="write")
          end if
+      elseif (present(wbpsdo) .and. present(fwpsdo)) then
       elseif (present (wbpsdo)) then
          if (ktau_tot == nktau(1) .and. iter==4) then
             ! Open the file for overwrite if k is the first element
@@ -2457,17 +2486,26 @@ CONTAINS
                       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
                      fwpsi(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
                       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
+
+                     
                      gs_coeff(i,1) = ( fwpsi(i,1)**qs / ( real(csx(i,1)) - co2cp(i,1) ) ) &
                         * ( 1.0 / ( 1.0/veg%a1gs(i) + (vpd/(veg%d0gs(i)*veg%a1gs(i)))))
 
                      gs_coeff(i,2) = ( fwpsi(i,2)**qs / ( real(csx(i,2)) - co2cp(i,2) ) ) &
                         * ( 1.0 / ( 1.0/veg%a1gs(i) + (vpd/(veg%d0gs(i)*veg%a1gs(i)))))
+                     
                   else
                      gs_coeff(i,1) = ( fwsoil(i)**qs / ( real(csx(i,1)) - co2cp(i,1) ) ) &
                         * ( 1.0 / ( 1.0/veg%a1gs(i) + (vpd/(veg%d0gs(i)*veg%a1gs(i)))))
 
                      gs_coeff(i,2) = ( fwsoil(i)**qs / ( real(csx(i,2)) - co2cp(i,2) ) ) &
                         * ( 1.0 / ( 1.0/veg%a1gs(i) + (vpd/(veg%d0gs(i)*veg%a1gs(i)))))
+                  endif
+                  if (present(fwpsdo)) then
+                     gs_coeff(i,1) = ( veg%a1gs(i) / ( real(csx(i,1)) - co2cp(i,1) ) ) &
+                        * fwpsdo
+                     gs_coeff(i,2) = ( veg%a1gs(i) / ( real(csx(i,2)) - co2cp(i,2) ) ) &
+                        * fwpsdo
                   endif
                   ! vh re-write so that a1 and d0 are not correlated
 
@@ -2503,13 +2541,14 @@ CONTAINS
                       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
                      fwpsi(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
                       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
-                        if (fwpsi(i,1) .LE. 0.05) then
-                           gs_coeff(i,1) = (1.0* fwpsi(i,1)**qs + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,1))
-                           gs_coeff(i,2) = (1.0* fwpsi(i,2)**qs + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,2))
-                        else
-                           gs_coeff(i,1) = (1.0 + (g1 * fwpsi(i,1)**qs) / SQRT(vpd)) / real(csx(i,1))
-                           gs_coeff(i,2) = (1.0 + (g1 * fwpsi(i,2)**qs) / SQRT(vpd)) / real(csx(i,2))
-                        endif
+
+                     if (fwpsi(i,1) .LE. 0.05) then
+                        gs_coeff(i,1) = (1.0* fwpsi(i,1)**qs + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,1))
+                        gs_coeff(i,2) = (1.0* fwpsi(i,2)**qs + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,2))
+                     else
+                        gs_coeff(i,1) = (1.0 + (g1 * fwpsi(i,1)**qs) / SQRT(vpd)) / real(csx(i,1))
+                        gs_coeff(i,2) = (1.0 + (g1 * fwpsi(i,2)**qs) / SQRT(vpd)) / real(csx(i,2))
+                     endif
                   else
                         if (fwsoil(i) .LE. 0.05) then
                            gs_coeff(i,1) = (1.0* fwsoil(i)**qs + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,1))
@@ -2518,6 +2557,12 @@ CONTAINS
                            gs_coeff(i,1) = (1.0 + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,1))
                            gs_coeff(i,2) = (1.0 + (g1 * fwsoil(i)**qs) / SQRT(vpd)) / real(csx(i,2))
                         endif
+                  endif
+                  if (present(fwpsdo)) then
+                     gs_coeff(i,1) = ( veg%a1gs(i) / ( real(csx(i,1)) - co2cp(i,1) ) ) &
+                        * fwpsdo
+                     gs_coeff(i,2) = ( veg%a1gs(i) / ( real(csx(i,2)) - co2cp(i,2) ) ) &
+                        * fwpsdo
                   endif
                ELSE IF (cable_user%GS_SWITCH == 'tuzet' .AND. &
                   INDEX(cable_user%FWSOIL_SWITCH,'LWP')>0) THEN
@@ -2534,6 +2579,10 @@ CONTAINS
                      !print *, '!!!!!!!!!!!!!!! fwpsi:', fwpsi(i,1),psilx(i,1)
                      gs_coeff(i,1) =fwpsi(i,1) * g1 / real(csx(i,1))
                      gs_coeff(i,2) =fwpsi(i,2) * g1 / real(csx(i,2))
+                  if (present(fwpsdo)) then
+                     gs_coeff(i,1) = g1 / real(csx(i,1)) * fwpsdo
+                     gs_coeff(i,2) = g1 / real(csx(i,2)) * fwpsdo
+                  endif
 
                ELSE IF (cable_user%GS_SWITCH == 'profitmax' .AND. &
                   cable_user%FWSOIL_SWITCH == 'profitmax') THEN
@@ -3020,6 +3069,7 @@ CONTAINS
       if (ktau_tot == nktau_end(size(nktau_end)) .and. iter==4) THEN
          if (present(wbpsdo) .and. present(vpdpsdo)) then
             close(137)
+         elseif (present(wbpsdo) .and. present(fwpsdo)) then
          elseif (present (wbpsdo)) then 
             close(135)
          elseif (present (vpdpsdo)) then 
@@ -3043,6 +3093,13 @@ CONTAINS
          canopy%abs_deltcs_ref = abs_deltcs * 1.0e6_r_2
          canopy%abs_deltlf_ref = abs_deltlf
          canopy%abs_deltds_ref = abs_deltds
+      elseif (present(wbpsdo) .and. present(fwpsdo)) then
+         canopy%epotref1 = canopy%fevc
+         canopy%gsw_ref1 = canopy%gswx
+         canopy%abs_deltpsil_ref1 = abs_deltpsil
+         canopy%abs_deltcs_ref1 = abs_deltcs * 1.0e6_r_2
+         canopy%abs_deltlf_ref1 = abs_deltlf
+         canopy%abs_deltds_ref1 = abs_deltds
       elseif (present (wbpsdo)) then
          canopy%epotcan3 = canopy%fevc
          canopy%frday_epotcan3 = 12.0 * SUM(rdy, 2)
