@@ -125,8 +125,8 @@ MODULE cable_IO_vars_module
 
    TYPE parID_type ! model parameter IDs in netcdf file
 
-      INTEGER :: bch,latitude,clay,css,rhosoil,hyds,rs20,sand,sfc,silt,        &
-          ssat,sucs,swilt,sres,froot,zse,canst1,dleaf,meth,za_tq,za_uv,             &
+      INTEGER :: bch,latitude,clay,css,rhosoil,hyds,rs20,sand,sfc,sfc_recal,silt,        &
+          ssat,sucs,swilt,swilt_recal,sres,froot,zse,canst1,dleaf,meth,za_tq,za_uv,             &
           ejmax,frac4,hc,lai,rp20,rpcoef,shelrb, vbeta, xalbnir,               &
           vcmax,xfang,ratecp,ratecs,refsbare,isoil,iveg,albsoil,               &
           taul,refl,tauw,refw,wai,vegcf,extkn,alpha,tminvj,tmaxvj,                   &
@@ -350,10 +350,12 @@ MODULE cable_IO_vars_module
                                 ! (0.1 - 10), prop to om
          sand  = .FALSE.,     & ! fraction of sand in soil
          sfc = .FALSE.,       & ! vol H2O @ field capacity
+         sfc_recal = .FALSE.,       & ! vol H2O @ field capacity
          silt  = .FALSE.,     & ! fraction of silt in soil
          ssat = .FALSE.,      & ! vol H2O @ saturation
          sucs = .FALSE.,      & ! suction at saturation [m]
          swilt = .FALSE.,     & ! vol H2O @ wilting
+         swilt_recal = .FALSE.,     & ! vol H2O @ wilting
          sres = .FALSE.,      & ! vol of residual in the soil
          froot = .FALSE.,     & ! fraction of roots in each soil layer
          zse = .FALSE.,       & ! thickness of each soil layer (1=top) (m)
@@ -472,6 +474,7 @@ MODULE cable_IO_vars_module
          psi_soilmean = .FALSE., &
          wb_soilmean = .FALSE., &
          rwc_soilmean = .FALSE., &
+         rwc_soilmean_recal = .FALSE., &
          psi_soilmean1 = .FALSE., &
          psi_rootmean = .FALSE., &
          epotcan1 = .FALSE., &

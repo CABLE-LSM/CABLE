@@ -95,7 +95,8 @@ MODULE cable_output_module
           abs_deltlf, abs_deltlf_vpd, abs_deltlf_sw, abs_deltds, abs_deltds_vpd, abs_deltds_sw, &
           abs_deltcs_sl, abs_deltcs_sh, abs_deltcs_sl_vpd, abs_deltcs_sh_vpd, &
           abs_deltcs_sl_sw, abs_deltcs_sh_sw, ksoil, kroot, uptake_layer, &
-          ksoilmean, krootmean, kbelowmean, psi_soilmean, wb_soilmean, rwc_soilmean, psi_soilmean1, psi_rootmean, &
+          ksoilmean, krootmean, kbelowmean, psi_soilmean, wb_soilmean, rwc_soilmean, rwc_soilmean_recal, &
+          psi_soilmean1, psi_rootmean, &
            epotcan1, epotcan2, epotcan3, GPP_epotcan3, epotvpd, epotref, epotref1, total_est_evap, wb_30, psi_30, wb_fr_rootzone, &
           psi_fr_rootzone, gsw_epotvpd_sh, gsw_epotvpd_sl, gsw_epotcan3_sh, gsw_epotcan3_sl, gsw_ref_sh, gsw_ref_sl, &
            gsw_ref1_sh, gsw_ref1_sl
@@ -341,6 +342,7 @@ MODULE cable_output_module
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_soilmean => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: wb_soilmean => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: rwc_soilmean => null() 
+     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: rwc_soilmean_recal => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_soilmean1 => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:)   :: psi_rootmean => null() 
      REAL(KIND=r_1), POINTER, DIMENSION(:) :: epotcan1 => null()    ! zihanlu
@@ -955,6 +957,9 @@ CONTAINS
      CALL define_ovar(ncid_out, ovid%rwc_soilmean, 'rwc_soilmean', '', &
      'Relative Water Content converted from wb_soilmean', patchout%rwc_soilmean, &
      'dummy', xID, yID, zID, landID, patchID, tID)
+     CALL define_ovar(ncid_out, ovid%rwc_soilmean, 'rwc_soilmean_recal', '', &
+     'Relative Water Content converted from wb_soilmean using recalculated swilt and sfc', patchout%rwc_soilmean, &
+     'dummy', xID, yID, zID, landID, patchID, tID)
      CALL define_ovar(ncid_out, ovid%psi_soilmean1, 'psi_soilmean1', 'Mpa', &
      'Average soil water potential (whole soil column)', patchout%psi_soilmean1, &
      'dummy', xID, yID, zID, landID, patchID, tID)
@@ -968,6 +973,7 @@ CONTAINS
      ALLOCATE(out%psi_soilmean(mp))
      ALLOCATE(out%wb_soilmean(mp))
      ALLOCATE(out%rwc_soilmean(mp))
+     ALLOCATE(out%rwc_soilmean_recal(mp))
      ALLOCATE(out%psi_soilmean1(mp))
      ALLOCATE(out%psi_rootmean(mp))
      out%kroot = zero4 ! initialise
@@ -977,6 +983,7 @@ CONTAINS
      out%psi_soilmean = zero4 
      out%wb_soilmean = zero4
      out%rwc_soilmean = zero4  
+     out%rwc_soilmean_recal = zero4  
      out%psi_soilmean1 = zero4 
      out%psi_rootmean = zero4 
     END IF
@@ -2124,9 +2131,15 @@ CONTAINS
     IF(output%params .OR. output%sfc) CALL define_ovar(ncid_out, opid%sfc, &
          'sfc', '-', 'Fraction of soil volume which is water @ field capacity', &
          patchout%sfc, 'real', xID, yID, zID, landID, patchID)
+    IF(output%params .OR. output%sfc_recal) CALL define_ovar(ncid_out, opid%sfc_recal, &
+         'sfc_recal', '-', 'Fraction of soil volume which is water @ field capacity recalculated', &
+         patchout%sfc_recal, 'real', xID, yID, zID, landID, patchID)
     IF(output%params .OR. output%swilt) CALL define_ovar(ncid_out, opid%swilt, &
          'swilt', '-', 'Fraction of soil volume which is water @ wilting point', &
          patchout%swilt, 'real', xID, yID, zID, landID, patchID)
+    IF(output%params .OR. output%swilt_recal) CALL define_ovar(ncid_out, opid%swilt_recal, &
+         'swilt_recal', '-', 'Fraction of soil volume which is water @ wilting point recalculated', &
+         patchout%swilt_recal, 'real', xID, yID, zID, landID, patchID)
     IF(output%params .OR. output%hyds) CALL define_ovar(ncid_out, opid%hyds, &
          'hyds', 'm/s', 'Hydraulic conductivity @ saturation', &
          patchout%hyds, 'real', xID, yID, zID, landID, patchID)
@@ -2417,8 +2430,12 @@ CONTAINS
          'ssat', toreal4(soil%ssat), ranges%ssat, patchout%ssat, 'real')
     IF(output%params .OR. output%sfc) CALL write_ovar(ncid_out, opid%sfc, &
          'sfc', toreal4(soil%sfc), ranges%sfc, patchout%sfc, 'real')
+    IF(output%params .OR. output%sfc_recal) CALL write_ovar(ncid_out, opid%sfc_recal, &
+         'sfc_recal', toreal4(soil%sfc_recal), ranges%sfc, patchout%sfc_recal, 'real')
     IF(output%params .OR. output%swilt) CALL write_ovar(ncid_out, opid%swilt, &
          'swilt', toreal4(soil%swilt), ranges%swilt, patchout%swilt, 'real')
+    IF(output%params .OR. output%swilt_recal) CALL write_ovar(ncid_out, opid%swilt_recal, &
+         'swilt_recal', toreal4(soil%swilt_recal), ranges%swilt, patchout%swilt_recal, 'real')
     IF(output%params .AND. output%albsoil) CALL write_ovar(ncid_out, &
          opid%albsoil, 'albsoil', toreal4(soil%albsoil), &
          ranges%albsoil, patchout%albsoil, 'radiation')
@@ -3364,7 +3381,7 @@ CONTAINS
 
         out%wb_soilmean=toreal4((out%psi_soilmean / psi_sat) ** (-1.0_r_2 / soil%bch) * soil%ssat)
         out%rwc_soilmean =  toreal4((out%wb_soilmean - soil%swilt)/(soil%sfc - soil%swilt))
-
+        out%rwc_soilmean_recal =  toreal4((out%wb_soilmean - soil%swilt_recal)/(soil%sfc_recal - soil%swilt_recal))
         CALL write_ovar(out_timestep, ncid_out, ovid%psi_soilmean, 'psi_soilmean', &
         out%psi_soilmean, ranges%psi_soil, patchout%psi_soilmean, 'default', met)
         out%psi_soilmean = zero4
@@ -3376,6 +3393,10 @@ CONTAINS
         CALL write_ovar(out_timestep, ncid_out, ovid%rwc_soilmean, 'rwc_soilmean', &
         out%rwc_soilmean, ranges%SoilMoist, patchout%rwc_soilmean, 'default', met)
         out%rwc_soilmean = zero4
+
+        CALL write_ovar(out_timestep, ncid_out, ovid%rwc_soilmean_recal, 'rwc_soilmean_recal', &
+        out%rwc_soilmean_recal, ranges%SoilMoist, patchout%rwc_soilmean_recal, 'default', met)
+        out%rwc_soilmean_recal = zero4
 
         out%psi_soilmean1 = out%psi_soilmean1 * rinterval
         CALL write_ovar(out_timestep, ncid_out, ovid%psi_soilmean1, 'psi_soilmean1', &

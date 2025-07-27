@@ -144,10 +144,12 @@ module cable_def_types_mod
           rhosoil => null(), & ! soil density [kg/m3]
           sand => null(),    & ! fraction of soil which is sand
           sfc => null(),     & ! vol H2O @ field capacity
+          sfc_recal => null(),     &
           silt => null(),    & ! fraction of soil which is silt
           ssat => null(),    & ! vol H2O @ saturation
           sucs => null(),    & ! suction at saturation (m)
           swilt => null(),   & ! vol H2O @ wilting
+          swilt_recal => null(),   & 
           sres => null(),    & ! vol H2O residual
           zse => null(),     & ! thickness of each soil layer (1=top) in m
           zshh => null(),    & ! distance between consecutive layer midpoints (m)
@@ -968,10 +970,12 @@ contains
     allocate(soil%rhosoil(mp))
     allocate(soil%sand(mp))
     allocate(soil%sfc(mp))
+    allocate(soil%sfc_recal(mp))
     allocate(soil%silt(mp))
     allocate(soil%ssat(mp))
     allocate(soil%sucs(mp))
     allocate(soil%swilt(mp))
+    allocate(soil%swilt_recal(mp))
     allocate(soil%sres(mp))
     allocate(soil%zse(ms))
     allocate(soil%zshh(ms+1))
@@ -1668,10 +1672,12 @@ contains
     deallocate(soil%rhosoil)
     deallocate(soil%sand)
     deallocate(soil%sfc)
+    deallocate(soil%sfc_recal)
     deallocate(soil%silt)
     deallocate(soil%ssat)
     deallocate(soil%sucs)
     deallocate(soil%swilt)
+    deallocate(soil%swilt_recal)
     deallocate(soil%sres)
     deallocate(soil%zse)
     deallocate(soil%zshh)
@@ -2234,10 +2240,12 @@ contains
     soil%rhosoil  = 0
     soil%sand     = 0
     soil%sfc      = 0
+    soil%sfc_recal      = 0
     soil%silt     = 0
     soil%ssat     = 0
     soil%sucs     = 0
     soil%swilt    = 0
+    soil%swilt_recal    = 0
     soil%sres    = 0
     soil%zse      = 0
     soil%zshh     = 0

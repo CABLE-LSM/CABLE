@@ -2497,7 +2497,7 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
    ! vh_js
    INTEGER :: mp_POP
    INTEGER, dimension(:), ALLOCATABLE :: Iwood
-
+   real, dimension(:),ALLOCATABLE :: psi_sat
     ! Allocate spatial heterogeneity variables:
     ALLOCATE(landpt(mland))
 
@@ -2510,6 +2510,9 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
     ! Those variables found in the met file will again overwrite existing ones.
 
     CALL get_default_params(logn, vegparmnew, LUC_EXPT)
+   psi_sat = (soil%sucs * 9.81 * 0.001 / soil%ssat)**(-soil%bch)
+   soil%sfc_recal = (-0.032 / psi_sat)**(-1.0/soil%bch) * soil%ssat
+   soil%swilt_recal = (-1.5 / psi_sat)**(-1.0/soil%bch) * soil%ssat
     CALL allocate_cable_vars(air, bgc, canopy, met, bal, &
          rad, rough, soil, ssnow, sum_flux, veg, mp)
     ! 13C
