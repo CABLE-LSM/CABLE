@@ -2498,6 +2498,7 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
    INTEGER :: mp_POP
    INTEGER, dimension(:), ALLOCATABLE :: Iwood
    real, dimension(:),ALLOCATABLE :: psi_sat
+   allocate(psi_sat(mp))
     ! Allocate spatial heterogeneity variables:
     ALLOCATE(landpt(mland))
 
