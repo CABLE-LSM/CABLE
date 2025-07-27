@@ -2511,9 +2511,7 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
     ! Those variables found in the met file will again overwrite existing ones.
 
     CALL get_default_params(logn, vegparmnew, LUC_EXPT)
-   psi_sat = (soil%sucs * 9.81 * 0.001 / soil%ssat)**(-soil%bch)
-   soil%sfc_recal = (-0.032 / psi_sat)**(-1.0/soil%bch) * soil%ssat
-   soil%swilt_recal = (-1.5 / psi_sat)**(-1.0/soil%bch) * soil%ssat
+
     CALL allocate_cable_vars(air, bgc, canopy, met, bal, &
          rad, rough, soil, ssnow, sum_flux, veg, mp)
     ! 13C
@@ -2556,6 +2554,9 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
     CALL write_default_params(met, ssnow, veg, bgc, soil, canopy, rough, &
             rad, logn, smoy, TFRZ, LUC_EXPT, site)
     ! 13C
+   psi_sat = (soil%sucs * 9.81 * 0.001 / soil%ssat)**(-soil%bch)
+   soil%sfc_recal = (-0.032 / psi_sat)**(-1.0/soil%bch) * soil%ssat
+   soil%swilt_recal = (-1.5 / psi_sat)**(-1.0/soil%bch) * soil%ssat
     if (cable_user%c13o2) then
        call c13o2_zero_flux(c13o2flux)
        call c13o2_init_flux(met, canopy, c13o2flux)
