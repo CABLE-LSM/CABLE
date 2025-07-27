@@ -957,8 +957,8 @@ CONTAINS
      CALL define_ovar(ncid_out, ovid%rwc_soilmean, 'rwc_soilmean', '', &
      'Relative Water Content converted from wb_soilmean', patchout%rwc_soilmean, &
      'dummy', xID, yID, zID, landID, patchID, tID)
-     CALL define_ovar(ncid_out, ovid%rwc_soilmean, 'rwc_soilmean_recal', '', &
-     'Relative Water Content converted from wb_soilmean using recalculated swilt and sfc', patchout%rwc_soilmean, &
+     CALL define_ovar(ncid_out, ovid%rwc_soilmean_recal, 'rwc_soilmean_recal', '', &
+     'Relative Water Content converted from wb_soilmean using recalculated swilt and sfc', patchout%rwc_soilmean_recal, &
      'dummy', xID, yID, zID, landID, patchID, tID)
      CALL define_ovar(ncid_out, ovid%psi_soilmean1, 'psi_soilmean1', 'Mpa', &
      'Average soil water potential (whole soil column)', patchout%psi_soilmean1, &
