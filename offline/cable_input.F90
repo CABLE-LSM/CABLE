@@ -2554,7 +2554,7 @@ SUBROUTINE load_parameters(met, air, ssnow, veg, bgc, soil, canopy, rough, rad, 
     CALL write_default_params(met, ssnow, veg, bgc, soil, canopy, rough, &
             rad, logn, smoy, TFRZ, LUC_EXPT, site)
     ! 13C
-   psi_sat = (soil%sucs * 9.81 * 0.001 / soil%ssat)**(-soil%bch)
+   psi_sat = soil%sucs * 9.81 * 0.001 
    soil%sfc_recal = (-0.032 / psi_sat)**(-1.0/soil%bch) * soil%ssat
    soil%swilt_recal = (-1.5 / psi_sat)**(-1.0/soil%bch) * soil%ssat
     if (cable_user%c13o2) then
