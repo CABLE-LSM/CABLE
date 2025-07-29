@@ -91,6 +91,8 @@ USE cable_runtime_opts_mod ,ONLY : snmin
       !! name of file for IGBP soil map
     CHARACTER(LEN=500) :: gw_elev
       !! name of file for gw/elevation data
+    CHARACTER(LEN=500) :: gw_soils
+      !! tiled/layered soil parameters
     CHARACTER(LEN=500) :: fxpft
       !! filename for PFT fraction and transition,wood harvest, secondary harvest
     CHARACTER(LEN=500) :: fxluh2cable
