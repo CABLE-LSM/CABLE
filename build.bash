@@ -62,7 +62,7 @@ while [ ${#} -gt 0 ]; do
             cmake_args+=(-DCABLE_MPI="ON")
             ;;
         -l|--library)
-            build_args+=(--target cable_science)
+            build_args+=(--target cable)
             cmake_args+=(-DCABLE_LIBRARY="ON")
             do_install=0 # Disable installation when only building the science library
             ;;

@@ -24,8 +24,8 @@ MODULE cable_surface_types_mod
   INTEGER, PARAMETER :: c3_cropland          = 9  
   INTEGER, PARAMETER :: c4_cropland          = 10 
   INTEGER, PARAMETER :: wetland              = 11 
-  INTEGER, PARAMETER :: empty1               = 12
-  INTEGER, PARAMETER :: empty2               = 13
+  INTEGER, PARAMETER :: aust_temperate       = 12
+  INTEGER, PARAMETER :: aust_tropical        = 13
   INTEGER, PARAMETER :: barren_cable         = 14
   INTEGER, PARAMETER :: urban_cable          = 15
   INTEGER, PARAMETER :: lakes_cable          = 16 
