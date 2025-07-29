@@ -7,10 +7,12 @@ PUBLIC  snowcheck
 CONTAINS
 
 SUBROUTINE snowcheck(dels, ssnow, soil, met )
-
+  !*## Purpose
+  !  Set up snow depth, snow mass, snow temp and snow layer used
+  
     USE cable_common_module
 
-IMPLICIT NONE
+    IMPLICIT NONE
     REAL, INTENT(IN) :: dels ! integration time step (s)
 
     TYPE(soil_snow_type), INTENT(INOUT) :: ssnow
@@ -23,6 +25,7 @@ IMPLICIT NONE
     DO j=1,mp
 
        IF( ssnow%snowd(j) <= 0.0 ) THEN
+          ! using a single snow layer but there is no snow yet 
 
           ssnow%isflag(j) = 0
           ssnow%ssdn(j,:) = 120.0
@@ -39,6 +42,7 @@ IMPLICIT NONE
 
           ! in loop: IF( ssnow%snowd(j) <= 0.0 ) THEN
        ELSEIF( ssnow%snowd(j) < snmin * ssnow%ssdnn(j) ) THEN
+       ! snow depth is between 0 and 1*snow density 
 
           IF( ssnow%isflag(j) == 1 ) THEN
              ssnow%ssdn(j,1) = ssnow%ssdnn(j)
@@ -61,7 +65,6 @@ IMPLICIT NONE
           ssnow%ssdn(j,:) = ssnow%ssdnn(j)
 
 
-
        ELSE ! in loop: IF( ssnow%snowd(j) <= 0.0 ) THEN
           ! sufficient snow now for 3 layer snowpack
 
@@ -71,7 +74,6 @@ IMPLICIT NONE
 
              ssnow%ssdn(j,2) = ssnow%ssdn(j,1)
              ssnow%ssdn(j,3) = ssnow%ssdn(j,1)
-
 
              ssnow%sdepth(j,1) = ssnow%t_snwlr(j)
 

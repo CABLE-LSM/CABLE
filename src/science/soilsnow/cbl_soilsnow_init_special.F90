@@ -27,7 +27,7 @@ REAL, DIMENSION(mp) :: weting
 REAL, DIMENSION(mp) :: xx, tgg_old, tggsn_old
 REAL(r_2), DIMENSION(mp) :: xxx,deltat,sinfil1,sinfil2,sinfil3
 REAL                :: zsetot
-REAL :: heat_cap_lower_limit(mp,ms)
+REAL :: heat_cap_lower_limit(mp,ms)    ! best to declare INTENT - rk4417 - phase2 
 
 ! since CMIP5 only ever (potentially) TRUE offline if special initialization
 ! requested and then only on first timestep
