@@ -1800,24 +1800,29 @@ CONTAINS
     out_settings%dimswitch = "real"
     IF (output%params .AND. cable_user%gw_model) THEN
       CALL check_and_write(opid%SatFracmax,    &
-           'SatFracmax', SPREAD(REAL(gw_params%MaxSatFraction,4),1,mp), &
+           'SatFracmax', SPREAD(REAL(SQRT(gw_params%MaxSatFraction),4),1,mp), &
            ranges%gw_default, patchout%SatFracmax, out_settings)
 
       CALL check_and_write(opid%Qhmax,    &
-           'Qhmax', SPREAD(REAL(gw_params%MaxHorzDrainRate, 4),1,mp), &
+           'Qhmax', REAL(soil%qhz_max, 4), &
            ranges%gw_default, patchout%Qhmax, out_settings)
 
-      CALL check_and_write(opid%QhmaxEfold,    &
-           'QhmaxEfold', SPREAD(REAL(gw_params%EfoldHorzDrainRate, 4),1,mp), &
-           ranges%gw_default, patchout%QhmaxEfold, out_settings)
+    ! part below commented out by rk4417 - phase2
+    !   CALL check_and_write(opid%QhmaxEfold,    &
+    !        'QhmaxEfold', SPREAD(REAL(gw_params%EfoldHorzDrainRate, 4),1,mp), &
+    !        ranges%gw_default, patchout%QhmaxEfold, out_settings)
 
       CALL check_and_write(opid%HKefold,    &
-           'HKefold', SPREAD(REAL(gw_params%hkrz, 4),1,mp), &
+           'HKefold', REAL(soil%hkrz, 4), &
            ranges%gw_default, patchout%HKefold, out_settings)
+           ! note specially for ranges%gw_default that I have instead 
+           ! (/0.0,1000000.0/) - rk4417 - phase2
 
       CALL check_and_write(opid%HKdepth,    &
-           'HKdepth', SPREAD(REAL(gw_params%zdepth, 4),1,mp), &
+           'HKdepth', REAL(soil%zdepth, 4), &
             ranges%gw_default, patchout%HKdepth, out_settings)
+            ! note specially for ranges%gw_default that I have instead 
+            ! (/0.0,1000000.0/) - rk4417 - phase2
     END IF
 
   END SUBROUTINE open_output_file
@@ -2145,6 +2150,29 @@ CONTAINS
         CALL generate_out_write_acc(ovid%SatFrac, 'SatFrac', out%SatFrac, REAL(ssnow%satfrac, 4), ranges%SatFrac, patchout%SatFrac, out_settings)
       END IF
     END IF
+
+! block below inserted by rk4417 - phase2
+! ccc - This should only be a condition on output%SMP. Need to implement it in the initialisation.
+    IF((output%soil .OR. output%SMP)) THEN
+      out_settings%dimswitch = 'soil'
+      CALL generate_out_write_acc(ovid%SMP, 'SMP', out%SMP, REAL(ssnow%smp, 4),& 
+         (/-1.0e36,1.0e36/), patchout%SMP, out_settings)
+    END IF
+
+    IF(gw_params%bc_hysteresis) THEN
+      out_settings%dimswitch = 'soil'
+      CALL generate_out_write_acc(ovid%SMP_hys, 'SMP_hys', out%SMP_hys, REAL(ssnow%smp_hys, 4),& 
+         (/-1.0e36,1.0e36/), patchout%SMP_hys, out_settings)
+      CALL generate_out_write_acc(ovid%WB_hys, 'WB_hys', out%WB_hys, REAL(ssnow%wb_hys, 4),& 
+         (/-1.0e36,1.0e36/), patchout%WB_hys, out_settings)
+      CALL generate_out_write_acc(ovid%SSAT_hys, 'SSAT_hys', out%SSAT_hys, REAL(ssnow%ssat_hys, 4),& 
+         (/-1.0e36,1.0e36/), patchout%SSAT_hys, out_settings)
+      CALL generate_out_write_acc(ovid%WATR_hys, 'WATR_hys', out%WATR_hys, REAL(ssnow%watr_hys, 4),& 
+         (/-1.0e36,1.0e36/), patchout%WATR_hys, out_settings)
+      CALL generate_out_write_acc(ovid%hys_fac, 'hys_fac', out%hys_fac, REAL(ssnow%hys_fac, 4),& 
+         (/-1.0e36,1.0e36/), patchout%hys_fac, out_settings)
+    END IF
+! end of block - rk4417 - phase2 
 
     IF (output%Qrecharge) THEN
       ! recharge rate
@@ -2680,8 +2708,9 @@ CONTAINS
          canstoID, albsoilsnID, gammzzID, tggsnID, sghfluxID,       &
          ghfluxID, runoffID, rnof1ID, rnof2ID, gaID, dgdtgID,       &
          fevID, fesID, fhsID, wbtot0ID, osnowd0ID, cplantID,        &
-         csoilID, tradID, albedoID, gwID
+         csoilID, tradID, albedoID, gwID, subdzID ! added subdzID - rk4417 - phase2
     INTEGER :: h0ID, snowliqID, SID, TsurfaceID, scondsID, nsnowID, TsoilID
+    INTEGER :: hys(6) ! inserted by rk4417 - phase2
     CHARACTER(LEN=10) :: todaydate, nowtime ! used to timestamp netcdf file
     ! CHARACTER         :: FRST_OUT*100, CYEAR*4
     CHARACTER         :: FRST_OUT*200, CYEAR*4
@@ -2964,6 +2993,31 @@ CONTAINS
 !$    CALL define_ovar(ncid_restart, rpid%rs20, 'rs20', '-',                     &
 !$                     'Soil respiration coefficient at 20C',                    &
 !$                      .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+
+! inserted block below - rk4417 - phase2
+    CALL define_ovar(ncid_restart, rpid%froot, 'froot', '-',                   &
+                     'Fraction of roots in each soil layer',                   &
+                      .TRUE., soilID, 'soil', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%bch, 'bch', '-',                       &
+                     'Parameter b, Campbell eqn 1985',                         &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%hyds, 'hyds', 'mm/s',  & ! MMY m/s->mm/s                 &
+                     'Hydraulic conductivity @ saturation',                    &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%sucs, 'sucs', 'mm',        & ! MMY m->mm                     &
+                     'Suction @ saturation', .TRUE.,                           &
+                     'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%css, 'css', 'J/kg/C',                  &
+                     'Heat capacity of soil minerals',                         &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%rhosoil, 'rhosoil', 'kg/m^3',          &
+                     'Density of soil minerals',                               &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+    CALL define_ovar(ncid_restart, rpid%rs20, 'rs20', '-',                     &
+                     'Soil respiration coefficient at 20C',                    &
+                     .TRUE., 'real', 0, 0, 0, mpID, dummy, .TRUE.)
+! end of block - rk4417 - phase2 
+
     CALL define_ovar(ncid_restart, rpid%albsoil, 'albsoil', '-',               &
          'Soil reflectance', .TRUE.,                               &
          radID, 'radiation', 0, 0, 0, mpID, dummy, .TRUE.)
@@ -3096,6 +3150,27 @@ CONTAINS
             'soil or snow surface T', &
             .TRUE.,'real',0,0,0,mpID,dummy,.TRUE.)
     END IF ! SLI soil model
+
+
+! inserted block below - rk4417 - phase2
+    if (cable_user%gw_model) then            
+       CALL define_ovar(ncid_restart,hys(1),'wb_hys','-',&
+            'water (volumetric) at dry/wet switch', &
+            .TRUE.,soilID,'soil',0,0,0,mpID,dummy,.TRUE.)
+       CALL define_ovar(ncid_restart,hys(2),'smp_hys','-',&
+            'smp [mm] at dry/wet switch', &
+            .TRUE.,soilID,'soil',0,0,0,mpID,dummy,.TRUE.)
+       CALL define_ovar(ncid_restart,hys(3),'ssat_hys','-',&
+            'ssat water (volumetric) from hyst', &
+            .TRUE.,soilID,'soil',0,0,0,mpID,dummy,.TRUE.)
+       CALL define_ovar(ncid_restart,hys(4),'watr_hys','-',&
+            'ssat water (volumetric) from hyst', &
+            .TRUE.,soilID,'soil',0,0,0,mpID,dummy,.TRUE.)
+       CALL define_ovar(ncid_restart,hys(5),'hys_fac','-',&
+            'water (volumetric) at dry/wet switch', &
+            .TRUE.,soilID,'soil',0,0,0,mpID,dummy,.TRUE.)
+    end if
+! end of block - rk4417 - phase2
 
     ! Write global attributes for file:
     CALL DATE_AND_TIME(todaydate, nowtime)
@@ -3383,6 +3458,21 @@ CONTAINS
                            ranges%default_s, patchout_var, out_settings)
       CALL check_and_write(scondsID, 'sconds', REAL(ssnow%sconds, 4), &
                            ranges%default_s, patchout_var, out_settings)
+    END IF
+
+! inserted IF block below - rk4417 - phase2    
+    IF (cable_user%gw_model) THEN 
+       out_settings%dimswitch = "soil"          
+       CALL check_and_write(hys(1),'wb_hys',REAL(ssnow%wb_hys,4), &  
+            (/0.0,1.0/),patchout_var,out_settings)
+       CALL check_and_write(hys(2),'smp_hys',REAL(ssnow%smp_hys,4), & 
+            (/-1.0e10,1.0e10/),patchout_var,out_settings)
+       CALL check_and_write(hys(3),'ssat_hys',REAL(ssnow%ssat_hys,4), & 
+            (/0.0,1.0/),patchout_var,out_settings)
+       CALL check_and_write(hys(4),'watr_hys',REAL(ssnow%watr_hys,4), &  
+            (/0.0,1.0/),patchout_var,out_settings)
+       CALL check_and_write(hys(5),'hys_fac',REAL(ssnow%hys_fac,4), & 
+            (/0.0,1.0/),patchout_var,out_settings)
     END IF
 
     ! Close restart file
