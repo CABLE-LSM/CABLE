@@ -84,7 +84,8 @@ MODULE cable_checks_module
       ESoil = [-0.0015, 0.0015], &
       TVeg = [-0.0003, 0.0003], &
       ECanop = [-0.0003, 0.0003], &
-      PotEvap = [-0.005, 0.005], &  !note should encompass Evap
+      PotEvap = [-0.005, 0.005], &  !note should encompass Evap  ! I have PotEvap = [-0.0006, 0.0006] if it makes a difference - rk4417
+
       ACond = [0.0, 1.0], &
       SoilWet = [-0.4, 1.2], &
       Albedo = [0.0, 1.0], &
@@ -133,12 +134,13 @@ MODULE cable_checks_module
       css = [700.0, 2200.0], &
       rhosoil = [300.0, 3000.0], &
       hyds = [5.0E-7, 8.5E-3], & ! vh_js ! sep14
+! MMY 8.5E-3->8.5 since hyds uses m/s, but hyds_vec uses mm/s
       rs20 = [0.0, 10.0], &
       sand = [0.0, 1.0], &
       sfc = [0.1, 0.5], &
       silt = [0.0, 1.0], &
       ssat = [0.35, 0.5], &
-      sucs = [-0.8, -0.03], &
+      sucs = [-0.8, -0.03], &   ! MMY@23Apr2023 works for CABLE non-GW
       swilt = [0.05, 0.4], &
       froot = [0.0, 1.0], &
       zse = [0.0, 5.0], &
@@ -498,7 +500,10 @@ CONTAINS
     ! Local variables
     REAL(r_2), DIMENSION(:),POINTER, SAVE     :: owb         ! volumetric soil moisture 
                                                              ! at previous time step
+                                                             
     REAL(r_2), DIMENSION(mp)                  :: delwb       ! change in soilmoisture
+   ! To remove qrecharge or not from the mass balance
+    REAL(r_2), DIMENSION(mp)                  :: qrecharge_opt
     ! b/w tsteps
     REAL, DIMENSION(mp)                       :: canopy_wbal !canopy water balance
     INTEGER                                   :: j, k        ! do loop counter
@@ -521,9 +526,14 @@ CONTAINS
     !      it's included in change in canopy storage calculation))
     ! rml 28/2/11 ! BP changed rnof1+rnof2 to ssnow%runoff which also included rnof5
     ! which is used when nglacier=2 in soilsnow routines (BP feb2011)
+    qrecharge_opt = ssnow%qrecharge
+    IF ( cable_user%GW_MODEL )  THEN
+       qrecharge_opt = 0.0_r_2
+    ENDIF
+    
     bal%wbal = REAL(met%precip - canopy%delwc - ssnow%snowd+ssnow%osnowd        &
          - ssnow%runoff-(canopy%fevw+canopy%fevc                                &
-         + canopy%fes/ssnow%cls)*dels/air%rlam - delwb - ssnow%qrecharge)
+         + canopy%fes/ssnow%cls)*dels/air%rlam - delwb - qrecharge_opt)
 
     ! Canopy water balance: precip-change.can.storage-throughfall-evap+dew
     canopy_wbal = REAL(met%precip-canopy%delwc-canopy%through                   &

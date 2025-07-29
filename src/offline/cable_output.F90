@@ -69,7 +69,9 @@ MODULE cable_output_module
           PlantTurnover, PlantTurnoverLeaf, PlantTurnoverFineRoot, &
           PlantTurnoverWood, PlantTurnoverWoodDist, PlantTurnoverWoodCrowding, &
           PlantTurnoverWoodResourceLim, dCdt, Area, LandUseFlux, patchfrac, &
-          vcmax,hc,WatTable,GWMoist,SatFrac,Qrecharge
+          vcmax,hc,WatTable,GWMoist,SatFrac,Qrecharge, &
+          SMP,SMP_hys,WB_hys,SSAT_hys, WATR_hys,hys_fac  ! added by rk4417 - phase2
+
   END TYPE out_varID_type
   TYPE(out_varID_type) :: ovid ! netcdf variable IDs for output variables
   TYPE(parID_type) :: opid ! netcdf variable IDs for output variables
@@ -229,6 +231,17 @@ MODULE cable_output_module
 
      REAL(KIND=4), POINTER, DIMENSION(:) :: RootResp   !  autotrophic root respiration [umol/m2/s]
      REAL(KIND=4), POINTER, DIMENSION(:) :: StemResp   !  autotrophic stem respiration [umol/m2/s]
+
+! remainder of TYPE block below added by rk4417 - phase2
+     
+     REAL(KIND=4), POINTER, DIMENSION(:,:) :: SMP      ! soil pressure [m] 
+     REAL(KIND=4), POINTER, DIMENSION(:,:) :: SMP_hys  ! soil pressure [m]
+     REAL(KIND=4), POINTER, DIMENSION(:,:) :: WB_hys    ! soil pressure [m]
+    
+     REAL(KIND=4), POINTER, DIMENSION(:,:) :: SSAT_hys   ! soil pressure [m]
+     REAL(KIND=4), POINTER, DIMENSION(:,:) :: WATR_hys   ! soil pressure [m]
+     REAL(KIND=4), POINTER, DIMENSION(:,:) :: hys_fac   ! soil pressure [m]
+
   END TYPE output_temporary_type
 
   TYPE output_var_settings_type
@@ -627,6 +640,44 @@ CONTAINS
        ALLOCATE(out%SoilTemp(mp,ms))
        out%SoilTemp = 0.0 ! initialise
     END IF
+
+! block below inserted by rk4417 - phase2 
+    IF(output%soil .OR. output%SMP) THEN
+       CALL define_ovar(ncid_out, ovid%SMP, 'SMP', 'm',      &
+                        'Average layer soil pressure', patchout%SMP,     &
+                        'soil', xID, yID, zID, landID, patchID, soilID, tID)
+       ALLOCATE(out%SMP(mp,ms))
+       out%SMP = 0.0 ! initialise
+    ENDIF
+    if (cable_user%gw_model .and. gw_params%BC_hysteresis) then
+       CALL define_ovar(ncid_out, ovid%SMP_hys, 'SMP_hys', 'm',      &
+                        'Average layer soil pressure at hys trans', patchout%SMP_hys,     &
+                        'soil', xID, yID, zID, landID, patchID, soilID, tID)
+       ALLOCATE(out%SMP_hys(mp,ms))
+       out%SMP_hys = 0.0 ! initialise
+       CALL define_ovar(ncid_out, ovid%WB_hys, 'WB_hys', 'm',      &
+                        'wb at wet/dry or dry/wet transition', patchout%WB_hys,     &
+                        'soil', xID, yID, zID, landID, patchID, soilID, tID)
+       ALLOCATE(out%WB_hys(mp,ms))
+       out%WB_hys = 0.0 ! initialise
+       CALL define_ovar(ncid_out, ovid%SSAT_hys, 'SSAT_hys', 'm',      &
+                        'hysteresis adj  ssat', patchout%SSAT_hys,     &
+                        'soil', xID, yID, zID, landID, patchID, soilID, tID)
+       ALLOCATE(out%SSAT_hys(mp,ms))
+       out%SSAT_hys = 0.0 ! initialise
+       CALL define_ovar(ncid_out, ovid%WATR_hys, 'WATR_hys', 'm',      &
+                        'hysteresis adj watr', patchout%WATR_hys,     &
+                        'soil', xID, yID, zID, landID, patchID, soilID, tID)
+       ALLOCATE(out%WATR_hys(mp,ms))
+       out%WATR_hys = 0.0 ! initialise
+       CALL define_ovar(ncid_out, ovid%hys_fac, 'hys_fac', 'm',      &
+                        '1.0 wet 0.5 dry', patchout%hys_fac,     &
+                        'soil', xID, yID, zID, landID, patchID, soilID, tID)
+       ALLOCATE(out%hys_fac(mp,ms))
+       out%hys_fac = 0.0 ! initialise
+    END IF
+! end of block - rk4417 - phase2   
+
     IF(output%BaresoilT) THEN
        CALL define_ovar(ncid_out, ovid%BaresoilT, 'BaresoilT',                 &
             'K', 'Bare soil temperature', patchout%BaresoilT,      &
@@ -1096,39 +1147,121 @@ CONTAINS
     IF(output%isoil) CALL define_ovar(ncid_out, opid%isoil, &
          'isoil', '-', 'Soil type', patchout%isoil, 'integer', &
          xID, yID, zID, landID, patchID)
-    IF(output%bch) CALL define_ovar(ncid_out, opid%bch,     &
-         'bch', '-', 'Parameter b, Campbell eqn 1985', patchout%bch, 'real', &
+    IF(output%bch) THEN
+      IF (cable_user%gw_model) THEN
+        CALL define_ovar(ncid_out, opid%bch,     &
+          'bch', '-', 'Parameter b, Campbell eqn 1985', patchout%bch, soilID,'soil', &
+          xID, yID, zID, landID, patchID)
+      ELSE  
+        CALL define_ovar(ncid_out, opid%bch,     &
+          'bch', '-', 'Parameter b, Campbell eqn 1985', patchout%bch, 'real', &
+          xID, yID, zID, landID, patchID)
+      END IF
+    END IF
+    IF(output%clay) THEN 
+      IF (cable_user%gw_model) THEN
+        CALL define_ovar(ncid_out, opid%clay,   &
+         'clay', '-', 'Fraction of soil which is clay', patchout%clay, soilID,'soil', &
          xID, yID, zID, landID, patchID)
-    IF(output%clay) CALL define_ovar(ncid_out, opid%clay,   &
+      ELSE
+        CALL define_ovar(ncid_out, opid%clay,   &
          'clay', '-', 'Fraction of soil which is clay', patchout%clay, 'real', &
          xID, yID, zID, landID, patchID)
-    IF(output%sand) CALL define_ovar(ncid_out, opid%sand,   &
+      END IF
+    END IF
+    IF(output%sand) THEN 
+      IF (cable_user%gw_model) THEN
+        CALL define_ovar(ncid_out, opid%sand,   &
+         'sand', '-', 'Fraction of soil which is sand', patchout%sand, soilID,'soil', &
+         xID, yID, zID, landID, patchID)
+      ELSE
+        CALL define_ovar(ncid_out, opid%sand,   &
          'sand', '-', 'Fraction of soil which is sand', patchout%sand, 'real', &
          xID, yID, zID, landID, patchID)
-    IF(output%silt) CALL define_ovar(ncid_out, opid%silt,   &
-         'silt', '-', 'Fraction of soil which is silt', patchout%silt, 'real', &
+      END IF
+    END IF
+    IF(output%silt) THEN
+      IF (cable_user%gw_model) THEN
+        CALL define_ovar(ncid_out, opid%silt,   &
+         'silt', '-', 'Fraction of soil which is silt', patchout%silt, soilID,'soil', &
          xID, yID, zID, landID, patchID)
-    IF(output%ssat) CALL define_ovar(ncid_out, opid%ssat,   &
-         'ssat', '-', 'Fraction of soil volume which is water @ saturation', &
-         patchout%ssat, 'real', xID, yID, zID, landID, patchID)
-    IF(output%sfc) CALL define_ovar(ncid_out, opid%sfc,     &
-         'sfc', '-', 'Fraction of soil volume which is water @ field capacity', &
-         patchout%sfc, 'real', xID, yID, zID, landID, patchID)
-    IF(output%swilt) CALL define_ovar(ncid_out, opid%swilt, &
-         'swilt', '-', 'Fraction of soil volume which is water @ wilting point', &
-         patchout%swilt, 'real', xID, yID, zID, landID, patchID)
-    IF(output%hyds) CALL define_ovar(ncid_out, opid%hyds,   &
-         'hyds', 'm/s', 'Hydraulic conductivity @ saturation', &
-         patchout%hyds, 'real', xID, yID, zID, landID, patchID)
-    IF(output%sucs) CALL define_ovar(ncid_out, opid%sucs,   &
-         'sucs', 'm', 'Suction @ saturation', &
+      ELSE
+        CALL define_ovar(ncid_out, opid%silt,   &
+          'silt', '-', 'Fraction of soil which is silt', patchout%silt, 'real', &
+           xID, yID, zID, landID, patchID)
+      END IF
+    END IF
+    IF(output%ssat) THEN
+      IF (cable_user%gw_model) THEN
+        CALL define_ovar(ncid_out, opid%ssat,   &
+          'ssat', '-', 'Fraction of soil volume which is water @ saturation', &
+          patchout%ssat, soilID,'soil', xID, yID, zID, landID, patchID)
+      ELSE
+        CALL define_ovar(ncid_out, opid%ssat,   &
+          'ssat', '-', 'Fraction of soil volume which is water @ saturation', &
+          patchout%ssat, 'real', xID, yID, zID, landID, patchID)
+      END IF
+    END IF
+    IF(output%sfc) THEN
+      IF (cable_user%gw_model) THEN
+        CALL define_ovar(ncid_out, opid%sfc,     &
+           'sfc', '-', 'Fraction of soil volume which is water @ field capacity', &
+           patchout%sfc, soilID,'soil', xID, yID, zID, landID, patchID)
+      ELSE
+        CALL define_ovar(ncid_out, opid%sfc,     &
+           'sfc', '-', 'Fraction of soil volume which is water @ field capacity', &
+           patchout%sfc, 'real', xID, yID, zID, landID, patchID)
+      END IF
+    END IF
+    IF(output%swilt) THEN
+      IF (cable_user%gw_model) THEN
+        CALL define_ovar(ncid_out, opid%swilt, &
+          'swilt', '-', 'Fraction of soil volume which is water @ wilting point', &
+          patchout%swilt, soilID,'soil', xID, yID, zID, landID, patchID) 
+      ELSE
+        CALL define_ovar(ncid_out, opid%swilt, &
+          'swilt', '-', 'Fraction of soil volume which is water @ wilting point', &
+          patchout%swilt, 'real', xID, yID, zID, landID, patchID)
+      END IF
+    END IF
+    IF(output%hyds) THEN
+      IF (cable_user%gw_model) THEN
+        CALL define_ovar(ncid_out, opid%hyds,   &
+          'hyds', 'm/s', 'Hydraulic conductivity @ saturation', &
+          patchout%hyds, soilID,'soil', xID, yID, zID, landID, patchID)
+      ELSE
+        CALL define_ovar(ncid_out, opid%hyds,   &
+          'hyds', 'm/s', 'Hydraulic conductivity @ saturation', &
+          patchout%hyds, 'real', xID, yID, zID, landID, patchID)
+      END IF
+    END IF
+    IF(output%sucs) THEN
+      IF (cable_user%gw_model) THEN
+        ! gw_model uses sucs_vec that is a 2D variable
+        CALL define_ovar(ncid_out, opid%sucs,   &
+          'sucs', 'm', 'Suction @ saturation', &
+          patchout%sucs, soilID,'soil', xID, yID, zID, landID, patchID)
+      ELSE
+        CALL define_ovar(ncid_out, opid%sucs,   &
+         'sucs', 'm', 'Suction @ saturation', &      
          patchout%sucs, 'real', xID, yID, zID, landID, patchID)
+      END IF
+    END IF
     IF(output%css) CALL define_ovar(ncid_out, opid%css,     &
          'css', 'J/kg/C', 'Heat capacity of soil minerals', &
-         patchout%css, 'real', xID, yID, zID, landID, patchID)
-    IF(output%rhosoil) CALL define_ovar(ncid_out,           &
-         opid%rhosoil, 'rhosoil', 'kg/m^3', 'Density of soil minerals', &
-         patchout%rhosoil, 'real', xID, yID, zID, landID, patchID)
+!         patchout%css, 'real', xID, yID, zID, landID, patchID)
+         patchout%css, soilID,'soil', xID, yID, zID, landID, patchID)
+    IF(output%rhosoil) THEN
+      IF (cable_user%gw_model) THEN
+        CALL define_ovar(ncid_out,           &
+          opid%rhosoil, 'rhosoil', 'kg/m^3', 'Density of soil minerals', &
+          patchout%rhosoil, soilID,'soil', xID, yID, zID, landID, patchID) 
+      ELSE
+        CALL define_ovar(ncid_out,           &
+          opid%rhosoil, 'rhosoil', 'kg/m^3', 'Density of soil minerals', &
+          patchout%rhosoil, 'real', xID, yID, zID, landID, patchID)
+      END IF
+    END IF
     IF(output%rs20) CALL define_ovar(ncid_out, opid%rs20,   &
          'rs20', '-', 'Soil respiration coefficient at 20C', &
          patchout%rs20, 'real', xID, yID, zID, landID, patchID)
@@ -1245,6 +1378,24 @@ CONTAINS
     !                          patchout%GWdz, 'real', xID, yID, zID, landID, patchID)
     !
     IF(output%params .AND. cable_user%gw_model) THEN
+
+! block below inserted by rk4417 - phase2 
+            call define_ovar(ncid_out, opid%slope,   &
+           'slope', '-', 'mean subgrid topographic slope', &
+                          patchout%slope, 'real', xid, yid, zid, landid, patchid)
+            call define_ovar(ncid_out, opid%elev,   &
+           'elev', '-', 'mean subgrid topographic elev', &
+                          patchout%elev, 'real', xid, yid, zid, landid, patchid)
+
+           CALL define_ovar(ncid_out, opid%slope_std,   &
+           'slope_std', '-', 'Mean subgrid topographic slope_std', &
+                          patchout%slope_std, 'real', xID, yID, zID, landID, patchID)
+
+           CALL define_ovar(ncid_out, opid%GWdz,   &
+           'GWdz', '-', 'Mean aquifer layer thickness ', &
+                          patchout%GWdz, 'real', xID, yID, zID, landID, patchID)
+! end of block - rk4417 - phase2 
+
        CALL define_ovar(ncid_out, opid%Qhmax,   &
             'Qhmax', 'mm/s', 'Maximum subsurface drainage ', &
             patchout%Qhmax, 'real', xID, yID, zID, landID, patchID)
@@ -1376,55 +1527,119 @@ CONTAINS
       CALL check_and_write(opid%isoil,  &
            'isoil', REAL(soil%isoilm, 4), ranges%isoil, patchout%isoil, out_settings)
     END IF
-    out_settings%dimswitch = "real"
-    IF (output%bch) THEN
-      CALL check_and_write(opid%bch,      &
-           'bch', REAL(soil%bch, 4), ranges%bch, patchout%bch, out_settings)
+
+    
+    IF (cable_user%gw_model) THEN
+      out_settings%dimswitch = "soil"
+    
+      IF (output%bch) THEN
+          CALL  check_and_write(opid%bch,                                      &
+               'bch', REAL(soil%bch_vec, 4), ranges%bch, patchout%bch,         &
+               out_settings)
+      END IF
+      IF (output%clay) THEN
+          CALL  check_and_write(opid%clay,                                    &
+               'clay', REAL(soil%clay_vec, 4), ranges%clay, patchout%clay,   &
+               out_settings)
+      END IF
+      IF (output%sand) THEN
+          CALL  check_and_write(opid%sand,                                    &
+               'sand', REAL(soil%sand_vec, 4), ranges%sand, patchout%sand,   &
+               out_settings)
+      END IF
+      IF (output%silt) THEN   
+          CALL  check_and_write(opid%silt,                                    &
+               'silt', REAL(soil%silt_vec, 4), ranges%silt, patchout%silt,   &
+               out_settings)
+      END IF
+      IF (output%css) THEN
+          CALL  check_and_write(opid%css,                                      &
+               'css', REAL(soil%css_vec, 4), ranges%css, patchout%css,       &
+               out_settings)
+      END IF
+      IF (output%rhosoil) THEN
+          CALL  check_and_write(opid%rhosoil,                                &
+               'rhosoil', REAL(soil%rhosoil_vec, 4), ranges%rhosoil,         &
+               patchout%rhosoil, out_settings)
+      END IF
+      IF (output%hyds) THEN
+          CALL  check_and_write(opid%hyds,                                    &
+               'hyds', REAL(soil%hyds_vec, 4), ranges%hyds, patchout%hyds,   &
+               out_settings)
+      END IF
+      IF (output%sucs) THEN
+          CALL  check_and_write(opid%sucs,                                    &
+               'sucs', REAL(soil%sucs_vec, 4), ranges%sucs, patchout%sucs,   &
+               out_settings)
+      END IF
+      IF (output%ssat) THEN
+          CALL  check_and_write(opid%ssat,                                    &
+               'ssat', REAL(soil%ssat_vec, 4), ranges%ssat, patchout%ssat,   &
+               out_settings)
+      END IF
+      IF (output%sfc) THEN
+          CALL  check_and_write(opid%sfc,                                      &
+               'sfc', REAL(soil%sfc_vec, 4), ranges%sfc, patchout%sfc,       &
+               out_settings)
+      END IF
+      IF (output%swilt) THEN
+          CALL  check_and_write(opid%swilt,                                    &
+               'swilt', REAL(soil%swilt_vec, 4), ranges%swilt, patchout%swilt, &
+               out_settings)
+      END IF
+    ELSE
+     out_settings%dimswitch = "real"
+     IF (output%bch) THEN
+          CALL check_and_write(opid%bch,      &
+               'bch', REAL(soil%bch, 4), ranges%bch, patchout%bch, out_settings)
+     END IF
+     IF (output%clay) THEN
+          CALL check_and_write(opid%clay,    &
+               'clay', REAL(soil%clay, 4), ranges%clay, patchout%clay, out_settings)
+     END IF
+     IF (output%sand) THEN
+          CALL check_and_write(opid%sand,    &
+               'sand', REAL(soil%sand, 4), ranges%sand, patchout%sand, out_settings)
+     END IF
+     IF (output%silt) THEN
+          CALL check_and_write(opid%silt,    &
+               'silt', REAL(soil%silt, 4), ranges%silt, patchout%silt, out_settings)
+     END IF
+     IF (output%css) THEN
+          CALL check_and_write(opid%css,      &
+               'css', REAL(soil%css, 4), ranges%css, patchout%css, out_settings)
+     END IF
+     IF (output%rhosoil) THEN
+          CALL check_and_write(opid%rhosoil, 'rhosoil',REAL(soil%rhosoil,4), &
+               ranges%rhosoil, patchout%rhosoil, out_settings)
+     END IF
+     IF (output%hyds) THEN
+          CALL check_and_write(opid%hyds,    &
+               'hyds', REAL(soil%hyds, 4), ranges%hyds, patchout%hyds, out_settings)
+     END IF
+     IF (output%sucs) THEN
+          CALL check_and_write(opid%sucs,    &
+               'sucs', REAL(soil%sucs, 4), ranges%sucs, patchout%sucs, out_settings)
+     END IF
+     IF (output%ssat) THEN
+          CALL check_and_write(opid%ssat,    &
+               'ssat', REAL(soil%ssat, 4), ranges%ssat, patchout%ssat, out_settings)
+     END IF
+     IF (output%sfc) THEN
+          CALL check_and_write(opid%sfc,      &
+               'sfc', REAL(soil%sfc, 4), ranges%sfc, patchout%sfc, out_settings)
+     END IF
+     IF (output%swilt) THEN
+          CALL check_and_write(opid%swilt,  &
+               'swilt', REAL(soil%swilt, 4), ranges%swilt, patchout%swilt, out_settings)
+     END IF
     END IF
-    IF (output%clay) THEN
-      CALL check_and_write(opid%clay,    &
-           'clay', REAL(soil%clay, 4), ranges%clay, patchout%clay, out_settings)
-    END IF
-    IF (output%sand) THEN
-      CALL check_and_write(opid%sand,    &
-           'sand', REAL(soil%sand, 4), ranges%sand, patchout%sand, out_settings)
-    END IF
-    IF (output%silt) THEN
-      CALL check_and_write(opid%silt,    &
-           'silt', REAL(soil%silt, 4), ranges%silt, patchout%silt, out_settings)
-    END IF
-    IF (output%css) THEN
-      CALL check_and_write(opid%css,      &
-           'css', REAL(soil%css, 4), ranges%css, patchout%css, out_settings)
-    END IF
-    IF (output%rhosoil) THEN
-      CALL check_and_write(opid%rhosoil, 'rhosoil',REAL(soil%rhosoil,4), &
-           ranges%rhosoil, patchout%rhosoil, out_settings)
-    END IF
-    IF (output%hyds) THEN
-      CALL check_and_write(opid%hyds,    &
-           'hyds', REAL(soil%hyds, 4), ranges%hyds, patchout%hyds, out_settings)
-    END IF
-    IF (output%sucs) THEN
-      CALL check_and_write(opid%sucs,    &
-           'sucs', REAL(soil%sucs, 4), ranges%sucs, patchout%sucs, out_settings)
-    END IF
+
+    ! ccc - Currently the gw code does not include a vectorised rs20.
     IF (output%rs20) THEN
       CALL check_and_write(opid%rs20,    &
            'rs20', REAL(veg%rs20, 4), ranges%rs20, patchout%rs20, out_settings)
     !           'rs20',REAL(soil%rs20,4),ranges%rs20,patchout%rs20,out_settings)
-    END IF
-    IF (output%ssat) THEN
-      CALL check_and_write(opid%ssat,    &
-           'ssat', REAL(soil%ssat, 4), ranges%ssat, patchout%ssat, out_settings)
-    END IF
-    IF (output%sfc) THEN
-      CALL check_and_write(opid%sfc,      &
-           'sfc', REAL(soil%sfc, 4), ranges%sfc, patchout%sfc, out_settings)
-    END IF
-    IF (output%swilt) THEN
-      CALL check_and_write(opid%swilt,  &
-           'swilt', REAL(soil%swilt, 4), ranges%swilt, patchout%swilt, out_settings)
     END IF
 
     !    IF (output%slope) THEN
@@ -1447,10 +1662,17 @@ CONTAINS
     END IF
 
     IF (output%zse) THEN
-      out_settings%dimswitch = "soil"
-      CALL  check_and_write(opid%zse,      &
-            'zse', SPREAD(REAL(soil%zse, 4), 1, mp),ranges%zse, &
-            patchout%zse, out_settings)! no spatial dim at present
+        IF (cable_user%GW_MODEL) THEN
+          out_settings%dimswitch = "soil"
+          CALL  check_and_write(opid%zse,      &
+               'zse', REAL(soil%zse_vec, 4),ranges%zse, &
+               patchout%zse, out_settings)! no spatial dim at present
+        ELSE
+          out_settings%dimswitch = "soil"
+          CALL  check_and_write(opid%zse,      &
+               'zse', SPREAD(REAL(soil%zse, 4), 1, mp),ranges%zse, &
+               patchout%zse, out_settings)! no spatial dim at present
+        END IF
     END IF
 
     !~ Veg
