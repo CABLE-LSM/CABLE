@@ -268,7 +268,7 @@ MODULE cable_IO_vars_module
          CanT = .FALSE.,      & ! within-canopy temperature [K]
          Fwsoil = .FALSE.,      & ! soil moisture modifier to stomatal conductance
          Area = .FALSE., & ! patch area in km2
-         GPP_components = .FALSE.,    & ! sunlit and shaded GPP, plus J and C limited components
+         GPP_components = .TRUE.,    & ! sunlit and shaded GPP, plus J and C limited components
          Qcan = .FALSE.,     & ! absorbed radiation by canopy
 
          ! vh_mc ! additional variables for ESM-SnowMIP

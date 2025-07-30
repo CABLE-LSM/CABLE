@@ -797,7 +797,7 @@ CONTAINS
     ! Biomass removal is similar for pastures (e.g. Carlassare et al. 2002, Agronomy Journal) but 
     ! management- and region-specific. For pastures large parts of the removed biomass is added again as litter.
     ! Here, we only account for the C ending up in the end product and being respired by livestock.
-    REAL(dp), PARAMETER :: HIcrop = 0.5_dp
+    REAL(dp), PARAMETER :: HIcrop = 0.4_dp
     REAL(dp), PARAMETER :: HIpast = 0.2_dp
 
     ! turnover rates for harvest and clearance products (y-1)
