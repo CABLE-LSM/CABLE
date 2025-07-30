@@ -214,17 +214,9 @@ REAL, INTENT(IN) :: resp_w_pft_acc(land_pts,npft)
 !___ local vars
 !jhan: this can be moved and USEd - needed  to pass arg
 TYPE (climate_type) :: climate     ! climate variables
-REAL  :: rho_water, rho_ice
   
 LOGICAL, SAVE :: first_call = .TRUE.
 CHARACTER(LEN=*), PARAMETER :: subr_name = "cable_explicit_driver"
-
-rho_water = density_liq
-rho_ice   = density_liq
-
-IF (cable_user%GW_model) then
-  rho_ice = density_ice
-ENDIF      
 
 IF(first_call) THEN  
   !--- fill CABLE fields from UM ancillaries/fields, CABLE prognostics
