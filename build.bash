@@ -23,7 +23,8 @@ Options:
                 Specify the number of parallel jobs in the compilation. By
                 default this value is set to ${ncpus_default}.
   -l, --library
-                Build just CABLE science library (libscable_science.a)
+                Build just CABLE science library (libscable_science.a), for a
+                specified coupled application. Application defaults to "ESM".
   -h, --help    Show this screen.
 
 Enabling debug mode:
@@ -42,7 +43,7 @@ EOF
 # DEFAULTS
 
 # Configure
-cmake_args=(-DCMAKE_BUILD_TYPE=Release -DCABLE_MPI=OFF)
+cmake_args=(-DCMAKE_BUILD_TYPE=Release -DCABLE_MPI=OFF -DCABLE_LIBRARY_TARGET="ESM")
 
 # Build
 build_args=()
@@ -64,6 +65,7 @@ while [ ${#} -gt 0 ]; do
         -l|--library)
             build_args+=(--target cable_science)
             cmake_args+=(-DCABLE_LIBRARY="ON")
+            cmake_args+=(-DCABLE_LIBRARY_TARGET=${2})
             do_install=0 # Disable installation when only building the science library
             ;;
         -C|--compiler)

@@ -36,12 +36,13 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
         "$<$<CONFIG:Debug>:${CABLE_GNU_Fortran_FLAGS_DEBUG}>"
     )
 endif()
+
+# Set the module directory to assist Spack
 set(CMAKE_Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
 if(CABLE_LIBRARY)
 
-    add_library(
-        cable
-        STATIC
+    # Set the core sources
+    set(SOURCES
         src/science/albedo/cbl_albedo.F90
         src/science/albedo/cbl_snow_albedo.F90
         src/science/albedo/cbl_soilColour_albedo.F90
@@ -70,8 +71,6 @@ if(CABLE_LIBRARY)
         src/science/casa-cnp/casa_rplant.F90
         src/science/casa-cnp/casa_sumcflux.F90
         src/science/casa-cnp/casa_variable.F90
-        #src/science/gw_hydro/cable_gw_hydro.F90
-        #src/science/gw_hydro/cable_psm.F90
         src/science/landuse/landuse3.F90
         src/science/landuse/landuse_constant.F90
         src/science/misc/cable_air.F90
@@ -79,9 +78,6 @@ if(CABLE_LIBRARY)
         src/science/misc/cable_climate.F90
         src/science/pop/pop_constants.F90
         src/science/pop/pop_def.F90
-        #src/science/pop/POP.F90
-        #src/science/pop/pop_io.F90
-        #src/science/pop/POPLUC.F90
         src/science/pop/pop_types.F90
         src/science/radiation/cbl_init_radiation.F90
         src/science/radiation/cbl_radiation.F90
@@ -90,11 +86,6 @@ if(CABLE_LIBRARY)
         src/science/radiation/cbl_spitter.F90
         src/science/roughness/cable_roughness.F90
         src/science/roughness/roughnessHGT_effLAI_cbl.F90
-        #src/science/sli/cable_sli_main.F90
-        #src/science/sli/cable_sli_numbers.F90
-        #src/science/sli/cable_sli_roots.F90
-        #src/science/sli/cable_sli_solve.F90
-        #src/science/sli/cable_sli_utils.F90
         src/science/soilsnow/cbl_conductivity.F90
         src/science/soilsnow/cbl_GW.F90
         src/science/soilsnow/cbl_hyd_redistrib.F90
@@ -122,17 +113,6 @@ if(CABLE_LIBRARY)
         src/params/cable_maths_constants_mod.F90
         src/util/cable_runtime_opts_mod.F90
         src/util/cable_common.F90
-        src/coupled/esm/cable_iovars.F90
-        src/coupled/esm/cable_surface_types.F90
-        src/coupled/esm/cable_define_types.F90
-        src/coupled/esm/cable_soil_params_mod.F90
-        src/coupled/esm/cable_pft_params_mod.F90
-        src/coupled/esm/casa_landuse.F90
-        src/coupled/esm/LAI_canopy_height_cbl.F90
-        #src/shared/casa_offline_inout.F90
-        #src/shared/casa_ncdf.F90
-        #src/shared/cable_phenology.F90
-        #src/shared/cable_LUC_EXPT.F90
         src/coupled/shared/cable_canopy_type_mod.F90
         src/coupled/shared/cable_soilsnow_type_mod.F90
         src/coupled/shared/cable_soil_type_mod.F90
@@ -140,10 +120,30 @@ if(CABLE_LIBRARY)
         src/util/cable_climate_type_mod.F90
         src/util/masks_cbl.F90
     )
+
+if(CABLE_LIBRARY_TARGET STREQUAL "ESM")
+        list(APPEND SOURCES
+            src/coupled/esm/cable_iovars.F90
+            src/coupled/esm/cable_surface_types.F90
+            src/coupled/esm/cable_define_types.F90
+            src/coupled/esm/cable_soil_params_mod.F90
+            src/coupled/esm/cable_pft_params_mod.F90
+            src/coupled/esm/casa_landuse.F90
+            src/coupled/esm/LAI_canopy_height_cbl.F90
+        )
+    
+    else()
+        message(STATUS "Specified library application does not exist")
+    endif()
+    # Can conditionally include files for other shared apps here
+    # e.g. IF (CABLE_TARGET STREQUAL "AM3")
+
+    add_library(cable_science STATIC ${SOURCES})
     target_compile_definitions(cable PRIVATE UM_CBL)
+
     target_include_directories(cable PUBLIC "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 
-    install(TARGETS cable
+    install(TARGETS cable_science
       EXPORT CABLEFortranTargets
       LIBRARY DESTINATION lib
       INCLUDES DESTINATION include)
