@@ -121,7 +121,7 @@ if(CABLE_LIBRARY)
         src/util/masks_cbl.F90
     )
 
-if(CABLE_LIBRARY_TARGET STREQUAL "ESM")
+if(CABLE_LIBRARY_TARGET STREQUAL "ESM1.6")
         list(APPEND SOURCES
             src/coupled/esm/cable_iovars.F90
             src/coupled/esm/cable_surface_types.F90

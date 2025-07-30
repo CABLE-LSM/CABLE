@@ -43,7 +43,7 @@ EOF
 # DEFAULTS
 
 # Configure
-cmake_args=(-DCMAKE_BUILD_TYPE=Release -DCABLE_MPI=OFF -DCABLE_LIBRARY_TARGET="ESM")
+cmake_args=(-DCMAKE_BUILD_TYPE=Release -DCABLE_MPI=OFF -DCABLE_LIBRARY_TARGET="ESM1.6")
 
 # Build
 build_args=()
