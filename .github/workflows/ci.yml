@@ -16,3 +16,4 @@ jobs:
     with:
       spack-manifest-path: ${{ matrix.spack-manifest-path }}
       allow-ssh-into-spack-install: false
+      container-image-version: :rocky-2025.07.002
