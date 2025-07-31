@@ -131,6 +131,7 @@ if(CABLE_LIBRARY_TARGET STREQUAL "ESM1.6")
             src/coupled/esm/casa_landuse.F90
             src/coupled/esm/LAI_canopy_height_cbl.F90
         )
+        add_compile_options(-r8 -i8)
     
     else()
         message(STATUS "Specified library application does not exist")
@@ -139,9 +140,9 @@ if(CABLE_LIBRARY_TARGET STREQUAL "ESM1.6")
     # e.g. IF (CABLE_TARGET STREQUAL "AM3")
 
     add_library(cable_science STATIC ${SOURCES})
-    target_compile_definitions(cable PRIVATE UM_CBL)
+    target_compile_definitions(cable_science PRIVATE UM_CBL)
 
-    target_include_directories(cable PUBLIC "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
+    target_include_directories(cable_science PUBLIC "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 
     install(TARGETS cable_science
       EXPORT CABLEFortranTargets
