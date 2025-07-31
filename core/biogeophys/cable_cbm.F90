@@ -159,12 +159,12 @@ CONTAINS
 
       ! RML moved out of following IF after discussion with Eva
       ! ssnow%owetfac = ssnow%wetfac
-      do i = 1, mp
-         diff_Esr_Erl_i = i
+      ! do i = 1, mp
+      !    diff_Esr_Erl_i = i
       
-         psix = rtbis(diff_Esr_Erl,l_bound, u_bound, 0.01)
-         ssnow%total_est_evap(i) = Esupply(psix)
-      end do
+      !    psix = rtbis(diff_Esr_Erl,l_bound, u_bound, 0.01)
+      !    ssnow%total_est_evap(i) = Esupply(psix)
+      ! end do
 
       IF (cable_runtime%um) THEN
          IF (cable_runtime%um_implicit) THEN
