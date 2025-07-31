@@ -2,6 +2,22 @@ spack:
   specs:
     - cable@git.{{ ref }}
   packages:
+    # Since any spack.packages.all.require statement affects package reuse, and
+    # package reuse is especially important in this repo,  we need to pin
+    # versions of packages.
+    # NOTE: This will change between versions of the ci.ymls container-runner-image.
+    cmake:
+      require:
+      - '/bbw5qer'
+    gmake:
+      require:
+      - '/nql6rht'
+    netcdf-c:
+      require:
+      - '/o343qzy'
+    openmpi:
+      require:
+      - '/mglfhd4'
     all:
       require:
       - '%gcc@13.2.0 target=x86_64'
