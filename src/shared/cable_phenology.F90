@@ -43,6 +43,12 @@ CONTAINS
     USE casaparm
     USE casavariable
     USE phenvariable
+!data
+USE cable_surface_types_mod, ONLY: evergreen_needleleaf, deciduous_needleleaf
+USE cable_surface_types_mod, ONLY: evergreen_broadleaf, deciduous_broadleaf    
+USE cable_surface_types_mod, ONLY: c3_grassland, c4_cropland, shrub_cable  
+USE cable_surface_types_mod, ONLY: aust_temperate, aust_tropical         
+
     IMPLICIT NONE
 
     TYPE (veg_parameter_type), INTENT(IN)    :: veg  ! vegetation parameters
@@ -60,16 +66,23 @@ CONTAINS
     DO np= 1,mp
 
        ! evergreen pfts
-       IF (veg%iveg(np) == 31 .OR. veg%iveg(np) == 2 .OR. veg%iveg(np) == 5) THEN
+       !!bitwiseIF ( veg%iveg(np) == evergreen_needleleaf .OR.                          &
+       IF ( veg%iveg(np) == evergreen_broadleaf  .OR.                          &
+            veg%iveg(np) == aust_temperate       .OR.                          &
+            veg%iveg(np) == shrub_cable           ) THEN
+
           phen%doyphase(np,1) = -50
           phen%doyphase(np,2) = phen%doyphase(np,1) +14
           phen%doyphase(np,3) = 367
           phen%doyphase(np,4) = phen%doyphase(np,3) + 14
           phen%phase(np) = 2
+       
        ENDIF
 
        ! summergreen woody pfts
-       IF (veg%iveg(np) == 3 .OR. veg%iveg(np) == 4) THEN  ! deciduous needleleaf(3) and broadleaf(4)
+       IF ( veg%iveg(np) == deciduous_needleleaf .OR.                          &
+            veg%iveg(np) == deciduous_broadleaf  .OR.                          & 
+            veg%iveg(np) == aust_tropical         ) THEN
 
           ! Calculate GDD0  base value (=gdd to bud burst) for this PFT given
           !  current length of chilling period (Sykes et al 1996, Eqn 1)
@@ -89,24 +102,29 @@ CONTAINS
        ENDIF
 
        ! summergreen grass or crops
-       IF (veg%iveg(np).GE.6.AND.veg%iveg(np).LE.10)  THEN     ! grass or crops
+       IF ( veg%iveg(np) .GE. c3_grassland .AND.                               &
+            veg%iveg(np) .LE. c4_cropland    ) THEN
 
           phengdd5ramp = 50
           phen_tmp = MIN(1.0_r_2, climate%gdd5(np)/phengdd5ramp)
 
        ENDIF
 
-       ! raingreen pfts
-       IF (veg%iveg(np).GE.6.AND.veg%iveg(np).LE.10) THEN ! (grass or crops) need to include raingreen savanna trees here too
+       ! raingreen pfts! (grass or crops) 
+       ! need to include raingreen savanna trees here too
+       IF ( veg%iveg(np) .GE. c3_grassland .AND.                               &
+            veg%iveg(np) .LE. c4_cropland ) THEN
 
           IF (climate%dmoist(np).LT. mmoisture_min) phen_tmp = 0.0
 
 
        ENDIF
 
-       IF ((veg%iveg(np) == 3 .OR. veg%iveg(np) == 4) .OR. &
-            (veg%iveg(np).GE.6.AND.veg%iveg(np).LE.10)) THEN
-
+       IF (   veg%iveg(np) == deciduous_needleleaf  .OR.                       &
+              veg%iveg(np) == deciduous_broadleaf   .OR.                       &
+              veg%iveg(np) == aust_tropical         .OR.                       &
+              ( veg%iveg(np) .GE. c3_grassland                                 &
+                .AND. veg%iveg(np) .LE. c4_cropland ) ) THEN
 
           IF (phen_tmp.GT.0.0 .AND.( phen%phase(np).EQ.3 .OR. phen%phase(np).EQ.0 )) THEN
              phen%phase(np) = 1 ! greenup
