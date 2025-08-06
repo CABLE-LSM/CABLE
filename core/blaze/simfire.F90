@@ -522,10 +522,10 @@ ENDIF
 
 END FUNCTION ANNUAL_BA
 
-SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate )
+SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOURCE, FSTEP )
 
   USE CABLE_COMMON_MODULE, ONLY: IS_LEAPYEAR
-  USE cable_IO_vars_module, ONLY:  landpt
+  USE cable_IO_vars_module, ONLY:  landpt, patch
 
   USE CABLE_DEF_TYPES_MOD, ONLY:  climate_type
   USE netcdf
@@ -536,15 +536,40 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate )
   REAL,    INTENT(IN) :: RAINF(*), TMAX(*), TMIN(*)
   REAL,    INTENT(OUT):: AB(*)
   INTEGER, INTENT(IN) :: YEAR, MM
+  CHARACTER(len=10), INTENT(IN) :: FAPARSOURCE
+  CHARACTER(len=7), INTENT(IN)  :: FSTEP                !trigger on whether to use daily/annual Nesterov
   TYPE (CLIMATE_TYPE), INTENT(IN)     :: climate
 
-  INTEGER :: i, DOM(12), DOY
+  INTEGER :: i, DOM(12), DOY, p, patch_index
 
   DOM = (/ 31,28,31,30,31,30,31,31,30,31,30,31 /)
   IF ( IS_LEAPYEAR(YEAR) ) DOM(2) = 29
 
-  SF%FAPAR = climate%AvgAnnMaxFAPAR(landpt(:)%cstart)
-  SF%MAX_NESTEROV =  climate%Nesterov_ann_running_max(landpt(:)%cstart)
+  !INH 2025-04 - add case whereby inline evaluation of %fapar_ann_max_last_year used
+  ! as the climatolgical value for AvgAnnMaxFAPAR.  Choice controlled by switch %faparsource in BLAZE NML
+  ! AvgAnnMaxFAPAR is read in from file %faparfilename and constant through run
+  IF (FAPARSOURCE .eq. "inline") THEN
+      !evaluate (current estiamte) grid-cell averaged max_fapar
+      DO i=1,SF%NCELLS
+         DO p = 1, landpt(i)%nap  ! loop over number of active patches
+            patch_index = landpt(i)%cstart + p - 1 ! patch index in CABLE vector
+            SF%FAPAR(i) = SF%FAPAR(i) + real(climate%fapar_ann_max_last_year(patch_index)*patch(patch_index)%frac)
+         ENDDO
+         !constrain %FAPAR - should not be needed
+         SF%FAPAR(i) = MIN(MAX(SF%FAPAR(i),0.0),1.0)
+      ENDDO
+
+  ELSE  !FAPARSOURCE is "fromfile - original code
+     SF%FAPAR = climate%AvgAnnMaxFAPAR(landpt(:)%cstart)
+  END IF
+
+  !INH: using BLAZE%FSTEP to switch between daily Nesterov and annual max Nesterov
+  ! - defaults to annual max
+  IF (TRIM(FSTEP) .eq. "daily") THEN
+     SF%MAX_NESTEROV = climate%Nesterov_Current(landpt(:)%cstart)
+  ELSE
+     SF%MAX_NESTEROV =  climate%Nesterov_ann_running_max(landpt(:)%cstart)
+  END IF
   !SF%BA_CLIM_FILE = "/OSM/CBR/OA_GLOBALCABLE/work/Data_BLAZE/simfire_monthly_ba.nc"
 
   ! Housekeeping first
@@ -588,7 +613,14 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate )
       !endif
 
       ! Daily Burned Area
-      AB(i) = AB(i) *  SF%BA_MONTHLY_CLIM(i,MM) / DOM(MM)
+      !INH: using BLAZE%FSTEP to switch between daily Nesterov and annual max Nesterov
+      ! - defaults to using annual max.  Daily Nesterov should pick up seasonality.
+      IF (TRIM(FSTEP) .eq. "annual") THEN
+         AB(i) = AB(i) *  SF%BA_MONTHLY_CLIM(i,MM) / DOM(MM)
+      ELSE
+         !factor 3 is approximate for now maybe Nesterov_running_max/Nesterov_current
+         AB(i) = 3.0* AB(i) / 365.0
+      END IF 
 
    END DO
 

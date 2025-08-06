@@ -19,7 +19,7 @@ TYPE TYPE_BLAZE
    CHARACTER                            :: GFEDP*80, FSTEP*7
    CHARACTER(len=6) :: OUTTSTEP  !"daily" or "ascasa"
    CHARACTER(LEN=4)                     :: OUTMODE = "full" !"std" ! "full" for diagnostical purposes
-   CHARACTER(len=8) :: BLAZE_TSTEP    = "annually"  ! Call frequency ("daily","monthly","annually")
+   !CHARACTER(len=8) :: BLAZE_TSTEP    = "annual"    ! Call frequency ("daily","monthly","annual")
    CHARACTER(len=6) :: SIMFIRE_REGION = "GLOBAL"    ! either GLOBAL, EUROPE, ANZ
    CHARACTER(len=7) :: BURNT_AREA_SRC = "SIMFIRE"   ! either SIMFIRE or NONE !CLN for now!
    INTEGER                              :: IAM ! number of master/worker for diagnostic output reasons
@@ -128,7 +128,7 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   TYPE(TYPE_BLAZE)   , INTENT(INOUT) :: BLAZE
   INTEGER, PARAMETER  :: NPOOLS = 3
   CHARACTER(len=400)  :: BurnedAreaFile = "", OutputMode="full", igbpfilename, faparfilename 
-  CHARACTER(len=10)   :: BurnedAreaSource = "SIMFIRE", blazeTStep = "annually", faparsource ="fromfile"
+  CHARACTER(len=10)   :: BurnedAreaSource = "SIMFIRE", blazeTStep = "annual", faparsource ="fromfile"
   CHARACTER(len=6)    :: outtstep = "daily"
   INTEGER :: iu
 
@@ -231,6 +231,10 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   BLAZE%AB        = 0.
   BLAZE%DEADWOOD  = 0.
   BLAZE%FSTEP     = TRIM(blazeTStep)
+  IF ( (TRIM(BLAZE%FSTEP) .ne. "daily") .and. (TRIM(BLAZE%FSTEP) .ne. "annual") ) THEN
+     WRITE(*,*) "error: blazeTstep needs to be daily or annual"
+     STOP
+  END IF
 
   BLAZE%LAT       = LAT
   BLAZE%LON       = LON
@@ -963,14 +967,14 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
      WRITE(*,*)'GFED4 BA not available. Set cable_user%BURNT_AREA == "SIMFIRE"'
      STOP -1
      IF ( TRIM(BLAZE%FSTEP) .EQ. "none" ) THEN
-        CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB, climate )
+        CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB, climate, BLAZE%faparsource, BLAZE%FSTEP )
         popd = SF%POPD
         mnest= SF%MAX_NESTEROV
         BLAZE%FSTEP = "annual"
      ENDIF
   ELSEIF ( TRIM(BLAZE%BURNT_AREA_SRC) .EQ. "SIMFIRE" ) THEN
      ! CALL SIMFIRE DAILY FOR ACOUNTING OF PARAMETERS
-     CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB , climate)
+     CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB , climate, BLAZE%faparsource, BLAZE%FSTEP )
 
      DO np = 1, BLAZE%NCELLS
         IF ( AVAIL_FUEL(1, CPLANT_w(np,:), CPLANT_g(np,:),BLAZE%AGLit_w(np,:), &

@@ -24,6 +24,7 @@ MODULE cable_climate_mod
   USE TypeDef,              ONLY: i4b, dp
   USE cable_IO_vars_module, ONLY: patch
   USE CABLE_COMMON_MODULE,  ONLY: CurYear, filename, cable_user, HANDLE_ERR
+  USE cable_radiation_module,  ONLY: sinbet     !INH - for more general clock-dependencies
 
 CONTAINS
 
@@ -48,7 +49,7 @@ SUBROUTINE cable_climate(ktau, kstart, ktauday, idoy, LOY, &
   REAL,                     INTENT(IN)    :: dels      ! integration time setp (s)
   INTEGER,                  INTENT(IN)    :: np
 
-  INTEGER :: d, y
+  INTEGER :: i, d, y
   INTEGER, PARAMETER :: COLDEST_DAY_NHEMISPHERE = 355
   INTEGER, PARAMETER :: COLDEST_DAY_SHEMISPHERE = 172
   real, PARAMETER :: CoeffPT = 1.26
@@ -159,10 +160,11 @@ SUBROUTINE cable_climate(ktau, kstart, ktauday, idoy, LOY, &
 
         ! Nesterov Index
         WHERE ( climate%dprecip .GE. 3. .OR. (climate%dtemp_max -climate%dtemp_min) .LT. 4.)
-           climate%Nesterov_Current = 0
+           climate%Nesterov_Current = 0.0
         ELSEWHERE
+           !need to catch dtemp_max<0.0
            climate%Nesterov_Current = climate%Nesterov_Current + &
-                ( climate%dtemp_max -climate%dtemp_min + 4. ) * climate%dtemp_max
+                MAX( (climate%dtemp_max -climate%dtemp_min + 4. ) * climate%dtemp_max,0.0)
         END WHERE
         climate%Nesterov_ann_max = MAX(climate%Nesterov_Current,climate%Nesterov_ann_max)
         climate%Nesterov_ann_max = MIN(150000.,climate%Nesterov_ann_max)
@@ -188,14 +190,26 @@ SUBROUTINE cable_climate(ktau, kstart, ktauday, idoy, LOY, &
   ENDIF
 
   !  midday fraction of incoming visible radiation absorbed by the canopy
-  IF ( mod(ktau,INT(24.0*3600.0/dels)) == INT(24.0*3600.0/dels)/2 ) THEN
-     ! climate%fapar_ann_max =   max( (1.-rad%rhocdf(:,1))*(1.-rad%fbeam(:,1)) + &
-     !      (1.-rad%rhocbm(:,1))*rad%fbeam(:,1) , climate%fapar_ann_max)
-     WHERE (rad%fbeam(:,1).GE.0.01)
-        climate%fapar_ann_max = max(1.- rad%extkbm(:,1)*canopy%vlaiw,  &
-             climate%fapar_ann_max)
-     ENDWHERE
-  ENDIF
+  !IF ( mod(ktau,INT(24.0*3600.0/dels)) == INT(24.0*3600.0/dels)/2 ) THEN
+  !   ! climate%fapar_ann_max =   max( (1.-rad%rhocdf(:,1))*(1.-rad%fbeam(:,1)) + &
+  !   !      (1.-rad%rhocbm(:,1))*rad%fbeam(:,1) , climate%fapar_ann_max)
+  !   WHERE (rad%fbeam(:,1).GE.0.01)
+  !      climate%fapar_ann_max = max(1.- rad%extkbm(:,1)*canopy%vlaiw,  &
+  !           climate%fapar_ann_max)
+  !   ENDWHERE 
+  !ENDIF
+  
+  ! INH - I think the above is wrong - surely easiest to evaluate from %qcan(b=1) at local minimum zenith angle
+  ! also the mod() approach above will not work if simulation starts not at local midnight.
+  ! %fapar_timestep = (rad%qcan(:,1,b) + rad%qcan(:,2,b) / met%fsd(:,b ) so 
+   DO i=1,np
+      IF( ABS(met%coszen(i)-sinbet(met%doy(i),rad%latitude(i),12.0))<0.1) THEN
+         IF (rad%fbeam(i,1)>0.01) THEN
+           climate%fapar_ann_max(i) = max( ((rad%qcan(i,1,1) + rad%qcan(i,2,1)) / max(met%fsd(i,1),0.001)), &
+                       climate%fapar_ann_max(i))
+         ENDIF
+     END IF
+   END DO 
 
   ! accumulate sub-diurnal sun- and shade-leaf met variables that are relevant for calc of Anet
   climate%APAR_leaf_sun(:,1:nsd-1)   = climate%APAR_leaf_sun(:,2:nsd)
@@ -411,7 +425,14 @@ SUBROUTINE cable_climate(ktau, kstart, ktauday, idoy, LOY, &
 
            climate%aprecip_av20 = 0.0
 
-           climate%fapar_ann_max_last_year = climate%fapar_ann_max
+           ! INH 2025-04 - revise - if BLAZE%faparsource="inline" BLAZE will use
+           ! %fapar_ann_max_last_year not %AvgAnnMaxFAPAR
+           ! For BLAZE active runs %fapar_ann_max_last_year is now smoothed average (~20 years)
+           if (cable_user%call_blaze>1) then
+              climate%fapar_ann_max_last_year = 0.95*climate%fapar_ann_max_last_year + 0.05*climate%fapar_ann_max
+           else !keep original meaning
+               climate%fapar_ann_max_last_year = climate%fapar_ann_max
+           end if
 
            climate%Nesterov_ann_max_last_year = climate%Nesterov_ann_max
 

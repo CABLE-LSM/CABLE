@@ -651,7 +651,7 @@ MODULE cable_def_types_mod
           dtemp_min => null(), &                   ! daily minimum temperature
           fdorm => null(), &                       ! dormancy fraction (1 prior to first autumn frost; 0 after 10 severe frosts)
           fapar_ann_max => null(), &               ! maximum midday fpar so far this year
-          fapar_ann_max_last_year => null(), &     ! maximum midday fpar last year
+          fapar_ann_max_last_year => null(), &     ! maximum midday fpar last year - revised - if BLAZE then ~running average of fapar_ann_max
           AvgAnnMaxFAPAR => null(), &              ! average annual maximum FAPAR
           dtemp_max => null(), &                   ! daily maximum temperature
           drhum => null(),      &                  ! daily average relative humidity
