@@ -750,11 +750,12 @@ PROGRAM cable_offline_driver
                  end if
               end if
 
-              ! additional params needed for BLAZE
-              if (trim(cable_user%MetType) == 'bios') &
-                   call cable_bios_load_climate_params(climate)
-
               if (cable_user%CALL_BLAZE) then
+                 # Additional params needed for BLAZE
+                 if (trim(cable_user%MetType) == 'bios') then
+                   call cable_bios_load_climate_params(climate)
+                 endif
+
                  print*, "CLN BLAZE INIT"
                  call INI_BLAZE(mland, rad%latitude(landpt(:)%cstart), &
                       rad%longitude(landpt(:)%cstart), BLAZE)
