@@ -752,7 +752,7 @@ PROGRAM cable_offline_driver
 
               if (cable_user%CALL_BLAZE) then
                  # Additional params needed for BLAZE
-                 if (trim(cable_user%mettype) == 'bios') then
+                 if (trim(cable_user%MetType) == 'bios') then
                    call cable_bios_load_climate_params(climate)
                  endif
 
