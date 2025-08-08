@@ -1872,8 +1872,8 @@ CONTAINS
          ENDDO
 
        CASE DEFAULT
-         WRITE(logn, "(A,I,A)") "Error SWdown rank not supported. SWdown in &
-             &met file has ", ndims, " rank"
+         WRITE(logn, "(A,I0,A)") "Error SWdown rank not supported. SWdown in " // &
+             "met file has ", ndims, " rank"
          STOP
        END SELECT 
 
@@ -1910,8 +1910,8 @@ CONTAINS
          ENDDO
 
        CASE DEFAULT
-         WRITE(logn, "(A,I,A)") "Error Tair rank not supported. Tair in &
-             &met file has ", ndims, " rank"
+         WRITE(logn, "(A,I0,A)") "Error Tair rank not supported. Tair in " // &
+             "met file has ", ndims, " rank"
          STOP
        END SELECT
 
@@ -1943,8 +1943,8 @@ CONTAINS
                    REAL(tmpDat4(land_x(i),land_y(i),1,1)) * convert%PSurf
            ENDDO
          CASE DEFAULT
-           WRITE(logn, "(A,I,A)") "Error PSurf rank not supported. PSurf in &
-               &met file has ", ndims, " rank"
+           WRITE(logn, "(A,I0,A)") "Error PSurf rank not supported. PSurf in " // &
+               "met file has ", ndims, " rank"
            STOP
          END SELECT
 
@@ -2004,8 +2004,8 @@ CONTAINS
            ENDDO
          END IF
        CASE DEFAULT
-         WRITE(logn, "(A,I,A)") "Error PSurf rank not supported. PSurf in &
-               &met file has ", ndims, " rank"
+         WRITE(logn, "(A,I0,A)") "Error PSurf rank not supported. PSurf in " // &
+               "met file has ", ndims, " rank"
          STOP
        END SELECT
 
@@ -2038,8 +2038,8 @@ CONTAINS
                    REAL(tmpDat4(land_x(i),land_y(i),1,1))
            ENDDO
          CASE DEFAULT
-           WRITE(logn, "(A,I,A)") "Error Wind rank not supported. Wind in &
-                  &met file has ", ndims, " rank"
+           WRITE(logn, "(A,I0,A)") "Error Wind rank not supported. Wind in " // &
+                  "met file has ", ndims, " rank"
            STOP
          END SELECT ! 3 or 4D for 'Wind' variable
        ELSE ! Vector wind
@@ -2092,8 +2092,8 @@ CONTAINS
                    REAL(tmpDat4(land_x(i),land_y(i),1,1))**2)
            ENDDO
          CASE DEFAULT
-           WRITE(logn, "(A,I,A)") "Error Wind_N rank not supported. Wind_N &
-                  &in met file has ", ndims, " rank"
+           WRITE(logn, "(A,I0,A)") "Error Wind_N rank not supported. Wind_N " // &
+                  "in met file has ", ndims, " rank"
            STOP           
          END SELECT ! 3 or 4D for 'Wind_N' and 'Wind_E' variables
        END IF ! scalar or vector wind - 'Wind' or 'Wind_N'/'Wind_E'
@@ -2127,8 +2127,8 @@ CONTAINS
          ENDDO
 
        CASE DEFAULT
-         WRITE(logn, "(A,I,A)") "Error Rainf rank not supported. Rainf &
-               &in met file has ", ndims, " rank"
+         WRITE(logn, "(A,I0,A)") "Error Rainf rank not supported. Rainf " // &
+               "in met file has ", ndims, " rank"
          STOP           
          
        END SELECT
@@ -2164,8 +2164,8 @@ CONTAINS
             ENDDO
          
           CASE DEFAULT
-            WRITE(logn, "(A,I,A)") "Error Snowf rank not supported. Snowf &
-               &in met file has ", ndims, " rank"
+            WRITE(logn, "(A,I0,A)") "Error Snowf rank not supported. Snowf " // &
+               "in met file has ", ndims, " rank"
             STOP           
          
           END SELECT
@@ -2221,8 +2221,8 @@ CONTAINS
             ENDDO
 
           CASE DEFAULT
-            WRITE(logn, "(A,I,A)") "Error LWdown rank not supported. LWdown &
-               &in met file has ", ndims, " rank"
+            WRITE(logn, "(A,I0,A)") "Error LWdown rank not supported. LWdown " // &
+               "in met file has ", ndims, " rank"
             STOP           
          
           END SELECT
@@ -2259,8 +2259,8 @@ CONTAINS
             END DO
          
          CASE DEFAULT
-            WRITE(logn, "(A,I,A)") "Error CO2air rank not supported. CO2air &
-               &in met file has ", ndims, " rank"
+            WRITE(logn, "(A,I0,A)") "Error CO2air rank not supported. CO2air " // &
+               "in met file has ", ndims, " rank"
             STOP           
          
          END SELECT
