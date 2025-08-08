@@ -15,10 +15,8 @@ build:
         if [ "$READTHEDOCS_VERSION_TYPE" = "external" ];
         then
           ford --no-search documentation/cable_ford.md
-          ford --no-search documentation/pop_ford.md
         else
           ford -g documentation/cable_ford.md
-          ford -g documentation/pop_ford.md
         fi
       - python -m pip install --exists-action=w --no-cache-dir -r documentation/mkdocs-requirements.txt
 
