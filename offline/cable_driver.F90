@@ -1035,7 +1035,7 @@ PROGRAM cable_offline_driver
                        CALL BLAZE_ACCOUNTING(BLAZE, climate, ktau, dels, YYYY, idoy)
 
                        call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                            casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg, cable_user%CALL_BLAZE)
+                            casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg, cable_user%CALL_BLAZE, cable_user%CALL_POP)
                        
                        !blaze output: daily or ascasa (ascasa option done alongside CASA output - see below)
                        IF (TRIM(BLAZE%OUTTSTEP) .eq. "daily") THEN

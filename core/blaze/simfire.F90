@@ -406,7 +406,7 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
            IF ( wTOT .EQ. 0. ) THEN
               ! There are land-pixels in the CABLE grid that are non-land in HYDE 3.1
               ! therefore assume zero population on these
-              WRITE(*,*)"Pixel LAT:",SF%LAT(i)," LON:",SF%LON(i)," does not contain land!"
+              WRITE(*,*)"Pixel LAT:",SF%LAT(i)," LON:",SF%LON(i)," does not contain land in HYDE population data"
               !CLN STOP "GET_POPDENS in simfire_mod.f90"
               wPOPD = 0.
               wTOT  = 1.
@@ -549,8 +549,9 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOUR
   ! as the climatolgical value for AvgAnnMaxFAPAR.  Choice controlled by switch %faparsource in BLAZE NML
   ! AvgAnnMaxFAPAR is read in from file %faparfilename and constant through run
   IF (FAPARSOURCE .eq. "inline") THEN
-      !evaluate (current estiamte) grid-cell averaged max_fapar
+      !evaluate (current estimate) grid-cell averaged max_fapar
       DO i=1,SF%NCELLS
+         SF%FAPAR(i) = 0.0
          DO p = 1, landpt(i)%nap  ! loop over number of active patches
             patch_index = landpt(i)%cstart + p - 1 ! patch index in CABLE vector
             SF%FAPAR(i) = SF%FAPAR(i) + real(climate%fapar_ann_max_last_year(patch_index)*patch(patch_index)%frac)
@@ -566,7 +567,10 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOUR
   !INH: using BLAZE%FSTEP to switch between daily Nesterov and annual max Nesterov
   ! - defaults to annual max
   IF (TRIM(FSTEP) .eq. "daily") THEN
-     SF%MAX_NESTEROV = climate%Nesterov_Current(landpt(:)%cstart)
+     !over 1950-2020 current_Nestrov is ~0.4 of annual Max Nesterov
+     !150000 is max value allowed in cable_climate
+     SF%MAX_NESTEROV = 2.5*climate%Nesterov_Current(landpt(:)%cstart)
+     SF%MAX_NESTEROV = MAX(SF%MAX_NESTEROV,150000.0)
   ELSE
      SF%MAX_NESTEROV =  climate%Nesterov_ann_running_max(landpt(:)%cstart)
   END IF
@@ -579,6 +583,12 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOUR
 
   DO i = 1, SF%NCELLS
      AB(i) = ANNUAL_BA( SF%FAPAR(i), SF%MAX_NESTEROV(i), SF%POPD(i), SF%BIOME(i), SF%REGION(i) )
+
+     !apply randomness to AB
+     !IF (SF%STOCH_AREA) THEN
+     !AB(i) = STOCH_AREA(AB(i),grid_area,patch(i)%latitude,patch(i)%longitude,YEAR,MM,DOY)
+     !END IF
+
      AB(i) = MAX( 0., MIN(AB(i),.99) )
      !write(*,*) 'SF%FAPAR, SF%MAX_NESTEROV, SF%POPD, SF%BIOME, SF%REGION, AB'
      !write(*,"(200e16.6)") ,SF%FAPAR(i), SF%MAX_NESTEROV(i), SF%POPD(i), real(SF%BIOME(i)), real(SF%REGION(i)), AB(i)
@@ -618,8 +628,8 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOUR
       IF (TRIM(FSTEP) .eq. "annual") THEN
          AB(i) = AB(i) *  SF%BA_MONTHLY_CLIM(i,MM) / DOM(MM)
       ELSE
-         !factor 3 is approximate for now maybe Nesterov_running_max/Nesterov_current
-         AB(i) = 3.0* AB(i) / 365.0
+         !seasnality comes in through using current Nesterov
+         AB(i) = AB(i) / 365.0
       END IF 
 
    END DO
@@ -627,5 +637,34 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOUR
 
 
 END SUBROUTINE SIMFIRE
+
+!SUBROUTINE STOCH_AREA(AB,gca,lat,lon,YR,MON,DAY)
+!
+!simple function to aply some deterministic randomness to burnt area 
+!
+!IMPLICIT NONE
+!
+!REAL, INTENT(INOUT) :: AB
+!REAL, INTENT(IN)    :: gca, lat, lon, ktau, dels
+!INTEGER, INTENT(IN) :: YEAR, MON, DAY
+!REAL                :: ref_gca = 25.0, eps = 1.0
+
+!working vars
+!REAL                :: dtime, lambda, x, y
+
+!create a randome numbr seed that is deterministic but varies in time, space
+!dtime = 365.*REAL(year) + 30.*REAL(MON)  + REAL(DAY)
+!y = (ABS(lat)+eps)*(ABS(lon)+eps)*dtime/86400.0
+
+!create lambda parameter for exponential distribution
+! will be small for AB large and cell area small
+!lambda = gca / AB / ref_gca
+!x = (5.0/lambda) * RANDOM_NUMBER(y)
+
+!stochastically disturbed AB
+!AB = AB*lambda*lambda*EXP(-lambda*x)
+
+!END SUBROUTINE STOCH_AREA
+
 
 END MODULE SIMFIRE_MOD

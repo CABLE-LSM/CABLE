@@ -1019,7 +1019,8 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
 
   END DO
 
-
+ !to get additional outputs - investigative purposes only 
+  BLAZE%ROS = SF%MAX_NESTEROV
 !  IF ( BLAZE%DAY .EQ. 1 ) &
 !       CALL BLAZE_DIAG( NCELLS, BLAZE, CPLANT_g, CPLANT_w, AGL_g, AGL_w, TO, "dref")
 
@@ -1322,8 +1323,8 @@ END SUBROUTINE RUN_BLAZE
    sumBLAZE%TMAX  = ( real(count-1)*sumBLAZE%TMAX  + BLAZE%TMAX)  / real(count)
    sumBLAZE%TMIN  = ( real(count-1)*sumBLAZE%TMIN  + BLAZE%TMIN)  / real(count)
    sumBLAZE%FFDI  = ( real(count-1)*sumBLAZE%FFDI  + BLAZE%FFDI)  / real(count)
-   sumBLAZE%FLI   = ( real(count-1)*sumBLAZE%TMAX  + BLAZE%TMAX)  / real(count)
-   sumBLAZE%ROS   = ( real(count-1)*sumBLAZE%TMIN  + BLAZE%TMIN)  / real(count)
+   sumBLAZE%FLI   = ( real(count-1)*sumBLAZE%FLI   + BLAZE%FLI)   / real(count)
+   sumBLAZE%ROS   = ( real(count-1)*sumBLAZE%ROS   + BLAZE%ROS)   / real(count)
    sumBLAZE%Z     = ( real(count-1)*sumBLAZE%Z     + BLAZE%Z)     / real(count)
    sumBLAZE%D     = ( real(count-1)*sumBLAZE%D     + BLAZE%D)     / real(count)
    sumBLAZE%w     = ( real(count-1)*sumBLAZE%w     + BLAZE%w)     / real(count)

@@ -830,7 +830,7 @@ CONTAINS
                    IF ( cable_user%CALL_BLAZE>1) THEN
                       CALL BLAZE_ACCOUNTING(BLAZE, climate, ktau, dels, YYYY, idoy)
                       call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                           casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg, cable_user%CALL_BLAZE)
+                           casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg, cable_user%CALL_BLAZE,cable_user%CALL_POP)
                    ENDIF
                    !have to communicate back if call_blaze is 1 or more
                    IF (cable_user%CALL_BLAZE>0) THEN
@@ -910,7 +910,7 @@ CONTAINS
                 !MC - this is different to serial code 
                ! - INH I don't think we need this given that BLAZE is called daily above (and calls adjust_pop_for_fire)
                ! call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-               !      casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg, cable_user%CALL_BLAZE)
+               !      casamet, climate, rshootfrac, idoy, YYYY, 1, POP, veg, cable_user%CALL_BLAZE,cable_user%CALL_POP)
              !ENDIF
 
              CALL worker_send_pop(POP, ocomm)
@@ -9077,7 +9077,7 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
                  ! blaze now called daily and calls adjust_pop_for_fire as part of it
                  !if (cable_user%CALL_BLAZE>1) then
                  !   call blaze_driver(blaze%ncells, blaze, simfire, casapool, casaflux, &
-                 !        casamet, climate, rshootfrac, idoy, 1900, 1, POP, veg, cable_user%CALL_BLAZE)
+                 !        casamet, climate, rshootfrac, idoy, 1900, 1, POP, veg, cable_user%CALL_BLAZE,cable_user%CALL_POP)
                  !endif
                  !! CLN BLAZE TURNOVER
               endif  ! end of year
