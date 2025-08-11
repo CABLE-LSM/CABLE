@@ -139,13 +139,13 @@ if(CABLE_LIBRARY_TARGET STREQUAL "ESM1.6")
     # Can conditionally include files for other shared apps here
     # e.g. IF (CABLE_LIBRARY_TARGET STREQUAL "AM3")
 
-    add_library(cable_science STATIC ${SOURCES})
-    target_compile_definitions(cable_science PRIVATE UM_CBL)
+    add_library(cable STATIC ${SOURCES})
+    target_compile_definitions(cable PRIVATE UM_CBL)
 
-    target_include_directories(cable_science PUBLIC "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
+    target_include_directories(cable PUBLIC "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 
     message(STATUS "Build the library")
-    install(TARGETS cable_science
+    install(TARGETS cable
       EXPORT CABLEFortranTargets
       LIBRARY DESTINATION lib
       INCLUDES DESTINATION include)
