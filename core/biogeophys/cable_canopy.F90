@@ -1885,7 +1885,8 @@ CONTAINS
       ! real, dimension(:,:), pointer :: gswmin => null() ! min stomatal conductance
       ! real, dimension(:,:), allocatable :: gswmin ! min stomatal conductance
       real, dimension(mp,mf) :: gswmin ! min stomatal conductance
-
+      real(r_2), dimension(:,:) :: fwpsixx, fwpsi1_tmp
+      real(r_2) :: fw
       real, dimension(mp,2) ::  gsw_term, lower_limit2  ! local temp var
       real(r_2), dimension(mp,ms) :: wbtmp
       real(r_2), dimension(mp):: vpdtmp
@@ -2032,6 +2033,11 @@ CONTAINS
       vcmxt4y      = 0.0
       ecx   = SUM(real(rad%rniso,r_2),2) ! init lat heat iteration memory variable
       tlfxx = tlfx
+      if (present(fwpsdo)) then
+      fwpsixx = fwpsdo
+      else
+      fwpsixx = fwpsi
+      endif
       dsxx = dsx
       csxx = csx
       psilxx = psilx
@@ -2570,7 +2576,10 @@ CONTAINS
                      gswmin(i,2) = veg%g0(i) * rad%scalex(i,2)
                      g1 = veg%g1tuzet(i)
                      psilxx(i,:) = psilx(i,:)
-                     
+                  if (present(fwpsdo)) then
+                     gs_coeff(i,1) = g1 / real(csx(i,1)) * fwpsdo
+                     gs_coeff(i,2) = g1 / real(csx(i,2)) * fwpsdo
+                  else
                      fwpsi(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
                       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
                      fwpsi(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
@@ -2579,9 +2588,7 @@ CONTAINS
                      !print *, '!!!!!!!!!!!!!!! fwpsi:', fwpsi(i,1),psilx(i,1)
                      gs_coeff(i,1) =fwpsi(i,1) * g1 / real(csx(i,1))
                      gs_coeff(i,2) =fwpsi(i,2) * g1 / real(csx(i,2))
-                  if (present(fwpsdo)) then
-                     gs_coeff(i,1) = g1 / real(csx(i,1)) * fwpsdo
-                     gs_coeff(i,2) = g1 / real(csx(i,2)) * fwpsdo
+                     fwpsixx = fwpsi
                   endif
 
                ELSE IF (cable_user%GS_SWITCH == 'profitmax' .AND. &
@@ -3046,6 +3053,26 @@ CONTAINS
                csx(i,2) = dc *csxx(i,2) + ( 1.0 - dc ) * csx(i,2)
                psilx(i,1) = dc *psilxx(i,1) + ( 1.0 - dc ) * psilx(i,1)
                psilx(i,2) = dc *psilxx(i,2) + ( 1.0 - dc ) * psilx(i,2)
+               ! calculate the new fwpsi1_tmp based on modified psilx
+               fwpsi1_tmp(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
+               fwpsi1_tmp(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
+               if (fwpsi1_tmp(i,1)-fwpsixx(i,1)<-0.1_r_2) then
+                  fw = fwpsixx(i,1) - 0.1_r_2
+                  psilx(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
+                  log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fw) / fw )
+                  fw = fwpsixx(i,2) - 0.1_r_2
+                  psilx(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
+                  log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fw) / fw )
+               elseif (fwpsi1_tmp(i,1)-fwpsixx(i,1)>0.1_r_2) then
+                  fw = fwpsixx(i,1) + 0.1_r_2
+                  psilx(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
+                  log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fw) / fw )
+                  fw = fwpsixx(i,2) + 0.1_r_2
+                  psilx(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
+                  log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fw) / fw )   
+               endif
             endif
 
          END DO !over mp
