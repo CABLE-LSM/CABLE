@@ -220,11 +220,15 @@ CONTAINS
       
       psily = canopy%psi_can  ! SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
       
-
-      fwpsi(:, 1) = (1.0_r_2 +exp(veg%slope_leaf(:) * veg%psi_50_leaf(:))) / &
+      if (INDEX(cable_user%FWSOIL_SWITCH,'LWP')>0) then
+         fwpsi(:, 1) = (1.0_r_2 +exp(veg%slope_leaf(:) * veg%psi_50_leaf(:))) / &
          (1.0_r_2 + exp(veg%slope_leaf(:) * (veg%psi_50_leaf(:) - psilx(:, 1))))
-      fwpsi(:, 2) = (1.0_r_2 +exp(veg%slope_leaf(:) * veg%psi_50_leaf(:))) / &
+         fwpsi(:, 2) = (1.0_r_2 +exp(veg%slope_leaf(:) * veg%psi_50_leaf(:))) / &
          (1.0_r_2 + exp(veg%slope_leaf(:) * (veg%psi_50_leaf(:) - psilx(:, 2))))
+      else
+         fwpsi = 1.0_r_2
+      endif
+
       fwpsipsdo = fwpsi
       !print*, 'Entry psi ', psilx(:, 1)
       !print*, 'Entry fwpsi ', fwpsi(:, 1)
@@ -1885,7 +1889,7 @@ CONTAINS
       ! real, dimension(:,:), pointer :: gswmin => null() ! min stomatal conductance
       ! real, dimension(:,:), allocatable :: gswmin ! min stomatal conductance
       real, dimension(mp,mf) :: gswmin ! min stomatal conductance
-      real(r_2), dimension(:,:) :: fwpsixx, fwpsi1_tmp
+      real(r_2), dimension(mp,mf) :: fwpsixx, fwpsi1_tmp
       real(r_2) :: fw
       real, dimension(mp,2) ::  gsw_term, lower_limit2  ! local temp var
       real(r_2), dimension(mp,ms) :: wbtmp
@@ -1893,7 +1897,7 @@ CONTAINS
       integer :: i, j, k, kk, h, iter_ini ! iteration count
       integer :: NN,m
       integer, allocatable :: nktau(:), allktau(:), nktau_end(:)
-      real :: vpd, g1, ktot, fw, refill  ! Ticket #56
+      real :: vpd, g1, ktot, refill  ! Ticket #56
       REAL, PARAMETER :: & ! Ref. params from Bernacchi et al. (2001)
          co2cp325 = 42.75, & ! CO2 compensation pt C3 at 25 degrees, umol mol-1
          Eaco2cp325 = 37830. ! activation energy for the CO2 compensation pt
@@ -3521,7 +3525,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
       integer :: i, j, k, kk, h,iter_ini ! iteration count
       integer :: NN,m
       integer, allocatable :: nktau(:), allktau(:), nktau_end(:)
-      real :: vpd, g1, ktot, fw, refill  ! Ticket #56
+      real :: vpd, g1, ktot, refill  ! Ticket #56
       REAL, PARAMETER :: & ! Ref. params from Bernacchi et al. (2001)
          co2cp325 = 42.75, & ! CO2 compensation pt C3 at 25 degrees, umol mol-1
          Eaco2cp325 = 37830. ! activation energy for the CO2 compensation pt
