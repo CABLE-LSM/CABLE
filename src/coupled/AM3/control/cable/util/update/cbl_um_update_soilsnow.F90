@@ -9,7 +9,7 @@ SUBROUTINE update_soilsnow( mp, soil, ssnow, veg_iveg )
 
 USE cable_def_types_mod,       ONLY: soil_parameter_type
 USE cable_def_types_mod,       ONLY: soil_snow_type
-USE cable_phys_constants_mod,  ONLY: density_ice, density_liq
+USE cable_phys_constants_mod,  ONLY: density_liq
 USE cable_surface_types_mod,   ONLY: lakes_cable
 IMPLICIT NONE
 
