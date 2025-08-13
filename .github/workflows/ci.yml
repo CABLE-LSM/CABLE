@@ -16,4 +16,5 @@ jobs:
     with:
       spack-manifest-path: ${{ matrix.spack-manifest-path }}
       allow-ssh-into-spack-install: false
+      # Note: if changing the version below, you need to review the package versions in the `build-ci/manifests` accordingly.
       container-image-version: :rocky-2025.07.002
