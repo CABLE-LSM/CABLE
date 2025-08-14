@@ -1895,7 +1895,7 @@ CONTAINS
       real(r_2), dimension(mp,ms) :: wbtmp
       real(r_2), dimension(mp):: vpdtmp
       integer :: i, j, k, kk, h, iter_ini ! iteration count
-      integer :: NN,m
+      integer :: NN,m,kmax
       integer, allocatable :: nktau(:), allktau(:), nktau_end(:)
       real :: vpd, g1, ktot, refill  ! Ticket #56
       REAL, PARAMETER :: & ! Ref. params from Bernacchi et al. (2001)
@@ -2169,7 +2169,12 @@ CONTAINS
       ! !print*, 'write iteration file '
       ! end if
       k = 0
-      DO WHILE (k < C%MAXITER)
+      if (present(wbpsdo) .and. present(vpdpsdo)) then
+         kmax = 35
+      else
+       kmax = C%MAXITER
+      endif
+      DO WHILE (k < kmax)
          k = k + 1
          ! print*, 'DD07 ', k, C%MAXITER, canopy%cansto
          ! print*, 'DD08 ', canopy%vlaiw
