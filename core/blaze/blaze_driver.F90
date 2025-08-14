@@ -192,138 +192,150 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
   ! Apply turn-overs to biomass killed by fire in POP and evaluate fluxes for this call
   BLAZE%FLUXES = 0.0
 
-  ! pop_grid index
-  pidx=1
-  DO i = 1, BLAZE%NCELLS
-     DO p = 1, landpt(i)%nap  ! loop over number of active patches
-        patch_index = landpt(i)%cstart + p - 1 ! patch index in CABLE vector
+!   ! pop_grid index
+!   pidx=1
+!   DO i = 1, BLAZE%NCELLS
+!      DO p = 1, landpt(i)%nap  ! loop over number of active patches
+!         patch_index = landpt(i)%cstart + p - 1 ! patch index in CABLE vector
  
-        IF ( casamet%lnonwood(patch_index) == 1 ) THEN ! Here non-wood
-!CLN wrong for kplant. Take out cmass here
-           !CLNcasaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i), r_2) &
-           !CLN     * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac, r_2)
-           !CLNcasaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i), r_2) &
-           !CLN     * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac, r_2)
+!         IF ( casamet%lnonwood(patch_index) == 1 ) THEN ! Here non-wood
+! !CLN wrong for kplant. Take out cmass here
+!            !CLNcasaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i), r_2) &
+!            !CLN     * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac, r_2)
+!            !CLNcasaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i), r_2) &
+!            !CLN     * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac, r_2)
 
-         !do not set k-terms if blaze not coupled to CASA (i.e. call_blaze/=3)
-         IF (call_blaze==3) THEN
-           casaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i), r_2)
-           casaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i), r_2)
-           casaflux%kplant_fire(patch_index,WOOD)  = 0.0_r_2
+!          !do not set k-terms if blaze not coupled to CASA (i.e. call_blaze/=3)
+!          IF (call_blaze==3) THEN
+!            casaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i), r_2)
+!            casaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i), r_2)
+!            casaflux%kplant_fire(patch_index,WOOD)  = 0.0_r_2
 
-           casaflux%klitter_fire(patch_index,METB) = real(BLAZE%AB(i) * ag_litter_frac, r_2)
-           casaflux%klitter_fire(patch_index,STR)  = real(BLAZE%AB(i) * ag_litter_frac, r_2)
-           casaflux%klitter_fire(patch_index,CWD)  = 0.0_r_2
+!            casaflux%klitter_fire(patch_index,METB) = real(BLAZE%AB(i) * ag_litter_frac, r_2)
+!            casaflux%klitter_fire(patch_index,STR)  = real(BLAZE%AB(i) * ag_litter_frac, r_2)
+!            casaflux%klitter_fire(patch_index,CWD)  = 0.0_r_2
 
-           !for non-woody patches all combustion goes to ATM
-           casaflux%fromPtoL_fire(patch_index,METB,LEAF)  = 0.0_r_2
-           casaflux%fromPtoL_fire(patch_index,METB,FROOT) = 0.0_r_2
-           casaflux%fromPtoL_fire(patch_index,METB,WOOD)  = 0.0_r_2
+!            !for non-woody patches all combustion goes to ATM
+!            casaflux%fromPtoL_fire(patch_index,METB,LEAF)  = 0.0_r_2
+!            casaflux%fromPtoL_fire(patch_index,METB,FROOT) = 0.0_r_2
+!            casaflux%fromPtoL_fire(patch_index,METB,WOOD)  = 0.0_r_2
 
-           casaflux%fromPtoL_fire(patch_index,STR,LEAF)  = 0.0_r_2
-           casaflux%fromPtoL_fire(patch_index,STR,FROOT) = 0.0_r_2
-           casaflux%fromPtoL_fire(patch_index,STR,WOOD)  = 0.0_r_2
+!            casaflux%fromPtoL_fire(patch_index,STR,LEAF)  = 0.0_r_2
+!            casaflux%fromPtoL_fire(patch_index,STR,FROOT) = 0.0_r_2
+!            casaflux%fromPtoL_fire(patch_index,STR,WOOD)  = 0.0_r_2
 
-           casaflux%fromPtoL_fire(patch_index,CWD,LEAF)  = 0.0_r_2
-           casaflux%fromPtoL_fire(patch_index,CWD,FROOT) = 0.0_r_2
-           casaflux%fromPtoL_fire(patch_index,CWD,WOOD)  = 0.0_r_2
-        ENDIF
+!            casaflux%fromPtoL_fire(patch_index,CWD,LEAF)  = 0.0_r_2
+!            casaflux%fromPtoL_fire(patch_index,CWD,FROOT) = 0.0_r_2
+!            casaflux%fromPtoL_fire(patch_index,CWD,WOOD)  = 0.0_r_2
+!         ENDIF
 
-           ! BLAZE fluxes - total grid cell plant/litter fluxes due to fire 
-           BLAZE%FLUXES(i,11) = BLAZE%FLUXES(i,11) + casaflux%kplant_fire(patch_index,LEAF ) &
-                * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac, r_2)
-           BLAZE%FLUXES(i,12) = BLAZE%FLUXES(i,12) + casaflux%kplant_fire(patch_index,FROOT) &
-                * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac, r_2)
+!            ! BLAZE fluxes - total grid cell plant/litter fluxes due to fire (gC/day)
+!            BLAZE%FLUXES(i,11) = BLAZE%FLUXES(i,11) + casaflux%kplant_fire(patch_index,LEAF ) &
+!                 * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac, r_2)
+!            BLAZE%FLUXES(i,12) = BLAZE%FLUXES(i,12) + casaflux%kplant_fire(patch_index,FROOT) &
+!                 * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac, r_2)
 
-           BLAZE%FLUXES(i,13) = BLAZE%FLUXES(i,13) + casaflux%klitter_fire(patch_index,METB) &
-                * real(casapool%clitter(patch_index,METB)*patch(patch_index)%frac, r_2)
-           BLAZE%FLUXES(i,14) = BLAZE%FLUXES(i,14) + casaflux%klitter_fire(patch_index,STR ) &
-                * real(casapool%clitter(patch_index,STR )*patch(patch_index)%frac, r_2)
+!            BLAZE%FLUXES(i,13) = BLAZE%FLUXES(i,13) + casaflux%klitter_fire(patch_index,METB) &
+!                 * real(casapool%clitter(patch_index,METB)*patch(patch_index)%frac, r_2)
+!            BLAZE%FLUXES(i,14) = BLAZE%FLUXES(i,14) + casaflux%klitter_fire(patch_index,STR ) &
+!                 * real(casapool%clitter(patch_index,STR )*patch(patch_index)%frac, r_2)
            
-        ELSEIF ( casamet%lnonwood(patch_index) == 0 ) THEN ! Here woody patches
+!         ELSEIF ( casamet%lnonwood(patch_index) == 0 ) THEN ! Here woody patches
 
-           !CLN increment iwood for pop_grid
+!            !CLN increment iwood for pop_grid
            
-           rkill=POP%pop_grid(pidx)%rkill
+!            rkill=POP%pop_grid(pidx)%rkill
  
-           pidx = pidx + 1
-           ! Check if there is mortality and COMBUST has only computed non-woody TO
-           ! When POP is involved these fluxes need to sum up to 1, assuming that
-           ! all that is not going to ATM or STR will be going to CWD (DEADWOOD)
-           !IF (CALL_POP) THEN
-           TO(i, WOOD)%TO_CWD = 1. - TO(i, WOOD)%TO_ATM - TO(i, WOOD)%TO_STR
-           TO(i, FROOT)%TO_STR   = MAX( TO(i, WOOD)%TO_ATM + TO(i, WOOD)%TO_STR + TO(i, WOOD)%TO_CWD - &
-                TO(i, FROOT)%TO_ATM , 0. )
-           ! ENDIF
+!            pidx = pidx + 1
+!            ! Check if there is mortality and COMBUST has only computed non-woody TO
+!            ! When POP is involved these fluxes need to sum up to 1, assuming that
+!            ! all that is not going to ATM or STR will be going to CWD (DEADWOOD)
+!            !IF (CALL_POP) THEN
+!            TO(i, WOOD)%TO_CWD = 1. - TO(i, WOOD)%TO_ATM - TO(i, WOOD)%TO_STR
+!            TO(i, FROOT)%TO_STR   = MAX( TO(i, WOOD)%TO_ATM + TO(i, WOOD)%TO_STR + TO(i, WOOD)%TO_CWD - &
+!                 TO(i, FROOT)%TO_ATM , 0. )
+!            ! ENDIF
 
-           ! Total wood turn-over
-           twto = MAX(TO(i, WOOD)%TO_ATM * 0.7 + TO(i, WOOD )%TO_CWD + TO(i, WOOD )%TO_STR,1.e-7)
+!            ! Total wood turn-over
+!            twto = MAX(TO(i, WOOD)%TO_ATM * 0.7 + TO(i, WOOD )%TO_CWD + TO(i, WOOD )%TO_STR,1.e-7)
            
-           !do not set k-terms if blaze not coupled to CASA (i.e. call_blaze/=3)
-         IF (call_blaze==3) THEN
-           !total turnover for plant and litter pools
-           casaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i) * TO(i, LEAF )%TO_ATM, r_2)
-           casaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i) * (1.-rkill) * TO(i, FROOT)%TO_ATM, r_2)
-           casaflux%kplant_fire(patch_index,WOOD ) = real(rkill/twto  * TO(i, WOOD )%TO_ATM * 0.7, r_2)
-           !INH option for total turnover
-           !casaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i) * (TO(i, LEAF )%TO_ATM + TO(i,LEAF)%TO_STR), r_2)
-           !casaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i) * (TO(i, FROOT )%TO_ATM + TO(i,FROOT)%TO_STR), r_2)
-           !casaflux%kplant_fire(patch_index,WOOD)  = real(twto, r_2)
+!            !do not set k-terms if blaze not coupled to CASA (i.e. call_blaze/=3)
+!          IF (call_blaze==3) THEN
+!            !total turnover for plant and litter pools
+!            casaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i) * TO(i, LEAF )%TO_ATM, r_2)
+!            casaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i) * (1.-rkill) * TO(i, FROOT)%TO_ATM, r_2)
+!            casaflux%kplant_fire(patch_index,WOOD ) = real(rkill/twto  * TO(i, WOOD )%TO_ATM * 0.7, r_2)
 
-           casaflux%klitter_fire(patch_index,METB) = real(BLAZE%AB(i) * TO(i, MLIT )%TO_ATM &
-                * ag_litter_frac, r_2)
-           casaflux%klitter_fire(patch_index,STR)  = real(BLAZE%AB(i) * TO(i, SLIT )%TO_ATM &
-                * ag_litter_frac, r_2)
-           casaflux%klitter_fire(patch_index,CWD)  = real(BLAZE%AB(i) * TO(i, CLIT )%TO_ATM &
-                * ag_litter_frac, r_2)
+!            casaflux%klitter_fire(patch_index,METB) = real(BLAZE%AB(i) * TO(i, MLIT )%TO_ATM &
+!                 * ag_litter_frac, r_2)
+!            casaflux%klitter_fire(patch_index,STR)  = real(BLAZE%AB(i) * TO(i, SLIT )%TO_ATM &
+!                 * ag_litter_frac, r_2)
+!            casaflux%klitter_fire(patch_index,CWD)  = real(BLAZE%AB(i) * TO(i, CLIT )%TO_ATM &
+!                 * ag_litter_frac, r_2)
 
-          ! fraction of total turnover related to conversion of plant to litter
-           casaflux%fromPtoL_fire(patch_index,STR,LEAF) = real(BLAZE%AB(i) * TO(i, LEAF )%TO_STR, r_2)
-           casaflux%fromPtoL_fire(patch_index,STR,FROOT)= real(rkill       * TO(i, FROOT)%TO_STR, r_2)
-           casaflux%fromPtoL_fire(patch_index,STR,WOOD) = real(rkill/twto  * TO(i, WOOD )%TO_STR, r_2)
- 
-           casaflux%fromPtoL_fire(patch_index,CWD,WOOD) = real(rkill/twto  * TO(i, WOOD )%TO_CWD, r_2)
+!           ! fraction of total turnover related to conversion of plant to litter
+!            casaflux%fromPtoL_fire(patch_index,STR,LEAF) = real(BLAZE%AB(i) * TO(i, LEAF )%TO_STR, r_2)
+!            casaflux%fromPtoL_fire(patch_index,STR,FROOT)= real(rkill       * TO(i, FROOT)%TO_STR, r_2)
+!            casaflux%fromPtoL_fire(patch_index,STR,WOOD) = real(rkill/twto  * TO(i, WOOD )%TO_STR, r_2)
+!            casaflux%fromPtoL_fire(patch_index,CWD,WOOD) = real(rkill/twto  * TO(i, WOOD )%TO_CWD, r_2)
 
-           ! INH option for fraction of turnovers - added 1.e-7 to avoid floating point
-           ! casaflux%fromPtoL_fire(patch_index,STR,LEAF) = real(TO(i, LEAF )%TO_STR / (TO(i,LEAF)%TO_STR + TO(i,LEAF)%TO_ATM + 1.e-7), r_2)
-           ! casaflux%fromPtoL_fire(patch_index,STR,FROOT) = real(TO(i, FROOT )%TO_STR / (TO(i,FROOT)%TO_STR + TO(i,FROOT)%TO_ATM + 1.e-7), r_2)
-           ! casaflux%fromPtoL_fire(patch_index,STR,WOOD) = real(TO(i, WOOD )%TO_STR / twto, r_2)
-           ! casaflux%fromPtoL_fire(patch_index,CWD,WOOD) = real(TO(i, WOOD )%TO_CWD / twto, r_2)
-         ENDIF
+!          ENDIF
 
-           ! BLAZE fluxes - total grid cell plant/litter fluxes due to fire
-           BLAZE%FLUXES(i, 1) = BLAZE%FLUXES(i, 1) + casaflux%kplant_fire(patch_index,LEAF ) &
-                * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac, r_2)
-           BLAZE%FLUXES(i, 2) = BLAZE%FLUXES(i, 2) + casaflux%kplant_fire(patch_index,FROOT) &
-                * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac, r_2)
-           BLAZE%FLUXES(i, 3) = BLAZE%FLUXES(i, 3) + casaflux%kplant_fire(patch_index,WOOD ) &
-                * real(casapool%cplant(patch_index,WOOD )*patch(patch_index)%frac, r_2) 
+!            ! BLAZE fluxes - total grid cell plant/litter fluxes due to fire (gC/day)
+!            BLAZE%FLUXES(i, 1) = BLAZE%FLUXES(i, 1) + casaflux%kplant_fire(patch_index,LEAF ) &
+!                 * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac, r_2)
+!            BLAZE%FLUXES(i, 2) = BLAZE%FLUXES(i, 2) + casaflux%kplant_fire(patch_index,FROOT) &
+!                 * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac, r_2)
+!            BLAZE%FLUXES(i, 3) = BLAZE%FLUXES(i, 3) + casaflux%kplant_fire(patch_index,WOOD ) &
+!                 * real(casapool%cplant(patch_index,WOOD )*patch(patch_index)%frac, r_2) 
 
-           BLAZE%FLUXES(i, 4) = BLAZE%FLUXES(i, 4) + casaflux%klitter_fire(patch_index,METB) &
-                * real(casapool%clitter(patch_index,METB)*patch(patch_index)%frac, r_2)
-           BLAZE%FLUXES(i, 5) = BLAZE%FLUXES(i, 5) + casaflux%klitter_fire(patch_index,STR ) &
-                * real(casapool%clitter(patch_index,STR )*patch(patch_index)%frac, r_2)
-           BLAZE%FLUXES(i, 6) = BLAZE%FLUXES(i, 6) + casaflux%klitter_fire(patch_index,CWD ) &
-                * real(casapool%clitter(patch_index,CWD )*patch(patch_index)%frac, r_2)
+!            BLAZE%FLUXES(i, 4) = BLAZE%FLUXES(i, 4) + casaflux%klitter_fire(patch_index,METB) &
+!                 * real(casapool%clitter(patch_index,METB)*patch(patch_index)%frac, r_2)
+!            BLAZE%FLUXES(i, 5) = BLAZE%FLUXES(i, 5) + casaflux%klitter_fire(patch_index,STR ) &
+!                 * real(casapool%clitter(patch_index,STR )*patch(patch_index)%frac, r_2)
+!            BLAZE%FLUXES(i, 6) = BLAZE%FLUXES(i, 6) + casaflux%klitter_fire(patch_index,CWD ) &
+!                 * real(casapool%clitter(patch_index,CWD )*patch(patch_index)%frac, r_2)
            
-           ! fluxes from plant to litter as a result of fire
-           BLAZE%FLUXES(i, 7) = BLAZE%FLUXES(i, 7) + casaflux%fromPtoL_fire(patch_index,STR,LEAF )  &
-                * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac, r_2)
-           BLAZE%FLUXES(i, 8) = BLAZE%FLUXES(i, 8) + casaflux%fromPtoL_fire(patch_index,STR,FROOT)  &
-                * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac, r_2)
-           BLAZE%FLUXES(i, 9) = BLAZE%FLUXES(i, 9) + casaflux%fromPtoL_fire(patch_index,STR,WOOD )  &
-                * real(casapool%cplant(patch_index,WOOD )*patch(patch_index)%frac, r_2)
-           BLAZE%FLUXES(i,10) = BLAZE%FLUXES(i,10) + casaflux%fromPtoL_fire(patch_index,CWD,WOOD )  &
-                * real(casapool%cplant(patch_index,WOOD)*patch(patch_index)%frac, r_2)
+!            ! fluxes from plant to litter as a result of fire (gC/day)
+!            BLAZE%FLUXES(i, 7) = BLAZE%FLUXES(i, 7) + casaflux%fromPtoL_fire(patch_index,STR,LEAF )  &
+!                 * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac, r_2)
+!            BLAZE%FLUXES(i, 8) = BLAZE%FLUXES(i, 8) + casaflux%fromPtoL_fire(patch_index,STR,FROOT)  &
+!                 * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac, r_2)
+!            BLAZE%FLUXES(i, 9) = BLAZE%FLUXES(i, 9) + casaflux%fromPtoL_fire(patch_index,STR,WOOD )  &
+!                 * real(casapool%cplant(patch_index,WOOD )*patch(patch_index)%frac, r_2)
+!            BLAZE%FLUXES(i,10) = BLAZE%FLUXES(i,10) + casaflux%fromPtoL_fire(patch_index,CWD,WOOD )  &
+!                 * real(casapool%cplant(patch_index,WOOD)*patch(patch_index)%frac, r_2)
            
-        ENDIF
+!         ENDIF
 
-      ENDDO ! number of active patches
+!         !IF (MOD(i,50)==0) THEN
+!         ! WRITE(*,*) "old calcs", BLAZE%NCELLS
+!         ! WRITE(*,*) i, p, pidx, patch_index, BLAZE%AB(i), BLAZE%FLIx(i), BLAZE%w(i)
+!         ! WRITE(*,*) "turnovers"
+!         ! WRITE(*,*) TO(i,LEAF)%TO_ATM, TO(i,LEAF)%TO_STR
+!         ! WRITE(*,*) TO(i,FROOT)%TO_ATM, TO(i,FROOT)%TO_STR
+!         ! WRITE(*,*) TO(i, WOOD)%TO_ATM,  TO(i, WOOD)%TO_STR, TO(i, WOOD)%TO_CWD
+!         ! WRITE(*,*) "krates normal"
+!         ! WRITE(*,*) (casaflux%kplant(patch_index,j), j=1,3)
+!         ! WRITE(*,*) (casaflux%klitter(patch_index,j), j=1,3)
+!         ! WRITE(*,*) "krates fires"
+!         ! WRITE(*,*) (casaflux%kplant_fire(patch_index,j), j=1,3)
+!         ! WRITE(*,*) (casaflux%klitter_fire(patch_index,j), j=1,3)
+!         ! DO j=1,3
+!         !    WRITE(*,*) (casaflux%fromPtoL_fire(patch_index,j,MM), MM=1,3)
+!         ! ENDDO
+!         ! WRITE(*,*) "fluxes"
+!         ! WRITE(*,*) (BLAZE%FLUXES(i,j),j=1,10)
+!         ! WRITE(*,*) " "
+!       !ENDIF
 
-  ENDDO ! number of grid cells
+!       ENDDO ! number of active patches
+
+!   ENDDO ! number of grid cells
 
 !   !07-08-2025 INH - Large scale rewrite of the above which also 
 !   !   i) corrects the turnovers passed back to CASA to match expectations there
+!   !      including factor of 1/86400.0 assuming daily call to BLAZE.
 !   !   ii) allows for BLAZE/SIMFIRE to be used without POP demography active 
 !   !       (note POP grid structure is still required)
 !   !   iii) provides for an alternate formulation of turonovers
@@ -340,161 +352,207 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
 !    ENDIF
 
 !    ! Evaluate turn-overs to biomass (POP dependent) and evaluate fluxes for this call
-!    BLAZE%FLUXES = 0.0
+    BLAZE%FLUXES = 0.0
 
-!    !loop over cells
-!    pidx=1                !counter for pop_grid index
-!    DO i = 1, BLAZE%NCELLS
-!       DO p = 1, landpt(i)%nap  ! loop over number of active patches
-!         patch_index = landpt(i)%cstart + p - 1 ! patch index in CABLE vector
+   !loop over cells
+   pidx=1                !counter for pop_grid index
+   DO i = 1, BLAZE%NCELLS
+      DO p = 1, landpt(i)%nap  ! loop over number of active patches
+        patch_index = landpt(i)%cstart + p - 1 ! patch index in CABLE vector
  
-!         IF ( casamet%lnonwood(patch_index) == 1 ) THEN ! Here non-wood
+        IF ( casamet%lnonwood(patch_index) == 1 ) THEN ! Here non-wood
 
-!            !do not set k-terms if blaze not coupled to CASA (i.e. call_blaze/=3)
-!            IF (call_blaze==3) THEN
-!               casaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i), r_2)
-!               casaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i), r_2)
-!               !casaflux%kplant_fire(patch_index,WOOD)  = 0.0_r_2
+           !do not set k-terms if blaze not coupled to CASA (i.e. call_blaze/=3)
+           IF (call_blaze==3) THEN
+              casaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i), r_2)
+              casaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i), r_2)
+              !casaflux%kplant_fire(patch_index,WOOD)  = 0.0_r_2
 
-!               casaflux%klitter_fire(patch_index,METB) = real(BLAZE%AB(i) * ag_litter_frac, r_2)
-!               casaflux%klitter_fire(patch_index,STR)  = real(BLAZE%AB(i) * ag_litter_frac, r_2)
-!               !casaflux%klitter_fire(patch_index,CWD)  = 0.0_r_2
+              casaflux%klitter_fire(patch_index,METB) = real(BLAZE%AB(i) * ag_litter_frac, r_2)
+              casaflux%klitter_fire(patch_index,STR)  = real(BLAZE%AB(i) * ag_litter_frac, r_2)
+              !casaflux%klitter_fire(patch_index,CWD)  = 0.0_r_2
 
-!               !for non-woody patches all combustion goes to ATM so no fraction to litter
-!               !leave casaflux%fromPtoL_fire = 0.0_r_2 for this patch_index)
-!            ENDIF
+              !for non-woody patches all combustion goes to ATM so no fraction to litter
+              !leave casaflux%fromPtoL_fire = 0.0_r_2 for this patch_index)
+           ENDIF
 
-!            ! BLAZE fluxes - total loss of plant/litter fluxes due to fire activity (all to atm)
-!            BLAZE%FLUXES(i,11) = BLAZE%FLUXES(i,11) + casaflux%kplant_fire(patch_index,LEAF ) &
-!                 * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac, r_2)
-!            BLAZE%FLUXES(i,12) = BLAZE%FLUXES(i,12) + casaflux%kplant_fire(patch_index,FROOT) &
-!                 * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac, r_2)
+           ! BLAZE fluxes - total loss of plant/litter fluxes due to fire activity (all to atm)
+           ! units are gC/day
+           BLAZE%FLUXES(i,11) = BLAZE%FLUXES(i,11) + casaflux%kplant_fire(patch_index,LEAF ) &
+                * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac, r_2) 
+           BLAZE%FLUXES(i,12) = BLAZE%FLUXES(i,12) + casaflux%kplant_fire(patch_index,FROOT) &
+                * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac, r_2)
 
-!            BLAZE%FLUXES(i,13) = BLAZE%FLUXES(i,13) + casaflux%klitter_fire(patch_index,METB) &
-!                 * real(casapool%clitter(patch_index,METB)*patch(patch_index)%frac, r_2)
-!            BLAZE%FLUXES(i,14) = BLAZE%FLUXES(i,14) + casaflux%klitter_fire(patch_index,STR ) &
-!                 * real(casapool%clitter(patch_index,STR )*patch(patch_index)%frac, r_2)
+           BLAZE%FLUXES(i,13) = BLAZE%FLUXES(i,13) + casaflux%klitter_fire(patch_index,METB) &
+                * real(casapool%clitter(patch_index,METB)*patch(patch_index)%frac, r_2)
+           BLAZE%FLUXES(i,14) = BLAZE%FLUXES(i,14) + casaflux%klitter_fire(patch_index,STR ) &
+                * real(casapool%clitter(patch_index,STR )*patch(patch_index)%frac, r_2)
 
-!         ELSEIF( casamet%lnonwood(patch_index) == 0 ) THEN ! Here woody patches
+        ELSEIF( casamet%lnonwood(patch_index) == 0 ) THEN ! Here woody patches
            
-!            !rkill set to sum of Surawski turnovers if CALL_POP is .false.
-!            IF (CALL_POP) THEN
-!               rkill = POP%pop_grid(pidx)%rkill
-!            ELSE
-!               rkill = BLAZE%AB(i)*MAX( TO(i, WOOD)%TO_ATM + TO(i, WOOD)%TO_STR + TO(i, WOOD)%TO_CWD,0.0)
-!            ENDIF
-!            pidx = pidx + 1
+           !rkill set to sum of Surawski turnovers if CALL_POP is .false.
+           IF (CALL_POP) THEN
+              rkill = POP%pop_grid(pidx)%rkill
+           ELSE
+              rkill = BLAZE%AB(i)*MAX( TO(i, WOOD)%TO_ATM + TO(i, WOOD)%TO_STR + TO(i, WOOD)%TO_CWD,0.0)
+           ENDIF
+           pidx = pidx + 1
      
-!            !original formulation for woody turnovers - requires POP%rkill
-!            IF ( (TOform=='old') .and. (CALL_POP) ) THEN
+           !original formulation for woody turnovers - requires POP%rkill
+           !but modified coupling back to CASA
+           IF ( (TOform=='old') .and. (CALL_POP) ) THEN
 
-!               ! update TO for POP mortality and COMBUST has only computed non-woody TO
-!               ! when POP is involved these TO need to sum up to 1, assuming that
-!               ! all that is not going to ATM or STR will be going to CWD (DEADWOOD)
-!               TO(i, WOOD)%TO_CWD = 1. - TO(i, WOOD)%TO_ATM - TO(i, WOOD)%TO_STR
-!               TO(i, FROOT)%TO_STR   = MAX( TO(i, WOOD)%TO_ATM + TO(i, WOOD)%TO_STR + TO(i, WOOD)%TO_CWD - &
-!                     TO(i, FROOT)%TO_ATM, 0._r_2 )
+              ! update TO for POP mortality and COMBUST has only computed non-woody TO
+              ! when POP is involved these TO need to sum up to 1, assuming that
+              ! all that is not going to ATM or STR will be going to CWD (DEADWOOD)
+              TO(i, WOOD)%TO_CWD = 1. - TO(i, WOOD)%TO_ATM - TO(i, WOOD)%TO_STR
+              TO(i, FROOT)%TO_STR   = MAX( TO(i, WOOD)%TO_ATM + TO(i, WOOD)%TO_STR + TO(i, WOOD)%TO_CWD - &
+                    TO(i, FROOT)%TO_ATM, 0._r_2 )
          
-!               ! Total wood turn-over
-!               twto = MAX(TO(i, WOOD)%TO_ATM * 0.7 + TO(i, WOOD )%TO_CWD + TO(i, WOOD )%TO_STR,1.e-7)
+              ! Total wood turn-over - should be >0 if AB>0
+              twto = MAX(TO(i, WOOD)%TO_ATM * 0.7 + TO(i, WOOD )%TO_CWD + TO(i, WOOD )%TO_STR,1.e-7)
 
-!               !do not set k-terms if blaze not coupled to CASA (i.e. call_blaze/=3)
-!               IF ( (call_blaze==3) .and. (BLAZE%AB(i)>0.0) ) THEN
-!                  !total turnover for plant and litter pools
-!                  casaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i) * TO(i, LEAF )%TO_ATM, r_2) + &
-!                                                         real(BLAZE%AB(i) * TO(i, LEAF )%TO_STR, r_2)
-!                  casaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i) * (1.-rkill) * TO(i, FROOT)%TO_ATM, r_2) + &
-!                                                         real(rkill       * TO(i, FROOT)%TO_STR, r_2)
-!                  casaflux%kplant_fire(patch_index,WOOD ) = real(rkill/twto  * TO(i, WOOD )%TO_ATM * 0.7, r_2) + &
-!                             real(rkill/twto  * TO(i, WOOD )%TO_STR, r_2) + real(rkill/twto  * TO(i, WOOD )%TO_CWD, r_2)
+              !do not set k-terms if blaze not coupled to CASA (i.e. call_blaze/=3)
+              IF ( (call_blaze==3) .and. (BLAZE%AB(i)>0.0) ) THEN
+                 !total turnover for plant and litter pools - units (/day)
+                 casaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i) * TO(i, LEAF )%TO_ATM, r_2) + &
+                                                        real(BLAZE%AB(i) * TO(i, LEAF )%TO_STR, r_2)
+                 casaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i) * (1.-rkill) * TO(i, FROOT)%TO_ATM, r_2) + &
+                                                        real(rkill       * TO(i, FROOT)%TO_STR, r_2)
+                 casaflux%kplant_fire(patch_index,WOOD ) = real(rkill/twto  * TO(i, WOOD )%TO_ATM * 0.7, r_2) + &
+                            real(rkill/twto  * TO(i, WOOD )%TO_STR, r_2) + real(rkill/twto  * TO(i, WOOD )%TO_CWD, r_2)
 
-!                  casaflux%klitter_fire(patch_index,METB) = real(BLAZE%AB(i) * TO(i, MLIT )%TO_ATM &
-!                     * ag_litter_frac, r_2)
-!                  casaflux%klitter_fire(patch_index,STR)  = real(BLAZE%AB(i) * TO(i, SLIT )%TO_ATM &
-!                     * ag_litter_frac, r_2)
-!                  casaflux%klitter_fire(patch_index,CWD)  = real(BLAZE%AB(i) * TO(i, CLIT )%TO_ATM &
-!                     * ag_litter_frac, r_2)
+                 casaflux%klitter_fire(patch_index,METB) = real(BLAZE%AB(i) * TO(i, MLIT )%TO_ATM &
+                    * ag_litter_frac, r_2)
+                 casaflux%klitter_fire(patch_index,STR)  = real(BLAZE%AB(i) * TO(i, SLIT )%TO_ATM &
+                    * ag_litter_frac, r_2)
+                 casaflux%klitter_fire(patch_index,CWD)  = real(BLAZE%AB(i) * TO(i, CLIT )%TO_ATM &
+                    * ag_litter_frac, r_2)
 
-!                  ! fraction of total turnover related to conversion of plant to litter
-!                  casaflux%fromPtoL_fire(patch_index,STR,LEAF) = real(BLAZE%AB(i) * TO(i, LEAF )%TO_STR, r_2) / &
-!                                                             casaflux%kplant_fire(patch_index,LEAF)
-!                  casaflux%fromPtoL_fire(patch_index,STR,FROOT)= real(rkill       * TO(i, FROOT)%TO_STR, r_2) / &
-!                                                             casaflux%kplant_fire(patch_index,FROOT)
-!                  casaflux%fromPtoL_fire(patch_index,STR,WOOD) = real(rkill/twto  * TO(i, WOOD )%TO_STR, r_2) / &
-!                                                             casaflux%kplant_fire(patch_index,WOOD)
-!                  casaflux%fromPtoL_fire(patch_index,CWD,WOOD) = real(rkill/twto  * TO(i, WOOD )%TO_CWD, r_2) / &
-!                                                             casaflux%kplant_fire(patch_index,WOOD)
-!               END IF  !blaze==3 
+                 ! fraction of total turnover related to conversion of plant to litter
+                 IF (casaflux%kplant_fire(patch_index,LEAF)>0.0_r_2) THEN
+                     casaflux%fromPtoL_fire(patch_index,STR,LEAF) = 1.0_r_2 - & 
+                             real(BLAZE%AB(i) * TO(i, LEAF )%TO_ATM, r_2) / casaflux%kplant_fire(patch_index,LEAF)
+                 END if
+                 IF (casaflux%kplant_fire(patch_index,FROOT)>0.0_r_2) THEN
+                     casaflux%fromPtoL_fire(patch_index,STR,FROOT)= 1.0_r_2 - & 
+                              real(BLAZE%AB(i) * TO(i, FROOT)%TO_ATM, r_2) / casaflux%kplant_fire(patch_index,FROOT)
+                 END IF
+                 IF (casaflux%kplant_fire(patch_index,WOOD)>0.0_r_2) THEN
+                     casaflux%fromPtoL_fire(patch_index,STR,WOOD) = real(rkill/twto  * TO(i, WOOD )%TO_STR, r_2) / &
+                                                            casaflux%kplant_fire(patch_index,WOOD)
+                     casaflux%fromPtoL_fire(patch_index,CWD,WOOD) = real(rkill/twto  * TO(i, WOOD )%TO_CWD, r_2) / &
+                                                            casaflux%kplant_fire(patch_index,WOOD)
+                 END IF
+              END IF  !blaze==3 
 
-!            !new formulation - rkill set to total wood turnover above (CALL_POP dependent)
-!            ELSEIF ( (TOform=='new') ) THEN 
+           !new formulation - rkill set to total wood turnover above (CALL_POP dependent)
+           ELSEIF ( (TOform=='new') ) THEN 
 
-!               !do not set k-terms if blaze not coupled to CASA (i.e. call_blaze/=3)
-!               !FLIX gt. 0 precludes case with BA>0 and TO=0 (which should be caught by AVAIL_FUEL as well)
-!               IF ( (call_blaze==3) .and. (BLAZE%AB(i)>0.0) .and. (BLAZE%FLIx(i) .gt. 0)) THEN
-!                  ! Total wood turn-over
-!                  twto = MAX(TO(i, WOOD)%TO_ATM + TO(i, WOOD )%TO_CWD + TO(i, WOOD )%TO_STR,1.e-7)
+              !do not set k-terms if blaze not coupled to CASA (i.e. call_blaze/=3)
+              !FLIX gt. 0 precludes case with BA>0 and TO=0 (which should be caught by AVAIL_FUEL as well)
+              IF ( (call_blaze==3) .and. (BLAZE%AB(i)>0.0) .and. (BLAZE%FLIx(i) .gt. 0)) THEN
+                 ! Total wood turn-over
+                 twto = MAX(TO(i, WOOD)%TO_ATM + TO(i, WOOD )%TO_CWD + TO(i, WOOD )%TO_STR,1.e-7)
 
-!                  !total turnover for plant and litter pools
-!                  casaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i) * TO(i, LEAF )%TO_ATM, r_2) + &
-!                                                         real(BLAZE%AB(i) * TO(i, LEAF )%TO_STR, r_2)
-!                  casaflux%kplant_fire(patch_index,LEAF)  = MAX(casaflux%kplant_fire(patch_index,LEAF),rkill)
-!                  casaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i) * TO(i, FROOT)%TO_ATM, r_2) + &
-!                                                         real(BLAZE%AB(i) * TO(i, FROOT)%TO_STR, r_2)
-!                  casaflux%kplant_fire(patch_index,FROOT) = MAX(casaflux%kplant_fire(patch_index,FROOT),rkill)
-!                  casaflux%kplant_fire(patch_index,WOOD ) = real(rkill,r_2)
+                 !total turnover for plant and litter pools (units /day)
+                 casaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i) * TO(i, LEAF )%TO_ATM, r_2) + &
+                                                        real(BLAZE%AB(i) * TO(i, LEAF )%TO_STR, r_2)
+                 casaflux%kplant_fire(patch_index,LEAF)  = MAX(casaflux%kplant_fire(patch_index,LEAF),rkill)
+                 casaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i) * TO(i, FROOT)%TO_ATM, r_2) + &
+                                                        real(BLAZE%AB(i) * TO(i, FROOT)%TO_STR, r_2)
+                 casaflux%kplant_fire(patch_index,FROOT) = MAX(casaflux%kplant_fire(patch_index,FROOT),rkill)
+                 casaflux%kplant_fire(patch_index,WOOD ) = real(rkill,r_2)
 
-!                  ! fraction of total turnover related to conversion of plant to litter
-!                  casaflux%fromPtoL_fire(patch_index,STR,LEAF) = 1.0_r_2 - real(BLAZE%AB(i) * TO(i, LEAF )%TO_ATM, r_2) / &
-!                                                             casaflux%kplant_fire(patch_index,LEAF)
-!                  casaflux%fromPtoL_fire(patch_index,STR,FROOT)= 1.0_r_2 - real(BLAZE%AB(i) * TO(i, FROOT)%TO_ATM, r_2) / &
-!                                                             casaflux%kplant_fire(patch_index,FROOT)
-!                  casaflux%fromPtoL_fire(patch_index,STR,WOOD) = real(TO(i, WOOD )%TO_STR / twto, r_2) 
-!                  casaflux%fromPtoL_fire(patch_index,CWD,WOOD) = real(TO(i, WOOD )%TO_CWD / twto, r_2)
-!               ENDIF 
+                 casaflux%klitter_fire(patch_index,METB) = real(BLAZE%AB(i) * TO(i, MLIT )%TO_ATM &
+                      * ag_litter_frac, r_2)
+                 casaflux%klitter_fire(patch_index,STR)  = real(BLAZE%AB(i) * TO(i, SLIT )%TO_ATM &
+                      * ag_litter_frac, r_2)
+                 casaflux%klitter_fire(patch_index,CWD)  = real(BLAZE%AB(i) * TO(i, CLIT )%TO_ATM &
+                      * ag_litter_frac, r_2)
+
+                 ! fraction of total turnover related to conversion of plant to litter
+                 IF (casaflux%kplant_fire(patch_index,LEAF)>0.0_r_2) THEN
+                     casaflux%fromPtoL_fire(patch_index,STR,LEAF) = 1.0_r_2 -   &
+                           real(BLAZE%AB(i) * TO(i, LEAF )%TO_ATM , r_2)/ casaflux%kplant_fire(patch_index,LEAF)
+                 END if
+                 IF (casaflux%kplant_fire(patch_index,FROOT)>0.0_r_2) THEN
+                     casaflux%fromPtoL_fire(patch_index,STR,FROOT)= 1.0_r_2 -   & 
+                           real(BLAZE%AB(i) * TO(i, FROOT)%TO_ATM, r_2) / casaflux%kplant_fire(patch_index,FROOT)
+                 END IF
+                 IF (twto>0.0) THEN
+                   casaflux%fromPtoL_fire(patch_index,STR,WOOD) = real(TO(i, WOOD )%TO_STR / twto, r_2) 
+                   casaflux%fromPtoL_fire(patch_index,CWD,WOOD) = real(TO(i, WOOD )%TO_CWD / twto, r_2)
+                 END IF
+              ENDIF 
            
-!            ELSE  !TOform is 'new', CALL_POP false - doesn't work
-!               WRITE(*,*) "BLAZE DRIVER: incorrect combination of CALL_POP and TOform"
-!               STOP
+           ELSE  !TOform is 'new', CALL_POP false - doesn't work
+              WRITE(*,*) "BLAZE DRIVER: incorrect combination of CALL_POP and TOform"
+              STOP
                  
-!            ENDIF  !TOform loop
+           ENDIF  !TOform loop
 
-!            ! BLAZE fluxes - grid cell plant to atm due to fire
-!            BLAZE%FLUXES(i, 1) = BLAZE%FLUXES(i, 1) +                                                        &
-!                 (1.0-casaflux%fromPtoL_fire(patch_index,STR,LEAF ))*casaflux%kplant_fire(patch_index,LEAF ) &
-!                 * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac, r_2)
-!            BLAZE%FLUXES(i, 2) = BLAZE%FLUXES(i, 2) +                                                        &
-!                 (1.0-casaflux%fromPtoL_fire(patch_index,STR,FROOT))*casaflux%kplant_fire(patch_index,FROOT) &
-!                 * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac, r_2)
-!            BLAZE%FLUXES(i, 3) = BLAZE%FLUXES(i, 3) +  (1.0-casaflux%fromPtoL_fire(patch_index,STR,WOOD) -   &
-!                 casaflux%fromPtoL_fire(patch_index,CWD,WOOD)) *casaflux%kplant_fire(patch_index,WOOD )      &
-!                 * real(casapool%cplant(patch_index,WOOD )*patch(patch_index)%frac, r_2) 
+           ! BLAZE fluxes - grid cell plant to atm due to fire - units are gC/day
+           BLAZE%FLUXES(i, 1) = BLAZE%FLUXES(i, 1) +                                                        &
+                (1.0-casaflux%fromPtoL_fire(patch_index,STR,LEAF ))*casaflux%kplant_fire(patch_index,LEAF ) &
+                * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac, r_2)
+           BLAZE%FLUXES(i, 2) = BLAZE%FLUXES(i, 2) +                                                        &
+                (1.0-casaflux%fromPtoL_fire(patch_index,STR,FROOT))*casaflux%kplant_fire(patch_index,FROOT) &
+                * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac, r_2)
+           BLAZE%FLUXES(i, 3) = BLAZE%FLUXES(i, 3) +  (1.0-casaflux%fromPtoL_fire(patch_index,STR,WOOD) -   &
+                casaflux%fromPtoL_fire(patch_index,CWD,WOOD)) *casaflux%kplant_fire(patch_index,WOOD )      &
+                * real(casapool%cplant(patch_index,WOOD )*patch(patch_index)%frac, r_2)
 
    
-!             ! BLAZE fluxes - grid cell plant to atm due to fire
-!             BLAZE%FLUXES(i, 4) = BLAZE%FLUXES(i, 4) + casaflux%klitter_fire(patch_index,METB) &
-!               * real(casapool%clitter(patch_index,METB)*patch(patch_index)%frac, r_2)
-!             BLAZE%FLUXES(i, 5) = BLAZE%FLUXES(i, 5) + casaflux%klitter_fire(patch_index,STR ) &
-!                 * real(casapool%clitter(patch_index,STR )*patch(patch_index)%frac, r_2)
-!             BLAZE%FLUXES(i, 6) = BLAZE%FLUXES(i, 6) + casaflux%klitter_fire(patch_index,CWD ) &
-!                 * real(casapool%clitter(patch_index,CWD )*patch(patch_index)%frac, r_2)
+            ! BLAZE fluxes - grid cell litter to atm due to fire - units are gC/day
+            BLAZE%FLUXES(i, 4) = BLAZE%FLUXES(i, 4) + casaflux%klitter_fire(patch_index,METB) &
+              * real(casapool%clitter(patch_index,METB)*patch(patch_index)%frac, r_2)
+            BLAZE%FLUXES(i, 5) = BLAZE%FLUXES(i, 5) + casaflux%klitter_fire(patch_index,STR ) &
+                * real(casapool%clitter(patch_index,STR )*patch(patch_index)%frac, r_2)
+            BLAZE%FLUXES(i, 6) = BLAZE%FLUXES(i, 6) + casaflux%klitter_fire(patch_index,CWD ) &
+                * real(casapool%clitter(patch_index,CWD )*patch(patch_index)%frac, r_2)
            
-!             ! fluxes from plant to litter as a result of fire
-!             BLAZE%FLUXES(i, 7) = BLAZE%FLUXES(i, 7) +                                                  &
-!                 casaflux%fromPtoL_fire(patch_index,STR,LEAF )*casaflux%kplant_fire(patch_index,LEAF )  &
-!                 * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac, r_2)
-!             BLAZE%FLUXES(i, 8) = BLAZE%FLUXES(i, 8) +                                                  &
-!                 casaflux%fromPtoL_fire(patch_index,STR,FROOT)*casaflux%kplant_fire(patch_index,FROOT)  &
-!                 * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac, r_2)
-!             BLAZE%FLUXES(i, 9) = BLAZE%FLUXES(i, 9) +                                                  &
-!                 casaflux%fromPtoL_fire(patch_index,STR,WOOD )*casaflux%kplant_fire(patch_index,WOOD )  &
-!                 * real(casapool%cplant(patch_index,WOOD )*patch(patch_index)%frac, r_2)
-!             BLAZE%FLUXES(i,10) = BLAZE%FLUXES(i,10) +                                                  &
-!                 casaflux%fromPtoL_fire(patch_index,CWD,WOOD )*casaflux%kplant_fire(patch_index,WOOD )  &
-!                 * real(casapool%cplant(patch_index,WOOD)*patch(patch_index)%frac, r_2)
+            ! fluxes from plant to litter as a result of fire - units are gC/day
+            BLAZE%FLUXES(i, 7) = BLAZE%FLUXES(i, 7) +                                                  &
+                casaflux%fromPtoL_fire(patch_index,STR,LEAF )*casaflux%kplant_fire(patch_index,LEAF )  &
+                * real(casapool%cplant(patch_index,LEAF )*patch(patch_index)%frac, r_2)
+            BLAZE%FLUXES(i, 8) = BLAZE%FLUXES(i, 8) +                                                  &
+                casaflux%fromPtoL_fire(patch_index,STR,FROOT)*casaflux%kplant_fire(patch_index,FROOT)  &
+                * real(casapool%cplant(patch_index,FROOT)*patch(patch_index)%frac, r_2)
+            BLAZE%FLUXES(i, 9) = BLAZE%FLUXES(i, 9) +                                                  &
+                casaflux%fromPtoL_fire(patch_index,STR,WOOD )*casaflux%kplant_fire(patch_index,WOOD )  &
+                * real(casapool%cplant(patch_index,WOOD )*patch(patch_index)%frac, r_2)
+            BLAZE%FLUXES(i,10) = BLAZE%FLUXES(i,10) +                                                  &
+                casaflux%fromPtoL_fire(patch_index,CWD,WOOD )*casaflux%kplant_fire(patch_index,WOOD )  &
+                * real(casapool%cplant(patch_index,WOOD)*patch(patch_index)%frac, r_2)
 
-!         ENDIF  ! casamet%lnonwood = 0/1
-!      END DO    ! number of active patches 
-!   END DO       ! number of grid cells
+        ENDIF  ! casamet%lnonwood = 0/1
+
+        !IF (MOD(i,50)==0) THEN
+        ! WRITE(*,*) "new calcs"
+        ! WRITE(*,*) i, p, pidx, patch_index, BLAZE%AB(i), BLAZE%FLIx(i), BLAZE%w(i)
+        ! WRITE(*,*) "turnovers"
+        ! WRITE(*,*) TO(i,LEAF)%TO_ATM, TO(i,LEAF)%TO_STR
+        ! WRITE(*,*) TO(i,FROOT)%TO_ATM, TO(i,FROOT)%TO_STR
+        ! WRITE(*,*) TO(i, WOOD)%TO_ATM,  TO(i, WOOD)%TO_STR, TO(i, WOOD)%TO_CWD
+        ! WRITE(*,*) "krates normal"
+        ! WRITE(*,*) (casaflux%kplant(patch_index,j), j=1,3)
+        ! WRITE(*,*) (casaflux%klitter(patch_index,j), j=1,3)
+        ! WRITE(*,*) "krates fires"
+        ! WRITE(*,*) (casaflux%kplant_fire(patch_index,j), j=1,3)
+        ! WRITE(*,*) (casaflux%klitter_fire(patch_index,j), j=1,3)
+        ! DO j=1,3
+        !    WRITE(*,*) (casaflux%fromPtoL_fire(patch_index,j,MM), MM=1,3)
+        ! ENDDO
+        ! WRITE(*,*) "fluxes"
+        ! WRITE(*,*) (BLAZE%FLUXES(i,j),j=1,10)
+        ! WRITE(*,*) " "
+        ! WRITE(*,*) " "
+      !ENDIF
+
+     END DO    ! number of active patches 
+  END DO       ! number of grid cells
+
+  !STOP
 
 END SUBROUTINE BLAZE_DRIVER

@@ -570,7 +570,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOUR
      !over 1950-2020 current_Nestrov is ~0.4 of annual Max Nesterov
      !150000 is max value allowed in cable_climate
      SF%MAX_NESTEROV = 2.5*climate%Nesterov_Current(landpt(:)%cstart)
-     SF%MAX_NESTEROV = MAX(SF%MAX_NESTEROV,150000.0)
+     SF%MAX_NESTEROV = MIN(SF%MAX_NESTEROV,150000.0)
   ELSE
      SF%MAX_NESTEROV =  climate%Nesterov_ann_running_max(landpt(:)%cstart)
   END IF
@@ -628,7 +628,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOUR
       IF (TRIM(FSTEP) .eq. "annual") THEN
          AB(i) = AB(i) *  SF%BA_MONTHLY_CLIM(i,MM) / DOM(MM)
       ELSE
-         !seasnality comes in through using current Nesterov
+         !seasonality comes in through using current Nesterov
          AB(i) = AB(i) / 365.0
       END IF 
 
