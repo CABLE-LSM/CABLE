@@ -1875,6 +1875,7 @@ CONTAINS
          ex,    &  !transpiration, kg m-2 s-1
          fwpsiy, &
          psilxx, &
+         psilxm, &
          csxx, &
          abs_deltpsil , &
          abs_deltcs
@@ -1898,7 +1899,7 @@ CONTAINS
       real(r_2), dimension(mp,ms) :: wbtmp
       real(r_2), dimension(mp):: vpdtmp
       integer :: i, j, k, kk, h, iter_ini ! iteration count
-      integer :: NN,m,kmax
+      integer :: NN,m,kmax,Mtag
       integer, allocatable :: nktau(:), allktau(:), nktau_end(:)
       real :: vpd, g1, ktot, refill  ! Ticket #56
       REAL, PARAMETER :: & ! Ref. params from Bernacchi et al. (2001)
@@ -3004,55 +3005,12 @@ CONTAINS
             END IF
             !print*, 'check after k==1 ',ktau,k
             !if (ktau_tot>=nktau .and. ktau_tot<=(nktau+NN-1)) then
-            if (any(allktau == ktau_tot)) then
-               if (present(wbpsdo) .and. present(vpdpsdo)) then
-                  write(137,*) ktau_tot, iter, i, k, tlfx(i), deltlf(i), &
-                  dsx(i),abs_deltds(i), psilx(i,1), psilx(i,2),abs_deltpsil(i,1),abs_deltpsil(i,2),fwpsi(i,1),fwpsi(i,2), &
-                  psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
-                  anrubiscox(i,2), anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
-                  canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
-                  vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
-                  ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4), &
-                  ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4), &
-                  kplantx(i)
-               elseif (present(wbpsdo) .and. present(fwpsdo)) then
-               elseif (present (wbpsdo)) then 
-                  write(135,*) ktau_tot, iter, i, k, tlfx(i), deltlf(i), &
-                  dsx(i),abs_deltds(i), psilx(i,1), psilx(i,2),abs_deltpsil(i,1),abs_deltpsil(i,2),fwpsi(i,1),fwpsi(i,2), &
-                  psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
-                  anrubiscox(i,2), anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
-                  canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
-                  vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
-                  ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4), &
-                  ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4), &
-                  kplantx(i)
-               elseif (present (vpdpsdo)) then 
-                  write(136,*) ktau_tot, iter, i, k, tlfx(i), deltlf(i), &
-                  dsx(i),abs_deltds(i), psilx(i,1), psilx(i,2),abs_deltpsil(i,1),abs_deltpsil(i,2),fwpsi(i,1),fwpsi(i,2), &
-                  psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
-                  anrubiscox(i,2), anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
-                  canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
-                  vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
-                  ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4), &
-                  ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4), &
-                  kplantx(i)
-               else
-                  write(134,*) ktau_tot, iter, i, k, tlfx(i), deltlf(i), &
-                  dsx(i),abs_deltds(i), psilx(i,1), psilx(i,2),abs_deltpsil(i,1),abs_deltpsil(i,2),fwpsi(i,1),fwpsi(i,2), &
-                  psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2),anrubiscox(i,1), &
-                  anrubiscox(i,2), anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
-                  canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
-                  vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
-                  ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4), &
-                  ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4), &
-                  kplantx(i)
 
-               endif
-
-            END IF
             ! if (ktau>=5184) then
             ! print*, 'write 134 ',ktau,k
             ! end if
+            psilxm(i,:) = 0.0_r_2
+            Mtag = 0
             if ( abs_deltlf(i) > 0.1 .AND. k > 5 .AND. k < kmax ) then
                ! after 4 iterations, take mean of current & previous estimates
                ! as the next estimate of leaf temperature, to avoid oscillation
@@ -3064,14 +3022,16 @@ CONTAINS
                dsx(i) = dc *dsxx(i) + ( 1.0 - dc ) * dsx(i)
                csx(i,1) = dc *csxx(i,1) + ( 1.0 - dc ) * csx(i,1)
                csx(i,2) = dc *csxx(i,2) + ( 1.0 - dc ) * csx(i,2)
-               psilx(i,1) = dc *psilxx(i,1) + ( 1.0 - dc ) * psilx(i,1)
-               psilx(i,2) = dc *psilxx(i,2) + ( 1.0 - dc ) * psilx(i,2)
+               psilxm(i,1) = dc *psilxx(i,1) + ( 1.0 - dc ) * psilx(i,1)
+               psilxm(i,2) = dc *psilxx(i,2) + ( 1.0 - dc ) * psilx(i,2)
                ! calculate the new fwpsi1_tmp based on modified psilx
                fwpsi1_tmp(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
-                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
+                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilxm(i,1))))
                fwpsi1_tmp(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
-                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
+                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilxm(i,2))))
+               Mtag=1
                if (fwpsi1_tmp(i,1)-fwpsixx(i,1)<-0.1_r_2) then
+                  Mtag=2
                   if (present(wbpsdo)) then
                      canopy%N_neg_sw = canopy%N_neg_sw + 1.0
                   else
@@ -3079,24 +3039,78 @@ CONTAINS
                   endif
                   inc = 0.1_r_2
                   fw = fwpsixx(i,1) - inc
-                  psilx(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
+                  psilxm(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
                   log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fw) / fw )
                   fw = fwpsixx(i,2) - inc
-                  psilx(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
+                  psilxm(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
                   log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fw) / fw )
                elseif (fwpsi1_tmp(i,1)-fwpsixx(i,1)>0.1_r_2) then
+                  Mtag=3
                   if (present(wbpsdo)) then
                      canopy%N_pos_sw = canopy%N_pos_sw + 1.0
                   else
                      canopy%N_pos = canopy%N_pos + 1.0
                   endif
                   fw = fwpsixx(i,1) + inc
-                  psilx(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
+                  psilxm(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
                   log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fw) / fw )
                   fw = fwpsixx(i,2) + inc
-                  psilx(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
+                  psilxm(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
                   log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fw) / fw )   
                endif
+            endif
+            if (any(allktau == ktau_tot)) then
+               if (present(wbpsdo) .and. present(vpdpsdo)) then
+                  write(137,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i), deltlf(i), &
+                  dsx(i),abs_deltds(i), Mtag, psilxx(i,1),psilxx(i,2),psilx(i,1), psilx(i,2),psilxm(i,1), psilxm(i,2), &
+                  abs_deltpsil(i,1),abs_deltpsil(i,2),fwpsixx(i,1),fwpsixx(i,2),fwpsi(i,1),fwpsi(i,2), &
+                  psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
+                  anrubiscox(i,2), anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
+                  canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
+                  vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
+                  ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4), &
+                  ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4), &
+                  kplantx(i)
+               elseif (present(wbpsdo) .and. present(fwpsdo)) then
+               elseif (present (wbpsdo)) then 
+                  write(135,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i), deltlf(i), &
+                  dsx(i),abs_deltds(i), Mtag, psilxx(i,1),psilxx(i,2),psilx(i,1), psilx(i,2),psilxm(i,1), psilxm(i,2), &
+                  abs_deltpsil(i,1),abs_deltpsil(i,2),fwpsixx(i,1),fwpsixx(i,2),fwpsi(i,1),fwpsi(i,2), &
+                  psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
+                  anrubiscox(i,2), anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
+                  canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
+                  vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
+                  ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4), &
+                  ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4), &
+                  kplantx(i)
+               elseif (present (vpdpsdo)) then 
+                  write(136,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i), deltlf(i), &
+                  dsx(i),abs_deltds(i), Mtag, psilxx(i,1),psilxx(i,2),psilx(i,1), psilx(i,2),psilxm(i,1), psilxm(i,2), &
+                  abs_deltpsil(i,1),abs_deltpsil(i,2),fwpsixx(i,1),fwpsixx(i,2),fwpsi(i,1),fwpsi(i,2), &
+                  psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
+                  anrubiscox(i,2), anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
+                  canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
+                  vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
+                  ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4), &
+                  ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4), &
+                  kplantx(i)
+               else
+                  write(134,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i), deltlf(i), &
+                  dsx(i),abs_deltds(i), Mtag, psilxx(i,1),psilxx(i,2),psilx(i,1), psilx(i,2),psilxm(i,1), psilxm(i,2), &
+                  abs_deltpsil(i,1),abs_deltpsil(i,2),fwpsixx(i,1),fwpsixx(i,2),fwpsi(i,1),fwpsi(i,2), &
+                  psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
+                  anrubiscox(i,2), anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
+                  canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
+                  vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
+                  ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4), &
+                  ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4), &
+                  kplantx(i)
+
+               endif
+
+            END IF
+            if ( abs_deltlf(i) > 0.1 .AND. k > 5 .AND. k < kmax ) then
+               psilx = psilxm
             endif
 
          END DO !over mp
