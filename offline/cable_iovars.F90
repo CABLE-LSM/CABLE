@@ -463,6 +463,10 @@ MODULE cable_IO_vars_module
          abs_deltds_ref = .FALSE.,   &
          abs_deltlf_ref1 = .FALSE.,   &
          abs_deltds_ref1 = .FALSE.,   &
+         N_neg = .FALSE.,   &
+         N_pos = .FALSE.,   &
+         N_neg_sw = .FALSE.,   &
+         N_pos_sw = .FALSE.,   &
          ksoil = .FALSE.,  &
          kroot = .FALSE.,  &
          b_plant = .FALSE.,  &

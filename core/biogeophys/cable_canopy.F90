@@ -182,7 +182,10 @@ CONTAINS
       ALLOCATE(vpdpsdo(mp))
       ALLOCATE(wbpsdo(mp,ms))
 
-
+      canopy&N_neg = 0
+      canopy&N_pos = 0
+      canopy&N_neg_sw = 0
+      canopy&N_pos_sw = 0
       ! BATS-type canopy saturation proportional to LAI:
       cansat = veg%canst1 * canopy%vlaiw
 
@@ -1890,7 +1893,7 @@ CONTAINS
       ! real, dimension(:,:), allocatable :: gswmin ! min stomatal conductance
       real, dimension(mp,mf) :: gswmin ! min stomatal conductance
       real(r_2), dimension(mp,mf) :: fwpsixx, fwpsi1_tmp
-      real(r_2) :: fw
+      real(r_2) :: fw, inc
       real, dimension(mp,2) ::  gsw_term, lower_limit2  ! local temp var
       real(r_2), dimension(mp,ms) :: wbtmp
       real(r_2), dimension(mp):: vpdtmp
@@ -3068,17 +3071,28 @@ CONTAINS
                fwpsi1_tmp(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
                       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
                if (fwpsi1_tmp(i,1)-fwpsixx(i,1)<-0.1_r_2) then
-                  fw = fwpsixx(i,1) - 0.1_r_2
+                  if (present(wbpsdo)) then
+                     canopy%N_neg_sw = canopy%N_neg_sw + 1
+                  else
+                     canopy%N_neg = canopy%N_neg + 1
+                  endif
+                  inc = 0.1_r_2
+                  fw = fwpsixx(i,1) - inc
                   psilx(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
                   log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fw) / fw )
-                  fw = fwpsixx(i,2) - 0.1_r_2
+                  fw = fwpsixx(i,2) - 0.inc
                   psilx(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
                   log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fw) / fw )
                elseif (fwpsi1_tmp(i,1)-fwpsixx(i,1)>0.1_r_2) then
-                  fw = fwpsixx(i,1) + 0.1_r_2
+                  if (present(wbpsdo)) then
+                     canopy%N_pos_sw = canopy%N_pos_sw + 1
+                  else
+                     canopy%N_pos = canopy%N_pos + 1
+                  endif
+                  fw = fwpsixx(i,1) + inc
                   psilx(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
                   log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fw) / fw )
-                  fw = fwpsixx(i,2) + 0.1_r_2
+                  fw = fwpsixx(i,2) + inc
                   psilx(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
                   log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fw) / fw )   
                endif

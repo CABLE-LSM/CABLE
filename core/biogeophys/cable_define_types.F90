@@ -517,7 +517,11 @@ module cable_def_types_mod
                                 ! ci_sh => null(), &    !  leaf internal CO2 (ppm) (shaded)
           tlf => null(),     & ! dry leaf temperature
           dlf => null()        ! dryleaf vp minus in-canopy vp (Pa)
-
+    integer, dimension(:), pointer :: &
+          N_neg => null(), & ! number of iteration when fwpsi - fwpsixx <-0.1
+          N_pos => null(), & ! number of iteration when fwpsi - fwpsixx > 0.1
+          N_neg_sw => null(), & ! number of iteration when fwpsi - fwpsixx <-0.1 when wb=ssat
+          N_pos_sw => null() ! number of iteration when fwpsi - fwpsixx > 0.1 when wb=ssat
      ! Additional variables:
      real(r_2), dimension(:,:),   pointer :: gw => null()     ! dry canopy conductance (ms-1) edit vh 6/7/09
      real(r_2), dimension(:,:,:), pointer :: ancj => null()   ! limiting photosynthetic rates (Rubisco,RuBP,sink) vh 6/7/09
@@ -1295,6 +1299,10 @@ contains
     allocate(canopy%tlf(mp))
     allocate(canopy%dlf(mp))
     allocate(canopy%abs_deltlf(mp))
+    allocate(canopy%N_neg(mp))
+    allocate(canopy%N_pos(mp))
+    allocate(canopy%N_neg_sw(mp))
+    allocate(canopy%N_pos_sw(mp))
     allocate(canopy%abs_deltds(mp))
     allocate(canopy%abs_deltlf_vpd(mp))
     allocate(canopy%abs_deltds_vpd(mp))
@@ -2006,6 +2014,10 @@ contains
     deallocate( canopy%day_plc_stem )
     deallocate( canopy%day_plc_can )
     deallocate( canopy%abs_deltlf )
+    deallocate( canopy%N_pos )
+    deallocate( canopy%N_neg )
+    deallocate( canopy%N_pos_sw )
+    deallocate( canopy%N_neg_sw )
     deallocate( canopy%abs_deltds )
     deallocate( canopy%abs_deltlf_vpd )
     deallocate( canopy%abs_deltds_vpd )
@@ -2603,6 +2615,10 @@ contains
     canopy%day_plc_stem = 0
     canopy%day_plc_can = 0
     canopy%abs_deltlf = 0
+    canopy%N_neg = 0
+    canopy%N_pos = 0
+    canopy%N_neg_sw = 0
+    canopy%N_pos_sw = 0
     canopy%abs_deltds = 0
     canopy%abs_deltlf_vpd = 0
     canopy%abs_deltds_vpd = 0
