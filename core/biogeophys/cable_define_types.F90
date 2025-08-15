@@ -517,7 +517,7 @@ module cable_def_types_mod
                                 ! ci_sh => null(), &    !  leaf internal CO2 (ppm) (shaded)
           tlf => null(),     & ! dry leaf temperature
           dlf => null()        ! dryleaf vp minus in-canopy vp (Pa)
-    integer, dimension(:), pointer :: &
+     real, dimension(:), pointer :: &
           N_neg => null(), & ! number of iteration when fwpsi - fwpsixx <-0.1
           N_pos => null(), & ! number of iteration when fwpsi - fwpsixx > 0.1
           N_neg_sw => null(), & ! number of iteration when fwpsi - fwpsixx <-0.1 when wb=ssat

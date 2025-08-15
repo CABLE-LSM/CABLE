@@ -211,9 +211,8 @@ MODULE cable_checks_module
           P88dP50 = (/-50.0, 0.0/),      &
           kplant = (/0.0, 100.0/), &
           abs_deltlf = (/0.0, 50.0/), &
-          huber_value = (/0.0, 0.1/)
-      INTEGER, DIMENSION(2) :: &
-           N_neg = (/0, 100/)
+          huber_value = (/0.0, 0.1/), &
+          N_neg = (/0.0, 100.0/)
 
    
    END TYPE ranges_type

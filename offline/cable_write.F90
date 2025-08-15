@@ -108,6 +108,14 @@ MODULE cable_write_module
        otmp4lpsct => null(), otmp4lppct => null(), &
        otmp4xyps => null(), otmp4xyppc => null(),  &
        otmp4xypsc => null(), otmp4xypr => null()
+  Integer, POINTER, DIMENSION(:,:,:,:)   :: otmp4xypti => null(), otmp4xyzti => null(), &
+       otmp4xysti => null(), otmp4xysnti => null(),  &
+       otmp4xyrti => null(), otmp4xypcti => null(),  &
+       otmp4xyscti => null(), otmp4lpsti => null(),  &
+       otmp4lpsnti => null(), otmp4lprti => null(),  &
+       otmp4lpscti => null(), otmp4lppcti => null(), &
+       otmp4xypsi => null(), otmp4xyppci => null(),  &
+       otmp4xypsci => null(), otmp4xypri => null()
   REAL, POINTER, DIMENSION(:,:,:,:,:) :: otmp5xypst => null(), otmp5xypsnt => null(), &
        otmp5xyprt => null(), otmp5xyppct => null(), otmp5xypsct => null()
   REAL :: ncmissingr = -1.0e+33
@@ -167,6 +175,23 @@ CONTAINS
     NULLIFY(otmp4xyppc)
     NULLIFY(otmp4xypsc)
     NULLIFY(otmp4xypr)
+
+    NULLIFY(otmp4xypti)
+    NULLIFY(otmp4xyzti)
+    NULLIFY(otmp4xysti)
+    NULLIFY(otmp4xysnti)
+    NULLIFY(otmp4xyrti)
+    NULLIFY(otmp4xypcti)
+    NULLIFY(otmp4xyscti)
+    NULLIFY(otmp4lpsti)
+    NULLIFY(otmp4lpsnti)
+    NULLIFY(otmp4lprti)
+    NULLIFY(otmp4lpscti)
+    NULLIFY(otmp4lppcti)
+    NULLIFY(otmp4xypsi)
+    NULLIFY(otmp4xyppci)
+    NULLIFY(otmp4xypsci)
+    NULLIFY(otmp4xypri)
 
     NULLIFY(otmp5xypst)
     NULLIFY(otmp5xypsnt)
@@ -1098,7 +1123,6 @@ CONTAINS
                ' variable to output file (SUBROUTINE write_output_variable_r1)')
 
   END SUBROUTINE write_output_variable_r1
-  
   !=============================================================================
   
   SUBROUTINE write_output_variable_r2(ktau, ncid, varID, vname, var_r2,        &

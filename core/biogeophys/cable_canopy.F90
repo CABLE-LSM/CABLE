@@ -182,10 +182,10 @@ CONTAINS
       ALLOCATE(vpdpsdo(mp))
       ALLOCATE(wbpsdo(mp,ms))
 
-      canopy%N_neg = 0
-      canopy%N_pos = 0
-      canopy%N_neg_sw = 0
-      canopy%N_pos_sw = 0
+      canopy%N_neg = 0.0
+      canopy%N_pos = 0.0
+      canopy%N_neg_sw = 0.0
+      canopy%N_pos_sw = 0.0
       ! BATS-type canopy saturation proportional to LAI:
       cansat = veg%canst1 * canopy%vlaiw
 
@@ -3072,9 +3072,9 @@ CONTAINS
                       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
                if (fwpsi1_tmp(i,1)-fwpsixx(i,1)<-0.1_r_2) then
                   if (present(wbpsdo)) then
-                     canopy%N_neg_sw = canopy%N_neg_sw + 1
+                     canopy%N_neg_sw = canopy%N_neg_sw + 1.0
                   else
-                     canopy%N_neg = canopy%N_neg + 1
+                     canopy%N_neg = canopy%N_neg + 1.0
                   endif
                   inc = 0.1_r_2
                   fw = fwpsixx(i,1) - inc
@@ -3085,9 +3085,9 @@ CONTAINS
                   log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fw) / fw )
                elseif (fwpsi1_tmp(i,1)-fwpsixx(i,1)>0.1_r_2) then
                   if (present(wbpsdo)) then
-                     canopy%N_pos_sw = canopy%N_pos_sw + 1
+                     canopy%N_pos_sw = canopy%N_pos_sw + 1.0
                   else
-                     canopy%N_pos = canopy%N_pos + 1
+                     canopy%N_pos = canopy%N_pos + 1.0
                   endif
                   fw = fwpsixx(i,1) + inc
                   psilx(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
