@@ -180,9 +180,9 @@ CONTAINS
             ! endif 
             !! convert from MPa s m2 m-3 to MPa s m2 kg-1
             !soil_resist = soil_resist / C%RHOW
-            if (j==1) then
-               print*, 'ksoil kg m-2 Mpa-1 s-1',1.0/soil_resist
-            endif
+            ! if (j==1) then
+            !    print*, 'ksoil kg m-2 Mpa-1 s-1',1.0/soil_resist
+            ! endif
             endif
          !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! method 2 for soilR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             !!!! reference: Katul, G., Leuning, R., & Oren, R. (2003). Relationship between plant hydraulic and 
@@ -194,9 +194,9 @@ CONTAINS
             RAI = root_biomass / gC2DM * SRA * veg%froot(i,j) !! m2/m2
             Lsr = pi * soil%zse(j) / sqrt(RAI)
             soil_resist = Lsr / Ksoil ! kg m-2 Mpa-1 s-1
-            if (j==1) then
-               print*, 'ED method: ksoil',1.0/soil_resist
-            endif
+            ! if (j==1) then
+            !    print*, 'ED method: ksoil',1.0/soil_resist
+            ! endif
             endif
             ! root_resistance is commented out : don't use root-component of
             ! resistance (is part of plant resistance)
@@ -538,13 +538,13 @@ CONTAINS
          DO k = 1, ms
             sumpsiksoil = sumpsiksoil + ssnow%psi_soil(i,k) / (ssnow%soilR(i,k) + ssnow%rootR(i,k) )
             sumksoil = sumksoil + 1.0 / (ssnow%soilR(i,k) + ssnow%rootR(i,k) )
-            if (k==1) then
-               print*, 'calc_psix: psi_soil ',ssnow%psi_soil(i,k)
-               print*, 'calc_psix: ksoil, rootR ',1.0/ssnow%soilR(i,k), ssnow%rootR(i,k)
-            endif
+            ! if (k==1) then
+            !    print*, 'calc_psix: psi_soil ',ssnow%psi_soil(i,k)
+            !    print*, 'calc_psix: ksoil, rootR ',1.0/ssnow%soilR(i,k), ssnow%rootR(i,k)
+            ! endif
          END DO
          psix = (sumpsiksoil - ex) / sumksoil
-         print*, 'calc_psix: psix ',psix
+         ! print*, 'calc_psix: psix ',psix
          !canopy%psix(i) = psi_sr - ex / veg%kmax(i)
          !psix = psi_sr - ex / veg%kmax(i)
          ! Plant hydraulic conductance (mmol m-2 leaf s-1 MPa-1)
@@ -560,13 +560,13 @@ CONTAINS
          AGB_pl = casapool%cplant(i,2) / 1000.0_r_2 * gC2DM / pd ! kg pl-1
          DBH = (AGB_pl/k1)**(1.0_r_2/k2) ! cm 
          BAI = (DBH/200.0_r_2)**2.0_r_2*pi*pd ! m2 m-2
-         print*, 'old BAI',BAI
+         ! print*, 'old BAI',BAI
          ! plc = get_xylem_vulnerability(ssnow%psi_rootzone(i), &
          ! veg%b_plant(i), veg%c_plant(i))
          !BAI = casapool%cplant(i,1) * gC2DM * SLA * huber_value !  m2 m-2
          huber_value = veg%huber_value(i)
          BAI = veg%vlai(i) * huber_value !  m2 m-2 
-         print*, 'new BAI',BAI
+         ! print*, 'new BAI',BAI
          plc = get_xylem_vulnerability(psix, &
          veg%b_plant(i), veg%c_plant(i))
          !canopy%kplant(i) = veg%kmax(i) * BAI / veg%hc(i) * plc

@@ -142,8 +142,8 @@ CONTAINS
          CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, i)
          CALL calc_swp(ssnow, soil, i)
          CALL calc_psix(ssnow, soil, canopy, veg, casapool,sum(real(ssnow%uptake_layer(i,:),r_2)),psix,kplant,i)
-         print*,'uptake layer sum:',sum(real(ssnow%uptake_layer(i,:),r_2))
-         print*,'psix:',psix
+         ! print*,'uptake layer sum:',sum(real(ssnow%uptake_layer(i,:),r_2))
+         ! print*,'psix:',psix
          canopy%psix(i) = psix
          canopy%kplant(i) = kplant
       end do
@@ -197,8 +197,8 @@ CONTAINS
          CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, i)
          CALL calc_swp(ssnow, soil, i)
          CALL calc_psix(ssnow, soil, canopy, veg, casapool,sum(real(ssnow%uptake_layer(i,:),r_2)),psix,kplant,i)
-         print*,'uptake layer sum:',sum(real(ssnow%uptake_layer(i,:),r_2))
-         print*,'psix:',psix
+         ! print*,'uptake layer sum:',sum(real(ssnow%uptake_layer(i,:),r_2))
+         ! print*,'psix:',psix
          canopy%psix(i) = psix
          canopy%kplant(i) = kplant
       end do
