@@ -3080,7 +3080,7 @@ CONTAINS
                   fw = fwpsixx(i,1) - inc
                   psilx(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
                   log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fw) / fw )
-                  fw = fwpsixx(i,2) - 0.inc
+                  fw = fwpsixx(i,2) - inc
                   psilx(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
                   log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fw) / fw )
                elseif (fwpsi1_tmp(i,1)-fwpsixx(i,1)>0.1_r_2) then
