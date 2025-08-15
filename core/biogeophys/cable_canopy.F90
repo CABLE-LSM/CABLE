@@ -3758,7 +3758,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
       ! !print*, 'write iteration file '
       ! end if
       k = 0
-      DO WHILE (k < kmax)
+      DO WHILE (k < C%MAXITER)
          k = k + 1
          ! print*, 'DD07 ', k, C%MAXITER, canopy%cansto
          ! print*, 'DD08 ', canopy%vlaiw
