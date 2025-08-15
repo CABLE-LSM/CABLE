@@ -3015,6 +3015,7 @@ CONTAINS
                   ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4), &
                   ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4), &
                   kplantx(i)
+               elseif (present(wbpsdo) .and. present(fwpsdo)) then
                elseif (present (wbpsdo)) then 
                   write(135,*) ktau_tot, iter, i, k, tlfx(i), deltlf(i), &
                   dsx(i),abs_deltds(i), psilx(i,1), psilx(i,2),abs_deltpsil(i,1),abs_deltpsil(i,2),fwpsi(i,1),fwpsi(i,2), &
