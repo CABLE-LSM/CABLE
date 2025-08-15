@@ -3011,6 +3011,10 @@ CONTAINS
             ! end if
             psilxm(i,:) = 0.0_r_2
             Mtag = 0
+               fwpsi(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
+               fwpsi(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
             if ( abs_deltlf(i) > 0.1 .AND. k > 5 .AND. k < kmax ) then
                ! after 4 iterations, take mean of current & previous estimates
                ! as the next estimate of leaf temperature, to avoid oscillation
@@ -3038,12 +3042,12 @@ CONTAINS
                      canopy%N_neg = canopy%N_neg + 1.0
                   endif
                   inc = 0.1_r_2
-                  fw = fwpsixx(i,1) - inc
+                  fwpsi1_tmp(i,1) = fwpsixx(i,1) - inc
                   psilxm(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
-                  log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fw) / fw )
-                  fw = fwpsixx(i,2) - inc
+                  log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,1)) / fwpsi1_tmp(i,1) )
+                  fwpsi1_tmp(i,2) = fwpsixx(i,2) - inc
                   psilxm(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
-                  log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fw) / fw )
+                  log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,2)) / fwpsi1_tmp(i,2) )
                elseif (fwpsi1_tmp(i,1)-fwpsixx(i,1)>0.1_r_2) then
                   Mtag=3
                   if (present(wbpsdo)) then
@@ -3051,19 +3055,20 @@ CONTAINS
                   else
                      canopy%N_pos = canopy%N_pos + 1.0
                   endif
-                  fw = fwpsixx(i,1) + inc
+                  fwpsi1_tmp(i,1) = fwpsixx(i,1) + inc
                   psilxm(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
-                  log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fw) / fw )
-                  fw = fwpsixx(i,2) + inc
+                  log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,1)) / fwpsi1_tmp(i,1) )
+                  fwpsi1_tmp(i,2) = fwpsixx(i,2) + inc
                   psilxm(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
-                  log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fw) / fw )   
+                  log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,2)) / fwpsi1_tmp(i,2) )   
                endif
             endif
             if (any(allktau == ktau_tot)) then
                if (present(wbpsdo) .and. present(vpdpsdo)) then
                   write(137,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i), deltlf(i), &
                   dsx(i),abs_deltds(i), Mtag, psilxx(i,1),psilxx(i,2),psilx(i,1), psilx(i,2),psilxm(i,1), psilxm(i,2), &
-                  abs_deltpsil(i,1),abs_deltpsil(i,2),fwpsixx(i,1),fwpsixx(i,2),fwpsi(i,1),fwpsi(i,2), &
+                  abs_deltpsil(i,1),abs_deltpsil(i,2), &
+                  fwpsixx(i,1),fwpsixx(i,2),fwpsi(i,1),fwpsi(i,2),fwpsi1_tmp(i,1),fwpsi1_tmp(i,2), &
                   psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
                   anrubiscox(i,2), anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
                   canopy%gswx(i,1), canopy%gswx(i,2),canopy%gswx(i,1), canopy%gswx(i,2), &
