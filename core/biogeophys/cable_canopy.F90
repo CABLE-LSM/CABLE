@@ -182,10 +182,10 @@ CONTAINS
       ALLOCATE(vpdpsdo(mp))
       ALLOCATE(wbpsdo(mp,ms))
 
-      canopy&N_neg = 0
-      canopy&N_pos = 0
-      canopy&N_neg_sw = 0
-      canopy&N_pos_sw = 0
+      canopy%N_neg = 0
+      canopy%N_pos = 0
+      canopy%N_neg_sw = 0
+      canopy%N_pos_sw = 0
       ! BATS-type canopy saturation proportional to LAI:
       cansat = veg%canst1 * canopy%vlaiw
 
