@@ -3053,7 +3053,7 @@ CONTAINS
             ! if (ktau>=5184) then
             ! print*, 'write 134 ',ktau,k
             ! end if
-            if ( abs_deltlf(i) > 0.1 .AND. k > 5 .AND. k < C%MAXITER ) then
+            if ( abs_deltlf(i) > 0.1 .AND. k > 5 .AND. k < kmax ) then
                ! after 4 iterations, take mean of current & previous estimates
                ! as the next estimate of leaf temperature, to avoid oscillation
                dc = veg%dc(i)
@@ -3758,7 +3758,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
       ! !print*, 'write iteration file '
       ! end if
       k = 0
-      DO WHILE (k < C%MAXITER)
+      DO WHILE (k < kmax)
          k = k + 1
          ! print*, 'DD07 ', k, C%MAXITER, canopy%cansto
          ! print*, 'DD08 ', canopy%vlaiw
