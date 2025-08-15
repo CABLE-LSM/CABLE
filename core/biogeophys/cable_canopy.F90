@@ -2172,7 +2172,7 @@ CONTAINS
       ! !print*, 'write iteration file '
       ! end if
       k = 0
-      if (present(wbpsdo) .and. present(vpdpsdo)) then
+      if (present(wbpsdo) .or. present(vpdpsdo)) then
          kmax = 35
       else
        kmax = C%MAXITER
