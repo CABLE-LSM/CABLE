@@ -3012,8 +3012,8 @@ CONTAINS
             ! print*, 'write 134 ',ktau,k
             ! end if
             psilxm(i,:) = 0.0_r_2
-            tlfxm(i,:) = 0.0_r_2
-            dsxm(i,:) = 0.0_r_2
+            tlfxm(i) = 0.0_r_2
+            dsxm(i) = 0.0_r_2
             Mtag = 0
                fwpsi(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
                       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
