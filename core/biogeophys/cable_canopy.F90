@@ -3015,7 +3015,7 @@ CONTAINS
                       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
                fwpsi(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
                       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
-            if ( abs_deltlf(i) > 0.1 .AND. k > 5 .AND. k < kmax ) then
+            if ( (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1)) .AND. k > 5 .AND. k < kmax ) then
                ! after 4 iterations, take mean of current & previous estimates
                ! as the next estimate of leaf temperature, to avoid oscillation
                dc = veg%dc(i)
@@ -3117,7 +3117,7 @@ CONTAINS
                endif
 
             END IF
-            if ( abs_deltlf(i) > 0.1 .AND. k > 5 .AND. k < kmax ) then
+            if ( (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1)) .AND. k > 5 .AND. k < kmax ) then
                psilx = psilxm
             endif
 
