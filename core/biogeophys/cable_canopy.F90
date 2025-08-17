@@ -1792,7 +1792,9 @@ CONTAINS
          cx2y,         &
          tdiff,         & ! leaf air temp diff.
          tlfxx,         & ! leaf temp of current iteration (K)
+         tlfxm,         & ! 
          dsxx,         & ! vpd at leaf surface of current iteration 
+         dsxm,         &
          abs_deltlf,    & ! ABS(deltlf)
          abs_deltds,    &
          deltlf,        & ! deltlfy of prev iter.
@@ -3010,6 +3012,8 @@ CONTAINS
             ! print*, 'write 134 ',ktau,k
             ! end if
             psilxm(i,:) = 0.0_r_2
+            tlfxm(i,:) = 0.0_r_2
+            dsxm(i,:) = 0.0_r_2
             Mtag = 0
                fwpsi(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
                       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
@@ -3022,8 +3026,8 @@ CONTAINS
                ! tlfx(i) = ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) *tlfxx(i) + &
                !    ( 1.0 - ( 0.5 * ( MAX( 0, k-5 ) / ( k - 4.9999 ) ) ) ) &
                !    * tlfx(i)
-               tlfx(i) = dc *tlfxx(i) + ( 1.0 - dc ) * tlfx(i)
-               dsx(i) = dc *dsxx(i) + ( 1.0 - dc ) * dsx(i)
+               tlfxm(i) = dc *tlfxx(i) + ( 1.0 - dc ) * tlfx(i)
+               dsxm(i) = dc *dsxx(i) + ( 1.0 - dc ) * dsx(i)
                csx(i,1) = dc *csxx(i,1) + ( 1.0 - dc ) * csx(i,1)
                csx(i,2) = dc *csxx(i,2) + ( 1.0 - dc ) * csx(i,2)
                psilxm(i,1) = dc *psilxx(i,1) + ( 1.0 - dc ) * psilx(i,1)
@@ -3065,8 +3069,9 @@ CONTAINS
             endif
             if (any(allktau == ktau_tot)) then
                if (present(wbpsdo) .and. present(vpdpsdo)) then
-                  write(137,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i), deltlf(i), &
-                  dsx(i),abs_deltds(i), Mtag, psilxx(i,1),psilxx(i,2),psilx(i,1), psilx(i,2),psilxm(i,1), psilxm(i,2), &
+                  write(137,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i),tlfxm(i), deltlf(i), &
+                  dsxx(i),dsx(i),dsxm(i),abs_deltds(i), Mtag, 
+                  psilxx(i,1),psilxx(i,2),psilx(i,1), psilx(i,2),psilxm(i,1), psilxm(i,2), &
                   abs_deltpsil(i,1),abs_deltpsil(i,2), &
                   fwpsixx(i,1),fwpsixx(i,2),fwpsi(i,1),fwpsi(i,2),fwpsi1_tmp(i,1),fwpsi1_tmp(i,2), &
                   psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
@@ -3078,8 +3083,9 @@ CONTAINS
                   kplantx(i)
                elseif (present(wbpsdo) .and. present(fwpsdo)) then
                elseif (present (wbpsdo)) then 
-                  write(135,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i), deltlf(i), &
-                  dsx(i),abs_deltds(i), Mtag, psilxx(i,1),psilxx(i,2),psilx(i,1), psilx(i,2),psilxm(i,1), psilxm(i,2), &
+                  write(135,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i),tlfxm(i), deltlf(i), &
+                  dsxx(i),dsx(i),dsxm(i),abs_deltds(i), Mtag, 
+                  psilxx(i,1),psilxx(i,2),psilx(i,1), psilx(i,2),psilxm(i,1), psilxm(i,2), &
                   abs_deltpsil(i,1),abs_deltpsil(i,2), &
                   fwpsixx(i,1),fwpsixx(i,2),fwpsi(i,1),fwpsi(i,2),fwpsi1_tmp(i,1),fwpsi1_tmp(i,2), &
                   psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
@@ -3090,8 +3096,9 @@ CONTAINS
                   ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4), &
                   kplantx(i)
                elseif (present (vpdpsdo)) then 
-                  write(136,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i), deltlf(i), &
-                  dsx(i),abs_deltds(i), Mtag, psilxx(i,1),psilxx(i,2),psilx(i,1), psilx(i,2),psilxm(i,1), psilxm(i,2), &
+                  write(136,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i),tlfxm(i), deltlf(i), &
+                  dsxx(i),dsx(i),dsxm(i),abs_deltds(i), Mtag, 
+                  psilxx(i,1),psilxx(i,2),psilx(i,1), psilx(i,2),psilxm(i,1), psilxm(i,2), &
                   abs_deltpsil(i,1),abs_deltpsil(i,2), &
                   fwpsixx(i,1),fwpsixx(i,2),fwpsi(i,1),fwpsi(i,2),fwpsi1_tmp(i,1),fwpsi1_tmp(i,2), &
                   psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
@@ -3102,8 +3109,9 @@ CONTAINS
                   ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4), &
                   kplantx(i)
                else
-                  write(134,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i), deltlf(i), &
-                  dsx(i),abs_deltds(i), Mtag, psilxx(i,1),psilxx(i,2),psilx(i,1), psilx(i,2),psilxm(i,1), psilxm(i,2), &
+                  write(134,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i),tlfxm(i), deltlf(i), &
+                  dsxx(i),dsx(i),dsxm(i),abs_deltds(i), Mtag, 
+                  psilxx(i,1),psilxx(i,2),psilx(i,1), psilx(i,2),psilxm(i,1), psilxm(i,2), &
                   abs_deltpsil(i,1),abs_deltpsil(i,2), &
                   fwpsixx(i,1),fwpsixx(i,2),fwpsi(i,1),fwpsi(i,2),fwpsi1_tmp(i,1),fwpsi1_tmp(i,2), &
                   psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
@@ -3119,6 +3127,8 @@ CONTAINS
             END IF
             if ( (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1)) .AND. k > 5 .AND. k < kmax ) then
                psilx = psilxm
+               tlfx = tlfxm
+               dsx = dsxm
             endif
 
          END DO !over mp
