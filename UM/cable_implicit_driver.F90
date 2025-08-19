@@ -258,7 +258,7 @@ subroutine cable_implicit_driver( LS_RAIN, CON_RAIN, LS_SNOW, CONV_SNOW,       &
       !end do
 
       CALL cbm(ktau_gl,TIMESTEP, air, bgc, canopy, met, bal,  &
-           rad, rough, soil, ssnow, sum_flux, veg, climate,casapool)
+           rad, rough, soil, ssnow, sum_flux, veg, climate,casapool,casabiome)
 
       ! Lestevens - temporary ?
       ktauday = int(24.0*3600.0/TIMESTEP)

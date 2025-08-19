@@ -57,7 +57,7 @@ MODULE cable_canopy_module
 
 CONTAINS
 
-   SUBROUTINE define_canopy(ktau, ktau_tot, bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate, casapool)
+   SUBROUTINE define_canopy(ktau, ktau_tot, bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate, casapool, casabiome)
 
       USE cable_def_types_mod
       USE cable_radiation_module
@@ -82,6 +82,7 @@ CONTAINS
       TYPE(canopy_type),         INTENT(INOUT) :: canopy
       TYPE(climate_type),        INTENT(IN)    :: climate
       TYPE (casa_pool),  INTENT(IN)           :: casapool
+      TYPE (casa_biome),  INTENT(IN)           :: casabiome
       ! INTEGER,                  INTENT(IN)    :: wlogn
 
       INTEGER :: &
@@ -531,7 +532,7 @@ CONTAINS
          if (iter==4) then
             wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
             DO j = 1, mp
-               CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, j, wbpsdo)
+               CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, j, wbpsdo)
                CALL calc_swp(ssnow, soil, j, wbpsdo)
             END DO
             dsxpsdo = dsx
@@ -556,7 +557,7 @@ CONTAINS
             !!!!!!!!!!!!!!!! gs_ref
             wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
             DO j = 1, mp
-               CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, j, wbpsdo)
+               CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, j, wbpsdo)
                CALL calc_swp(ssnow, soil, j, wbpsdo)
             END DO
             vpdpsdo = SPREAD(real(600,r_2), 1, mp) ! 600Pa
@@ -582,7 +583,7 @@ CONTAINS
             !!!!!!!!!!!!!!!! gs_ref1
             wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
             DO j = 1, mp
-               CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, j, wbpsdo)
+               CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, j, wbpsdo)
                CALL calc_swp(ssnow, soil, j, wbpsdo)
             END DO
             fwpsdo = 1.0_r_2
@@ -608,7 +609,7 @@ CONTAINS
          if (iter==4) then
             DO j = 1, mp
                ! reset psi_soil, soilR and rootR back to the realistic value
-               CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, j)
+               CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, j)
                CALL calc_swp(ssnow, soil, j)
             END DO
          endif
@@ -2114,8 +2115,8 @@ CONTAINS
 
       !kdcorbin, 08/10 - doing all points all the time'
       !allocate(nktau(4), nktau_end(4))
-      nktau=[79029,80861,82966,96215]
-      NN=2
+      nktau=[192212]
+      NN=14
       nktau_end = nktau + NN - 1
       
       m = size(nktau) * NN

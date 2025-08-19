@@ -679,6 +679,8 @@ CONTAINS
          max_vegpatches,'def',from_restart,mp)
      CALL readpar(ncid_rin,'huber_value',dummy,veg%huber_value,filename%restart_in, &
          max_vegpatches,'def',from_restart,mp)
+     CALL readpar(ncid_rin,'root_shoot',dummy,veg%root_shoot,filename%restart_in, &
+         max_vegpatches,'def',from_restart,mp)
     ! CALL readpar(ncid_rin,'tminvj',dummy,veg%tminvj,filename%restart_in, &
     !      max_vegpatches,'def',from_restart,mp)
     ! CALL readpar(ncid_rin,'tmaxvj',dummy,veg%tmaxvj,filename%restart_in, &

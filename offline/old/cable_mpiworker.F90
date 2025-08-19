@@ -682,7 +682,7 @@ contains
              ! CALL land surface scheme for this timestep, all grid points:
              CALL cbm(ktau, dels, air, bgc, canopy, met, &
                   bal, rad, rough, soil, ssnow, &
-                  veg, climate,casapool)
+                  veg, climate,casapool,casabiome)
 
              ! 13C
              if (cable_user%c13o2) then

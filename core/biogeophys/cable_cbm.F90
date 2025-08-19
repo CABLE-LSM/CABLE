@@ -48,7 +48,7 @@ CONTAINS
 
    SUBROUTINE cbm(ktau,ktau_tot, dels, air, bgc, canopy, met, &
       bal, rad, rough, soil, &
-      ssnow, veg, climate,casapool )
+      ssnow, veg, climate,casapool, casabiome )
 
       USE cable_common_module
       USE cable_carbon_module
@@ -85,6 +85,7 @@ CONTAINS
       TYPE(veg_parameter_type),  INTENT(INOUT) :: veg
       TYPE(climate_type),        INTENT(IN)    :: climate
       TYPE(casa_pool),        INTENT(IN)    :: casapool
+      TYPE(casa_biome),        INTENT(IN)    :: casabiome
 
       ! ptrs to local constants
       TYPE(icanopy_type) :: C
@@ -139,9 +140,9 @@ CONTAINS
       !ENDIF
       if (ktau_tot==1) then
       do i = 1, mp
-         CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, i)
+         CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, i)
          CALL calc_swp(ssnow, soil, i)
-         CALL calc_psix(ssnow, soil, canopy, veg, casapool,sum(real(ssnow%uptake_layer(i,:),r_2)),psix,kplant,i)
+         CALL calc_psix(ssnow, soil, canopy, veg, casapool, sum(real(ssnow%uptake_layer(i,:),r_2)),psix,kplant,i)
          ! print*,'uptake layer sum:',sum(real(ssnow%uptake_layer(i,:),r_2))
          ! print*,'psix:',psix
          canopy%psix(i) = psix
@@ -149,7 +150,7 @@ CONTAINS
       end do
       endif
       ! Calculate canopy variables
-      CALL define_canopy(ktau,ktau_tot,bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate, casapool)
+      CALL define_canopy(ktau,ktau_tot,bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate, casapool, casabiome)
 
       ! write(*,*) 'hod, TVeg: ', met%hod(1), canopy%fevc(1), canopy%fwsoil(1)
       ! if (met%hod(1).gt.12.0) stop
@@ -168,11 +169,11 @@ CONTAINS
 
       IF (cable_runtime%um) THEN
          IF (cable_runtime%um_implicit) THEN
-            CALL soil_snow(dels, soil, ssnow, canopy, met, veg, casapool)
+            CALL soil_snow(dels, soil, ssnow, canopy, met, veg, casapool, casabiome)
          ENDIF
       ELSE
          IF (cable_user%SOIL_STRUC=='default') THEN
-            call soil_snow(dels, soil, ssnow, canopy, met, veg, casapool)
+            call soil_snow(dels, soil, ssnow, canopy, met, veg, casapool, casabiome)
          ELSEIF (cable_user%SOIL_STRUC=='sli') THEN
             ! print*, 'SLIMAIN01 ', ktau, dels
             ! call print_cbm_var(veg)
@@ -194,7 +195,7 @@ CONTAINS
          ENDIF
       ENDIF
       do i = 1, mp
-         CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, i)
+         CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, i)
          CALL calc_swp(ssnow, soil, i)
          CALL calc_psix(ssnow, soil, canopy, veg, casapool,sum(real(ssnow%uptake_layer(i,:),r_2)),psix,kplant,i)
          ! print*,'uptake layer sum:',sum(real(ssnow%uptake_layer(i,:),r_2))

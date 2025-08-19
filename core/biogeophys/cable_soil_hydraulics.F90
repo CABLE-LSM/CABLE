@@ -14,7 +14,7 @@ MODULE cable_soil_hydraulics_module
 
 CONTAINS
    ! ----------------------------------------------------------------------------
-   SUBROUTINE calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length_density, i, wbpsdo)
+   SUBROUTINE calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome,root_length_density, i, wbpsdo)
       ! Calculate root & soil hydraulic resistance following SPA approach
       ! (Williams et al.)
       !
@@ -57,6 +57,7 @@ CONTAINS
       TYPE (soil_parameter_type), INTENT(INOUT)   :: soil
       TYPE (veg_parameter_type), INTENT(INOUT)    :: veg
       TYPE (casa_pool),  INTENT(IN)           :: casapool
+      TYPE (casa_biome),  INTENT(IN)           :: casabiome
       REAL, DIMENSION(:), INTENT(INOUT) :: root_length_density
       real(r_2), dimension(:,:), intent(in), optional :: wbpsdo
       INTEGER, INTENT(IN) :: i
@@ -82,7 +83,7 @@ CONTAINS
 
       REAL, DIMENSION(ms) :: depth
       REAL                :: root_mass, rs, Ksoil0, Ksoil, root_biomass, root_depth, root_mass_density, RAI, Lsr
-      REAL                :: soil_resist, rsum, conv
+      REAL                :: soil_resist, rsum, conv, shoot_biomass, leaf_biomass
       real(r_2), dimension(mp,ms) :: wbtmp
 
       INTEGER :: j,rootRM,soilRM
@@ -109,6 +110,12 @@ CONTAINS
       !root_biomass = 1443.0 * gC2DM ! EBF value
       root_biomass = 832.0 * gC2DM ! Eucface value
       root_biomass = casapool%cplant(i,3) * gC2DM !  g m-2
+      print*, 'root_biomass original: ', root_biomass
+      ! another method to calculate root biomass
+      leaf_biomass = veg%vlai(i) / casabiome%sla(veg%iveg(i)) ! gc m-2
+      shoot_biomass = ((casapool%cplant(i,1)+casapool%cplant(i,2))/casapool%cplant(i,1)) * leaf_biomass
+      root_biomass = veg%root_shoot(i) * shoot_biomass * gC2DM
+      print*, 'root_biomass new: ', root_biomass
       !root_biomass = 318.9 * gC2DM ! Spruce experiment
 
       ! sensitivity experiment values

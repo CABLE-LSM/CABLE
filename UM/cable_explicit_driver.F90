@@ -381,7 +381,7 @@ SUBROUTINE cable_explicit_driver( row_length, rows, land_pts, ntiles,npft,     &
    !--- req'd by Mk3L  --------------------------------------------------!
    !---------------------------------------------------------------------!
    CALL cbm( ktau_gl,timestep, air, bgc, canopy, met, bal,                             &
-             rad, rough, soil, ssnow, sum_flux, veg, climate,casapool )
+             rad, rough, soil, ssnow, sum_flux, veg, climate,casapool,casabiome )
 
    !---------------------------------------------------------------------!
    ! Check this run against standard for quasi-bitwise reproducability   !  

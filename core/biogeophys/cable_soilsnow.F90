@@ -1634,7 +1634,7 @@ CONTAINS
 
 ! -----------------------------------------------------------------------------
 
-   SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg, casapool)
+   SUBROUTINE remove_trans(dels, soil, ssnow, canopy, veg, casapool, casabiome)
 
       USE cable_common_module, ONLY : cable_user
       USE cable_IO_vars_module, ONLY: logn
@@ -1648,6 +1648,7 @@ CONTAINS
       TYPE(soil_parameter_type), INTENT(INOUT) :: soil
       TYPE(veg_parameter_type), INTENT(INOUT)  :: veg
       TYPE (casa_pool),  INTENT(IN)           :: casapool
+      TYPE (casa_biome),  INTENT(IN)           :: casabiome
 
       REAL(r_2), DIMENSION(mp,ms) :: diff
       REAL(r_2), DIMENSION(mp)      :: xx, xxd
@@ -1662,7 +1663,7 @@ CONTAINS
       IF (cable_user%SOIL_SCHE == 'hydraulics') THEN
          DO i = 1, mp
 
-            CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, root_length, i)
+            CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, i)
             CALL calc_swp(ssnow, soil, i)
             CALL calc_weighted_swp_and_frac_uptake(ssnow, soil, canopy, veg, &
                root_length, i)
@@ -1783,7 +1784,7 @@ CONTAINS
 !        ivegt - vegetation type
 ! Output
 !        ssnow
-   SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, veg, casapool)
+   SUBROUTINE soil_snow(dels, soil, ssnow, canopy, met, veg, casapool, casabiome)
       USE cable_common_module
       USE casavariable
       REAL, INTENT(IN)                    :: dels ! integration time step (s)
@@ -1793,6 +1794,7 @@ CONTAINS
       TYPE(veg_parameter_type), INTENT(INOUT)  :: veg
       TYPE(met_type), INTENT(INOUT)            :: met ! all met forcing
       TYPE (casa_pool),  INTENT(IN)           :: casapool
+      TYPE (casa_biome),  INTENT(IN)           :: casabiome
       INTEGER             :: k
       REAL, DIMENSION(mp) :: snowmlt
       REAL, DIMENSION(mp) :: totwet
@@ -1931,7 +1933,7 @@ CONTAINS
       ! Add new snow melt to global snow melt variable:
       ssnow%smelt = ssnow%smelt + snowmlt
 
-      CALL remove_trans(dels, soil, ssnow, canopy, veg, casapool)
+      CALL remove_trans(dels, soil, ssnow, canopy, veg, casapool, casabiome)
 
       CALL soilfreeze_serial(soil, ssnow)
 

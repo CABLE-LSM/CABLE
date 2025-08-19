@@ -136,7 +136,7 @@ MODULE cable_IO_vars_module
           gamma,zr,F10
 
      INTEGER :: g0,g1,g1tuzet,slope_leaf,g3,psi_50_leaf,kmax, a1gs, d0gs, vcmax_scalar, P50, &
-     P88dP50, b_plant, c_plant, root_conduc, huber_value ! Ticket #56
+     P88dP50, b_plant, c_plant, root_conduc, huber_value, root_shoot ! Ticket #56
 
    END TYPE parID_type
 

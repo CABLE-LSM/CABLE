@@ -381,7 +381,8 @@ module cable_def_types_mod
           psi_50_leaf => null(), &
           dc => null(),  & !used in iteration in dryLeaf
           root_conduc => null(), &
-          huber_value => null()
+          huber_value => null(), &
+          root_shoot => null()
 
      logical, dimension(:), pointer :: &
           deciduous => null() ! flag used for phenology fix
@@ -1204,6 +1205,7 @@ contains
     allocate(veg%dc(mp)) 
     allocate( veg%root_conduc(mp) )
     allocate( veg%huber_value(mp) )
+    allocate( veg%root_shoot(mp) )
 
   end subroutine alloc_veg_parameter_type
 
@@ -1903,6 +1905,7 @@ contains
     deallocate( veg%dc ) 
     deallocate( veg%root_conduc ) 
     deallocate( veg%huber_value ) 
+    deallocate( veg%root_shoot ) 
 
   end subroutine dealloc_veg_parameter_type
 
@@ -2484,6 +2487,7 @@ contains
     veg%dc = 0
     veg%root_conduc = 0
     veg%huber_value = 0
+    veg%root_shoot = 0
    
   end subroutine zero_veg_parameter_type
 
