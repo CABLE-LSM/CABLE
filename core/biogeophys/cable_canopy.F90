@@ -1902,7 +1902,7 @@ CONTAINS
       real(r_2), dimension(mp,ms) :: wbtmp
       real(r_2), dimension(mp):: vpdtmp
       integer :: i, j, k, kk, h, iter_ini ! iteration count
-      integer :: NN,m,kmax,Mtag
+      integer :: NN,m,kmax,Mtag,Numtag
       integer, allocatable :: nktau(:), allktau(:), nktau_end(:)
       real :: vpd, g1, ktot, refill  ! Ticket #56
       REAL, PARAMETER :: & ! Ref. params from Bernacchi et al. (2001)
@@ -2181,6 +2181,7 @@ CONTAINS
       else
        kmax = C%MAXITER
       endif
+      Numtag = 3
       DO WHILE (k < kmax)
          k = k + 1
          ! print*, 'DD07 ', k, C%MAXITER, canopy%cansto
@@ -2206,7 +2207,7 @@ CONTAINS
          ! print*, 'DD27 ', veg%g0
          DO i=1,mp
 
-            IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1)) ) THEN
+            IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1)) .AND. (Numtag>0)) THEN
 
                ghwet(i)  = 2.0_r_2 * real(sum_gbh(i),r_2)
                gwwet(i)  = 1.075 * sum_gbh(i)
@@ -3021,6 +3022,7 @@ CONTAINS
                fwpsi(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
                       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
             if ( (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1)) .AND. k > 5 .AND. k < kmax ) then
+               Numtag = 3
                ! after 4 iterations, take mean of current & previous estimates
                ! as the next estimate of leaf temperature, to avoid oscillation
                dc = veg%dc(i)
@@ -3067,6 +3069,8 @@ CONTAINS
                   psilxm(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
                   log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,2)) / fwpsi1_tmp(i,2) )   
                endif
+            elseif ( k > 5 .AND. k < kmax ) then
+               Numtag = Numtag - 1
             endif
             if (any(allktau == ktau_tot)) then
                if (present(wbpsdo) .and. present(vpdpsdo)) then
