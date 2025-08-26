@@ -1,10 +1,6 @@
 spack:
   specs:
-    # Since any spack.packages.all.require statement affects package reuse, and
-    # package reuse is especially important in this repo,  we need to pin
-    # versions of packages.
-    # NOTE: This will change between versions of the container-runner-image that is given under `container-image-version` in ci.yml.
-    - cable@git.{{ ref }}
+  - cable@git.{{ ref }}
   packages:
     all:
       require:

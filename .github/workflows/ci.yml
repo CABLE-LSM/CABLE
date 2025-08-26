@@ -17,8 +17,5 @@ jobs:
       spack-manifest-path: ${{ matrix.spack-manifest-path }}
       spack-packages-ref: api-v2
       spack-ref: releases/v1.0
-      # FIXME: Delete this once it's merged into main
-      spack-config-ref: fb63a9fa2fe7570c7a32ad8347c765e6d659e921
       allow-ssh-into-spack-install: false
-      # Note: if changing the version below, you need to review the package versions in the `build-ci/manifests` accordingly.
       container-image-version: :rocky-v1.0
