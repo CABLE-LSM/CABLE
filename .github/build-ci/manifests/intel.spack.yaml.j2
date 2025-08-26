@@ -1,0 +1,11 @@
+spack:
+  specs:
+  - cable@git.{{ ref }}
+  packages:
+    all:
+      require:
+      - '%intel@2021.10.0'
+      - target=x86_64
+  concretizer:
+    unify: false
+  view: false
