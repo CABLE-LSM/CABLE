@@ -6,9 +6,10 @@ spack:
     # NOTE: This will change between versions of the container-runner-image that is given under `container-image-version` in ci.yml.
     - cable@git.{{ ref }}
   packages:
-    require:
-    - '%intel@2021.10.0'
-    - target=x86_64
+    all:
+      require:
+      - '%intel@2021.10.0'
+      - target=x86_64
   concretizer:
     unify: false
   view: false
