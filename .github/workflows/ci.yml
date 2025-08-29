@@ -21,3 +21,6 @@ jobs:
       spack-ref: releases/v1.0
       allow-ssh-into-spack-install: false
       container-image-version: :rocky-v1.0
+      spack-oci-buildcache-url: oci://ghcr.io/CABLE-LSM/build-ci-buildcache
+    permissions:
+      packages: write
