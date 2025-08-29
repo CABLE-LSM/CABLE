@@ -13,7 +13,7 @@ jobs:
           - .github/build-ci/manifests/gcc.spack.yaml.j2
           - .github/build-ci/manifests/intel.spack.yaml.j2
     # TODO: Once https://github.com/ACCESS-NRI/build-ci/pull/239 and https://github.com/ACCESS-NRI/spack-config/pull/71 are merged, revert back to `v2` branch for workflow, and remove spack-config-ref
-    uses: access-nri/build-ci/.github/workflows/ci-github-hosted.yml@72102c6d1271577907c23045c944cd63c83c4107  # From v1.0-image branch
+    uses: access-nri/build-ci/.github/workflows/ci-github-hosted.yml@9e38453129fd379dec90aac6f525cb72dd4e7c77  # From v1.0-image branch
     with:
       spack-manifest-path: ${{ matrix.spack-manifest-path }}
       spack-packages-ref: api-v2
