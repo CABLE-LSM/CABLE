@@ -1,0 +1,11 @@
+spack:
+  specs:
+  - cable@git.{{ ref }}
+  packages:
+    all:
+      require:
+      - '%gcc@13.2.0'
+      - target=x86_64
+  concretizer:
+    unify: false
+  view: false
