@@ -297,7 +297,7 @@ MODULE cable_common_module
           root_conduc, & ! root reference conductivity,  kg s-1 Mpa-1 m-1(root length)
           huber_value, & ! sapwood area / leaf area(m2 m-2)
           root_shoot
-
+      integer, DIMENSION(:), ALLOCATABLE :: Nmax ! interation maximum in dryLeaf
      REAL, DIMENSION(:,:), ALLOCATABLE :: &
           froot,      & !
           cplant,     & !
@@ -412,11 +412,12 @@ CONTAINS
          vegin%P50(mvtype), vegin%P88dP50(mvtype),&
          vegin%slope_leaf(mvtype), vegin%g3(mvtype), vegin%psi_50_leaf(mvtype), & 
          vegin%dc(mvtype), vegin%vcmax_scalar(mvtype),vegin%root_conduc(mvtype),vegin%huber_value(mvtype), &
-         vegin%root_shoot(mvtype)   )
+         vegin%root_shoot(mvtype),vegin%Nmax(mvtype)   )
     ! set default vcmaxcc and ejmaxcc to 0. because not used yet
     vegin%vcmaxcc = 0
     vegin%ejmaxcc = 0
     vegin%dc = 0
+    vegin%Nmax = 0
 
     IF( vegparmnew ) THEN    ! added to read new format (BP dec 2007)
 
@@ -1076,6 +1077,7 @@ CONTAINS
        veg%g3(h)     = vegin%g3(veg%iveg(h))
        veg%psi_50_leaf(h)     = vegin%psi_50_leaf(veg%iveg(h))
        veg%dc(h)      = vegin%dc(veg%iveg(h)) ! used in iteration in dryLeaf
+       veg%Nmax(h)      = vegin%Nmax(veg%iveg(h))
 
     END DO ! over each veg patch in land point
       

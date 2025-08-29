@@ -2177,7 +2177,7 @@ CONTAINS
       ! end if
       k = 0
       if (present(wbpsdo) .or. present(vpdpsdo)) then
-         kmax = 35
+         kmax = veg%Nmax(1)
       else
        kmax = C%MAXITER
       endif
