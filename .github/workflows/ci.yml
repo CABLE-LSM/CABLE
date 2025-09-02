@@ -12,15 +12,13 @@ jobs:
         spack-manifest-path:
           - .github/build-ci/manifests/gcc.spack.yaml.j2
           - .github/build-ci/manifests/intel.spack.yaml.j2
-    # TODO: Once https://github.com/ACCESS-NRI/build-ci/pull/239 and https://github.com/ACCESS-NRI/spack-config/pull/71 are merged, revert back to `v2` branch for workflow, and remove spack-config-ref
-    uses: access-nri/build-ci/.github/workflows/ci-github-hosted.yml@9e38453129fd379dec90aac6f525cb72dd4e7c77  # From v1.0-image branch
+    uses: access-nri/build-ci/.github/workflows/ci-github-hosted.yml@v2
     with:
       spack-manifest-path: ${{ matrix.spack-manifest-path }}
-      spack-packages-ref: api-v2
-      spack-config-ref: e7592522e4ec66f7547fd686f87a2ed95aa1b6f6  # from spack-enable-ci branch
+      spack-packages-ref: api-v2  # This branch contains the package defs compatible with spack >=1.0. May be incorporated into the main branch
       spack-ref: releases/v1.0
       allow-ssh-into-spack-install: false
-      container-image-version: :rocky-v1.0
-      spack-oci-buildcache-url: oci://ghcr.io/CABLE-LSM/build-ci-buildcache
+      container-image-version: :rocky-v1.0-2025.09.000  # https://github.com/ACCESS-NRI/build-ci/pkgs/container/build-ci-upstream/501398004?tag=rocky-v1.0-2025.09.000
+      spack-oci-buildcache-url: oci://ghcr.io/CABLE-LSM/build-ci-buildcache  # https://github.com/CABLE-LSM/CABLE/pkgs/container/build-ci-buildcache
     permissions:
       packages: write
