@@ -1901,6 +1901,7 @@ CONTAINS
       real, dimension(mp,2) ::  gsw_term, lower_limit2  ! local temp var
       real(r_2), dimension(mp,ms) :: wbtmp
       real(r_2), dimension(mp):: vpdtmp
+      real, dimension(mp):: g0
       integer :: i, j, k, kk, h, iter_ini ! iteration count
       integer :: NN,m,kmax,Mtag,Numtag
       integer, allocatable :: nktau(:), allktau(:), nktau_end(:)
@@ -1934,7 +1935,7 @@ CONTAINS
 
       ! END header
       ! allocate(gswmin(mp,mf))
-
+      g0 = veg%g0
       ! Soil water limitation on stomatal conductance:
       iter_ini = 1
       if (present(wbpsdo)) then
@@ -2115,7 +2116,7 @@ CONTAINS
 
       !kdcorbin, 08/10 - doing all points all the time'
       !allocate(nktau(4), nktau_end(4))
-      nktau=[192212]
+      nktau=[192212,385692]
       NN=14
       nktau_end = nktau + NN - 1
       
@@ -2589,8 +2590,8 @@ CONTAINS
                   endif
                ELSE IF (cable_user%GS_SWITCH == 'tuzet' .AND. &
                   INDEX(cable_user%FWSOIL_SWITCH,'LWP')>0) THEN
-                     gswmin(i,1) = veg%g0(i) * rad%scalex(i,1)
-                     gswmin(i,2) = veg%g0(i) * rad%scalex(i,2)
+                     gswmin(i,1) = g0(i) * rad%scalex(i,1)
+                     gswmin(i,2) = g0(i) * rad%scalex(i,2)
                      g1 = veg%g1tuzet(i)
                      psilxx(i,:) = psilx(i,:)
                   if (present(fwpsdo)) then
@@ -2773,10 +2774,18 @@ CONTAINS
                   ! psilx(i,2) = ssnow%psi_rootzone(i) - ex(i,2) / canopy%kplant(i)
                   
                   CALL calc_psix(ssnow, soil, canopy, veg, casapool,max(sum(real(ex(i,:),r_2)), 0.0_r_2),psixxi,kplantxi,i)
+                  !if psixx(i)<-10
                   psixx(i) = psixxi
                   kplantx(i) = kplantxi
                   psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
                   psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
+                  if (any(psilx(i,:) < -20.0_r_2)) then
+                     where (psilx(i,:) < -10.0_r_2)
+                     psilx(i,:) = -10.0_r_2
+                     end where
+                     g0 = g0*0.8
+                  endif
+           
                   ! if (any(allktau == ktau_tot) .and. (iter==4)) then
                   ! print*,'ktau_tot, i and k',ktau_tot, iter, k
                   ! if (present(wbpsdo)) then
