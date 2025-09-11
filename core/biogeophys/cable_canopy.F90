@@ -1901,7 +1901,7 @@ CONTAINS
       real, dimension(mp,2) ::  gsw_term, lower_limit2  ! local temp var
       real(r_2), dimension(mp,ms) :: wbtmp
       real(r_2), dimension(mp):: vpdtmp
-      real, dimension(mp):: g0
+      real, dimension(mp):: g0, g0xx
       integer :: i, j, k, kk, h, iter_ini ! iteration count
       integer :: NN,m,kmax,Mtag,Numtag
       integer, allocatable :: nktau(:), allktau(:), nktau_end(:)
@@ -1936,6 +1936,7 @@ CONTAINS
       ! END header
       ! allocate(gswmin(mp,mf))
       g0 = veg%g0
+      g0xx = g0
       ! Soil water limitation on stomatal conductance:
       iter_ini = 1
       if (present(wbpsdo)) then
@@ -2594,6 +2595,7 @@ CONTAINS
                      gswmin(i,2) = g0(i) * rad%scalex(i,2)
                      g1 = veg%g1tuzet(i)
                      psilxx(i,:) = psilx(i,:)
+                     g0xx(i) = g0(i)
                   if (present(fwpsdo)) then
                      gs_coeff(i,1) = g1 / real(csx(i,1)) * fwpsdo
                      gs_coeff(i,2) = g1 / real(csx(i,2)) * fwpsdo
@@ -3111,7 +3113,7 @@ CONTAINS
                   vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
                   ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4),ssnow%rootR(i,5),ssnow%rootR(i,6), &
                   ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4),ssnow%soilR(i,5),ssnow%soilR(i,6), &
-                  kplantx(i)
+                  kplantx(i),g0xx(i)
                elseif (present(wbpsdo) .and. present(fwpsdo)) then
                elseif (present (wbpsdo)) then 
                   write(135,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i),tlfxm(i), deltlf(i), &
@@ -3125,7 +3127,7 @@ CONTAINS
                   vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
                   ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4),ssnow%rootR(i,5),ssnow%rootR(i,6), &
                   ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4),ssnow%soilR(i,5),ssnow%soilR(i,6), &
-                  kplantx(i)
+                  kplantx(i),g0xx(i)
                elseif (present (vpdpsdo)) then 
                   write(136,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i),tlfxm(i), deltlf(i), &
                   dsxx(i),dsx(i),dsxm(i),abs_deltds(i), Mtag, &
@@ -3138,7 +3140,7 @@ CONTAINS
                   vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
                   ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4),ssnow%rootR(i,5),ssnow%rootR(i,6), &
                   ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4),ssnow%soilR(i,5),ssnow%soilR(i,6), &
-                  kplantx(i)
+                  kplantx(i),g0xx(i)
                else
                   write(134,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i),tlfxm(i), deltlf(i), &
                   dsxx(i),dsx(i),dsxm(i),abs_deltds(i), Mtag, &
@@ -3151,7 +3153,7 @@ CONTAINS
                   vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
                   ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4),ssnow%rootR(i,5),ssnow%rootR(i,6), &
                   ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4),ssnow%soilR(i,5),ssnow%soilR(i,6), &
-                  kplantx(i)
+                  kplantx(i),g0xx(i)
 
                endif
 
