@@ -2139,7 +2139,7 @@ CONTAINS
          txtname = trim(filename%path) // 'testIteration_wbpsdo_cable_out.txt'
       elseif (present (vpdpsdo)) then
          txtname = trim(filename%path) // 'testIteration_vpdpsdo_cable_out.txt'
-      else
+      elseif (.not. present(wbpsdo) .and. .not. present(vpdpsdo) .and. .not. present(fwpsdo)) then
          txtname = trim(filename%path) // 'testIteration_cable_out.txt'
       endif
       ! if (any(nktau == ktau_tot) .and. iter==1) then
@@ -2167,7 +2167,7 @@ CONTAINS
             ! Open the file for overwrite if k is the first element
             open(unit=136, file=txtname, status="unknown", action="write")
          end if
-      else
+      elseif (.not. present(wbpsdo) .and. .not. present(vpdpsdo) .and. .not. present(fwpsdo)) then
          if (ktau_tot == nktau(1) .and. iter==1) then
             ! Open the file for overwrite if k is the first element
             open(unit=134, file=txtname, status="unknown", action="write")
@@ -2606,8 +2606,8 @@ CONTAINS
                       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
                      !print*, 1.0, real(1.0, r_2), 1.0 / 3.0_r_2, 1.0_r_2 / 3.0  
                      !print *, '!!!!!!!!!!!!!!! fwpsi:', fwpsi(i,1),psilx(i,1)
-                     gs_coeff(i,1) =fwpsi(i,1) * g1 / real(csx(i,1))
-                     gs_coeff(i,2) =fwpsi(i,2) * g1 / real(csx(i,2))
+                     gs_coeff(i,1) =fwpsi(i,1)**qs * g1 / real(csx(i,1))
+                     gs_coeff(i,2) =fwpsi(i,2)**qs * g1 / real(csx(i,2))
                      fwpsixx = fwpsi
                   endif
 
