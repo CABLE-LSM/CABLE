@@ -489,46 +489,46 @@ CONTAINS
          ecypsdo = ecy
 
          sum_rad_rniso = sum(rad%rniso,2)
-         !!!!!!!!!!!!!!! vpd = 0.6Kpa!!!!!!!!!!!!!!!!!!!!!
-         if (iter==4) then
-            vpdpsdo = SPREAD(real(600,r_2), 1, mp) ! 600Pa
-            dsxpsdo = vpdpsdo
-            dsypsdo = vpdpsdo
-            psilxpsdo = psilx
-            psilypsdo = psily
-            fwsoilpsdo = fwsoil
-            fwsoiltmppsdo = fwsoiltmp
-            fwpsipsdo = fwpsi
-            tlfxpsdo = tlfx
-            tlfypsdo = tlfy
-            ecypsdo = ecy
-            hcypsdo = hcy
-            rnypsdo = rny
-            csxpsdo = csx
-            CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
-            veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo,&
-            fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
-            rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
-            ghwet, iter, climate, vpdpsdo=vpdpsdo)
-            dsxpsdo = dsx
-            dsypsdo = dsy
-            ! psilxpsdo = psilx
-            ! psilypsdo = psily
-            fwsoilpsdo = fwsoil
-            ! fwsoiltmppsdo = fwsoiltmp
-            ! fwpsipsdo = fwpsi
-            tlfxpsdo = tlfx
-            tlfypsdo = tlfy
-            ecypsdo = ecy
-            hcypsdo = hcy
-            rnypsdo = rny
-            csxpsdo = csx
-            CALL dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
-               veg, canopy, soil, ssnow,casapool, dsxpsdo, dsypsdo, &
-               tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,&
-               rnypsdo, gbhu, gbhf, csxpsdo, &
-               cansat, iter, climate,gspsdo = canopy%gsw_epotvpd)
-         endif
+         ! !!!!!!!!!!!!!!! vpd = 0.6Kpa!!!!!!!!!!!!!!!!!!!!!
+         ! if (iter==4) then
+         !    vpdpsdo = SPREAD(real(600,r_2), 1, mp) ! 600Pa
+         !    dsxpsdo = vpdpsdo
+         !    dsypsdo = vpdpsdo
+         !    psilxpsdo = psilx
+         !    psilypsdo = psily
+         !    fwsoilpsdo = fwsoil
+         !    fwsoiltmppsdo = fwsoiltmp
+         !    fwpsipsdo = fwpsi
+         !    tlfxpsdo = tlfx
+         !    tlfypsdo = tlfy
+         !    ecypsdo = ecy
+         !    hcypsdo = hcy
+         !    rnypsdo = rny
+         !    csxpsdo = csx
+         !    CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
+         !    veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo,&
+         !    fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
+         !    rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
+         !    ghwet, iter, climate, vpdpsdo=vpdpsdo)
+         !    dsxpsdo = dsx
+         !    dsypsdo = dsy
+         !    ! psilxpsdo = psilx
+         !    ! psilypsdo = psily
+         !    fwsoilpsdo = fwsoil
+         !    ! fwsoiltmppsdo = fwsoiltmp
+         !    ! fwpsipsdo = fwpsi
+         !    tlfxpsdo = tlfx
+         !    tlfypsdo = tlfy
+         !    ecypsdo = ecy
+         !    hcypsdo = hcy
+         !    rnypsdo = rny
+         !    csxpsdo = csx
+         !    CALL dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
+         !       veg, canopy, soil, ssnow,casapool, dsxpsdo, dsypsdo, &
+         !       tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,&
+         !       rnypsdo, gbhu, gbhf, csxpsdo, &
+         !       cansat, iter, climate,gspsdo = canopy%gsw_epotvpd)
+         ! endif
          if (iter==4) then
             wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
             DO j = 1, mp
@@ -1881,7 +1881,8 @@ CONTAINS
          psilxm, &
          csxx, &
          abs_deltpsil , &
-         abs_deltcs
+         abs_deltcs, &
+         abs_deltfwpsi
 
       real ::  gam0,    &
          conkc0,  &
@@ -2072,8 +2073,10 @@ CONTAINS
       IF (cable_user%GS_SWITCH == 'tuzet' .AND. &
                   INDEX(cable_user%FWSOIL_SWITCH,'LWP')>0) then
          abs_deltpsil(:,:)   = SPREAD(SPREAD(999.0_r_2,1,mp),2,mf)
+         abs_deltfwpsi(:,:)   = SPREAD(SPREAD(999.0_r_2,1,mp),2,mf)
       else
          abs_deltpsil(:,:)   = SPREAD(SPREAD(0.0_r_2,1,mp),2,mf)
+         abs_deltfwpsi(:,:)   = SPREAD(SPREAD(0.0_r_2,1,mp),2,mf)
       endif
       ! print*, 'DD06 ', rad%gradis
 
@@ -2105,6 +2108,7 @@ CONTAINS
             abs_deltlf(kk) = 0.0
             abs_deltds(kk) = 0.0
             abs_deltpsil(kk,:) = 0.0
+            abs_deltfwpsi(kk,:) = 0.0
             abs_deltcs(kk,:) = 0.0
             rny(kk) = rnx(kk) ! store initial values
             ! calculate total thermal resistance, rthv in s/m
@@ -2209,7 +2213,9 @@ CONTAINS
          ! print*, 'DD27 ', veg%g0
          DO i=1,mp
 
-            IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1)) .AND. (Numtag>0)) THEN
+            IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. &
+               (abs_deltlf(i) > 0.1 .OR. ANY(abs_deltpsil(i,:) > 0.1) .OR. ANY(abs_deltfwpsi(i,:) > 0.02)) &
+               .OR. (Numtag > 0)) THEN
 
                ghwet(i)  = 2.0_r_2 * real(sum_gbh(i),r_2)
                gwwet(i)  = 1.075 * sum_gbh(i)
@@ -2606,8 +2612,8 @@ CONTAINS
                       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
                      !print*, 1.0, real(1.0, r_2), 1.0 / 3.0_r_2, 1.0_r_2 / 3.0  
                      !print *, '!!!!!!!!!!!!!!! fwpsi:', fwpsi(i,1),psilx(i,1)
-                     gs_coeff(i,1) =fwpsi(i,1)**qs * g1 / real(csx(i,1))
-                     gs_coeff(i,2) =fwpsi(i,2)**qs * g1 / real(csx(i,2))
+                     gs_coeff(i,1) =fwpsi(i,1) * g1 / real(csx(i,1))
+                     gs_coeff(i,2) =fwpsi(i,2) * g1 / real(csx(i,2))
                      fwpsixx = fwpsi
                   endif
 
@@ -2680,7 +2686,7 @@ CONTAINS
                vcmxt4(:,:), vx3(:,:), vx4(:,:), &
             ! Ticket #56, xleuning replaced with gs_coeff here
                gs_coeff(:,:), rad%fvlai(:,:), &
-               spread(abs_deltlf,2,mf), abs_deltpsil, &
+               spread(abs_deltlf,2,mf), abs_deltpsil, abs_deltfwpsi, Numtag, &
                anx(:,:), fwsoil(:), qs, gmes(:,:), kc4(:,:), &
                anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:) )
          ENDIF
@@ -2928,6 +2934,11 @@ CONTAINS
                if (cable_user%GS_SWITCH == 'tuzet' .AND. &
                   INDEX(cable_user%FWSOIL_SWITCH,'LWP')>0) then
                   abs_deltpsil(i,:) = ABS(psilxx(i,:)-psilx(i,:))
+               fwpsi(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
+               fwpsi(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
+                  abs_deltfwpsi(i,:) = ABS(fwpsixx(i,:)-fwpsi(i,:))
                endif
                abs_deltlf(i) = ABS(deltlf(i))
                abs_deltds(i) = ABS(dsxx(i)-dsx(i))
@@ -3028,12 +3039,9 @@ CONTAINS
             tlfxm(i) = 0.0_r_2
             dsxm(i) = 0.0_r_2
             Mtag = 0
-               fwpsi(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
-                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
-               fwpsi(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
-                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
+
             !if ( (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1)) .AND. k > 5 .AND. k < kmax ) then
-            if ( (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1)) .AND. k < kmax ) then
+            if ( (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1) .or. Any(abs_deltfwpsi(i,:) > 0.02)) .AND. k < kmax ) then
                Numtag = 3
                ! after 4 iterations, take mean of current & previous estimates
                ! as the next estimate of leaf temperature, to avoid oscillation
@@ -3047,11 +3055,12 @@ CONTAINS
                csx(i,2) = dc *csxx(i,2) + ( 1.0 - dc ) * csx(i,2)
                psilxm(i,1) = dc *psilxx(i,1) + ( 1.0 - dc ) * psilx(i,1)
                psilxm(i,2) = dc *psilxx(i,2) + ( 1.0 - dc ) * psilx(i,2)
-               ! calculate the new fwpsi1_tmp based on modified psilx
-               fwpsi1_tmp(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
-                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilxm(i,1))))
-               fwpsi1_tmp(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
-                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilxm(i,2))))
+               fwpsi1_tmp(i,1) = dc *fwpsixx(i,1) + ( 1.0 - dc ) * fwpsi(i,1)
+               fwpsi1_tmp(i,2) = dc *fwpsixx(i,2) + ( 1.0 - dc ) * fwpsi(i,2)
+               psilxm(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
+               log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,1)) / fwpsi1_tmp(i,1) )
+               psilxm(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
+               log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,2)) / fwpsi1_tmp(i,2) )
                Mtag=1
                ! inc = 0.1_r_2
                ! if (k>10) then
@@ -3068,6 +3077,12 @@ CONTAINS
                ! !elseif (k>=16) then
                   
                ! endif
+      
+               ! ! calculate the new fwpsi1_tmp based on modified psilx
+               ! fwpsi1_tmp(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+               !        (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilxm(i,1))))
+               ! fwpsi1_tmp(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+               !        (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilxm(i,2))))
                ! if (fwpsi1_tmp(i,1)-fwpsixx(i,1)<-0.1_r_2) then
                !    Mtag=2
                !    if (present(wbpsdo)) then
@@ -4683,7 +4698,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
    ! JK: subroutine photosynthesis_gm now used with and without explicit gm (cable_user%explicit_gm)
    SUBROUTINE photosynthesis_gm( csxz, cx1z, cx2z, gswminz, &
       rdxz, vcmxt3z, vcmxt4z, vx3z, &
-      vx4z, gs_coeffz, vlaiz, deltlfz, deltpsiz, anxz, fwsoilz, qs, &
+      vx4z, gs_coeffz, vlaiz, deltlfz, deltpsiz,deltfwpsiz,Numtagz,anxz, fwsoilz, qs, &
       gmes, kc4, anrubiscoz, anrubpz, ansinkz, eta, dA )
 
     use cable_def_types_mod, only: r_2
@@ -4691,7 +4706,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
 
       implicit none
 
-    real(r_2), dimension(:, :), intent(in) :: csxz, deltpsiz
+    real(r_2), dimension(:, :), intent(in) :: csxz, deltpsiz,deltfwpsiz
     real,      dimension(:, :), intent(in) :: gmes
     real,      dimension(:, :), intent(in) :: &
          cx1z,       & !
@@ -4710,6 +4725,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
     real,      dimension(:, :), intent(inout) :: gswminz
     real,      dimension(:, :), intent(inout) :: anxz, anrubiscoz, anrubpz, ansinkz
     real(r_2), dimension(:, :), intent(out)   :: eta, dA
+    integer,   intent(in)    :: Numtagz
 
     ! local variables
     real(r_2), dimension(size(csxz, 1), size(csxz, 2)) :: dAmp, dAme, dAmc, eta_p, eta_e, eta_c
@@ -4731,7 +4747,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
 
           if (vlaiz(i,j) > C%lai_thresh) then
 
-             if (deltlfz(i,j) > 0.1 .or. deltpsiz(i,j) > 0.1) then
+             if ((deltlfz(i,j) > 0.1 .or. deltpsiz(i,j) > 0.1 .or. deltfwpsiz(i,j) > 0.02) .or. (Numtagz>0)) then
 
                 anxz(i,j)       = -rdxz(i,j)
                 anrubiscoz(i,j) = -rdxz(i,j)
