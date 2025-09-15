@@ -26,6 +26,7 @@ TYPE TYPE_BLAZE
    REAL                                 :: K_LITTER_BOREAL, K_LITTER_SAVANNA, K_LITTER_TEMPERATE, K_LITTER_TROPICS
    CHARACTER(len=400) :: igbpfilename, faparfilename  !full paths to IGBP (SIMFIRE) and fapar climataolgy files
    CHARACTER(len=10) :: faparsource                   !source of fapar ("fromfile", "inline")
+   CHARACTER(len=3)  :: couplingform                  !formulae for coupling to casa ("old", "new")
 END TYPE TYPE_BLAZE
 
 TYPE TYPE_TURNOVER
@@ -130,6 +131,7 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   CHARACTER(len=400)  :: BurnedAreaFile = "", OutputMode="full", igbpfilename, faparfilename 
   CHARACTER(len=10)   :: BurnedAreaSource = "SIMFIRE", blazeTStep = "annual", faparsource ="fromfile"
   CHARACTER(len=6)    :: outtstep = "daily"
+  CHARACTER(len=3)    :: couplingform = "old"
   INTEGER :: iu
 
   !INH I think blazeTstep is now redundant
@@ -137,7 +139,7 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   !CLN     SIMFIRE_REGION
   NAMELIST /BLAZENML/ blazeTStep,  BurnedAreaSource, BurnedAreaFile, OutputMode, &
        K_LITTER_BOREAL, K_LITTER_TEMPERATE, K_LITTER_SAVANNA, K_LITTER_TROPICS, MIN_FUEL, outtstep, &
-       igbpfilename, faparfilename, faparsource
+       igbpfilename, faparfilename, faparsource, couplingform
        
   ! READ BLAZE settings
   CALL GET_UNIT(iu)
@@ -233,6 +235,12 @@ SUBROUTINE INI_BLAZE ( np, LAT, LON, BLAZE)
   BLAZE%FSTEP     = TRIM(blazeTStep)
   IF ( (TRIM(BLAZE%FSTEP) .ne. "daily") .and. (TRIM(BLAZE%FSTEP) .ne. "annual") ) THEN
      WRITE(*,*) "error: blazeTstep needs to be daily or annual"
+     STOP
+  END IF
+
+  BLAZE%couplingform = TRIM(couplingform)
+  IF ( (TRIM(BLAZE%couplingform) .ne. "old") .and. (TRIM(BLAZE%couplingform) .ne. "new") ) THEN
+     WRITE(*,*) "error: couplingform needs to be old or new"
      STOP
   END IF
 
@@ -940,6 +948,12 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
        popd,              & ! [kW/m]
        mnest
 
+  REAL, DIMENSION(BLAZE%NCELLS)   :: &
+       T1,                &
+       T2,                &
+       T3,                &
+       T4
+
   ! CLN to simfire!!!
   !CRM  INTEGER,DIMENSION(BLAZE%NCELLS)  :: modis_igbp  ! [0,17] landcover index
 
@@ -967,14 +981,14 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
      WRITE(*,*)'GFED4 BA not available. Set cable_user%BURNT_AREA == "SIMFIRE"'
      STOP -1
      IF ( TRIM(BLAZE%FSTEP) .EQ. "none" ) THEN
-        CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB, climate, BLAZE%faparsource, BLAZE%FSTEP )
+        CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB, climate, BLAZE%faparsource, BLAZE%FSTEP, T1,T2,T3,T4 )
         popd = SF%POPD
         mnest= SF%MAX_NESTEROV
         BLAZE%FSTEP = "annual"
      ENDIF
   ELSEIF ( TRIM(BLAZE%BURNT_AREA_SRC) .EQ. "SIMFIRE" ) THEN
      ! CALL SIMFIRE DAILY FOR ACOUNTING OF PARAMETERS
-     CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB , climate, BLAZE%faparsource, BLAZE%FSTEP )
+     CALL SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YYYY, BLAZE%AB , climate, BLAZE%faparsource, BLAZE%FSTEP,  T1,T2,T3,T4  )
 
      DO np = 1, BLAZE%NCELLS
         IF ( AVAIL_FUEL(1, CPLANT_w(np,:), CPLANT_g(np,:),BLAZE%AGLit_w(np,:), &
@@ -1021,6 +1035,11 @@ SUBROUTINE RUN_BLAZE(BLAZE, SF, CPLANT_g, CPLANT_w, tstp, YYYY, doy, TO , climat
 
  !to get additional outputs - investigative purposes only 
   BLAZE%ROS = SF%MAX_NESTEROV
+  BLAZE%KBDI = T1
+  BLAZE%D = T2    !->DMacArthur
+  BLAZE%FFDI = T3
+  BLAZE%LR = T4   !->LastRain
+
 !  IF ( BLAZE%DAY .EQ. 1 ) &
 !       CALL BLAZE_DIAG( NCELLS, BLAZE, CPLANT_g, CPLANT_w, AGL_g, AGL_w, TO, "dref")
 
@@ -1335,9 +1354,13 @@ END SUBROUTINE RUN_BLAZE
    sumBLAZE%CPLANT_g  = ( real(count-1)*sumBLAZE%CPLANT_g  + BLAZE%CPLANT_g) / real(count)
    sumBLAZE%AGLit_w   = ( real(count-1)*sumBLAZE%AGLit_w   + BLAZE%AGlit_w)  / real(count)
    sumBLAZE%AGLit_g   = ( real(count-1)*sumBLAZE%AGLit_g   + BLAZE%AGlit_g)  / real(count)
-   sumBLAZE%FLUXES   =  ( real(count-1)*sumBLAZE%FLUXES    + BLAZE%FLUXES)   / real(count)
-    
-   !special case of days_since_last_rain
+   sumBLAZE%FLUXES    = ( real(count-1)*sumBLAZE%FLUXES    + BLAZE%FLUXES)   / real(count)
+   
+   !need a special case for days_since_last_rain - it's an integer
+   !take max value over the month
+   IF (count==1) THEN
+      sumBLAZE%DSLR = 0
+   END IF
    DO i = 1,mland
       sumBLAZE%DSLR(i) = MAX(sumBLAZE%DSLR(i),BLAZE%DSLR(i))
    END DO

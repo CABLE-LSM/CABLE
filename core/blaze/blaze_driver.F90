@@ -29,7 +29,7 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
   REAL, INTENT(IN)    :: shootfrac
   INTEGER, INTENT(IN) :: call_blaze    !=2 if blaze running but not coupled, 3 if coupled
   LOGICAL, INTENT(IN) :: call_pop      !true if cable_user%call_pop = .true.
-  CHARACTER(len=3)    :: TOform='old'  !to come in BLAZE TYPE
+  !CHARACTER(len=3)    :: TOform='old'  !to come in BLAZE TYPE
                                                  
 
   TYPE(TYPE_TURNOVER)   ,ALLOCATABLE,SAVE :: TO(:,:)
@@ -400,7 +400,7 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
      
            !original formulation for woody turnovers - requires POP%rkill
            !but modified coupling back to CASA
-           IF ( (TOform=='old') .and. (CALL_POP) ) THEN
+           IF ( (TRIM(BLAZE%couplingform)=='old') .and. (CALL_POP) ) THEN
 
               ! update TO for POP mortality and COMBUST has only computed non-woody TO
               ! when POP is involved these TO need to sum up to 1, assuming that
@@ -447,10 +447,10 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
               END IF  !blaze==3 
 
            !new formulation - rkill set to total wood turnover above (CALL_POP dependent)
-           ELSEIF ( (TOform=='new') ) THEN 
+           ELSEIF ( (TRIM(BLAZE%couplingform)=='new') ) THEN 
 
               !do not set k-terms if blaze not coupled to CASA (i.e. call_blaze/=3)
-              !FLIX gt. 0 precludes case with BA>0 and TO=0 (which should be caught by AVAIL_FUEL as well)
+              !FLIX gt. 0 precludes case with AB>0 and TO=0 (which should be caught by AVAIL_FUEL as well)
               IF ( (call_blaze==3) .and. (BLAZE%AB(i)>0.0) .and. (BLAZE%FLIx(i) .gt. 0)) THEN
                  ! Total wood turn-over
                  twto = MAX(TO(i, WOOD)%TO_ATM + TO(i, WOOD )%TO_CWD + TO(i, WOOD )%TO_STR,1.e-7)
@@ -486,8 +486,8 @@ SUBROUTINE BLAZE_DRIVER ( NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
                  END IF
               ENDIF 
            
-           ELSE  !TOform is 'new', CALL_POP false - doesn't work
-              WRITE(*,*) "BLAZE DRIVER: incorrect combination of CALL_POP and TOform"
+           ELSE  !couplingform is 'new', CALL_POP false - doesn't work
+              WRITE(*,*) "BLAZE DRIVER: incorrect combination of CALL_POP and couplingform"
               STOP
                  
            ENDIF  !TOform loop

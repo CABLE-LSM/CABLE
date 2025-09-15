@@ -1,19 +1,21 @@
 &blazenml
-    blazeTStep       = "daily"	! Call frequency ("daily","monthly","annually")
-    BurnedAreaSource = "SIMFIRE"    	! Burnt Area ("PRESCRIBED","SIMFIRE","GFED4") 
+    blazeTStep       = "daily"	      ! Nesterov frequency ("daily","annual")
+    BurnedAreaSource = "SIMFIRE"      ! Burnt Area ("PRESCRIBED","SIMFIRE","GFED4") 
     BurnedAreaFile   = "/home/x_larni/STOREDIR/DATA/CABLE_INPUT/DATA_BLAZE/BA_Aust_2001-2019.nc"     		! used for Prescribed fires !CLN not available for now!
-    OutputMode       = "full"      	! "std" for standard vars, "full" for full set of BLAZE output
+    OutputMode       = "full"      	  ! "std" for standard vars, "full" for full set of BLAZE output
     K_LITTER_BOREAL    = 0.38         ! tuning coeff - boreal
     K_LITTER_SAVANNA   = 0.75         ! tuning coeff - savannah
     K_LITTER_TEMPERATE = 0.0025       ! tuning coeff - temperate
     K_LITTER_TROPICS   = 0.15         ! tuning coeff - tropics
-    outtstep         = "daily"        ! output frequency for BLAZE ("daily", "ascasa")
+    MIN_FUEL           = 120.         ! minimimum fuel (gC/m2)
+    outtstep         = "ascasa"        ! output frequency for BLAZE ("daily", "ascasa")
     igbpfilename     = " "            ! full path to igbp veg class file (global runs)
     faparfilename    = " "            ! full path to fapar climatology file (global runs)
     faparsource      = "fromfile"     ! use climatology or inline fapar calculations (not active yet) 
+    couplingform     = "old"          ! which form of TO/coupling to use ("old" or "new")
 &end
 &simfirenml
-    SIMFIRE_REGION   = "GLOBAL"  		! ("ANZ","EUROPE","GLOBAL") 
+    SIMFIRE_REGION   = "GLOBAL"  	  ! ("ANZ","EUROPE","GLOBAL") 
     HydePath         = "/home/x_larni/STOREDIR/DATA/CABLE_INPUT/DATA_BLAZE/HYDE3.1"	! PAth to Hyde3.1 population density data
     BurnedAreaClimatologyFile = "/home/x_larni/STOREDIR/DATA/CABLE_INPUT/DATA_BLAZE/simfire_monthly_ba.nc"	! BA climatology file (needed when blazeTStep!="annual"
 &end

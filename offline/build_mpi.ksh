@@ -45,6 +45,8 @@ host_gadi()
 
     # export FC=mpif90
     export FC=mpiifort
+    # INH adding NCDIR definition to see if it works 28/8/2025
+    export NCDIR=${NETCDF_ROOT}"/lib/Intel"
     export NCMOD=${NETCDF_ROOT}"/include/Intel"
     # -diag-disable=10382  <- e.g., option '-xHOST' setting '-xCORE-AVX2'
     # -diag-disable=15009  <- has been targeted for automatic cpu dispatch

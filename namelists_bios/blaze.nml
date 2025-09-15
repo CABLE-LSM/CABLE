@@ -12,6 +12,7 @@
     igbpfilename     = " "            ! full path to igbp veg class file (global runs)
     faparfilename    = " "            ! full path to fapar climatology file (global runs)
     faparsource      = "fromfile"     ! use climatology or inline fapar calculations (not active yet)
+    couplingform     = "old"          ! which form of TO/coupling to use ("old" or "new")
 &end
 &simfirenml
     SIMFIRE_REGION   = "ANZ"  		! ("ANZ","EUROPE","GLOBAL") 

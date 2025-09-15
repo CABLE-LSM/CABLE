@@ -383,10 +383,10 @@ PROGRAM cable_offline_driver
      CABLE_USER%CALL_POP        = .FALSE.
      CABLE_USER%CALL_BLAZE      = 0
   ENDIF
-  IF ((.NOT. CABLE_USER%CALL_POP) .and. (CABLE_USER%CALL_BLAZE>0)) THEN
-     write(*,*) 'BLAZE requires POP'
-     stop 202
-  ENDIF  
+  !IF ((.NOT. CABLE_USER%CALL_POP) .and. (CABLE_USER%CALL_BLAZE>0)) THEN
+  !   write(*,*) 'BLAZE requires POP'
+  !   stop 202
+  !ENDIF  
 
   !! vh_js !!
   IF (icycle.gt.0) THEN

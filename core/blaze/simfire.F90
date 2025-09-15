@@ -395,7 +395,9 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
            DO jy = jy0, jy0+dxy
               DO ix = ix0, ix0+dxy
                  IF ( RVAL(ix,jy) .LT. 0. ) CYCLE
-                 wPOPD = wPOPD + RVAL(ix,jy) * LAND_AREA(ix,jy)
+                 !9/2025 popc data is humans per grid cell 
+                 !- need population density humans / km2 
+                 wPOPD = wPOPD + RVAL(ix,jy) !* LAND_AREA(ix,jy)
                  wTOT  = wTOT  + LAND_AREA(ix,jy)
 
                  !write(*,*) 'RVAL: ',   RVAL(ix,jy), ix, jy
@@ -433,7 +435,8 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
 
 END SUBROUTINE GET_POPDENS
 
-FUNCTION ANNUAL_BA ( FAPAR, FIRE_IDX, POPDENS, BIOME, REGIO_FLAG )
+!FUNCTION ANNUAL_BA ( FAPAR, FIRE_IDX, POPDENS, BIOME, REGIO_FLAG )
+SUBROUTINE GET_ANNUAL_BA ( FAPAR, FIRE_IDX, POPDENS, BIOME, REGIO_FLAG, ANNUAL_BA, T1, T2, T3, T4 )
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
@@ -448,7 +451,8 @@ IMPLICIT NONE
 
 REAL   , INTENT(IN) :: FAPAR, FIRE_IDX, POPDENS
 INTEGER, INTENT(IN) :: BIOME, REGIO_FLAG
-REAL                :: ANNUAL_BA
+!REAL                :: ANNUAL_BA
+REAL, INTENT(OUT)   :: ANNUAL_BA, T1, T2, T3, T4
 
 INTEGER :: ai
 
@@ -507,9 +511,17 @@ ENDIF
 ai    = REGIO_FLAG
 IF ( BIOME .EQ. 0 ) THEN
    ANNUAL_BA = 0.
+   T1 = 0.
+   T2 = 0.
+   T3 = 0.
+   T4 = 0.
 ELSE
    ANNUAL_BA = &
         a(BIOME,ai) * FAPAR ** b(ai) * (scalar * FIRE_IDX) ** c(ai) * EXP(e(ai)*POPDENS)
+   T1 = a(BIOME,ai)
+   T2 = FAPAR ** b(ai) 
+   T3 = (scalar * FIRE_IDX) ** c(ai)
+   T4 = EXP(e(ai)*POPDENS)
 !CLNELSE
 !CLN ! W.KNORR: Instead of fpar_corr1 * fpar_leafon + fpar_corr2 * fpar_leafon * fpar_leafon,
 !CLN ! simply use FAPAR - the correction takes into account that fpar_leafon has a high bias
@@ -520,9 +532,10 @@ ELSE
 !CLN        EXP(e(ai)*POPDENS)
 ENDIF
 
-END FUNCTION ANNUAL_BA
+!END FUNCTION ANNUAL_BA
+END SUBROUTINE GET_ANNUAL_BA
 
-SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOURCE, FSTEP )
+SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOURCE, FSTEP, T1,T2,T3,T4 )
 
   USE CABLE_COMMON_MODULE, ONLY: IS_LEAPYEAR
   USE cable_IO_vars_module, ONLY:  landpt, patch
@@ -535,6 +548,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOUR
   TYPE (TYPE_SIMFIRE) :: SF
   REAL,    INTENT(IN) :: RAINF(*), TMAX(*), TMIN(*)
   REAL,    INTENT(OUT):: AB(*)
+  REAL,    INTENT(OUT):: T1(*), T2(*), T3(*), T4(*)
   INTEGER, INTENT(IN) :: YEAR, MM
   CHARACTER(len=10), INTENT(IN) :: FAPARSOURCE
   CHARACTER(len=7), INTENT(IN)  :: FSTEP                !trigger on whether to use daily/annual Nesterov
@@ -558,6 +572,13 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOUR
          ENDDO
          !constrain %FAPAR - should not be needed
          SF%FAPAR(i) = MIN(MAX(SF%FAPAR(i),0.0),1.0)
+         IF (i==1) THEN
+            patch_index = landpt(i)%cstart
+            WRITE(*,*) "SIMFIRE", MM, DOY, SF%FAPAR(i), climate%fapar_ann_max_last_year(patch_index),& 
+            climate%fapar_ann_max_last_year(patch_index+1),climate%fapar_ann_max_last_year(patch_index+2), &
+            patch(patch_index)%frac,patch(patch_index+1)%frac,patch(patch_index+2)%frac
+            WRITE(*,*) " "
+         ENDIF
       ENDDO
 
   ELSE  !FAPARSOURCE is "fromfile - original code
@@ -570,6 +591,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOUR
      !over 1950-2020 current_Nestrov is ~0.4 of annual Max Nesterov
      !150000 is max value allowed in cable_climate
      SF%MAX_NESTEROV = 2.5*climate%Nesterov_Current(landpt(:)%cstart)
+     !21/8/2025 - test without this limiting - short5 case
      SF%MAX_NESTEROV = MIN(SF%MAX_NESTEROV,150000.0)
   ELSE
      SF%MAX_NESTEROV =  climate%Nesterov_ann_running_max(landpt(:)%cstart)
@@ -582,7 +604,9 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOUR
   ENDIF
 
   DO i = 1, SF%NCELLS
-     AB(i) = ANNUAL_BA( SF%FAPAR(i), SF%MAX_NESTEROV(i), SF%POPD(i), SF%BIOME(i), SF%REGION(i) )
+     !AB(i) = ANNUAL_BA( SF%FAPAR(i), SF%MAX_NESTEROV(i), SF%POPD(i), SF%BIOME(i), SF%REGION(i) )
+     CALL GET_ANNUAL_BA( SF%FAPAR(i), SF%MAX_NESTEROV(i), SF%POPD(i), SF%BIOME(i), SF%REGION(i), &
+                         AB(i), T1(i), T2(i), T3(i), T4(i) )
 
      !apply randomness to AB
      !IF (SF%STOCH_AREA) THEN
@@ -629,7 +653,9 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOUR
          AB(i) = AB(i) *  SF%BA_MONTHLY_CLIM(i,MM) / DOM(MM)
       ELSE
          !seasonality comes in through using current Nesterov
-         AB(i) = AB(i) / 365.0
+         !AB(i) = AB(i) / 365.0
+         !looks like we still need to push AB into the correct month
+         AB(i) = AB(i) *  SF%BA_MONTHLY_CLIM(i,MM) / DOM(MM)
       END IF 
 
    END DO

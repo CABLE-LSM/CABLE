@@ -479,10 +479,10 @@ CONTAINS
        cable_user%call_pop        = .false.
        cable_user%call_blaze      = 0 
     endif
-    IF ((.NOT. CABLE_USER%CALL_POP) .and. (CABLE_USER%CALL_BLAZE>0)) THEN
-       write(*,*) 'BLAZE requires POP'
-       call MPI_Abort(comm, 180, ierr)
-    ENDIF
+    !IF ((.NOT. CABLE_USER%CALL_POP) .and. (CABLE_USER%CALL_BLAZE>0)) THEN
+    !   write(*,*) 'BLAZE requires POP'
+    !   call MPI_Abort(comm, 180, ierr)
+    !ENDIF
 
     !! vh_js !!
     if (icycle.gt.0) then
