@@ -1929,6 +1929,7 @@ CONTAINS
       REAL :: MOL_TO_UMOL, J_TO_MOL, dc
       CHARACTER(LEN=200) :: txtname,num_str
       logical :: NonStoLim = .True.
+      logical :: modify_rule
   
 #ifdef __MPI__
       integer :: ierr
@@ -2933,9 +2934,10 @@ CONTAINS
             tlfxm(i) = 0.0_r_2
             dsxm(i) = 0.0_r_2
             Mtag = 0
-
+            modify_rule = (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1) .or. Any(abs_deltfwpsi(i,:) > 0.02)) &
+            .AND. (k < kmax) .AND. (k > 2)
             !if ( (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1)) .AND. k > 5 .AND. k < kmax ) then
-            if ( (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1) .or. Any(abs_deltfwpsi(i,:) > 0.02)) .AND. k < kmax ) then
+            if ( modify_rule ) then
                Numtag = 3
                ! after 4 iterations, take mean of current & previous estimates
                ! as the next estimate of leaf temperature, to avoid oscillation
@@ -3150,7 +3152,7 @@ CONTAINS
 
             END IF
             !if ( (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1)) .AND. k > 5 .AND. k < kmax ) then
-            if ( (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1)) .AND. k < kmax ) then
+            if ( modify_rule ) then
                psilx = psilxm
                tlfx = tlfxm
                dsx = dsxm
