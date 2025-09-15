@@ -3120,7 +3120,7 @@ CONTAINS
                   write(137,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i),tlfxm(i), deltlf(i), &
                   dsxx(i),dsx(i),dsxm(i),abs_deltds(i),Numtag, Mtag, &
                   psilxx(i,1),psilxx(i,2),psilx(i,1), psilx(i,2),psilxm(i,1), psilxm(i,2), &
-                  abs_deltpsil(i,1),abs_deltpsil(i,2), &
+                  abs_deltpsil(i,1),abs_deltpsil(i,2),abs_deltfwpsi(i,1),abs_deltfwpsi(i,2), &
                   fwpsixx(i,1),fwpsixx(i,2),fwpsi(i,1),fwpsi(i,2),fwpsi1_tmp(i,1),fwpsi1_tmp(i,2), &
                   psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
                   anrubiscox(i,2), anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
@@ -3134,7 +3134,7 @@ CONTAINS
                   write(135,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i),tlfxm(i), deltlf(i), &
                   dsxx(i),dsx(i),dsxm(i),abs_deltds(i),Numtag, Mtag, &
                   psilxx(i,1),psilxx(i,2),psilx(i,1), psilx(i,2),psilxm(i,1), psilxm(i,2), &
-                  abs_deltpsil(i,1),abs_deltpsil(i,2), &
+                  abs_deltpsil(i,1),abs_deltpsil(i,2),abs_deltfwpsi(i,1),abs_deltfwpsi(i,2), &
                   fwpsixx(i,1),fwpsixx(i,2),fwpsi(i,1),fwpsi(i,2),fwpsi1_tmp(i,1),fwpsi1_tmp(i,2), &
                   psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
                   anrubiscox(i,2), anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
@@ -3147,7 +3147,7 @@ CONTAINS
                   write(136,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i),tlfxm(i), deltlf(i), &
                   dsxx(i),dsx(i),dsxm(i),abs_deltds(i),Numtag, Mtag, &
                   psilxx(i,1),psilxx(i,2),psilx(i,1), psilx(i,2),psilxm(i,1), psilxm(i,2), &
-                  abs_deltpsil(i,1),abs_deltpsil(i,2), &
+                  abs_deltpsil(i,1),abs_deltpsil(i,2), abs_deltfwpsi(i,1),abs_deltfwpsi(i,2), &
                   fwpsixx(i,1),fwpsixx(i,2),fwpsi(i,1),fwpsi(i,2),fwpsi1_tmp(i,1),fwpsi1_tmp(i,2), &
                   psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
                   anrubiscox(i,2), anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
@@ -3160,7 +3160,7 @@ CONTAINS
                   write(134,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i),tlfxm(i), deltlf(i), &
                   dsxx(i),dsx(i),dsxm(i),abs_deltds(i), Numtag,Mtag, &
                   psilxx(i,1),psilxx(i,2),psilx(i,1), psilx(i,2),psilxm(i,1), psilxm(i,2), &
-                  abs_deltpsil(i,1),abs_deltpsil(i,2), &
+                  abs_deltpsil(i,1),abs_deltpsil(i,2), abs_deltfwpsi(i,1),abs_deltfwpsi(i,2), &
                   fwpsixx(i,1),fwpsixx(i,2),fwpsi(i,1),fwpsi(i,2),fwpsi1_tmp(i,1),fwpsi1_tmp(i,2), &
                   psixx(i), csx(i,1), csx(i,2),abs_deltcs(i,1), abs_deltcs(i,2),anx(i,1), anx(i,2), anrubiscox(i,1), &
                   anrubiscox(i,2), anrubpx(i,1),anrubpx(i,2),ansinkx(i,1),ansinkx(i,2), &
