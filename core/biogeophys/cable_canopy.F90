@@ -1823,7 +1823,8 @@ CONTAINS
          rnx, &          ! net rad prev timestep
          ecxs, &  ! lat. hflux big leaf (sap flux)
          psixx, &
-         kplantx
+         kplantx, &
+         total_est_evap
          
       real(r_2) :: psixxi, kplantxi
       real, dimension(mp,ms)  :: oldevapfbl
@@ -1945,8 +1946,10 @@ CONTAINS
       if (present(wbpsdo)) then
          iter_ini = 4
          wbtmp = wbpsdo
+         total_est_evap = ssnow%total_est_evap_sat
       else
          wbtmp = ssnow%wb
+         total_est_evap = ssnow%total_est_evap
       endif
       if (present(vpdpsdo)) then
          iter_ini = 4
@@ -2780,16 +2783,25 @@ CONTAINS
                   kplantx(i) = kplantxi
                   psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
                   psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
-                  if (any(psilx(i,:) < -20.0_r_2)) then
+                  if (any(psilx(i,:) < -20.0_r_2) .AND. (sum(real(ex(i,:),r_2))<total_est_evap(i))) then
                      where (psilx(i,:) < -10.0_r_2)
                      psilx(i,:) = -10.0_r_2
                      end where
                      !g0(i) = g0(i)*0.8
-                     fwpsi(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
-                           (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
-                     fwpsi(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
-                           (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
-                     g0xx(i,:) = veg%g0(i) * fwpsi(i,:)
+                     ex(i,1) = total_est_evap(i) * ex(i,1)/sum(real(ex(i,:),r_2))
+                     ex(i,2) = total_est_evap(i) * ex(i,2)/sum(real(ex(i,:),r_2))
+                     CALL calc_psix(ssnow, soil, canopy, veg, casapool,max(sum(real(ex(i,:),r_2)), 0.0_r_2),psixxi,kplantxi,i)
+                     !if psixx(i)<-10
+                     psixx(i) = psixxi
+                     kplantx(i) = kplantxi
+                     psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
+                     psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
+                     g0xx(i,:) = ex(i,:)/vpdtmp(i)
+                     ! fwpsi(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                     !       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
+                     ! fwpsi(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                     !       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
+                     ! g0xx(i,:) = veg%g0(i) * fwpsi(i,:)
                   endif
          
                   ! if (any(allktau == ktau_tot) .and. (iter==4)) then
@@ -2949,7 +2961,7 @@ CONTAINS
             dsxm(i) = 0.0_r_2
             Mtag = 0
             modify_rule = (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1) .or. Any(abs_deltfwpsi(i,:) > 0.02)) &
-            .AND. (k < kmax)
+            .AND. (k < kmax) 
             !if ( (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1)) .AND. k > 5 .AND. k < kmax ) then
             if ( modify_rule ) then
                Numtag = 3

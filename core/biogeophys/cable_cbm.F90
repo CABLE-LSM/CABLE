@@ -96,6 +96,7 @@ CONTAINS
       ICYCLE = 0
 #endif
       REAL, DIMENSION(ms) :: a, root_length
+      REAL(r_2), DIMENSION(mp,ms) :: wbpsdo
       real(r_2) :: psix, kplant
       INTEGER :: diff_Esr_Erl_i
       REAL, PARAMETER :: l_bound = -6.0
@@ -138,7 +139,18 @@ CONTAINS
 
 
       !ENDIF
-      if (ktau_tot==1) then
+      wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
+      DO i = 1, mp
+         CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, i, wbpsdo)
+         CALL calc_swp(ssnow, soil, i, wbpsdo)
+      END DO
+      do i = 1, mp
+         diff_Esr_Erl_i = i
+      
+         psix = rtbis(diff_Esr_Erl,l_bound, u_bound, 0.01)
+         ssnow%total_est_evap_sat(i) = Esupply(psix)
+      end do
+      !if (ktau_tot==1) then
       do i = 1, mp
          CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, i)
          CALL calc_swp(ssnow, soil, i)
@@ -148,7 +160,13 @@ CONTAINS
          canopy%psix(i) = psix
          canopy%kplant(i) = kplant
       end do
-      endif
+      !endif
+      do i = 1, mp
+         diff_Esr_Erl_i = i
+      
+         psix = rtbis(diff_Esr_Erl,l_bound, u_bound, 0.01)
+         ssnow%total_est_evap(i) = Esupply(psix)
+      end do
       ! Calculate canopy variables
       CALL define_canopy(ktau,ktau_tot,bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate, casapool, casabiome)
 
@@ -160,12 +178,7 @@ CONTAINS
 
       ! RML moved out of following IF after discussion with Eva
       ! ssnow%owetfac = ssnow%wetfac
-      ! do i = 1, mp
-      !    diff_Esr_Erl_i = i
-      
-      !    psix = rtbis(diff_Esr_Erl,l_bound, u_bound, 0.01)
-      !    ssnow%total_est_evap(i) = Esupply(psix)
-      ! end do
+
 
       IF (cable_runtime%um) THEN
          IF (cable_runtime%um_implicit) THEN
@@ -290,6 +303,7 @@ CONTAINS
       REAL :: Esr, Erl
       real :: k1, k2, pd, BAI, WD, AGB_pl, DBH, plc, kplant, psilmin
       REAL, PARAMETER                   :: gC2DM = 1./0.49
+      real:: huber_value
       i = diff_Esr_Erl_i
       psilmin = l_bound
       Esr = 0.0
@@ -306,7 +320,8 @@ CONTAINS
       AGB_pl = casapool%cplant(i,2) / 1000.0_r_2 * gC2DM / pd ! kg pl-1
       DBH = (AGB_pl/k1)**(1.0_r_2/k2) ! cm 
       BAI = (DBH/200.0_r_2)**2.0_r_2*pi*pd ! m2 m-2
-
+      huber_value = veg%huber_value(i)
+      BAI = veg%vlai(i) * huber_value !  m2 m-2 
       plc = get_xylem_vulnerability(real(psix,r_2), &
       veg%b_plant(i), veg%c_plant(i))
       !canopy%kplant(i) = veg%kmax(i) * BAI / veg%hc(i) * plc
@@ -314,7 +329,7 @@ CONTAINS
       Erl = kplant * (psix-psilmin)
       diff_Esr_Erl = Esr - Erl
    end function diff_Esr_Erl
-
+  
    real function Esupply(psix)
       IMPLICIT NONE
       real(r_2), INTENT(IN) :: psix
