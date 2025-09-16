@@ -2217,9 +2217,11 @@ CONTAINS
          Numtag = 3
          DO WHILE (k < kmax)
             k = k + 1
+            ! modify_rule0 = (canopy%vlaiw(i) > C%LAI_THRESH .AND. &
+            !    (abs_deltlf(i) > 0.1 .OR. ANY(abs_deltpsil(i,:) > 0.1) .OR. ANY(abs_deltfwpsi(i,:) > 0.02)) &
+            !    .OR. (Numtag > 0))
             modify_rule0 = (canopy%vlaiw(i) > C%LAI_THRESH .AND. &
-               (abs_deltlf(i) > 0.1 .OR. ANY(abs_deltpsil(i,:) > 0.1) .OR. ANY(abs_deltfwpsi(i,:) > 0.02)) &
-               .OR. (Numtag > 0))
+               (abs_deltlf(i) > 0.1 .OR. ANY(abs_deltpsil(i,:) > 0.1) .OR. ANY(abs_deltfwpsi(i,:) > 0.02)))
             IF (modify_rule0) THEN
 
                ghwet(i)  = 2.0_r_2 * real(sum_gbh(i),r_2)
