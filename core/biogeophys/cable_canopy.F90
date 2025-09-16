@@ -1929,7 +1929,7 @@ CONTAINS
       REAL :: MOL_TO_UMOL, J_TO_MOL, dc
       CHARACTER(LEN=200) :: txtname,num_str
       logical :: NonStoLim = .True.
-      logical :: modify_rule
+      logical :: modify_rule0, modify_rule
   
 #ifdef __MPI__
       integer :: ierr
@@ -2217,9 +2217,10 @@ CONTAINS
          Numtag = 3
          DO WHILE (k < kmax)
             k = k + 1
-            IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. &
+            modify_rule0 = (canopy%vlaiw(i) > C%LAI_THRESH .AND. &
                (abs_deltlf(i) > 0.1 .OR. ANY(abs_deltpsil(i,:) > 0.1) .OR. ANY(abs_deltfwpsi(i,:) > 0.02)) &
-               .OR. (Numtag > 0)) THEN
+               .OR. (Numtag > 0))
+            IF (modify_rule0) THEN
 
                ghwet(i)  = 2.0_r_2 * real(sum_gbh(i),r_2)
                gwwet(i)  = 1.075 * sum_gbh(i)
@@ -2677,260 +2678,260 @@ CONTAINS
 #endif
                ENDIF ! IF (cable_user%GS_SWITCH == 'leuning') THEN
                !#endif
-               ! gmes is 0.0 if explicit_gm = FALSE (easier to debug)
-               IF (cable_user%GS_SWITCH /= 'profitmax') THEN
-                  CALL photosynthesis_gm( csx(:,:), &
-                     spread(cx1(:),2,mf), &
-                     spread(cx2(:),2,mf), &
-                     gswmin(:,:), rdx(:,:), vcmxt3(:,:), &
-                     vcmxt4(:,:), vx3(:,:), vx4(:,:), &
-                  ! Ticket #56, xleuning replaced with gs_coeff here
-                     gs_coeff(:,:), rad%fvlai(:,:), &
-                     spread(abs_deltlf,2,mf), abs_deltpsil, abs_deltfwpsi, Numtag, &
-                     anx(:,:), fwsoil(:), qs, gmes(:,:), kc4(:,:), &
-                     anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:),i )
-               ENDIF
-               !DO i=1,mp
 
-
-               !IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1))) Then
-                  DO kk=1, mf
-
-                     IF (rad%fvlai(i,kk)>C%LAI_THRESH) THEN
-                        !  write(logn,*) '2: gs_coeff of ',kk, ': ',gs_coeff(i,kk)
-
-
-                        csx(i,kk) = real(met%ca(i),r_2) - real(C%RGBWC*anx(i,kk),r_2) / &
-                           (gbhu(i,kk) + gbhf(i,kk))
-                        csx(i,kk) = max(1.0e-4_r_2, csx(i,kk))
-                        if (cable_user%FWSOIL_SWITCH /= 'profitmax') THEN
-
-                           ! Ticket #56, xleuning replaced with gs_coeff here
-                           if (cable_user%g0_switch == 'default') then
-                              canopy%gswx(i,kk) = MAX( 1.e-3, gswmin(i,kk)*fwsoil(i)**qs + &
-                                 MAX( 0.0, C%RGSWC * gs_coeff(i,kk) * &
-                                 anx(i,kk) ) )
-                           elseif (cable_user%g0_switch == 'maximum') then
-                              ! set gsw to maximum of g0*fwsoil and humidity-dependent term,
-                              ! according to third formulation suggested by Lombardozzi et al.,
-                              ! GMD 10, 321-331, 2017, and applied in CLM
-                              canopy%gswx(i,kk) = MAX( 1.e-3, max(gswmin(i,kk)*fwsoil(i)**qs, &
-                                 MAX( 0.0, C%RGSWC * gs_coeff(i,kk) * &
-                                 anx(i,kk) )) )
-
-                           endif
-
-
-                        endif
-                        ! write(logn,*) '3: gsw of ',kk, ': ', canopy%gswx(i,kk)
-                        !Recalculate conductance for water:
-                        gw(i,kk) = 1.0 / ( 1.0 / canopy%gswx(i,kk) + &
-                           1.0 / ( 1.075 * real(gbhu(i,kk) + gbhf(i,kk)) ) )
-                        gw(i,kk) = max(gw(i,kk), 0.00001)
-
-                        ! Modified psychrometric constant
-                        ! (Monteith and Unsworth, 1990)
-                        psycst(i,kk) = air%psyc(i) * REAL( ghr(i,kk) / gw(i,kk) )
-
-                     ENDIF
-
-                  ENDDO
-                  ex(i,1) = real( ( air%dsatdk(i) * ( rad%rniso(i,1) - C%capp * C%rmair &
-                  * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,1) ) &
-                  + C%capp * C%rmair * vpdtmp(i) * ghr(i,1) ) &
-                  / ( air%dsatdk(i) + psycst(i,1) ),r_2)
-                  ex(i,2) = real( ( air%dsatdk(i) &
-                  * ( rad%rniso(i,2) - C%capp * C%rmair * ( met%tvair(i) - &
-                  met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair * &
-                  vpdtmp(i) * ghr(i,2) ) / &
-                  ( air%dsatdk(i) + psycst(i,2) ), r_2)  
-                  ecx(i) = sum(ex(i,:))
-                  ex(i,:) = ex(i,:) * (1.0_r_2-real(canopy%fwet(i), r_2)) / real(air%rlam(i), r_2) 
-                  ! ecx(i) = real( ( air%dsatdk(i) * ( rad%rniso(i,1) - C%capp * C%rmair &
-                  !    * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,1) ) &
-                  !    + C%capp * C%rmair * met%dva(i) * ghr(i,1) ) &
-                  !    / ( air%dsatdk(i) + psycst(i,1) ) + ( air%dsatdk(i) &
-                  !    * ( rad%rniso(i,2) - C%capp * C%rmair * ( met%tvair(i) - &
-                  !    met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair * &
-                  !    met%dva(i) * ghr(i,2) ) / &
-                  !    ( air%dsatdk(i) + psycst(i,2) ), r_2)
-                  
-                  IF (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
-   
-                        
-                     ! ex(i,:) = ex(i,:) * (1.0_r_2-real(canopy%fwet(i), r_2)) / real(air%rlam(i), r_2) 
-                     ! convert from kg m-2 ground s-1 to mmol m-2 leaf s-1*
-                     !ex(i,:)= ex(i,:) * 1.0e6_r_2/18.0_r_2  
-                     ! psilx(i,1) = ssnow%psi_rootzone(i) - ex(i,1) / canopy%kplant(i)
-                     ! psilx(i,2) = ssnow%psi_rootzone(i) - ex(i,2) / canopy%kplant(i)
-                     
-                     CALL calc_psix(ssnow, soil, canopy, veg, casapool,max(sum(real(ex(i,:),r_2)), 0.0_r_2),psixxi,kplantxi,i)
-                     !if psixx(i)<-10
-                     psixx(i) = psixxi
-                     kplantx(i) = kplantxi
-                     psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
-                     psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
-                     if (any(psilx(i,:) < -20.0_r_2)) then
-                        where (psilx(i,:) < -10.0_r_2)
-                        psilx(i,:) = -10.0_r_2
-                        end where
-                        g0 = g0*0.8
-                     endif
-            
-                     ! if (any(allktau == ktau_tot) .and. (iter==4)) then
-                     ! print*,'ktau_tot, i and k',ktau_tot, iter, k
-                     ! if (present(wbpsdo)) then
-                     !    print*, '    psdo ex, psix and kplant: ',max(sum(real(ex(i,:),r_2)), 0.0_r_2), psixx(i), kplantx(i)
-                     !    print*, '    psdo psilx: ', psilx(i,1)
-                     ! else
-
-                     !    print*, '         ex, psix and kplant: ',max(sum(real(ex(i,:),r_2)), 0.0_r_2), psixx(i), kplantx(i)
-                     !    print*, '         psilx: ', psilx(i,1)
-                     ! endif
-                     ! endif
-
-                     ! !!!!!!!!!!!!!!!!!!! another option!!!!!!!!!!!!!!!!!!!!!!
-                     ! psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
-                     ! psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
-                     ! if (any(allktau == ktau_tot)) then
-                     !    print*,'ktau_tot, i and k',ktau_tot, iter, k
-                     !    print*, '         ex, psilx, Lastkplant: ', max(sum(real(ex(i,:),r_2)), 0.0_r_2), psilx(i,1), kplantx(i)
-                     ! endif
-                     ! CALL calc_psix(ssnow, soil, canopy, veg, casapool,max(sum(real(ex(i,:),r_2)), 0.0_r_2),psixxi,kplantxi,i)
-                     ! psixx(i) = psixxi
-                     ! kplantx(i) = kplantxi
-                     ! if (any(allktau == ktau_tot)) then
-                     !    print*, '         psixx and kplant: ', psixx(i), kplantx(i)
-                     ! endif
-
-                  ENDIF
-                  IF (cable_user%SOIL_SCHE == 'Haverd2013' .or. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0)) then
-                     ! avoid root-water extraction when fwsoil is zero
-                     if (fwsoil(i) < 1e-6) then
-                        anx(i,:) = -rdx(i,:)
-                        ecx(i)   = 0.0_r_2
-                     endif
-
-                     canopy%fevc(i) = ecx(i) * (1.0_r_2-real(canopy%fwet(i),r_2))
-
-                     call getrex_1d(wbtmp(i,:)-real(ssnow%wbice(i,:),r_2), ssnow%rex(i,:), &
-                        canopy%fwsoil(i), &
-                        real(veg%froot(i,:),r_2), SPREAD(real(soil%ssat(i),r_2),1,ms), &
-                        SPREAD(real(soil%swilt(i),r_2),1,ms), &
-                        max(canopy%fevc(i)/real(air%rlam(i),r_2)/1000.0_r_2, 0.0_r_2), &
-                        veg%gamma(i), &
-                        real(soil%zse, r_2), real(dels,r_2), veg%zr(i))
-                     canopy%fwsoiltmp(i) = real(canopy%fwsoil(i))
-                     where (ssnow%rex(i,:) > tiny(1.0_r_2)) &
-                     ssnow%evapfbl(i,:) = real(ssnow%rex(i,:))*dels*1000. ! mm water &
-                     IF (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0) then
-                        fwsoil(i) = real(canopy%fwsoil(i))
-                        !(root water extraction) per time step
-      
-                        if (cable_user%Cumberland_soil) then
-                           canopy%fwsoil(i) = max(canopy%fwsoil(i), 0.6_r_2)
-                           fwsoil(i) = real(canopy%fwsoil(i))
-                        endif
-                     ENDIF 
-
-
-                  ELSE IF (cable_user%FWSOIL_SWITCH == 'profitmax' .AND. cable_user%SOIL_SCHE == 'hydraulics') THEN
-
-
-                     IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
-                        evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels  &
-                           / air%rlam(i)
-
-                        DO kk = 1,ms
-
-                           !ssnow%evapfbl(i,kk) = MIN(evapfb(i) * &
-                           !                          ssnow%fraction_uptake(i,kk),  &
-                           !                          MAX(0.0, &
-                           !                              REAL(ssnow%wb(i,kk)) -    &
-                           !                              soil%swilt(i)) * &
-                           !                          soil%zse(kk) * 1000.0)
-
-                           ! ms8355: no bounding by swilt in this version, or the
-                           ! "beneits" from hydraulics are cancelled
-                           ssnow%evapfbl(i,kk) = evapfb(i) * &
-                              ssnow%fraction_uptake(i,kk)
-
-
-
-                        ENDDO
-                        canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
-
-                        ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
-                     ENDIF
-
-                  ENDIF
-
-                  IF (cable_user%SOIL_SCHE .ne.'Haverd2013') THEN
-
-                     if (ecx(i) > 0.0_r_2 .and. canopy%fwet(i) < 1.0) then
-                        evapfb(i) = ( 1.0 - canopy%fwet(i)) * real(ecx(i)) *dels &
-                           / air%rlam(i)
-
-                        DO kk = 1,ms
-
-                           ssnow%evapfbl(i,kk) = MIN( evapfb(i) * veg%froot(i,kk), &
-                              MAX( 0.0, REAL( wbtmp(i,kk) ) - &
-                              1.1 * soil%swilt(i) ) * &
-                              soil%zse(kk) * 1000.0 )
-
-                        ENDDO
-                        IF (cable_user%soil_struc=='default') then
-                           canopy%fevc(i) = real(sum(ssnow%evapfbl(i,:))*air%rlam(i)/dels, r_2)
-                           ecx(i) = canopy%fevc(i) / (1.0_r_2-real(canopy%fwet(i),r_2))
-                        ELSEIF (cable_user%soil_struc=='sli') then
-                           canopy%fevc(i) = ecx(i) * (1.0_r_2-real(canopy%fwet(i),r_2))
-                        ENDIF
-
-                     ENDIF
-
-                  ENDIF
-                  ! Update canopy sensible heat flux:
-                  hcx(i) = ( SUM(real(rad%rniso(i,:),r_2)) - ecx(i) &
-                     - real(C%capp*C%rmair*(met%tvair(i)-met%tk(i)), r_2) &
-                     * SUM(real(rad%gradis(i,:),r_2)) ) &
-                     * SUM(real(gh(i,:),r_2))/ SUM(real(ghr(i,:),r_2))
-
-                  ! Update leaf temperature:
-                  tlfx(i) = met%tvair(i)+REAL(hcx(i))/(C%capp*C%rmair*SUM(gh(i,:)))
-
-                  ! Update net radiation for canopy:
-                  rnx(i) = real( SUM( rad%rniso(i,:)) - &
-                     C%CAPP * C%rmair *( tlfx(i)-met%tk(i) ) * &
-                     SUM( rad%gradis(i,:) ), r_2)
-
-                  ! Update leaf surface vapour pressure deficit:
-                  dsx(i) = vpdtmp(i) + air%dsatdk(i) * (tlfx(i)-met%tvair(i))
-                  if (cable_user%perturb_dva_by_T) then
-                     dsx(i) = vpdtmp(i) + air%dsatdk(i) * (tlfx(i) -met%tvair(i) + cable_user%dva_T_perturbation )
-                  endif
-
-                  dsx(i)=  max(dsx(i),0.0)
-
-                  ! Store change in leaf temperature between successive iterations:
-                  deltlf(i) = tlfxx(i)-tlfx(i)
-                  
-                  if (cable_user%GS_SWITCH == 'tuzet' .AND. &
-                     INDEX(cable_user%FWSOIL_SWITCH,'LWP')>0) then
-                     abs_deltpsil(i,:) = ABS(psilxx(i,:)-psilx(i,:))
-                  fwpsi(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
-                        (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
-                  fwpsi(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
-                        (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
-                     abs_deltfwpsi(i,:) = ABS(fwpsixx(i,:)-fwpsi(i,:))
-                  endif
-                  abs_deltlf(i) = ABS(deltlf(i))
-                  abs_deltds(i) = ABS(dsxx(i)-dsx(i))
-                  abs_deltcs(i,:) = ABS(csxx(i,:)-csx(i,:))
-               !ENDIF !lai/abs_deltlf
-
-               !ENDDO !i=1,mp
 
             ENDIF !IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. (abs_deltlf(i) > 0.1 or Any(abs_deltpsi(i,:) > 0.1))
+               ! gmes is 0.0 if explicit_gm = FALSE (easier to debug)
+            IF (cable_user%GS_SWITCH /= 'profitmax') THEN
+               CALL photosynthesis_gm( csx(:,:), &
+                  spread(cx1(:),2,mf), &
+                  spread(cx2(:),2,mf), &
+                  gswmin(:,:), rdx(:,:), vcmxt3(:,:), &
+                  vcmxt4(:,:), vx3(:,:), vx4(:,:), &
+               ! Ticket #56, xleuning replaced with gs_coeff here
+                  gs_coeff(:,:), rad%fvlai(:,:), modify_rule0, &
+                  anx(:,:), fwsoil(:), qs, gmes(:,:), kc4(:,:), &
+                  anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:),i )
+            ENDIF
+            !DO i=1,mp
+
+
+            IF (modify_rule0) Then
+               DO kk=1, mf
+
+                  IF (rad%fvlai(i,kk)>C%LAI_THRESH) THEN
+                     !  write(logn,*) '2: gs_coeff of ',kk, ': ',gs_coeff(i,kk)
+
+
+                     csx(i,kk) = real(met%ca(i),r_2) - real(C%RGBWC*anx(i,kk),r_2) / &
+                        (gbhu(i,kk) + gbhf(i,kk))
+                     csx(i,kk) = max(1.0e-4_r_2, csx(i,kk))
+                     if (cable_user%FWSOIL_SWITCH /= 'profitmax') THEN
+
+                        ! Ticket #56, xleuning replaced with gs_coeff here
+                        if (cable_user%g0_switch == 'default') then
+                           canopy%gswx(i,kk) = MAX( 1.e-3, gswmin(i,kk)*fwsoil(i)**qs + &
+                              MAX( 0.0, C%RGSWC * gs_coeff(i,kk) * &
+                              anx(i,kk) ) )
+                        elseif (cable_user%g0_switch == 'maximum') then
+                           ! set gsw to maximum of g0*fwsoil and humidity-dependent term,
+                           ! according to third formulation suggested by Lombardozzi et al.,
+                           ! GMD 10, 321-331, 2017, and applied in CLM
+                           canopy%gswx(i,kk) = MAX( 1.e-3, max(gswmin(i,kk)*fwsoil(i)**qs, &
+                              MAX( 0.0, C%RGSWC * gs_coeff(i,kk) * &
+                              anx(i,kk) )) )
+
+                        endif
+
+
+                     endif
+                     ! write(logn,*) '3: gsw of ',kk, ': ', canopy%gswx(i,kk)
+                     !Recalculate conductance for water:
+                     gw(i,kk) = 1.0 / ( 1.0 / canopy%gswx(i,kk) + &
+                        1.0 / ( 1.075 * real(gbhu(i,kk) + gbhf(i,kk)) ) )
+                     gw(i,kk) = max(gw(i,kk), 0.00001)
+
+                     ! Modified psychrometric constant
+                     ! (Monteith and Unsworth, 1990)
+                     psycst(i,kk) = air%psyc(i) * REAL( ghr(i,kk) / gw(i,kk) )
+
+                  ENDIF
+
+               ENDDO
+               ex(i,1) = real( ( air%dsatdk(i) * ( rad%rniso(i,1) - C%capp * C%rmair &
+               * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,1) ) &
+               + C%capp * C%rmair * vpdtmp(i) * ghr(i,1) ) &
+               / ( air%dsatdk(i) + psycst(i,1) ),r_2)
+               ex(i,2) = real( ( air%dsatdk(i) &
+               * ( rad%rniso(i,2) - C%capp * C%rmair * ( met%tvair(i) - &
+               met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair * &
+               vpdtmp(i) * ghr(i,2) ) / &
+               ( air%dsatdk(i) + psycst(i,2) ), r_2)  
+               ecx(i) = sum(ex(i,:))
+               ex(i,:) = ex(i,:) * (1.0_r_2-real(canopy%fwet(i), r_2)) / real(air%rlam(i), r_2) 
+               ! ecx(i) = real( ( air%dsatdk(i) * ( rad%rniso(i,1) - C%capp * C%rmair &
+               !    * ( met%tvair(i) - met%tk(i) ) * rad%gradis(i,1) ) &
+               !    + C%capp * C%rmair * met%dva(i) * ghr(i,1) ) &
+               !    / ( air%dsatdk(i) + psycst(i,1) ) + ( air%dsatdk(i) &
+               !    * ( rad%rniso(i,2) - C%capp * C%rmair * ( met%tvair(i) - &
+               !    met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair * &
+               !    met%dva(i) * ghr(i,2) ) / &
+               !    ( air%dsatdk(i) + psycst(i,2) ), r_2)
+               
+               IF (INDEX(cable_user%FWSOIL_SWITCH, 'LWP') > 0) then
+
+                     
+                  ! ex(i,:) = ex(i,:) * (1.0_r_2-real(canopy%fwet(i), r_2)) / real(air%rlam(i), r_2) 
+                  ! convert from kg m-2 ground s-1 to mmol m-2 leaf s-1*
+                  !ex(i,:)= ex(i,:) * 1.0e6_r_2/18.0_r_2  
+                  ! psilx(i,1) = ssnow%psi_rootzone(i) - ex(i,1) / canopy%kplant(i)
+                  ! psilx(i,2) = ssnow%psi_rootzone(i) - ex(i,2) / canopy%kplant(i)
+                  
+                  CALL calc_psix(ssnow, soil, canopy, veg, casapool,max(sum(real(ex(i,:),r_2)), 0.0_r_2),psixxi,kplantxi,i)
+                  !if psixx(i)<-10
+                  psixx(i) = psixxi
+                  kplantx(i) = kplantxi
+                  psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
+                  psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
+                  if (any(psilx(i,:) < -20.0_r_2)) then
+                     where (psilx(i,:) < -10.0_r_2)
+                     psilx(i,:) = -10.0_r_2
+                     end where
+                     g0 = g0*0.8
+                  endif
+         
+                  ! if (any(allktau == ktau_tot) .and. (iter==4)) then
+                  ! print*,'ktau_tot, i and k',ktau_tot, iter, k
+                  ! if (present(wbpsdo)) then
+                  !    print*, '    psdo ex, psix and kplant: ',max(sum(real(ex(i,:),r_2)), 0.0_r_2), psixx(i), kplantx(i)
+                  !    print*, '    psdo psilx: ', psilx(i,1)
+                  ! else
+
+                  !    print*, '         ex, psix and kplant: ',max(sum(real(ex(i,:),r_2)), 0.0_r_2), psixx(i), kplantx(i)
+                  !    print*, '         psilx: ', psilx(i,1)
+                  ! endif
+                  ! endif
+
+                  ! !!!!!!!!!!!!!!!!!!! another option!!!!!!!!!!!!!!!!!!!!!!
+                  ! psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
+                  ! psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
+                  ! if (any(allktau == ktau_tot)) then
+                  !    print*,'ktau_tot, i and k',ktau_tot, iter, k
+                  !    print*, '         ex, psilx, Lastkplant: ', max(sum(real(ex(i,:),r_2)), 0.0_r_2), psilx(i,1), kplantx(i)
+                  ! endif
+                  ! CALL calc_psix(ssnow, soil, canopy, veg, casapool,max(sum(real(ex(i,:),r_2)), 0.0_r_2),psixxi,kplantxi,i)
+                  ! psixx(i) = psixxi
+                  ! kplantx(i) = kplantxi
+                  ! if (any(allktau == ktau_tot)) then
+                  !    print*, '         psixx and kplant: ', psixx(i), kplantx(i)
+                  ! endif
+
+               ENDIF
+               IF (cable_user%SOIL_SCHE == 'Haverd2013' .or. (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0)) then
+                  ! avoid root-water extraction when fwsoil is zero
+                  if (fwsoil(i) < 1e-6) then
+                     anx(i,:) = -rdx(i,:)
+                     ecx(i)   = 0.0_r_2
+                  endif
+
+                  canopy%fevc(i) = ecx(i) * (1.0_r_2-real(canopy%fwet(i),r_2))
+
+                  call getrex_1d(wbtmp(i,:)-real(ssnow%wbice(i,:),r_2), ssnow%rex(i,:), &
+                     canopy%fwsoil(i), &
+                     real(veg%froot(i,:),r_2), SPREAD(real(soil%ssat(i),r_2),1,ms), &
+                     SPREAD(real(soil%swilt(i),r_2),1,ms), &
+                     max(canopy%fevc(i)/real(air%rlam(i),r_2)/1000.0_r_2, 0.0_r_2), &
+                     veg%gamma(i), &
+                     real(soil%zse, r_2), real(dels,r_2), veg%zr(i))
+                  canopy%fwsoiltmp(i) = real(canopy%fwsoil(i))
+                  where (ssnow%rex(i,:) > tiny(1.0_r_2)) &
+                  ssnow%evapfbl(i,:) = real(ssnow%rex(i,:))*dels*1000. ! mm water &
+                  IF (INDEX(cable_user%FWSOIL_SWITCH, 'Haverd2013') > 0) then
+                     fwsoil(i) = real(canopy%fwsoil(i))
+                     !(root water extraction) per time step
+   
+                     if (cable_user%Cumberland_soil) then
+                        canopy%fwsoil(i) = max(canopy%fwsoil(i), 0.6_r_2)
+                        fwsoil(i) = real(canopy%fwsoil(i))
+                     endif
+                  ENDIF 
+
+
+               ELSE IF (cable_user%FWSOIL_SWITCH == 'profitmax' .AND. cable_user%SOIL_SCHE == 'hydraulics') THEN
+
+
+                  IF (ecx(i) > 0.0 .AND. canopy%fwet(i) < 1.0) THEN
+                     evapfb(i) = ( 1.0 - canopy%fwet(i)) * REAL( ecx(i) ) *dels  &
+                        / air%rlam(i)
+
+                     DO kk = 1,ms
+
+                        !ssnow%evapfbl(i,kk) = MIN(evapfb(i) * &
+                        !                          ssnow%fraction_uptake(i,kk),  &
+                        !                          MAX(0.0, &
+                        !                              REAL(ssnow%wb(i,kk)) -    &
+                        !                              soil%swilt(i)) * &
+                        !                          soil%zse(kk) * 1000.0)
+
+                        ! ms8355: no bounding by swilt in this version, or the
+                        ! "beneits" from hydraulics are cancelled
+                        ssnow%evapfbl(i,kk) = evapfb(i) * &
+                           ssnow%fraction_uptake(i,kk)
+
+
+
+                     ENDDO
+                     canopy%fevc(i) = SUM(ssnow%evapfbl(i,:))*air%rlam(i)/dels
+
+                     ecx(i) = canopy%fevc(i) / (1.0-canopy%fwet(i))
+                  ENDIF
+
+               ENDIF
+
+               IF (cable_user%SOIL_SCHE .ne.'Haverd2013') THEN
+
+                  if (ecx(i) > 0.0_r_2 .and. canopy%fwet(i) < 1.0) then
+                     evapfb(i) = ( 1.0 - canopy%fwet(i)) * real(ecx(i)) *dels &
+                        / air%rlam(i)
+
+                     DO kk = 1,ms
+
+                        ssnow%evapfbl(i,kk) = MIN( evapfb(i) * veg%froot(i,kk), &
+                           MAX( 0.0, REAL( wbtmp(i,kk) ) - &
+                           1.1 * soil%swilt(i) ) * &
+                           soil%zse(kk) * 1000.0 )
+
+                     ENDDO
+                     IF (cable_user%soil_struc=='default') then
+                        canopy%fevc(i) = real(sum(ssnow%evapfbl(i,:))*air%rlam(i)/dels, r_2)
+                        ecx(i) = canopy%fevc(i) / (1.0_r_2-real(canopy%fwet(i),r_2))
+                     ELSEIF (cable_user%soil_struc=='sli') then
+                        canopy%fevc(i) = ecx(i) * (1.0_r_2-real(canopy%fwet(i),r_2))
+                     ENDIF
+
+                  ENDIF
+
+               ENDIF
+               ! Update canopy sensible heat flux:
+               hcx(i) = ( SUM(real(rad%rniso(i,:),r_2)) - ecx(i) &
+                  - real(C%capp*C%rmair*(met%tvair(i)-met%tk(i)), r_2) &
+                  * SUM(real(rad%gradis(i,:),r_2)) ) &
+                  * SUM(real(gh(i,:),r_2))/ SUM(real(ghr(i,:),r_2))
+
+               ! Update leaf temperature:
+               tlfx(i) = met%tvair(i)+REAL(hcx(i))/(C%capp*C%rmair*SUM(gh(i,:)))
+
+               ! Update net radiation for canopy:
+               rnx(i) = real( SUM( rad%rniso(i,:)) - &
+                  C%CAPP * C%rmair *( tlfx(i)-met%tk(i) ) * &
+                  SUM( rad%gradis(i,:) ), r_2)
+
+               ! Update leaf surface vapour pressure deficit:
+               dsx(i) = vpdtmp(i) + air%dsatdk(i) * (tlfx(i)-met%tvair(i))
+               if (cable_user%perturb_dva_by_T) then
+                  dsx(i) = vpdtmp(i) + air%dsatdk(i) * (tlfx(i) -met%tvair(i) + cable_user%dva_T_perturbation )
+               endif
+
+               dsx(i)=  max(dsx(i),0.0)
+
+               ! Store change in leaf temperature between successive iterations:
+               deltlf(i) = tlfxx(i)-tlfx(i)
+               
+               if (cable_user%GS_SWITCH == 'tuzet' .AND. &
+                  INDEX(cable_user%FWSOIL_SWITCH,'LWP')>0) then
+                  abs_deltpsil(i,:) = ABS(psilxx(i,:)-psilx(i,:))
+               fwpsi(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                     (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
+               fwpsi(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                     (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
+                  abs_deltfwpsi(i,:) = ABS(fwpsixx(i,:)-fwpsi(i,:))
+               endif
+               abs_deltlf(i) = ABS(deltlf(i))
+               abs_deltds(i) = ABS(dsxx(i)-dsx(i))
+               abs_deltcs(i,:) = ABS(csxx(i,:)-csx(i,:))
+            ENDIF !modify_rule0
+
+            !ENDDO !i=1,mp
             psilxm(i,:) = 0.0_r_2
             tlfxm(i) = 0.0_r_2
             dsxm(i) = 0.0_r_2
@@ -4711,7 +4712,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
    ! JK: subroutine photosynthesis_gm now used with and without explicit gm (cable_user%explicit_gm)
    SUBROUTINE photosynthesis_gm( csxz, cx1z, cx2z, gswminz, &
       rdxz, vcmxt3z, vcmxt4z, vx3z, &
-      vx4z, gs_coeffz, vlaiz, deltlfz, deltpsiz,deltfwpsiz,Numtagz,anxz, fwsoilz, qs, &
+      vx4z, gs_coeffz, vlaiz,photo_rule,anxz, fwsoilz, qs, &
       gmes, kc4, anrubiscoz, anrubpz, ansinkz, eta, dA,imp)
 
     use cable_def_types_mod, only: r_2
@@ -4719,7 +4720,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
 
       implicit none
 
-    real(r_2), dimension(:, :), intent(in) :: csxz, deltpsiz,deltfwpsiz
+    real(r_2), dimension(:, :), intent(in) :: csxz
     real,      dimension(:, :), intent(in) :: gmes
     real,      dimension(:, :), intent(in) :: &
          cx1z,       & !
@@ -4731,14 +4732,15 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
          vx3z,       & !
          gs_coeffz,  & ! Ticket #56, xleuningz repalced with gs_coeffz
          vlaiz,      & !
-         deltlfz, &
+         !deltlfz, &
          kc4           !
     real,      dimension(:),    intent(in)    :: fwsoilz
     real,                       intent(in)    :: qs
     real,      dimension(:, :), intent(inout) :: gswminz
     real,      dimension(:, :), intent(inout) :: anxz, anrubiscoz, anrubpz, ansinkz
     real(r_2), dimension(:, :), intent(out)   :: eta, dA
-    integer,   intent(in)    :: Numtagz,imp
+    integer,   intent(in)    :: imp
+    logical,   intent(in)    :: photo_rule
 
     ! local variables
     real(r_2), dimension(size(csxz, 1), size(csxz, 2)) :: dAmp, dAme, dAmc, eta_p, eta_e, eta_c
@@ -4760,7 +4762,8 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
 
           if (vlaiz(i,j) > C%lai_thresh) then
 
-             if ((deltlfz(i,j) > 0.1 .or. deltpsiz(i,j) > 0.1 .or. deltfwpsiz(i,j) > 0.02) .or. (Numtagz>0)) then
+             !if ((deltlfz(i,j) > 0.1 .or. deltpsiz(i,j) > 0.1 .or. deltfwpsiz(i,j) > 0.02) .or. (Numtagz>0)) then
+             if (photo_rule) then
 
                 anxz(i,j)       = -rdxz(i,j)
                 anrubiscoz(i,j) = -rdxz(i,j)
