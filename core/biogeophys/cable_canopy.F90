@@ -2122,7 +2122,7 @@ CONTAINS
 
       !kdcorbin, 08/10 - doing all points all the time'
       !allocate(nktau(4), nktau_end(4))
-      nktau=[192212,385692]
+      nktau=[192212,238148,385692]
       NN=14
       nktau_end = nktau + NN - 1
       
@@ -2186,7 +2186,8 @@ CONTAINS
       if (present(wbpsdo) .or. present(vpdpsdo)) then
          kmax = veg%Nmax(1)
       else
-       kmax = C%MAXITER
+       !kmax = C%MAXITER
+       kmax = veg%Nmax(1)
       endif
       
 
