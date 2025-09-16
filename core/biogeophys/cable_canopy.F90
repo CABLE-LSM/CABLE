@@ -2955,14 +2955,28 @@ CONTAINS
                csx(i,2) = dc *csxx(i,2) + ( 1.0 - dc ) * csx(i,2)
                psilxm(i,1) = dc *psilxx(i,1) + ( 1.0 - dc ) * psilx(i,1)
                psilxm(i,2) = dc *psilxx(i,2) + ( 1.0 - dc ) * psilx(i,2)
-               if (Any(fwpsixx(i,:)<0.4 .AND. fwpsixx(i,:)>0.3)) then
-                  fwpsi1_tmp(i,1) = 0.90 *fwpsixx(i,1) + ( 1.0 - 0.90 ) * fwpsi(i,1)
-                  fwpsi1_tmp(i,2) = 0.90 *fwpsixx(i,2) + ( 1.0 - 0.90 ) * fwpsi(i,2)
+               if (fwpsixx(i,1)<0.45 .AND. fwpsixx(i,1)>0.3) then
+                  if (fwpsi(i,1)-fwpsixx(i,1)>0.0_r_2) then
+                     fwpsi1_tmp(i,1) = fwpsixx(i,1)+0.01
+                  else
+                     fwpsi1_tmp(i,1) = fwpsixx(i,1)-0.01
+                  endif
+                  ! fwpsi1_tmp(i,1) = 0.90 *fwpsixx(i,1) + ( 1.0 - 0.90 ) * fwpsi(i,1)
+                  ! fwpsi1_tmp(i,2) = 0.90 *fwpsixx(i,2) + ( 1.0 - 0.90 ) * fwpsi(i,2)
                else
                   fwpsi1_tmp(i,1) = dc *fwpsixx(i,1) + ( 1.0 - dc ) * fwpsi(i,1)
+               endif
+               if (fwpsixx(i,2)<0.45 .AND. fwpsixx(i,2)>0.3) then
+                  if (fwpsi(i,2)-fwpsixx(i,2)>0.0_r_2) then
+                     fwpsi1_tmp(i,2) = fwpsixx(i,2)+0.01
+                  else
+                     fwpsi1_tmp(i,2) = fwpsixx(i,2)-0.01
+                  endif
+                  ! fwpsi1_tmp(i,1) = 0.90 *fwpsixx(i,1) + ( 1.0 - 0.90 ) * fwpsi(i,1)
+                  ! fwpsi1_tmp(i,2) = 0.90 *fwpsixx(i,2) + ( 1.0 - 0.90 ) * fwpsi(i,2)
+               else
                   fwpsi1_tmp(i,2) = dc *fwpsixx(i,2) + ( 1.0 - dc ) * fwpsi(i,2)
                endif
-
                psilxm(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
                log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,1)) / fwpsi1_tmp(i,1) )
                psilxm(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
