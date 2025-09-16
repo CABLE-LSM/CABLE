@@ -2605,12 +2605,7 @@ CONTAINS
                   endif
                ELSE IF (cable_user%GS_SWITCH == 'tuzet' .AND. &
                   INDEX(cable_user%FWSOIL_SWITCH,'LWP')>0) THEN
-                     gswmin(i,:) = veg%g0(i) * rad%scalex(i,:) * fwpsi(i,:)
-                     !gswmin(i,1) = g0(i) * rad%scalex(i,1) * fwpsi(i,1)
-                     !gswmin(i,2) = g0(i) * rad%scalex(i,2) * fwpsi(i,1)
-                     g1 = veg%g1tuzet(i)
-                     psilxx(i,:) = psilx(i,:)
-                     g0xx(i,:) = gswmin(i,:)
+
                   if (present(fwpsdo)) then
                      gs_coeff(i,1) = g1 / real(csx(i,1)) * fwpsdo
                      gs_coeff(i,2) = g1 / real(csx(i,2)) * fwpsdo
@@ -2625,6 +2620,12 @@ CONTAINS
                      gs_coeff(i,2) =fwpsi(i,2) * g1 / real(csx(i,2))
                      fwpsixx = fwpsi
                   endif
+                     gswmin(i,:) = veg%g0(i) * rad%scalex(i,:) * fwpsi(i,:)
+                     !gswmin(i,1) = g0(i) * rad%scalex(i,1) * fwpsi(i,1)
+                     !gswmin(i,2) = g0(i) * rad%scalex(i,2) * fwpsi(i,1)
+                     g1 = veg%g1tuzet(i)
+                     psilxx(i,:) = psilx(i,:)
+                     g0xx(i,:) = gswmin(i,:)
 
                ELSE IF (cable_user%GS_SWITCH == 'profitmax' .AND. &
                   cable_user%FWSOIL_SWITCH == 'profitmax') THEN
