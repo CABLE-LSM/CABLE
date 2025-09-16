@@ -2620,12 +2620,13 @@ CONTAINS
                      gs_coeff(i,2) =fwpsi(i,2) * g1 / real(csx(i,2))
                      fwpsixx = fwpsi
                   endif
-                     gswmin(i,:) = veg%g0(i) * rad%scalex(i,:) * fwpsi(i,:)
+                     !gswmin(i,:) = veg%g0(i) * rad%scalex(i,:) * fwpsi(i,:)
+                     gswmin(i,:) = g0xx(i,:) * rad%scalex(i,:)
                      !gswmin(i,1) = g0(i) * rad%scalex(i,1) * fwpsi(i,1)
                      !gswmin(i,2) = g0(i) * rad%scalex(i,2) * fwpsi(i,1)
                      g1 = veg%g1tuzet(i)
                      psilxx(i,:) = psilx(i,:)
-                     g0xx(i,:) = gswmin(i,:)
+                     
 
                ELSE IF (cable_user%GS_SWITCH == 'profitmax' .AND. &
                   cable_user%FWSOIL_SWITCH == 'profitmax') THEN
@@ -2784,6 +2785,11 @@ CONTAINS
                      psilx(i,:) = -10.0_r_2
                      end where
                      !g0(i) = g0(i)*0.8
+                     fwpsi(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                           (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
+                     fwpsi(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                           (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
+                     g0xx(i,:) = veg%g0(i) * fwpsi(i,:)
                   endif
          
                   ! if (any(allktau == ktau_tot) .and. (iter==4)) then
