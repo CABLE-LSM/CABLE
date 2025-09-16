@@ -2952,7 +2952,7 @@ CONTAINS
                csx(i,2) = dc *csxx(i,2) + ( 1.0 - dc ) * csx(i,2)
                psilxm(i,1) = dc *psilxx(i,1) + ( 1.0 - dc ) * psilx(i,1)
                psilxm(i,2) = dc *psilxx(i,2) + ( 1.0 - dc ) * psilx(i,2)
-               if Any(fwpsixx(i,:)<0.4 .AND. fwpsixx(i,:)>0.3) then
+               if (Any(fwpsixx(i,:)<0.4 .AND. fwpsixx(i,:)>0.3)) then
                   fwpsi1_tmp(i,1) = 0.90 *fwpsixx(i,1) + ( 1.0 - 0.90 ) * fwpsi(i,1)
                   fwpsi1_tmp(i,2) = 0.90 *fwpsixx(i,2) + ( 1.0 - 0.90 ) * fwpsi(i,2)
                else
