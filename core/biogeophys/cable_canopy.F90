@@ -1902,7 +1902,7 @@ CONTAINS
       real, dimension(mp,2) ::  gsw_term, lower_limit2  ! local temp var
       real(r_2), dimension(mp,ms) :: wbtmp
       real(r_2), dimension(mp):: vpdtmp
-      real, dimension(mp):: g0, g0xx
+      real, dimension(mp,mf):: g0, g0xx
       integer :: i, j, k, kk, h, iter_ini ! iteration count
       integer :: NN,m,kmax,Mtag,Numtag
       integer, allocatable :: nktau(:), allktau(:), nktau_end(:)
@@ -1937,7 +1937,8 @@ CONTAINS
 
       ! END header
       ! allocate(gswmin(mp,mf))
-      g0 = veg%g0
+    
+      g0 = spread(veg%g0, 2, mf)
       g0xx = g0
       ! Soil water limitation on stomatal conductance:
       iter_ini = 1
@@ -2604,11 +2605,12 @@ CONTAINS
                   endif
                ELSE IF (cable_user%GS_SWITCH == 'tuzet' .AND. &
                   INDEX(cable_user%FWSOIL_SWITCH,'LWP')>0) THEN
-                     gswmin(i,1) = g0(i) * rad%scalex(i,1)
-                     gswmin(i,2) = g0(i) * rad%scalex(i,2)
+                     gswmin(i,:) = veg%g0(i) * rad%scalex(i,:) * fwpsi(i,:)
+                     !gswmin(i,1) = g0(i) * rad%scalex(i,1) * fwpsi(i,1)
+                     !gswmin(i,2) = g0(i) * rad%scalex(i,2) * fwpsi(i,1)
                      g1 = veg%g1tuzet(i)
                      psilxx(i,:) = psilx(i,:)
-                     g0xx(i) = g0(i)
+                     g0xx(i,:) = gswmin(i,:)
                   if (present(fwpsdo)) then
                      gs_coeff(i,1) = g1 / real(csx(i,1)) * fwpsdo
                      gs_coeff(i,2) = g1 / real(csx(i,2)) * fwpsdo
@@ -2684,6 +2686,7 @@ CONTAINS
 
             ENDIF !IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. (abs_deltlf(i) > 0.1 or Any(abs_deltpsi(i,:) > 0.1))
                ! gmes is 0.0 if explicit_gm = FALSE (easier to debug)
+            
             IF (cable_user%GS_SWITCH /= 'profitmax') THEN
                CALL photosynthesis_gm( csx(:,:), &
                   spread(cx1(:),2,mf), &
@@ -2779,7 +2782,7 @@ CONTAINS
                      where (psilx(i,:) < -10.0_r_2)
                      psilx(i,:) = -10.0_r_2
                      end where
-                     g0 = g0*0.8
+                     !g0(i) = g0(i)*0.8
                   endif
          
                   ! if (any(allktau == ktau_tot) .and. (iter==4)) then
@@ -2939,7 +2942,7 @@ CONTAINS
             dsxm(i) = 0.0_r_2
             Mtag = 0
             modify_rule = (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1) .or. Any(abs_deltfwpsi(i,:) > 0.02)) &
-            .AND. (k < kmax) .AND. (k > 2)
+            .AND. (k < kmax)
             !if ( (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1)) .AND. k > 5 .AND. k < kmax ) then
             if ( modify_rule ) then
                Numtag = 3
@@ -2953,30 +2956,32 @@ CONTAINS
                dsxm(i) = dc *dsxx(i) + ( 1.0 - dc ) * dsx(i)
                csx(i,1) = dc *csxx(i,1) + ( 1.0 - dc ) * csx(i,1)
                csx(i,2) = dc *csxx(i,2) + ( 1.0 - dc ) * csx(i,2)
-               psilxm(i,1) = dc *psilxx(i,1) + ( 1.0 - dc ) * psilx(i,1)
-               psilxm(i,2) = dc *psilxx(i,2) + ( 1.0 - dc ) * psilx(i,2)
-               if (fwpsixx(i,1)<0.45 .AND. fwpsixx(i,1)>0.3) then
-                  if (fwpsi(i,1)-fwpsixx(i,1)>0.0_r_2) then
-                     fwpsi1_tmp(i,1) = fwpsixx(i,1)+0.01
-                  else
-                     fwpsi1_tmp(i,1) = fwpsixx(i,1)-0.01
-                  endif
-                  ! fwpsi1_tmp(i,1) = 0.90 *fwpsixx(i,1) + ( 1.0 - 0.90 ) * fwpsi(i,1)
-                  ! fwpsi1_tmp(i,2) = 0.90 *fwpsixx(i,2) + ( 1.0 - 0.90 ) * fwpsi(i,2)
-               else
-                  fwpsi1_tmp(i,1) = dc *fwpsixx(i,1) + ( 1.0 - dc ) * fwpsi(i,1)
-               endif
-               if (fwpsixx(i,2)<0.45 .AND. fwpsixx(i,2)>0.3) then
-                  if (fwpsi(i,2)-fwpsixx(i,2)>0.0_r_2) then
-                     fwpsi1_tmp(i,2) = fwpsixx(i,2)+0.01
-                  else
-                     fwpsi1_tmp(i,2) = fwpsixx(i,2)-0.01
-                  endif
-                  ! fwpsi1_tmp(i,1) = 0.90 *fwpsixx(i,1) + ( 1.0 - 0.90 ) * fwpsi(i,1)
-                  ! fwpsi1_tmp(i,2) = 0.90 *fwpsixx(i,2) + ( 1.0 - 0.90 ) * fwpsi(i,2)
-               else
-                  fwpsi1_tmp(i,2) = dc *fwpsixx(i,2) + ( 1.0 - dc ) * fwpsi(i,2)
-               endif
+               ! psilxm(i,1) = dc *psilxx(i,1) + ( 1.0 - dc ) * psilx(i,1)
+               ! psilxm(i,2) = dc *psilxx(i,2) + ( 1.0 - dc ) * psilx(i,2)
+               fwpsi1_tmp(i,1) = 0.90 *fwpsixx(i,1) + ( 1.0 - 0.90 ) * fwpsi(i,1)
+               fwpsi1_tmp(i,2) = 0.90 *fwpsixx(i,2) + ( 1.0 - 0.90 ) * fwpsi(i,2)
+               ! if (fwpsixx(i,1)<0.45 .AND. fwpsixx(i,1)>0.3) then
+               !    if (fwpsi(i,1)-fwpsixx(i,1)>0.0_r_2) then
+               !       fwpsi1_tmp(i,1) = fwpsixx(i,1)+0.01
+               !    else
+               !       fwpsi1_tmp(i,1) = fwpsixx(i,1)-0.01
+               !    endif
+               !    ! fwpsi1_tmp(i,1) = 0.90 *fwpsixx(i,1) + ( 1.0 - 0.90 ) * fwpsi(i,1)
+               !    ! fwpsi1_tmp(i,2) = 0.90 *fwpsixx(i,2) + ( 1.0 - 0.90 ) * fwpsi(i,2)
+               ! else
+               !    fwpsi1_tmp(i,1) = dc *fwpsixx(i,1) + ( 1.0 - dc ) * fwpsi(i,1)
+               ! endif
+               ! if (fwpsixx(i,2)<0.45 .AND. fwpsixx(i,2)>0.3) then
+               !    if (fwpsi(i,2)-fwpsixx(i,2)>0.0_r_2) then
+               !       fwpsi1_tmp(i,2) = fwpsixx(i,2)+0.01
+               !    else
+               !       fwpsi1_tmp(i,2) = fwpsixx(i,2)-0.01
+               !    endif
+               !    ! fwpsi1_tmp(i,1) = 0.90 *fwpsixx(i,1) + ( 1.0 - 0.90 ) * fwpsi(i,1)
+               !    ! fwpsi1_tmp(i,2) = 0.90 *fwpsixx(i,2) + ( 1.0 - 0.90 ) * fwpsi(i,2)
+               ! else
+               !    fwpsi1_tmp(i,2) = dc *fwpsixx(i,2) + ( 1.0 - dc ) * fwpsi(i,2)
+               ! endif
                psilxm(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
                log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,1)) / fwpsi1_tmp(i,1) )
                psilxm(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
