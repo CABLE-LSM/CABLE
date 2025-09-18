@@ -2787,7 +2787,7 @@ CONTAINS
                      if (present(wbpsdo)) then
                         print*, 'saturation: psilx(i,:)=', psilx(i,:), iter, k
                      else
-                        print*, 'psilx(i,:)=', psilx(i,:), iter, k
+                      !  print*, 'psilx(i,:)=', psilx(i,:), iter, k
                      endif
                      where (psilx(i,:) < -10.0_r_2)
                      psilx(i,:) = -10.0_r_2
@@ -2796,18 +2796,34 @@ CONTAINS
                      if (present(wbpsdo)) then
                         print*, 'saturation: ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
                      else
-                        print*, 'ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
+                       ! print*, 'ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
                      endif
                      if (sum(real(ex(i,:),r_2))>total_est_evap(i)) then
                      ex(i,1) = total_est_evap(i) * ex(i,1)/sum(real(ex(i,:),r_2))
                      ex(i,2) = total_est_evap(i) * ex(i,2)/sum(real(ex(i,:),r_2))
+                     if (present(wbpsdo)) then
+                        print*, 'saturation: ex_modified: ',ex(i,:), sum(real(ex(i,:),r_2))
+                     else
+                       ! print*, 'ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
+                     endif
                      CALL calc_psix(ssnow, soil, canopy, veg, casapool,max(sum(real(ex(i,:),r_2)), 0.0_r_2),psixxi,kplantxi,i)
                      !if psixx(i)<-10
                      psixx(i) = psixxi
                      kplantx(i) = kplantxi
                      psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
                      psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
-                     g0xx(i,:) = ex(i,:)/vpdtmp(i)
+
+                     g0xx(i,:) = ex(i,:) * 0.001/(vpdtmp(i) /100.0 /met%pmb(i) /C%rmair * C%rmh2o) 
+                     !met%dva = (qstvair - met%qvair) *  C%rmair/C%rmh2o * met%pmb * 100.0 
+                     if (present(wbpsdo)) then
+                        print*, 'saturation: psix_modified: ',psixx(i)
+                        print*, 'saturation: kplant_modified: ',kplantx(i)
+                        print*, 'saturation: psil_modified: ',psilx(i,:)
+                        print*, 'saturation: g0_modified: ',g0xx(i,:)
+                     else
+                       ! print*, 'ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
+                     endif
+                     
                      endif
                      ! fwpsi(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
                      !       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
