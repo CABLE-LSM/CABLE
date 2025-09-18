@@ -2783,7 +2783,7 @@ CONTAINS
                   kplantx(i) = kplantxi
                   psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
                   psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
-                  if (any(psilx(i,:) < -20.0_r_2) .AND. (sum(real(ex(i,:),r_2))<total_est_evap(i))) then
+                  if (any(psilx(i,:) < -20.0_r_2) .AND. (sum(real(ex(i,:),r_2))>total_est_evap(i))) then
                      where (psilx(i,:) < -10.0_r_2)
                      psilx(i,:) = -10.0_r_2
                      end where
