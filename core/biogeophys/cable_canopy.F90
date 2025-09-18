@@ -2788,7 +2788,7 @@ CONTAINS
                         print*, 'saturation: psilx(i,:)=', psilx(i,:), iter, k
                      else
                         print*, 'psilx(i,:)=', psilx(i,:), iter, k
-                     
+                     endif
                      where (psilx(i,:) < -10.0_r_2)
                      psilx(i,:) = -10.0_r_2
                      end where
@@ -2797,6 +2797,7 @@ CONTAINS
                         print*, 'saturation: ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
                      else
                         print*, 'ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
+                     endif
                      if (sum(real(ex(i,:),r_2))>total_est_evap(i)) then
                      ex(i,1) = total_est_evap(i) * ex(i,1)/sum(real(ex(i,:),r_2))
                      ex(i,2) = total_est_evap(i) * ex(i,2)/sum(real(ex(i,:),r_2))
