@@ -2813,7 +2813,7 @@ CONTAINS
                      psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
                      psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
 
-                     g0xx(i,:) = ex(i,:) * 0.001/(vpdtmp(i) /100.0 /met%pmb(i) /C%rmair * C%rmh2o) 
+                     g0xx(i,:) = ex(i,:) * 0.001 *18.0 /(vpdtmp(i) /100.0 /met%pmb(i) /C%rmair * C%rmh2o) 
                      !met%dva = (qstvair - met%qvair) *  C%rmair/C%rmh2o * met%pmb * 100.0 
                      if (present(wbpsdo)) then
                         print*, 'saturation: psix_modified: ',psixx(i)
