@@ -116,7 +116,7 @@ elif hostname -f | grep -E '(mc16|mcmini)' > /dev/null ; then
 
     case ${compiler} in
         gnu)
-            export PKG_CONFIG_PATH=/usr/local/netcdf-fortran-4.6.1-gfortran/lib/pkgconfig:${PKG_CONFIG_PATH}
+            export PKG_CONFIG_PATH=/usr/local/netcdf-fortran-4.6.2-gfortran/lib/pkgconfig:${PKG_CONFIG_PATH}
             export PKG_CONFIG_PATH=${HOMEBREW_PREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH}
             cmake_args+=(-DCMAKE_Fortran_COMPILER=gfortran)
             ;;
