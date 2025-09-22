@@ -2701,7 +2701,7 @@ CONTAINS
                ! Ticket #56, xleuning replaced with gs_coeff here
                   gs_coeff(:,:), rad%fvlai(:,:), modify_rule0, &
                   anx(:,:), fwsoil(:), qs, gmes(:,:), kc4(:,:), &
-                  anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:),i,ktau )
+                  anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:),i,ktau_tot )
             ENDIF
             !DO i=1,mp
 
