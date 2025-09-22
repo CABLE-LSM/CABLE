@@ -2813,6 +2813,7 @@ CONTAINS
                      if (sum(real(ex(i,:),r_2))>total_est_evap(i)) then
                      ex(i,1) = total_est_evap(i) * ex(i,1)/sum(real(ex(i,:),r_2))
                      ex(i,2) = total_est_evap(i) * ex(i,2)/sum(real(ex(i,:),r_2))
+                     !ecx(i) = sum(ex(i,:))
                      ! if (present(wbpsdo)) then
                      !    print*, 'saturation: ex_modified: ',ex(i,:), sum(real(ex(i,:),r_2))
                      ! else
@@ -4899,6 +4900,10 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                                  print *, '1.  Rubusco limited ----------------'
                                  print *, '  ktau,k,a,b,c: ', ktau, k, a, b, ctmp
                                  print *, '  An: ', Am
+                           call fAn_c3(a, b, ctmp, Amtmp)
+                           print*, a, b, ctmp, Amtmp
+                           print*, b**2 - 4.0_r_2 * a * ctmp, (-b-sqrt(b**2 - 4.0_r_2 * a * ctmp)), 2.0_r_2*a, (-b-sqrt(b**2 - 4.0_r_2 * a * ctmp))/(2.0_r_2*a)
+
                                  print *, 'cs, X, gamma, beta, gammast, Rd, ', cs, X, gamma, beta, gammast, Rd
                                  print*, '1-x', 1-X*cs
                                  print*,'(1-x)*(Rd-gamma)',(1-X*cs)*(Rd-gamma)
