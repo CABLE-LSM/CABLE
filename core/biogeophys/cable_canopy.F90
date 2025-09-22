@@ -4829,7 +4829,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
     !real, dimension(mp) :: fwsoilz  ! why was this local??
     real(r_2) :: gamma, beta, gammast, gm, g0, X, Rd, cs
     real(r_2) :: cc, gsm
-    real(r_2) :: Am,a,b,ctmp
+    real(r_2) :: Am,a,b,ctmp,Amtmp
     integer :: i, j, mp, mf
     ! for minimum of 3 rates and corresponding elasticities
     real,      dimension(3) :: tmp3
