@@ -4894,19 +4894,23 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                         else
                            call fAndAn_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
                               Am, dAmc(i,j),a,b,ctmp)
-                           if ((ktau==192213) .AND. (present(ktau))) then
-                              print*,'1.  Rubusco limited ----------------'
-                              print*,'  ktau,k,a,b,c: ',ktau,k,a,b,ctmp
-                              print*,'  An: ',Am
-                           endif
+                           if (present(ktau)) then
+                              if (ktau == 192213) then
+                                 print *, '1.  Rubusco limited ----------------'
+                                 print *, '  ktau,k,a,b,c: ', ktau, k, a, b, ctmp
+                                 print *, '  An: ', Am
+                              end if
+                           end if
                            if (g0 > Am*X) then ! repeat calculation if g0 > A*X
                               call fAndAn_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
                                  Am, dAmc(i,j),a,b,ctmp)
-                           if ((ktau==192213) .AND. (present(ktau))) then
-                              print*,'1.1  g0 > Am*X ----------------'
-                              print*,'  ktau,k,a,b,c: ',ktau,k,a,b,ctmp
-                              print*,'  An: ',Am
-                           endif
+                           if (present(ktau)) then
+                              if (ktau == 192213) then
+                                 print *, '1.1  g0 > Am*X ----------------'
+                                 print *, '  ktau,k,a,b,c: ', ktau, k, a, b, ctmp
+                                 print *, '  An: ', Am
+                              end if
+                           end if
                            endif
                         endif
                      endif
@@ -4961,20 +4965,24 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                         else
                            call fAndAn_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
                               Am, dAme(i,j),a,b,ctmp)
-                           if ((ktau==192213) .AND. (present(ktau))) then
-                              print*,'2.  Rubp limited ----------------'
-                              print*,'  ktau,k,a,b,c: ',ktau,k,a,b,ctmp
-                              print*,'  An: ',Am
-                           endif
+                           if (present(ktau)) then
+                              if (ktau == 192213) then
+                                 print *, '2.  Rubp limited ----------------'
+                                 print *, '  ktau,k,a,b,c: ', ktau, k, a, b, ctmp
+                                 print *, '  An: ', Am
+                              end if
+                           end if
                            ! repeat calculation if g0 > A*X
                            if (g0 > Am*X) then
                               call fAndAn_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
                                  Am, dAme(i,j),a,b,ctmp)
-                           if ((ktau==192213) .AND. (present(ktau))) then
-                              print*,'2.1  g0 > Am*X ----------------'
-                              print*,'  ktau,k,a,b,c: ',ktau,k,a,b,ctmp
-                              print*,'  An: ',Am
-                           endif
+                           if (present(ktau)) then
+                              if (ktau == 192213) then
+                                 print *, '2.1  g0 > Am*X ----------------'
+                                 print *, '  ktau,k,a,b,c: ', ktau, k, a, b, ctmp
+                                 print *, '  An: ', Am
+                              end if
+                           end if
                            endif
                         endif
                      endif
