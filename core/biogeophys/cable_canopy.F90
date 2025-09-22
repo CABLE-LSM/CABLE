@@ -2701,7 +2701,7 @@ CONTAINS
                ! Ticket #56, xleuning replaced with gs_coeff here
                   gs_coeff(:,:), rad%fvlai(:,:), modify_rule0, &
                   anx(:,:), fwsoil(:), qs, gmes(:,:), kc4(:,:), &
-                  anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:),i,ktau_tot )
+                  anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:),i,ktau_tot,k )
             ENDIF
             !DO i=1,mp
 
@@ -4781,7 +4781,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
    SUBROUTINE photosynthesis_gm( csxz, cx1z, cx2z, gswminz, &
       rdxz, vcmxt3z, vcmxt4z, vx3z, &
       vx4z, gs_coeffz, vlaiz,photo_rule,anxz, fwsoilz, qs, &
-      gmes, kc4, anrubiscoz, anrubpz, ansinkz, eta, dA,imp,ktau)
+      gmes, kc4, anrubiscoz, anrubpz, ansinkz, eta, dA,imp,ktau,k)
 
     use cable_def_types_mod, only: r_2
     use cable_common_module, only: cable_user
@@ -4807,7 +4807,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
     real,      dimension(:, :), intent(inout) :: gswminz
     real,      dimension(:, :), intent(inout) :: anxz, anrubiscoz, anrubpz, ansinkz
     real(r_2), dimension(:, :), intent(out)   :: eta, dA
-    integer,   intent(in)    :: imp, ktau
+    integer,   intent(in)    :: imp, ktau, k
     logical,   intent(in)    :: photo_rule
 
     ! local variables
@@ -4883,7 +4883,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                               Am, dAmc(i,j),a,b,ctmp,ktau)
                            if (ktau==192213) then
                               print*,'1.  Rubusco limited ----------------'
-                              print*,'  ktau,a,b,c: ',ktau,a,b,ctmp
+                              print*,'  ktau,k,a,b,c: ',ktau,k,a,b,ctmp
                               print*,'  An: ',Am
                            endif
                            if (g0 > Am*X) then ! repeat calculation if g0 > A*X
@@ -4891,7 +4891,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                                  Am, dAmc(i,j),a,b,ctmp,ktau)
                            if (ktau==192213) then
                               print*,'1.1  g0 > Am*X ----------------'
-                              print*,'  ktau,a,b,c: ',ktau,a,b,ctmp
+                              print*,'  ktau,k,a,b,c: ',ktau,k,a,b,ctmp
                               print*,'  An: ',Am
                            endif
                            endif
@@ -4950,7 +4950,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                               Am, dAme(i,j),a,b,ctmp,ktau)
                            if (ktau==192213) then
                               print*,'2.  Rubp limited ----------------'
-                              print*,'  ktau,a,b,c: ',ktau,a,b,ctmp
+                              print*,'  ktau,k,a,b,c: ',ktau,k,a,b,ctmp
                               print*,'  An: ',Am
                            endif
                            ! repeat calculation if g0 > A*X
@@ -4959,7 +4959,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                                  Am, dAme(i,j),a,b,ctmp,ktau)
                            if (ktau==192213) then
                               print*,'2.1  g0 > Am*X ----------------'
-                              print*,'  ktau,a,b,c: ',ktau,a,b,ctmp
+                              print*,'  ktau,k,a,b,c: ',ktau,k,a,b,ctmp
                               print*,'  An: ',Am
                            endif
                            endif
