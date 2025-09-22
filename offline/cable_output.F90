@@ -1999,7 +1999,7 @@ CONTAINS
     ! If this time step is an output time step:
     IF (writenow) THEN
        ! Write to temporary time variable:
-       timetemp(1) = REAL(REAL(ktau-backtrack)*dels,r_2)
+       timetemp(1) = real(ktau - backtrack, r_2) * real(dels, r_2)
        ! inquire(unit=ncid_out, opened=opened)
        ! if (.not. opened) ok = NF90_OPEN(filename%out, NF90_WRITE, ncid_out)
        ! ok = NF90_INQ_VARID(ncid_out, 'time', varid)
