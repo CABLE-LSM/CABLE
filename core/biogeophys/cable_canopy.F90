@@ -2693,6 +2693,7 @@ CONTAINS
                ! gmes is 0.0 if explicit_gm = FALSE (easier to debug)
             
             IF (cable_user%GS_SWITCH /= 'profitmax') THEN
+            if (present(wbpsdo)) then
                CALL photosynthesis_gm( csx(:,:), &
                   spread(cx1(:),2,mf), &
                   spread(cx2(:),2,mf), &
@@ -2702,6 +2703,17 @@ CONTAINS
                   gs_coeff(:,:), rad%fvlai(:,:), modify_rule0, &
                   anx(:,:), fwsoil(:), qs, gmes(:,:), kc4(:,:), &
                   anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:),i,ktau_tot,k )
+            else
+               CALL photosynthesis_gm( csx(:,:), &
+                  spread(cx1(:),2,mf), &
+                  spread(cx2(:),2,mf), &
+                  gswmin(:,:), rdx(:,:), vcmxt3(:,:), &
+                  vcmxt4(:,:), vx3(:,:), vx4(:,:), &
+               ! Ticket #56, xleuning replaced with gs_coeff here
+                  gs_coeff(:,:), rad%fvlai(:,:), modify_rule0, &
+                  anx(:,:), fwsoil(:), qs, gmes(:,:), kc4(:,:), &
+                  anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:),i )
+            endif
             ENDIF
             !DO i=1,mp
 
@@ -4807,7 +4819,8 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
     real,      dimension(:, :), intent(inout) :: gswminz
     real,      dimension(:, :), intent(inout) :: anxz, anrubiscoz, anrubpz, ansinkz
     real(r_2), dimension(:, :), intent(out)   :: eta, dA
-    integer,   intent(in)    :: imp, ktau, k
+    integer,   intent(in)    :: imp
+    integer,   intent(in), optional ::ktau, k
     logical,   intent(in)    :: photo_rule
 
     ! local variables
@@ -4881,7 +4894,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                         else
                            call fAndAn_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
                               Am, dAmc(i,j),a,b,ctmp,ktau)
-                           if (ktau==192213) then
+                           if ((ktau==192213) .AND. (present(ktau))) then
                               print*,'1.  Rubusco limited ----------------'
                               print*,'  ktau,k,a,b,c: ',ktau,k,a,b,ctmp
                               print*,'  An: ',Am
@@ -4889,7 +4902,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                            if (g0 > Am*X) then ! repeat calculation if g0 > A*X
                               call fAndAn_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
                                  Am, dAmc(i,j),a,b,ctmp,ktau)
-                           if (ktau==192213) then
+                           if ((ktau==192213) .AND. (present(ktau))) then
                               print*,'1.1  g0 > Am*X ----------------'
                               print*,'  ktau,k,a,b,c: ',ktau,k,a,b,ctmp
                               print*,'  An: ',Am
@@ -4948,7 +4961,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                         else
                            call fAndAn_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
                               Am, dAme(i,j),a,b,ctmp,ktau)
-                           if (ktau==192213) then
+                           if ((ktau==192213) .AND. (present(ktau))) then
                               print*,'2.  Rubp limited ----------------'
                               print*,'  ktau,k,a,b,c: ',ktau,k,a,b,ctmp
                               print*,'  An: ',Am
@@ -4957,7 +4970,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                            if (g0 > Am*X) then
                               call fAndAn_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
                                  Am, dAme(i,j),a,b,ctmp,ktau)
-                           if (ktau==192213) then
+                           if ((ktau==192213) .AND. (present(ktau))) then
                               print*,'2.1  g0 > Am*X ----------------'
                               print*,'  ktau,k,a,b,c: ',ktau,k,a,b,ctmp
                               print*,'  An: ',Am
