@@ -1999,14 +1999,6 @@ CONTAINS
     ! If this time step is an output time step:
     IF (writenow) THEN
        ! Write to temporary time variable:
-
-       ! Bug: REAL(ktau-backtrack) * dels becomes imprecise at 2**27,
-       ! which is ktau = 74565 for dels = 1800., i.e. less than 3.5
-       ! years, due to the representation of integer as single
-       ! precision float. The fraction of a 32-bit real is normally
-       ! represented with 23 bits; Do not know why the imprecision is
-       ! at 2**27 here -> do multiplication in double precision
-       ! timetemp(1) = REAL(REAL(ktau-backtrack)*dels,r_2)
        timetemp(1) = real(ktau - backtrack, r_2) * real(dels, r_2)
        ! inquire(unit=ncid_out, opened=opened)
        ! if (.not. opened) ok = NF90_OPEN(filename%out, NF90_WRITE, ncid_out)
