@@ -4815,7 +4815,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
     !real, dimension(mp) :: fwsoilz  ! why was this local??
     real(r_2) :: gamma, beta, gammast, gm, g0, X, Rd, cs
     real(r_2) :: cc, gsm
-    real(r_2) :: Am
+    real(r_2) :: Am,a,b,ctmp
     integer :: i, j, mp, mf
     ! for minimum of 3 rates and corresponding elasticities
     real,      dimension(3) :: tmp3
@@ -4859,16 +4859,20 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
 
                    if (trim(cable_user%g0_switch) == 'default') then
                       ! get partial derivative of A wrt cs
-                      if (ktau==192213) then
-                      print*,'1.  Rubusco limited ----------------'
-                      endif
-                      if (cable_user%explicit_gm) then
+
+                     if (cable_user%explicit_gm) then
                          call fAmdAm_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
                               gm, Am, dAmc(i,j))
-                        else
+                     else
                            call fAndAn_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
-                              Am, dAmc(i,j),ktau)
-                        endif
+                              Am, dAmc(i,j),a,b,ctmp,ktau)
+                     endif
+                      if (ktau==192213) then
+                        print*,'1.  Rubusco limited ----------------'
+                        print*,'  ktau,a,b,c: ',ktau,a,b,ctmp
+                        print*,'  An: ',Am
+                     endif
+                      
                      elseif (trim(cable_user%g0_switch) == 'maximum') then
                         ! set g0 to zero initially
                         if (cable_user%explicit_gm) then
@@ -4880,10 +4884,10 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                            endif
                         else
                            call fAndAn_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
-                              Am, dAmc(i,j),ktau)
+                              Am, dAmc(i,j),a,b,ctmp,ktau)
                            if (g0 > Am*X) then ! repeat calculation if g0 > A*X
                               call fAndAn_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
-                                 Am, dAmc(i,j),ktau)
+                                 Am, dAmc(i,j),a,b,ctmp,ktau)
                            endif
                         endif
                      endif
@@ -4916,16 +4920,19 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                      gm      = gmes(i,j)
 
                      if (trim(cable_user%g0_switch) == 'default') then
-                     if (ktau==192213) then
-                     print*,'2.  Rubp limited ----------------'
-                     endif
+                     
                         if (cable_user%explicit_gm) then
                            call fAmdAm_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
                               gm, Am, dAme(i,j))
                         else
                            call fAndAn_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
-                              Am, dAme(i,j),ktau)
+                              Am, dAme(i,j),a,b,ctmp,ktau)
                         endif
+                      if (ktau==192213) then
+                        print*,'2.  Rubp limited ----------------'
+                        print*,'  ktau,a,b,c: ',ktau,a,b,ctmp
+                        print*,'  An: ',Am
+                     endif
                      elseif (trim(cable_user%g0_switch) == 'maximum') then
                         if (cable_user%explicit_gm) then
                            call fAmdAm_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
@@ -4937,11 +4944,11 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                            endif
                         else
                            call fAndAn_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
-                              Am, dAme(i,j),ktau)
+                              Am, dAme(i,j),a,b,ctmp,ktau)
                            ! repeat calculation if g0 > A*X
                            if (g0 > Am*X) then
                               call fAndAn_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
-                                 Am, dAme(i,j),ktau)
+                                 Am, dAme(i,j),a,b,ctmp,ktau)
                            endif
                         endif
                      endif
@@ -6031,25 +6038,22 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
    end subroutine fdAn_c4
 
 
-   elemental pure subroutine fAndAn_c3(Cs, g0, x, gamma, beta, Gammastar, Rd, An, dAn,ktau)
+   elemental pure subroutine fAndAn_c3(Cs, g0, x, gamma, beta, Gammastar, Rd, An, dAn,a,b,c,ktau)
 
       use cable_def_types_mod, only: r_2
 
       implicit none
 
       real(r_2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd
-      real(r_2), intent(out) :: An, dAn
+      real(r_2), intent(out) :: An, dAn,a,b,c
       integer,   intent(in) :: ktau
 
-      real(r_2) :: a, b, c, da, db, dc
+      real(r_2) ::  da, db, dc
 
       call fabc(Cs, g0, x, gamma, beta, Gammastar, Rd,a,b,c)
 
       call fAn_c3(a, b, c, An)
-      if (ktau==192213) then
-      print*,'ktau,a,b,c: ',ktau,a,b,c
-      print*,'An: ',An
-      endif
+
       call fdabc(Cs, g0, x, gamma, beta, Gammastar, Rd, da, db, dc)
       call fdAn_c3(a, b, c, da, db, dc, dAn)
 
