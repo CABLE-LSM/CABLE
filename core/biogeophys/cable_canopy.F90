@@ -2701,7 +2701,7 @@ CONTAINS
                ! Ticket #56, xleuning replaced with gs_coeff here
                   gs_coeff(:,:), rad%fvlai(:,:), modify_rule0, &
                   anx(:,:), fwsoil(:), qs, gmes(:,:), kc4(:,:), &
-                  anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:),i )
+                  anrubiscox(:,:), anrubpx(:,:), ansinkx(:,:), eta_x(:,:), dAnx(:,:),i,ktau )
             ENDIF
             !DO i=1,mp
 
@@ -2784,28 +2784,28 @@ CONTAINS
                   psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
                   psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
                   if (any(psilx(i,:) < -20.0_r_2) ) then
-                     if (present(wbpsdo)) then
-                        print*, 'saturation: psilx(i,:)=', psilx(i,:), iter, k
-                     else
-                      !  print*, 'psilx(i,:)=', psilx(i,:), iter, k
-                     endif
+                     ! if (present(wbpsdo)) then
+                     !    print*, 'saturation: psilx(i,:)=', psilx(i,:), iter, k
+                     ! else
+                     !  !  print*, 'psilx(i,:)=', psilx(i,:), iter, k
+                     ! endif
                      where (psilx(i,:) < -10.0_r_2)
                      psilx(i,:) = -10.0_r_2
                      end where
                      !g0(i) = g0(i)*0.5
-                     if (present(wbpsdo)) then
-                        print*, 'saturation: ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
-                     else
-                       ! print*, 'ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
-                     endif
+                     ! if (present(wbpsdo)) then
+                     !    print*, 'saturation: ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
+                     ! else
+                     !   ! print*, 'ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
+                     ! endif
                      if (sum(real(ex(i,:),r_2))>total_est_evap(i)) then
                      ex(i,1) = total_est_evap(i) * ex(i,1)/sum(real(ex(i,:),r_2))
                      ex(i,2) = total_est_evap(i) * ex(i,2)/sum(real(ex(i,:),r_2))
-                     if (present(wbpsdo)) then
-                        print*, 'saturation: ex_modified: ',ex(i,:), sum(real(ex(i,:),r_2))
-                     else
-                       ! print*, 'ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
-                     endif
+                     ! if (present(wbpsdo)) then
+                     !    print*, 'saturation: ex_modified: ',ex(i,:), sum(real(ex(i,:),r_2))
+                     ! else
+                     !   ! print*, 'ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
+                     ! endif
                      CALL calc_psix(ssnow, soil, canopy, veg, casapool,max(sum(real(ex(i,:),r_2)), 0.0_r_2),psixxi,kplantxi,i)
                      !if psixx(i)<-10
                      psixx(i) = psixxi
@@ -2813,16 +2813,16 @@ CONTAINS
                      psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
                      psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
 
-                     g0xx(i,:) = ex(i,:) * 0.001 *18.0 /(vpdtmp(i) /100.0 /met%pmb(i) /C%rmair * C%rmh2o) 
+                     g0xx(i,:) = ex(i,:) * 1000 /18.0 /(vpdtmp(i) /100.0 /met%pmb(i) /C%rmair * C%rmh2o) 
                      !met%dva = (qstvair - met%qvair) *  C%rmair/C%rmh2o * met%pmb * 100.0 
-                     if (present(wbpsdo)) then
-                        print*, 'saturation: psix_modified: ',psixx(i)
-                        print*, 'saturation: kplant_modified: ',kplantx(i)
-                        print*, 'saturation: psil_modified: ',psilx(i,:)
-                        print*, 'saturation: g0_modified: ',g0xx(i,:)
-                     else
-                       ! print*, 'ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
-                     endif
+                     ! if (present(wbpsdo)) then
+                     !    print*, 'saturation: psix_modified: ',psixx(i)
+                     !    print*, 'saturation: kplant_modified: ',kplantx(i)
+                     !    print*, 'saturation: psil_modified: ',psilx(i,:)
+                     !    print*, 'saturation: g0_modified: ',g0xx(i,:)
+                     ! else
+                     !   ! print*, 'ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
+                     ! endif
                      
                      endif
                      ! fwpsi(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
@@ -3003,8 +3003,8 @@ CONTAINS
                dsxm(i) = dc *dsxx(i) + ( 1.0 - dc ) * dsx(i)
                csx(i,1) = dc *csxx(i,1) + ( 1.0 - dc ) * csx(i,1)
                csx(i,2) = dc *csxx(i,2) + ( 1.0 - dc ) * csx(i,2)
-               ! psilxm(i,1) = dc *psilxx(i,1) + ( 1.0 - dc ) * psilx(i,1)
-               ! psilxm(i,2) = dc *psilxx(i,2) + ( 1.0 - dc ) * psilx(i,2)
+               psilxm(i,1) = dc *psilxx(i,1) + ( 1.0 - dc ) * psilx(i,1)
+               psilxm(i,2) = dc *psilxx(i,2) + ( 1.0 - dc ) * psilx(i,2)
                fwpsi1_tmp(i,1) = 0.90 *fwpsixx(i,1) + ( 1.0 - 0.90 ) * fwpsi(i,1)
                fwpsi1_tmp(i,2) = 0.90 *fwpsixx(i,2) + ( 1.0 - 0.90 ) * fwpsi(i,2)
                ! if (fwpsixx(i,1)<0.45 .AND. fwpsixx(i,1)>0.3) then
@@ -3029,10 +3029,10 @@ CONTAINS
                ! else
                !    fwpsi1_tmp(i,2) = dc *fwpsixx(i,2) + ( 1.0 - dc ) * fwpsi(i,2)
                ! endif
-               psilxm(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
-               log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,1)) / fwpsi1_tmp(i,1) )
-               psilxm(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
-               log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,2)) / fwpsi1_tmp(i,2) )
+               ! psilxm(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
+               ! log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,1)) / fwpsi1_tmp(i,1) )
+               ! psilxm(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
+               ! log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,2)) / fwpsi1_tmp(i,2) )
                Mtag=1
                ! inc = 0.1_r_2
                ! if (k>10) then
@@ -4781,7 +4781,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
    SUBROUTINE photosynthesis_gm( csxz, cx1z, cx2z, gswminz, &
       rdxz, vcmxt3z, vcmxt4z, vx3z, &
       vx4z, gs_coeffz, vlaiz,photo_rule,anxz, fwsoilz, qs, &
-      gmes, kc4, anrubiscoz, anrubpz, ansinkz, eta, dA,imp)
+      gmes, kc4, anrubiscoz, anrubpz, ansinkz, eta, dA,imp,ktau)
 
     use cable_def_types_mod, only: r_2
     use cable_common_module, only: cable_user
@@ -4807,7 +4807,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
     real,      dimension(:, :), intent(inout) :: gswminz
     real,      dimension(:, :), intent(inout) :: anxz, anrubiscoz, anrubpz, ansinkz
     real(r_2), dimension(:, :), intent(out)   :: eta, dA
-    integer,   intent(in)    :: imp
+    integer,   intent(in)    :: imp, ktau
     logical,   intent(in)    :: photo_rule
 
     ! local variables
@@ -4859,12 +4859,13 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
 
                    if (trim(cable_user%g0_switch) == 'default') then
                       ! get partial derivative of A wrt cs
+                      print*,'1.  Rubusco limited ----------------'
                       if (cable_user%explicit_gm) then
                          call fAmdAm_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
                               gm, Am, dAmc(i,j))
                         else
                            call fAndAn_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
-                              Am, dAmc(i,j))
+                              Am, dAmc(i,j),ktau)
                         endif
                      elseif (trim(cable_user%g0_switch) == 'maximum') then
                         ! set g0 to zero initially
@@ -4877,10 +4878,10 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                            endif
                         else
                            call fAndAn_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
-                              Am, dAmc(i,j))
+                              Am, dAmc(i,j),ktau)
                            if (g0 > Am*X) then ! repeat calculation if g0 > A*X
                               call fAndAn_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
-                                 Am, dAmc(i,j))
+                                 Am, dAmc(i,j),ktau)
                            endif
                         endif
                      endif
@@ -4913,12 +4914,13 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                      gm      = gmes(i,j)
 
                      if (trim(cable_user%g0_switch) == 'default') then
+                     print*,'2.  Rubp limited ----------------'
                         if (cable_user%explicit_gm) then
                            call fAmdAm_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
                               gm, Am, dAme(i,j))
                         else
                            call fAndAn_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
-                              Am, dAme(i,j))
+                              Am, dAme(i,j),ktau)
                         endif
                      elseif (trim(cable_user%g0_switch) == 'maximum') then
                         if (cable_user%explicit_gm) then
@@ -4931,11 +4933,11 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                            endif
                         else
                            call fAndAn_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
-                              Am, dAme(i,j))
+                              Am, dAme(i,j),ktau)
                            ! repeat calculation if g0 > A*X
                            if (g0 > Am*X) then
                               call fAndAn_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
-                                 Am, dAme(i,j))
+                                 Am, dAme(i,j),ktau)
                            endif
                         endif
                      endif
@@ -6025,7 +6027,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
    end subroutine fdAn_c4
 
 
-   elemental pure subroutine fAndAn_c3(Cs, g0, x, gamma, beta, Gammastar, Rd, An, dAn)
+   elemental pure subroutine fAndAn_c3(Cs, g0, x, gamma, beta, Gammastar, Rd, An, dAn,ktau)
 
       use cable_def_types_mod, only: r_2
 
@@ -6033,11 +6035,14 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
 
       real(r_2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd
       real(r_2), intent(out) :: An, dAn
+      integer,   intent(in) :: ktau
 
       real(r_2) :: a, b, c, da, db, dc
 
       call fabc(Cs, g0, x, gamma, beta, Gammastar, Rd,a,b,c)
+      print*,'ktau,a,b,c: ',ktau,a,b,c
       call fAn_c3(a, b, c, An)
+      print*,'An: ',An
       call fdabc(Cs, g0, x, gamma, beta, Gammastar, Rd, da, db, dc)
       call fdAn_c3(a, b, c, da, db, dc, dAn)
 
