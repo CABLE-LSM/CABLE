@@ -167,14 +167,16 @@ SUBROUTINE cable_climate(ktau, kstart, ktauday, idoy, LOY, &
                 MAX( (climate%dtemp_max -climate%dtemp_min + 4. ) * climate%dtemp_max,0.0)
         END WHERE
         climate%Nesterov_ann_max = MAX(climate%Nesterov_Current,climate%Nesterov_ann_max)
-        climate%Nesterov_ann_max = MIN(150000.,climate%Nesterov_ann_max)
+        !19/9/2025 changed upper limit from 150000 - 1E-5*N<=1 by design
+        climate%Nesterov_ann_max = MIN(100000.,climate%Nesterov_ann_max)
 
         WHERE (climate%NDAY_Nesterov .gt. 365)
            climate%NDAY_Nesterov= 0
            climate%Nesterov_ann_running_max = climate%Nesterov_ann_max
         ELSEWHERE (climate%NDAY_Nesterov .le. 365)
            WHERE (climate%Nesterov_Current >  climate%Nesterov_ann_running_max)
-              climate%Nesterov_ann_running_max = MIN(150000.,climate%Nesterov_Current)
+              !19/9/2025 changed upper limit from 150000 - 1E-5*N<=1 by design
+              climate%Nesterov_ann_running_max = MIN(100000.,climate%Nesterov_Current)
               climate%NDAY_Nesterov = 0
            ELSEWHERE (climate%Nesterov_ann_running_max >= climate%Nesterov_Current)
               climate%NDAY_Nesterov = climate%NDAY_Nesterov + 1
@@ -199,12 +201,14 @@ SUBROUTINE cable_climate(ktau, kstart, ktauday, idoy, LOY, &
   !   ENDWHERE 
   !ENDIF
   
-  ! INH - I think the above is wrong - surely easiest to evaluate from %qcan(b=1) at local minimum zenith angle
-  ! also the mod() approach above will not work if simulation starts not at local midnight.
+  ! INH - the above is wrong - it produces -ve fapar 
+  ! easiest approach is to evaluate from %qcan(b=VIS=1) at local minimum zenith angle, i.e.
   ! %fapar_timestep = (rad%qcan(:,1,b) + rad%qcan(:,2,b) / met%fsd(:,b ) so 
+  ! the mod() approach above will not work if simulation starts not at local midnight.
    DO i=1,np
       IF( ABS(met%coszen(i)-sinbet(met%doy(i),rad%latitude(i),12.0))<0.1) THEN
          IF (rad%fbeam(i,1)>0.01) THEN
+            !may need to apply a min (..., 1.0) condition on this as well
            climate%fapar_ann_max(i) = max( ((rad%qcan(i,1,1) + rad%qcan(i,2,1)) / max(met%fsd(i,1),0.001)), &
                        climate%fapar_ann_max(i))
          ENDIF
@@ -270,7 +274,7 @@ SUBROUTINE cable_climate(ktau, kstart, ktauday, idoy, LOY, &
         climate%aprecip = 0.0
         ! ...reset annual max nesterov index
         climate%Nesterov_ann_max = 0.0
-        climate%fapar_ann_max = 0.0
+        !climate%fapar_ann_max = 0.0  !not needed - zero'd above
      ENDIF
 
      WHERE ( (patch%latitude>=0.0 .and. idoy==COLDEST_DAY_NHEMISPHERE) .OR. &
@@ -428,11 +432,11 @@ SUBROUTINE cable_climate(ktau, kstart, ktauday, idoy, LOY, &
            ! INH 2025-04 - revise - if BLAZE%faparsource="inline" BLAZE will use
            ! %fapar_ann_max_last_year not %AvgAnnMaxFAPAR
            ! For BLAZE active runs %fapar_ann_max_last_year is now smoothed average (~20 years)
-           if (cable_user%call_blaze>1) then
-              climate%fapar_ann_max_last_year = 0.95*climate%fapar_ann_max_last_year + 0.05*climate%fapar_ann_max
-           else !keep original meaning
+           !if (cable_user%call_blaze>1) then
+           !   climate%fapar_ann_max_last_year = 0.95*climate%fapar_ann_max_last_year + 0.05*climate%fapar_ann_max
+           !else !keep original meaning
                climate%fapar_ann_max_last_year = climate%fapar_ann_max
-           end if
+           !end if
 
            climate%Nesterov_ann_max_last_year = climate%Nesterov_ann_max
 
@@ -489,6 +493,8 @@ SUBROUTINE cable_climate(ktau, kstart, ktauday, idoy, LOY, &
         ENDIF  ! last month of year
 
      ENDIF     ! last day of month
+
+     !WRITE(*,*) "climate", met%doy(i), climate%fapar_ann_max(1), climate%fapar_ann_max_last_year(1)
 
   ENDIF ! end of day
   ! test for seasonal acclimation

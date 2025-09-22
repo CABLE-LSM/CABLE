@@ -572,13 +572,7 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOUR
          ENDDO
          !constrain %FAPAR - should not be needed
          SF%FAPAR(i) = MIN(MAX(SF%FAPAR(i),0.0),1.0)
-         IF (i==1) THEN
-            patch_index = landpt(i)%cstart
-            WRITE(*,*) "SIMFIRE", MM, DOY, SF%FAPAR(i), climate%fapar_ann_max_last_year(patch_index),& 
-            climate%fapar_ann_max_last_year(patch_index+1),climate%fapar_ann_max_last_year(patch_index+2), &
-            patch(patch_index)%frac,patch(patch_index+1)%frac,patch(patch_index+2)%frac
-            WRITE(*,*) " "
-         ENDIF
+         
       ENDDO
 
   ELSE  !FAPARSOURCE is "fromfile - original code
@@ -589,10 +583,9 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOUR
   ! - defaults to annual max
   IF (TRIM(FSTEP) .eq. "daily") THEN
      !over 1950-2020 current_Nestrov is ~0.4 of annual Max Nesterov
-     !150000 is max value allowed in cable_climate
+     !100000 is max value allowed in cable_climate
      SF%MAX_NESTEROV = 2.5*climate%Nesterov_Current(landpt(:)%cstart)
-     !21/8/2025 - test without this limiting - short5 case
-     SF%MAX_NESTEROV = MIN(SF%MAX_NESTEROV,150000.0)
+     SF%MAX_NESTEROV = MIN(SF%MAX_NESTEROV,100000.0)
   ELSE
      SF%MAX_NESTEROV =  climate%Nesterov_ann_running_max(landpt(:)%cstart)
   END IF
