@@ -4867,11 +4867,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                            call fAndAn_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
                               Am, dAmc(i,j),a,b,ctmp,ktau)
                      endif
-                      if (ktau==192213) then
-                        print*,'1.  Rubusco limited ----------------'
-                        print*,'  ktau,a,b,c: ',ktau,a,b,ctmp
-                        print*,'  An: ',Am
-                     endif
+
                       
                      elseif (trim(cable_user%g0_switch) == 'maximum') then
                         ! set g0 to zero initially
@@ -4885,12 +4881,23 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                         else
                            call fAndAn_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
                               Am, dAmc(i,j),a,b,ctmp,ktau)
+                           if (ktau==192213) then
+                              print*,'1.  Rubusco limited ----------------'
+                              print*,'  ktau,a,b,c: ',ktau,a,b,ctmp
+                              print*,'  An: ',Am
+                           endif
                            if (g0 > Am*X) then ! repeat calculation if g0 > A*X
                               call fAndAn_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
                                  Am, dAmc(i,j),a,b,ctmp,ktau)
+                           if (ktau==192213) then
+                              print*,'1.1  g0 > Am*X ----------------'
+                              print*,'  ktau,a,b,c: ',ktau,a,b,ctmp
+                              print*,'  An: ',Am
+                           endif
                            endif
                         endif
                      endif
+
                      anrubiscoz(i,j) = real(Am)
 
                      if (cable_user%explicit_gm) then
@@ -4928,11 +4935,7 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                            call fAndAn_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
                               Am, dAme(i,j),a,b,ctmp,ktau)
                         endif
-                      if (ktau==192213) then
-                        print*,'2.  Rubp limited ----------------'
-                        print*,'  ktau,a,b,c: ',ktau,a,b,ctmp
-                        print*,'  An: ',Am
-                     endif
+
                      elseif (trim(cable_user%g0_switch) == 'maximum') then
                         if (cable_user%explicit_gm) then
                            call fAmdAm_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
@@ -4945,10 +4948,20 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                         else
                            call fAndAn_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
                               Am, dAme(i,j),a,b,ctmp,ktau)
+                           if (ktau==192213) then
+                              print*,'2.  Rubp limited ----------------'
+                              print*,'  ktau,a,b,c: ',ktau,a,b,ctmp
+                              print*,'  An: ',Am
+                           endif
                            ! repeat calculation if g0 > A*X
                            if (g0 > Am*X) then
                               call fAndAn_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
                                  Am, dAme(i,j),a,b,ctmp,ktau)
+                           if (ktau==192213) then
+                              print*,'2.1  g0 > Am*X ----------------'
+                              print*,'  ktau,a,b,c: ',ktau,a,b,ctmp
+                              print*,'  An: ',Am
+                           endif
                            endif
                         endif
                      endif
