@@ -4902,7 +4902,8 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                                  print *, '  An: ', Am
                            call fAn_c3(a, b, ctmp, Amtmp)
                            print*, a, b, ctmp, Amtmp
-                           print*, b**2 - 4.0_r_2 * a * ctmp, (-b-sqrt(b**2 - 4.0_r_2 * a * ctmp)), 2.0_r_2*a, (-b-sqrt(b**2 - 4.0_r_2 * a * ctmp))/(2.0_r_2*a)
+                           print*, b**2 - 4.0_r_2 * a * ctmp, (-b-sqrt(b**2 - 4.0_r_2 * a * ctmp)), &
+                           2.0_r_2*a, (-b-sqrt(b**2 - 4.0_r_2 * a * ctmp))/(2.0_r_2*a)
 
                                  print *, 'cs, X, gamma, beta, gammast, Rd, ', cs, X, gamma, beta, gammast, Rd
                                  print*, '1-x', 1-X*cs
