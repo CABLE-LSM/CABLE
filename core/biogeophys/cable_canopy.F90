@@ -4859,7 +4859,9 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
 
                    if (trim(cable_user%g0_switch) == 'default') then
                       ! get partial derivative of A wrt cs
+                      if (ktau==192213) then
                       print*,'1.  Rubusco limited ----------------'
+                      endif
                       if (cable_user%explicit_gm) then
                          call fAmdAm_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
                               gm, Am, dAmc(i,j))
@@ -4914,7 +4916,9 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                      gm      = gmes(i,j)
 
                      if (trim(cable_user%g0_switch) == 'default') then
+                     if (ktau==192213) then
                      print*,'2.  Rubp limited ----------------'
+                     endif
                         if (cable_user%explicit_gm) then
                            call fAmdAm_c3(cs, g0, X*cs, gamma, beta, gammast, Rd, &
                               gm, Am, dAme(i,j))
@@ -6040,9 +6044,12 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
       real(r_2) :: a, b, c, da, db, dc
 
       call fabc(Cs, g0, x, gamma, beta, Gammastar, Rd,a,b,c)
-      print*,'ktau,a,b,c: ',ktau,a,b,c
+
       call fAn_c3(a, b, c, An)
+      if (ktau==192213) then
+      print*,'ktau,a,b,c: ',ktau,a,b,c
       print*,'An: ',An
+      endif
       call fdabc(Cs, g0, x, gamma, beta, Gammastar, Rd, da, db, dc)
       call fdAn_c3(a, b, c, da, db, dc, dAn)
 
