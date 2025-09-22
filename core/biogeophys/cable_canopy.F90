@@ -4900,11 +4900,11 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                                  print *, '  ktau,k,a,b,c: ', ktau, k, a, b, ctmp
                                  print *, '  An: ', Am
                                  print *, 'cs, X, gamma, beta, gammast, Rd, ', cs, X, gamma, beta, gammast, Rd
-                                 print*, '1-x': 1-X*cs
-                                 print*,'(1-x)*(Rd-gamma)':(1-X*cs)*(Rd-gamma)
-                                 print*,'(1-x)*(Rd-gamma)*cs':(1-X*cs)*(Rd-gamma)*cs
-                                 print*,'-(gamma*gammast+rd*beta)':-(gamma*gammast+Rd*beta)
-                                 print*,'-x(gamma*gammast+rd*beta)':-X*cs*(gamma*gammast+Rd*beta)
+                                 print*, '1-x', 1-X*cs
+                                 print*,'(1-x)*(Rd-gamma)',(1-X*cs)*(Rd-gamma)
+                                 print*,'(1-x)*(Rd-gamma)*cs',(1-X*cs)*(Rd-gamma)*cs
+                                 print*,'-(gamma*gammast+rd*beta)',-(gamma*gammast+Rd*beta)
+                                 print*,'-x(gamma*gammast+rd*beta)',-X*cs*(gamma*gammast+Rd*beta)
                               end if
                            end if
                            if (g0 > Am*X) then ! repeat calculation if g0 > A*X
