@@ -553,58 +553,58 @@ CONTAINS
             fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
             rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
             ghwet, iter, climate, wbpsdo=wbpsdo)
-            !!!!!!!!!!!!!!  wb = ssat, & vpd = 0.6Kpa !!!!!!!!!!!!!!!!!!!!!!
-            !!!!!!!!!!!!!!!! gs_ref
-            wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
-            DO j = 1, mp
-               CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, j, wbpsdo)
-               CALL calc_swp(ssnow, soil, j, wbpsdo)
-            END DO
-            vpdpsdo = SPREAD(real(600,r_2), 1, mp) ! 600Pa
-            dsxpsdo = vpdpsdo
-            dsypsdo = vpdpsdo
-            psilxpsdo = psilx
-            psilypsdo = psily
-            fwsoilpsdo = fwsoil
-            fwsoiltmppsdo = fwsoiltmp
-            fwpsipsdo = fwpsi
-            tlfxpsdo = tlfx
-            tlfypsdo = tlfy
-            ecypsdo = ecy
-            hcypsdo = hcy
-            rnypsdo = rny
-            csxpsdo = csx
-            CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
-            veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo,&
-            fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
-            rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
-            ghwet, iter, climate, wbpsdo=wbpsdo,vpdpsdo=vpdpsdo)
-            !!!!!!!!!!!!!! gs_coeff = 1 !!!!!!!!!!!!!!!!!!!!!!
-            !!!!!!!!!!!!!!!! gs_ref1
-            wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
-            DO j = 1, mp
-               CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, j, wbpsdo)
-               CALL calc_swp(ssnow, soil, j, wbpsdo)
-            END DO
-            fwpsdo = 1.0_r_2
-            dsxpsdo = dsx
-            dsypsdo = dsy
-            psilxpsdo = psilx
-            psilypsdo = psily
-            fwsoilpsdo = fwsoil
-            fwsoiltmppsdo = fwsoiltmp
-            fwpsipsdo = fwpsi
-            tlfxpsdo = tlfx
-            tlfypsdo = tlfy
-            ecypsdo = ecy
-            hcypsdo = hcy
-            rnypsdo = rny
-            csxpsdo = csx
-            CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
-            veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo,&
-            fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
-            rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
-            ghwet, iter, climate, wbpsdo=wbpsdo,fwpsdo=fwpsdo)
+            ! !!!!!!!!!!!!!!  wb = ssat, & vpd = 0.6Kpa !!!!!!!!!!!!!!!!!!!!!!
+            ! !!!!!!!!!!!!!!!! gs_ref
+            ! wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
+            ! DO j = 1, mp
+            !    CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, j, wbpsdo)
+            !    CALL calc_swp(ssnow, soil, j, wbpsdo)
+            ! END DO
+            ! vpdpsdo = SPREAD(real(600,r_2), 1, mp) ! 600Pa
+            ! dsxpsdo = vpdpsdo
+            ! dsypsdo = vpdpsdo
+            ! psilxpsdo = psilx
+            ! psilypsdo = psily
+            ! fwsoilpsdo = fwsoil
+            ! fwsoiltmppsdo = fwsoiltmp
+            ! fwpsipsdo = fwpsi
+            ! tlfxpsdo = tlfx
+            ! tlfypsdo = tlfy
+            ! ecypsdo = ecy
+            ! hcypsdo = hcy
+            ! rnypsdo = rny
+            ! csxpsdo = csx
+            ! CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
+            ! veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo,&
+            ! fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
+            ! rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
+            ! ghwet, iter, climate, wbpsdo=wbpsdo,vpdpsdo=vpdpsdo)
+            ! !!!!!!!!!!!!!! gs_coeff = 1 !!!!!!!!!!!!!!!!!!!!!!
+            ! !!!!!!!!!!!!!!!! gs_ref1
+            ! wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
+            ! DO j = 1, mp
+            !    CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, j, wbpsdo)
+            !    CALL calc_swp(ssnow, soil, j, wbpsdo)
+            ! END DO
+            ! fwpsdo = 1.0_r_2
+            ! dsxpsdo = dsx
+            ! dsypsdo = dsy
+            ! psilxpsdo = psilx
+            ! psilypsdo = psily
+            ! fwsoilpsdo = fwsoil
+            ! fwsoiltmppsdo = fwsoiltmp
+            ! fwpsipsdo = fwpsi
+            ! tlfxpsdo = tlfx
+            ! tlfypsdo = tlfy
+            ! ecypsdo = ecy
+            ! hcypsdo = hcy
+            ! rnypsdo = rny
+            ! csxpsdo = csx
+            ! CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
+            ! veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo,&
+            ! fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
+            ! rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
+            ! ghwet, iter, climate, wbpsdo=wbpsdo,fwpsdo=fwpsdo)
          endif
          if (iter==4) then
             DO j = 1, mp
@@ -4895,34 +4895,34 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
                         else
                            call fAndAn_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
                               Am, dAmc(i,j),a,b,ctmp)
-                           if (present(ktau)) then
-                              if (ktau == 192213) then
-                                 print *, '1.  Rubusco limited ----------------'
-                                 print *, '  ktau,k,a,b,c: ', ktau, k, a, b, ctmp
-                                 print *, '  An: ', Am
-                           call fAn_c3(a, b, ctmp, Amtmp)
-                           print*, a, b, ctmp, Amtmp
-                           print*, b**2 - 4.0_r_2 * a * ctmp, (-b-sqrt(b**2 - 4.0_r_2 * a * ctmp)), &
-                           2.0_r_2*a, (-b-sqrt(b**2 - 4.0_r_2 * a * ctmp))/(2.0_r_2*a)
+                           ! if (present(ktau)) then
+                           !    if (ktau == 192213) then
+                           !       print *, '1.  Rubusco limited ----------------'
+                           !       print *, '  ktau,k,a,b,c: ', ktau, k, a, b, ctmp
+                           !       print *, '  An: ', Am
+                           ! call fAn_c3(a, b, ctmp, Amtmp)
+                           ! print*, a, b, ctmp, Amtmp
+                           ! print*, b**2 - 4.0_r_2 * a * ctmp, (-b-sqrt(b**2 - 4.0_r_2 * a * ctmp)), &
+                           ! 2.0_r_2*a, (-b-sqrt(b**2 - 4.0_r_2 * a * ctmp))/(2.0_r_2*a)
 
-                                 print *, 'cs, X, gamma, beta, gammast, Rd, ', cs, X, gamma, beta, gammast, Rd
-                                 print*, '1-x', 1-X*cs
-                                 print*,'(1-x)*(Rd-gamma)',(1-X*cs)*(Rd-gamma)
-                                 print*,'(1-x)*(Rd-gamma)*cs',(1-X*cs)*(Rd-gamma)*cs
-                                 print*,'-(gamma*gammast+rd*beta)',-(gamma*gammast+Rd*beta)
-                                 print*,'-x(gamma*gammast+rd*beta)',-X*cs*(gamma*gammast+Rd*beta)
-                              end if
-                           end if
+                           !       print *, 'cs, X, gamma, beta, gammast, Rd, ', cs, X, gamma, beta, gammast, Rd
+                           !       print*, '1-x', 1-X*cs
+                           !       print*,'(1-x)*(Rd-gamma)',(1-X*cs)*(Rd-gamma)
+                           !       print*,'(1-x)*(Rd-gamma)*cs',(1-X*cs)*(Rd-gamma)*cs
+                           !       print*,'-(gamma*gammast+rd*beta)',-(gamma*gammast+Rd*beta)
+                           !       print*,'-x(gamma*gammast+rd*beta)',-X*cs*(gamma*gammast+Rd*beta)
+                           !    end if
+                           ! end if
                            if (g0 > Am*X) then ! repeat calculation if g0 > A*X
-                              call fAndAn_c3(cs, g0, 0.1e-12_r_2, gamma, beta, gammast, Rd, &
+                              call fAndAn_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
                                  Am, dAmc(i,j),a,b,ctmp)
-                           if (present(ktau)) then
-                              if (ktau == 192213) then
-                                 print *, '1.1  g0 > Am*X ----------------'
-                                 print *, '  ktau,k,a,b,c: ', ktau, k, a, b, ctmp
-                                 print *, '  An: ', Am
-                              end if
-                           end if
+                           ! if (present(ktau)) then
+                           !    if (ktau == 192213) then
+                           !       print *, '1.1  g0 > Am*X ----------------'
+                           !       print *, '  ktau,k,a,b,c: ', ktau, k, a, b, ctmp
+                           !       print *, '  An: ', Am
+                           !    end if
+                           ! end if
                            endif
                         endif
                      endif
