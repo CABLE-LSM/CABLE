@@ -198,7 +198,7 @@ contains
 
     integer,   dimension(2) :: itmp
     real,      dimension(2) :: r1tmp
-    real(r_2), dimension(2) :: r2tmp
+    real(r2), dimension(2) :: r2tmp
     logical,   dimension(2) :: ltmp
 
     integer(KIND=MPI_ADDRESS_KIND), dimension(2) :: a
@@ -437,12 +437,12 @@ contains
 #else
     use mpi
 #endif
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
     ! variable to add from offset *off* with length *cnt*
-    real(r_2), dimension(:), intent(in) :: var
+    real(r2), dimension(:), intent(in) :: var
     integer,                 intent(in) :: off
     integer,                 intent(in) :: cnt
     ! MPI adress
@@ -570,12 +570,12 @@ contains
 #else
     use mpi
 #endif
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
     ! variable to add from offset *off* with length *cnt*
-    real(r_2), dimension(:,:), intent(in) :: var
+    real(r2), dimension(:,:), intent(in) :: var
     integer,                   intent(in) :: off
     integer,                   intent(in) :: cnt
     ! MPI adress
@@ -703,12 +703,12 @@ contains
 #else
     use mpi
 #endif
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
     ! variable to add from offset *off* with length *cnt*
-    real(r_2), dimension(:,:,:), intent(in) :: var
+    real(r2), dimension(:,:,:), intent(in) :: var
     integer,                     intent(in) :: off
     integer,                     intent(in) :: cnt
     ! MPI adress
@@ -849,12 +849,12 @@ contains
 #else
     use mpi
 #endif
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
     ! variable to add from offset *off* with length *cnt*
-    real(r_2), dimension(:), intent(in) :: var
+    real(r2), dimension(:), intent(in) :: var
     integer,                 intent(in) :: off
     integer,                 intent(in) :: cnt
     ! length of 1st dim of original array
@@ -1007,12 +1007,12 @@ contains
 #else
     use mpi
 #endif
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
     ! variable to add from offset *off* with length *cnt*
-    real(r_2), dimension(:,:), intent(in) :: var
+    real(r2), dimension(:,:), intent(in) :: var
     integer,                   intent(in) :: off
     integer,                   intent(in) :: cnt
     ! length of 1st dim of original array
@@ -1168,12 +1168,12 @@ contains
 #else
     use mpi
 #endif
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
     ! variable to add from offset *off* with length *cnt*
-    real(r_2), dimension(:,:,:), intent(in) :: var
+    real(r2), dimension(:,:,:), intent(in) :: var
     integer,                     intent(in) :: off
     integer,                     intent(in) :: cnt
     ! length of 1st dim of original array

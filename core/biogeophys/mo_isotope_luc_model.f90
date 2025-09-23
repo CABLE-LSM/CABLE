@@ -92,24 +92,24 @@ MODULE mo_isotope_luc_model
   !         call isotope_luc_model(Ciso, A, dA, C=C, S=S, Rs=Rs, T=T, Rt=Rt, At=At, trash=trash)
 
   !     INTENT
-  !>        \param[inout] "real(dp) :: Ciso(1:n)"
+  !>        \param[inout] "real(r2) :: Ciso(1:n)"
   !>                                   On entry: isotope concentrations in land-use classes at time step t-1 [kg/m^2]
   !>                                   On exit:  updated isotope concentrations of land-use classes at time step t [kg/m^2]
-  !>        \param[in]    "real(dp) :: A(1:n)"                   Areas of land-use classes at time step t-1 [m^2]
-  !>        \param[in]    "real(dp) :: dA(1:n,1:n)"              Change from each land-use class to the others
+  !>        \param[in]    "real(r2) :: A(1:n)"                   Areas of land-use classes at time step t-1 [m^2]
+  !>        \param[in]    "real(r2) :: dA(1:n,1:n)"              Change from each land-use class to the others
   !>                                   during the time step [m^2]
-  !>        \param[in]    "real(dp), optional :: C(1:n)"         Non-isotope concentrations in land-use classes
+  !>        \param[in]    "real(r2), optional :: C(1:n)"         Non-isotope concentrations in land-use classes
   !>                                   at time step t-1 [kg/m^2] (default: not used)
-  !>        \param[in]    "real(dp), optional :: S(1:n)"         Sources other than contributions from other land use classes,
+  !>        \param[in]    "real(r2), optional :: S(1:n)"         Sources other than contributions from other land use classes,
   !>                                   for example from other carbon pool [kg/m^2] (default: 0.)
-  !>        \param[in]    "real(dp), optional :: Rs(1:n)"        Isotope ratio of sources (default: 1.)
-  !>        \param[in]    "real(dp), optional :: T(1:n)"         Sinks other than contributions from other land use classes,
+  !>        \param[in]    "real(r2), optional :: Rs(1:n)"        Isotope ratio of sources (default: 1.)
+  !>        \param[in]    "real(r2), optional :: T(1:n)"         Sinks other than contributions from other land use classes,
   !>                                   for example to other carbon pool [kg/m^2] (default: 0.)
-  !>        \param[in]    "real(dp), optional :: Rt(1:n)"        Isotope ratio of sinks
+  !>        \param[in]    "real(r2), optional :: Rt(1:n)"        Isotope ratio of sinks
   !>                                   (default: isotope ratio of pool and land use class)
-  !>        \param[in]    "real(dp), optional :: At(1:n)"         Areas of land-use classes at time step t [m^2]
+  !>        \param[in]    "real(r2), optional :: At(1:n)"         Areas of land-use classes at time step t [m^2]
   !>                                   (default: calculated from A and dA)
-  !>        \param[inout] "real(dp), optional :: trash(1:n)"     Container to store possible inconsistencies,
+  !>        \param[inout] "real(r2), optional :: trash(1:n)"     Container to store possible inconsistencies,
   !>                                   might be numeric, between non-isotope and isotope model [kg/m^2].
   !>                                   Consistency checks are only performed if trash is given in call.
 
@@ -128,7 +128,8 @@ contains
 
   subroutine isotope_luc_model_1d(Ciso, A, dA, C, S, Rs, T, Rt, At, trash)
 
-    use mo_kind,  only: dp, i4
+    use cable_def_types_mod, only: r2
+    use mo_kind,  only: i4
     use mo_utils, only: eq !, ne
 #ifdef __MPI__
     use mpi,      only: MPI_Abort
@@ -136,25 +137,25 @@ contains
 
     implicit none
 
-    real(dp), dimension(:),   intent(inout)           :: Ciso   ! Iso land-use class
-    real(dp), dimension(:),   intent(in)              :: A      ! Area land-use class
-    real(dp), dimension(:,:), intent(in)              :: dA     ! Area changes between land-use classes
-    real(dp), dimension(:),   intent(in),    optional :: C      ! Non-iso land-use class
-    real(dp), dimension(:),   intent(in),    optional :: S      ! Source
-    real(dp), dimension(:),   intent(in),    optional :: Rs     ! Isotope ratio of source
-    real(dp), dimension(:),   intent(in),    optional :: T      ! Sink
-    real(dp), dimension(:),   intent(in),    optional :: Rt     ! Isotope ratio of sink
-    real(dp), dimension(:),   intent(in),    optional :: At     ! New area land-use class
-    real(dp), dimension(:),   intent(inout), optional :: trash  ! garbage can for numerical inconsistencies
+    real(r2), dimension(:),   intent(inout)           :: Ciso   ! Iso land-use class
+    real(r2), dimension(:),   intent(in)              :: A      ! Area land-use class
+    real(r2), dimension(:,:), intent(in)              :: dA     ! Area changes between land-use classes
+    real(r2), dimension(:),   intent(in),    optional :: C      ! Non-iso land-use class
+    real(r2), dimension(:),   intent(in),    optional :: S      ! Source
+    real(r2), dimension(:),   intent(in),    optional :: Rs     ! Isotope ratio of source
+    real(r2), dimension(:),   intent(in),    optional :: T      ! Sink
+    real(r2), dimension(:),   intent(in),    optional :: Rt     ! Isotope ratio of sink
+    real(r2), dimension(:),   intent(in),    optional :: At     ! New area land-use class
+    real(r2), dimension(:),   intent(inout), optional :: trash  ! garbage can for numerical inconsistencies
 
     ! Local variables
     ! integer(i4) :: i  ! counter
     integer(i4) :: nn ! number of pools
-    ! real(dp), dimension(size(Ciso,1)) :: R    ! Isotope ratio of pool
+    ! real(r2), dimension(size(Ciso,1)) :: R    ! Isotope ratio of pool
     ! defaults for optional inputs
-    real(dp), dimension(size(Ciso,1)) :: iC, iS, iRs, iT, iRt
-    real(dp), dimension(size(Ciso,1)) :: Anew ! A at t+dt
-    real(dp), dimension(size(Ciso,1)) :: Cnew ! New C pools
+    real(r2), dimension(size(Ciso,1)) :: iC, iS, iRs, iT, iRt
+    real(r2), dimension(size(Ciso,1)) :: Anew ! A at t+dt
+    real(r2), dimension(size(Ciso,1)) :: Cnew ! New C pools
 #ifdef __MPI__
     integer :: ierr
 #endif
@@ -176,7 +177,7 @@ contains
     endif
 
     ! Check dA >= 0
-    if (any(dA < 0.0_dp)) then
+    if (any(dA < 0.0_r2)) then
        write(*,*) 'Error isotope_luc_model_1d: land area changes between land use classes must be >= 0.'
        write(*,*) '    dA: ', dA
 #ifdef __MPI__
@@ -187,10 +188,10 @@ contains
     endif
 
     ! ! Check dA(i,:) == 0. if Ciso(i) == 0.
-    ! if (any(eq(Ciso,0.0_dp))) then
+    ! if (any(eq(Ciso,0.0_r2))) then
     !    do i=1, nn
-    !       if (eq(Ciso(i),0.0_dp)) then
-    !          if (any(ne(dA(i,:),0.0_dp))) then
+    !       if (eq(Ciso(i),0.0_r2)) then
+    !          if (any(ne(dA(i,:),0.0_r2))) then
     !             write(*,*) 'Error isotope_luc_model_1d: land area changes from land-use class i must be 0'
     !             write(*,*) '                            if isotope carbon concentration of land-use class is 0.'
     !             write(*,*) '    i, Ciso(i): ', i, Ciso(i)
@@ -207,10 +208,10 @@ contains
 
     ! if (present(C)) then
     !    ! Check dA(i,:) == 0. if C(i) == 0.
-    !    if (any(eq(C,0.0_dp))) then
+    !    if (any(eq(C,0.0_r2))) then
     !       do i=1, nn
-    !          if (eq(C(i),0.0_dp)) then
-    !             if (any(ne(dA(i,:),0.0_dp))) then
+    !          if (eq(C(i),0.0_r2)) then
+    !             if (any(ne(dA(i,:),0.0_r2))) then
     !                write(*,*) 'Error isotope_luc_model_1d: land area changes from land-use class i must be 0'
     !                write(*,*) '                            if carbon concentration of land-use class is 0.'
     !                write(*,*) '     i, C(i): ', i, C(i)
@@ -232,28 +233,28 @@ contains
     if (present(C)) then
        iC = C
     else
-       iC = 1.0_dp
+       iC = 1.0_r2
     endif
     if (present(S)) then
        iS = S
     else
-       iS = 0.0_dp
+       iS = 0.0_r2
     endif
     if (present(Rs)) then
        iRs = Rs
     else
-       iRs = 1.0_dp
+       iRs = 1.0_r2
     endif
     if (present(T)) then
        iT = T
     else
-       iT = 0.0_dp
+       iT = 0.0_r2
     endif
     if (present(Rt)) then
        iRt = Rt
     else
-       iRt = 1.0_dp
-       where (iC > 0.0_dp) iRt = Ciso / iC
+       iRt = 1.0_r2
+       where (iC > 0.0_r2) iRt = Ciso / iC
     endif
     ! Land areas at t+dt
     if (present(At)) then
@@ -263,36 +264,36 @@ contains
     endif
 
     ! ! Isotope ratio - not used -> use Ciso=R*iC directly
-    ! R(:) = 1.0_dp
-    ! where (iC > 0.0_dp) R = Ciso / iC
+    ! R(:) = 1.0_r2
+    ! where (iC > 0.0_r2) R = Ciso / iC
 
     ! isotopic LUC model
     ! Ciso = R * iC * (A - sum(dA, dim=2)) + sum(dA * spread(R*iC, dim=2, ncopies=nn), dim=1) + iRs*iS - iRt*iT
     Cnew = Ciso * (A - sum(dA, dim=2)) + sum(dA * spread(Ciso, dim=2, ncopies=nn), dim=1) + iRs*iS - iRt*iT
     if (present(trash)) then
-       where (Anew > 0.0_dp)
+       where (Anew > 0.0_r2)
           Ciso = Cnew / Anew
        elsewhere
-          Ciso     = 0.0_dp
+          Ciso     = 0.0_r2
           trash = trash + Ciso
        endwhere
     else
-       where (Anew > 0.0_dp) Ciso = Cnew / Anew ! keep incoming Ciso if Anew=0.
+       where (Anew > 0.0_r2) Ciso = Cnew / Anew ! keep incoming Ciso if Anew=0.
     endif
 
     if (present(trash)) then
        ! Check final land-use classes
        ! Isotope land-use class became < 0.
-       if (any(Ciso < 0.0_dp)) then
-          trash = trash + merge(abs(Ciso), 0.0_dp, Ciso < 0.0_dp)
-          Ciso = merge(0.0_dp, Ciso, Ciso < 0.0_dp)
+       if (any(Ciso < 0.0_r2)) then
+          trash = trash + merge(abs(Ciso), 0.0_r2, Ciso < 0.0_r2)
+          Ciso = merge(0.0_r2, Ciso, Ciso < 0.0_r2)
        endif
        ! Non-isotope land-use class == 0. but isotope land-use class > 0.
        Cnew = iC * (A - sum(dA, dim=2)) + sum(dA * spread(iC, dim=2, ncopies=nn), dim=1) + iS - iT
-       where (Anew > 0.0_dp) Cnew = Cnew / Anew
-       if (any(eq(Cnew,0.0_dp) .and. (Ciso > 0.0_dp))) then
-          trash = trash + merge(Ciso, 0.0_dp, eq(Cnew,0.0_dp) .and. (Ciso > 0.0_dp))
-          Ciso = merge(0.0_dp, Ciso, eq(Cnew,0.0_dp) .and. (Ciso > 0.0_dp))
+       where (Anew > 0.0_r2) Cnew = Cnew / Anew
+       if (any(eq(Cnew,0.0_r2) .and. (Ciso > 0.0_r2))) then
+          trash = trash + merge(Ciso, 0.0_r2, eq(Cnew,0.0_r2) .and. (Ciso > 0.0_r2))
+          Ciso = merge(0.0_r2, Ciso, eq(Cnew,0.0_r2) .and. (Ciso > 0.0_r2))
        endif
        ! Non-isotope land-use class >0. but isotope land-use class == 0.
        ! ???

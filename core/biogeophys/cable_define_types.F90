@@ -41,11 +41,9 @@ module cable_def_types_mod
        mland     ! # land grid cells
 
   integer, public, parameter :: &
-       ! i_d  = KIND(9), &             ! probably unintended
-       i_d  = SELECTED_INT_kind(9), &  ! as in pop.f90
-       ! r_2  = SELECTED_REAL_KIND(12, 50), & ! old
-       r_1 = c_float, &                ! for writing floats in netcdf files
-       r_2 = kind(1.0d0), &            ! as in pop.f90
+       i4  = SELECTED_INT_kind(9), &  ! as in pop.f90
+       r1 = c_float, &                ! for writing floats in netcdf files
+       r2 = kind(1.0d0), &            ! as in pop.f90
        n_tiles = 17,  & ! # possible no of different
        ncp = 3,       & ! # vegetation carbon stores
        ncs = 2,       & ! # soil carbon stores
@@ -154,7 +152,7 @@ module cable_def_types_mod
           soilcol => null(), & ! keep color for all patches/tiles
           albsoilf => null()   ! soil reflectance
 
-     real(r_2), dimension(:), pointer :: &
+     real(r2), dimension(:), pointer :: &
           cnsd => null(),    & ! thermal conductivity of dry soil [W/m/K]
           pwb_min => null()    ! working variable (swilt/ssat)**ibp2
 
@@ -164,12 +162,12 @@ module cable_def_types_mod
      ! Additional SLI parameters
      integer,   dimension(:),   pointer :: nhorizons => null() ! number of soil horizons
      integer,   dimension(:,:), pointer :: ishorizon => null() ! horizon number 1:nhorizons
-     real(r_2), dimension(:),   pointer :: clitt => null()     ! litter (tC/ha)
-     real(r_2), dimension(:),   pointer :: zeta => null()      ! macropore parameter
-     real(r_2), dimension(:),   pointer :: fsatmax => null()   ! variably saturated area parameter
-     real(r_2), dimension(:,:), pointer :: swilt_vec => null() ! vol H2O @ wilting
-     real(r_2), dimension(:,:), pointer :: ssat_vec => null()  ! vol H2O @ sat
-     real(r_2), dimension(:,:), pointer :: sfc_vec => null()   ! vol H2O @ fc
+     real(r2), dimension(:),   pointer :: clitt => null()     ! litter (tC/ha)
+     real(r2), dimension(:),   pointer :: zeta => null()      ! macropore parameter
+     real(r2), dimension(:),   pointer :: fsatmax => null()   ! variably saturated area parameter
+     real(r2), dimension(:,:), pointer :: swilt_vec => null() ! vol H2O @ wilting
+     real(r2), dimension(:,:), pointer :: ssat_vec => null()  ! vol H2O @ sat
+     real(r2), dimension(:,:), pointer :: sfc_vec => null()   ! vol H2O @ fc
 
   end type soil_parameter_type
 
@@ -243,10 +241,10 @@ module cable_def_types_mod
           evapfbl => null(),    & !
           tilefrac => null()      ! factor for latent heat
 
-     real(r_2), dimension(:), pointer :: &
+     real(r2), dimension(:), pointer :: &
           wbtot => null()   ! total soil water (mm)
 
-     real(r_2), dimension(:,:), pointer :: &
+     real(r2), dimension(:,:), pointer :: &
           gammzz => null(),  & ! heat capacity for each soil layer
           wb => null(),      & ! volumetric soil moisture (solid+liq)
           wbice => null(),   & ! soil ice
@@ -254,39 +252,39 @@ module cable_def_types_mod
           wbfice => null()     !
 
      ! Additional SLI variables:
-     real(r_2), dimension(:,:), pointer :: S => null()         ! moisture content relative to sat value    (edit vh 23/01/08)
-     real(r_2), dimension(:,:), pointer :: Tsoil => null()     ! Tsoil (deg C)
-     real(r_2), dimension(:),   pointer :: SL => null()        ! litter moisture content relative to sat value (edit vh 23/01/08)
-     real(r_2), dimension(:),   pointer :: TL => null()        ! litter temperature in K     (edit vh 23/01/08)
-     real(r_2), dimension(:),   pointer :: h0 => null()        ! pond height in m            (edit vh 23/01/08)
-     real(r_2), dimension(:,:), pointer :: rex => null()       ! root extraction from each layer (mm/dels)
-     real(r_2), dimension(:,:), pointer :: wflux => null()     ! water flux at layer boundaries (mm s-1)
-     real(r_2), dimension(:),   pointer :: delwcol => null()   ! change in water column (mm / dels)
-     real(r_2), dimension(:),   pointer :: zdelta => null()    ! water table depth           (edit vh 23/06/08)
-     real(r_2), dimension(:,:), pointer :: kth => null()       ! thermal conductivity           (edit vh 29/07/08)
-     real(r_2), dimension(:),   pointer :: Tsurface => null()  !  tepmerature at surface (soil, pond or litter) (edit vh 22/10/08)
-     real(r_2), dimension(:),   pointer :: lE => null()      ! soil latent heat flux
-     real(r_2), dimension(:),   pointer :: evap => null()    ! soil evaporation (mm / dels)
-     real(r_2), dimension(:,:), pointer :: ciso => null()    ! concentration of minor isotopologue in soil water (kg m-3 water)
-     real(r_2), dimension(:),   pointer :: cisoL => null()   ! concentration of minor isotopologue in litter water (kg m-3 water)
-     real(r_2), dimension(:),   pointer :: rlitt => null()   ! resistance to heat/moisture transfer through litter (m-1 s)
-     real(r_2), dimension(:,:), pointer :: thetai => null()  ! volumetric ice content (MC)
-     real(r_2), dimension(:,:), pointer :: snowliq => null() ! liquid snow content (mm H2O)
-     real(r_2), dimension(:),   pointer :: nsteps => null()  ! number of iterations at each timestep
-     real(r_2), dimension(:),   pointer :: TsurfaceFR => null() ! temperature at surface (soil, pond or litter) (edit vh 22/10/08)
-     real(r_2), dimension(:,:), pointer :: Ta_daily => null() ! air temp averaged over last 24h
+     real(r2), dimension(:,:), pointer :: S => null()         ! moisture content relative to sat value    (edit vh 23/01/08)
+     real(r2), dimension(:,:), pointer :: Tsoil => null()     ! Tsoil (deg C)
+     real(r2), dimension(:),   pointer :: SL => null()        ! litter moisture content relative to sat value (edit vh 23/01/08)
+     real(r2), dimension(:),   pointer :: TL => null()        ! litter temperature in K     (edit vh 23/01/08)
+     real(r2), dimension(:),   pointer :: h0 => null()        ! pond height in m            (edit vh 23/01/08)
+     real(r2), dimension(:,:), pointer :: rex => null()       ! root extraction from each layer (mm/dels)
+     real(r2), dimension(:,:), pointer :: wflux => null()     ! water flux at layer boundaries (mm s-1)
+     real(r2), dimension(:),   pointer :: delwcol => null()   ! change in water column (mm / dels)
+     real(r2), dimension(:),   pointer :: zdelta => null()    ! water table depth           (edit vh 23/06/08)
+     real(r2), dimension(:,:), pointer :: kth => null()       ! thermal conductivity           (edit vh 29/07/08)
+     real(r2), dimension(:),   pointer :: Tsurface => null()  !  tepmerature at surface (soil, pond or litter) (edit vh 22/10/08)
+     real(r2), dimension(:),   pointer :: lE => null()      ! soil latent heat flux
+     real(r2), dimension(:),   pointer :: evap => null()    ! soil evaporation (mm / dels)
+     real(r2), dimension(:,:), pointer :: ciso => null()    ! concentration of minor isotopologue in soil water (kg m-3 water)
+     real(r2), dimension(:),   pointer :: cisoL => null()   ! concentration of minor isotopologue in litter water (kg m-3 water)
+     real(r2), dimension(:),   pointer :: rlitt => null()   ! resistance to heat/moisture transfer through litter (m-1 s)
+     real(r2), dimension(:,:), pointer :: thetai => null()  ! volumetric ice content (MC)
+     real(r2), dimension(:,:), pointer :: snowliq => null() ! liquid snow content (mm H2O)
+     real(r2), dimension(:),   pointer :: nsteps => null()  ! number of iterations at each timestep
+     real(r2), dimension(:),   pointer :: TsurfaceFR => null() ! temperature at surface (soil, pond or litter) (edit vh 22/10/08)
+     real(r2), dimension(:,:), pointer :: Ta_daily => null() ! air temp averaged over last 24h
      integer, dimension(:),     pointer :: nsnow => null() ! number of layers in snow-pack (0-nsnow_max)
-     real(r_2), dimension(:),   pointer :: Qadv_daily => null() ! advective heat flux into surface , daily average (W m-2)
-     real(r_2), dimension(:),   pointer :: G0_daily => null()  ! conductive heat flux into surface , daily average (W m-2)
-     real(r_2), dimension(:),   pointer :: Qevap_daily => null() ! evaporative flux at surface, daily average (m s-1)
-     real(r_2), dimension(:),   pointer :: Qprec_daily => null() ! liquid precip, daily average (m s-1)
-     real(r_2), dimension(:),   pointer :: Qprec_snow_daily => null() ! solid precip, daily average (m s-1)
-     real(r_2), dimension(:),   pointer :: E_fusion_sn => null()
-     real(r_2), dimension(:),   pointer :: E_sublimation_sn => null()
-     real(r_2), dimension(:),   pointer :: latent_heat_sn => null()
-     real(r_2), dimension(:),   pointer :: evap_liq_sn => null()
-     real(r_2), dimension(:),   pointer :: surface_melt => null()
-     real(r_2), dimension(:),   pointer :: Qadv_rain_sn => null()
+     real(r2), dimension(:),   pointer :: Qadv_daily => null() ! advective heat flux into surface , daily average (W m-2)
+     real(r2), dimension(:),   pointer :: G0_daily => null()  ! conductive heat flux into surface , daily average (W m-2)
+     real(r2), dimension(:),   pointer :: Qevap_daily => null() ! evaporative flux at surface, daily average (m s-1)
+     real(r2), dimension(:),   pointer :: Qprec_daily => null() ! liquid precip, daily average (m s-1)
+     real(r2), dimension(:),   pointer :: Qprec_snow_daily => null() ! solid precip, daily average (m s-1)
+     real(r2), dimension(:),   pointer :: E_fusion_sn => null()
+     real(r2), dimension(:),   pointer :: E_sublimation_sn => null()
+     real(r2), dimension(:),   pointer :: latent_heat_sn => null()
+     real(r2), dimension(:),   pointer :: evap_liq_sn => null()
+     real(r2), dimension(:),   pointer :: surface_melt => null()
+     real(r2), dimension(:),   pointer :: Qadv_rain_sn => null()
 
   end type soil_snow_type
 
@@ -356,16 +354,16 @@ module cable_def_types_mod
           froot => null()      ! fraction of root in each soil layer
 
      ! Additional  veg parameters:
-     real(r_2), dimension(:), pointer :: rootbeta => null() ! parameter for estimating vertical root mass distribution (froot)
-     real(r_2), dimension(:), pointer :: gamma => null()    ! parameter in root efficiency function (Lai and Katul 2000)
-     real(r_2), dimension(:), pointer :: ZR => null()       ! maximum rooting depth (cm)
-     real(r_2), dimension(:), pointer :: F10 => null()      ! fraction of roots in top 10 cm
+     real(r2), dimension(:), pointer :: rootbeta => null() ! parameter for estimating vertical root mass distribution (froot)
+     real(r2), dimension(:), pointer :: gamma => null()    ! parameter in root efficiency function (Lai and Katul 2000)
+     real(r2), dimension(:), pointer :: ZR => null()       ! maximum rooting depth (cm)
+     real(r2), dimension(:), pointer :: F10 => null()      ! fraction of roots in top 10 cm
 
-     real(r_2), dimension(:), pointer :: clitt => null()     !
+     real(r2), dimension(:), pointer :: clitt => null()     !
 
      ! Additional POP veg param
      integer,   dimension(:,:), pointer :: disturbance_interval => null()
-     real(r_2), dimension(:,:), pointer :: disturbance_intensity => null()
+     real(r2), dimension(:,:), pointer :: disturbance_intensity => null()
 
   end type veg_parameter_type
 
@@ -429,7 +427,7 @@ module cable_def_types_mod
                                 !! vh_js !!
           zetash => null()     ! stability parameter (shear height)
 
-     real(r_2), dimension(:), pointer :: &
+     real(r2), dimension(:), pointer :: &
           fess => null(),    & ! latent heatfl from soil (W/m2)
           fesp => null(),    & ! latent heatfl from soil (W/m2)
           dgdtg => null(),   & ! derivative of gflux wrt soil temp
@@ -464,29 +462,29 @@ module cable_def_types_mod
           dlf => null()        ! dryleaf vp minus in-canopy vp (Pa)
 
      ! Additional variables:
-     real(r_2), dimension(:,:),   pointer :: gw => null()     ! dry canopy conductance (ms-1) edit vh 6/7/09
-     real(r_2), dimension(:,:,:), pointer :: ancj => null()   ! limiting photosynthetic rates (Rubisco,RuBP,sink) vh 6/7/09
-     real(r_2), dimension(:,:),   pointer :: tlfy => null()   ! sunlit and shaded leaf temperatures
-     real(r_2), dimension(:,:),   pointer :: ecy => null()    ! sunlit and shaded leaf transpiration (dry canopy)
-     real(r_2), dimension(:,:),   pointer :: ecx => null()    ! sunlit and shaded leaf latent heat flux
-     ! REAL(r_2), DIMENSION(:,:,:), POINTER :: ci => null()     ! intra-cellular CO2 vh 6/7/09
-     real(r_2), dimension(:),     pointer :: fwsoil => null() !
+     real(r2), dimension(:,:),   pointer :: gw => null()     ! dry canopy conductance (ms-1) edit vh 6/7/09
+     real(r2), dimension(:,:,:), pointer :: ancj => null()   ! limiting photosynthetic rates (Rubisco,RuBP,sink) vh 6/7/09
+     real(r2), dimension(:,:),   pointer :: tlfy => null()   ! sunlit and shaded leaf temperatures
+     real(r2), dimension(:,:),   pointer :: ecy => null()    ! sunlit and shaded leaf transpiration (dry canopy)
+     real(r2), dimension(:,:),   pointer :: ecx => null()    ! sunlit and shaded leaf latent heat flux
+     ! REAL(r2), DIMENSION(:,:,:), POINTER :: ci => null()     ! intra-cellular CO2 vh 6/7/09
+     real(r2), dimension(:),     pointer :: fwsoil => null() !
 
      ! vh_js - litter thermal conductivity (Wm-2K-1) and vapour diffusivity (m2s-1)
-     real(r_2), dimension(:), pointer :: kthLitt => null()
-     real(r_2), dimension(:), pointer :: DvLitt => null()
+     real(r2), dimension(:), pointer :: kthLitt => null()
+     real(r2), dimension(:), pointer :: DvLitt => null()
 
      ! 13C
-     real(r_2), dimension(:,:), pointer :: An => null()        ! sunlit and shaded net assimilation [mol(CO2)/m2/s]
-     real(r_2), dimension(:,:), pointer :: Rd => null()        ! sunlit and shaded leaf respiration [mol(CO2)/m2/s]
+     real(r2), dimension(:,:), pointer :: An => null()        ! sunlit and shaded net assimilation [mol(CO2)/m2/s]
+     real(r2), dimension(:,:), pointer :: Rd => null()        ! sunlit and shaded leaf respiration [mol(CO2)/m2/s]
      logical,   dimension(:),   pointer :: isc3 => null()      ! C3 / C4 mask
-     real(r_2), dimension(:,:), pointer :: vcmax => null()     ! max RuBP carboxylation rate [mol(CO2)/m2/s]
+     real(r2), dimension(:,:), pointer :: vcmax => null()     ! max RuBP carboxylation rate [mol(CO2)/m2/s]
      ! CO2 compensation point in absence of dark respiration [mol(CO2)/mol(air)]
-     real(r_2), dimension(:,:), pointer :: gammastar => null()
-     real(r_2), dimension(:,:), pointer :: gsc => null()       ! stomatal conductance for CO2 [mol(CO2)/m^2/s]
-     real(r_2), dimension(:,:), pointer :: gbc => null()       ! leaf boundary layer conductance for CO2 [mol(CO2)/m^2/s]
-     real(r_2), dimension(:,:), pointer :: gac => null()       ! aerodynamic conductance for CO2 [mol(CO2)/m^2/s]
-     real(r_2), dimension(:,:), pointer :: ci => null()        ! stomatal CO2 concentration [mol(CO2)/mol(air)]
+     real(r2), dimension(:,:), pointer :: gammastar => null()
+     real(r2), dimension(:,:), pointer :: gsc => null()       ! stomatal conductance for CO2 [mol(CO2)/m^2/s]
+     real(r2), dimension(:,:), pointer :: gbc => null()       ! leaf boundary layer conductance for CO2 [mol(CO2)/m^2/s]
+     real(r2), dimension(:,:), pointer :: gac => null()       ! aerodynamic conductance for CO2 [mol(CO2)/m^2/s]
+     real(r2), dimension(:,:), pointer :: ci => null()        ! stomatal CO2 concentration [mol(CO2)/mol(air)]
 
   end type canopy_type
 

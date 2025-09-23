@@ -162,11 +162,11 @@ CONTAINS
 
       canopy%fh = canopy%fhv + canopy%fhs
 
-      canopy%fes = canopy%fes + real(ssnow%tss-ssnow%otss, r_2) * &
-                real(ssnow%dfe_ddq * ssnow%ddq_dtg, r_2)
+      canopy%fes = canopy%fes + real(ssnow%tss-ssnow%otss, r2) * &
+                real(ssnow%dfe_ddq * ssnow%ddq_dtg, r2)
                 !( ssnow%cls * ssnow%dfe_ddq * ssnow%ddq_dtg )
-      canopy%fes_cor = canopy%fes_cor + real(ssnow%tss-ssnow%otss, r_2) * &
-                    real(ssnow%cls * ssnow%dfe_ddq * ssnow%ddq_dtg, r_2)
+      canopy%fes_cor = canopy%fes_cor + real(ssnow%tss-ssnow%otss, r2) * &
+                    real(ssnow%cls * ssnow%dfe_ddq * ssnow%ddq_dtg, r2)
 
    ENDIF
 

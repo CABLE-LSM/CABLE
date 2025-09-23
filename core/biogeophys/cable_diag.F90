@@ -35,7 +35,7 @@
 
 !#define UM_BUILD YES
 MODULE cable_diag_module
-  use cable_def_types_mod, only : r_2
+  use cable_def_types_mod, only : r2
    IMPLICIT NONE
    INTEGER, PARAMETER :: gok=0
    INTEGER :: galloctest=1
@@ -499,10 +499,10 @@ END SUBROUTINE cable_diag_data1
 
   subroutine put_var_ncr2(ncid, var_name, var, n_call)
     use netcdf
-    use cable_def_types_mod, only : r_2, mp
+    use cable_def_types_mod, only : r2, mp
     implicit none
     character(len=*), intent(in) ::  var_name
-    real(r_2), dimension(:),intent(in) :: var
+    real(r2), dimension(:),intent(in) :: var
     integer, intent(in) :: ncid, n_call
     integer :: ncok, varID
 
@@ -519,12 +519,12 @@ END SUBROUTINE cable_diag_data1
   subroutine put_var_ncr3(ncid, var_name, var, n_call, nl)
     
     use netcdf
-    use cable_def_types_mod, only : r_2, mp
+    use cable_def_types_mod, only : r2, mp
     
     implicit none
     
     character(len=*), intent(in) :: var_name
-    real(r_2), dimension(:,:),intent(in) :: var
+    real(r2), dimension(:,:),intent(in) :: var
     integer, intent(in) :: ncid, n_call, nl
     integer :: ncok, varID
 
@@ -543,13 +543,13 @@ END SUBROUTINE cable_diag_data1
   subroutine get_var_ncr2(ncid, var_name, var, n_call)
     
     use netcdf,              only: nf90_inq_varid, nf90_noerr, nf90_get_var
-    use cable_def_types_mod, only: r_2,mp
+    use cable_def_types_mod, only: r2,mp
     
     implicit none
     
     integer,                 intent(in)  :: ncid
     character(len=*),        intent(in)  :: var_name
-    real(r_2), dimension(:), intent(out) :: var
+    real(r2), dimension(:), intent(out) :: var
     integer,                 intent(in)  :: n_call
     
     integer :: ncok, varID
@@ -567,13 +567,13 @@ END SUBROUTINE cable_diag_data1
   subroutine get_var_ncr3(ncid, var_name, var, n_call, nl)
 
     use netcdf,              only: nf90_inq_varid, nf90_noerr, nf90_get_var
-    use cable_def_types_mod, only : r_2, mp
+    use cable_def_types_mod, only : r2, mp
     
     implicit none
     
     integer,                   intent(in)  :: ncid
     character(len=*),          intent(in)  :: var_name
-    real(r_2), dimension(:,:), intent(out) :: var
+    real(r2), dimension(:,:), intent(out) :: var
     integer,                   intent(in)  :: n_call
     integer,                   intent(in)  :: nl
     

@@ -35,7 +35,7 @@
 !==============================================================================
 
 MODULE cable_input_module
-! Note that any precision changes from r_1 to REAL(4) enable running with -r8
+! Note that any precision changes from r1 to REAL(4) enable running with -r8
 !
    USE cable_abort_module,      ONLY: cable_abort, nc_abort
    USE cable_def_types_mod
@@ -401,13 +401,13 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
         precipTot,              & ! used for spinup adj
         avPrecipInMet             ! used for spinup adj
    CHARACTER(LEN=10)                :: todaydate, nowtime ! used to timestamp log file
-   REAL(r_1),DIMENSION(1)             :: data1 ! temp variable for netcdf reading
-   REAL(r_1),DIMENSION(1,1)           :: data2 ! temp variable for netcdf reading
-   REAL(r_1), DIMENSION(:),     ALLOCATABLE :: temparray1  ! temp read in variable
-   REAL(r_1), DIMENSION(:,:),   ALLOCATABLE :: &
+   REAL(r1),DIMENSION(1)             :: data1 ! temp variable for netcdf reading
+   REAL(r1),DIMENSION(1,1)           :: data2 ! temp variable for netcdf reading
+   REAL(r1), DIMENSION(:),     ALLOCATABLE :: temparray1  ! temp read in variable
+   REAL(r1), DIMENSION(:,:),   ALLOCATABLE :: &
         tempPrecip2,            & ! used for spinup adj
         temparray2                ! temp read in variable
-   REAL(r_1), DIMENSION(:,:,:), ALLOCATABLE :: tempPrecip3 ! used for spinup adj
+   REAL(r1), DIMENSION(:,:,:), ALLOCATABLE :: tempPrecip3 ! used for spinup adj
    LOGICAL                          ::                                         &
         all_met     ! ALL required met in met file (no synthesis)?
 #ifdef __MPI__
@@ -531,7 +531,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error reading latitude variable in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
-    ! Needed since r_1 will be double precision with -r8:
+    ! Needed since r1 will be double precision with -r8:
     lat_all = REAL(temparray2)
     ! Find longitude variable (try 'longitude' and 'nav_lon'(ALMA)):
     ok = NF90_INQ_VARID(ncid_met, 'longitude', longitudeID)
@@ -548,7 +548,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     IF(ok /= NF90_NOERR) CALL nc_abort &
          (ok,'Error reading longitude variable in met data file ' &
          //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
-    ! Needed since r_1 will be double precision with -r8:
+    ! Needed since r1 will be double precision with -r8:
     lon_all = REAL(temparray2)
     DEALLOCATE(temparray2)
 
@@ -598,7 +598,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
           IF(ok /= NF90_NOERR) CALL nc_abort &
                (ok,'Error reading "land" variable in ' &
                //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
-          ! Needed since r_1 will be double precision with -r8:
+          ! Needed since r1 will be double precision with -r8:
           landGrid = nint(temparray1)
           DEALLOCATE(temparray1)
           ! Allocate latitude and longitude variables:
@@ -744,7 +744,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     IF (ncciy > 0) THEN
       write(*,*) 'original timevar(kend) = ', timevar(kend)
       DO i = 1, kend - 1
-        timevar(i+1) = timevar(i) + real(dels,r_2)
+        timevar(i+1) = timevar(i) + real(dels,r2)
       ENDDO
       write(*,*) 'New      timevar(kend) = ', timevar(kend)
     END IF
@@ -761,11 +761,11 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
     !****** PALS met file has timevar(1)=0 while timeunits from 00:30:00 ******
     !!CLN CRITICAL! From my point of view, the information in the file is correct...
     !!CLN WHY DO the input files all have bugs???
-    IF (eq(timevar(1), 0.0_r_2)) THEN
+    IF (eq(timevar(1), 0.0_r2)) THEN
       READ(timeunits(29:30),*) tsmin
       IF (tsmin*60.0 >= dels) THEN
         tsmin = tsmin - INT(dels / 60)
-        timevar = timevar + real(dels,r_2)
+        timevar = timevar + real(dels,r2)
         WRITE(timeunits(29:30),'(i2.2)') tsmin
       ENDIF
     ENDIF
@@ -1296,7 +1296,7 @@ SUBROUTINE open_met_file(dels,koffset,kend,spinup, TFRZ)
              IF(ok /= NF90_NOERR) CALL nc_abort &
                   (ok,'Error reading avPrecip in met data file ' &
                   //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
-             ! Needed since r_1 will be double precision with -r8:
+             ! Needed since r1 will be double precision with -r8:
              avPrecip = REAL(temparray1)
              DEALLOCATE(temparray1)
           END IF
@@ -1546,7 +1546,7 @@ END SUBROUTINE open_met_file
 
 SUBROUTINE get_met_data(spinup, spinConv, met, rad, &
      veg, dels, TFRZ, ktau, kstart)
-   ! Precision changes from REAL(4) to r_1 enable running with -r8
+   ! Precision changes from REAL(4) to r1 enable running with -r8
 
    use mo_utils, only: eq
 #ifdef __MPI__
@@ -1569,10 +1569,10 @@ SUBROUTINE get_met_data(spinup, spinConv, met, rad, &
 
    ! Local variables
    INTEGER                           :: i,j ! do loop counter
-   REAL(KIND=r_1),ALLOCATABLE,DIMENSION(:)       :: tmpDat1
-   REAL(KIND=r_1),ALLOCATABLE,DIMENSION(:,:)     :: tmpDat2, tmpDat2x
-   REAL(KIND=r_1),ALLOCATABLE,DIMENSION(:,:,:)   :: tmpDat3, tmpDat3x
-   REAL(KIND=r_1),ALLOCATABLE,DIMENSION(:,:,:,:) :: tmpDat4, tmpDat4x
+   REAL(KIND=r1),ALLOCATABLE,DIMENSION(:)       :: tmpDat1
+   REAL(KIND=r1),ALLOCATABLE,DIMENSION(:,:)     :: tmpDat2, tmpDat2x
+   REAL(KIND=r1),ALLOCATABLE,DIMENSION(:,:,:)   :: tmpDat3, tmpDat3x
+   REAL(KIND=r1),ALLOCATABLE,DIMENSION(:,:,:,:) :: tmpDat4, tmpDat4x
 #ifdef __MPI__
    integer :: ierr
 #endif
@@ -2779,7 +2779,7 @@ SUBROUTINE get_parameters_met(soil,veg,bgc,rough,completeSet)
    CALL readpar(ncid_met, 'patchfrac', completeSet, tmp, filename%met, nmetpatches, 'def')
 
 
-   if (completeSet) patch(:)%frac = real(tmp,r_2)
+   if (completeSet) patch(:)%frac = real(tmp,r2)
    deallocate(tmp)
    ! CALL readpar(ncid_met,'isoil',completeSet,soil%isoilm,filename%met, &
    !      nmetpatches,'def')

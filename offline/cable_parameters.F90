@@ -1142,7 +1142,7 @@ CONTAINS
     INTEGER :: is       ! YP oct07
     INTEGER :: ir       ! BP sep2010
     REAL :: totdepth    ! YP oct07
-    REAL(r_2) :: tmp    ! BP sep2010
+    REAL(r2) :: tmp    ! BP sep2010
 #ifdef __MPI__
     integer :: ierr
 #endif
@@ -1166,7 +1166,7 @@ CONTAINS
     ssnow%osnowd   = 0.0   ! snow depth prev timestep (mm or kg/m2)
     ssnow%sdepth   = 0.0   ! snow depth for each snow layer (BP jul2010)
     ssnow%snage    = 0.0   ! snow age
-    ssnow%wbice    = 0.0_r_2 ! soil ice
+    ssnow%wbice    = 0.0_r2 ! soil ice
     ssnow%thetai   = 0.0   ! soil ice
     ssnow%smass    = 0.0   ! snow mass per layer (kg/m^2)
     ssnow%runoff   = 0.0   ! runoff total = subsurface + surface runoff
@@ -1188,13 +1188,13 @@ CONTAINS
     canopy%fh      = 0.0  ! sensible heat flux
     canopy%fe      = 0.0  ! sensible heat flux
     ! IF (hide%Ticket49Bug2) THEN
-    canopy%ofes   = 0.0_r_2 ! latent heat flux from soil (W/m2)
-    canopy%fevc   = 0.0_r_2 !vh!
+    canopy%ofes   = 0.0_r2 ! latent heat flux from soil (W/m2)
+    canopy%fevc   = 0.0_r2 !vh!
     canopy%fevw   = 0.0     !vh!
     canopy%fns    = 0.0
     canopy%fnv    = 0.0
     canopy%fhv    = 0.0
-    canopy%fwsoil = 1.0_r_2 ! vh -should be calculated from soil moisture
+    canopy%fwsoil = 1.0_r2 ! vh -should be calculated from soil moisture
     rad%fvlai     = 0.0
 
     ! parameters that are not spatially dependent
@@ -1246,7 +1246,7 @@ CONTAINS
        veg%iveg(landpt(e)%cstart:landpt(e)%cend) = &
             inVeg(landpt(e)%ilon, landpt(e)%ilat, 1:landpt(e)%nap)
        patch(landpt(e)%cstart:landpt(e)%cend)%frac = &
-            real(inPFrac(landpt(e)%ilon, landpt(e)%ilat, 1:landpt(e)%nap), r_2)
+            real(inPFrac(landpt(e)%ilon, landpt(e)%ilat, 1:landpt(e)%nap), r2)
        ! set land use (1 = primary; 2 = secondary, 3 = open)
        veg%iLU(landpt(e)%cstart:landpt(e)%cend)= 1
        veg%ivegp(landpt(e)%cstart:landpt(e)%cend) = veg%iveg(landpt(e)%cstart:landpt(e)%cend)
@@ -1264,15 +1264,15 @@ CONTAINS
 
        endif
        ! Check that patch fractions total to 1
-       tmp = 0.0_r_2
+       tmp = 0.0_r2
        IF (landpt(e)%cstart == landpt(e)%cend) THEN
-          patch(landpt(e)%cstart)%frac = 1.0_r_2
+          patch(landpt(e)%cstart)%frac = 1.0_r2
        ELSE
           DO is = landpt(e)%cstart, landpt(e)%cend
              tmp = tmp + patch(is)%frac
           END DO
-          IF (ABS(1.0_r_2 - tmp) > 0.001_r_2) THEN
-             IF ((1.0_r_2 - tmp) < -0.001_r_2 .OR. (1.0_r_2 - tmp) > 0.5_r_2) THEN
+          IF (ABS(1.0_r2 - tmp) > 0.001_r2) THEN
+             IF ((1.0_r2 - tmp) < -0.001_r2 .OR. (1.0_r2 - tmp) > 0.5_r2) THEN
                 write(*,*) 'Investigate the discrepancy in patch fractions:'
                 write(*,*) 'patch%frac = ', patch(landpt(e)%cstart:landpt(e)%cend)%frac
                 write(*,*) 'landpoint # ', e
@@ -1283,7 +1283,7 @@ CONTAINS
                 stop 76
 #endif
              END IF
-             patch(landpt(e)%cstart)%frac = patch(landpt(e)%cstart)%frac + 1.0_r_2 - tmp
+             patch(landpt(e)%cstart)%frac = patch(landpt(e)%cstart)%frac + 1.0_r2 - tmp
           END IF
        END IF
 
@@ -1301,7 +1301,7 @@ CONTAINS
           ssnow%tgg(landpt(e)%cstart:landpt(e)%cend, is) = &
                inTGG(landpt(e)%ilon,landpt(e)%ilat, min(is,size(inTGG,3)), month)
           ssnow%wb(landpt(e)%cstart:landpt(e)%cend, is) = &
-               real(inWB(landpt(e)%ilon, landpt(e)%ilat, min(is,size(inTGG,3)), month), r_2)
+               real(inWB(landpt(e)%ilon, landpt(e)%ilat, min(is,size(inTGG,3)), month), r2)
        END DO
        ssnow%tss(landpt(e)%cstart:landpt(e)%cend) = ssnow%tgg(landpt(e)%cstart:landpt(e)%cend, 1)
        ssnow%otss(landpt(e)%cstart:landpt(e)%cend) = ssnow%tgg(landpt(e)%cstart:landpt(e)%cend, 1)
@@ -1397,10 +1397,10 @@ CONTAINS
 
           ! In case gridinfo file provides more patches than met file(BP may08)
           DO f = nmetpatches+1, landpt(e)%nap
-             IF (patch(landpt(e)%cstart + f - 1)%frac > 0.0_r_2) THEN
+             IF (patch(landpt(e)%cstart + f - 1)%frac > 0.0_r2) THEN
                 patch(landpt(e)%cstart)%frac = patch(landpt(e)%cstart)%frac &
                      + patch(landpt(e)%cstart + f - 1)%frac
-                patch(landpt(e)%cstart + f - 1)%frac = 0.0_r_2
+                patch(landpt(e)%cstart + f - 1)%frac = 0.0_r2
              END IF
           END DO
        END IF
@@ -1431,8 +1431,8 @@ CONTAINS
           veg%hc(h)      = vegin%hc(veg%iveg(h))
           veg%xfang(h)   = vegin%xfang(veg%iveg(h))
           veg%vbeta(h)   = vegin%vbeta(veg%iveg(h))
-          veg%zr(h)      = real(vegin%zr(veg%iveg(h)), r_2)
-          veg%clitt(h)   = real(vegin%clitt(veg%iveg(h)), r_2)
+          veg%zr(h)      = real(vegin%zr(veg%iveg(h)), r2)
+          veg%clitt(h)   = real(vegin%clitt(veg%iveg(h)), r2)
           veg%g0(h)      = vegin%g0(veg%iveg(h))
           veg%g1(h)      = vegin%g1(veg%iveg(h))
           veg%xalbnir(h) = vegin%xalbnir(veg%iveg(h))
@@ -1461,7 +1461,7 @@ CONTAINS
 
           veg%convex(h)   = vegin%convex(veg%iveg(h))
           ! Alexis, adding gamma
-          veg%gamma(h)    = real(vegin%gamma(veg%iveg(h)),r_2)
+          veg%gamma(h)    = real(vegin%gamma(veg%iveg(h)),r2)
           veg%cfrd(h)     = vegin%cfrd(veg%iveg(h))
           veg%gswmin(h)   = vegin%gswmin(veg%iveg(h))
           veg%conkc0(h)   = vegin%conkc0(veg%iveg(h))
@@ -1583,9 +1583,9 @@ CONTAINS
     ENDWHERE
     ! Soil ice:
     WHERE(ssnow%tgg(:, :) < 273.15)
-       ssnow%wbice(:,:)  = ssnow%wb(:, :) * 0.8_r_2
+       ssnow%wbice(:,:)  = ssnow%wb(:, :) * 0.8_r2
     ELSEWHERE
-       ssnow%wbice(:, :) = 0.0_r_2
+       ssnow%wbice(:, :) = 0.0_r2
     END WHERE
 
     ! IF(hide%Ticket49Bug5) THEN
@@ -1594,64 +1594,64 @@ CONTAINS
 
     ! SLI specific initialisations:
     !  IF(cable_user%SOIL_STRUC=='sli') THEN
-    ssnow%h0(:)        = 0.0_r_2
-    ssnow%S(:,:)       = ssnow%wb(:,:)/SPREAD(real(soil%ssat,r_2),2,ms)
-    ssnow%snowliq(:,:) = 0.0_r_2
-    ssnow%Tsurface     = 25.0_r_2
+    ssnow%h0(:)        = 0.0_r2
+    ssnow%S(:,:)       = ssnow%wb(:,:)/SPREAD(real(soil%ssat,r2),2,ms)
+    ssnow%snowliq(:,:) = 0.0_r2
+    ssnow%Tsurface     = 25.0_r2
     ssnow%nsnow        = 0
-    ssnow%Tsoil        = real(ssnow%tgg,r_2) - 273.15_r_2
-    ssnow%thetai       = 0.0_r_2
-    soil%zeta          = 0.0_r_2
-    soil%fsatmax       = 0.0_r_2
+    ssnow%Tsoil        = real(ssnow%tgg,r2) - 273.15_r2
+    ssnow%thetai       = 0.0_r2
+    soil%zeta          = 0.0_r2
+    soil%fsatmax       = 0.0_r2
     !   END IF
 
     IF(cable_user%SOIL_STRUC=='sli') THEN
        soil%nhorizons = 1 ! use 1 soil horizon globally
-       ! veg%clitt = 5.0_r_2 ! (tC / ha)
-       ! veg%F10 = 0.85_r_2
-       ! veg%ZR = 5.0_r_2
+       ! veg%clitt = 5.0_r2 ! (tC / ha)
+       ! veg%F10 = 0.85_r2
+       ! veg%ZR = 5.0_r2
     END IF
 
     !! vh_js !!
     IF(cable_user%CALL_POP) THEN
        veg%disturbance_interval  = 100
-       veg%disturbance_intensity = 0.0_r_2
+       veg%disturbance_intensity = 0.0_r2
     ENDIF
 
     ! GPP_components
-    canopy%A_shC          = 0.0_r_2
-    canopy%A_shJ          = 0.0_r_2
-    canopy%A_slC          = 0.0_r_2
-    canopy%A_slJ          = 0.0_r_2
-    canopy%GPP_sh         = 0.0_r_2
-    canopy%GPP_sl         = 0.0_r_2
-    canopy%eta_A_cs       = 0.0_r_2
-    canopy%eta_GPP_cs     = 0.0_r_2
-    canopy%eta_fevc_cs    = 0.0_r_2
-    canopy%eta_A_cs_sl    = 0.0_r_2
-    canopy%eta_fevc_cs_sl = 0.0_r_2
-    canopy%GPP_sh         = 0.0_r_2
-    canopy%eta_A_cs_sh    = 0.0_r_2
-    canopy%eta_fevc_cs_sh = 0.0_r_2
+    canopy%A_shC          = 0.0_r2
+    canopy%A_shJ          = 0.0_r2
+    canopy%A_slC          = 0.0_r2
+    canopy%A_slJ          = 0.0_r2
+    canopy%GPP_sh         = 0.0_r2
+    canopy%GPP_sl         = 0.0_r2
+    canopy%eta_A_cs       = 0.0_r2
+    canopy%eta_GPP_cs     = 0.0_r2
+    canopy%eta_fevc_cs    = 0.0_r2
+    canopy%eta_A_cs_sl    = 0.0_r2
+    canopy%eta_fevc_cs_sl = 0.0_r2
+    canopy%GPP_sh         = 0.0_r2
+    canopy%eta_A_cs_sh    = 0.0_r2
+    canopy%eta_fevc_cs_sh = 0.0_r2
 
-    canopy%dAdcs   = 0.0_r_2
-    canopy%cs      = real(met%ca,r_2)
-    canopy%cs_sl   = real(met%ca,r_2)
-    canopy%cs_sh   = real(met%ca,r_2)
-    canopy%tlf     = 0.0_r_2
-    canopy%dlf     = 0.0_r_2
-    canopy%evapfbl = 0.0_r_2
+    canopy%dAdcs   = 0.0_r2
+    canopy%cs      = real(met%ca,r2)
+    canopy%cs_sl   = real(met%ca,r2)
+    canopy%cs_sh   = real(met%ca,r2)
+    canopy%tlf     = 0.0_r2
+    canopy%dlf     = 0.0_r2
+    canopy%evapfbl = 0.0_r2
 
     ! 13C
-    canopy%An        = 0.0_r_2
-    canopy%Rd        = 0.0_r_2
+    canopy%An        = 0.0_r2
+    canopy%Rd        = 0.0_r2
     canopy%isc3      = (1.0-veg%frac4) > epsilon(1.0)
-    canopy%vcmax     = spread(real(veg%vcmax,r_2),2,mf)
-    canopy%gammastar = 40.e-6_r_2
-    canopy%gsc       = 0.0_r_2
-    canopy%gbc       = 0.0_r_2
-    canopy%gac       = 0.0_r_2
-    canopy%ci        = spread(real(met%ca,r_2),2,mf)
+    canopy%vcmax     = spread(real(veg%vcmax,r2),2,mf)
+    canopy%gammastar = 40.e-6_r2
+    canopy%gsc       = 0.0_r2
+    canopy%gbc       = 0.0_r2
+    canopy%gac       = 0.0_r2
+    canopy%ci        = spread(real(met%ca,r2),2,mf)
 
   END SUBROUTINE write_default_params
 
@@ -1681,23 +1681,23 @@ CONTAINS
       casamet%isorder(landpt(ee)%cstart:landpt(ee)%cend) = &
                                        inSorder(landpt(ee)%ilon,landpt(ee)%ilat)
       DO hh = landpt(ee)%cstart, landpt(ee)%cend  ! each patch in current grid
-        casamet%lon(hh) = real(patch(hh)%longitude, r_2)
-        casamet%lat(hh) = real(patch(hh)%latitude, r_2)
-        ! MC - casamet%areacell should also be r_2 but it is not really used except for output in single precision
+        casamet%lon(hh) = real(patch(hh)%longitude, r2)
+        casamet%lat(hh) = real(patch(hh)%latitude, r2)
+        ! MC - casamet%areacell should also be r2 but it is not really used except for output in single precision
         casamet%areacell(hh) = real(patch(hh)%frac) &
                                * inArea(landpt(ee)%ilon, landpt(ee)%ilat)
         casaflux%Nmindep(hh) = patch(hh)%frac &
-                               * real(inNdep(landpt(ee)%ilon, landpt(ee)%ilat), r_2)
+                               * real(inNdep(landpt(ee)%ilon, landpt(ee)%ilat), r2)
         casaflux%Nminfix(hh) = patch(hh)%frac &
-                               * real(inNfix(landpt(ee)%ilon, landpt(ee)%ilat), r_2)
+                               * real(inNfix(landpt(ee)%ilon, landpt(ee)%ilat), r2)
         casaflux%Pdep(hh)    = patch(hh)%frac &
-                               * real(inPdust(landpt(ee)%ilon, landpt(ee)%ilat), r_2)
+                               * real(inPdust(landpt(ee)%ilon, landpt(ee)%ilat), r2)
         casaflux%Pwea(hh)    = patch(hh)%frac &
-                               * real(inPwea(landpt(ee)%ilon, landpt(ee)%ilat), r_2)
+                               * real(inPwea(landpt(ee)%ilon, landpt(ee)%ilat), r2)
         !! vh !! fluxes shouldn't be weighted by patch frac.
      !   IF (CABLE_USER%POPLUC) then
            casaflux%Nmindep(hh) =  inNdep(landpt(ee)%ilon, landpt(ee)%ilat)
-           casaflux%Nminfix(hh) = max(real(inNfix(landpt(ee)%ilon, landpt(ee)%ilat),r_2), 8.0e-4_r_2)
+           casaflux%Nminfix(hh) = max(real(inNfix(landpt(ee)%ilon, landpt(ee)%ilat),r2), 8.0e-4_r2)
            !vh ! minimum fixation rate of 3 kg N ha-1y-1 (8e-4 g N m-2 d-1)
            ! Cleveland, Cory C., et al. "Global patterns of terrestrial biological nitrogen (N2) &
            !fixation in natural ecosystems." Global biogeochemical cycles 13.2 (1999): 623-645.
@@ -1710,9 +1710,9 @@ CONTAINS
         IF (veg%iveg(hh) == cropland .OR. veg%iveg(hh) == croplnd2) then
           ! P fertilizer =13 Mt P globally in 1994
           casaflux%Pdep(hh)    = casaflux%Pdep(hh) &
-                                 + patch(hh)%frac * 0.7_r_2 / 365.0_r_2
+                                 + patch(hh)%frac * 0.7_r2 / 365.0_r2
           casaflux%Nmindep(hh) = casaflux%Nmindep(hh) &
-                                 + patch(hh)%frac * 4.0_r_2 / 365.0_r_2
+                                 + patch(hh)%frac * 4.0_r2 / 365.0_r2
         ENDIF
       ENDDO
     ENDDO
@@ -1732,7 +1732,7 @@ CONTAINS
     TYPE (roughness_type),      INTENT(INOUT) :: rough
 
     ! INTEGER :: j ! do loop counter
-    REAL(r_2) :: temp(mp)
+    REAL(r2) :: temp(mp)
     REAL      :: tmp2(mp)
 
     ! Construct derived parameters and zero initialisations,
@@ -1760,9 +1760,9 @@ CONTAINS
     ssnow%owetfac = MAX(0.0, MIN(1.0, &
                    (REAL(ssnow%wb(:, 1)) - soil%swilt) / &
                    (soil%sfc - soil%swilt)))
-    temp(:) = 0.0_r_2
+    temp(:) = 0.0_r2
     tmp2(:) = 0.0
-    WHERE ( ssnow%wbice(:, 1) > 0.0_r_2 ) ! Prevents divide by zero at glaciated
+    WHERE ( ssnow%wbice(:, 1) > 0.0_r2 ) ! Prevents divide by zero at glaciated
                                           ! points where wb and wbice=0.
       temp(:) = ssnow%wbice(:, 1) / ssnow%wb(:, 1)
       tmp2(:) = REAL(temp(:))
@@ -1801,10 +1801,10 @@ CONTAINS
 
     !! vh_js !! comment out hide% condition
     ! IF (hide%Ticket49Bug6) THEN
-    soil%swilt_vec = SPREAD(real(soil%swilt,r_2),2,ms)
-    soil%ssat_vec = SPREAD(real(soil%ssat,r_2),2,ms)
+    soil%swilt_vec = SPREAD(real(soil%swilt,r2),2,ms)
+    soil%ssat_vec = SPREAD(real(soil%ssat,r2),2,ms)
     IF(cable_user%SOIL_STRUC=='sli') THEN
-       soil%sfc_vec = SPREAD(real(soil%sfc,r_2),2,ms)
+       soil%sfc_vec = SPREAD(real(soil%sfc,r2),2,ms)
        ! Only 1 horizon by default !
        soil%nhorizons = 1
        soil%ishorizon = 1
@@ -1842,8 +1842,8 @@ CONTAINS
           CALL cable_abort('Unknown soil type! Aborting.')
        END IF
        ! Check patch fractions sum to 1 in each grid cell:
-       IF((SUM(patch(landpt(i)%cstart:landpt(i)%cend)%frac) - 1.0_r_2) &
-          > 1.0E-6_r_2) THEN
+       IF((SUM(patch(landpt(i)%cstart:landpt(i)%cend)%frac) - 1.0_r2) &
+          > 1.0E-6_r2) THEN
           WRITE(*,*) 'SUBROUTINE load_parameters:'
           WRITE(*,*) 'At land point number', i
           WRITE(*,*) 'And patch numbers:  ', landpt(i)%cstart, landpt(i)%cend
@@ -1920,8 +1920,8 @@ CONTAINS
     ! Ensure soil moisture values are reasonable (possible restart precision
     ! issue):
     DO i = 1, ms
-       WHERE (ssnow%wb(:, i) > real(soil%ssat,r_2)) ! Can only happen due to i/o issues
-          ssnow%wb(:, i) = 0.9999_r_2 * real(soil%ssat,r_2)
+       WHERE (ssnow%wb(:, i) > real(soil%ssat,r2)) ! Can only happen due to i/o issues
+          ssnow%wb(:, i) = 0.9999_r2 * real(soil%ssat,r2)
        END WHERE
     END DO
 
@@ -1991,7 +1991,7 @@ SUBROUTINE report_parameters(logn, soil, veg, bgc, rough, &
                      '------'
       DO g = 1, landpt(e)%nap
          WRITE(logn, '(A7, I2, A3, F6.2, A11, I3, 1X, A30)') ' patch ', &
-               g,':  ', patch(landpt(e)%cstart + g - 1)%frac * 100.0_r_2, &
+               g,':  ', patch(landpt(e)%cstart + g - 1)%frac * 100.0_r2, &
                '% veg type ', veg%iveg(landpt(e)%cstart + g - 1), &
                TRIM(veg_desc(veg%iveg(landpt(e)%cstart + g - 1)))
          WRITE(logn,'(18X, A11, I3, 1X, A45)') '  soil type', &

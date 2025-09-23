@@ -1,6 +1,6 @@
 MODULE sli_roots
 
-  USE cable_def_types_mod, ONLY: r_2, i_d
+  USE cable_def_types_mod, ONLY: r2, i4
   USE sli_numbers,       ONLY: zero, half, one, two, e3
 
   IMPLICIT NONE
@@ -10,9 +10,9 @@ MODULE sli_roots
   PUBLIC :: setroots, getrex ! routines
 
   ! b1, b2 - params used to get root distribution param b (Li et al., J Hydrolo 2001).
-  REAL(r_2), PARAMETER :: b1     = 24.66_r_2
-  REAL(r_2), PARAMETER :: b2     = 1.59_r_2
-  REAL(r_2), PARAMETER :: lambda = 1.0_r_2
+  REAL(r2), PARAMETER :: b1     = 24.66_r2
+  REAL(r2), PARAMETER :: b2     = 1.59_r2
+  REAL(r2), PARAMETER :: lambda = 1.0_r2
 
   INTERFACE setroots
      MODULE PROCEDURE setroots_1d
@@ -39,20 +39,20 @@ CONTAINS
 
     IMPLICIT NONE
 
-    REAL(r_2), DIMENSION(:), INTENT(IN)  :: x
-    REAL(r_2),               INTENT(IN)  :: F10
-    REAL(r_2),               INTENT(IN)  :: Zr
-    REAL(r_2), DIMENSION(:), INTENT(OUT) :: Fs
+    REAL(r2), DIMENSION(:), INTENT(IN)  :: x
+    REAL(r2),               INTENT(IN)  :: F10
+    REAL(r2),               INTENT(IN)  :: Zr
+    REAL(r2), DIMENSION(:), INTENT(OUT) :: Fs
     ! Sets current weighted root length density distribn (Fs).
     !      Li et al. (J Hydrolo, 2001)
     ! Definitions of arguments:
     ! x(:) - depths to bottom of layers (cm).
     ! F10  - fraction of root length density in top 10% of the root zone
     ! Zr   - rooting depth (cm).
-    INTEGER(i_d)                    :: ms
-    REAL(r_2)                       :: b, extr
-    REAL(r_2), DIMENSION(1:size(x)) :: ext0, ext1, xend, Fi
-    REAL(r_2)                       :: tmp
+    INTEGER(i4)                    :: ms
+    REAL(r2)                       :: b, extr
+    REAL(r2), DIMENSION(1:size(x)) :: ext0, ext1, xend, Fi
+    REAL(r2)                       :: tmp
 
     ms = size(x) ! soil layers
 
@@ -83,13 +83,13 @@ CONTAINS
 
     IMPLICIT NONE
 
-    REAL(r_2), DIMENSION(:,:), INTENT(IN)  :: x
-    REAL(r_2), DIMENSION(:),   INTENT(IN)  :: F10
-    REAL(r_2), DIMENSION(:),   INTENT(IN)  :: Zr
-    REAL(r_2), DIMENSION(:,:), INTENT(OUT) :: Fs
+    REAL(r2), DIMENSION(:,:), INTENT(IN)  :: x
+    REAL(r2), DIMENSION(:),   INTENT(IN)  :: F10
+    REAL(r2), DIMENSION(:),   INTENT(IN)  :: Zr
+    REAL(r2), DIMENSION(:,:), INTENT(OUT) :: Fs
 
-    INTEGER(i_d)                      :: i
-    REAL(r_2), DIMENSION(1:size(x,2)) :: out
+    INTEGER(i4)                      :: i
+    REAL(r2), DIMENSION(1:size(x,2)) :: out
 
     do i=1, size(x,1) ! landpoints
        call setroots_1d(x(i,:), F10(i), Zr(i), out)
@@ -107,22 +107,22 @@ CONTAINS
 
     IMPLICIT NONE
 
-    REAL(r_2), DIMENSION(:), INTENT(IN)    :: S      ! relative saturation
-    REAL(r_2), DIMENSION(:), INTENT(OUT)   :: rex    ! water extraction per layer
-    REAL(r_2),               INTENT(INOUT) :: fws    ! stomatal limitation factor
-    REAL(r_2), DIMENSION(:), INTENT(IN)    :: Fs     ! root length density
-    REAL(r_2), DIMENSION(:), INTENT(IN)    :: thetaS ! saturation soil moisture
-    REAL(r_2), DIMENSION(:), INTENT(IN)    :: thetaw ! soil moisture at wiliting point
-    REAL(r_2),               INTENT(IN)    :: Etrans ! total transpiration
-    REAL(r_2),               INTENT(IN)    :: gamma  ! skew of Li & Katul alpha2 function
-    REAL(r_2), DIMENSION(:), INTENT(IN)    :: dx     ! layer thicknesses (m)
-    REAL(r_2),               INTENT(IN)    :: dt
+    REAL(r2), DIMENSION(:), INTENT(IN)    :: S      ! relative saturation
+    REAL(r2), DIMENSION(:), INTENT(OUT)   :: rex    ! water extraction per layer
+    REAL(r2),               INTENT(INOUT) :: fws    ! stomatal limitation factor
+    REAL(r2), DIMENSION(:), INTENT(IN)    :: Fs     ! root length density
+    REAL(r2), DIMENSION(:), INTENT(IN)    :: thetaS ! saturation soil moisture
+    REAL(r2), DIMENSION(:), INTENT(IN)    :: thetaw ! soil moisture at wiliting point
+    REAL(r2),               INTENT(IN)    :: Etrans ! total transpiration
+    REAL(r2),               INTENT(IN)    :: gamma  ! skew of Li & Katul alpha2 function
+    REAL(r2), DIMENSION(:), INTENT(IN)    :: dx     ! layer thicknesses (m)
+    REAL(r2),               INTENT(IN)    :: dt
 
     ! Gets rate of water extraction compatible with CABLE stomatal conductance model
     ! theta(:) - soil moisture(m3 m-3)
     ! rex(:)   - rate of water extraction by roots from layers (cm/h).
-    REAL(r_2), DIMENSION(1:size(S)) :: theta, lthetar, alpha_root, delta_root
-    REAL(r_2)                       :: trex
+    REAL(r2), DIMENSION(1:size(S)) :: theta, lthetar, alpha_root, delta_root
+    REAL(r2)                       :: trex
 
     theta(:)   = S(:)*thetaS(:)
     lthetar(:) = log(max(theta(:)-thetaw(:),e3)/thetaS(:))
@@ -150,7 +150,7 @@ CONTAINS
     rex(:) = Etrans*rex(:)
 
     ! reduce extraction efficiency where total extraction depletes soil moisture below wilting point
-    !where ((rex*dt) > (theta(:)-0.01_r_2)*dx(:))
+    !where ((rex*dt) > (theta(:)-0.01_r2)*dx(:))
     where (((rex*dt) > (theta(:)-thetaw(:))*dx(:)) .and. ((rex*dt) > zero))
        alpha_root = alpha_root*(theta(:)-thetaw(:))*dx(:)/(rex*dt)
     endwhere
@@ -165,11 +165,11 @@ CONTAINS
     rex(:) = Etrans*rex(:)
 
     ! check that the water available in each layer exceeds the extraction
-    !if (any((rex*dt) > (theta(:)-0.01_r_2)*dx(:))) then
+    !if (any((rex*dt) > (theta(:)-0.01_r2)*dx(:))) then
     if (any(((rex*dt) > (theta(:)-thetaw(:))*dx(:)) .and. ((rex*dt) > zero))) then
        fws = zero
        ! distribute extraction according to available water
-       !rex(:) = (theta(:)-0.01_r_2)*dx(:)
+       !rex(:) = (theta(:)-0.01_r2)*dx(:)
        rex(:) = max((theta(:)-thetaw(:))*dx(:),zero)
        trex = sum(rex(:))
        if (trex > zero) then
@@ -188,20 +188,20 @@ CONTAINS
 
     IMPLICIT NONE
 
-    REAL(r_2), DIMENSION(:,:), INTENT(IN)    :: S      ! relative saturation
-    REAL(r_2), DIMENSION(:,:), INTENT(OUT)   :: rex    ! water extraction per layer
-    REAL(r_2), DIMENSION(:),   INTENT(INOUT) :: fws    ! stomatal limitation factor
-    REAL(r_2), DIMENSION(:,:), INTENT(IN)    :: Fs     ! root length density
-    REAL(r_2), DIMENSION(:,:), INTENT(IN)    :: thetaS ! saturation soil moisture
-    REAL(r_2), DIMENSION(:,:), INTENT(IN)    :: thetaw ! soil moisture at wiliting point
-    REAL(r_2), DIMENSION(:),   INTENT(IN)    :: Etrans ! total transpiration
-    REAL(r_2), DIMENSION(:),   INTENT(IN)    :: gamma  ! skew of Li & Katul alpha2 function
-    REAL(r_2), DIMENSION(:,:), INTENT(IN)    :: dx     ! layer thicknesses (m)
-    REAL(r_2),                 INTENT(IN)    :: dt
+    REAL(r2), DIMENSION(:,:), INTENT(IN)    :: S      ! relative saturation
+    REAL(r2), DIMENSION(:,:), INTENT(OUT)   :: rex    ! water extraction per layer
+    REAL(r2), DIMENSION(:),   INTENT(INOUT) :: fws    ! stomatal limitation factor
+    REAL(r2), DIMENSION(:,:), INTENT(IN)    :: Fs     ! root length density
+    REAL(r2), DIMENSION(:,:), INTENT(IN)    :: thetaS ! saturation soil moisture
+    REAL(r2), DIMENSION(:,:), INTENT(IN)    :: thetaw ! soil moisture at wiliting point
+    REAL(r2), DIMENSION(:),   INTENT(IN)    :: Etrans ! total transpiration
+    REAL(r2), DIMENSION(:),   INTENT(IN)    :: gamma  ! skew of Li & Katul alpha2 function
+    REAL(r2), DIMENSION(:,:), INTENT(IN)    :: dx     ! layer thicknesses (m)
+    REAL(r2),                 INTENT(IN)    :: dt
 
-    INTEGER(i_d)                      :: i
-    REAL(r_2), DIMENSION(1:size(S,2)) :: rout
-    REAL(r_2)                         :: fout
+    INTEGER(i4)                      :: i
+    REAL(r2), DIMENSION(1:size(S,2)) :: rout
+    REAL(r2)                         :: fout
 
     do i=1, size(S,1) ! landpoints
        fout = fws(i)

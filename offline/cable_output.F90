@@ -90,190 +90,190 @@ MODULE cable_output_module
   TYPE(parID_type) :: opid ! netcdf variable IDs for output variables
 
   TYPE output_temporary_type
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: SWdown => null()   ! 5 downward short-wave radiation [W/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: FracDiff => null() ! 6 Fraction of diffuse radiation
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: LWdown => null()   ! 7 downward long-wave radiation [W/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Rainf => null()    ! 8 rainfall [kg/m2/s]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Snowf => null()    ! 9 snowfall [kg/m2/s]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PSurf => null()    ! 10 surface pressure [Pa]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Tair => null()     ! 11 surface air temperature
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: SWdown => null()   ! 5 downward short-wave radiation [W/m2]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: FracDiff => null() ! 6 Fraction of diffuse radiation
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: LWdown => null()   ! 7 downward long-wave radiation [W/m2]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: Rainf => null()    ! 8 rainfall [kg/m2/s]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: Snowf => null()    ! 9 snowfall [kg/m2/s]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: PSurf => null()    ! 10 surface pressure [Pa]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: Tair => null()     ! 11 surface air temperature
      ! [K]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Qair => null()   ! 12 specific humidity [kg/kg]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: CO2air => null() ! 13 CO2 concentration [ppmv]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Wind => null()   ! 14 windspeed [m/s]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Wind_N => null() ! 15 surface wind speed, N component [m/s]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Wind_E => null() ! 16 surface wind speed, E component [m/s]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: LAI => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Qh => null()     ! 17 sensible heat flux [W/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Qle => null()    ! 18 latent heat flux [W/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Qg => null()     ! 19 ground heat flux [W/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: fbeam => null()  ! 20 fracion of direct radiation
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: SWnet => null()  ! 20 net shortwave [W/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: LWnet => null()  ! 21 net longwave [W/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Evap => null()   ! 22 total evapotranspiration [kg/m2/s]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Ewater => null() ! 23 evap. from surface water storage [kg/m2/s]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: ESoil => null()  ! 24 bare soil evaporation [kg/m2/s]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: TVeg => null()   ! 25 vegetation transpiration [kg/m2/s]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: ECanop => null() ! 26 interception evaporation [kg/m2/s]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: Qair => null()   ! 12 specific humidity [kg/kg]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: CO2air => null() ! 13 CO2 concentration [ppmv]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: Wind => null()   ! 14 windspeed [m/s]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: Wind_N => null() ! 15 surface wind speed, N component [m/s]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: Wind_E => null() ! 16 surface wind speed, E component [m/s]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: LAI => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: Qh => null()     ! 17 sensible heat flux [W/m2]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: Qle => null()    ! 18 latent heat flux [W/m2]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: Qg => null()     ! 19 ground heat flux [W/m2]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: fbeam => null()  ! 20 fracion of direct radiation
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: SWnet => null()  ! 20 net shortwave [W/m2]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: LWnet => null()  ! 21 net longwave [W/m2]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: Evap => null()   ! 22 total evapotranspiration [kg/m2/s]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: Ewater => null() ! 23 evap. from surface water storage [kg/m2/s]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: ESoil => null()  ! 24 bare soil evaporation [kg/m2/s]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: TVeg => null()   ! 25 vegetation transpiration [kg/m2/s]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: ECanop => null() ! 26 interception evaporation [kg/m2/s]
      ! 27 potential evapotranspiration [kg/m2/s]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PotEvap => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: ACond => null()   ! 28 aerodynamic conductance [m/s]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: SoilWet => null() ! 29 total soil wetness [-]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Albedo => null()  ! 30 albedo [-]
-     REAL(KIND=r_1), POINTER, DIMENSION(:,:) :: visAlbedo => null()  ! vars intro for Ticket #27
-     REAL(KIND=r_1), POINTER, DIMENSION(:,:) :: nirAlbedo => null()  ! vars intro for Ticket #27
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: VegT => null()    ! 31 vegetation temperature [K]
-     REAL(KIND=r_1), POINTER, DIMENSION(:,:) :: SoilTemp => null()  ! 32 av.layer soil temperature [K]
-     REAL(KIND=r_1), POINTER, DIMENSION(:,:) :: SoilMoist => null() ! 33 av.layer soil moisture [kg/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:)   :: SoilMoistPFT => null() ! 33 soil moisture per PFT [kg/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:,:) :: SoilMoistIce => null() ! 33 av.layer soil frozen moisture [kg/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Qs => null()  ! 34 surface runoff [kg/m2/s]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Qsb => null() ! 35 subsurface runoff [kg/m2/s]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: PotEvap => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: ACond => null()   ! 28 aerodynamic conductance [m/s]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: SoilWet => null() ! 29 total soil wetness [-]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: Albedo => null()  ! 30 albedo [-]
+     REAL(KIND=r1), POINTER, DIMENSION(:,:) :: visAlbedo => null()  ! vars intro for Ticket #27
+     REAL(KIND=r1), POINTER, DIMENSION(:,:) :: nirAlbedo => null()  ! vars intro for Ticket #27
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: VegT => null()    ! 31 vegetation temperature [K]
+     REAL(KIND=r1), POINTER, DIMENSION(:,:) :: SoilTemp => null()  ! 32 av.layer soil temperature [K]
+     REAL(KIND=r1), POINTER, DIMENSION(:,:) :: SoilMoist => null() ! 33 av.layer soil moisture [kg/m2]
+     REAL(KIND=r1), POINTER, DIMENSION(:)   :: SoilMoistPFT => null() ! 33 soil moisture per PFT [kg/m2]
+     REAL(KIND=r1), POINTER, DIMENSION(:,:) :: SoilMoistIce => null() ! 33 av.layer soil frozen moisture [kg/m2]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: Qs => null()  ! 34 surface runoff [kg/m2/s]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: Qsb => null() ! 35 subsurface runoff [kg/m2/s]
      ! 36 change in soilmoisture (sum layers) [kg/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: DelSoilMoist => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: DelSoilMoist => null()
      ! 37 change in snow water equivalent [kg/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: DelSWE => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: DelSWE => null()
      ! 38 change in interception storage [kg/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: DelIntercept => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: SnowT => null()     ! 39 snow surface temp [K]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: BaresoilT => null() ! 40 surface bare soil temp [K]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: AvgSurfT => null()  ! 41 Average surface temperature [K]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: RadT => null()      ! 42 Radiative surface temperature [K]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: SWE => null()       ! 43 snow water equivalent [kg/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: RootMoist => null() ! 44 root zone soil moisture [kg/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: CanopInt => null()  ! 45 total canopy water storage [kg/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: NEE => null()       ! 46 net ecosystem exchange [umol/m2/s]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: NPP => null()       ! 47 net primary production of C by veg [umol/m2/s]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: DelIntercept => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: SnowT => null()     ! 39 snow surface temp [K]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: BaresoilT => null() ! 40 surface bare soil temp [K]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: AvgSurfT => null()  ! 41 Average surface temperature [K]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: RadT => null()      ! 42 Radiative surface temperature [K]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: SWE => null()       ! 43 snow water equivalent [kg/m2]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: RootMoist => null() ! 44 root zone soil moisture [kg/m2]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: CanopInt => null()  ! 45 total canopy water storage [kg/m2]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: NEE => null()       ! 46 net ecosystem exchange [umol/m2/s]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: NPP => null()       ! 47 net primary production of C by veg [umol/m2/s]
      ! 48 gross primary production C by veg [umol/m2/s]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: AutoResp => null()   ! 49 autotrophic respiration [umol/m2/s]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: LeafResp => null()   ! 51 autotrophic respiration [umol/m2/s]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: HeteroResp => null() ! 50 heterotrophic respiration [umol/m2/s]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: SnowDepth => null()  ! actual depth of snow in [m]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: GPP => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: AutoResp => null()   ! 49 autotrophic respiration [umol/m2/s]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: LeafResp => null()   ! 51 autotrophic respiration [umol/m2/s]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: HeteroResp => null() ! 50 heterotrophic respiration [umol/m2/s]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: SnowDepth => null()  ! actual depth of snow in [m]
      ! vh_mc ! additional variables for ESM-SnowMIP
-     real(kind=r_1), pointer, dimension(:)   :: hfds => null()  ! downward heat flux at ground surface [W/m2]
-     real(kind=r_1), pointer, dimension(:)   :: hfdsn => null() ! downward heat flux into snowpack [W/m2]
-     real(kind=r_1), pointer, dimension(:)   :: hfls => null()  ! surface upward latent heat flux [W/m2]
-     real(kind=r_1), pointer, dimension(:)   :: hfmlt => null() ! energy of fusion [W/m2]
-     real(kind=r_1), pointer, dimension(:)   :: hfrs => null()  ! heat transferred to snowpack by rain [W/m2]
-     real(kind=r_1), pointer, dimension(:)   :: hfsbl => null() ! energy of sublimation [W/m2]
-     real(kind=r_1), pointer, dimension(:)   :: hfss => null()  ! surface upward sensible heat flux [W/m2]
-     real(kind=r_1), pointer, dimension(:)   :: rlus => null()  ! surface upwelling longwave radiation [W/m2]
-     real(kind=r_1), pointer, dimension(:)   :: rsus => null()  ! surface upwelling shortwave radiation [W/m2]
-     real(kind=r_1), pointer, dimension(:)   :: esn => null()   ! liquid water evaporation from snowpack [kg/m2/s]
+     real(kind=r1), pointer, dimension(:)   :: hfds => null()  ! downward heat flux at ground surface [W/m2]
+     real(kind=r1), pointer, dimension(:)   :: hfdsn => null() ! downward heat flux into snowpack [W/m2]
+     real(kind=r1), pointer, dimension(:)   :: hfls => null()  ! surface upward latent heat flux [W/m2]
+     real(kind=r1), pointer, dimension(:)   :: hfmlt => null() ! energy of fusion [W/m2]
+     real(kind=r1), pointer, dimension(:)   :: hfrs => null()  ! heat transferred to snowpack by rain [W/m2]
+     real(kind=r1), pointer, dimension(:)   :: hfsbl => null() ! energy of sublimation [W/m2]
+     real(kind=r1), pointer, dimension(:)   :: hfss => null()  ! surface upward sensible heat flux [W/m2]
+     real(kind=r1), pointer, dimension(:)   :: rlus => null()  ! surface upwelling longwave radiation [W/m2]
+     real(kind=r1), pointer, dimension(:)   :: rsus => null()  ! surface upwelling shortwave radiation [W/m2]
+     real(kind=r1), pointer, dimension(:)   :: esn => null()   ! liquid water evaporation from snowpack [kg/m2/s]
      ! total water vapour flux from the surface to the atmosphere [kg/m2/s]
-     real(kind=r_1), pointer, dimension(:)   :: evspsbl => null()
-     real(kind=r_1), pointer, dimension(:)   :: evspsblsoi => null() ! evaporation and sublimation from soil [kg/m2/s]
-     real(kind=r_1), pointer, dimension(:)   :: evspsblveg => null() ! evaporation and sublimation from canopy [kg/m2/s]
-     real(kind=r_1), pointer, dimension(:)   :: mrrob => null()   ! subsurface runoff [kg/m2/s]
-     real(kind=r_1), pointer, dimension(:)   :: mrros => null()   ! surface runoff [kg/m2/s]
-     real(kind=r_1), pointer, dimension(:)   :: sbl => null()     ! sublimation of snow [kg/m2/s]
-     real(kind=r_1), pointer, dimension(:)   :: snm => null()     ! surface snow melt [kg/m2/s]
-     real(kind=r_1), pointer, dimension(:)   :: snmsl => null()   ! water flowing out of snowpack [kg/m2/s]
-     real(kind=r_1), pointer, dimension(:)   :: tran => null()    ! transpiration [kg/m2/s]
-     real(kind=r_1), pointer, dimension(:)   :: albs => null()    ! surface albedo [-]
-     real(kind=r_1), pointer, dimension(:)   :: albsn => null()   ! snow albedo [-]
-     real(kind=r_1), pointer, dimension(:)   :: cw => null()      ! total canopy water storage [kg/m2]
-     real(kind=r_1), pointer, dimension(:)   :: lqsn => null()    ! mass fraction of liquid water in snowpack [-]
-     real(kind=r_1), pointer, dimension(:)   :: lwsnl => null()   ! liquid water content of snowpack [kg/m2]
-     real(kind=r_1), pointer, dimension(:,:) :: mrfsofr => null() ! mass fractions of frozen water in soil layers [-]
-     real(kind=r_1), pointer, dimension(:,:) :: mrlqso => null()  ! mass fractions of unfrozen water in soil layers [-]
-     real(kind=r_1), pointer, dimension(:,:) :: mrlsl => null()   ! masses of frozen and unfrozen moisture in soil layers [kg/m2]
-     real(kind=r_1), pointer, dimension(:)   :: snc => null()     ! snow area fraction [-]
-     real(kind=r_1), pointer, dimension(:)   :: snd => null()     ! snowdepth [m]
-     real(kind=r_1), pointer, dimension(:)   :: snw => null()     ! mass of snowpack [kg/m2]
-     real(kind=r_1), pointer, dimension(:)   :: snwc => null()    ! mass of snow intercepted by vegetation [kg/m2]
-     real(kind=r_1), pointer, dimension(:)   :: tcs => null()     ! vegetation canopy temperature [K]
-     real(kind=r_1), pointer, dimension(:)   :: tgs => null()     ! temperature of bare soil [K]
-     real(kind=r_1), pointer, dimension(:)   :: ts => null()      ! surface temperature [K]
-     real(kind=r_1), pointer, dimension(:,:) :: tsl => null()     ! temperatures of soil layers [K]
-     real(kind=r_1), pointer, dimension(:)   :: tsn => null()     ! snow internal temperature [K]
-     real(kind=r_1), pointer, dimension(:)   :: tsns => null()    ! snow surface temperature [K]
+     real(kind=r1), pointer, dimension(:)   :: evspsbl => null()
+     real(kind=r1), pointer, dimension(:)   :: evspsblsoi => null() ! evaporation and sublimation from soil [kg/m2/s]
+     real(kind=r1), pointer, dimension(:)   :: evspsblveg => null() ! evaporation and sublimation from canopy [kg/m2/s]
+     real(kind=r1), pointer, dimension(:)   :: mrrob => null()   ! subsurface runoff [kg/m2/s]
+     real(kind=r1), pointer, dimension(:)   :: mrros => null()   ! surface runoff [kg/m2/s]
+     real(kind=r1), pointer, dimension(:)   :: sbl => null()     ! sublimation of snow [kg/m2/s]
+     real(kind=r1), pointer, dimension(:)   :: snm => null()     ! surface snow melt [kg/m2/s]
+     real(kind=r1), pointer, dimension(:)   :: snmsl => null()   ! water flowing out of snowpack [kg/m2/s]
+     real(kind=r1), pointer, dimension(:)   :: tran => null()    ! transpiration [kg/m2/s]
+     real(kind=r1), pointer, dimension(:)   :: albs => null()    ! surface albedo [-]
+     real(kind=r1), pointer, dimension(:)   :: albsn => null()   ! snow albedo [-]
+     real(kind=r1), pointer, dimension(:)   :: cw => null()      ! total canopy water storage [kg/m2]
+     real(kind=r1), pointer, dimension(:)   :: lqsn => null()    ! mass fraction of liquid water in snowpack [-]
+     real(kind=r1), pointer, dimension(:)   :: lwsnl => null()   ! liquid water content of snowpack [kg/m2]
+     real(kind=r1), pointer, dimension(:,:) :: mrfsofr => null() ! mass fractions of frozen water in soil layers [-]
+     real(kind=r1), pointer, dimension(:,:) :: mrlqso => null()  ! mass fractions of unfrozen water in soil layers [-]
+     real(kind=r1), pointer, dimension(:,:) :: mrlsl => null()   ! masses of frozen and unfrozen moisture in soil layers [kg/m2]
+     real(kind=r1), pointer, dimension(:)   :: snc => null()     ! snow area fraction [-]
+     real(kind=r1), pointer, dimension(:)   :: snd => null()     ! snowdepth [m]
+     real(kind=r1), pointer, dimension(:)   :: snw => null()     ! mass of snowpack [kg/m2]
+     real(kind=r1), pointer, dimension(:)   :: snwc => null()    ! mass of snow intercepted by vegetation [kg/m2]
+     real(kind=r1), pointer, dimension(:)   :: tcs => null()     ! vegetation canopy temperature [K]
+     real(kind=r1), pointer, dimension(:)   :: tgs => null()     ! temperature of bare soil [K]
+     real(kind=r1), pointer, dimension(:)   :: ts => null()      ! surface temperature [K]
+     real(kind=r1), pointer, dimension(:,:) :: tsl => null()     ! temperatures of soil layers [K]
+     real(kind=r1), pointer, dimension(:)   :: tsn => null()     ! snow internal temperature [K]
+     real(kind=r1), pointer, dimension(:)   :: tsns => null()    ! snow surface temperature [K]
      ! Non-Alma variables
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Rnet => null()  ! net absorbed radiation [W/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: HVeg => null()  ! sensible heat from vegetation [W/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: HSoil => null() ! sensible heat from soil [W/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: RnetSoil => null() ! latent heat from soil [kg/m2/s]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: SnowMelt => null() ! snow melt [W/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Ebal => null()  ! cumulative energy balance [W/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Wbal => null()  ! cumulative water balance [W/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: CanT => null()  ! within-canopy temperature [K]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Fwsoil => null()  ! soil-moisture modfier to stomatal conductance [-]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: Rnet => null()  ! net absorbed radiation [W/m2]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: HVeg => null()  ! sensible heat from vegetation [W/m2]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: HSoil => null() ! sensible heat from soil [W/m2]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: RnetSoil => null() ! latent heat from soil [kg/m2/s]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: SnowMelt => null() ! snow melt [W/m2]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: Ebal => null()  ! cumulative energy balance [W/m2]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: Wbal => null()  ! cumulative water balance [W/m2]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: CanT => null()  ! within-canopy temperature [K]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: Fwsoil => null()  ! soil-moisture modfier to stomatal conductance [-]
 
      ! [umol/m2/s]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: NBP => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: dCdt => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: NBP => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: dCdt => null()
      ! [kg C /m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: TotSoilCarb => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: TotLivBiomass => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: TotLittCarb => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: SoilCarbFast => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: SoilCarbSlow => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: SoilCarbPassive => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: LittCarbMetabolic => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: LittCarbStructural => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: LittCarbCWD => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PlantCarbLeaf => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PlantCarbFineRoot => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PlantCarbWood => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PlantTurnover => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PlantTurnoverLeaf => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PlantTurnoverFineRoot => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PlantTurnoverWood => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PlantTurnoverWoodDist => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PlantTurnoverWoodCrowding => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: PlantTurnoverWoodResourceLim => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: Area => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: LandUseFlux => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: vcmax => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: ejmax => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: patchfrac => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: hc => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP_sl => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP_sh => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP_slC => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP_shC => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP_slJ => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: GPP_shJ => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: An_sl => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: An_sh=> null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: ci_sl => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: ci_sh => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: scalex_sl => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: scalex_sh => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: dlf => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: eta_GPP_cs => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: eta_TVeg_cs => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: dGPPdcs => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: CO2s => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: gsw_TVeg => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: vcmax_ts => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: jmax_ts => null()
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: gsw_sl => null()   ! stomatal conductance (sunlit leaves)
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: gsw_sh => null()   ! stomatal conductance (shaded leaves)
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: RootResp => null()   ! autotrophic root respiration [umol/m2/s]
-     REAL(KIND=r_1), POINTER, DIMENSION(:) :: StemResp => null()   ! autotrophic stem respiration [umol/m2/s]
-     REAL(KIND=r_1), POINTER, DIMENSION(:,:) :: qcan_sl => null()   ! absorbed radiation by canopy (sunlit leaves) [W/m2]
-     REAL(KIND=r_1), POINTER, DIMENSION(:,:) :: qcan_sh => null()   ! absorbed radiation by canopy (shaded leaves) [W/m2]
-     REAL(KIND=r_2), POINTER, DIMENSION(:)   :: An => null()        ! total net assimilation
-     REAL(KIND=r_2), POINTER, DIMENSION(:)   :: Rd => null()        ! total leaf respiration
-     REAL(KIND=r_2), POINTER, DIMENSION(:,:) :: cplant => null()    ! plant carbon pools
-     REAL(KIND=r_2), POINTER, DIMENSION(:,:) :: clitter => null()   ! litter carbon pools
-     REAL(KIND=r_2), POINTER, DIMENSION(:,:) :: csoil => null()     ! soil carbon pools
-     REAL(KIND=r_2), POINTER, DIMENSION(:)   :: clabile => null()   ! excess carbon pools
-     REAL(KIND=r_2), POINTER, DIMENSION(:)   :: A13n => null()      ! total 13C net assimilation
-     REAL(KIND=r_2), POINTER, DIMENSION(:)   :: aDisc13 => null()   ! 13C discrimination times gross assimilation
-     REAL(KIND=r_2), POINTER, DIMENSION(:,:) :: c13plant => null()  ! 13C plant carbon pools
-     REAL(KIND=r_2), POINTER, DIMENSION(:,:) :: c13litter => null() ! 13C litter carbon pools
-     REAL(KIND=r_2), POINTER, DIMENSION(:,:) :: c13soil => null()   ! 13C soil carbon pools
-     REAL(KIND=r_2), POINTER, DIMENSION(:)   :: c13labile => null() ! 13C excess carbon pools
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: TotSoilCarb => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: TotLivBiomass => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: TotLittCarb => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: SoilCarbFast => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: SoilCarbSlow => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: SoilCarbPassive => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: LittCarbMetabolic => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: LittCarbStructural => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: LittCarbCWD => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: PlantCarbLeaf => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: PlantCarbFineRoot => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: PlantCarbWood => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: PlantTurnover => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: PlantTurnoverLeaf => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: PlantTurnoverFineRoot => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: PlantTurnoverWood => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: PlantTurnoverWoodDist => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: PlantTurnoverWoodCrowding => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: PlantTurnoverWoodResourceLim => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: Area => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: LandUseFlux => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: vcmax => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: ejmax => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: patchfrac => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: hc => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: GPP_sl => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: GPP_sh => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: GPP_slC => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: GPP_shC => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: GPP_slJ => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: GPP_shJ => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: An_sl => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: An_sh=> null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: ci_sl => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: ci_sh => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: scalex_sl => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: scalex_sh => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: dlf => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: eta_GPP_cs => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: eta_TVeg_cs => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: dGPPdcs => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: CO2s => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: gsw_TVeg => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: vcmax_ts => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: jmax_ts => null()
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: gsw_sl => null()   ! stomatal conductance (sunlit leaves)
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: gsw_sh => null()   ! stomatal conductance (shaded leaves)
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: RootResp => null()   ! autotrophic root respiration [umol/m2/s]
+     REAL(KIND=r1), POINTER, DIMENSION(:) :: StemResp => null()   ! autotrophic stem respiration [umol/m2/s]
+     REAL(KIND=r1), POINTER, DIMENSION(:,:) :: qcan_sl => null()   ! absorbed radiation by canopy (sunlit leaves) [W/m2]
+     REAL(KIND=r1), POINTER, DIMENSION(:,:) :: qcan_sh => null()   ! absorbed radiation by canopy (shaded leaves) [W/m2]
+     REAL(KIND=r2), POINTER, DIMENSION(:)   :: An => null()        ! total net assimilation
+     REAL(KIND=r2), POINTER, DIMENSION(:)   :: Rd => null()        ! total leaf respiration
+     REAL(KIND=r2), POINTER, DIMENSION(:,:) :: cplant => null()    ! plant carbon pools
+     REAL(KIND=r2), POINTER, DIMENSION(:,:) :: clitter => null()   ! litter carbon pools
+     REAL(KIND=r2), POINTER, DIMENSION(:,:) :: csoil => null()     ! soil carbon pools
+     REAL(KIND=r2), POINTER, DIMENSION(:)   :: clabile => null()   ! excess carbon pools
+     REAL(KIND=r2), POINTER, DIMENSION(:)   :: A13n => null()      ! total 13C net assimilation
+     REAL(KIND=r2), POINTER, DIMENSION(:)   :: aDisc13 => null()   ! 13C discrimination times gross assimilation
+     REAL(KIND=r2), POINTER, DIMENSION(:,:) :: c13plant => null()  ! 13C plant carbon pools
+     REAL(KIND=r2), POINTER, DIMENSION(:,:) :: c13litter => null() ! 13C litter carbon pools
+     REAL(KIND=r2), POINTER, DIMENSION(:,:) :: c13soil => null()   ! 13C soil carbon pools
+     REAL(KIND=r2), POINTER, DIMENSION(:)   :: c13labile => null() ! 13C excess carbon pools
   END TYPE output_temporary_type
   TYPE(output_temporary_type), SAVE :: out
 
   INTEGER :: ok   ! netcdf error status
 
   interface toreal4
-     module procedure dp2sp, i2sp, sp2sp
+     module procedure r2tor1, itor1, rtor1
   end interface toreal4
 
 CONTAINS
@@ -300,7 +300,7 @@ CONTAINS
     integer :: nplantid, nlitterid, nsoilid
     real, dimension(size(patch, 1)) :: frac
 
-    real(kind=r_1), parameter :: zero4 = real(0.0,r_1)
+    real(kind=r1), parameter :: zero4 = real(0.0,r1)
 
     ! Create output file:
 #ifdef __NETCDF3__
@@ -1403,19 +1403,19 @@ CONTAINS
        allocate(out%c13soil(mp,msoil))
        allocate(out%c13labile(mp))
        ! 12C
-       out%An      = 0.0_r_2
-       out%Rd      = 0.0_r_2
-       out%cplant  = 0.0_r_2
-       out%clitter = 0.0_r_2
-       out%csoil   = 0.0_r_2
-       out%clabile = 0.0_r_2
+       out%An      = 0.0_r2
+       out%Rd      = 0.0_r2
+       out%cplant  = 0.0_r2
+       out%clitter = 0.0_r2
+       out%csoil   = 0.0_r2
+       out%clabile = 0.0_r2
        ! 13C
-       out%A13n      = 0.0_r_2
-       out%aDisc13   = 0.0_r_2
-       out%c13plant  = 0.0_r_2
-       out%c13litter = 0.0_r_2
-       out%c13soil   = 0.0_r_2
-       out%c13labile = 0.0_r_2
+       out%A13n      = 0.0_r2
+       out%aDisc13   = 0.0_r2
+       out%c13plant  = 0.0_r2
+       out%c13litter = 0.0_r2
+       out%c13soil   = 0.0_r2
+       out%c13labile = 0.0_r2
        ! all defined as float
        ! 12C
        call define_ovar(ncid_out, ovid%An, 'An', 'mol/m^2/s', &
@@ -1863,7 +1863,7 @@ CONTAINS
     TYPE(c13o2_pool), INTENT(IN) :: c13o2pools ! 13CO2 pools
     TYPE(c13o2_flux), INTENT(IN) :: c13o2flux  ! 13CO2 fluxes
 
-    REAL(r_2), DIMENSION(1) :: timetemp ! temporary variable for storing time
+    REAL(r2), DIMENSION(1) :: timetemp ! temporary variable for storing time
     ! value
     LOGICAL :: writenow ! write to output file during this time step?
     INTEGER, SAVE :: out_timestep ! counter for output time steps
@@ -1875,15 +1875,15 @@ CONTAINS
     INTEGER :: iy   ! Counter
     INTEGER, SAVE   :: YearStart
     INTEGER :: ok ! for netcdf sync
-    real(kind=r_1) :: rinterval
-    real(r_2)    :: r2interval, gd2umols
-    real(kind=r_1), parameter :: zero4 = real(0.0,r_1)
+    real(kind=r1) :: rinterval
+    real(r2)    :: r2interval, gd2umols
+    real(kind=r1), parameter :: zero4 = real(0.0,r1)
     real, dimension(mp) :: totlai
     real, dimension(size(patch, 1)) :: frac
 
     ! logical :: opened
     ! integer :: varid
-    gd2umols = 1.0_r_2 / (86400.0_r_2 * 1.201e-5_r_2)
+    gd2umols = 1.0_r2 / (86400.0_r2 * 1.201e-5_r2)
 
     ! IF asked to check mass/water balance:
     IF (check%mass_bal) CALL mass_balance(dels, ktau, ssnow, soil, canopy, met, air, bal)
@@ -1999,7 +1999,7 @@ CONTAINS
     ! If this time step is an output time step:
     IF (writenow) THEN
        ! Write to temporary time variable:
-       timetemp(1) = real(ktau - backtrack, r_2) * real(dels, r_2)
+       timetemp(1) = real(ktau - backtrack, r2) * real(dels, r2)
        ! inquire(unit=ncid_out, opened=opened)
        ! if (.not. opened) ok = NF90_OPEN(filename%out, NF90_WRITE, ncid_out)
        ! ok = NF90_INQ_VARID(ncid_out, 'time', varid)
@@ -2010,7 +2010,7 @@ CONTAINS
             'Error writing time variable to ' &
             //TRIM(filename%out)// '(SUBROUTINE write_output)')
        rinterval  = toreal4(1) / toreal4(output%interval)
-       r2interval = 1.0_r_2 / real(output%interval,r_2)
+       r2interval = 1.0_r2 / real(output%interval,r2)
 
     END IF
 
@@ -2406,7 +2406,7 @@ CONTAINS
     IF(output%soil .OR. output%SoilMoist) THEN
        ! Add current timestep's value to total of temporary output variable:
        out%SoilMoist = out%SoilMoist + toreal4(ssnow%wb)
-       out%SoilMoistPFT = out%SoilMoistPFT + toreal4(sum(ssnow%wb * 1000.0_r_2 * real(spread(soil%zse,1,mp),r_2),2))
+       out%SoilMoistPFT = out%SoilMoistPFT + toreal4(sum(ssnow%wb * 1000.0_r2 * real(spread(soil%zse,1,mp),r2),2))
        out%SoilMoistIce = out%SoilMoistIce + toreal4(ssnow%wbice)
        IF(writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
@@ -2791,20 +2791,20 @@ CONTAINS
        out%scalex_sl   = out%scalex_sl   + toreal4(rad%scalex(:,1))
        out%scalex_sh   = out%scalex_sh   + toreal4(rad%scalex(:,2))
        out%dlf         = out%dlf         + toreal4(canopy%dlf)
-       out%An_sl       = out%An_sl       + toreal4(canopy%A_sl*1.0e6_r_2)
-       out%An_sh       = out%An_sh       + toreal4(canopy%A_sh*1.0e6_r_2)
-       out%ci_sl       = out%ci_sl       + toreal4(canopy%ci(:,1)*1.0e6_r_2)
-       out%ci_sh       = out%ci_sh       + toreal4(canopy%ci(:,2)*1.0e6_r_2)
-       out%GPP_sl      = out%GPP_sl      + toreal4(canopy%GPP_sl*1.0e6_r_2)
-       out%GPP_sh      = out%GPP_sh      + toreal4(canopy%GPP_sh*1.0e6_r_2)
-       out%GPP_slC     = out%GPP_slC     + toreal4(canopy%A_slC*1.0e6_r_2)
-       out%GPP_shC     = out%GPP_shC     + toreal4(canopy%A_shC*1.0e6_r_2)
-       out%GPP_slJ     = out%GPP_slJ     + toreal4(canopy%A_slJ*1.0e6_r_2)
-       out%GPP_shJ     = out%GPP_shJ     + toreal4(canopy%A_shJ*1.0e6_r_2)
-       out%eta_GPP_cs  = out%eta_GPP_cs  + toreal4(canopy%eta_A_cs*1.0e6_r_2)
+       out%An_sl       = out%An_sl       + toreal4(canopy%A_sl*1.0e6_r2)
+       out%An_sh       = out%An_sh       + toreal4(canopy%A_sh*1.0e6_r2)
+       out%ci_sl       = out%ci_sl       + toreal4(canopy%ci(:,1)*1.0e6_r2)
+       out%ci_sh       = out%ci_sh       + toreal4(canopy%ci(:,2)*1.0e6_r2)
+       out%GPP_sl      = out%GPP_sl      + toreal4(canopy%GPP_sl*1.0e6_r2)
+       out%GPP_sh      = out%GPP_sh      + toreal4(canopy%GPP_sh*1.0e6_r2)
+       out%GPP_slC     = out%GPP_slC     + toreal4(canopy%A_slC*1.0e6_r2)
+       out%GPP_shC     = out%GPP_shC     + toreal4(canopy%A_shC*1.0e6_r2)
+       out%GPP_slJ     = out%GPP_slJ     + toreal4(canopy%A_slJ*1.0e6_r2)
+       out%GPP_shJ     = out%GPP_shJ     + toreal4(canopy%A_shJ*1.0e6_r2)
+       out%eta_GPP_cs  = out%eta_GPP_cs  + toreal4(canopy%eta_A_cs*1.0e6_r2)
        out%eta_TVeg_cs = out%eta_TVeg_cs + toreal4(canopy%eta_fevc_cs/air%rlam)
-       out%dGPPdcs     = out%dGPPdcs     + toreal4(canopy%dAdcs*1.0e6_r_2)
-       out%CO2s        = out%CO2s        + toreal4(canopy%cs*1.0e6_r_2)
+       out%dGPPdcs     = out%dGPPdcs     + toreal4(canopy%dAdcs*1.0e6_r2)
+       out%CO2s        = out%CO2s        + toreal4(canopy%cs*1.0e6_r2)
        totlai(:) = rad%fvlai(:,1) + rad%fvlai(:,2)
        where (totlai(:) .gt. 0.01)
           out%gsw_TVeg =  out%gsw_TVeg + &
@@ -3053,7 +3053,7 @@ CONTAINS
 
     ! output patch area
     IF(output%casa) THEN
-       out%Area = toreal4(casamet%areacell / 1.0e6_r_2) ! km2
+       out%Area = toreal4(casamet%areacell / 1.0e6_r2) ! km2
        IF(writenow) THEN
           ! Write value to file:
           CALL write_ovar(out_timestep, ncid_out, ovid%Area, 'Area', out%Area, &
@@ -3094,7 +3094,7 @@ CONTAINS
        IF (cable_user%soil_struc=='sli') THEN
           out%evspsblsoi = out%evspsblsoi  + toreal4(ssnow%evap / dels)
        ELSE
-          out%evspsblsoi = out%evspsblsoi  + toreal4(canopy%fes / real(air%rlam,r_2))
+          out%evspsblsoi = out%evspsblsoi  + toreal4(canopy%fes / real(air%rlam,r2))
        ENDIF
        out%evspsblveg = out%evspsblveg  + toreal4(canopy%fevw / air%rlam)
        out%mrrob      = out%mrrob       + toreal4(ssnow%rnof2 / dels)
@@ -3102,7 +3102,7 @@ CONTAINS
        out%sbl        = out%sbl         + toreal4(ssnow%E_sublimation_sn)
        out%snm        = out%snm         + toreal4(ssnow%surface_melt)
        out%snmsl      = out%snmsl       + toreal4(ssnow%smelt)
-       out%tran       = out%tran        + toreal4(canopy%fevc / real(air%rlam,r_2))
+       out%tran       = out%tran        + toreal4(canopy%fevc / real(air%rlam,r2))
        out%albs       = out%albs        + toreal4((rad%albedo(:,1) + rad%albedo(:,2)) * 0.5)
        out%albsn      = out%albsn       + toreal4((ssnow%albsoilsn(:,1) + ssnow%albsoilsn(:,2)) * 0.5)
        out%cw         = out%cw          + toreal4(canopy%cansto)
@@ -3114,7 +3114,7 @@ CONTAINS
        out%lwsnl      = out%lwsnl       + toreal4(sum(ssnow%snowliq,2))
        out%mrfsofr    = out%mrfsofr     + toreal4(ssnow%wbice/ssnow%wb)
        out%mrlqso     = out%mrlqso      + toreal4((ssnow%wb-ssnow%wbice)/ssnow%wb)
-       out%mrlsl      = out%mrlsl       + toreal4(ssnow%wb*1000.0_r_2*real(spread(soil%zse,1,mp),r_2))
+       out%mrlsl      = out%mrlsl       + toreal4(ssnow%wb*1000.0_r2*real(spread(soil%zse,1,mp),r2))
        out%snc        = out%snc         + toreal4(merge(1.,0.,sum(ssnow%sdepth,2)>0.))
        out%snd        = out%snd         + toreal4(sum(ssnow%sdepth, 2))
        out%snw        = out%snw         + toreal4(ssnow%snowd)
@@ -3288,8 +3288,8 @@ CONTAINS
        IF (cable_user%POPLUC) THEN
           out%NBP = out%NBP + (-toreal4((casaflux%Crsoil-casaflux%cnpp &
                - casapool%dClabiledt) * gd2umols)) !- &
-          !REAL((casaflux%FluxCtohwp + casaflux%FluxCtoclear  )/86400.0_r_2 &
-          !/ 1.201E-5_r_2, 4)
+          !REAL((casaflux%FluxCtohwp + casaflux%FluxCtoclear  )/86400.0_r2 &
+          !/ 1.201E-5_r2, 4)
        ELSE
           out%NBP = out%NBP + (-toreal4((casaflux%Crsoil-casaflux%cnpp &
                - casapool%dClabiledt) * gd2umols))
@@ -3434,8 +3434,8 @@ CONTAINS
 
     ! plant carbon [kg C m-2]
     IF (output%casa) THEN
-       !out%TotSoilCarb = out%TotSoilCarb + toreal4((SUM(casapool%csoil,2)+SUM(casapool%clitter,2)) / 1000.0_r_2)
-       out%TotSoilCarb = out%TotSoilCarb + toreal4(SUM(casapool%csoil,2) / 1000.0_r_2)
+       !out%TotSoilCarb = out%TotSoilCarb + toreal4((SUM(casapool%csoil,2)+SUM(casapool%clitter,2)) / 1000.0_r2)
+       out%TotSoilCarb = out%TotSoilCarb + toreal4(SUM(casapool%csoil,2) / 1000.0_r2)
        IF (writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%TotSoilCarb = out%TotSoilCarb * rinterval
@@ -3446,7 +3446,7 @@ CONTAINS
           out%TotSoilCarb = zero4
        END IF
 
-       out%TotLittCarb = out%TotLittCarb + toreal4(SUM(casapool%clitter,2) / 1000.0_r_2)
+       out%TotLittCarb = out%TotLittCarb + toreal4(SUM(casapool%clitter,2) / 1000.0_r2)
        IF (writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%TotLittCarb = out%TotLittCarb * rinterval
@@ -3457,7 +3457,7 @@ CONTAINS
           out%TotLittCarb = zero4
        END IF
 
-       out%SoilCarbFast = out%SoilCarbFast + toreal4(casapool%csoil(:,1) / 1000.0_r_2)
+       out%SoilCarbFast = out%SoilCarbFast + toreal4(casapool%csoil(:,1) / 1000.0_r2)
        IF (writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%SoilCarbFast = out%SoilCarbFast * rinterval
@@ -3469,7 +3469,7 @@ CONTAINS
           out%SoilCarbFast = zero4
        END IF
 
-       out%SoilCarbSlow = out%SoilCarbSlow + toreal4(casapool%csoil(:,2)/ 1000.0_r_2)
+       out%SoilCarbSlow = out%SoilCarbSlow + toreal4(casapool%csoil(:,2)/ 1000.0_r2)
        IF (writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%SoilCarbSlow = out%SoilCarbSlow * rinterval
@@ -3481,7 +3481,7 @@ CONTAINS
           out%SoilCarbSlow = zero4
        END IF
 
-       out%SoilCarbPassive = out%SoilCarbPassive + toreal4(casapool%csoil(:,3) / 1000.0_r_2)
+       out%SoilCarbPassive = out%SoilCarbPassive + toreal4(casapool%csoil(:,3) / 1000.0_r2)
        IF (writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%SoilCarbPassive = out%SoilCarbPassive * rinterval
@@ -3493,7 +3493,7 @@ CONTAINS
           out%SoilCarbPassive = zero4
        END IF
 
-       out%LittCarbMetabolic = out%LittCarbMetabolic + toreal4(casapool%clitter(:,1) / 1000.0_r_2)
+       out%LittCarbMetabolic = out%LittCarbMetabolic + toreal4(casapool%clitter(:,1) / 1000.0_r2)
        IF (writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%LittCarbMetabolic = out%LittCarbMetabolic * rinterval
@@ -3504,7 +3504,7 @@ CONTAINS
           out%LittCarbMetabolic = zero4
        END IF
 
-       out%LittCarbStructural = out%LittCarbStructural + toreal4(casapool%clitter(:,2) / 1000.0_r_2)
+       out%LittCarbStructural = out%LittCarbStructural + toreal4(casapool%clitter(:,2) / 1000.0_r2)
        IF (writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%LittCarbStructural = out%LittCarbStructural * rinterval
@@ -3515,7 +3515,7 @@ CONTAINS
           out%LittCarbStructural = zero4
        END IF
 
-       out%LittCarbCWD = out%LittCarbCWD + toreal4(casapool%clitter(:,3) / 1000.0_r_2)
+       out%LittCarbCWD = out%LittCarbCWD + toreal4(casapool%clitter(:,3) / 1000.0_r2)
        IF (writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%LittCarbCWD = out%LittCarbCWD * rinterval
@@ -3526,7 +3526,7 @@ CONTAINS
           out%LittCarbCWD = zero4
        END IF
 
-       out%PlantCarbLeaf = out%PlantCarbLeaf + toreal4(casapool%cplant(:,1) / 1000.0_r_2)
+       out%PlantCarbLeaf = out%PlantCarbLeaf + toreal4(casapool%cplant(:,1) / 1000.0_r2)
        IF (writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%PlantCarbLeaf = out%PlantCarbLeaf * rinterval
@@ -3537,7 +3537,7 @@ CONTAINS
           out%PlantCarbLeaf = zero4
        END IF
 
-       out%PlantCarbFineRoot = out%PlantCarbFineRoot + toreal4(casapool%cplant(:,3) / 1000.0_r_2)
+       out%PlantCarbFineRoot = out%PlantCarbFineRoot + toreal4(casapool%cplant(:,3) / 1000.0_r2)
        IF (writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%PlantCarbFineRoot = out%PlantCarbFineRoot * rinterval
@@ -3549,7 +3549,7 @@ CONTAINS
           out%PlantCarbFineRoot = zero4
        END IF
 
-       out%PlantCarbWood = out%PlantCarbWood + toreal4(casapool%cplant(:,2) / 1000.0_r_2)
+       out%PlantCarbWood = out%PlantCarbWood + toreal4(casapool%cplant(:,2) / 1000.0_r2)
        IF (writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%PlantCarbWood = out%PlantCarbWood * rinterval
@@ -3560,7 +3560,7 @@ CONTAINS
           out%PlantCarbWood = zero4
        END IF
 
-       out%TotLivBiomass = out%TotLivBiomass + toreal4((SUM(casapool%cplant,2)) / 1000.0_r_2)
+       out%TotLivBiomass = out%TotLivBiomass + toreal4((SUM(casapool%cplant,2)) / 1000.0_r2)
        IF (writenow) THEN
           ! Divide accumulated variable by number of accumulated time steps:
           out%TotLivBiomass = out%TotLivBiomass * rinterval
@@ -3636,19 +3636,19 @@ CONTAINS
                toreal4(out%c13labile), ranges%TotLivBiomass, patchout%c13o2, 'default', met)
           ! Reset temporary output variable
           ! 12C
-          out%An      = 0.0_r_2
-          out%Rd      = 0.0_r_2
-          out%cplant  = 0.0_r_2
-          out%clitter = 0.0_r_2
-          out%csoil   = 0.0_r_2
-          out%clabile = 0.0_r_2
+          out%An      = 0.0_r2
+          out%Rd      = 0.0_r2
+          out%cplant  = 0.0_r2
+          out%clitter = 0.0_r2
+          out%csoil   = 0.0_r2
+          out%clabile = 0.0_r2
           ! 13C
-          out%A13n      = 0.0_r_2
-          out%aDisc13   = 0.0_r_2
-          out%c13plant  = 0.0_r_2
-          out%c13litter = 0.0_r_2
-          out%c13soil   = 0.0_r_2
-          out%c13labile = 0.0_r_2
+          out%A13n      = 0.0_r2
+          out%aDisc13   = 0.0_r2
+          out%c13plant  = 0.0_r2
+          out%c13litter = 0.0_r2
+          out%c13soil   = 0.0_r2
+          out%c13labile = 0.0_r2
        endif
     endif
 
@@ -3740,7 +3740,7 @@ CONTAINS
     character(len=10) :: todaydate, nowtime ! used to timestamp netcdf file
     ! character         :: FRST_OUT*100, CYEAR*4
     character :: frst_out*200, cyear*4
-    real(r_2), dimension(size(patch, 1)) :: frac
+    real(r2), dimension(size(patch, 1)) :: frac
 
     dummy = 0 ! initialise
 
@@ -4163,7 +4163,7 @@ CONTAINS
        CALL define_ovar(ncid_restart, TsoilID, 'Tsoil', 'degC', &
             'Tsoil', &
             .TRUE., soilID, 'r2soil', 0, 0, 0, mpID, dummy, .TRUE.)
-       !MC - Should be r_2 but specific subroutine not coded yet in cable_write
+       !MC - Should be r2 but specific subroutine not coded yet in cable_write
        CALL define_ovar(ncid_restart, snowliqID, 'snowliq', 'mm', &
             'liquid water content of snowpack', &
             .TRUE., snowID, 'r2snow', 0, 0, 0, mpID, dummy, .TRUE.)
@@ -4204,7 +4204,7 @@ CONTAINS
          //TRIM(frst_out)// '(SUBROUTINE create_restart)')
 
     ! Write time variable:
-    ok = NF90_PUT_VAR(ncid_restart, tvarID, real(ktau,r_2)*real(dels,r_2))
+    ok = NF90_PUT_VAR(ncid_restart, tvarID, real(ktau,r2)*real(dels,r2))
     IF(ok /= NF90_NOERR) CALL nc_abort(ok, 'Error time variable to ' &
          //TRIM(frst_out)// '(SUBROUTINE create_restart)')
 
@@ -4468,62 +4468,62 @@ CONTAINS
 
   ! ------------------------------------------------------------------
 
-  elemental pure function dp2sp(var)
+  elemental pure function r2tor1(var)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2),   intent(in) :: var
-    real(kind=r_1)            :: dp2sp
+    real(r2), intent(in) :: var
+    real(kind=r1)        :: r2tor1
 
-    real(r_2),    parameter :: tini = real(tiny(1.0),r_2)
-    real(kind=r_1), parameter :: zero = real(0.0,r_1)
+    real(r2),    parameter :: tini = real(tiny(1.0),r2)
+    real(kind=r1), parameter :: zero = real(0.0,r1)
 
     if (abs(var) > tini) then
-       dp2sp = real(var,r_1)
+       r2tor1 = real(var,r1)
     else
-       dp2sp = zero
+       r2tor1 = zero
     endif
 
     return
 
-  end function dp2sp
+  end function r2tor1
 
 
-  elemental pure function i2sp(var)
+  elemental pure function itor1(var)
 
     implicit none
 
-    integer  ,   intent(in) :: var
-    real(kind=r_1)            :: i2sp
+    integer, intent(in) :: var
+    real(kind=r1)       :: itor1
 
-    i2sp = real(var,r_1)
+    itor1 = real(var,r1)
 
     return
 
-  end function i2sp
+  end function itor1
 
 
-  elemental pure function sp2sp(var)
+  elemental pure function rtor1(var)
 
     implicit none
 
-    real,        intent(in) :: var
-    real(kind=r_1)            :: sp2sp
+    real, intent(in) :: var
+    real(kind=r1)    :: rtor1
 
-    real,         parameter :: tini = tiny(1.0)
-    real(kind=r_1), parameter :: zero = real(0.0,r_1)
+    real,          parameter :: tini = tiny(1.0)
+    real(kind=r1), parameter :: zero = real(0.0,r1)
 
     if (abs(var) > tini) then
-       sp2sp = real(var,r_1)
+       rtor1 = real(var,r1)
     else
-       sp2sp = zero
+       rtor1 = zero
     endif
 
     return
 
-  end function sp2sp
+  end function rtor1
 
   ! ------------------------------------------------------------------
 

@@ -16,14 +16,14 @@
 
 MODULE math_constants
 
-  USE cable_def_types_mod, ONLY : i_d, r_2
+  USE cable_def_types_mod, ONLY : i4, r2
 
   IMPLICIT NONE
 
   REAL, PARAMETER :: pi     = 3.141592653589793238462643383279502884197
   REAL, PARAMETER :: pi180  = pi / 180.0 ! radians / degree
   REAL, PARAMETER :: two_pi = 2.0 * pi
-  REAL(r_2), PARAMETER :: pi_r_2 = 3.141592653589793238462643383279502884197
+  REAL(r2), PARAMETER :: pi_r2 = 3.141592653589793238462643383279502884197
 
 END MODULE math_constants
 
@@ -31,7 +31,7 @@ END MODULE math_constants
 
 MODULE physical_constants
 
-  USE cable_def_types_mod, ONLY : i_d
+  USE cable_def_types_mod, ONLY : i4
 
   IMPLICIT NONE
 
@@ -66,7 +66,7 @@ MODULE physical_constants
   REAL,    PARAMETER :: ccw    = 2.0      ! ccw=(zw-d)/(h-d)
   REAL,    PARAMETER :: usuhm  = 0.3      ! (max of us/uh)
   ! Turbulence  parameters:
-  INTEGER(i_d), PARAMETER :: niter  = 10       ! number of iterations for za/L
+  INTEGER(i4), PARAMETER :: niter  = 10       ! number of iterations for za/L
   REAL,    PARAMETER :: zetmul = 0.4      ! if niter=2, final zeta=zetmul*zetar(2)
   REAL,    PARAMETER :: zeta0  = 0.0      ! initial value of za/L
   REAL,    PARAMETER :: zetneg = -10.0    ! negative limit on za/L when niter>=3
@@ -80,7 +80,7 @@ END MODULE physical_constants
 
 MODULE other_constants
 
-  USE cable_def_types_mod, ONLY : i_d, nrb
+  USE cable_def_types_mod, ONLY : i4, nrb
 
   IMPLICIT NONE
 
@@ -90,18 +90,18 @@ MODULE other_constants
   REAL,    PARAMETER, DIMENSION(nrb) :: refl    = (/ 0.1, 0.425, 0.02 /) ! mar08
   ! leaf transmittance
   REAL,    PARAMETER, DIMENSION(nrb) :: taul    = (/ 0.1, 0.425, 0.02 /) ! mar08
-  INTEGER(i_d), PARAMETER                 :: istemp  = 4                      ! soil temp:     1,2,3,4 = FR,kf,mrr,mrrkf
-  INTEGER(i_d), PARAMETER                 :: ismois  = 2                      ! soil moist:  1,2,3     = MP84,NP89,Richards
-  INTEGER(i_d), PARAMETER                 :: isinf   = 2                      ! soil infilt: 1,2       = MP84, FC96
-  INTEGER(i_d), PARAMETER                 :: isevap  = 2                      ! soil evap: 1,2,3 = alfa,beta,threshold
-  INTEGER(i_d), PARAMETER                 :: itherm  = 1                      ! VW or KGK algorithm for hconds,rkapps
-  INTEGER(i_d), PARAMETER                 :: irktem  = 5                      ! RK steps in soil temp schemes
-  INTEGER(i_d), PARAMETER                 :: irkmoi  = 5                      ! RK steps in soil moisture schemes
+  INTEGER(i4), PARAMETER                 :: istemp  = 4                      ! soil temp:     1,2,3,4 = FR,kf,mrr,mrrkf
+  INTEGER(i4), PARAMETER                 :: ismois  = 2                      ! soil moist:  1,2,3     = MP84,NP89,Richards
+  INTEGER(i4), PARAMETER                 :: isinf   = 2                      ! soil infilt: 1,2       = MP84, FC96
+  INTEGER(i4), PARAMETER                 :: isevap  = 2                      ! soil evap: 1,2,3 = alfa,beta,threshold
+  INTEGER(i4), PARAMETER                 :: itherm  = 1                      ! VW or KGK algorithm for hconds,rkapps
+  INTEGER(i4), PARAMETER                 :: irktem  = 5                      ! RK steps in soil temp schemes
+  INTEGER(i4), PARAMETER                 :: irkmoi  = 5                      ! RK steps in soil moisture schemes
   ! soil water  parameters:
   REAL,    PARAMETER                 :: etarct  = 0.7                    ! rel soil moisture for finding zst1,zst2
   REAL,    PARAMETER                 :: dbde    = 1.3333                 ! d(beta)/d(etar): 4/3, 8 for D78,KGK91
-  INTEGER(i_d), PARAMETER                 :: istsw   = 1                      !
-  INTEGER(i_d), PARAMETER                 :: iresp   = 0                      ! unscaled (iresp=0) or scaled (iresp=1) respiration
+  INTEGER(i4), PARAMETER                 :: istsw   = 1                      !
+  INTEGER(i4), PARAMETER                 :: iresp   = 0                      ! unscaled (iresp=0) or scaled (iresp=1) respiration
 
 END MODULE other_constants
 
@@ -109,11 +109,11 @@ END MODULE other_constants
 
 MODULE photosynthetic_constants
 
-  USE cable_def_types_mod, ONLY : i_d
+  USE cable_def_types_mod, ONLY : i4
 
   IMPLICIT NONE
 
-  INTEGER(i_d), PARAMETER :: maxiter         = 20       ! max # interations for leaf temperature
+  INTEGER(i4), PARAMETER :: maxiter         = 20       ! max # interations for leaf temperature
   ! a1c3 is defined inside cable_canopy.f90
   REAL,    PARAMETER :: a1c4_default    = 4.0
   REAL,    PARAMETER :: a1c3_default    = 9.0

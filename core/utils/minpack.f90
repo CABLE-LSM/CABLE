@@ -1,7 +1,7 @@
 
 MODULE minpack
 
-  use cable_def_types_mod, only: r_2
+  use cable_def_types_mod, only: r2
   use mo_utils,            only: eq, ge, le, ne
 
 !License:
@@ -65,7 +65,7 @@ MODULE minpack
 !to the following functions: lmdif1, lmdif, fdjac2, fcn
 !
 !Matthias Cuntz, Apr 2020:
-! all double precision to Cable notation, i.e. 12D+34 to 12e+34_r_2
+! all double precision to Cable notation, i.e. 12D+34 to 12e+34_r2
 
   CONTAINS
 
@@ -131,28 +131,28 @@ MODULE minpack
       !
       !    Input, integer :: N, is the number of variables.
       !
-      !    Input, real(r_2) :: X(N), the point at which the jacobian is to be
+      !    Input, real(r2) :: X(N), the point at which the jacobian is to be
       !    evaluated.
       !
-      !    Input, real(r_2) :: FVEC(M), is used only when MODE = 2.
+      !    Input, real(r2) :: FVEC(M), is used only when MODE = 2.
       !    In that case, it should contain the function values at X.
       !
-      !    Input, real(r_2) :: FJAC(LDFJAC,N), an M by N array.  When MODE = 2,
+      !    Input, real(r2) :: FJAC(LDFJAC,N), an M by N array.  When MODE = 2,
       !    FJAC(I,J) should contain the value of dF(I)/dX(J).
       !
       !    Input, integer :: LDFJAC, the leading dimension of FJAC.
       !    LDFJAC must be at least M.
       !
-      !    Output, real(r_2) :: XP(N), on output with MODE = 1, is a neighboring
+      !    Output, real(r2) :: XP(N), on output with MODE = 1, is a neighboring
       !    point of X, at which the function is to be evaluated.
       !
-      !    Input, real(r_2) :: FVECP(M), on input with MODE = 2, is the function
+      !    Input, real(r2) :: FVECP(M), on input with MODE = 2, is the function
       !    value at XP.
       !
       !    Input, integer :: MODE, should be set to 1 on the first call, and
       !    2 on the second.
       !
-      !    Output, real(r_2) :: ERR(M).  On output when MODE = 2, ERR contains
+      !    Output, real(r2) :: ERR(M).  On output when MODE = 2, ERR contains
       !    measures of correctness of the respective gradients.  If there is no
       !    severe loss of significance, then if ERR(I):
       !      = 1.0D+00, the I-th gradient is correct,
@@ -166,20 +166,20 @@ MODULE minpack
       integer :: m
       integer :: n
 
-      real(r_2) :: eps
-      real(r_2) :: epsf
-      real(r_2) :: epslog
-      real(r_2) :: epsmch
-      real(r_2) :: err(m)
-      real(r_2) :: fjac(ldfjac,n)
-      real(r_2) :: fvec(m)
-      real(r_2) :: fvecp(m)
+      real(r2) :: eps
+      real(r2) :: epsf
+      real(r2) :: epslog
+      real(r2) :: epsmch
+      real(r2) :: err(m)
+      real(r2) :: fjac(ldfjac,n)
+      real(r2) :: fvec(m)
+      real(r2) :: fvecp(m)
       integer :: i
       integer :: j
       integer :: mode
-      real(r_2) :: temp
-      real(r_2) :: x(n)
-      real(r_2) :: xp(n)
+      real(r2) :: temp
+      real(r2) :: x(n)
+      real(r2) :: xp(n)
 
       epsmch = epsilon ( epsmch )
       eps = sqrt ( epsmch )
@@ -190,7 +190,7 @@ MODULE minpack
 
          do j = 1, n
             temp = eps * abs ( x(j) )
-            if ( eq(temp, 0.0_r_2) ) then
+            if ( eq(temp, 0.0_r2) ) then
                temp = eps
             end if
             xp(j) = x(j) + temp
@@ -200,37 +200,37 @@ MODULE minpack
          !
       else if ( mode == 2 ) then
 
-         epsf = 100.0_r_2 * epsmch
+         epsf = 100.0_r2 * epsmch
          epslog = log10 ( eps )
 
-         err = 0.0_r_2
+         err = 0.0_r2
 
          do j = 1, n
             temp = abs ( x(j) )
-            if ( eq(temp, 0.0_r_2) ) then
-               temp = 1.0_r_2
+            if ( eq(temp, 0.0_r2) ) then
+               temp = 1.0_r2
             end if
             err(1:m) = err(1:m) + temp * fjac(1:m,j)
          end do
 
          do i = 1, m
 
-            temp = 1.0_r_2
+            temp = 1.0_r2
 
-            if ( ne(fvec(i), 0.0_r_2) .and. ne(fvecp(i), 0.0_r_2) .and. &
+            if ( ne(fvec(i), 0.0_r2) .and. ne(fvecp(i), 0.0_r2) .and. &
                  ge(abs(fvecp(i)-fvec(i)), epsf * abs(fvec(i))) ) then
                temp = eps * abs ( (fvecp(i)-fvec(i)) / eps - err(i) ) &
                     / ( abs ( fvec(i) ) + abs ( fvecp(i) ) )
             end if
 
-            err(i) = 1.0_r_2
+            err(i) = 1.0_r2
 
             if ( epsmch < temp .and. temp < eps ) then
                err(i) = ( log10 ( temp ) - epslog ) / epslog
             end if
 
             if ( le(eps, temp) ) then
-               err(i) = 0.0_r_2
+               err(i) = 0.0_r2
             end if
 
          end do
@@ -285,20 +285,20 @@ MODULE minpack
       !
       !    Input, integer :: N, the order of the matrix R.
       !
-      !    Input, real(r_2) :: R(LR), the upper triangular matrix R stored
+      !    Input, real(r2) :: R(LR), the upper triangular matrix R stored
       !    by rows.
       !
       !    Input, integer :: LR, the size of the R array, which must be 
       !    no less than (N*(N+1))/2.
       !
-      !    Input, real(r_2) :: DIAG(N), the diagonal elements of the matrix D.
+      !    Input, real(r2) :: DIAG(N), the diagonal elements of the matrix D.
       !
-      !    Input, real(r_2) :: QTB(N), the first N elements of the vector Q'* B.
+      !    Input, real(r2) :: QTB(N), the first N elements of the vector Q'* B.
       !
-      !    Input, real(r_2) :: DELTA, is a positive upper bound on the
+      !    Input, real(r2) :: DELTA, is a positive upper bound on the
       !    euclidean norm of D*X(1:N).
       !
-      !    Output, real(r_2) :: X(N), the desired convex combination of the
+      !    Output, real(r2) :: X(N), the desired convex combination of the
       !    Gauss-Newton direction and the scaled gradient direction.
       !
       implicit none
@@ -306,27 +306,27 @@ MODULE minpack
       integer :: lr
       integer :: n
 
-      real(r_2) :: alpha
-      real(r_2) :: bnorm
-      real(r_2) :: delta
-      real(r_2) :: diag(n)
-      ! real(r_2) :: enorm
-      real(r_2) :: epsmch
-      real(r_2) :: gnorm
+      real(r2) :: alpha
+      real(r2) :: bnorm
+      real(r2) :: delta
+      real(r2) :: diag(n)
+      ! real(r2) :: enorm
+      real(r2) :: epsmch
+      real(r2) :: gnorm
       integer :: i
       integer :: j
       integer :: jj
       integer :: k
       integer :: l
-      real(r_2) :: qnorm
-      real(r_2) :: qtb(n)
-      real(r_2) :: r(lr)
-      real(r_2) :: sgnorm
-      real(r_2) :: sum2
-      real(r_2) :: temp
-      real(r_2) :: wa1(n)
-      real(r_2) :: wa2(n)
-      real(r_2) :: x(n)
+      real(r2) :: qnorm
+      real(r2) :: qtb(n)
+      real(r2) :: r(lr)
+      real(r2) :: sgnorm
+      real(r2) :: sum2
+      real(r2) :: temp
+      real(r2) :: wa1(n)
+      real(r2) :: wa2(n)
+      real(r2) :: x(n)
 
       epsmch = epsilon ( epsmch )
       !
@@ -339,7 +339,7 @@ MODULE minpack
          j = n - k + 1
          jj = jj - k
          l = jj + 1
-         sum2 = 0.0_r_2
+         sum2 = 0.0_r2
 
          do i = j + 1, n
             sum2 = sum2 + r(l) * x(i)
@@ -348,7 +348,7 @@ MODULE minpack
 
          temp = r(jj)
 
-         if ( eq(temp, 0.0_r_2) ) then
+         if ( eq(temp, 0.0_r2) ) then
 
             l = j
             do i = 1, j
@@ -356,7 +356,7 @@ MODULE minpack
                l = l + n - i
             end do
 
-            if ( eq(temp, 0.0_r_2) ) then
+            if ( eq(temp, 0.0_r2) ) then
                temp = epsmch
             else
                temp = epsmch * temp
@@ -370,7 +370,7 @@ MODULE minpack
       !
       !  Test whether the Gauss-Newton direction is acceptable.
       !
-      wa1(1:n) = 0.0_r_2
+      wa1(1:n) = 0.0_r2
       wa2(1:n) = diag(1:n) * x(1:n)
       qnorm = enorm ( n, wa2 )
 
@@ -395,10 +395,10 @@ MODULE minpack
       !  Test for the special case in which the scaled gradient is zero.
       !
       gnorm = enorm ( n, wa1 )
-      sgnorm = 0.0_r_2
+      sgnorm = 0.0_r2
       alpha = delta / qnorm
 
-      if ( ne(gnorm, 0.0_r_2) ) then
+      if ( ne(gnorm, 0.0_r2) ) then
          !
          !  Calculate the point along the scaled gradient which minimizes the quadratic.
          !
@@ -406,7 +406,7 @@ MODULE minpack
 
          l = 1
          do j = 1, n
-            sum2 = 0.0_r_2
+            sum2 = 0.0_r2
             do i = j, n
                sum2 = sum2 + r(l) * wa1(i)
                l = l + 1
@@ -419,7 +419,7 @@ MODULE minpack
          !
          !  Test whether the scaled gradient direction is acceptable.
          !
-         alpha = 0.0_r_2
+         alpha = 0.0_r2
          !
          !  The scaled gradient direction is not acceptable.
          !  Calculate the point along the dogleg at which the quadratic is minimized.
@@ -430,10 +430,10 @@ MODULE minpack
             temp = ( bnorm / gnorm ) * ( bnorm / qnorm ) * ( sgnorm / delta )
             temp = temp - ( delta / qnorm ) * ( sgnorm / delta) ** 2 &
                  + sqrt ( ( temp - ( delta / qnorm ) ) ** 2 &
-                 + ( 1.0_r_2 - ( delta / qnorm ) ** 2 ) &
-                 * ( 1.0_r_2 - ( sgnorm / delta ) ** 2 ) )
+                 + ( 1.0_r2 - ( delta / qnorm ) ** 2 ) &
+                 * ( 1.0_r2 - ( sgnorm / delta ) ** 2 ) )
 
-            alpha = ( ( delta / qnorm ) * ( 1.0_r_2 - ( sgnorm / delta ) ** 2 ) ) &
+            alpha = ( ( delta / qnorm ) * ( 1.0_r2 - ( sgnorm / delta ) ** 2 ) ) &
                  / temp
 
          end if
@@ -443,7 +443,7 @@ MODULE minpack
       !  Form appropriate convex combination of the Gauss-Newton
       !  direction and the scaled gradient direction.
       !
-      temp = ( 1.0_r_2 - alpha ) * min ( sgnorm, delta )
+      temp = ( 1.0_r2 - alpha ) * min ( sgnorm, delta )
 
       x(1:n) = temp * wa1(1:n) + alpha * x(1:n)
 
@@ -485,15 +485,15 @@ MODULE minpack
       !
       !    Input, integer :: N, is the length of the vector.
       !
-      !    Input, real(r_2) :: X(N), the vector whose norm is desired.
+      !    Input, real(r2) :: X(N), the vector whose norm is desired.
       !
-      !    Output, real(r_2) :: ENORM, the Euclidean norm of the vector.
+      !    Output, real(r2) :: ENORM, the Euclidean norm of the vector.
       !
       implicit none
 
       integer :: n
-      real(r_2) :: x(n)
-      real(r_2) :: enorm
+      real(r2) :: x(n)
+      real(r2) :: enorm
 
       enorm = sqrt ( sum ( x(1:n) ** 2 ))
 
@@ -547,36 +547,36 @@ MODULE minpack
       !
       !    Input, integer :: N, is the length of the vector.
       !
-      !    Input, real(r_2) :: X(N), the vector whose norm is desired.
+      !    Input, real(r2) :: X(N), the vector whose norm is desired.
       !
-      !    Output, real(r_2) :: ENORM2, the Euclidean norm of the vector.
+      !    Output, real(r2) :: ENORM2, the Euclidean norm of the vector.
       !
       implicit none
 
       integer :: n
 
-      real(r_2) :: agiant
-      real(r_2) :: enorm2
+      real(r2) :: agiant
+      real(r2) :: enorm2
       integer :: i
-      real(r_2) :: rdwarf
-      real(r_2) :: rgiant
-      real(r_2) :: s1
-      real(r_2) :: s2
-      real(r_2) :: s3
-      real(r_2) :: x(n)
-      real(r_2) :: xabs
-      real(r_2) :: x1max
-      real(r_2) :: x3max
+      real(r2) :: rdwarf
+      real(r2) :: rgiant
+      real(r2) :: s1
+      real(r2) :: s2
+      real(r2) :: s3
+      real(r2) :: x(n)
+      real(r2) :: xabs
+      real(r2) :: x1max
+      real(r2) :: x3max
 
       rdwarf = sqrt ( tiny ( rdwarf ) )
       rgiant = sqrt ( huge ( rgiant ) )
 
-      s1 = 0.0_r_2
-      s2 = 0.0_r_2
-      s3 = 0.0_r_2
-      x1max = 0.0_r_2
-      x3max = 0.0_r_2
-      agiant = rgiant / real (n, r_2)
+      s1 = 0.0_r2
+      s2 = 0.0_r2
+      s3 = 0.0_r2
+      x1max = 0.0_r2
+      x3max = 0.0_r2
+      agiant = rgiant / real (n, r2)
 
       do i = 1, n
 
@@ -585,16 +585,16 @@ MODULE minpack
          if ( le(xabs, rdwarf) ) then
 
             if ( x3max < xabs ) then
-               s3 = 1.0_r_2 + s3 * ( x3max / xabs ) ** 2
+               s3 = 1.0_r2 + s3 * ( x3max / xabs ) ** 2
                x3max = xabs
-            else if ( ne(xabs, 0.0_r_2) ) then
+            else if ( ne(xabs, 0.0_r2) ) then
                s3 = s3 + ( xabs / x3max ) ** 2
             end if
 
          else if ( le(agiant, xabs) ) then
 
             if ( x1max < xabs ) then
-               s1 = 1.0_r_2 + s1 * ( x1max / xabs ) ** 2
+               s1 = 1.0_r2 + s1 * ( x1max / xabs ) ** 2
                x1max = xabs
             else
                s1 = s1 + ( xabs / x1max ) ** 2
@@ -610,14 +610,14 @@ MODULE minpack
       !
       !  Calculation of norm.
       !
-      if ( ne(s1, 0.0_r_2) ) then
+      if ( ne(s1, 0.0_r2) ) then
 
          enorm2 = x1max * sqrt ( s1 + ( s2 / x1max ) / x1max )
 
-      else if ( ne(s2, 0.0_r_2) ) then
+      else if ( ne(s2, 0.0_r2) ) then
 
          if ( le(x3max, s2) ) then
-            enorm2 = sqrt ( s2 * ( 1.0_r_2 + ( x3max / s2 ) * ( x3max * s3 ) ) )
+            enorm2 = sqrt ( s2 * ( 1.0_r2 + ( x3max / s2 ) * ( x3max * s3 ) ) )
          else
             enorm2 = sqrt ( x3max * ( ( s2 / x3max ) + ( x3max * s3 ) ) )
          end if
@@ -670,9 +670,9 @@ MODULE minpack
       !    calculates the functions.  The routine should have the form:
       !      subroutine fcn ( n, x, fvec, iflag )
       !      integer :: n
-      !      real(r_2) :: fvec(n)
+      !      real(r2) :: fvec(n)
       !      integer :: iflag
-      !      real(r_2) :: x(n)
+      !      real(r2) :: x(n)
       !    If IFLAG = 0 on input, then FCN is only being called to allow the user
       !    to print out the current iterate.
       !    If IFLAG = 1 on input, FCN should calculate the functions at X and
@@ -681,11 +681,11 @@ MODULE minpack
       !
       !    Input, integer :: N, the number of functions and variables.
       !
-      !    Input, real(r_2) :: X(N), the point where the jacobian is evaluated.
+      !    Input, real(r2) :: X(N), the point where the jacobian is evaluated.
       !
-      !    Input, real(r_2) :: FVEC(N), the functions evaluated at X.
+      !    Input, real(r2) :: FVEC(N), the functions evaluated at X.
       !
-      !    Output, real(r_2) :: FJAC(LDFJAC,N), the N by N approximate
+      !    Output, real(r2) :: FJAC(LDFJAC,N), the N by N approximate
       !    jacobian matrix.
       !
       !    Input, integer :: LDFJAC, the leading dimension of FJAC, which
@@ -699,7 +699,7 @@ MODULE minpack
       !    superdiagonals within the band of the jacobian matrix.  If the
       !    jacobian is not banded, set ML and MU to N-1.
       !
-      !    Input, real(r_2) :: EPSFCN, is used in determining a suitable step
+      !    Input, real(r2) :: EPSFCN, is used in determining a suitable step
       !    length for the forward-difference approximation.  This approximation
       !    assumes that the relative errors in the functions are of the order of
       !    EPSFCN.  If EPSFCN is less than the machine precision, it is assumed that
@@ -711,13 +711,13 @@ MODULE minpack
       integer :: ldfjac
       integer :: n
 
-      real(r_2) :: eps
-      real(r_2) :: epsfcn
-      real(r_2) :: epsmch
+      real(r2) :: eps
+      real(r2) :: epsfcn
+      real(r2) :: epsmch
       external fcn
-      real(r_2) :: fjac(ldfjac,n)
-      real(r_2) :: fvec(n)
-      real(r_2) :: h
+      real(r2) :: fjac(ldfjac,n)
+      real(r2) :: fvec(n)
+      real(r2) :: h
       integer :: i
       integer :: iflag
       integer :: j
@@ -725,10 +725,10 @@ MODULE minpack
       integer :: ml
       integer :: msum
       integer :: mu
-      real(r_2) :: temp
-      real(r_2) :: wa1(n)
-      real(r_2) :: wa2(n)
-      real(r_2) :: x(n)
+      real(r2) :: temp
+      real(r2) :: wa1(n)
+      real(r2) :: wa2(n)
+      real(r2) :: x(n)
 
       epsmch = epsilon ( epsmch )
 
@@ -743,7 +743,7 @@ MODULE minpack
 
             temp = x(j)
             h = eps * abs ( temp )
-            if ( eq(h, 0.0_r_2) ) then
+            if ( eq(h, 0.0_r2) ) then
                h = eps
             end if
 
@@ -769,7 +769,7 @@ MODULE minpack
             do j = k, n, msum
                wa2(j) = x(j)
                h = eps * abs ( wa2(j) )
-               if ( eq(h, 0.0_r_2) ) then
+               if ( eq(h, 0.0_r2) ) then
                   h = eps
                end if
                x(j) = wa2(j) + h
@@ -787,11 +787,11 @@ MODULE minpack
                x(j) = wa2(j)
 
                h = eps * abs ( wa2(j) )
-               if ( eq(h, 0.0_r_2) ) then
+               if ( eq(h, 0.0_r2) ) then
                   h = eps
                end if
 
-               fjac(1:n,j) = 0.0_r_2
+               fjac(1:n,j) = 0.0_r2
 
                do i = 1, n
                   if ( j - mu <= i .and. i <= j + ml ) then
@@ -846,9 +846,9 @@ MODULE minpack
       !    calculates the functions.  The routine should have the form:
       !      subroutine fcn ( m, n, x, fvec, iflag )
       !      integer :: n
-      !      real(r_2) :: fvec(m)
+      !      real(r2) :: fvec(m)
       !      integer :: iflag
-      !      real(r_2) :: x(n)
+      !      real(r2) :: x(n)
       !
       !    If IFLAG = 0 on input, then FCN is only being called to allow the user
       !    to print out the current iterate.
@@ -861,11 +861,11 @@ MODULE minpack
       !    Input, integer :: N, is the number of variables.  
       !    N must not exceed M.
       !
-      !    Input, real(r_2) :: X(N), the point where the jacobian is evaluated.
+      !    Input, real(r2) :: X(N), the point where the jacobian is evaluated.
       !
-      !    Input, real(r_2) :: FVEC(M), the functions evaluated at X.
+      !    Input, real(r2) :: FVEC(M), the functions evaluated at X.
       !
-      !    Output, real(r_2) :: FJAC(LDFJAC,N), the M by N approximate
+      !    Output, real(r2) :: FJAC(LDFJAC,N), the M by N approximate
       !    jacobian matrix.
       !
       !    Input, integer :: LDFJAC, the leading dimension of FJAC, 
@@ -875,7 +875,7 @@ MODULE minpack
       !    If FCN returns a nonzero value of IFLAG, then this routine returns 
       !    immediately to the calling program, with the value of IFLAG.
       !
-      !    Input, real(r_2) :: EPSFCN, is used in determining a suitable
+      !    Input, real(r2) :: EPSFCN, is used in determining a suitable
       !    step length for the forward-difference approximation.  This approximation
       !    assumes that the relative errors in the functions are of the order of
       !    EPSFCN.  If EPSFCN is less than the machine precision, it is assumed that
@@ -888,23 +888,23 @@ MODULE minpack
       integer :: m
       integer :: n
 
-      real(r_2) :: eps
-      real(r_2) :: epsfcn
-      real(r_2) :: epsmch
+      real(r2) :: eps
+      real(r2) :: epsfcn
+      real(r2) :: epsmch
       external fcn
-      real(r_2) :: fjac(ldfjac,n)
-      real(r_2) :: fvec(m)
-      real(r_2) :: h
+      real(r2) :: fjac(ldfjac,n)
+      real(r2) :: fvec(m)
+      real(r2) :: h
       integer :: iflag
       integer :: j
-      real(r_2) :: temp
-      real(r_2) :: wa(m)
-      real(r_2) :: x(n)
-      real(r_2) :: An(m)
-      real(r_2) :: Ci(m)
-      real(r_2) :: Rd
-      real(r_2) :: Km
-      real(r_2) :: gammastar
+      real(r2) :: temp
+      real(r2) :: wa(m)
+      real(r2) :: x(n)
+      real(r2) :: An(m)
+      real(r2) :: Ci(m)
+      real(r2) :: Rd
+      real(r2) :: Km
+      real(r2) :: gammastar
 
       epsmch = epsilon ( epsmch )
 
@@ -914,7 +914,7 @@ MODULE minpack
 
          temp = x(j)
          h = eps * abs ( temp )
-         if ( eq(h, 0.0_r_2) ) then
+         if ( eq(h, 0.0_r2) ) then
             h = eps
          end if
 
@@ -974,9 +974,9 @@ MODULE minpack
       !    calculates the functions.  The routine should have the form:
       !      subroutine fcn ( n, x, fvec, iflag )
       !      integer :: n
-      !      real(r_2) :: fvec(n)
+      !      real(r2) :: fvec(n)
       !      integer :: iflag
-      !      real(r_2) :: x(n)
+      !      real(r2) :: x(n)
       !
       !    If IFLAG = 0 on input, then FCN is only being called to allow the user
       !    to print out the current iterate.
@@ -986,13 +986,13 @@ MODULE minpack
       !
       !    Input, integer :: N, the number of functions and variables.
       !
-      !    Input/output, real(r_2) :: X(N).  On input, X must contain an initial
+      !    Input/output, real(r2) :: X(N).  On input, X must contain an initial
       !    estimate of the solution vector.  On output X contains the final
       !    estimate of the solution vector.
       !
-      !    Output, real(r_2) :: FVEC(N), the functions evaluated at the output X.
+      !    Output, real(r2) :: FVEC(N), the functions evaluated at the output X.
       !
-      !    Input, real(r_2) :: XTOL.  Termination occurs when the relative error
+      !    Input, real(r2) :: XTOL.  Termination occurs when the relative error
       !    between two consecutive iterates is at most XTOL.  XTOL should be
       !    nonnegative.
       !
@@ -1003,14 +1003,14 @@ MODULE minpack
       !    superdiagonals within the band of the jacobian matrix.  If the jacobian
       !    is not banded, set ML and MU to at least n - 1.
       !
-      !    Input, real(r_2) :: EPSFCN, is used in determining a suitable step
+      !    Input, real(r2) :: EPSFCN, is used in determining a suitable step
       !    length for the forward-difference approximation.  This approximation
       !    assumes that the relative errors in the functions are of the order of
       !    EPSFCN.  If EPSFCN is less than the machine precision, it is assumed that
       !    the relative errors in the functions are of the order of the machine
       !    precision.
       !
-      !    Input/output, real(r_2) :: DIAG(N).  If MODE = 1, then DIAG is set
+      !    Input/output, real(r2) :: DIAG(N).  If MODE = 1, then DIAG is set
       !    internally.  If MODE = 2, then DIAG must contain positive entries that
       !    serve as multiplicative scale factors for the variables.
       !
@@ -1018,7 +1018,7 @@ MODULE minpack
       !    1, variables will be scaled internally.
       !    2, scaling is specified by the input DIAG vector.
       !
-      !    Input, real(r_2) :: FACTOR, determines the initial step bound.  This
+      !    Input, real(r2) :: FACTOR, determines the initial step bound.  This
       !    bound is set to the product of FACTOR and the euclidean norm of DIAG*X if
       !    nonzero, or else to FACTOR itself.  In most cases, FACTOR should lie
       !    in the interval (0.1, 100) with 100 the recommended value.
@@ -1046,20 +1046,20 @@ MODULE minpack
       !
       !    Output, integer :: NFEV, the number of calls to FCN.
       !
-      !    Output, real(r_2) :: FJAC(LDFJAC,N), an N by N array which contains
+      !    Output, real(r2) :: FJAC(LDFJAC,N), an N by N array which contains
       !    the orthogonal matrix Q produced by the QR factorization of the final
       !    approximate jacobian.
       !
       !    Input, integer :: LDFJAC, the leading dimension of FJAC.
       !    LDFJAC must be at least N.
       !
-      !    Output, real(r_2) :: R(LR), the upper triangular matrix produced by
+      !    Output, real(r2) :: R(LR), the upper triangular matrix produced by
       !    the QR factorization of the final approximate jacobian, stored rowwise.
       !
       !    Input, integer :: LR, the size of the R array, which must be no
       !    less than (N*(N+1))/2.
       !
-      !    Output, real(r_2) :: QTF(N), contains the vector Q'*FVEC.
+      !    Output, real(r2) :: QTF(N), contains the vector Q'*FVEC.
       !
       implicit none
 
@@ -1067,18 +1067,18 @@ MODULE minpack
       integer :: lr
       integer :: n
 
-      real(r_2) :: actred
-      real(r_2) :: delta
-      real(r_2) :: diag(n)
-      !real(r_2) :: enorm
-      real(r_2) :: epsfcn
-      real(r_2) :: epsmch
-      real(r_2) :: factor
+      real(r2) :: actred
+      real(r2) :: delta
+      real(r2) :: diag(n)
+      !real(r2) :: enorm
+      real(r2) :: epsfcn
+      real(r2) :: epsmch
+      real(r2) :: factor
       external fcn
-      real(r_2) :: fjac(ldfjac,n)
-      real(r_2) :: fnorm
-      real(r_2) :: fnorm1
-      real(r_2) :: fvec(n)
+      real(r2) :: fjac(ldfjac,n)
+      real(r2) :: fnorm
+      real(r2) :: fnorm1
+      real(r2) :: fvec(n)
       integer :: i
       integer :: iflag
       integer :: info
@@ -1099,21 +1099,21 @@ MODULE minpack
       integer :: nfev
       integer :: nprint
       logical pivot
-      real(r_2) :: pnorm
-      real(r_2) :: prered
-      real(r_2) :: qtf(n)
-      real(r_2) :: r(lr)
-      real(r_2) :: ratio
+      real(r2) :: pnorm
+      real(r2) :: prered
+      real(r2) :: qtf(n)
+      real(r2) :: r(lr)
+      real(r2) :: ratio
       logical sing
-      real(r_2) :: sum2
-      real(r_2) :: temp
-      real(r_2) :: wa1(n)
-      real(r_2) :: wa2(n)
-      real(r_2) :: wa3(n)
-      real(r_2) :: wa4(n)
-      real(r_2) :: x(n)
-      real(r_2) :: xnorm
-      real(r_2) :: xtol
+      real(r2) :: sum2
+      real(r2) :: temp
+      real(r2) :: wa1(n)
+      real(r2) :: wa2(n)
+      real(r2) :: wa3(n)
+      real(r2) :: wa4(n)
+      real(r2) :: x(n)
+      real(r2) :: xnorm
+      real(r2) :: xtol
 
       epsmch = epsilon ( epsmch )
 
@@ -1125,7 +1125,7 @@ MODULE minpack
       !
       if ( n <= 0 ) then
          return
-      else if ( xtol < 0.0_r_2 ) then
+      else if ( xtol < 0.0_r2 ) then
          return
       else if ( maxfev <= 0 ) then
          return
@@ -1133,7 +1133,7 @@ MODULE minpack
          return
       else if ( mu < 0 ) then
          return
-      else if ( le(factor, 0.0_r_2) ) then
+      else if ( le(factor, 0.0_r2) ) then
          return
       else if ( ldfjac < n ) then
          return
@@ -1144,7 +1144,7 @@ MODULE minpack
       if ( mode == 2 ) then
 
          do j = 1, n
-            if ( le(diag(j), 0.0_r_2) ) then
+            if ( le(diag(j), 0.0_r2) ) then
                go to 300
             end if
          end do
@@ -1207,8 +1207,8 @@ MODULE minpack
 
             diag(1:n) = wa2(1:n)
             do j = 1, n
-               if ( eq(wa2(j), 0.0_r_2) ) then
-                  diag(j) = 1.0_r_2
+               if ( eq(wa2(j), 0.0_r2) ) then
+                  diag(j) = 1.0_r2
                end if
             end do
 
@@ -1220,7 +1220,7 @@ MODULE minpack
          wa3(1:n) = diag(1:n) * x(1:n)
          xnorm = enorm ( n, wa3 )
          delta = factor * xnorm
-         if ( eq(delta, 0.0_r_2) ) then
+         if ( eq(delta, 0.0_r2) ) then
             delta = factor
          end if
 
@@ -1232,7 +1232,7 @@ MODULE minpack
 
       do j = 1, n
 
-         if ( ne(fjac(j,j), 0.0_r_2) ) then
+         if ( ne(fjac(j,j), 0.0_r2) ) then
             temp = - dot_product ( qtf(j:n), fjac(j:n,j) ) / fjac(j,j)
             qtf(j:n) = qtf(j:n) + fjac(j:n,j) * temp
          end if
@@ -1250,7 +1250,7 @@ MODULE minpack
             l = l + n - i
          end do
          r(l) = wa1(j)
-         if ( eq(wa1(j), 0.0_r_2) ) then
+         if ( eq(wa1(j), 0.0_r2) ) then
             sing = .true.
          end if
       end do
@@ -1316,16 +1316,16 @@ MODULE minpack
       !
       !  Compute the scaled actual reduction.
       !
-      actred = -1.0_r_2
+      actred = -1.0_r2
       if ( fnorm1 < fnorm ) then
-         actred = 1.0_r_2 - ( fnorm1 / fnorm ) ** 2
+         actred = 1.0_r2 - ( fnorm1 / fnorm ) ** 2
       endif
       !
       !  Compute the scaled predicted reduction.
       !
       l = 1
       do i = 1, n
-         sum2 = 0.0_r_2
+         sum2 = 0.0_r2
          do j = i, n
             sum2 = sum2 + r(l) * wa1(j)
             l = l + 1
@@ -1334,37 +1334,37 @@ MODULE minpack
       end do
 
       temp = enorm ( n, wa3 )
-      prered = 0.0_r_2
+      prered = 0.0_r2
       if ( temp < fnorm ) then
-         prered = 1.0_r_2 - ( temp / fnorm ) ** 2
+         prered = 1.0_r2 - ( temp / fnorm ) ** 2
       end if
       !
       !  Compute the ratio of the actual to the predicted reduction.
       !
-      ratio = 0.0_r_2
-      if ( 0.0_r_2 < prered ) then
+      ratio = 0.0_r2
+      if ( 0.0_r2 < prered ) then
          ratio = actred / prered
       end if
       !
       !  Update the step bound.
       !
-      if ( ratio < 0.1_r_2 ) then
+      if ( ratio < 0.1_r2 ) then
 
          ncsuc = 0
          ncfail = ncfail + 1
-         delta = 0.5_r_2 * delta
+         delta = 0.5_r2 * delta
 
       else
 
          ncfail = 0
          ncsuc = ncsuc + 1
 
-         if ( le(0.5_r_2, ratio) .or. 1 < ncsuc ) then
-            delta = max ( delta, pnorm / 0.5_r_2 )
+         if ( le(0.5_r2, ratio) .or. 1 < ncsuc ) then
+            delta = max ( delta, pnorm / 0.5_r2 )
          end if
 
-         if ( le(abs(ratio - 1.0_r_2), 0.1_r_2) ) then
-            delta = pnorm / 0.5_r_2
+         if ( le(abs(ratio - 1.0_r2), 0.1_r2) ) then
+            delta = pnorm / 0.5_r2
          end if
 
       end if
@@ -1374,7 +1374,7 @@ MODULE minpack
       !  Successful iteration.
       !  Update X, FVEC, and their norms.
       !
-      if ( le(0.0001_r_2, ratio) ) then
+      if ( le(0.0001_r2, ratio) ) then
          x(1:n) = wa2(1:n)
          wa2(1:n) = diag(1:n) * x(1:n)
          fvec(1:n) = wa4(1:n)
@@ -1386,7 +1386,7 @@ MODULE minpack
       !  Determine the progress of the iteration.
       !
       nslow1 = nslow1 + 1
-      if ( le(0.001_r_2, actred) ) then
+      if ( le(0.001_r2, actred) ) then
          nslow1 = 0
       end if
 
@@ -1394,13 +1394,13 @@ MODULE minpack
          nslow2 = nslow2 + 1
       end if
 
-      if ( le(0.1_r_2, actred) ) then
+      if ( le(0.1_r2, actred) ) then
          nslow2 = 0
       end if
       !
       !  Test for convergence.
       !
-      if ( le(delta, xtol * xnorm) .or. eq(fnorm, 0.0_r_2) ) then
+      if ( le(delta, xtol * xnorm) .or. eq(fnorm, 0.0_r2) ) then
          info = 1
       end if
 
@@ -1414,7 +1414,7 @@ MODULE minpack
          info = 2
       end if
 
-      if ( le(0.1_r_2 * max(0.1_r_2 * delta, pnorm), epsmch * xnorm) ) then
+      if ( le(0.1_r2 * max(0.1_r2 * delta, pnorm), epsmch * xnorm) ) then
          info = 3
       end if
 
@@ -1444,7 +1444,7 @@ MODULE minpack
          sum2 = dot_product ( wa4(1:n), fjac(1:n,j) )
          wa2(j) = ( sum2 - wa3(j) ) / pnorm
          wa1(j) = diag(j) * ( ( diag(j) * wa1(j) ) / pnorm )
-         if ( le(0.0001_r_2, ratio) ) then
+         if ( le(0.0001_r2, ratio) ) then
             qtf(j) = sum2
          end if
       end do
@@ -1523,9 +1523,9 @@ MODULE minpack
       !    calculates the functions.  The routine should have the form:
       !      subroutine fcn ( n, x, fvec, iflag )
       !      integer :: n
-      !      real(r_2) :: fvec(n)
+      !      real(r2) :: fvec(n)
       !      integer :: iflag
-      !      real(r_2) :: x(n)
+      !      real(r2) :: x(n)
       !    If IFLAG = 0 on input, then FCN is only being called to allow the user
       !    to print out the current iterate.
       !    If IFLAG = 1 on input, FCN should calculate the functions at X and
@@ -1534,13 +1534,13 @@ MODULE minpack
       !
       !    Input, integer :: N, the number of functions and variables.
       !
-      !    Input/output, real(r_2) :: X(N).  On input, X must contain an initial
+      !    Input/output, real(r2) :: X(N).  On input, X must contain an initial
       !    estimate of the solution vector.  On output X contains the final
       !    estimate of the solution vector.
       !
-      !    Output, real(r_2) :: FVEC(N), the functions evaluated at the output X.
+      !    Output, real(r2) :: FVEC(N), the functions evaluated at the output X.
       !
-      !    Input, real(r_2) :: TOL.  Termination occurs when the algorithm
+      !    Input, real(r2) :: TOL.  Termination occurs when the algorithm
       !    estimates that the relative error between X and the solution is at
       !    most TOL.  TOL should be nonnegative.
       !
@@ -1560,12 +1560,12 @@ MODULE minpack
 
       integer :: n
 
-      real(r_2) :: diag(n)
-      real(r_2) :: epsfcn
-      real(r_2) :: factor
+      real(r2) :: diag(n)
+      real(r2) :: epsfcn
+      real(r2) :: factor
       external fcn
-      real(r_2) :: fjac(n,n)
-      real(r_2) :: fvec(n)
+      real(r2) :: fjac(n,n)
+      real(r2) :: fvec(n)
       integer :: info
       integer :: ldfjac
       integer :: lr
@@ -1575,18 +1575,18 @@ MODULE minpack
       integer :: mu
       integer :: nfev
       integer :: nprint
-      real(r_2) :: qtf(n)
-      real(r_2) :: r((n*(n+1))/2)
-      real(r_2) :: tol
-      real(r_2) :: x(n)
-      real(r_2) :: xtol
+      real(r2) :: qtf(n)
+      real(r2) :: r((n*(n+1))/2)
+      real(r2) :: tol
+      real(r2) :: x(n)
+      real(r2) :: xtol
 
       if ( n <= 0 ) then
          info = 0
          return
       end if
 
-      if ( tol < 0.0_r_2 ) then
+      if ( tol < 0.0_r2 ) then
          info = 0
          return
       end if
@@ -1595,18 +1595,18 @@ MODULE minpack
       maxfev = 200 * ( n + 1 )
       ml = n - 1
       mu = n - 1
-      epsfcn = 0.0_r_2
-      diag(1:n) = 1.0_r_2
+      epsfcn = 0.0_r2
+      diag(1:n) = 1.0_r2
       mode = 2
-      factor = 100.0_r_2
+      factor = 100.0_r2
       nprint = 0
       info = 0
       nfev = 0
-      fjac(1:n,1:n) = 0.0_r_2
+      fjac(1:n,1:n) = 0.0_r2
       ldfjac = n
-      r(1:(n*(n+1))/2) = 0.0_r_2
+      r(1:(n*(n+1))/2) = 0.0_r2
       lr = ( n * ( n + 1 ) ) / 2
-      qtf(1:n) = 0.0_r_2
+      qtf(1:n) = 0.0_r2
 
       call hybrd ( fcn, n, x, fvec, xtol, maxfev, ml, mu, epsfcn, diag, mode, &
            factor, nprint, info, nfev, fjac, ldfjac, r, lr, qtf )
@@ -1658,10 +1658,10 @@ MODULE minpack
       !      subroutine fcn ( n, x, fvec, fjac, ldfjac, iflag )
       !      integer :: ldfjac
       !      integer :: n
-      !      real(r_2) :: fjac(ldfjac,n)
-      !      real(r_2) :: fvec(n)
+      !      real(r2) :: fjac(ldfjac,n)
+      !      real(r2) :: fvec(n)
       !      integer :: iflag
-      !      real(r_2) :: x(n)
+      !      real(r2) :: x(n)
       !
       !    If IFLAG = 0 on input, then FCN is only being called to allow the user
       !    to print out the current iterate.
@@ -1673,27 +1673,27 @@ MODULE minpack
       !
       !    Input, integer :: N, the number of functions and variables.
       !
-      !    Input/output, real(r_2) :: X(N).  On input, X must contain an initial
+      !    Input/output, real(r2) :: X(N).  On input, X must contain an initial
       !    estimate of the solution vector.  On output X contains the final
       !    estimate of the solution vector.
       !
-      !    Output, real(r_2) :: FVEC(N), the functions evaluated at the output X.
+      !    Output, real(r2) :: FVEC(N), the functions evaluated at the output X.
       !
-      !    Output, real(r_2) :: FJAC(LDFJAC,N), an N by N matrix, containing
+      !    Output, real(r2) :: FJAC(LDFJAC,N), an N by N matrix, containing
       !    the orthogonal matrix Q produced by the QR factorization
       !    of the final approximate jacobian.
       !
       !    Input, integer :: LDFJAC, the leading dimension of the
       !    array FJAC.  LDFJAC must be at least N.
       !
-      !    Input, real(r_2) :: XTOL.  Termination occurs when the relative error
+      !    Input, real(r2) :: XTOL.  Termination occurs when the relative error
       !    between two consecutive iterates is at most XTOL.  XTOL should be
       !    nonnegative.
       !
       !    Input, integer :: MAXFEV.  Termination occurs when the number of
       !    calls to FCN is at least MAXFEV by the end of an iteration.
       !
-      !    Input/output, real(r_2) :: DIAG(N).  If MODE = 1, then DIAG is set
+      !    Input/output, real(r2) :: DIAG(N).  If MODE = 1, then DIAG is set
       !    internally.  If MODE = 2, then DIAG must contain positive entries that
       !    serve as multiplicative scale factors for the variables.
       !
@@ -1701,7 +1701,7 @@ MODULE minpack
       !    1, variables will be scaled internally.
       !    2, scaling is specified by the input DIAG vector.
       !
-      !    Input, real(r_2) :: FACTOR, determines the initial step bound.  This
+      !    Input, real(r2) :: FACTOR, determines the initial step bound.  This
       !    bound is set to the product of FACTOR and the euclidean norm of DIAG*X if
       !    nonzero, or else to FACTOR itself.  In most cases, FACTOR should lie
       !    in the interval (0.1, 100) with 100 the recommended value.
@@ -1732,13 +1732,13 @@ MODULE minpack
       !    Output, integer :: NJEV, the number of calls to FCN 
       !    with IFLAG = 2.
       !
-      !    Output, real(r_2) :: R(LR), the upper triangular matrix produced
+      !    Output, real(r2) :: R(LR), the upper triangular matrix produced
       !    by the QR factorization of the final approximate jacobian, stored rowwise.
       !
       !    Input, integer :: LR, the size of the R array, which must 
       !    be no less than (N*(N+1))/2.
       !
-      !    Output, real(r_2) :: QTF(N), contains the vector Q'*FVEC.
+      !    Output, real(r2) :: QTF(N), contains the vector Q'*FVEC.
       !
       implicit none
 
@@ -1746,17 +1746,17 @@ MODULE minpack
       integer :: lr
       integer :: n
 
-      real(r_2) :: actred
-      real(r_2) :: delta
-      real(r_2) :: diag(n)
-      !real(r_2) :: enorm
-      real(r_2) :: epsmch
-      real(r_2) :: factor
+      real(r2) :: actred
+      real(r2) :: delta
+      real(r2) :: diag(n)
+      !real(r2) :: enorm
+      real(r2) :: epsmch
+      real(r2) :: factor
       external fcn
-      real(r_2) :: fjac(ldfjac,n)
-      real(r_2) :: fnorm
-      real(r_2) :: fnorm1
-      real(r_2) :: fvec(n)
+      real(r2) :: fjac(ldfjac,n)
+      real(r2) :: fnorm
+      real(r2) :: fnorm1
+      real(r2) :: fvec(n)
       integer :: i
       integer :: iflag
       integer :: info
@@ -1775,21 +1775,21 @@ MODULE minpack
       integer :: njev
       integer :: nprint
       logical pivot
-      real(r_2) :: pnorm
-      real(r_2) :: prered
-      real(r_2) :: qtf(n)
-      real(r_2) :: r(lr)
-      real(r_2) :: ratio
+      real(r2) :: pnorm
+      real(r2) :: prered
+      real(r2) :: qtf(n)
+      real(r2) :: r(lr)
+      real(r2) :: ratio
       logical sing
-      real(r_2) :: sum2
-      real(r_2) :: temp
-      real(r_2) :: wa1(n)
-      real(r_2) :: wa2(n)
-      real(r_2) :: wa3(n)
-      real(r_2) :: wa4(n)
-      real(r_2) :: x(n)
-      real(r_2) :: xnorm
-      real(r_2) :: xtol
+      real(r2) :: sum2
+      real(r2) :: temp
+      real(r2) :: wa1(n)
+      real(r2) :: wa2(n)
+      real(r2) :: wa3(n)
+      real(r2) :: wa4(n)
+      real(r2) :: x(n)
+      real(r2) :: xnorm
+      real(r2) :: xtol
 
       epsmch = epsilon ( epsmch )
 
@@ -1812,9 +1812,9 @@ MODULE minpack
       end if
 
       if ( ldfjac < n .or. &
-           xtol < 0.0_r_2 .or. &
+           xtol < 0.0_r2 .or. &
            maxfev <= 0 .or. &
-           le(factor, 0.0_r_2) .or. &
+           le(factor, 0.0_r2) .or. &
            lr < ( n * ( n + 1 ) ) / 2 ) then
          if ( iflag < 0 ) then
             info = iflag
@@ -1828,7 +1828,7 @@ MODULE minpack
 
       if ( mode == 2 ) then
          do j = 1, n
-            if ( le(diag(j), 0.0_r_2) ) then
+            if ( le(diag(j), 0.0_r2) ) then
                if ( iflag < 0 ) then
                   info = iflag
                end if
@@ -1902,8 +1902,8 @@ MODULE minpack
             if ( mode /= 2 ) then
                diag(1:n) = wa2(1:n)
                do j = 1, n
-                  if ( eq(wa2(j), 0.0_r_2) ) then
-                     diag(j) = 1.0_r_2
+                  if ( eq(wa2(j), 0.0_r2) ) then
+                     diag(j) = 1.0_r2
                   end if
                end do
             end if
@@ -1914,7 +1914,7 @@ MODULE minpack
             wa3(1:n) = diag(1:n) * x(1:n)
             xnorm = enorm ( n, wa3 )
             delta = factor * xnorm
-            if ( eq(delta, 0.0_r_2) ) then
+            if ( eq(delta, 0.0_r2) ) then
                delta = factor
             end if
 
@@ -1925,8 +1925,8 @@ MODULE minpack
          qtf(1:n) = fvec(1:n)
 
          do j = 1, n
-            if ( ne(fjac(j,j), 0.0_r_2) ) then
-               sum2 = 0.0_r_2
+            if ( ne(fjac(j,j), 0.0_r2) ) then
+               sum2 = 0.0_r2
                do i = j, n
                   sum2 = sum2 + fjac(i,j) * qtf(i)
                end do
@@ -1948,7 +1948,7 @@ MODULE minpack
                l = l + n - i
             end do
             r(l) = wa1(j)
-            if ( eq(wa1(j), 0.0_r_2) ) then
+            if ( eq(wa1(j), 0.0_r2) ) then
                sing = .true.
             end if
          end do
@@ -2026,16 +2026,16 @@ MODULE minpack
             !
             !  Compute the scaled actual reduction.
             !
-            actred = -1.0_r_2
+            actred = -1.0_r2
             if ( fnorm1 < fnorm ) then
-               actred = 1.0_r_2 - ( fnorm1 / fnorm ) ** 2
+               actred = 1.0_r2 - ( fnorm1 / fnorm ) ** 2
             end if
             !
             !  Compute the scaled predicted reduction.
             !
             l = 1
             do i = 1, n
-               sum2 = 0.0_r_2
+               sum2 = 0.0_r2
                do j = i, n
                   sum2 = sum2 + r(l) * wa1(j)
                   l = l + 1
@@ -2044,38 +2044,38 @@ MODULE minpack
             end do
 
             temp = enorm ( n, wa3 )
-            prered = 0.0_r_2
+            prered = 0.0_r2
             if ( temp < fnorm ) then
-               prered = 1.0_r_2 - ( temp / fnorm ) ** 2
+               prered = 1.0_r2 - ( temp / fnorm ) ** 2
             end if
             !
             !  Compute the ratio of the actual to the predicted reduction.
             !
-            if ( 0.0_r_2 < prered ) then
+            if ( 0.0_r2 < prered ) then
                ratio = actred / prered
             else
-               ratio = 0.0_r_2
+               ratio = 0.0_r2
             end if
             !
             !  Update the step bound.
             !
-            if ( ratio < 0.1_r_2 ) then
+            if ( ratio < 0.1_r2 ) then
 
                ncsuc = 0
                ncfail = ncfail + 1
-               delta = 0.5_r_2 * delta
+               delta = 0.5_r2 * delta
 
             else
 
                ncfail = 0
                ncsuc = ncsuc + 1
 
-               if ( le(0.5_r_2, ratio) .or. 1 < ncsuc ) then
-                  delta = max ( delta, pnorm / 0.5_r_2 )
+               if ( le(0.5_r2, ratio) .or. 1 < ncsuc ) then
+                  delta = max ( delta, pnorm / 0.5_r2 )
                end if
 
-               if ( le(abs( ratio - 1.0_r_2 ), 0.1_r_2) ) then
-                  delta = pnorm / 0.5_r_2
+               if ( le(abs( ratio - 1.0_r2 ), 0.1_r2) ) then
+                  delta = pnorm / 0.5_r2
                end if
 
             end if
@@ -2087,7 +2087,7 @@ MODULE minpack
             !  Successful iteration.
             !  Update X, FVEC, and their norms.
             !
-            if ( le(0.0001_r_2, ratio) ) then
+            if ( le(0.0001_r2, ratio) ) then
                x(1:n) = wa2(1:n)
                wa2(1:n) = diag(1:n) * x(1:n)
                fvec(1:n) = wa4(1:n)
@@ -2099,7 +2099,7 @@ MODULE minpack
             !  Determine the progress of the iteration.
             !
             nslow1 = nslow1 + 1
-            if ( le(0.001_r_2, actred) ) then
+            if ( le(0.001_r2, actred) ) then
                nslow1 = 0
             end if
 
@@ -2107,13 +2107,13 @@ MODULE minpack
                nslow2 = nslow2 + 1
             end if
 
-            if ( le(0.1_r_2, actred) ) then
+            if ( le(0.1_r2, actred) ) then
                nslow2 = 0
             end if
             !
             !  Test for convergence.
             !
-            if ( le(delta, xtol * xnorm) .or. eq(fnorm, 0.0_r_2) ) then
+            if ( le(delta, xtol * xnorm) .or. eq(fnorm, 0.0_r2) ) then
                info = 1
             end if
 
@@ -2131,7 +2131,7 @@ MODULE minpack
                info = 2
             end if
 
-            if ( le(0.1_r_2 * max( 0.1_r_2 * delta, pnorm ), epsmch * xnorm) ) then
+            if ( le(0.1_r2 * max( 0.1_r2 * delta, pnorm ), epsmch * xnorm) ) then
                info = 3
             end if
 
@@ -2164,7 +2164,7 @@ MODULE minpack
                sum2 = dot_product ( wa4(1:n), fjac(1:n,j) )
                wa2(j) = ( sum2 - wa3(j) ) / pnorm
                wa1(j) = diag(j) * ( ( diag(j) * wa1(j) ) / pnorm )
-               if ( le(0.0001_r_2, ratio) ) then
+               if ( le(0.0001_r2, ratio) ) then
                   qtf(j) = sum2
                end if
             end do
@@ -2227,10 +2227,10 @@ MODULE minpack
       !      subroutine fcn ( n, x, fvec, fjac, ldfjac, iflag )
       !      integer :: ldfjac
       !      integer :: n
-      !      real(r_2) :: fjac(ldfjac,n)
-      !      real(r_2) :: fvec(n)
+      !      real(r2) :: fjac(ldfjac,n)
+      !      real(r2) :: fvec(n)
       !      integer :: iflag
-      !      real(r_2) :: x(n)
+      !      real(r2) :: x(n)
       !
       !    If IFLAG = 0 on input, then FCN is only being called to allow the user
       !    to print out the current iterate.
@@ -2242,20 +2242,20 @@ MODULE minpack
       !
       !    Input, integer :: N, the number of functions and variables.
       !
-      !    Input/output, real(r_2) :: X(N).  On input, X must contain an initial
+      !    Input/output, real(r2) :: X(N).  On input, X must contain an initial
       !    estimate of the solution vector.  On output X contains the final
       !    estimate of the solution vector.
       !
-      !    Output, real(r_2) :: FVEC(N), the functions evaluated at the output X.
+      !    Output, real(r2) :: FVEC(N), the functions evaluated at the output X.
       !
-      !    Output, real(r_2) :: FJAC(LDFJAC,N), an N by N array which contains
+      !    Output, real(r2) :: FJAC(LDFJAC,N), an N by N array which contains
       !    the orthogonal matrix Q produced by the QR factorization of the final
       !    approximate jacobian.
       !
       !    Input, integer :: LDFJAC, the leading dimension of  FJAC.
       !    LDFJAC must be at least N.
       !
-      !    Input, real(r_2) :: TOL.  Termination occurs when the algorithm
+      !    Input, real(r2) :: TOL.  Termination occurs when the algorithm
       !    estimates that the relative error between X and the solution is at most
       !    TOL.  TOL should be nonnegative.
       !
@@ -2275,11 +2275,11 @@ MODULE minpack
       integer :: ldfjac
       integer :: n
 
-      real(r_2) :: diag(n)
-      real(r_2) :: factor
+      real(r2) :: diag(n)
+      real(r2) :: factor
       external fcn
-      real(r_2) :: fjac(ldfjac,n)
-      real(r_2) :: fvec(n)
+      real(r2) :: fjac(ldfjac,n)
+      real(r2) :: fvec(n)
       integer :: info
       integer :: lr
       integer :: maxfev
@@ -2287,11 +2287,11 @@ MODULE minpack
       integer :: nfev
       integer :: njev
       integer :: nprint
-      real(r_2) :: qtf(n)
-      real(r_2) :: r((n*(n+1))/2)
-      real(r_2) :: tol
-      real(r_2) :: x(n)
-      real(r_2) :: xtol
+      real(r2) :: qtf(n)
+      real(r2) :: r((n*(n+1))/2)
+      real(r2) :: tol
+      real(r2) :: x(n)
+      real(r2) :: xtol
 
       info = 0
 
@@ -2299,15 +2299,15 @@ MODULE minpack
          return
       else if ( ldfjac < n ) then
          return
-      else if ( tol < 0.0_r_2 ) then
+      else if ( tol < 0.0_r2 ) then
          return
       end if
 
       maxfev = 100 * ( n + 1 )
       xtol = tol
       mode = 2
-      diag(1:n) = 1.0_r_2
-      factor = 100.0_r_2
+      diag(1:n) = 1.0_r2
+      factor = 100.0_r2
       nprint = 0
       lr = ( n * ( n + 1 ) ) / 2
 
@@ -2361,10 +2361,10 @@ MODULE minpack
       !      subroutine fcn ( m, n, x, fvec, fjac, ldfjac, iflag )
       !      integer :: ldfjac
       !      integer :: n
-      !      real(r_2) :: fjac(ldfjac,n)
-      !      real(r_2) :: fvec(m)
+      !      real(r2) :: fjac(ldfjac,n)
+      !      real(r2) :: fvec(m)
       !      integer :: iflag
-      !      real(r_2) :: x(n)
+      !      real(r2) :: x(n)
       !
       !    If IFLAG = 0 on input, then FCN is only being called to allow the user
       !    to print out the current iterate.
@@ -2379,13 +2379,13 @@ MODULE minpack
       !    Input, integer :: N, is the number of variables.  
       !    N must not exceed M.
       !
-      !    Input/output, real(r_2) :: X(N).  On input, X must contain an initial
+      !    Input/output, real(r2) :: X(N).  On input, X must contain an initial
       !    estimate of the solution vector.  On output X contains the final
       !    estimate of the solution vector.
       !
-      !    Output, real(r_2) :: FVEC(M), the functions evaluated at the output X.
+      !    Output, real(r2) :: FVEC(M), the functions evaluated at the output X.
       !
-      !    Output, real(r_2) :: FJAC(LDFJAC,N), an M by N array.  The upper
+      !    Output, real(r2) :: FJAC(LDFJAC,N), an M by N array.  The upper
       !    N by N submatrix of FJAC contains an upper triangular matrix R with
       !    diagonal elements of nonincreasing magnitude such that
       !      P' * ( JAC' * JAC ) * P = R' * R,
@@ -2397,16 +2397,16 @@ MODULE minpack
       !    Input, integer :: LDFJAC, the leading dimension of FJAC.
       !    LDFJAC must be at least M.
       !
-      !    Input, real(r_2) :: FTOL.  Termination occurs when both the actual
+      !    Input, real(r2) :: FTOL.  Termination occurs when both the actual
       !    and predicted relative reductions in the sum of squares are at most FTOL.
       !    Therefore, FTOL measures the relative error desired in the sum of
       !    squares.  FTOL should be nonnegative.
       !
-      !    Input, real(r_2) :: XTOL.  Termination occurs when the relative error
+      !    Input, real(r2) :: XTOL.  Termination occurs when the relative error
       !    between two consecutive iterates is at most XTOL.  XTOL should be
       !    nonnegative.
       !
-      !    Input, real(r_2) :: GTOL.  Termination occurs when the cosine of the
+      !    Input, real(r2) :: GTOL.  Termination occurs when the cosine of the
       !    angle between FVEC and any column of the jacobian is at most GTOL in
       !    absolute value.  Therefore, GTOL measures the orthogonality desired
       !    between the function vector and the columns of the jacobian.  GTOL should
@@ -2415,7 +2415,7 @@ MODULE minpack
       !    Input, integer :: MAXFEV.  Termination occurs when the number of
       !    calls to FCN with IFLAG = 1 is at least MAXFEV by the end of an iteration.
       !
-      !    Input/output, real(r_2) :: DIAG(N).  If MODE = 1, then DIAG is set
+      !    Input/output, real(r2) :: DIAG(N).  If MODE = 1, then DIAG is set
       !    internally.  If MODE = 2, then DIAG must contain positive entries that
       !    serve as multiplicative scale factors for the variables.
       !
@@ -2423,7 +2423,7 @@ MODULE minpack
       !    1, variables will be scaled internally.
       !    2, scaling is specified by the input DIAG vector.
       !
-      !    Input, real(r_2) :: FACTOR, determines the initial step bound.  This
+      !    Input, real(r2) :: FACTOR, determines the initial step bound.  This
       !    bound is set to the product of FACTOR and the euclidean norm of DIAG*X if
       !    nonzero, or else to FACTOR itself.  In most cases, FACTOR should lie
       !    in the interval (0.1, 100) with 100 the recommended value.
@@ -2465,7 +2465,7 @@ MODULE minpack
       !    elements of nonincreasing magnitude.  Column J of P is column
       !    IPVT(J) of the identity matrix.
       !
-      !    Output, real(r_2) :: QTF(N), contains the first N elements of Q'*FVEC.
+      !    Output, real(r2) :: QTF(N), contains the first N elements of Q'*FVEC.
       !
       implicit none
 
@@ -2473,21 +2473,21 @@ MODULE minpack
       integer :: m
       integer :: n
 
-      real(r_2) :: actred
-      real(r_2) :: delta
-      real(r_2) :: diag(n)
-      real(r_2) :: dirder
-      !real(r_2) :: enorm
-      real(r_2) :: epsmch
-      real(r_2) :: factor
+      real(r2) :: actred
+      real(r2) :: delta
+      real(r2) :: diag(n)
+      real(r2) :: dirder
+      !real(r2) :: enorm
+      real(r2) :: epsmch
+      real(r2) :: factor
       external fcn
-      real(r_2) :: fjac(ldfjac,n)
-      real(r_2) :: fnorm
-      real(r_2) :: fnorm1
-      real(r_2) :: ftol
-      real(r_2) :: fvec(m)
-      real(r_2) :: gnorm
-      real(r_2) :: gtol
+      real(r2) :: fjac(ldfjac,n)
+      real(r2) :: fnorm
+      real(r2) :: fnorm1
+      real(r2) :: ftol
+      real(r2) :: fvec(m)
+      real(r2) :: gnorm
+      real(r2) :: gtol
       integer :: iflag
       integer :: info
       integer :: ipvt(n)
@@ -2499,23 +2499,23 @@ MODULE minpack
       integer :: nfev
       integer :: njev
       integer :: nprint
-      real(r_2) :: par
+      real(r2) :: par
       logical pivot
-      real(r_2) :: pnorm
-      real(r_2) :: prered
-      real(r_2) :: qtf(n)
-      real(r_2) :: ratio
-      real(r_2) :: sum2
-      real(r_2) :: temp
-      real(r_2) :: temp1
-      real(r_2) :: temp2
-      real(r_2) :: wa1(n)
-      real(r_2) :: wa2(n)
-      real(r_2) :: wa3(n)
-      real(r_2) :: wa4(m)
-      real(r_2) :: xnorm
-      real(r_2) :: x(n)
-      real(r_2) :: xtol
+      real(r2) :: pnorm
+      real(r2) :: prered
+      real(r2) :: qtf(n)
+      real(r2) :: ratio
+      real(r2) :: sum2
+      real(r2) :: temp
+      real(r2) :: temp1
+      real(r2) :: temp2
+      real(r2) :: wa1(n)
+      real(r2) :: wa2(n)
+      real(r2) :: wa3(n)
+      real(r2) :: wa4(m)
+      real(r2) :: xnorm
+      real(r2) :: x(n)
+      real(r2) :: xtol
 
       epsmch = epsilon ( epsmch )
 
@@ -2535,14 +2535,14 @@ MODULE minpack
       end if
 
       if ( ldfjac < m &
-           .or. ftol < 0.0_r_2 .or. xtol < 0.0_r_2 .or. gtol < 0.0_r_2 &
-           .or. maxfev <= 0 .or. le(factor, 0.0_r_2) ) then
+           .or. ftol < 0.0_r2 .or. xtol < 0.0_r2 .or. gtol < 0.0_r2 &
+           .or. maxfev <= 0 .or. le(factor, 0.0_r2) ) then
          go to 300
       end if
 
       if ( mode == 2 ) then
          do j = 1, n
-            if ( le(diag(j), 0.0_r_2) ) then
+            if ( le(diag(j), 0.0_r2) ) then
                go to 300
             end if
          end do
@@ -2561,7 +2561,7 @@ MODULE minpack
       !
       !  Initialize Levenberg-Marquardt parameter and iteration counter.
       !
-      par = 0.0_r_2
+      par = 0.0_r2
       iter = 1
       !
       !  Beginning of the outer loop.
@@ -2604,8 +2604,8 @@ MODULE minpack
             if ( mode /= 2 ) then
                diag(1:n) = wa2(1:n)
                do j = 1, n
-                  if ( eq(wa2(j), 0.0_r_2) ) then
-                     diag(j) = 1.0_r_2
+                  if ( eq(wa2(j), 0.0_r2) ) then
+                     diag(j) = 1.0_r2
                   end if
                end do
             end if
@@ -2617,7 +2617,7 @@ MODULE minpack
 
             xnorm = enorm ( n, wa3 )
 
-            if ( eq(xnorm, 0.0_r_2) ) then
+            if ( eq(xnorm, 0.0_r2) ) then
                delta = factor
             else
                delta = factor * xnorm
@@ -2631,7 +2631,7 @@ MODULE minpack
 
          do j = 1, n
 
-            if ( ne(fjac(j,j), 0.0_r_2) ) then
+            if ( ne(fjac(j,j), 0.0_r2) ) then
                sum2 = dot_product ( wa4(j:m), fjac(j:m,j) )
                temp = - sum2 / fjac(j,j)
                wa4(j:m) = wa4(j:m) + fjac(j:m,j) * temp
@@ -2644,13 +2644,13 @@ MODULE minpack
          !
          !  Compute the norm of the scaled gradient.
          !
-         gnorm = 0.0_r_2
+         gnorm = 0.0_r2
 
-         if ( ne(fnorm, 0.0_r_2) ) then
+         if ( ne(fnorm, 0.0_r2) ) then
 
             do j = 1, n
                l = ipvt(j)
-               if ( ne(wa2(l), 0.0_r_2) ) then
+               if ( ne(wa2(l), 0.0_r2) ) then
                   sum2 = dot_product ( qtf(1:j), fjac(1:j,j) ) / fnorm
                   gnorm = max ( gnorm, abs ( sum2 / wa2(l) ) )
                end if
@@ -2710,17 +2710,17 @@ MODULE minpack
             !
             !  Compute the scaled actual reduction.
             !
-            if ( 0.1_r_2 * fnorm1 < fnorm ) then
-               actred = 1.0_r_2 - ( fnorm1 / fnorm ) ** 2
+            if ( 0.1_r2 * fnorm1 < fnorm ) then
+               actred = 1.0_r2 - ( fnorm1 / fnorm ) ** 2
             else
-               actred = - 1.0_r_2
+               actred = - 1.0_r2
             end if
             !
             !  Compute the scaled predicted reduction and
             !  the scaled directional derivative.
             !
             do j = 1, n
-               wa3(j) = 0.0_r_2
+               wa3(j) = 0.0_r2
                l = ipvt(j)
                temp = wa1(l)
                wa3(1:j) = wa3(1:j) + fjac(1:j,j) * temp
@@ -2728,41 +2728,41 @@ MODULE minpack
 
             temp1 = enorm ( n, wa3 ) / fnorm
             temp2 = ( sqrt ( par ) * pnorm ) / fnorm
-            prered = temp1 ** 2 + temp2 ** 2 / 0.5_r_2
+            prered = temp1 ** 2 + temp2 ** 2 / 0.5_r2
             dirder = - ( temp1 ** 2 + temp2 ** 2 )
             !
             !  Compute the ratio of the actual to the predicted reduction.
             !
-            if ( ne(prered, 0.0_r_2) ) then
+            if ( ne(prered, 0.0_r2) ) then
                ratio = actred / prered
             else
-               ratio = 0.0_r_2
+               ratio = 0.0_r2
             end if
             !
             !  Update the step bound.
             !
-            if ( le(ratio, 0.25_r_2) ) then
+            if ( le(ratio, 0.25_r2) ) then
 
-               if ( le(0.0_r_2, actred) ) then
-                  temp = 0.5_r_2
+               if ( le(0.0_r2, actred) ) then
+                  temp = 0.5_r2
                end if
 
-               if ( actred < 0.0_r_2 ) then
-                  temp = 0.5_r_2 * dirder / ( dirder + 0.5_r_2 * actred )
+               if ( actred < 0.0_r2 ) then
+                  temp = 0.5_r2 * dirder / ( dirder + 0.5_r2 * actred )
                end if
 
-               if ( ge(0.1_r_2 * fnorm1, fnorm) .or. temp < 0.1_r_2 ) then
-                  temp = 0.1_r_2
+               if ( ge(0.1_r2 * fnorm1, fnorm) .or. temp < 0.1_r2 ) then
+                  temp = 0.1_r2
                end if
 
-               delta = temp * min ( delta, pnorm / 0.1_r_2 )
+               delta = temp * min ( delta, pnorm / 0.1_r2 )
                par = par / temp
 
             else
 
-               if ( eq(par, 0.0_r_2) .or. ge(ratio, 0.75_r_2) ) then
-                  delta = 2.0_r_2 * pnorm
-                  par = 0.5_r_2 * par
+               if ( eq(par, 0.0_r2) .or. ge(ratio, 0.75_r2) ) then
+                  delta = 2.0_r2 * pnorm
+                  par = 0.5_r2 * par
                end if
 
             end if
@@ -2771,7 +2771,7 @@ MODULE minpack
             !
             !  Update X, FVEC, and their norms.
             !
-            if ( le(0.0001_r_2, ratio) ) then
+            if ( le(0.0001_r2, ratio) ) then
                x(1:n) = wa2(1:n)
                wa2(1:n) = diag(1:n) * x(1:n)
                fvec(1:m) = wa4(1:m)
@@ -2784,7 +2784,7 @@ MODULE minpack
             !
             if ( le(abs(actred), ftol) .and. &
                  le(prered, ftol) .and. &
-                 le(0.5_r_2 * ratio, 1.0_r_2) ) then
+                 le(0.5_r2 * ratio, 1.0_r2) ) then
                info = 1
             end if
 
@@ -2793,7 +2793,7 @@ MODULE minpack
             end if
 
             if ( le(abs ( actred), ftol) .and. le(prered, ftol) &
-                 .and. le(0.5_r_2 * ratio, 1.0_r_2) .and. info == 2 ) then
+                 .and. le(0.5_r2 * ratio, 1.0_r2) .and. info == 2 ) then
                info = 3
             end if
 
@@ -2808,7 +2808,7 @@ MODULE minpack
             end if
 
             if ( le(abs ( actred ), epsmch) .and. le(prered, epsmch) &
-                 .and. le(0.5_r_2 * ratio, 1.0_r_2) ) then
+                 .and. le(0.5_r2 * ratio, 1.0_r2) ) then
                info = 6
             end if
 
@@ -2826,7 +2826,7 @@ MODULE minpack
             !
             !  End of the inner loop. repeat if iteration unsuccessful.
             !
-            if ( le(0.0001_r_2, ratio) ) then
+            if ( le(0.0001_r2, ratio) ) then
                exit
             end if
 
@@ -2893,10 +2893,10 @@ MODULE minpack
       !      subroutine fcn ( m, n, x, fvec, fjac, ldfjac, iflag )
       !      integer :: ldfjac
       !      integer :: n
-      !      real(r_2) :: fjac(ldfjac,n)
-      !      real(r_2) :: fvec(m)
+      !      real(r2) :: fjac(ldfjac,n)
+      !      real(r2) :: fvec(m)
       !      integer :: iflag
-      !      real(r_2) :: x(n)
+      !      real(r2) :: x(n)
       !
       !    If IFLAG = 0 on input, then FCN is only being called to allow the user
       !    to print out the current iterate.
@@ -2911,13 +2911,13 @@ MODULE minpack
       !    Input, integer :: N, is the number of variables.  
       !    N must not exceed M.
       !
-      !    Input/output, real(r_2) :: X(N).  On input, X must contain an initial
+      !    Input/output, real(r2) :: X(N).  On input, X must contain an initial
       !    estimate of the solution vector.  On output X contains the final
       !    estimate of the solution vector.
       !
-      !    Output, real(r_2) :: FVEC(M), the functions evaluated at the output X.
+      !    Output, real(r2) :: FVEC(M), the functions evaluated at the output X.
       !
-      !    Output, real(r_2) :: FJAC(LDFJAC,N), an M by N array.  The upper
+      !    Output, real(r2) :: FJAC(LDFJAC,N), an M by N array.  The upper
       !    N by N submatrix contains an upper triangular matrix R with
       !    diagonal elements of nonincreasing magnitude such that
       !      P' * ( JAC' * JAC ) * P = R' * R,
@@ -2929,7 +2929,7 @@ MODULE minpack
       !    Input, integer :: LDFJAC, is the leading dimension of FJAC,
       !    which must be no less than M.
       !
-      !    Input, real(r_2) :: TOL.  Termination occurs when the algorithm
+      !    Input, real(r2) :: TOL.  Termination occurs when the algorithm
       !    estimates either that the relative error in the sum of squares is at
       !    most TOL or that the relative error between X and the solution is at
       !    most TOL.
@@ -2956,13 +2956,13 @@ MODULE minpack
       integer :: m
       integer :: n
 
-      real(r_2) :: diag(n)
-      real(r_2) :: factor
+      real(r2) :: diag(n)
+      real(r2) :: factor
       external fcn
-      real(r_2) :: fjac(ldfjac,n)
-      real(r_2) :: ftol
-      real(r_2) :: fvec(m)
-      real(r_2) :: gtol
+      real(r2) :: fjac(ldfjac,n)
+      real(r2) :: ftol
+      real(r2) :: fvec(m)
+      real(r2) :: gtol
       integer :: info
       integer :: ipvt(n)
       integer :: maxfev
@@ -2970,10 +2970,10 @@ MODULE minpack
       integer :: nfev
       integer :: njev
       integer :: nprint
-      real(r_2) :: qtf(n)
-      real(r_2) :: tol
-      real(r_2) :: x(n)
-      real(r_2) :: xtol
+      real(r2) :: qtf(n)
+      real(r2) :: tol
+      real(r2) :: x(n)
+      real(r2) :: xtol
 
       info = 0
 
@@ -2983,15 +2983,15 @@ MODULE minpack
          return
       else if ( ldfjac < m ) then
          return
-      else if ( tol < 0.0_r_2 ) then
+      else if ( tol < 0.0_r2 ) then
          return
       end if
 
-      factor = 100.0_r_2
+      factor = 100.0_r2
       maxfev = 100 * ( n + 1 )
       ftol = tol
       xtol = tol
-      gtol = 0.0_r_2
+      gtol = 0.0_r2
       mode = 1
       nprint = 0
 
@@ -3046,9 +3046,9 @@ MODULE minpack
       !      subroutine fcn ( m, n, x, fvec, iflag )
       !      integer :: m
       !      integer :: n
-      !      real(r_2) :: fvec(m)
+      !      real(r2) :: fvec(m)
       !      integer :: iflag
-      !      real(r_2) :: x(n)
+      !      real(r2) :: x(n)
       !    If IFLAG = 0 on input, then FCN is only being called to allow the user
       !    to print out the current iterate.
       !    If IFLAG = 1 on input, FCN should calculate the functions at X and
@@ -3060,23 +3060,23 @@ MODULE minpack
       !    Input, integer :: N, the number of variables.  
       !    N must not exceed M.
       !
-      !    Input/output, real(r_2) :: X(N).  On input, X must contain an initial
+      !    Input/output, real(r2) :: X(N).  On input, X must contain an initial
       !    estimate of the solution vector.  On output X contains the final
       !    estimate of the solution vector.
       !
-      !    Output, real(r_2) :: FVEC(M), the functions evaluated at the output X.
+      !    Output, real(r2) :: FVEC(M), the functions evaluated at the output X.
       !
-      !    Input, real(r_2) :: FTOL.  Termination occurs when both the actual
+      !    Input, real(r2) :: FTOL.  Termination occurs when both the actual
       !    and predicted relative reductions in the sum of squares are at most FTOL.
       !    Therefore, FTOL measures the relative error desired in the sum of
       !    squares.  FTOL should be nonnegative.
       !
-      !    Input, real(r_2) :: XTOL.  Termination occurs when the relative error
+      !    Input, real(r2) :: XTOL.  Termination occurs when the relative error
       !    between two consecutive iterates is at most XTOL.  Therefore, XTOL
       !    measures the relative error desired in the approximate solution.  XTOL
       !    should be nonnegative.
       !
-      !    Input, real(r_2) :: GTOL. termination occurs when the cosine of the
+      !    Input, real(r2) :: GTOL. termination occurs when the cosine of the
       !    angle between FVEC and any column of the jacobian is at most GTOL in
       !    absolute value.  Therefore, GTOL measures the orthogonality desired
       !    between the function vector and the columns of the jacobian.  GTOL should
@@ -3085,14 +3085,14 @@ MODULE minpack
       !    Input, integer :: MAXFEV.  Termination occurs when the number of
       !    calls to FCN is at least MAXFEV by the end of an iteration.
       !
-      !    Input, real(r_2) :: EPSFCN, is used in determining a suitable step 
+      !    Input, real(r2) :: EPSFCN, is used in determining a suitable step 
       !    length for the forward-difference approximation.  This approximation 
       !    assumes that the relative errors in the functions are of the order of 
       !    EPSFCN.  If EPSFCN is less than the machine precision, it is assumed that
       !    the relative errors in the functions are of the order of the machine
       !    precision.
       !
-      !    Input/output, real(r_2) :: DIAG(N).  If MODE = 1, then DIAG is set
+      !    Input/output, real(r2) :: DIAG(N).  If MODE = 1, then DIAG is set
       !    internally.  If MODE = 2, then DIAG must contain positive entries that
       !    serve as multiplicative scale factors for the variables.
       !
@@ -3100,7 +3100,7 @@ MODULE minpack
       !    1, variables will be scaled internally.
       !    2, scaling is specified by the input DIAG vector.
       !
-      !    Input, real(r_2) :: FACTOR, determines the initial step bound.  
+      !    Input, real(r2) :: FACTOR, determines the initial step bound.  
       !    This bound is set to the product of FACTOR and the euclidean norm of
       !    DIAG*X if nonzero, or else to FACTOR itself.  In most cases, FACTOR should 
       !    lie in the interval (0.1, 100) with 100 the recommended value.
@@ -3132,7 +3132,7 @@ MODULE minpack
       !
       !    Output, integer :: NFEV, the number of calls to FCN.
       !
-      !    Output, real(r_2) :: FJAC(LDFJAC,N), an M by N array.  The upper
+      !    Output, real(r2) :: FJAC(LDFJAC,N), an M by N array.  The upper
       !    N by N submatrix of FJAC contains an upper triangular matrix R with
       !    diagonal elements of nonincreasing magnitude such that
       !
@@ -3152,7 +3152,7 @@ MODULE minpack
       !    elements of nonincreasing magnitude.  Column J of P is column IPVT(J)
       !    of the identity matrix.
       !
-      !    Output, real(r_2) :: QTF(N), the first N elements of Q'*FVEC.
+      !    Output, real(r2) :: QTF(N), the first N elements of Q'*FVEC.
       !
       implicit none
 
@@ -3160,22 +3160,22 @@ MODULE minpack
       integer :: m
       integer :: n
 
-      real(r_2) :: actred
-      real(r_2) :: delta
-      real(r_2) :: diag(n)
-      real(r_2) :: dirder
-      !real(r_2) :: enorm
-      real(r_2) :: epsfcn
-      real(r_2) :: epsmch
-      real(r_2) :: factor
+      real(r2) :: actred
+      real(r2) :: delta
+      real(r2) :: diag(n)
+      real(r2) :: dirder
+      !real(r2) :: enorm
+      real(r2) :: epsfcn
+      real(r2) :: epsmch
+      real(r2) :: factor
       external fcn
-      real(r_2) :: fjac(ldfjac,n)
-      real(r_2) :: fnorm
-      real(r_2) :: fnorm1
-      real(r_2) :: ftol
-      real(r_2) :: fvec(m)
-      real(r_2) :: gnorm
-      real(r_2) :: gtol
+      real(r2) :: fjac(ldfjac,n)
+      real(r2) :: fnorm
+      real(r2) :: fnorm1
+      real(r2) :: ftol
+      real(r2) :: fvec(m)
+      real(r2) :: gnorm
+      real(r2) :: gtol
       integer :: i
       integer :: iflag
       integer :: iter
@@ -3187,28 +3187,28 @@ MODULE minpack
       integer :: mode
       integer :: nfev
       integer :: nprint
-      real(r_2) :: par
+      real(r2) :: par
       logical pivot
-      real(r_2) :: pnorm
-      real(r_2) :: prered
-      real(r_2) :: qtf(n)
-      real(r_2) :: ratio
-      real(r_2) :: sum2
-      real(r_2) :: temp
-      real(r_2) :: temp1
-      real(r_2) :: temp2
-      real(r_2) :: wa1(n)
-      real(r_2) :: wa2(n)
-      real(r_2) :: wa3(n)
-      real(r_2) :: wa4(m)
-      real(r_2) :: x(n)
-      real(r_2) :: xnorm
-      real(r_2) :: xtol
-      real(r_2) :: An(m)
-      real(r_2) :: Ci(m)
-      real(r_2) :: Rd
-      real(r_2) :: Km
-      real(r_2) :: gammastar
+      real(r2) :: pnorm
+      real(r2) :: prered
+      real(r2) :: qtf(n)
+      real(r2) :: ratio
+      real(r2) :: sum2
+      real(r2) :: temp
+      real(r2) :: temp1
+      real(r2) :: temp2
+      real(r2) :: wa1(n)
+      real(r2) :: wa2(n)
+      real(r2) :: wa3(n)
+      real(r2) :: wa4(m)
+      real(r2) :: x(n)
+      real(r2) :: xnorm
+      real(r2) :: xtol
+      real(r2) :: An(m)
+      real(r2) :: Ci(m)
+      real(r2) :: Rd
+      real(r2) :: Km
+      real(r2) :: gammastar
 
       epsmch = epsilon ( epsmch )
 
@@ -3222,21 +3222,21 @@ MODULE minpack
          go to 300
       else if ( ldfjac < m ) then
          go to 300
-      else if ( ftol < 0.0_r_2 ) then
+      else if ( ftol < 0.0_r2 ) then
          go to 300
-      else if ( xtol < 0.0_r_2 ) then
+      else if ( xtol < 0.0_r2 ) then
          go to 300
-      else if ( gtol < 0.0_r_2 ) then
+      else if ( gtol < 0.0_r2 ) then
          go to 300
       else if ( maxfev <= 0 ) then
          go to 300
-      else if ( le(factor, 0.0_r_2) ) then
+      else if ( le(factor, 0.0_r2) ) then
          go to 300
       end if
 
       if ( mode == 2 ) then
          do j = 1, n
-            if ( le(diag(j), 0.0_r_2) ) then
+            if ( le(diag(j), 0.0_r2) ) then
                go to 300
             end if
          end do
@@ -3256,7 +3256,7 @@ MODULE minpack
       !
       !  Initialize Levenberg-Marquardt parameter and iteration counter.
       !
-      par = 0.0_r_2
+      par = 0.0_r2
       iter = 1
       !
       !  Beginning of the outer loop.
@@ -3299,8 +3299,8 @@ MODULE minpack
          if ( mode /= 2 ) then
             diag(1:n) = wa2(1:n)
             do j = 1, n
-               if ( eq(wa2(j), 0.0_r_2) ) then
-                  diag(j) = 1.0_r_2
+               if ( eq(wa2(j), 0.0_r2) ) then
+                  diag(j) = 1.0_r2
                end if
             end do
          end if
@@ -3311,7 +3311,7 @@ MODULE minpack
          wa3(1:n) = diag(1:n) * x(1:n)
          xnorm = enorm ( n, wa3 )
          delta = factor * xnorm
-         if ( eq(delta, 0.0_r_2) ) then
+         if ( eq(delta, 0.0_r2) ) then
             delta = factor
          end if
       end if
@@ -3322,7 +3322,7 @@ MODULE minpack
 
       do j = 1, n
 
-         if ( ne(fjac(j,j), 0.0_r_2) ) then
+         if ( ne(fjac(j,j), 0.0_r2) ) then
             sum2 = dot_product ( wa4(j:m), fjac(j:m,j) )
             temp = - sum2 / fjac(j,j)
             wa4(j:m) = wa4(j:m) + fjac(j:m,j) * temp
@@ -3335,16 +3335,16 @@ MODULE minpack
       !
       !  Compute the norm of the scaled gradient.
       !
-      gnorm = 0.0_r_2
+      gnorm = 0.0_r2
 
-      if ( ne(fnorm, 0.0_r_2) ) then
+      if ( ne(fnorm, 0.0_r2) ) then
 
          do j = 1, n
 
             l = ipvt(j)
 
-            if ( ne(wa2(l), 0.0_r_2) ) then
-               sum2 = 0.0_r_2
+            if ( ne(wa2(l), 0.0_r2) ) then
+               sum2 = 0.0_r2
                do i = 1, j
                   sum2 = sum2 + fjac(i,j) * ( qtf(i) / fnorm )
                end do
@@ -3405,16 +3405,16 @@ MODULE minpack
       !
       !  Compute the scaled actual reduction.
       !
-      if ( 0.1_r_2 * fnorm1 < fnorm ) then
-         actred = 1.0_r_2 - ( fnorm1 / fnorm ) ** 2
+      if ( 0.1_r2 * fnorm1 < fnorm ) then
+         actred = 1.0_r2 - ( fnorm1 / fnorm ) ** 2
       else
-         actred = -1.0_r_2
+         actred = -1.0_r2
       end if
       !
       !  Compute the scaled predicted reduction and the scaled directional derivative.
       !
       do j = 1, n
-         wa3(j) = 0.0_r_2
+         wa3(j) = 0.0_r2
          l = ipvt(j)
          temp = wa1(l)
          wa3(1:j) = wa3(1:j) + fjac(1:j,j) * temp
@@ -3422,40 +3422,40 @@ MODULE minpack
 
       temp1 = enorm ( n, wa3 ) / fnorm
       temp2 = ( sqrt ( par ) * pnorm ) / fnorm
-      prered = temp1 ** 2 + temp2 ** 2 / 0.5_r_2
+      prered = temp1 ** 2 + temp2 ** 2 / 0.5_r2
       dirder = - ( temp1 ** 2 + temp2 ** 2 )
       !
       !  Compute the ratio of the actual to the predicted reduction.
       !
-      ratio = 0.0_r_2
-      if ( ne(prered, 0.0_r_2) ) then
+      ratio = 0.0_r2
+      if ( ne(prered, 0.0_r2) ) then
          ratio = actred / prered
       end if
       !
       !  Update the step bound.
       !
-      if ( le(ratio, 0.25_r_2) ) then
+      if ( le(ratio, 0.25_r2) ) then
 
-         if ( ge(actred, 0.0_r_2) ) then
-            temp = 0.5_r_2
+         if ( ge(actred, 0.0_r2) ) then
+            temp = 0.5_r2
          endif
 
-         if ( actred < 0.0_r_2 ) then
-            temp = 0.5_r_2 * dirder / ( dirder + 0.5_r_2 * actred )
+         if ( actred < 0.0_r2 ) then
+            temp = 0.5_r2 * dirder / ( dirder + 0.5_r2 * actred )
          end if
 
-         if ( ge(0.1_r_2 * fnorm1, fnorm) .or. temp < 0.1_r_2 ) then
-            temp = 0.1_r_2
+         if ( ge(0.1_r2 * fnorm1, fnorm) .or. temp < 0.1_r2 ) then
+            temp = 0.1_r2
          end if
 
-         delta = temp * min ( delta, pnorm / 0.1_r_2  )
+         delta = temp * min ( delta, pnorm / 0.1_r2  )
          par = par / temp
 
       else
 
-         if ( eq(par, 0.0_r_2) .or. ge(ratio, 0.75_r_2) ) then
-            delta = 2.0_r_2 * pnorm
-            par = 0.5_r_2 * par
+         if ( eq(par, 0.0_r2) .or. ge(ratio, 0.75_r2) ) then
+            delta = 2.0_r2 * pnorm
+            par = 0.5_r2 * par
          end if
 
       end if
@@ -3466,7 +3466,7 @@ MODULE minpack
       !
       !  Successful iteration. update X, FVEC, and their norms.
       !
-      if ( le(0.0001_r_2, ratio) ) then
+      if ( le(0.0001_r2, ratio) ) then
          x(1:n) = wa2(1:n)
          wa2(1:n) = diag(1:n) * x(1:n)
          fvec(1:m) = wa4(1:m)
@@ -3478,7 +3478,7 @@ MODULE minpack
       !  Tests for convergence.
       !
       if ( le(abs ( actred), ftol) .and. le(prered, ftol) &
-           .and. le(0.5_r_2 * ratio, 1.0_r_2) ) then
+           .and. le(0.5_r2 * ratio, 1.0_r2) ) then
          info = 1
       end if
 
@@ -3487,7 +3487,7 @@ MODULE minpack
       end if
 
       if ( le(abs(actred), ftol) .and. le(prered, ftol) &
-           .and. le(0.5_r_2 * ratio, 1.0_r_2) .and. info == 2 ) info = 3
+           .and. le(0.5_r2 * ratio, 1.0_r2) .and. info == 2 ) info = 3
 
       if ( info /= 0 ) then
          go to 300
@@ -3500,7 +3500,7 @@ MODULE minpack
       end if
 
       if ( le(abs(actred), epsmch) .and. le(prered, epsmch) &
-           .and. le(0.5_r_2 * ratio, 1.0_r_2) ) then
+           .and. le(0.5_r2 * ratio, 1.0_r2) ) then
          info = 6
       end if
 
@@ -3518,7 +3518,7 @@ MODULE minpack
       !
       !  End of the inner loop.  Repeat if iteration unsuccessful.
       !
-      if ( ratio < 0.0001_r_2 ) then
+      if ( ratio < 0.0001_r2 ) then
          go to 200
       end if
       !
@@ -3582,9 +3582,9 @@ MODULE minpack
       !    calculates the functions.  The routine should have the form:
       !      subroutine fcn ( m, n, x, fvec, iflag )
       !      integer :: n
-      !      real(r_2) :: fvec(m)
+      !      real(r2) :: fvec(m)
       !      integer :: iflag
-      !      real(r_2) :: x(n)
+      !      real(r2) :: x(n)
       !
       !    If IFLAG = 0 on input, then FCN is only being called to allow the user
       !    to print out the current iterate.
@@ -3597,13 +3597,13 @@ MODULE minpack
       !    Input, integer :: N, the number of variables.  
       !    N must not exceed M.
       !
-      !    Input/output, real(r_2) :: X(N).  On input, X must contain an initial
+      !    Input/output, real(r2) :: X(N).  On input, X must contain an initial
       !    estimate of the solution vector.  On output X contains the final
       !    estimate of the solution vector.
       !
-      !    Output, real(r_2) :: FVEC(M), the functions evaluated at the output X.
+      !    Output, real(r2) :: FVEC(M), the functions evaluated at the output X.
       !
-      !    Input, real(r_2) :: TOL.  Termination occurs when the algorithm
+      !    Input, real(r2) :: TOL.  Termination occurs when the algorithm
       !    estimates either that the relative error in the sum of squares is at
       !    most TOL or that the relative error between X and the solution is at
       !    most TOL.  TOL should be nonnegative.
@@ -3629,14 +3629,14 @@ MODULE minpack
       integer :: m
       integer :: n
 
-      real(r_2) :: diag(n)
-      real(r_2) :: epsfcn
-      real(r_2) :: factor
+      real(r2) :: diag(n)
+      real(r2) :: epsfcn
+      real(r2) :: factor
       external fcn
-      real(r_2) :: fjac(m,n)
-      real(r_2) :: ftol
-      real(r_2) :: fvec(m)
-      real(r_2) :: gtol
+      real(r2) :: fjac(m,n)
+      real(r2) :: ftol
+      real(r2) :: fvec(m)
+      real(r2) :: gtol
       integer :: info
       integer :: ipvt(n)
       integer :: ldfjac
@@ -3644,15 +3644,15 @@ MODULE minpack
       integer :: mode
       integer :: nfev
       integer :: nprint
-      real(r_2) :: qtf(n)
-      real(r_2) :: tol
-      real(r_2) :: x(n)
-      real(r_2) :: xtol
-      real(r_2) :: An(m)
-      real(r_2) :: Ci(m)
-      real(r_2) :: Rd
-      real(r_2) :: Km
-      real(r_2) :: gammastar
+      real(r2) :: qtf(n)
+      real(r2) :: tol
+      real(r2) :: x(n)
+      real(r2) :: xtol
+      real(r2) :: An(m)
+      real(r2) :: Ci(m)
+      real(r2) :: Rd
+      real(r2) :: Km
+      real(r2) :: gammastar
 
       info = 0
 
@@ -3660,16 +3660,16 @@ MODULE minpack
          return
       else if ( m < n ) then
          return
-      else if ( tol < 0.0_r_2 ) then
+      else if ( tol < 0.0_r2 ) then
          return
       end if
 
-      factor = 100.0_r_2
+      factor = 100.0_r2
       maxfev = 200 * ( n + 1 )
       ftol = tol
       xtol = tol
-      gtol = 0.0_r_2
-      epsfcn = 0.0_r_2
+      gtol = 0.0_r2
+      epsfcn = 0.0_r2
       mode = 1
       nprint = 0
       ldfjac = m
@@ -3753,7 +3753,7 @@ MODULE minpack
       !
       !    Input, integer :: N, the order of R.
       !
-      !    Input/output, real(r_2) :: R(LDR,N),the N by N matrix.  The full
+      !    Input/output, real(r2) :: R(LDR,N),the N by N matrix.  The full
       !    upper triangle must contain the full upper triangle of the matrix R.
       !    On output the full upper triangle is unaltered, and the strict lower
       !    triangle contains the strict upper triangle (transposed) of the upper
@@ -3766,21 +3766,21 @@ MODULE minpack
       !    such that A*P = Q*R.  Column J of P is column IPVT(J) of the 
       !    identity matrix.
       !
-      !    Input, real(r_2) :: DIAG(N), the diagonal elements of the matrix D.
+      !    Input, real(r2) :: DIAG(N), the diagonal elements of the matrix D.
       !
-      !    Input, real(r_2) :: QTB(N), the first N elements of the vector Q'*B.
+      !    Input, real(r2) :: QTB(N), the first N elements of the vector Q'*B.
       !
-      !    Input, real(r_2) :: DELTA, an upper bound on the euclidean norm
+      !    Input, real(r2) :: DELTA, an upper bound on the euclidean norm
       !    of D*X.  DELTA should be positive.
       !
-      !    Input/output, real(r_2) :: PAR.  On input an initial estimate of the
+      !    Input/output, real(r2) :: PAR.  On input an initial estimate of the
       !    Levenberg-Marquardt parameter.  On output the final estimate.
       !    PAR should be nonnegative.
       !
-      !    Output, real(r_2) :: X(N), the least squares solution of the system
+      !    Output, real(r2) :: X(N), the least squares solution of the system
       !    A*X = B, sqrt(PAR)*D*X = 0, for the output value of PAR.
       !
-      !    Output, real(r_2) :: SDIAG(N), the diagonal elements of the upper
+      !    Output, real(r2) :: SDIAG(N), the diagonal elements of the upper
       !    triangular matrix S.
       !
       implicit none
@@ -3788,31 +3788,31 @@ MODULE minpack
       integer :: ldr
       integer :: n
 
-      real(r_2) :: delta
-      real(r_2) :: diag(n)
-      real(r_2) :: dwarf
-      real(r_2) :: dxnorm
-      !real(r_2) :: enorm
-      real(r_2) :: gnorm
-      real(r_2) :: fp
+      real(r2) :: delta
+      real(r2) :: diag(n)
+      real(r2) :: dwarf
+      real(r2) :: dxnorm
+      !real(r2) :: enorm
+      real(r2) :: gnorm
+      real(r2) :: fp
       integer :: ipvt(n)
       integer :: iter
       integer :: j
       integer :: k
       integer :: l
       integer :: nsing
-      real(r_2) :: par
-      real(r_2) :: parc
-      real(r_2) :: parl
-      real(r_2) :: paru
-      real(r_2) :: qtb(n)
-      real(r_2) :: r(ldr,n)
-      real(r_2) :: sdiag(n)
-      real(r_2) :: sum2
-      real(r_2) :: temp
-      real(r_2) :: wa1(n)
-      real(r_2) :: wa2(n)
-      real(r_2) :: x(n)
+      real(r2) :: par
+      real(r2) :: parc
+      real(r2) :: parl
+      real(r2) :: paru
+      real(r2) :: qtb(n)
+      real(r2) :: r(ldr,n)
+      real(r2) :: sdiag(n)
+      real(r2) :: sum2
+      real(r2) :: temp
+      real(r2) :: wa1(n)
+      real(r2) :: wa2(n)
+      real(r2) :: x(n)
       !
       !  DWARF is the smallest positive magnitude.
       !
@@ -3826,11 +3826,11 @@ MODULE minpack
 
       do j = 1, n
          wa1(j) = qtb(j)
-         if ( eq(r(j,j), 0.0_r_2) .and. nsing == n ) then
+         if ( eq(r(j,j), 0.0_r2) .and. nsing == n ) then
             nsing = j - 1
          end if
          if ( nsing < n ) then
-            wa1(j) = 0.0_r_2
+            wa1(j) = 0.0_r2
          end if
       end do
 
@@ -3855,9 +3855,9 @@ MODULE minpack
       dxnorm = enorm ( n, wa2 )
       fp = dxnorm - delta
 
-      if ( le(fp, 0.1_r_2 * delta) ) then
+      if ( le(fp, 0.1_r2 * delta) ) then
          if ( iter == 0 ) then
-            par = 0.0_r_2
+            par = 0.0_r2
          end if
          return
       end if
@@ -3868,7 +3868,7 @@ MODULE minpack
       !
       !  Otherwise set this bound to zero.
       !
-      parl = 0.0_r_2
+      parl = 0.0_r2
 
       if ( n <= nsing ) then
 
@@ -3898,8 +3898,8 @@ MODULE minpack
       gnorm = enorm ( n, wa1 )
       paru = gnorm / delta
 
-      if ( eq(paru, 0.0_r_2) ) then
-         paru = dwarf / min ( delta, 0.1_r_2 )
+      if ( eq(paru, 0.0_r2) ) then
+         paru = dwarf / min ( delta, 0.1_r2 )
       end if
       !
       !  If the input PAR lies outside of the interval (PARL, PARU),
@@ -3907,7 +3907,7 @@ MODULE minpack
       !
       par = max ( par, parl )
       par = min ( par, paru )
-      if ( eq(par, 0.0_r_2) ) then
+      if ( eq(par, 0.0_r2) ) then
          par = gnorm / dxnorm
       end if
       !
@@ -3919,8 +3919,8 @@ MODULE minpack
          !
          !  Evaluate the function at the current value of PAR.
          !
-         if ( eq(par, 0.0_r_2) ) then
-            par = max ( dwarf, 0.001_r_2 * paru )
+         if ( eq(par, 0.0_r2) ) then
+            par = max ( dwarf, 0.001_r2 * paru )
          end if
 
          wa1(1:n) = sqrt ( par ) * diag(1:n)
@@ -3934,14 +3934,14 @@ MODULE minpack
          !
          !  If the function is small enough, accept the current value of PAR.
          !
-         if ( le(abs(fp), 0.1_r_2 * delta) ) then
+         if ( le(abs(fp), 0.1_r2 * delta) ) then
             exit
          end if
          !
          !  Test for the exceptional cases where PARL
          !  is zero or the number of iterations has reached 10.
          !
-         if ( eq(parl, 0.0_r_2) .and. le(fp, temp) .and. temp < 0.0_r_2 ) then
+         if ( eq(parl, 0.0_r2) .and. le(fp, temp) .and. temp < 0.0_r2 ) then
             exit
          else if ( iter == 10 ) then
             exit
@@ -3965,9 +3965,9 @@ MODULE minpack
          !
          !  Depending on the sign of the function, update PARL or PARU.
          !
-         if ( 0.0_r_2 < fp ) then
+         if ( 0.0_r2 < fp ) then
             parl = max ( parl, par )
-         else if ( fp < 0.0_r_2 ) then
+         else if ( fp < 0.0_r2 ) then
             paru = min ( paru, par )
          end if
          !
@@ -3982,7 +3982,7 @@ MODULE minpack
       !  Termination.
       !
       if ( iter == 0 ) then
-         par = 0.0_r_2
+         par = 0.0_r2
       end if
 
       return
@@ -4031,10 +4031,10 @@ MODULE minpack
       !      subroutine fcn ( m, n, x, fvec, fjrow, iflag )
       !      integer :: m
       !      integer :: n
-      !      real(r_2) :: fjrow(n)
-      !      real(r_2) :: fvec(m)
+      !      real(r2) :: fjrow(n)
+      !      real(r2) :: fvec(m)
       !      integer :: iflag
-      !      real(r_2) :: x(n)
+      !      real(r2) :: x(n)
       !    If IFLAG = 0 on input, then FCN is only being called to allow the user
       !    to print out the current iterate.
       !    If IFLAG = 1 on input, FCN should calculate the functions at X and
@@ -4048,13 +4048,13 @@ MODULE minpack
       !    Input, integer :: N, the number of variables.  
       !    N must not exceed M.
       !
-      !    Input/output, real(r_2) :: X(N).  On input, X must contain an initial
+      !    Input/output, real(r2) :: X(N).  On input, X must contain an initial
       !    estimate of the solution vector.  On output X contains the final
       !    estimate of the solution vector.
       !
-      !    Output, real(r_2) :: FVEC(M), the functions evaluated at the output X.
+      !    Output, real(r2) :: FVEC(M), the functions evaluated at the output X.
       !
-      !    Output, real(r_2) :: FJAC(LDFJAC,N), an N by N array.  The upper
+      !    Output, real(r2) :: FJAC(LDFJAC,N), an N by N array.  The upper
       !    triangle of FJAC contains an upper triangular matrix R such that
       !
       !      P' * ( JAC' * JAC ) * P = R' * R,
@@ -4067,16 +4067,16 @@ MODULE minpack
       !    Input, integer :: LDFJAC, the leading dimension of FJAC.
       !    LDFJAC must be at least N.
       !
-      !    Input, real(r_2) :: FTOL.  Termination occurs when both the actual and
+      !    Input, real(r2) :: FTOL.  Termination occurs when both the actual and
       !    predicted relative reductions in the sum of squares are at most FTOL.
       !    Therefore, FTOL measures the relative error desired in the sum of
       !    squares.  FTOL should be nonnegative.
       !
-      !    Input, real(r_2) :: XTOL.  Termination occurs when the relative error 
+      !    Input, real(r2) :: XTOL.  Termination occurs when the relative error 
       !    between two consecutive iterates is at most XTOL.  XTOL should be 
       !    nonnegative.
       !
-      !    Input, real(r_2) :: GTOL. termination occurs when the cosine of the 
+      !    Input, real(r2) :: GTOL. termination occurs when the cosine of the 
       !    angle between FVEC and any column of the jacobian is at most GTOL in 
       !    absolute value.  Therefore, GTOL measures the orthogonality desired 
       !    between the function vector and the columns of the jacobian.  GTOL should
@@ -4086,7 +4086,7 @@ MODULE minpack
       !    of calls to FCN with IFLAG = 1 is at least MAXFEV by the end of 
       !    an iteration.
       !
-      !    Input/output, real(r_2) :: DIAG(N).  If MODE = 1, then DIAG is set 
+      !    Input/output, real(r2) :: DIAG(N).  If MODE = 1, then DIAG is set 
       !    internally.  If MODE = 2, then DIAG must contain positive entries that 
       !    serve as multiplicative scale factors for the variables.
       !
@@ -4094,7 +4094,7 @@ MODULE minpack
       !    1, variables will be scaled internally.
       !    2, scaling is specified by the input DIAG vector.
       !
-      !    Input, real(r_2) :: FACTOR, determines the initial step bound.  This 
+      !    Input, real(r2) :: FACTOR, determines the initial step bound.  This 
       !    bound is set to the product of FACTOR and the euclidean norm of DIAG*X if
       !    nonzero, or else to FACTOR itself.  In most cases, FACTOR should lie
       !    in the interval (0.1, 100) with 100 the recommended value.
@@ -4135,7 +4135,7 @@ MODULE minpack
       !    orthogonal (not stored), and R is upper triangular.
       !    Column J of P is column IPVT(J) of the identity matrix.
       !
-      !    Output, real(r_2) :: QTF(N), contains the first N elements of Q'*FVEC.
+      !    Output, real(r2) :: QTF(N), contains the first N elements of Q'*FVEC.
       !
       implicit none
 
@@ -4143,21 +4143,21 @@ MODULE minpack
       integer :: m
       integer :: n
 
-      real(r_2) :: actred
-      real(r_2) :: delta
-      real(r_2) :: diag(n)
-      real(r_2) :: dirder
-      !real(r_2) :: enorm
-      real(r_2) :: epsmch
-      real(r_2) :: factor
+      real(r2) :: actred
+      real(r2) :: delta
+      real(r2) :: diag(n)
+      real(r2) :: dirder
+      !real(r2) :: enorm
+      real(r2) :: epsmch
+      real(r2) :: factor
       external fcn
-      real(r_2) :: fjac(ldfjac,n)
-      real(r_2) :: fnorm
-      real(r_2) :: fnorm1
-      real(r_2) :: ftol
-      real(r_2) :: fvec(m)
-      real(r_2) :: gnorm
-      real(r_2) :: gtol
+      real(r2) :: fjac(ldfjac,n)
+      real(r2) :: fnorm
+      real(r2) :: fnorm1
+      real(r2) :: ftol
+      real(r2) :: fvec(m)
+      real(r2) :: gnorm
+      real(r2) :: gtol
       integer :: i
       integer :: iflag
       integer :: info
@@ -4170,24 +4170,24 @@ MODULE minpack
       integer :: nfev
       integer :: njev
       integer :: nprint
-      real(r_2) :: par
+      real(r2) :: par
       logical pivot
-      real(r_2) :: pnorm
-      real(r_2) :: prered
-      real(r_2) :: qtf(n)
-      real(r_2) :: ratio
+      real(r2) :: pnorm
+      real(r2) :: prered
+      real(r2) :: qtf(n)
+      real(r2) :: ratio
       logical sing
-      real(r_2) :: sum2
-      real(r_2) :: temp
-      real(r_2) :: temp1
-      real(r_2) :: temp2
-      real(r_2) :: wa1(n)
-      real(r_2) :: wa2(n)
-      real(r_2) :: wa3(n)
-      real(r_2) :: wa4(m)
-      real(r_2) :: x(n)
-      real(r_2) :: xnorm
-      real(r_2) :: xtol
+      real(r2) :: sum2
+      real(r2) :: temp
+      real(r2) :: temp1
+      real(r2) :: temp2
+      real(r2) :: wa1(n)
+      real(r2) :: wa2(n)
+      real(r2) :: wa3(n)
+      real(r2) :: wa4(m)
+      real(r2) :: x(n)
+      real(r2) :: xnorm
+      real(r2) :: xtol
 
       epsmch = epsilon ( epsmch )
 
@@ -4204,21 +4204,21 @@ MODULE minpack
          go to 340
       else if ( ldfjac < n ) then
          go to 340
-      else if ( ftol < 0.0_r_2 ) then
+      else if ( ftol < 0.0_r2 ) then
          go to 340
-      else if ( xtol < 0.0_r_2 ) then
+      else if ( xtol < 0.0_r2 ) then
          go to 340
-      else if ( gtol < 0.0_r_2 ) then
+      else if ( gtol < 0.0_r2 ) then
          go to 340
       else if ( maxfev <= 0 ) then
          go to 340
-      else if ( le(factor, 0.0_r_2) ) then
+      else if ( le(factor, 0.0_r2) ) then
          go to 340
       end if
 
       if ( mode == 2 ) then
          do j = 1, n
-            if ( le(diag(j), 0.0_r_2) ) then
+            if ( le(diag(j), 0.0_r2) ) then
                go to 340
             end if
          end do
@@ -4238,7 +4238,7 @@ MODULE minpack
       !
       !  Initialize Levenberg-Marquardt parameter and iteration counter.
       !
-      par = 0.0_r_2
+      par = 0.0_r2
       iter = 1
       !
       !  Beginning of the outer loop.
@@ -4261,8 +4261,8 @@ MODULE minpack
       !  at a time, while simultaneously forming Q'* FVEC and storing
       !  the first N components in QTF.
       !
-      qtf(1:n) = 0.0_r_2
-      fjac(1:n,1:n) = 0.0_r_2
+      qtf(1:n) = 0.0_r2
+      fjac(1:n,1:n) = 0.0_r2
       iflag = 2
 
       do i = 1, m
@@ -4282,7 +4282,7 @@ MODULE minpack
       !
       sing = .false.
       do j = 1, n
-         if ( eq(fjac(j,j), 0.0_r_2) ) then
+         if ( eq(fjac(j,j), 0.0_r2) ) then
             sing = .true.
          end if
          ipvt(j) = j
@@ -4296,7 +4296,7 @@ MODULE minpack
 
          do j = 1, n
 
-            if ( ne(fjac(j,j), 0.0_r_2) ) then
+            if ( ne(fjac(j,j), 0.0_r2) ) then
 
                sum2 = dot_product ( qtf(j:n), fjac(j:n,j) )
                temp = - sum2 / fjac(j,j)
@@ -4322,8 +4322,8 @@ MODULE minpack
 
             diag(1:n) = wa2(1:n)
             do j = 1, n
-               if ( eq(wa2(j), 0.0_r_2) ) then
-                  diag(j) = 1.0_r_2
+               if ( eq(wa2(j), 0.0_r2) ) then
+                  diag(j) = 1.0_r2
                end if
             end do
 
@@ -4332,7 +4332,7 @@ MODULE minpack
          wa3(1:n) = diag(1:n) * x(1:n)
          xnorm = enorm ( n, wa3 )
          delta = factor * xnorm
-         if ( eq(delta, 0.0_r_2) ) then
+         if ( eq(delta, 0.0_r2) ) then
             delta = factor
          end if
 
@@ -4340,13 +4340,13 @@ MODULE minpack
       !
       !  Compute the norm of the scaled gradient.
       !
-      gnorm = 0.0_r_2
+      gnorm = 0.0_r2
 
-      if ( ne(fnorm, 0.0_r_2) ) then
+      if ( ne(fnorm, 0.0_r2) ) then
 
          do j = 1, n
             l = ipvt(j)
-            if ( ne(wa2(l), 0.0_r_2) ) then
+            if ( ne(wa2(l), 0.0_r2) ) then
                sum2 = dot_product ( qtf(1:j), fjac(1:j,j) ) / fnorm
                gnorm = max ( gnorm, abs ( sum2 / wa2(l) ) )
             end if
@@ -4403,17 +4403,17 @@ MODULE minpack
       !
       !  Compute the scaled actual reduction.
       !
-      if ( 0.1_r_2 * fnorm1 < fnorm ) then
-         actred = 1.0_r_2 - ( fnorm1 / fnorm ) ** 2
+      if ( 0.1_r2 * fnorm1 < fnorm ) then
+         actred = 1.0_r2 - ( fnorm1 / fnorm ) ** 2
       else
-         actred = -1.0_r_2
+         actred = -1.0_r2
       end if
       !
       !  Compute the scaled predicted reduction and
       !  the scaled directional derivative.
       !
       do j = 1, n
-         wa3(j) = 0.0_r_2
+         wa3(j) = 0.0_r2
          l = ipvt(j)
          temp = wa1(l)
          wa3(1:j) = wa3(1:j) + fjac(1:j,j) * temp
@@ -4421,46 +4421,46 @@ MODULE minpack
 
       temp1 = enorm ( n, wa3 ) / fnorm
       temp2 = ( sqrt(par) * pnorm ) / fnorm
-      prered = temp1 ** 2 + temp2 ** 2 / 0.5_r_2
+      prered = temp1 ** 2 + temp2 ** 2 / 0.5_r2
       dirder = - ( temp1 ** 2 + temp2 ** 2 )
       !
       !  Compute the ratio of the actual to the predicted reduction.
       !
-      if ( ne(prered, 0.0_r_2) ) then
+      if ( ne(prered, 0.0_r2) ) then
          ratio = actred / prered
       else
-         ratio = 0.0_r_2
+         ratio = 0.0_r2
       end if
       !
       !  Update the step bound.
       !
-      if ( le(ratio, 0.25_r_2) ) then
+      if ( le(ratio, 0.25_r2) ) then
 
-         if ( ge(actred, 0.0_r_2) ) then
-            temp = 0.5_r_2
+         if ( ge(actred, 0.0_r2) ) then
+            temp = 0.5_r2
          else
-            temp = 0.5_r_2 * dirder / ( dirder + 0.5_r_2 * actred )
+            temp = 0.5_r2 * dirder / ( dirder + 0.5_r2 * actred )
          end if
 
-         if ( ge(0.1_r_2 * fnorm1, fnorm) .or. temp < 0.1_r_2 ) then
-            temp = 0.1_r_2
+         if ( ge(0.1_r2 * fnorm1, fnorm) .or. temp < 0.1_r2 ) then
+            temp = 0.1_r2
          end if
 
-         delta = temp * min ( delta, pnorm / 0.1_r_2 )
+         delta = temp * min ( delta, pnorm / 0.1_r2 )
          par = par / temp
 
       else
 
-         if ( eq(par, 0.0_r_2) .or. ge(ratio, 0.75_r_2) ) then
-            delta = pnorm / 0.5_r_2
-            par = 0.5_r_2 * par
+         if ( eq(par, 0.0_r2) .or. ge(ratio, 0.75_r2) ) then
+            delta = pnorm / 0.5_r2
+            par = 0.5_r2 * par
          end if
 
       end if
       !
       !  Test for successful iteration.
       !
-      if ( ge(ratio, 0.0001_r_2) ) then
+      if ( ge(ratio, 0.0001_r2) ) then
          x(1:n) = wa2(1:n)
          wa2(1:n) = diag(1:n) * x(1:n)
          fvec(1:m) = wa4(1:m)
@@ -4472,7 +4472,7 @@ MODULE minpack
       !  Tests for convergence, termination and stringent tolerances.
       !
       if ( le(abs(actred), ftol) .and. le(prered, ftol) &
-           .and. le(0.5_r_2 * ratio, 1.0_r_2) ) then
+           .and. le(0.5_r2 * ratio, 1.0_r2) ) then
          info = 1
       end if
 
@@ -4481,7 +4481,7 @@ MODULE minpack
       end if
 
       if ( le(abs(actred), ftol) .and. le(prered, ftol) &
-           .and. le(0.5_r_2 * ratio, 1.0_r_2) .and. info == 2 ) then
+           .and. le(0.5_r2 * ratio, 1.0_r2) .and. info == 2 ) then
          info = 3
       end if
 
@@ -4494,7 +4494,7 @@ MODULE minpack
       end if
 
       if ( le(abs(actred), epsmch) .and. le(prered, epsmch) &
-           .and. le(0.5_r_2 * ratio, 1.0_r_2) ) then
+           .and. le(0.5_r2 * ratio, 1.0_r2) ) then
          info = 6
       end if
 
@@ -4512,7 +4512,7 @@ MODULE minpack
       !
       !  End of the inner loop.  Repeat if iteration unsuccessful.
       !
-      if ( ratio < 0.0001_r_2 ) then
+      if ( ratio < 0.0001_r2 ) then
          go to 240
       end if
       !
@@ -4580,10 +4580,10 @@ MODULE minpack
       !      subroutine fcn ( m, n, x, fvec, fjrow, iflag )
       !      integer :: m
       !      integer :: n
-      !      real(r_2) :: fjrow(n)
-      !      real(r_2) :: fvec(m)
+      !      real(r2) :: fjrow(n)
+      !      real(r2) :: fvec(m)
       !      integer :: iflag
-      !      real(r_2) :: x(n)
+      !      real(r2) :: x(n)
       !    If IFLAG = 0 on input, then FCN is only being called to allow the user
       !    to print out the current iterate.
       !    If IFLAG = 1 on input, FCN should calculate the functions at X and
@@ -4597,13 +4597,13 @@ MODULE minpack
       !    Input, integer :: N, the number of variables.  
       !    N must not exceed M.
       !
-      !    Input/output, real(r_2) :: X(N).  On input, X must contain an initial
+      !    Input/output, real(r2) :: X(N).  On input, X must contain an initial
       !    estimate of the solution vector.  On output X contains the final
       !    estimate of the solution vector.
       !
-      !    Output, real(r_2) :: FVEC(M), the functions evaluated at the output X.
+      !    Output, real(r2) :: FVEC(M), the functions evaluated at the output X.
       !
-      !    Output, real(r_2) :: FJAC(LDFJAC,N), an N by N array.  The upper
+      !    Output, real(r2) :: FJAC(LDFJAC,N), an N by N array.  The upper
       !    triangle contains an upper triangular matrix R such that
       !
       !      P' * ( JAC' * JAC ) * P = R' * R,
@@ -4616,7 +4616,7 @@ MODULE minpack
       !    Input, integer :: LDFJAC, the leading dimension of FJAC.
       !    LDFJAC must be at least N.
       !
-      !    Input, real(r_2) :: TOL. Termination occurs when the algorithm 
+      !    Input, real(r2) :: TOL. Termination occurs when the algorithm 
       !    estimates either that the relative error in the sum of squares is at 
       !    most TOL or that the relative error between X and the solution is at 
       !    most TOL.  TOL should be nonnegative.
@@ -4643,13 +4643,13 @@ MODULE minpack
       integer :: m
       integer :: n
 
-      real(r_2) :: diag(n)
-      real(r_2) :: factor
+      real(r2) :: diag(n)
+      real(r2) :: factor
       external fcn
-      real(r_2) :: fjac(ldfjac,n)
-      real(r_2) :: ftol
-      real(r_2) :: fvec(m)
-      real(r_2) :: gtol
+      real(r2) :: fjac(ldfjac,n)
+      real(r2) :: ftol
+      real(r2) :: fvec(m)
+      real(r2) :: gtol
       integer :: info
       integer :: ipvt(n)
       integer :: maxfev
@@ -4657,10 +4657,10 @@ MODULE minpack
       integer :: nfev
       integer :: njev
       integer :: nprint
-      real(r_2) :: qtf(n)
-      real(r_2) :: tol
-      real(r_2) :: x(n)
-      real(r_2) :: xtol
+      real(r2) :: qtf(n)
+      real(r2) :: tol
+      real(r2) :: x(n)
+      real(r2) :: xtol
 
       if ( n <= 0 ) then
          info = 0
@@ -4677,26 +4677,26 @@ MODULE minpack
          return
       end if
 
-      if ( tol < 0.0_r_2 ) then
+      if ( tol < 0.0_r2 ) then
          info = 0
          return
       end if
 
-      fvec(1:n) = 0.0_r_2
-      fjac(1:ldfjac,1:n) = 0.0_r_2
+      fvec(1:n) = 0.0_r2
+      fjac(1:ldfjac,1:n) = 0.0_r2
       ftol = tol
       xtol = tol
-      gtol = 0.0_r_2
+      gtol = 0.0_r2
       maxfev = 100 * ( n + 1 )
-      diag(1:n) = 0.0_r_2
+      diag(1:n) = 0.0_r2
       mode = 1
-      factor = 100.0_r_2
+      factor = 100.0_r2
       nprint = 0
       info = 0
       nfev = 0
       njev = 0
       ipvt(1:n) = 0
-      qtf(1:n) = 0.0_r_2
+      qtf(1:n) = 0.0_r2
 
       call lmstr ( fcn, m, n, x, fvec, fjac, ldfjac, ftol, xtol, gtol, maxfev, &
            diag, mode, factor, nprint, info, nfev, njev, ipvt, qtf )
@@ -4748,7 +4748,7 @@ MODULE minpack
       !    Input, integer :: N, is a positive integer input variable set
       !    to the number of columns of A.
       !
-      !    Input/output, real(r_2) :: Q(LDQ,M).  Q is an M by M array.
+      !    Input/output, real(r2) :: Q(LDQ,M).  Q is an M by M array.
       !    On input the full lower trapezoid in the first min(M,N) columns of Q
       !    contains the factored form.
       !    On output, Q has been accumulated into a square matrix.
@@ -4766,22 +4766,22 @@ MODULE minpack
       integer :: k
       integer :: l
       integer :: minmn
-      real(r_2) :: q(ldq,m)
-      real(r_2) :: temp
-      real(r_2) :: wa(m)
+      real(r2) :: q(ldq,m)
+      real(r2) :: temp
+      real(r2) :: wa(m)
 
       minmn = min ( m, n )
 
       do j = 2, minmn
-         q(1:j-1,j) = 0.0_r_2
+         q(1:j-1,j) = 0.0_r2
       end do
       !
       !  Initialize remaining columns to those of the identity matrix.
       !
-      q(1:m,n+1:m) = 0.0_r_2
+      q(1:m,n+1:m) = 0.0_r2
 
       do j = n + 1, m
-         q(j,j) = 1.0_r_2
+         q(j,j) = 1.0_r2
       end do
       !
       !  Accumulate Q from its factored form.
@@ -4792,10 +4792,10 @@ MODULE minpack
 
          wa(k:m) = q(k:m,k)
 
-         q(k:m,k) = 0.0_r_2
-         q(k,k) = 1.0_r_2
+         q(k:m,k) = 0.0_r2
+         q(k,k) = 1.0_r2
 
-         if ( ne(wa(k), 0.0_r_2) ) then
+         if ( ne(wa(k), 0.0_r2) ) then
 
             do j = k, m
                temp = dot_product ( wa(k:m), q(k:m,j) ) / wa(k)
@@ -4859,7 +4859,7 @@ MODULE minpack
       !
       !    Input, integer :: N, the number of columns of A.
       !
-      !    Input/output, real(r_2) :: A(LDA,N), the M by N array.
+      !    Input/output, real(r2) :: A(LDA,N), the M by N array.
       !    On input, A contains the matrix for which the QR factorization is to
       !    be computed.  On output, the strict upper trapezoidal part of A contains
       !    the strict upper trapezoidal part of R, and the lower trapezoidal
@@ -4878,9 +4878,9 @@ MODULE minpack
       !    Input, integer :: LIPVT, the dimension of IPVT, which should 
       !    be N if pivoting is used.
       !
-      !    Output, real(r_2) :: RDIAG(N), contains the diagonal elements of R.
+      !    Output, real(r2) :: RDIAG(N), contains the diagonal elements of R.
       !
-      !    Output, real(r_2) :: ACNORM(N), the norms of the corresponding
+      !    Output, real(r2) :: ACNORM(N), the norms of the corresponding
       !    columns of the input matrix A.  If this information is not needed,
       !    then ACNORM can coincide with RDIAG.
       !
@@ -4891,11 +4891,11 @@ MODULE minpack
       integer :: m
       integer :: n
 
-      real(r_2) :: a(lda,n)
-      real(r_2) :: acnorm(n)
-      real(r_2) :: ajnorm
-      !real(r_2) :: enorm
-      real(r_2) :: epsmch
+      real(r2) :: a(lda,n)
+      real(r2) :: acnorm(n)
+      real(r2) :: ajnorm
+      !real(r2) :: enorm
+      real(r2) :: epsmch
       integer :: i4_temp
       integer :: ipvt(lipvt)
       integer :: j
@@ -4903,10 +4903,10 @@ MODULE minpack
       integer :: kmax
       integer :: minmn
       logical pivot
-      real(r_2) :: r8_temp(m)
-      real(r_2) :: rdiag(n)
-      real(r_2) :: temp
-      real(r_2) :: wa(n)
+      real(r2) :: r8_temp(m)
+      real(r2) :: rdiag(n)
+      real(r2) :: temp
+      real(r2) :: wa(n)
 
       epsmch = epsilon ( epsmch )
       !
@@ -4965,14 +4965,14 @@ MODULE minpack
          !
          ajnorm = enorm ( m-j+1, a(j,j) )
 
-         if ( ne(ajnorm, 0.0_r_2) ) then
+         if ( ne(ajnorm, 0.0_r2) ) then
 
-            if ( a(j,j) < 0.0_r_2 ) then
+            if ( a(j,j) < 0.0_r2 ) then
                ajnorm = -ajnorm
             end if
 
             a(j:m,j) = a(j:m,j) / ajnorm
-            a(j,j) = a(j,j) + 1.0_r_2
+            a(j,j) = a(j,j) + 1.0_r2
             !
             !  Apply the transformation to the remaining columns and update the norms.
             !
@@ -4982,12 +4982,12 @@ MODULE minpack
 
                a(j:m,k) = a(j:m,k) - temp * a(j:m,j)
 
-               if ( pivot .and. ne(rdiag(k), 0.0_r_2) ) then
+               if ( pivot .and. ne(rdiag(k), 0.0_r2) ) then
 
                   temp = a(j,k) / rdiag(k)
-                  rdiag(k) = rdiag(k) * sqrt ( max ( 0.0_r_2, 1.0_r_2-temp ** 2 ) )
+                  rdiag(k) = rdiag(k) * sqrt ( max ( 0.0_r2, 1.0_r2-temp ** 2 ) )
 
-                  if ( le(0.05_r_2 * ( rdiag(k) / wa(k) )**2, epsmch) ) then
+                  if ( le(0.05_r2 * ( rdiag(k) / wa(k) )**2, epsmch) ) then
                      rdiag(k) = enorm ( m-j, a(j+1,k) )
                      wa(k) = rdiag(k)
                   end if
@@ -5067,7 +5067,7 @@ MODULE minpack
       !
       !    Input, integer :: N, the order of R.
       !
-      !    Input/output, real(r_2) :: R(LDR,N), the N by N matrix.
+      !    Input/output, real(r2) :: R(LDR,N), the N by N matrix.
       !    On input the full upper triangle must contain the full upper triangle
       !    of the matrix R.  On output the full upper triangle is unaltered, and
       !    the strict lower triangle contains the strict upper triangle
@@ -5079,13 +5079,13 @@ MODULE minpack
       !    Input, integer :: IPVT(N), defines the permutation matrix P such 
       !    that A*P = Q*R.  Column J of P is column IPVT(J) of the identity matrix.
       !
-      !    Input, real(r_2) :: DIAG(N), the diagonal elements of the matrix D.
+      !    Input, real(r2) :: DIAG(N), the diagonal elements of the matrix D.
       !
-      !    Input, real(r_2) :: QTB(N), the first N elements of the vector Q'*B.
+      !    Input, real(r2) :: QTB(N), the first N elements of the vector Q'*B.
       !
-      !    Output, real(r_2) :: X(N), the least squares solution.
+      !    Output, real(r2) :: X(N), the least squares solution.
       !
-      !    Output, real(r_2) :: SDIAG(N), the diagonal elements of the upper
+      !    Output, real(r2) :: SDIAG(N), the diagonal elements of the upper
       !    triangular matrix S.
       !
       implicit none
@@ -5093,25 +5093,25 @@ MODULE minpack
       integer :: ldr
       integer :: n
 
-      real(r_2) :: c
-      real(r_2) :: cotan
-      real(r_2) :: diag(n)
+      real(r2) :: c
+      real(r2) :: cotan
+      real(r2) :: diag(n)
       integer :: i
       integer :: ipvt(n)
       integer :: j
       integer :: k
       integer :: l
       integer :: nsing
-      real(r_2) :: qtb(n)
-      real(r_2) :: qtbpj
-      real(r_2) :: r(ldr,n)
-      real(r_2) :: s
-      real(r_2) :: sdiag(n)
-      real(r_2) :: sum2
-      real(r_2) :: t
-      real(r_2) :: temp
-      real(r_2) :: wa(n)
-      real(r_2) :: x(n)
+      real(r2) :: qtb(n)
+      real(r2) :: qtbpj
+      real(r2) :: r(ldr,n)
+      real(r2) :: s
+      real(r2) :: sdiag(n)
+      real(r2) :: sum2
+      real(r2) :: t
+      real(r2) :: temp
+      real(r2) :: wa(n)
+      real(r2) :: x(n)
       !
       !  Copy R and Q'*B to preserve input and initialize S.
       !
@@ -5133,31 +5133,31 @@ MODULE minpack
          !
          l = ipvt(j)
 
-         if ( ne(diag(l), 0.0_r_2) ) then
+         if ( ne(diag(l), 0.0_r2) ) then
 
-            sdiag(j:n) = 0.0_r_2
+            sdiag(j:n) = 0.0_r2
             sdiag(j) = diag(l)
             !
             !  The transformations to eliminate the row of D
             !  modify only a single element of Q'*B
             !  beyond the first N, which is initially zero.
             !
-            qtbpj = 0.0_r_2
+            qtbpj = 0.0_r2
 
             do k = j, n
                !
                !  Determine a Givens rotation which eliminates the
                !  appropriate element in the current row of D.
                !
-               if ( ne(sdiag(k), 0.0_r_2) ) then
+               if ( ne(sdiag(k), 0.0_r2) ) then
 
                   if ( abs ( r(k,k) ) < abs ( sdiag(k) ) ) then
                      cotan = r(k,k) / sdiag(k)
-                     s = 0.5_r_2 / sqrt ( 0.25_r_2 + 0.25_r_2 * cotan ** 2 )
+                     s = 0.5_r2 / sqrt ( 0.25_r2 + 0.25_r2 * cotan ** 2 )
                      c = s * cotan
                   else
                      t = sdiag(k) / r(k,k)
-                     c = 0.5_r_2 / sqrt ( 0.25_r_2 + 0.25_r_2 * t ** 2 )
+                     c = 0.5_r2 / sqrt ( 0.25_r2 + 0.25_r2 * t ** 2 )
                      s = c * t
                   end if
                   !
@@ -5198,12 +5198,12 @@ MODULE minpack
 
       do j = 1, n
 
-         if ( eq(sdiag(j), 0.0_r_2) .and. nsing == n ) then
+         if ( eq(sdiag(j), 0.0_r2) .and. nsing == n ) then
             nsing = j - 1
          end if
 
          if ( nsing < n ) then
-            wa(j) = 0.0_r_2
+            wa(j) = 0.0_r2
          end if
 
       end do
@@ -5266,14 +5266,14 @@ MODULE minpack
       !
       !    Input, integer :: N, the number of columns of A.
       !
-      !    Input/output, real(r_2) :: A(LDA,N), the M by N array.
+      !    Input/output, real(r2) :: A(LDA,N), the M by N array.
       !    On input, the matrix A to be postmultiplied by the orthogonal matrix Q.
       !    On output, the value of A*Q.
       !
       !    Input, integer :: LDA, the leading dimension of A, which must not
       !    be less than M.
       !
-      !    Input, real(r_2) :: V(N), W(N), contain the information necessary
+      !    Input, real(r2) :: V(N), W(N), contain the information necessary
       !    to recover the Givens rotations GV and GW.
       !
       implicit none
@@ -5282,25 +5282,25 @@ MODULE minpack
       integer :: m
       integer :: n
 
-      real(r_2) :: a(lda,n)
-      real(r_2) :: c
+      real(r2) :: a(lda,n)
+      real(r2) :: c
       integer :: i
       integer :: j
-      real(r_2) :: s
-      real(r_2) :: temp
-      real(r_2) :: v(n)
-      real(r_2) :: w(n)
+      real(r2) :: s
+      real(r2) :: temp
+      real(r2) :: v(n)
+      real(r2) :: w(n)
       !
       !  Apply the first set of Givens rotations to A.
       !
       do j = n - 1, 1, -1
 
-         if ( 1.0_r_2 < abs ( v(j) ) ) then
-            c = 1.0_r_2 / v(j)
-            s = sqrt ( 1.0_r_2 - c ** 2 )
+         if ( 1.0_r2 < abs ( v(j) ) ) then
+            c = 1.0_r2 / v(j)
+            s = sqrt ( 1.0_r2 - c ** 2 )
          else
             s = v(j)
-            c = sqrt ( 1.0_r_2 - s ** 2 )
+            c = sqrt ( 1.0_r2 - s ** 2 )
          end if
 
          do i = 1, m
@@ -5315,12 +5315,12 @@ MODULE minpack
       !
       do j = 1, n - 1
 
-         if ( abs ( w(j) ) > 1.0_r_2 ) then
-            c = 1.0_r_2 / w(j)
-            s = sqrt ( 1.0_r_2 - c ** 2 )
+         if ( abs ( w(j) ) > 1.0_r2 ) then
+            c = 1.0_r2 / w(j)
+            s = sqrt ( 1.0_r2 - c ** 2 )
          else
             s = w(j)
-            c = sqrt ( 1.0_r_2 - s ** 2 )
+            c = sqrt ( 1.0_r2 - s ** 2 )
          end if
 
          do i = 1, m
@@ -5385,20 +5385,20 @@ MODULE minpack
       !    Input, integer :: N, the number of columns of S.  
       !    N must not exceed M.
       !
-      !    Input/output, real(r_2) :: S(LS).  On input, the lower trapezoidal
+      !    Input/output, real(r2) :: S(LS).  On input, the lower trapezoidal
       !    matrix S stored by columns.  On output S contains the lower trapezoidal
       !    matrix produced as described above.
       !
       !    Input, integer :: LS, the length of the S array.  LS must be at
       !    least (N*(2*M-N+1))/2.
       !
-      !    Input, real(r_2) :: U(M), the U vector.
+      !    Input, real(r2) :: U(M), the U vector.
       !
-      !    Input/output, real(r_2) :: V(N).  On input, V must contain the 
+      !    Input/output, real(r2) :: V(N).  On input, V must contain the 
       !    vector V.  On output V contains the information necessary to recover the
       !    Givens rotations GV described above.
       !
-      !    Output, real(r_2) :: W(M), contains information necessary to
+      !    Output, real(r2) :: W(M), contains information necessary to
       !    recover the Givens rotations GW described above.
       !
       !    Output, logical SING, is set to TRUE if any of the diagonal elements
@@ -5410,22 +5410,22 @@ MODULE minpack
       integer :: m
       integer :: n
 
-      real(r_2) :: cos
-      real(r_2) :: cotan
-      real(r_2) :: giant
+      real(r2) :: cos
+      real(r2) :: cotan
+      real(r2) :: giant
       integer :: i
       integer :: j
       integer :: jj
       integer :: l
-      real(r_2) :: s(ls)
-      real(r_2) :: sin
+      real(r2) :: s(ls)
+      real(r2) :: sin
       logical sing
-      real(r_2) :: tan
-      real(r_2) :: tau
-      real(r_2) :: temp
-      real(r_2) :: u(m)
-      real(r_2) :: v(n)
-      real(r_2) :: w(m)
+      real(r2) :: tan
+      real(r2) :: tau
+      real(r2) :: temp
+      real(r2) :: u(m)
+      real(r2) :: v(n)
+      real(r2) :: w(m)
       !
       !  GIANT is the largest magnitude.
       !
@@ -5449,24 +5449,24 @@ MODULE minpack
       do j = n - 1, 1, -1
 
          jj = jj - ( m - j + 1 )
-         w(j) = 0.0_r_2
+         w(j) = 0.0_r2
 
-         if ( ne(v(j), 0.0_r_2) ) then
+         if ( ne(v(j), 0.0_r2) ) then
             !
             !  Determine a Givens rotation which eliminates the
             !  J-th element of V.
             !
             if ( abs ( v(n) ) < abs ( v(j) ) ) then
                cotan = v(n) / v(j)
-               sin = 0.5_r_2 / sqrt ( 0.25_r_2 + 0.25_r_2 * cotan ** 2 )
+               sin = 0.5_r2 / sqrt ( 0.25_r2 + 0.25_r2 * cotan ** 2 )
                cos = sin * cotan
-               tau = 1.0_r_2
-               if ( abs ( cos ) * giant > 1.0_r_2 ) then
-                  tau = 1.0_r_2 / cos
+               tau = 1.0_r2
+               if ( abs ( cos ) * giant > 1.0_r2 ) then
+                  tau = 1.0_r2 / cos
                end if
             else
                tan = v(j) / v(n)
-               cos = 0.5_r_2 / sqrt ( 0.25_r_2 + 0.25_r_2 * tan ** 2 )
+               cos = 0.5_r2 / sqrt ( 0.25_r2 + 0.25_r2 * tan ** 2 )
                sin = cos * tan
                tau = sin
             end if
@@ -5501,7 +5501,7 @@ MODULE minpack
 
       do j = 1, n-1
 
-         if ( ne(w(j), 0.0_r_2) ) then
+         if ( ne(w(j), 0.0_r2) ) then
             !
             !  Determine a Givens rotation which eliminates the
             !  J-th element of the spike.
@@ -5509,19 +5509,19 @@ MODULE minpack
             if ( abs ( s(jj) ) < abs ( w(j) ) ) then
 
                cotan = s(jj) / w(j)
-               sin = 0.5_r_2 / sqrt ( 0.25_r_2 + 0.25_r_2 * cotan ** 2 )
+               sin = 0.5_r2 / sqrt ( 0.25_r2 + 0.25_r2 * cotan ** 2 )
                cos = sin * cotan
 
-               if ( 1.0_r_2 < abs ( cos ) * giant ) then
-                  tau = 1.0_r_2 / cos
+               if ( 1.0_r2 < abs ( cos ) * giant ) then
+                  tau = 1.0_r2 / cos
                else
-                  tau = 1.0_r_2
+                  tau = 1.0_r2
                end if
 
             else
 
                tan = w(j) / s(jj)
-               cos = 0.5_r_2 / sqrt ( 0.25_r_2 + 0.25_r_2 * tan ** 2 )
+               cos = 0.5_r2 / sqrt ( 0.25_r2 + 0.25_r2 * tan ** 2 )
                sin = cos * tan
                tau = sin
 
@@ -5545,7 +5545,7 @@ MODULE minpack
          !
          !  Test for zero diagonal elements in the output S.
          !
-         if ( eq(s(jj), 0.0_r_2) ) then
+         if ( eq(s(jj), 0.0_r2) ) then
             sing = .true.
          end if
 
@@ -5561,7 +5561,7 @@ MODULE minpack
          l = l + 1
       end do
 
-      if ( eq(s(jj), 0.0_r_2) ) then
+      if ( eq(s(jj), 0.0_r2) ) then
          sing = .true.
       end if
 
@@ -5575,7 +5575,7 @@ MODULE minpack
       !
       !  Discussion:
       !
-      !    An R8 is a real(r_2) :: value.
+      !    An R8 is a real(r2) :: value.
       !
       !    For now, the input quantity SEED is an integer variable.
       !
@@ -5637,7 +5637,7 @@ MODULE minpack
       !    Input/output, integer :: SEED, the "seed" value, which should
       !    NOT be 0. On output, SEED has been updated.
       !
-      !    Output, real(r_2) :: R8_UNIFORM_01, a new pseudorandom variate,
+      !    Output, real(r2) :: R8_UNIFORM_01, a new pseudorandom variate,
       !    strictly between 0 and 1.
       !
 #ifdef __MPI__
@@ -5648,7 +5648,7 @@ MODULE minpack
 
       integer, parameter :: i4_huge = 2147483647
       integer :: k
-      real(r_2) :: r8_uniform_01
+      real(r2) :: r8_uniform_01
       integer :: seed
 #ifdef __MPI__
       integer :: ierr
@@ -5673,7 +5673,7 @@ MODULE minpack
          seed = seed + i4_huge
       end if
 
-      r8_uniform_01 = real(seed, r_2) * 4.656612875e-10_r_2
+      r8_uniform_01 = real(seed, r2) * 4.656612875e-10_r2
 
       return
     end function r8_uniform_01
@@ -5705,7 +5705,7 @@ MODULE minpack
       !
       !    Input, integer :: N, the number of columns in A.
       !
-      !    Input, real(r_2) :: A(M,N), the matrix.
+      !    Input, real(r2) :: A(M,N), the matrix.
       !
       !    Input, character ( len = * ) TITLE, a title.
       !
@@ -5714,7 +5714,7 @@ MODULE minpack
       integer :: m
       integer :: n
 
-      real(r_2) :: a(m,n)
+      real(r2) :: a(m,n)
       character ( len = * ) title
 
       call r8mat_print_some ( m, n, a, 1, 1, m, n, title )
@@ -5747,7 +5747,7 @@ MODULE minpack
       !
       !    Input, integer :: M, N, the number of rows and columns.
       !
-      !    Input, real(r_2) :: A(M,N), an M by N matrix to be printed.
+      !    Input, real(r2) :: A(M,N), an M by N matrix to be printed.
       !
       !    Input, integer :: ILO, JLO, the first row and column to print.
       !
@@ -5761,7 +5761,7 @@ MODULE minpack
       integer :: m
       integer :: n
 
-      real(r_2) :: a(m,n)
+      real(r2) :: a(m,n)
       character ( len = 14 ) ctemp(incx)
       integer :: i
       integer :: i2hi
@@ -5814,7 +5814,7 @@ MODULE minpack
 
                j = j2lo - 1 + j2
 
-               if ( eq(a(i,j), real(int(a(i,j)), r_2)) ) then
+               if ( eq(a(i,j), real(int(a(i,j)), r2)) ) then
                   write ( ctemp(j2), '(f8.0,6x)' ) a(i,j)
                else
                   write ( ctemp(j2), '(g14.6)' ) a(i,j)
@@ -5856,7 +5856,7 @@ MODULE minpack
       !
       !    Input, integer :: N, the number of components of the vector.
       !
-      !    Input, real(r_2) :: A(N), the vector to be printed.
+      !    Input, real(r2) :: A(N), the vector to be printed.
       !
       !    Input, character ( len = * ) TITLE, a title.
       !
@@ -5864,7 +5864,7 @@ MODULE minpack
 
       integer :: n
 
-      real(r_2) :: a(n)
+      real(r2) :: a(n)
       integer :: i
       character ( len = * ) title
 
@@ -5927,22 +5927,22 @@ MODULE minpack
       !
       !    Input, integer :: N, the order of R.
       !
-      !    Input/output, real(r_2) :: R(LDR,N).  On input the upper triangular
+      !    Input/output, real(r2) :: R(LDR,N).  On input the upper triangular
       !    part of R must contain the matrix to be updated.  On output R contains the
       !    updated triangular matrix.
       !
       !    Input, integer :: LDR, the leading dimension of the array R.
       !    LDR must not be less than N.
       !
-      !    Input, real(r_2) :: W(N), the row vector to be added to R.
+      !    Input, real(r2) :: W(N), the row vector to be added to R.
       !
-      !    Input/output, real(r_2) :: B(N).  On input, the first N elements
+      !    Input/output, real(r2) :: B(N).  On input, the first N elements
       !    of the vector C.  On output the first N elements of the vector Q'*C.
       !
-      !    Input/output, real(r_2) :: ALPHA.  On input, the (N+1)-st element
+      !    Input/output, real(r2) :: ALPHA.  On input, the (N+1)-st element
       !    of the vector C.  On output the (N+1)-st element of the vector Q'*C.
       !
-      !    Output, real(r_2) :: C(N), S(N), the cosines and sines of the
+      !    Output, real(r2) :: C(N), S(N), the cosines and sines of the
       !    transforming Givens rotations.
       !
       implicit none
@@ -5950,18 +5950,18 @@ MODULE minpack
       integer :: ldr
       integer :: n
 
-      real(r_2) :: alpha
-      real(r_2) :: b(n)
-      real(r_2) :: c(n)
-      real(r_2) :: cotan
+      real(r2) :: alpha
+      real(r2) :: b(n)
+      real(r2) :: c(n)
+      real(r2) :: cotan
       integer :: i
       integer :: j
-      real(r_2) :: r(ldr,n)
-      real(r_2) :: rowj
-      real(r_2) :: s(n)
-      real(r_2) :: tan
-      real(r_2) :: temp
-      real(r_2) :: w(n)
+      real(r2) :: r(ldr,n)
+      real(r2) :: rowj
+      real(r2) :: s(n)
+      real(r2) :: tan
+      real(r2) :: temp
+      real(r2) :: w(n)
 
       do j = 1, n
 
@@ -5977,18 +5977,18 @@ MODULE minpack
          !
          !  Determine a Givens rotation which eliminates W(J).
          !
-         c(j) = 1.0_r_2
-         s(j) = 0.0_r_2
+         c(j) = 1.0_r2
+         s(j) = 0.0_r2
 
-         if ( ne(rowj, 0.0_r_2) ) then
+         if ( ne(rowj, 0.0_r2) ) then
 
             if ( abs ( r(j,j) ) < abs ( rowj ) ) then
                cotan = r(j,j) / rowj
-               s(j) = 0.5_r_2 / sqrt ( 0.25_r_2 + 0.25_r_2 * cotan ** 2 )
+               s(j) = 0.5_r2 / sqrt ( 0.25_r2 + 0.25_r2 * cotan ** 2 )
                c(j) = s(j) * cotan
             else
                tan = rowj / r(j,j)
-               c(j) = 0.5_r_2 / sqrt ( 0.25_r_2 + 0.25_r_2 * tan ** 2 )
+               c(j) = 0.5_r2 / sqrt ( 0.25_r2 + 0.25_r2 * tan ** 2 )
                s(j) = c(j) * tan
             end if
             !

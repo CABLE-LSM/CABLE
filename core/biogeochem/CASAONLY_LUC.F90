@@ -19,7 +19,6 @@ contains
     USE POP_Types,            Only: POP_TYPE
     USE POPMODULE,            ONLY: POP_init_single
     ! use cable_pop_io,         only: pop_io
-    USE TypeDef,              ONLY: dp
     USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, read_LUH2, &
          ptos, ptog, stog, gtos, pharv, smharv, syharv, &
          ptoc, ptoq, stoc, stoq, ctos, qtos, & 
@@ -70,10 +69,10 @@ contains
     CHARACTER(LEN=99)        :: ncfile
     CHARACTER(LEN=4)         :: cyear
     INTEGER                  :: ktau,ktauday,nday,idoy
-    real(r_2), dimension(mp)      :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
-    real(r_2), dimension(mp)      :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
-    real(r_2), dimension(mp)      :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-    real(r_2), dimension(mp)      :: xnplimit,  xkNlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
+    real(r2), dimension(mp)      :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
+    real(r2), dimension(mp)      :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
+    real(r2), dimension(mp)      :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
+    real(r2), dimension(mp)      :: xnplimit,  xkNlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
 
     ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
     integer :: k, j, l
@@ -83,8 +82,8 @@ contains
     !and fluxes are aggregated (for output)
 
     ! 13C
-    real(dp), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
-    real(dp), dimension(c13o2luc%nland,c13o2luc%npools)     :: lucsave
+    real(r2), dimension(c13o2pools%ntile,c13o2pools%npools) :: casasave
+    real(r2), dimension(c13o2luc%nland,c13o2luc%npools)     :: lucsave
     ! integer :: c13o2_file_id
     ! character(len=40), dimension(c13o2_nvars_output) :: c13o2_vars
     ! integer,           dimension(c13o2_nvars_output) :: c13o2_var_ids
@@ -190,18 +189,18 @@ contains
           ! accumulate annual variables for use in POP
           IF (idoy==1) THEN
              ! (assumes 70% of wood NPP is allocated above ground)
-             casaflux%stemnpp  = casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
+             casaflux%stemnpp  = casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r2
              casaflux%potstemnpp = casaflux%stemnpp + (casaflux%fracClabile * casaflux%cgpp)
              casabal%LAImax    = casamet%glai
-             casabal%Cleafmean = casapool%cplant(:,1) / real(mdyear,dp) / 1000._dp
-             casabal%Crootmean = casapool%cplant(:,3) / real(mdyear,dp) / 1000._dp
+             casabal%Cleafmean = casapool%cplant(:,1) / real(mdyear,r2) / 1000._r2
+             casabal%Crootmean = casapool%cplant(:,3) / real(mdyear,r2) / 1000._r2
           ELSE
-             casaflux%stemnpp  = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp
-             casaflux%potstemnpp = casaflux%potstemnpp + (casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp + &
+             casaflux%stemnpp  = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r2
+             casaflux%potstemnpp = casaflux%potstemnpp + (casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r2 + &
                                                           casaflux%fracClabile * casaflux%cgpp)
              casabal%LAImax    = max(casamet%glai, casabal%LAImax)
-             casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1) / real(mdyear,dp) / 1000._dp
-             casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3) / real(mdyear,dp) / 1000._dp
+             casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1) / real(mdyear,r2) / 1000._r2
+             casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3) / real(mdyear,r2) / 1000._r2
           ENDIF
           IF (CABLE_USER%POPLUC) THEN
              IF (idoy==mdyear) THEN ! end of year
@@ -210,28 +209,28 @@ contains
                 CALL READ_LUH2(LUC_EXPT)
 
                 DO k=1,mland
-                   POPLUC%ptos(k)   = real(LUC_EXPT%INPUT(ptos)%VAL(k), dp)
-                   POPLUC%ptog(k)   = real(LUC_EXPT%INPUT(ptog)%VAL(k), dp)
-                   POPLUC%stog(k)   = real(LUC_EXPT%INPUT(stog)%VAL(k), dp)
-                   POPLUC%gtop(k)   = 0.0_dp
-                   POPLUC%gtos(k)   = real(LUC_EXPT%INPUT(gtos)%VAL(k), dp)
-                   POPLUC%pharv(k)  = real(LUC_EXPT%INPUT(pharv)%VAL(k), dp)
-                   POPLUC%smharv(k) = real(LUC_EXPT%INPUT(smharv)%VAL(k), dp)
-                   POPLUC%syharv(k) = real(LUC_EXPT%INPUT(syharv)%VAL(k), dp)
+                   POPLUC%ptos(k)   = real(LUC_EXPT%INPUT(ptos)%VAL(k), r2)
+                   POPLUC%ptog(k)   = real(LUC_EXPT%INPUT(ptog)%VAL(k), r2)
+                   POPLUC%stog(k)   = real(LUC_EXPT%INPUT(stog)%VAL(k), r2)
+                   POPLUC%gtop(k)   = 0.0_r2
+                   POPLUC%gtos(k)   = real(LUC_EXPT%INPUT(gtos)%VAL(k), r2)
+                   POPLUC%pharv(k)  = real(LUC_EXPT%INPUT(pharv)%VAL(k), r2)
+                   POPLUC%smharv(k) = real(LUC_EXPT%INPUT(smharv)%VAL(k), r2)
+                   POPLUC%syharv(k) = real(LUC_EXPT%INPUT(syharv)%VAL(k), r2)
 
-                   POPLUC%ptoc(k) = real(LUC_EXPT%INPUT(ptoc)%VAL(k), dp)
-                   POPLUC%ptoq(k) = real(LUC_EXPT%INPUT(ptoq)%VAL(k), dp)
-                   POPLUC%stoc(k) = real(LUC_EXPT%INPUT(stoc)%VAL(k), dp)
-                   POPLUC%stoq(k) = real(LUC_EXPT%INPUT(stoq)%VAL(k), dp)
-                   POPLUC%ctos(k) = real(LUC_EXPT%INPUT(ctos)%VAL(k), dp)
-                   POPLUC%qtos(k) = real(LUC_EXPT%INPUT(qtos)%VAL(k), dp)
+                   POPLUC%ptoc(k) = real(LUC_EXPT%INPUT(ptoc)%VAL(k), r2)
+                   POPLUC%ptoq(k) = real(LUC_EXPT%INPUT(ptoq)%VAL(k), r2)
+                   POPLUC%stoc(k) = real(LUC_EXPT%INPUT(stoc)%VAL(k), r2)
+                   POPLUC%stoq(k) = real(LUC_EXPT%INPUT(stoq)%VAL(k), r2)
+                   POPLUC%ctos(k) = real(LUC_EXPT%INPUT(ctos)%VAL(k), r2)
+                   POPLUC%qtos(k) = real(LUC_EXPT%INPUT(qtos)%VAL(k), r2)
 
-                   POPLUC%ctor(k) = real(LUC_EXPT%INPUT(ctor)%VAL(k), dp)
-                   POPLUC%qtor(k) = real(LUC_EXPT%INPUT(qtor)%VAL(k), dp)
-                   POPLUC%rtoc(k) = real(LUC_EXPT%INPUT(rtoc)%VAL(k), dp)
-                   POPLUC%rtoq(k) = real(LUC_EXPT%INPUT(rtoq)%VAL(k), dp)
-                   POPLUC%qtoc(k) = real(LUC_EXPT%INPUT(qtoc)%VAL(k), dp)
-                   POPLUC%ctoq(k) = real(LUC_EXPT%INPUT(ctoq)%VAL(k), dp)
+                   POPLUC%ctor(k) = real(LUC_EXPT%INPUT(ctor)%VAL(k), r2)
+                   POPLUC%qtor(k) = real(LUC_EXPT%INPUT(qtor)%VAL(k), r2)
+                   POPLUC%rtoc(k) = real(LUC_EXPT%INPUT(rtoc)%VAL(k), r2)
+                   POPLUC%rtoq(k) = real(LUC_EXPT%INPUT(rtoq)%VAL(k), r2)
+                   POPLUC%qtoc(k) = real(LUC_EXPT%INPUT(qtoc)%VAL(k), r2)
+                   POPLUC%ctoq(k) = real(LUC_EXPT%INPUT(ctoq)%VAL(k), r2)
 
                    POPLUC%thisyear = yyyy
                    
@@ -248,7 +247,7 @@ contains
 
                 ! zero secondary forest tiles in POP where secondary forest area is zero
                 DO k=1,mland
-                   if ( eq((POPLUC%primf(k)-POPLUC%frac_forest(k)), 0.0_dp) &
+                   if ( eq((POPLUC%primf(k)-POPLUC%frac_forest(k)), 0.0_r2) &
                         .and. (.not. LUC_EXPT%prim_only(k)) ) then
 
                       j = landpt(k)%cstart+1
@@ -259,24 +258,24 @@ contains
                          endif
                       enddo
 
-                      casapool%cplant(j,leaf)  = 0.01_dp
+                      casapool%cplant(j,leaf)  = 0.01_r2
                       casapool%nplant(j,leaf)  = casabiome%ratioNCplantmin(veg%iveg(j),leaf) * casapool%cplant(j,leaf)
                       casapool%pplant(j,leaf)  = casabiome%ratioPCplantmin(veg%iveg(j),leaf) * casapool%cplant(j,leaf)
 
-                      casapool%cplant(j,froot) = 0.01_dp
+                      casapool%cplant(j,froot) = 0.01_r2
                       casapool%nplant(j,froot) = casabiome%ratioNCplantmin(veg%iveg(j),froot) * casapool%cplant(j,froot)
                       casapool%pplant(j,froot) = casabiome%ratioPCplantmin(veg%iveg(j),froot) * casapool%cplant(j,froot)
 
-                      casapool%cplant(j,wood)  = 0.01_dp
+                      casapool%cplant(j,wood)  = 0.01_r2
                       casapool%nplant(j,wood)  = casabiome%ratioNCplantmin(veg%iveg(j),wood) * casapool%cplant(j,wood)
                       casapool%pplant(j,wood)  = casabiome%ratioPCplantmin(veg%iveg(j),wood) * casapool%cplant(j,wood)
-                      casaflux%frac_sapwood(j) = 1.0_dp
+                      casaflux%frac_sapwood(j) = 1.0_r2
 
                       ! 13C
                       if (cable_user%c13o2) then
-                         c13o2pools%cplant(j,leaf)  = 0.01_dp ! * vpdbc13 / vpdbc13 ! Divide by 13C
-                         c13o2pools%cplant(j,wood)  = 0.01_dp ! * vpdbc13 / vpdbc13 ! so that about same numerical precision as 12C
-                         c13o2pools%cplant(j,froot) = 0.01_dp ! * vpdbc13 / vpdbc13 !
+                         c13o2pools%cplant(j,leaf)  = 0.01_r2 ! * vpdbc13 / vpdbc13 ! Divide by 13C
+                         c13o2pools%cplant(j,wood)  = 0.01_r2 ! * vpdbc13 / vpdbc13 ! so that about same numerical precision as 12C
+                         c13o2pools%cplant(j,froot) = 0.01_r2 ! * vpdbc13 / vpdbc13 !
                       endif
                    endif
                 ENDDO

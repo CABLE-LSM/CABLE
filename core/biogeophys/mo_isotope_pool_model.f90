@@ -73,31 +73,31 @@ MODULE mo_isotope_pool_model
   !         call isotope_pool_model(dt, Ciso, C, F, S=S, Rs=Rs, T=T, Rt=Rt, alpha=alpha, beta=beta, trash=trash)
 
   !     INTENT
-  !>        \param[in]    "real(dp) :: dt"                       Time step
-  !>        \param[inout] "real(dp) :: Ciso(1:n[,1:m])"          Isotope concentrations in pools
-  !>        \param[in]    "real(dp) :: C(1:n[,1:m])"             Non-isotope concentrations in pools at time step t-1
-  !>        \param[in]    "real(dp) :: F(1:n,1:n[,1:m])"         Non-isotope fluxes between pools (F(i,i)=0) \n
+  !>        \param[in]    "real(r2) :: dt"                       Time step
+  !>        \param[inout] "real(r2) :: Ciso(1:n[,1:m])"          Isotope concentrations in pools
+  !>        \param[in]    "real(r2) :: C(1:n[,1:m])"             Non-isotope concentrations in pools at time step t-1
+  !>        \param[in]    "real(r2) :: F(1:n,1:n[,1:m])"         Non-isotope fluxes between pools (F(i,i)=0) \n
   !>                                   F(i,j) positive flux from pool i to pool j \n
   !>                                   Isotope flux is alpha(i,j)*R(i)*F(i,j)
-  !>        \param[in]    "real(dp), optional :: S(1:n[,1:m])"   Non-isotope source fluxes to pools (other than between pools) \n
+  !>        \param[in]    "real(r2), optional :: S(1:n[,1:m])"   Non-isotope source fluxes to pools (other than between pools) \n
   !>                                   Default: 0.
-  !>        \param[in]    "real(dp), optional :: Rs(1:n[,1:m])"  Isotopic compositions of source fluxes \n
+  !>        \param[in]    "real(r2), optional :: Rs(1:n[,1:m])"  Isotopic compositions of source fluxes \n
   !>                                   Any fractionations during source processes should be included in Rs. \n
   !>                                   Default: 1.
-  !>        \param[in]    "real(dp), optional :: T(1:n[,1:m])"   Non-isotope sinks of pools (other than between pools) \n
+  !>        \param[in]    "real(r2), optional :: T(1:n[,1:m])"   Non-isotope sinks of pools (other than between pools) \n
   !>                                   Isotope flux is alpha(i,i)*Rt(i)*T(i) or alpha(i,i)*R(i)*T(i) \n
   !>                                   Default: 0.
-  !>        \param[in]    "real(dp), optional :: Rt(1:n[,1:m])"  Isotopic compositions of sink fluxes. \n
+  !>        \param[in]    "real(r2), optional :: Rt(1:n[,1:m])"  Isotopic compositions of sink fluxes. \n
   !>                                   If not given, the isotopic composition of the pool R(i) is taken. \n
   !>                                   Default: R(i)
-  !>        \param[in]    "real(dp), optional :: alpha(1:n,1:n[,1:m])" Isotopic fractionation factors associated with
+  !>        \param[in]    "real(r2), optional :: alpha(1:n,1:n[,1:m])" Isotopic fractionation factors associated with
   !>                                   fluxes F between pools (alpha(i,j) i/=j) and of 
   !>                                   sinks T (other than between pools) (alpha(i,i)) \n
   !>                                   Default: 1.
-  !>        \param[in]    "real(dp), optional :: beta(1:n[,1:m])"      Either T or beta can be given. \n
+  !>        \param[in]    "real(r2), optional :: beta(1:n[,1:m])"      Either T or beta can be given. \n
   !>                                   If beta is given then T(i) = beta(i)*C(i). \n
   !>                                   T supercedes beta, i.e. T will be taken if beta and T are given.
-  !>        \param[inout] "real(dp), optional :: trash(1:n[,1:m])"     Container to store possible inconsistencies,
+  !>        \param[inout] "real(r2), optional :: trash(1:n[,1:m])"     Container to store possible inconsistencies,
   !>                                   might be numeric, between non-isotope and isotope model. \n
   !>                                   Consistency checks are only performed if trash is given in call.
   !>        \param[inout] "logical,  optional :: trans"          Assumed order of pools and fluxes in 2D case \n
@@ -128,7 +128,8 @@ contains
   
   subroutine isotope_pool_model_1d(dt, Ciso, C, F, S, Rs, T, Rt, alpha, beta, trash)
 
-    use mo_kind,  only: dp, i4
+    use cable_def_types_mod, only: r2
+    use mo_kind,  only: i4
     use mo_utils, only: eq, ne
 #ifdef __MPI__
     use mpi,      only: MPI_Abort
@@ -136,31 +137,31 @@ contains
 
     implicit none
 
-    real(dp),                 intent(in)              :: dt     ! time step
-    real(dp), dimension(:),   intent(inout)           :: Ciso   ! Iso pool
-    real(dp), dimension(:),   intent(in)              :: C      ! Non-iso pool
-    real(dp), dimension(:,:), intent(in)              :: F      ! Fluxes between pools
-    real(dp), dimension(:),   intent(in),    optional :: S      ! Sources not between pools
-    real(dp), dimension(:),   intent(in),    optional :: Rs     ! Isotope ratio of S
-    real(dp), dimension(:),   intent(in),    optional :: T      ! Sinks not between pools
-    real(dp), dimension(:),   intent(in),    optional :: Rt     ! Isotope ratio of T
-    real(dp), dimension(:,:), intent(in),    optional :: alpha  ! Fractionation factors sinks and fluxes between pools
-    real(dp), dimension(:),   intent(in),    optional :: beta   ! Alternative to sinks = beta*Ct
-    real(dp), dimension(:),   intent(inout), optional :: trash  ! garbage can for numerical inconsistencies
+    real(r2),                 intent(in)              :: dt     ! time step
+    real(r2), dimension(:),   intent(inout)           :: Ciso   ! Iso pool
+    real(r2), dimension(:),   intent(in)              :: C      ! Non-iso pool
+    real(r2), dimension(:,:), intent(in)              :: F      ! Fluxes between pools
+    real(r2), dimension(:),   intent(in),    optional :: S      ! Sources not between pools
+    real(r2), dimension(:),   intent(in),    optional :: Rs     ! Isotope ratio of S
+    real(r2), dimension(:),   intent(in),    optional :: T      ! Sinks not between pools
+    real(r2), dimension(:),   intent(in),    optional :: Rt     ! Isotope ratio of T
+    real(r2), dimension(:,:), intent(in),    optional :: alpha  ! Fractionation factors sinks and fluxes between pools
+    real(r2), dimension(:),   intent(in),    optional :: beta   ! Alternative to sinks = beta*Ct
+    real(r2), dimension(:),   intent(inout), optional :: trash  ! garbage can for numerical inconsistencies
 
     ! Local variables
     integer(i4) :: i  ! counter
     integer(i4) :: nn ! number of pools
-    real(dp), dimension(size(Ciso,1)) :: R                   ! Isotope ratio of pool
+    real(r2), dimension(size(Ciso,1)) :: R                   ! Isotope ratio of pool
     ! defaults for optional inputs
-    real(dp), dimension(size(Ciso,1))            :: iS, iRs, iT, iRt
-    real(dp), dimension(size(Ciso,1),size(Ciso,1)) :: ialpha
-    real(dp), dimension(size(Ciso,1),size(Ciso,1)) :: alphaF ! alpha*F
-    real(dp), dimension(size(Ciso,1)) :: sink                ! not-between pools sink
-    real(dp), dimension(size(Ciso,1)) :: source              ! not-between pools source
-    real(dp), dimension(size(Ciso,1)) :: isink               ! between pools sink
-    real(dp), dimension(size(Ciso,1)) :: isource             ! between pools source
-    real(dp), dimension(size(Ciso,1)) :: Cnew                ! New pool size for check
+    real(r2), dimension(size(Ciso,1))            :: iS, iRs, iT, iRt
+    real(r2), dimension(size(Ciso,1),size(Ciso,1)) :: ialpha
+    real(r2), dimension(size(Ciso,1),size(Ciso,1)) :: alphaF ! alpha*F
+    real(r2), dimension(size(Ciso,1)) :: sink                ! not-between pools sink
+    real(r2), dimension(size(Ciso,1)) :: source              ! not-between pools source
+    real(r2), dimension(size(Ciso,1)) :: isink               ! between pools sink
+    real(r2), dimension(size(Ciso,1)) :: isource             ! between pools source
+    real(r2), dimension(size(Ciso,1)) :: Cnew                ! New pool size for check
 #ifdef __MPI__
     integer :: ierr
 #endif
@@ -182,7 +183,7 @@ contains
     endif
 
     ! Check F >= 0
-    if (any(F < 0.0_dp)) then
+    if (any(F < 0.0_r2)) then
        write(*,*) 'Error isotope_pool_model_1d: fluxes between pools must be >= 0.'
        write(*,*) '    F: ', F
 #ifdef __MPI__
@@ -193,10 +194,10 @@ contains
     endif
 
     ! Check F(i,:) == 0. if C(i) == 0.
-    if (any(eq(C,0.0_dp))) then
+    if (any(eq(C,0.0_r2))) then
        do i=1, nn
-          if (eq(C(i),0.0_dp)) then
-             if (any(ne(F(i,:),0.0_dp))) then
+          if (eq(C(i),0.0_r2)) then
+             if (any(ne(F(i,:),0.0_r2))) then
                 write(*,*) 'Error isotope_pool_model_1d: fluxes from pool i must be 0 if concentration in pool is 0.'
                 write(*,*) '    i, C(i): ', i, C(i)
                 write(*,*) '       F(i): ', F(i,:)
@@ -214,42 +215,42 @@ contains
     if (present(S)) then
        iS = S
     else
-       iS = 0.0_dp
+       iS = 0.0_r2
     endif
     if (present(Rs)) then
        iRs = Rs
     else
-       iRs = 1.0_dp
+       iRs = 1.0_r2
     endif
     if (present(T)) then
        iT = T
     else
-       iT = 0.0_dp
+       iT = 0.0_r2
     endif
     if (present(Rt)) then
        iRt = Rt
     else
-       iRt = 1.0_dp ! could be zero as well to assure no isotopic sink if C=0
-       where (C > 0.0_dp) iRt = Ciso / C
+       iRt = 1.0_r2 ! could be zero as well to assure no isotopic sink if C=0
+       where (C > 0.0_r2) iRt = Ciso / C
     endif
     if (present(alpha)) then
        ialpha = alpha
     else
-       ialpha = 1.0_dp
+       ialpha = 1.0_r2
     endif
     if (present(alpha)) then
        ialpha = alpha
     else
-       ialpha = 1.0_dp
+       ialpha = 1.0_r2
     endif
     if (present(beta) .and. (.not. present(T))) then
        iT = beta * C
     endif
 
     ! Isotope ratio
-    ! R(:) = 0.0_dp
-    R(:) = 1.0_dp ! could be zero as well to assure no isotopic fluxes if initial C=0
-    where (C > 0.0_dp) R = Ciso / C
+    ! R(:) = 0.0_r2
+    R(:) = 1.0_r2 ! could be zero as well to assure no isotopic fluxes if initial C=0
+    where (C > 0.0_r2) R = Ciso / C
 
     ! alpha * F
     alphaF = ialpha * F
@@ -266,15 +267,15 @@ contains
     if (present(trash)) then
        ! Check final pools
        ! Isotope pool became < 0.
-       if (any(Ciso < 0.0_dp)) then
-          trash = trash + merge(abs(Ciso), 0.0_dp, Ciso < 0.0_dp)
-          Ciso = merge(0.0_dp, Ciso, Ciso < 0.0_dp)
+       if (any(Ciso < 0.0_r2)) then
+          trash = trash + merge(abs(Ciso), 0.0_r2, Ciso < 0.0_r2)
+          Ciso = merge(0.0_r2, Ciso, Ciso < 0.0_r2)
        endif
        ! Non-isotope pool == 0. but isotope pool > 0.
        Cnew = C - iT * dt + iS * dt - sum(F, dim=2)* dt + sum(F, dim=1) * dt
-       if (any(eq(Cnew,0.0_dp) .and. (Ciso > 0.0_dp))) then
-          trash = trash + merge(Ciso, 0.0_dp, eq(Cnew,0.0_dp) .and. (Ciso > 0.0_dp))
-          Ciso = merge(0.0_dp, Ciso, eq(Cnew,0.0_dp) .and. (Ciso > 0.0_dp))
+       if (any(eq(Cnew,0.0_r2) .and. (Ciso > 0.0_r2))) then
+          trash = trash + merge(Ciso, 0.0_r2, eq(Cnew,0.0_r2) .and. (Ciso > 0.0_r2))
+          Ciso = merge(0.0_r2, Ciso, eq(Cnew,0.0_r2) .and. (Ciso > 0.0_r2))
        endif
        ! Non-isotope pool >0. but isotope pool == 0.
        ! ???
@@ -287,7 +288,8 @@ contains
   
   subroutine isotope_pool_model_2d(dt, Ciso, C, F, S, Rs, T, Rt, alpha, beta, trash, trans)
 
-    use mo_kind,  only: dp, i4
+    use cable_def_types_mod, only: r2
+    use mo_kind,  only: i4
     use mo_utils, only: eq, ne
 #ifdef __MPI__
     use mpi,      only: MPI_Abort
@@ -295,33 +297,33 @@ contains
 
     implicit none
 
-    real(dp),                   intent(in)              :: dt     ! time step
-    real(dp), dimension(:,:),   intent(inout)           :: Ciso   ! Iso pool
-    real(dp), dimension(:,:),   intent(in)              :: C      ! Non-iso pool
-    real(dp), dimension(:,:,:), intent(in)              :: F      ! Fluxes between pools
-    real(dp), dimension(:,:),   intent(in),    optional :: S      ! Sources not between pools
-    real(dp), dimension(:,:),   intent(in),    optional :: Rs     ! Isotope ratio of S
-    real(dp), dimension(:,:),   intent(in),    optional :: T      ! Sinks not between pools
-    real(dp), dimension(:,:),   intent(in),    optional :: Rt     ! Isotope ratio of T
-    real(dp), dimension(:,:,:), intent(in),    optional :: alpha  ! Fractionation factors sinks and fluxes between pools
-    real(dp), dimension(:,:),   intent(in),    optional :: beta   ! Alternative to sinks = beta*Ct
-    real(dp), dimension(:,:),   intent(inout), optional :: trash  ! garbage can for numerical inconsistencies
+    real(r2),                   intent(in)              :: dt     ! time step
+    real(r2), dimension(:,:),   intent(inout)           :: Ciso   ! Iso pool
+    real(r2), dimension(:,:),   intent(in)              :: C      ! Non-iso pool
+    real(r2), dimension(:,:,:), intent(in)              :: F      ! Fluxes between pools
+    real(r2), dimension(:,:),   intent(in),    optional :: S      ! Sources not between pools
+    real(r2), dimension(:,:),   intent(in),    optional :: Rs     ! Isotope ratio of S
+    real(r2), dimension(:,:),   intent(in),    optional :: T      ! Sinks not between pools
+    real(r2), dimension(:,:),   intent(in),    optional :: Rt     ! Isotope ratio of T
+    real(r2), dimension(:,:,:), intent(in),    optional :: alpha  ! Fractionation factors sinks and fluxes between pools
+    real(r2), dimension(:,:),   intent(in),    optional :: beta   ! Alternative to sinks = beta*Ct
+    real(r2), dimension(:,:),   intent(inout), optional :: trash  ! garbage can for numerical inconsistencies
     logical,                    intent(in),    optional :: trans  ! transposed order pools and fluxes
 
    ! Local variables
     integer(i4) :: i, j  ! counter
     integer(i4) :: nland ! number of land points
     integer(i4) :: nn    ! number of pools
-    real(dp), dimension(size(Ciso,1),size(Ciso,2)) :: R       ! Isotope ratio of pool
+    real(r2), dimension(size(Ciso,1),size(Ciso,2)) :: R       ! Isotope ratio of pool
     ! defaults for optional inputs
-    real(dp), dimension(size(Ciso,1),size(Ciso,2)) :: iS, iRs, iT, iRt
-    real(dp), dimension(:,:,:), allocatable :: ialpha
-    real(dp), dimension(:,:,:), allocatable :: alphaF         ! alpha*F
-    real(dp), dimension(size(Ciso,1),size(Ciso,2)) :: sink    ! not-between pools sink
-    real(dp), dimension(size(Ciso,1),size(Ciso,2)) :: source  ! not-between pools source
-    real(dp), dimension(size(Ciso,1),size(Ciso,2)) :: isink   ! between pools sink
-    real(dp), dimension(size(Ciso,1),size(Ciso,2)) :: isource ! between pools source
-    real(dp), dimension(size(Ciso,1),size(Ciso,2)) :: Cnew    ! New pool size for check
+    real(r2), dimension(size(Ciso,1),size(Ciso,2)) :: iS, iRs, iT, iRt
+    real(r2), dimension(:,:,:), allocatable :: ialpha
+    real(r2), dimension(:,:,:), allocatable :: alphaF         ! alpha*F
+    real(r2), dimension(size(Ciso,1),size(Ciso,2)) :: sink    ! not-between pools sink
+    real(r2), dimension(size(Ciso,1),size(Ciso,2)) :: source  ! not-between pools source
+    real(r2), dimension(size(Ciso,1),size(Ciso,2)) :: isink   ! between pools sink
+    real(r2), dimension(size(Ciso,1),size(Ciso,2)) :: isource ! between pools source
+    real(r2), dimension(size(Ciso,1),size(Ciso,2)) :: Cnew    ! New pool size for check
     logical :: itrans                                         ! transposed order pools and fluxes
 #ifdef __MPI__
     integer :: ierr
@@ -401,7 +403,7 @@ contains
     endif
     
     ! ! Check F >= 0
-    ! if (any(F < 0.0_dp)) then
+    ! if (any(F < 0.0_r2)) then
     !    write(*,*) 'Error isotope_pool_model_2d: fluxes between pools must be >= 0.'
     !    write(*,*) '    F: ', F
 ! #ifdef __MPI__
@@ -412,12 +414,12 @@ contains
     ! endif
 
     ! Check F(i,:) == 0. if C(i) == 0.
-    if (any(eq(C,0.0_dp))) then
+    if (any(eq(C,0.0_r2))) then
        do j=1, nland
           do i=1, nn
              if (itrans) then
-                if (eq(C(j,i),0.0_dp)) then
-                   if (any(ne(F(j,i,:),0.0_dp))) then
+                if (eq(C(j,i),0.0_r2)) then
+                   if (any(ne(F(j,i,:),0.0_r2))) then
                       write(*,*) 'Error isotope_pool_model_2d:'
                       write(*,*) '    fluxes from pool i at land point j must be 0 if concentration in pool is 0.'
                       write(*,*) '    i, j, C(j,i):   ', j, i, C(j,i)
@@ -430,8 +432,8 @@ contains
                    endif
                 endif
              else
-                if (eq(C(i,j),0.0_dp)) then
-                   if (any(ne(F(i,:,j),0.0_dp))) then
+                if (eq(C(i,j),0.0_r2)) then
+                   if (any(ne(F(i,:,j),0.0_r2))) then
                       write(*,*) 'Error isotope_pool_model_2d:'
                       write(*,*) '    fluxes from pool i at land point j must be 0 if concentration in pool is 0.'
                       write(*,*) '    i, j, C(i,j):   ', i, j, C(i,j)
@@ -452,43 +454,43 @@ contains
     if (present(S)) then
        iS = S
     else
-       iS = 0.0_dp
+       iS = 0.0_r2
     endif
     if (present(Rs)) then
        iRs = Rs
     else
-       iRs = 1.0_dp
+       iRs = 1.0_r2
     endif
     if (present(T)) then
        iT = T
     else
-       iT = 0.0_dp
+       iT = 0.0_r2
     endif
     if (present(Rt)) then
        iRt = Rt
     else
-       ! iRt = 0.0_dp
-       iRt = 1.0_dp ! could be zero as well to assure no isotopic sink if C=0
-       where (C > 0.0_dp) iRt = Ciso / C
+       ! iRt = 0.0_r2
+       iRt = 1.0_r2 ! could be zero as well to assure no isotopic sink if C=0
+       where (C > 0.0_r2) iRt = Ciso / C
     endif
     if (present(alpha)) then
        ialpha = alpha
     else
-       ialpha = 1.0_dp
+       ialpha = 1.0_r2
     endif
     if (present(alpha)) then
        ialpha = alpha
     else
-       ialpha = 1.0_dp
+       ialpha = 1.0_r2
     endif
     if (present(beta) .and. (.not. present(T))) then
        iT = beta * C
     endif
 
     ! Isotope ratio
-    ! R(:,:) = 0.0_dp
-    R(:,:) = 1.0_dp ! could be zero as well to assure no isotopic fluxes if initial C=0
-    where (C > 0.0_dp) R = Ciso / C
+    ! R(:,:) = 0.0_r2
+    R(:,:) = 1.0_r2 ! could be zero as well to assure no isotopic fluxes if initial C=0
+    where (C > 0.0_r2) R = Ciso / C
 
     ! alpha * F
     alphaF = ialpha * F
@@ -509,9 +511,9 @@ contains
     if (present(trash)) then
         ! Check final pools
         ! Isotope pool became < 0.
-        if (any(Ciso < 0.0_dp)) then
-           trash = trash + merge(abs(Ciso), 0.0_dp, Ciso < 0.0_dp)
-           Ciso = merge(0.0_dp, Ciso, Ciso < 0.0_dp)
+        if (any(Ciso < 0.0_r2)) then
+           trash = trash + merge(abs(Ciso), 0.0_r2, Ciso < 0.0_r2)
+           Ciso = merge(0.0_r2, Ciso, Ciso < 0.0_r2)
         endif
         ! Non-isotope pool == 0. but isotope pool > 0.
         if (itrans) then
@@ -519,9 +521,9 @@ contains
         else
            Cnew = C - iT * dt + iS * dt - sum(F, dim=2)* dt + sum(F, dim=1) * dt
         endif
-        if (any(eq(Cnew,0.0_dp) .and. (Ciso > 0.0_dp))) then
-           trash = trash + merge(Ciso, 0.0_dp, eq(Cnew,0.0_dp) .and. (Ciso > 0.0_dp))
-           Ciso = merge(0.0_dp, Ciso, eq(Cnew,0.0_dp) .and. (Ciso > 0.0_dp))
+        if (any(eq(Cnew,0.0_r2) .and. (Ciso > 0.0_r2))) then
+           trash = trash + merge(Ciso, 0.0_r2, eq(Cnew,0.0_r2) .and. (Ciso > 0.0_r2))
+           Ciso = merge(0.0_r2, Ciso, eq(Cnew,0.0_r2) .and. (Ciso > 0.0_r2))
         endif
         ! Non-isotope pool >0. but isotope pool == 0.
         ! ???
@@ -539,15 +541,16 @@ contains
   ! Diagonal elements of a matrix
   function diag_2d(matrix)
 
-    use mo_kind, only: dp, i4
+    use cable_def_types_mod, only: r2
+    use mo_kind, only: i4
 #ifdef __MPI__
     use mpi,     only: MPI_Abort
 #endif
 
     implicit none
 
-    real(dp), dimension(:,:), intent(in) :: matrix
-    real(dp), dimension(:), allocatable  :: diag_2d
+    real(r2), dimension(:,:), intent(in) :: matrix
+    real(r2), dimension(:), allocatable  :: diag_2d
 
     integer(i4) :: i
 #ifdef __MPI__
@@ -571,16 +574,17 @@ contains
   ! Diagonal elements of the two first or two last dimensions of a matrix
   function diag_3d(matrix, trans)
 
-    use mo_kind, only: dp, i4
+    use cable_def_types_mod, only: r2
+    use mo_kind, only: i4
 #ifdef __MPI__
     use mpi,     only: MPI_Abort
 #endif
 
     implicit none
 
-    real(dp), dimension(:,:,:), intent(in)           :: matrix
+    real(r2), dimension(:,:,:), intent(in)           :: matrix
     logical,                    intent(in), optional :: trans   ! two first or two last dimensions
-    real(dp), dimension(:,:),   allocatable          :: diag_3d
+    real(r2), dimension(:,:),   allocatable          :: diag_3d
 
     integer(i4) :: i, j
     logical :: itrans
