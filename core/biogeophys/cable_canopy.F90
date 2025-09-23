@@ -2813,7 +2813,8 @@ CONTAINS
                      if (sum(real(ex(i,:),r_2))>total_est_evap(i)) then
                      ex(i,1) = total_est_evap(i) * ex(i,1)/sum(real(ex(i,:),r_2))
                      ex(i,2) = total_est_evap(i) * ex(i,2)/sum(real(ex(i,:),r_2))
-                     !ecx(i) = sum(ex(i,:))
+                    
+                     ecx(i)=sum(ex(i,:))* real(air%rlam(i), r_2) /(1.0_r_2-real(canopy%fwet(i), r_2)) 
                      ! if (present(wbpsdo)) then
                      !    print*, 'saturation: ex_modified: ',ex(i,:), sum(real(ex(i,:),r_2))
                      ! else
