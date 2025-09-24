@@ -552,6 +552,7 @@ module cable_def_types_mod
      real(r_2), dimension(:,:), pointer :: gac => null()       ! aerodynamic conductance for CO2 [mol(CO2)/m^2/s]
      real(r_2), dimension(:,:), pointer :: ci => null()        ! stomatal CO2 concentration [mol(CO2)/mol(air)]
      real(r_2), dimension(:,:), pointer :: psi_can => null() 
+     real(r_2), dimension(:,:), pointer :: psi_can_sat => null() 
      real(r_2), dimension(:), pointer :: psi_can_opt => null() 
      real(r_2), dimension(:,:), pointer :: abs_deltpsil => null() 
      real(r_2), dimension(:,:), pointer :: abs_deltcs => null() 
@@ -1345,6 +1346,7 @@ contains
     allocate ( canopy%ecxs(mp,mf) )    ! sunlit and shaded leaf latent heat flux (sap flux)
   ! plant hydraulics; mgk576 2017; ms8355 2022
     allocate( canopy%psi_can(mp,mf) )
+    allocate( canopy%psi_can_sat(mp,mf) )
     allocate( canopy%abs_deltpsil(mp,mf) )
     allocate( canopy%abs_deltcs(mp,mf) )
     allocate( canopy%abs_deltpsil_vpd(mp,mf) )
@@ -2004,6 +2006,7 @@ contains
     deallocate( canopy%fevcs )
     deallocate( canopy%ecxs )
     deallocate( canopy%psi_can )
+    deallocate( canopy%psi_can_sat )
     deallocate( canopy%abs_deltpsil )
     deallocate( canopy%abs_deltcs )
     deallocate( canopy%abs_deltpsil_vpd )
@@ -2612,6 +2615,7 @@ contains
     canopy%fevcs = 0
     canopy%ecxs = 0
     canopy%psi_can = 0
+    canopy%psi_can_sat = 0
     canopy%abs_deltpsil = 0
     canopy%abs_deltcs = 0
     canopy%abs_deltpsil_vpd = 0
