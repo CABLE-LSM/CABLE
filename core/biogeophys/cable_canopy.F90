@@ -2049,6 +2049,7 @@ CONTAINS
       else
       fwpsixx = fwpsi
       endif
+      fwpsi1_tmp = 0.0_r_2
       dsxx = dsx
       csxx = csx
       psilxx = psilx
@@ -2207,7 +2208,8 @@ CONTAINS
          ! print*, 'DD27 ', veg%g0
          DO i=1,mp
 
-            IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1)) .AND. (Numtag>0)) THEN
+            !IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1)) .AND. (Numtag>0)) THEN
+            IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1))) THEN
 
                ghwet(i)  = 2.0_r_2 * real(sum_gbh(i),r_2)
                gwwet(i)  = 1.075 * sum_gbh(i)
@@ -3040,35 +3042,35 @@ CONTAINS
                       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilxm(i,1))))
                fwpsi1_tmp(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
                       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilxm(i,2))))
-               Mtag=1
-               if (fwpsi1_tmp(i,1)-fwpsixx(i,1)<-0.1_r_2) then
-                  Mtag=2
-                  if (present(wbpsdo)) then
-                     canopy%N_neg_sw = canopy%N_neg_sw + 1.0
-                  else
-                     canopy%N_neg = canopy%N_neg + 1.0
-                  endif
-                  inc = 0.1_r_2
-                  fwpsi1_tmp(i,1) = fwpsixx(i,1) - inc
-                  psilxm(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
-                  log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,1)) / fwpsi1_tmp(i,1) )
-                  fwpsi1_tmp(i,2) = fwpsixx(i,2) - inc
-                  psilxm(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
-                  log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,2)) / fwpsi1_tmp(i,2) )
-               elseif (fwpsi1_tmp(i,1)-fwpsixx(i,1)>0.1_r_2) then
-                  Mtag=3
-                  if (present(wbpsdo)) then
-                     canopy%N_pos_sw = canopy%N_pos_sw + 1.0
-                  else
-                     canopy%N_pos = canopy%N_pos + 1.0
-                  endif
-                  fwpsi1_tmp(i,1) = fwpsixx(i,1) + inc
-                  psilxm(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
-                  log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,1)) / fwpsi1_tmp(i,1) )
-                  fwpsi1_tmp(i,2) = fwpsixx(i,2) + inc
-                  psilxm(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
-                  log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,2)) / fwpsi1_tmp(i,2) )   
-               endif
+               ! Mtag=1
+               ! if (fwpsi1_tmp(i,1)-fwpsixx(i,1)<-0.1_r_2) then
+               !    Mtag=2
+               !    if (present(wbpsdo)) then
+               !       canopy%N_neg_sw = canopy%N_neg_sw + 1.0
+               !    else
+               !       canopy%N_neg = canopy%N_neg + 1.0
+               !    endif
+               !    inc = 0.1_r_2
+               !    fwpsi1_tmp(i,1) = fwpsixx(i,1) - inc
+               !    psilxm(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
+               !    log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,1)) / fwpsi1_tmp(i,1) )
+               !    fwpsi1_tmp(i,2) = fwpsixx(i,2) - inc
+               !    psilxm(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
+               !    log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,2)) / fwpsi1_tmp(i,2) )
+               ! elseif (fwpsi1_tmp(i,1)-fwpsixx(i,1)>0.1_r_2) then
+               !    Mtag=3
+               !    if (present(wbpsdo)) then
+               !       canopy%N_pos_sw = canopy%N_pos_sw + 1.0
+               !    else
+               !       canopy%N_pos = canopy%N_pos + 1.0
+               !    endif
+               !    fwpsi1_tmp(i,1) = fwpsixx(i,1) + inc
+               !    psilxm(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
+               !    log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,1)) / fwpsi1_tmp(i,1) )
+               !    fwpsi1_tmp(i,2) = fwpsixx(i,2) + inc
+               !    psilxm(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
+               !    log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,2)) / fwpsi1_tmp(i,2) )   
+               ! endif
             elseif ( k > 5 .AND. k < kmax ) then
                Numtag = Numtag - 1
             endif
