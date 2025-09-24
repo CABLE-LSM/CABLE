@@ -219,6 +219,7 @@ CONTAINS
       if (ktau_tot==1) then
          !canopy%psi_can = SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
          canopy%psi_can = SPREAD(real(canopy%psix,r_2), 2, mf)
+         canopy%psi_can_sat = SPREAD(real(canopy%psix,r_2), 2, mf)
       endif
       psilx = canopy%psi_can  ! SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
       
@@ -537,11 +538,22 @@ CONTAINS
             END DO
             dsxpsdo = dsx
             dsypsdo = dsy
-            psilxpsdo = psilx
-            psilypsdo = psily
+            !!!!! the starting psil and fwpsi is psi_can_sat rather than psi_can
+            psilxpsdo = canopy%psi_can_sat  ! SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
+            psilypsdo = canopy%psi_can_sat  ! SPREAD(real(ssnow%psi_rootzone,r_2), 2, mf)
+            if (INDEX(cable_user%FWSOIL_SWITCH,'LWP')>0) then
+               fwpsipsdo(:, 1) = (1.0_r_2 +exp(veg%slope_leaf(:) * veg%psi_50_leaf(:))) / &
+               (1.0_r_2 + exp(veg%slope_leaf(:) * (veg%psi_50_leaf(:) - psilxpsdo(:, 1))))
+               fwpsipsdo(:, 2) = (1.0_r_2 +exp(veg%slope_leaf(:) * veg%psi_50_leaf(:))) / &
+               (1.0_r_2 + exp(veg%slope_leaf(:) * (veg%psi_50_leaf(:) - psilxpsdo(:, 2))))
+            else
+               fwpsipsdo = 1.0_r_2
+            endif
+            ! psilxpsdo = psilx
+            ! psilypsdo = psily
+            ! fwpsipsdo = fwpsi
             fwsoilpsdo = fwsoil
-            fwsoiltmppsdo = fwsoiltmp
-            fwpsipsdo = fwpsi
+            fwsoiltmppsdo = fwsoiltmp   
             tlfxpsdo = tlfx
             tlfypsdo = tlfy
             ecypsdo = ecy
@@ -3342,6 +3354,7 @@ CONTAINS
          canopy%abs_deltcs_sw = abs_deltcs * 1.0e6_r_2
          canopy%abs_deltlf_sw = abs_deltlf
          canopy%abs_deltds_sw = abs_deltds
+         canopy%psi_can_sat = real(psily, r_2)
       elseif (present (vpdpsdo)) then
          
          canopy%gsw_epotvpd = canopy%gswx / C%RGSWC
