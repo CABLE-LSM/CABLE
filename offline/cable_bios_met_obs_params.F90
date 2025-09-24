@@ -11,9 +11,9 @@ MODULE bios_type_def
   save
 ! Define integer kind parameters to accommodate the range of numbers usually 
 ! associated with 4, 2, and 1 byte integers. 
-  integer,parameter :: i4b = selected_int_kind(9) 
-  integer,parameter :: i2b = selected_int_kind(4)
-  integer,parameter :: i1b = selected_int_kind(2)
+  integer,parameter :: i4 = selected_int_kind(9) 
+  integer,parameter :: i2 = selected_int_kind(4)
+  integer,parameter :: i1 = selected_int_kind(2)
 ! Define single and double precision real kind parameters: 
 ! * Kind(1.0)   defines sp as the machine's default size for single precision
 ! * Kind(1.0d0) defines dp as the machine's default size for double precision
@@ -45,9 +45,9 @@ SAVE
 ! Assign as Date = dmydate(iday,imth,iyear)
 ! Access components as iday=Date%Day, imth=Date%Month, iyear=Date%Year
 TYPE dmydate
-  INTEGER(i4b):: Day
-  INTEGER(i4b):: Month
-  INTEGER(i4b):: Year
+  INTEGER(i4):: Day
+  INTEGER(i4):: Month
+  INTEGER(i4):: Year
 END TYPE dmydate
 ! Define interfaces for the +, -, ==, /=, <, >, <=, >= operators to:
 ! * add, subtract an integer number of days from a dmydate, with AddDay, SubDay; 
@@ -90,7 +90,7 @@ CONTAINS
   IMPLICIT NONE
   TYPE (dmydate)              :: AddDay    ! Date with days added (FUNCTION name)
   TYPE (dmydate), INTENT(IN)  :: Today     ! Current date
-  INTEGER(i4b),   INTENT(IN)  :: Days2Add  ! Days to add to current date
+  INTEGER(i4),   INTENT(IN)  :: Days2Add  ! Days to add to current date
   REAL(dp)                    :: JDay      ! Julian Day
 !-------------------------------------------------------------------------------
   JDay = JulianDay(Today)
@@ -107,7 +107,7 @@ CONTAINS
   IMPLICIT NONE
   TYPE (dmydate)              :: SubDay    ! Date with days added (FUNCTION name)
   TYPE (dmydate), INTENT(IN)  :: Today     ! Current date
-  INTEGER(i4b),   INTENT(IN)  :: Days2Sub  ! Days to add to current date
+  INTEGER(i4),   INTENT(IN)  :: Days2Sub  ! Days to add to current date
   REAL(dp)                    :: JDay      ! Julian Day
 !-------------------------------------------------------------------------------
   JDay = JulianDay(Today)
@@ -308,8 +308,8 @@ CONTAINS
 ! Returns 1 if leap year, 0 if not.  Add it to the length of February.
 !-------------------------------------------------------------------------------
   IMPLICIT NONE
-  INTEGER(i4b)               :: LeapDay  
-  INTEGER(i4b), INTENT(IN)   :: Year
+  INTEGER(i4)               :: LeapDay  
+  INTEGER(i4), INTENT(IN)   :: Year
 !-------------------------------------------------------------------------------
   IF (MOD(Year,4)/=0) THEN
     LeapDay = 0
@@ -330,8 +330,8 @@ FUNCTION DaysInMonth(Date)
 ! MRR, 12-oct-2005: return 0 if month not legal
 !-------------------------------------------------------------------------------
 TYPE(dmydate),INTENT(IN):: Date
-INTEGER(i4b)          :: DaysInMonth  
-INTEGER(i4b),PARAMETER:: MonthDays(12) = (/31,28,31,30,31,30,31,31,30,31,30,31/)
+INTEGER(i4)          :: DaysInMonth  
+INTEGER(i4),PARAMETER:: MonthDays(12) = (/31,28,31,30,31,30,31,31,30,31,30,31/)
 !-------------------------------------------------------------------------------
 IF (Date%Month >= 1 .AND. Date%Month <= 12) THEN
   IF (Date%Month==2) THEN
@@ -349,8 +349,8 @@ END FUNCTION DaysInMonth
   FUNCTION YearDay(Date)
 !-------------------------------------------------------------------------------
   TYPE(dmydate), INTENT(IN)   :: Date
-  INTEGER(i4b)                :: YearDay 
-  INTEGER(i4b), DIMENSION(12) :: MonthDays
+  INTEGER(i4)                :: YearDay 
+  INTEGER(i4), DIMENSION(12) :: MonthDays
 !-------------------------------------------------------------------------------
   MonthDays = (/31,28,31,30,31,30,31,31,30,31,30,31/)
   MonthDays(2) = 28 + LeapDay(Date%Year)
@@ -371,7 +371,7 @@ FUNCTION DayDifference (Date1,Date0)
 USE bios_type_def
 IMPLICIT NONE
 TYPE(dmydate),INTENT(IN):: Date1, Date0
-INTEGER(i4b):: DayDifference
+INTEGER(i4):: DayDifference
 !-------------------------------------------------------------------------------
 DayDifference = nint(JulianDay(Date1) - JulianDay(Date0))
 END FUNCTION DayDifference
@@ -462,9 +462,9 @@ CONTAINS
 ! read. Return the grid dimensions and no data value.  
 !-------------------------------------------------------------------------------
   implicit none
-  integer(i4b)    ,intent(in) :: iunit
+  integer(i4)    ,intent(in) :: iunit
   character(200)  ,intent(in) :: Filename
-  integer(i4b)    ,intent(out):: Cols, Rows
+  integer(i4)    ,intent(out):: Cols, Rows
   real(sp)        ,intent(out):: xLL, yLL, CellSize, NoDataVal
   character(12)               :: Head
 !-------------------------------------------------------------------------------
@@ -550,16 +550,16 @@ MODULE cable_bios_met_obs_params
 
   REAL(sp)                  :: co2air_year          ! Single global value of co2 (ppm)
   
-  INTEGER(i4b),  SAVE :: rain_unit, swdown_unit, tairmax_unit, tairmin_unit, co2_unit ! Met file unit numbers
-  INTEGER(i4b),  SAVE :: wind_unit, vp1500_unit, vp0900_unit
+  INTEGER(i4),  SAVE :: rain_unit, swdown_unit, tairmax_unit, tairmin_unit, co2_unit ! Met file unit numbers
+  INTEGER(i4),  SAVE :: wind_unit, vp1500_unit, vp0900_unit
   TYPE(dmydate), SAVE :: previous_date ! The day before the current date, for noting changes of year
   TYPE(dmydate), SAVE :: bios_rundate  ! The day before the current date, for noting changes of year
   TYPE(dmydate)       :: dummydate     ! Dummy date for when keeping the date is not required
   TYPE(dmydate),SAVE  :: MetDate       ! Date of met to access (equals current date for normals runs, but
                                        ! must be calculated for spinup and initialisation runs (for dates before 1900)
-  INTEGER(i4b),PARAMETER :: recycle_met_startdate = 1981 ! range for met to be recycled for spinup and initialisation
-  INTEGER(i4b),PARAMETER :: recycle_met_enddate = 2010
-  INTEGER(i4b)   :: skipdays                        ! Days of met to skip when user_startdate is after bios_startdate
+  INTEGER(i4),PARAMETER :: recycle_met_startdate = 1981 ! range for met to be recycled for spinup and initialisation
+  INTEGER(i4),PARAMETER :: recycle_met_enddate = 2010
+  INTEGER(i4)   :: skipdays                        ! Days of met to skip when user_startdate is after bios_startdate
   TYPE(dmydate), SAVE  :: bios_startdate, bios_enddate    ! First and last dates found in bios met files (read from rain file)
   REAL(sp), PRIVATE, PARAMETER :: SecDay = 86400.
   TYPE(WEATHER_GENERATOR_TYPE), SAVE :: WG
@@ -587,24 +587,24 @@ CONTAINS
   ! Local variables
   
   LOGICAL,  SAVE :: call1 = .TRUE.
-  INTEGER(i4b)   :: iunit  
-  INTEGER(i4b)   :: MaskCols, MaskRows  ! Landmask col and row dimensions
+  INTEGER(i4)   :: iunit  
+  INTEGER(i4)   :: MaskCols, MaskRows  ! Landmask col and row dimensions
   REAL(sp)       :: MaskBndW, MaskBndS  ! Landmask outer bound dimensions in decimal degrees (West & South)
   REAL(sp)       :: MaskCtrW, MaskCtrS
   REAL(sp)       :: MaskRes, NoDataVal  ! Landmask resolution (dec deg) and no-data value
   
-  INTEGER(i4b)   :: icol, irow, iland   ! Loop counters for cols, rows, land cells
+  INTEGER(i4)   :: icol, irow, iland   ! Loop counters for cols, rows, land cells
   
   LOGICAL(lgt), ALLOCATABLE :: LandMaskLogical(:,:) ! Logical land mask for vector packing
   REAL(sp),     ALLOCATABLE :: LandMaskReal(:,:)    ! Real land mask as read from landmask file
-  INTEGER(i4b), ALLOCATABLE :: ColRowGrid(:,:)      ! Temp grid to hold col or row numbers for packing to land_x or land_y
+  INTEGER(i4), ALLOCATABLE :: ColRowGrid(:,:)      ! Temp grid to hold col or row numbers for packing to land_x or land_y
   
  ! TYPE(dmydate)  :: bios_startdate, bios_enddate    ! First and last dates found in bios met files (read from rain file)
   TYPE(dmydate)  :: user_startdate, user_enddate    ! First and last run dates specified by user (read from cable_user%)
-  INTEGER(i4b)   :: bios_rundays                    ! Days in run, from bios_startdate or user_startdate to bios_enddate 
-  INTEGER(i4b)   :: co2_startyear, co2_endyear      ! First and last years found in bios global CO2 files 
-  INTEGER(i4b)   :: co2_skipyears                   ! Years of annual CO2 to skip to position for reading the current year
-  INTEGER(i4b)   :: iday, iyear ! counters
+  INTEGER(i4)   :: bios_rundays                    ! Days in run, from bios_startdate or user_startdate to bios_enddate 
+  INTEGER(i4)   :: co2_startyear, co2_endyear      ! First and last years found in bios global CO2 files 
+  INTEGER(i4)   :: co2_skipyears                   ! Years of annual CO2 to skip to position for reading the current year
+  INTEGER(i4)   :: iday, iyear ! counters
   INTEGER :: error_status
   NAMELIST /biosnml/ Run, met_path, param_path, landmaskflt_file, landmaskhdr_file, &
        rain_file, swdown_file, tairmax_file, tairmin_file, &
@@ -636,12 +636,12 @@ USE cable_def_types_mod,  ONLY: mland, climate_type
   IMPLICIT NONE
 
 
-INTEGER(i4b) :: is, ie ! Index start/end points within cable spatial vectors
+INTEGER(i4) :: is, ie ! Index start/end points within cable spatial vectors
                                 ! for the current land-cell's tiles. These are just 
                                 ! aliases to improve code readability
-INTEGER(i4b) :: iland         ! loop counter through mland land cells
-INTEGER(i4b) :: param_unit    ! Unit number for reading (all) parameter files.
-INTEGER(i4b) :: error_status  ! Error status returned by OPENs
+INTEGER(i4) :: iland         ! loop counter through mland land cells
+INTEGER(i4) :: param_unit    ! Unit number for reading (all) parameter files.
+INTEGER(i4) :: error_status  ! Error status returned by OPENs
 TYPE(climate_type), INTENT(INOUT)       :: climate ! climate variables
 
 REAL(sp), ALLOCATABLE :: vegtypeigbp(:)

@@ -1,6 +1,6 @@
 MODULE sli_utils
 
-  USE cable_def_types_mod, ONLY: r_2, i_d
+  USE cable_def_types_mod, ONLY: r2, i4
   USE cable_def_types_mod, ONLY: soil_parameter_type, veg_parameter_type
   USE sli_numbers,         ONLY: &
        experiment, &
@@ -33,20 +33,20 @@ MODULE sli_utils
   PUBLIC :: rtbis_Tfrozen, GTfrozen, JSoilLayer, forcerestore, SEB
   PUBLIC :: spline_b, mean, nse
 
-  REAL(r_2),        DIMENSION(:,:),   ALLOCATABLE :: dx
-  REAL(r_2),        DIMENSION(:),     ALLOCATABLE :: dxL
+  REAL(r2),        DIMENSION(:,:),   ALLOCATABLE :: dx
+  REAL(r2),        DIMENSION(:),     ALLOCATABLE :: dxL
   TYPE(params),     DIMENSION(:,:),   ALLOCATABLE :: par
   TYPE(params),     DIMENSION(:),     ALLOCATABLE :: plit
   TYPE(solve_type), DIMENSION(:),     ALLOCATABLE :: sol
-  REAL(r_2),        DIMENSION(:,:),   ALLOCATABLE :: x
+  REAL(r2),        DIMENSION(:,:),   ALLOCATABLE :: x
 
   ! MC solute not done yet
-  !REAL(r_2),        DIMENSION(:,:),   ALLOCATABLE         :: bd
-  !REAL(r_2),        DIMENSION(:,:),   ALLOCATABLE         :: dis
+  !REAL(r2),        DIMENSION(:,:),   ALLOCATABLE         :: bd
+  !REAL(r2),        DIMENSION(:,:),   ALLOCATABLE         :: dis
   !TYPE(rapointer),  DIMENSION(:,:,:), ALLOCATABLE         :: isopar
   !CHARACTER(LEN=2), DIMENSION(:,:,:), ALLOCATABLE         :: isotype
-  REAL(r_2),        DIMENSION(:),   ALLOCATABLE         :: bd ! function solute not done yet
-  REAL(r_2),        DIMENSION(:),   ALLOCATABLE         :: dis
+  REAL(r2),        DIMENSION(:),   ALLOCATABLE         :: bd ! function solute not done yet
+  REAL(r2),        DIMENSION(:),   ALLOCATABLE         :: dis
   TYPE(rapointer),  DIMENSION(:,:), ALLOCATABLE         :: isopar
   CHARACTER(LEN=2), DIMENSION(:,:), ALLOCATABLE         :: isotype
 #ifdef __MPI__
@@ -133,14 +133,14 @@ CONTAINS
 
     TYPE(vars_aquifer), INTENT(INOUT) :: v_aquifer
 
-    v_aquifer%zzero     = 53.43_r_2  ! water table depth corresponding to Wa = zero
-    v_aquifer%Sy        = 0.2_r_2  ! specific yield of aquifer
+    v_aquifer%zzero     = 53.43_r2  ! water table depth corresponding to Wa = zero
+    v_aquifer%Sy        = 0.2_r2  ! specific yield of aquifer
     ! initialise water content of aquifer
     v_aquifer%Wa        = v_aquifer%Sy*(v_aquifer%zzero-max(v_aquifer%zdelta,v_aquifer%zsoil))
     v_aquifer%isat      = 0
     if (v_aquifer%zdelta <= v_aquifer%zsoil) v_aquifer%isat = 1
-    v_aquifer%f         = 1.25_r_2 ! multiplier in exponent of Rs (m-1)
-    v_aquifer%Rsmax     = 4.5e-7_r_2  ! maximum discharge rate from aquifer (ms-1)
+    v_aquifer%f         = 1.25_r2 ! multiplier in exponent of Rs (m-1)
+    v_aquifer%Rsmax     = 4.5e-7_r2  ! maximum discharge rate from aquifer (ms-1)
     v_aquifer%discharge = v_aquifer%Rsmax*exp(-v_aquifer%f*v_aquifer%zdelta)
 
   END SUBROUTINE aquifer_props
@@ -153,8 +153,8 @@ CONTAINS
     IMPLICIT NONE
 
     TYPE(params), INTENT(IN)  :: parin
-    REAL(r_2),    INTENT(IN)  :: dz
-    REAL(r_2),    INTENT(OUT) :: q, qya, qyb, qTa, qTb
+    REAL(r2),    INTENT(IN)  :: dz
+    REAL(r2),    INTENT(OUT) :: q, qya, qyb, qTa, qTb
     TYPE(vars),   INTENT(IN)  :: v1, v2
     ! Gets flux and partial derivs for specified flow path.
     ! Definitions of arguments:
@@ -165,7 +165,7 @@ CONTAINS
     ! q   - flux.
     ! qya - partial deriv of flux wrt S (if unsat) or phi (if sat) at upper end.
     ! qyb - ditto at lower end.
-    REAL(r_2) :: w, rdz
+    REAL(r2) :: w, rdz
 
     ! gf is gravity factor (0 to 1) assumed available in module
     if (gf < zero) then
@@ -213,26 +213,26 @@ CONTAINS
     ! method applicable to multilayer soil or soil/snow column
     ! derived using Eq's 3-12 in Hirota et al. JGR 2002
     IMPLICIT NONE
-    REAL(r_2), INTENT(IN)   :: Tg0 ! ground surface temp of previous time-step [deg C]
-    REAL(r_2), INTENT(IN)   :: Rnet0 ! Rnet at current time step, assuming Tg of previous time-step [W m-2]
-    REAL(r_2), INTENT(IN)   :: lE0 ! latent heat flux at current time step, assuming Tg of previous time-step  [W m-2]
-    REAL(r_2), INTENT(IN)   :: dlEdTg ! derivative of latent heat flux wrt Tg   [W m-2 K-1]
-    REAL(r_2), INTENT(IN)   :: Ta ! air temperature [deg C]
-    REAL(r_2), INTENT(IN)   :: Tbar ! temperature at diurnal damping depth
-    REAL(r_2), INTENT(IN)   :: d1 ! diurnal damping depth (m) = sqrt(2*lambda/c/omega) (Hirota et al. eq 40)
-    REAL(r_2), INTENT(IN)   :: rrc ! resistance to sensible heat and radiation transfer at ground/air interface [m-1 s]
-    REAL(r_2), INTENT(IN)   :: lambda ! thermal conductivity of soil or snow at surface [W m-1 K-1]
-    REAL(r_2), INTENT(IN)   :: dt ! time step [s]
+    REAL(r2), INTENT(IN)   :: Tg0 ! ground surface temp of previous time-step [deg C]
+    REAL(r2), INTENT(IN)   :: Rnet0 ! Rnet at current time step, assuming Tg of previous time-step [W m-2]
+    REAL(r2), INTENT(IN)   :: lE0 ! latent heat flux at current time step, assuming Tg of previous time-step  [W m-2]
+    REAL(r2), INTENT(IN)   :: dlEdTg ! derivative of latent heat flux wrt Tg   [W m-2 K-1]
+    REAL(r2), INTENT(IN)   :: Ta ! air temperature [deg C]
+    REAL(r2), INTENT(IN)   :: Tbar ! temperature at diurnal damping depth
+    REAL(r2), INTENT(IN)   :: d1 ! diurnal damping depth (m) = sqrt(2*lambda/c/omega) (Hirota et al. eq 40)
+    REAL(r2), INTENT(IN)   :: rrc ! resistance to sensible heat and radiation transfer at ground/air interface [m-1 s]
+    REAL(r2), INTENT(IN)   :: lambda ! thermal conductivity of soil or snow at surface [W m-1 K-1]
+    REAL(r2), INTENT(IN)   :: dt ! time step [s]
     INTEGER, INTENT(IN):: iice ! top layer frozen (1) or not (0)
-    REAL(r_2), INTENT(OUT) :: Tg, G, H, lE
+    REAL(r2), INTENT(OUT) :: Tg, G, H, lE
 
     ! local variables
-    REAL(r_2), PARAMETER :: tau1 = 86400._r_2 ! period of diurnal forcing (seconds)
-    REAL(r_2) :: c1, c2, omega, a, b
+    REAL(r2), PARAMETER :: tau1 = 86400._r2 ! period of diurnal forcing (seconds)
+    REAL(r2) :: c1, c2, omega, a, b
 
     a = Rnet0 - rhocp/rrc*(Tg0-Ta) -lE0 ! G0 at current time step, assuming surface T of previous time step
 
-    omega = 2._r_2*pi/tau1  ! diurnal forcing frequency (s-1)
+    omega = 2._r2*pi/tau1  ! diurnal forcing frequency (s-1)
     c1 = omega * d1 / lambda
     c2 = omega
     b = -rhocp/rrc  - dlEdTg
@@ -258,31 +258,31 @@ CONTAINS
   !      cs, dt, iice, Tg, G, H, lE)
 
   !   IMPLICIT NONE
-  !   REAL(r_2), INTENT(IN)   :: Tg0 ! ground surface temp of previous time-step [deg C]
-  !   REAL(r_2), INTENT(IN)   :: Rnet0 ! Rnet at current time step, assuming Tg of previous time-step [W m-2]
-  !   REAL(r_2), INTENT(IN)   :: lE0 ! latent heat flux at current time step, assuming Tg of previous time-step  [W m-2]
-  !   REAL(r_2), INTENT(IN)   :: dlEdTg ! derivative of latent heat flux wrt Tg   [W m-2 K-1]
-  !   REAL(r_2), INTENT(IN)   :: Ta ! air temperature [deg C]
-  !   REAL(r_2), INTENT(IN)   :: Tbar ! temperature at diurnal damping depth
-  !   REAL(r_2), INTENT(IN)   :: d1 ! diurnal damping depth (m)
-  !   REAL(r_2), INTENT(IN)   :: rrc ! resistance to sensible heat and radiation transfer at ground/air interface [m-1 s]
-  !   REAL(r_2), INTENT(IN)   :: rhos ! density of soil or snow at surface [kg m-3]
-  !   REAL(r_2), INTENT(IN)   :: cs ! heat capacity of soil or snow at surface [J kg-1 K-1]
-  !   REAL(r_2), INTENT(IN)   :: dt ! time step [s]
+  !   REAL(r2), INTENT(IN)   :: Tg0 ! ground surface temp of previous time-step [deg C]
+  !   REAL(r2), INTENT(IN)   :: Rnet0 ! Rnet at current time step, assuming Tg of previous time-step [W m-2]
+  !   REAL(r2), INTENT(IN)   :: lE0 ! latent heat flux at current time step, assuming Tg of previous time-step  [W m-2]
+  !   REAL(r2), INTENT(IN)   :: dlEdTg ! derivative of latent heat flux wrt Tg   [W m-2 K-1]
+  !   REAL(r2), INTENT(IN)   :: Ta ! air temperature [deg C]
+  !   REAL(r2), INTENT(IN)   :: Tbar ! temperature at diurnal damping depth
+  !   REAL(r2), INTENT(IN)   :: d1 ! diurnal damping depth (m)
+  !   REAL(r2), INTENT(IN)   :: rrc ! resistance to sensible heat and radiation transfer at ground/air interface [m-1 s]
+  !   REAL(r2), INTENT(IN)   :: rhos ! density of soil or snow at surface [kg m-3]
+  !   REAL(r2), INTENT(IN)   :: cs ! heat capacity of soil or snow at surface [J kg-1 K-1]
+  !   REAL(r2), INTENT(IN)   :: dt ! time step [s]
   !   INTEGER, INTENT(IN):: iice ! top layer frozen (1) or not (0)
-  !   REAL(r_2), INTENT(OUT) :: Tg, G, H, lE
+  !   REAL(r2), INTENT(OUT) :: Tg, G, H, lE
 
   !   ! local variables
-  !   REAL(r_2),    PARAMETER :: c1 = 3.72_r_2 ! Deardorff JGR (1978)
-  !   REAL(r_2),    PARAMETER :: c2 = 7.4_r_2 ! Deardorff JGR (1978)
-  !   REAL(r_2),    PARAMETER :: tau1 = 86400._r_2 ! period of diurnal forcing (seconds)
-  !   REAL(r_2) :: a, b
+  !   REAL(r2),    PARAMETER :: c1 = 3.72_r2 ! Deardorff JGR (1978)
+  !   REAL(r2),    PARAMETER :: c2 = 7.4_r2 ! Deardorff JGR (1978)
+  !   REAL(r2),    PARAMETER :: tau1 = 86400._r2 ! period of diurnal forcing (seconds)
+  !   REAL(r2) :: a, b
 
   !   a = Rnet0 - rhocp/rrc*(Tg0-Ta) -lE0
   !   b = -rhocp/rrc  - dlEdTg
 
   !   Tg = Tg0 + (c1*a/(rhos*cs*d1) - c2/tau1*(Tg0-Tbar))/ &
-  !        (1._r_2/dt - b*c1/(rhos*cs*d1) + c2/tau1)
+  !        (1._r2/dt - b*c1/(rhos*cs*d1) + c2/tau1)
 
   !   if (iice.eq.1) then
   !      Tg = min(zero, Tg)
@@ -303,35 +303,35 @@ CONTAINS
 
     IMPLICIT NONE
 
-    INTEGER(i_d),                    INTENT(IN) :: n
+    INTEGER(i4),                    INTENT(IN) :: n
     TYPE(params),    DIMENSION(1:n), INTENT(IN) :: par
     TYPE(vars_met),                  INTENT(IN) :: vmet
     TYPE(vars_snow),                 INTENT(IN) :: vsnow
     TYPE(vars),      DIMENSION(1:n), INTENT(IN) :: var
-    REAL(r_2),                       INTENT(IN) :: qprec
-    REAL(r_2),                       INTENT(IN) :: qprec_snow
-    REAL(r_2),       DIMENSION(1:n), INTENT(IN) :: dx
-    REAL(r_2),                       INTENT(IN) :: h0
-    REAL(r_2),       DIMENSION(1:n), INTENT(IN) :: Tsoil
+    REAL(r2),                       INTENT(IN) :: qprec
+    REAL(r2),                       INTENT(IN) :: qprec_snow
+    REAL(r2),       DIMENSION(1:n), INTENT(IN) :: dx
+    REAL(r2),                       INTENT(IN) :: h0
+    REAL(r2),       DIMENSION(1:n), INTENT(IN) :: Tsoil
 
-    REAL(r_2),                       INTENT(OUT)           :: Tsurface, G0, lE0, Epot ! SEB
-    REAL(r_2),                       INTENT(OUT)           :: qsurface          ! water flux into surface
-    REAL(r_2),                       INTENT(OUT)           :: qevap             ! evaporative water flux
+    REAL(r2),                       INTENT(OUT)           :: Tsurface, G0, lE0, Epot ! SEB
+    REAL(r2),                       INTENT(OUT)           :: qsurface          ! water flux into surface
+    REAL(r2),                       INTENT(OUT)           :: qevap             ! evaporative water flux
     ! liquid and vapour components of water flux from surface into soil
-    REAL(r_2),                       INTENT(OUT)           :: qliq, qv
+    REAL(r2),                       INTENT(OUT)           :: qliq, qv
     ! derivatives of water fluxes wrt moisture and T
-    REAL(r_2),                       INTENT(OUT)           :: qyb, qTb, qlyb, qvyb, qlTb, qvTb
+    REAL(r2),                       INTENT(OUT)           :: qyb, qTb, qlyb, qvyb, qlTb, qvTb
     ! total and advective components of heat flux into surface
-    REAL(r_2),                       INTENT(OUT)           :: qh, qadv
+    REAL(r2),                       INTENT(OUT)           :: qh, qadv
     ! derivatives of heat fluxes wrt moiture and T
-    REAL(r_2),                       INTENT(OUT)           :: qhyb, qhTb, qadvyb, qadvTb
+    REAL(r2),                       INTENT(OUT)           :: qhyb, qhTb, qadvyb, qadvTb
 
     ! local variables
-    INTEGER(i_d) :: surface_case
-    REAL(r_2) :: Tsurface_pot,  Hpot, Gpot, dEdrha, dEdTs, dEdTsoil, dGdTa, dGdTsoil
-    REAL(r_2) :: E_vap, dE_vapdT1, E_liq
-    REAL(r_2) :: Kmin, Khmin, phimin
-    REAL(r_2) :: Tqw, dtqwdtb, rhocp1, cs
+    INTEGER(i4) :: surface_case
+    REAL(r2) :: Tsurface_pot,  Hpot, Gpot, dEdrha, dEdTs, dEdTsoil, dGdTa, dGdTsoil
+    REAL(r2) :: E_vap, dE_vapdT1, E_liq
+    REAL(r2) :: Kmin, Khmin, phimin
+    REAL(r2) :: Tqw, dtqwdtb, rhocp1, cs
     LOGICAL   :: isEpot
 
     if (vsnow%nsnow.eq.0) surface_case = 1
@@ -343,10 +343,10 @@ CONTAINS
             Tsoil(1), var(1)%kth, half*dx(1)+h0, var(1)%lambdav, Tsurface_pot, Epot, Hpot, &
             Gpot, dEdrha, dEdTs, dEdTsoil, dGdTa, dGdTsoil)
        if (var(1)%iice.eq.1.and.Tsurface_pot> zero) then
-          Tsurface_pot = 0.0_r_2
-          Tsurface = 0.0_r_2
+          Tsurface_pot = 0.0_r2
+          Tsurface = 0.0_r2
 
-          Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
+          Epot = (esat(Tsurface)*0.018_r2/thousand/8.314_r2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
                vmet%cva)*rhow*var(1)%lambdav/vmet%rbw
           dEdTsoil = zero
           dGdTsoil = zero
@@ -367,7 +367,7 @@ CONTAINS
           call hyofh(hmin, par(1)%lam, par(1)%eta, par(1)%Ke, par(1)%he, &
                Kmin, Khmin, phimin) ! get phi at hmin
           E_liq = ((var(1)%phi-phimin)/(half*dx(1))-var(1)%K)*thousand*var(1)%lambdav
-          if (var(1)%Dv > 1.e-12_r_2) then
+          if (var(1)%Dv > 1.e-12_r2) then
              ! E = (cs-ca)/rbw = E_liq + E_vap = E_liq + (c1-cs)/Dv/dx/2
              cs = ( E_liq/var(1)%lambdav + var(1)%rh*csat(Tsoil(1))*var(1)%Dv/(half*dx(1)) + &
                   vmet%cva*thousand/vmet%rbw ) &
@@ -403,10 +403,10 @@ CONTAINS
           dGdTsoil  =  -var(1)%kth/(half*dx(1))
 
           if ((var(1)%iice.eq.1) .and. (Tsurface>zero)) then
-             Tsurface = 0.0_r_2
-             rhocp1 = rmair*101325._r_2/rgas/(vmet%Ta+Tzero)*cpa
+             Tsurface = 0.0_r2
+             rhocp1 = rmair*101325._r2/rgas/(vmet%Ta+Tzero)*cpa
              G0 = vmet%Rn - rhocp1*(Tsurface - vmet%Ta)/vmet%rbh - lE0
-             dGdTsoil = 0.0_r_2
+             dGdTsoil = 0.0_r2
           endif
 
        endif
@@ -487,16 +487,16 @@ CONTAINS
 
        ! SEB at snow/air interface
        if (vsnow%hliq(1)>zero) then
-          Tsurface = 0.0_r_2
-          !Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
+          Tsurface = 0.0_r2
+          !Epot = (esat(Tsurface)*0.018_r2/thousand/8.314_r2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
           !            vmet%cva)*rhow*rlambda/vmet%rbw !!vh check this !!
           Epot = (csat(Tsurface)/thousand - vmet%cva)/vmet%rbw *rlambda*rhow  ! m3 H2O (liq) m-3 (air) -> W/m2
           ! write(*,*) "Epot", vmet%rha, vmet%Ta,
-          !            esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)*rhow*rlambda/vmet%rbw, &
+          !            esat(Tsurface)*0.018_r2/thousand/8.314_r2/(vmet%Ta+Tzero)*rhow*rlambda/vmet%rbw, &
           !vmet%cva*rhow*rlambda/vmet%rbw, Epot
           dEdTsoil = zero
           dGdTsoil = zero
-          rhocp1 = rmair*101325._r_2/rgas/(vmet%Ta+Tzero)*cpa
+          rhocp1 = rmair*101325._r2/rgas/(vmet%Ta+Tzero)*cpa
           Hpot = rhocp1*(Tsurface - vmet%Ta)/vmet%rbh
           Gpot = vmet%Rn-vmet%Rnsw - Hpot - Epot
           dEdTs = zero
@@ -508,12 +508,12 @@ CONTAINS
           !! leading to large negative surface temperatures when snow-pack is thick and
           !! Rn is large and negative (~-100 Wm-2)
           call potential_evap(vmet%Rn-vmet%Rnsw, vmet%rbh, vmet%rbw, vmet%Ta, vmet%rha, &
-               vsnow%tsn(1), max(vsnow%kth(1),0.1_r_2), half*min(vsnow%depth(1),0.05_r_2), &
+               vsnow%tsn(1), max(vsnow%kth(1),0.1_r2), half*min(vsnow%depth(1),0.05_r2), &
                lambdas, Tsurface, Epot, Hpot, &
                Gpot, dEdrha, dEdTs, dEdTsoil, dGdTa, dGdTsoil,iice=.TRUE.)
           if (Tsurface > zero) then ! temperature of frozen surface must be <= zero
-             Tsurface = 0.0_r_2
-             Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
+             Tsurface = 0.0_r2
+             Epot = (esat(Tsurface)*0.018_r2/thousand/8.314_r2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
                   vmet%cva)*rhow*lambdas/vmet%rbw
              dEdTsoil = zero
              dGdTsoil = zero
@@ -524,7 +524,7 @@ CONTAINS
           endif
 !!$          elseif (abs(Tsurface - vmet%Ta).gt. 20) then
 !!$             Tsurface = min(vmet%Ta, 0.0)
-!!$             Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
+!!$             Epot = (esat(Tsurface)*0.018_r2/thousand/8.314_r2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
 !!$                  vmet%cva)*rhow*lambdas/vmet%rbw
 !!$             dEdTsoil = zero
 !!$             dGdTsoil = zero
@@ -594,35 +594,35 @@ CONTAINS
 
   !   IMPLICIT NONE
 
-  !   INTEGER(i_d), INTENT(IN)              :: n
+  !   INTEGER(i4), INTENT(IN)              :: n
   !   TYPE(params),      DIMENSION(1:n), INTENT(IN)  :: par
   !   TYPE(vars_met),        INTENT(IN)           :: vmet
   !   TYPE(vars_snow),   INTENT(IN)           :: vsnow
   !   TYPE(vars),      DIMENSION(1:n),   INTENT(IN)           :: var
-  !   REAL(r_2),   INTENT(IN)              :: qprec
-  !   REAL(r_2),   INTENT(IN)              :: qprec_snow
-  !   INTEGER(i_d), INTENT(IN)              ::  nsteps, irec
-  !   REAL(r_2),      DIMENSION(1:n),   INTENT(IN)              :: dx
-  !   REAL(r_2),          INTENT(IN)           :: h0
-  !   REAL(r_2),      DIMENSION(1:n),   INTENT(IN)           :: Tsoil
-  !   REAL(r_2),   INTENT(IN)              :: dt
-  !   REAL(r_2),  INTENT(IN)           :: Tsurface0
+  !   REAL(r2),   INTENT(IN)              :: qprec
+  !   REAL(r2),   INTENT(IN)              :: qprec_snow
+  !   INTEGER(i4), INTENT(IN)              ::  nsteps, irec
+  !   REAL(r2),      DIMENSION(1:n),   INTENT(IN)              :: dx
+  !   REAL(r2),          INTENT(IN)           :: h0
+  !   REAL(r2),      DIMENSION(1:n),   INTENT(IN)           :: Tsoil
+  !   REAL(r2),   INTENT(IN)              :: dt
+  !   REAL(r2),  INTENT(IN)           :: Tsurface0
 
-  !   REAL(r_2),  INTENT(OUT)           :: Tsurface, G0, lE0  ! SEB (subdiurnal, uses T in top layer)
-  !   REAL(r_2),  INTENT(OUT)           :: TsurfaceFR, G0FR, lEFR, HFR  ! SEB (Force-Restore)
-  !   REAL(r_2),  INTENT(OUT)           :: qsurface ! water flux into surface
-  !   REAL(r_2),  INTENT(OUT)           :: qevap ! evaporative water flux
-  !   REAL(r_2),  INTENT(OUT)           :: qliq, qv ! liquid and vapour components of water flux from surface into soil
-  !   REAL(r_2),  INTENT(OUT)           :: qyb, qTb, qlyb, qvyb, qlTb, qvTb ! derivatives of water fluxes wrt moisture and T
-  !   REAL(r_2),  INTENT(OUT)           :: qh, qadv ! total and advective components of heat flux into surface
-  !   REAL(r_2),  INTENT(OUT)           :: qhyb, qhTb, qadvyb, qadvTb ! derivatives of heat fluxes wrt moiture and T
+  !   REAL(r2),  INTENT(OUT)           :: Tsurface, G0, lE0  ! SEB (subdiurnal, uses T in top layer)
+  !   REAL(r2),  INTENT(OUT)           :: TsurfaceFR, G0FR, lEFR, HFR  ! SEB (Force-Restore)
+  !   REAL(r2),  INTENT(OUT)           :: qsurface ! water flux into surface
+  !   REAL(r2),  INTENT(OUT)           :: qevap ! evaporative water flux
+  !   REAL(r2),  INTENT(OUT)           :: qliq, qv ! liquid and vapour components of water flux from surface into soil
+  !   REAL(r2),  INTENT(OUT)           :: qyb, qTb, qlyb, qvyb, qlTb, qvTb ! derivatives of water fluxes wrt moisture and T
+  !   REAL(r2),  INTENT(OUT)           :: qh, qadv ! total and advective components of heat flux into surface
+  !   REAL(r2),  INTENT(OUT)           :: qhyb, qhTb, qadvyb, qadvTb ! derivatives of heat fluxes wrt moiture and T
 
   !   ! local variables
-  !   INTEGER(i_d) :: surface_case, j
-  !   REAL(r_2) :: Tsurface_pot, Epot, Hpot, Gpot, dEdrha, dEdTs, dEdTsoil, dGdTa, dGdTsoil
-  !   REAL(r_2) :: E_vap, dE_vapdT1, E_liq
-  !   REAL(r_2) :: Kmin, Khmin, phimin
-  !   REAL(r_2) :: Tqw, dtqwdtb, d1, tmp1d2, Tbar, f, csnow
+  !   INTEGER(i4) :: surface_case, j
+  !   REAL(r2) :: Tsurface_pot, Epot, Hpot, Gpot, dEdrha, dEdTs, dEdTsoil, dGdTa, dGdTsoil
+  !   REAL(r2) :: E_vap, dE_vapdT1, E_liq
+  !   REAL(r2) :: Kmin, Khmin, phimin
+  !   REAL(r2) :: Tqw, dtqwdtb, d1, tmp1d2, Tbar, f, csnow
 
   !   if (vsnow%nsnow.eq.0) surface_case = 1
   !   if (vsnow%nsnow>0) surface_case = 2
@@ -633,8 +633,8 @@ CONTAINS
   !           Gpot, dEdrha, dEdTs, dEdTsoil, dGdTa, dGdTsoil)
 
   !      if (var(1)%iice.eq.1.and.Tsurface_pot> zero) then
-  !         Tsurface_pot = 0.0_r_2
-  !         Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
+  !         Tsurface_pot = 0.0_r2
+  !         Epot = (esat(Tsurface)*0.018_r2/thousand/8.314_r2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
   !              vmet%cva)*rhow*var(1)%lambdav/vmet%rbw
   !         dEdTsoil = zero
   !         dGdTsoil = zero
@@ -651,7 +651,7 @@ CONTAINS
   !         dE_vapdT1 = zero
   !         E_liq = lE0
   !      else ! unsaturated surface: finite vapour transfer; surface flux may be supply limited
-  !         if (var(1)%Dv > 1.e-12_r_2) then
+  !         if (var(1)%Dv > 1.e-12_r2) then
   !            E_vap = (var(1)%rh*csat(Tsoil(1))-vmet%cva*thousand)/(vmet%rbw + half*dx(1)/var(1)%Dv)*var(1)%lambdav
   !            dE_vapdT1 = (var(1)%rh*slope_csat(Tsoil(1)))/(vmet%rbw + half*dx(1)/var(1)%Dv)*var(1)%lambdav
   !         else
@@ -666,7 +666,7 @@ CONTAINS
   !         Tsurface = (-half*dx(1)*lE0 + half*dx(1)*vmet%Rn + &
   !              var(1)%kth*Tsoil(1) + half*dx(1)*(one/vmet%rrc*rhocp)*vmet%Ta) &
   !              /(var(1)%kth + half*dx(1)*(one/vmet%rrc*rhocp))
-  !         if (var(1)%iice.eq.1.and.Tsurface> zero) Tsurface = 0.0_r_2
+  !         if (var(1)%iice.eq.1.and.Tsurface> zero) Tsurface = 0.0_r2
   !         G0       = var(1)%kth/(half*dx(1))*(Tsurface-Tsoil(1))
   !         dGdTsoil  =  -var(1)%kth/(half*dx(1))
   !      endif
@@ -761,8 +761,8 @@ CONTAINS
 
   !      ! SEB at snow/air interface
   !      if (vsnow%hliq(1)>zero) then
-  !         Tsurface = 0.0_r_2
-  !         Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
+  !         Tsurface = 0.0_r2
+  !         Epot = (esat(Tsurface)*0.018_r2/thousand/8.314_r2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
   !              vmet%cva)*rhow*lambdaf/vmet%rbw
   !         dEdTsoil = zero
   !         dGdTsoil = zero
@@ -779,8 +779,8 @@ CONTAINS
   !              Gpot, dEdrha, dEdTs, dEdTsoil, dGdTa, dGdTsoil)
 
   !         if (Tsurface > zero) then ! temperature of frozen surface must be <= zero
-  !            Tsurface = 0.0_r_2
-  !            Epot = (esat(Tsurface)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
+  !            Tsurface = 0.0_r2
+  !            Epot = (esat(Tsurface)*0.018_r2/thousand/8.314_r2/(vmet%Ta+Tzero)  - & ! m3 H2O (liq) m-3 (air)
   !                 vmet%cva)*rhow*lambdas/vmet%rbw
   !            dEdTsoil = zero
   !            dGdTsoil = zero
@@ -829,12 +829,12 @@ CONTAINS
   !               csnow = (csice*(vsnow%hsnow(j+vsnow%nsnow)-vsnow%hliq(j+vsnow%nsnow))+cswat*vsnow%hliq(j+vsnow%nsnow))/ &
   !                    vsnow%depth(j+vsnow%nsnow)*rhow
   !               ! d1 = (vsnow%kth(j+vsnow%nsnow)/(csnow)*86400./pi)**0.5
-  !               d1 = sqrt(vsnow%kth(j+vsnow%nsnow)/(csnow)*86400._r_2/pi)
+  !               d1 = sqrt(vsnow%kth(j+vsnow%nsnow)/(csnow)*86400._r2/pi)
   !               tmp1d2 = tmp1d2 + vsnow%depth(j+vsnow%nsnow)/d1  ! check snow index here!
   !               Tbar = vsnow%tsn(j+vsnow%nsnow)
   !            else
   !               ! d1 = (var(j)%kth/(var(j)%csoileff)*86400./pi)**0.5
-  !               d1 = sqrt(var(j)%kth/(var(j)%csoileff)*86400._r_2/pi)
+  !               d1 = sqrt(var(j)%kth/(var(j)%csoileff)*86400._r2/pi)
   !               tmp1d2 = tmp1d2 + dx(j)/d1
   !               Tbar = Tsoil(j)
   !            endif
@@ -884,17 +884,17 @@ CONTAINS
     IMPLICIT NONE
 
     ! in/out
-    INTEGER(i_d),                      INTENT(IN)  :: n
-    REAL(r_2), DIMENSION(1:n,1:2,1:2), INTENT(IN)  :: A, B, C
-    REAL(r_2), DIMENSION(1:n,1:2),     INTENT(IN)  :: r
-    REAL(r_2), DIMENSION(1:n,1:2),     INTENT(OUT) :: u
-    INTEGER(i_d), OPTIONAL,            INTENT(OUT) :: err ! 0: no error; >0: error
+    INTEGER(i4),                      INTENT(IN)  :: n
+    REAL(r2), DIMENSION(1:n,1:2,1:2), INTENT(IN)  :: A, B, C
+    REAL(r2), DIMENSION(1:n,1:2),     INTENT(IN)  :: r
+    REAL(r2), DIMENSION(1:n,1:2),     INTENT(OUT) :: u
+    INTEGER(i4), OPTIONAL,            INTENT(OUT) :: err ! 0: no error; >0: error
     ! local
-    REAL(r_2), DIMENSION(1:n,1:2,1:2) :: G
-    REAL(r_2), DIMENSION(1:2,1:2)     :: bet
-    REAL(r_2), DIMENSION(1:2)         :: d
-    REAL(r_2)                         :: detbet, detbet1
-    INTEGER(i_d)                      :: j
+    REAL(r2), DIMENSION(1:n,1:2,1:2) :: G
+    REAL(r2), DIMENSION(1:2,1:2)     :: bet
+    REAL(r2), DIMENSION(1:2)         :: d
+    REAL(r2)                         :: detbet, detbet1
+    INTEGER(i4)                      :: j
 
     if (present(err)) err = 0
     ! j=1
@@ -959,20 +959,20 @@ CONTAINS
     IMPLICIT NONE
 
     ! in/out
-    INTEGER(i_d),                           INTENT(IN)  :: mp
-    INTEGER(i_d),                           INTENT(IN)  :: n
-    REAL(r_2), DIMENSION(1:mp,1:n,1:2,1:2), INTENT(IN)  :: A, B, C
-    REAL(r_2), DIMENSION(1:mp,1:n,1:2),     INTENT(IN)  :: r
-    REAL(r_2), DIMENSION(1:mp,1:n,1:2),     INTENT(OUT) :: u
-    INTEGER(i_d), OPTIONAL,                 INTENT(OUT) :: err ! 0: no error; >0: error
+    INTEGER(i4),                           INTENT(IN)  :: mp
+    INTEGER(i4),                           INTENT(IN)  :: n
+    REAL(r2), DIMENSION(1:mp,1:n,1:2,1:2), INTENT(IN)  :: A, B, C
+    REAL(r2), DIMENSION(1:mp,1:n,1:2),     INTENT(IN)  :: r
+    REAL(r2), DIMENSION(1:mp,1:n,1:2),     INTENT(OUT) :: u
+    INTEGER(i4), OPTIONAL,                 INTENT(OUT) :: err ! 0: no error; >0: error
     ! local
-    REAL(r_2), DIMENSION(1:mp,1:n,1:2,1:2) :: G
-    REAL(r_2), DIMENSION(1:mp,1:2,1:2)     :: bet
-    REAL(r_2), DIMENSION(1:mp,1:2)         :: d
-    REAL(r_2), DIMENSION(1:mp)             :: detbet, detbet1
-    INTEGER(i_d)                           :: j
-    REAL(r_2), DIMENSION(1:mp,1:2)         :: tmp1d
-    REAL(r_2), DIMENSION(1:mp,1:2,1:2)     :: tmp2d
+    REAL(r2), DIMENSION(1:mp,1:n,1:2,1:2) :: G
+    REAL(r2), DIMENSION(1:mp,1:2,1:2)     :: bet
+    REAL(r2), DIMENSION(1:mp,1:2)         :: d
+    REAL(r2), DIMENSION(1:mp)             :: detbet, detbet1
+    INTEGER(i4)                           :: j
+    REAL(r2), DIMENSION(1:mp,1:2)         :: tmp1d
+    REAL(r2), DIMENSION(1:mp,1:2,1:2)     :: tmp2d
 
     if (present(err)) err = 0
     ! j=1
@@ -1046,35 +1046,35 @@ CONTAINS
 
     IMPLICIT NONE
 
-    INTEGER(i_d),                 INTENT(IN)    :: n
-    REAL(r_2),    DIMENSION(1:n), INTENT(IN)    :: dx
+    INTEGER(i4),                 INTENT(IN)    :: n
+    REAL(r2),    DIMENSION(1:n), INTENT(IN)    :: dx
     TYPE(vars),                   INTENT(IN)    :: vtop
     TYPE(vars),                   INTENT(IN)    :: vbot
     TYPE(params), DIMENSION(1:n), INTENT(IN)    :: parin
     TYPE(vars),   DIMENSION(1:n), INTENT(INOUT)    :: var
-    REAL(r_2),    DIMENSION(1:n), INTENT(INOUT) :: hint
-    REAL(r_2),    DIMENSION(1:n), INTENT(INOUT) :: phimin
-    REAL(r_2),    DIMENSION(0:n), INTENT(INOUT) :: q
-    REAL(r_2),    DIMENSION(0:n), INTENT(INOUT) :: qya
-    REAL(r_2),    DIMENSION(0:n), INTENT(INOUT) :: qyb
-    REAL(r_2),    DIMENSION(0:n), INTENT(INOUT) :: qTa
-    REAL(r_2),    DIMENSION(0:n), INTENT(INOUT) :: qTb
-    REAL(r_2),    DIMENSION(0:n), INTENT(INOUT)   :: ql
-    REAL(r_2),    DIMENSION(0:n), INTENT(INOUT)   :: qlya
-    REAL(r_2),    DIMENSION(0:n), INTENT(INOUT)   :: qlyb
-    REAL(r_2),    DIMENSION(0:n), INTENT(INOUT)   :: qv
-    REAL(r_2),    DIMENSION(0:n), INTENT(INOUT)   :: qvT
-    REAL(r_2),    DIMENSION(0:n), INTENT(INOUT)   :: qvh
-    REAL(r_2),    DIMENSION(0:n), INTENT(INOUT)   :: qvya
-    REAL(r_2),    DIMENSION(0:n), INTENT(INOUT)   :: qvyb
-    INTEGER(i_d),                 INTENT(IN)    :: iflux
+    REAL(r2),    DIMENSION(1:n), INTENT(INOUT) :: hint
+    REAL(r2),    DIMENSION(1:n), INTENT(INOUT) :: phimin
+    REAL(r2),    DIMENSION(0:n), INTENT(INOUT) :: q
+    REAL(r2),    DIMENSION(0:n), INTENT(INOUT) :: qya
+    REAL(r2),    DIMENSION(0:n), INTENT(INOUT) :: qyb
+    REAL(r2),    DIMENSION(0:n), INTENT(INOUT) :: qTa
+    REAL(r2),    DIMENSION(0:n), INTENT(INOUT) :: qTb
+    REAL(r2),    DIMENSION(0:n), INTENT(INOUT)   :: ql
+    REAL(r2),    DIMENSION(0:n), INTENT(INOUT)   :: qlya
+    REAL(r2),    DIMENSION(0:n), INTENT(INOUT)   :: qlyb
+    REAL(r2),    DIMENSION(0:n), INTENT(INOUT)   :: qv
+    REAL(r2),    DIMENSION(0:n), INTENT(INOUT)   :: qvT
+    REAL(r2),    DIMENSION(0:n), INTENT(INOUT)   :: qvh
+    REAL(r2),    DIMENSION(0:n), INTENT(INOUT)   :: qvya
+    REAL(r2),    DIMENSION(0:n), INTENT(INOUT)   :: qvyb
+    INTEGER(i4),                 INTENT(IN)    :: iflux
     LOGICAL,                      INTENT(IN)    :: init
     LOGICAL,                      INTENT(IN)    :: getq0
     LOGICAL,                      INTENT(IN)    :: getqn
-    REAL(r_2),    DIMENSION(1:n), INTENT(IN)    :: Tsoil
-    REAL(r_2),                    INTENT(IN)    :: T0
-    INTEGER(i_d),                 INTENT(IN)    :: nsat
-    INTEGER(i_d),                 INTENT(IN)    :: nsatlast
+    REAL(r2),    DIMENSION(1:n), INTENT(IN)    :: Tsoil
+    REAL(r2),                    INTENT(IN)    :: T0
+    INTEGER(i4),                 INTENT(IN)    :: nsat
+    INTEGER(i4),                 INTENT(IN)    :: nsatlast
     ! Gets fluxes q and partial derivs qya, qyb wrt S (if unsat) or phi (if sat).
     ! Fluxes at top and bottom of profile, and fluxes due to plant extraction of
     ! water are included.
@@ -1099,11 +1099,11 @@ CONTAINS
     ! getq0    - true if q(0) required.
     ! getqn    - true if q(n) required.
     LOGICAL               :: flag, limit
-    INTEGER(i_d)          :: i, itmp, l
-    REAL(r_2)             :: dphii1, dhi, h1, h2, hi, Khi1, Khi2, phii1, q2, qya2, qyb2, y, y1, y2
-    REAL(r_2)             :: qTa2, qTb2
+    INTEGER(i4)          :: i, itmp, l
+    REAL(r2)             :: dphii1, dhi, h1, h2, hi, Khi1, Khi2, phii1, q2, qya2, qyb2, y, y1, y2
+    REAL(r2)             :: qTa2, qTb2
     TYPE(vars)            :: vi1, vi2
-    REAL(r_2), DIMENSION(1:n-1) :: dz
+    REAL(r2), DIMENSION(1:n-1) :: dz
 
     dz(:) = half*(dx(1:n-1)+dx(2:n))
     vi1 = zerovars()
@@ -1217,7 +1217,7 @@ CONTAINS
                 end if
                 phii1 = phii1+dphii1
                 dhi   = dphii1/(vi1%K+half*vi1%KS*dphii1) ! 2nd order Pade approx
-                if (-vi1%KS*dphii1 > 1.5_r_2*vi1%K) then ! use 1st order approx for dhi
+                if (-vi1%KS*dphii1 > 1.5_r2*vi1%K) then ! use 1st order approx for dhi
                    dhi = dphii1/vi1%K
                 end if
                 hi = hi+dhi
@@ -1248,29 +1248,29 @@ CONTAINS
        !MC Should be re-checked
        ! qvh(i) = ((((Tsoil(i)+Tzero)/Tzero)**1.88+((Tsoil(i+1)+Tzero)/Tzero)**1.88)/two) &
        !      * ((var(i)%cvsat+var(i+1)%cvsat)/two)*(var(i)%phiv-var(i+1)%phiv)/dz(i)
-       qvh(i) = (half*(exp(1.88_r_2*log((Tsoil(i)+Tzero)/Tzero))+exp(1.88_r_2*log((Tsoil(i+1)+Tzero)/Tzero)))) &
+       qvh(i) = (half*(exp(1.88_r2*log((Tsoil(i)+Tzero)/Tzero))+exp(1.88_r2*log((Tsoil(i+1)+Tzero)/Tzero)))) &
             * (half*(var(i)%cvsat+var(i+1)%cvsat)) * (var(i)%phiv-var(i+1)%phiv)/dz(i)
        ! qvh(i) = ((var(i)%Dv+var(i+1)%Dv)/two)* ((var(i)%cvsat+var(i+1)%cvsat)/two)*(var(i)%rh-var(i+1)%rh)/dz(i)
        qv(i)  = qvh(i) + qvT(i) ! whole vapour flux has one part from humidity (qvh) and one part from temp diff (qvT)
        q(i)   = qv(i) + ql(i)
 
        if (var(i)%isat==0) then
-          ! qvya(i) = var(i)%phivS/dz(i) *((((Tsoil(i)+Tzero)/Tzero)**1.88_r_2+ &
-          !      ((Tsoil(i+1)+Tzero)/Tzero)**1.88_r_2)/two) &
+          ! qvya(i) = var(i)%phivS/dz(i) *((((Tsoil(i)+Tzero)/Tzero)**1.88_r2+ &
+          !      ((Tsoil(i+1)+Tzero)/Tzero)**1.88_r2)/two) &
           !      * ((var(i)%cvsat+var(i+1)%cvsat)/two)
-          qvya(i) = var(i)%phivS/dz(i) *(half*(exp(1.88_r_2*log((Tsoil(i)+Tzero)/Tzero)) + &
-               exp(1.88_r_2*log((Tsoil(i+1)+Tzero)/Tzero)))) &
+          qvya(i) = var(i)%phivS/dz(i) *(half*(exp(1.88_r2*log((Tsoil(i)+Tzero)/Tzero)) + &
+               exp(1.88_r2*log((Tsoil(i+1)+Tzero)/Tzero)))) &
                * (half*(var(i)%cvsat+var(i+1)%cvsat))
        else
           qvya(i) = zero
        end if
 
        if (var(i)%isat==0) then
-          ! qvyb(i) = -var(i+1)%phivS/dz(i) *((((Tsoil(i)+Tzero)/Tzero)**1.88_r_2+ &
-          !      ((Tsoil(i+1)+Tzero)/Tzero)**1.88_r_2)/two) &
+          ! qvyb(i) = -var(i+1)%phivS/dz(i) *((((Tsoil(i)+Tzero)/Tzero)**1.88_r2+ &
+          !      ((Tsoil(i+1)+Tzero)/Tzero)**1.88_r2)/two) &
           !      * ((var(i)%cvsat+var(i+1)%cvsat)/two)
-          qvyb(i) = -var(i+1)%phivS/dz(i) *(half*(exp(1.88_r_2*log((Tsoil(i)+Tzero)/Tzero)) + &
-               exp(1.88_r_2*log((Tsoil(i+1)+Tzero)/Tzero)))) &
+          qvyb(i) = -var(i+1)%phivS/dz(i) *(half*(exp(1.88_r2*log((Tsoil(i)+Tzero)/Tzero)) + &
+               exp(1.88_r2*log((Tsoil(i+1)+Tzero)/Tzero)))) &
                * (half*(var(i)%cvsat+var(i+1)%cvsat))
        else
           qvyb(i) = zero
@@ -1327,34 +1327,34 @@ CONTAINS
 
     IMPLICIT NONE
 
-    REAL(r_2),    DIMENSION(:,:), INTENT(IN)    :: dx      ! 1:n
+    REAL(r2),    DIMENSION(:,:), INTENT(IN)    :: dx      ! 1:n
     TYPE(vars),   DIMENSION(:),   INTENT(IN)    :: vtop
     TYPE(vars),   DIMENSION(:),   INTENT(IN)    :: vbot
     TYPE(params), DIMENSION(:,:), INTENT(IN)    :: parin   ! 1:n
     TYPE(vars),   DIMENSION(:,:), INTENT(IN)    :: var     ! 1:n
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: hint    ! 1:n
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: phimin  ! 1:n
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_q       ! 0:n
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qya     ! 0:n
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qyb     ! 0:n
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qTa     ! 0:n
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qTb     ! 0:n
-    REAL(r_2),    DIMENSION(:,:), INTENT(OUT)   :: i_ql      ! 0:n
-    REAL(r_2),    DIMENSION(:,:), INTENT(OUT)   :: i_qlya    ! 0:n
-    REAL(r_2),    DIMENSION(:,:), INTENT(OUT)   :: i_qlyb    ! 0:n
-    REAL(r_2),    DIMENSION(:,:), INTENT(OUT)   :: i_qv      ! 0:n
-    REAL(r_2),    DIMENSION(:,:), INTENT(OUT)   :: i_qvT     ! 0:n
-    REAL(r_2),    DIMENSION(:,:), INTENT(OUT)   :: i_qvh     ! 0:n
-    REAL(r_2),    DIMENSION(:,:), INTENT(OUT)   :: i_qvya    ! 0:n
-    REAL(r_2),    DIMENSION(:,:), INTENT(OUT)   :: i_qvyb    ! 0:n
-    INTEGER(i_d), DIMENSION(:),   INTENT(IN)    :: iflux
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: hint    ! 1:n
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: phimin  ! 1:n
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: i_q       ! 0:n
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: i_qya     ! 0:n
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: i_qyb     ! 0:n
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: i_qTa     ! 0:n
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: i_qTb     ! 0:n
+    REAL(r2),    DIMENSION(:,:), INTENT(OUT)   :: i_ql      ! 0:n
+    REAL(r2),    DIMENSION(:,:), INTENT(OUT)   :: i_qlya    ! 0:n
+    REAL(r2),    DIMENSION(:,:), INTENT(OUT)   :: i_qlyb    ! 0:n
+    REAL(r2),    DIMENSION(:,:), INTENT(OUT)   :: i_qv      ! 0:n
+    REAL(r2),    DIMENSION(:,:), INTENT(OUT)   :: i_qvT     ! 0:n
+    REAL(r2),    DIMENSION(:,:), INTENT(OUT)   :: i_qvh     ! 0:n
+    REAL(r2),    DIMENSION(:,:), INTENT(OUT)   :: i_qvya    ! 0:n
+    REAL(r2),    DIMENSION(:,:), INTENT(OUT)   :: i_qvyb    ! 0:n
+    INTEGER(i4), DIMENSION(:),   INTENT(IN)    :: iflux
     LOGICAL,      DIMENSION(:),   INTENT(IN)    :: init
     LOGICAL,      DIMENSION(:),   INTENT(IN)    :: getq0
     LOGICAL,      DIMENSION(:),   INTENT(IN)    :: getqn
-    REAL(r_2),    DIMENSION(:,:), INTENT(IN)    :: Tsoil   ! 1:n
-    REAL(r_2),    DIMENSION(:),   INTENT(IN)    :: T0
-    INTEGER(i_d), DIMENSION(:),   INTENT(IN)    :: nsat
-    INTEGER(i_d), DIMENSION(:),   INTENT(IN)    :: nsatlast
+    REAL(r2),    DIMENSION(:,:), INTENT(IN)    :: Tsoil   ! 1:n
+    REAL(r2),    DIMENSION(:),   INTENT(IN)    :: T0
+    INTEGER(i4), DIMENSION(:),   INTENT(IN)    :: nsat
+    INTEGER(i4), DIMENSION(:),   INTENT(IN)    :: nsatlast
     ! Gets fluxes q and partial derivs qya, qyb wrt S (if unsat) or phi (if sat).
     ! Fluxes at top and bottom of profile, and fluxes due to plant extraction of
     ! water are included.
@@ -1379,27 +1379,27 @@ CONTAINS
     ! getq0    - true if q(0) required.
     ! getqn    - true if q(n) required.
     LOGICAL,      DIMENSION(1:size(dx,1))                :: limit, l1, l2, l3
-    REAL(r_2),    DIMENSION(1:size(dx,1))                :: dphii1, dhi, h1, h2, hi, Khi1, Khi2, phii1
-    REAL(r_2),    DIMENSION(1:size(dx,1))                :: q2, qya2, qyb2, y, y1, y2
-    REAL(r_2),    DIMENSION(1:size(dx,1))                :: htmp
-    REAL(r_2),    DIMENSION(1:size(dx,1))                :: ztmp1, ztmp2, ztmp3, ztmp4, ztmp5
+    REAL(r2),    DIMENSION(1:size(dx,1))                :: dphii1, dhi, h1, h2, hi, Khi1, Khi2, phii1
+    REAL(r2),    DIMENSION(1:size(dx,1))                :: q2, qya2, qyb2, y, y1, y2
+    REAL(r2),    DIMENSION(1:size(dx,1))                :: htmp
+    REAL(r2),    DIMENSION(1:size(dx,1))                :: ztmp1, ztmp2, ztmp3, ztmp4, ztmp5
     TYPE(vars),   DIMENSION(1:size(dx,1))                :: vi1, vi2
-    REAL(r_2),    DIMENSION(1:size(dx,1),1:size(dx,2)-1) :: dz
-    REAL(r_2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: q
-    REAL(r_2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qya
-    REAL(r_2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qyb
-    REAL(r_2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qTa
-    REAL(r_2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qTb
-    REAL(r_2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: ql
-    REAL(r_2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qlya
-    REAL(r_2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qlyb
-    REAL(r_2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qv
-    REAL(r_2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qvT
-    REAL(r_2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qvh
-    REAL(r_2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qvya
-    REAL(r_2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qvyb
+    REAL(r2),    DIMENSION(1:size(dx,1),1:size(dx,2)-1) :: dz
+    REAL(r2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: q
+    REAL(r2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qya
+    REAL(r2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qyb
+    REAL(r2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qTa
+    REAL(r2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qTb
+    REAL(r2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: ql
+    REAL(r2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qlya
+    REAL(r2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qlyb
+    REAL(r2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qv
+    REAL(r2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qvT
+    REAL(r2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qvh
+    REAL(r2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qvya
+    REAL(r2),    DIMENSION(1:size(dx,1),0:size(dx,2))   :: qvyb
     TYPE(vars)    :: vtmp
-    INTEGER(i_d)  :: i, n, mp, itmp
+    INTEGER(i4)  :: i, n, mp, itmp
 
     mp = size(dx,1)
     n  = size(dx,2)
@@ -1573,7 +1573,7 @@ CONTAINS
                 phii1(:) = phii1(:)+dphii1(:)
                 dhi(:)   = dphii1(:)/(vi1(:)%K+half*vi1(:)%KS*dphii1(:)) ! 2nd order Pade approx
              endwhere
-             where (l3(:) .and. (-vi1%KS*dphii1 > 1.5_r_2*vi1%K)) ! use 1st order approx for dhi
+             where (l3(:) .and. (-vi1%KS*dphii1 > 1.5_r2*vi1%K)) ! use 1st order approx for dhi
                 dhi(:) = dphii1(:)/vi1(:)%K
              endwhere
              where (l3(:))
@@ -1620,7 +1620,7 @@ CONTAINS
        !MC Should be re-checked
        ! qvh(:,i) = ((((Tsoil(:,i)+Tzero)/Tzero)**1.88+((Tsoil(:,i+1)+Tzero)/Tzero)**1.88)/two) &
        !      * ((var(:,i)%cvsat+var(:,i+1)%cvsat)/two)*(var(:,i)%phiv-var(:,i+1)%phiv)/dz(:,i)
-       qvh(:,i) = (half*(exp(1.88_r_2*log((Tsoil(:,i)+Tzero)/Tzero))+exp(1.88_r_2*log((Tsoil(:,i+1)+Tzero)/Tzero)))) &
+       qvh(:,i) = (half*(exp(1.88_r2*log((Tsoil(:,i)+Tzero)/Tzero))+exp(1.88_r2*log((Tsoil(:,i+1)+Tzero)/Tzero)))) &
             * (half*(var(:,i)%cvsat+var(:,i+1)%cvsat)) * (var(:,i)%phiv-var(:,i+1)%phiv)/dz(:,i)
        ! qvh(:,i) = ((var(:,i)%Dv+var(:,i+1)%Dv)/two) * &
        !             ((var(:,i)%cvsat+var(:,i+1)%cvsat)/two)*(var(:,i)%rh-var(:,i+1)%rh)/dz(:,i)
@@ -1628,22 +1628,22 @@ CONTAINS
        q(:,i)   = qv(:,i) + ql(:,i)
 
        where (var(:,i)%isat==0)
-          ! qvya(:,i) = var(:,i)%phivS/dz(:,i) *((((Tsoil(:,i)+Tzero)/Tzero)**1.88_r_2+ &
-          !      ((Tsoil(:,i+1)+Tzero)/Tzero)**1.88_r_2)/two) &
+          ! qvya(:,i) = var(:,i)%phivS/dz(:,i) *((((Tsoil(:,i)+Tzero)/Tzero)**1.88_r2+ &
+          !      ((Tsoil(:,i+1)+Tzero)/Tzero)**1.88_r2)/two) &
           !      * ((var(:,i)%cvsat+var(:,i+1)%cvsat)/two)
-          qvya(:,i) = var(:,i)%phivS/dz(:,i) *(half*(exp(1.88_r_2*log((Tsoil(:,i)+Tzero)/Tzero)) + &
-               exp(1.88_r_2*log((Tsoil(:,i+1)+Tzero)/Tzero)))) &
+          qvya(:,i) = var(:,i)%phivS/dz(:,i) *(half*(exp(1.88_r2*log((Tsoil(:,i)+Tzero)/Tzero)) + &
+               exp(1.88_r2*log((Tsoil(:,i+1)+Tzero)/Tzero)))) &
                * (half*(var(:,i)%cvsat+var(:,i+1)%cvsat))
        elsewhere
           qvya(:,i) = zero
        endwhere
 
        where (var(:,i)%isat==0)
-          ! qvyb(:,i) = -var(:,i+1)%phivS/dz(:,i) *((((Tsoil(:,i)+Tzero)/Tzero)**1.88_r_2+ &
-          !      ((Tsoil(:,i+1)+Tzero)/Tzero)**1.88_r_2)/two) &
+          ! qvyb(:,i) = -var(:,i+1)%phivS/dz(:,i) *((((Tsoil(:,i)+Tzero)/Tzero)**1.88_r2+ &
+          !      ((Tsoil(:,i+1)+Tzero)/Tzero)**1.88_r2)/two) &
           !      * ((var(:,i)%cvsat+var(:,i+1)%cvsat)/two)
-          qvyb(:,i) = -var(:,i+1)%phivS/dz(:,i) *(half*(exp(1.88_r_2*log((Tsoil(:,i)+Tzero)/Tzero)) + &
-               exp(1.88_r_2*log((Tsoil(:,i+1)+Tzero)/Tzero)))) &
+          qvyb(:,i) = -var(:,i+1)%phivS/dz(:,i) *(half*(exp(1.88_r2*log((Tsoil(:,i)+Tzero)/Tzero)) + &
+               exp(1.88_r2*log((Tsoil(:,i+1)+Tzero)/Tzero)))) &
                * (half*(var(:,i)%cvsat+var(:,i+1)%cvsat))
        elsewhere
           qvyb(:,i) = zero
@@ -1724,50 +1724,50 @@ CONTAINS
     ! modified 25/05/10 to include contribution to heat flux from liquid water flux in the presence of ice
     IMPLICIT NONE
 
-    INTEGER(i_d),               INTENT(IN)    :: n
-    REAL(r_2),  DIMENSION(1:n), INTENT(IN)    :: dx
-    REAL(r_2),  DIMENSION(0:n), INTENT(INOUT) :: qh, q, qadv
-    REAL(r_2),  DIMENSION(0:n), INTENT(INOUT) :: qhya, qya, qadvya
-    REAL(r_2),  DIMENSION(0:n), INTENT(INOUT) :: qhyb, qyb, qadvyb
-    REAL(r_2),  DIMENSION(0:n), INTENT(INOUT) :: qhTa, qTa, qadvTa
-    REAL(r_2),  DIMENSION(0:n), INTENT(INOUT) :: qhTb, qTb, qadvTb
+    INTEGER(i4),               INTENT(IN)    :: n
+    REAL(r2),  DIMENSION(1:n), INTENT(IN)    :: dx
+    REAL(r2),  DIMENSION(0:n), INTENT(INOUT) :: qh, q, qadv
+    REAL(r2),  DIMENSION(0:n), INTENT(INOUT) :: qhya, qya, qadvya
+    REAL(r2),  DIMENSION(0:n), INTENT(INOUT) :: qhyb, qyb, qadvyb
+    REAL(r2),  DIMENSION(0:n), INTENT(INOUT) :: qhTa, qTa, qadvTa
+    REAL(r2),  DIMENSION(0:n), INTENT(INOUT) :: qhTb, qTb, qadvTb
     TYPE(vars), DIMENSION(1:n), INTENT(IN)    :: var
-    REAL(r_2),  DIMENSION(1:n), INTENT(IN)    :: T
-    INTEGER(i_d),               INTENT(IN)    :: advection
+    REAL(r2),  DIMENSION(1:n), INTENT(IN)    :: T
+    INTEGER(i4),               INTENT(IN)    :: advection
     ! Gets heat fluxes qh and partial derivs qhya, qhyb wrt T and S (if unsat) or phi (if sat).
 
-    INTEGER(i_d)          :: i
-    REAL(r_2)             :: rdz, keff ! , w
-    REAL(r_2), DIMENSION(1:n-1) :: dz
-    REAL(r_2) :: dTqwdTa, dTqwdTb, Tqw
+    INTEGER(i4)          :: i
+    REAL(r2)             :: rdz, keff ! , w
+    REAL(r2), DIMENSION(1:n-1) :: dz
+    REAL(r2) :: dTqwdTa, dTqwdTb, Tqw
 
     dz(:) = half*(dx(1:n-1)+dx(2:n))
 
     do i=1, n-1
        rdz = one/dz(i)
-       keff = 2_r_2*(var(i)%kth*var(i+1)%kth)/(var(i)%kth*dx(i)+var(i+1)%kth*dx(i+1))
+       keff = 2._r2*(var(i)%kth*var(i+1)%kth)/(var(i)%kth*dx(i)+var(i+1)%kth*dx(i+1))
        ! qh(i) = keff*(T(i)-T(i+1)) +(var(i)%phiv-var(i+1)%phiv)*var(i)%lambdav*thousand*rdz &
-       !      * ((((T(i)+Tzero) /Tzero)**1.88_r_2+((T(i+1)+Tzero) /Tzero)**1.88_r_2)/two) &
+       !      * ((((T(i)+Tzero) /Tzero)**1.88_r2+((T(i+1)+Tzero) /Tzero)**1.88_r2)/two) &
        !      *((var(i)%cvsat+var(i+1)%cvsat)/two)
        qh(i) = keff*(T(i)-T(i+1)) +(var(i)%phiv-var(i+1)%phiv)*var(i)%lambdav*thousand*rdz &
-            * (half*(exp(1.88_r_2*log((T(i)+Tzero) /Tzero))+exp(1.88_r_2*log((T(i+1)+Tzero) /Tzero)))) &
+            * (half*(exp(1.88_r2*log((T(i)+Tzero) /Tzero))+exp(1.88_r2*log((T(i+1)+Tzero) /Tzero)))) &
             *(half*(var(i)%cvsat+var(i+1)%cvsat))
        if (var(i)%isat==0) then
-          ! qhya(i) = rdz*var(i)%lambdav*thousand*var(i)%phivS*((((T(i)+Tzero) /Tzero)**1.88_r_2+ &
-          !      ((T(i+1)+Tzero) /Tzero)**1.88_r_2)/two) &
+          ! qhya(i) = rdz*var(i)%lambdav*thousand*var(i)%phivS*((((T(i)+Tzero) /Tzero)**1.88_r2+ &
+          !      ((T(i+1)+Tzero) /Tzero)**1.88_r2)/two) &
           !      * ((var(i)%cvsat+var(i+1)%cvsat)/two)
-          qhya(i) = rdz*var(i)%lambdav*thousand*var(i)%phivS*(half*(exp(1.88_r_2*log((T(i)+Tzero) /Tzero)) + &
-               exp(1.88_r_2*log((T(i+1)+Tzero) /Tzero)))) &
+          qhya(i) = rdz*var(i)%lambdav*thousand*var(i)%phivS*(half*(exp(1.88_r2*log((T(i)+Tzero) /Tzero)) + &
+               exp(1.88_r2*log((T(i+1)+Tzero) /Tzero)))) &
                * (half*(var(i)%cvsat+var(i+1)%cvsat))
        else
           qhya(i) = zero
        end if
        if (var(i+1)%isat==0) then
-          ! qhyb(i) = -rdz*var(i)%lambdav*thousand*var(i+1)%phivS*((((T(i)+Tzero) /Tzero)**1.88_r_2+ &
-          !      ((T(i+1)+Tzero) /Tzero)**1.88_r_2)/two) &
+          ! qhyb(i) = -rdz*var(i)%lambdav*thousand*var(i+1)%phivS*((((T(i)+Tzero) /Tzero)**1.88_r2+ &
+          !      ((T(i+1)+Tzero) /Tzero)**1.88_r2)/two) &
           !      * ((var(i)%cvsat+var(i+1)%cvsat)/two)
-          qhyb(i) = -rdz*var(i)%lambdav*thousand*var(i+1)%phivS*(half*(exp(1.88_r_2*log((T(i)+Tzero) /Tzero)) + &
-               exp(1.88_r_2*log((T(i+1)+Tzero) /Tzero)))) &
+          qhyb(i) = -rdz*var(i)%lambdav*thousand*var(i+1)%phivS*(half*(exp(1.88_r2*log((T(i)+Tzero) /Tzero)) + &
+               exp(1.88_r2*log((T(i+1)+Tzero) /Tzero)))) &
                * (half*(var(i)%cvsat+var(i+1)%cvsat))
        else
           qhyb(i) = zero
@@ -1821,47 +1821,47 @@ CONTAINS
     ! modified 25/05/10 to include contribution to heat flux from liquid water flux in the presence of ice
     IMPLICIT NONE
 
-    REAL(r_2),    DIMENSION(:,:), INTENT(IN)    :: dx      ! :,1:n
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qh    ! :,0:n => :,1:n+1
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qhya  ! :,0:n => :,1:n+1
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qhyb  ! :,0:n => :,1:n+1
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qhTa  ! :,0:n => :,1:n+1
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qhTb  ! :,0:n => :,1:n+1
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_q    ! :,0:n => :,1:n+1
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qya  ! :,0:n => :,1:n+1
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qyb  ! :,0:n => :,1:n+1
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qTa  ! :,0:n => :,1:n+1
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qTb  ! :,0:n => :,1:n+1
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qadv    ! :,0:n => :,1:n+1
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qadvya  ! :,0:n => :,1:n+1
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qadvyb  ! :,0:n => :,1:n+1
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qadvTa  ! :,0:n => :,1:n+1
-    REAL(r_2),    DIMENSION(:,:), INTENT(INOUT) :: i_qadvTb  ! :,0:n => :,1:n+1
+    REAL(r2),    DIMENSION(:,:), INTENT(IN)    :: dx      ! :,1:n
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: i_qh    ! :,0:n => :,1:n+1
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: i_qhya  ! :,0:n => :,1:n+1
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: i_qhyb  ! :,0:n => :,1:n+1
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: i_qhTa  ! :,0:n => :,1:n+1
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: i_qhTb  ! :,0:n => :,1:n+1
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: i_q    ! :,0:n => :,1:n+1
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: i_qya  ! :,0:n => :,1:n+1
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: i_qyb  ! :,0:n => :,1:n+1
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: i_qTa  ! :,0:n => :,1:n+1
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: i_qTb  ! :,0:n => :,1:n+1
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: i_qadv    ! :,0:n => :,1:n+1
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: i_qadvya  ! :,0:n => :,1:n+1
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: i_qadvyb  ! :,0:n => :,1:n+1
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: i_qadvTa  ! :,0:n => :,1:n+1
+    REAL(r2),    DIMENSION(:,:), INTENT(INOUT) :: i_qadvTb  ! :,0:n => :,1:n+1
     TYPE(vars),   DIMENSION(:,:), INTENT(IN)    :: var
-    REAL(r_2),    DIMENSION(:,:), INTENT(IN)    :: T       ! :,1:n
-    INTEGER(i_d),   INTENT(IN)    :: advection
+    REAL(r2),    DIMENSION(:,:), INTENT(IN)    :: T       ! :,1:n
+    INTEGER(i4),   INTENT(IN)    :: advection
     ! Gets heat fluxes qh and partial derivs qhya, qhyb wrt T and S (if unsat) or phi (if sat).
 
-    INTEGER(i_d)          :: i, n
-    REAL(r_2),  DIMENSION(1:size(dx,1))                :: rdz
-    REAL(r_2),  DIMENSION(1:size(dx,1))                :: keff
-    REAL(r_2),  DIMENSION(1:size(dx,1),1:size(dx,2)-1) :: dz
-    REAL(r_2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qh   ! :,0:n
-    REAL(r_2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qhya ! :,0:n
-    REAL(r_2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qhyb ! :,0:n
-    REAL(r_2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qhTa ! :,0:n
-    REAL(r_2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qhTb ! :,0:n
-    REAL(r_2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: q   ! :,0:n
-    REAL(r_2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qya ! :,0:n
-    REAL(r_2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qyb ! :,0:n
-    REAL(r_2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qTa ! :,0:n
-    REAL(r_2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qTb ! :,0:n
-    REAL(r_2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qadv   ! :,0:n
-    REAL(r_2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qadvya ! :,0:n
-    REAL(r_2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qadvyb ! :,0:n
-    REAL(r_2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qadvTa ! :,0:n
-    REAL(r_2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qadvTb ! :,0:n
-    REAL(r_2),  DIMENSION(1:size(dx,1)) :: dTqwdTa, dTqwdTb, Tqw
+    INTEGER(i4)          :: i, n
+    REAL(r2),  DIMENSION(1:size(dx,1))                :: rdz
+    REAL(r2),  DIMENSION(1:size(dx,1))                :: keff
+    REAL(r2),  DIMENSION(1:size(dx,1),1:size(dx,2)-1) :: dz
+    REAL(r2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qh   ! :,0:n
+    REAL(r2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qhya ! :,0:n
+    REAL(r2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qhyb ! :,0:n
+    REAL(r2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qhTa ! :,0:n
+    REAL(r2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qhTb ! :,0:n
+    REAL(r2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: q   ! :,0:n
+    REAL(r2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qya ! :,0:n
+    REAL(r2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qyb ! :,0:n
+    REAL(r2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qTa ! :,0:n
+    REAL(r2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qTb ! :,0:n
+    REAL(r2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qadv   ! :,0:n
+    REAL(r2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qadvya ! :,0:n
+    REAL(r2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qadvyb ! :,0:n
+    REAL(r2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qadvTa ! :,0:n
+    REAL(r2),  DIMENSION(1:size(dx,1),0:size(dx,2))   :: qadvTb ! :,0:n
+    REAL(r2),  DIMENSION(1:size(dx,1)) :: dTqwdTa, dTqwdTb, Tqw
 
     n = size(dx,2)
     dz(:,1:n-1) = half*(dx(:,1:n-1)+dx(:,2:n))
@@ -1885,31 +1885,31 @@ CONTAINS
 
     do i=1, n-1
        rdz =  one/dz(:,i)
-       keff = 2_r_2*(var(:,i)%kth*var(:,i+1)%kth)/(var(:,i)%kth*dx(:,i)+var(:,i+1)%kth*dx(:,i+1))
+       keff = 2._r2*(var(:,i)%kth*var(:,i+1)%kth)/(var(:,i)%kth*dx(:,i)+var(:,i+1)%kth*dx(:,i+1))
        ! qh(:,i) = keff*(T(:,i)-T(:,i+1)) &
        !      + (var(:,i)%phiv-var(:,i+1)%phiv)*var(:,i)%lambdav*thousand*rdz(:) &
-       !      * ((((T(:,i)+Tzero) /Tzero)**1.88_r_2+((T(:,i+1)+Tzero) /Tzero)**1.88_r_2)/two) &
+       !      * ((((T(:,i)+Tzero) /Tzero)**1.88_r2+((T(:,i+1)+Tzero) /Tzero)**1.88_r2)/two) &
        !      *((var(:,i)%cvsat+var(:,i+1)%cvsat)/two)
        qh(:,i) = keff*(T(:,i)-T(:,i+1)) &
             + (var(:,i)%phiv-var(:,i+1)%phiv)*var(:,i)%lambdav*thousand*rdz(:) &
-            * (half*exp(1.88_r_2*log(((T(:,i)+Tzero) /Tzero)) + exp(1.88_r_2*log((T(:,i+1)+Tzero) /Tzero)))) &
+            * (half*exp(1.88_r2*log(((T(:,i)+Tzero) /Tzero)) + exp(1.88_r2*log((T(:,i+1)+Tzero) /Tzero)))) &
             *(half*(var(:,i)%cvsat+var(:,i+1)%cvsat))
        where (var(:,i)%isat == 0)
-          ! qhya(:,i) = rdz(:)*var(:,i)%lambdav*thousand*var(:,i)%phivS*((((T(:,i)+Tzero) /Tzero)**1.88_r_2+ &
-          !      ((T(:,i+1)+Tzero) /Tzero)**1.88_r_2)/two) &
+          ! qhya(:,i) = rdz(:)*var(:,i)%lambdav*thousand*var(:,i)%phivS*((((T(:,i)+Tzero) /Tzero)**1.88_r2+ &
+          !      ((T(:,i+1)+Tzero) /Tzero)**1.88_r2)/two) &
           !      * ((var(:,i)%cvsat+var(:,i+1)%cvsat)/two)
-          qhya(:,i) = rdz(:)*var(:,i)%lambdav*thousand*var(:,i)%phivS*(half*(exp(1.88_r_2*log((T(:,i)+Tzero) /Tzero)) + &
-               exp(1.88_r_2*log((T(:,i+1)+Tzero) /Tzero)))) &
+          qhya(:,i) = rdz(:)*var(:,i)%lambdav*thousand*var(:,i)%phivS*(half*(exp(1.88_r2*log((T(:,i)+Tzero) /Tzero)) + &
+               exp(1.88_r2*log((T(:,i+1)+Tzero) /Tzero)))) &
                * (half*(var(:,i)%cvsat+var(:,i+1)%cvsat))
        elsewhere
           qhya(:,i) = zero
        endwhere
        where (var(:,i+1)%isat == 0)
-          ! qhyb(:,i) = -rdz(:)*var(:,i)%lambdav*thousand*var(:,i+1)%phivS*((((T(:,i)+Tzero) /Tzero)**1.88_r_2+ &
-          !      ((T(:,i+1)+Tzero) /Tzero)**1.88_r_2)/two) &
+          ! qhyb(:,i) = -rdz(:)*var(:,i)%lambdav*thousand*var(:,i+1)%phivS*((((T(:,i)+Tzero) /Tzero)**1.88_r2+ &
+          !      ((T(:,i+1)+Tzero) /Tzero)**1.88_r2)/two) &
           !      * ((var(:,i)%cvsat+var(:,i+1)%cvsat)/two)
-          qhyb(:,i) = -rdz(:)*var(:,i)%lambdav*thousand*var(:,i+1)%phivS*(half*exp(1.88_r_2*log(((T(:,i)+Tzero) /Tzero)) + &
-               exp(1.88_r_2*log((T(:,i+1)+Tzero) /Tzero)))) &
+          qhyb(:,i) = -rdz(:)*var(:,i)%lambdav*thousand*var(:,i+1)%phivS*(half*exp(1.88_r2*log(((T(:,i)+Tzero) /Tzero)) + &
+               exp(1.88_r2*log((T(:,i+1)+Tzero) /Tzero)))) &
                * (half*(var(:,i)%cvsat+var(:,i+1)%cvsat))
        elsewhere
           qhyb(:,i) = zero
@@ -1967,21 +1967,21 @@ CONTAINS
 
     IMPLICIT NONE
 
-    REAL(r_2),    INTENT(IN)  :: h
-    REAL(r_2),    INTENT(IN)  :: lam
-    REAL(r_2),    INTENT(IN)  :: eta
-    REAL(r_2),    INTENT(IN)  :: Ke
-    REAL(r_2),    INTENT(IN)  :: he
-    REAL(r_2),    INTENT(OUT) :: K
-    REAL(r_2),    INTENT(OUT) :: Kh
-    REAL(r_2),    INTENT(OUT) :: phi
+    REAL(r2),    INTENT(IN)  :: h
+    REAL(r2),    INTENT(IN)  :: lam
+    REAL(r2),    INTENT(IN)  :: eta
+    REAL(r2),    INTENT(IN)  :: Ke
+    REAL(r2),    INTENT(IN)  :: he
+    REAL(r2),    INTENT(OUT) :: K
+    REAL(r2),    INTENT(OUT) :: Kh
+    REAL(r2),    INTENT(OUT) :: phi
     ! Get soil water variables from h.
     ! Definitions of arguments:
     ! h   - matric head.
     ! K   - hydraulic conductivity.
     ! Kh  - derivative dK/dh.
     ! phi - matric flux potential (MFP).
-    REAL(r_2) :: a
+    REAL(r2) :: a
 
     a   =  -lam * eta
     K   =  Ke * exp(a*log(h/he))
@@ -1998,8 +1998,8 @@ CONTAINS
 
     IMPLICIT NONE
 
-    REAL(r_2),    INTENT(IN)    :: S
-    REAL(r_2),    INTENT(IN)    :: Tsoil
+    REAL(r2),    INTENT(IN)    :: S
+    REAL(r2),    INTENT(IN)    :: Tsoil
     TYPE(params), INTENT(INOUT)    :: parin
     TYPE(vars),   INTENT(INOUT) :: var
     ! Get soil water variables from S.
@@ -2008,19 +2008,19 @@ CONTAINS
     ! ms        - no. of soil layers.
     ! jt(1:ms)  - layer soil type nos.
     ! var(1:ms) - other water vars of layers.
-    REAL(r_2) :: lnS, theta, c, v3, v4
-    REAL(r_2) :: dhdS, lambda, crh, int
-    REAL(r_2) :: thetal_max
-    REAL(r_2) :: Sliq
-    REAL(r_2) :: A, B, D, C1
-    INTEGER(i_d) :: E
-    REAL(r_2) :: F1, F2, F
-    ! REAL(r_2) :: macropore_modifier
-    REAL(r_2) :: cdry, tmp_thetai
-    REAL(r_2), parameter :: tol = 1.e-6_r_2
+    REAL(r2) :: lnS, theta, c, v3, v4
+    REAL(r2) :: dhdS, lambda, crh, int
+    REAL(r2) :: thetal_max
+    REAL(r2) :: Sliq
+    REAL(r2) :: A, B, D, C1
+    INTEGER(i4) :: E
+    REAL(r2) :: F1, F2, F
+    ! REAL(r2) :: macropore_modifier
+    REAL(r2) :: cdry, tmp_thetai
+    REAL(r2), parameter :: tol = 1.e-6_r2
     theta         = S*(parin%thre) + (parin%the - parin%thre)
     var%lambdav   = rlambda       ! latent heat of vaporisation
-    var%lambdav   = 1.91846e6_r_2*((Tsoil+Tzero)/((Tsoil+Tzero)-33.91_r_2))**2  ! Henderson-Sellers, QJRMS, 1984
+    var%lambdav   = 1.91846e6_r2*((Tsoil+Tzero)/((Tsoil+Tzero)-33.91_r2))**2  ! Henderson-Sellers, QJRMS, 1984
     var%lambdaf   = lambdaf        ! latent heat of fusion
     !var%Tfrz      = Tfrz(S,parin%he,one/parin%lam)
     var%Tfrz      = Tfrz(S, parin%he, one/(parin%lambc*freezefac)) ! freezefac for test of steep freezing curve
@@ -2036,8 +2036,8 @@ CONTAINS
        var%thetal = thetal_max
        ! liquid water content, relative to saturation
        ! Sliq      = (var%thetal - (parin%the-parin%thre))/parin%thre
-       if ((parin%thre-tmp_thetai) .le. max(parin%thr,1.e-5_r_2)) then
-          Sliq = max(parin%thr,1.e-5_r_2)
+       if ((parin%thre-tmp_thetai) .le. max(parin%thr,1.e-5_r2)) then
+          Sliq = max(parin%thr,1.e-5_r2)
        else
          ! Sliq = min((var%thetal-(parin%the-parin%thre))/(parin%thre-var%thetai), one)
           Sliq = min((var%thetal-(parin%the-parin%thre))/(parin%thre-tmp_thetai), one)
@@ -2057,7 +2057,7 @@ CONTAINS
        var%K  = var%Ksat
        var%KS = zero
        ! var%KT = var%dthetaldT * parin%Ke * parin%eta * exp(lnS*(parin%eta-one))/parin%thre
-       var%KT = var%dthetaldT * parin%Ke * parin%eta * exp(lnS*(parin%eta-one))/max(parin%thre-var%thetai,max(parin%thr,1e-5_r_2))
+       var%KT = var%dthetaldT * parin%Ke * parin%eta * exp(lnS*(parin%eta-one))/max(parin%thre-var%thetai,max(parin%thr,1e-5_r2))
        if (S < one) var%phi = var%phie
 
        ! var%phiT = parin%phie * exp(lnS*(parin%eta-one/parin%lam-one)) * var%dthetaldT * &
@@ -2086,7 +2086,7 @@ CONTAINS
           var%phiT = zero
        endif
 
-       !if ( ((parin%thre-var%thetai)<=max(parin%thr,1e-5_r_2)) .or. (Sliq==one) ) then
+       !if ( ((parin%thre-var%thetai)<=max(parin%thr,1e-5_r2)) .or. (Sliq==one) ) then
        !   var%phiS = zero
        !   var%phiT = zero
        !endif
@@ -2108,7 +2108,7 @@ CONTAINS
        v3      = exp(-lnS/parin%lam)
        v4      = exp(parin%eta*lnS)
     endif
-    if (var%thetal < 1.e-12_r_2) then ! completely frozen
+    if (var%thetal < 1.e-12_r2) then ! completely frozen
        var%dthetaldT = zero
        var%lambdav   = lambdas ! latent heat of sublimation
        var%KT        = zero
@@ -2143,7 +2143,7 @@ CONTAINS
     ! if (z.lt.3.and.theta>parin%thfc) then
     !    macropore_modifier = exp(-parin%zeta*(z-3))
     ! ! if (theta > parin%thfc) then
-    ! !    macropore_modifier = 1000._r_2*exp(-var%h/(-4._r_2))
+    ! !    macropore_modifier = 1000._r2*exp(-var%h/(-4._r2))
     !    var%macropore_factor = macropore_modifier
     ! else
     !    var%macropore_factor = one
@@ -2172,11 +2172,11 @@ CONTAINS
        var%cvsatT = zero
     endif
     ! Penman (1940): tortuosity*theta
-    ! var%Dv    = Dva*parin%tortuosity*(parin%the-theta)  * ((Tsoil+Tzero)/Tzero)**1.88_r_2 ! m2 s-1
-    var%Dv    = Dva*parin%tortuosity*(parin%the-theta)  * exp(1.88_r_2*log((Tsoil+Tzero)/Tzero)) ! m2 s-1
+    ! var%Dv    = Dva*parin%tortuosity*(parin%the-theta)  * ((Tsoil+Tzero)/Tzero)**1.88_r2 ! m2 s-1
+    var%Dv    = Dva*parin%tortuosity*(parin%the-theta)  * exp(1.88_r2*log((Tsoil+Tzero)/Tzero)) ! m2 s-1
     ! ! Moldrup et al. (2003), Table 2 repacked soil (from Moldrup et al. (2000)
     ! ! (thetas-theta)**1.5 * (thetas-theta)/thetas
-    ! var%Dv    = Dva* (parin%the-theta)**1.5_r_2 * (parin%the-theta)/parin%the * ((Tsoil+Tzero)/Tzero)**1.88_r_2 ! m2 s-1
+    ! var%Dv    = Dva* (parin%the-theta)**1.5_r2 * (parin%the-theta)/parin%the * ((Tsoil+Tzero)/Tzero)**1.88_r2 ! m2 s-1
     ! int       = (-c*parin%he)**lambda * igamma(one-lambda,-c*var%h)
     int       = exp(lambda*log(-c*parin%he)) * igamma(one-lambda,-c*var%h)
     var%phiv  = Dva*parin%tortuosity * (parin%thre*exp(c*var%h) -parin%thre*int)
@@ -2192,21 +2192,21 @@ CONTAINS
        case (11,17) ! Hansson et al. (2004) - special soil properties
           ! Hansson et al. (2004) - Eq. 13b
           ! A=C1, B=C2, C1=C3, D=C4, E=C5
-          A  = 0.55_r_2
-          B  = 0.8_r_2
-          C1 = 3.07_r_2
-          D  = 0.13_r_2
+          A  = 0.55_r2
+          B  = 0.8_r2
+          C1 = 3.07_r2
+          D  = 0.13_r2
           E  = 4
        case default
           ! calculate v%kH as in Campbell (1985) p.32 eq. 4.20
-          A  = 0.65_r_2 - 0.78_r_2*parin%rho/thousand + 0.60_r_2*(parin%rho/thousand)**2 ! (4.27)
-          B  = 2.8_r_2 * (one-parin%thre) !*theta   ! (4.24)
-          if (parin%clay > 0.001_r_2) then ! clay=0.001 -> C1=9.2
-             C1 = one + 2.6_r_2/sqrt(parin%clay*100._r_2) ! (4.28)
+          A  = 0.65_r2 - 0.78_r2*parin%rho/thousand + 0.60_r2*(parin%rho/thousand)**2 ! (4.27)
+          B  = 2.8_r2 * (one-parin%thre) !*theta   ! (4.24)
+          if (parin%clay > 0.001_r2) then ! clay=0.001 -> C1=9.2
+             C1 = one + 2.6_r2/sqrt(parin%clay*100._r2) ! (4.28)
           else
              C1 = one
           endif
-          D  = 0.03_r_2 + 0.7_r_2*(one-parin%thre)**2 ! (4.22)
+          D  = 0.03_r2 + 0.7_r2*(one-parin%thre)**2 ! (4.22)
           E  = 4
        end select
        select case (experiment)
@@ -2215,12 +2215,12 @@ CONTAINS
           var%kH = A + B*theta-(A-D)*exp(-(C1*theta)**E) ! (4.20)
        case default ! different thermal conductivity in ice and water
           ! Hansson et al. (2004) - Eq. 15
-          F1 = 13.05_r_2
-          F2 = 1.06_r_2
+          F1 = 13.05_r2
+          F2 = 1.06_r2
           if  (Tsoil < var%Tfrz-tol .and.  var%thetai.gt.zero ) then ! ice
              ! F  = one + F1*var%thetai**F2
              F  = one + F1*exp(F2*log(var%thetai))
-             if ((C1*(theta+F*var%thetai))**E > 100._r_2) then
+             if ((C1*(theta+F*var%thetai))**E > 100._r2) then
                 var%kH = A + B*(theta+F*var%thetai)
              else
                 var%kH = A + B*(theta+F*var%thetai)-(A-D)*exp(-(C1*(theta+F*var%thetai))**E)
@@ -2230,16 +2230,16 @@ CONTAINS
           endif
        end select
     case(1) ! van de Griend & O'Neill (1986)
-       cdry = 2.0e6_r_2 * (one-parin%thre) ! Sispat Manual (2000), Eq. 2.21
-       var%kH = one/(cdry + 4.18e6_r_2*theta) * ( (parin%LambdaS + 2300._r_2*theta - 1890._r_2)/0.654_r_2 )**2
+       cdry = 2.0e6_r2 * (one-parin%thre) ! Sispat Manual (2000), Eq. 2.21
+       var%kH = one/(cdry + 4.18e6_r2*theta) * ( (parin%LambdaS + 2300._r2*theta - 1890._r2)/0.654_r2 )**2
     end select
     var%eta_th = one
     var%kE     = var%Dv*var%rh*var%sl*thousand*var%lambdav*var%eta_th
     var%kth    = var%kE + var%kH ! thermal conductivity of soil (includes contribution from vapour phase)
 
-    var%csoil    = parin%css*parin%rho + rhow*cswat*var%thetal + merge(0._r_2, rhow*csice*var%thetai, experiment==183)
+    var%csoil    = parin%css*parin%rho + rhow*cswat*var%thetal + merge(0._r2, rhow*csice*var%thetai, experiment==183)
     if (Tsoil < var%Tfrz) then ! increase effective heat capacity due to presence of ice
-       var%csoileff = var%csoil + merge(0._r_2, rhow*lambdaf*var%dthetaldT, experiment==183)
+       var%csoileff = var%csoil + merge(0._r2, rhow*lambdaf*var%dthetaldT, experiment==183)
     else
        var%csoileff = var%csoil
     endif
@@ -2253,9 +2253,9 @@ CONTAINS
     IMPLICIT NONE
 
     CHARACTER(LEN=2),       INTENT(IN)    :: iso
-    REAL(r_2),               INTENT(IN)    :: c
-    REAL(r_2), DIMENSION(:), INTENT(INOUT) :: p
-    REAL(r_2),               INTENT(OUT)   :: f, fd
+    REAL(r2),               INTENT(IN)    :: c
+    REAL(r2), DIMENSION(:), INTENT(INOUT) :: p
+    REAL(r2),               INTENT(OUT)   :: f, fd
     ! Subroutine to get adsorbed solute (units/g soil) from concn in soil water
     ! according to chosen isotherm code ("Fr" for Freundlich, "La" for Langmuir
     ! and "Ll" for Langmuir-linear).
@@ -2265,12 +2265,12 @@ CONTAINS
     ! p(:) - isotherm parameters.
     ! f    - adsorbed mass/g soil.
     ! fc   - deriv of f wrt c (slope of isotherm curve).
-    REAL(r_2) :: x
+    REAL(r2) :: x
 
     select case (iso)
     case ("Fr")
        if (eq(p(3),zero)) then ! linearise near zero
-          p(3) = (0.01_r_2*dsmmax/p(1))**(one/p(2)) ! concn at 0.01*dsmmax
+          p(3) = (0.01_r2*dsmmax/p(1))**(one/p(2)) ! concn at 0.01*dsmmax
           p(4) = p(1)*p(3)**(p(2)-one) ! slope
        end if
        if (c < p(3)) then
@@ -2304,29 +2304,29 @@ CONTAINS
 
   SUBROUTINE massman_sparse_1d(aa, aah, bb, bbh, cc, cch, dd, ddh, ee, eeh, ff, ffh, gg, ggh, dy, dT, condition, err)
 
-    USE cable_def_types_mod, ONLY: r_2, i_d
+    USE cable_def_types_mod, ONLY: r2, i4
     USE sli_numbers,       ONLY: zero, one
 
     IMPLICIT NONE
 
     ! in/out
-    REAL(r_2), DIMENSION(:), INTENT(IN)  :: aa, aah, bb, bbh, ee, eeh, ff, ffh
-    REAL(r_2), DIMENSION(:), INTENT(IN)  :: cc, cch, dd, ddh, gg, ggh
-    REAL(r_2), DIMENSION(:), INTENT(OUT) :: dy, dT
-    INTEGER(i_d),  OPTIONAL, INTENT(IN)  :: condition
-    INTEGER(i_d),  OPTIONAL, INTENT(OUT) :: err ! 0: no error; >0: error
+    REAL(r2), DIMENSION(:), INTENT(IN)  :: aa, aah, bb, bbh, ee, eeh, ff, ffh
+    REAL(r2), DIMENSION(:), INTENT(IN)  :: cc, cch, dd, ddh, gg, ggh
+    REAL(r2), DIMENSION(:), INTENT(OUT) :: dy, dT
+    INTEGER(i4),  OPTIONAL, INTENT(IN)  :: condition
+    INTEGER(i4),  OPTIONAL, INTENT(OUT) :: err ! 0: no error; >0: error
     ! local
-    INTEGER(i_d)                         :: n, n2
-    REAL(r_2), DIMENSION(size(cc),2,2)   :: A, B, C
-    REAL(r_2), DIMENSION(size(cc),2)     :: d, x
+    INTEGER(i4)                         :: n, n2
+    REAL(r2), DIMENSION(size(cc),2,2)   :: A, B, C
+    REAL(r2), DIMENSION(size(cc),2)     :: d, x
     ! for conditioning
-    REAL(r_2), DIMENSION(2*size(cc))       :: lST, cST
-    REAL(r_2), DIMENSION(size(cc))         :: lS, lT, cS, cT
-    REAL(r_2), DIMENSION(2*size(cc)*2*size(cc)) :: allvec
-    REAL(r_2), DIMENSION(2*size(cc),2*size(cc)) :: allmat
-    REAL(r_2)    :: eps
-    INTEGER(i_d) :: docond ! 0: no conditioning, 1: columns, 2: lines, 3: both
-    INTEGER(i_d) :: iierr ! error code for generic_thomas
+    REAL(r2), DIMENSION(2*size(cc))       :: lST, cST
+    REAL(r2), DIMENSION(size(cc))         :: lS, lT, cS, cT
+    REAL(r2), DIMENSION(2*size(cc)*2*size(cc)) :: allvec
+    REAL(r2), DIMENSION(2*size(cc),2*size(cc)) :: allmat
+    REAL(r2)    :: eps
+    INTEGER(i4) :: docond ! 0: no conditioning, 1: columns, 2: lines, 3: both
+    INTEGER(i4) :: iierr ! error code for generic_thomas
     ! CHARACTER(LEN=20) :: form1
     ! integer :: i, nn
     !
@@ -2459,30 +2459,30 @@ CONTAINS
 
   SUBROUTINE massman_sparse_2d(aa, aah, bb, bbh, cc, cch, dd, ddh, ee, eeh, ff, ffh, gg, ggh, dy, dT, condition, err)
 
-    USE cable_def_types_mod, ONLY: r_2, i_d
+    USE cable_def_types_mod, ONLY: r2, i4
     USE sli_numbers,       ONLY: zero, one
 
     IMPLICIT NONE
 
     ! in/out
-    REAL(r_2), DIMENSION(:,:), INTENT(IN)  :: aa, aah, bb, bbh, ee, eeh, ff, ffh
-    REAL(r_2), DIMENSION(:,:), INTENT(IN)  :: cc, cch, dd, ddh, gg, ggh
-    REAL(r_2), DIMENSION(:,:), INTENT(OUT) :: dy, dT
-    INTEGER(i_d),    OPTIONAL, INTENT(IN)  :: condition
-    INTEGER(i_d),    OPTIONAL, INTENT(OUT) :: err ! 0: no error; >0: error
+    REAL(r2), DIMENSION(:,:), INTENT(IN)  :: aa, aah, bb, bbh, ee, eeh, ff, ffh
+    REAL(r2), DIMENSION(:,:), INTENT(IN)  :: cc, cch, dd, ddh, gg, ggh
+    REAL(r2), DIMENSION(:,:), INTENT(OUT) :: dy, dT
+    INTEGER(i4),    OPTIONAL, INTENT(IN)  :: condition
+    INTEGER(i4),    OPTIONAL, INTENT(OUT) :: err ! 0: no error; >0: error
     ! local
-    INTEGER(i_d)                                        :: n, mp
-    INTEGER(i_d)                                        :: n2
-    REAL(r_2), DIMENSION(1:size(cc,1),1:size(cc,2),2,2) :: A, B, C
-    REAL(r_2), DIMENSION(1:size(cc,1),1:size(cc,2),2)   :: d, x
+    INTEGER(i4)                                        :: n, mp
+    INTEGER(i4)                                        :: n2
+    REAL(r2), DIMENSION(1:size(cc,1),1:size(cc,2),2,2) :: A, B, C
+    REAL(r2), DIMENSION(1:size(cc,1),1:size(cc,2),2)   :: d, x
     ! for conditioning
-    REAL(r_2), DIMENSION(1:size(cc,1),2*size(cc,2))     :: lST, cST
-    REAL(r_2), DIMENSION(1:size(cc,1),size(cc,2))       :: lS, lT, cS, cT
-    REAL(r_2), DIMENSION(1:size(cc,1),2*size(cc,2)*2*size(cc,2)) :: allvec
-    REAL(r_2), DIMENSION(1:size(cc,1),2*size(cc,2),2*size(cc,2)) :: allmat
-    REAL(r_2)    :: eps
-    INTEGER(i_d) :: docond ! 0: no conditioning, 1: columns, 2: lines, 3: both
-    INTEGER(i_d) :: iierr ! error code for generic_thomas
+    REAL(r2), DIMENSION(1:size(cc,1),2*size(cc,2))     :: lST, cST
+    REAL(r2), DIMENSION(1:size(cc,1),size(cc,2))       :: lS, lT, cS, cT
+    REAL(r2), DIMENSION(1:size(cc,1),2*size(cc,2)*2*size(cc,2)) :: allvec
+    REAL(r2), DIMENSION(1:size(cc,1),2*size(cc,2),2*size(cc,2)) :: allmat
+    REAL(r2)    :: eps
+    INTEGER(i4) :: docond ! 0: no conditioning, 1: columns, 2: lines, 3: both
+    INTEGER(i4) :: iierr ! error code for generic_thomas
     ! CHARACTER(LEN=20) :: form1
     ! integer :: i, k, nn
     !
@@ -2645,22 +2645,22 @@ CONTAINS
 
     IMPLICIT NONE
 
-    REAL(r_2),    INTENT(IN)    :: S
-    REAL(r_2),    INTENT(IN)    :: Tsoil
+    REAL(r2),    INTENT(IN)    :: S
+    REAL(r2),    INTENT(IN)    :: Tsoil
     TYPE(vars),   INTENT(INOUT) :: vlit
     TYPE(params), INTENT(IN)    :: plit
-    REAL(r_2),    INTENT(IN)    :: h0
+    REAL(r2),    INTENT(IN)    :: h0
     ! Get soil water variables from S.
     ! Definitions of arguments:
     ! S(1:ms)    - degree of saturation ("effective satn") of layers.
     ! ms        - no. of soil layers.
     ! jt(1:ms)    - layer soil type nos.
     ! var(1:ms) - other water vars of layers.
-    REAL(r_2), PARAMETER :: u = 1.0 ! wind speed at litter surface
-    REAL(r_2) :: theta, c
-    REAL(r_2) :: dhdS, sl
-    REAL(r_2) :: rhoL, copo, c_w ! params for thermal vapour transfer enhancement factor (Campbell 1985)
-    REAL(r_2) :: chi, DT0
+    REAL(r2), PARAMETER :: u = 1.0 ! wind speed at litter surface
+    REAL(r2) :: theta, c
+    REAL(r2) :: dhdS, sl
+    REAL(r2) :: rhoL, copo, c_w ! params for thermal vapour transfer enhancement factor (Campbell 1985)
+    REAL(r2) :: chi, DT0
 
     sl      = slope_esat(Tsoil)*Mw/thousand/Rgas/(Tsoil+Tzero) ! m3 m-3 K-1
     vlit%sl = sl
@@ -2673,8 +2673,8 @@ CONTAINS
     !    vlit%hS = dhdS
     ! Mathews (2006), A process-based model of offine fuel moisture,
     !                 International Journal of Wildland Fire 15,155-168
-    chi     = 2.08_r_2+u*2.38_r_2 ! (Eq. 45, Tab. 1)
-    DT0     = Dva*exp(u*2.6_r_2) ! (Eq. 46, Tab. 1)
+    chi     = 2.08_r2+u*2.38_r2 ! (Eq. 45, Tab. 1)
+    DT0     = Dva*exp(u*2.6_r2) ! (Eq. 46, Tab. 1)
     vlit%Dv = DT0*exp(-half*chi) ! heat and vapour diffusivity half-way through layer (Eq. 11)
     !write(*,*) 'litter_props', vlit%Dv
     if (S < one) then
@@ -2696,9 +2696,9 @@ CONTAINS
     vlit%phiS   = vlit%phivS
     vlit%rhS    = dhdS*c*vlit%rh
     ! sensible heat conductivity of wet soil W m-1 K-1 (Matthews 2006)
-    vlit%kH     = 0.2_r_2 + 0.14_r_2*theta*thousand/rhoL
-    copo        = 1932._r_2
-    c_w         = 4.185e6_r_2
+    vlit%kH     = 0.2_r2 + 0.14_r2*theta*thousand/rhoL
+    copo        = 1932._r2
+    c_w         = 4.185e6_r2
     vlit%csoil  = copo*rhoL + c_w*theta + c_w*h0 !volumetric heat capacity of wet soil
     vlit%eta_th = one !enhancement factor for transport of water vapour due to a temperature gradient
     vlit%kE     = vlit%Dv*vlit%rh*sl*thousand*rlambda
@@ -2717,11 +2717,11 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
     IMPLICIT NONE
 
-    REAL(r_2), INTENT(IN)  :: Rn, rbh, rbw, Ta, rha, Tsoil, k, dz, lambdav
-    REAL(r_2), INTENT(OUT) :: Ts, E, H, G, dEdrha, dEdTs, dEdTsoil, dGdTa, dGdTsoil
+    REAL(r2), INTENT(IN)  :: Rn, rbh, rbw, Ta, rha, Tsoil, k, dz, lambdav
+    REAL(r2), INTENT(OUT) :: Ts, E, H, G, dEdrha, dEdTs, dEdTsoil, dGdTa, dGdTsoil
     LOGICAL, INTENT(IN), OPTIONAL :: iice
-    REAL(r_2) :: s, es, ea, dEdea, dEdesat, dTsdTa, dEdDa, Da
-    REAL(r_2):: rhocp, gamma != 67.0 ! psychrometric constant
+    REAL(r2) :: s, es, ea, dEdea, dEdesat, dTsdTa, dEdDa, Da
+    REAL(r2):: rhocp, gamma != 67.0 ! psychrometric constant
 
     if (present(iice)) then
        if(iice) then
@@ -2736,10 +2736,10 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
        s  = slope_esat(Ta)
     endif
 
-    rhocp = rmair*101325._r_2/rgas/(Ta+Tzero)*cpa
-    gamma = 101325._r_2*cpa/lambdav/(Mw/rmair)
-    ea = es * max(rha, 0.1_r_2)
-    Da = ea/max(rha, 0.1_r_2) - ea
+    rhocp = rmair*101325._r2/rgas/(Ta+Tzero)*cpa
+    gamma = 101325._r2*cpa/lambdav/(Mw/rmair)
+    ea = es * max(rha, 0.1_r2)
+    Da = ea/max(rha, 0.1_r2) - ea
 
     E  = (rhocp*(Da*(k*rbh + dz*rhocp) + rbh*s*(dz*Rn + k*(-Ta + Tsoil)))) / &
          (gamma*rbw*(k*rbh + dz*rhocp) + dz*rbh*rhocp*s)
@@ -2768,25 +2768,25 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
     IMPLICIT NONE
 
-    INTEGER(i_d),              INTENT(IN) :: mp
+    INTEGER(i4),              INTENT(IN) :: mp
     TYPE(veg_parameter_type), INTENT(IN) :: veg
-    integer(i_d), DIMENSION(:),  INTENT(IN) :: index
+    integer(i4), DIMENSION(:),  INTENT(IN) :: index
 
     allocate(plit(mp))
     allocate(dxL(mp))
 
-    plit%the   = 0.09_r_2
-    plit%thre  = 0.09_r_2
-    plit%he    = -35.0_r_2
-    plit%lam   = one/2.4_r_2
+    plit%the   = 0.09_r2
+    plit%thre  = 0.09_r2
+    plit%he    = -35.0_r2
+    plit%lam   = one/2.4_r2
     plit%Ke    = zero
     plit%eta   = zero
     plit%KSe   = zero
     plit%phie  = zero
     plit%phiSe = zero
-    plit%rho   = 63.5_r_2
+    plit%rho   = 63.5_r2
     ! dxL        = zero            ! litter params
-    dxL        = real(veg%clitt(index),r_2)*two/plit%rho*0.1_r_2
+    dxL        = real(veg%clitt(index),r2)*two/plit%rho*0.1_r2
 
     plit%ishorizon  = 0
     plit%thw        = zero
@@ -2814,86 +2814,86 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
     IMPLICIT NONE
 
-    INTEGER(i_d),                 INTENT(IN) :: mp
-    INTEGER(i_d),                 INTENT(IN) :: ms
+    INTEGER(i4),                 INTENT(IN) :: mp
+    INTEGER(i4),                 INTENT(IN) :: ms
     TYPE(soil_parameter_type),    INTENT(IN) :: soil
-    integer(i_d), DIMENSION(:),   INTENT(IN) :: index
+    integer(i4), DIMENSION(:),   INTENT(IN) :: index
 
-    INTEGER(i_d) :: i
+    INTEGER(i4) :: i
 
     allocate(par(mp,ms))
 
     do i=1, ms
        par(:,i)%ishorizon  = soil%ishorizon(index,i)
-       par(:,i)%thw        = real(soil%swilt(index),r_2)
-       par(:,i)%thfc       = real(soil%sfc(index),r_2)
-       par(:,i)%the        = real(soil%ssat(index),r_2)
+       par(:,i)%thw        = real(soil%swilt(index),r2)
+       par(:,i)%thfc       = real(soil%sfc(index),r2)
+       par(:,i)%the        = real(soil%ssat(index),r2)
        par(:,i)%thr        = zero
-       par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr
-       par(:,i)%he         = real(soil%sucs(index),r_2)
-       par(:,i)%Ke         = real(soil%hyds(index),r_2)
-       par(:,i)%lam        = one/real(soil%bch(index),r_2)
+       par(:,i)%thre       = real(soil%ssat(index),r2) - par(:,i)%thr
+       par(:,i)%he         = real(soil%sucs(index),r2)
+       par(:,i)%Ke         = real(soil%hyds(index),r2)
+       par(:,i)%lam        = one/real(soil%bch(index),r2)
        par(:,i)%eta        = two/par(:,i)%lam + two + one
        par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he
        par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he
        par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he
-       par(:,i)%kd         = real(soil%cnsd(index),r_2)
-       par(:,i)%css        = real(soil%css(index),r_2)
-       par(:,i)%rho        = real(soil%rhosoil(index),r_2)
-       par(:,i)%tortuosity = 0.67_r_2
-       par(:,i)%clay       = real(soil%clay(index),r_2)
-       par(:,i)%zeta       = real(soil%zeta(index),r_2)
-       par(:,i)%fsatmax    = real(soil%fsatmax(index),r_2)
+       par(:,i)%kd         = real(soil%cnsd(index),r2)
+       par(:,i)%css        = real(soil%css(index),r2)
+       par(:,i)%rho        = real(soil%rhosoil(index),r2)
+       par(:,i)%tortuosity = 0.67_r2
+       par(:,i)%clay       = real(soil%clay(index),r2)
+       par(:,i)%zeta       = real(soil%zeta(index),r2)
+       par(:,i)%fsatmax    = real(soil%fsatmax(index),r2)
        par(:,i)%lambc      = par(:,i)%lam
-       !par(:,i)%LambdaS    = real(soil%LambdaS(index),r_2)
-       par(:,i)%LambdaS    = 2830_r_2 ! Sispat Manual Table 2
+       !par(:,i)%LambdaS    = real(soil%LambdaS(index),r2)
+       par(:,i)%LambdaS    = 2830._r2 ! Sispat Manual Table 2
     enddo
 
 ! special for Cumberland: set soil params to clay:
     if (cable_user%Cumberland_soil) then
        do i=1,ms
-          par(:,i)%thw        = 0.286_r_2
-          par(:,i)%thfc       = 0.367_r_2
-          par(:,i)%the        = 0.482_r_2
-          par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr
-          par(:,i)%he         = -0.405_r_2
-          par(:,i)%Ke         = 1.e-6_r_2
-          par(:,i)%lam        = 1._r_2/11.4_r_2
+          par(:,i)%thw        = 0.286_r2
+          par(:,i)%thfc       = 0.367_r2
+          par(:,i)%the        = 0.482_r2
+          par(:,i)%thre       = real(soil%ssat(index),r2) - par(:,i)%thr
+          par(:,i)%he         = -0.405_r2
+          par(:,i)%Ke         = 1.e-6_r2
+          par(:,i)%lam        = 1._r2/11.4_r2
           par(:,i)%eta        = two/par(:,i)%lam + two + one
           par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he
           par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he
           par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he
-          par(:,i)%clay       = 0.67_r_2
+          par(:,i)%clay       = 0.67_r2
 
-!!$          par(:,i)%thw        = 0.178_r_2
-!!$          par(:,i)%thfc       = 0.367_r_2
-!!$          par(:,i)%the        = 0.45_r_2
-!!$          par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr
-!!$          par(:,i)%he         = -0.572_r_2
-!!$          par(:,i)%Ke         = 2.8e-5_r_2
-!!$          par(:,i)%lam        = 1._r_2/8.7_r_2
+!!$          par(:,i)%thw        = 0.178_r2
+!!$          par(:,i)%thfc       = 0.367_r2
+!!$          par(:,i)%the        = 0.45_r2
+!!$          par(:,i)%thre       = real(soil%ssat(index),r2) - par(:,i)%thr
+!!$          par(:,i)%he         = -0.572_r2
+!!$          par(:,i)%Ke         = 2.8e-5_r2
+!!$          par(:,i)%lam        = 1._r2/8.7_r2
 !!$          par(:,i)%eta        = two/par(:,i)%lam + two + one
 !!$          par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he
 !!$          par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he
 !!$          par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he
-!!$          par(:,i)%clay       = 0.2_r_2
+!!$          par(:,i)%clay       = 0.2_r2
        enddo
     endif
 
 !!$   ! special for Cumberland: set top 3 layers to sand
 !!$   do i=1,3
-!!$      par(:,i)%thw        = 0.175_r_2
-!!$      par(:,i)%thfc       = 0.255_r_2
-!!$      par(:,i)%the        = 0.420_r_2
-!!$      par(:,i)%thre       = real(soil%ssat(index),r_2) - par(:,i)%thr
-!!$      par(:,i)%he         = -0.299_r_2
-!!$      par(:,i)%Ke         = 6.e-6_r_2
-!!$      par(:,i)%lam        = 1._r_2/7.12_r_2
+!!$      par(:,i)%thw        = 0.175_r2
+!!$      par(:,i)%thfc       = 0.255_r2
+!!$      par(:,i)%the        = 0.420_r2
+!!$      par(:,i)%thre       = real(soil%ssat(index),r2) - par(:,i)%thr
+!!$      par(:,i)%he         = -0.299_r2
+!!$      par(:,i)%Ke         = 6.e-6_r2
+!!$      par(:,i)%lam        = 1._r2/7.12_r2
 !!$      par(:,i)%eta        = two/par(:,i)%lam + two + one
 !!$      par(:,i)%KSe        = par(:,i)%eta * par(:,i)%Ke    ! dK/dS at he
 !!$      par(:,i)%phie       = par(:,i)%Ke * par(:,i)%he / (one - par(:,i)%lam * par(:,i)%eta) ! MFP at he
 !!$      par(:,i)%phiSe      = (par(:,i)%eta - one/par(:,i)%lam) * par(:,i)%phie    ! dphi/dS at he
-!!$      par(:,i)%clay       = 0.27_r_2
+!!$      par(:,i)%clay       = 0.27_r2
 !!$
 !!$   enddo
 
@@ -2906,83 +2906,83 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
     IMPLICIT NONE
 
-    INTEGER(i_d),                 INTENT(IN)    :: mp
-    INTEGER(i_d),                 INTENT(IN)    :: ms
-    REAL(r_2),    DIMENSION(:,:), INTENT(IN)    :: x2dx
+    INTEGER(i4),                 INTENT(IN)    :: mp
+    INTEGER(i4),                 INTENT(IN)    :: ms
+    REAL(r2),    DIMENSION(:,:), INTENT(IN)    :: x2dx
 
-    INTEGER(i_d) :: i
+    INTEGER(i4) :: i
 
     allocate(par(mp,ms))
 
     do i=1, ms
-       where (x2dx(:,i) .lt. 0.15_r_2)
+       where (x2dx(:,i) .lt. 0.15_r2)
           par(:,i)%ishorizon  = 1
-          par(:,i)%thw        = 0.07_r_2
-          par(:,i)%thfc       = 0.45_r_2
-          par(:,i)%the        = 0.60_r_2
-          par(:,i)%thr        = 0.00_r_2
-          par(:,i)%he         = -6.76_r_2
-          par(:,i)%lam        = 0.70_r_2
-          par(:,i)%Ke         = 2.754e-5_r_2
-       elsewhere (x2dx(:,i) .gt. 2.0_r_2)
+          par(:,i)%thw        = 0.07_r2
+          par(:,i)%thfc       = 0.45_r2
+          par(:,i)%the        = 0.60_r2
+          par(:,i)%thr        = 0.00_r2
+          par(:,i)%he         = -6.76_r2
+          par(:,i)%lam        = 0.70_r2
+          par(:,i)%Ke         = 2.754e-5_r2
+       elsewhere (x2dx(:,i) .gt. 2.0_r2)
           par(:,i)%ishorizon  = 3
-          par(:,i)%thw        = 0.18_r_2
-          par(:,i)%thfc       = 0.35_r_2
-          par(:,i)%the        = 0.57_r_2
-          par(:,i)%thr        = 0.00_r_2
-          par(:,i)%he         = -1.23_r_2    ! optimised, was -1.46
-          par(:,i)%lam        = 0.67_r_2     ! optimised, was 0.25
-          par(:,i)%Ke         = 1.013e-5_r_2 ! optimised, was 2.481e-7
+          par(:,i)%thw        = 0.18_r2
+          par(:,i)%thfc       = 0.35_r2
+          par(:,i)%the        = 0.57_r2
+          par(:,i)%thr        = 0.0_r2
+          par(:,i)%he         = -1.23_r2    ! optimised, was -1.46
+          par(:,i)%lam        = 0.67_r2     ! optimised, was 0.25
+          par(:,i)%Ke         = 1.013e-5_r2 ! optimised, was 2.481e-7
        elsewhere
           par(:,i)%ishorizon  = 2
-          par(:,i)%thw        = 0.18_r_2
-          par(:,i)%thfc       = 0.35_r_2
-          par(:,i)%the        = 0.57_r_2
-          par(:,i)%thr        = 0.00_r_2
-          par(:,i)%he         = -1.46_r_2
-          par(:,i)%lam        = 0.25_r_2
-          par(:,i)%Ke         = 2.481e-5_r_2
+          par(:,i)%thw        = 0.18_r2
+          par(:,i)%thfc       = 0.35_r2
+          par(:,i)%the        = 0.57_r2
+          par(:,i)%thr        = 0.00_r2
+          par(:,i)%he         = -1.46_r2
+          par(:,i)%lam        = 0.25_r2
+          par(:,i)%Ke         = 2.481e-5_r2
        end where
     enddo
-    par%clay       = 0.06_r_2
-    par%tortuosity = 0.67_r_2
+    par%clay       = 0.06_r2
+    par%tortuosity = 0.67_r2
     par%thre       = par%the - par%thr
     par%eta        = two/par%lam + two + one
     par%KSe        = par%eta * par%Ke    ! dK/dS at he
     par%phie       = par%Ke * par%he / (one - par%lam * par%eta) ! MFP at he
     par%phiSe      = (par%eta - one/par%lam) * par%phie    ! dphi/dS at he
     par%kd         = zero ! not used
-    par%rho        = 2650._r_2 * par%the            ! porosity = soil/stone
-    par%css        = 2400._r_2/2650._r_2  * par%rho ! Campbell (1985)
-    par%zeta       = 2.0_r_2   ! topmodel exponent baseflow
-    par%fsatmax    = 0.30_r_2  ! topmodel maximum saturated fraction
+    par%rho        = 2650._r2 * par%the            ! porosity = soil/stone
+    par%css        = 2400._r2/2650._r2  * par%rho ! Campbell (1985)
+    par%zeta       = 2.0_r2   ! topmodel exponent baseflow
+    par%fsatmax    = 0.30_r2  ! topmodel maximum saturated fraction
     par%lambc      = par%lam
-    par%LambdaS    = 2539._r_2 ! optimised, was 2830 ! Sispat Manual Table 2
+    par%LambdaS    = 2539._r2 ! optimised, was 2830 ! Sispat Manual Table 2
 
     ! ! Cable coarse sand
     ! par%ishorizon  = 1
-    ! par%thw        = 0.072_r_2
-    ! par%thfc       = 0.143_r_2
-    ! par%the        = 0.398_r_2
+    ! par%thw        = 0.072_r2
+    ! par%thfc       = 0.143_r2
+    ! par%the        = 0.398_r2
     ! par%thr        = zero
-    ! par%he         = -0.106_r_2
-    ! par%Ke         = 166.e-6_r_2
-    ! par%lam        = 1.0_r_2/4.2_r_2
-    ! par%clay       = 0.09_r_2
-    ! par%rho        = 1600._r_2
-    ! par%css        = 850._r_2
+    ! par%he         = -0.106_r2
+    ! par%Ke         = 166.e-6_r2
+    ! par%lam        = 1.0_r2/4.2_r2
+    ! par%clay       = 0.09_r2
+    ! par%rho        = 1600._r2
+    ! par%css        = 850._r2
     ! !
-    ! par%tortuosity = 0.67_r_2
+    ! par%tortuosity = 0.67_r2
     ! par%thre       = par%the - par%thr
     ! par%eta        = two/par%lam + two + one
     ! par%KSe        = par%eta * par%Ke    ! dK/dS at he
     ! par%phie       = par%Ke * par%he / (one - par%lam * par%eta) ! MFP at he
     ! par%phiSe      = (par%eta - one/par%lam) * par%phie    ! dphi/dS at he
     ! par%kd         = zero ! not used
-    ! par%zeta       = 2.0_r_2
-    ! par%fsatmax    = 0.3_r_2
+    ! par%zeta       = 2.0_r2
+    ! par%fsatmax    = 0.3_r2
     ! par%lambc      = par%lam
-    ! par%LambdaS    = 2800._r_2 ! Sispat Manual Table 2
+    ! par%LambdaS    = 2800._r2 ! Sispat Manual Table 2
 
   END SUBROUTINE setpar_Loetsch
 
@@ -2992,7 +2992,7 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
     IMPLICIT NONE
 
-    INTEGER(i_d), INTENT(IN) :: mp
+    INTEGER(i4), INTENT(IN) :: mp
 
     allocate(sol(mp))
 
@@ -3023,24 +3023,24 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
     IMPLICIT NONE
 
-    INTEGER(i_d),              INTENT(IN) :: mp
-    INTEGER(i_d),              INTENT(IN) :: ms
+    INTEGER(i4),              INTENT(IN) :: mp
+    INTEGER(i4),              INTENT(IN) :: ms
     TYPE(soil_parameter_type), INTENT(IN) :: soil
 
-    REAL(r_2), DIMENSION(ms) :: tmp1d
+    REAL(r2), DIMENSION(ms) :: tmp1d
     INTEGER :: i
 
     allocate(x(mp,ms))
     allocate(dx(mp,ms))
 
     ! cumulative soil layer depths = bottom of soil layers
-    tmp1d(1) = real(soil%zse(1),r_2)
+    tmp1d(1) = real(soil%zse(1),r2)
     do i=2, ms
-       tmp1d(i) = tmp1d(i-1) + real(soil%zse(i),r_2)
+       tmp1d(i) = tmp1d(i-1) + real(soil%zse(i),r2)
     end do
 
     ! soil layer depth
-    dx(1:mp,1:ms) = spread(real(soil%zse(1:ms),r_2),1,mp)
+    dx(1:mp,1:ms) = spread(real(soil%zse(1:ms),r2),1,mp)
     ! bottom of each soil layer
     x(1:mp,1:ms)  = spread(tmp1d(1:ms),1,mp)
 
@@ -3052,13 +3052,13 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
     IMPLICIT NONE
 
-    INTEGER(i_d),                 INTENT(IN)    :: ns
-    INTEGER(i_d),                 INTENT(IN)    :: n
-    REAL(r_2),    DIMENSION(0:n), INTENT(IN)    :: aa
-    REAL(r_2),    DIMENSION(0:n), INTENT(IN)    :: cc
-    REAL(r_2),    DIMENSION(0:n), INTENT(IN)    :: dd
-    REAL(r_2),    DIMENSION(0:n), INTENT(INOUT) :: bb
-    REAL(r_2),    DIMENSION(0:n), INTENT(INOUT) :: dy
+    INTEGER(i4),                 INTENT(IN)    :: ns
+    INTEGER(i4),                 INTENT(IN)    :: n
+    REAL(r2),    DIMENSION(0:n), INTENT(IN)    :: aa
+    REAL(r2),    DIMENSION(0:n), INTENT(IN)    :: cc
+    REAL(r2),    DIMENSION(0:n), INTENT(IN)    :: dd
+    REAL(r2),    DIMENSION(0:n), INTENT(INOUT) :: bb
+    REAL(r2),    DIMENSION(0:n), INTENT(INOUT) :: dy
     ! Solves tridiag set of linear eqns. Coeff arrays aa and cc left intact.
     ! Definitions of arguments:
     ! ns      - start index for eqns.
@@ -3069,8 +3069,8 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
     ! dd(0:n) - rhs coeffs; ns:n used.
     ! ee(0:n) - work space.
     ! dy(0:n) - solution in ns:n.
-    REAL(r_2),   DIMENSION(0:n) :: ee
-    INTEGER(i_d)                :: i
+    REAL(r2),   DIMENSION(0:n) :: ee
+    INTEGER(i4)                :: i
 
     dy(ns) = dd(ns) ! decomposition and forward substitution
     do i=ns, n-1
@@ -3091,14 +3091,14 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
     IMPLICIT NONE
 
-    INTEGER(i_d),                      INTENT(IN)    :: mp
-    INTEGER(i_d),                      INTENT(IN)    :: ns
-    INTEGER(i_d),                      INTENT(IN)    :: n
-    REAL(r_2),    DIMENSION(1:mp,0:n), INTENT(IN)    :: aa
-    REAL(r_2),    DIMENSION(1:mp,0:n), INTENT(IN)    :: cc
-    REAL(r_2),    DIMENSION(1:mp,0:n), INTENT(IN)    :: dd
-    REAL(r_2),    DIMENSION(1:mp,0:n), INTENT(INOUT) :: bb
-    REAL(r_2),    DIMENSION(1:mp,0:n), INTENT(INOUT) :: dy
+    INTEGER(i4),                      INTENT(IN)    :: mp
+    INTEGER(i4),                      INTENT(IN)    :: ns
+    INTEGER(i4),                      INTENT(IN)    :: n
+    REAL(r2),    DIMENSION(1:mp,0:n), INTENT(IN)    :: aa
+    REAL(r2),    DIMENSION(1:mp,0:n), INTENT(IN)    :: cc
+    REAL(r2),    DIMENSION(1:mp,0:n), INTENT(IN)    :: dd
+    REAL(r2),    DIMENSION(1:mp,0:n), INTENT(INOUT) :: bb
+    REAL(r2),    DIMENSION(1:mp,0:n), INTENT(INOUT) :: dy
     ! Solves tridiag set of linear eqns. Coeff arrays aa and cc left intact.
     ! Definitions of arguments:
     ! mp      - number of land patches
@@ -3110,8 +3110,8 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
     ! dd(0:n) - rhs coeffs; ns:n used.
     ! ee(0:n) - work space.
     ! dy(0:n) - solution in ns:n.
-    REAL(r_2),   DIMENSION(1:mp,0:n) :: ee
-    INTEGER(i_d)                     :: i
+    REAL(r2),   DIMENSION(1:mp,0:n) :: ee
+    INTEGER(i4)                     :: i
 
     dy(:,ns) = dd(:,ns) ! decomposition and forward substitution
     do i=ns, n-1
@@ -3132,13 +3132,13 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
   ! FUNCTIONS - alphabetical
   !**********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION csat(T)
+  REAL(r2) ELEMENTAL PURE FUNCTION csat(T)
     !returns  sat vapour pressure curve in kg m-3
     USE sli_numbers, ONLY: Tzero, Rgas, Mw, esata, esatb, esatc
 
     IMPLICIT NONE
 
-    real(r_2), intent(in) :: T
+    real(r2), intent(in) :: T
 
     csat = esata * exp(esatb*T/(T+esatc)) * Mw/Rgas/(T+Tzero)
 
@@ -3146,13 +3146,13 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
   !**********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION csoil(thetal,thetai,css,rho)
+  REAL(r2) ELEMENTAL PURE FUNCTION csoil(thetal,thetai,css,rho)
     ! determines heat capacity of soil (Jkg-1K-1)
     USE sli_numbers, ONLY: rhow, cswat, csice
 
     IMPLICIT NONE
 
-    real(r_2), intent(in) ::  thetal, thetai, css, rho
+    real(r2), intent(in) ::  thetal, thetai, css, rho
 
     csoil = css*rho + rhow*cswat*thetal + rhow*csice*thetai
 
@@ -3160,14 +3160,14 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
   !**********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION dthetalmaxdT(Tin,S,he,b,thre,the)
+  REAL(r2) ELEMENTAL PURE FUNCTION dthetalmaxdT(Tin,S,he,b,thre,the)
     ! determines derivative of thetalmax wrt T
     USE sli_numbers, ONLY: gravity, lambdaf, csol, Rgas, Tzero
 
     IMPLICIT NONE
 
-    real(r_2), intent(in) :: Tin,S,he,b,thre,the
-    real(r_2)             :: dthetaldh, h, psi, PI, T, thetalmax
+    real(r2), intent(in) :: Tin,S,he,b,thre,the
+    real(r2)             :: dthetaldh, h, psi, PI, T, thetalmax
 
     T = min(Tfrz(min(S,one),he,b),Tin)
     PI  = -csol*Rgas*(T+Tzero)/gravity ! osmotic potential (m)
@@ -3185,15 +3185,15 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
   !**********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION dthetalmaxdTh(Tin,S,he,b,thre,the)
+  REAL(r2) ELEMENTAL PURE FUNCTION dthetalmaxdTh(Tin,S,he,b,thre,the)
     ! determines derivative of thetalmax wrt T
     ! (uses dthetaldh defined in terms of S ...required for crossing freezing point)
     USE sli_numbers, ONLY: gravity, lambdaf, csol, Rgas, Tzero
 
     IMPLICIT NONE
 
-    real(r_2), INTENT(in) :: Tin,S,he,b,thre,the
-    real(r_2)             :: dthetaldh, h, theta, T
+    real(r2), INTENT(in) :: Tin,S,he,b,thre,the
+    real(r2)             :: dthetaldh, h, theta, T
 
     T     = min(Tfrz(S,he,b),Tin)
     ! h     = he * S**(-b)
@@ -3208,13 +3208,13 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
   !*********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION esat(T)
+  REAL(r2) ELEMENTAL PURE FUNCTION esat(T)
     !returns sat vapour pressure curve in Pa
     USE sli_numbers, ONLY: esata, esatb, esatc
 
     IMPLICIT NONE
 
-    real(r_2), intent(in) :: T
+    real(r2), intent(in) :: T
 
     esat = esata * exp(esatb*T/(T+esatc))
 
@@ -3222,7 +3222,7 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
   !**********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION gammln(z)
+  REAL(r2) ELEMENTAL PURE FUNCTION gammln(z)
     !  Uses Lanczos-type approximation to ln(gamma) for z > 0.
     !  Reference:
     !       Lanczos, C. 'A precision approximation of the gamma
@@ -3235,20 +3235,20 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
     !  Latest revision - 14 October 1996
     IMPLICIT NONE
 
-    REAL(r_2), INTENT(IN) :: z
+    REAL(r2), INTENT(IN) :: z
     ! Local variables
-    REAL(r_2), PARAMETER :: a(9) = (/ &
-         0.9999999999995183_r_2, 676.5203681218835_r_2, -1259.139216722289_r_2, &
-         771.3234287757674_r_2, -176.6150291498386_r_2, 12.50734324009056_r_2, &
-         -0.1385710331296526_r_2, 0.9934937113930748E-05_r_2, 0.1659470187408462E-06_r_2 /)
-    REAL(r_2), PARAMETER :: zero = 0.0_r_2
-    REAL(r_2), PARAMETER :: one = 1.0_r_2
-    REAL(r_2), PARAMETER :: lnsqrt2pi =  0.9189385332046727_r_2
-    REAL(r_2), PARAMETER :: half = 0.5_r_2
-    REAL(r_2), PARAMETER :: sixpt5 = 6.5_r_2
-    REAL(r_2), PARAMETER :: seven = 7.0_r_2
-    REAL(r_2)    :: tmp, tmpgammln
-    INTEGER(i_d) :: j
+    REAL(r2), PARAMETER :: a(9) = (/ &
+         0.9999999999995183_r2, 676.5203681218835_r2, -1259.139216722289_r2, &
+         771.3234287757674_r2, -176.6150291498386_r2, 12.50734324009056_r2, &
+         -0.1385710331296526_r2, 0.9934937113930748E-05_r2, 0.1659470187408462E-06_r2 /)
+    REAL(r2), PARAMETER :: zero = 0.0_r2
+    REAL(r2), PARAMETER :: one = 1.0_r2
+    REAL(r2), PARAMETER :: lnsqrt2pi =  0.9189385332046727_r2
+    REAL(r2), PARAMETER :: half = 0.5_r2
+    REAL(r2), PARAMETER :: sixpt5 = 6.5_r2
+    REAL(r2), PARAMETER :: seven = 7.0_r2
+    REAL(r2)    :: tmp, tmpgammln
+    INTEGER(i4) :: j
 
     tmpgammln = zero
     tmp = z + seven
@@ -3264,36 +3264,36 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
   !**********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION gcf(a,x)
+  REAL(r2) ELEMENTAL PURE FUNCTION gcf(a,x)
 
     IMPLICIT NONE
 
-    REAL(r_2), INTENT(IN) :: a,x
-    INTEGER(i_d), PARAMETER :: ITMAX=100
-    REAL(r_2),    PARAMETER :: EPS=epsilon(x)
-    REAL(r_2),    PARAMETER :: FPMIN=tiny(x)/EPS
-    INTEGER(i_d) :: i
-    REAL(r_2)     :: an, b, c, d, del, h
+    REAL(r2), INTENT(IN) :: a,x
+    INTEGER(i4), PARAMETER :: ITMAX=100
+    REAL(r2),    PARAMETER :: EPS=epsilon(x)
+    REAL(r2),    PARAMETER :: FPMIN=tiny(x)/EPS
+    INTEGER(i4) :: i
+    REAL(r2)     :: an, b, c, d, del, h
 
-    if (eq(x, 0.0_r_2)) then
-       gcf=1.0_r_2
+    if (eq(x, 0.0_r2)) then
+       gcf=1.0_r2
        RETURN
     end if
-    b = x + 1.0_r_2 - a
-    c = 1.0_r_2/FPMIN
-    d = 1.0_r_2/b
+    b = x + 1.0_r2 - a
+    c = 1.0_r2/FPMIN
+    d = 1.0_r2/b
     h = d
     do i=1, ITMAX
        an  = -i*(i-a)
-       b   = b + 2.0_r_2
+       b   = b + 2.0_r2
        d   = an*d + b
        if (abs(d)<FPMIN) d=FPMIN
        c   = b + an/c
        if (abs(c)<FPMIN) c=FPMIN
-       d   = 1.0_r_2/d
+       d   = 1.0_r2/d
        del = d*c
        h   = h*del
-       if (abs(del-1.0_r_2) <= EPS) exit
+       if (abs(del-1.0_r2) <= EPS) exit
     end do
     gcf = exp(-x + a*log(x) - gammln(a)) * h
 
@@ -3301,25 +3301,25 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
   !**********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION gser(a,x)
+  REAL(r2) ELEMENTAL PURE FUNCTION gser(a,x)
 
     IMPLICIT NONE
 
-    REAL(r_2), INTENT(IN) :: a, x
-    INTEGER(i_d), PARAMETER :: ITMAX=100
-    REAL(r_2),     PARAMETER :: EPS=epsilon(x)
-    INTEGER(i_d) :: n
-    REAL(r_2)     :: ap, del, summ
+    REAL(r2), INTENT(IN) :: a, x
+    INTEGER(i4), PARAMETER :: ITMAX=100
+    REAL(r2),     PARAMETER :: EPS=epsilon(x)
+    INTEGER(i4) :: n
+    REAL(r2)     :: ap, del, summ
 
-    if (eq(x, 0.0_r_2)) then
-       gser = 0.0_r_2
+    if (eq(x, 0.0_r2)) then
+       gser = 0.0_r2
        RETURN
     end if
     ap   = a
-    summ = 1.0_r_2/a
+    summ = 1.0_r2/a
     del  = summ
     do n=1, ITMAX
-       ap   = ap + 1.0_r_2
+       ap   = ap + 1.0_r2
        del  = del*x/ap
        summ = summ + del
        if (abs(del) < abs(summ)*EPS) exit
@@ -3330,14 +3330,14 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
   !**********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION igamma(a,x)
-    USE cable_def_types_mod, ONLY: r_2
+  REAL(r2) ELEMENTAL PURE FUNCTION igamma(a,x)
+    USE cable_def_types_mod, ONLY: r2
     IMPLICIT NONE
-    REAL(r_2), INTENT(IN) :: a, x
-    REAL(r_2) :: gln
+    REAL(r2), INTENT(IN) :: a, x
+    REAL(r2) :: gln
     gln = gammln(a)
-    if (x < a+1.0_r_2) then
-       igamma = 1.0_r_2 - gser(a,x)
+    if (x < a+1.0_r2) then
+       igamma = 1.0_r2 - gser(a,x)
     else
        igamma = gcf(a,x)
     end if
@@ -3348,16 +3348,16 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
   !**********************************************************************************************************************
 
   ! MC this routines has to be adjusted for csol in freezing, probably.
-  REAL(r_2) ELEMENTAL PURE FUNCTION phi(hr0, lambda, eta, phie, he, T, Ksat)
+  REAL(r2) ELEMENTAL PURE FUNCTION phi(hr0, lambda, eta, phie, he, T, Ksat)
 
     USE sli_numbers, ONLY: zero, one, gravity, lambdaf, Rgas, Tzero ! , csol
 
     IMPLICIT NONE
 
-    REAL(r_2), INTENT(IN)           :: hr0, lambda, eta, phie, he, T
-    REAL(r_2), INTENT(IN), OPTIONAL :: Ksat
+    REAL(r2), INTENT(IN)           :: hr0, lambda, eta, phie, he, T
+    REAL(r2), INTENT(IN), OPTIONAL :: Ksat
 
-    REAL(r_2) :: h, csol1
+    REAL(r2) :: h, csol1
 
     ! MC freezing point? csol?
     csol1 = zero ! use zero instead of csol for the moment
@@ -3382,11 +3382,11 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
   !**********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION rh0_sol(hr0, solin)
+  REAL(r2) ELEMENTAL PURE FUNCTION rh0_sol(hr0, solin)
 
     IMPLICIT NONE
 
-    REAL(r_2),        INTENT(in) :: hr0
+    REAL(r2),        INTENT(in) :: hr0
     TYPE(solve_type), INTENT(in) :: solin
 
     !    Rnet = Rnet + rhow*lambdaf*var(1)%iice*((phi(hr1,lambda,eta,phie,he,T1) &
@@ -3410,16 +3410,16 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
   ! Write rh0_sol into rtbis -> rtbis_rh0
   ! It does not check that f(x1) and f(x2) have different signs and not if iteration > MAXIT
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION rtbis_rh0(sol, x1, x2, xacc)
+  REAL(r2) ELEMENTAL PURE FUNCTION rtbis_rh0(sol, x1, x2, xacc)
 
     IMPLICIT NONE
 
     TYPE(solve_type), INTENT(IN) :: sol
-    REAL(r_2),        INTENT(IN) :: x1, x2, xacc
+    REAL(r2),        INTENT(IN) :: x1, x2, xacc
 
-    INTEGER(i_d), PARAMETER :: MAXIT=40
-    INTEGER(i_d) :: j
-    REAL(r_2)    :: dx, f, fmid, xmid
+    INTEGER(i4), PARAMETER :: MAXIT=40
+    INTEGER(i4) :: j
+    REAL(r2)    :: dx, f, fmid, xmid
 
     fmid = rh0_sol(x2,sol)
     f    = rh0_sol(x1,sol)
@@ -3442,14 +3442,14 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
   !**********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION slope_csat(T)
+  REAL(r2) ELEMENTAL PURE FUNCTION slope_csat(T)
     !returns slope of sat vapour pressure curve in kg m-3 K-1
     USE sli_numbers, ONLY: Tzero, Rgas, Mw, esata, esatb, esatc
 
     IMPLICIT NONE
 
-    real(r_2), intent(in) :: T
-    real(r_2) :: csat
+    real(r2), intent(in) :: T
+    real(r2) :: csat
 
     csat       = esata * exp(esatb*T/(T+esatc)) * Mw/Rgas/(T+Tzero)
     slope_csat = csat * esatb*esatc/(T+esatc)**2
@@ -3458,14 +3458,14 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
   !**********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION slope_esat(T)
+  REAL(r2) ELEMENTAL PURE FUNCTION slope_esat(T)
     !returns slope of sat vapour pressure curve in Pa K^-1
     USE sli_numbers, ONLY: esata, esatb, esatc
 
     IMPLICIT NONE
 
-    real(r_2), intent(in) :: T
-    real(r_2) :: esat
+    real(r2), intent(in) :: T
+    real(r2) :: esat
 
     esat       = esata * exp(esatb*T/(T+esatc))
     slope_esat = esat * esatb*esatc/(T+esatc)**2
@@ -3474,13 +3474,13 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
   !*********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL FUNCTION esat_ice(T)
+  REAL(r2) ELEMENTAL FUNCTION esat_ice(T)
     !returns sat vapour pressure curve in Pa
     USE sli_numbers, ONLY:  esata_ice, esatb_ice, esatc_ice
 
     IMPLICIT NONE
 
-    real(r_2), intent(in) :: T
+    real(r2), intent(in) :: T
 
     esat_ice = esata_ice * exp(esatb_ice*T/(T+esatc_ice))
 
@@ -3488,14 +3488,14 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
   !**********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL FUNCTION slope_esat_ice(T)
+  REAL(r2) ELEMENTAL FUNCTION slope_esat_ice(T)
     !returns slope of sat vapour pressure curve in Pa K^-1
     USE sli_numbers, ONLY:  esata_ice, esatb_ice, esatc_ice
 
     IMPLICIT NONE
 
-    real(r_2), intent(in) :: T
-    real(r_2) :: esat_ice
+    real(r2), intent(in) :: T
+    real(r2) :: esat_ice
 
     esat_ice       = esata_ice * exp(esatb_ice*T/(T+esatc_ice))
     slope_esat_ice = esat_ice * esatb_ice*esatc_ice/(T+esatc_ice)**2
@@ -3504,11 +3504,11 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
   !**********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION Sofh(h,parin)
+  REAL(r2) ELEMENTAL PURE FUNCTION Sofh(h,parin)
 
     IMPLICIT NONE
 
-    REAL(r_2),    INTENT(IN) :: h
+    REAL(r2),    INTENT(IN) :: h
     TYPE(params), INTENT(IN) :: parin
 
     ! Get saturation S from matric head h.
@@ -3522,13 +3522,13 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
   !**********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION Tfrz(S,he,b)
+  REAL(r2) ELEMENTAL PURE FUNCTION Tfrz(S,he,b)
     ! determines freezing point temperature for a given moisture content
     USE sli_numbers, ONLY: one, two, four, gravity, lambdaf, csol, Rgas, Tzero
 
     IMPLICIT NONE
 
-    real(r_2), intent(in) :: S, he, b
+    real(r2), intent(in) :: S, he, b
 
     if (csol > e3) then
        ! Tfrz = (gravity*he - (min(S,one))**b * (lambdaf + two*csol*Rgas*Tzero) + &
@@ -3541,20 +3541,20 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
             (two*csol*Rgas*exp(b*log(min(S,one))))
     else
        ! Tfrz = (gravity*he*Tzero) / (-(gravity*he) + lambdaf*(S)**b)
-       Tfrz = (gravity*he*Tzero) / (-gravity*he + lambdaf*exp(b*log(max(min(S,one),0.01_r_2))))
+       Tfrz = (gravity*he*Tzero) / (-gravity*he + lambdaf*exp(b*log(max(min(S,one),0.01_r2))))
     endif
 
   END FUNCTION Tfrz
 
   !**********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION Tfrozen(J, dx, theta, thetal, csoil, rhosoil, h0, thetasat)
+  REAL(r2) ELEMENTAL PURE FUNCTION Tfrozen(J, dx, theta, thetal, csoil, rhosoil, h0, thetasat)
     ! determines temperature of frozen soil, given total energy content J and liquid water content thetal
     USE sli_numbers, ONLY: csice, cswat, rhow, lambdaf
 
     IMPLICIT NONE
 
-    real(r_2), intent(in) :: J, dx, theta, thetal, csoil, rhosoil, h0, thetasat
+    real(r2), intent(in) :: J, dx, theta, thetal, csoil, rhosoil, h0, thetasat
 
     if (h0 > zero) then
        Tfrozen = (cswat*h0*rhow*theta + h0*lambdaf*rhow*theta - &
@@ -3575,14 +3575,14 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
   !**********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION GTfrozen(T, J, dx, theta, csoil, rhosoil, h0, thre, the, he, b)
+  REAL(r2) ELEMENTAL PURE FUNCTION GTfrozen(T, J, dx, theta, csoil, rhosoil, h0, thre, the, he, b)
     ! GTfrozen = sensible heat + latent heat - total energy (should be zero)
     USE sli_numbers, ONLY: csice, cswat, rhow, lambdaf
 
     IMPLICIT NONE
 
-    real(r_2), intent(in) :: T, J, dx, theta, csoil, rhosoil, h0, thre, the, he, b
-    real(r_2) :: thetal, S
+    real(r2), intent(in) :: T, J, dx, theta, csoil, rhosoil, h0, thre, the, he, b
+    real(r2) :: thetal, S
 
     S = (theta-(the-thre))/thre
 
@@ -3601,14 +3601,14 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
   !**********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION JSoilLayer(T, dx, theta, csoil, rhosoil, h0, thre, the, he, b)
+  REAL(r2) ELEMENTAL PURE FUNCTION JSoilLayer(T, dx, theta, csoil, rhosoil, h0, thre, the, he, b)
     ! JSsoilLayer = sensible heat + latent heat (total energy in soil layer J/m2)
     USE sli_numbers, ONLY: one, csice, cswat, rhow, lambdaf
 
     IMPLICIT NONE
 
-    real(r_2), intent(in) :: T,  dx, theta, csoil, rhosoil, h0, thre, the, he, b
-    real(r_2) :: thetal, S
+    real(r2), intent(in) :: T,  dx, theta, csoil, rhosoil, h0, thre, the, he, b
+    real(r2) :: thetal, S
 
     S = (theta-(the-thre))/thre
 
@@ -3633,16 +3633,16 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
   ! Write rh0_sol into rtbis -> rtbis_rh0
   ! It does not check that f(x1) and f(x2) have different signs and not if iteration > MAXIT
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION rtbis_Tfrozen(J, dxsoil, theta,csoil, rhosoil, h0, thre, the, he, b, x1, x2)
+  REAL(r2) ELEMENTAL PURE FUNCTION rtbis_Tfrozen(J, dxsoil, theta,csoil, rhosoil, h0, thre, the, he, b, x1, x2)
 
     IMPLICIT NONE
 
-    real(r_2), intent(in) :: J, dxsoil, theta, csoil, rhosoil, h0, thre, the, he, b
-    REAL(r_2), INTENT(IN) :: x1, x2
+    real(r2), intent(in) :: J, dxsoil, theta, csoil, rhosoil, h0, thre, the, he, b
+    REAL(r2), INTENT(IN) :: x1, x2
 
-    INTEGER(i_d), PARAMETER :: MAXIT=80
-    INTEGER(i_d) :: k
-    REAL(r_2)    :: dx, f, fmid, xmid
+    INTEGER(i4), PARAMETER :: MAXIT=80
+    INTEGER(i4) :: k
+    REAL(r2)    :: dx, f, fmid, xmid
 
     fmid = GTfrozen(x2, J, dxsoil, theta, csoil, rhosoil, h0, thre, the, he, b)
     f    = GTfrozen(x1, J, dxsoil, theta, csoil, rhosoil, h0, thre, the, he, b)
@@ -3669,14 +3669,14 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
   !*********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION thetalmax(Tin,S,he,b,thre,the)
+  REAL(r2) ELEMENTAL PURE FUNCTION thetalmax(Tin,S,he,b,thre,the)
     ! determines maximum liquid water content, given T
     USE sli_numbers, ONLY: gravity, lambdaf, csol, Rgas, Tzero
 
     IMPLICIT NONE
 
-    real(r_2), intent(in) :: Tin, S, he, b, thre, the
-    real(r_2)             :: opsi, psi, h, T
+    real(r2), intent(in) :: Tin, S, he, b, thre, the
+    real(r2)             :: opsi, psi, h, T
 
     T    = min(Tfrz(min(S,one),he,b),Tin)
     opsi = -csol *Rgas *(T+Tzero)/gravity ! osmotic potential (m)
@@ -3691,24 +3691,24 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
   !**********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION Tthetalmax(thetal,Tin,S,he,b,thre,the)
+  REAL(r2) ELEMENTAL PURE FUNCTION Tthetalmax(thetal,Tin,S,he,b,thre,the)
     ! determines T, given maximum liquid water content
     USE sli_numbers, ONLY: gravity, lambdaf, csol, Rgas, Tzero
 
     IMPLICIT NONE
 
-    real(r_2), intent(in) :: thetal,S,he,b,thre,the,Tin
-    real(r_2)             :: opsi, psi, h, T, Tfreezing
+    real(r2), intent(in) :: thetal,S,he,b,thre,the,Tin
+    real(r2)             :: opsi, psi, h, T, Tfreezing
 
-    !integer(i_d) :: k
+    !integer(i4) :: k
 
     T = Tin
     !do k=1,20
     Tfreezing  = Tfrz(S,he,b)
     T          = min(Tfreezing,T)
     opsi       = -csol *Rgas *(T+Tzero)/gravity                ! osmotic potential (m)
-    ! h          = he*(max((thetal-(the-thre)),0.01_r_2)/thre)**(-b) ! moisture potential in presence of ice
-    h          = he*exp(-b*log(max((thetal-(the-thre)),0.01_r_2)/thre)) ! moisture potential in presence of ice
+    ! h          = he*(max((thetal-(the-thre)),0.01_r2)/thre)**(-b) ! moisture potential in presence of ice
+    h          = he*exp(-b*log(max((thetal-(the-thre)),0.01_r2)/thre)) ! moisture potential in presence of ice
     psi        = h + opsi
     Tthetalmax = psi*(gravity*(T+Tzero)) / lambdaf
     !T = T + 0.1*(Tthetalmax-T)
@@ -3718,15 +3718,15 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
   !**********************************************************************************************************************
 
-  REAL(r_2) ELEMENTAL PURE FUNCTION weight(parin, h, K, phi, dz)
+  REAL(r2) ELEMENTAL PURE FUNCTION weight(parin, h, K, phi, dz)
 
     IMPLICIT NONE
 
     TYPE(params), INTENT(IN) :: parin
-    REAL(r_2),    INTENT(IN) :: h
-    REAL(r_2),    INTENT(IN) :: K
-    REAL(r_2),    INTENT(IN) :: phi
-    REAL(r_2),    INTENT(IN) :: dz
+    REAL(r2),    INTENT(IN) :: h
+    REAL(r2),    INTENT(IN) :: K
+    REAL(r2),    INTENT(IN) :: phi
+    REAL(r2),    INTENT(IN) :: dz
     ! Get conductivity weighting for gravity flux calculations.
     ! Definitions of arguments:
     ! l   - land point
@@ -3736,16 +3736,16 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
     ! phi - MFP.
     ! dz  - flow path length.
     LOGICAL   :: done
-    REAL(r_2) :: a, hz, Khz, Kz, phiz, w, x
+    REAL(r2) :: a, hz, Khz, Kz, phiz, w, x
 
     done = .false.
     hz   = h-gf*dz ! gf is gravity fac in direction of dz
     if (h<parin%he) then
        a = parin%lam*parin%eta
        x = -gf*dz/h
-       if (a <= 3.0_r_2 .or. x*(a-3.0_r_2) <= 4.0_r_2) then ! use predetermined approx.
-          w    = (60.0_r_2+x*(70.0_r_2+10.0_r_2*a+x*(16.0_r_2+a*(5.0_r_2+a))))/ &
-               (120.0_r_2+x*(120.0_r_2+x*(22.0_r_2+2.0_r_2*a**2)))
+       if (a <= 3.0_r2 .or. x*(a-3.0_r2) <= 4.0_r2) then ! use predetermined approx.
+          w    = (60.0_r2+x*(70.0_r2+10.0_r2*a+x*(16.0_r2+a*(5.0_r2+a))))/ &
+               (120.0_r2+x*(120.0_r2+x*(22.0_r2+2.0_r2*a**2)))
           done = .true.
        end if
     end if
@@ -4116,11 +4116,11 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
     !
     !  Parameters:
     !
-    !    Input, real(r_2) X(N), an array sorted into ascending order.
+    !    Input, real(r2) X(N), an array sorted into ascending order.
     !
-    !    Input, real(r_2) XVAL(M), values to be bracketed.
+    !    Input, real(r2) XVAL(M), values to be bracketed.
     !
-    !    Output, integer(i_d) LEFT(M), RIGHT(M), the results of the search.
+    !    Output, integer(i4) LEFT(M), RIGHT(M), the results of the search.
     !    Either:
     !      XVAL < X(1), when LEFT = 1, RIGHT = 2;
     !      X(N) < XVAL, when LEFT = N-1, RIGHT = N;
@@ -4129,13 +4129,13 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
     !
     implicit none
 
-    real(r_2), dimension(:), intent(in) :: x
-    real(r_2), dimension(:), intent(in) :: xval
-    integer(i_d), dimension(size(xval)), intent(out) :: left
-    integer(i_d), dimension(size(xval)), intent(out) :: right
+    real(r2), dimension(:), intent(in) :: x
+    real(r2), dimension(:), intent(in) :: xval
+    integer(i4), dimension(size(xval)), intent(out) :: left
+    integer(i4), dimension(size(xval)), intent(out) :: right
 
-    integer(i_d) :: n, m
-    integer(i_d) :: i, j
+    integer(i4) :: n, m
+    integer(i4) :: i, j
     logical :: istheend
 
     n = size(x)
@@ -4195,26 +4195,26 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
     !
     !  Parameters:
     !
-    !    Input, real(r_2) TVAL, the points at which the spline is to be evaluated.
+    !    Input, real(r2) TVAL, the points at which the spline is to be evaluated.
     !
-    !    Input, real(r_2) TDATA(NDATA), the abscissas of the data.
+    !    Input, real(r2) TDATA(NDATA), the abscissas of the data.
     !
-    !    Input, real(r_2) YDATA(NDATA), the data values.
+    !    Input, real(r2) YDATA(NDATA), the data values.
     !
-    !    Output, real(r_2) SPLINE_B, the values of the function at TVAL.
+    !    Output, real(r2) SPLINE_B, the values of the function at TVAL.
     !
     implicit none
 
-    real(r_2), dimension(:), intent(in) :: tval
-    real(r_2), dimension(:), intent(in) :: tdata
-    real(r_2), dimension(:), intent(in) :: ydata
-    real(r_2), dimension(size(tval))    :: spline_b
+    real(r2), dimension(:), intent(in) :: tval
+    real(r2), dimension(:), intent(in) :: tdata
+    real(r2), dimension(:), intent(in) :: ydata
+    real(r2), dimension(size(tval))    :: spline_b
 
-    integer(i_d) :: ndata
-    real(r_2),    dimension(size(tval)) :: bval
-    integer(i_d), dimension(size(tval)) :: left
-    integer(i_d), dimension(size(tval)) :: right
-    real(r_2),    dimension(size(tval)) :: u
+    integer(i4) :: ndata
+    real(r2),    dimension(size(tval)) :: bval
+    integer(i4), dimension(size(tval)) :: left
+    integer(i4), dimension(size(tval)) :: right
+    real(r2),    dimension(size(tval)) :: u
 
     ndata = size(tdata)
     !
@@ -4226,51 +4226,51 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
     !  weighted by their corresponding data values.
     !
     u = ( tval - tdata(left) ) / ( tdata(right) - tdata(left) )
-    spline_b = 0.0_r_2
+    spline_b = 0.0_r2
     !
     !  B function associated with node LEFT - 1, (or "phantom node"),
     !  evaluated in its 4th interval.
     !
-    bval = ( ( (     - 1.0_r_2   &
-         * u + 3.0_r_2 ) &
-         * u - 3.0_r_2 ) &
-         * u + 1.0_r_2 ) / 6.0_r_2
+    bval = ( ( (     - 1.0_r2   &
+         * u + 3.0_r2 ) &
+         * u - 3.0_r2 ) &
+         * u + 1.0_r2 ) / 6.0_r2
 
     where ( 0 < left-1 )
        spline_b = spline_b + ydata(left-1) * bval
     elsewhere
-       spline_b = spline_b + ( 2.0_r_2 * ydata(1) - ydata(2) ) * bval
+       spline_b = spline_b + ( 2.0_r2 * ydata(1) - ydata(2) ) * bval
     end where
     !
     !  B function associated with node LEFT,
     !  evaluated in its third interval.
     !
-    bval = ( ( (       3.0_r_2   &
-         * u - 6.0_r_2 ) &
-         * u + 0.0_r_2 ) &
-         * u + 4.0_r_2 ) / 6.0_r_2
+    bval = ( ( (       3.0_r2   &
+         * u - 6.0_r2 ) &
+         * u + 0.0_r2 ) &
+         * u + 4.0_r2 ) / 6.0_r2
 
     spline_b = spline_b + ydata(left) * bval
     !
     !  B function associated with node RIGHT,
     !  evaluated in its second interval.
     !
-    bval = ( ( (     - 3.0_r_2   &
-         * u + 3.0_r_2 ) &
-         * u + 3.0_r_2 ) &
-         * u + 1.0_r_2 ) / 6.0_r_2
+    bval = ( ( (     - 3.0_r2   &
+         * u + 3.0_r2 ) &
+         * u + 3.0_r2 ) &
+         * u + 1.0_r2 ) / 6.0_r2
 
     spline_b = spline_b + ydata(right) * bval
     !
     !  B function associated with node RIGHT+1, (or "phantom node"),
     !  evaluated in its first interval.
     !
-    bval = u**3 / 6.0_r_2
+    bval = u**3 / 6.0_r2
 
     where ( right+1 <= ndata )
        spline_b = spline_b + ydata(right+1) * bval
     elsewhere
-       spline_b = spline_b + ( 2.0_r_2 * ydata(ndata) - ydata(ndata-1) ) * bval
+       spline_b = spline_b + ( 2.0_r2 * ydata(ndata) - ydata(ndata-1) ) * bval
     end where
 
     return
@@ -4283,11 +4283,11 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
     IMPLICIT NONE
 
-    REAL(r_2), DIMENSION(:),           INTENT(IN)  :: dat
+    REAL(r2), DIMENSION(:),           INTENT(IN)  :: dat
     LOGICAL,   DIMENSION(:), OPTIONAL, INTENT(IN)  :: mask
-    REAL(r_2)                                      :: mean_1d
+    REAL(r2)                                      :: mean_1d
 
-    REAL(r_2) :: n
+    REAL(r2) :: n
 
     LOGICAL, DIMENSION(size(dat)) :: maske
 
@@ -4301,12 +4301,12 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 #endif
        endif
        maske = mask
-       n = real(count(maske),r_2)
+       n = real(count(maske),r2)
     else
        maske(:) = .true.
-       n = real(size(dat),r_2)
+       n = real(size(dat),r2)
     endif
-    if (n <= (1.0_r_2+tiny(1.0_r_2))) then
+    if (n <= (1.0_r2+tiny(1.0_r2))) then
        write(*,*) 'mean_1d: n must be at least 2'
 #ifdef __MPI__
        call MPI_Abort(0, 161, ierr) ! Do not know comm nor rank here
@@ -4324,11 +4324,11 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
     IMPLICIT NONE
 
-    REAL(r_2), DIMENSION(:,:),           INTENT(IN)  :: dat
+    REAL(r2), DIMENSION(:,:),           INTENT(IN)  :: dat
     LOGICAL,   DIMENSION(:,:), OPTIONAL, INTENT(IN)  :: mask
-    REAL(r_2)                                        :: mean_2d
+    REAL(r2)                                        :: mean_2d
 
-    REAL(r_2) :: n
+    REAL(r2) :: n
 
     LOGICAL, DIMENSION(size(dat,1),size(dat,2)) :: maske
 
@@ -4342,12 +4342,12 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 #endif
        endif
        maske = mask
-       n = real(count(maske),r_2)
+       n = real(count(maske),r2)
     else
        maske = .true.
-       n = real(size(dat),r_2)
+       n = real(size(dat),r2)
     endif
-    if (n <= (1.0_r_2+tiny(1.0_r_2))) then
+    if (n <= (1.0_r2+tiny(1.0_r2))) then
        write(*,*) 'mean_2d: n must be at least 2'
 #ifdef __MPI__
        call MPI_Abort(0, 163, ierr) ! Do not know comm nor rank here
@@ -4368,12 +4368,12 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
     IMPLICIT NONE
 
-    REAL(r_2), DIMENSION(:),           INTENT(IN) :: x, y
+    REAL(r2), DIMENSION(:),           INTENT(IN) :: x, y
     LOGICAL,   DIMENSION(:), OPTIONAL, INTENT(IN) :: mask
-    REAL(r_2)                                     :: nse_1d
+    REAL(r2)                                     :: nse_1d
 
-    REAL(r_2)                                     :: xmean
-    REAL(r_2), DIMENSION(size(x))                 :: v1, v2
+    REAL(r2)                                     :: xmean
+    REAL(r2), DIMENSION(size(x))                 :: v1, v2
     LOGICAL,   DIMENSION(size(x))                 :: maske
 
     if (present(mask)) then
@@ -4385,9 +4385,9 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
     ! mean of x
     xmean = mean(x, mask=maske)
     ! nse
-    v1 = merge(y - x    , 0.0_r_2, maske)
-    v2 = merge(x - xmean, 0.0_r_2, maske)
-    nse_1d = 1.0_r_2 - dot_product(v1,v1) / dot_product(v2,v2)
+    v1 = merge(y - x    , 0.0_r2, maske)
+    v2 = merge(x - xmean, 0.0_r2, maske)
+    nse_1d = 1.0_r2 - dot_product(v1,v1) / dot_product(v2,v2)
 
   END FUNCTION nse_1d
 
@@ -4396,15 +4396,15 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
 
     IMPLICIT NONE
 
-    REAL(r_2), DIMENSION(:,:),           INTENT(IN) :: x, y
+    REAL(r2), DIMENSION(:,:),           INTENT(IN) :: x, y
     LOGICAL,   DIMENSION(:,:), OPTIONAL, INTENT(IN) :: mask
-    REAL(r_2)                                       :: nse_2d
+    REAL(r2)                                       :: nse_2d
 
-    REAL(r_2)                                       :: xmean
-    REAL(r_2), DIMENSION(size(x,1),size(x,2))       :: v1, v2
+    REAL(r2)                                       :: xmean
+    REAL(r2), DIMENSION(size(x,1),size(x,2))       :: v1, v2
     LOGICAL,   DIMENSION(size(x,1),size(x,2))       :: maske
 
-    INTEGER(i_d) :: i
+    INTEGER(i4) :: i
 
     if (present(mask)) then
        maske = mask
@@ -4413,12 +4413,12 @@ SUBROUTINE potential_evap(Rn, rbh, rbw, Ta, rha, Tsoil, k, dz,lambdav, &
     endif
 
     ! nse
-    v1 = merge(y - x, 0.0_r_2, maske)
+    v1 = merge(y - x, 0.0_r2, maske)
     do i=1, size(x,1)
        xmean   = mean(x(i,:), mask=maske(i,:))
-       v2(i,:) = merge(x(i,:) - xmean, 0.0_r_2, maske(i,:))
+       v2(i,:) = merge(x(i,:) - xmean, 0.0_r2, maske(i,:))
     enddo
-    nse_2d = 1.0_r_2 - sum(v1*v1) / sum(v2*v2)
+    nse_2d = 1.0_r2 - sum(v1*v1) / sum(v2*v2)
 
   END FUNCTION nse_2d
 

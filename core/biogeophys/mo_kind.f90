@@ -50,7 +50,8 @@ MODULE mo_kind
 
   ! iso_fortran_env does not work with compilers intel v11 and sun v12.2
   ! use, intrinsic :: iso_fortran_env, only: int8, int16, int32, int64, real32, real64, real128
-  use, intrinsic :: iso_c_binding,   only: &
+  use cable_def_types_mod, only: r1, r2
+  use, intrinsic :: iso_c_binding, only: &
        c_short, c_int, c_long_long, &
        c_float, c_double, c_long_double, &
        c_float_complex, c_double_complex, c_long_double_complex, &
@@ -77,11 +78,13 @@ MODULE mo_kind
   !> Single Precision Real Kind
   ! INTEGER, PARAMETER :: sp  = SELECTED_REAL_KIND(6,37)
   ! INTEGER, PARAMETER :: sp  = real32
-  INTEGER, PARAMETER :: sp  = c_float
+  ! INTEGER, PARAMETER :: sp  = c_float
+  INTEGER, PARAMETER :: sp  = r1
   !> Double Precision Real Kind
   ! INTEGER, PARAMETER :: dp  = SELECTED_REAL_KIND(15,307)
   ! INTEGER, PARAMETER :: dp  = real64
-  INTEGER, PARAMETER :: dp  = c_double
+  ! INTEGER, PARAMETER :: dp  = c_double
+  INTEGER, PARAMETER :: dp  = r2
   !> Quadruple Precision Real Kind
   ! INTEGER, PARAMETER :: qp  = SELECTED_REAL_KIND(33,4931)
   ! INTEGER, PARAMETER :: qp  = real128

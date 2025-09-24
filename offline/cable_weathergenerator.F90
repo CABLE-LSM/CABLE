@@ -1,29 +1,28 @@
 MODULE CABLE_WEATHERGENERATOR
   
   USE CABLE_COMMON_MODULE, ONLY: cable_user
-  USE cable_def_types_mod, only: r_2
+  USE cable_def_types_mod, only: r2
   
   IMPLICIT NONE
 
   ! Parameters
-  INTEGER, PARAMETER,PRIVATE :: sp = r_2 ! this is double precision
-  REAL(sp),PARAMETER,PRIVATE :: &
-       Pi         = 3.14159265_sp , &            ! Pi
-       PiBy2      = 1.57079632_sp , &            ! Pi/2
-       SecDay     = 86400.0_sp    , &            ! Seconds/day
-       SolarConst = 1370._sp*SecDay/1e6_sp, &    ! Solar constant [MJ/m2/day]
-       epsilon    = 0.736_sp        , &
-       SBoltz     = 5.67e-8_sp  ! Stefan-Boltzmann constant [W/m2/K4]
+  REAL(r2),PARAMETER,PRIVATE :: &
+       Pi         = 3.14159265_r2 , &            ! Pi
+       PiBy2      = 1.57079632_r2 , &            ! Pi/2
+       SecDay     = 86400.0_r2    , &            ! Seconds/day
+       SolarConst = 1370._r2*SecDay/1e6_r2, &    ! Solar constant [MJ/m2/day]
+       epsilon    = 0.736_r2        , &
+       SBoltz     = 5.67e-8_r2  ! Stefan-Boltzmann constant [W/m2/K4]
   ! Global variables
   TYPE WEATHER_GENERATOR_TYPE
      ! general
      INTEGER :: np
      INTEGER :: ndtime   ! number of subdiurnal steps in 24 hr
      REAL    :: delT     ! subdiurnal timestep (in s)
-     REAL(sp),DIMENSION(:),ALLOCATABLE :: LatDeg
+     REAL(r2),DIMENSION(:),ALLOCATABLE :: LatDeg
 
      ! Daily input to subdiurnal met calculations
-     REAL(sp),DIMENSION(:),ALLOCATABLE :: &
+     REAL(r2),DIMENSION(:),ALLOCATABLE :: &
           WindDay        ,&
           TempMinDay     ,&    ! Daily minimum air temp [degC]
           TempMaxDay     ,&    ! Daily maximum air temp [degC]
@@ -41,8 +40,8 @@ MODULE CABLE_WEATHERGENERATOR
           VapPmb0900Next    ! 0900(next day) water vapour pressure [mb]
 
      ! Daily constants
-     REAL(sp) :: DecRad                                   ! Declination in radians
-     REAL(sp),DIMENSION(:),ALLOCATABLE :: &
+     REAL(r2) :: DecRad                                   ! Declination in radians
+     REAL(r2),DIMENSION(:),ALLOCATABLE :: &
           WindDark           ,&  ! Wind [m/s] during night hrs
           WindLite           ,&  ! Wind [m/s] during daylight hrs
           SolarNorm          ,&  ! (daily solar)/(solar const): geometry
@@ -61,7 +60,7 @@ MODULE CABLE_WEATHERGENERATOR
 
      !   Solar and Temperature Params
      !   Hourly Met outgoing
-     REAL(sp),DIMENSION(:),ALLOCATABLE :: &
+     REAL(r2),DIMENSION(:),ALLOCATABLE :: &
           PhiSd           ,&  ! downward solar irradiance [W/m2]
           PhiLd           ,&  ! down longwave irradiance  [W/m2]
           Precip          ,&  ! precip [mm/h]
@@ -145,45 +144,45 @@ subroutine wgen_zero(wg)
 
   type(weather_generator_type), intent(inout) :: wg
 
-  wg%LatDeg            = 0.0_sp
-  wg%WindDay           = 0.0_sp
-  wg%TempMinDay        = 0.0_sp
-  wg%TempMaxDay        = 0.0_sp
-  wg%TempMinDayNext    = 0.0_sp
-  wg%TempMaxDayPrev    = 0.0_sp
-  wg%SolarMJDay        = 0.0_sp
-  wg%PrecipDay         = 0.0_sp
-  wg%SnowDay           = 0.0_sp
-  wg%PmbDay            = 0.0_sp
-  wg%VapPmbDay         = 0.0_sp
-  wg%VapPmb0900        = 0.0_sp
-  wg%VapPmb1500        = 0.0_sp
-  wg%VapPmb1500Prev    = 0.0_sp
-  wg%VapPmb0900Next    = 0.0_sp
-  wg%WindDark          = 0.0_sp
-  wg%WindLite          = 0.0_sp
-  wg%SolarNorm         = 0.0_sp
-  wg%LatRad            = 0.0_sp
-  wg%DayLength         = 0.0_sp
-  wg%TimeSunsetPrev    = 0.0_sp
-  wg%TimeSunrise       = 0.0_sp
-  wg%TimeMaxTemp       = 0.0_sp
-  wg%TimeSunset        = 0.0_sp
-  wg%TempSunsetPrev    = 0.0_sp
-  wg%TempSunset        = 0.0_sp
-  wg%TempNightRate     = 0.0_sp
-  wg%TempNightRatePrev = 0.0_sp
-  wg%TempRangeDay      = 0.0_sp
-  Wg%TempRangeAft      = 0.0_sp
-  wg%PhiSd             = 0.0_sp
-  wg%PhiLd             = 0.0_sp
-  wg%Precip            = 0.0_sp
-  wg%Snow              = 0.0_sp
-  wg%Wind              = 0.0_sp
-  wg%Temp              = 0.0_sp
-  wg%VapPmb            = 0.0_sp
-  wg%Pmb               = 0.0_sp
-  wg%coszen            = 0.0_sp
+  wg%LatDeg            = 0.0_r2
+  wg%WindDay           = 0.0_r2
+  wg%TempMinDay        = 0.0_r2
+  wg%TempMaxDay        = 0.0_r2
+  wg%TempMinDayNext    = 0.0_r2
+  wg%TempMaxDayPrev    = 0.0_r2
+  wg%SolarMJDay        = 0.0_r2
+  wg%PrecipDay         = 0.0_r2
+  wg%SnowDay           = 0.0_r2
+  wg%PmbDay            = 0.0_r2
+  wg%VapPmbDay         = 0.0_r2
+  wg%VapPmb0900        = 0.0_r2
+  wg%VapPmb1500        = 0.0_r2
+  wg%VapPmb1500Prev    = 0.0_r2
+  wg%VapPmb0900Next    = 0.0_r2
+  wg%WindDark          = 0.0_r2
+  wg%WindLite          = 0.0_r2
+  wg%SolarNorm         = 0.0_r2
+  wg%LatRad            = 0.0_r2
+  wg%DayLength         = 0.0_r2
+  wg%TimeSunsetPrev    = 0.0_r2
+  wg%TimeSunrise       = 0.0_r2
+  wg%TimeMaxTemp       = 0.0_r2
+  wg%TimeSunset        = 0.0_r2
+  wg%TempSunsetPrev    = 0.0_r2
+  wg%TempSunset        = 0.0_r2
+  wg%TempNightRate     = 0.0_r2
+  wg%TempNightRatePrev = 0.0_r2
+  wg%TempRangeDay      = 0.0_r2
+  Wg%TempRangeAft      = 0.0_r2
+  wg%PhiSd             = 0.0_r2
+  wg%PhiLd             = 0.0_r2
+  wg%Precip            = 0.0_r2
+  wg%Snow              = 0.0_r2
+  wg%Wind              = 0.0_r2
+  wg%Temp              = 0.0_r2
+  wg%VapPmb            = 0.0_r2
+  wg%Pmb               = 0.0_r2
+  wg%coszen            = 0.0_r2
   
 end subroutine wgen_zero
 
@@ -204,38 +203,38 @@ SUBROUTINE WGEN_DAILY_CONSTANTS( WG, np, YearDay )
   INTEGER, INTENT(IN) :: np, YearDay
 
   ! Local variables
-  REAL(sp) :: YearRad
-  REAL(sp),DIMENSION(np) :: LatDeg1
-  REAL(sp),DIMENSION(np) :: TanTan
-  REAL(sp),DIMENSION(np) :: HDLRad
-  REAL(sp),DIMENSION(np) :: TimeSunriseNext
-  REAL(sp) :: RatioWindLiteDark
+  REAL(r2) :: YearRad
+  REAL(r2),DIMENSION(np) :: LatDeg1
+  REAL(r2),DIMENSION(np) :: TanTan
+  REAL(r2),DIMENSION(np) :: HDLRad
+  REAL(r2),DIMENSION(np) :: TimeSunriseNext
+  REAL(r2) :: RatioWindLiteDark
 
 ! -------------------------
 ! Downward solar irradiance
 ! -------------------------
-LatDeg1    = SIGN(MIN(ABS(WG%LatDeg),89.9_sp), WG%LatDeg)   ! avoid singularity at pole
-WG%LatRad  = LatDeg1*Pi/180.0_sp                      ! latitude in radians
-YearRad    = 2.0_sp*Pi*(YearDay-1)/365.0_sp              ! day of year in radians
+LatDeg1    = SIGN(MIN(ABS(WG%LatDeg),89.9_r2), WG%LatDeg)   ! avoid singularity at pole
+WG%LatRad  = LatDeg1*Pi/180.0_r2                      ! latitude in radians
+YearRad    = 2.0_r2*Pi*(YearDay-1)/365.0_r2              ! day of year in radians
 !YearRadPrev = 2.0*Pi*(YearDay-2)/365.0          ! previous day of year in radians
                                                 ! (Ok for YD - 2 = -1)
 
 ! DecRad = Declination in radians (+23.5 deg on 22 June, -23.5 deg on 22 Dec):
-WG%DecRad = 0.006918_sp - 0.399912_sp*COS(YearRad) + 0.070257_sp*SIN(YearRad)     &
-         - 0.006758_sp*COS(2.0_sp*YearRad) + 0.000907_sp*SIN(2.0_sp*YearRad)      &
-         - 0.002697_sp*COS(3.0_sp*YearRad) + 0.001480_sp*SIN(3.0_sp*YearRad)
+WG%DecRad = 0.006918_r2 - 0.399912_r2*COS(YearRad) + 0.070257_r2*SIN(YearRad)     &
+         - 0.006758_r2*COS(2.0_r2*YearRad) + 0.000907_r2*SIN(2.0_r2*YearRad)      &
+         - 0.002697_r2*COS(3.0_r2*YearRad) + 0.001480_r2*SIN(3.0_r2*YearRad)
                                         ! Paltridge and Platt eq [3.7]
 
 ! Daylength: HDLRad = Half Day Length in radians (dawn:noon = noon:dusk):
 TanTan = -TAN(WG%LatRad)*TAN(WG%DecRad)
-WHERE (TanTan .LE. -1.0_sp)
+WHERE (TanTan .LE. -1.0_r2)
   HDLRad = Pi                           ! polar summer: sun never sets
-ELSEWHERE (TanTan .GE. 1.0_sp)
-  HDLRad = 0.0_sp                          ! polar winter: sun never rises
+ELSEWHERE (TanTan .GE. 1.0_r2)
+  HDLRad = 0.0_r2                          ! polar winter: sun never rises
 ELSEWHERE
   HDLRad = ACOS(TanTan)                 ! Paltridge and Platt eq [3.21]
 END WHERE                                  ! (HDLRad = their capital PI)
-WG%DayLength = 24.0_sp*2.0_sp*HDLRad / (2.0_sp*Pi)  ! Daylength (dawn:dusk) in hours
+WG%DayLength = 24.0_r2*2.0_r2*HDLRad / (2.0_r2*Pi)  ! Daylength (dawn:dusk) in hours
 
 ! Daily solar irradiance without atmosphere, normalised by solar constant,
 ! with both energy fluxes in MJ/m2/day, calculated from solar geometry:
@@ -247,11 +246,11 @@ WG%SolarNorm =  &                          ! Paltridge and Platt eq [3.22]
 ! Wind
 ! ----
 
-RatioWindLiteDark = 3.0_sp                 ! (daytime wind) / (nighttime wind)
+RatioWindLiteDark = 3.0_r2                 ! (daytime wind) / (nighttime wind)
 WG%WindDark  = WG%WindDay / &
-     ( (24.0_sp-WG%DayLength)/24.0_sp + RatioWindLiteDark*WG%DayLength/24.0_sp )
+     ( (24.0_r2-WG%DayLength)/24.0_r2 + RatioWindLiteDark*WG%DayLength/24.0_r2 )
 WG%WindLite  = WG%WindDay / &
-     ( (1.0_sp/RatioWindLiteDark)*(24.0_sp-WG%DayLength)/24.0_sp + WG%DayLength/24.0_sp )
+     ( (1.0_r2/RatioWindLiteDark)*(24.0_r2-WG%DayLength)/24.0_r2 + WG%DayLength/24.0_r2 )
 
 ! -----------
 ! Temperature
@@ -271,28 +270,28 @@ WG%WindLite  = WG%WindDay / &
 !!$   write(72, "( 1000e16.6)") TAN(WG%DecRad)
 !!$   write(73, "( 1000e16.6)") TAN(WG%LatRad)
 !!$ write(74, "( 1000e16.6)")  WG%DayLength 
-WHERE ( WG%DayLength .LT. 0.01_sp )
+WHERE ( WG%DayLength .LT. 0.01_r2 )
    ! Polar night
-   WG%TimeSunrise     = 9._sp              ! Hn
-   WG%TimeSunset      = 16._sp                            ! Ho
-   WG%TimeMaxTemp     = 13._sp                                    ! Hx
-ELSEWHERE ( WG%DayLength .GT. 23.0_sp )
+   WG%TimeSunrise     = 9._r2              ! Hn
+   WG%TimeSunset      = 16._r2                            ! Ho
+   WG%TimeMaxTemp     = 13._r2                                    ! Hx
+ELSEWHERE ( WG%DayLength .GT. 23.0_r2 )
    ! Polar day
-   WG%TimeSunrise     = 1._sp              ! Hn
-   WG%TimeSunset      = 23._sp                            ! Ho
-   WG%TimeMaxTemp     = 13._sp                                    ! Hx
+   WG%TimeSunrise     = 1._r2              ! Hn
+   WG%TimeSunset      = 23._r2                            ! Ho
+   WG%TimeMaxTemp     = 13._r2                                    ! Hx
 ELSEWHERE
    
-   WG%TimeSunrise     = (ACOS(min(TAN(WG%LatRad)*TAN(WG%DecRad),0.9999_sp)))*12._sp/Pi              ! Hn
+   WG%TimeSunrise     = (ACOS(min(TAN(WG%LatRad)*TAN(WG%DecRad),0.9999_r2)))*12._r2/Pi              ! Hn
    WG%TimeSunset      = WG%TimeSunrise + WG%DayLength                             ! Ho
-   WG%TimeMaxTemp     = WG%TimeSunset - MIN(4._sp,( WG%DayLength * 0.4_sp)) ! Hx
+   WG%TimeMaxTemp     = WG%TimeSunset - MIN(4._r2,( WG%DayLength * 0.4_r2)) ! Hx
 END WHERE
-WG%TimeSunsetPrev  = WG%TimeSunset - 24._sp                                 ! * Ho-24h (a negative hour)
-TimeSunriseNext    = WG%TimeSunrise + 24._sp                               ! Hp
+WG%TimeSunsetPrev  = WG%TimeSunset - 24._r2                                 ! * Ho-24h (a negative hour)
+TimeSunriseNext    = WG%TimeSunrise + 24._r2                               ! Hp
 WG%TempSunset      = WG%TempMaxDay - &
-     (0.39_sp * (WG%TempMaxDay - WG%TempMinDayNext))               ! To
+     (0.39_r2 * (WG%TempMaxDay - WG%TempMinDayNext))               ! To
 WG%TempSunsetPrev  = WG%TempMaxDayPrev - &
-     (0.39_sp * (WG%TempMaxDayPrev - WG%TempMinDay))           ! * To-24h
+     (0.39_r2 * (WG%TempMaxDayPrev - WG%TempMinDay))           ! * To-24h
 WG%TempRangeDay    = WG%TempMaxDay - WG%TempMinDay                            ! alpha = Tx-Tn
 WG%TempRangeAft    = WG%TempMaxDay - WG%TempSunset                            ! R = Tx-To
 WG%TempNightRate   = (WG%TempMinDayNext - WG%TempSunset)/ &
@@ -346,36 +345,36 @@ SUBROUTINE WGEN_SUBDIURNAL_MET(WG, np, itime)
   INTEGER, INTENT(IN) :: np, itime
 
   ! Local variables
-  REAL(sp) :: TimeNoon, adjust_fac(np)
-  REAL(sp) :: TimeRad
-  REAL(sp) :: rntime    ! Real version of ntime
-  REAL(sp) :: ritime    ! Real version of current time
-  REAL(sp),DIMENSION(np):: PhiLd_Swinbank     ! down longwave irradiance  [W/m2]
+  REAL(r2) :: TimeNoon, adjust_fac(np)
+  REAL(r2) :: TimeRad
+  REAL(r2) :: rntime    ! Real version of ntime
+  REAL(r2) :: ritime    ! Real version of current time
+  REAL(r2),DIMENSION(np):: PhiLd_Swinbank     ! down longwave irradiance  [W/m2]
 #ifdef __MPI__
   integer :: ierr
 #endif
 
   !-------------------------------------------------------------------------------
 
-  ritime = REAL(itime)     * WG%delT/3600._sp  ! Convert the current time to real
-  rntime = REAL(WG%ndtime) * WG%delT/3600._sp  ! Convert ntime to real
+  ritime = REAL(itime)     * WG%delT/3600._r2  ! Convert the current time to real
+  rntime = REAL(WG%ndtime) * WG%delT/3600._r2  ! Convert ntime to real
 
   ! Instantaneous downward hemispheric solar irradiance PhiSd
-  TimeNoon = ritime/rntime - 0.5_sp   ! Time in day frac (-0.5 to 0.5, zero at noon)
-  TimeRad  = 2.0_sp*Pi*TimeNoon       ! Time in day frac (-Pi to Pi, zero at noon)
+  TimeNoon = ritime/rntime - 0.5_r2   ! Time in day frac (-0.5 to 0.5, zero at noon)
+  TimeRad  = 2.0_r2*Pi*TimeNoon       ! Time in day frac (-Pi to Pi, zero at noon)
   WHERE (ritime >= WG%TimeSunrise .AND. ritime <= WG%TimeSunset&
-       .AND.WG%SolarNorm.gt.1.e-3_sp  ) ! Sun is up
+       .AND.WG%SolarNorm.gt.1.e-3_r2  ) ! Sun is up
      WG%PhiSd = MAX((WG%SolarMJDay/WG%SolarNorm)  &   ! PhiSd [MJ/m2/day]
           * ( SIN(WG%DecRad)*SIN(WG%LatRad) + COS(WG%DecRad)*COS(WG%LatRad) &
-          * COS(TimeRad) ), 0.0_sp)  ! fix to avoid negative PhiSD vh 13/05/08
+          * COS(TimeRad) ), 0.0_r2)  ! fix to avoid negative PhiSD vh 13/05/08
      ! Paltridge and Platt eq [3.4]
      WG%coszen = ( SIN(WG%DecRad)*SIN(WG%LatRad) + COS(WG%DecRad)*COS(WG%LatRad)*COS(TimeRad) )
   ELSEWHERE ! sun is down
-     WG%PhiSd  = 0.0_sp
-     WG%coszen = 0.0_sp
+     WG%PhiSd  = 0.0_r2
+     WG%coszen = 0.0_r2
   END WHERE
 
-  WG%PhiSd    = WG%PhiSd*1.e6_sp/SecDay       ! Convert PhiSd: [MJ/m2/day] to [W/m2]
+  WG%PhiSd    = WG%PhiSd*1.e6_r2/SecDay       ! Convert PhiSd: [MJ/m2/day] to [W/m2]
   ! -------------
   ! Precipitation
   ! -------------
@@ -384,7 +383,7 @@ SUBROUTINE WGEN_SUBDIURNAL_MET(WG, np, itime)
   !Precip = (PrecipDay*1000.*9./24. + PrecipDayNext*1000.*15./24.)/rntime
   !Precip = (PrecipDay*1000.*9./24. + PrecipDayNext*1000.*15./24.)/24.  ! hourly precip [mm/h]
 
-  IF ( ABS(ritime-REAL(INT(ritime))) .GT. 1.e-7_sp) THEN
+  IF ( ABS(ritime-REAL(INT(ritime))) .GT. 1.e-7_r2) THEN
      WRITE(*,*) "Only works for integer hourly timestep! tstep = ", ritime
      write(*,*) "cable_weathergenerator.F90!"
 #ifdef __MPI__
@@ -395,20 +394,20 @@ SUBROUTINE WGEN_SUBDIURNAL_MET(WG, np, itime)
   ENDIF
 
   IF ((WG%ndtime .eq. 24) .OR. (WG%ndtime .eq. 8)) then
-     IF ((ritime >= 15._sp .AND. ritime < 16._sp).OR.(ritime >= 18._sp .AND. ritime < 19._sp)) THEN
-        WG%Precip = WG%PrecipDay *1000._sp/2._sp
-        WG%Snow   = WG%SnowDay*1000._sp/2._sp
+     IF ((ritime >= 15._r2 .AND. ritime < 16._r2).OR.(ritime >= 18._r2 .AND. ritime < 19._r2)) THEN
+        WG%Precip = WG%PrecipDay *1000._r2/2._r2
+        WG%Snow   = WG%SnowDay*1000._r2/2._r2
      ELSE
-        WG%Precip = 0._sp
-        WG%Snow   = 0._sp
+        WG%Precip = 0._r2
+        WG%Snow   = 0._r2
      ENDIF
   elseif (WG%ndtime .eq. 12) then
-     IF ((ritime >= 16._sp .AND. ritime < 17._sp).OR.(ritime >= 18._sp .AND. ritime < 19._sp)) THEN
-        WG%Precip = WG%PrecipDay *1000._sp/2._sp
-        WG%Snow   = WG%SnowDay*1000._sp/2._sp
+     IF ((ritime >= 16._r2 .AND. ritime < 17._r2).OR.(ritime >= 18._r2 .AND. ritime < 19._r2)) THEN
+        WG%Precip = WG%PrecipDay *1000._r2/2._r2
+        WG%Snow   = WG%SnowDay*1000._r2/2._r2
      ELSE
-        WG%Precip = 0._sp
-        WG%Snow   = 0._sp
+        WG%Precip = 0._r2
+        WG%Snow   = 0._r2
      ENDIF
      
   endif
@@ -440,7 +439,7 @@ SUBROUTINE WGEN_SUBDIURNAL_MET(WG, np, itime)
   ELSEWHERE (ritime > WG%TimeMaxTemp .AND. ritime <= WG%TimeSunset)
      ! Time of maximum temperature to sunset
      WG%Temp = WG%TempSunset + &
-          WG%TempRangeAft * SIN(PiBy2 + ((ritime-WG%TimeMaxTemp)/4._sp*PiBy2))
+          WG%TempRangeAft * SIN(PiBy2 + ((ritime-WG%TimeMaxTemp)/4._r2*PiBy2))
   ELSEWHERE (ritime > WG%TimeSunset )
      ! Sunset to midnight
      WG%Temp = WG%TempSunset + WG%TempNightRate * SQRT(ritime - WG%TimeSunset)
@@ -454,15 +453,15 @@ SUBROUTINE WGEN_SUBDIURNAL_MET(WG, np, itime)
 
   IF (TRIM(cable_user%MetType).EQ.'bios') THEN
      
-     IF (ritime <= 9._sp) THEN
+     IF (ritime <= 9._r2) THEN
         ! before 9am
-        WG%VapPmb = WG%VapPmb1500Prev + (WG%VapPmb0900 - WG%VapPmb1500Prev) * (9._sp + ritime)/18._sp
-     ELSEIF (ritime > 9_sp .AND. ritime <= 15._sp) THEN
+        WG%VapPmb = WG%VapPmb1500Prev + (WG%VapPmb0900 - WG%VapPmb1500Prev) * (9._r2 + ritime)/18._r2
+     ELSEIF (ritime > 9_r2 .AND. ritime <= 15._r2) THEN
         ! between 9am and 15:00
-        WG%VapPmb = WG%VapPmb0900 + (WG%VapPmb1500 - WG%VapPmb0900) * (ritime - 9._sp)/(15._sp-9._sp)
-     ELSEIF (ritime > 15._sp) THEN
+        WG%VapPmb = WG%VapPmb0900 + (WG%VapPmb1500 - WG%VapPmb0900) * (ritime - 9._r2)/(15._r2-9._r2)
+     ELSEIF (ritime > 15._r2) THEN
         ! after 15:00
-        WG%VapPmb  = WG%VapPmb1500 + (WG%VapPmb0900Next - WG%VapPmb1500) * (ritime - 15._sp)/18._sp
+        WG%VapPmb  = WG%VapPmb1500 + (WG%VapPmb0900Next - WG%VapPmb1500) * (ritime - 15._r2)/18._r2
      END IF
    
   ELSE
@@ -476,27 +475,27 @@ SUBROUTINE WGEN_SUBDIURNAL_MET(WG, np, itime)
   ! Downward longwave irradiance
   ! ----------------------------
 
-  PhiLd_Swinbank = 335.97_sp * (((WG%Temp + 273.16_sp) / 293.0_sp)**6)   ! [W/m2] (Swinbank 1963)
+  PhiLd_Swinbank = 335.97_r2 * (((WG%Temp + 273.16_r2) / 293.0_r2)**6)   ! [W/m2] (Swinbank 1963)
 
   ! -------------------------------
   ! Alternate longwave formulation
   ! ----------------------------
 
-  WG%PhiLd = epsilon * SBoltz * (WG%Temp + 273.16_sp)**4       ! [W/m2] (Brutsaert)
+  WG%PhiLd = epsilon * SBoltz * (WG%Temp + 273.16_r2)**4       ! [W/m2] (Brutsaert)
 
-  WHERE (WG%PhiSd.GT.50.0_sp)
-     adjust_fac = ((1.17_sp)**(WG%SolarNorm))/1.17_sp
+  WHERE (WG%PhiSd.GT.50.0_r2)
+     adjust_fac = ((1.17_r2)**(WG%SolarNorm))/1.17_r2
   ELSEWHERE
-     adjust_fac = 0.9_sp
+     adjust_fac = 0.9_r2
   ENDWHERE
 
-  WG%PhiLd = WG%PhiLd /adjust_fac * (1.0_sp + WG%PhiSd/8000._sp)       ! adjustment (formulation from Gab Abramowitz)
+  WG%PhiLd = WG%PhiLd /adjust_fac * (1.0_r2 + WG%PhiSd/8000._r2)       ! adjustment (formulation from Gab Abramowitz)
 
-  WHERE ((WG%PhiLd.GT.500.0_sp).OR.(WG%PhiLd.LT.100.0_sp))
+  WHERE ((WG%PhiLd.GT.500.0_r2).OR.(WG%PhiLd.LT.100.0_r2))
      WG%PhiLd = PhiLd_Swinbank
   ENDWHERE
 
-  IF (ANY((WG%PhiLd.GT.750.0_sp).OR.(WG%PhiLd.LT.100.0_sp))) THEN
+  IF (ANY((WG%PhiLd.GT.750.0_r2).OR.(WG%PhiLd.LT.100.0_r2))) THEN
      !write(*,*) 'PhiLD out of range'
   ENDIF
 

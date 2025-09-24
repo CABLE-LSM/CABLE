@@ -19,13 +19,13 @@
 ! ==============================================================================
 MODULE cable_IO_vars_module
 
-   USE cable_def_types_mod, ONLY : r_2, mvtype, mstype
+   USE cable_def_types_mod, ONLY : r2, mvtype, mstype
 
    IMPLICIT NONE
 
    PUBLIC
 
-   PRIVATE :: r_2, mvtype, mstype
+   PRIVATE :: r2, mvtype, mstype
 
 
    ! ============ Timing variables =====================
@@ -39,7 +39,7 @@ MODULE cable_IO_vars_module
 
    CHARACTER(LEN=3) :: time_coord ! GMT or LOCal time variables
 
-   REAL(r_2),POINTER,DIMENSION(:) :: timevar => null() ! time variable from file
+   REAL(r2),POINTER,DIMENSION(:) :: timevar => null() ! time variable from file
 
    INTEGER,DIMENSION(12) ::                                                    &
       daysm = (/31,28,31,30,31,30,31,31,30,31,30,31/),                         &
@@ -67,7 +67,7 @@ MODULE cable_IO_vars_module
    ! For vegetated surface type
    TYPE patch_type
 
-      REAL(r_2) :: frac ! fractional cover of each veg patch
+      REAL(r2) :: frac ! fractional cover of each veg patch
       REAL :: latitude, longitude
 
    END TYPE patch_type

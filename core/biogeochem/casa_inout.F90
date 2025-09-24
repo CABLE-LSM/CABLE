@@ -41,7 +41,7 @@
 !   biogeochem
 module casa_inout
 
-  use cable_def_types_mod,  only: mland, r_1
+  use cable_def_types_mod,  only: mland, r1
   use cable_IO_vars_module, only: landpt, mask, patch, max_vegpatches, xdimsize, ydimsize, &
                                   land_x, land_y, lat_all, lon_all, latitude, longitude
   use netcdf
@@ -49,17 +49,17 @@ module casa_inout
   implicit none
 
   ! Define temporary output arrays for use in write_casa_output_grid_nc and write_casa_output_patch_nc
-  REAL(KIND=r_1), DIMENSION(:,:,:), ALLOCATABLE :: otmp3patch
-  REAL(KIND=r_1), DIMENSION(:,:,:), ALLOCATABLE :: otmp3plant
-  REAL(KIND=r_1), DIMENSION(:,:,:), ALLOCATABLE :: otmp3litter
-  REAL(KIND=r_1), DIMENSION(:,:,:), ALLOCATABLE :: otmp3soil
+  REAL(KIND=r1), DIMENSION(:,:,:), ALLOCATABLE :: otmp3patch
+  REAL(KIND=r1), DIMENSION(:,:,:), ALLOCATABLE :: otmp3plant
+  REAL(KIND=r1), DIMENSION(:,:,:), ALLOCATABLE :: otmp3litter
+  REAL(KIND=r1), DIMENSION(:,:,:), ALLOCATABLE :: otmp3soil
 
-  REAL(KIND=r_1), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4patch
-  REAL(KIND=r_1), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4plant
-  REAL(KIND=r_1), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4litter
-  REAL(KIND=r_1), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4soil
+  REAL(KIND=r1), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4patch
+  REAL(KIND=r1), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4plant
+  REAL(KIND=r1), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4litter
+  REAL(KIND=r1), DIMENSION(:,:,:,:), ALLOCATABLE :: otmp4soil
 
-  REAL(KIND=r_1) :: ncmissingr = -1.0e+33
+  REAL(KIND=r1) :: ncmissingr = -1.0e+33
 
 contains
 
@@ -68,7 +68,7 @@ contains
     ! This is done to have zero in MPI and non MPI code
     ! if .not. cable_user%casa_dump_read.
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
     use casavariable,        only: casa_met
     use phenvariable,        only: phen_variable
     use cable_common_module, only: cable_user
@@ -78,46 +78,46 @@ contains
     type(casa_met),      intent(inout) :: casamet
     type(phen_variable), intent(inout) :: phen
 
-    casamet%Tairkspin      = 0.0_r_2
-    casamet%Tsoilspin_1    = 0.0_r_2
-    casamet%Tsoilspin_2    = 0.0_r_2
-    casamet%Tsoilspin_3    = 0.0_r_2
-    casamet%Tsoilspin_4    = 0.0_r_2
-    casamet%Tsoilspin_5    = 0.0_r_2
-    casamet%Tsoilspin_6    = 0.0_r_2
-    casamet%moistspin_1    = 0.0_r_2
-    casamet%moistspin_2    = 0.0_r_2
-    casamet%moistspin_3    = 0.0_r_2
-    casamet%moistspin_4    = 0.0_r_2
-    casamet%moistspin_5    = 0.0_r_2
-    casamet%moistspin_6    = 0.0_r_2
-    casamet%cgppspin       = 0.0_r_2
-    casamet%crmplantspin_1 = 0.0_r_2
-    casamet%crmplantspin_2 = 0.0_r_2
-    casamet%crmplantspin_3 = 0.0_r_2
+    casamet%Tairkspin      = 0.0_r2
+    casamet%Tsoilspin_1    = 0.0_r2
+    casamet%Tsoilspin_2    = 0.0_r2
+    casamet%Tsoilspin_3    = 0.0_r2
+    casamet%Tsoilspin_4    = 0.0_r2
+    casamet%Tsoilspin_5    = 0.0_r2
+    casamet%Tsoilspin_6    = 0.0_r2
+    casamet%moistspin_1    = 0.0_r2
+    casamet%moistspin_2    = 0.0_r2
+    casamet%moistspin_3    = 0.0_r2
+    casamet%moistspin_4    = 0.0_r2
+    casamet%moistspin_5    = 0.0_r2
+    casamet%moistspin_6    = 0.0_r2
+    casamet%cgppspin       = 0.0_r2
+    casamet%crmplantspin_1 = 0.0_r2
+    casamet%crmplantspin_2 = 0.0_r2
+    casamet%crmplantspin_3 = 0.0_r2
     phen%phasespin      = 0
     phen%doyphasespin_1 = 0
     phen%doyphasespin_2 = 0
     phen%doyphasespin_3 = 0
     phen%doyphasespin_4 = 0
-    casamet%mtempspin = 0.0_r_2
-    casamet%frecspin  = 0.0_r_2
+    casamet%mtempspin = 0.0_r2
+    casamet%frecspin  = 0.0_r2
     if (cable_user%c13o2) then
-       casamet%cAn12spin = 0.0_r_2
-       casamet%cAn13spin = 0.0_r_2
+       casamet%cAn12spin = 0.0_r2
+       casamet%cAn13spin = 0.0_r2
     end if
     if (cable_user%call_blaze) then
-       casamet%dprecip_spin      = 0.0_r_2
-       casamet%aprecip_av20_spin = 0.0_r_2
-       casamet%du10_max_spin     = 0.0_r_2
-       casamet%drhum_spin        = 0.0_r_2
-       casamet%dtemp_max_spin    = 0.0_r_2
-       casamet%dtemp_max_spin    = 0.0_r_2
-       casamet%KBDI_spin         = 0.0_r_2
-       casamet%D_MacArthur_spin  = 0.0_r_2
-       casamet%FFDI_spin         = 0.0_r_2
+       casamet%dprecip_spin      = 0.0_r2
+       casamet%aprecip_av20_spin = 0.0_r2
+       casamet%du10_max_spin     = 0.0_r2
+       casamet%drhum_spin        = 0.0_r2
+       casamet%dtemp_max_spin    = 0.0_r2
+       casamet%dtemp_max_spin    = 0.0_r2
+       casamet%KBDI_spin         = 0.0_r2
+       casamet%D_MacArthur_spin  = 0.0_r2
+       casamet%FFDI_spin         = 0.0_r2
        casamet%DSLR_spin         = 0
-       casamet%last_precip_spin  = 0.0_r_2
+       casamet%last_precip_spin  = 0.0_r2
     end if
 
   end subroutine zero_casa_dump
@@ -146,38 +146,38 @@ contains
     TYPE (phen_variable),       INTENT(INOUT) :: phen
 
     ! local variables
-    REAL(r_2), DIMENSION(mvtype)       :: leafage,frootage,woodage
-    REAL(r_2), DIMENSION(mvtype)       :: cwdage,metage,strage
-    REAL(r_2), DIMENSION(mvtype)       :: micage,slowage,passage,clabileage,slax
-    REAL(r_2), DIMENSION(mvtype,mplant):: ratioCNplant
-    REAL(r_2), DIMENSION(mvtype,msoil) :: ratioCNsoil,ratioCNsoilmin,ratioCNsoilmax
-    REAL(r_2), DIMENSION(ms)           :: depthsoila,depthsoilb
-    REAL(r_2), DIMENSION(mvtype)       :: xfNminloss, xfNminleach, xnfixrate
-    REAL(r_2), DIMENSION(mvtype)       :: cleaf,cwood,cfroot,      &
+    REAL(r2), DIMENSION(mvtype)       :: leafage,frootage,woodage
+    REAL(r2), DIMENSION(mvtype)       :: cwdage,metage,strage
+    REAL(r2), DIMENSION(mvtype)       :: micage,slowage,passage,clabileage,slax
+    REAL(r2), DIMENSION(mvtype,mplant):: ratioCNplant
+    REAL(r2), DIMENSION(mvtype,msoil) :: ratioCNsoil,ratioCNsoilmin,ratioCNsoilmax
+    REAL(r2), DIMENSION(ms)           :: depthsoila,depthsoilb
+    REAL(r2), DIMENSION(mvtype)       :: xfNminloss, xfNminleach, xnfixrate
+    REAL(r2), DIMENSION(mvtype)       :: cleaf,cwood,cfroot,      &
          cmet,cstr,ccwd,          &
          cmic,cslow,cpass
-    REAL(r_2), DIMENSION(mvtype)       :: nleaf,nwood,nfroot,      &
+    REAL(r2), DIMENSION(mvtype)       :: nleaf,nwood,nfroot,      &
          nmet,nstr,ncwd,          &
          nmic,nslow,npass,xnsoilmin
-    REAL(r_2), DIMENSION(mvtype)       :: xpleaf, xpwood, xpfroot, &
+    REAL(r2), DIMENSION(mvtype)       :: xpleaf, xpwood, xpfroot, &
          xpmet, xpstr, xpcwd,     &
          xpmic,xpslow,xppass,xplab,xpsorb,xpocc
-    REAL(r_2), DIMENSION(mso)       :: xkmlabp,xpsorbmax,xfPleach
-    REAL(r_2), DIMENSION(mso,msoil) :: ratioNPsoil
-    REAL(r_2), DIMENSION(mvtype)       :: xfherbivore,xxkleafcoldmax, xxkleafdrymax
-    REAL(r_2), DIMENSION(mvtype,ms)    :: fracroot
-    REAL(r_2) ::  xratioNPleafmin,xratioNPleafmax,         &
+    REAL(r2), DIMENSION(mso)       :: xkmlabp,xpsorbmax,xfPleach
+    REAL(r2), DIMENSION(mso,msoil) :: ratioNPsoil
+    REAL(r2), DIMENSION(mvtype)       :: xfherbivore,xxkleafcoldmax, xxkleafdrymax
+    REAL(r2), DIMENSION(mvtype,ms)    :: fracroot
+    REAL(r2) ::  xratioNPleafmin,xratioNPleafmax,         &
          xratioNPwoodmin,xratioNPwoodmax,         &
          xratioNPfrootmin,xratioNPfrootmax
     INTEGER :: i,iv1,nv,ns,npt,iso
     INTEGER :: nv0,nv1,nv2,nv3,nv4,nv6,nv7,nv8,nv9,nv10,nv11,nv12,nv13
-    REAL(r_2), DIMENSION(mvtype)       :: xxnpmax,xq10soil,xxkoptlitter,xxkoptsoil,xprodptase, &
+    REAL(r2), DIMENSION(mvtype)       :: xxnpmax,xq10soil,xxkoptlitter,xxkoptsoil,xprodptase, &
          xcostnpup,xmaxfinelitter,xmaxcwd,xnintercept,xnslope
 
 
-    REAL(r_2), DIMENSION(mvtype)       :: la_to_sa, vcmax_scalar, disturbance_interval
-    REAL(r_2), DIMENSION(mvtype)       :: DAMM_EnzPool, DAMM_KMO2,DAMM_KMcp, DAMM_Ea, DAMM_alpha
-    REAL(r_2), DIMENSION(mso)          :: xxkplab,xxkpsorb,xxkpocc
+    REAL(r2), DIMENSION(mvtype)       :: la_to_sa, vcmax_scalar, disturbance_interval
+    REAL(r2), DIMENSION(mvtype)       :: DAMM_EnzPool, DAMM_KMO2,DAMM_KMcp, DAMM_Ea, DAMM_alpha
+    REAL(r2), DIMENSION(mso)          :: xxkplab,xxkpsorb,xxkpocc
     
     INTEGER :: biomeunit
 
@@ -335,13 +335,13 @@ contains
 
     CLOSE(biomeunit)
 
-    fracroot   = 0.0_r_2
-    depthsoila = 0.0_r_2
-    depthsoilb = 0.0_r_2
+    fracroot   = 0.0_r2
+    depthsoila = 0.0_r2
+    depthsoilb = 0.0_r2
     DO ns=1, ms
        depthsoilb(ns) = depthsoilb(ns) + soil%zse(ns)
        IF (ns==1) THEN
-          depthsoila(ns) = 0.0_r_2
+          depthsoila(ns) = 0.0_r2
        ELSE
           depthsoila(ns) = depthsoilb(ns-1)
        ENDIF
@@ -349,10 +349,10 @@ contains
 
     DO nv=1,mvtype
        casabiome%sla(nv)             = slax(nv)
-       casabiome%fraclabile(nv,leaf) = deltcasa*0.6_r_2    !1/day
-       casabiome%fraclabile(nv,froot)= deltcasa*0.4_r_2    !1/day
-       casabiome%fraclabile(nv,wood) = deltcasa*0.0_r_2
-       casabiome%plantrate(nv,leaf)  = deltcasa/(leafage(nv)*(1.0_r_2-xfherbivore(nv)))
+       casabiome%fraclabile(nv,leaf) = deltcasa*0.6_r2    !1/day
+       casabiome%fraclabile(nv,froot)= deltcasa*0.4_r2    !1/day
+       casabiome%fraclabile(nv,wood) = deltcasa*0.0_r2
+       casabiome%plantrate(nv,leaf)  = deltcasa/(leafage(nv)*(1.0_r2-xfherbivore(nv)))
        casabiome%plantrate(nv,froot) = deltcasa/frootage(nv)
        casabiome%plantrate(nv,wood)  = deltcasa/woodage(nv)
        casabiome%litterrate(nv,metb) = deltcasa/metage(nv)
@@ -371,7 +371,7 @@ contains
        casabiome%q10soil(nv)         = xq10soil(nv)
        casabiome%xkoptlitter(nv)     = xxkoptlitter(nv)
        casabiome%xkoptsoil(nv)       = xxkoptsoil(nv)
-       casabiome%prodptase(nv)       = xprodptase(nv)/365.0_r_2   ! convert from yearly to daily
+       casabiome%prodptase(nv)       = xprodptase(nv)/365.0_r2   ! convert from yearly to daily
        casabiome%costnpup(nv)        = xcostnpup(nv)
        casabiome%maxfinelitter(nv)   = xmaxfinelitter(nv)
        casabiome%maxcwd(nv)          = xmaxcwd(nv)
@@ -401,12 +401,12 @@ contains
        !    veg%froot(npt,:) = fracroot(iv1,:)
        casamet%iveg2(npt) =casabiome%ivt2(iv1)
        casamet%lnonwood(npt) = 1
-       casapool%cplant(npt,wood)  = 0.0_r_2
-       casapool%clitter(npt,cwd)  = 0.0_r_2
-       casapool%nplant(npt,wood)  = 0.0_r_2
-       casapool%nlitter(npt,cwd)  = 0.0_r_2
-       casapool%pplant(npt,wood)  = 0.0_r_2
-       casapool%plitter(npt,cwd)  = 0.0_r_2
+       casapool%cplant(npt,wood)  = 0.0_r2
+       casapool%clitter(npt,cwd)  = 0.0_r2
+       casapool%nplant(npt,wood)  = 0.0_r2
+       casapool%nlitter(npt,cwd)  = 0.0_r2
+       casapool%pplant(npt,wood)  = 0.0_r2
+       casapool%plitter(npt,cwd)  = 0.0_r2
        IF (casamet%iveg2(npt)==forest.or.casamet%iveg2(npt)==shrub) THEN
           casamet%lnonwood(npt) = 0
           casapool%cplant(npt,wood)  = Cwood(iv1)
@@ -417,7 +417,7 @@ contains
           casapool%plitter(npt,cwd)  = xpcwd(iv1)
           !! vh_js !!
           IF (cable_user%CALL_POP) THEN  ! initialise very small wood pool, so POP can start from zero.
-             casapool%cplant(npt,wood) = 0.01_r_2
+             casapool%cplant(npt,wood) = 0.01_r2
              casapool%nplant(npt,wood)= casabiome%ratioNCplantmin(iv1,wood)* casapool%cplant(npt,wood)
              casapool%pplant(npt,wood)= casabiome%ratioPCplantmin(iv1,wood)* casapool%cplant(npt,wood)
           ENDIF
@@ -425,14 +425,14 @@ contains
        ENDIF
        casapool%cplant(npt,leaf)     = cleaf(iv1)
        casapool%cplant(npt,froot)    = cfroot(iv1)
-       casapool%clabile(npt)         = 0.0_r_2
+       casapool%clabile(npt)         = 0.0_r2
        casapool%clitter(npt,metb)    = cmet(iv1)
        casapool%clitter(npt,str)     = cstr(iv1)
        casapool%csoil(npt,mic)       = cmic(iv1)
        casapool%csoil(npt,slow)      = cslow(iv1)
        casapool%csoil(npt,pass)      = cpass(iv1)
        IF (icycle==1) THEN
-          casapool%ratioNCplant(npt,:)  = 1.0_r_2/ratioCNplant(iv1,:)
+          casapool%ratioNCplant(npt,:)  = 1.0_r2/ratioCNplant(iv1,:)
        ENDIF
 
        ! initializing glai in case not reading pool file (eg. during spin)
@@ -441,7 +441,7 @@ contains
 
        casaflux%fNminloss(npt)   = xfNminloss(iv1)
        ! comment out by ypw 12/07/2009
-       casaflux%fNminleach(npt)  = 10.0_r_2*xfNminleach(iv1) * deltcasa
+       casaflux%fNminleach(npt)  = 10.0_r2*xfNminleach(iv1) * deltcasa
        ! casaflux%fNminleach(npt)  = xfNminleach(iv1)
        casapool%nplant(npt,leaf) = nleaf(iv1)
        casapool%nplant(npt,froot)= nfroot(iv1)
@@ -463,20 +463,20 @@ contains
        casapool%psoillab(npt)    = xplab(iv1)
        casapool%psoilsorb(npt)   = xpsorb(iv1)
        casapool%psoilocc(npt)    = xpocc(iv1)
-       casapool%Psoillab(npt)    = 0.0_r_2
+       casapool%Psoillab(npt)    = 0.0_r2
        casaflux%kmlabp(npt)      = xkmlabp(iso)
        casaflux%psorbmax(npt)    = xpsorbmax(iso)
-       casaflux%fpleach(npt)     = xfPleach(iso) /(365.0_r_2)    ! convert from 1/year to 1/day
+       casaflux%fpleach(npt)     = xfPleach(iso) /(365.0_r2)    ! convert from 1/year to 1/day
        ! we used the spatially explicit estimate N fixation by Wang and Houlton (GRL)
-       ! casaflux%Nminfix(npt)     = xnfixrate(iv1)/365.0_r_2
-       casapool%ratioNCplant(npt,:)  = 1.0_r_2/ratioCNplant(iv1,:)
+       ! casaflux%Nminfix(npt)     = xnfixrate(iv1)/365.0_r2
+       casapool%ratioNCplant(npt,:)  = 1.0_r2/ratioCNplant(iv1,:)
        casapool%ratioNPplant(npt,:)  = casabiome%ratioNPplantmin(iv1,:)
-       casapool%ratioNClitter(npt,:) = casapool%nlitter(npt,:)/(casapool%clitter(npt,:)+1.0e-10_r_2)
-       casapool%ratioNPlitter(npt,:) = casapool%nlitter(npt,:)/(casapool%plitter(npt,:)+1.0e-10_r_2)
-       casapool%ratioNCsoil(npt,:)   = 1.0_r_2/ratioCNsoil(iv1,:)
+       casapool%ratioNClitter(npt,:) = casapool%nlitter(npt,:)/(casapool%clitter(npt,:)+1.0e-10_r2)
+       casapool%ratioNPlitter(npt,:) = casapool%nlitter(npt,:)/(casapool%plitter(npt,:)+1.0e-10_r2)
+       casapool%ratioNCsoil(npt,:)   = 1.0_r2/ratioCNsoil(iv1,:)
        casapool%ratioNPsoil(npt,:)   = ratioNPsoil(iso,:)
-       casapool%ratioNCsoilmin(npt,:)   = 1.0_r_2/ratioCNsoilmax(iv1,:)
-       casapool%ratioNCsoilmax(npt,:)   = 1.0_r_2/ratioCNsoilmin(iv1,:)
+       casapool%ratioNCsoilmin(npt,:)   = 1.0_r2/ratioCNsoilmax(iv1,:)
+       casapool%ratioNCsoilmax(npt,:)   = 1.0_r2/ratioCNsoilmin(iv1,:)
        casapool%ratioNCsoilnew(npt,:)   = casapool%ratioNCsoilmax(npt,:)
     ENDDO
 
@@ -514,7 +514,7 @@ contains
     INTEGER, DIMENSION(271,mvtype) :: greenup, fall,  phendoy1
     INTEGER, DIMENSION(npheno)     :: greenupx,fallx,xphendoy1
     INTEGER, DIMENSION(npheno)     :: ivtx
-    REAL(r_2), DIMENSION(271)      :: xlat
+    REAL(r2), DIMENSION(271)      :: xlat
 
     INTEGER :: phenunit
 
@@ -593,94 +593,94 @@ contains
 
     !MC - remove zeroing because done in load_parameters before
     ! !CLN initialise all !!!!! THIS NEEDS FIXING because of e.g. ICE-WATER
-    ! casaflux%Cgpp         = 0.0_r_2
-    ! casaflux%Cnpp         = 0.0_r_2
-    ! casaflux%Crp          = 0.0_r_2
-    ! casaflux%Crgplant     = 0.0_r_2
-    ! ! casaflux%Nminfix      = 0.0_r_2
-    ! casaflux%Nminuptake   = 0.0_r_2
-    ! casaflux%Plabuptake   = 0.0_r_2
-    ! casaflux%Clabloss     = 0.0_r_2
-    ! casaflux%fracClabile  = 0.0_r_2
-    ! casaflux%stemnpp      = 0.0_r_2
-    ! casaflux%frac_sapwood = 0.0_r_2
-    ! casaflux%sapwood_area = 0.0_r_2
-    ! casaflux%FluxCtohwp   = 0.0_r_2
-    ! casaflux%FluxCtoClear = 0.0_r_2
-    ! casaflux%fracCalloc   = 0.0_r_2
-    ! casaflux%fracNalloc   = 0.0_r_2
-    ! casaflux%fracPalloc   = 0.0_r_2
-    ! casaflux%Crmplant     = 0.0_r_2
-    ! casaflux%kplant       = 0.0_r_2
-    ! casaflux%kplant_fire  = 0.0_r_2
-    ! casaflux%kplant_tot   = 0.0_r_2
+    ! casaflux%Cgpp         = 0.0_r2
+    ! casaflux%Cnpp         = 0.0_r2
+    ! casaflux%Crp          = 0.0_r2
+    ! casaflux%Crgplant     = 0.0_r2
+    ! ! casaflux%Nminfix      = 0.0_r2
+    ! casaflux%Nminuptake   = 0.0_r2
+    ! casaflux%Plabuptake   = 0.0_r2
+    ! casaflux%Clabloss     = 0.0_r2
+    ! casaflux%fracClabile  = 0.0_r2
+    ! casaflux%stemnpp      = 0.0_r2
+    ! casaflux%frac_sapwood = 0.0_r2
+    ! casaflux%sapwood_area = 0.0_r2
+    ! casaflux%FluxCtohwp   = 0.0_r2
+    ! casaflux%FluxCtoClear = 0.0_r2
+    ! casaflux%fracCalloc   = 0.0_r2
+    ! casaflux%fracNalloc   = 0.0_r2
+    ! casaflux%fracPalloc   = 0.0_r2
+    ! casaflux%Crmplant     = 0.0_r2
+    ! casaflux%kplant       = 0.0_r2
+    ! casaflux%kplant_fire  = 0.0_r2
+    ! casaflux%kplant_tot   = 0.0_r2
 
-    ! casaflux%fromPtoL      = 0.0_r_2
-    ! casaflux%fromPtoL_fire = 0.0_r_2
+    ! casaflux%fromPtoL      = 0.0_r2
+    ! casaflux%fromPtoL_fire = 0.0_r2
 
-    ! casaflux%Cnep         = 0.0_r_2
-    ! casaflux%Crsoil       = 0.0_r_2
-    ! casapool%dClabiledt   = 0.0_r_2
-    ! ! casaflux%Nmindep      =  casaflux%Nmindep /2.0_r_2
-    ! ! casaflux%Nmindep      = 0.0_r_2
-    ! casaflux%Nminloss     = 0.0_r_2
-    ! casaflux%Nminleach    = 0.0_r_2
-    ! casaflux%Nupland      = 0.0_r_2
-    ! casaflux%Nlittermin   = 0.0_r_2
-    ! casaflux%Nsmin        = 0.0_r_2
-    ! casaflux%Nsimm        = 0.0_r_2
-    ! casaflux%Nsnet        = 0.0_r_2
-    ! ! casaflux%fNminloss    = 0.0_r_2
-    ! ! casaflux%fNminleach   = 0.0_r_2
-    ! ! casaflux%Pdep         = 0.0_r_2
-    ! ! casaflux%Pwea         = 0.0_r_2
-    ! casaflux%Pleach       = 0.0_r_2
-    ! casaflux%Ploss        = 0.0_r_2
-    ! casaflux%Pupland      = 0.0_r_2
-    ! casaflux%Plittermin   = 0.0_r_2
-    ! casaflux%Psmin        = 0.0_r_2
-    ! casaflux%Psimm        = 0.0_r_2
-    ! casaflux%Psnet        = 0.0_r_2
-    ! ! casaflux%fPleach      = 0.0_r_2 !vh ! this should be a parameter, not a flux variable
-    ! casaflux%kplab        = 0.0_r_2
-    ! casaflux%kpsorb       = 0.0_r_2
-    ! casaflux%kpocc        = 0.0_r_2
-    ! ! casaflux%kmlabp       = 0.0_r_2  !vh ! this should be a paramter, not a flux variable
-    ! ! casaflux%Psorbmax     = 0.0_r_2 !vh ! this should be a paramter, not a flux variable
+    ! casaflux%Cnep         = 0.0_r2
+    ! casaflux%Crsoil       = 0.0_r2
+    ! casapool%dClabiledt   = 0.0_r2
+    ! ! casaflux%Nmindep      =  casaflux%Nmindep /2.0_r2
+    ! ! casaflux%Nmindep      = 0.0_r2
+    ! casaflux%Nminloss     = 0.0_r2
+    ! casaflux%Nminleach    = 0.0_r2
+    ! casaflux%Nupland      = 0.0_r2
+    ! casaflux%Nlittermin   = 0.0_r2
+    ! casaflux%Nsmin        = 0.0_r2
+    ! casaflux%Nsimm        = 0.0_r2
+    ! casaflux%Nsnet        = 0.0_r2
+    ! ! casaflux%fNminloss    = 0.0_r2
+    ! ! casaflux%fNminleach   = 0.0_r2
+    ! ! casaflux%Pdep         = 0.0_r2
+    ! ! casaflux%Pwea         = 0.0_r2
+    ! casaflux%Pleach       = 0.0_r2
+    ! casaflux%Ploss        = 0.0_r2
+    ! casaflux%Pupland      = 0.0_r2
+    ! casaflux%Plittermin   = 0.0_r2
+    ! casaflux%Psmin        = 0.0_r2
+    ! casaflux%Psimm        = 0.0_r2
+    ! casaflux%Psnet        = 0.0_r2
+    ! ! casaflux%fPleach      = 0.0_r2 !vh ! this should be a parameter, not a flux variable
+    ! casaflux%kplab        = 0.0_r2
+    ! casaflux%kpsorb       = 0.0_r2
+    ! casaflux%kpocc        = 0.0_r2
+    ! ! casaflux%kmlabp       = 0.0_r2  !vh ! this should be a paramter, not a flux variable
+    ! ! casaflux%Psorbmax     = 0.0_r2 !vh ! this should be a paramter, not a flux variable
 
-    ! casaflux%klitter       = 0.0_r_2
-    ! casaflux%klitter_fire  = 0.0_r_2
-    ! casaflux%ksoil         = 0.0_r_2
-    ! casaflux%fromLtoS      = 0.0_r_2
-    ! casaflux%fromStoS      = 0.0_r_2
-    ! casaflux%fromLtoCO2    = 0.0_r_2
-    ! casaflux%fromStoCO2    = 0.0_r_2
-    ! casaflux%FluxCtolitter = 0.0_r_2
-    ! casaflux%FluxNtolitter = 0.0_r_2
-    ! casaflux%FluxPtolitter = 0.0_r_2
-    ! casaflux%FluxCtosoil   = 0.0_r_2
-    ! casaflux%FluxNtosoil   = 0.0_r_2
-    ! casaflux%FluxPtosoil   = 0.0_r_2
-    ! casaflux%FluxCtoCO2    = 0.0_r_2
-    ! casaflux%FluxCtoCO2_plant_fire  = 0.0_r_2
-    ! casaflux%FluxCtoCO2_litter_fire = 0.0_r_2
+    ! casaflux%klitter       = 0.0_r2
+    ! casaflux%klitter_fire  = 0.0_r2
+    ! casaflux%ksoil         = 0.0_r2
+    ! casaflux%fromLtoS      = 0.0_r2
+    ! casaflux%fromStoS      = 0.0_r2
+    ! casaflux%fromLtoCO2    = 0.0_r2
+    ! casaflux%fromStoCO2    = 0.0_r2
+    ! casaflux%FluxCtolitter = 0.0_r2
+    ! casaflux%FluxNtolitter = 0.0_r2
+    ! casaflux%FluxPtolitter = 0.0_r2
+    ! casaflux%FluxCtosoil   = 0.0_r2
+    ! casaflux%FluxNtosoil   = 0.0_r2
+    ! casaflux%FluxPtosoil   = 0.0_r2
+    ! casaflux%FluxCtoCO2    = 0.0_r2
+    ! casaflux%FluxCtoCO2_plant_fire  = 0.0_r2
+    ! casaflux%FluxCtoCO2_litter_fire = 0.0_r2
 
-    ! casaflux%FluxFromPtoL       = 0.0_r_2
-    ! casaflux%FluxFromLtoS       = 0.0_r_2
-    ! casaflux%FluxFromStoS       = 0.0_r_2
-    ! casaflux%FluxFromPtoCO2     = 0.0_r_2
-    ! casaflux%FluxFromLtoCO2     = 0.0_r_2
-    ! casaflux%FluxFromStoCO2     = 0.0_r_2
-    ! casaflux%FluxFromPtoHarvest = 0.0_r_2
+    ! casaflux%FluxFromPtoL       = 0.0_r2
+    ! casaflux%FluxFromLtoS       = 0.0_r2
+    ! casaflux%FluxFromStoS       = 0.0_r2
+    ! casaflux%FluxFromPtoCO2     = 0.0_r2
+    ! casaflux%FluxFromLtoCO2     = 0.0_r2
+    ! casaflux%FluxFromStoCO2     = 0.0_r2
+    ! casaflux%FluxFromPtoHarvest = 0.0_r2
 
-    ! casaflux%Cplant_turnover                     = 0.0_r_2
-    ! casaflux%Cplant_turnover_disturbance         = 0.0_r_2
-    ! casaflux%Cplant_turnover_crowding            = 0.0_r_2
-    ! casaflux%Cplant_turnover_resource_limitation = 0.0_r_2
-    ! casaflux%fHarvest = 0.0_r_2
-    ! casaflux%Charvest = 0.0_r_2
-    ! casaflux%Nharvest = 0.0_r_2
-    ! casaflux%fcrop    = 0.0_r_2
+    ! casaflux%Cplant_turnover                     = 0.0_r2
+    ! casaflux%Cplant_turnover_disturbance         = 0.0_r2
+    ! casaflux%Cplant_turnover_crowding            = 0.0_r2
+    ! casaflux%Cplant_turnover_resource_limitation = 0.0_r2
+    ! casaflux%fHarvest = 0.0_r2
+    ! casaflux%Charvest = 0.0_r2
+    ! casaflux%Nharvest = 0.0_r2
+    ! casaflux%fcrop    = 0.0_r2
 
     phen%doyphase(:,1) = -50
     phen%doyphase(:,2) = phen%doyphase(:,1) + 14
@@ -690,44 +690,44 @@ contains
     phen%phen(:)  = 1
     phen%aphen(:) = 0
 
-    ! casapool%dCplantdt     = 0.0_r_2
-    ! casapool%dNplantdt     = 0.0_r_2
-    ! casapool%dPplantdt     = 0.0_r_2
-    ! casapool%dNsoilmindt   = 0.0_r_2
-    ! casapool%dPsoillabdt   = 0.0_r_2
-    ! casapool%dPsoilsorbdt  = 0.0_r_2
-    ! casapool%dPsoiloccdt   = 0.0_r_2
-    ! casapool%dClitterdt    = 0.0_r_2
-    ! casapool%dNlitterdt    = 0.0_r_2
-    ! casapool%dPlitterdt    = 0.0_r_2
-    ! casapool%dCsoildt      = 0.0_r_2
-    ! casapool%dNsoildt      = 0.0_r_2
-    ! casapool%dPsoildt      = 0.0_r_2
-    ! casapool%ratioNClitter = 0.0_r_2
-    ! casapool%ratioNCsoil   = 0.0_r_2
-    ! casapool%ratioPClitter = 0.0_r_2
-    ! casapool%ratioPCsoil   = 0.0_r_2
+    ! casapool%dCplantdt     = 0.0_r2
+    ! casapool%dNplantdt     = 0.0_r2
+    ! casapool%dPplantdt     = 0.0_r2
+    ! casapool%dNsoilmindt   = 0.0_r2
+    ! casapool%dPsoillabdt   = 0.0_r2
+    ! casapool%dPsoilsorbdt  = 0.0_r2
+    ! casapool%dPsoiloccdt   = 0.0_r2
+    ! casapool%dClitterdt    = 0.0_r2
+    ! casapool%dNlitterdt    = 0.0_r2
+    ! casapool%dPlitterdt    = 0.0_r2
+    ! casapool%dCsoildt      = 0.0_r2
+    ! casapool%dNsoildt      = 0.0_r2
+    ! casapool%dPsoildt      = 0.0_r2
+    ! casapool%ratioNClitter = 0.0_r2
+    ! casapool%ratioNCsoil   = 0.0_r2
+    ! casapool%ratioPClitter = 0.0_r2
+    ! casapool%ratioPCsoil   = 0.0_r2
     ! !CLN add more if necessary
 
-    casapool%Nsoilmin(:) = 2.5_r_2
+    casapool%Nsoilmin(:) = 2.5_r2
     !MC - Check if next commented 2 if-blocks are necessary
     ! if (icycle > 1) then
-    !    casapool%nplant     = MAX(1.e-6_r_2, casapool%nplant)
-    !    casapool%nlitter    = MAX(1.e-6_r_2, casapool%nlitter)
-    !    casapool%nsoil      = MAX(1.e-6_r_2, casapool%nsoil)
-    !    casapool%nsoilmin   = MAX(1.e-6_r_2, casapool%nsoilmin)
+    !    casapool%nplant     = MAX(1.e-6_r2, casapool%nplant)
+    !    casapool%nlitter    = MAX(1.e-6_r2, casapool%nlitter)
+    !    casapool%nsoil      = MAX(1.e-6_r2, casapool%nsoil)
+    !    casapool%nsoilmin   = MAX(1.e-6_r2, casapool%nsoilmin)
     !    casabal%cplantlast  = casapool%cplant
     !    casabal%clitterlast = casapool%clitter
     !    casabal%csoillast   = casapool%csoil
     !    casabal%clabilelast = casapool%clabile
     ! endif
     ! if (icycle > 2) then
-    !    casapool%pplant       = MAX(1.e-7_r_2, casapool%pplant)
-    !    casapool%plitter      = MAX(1.e-7_r_2, casapool%plitter)
-    !    casapool%psoil        = MAX(1.e-7_r_2, casapool%psoil)
-    !    casapool%Psoillab     = MAX(1.e-7_r_2, casapool%psoillab)
-    !    casapool%psoilsorb    = MAX(1.e-7_r_2, casapool%psoilsorb)
-    !    casapool%psoilocc     = MAX(1.e-7_r_2, casapool%psoilocc)
+    !    casapool%pplant       = MAX(1.e-7_r2, casapool%pplant)
+    !    casapool%plitter      = MAX(1.e-7_r2, casapool%plitter)
+    !    casapool%psoil        = MAX(1.e-7_r2, casapool%psoil)
+    !    casapool%Psoillab     = MAX(1.e-7_r2, casapool%psoillab)
+    !    casapool%psoilsorb    = MAX(1.e-7_r2, casapool%psoilsorb)
+    !    casapool%psoilocc     = MAX(1.e-7_r2, casapool%psoilocc)
     !    casabal%pplantlast    = casapool%pplant
     !    casabal%plitterlast   = casapool%plitter
     !    casabal%psoillast     = casapool%psoil
@@ -739,8 +739,8 @@ contains
        write(*,*) 'casa_init: not using restart file!'
        write(*,*) 'Using input from readbiome.!!!'
        write(*,*) 'initialising frac_sapwood=1 and sapwood_area = 0)'
-       casaflux%frac_sapwood(:) = 1.0_r_2
-       casaflux%sapwood_area(:) = 0.0_r_2
+       casaflux%frac_sapwood(:) = 1.0_r2
+       casaflux%sapwood_area(:) = 0.0_r2
 #ifndef UM_BUILD
     else if ((initcasa == 1) .and. (.not. cable_user%casa_fromzero)) then
        call read_casa_restart_nc(casabiome, casamet, casapool, casaflux, &
@@ -749,84 +749,84 @@ contains
 #endif
     else
        do npt=1, mp
-          casamet%lon(npt) = real(patch(npt)%longitude, r_2)
-          casamet%lat(npt) = real(patch(npt)%latitude, r_2)
+          casamet%lon(npt) = real(patch(npt)%longitude, r2)
+          casamet%lat(npt) = real(patch(npt)%latitude, r2)
        enddo
     endif
 
     !MC - remove zeroing because done in load_parameters before
-    ! where(casamet%lnonwood==1) casapool%cplant(:,WOOD) = 0.0_r_2
-    ! where(casamet%lnonwood==1) casapool%nplant(:,WOOD) = 0.0_r_2
-    ! where(casamet%lnonwood==1) casapool%pplant(:,WOOD) = 0.0_r_2
+    ! where(casamet%lnonwood==1) casapool%cplant(:,WOOD) = 0.0_r2
+    ! where(casamet%lnonwood==1) casapool%nplant(:,WOOD) = 0.0_r2
+    ! where(casamet%lnonwood==1) casapool%pplant(:,WOOD) = 0.0_r2
 
     ! ! reset labile C pool, comment out by Q.Zhang 10/09/2011: casapool%clabile = 0.0
     ! ! check pool sizes
-    ! casapool%Ctot_0     = 0.0_r_2
-    ! casapool%Ctot       = 0.0_r_2
-    ! casapool%cplant     = MAX(0.0_r_2, casapool%cplant)
-    ! casapool%clitter    = MAX(0.0_r_2, casapool%clitter)
-    ! casapool%csoil      = MAX(0.0_r_2, casapool%csoil)
+    ! casapool%Ctot_0     = 0.0_r2
+    ! casapool%Ctot       = 0.0_r2
+    ! casapool%cplant     = MAX(0.0_r2, casapool%cplant)
+    ! casapool%clitter    = MAX(0.0_r2, casapool%clitter)
+    ! casapool%csoil      = MAX(0.0_r2, casapool%csoil)
     ! casabal%cplantlast  = casapool%cplant
     ! casabal%clitterlast = casapool%clitter
     ! casabal%csoillast   = casapool%csoil
     ! casabal%clabilelast = casapool%clabile
-    ! casabal%sumcbal     = 0.0_r_2
-    ! casabal%FCgppyear   = 0.0_r_2
-    ! casabal%FCrpyear    = 0.0_r_2
-    ! casabal%FCnppyear   = 0.0_r_2
-    ! casabal%FCrsyear    = 0.0_r_2
-    ! casabal%FCneeyear   = 0.0_r_2
+    ! casabal%sumcbal     = 0.0_r2
+    ! casabal%FCgppyear   = 0.0_r2
+    ! casabal%FCrpyear    = 0.0_r2
+    ! casabal%FCnppyear   = 0.0_r2
+    ! casabal%FCrsyear    = 0.0_r2
+    ! casabal%FCneeyear   = 0.0_r2
     ! ! vh !
-    ! WHERE (casamet%lnonwood==1) casapool%cplant(:,WOOD) = 0.0_r_2
+    ! WHERE (casamet%lnonwood==1) casapool%cplant(:,WOOD) = 0.0_r2
     ! IF (icycle == 1) THEN
     !    casapool%Nplant(:,:) = casapool%cplant(:,:) * casapool%ratioNCplant(:,:)
     !    casapool%Nsoil(:,:)  = casapool%ratioNCsoil(:,:) * casapool%Csoil(:,:)
     !    casapool%Psoil(:,:)  = casapool%Nsoil(:,:) / casapool%ratioNPsoil(:,:)
-    !    casapool%Nsoilmin(:) = 2.5_r_2
+    !    casapool%Nsoilmin(:) = 2.5_r2
     ! ENDIF
 
     ! IF (icycle >= 1) THEN
-    !    casapool%nplant     = MAX(1.0e-6_r_2, casapool%nplant)
-    !    casapool%nlitter    = MAX(1.0e-6_r_2, casapool%nlitter)
-    !    casapool%nsoil      = MAX(1.0e-6_r_2, casapool%nsoil)
-    !    casapool%nsoilmin   = MAX(1.0e-6_r_2, casapool%nsoilmin)
+    !    casapool%nplant     = MAX(1.0e-6_r2, casapool%nplant)
+    !    casapool%nlitter    = MAX(1.0e-6_r2, casapool%nlitter)
+    !    casapool%nsoil      = MAX(1.0e-6_r2, casapool%nsoil)
+    !    casapool%nsoilmin   = MAX(1.0e-6_r2, casapool%nsoilmin)
     !    casabal%nplantlast  = casapool%nplant
     !    casabal%nlitterlast = casapool%nlitter
     !    casabal%nsoillast   = casapool%nsoil
     !    casabal%nsoilminlast= casapool%nsoilmin
-    !    casabal%sumnbal     = 0.0_r_2
-    !    casabal%FNdepyear   = 0.0_r_2
-    !    casabal%FNfixyear   = 0.0_r_2
-    !    casabal%FNsnetyear  = 0.0_r_2
-    !    casabal%FNupyear    = 0.0_r_2
-    !    casabal%FNleachyear = 0.0_r_2
-    !    casabal%FNlossyear  = 0.0_r_2
+    !    casabal%sumnbal     = 0.0_r2
+    !    casabal%FNdepyear   = 0.0_r2
+    !    casabal%FNfixyear   = 0.0_r2
+    !    casabal%FNsnetyear  = 0.0_r2
+    !    casabal%FNupyear    = 0.0_r2
+    !    casabal%FNleachyear = 0.0_r2
+    !    casabal%FNlossyear  = 0.0_r2
     !    ! vh !
-    !    WHERE(casamet%lnonwood==1) casapool%nplant(:,WOOD) = 0.0_r_2
+    !    WHERE(casamet%lnonwood==1) casapool%nplant(:,WOOD) = 0.0_r2
     ! ENDIF
 
     ! IF (icycle >=1 ) THEN
-    !    casapool%pplant       = MAX(1.0e-7_r_2, casapool%pplant)
-    !    casapool%plitter      = MAX(1.0e-7_r_2, casapool%plitter)
-    !    casapool%psoil        = MAX(1.0e-7_r_2, casapool%psoil)
-    !    casapool%Psoillab     = MAX(1.0e-7_r_2, casapool%psoillab)  ! was 2.0, changed according to  YP
-    !    casapool%psoilsorb    = MAX(1.0e-7_r_2, casapool%psoilsorb) ! was 10.0, -
-    !    casapool%psoilocc     = MAX(1.0e-7_r_2, casapool%psoilocc)  ! was 50.0, -
+    !    casapool%pplant       = MAX(1.0e-7_r2, casapool%pplant)
+    !    casapool%plitter      = MAX(1.0e-7_r2, casapool%plitter)
+    !    casapool%psoil        = MAX(1.0e-7_r2, casapool%psoil)
+    !    casapool%Psoillab     = MAX(1.0e-7_r2, casapool%psoillab)  ! was 2.0, changed according to  YP
+    !    casapool%psoilsorb    = MAX(1.0e-7_r2, casapool%psoilsorb) ! was 10.0, -
+    !    casapool%psoilocc     = MAX(1.0e-7_r2, casapool%psoilocc)  ! was 50.0, -
     !    casabal%pplantlast    = casapool%pplant
     !    casabal%plitterlast   = casapool%plitter
     !    casabal%psoillast     = casapool%psoil
     !    casabal%psoillablast  = casapool%psoillab
     !    casabal%psoilsorblast = casapool%psoilsorb
     !    casabal%psoilocclast  = casapool%psoilocc
-    !    casabal%sumpbal       = 0.0_r_2
-    !    casabal%FPweayear     = 0.0_r_2
-    !    casabal%FPdustyear    = 0.0_r_2
-    !    casabal%FPsnetyear    = 0.0_r_2
-    !    casabal%FPupyear      = 0.0_r_2
-    !    casabal%FPleachyear   = 0.0_r_2
-    !    casabal%FPlossyear    = 0.0_r_2
+    !    casabal%sumpbal       = 0.0_r2
+    !    casabal%FPweayear     = 0.0_r2
+    !    casabal%FPdustyear    = 0.0_r2
+    !    casabal%FPsnetyear    = 0.0_r2
+    !    casabal%FPupyear      = 0.0_r2
+    !    casabal%FPleachyear   = 0.0_r2
+    !    casabal%FPlossyear    = 0.0_r2
     !    ! vh !
-    !    WHERE(casamet%lnonwood==1) casapool%pplant(:,WOOD) = 0.0_r_2
+    !    WHERE(casamet%lnonwood==1) casapool%pplant(:,WOOD) = 0.0_r2
     ! ENDIF
 
   END SUBROUTINE casa_init
@@ -856,9 +856,9 @@ contains
     TYPE(phen_variable),       INTENT(INOUT) :: phen
 
     ! local variables
-    REAL(r_2), DIMENSION(mso) :: Psorder, xPsoil50 ! , Pweasoil
-    REAL(r_2), DIMENSION(mso) :: fracPlab, fracPocc ! , fracPsorb, fracPorg
-    REAL(r_2), DIMENSION(mp)  :: totPsoil
+    REAL(r2), DIMENSION(mso) :: Psorder, xPsoil50 ! , Pweasoil
+    REAL(r2), DIMENSION(mso) :: fracPlab, fracPocc ! , fracPsorb, fracPorg
+    REAL(r2), DIMENSION(mp)  :: totPsoil
     INTEGER :: npt, nout, nso
 
     ! Soiltype     soilnumber soil P(g P/m2)
@@ -874,20 +874,20 @@ contains
     ! Spodosol    10      41.0
     ! Ultisol     11      51.5
     ! Vertisol    12      190.6
-    DATA Psorder/61.3_r_2, 103.9_r_2, 92.8_r_2, 136.9_r_2, 98.2_r_2, 107.6_r_2, 84.1_r_2, &
-         110.1_r_2, 35.4_r_2, 41.0_r_2, 51.5_r_2, 190.6_r_2/
-    ! DATA Pweasoil/0.05_r_2, 0.04_r_2, 0.03_r_2, 0.02_r_2, 0.01_r_2, 0.009_r_2, 0.008_r_2, &
-    !      0.007_r_2, 0.006_r_2, 0.005_r_2, 0.004_r_2, 0.003_r_2/
-    DATA fracPlab/0.08_r_2, 0.08_r_2, 0.10_r_2, 0.02_r_2, 0.08_r_2, 0.08_r_2, 0.08_r_2, &
-         0.06_r_2, 0.02_r_2, 0.05_r_2, 0.09_r_2, 0.05_r_2/
-    ! DATA fracPsorb/0.32_r_2, 0.37_r_2, 0.57_r_2, 0.67_r_2, 0.37_r_2, 0.37_r_2, 0.37_r_2, &
-    !      0.32_r_2, 0.24_r_2, 0.22_r_2, 0.21_r_2, 0.38_r_2/
-    DATA fracPocc/0.36_r_2, 0.38_r_2, 0.25_r_2, 0.26_r_2, 0.38_r_2, 0.38_r_2, 0.38_r_2, &
-         0.44_r_2, 0.38_r_2, 0.38_r_2, 0.37_r_2, 0.45_r_2/
-    ! DATA fracPorg/0.25_r_2, 0.17_r_2, 0.08_r_2, 0.05_r_2, 0.17_r_2, 0.17_r_2, 0.17_r_2, &
-    !      0.18_r_2, 0.36_r_2, 0.35_r_2, 0.34_r_2, 0.12_r_2/
-    DATA xPsoil50/7.6_r_2, 4.1_r_2, 4.2_r_2, 3.4_r_2, 4.1_r_2, 4.1_r_2, 4.8_r_2, 4.1_r_2, &
-         6.9_r_2, 6.9_r_2, 6.9_r_2, 1.7_r_2/
+    DATA Psorder/61.3_r2, 103.9_r2, 92.8_r2, 136.9_r2, 98.2_r2, 107.6_r2, 84.1_r2, &
+         110.1_r2, 35.4_r2, 41.0_r2, 51.5_r2, 190.6_r2/
+    ! DATA Pweasoil/0.05_r2, 0.04_r2, 0.03_r2, 0.02_r2, 0.01_r2, 0.009_r2, 0.008_r2, &
+    !      0.007_r2, 0.006_r2, 0.005_r2, 0.004_r2, 0.003_r2/
+    DATA fracPlab/0.08_r2, 0.08_r2, 0.10_r2, 0.02_r2, 0.08_r2, 0.08_r2, 0.08_r2, &
+         0.06_r2, 0.02_r2, 0.05_r2, 0.09_r2, 0.05_r2/
+    ! DATA fracPsorb/0.32_r2, 0.37_r2, 0.57_r2, 0.67_r2, 0.37_r2, 0.37_r2, 0.37_r2, &
+    !      0.32_r2, 0.24_r2, 0.22_r2, 0.21_r2, 0.38_r2/
+    DATA fracPocc/0.36_r2, 0.38_r2, 0.25_r2, 0.26_r2, 0.38_r2, 0.38_r2, 0.38_r2, &
+         0.44_r2, 0.38_r2, 0.38_r2, 0.37_r2, 0.45_r2/
+    ! DATA fracPorg/0.25_r2, 0.17_r2, 0.08_r2, 0.05_r2, 0.17_r2, 0.17_r2, 0.17_r2, &
+    !      0.18_r2, 0.36_r2, 0.35_r2, 0.34_r2, 0.12_r2/
+    DATA xPsoil50/7.6_r2, 4.1_r2, 4.2_r2, 3.4_r2, 4.1_r2, 4.1_r2, 4.8_r2, 4.1_r2, &
+         6.9_r2, 6.9_r2, 6.9_r2, 1.7_r2/
     !
     ! estimated based on Yang, Post and Jain (2013)
     !   Soiltype     soilnumber soil P(g P/m2  top 50 cm)
@@ -916,9 +916,9 @@ contains
     OPEN(NEWUNIT=nout,file=casafile%cnpepool)
     write(*,*) 'Opened file ', casafile%cnpepool
 
-    casabal%sumcbal = MIN(9999.0_r_2, MAX(-9999.0_r_2, casabal%sumcbal))
-    casabal%sumnbal = MIN(9999.0_r_2, MAX(-9999.0_r_2, casabal%sumnbal))
-    casabal%sumpbal = MIN(9999.0_r_2, MAX(-9999.0_r_2, casabal%sumpbal))
+    casabal%sumcbal = MIN(9999.0_r2, MAX(-9999.0_r2, casabal%sumcbal))
+    casabal%sumnbal = MIN(9999.0_r2, MAX(-9999.0_r2, casabal%sumnbal))
+    casabal%sumpbal = MIN(9999.0_r2, MAX(-9999.0_r2, casabal%sumpbal))
 
     DO npt =1, mp
        nso = casamet%isorder(npt)
@@ -931,53 +931,53 @@ contains
                   * casapool%clitter(npt,:)
              casapool%Nsoil(npt,:)  = casapool%ratioNCsoil(npt,:)   &
                   * casapool%Csoil(npt,:)
-             casapool%nsoilmin(npt) = 2.0_r_2
-             casabal%sumnbal(npt)   = 0.0_r_2
+             casapool%nsoilmin(npt) = 2.0_r2
+             casabal%sumnbal(npt)   = 0.0_r2
              if(casamet%iveg2(npt)==grass) then
-                casapool%nplant(npt,wood) = 0.0_r_2
-                casapool%nlitter(npt,cwd) = 0.0_r_2
+                casapool%nplant(npt,wood) = 0.0_r2
+                casapool%nlitter(npt,cwd) = 0.0_r2
              endif
           ENDIF
 
           IF (icycle<3) THEN
-             casabal%sumpbal(npt)    = 0.0_r_2
+             casabal%sumpbal(npt)    = 0.0_r2
              casapool%pplant(npt,:)  = casapool%Nplant(npt,:)/casapool%ratioNPplant(npt,:)
-             casapool%plitter(npt,:) = casapool%Nlitter(npt,:)/(casapool%ratioNPlitter(npt,:) + 1.e-10_r_2)
+             casapool%plitter(npt,:) = casapool%Nlitter(npt,:)/(casapool%ratioNPlitter(npt,:) + 1.e-10_r2)
              casapool%psoil(npt,:)   = casapool%Nsoil(npt,:)/casapool%ratioNPsoil(npt,:)
              casapool%psoillab(npt)  = totpsoil(npt) *fracpLab(nso)
              casapool%psoilsorb(npt) = casaflux%psorbmax(npt) * casapool%psoillab(npt) &
                   / (casaflux%kmlabp(npt)+casapool%psoillab(npt))
              casapool%psoilocc(npt) = totpsoil(npt) *fracPocc(nso)
              if(casamet%iveg2(npt)==grass) then
-                casapool%pplant(npt,wood) = 0.0_r_2
-                casapool%plitter(npt,cwd) = 0.0_r_2
+                casapool%pplant(npt,wood) = 0.0_r2
+                casapool%plitter(npt,cwd) = 0.0_r2
              endif
           ENDIF
        else
-          casapool%cplant(npt,:)  = 0.0_r_2
-          casapool%clitter(npt,:) = 0.0_r_2
-          casapool%csoil(npt,:)   = 0.0_r_2
-          casapool%clabile(npt)   = 0.0_r_2
-          casapool%nplant(npt,:)  = 0.0_r_2
-          casapool%nlitter(npt,:) = 0.0_r_2
-          casapool%nsoil(npt,:)   = 0.0_r_2
-          casapool%nsoilmin(npt)  = 0.0_r_2
-          casapool%pplant(npt,:)  = 0.0_r_2
-          casapool%plitter(npt,:) = 0.0_r_2
-          casapool%psoil(npt,:)   = 0.0_r_2
-          casapool%psoillab(npt)  = 0.0_r_2
-          casapool%psoilsorb(npt) = 0.0_r_2
-          casapool%psoilocc(npt)  = 0.0_r_2
-          casabal%sumcbal(npt)    = 0.0_r_2
-          casabal%sumnbal(npt)    = 0.0_r_2
-          casabal%sumpbal(npt)    = 0.0_r_2
+          casapool%cplant(npt,:)  = 0.0_r2
+          casapool%clitter(npt,:) = 0.0_r2
+          casapool%csoil(npt,:)   = 0.0_r2
+          casapool%clabile(npt)   = 0.0_r2
+          casapool%nplant(npt,:)  = 0.0_r2
+          casapool%nlitter(npt,:) = 0.0_r2
+          casapool%nsoil(npt,:)   = 0.0_r2
+          casapool%nsoilmin(npt)  = 0.0_r2
+          casapool%pplant(npt,:)  = 0.0_r2
+          casapool%plitter(npt,:) = 0.0_r2
+          casapool%psoil(npt,:)   = 0.0_r2
+          casapool%psoillab(npt)  = 0.0_r2
+          casapool%psoilsorb(npt) = 0.0_r2
+          casapool%psoilocc(npt)  = 0.0_r2
+          casabal%sumcbal(npt)    = 0.0_r2
+          casabal%sumnbal(npt)    = 0.0_r2
+          casabal%sumpbal(npt)    = 0.0_r2
        endif
 
        !! vh_js  !!
        IF (cable_user%CALL_POP) THEN
           WRITE(nout,92) ktau,npt,veg%iveg(npt),soil%isoilm(npt) ,     &
                casamet%isorder(npt),casamet%lat(npt),casamet%lon(npt), &
-               casamet%areacell(npt)*(1.0e-9_r_2),casamet%glai(npt),       &
+               casamet%areacell(npt)*(1.0e-9_r2),casamet%glai(npt),       &
                casabiome%sla(veg%iveg(npt)), phen%phase(npt), &
                phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &
                casapool%clabile(npt), &
@@ -991,7 +991,7 @@ contains
        ELSE
           WRITE(nout,92) ktau,npt,veg%iveg(npt),soil%isoilm(npt),     &
                casamet%isorder(npt),casamet%lat(npt),casamet%lon(npt), &
-               casamet%areacell(npt)*(1.0e-9_r_2),casamet%glai(npt),       &
+               casamet%areacell(npt)*(1.0e-9_r2),casamet%glai(npt),       &
                casabiome%sla(veg%iveg(npt)), phen%phase(npt), &
                phen%doyphase(npt,3), phen%phen(npt), phen%aphen(npt), &
                casapool%clabile(npt), &
@@ -1031,16 +1031,16 @@ contains
     TYPE (soil_parameter_type), INTENT(INOUT) :: soil ! soil parameters
     TYPE (casa_met),            INTENT(INOUT) :: casamet
     TYPE (casa_balance),        INTENT(INOUT) :: casabal
-    !  REAL(r_2),    INTENT(IN) :: clitterinput(mp,3),csoilinput(mp,3)
+    !  REAL(r2),    INTENT(IN) :: clitterinput(mp,3),csoilinput(mp,3)
 
     ! local variables
     INTEGER ::  npt,nout
-    REAL(r_2) :: xyear, totGPP, totNPP
+    REAL(r2) :: xyear, totGPP, totNPP
 
-    totGPP = 0.0_r_2
-    totNPP = 0.0_r_2
+    totGPP = 0.0_r2
+    totNPP = 0.0_r2
     nout   = 104
-    xyear  = 1.0_r_2/real(myear,r_2)
+    xyear  = 1.0_r2/real(myear,r2)
     casabal%FCgppyear    = casabal%FCgppyear    * xyear
     casabal%FCnppyear    = casabal%FCnppyear    * xyear
     casabal%FCrmleafyear = casabal%FCrmleafyear * xyear
@@ -1071,7 +1071,7 @@ contains
        CASE(1)
           WRITE(nout,*) myear,npt,veg%iveg(npt),soil%isoilm(npt),    &
                casamet%isorder(npt),casamet%lat(npt),casamet%lon(npt), &
-               casamet%areacell(npt)*(1.0e-9_r_2),casabal%Fcgppyear(npt),  &
+               casamet%areacell(npt)*(1.0e-9_r2),casabal%Fcgppyear(npt),  &
                casabal%Fcnppyear(npt),  &
                casabal%Fcrmleafyear(npt),casabal%Fcrmwoodyear(npt),     &
                casabal%Fcrmrootyear(npt),casabal%Fcrgrowyear(npt),     &
@@ -1081,7 +1081,7 @@ contains
           WRITE(nout,*) myear,npt,veg%iveg(npt),soil%isoilm(npt),    &
                casamet%isorder(npt),casamet%lat(npt),casamet%lon(npt), &
                                 !MC - casamet%areacell is different between MPI and serial
-               casamet%areacell(npt)*(1.0e-9_r_2),casabal%Fcgppyear(npt),  &
+               casamet%areacell(npt)*(1.0e-9_r2),casabal%Fcgppyear(npt),  &
                casabal%FCnppyear(npt),                                 &
                casabal%Fcrmleafyear(npt),casabal%Fcrmwoodyear(npt),     &
                casabal%Fcrmrootyear(npt),casabal%Fcrgrowyear(npt),     &
@@ -1092,7 +1092,7 @@ contains
        CASE(3)
           WRITE(nout,*) myear,npt,veg%iveg(npt),soil%isoilm(npt), &
                casamet%isorder(npt),casamet%lat(npt),casamet%lon(npt),  &
-               casamet%areacell(npt)*(1.0e-9_r_2),casabal%Fcgppyear(npt), &
+               casamet%areacell(npt)*(1.0e-9_r2),casabal%Fcgppyear(npt), &
                casabal%FCnppyear(npt),                                  &
                casabal%Fcrmleafyear(npt),casabal%Fcrmwoodyear(npt),     &
                casabal%Fcrmrootyear(npt),casabal%Fcrgrowyear(npt),     &
@@ -1107,8 +1107,8 @@ contains
        totNPP = totNPP+casabal%Fcnppyear(npt)* casamet%areacell(npt)
     ENDDO
 
-    write(*,*) 'totGPP global = ', totGPP * (1.0e-15_r_2)
-    write(*,*) 'totNPP global = ', totNPP * (1.0e-15_r_2)
+    write(*,*) 'totGPP global = ', totGPP * (1.0e-15_r2)
+    write(*,*) 'totNPP global = ', totNPP * (1.0e-15_r2)
 
     CLOSE(nout)
 
@@ -1132,43 +1132,43 @@ contains
     LOGICAL,            intent(in)    :: zeroflux
 
     IF (zeroflux) THEN
-       casabal%FCgppyear    = 0.0_r_2
-       casabal%FCrpyear     = 0.0_r_2
-       casabal%FCrmleafyear = 0.0_r_2
-       casabal%FCrmwoodyear = 0.0_r_2
-       casabal%FCrmrootyear = 0.0_r_2
-       casabal%FCrgrowyear  = 0.0_r_2
-       casabal%FCnppyear    = 0.0_r_2
-       casabal%FCrsyear     = 0.0_r_2
-       casabal%FCneeyear    = 0.0_r_2
-       casabal%dCdtyear     = 0.0_r_2
+       casabal%FCgppyear    = 0.0_r2
+       casabal%FCrpyear     = 0.0_r2
+       casabal%FCrmleafyear = 0.0_r2
+       casabal%FCrmwoodyear = 0.0_r2
+       casabal%FCrmrootyear = 0.0_r2
+       casabal%FCrgrowyear  = 0.0_r2
+       casabal%FCnppyear    = 0.0_r2
+       casabal%FCrsyear     = 0.0_r2
+       casabal%FCneeyear    = 0.0_r2
+       casabal%dCdtyear     = 0.0_r2
 
-       casabal%FNdepyear   = 0.0_r_2
-       casabal%FNfixyear   = 0.0_r_2
-       casabal%FNsnetyear  = 0.0_r_2
-       casabal%FNupyear    = 0.0_r_2
-       casabal%FNleachyear = 0.0_r_2
-       casabal%FNlossyear  = 0.0_r_2
+       casabal%FNdepyear   = 0.0_r2
+       casabal%FNfixyear   = 0.0_r2
+       casabal%FNsnetyear  = 0.0_r2
+       casabal%FNupyear    = 0.0_r2
+       casabal%FNleachyear = 0.0_r2
+       casabal%FNlossyear  = 0.0_r2
 
-       casabal%FPweayear   = 0.0_r_2
-       casabal%FPdustyear  = 0.0_r_2
-       casabal%FPsnetyear  = 0.0_r_2
-       casabal%FPupyear    = 0.0_r_2
-       casabal%FPleachyear = 0.0_r_2
-       casabal%FPlossyear  = 0.0_r_2
+       casabal%FPweayear   = 0.0_r2
+       casabal%FPdustyear  = 0.0_r2
+       casabal%FPsnetyear  = 0.0_r2
+       casabal%FPupyear    = 0.0_r2
+       casabal%FPleachyear = 0.0_r2
+       casabal%FPlossyear  = 0.0_r2
 
-       casaflux%FluxCtohwp   = 0.0_r_2
-       casaflux%FluxNtohwp   = 0.0_r_2
-       casaflux%FluxPtohwp   = 0.0_r_2
-       casaflux%FluxCtoclear = 0.0_r_2
-       casaflux%FluxNtoclear = 0.0_r_2
-       casaflux%FluxPtoclear = 0.0_r_2
-       casaflux%CtransferLUC = 0.0_r_2
+       casaflux%FluxCtohwp   = 0.0_r2
+       casaflux%FluxNtohwp   = 0.0_r2
+       casaflux%FluxPtohwp   = 0.0_r2
+       casaflux%FluxCtoclear = 0.0_r2
+       casaflux%FluxNtoclear = 0.0_r2
+       casaflux%FluxPtoclear = 0.0_r2
+       casaflux%CtransferLUC = 0.0_r2
 
        !MC - commented because otherwise serial and MPI versions different
-       ! casaflux%Cplant_turnover_disturbance         = 0.0_r_2
-       ! casaflux%Cplant_turnover_crowding            = 0.0_r_2
-       ! casaflux%Cplant_turnover_resource_limitation = 0.0_r_2
+       ! casaflux%Cplant_turnover_disturbance         = 0.0_r2
+       ! casaflux%Cplant_turnover_crowding            = 0.0_r2
+       ! casaflux%Cplant_turnover_resource_limitation = 0.0_r2
 
     ELSE
 
@@ -1241,22 +1241,22 @@ contains
     TYPE(phen_variable),       INTENT(INOUT) :: phen
     TYPE(POP_TYPE),            INTENT(IN)    :: POP
     TYPE(climate_TYPE),        INTENT(IN)    :: climate
-    real(r_2), dimension(mp),  intent(out)   :: xnplimit
-    real(r_2), dimension(mp),  intent(out)   :: xkNlimiting
-    real(r_2), dimension(mp),  intent(out)   :: xklitter, xksoil
-    real(r_2), dimension(mp),  intent(out)   :: xkleafcold, xkleafdry, xkleaf
+    real(r2), dimension(mp),  intent(out)   :: xnplimit
+    real(r2), dimension(mp),  intent(out)   :: xkNlimiting
+    real(r2), dimension(mp),  intent(out)   :: xklitter, xksoil
+    real(r2), dimension(mp),  intent(out)   :: xkleafcold, xkleafdry, xkleaf
     ! added by ypwang following Chris Lu 5/nov/2012
-    real(r_2), dimension(mp),  intent(out)   :: &
+    real(r2), dimension(mp),  intent(out)   :: &
          cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd, &
          nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd, &
          pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
 
     ! local variables
-    REAL(r_2), DIMENSION(mp) :: xNuptake, xPuptake, xNPuptake
+    REAL(r2), DIMENSION(mp) :: xNuptake, xPuptake, xNPuptake
     INTEGER :: j
-    REAL(r_2), ALLOCATABLE :: tmp(:)
+    REAL(r2), ALLOCATABLE :: tmp(:)
 
-    xKNlimiting = 1.0_r_2
+    xKNlimiting = 1.0_r2
 
     ! zero annual sums
     if (idoy==1) CALL casa_cnpflux(casaflux, casapool, casabal, .true.)
@@ -1282,42 +1282,42 @@ contains
     IF (cable_user%CALL_POP) THEN
 
        call casa_allocation(veg,soil,casabiome,casaflux,casapool,casamet,phen,LALLOC)
-       WHERE (pop%pop_grid(:)%cmass_sum_old.gt.0.001_r_2 .and. pop%pop_grid(:)%cmass_sum.gt.0.001_r_2 )
+       WHERE (pop%pop_grid(:)%cmass_sum_old.gt.0.001_r2 .and. pop%pop_grid(:)%cmass_sum.gt.0.001_r2 )
           casaflux%frac_sapwood(POP%Iwood) = POP%pop_grid(:)%csapwood_sum / POP%pop_grid(:)%cmass_sum
-          casaflux%sapwood_area(POP%Iwood) = max(POP%pop_grid(:)%sapwood_area/10000._r_2, 1.0e-6_r_2)
+          casaflux%sapwood_area(POP%Iwood) = max(POP%pop_grid(:)%sapwood_area/10000._r2, 1.0e-6_r2)
           veg%hc(POP%Iwood) = real(POP%pop_grid(:)%height_max)
 
           WHERE (pop%pop_grid(:)%LU ==2)
-             casaflux%kplant(POP%Iwood,2) = 1.0_r_2 -  &
-                  (1.0_r_2 -  max( min((POP%pop_grid(:)%stress_mortality + &
+             casaflux%kplant(POP%Iwood,2) = 1.0_r2 -  &
+                  (1.0_r2 -  max( min((POP%pop_grid(:)%stress_mortality + &
                   POP%pop_grid(:)%crowding_mortality ) &
                   /(POP%pop_grid(:)%cmass_sum+POP%pop_grid(:)%growth) + &
-                  1.0_r_2/veg%disturbance_interval(POP%Iwood,1), 0.99_r_2), &
-                  0.0_r_2))**(1.0_r_2/365.0_r_2)
+                  1.0_r2/veg%disturbance_interval(POP%Iwood,1), 0.99_r2), &
+                  0.0_r2))**(1.0_r2/365.0_r2)
           ELSEWHERE
-             casaflux%kplant(POP%Iwood,2) =  1.0_r_2 -  &
-                  (1.0_r_2 -  max( min((POP%pop_grid(:)%stress_mortality + &
+             casaflux%kplant(POP%Iwood,2) =  1.0_r2 -  &
+                  (1.0_r2 -  max( min((POP%pop_grid(:)%stress_mortality + &
                   POP%pop_grid(:)%crowding_mortality + &
                   POP%pop_grid(:)%cat_mortality  ) &
-                  /(POP%pop_grid(:)%cmass_sum+POP%pop_grid(:)%growth), 0.99_r_2), &
-                  0.0_r_2))**(1.0_r_2/365.0_r_2)
+                  /(POP%pop_grid(:)%cmass_sum+POP%pop_grid(:)%growth), 0.99_r2), &
+                  0.0_r2))**(1.0_r2/365.0_r2)
           ENDWHERE
           veg%hc(POP%Iwood) = real(POP%pop_grid(:)%height_max)
        ELSEWHERE
-          casaflux%frac_sapwood(POP%Iwood) = 1.0_r_2
-          casaflux%sapwood_area(POP%Iwood) = max(POP%pop_grid(:)%sapwood_area/10000._r_2, 1e-6_r_2)
-          casaflux%kplant(POP%Iwood,2) = 0.0_r_2
+          casaflux%frac_sapwood(POP%Iwood) = 1.0_r2
+          casaflux%sapwood_area(POP%Iwood) = max(POP%pop_grid(:)%sapwood_area/10000._r2, 1e-6_r2)
+          casaflux%kplant(POP%Iwood,2) = 0.0_r2
           veg%hc(POP%Iwood) = real(POP%pop_grid(:)%height_max)
        ENDWHERE
-       if (any(casaflux%kplant(:,leaf) < 0.0_r_2)) then
+       if (any(casaflux%kplant(:,leaf) < 0.0_r2)) then
           do j=1, mp
-             if (casaflux%kplant(j,leaf) < 0.0_r_2) then
+             if (casaflux%kplant(j,leaf) < 0.0_r2) then
                 print*, 'ERR KK20 ', j, casaflux%kplant(j,leaf)
              endif
           enddo
        endif
        casaflux%kplant_tot(POP%Iwood,2) = casaflux%kplant(POP%Iwood,2) + &
-            (1.0_r_2 -casaflux%kplant(POP%Iwood,2)) * casaflux%kplant_fire(POP%Iwood,2)
+            (1.0_r2 -casaflux%kplant(POP%Iwood,2)) * casaflux%kplant_fire(POP%Iwood,2)
     ENDIF
 
     call casa_xratesoil(xklitter,xksoil,veg,soil,casamet,casabiome)
@@ -1331,7 +1331,7 @@ contains
           casaflux%klitter(:,j) = casaflux%klitter(:,j)* xkNlimiting(:)
           ! MC - have to update klitter_tot as well, otherwise no C balance
           casaflux%klitter_tot(:,j) = casaflux%klitter(:,j) + &
-               (1.0_r_2 -casaflux%klitter(:,j)) * casaflux%klitter_fire(:,j)
+               (1.0_r2 -casaflux%klitter(:,j)) * casaflux%klitter_fire(:,j)
        ENDDO
        call casa_nuptake(veg,xNuptake,casabiome,casapool,casaflux,casamet)
        IF (icycle >2) call casa_puptake(veg,xPuptake,casabiome, &
@@ -1344,9 +1344,9 @@ contains
          nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd, &
          pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
 
-    casaflux%Cplant_turnover_disturbance         = 0.0_r_2
-    casaflux%Cplant_turnover_crowding            = 0.0_r_2
-    casaflux%Cplant_turnover_resource_limitation = 0.0_r_2
+    casaflux%Cplant_turnover_disturbance         = 0.0_r2
+    casaflux%Cplant_turnover_crowding            = 0.0_r2
+    casaflux%Cplant_turnover_resource_limitation = 0.0_r2
 
     if (cable_user%CALL_POP) THEN
        if (.not.allocated(tmp)) allocate(tmp(size(POP%pop_grid)))
@@ -1354,8 +1354,8 @@ contains
             + POP%pop_grid(:)%crowding_mortality &
             + POP%pop_grid(:)%cat_mortality &
             + POP%pop_grid(:)%fire_mortality
-       ! where (tmp .gt. 1.e-12_r_2)
-       where (tmp > real(epsilon(1.0),r_2))
+       ! where (tmp .gt. 1.e-12_r2)
+       where (tmp > real(epsilon(1.0),r2))
           casaflux%Cplant_turnover_disturbance(POP%Iwood(:)) =  &
                casaflux%Cplant_turnover(POP%Iwood(:),2) * &
                (POP%pop_grid(:)%cat_mortality + POP%pop_grid(:)%fire_mortality) / tmp(:)
@@ -1383,8 +1383,8 @@ contains
 
     ! for spinning up only
     IF (cable_user%limit_labile) THEN
-       casapool%Nsoilmin = max(casapool%Nsoilmin, 5.0_r_2)
-       casapool%Psoillab = max(casapool%Psoillab, 1.0_r_2)
+       casapool%Nsoilmin = max(casapool%Nsoilmin, 5.0_r2)
+       casapool%Psoillab = max(casapool%Psoillab, 1.0_r2)
     ENDIF
 
   END SUBROUTINE biogeochem
@@ -1518,12 +1518,14 @@ contains
   !! old routine used before 2023. Replaced by write_casa_output_land_nc and write_casa_output_grid_nc
   subroutine write_casa_output_nc(veg, casamet, casapool, casabal, casaflux, casaonly, ctime, lfinal)
 
+    use, intrinsic :: iso_c_binding, only: c_float
+
     use casadimension,        only: mplant, mlitter, msoil, icycle
     use casavariable,         only: casa_met, casa_pool, casa_balance, casa_flux, &
          casafile, casa_timeunits
     use cable_common_module,  only: cable_user, filename, handle_err
     use cable_def_types_mod,  only: veg_parameter_type, mp
-    ! use cable_def_types_mod,  only: sp => r_2
+    ! use cable_def_types_mod,  only: sp => r2
     !use netcdf,               only: nf90_noerr, &
     !     nf90_put_var, nf90_clobber, nf90_create, nf90_global, nf90_put_att, &
 !#ifdef __NETCDF3__
@@ -1549,7 +1551,7 @@ contains
     character(len=99) :: fname
     character(len=50) :: dum
     logical, save :: call1 = .true.
-    integer, parameter :: sp = kind(1.0)
+    integer, parameter :: r1 = c_float
 
     ! 1 dim arrays (mp)
     character(len=21), dimension(2)  :: a0
@@ -1853,10 +1855,10 @@ contains
        if (status /= nf90_noerr) call handle_err(status)
 
        ! put lat / lon ( mp )
-       status = nf90_put_var(file_id, vid0(1), real(casamet%lat,sp))
+       status = nf90_put_var(file_id, vid0(1), real(casamet%lat,r1))
        if(status /= nf90_noerr) call handle_err(status)
 
-       status = nf90_put_var(file_id, vid0(2), real(casamet%lon,sp))
+       status = nf90_put_var(file_id, vid0(2), real(casamet%lon,r1))
        if(status /= nf90_noerr) call handle_err(status)
 
        call1 = .false.
@@ -1869,227 +1871,227 @@ contains
     if(status /= nf90_noerr) call handle_err(status)
 
     ! patchfrac and area
-    status = nf90_put_var(file_id, vid1(1), real(patch(:)%frac,sp),         start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(1), real(patch(:)%frac,r1),         start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
     !status = nf90_put_att(file_id, vid1(52), 'units', '-')
     !if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(2), real(casamet%areacell,sp),      start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(2), real(casamet%areacell,r1),      start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
     
     ! C
-    status = nf90_put_var(file_id, vid1(3),  real(casamet%glai,sp),         start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(3),  real(casamet%glai,r1),         start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(4),  real(casapool%clabile,sp),     start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(4),  real(casapool%clabile,r1),     start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(5),  real(casabal%sumcbal,sp),      start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(5),  real(casabal%sumcbal,r1),      start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(6),  real(casaflux%cgpp,sp),        start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(6),  real(casaflux%cgpp,r1),        start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(7),  real(casaflux%cnpp,sp),        start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(7),  real(casaflux%cnpp,r1),        start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(8),  real(casaflux%stemnpp,sp),     start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(8),  real(casaflux%stemnpp,r1),     start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(9),  real(casaflux%crp,sp),         start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(9),  real(casaflux%crp,r1),         start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(10),  real(casaflux%crgplant,sp),    start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(10),  real(casaflux%crgplant,r1),    start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(11),  real(casaflux%clabloss,sp),    start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(11),  real(casaflux%clabloss,r1),    start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(12), real(casaflux%fracclabile,sp), start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(12), real(casaflux%fracclabile,r1), start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(13), real(casaflux%cnep,sp),        start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(13), real(casaflux%cnep,r1),        start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(14), real(casaflux%crsoil,sp),      start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(14), real(casaflux%crsoil,r1),      start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(15), real(casaflux%fluxctoco2,sp),  start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(15), real(casaflux%fluxctoco2,r1),  start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(16), real(casabal%fcgppyear,sp),    start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(16), real(casabal%fcgppyear,r1),    start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(17), real(casabal%fcrpyear,sp),     start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(17), real(casabal%fcrpyear,r1),     start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(18), real(casabal%fcnppyear,sp),    start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(18), real(casabal%fcnppyear,r1),    start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(19), real(casabal%fcrsyear,sp),     start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(19), real(casabal%fcrsyear,r1),     start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(20), real(casabal%fcneeyear,sp),    start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(20), real(casabal%fcneeyear,r1),    start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(21), real(veg%vcmax,sp),            start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(21), real(veg%vcmax,r1),            start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(22), real(casaflux%CallocLeaf,sp),     start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(22), real(casaflux%CallocLeaf,r1),     start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(23), real(casaflux%CallocWood,sp),     start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(23), real(casaflux%CallocWood,r1),     start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid1(24), real(casaflux%CallocFineRoot,sp), start=(/1,cnt/), count=(/mp,1/) )
+    status = nf90_put_var(file_id, vid1(24), real(casaflux%CallocFineRoot,r1), start=(/1,cnt/), count=(/mp,1/) )
     if(status /= nf90_noerr) call handle_err(status)
     ! N
     if (icycle > 1) then
-       status = nf90_put_var(file_id, vid1(25), real(casabal%sumnbal,sp),      start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(25), real(casabal%sumnbal,r1),      start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(26), real(casaflux%nminfix,sp),     start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(26), real(casaflux%nminfix,r1),     start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(27), real(casaflux%nmindep,sp),     start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(27), real(casaflux%nmindep,r1),     start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(28), real(casaflux%nminloss,sp),    start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(28), real(casaflux%nminloss,r1),    start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(29), real(casaflux%nminleach,sp),   start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(29), real(casaflux%nminleach,r1),   start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(30), real(casaflux%nupland,sp),     start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(30), real(casaflux%nupland,r1),     start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(31), real(casaflux%nlittermin,sp),  start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(31), real(casaflux%nlittermin,r1),  start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(32), real(casaflux%nsmin,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(32), real(casaflux%nsmin,r1),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(33), real(casaflux%nsimm,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(33), real(casaflux%nsimm,r1),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(34), real(casaflux%nsnet,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(34), real(casaflux%nsnet,r1),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(35), real(casaflux%fnminloss,sp),   start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(35), real(casaflux%fnminloss,r1),   start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(36), real(casapool%nsoilmin,sp),    start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(36), real(casapool%nsoilmin,r1),    start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
     endif
     ! P
     if (icycle > 2) then
-       status = nf90_put_var(file_id, vid1(37), real(casapool%psoillab,sp),    start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(37), real(casapool%psoillab,r1),    start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(38), real(casapool%psoilsorb,sp),   start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(38), real(casapool%psoilsorb,r1),   start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(39), real(casapool%psoilocc,sp),    start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(39), real(casapool%psoilocc,r1),    start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(40), real(casabal%sumpbal,sp),      start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(40), real(casabal%sumpbal,r1),      start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(41), real(casaflux%plabuptake,sp),  start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(41), real(casaflux%plabuptake,r1),  start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(42), real(casaflux%pdep,sp),        start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(42), real(casaflux%pdep,r1),        start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(43), real(casaflux%pwea,sp),        start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(43), real(casaflux%pwea,r1),        start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(44), real(casaflux%pleach,sp),      start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(44), real(casaflux%pleach,r1),      start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(45), real(casaflux%ploss,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(45), real(casaflux%ploss,r1),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(46), real(casaflux%pupland,sp),     start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(46), real(casaflux%pupland,r1),     start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(47), real(casaflux%plittermin,sp),  start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(47), real(casaflux%plittermin,r1),  start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(48), real(casaflux%psmin,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(48), real(casaflux%psmin,r1),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(49), real(casaflux%psimm,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(49), real(casaflux%psimm,r1),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(50), real(casaflux%psnet,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(50), real(casaflux%psnet,r1),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(51), real(casaflux%fpleach,sp),     start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(51), real(casaflux%fpleach,r1),     start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(52), real(casaflux%kplab,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(52), real(casaflux%kplab,r1),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(53), real(casaflux%kpsorb,sp),      start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(53), real(casaflux%kpsorb,r1),      start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(54), real(casaflux%kpocc,sp),       start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(54), real(casaflux%kpocc,r1),       start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(55), real(casaflux%kmlabp,sp),      start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(55), real(casaflux%kmlabp,r1),      start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid1(56), real(casaflux%psorbmax,sp),    start=(/1,cnt/), count=(/mp,1/) )
+       status = nf90_put_var(file_id, vid1(56), real(casaflux%psorbmax,r1),    start=(/1,cnt/), count=(/mp,1/) )
        if(status /= nf90_noerr) call handle_err(status)
     endif
 
     ! put 3d vars ( mp, mplant, t )
     ! C
-    status = nf90_put_var(file_id, vid2(1), real(casapool%cplant,sp),      start=(/1,1,cnt/), count=(/mp,mplant,1/))
+    status = nf90_put_var(file_id, vid2(1), real(casapool%cplant,r1),      start=(/1,1,cnt/), count=(/mp,mplant,1/))
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid2(2), real(casaflux%fracCalloc,sp),  start=(/1,1,cnt/), count=(/mp,mplant,1/))
+    status = nf90_put_var(file_id, vid2(2), real(casaflux%fracCalloc,r1),  start=(/1,1,cnt/), count=(/mp,mplant,1/))
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid2(3), real(casaflux%kplant,sp),      start=(/1,1,cnt/), count=(/mp,mplant,1/))
+    status = nf90_put_var(file_id, vid2(3), real(casaflux%kplant,r1),      start=(/1,1,cnt/), count=(/mp,mplant,1/))
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid2(4), real(casaflux%crmplant,sp),    start=(/1,1,cnt/), count=(/mp,mplant,1/))
+    status = nf90_put_var(file_id, vid2(4), real(casaflux%crmplant,r1),    start=(/1,1,cnt/), count=(/mp,mplant,1/))
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid2(5), real(casaflux%kplant_fire,sp), start=(/1,1,cnt/), count=(/mp,mplant,1/))
+    status = nf90_put_var(file_id, vid2(5), real(casaflux%kplant_fire,r1), start=(/1,1,cnt/), count=(/mp,mplant,1/))
     if(status /= nf90_noerr) call handle_err(status)
     ! N
     if (icycle > 1) then
-       status = nf90_put_var(file_id, vid2(6), real(casapool%nplant,sp),     start=(/1,1,cnt/), count=(/mp,mplant,1/))
+       status = nf90_put_var(file_id, vid2(6), real(casapool%nplant,r1),     start=(/1,1,cnt/), count=(/mp,mplant,1/))
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid2(7), real(casaflux%fracnalloc,sp), start=(/1,1,cnt/), count=(/mp,mplant,1/))
+       status = nf90_put_var(file_id, vid2(7), real(casaflux%fracnalloc,r1), start=(/1,1,cnt/), count=(/mp,mplant,1/))
        if(status /= nf90_noerr) call handle_err(status)
     endif
     ! P
     if (icycle > 2) then
-       status = nf90_put_var(file_id, vid2(8), real(casapool%pplant,sp),     start=(/1,1,cnt/), count=(/mp,mplant,1/))
+       status = nf90_put_var(file_id, vid2(8), real(casapool%pplant,r1),     start=(/1,1,cnt/), count=(/mp,mplant,1/))
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid2(9), real(casaflux%fracpalloc,sp), start=(/1,1,cnt/), count=(/mp,mplant,1/))
+       status = nf90_put_var(file_id, vid2(9), real(casaflux%fracpalloc,r1), start=(/1,1,cnt/), count=(/mp,mplant,1/))
        if(status /= nf90_noerr) call handle_err(status)
     endif
 
     ! put 3d vars ( mp, mlitter, t )
     ! C
-    status = nf90_put_var(file_id, vid3(1), real(casapool%clitter,sp),       start=(/1,1,cnt/), count=(/mp,mlitter,1/))
+    status = nf90_put_var(file_id, vid3(1), real(casapool%clitter,r1),       start=(/1,1,cnt/), count=(/mp,mlitter,1/))
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid3(2), real(casaflux%klitter,sp),       start=(/1,1,cnt/), count=(/mp,mlitter,1/))
+    status = nf90_put_var(file_id, vid3(2), real(casaflux%klitter,r1),       start=(/1,1,cnt/), count=(/mp,mlitter,1/))
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid3(3), real(casaflux%fromltoco2,sp),    start=(/1,1,cnt/), count=(/mp,mlitter,1/))
+    status = nf90_put_var(file_id, vid3(3), real(casaflux%fromltoco2,r1),    start=(/1,1,cnt/), count=(/mp,mlitter,1/))
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid3(4), real(casaflux%fluxctolitter,sp), start=(/1,1,cnt/), count=(/mp,mlitter,1/))
+    status = nf90_put_var(file_id, vid3(4), real(casaflux%fluxctolitter,r1), start=(/1,1,cnt/), count=(/mp,mlitter,1/))
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid3(5), real(casaflux%fluxcleaftolitter,sp), start=(/1,1,cnt/), count=(/mp,mlitter,1/))
+    status = nf90_put_var(file_id, vid3(5), real(casaflux%fluxcleaftolitter,r1), start=(/1,1,cnt/), count=(/mp,mlitter,1/))
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid3(6), real(casaflux%fluxcwoodtolitter,sp), start=(/1,1,cnt/), count=(/mp,mlitter,1/))
+    status = nf90_put_var(file_id, vid3(6), real(casaflux%fluxcwoodtolitter,r1), start=(/1,1,cnt/), count=(/mp,mlitter,1/))
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid3(7), real(casaflux%fluxcfineroottolitter,sp), start=(/1,1,cnt/), count=(/mp,mlitter,1/))
+    status = nf90_put_var(file_id, vid3(7), real(casaflux%fluxcfineroottolitter,r1), start=(/1,1,cnt/), count=(/mp,mlitter,1/))
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid3(8), real(casaflux%klitter_fire,sp),  start=(/1,1,cnt/), count=(/mp,mlitter,1/))
+    status = nf90_put_var(file_id, vid3(8), real(casaflux%klitter_fire,r1),  start=(/1,1,cnt/), count=(/mp,mlitter,1/))
     if(status /= nf90_noerr) call handle_err(status)
     ! N
     if (icycle > 1) then
-       status = nf90_put_var(file_id, vid3(9), real(casapool%nlitter,sp),       start=(/1,1,cnt/), count=(/mp,mlitter,1/))
+       status = nf90_put_var(file_id, vid3(9), real(casapool%nlitter,r1),       start=(/1,1,cnt/), count=(/mp,mlitter,1/))
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid3(10), real(casaflux%fluxntolitter,sp), start=(/1,1,cnt/), count=(/mp,mlitter,1/))
+       status = nf90_put_var(file_id, vid3(10), real(casaflux%fluxntolitter,r1), start=(/1,1,cnt/), count=(/mp,mlitter,1/))
        if(status /= nf90_noerr) call handle_err(status)
     endif
     ! P
     if (icycle > 2) then
-       status = nf90_put_var(file_id, vid3(11), real(casapool%plitter,sp),       start=(/1,1,cnt/), count=(/mp,mlitter,1/))
+       status = nf90_put_var(file_id, vid3(11), real(casapool%plitter,r1),       start=(/1,1,cnt/), count=(/mp,mlitter,1/))
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid3(12), real(casaflux%fluxptolitter,sp), start=(/1,1,cnt/), count=(/mp,mlitter,1/))
+       status = nf90_put_var(file_id, vid3(12), real(casaflux%fluxptolitter,r1), start=(/1,1,cnt/), count=(/mp,mlitter,1/))
        if(status /= nf90_noerr) call handle_err(status)
     endif
 
     ! put 3d vars ( mp, msoil, t )
     ! C
-    status = nf90_put_var(file_id, vid4(1), real(casapool%csoil,sp),       start=(/1,1,cnt/), count=(/mp,msoil,1/))
+    status = nf90_put_var(file_id, vid4(1), real(casapool%csoil,r1),       start=(/1,1,cnt/), count=(/mp,msoil,1/))
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid4(2), real(casaflux%ksoil,sp),       start=(/1,1,cnt/), count=(/mp,msoil,1/))
+    status = nf90_put_var(file_id, vid4(2), real(casaflux%ksoil,r1),       start=(/1,1,cnt/), count=(/mp,msoil,1/))
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid4(3), real(casaflux%fromstoco2,sp),  start=(/1,1,cnt/), count=(/mp,msoil,1/))
+    status = nf90_put_var(file_id, vid4(3), real(casaflux%fromstoco2,r1),  start=(/1,1,cnt/), count=(/mp,msoil,1/))
     if(status /= nf90_noerr) call handle_err(status)
-    status = nf90_put_var(file_id, vid4(4), real(casaflux%fluxctosoil,sp), start=(/1,1,cnt/), count=(/mp,msoil,1/))
+    status = nf90_put_var(file_id, vid4(4), real(casaflux%fluxctosoil,r1), start=(/1,1,cnt/), count=(/mp,msoil,1/))
     if(status /= nf90_noerr) call handle_err(status)
     ! N
     if (icycle > 1) then
-       status = nf90_put_var(file_id, vid4(5), real(casapool%nsoil,sp),       start=(/1,1,cnt/), count=(/mp,msoil,1/))
+       status = nf90_put_var(file_id, vid4(5), real(casapool%nsoil,r1),       start=(/1,1,cnt/), count=(/mp,msoil,1/))
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid4(6), real(casaflux%fluxntosoil,sp), start=(/1,1,cnt/), count=(/mp,msoil,1/))
+       status = nf90_put_var(file_id, vid4(6), real(casaflux%fluxntosoil,r1), start=(/1,1,cnt/), count=(/mp,msoil,1/))
        if(status /= nf90_noerr) call handle_err(status)
     endif
     ! P
     if (icycle > 2) then
-       status = nf90_put_var(file_id, vid4(7), real(casapool%psoil,sp),       start=(/1,1,cnt/), count=(/mp,msoil,1/))
+       status = nf90_put_var(file_id, vid4(7), real(casapool%psoil,r1),       start=(/1,1,cnt/), count=(/mp,msoil,1/))
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid4(8), real(casaflux%fluxptosoil,sp), start=(/1,1,cnt/), count=(/mp,msoil,1/))
+       status = nf90_put_var(file_id, vid4(8), real(casaflux%fluxptosoil,r1), start=(/1,1,cnt/), count=(/mp,msoil,1/))
        if(status /= nf90_noerr) call handle_err(status)
     endif
 
     ! put 4d vars ( mp, mlitter,mplant, t )
     ! C
-    status = nf90_put_var(file_id, vid5(1), real(casaflux%fromptol,sp), start=(/1,1,1,cnt/), count=(/mp,mlitter,mplant,1/))
+    status = nf90_put_var(file_id, vid5(1), real(casaflux%fromptol,r1), start=(/1,1,1,cnt/), count=(/mp,mlitter,mplant,1/))
     if(status /= nf90_noerr) call handle_err(status)
 
     ! put 4d vars ( mp, msoil, mlitter, t )
     ! C
-    status = nf90_put_var(file_id, vid6(1), real(casaflux%fromltos,sp), start=(/1,1,1,cnt/), count=(/mp,msoil,mlitter,1/))
+    status = nf90_put_var(file_id, vid6(1), real(casaflux%fromltos,r1), start=(/1,1,1,cnt/), count=(/mp,msoil,mlitter,1/))
     if(status /= nf90_noerr) call handle_err(status)
 
     ! put 4d vars ( mp, msoil, msoil, t )
     ! C
-    status = nf90_put_var(file_id, vid7(1), real(casaflux%fromstos,sp), start=(/1,1,1,cnt/), count=(/mp,msoil,msoil,1/))
+    status = nf90_put_var(file_id, vid7(1), real(casaflux%fromstos,r1), start=(/1,1,1,cnt/), count=(/mp,msoil,msoil,1/))
     if(status /= nf90_noerr) call handle_err(status)
 
     if ( lfinal ) then
@@ -2109,6 +2111,8 @@ contains
    ! Note: only works for 4D casa variables. Higher dimensions are not supported at the moment 
    !       -> variables fromLtoS, fromPtoL, and fromStoS currently not considered
    !       -> variables with additional dimensions (mplant, mlitter, msoil) are averaged over patches to avoid 5D outputs
+
+    use, intrinsic :: iso_c_binding, only: c_float
 
     use casadimension,        only: mplant, mlitter, msoil, icycle
     use casavariable,         only: casa_met, casa_pool, casa_balance, casa_flux, &
@@ -2140,7 +2144,7 @@ contains
     character(len=99) :: fname
     character(len=50) :: dum
     logical, save :: call1 = .true.
-    integer, parameter :: sp = kind(1.0)
+    integer, parameter :: r1 = c_float
 
     ! 2 dim arrays (x,y)
     character(len=21), dimension(2)  :: a0
@@ -2522,7 +2526,7 @@ contains
           if (status /= nf90_noerr) call handle_err(status)
           status = nf90_put_att(file_id, vid1(i), 'units', trim(u1(i)))
           if (status /= nf90_noerr) call handle_err(status)
-          status = nf90_put_att(file_id, vid1(i), '_FillValue', real(ncmissingr,sp))
+          status = nf90_put_att(file_id, vid1(i), '_FillValue', real(ncmissingr,r1))
           if (status /= nf90_noerr) call handle_err(status)
        end do
 
@@ -2535,7 +2539,7 @@ contains
           if (status /= nf90_noerr) call handle_err(status)
           status = nf90_put_att(file_id, vid2(i), 'units', trim(u2(i)))
           if (status /= nf90_noerr) call handle_err(status)
-          status = nf90_put_att(file_id, vid2(i), '_FillValue', real(ncmissingr,sp))
+          status = nf90_put_att(file_id, vid2(i), '_FillValue', real(ncmissingr,r1))
           if (status /= nf90_noerr) call handle_err(status)
        end do
 
@@ -2548,7 +2552,7 @@ contains
           if (status /= nf90_noerr) call handle_err(status)
           status = nf90_put_att(file_id, vid3(i), 'units', trim(u3(i)))
           if (status /= nf90_noerr) call handle_err(status)
-          status = nf90_put_att(file_id, vid3(i), '_FillValue', real(ncmissingr,sp))
+          status = nf90_put_att(file_id, vid3(i), '_FillValue', real(ncmissingr,r1))
           if (status /= nf90_noerr) call handle_err(status)
        end do
 
@@ -2561,7 +2565,7 @@ contains
           if (status /= nf90_noerr) call handle_err(status)
           status = nf90_put_att(file_id, vid4(i), 'units', trim(u4(i)))
           if (status /= nf90_noerr) call handle_err(status)
-          status = nf90_put_att(file_id, vid4(i), '_FillValue', real(ncmissingr,sp))
+          status = nf90_put_att(file_id, vid4(i), '_FillValue', real(ncmissingr,r1))
           if (status /= nf90_noerr) call handle_err(status)
        end do
 
@@ -2570,15 +2574,15 @@ contains
        if (status /= nf90_noerr) call handle_err(status)
 
        ! put y and x (note this is necessary to get the correct output grid!)
-       status = nf90_put_var(file_id, vidy, real(lat_all(1,:),sp))
+       status = nf90_put_var(file_id, vidy, real(lat_all(1,:),r1))
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vidx, real(lon_all(:,1),sp))
+       status = nf90_put_var(file_id, vidx, real(lon_all(:,1),r1))
        if(status /= nf90_noerr) call handle_err(status)
 
        ! put longitude and latitude
-       status = nf90_put_var(file_id, vid0(1), real(latitude,sp))
+       status = nf90_put_var(file_id, vid0(1), real(latitude,r1))
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vid0(2), real(longitude,sp))
+       status = nf90_put_var(file_id, vid0(2), real(longitude,r1))
        if(status /= nf90_noerr) call handle_err(status)
 
        ! allocate temporary array
@@ -2602,149 +2606,149 @@ contains
     if(status /= nf90_noerr) call handle_err(status)
 
     ! patchfrac and area
-    call put_casa_var_grid_patch(file_id,vid1(1), real(patch(:)%frac,sp), cnt, otmp4patch)
-    call put_casa_var_grid_patch(file_id,vid1(2), real(casamet%areacell,sp), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id,vid1(1), real(patch(:)%frac,r1), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id,vid1(2), real(casamet%areacell,r1), cnt, otmp4patch)
     
     ! 4D vars (x,y,patch,t)
     ! C
-    call put_casa_var_grid_patch(file_id, vid1(3), real(casamet%glai,sp), cnt, otmp4patch)
-    call put_casa_var_grid_patch(file_id, vid1(4), real(casapool%clabile,sp), cnt, otmp4patch)
-    call put_casa_var_grid_patch(file_id, vid1(5), real(casabal%sumcbal,sp), cnt, otmp4patch)
-    call put_casa_var_grid_patch(file_id, vid1(6), real(casaflux%cgpp,sp), cnt, otmp4patch)
-    call put_casa_var_grid_patch(file_id, vid1(7), real(casaflux%cnpp,sp), cnt, otmp4patch)
-    call put_casa_var_grid_patch(file_id, vid1(8), real(casaflux%stemnpp,sp), cnt, otmp4patch)
-    call put_casa_var_grid_patch(file_id, vid1(9), real(casaflux%crp,sp), cnt, otmp4patch)
-    call put_casa_var_grid_patch(file_id, vid1(10), real(casaflux%crgplant,sp), cnt, otmp4patch)
-    call put_casa_var_grid_patch(file_id, vid1(11), real(casaflux%clabloss,sp), cnt, otmp4patch)
-    call put_casa_var_grid_patch(file_id, vid1(12), real(casaflux%fracclabile,sp), cnt, otmp4patch )
-    call put_casa_var_grid_patch(file_id, vid1(13), real(casaflux%cnep,sp), cnt, otmp4patch)
-    call put_casa_var_grid_patch(file_id, vid1(14), real(casaflux%crsoil,sp), cnt, otmp4patch)
-    call put_casa_var_grid_patch(file_id, vid1(15), real(casaflux%fluxctoco2,sp), cnt, otmp4patch)
-    call put_casa_var_grid_patch(file_id, vid1(16), real(casabal%fcgppyear,sp), cnt, otmp4patch)
-    call put_casa_var_grid_patch(file_id, vid1(17), real(casabal%fcrpyear,sp), cnt, otmp4patch)
-    call put_casa_var_grid_patch(file_id, vid1(18), real(casabal%fcnppyear,sp), cnt, otmp4patch)
-    call put_casa_var_grid_patch(file_id, vid1(19), real(casabal%fcrsyear,sp), cnt, otmp4patch)
-    call put_casa_var_grid_patch(file_id, vid1(20), real(casabal%fcneeyear,sp), cnt, otmp4patch)
-    call put_casa_var_grid_patch(file_id, vid1(21), real(veg%vcmax,sp), cnt, otmp4patch)
-    call put_casa_var_grid_patch(file_id, vid1(22), real(casaflux%CallocLeaf,sp), cnt, otmp4patch)
-    call put_casa_var_grid_patch(file_id, vid1(23), real(casaflux%CallocWood,sp), cnt, otmp4patch)
-    call put_casa_var_grid_patch(file_id, vid1(24), real(casaflux%CallocFineRoot,sp), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(3), real(casamet%glai,r1), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(4), real(casapool%clabile,r1), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(5), real(casabal%sumcbal,r1), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(6), real(casaflux%cgpp,r1), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(7), real(casaflux%cnpp,r1), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(8), real(casaflux%stemnpp,r1), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(9), real(casaflux%crp,r1), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(10), real(casaflux%crgplant,r1), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(11), real(casaflux%clabloss,r1), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(12), real(casaflux%fracclabile,r1), cnt, otmp4patch )
+    call put_casa_var_grid_patch(file_id, vid1(13), real(casaflux%cnep,r1), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(14), real(casaflux%crsoil,r1), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(15), real(casaflux%fluxctoco2,r1), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(16), real(casabal%fcgppyear,r1), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(17), real(casabal%fcrpyear,r1), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(18), real(casabal%fcnppyear,r1), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(19), real(casabal%fcrsyear,r1), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(20), real(casabal%fcneeyear,r1), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(21), real(veg%vcmax,r1), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(22), real(casaflux%CallocLeaf,r1), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(23), real(casaflux%CallocWood,r1), cnt, otmp4patch)
+    call put_casa_var_grid_patch(file_id, vid1(24), real(casaflux%CallocFineRoot,r1), cnt, otmp4patch)
 
     ! N
     if (icycle > 1) then
-       call put_casa_var_grid_patch(file_id, vid1(25), real(casabal%sumnbal,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(26), real(casaflux%nminfix,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(27), real(casaflux%nmindep,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(28), real(casaflux%nminloss,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(29), real(casaflux%nminleach,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(30), real(casaflux%nupland,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(31), real(casaflux%nlittermin,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(32), real(casaflux%nsmin,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(33), real(casaflux%nsimm,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(34), real(casaflux%nsnet,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(35), real(casaflux%fnminloss,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(36), real(casapool%nsoilmin,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(25), real(casabal%sumnbal,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(26), real(casaflux%nminfix,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(27), real(casaflux%nmindep,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(28), real(casaflux%nminloss,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(29), real(casaflux%nminleach,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(30), real(casaflux%nupland,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(31), real(casaflux%nlittermin,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(32), real(casaflux%nsmin,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(33), real(casaflux%nsimm,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(34), real(casaflux%nsnet,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(35), real(casaflux%fnminloss,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(36), real(casapool%nsoilmin,r1), cnt, otmp4patch )
     endif
 
     ! P
     if (icycle > 2) then
-       call put_casa_var_grid_patch(file_id, vid1(37), real(casapool%psoillab,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(38), real(casapool%psoilsorb,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(39), real(casapool%psoilocc,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(40), real(casabal%sumpbal,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(41), real(casaflux%plabuptake,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(42), real(casaflux%pdep,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(43), real(casaflux%pwea,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(44), real(casaflux%pleach,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(45), real(casaflux%ploss,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(46), real(casaflux%pupland,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(47), real(casaflux%plittermin,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(48), real(casaflux%psmin,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(49), real(casaflux%psimm,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(50), real(casaflux%psnet,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(51), real(casaflux%fpleach,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(52), real(casaflux%kplab,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(53), real(casaflux%kpsorb,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(54), real(casaflux%kpocc,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(55), real(casaflux%kmlabp,sp), cnt, otmp4patch )
-       call put_casa_var_grid_patch(file_id, vid1(56), real(casaflux%psorbmax,sp), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(37), real(casapool%psoillab,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(38), real(casapool%psoilsorb,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(39), real(casapool%psoilocc,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(40), real(casabal%sumpbal,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(41), real(casaflux%plabuptake,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(42), real(casaflux%pdep,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(43), real(casaflux%pwea,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(44), real(casaflux%pleach,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(45), real(casaflux%ploss,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(46), real(casaflux%pupland,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(47), real(casaflux%plittermin,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(48), real(casaflux%psmin,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(49), real(casaflux%psimm,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(50), real(casaflux%psnet,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(51), real(casaflux%fpleach,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(52), real(casaflux%kplab,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(53), real(casaflux%kpsorb,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(54), real(casaflux%kpocc,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(55), real(casaflux%kmlabp,r1), cnt, otmp4patch )
+       call put_casa_var_grid_patch(file_id, vid1(56), real(casaflux%psorbmax,r1), cnt, otmp4patch )
     endif
 
     ! 4D vars (x,y,mplant,t)
     ! C
-    call put_casa_var_grid_patch_average(file_id, vid2(1), real(casapool%cplant,sp),      "mplant", cnt, otmp4plant)
-    call put_casa_var_grid_patch_average(file_id, vid2(2), real(casaflux%fracCalloc,sp),  "mplant", cnt, otmp4plant)
-    call put_casa_var_grid_patch_average(file_id, vid2(3), real(casaflux%kplant,sp),      "mplant", cnt, otmp4plant)
-    call put_casa_var_grid_patch_average(file_id, vid2(4), real(casaflux%crmplant,sp),    "mplant", cnt, otmp4plant)
-    call put_casa_var_grid_patch_average(file_id, vid2(5), real(casaflux%kplant_fire,sp), "mplant", cnt, otmp4plant)
+    call put_casa_var_grid_patch_average(file_id, vid2(1), real(casapool%cplant,r1),      "mplant", cnt, otmp4plant)
+    call put_casa_var_grid_patch_average(file_id, vid2(2), real(casaflux%fracCalloc,r1),  "mplant", cnt, otmp4plant)
+    call put_casa_var_grid_patch_average(file_id, vid2(3), real(casaflux%kplant,r1),      "mplant", cnt, otmp4plant)
+    call put_casa_var_grid_patch_average(file_id, vid2(4), real(casaflux%crmplant,r1),    "mplant", cnt, otmp4plant)
+    call put_casa_var_grid_patch_average(file_id, vid2(5), real(casaflux%kplant_fire,r1), "mplant", cnt, otmp4plant)
 
     ! N
     if (icycle > 1) then
-      call put_casa_var_grid_patch_average(file_id, vid2(6), real(casapool%nplant,sp),     "mplant", cnt, otmp4plant)
-      call put_casa_var_grid_patch_average(file_id, vid2(7), real(casaflux%fracnalloc,sp), "mplant", cnt, otmp4plant)
+      call put_casa_var_grid_patch_average(file_id, vid2(6), real(casapool%nplant,r1),     "mplant", cnt, otmp4plant)
+      call put_casa_var_grid_patch_average(file_id, vid2(7), real(casaflux%fracnalloc,r1), "mplant", cnt, otmp4plant)
     endif
 
     ! P
     if (icycle > 2) then
-       call put_casa_var_grid_patch_average(file_id, vid2(8), real(casapool%pplant,sp),     "mplant", cnt, otmp4plant)
-       call put_casa_var_grid_patch_average(file_id, vid2(9), real(casaflux%fracpalloc,sp), "mplant", cnt, otmp4plant)
+       call put_casa_var_grid_patch_average(file_id, vid2(8), real(casapool%pplant,r1),     "mplant", cnt, otmp4plant)
+       call put_casa_var_grid_patch_average(file_id, vid2(9), real(casaflux%fracpalloc,r1), "mplant", cnt, otmp4plant)
     endif
 
     ! 4D vars (x,y,mlitter,t)
     ! C
-    call put_casa_var_grid_patch_average(file_id, vid3(1), real(casapool%clitter,sp),              "mlitter", cnt, otmp4litter)
-    call put_casa_var_grid_patch_average(file_id, vid3(2), real(casaflux%klitter,sp),              "mlitter", cnt, otmp4litter)
-    call put_casa_var_grid_patch_average(file_id, vid3(3), real(casaflux%fromltoco2,sp),           "mlitter", cnt, otmp4litter)
-    call put_casa_var_grid_patch_average(file_id, vid3(4), real(casaflux%fluxctolitter,sp),        "mlitter", cnt, otmp4litter)
-    call put_casa_var_grid_patch_average(file_id, vid3(5), real(casaflux%fluxcleaftolitter,sp),     "mlitter", cnt, otmp4litter)
-    call put_casa_var_grid_patch_average(file_id, vid3(6), real(casaflux%fluxcwoodtolitter,sp),     "mlitter", cnt, otmp4litter)
-    call put_casa_var_grid_patch_average(file_id, vid3(7), real(casaflux%fluxcfineroottolitter,sp), "mlitter", cnt, otmp4litter)
-    call put_casa_var_grid_patch_average(file_id, vid3(8), real(casaflux%klitter_fire,sp),         "mlitter", cnt, otmp4litter)
+    call put_casa_var_grid_patch_average(file_id, vid3(1), real(casapool%clitter,r1),              "mlitter", cnt, otmp4litter)
+    call put_casa_var_grid_patch_average(file_id, vid3(2), real(casaflux%klitter,r1),              "mlitter", cnt, otmp4litter)
+    call put_casa_var_grid_patch_average(file_id, vid3(3), real(casaflux%fromltoco2,r1),           "mlitter", cnt, otmp4litter)
+    call put_casa_var_grid_patch_average(file_id, vid3(4), real(casaflux%fluxctolitter,r1),        "mlitter", cnt, otmp4litter)
+    call put_casa_var_grid_patch_average(file_id, vid3(5), real(casaflux%fluxcleaftolitter,r1),     "mlitter", cnt, otmp4litter)
+    call put_casa_var_grid_patch_average(file_id, vid3(6), real(casaflux%fluxcwoodtolitter,r1),     "mlitter", cnt, otmp4litter)
+    call put_casa_var_grid_patch_average(file_id, vid3(7), real(casaflux%fluxcfineroottolitter,r1), "mlitter", cnt, otmp4litter)
+    call put_casa_var_grid_patch_average(file_id, vid3(8), real(casaflux%klitter_fire,r1),         "mlitter", cnt, otmp4litter)
 
     ! N
     if (icycle > 1) then
-       call put_casa_var_grid_patch_average(file_id, vid3(9), real(casapool%nlitter,sp),       "mlitter", cnt, otmp4litter)
-       call put_casa_var_grid_patch_average(file_id, vid3(10), real(casaflux%fluxntolitter,sp), "mlitter", cnt, otmp4litter)
+       call put_casa_var_grid_patch_average(file_id, vid3(9), real(casapool%nlitter,r1),       "mlitter", cnt, otmp4litter)
+       call put_casa_var_grid_patch_average(file_id, vid3(10), real(casaflux%fluxntolitter,r1), "mlitter", cnt, otmp4litter)
     endif
 
     ! P
     if (icycle > 2) then
-       call put_casa_var_grid_patch_average(file_id, vid3(11), real(casapool%plitter,sp),       "mlitter", cnt, otmp4litter)
-       call put_casa_var_grid_patch_average(file_id, vid3(12), real(casaflux%fluxptolitter,sp), "mlitter", cnt, otmp4litter)
+       call put_casa_var_grid_patch_average(file_id, vid3(11), real(casapool%plitter,r1),       "mlitter", cnt, otmp4litter)
+       call put_casa_var_grid_patch_average(file_id, vid3(12), real(casaflux%fluxptolitter,r1), "mlitter", cnt, otmp4litter)
     endif
 
     ! 4d vars (x,y,msoil,t)
     ! C
-    call put_casa_var_grid_patch_average(file_id, vid4(1), real(casapool%csoil,sp),       "msoil", cnt, otmp4soil)
-    call put_casa_var_grid_patch_average(file_id, vid4(2), real(casaflux%ksoil,sp),       "msoil", cnt, otmp4soil)
-    call put_casa_var_grid_patch_average(file_id, vid4(3), real(casaflux%fromstoco2,sp),  "msoil", cnt, otmp4soil)
-    call put_casa_var_grid_patch_average(file_id, vid4(4), real(casaflux%fluxctosoil,sp), "msoil", cnt, otmp4soil)
+    call put_casa_var_grid_patch_average(file_id, vid4(1), real(casapool%csoil,r1),       "msoil", cnt, otmp4soil)
+    call put_casa_var_grid_patch_average(file_id, vid4(2), real(casaflux%ksoil,r1),       "msoil", cnt, otmp4soil)
+    call put_casa_var_grid_patch_average(file_id, vid4(3), real(casaflux%fromstoco2,r1),  "msoil", cnt, otmp4soil)
+    call put_casa_var_grid_patch_average(file_id, vid4(4), real(casaflux%fluxctosoil,r1), "msoil", cnt, otmp4soil)
 
     ! N
     if (icycle > 1) then
-       call put_casa_var_grid_patch_average(file_id, vid4(5), real(casapool%nsoil,sp),       "msoil", cnt, otmp4soil)
-       call put_casa_var_grid_patch_average(file_id, vid4(6), real(casaflux%fluxntosoil,sp), "msoil", cnt, otmp4soil)
+       call put_casa_var_grid_patch_average(file_id, vid4(5), real(casapool%nsoil,r1),       "msoil", cnt, otmp4soil)
+       call put_casa_var_grid_patch_average(file_id, vid4(6), real(casaflux%fluxntosoil,r1), "msoil", cnt, otmp4soil)
     endif
 
     ! P
     if (icycle > 2) then
-       call put_casa_var_grid_patch_average(file_id, vid4(7), real(casapool%psoil,sp),       "msoil", cnt, otmp4soil)
-       call put_casa_var_grid_patch_average(file_id, vid4(8), real(casaflux%fluxptosoil,sp), "msoil", cnt, otmp4soil)
+       call put_casa_var_grid_patch_average(file_id, vid4(7), real(casapool%psoil,r1),       "msoil", cnt, otmp4soil)
+       call put_casa_var_grid_patch_average(file_id, vid4(8), real(casaflux%fluxptosoil,r1), "msoil", cnt, otmp4soil)
     endif
 
     ! put 4d vars ( mp, mlitter,mplant, t )
     ! C
-    !status = nf90_put_var(file_id, vid5(1), real(casaflux%fromptol,sp), start=(/1,1,1,cnt/), count=(/mp,mlitter,mplant,1/))
+    !status = nf90_put_var(file_id, vid5(1), real(casaflux%fromptol,r1), start=(/1,1,1,cnt/), count=(/mp,mlitter,mplant,1/))
     !if(status /= nf90_noerr) call handle_err(status)
 
     ! put 4d vars ( mp, msoil, mlitter, t )
     ! C
-    !status = nf90_put_var(file_id, vid6(1), real(casaflux%fromltos,sp), start=(/1,1,1,cnt/), count=(/mp,msoil,mlitter,1/))
+    !status = nf90_put_var(file_id, vid6(1), real(casaflux%fromltos,r1), start=(/1,1,1,cnt/), count=(/mp,msoil,mlitter,1/))
     !if(status /= nf90_noerr) call handle_err(status)
 
     ! put 4d vars ( mp, msoil, msoil, t )
     ! C
-    !status = nf90_put_var(file_id, vid7(1), real(casaflux%fromstos,sp), start=(/1,1,1,cnt/), count=(/mp,msoil,msoil,1/))
+    !status = nf90_put_var(file_id, vid7(1), real(casaflux%fromstos,r1), start=(/1,1,1,cnt/), count=(/mp,msoil,msoil,1/))
     !if(status /= nf90_noerr) call handle_err(status)
 
     if ( lfinal ) then
@@ -2774,9 +2778,9 @@ contains
 
    INTEGER, INTENT(IN) :: file_id                               ! netcdf file ID 
    INTEGER, INTENT(IN) :: var_id                                ! variable's netcdf ID
-   REAL(KIND=r_1), DIMENSION(:), INTENT(IN) :: var_vals           ! variable values
+   REAL(KIND=r1), DIMENSION(:), INTENT(IN) :: var_vals           ! variable values
    INTEGER, INTENT(IN) :: cnt                                   ! current time step #
-   REAL(KIND=r_1), DIMENSION(:,:,:,:), INTENT(INOUT) :: tmp_array ! temporary array   
+   REAL(KIND=r1), DIMENSION(:,:,:,:), INTENT(INOUT) :: tmp_array ! temporary array   
 
    ! Local variables
    INTEGER                                       :: i, j   ! counters
@@ -2819,10 +2823,10 @@ SUBROUTINE put_casa_var_grid_patch_average(file_id,var_id,var_vals,outdim,cnt,tm
 
    INTEGER, INTENT(IN) :: file_id                               ! netcdf file ID 
    INTEGER, INTENT(IN) :: var_id                                ! variable's netcdf ID
-   REAL(KIND=r_1), DIMENSION(:,:), INTENT(IN) :: var_vals         ! variable values
+   REAL(KIND=r1), DIMENSION(:,:), INTENT(IN) :: var_vals         ! variable values
    CHARACTER(LEN=*), INTENT(IN) :: outdim                       ! 3rd dimension of output ('mplant','mlitter','msoil') 
    INTEGER, INTENT(IN) :: cnt                                   ! current time step #
-   REAL(KIND=r_1), DIMENSION(:,:,:,:), INTENT(INOUT) :: tmp_array ! temporary array   
+   REAL(KIND=r1), DIMENSION(:,:,:,:), INTENT(INOUT) :: tmp_array ! temporary array   
 
    ! Local variables
    INTEGER                                       :: ndim3  ! size of 3rd dimension
@@ -2864,6 +2868,8 @@ END SUBROUTINE put_casa_var_grid_patch_average
    ! see r9609 for a grid level output, which is overwritten here.
    ! see r9610 for code that allows 4D casa outputs (e.g. land,patch,mplant,time)
 
+    use, intrinsic :: iso_c_binding, only: c_float
+
     use casadimension,        only: mplant, mlitter, msoil, icycle
     use casavariable,         only: casa_met, casa_pool, casa_balance, casa_flux, &
          casafile, casa_timeunits
@@ -2895,7 +2901,7 @@ END SUBROUTINE put_casa_var_grid_patch_average
     character(len=99) :: fname
     character(len=50) :: dum
     logical, save :: call1 = .true.
-    integer, parameter :: sp = kind(1.0)
+    integer, parameter :: r1 = c_float
 
     ! 1 dim arrays (land)
     character(len=21), dimension(2)  :: a0
@@ -3276,7 +3282,7 @@ END SUBROUTINE put_casa_var_grid_patch_average
          if (status /= nf90_noerr) call handle_err(status)
          status = nf90_put_att(file_id, vid0(i), 'units', trim(u0(i)))
          if (status /= nf90_noerr) call handle_err(status)
-         status = nf90_put_att(file_id, vid0(i), '_FillValue', real(ncmissingr,sp))
+         status = nf90_put_att(file_id, vid0(i), '_FillValue', real(ncmissingr,r1))
          if (status /= nf90_noerr) call handle_err(status)
       end do
 
@@ -3289,7 +3295,7 @@ END SUBROUTINE put_casa_var_grid_patch_average
           if (status /= nf90_noerr) call handle_err(status)
           status = nf90_put_att(file_id, vid1(i), 'units', trim(u1(i)))
           if (status /= nf90_noerr) call handle_err(status)
-          status = nf90_put_att(file_id, vid1(i), '_FillValue', real(ncmissingr,sp))
+          status = nf90_put_att(file_id, vid1(i), '_FillValue', real(ncmissingr,r1))
           if (status /= nf90_noerr) call handle_err(status)
        end do
 
@@ -3302,7 +3308,7 @@ END SUBROUTINE put_casa_var_grid_patch_average
           if (status /= nf90_noerr) call handle_err(status)
           status = nf90_put_att(file_id, vid2(i), 'units', trim(u2(i)))
           if (status /= nf90_noerr) call handle_err(status)
-          status = nf90_put_att(file_id, vid2(i), '_FillValue', real(ncmissingr,sp))
+          status = nf90_put_att(file_id, vid2(i), '_FillValue', real(ncmissingr,r1))
           if (status /= nf90_noerr) call handle_err(status)
        end do
 
@@ -3315,7 +3321,7 @@ END SUBROUTINE put_casa_var_grid_patch_average
           if (status /= nf90_noerr) call handle_err(status)
           status = nf90_put_att(file_id, vid3(i), 'units', trim(u3(i)))
           if (status /= nf90_noerr) call handle_err(status)
-          status = nf90_put_att(file_id, vid3(i), '_FillValue', real(ncmissingr,sp))
+          status = nf90_put_att(file_id, vid3(i), '_FillValue', real(ncmissingr,r1))
           if (status /= nf90_noerr) call handle_err(status)
        end do
 
@@ -3328,7 +3334,7 @@ END SUBROUTINE put_casa_var_grid_patch_average
           if (status /= nf90_noerr) call handle_err(status)
           status = nf90_put_att(file_id, vid4(i), 'units', trim(u4(i)))
           if (status /= nf90_noerr) call handle_err(status)
-          status = nf90_put_att(file_id, vid4(i), '_FillValue', real(ncmissingr,sp))
+          status = nf90_put_att(file_id, vid4(i), '_FillValue', real(ncmissingr,r1))
           if (status /= nf90_noerr) call handle_err(status)
        end do
 
@@ -3337,14 +3343,14 @@ END SUBROUTINE put_casa_var_grid_patch_average
        if (status /= nf90_noerr) call handle_err(status)
 
        ! put y and x and local lat and lon
-       status = nf90_put_var(file_id, vidy, real(lat_all(1,:),sp))
+       status = nf90_put_var(file_id, vidy, real(lat_all(1,:),r1))
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, vidx, real(lon_all(:,1),sp))
+       status = nf90_put_var(file_id, vidx, real(lon_all(:,1),r1))
        if(status /= nf90_noerr) call handle_err(status)
 
-       status = nf90_put_var(file_id, llat_id, real(latitude,sp))
+       status = nf90_put_var(file_id, llat_id, real(latitude,r1))
        if(status /= nf90_noerr) call handle_err(status)
-       status = nf90_put_var(file_id, llon_id, real(longitude,sp))
+       status = nf90_put_var(file_id, llon_id, real(longitude,r1))
        if(status /= nf90_noerr) call handle_err(status)
 
        ! put longitude and latitude
@@ -3375,144 +3381,144 @@ END SUBROUTINE put_casa_var_grid_patch_average
     if(status /= nf90_noerr) call handle_err(status)
 
     ! patchfrac and area
-    call put_casa_var_patch(file_id,vid1(1), real(patch(:)%frac,sp), cnt, otmp3patch)
-    call put_casa_var_patch(file_id,vid1(2), real(casamet%areacell,sp), cnt, otmp3patch)
+    call put_casa_var_patch(file_id,vid1(1), real(patch(:)%frac,r1), cnt, otmp3patch)
+    call put_casa_var_patch(file_id,vid1(2), real(casamet%areacell,r1), cnt, otmp3patch)
     ! 4D vars (land,patch,t)
     ! C
-    call put_casa_var_patch(file_id, vid1(3), real(casamet%glai,sp), cnt, otmp3patch)
-    call put_casa_var_patch(file_id, vid1(4), real(casapool%clabile,sp), cnt, otmp3patch)
-    call put_casa_var_patch(file_id, vid1(5), real(casabal%sumcbal,sp), cnt, otmp3patch)
-    call put_casa_var_patch(file_id, vid1(6), real(casaflux%cgpp,sp), cnt, otmp3patch)
-    call put_casa_var_patch(file_id, vid1(7), real(casaflux%cnpp,sp), cnt, otmp3patch)
-    call put_casa_var_patch(file_id, vid1(8), real(casaflux%stemnpp,sp), cnt, otmp3patch)
-    call put_casa_var_patch(file_id, vid1(9), real(casaflux%crp,sp), cnt, otmp3patch)
-    call put_casa_var_patch(file_id, vid1(10), real(casaflux%crgplant,sp), cnt, otmp3patch)
-    call put_casa_var_patch(file_id, vid1(11), real(casaflux%clabloss,sp), cnt, otmp3patch)
-    call put_casa_var_patch(file_id, vid1(12), real(casaflux%fracclabile,sp), cnt, otmp3patch )
-    call put_casa_var_patch(file_id, vid1(13), real(casaflux%cnep,sp), cnt, otmp3patch)
-    call put_casa_var_patch(file_id, vid1(14), real(casaflux%crsoil,sp), cnt, otmp3patch)
-    call put_casa_var_patch(file_id, vid1(15), real(casaflux%fluxctoco2,sp), cnt, otmp3patch)
-    call put_casa_var_patch(file_id, vid1(16), real(casabal%fcgppyear,sp), cnt, otmp3patch)
-    call put_casa_var_patch(file_id, vid1(17), real(casabal%fcrpyear,sp), cnt, otmp3patch)
-    call put_casa_var_patch(file_id, vid1(18), real(casabal%fcnppyear,sp), cnt, otmp3patch)
-    call put_casa_var_patch(file_id, vid1(19), real(casabal%fcrsyear,sp), cnt, otmp3patch)
-    call put_casa_var_patch(file_id, vid1(20), real(casabal%fcneeyear,sp), cnt, otmp3patch)
-    call put_casa_var_patch(file_id, vid1(21), real(veg%vcmax,sp), cnt, otmp3patch)
-    call put_casa_var_patch(file_id, vid1(22), real(casaflux%CallocLeaf,sp), cnt, otmp3patch)
-    call put_casa_var_patch(file_id, vid1(23), real(casaflux%CallocWood,sp), cnt, otmp3patch)
-    call put_casa_var_patch(file_id, vid1(24), real(casaflux%CallocFineRoot,sp), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(3), real(casamet%glai,r1), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(4), real(casapool%clabile,r1), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(5), real(casabal%sumcbal,r1), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(6), real(casaflux%cgpp,r1), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(7), real(casaflux%cnpp,r1), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(8), real(casaflux%stemnpp,r1), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(9), real(casaflux%crp,r1), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(10), real(casaflux%crgplant,r1), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(11), real(casaflux%clabloss,r1), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(12), real(casaflux%fracclabile,r1), cnt, otmp3patch )
+    call put_casa_var_patch(file_id, vid1(13), real(casaflux%cnep,r1), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(14), real(casaflux%crsoil,r1), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(15), real(casaflux%fluxctoco2,r1), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(16), real(casabal%fcgppyear,r1), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(17), real(casabal%fcrpyear,r1), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(18), real(casabal%fcnppyear,r1), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(19), real(casabal%fcrsyear,r1), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(20), real(casabal%fcneeyear,r1), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(21), real(veg%vcmax,r1), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(22), real(casaflux%CallocLeaf,r1), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(23), real(casaflux%CallocWood,r1), cnt, otmp3patch)
+    call put_casa_var_patch(file_id, vid1(24), real(casaflux%CallocFineRoot,r1), cnt, otmp3patch)
 
     ! N
     if (icycle > 1) then
-       call put_casa_var_patch(file_id, vid1(25), real(casabal%sumnbal,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(26), real(casaflux%nminfix,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(27), real(casaflux%nmindep,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(28), real(casaflux%nminloss,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(29), real(casaflux%nminleach,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(30), real(casaflux%nupland,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(31), real(casaflux%nlittermin,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(32), real(casaflux%nsmin,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(33), real(casaflux%nsimm,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(34), real(casaflux%nsnet,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(35), real(casaflux%fnminloss,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(36), real(casapool%nsoilmin,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(25), real(casabal%sumnbal,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(26), real(casaflux%nminfix,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(27), real(casaflux%nmindep,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(28), real(casaflux%nminloss,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(29), real(casaflux%nminleach,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(30), real(casaflux%nupland,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(31), real(casaflux%nlittermin,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(32), real(casaflux%nsmin,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(33), real(casaflux%nsimm,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(34), real(casaflux%nsnet,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(35), real(casaflux%fnminloss,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(36), real(casapool%nsoilmin,r1), cnt, otmp3patch )
     endif
     ! P
     if (icycle > 2) then
-       call put_casa_var_patch(file_id, vid1(37), real(casapool%psoillab,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(38), real(casapool%psoilsorb,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(39), real(casapool%psoilocc,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(40), real(casabal%sumpbal,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(41), real(casaflux%plabuptake,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(42), real(casaflux%pdep,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(43), real(casaflux%pwea,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(44), real(casaflux%pleach,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(45), real(casaflux%ploss,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(46), real(casaflux%pupland,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(47), real(casaflux%plittermin,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(48), real(casaflux%psmin,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(49), real(casaflux%psimm,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(50), real(casaflux%psnet,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(51), real(casaflux%fpleach,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(52), real(casaflux%kplab,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(53), real(casaflux%kpsorb,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(54), real(casaflux%kpocc,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(55), real(casaflux%kmlabp,sp), cnt, otmp3patch )
-       call put_casa_var_patch(file_id, vid1(56), real(casaflux%psorbmax,sp), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(37), real(casapool%psoillab,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(38), real(casapool%psoilsorb,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(39), real(casapool%psoilocc,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(40), real(casabal%sumpbal,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(41), real(casaflux%plabuptake,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(42), real(casaflux%pdep,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(43), real(casaflux%pwea,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(44), real(casaflux%pleach,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(45), real(casaflux%ploss,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(46), real(casaflux%pupland,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(47), real(casaflux%plittermin,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(48), real(casaflux%psmin,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(49), real(casaflux%psimm,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(50), real(casaflux%psnet,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(51), real(casaflux%fpleach,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(52), real(casaflux%kplab,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(53), real(casaflux%kpsorb,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(54), real(casaflux%kpocc,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(55), real(casaflux%kmlabp,r1), cnt, otmp3patch )
+       call put_casa_var_patch(file_id, vid1(56), real(casaflux%psorbmax,r1), cnt, otmp3patch )
     endif
     ! 4D vars (land,patch,mplant,t)
     ! C
-    call put_casa_var_patch_average(file_id, vid2(1), real(casapool%cplant,sp),      "mplant", cnt, otmp3plant)
-    call put_casa_var_patch_average(file_id, vid2(2), real(casaflux%fracCalloc,sp),  "mplant", cnt, otmp3plant)
-    call put_casa_var_patch_average(file_id, vid2(3), real(casaflux%kplant,sp),      "mplant", cnt, otmp3plant)
-    call put_casa_var_patch_average(file_id, vid2(4), real(casaflux%crmplant,sp),    "mplant", cnt, otmp3plant)
-    call put_casa_var_patch_average(file_id, vid2(5), real(casaflux%kplant_fire,sp), "mplant", cnt, otmp3plant)
+    call put_casa_var_patch_average(file_id, vid2(1), real(casapool%cplant,r1),      "mplant", cnt, otmp3plant)
+    call put_casa_var_patch_average(file_id, vid2(2), real(casaflux%fracCalloc,r1),  "mplant", cnt, otmp3plant)
+    call put_casa_var_patch_average(file_id, vid2(3), real(casaflux%kplant,r1),      "mplant", cnt, otmp3plant)
+    call put_casa_var_patch_average(file_id, vid2(4), real(casaflux%crmplant,r1),    "mplant", cnt, otmp3plant)
+    call put_casa_var_patch_average(file_id, vid2(5), real(casaflux%kplant_fire,r1), "mplant", cnt, otmp3plant)
 
     ! N
     if (icycle > 1) then
-      call put_casa_var_patch_average(file_id, vid2(6), real(casapool%nplant,sp),     "mplant", cnt, otmp3plant)
-      call put_casa_var_patch_average(file_id, vid2(7), real(casaflux%fracnalloc,sp), "mplant", cnt, otmp3plant)
+      call put_casa_var_patch_average(file_id, vid2(6), real(casapool%nplant,r1),     "mplant", cnt, otmp3plant)
+      call put_casa_var_patch_average(file_id, vid2(7), real(casaflux%fracnalloc,r1), "mplant", cnt, otmp3plant)
     endif
 
     ! P
     if (icycle > 2) then
-       call put_casa_var_patch_average(file_id, vid2(8), real(casapool%pplant,sp),     "mplant", cnt, otmp3plant)
-       call put_casa_var_patch_average(file_id, vid2(9), real(casaflux%fracpalloc,sp), "mplant", cnt, otmp3plant)
+       call put_casa_var_patch_average(file_id, vid2(8), real(casapool%pplant,r1),     "mplant", cnt, otmp3plant)
+       call put_casa_var_patch_average(file_id, vid2(9), real(casaflux%fracpalloc,r1), "mplant", cnt, otmp3plant)
     endif
 
     ! 4D vars (land,patch,mlitter,t)
     ! C
-    call put_casa_var_patch_average(file_id, vid3(1), real(casapool%clitter,sp),               "mlitter", cnt, otmp3litter)
-    call put_casa_var_patch_average(file_id, vid3(2), real(casaflux%klitter,sp),               "mlitter", cnt, otmp3litter)
-    call put_casa_var_patch_average(file_id, vid3(3), real(casaflux%fromltoco2,sp),            "mlitter", cnt, otmp3litter)
-    call put_casa_var_patch_average(file_id, vid3(4), real(casaflux%fluxctolitter,sp),         "mlitter", cnt, otmp3litter)
-    call put_casa_var_patch_average(file_id, vid3(5), real(casaflux%fluxcleaftolitter,sp),     "mlitter", cnt, otmp3litter)
-    call put_casa_var_patch_average(file_id, vid3(6), real(casaflux%fluxcwoodtolitter,sp),     "mlitter", cnt, otmp3litter)
-    call put_casa_var_patch_average(file_id, vid3(7), real(casaflux%fluxcfineroottolitter,sp), "mlitter", cnt, otmp3litter)
-    call put_casa_var_patch_average(file_id, vid3(8), real(casaflux%klitter_fire,sp),          "mlitter", cnt, otmp3litter)
+    call put_casa_var_patch_average(file_id, vid3(1), real(casapool%clitter,r1),               "mlitter", cnt, otmp3litter)
+    call put_casa_var_patch_average(file_id, vid3(2), real(casaflux%klitter,r1),               "mlitter", cnt, otmp3litter)
+    call put_casa_var_patch_average(file_id, vid3(3), real(casaflux%fromltoco2,r1),            "mlitter", cnt, otmp3litter)
+    call put_casa_var_patch_average(file_id, vid3(4), real(casaflux%fluxctolitter,r1),         "mlitter", cnt, otmp3litter)
+    call put_casa_var_patch_average(file_id, vid3(5), real(casaflux%fluxcleaftolitter,r1),     "mlitter", cnt, otmp3litter)
+    call put_casa_var_patch_average(file_id, vid3(6), real(casaflux%fluxcwoodtolitter,r1),     "mlitter", cnt, otmp3litter)
+    call put_casa_var_patch_average(file_id, vid3(7), real(casaflux%fluxcfineroottolitter,r1), "mlitter", cnt, otmp3litter)
+    call put_casa_var_patch_average(file_id, vid3(8), real(casaflux%klitter_fire,r1),          "mlitter", cnt, otmp3litter)
     ! N
     if (icycle > 1) then
-       call put_casa_var_patch_average(file_id, vid3(9), real(casapool%nlitter,sp),       "mlitter", cnt, otmp3litter)
-       call put_casa_var_patch_average(file_id, vid3(10), real(casaflux%fluxntolitter,sp), "mlitter", cnt, otmp3litter)
+       call put_casa_var_patch_average(file_id, vid3(9), real(casapool%nlitter,r1),       "mlitter", cnt, otmp3litter)
+       call put_casa_var_patch_average(file_id, vid3(10), real(casaflux%fluxntolitter,r1), "mlitter", cnt, otmp3litter)
     endif
 
     ! P
     if (icycle > 2) then
-       call put_casa_var_patch_average(file_id, vid3(11), real(casapool%plitter,sp),       "mlitter", cnt, otmp3litter)
-       call put_casa_var_patch_average(file_id, vid3(12), real(casaflux%fluxptolitter,sp), "mlitter", cnt, otmp3litter)
+       call put_casa_var_patch_average(file_id, vid3(11), real(casapool%plitter,r1),       "mlitter", cnt, otmp3litter)
+       call put_casa_var_patch_average(file_id, vid3(12), real(casaflux%fluxptolitter,r1), "mlitter", cnt, otmp3litter)
     endif
 
     ! 4d vars (land,patch,msoil,t)
     ! C
-    call put_casa_var_patch_average(file_id, vid4(1), real(casapool%csoil,sp),       "msoil", cnt, otmp3soil)
-    call put_casa_var_patch_average(file_id, vid4(2), real(casaflux%ksoil,sp),       "msoil", cnt, otmp3soil)
-    call put_casa_var_patch_average(file_id, vid4(3), real(casaflux%fromstoco2,sp),  "msoil", cnt, otmp3soil)
-    call put_casa_var_patch_average(file_id, vid4(4), real(casaflux%fluxctosoil,sp), "msoil", cnt, otmp3soil)
+    call put_casa_var_patch_average(file_id, vid4(1), real(casapool%csoil,r1),       "msoil", cnt, otmp3soil)
+    call put_casa_var_patch_average(file_id, vid4(2), real(casaflux%ksoil,r1),       "msoil", cnt, otmp3soil)
+    call put_casa_var_patch_average(file_id, vid4(3), real(casaflux%fromstoco2,r1),  "msoil", cnt, otmp3soil)
+    call put_casa_var_patch_average(file_id, vid4(4), real(casaflux%fluxctosoil,r1), "msoil", cnt, otmp3soil)
 
     ! N
     if (icycle > 1) then
-       call put_casa_var_patch_average(file_id, vid4(5), real(casapool%nsoil,sp),       "msoil", cnt, otmp3soil)
-       call put_casa_var_patch_average(file_id, vid4(6), real(casaflux%fluxntosoil,sp), "msoil", cnt, otmp3soil)
+       call put_casa_var_patch_average(file_id, vid4(5), real(casapool%nsoil,r1),       "msoil", cnt, otmp3soil)
+       call put_casa_var_patch_average(file_id, vid4(6), real(casaflux%fluxntosoil,r1), "msoil", cnt, otmp3soil)
     endif
 
     ! P
     if (icycle > 2) then
-       call put_casa_var_patch_average(file_id, vid4(7), real(casapool%psoil,sp),       "msoil", cnt, otmp3soil)
-       call put_casa_var_patch_average(file_id, vid4(8), real(casaflux%fluxptosoil,sp), "msoil", cnt, otmp3soil)
+       call put_casa_var_patch_average(file_id, vid4(7), real(casapool%psoil,r1),       "msoil", cnt, otmp3soil)
+       call put_casa_var_patch_average(file_id, vid4(8), real(casaflux%fluxptosoil,r1), "msoil", cnt, otmp3soil)
     endif
     ! put 4d vars ( mp, mlitter,mplant, t )
     ! C
-    !status = nf90_put_var(file_id, vid5(1), real(casaflux%fromptol,sp), start=(/1,1,1,cnt/), count=(/mp,mlitter,mplant,1/))
+    !status = nf90_put_var(file_id, vid5(1), real(casaflux%fromptol,r1), start=(/1,1,1,cnt/), count=(/mp,mlitter,mplant,1/))
     !if(status /= nf90_noerr) call handle_err(status)
 
     ! put 4d vars ( mp, msoil, mlitter, t )
     ! C
-    !status = nf90_put_var(file_id, vid6(1), real(casaflux%fromltos,sp), start=(/1,1,1,cnt/), count=(/mp,msoil,mlitter,1/))
+    !status = nf90_put_var(file_id, vid6(1), real(casaflux%fromltos,r1), start=(/1,1,1,cnt/), count=(/mp,msoil,mlitter,1/))
     !if(status /= nf90_noerr) call handle_err(status)
 
     ! put 4d vars ( mp, msoil, msoil, t )
     ! C
-    !status = nf90_put_var(file_id, vid7(1), real(casaflux%fromstos,sp), start=(/1,1,1,cnt/), count=(/mp,msoil,msoil,1/))
+    !status = nf90_put_var(file_id, vid7(1), real(casaflux%fromstos,r1), start=(/1,1,1,cnt/), count=(/mp,msoil,msoil,1/))
     !if(status /= nf90_noerr) call handle_err(status)
 
     if ( lfinal ) then
@@ -3542,9 +3548,9 @@ END SUBROUTINE put_casa_var_grid_patch_average
 
    INTEGER, INTENT(IN) :: file_id                              ! netcdf file ID 
    INTEGER, INTENT(IN) :: var_id                               ! variable's netcdf ID
-   REAL(KIND=r_1), DIMENSION(:), INTENT(IN) :: var_vals          ! variable values
+   REAL(KIND=r1), DIMENSION(:), INTENT(IN) :: var_vals          ! variable values
    INTEGER, INTENT(IN) :: cnt                                  ! current time step #
-   REAL(KIND=r_1), DIMENSION(:,:,:), INTENT(INOUT) :: tmp_array  ! temporary array   
+   REAL(KIND=r1), DIMENSION(:,:,:), INTENT(INOUT) :: tmp_array  ! temporary array   
 
    ! Local variables
    INTEGER   :: i      ! counter
@@ -3580,10 +3586,10 @@ SUBROUTINE put_casa_var_patch_average(file_id,var_id,var_vals,outdim,cnt,tmp_arr
 
    INTEGER, INTENT(IN) :: file_id                               ! netcdf file ID 
    INTEGER, INTENT(IN) :: var_id                                ! variable's netcdf ID
-   REAL(KIND=r_1), DIMENSION(:,:), INTENT(IN) :: var_vals         ! variable values
+   REAL(KIND=r1), DIMENSION(:,:), INTENT(IN) :: var_vals         ! variable values
    CHARACTER(LEN=*), INTENT(IN) :: outdim                       ! 2nd dimension of output ('mplant','mlitter','msoil') 
    INTEGER, INTENT(IN) :: cnt                                   ! current time step #
-   REAL(KIND=r_1), DIMENSION(:,:,:), INTENT(INOUT) :: tmp_array   ! temporary array   
+   REAL(KIND=r1), DIMENSION(:,:,:), INTENT(INOUT) :: tmp_array   ! temporary array   
 
    ! Local variables
    INTEGER  :: ndim2  ! size of 2nd dimension

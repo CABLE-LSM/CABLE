@@ -137,7 +137,7 @@ contains
     INTEGER, SAVE :: FILE_ID, EPI_CNT = 0
 
     ! TEMPORARY ARRAYS
-    INTEGER,  ALLOCATABLE :: I1(:), I2(:,:), I3(:,:,:), I4(:,:,:,:)
+    INTEGER,  ALLOCATABLE :: I11(:), I22(:,:), I33(:,:,:), I44(:,:,:,:)
     REAL(dp), ALLOCATABLE :: R1(:), R2(:,:), R3(:,:,:), R4(:,:,:,:)
 #ifdef __MPI__
     integer :: ierr
@@ -771,12 +771,12 @@ contains
 
        ! PUT 3D VARS ( mp,ndisturb, t )
 
-       ALLOCATE ( I2( mp, ndisturb ) )
+       ALLOCATE ( I22( mp, ndisturb ) )
        DO i = 1, SIZE(VIDI4)
           DO m = 1, mp
              SELECT CASE (i)
              CASE(1)
-                I2( m,: ) = POP%pop_grid(m)%n_age
+                I22( m,: ) = POP%pop_grid(m)%n_age
              CASE default
                 write(*,*) "Parameter not assigned in pop_io.F90!"
 #ifdef __MPI__
@@ -786,20 +786,20 @@ contains
 #endif
              END SELECT
           END DO
-          STATUS = NF90_PUT_VAR(FILE_ID, VIDI4( i), I2,         &
+          STATUS = NF90_PUT_VAR(FILE_ID, VIDI4( i), I22,         &
                start=(/ 1, 1, CNT /), count=(/ mp, ndisturb, 1 /) )
           IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
        END DO
-       DEALLOCATE( I2 )
+       DEALLOCATE( I22 )
 
        ! PUT 3D VARS ( mp,npatch2d, t )
 
-       ALLOCATE ( I2( mp, npatch2d ) )
+       ALLOCATE ( I22( mp, npatch2d ) )
        DO i = 1, SIZE(VIDI5)
           DO m = 1, mp
              SELECT CASE (i)
              CASE( 1)
-                I2( m,: ) = POP%pop_grid(m)%patch(:)%id
+                I22( m,: ) = POP%pop_grid(m)%patch(:)%id
              CASE default
                 write(*,*) "Parameter not assigned in pop_io.F90!"
 #ifdef __MPI__
@@ -809,11 +809,11 @@ contains
 #endif
              END SELECT
           END DO
-          STATUS = NF90_PUT_VAR(FILE_ID, VIDI5( i), I2,         &
+          STATUS = NF90_PUT_VAR(FILE_ID, VIDI5( i), I22,         &
                start=(/ 1, 1, CNT /), count=(/ mp, npatch2d, 1 /) )
           IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
        END DO
-       DEALLOCATE( I2 )
+       DEALLOCATE( I22 )
 
        ALLOCATE( R2( mp, npatch2d ) )
        DO i = 1, SIZE(VIDR5)
@@ -883,19 +883,19 @@ contains
        DEALLOCATE( R2 )
 
        ! PUT 4D VARS ( mp,npatch2d, ndisturb,t )
-       ALLOCATE( I3( mp, npatch2d, ndisturb ) )
+       ALLOCATE( I33( mp, npatch2d, ndisturb ) )
        DO i = 1, SIZE(VIDI7)
           DO p = 1, npatch2d
              DO m = 1, mp
                 SELECT CASE ( i )
                 CASE( 1)
-                   I3(m,p,:)= POP%pop_grid(m)%patch(p)%disturbance_interval
+                   I33(m,p,:)= POP%pop_grid(m)%patch(p)%disturbance_interval
                 CASE( 2)
-                   I3(m,p,:)= POP%pop_grid(m)%patch(p)%first_disturbance_year
+                   I33(m,p,:)= POP%pop_grid(m)%patch(p)%first_disturbance_year
                 CASE( 3)
-                   I3(m,p,:)= POP%pop_grid(m)%patch(p)%age
+                   I33(m,p,:)= POP%pop_grid(m)%patch(p)%age
                 CASE( 4)
-                   I3(m,p,:)= POP%pop_grid(m)%ranked_age_unique(p,:)
+                   I33(m,p,:)= POP%pop_grid(m)%ranked_age_unique(p,:)
                 CASE default
                    write(*,*) "Parameter not assigned in pop_io.F90!"
 #ifdef __MPI__
@@ -906,11 +906,11 @@ contains
                 END SELECT
              END DO
           END DO
-          STATUS = NF90_PUT_VAR(FILE_ID, VIDI7( i), I3,         &
+          STATUS = NF90_PUT_VAR(FILE_ID, VIDI7( i), I33,         &
                start=(/1, 1, 1, CNT /), count=(/ mp, npatch2d,ndisturb, 1 /) )
           IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
        END DO
-       DEALLOCATE( I3 )
+       DEALLOCATE( I33 )
 
        ALLOCATE( R3( mp, npatch2d, ndisturb ) )
        DO i = 1, SIZE(VIDR7)
@@ -936,13 +936,13 @@ contains
        DEALLOCATE( R3 )
 
        !PUT 4D VARS ( mp,npatch2d, nlayer,t )
-       ALLOCATE( I3( mp, npatch2d, nlayer ) )
+       ALLOCATE( I33( mp, npatch2d, nlayer ) )
        DO i = 1, SIZE(VIDI8)
           DO p = 1, npatch2d
              DO m = 1, mp
                 SELECT CASE ( i )
                 CASE( 1)
-                   I3(m,p,:) =  POP%pop_grid(m)%patch(p)%layer(:)%ncohort
+                   I33(m,p,:) =  POP%pop_grid(m)%patch(p)%layer(:)%ncohort
                 CASE default
                    write(*,*) "Parameter not assigned in pop_io.F90!"
 #ifdef __MPI__
@@ -953,11 +953,11 @@ contains
                 END SELECT
              END DO
           END DO
-          STATUS = NF90_PUT_VAR(FILE_ID, VIDI8( i), I3,         &
+          STATUS = NF90_PUT_VAR(FILE_ID, VIDI8( i), I33,         &
                start=(/1, 1, 1, CNT /), count=(/ mp, npatch2d,nlayer, 1 /) )
           IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
        END DO
-       DEALLOCATE( I3 )
+       DEALLOCATE( I33 )
 
        ALLOCATE( R3( mp, npatch2d, nlayer ) )
        DO i = 1, SIZE(VIDR8)
@@ -989,16 +989,16 @@ contains
        DEALLOCATE( R3 )
 
        ! PUT 5D VARS ( mp,npatch2d, nlayer,ncohort_max,t )
-       ALLOCATE( I4( mp, npatch2d, nlayer, ncohort_max ) )
+       ALLOCATE( I44( mp, npatch2d, nlayer, ncohort_max ) )
        DO i = 1, SIZE(VIDI9)
           DO l = 1, nlayer
              DO p = 1, npatch2d
                 DO m = 1, mp
                    SELECT CASE ( i )
                    CASE( 1)
-                      I4(m,p,l,:) = POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%age
+                      I44(m,p,l,:) = POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%age
                    CASE( 2)
-                      I4(m,p,l,:) = POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%id
+                      I44(m,p,l,:) = POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%id
                    CASE default
                       write(*,*) "Parameter not assigned in pop_io.F90!"
 #ifdef __MPI__
@@ -1010,12 +1010,12 @@ contains
                 END DO
              END DO
           END DO
-          STATUS = NF90_PUT_VAR(FILE_ID, VIDI9( i), I4,         &
+          STATUS = NF90_PUT_VAR(FILE_ID, VIDI9( i), I44,         &
                start=(/ 1, 1,1,1, CNT /), count=(/ mp, npatch2d,nlayer,ncohort_max,1 /) )
           IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
        ENDDO
-       DEALLOCATE(I4)
+       DEALLOCATE(I44)
 
        ALLOCATE( R4( mp, npatch2d, nlayer, ncohort_max ) )
        DO i = 1, SIZE(VIDR9)
@@ -1185,16 +1185,16 @@ contains
        STATUS = NF90_INQ_VARID( FILE_ID, 'Time', t_ID )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
-       ALLOCATE( I1 (t_dim) )
-       STATUS = NF90_GET_VAR( FILE_ID, t_ID, I1 )
+       ALLOCATE( I11 (t_dim) )
+       STATUS = NF90_GET_VAR( FILE_ID, t_ID, I11 )
        IF ( STATUS /= NF90_noerr ) CALL handle_err(STATUS)
        DO i = 1, t_dim
-          IF ( YEAR .EQ. I1(i)+1 ) THEN ! DATA FROM PRECEDING YEAR !
+          IF ( YEAR .EQ. I11(i)+1 ) THEN ! DATA FROM PRECEDING YEAR !
              tx = i
              EXIT
           END IF
        END DO
-       DEALLOCATE( I1 )
+       DEALLOCATE( I11 )
 
        IF ( tx .LE. 0 ) THEN
           WRITE(*,*) 'FILE '//TRIM(fname)//" doesn't contain specific data for ",YEAR
@@ -1379,28 +1379,28 @@ contains
        DEALLOCATE( R2 )
 
        ! GET 2D VARS ( mp,ndisturb)
-       ALLOCATE ( I2( mp, ndisturb ) )
+       ALLOCATE ( I22( mp, ndisturb ) )
        STATUS = NF90_INQ_VARID( FILE_ID, TRIM(AI4(1)), dID )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-       STATUS = NF90_GET_VAR  ( FILE_ID, dID, I2, &
+       STATUS = NF90_GET_VAR  ( FILE_ID, dID, I22, &
             start=(/ 1, 1, tx /), count=(/ mp, ndisturb, 1 /) )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
        DO m = 1, mp
-          POP%pop_grid(m)%n_age = I2( m,: )
+          POP%pop_grid(m)%n_age = I22( m,: )
        END DO
-       DEALLOCATE( I2 )
+       DEALLOCATE( I22 )
 
        ! GET 2D VARS ( mp,npatch2d)
-       ALLOCATE ( I2( mp,npatch2d ) )
+       ALLOCATE ( I22( mp,npatch2d ) )
        STATUS = NF90_INQ_VARID( FILE_ID, TRIM(AI5(1)), dID )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-       STATUS = NF90_GET_VAR  ( FILE_ID, dID, I2, &
+       STATUS = NF90_GET_VAR  ( FILE_ID, dID, I22, &
             start=(/ 1, 1, tx /), count=(/ mp, npatch2d, 1 /) )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
        DO m = 1, mp
-          POP%pop_grid(m)%patch(:)%id = I2( m,: )
+          POP%pop_grid(m)%patch(:)%id = I22( m,: )
        END DO
-       DEALLOCATE( I2 )
+       DEALLOCATE( I22 )
 
        ! PATCH STRUCTURE
        ! GET 2D VARS ( mp,npatch2d )
@@ -1474,24 +1474,24 @@ contains
        DEALLOCATE( R2 )
 
        ! GET 3D VARS ( mp,npatch2d,ndisturb )
-       ALLOCATE( I3( mp, npatch2d, ndisturb ) )
+       ALLOCATE( I33( mp, npatch2d, ndisturb ) )
        DO i = 1, SIZE(AI7)
           STATUS = NF90_INQ_VARID( FILE_ID, TRIM(AI7(i)), dID )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-          STATUS = NF90_GET_VAR  ( FILE_ID, dID, I3, &
+          STATUS = NF90_GET_VAR  ( FILE_ID, dID, I33, &
                start=(/ 1, 1, 1, tx /), count=(/ mp, npatch2d, ndisturb, 1 /) )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
           DO p = 1, npatch2d
              DO m = 1, mp
                 SELECT CASE ( i )
                 CASE( 1)
-                   POP%pop_grid(m)%patch(p)%disturbance_interval   = I3(m,p,:)
+                   POP%pop_grid(m)%patch(p)%disturbance_interval   = I33(m,p,:)
                 CASE( 2)
-                   POP%pop_grid(m)%patch(p)%first_disturbance_year = I3(m,p,:)
+                   POP%pop_grid(m)%patch(p)%first_disturbance_year = I33(m,p,:)
                 CASE( 3)
-                   POP%pop_grid(m)%patch(p)%age                    = I3(m,p,:)
+                   POP%pop_grid(m)%patch(p)%age                    = I33(m,p,:)
                 CASE( 4)
-                   POP%pop_grid(m)%ranked_age_unique(p,:)          = I3(m,p,:)
+                   POP%pop_grid(m)%ranked_age_unique(p,:)          = I33(m,p,:)
                 CASE default
                    write(*,*) "Parameter not assigned in pop_io.F90!"
 #ifdef __MPI__
@@ -1503,7 +1503,7 @@ contains
              END DO
           END DO
        END DO
-       DEALLOCATE( I3 )
+       DEALLOCATE( I33 )
 
        ALLOCATE( R3( mp, npatch2d,ndisturb ) )
        STATUS = NF90_INQ_VARID( FILE_ID, TRIM(AR7(1)), dID )
@@ -1518,18 +1518,18 @@ contains
 
        ! LAYER STRUCTURE
        ! GET 3D VARS ( mp,npatch2d,nlayer )
-       ALLOCATE( I3( mp, npatch2d, nlayer ) )
+       ALLOCATE( I33( mp, npatch2d, nlayer ) )
        DO i = 1, SIZE(AI8)
           STATUS = NF90_INQ_VARID( FILE_ID, TRIM(AI8(i)), dID )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-          STATUS = NF90_GET_VAR  ( FILE_ID, dID, I3, &
+          STATUS = NF90_GET_VAR  ( FILE_ID, dID, I33, &
                start=(/ 1, 1, 1, tx /), count=(/ mp, npatch2d, nlayer, 1 /) )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
           DO p = 1, npatch2d
              DO m = 1, mp
                 SELECT CASE ( i )
                 CASE( 1)
-                   POP%pop_grid(m)%patch(p)%layer(:)%ncohort = I3(m,p,:)
+                   POP%pop_grid(m)%patch(p)%layer(:)%ncohort = I33(m,p,:)
                 CASE default
                    write(*,*) "Parameter not assigned in pop_io.F90!"
 #ifdef __MPI__
@@ -1541,7 +1541,7 @@ contains
              END DO
           END DO
        END DO
-       DEALLOCATE( I3 )
+       DEALLOCATE( I33 )
 
        ALLOCATE( R3( mp, npatch2d, nlayer ) )
        DO i = 1, SIZE(AR8)
@@ -1576,11 +1576,11 @@ contains
 
        ! COHORT STRUCTURE
        ! GET 4D VARS ( mp,npatch2d,nlayer,ncohort_max )
-       ALLOCATE( I4( mp, npatch2d, nlayer, ncohort_max ) )
+       ALLOCATE( I44( mp, npatch2d, nlayer, ncohort_max ) )
        DO i = 1, SIZE(AI9)
           STATUS = NF90_INQ_VARID( FILE_ID, TRIM(AI9(i)), dID )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-          STATUS = NF90_GET_VAR  ( FILE_ID, dID, I4, start=(/ 1, 1, 1, 1, tx /), &
+          STATUS = NF90_GET_VAR  ( FILE_ID, dID, I44, start=(/ 1, 1, 1, 1, tx /), &
                count=(/ mp,npatch2d,nlayer,ncohort_max,1 /) )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
           DO l = 1, nlayer
@@ -1588,9 +1588,9 @@ contains
                 DO m = 1, mp
                    SELECT CASE ( i )
                    CASE( 1)
-                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%age = I4(m,p,l,:)
+                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%age = I44(m,p,l,:)
                    CASE( 2)
-                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%id  = I4(m,p,l,:)
+                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%id  = I44(m,p,l,:)
                    CASE default
                       write(*,*) "Parameter not assigned in pop_io.F90!"
 #ifdef __MPI__
@@ -1603,7 +1603,7 @@ contains
              END DO
           END DO
        END DO
-       DEALLOCATE( I4 )
+       DEALLOCATE( I44 )
 
        ALLOCATE( R4( mp, npatch2d, nlayer, ncohort_max ) )
        DO i = 1, SIZE(AR9)

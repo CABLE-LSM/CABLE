@@ -33,7 +33,7 @@
 MODULE cable_read_module
 
    USE cable_abort_module
-   USE cable_def_types_mod,  ONLY: ms, ncp, r_1, r_2, mland, mp, ncs, nrb, msn, mf
+   USE cable_def_types_mod,  ONLY: ms, ncp, r1, r2, mland, mp, ncs, nrb, msn, mf
    USE cable_IO_vars_module, ONLY: landpt, exists, land_x, land_y, metGrid
    USE netcdf
 #ifdef __MPI__
@@ -183,7 +183,7 @@ CONTAINS
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID
     INTEGER, INTENT(IN) :: npatch ! # of veg patches in parameter's file
     INTEGER, INTENT(IN), OPTIONAL :: INpatch
-    REAL(KIND=r_1), DIMENSION(:), INTENT(INOUT) :: var_r ! returned parameter values
+    REAL(KIND=r1), DIMENSION(:), INTENT(INOUT) :: var_r ! returned parameter values
     LOGICAL, INTENT(IN), OPTIONAL :: from_restart ! reading from restart file?
     LOGICAL, INTENT(INOUT) :: completeSet ! has every parameter been loaded?
     CHARACTER(LEN=*), INTENT(IN) :: parname ! name of parameter
@@ -193,10 +193,10 @@ CONTAINS
     INTEGER :: parID ! parameter's netcdf ID
     INTEGER :: pardims ! # dimensions of parameter
     INTEGER :: i ! do loop counter
-    REAL(KIND=r_1), DIMENSION(1) :: data1r ! temporary for ncdf read in
-    REAL(KIND=r_1), DIMENSION(1, 1) :: data2r ! temporary for ncdf read in
-    REAL(KIND=r_1), DIMENSION(:, :), POINTER :: tmp2r => null() ! temporary for ncdf read in
-    REAL(KIND=r_1), DIMENSION(:, :, :), POINTER :: tmp3r => null() ! temporary for ncdf read in
+    REAL(KIND=r1), DIMENSION(1) :: data1r ! temporary for ncdf read in
+    REAL(KIND=r1), DIMENSION(1, 1) :: data2r ! temporary for ncdf read in
+    REAL(KIND=r1), DIMENSION(:, :), POINTER :: tmp2r => null() ! temporary for ncdf read in
+    REAL(KIND=r1), DIMENSION(:, :, :), POINTER :: tmp3r => null() ! temporary for ncdf read in
 
     ! Check if parameter exists:
     ok = NF90_INQ_VARID(ncid, parname, parID)
@@ -325,7 +325,7 @@ CONTAINS
     ! Subroutine for loading a double precision real-valued parameter
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID
     INTEGER, INTENT(IN) :: npatch ! # of veg patches in parameter's file
-    REAL(r_2), DIMENSION(:), INTENT(INOUT) :: var_rd ! returned parameter values
+    REAL(r2), DIMENSION(:), INTENT(INOUT) :: var_rd ! returned parameter values
     LOGICAL, INTENT(IN), OPTIONAL :: from_restart ! reading from restart file?
     LOGICAL, INTENT(INOUT) :: completeSet ! has every parameter been loaded?
     CHARACTER(LEN=*), INTENT(IN) :: parname ! name of parameter
@@ -336,10 +336,10 @@ CONTAINS
     INTEGER :: parID ! parameter's netcdf ID
     INTEGER :: pardims ! # dimensions of parameter
     INTEGER :: i ! do loop counter
-    REAL(r_1), DIMENSION(1) :: data1r ! temporary for ncdf read in
-    REAL(r_1), DIMENSION(1, 1) :: data2r ! temporary for ncdf read in
-    REAL(r_1), DIMENSION(:, :), POINTER :: tmp2r => null() ! temporary for ncdf read in
-    REAL(r_1), DIMENSION(:, :, :), POINTER :: tmp3r => null() ! temporary for ncdf read in
+    REAL(r1), DIMENSION(1) :: data1r ! temporary for ncdf read in
+    REAL(r1), DIMENSION(1, 1) :: data2r ! temporary for ncdf read in
+    REAL(r1), DIMENSION(:, :), POINTER :: tmp2r => null() ! temporary for ncdf read in
+    REAL(r1), DIMENSION(:, :, :), POINTER :: tmp3r => null() ! temporary for ncdf read in
 
     ! Check if parameter exists:
     ok = NF90_INQ_VARID(ncid, parname, parID)
@@ -381,7 +381,7 @@ CONTAINS
                            //TRIM(filename)//' (SUBROUTINE readpar_rd)')
                       ! Give single value to all patches if no patch specific
                       ! info:
-                      var_rd(landpt(i)%cstart:landpt(i)%cend) = real(data1r(1), r_2)
+                      var_rd(landpt(i)%cstart:landpt(i)%cend) = real(data1r(1), r2)
                    END DO
                 END IF
              ELSE IF (pardims == 2) THEN ! i.e. parameter has a patch dimension
@@ -398,7 +398,7 @@ CONTAINS
                            CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
                            //TRIM(filename)//' (SUBROUTINE readpar_rd)')
                       ! Set values for this par for the # patches that exist
-                      var_rd(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1)) = REAL(tmp2r(1, :), r_2)
+                      var_rd(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1)) = REAL(tmp2r(1, :), r2)
                    END DO
                    DEALLOCATE(tmp2r)
                 endif
@@ -423,7 +423,7 @@ CONTAINS
                            CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
                            //TRIM(filename)//' (SUBROUTINE readpar_rd)')
                       ! Set all patches to have the same value for this par:
-                      var_rd(landpt(i)%cstart:landpt(i)%cend) = REAL(data2r(1, 1), r_2)
+                      var_rd(landpt(i)%cstart:landpt(i)%cend) = REAL(data2r(1, 1), r2)
                    END DO
                 ELSE IF (pardims == 3) THEN ! i.e. parameter has a patch dimension
                    ALLOCATE(tmp3r(1, 1, npatch))
@@ -435,7 +435,7 @@ CONTAINS
                            CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
                            //TRIM(filename)//' (SUBROUTINE readpar_rd)')
                       ! Set values for this par for the # patches that exist
-                      var_rd(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1)) = REAL(tmp3r(1, 1, :), r_2)
+                      var_rd(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1)) = REAL(tmp3r(1, 1, :), r2)
                    END DO
                    DEALLOCATE(tmp3r)
                 ELSE
@@ -456,7 +456,7 @@ CONTAINS
                  IF (ok /= NF90_NOERR) &
                       CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
                       //TRIM(filename)//' (SUBROUTINE readpar_rd)')
-                 var_rd(i) = REAL(data1r(1), r_2)
+                 var_rd(i) = REAL(data1r(1), r2)
               END DO
            endif
         ELSE IF (dimswitch(1:2) == 'msn') THEN ! ie par has only soil dimension, no spatial
@@ -469,7 +469,7 @@ CONTAINS
                  IF (ok /= NF90_NOERR) &
                       CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
                       //TRIM(filename)//' (SUBROUTINE readpar_rd)')
-                 var_rd(i) = REAL(data1r(1), r_2)
+                 var_rd(i) = REAL(data1r(1), r2)
               END DO
            endif
         ELSE IF (dimswitch(1:2) == 'mf') THEN ! ie par has only soil dimension, no spatial
@@ -482,7 +482,7 @@ CONTAINS
                  IF (ok /= NF90_NOERR) &
                       CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
                       //TRIM(filename)//' (SUBROUTINE readpar_rd)')
-                 var_rd(i) = REAL(data1r(1), r_2)
+                 var_rd(i) = REAL(data1r(1), r2)
               END DO
            endif
        ELSE IF (dimswitch(1:3) == 'ncp') THEN ! ie par has only ncp dimension e.g. ratecp
@@ -495,7 +495,7 @@ CONTAINS
                 IF(ok /= NF90_NOERR) &
                      CALL nc_abort(ok, 'Error reading '//parname//' in file ' &
                      //TRIM(filename)//' (SUBROUTINE readpar_rd)')
-                var_rd(i) = REAL(data1r(1), r_2)
+                var_rd(i) = REAL(data1r(1), r2)
              END DO
           endif
        ELSE IF (dimswitch(1:3) == 'ncs') THEN ! ie par has only ncs dimension e.g. ratecs
@@ -508,7 +508,7 @@ CONTAINS
                 IF(ok /= NF90_NOERR) &
                      CALL nc_abort(ok,'Error reading '//parname//' in file ' &
                      //TRIM(filename)//' (SUBROUTINE readpar_rd)')
-                var_rd(i) = REAL(data1r(1), r_2)
+                var_rd(i) = REAL(data1r(1), r2)
              END DO
           endif
        ELSE
@@ -528,7 +528,7 @@ CONTAINS
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID
     INTEGER, INTENT(IN) :: npatch ! number of veg patches in file
     INTEGER, INTENT(IN), OPTIONAL :: INpatch
-    REAL(KIND=r_1), DIMENSION(:,:), INTENT(INOUT) :: var_r2 ! returned parameter values
+    REAL(KIND=r1), DIMENSION(:,:), INTENT(INOUT) :: var_r2 ! returned parameter values
     LOGICAL, INTENT(IN), OPTIONAL :: from_restart ! reading from restart file?
     LOGICAL, INTENT(INOUT) :: completeSet ! has every parameter been loaded?
     CHARACTER(LEN=*), INTENT(IN) :: filename ! file containing parameter values
@@ -540,11 +540,11 @@ CONTAINS
     INTEGER :: pardims ! # dimensions of parameter
     INTEGER :: dimctr ! size of non-spatial (2nd) dimension of parameter
     INTEGER :: i, j ! do loop counter
-    REAL(KIND=r_1), DIMENSION(:, :), POINTER       :: tmp2r => null() ! temporary for ncdf
+    REAL(KIND=r1), DIMENSION(:, :), POINTER       :: tmp2r => null() ! temporary for ncdf
                                                           ! read in
-    REAL(KIND=r_1), DIMENSION(:, :, :), POINTER    :: tmp3r => null() ! temporary for ncdf
+    REAL(KIND=r1), DIMENSION(:, :, :), POINTER    :: tmp3r => null() ! temporary for ncdf
                                                           ! read in
-    REAL(KIND=r_1), DIMENSION(:, :, :, :), POINTER :: tmp4r => null() ! temporary for ncdf read in
+    REAL(KIND=r1), DIMENSION(:, :, :, :), POINTER :: tmp4r => null() ! temporary for ncdf read in
     REAL :: tmpjh
 
     ! Check if parameter exists:
@@ -697,7 +697,7 @@ CONTAINS
     INTEGER, INTENT(IN) :: ncid ! netcdf file ID
     INTEGER, INTENT(IN) :: npatch ! # of veg patches in parameter's file
     INTEGER, INTENT(IN), OPTIONAL :: INpatch
-    REAL(r_2), DIMENSION(:, :), INTENT(INOUT) :: var_r2d ! returned parameter
+    REAL(r2), DIMENSION(:, :), INTENT(INOUT) :: var_r2d ! returned parameter
                                                          ! value
     LOGICAL, INTENT(IN), OPTIONAL :: from_restart ! reading from restart file?
     LOGICAL, INTENT(INOUT) :: completeSet ! has every parameter been loaded?
@@ -709,11 +709,11 @@ CONTAINS
     INTEGER :: pardims ! # dimensions of parameter
     INTEGER :: dimctr ! size of non-spatial (2nd) dimension of parameter
     INTEGER :: i,j ! do loop counter
-    REAL(r_1), DIMENSION(:, :), POINTER       :: tmp2r => null()  ! temporary for ncdf
+    REAL(r1), DIMENSION(:, :), POINTER       :: tmp2r => null()  ! temporary for ncdf
                                                       ! read in
-    REAL(r_1), DIMENSION(:, :, :), POINTER    :: tmp3r => null()  ! temporary for ncdf
+    REAL(r1), DIMENSION(:, :, :), POINTER    :: tmp3r => null()  ! temporary for ncdf
                                                       ! read in
-    REAL(r_1), DIMENSION(:, :, :, :), POINTER :: tmp4r => null()  ! temporary for ncdf
+    REAL(r1), DIMENSION(:, :, :, :), POINTER :: tmp4r => null()  ! temporary for ncdf
                                                       ! read in
 
     ! Check if parameter exists:
@@ -779,7 +779,7 @@ CONTAINS
                           CALL nc_abort(ok, 'Error reading '//parname//' in met data file ' &
                           //TRIM(filename)//' (SUBROUTINE readpar_r2d)')
                      DO j = 1, dimctr
-                        var_r2d(landpt(i)%cstart:landpt(i)%cend, j) = REAL(tmp2r(1,j), r_2)
+                        var_r2d(landpt(i)%cstart:landpt(i)%cend, j) = REAL(tmp2r(1,j), r2)
                      END DO
                   END DO
                   DEALLOCATE(tmp2r)
@@ -801,7 +801,7 @@ CONTAINS
                    DO j=1, dimctr
                       ! Set values for this par for the # patches that exist
                       var_r2d(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1),j) &
-                           = REAL(tmp3r(1,:,j), r_2)
+                           = REAL(tmp3r(1,:,j), r2)
                    END DO
                 END DO
                 DEALLOCATE(tmp3r)
@@ -830,7 +830,7 @@ CONTAINS
                    ! Set all patches to have the same value for this par:
                    DO j=1, dimctr
                       var_r2d(landpt(i)%cstart:landpt(i)%cend, j) = &
-                           REAL(tmp3r(1, 1, j), r_2)
+                           REAL(tmp3r(1, 1, j), r2)
                    END DO
                 END DO
                 DEALLOCATE(tmp3r)
@@ -846,7 +846,7 @@ CONTAINS
                    DO j=1, dimctr
                       ! Set values for this par for the # patches that exist
                       var_r2d(landpt(i)%cstart:(landpt(i)%cstart + npatch - 1), j) = &
-                           REAL(tmp4r(1, 1, :, j), r_2)
+                           REAL(tmp4r(1, 1, :, j), r2)
                    END DO
                 END DO
                 DEALLOCATE(tmp4r)
@@ -934,12 +934,12 @@ CONTAINS
     IMPLICIT NONE
     INTEGER,     INTENT(IN)  :: INpatch
     INTEGER,     INTENT(IN)  :: nap(INpatch)
-    REAL(r_2),        INTENT(IN)  :: in_rd(INpatch)
-    REAL(r_2),        INTENT(OUT) :: out_rd(mp)
+    REAL(r2),        INTENT(IN)  :: in_rd(INpatch)
+    REAL(r2),        INTENT(OUT) :: out_rd(mp)
     CHARACTER(LEN=*), INTENT(IN)  :: parname ! name of parameter
 
     ! local variables
-    REAL(r_2)    :: ave_rd
+    REAL(r2)    :: ave_rd
     INTEGER :: ii, jj, npt
 
     npt = 0
@@ -1004,12 +1004,12 @@ CONTAINS
     INTEGER,     INTENT(IN)  :: INpatch
     INTEGER,     INTENT(IN)  :: dim2
     INTEGER,     INTENT(IN)  :: nap(INpatch)
-    REAL(r_2),        INTENT(IN)  :: in_r2d (INpatch,dim2)
-    REAL(r_2),        INTENT(OUT) :: out_r2d(mp,dim2)
+    REAL(r2),        INTENT(IN)  :: in_r2d (INpatch,dim2)
+    REAL(r2),        INTENT(OUT) :: out_r2d(mp,dim2)
     CHARACTER(LEN=*), INTENT(IN)  :: parname ! name of parameter
 
     ! local variables
-    REAL(r_2)    :: ave_r2d(dim2)
+    REAL(r2)    :: ave_r2d(dim2)
     INTEGER :: ii, jj, npt
 
     npt = 0

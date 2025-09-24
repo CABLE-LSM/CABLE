@@ -80,9 +80,9 @@ MODULE TypeDef
 
   ! Define integer kind parameters to accommodate the range of numbers usually
   ! associated with 4, 2, and 1 byte integers.
-  INTEGER,PARAMETER :: i4b = SELECTED_INT_KIND(9)
-  INTEGER,PARAMETER :: i2b = SELECTED_INT_KIND(4)
-  INTEGER,PARAMETER :: i1b = SELECTED_INT_KIND(2)
+  INTEGER,PARAMETER :: i4 = SELECTED_INT_KIND(9)
+  INTEGER,PARAMETER :: i2 = SELECTED_INT_KIND(4)
+  INTEGER,PARAMETER :: i1 = SELECTED_INT_KIND(2)
 
   ! Define single and double precision real kind parameters:
   ! * Kind(1.0)   defines sp as the machine's default size for single precision
@@ -101,7 +101,7 @@ END MODULE TypeDef
 
 MODULE POP_Constants
 
-  USE TYPEdef, ONLY: dp, i4b
+  USE TYPEdef, ONLY: dp, i4
 
   IMPLICIT NONE
 
@@ -171,65 +171,65 @@ MODULE POP_Constants
       !! Multiple of crown diameters within which tree competes with other cohorts \((-)\)
   REAL(dp), PARAMETER :: EPS = 1.0e-12_dp
       !! Precision parameter representing
-  INTEGER(i4b), PARAMETER :: NLAYER = 1 
+  INTEGER(i4), PARAMETER :: NLAYER = 1 
       !! Number of vertical veg layers (1 is currently the only option)
-  INTEGER(i4b), PARAMETER :: NCOHORT_MAX = 20
+  INTEGER(i4), PARAMETER :: NCOHORT_MAX = 20
       !! Maximum number of cohorts
-  INTEGER(i4b), PARAMETER :: NDISTURB = 1 
+  INTEGER(i4), PARAMETER :: NDISTURB = 1 
       !! Number of disturbance regimes (1=total only  or 2=partial and total)
-  INTEGER(i4b), PARAMETER :: PATCH_REPS = 10 
+  INTEGER(i4), PARAMETER :: PATCH_REPS = 10 
       !! Higher number reduces 'noise'
-  INTEGER(i4b), PARAMETER :: NAGE_MAX = 1 
+  INTEGER(i4), PARAMETER :: NAGE_MAX = 1 
       !! Number of maximum ages
-  INTEGER(i4b), PARAMETER :: PATCH_REPS1 = 60 
+  INTEGER(i4), PARAMETER :: PATCH_REPS1 = 60 
       !! Number of first disturbance years
-  INTEGER(i4b), PARAMETER :: PATCH_REPS2 = 1 
+  INTEGER(i4), PARAMETER :: PATCH_REPS2 = 1 
       !! Number of second disturbance years
-  INTEGER(i4b), PARAMETER :: NPATCH = PATCH_REPS1*PATCH_REPS2
+  INTEGER(i4), PARAMETER :: NPATCH = PATCH_REPS1*PATCH_REPS2
       !! Number of Patches
-  INTEGER(i4b), PARAMETER :: NPATCH1D = NPATCH
-  INTEGER(i4b), PARAMETER :: NPATCH2D = NPATCH
-  INTEGER(i4b), PARAMETER ::  HEIGHT_BINS = 12 
+  INTEGER(i4), PARAMETER :: NPATCH1D = NPATCH
+  INTEGER(i4), PARAMETER :: NPATCH2D = NPATCH
+  INTEGER(i4), PARAMETER ::  HEIGHT_BINS = 12 
       !! Number of height categories to keep track of for diagnostics
   REAL(dp), PARAMETER :: BIN_POWER = 1.4_dp 
       !! Factor determining size of height bins
-  INTEGER(i4b), PARAMETER :: TIMEBASE_FACTOR=50
+  INTEGER(i4), PARAMETER :: TIMEBASE_FACTOR=50
       !! Time base factor (to be multiplied by mean dist interval to give TIMEBASE)
       !! for sampling disturbance probabilities from Poisson distribution
   REAL(dp), PARAMETER :: PI=3.14159265358979323846264_dp
-  INTEGER(i4b), PARAMETER :: ALLOM_SWITCH = 2
+  INTEGER(i4), PARAMETER :: ALLOM_SWITCH = 2
       !! Allometry switch:
       !!
       !! - 0: default
       !! - 1: top-end allometry (requires precip as input to POPSTEP)
       !! - 2: Allometry following Model 5b from [Williams 2005](https://doi.org/10.1071/BT04149)
-  INTEGER(i4b), PARAMETER :: MAX_HEIGHT_SWITCH = 2
+  INTEGER(i4), PARAMETER :: MAX_HEIGHT_SWITCH = 2
       !! Max height calculation:
       !!
       !! - 0: binned max height variable
       !! - 1: continuous (needs lots of memory)
       !! - 2: binned by integer heights
-  INTEGER(i4b), PARAMETER :: RESOURCE_SWITCH = 1 
+  INTEGER(i4), PARAMETER :: RESOURCE_SWITCH = 1 
       !! - 0: default
       !! - 1: fraction net resource uptake
-  INTEGER(i4b), PARAMETER :: RECRUIT_SWITCH = 1 
+  INTEGER(i4), PARAMETER :: RECRUIT_SWITCH = 1 
       !! Recruitment switch:
       !!
       !! - 0: default
       !! - 1: Pgap-dependence
-  INTEGER(i4b), PARAMETER :: INTERP_SWITCH = 1 
+  INTEGER(i4), PARAMETER :: INTERP_SWITCH = 1 
       !! Biomass interpolation switch:
       !!
       !! - 0: sum over weighted patches
       !! - 1: sum over interpolated patches
-  INTEGER(i4b), PARAMETER :: SMOOTH_SWITCH = 0 
+  INTEGER(i4), PARAMETER :: SMOOTH_SWITCH = 0 
       !! Smooth disturbance flux switch
-  INTEGER(i4b), PARAMETER :: NYEAR_WINDOW  = 5 
+  INTEGER(i4), PARAMETER :: NYEAR_WINDOW  = 5 
       !! Size of one-side of smoothing window \((y)\)
-  INTEGER(i4b), PARAMETER :: NYEAR_SMOOTH  = 2*NYEAR_WINDOW + 1 
+  INTEGER(i4), PARAMETER :: NYEAR_SMOOTH  = 2*NYEAR_WINDOW + 1 
       !! Smoothing window size \((y)\)
-  INTEGER(i4b), PARAMETER :: NYEAR_HISTORY = NYEAR_SMOOTH-NYEAR_WINDOW
-  INTEGER(i4b), PARAMETER :: AGEMAX = 1000
+  INTEGER(i4), PARAMETER :: NYEAR_HISTORY = NYEAR_SMOOTH-NYEAR_WINDOW
+  INTEGER(i4), PARAMETER :: AGEMAX = 1000
       !! Maximum age \((y)\)
 
 END MODULE POP_Constants
@@ -240,15 +240,15 @@ END MODULE POP_Constants
 
 MODULE POP_Types
 
-  USE TYPEdef, ONLY: dp, i4b
+  USE TYPEdef, ONLY: dp, i4
   USE POP_Constants, ONLY: NCOHORT_MAX, NLAYER, HEIGHT_BINS, NDISTURB, NPATCH, NPATCH2D, &
        NYEAR_HISTORY, AGEMAX
 
   IMPLICIT NONE
 
   TYPE Cohort
-     INTEGER(i4b) :: id
-     INTEGER(i4b) :: age ! cohort age
+     INTEGER(i4) :: id
+     INTEGER(i4) :: age ! cohort age
      REAL(dp)     :: biomass ! cohort biomass
      REAL(dp)     :: density ! landscape tree density (weighted mean over patches)
      REAL(dp)     :: frac_resource_uptake
@@ -272,7 +272,7 @@ MODULE POP_Types
 
   TYPE Layer
      TYPE(Cohort), DIMENSION(NCOHORT_MAX) :: Cohort
-     INTEGER(i4b) :: ncohort ! number of cohorts with density >0
+     INTEGER(i4) :: ncohort ! number of cohorts with density >0
      REAL(dp)     :: biomass ! layer biomass
      REAL(dp)     :: density ! layer tree density
      REAL(dp)     :: hmean ! layer mean tree height (weighted mean over patches)
@@ -301,10 +301,10 @@ MODULE POP_Types
      REAL(dp)     :: sapwood_area_loss
      REAL(dp)     :: growth ! biomass growth in each patch due to stem increment
      REAL(dp)     :: area_growth ! basal area growth in each patch due to stem increment
-     INTEGER(i4b) :: disturbance_interval(NDISTURB)  ! prescribed disturbance(s) interval for this patch
-     INTEGER(i4b) :: first_disturbance_year(NDISTURB)
-     INTEGER(i4b) :: age(NDISTURB) ! number of years since last disturbance(s)
-     INTEGER(i4b) :: id
+     INTEGER(i4) :: disturbance_interval(NDISTURB)  ! prescribed disturbance(s) interval for this patch
+     INTEGER(i4) :: first_disturbance_year(NDISTURB)
+     INTEGER(i4) :: age(NDISTURB) ! number of years since last disturbance(s)
+     INTEGER(i4) :: id
      REAL(dp)     :: frac_NPP
      REAL(dp)     :: frac_respiration
      REAL(dp)     :: frac_light_uptake
@@ -320,8 +320,8 @@ MODULE POP_Types
      REAL(dp), DIMENSION(NPATCH2D)    :: cat_freq      !
      REAL(dp), DIMENSION(NPATCH2D)    :: cat_freq_old  !
      REAL(dp), DIMENSION(NPATCH2D,NDISTURB) :: freq_ranked_age_unique ! unique age weighting
-     INTEGER(i4b), DIMENSION(NPATCH2D, NDISTURB) :: ranked_age_unique ! unique age
-     INTEGER(i4b), DIMENSION(NDISTURB) :: n_age ! number of unique ages
+     INTEGER(i4), DIMENSION(NPATCH2D, NDISTURB) :: ranked_age_unique ! unique age
+     INTEGER(i4), DIMENSION(NDISTURB) :: n_age ! number of unique ages
      REAL(dp), DIMENSION(NLAYER) :: biomass ! landscape stem biomass (weighted mean over patches)
      REAL(dp), DIMENSION(NLAYER) :: density ! landscape tree density (weighted mean over patches)
      REAL(dp), DIMENSION(NLAYER) :: hmean ! landscape mean treen height (weighted mean over patches)
@@ -355,8 +355,8 @@ MODULE POP_Types
      REAL(dp) :: sapwood_area
      REAL(dp) :: sapwood_area_old
      REAL(dp) :: Kclump ! clumping factor
-     INTEGER(i4b) :: npatch_active
-     INTEGER(i4b) :: LU
+     INTEGER(i4) :: npatch_active
+     INTEGER(i4) :: LU
      REAL(dp) :: smoothing_buffer
      REAL(dp) :: smoothing_buffer_cat
      REAL(dp) :: fire_mortality_smoothed
@@ -384,7 +384,7 @@ MODULE POPModule
   !-------------------------------------------------------------------------------
   !* This module contains all subroutines for POP calcs at a single time step.
   !-------------------------------------------------------------------------------
-  USE TYPEdef, ONLY: sp, i4b
+  USE TYPEdef, ONLY: sp, i4
   USE POP_Types
   USE POP_Constants
 
@@ -572,12 +572,12 @@ CONTAINS
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
-    INTEGER(i4b),   INTENT(IN)    :: mean_disturbance_interval(:,:)
-    INTEGER(i4b),   INTENT(IN), optional :: m
+    INTEGER(i4),   INTENT(IN)    :: mean_disturbance_interval(:,:)
+    INTEGER(i4),   INTENT(IN), optional :: m
 
-    INTEGER(i4b) :: j, k, g, ipatch, idist, p, c, i
-    INTEGER(i4b) :: disturbance_interval
-    INTEGER(i4b):: Poisson_age(1000)
+    INTEGER(i4) :: j, k, g, ipatch, idist, p, c, i
+    INTEGER(i4) :: disturbance_interval
+    INTEGER(i4):: Poisson_age(1000)
     REAL(dp):: Poisson_weight(1000), CumPoisson_weight(1000)
     INTEGER:: i_max
     INTEGER:: np
@@ -714,7 +714,7 @@ CONTAINS
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
     REAL(dp), INTENT(IN) :: StemNPP(:,:)
     REAL(dp), INTENT(IN) :: disturbance_intensity(:,:)
-    INTEGER(i4b), INTENT(IN) ::  disturbance_interval(:,:)
+    INTEGER(i4), INTENT(IN) ::  disturbance_interval(:,:)
     REAL(dp), INTENT(IN) ::  LAI(:)
     REAL(dp), INTENT(IN) ::  Cleaf(:)
     REAL(dp), INTENT(IN) ::  Croot(:)
@@ -722,8 +722,8 @@ CONTAINS
     REAL(dp), INTENT(IN), OPTIONAL :: frac_intensity1(:), precip(:)
     REAL(dp), INTENT(IN), OPTIONAL :: StemNPP_pot(:)
 
-    INTEGER(i4b) :: idisturb,np,g
-    INTEGER(i4b), allocatable :: it(:)
+    INTEGER(i4) :: idisturb,np,g
+    INTEGER(i4), allocatable :: it(:)
 
     !INTEGER, INTENT(IN) :: wlogn
     pop%it_pop = pop%it_pop + 1
@@ -830,12 +830,12 @@ CONTAINS
     REAL(dp), INTENT(IN), OPTIONAL  :: precip(:)
        !! Precipitation
     REAL(dp), OPTIONAL, INTENT(IN)  :: StemNPP_pot(:)
-    INTEGER(i4b), INTENT(IN)        :: it(:)
+    INTEGER(i4), INTENT(IN)        :: it(:)
 
     REAL(dp) :: densindiv
     REAL(dp) :: tmp,tmp_light,tmp_respiration,tmp_fracnpp, cmass_stem_inc
-    INTEGER(i4b) :: j, k,c, idist
-    INTEGER(i4b) :: ivec(NCOHORT_MAX), nc, np
+    INTEGER(i4) :: j, k,c, idist
+    INTEGER(i4) :: ivec(NCOHORT_MAX), nc, np
     REAL(dp) :: growth_efficiency,cmass_stem
     REAL(dp) :: mort
     REAL(dp) :: cpc, crown_area
@@ -1281,21 +1281,21 @@ CONTAINS
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
-    INTEGER(i4b), INTENT(IN) ::  disturbance_interval(:,:), idisturb
+    INTEGER(i4), INTENT(IN) ::  disturbance_interval(:,:), idisturb
 
-    INTEGER(i4b) :: g, i,j,k,agecopy,idcopy
+    INTEGER(i4) :: g, i,j,k,agecopy,idcopy
     REAL(dp), ALLOCATABLE :: midpoint(:)
-    INTEGER(i4b), ALLOCATABLE :: ranked_age(:), ranked_age_init(:)
-    INTEGER(i4b) :: age_tmp
-    INTEGER(i4b), ALLOCATABLE :: ranked_age_unique_id(:), ranked_age_id(:), counter(:)
+    INTEGER(i4), ALLOCATABLE :: ranked_age(:), ranked_age_init(:)
+    INTEGER(i4) :: age_tmp
+    INTEGER(i4), ALLOCATABLE :: ranked_age_unique_id(:), ranked_age_id(:), counter(:)
     REAL(dp), ALLOCATABLE :: tmp(:), freq_tmp(:), freq_tmp1(:)
     REAL(dp) :: freq
-    INTEGER(i4b) :: n_age ! number of unique ages
-    INTEGER(i4b) :: npatch_active ! number of active patches
+    INTEGER(i4) :: n_age ! number of unique ages
+    INTEGER(i4) :: npatch_active ! number of active patches
     REAL(dp):: disturbance_freq
-    INTEGER(i4b) :: i_max, Poisson_age(1000), np
+    INTEGER(i4) :: i_max, Poisson_age(1000), np
     REAL(dp):: CumPoisson_weight(1000)
-    INTEGER(i4b), ALLOCATABLE :: bound(:,:), unique_age(:)
+    INTEGER(i4), ALLOCATABLE :: bound(:,:), unique_age(:)
 
     np = SIZE(POP%POP_grid)
     DO g=1,np
@@ -1424,7 +1424,7 @@ CONTAINS
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
 
-    INTEGER(i4b) :: n1, n2, g, REPCOUNT, np, idist
+    INTEGER(i4) :: n1, n2, g, REPCOUNT, np, idist
     REAL(dp) ::  sum_freq
 
     np = SIZE(Pop%pop_grid)
@@ -1488,21 +1488,21 @@ CONTAINS
     REAL(dp), INTENT(IN) ::  LAI(:)
     REAL(dp), INTENT(IN) ::  Cleaf(:)
     REAL(dp), INTENT(IN) ::  Croot(:)
-    INTEGER(i4b), INTENT(IN)        ::  disturbance_interval(:,:)
+    INTEGER(i4), INTENT(IN)        ::  disturbance_interval(:,:)
     REAL(dp), INTENT(IN), OPTIONAL :: precip(:)
-    INTEGER(i4b), INTENT(IN) :: it(:)
-    INTEGER(i4b) :: P, g,i,j,ct, ct_highres
+    INTEGER(i4), INTENT(IN) :: it(:)
+    INTEGER(i4) :: P, g,i,j,ct, ct_highres
     REAL(dp) :: limits(HEIGHT_BINS+1)
     REAL(dp) :: ht, cmass_stem,densindiv, freq, freq_old
     CHARACTER(len=12) :: string1, string2
     CHARACTER(len=9) :: fmt
-    INTEGER(i4b) :: npatch_active  ! number of active patches
-    INTEGER(i4b) :: np, nc, i_height
+    INTEGER(i4) :: npatch_active  ! number of active patches
+    INTEGER(i4) :: np, nc, i_height
     REAL(dp) :: diam,basal, cump
     REAL(dp) :: patch_crown_area(NPATCH2D), patch_crown_cover(NPATCH2D)
     REAL(dp), ALLOCATABLE :: height_list(:), height_list_weight(:)
     REAL(dp) :: height_copy, weight_copy, Pwc, FAVD
-    INTEGER(i4b), PARAMETER :: HEIGHT_BINS_highres=100 ! bins for assessing height_max
+    INTEGER(i4), PARAMETER :: HEIGHT_BINS_highres=100 ! bins for assessing height_max
     REAL(dp), ALLOCATABLE :: limits_highres(:), DENSINDIV_HIGHRES(:)
     REAL(dp) :: tmp2
     integer :: arg1
@@ -1718,7 +1718,7 @@ CONTAINS
           IF (it(g).LE.NYEAR_HISTORY) THEN
              CALL SMOOTH_FLUX(POP,g,it(g))
           ELSE
-             CALL SMOOTH_FLUX(POP,g,int(arg1,i4b))
+             CALL SMOOTH_FLUX(POP,g,int(arg1,i4))
           ENDIF
        ENDIF
 
@@ -1904,12 +1904,12 @@ CONTAINS
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
-    INTEGER(i4b), INTENT(IN) ::  idisturb
+    INTEGER(i4), INTENT(IN) ::  idisturb
     REAL(dp), INTENT(IN) :: intensity(:,:)
     REAL(dp), INTENT(IN), OPTIONAL :: frac_intensity1(:)
 
-    INTEGER(i4b) :: j, k, c, nc, np
-    INTEGER(i4b) ::  ivec(NCOHORT_MAX)
+    INTEGER(i4) :: j, k, c, nc, np
+    INTEGER(i4) ::  ivec(NCOHORT_MAX)
     REAL(dp) :: ht, diam
     REAL(dp) :: Psurvival_s, Psurvival, char_height
 
@@ -2039,10 +2039,10 @@ CONTAINS
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
-    INTEGER(i4b), INTENT(IN) ::  idisturb
+    INTEGER(i4), INTENT(IN) ::  idisturb
 
-    INTEGER(i4b) :: j, k, c, nc, np
-    INTEGER(i4b) ::  ivec(NCOHORT_MAX)
+    INTEGER(i4) :: j, k, c, nc, np
+    INTEGER(i4) ::  ivec(NCOHORT_MAX)
     REAL(dp) :: Psurvival, frac_mort, Pmort
 
     np = SIZE(Pop%pop_grid)
@@ -2151,10 +2151,10 @@ CONTAINS
     TYPE(POP_TYPE), INTENT(INOUT)  :: POP
       !! POP structure
     REAL(dp), INTENT(IN), OPTIONAL :: precip(:)
-    !INTEGER(i4b), INTENT(IN) :: it(:),idisturb
-    INTEGER(i4b), INTENT(IN) :: idisturb
+    !INTEGER(i4), INTENT(IN) :: it(:),idisturb
+    INTEGER(i4), INTENT(IN) :: idisturb
       !! Disturbance regime (1=total only, 2=total and partial)
-    INTEGER(i4b) :: j, k, np, nc
+    INTEGER(i4) :: j, k, np, nc
 
     np = SIZE(Pop%pop_grid)
 
@@ -2274,7 +2274,7 @@ CONTAINS
     REAL(dp), INTENT(IN), OPTIONAL :: precip(:)
 
     REAL(dp) :: f, mu, densindiv, cmass, ht
-    INTEGER(i4b) :: j, k, ncohort, np
+    INTEGER(i4) :: j, k, ncohort, np
     REAL(dp) :: diam, basal
 
     np = SIZE(Pop%pop_grid)
@@ -2337,10 +2337,10 @@ CONTAINS
 
     TYPE(POP_TYPE), INTENT(INOUT)  :: POP
     REAL(dp), INTENT(IN), OPTIONAL :: precip(:)
-    INTEGER(i4b), INTENT(IN) :: index, grid_index
+    INTEGER(i4), INTENT(IN) :: index, grid_index
 
     REAL(dp) :: f, mu, densindiv, cmass, ht
-    INTEGER(i4b) :: j, k, ncohort, np
+    INTEGER(i4) :: j, k, ncohort, np
     REAL(dp) :: diam,basal
 
     np = SIZE(Pop%pop_grid)
@@ -2396,7 +2396,7 @@ CONTAINS
 
     IMPLICIT NONE
 
-    INTEGER(i4b), INTENT(IN) :: x
+    INTEGER(i4), INTENT(IN) :: x
     REAL(dp), INTENT(IN) ::  lambda
 
     IF (x .LT. 0.0_dp) THEN ! Shouldn't happen but ...
@@ -2486,7 +2486,7 @@ CONTAINS
 
     IMPLICIT NONE
 
-    INTEGER(i4b), INTENT(IN) :: ALLOM_SWITCH
+    INTEGER(i4), INTENT(IN) :: ALLOM_SWITCH
       !! Switch for allometric relationship
     REAL(dp),     INTENT(IN) :: biomass
       !! Biomass (\(kgC.m^{-2}\))
@@ -2558,10 +2558,10 @@ CONTAINS
     REAL(dp),PARAMETER:: HMIN=0.001_dp ! min bound for tree height
     REAL(dp),PARAMETER:: HMAX=100.0_dp ! max bound for tree height
     REAL(dp),PARAMETER:: EPS=0.01_dp ! precision of the root
-    INTEGER(i4b), PARAMETER :: MAXTRIES=25
+    INTEGER(i4), PARAMETER :: MAXTRIES=25
 
     REAL(dp) :: alpha,beta,delta,rh,st,x1,x2,rtbis,dx,fmid,xmid,lhs,rhs
-    INTEGER(i4b) :: b
+    INTEGER(i4) :: b
 
     alpha=4.05_dp*EXP(-0.00032_dp*precip)
     beta=5.4_dp*EXP(0.0014_dp*precip)
@@ -2611,20 +2611,20 @@ CONTAINS
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
       !! POP structure
-    INTEGER(i4b), INTENT(IN) ::  disturbance_interval(:,:)
+    INTEGER(i4), INTENT(IN) ::  disturbance_interval(:,:)
       !! Disturbance interval, dimensions (partial dist, total dist) (\(y\)) 
-    INTEGER(i4b), INTENT(IN) ::  it,g
+    INTEGER(i4), INTENT(IN) ::  it,g
 
-    INTEGER(i4b) :: nage,iage, i_min, i_max
-    INTEGER(i4b) :: i_min_growth, i_max_growth
+    INTEGER(i4) :: nage,iage, i_min, i_max
+    INTEGER(i4) :: i_min_growth, i_max_growth
     REAL(dp) :: disturbance_freq, tmp_min, tmp_max, tmp1_min, tmp1_max, tmp_array(NPATCH2D)
     REAL(dp) :: tmp2_min, tmp2_max
     REAL(dp) :: tmp3_min, tmp3_max
     REAL(dp) :: tmp4_min, tmp4_max
     LOGICAL :: MASK(NPATCH2D)
-    INTEGER(i4b) :: age_min, age_max
-    INTEGER(i4b) :: age_min_growth, age_max_growth
-    INTEGER(i4b), ALLOCATABLE :: age(:)
+    INTEGER(i4) :: age_min, age_max
+    INTEGER(i4) :: age_min_growth, age_max_growth
+    INTEGER(i4), ALLOCATABLE :: age(:)
     REAL(dp), ALLOCATABLE ::cmass_age(:), stress_mort_age(:), crowd_mort_age(:)
     REAL(dp), ALLOCATABLE ::csapwood_age(:), sapwood_area_age(:), growth_age(:)
     REAL(dp), ALLOCATABLE ::freq_age(:)
@@ -2909,17 +2909,17 @@ CONTAINS
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
-    INTEGER(i4b), INTENT(IN) ::  disturbance_interval(:,:)
-    INTEGER(i4b), INTENT(IN) ::  it,g
+    INTEGER(i4), INTENT(IN) ::  disturbance_interval(:,:)
+    INTEGER(i4), INTENT(IN) ::  it,g
 
-    INTEGER(i4b) :: nage,iage, i_min, i_max
-    INTEGER(i4b) :: i_min_growth, i_max_growth
+    INTEGER(i4) :: nage,iage, i_min, i_max
+    INTEGER(i4) :: i_min_growth, i_max_growth
     REAL(dp) :: disturbance_freq,tmp_min, tmp_max, tmp_array(NPATCH2D)
     REAL(dp) :: tmp5_min, tmp5_max
     LOGICAL :: MASK(NPATCH2D)
-    INTEGER(i4b) :: age_min, age_max
-    INTEGER(i4b) :: age_min_growth, age_max_growth
-    INTEGER(i4b), ALLOCATABLE :: age(:)
+    INTEGER(i4) :: age_min, age_max
+    INTEGER(i4) :: age_min_growth, age_max_growth
+    INTEGER(i4), ALLOCATABLE :: age(:)
     REAL(dp), ALLOCATABLE :: fire_mort_age(:)
     REAL(dp), ALLOCATABLE :: freq_age(:)
 
@@ -3064,9 +3064,9 @@ CONTAINS
     IMPLICIT NONE
 
     TYPE( POP_TYPE ), INTENT(INOUT)  :: pop
-    INTEGER(i4b), INTENT(IN)        ::  disturbance_interval(:,:)
+    INTEGER(i4), INTENT(IN)        ::  disturbance_interval(:,:)
     REAL(dp),  INTENT(IN)            :: burned_area(:), FLI(:)
-    INTEGER(i4b) :: g, np, c, k, it, nc
+    INTEGER(i4) :: g, np, c, k, it, nc
     REAL(dp) :: mort, cmass_stem, dbh
 
 
@@ -3154,28 +3154,28 @@ SUBROUTINE INTERPOLATE_BIOMASS_2D(pop, disturbance_interval,it,g)
 IMPLICIT NONE
 
 TYPE(POP_TYPE), INTENT(INOUT) :: POP
-INTEGER(i4b), INTENT(IN) ::  disturbance_interval(:,:)
-INTEGER(i4b), INTENT(IN) ::  it,g
-INTEGER(i4b), allocatable :: A1(:), A2(:) ! interpolated ages
-INTEGER(i4b), allocatable :: xobs(:), yobs(:)     ! observed ages
+INTEGER(i4), INTENT(IN) ::  disturbance_interval(:,:)
+INTEGER(i4), INTENT(IN) ::  it,g
+INTEGER(i4), allocatable :: A1(:), A2(:) ! interpolated ages
+INTEGER(i4), allocatable :: xobs(:), yobs(:)     ! observed ages
 REAL(dp), allocatable :: z1obs(:), z2obs(:), z3obs(:) ! observed biomass, stress_mort, crowd_mort
 REAL(dp), allocatable :: z1interp(:), z2interp(:), z3interp(:) ! interpolated biomass, stress mortality, crowding mortality
 REAL(dp), allocatable :: freq_interp(:) ! weightings for interpolated age pairs
 REAL(dp), allocatable :: zp(:)  ! euclidean distance from interpolated age pair to observed age pairs
-INTEGER(i4b) :: age_max(2), nrep(NPATCH2D+1)
-INTEGER(i4b) :: tmp1, tmp2, I1, I2,I3,I4
-INTEGER(i4b) :: x1, x2, x3, x4, y1, y2, y3, y4
-INTEGER(i4b) :: p, j, k, n, np, nobs, count_extrap, ct
+INTEGER(i4) :: age_max(2), nrep(NPATCH2D+1)
+INTEGER(i4) :: tmp1, tmp2, I11, I22,I33,I44
+INTEGER(i4) :: x1, x2, x3, x4, y1, y2, y3, y4
+INTEGER(i4) :: p, j, k, n, np, nobs, count_extrap, ct
 LOGICAL :: flag
 REAL(dp) :: biomass(NPATCH2D+1), stress_mort(NPATCH2D+1), crowd_mort(NPATCH2D+1)
-INTEGER(i4b) :: age1(NPATCH2D+1),  age2(NPATCH2D+1)
+INTEGER(i4) :: age1(NPATCH2D+1),  age2(NPATCH2D+1)
 REAL(dp) :: zmin
-INTEGER(i4b), allocatable :: interp_case(:), tmp_array(:), tmp(:)
+INTEGER(i4), allocatable :: interp_case(:), tmp_array(:), tmp(:)
 REAL(dp) :: area(4,4), x(4), y(4),  disturbance_freq1,  disturbance_freq2
-INTEGER(i4b) :: triangle_points(4,3), I_inside_triangle, Ineighbour(8)
+INTEGER(i4) :: triangle_points(4,3), I_inside_triangle, Ineighbour(8)
 LOGICAL ::  MASK_INSIDE_TRIANGLE(4), IS_NEIGHBOUR(8), tmp_logical
 LOGICAL, allocatable :: MASK2(:), MASK3(:), MASK4(:)
-INTEGER(i4b), allocatable :: address(:,:)
+INTEGER(i4), allocatable :: address(:,:)
 #ifdef __MPI__
  integer :: ierr
 #endif
@@ -3304,9 +3304,9 @@ DO p=1,np   ! loop over interpolated age pairs
 
    ! get closest point
    zmin = MINVAL(zp)
-   I1 = MINLOC(zp,1)
-   x1 = xobs(I1)
-   y1 = yobs(I1)
+   I11 = MINLOC(zp,1)
+   x1 = xobs(I11)
+   y1 = yobs(I11)
 
 
    ! check for obs locations forming a quadrangle around interpolating point
@@ -3317,17 +3317,17 @@ DO p=1,np   ! loop over interpolated age pairs
 
    IF ((ANY(MASK2)).and.(ANY(MASK3)).and.(ANY(MASK4)))    THEN
       ! get nearest point with opposing sign of x displacement
-      I2 =  MINLOC(zp,1, MASK2)
-      x2 = xobs(I2)
-      y2 = yobs(I2)
+      I22 =  MINLOC(zp,1, MASK2)
+      x2 = xobs(I22)
+      y2 = yobs(I22)
       ! get nearest point with opposing sign of y displacement
-      I3 =  MINLOC(zp,1, MASK3)
-      x3 = xobs(I3)
-      y3 = yobs(I3)
+      I33 =  MINLOC(zp,1, MASK3)
+      x3 = xobs(I33)
+      y3 = yobs(I33)
       ! get nearest point with opposing sign of x & y displacements
-      I4 =  MINLOC(zp,1, MASK4)
-      x4 = xobs(I4)
-      y4 = yobs(I4)
+      I44 =  MINLOC(zp,1, MASK4)
+      x4 = xobs(I44)
+      y4 = yobs(I44)
 
     tmp_logical = .NOT.( (x2.eq.0.and.y2.eq.0).OR.(x3.eq.0.and.y3.eq.0).OR.(x4.eq.0.and.y4.eq.0))
    ENDIF
@@ -3346,26 +3346,26 @@ DO p=1,np   ! loop over interpolated age pairs
    select case (interp_case(p))
 
    case(1) ! interpolated point is the same as observation
-      z1interp(p) = z1obs(I1)
-      z2interp(p) = z2obs(I1)
-      z3interp(p) = z3obs(I1)
+      z1interp(p) = z1obs(I11)
+      z2interp(p) = z2obs(I11)
+      z3interp(p) = z3obs(I11)
    case(3) ! extrapolation required: set to value of nearest observation
-      z1interp(p) = z1obs(I1)
-      z2interp(p) = z2obs(I1)
-      z3interp(p) = z3obs(I1)
+      z1interp(p) = z1obs(I11)
+      z2interp(p) = z2obs(I11)
+      z3interp(p) = z3obs(I11)
    case(2)  ! quadrangle
       ! get nearest point with opposing sign of x displacement
-      I2 =  MINLOC(zp,1, MASK2)
-      x2 = xobs(I2)
-      y2 = yobs(I2)
+      I22 =  MINLOC(zp,1, MASK2)
+      x2 = xobs(I22)
+      y2 = yobs(I22)
       ! get nearest point with opposing sign of y displacement
-      I3 =  MINLOC(zp,1, MASK3)
-      x3 = xobs(I3)
-      y3 = yobs(I3)
+      I33 =  MINLOC(zp,1, MASK3)
+      x3 = xobs(I33)
+      y3 = yobs(I33)
       ! get nearest point with opposing sign of x & y displacements
-      I4 =  MINLOC(zp,1, MASK4)
-      x4 = xobs(I4)
-      y4 = yobs(I4)
+      I44 =  MINLOC(zp,1, MASK4)
+      x4 = xobs(I44)
+      y4 = yobs(I44)
 
 
       x=real((/x1, x2, x3, x4/),dp)
@@ -3375,25 +3375,25 @@ DO p=1,np   ! loop over interpolated age pairs
       ! triangles, with observation as one vertex
       area = 0.0_dp
       triangle_points = 0
-      triangle_points(1,:) = (/I1, I2, I3/)
+      triangle_points(1,:) = (/I11, I22, I33/)
       area(1,1) = area_triangle(x(1), y(1),x(2), y(2),x(3), y(3))
       area(1,2) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(2), y(2), x(3), y(3))
       area(1,3) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(1), y(1), x(3), y(3))
       area(1,4) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(1), y(1), x(2), y(2))
 
-      triangle_points(2,:) =  (/I1, I2, I4/)
+      triangle_points(2,:) =  (/I11, I22, I44/)
       area(2,1) = area_triangle(x(1), y(1), x(2), y(2), x(4), y(4))
       area(2,2) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(2), y(2), x(4), y(4))
       area(2,3) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(1), y(1), x(4), y(4))
       area(2,4) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(1), y(1), x(2), y(2))
 
-      triangle_points(3,:) =  (/I1, I4, I3/)
+      triangle_points(3,:) =  (/I11, I44, I33/)
       area(3,1) = area_triangle(x(1) , y(1), x(3), y(3),x(4), y(4))
       area(3,2) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(4), y(4), x(3), y(3))
       area(3,3) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(1), y(1), x(3), y(3))
       area(3,4) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(1), y(1), x(4), y(4))
 
-      triangle_points(4,:) =  (/I2, I4, I3/)
+      triangle_points(4,:) =  (/I22, I44, I33/)
       area(4,1) = area_triangle(x(2), y(2), x(3), y(3), x(4), y(4));
       area(4,2) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(4), y(4), x(3), y(3))
       area(4,3) = area_triangle(real(A1(p),dp), real(A2(p),dp), x(2), y(2), x(3), y(3))
@@ -3579,13 +3579,13 @@ SUBROUTINE SMOOTH_FLUX(POP,g,t)
   IMPLICIT NONE
 
   TYPE(POP_TYPE), INTENT(INOUT) :: POP
-  INTEGER(i4b),   INTENT(IN)    :: g, t
+  INTEGER(i4),   INTENT(IN)    :: g, t
 
-  INTEGER(i4b), PARAMETER :: SPAN = NYEAR_WINDOW
+  INTEGER(i4), PARAMETER :: SPAN = NYEAR_WINDOW
   REAL(dp) :: x(NYEAR_SMOOTH), y(NYEAR_SMOOTH), a, b, r
   REAL(dp) :: sumflux, sumsmooth, flux(NYEAR_HISTORY), smoothed_flux
   REAL(dp) :: dbuf
-  INTEGER(i4b) :: t0, tt, n, k
+  INTEGER(i4) :: t0, tt, n, k
 
   ! update fire_mortality_history
 
@@ -3632,12 +3632,12 @@ SUBROUTINE SMOOTH_FLUX_cat(POP,g,t)
   IMPLICIT NONE
 
   TYPE(POP_TYPE), INTENT(INOUT) :: POP
-  INTEGER(i4b), INTENT(IN) :: g, t
-  INTEGER(i4b), PARAMETER :: SPAN = NYEAR_WINDOW
+  INTEGER(i4), INTENT(IN) :: g, t
+  INTEGER(i4), PARAMETER :: SPAN = NYEAR_WINDOW
   REAL(dp) :: x(NYEAR_SMOOTH), y(NYEAR_SMOOTH), a, b, r
   REAL(dp) :: sumflux, sumsmooth, flux(NYEAR_HISTORY), smoothed_flux
   REAL(dp) :: dbuf
-  INTEGER(i4b) :: t0, tt, n, k
+  INTEGER(i4) :: t0, tt, n, k
 
   ! update cat_mortality_history
 
@@ -3690,9 +3690,9 @@ SUBROUTINE REGRESS(x, y, n, a, b, r)
 
   REAL(dp), INTENT(IN) :: x(:), y(:)
   REAL(dp), INTENT(OUT) :: a, b, r
-  INTEGER(i4b), INTENT(IN) :: n
+  INTEGER(i4), INTENT(IN) :: n
   REAL(dp)::  sx,sy,sxx,sxy,delta,meanx,meany,sdx,sdy
-  INTEGER(i4b) :: i
+  INTEGER(i4) :: i
 
   ! Performs a linear regression of array y on array x (n values)
   ! returning parameters a and b in the fitted model: y=a+bx
@@ -3851,17 +3851,17 @@ END SUBROUTINE Allometry
     !   first cohort.
 
     USE POP_types, ONLY: POP_TYPE
-    USE TypeDef,   ONLY: i4b
+    USE TypeDef,   ONLY: i4
 
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
-    INTEGER(i4b),   INTENT(IN)    :: disturbance_interval(:,:)
-    INTEGER(i4b),   INTENT(IN)    :: np
-    INTEGER(i4b),   INTENT(IN)    :: Iwood(:)
+    INTEGER(i4),   INTENT(IN)    :: disturbance_interval(:,:)
+    INTEGER(i4),   INTENT(IN)    :: np
+    INTEGER(i4),   INTENT(IN)    :: Iwood(:)
     REAL(dp),       INTENT(IN), OPTIONAL :: precip(:)
 
-    INTEGER(i4b) :: j, k
+    INTEGER(i4) :: j, k
 
     CALL alloc_POP(pop, int(np))
     POP%np     = np
@@ -3872,7 +3872,7 @@ END SUBROUTINE Allometry
 
     CALL ZeroPOP(pop)
 
-    CALL InitPOP2D_Poisson(pop, int(disturbance_interval, i4b))
+    CALL InitPOP2D_Poisson(pop, int(disturbance_interval, i4))
 
     DO j=1, np
        DO k=1, NPATCH2D
@@ -3897,21 +3897,21 @@ END SUBROUTINE Allometry
     !! **Warning:** Code review needed to evaluate redundancy.
  
     USE POP_types, ONLY: POP_TYPE
-    USE TypeDef,   ONLY: i4b
+    USE TypeDef,   ONLY: i4
 
     IMPLICIT NONE
 
     TYPE(POP_TYPE), INTENT(INOUT) :: POP
-    INTEGER(i4b),   INTENT(IN)    :: disturbance_interval(:,:)
-    INTEGER(i4b),   INTENT(IN)    :: n
+    INTEGER(i4),   INTENT(IN)    :: disturbance_interval(:,:)
+    INTEGER(i4),   INTENT(IN)    :: n
     REAL(dp),       INTENT(IN), OPTIONAL :: precip(:)
 
-    INTEGER(i4b) :: j, k
+    INTEGER(i4) :: j, k
 
     POP%it_pop(n) = 0
     CALL ZeroPOP(pop, n)
 
-    CALL InitPOP2D_Poisson(pop, INT(disturbance_interval,i4b), n)
+    CALL InitPOP2D_Poisson(pop, INT(disturbance_interval,i4), n)
 
     DO j=n,n
        DO k=1,NPATCH2D

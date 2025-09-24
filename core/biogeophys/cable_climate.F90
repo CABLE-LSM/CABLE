@@ -20,8 +20,7 @@
 module cable_climate_mod
 
   use cable_def_types_mod,  only: met_type, climate_type, canopy_type,soil_snow_type, mp, &
-       r_2, radiation_type, veg_parameter_type
-  use TypeDef,              only: i4b, dp
+       radiation_type, veg_parameter_type
   use cable_IO_vars_module, only: patch
   use CABLE_COMMON_MODULE,  only: CurYear, filename, cable_user, HANDLE_ERR
 
@@ -492,7 +491,6 @@ contains
     ! MRR, 28-mar-05: Remove dependence of Rlat (latent heat vaporisation of water)
     !                 on temperature, use value at 20 C
     ! ------------------------------------------------------------------------------
-    ! USE TypeDef
     ! USE Constants
 
     implicit none

@@ -39,7 +39,6 @@ contains
     USE casavariable
     USE phenvariable
     USE cable_common_module,    ONLY: CABLE_USER
-    USE TypeDef,                ONLY: dp
     USE POP_TYPES,              ONLY: POP_TYPE
     USE cable_phenology_module, ONLY: cable_phenology_clim
     use casa_inout,             only: biogeochem
@@ -75,13 +74,13 @@ contains
     type(c13o2_pool),           intent(inout) :: c13o2pools
 
     ! local variables added ypwang 5/nov/2012
-    real(r_2), dimension(mp)  :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
-    real(r_2), dimension(mp)  :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
-    real(r_2), dimension(mp)  :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-    real(r_2), dimension(mp)  :: xnplimit,  xkNlimiting, xklitter, xksoil ,xkleaf,xkleafcold,xkleafdry
+    real(r2), dimension(mp)  :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
+    real(r2), dimension(mp)  :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
+    real(r2), dimension(mp)  :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
+    real(r2), dimension(mp)  :: xnplimit,  xkNlimiting, xklitter, xksoil ,xkleaf,xkleafcold,xkleafdry
 
     ! 13C
-    real(dp), dimension(:,:), allocatable :: casasave
+    real(r2), dimension(:,:), allocatable :: casasave
 
     ! 13C
     if (cable_user%c13o2) allocate(casasave(c13o2pools%ntile,c13o2pools%npools))
@@ -91,46 +90,46 @@ contains
        IF ( (TRIM(cable_user%MetType) == 'cru') .OR. &
             (TRIM(cable_user%MetType) == 'plume') .OR. &
             (TRIM(cable_user%MetType) == 'site') ) THEN
-          casaflux%Pdep    = real(met%Pdep, r_2)
-          casaflux%Nmindep = real(met%Ndep, r_2)
+          casaflux%Pdep    = real(met%Pdep, r2)
+          casaflux%Nmindep = real(met%Ndep, r2)
        ENDIF
 
        IF (ktau == kstart) THEN
-          casamet%tairk = 0.0_r_2
-          casamet%tsoil = 0.0_r_2
-          casamet%moist = 0.0_r_2
+          casamet%tairk = 0.0_r2
+          casamet%tsoil = 0.0_r2
+          casamet%moist = 0.0_r2
        ENDIF
 
        IF (MOD(ktau, ktauday) == 1) THEN
-          casamet%tairk = real(met%tk, r_2)
-          casamet%tsoil = real(ssnow%tgg, r_2)
+          casamet%tairk = real(met%tk, r2)
+          casamet%tsoil = real(ssnow%tgg, r2)
           ! casamet%moist = max(ssnow%wb - ssnow%wbice, 0.0)
-          casamet%moist = max(ssnow%wb, 0.0_r_2)
-          casaflux%cgpp = real((-canopy%fpn+canopy%frday)*dels, r_2)
-          casaflux%crmplant(:, leaf) = real(canopy%frday*dels, r_2)
+          casamet%moist = max(ssnow%wb, 0.0_r2)
+          casaflux%cgpp = real((-canopy%fpn+canopy%frday)*dels, r2)
+          casaflux%crmplant(:, leaf) = real(canopy%frday*dels, r2)
           ! 13C
           if (cable_user%c13o2) then
-             c13o2flux%cAn12 = sum(canopy%An,2)    * real(dels, r_2)
-             c13o2flux%cAn   = sum(c13o2flux%An,2) * real(dels, r_2)
+             c13o2flux%cAn12 = sum(canopy%An,2)    * real(dels, r2)
+             c13o2flux%cAn   = sum(c13o2flux%An,2) * real(dels, r2)
           endif
        ELSE
-          casamet%tairk = casamet%tairk + real(met%tk, r_2)
-          casamet%tsoil = casamet%tsoil + real(ssnow%tgg, r_2)
-          !casamet%moist = casamet%moist + max(ssnow%wb -  ssnow%wbice, 0.0_r_2)
-          casamet%moist = casamet%moist + max(ssnow%wb, 0.0_r_2)
-          casaflux%cgpp = casaflux%cgpp + real((-canopy%fpn+canopy%frday)*dels, r_2)
-          casaflux%crmplant(:, leaf) = casaflux%crmplant(:, leaf) + real(canopy%frday*dels, r_2)
+          casamet%tairk = casamet%tairk + real(met%tk, r2)
+          casamet%tsoil = casamet%tsoil + real(ssnow%tgg, r2)
+          !casamet%moist = casamet%moist + max(ssnow%wb -  ssnow%wbice, 0.0_r2)
+          casamet%moist = casamet%moist + max(ssnow%wb, 0.0_r2)
+          casaflux%cgpp = casaflux%cgpp + real((-canopy%fpn+canopy%frday)*dels, r2)
+          casaflux%crmplant(:, leaf) = casaflux%crmplant(:, leaf) + real(canopy%frday*dels, r2)
           ! 13C
           if (cable_user%c13o2) then
-             c13o2flux%cAn12 = c13o2flux%cAn12 + sum(canopy%An,2)    * real(dels, r_2)
-             c13o2flux%cAn   = c13o2flux%cAn   + sum(c13o2flux%An,2) * real(dels, r_2)
+             c13o2flux%cAn12 = c13o2flux%cAn12 + sum(canopy%An,2)    * real(dels, r2)
+             c13o2flux%cAn   = c13o2flux%cAn   + sum(c13o2flux%An,2) * real(dels, r2)
           endif
        ENDIF
 
        IF (MOD((ktau-kstart+1), ktauday) == 0) THEN  ! end of day
-          casamet%tairk = casamet%tairk / real(ktauday, r_2)
-          casamet%tsoil = casamet%tsoil / real(ktauday, r_2)
-          casamet%moist = casamet%moist / real(ktauday, r_2)
+          casamet%tairk = casamet%tairk / real(ktauday, r2)
+          casamet%tsoil = casamet%tsoil / real(ktauday, r2)
+          casamet%moist = casamet%moist / real(ktauday, r2)
 
           IF (icycle > 0) THEN
              IF (trim(cable_user%PHENOLOGY_SWITCH) == 'climate') THEN
@@ -156,23 +155,23 @@ contains
              IF (cable_user%CALL_POP) THEN
                 ! accumulate annual variables for use in POP
                 IF (MOD(ktau/ktauday, LOY) == 1) THEN
-                   casaflux%stemnpp  =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r_2
+                   casaflux%stemnpp  =  casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r2
                    ! (assumes 70% of wood NPP is allocated above ground)
                    casaflux%potstemnpp = casaflux%stemnpp + (casaflux%fracClabile * casaflux%cgpp)
                    casabal%LAImax    = casamet%glai
-                   casabal%Cleafmean = casapool%cplant(:,1) / real(LOY,r_2) / 1000.0_r_2
-                   casabal%Crootmean = casapool%cplant(:,3) / real(LOY,r_2) / 1000.0_r_2
+                   casabal%Cleafmean = casapool%cplant(:,1) / real(LOY,r2) / 1000.0_r2
+                   casabal%Crootmean = casapool%cplant(:,3) / real(LOY,r2) / 1000.0_r2
                 ELSE
-                   casaflux%stemnpp  = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r_2
-                   casaflux%potstemnpp = casaflux%potstemnpp + (casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp + &
+                   casaflux%stemnpp  = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r2
+                   casaflux%potstemnpp = casaflux%potstemnpp + (casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r2 + &
                                                                 casaflux%fracClabile * casaflux%cgpp)
                    casabal%LAImax    = max(casamet%glai, casabal%LAImax)
-                   casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1) / real(LOY,r_2) / 1000.0_r_2
-                   casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3) / real(LOY,r_2) / 1000.0_r_2
+                   casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1) / real(LOY,r2) / 1000.0_r2
+                   casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3) / real(LOY,r2) / 1000.0_r2
                 ENDIF
              ELSE
-                casaflux%stemnpp = 0.0_r_2
-                casaflux%potstemnpp = 0.0_r_2
+                casaflux%stemnpp = 0.0_r2
+                casaflux%potstemnpp = 0.0_r2
              ENDIF ! CALL_POP
 
           ENDIF ! icycle > 0
@@ -201,23 +200,23 @@ contains
           IF (cable_user%CALL_POP) THEN
              ! accumulate annual variables for use in POP
              IF (MOD(ktau/ktauday,LOY)==1) THEN
-                casaflux%stemnpp  = casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r_2
+                casaflux%stemnpp  = casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r2
                 ! (assumes 70% of wood NPP is allocated above ground)
                 casaflux%potstemnpp = casaflux%stemnpp + (casaflux%fracClabile * casaflux%cgpp)
                 casabal%LAImax    = casamet%glai
-                casabal%Cleafmean = casapool%cplant(:,1) / real(LOY,r_2) / 1000.0_r_2
-                casabal%Crootmean = casapool%cplant(:,3) / real(LOY,r_2) / 1000.0_r_2
+                casabal%Cleafmean = casapool%cplant(:,1) / real(LOY,r2) / 1000.0_r2
+                casabal%Crootmean = casapool%cplant(:,3) / real(LOY,r2) / 1000.0_r2
              ELSE
-                casaflux%stemnpp  = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r_2
-                casaflux%potstemnpp = casaflux%potstemnpp + (casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_dp + &
+                casaflux%stemnpp  = casaflux%stemnpp + casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r2
+                casaflux%potstemnpp = casaflux%potstemnpp + (casaflux%cnpp * casaflux%fracCalloc(:,2) * 0.7_r2 + &
                                                              casaflux%fracClabile * casaflux%cgpp)
                 casabal%LAImax    = max(casamet%glai, casabal%LAImax)
-                casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1) / real(LOY,r_2) / 1000.0_r_2
-                casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3) / real(LOY,r_2) / 1000.0_r_2
+                casabal%Cleafmean = casabal%Cleafmean + casapool%cplant(:,1) / real(LOY,r2) / 1000.0_r2
+                casabal%Crootmean = casabal%Crootmean + casapool%cplant(:,3) / real(LOY,r2) / 1000.0_r2
              ENDIF
           ELSE
-             casaflux%stemnpp = 0.0_r_2
-             casaflux%potstemnpp = 0.0_r_2
+             casaflux%stemnpp = 0.0_r2
+             casaflux%potstemnpp = 0.0_r2
           ENDIF ! CALL_POP
 
        ENDIF ! end of day
@@ -230,13 +229,13 @@ contains
 
   SUBROUTINE POPdriver(casaflux, casabal, veg, POP)
 
-    use cable_def_types_mod
+    use cable_def_types_mod, only: r2, mp, veg_parameter_type
     use casadimension
     use casaparm
     use casavariable
     use phenvariable
     use cable_common_module,  only: CABLE_USER
-    use TypeDef,              only: i4b, dp
+    use TypeDef,              only: i4
     use POPModule,            only: POPStep
     use POP_TYPES,            only: POP_TYPE
 
@@ -247,10 +246,10 @@ contains
     type(veg_parameter_type), INTENT(IN)    :: veg  ! vegetation parameters
     type(POP_TYPE),           INTENT(INOUT) :: POP
 
-    real(dp)              :: StemNPP(mp,2)
-    real(dp)              :: PotStemNPP(mp)
-    real(dp), allocatable :: NPPtoGPP(:)
-    real(dp), allocatable :: LAImax(:), Cleafmean(:), Crootmean(:)
+    real(r2)              :: StemNPP(mp,2)
+    real(r2)              :: PotStemNPP(mp)
+    real(r2), allocatable :: NPPtoGPP(:)
+    real(r2), allocatable :: LAImax(:), Cleafmean(:), Crootmean(:)
     !! vh_js !!
     integer,  allocatable :: Iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
 
@@ -264,24 +263,24 @@ contains
        Iw = POP%Iwood
 
        StemNPP(:,1) = casaflux%stemnpp
-       StemNPP(:,2) = 0.0_dp
+       StemNPP(:,2) = 0.0_r2
        ! JK: define an unstressed (potential) stem NPP that could be achieved
        !     in the absence of nutrient limitation. PotStemNPP is used only 
        !     for the calculation of stress (=resource) mortality in POP.
        PotStemNPP(:) = casaflux%potstemnpp
 
-       where (casabal%FCgppyear > 1.e-5_dp .and. casabal%FCnppyear > 1.e-5_dp)
+       where (casabal%FCgppyear > 1.e-5_r2 .and. casabal%FCnppyear > 1.e-5_r2)
           NPPtoGPP = casabal%FCnppyear / casabal%FCgppyear
        elsewhere
-          NPPtoGPP = 0.5_dp
+          NPPtoGPP = 0.5_r2
        endwhere
        LAImax    = casabal%LAImax
        Cleafmean = casabal%cleafmean
        Crootmean = casabal%Crootmean
 
-       CALL POPStep(pop, max(StemNPP(Iw,:)/1000.0_dp, 0.0001_dp), int(veg%disturbance_interval(Iw,:), i4b), &
-                    real(veg%disturbance_intensity(Iw,:), dp), &
-                    max(LAImax(Iw), 0.001_dp), Cleafmean(Iw), Crootmean(Iw), NPPtoGPP(Iw), max(PotStemNPP(Iw)/1000.0_dp, 0.0001_dp))
+       CALL POPStep(pop, max(StemNPP(Iw,:)/1000.0_r2, 0.0001_r2), int(veg%disturbance_interval(Iw,:), i4), &
+                    real(veg%disturbance_intensity(Iw,:), r2), &
+                    max(LAImax(Iw), 0.001_r2), Cleafmean(Iw), Crootmean(Iw), NPPtoGPP(Iw), max(PotStemNPP(Iw)/1000.0_r2, 0.0001_r2))
     endif ! CALL_POP
 
   END SUBROUTINE POPdriver
@@ -291,7 +290,7 @@ contains
   subroutine read_casa_dump(ncfile, casamet, casaflux,phen, climate, c13o2flux, ncall, kend, allatonce)
 
     use netcdf
-    use cable_def_types_mod, only: r_2, ms, mp, climate_type
+    use cable_def_types_mod, only: r2, ms, mp, climate_type
     use casadimension,       only: mplant, mdyear, icycle
     use casavariable,        only: casa_met, casa_flux
     use phenvariable
@@ -351,12 +350,12 @@ contains
          "last_precip  " &
          /)
 
-    real(r_2), dimension(mp)        :: tairk,  cgpp, mtemp, frec, Ndep, Pdep, cAn12, cAn13
-    real(r_2), dimension(mp,ms)     :: tsoil, moist
-    real(r_2), dimension(mp,mplant) :: crmplant
-    real(r_2), dimension(mp)        :: phenphase, phendoyphase1, &
+    real(r2), dimension(mp)        :: tairk,  cgpp, mtemp, frec, Ndep, Pdep, cAn12, cAn13
+    real(r2), dimension(mp,ms)     :: tsoil, moist
+    real(r2), dimension(mp,mplant) :: crmplant
+    real(r2), dimension(mp)        :: phenphase, phendoyphase1, &
          phendoyphase2,  phendoyphase3,  phendoyphase4
-    real(r_2), dimension(mp)        :: dprecip, aprecip_av20, du10_max, drhum,  dtemp_max, &
+    real(r2), dimension(mp)        :: dprecip, aprecip_av20, du10_max, drhum,  dtemp_max, &
          dtemp_min, KBDI,  D_MacArthur, FFDI, DSLR, last_precip
 
 
@@ -538,7 +537,7 @@ contains
   SUBROUTINE write_casa_dump( ncfile, casamet, casaflux, phen, climate, c13o2flux, n_call, kend )
 
     USE netcdf
-    USE cable_def_types_mod,   ONLY : r_2, ms, mp, climate_type
+    USE cable_def_types_mod,   ONLY : r2, ms, mp, climate_type
     USE cable_common_module,   ONLY : cable_user
 #ifndef UM_BUILD
     USE cable_diag_module,     ONLY : def_dims, def_vars, &
@@ -627,13 +626,13 @@ contains
 
     !local only
     INTEGER :: ncok      !ncdf return status
-    real(r_2), dimension(mp) :: zeros
+    real(r2), dimension(mp) :: zeros
 
     ! END header
 #ifndef UM_BUILD
     dim_len(1)        = mp
     dim_len(num_dims) = NF90_unlimited
-    zeros = 0.0_r_2
+    zeros = 0.0_r2
 
     IF (n_call == 1) THEN
 
@@ -667,13 +666,13 @@ contains
     CALL put_var_nc(ncid, var_name(5), casamet%moist, n_call, ms)
     CALL put_var_nc(ncid, var_name(6), casaflux%cgpp, n_call)
     CALL put_var_nc(ncid, var_name(7), casaflux%crmplant, n_call, mplant)
-    CALL put_var_nc(ncid, var_name(8), real(phen%phase, r_2), n_call)
-    CALL put_var_nc(ncid, var_name(9), real(phen%doyphase(:,1), r_2), n_call)
-    CALL put_var_nc(ncid, var_name(10), real(phen%doyphase(:,2), r_2), n_call)
-    CALL put_var_nc(ncid, var_name(11), real(phen%doyphase(:,3), r_2), n_call)
-    CALL put_var_nc(ncid, var_name(12), real(phen%doyphase(:,4), r_2), n_call)
-    CALL put_var_nc(ncid, var_name(13), real(climate%qtemp_max_last_year, r_2), n_call)
-    CALL put_var_nc(ncid, var_name(14), real(climate%frec, r_2), n_call)
+    CALL put_var_nc(ncid, var_name(8), real(phen%phase, r2), n_call)
+    CALL put_var_nc(ncid, var_name(9), real(phen%doyphase(:,1), r2), n_call)
+    CALL put_var_nc(ncid, var_name(10), real(phen%doyphase(:,2), r2), n_call)
+    CALL put_var_nc(ncid, var_name(11), real(phen%doyphase(:,3), r2), n_call)
+    CALL put_var_nc(ncid, var_name(12), real(phen%doyphase(:,4), r2), n_call)
+    CALL put_var_nc(ncid, var_name(13), real(climate%qtemp_max_last_year, r2), n_call)
+    CALL put_var_nc(ncid, var_name(14), real(climate%frec, r2), n_call)
     if (icycle>1) then
        CALL put_var_nc(ncid, var_name(15), casaflux%Nmindep, n_call)
     else
@@ -694,17 +693,17 @@ contains
     endif
     ! BLAZE
     if (cable_user%call_blaze) then
-       CALL put_var_nc(ncid, var_name(19), real(climate%dprecip, r_2), n_call)
-       CALL put_var_nc(ncid, var_name(20), real(climate%aprecip_av20, r_2), n_call)
-       CALL put_var_nc(ncid, var_name(21), real(climate%du10_max, r_2), n_call)
-       CALL put_var_nc(ncid, var_name(22), real(climate%drhum, r_2), n_call)
-       CALL put_var_nc(ncid, var_name(23), real(climate%dtemp_max, r_2), n_call)
-       CALL put_var_nc(ncid, var_name(24), real(climate%dtemp_min, r_2), n_call)
-       CALL put_var_nc(ncid, var_name(25), real(climate%KBDI, r_2), n_call)
-       CALL put_var_nc(ncid, var_name(26), real(climate%D_MacArthur, r_2), n_call)
-       CALL put_var_nc(ncid, var_name(27), real(climate%FFDI, r_2), n_call)
-       CALL put_var_nc(ncid, var_name(28), real(climate%DSLR, r_2), n_call)
-       CALL put_var_nc(ncid, var_name(29), real(climate%last_precip, r_2), n_call)
+       CALL put_var_nc(ncid, var_name(19), real(climate%dprecip, r2), n_call)
+       CALL put_var_nc(ncid, var_name(20), real(climate%aprecip_av20, r2), n_call)
+       CALL put_var_nc(ncid, var_name(21), real(climate%du10_max, r2), n_call)
+       CALL put_var_nc(ncid, var_name(22), real(climate%drhum, r2), n_call)
+       CALL put_var_nc(ncid, var_name(23), real(climate%dtemp_max, r2), n_call)
+       CALL put_var_nc(ncid, var_name(24), real(climate%dtemp_min, r2), n_call)
+       CALL put_var_nc(ncid, var_name(25), real(climate%KBDI, r2), n_call)
+       CALL put_var_nc(ncid, var_name(26), real(climate%D_MacArthur, r2), n_call)
+       CALL put_var_nc(ncid, var_name(27), real(climate%FFDI, r2), n_call)
+       CALL put_var_nc(ncid, var_name(28), real(climate%DSLR, r2), n_call)
+       CALL put_var_nc(ncid, var_name(29), real(climate%last_precip, r2), n_call)
     else
        CALL put_var_nc(ncid, var_name(19), zeros, n_call)
        CALL put_var_nc(ncid, var_name(20), zeros, n_call)
@@ -756,7 +755,7 @@ contains
 
     ! local variables
     integer np,ivt
-    real(r_2), dimension(mp) :: ncleafx, npleafx, pleafx, nleafx ! local variables
+    real(r2), dimension(mp) :: ncleafx, npleafx, pleafx, nleafx ! local variables
     ! real, dimension(17) ::  xnslope
     ! !ASKJK - what are these hard-coded parameters? Why hard-coded?
     ! data xnslope/0.80,1.00,2.00,1.00,1.00,1.00,0.50,1.00,0.34,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00/
@@ -786,9 +785,9 @@ contains
        ivt=veg%iveg(np)
        IF (casamet%iveg2(np)/=icewater &
             .AND. casamet%glai(np)>casabiome%glaimin(ivt)  &
-            .AND. casapool%cplant(np,leaf)>0.0_r_2) THEN
+            .AND. casapool%cplant(np,leaf)>0.0_r2) THEN
 
-          IF (icycle>1 .AND. casapool%cplant(np,leaf)>0.0_r_2) THEN
+          IF (icycle>1 .AND. casapool%cplant(np,leaf)>0.0_r2) THEN
              ncleafx(np) = MIN(casabiome%ratioNCplantmax(ivt,leaf), &
                   MAX(casabiome%ratioNCplantmin(ivt,leaf), &
                   casapool%nplant(np,leaf)/casapool%cplant(np,leaf)))
@@ -805,9 +804,9 @@ contains
                 veg%vcmax(np) = real(casabiome%nintercept(ivt) &
                      + casabiome%nslope(ivt)*ncleafx(np)/casabiome%sla(ivt)) * 1.0e-6
              ELSE
-                IF (casapool%nplant(np,leaf)>0.0_r_2.AND.casapool%pplant(np,leaf)>0.0_r_2) THEN
+                IF (casapool%nplant(np,leaf)>0.0_r2.AND.casapool%pplant(np,leaf)>0.0_r2) THEN
                    veg%vcmax(np) = real(casabiome%nintercept(ivt)  &
-                        + casabiome%nslope(ivt)*(0.4_r_2+9.0_r_2/npleafx(np)) &
+                        + casabiome%nslope(ivt)*(0.4_r2+9.0_r2/npleafx(np)) &
                         * ncleafx(np)/casabiome%sla(ivt)) * 1.0e-6
                 ELSE
                    veg%vcmax(np) = real(casabiome%nintercept(ivt) &
@@ -832,7 +831,7 @@ contains
           elseif (ivt.eq.1) then
              ! account here for spring recovery
              veg%vcmax(np) = real( vcmax_np(nleafx(np), pleafx(np)) * &
-                  casabiome%vcmax_scalar(ivt) * real(climate%frec(np),r_2) )
+                  casabiome%vcmax_scalar(ivt) * real(climate%frec(np),r2) )
              veg%ejmax(np) = veg%bjv(np) * veg%vcmax(np)
           else
              veg%vcmax(np) = real( vcmax_np(nleafx(np), pleafx(np)) * &
@@ -848,37 +847,37 @@ contains
                 vcmax_ref(np) = veg%vcmax(np)
              else ! Vcmax_ref as Vcmax with mean nutrient concentrations
                 ! nleafx = ncleafx/sla
-                ! ncleafx = (casabiome%ratioNCplantmin(ivt,leaf) + casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r_2
+                ! ncleafx = (casabiome%ratioNCplantmin(ivt,leaf) + casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r2
                 if (icycle>1) then
                    vcmax_ref(np) = real( &
                         vcmax_np( &
                         ( (casabiome%ratioNCplantmin(ivt,leaf) + &
-                        casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r_2 ) / &
+                        casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r2 ) / &
                         casabiome%sla(ivt), pleafx(np) ) * &
                         casabiome%vcmax_scalar(ivt) )
                 endif
                 if (icycle>2) then
                    ! pleaf = nleafx / npleafx
-                   ! npleafx = casabiome%ratioNPplantmin(ivt,leaf) + casabiome%ratioNPplantmax(ivt,leaf)) / 2.0_r_2
+                   ! npleafx = casabiome%ratioNPplantmin(ivt,leaf) + casabiome%ratioNPplantmax(ivt,leaf)) / 2.0_r2
                    vcmax_ref(np) = real( &
                         vcmax_np( &
                         ( (casabiome%ratioNCplantmin(ivt,leaf) + &
-                        casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r_2 ) / &
+                        casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r2 ) / &
                         casabiome%sla(ivt), &
                         ( (casabiome%ratioNCplantmin(ivt,leaf) + &
-                        casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r_2 ) / &
+                        casabiome%ratioNCplantmax(ivt,leaf)) / 2.0_r2 ) / &
                         casabiome%sla(ivt) / &
                         (casabiome%ratioNPplantmin(ivt,leaf) + &
-                        casabiome%ratioNPplantmax(ivt,leaf)) / 2.0_r_2 ) * &
+                        casabiome%ratioNPplantmax(ivt,leaf)) / 2.0_r2 ) * &
                         casabiome%vcmax_scalar(ivt) )
                 endif
              endif
 
              ! slopes from database as presented in Knauer et al. 2019, GCB
              if (ivt .EQ. 1 .OR. ivt .EQ. 3) then
-                gm_vcmax_slope = 0.0035e6_r_2
+                gm_vcmax_slope = 0.0035e6_r2
              else
-                gm_vcmax_slope = 0.0020e6_r_2
+                gm_vcmax_slope = 0.0020e6_r2
              endif
 
              veg%gm(np) = veg%gmmax(np) + &
@@ -988,10 +987,10 @@ contains
     !   else
     if (icycle>0) then
        canopy%frp(:)  = real((casaflux%crmplant(:,wood) + casaflux%crmplant(:,froot) + &
-            casaflux%crgplant(:)) / 86400.0_r_2)
-       canopy%frs(:)  = real(casaflux%Crsoil(:) / 86400.0_r_2)
-       canopy%frpw(:) = real(casaflux%crmplant(:,wood) / 86400.0_r_2)
-       canopy%frpr(:) = real(casaflux%crmplant(:,froot) / 86400.0_r_2)
+            casaflux%crgplant(:)) / 86400.0_r2)
+       canopy%frs(:)  = real(casaflux%Crsoil(:) / 86400.0_r2)
+       canopy%frpw(:) = real(casaflux%crmplant(:,wood) / 86400.0_r2)
+       canopy%frpr(:) = real(casaflux%crmplant(:,froot) / 86400.0_r2)
     endif
 
     if (ktau == kstart) then
@@ -1024,10 +1023,10 @@ contains
     ELSE
        IF (l_vcmaxFeedbk) THEN
           canopy%fnee = canopy%fpn + canopy%frs + canopy%frp &
-               + real(casaflux%clabloss(:) / 86400.0_r_2)
+               + real(casaflux%clabloss(:) / 86400.0_r2)
        ELSE
           canopy%fnee = real((casaflux%Crsoil - casaflux%cnpp + &
-               casaflux%clabloss) / 86400.0_r_2)
+               casaflux%clabloss) / 86400.0_r2)
        ENDIF
     ENDIF
 
@@ -1143,22 +1142,22 @@ contains
     type(casa_flux),           intent(inout) :: casaflux
     type(casa_met),            intent(in)    :: casamet
     type(casa_balance),        intent(inout) :: casabal
-    real(r_2), dimension(mp),  intent(in)    :: avgcleaf2met,avgcleaf2str,avgcroot2met,avgcroot2str,avgcwood2cwd
-    real(r_2), dimension(mp),  intent(in)    :: avgnleaf2met,avgnleaf2str,avgnroot2met,avgnroot2str,avgnwood2cwd
-    real(r_2), dimension(mp),  intent(in)    :: avgpleaf2met,avgpleaf2str,avgproot2met,avgproot2str,avgpwood2cwd
-    real(r_2), dimension(mp),  intent(in)    :: avgcnpp
-    real(r_2), dimension(mp),  intent(in)    :: avgxkNlimiting, avgxklitter, avgxksoil
-    real(r_2), dimension(mp),  intent(in)    :: avgratioNCsoilmic, avgratioNCsoilslow, avgratioNCsoilpass
-    real(r_2), dimension(mp),  intent(in)    :: avgnsoilmin, avgpsoillab, avgpsoilsorb, avgpsoilocc
-    real(r_2), dimension(mp),  intent(in)    :: avg_c13leaf2met, avg_c13leaf2str
-    real(r_2), dimension(mp),  intent(in)    :: avg_c13root2met, avg_c13root2str, avg_c13wood2cwd
+    real(r2), dimension(mp),  intent(in)    :: avgcleaf2met,avgcleaf2str,avgcroot2met,avgcroot2str,avgcwood2cwd
+    real(r2), dimension(mp),  intent(in)    :: avgnleaf2met,avgnleaf2str,avgnroot2met,avgnroot2str,avgnwood2cwd
+    real(r2), dimension(mp),  intent(in)    :: avgpleaf2met,avgpleaf2str,avgproot2met,avgproot2str,avgpwood2cwd
+    real(r2), dimension(mp),  intent(in)    :: avgcnpp
+    real(r2), dimension(mp),  intent(in)    :: avgxkNlimiting, avgxklitter, avgxksoil
+    real(r2), dimension(mp),  intent(in)    :: avgratioNCsoilmic, avgratioNCsoilslow, avgratioNCsoilpass
+    real(r2), dimension(mp),  intent(in)    :: avgnsoilmin, avgpsoillab, avgpsoilsorb, avgpsoilocc
+    real(r2), dimension(mp),  intent(in)    :: avg_c13leaf2met, avg_c13leaf2str
+    real(r2), dimension(mp),  intent(in)    :: avg_c13root2met, avg_c13root2str, avg_c13wood2cwd
     ! 13C
     type(c13o2_pool),          intent(inout) :: c13o2pools
 
     ! local variables
-    real(r_2), dimension(mso) :: Psorder, xPsoil50 ! , Pweasoil
-    real(r_2), dimension(mso) :: fracPlab, fracPocc ! , fracPsorb, fracPorg
-    real(r_2), dimension(mp)  :: totPsoil
+    real(r2), dimension(mso) :: Psorder, xPsoil50 ! , Pweasoil
+    real(r2), dimension(mso) :: fracPlab, fracPocc ! , fracPsorb, fracPorg
+    real(r2), dimension(mp)  :: totPsoil
     integer :: npt
 
     ! Soiltype     soilnumber soil P(g P/m2)
@@ -1174,72 +1173,72 @@ contains
     ! Spodosol    10      41.0
     ! Ultisol     11      51.5
     ! Vertisol    12      190.6
-    data Psorder/61.3_r_2, 103.9_r_2, 92.8_r_2, 136.9_r_2, 98.2_r_2, 107.6_r_2, 84.1_r_2, &
-         110.1_r_2, 35.4_r_2, 41.0_r_2, 51.5_r_2, 190.6_r_2/
-    ! data Pweasoil/0.05_r_2, 0.04_r_2, 0.03_r_2, 0.02_r_2, 0.01_r_2, 0.009_r_2, 0.008_r_2, &
-    !      0.007_r_2, 0.006_r_2, 0.005_r_2, 0.004_r_2, 0.003_r_2/
-    data fracPlab/0.08_r_2, 0.08_r_2, 0.10_r_2, 0.02_r_2, 0.08_r_2, 0.08_r_2, 0.08_r_2, &
-         0.06_r_2, 0.02_r_2, 0.05_r_2, 0.09_r_2, 0.05_r_2/
-    ! data fracPsorb/0.32_r_2, 0.37_r_2, 0.57_r_2, 0.67_r_2, 0.37_r_2, 0.37_r_2, 0.37_r_2, &
-    !      0.32_r_2, 0.24_r_2, 0.22_r_2, 0.21_r_2, 0.38_r_2/
-    data fracPocc/0.36_r_2, 0.38_r_2, 0.25_r_2, 0.26_r_2, 0.38_r_2, 0.38_r_2, 0.38_r_2, &
-         0.44_r_2, 0.38_r_2, 0.38_r_2, 0.37_r_2, 0.45_r_2/
-    ! data fracPorg/0.25_r_2, 0.17_r_2, 0.08_r_2, 0.05_r_2, 0.17_r_2, 0.17_r_2, 0.17_r_2, &
-    !      0.18_r_2, 0.36_r_2, 0.35_r_2, 0.34_r_2, 0.12_r_2/
-    data xPsoil50/7.6_r_2, 4.1_r_2, 4.2_r_2, 3.4_r_2, 4.1_r_2, 4.1_r_2, 4.8_r_2, 4.1_r_2, &
-         6.9_r_2, 6.9_r_2, 6.9_r_2, 1.7_r_2/
+    data Psorder/61.3_r2, 103.9_r2, 92.8_r2, 136.9_r2, 98.2_r2, 107.6_r2, 84.1_r2, &
+         110.1_r2, 35.4_r2, 41.0_r2, 51.5_r2, 190.6_r2/
+    ! data Pweasoil/0.05_r2, 0.04_r2, 0.03_r2, 0.02_r2, 0.01_r2, 0.009_r2, 0.008_r2, &
+    !      0.007_r2, 0.006_r2, 0.005_r2, 0.004_r2, 0.003_r2/
+    data fracPlab/0.08_r2, 0.08_r2, 0.10_r2, 0.02_r2, 0.08_r2, 0.08_r2, 0.08_r2, &
+         0.06_r2, 0.02_r2, 0.05_r2, 0.09_r2, 0.05_r2/
+    ! data fracPsorb/0.32_r2, 0.37_r2, 0.57_r2, 0.67_r2, 0.37_r2, 0.37_r2, 0.37_r2, &
+    !      0.32_r2, 0.24_r2, 0.22_r2, 0.21_r2, 0.38_r2/
+    data fracPocc/0.36_r2, 0.38_r2, 0.25_r2, 0.26_r2, 0.38_r2, 0.38_r2, 0.38_r2, &
+         0.44_r2, 0.38_r2, 0.38_r2, 0.37_r2, 0.45_r2/
+    ! data fracPorg/0.25_r2, 0.17_r2, 0.08_r2, 0.05_r2, 0.17_r2, 0.17_r2, 0.17_r2, &
+    !      0.18_r2, 0.36_r2, 0.35_r2, 0.34_r2, 0.12_r2/
+    data xPsoil50/7.6_r2, 4.1_r2, 4.2_r2, 3.4_r2, 4.1_r2, 4.1_r2, 4.8_r2, 4.1_r2, &
+         6.9_r2, 6.9_r2, 6.9_r2, 1.7_r2/
 
     ! compute the mean litter input in g(C, N and P)/day from plant pools
-    casaflux%fromLtoS = 0.0_r_2
-    casaflux%fromStoS = 0.0_r_2
+    casaflux%fromLtoS = 0.0_r2
+    casaflux%fromStoS = 0.0_r2
 
-    casabal%sumcbal(:) = 0.0_r_2
-    casabal%sumnbal(:) = 0.0_r_2
-    casabal%sumpbal(:) = 0.0_r_2
+    casabal%sumcbal(:) = 0.0_r2
+    casabal%sumnbal(:) = 0.0_r2
+    casabal%sumpbal(:) = 0.0_r2
 
     do npt=1, mp
-       if ((casamet%iveg2(npt)/=icewater) .and. (avgcnpp(npt) > 0.0_r_2)) then
-          casaflux%fromLtoS(npt,mic,metb) = 0.45_r_2
+       if ((casamet%iveg2(npt)/=icewater) .and. (avgcnpp(npt) > 0.0_r2)) then
+          casaflux%fromLtoS(npt,mic,metb) = 0.45_r2
           ! metb -> mic
-          casaflux%fromLtoS(npt,mic,str)  = 0.45_r_2 * (1.0_r_2 - casabiome%fracLigninplant(veg%iveg(npt),leaf))
+          casaflux%fromLtoS(npt,mic,str)  = 0.45_r2 * (1.0_r2 - casabiome%fracLigninplant(veg%iveg(npt),leaf))
           ! str -> mic
-          casaflux%fromLtoS(npt,slow,str) = 0.7_r_2 * casabiome%fracLigninplant(veg%iveg(npt),leaf)
+          casaflux%fromLtoS(npt,slow,str) = 0.7_r2 * casabiome%fracLigninplant(veg%iveg(npt),leaf)
           ! str -> slow
-          casaflux%fromLtoS(npt,mic,cwd)  = 0.40_r_2 * (1.0_r_2 - casabiome%fracLigninplant(veg%iveg(npt),wood))
+          casaflux%fromLtoS(npt,mic,cwd)  = 0.40_r2 * (1.0_r2 - casabiome%fracLigninplant(veg%iveg(npt),wood))
           ! CWD -> fmic
-          casaflux%fromLtoS(npt,slow,cwd) = 0.7_r_2 * casabiome%fracLigninplant(veg%iveg(npt),wood)
+          casaflux%fromLtoS(npt,slow,cwd) = 0.7_r2 * casabiome%fracLigninplant(veg%iveg(npt),wood)
           ! CWD -> slow
           !! set the following two backflow to set (see Bolker 199x)
-          !    casaflux%fromStoS(npt,mic,slow)  = 0.45_r_2 * (0.997_r_2 - 0.009_r_2 *soil%clay(npt))
-          !    casaflux%fromStoS(npt,mic,pass)  = 0.45_r_2
+          !    casaflux%fromStoS(npt,mic,slow)  = 0.45_r2 * (0.997_r2 - 0.009_r2 *soil%clay(npt))
+          !    casaflux%fromStoS(npt,mic,pass)  = 0.45_r2
 
-          casaflux%fromStoS(npt,slow,mic)  = (0.85_r_2 - 0.68_r_2 * (soil%clay(npt)+soil%silt(npt))) &
-               * (0.997_r_2 - 0.032_r_2*soil%clay(npt))
-          casaflux%fromStoS(npt,pass,mic)  = (0.85_r_2 - 0.68_r_2 * (soil%clay(npt)+soil%silt(npt))) &
-               * (0.003_r_2 + 0.032_r_2*soil%clay(npt))
-          casaflux%fromStoS(npt,pass,slow) = 0.45_r_2 * (0.003_r_2 + 0.009_r_2 * soil%clay(npt) )
+          casaflux%fromStoS(npt,slow,mic)  = (0.85_r2 - 0.68_r2 * (soil%clay(npt)+soil%silt(npt))) &
+               * (0.997_r2 - 0.032_r2*soil%clay(npt))
+          casaflux%fromStoS(npt,pass,mic)  = (0.85_r2 - 0.68_r2 * (soil%clay(npt)+soil%silt(npt))) &
+               * (0.003_r2 + 0.032_r2*soil%clay(npt))
+          casaflux%fromStoS(npt,pass,slow) = 0.45_r2 * (0.003_r2 + 0.009_r2 * soil%clay(npt) )
 
           casaflux%klitter(npt,metb) = avgxkNlimiting(npt) * avgxklitter(npt) * casabiome%litterrate(veg%iveg(npt),metb)
           casaflux%klitter(npt,str)  = avgxkNlimiting(npt) * avgxklitter(npt) * casabiome%litterrate(veg%iveg(npt),str) * &
-               exp(-3.0_r_2*casabiome%fracLigninplant(veg%iveg(npt),leaf))
+               exp(-3.0_r2*casabiome%fracLigninplant(veg%iveg(npt),leaf))
           casaflux%klitter(npt,cwd)  = avgxkNlimiting(npt) * avgxklitter(npt) * casabiome%litterrate(veg%iveg(npt),cwd)
 
           casaflux%ksoil(npt,mic)    = avgxksoil(npt) * casabiome%soilrate(veg%iveg(npt),mic) * &
-               (1.0_r_2 - 0.75_r_2 * (soil%silt(npt)+soil%clay(npt)))
+               (1.0_r2 - 0.75_r2 * (soil%silt(npt)+soil%clay(npt)))
           casaflux%ksoil(npt,slow)   = avgxksoil(npt) * casabiome%soilrate(veg%iveg(npt),slow)
           casaflux%ksoil(npt,pass)   = avgxksoil(npt) * casabiome%soilrate(veg%iveg(npt),pass)
 
           if (veg%iveg(npt)==cropland) then     ! for cultivated land type
-             casaflux%ksoil(npt,mic)  = casaflux%ksoil(npt,mic)  * 1.25_r_2
-             casaflux%ksoil(npt,slow) = casaflux%ksoil(npt,slow) * 1.5_r_2
-             casaflux%ksoil(npt,pass) = casaflux%ksoil(npt,pass) * 1.5_r_2
+             casaflux%ksoil(npt,mic)  = casaflux%ksoil(npt,mic)  * 1.25_r2
+             casaflux%ksoil(npt,slow) = casaflux%ksoil(npt,slow) * 1.5_r2
+             casaflux%ksoil(npt,pass) = casaflux%ksoil(npt,pass) * 1.5_r2
           endif
        endif
     enddo
 
     do npt=1, mp
 
-       if ((casamet%iveg2(npt) /= icewater) .and. (avgcnpp(npt) > 0.0_r_2)) then
+       if ((casamet%iveg2(npt) /= icewater) .and. (avgcnpp(npt) > 0.0_r2)) then
 
           ! MC - Do first P then N and then C so that each equilibrium solution uses the incoming pools not updated yet
           if (icycle<=2) then
@@ -1300,8 +1299,8 @@ contains
           if (icycle<=1) then
              casapool%nlitter(npt,:) = casapool%ratioNClitter(npt,:) * casapool%Clitter(npt,:)
              casapool%nsoil(npt,:)   = casapool%ratioNCsoil(npt,:)   * casapool%Csoil(npt,:)
-             casapool%nsoilmin(npt)  = 2.0_r_2
-             casabal%sumnbal(npt)    = 0.0_r_2
+             casapool%nsoilmin(npt)  = 2.0_r2
+             casabal%sumnbal(npt)    = 0.0_r2
           else
              ! compute steady-state litter and soil N pool sizes
              casapool%nlitter(npt,metb) = (avgnleaf2met(npt)+avgnroot2met(npt)) / casaflux%klitter(npt,metb)

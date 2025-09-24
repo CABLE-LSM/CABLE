@@ -28,7 +28,7 @@
 
 module casadimension
 
-  use cable_def_types_mod, only: r_2
+  use cable_def_types_mod, only: r2
 
   implicit none
 
@@ -52,8 +52,8 @@ module casadimension
   ! INTEGER, PARAMETER :: icycle=3    ! =1 for C, =2 for C+N; =3 for C+N+P
   integer, parameter :: mstart = 1    ! starting time step
   integer, parameter :: mphase = 4    ! phen. phases
-  real(r_2), parameter :: deltcasa = 1.0_r_2/365.0_r_2 ! fraction 1 day of year
-  real(r_2), parameter :: deltpool = 1.0_r_2           ! pool delt(1day)
+  real(r2), parameter :: deltcasa = 1.0_r2/365.0_r2 ! fraction 1 day of year
+  real(r2), parameter :: deltpool = 1.0_r2           ! pool delt(1day)
 
 end module casadimension
 
@@ -63,7 +63,7 @@ end module casadimension
 
 module casaparm
 
-  use cable_def_types_mod, only: r_2
+  use cable_def_types_mod, only: r2
   ! use casadimension, only: deltcasa
 
   implicit none
@@ -93,23 +93,23 @@ module casaparm
   integer, parameter :: POCC    = 3
   !! vh_js !! LALLOC moved to bgcdriver to allow for value to be switchable
   ! integer, parameter :: LALLOC = 0  ! 0 constant; 1 variable
-  real(r_2), parameter :: z30 = 0.3_r_2
-  real(r_2), parameter :: R0 = 0.3_r_2
-  real(r_2), parameter :: S0 = 0.3_r_2
-  real(r_2), parameter :: fixed_stem = 1.0_r_2 / 3.0_r_2
-  real(r_2), parameter :: Q10alloc = 2.0_r_2
-  real(r_2), parameter :: ratioNCstrfix = 1.0_r_2 / 150.0_r_2
-  real(r_2), parameter :: ratioNPstrfix = 25.0_r_2
-  real(r_2), parameter :: fracCbiomass = 0.50_r_2
-  real(r_2), parameter :: tsoilrefc = 25.0_r_2
-  real(r_2), parameter :: tkzeroc = 273.15_r_2
-  real(r_2), parameter :: frootparma = 0.3192_r_2
-  real(r_2), parameter :: frootparmb =-0.0485_r_2
-  real(r_2), parameter :: frootparmc = 0.1755_r_2
-  real(r_2), parameter :: xweightalloc = 0.2_r_2
-  !  real(r_2), parameter :: xkplab  = 0.5_r_2 * deltcasa
-  !  real(r_2), parameter :: xkpsorb = 0.01_r_2 * deltcasa
-  !  real(r_2), parameter :: xkpocc  = 0.01_r_2 * deltcasa
+  real(r2), parameter :: z30 = 0.3_r2
+  real(r2), parameter :: R0 = 0.3_r2
+  real(r2), parameter :: S0 = 0.3_r2
+  real(r2), parameter :: fixed_stem = 1.0_r2 / 3.0_r2
+  real(r2), parameter :: Q10alloc = 2.0_r2
+  real(r2), parameter :: ratioNCstrfix = 1.0_r2 / 150.0_r2
+  real(r2), parameter :: ratioNPstrfix = 25.0_r2
+  real(r2), parameter :: fracCbiomass = 0.50_r2
+  real(r2), parameter :: tsoilrefc = 25.0_r2
+  real(r2), parameter :: tkzeroc = 273.15_r2
+  real(r2), parameter :: frootparma = 0.3192_r2
+  real(r2), parameter :: frootparmb =-0.0485_r2
+  real(r2), parameter :: frootparmc = 0.1755_r2
+  real(r2), parameter :: xweightalloc = 0.2_r2
+  !  real(r2), parameter :: xkplab  = 0.5_r2 * deltcasa
+  !  real(r2), parameter :: xkpsorb = 0.01_r2 * deltcasa
+  !  real(r2), parameter :: xkpocc  = 0.01_r2 * deltcasa
 
 end module casaparm
 
@@ -119,7 +119,7 @@ end module casaparm
 
 module casavariable
 
-  use cable_def_types_mod, only: r_2
+  use cable_def_types_mod, only: r2
 
   implicit none
 
@@ -164,7 +164,7 @@ module casavariable
   type casa_biome
      integer, dimension(:), pointer :: &
           ivt2 => null()
-     real(r_2), dimension(:), pointer :: &
+     real(r2), dimension(:), pointer :: &
           xkleafcoldmax => null(), &
           xkleafcoldexp => null(), &
           xkleafdrymax => null(), &
@@ -201,7 +201,7 @@ module casavariable
           DAMM_KMcp => null(), &
           DAMM_Ea => null(), &
           DAMM_alpha => null()
-     real(r_2), dimension(:,:), pointer :: &
+     real(r2), dimension(:,:), pointer :: &
           plantrate => null(), &
           rmplant => null(), &
           fracnpptoP => null(), &
@@ -217,18 +217,18 @@ module casavariable
           litterrate => null(), &
           ratioPcplantmin => null(), &
           ratioPcplantmax => null()
-     real(r_2), dimension(:,:), pointer :: &
+     real(r2), dimension(:,:), pointer :: &
           soilrate => null()
   end type casa_biome
 
 
   type casa_pool
-     real(r_2), dimension(:), pointer :: &
+     real(r2), dimension(:), pointer :: &
           Clabile => null(), &
           dClabiledt => null(), &
           Ctot => null(), &          !! vh_js !!
           Ctot_0 => null()
-     real(r_2), dimension(:,:), pointer :: &
+     real(r2), dimension(:,:), pointer :: &
           Cplant => null(), &
           Nplant => null(), &
           Pplant => null(), &
@@ -237,7 +237,7 @@ module casavariable
           dPplantdt => null(), &
           ratioNCplant => null(), &
           ratioNPplant => null()
-     real(r_2), dimension(:), pointer :: &
+     real(r2), dimension(:), pointer :: &
           Nsoilmin => null(), &
           Psoillab => null(), &
           Psoilsorb => null(), &
@@ -246,7 +246,7 @@ module casavariable
           dPsoillabdt => null(), &
           dPsoilsorbdt => null(), &
           dPsoiloccdt => null()
-     real(r_2), dimension(:,:), pointer :: &
+     real(r2), dimension(:,:), pointer :: &
           Clitter => null(), &
           Nlitter => null(), &
           Plitter => null(), &
@@ -255,7 +255,7 @@ module casavariable
           dPlitterdt => null(), &
           ratioNClitter => null(), &
           ratioNPlitter => null()
-     real(r_2), dimension(:,:), pointer :: &
+     real(r2), dimension(:,:), pointer :: &
           Csoil => null(), &
           Nsoil => null(), &
           Psoil => null(), &
@@ -274,7 +274,7 @@ module casavariable
 
 
   type casa_flux
-     real(r_2), dimension(:), pointer :: &
+     real(r2), dimension(:), pointer :: &
           Cgpp => null(), &
           Cnpp => null(), &
           Crp => null(), &
@@ -301,7 +301,7 @@ module casavariable
           CallocLeaf => null(), &  ! C allocation to leaves 
           CallocWood => null(), &  ! C allocation to wood
           CallocFineRoot => null() ! C allocation to fine roots
-     real(r_2), dimension(:,:), pointer :: &
+     real(r2), dimension(:,:), pointer :: &
           fracCalloc => null(), &
           fracNalloc => null(), &
           fracPalloc => null(), &
@@ -309,9 +309,9 @@ module casavariable
           kplant => null(), &
           !! vh_js !! additional diagnostic
           Cplant_turnover => null()
-     real(r_2), dimension(:,:,:), pointer :: &
+     real(r2), dimension(:,:,:), pointer :: &
           fromPtoL => null()
-     real(r_2), dimension(:),pointer :: &
+     real(r2), dimension(:),pointer :: &
           Cnep => null(), &
           Crsoil => null(), &
           Nmindep => null(), &
@@ -343,59 +343,59 @@ module casavariable
           Cplant_turnover_disturbance => null(), &
           Cplant_turnover_crowding  => null(), &
           Cplant_turnover_resource_limitation => null()
-     real(r_2), dimension(:,:),   pointer :: klitter => null()
-     real(r_2), dimension(:,:),   pointer :: ksoil => null()
-     real(r_2), dimension(:,:,:), pointer :: fromLtoS => null()
-     real(r_2), dimension(:,:,:), pointer :: fromStoS => null()
-     real(r_2), dimension(:,:),   pointer :: fromLtoCO2 => null()
-     real(r_2), dimension(:,:),   pointer :: fromStoCO2 => null()
-     real(r_2), dimension(:,:),   pointer :: FluxCtolitter => null()
-     real(r_2), dimension(:,:),   pointer :: FluxCLeaftoLitter => null()
-     real(r_2), dimension(:,:),   pointer :: FluxCWoodtoLitter => null()
-     real(r_2), dimension(:,:),   pointer :: FluxCFineRoottoLitter => null()
-     real(r_2), dimension(:,:),   pointer :: FluxNtolitter => null()
-     real(r_2), dimension(:,:),   pointer :: FluxPtolitter => null()
-     real(r_2), dimension(:,:),   pointer :: FluxCtosoil => null()
-     real(r_2), dimension(:,:),   pointer :: FluxNtosoil => null()
-     real(r_2), dimension(:,:),   pointer :: FluxPtosoil => null()
-     real(r_2), dimension(:),     pointer :: FluxCtoCO2 => null()
-     real(r_2), dimension(:),     pointer :: FluxCtohwp => null()
-     real(r_2), dimension(:),     pointer :: FluxNtohwp => null()
-     real(r_2), dimension(:),     pointer :: FluxPtohwp => null()
-     real(r_2), dimension(:),     pointer :: FluxCtoclear => null()
-     real(r_2), dimension(:),     pointer :: FluxNtoclear => null()
-     real(r_2), dimension(:),     pointer :: FluxPtoclear => null()
-     real(r_2), dimension(:),     pointer :: CtransferLUC => null()
+     real(r2), dimension(:,:),   pointer :: klitter => null()
+     real(r2), dimension(:,:),   pointer :: ksoil => null()
+     real(r2), dimension(:,:,:), pointer :: fromLtoS => null()
+     real(r2), dimension(:,:,:), pointer :: fromStoS => null()
+     real(r2), dimension(:,:),   pointer :: fromLtoCO2 => null()
+     real(r2), dimension(:,:),   pointer :: fromStoCO2 => null()
+     real(r2), dimension(:,:),   pointer :: FluxCtolitter => null()
+     real(r2), dimension(:,:),   pointer :: FluxCLeaftoLitter => null()
+     real(r2), dimension(:,:),   pointer :: FluxCWoodtoLitter => null()
+     real(r2), dimension(:,:),   pointer :: FluxCFineRoottoLitter => null()
+     real(r2), dimension(:,:),   pointer :: FluxNtolitter => null()
+     real(r2), dimension(:,:),   pointer :: FluxPtolitter => null()
+     real(r2), dimension(:,:),   pointer :: FluxCtosoil => null()
+     real(r2), dimension(:,:),   pointer :: FluxNtosoil => null()
+     real(r2), dimension(:,:),   pointer :: FluxPtosoil => null()
+     real(r2), dimension(:),     pointer :: FluxCtoCO2 => null()
+     real(r2), dimension(:),     pointer :: FluxCtohwp => null()
+     real(r2), dimension(:),     pointer :: FluxNtohwp => null()
+     real(r2), dimension(:),     pointer :: FluxPtohwp => null()
+     real(r2), dimension(:),     pointer :: FluxCtoclear => null()
+     real(r2), dimension(:),     pointer :: FluxNtoclear => null()
+     real(r2), dimension(:),     pointer :: FluxPtoclear => null()
+     real(r2), dimension(:),     pointer :: CtransferLUC => null()
      !CVH variables inherited from BLAZE
-     real(r_2), dimension(:,:,:), pointer :: fromPtoL_fire => null()
-     real(r_2), dimension(:,:), pointer   :: klitter_fire => null()
+     real(r2), dimension(:,:,:), pointer :: fromPtoL_fire => null()
+     real(r2), dimension(:,:), pointer   :: klitter_fire => null()
      ! sum of fire turnover and non-fire turnover (litter)
-     real(r_2), dimension(:,:), pointer   :: klitter_tot => null()
-     real(r_2), dimension(:,:), pointer   :: kplant_fire => null()
+     real(r2), dimension(:,:), pointer   :: klitter_tot => null()
+     real(r2), dimension(:,:), pointer   :: kplant_fire => null()
      ! sum of fire turnover and non-fire turnover (plants)
-     real(r_2), dimension(:,:), pointer   :: kplant_tot => null()
+     real(r2), dimension(:,:), pointer   :: kplant_tot => null()
      !CVH diagnostic: CO2 emissions from fire
-     real(r_2), dimension(:), pointer     :: fluxCtoCO2_plant_fire => null()
-     real(r_2), dimension(:), pointer     :: fluxCtoCO2_litter_fire => null()
+     real(r2), dimension(:), pointer     :: fluxCtoCO2_plant_fire => null()
+     real(r2), dimension(:), pointer     :: fluxCtoCO2_litter_fire => null()
      ! contribution to fire emissions from individual plant pools
-     real(r_2), dimension(:,:), pointer   :: fluxfromPtoCO2_fire => null()
+     real(r2), dimension(:,:), pointer   :: fluxfromPtoCO2_fire => null()
      ! contribution to fire emissions from individual litter pools
-     real(r_2), dimension(:,:), pointer   :: fluxfromLtoCO2_fire => null()
-     real(r_2), dimension(:), pointer     :: fluxNtoAtm_fire => null()
-     ! real(r_2), dimension(:,:,:),pointer  :: fire_mortality_vs_height => null()
+     real(r2), dimension(:,:), pointer   :: fluxfromLtoCO2_fire => null()
+     real(r2), dimension(:), pointer     :: fluxNtoAtm_fire => null()
+     ! real(r2), dimension(:,:,:),pointer  :: fire_mortality_vs_height => null()
      ! Diagnostic fluxes for use in 13C
-     real(r_2), dimension(:,:,:), pointer :: FluxFromPtoL => null()
-     real(r_2), dimension(:,:,:), pointer :: FluxFromLtoS => null()
-     real(r_2), dimension(:,:,:), pointer :: FluxFromStoS => null()
-     real(r_2), dimension(:,:),   pointer :: FluxFromPtoCO2 => null()
-     real(r_2), dimension(:,:),   pointer :: FluxFromLtoCO2 => null()
-     real(r_2), dimension(:,:),   pointer :: FluxFromStoCO2 => null()
-     real(r_2), dimension(:),     pointer :: FluxFromPtoHarvest => null()
+     real(r2), dimension(:,:,:), pointer :: FluxFromPtoL => null()
+     real(r2), dimension(:,:,:), pointer :: FluxFromLtoS => null()
+     real(r2), dimension(:,:,:), pointer :: FluxFromStoS => null()
+     real(r2), dimension(:,:),   pointer :: FluxFromPtoCO2 => null()
+     real(r2), dimension(:,:),   pointer :: FluxFromLtoCO2 => null()
+     real(r2), dimension(:,:),   pointer :: FluxFromStoCO2 => null()
+     real(r2), dimension(:),     pointer :: FluxFromPtoHarvest => null()
   end type casa_flux
 
 
   type casa_met
-     real(r_2), dimension(:), pointer :: &
+     real(r2), dimension(:), pointer :: &
           glai => null(), &
           Tairk => null(), &
           precip => null(), &
@@ -404,19 +404,19 @@ module casavariable
           btran => null()
      integer, dimension(:), pointer :: &
           lnonwood => null()
-     real(r_2), dimension(:,:), pointer :: &
+     real(r2), dimension(:,:), pointer :: &
           Tsoil => null(), &
           moist => null()
      integer, dimension(:), pointer :: &
           iveg2 => null(), &
           ijgcm => null(), &
           isorder => null()
-     real(r_2), dimension(:), pointer :: &
+     real(r2), dimension(:), pointer :: &
           lat => null(), &
           lon => null(), &
           areacell => null()
      ! added yp wang 5/nov/2012
-     real(r_2), dimension(:,:), pointer :: &
+     real(r2), dimension(:,:), pointer :: &
           Tairkspin => null(), &
           cgppspin => null(), &
           crmplantspin_1 => null(), &
@@ -437,14 +437,14 @@ module casavariable
           mtempspin => null(), &
           frecspin => null()
      ! 13C
-     real(r_2), dimension(:,:), pointer :: &
+     real(r2), dimension(:,:), pointer :: &
           ! daily cumulated total 12CO2 net assimilation in [g(C)/m2]
           cAn12spin => null()
-     real(r_2), dimension(:,:), pointer :: &
+     real(r2), dimension(:,:), pointer :: &
           ! daily cumulated total 13CO2 net assimilation in [g(13C)/m2]
           cAn13spin => null()
      ! BLAZE
-     real(r_2), dimension(:,:), pointer :: &
+     real(r2), dimension(:,:), pointer :: &
           dprecip_spin => null(), &
           aprecip_av20_spin => null(), &
           du10_max_spin     => null(), &
@@ -461,7 +461,7 @@ module casavariable
 
 
   type casa_balance
-     real(r_2), dimension(:), pointer :: &
+     real(r2), dimension(:), pointer :: &
           FCgppyear => null(), &
           FCnppyear => null(), &
           FCrmleafyear => null(), &
@@ -487,22 +487,22 @@ module casavariable
           FPupyear => null(), &
           FPleachyear => null(), &
           FPlossyear => null()
-     real(r_2), dimension(:,:),pointer :: &
+     real(r2), dimension(:,:),pointer :: &
           glaimon => null(), &
           glaimonx => null()
-     real(r_2), dimension(:,:), pointer :: &
+     real(r2), dimension(:,:), pointer :: &
           cplantlast => null(), &
           nplantlast => null(), &
           pplantlast => null()
-     real(r_2), dimension(:,:), pointer :: &
+     real(r2), dimension(:,:), pointer :: &
           clitterlast => null(), &
           nlitterlast => null(), &
           plitterlast => null()
-     real(r_2), dimension(:,:), pointer :: &
+     real(r2), dimension(:,:), pointer :: &
           csoillast => null(), &
           nsoillast => null(), &
           psoillast => null()
-     real(r_2), dimension(:), pointer :: &
+     real(r2), dimension(:), pointer :: &
           nsoilminlast => null(), &
           psoillablast => null(), &
           psoilsorblast => null(), &
@@ -513,7 +513,7 @@ module casavariable
           sumcbal => null(), &
           sumnbal => null(), &
           sumpbal => null()
-     real(r_2), dimension(:), pointer :: &
+     real(r2), dimension(:), pointer :: &
           clabilelast => null()
   end type casa_balance
 
@@ -984,292 +984,292 @@ contains
 
   subroutine zero_casabiome(casabiome)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
     type(casa_biome), intent(inout) :: casabiome
 
     casabiome%ivt2 = 0
-    casabiome%xkleafcoldmax = 0.0_r_2
-    casabiome%xkleafcoldexp = 0.0_r_2
-    casabiome%xkleafdrymax = 0.0_r_2
-    casabiome%xkleafdryexp = 0.0_r_2
-    casabiome%glaimax = 0.0_r_2
-    casabiome%glaimin = 0.0_r_2
-    casabiome%sla = 0.0_r_2
-    casabiome%ratiofrootleaf = 0.0_r_2
-    casabiome%kroot = 0.0_r_2
-    casabiome%krootlen = 0.0_r_2
-    casabiome%rootdepth = 0.0_r_2
-    casabiome%kuptake = 0.0_r_2
-    casabiome%kminN = 0.0_r_2
-    casabiome%kuplabP = 0.0_r_2
-    casabiome%kclabrate = 0.0_r_2
-    casabiome%xnpmax = 0.0_r_2
-    casabiome%q10soil = 0.0_r_2
-    casabiome%xkoptlitter = 0.0_r_2
-    casabiome%xkoptsoil = 0.0_r_2
-    casabiome%xkplab = 0.0_r_2
-    casabiome%xkpsorb = 0.0_r_2
-    casabiome%xkpocc = 0.0_r_2
-    casabiome%prodptase = 0.0_r_2
-    casabiome%costnpup = 0.0_r_2
-    casabiome%maxfinelitter = 0.0_r_2
-    casabiome%maxcwd = 0.0_r_2
-    casabiome%nintercept = 0.0_r_2
-    casabiome%nslope = 0.0_r_2
-    casabiome%la_to_sa = 0.0_r_2
-    casabiome%vcmax_scalar = 0.0_r_2
-    casabiome%disturbance_interval = 0.0_r_2
-    casabiome%DAMM_EnzPool = 0.0_r_2
-    casabiome%DAMM_KMO2 = 0.0_r_2
-    casabiome%DAMM_KMcp = 0.0_r_2
-    casabiome%DAMM_Ea = 0.0_r_2
-    casabiome%DAMM_alpha = 0.0_r_2
-    casabiome%plantrate = 0.0_r_2
-    casabiome%rmplant = 0.0_r_2
-    casabiome%fracnpptoP = 0.0_r_2
-    casabiome%fraclignin = 0.0_r_2
-    casabiome%fraclabile = 0.0_r_2
-    casabiome%ratioNCplantmin = 0.0_r_2
-    casabiome%ratioNCplantmax = 0.0_r_2
-    casabiome%ratioNPplantmin = 0.0_r_2
-    casabiome%ratioNPplantmax = 0.0_r_2
-    casabiome%fracLigninplant = 0.0_r_2
-    casabiome%ftransNPtoL = 0.0_r_2
-    casabiome%ftransPPtoL = 0.0_r_2
-    casabiome%litterrate = 0.0_r_2
-    casabiome%ratioPcplantmin = 0.0_r_2
-    casabiome%ratioPcplantmax = 0.0_r_2
-    casabiome%soilrate = 0.0_r_2
+    casabiome%xkleafcoldmax = 0.0_r2
+    casabiome%xkleafcoldexp = 0.0_r2
+    casabiome%xkleafdrymax = 0.0_r2
+    casabiome%xkleafdryexp = 0.0_r2
+    casabiome%glaimax = 0.0_r2
+    casabiome%glaimin = 0.0_r2
+    casabiome%sla = 0.0_r2
+    casabiome%ratiofrootleaf = 0.0_r2
+    casabiome%kroot = 0.0_r2
+    casabiome%krootlen = 0.0_r2
+    casabiome%rootdepth = 0.0_r2
+    casabiome%kuptake = 0.0_r2
+    casabiome%kminN = 0.0_r2
+    casabiome%kuplabP = 0.0_r2
+    casabiome%kclabrate = 0.0_r2
+    casabiome%xnpmax = 0.0_r2
+    casabiome%q10soil = 0.0_r2
+    casabiome%xkoptlitter = 0.0_r2
+    casabiome%xkoptsoil = 0.0_r2
+    casabiome%xkplab = 0.0_r2
+    casabiome%xkpsorb = 0.0_r2
+    casabiome%xkpocc = 0.0_r2
+    casabiome%prodptase = 0.0_r2
+    casabiome%costnpup = 0.0_r2
+    casabiome%maxfinelitter = 0.0_r2
+    casabiome%maxcwd = 0.0_r2
+    casabiome%nintercept = 0.0_r2
+    casabiome%nslope = 0.0_r2
+    casabiome%la_to_sa = 0.0_r2
+    casabiome%vcmax_scalar = 0.0_r2
+    casabiome%disturbance_interval = 0.0_r2
+    casabiome%DAMM_EnzPool = 0.0_r2
+    casabiome%DAMM_KMO2 = 0.0_r2
+    casabiome%DAMM_KMcp = 0.0_r2
+    casabiome%DAMM_Ea = 0.0_r2
+    casabiome%DAMM_alpha = 0.0_r2
+    casabiome%plantrate = 0.0_r2
+    casabiome%rmplant = 0.0_r2
+    casabiome%fracnpptoP = 0.0_r2
+    casabiome%fraclignin = 0.0_r2
+    casabiome%fraclabile = 0.0_r2
+    casabiome%ratioNCplantmin = 0.0_r2
+    casabiome%ratioNCplantmax = 0.0_r2
+    casabiome%ratioNPplantmin = 0.0_r2
+    casabiome%ratioNPplantmax = 0.0_r2
+    casabiome%fracLigninplant = 0.0_r2
+    casabiome%ftransNPtoL = 0.0_r2
+    casabiome%ftransPPtoL = 0.0_r2
+    casabiome%litterrate = 0.0_r2
+    casabiome%ratioPcplantmin = 0.0_r2
+    casabiome%ratioPcplantmax = 0.0_r2
+    casabiome%soilrate = 0.0_r2
 
   end subroutine zero_casabiome
 
 
   subroutine zero_casapool(casapool)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
     type(casa_pool), intent(inout) :: casapool
 
-    casapool%Clabile = 0.0_r_2
-    casapool%dClabiledt = 0.0_r_2
-    casapool%Ctot = 0.0_r_2
-    casapool%Ctot_0 = 0.0_r_2
-    casapool%Cplant = 0.0_r_2
-    casapool%Nplant = 0.0_r_2
-    casapool%Pplant = 0.0_r_2
-    casapool%dCplantdt = 0.0_r_2
-    casapool%dNplantdt = 0.0_r_2
-    casapool%dPplantdt = 0.0_r_2
-    casapool%ratioNCplant = 0.0_r_2
-    casapool%ratioNPplant = 0.0_r_2
-    casapool%Nsoilmin = 0.0_r_2
-    casapool%Psoillab = 0.0_r_2
-    casapool%Psoilsorb = 0.0_r_2
-    casapool%Psoilocc = 0.0_r_2
-    casapool%dNsoilmindt = 0.0_r_2
-    casapool%dPsoillabdt = 0.0_r_2
-    casapool%dPsoilsorbdt = 0.0_r_2
-    casapool%dPsoiloccdt = 0.0_r_2
-    casapool%Clitter = 0.0_r_2
-    casapool%Nlitter = 0.0_r_2
-    casapool%Plitter = 0.0_r_2
-    casapool%dClitterdt = 0.0_r_2
-    casapool%dNlitterdt = 0.0_r_2
-    casapool%dPlitterdt = 0.0_r_2
-    casapool%ratioNClitter = 0.0_r_2
-    casapool%ratioNPlitter = 0.0_r_2
-    casapool%Csoil = 0.0_r_2
-    casapool%Nsoil = 0.0_r_2
-    casapool%Psoil = 0.0_r_2
-    casapool%dCsoildt = 0.0_r_2
-    casapool%dNsoildt = 0.0_r_2
-    casapool%dPsoildt = 0.0_r_2
-    casapool%ratioNCsoil = 0.0_r_2
-    casapool%ratioNCsoilnew = 0.0_r_2
-    casapool%ratioNPsoil = 0.0_r_2
-    casapool%ratioNCsoilmin = 0.0_r_2
-    casapool%ratioNCsoilmax = 0.0_r_2
-    casapool%ratioPCsoil = 0.0_r_2
-    casapool%ratioPCplant = 0.0_r_2
-    casapool%ratioPClitter = 0.0_r_2
+    casapool%Clabile = 0.0_r2
+    casapool%dClabiledt = 0.0_r2
+    casapool%Ctot = 0.0_r2
+    casapool%Ctot_0 = 0.0_r2
+    casapool%Cplant = 0.0_r2
+    casapool%Nplant = 0.0_r2
+    casapool%Pplant = 0.0_r2
+    casapool%dCplantdt = 0.0_r2
+    casapool%dNplantdt = 0.0_r2
+    casapool%dPplantdt = 0.0_r2
+    casapool%ratioNCplant = 0.0_r2
+    casapool%ratioNPplant = 0.0_r2
+    casapool%Nsoilmin = 0.0_r2
+    casapool%Psoillab = 0.0_r2
+    casapool%Psoilsorb = 0.0_r2
+    casapool%Psoilocc = 0.0_r2
+    casapool%dNsoilmindt = 0.0_r2
+    casapool%dPsoillabdt = 0.0_r2
+    casapool%dPsoilsorbdt = 0.0_r2
+    casapool%dPsoiloccdt = 0.0_r2
+    casapool%Clitter = 0.0_r2
+    casapool%Nlitter = 0.0_r2
+    casapool%Plitter = 0.0_r2
+    casapool%dClitterdt = 0.0_r2
+    casapool%dNlitterdt = 0.0_r2
+    casapool%dPlitterdt = 0.0_r2
+    casapool%ratioNClitter = 0.0_r2
+    casapool%ratioNPlitter = 0.0_r2
+    casapool%Csoil = 0.0_r2
+    casapool%Nsoil = 0.0_r2
+    casapool%Psoil = 0.0_r2
+    casapool%dCsoildt = 0.0_r2
+    casapool%dNsoildt = 0.0_r2
+    casapool%dPsoildt = 0.0_r2
+    casapool%ratioNCsoil = 0.0_r2
+    casapool%ratioNCsoilnew = 0.0_r2
+    casapool%ratioNPsoil = 0.0_r2
+    casapool%ratioNCsoilmin = 0.0_r2
+    casapool%ratioNCsoilmax = 0.0_r2
+    casapool%ratioPCsoil = 0.0_r2
+    casapool%ratioPCplant = 0.0_r2
+    casapool%ratioPClitter = 0.0_r2
 
   end subroutine zero_casapool
 
 
   subroutine zero_casaflux(casaflux)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
     type(casa_flux), intent(inout) :: casaflux
 
-    casaflux%Cgpp = 0.0_r_2
-    casaflux%Cnpp = 0.0_r_2
-    casaflux%Crp = 0.0_r_2
-    casaflux%Crgplant = 0.0_r_2
-    casaflux%Nminfix = 0.0_r_2
-    casaflux%Nminuptake = 0.0_r_2
-    casaflux%Plabuptake = 0.0_r_2
-    casaflux%Clabloss = 0.0_r_2
-    casaflux%fracClabile = 0.0_r_2
-    casaflux%stemnpp = 0.0_r_2
-    casaflux%potstemnpp = 0.0_r_2
-    casaflux%frac_sapwood = 0.0_r_2
-    casaflux%sapwood_area = 0.0_r_2
-    casaflux%Charvest = 0.0_r_2
-    casaflux%CharvestPast = 0.0_r_2
-    casaflux%CharvestCrop = 0.0_r_2
-    casaflux%Nharvest = 0.0_r_2
-    casaflux%Pharvest = 0.0_r_2
-    casaflux%fHarvest = 0.0_r_2
-    casaflux%fHarvestPast = 0.0_r_2
-    casaflux%fHarvestCrop = 0.0_r_2
-    casaflux%fcrop = 0.0_r_2
-    casaflux%CallocLeaf = 0.0_r_2
-    casaflux%CallocWood = 0.0_r_2
-    casaflux%CallocFineRoot = 0.0_r_2
-    casaflux%fracCalloc = 0.0_r_2
-    casaflux%fracNalloc = 0.0_r_2
-    casaflux%fracPalloc = 0.0_r_2
-    casaflux%Crmplant = 0.0_r_2
-    casaflux%kplant = 0.0_r_2
-    casaflux%Cplant_turnover = 0.0_r_2
-    casaflux%fromPtoL = 0.0_r_2
-    casaflux%Cnep = 0.0_r_2
-    casaflux%Crsoil = 0.0_r_2
-    casaflux%Nmindep = 0.0_r_2
-    casaflux%Nminloss = 0.0_r_2
-    casaflux%Nminleach = 0.0_r_2
-    casaflux%Nupland = 0.0_r_2
-    casaflux%Nlittermin = 0.0_r_2
-    casaflux%Nsmin = 0.0_r_2
-    casaflux%Nsimm = 0.0_r_2
-    casaflux%Nsnet = 0.0_r_2
-    casaflux%fNminloss = 0.0_r_2
-    casaflux%fNminleach = 0.0_r_2
-    casaflux%Pdep = 0.0_r_2
-    casaflux%Pwea = 0.0_r_2
-    casaflux%Pleach = 0.0_r_2
-    casaflux%Ploss = 0.0_r_2
-    casaflux%Pupland = 0.0_r_2
-    casaflux%Plittermin = 0.0_r_2
-    casaflux%Psmin = 0.0_r_2
-    casaflux%Psimm = 0.0_r_2
-    casaflux%Psnet = 0.0_r_2
-    casaflux%fPleach = 0.0_r_2
-    casaflux%kplab = 0.0_r_2
-    casaflux%kpsorb = 0.0_r_2
-    casaflux%kpocc = 0.0_r_2
-    casaflux%kmlabp = 0.0_r_2
-    casaflux%Psorbmax = 0.0_r_2
-    casaflux%Cplant_turnover_disturbance = 0.0_r_2
-    casaflux%Cplant_turnover_crowding  = 0.0_r_2
-    casaflux%Cplant_turnover_resource_limitation = 0.0_r_2
-    casaflux%klitter = 0.0_r_2
-    casaflux%ksoil = 0.0_r_2
-    casaflux%fromLtoS = 0.0_r_2
-    casaflux%fromStoS = 0.0_r_2
-    casaflux%fromLtoCO2 = 0.0_r_2
-    casaflux%fromStoCO2 = 0.0_r_2
-    casaflux%FluxCtolitter = 0.0_r_2
-    casaflux%FluxCLeaftoLitter = 0.0_r_2
-    casaflux%FluxCWoodtoLitter = 0.0_r_2
-    casaflux%FluxCFineRoottoLitter = 0.0_r_2
-    casaflux%FluxNtolitter = 0.0_r_2
-    casaflux%FluxPtolitter = 0.0_r_2
-    casaflux%FluxCtosoil = 0.0_r_2
-    casaflux%FluxNtosoil = 0.0_r_2
-    casaflux%FluxPtosoil = 0.0_r_2
-    casaflux%FluxCtoCO2 = 0.0_r_2
-    casaflux%FluxCtohwp = 0.0_r_2
-    casaflux%FluxNtohwp = 0.0_r_2
-    casaflux%FluxPtohwp = 0.0_r_2
-    casaflux%FluxCtoclear = 0.0_r_2
-    casaflux%FluxNtoclear = 0.0_r_2
-    casaflux%FluxPtoclear = 0.0_r_2
-    casaflux%CtransferLUC = 0.0_r_2
-    casaflux%fromPtoL_fire = 0.0_r_2
-    casaflux%klitter_fire = 0.0_r_2
-    casaflux%klitter_tot = 0.0_r_2
-    casaflux%kplant_fire = 0.0_r_2
-    casaflux%kplant_tot = 0.0_r_2
-    casaflux%fluxCtoCO2_plant_fire = 0.0_r_2
-    casaflux%fluxCtoCO2_litter_fire = 0.0_r_2
-    casaflux%fluxfromPtoCO2_fire = 0.0_r_2
-    casaflux%fluxfromLtoCO2_fire = 0.0_r_2
-    casaflux%fluxNtoAtm_fire = 0.0_r_2
-    ! casaflux%fire_mortality_vs_height = 0.0_r_2
-    casaflux%FluxFromPtoL = 0.0_r_2
-    casaflux%FluxFromLtoS = 0.0_r_2
-    casaflux%FluxFromStoS = 0.0_r_2
-    casaflux%FluxFromPtoCO2 = 0.0_r_2
-    casaflux%FluxFromLtoCO2 = 0.0_r_2
-    casaflux%FluxFromStoCO2 = 0.0_r_2
-    casaflux%FluxFromPtoHarvest = 0.0_r_2
+    casaflux%Cgpp = 0.0_r2
+    casaflux%Cnpp = 0.0_r2
+    casaflux%Crp = 0.0_r2
+    casaflux%Crgplant = 0.0_r2
+    casaflux%Nminfix = 0.0_r2
+    casaflux%Nminuptake = 0.0_r2
+    casaflux%Plabuptake = 0.0_r2
+    casaflux%Clabloss = 0.0_r2
+    casaflux%fracClabile = 0.0_r2
+    casaflux%stemnpp = 0.0_r2
+    casaflux%potstemnpp = 0.0_r2
+    casaflux%frac_sapwood = 0.0_r2
+    casaflux%sapwood_area = 0.0_r2
+    casaflux%Charvest = 0.0_r2
+    casaflux%CharvestPast = 0.0_r2
+    casaflux%CharvestCrop = 0.0_r2
+    casaflux%Nharvest = 0.0_r2
+    casaflux%Pharvest = 0.0_r2
+    casaflux%fHarvest = 0.0_r2
+    casaflux%fHarvestPast = 0.0_r2
+    casaflux%fHarvestCrop = 0.0_r2
+    casaflux%fcrop = 0.0_r2
+    casaflux%CallocLeaf = 0.0_r2
+    casaflux%CallocWood = 0.0_r2
+    casaflux%CallocFineRoot = 0.0_r2
+    casaflux%fracCalloc = 0.0_r2
+    casaflux%fracNalloc = 0.0_r2
+    casaflux%fracPalloc = 0.0_r2
+    casaflux%Crmplant = 0.0_r2
+    casaflux%kplant = 0.0_r2
+    casaflux%Cplant_turnover = 0.0_r2
+    casaflux%fromPtoL = 0.0_r2
+    casaflux%Cnep = 0.0_r2
+    casaflux%Crsoil = 0.0_r2
+    casaflux%Nmindep = 0.0_r2
+    casaflux%Nminloss = 0.0_r2
+    casaflux%Nminleach = 0.0_r2
+    casaflux%Nupland = 0.0_r2
+    casaflux%Nlittermin = 0.0_r2
+    casaflux%Nsmin = 0.0_r2
+    casaflux%Nsimm = 0.0_r2
+    casaflux%Nsnet = 0.0_r2
+    casaflux%fNminloss = 0.0_r2
+    casaflux%fNminleach = 0.0_r2
+    casaflux%Pdep = 0.0_r2
+    casaflux%Pwea = 0.0_r2
+    casaflux%Pleach = 0.0_r2
+    casaflux%Ploss = 0.0_r2
+    casaflux%Pupland = 0.0_r2
+    casaflux%Plittermin = 0.0_r2
+    casaflux%Psmin = 0.0_r2
+    casaflux%Psimm = 0.0_r2
+    casaflux%Psnet = 0.0_r2
+    casaflux%fPleach = 0.0_r2
+    casaflux%kplab = 0.0_r2
+    casaflux%kpsorb = 0.0_r2
+    casaflux%kpocc = 0.0_r2
+    casaflux%kmlabp = 0.0_r2
+    casaflux%Psorbmax = 0.0_r2
+    casaflux%Cplant_turnover_disturbance = 0.0_r2
+    casaflux%Cplant_turnover_crowding  = 0.0_r2
+    casaflux%Cplant_turnover_resource_limitation = 0.0_r2
+    casaflux%klitter = 0.0_r2
+    casaflux%ksoil = 0.0_r2
+    casaflux%fromLtoS = 0.0_r2
+    casaflux%fromStoS = 0.0_r2
+    casaflux%fromLtoCO2 = 0.0_r2
+    casaflux%fromStoCO2 = 0.0_r2
+    casaflux%FluxCtolitter = 0.0_r2
+    casaflux%FluxCLeaftoLitter = 0.0_r2
+    casaflux%FluxCWoodtoLitter = 0.0_r2
+    casaflux%FluxCFineRoottoLitter = 0.0_r2
+    casaflux%FluxNtolitter = 0.0_r2
+    casaflux%FluxPtolitter = 0.0_r2
+    casaflux%FluxCtosoil = 0.0_r2
+    casaflux%FluxNtosoil = 0.0_r2
+    casaflux%FluxPtosoil = 0.0_r2
+    casaflux%FluxCtoCO2 = 0.0_r2
+    casaflux%FluxCtohwp = 0.0_r2
+    casaflux%FluxNtohwp = 0.0_r2
+    casaflux%FluxPtohwp = 0.0_r2
+    casaflux%FluxCtoclear = 0.0_r2
+    casaflux%FluxNtoclear = 0.0_r2
+    casaflux%FluxPtoclear = 0.0_r2
+    casaflux%CtransferLUC = 0.0_r2
+    casaflux%fromPtoL_fire = 0.0_r2
+    casaflux%klitter_fire = 0.0_r2
+    casaflux%klitter_tot = 0.0_r2
+    casaflux%kplant_fire = 0.0_r2
+    casaflux%kplant_tot = 0.0_r2
+    casaflux%fluxCtoCO2_plant_fire = 0.0_r2
+    casaflux%fluxCtoCO2_litter_fire = 0.0_r2
+    casaflux%fluxfromPtoCO2_fire = 0.0_r2
+    casaflux%fluxfromLtoCO2_fire = 0.0_r2
+    casaflux%fluxNtoAtm_fire = 0.0_r2
+    ! casaflux%fire_mortality_vs_height = 0.0_r2
+    casaflux%FluxFromPtoL = 0.0_r2
+    casaflux%FluxFromLtoS = 0.0_r2
+    casaflux%FluxFromStoS = 0.0_r2
+    casaflux%FluxFromPtoCO2 = 0.0_r2
+    casaflux%FluxFromLtoCO2 = 0.0_r2
+    casaflux%FluxFromStoCO2 = 0.0_r2
+    casaflux%FluxFromPtoHarvest = 0.0_r2
 
   end subroutine zero_casaflux
 
 
   subroutine zero_casamet(casamet)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
     type(casa_met), intent(inout) :: casamet
 
-    casamet%glai = 0.0_r_2
-    casamet%Tairk = 0.0_r_2
-    casamet%precip = 0.0_r_2
-    casamet%tsoilavg = 0.0_r_2
-    casamet%moistavg = 0.0_r_2
-    casamet%btran = 0.0_r_2
+    casamet%glai = 0.0_r2
+    casamet%Tairk = 0.0_r2
+    casamet%precip = 0.0_r2
+    casamet%tsoilavg = 0.0_r2
+    casamet%moistavg = 0.0_r2
+    casamet%btran = 0.0_r2
     casamet%lnonwood = 0
-    casamet%Tsoil = 0.0_r_2
-    casamet%moist = 0.0_r_2
+    casamet%Tsoil = 0.0_r2
+    casamet%moist = 0.0_r2
     casamet%iveg2 = 0
     casamet%ijgcm = 0
     casamet%isorder = 0
-    casamet%lat = 0.0_r_2
-    casamet%lon = 0.0_r_2
-    casamet%areacell = 0.0_r_2
-    casamet%Tairkspin = 0.0_r_2
-    casamet%cgppspin = 0.0_r_2
-    casamet%crmplantspin_1 = 0.0_r_2
-    casamet%crmplantspin_2 = 0.0_r_2
-    casamet%crmplantspin_3 = 0.0_r_2
-    casamet%Tsoilspin_1 = 0.0_r_2
-    casamet%Tsoilspin_2 = 0.0_r_2
-    casamet%Tsoilspin_3 = 0.0_r_2
-    casamet%Tsoilspin_4 = 0.0_r_2
-    casamet%Tsoilspin_5 = 0.0_r_2
-    casamet%Tsoilspin_6 = 0.0_r_2
-    casamet%moistspin_1 = 0.0_r_2
-    casamet%moistspin_2 = 0.0_r_2
-    casamet%moistspin_3 = 0.0_r_2
-    casamet%moistspin_4 = 0.0_r_2
-    casamet%moistspin_5 = 0.0_r_2
-    casamet%moistspin_6 = 0.0_r_2
-    casamet%mtempspin = 0.0_r_2
-    casamet%frecspin = 0.0_r_2
-    casamet%cAn12spin = 0.0_r_2
-    casamet%cAn13spin = 0.0_r_2
-    casamet%dprecip_spin = 0.0_r_2
-    casamet%aprecip_av20_spin = 0.0_r_2
-    casamet%du10_max_spin     = 0.0_r_2
-    casamet%drhum_spin        = 0.0_r_2
-    casamet%dtemp_max_spin    = 0.0_r_2
-    casamet%dtemp_min_spin    = 0.0_r_2
-    casamet%KBDI_spin         = 0.0_r_2
-    casamet%D_MacArthur_spin  = 0.0_r_2
-    casamet%FFDI_spin         = 0.0_r_2
-    casamet%last_precip_spin  = 0.0_r_2
+    casamet%lat = 0.0_r2
+    casamet%lon = 0.0_r2
+    casamet%areacell = 0.0_r2
+    casamet%Tairkspin = 0.0_r2
+    casamet%cgppspin = 0.0_r2
+    casamet%crmplantspin_1 = 0.0_r2
+    casamet%crmplantspin_2 = 0.0_r2
+    casamet%crmplantspin_3 = 0.0_r2
+    casamet%Tsoilspin_1 = 0.0_r2
+    casamet%Tsoilspin_2 = 0.0_r2
+    casamet%Tsoilspin_3 = 0.0_r2
+    casamet%Tsoilspin_4 = 0.0_r2
+    casamet%Tsoilspin_5 = 0.0_r2
+    casamet%Tsoilspin_6 = 0.0_r2
+    casamet%moistspin_1 = 0.0_r2
+    casamet%moistspin_2 = 0.0_r2
+    casamet%moistspin_3 = 0.0_r2
+    casamet%moistspin_4 = 0.0_r2
+    casamet%moistspin_5 = 0.0_r2
+    casamet%moistspin_6 = 0.0_r2
+    casamet%mtempspin = 0.0_r2
+    casamet%frecspin = 0.0_r2
+    casamet%cAn12spin = 0.0_r2
+    casamet%cAn13spin = 0.0_r2
+    casamet%dprecip_spin = 0.0_r2
+    casamet%aprecip_av20_spin = 0.0_r2
+    casamet%du10_max_spin     = 0.0_r2
+    casamet%drhum_spin        = 0.0_r2
+    casamet%dtemp_max_spin    = 0.0_r2
+    casamet%dtemp_min_spin    = 0.0_r2
+    casamet%KBDI_spin         = 0.0_r2
+    casamet%D_MacArthur_spin  = 0.0_r2
+    casamet%FFDI_spin         = 0.0_r2
+    casamet%last_precip_spin  = 0.0_r2
     casamet%DSLR_spin = 0
 
   end subroutine zero_casamet
@@ -1277,59 +1277,59 @@ contains
 
   subroutine zero_casabal(casabal)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
     type(casa_balance), intent(inout) :: casabal
 
-    casabal%FCgppyear = 0.0_r_2
-    casabal%FCnppyear = 0.0_r_2
-    casabal%FCrmleafyear = 0.0_r_2
-    casabal%FCrmwoodyear = 0.0_r_2
-    casabal%FCrmrootyear = 0.0_r_2
-    casabal%FCrgrowyear = 0.0_r_2
-    casabal%FCrpyear = 0.0_r_2
-    casabal%FCrsyear = 0.0_r_2
-    casabal%FCneeyear = 0.0_r_2
-    casabal%dCdtyear = 0.0_r_2
-    casabal%LAImax = 0.0_r_2
-    casabal%Cleafmean = 0.0_r_2
-    casabal%Crootmean = 0.0_r_2
-    casabal%FNdepyear = 0.0_r_2
-    casabal%FNfixyear = 0.0_r_2
-    casabal%FNsnetyear = 0.0_r_2
-    casabal%FNupyear = 0.0_r_2
-    casabal%FNleachyear = 0.0_r_2
-    casabal%FNlossyear = 0.0_r_2
-    casabal%FPweayear = 0.0_r_2
-    casabal%FPdustyear = 0.0_r_2
-    casabal%FPsnetyear = 0.0_r_2
-    casabal%FPupyear = 0.0_r_2
-    casabal%FPleachyear = 0.0_r_2
-    casabal%FPlossyear = 0.0_r_2
-    casabal%glaimon = 0.0_r_2
-    casabal%glaimonx = 0.0_r_2
-    casabal%cplantlast = 0.0_r_2
-    casabal%nplantlast = 0.0_r_2
-    casabal%pplantlast = 0.0_r_2
-    casabal%clitterlast = 0.0_r_2
-    casabal%nlitterlast = 0.0_r_2
-    casabal%plitterlast = 0.0_r_2
-    casabal%csoillast = 0.0_r_2
-    casabal%nsoillast = 0.0_r_2
-    casabal%psoillast = 0.0_r_2
-    casabal%nsoilminlast = 0.0_r_2
-    casabal%psoillablast = 0.0_r_2
-    casabal%psoilsorblast = 0.0_r_2
-    casabal%psoilocclast = 0.0_r_2
-    casabal%cbalance = 0.0_r_2
-    casabal%nbalance = 0.0_r_2
-    casabal%pbalance = 0.0_r_2
-    casabal%sumcbal = 0.0_r_2
-    casabal%sumnbal = 0.0_r_2
-    casabal%sumpbal = 0.0_r_2
-    casabal%clabilelast = 0.0_r_2
+    casabal%FCgppyear = 0.0_r2
+    casabal%FCnppyear = 0.0_r2
+    casabal%FCrmleafyear = 0.0_r2
+    casabal%FCrmwoodyear = 0.0_r2
+    casabal%FCrmrootyear = 0.0_r2
+    casabal%FCrgrowyear = 0.0_r2
+    casabal%FCrpyear = 0.0_r2
+    casabal%FCrsyear = 0.0_r2
+    casabal%FCneeyear = 0.0_r2
+    casabal%dCdtyear = 0.0_r2
+    casabal%LAImax = 0.0_r2
+    casabal%Cleafmean = 0.0_r2
+    casabal%Crootmean = 0.0_r2
+    casabal%FNdepyear = 0.0_r2
+    casabal%FNfixyear = 0.0_r2
+    casabal%FNsnetyear = 0.0_r2
+    casabal%FNupyear = 0.0_r2
+    casabal%FNleachyear = 0.0_r2
+    casabal%FNlossyear = 0.0_r2
+    casabal%FPweayear = 0.0_r2
+    casabal%FPdustyear = 0.0_r2
+    casabal%FPsnetyear = 0.0_r2
+    casabal%FPupyear = 0.0_r2
+    casabal%FPleachyear = 0.0_r2
+    casabal%FPlossyear = 0.0_r2
+    casabal%glaimon = 0.0_r2
+    casabal%glaimonx = 0.0_r2
+    casabal%cplantlast = 0.0_r2
+    casabal%nplantlast = 0.0_r2
+    casabal%pplantlast = 0.0_r2
+    casabal%clitterlast = 0.0_r2
+    casabal%nlitterlast = 0.0_r2
+    casabal%plitterlast = 0.0_r2
+    casabal%csoillast = 0.0_r2
+    casabal%nsoillast = 0.0_r2
+    casabal%psoillast = 0.0_r2
+    casabal%nsoilminlast = 0.0_r2
+    casabal%psoillablast = 0.0_r2
+    casabal%psoilsorblast = 0.0_r2
+    casabal%psoilocclast = 0.0_r2
+    casabal%cbalance = 0.0_r2
+    casabal%nbalance = 0.0_r2
+    casabal%pbalance = 0.0_r2
+    casabal%sumcbal = 0.0_r2
+    casabal%sumnbal = 0.0_r2
+    casabal%sumpbal = 0.0_r2
+    casabal%clabilelast = 0.0_r2
 
   end subroutine zero_casabal
 
@@ -1693,7 +1693,7 @@ contains
 
   subroutine update_sum_casa(sum_casapool, sum_casaflux, casapool, casaflux, sum_now, average_now, nsteps)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
@@ -1704,9 +1704,9 @@ contains
     logical,         intent(in)    :: sum_now, average_now
     integer,         intent(in)    :: nsteps
 
-    real(r_2) :: rnsteps
+    real(r2) :: rnsteps
 
-    rnsteps = 1.0 / real(nsteps, r_2)
+    rnsteps = 1.0 / real(nsteps, r2)
 
     if (sum_now) then
        sum_casapool%Clabile        = sum_casapool%Clabile        + casapool%Clabile
@@ -1862,20 +1862,20 @@ contains
 
     if (average_now) then
        ! sum_casaflux%fracCalloc = sum_casaflux%fracCalloc * rnsteps
-       where (sum_casaflux%Cnpp > 1.e-12_r_2)
+       where (sum_casaflux%Cnpp > 1.e-12_r2)
           sum_casaflux%fracCalloc(:,1) = sum_casaflux%fracCalloc(:,1) / sum_casaflux%Cnpp
           sum_casaflux%fracCalloc(:,2) = sum_casaflux%fracCalloc(:,2) / sum_casaflux%Cnpp
           sum_casaflux%fracCalloc(:,3) = sum_casaflux%fracCalloc(:,3) / sum_casaflux%Cnpp
        elsewhere
-          sum_casaflux%fracCalloc(:,1) = 0.0_r_2
-          sum_casaflux%fracCalloc(:,2) = 0.0_r_2
-          sum_casaflux%fracCalloc(:,3) = 0.0_r_2
+          sum_casaflux%fracCalloc(:,1) = 0.0_r2
+          sum_casaflux%fracCalloc(:,2) = 0.0_r2
+          sum_casaflux%fracCalloc(:,3) = 0.0_r2
        endwhere
        ! sum_casaflux%kplant = sum_casaflux%kplant * rnsteps
-       where (sum_casapool%Cplant > 1.e-12_r_2)
+       where (sum_casapool%Cplant > 1.e-12_r2)
           sum_casaflux%kplant = sum_casaflux%kplant / sum_casapool%Cplant
        elsewhere
-          sum_casaflux%kplant = 0.0_r_2
+          sum_casaflux%kplant = 0.0_r2
        endwhere
        sum_casapool%Clabile    = sum_casapool%Clabile * rnsteps
        sum_casapool%dClabiledt = sum_casapool%Clabile * rnsteps
@@ -3977,7 +3977,7 @@ end module casavariable
 
 module phenvariable
 
-  use cable_def_types_mod, only: mvtype, r_2
+  use cable_def_types_mod, only: mvtype, r2
   use casadimension, only: mdyear, mphase
 
   implicit none
@@ -4001,7 +4001,7 @@ module phenvariable
 
   type phen_variable
      integer,   dimension(:),   pointer :: phase => null()
-     real(r_2), dimension(:),   pointer :: TKshed => null()
+     real(r2), dimension(:),   pointer :: TKshed => null()
      integer,   dimension(:,:), pointer :: doyphase => null()
      ! fraction of max LAI
      real,      dimension(:),   pointer :: phen => null()
@@ -4083,14 +4083,14 @@ contains
 
   subroutine zero_phenvariable(phen)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
     type(phen_variable), intent(inout) :: phen
 
     phen%phase          = 0
-    phen%Tkshed         = 0.0_r_2
+    phen%Tkshed         = 0.0_r2
     phen%doyphase       = 0
     phen%phen           = 0.0
     phen%aphen          = 0.0

@@ -19,8 +19,7 @@
 MODULE cable_phenology_module
 
   Use cable_def_types_mod,  ONLY: met_type, climate_type, canopy_type, &
-       veg_parameter_type, mp, r_2
-  USE TypeDef,              ONLY: i4b, dp
+       veg_parameter_type, mp, r2
   USE cable_IO_vars_module, ONLY: patch
   USE CABLE_COMMON_MODULE,  ONLY: CurYear, filename, cable_user, HANDLE_ERR
 
@@ -51,7 +50,7 @@ CONTAINS
     TYPE (climate_type), INTENT(IN)       :: climate  ! climate variables
     INTEGER :: np, days
     REAL:: gdd0
-    REAL(r_2) :: phen_tmp
+    REAL(r2) :: phen_tmp
     REAL, PARAMETER :: k_chilla = 0, k_chillb = 100, k_chillk = 0.05
     REAL, PARAMETER :: APHEN_MAX = 200.0, ndays_raingreenup = 60
     INTEGER, PARAMETER:: COLDEST_DAY_NHEMISPHERE = 355
@@ -59,7 +58,7 @@ CONTAINS
     REAL :: phengdd5ramp
 
     DO np= 1,mp
-       phen_tmp = 1.0_r_2
+       phen_tmp = 1.0_r2
        ! evergreen pfts
        if (veg%iveg(np) == 1 .or. veg%iveg(np) == 2 .or. veg%iveg(np) == 5) then
           phen%doyphase(np,1) = -50
@@ -79,11 +78,11 @@ CONTAINS
 
           if (climate%gdd5(np).gt.gdd0 .and. phen%aphen(np).lt. APHEN_MAX) then
 
-             phen_tmp = min(1.0_r_2, real((climate%gdd5(np)-gdd0)/phengdd5ramp,dp))
+             phen_tmp = min(1.0_r2, real((climate%gdd5(np)-gdd0)/phengdd5ramp,r2))
 
           else
 
-             phen_tmp = 0.0_r_2
+             phen_tmp = 0.0_r2
 
           endif
 
@@ -94,9 +93,9 @@ CONTAINS
 
           if (climate%gdd5(np).gt.0.1) THEN
              phengdd5ramp = 200
-             phen_tmp = min(1.0_r_2, real(climate%gdd5(np)/phengdd5ramp,r_2))
+             phen_tmp = min(1.0_r2, real(climate%gdd5(np)/phengdd5ramp,r2))
           ELSE
-             phen_tmp = 0.0_r_2
+             phen_tmp = 0.0_r2
           ENDIF
           !if (np==3) write(61,*) 'chk1',np, climate%doy,climate%gdd5(np), phen_tmp
        endif
@@ -106,11 +105,11 @@ CONTAINS
           if (veg%iveg(np).ge.6.and.veg%iveg(np).le.10) then ! (grass or crops) need to include raingreen savanna trees here too
              ! if (climate%dmoist(np).lt. mmoisture_min) phen_tmp = 0.0
              if (climate%GMD(np) .GE. 1 .and. climate%GMD(np) .LT. ndays_raingreenup) THEN
-                phen_tmp = min(phen_tmp, 0.99_r_2)
+                phen_tmp = min(phen_tmp, 0.99_r2)
              elseif (climate%GMD(np) .EQ. 0) THEN
-                phen_tmp = 0.0_r_2
+                phen_tmp = 0.0_r2
              elseif (climate%GMD(np) .GE. ndays_raingreenup) THEN
-                phen_tmp = min(phen_tmp, 1.0_r_2)
+                phen_tmp = min(phen_tmp, 1.0_r2)
              endif
              !if (np==3) write(61,*) 'chk2',np, climate%doy,climate%GMD(np), phen_tmp
           endif
@@ -123,21 +122,21 @@ CONTAINS
           !    if (phen_tmp.gt.0.0 .and.( phen%phase(np).eq.3 .or. phen%phase(np).eq.0 )) then
           !       phen%phase(np) = 1 ! greenup
           !       phen%doyphase(np,1) = climate%doy
-          !    elseif (phen_tmp.ge.1.0_r_2 .and. phen%phase(np).eq.1) then
+          !    elseif (phen_tmp.ge.1.0_r2 .and. phen%phase(np).eq.1) then
           !       phen%phase(np) = 2 ! steady LAI
           !       phen%doyphase(np,2) = climate%doy
-          !    elseif (phen_tmp.lt.1.0_r_2 .and. phen%phase(np).eq.2) then
+          !    elseif (phen_tmp.lt.1.0_r2 .and. phen%phase(np).eq.2) then
           !       phen%phase(np) = 3 ! senescence
           !       phen%doyphase(np,3) = climate%doy
           !    endif
 
-          if ((phen_tmp.gt.0.0_r_2) .and. (phen_tmp.lt.1.0_r_2)) then
+          if ((phen_tmp.gt.0.0_r2) .and. (phen_tmp.lt.1.0_r2)) then
              phen%phase(np) = 1 ! greenup
              phen%doyphase(np,1) = climate%doy
-          elseif (ge(phen_tmp, 1.0_r_2)) then
+          elseif (ge(phen_tmp, 1.0_r2)) then
              phen%phase(np) = 2 ! steady LAI
              phen%doyphase(np,2) = climate%doy
-          elseif (eq(phen_tmp, 0.0_r_2)) then
+          elseif (eq(phen_tmp, 0.0_r2)) then
              phen%phase(np) = 3 ! senescence
              phen%doyphase(np,3) = climate%doy
           endif

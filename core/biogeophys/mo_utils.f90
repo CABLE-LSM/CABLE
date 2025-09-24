@@ -43,7 +43,8 @@ MODULE mo_utils
   ! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   ! SOFTWARE.
 
-  USE mo_kind, only: sp, dp, i4, i8, spc, dpc
+  use cable_def_types_mod, only: i4, sp => r1, dp => r2
+  USE mo_kind, only: i8, spc, dpc
 
   IMPLICIT NONE
 

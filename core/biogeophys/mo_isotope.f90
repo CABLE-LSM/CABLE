@@ -34,8 +34,8 @@
 
 MODULE mo_isotope
 
-  use mo_kind,      only: dp
-  use mo_constants, only: Mw_dp, Ma_dp, twothird_dp
+  use cable_def_types_mod, only: r2
+  use mo_constants, only: Mw_r2, Ma_r2, twothird_r2
 
   implicit none
 
@@ -49,19 +49,19 @@ MODULE mo_isotope
 
   ! Public parameters
   ! ratio diffusion of air vs. water vapour ~ 1.6
-  real(dp), parameter, public :: ratio_diff_air2vap = Ma_dp / Mw_dp
+  real(r2), parameter, public :: ratio_diff_air2vap = Ma_r2 / Mw_r2
   ! ratio of "diffusion" of air vs. water vapour through boundary layer ~ 1.4
-  real(dp), parameter, public :: ratio_boundary_air2vap = ratio_diff_air2vap**twothird_dp
+  real(r2), parameter, public :: ratio_boundary_air2vap = ratio_diff_air2vap**twothird_r2
   ! ratio diffusion of water vapour vs. air ~ 0.62
-  real(dp), parameter, public :: ratio_diff_vap2air = Mw_dp / Ma_dp
+  real(r2), parameter, public :: ratio_diff_vap2air = Mw_r2 / Ma_r2
   ! ratio of "diffusion" of water vapour vs. air through boundary layer ~ 0.73
-  real(dp), parameter, public :: ratio_boundary_vap2air = ratio_diff_vap2air**twothird_dp
+  real(r2), parameter, public :: ratio_boundary_vap2air = ratio_diff_vap2air**twothird_r2
   ! 13C/12C VPDB standard
-  real(dp), parameter, public :: vpdbc13 = 0.0112372_dp
+  real(r2), parameter, public :: vpdbc13 = 0.0112372_r2
   ! molecular weight of 13C (kg mol-1)
-  real(dp), parameter, public :: Mc13   = 13.e-3_dp
+  real(r2), parameter, public :: Mc13   = 13.e-3_r2
   ! molecular weight of 13CO2 (kg mol-1)
-  real(dp), parameter, public :: Mc13o2 = 45.e-3_dp
+  real(r2), parameter, public :: Mc13o2 = 45.e-3_r2
 
 contains
 
@@ -84,17 +84,17 @@ contains
   !         del = delta(rare, abundant, standard, default, precision)
 
   !     PARAMETER
-  !>        \param[in] "real(dp) :: rare"                   Rare isotope concentration or isotope ratio
-  !>        \param[in] "real(dp), optional :: abundant"     Abundant isotope concentration if rare is rare isotope concentration
+  !>        \param[in] "real(r2) :: rare"                   Rare isotope concentration or isotope ratio
+  !>        \param[in] "real(r2), optional :: abundant"     Abundant isotope concentration if rare is rare isotope concentration
   !>                                                        Default: not used.
-  !>        \param[in] "real(dp), optional :: standard"     Isotop ratio of the standard material.
+  !>        \param[in] "real(r2), optional :: standard"     Isotop ratio of the standard material.
   !>                                                        Default: 1.
-  !>        \param[in] "real(dp), optional :: default"      Set isoratio default if abundant < precision.
+  !>        \param[in] "real(r2), optional :: default"      Set isoratio default if abundant < precision.
   !>                                                        Default: 0.
-  !>        \param[in] "real(dp), optional :: precision"    Set isoratio default if abundant < precision.
+  !>        \param[in] "real(r2), optional :: precision"    Set isoratio default if abundant < precision.
 
   !     RETURN
-  !>       \return      real(dp) :: delta &mdash; Isotopic delta value: rare / abundant / standard - 1.
+  !>       \return      real(r2) :: delta &mdash; Isotopic delta value: rare / abundant / standard - 1.
 
   !     HISTORY
   !>        \author Written Matthias Cuntz
@@ -103,43 +103,43 @@ contains
 
     implicit none
 
-    real(dp), intent(in)           :: rare
-    real(dp), intent(in), optional :: abundant
-    real(dp), intent(in), optional :: standard
-    real(dp), intent(in), optional :: default
-    real(dp), intent(in), optional :: precision
-    real(dp)                       :: delta
+    real(r2), intent(in)           :: rare
+    real(r2), intent(in), optional :: abundant
+    real(r2), intent(in), optional :: standard
+    real(r2), intent(in), optional :: default
+    real(r2), intent(in), optional :: precision
+    real(r2)                       :: delta
 
-    real(dp) :: istandard, idefault, iprecision
+    real(r2) :: istandard, idefault, iprecision
 
     ! default optionals
     if (present(standard)) then
        istandard = standard
     else
-       istandard = 0.0_dp
+       istandard = 0.0_r2
     endif
     if (present(default)) then
        idefault = default
     else
-       idefault = 0.0_dp
+       idefault = 0.0_r2
     endif
     if (present(precision)) then
        iprecision = precision
     else
-       iprecision = 0.0_dp
+       iprecision = 0.0_r2
     endif
 
     if (present(abundant)) then
        if (abs(abundant) > iprecision) then
-          delta = rare / abundant / istandard - 1.0_dp
+          delta = rare / abundant / istandard - 1.0_r2
        else
           delta = idefault
        end if
     else
-       delta = rare / istandard - 1.0_dp
+       delta = rare / istandard - 1.0_r2
     end if
     !MCTest
-    ! if (abs(delta) < 100.0_dp*epsilon(1.0_dp)) delta = 0.0_dp
+    ! if (abs(delta) < 100.0_r2*epsilon(1.0_r2)) delta = 0.0_r2
     !MCTest
 
   end function delta
@@ -164,17 +164,17 @@ contains
   !         del = delta1000(rare, abundant, standard, default, precision)
 
   !     PARAMETER
-  !>        \param[in] "real(dp) :: rare"                   Rare isotope concentration or isotope ratio
-  !>        \param[in] "real(dp), optional :: abundant"     Abundant isotope concentration if rare is rare isotope concentration
+  !>        \param[in] "real(r2) :: rare"                   Rare isotope concentration or isotope ratio
+  !>        \param[in] "real(r2), optional :: abundant"     Abundant isotope concentration if rare is rare isotope concentration
   !>                                                        Default: not used.
-  !>        \param[in] "real(dp), optional :: standard"     Isotop ratio of the standard material.
+  !>        \param[in] "real(r2), optional :: standard"     Isotop ratio of the standard material.
   !>                                                        Default: 1.
-  !>        \param[in] "real(dp), optional :: default"      Set isoratio default if abundant < precision.
+  !>        \param[in] "real(r2), optional :: default"      Set isoratio default if abundant < precision.
   !>                                                        Default: 0.
-  !>        \param[in] "real(dp), optional :: precision"    Set isoratio default if abundant < precision.
+  !>        \param[in] "real(r2), optional :: precision"    Set isoratio default if abundant < precision.
 
   !     RETURN
-  !>       \return      real(dp) :: delta &mdash; Isotopic delta value in permil: (rare / abundant / standard - 1.) * 1000.
+  !>       \return      real(r2) :: delta &mdash; Isotopic delta value in permil: (rare / abundant / standard - 1.) * 1000.
 
   !     HISTORY
   !>        \author Written Matthias Cuntz
@@ -183,45 +183,45 @@ contains
 
     implicit none
 
-    real(dp), intent(in)           :: rare
-    real(dp), intent(in), optional :: abundant
-    real(dp), intent(in), optional :: standard
-    real(dp), intent(in), optional :: default
-    real(dp), intent(in), optional :: precision
-    real(dp)                       :: delta1000
+    real(r2), intent(in)           :: rare
+    real(r2), intent(in), optional :: abundant
+    real(r2), intent(in), optional :: standard
+    real(r2), intent(in), optional :: default
+    real(r2), intent(in), optional :: precision
+    real(r2)                       :: delta1000
 
-    real(dp) :: istandard, idefault, iprecision
+    real(r2) :: istandard, idefault, iprecision
 
     ! default optionals
     if (present(standard)) then
        istandard = standard
     else
-       istandard = 0.0_dp
+       istandard = 0.0_r2
     endif
     if (present(default)) then
        idefault = default
     else
-       idefault = 0.0_dp
+       idefault = 0.0_r2
     endif
     if (present(precision)) then
        iprecision = precision
     else
-       iprecision = 0.0_dp
+       iprecision = 0.0_r2
     endif
 
     if (present(abundant)) then
        if (abs(abundant) > iprecision) then
-          delta1000 = (rare / abundant / istandard - 1.0_dp) * 1000.0_dp
+          delta1000 = (rare / abundant / istandard - 1.0_r2) * 1000.0_r2
           ! !MCTest
-          ! if (abs(delta1000) < 1000.0_dp*epsilon(1.0_dp)*1000.0_dp*(10._dp**abs(log10(abundant)))) delta1000 = 0.0_dp
+          ! if (abs(delta1000) < 1000.0_r2*epsilon(1.0_r2)*1000.0_r2*(10._r2**abs(log10(abundant)))) delta1000 = 0.0_r2
           ! !MCTest
        else
           delta1000 = idefault
        end if
     else
-       delta1000 = (rare / istandard - 1.0_dp) * 1000.0_dp
+       delta1000 = (rare / istandard - 1.0_r2) * 1000.0_r2
        ! !MCTest
-       ! if (abs(delta1000) < 1000.0_dp*epsilon(1.0_dp)*1000.0_dp*(10._dp**abs(log10(rare)))) delta1000 = 0.0_dp
+       ! if (abs(delta1000) < 1000.0_r2*epsilon(1.0_r2)*1000.0_r2*(10._r2**abs(log10(rare)))) delta1000 = 0.0_r2
        ! !MCTest
     end if
 
@@ -246,14 +246,14 @@ contains
   !         ratio = isoratio(rare, abundant, default, precision)
 
   !     PARAMETER
-  !>        \param[in] "real(dp) :: rare"                   Rare isotope concentration
-  !>        \param[in] "real(dp) :: abundant"               Abundant isotope concentration
-  !>        \param[in] "real(dp), optional :: default"      Set isoratio default if abundant < precision.
+  !>        \param[in] "real(r2) :: rare"                   Rare isotope concentration
+  !>        \param[in] "real(r2) :: abundant"               Abundant isotope concentration
+  !>        \param[in] "real(r2), optional :: default"      Set isoratio default if abundant < precision.
   !>                                                        Default: 0.
-  !>        \param[in] "real(dp), optional :: precision"    Set isoratio default if abundant < precision.
+  !>        \param[in] "real(r2), optional :: precision"    Set isoratio default if abundant < precision.
 
   !     RETURN
-  !>       \return      real(dp) :: isoratio &mdash; Isotope ratio: rare / abundant
+  !>       \return      real(r2) :: isoratio &mdash; Isotope ratio: rare / abundant
 
   !     HISTORY
   !>        \author Written Matthias Cuntz
@@ -262,24 +262,24 @@ contains
 
     implicit none
 
-    real(dp), intent(in)           :: rare
-    real(dp), intent(in)           :: abundant
-    real(dp), intent(in), optional :: default
-    real(dp), intent(in), optional :: precision
-    real(dp)                       :: isoratio
+    real(r2), intent(in)           :: rare
+    real(r2), intent(in)           :: abundant
+    real(r2), intent(in), optional :: default
+    real(r2), intent(in), optional :: precision
+    real(r2)                       :: isoratio
 
-    real(dp) :: idefault, iprecision
+    real(r2) :: idefault, iprecision
 
     ! default optionals
     if (present(default)) then
        idefault = default
     else
-       idefault = 0.0_dp
+       idefault = 0.0_r2
     endif
     if (present(precision)) then
        iprecision = precision
     else
-       iprecision = 0.0_dp
+       iprecision = 0.0_r2
     endif
 
     if (abs(abundant) > iprecision) then
@@ -312,10 +312,10 @@ contains
   !         call isosanity(rare, abundant, precision, absolute)
 
   !     PARAMETER
-  !>        \param[inout] "real(dp) :: rare"                   Rare isotope concentration
-  !>        \param[inout] "real(dp) :: abundant"               Abundant isotope concentration
-  !>        \param[in] "real(dp), optional :: precision"    Set rare and abundant to 0 if any of the two is < precision.
-  !>                                                        Default: epsilon(1.0_dp)
+  !>        \param[inout] "real(r2) :: rare"                   Rare isotope concentration
+  !>        \param[inout] "real(r2) :: abundant"               Abundant isotope concentration
+  !>        \param[in] "real(r2), optional :: precision"    Set rare and abundant to 0 if any of the two is < precision.
+  !>                                                        Default: epsilon(1.0_r2)
   !>        \param[in] "logical, optional :: absolute"      If .true.: check abs(rare) and abs(abundant) < precision
   !>                                                        Default: .false.
 
@@ -326,19 +326,19 @@ contains
 
     implicit none
 
-    real(dp), intent(inout)        :: rare
-    real(dp), intent(inout)        :: abundant
-    real(dp), intent(in), optional :: precision
+    real(r2), intent(inout)        :: rare
+    real(r2), intent(inout)        :: abundant
+    real(r2), intent(in), optional :: precision
     logical,  intent(in), optional :: absolute
 
-    real(dp) :: iprecision
+    real(r2) :: iprecision
     logical  :: iabsolute
 
     ! default optionals
     if (present(precision)) then
        iprecision = precision
     else
-       iprecision = epsilon(1.0_dp)
+       iprecision = epsilon(1.0_r2)
     endif
     if (present(absolute)) then
        iabsolute = absolute
@@ -348,13 +348,13 @@ contains
 
     if (iabsolute) then
        if ((abs(rare) < iprecision) .or. (abs(abundant) < iprecision)) then
-          rare     = 0.0_dp
-          abundant = 0.0_dp
+          rare     = 0.0_r2
+          abundant = 0.0_r2
        endif
     else
        if ((rare < iprecision) .or. (abundant < iprecision)) then
-          rare     = 0.0_dp
-          abundant = 0.0_dp
+          rare     = 0.0_r2
+          abundant = 0.0_r2
        endif
     endif
 

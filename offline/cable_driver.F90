@@ -225,16 +225,16 @@ PROGRAM cable_offline_driver
   type(c13o2_flux) :: c13o2flux
   type(c13o2_pool) :: c13o2pools, sum_c13o2pools
   type(c13o2_luc)  :: c13o2luc
-  real(r_2), dimension(:,:), allocatable :: casasave
-  real(r_2), dimension(:,:), allocatable :: lucsave
+  real(r2), dimension(:,:), allocatable :: casasave
+  real(r2), dimension(:,:), allocatable :: lucsave
   ! I/O
   integer :: c13o2_outfile_id
   character(len=40), dimension(c13o2_nvars_output) :: c13o2_vars
   integer,           dimension(c13o2_nvars_output) :: c13o2_var_ids
   ! discrimination
   ! integer :: ileaf
-  real(r_2), dimension(:,:), allocatable :: gpp ! , diff
-  real(r_2), dimension(:),   allocatable :: Ra
+  real(r2), dimension(:,:), allocatable :: gpp ! , diff
+  real(r2), dimension(:),   allocatable :: Ra
   ! delta-13C of atmospheric CO2
   integer            :: iunit, ios
   real               :: iyear
@@ -319,11 +319,11 @@ PROGRAM cable_offline_driver
        Ftrunk_sumbal = ".trunk_sumbal", &
        Fnew_sumbal   = "new_sumbal"
 
-  real(r_2) :: &
-       trunk_sumbal = 0.0_r_2, & !
-       new_sumbal   = 0.0_r_2, &
-       new_sumfpn   = 0.0_r_2, &
-       new_sumfe    = 0.0_r_2
+  real(r2) :: &
+       trunk_sumbal = 0.0_r2, & !
+       new_sumbal   = 0.0_r2, &
+       new_sumfpn   = 0.0_r2, &
+       new_sumfe    = 0.0_r2
 
   integer :: nkend=0
   integer :: ioerror
@@ -503,7 +503,7 @@ PROGRAM cable_offline_driver
         read(iunit, fmt=*, iostat=ios) iyear, c13o2_delta_atm(floor(iyear))
      end do
      close(iunit)
-     c13o2_delta_atm = c13o2_delta_atm / 1000._r_2
+     c13o2_delta_atm = c13o2_delta_atm / 1000._r2
   end if
 
   ! outer loop - spinup loop no. ktau_tot :
@@ -718,7 +718,7 @@ PROGRAM cable_offline_driver
                  end if
               end if
 
-              canopy%fes_cor = 0.0_r_2
+              canopy%fes_cor = 0.0_r2
               canopy%fhs_cor = 0.0
               met%ofsd       = 0.1 ! not used
 
@@ -740,8 +740,8 @@ PROGRAM cable_offline_driver
 
               !MC - do we need that? casamet also set only if icycle>0
               ! if (trim(cable_user%MetType) .eq. 'cru') then
-              !    casamet%glai = 1.0_r_2 ! initialise glai for use in cable_roughness
-              !    where (veg%iveg(:) .ge. 14) casamet%glai = 0.0_r_2
+              !    casamet%glai = 1.0_r2 ! initialise glai for use in cable_roughness
+              !    where (veg%iveg(:) .ge. 14) casamet%glai = 0.0_r2
               ! end if
               if ((trim(cable_user%MetType) == 'cru') .and. (icycle > 0)) then
                  if (all(eq(real(casamet%glai(:)), 0.))) then
@@ -777,7 +777,7 @@ PROGRAM cable_offline_driver
                       BLAZE, SIMFIRE)
                  if (cable_user%c13o2) &
                       call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
-                 ! Set 13C and 12C LUC pools to 0 if any < epsilon(1.0_dp)
+                 ! Set 13C and 12C LUC pools to 0 if any < epsilon(1.0_r2)
                  SPINon   = .false.
                  SPINconv = .false.
                  !MC - MPI sets CASAONLY = .true. here
@@ -882,7 +882,7 @@ PROGRAM cable_offline_driver
               where (veg%iveg(:) >= 14) veg%vlai = 0.
 
               ! 13C
-              ! if (cable_user%c13o2) c13o2flux%ca = 0.992_r_2 * real(met%ca,r_2) ! * vpdbc13 / vpdbc13 ! -8 permil
+              ! if (cable_user%c13o2) c13o2flux%ca = 0.992_r2 * real(met%ca,r2) ! * vpdbc13 / vpdbc13 ! -8 permil
               if (cable_user%c13o2) then
                  if ((CurYear < c13o2_atm_syear) .or. (CurYear > c13o2_atm_eyear)) then
                     write(*,*) 'Current year ', CurYear, &
@@ -890,8 +890,8 @@ PROGRAM cable_offline_driver
                          c13o2_atm_syear, c13o2_atm_eyear
                     stop 203
                  end if
-                 c13o2flux%ca = (c13o2_delta_atm(CurYear) + 1.0_r_2) * &
-                      real(met%ca, r_2) ! * vpdbc13 / vpdbc13
+                 c13o2flux%ca = (c13o2_delta_atm(CurYear) + 1.0_r2) * &
+                      real(met%ca, r2) ! * vpdbc13 / vpdbc13
               end if
 
               ! At first time step of year, set tile area according to
@@ -951,14 +951,14 @@ PROGRAM cable_offline_driver
                  ! 13C
                  if (cable_user%c13o2) then
                     gpp  = canopy%An + canopy%Rd
-                    Ra   = isoratio(c13o2flux%ca, real(met%ca,r_2), 1.0_r_2)
-                    ! diff = canopy%An - (spread(real(met%ca,r_2),2,mf)-canopy%ci) * &
-                    !      (1.0_r_2/(1.0_r_2/canopy%gac+1.0_r_2/canopy%gbc+1.0_r_2/canopy%gsc))
+                    Ra   = isoratio(c13o2flux%ca, real(met%ca,r2), 1.0_r2)
+                    ! diff = canopy%An - (spread(real(met%ca,r2),2,mf)-canopy%ci) * &
+                    !      (1.0_r2/(1.0_r2/canopy%gac+1.0_r2/canopy%gbc+1.0_r2/canopy%gsc))
                     !MCTest
                     c13o2flux%An       = canopy%An
-                    ! c13o2flux%An       = 1.005_r_2 * canopy%An !  * vpdbc13 / vpdbc13 ! Test 5 permil
-                    c13o2flux%Disc     = 0.0_r_2
-                    c13o2flux%Vstarch  = c13o2flux%Vstarch + 1.0e-6_r_2
+                    ! c13o2flux%An       = 1.005_r2 * canopy%An !  * vpdbc13 / vpdbc13 ! Test 5 permil
+                    c13o2flux%Disc     = 0.0_r2
+                    c13o2flux%Vstarch  = c13o2flux%Vstarch + 1.0e-6_r2
                     c13o2flux%Rstarch  = c13o2flux%Rstarch
                     c13o2flux%Rsucrose = c13o2flux%Rsucrose
                     c13o2flux%Rphoto   = c13o2flux%Rphoto
@@ -967,13 +967,13 @@ PROGRAM cable_offline_driver
                     !       call c13o2_discrimination_simple( &
                     !            ! -- Input
                     !            ! isc3
-                    !            real(dels,r_2), canopy%isc3, &
+                    !            real(dels,r2), canopy%isc3, &
                     !            ! GPP and Leaf respiration
                     !            gpp(:,ileaf), canopy%Rd(:,ileaf), &
                     !            ! Ambient and stomatal CO2 concentration
-                    !            real(met%ca,r_2), canopy%ci(:,ileaf), &
+                    !            real(met%ca,r2), canopy%ci(:,ileaf), &
                     !            ! leaf temperature
-                    !            real(canopy%tlf,r_2), &
+                    !            real(canopy%tlf,r2), &
                     !            ! Ambient isotope ratio
                     !            Ra, &
                     !            ! -- Inout
@@ -987,18 +987,18 @@ PROGRAM cable_offline_driver
                     !    else
                     !       call c13o2_discrimination( &
                     !            ! -- Input
-                    !            real(dels,r_2), canopy%isc3, &
+                    !            real(dels,r2), canopy%isc3, &
                     !            ! Photosynthesis variables
                     !            ! Vcmax<< because of temperature dependence of Vcmax
                     !            canopy%vcmax(:,ileaf), gpp(:,ileaf), canopy%Rd(:,ileaf), canopy%gammastar(:,ileaf), &
                     !            ! Could use Vcmax25?
-                    !            ! real(veg%vcmax,r_2), gpp(:,ileaf), canopy%Rd(:,ileaf), canopy%gammastar(:,ileaf), &
+                    !            ! real(veg%vcmax,r2), gpp(:,ileaf), canopy%Rd(:,ileaf), canopy%gammastar(:,ileaf), &
                     !            ! CO2 concentrations
-                    !            real(met%ca,r_2), canopy%ci(:,ileaf), &
+                    !            real(met%ca,r2), canopy%ci(:,ileaf), &
                     !            ! Conductances
                     !            canopy%gac(:,ileaf), canopy%gbc(:,ileaf), canopy%gsc(:,ileaf), &
                     !            ! leaf temperature
-                    !            real(canopy%tlf,r_2), &
+                    !            real(canopy%tlf,r2), &
                     !            ! Ambient isotope ratio
                     !            Ra, &
                     !            ! -- Inout
@@ -1057,10 +1057,10 @@ PROGRAM cable_offline_driver
                       LALLOC, c13o2flux, c13o2pools)
                  if (cable_user%c13o2) &
                       call c13o2_sanity_pools(casapool, casaflux, c13o2pools)
-                 ! if (any(delta1000(c13o2pools%cplant, casapool%cplant, 1.0_r_2, 0.0_r_2, tiny(1.0_r_2)) > 0.0_r_2)) then
+                 ! if (any(delta1000(c13o2pools%cplant, casapool%cplant, 1.0_r2, 0.0_r2, tiny(1.0_r2)) > 0.0_r2)) then
                  !    print*, 'CC04.01 ', casapool%cplant
                  !    print*, 'CC04.02 ', c13o2pools%cplant
-                 !    print*, 'CC04.03 ', delta1000(c13o2pools%cplant, casapool%cplant, 1.0_r_2, 0.0_r_2, tiny(1.0_r_2))
+                 !    print*, 'CC04.03 ', delta1000(c13o2pools%cplant, casapool%cplant, 1.0_r2, 0.0_r2, tiny(1.0_r2))
                  ! end if
                  ! if ((ktau == kstart) .or. (ktau == kend)) then
                  ! if ((ktau == 9) .or. (ktau == kend)) then
@@ -1393,11 +1393,11 @@ PROGRAM cable_offline_driver
 
            if ((icycle > 0) .and. (.not. casaonly)) then
               ! re-initalise annual flux sums
-              casabal%FCgppyear = 0.0_r_2
-              casabal%FCrpyear  = 0.0_r_2
-              casabal%FCnppyear = 0.0_r_2
-              casabal%FCrsyear  = 0.0_r_2
-              casabal%FCneeyear = 0.0_r_2
+              casabal%FCgppyear = 0.0_r2
+              casabal%FCrpyear  = 0.0_r2
+              casabal%FCnppyear = 0.0_r2
+              casabal%FCrsyear  = 0.0_r2
+              casabal%FCneeyear = 0.0_r2
            end if
 
            call CPU_time(etime)
@@ -1531,7 +1531,7 @@ END SUBROUTINE renameFiles
 ! and tranferring LUC-based age weights for secondary forest to POP structure
 SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, c13o2pools )
 
-  USE cable_def_types_mod,  ONLY: r_2, veg_parameter_type, mland
+  USE cable_def_types_mod,  ONLY: r2, veg_parameter_type, mland
   USE cable_carbon_module
   USE cable_common_module,  ONLY: CABLE_USER, CurYear
   USE cable_IO_vars_module, ONLY: landpt
@@ -1571,28 +1571,28 @@ SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg,
   CALL READ_LUH2(LUC_EXPT)
 
   DO k=1,mland
-     POPLUC%ptos(k)   = real(LUC_EXPT%INPUT(ptos)%VAL(k), r_2)
-     POPLUC%ptog(k)   = real(LUC_EXPT%INPUT(ptog)%VAL(k), r_2)
-     POPLUC%stog(k)   = real(LUC_EXPT%INPUT(stog)%VAL(k), r_2)
-     POPLUC%gtop(k)   = 0.0_r_2
-     POPLUC%gtos(k)   = real(LUC_EXPT%INPUT(gtos)%VAL(k),   r_2)
-     POPLUC%pharv(k)  = real(LUC_EXPT%INPUT(pharv)%VAL(k),  r_2)
-     POPLUC%smharv(k) = real(LUC_EXPT%INPUT(smharv)%VAL(k), r_2)
-     POPLUC%syharv(k) = real(LUC_EXPT%INPUT(syharv)%VAL(k), r_2)
+     POPLUC%ptos(k)   = real(LUC_EXPT%INPUT(ptos)%VAL(k), r2)
+     POPLUC%ptog(k)   = real(LUC_EXPT%INPUT(ptog)%VAL(k), r2)
+     POPLUC%stog(k)   = real(LUC_EXPT%INPUT(stog)%VAL(k), r2)
+     POPLUC%gtop(k)   = 0.0_r2
+     POPLUC%gtos(k)   = real(LUC_EXPT%INPUT(gtos)%VAL(k),   r2)
+     POPLUC%pharv(k)  = real(LUC_EXPT%INPUT(pharv)%VAL(k),  r2)
+     POPLUC%smharv(k) = real(LUC_EXPT%INPUT(smharv)%VAL(k), r2)
+     POPLUC%syharv(k) = real(LUC_EXPT%INPUT(syharv)%VAL(k), r2)
 
-     POPLUC%ptoc(k) = real(LUC_EXPT%INPUT(ptoc)%VAL(k), r_2)
-     POPLUC%ptoq(k) = real(LUC_EXPT%INPUT(ptoq)%VAL(k), r_2)
-     POPLUC%stoc(k) = real(LUC_EXPT%INPUT(stoc)%VAL(k), r_2)
-     POPLUC%stoq(k) = real(LUC_EXPT%INPUT(stoq)%VAL(k), r_2)
-     POPLUC%ctos(k) = real(LUC_EXPT%INPUT(ctos)%VAL(k), r_2)
-     POPLUC%qtos(k) = real(LUC_EXPT%INPUT(qtos)%VAL(k), r_2)
+     POPLUC%ptoc(k) = real(LUC_EXPT%INPUT(ptoc)%VAL(k), r2)
+     POPLUC%ptoq(k) = real(LUC_EXPT%INPUT(ptoq)%VAL(k), r2)
+     POPLUC%stoc(k) = real(LUC_EXPT%INPUT(stoc)%VAL(k), r2)
+     POPLUC%stoq(k) = real(LUC_EXPT%INPUT(stoq)%VAL(k), r2)
+     POPLUC%ctos(k) = real(LUC_EXPT%INPUT(ctos)%VAL(k), r2)
+     POPLUC%qtos(k) = real(LUC_EXPT%INPUT(qtos)%VAL(k), r2)
 
-     POPLUC%ctor(k) = real(LUC_EXPT%INPUT(ctor)%VAL(k), r_2)
-     POPLUC%qtor(k) = real(LUC_EXPT%INPUT(qtor)%VAL(k), r_2)
-     POPLUC%rtoc(k) = real(LUC_EXPT%INPUT(rtoc)%VAL(k), r_2)
-     POPLUC%rtoq(k) = real(LUC_EXPT%INPUT(rtoq)%VAL(k), r_2)
-     POPLUC%qtoc(k) = real(LUC_EXPT%INPUT(qtoc)%VAL(k), r_2)
-     POPLUC%ctoq(k) = real(LUC_EXPT%INPUT(ctoq)%VAL(k), r_2)
+     POPLUC%ctor(k) = real(LUC_EXPT%INPUT(ctor)%VAL(k), r2)
+     POPLUC%qtor(k) = real(LUC_EXPT%INPUT(qtor)%VAL(k), r2)
+     POPLUC%rtoc(k) = real(LUC_EXPT%INPUT(rtoc)%VAL(k), r2)
+     POPLUC%rtoq(k) = real(LUC_EXPT%INPUT(rtoq)%VAL(k), r2)
+     POPLUC%qtoc(k) = real(LUC_EXPT%INPUT(qtoc)%VAL(k), r2)
+     POPLUC%ctoq(k) = real(LUC_EXPT%INPUT(ctoq)%VAL(k), r2)
 
      POPLUC%thisyear  = yyyy
 
@@ -1600,7 +1600,7 @@ SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg,
 
   ! zero secondary forest tiles in POP where secondary forest area is zero
   DO k=1,mland
-     if ( eq((POPLUC%frac_primf(k)-POPLUC%frac_forest(k)), 0.0_r_2) &
+     if ( eq((POPLUC%frac_primf(k)-POPLUC%frac_forest(k)), 0.0_r2) &
           .and. (.not. LUC_EXPT%prim_only(k)) ) then
         j = landpt(k)%cstart+1
         do l=1,size(POP%Iwood)
@@ -1610,24 +1610,24 @@ SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg,
            end if
         end do
 
-        casapool%cplant(j,leaf) = 0.01_r_2
+        casapool%cplant(j,leaf) = 0.01_r2
         casapool%nplant(j,leaf)= casabiome%ratioNCplantmin(veg%iveg(j),leaf)* casapool%cplant(j,leaf)
         casapool%pplant(j,leaf)= casabiome%ratioPCplantmin(veg%iveg(j),leaf)* casapool%cplant(j,leaf)
 
-        casapool%cplant(j,froot) = 0.01_r_2
+        casapool%cplant(j,froot) = 0.01_r2
         casapool%nplant(j,froot)= casabiome%ratioNCplantmin(veg%iveg(j),froot)* casapool%cplant(j,froot)
         casapool%pplant(j,froot)= casabiome%ratioPCplantmin(veg%iveg(j),froot)* casapool%cplant(j,froot)
 
-        casapool%cplant(j,wood) = 0.01_r_2
+        casapool%cplant(j,wood) = 0.01_r2
         casapool%nplant(j,wood)= casabiome%ratioNCplantmin(veg%iveg(j),wood)* casapool%cplant(j,wood)
         casapool%pplant(j,wood)= casabiome%ratioPCplantmin(veg%iveg(j),wood)* casapool%cplant(j,wood)
-        casaflux%frac_sapwood(j) = 1.0_r_2
+        casaflux%frac_sapwood(j) = 1.0_r2
 
         ! 13C
         if (cable_user%c13o2) then
-           c13o2pools%cplant(j,leaf)  = 0.01_r_2 ! * vpdbc13 / vpdbc13 ! Divide by 13C
-           c13o2pools%cplant(j,wood)  = 0.01_r_2 ! * vpdbc13 / vpdbc13 ! so that about same numerical precision as 12C
-           c13o2pools%cplant(j,froot) = 0.01_r_2 ! * vpdbc13 / vpdbc13 !
+           c13o2pools%cplant(j,leaf)  = 0.01_r2 ! * vpdbc13 / vpdbc13 ! Divide by 13C
+           c13o2pools%cplant(j,wood)  = 0.01_r2 ! * vpdbc13 / vpdbc13 ! so that about same numerical precision as 12C
+           c13o2pools%cplant(j,froot) = 0.01_r2 ! * vpdbc13 / vpdbc13 !
         end if
      end if
   END DO

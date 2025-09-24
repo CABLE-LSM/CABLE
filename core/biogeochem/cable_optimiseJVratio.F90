@@ -21,10 +21,8 @@
 MODULE cable_optimise_JV_module
 
   Use cable_def_types_mod, ONLY: met_type, climate_type, canopy_type, veg_parameter_type, &
-       mp, r_2
-
+       mp, r2
   USE cable_data_module,   ONLY: icanopy_type, point2constants
-  USE TypeDef,             ONLY: i4b, dp
   USE cable_common_module, ONLY: cable_user
 
   TYPE( icanopy_type ) :: C
@@ -242,17 +240,17 @@ CONTAINS
 
   subroutine fAn_c3(a, b, c, A2)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in)  :: a, b, c
-    real(r_2), intent(OUT) :: A2
+    real(r2), intent(in)  :: a, b, c
+    real(r2), intent(OUT) :: A2
 
-    real(r_2) :: s2
+    real(r2) :: s2
 
-    s2 = b**2 - 4.0_r_2 * a * c
-    A2 = (-b - sqrt(s2))/(2.0_r_2 * a)
+    s2 = b**2 - 4.0_r2 * a * c
+    A2 = (-b - sqrt(s2))/(2.0_r2 * a)
 
   end subroutine fAn_c3
 
@@ -260,16 +258,16 @@ CONTAINS
 
   subroutine fabc(Cs, g0, x, gamm, beta, Gammastar, Rd, a, b, c)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
     real,      intent(in)  :: Cs, g0, x, gamm, beta, Gammastar, Rd
-    real(r_2), intent(out) :: a, b, c
+    real(r2), intent(out) :: a, b, c
 
-    a = real((1.0-x)*Cs - x*beta, r_2)
-    b = real(-g0*Cs**2 + ((1.0-x)*(Rd-gamm)-g0*beta)*Cs - x*(gamm*Gammastar+Rd*beta), r_2)
-    c = real(-g0*(Rd-gamm)*Cs**2 - g0*(gamm*Gammastar+Rd*beta)*Cs, r_2)
+    a = real((1.0-x)*Cs - x*beta, r2)
+    b = real(-g0*Cs**2 + ((1.0-x)*(Rd-gamm)-g0*beta)*Cs - x*(gamm*Gammastar+Rd*beta), r2)
+    c = real(-g0*(Rd-gamm)*Cs**2 - g0*(gamm*Gammastar+Rd*beta)*Cs, r2)
 
   end subroutine fabc
 
@@ -277,18 +275,18 @@ CONTAINS
 
   subroutine fabcd(Cs, g0, x, gamm, beta, Gammastar, Rd, gm, a, b, c1, d)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
     real,      intent(in)  :: Cs, g0, x, gamm, beta, Gammastar, Rd, gm
-    real(r_2), intent(out) :: a, b, c1, d
+    real(r2), intent(out) :: a, b, c1, d
 
-    a  = real(x, r_2)
-    b  = real((gm+g0-gm*x)*Cs + x*(Rd-gamm) - gm*x*beta, r_2)
+    a  = real(x, r2)
+    b  = real((gm+g0-gm*x)*Cs + x*(Rd-gamm) - gm*x*beta, r2)
     c1 = real(-gm*g0*Cs**2 + ((gm+g0-gm*x)*(Rd-gamm)-gm*g0*beta)*Cs - &
-         gm*x*(gamm*Gammastar+Rd*beta), r_2)
-    d  = real(-gm*g0*(Rd-gamm)*Cs**2 - gm*g0*(gamm*Gammastar+Rd*beta)*Cs, r_2)
+         gm*x*(gamm*Gammastar+Rd*beta), r2)
+    d  = real(-gm*g0*(Rd-gamm)*Cs**2 - gm*g0*(gamm*Gammastar+Rd*beta)*Cs, r2)
 
   end subroutine fabcd
 
@@ -296,15 +294,15 @@ CONTAINS
 
   subroutine fpq(a, b, c, d, p, q)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in)  :: a, b, c, d
-    real(r_2), intent(out) :: p, q
+    real(r2), intent(in)  :: a, b, c, d
+    real(r2), intent(out) :: p, q
 
-    p = (3.0_r_2*a*c - b**2)/(3.0_r_2*a**2)
-    q = (2.0_r_2*b**3 - 9.0_r_2*a*b*c + 27.0_r_2*a**2*d)/(27.0_r_2*a**3)
+    p = (3.0_r2*a*c - b**2)/(3.0_r2*a**2)
+    q = (2.0_r2*b**3 - 9.0_r2*a*b*c + 27.0_r2*a**2*d)/(27.0_r2*a**3)
 
   end subroutine fpq
 
@@ -312,21 +310,21 @@ CONTAINS
 
   subroutine fAm_c3(a, b, c1, d, p, q, Am)
 
-    use cable_def_types_mod, only: r_2
-    use mo_constants, only: pi => pi_dp
+    use cable_def_types_mod, only: r2
+    use mo_constants, only: pi => pi_r2
 
     implicit none
 
-    real(r_2), intent(in)  :: a, b, c1, d, p, q
-    real(r_2), intent(out) :: Am
+    real(r2), intent(in)  :: a, b, c1, d, p, q
+    real(r2), intent(out) :: Am
 
-    real(r_2) :: p3, pq, k
+    real(r2) :: p3, pq, k
 
-    p3 = -p/3.0_r_2
-    pq = max(min(3.0_r_2*q/(2.0_r_2*p)*sqrt(1.0_r_2/p3), &
-         0.999999999999_r_2), -0.999999999999_r_2)
-    k  = 1.0_r_2
-    Am = 2.0_r_2*sqrt(p3)*cos(acos(pq)/3.0_r_2 - 2.0_r_2*pi*k/3.0_r_2) - b/(3.0_r_2*a)
+    p3 = -p/3.0_r2
+    pq = max(min(3.0_r2*q/(2.0_r2*p)*sqrt(1.0_r2/p3), &
+         0.999999999999_r2), -0.999999999999_r2)
+    k  = 1.0_r2
+    Am = 2.0_r2*sqrt(p3)*cos(acos(pq)/3.0_r2 - 2.0_r2*pi*k/3.0_r2) - b/(3.0_r2*a)
 
   end subroutine fAm_c3
 
@@ -336,7 +334,7 @@ CONTAINS
 
     use cable_canopy_module, only: xvcmxt3, xejmxt3, ej3x, xrdt, &
          xgmesT, xvcmxt3_acclim, xejmxt3_acclim
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
@@ -345,9 +343,9 @@ CONTAINS
     INTEGER   :: k, j
     REAL      :: kct, kot ! , tdiff
     REAL      :: x, gamm, beta, gammastar, Rd, gm, jmaxt, trf, vcmax0
-    REAL(r_2) :: a, b, c1, d
-    REAL(r_2) :: p, q  ! if cable_user%explicit_gm
-    REAL(r_2) :: Anc, Ane
+    REAL(r2) :: a, b, c1, d
+    REAL(r2) :: p, q  ! if cable_user%explicit_gm
+    REAL(r2) :: Anc, Ane
     REAL      :: An(nt), Ac(nt), Aj(nt)
 
     CALL point2constants(C)
@@ -476,7 +474,7 @@ CONTAINS
 
     use cable_canopy_module, only: xvcmxt3, xejmxt3, ej3x, xrdt, &
          xgmesT, xvcmxt3_acclim, xejmxt3_acclim
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
@@ -486,8 +484,8 @@ CONTAINS
     INTEGER   :: k, j
     REAL      :: kct, kot, tdiff
     REAL      :: x, gamm,  beta, gammastar, Rd, jmaxt, gm, trf, vcmax0
-    REAL(r_2) :: a, b, c1, d, p, q
-    REAL(r_2) :: Anc, Ane
+    REAL(r2) :: a, b, c1, d, p, q
+    REAL(r2) :: Anc, Ane
     REAL      :: An(nt)
 
     CALL point2constants(C)
@@ -606,7 +604,7 @@ CONTAINS
 
     use cable_canopy_module, only: xvcmxt3, xejmxt3, ej3x, xrdt, &
          xgmesT, xvcmxt3_acclim, xejmxt3_acclim
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
@@ -616,8 +614,8 @@ CONTAINS
     INTEGER   :: k, j  ! k is timestep!
     REAL      :: kct, kot, tdiff
     REAL      :: x, gamm,  beta, gammastar, Rd, jmaxt, gm, trf, vcmax0 ! c1 because C already taken
-    REAL(r_2) :: a, b, c1, d, p, q  ! if cable_user%explicit_gm
-    REAL(r_2) :: Anc, Ane
+    REAL(r2) :: a, b, c1, d, p, q  ! if cable_user%explicit_gm
+    REAL(r2) :: Anc, Ane
     REAL      :: An(nt), Ac(nt), Aj(nt)
     REAL      :: total_An, total_Ac, total_Aj
 
@@ -821,7 +819,7 @@ CONTAINS
 
     use cable_canopy_module, only: xvcmxt3,xejmxt3, ej3x, xrdt, &
          xgmesT, xvcmxt3_acclim, xejmxt3_acclim
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
@@ -832,8 +830,8 @@ CONTAINS
     INTEGER :: k, j
     REAL :: kct, kot, tdiff
     REAL :: x, gamm,  beta, gammastar, Rd, jmaxt, gm, trf, vcmax0
-    REAL(r_2) :: a, b, c1, d, p, q  ! if cable_user%explicit_gm
-    REAL(r_2) :: Anc, Ane
+    REAL(r2) :: a, b, c1, d, p, q  ! if cable_user%explicit_gm
+    REAL(r2) :: Anc, Ane
     REAL :: An(nt), Ac(nt), Aj(nt)
 
     CALL point2constants(C)

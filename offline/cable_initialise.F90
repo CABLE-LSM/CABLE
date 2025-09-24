@@ -141,39 +141,39 @@ CONTAINS
     canopy%fwsoil  = 1.0   ! water limitation factor
 
     ! GPP_components
-    canopy%A_shC          = 0.0_r_2
-    canopy%A_shJ          = 0.0_r_2
-    canopy%A_slC          = 0.0_r_2
-    canopy%A_slJ          = 0.0_r_2
-    canopy%GPP_sh         = 0.0_r_2
-    canopy%GPP_sl         = 0.0_r_2
-    canopy%eta_A_cs       = 0.0_r_2
-    canopy%eta_GPP_cs     = 0.0_r_2
-    canopy%eta_fevc_cs    = 0.0_r_2
-    canopy%eta_A_cs_sl    = 0.0_r_2
-    canopy%eta_fevc_cs_sl = 0.0_r_2
-    canopy%GPP_sh         = 0.0_r_2
-    canopy%eta_A_cs_sh    = 0.0_r_2
-    canopy%eta_fevc_cs_sh = 0.0_r_2
+    canopy%A_shC          = 0.0_r2
+    canopy%A_shJ          = 0.0_r2
+    canopy%A_slC          = 0.0_r2
+    canopy%A_slJ          = 0.0_r2
+    canopy%GPP_sh         = 0.0_r2
+    canopy%GPP_sl         = 0.0_r2
+    canopy%eta_A_cs       = 0.0_r2
+    canopy%eta_GPP_cs     = 0.0_r2
+    canopy%eta_fevc_cs    = 0.0_r2
+    canopy%eta_A_cs_sl    = 0.0_r2
+    canopy%eta_fevc_cs_sl = 0.0_r2
+    canopy%GPP_sh         = 0.0_r2
+    canopy%eta_A_cs_sh    = 0.0_r2
+    canopy%eta_fevc_cs_sh = 0.0_r2
 
-    canopy%dAdcs   = 0.0_r_2
-    canopy%cs      = real(met%ca,r_2)
-    canopy%cs_sl   = real(met%ca,r_2)
-    canopy%cs_sh   = real(met%ca,r_2)
-    canopy%tlf     = 0.0_r_2
-    canopy%dlf     = 0.0_r_2
-    canopy%evapfbl = 0.0_r_2
+    canopy%dAdcs   = 0.0_r2
+    canopy%cs      = real(met%ca,r2)
+    canopy%cs_sl   = real(met%ca,r2)
+    canopy%cs_sh   = real(met%ca,r2)
+    canopy%tlf     = 0.0_r2
+    canopy%dlf     = 0.0_r2
+    canopy%evapfbl = 0.0_r2
 
     ! 13C
-    canopy%An        = 0.0_r_2
-    canopy%Rd        = 0.0_r_2
+    canopy%An        = 0.0_r2
+    canopy%Rd        = 0.0_r2
     canopy%isc3      = .true.
-    canopy%vcmax     = 0.0_r_2
-    canopy%gammastar = 40.0_r_2
-    canopy%gsc       = 0.0_r_2
-    canopy%gbc       = 0.0_r_2
-    canopy%gac       = 0.0_r_2
-    canopy%ci        = spread(real(met%ca,r_2),2,mf)
+    canopy%vcmax     = 0.0_r2
+    canopy%gammastar = 40.0_r2
+    canopy%gsc       = 0.0_r2
+    canopy%gbc       = 0.0_r2
+    canopy%gac       = 0.0_r2
+    canopy%ci        = spread(real(met%ca,r2),2,mf)
 
   END SUBROUTINE get_default_inits
 
@@ -228,7 +228,7 @@ CONTAINS
          from_restart = .TRUE., & ! insist variables/params load
          dummy                    ! To replace completeSet in parameter read; unused
     ! REAL,      ALLOCATABLE :: var_r(:)
-    ! REAL(r_2), ALLOCATABLE :: var_r2(:)
+    ! REAL(r2), ALLOCATABLE :: var_r2(:)
 
     ! Write to screen the restart file is found:
     WRITE(*,*) 'Reading restart data from: ', TRIM(filename%restart_in)
@@ -495,7 +495,7 @@ CONTAINS
          max_vegpatches, 'def', from_restart, mp)
     CALL readpar(ncid_rin, 'us', dummy, canopy%us, filename%restart_in, &
          max_vegpatches, 'def', from_restart, mp)
-    !jhan:hack - elimiinate call as r_2 now
+    !jhan:hack - elimiinate call as r2 now
     ! CALL readpar(ncid_rin,'fes',dummy,canopy%fes,filename%restart_in, &
     !      max_vegpatches,'def',from_restart,mp)
     CALL readpar(ncid_rin,'fhs',dummy,canopy%fhs,filename%restart_in, &
@@ -551,7 +551,7 @@ CONTAINS
     !    dummy = .true.
     !    CALL readpar(ncid_rin,'patchfrac',dummy,var_r,filename%restart_in, &
     !         max_vegpatches,'def',from_restart,mp)
-    !    if (dummy) patch(:)%frac = real(var_r,r_2)
+    !    if (dummy) patch(:)%frac = real(var_r,r2)
     !    deallocate(var_r)
     ! ENDIF
     !    DO i=1, mland
@@ -710,15 +710,15 @@ CONTAINS
          //TRIM(filename%restart_in)//' (SUBROUTINE get_restart)')
 
     ! 13C - not in restart
-    canopy%An        = 0.0_r_2
-    canopy%Rd        = 0.0_r_2
+    canopy%An        = 0.0_r2
+    canopy%Rd        = 0.0_r2
     canopy%isc3      = (1.0-veg%frac4) > epsilon(1.0)
-    canopy%vcmax     = 0.0_r_2
-    canopy%gammastar = 40.e-6_r_2
-    canopy%gsc       = 0.0_r_2
-    canopy%gbc       = 0.0_r_2
-    canopy%gac       = 0.0_r_2
-    canopy%ci        = 400.e-6_r_2
+    canopy%vcmax     = 0.0_r2
+    canopy%gammastar = 40.e-6_r2
+    canopy%gsc       = 0.0_r2
+    canopy%gbc       = 0.0_r2
+    canopy%gac       = 0.0_r2
+    canopy%ci        = 400.e-6_r2
 
   END SUBROUTINE get_restart_data
 
@@ -761,9 +761,9 @@ CONTAINS
          nap, &
          var_i
     REAL,    ALLOCATABLE, DIMENSION(:)   :: var_r
-    REAL(r_2),    ALLOCATABLE, DIMENSION(:)   :: var_rd
+    REAL(r2),    ALLOCATABLE, DIMENSION(:)   :: var_rd
     REAL,    ALLOCATABLE, DIMENSION(:,:) :: var_r2
-    REAL(r_2),    ALLOCATABLE, DIMENSION(:,:) :: var_r2d
+    REAL(r2),    ALLOCATABLE, DIMENSION(:,:) :: var_r2d
     LOGICAL                                   :: &
          from_restart = .TRUE., & ! insist variables/params load
          dummy = .TRUE.              ! To replace completeSet in parameter read; unused
@@ -888,7 +888,7 @@ CONTAINS
     CALL readpar(ncid_rin, 'us', dummy, var_r, filename%restart_in, &
          max_vegpatches, 'def', from_restart, INpatch)
     CALL redistr_r(INpatch, nap, var_r, canopy%us, 'us')
-    !jhan:hack - elimiinate call as r_2 now
+    !jhan:hack - elimiinate call as r2 now
     !    CALL readpar(ncid_rin,'fes',dummy,var_r,filename%restart_in, &
     !         max_vegpatches,'def',from_restart,INpatch)
     !    CALL redistr_r(INpatch,nap,var_r,canopy%fes,'fes')

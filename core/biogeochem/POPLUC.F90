@@ -37,18 +37,18 @@
 !*********************************************************************************
 MODULE POPLUC_CONSTANTS
 
-  USE TYPEdef, ONLY: dp, i4b
+  USE TYPEdef, ONLY: dp, i4
 
   implicit none
 
-  INTEGER(i4b), PARAMETER :: LENGTH_SECDF_HISTORY = 4000
-  INTEGER(i4b), PARAMETER :: AGE_MAX = 1000
+  INTEGER(i4), PARAMETER :: LENGTH_SECDF_HISTORY = 4000
+  INTEGER(i4), PARAMETER :: AGE_MAX = 1000
   ! N.B. needs to be the same as veg%disturbance_interval
-  INTEGER(i4b), PARAMETER :: disturbance_interval = 100
+  INTEGER(i4), PARAMETER :: disturbance_interval = 100
   LOGICAL,      PARAMETER :: IFHARVEST=.FALSE.
-  INTEGER(i4b), PARAMETER :: ROTATION=70
-  INTEGER(i4b), PARAMETER :: nLU=3    ! number of land-use tiles (pf, sf, grass)
-  INTEGER(i4b), PARAMETER :: nTrans=4 ! number of possible gross transition types (ptog, ptos, stog, gtos)
+  INTEGER(i4), PARAMETER :: ROTATION=70
+  INTEGER(i4), PARAMETER :: nLU=3    ! number of land-use tiles (pf, sf, grass)
+  INTEGER(i4), PARAMETER :: nTrans=4 ! number of possible gross transition types (ptog, ptos, stog, gtos)
 
 END MODULE POPLUC_CONSTANTS
 
@@ -56,17 +56,17 @@ END MODULE POPLUC_CONSTANTS
 
 MODULE POPLUC_Types
 
-  USE TYPEdef,          ONLY: dp, i4b
+  USE TYPEdef,          ONLY: dp, i4
   USE POPLUC_Constants, ONLY: LENGTH_SECDF_HISTORY, AGE_MAX
 
   implicit none
 
   TYPE POPLUC_TYPE
-     INTEGER(i4b), POINTER :: it
-     INTEGER(i4b), POINTER :: np
-     INTEGER(i4b), POINTER :: firstyear
-     INTEGER(i4b), POINTER :: thisyear
-     INTEGER(i4b), DIMENSION(:),POINTER :: n_event => null() ! number of secondary forest transitions
+     INTEGER(i4), POINTER :: it
+     INTEGER(i4), POINTER :: np
+     INTEGER(i4), POINTER :: firstyear
+     INTEGER(i4), POINTER :: thisyear
+     INTEGER(i4), DIMENSION(:),POINTER :: n_event => null() ! number of secondary forest transitions
      REAL(dp), DIMENSION(:),POINTER :: latitude => null(), longitude => null()
      REAL(dp), DIMENSION(:),POINTER :: primf => null(), secdf => null(), grass => null(), &  ! land cover types
           ptos => null(), ptog => null(), stog => null(), gtop => null(), gtos => null(),    & ! transitions
@@ -117,7 +117,7 @@ MODULE POPLUC_Module
   !-------------------------------------------------------------------------------
   ! * This module contains all subroutines for POPLUC calcs at a single time step.
   !-------------------------------------------------------------------------------
-  USE TYPEdef,              ONLY: dp, sp, i4b
+  USE TYPEdef,              ONLY: dp, sp, i4
   USE POPLUC_Types
   USE POPLUC_Constants
   USE casavariable,         ONLY: casa_pool, casa_balance, casa_flux, casa_biome
@@ -140,9 +140,9 @@ CONTAINS
 
     type(popluc_type), intent(inout) :: popluc
 
-    popluc%firstyear               = 0_i4b
-    popluc%thisyear                = 0_i4b
-    popluc%n_event                 = 0_i4b
+    popluc%firstyear               = 0_i4
+    popluc%thisyear                = 0_i4
+    popluc%n_event                 = 0_i4
     popluc%latitude                = 0.0_dp
     popluc%longitude               = 0.0_dp
     popluc%primf                   = 0.0_dp
@@ -313,12 +313,12 @@ CONTAINS
 
     CHARACTER(5),      INTENT(IN)    :: from_state, to_state
     REAL(dp),          INTENT(INOUT) :: frac_change_grid
-    INTEGER(i4b),      INTENT(IN)    :: g  ! grid cell index
+    INTEGER(i4),      INTENT(IN)    :: g  ! grid cell index
     TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
 
     REAL(dp) :: frac_open_grid, remaining
-    INTEGER(i4b) :: n  ! position of new element in POPLUC%SecFor array
-    INTEGER(i4b) :: i
+    INTEGER(i4) :: n  ! position of new element in POPLUC%SecFor array
+    INTEGER(i4) :: i
     REAL(dp) :: tmp, tmp1, tmp2
 #ifdef __MPI__
     integer :: ierr
@@ -506,9 +506,9 @@ CONTAINS
     implicit none
 
     type(popluc_type), intent(inout) :: POPLUC
-    integer(i4b),      intent(in)    :: g
+    integer(i4),      intent(in)    :: g
 
-    integer(i4b) :: age, i, iage
+    integer(i4) :: age, i, iage
     real(dp)     :: fac, disturbance_freq
 
     ! First get relative weights for primary forest
@@ -538,9 +538,9 @@ CONTAINS
     IMPLICIT NONE
 
     TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
-    INTEGER(i4b),      INTENT(IN)    :: g
+    INTEGER(i4),      INTENT(IN)    :: g
 
-    INTEGER(i4b) :: n_event, i
+    INTEGER(i4) :: n_event, i
     REAL(dp):: remaining
     REAL(dp):: tmp, tmp1, tmp2
 
@@ -654,9 +654,9 @@ CONTAINS
     IMPLICIT NONE
 
     TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
-    INTEGER(i4b),      INTENT(IN)    :: year
+    INTEGER(i4),      INTENT(IN)    :: year
 
-    INTEGER(i4b) :: g
+    INTEGER(i4) :: g
 
     POPLUC%it = POPLUC%it + 1
 
@@ -1575,8 +1575,8 @@ CONTAINS
     TYPE(veg_parameter_type), INTENT(IN)    :: veg  ! vegetation parameters
     TYPE(POP_TYPE),           INTENT(INOUT) :: POP
 
-    INTEGER(i4b), INTENT(IN) :: np
-    INTEGER(i4b) :: j, k, l
+    INTEGER(i4), INTENT(IN) :: np
+    INTEGER(i4) :: j, k, l
 
     CALL alloc_POPLUC(POPLUC,np)
 
@@ -1662,7 +1662,7 @@ CONTAINS
 
     TYPE(POPLUC_TYPE), INTENT(IN) :: POPLUC
     TYPE (LUC_EXPT_TYPE), INTENT(IN) :: LUC_EXPT
-    INTEGER(i4b) :: j, k, l
+    INTEGER(i4) :: j, k, l
 
     DO k=1, POPLUC%np
        j = landpt(k)%cstart
@@ -1685,7 +1685,7 @@ CONTAINS
     TYPE(POPLUC_TYPE),    INTENT(INOUT) :: POPLUC
     TYPE (LUC_EXPT_TYPE), INTENT(IN)    :: LUC_EXPT
 
-    INTEGER(i4b) :: g, np
+    INTEGER(i4) :: g, np
 
     np = POPLUC%np
     DO g=1, np

@@ -818,7 +818,7 @@ CONTAINS
 !     ! 1 dim arrays (integer) (npt )
 !     CHARACTER(len=20),DIMENSION(2) :: AI1
 
-!     ! REAL(r_2), DIMENSION(mland) :: LAT, LON, TMP
+!     ! REAL(r2), DIMENSION(mland) :: LAT, LON, TMP
 !     REAL, DIMENSION(mland) :: LAT, LON, TMP
 !     INTEGER(KIND=4) :: TMPI(mland)
 !     LOGICAL         :: EXISTFILE

@@ -309,8 +309,8 @@ contains
     type(c13o2_flux)  :: c13o2flux
     type(c13o2_pool)  :: c13o2pools, sum_c13o2pools
     type(c13o2_luc)   :: c13o2luc
-    real(r_2), dimension(:,:), allocatable :: casasave
-    real(r_2), dimension(:,:), allocatable :: lucsave
+    real(r2), dimension(:,:), allocatable :: casasave
+    real(r2), dimension(:,:), allocatable :: lucsave
     ! I/O
     logical :: first_casa_write
     integer :: c13o2_outfile_id
@@ -363,7 +363,7 @@ contains
          Ftrunk_sumbal  = ".trunk_sumbal", &
          Fnew_sumbal    = "new_sumbal"
 
-    real(r_2), save :: &
+    real(r2), save :: &
          trunk_sumbal = 0.0, & !
          new_sumbal   = 0.0, &
          new_sumfpn   = 0.0, &
@@ -575,7 +575,7 @@ contains
           read(iunit, fmt=*, iostat=ios) iyear, c13o2_delta_atm(floor(iyear))
        end do
        close(iunit)
-       c13o2_delta_atm = c13o2_delta_atm / 1000._r_2
+       c13o2_delta_atm = c13o2_delta_atm / 1000._r2
     end if
 
     ! Tell the workers if we're leaping
@@ -727,7 +727,7 @@ contains
                 end if
              end if
 
-             canopy%fes_cor = 0.0_r_2
+             canopy%fes_cor = 0.0_r2
              canopy%fhs_cor = 0.0
              met%ofsd       = 0.1 ! not used
 
@@ -750,8 +750,8 @@ contains
 
              !MC - do we need that? casamet also set only if icycle>0
              ! if (trim(cable_user%MetType) .eq. 'cru') then
-             !    casamet%glai = 1.0_r_2 ! initialise glai for use in cable_roughness
-             !    where (veg%iveg(:) .ge. 14) casamet%glai = 0.0_r_2
+             !    casamet%glai = 1.0_r2 ! initialise glai for use in cable_roughness
+             !    where (veg%iveg(:) .ge. 14) casamet%glai = 0.0_r2
              ! end if
              if ((trim(cable_user%MetType) == 'cru') .and. (icycle > 0)) then
                 if (all(real(casamet%glai(:)) == 0.)) then
@@ -994,8 +994,8 @@ contains
                      c13o2_atm_syear, c13o2_atm_eyear
                 call MPI_Abort(comm, 14, ierr)
              end if
-             c13o2flux%ca = (c13o2_delta_atm(CurYear) + 1.0_r_2) * &
-                  real(imet%ca, r_2) ! * vpdbc13 / vpdbc13
+             c13o2flux%ca = (c13o2_delta_atm(CurYear) + 1.0_r2) * &
+                  real(imet%ca, r2) ! * vpdbc13 / vpdbc13
              ! broadcast
              do rank=1, wnp
                 off = wland(rank)%patch0
@@ -1120,7 +1120,7 @@ contains
                 ! 13C
                 if (cable_user%c13o2) then
                    ! already checked that CurYear is in input file
-                   c13o2flux%ca = (c13o2_delta_atm(CurYear) + 1.0_r_2) * real(imet%ca,r_2)
+                   c13o2flux%ca = (c13o2_delta_atm(CurYear) + 1.0_r2) * real(imet%ca,r2)
                    do rank=1, wnp
                       off = wland(rank)%patch0
                       cnt = wland(rank)%npatch
@@ -3128,15 +3128,15 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
 
      ! canopy 2D
-     !     ! REAL(r_1)
+     !     ! REAL(r1)
      !     CALL MPI_Get_address (canopy%rwater(off,1), maddr(midx), ierr) ! 1
      !     CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
      ! &                        mat_t(midx, rank), ierr)
      !     CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      !     midx = midx + 1
-     ! REAL(r_2)
-     ! MPI: gol124: backport to r1134 changes r_2 to r_1
-     ! MPI: gol124: in newest CABLE-cnp it's r_2 again
+     ! REAL(r2)
+     ! MPI: gol124: backport to r1134 changes r2 to r1
+     ! MPI: gol124: in newest CABLE-cnp it's r2 again
      midx = midx + 1
      CALL MPI_Get_address (canopy%evapfbl(off,1), maddr(midx), ierr) ! 2
      ! MPI: gol124: changed to r1 when Bernard ported to CABLE_r491
@@ -3214,86 +3214,86 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      CALL MPI_Type_commit(mat_t(midx, rank), ierr)
 
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (ssnow%albsoilsn(off,1), maddr(midx), ierr) ! 3
      CALL MPI_Type_create_hvector (nrb, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_2)
+     ! REAL(r2)
      CALL MPI_Get_address (ssnow%gammzz(off,1), maddr(midx), ierr) ! 4
      CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (ssnow%sconds(off,1), maddr(midx), ierr) ! 5
      CALL MPI_Type_create_hvector (msn, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (ssnow%sdepth(off,1), maddr(midx), ierr) ! 6
      CALL MPI_Type_create_hvector (msn, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (ssnow%smass(off,1), maddr(midx), ierr) ! 7
      CALL MPI_Type_create_hvector (msn, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      ! MPI: r1134 does not know about this field, comment out
      !midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      !CALL MPI_Get_address (ssnow%dtmlt(off,1), maddr(midx), ierr) ! 8
      !CALL MPI_Type_create_hvector (msn, r1len, r1stride, MPI_BYTE, &
      ! &                        mat_t(midx, rank), ierr)
      !CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (ssnow%ssdn(off,1), maddr(midx), ierr) ! 9
      CALL MPI_Type_create_hvector (msn, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (ssnow%tgg(off,1), maddr(midx), ierr) ! 10
      CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (ssnow%tggsn(off,1), maddr(midx), ierr) ! 11
      CALL MPI_Type_create_hvector (msn, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_2)
+     ! REAL(r2)
      CALL MPI_Get_address (ssnow%wb(off,1), maddr(midx), ierr) ! 12
      CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (ssnow%evapfbl(off,1), maddr(midx), ierr) ! 12
      CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (ssnow%wbfice(off,1), maddr(midx), ierr) ! 13
      CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_2)
+     ! REAL(r2)
      CALL MPI_Get_address (ssnow%wbice(off,1), maddr(midx), ierr) ! 14
      CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_2)
+     ! REAL(r2)
      CALL MPI_Get_address (ssnow%wblf(off,1), maddr(midx), ierr) ! 15
      CALL MPI_Type_create_hvector (ms, r2len, r2stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
@@ -3339,67 +3339,67 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
 
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (rad%albedo(off,1), maddr(midx), ierr) ! 16
      CALL MPI_Type_create_hvector (nrb, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (rad%fvlai(off,1), maddr(midx), ierr) ! 17
      CALL MPI_Type_create_hvector (mf, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_2)
+     ! REAL(r2)
      CALL MPI_Get_address (rad%gradis(off,1), maddr(midx), ierr) ! 18
      CALL MPI_Type_create_hvector (mf, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (rad%rhocdf(off,1), maddr(midx), ierr) ! 19
      CALL MPI_Type_create_hvector (nrb, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (rad%rniso(off,1), maddr(midx), ierr) ! 20
      CALL MPI_Type_create_hvector (mf, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (rad%scalex(off,1), maddr(midx), ierr) ! 21
      CALL MPI_Type_create_hvector (mf, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (rad%reffdf(off,1), maddr(midx), ierr) ! 22
      CALL MPI_Type_create_hvector (nrb, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (rad%reffbm(off,1), maddr(midx), ierr) ! 23
      CALL MPI_Type_create_hvector (nrb, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (rad%extkbm(off,1), maddr(midx), ierr) ! 24
      CALL MPI_Type_create_hvector (nrb, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (rad%extkdm(off,1), maddr(midx), ierr) ! 25
      CALL MPI_Type_create_hvector (nrb, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (rad%cexpkbm(off,1), maddr(midx), ierr) ! 26
      ! Maciej: cexpkbm is mp*swb
      !     CALL MPI_Type_create_hvector (nrb, r1len, r1stride, MPI_BYTE, &
@@ -3408,7 +3408,7 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (rad%cexpkdm(off,1), maddr(midx), ierr) ! 27
      ! Maciej: cexpkdm is mp*swb
      !     CALL MPI_Type_create_hvector (nrb, r1len, r1stride, MPI_BYTE, &
@@ -3418,7 +3418,7 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
 
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (rad%rhocbm(off,1), maddr(midx), ierr) ! 27
      ! Maciej: rhocbm is mp*nrb
      !     CALL MPI_Type_create_hvector (swb, r1len, r1stride, MPI_BYTE, &
@@ -3431,7 +3431,7 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
 
      ! soil 2D
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (soil%albsoil(off,1), maddr(midx), ierr) ! 28
      CALL MPI_Type_create_hvector (nrb, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
@@ -3439,21 +3439,21 @@ SUBROUTINE master_outtypes(comm,met,canopy,ssnow,rad,bal,air,soil,veg)
 
      ! veg 2D
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (veg%refl(off,1), maddr(midx), ierr) ! 29
      CALL MPI_Type_create_hvector (2, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
 
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (veg%taul(off,1), maddr(midx), ierr) ! 29
      CALL MPI_Type_create_hvector (2, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
      CALL MPI_Type_commit (mat_t(midx, rank), ierr)
 
      midx = midx + 1
-     ! REAL(r_1)
+     ! REAL(r1)
      CALL MPI_Get_address (veg%froot(off,1), maddr(midx), ierr) ! 29
      CALL MPI_Type_create_hvector (ms, r1len, r1stride, MPI_BYTE, &
  &                        mat_t(midx, rank), ierr)
@@ -6566,7 +6566,7 @@ SUBROUTINE LUCdriver(casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, 
      ! 13C
      c13o2pools)
 
-  USE cable_def_types_mod , ONLY: r_2, veg_parameter_type, mland
+  USE cable_def_types_mod , ONLY: r2, veg_parameter_type, mland
   USE cable_carbon_module
   USE cable_common_module,  ONLY: cable_user, CurYear
   USE cable_IO_vars_module, ONLY: landpt
@@ -6603,28 +6603,28 @@ SUBROUTINE LUCdriver(casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, 
   LUC_EXPT%CTSTEP = yyyy -  LUC_EXPT%FirstYear + 1
   CALL READ_LUH2(LUC_EXPT)
   DO k=1,mland
-     POPLUC%ptos(k)   = real(LUC_EXPT%INPUT(ptos)%VAL(k), r_2)
-     POPLUC%ptog(k)   = real(LUC_EXPT%INPUT(ptog)%VAL(k), r_2)
-     POPLUC%stog(k)   = real(LUC_EXPT%INPUT(stog)%VAL(k), r_2)
-     POPLUC%gtop(k)   = 0.0_r_2
-     POPLUC%gtos(k)   = real(LUC_EXPT%INPUT(gtos)%VAL(k),   r_2)
-     POPLUC%pharv(k)  = real(LUC_EXPT%INPUT(pharv)%VAL(k),  r_2)
-     POPLUC%smharv(k) = real(LUC_EXPT%INPUT(smharv)%VAL(k), r_2)
-     POPLUC%syharv(k) = real(LUC_EXPT%INPUT(syharv)%VAL(k), r_2)
+     POPLUC%ptos(k)   = real(LUC_EXPT%INPUT(ptos)%VAL(k), r2)
+     POPLUC%ptog(k)   = real(LUC_EXPT%INPUT(ptog)%VAL(k), r2)
+     POPLUC%stog(k)   = real(LUC_EXPT%INPUT(stog)%VAL(k), r2)
+     POPLUC%gtop(k)   = 0.0_r2
+     POPLUC%gtos(k)   = real(LUC_EXPT%INPUT(gtos)%VAL(k),   r2)
+     POPLUC%pharv(k)  = real(LUC_EXPT%INPUT(pharv)%VAL(k),  r2)
+     POPLUC%smharv(k) = real(LUC_EXPT%INPUT(smharv)%VAL(k), r2)
+     POPLUC%syharv(k) = real(LUC_EXPT%INPUT(syharv)%VAL(k), r2)
 
      ! MC - not in serial code
-     ! POPLUC%ptoc(k) = real(LUC_EXPT%INPUT(ptoc)%VAL(k), r_2)
-     ! POPLUC%ptoq(k) = real(LUC_EXPT%INPUT(ptoq)%VAL(k), r_2)
-     ! POPLUC%stoc(k) = real(LUC_EXPT%INPUT(stoc)%VAL(k), r_2)
-     ! POPLUC%stoq(k) = real(LUC_EXPT%INPUT(stoq)%VAL(k), r_2)
-     ! POPLUC%ctos(k) = real(LUC_EXPT%INPUT(ctos)%VAL(k), r_2)
-     ! POPLUC%qtos(k) = real(LUC_EXPT%INPUT(qtos)%VAL(k), r_2)
+     ! POPLUC%ptoc(k) = real(LUC_EXPT%INPUT(ptoc)%VAL(k), r2)
+     ! POPLUC%ptoq(k) = real(LUC_EXPT%INPUT(ptoq)%VAL(k), r2)
+     ! POPLUC%stoc(k) = real(LUC_EXPT%INPUT(stoc)%VAL(k), r2)
+     ! POPLUC%stoq(k) = real(LUC_EXPT%INPUT(stoq)%VAL(k), r2)
+     ! POPLUC%ctos(k) = real(LUC_EXPT%INPUT(ctos)%VAL(k), r2)
+     ! POPLUC%qtos(k) = real(LUC_EXPT%INPUT(qtos)%VAL(k), r2)
 
      POPLUC%thisyear = yyyy
   END DO
   ! zero secondary forest tiles in POP where secondary forest area is zero
   DO k=1,mland
-     if ( eq(POPLUC%frac_primf(k)-POPLUC%frac_forest(k), 0.0_r_2) &
+     if ( eq(POPLUC%frac_primf(k)-POPLUC%frac_forest(k), 0.0_r2) &
           .and. (.not. LUC_EXPT%prim_only(k)) ) then
         j = landpt(k)%cstart+1
         do l=1,size(POP%Iwood)
@@ -6634,24 +6634,24 @@ SUBROUTINE LUCdriver(casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, 
            end if
         end do
 
-        casapool%cplant(j,leaf) = 0.01_r_2
+        casapool%cplant(j,leaf) = 0.01_r2
         casapool%nplant(j,leaf)= casabiome%ratioNCplantmin(veg%iveg(j),leaf)* casapool%cplant(j,leaf)
         casapool%pplant(j,leaf)= casabiome%ratioPCplantmin(veg%iveg(j),leaf)* casapool%cplant(j,leaf)
 
-        casapool%cplant(j,froot) = 0.01_r_2
+        casapool%cplant(j,froot) = 0.01_r2
         casapool%nplant(j,froot)= casabiome%ratioNCplantmin(veg%iveg(j),froot)* casapool%cplant(j,froot)
         casapool%pplant(j,froot)= casabiome%ratioPCplantmin(veg%iveg(j),froot)* casapool%cplant(j,froot)
 
-        casapool%cplant(j,wood) = 0.01_r_2
+        casapool%cplant(j,wood) = 0.01_r2
         casapool%nplant(j,wood)= casabiome%ratioNCplantmin(veg%iveg(j),wood)* casapool%cplant(j,wood)
         casapool%pplant(j,wood)= casabiome%ratioPCplantmin(veg%iveg(j),wood)* casapool%cplant(j,wood)
-        casaflux%frac_sapwood(j) = 1.0_r_2
+        casaflux%frac_sapwood(j) = 1.0_r2
 
         ! 13C
         if (cable_user%c13o2) then
-           c13o2pools%cplant(j,leaf)  = 0.01_r_2 ! * vpdbc13 / vpdbc13 ! Divide by 13C
-           c13o2pools%cplant(j,wood)  = 0.01_r_2 ! * vpdbc13 / vpdbc13 ! so that about same numerical precision as 12C
-           c13o2pools%cplant(j,froot) = 0.01_r_2 ! * vpdbc13 / vpdbc13 !
+           c13o2pools%cplant(j,leaf)  = 0.01_r2 ! * vpdbc13 / vpdbc13 ! Divide by 13C
+           c13o2pools%cplant(j,wood)  = 0.01_r2 ! * vpdbc13 / vpdbc13 ! so that about same numerical precision as 12C
+           c13o2pools%cplant(j,froot) = 0.01_r2 ! * vpdbc13 / vpdbc13 !
         end if
 
      end if

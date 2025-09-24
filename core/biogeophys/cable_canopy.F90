@@ -115,16 +115,16 @@ CONTAINS
          tlfx => null(),          & ! leaf temp prev. iter (K)
          tlfy => null()             ! leaf temp (K)
 
-    REAL(r_2), DIMENSION(mp) :: &
+    REAL(r2), DIMENSION(mp) :: &
          gbvtop                   ! bnd layer cond. top leaf
 
-    REAL(r_2), DIMENSION(:), POINTER :: &
+    REAL(r2), DIMENSION(:), POINTER :: &
          ecy => null(),           & ! lat heat fl dry big leaf
          hcy => null(),           & ! veg. sens heat
          rny => null(),           & ! net rad
          ghwet => null()            ! cond for heat for a wet canopy
 
-    REAL(r_2), DIMENSION(:,:), POINTER :: &
+    REAL(r2), DIMENSION(:,:), POINTER :: &
          gbhu => null(),          & ! forcedConvectionBndryLayerCond
          gbhf => null(),          & ! freeConvectionBndryLayerCond
          csx => null()              ! leaf surface CO2 concentration
@@ -173,53 +173,53 @@ CONTAINS
 
     canopy%fevw_pot = 0.0
     canopy%gswx     = 1.0e-3     ! default stomatal conuctance
-    gbhf            = 1.0e-3_r_2 ! default free convection boundary layer conductance
-    gbhu            = 1.0e-3_r_2 ! default forced convection boundary layer conductance
+    gbhf            = 1.0e-3_r2 ! default free convection boundary layer conductance
+    gbhu            = 1.0e-3_r2 ! default forced convection boundary layer conductance
     ssnow%evapfbl   = 0.0
-    ssnow%rex       = 0.0_r_2
+    ssnow%rex       = 0.0_r2
     ! Initialise in-canopy temperatures and humidity:
-    csx = SPREAD(real(met%ca,r_2), 2, mf) ! initialise leaf surface CO2 concentration
+    csx = SPREAD(real(met%ca,r2), 2, mf) ! initialise leaf surface CO2 concentration
     met%tvair = met%tk
     met%qvair = met%qv
     canopy%tv = met%tvair
 
     ! Initialise sunlit and shaded Ac and Aj diagnostics
-    canopy%A_sh           = 0.0_r_2
-    canopy%A_sl           = 0.0_r_2
-    canopy%A_shC          = 0.0_r_2
-    canopy%A_slC          = 0.0_r_2
-    canopy%A_shJ          = 0.0_r_2
-    canopy%A_slJ          = 0.0_r_2
-    canopy%GPP_sh         = 0.0_r_2
-    canopy%GPP_sl         = 0.0_r_2
-    canopy%fevc_sh        = 0.0_r_2
-    canopy%fevc_sl        = 0.0_r_2
-    canopy%eta_A_cs       = 0.0_r_2
-    canopy%eta_GPP_cs     = 0.0_r_2
-    canopy%eta_fevc_cs    = 0.0_r_2
-    canopy%eta_A_cs_sh    = 0.0_r_2
-    canopy%eta_A_cs_sl    = 0.0_r_2
-    canopy%eta_fevc_cs_sh = 0.0_r_2
-    canopy%eta_fevc_cs_sl = 0.0_r_2
+    canopy%A_sh           = 0.0_r2
+    canopy%A_sl           = 0.0_r2
+    canopy%A_shC          = 0.0_r2
+    canopy%A_slC          = 0.0_r2
+    canopy%A_shJ          = 0.0_r2
+    canopy%A_slJ          = 0.0_r2
+    canopy%GPP_sh         = 0.0_r2
+    canopy%GPP_sl         = 0.0_r2
+    canopy%fevc_sh        = 0.0_r2
+    canopy%fevc_sl        = 0.0_r2
+    canopy%eta_A_cs       = 0.0_r2
+    canopy%eta_GPP_cs     = 0.0_r2
+    canopy%eta_fevc_cs    = 0.0_r2
+    canopy%eta_A_cs_sh    = 0.0_r2
+    canopy%eta_A_cs_sl    = 0.0_r2
+    canopy%eta_fevc_cs_sh = 0.0_r2
+    canopy%eta_fevc_cs_sl = 0.0_r2
 
-    canopy%dAdcs   = 0.0_r_2
-    canopy%cs      = 0.0_r_2
-    canopy%cs_sl   = 0.0_r_2
-    canopy%cs_sh   = 0.0_r_2
-    canopy%tlf     = 0.0_r_2
-    canopy%dlf     = 0.0_r_2
-    canopy%evapfbl = 0.0_r_2
+    canopy%dAdcs   = 0.0_r2
+    canopy%cs      = 0.0_r2
+    canopy%cs_sl   = 0.0_r2
+    canopy%cs_sh   = 0.0_r2
+    canopy%tlf     = 0.0_r2
+    canopy%dlf     = 0.0_r2
+    canopy%evapfbl = 0.0_r2
 
     ! 13C
-    canopy%An        = 0.0_r_2
-    canopy%Rd        = 0.0_r_2
+    canopy%An        = 0.0_r2
+    canopy%Rd        = 0.0_r2
     canopy%isc3      = .true.
-    canopy%vcmax     = 0.0_r_2
-    canopy%gammastar = 0.0_r_2
-    canopy%gsc       = 0.0_r_2
-    canopy%gbc       = 0.0_r_2
-    canopy%gac       = 0.0_r_2
-    canopy%ci        = 0.0_r_2
+    canopy%vcmax     = 0.0_r2
+    canopy%gammastar = 0.0_r2
+    canopy%gsc       = 0.0_r2
+    canopy%gbc       = 0.0_r2
+    canopy%gac       = 0.0_r2
+    canopy%ci        = 0.0_r2
 
     CALL define_air(met, air)
 
@@ -241,9 +241,9 @@ CONTAINS
        ssnow%tss = real(ssnow%Tsurface) + C%tfrz
     endif
     tss4 = ssnow%tss**4
-    canopy%fes  = 0.0_r_2
-    canopy%fess = 0.0_r_2
-    canopy%fesp = 0.0_r_2
+    canopy%fes  = 0.0_r2
+    canopy%fess = 0.0_r2
+    canopy%fesp = 0.0_r2
     ssnow%potev = 0.0
     canopy%fevw_pot = 0.0
 
@@ -352,8 +352,8 @@ CONTAINS
              ! Mathews (2006), A process-based model of offine fuel moisture,
              !                 International Journal of Wildland Fire 15,155-168
              ! assuming here u=1.0 ms-1, bulk litter density 63.5 kgm-3
-             canopy%kthLitt = 0.3_r_2 ! ~ 0.2992125984251969 = 0.2+0.14*0.045*1000.0/63.5
-             canopy%DvLitt = 3.1415841138194147e-05_r_2 ! = 2.17e-5*exp(1.0*2.6)*exp(-0.5*(2.08+(1.0*2.38)))
+             canopy%kthLitt = 0.3_r2 ! ~ 0.2992125984251969 = 0.2+0.14*0.045*1000.0/63.5
+             canopy%DvLitt = 3.1415841138194147e-05_r2 ! = 2.17e-5*exp(1.0*2.6)*exp(-0.5*(2.08+(1.0*2.38)))
           ENDIF
 
        ENDIF
@@ -391,22 +391,22 @@ CONTAINS
              gbvtop(j) = real( air%cmolar(j)*C%APOL * air%visc(j) / C%prandt / &
                   veg%dleaf(j) * (canopy%us(j) / MAX(rough%usuh(j),1.e-6) &
                   * veg%dleaf(j) / air%visc(j) )**0.5 &
-                  * C%prandt**(1.0/3.0) / veg%shelrb(j), r_2 )
-             gbvtop(j) = MAX(0.05_r_2, gbvtop(j)) ! for testing (BP aug2010)
+                  * C%prandt**(1.0/3.0) / veg%shelrb(j), r2 )
+             gbvtop(j) = MAX(0.05_r2, gbvtop(j)) ! for testing (BP aug2010)
 
              ! Forced convection boundary layer conductance
              ! (see Wang & Leuning 1998, AFM):
              !vh! inserted 'min' to avoid floating underflow
-             gbhu(j,1) = gbvtop(j)*(1.0_r_2 - EXP(-real( min(canopy%vlaiw(j) * &
-                  (0.5*rough%coexp(j)+rad%extkb(j)), 20.0), r_2))) / &
-                  real(rad%extkb(j)+0.5*rough%coexp(j), r_2)
-             gbhu(j,2) = 2.0_r_2 / real(rough%coexp(j),r_2) * gbvtop(j) * &
-                  (1.0_r_2-EXP(-real( min(0.5*rough%coexp(j)*canopy%vlaiw(j), 20.0), r_2))) &
+             gbhu(j,1) = gbvtop(j)*(1.0_r2 - EXP(-real( min(canopy%vlaiw(j) * &
+                  (0.5*rough%coexp(j)+rad%extkb(j)), 20.0), r2))) / &
+                  real(rad%extkb(j)+0.5*rough%coexp(j), r2)
+             gbhu(j,2) = 2.0_r2 / real(rough%coexp(j),r2) * gbvtop(j) * &
+                  (1.0_r2-EXP(-real( min(0.5*rough%coexp(j)*canopy%vlaiw(j), 20.0), r2))) &
                   - gbhu(j,1)
 
              if (cable_user%amphistomatous) then
-                gbhu(j,1) = gbhu(j,1) * 2.0_r_2
-                gbhu(j,2) = gbhu(j,2) * 2.0_r_2
+                gbhu(j,1) = gbhu(j,1) * 2.0_r2
+                gbhu(j,2) = gbhu(j,2) * 2.0_r2
              endif
 
           ENDIF ! canopy%vlaiw(j) > C%LAI_THRESH
@@ -421,8 +421,8 @@ CONTAINS
        ! print*, 'RR25 ', rough%coexp
        ! print*, 'RR26 ', rad%extkb
 
-       rny = sum(real(rad%rniso,r_2), 2) ! init current estimate net rad
-       hcy = 0.0_r_2          ! init current estimate sensible heat
+       rny = sum(real(rad%rniso,r2), 2) ! init current estimate net rad
+       hcy = 0.0_r2          ! init current estimate sensible heat
        ecy = rny - hcy        ! init current estimate latent heat
 
        sum_rad_rniso = sum(rad%rniso,2)
@@ -518,7 +518,7 @@ CONTAINS
              !! vh_js !! account for additional litter resistance to sensible heat transfer
              canopy%fhs = air%rho * C%CAPP * (ssnow%tss - met%tk) / &
                   ( ssnow%rtsoil + real(1-ssnow%isflag) * &
-                  real(veg%clitt*0.003_r_2/canopy%kthLitt) / (air%rho*C%CAPP) )
+                  real(veg%clitt*0.003_r2/canopy%kthLitt) / (air%rho*C%CAPP) )
           ELSE
              canopy%fhs = air%rho * C%CAPP * (ssnow%tss - met%tk) / ssnow%rtsoil
           ENDIF
@@ -579,7 +579,7 @@ CONTAINS
              !! vh_js !! account for additional litter resistance to sensible heat transfer
              canopy%fhs =  air%rho *C%CAPP *(ssnow%tss - met%tvair) / &
                   ( ssnow%rtsoil +  real(1-ssnow%isflag) * &
-                  real(veg%clitt*0.003_r_2/canopy%kthLitt) / (air%rho*C%CAPP) )
+                  real(veg%clitt*0.003_r2/canopy%kthLitt) / (air%rho*C%CAPP) )
           else
              canopy%fhs = air%rho*C%CAPP*(ssnow%tss - met%tvair) /ssnow%rtsoil
           ENDIF
@@ -807,11 +807,11 @@ CONTAINS
        IF (cable_user%litter) THEN
           !!vh_js!!
           ssnow%dfh_dtg = air%rho * C%CAPP / ( ssnow%rtsoil + &
-               real(1-ssnow%isflag) * real(veg%clitt*0.003_r_2/canopy%kthLitt) / &
+               real(1-ssnow%isflag) * real(veg%clitt*0.003_r2/canopy%kthLitt) / &
                (air%rho*C%CAPP) )
           ssnow%dfe_ddq = ssnow%wetfac * air%rho * air%rlam * ssnow%cls/ &
                ( ssnow%rtsoil + real(1-ssnow%isflag) * &
-               real(veg%clitt*0.003_r_2/canopy%DvLitt) )
+               real(veg%clitt*0.003_r2/canopy%DvLitt) )
        ELSE
           ssnow%dfh_dtg = air%rho * C%CAPP / ssnow%rtsoil
           ssnow%dfe_ddq = ssnow%wetfac * air%rho * air%rlam * ssnow%cls / ssnow%rtsoil
@@ -821,7 +821,7 @@ CONTAINS
             / ( ( C%TETENC + ssnow%tss-C%tfrz )**2 )*EXP( C%TETENB * &
             ( ssnow%tss-C%tfrz ) / ( C%TETENC + ssnow%tss-C%tfrz ) )
        canopy%dgdtg = real(ssnow%dfn_dtg - ssnow%dfh_dtg - ssnow%dfe_ddq * &
-            ssnow%ddq_dtg, r_2)
+            ssnow%ddq_dtg, r2)
     ENDIF
 
     bal%drybal = REAL(ecy+hcy) - SUM(rad%rniso,2) &
@@ -896,7 +896,7 @@ CONTAINS
          ssnowpotev = cc1 * (canopy%fns - ground_H_flux) + &
               cc2 * air%rho * air%rlam * (qsatfvar - met%qvair) / &
               (ssnow%rtsoil + real(1-ssnow%isflag) * &
-              real(veg%clitt*0.003_r_2/canopy%DvLitt))
+              real(veg%clitt*0.003_r2/canopy%DvLitt))
       else
          ssnowpotev = cc1 * (canopy%fns - ground_H_flux) + &
               cc2 * air%rho * air%rlam * (qsatfvar - met%qvair) / ssnow%rtsoil
@@ -936,7 +936,7 @@ CONTAINS
       if (cable_user%litter) then
          !! vh_js !!
          ssnowpotev = air%rho * air%rlam * idq / &
-              (ssnow%rtsoil + real(1-ssnow%isflag) * real(veg%clitt*0.003_r_2/canopy%DvLitt))
+              (ssnow%rtsoil + real(1-ssnow%isflag) * real(veg%clitt*0.003_r2/canopy%DvLitt))
       else
          ssnowpotev = air%rho * air%rlam * idq / ssnow%rtsoil
       endif
@@ -952,37 +952,37 @@ CONTAINS
 
       implicit none
 
-      real(r_2), dimension(mp) :: frescale, flower_limit, fupper_limit, pwet
+      real(r2), dimension(mp) :: frescale, flower_limit, fupper_limit, pwet
 
       integer :: j
 
       ! Soil latent heat:
-      canopy%fess = real(ssnow%wetfac * ssnow%potev, r_2)
-      where (ssnow%potev < 0.0) canopy%fess = real(ssnow%potev, r_2)
+      canopy%fess = real(ssnow%wetfac * ssnow%potev, r2)
+      where (ssnow%potev < 0.0) canopy%fess = real(ssnow%potev, r2)
 
       ! Reduce soil evap due to presence of puddle
-      pwet = max(0.0_r_2, min(0.2_r_2, &
-           real(ssnow%pudsto,r_2) / max(1.0_r_2, real(ssnow%pudsmx,r_2)) ) )
-      canopy%fess = canopy%fess * (1.0_r_2-pwet)
+      pwet = max(0.0_r2, min(0.2_r2, &
+           real(ssnow%pudsto,r2) / max(1.0_r2, real(ssnow%pudsmx,r2)) ) )
+      canopy%fess = canopy%fess * (1.0_r2-pwet)
 
-      frescale = real(soil%zse(1) * 1000. * air%rlam / dels, r_2)
+      frescale = real(soil%zse(1) * 1000. * air%rlam / dels, r2)
 
       do j=1, mp
 
-         if ((ssnow%snowd(j) < 0.1) .and. (canopy%fess(j) > 0.0_r_2)) then
+         if ((ssnow%snowd(j) < 0.1) .and. (canopy%fess(j) > 0.0_r2)) then
             if (.not. cable_user%l_new_reduce_soilevp) then
-               flower_limit(j) = ssnow%wb(j,1) - real(soil%swilt(j),r_2)/2.0_r_2
+               flower_limit(j) = ssnow%wb(j,1) - real(soil%swilt(j),r2)/2.0_r2
             else
                ! E.Kowalczyk 2014 - reduces the soil evaporation
-               flower_limit(j) = ssnow%wb(j,1) - real(soil%swilt(j),r_2)
+               flower_limit(j) = ssnow%wb(j,1) - real(soil%swilt(j),r2)
             endif
 
-            fupper_limit(j) = max(0.0_r_2, &
+            fupper_limit(j) = max(0.0_r2, &
                  flower_limit(j) * frescale(j) &
-                 - real(ssnow%evapfbl(j,1)*air%rlam(j)/dels, r_2))
+                 - real(ssnow%evapfbl(j,1)*air%rlam(j)/dels, r2))
             canopy%fess(j) = min(canopy%fess(j), fupper_limit(j))
 
-            fupper_limit(j) = (ssnow%wb(j,1) - real(ssnow%wbice(j,1),r_2)) * frescale(j)
+            fupper_limit(j) = (ssnow%wb(j,1) - real(ssnow%wbice(j,1),r2)) * frescale(j)
             canopy%fess(j) = min(canopy%fess(j), fupper_limit(j))
          end if
 
@@ -991,14 +991,14 @@ CONTAINS
          if ((ssnow%snowd(j) >= 0.1) .and. (ssnow%potev(j) > 0.0)) then
             ssnow%cls(j) = 1.1335
             canopy%fess(j) = real(min( (ssnow%wetfac(j)*ssnow%potev(j))*ssnow%cls(j), &
-                 ssnow%snowd(j)/dels*air%rlam(j)*ssnow%cls(j) ), r_2)
+                 ssnow%snowd(j)/dels*air%rlam(j)*ssnow%cls(j) ), r2)
          endif
 
       enddo
 
       ! Evaporation from soil puddle
-      canopy%fesp = min(real(ssnow%pudsto/dels*air%rlam, r_2), &
-           max(pwet*real(ssnow%potev,r_2), 0.0_r_2))
+      canopy%fesp = min(real(ssnow%pudsto/dels*air%rlam, r2), &
+           max(pwet*real(ssnow%potev,r2), 0.0_r2))
       canopy%fes  = canopy%fess + canopy%fesp
 
     END SUBROUTINE latent_heat_flux
@@ -1007,10 +1007,10 @@ CONTAINS
 
     SUBROUTINE within_canopy(gbhu, gbhf)
 
-      USE cable_def_types_mod, only: mp, r_2
+      USE cable_def_types_mod, only: mp, r2
       use mo_utils,            only: eq
 
-      REAL(r_2), INTENT(IN), DIMENSION(:,:) :: &
+      REAL(r2), INTENT(IN), DIMENSION(:,:) :: &
            gbhu, & ! forcedConvectionBndryLayerCond
            gbhf    ! freeConvectionBndryLayerCond
 
@@ -1231,7 +1231,7 @@ CONTAINS
       ! for momentum, using the businger-dyer form for unstable cases
       ! and the Beljaars and Holtslag (1991) form for stable cases.
 
-      use mo_constants, only: pi => pi_sp
+      use mo_constants, only: pi => pi_r1
 
       implicit none
 
@@ -1337,10 +1337,10 @@ CONTAINS
            cansat, & ! max canopy intercept. (mm)
            tlfy      ! leaf temp (K) - assC%UMINg the temperature of
       ! wet leaf is equal that of dry leaf ="tlfy"
-      REAL(r_2), INTENT(IN), DIMENSION(:,:) :: &
+      REAL(r2), INTENT(IN), DIMENSION(:,:) :: &
            gbhu,          & ! forcedConvectionBndryLayerCond
            gbhf             ! freeConvectionBndryLayerCond
-      REAL(r_2), INTENT(OUT), DIMENSION(:) :: &
+      REAL(r2), INTENT(OUT), DIMENSION(:) :: &
            ghwet            ! cond for heat for a wet canopy
 
       ! local variables
@@ -1355,7 +1355,7 @@ CONTAINS
 
       ! END header
 
-      ghwet = 1.0e-3_r_2
+      ghwet = 1.0e-3_r2
       gwwet = 1.0e-3
       ghrwet= 1.0e-3
       canopy%fevw = 0.0
@@ -1376,7 +1376,7 @@ CONTAINS
 
             ! VEG SENSIBLE & LATENT HEAT FLUXES fevw, fhvw (W/m2) for a wet canopy
             ! calculate total thermal resistance, rthv in s/m
-            ghwet(j)  = 2.0_r_2 * real(sum_gbh(j), r_2)
+            ghwet(j)  = 2.0_r2 * real(sum_gbh(j), r2)
             gwwet(j)  = 1.075 * sum_gbh(j)
             ghrwet(j) = sum_rad_gradis(j) + real(ghwet(j))
 
@@ -1467,8 +1467,8 @@ CONTAINS
          / ( soil%sfc - soil%swilt/2.0 ) ) )
 
     DO j=1,mp
-       IF ( ssnow%wbice(j,1) > real(tiny(1.0),r_2) ) &
-            ssnow%wetfac(j) = ssnow%wetfac(j) * real(MAX( 0.5_r_2, 1._r_2 - MIN( 0.2_r_2, &
+       IF ( ssnow%wbice(j,1) > real(tiny(1.0),r2) ) &
+            ssnow%wetfac(j) = ssnow%wetfac(j) * real(MAX( 0.5_r2, 1._r2 - MIN( 0.2_r2, &
             ( ssnow%wbice(j,1) / ssnow%wb(j,1) )**2 ) ) )
 
        IF( ssnow%snowd(j) > 0.1) ssnow%wetfac(j) = 0.9
@@ -1518,16 +1518,16 @@ CONTAINS
          fwsoil,     & ! soil water modifier of stom. cond
          tlfx,       & ! leaf temp prev. iter (K)
          tlfy          ! leaf temp (K)
-    real(r_2), dimension(:),   intent(inout) :: &
+    real(r2), dimension(:),   intent(inout) :: &
          ecy,        & ! lat heat fl dry big leaf
          hcy,        & ! veg. sens heat
          rny         !& !
-    real(r_2), dimension(:,:), intent(inout) :: &
+    real(r2), dimension(:,:), intent(inout) :: &
          gbhu,       & ! forcedConvectionBndryLayerCond
          gbhf,       & ! freeConvectionBndryLayerCond
          csx           ! leaf surface CO2 concentration
     real,      dimension(:),   intent(in)    :: cansat
-    real(r_2), dimension(:),   intent(out)   :: ghwet  ! cond for heat for a wet canopy
+    real(r2), dimension(:),   intent(out)   :: ghwet  ! cond for heat for a wet canopy
     integer,                   intent(in)    :: iter
     type(climate_type),        intent(in)    :: climate
 
@@ -1560,7 +1560,7 @@ CONTAINS
          temp_sun_c4,   & !
          temp_shade_c4    !
 
-    real(r_2), dimension(mp)  :: &
+    real(r2), dimension(mp)  :: &
          ecx,        & ! lat. hflux big leaf
          hcx,        & ! sens heat fl big leaf prev iteration
          rnx           ! net rad prev timestep
@@ -1599,7 +1599,7 @@ CONTAINS
          kc4,        & ! An-Ci slope in Collatz 1992 model
          gmes          ! mesophyll conductance of big leaf
 
-    real(r_2), dimension(mp,mf)  ::  dAnrubiscox, & ! CO2 elasticity of net photosynthesis (rubisco limited)
+    real(r2), dimension(mp,mf)  ::  dAnrubiscox, & ! CO2 elasticity of net photosynthesis (rubisco limited)
          dAnrubpx, &   !  (rubp limited)
          dAnsinkx, &  ! (sink limited)
          dAnx, & !(actual rate)
@@ -1653,7 +1653,7 @@ CONTAINS
              stop 126
 #endif
           endif
-          canopy%fwsoil = real(fwsoil, r_2)
+          canopy%fwsoil = real(fwsoil, r2)
        elseif ((cable_user%soil_struc=='sli') .or. (cable_user%fwsoil_switch=='Haverd2013')) then
           fwsoil = real(canopy%fwsoil)
        endif
@@ -1677,12 +1677,12 @@ CONTAINS
     anrubiscox  = 0.0
     anrubpx     = 0.0
     ansinkx     = 0.0
-    dAnrubiscox = 0.0_r_2
-    dAnrubpx    = 0.0_r_2
-    dAnsinkx    = 0.0_r_2
+    dAnrubiscox = 0.0_r2
+    dAnrubpx    = 0.0_r2
+    dAnsinkx    = 0.0_r2
     dAnx        = 0.0
-    eta_x       = 0.0_r_2
-    rnx         = SUM(real(rad%rniso,r_2),2)
+    eta_x       = 0.0_r2
+    rnx         = SUM(real(rad%rniso,r2),2)
     abs_deltlf  = 999.0
     vcmxt3      = 0.0
     vcmxt4      = 0.0
@@ -1690,16 +1690,16 @@ CONTAINS
 
     gras  = 1.0e-6
     an_y  = 0.0
-    hcx   = 0.0_r_2              ! init sens heat iteration memory variable
-    hcy   = 0.0_r_2
+    hcx   = 0.0_r2              ! init sens heat iteration memory variable
+    hcy   = 0.0_r2
     rdy   = 0.0
-    ecx   = SUM(real(rad%rniso,r_2),2) ! init lat heat iteration memory variable
+    ecx   = SUM(real(rad%rniso,r2),2) ! init lat heat iteration memory variable
     tlfxx = tlfx
     psycst(:,:)   = SPREAD(air%psyc,2,mf)
-    canopy%fevc   = 0.0_r_2
+    canopy%fevc   = 0.0_r2
     ssnow%evapfbl = 0.0
 
-    ghwet = 1.0e-3_r_2
+    ghwet = 1.0e-3_r2
     gwwet = 1.0e-3
     ghrwet= 1.0e-3
     canopy%fevw = 0.0
@@ -1729,8 +1729,8 @@ CONTAINS
     DO kk=1,mp
 
        IF(canopy%vlaiw(kk) <= C%LAI_THRESH) THEN
-          rnx(kk) = 0.0_r_2 ! intialise
-          ecx(kk) = 0.0_r_2 ! intialise
+          rnx(kk) = 0.0_r2 ! intialise
+          ecx(kk) = 0.0_r2 ! intialise
           ecy(kk) = ecx(kk) ! store initial values
           abs_deltlf(kk) = 0.0
           rny(kk) = rnx(kk) ! store initial values
@@ -1770,7 +1770,7 @@ CONTAINS
 
           IF (canopy%vlaiw(i) > C%LAI_THRESH .AND. abs_deltlf(i) > 0.1) THEN
 
-             ghwet(i)  = 2.0_r_2 * real(sum_gbh(i),r_2)
+             ghwet(i)  = 2.0_r2 * real(sum_gbh(i),r2)
              gwwet(i)  = 1.075 * sum_gbh(i)
              ghrwet(i) = sum_rad_gradis(i) + real(ghwet(i))
 
@@ -1789,16 +1789,16 @@ CONTAINS
 
              ! See Appendix E in (Leuning et al, 1995):
              gbhf(i,1) = real( rad%fvlai(i,1) * air%cmolar(i) * 0.5*C%dheat &
-                  * ( gras(i)**0.25 ) / veg%dleaf(i), r_2)
+                  * ( gras(i)**0.25 ) / veg%dleaf(i), r2)
              gbhf(i,2) = real( rad%fvlai(i,2) * air%cmolar(i) * 0.5 * C%dheat &
-                  * ( gras(i)**0.25 ) / veg%dleaf(i), r_2)
-             gbhf(i,:) = max(1.e-6_r_2, gbhf(i,:))
+                  * ( gras(i)**0.25 ) / veg%dleaf(i), r2)
+             gbhf(i,:) = max(1.e-6_r2, gbhf(i,:))
 
              ! Conductance for heat:
-             gh(i,:) = real(2.0_r_2 * (gbhu(i,:) + gbhf(i,:)))
+             gh(i,:) = real(2.0_r2 * (gbhu(i,:) + gbhf(i,:)))
 
              if (cable_user%amphistomatous) then
-                gbhf(i,:) = 2.0_r_2 * gbhf(i,:)
+                gbhf(i,:) = 2.0_r2 * gbhf(i,:)
                 gh(i,:)   = real(gbhu(i,:) + gbhf(i,:))
              endif
 
@@ -2025,8 +2025,8 @@ CONTAINS
                 gmes(i,1) = veg%gm(i) * rad%scalex(i,1) * xgmesT(tlfx(i)) * max(0.15,fwsoil(i)**qm)
                 gmes(i,2) = veg%gm(i) * rad%scalex(i,2) * xgmesT(tlfx(i)) * max(0.15,fwsoil(i)**qm)
 
-                !gmes(i,1) = gmes(i,1) * MAX(0.15_r_2,real(fwsoil(i)**qm,r_2))
-                !gmes(i,2) = gmes(i,2) * MAX(0.15_r_2,real(fwsoil(i)**qm,r_2))
+                !gmes(i,1) = gmes(i,1) * MAX(0.15_r2,real(fwsoil(i)**qm,r2))
+                !gmes(i,2) = gmes(i,2) * MAX(0.15_r2,real(fwsoil(i)**qm,r2))
              else ! gmes = 0.0 easier to debug than inf
                 gmes(i,1) = 0.0
                 gmes(i,2) = 0.0
@@ -2149,9 +2149,9 @@ CONTAINS
 
                 IF (rad%fvlai(i,kk)>C%LAI_THRESH) THEN
 
-                   csx(i,kk) = real(met%ca(i),r_2) - real(C%RGBWC*anx(i,kk),r_2) / &
+                   csx(i,kk) = real(met%ca(i),r2) - real(C%RGBWC*anx(i,kk),r2) / &
                         (gbhu(i,kk) + gbhf(i,kk))
-                   csx(i,kk) = max(1.0e-4_r_2, csx(i,kk))
+                   csx(i,kk) = max(1.0e-4_r2, csx(i,kk))
 
                    ! Ticket #56, xleuning replaced with gs_coeff here
                    if (cable_user%g0_switch == 'default') then
@@ -2187,39 +2187,39 @@ CONTAINS
                   * ( rad%rniso(i,2) - C%capp * C%rmair * ( met%tvair(i) - &
                   met%tk(i) ) * rad%gradis(i,2) ) + C%capp * C%rmair * &
                   met%dva(i) * ghr(i,2) ) / &
-                  ( air%dsatdk(i) + psycst(i,2) ), r_2)
+                  ( air%dsatdk(i) + psycst(i,2) ), r2)
 
              IF (cable_user%fwsoil_switch=='Haverd2013') then
                 ! avoid root-water extraction when fwsoil is zero
                 if (fwsoil(i) < 1e-6) then
                    anx(i,:) = -rdx(i,:)
-                   ecx(i)   = 0.0_r_2
+                   ecx(i)   = 0.0_r2
                 endif
 
-                canopy%fevc(i) = ecx(i) * (1.0_r_2-real(canopy%fwet(i),r_2))
+                canopy%fevc(i) = ecx(i) * (1.0_r2-real(canopy%fwet(i),r2))
 
-                call getrex_1d(ssnow%wb(i,:)-real(ssnow%wbice(i,:),r_2), ssnow%rex(i,:), &
+                call getrex_1d(ssnow%wb(i,:)-real(ssnow%wbice(i,:),r2), ssnow%rex(i,:), &
                      canopy%fwsoil(i), &
-                     real(veg%froot(i,:),r_2), SPREAD(real(soil%ssat(i),r_2),1,ms), &
-                     SPREAD(real(soil%swilt(i),r_2),1,ms), &
-                     max(canopy%fevc(i)/real(air%rlam(i),r_2)/1000.0_r_2, 0.0_r_2), &
+                     real(veg%froot(i,:),r2), SPREAD(real(soil%ssat(i),r2),1,ms), &
+                     SPREAD(real(soil%swilt(i),r2),1,ms), &
+                     max(canopy%fevc(i)/real(air%rlam(i),r2)/1000.0_r2, 0.0_r2), &
                      veg%gamma(i), &
-                     real(soil%zse, r_2), real(dels,r_2), veg%zr(i))
+                     real(soil%zse, r2), real(dels,r2), veg%zr(i))
 
                 fwsoil(i) = real(canopy%fwsoil(i))
 
-                where (ssnow%rex(i,:) > tiny(1.0_r_2)) &
+                where (ssnow%rex(i,:) > tiny(1.0_r2)) &
                      ssnow%evapfbl(i,:) = real(ssnow%rex(i,:))*dels*1000. ! mm water &
                 !(root water extraction) per time step
 
                 if (cable_user%Cumberland_soil) then
-                   canopy%fwsoil(i) = max(canopy%fwsoil(i), 0.6_r_2)
+                   canopy%fwsoil(i) = max(canopy%fwsoil(i), 0.6_r2)
                    fwsoil(i) = real(canopy%fwsoil(i))
                 endif
 
              ELSE
 
-                if (ecx(i) > 0.0_r_2 .and. canopy%fwet(i) < 1.0) then
+                if (ecx(i) > 0.0_r2 .and. canopy%fwet(i) < 1.0) then
                    evapfb(i) = ( 1.0 - canopy%fwet(i)) * real(ecx(i)) *dels &
                         / air%rlam(i)
 
@@ -2232,20 +2232,20 @@ CONTAINS
 
                    ENDDO
                    IF (cable_user%soil_struc=='default') then
-                      canopy%fevc(i) = real(sum(ssnow%evapfbl(i,:))*air%rlam(i)/dels, r_2)
-                      ecx(i) = canopy%fevc(i) / (1.0_r_2-real(canopy%fwet(i),r_2))
+                      canopy%fevc(i) = real(sum(ssnow%evapfbl(i,:))*air%rlam(i)/dels, r2)
+                      ecx(i) = canopy%fevc(i) / (1.0_r2-real(canopy%fwet(i),r2))
                    ELSEIF (cable_user%soil_struc=='sli') then
-                      canopy%fevc(i) = ecx(i) * (1.0_r_2-real(canopy%fwet(i),r_2))
+                      canopy%fevc(i) = ecx(i) * (1.0_r2-real(canopy%fwet(i),r2))
                    ENDIF
 
                 ENDIF
 
              ENDIF
              ! Update canopy sensible heat flux:
-             hcx(i) = ( SUM(real(rad%rniso(i,:),r_2)) - ecx(i) &
-                  - real(C%capp*C%rmair*(met%tvair(i)-met%tk(i)), r_2) &
-                  * SUM(real(rad%gradis(i,:),r_2)) ) &
-                  * SUM(real(gh(i,:),r_2))/ SUM(real(ghr(i,:),r_2))
+             hcx(i) = ( SUM(real(rad%rniso(i,:),r2)) - ecx(i) &
+                  - real(C%capp*C%rmair*(met%tvair(i)-met%tk(i)), r2) &
+                  * SUM(real(rad%gradis(i,:),r2)) ) &
+                  * SUM(real(gh(i,:),r2))/ SUM(real(ghr(i,:),r2))
 
              ! Update leaf temperature:
              tlfx(i) = met%tvair(i)+REAL(hcx(i))/(C%capp*C%rmair*SUM(gh(i,:)))
@@ -2253,7 +2253,7 @@ CONTAINS
              ! Update net radiation for canopy:
              rnx(i) = real( SUM( rad%rniso(i,:)) - &
                   C%CAPP * C%rmair *( tlfx(i)-met%tk(i) ) * &
-                  SUM( rad%gradis(i,:) ), r_2)
+                  SUM( rad%gradis(i,:) ), r2)
 
              ! Update leaf surface vapour pressure deficit:
              dsx(i) = met%dva(i) + air%dsatdk(i) * (tlfx(i)-met%tvair(i))
@@ -2328,7 +2328,7 @@ CONTAINS
     END DO  ! DO WHILE (ANY(abs_deltlf > 0.1) .AND.  k < C%MAXITER)
 
     ! dry canopy flux
-    canopy%fevc = (1.0_r_2-real(canopy%fwet,r_2)) * ecy
+    canopy%fevc = (1.0_r2-real(canopy%fwet,r2)) * ecy
 
     ! print*, 'DD45 ', canopy%fwet
     ! print*, 'DD46 ', canopy%fevc
@@ -2340,12 +2340,12 @@ CONTAINS
        ! ** ssnow%evapfbl(i,:) = ssnow%evapfbl(i,:) * ecy(i) / ecx(i) **
        DO i = 1, mp
 
-          IF( ecy(i) > 0.0_r_2 .AND. canopy%fwet(i) < 1.0 ) THEN
+          IF( ecy(i) > 0.0_r2 .AND. canopy%fwet(i) < 1.0 ) THEN
 
-             IF( ABS( ecy(i) - ecx(i) ) > 1.0e-6_r_2 ) THEN
+             IF( ABS( ecy(i) - ecx(i) ) > 1.0e-6_r2 ) THEN
 
                 IF( ABS( canopy%fevc(i) - real(SUM(oldevapfbl(i,:)) * air%rlam(i) &
-                     /dels, r_2) ) > 1.0e-4_r_2 ) THEN
+                     /dels, r2) ) > 1.0e-4_r2 ) THEN
 
                    WRITE(*,*) 'ERROR! oldevapfbl not right.', ktau_gl, i
                    WRITE(*,*) 'ecx, ecy = ', ecx(i), ecy(i)
@@ -2382,83 +2382,83 @@ CONTAINS
 
     ! additional diagnostic variables for assessing contributions of rubisco and rubp limited photosynthesis to
     ! net photosynthesis in sunlit and shaded leaves.
-    canopy%A_sh = real(an_y(:,2), r_2)
-    canopy%A_sl = real(an_y(:,1), r_2)
+    canopy%A_sh = real(an_y(:,2), r2)
+    canopy%A_sl = real(an_y(:,1), r2)
 
-    canopy%GPP_sh = real(an_y(:,2) + rdy(:,2), r_2)
-    canopy%GPP_sl = real(an_y(:,1) + rdy(:,1), r_2)
+    canopy%GPP_sh = real(an_y(:,2) + rdy(:,2), r2)
+    canopy%GPP_sl = real(an_y(:,1) + rdy(:,1), r2)
 
-    canopy%A_shC = real(anrubiscoy(:,2), r_2)
-    canopy%A_shJ = real(anrubpy(:,2), r_2)
+    canopy%A_shC = real(anrubiscoy(:,2), r2)
+    canopy%A_shJ = real(anrubpy(:,2), r2)
 
-    where (anrubiscoy(:,2) > an_y(:,2)) canopy%A_shC = 0.0_r_2
-    where (anrubpy(:,2) > an_y(:,2))    canopy%A_shJ = 0.0_r_2
+    where (anrubiscoy(:,2) > an_y(:,2)) canopy%A_shC = 0.0_r2
+    where (anrubpy(:,2) > an_y(:,2))    canopy%A_shJ = 0.0_r2
 
-    canopy%A_slC = real(anrubiscoy(:,1), r_2)
-    canopy%A_slJ = real(anrubpy(:,1), r_2)
+    canopy%A_slC = real(anrubiscoy(:,1), r2)
+    canopy%A_slJ = real(anrubpy(:,1), r2)
 
-    where (anrubiscoy(:,1) > an_y(:,1)) canopy%A_slC = 0.0_r_2
-    where (anrubpy(:,1)    > an_y(:,1)) canopy%A_slJ = 0.0_r_2
+    where (anrubiscoy(:,1) > an_y(:,1)) canopy%A_slC = 0.0_r2
+    where (anrubpy(:,1)    > an_y(:,1)) canopy%A_slJ = 0.0_r2
 
-    canopy%eta_A_cs = canopy%A_sh * min(eta_y(:,2),5.0_r_2) + canopy%A_sl * min(eta_y(:,1),5.0_r_2)
-    where ((canopy%A_sl > 0.0_r_2) .and. (canopy%A_sh > 0.0_r_2))
-       canopy%eta_GPP_cs = canopy%GPP_sh  * min(eta_y(:,2),5.0_r_2) * canopy%GPP_sh/canopy%A_sh + &
-            canopy%GPP_sl * min(eta_y(:,1),5.0_r_2)* canopy%GPP_sl/canopy%A_sl
-    elsewhere ((canopy%A_sl .le. 0.0_r_2) .and. (canopy%A_sh > 0.0_r_2))
-       canopy%eta_GPP_cs = canopy%GPP_sh * min(eta_y(:,2),5.0_r_2) * canopy%GPP_sh/canopy%A_sh
+    canopy%eta_A_cs = canopy%A_sh * min(eta_y(:,2),5.0_r2) + canopy%A_sl * min(eta_y(:,1),5.0_r2)
+    where ((canopy%A_sl > 0.0_r2) .and. (canopy%A_sh > 0.0_r2))
+       canopy%eta_GPP_cs = canopy%GPP_sh  * min(eta_y(:,2),5.0_r2) * canopy%GPP_sh/canopy%A_sh + &
+            canopy%GPP_sl * min(eta_y(:,1),5.0_r2)* canopy%GPP_sl/canopy%A_sl
+    elsewhere ((canopy%A_sl .le. 0.0_r2) .and. (canopy%A_sh > 0.0_r2))
+       canopy%eta_GPP_cs = canopy%GPP_sh * min(eta_y(:,2),5.0_r2) * canopy%GPP_sh/canopy%A_sh
     elsewhere
        canopy%eta_GPP_cs = canopy%eta_A_cs
     end where
 
-    where (canopy%A_sl > 0.0_r_2)
-       canopy%eta_A_cs_sl    =  min(eta_y(:,1),5.0_r_2)
-       canopy%eta_fevc_cs_sl = (min(eta_y(:,1),5.0_r_2) - 1.0_r_2) * &
-            real(max(0.0, gs_coeff(:,1)*an_y(:,1)), r_2) / real(canopy%gswx(:,1), r_2)
+    where (canopy%A_sl > 0.0_r2)
+       canopy%eta_A_cs_sl    =  min(eta_y(:,1),5.0_r2)
+       canopy%eta_fevc_cs_sl = (min(eta_y(:,1),5.0_r2) - 1.0_r2) * &
+            real(max(0.0, gs_coeff(:,1)*an_y(:,1)), r2) / real(canopy%gswx(:,1), r2)
     elsewhere
-       canopy%eta_A_cs_sl    = 0.0_r_2
-       canopy%eta_fevc_cs_sl = 0.0_r_2
+       canopy%eta_A_cs_sl    = 0.0_r2
+       canopy%eta_fevc_cs_sl = 0.0_r2
     endwhere
 
-    where (canopy%A_sh > 0.0_r_2)
-       canopy%eta_A_cs_sh    =  min(eta_y(:,2),5.0_r_2)
-       canopy%eta_fevc_cs_sh = (min(eta_y(:,2),5.0_r_2) - 1.0_r_2) * &
-            real(max(0.0, gs_coeff(:,2)*an_y(:,2)), r_2) / real(canopy%gswx(:,2), r_2)
+    where (canopy%A_sh > 0.0_r2)
+       canopy%eta_A_cs_sh    =  min(eta_y(:,2),5.0_r2)
+       canopy%eta_fevc_cs_sh = (min(eta_y(:,2),5.0_r2) - 1.0_r2) * &
+            real(max(0.0, gs_coeff(:,2)*an_y(:,2)), r2) / real(canopy%gswx(:,2), r2)
     elsewhere
-       canopy%eta_A_cs_sh    = 0.0_r_2
-       canopy%eta_fevc_cs_sh = 0.0_r_2
+       canopy%eta_A_cs_sh    = 0.0_r2
+       canopy%eta_fevc_cs_sh = 0.0_r2
     endwhere
 
     where ((rad%fvlai(:,1)+rad%fvlai(:,2)) > 0.01)
-       canopy%eta_fevc_cs = ( canopy%eta_fevc_cs_sl *  real(rad%fvlai(:,1), r_2) + &
-            canopy%eta_fevc_cs_sh * real(rad%fvlai(:,2), r_2) ) * canopy%fevc / &
-            real(rad%fvlai(:,1)+rad%fvlai(:,2), r_2)
+       canopy%eta_fevc_cs = ( canopy%eta_fevc_cs_sl *  real(rad%fvlai(:,1), r2) + &
+            canopy%eta_fevc_cs_sh * real(rad%fvlai(:,2), r2) ) * canopy%fevc / &
+            real(rad%fvlai(:,1)+rad%fvlai(:,2), r2)
     elsewhere
-       canopy%eta_fevc_cs = 0.0_r_2
+       canopy%eta_fevc_cs = 0.0_r2
     endwhere
 
     canopy%dAdcs = canopy%A_sl * dAn_y(:,1) + canopy%A_sh * dAn_y(:,2)
-    canopy%cs    = canopy%A_sl * csx(:,1) * 1.0e6_r_2 + canopy%A_sh * csx(:,2) * 1.0e6_r_2
-    canopy%cs_sl = csx(:,1) * 1.0e6_r_2
-    canopy%cs_sh = csx(:,2) * 1.0e6_r_2
-    canopy%tlf   = real(tlfy, r_2)
-    canopy%dlf   = real(dsx, r_2)
+    canopy%cs    = canopy%A_sl * csx(:,1) * 1.0e6_r2 + canopy%A_sh * csx(:,2) * 1.0e6_r2
+    canopy%cs_sl = csx(:,1) * 1.0e6_r2
+    canopy%cs_sh = csx(:,2) * 1.0e6_r2
+    canopy%tlf   = real(tlfy, r2)
+    canopy%dlf   = real(dsx, r2)
 
     ! print*, 'DD47 ', ssnow%evapfbl
     canopy%evapfbl = ssnow%evapfbl
 
     ! 13C
-    canopy%An        = real(an_y, r_2)
-    canopy%Rd        = real(rdy, r_2)
+    canopy%An        = real(an_y, r2)
+    canopy%Rd        = real(rdy, r2)
     canopy%isc3      = (1.0-veg%frac4) > epsilon(1.0)
-    canopy%vcmax     = real(merge(vcmxt3, vcmxt4, spread(canopy%isc3,2,mf)), r_2)
-    canopy%gammastar = real(spread(cx2*0.5,2,mf), r_2)
-    canopy%gsc       = real(canopy%gswx / C%rgswc, r_2)
-    canopy%gbc       = (gbhu + gbhf) / real(C%rgbwc, r_2)
-    canopy%gac       = huge(1.0_r_2)
-    ! replace 1.0_r_2/canopy%gac by tiny(1.0_r_2) to avoid underflow
-    canopy%ci        = real(spread(met%ca, 2, mf), r_2) - &
+    canopy%vcmax     = real(merge(vcmxt3, vcmxt4, spread(canopy%isc3,2,mf)), r2)
+    canopy%gammastar = real(spread(cx2*0.5,2,mf), r2)
+    canopy%gsc       = real(canopy%gswx / C%rgswc, r2)
+    canopy%gbc       = (gbhu + gbhf) / real(C%rgbwc, r2)
+    canopy%gac       = huge(1.0_r2)
+    ! replace 1.0_r2/canopy%gac by tiny(1.0_r2) to avoid underflow
+    canopy%ci        = real(spread(met%ca, 2, mf), r2) - &
          canopy%An / &
-         (1.0_r_2 / (1.0_r_2/canopy%gbc + 1.0_r_2/canopy%gsc + tiny(1.0_r_2)))
+         (1.0_r2 / (1.0_r2/canopy%gbc + 1.0_r2/canopy%gsc + tiny(1.0_r2)))
 
     ! deallocate( gswmin )
 
@@ -2474,12 +2474,12 @@ CONTAINS
        vx4z, gs_coeffz, vlaiz, deltlfz, anxz, fwsoilz, qs, &
        gmes, kc4, anrubiscoz, anrubpz, ansinkz, eta, dA )
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
     use cable_common_module, only: cable_user
 
     implicit none
 
-    real(r_2), dimension(:, :), intent(in) :: csxz
+    real(r2), dimension(:, :), intent(in) :: csxz
     real,      dimension(:, :), intent(in) :: gmes
     real,      dimension(:, :), intent(in) :: &
          cx1z,       & !
@@ -2497,18 +2497,18 @@ CONTAINS
     real,                       intent(in)    :: qs
     real,      dimension(:, :), intent(inout) :: gswminz
     real,      dimension(:, :), intent(inout) :: anxz, anrubiscoz, anrubpz, ansinkz
-    real(r_2), dimension(:, :), intent(out)   :: eta, dA
+    real(r2), dimension(:, :), intent(out)   :: eta, dA
 
     ! local variables
-    real(r_2), dimension(size(csxz, 1), size(csxz, 2)) :: dAmp, dAme, dAmc, eta_p, eta_e, eta_c
+    real(r2), dimension(size(csxz, 1), size(csxz, 2)) :: dAmp, dAme, dAmc, eta_p, eta_e, eta_c
     !real, dimension(mp) :: fwsoilz  ! why was this local??
-    real(r_2) :: gamma, beta, gammast, gm, g0, X, Rd, cs
-    real(r_2) :: cc, gsm
-    real(r_2) :: Am
+    real(r2) :: gamma, beta, gammast, gm, g0, X, Rd, cs
+    real(r2) :: cc, gsm
+    real(r2) :: Am
     integer :: i, j, mp, mf
     ! for minimum of 3 rates and corresponding elasticities
     real,      dimension(3) :: tmp3
-    real(r_2), dimension(3) :: dtmp3
+    real(r2), dimension(3) :: dtmp3
     integer,   dimension(1) :: ii
 
     mp = size(csxz, 1)
@@ -2526,24 +2526,24 @@ CONTAINS
                 anrubiscoz(i,j) = -rdxz(i,j)
                 anrubpz(i,j)    = -rdxz(i,j)
                 ansinkz(i,j)    = -rdxz(i,j)
-                dAmc(i,j)       = 0.0_r_2
-                dAme(i,j)       = 0.0_r_2
-                dAmp(i,j)       = 0.0_r_2
-                dA(i,j)         = 0.0_r_2
-                eta_c(i,j)      = 0.0_r_2
-                eta_e(i,j)      = 0.0_r_2
-                eta_p(i,j)      = 0.0_r_2
-                eta(i,j)        = 0.0_r_2
+                dAmc(i,j)       = 0.0_r2
+                dAme(i,j)       = 0.0_r2
+                dAmp(i,j)       = 0.0_r2
+                dA(i,j)         = 0.0_r2
+                eta_c(i,j)      = 0.0_r2
+                eta_e(i,j)      = 0.0_r2
+                eta_p(i,j)      = 0.0_r2
+                eta(i,j)        = 0.0_r2
 
                 ! C3, Rubisco limited, accounting for explicit mesophyll conductance
                 if ((vcmxt3z(i,j) > 1.0e-8) .and. (gs_coeffz(i,j) > 100.)) then
                    cs      = csxz(i,j)
-                   g0      = real(gswminz(i,j) * fwsoilz(i)**qs / C%RGSWC, r_2)
-                   X       = real(gs_coeffz(i,j), r_2)
-                   gamma   = real(vcmxt3z(i,j), r_2)
-                   beta    = real(cx1z(i,j), r_2)
-                   gammast = real(cx2z(i,j) / 2.0, r_2)
-                   Rd      = real(rdxz(i,j), r_2)
+                   g0      = real(gswminz(i,j) * fwsoilz(i)**qs / C%RGSWC, r2)
+                   X       = real(gs_coeffz(i,j), r2)
+                   gamma   = real(vcmxt3z(i,j), r2)
+                   beta    = real(cx1z(i,j), r2)
+                   gammast = real(cx2z(i,j) / 2.0, r2)
+                   Rd      = real(rdxz(i,j), r2)
                    gm      = gmes(i,j)
 
                    if (trim(cable_user%g0_switch) == 'default') then
@@ -2558,17 +2558,17 @@ CONTAINS
                    elseif (trim(cable_user%g0_switch) == 'maximum') then
                       ! set g0 to zero initially
                       if (cable_user%explicit_gm) then
-                         call fAmdAm_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
+                         call fAmdAm_c3(cs, 0.0_r2, X*cs, gamma, beta, gammast, Rd, &
                               gm, Am, dAmc(i,j))
                          if (g0 > Am*X) then ! repeat calculation if g0 > A*X
-                            call fAmdAm_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
+                            call fAmdAm_c3(cs, g0, 0.1e-4_r2, gamma, beta, gammast, Rd, &
                                  gm, Am, dAmc(i,j))
                          endif
                       else
-                         call fAndAn_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
+                         call fAndAn_c3(cs, 0.0_r2, X*cs, gamma, beta, gammast, Rd, &
                               Am, dAmc(i,j))
                          if (g0 > Am*X) then ! repeat calculation if g0 > A*X
-                            call fAndAn_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
+                            call fAndAn_c3(cs, g0, 0.1e-4_r2, gamma, beta, gammast, Rd, &
                               Am, dAmc(i,j))
                          endif
                       endif
@@ -2577,28 +2577,28 @@ CONTAINS
 
                    if (cable_user%explicit_gm) then
                       gsm = (gm * (g0+X*Am)) / (gm + (g0+X*Am))
-                      cc  = cs - Am / max(gsm, 1.0e-4_r_2)
+                      cc  = cs - Am / max(gsm, 1.0e-4_r2)
                    endif
-                   if (Am > 0.0_r_2) eta_c(i,j) = dAmc(i,j) * cs / Am
+                   if (Am > 0.0_r2) eta_c(i,j) = dAmc(i,j) * cs / Am
                 endif  ! C3
 
                 ! C4, Rubisco limited, accounting for explicit mesophyll conductance
                 if (vcmxt4z(i,j) > 1.0e-8) then
                    anrubiscoz(i,j) = vcmxt4z(i,j)- rdxz(i,j)
-                   dAmc(i,j)  = 0.0_r_2
-                   eta_c(i,j) = 0.0_r_2
+                   dAmc(i,j)  = 0.0_r2
+                   eta_c(i,j) = 0.0_r2
                 endif
 
                 ! C3, RuBP regeneration-limited, accounting for explicit mesophyll conductance
                 if ( (vcmxt3z(i,j) > 0.0) .and. (gs_coeffz(i,j) > 100.) .and. &
                      (vx3z(i,j) > 1.0e-8) ) then
                    cs      = csxz(i,j)
-                   g0      = real(gswminz(i,j) * fwsoilz(i)**qs / C%RGSWC, r_2)
-                   X       = real(gs_coeffz(i,j), r_2)
-                   gamma   = real(vx3z(i,j), r_2)
-                   beta    = real(cx2z(i,j), r_2)
-                   gammast = real(cx2z(i,j) / 2.0, r_2)
-                   Rd      = real(rdxz(i,j), r_2)
+                   g0      = real(gswminz(i,j) * fwsoilz(i)**qs / C%RGSWC, r2)
+                   X       = real(gs_coeffz(i,j), r2)
+                   gamma   = real(vx3z(i,j), r2)
+                   beta    = real(cx2z(i,j), r2)
+                   gammast = real(cx2z(i,j) / 2.0, r2)
+                   Rd      = real(rdxz(i,j), r2)
                    gm      = gmes(i,j)
 
                    if (trim(cable_user%g0_switch) == 'default') then
@@ -2611,19 +2611,19 @@ CONTAINS
                       endif
                    elseif (trim(cable_user%g0_switch) == 'maximum') then
                       if (cable_user%explicit_gm) then
-                         call fAmdAm_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
+                         call fAmdAm_c3(cs, 0.0_r2, X*cs, gamma, beta, gammast, Rd, &
                               gm, Am, dAme(i,j))
                          ! repeat calculation if g0 > A*X
                          if (g0 > Am*X) then
-                            call fAmdAm_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
+                            call fAmdAm_c3(cs, g0, 0.1e-4_r2, gamma, beta, gammast, Rd, &
                                  gm, Am, dAme(i,j))
                          endif
                       else
-                         call fAndAn_c3(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
+                         call fAndAn_c3(cs, 0.0_r2, X*cs, gamma, beta, gammast, Rd, &
                               Am, dAme(i,j))
                          ! repeat calculation if g0 > A*X
                          if (g0 > Am*X) then
-                            call fAndAn_c3(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
+                            call fAndAn_c3(cs, g0, 0.1e-4_r2, gamma, beta, gammast, Rd, &
                                  Am, dAme(i,j))
                          endif
                       endif
@@ -2632,33 +2632,33 @@ CONTAINS
 
                    if (cable_user%explicit_gm) then
                       gsm = (gm * (g0+X*Am)) / (gm + (g0+X*Am))
-                      cc  = cs - Am / max(gsm, 1.0e-4_r_2)
+                      cc  = cs - Am / max(gsm, 1.0e-4_r2)
                    endif
-                   if (Am > 0.0_r_2) eta_e(i,j) = dAme(i,j) * cs / Am
+                   if (Am > 0.0_r2) eta_e(i,j) = dAme(i,j) * cs / Am
                 endif  ! C3
 
                 ! C4, RuBP limited, accounting for explicit mesophyll conductance
                 if (vx4z(i,j) > 1.0e-8) then
                    anrubpz(i,j) = vx4z(i,j) - rdxz(i,j)
-                   dAme(i,j)  = 0.0_r_2
-                   eta_e(i,j) = 0.0_r_2
+                   dAme(i,j)  = 0.0_r2
+                   eta_e(i,j) = 0.0_r2
                 endif
 
                 ! Sink limited, accounting for explicit mesophyll conductance
                 if (vcmxt3z(i,j) > 1.0e-10) then ! C3
 
                    ansinkz(i,j) = 0.5 * vcmxt3z(i,j) - rdxz(i,j)
-                   dAmp(i,j)  = 0.0_r_2
-                   eta_p(i,j) = 0.0_r_2
+                   dAmp(i,j)  = 0.0_r2
+                   eta_p(i,j) = 0.0_r2
 
                 elseif ((vcmxt4z(i,j) > 1.0e-10) .and. (gs_coeffz(i,j) > 100.)) then ! C4
                    cs         = csxz(i,j)
-                   g0         = real(gswminz(i,j) * fwsoilz(i)**qs / C%RGSWC, r_2)
-                   X          = real(gs_coeffz(i,j), r_2)
-                   gamma      = real(kc4(i,j),r_2) ! k in Collatz 1992
-                   beta       = 0.0_r_2
-                   gammast    = 0.0_r_2
-                   Rd         = real(rdxz(i,j), r_2)
+                   g0         = real(gswminz(i,j) * fwsoilz(i)**qs / C%RGSWC, r2)
+                   X          = real(gs_coeffz(i,j), r2)
+                   gamma      = real(kc4(i,j),r2) ! k in Collatz 1992
+                   beta       = 0.0_r2
+                   gammast    = 0.0_r2
+                   Rd         = real(rdxz(i,j), r2)
                    gm         = gmes(i,j)
 
                    if (trim(cable_user%g0_switch) == 'default') then
@@ -2671,26 +2671,26 @@ CONTAINS
                       endif
                    elseif (trim(cable_user%g0_switch) == 'maximum') then
                       if (cable_user%explicit_gm) then
-                         call fAmdAm_c4(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, gm, &
+                         call fAmdAm_c4(cs, 0.0_r2, X*cs, gamma, beta, gammast, Rd, gm, &
                               Am, dAmp(i,j))
                          if (g0 > Am*X) then
-                            call fAmdAm_c4(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, gm, &
+                            call fAmdAm_c4(cs, g0, 0.1e-4_r2, gamma, beta, gammast, Rd, gm, &
                                  Am, dAmp(i,j))
                          endif
                       else
-                         call fAndAn_c4(cs, 0.0_r_2, X*cs, gamma, beta, gammast, Rd, &
+                         call fAndAn_c4(cs, 0.0_r2, X*cs, gamma, beta, gammast, Rd, &
                               Am, dAmp(i,j))
                          if (g0 > Am*X) then
-                            call fAndAn_c4(cs, g0, 0.1e-4_r_2, gamma, beta, gammast, Rd, &
+                            call fAndAn_c4(cs, g0, 0.1e-4_r2, gamma, beta, gammast, Rd, &
                                  Am, dAmp(i,j))
                          endif
                       endif
                    endif
                    ansinkz(i,j) = real(Am)
 
-                   dAmp(i,j)  = 0.0_r_2
-                   eta_p(i,j) = 0.0_r_2
-                   if (Am > 0.0_r_2) eta_p(i,j) = dAmp(i,j) * cs / Am
+                   dAmp(i,j)  = 0.0_r2
+                   eta_p(i,j) = 0.0_r2
+                   if (Am > 0.0_r2) eta_p(i,j) = dAmp(i,j) * cs / Am
                 endif ! C3/C4
 
              endif ! deltlfz > 0.1
@@ -2710,14 +2710,14 @@ CONTAINS
              anrubiscoz(i,:) = 0.0
              anrubpz(i,:)    = 0.0
              ansinkz(i,:)    = 0.0
-             dAmc(i,:)       = 0.0_r_2
-             dAme(i,:)       = 0.0_r_2
-             dAmp(i,:)       = 0.0_r_2
-             dA(i,:)         = 0.0_r_2
-             eta_c(i,:)      = 0.0_r_2
-             eta_e(i,:)      = 0.0_r_2
-             eta_p(i,:)      = 0.0_r_2
-             eta(i,:)        = 0.0_r_2
+             dAmc(i,:)       = 0.0_r2
+             dAme(i,:)       = 0.0_r2
+             dAmp(i,:)       = 0.0_r2
+             dA(i,:)         = 0.0_r2
+             eta_c(i,:)      = 0.0_r2
+             eta_e(i,:)      = 0.0_r2
+             eta_p(i,:)      = 0.0_r2
+             eta(i,:)        = 0.0_r2
 
           endif ! vlaiz(i,j) > C%lai_thresh
 
@@ -2882,9 +2882,9 @@ CONTAINS
     !real, parameter :: q10c4 = 2.0
     ! parameter values from Massad et al. 2007, PCE 30, 1191-1204, slightly adjusted to
     ! get optimum at ~36degC as in Yamori et al. 2014
-    real, parameter :: EHa    = 66000.0  ! 67.29e3_r_2   ! J/mol
-    real, parameter :: EHd    = 145000.0 ! 144.57e3_r_2  ! J/mol
-    real, parameter :: Entrop = 469.4217 ! 0.472e3_r_2   ! J/mol/K
+    real, parameter :: EHa    = 66000.0  ! 67.29e3_r2   ! J/mol
+    real, parameter :: EHd    = 145000.0 ! 144.57e3_r2  ! J/mol
+    real, parameter :: Entrop = 469.4217 ! 0.472e3_r2   ! J/mol/K
 
     ! Q10 function replaced with Arrhenius function for the sake of parameter
     ! identifiability/interpretability
@@ -3178,22 +3178,22 @@ CONTAINS
   !   type(soil_snow_type),      intent(inout) :: ssnow
   !   type(veg_parameter_type),  intent(inout) :: veg
 
-  !   real(r_2), dimension(mp,ms) :: tmp1, tmp2, delta_root, alpha2a_root, alpha2_root
+  !   real(r2), dimension(mp,ms) :: tmp1, tmp2, delta_root, alpha2a_root, alpha2_root
 
   !   ! Lai and Katul formulation for root efficiency function - vh 17/07/09
-  !   alpha2a_root = max(ssnow%wb-soil%swilt_vec, 0.001_r_2) / (soil%ssat_vec)
+  !   alpha2a_root = max(ssnow%wb-soil%swilt_vec, 0.001_r2) / (soil%ssat_vec)
   !   tmp1         = ssnow%wb - soil%swilt_vec
   !   tmp2         = spread(veg%gamma,2,ms) / tmp1 * log(alpha2a_root)
-  !   where ((tmp1 > 0.001_r_2) .and. (tmp2 > -10.0_r_2))
+  !   where ((tmp1 > 0.001_r2) .and. (tmp2 > -10.0_r2))
   !      alpha2_root = exp(tmp2)
   !   elsewhere
-  !      alpha2_root = 0.0_r_2
+  !      alpha2_root = 0.0_r2
   !   endwhere
 
   !   WHERE (veg%froot > 0.0)
-  !      delta_root = 1.0_r_2
+  !      delta_root = 1.0_r2
   !   ELSEWHERE
-  !      delta_root = 0.0_r_2
+  !      delta_root = 0.0_r2
   !   ENDWHERE
 
   !   fwsoil  = maxval(real(alpha2_root*delta_root), dim=2)
@@ -3208,34 +3208,34 @@ CONTAINS
   SUBROUTINE getrex_1d(theta, rex, fws, Fs, thetaS, thetaw, Etrans, gamma, dx, dt, zr)
 
     ! root extraction : Haverd et al. 2013
-    USE cable_def_types_mod, only: r_2
+    USE cable_def_types_mod, only: r2
 
     IMPLICIT NONE
 
-    REAL(r_2), DIMENSION(:), INTENT(IN)    :: theta  ! volumetric soil moisture
-    REAL(r_2), DIMENSION(:), INTENT(INOUT) :: rex    ! water extraction per layer
-    REAL(r_2),               INTENT(INOUT) :: fws    ! stomatal limitation factor
-    REAL(r_2), DIMENSION(:), INTENT(IN)    :: Fs     ! root length density
-    REAL(r_2), DIMENSION(:), INTENT(IN)    :: thetaS ! saturation soil moisture
-    REAL(r_2), DIMENSION(:), INTENT(IN)    :: thetaw ! soil moisture at wiliting point
-    REAL(r_2),               INTENT(IN)    :: Etrans ! total transpiration
-    REAL(r_2),               INTENT(IN)    :: gamma  ! skew of Li & Katul alpha2 function
-    REAL(r_2), DIMENSION(:), INTENT(IN)    :: dx     ! layer thicknesses (m)
-    REAL(r_2),               INTENT(IN)    :: dt
-    REAL(r_2),               INTENT(IN)    :: zr
+    REAL(r2), DIMENSION(:), INTENT(IN)    :: theta  ! volumetric soil moisture
+    REAL(r2), DIMENSION(:), INTENT(INOUT) :: rex    ! water extraction per layer
+    REAL(r2),               INTENT(INOUT) :: fws    ! stomatal limitation factor
+    REAL(r2), DIMENSION(:), INTENT(IN)    :: Fs     ! root length density
+    REAL(r2), DIMENSION(:), INTENT(IN)    :: thetaS ! saturation soil moisture
+    REAL(r2), DIMENSION(:), INTENT(IN)    :: thetaw ! soil moisture at wiliting point
+    REAL(r2),               INTENT(IN)    :: Etrans ! total transpiration
+    REAL(r2),               INTENT(IN)    :: gamma  ! skew of Li & Katul alpha2 function
+    REAL(r2), DIMENSION(:), INTENT(IN)    :: dx     ! layer thicknesses (m)
+    REAL(r2),               INTENT(IN)    :: dt
+    REAL(r2),               INTENT(IN)    :: zr
 
     ! Gets rate of water extraction compatible with CABLE stomatal conductance model
     ! theta(:) - soil moisture(m3 m-3)
     ! rex(:)   - rate of water extraction by roots from layers (cm/h).
-    REAL(r_2), DIMENSION(1:size(theta)) :: lthetar, alpha_root, delta_root, layer_depth
-    REAL(r_2)                           :: trex, e3, one, zero
+    REAL(r2), DIMENSION(1:size(theta)) :: lthetar, alpha_root, delta_root, layer_depth
+    REAL(r2)                           :: trex, e3, one, zero
     INTEGER :: k
 
-    e3   = 0.001_r_2
-    one  = 1.0_r_2
-    zero = 0.0_r_2
+    e3   = 0.001_r2
+    one  = 1.0_r2
+    zero = 0.0_r2
 
-    layer_depth(1) = 0.0_r_2
+    layer_depth(1) = 0.0_r2
     do k=2, size(theta)
        layer_depth(k) = sum(dx(1:k-1))
     enddo
@@ -3267,7 +3267,7 @@ CONTAINS
 
     ! reduce extraction efficiency where total extraction depletes soil moisture below wilting point
     where (((rex*dt) > (theta(:)-thetaw(:))*dx(:)) .and. ((rex*dt) > zero))
-       alpha_root = alpha_root*(theta(:)-thetaw(:))*dx(:)/(1.1_r_2*rex*dt)
+       alpha_root = alpha_root*(theta(:)-thetaw(:))*dx(:)/(1.1_r2*rex*dt)
     endwhere
     rex(:) = alpha_root(:)*Fs(:)
 
@@ -3280,7 +3280,7 @@ CONTAINS
     rex(:) = Etrans*rex(:)
 
     ! check that the water available in each layer exceeds the extraction
-    !if (any((rex*dt) > (theta(:)-0.01_r_2)*dx(:))) then
+    !if (any((rex*dt) > (theta(:)-0.01_r2)*dx(:))) then
     if (any(((rex*dt) > max((theta(:)-thetaw(:)),zero)*dx(:)) .and. (Etrans > zero))) then
        !MC - ask Vanessa why fwsoil=0. if any (not all) demand exceeds water in layer.
        !     Should it be in else clause of trex>zero?
@@ -3288,7 +3288,7 @@ CONTAINS
        !     Should it be fws=one here and fws=zero in else clause of trex>zero?
        fws = zero
        ! distribute extraction according to available water
-       ! rex(:) = (theta(:)-0.01_r_2)*dx(:)
+       ! rex(:) = (theta(:)-0.01_r2)*dx(:)
        rex(:) = max((theta(:)-thetaw(:))*dx(:),zero)
        trex = sum(rex(:))
        if (trex > zero) then
@@ -3311,12 +3311,12 @@ CONTAINS
 
   ! SUBROUTINE cubic_root_solver(a0,a1,a2,x1,x2,x3)
 
-  !   USE cable_def_types_mod, only: r_2
+  !   USE cable_def_types_mod, only: r2
 
-  !   REAL(r_2), INTENT(IN) :: a0,a1,a2
-  !   REAL(r_2), INTENT(OUT) :: x1,x2,x3
+  !   REAL(r2), INTENT(IN) :: a0,a1,a2
+  !   REAL(r2), INTENT(OUT) :: x1,x2,x3
 
-  !   REAL(r_2) :: Q, R, theta, a, b, c
+  !   REAL(r2) :: Q, R, theta, a, b, c
   !   real :: pi_c = 3.1415927
 
   !   a = a2
@@ -3346,15 +3346,15 @@ CONTAINS
   ! functions for implicit mesophyll conductance
   elemental pure subroutine fabc(Cs, g0, x, gamma, beta, Gammastar, Rd, a, b, c)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd
-    real(r_2), intent(out) :: a, b, c
+    real(r2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd
+    real(r2), intent(out) :: a, b, c
 
-    a = (1.0_r_2-x)*Cs - x*beta
-    b = -g0*Cs**2 + ((1.0_r_2-x)*(Rd-gamma)-g0*beta)*Cs - x*(gamma*Gammastar+Rd*beta)
+    a = (1.0_r2-x)*Cs - x*beta
+    b = -g0*Cs**2 + ((1.0_r2-x)*(Rd-gamma)-g0*beta)*Cs - x*(gamma*Gammastar+Rd*beta)
     c = -g0*(Rd-gamma)*Cs**2 - g0*(gamma*Gammastar+Rd*beta)*Cs
 
   end subroutine fabc
@@ -3362,15 +3362,15 @@ CONTAINS
 
   elemental pure subroutine fabc_c4(Cs, g0, x, gamma, beta, Gammastar, Rd, a, b, c)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd
-    real(r_2), intent(out) :: a, b, c
+    real(r2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd
+    real(r2), intent(out) :: a, b, c
 
     a = x
-    b = (g0+gamma*(1.0_r_2-x))*Cs - x*(beta-Rd)
+    b = (g0+gamma*(1.0_r2-x))*Cs - x*(beta-Rd)
     c =  -gamma*g0*Cs**2 - g0*(beta-Rd)*Cs
 
   end subroutine fabc_c4
@@ -3378,116 +3378,116 @@ CONTAINS
 
   elemental pure subroutine fAn_c3(a, b, c, A2)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in) :: a,b,c
-    real(r_2), intent(out) :: A2
+    real(r2), intent(in) :: a,b,c
+    real(r2), intent(out) :: A2
 
-    real(r_2) :: s2
+    real(r2) :: s2
 
-    s2 = b**2 - 4.0_r_2*a*c
-    A2 = (-b - sqrt(s2))/(2.0_r_2*a)
+    s2 = b**2 - 4.0_r2*a*c
+    A2 = (-b - sqrt(s2))/(2.0_r2*a)
 
   end subroutine fAn_c3
 
 
   elemental pure subroutine fAn_c4(a, b, c, A2)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in)  :: a, b, c
-    real(r_2), intent(out) :: A2
+    real(r2), intent(in)  :: a, b, c
+    real(r2), intent(out) :: A2
 
-    real(r_2) :: s2
+    real(r2) :: s2
 
-    s2 = b**2 - 4.0_r_2*a*c
-    A2 = (-b + sqrt(s2))/(2.0_r_2*a)
+    s2 = b**2 - 4.0_r2*a*c
+    A2 = (-b + sqrt(s2))/(2.0_r2*a)
 
   end subroutine fAn_c4
 
 
   elemental pure subroutine fdabc(Cs, g0, x, gamma, beta, Gammastar, Rd, da, db, dc)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd
-    real(r_2), intent(out) :: da, db, dc
+    real(r2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd
+    real(r2), intent(out) :: da, db, dc
 
-    da = 1.0_r_2-x
-    db = -2.0_r_2*g0*Cs + (1.0_r_2-x)*(Rd-gamma) - g0*beta
-    dc = -2.0_r_2*g0*(Rd-gamma)*Cs - g0*(gamma*Gammastar+Rd*beta)
+    da = 1.0_r2-x
+    db = -2.0_r2*g0*Cs + (1.0_r2-x)*(Rd-gamma) - g0*beta
+    dc = -2.0_r2*g0*(Rd-gamma)*Cs - g0*(gamma*Gammastar+Rd*beta)
 
   end subroutine fdabc
 
 
   elemental pure subroutine fdabc_c4(Cs, g0, x, gamma, beta, Gammastar, Rd, da, db, dc)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd
-    real(r_2), intent(out) :: da, db, dc
+    real(r2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd
+    real(r2), intent(out) :: da, db, dc
 
     da = 0.
-    db = g0 + gamma*(1.0_r_2-x)
-    dc = -2.0_r_2*gamma*g0*Cs - g0*(beta-Rd)
+    db = g0 + gamma*(1.0_r2-x)
+    dc = -2.0_r2*gamma*g0*Cs - g0*(beta-Rd)
 
   end subroutine fdabc_c4
 
 
   elemental pure subroutine fdAn_c3(a, b, c, da, db, dc, dA2)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in) :: a, b, c, da, db, dc
-    real(r_2), intent(out) :: dA2
+    real(r2), intent(in) :: a, b, c, da, db, dc
+    real(r2), intent(out) :: dA2
 
-    real(r_2) :: s, p
+    real(r2) :: s, p
 
-    s = sqrt(b**2 - 4.0_r_2*a*c)
-    p = (2.0_r_2*b*db - 4.0_r_2*c*da - 4.0_r_2*a*dc)/(2.0_r_2*s)
-    dA2 = (-db - p)/(2.0_r_2*a) - (-b - s)/(2.0_r_2*a**2)*da
+    s = sqrt(b**2 - 4.0_r2*a*c)
+    p = (2.0_r2*b*db - 4.0_r2*c*da - 4.0_r2*a*dc)/(2.0_r2*s)
+    dA2 = (-db - p)/(2.0_r2*a) - (-b - s)/(2.0_r2*a**2)*da
 
   end subroutine fdAn_c3
 
 
   elemental pure subroutine fdAn_c4(a, b, c, da, db, dc, dA2)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in)  :: a, b, c, da, db, dc
-    real(r_2), intent(out) :: dA2
+    real(r2), intent(in)  :: a, b, c, da, db, dc
+    real(r2), intent(out) :: dA2
 
-    real(r_2) :: s, p
+    real(r2) :: s, p
 
-    s = sqrt(b**2 - 4.0_r_2*a*c)
-    p = (2.0_r_2*b*db - 4.0_r_2*c*da - 4.0_r_2*a*dc)/(2.0_r_2*s)
-    dA2 = (-db + p)/(2.0_r_2*a) - (-b + s)/(2.0_r_2*a**2)*da
+    s = sqrt(b**2 - 4.0_r2*a*c)
+    p = (2.0_r2*b*db - 4.0_r2*c*da - 4.0_r2*a*dc)/(2.0_r2*s)
+    dA2 = (-db + p)/(2.0_r2*a) - (-b + s)/(2.0_r2*a**2)*da
 
   end subroutine fdAn_c4
 
 
   elemental pure subroutine fAndAn_c3(Cs, g0, x, gamma, beta, Gammastar, Rd, An, dAn)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd
-    real(r_2), intent(out) :: An, dAn
+    real(r2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd
+    real(r2), intent(out) :: An, dAn
 
-    real(r_2) :: a, b, c, da, db, dc
+    real(r2) :: a, b, c, da, db, dc
 
     call fabc(Cs, g0, x, gamma, beta, Gammastar, Rd,a,b,c)
     call fAn_c3(a, b, c, An)
@@ -3499,14 +3499,14 @@ CONTAINS
 
   elemental pure subroutine fAndAn_c4(Cs, g0, x, gamma, beta, Gammastar, Rd, An, dAn)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd
-    real(r_2), intent(out) :: An, dAn
+    real(r2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd
+    real(r2), intent(out) :: An, dAn
 
-    real(r_2) :: a, b, c, da, db, dc
+    real(r2) :: a, b, c, da, db, dc
 
     call fabc_c4(Cs, g0, x, gamma, beta, Gammastar, Rd,a,b,c)
     call fAn_c4(a, b, c, An)
@@ -3521,13 +3521,13 @@ CONTAINS
   !      flag_eps, &
   !      Anc, Ane, An, dAnc, dAne, dAn)
 
-  !   use cable_def_types_mod, only: r_2
+  !   use cable_def_types_mod, only: r2
 
   !   implicit none
 
-  !   real(r_2), intent(in)  :: Cs, g0, x, Gammastar, Rd, gammac, betac, gammae, betae
+  !   real(r2), intent(in)  :: Cs, g0, x, Gammastar, Rd, gammac, betac, gammae, betae
   !   logical,   intent(in)  :: flag_eps
-  !   real(r_2), intent(out) :: Anc, Ane, An, dAnc, dAne, dAn
+  !   real(r2), intent(out) :: Anc, Ane, An, dAnc, dAne, dAn
 
   !   call fAndAn1(Cs, g0, x, gammac, betac, Gammastar, Rd, Anc, dAnc)
   !   call fAndAn1(Cs, g0, x, gammae, betae, Gammastar, Rd, Ane, dAne)
@@ -3558,12 +3558,12 @@ CONTAINS
   ! elemental pure subroutines for finite mesophyll conductance
   elemental pure subroutine fabcd(Cs, g0, x, gamma, beta, Gammastar, Rd, gm, a, b, c1, d)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd, gm
-    real(r_2), intent(out) :: a, b, c1, d
+    real(r2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd, gm
+    real(r2), intent(out) :: a, b, c1, d
 
     a  = x
     b  = (gm+g0-gm*x)*Cs + x*(Rd-gamma) - gm*x*beta
@@ -3576,12 +3576,12 @@ CONTAINS
 
   elemental pure subroutine fabcm(Cs, g0, x, gamma, beta, Gammastar, Rd, gm, a, b, c1)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd, gm
-    real(r_2), intent(out) :: a,b,c1
+    real(r2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd, gm
+    real(r2), intent(out) :: a,b,c1
 
     a  = x*(gm+gamma)
     b  = ((gm+g0)*gamma + g0*gm - gm*gamma*x)*Cs - gm*x*(beta-Rd)
@@ -3592,147 +3592,147 @@ CONTAINS
 
   elemental pure subroutine fpq(a, b, c, d, p, q)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in) :: a,b,c,d
-    real(r_2), intent(out) :: p, q
+    real(r2), intent(in) :: a,b,c,d
+    real(r2), intent(out) :: p, q
 
-    p = (3.0_r_2*a*c - b**2)/(3.0_r_2*a**2)
-    q = (2.0_r_2*b**3 - 9.0_r_2*a*b*c + 27.0_r_2*a**2*d)/(27.0_r_2*a**3)
+    p = (3.0_r2*a*c - b**2)/(3.0_r2*a**2)
+    q = (2.0_r2*b**3 - 9.0_r2*a*b*c + 27.0_r2*a**2*d)/(27.0_r2*a**3)
 
   end subroutine fpq
 
 
   elemental pure subroutine fdabcd(Cs, g0, x, gamma, beta, Gammastar, Rd, gm, da, db, dc, dd)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd, gm
-    real(r_2), intent(out) :: da, db, dc, dd
+    real(r2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd, gm
+    real(r2), intent(out) :: da, db, dc, dd
 
-    da = 0.0_r_2
+    da = 0.0_r2
     db = gm+g0-gm*x
-    dc = -2.0_r_2*gm*g0*Cs + (gm+g0-gm*x)*(Rd-gamma)-gm*g0*beta
-    dd = -2.0_r_2*gm*g0*(Rd-gamma)*Cs - gm*g0*(gamma*Gammastar+Rd*beta)
+    dc = -2.0_r2*gm*g0*Cs + (gm+g0-gm*x)*(Rd-gamma)-gm*g0*beta
+    dd = -2.0_r2*gm*g0*(Rd-gamma)*Cs - gm*g0*(gamma*Gammastar+Rd*beta)
 
   end subroutine fdabcd
 
 
   elemental pure subroutine fdabcm(Cs, g0, x, gamma, beta, Gammastar, Rd, gm, da, db, dc)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd, gm
-    real(r_2), intent(out) :: da, db, dc
+    real(r2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd, gm
+    real(r2), intent(out) :: da, db, dc
 
-    da = 0.0_r_2
+    da = 0.0_r2
     db = (gm+g0)*gamma + g0*gm - gm*gamma*x
-    dc = -2.0_r_2*gm*g0*gamma*Cs - gm*g0*(beta-Rd)
+    dc = -2.0_r2*gm*g0*gamma*Cs - gm*g0*(beta-Rd)
 
   end subroutine fdabcm
 
 
   elemental pure subroutine fdpq(a, b, c, d, da, db, dc, dd, dp, dq)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in)  :: a, b, c, d, da, db, dc, dd
-    real(r_2), intent(out) :: dp, dq
+    real(r2), intent(in)  :: a, b, c, d, da, db, dc, dd
+    real(r2), intent(out) :: dp, dq
 
-    dp = (3.0_r_2*da*c + 3.0_r_2*a*dc - 2.0_r_2*b*db)/(3.0_r_2*a**2) - &
-         2.0_r_2*(3.0_r_2*a*c - b**2)/(3.0_r_2*a**3)*da
-    dq = (6.0_r_2*b**2*db - 9.0_r_2*da*b*c - 9.0_r_2*a*db*c - 9.0_r_2*a*b*dc + &
-         54.0_r_2*a*da*d + 27.0_r_2*a**2*dd) / (27.0_r_2*a**3) - &
-         3.0_r_2*(2.0_r_2*b**3 - 9.0_r_2*a*b*c + 27.0_r_2*a**2*d) / &
-         (27.0_r_2*a**4)*da
+    dp = (3.0_r2*da*c + 3.0_r2*a*dc - 2.0_r2*b*db)/(3.0_r2*a**2) - &
+         2.0_r2*(3.0_r2*a*c - b**2)/(3.0_r2*a**3)*da
+    dq = (6.0_r2*b**2*db - 9.0_r2*da*b*c - 9.0_r2*a*db*c - 9.0_r2*a*b*dc + &
+         54.0_r2*a*da*d + 27.0_r2*a**2*dd) / (27.0_r2*a**3) - &
+         3.0_r2*(2.0_r2*b**3 - 9.0_r2*a*b*c + 27.0_r2*a**2*d) / &
+         (27.0_r2*a**4)*da
 
   end subroutine fdpq
 
 
   elemental pure subroutine fAm_c3(a, b, c1, d, p, q, Am)
 
-    use cable_def_types_mod, only: r_2
-    use mo_constants, only: pi => pi_dp
+    use cable_def_types_mod, only: r2
+    use mo_constants, only: pi => pi_r2
 
     implicit none
 
-    real(r_2), intent(in)  :: a, b, c1, d, p, q
-    real(r_2), intent(out) :: Am
+    real(r2), intent(in)  :: a, b, c1, d, p, q
+    real(r2), intent(out) :: Am
 
-    real(r_2) :: p3, pq, k
+    real(r2) :: p3, pq, k
 
-    p3 = -p/3.0_r_2
-    pq = min(3.0_r_2*q/(2.0_r_2*p)*sqrt(1.0_r_2/p3),0.999999999999_r_2)
-    k  = 1.0_r_2
-    Am = 2.0_r_2*sqrt(p3)*cos(acos(pq)/3.0_r_2 - 2.0_r_2*pi*k/3.0_r_2) - b/(3.0_r_2*a)
+    p3 = -p/3.0_r2
+    pq = min(3.0_r2*q/(2.0_r2*p)*sqrt(1.0_r2/p3),0.999999999999_r2)
+    k  = 1.0_r2
+    Am = 2.0_r2*sqrt(p3)*cos(acos(pq)/3.0_r2 - 2.0_r2*pi*k/3.0_r2) - b/(3.0_r2*a)
 
   end subroutine fAm_c3
 
 
   elemental pure subroutine fAm_c4(a, b, c1, Am)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in) :: a, b, c1
-    real(r_2), intent(out) :: Am
+    real(r2), intent(in) :: a, b, c1
+    real(r2), intent(out) :: Am
 
-    real(r_2) :: s2
+    real(r2) :: s2
 
-    s2 = b**2 - 4.0_r_2*a*c1
-    Am = (-b + sqrt(s2))/(2.0_r_2*a)
+    s2 = b**2 - 4.0_r2*a*c1
+    Am = (-b + sqrt(s2))/(2.0_r2*a)
 
   end subroutine fAm_c4
 
 
   elemental pure subroutine fdAm_c3(a, b, c1, d, p, q, da, db, dc, dd, dp, dq, dAm)
 
-    use cable_def_types_mod, only: r_2
-    use mo_constants, only: pi => pi_dp
+    use cable_def_types_mod, only: r2
+    use mo_constants, only: pi => pi_r2
 
     implicit none
 
-    real(r_2), intent(in)  :: a, b, c1, d, p, q, da, db, dc, dd, dp, dq
-    real(r_2), intent(out) :: dAm
+    real(r2), intent(in)  :: a, b, c1, d, p, q, da, db, dc, dd, dp, dq
+    real(r2), intent(out) :: dAm
 
-    real(r_2) :: k, p3, pq
+    real(r2) :: k, p3, pq
 
-    p3 = -p/3.0_r_2
-    pq = min(3.0_r_2*q/(2.0_r_2*p)*sqrt(1.0_r_2/p3),0.999999999999_r_2)
-    k  = 1.0_r_2
-    dAm = -1.0_r_2/(3.0_r_2*sqrt(p3))*cos(acos(pq)/3.0_r_2 - 2.0_r_2*pi*k/3.0_r_2)*dp + &
-         2.0_r_2*sqrt(p3) * (sin(acos(pq)/3.0_r_2 - 2.0_r_2*pi*k/3.0_r_2) / &
-         (3.0_r_2*sqrt(1.0_r_2-pq**2)) * &
-         3.0_r_2/2.0_r_2*(dq/p*sqrt(1.0_r_2/p3) - q/p**2*dp*sqrt(1.0_r_2/p3) + &
-         q/p*3.0_r_2/2.0_r_2*1.0_r_2/sqrt(1.0_r_2/p3)*1.0_r_2/p**2*dp)) - &
-         db/(3.0_r_2*a) + b/(3.0_r_2*a**2)*da
+    p3 = -p/3.0_r2
+    pq = min(3.0_r2*q/(2.0_r2*p)*sqrt(1.0_r2/p3),0.999999999999_r2)
+    k  = 1.0_r2
+    dAm = -1.0_r2/(3.0_r2*sqrt(p3))*cos(acos(pq)/3.0_r2 - 2.0_r2*pi*k/3.0_r2)*dp + &
+         2.0_r2*sqrt(p3) * (sin(acos(pq)/3.0_r2 - 2.0_r2*pi*k/3.0_r2) / &
+         (3.0_r2*sqrt(1.0_r2-pq**2)) * &
+         3.0_r2/2.0_r2*(dq/p*sqrt(1.0_r2/p3) - q/p**2*dp*sqrt(1.0_r2/p3) + &
+         q/p*3.0_r2/2.0_r2*1.0_r2/sqrt(1.0_r2/p3)*1.0_r2/p**2*dp)) - &
+         db/(3.0_r2*a) + b/(3.0_r2*a**2)*da
 
   end subroutine fdAm_c3
 
 
   elemental pure subroutine fdAm_c4(a, b, c1, da, db, dc, dAm)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in) :: a, b, c1, da, db, dc
-    real(r_2), intent(out) :: dAm
+    real(r2), intent(in) :: a, b, c1, da, db, dc
+    real(r2), intent(out) :: dAm
 
-    real(r_2) :: s, p
+    real(r2) :: s, p
 
-    s = sqrt(b**2 - 4.0_r_2*a*c1)
-    p = (2.0_r_2*b*db - 4.0_r_2*c1*da - 4.0_r_2*a*dc)/(2.0_r_2*s)
-    dAm = (-db + p)/(2.0_r_2*a) - (-b + s)/(2.0_r_2*a**2)*da
+    s = sqrt(b**2 - 4.0_r2*a*c1)
+    p = (2.0_r2*b*db - 4.0_r2*c1*da - 4.0_r2*a*dc)/(2.0_r2*s)
+    dAm = (-db + p)/(2.0_r2*a) - (-b + s)/(2.0_r2*a**2)*da
 
   end subroutine fdAm_c4
 
@@ -3740,14 +3740,14 @@ CONTAINS
   elemental pure subroutine fAmdAm_c3(Cs, g0, x, gamma, beta, Gammastar, Rd, gm, &
        Am, dAm)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd, gm
-    real(r_2), intent(out) :: Am, dAm
+    real(r2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd, gm
+    real(r2), intent(out) :: Am, dAm
 
-    real(r_2) :: a, b, c, d, p, q, da, db, dc, dd, dp, dq
+    real(r2) :: a, b, c, d, p, q, da, db, dc, dd, dp, dq
 
     call fabcd(Cs, g0, x, gamma, beta, Gammastar, Rd, gm, a, b, c, d)
     call fpq(a, b, c, d, p, q)
@@ -3762,14 +3762,14 @@ CONTAINS
   elemental pure subroutine fAmdAm_c4(Cs, g0, x, gamma, beta, Gammastar, Rd, gm, &
        Am, dAm)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: r2
 
     implicit none
 
-    real(r_2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd, gm
-    real(r_2), intent(out) :: Am, dAm
+    real(r2), intent(in)  :: Cs, g0, x, gamma, beta, Gammastar, Rd, gm
+    real(r2), intent(out) :: Am, dAm
 
-    real(r_2) :: a, b, c1, da, db, dc
+    real(r2) :: a, b, c1, da, db, dc
 
     call fabcm(Cs, g0, x, gamma, beta, Gammastar, Rd, gm,a,b,c1)
     call fAm_c4(a, b, c1, Am)
@@ -3784,14 +3784,14 @@ CONTAINS
   !      flag_eps, &
   !      Amc, Ame, Am, dAmc, dAme, dAm)
 
-  !   use cable_def_types_mod, only: r_2
+  !   use cable_def_types_mod, only: r2
 
   !   implicit none
 
-  !   real(r_2), intent(in)  :: Cs, g0, x, Gammastar, &
+  !   real(r2), intent(in)  :: Cs, g0, x, Gammastar, &
   !        Rd, gm, gammac, betac,gammae, betae
   !   logical,   intent(in)  :: flag_eps
-  !   real(r_2), intent(out) :: Amc, Ame, Am, dAmc, dAme, dAm
+  !   real(r2), intent(out) :: Amc, Ame, Am, dAmc, dAme, dAm
 
   !   call fAmdAm1(Cs, g0, x, gammac, betac, Gammastar, Rd, gm, Amc, dAmc)
   !   call fAmdAm1(Cs, g0, x, gammae, betae, Gammastar, Rd, gm, Ame, dAme)
