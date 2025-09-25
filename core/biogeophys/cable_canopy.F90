@@ -605,7 +605,7 @@ CONTAINS
          !    fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
          !    rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
          !    ghwet, iter, climate, wbpsdo=wbpsdo,fwpsdo=fwpsdo)
-         ! endif
+         endif
          if (iter==4) then
             DO j = 1, mp
                ! reset psi_soil, soilR and rootR back to the realistic value
