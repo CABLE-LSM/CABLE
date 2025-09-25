@@ -490,45 +490,45 @@ CONTAINS
 
          sum_rad_rniso = sum(rad%rniso,2)
          !!!!!!!!!!!!!!! vpd = 0.6Kpa!!!!!!!!!!!!!!!!!!!!!
-         if (iter==4) then
-            vpdpsdo = SPREAD(real(600,r_2), 1, mp) ! 600Pa
-            dsxpsdo = vpdpsdo
-            dsypsdo = vpdpsdo
-            psilxpsdo = psilx
-            psilypsdo = psily
-            fwsoilpsdo = fwsoil
-            fwsoiltmppsdo = fwsoiltmp
-            fwpsipsdo = fwpsi
-            tlfxpsdo = tlfx
-            tlfypsdo = tlfy
-            ecypsdo = ecy
-            hcypsdo = hcy
-            rnypsdo = rny
-            csxpsdo = csx
-            CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
-            veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo,&
-            fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
-            rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
-            ghwet, iter, climate, vpdpsdo=vpdpsdo)
-            dsxpsdo = dsx
-            dsypsdo = dsy
-            ! psilxpsdo = psilx
-            ! psilypsdo = psily
-            fwsoilpsdo = fwsoil
-            ! fwsoiltmppsdo = fwsoiltmp
-            ! fwpsipsdo = fwpsi
-            tlfxpsdo = tlfx
-            tlfypsdo = tlfy
-            ecypsdo = ecy
-            hcypsdo = hcy
-            rnypsdo = rny
-            csxpsdo = csx
-            CALL dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
-               veg, canopy, soil, ssnow,casapool, dsxpsdo, dsypsdo, &
-               tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,&
-               rnypsdo, gbhu, gbhf, csxpsdo, &
-               cansat, iter, climate,gspsdo = canopy%gsw_epotvpd)
-         endif
+         ! if (iter==4) then
+         !    vpdpsdo = SPREAD(real(600,r_2), 1, mp) ! 600Pa
+         !    dsxpsdo = vpdpsdo
+         !    dsypsdo = vpdpsdo
+         !    psilxpsdo = psilx
+         !    psilypsdo = psily
+         !    fwsoilpsdo = fwsoil
+         !    fwsoiltmppsdo = fwsoiltmp
+         !    fwpsipsdo = fwpsi
+         !    tlfxpsdo = tlfx
+         !    tlfypsdo = tlfy
+         !    ecypsdo = ecy
+         !    hcypsdo = hcy
+         !    rnypsdo = rny
+         !    csxpsdo = csx
+         !    CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
+         !    veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo,&
+         !    fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
+         !    rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
+         !    ghwet, iter, climate, vpdpsdo=vpdpsdo)
+         !    dsxpsdo = dsx
+         !    dsypsdo = dsy
+         !    ! psilxpsdo = psilx
+         !    ! psilypsdo = psily
+         !    fwsoilpsdo = fwsoil
+         !    ! fwsoiltmppsdo = fwsoiltmp
+         !    ! fwpsipsdo = fwpsi
+         !    tlfxpsdo = tlfx
+         !    tlfypsdo = tlfy
+         !    ecypsdo = ecy
+         !    hcypsdo = hcy
+         !    rnypsdo = rny
+         !    csxpsdo = csx
+         !    CALL dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
+         !       veg, canopy, soil, ssnow,casapool, dsxpsdo, dsypsdo, &
+         !       tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,&
+         !       rnypsdo, gbhu, gbhf, csxpsdo, &
+         !       cansat, iter, climate,gspsdo = canopy%gsw_epotvpd)
+         ! endif
          if (iter==4) then
             wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
             DO j = 1, mp
@@ -553,59 +553,59 @@ CONTAINS
             fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
             rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
             ghwet, iter, climate, wbpsdo=wbpsdo)
-            !!!!!!!!!!!!!!  wb = ssat, & vpd = 0.6Kpa !!!!!!!!!!!!!!!!!!!!!!
-            !!!!!!!!!!!!!!!! gs_ref
-            wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
-            DO j = 1, mp
-               CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, j, wbpsdo)
-               CALL calc_swp(ssnow, soil, j, wbpsdo)
-            END DO
-            vpdpsdo = SPREAD(real(600,r_2), 1, mp) ! 600Pa
-            dsxpsdo = vpdpsdo
-            dsypsdo = vpdpsdo
-            psilxpsdo = psilx
-            psilypsdo = psily
-            fwsoilpsdo = fwsoil
-            fwsoiltmppsdo = fwsoiltmp
-            fwpsipsdo = fwpsi
-            tlfxpsdo = tlfx
-            tlfypsdo = tlfy
-            ecypsdo = ecy
-            hcypsdo = hcy
-            rnypsdo = rny
-            csxpsdo = csx
-            CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
-            veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo,&
-            fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
-            rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
-            ghwet, iter, climate, wbpsdo=wbpsdo,vpdpsdo=vpdpsdo)
-            !!!!!!!!!!!!!! gs_coeff = 1 !!!!!!!!!!!!!!!!!!!!!!
-            !!!!!!!!!!!!!!!! gs_ref1
-            wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
-            DO j = 1, mp
-               CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, j, wbpsdo)
-               CALL calc_swp(ssnow, soil, j, wbpsdo)
-            END DO
-            fwpsdo = 1.0_r_2
-            dsxpsdo = dsx
-            dsypsdo = dsy
-            psilxpsdo = psilx
-            psilypsdo = psily
-            fwsoilpsdo = fwsoil
-            fwsoiltmppsdo = fwsoiltmp
-            fwpsipsdo = fwpsi
-            tlfxpsdo = tlfx
-            tlfypsdo = tlfy
-            ecypsdo = ecy
-            hcypsdo = hcy
-            rnypsdo = rny
-            csxpsdo = csx
-            CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
-            veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo,&
-            fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
-            rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
-            ghwet, iter, climate, wbpsdo=wbpsdo,fwpsdo=fwpsdo)
-         endif
+         !    !!!!!!!!!!!!!!  wb = ssat, & vpd = 0.6Kpa !!!!!!!!!!!!!!!!!!!!!!
+         !    !!!!!!!!!!!!!!!! gs_ref
+         !    wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
+         !    DO j = 1, mp
+         !       CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, j, wbpsdo)
+         !       CALL calc_swp(ssnow, soil, j, wbpsdo)
+         !    END DO
+         !    vpdpsdo = SPREAD(real(600,r_2), 1, mp) ! 600Pa
+         !    dsxpsdo = vpdpsdo
+         !    dsypsdo = vpdpsdo
+         !    psilxpsdo = psilx
+         !    psilypsdo = psily
+         !    fwsoilpsdo = fwsoil
+         !    fwsoiltmppsdo = fwsoiltmp
+         !    fwpsipsdo = fwpsi
+         !    tlfxpsdo = tlfx
+         !    tlfypsdo = tlfy
+         !    ecypsdo = ecy
+         !    hcypsdo = hcy
+         !    rnypsdo = rny
+         !    csxpsdo = csx
+         !    CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
+         !    veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo,&
+         !    fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
+         !    rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
+         !    ghwet, iter, climate, wbpsdo=wbpsdo,vpdpsdo=vpdpsdo)
+         !    !!!!!!!!!!!!!! gs_coeff = 1 !!!!!!!!!!!!!!!!!!!!!!
+         !    !!!!!!!!!!!!!!!! gs_ref1
+         !    wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
+         !    DO j = 1, mp
+         !       CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, j, wbpsdo)
+         !       CALL calc_swp(ssnow, soil, j, wbpsdo)
+         !    END DO
+         !    fwpsdo = 1.0_r_2
+         !    dsxpsdo = dsx
+         !    dsypsdo = dsy
+         !    psilxpsdo = psilx
+         !    psilypsdo = psily
+         !    fwsoilpsdo = fwsoil
+         !    fwsoiltmppsdo = fwsoiltmp
+         !    fwpsipsdo = fwpsi
+         !    tlfxpsdo = tlfx
+         !    tlfypsdo = tlfy
+         !    ecypsdo = ecy
+         !    hcypsdo = hcy
+         !    rnypsdo = rny
+         !    csxpsdo = csx
+         !    CALL dryLeaf(ktau, ktau_tot,dels, rad, air, met,  &
+         !    veg, canopy, soil, ssnow, casapool, dsxpsdo, dsypsdo, psilxpsdo, psilypsdo,&
+         !    fwsoilpsdo, fwsoiltmppsdo, fwpsipsdo, tlfxpsdo, tlfypsdo, ecypsdo, hcypsdo,  &
+         !    rnypsdo, gbhu, gbhf, csxpsdo, cansat,  &
+         !    ghwet, iter, climate, wbpsdo=wbpsdo,fwpsdo=fwpsdo)
+         ! endif
          if (iter==4) then
             DO j = 1, mp
                ! reset psi_soil, soilR and rootR back to the realistic value
