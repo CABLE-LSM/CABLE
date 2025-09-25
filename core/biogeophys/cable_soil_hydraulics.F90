@@ -80,6 +80,7 @@ CONTAINS
       REAL, PARAMETER :: BIG_NUMBER = 1E9
       REAL, PARAMETER :: SMALL_NUMBER = 1E-9
       REAL, PARAMETER :: SRA = 48.0 * 1e-3 !m2/gC, specific root area
+      REAL, PARAMETER :: Bfr_Bl = 0.26!! ratio of fine root dry mass to leaf dry mass
 
       REAL, DIMENSION(ms) :: depth
       REAL                :: root_mass, rs, Ksoil0, Ksoil, root_biomass, root_depth, root_mass_density, RAI, Lsr
@@ -112,11 +113,14 @@ CONTAINS
       ! root_biomass = casapool%cplant(i,3) * gC2DM !  g m-2
       ! print*, 'root_biomass original: ', root_biomass
       ! another method to calculate root biomass
-      leaf_biomass = veg%vlai(i) / casabiome%sla(veg%iveg(i)) ! gc m-2
-      shoot_biomass = ((casapool%cplant(i,1)+casapool%cplant(i,2))/casapool%cplant(i,1)) * leaf_biomass
-      root_biomass = veg%root_shoot(i) * shoot_biomass * gC2DM
-      print*, 'root_biomass/leaf biomass: ', root_biomass/leaf_biomass
+      ! leaf_biomass = veg%vlai(i) / casabiome%sla(veg%iveg(i)) ! gc m-2
+      ! shoot_biomass = ((casapool%cplant(i,1)+casapool%cplant(i,2))/casapool%cplant(i,1)) * leaf_biomass
+      ! root_biomass = veg%root_shoot(i) * shoot_biomass * gC2DM
+      ! print*, 'root_biomass/leaf biomass: ', root_biomass/leaf_biomass
       !root_biomass = 318.9 * gC2DM ! Spruce experiment
+      !! new method to calculate fine root biomass
+      leaf_biomass = veg%vlai(i) / casabiome%sla(veg%iveg(i)) ! gc m-2
+      root_biomass = Bfr_Bl * leaf_biomass * gC2DM
 
       ! sensitivity experiment values
       !root_biomass = 200. * gC2DM ! Range from Williams 2001, 200-1000
