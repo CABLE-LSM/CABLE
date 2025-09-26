@@ -270,10 +270,12 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
      ISTEP = 100
   ELSE IF ( YEAR .LT. 2000 ) THEN
      ISTEP = 10
-  ELSE
+  ELSE 
      ISTEP = 5
   END IF
   !CLN WROOONGGG!!!! SF%RES    = HYRES
+
+  !INH need to deal with runs that start after FINAL_YEAR here
   IF ( CALL1 ) THEN
      RF = NINT(SF%RES/HYRES)
      ! Check for Res being an integral multiple of 5' [RES] = fract. deg
@@ -310,6 +312,12 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
         SF%SYEAR = INT(REAL(YEAR)/REAL(ISTEP)) * ISTEP
      ENDIF
      SF%EYEAR = SF%SYEAR + ISTEP
+
+     !runs that start after FINAL_YEAR
+     IF (YEAR .GE. FINAL_YEAR) THEN
+        SF%EYEAR = FINAL_YEAR
+        SF%SYEAR = FINAL_YEAR
+     END IF
 
      ALLOCATE( SPOPD(SF%NCELLS), EPOPD(SF%NCELLS) )
      ALLOCATE( x(SF%NCELLS),y(SF%NCELLS) )
@@ -426,7 +434,8 @@ SUBROUTINE GET_POPDENS ( SF, YEAR )
 
   ! Finally get time-interpolated population density
   tf = REAL( SF%EYEAR - YEAR ) / REAL(ISTEP)
-
+  
+  !INH for runs that start after FINAL_YEAR - SPOPD=EPOPD so tf irrelevant
   SF%POPD = tf * SPOPD + (1.-tf) * EPOPD
 
   !write(*,*) 'POPD', SPOPD, EPOPD,  SF%POPD , SF%LON, SF%LAT
@@ -646,9 +655,9 @@ SUBROUTINE SIMFIRE ( SF, RAINF, TMAX, TMIN, DOY,MM, YEAR, AB, climate, FAPARSOUR
          AB(i) = AB(i) *  SF%BA_MONTHLY_CLIM(i,MM) / DOM(MM)
       ELSE
          !seasonality comes in through using current Nesterov
-         !AB(i) = AB(i) / 365.0
+         AB(i) = AB(i) / 365.0
          !looks like we still need to push AB into the correct month
-         AB(i) = AB(i) *  SF%BA_MONTHLY_CLIM(i,MM) / DOM(MM)
+         !AB(i) = AB(i) *  SF%BA_MONTHLY_CLIM(i,MM) / DOM(MM)
       END IF 
 
    END DO
