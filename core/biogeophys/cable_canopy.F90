@@ -5910,7 +5910,12 @@ SUBROUTINE dryLeaf_givengs(ktau, ktau_tot, dels, rad, air, met, &
       real(r_2) :: a, b, c, da, db, dc
 
       call fabc(Cs, g0, x, gamma, beta, Gammastar, Rd,a,b,c)
-      call fAn_c3(a, b, c, An)
+      if (g0==0.0_r_2) then
+         An=-b/a
+      else
+         call fAn_c3(a, b, c, An)
+      endif
+      !call fAn_c3(a, b, c, An)
       call fdabc(Cs, g0, x, gamma, beta, Gammastar, Rd, da, db, dc)
       call fdAn_c3(a, b, c, da, db, dc, dAn)
 
