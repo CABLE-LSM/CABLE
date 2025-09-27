@@ -3035,8 +3035,13 @@ CONTAINS
                dsxm(i) = dc *dsxx(i) + ( 1.0 - dc ) * dsx(i)
                csx(i,1) = dc *csxx(i,1) + ( 1.0 - dc ) * csx(i,1)
                csx(i,2) = dc *csxx(i,2) + ( 1.0 - dc ) * csx(i,2)
-               psilxm(i,1) = dc *psilxx(i,1) + ( 1.0 - dc ) * psilx(i,1)
-               psilxm(i,2) = dc *psilxx(i,2) + ( 1.0 - dc ) * psilx(i,2)
+               if (abs(psilxx(i,1) - psilx(i,1))<0.5_r_2) then
+                  psilxm(i,1) = 0.95 *psilxx(i,1) + ( 1.0 - 0.95 ) * psilx(i,1)
+                  psilxm(i,2) = 0.95 *psilxx(i,2) + ( 1.0 - 0.95 ) * psilx(i,2)
+               else
+                  psilxm(i,1) = dc *psilxx(i,1) + ( 1.0 - dc ) * psilx(i,1)
+                  psilxm(i,2) = dc *psilxx(i,2) + ( 1.0 - dc ) * psilx(i,2)
+               endif 
                ! calculate the new fwpsi1_tmp based on modified psilx
                fwpsi1_tmp(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
                       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilxm(i,1))))
