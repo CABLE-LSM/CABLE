@@ -2180,7 +2180,8 @@ CONTAINS
       if (present(wbpsdo) .or. present(vpdpsdo)) then
          kmax = veg%Nmax(1)
       else
-       kmax = C%MAXITER
+       !kmax = C%MAXITER
+       kmax = veg%Nmax(1)
       endif
       Numtag = 3
       DO WHILE (k < kmax)
