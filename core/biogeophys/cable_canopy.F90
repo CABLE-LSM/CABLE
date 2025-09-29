@@ -3152,7 +3152,7 @@ CONTAINS
                   vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
                   ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4),ssnow%rootR(i,5),ssnow%rootR(i,6), &
                   ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4),ssnow%soilR(i,5),ssnow%soilR(i,6), &
-                  kplantx(i),g0xx(i,1),g0xx(i,2),
+                  kplantx(i),g0xx(i,1),g0xx(i,2)
                elseif (present(wbpsdo) .and. present(fwpsdo)) then
                elseif (present (wbpsdo)) then 
                   write(135,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i),tlfxm(i), deltlf(i), &
@@ -3166,7 +3166,7 @@ CONTAINS
                   vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
                   ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4),ssnow%rootR(i,5),ssnow%rootR(i,6), &
                   ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4),ssnow%soilR(i,5),ssnow%soilR(i,6), &
-                  kplantx(i),g0xx(i,1),g0xx(i,2),
+                  kplantx(i),g0xx(i,1),g0xx(i,2)
                elseif (present (vpdpsdo)) then 
                   write(136,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i),tlfxm(i), deltlf(i), &
                   dsxx(i),dsx(i),dsxm(i),abs_deltds(i), Mtag, &
@@ -3179,7 +3179,7 @@ CONTAINS
                   vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
                   ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4),ssnow%rootR(i,5),ssnow%rootR(i,6), &
                   ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4),ssnow%soilR(i,5),ssnow%soilR(i,6), &
-                  kplantx(i),g0xx(i,1),g0xx(i,2),
+                  kplantx(i),g0xx(i,1),g0xx(i,2)
                else
                   write(134,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i),tlfxm(i), deltlf(i), &
                   dsxx(i),dsx(i),dsxm(i),abs_deltds(i), Mtag, &
@@ -3192,7 +3192,7 @@ CONTAINS
                   vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
                   ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4),ssnow%rootR(i,5),ssnow%rootR(i,6), &
                   ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4),ssnow%soilR(i,5),ssnow%soilR(i,6), &
-                  kplantx(i),g0xx(i,1),g0xx(i,2),
+                  kplantx(i),g0xx(i,1),g0xx(i,2)
 
                endif
 
