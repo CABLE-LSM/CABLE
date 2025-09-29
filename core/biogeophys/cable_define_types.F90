@@ -296,6 +296,7 @@ module cable_def_types_mod
      real(r_2), dimension(:),   pointer :: Qadv_rain_sn => null()
      real(r_2), dimension(:,:),   pointer :: uptake_layer => null() !kg m-2 s-1
      real(r_2), dimension(:),   pointer :: total_est_evap => null()
+     real(r_2), dimension(:),   pointer :: total_est_evap_sat => null()
     REAL(r_1), DIMENSION(:,:), POINTER ::                                      &
           soilR => null(), & !
           rootR => null(), &
@@ -1118,6 +1119,7 @@ contains
     allocate ( ssnow%psi_soil(mp,ms) )
     allocate ( ssnow%psi_rootzone(mp) )
     allocate ( ssnow%total_est_evap(mp) )
+    allocate ( ssnow%total_est_evap_sat(mp) )
     allocate ( ssnow%wb_30(mp) )
     allocate ( ssnow%psi_30(mp) )
     allocate ( ssnow%wb_fr_rootzone(mp) )
@@ -1827,6 +1829,7 @@ contains
     deallocate( ssnow%psi_soil )
     deallocate( ssnow%psi_rootzone )
     deallocate( ssnow%total_est_evap )
+    deallocate( ssnow%total_est_evap_sat )
     deallocate( ssnow%wb_30 )
     deallocate( ssnow%psi_30 )
     deallocate( ssnow%wb_fr_rootzone )
@@ -2401,6 +2404,7 @@ contains
     ssnow%psi_soil         = 0
     ssnow%psi_rootzone     = 0
     ssnow%total_est_evap     = 0
+    ssnow%total_est_evap_sat     = 0
     ssnow%wb_30     = 0
     ssnow%psi_30     = 0
     ssnow%wb_fr_rootzone     = 0

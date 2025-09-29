@@ -1823,7 +1823,8 @@ CONTAINS
          rnx, &          ! net rad prev timestep
          ecxs, &  ! lat. hflux big leaf (sap flux)
          psixx, &
-         kplantx
+         kplantx, &
+         total_est_evap
          
       real(r_2) :: psixxi, kplantxi
       real, dimension(mp,ms)  :: oldevapfbl
@@ -1901,6 +1902,7 @@ CONTAINS
       real, dimension(mp,2) ::  gsw_term, lower_limit2  ! local temp var
       real(r_2), dimension(mp,ms) :: wbtmp
       real(r_2), dimension(mp):: vpdtmp
+      real, dimension(mp,mf):: g0xx
       integer :: i, j, k, kk, h, iter_ini ! iteration count
       integer :: NN,m,kmax,Mtag,Numtag
       integer, allocatable :: nktau(:), allktau(:), nktau_end(:)
@@ -1934,14 +1936,16 @@ CONTAINS
 
       ! END header
       ! allocate(gswmin(mp,mf))
-
+      g0xx = spread(veg%g0, 2, mf)
       ! Soil water limitation on stomatal conductance:
       iter_ini = 1
       if (present(wbpsdo)) then
          iter_ini = 4
          wbtmp = wbpsdo
+         total_est_evap = ssnow%total_est_evap_sat
       else
          wbtmp = ssnow%wb
+         total_est_evap = ssnow%total_est_evap
       endif
       if (present(vpdpsdo)) then
          iter_ini = 4
@@ -2592,8 +2596,10 @@ CONTAINS
                   endif
                ELSE IF (cable_user%GS_SWITCH == 'tuzet' .AND. &
                   INDEX(cable_user%FWSOIL_SWITCH,'LWP')>0) THEN
-                     gswmin(i,1) = veg%g0(i) * rad%scalex(i,1)
-                     gswmin(i,2) = veg%g0(i) * rad%scalex(i,2)
+                     ! gswmin(i,1) = veg%g0(i) * rad%scalex(i,1)
+                     ! gswmin(i,2) = veg%g0(i) * rad%scalex(i,2)
+                     gswmin(i,1) = g0xx(i,1) * rad%scalex(i,1)
+                     gswmin(i,2) = g0xx(i,2) * rad%scalex(i,2)       
                      g1 = veg%g1tuzet(i)
                      psilxx(i,:) = psilx(i,:)
                   if (present(fwpsdo)) then
@@ -2780,6 +2786,59 @@ CONTAINS
                   kplantx(i) = kplantxi
                   psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
                   psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
+                  if (any(psilx(i,:) < -20.0_r_2) ) then
+                     ! if (present(wbpsdo)) then
+                     !    print*, 'saturation: psilx(i,:)=', psilx(i,:), iter, k
+                     ! else
+                     !  !  print*, 'psilx(i,:)=', psilx(i,:), iter, k
+                     ! endif
+                     where (psilx(i,:) < -10.0_r_2)
+                     psilx(i,:) = -10.0_r_2
+                     end where
+                     !g0(i) = g0(i)*0.5
+                     ! if (present(wbpsdo)) then
+                     !    print*, 'saturation: ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
+                     ! else
+                     !   ! print*, 'ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
+                     ! endif
+                    if (sum(real(ex(i,:),r_2))>total_est_evap(i)) then
+                    !g0xx(i,:) = total_est_evap(i)/sum(real(ex(i,:),r_2)) * veg%g0(i)
+                    ex(i,1) = total_est_evap(i) * ex(i,1)/sum(real(ex(i,:),r_2))
+                    ex(i,2) = total_est_evap(i) * ex(i,2)/sum(real(ex(i,:),r_2))
+                    g0xx(i,:) = ex(i,:) * 1000.0 /18.0 /(vpdtmp(i) /100.0 /met%pmb(i) /C%rmair * C%rmh2o)
+                    
+                    ecx(i)=sum(ex(i,:))* real(air%rlam(i), r_2) /(1.0_r_2-real(canopy%fwet(i), r_2))
+                    ! if (present(wbpsdo)) then
+                    !    print*, 'saturation: ex_modified: ',ex(i,:), sum(real(ex(i,:),r_2))
+                    ! else
+                    !   ! print*, 'ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
+                    ! endif
+                    CALL calc_psix(ssnow, soil, canopy, veg, casapool,max(sum(real(ex(i,:),r_2)), 0.0_r_2),psixxi,kplantxi,i)
+                    !if psixx(i)<-10
+                    psixx(i) = psixxi
+                    kplantx(i) = kplantxi
+                    psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
+                    psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
+
+
+                    !met%dva = (qstvair - met%qvair) *  C%rmair/C%rmh2o * met%pmb * 100.0
+                    ! if (present(wbpsdo)) then
+                    !    print*, 'saturation: psix_modified: ',psixx(i)
+                    !    print*, 'saturation: kplant_modified: ',kplantx(i)
+                    !    print*, 'saturation: psil_modified: ',psilx(i,:)
+                    !    print*, 'saturation: g0_modified: ',g0xx(i,:)
+                    ! else
+                    !   ! print*, 'ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
+                    ! endif
+
+                    endif
+                     ! fwpsi(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                     !       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
+                     ! fwpsi(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                     !       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
+                     ! g0xx(i,:) = veg%g0(i) * fwpsi(i,:)
+                  endif
+
                   ! if (any(allktau == ktau_tot) .and. (iter==4)) then
                   ! print*,'ktau_tot, i and k',ktau_tot, iter, k
                   ! if (present(wbpsdo)) then
@@ -3093,7 +3152,7 @@ CONTAINS
                   vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
                   ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4),ssnow%rootR(i,5),ssnow%rootR(i,6), &
                   ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4),ssnow%soilR(i,5),ssnow%soilR(i,6), &
-                  kplantx(i)
+                  kplantx(i),g0xx(i,1),g0xx(i,2),
                elseif (present(wbpsdo) .and. present(fwpsdo)) then
                elseif (present (wbpsdo)) then 
                   write(135,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i),tlfxm(i), deltlf(i), &
@@ -3107,7 +3166,7 @@ CONTAINS
                   vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
                   ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4),ssnow%rootR(i,5),ssnow%rootR(i,6), &
                   ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4),ssnow%soilR(i,5),ssnow%soilR(i,6), &
-                  kplantx(i)
+                  kplantx(i),g0xx(i,1),g0xx(i,2),
                elseif (present (vpdpsdo)) then 
                   write(136,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i),tlfxm(i), deltlf(i), &
                   dsxx(i),dsx(i),dsxm(i),abs_deltds(i), Mtag, &
@@ -3120,7 +3179,7 @@ CONTAINS
                   vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
                   ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4),ssnow%rootR(i,5),ssnow%rootR(i,6), &
                   ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4),ssnow%soilR(i,5),ssnow%soilR(i,6), &
-                  kplantx(i)
+                  kplantx(i),g0xx(i,1),g0xx(i,2),
                else
                   write(134,*) ktau_tot, iter, i, k, tlfxx(i),tlfx(i),tlfxm(i), deltlf(i), &
                   dsxx(i),dsx(i),dsxm(i),abs_deltds(i), Mtag, &
@@ -3133,7 +3192,7 @@ CONTAINS
                   vcmxt3(i,1),vcmxt3(i,2),gs_coeff(i,1),gs_coeff(i,2),rdx(i,1),rdx(i,2),ex(i,1),ex(i,2), &
                   ssnow%rootR(i,1),ssnow%rootR(i,2),ssnow%rootR(i,3),ssnow%rootR(i,4),ssnow%rootR(i,5),ssnow%rootR(i,6), &
                   ssnow%soilR(i,1),ssnow%soilR(i,2),ssnow%soilR(i,3),ssnow%soilR(i,4),ssnow%soilR(i,5),ssnow%soilR(i,6), &
-                  kplantx(i)
+                  kplantx(i),g0xx(i,1),g0xx(i,2),
 
                endif
 
