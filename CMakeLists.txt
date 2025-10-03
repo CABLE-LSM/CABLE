@@ -252,6 +252,7 @@ else()
         src/offline/cable_initialise.F90
         src/offline/cable_input.F90
         src/offline/cable_metutils.F90
+        src/offline/cable_mpi_stub_types.F90
         src/offline/cable_mpi.F90
         src/offline/cable_namelist_input.F90
         src/offline/cable_output.F90
