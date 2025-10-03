@@ -16,6 +16,7 @@ jobs:
     with:
       spack-manifest-path: ${{ matrix.spack-manifest-path }}
       spack-packages-ref: api-v2  # This branch contains the package defs compatible with spack >=1.0. May be incorporated into the main branch
+      spack-config-ref: 289dfc39f803887d8c2eb009af27ff43699e8b2d  # Testing out a ref that worked before...
       spack-ref: releases/v1.0
       allow-ssh-into-spack-install: false
       container-image-version: :rocky-v1.0-2025.09.000  # https://github.com/ACCESS-NRI/build-ci/pkgs/container/build-ci-upstream/501398004?tag=rocky-v1.0-2025.09.000
