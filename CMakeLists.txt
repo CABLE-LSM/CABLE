@@ -11,6 +11,7 @@ option(CABLE_MPI "Build the MPI executable" OFF)
 # third party libs
 if(CABLE_MPI)
     find_package(MPI REQUIRED COMPONENTS Fortran)
+    find_package(PIO REQUIRED COMPONENTS Fortran)
 endif()
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(NETCDF REQUIRED IMPORTED_TARGET "netcdf-fortran")
@@ -271,13 +272,21 @@ else()
         src/offline/spincasacnp.F90
         src/util/cable_climate_type_mod.F90
         src/util/masks_cbl.F90
+        src/util/array_utils.F90
+        src/util/netcdf/cable_netcdf.F90
+        src/util/netcdf/cable_netcdf_internal.F90
+        src/util/netcdf/cable_netcdf_stub_types.F90
+        src/util/netcdf/nf90/cable_netcdf_nf90.F90
     )
 
     target_link_libraries(cable_common PRIVATE PkgConfig::NETCDF)
 
     if(CABLE_MPI)
-    target_compile_definitions(cable_common PRIVATE __MPI__)
-    target_link_libraries(cable_common PRIVATE MPI::MPI_Fortran)
+        target_compile_definitions(cable_common PRIVATE __MPI__)
+        target_link_libraries(cable_common PRIVATE MPI::MPI_Fortran PIO::PIO_Fortran)
+        target_sources(cable_common PRIVATE src/util/netcdf/pio/cable_netcdf_pio.F90)
+    else()
+        target_sources(cable_common PRIVATE src/util/netcdf/pio/cable_netcdf_pio_stub.F90)
     endif()
 
     if(CABLE_MPI)
