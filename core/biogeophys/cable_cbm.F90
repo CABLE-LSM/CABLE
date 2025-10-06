@@ -139,18 +139,18 @@ CONTAINS
 
 
       !ENDIF
-      wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms)
-      DO i = 1, mp
-         CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, i, wbpsdo)
-         CALL calc_swp(ssnow, soil, i, wbpsdo)
-      END DO
-      do i = 1, mp
-         diff_Esr_Erl_i = i
+      ! wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms)
+      ! DO i = 1, mp
+      !    CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, i, wbpsdo)
+      !    CALL calc_swp(ssnow, soil, i, wbpsdo)
+      ! END DO
+      ! do i = 1, mp
+      !    diff_Esr_Erl_i = i
 
-         psix = rtbis(diff_Esr_Erl,l_bound, u_bound, 0.01)
-         ssnow%total_est_evap_sat(i) = Esupply(psix)
-      end do
-      !if (ktau_tot==1) then
+      !    psix = rtbis(diff_Esr_Erl,l_bound, u_bound, 0.01)
+      !    ssnow%total_est_evap_sat(i) = Esupply(psix)
+      ! end do
+      if (ktau_tot==1) then
       do i = 1, mp
          CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, i)
          CALL calc_swp(ssnow, soil, i)
@@ -160,13 +160,13 @@ CONTAINS
          canopy%psix(i) = psix
          canopy%kplant(i) = kplant
       end do
-      !endif
-      do i = 1, mp
-         diff_Esr_Erl_i = i
+      endif
+      ! do i = 1, mp
+      !    diff_Esr_Erl_i = i
 
-         psix = rtbis(diff_Esr_Erl,l_bound, u_bound, 0.01)
-         ssnow%total_est_evap(i) = Esupply(psix)
-      end do
+      !    psix = rtbis(diff_Esr_Erl,l_bound, u_bound, 0.01)
+      !    ssnow%total_est_evap(i) = Esupply(psix)
+      ! end do
       ! Calculate canopy variables
       CALL define_canopy(ktau,ktau_tot,bal, rad, rough, air, met, dels, ssnow, soil, veg, canopy, climate, casapool, casabiome)
 

@@ -2786,58 +2786,58 @@ CONTAINS
                   kplantx(i) = kplantxi
                   psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
                   psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
-                  if (any(psilx(i,:) < -20.0_r_2) ) then
-                     ! if (present(wbpsdo)) then
-                     !    print*, 'saturation: psilx(i,:)=', psilx(i,:), iter, k
-                     ! else
-                     !  !  print*, 'psilx(i,:)=', psilx(i,:), iter, k
-                     ! endif
-                     where (psilx(i,:) < -10.0_r_2)
-                     psilx(i,:) = -10.0_r_2
-                     end where
-                     !g0(i) = g0(i)*0.5
-                     ! if (present(wbpsdo)) then
-                     !    print*, 'saturation: ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
-                     ! else
-                     !   ! print*, 'ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
-                     ! endif
-                    if ((sum(real(ex(i,:),r_2))>total_est_evap(i)))then
-                    !g0xx(i,:) = total_est_evap(i)/sum(real(ex(i,:),r_2)) * veg%g0(i)
-                    ex(i,1) = total_est_evap(i) * ex(i,1)/sum(real(ex(i,:),r_2))
-                    ex(i,2) = total_est_evap(i) * ex(i,2)/sum(real(ex(i,:),r_2))
-                    g0xx(i,:) = ex(i,:) * 1000.0 /18.0 /(vpdtmp(i) /100.0 /met%pmb(i) /C%rmair * C%rmh2o)
+                  ! if (any(psilx(i,:) < -20.0_r_2) ) then
+                  !    ! if (present(wbpsdo)) then
+                  !    !    print*, 'saturation: psilx(i,:)=', psilx(i,:), iter, k
+                  !    ! else
+                  !    !  !  print*, 'psilx(i,:)=', psilx(i,:), iter, k
+                  !    ! endif
+                  !    where (psilx(i,:) < -10.0_r_2)
+                  !    psilx(i,:) = -10.0_r_2
+                  !    end where
+                  !    !g0(i) = g0(i)*0.5
+                  !    ! if (present(wbpsdo)) then
+                  !    !    print*, 'saturation: ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
+                  !    ! else
+                  !    !   ! print*, 'ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
+                  !    ! endif
+                  !   if ((sum(real(ex(i,:),r_2))>total_est_evap(i)))then
+                  !   !g0xx(i,:) = total_est_evap(i)/sum(real(ex(i,:),r_2)) * veg%g0(i)
+                  !   ex(i,1) = total_est_evap(i) * ex(i,1)/sum(real(ex(i,:),r_2))
+                  !   ex(i,2) = total_est_evap(i) * ex(i,2)/sum(real(ex(i,:),r_2))
+                  !   g0xx(i,:) = ex(i,:) * 1000.0 /18.0 /(vpdtmp(i) /100.0 /met%pmb(i) /C%rmair * C%rmh2o)
                     
-                    ecx(i)=sum(ex(i,:))* real(air%rlam(i), r_2) /(1.0_r_2-real(canopy%fwet(i), r_2))
-                    ! if (present(wbpsdo)) then
-                    !    print*, 'saturation: ex_modified: ',ex(i,:), sum(real(ex(i,:),r_2))
-                    ! else
-                    !   ! print*, 'ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
-                    ! endif
-                    CALL calc_psix(ssnow, soil, canopy, veg, casapool,max(sum(real(ex(i,:),r_2)), 0.0_r_2),psixxi,kplantxi,i)
-                    !if psixx(i)<-10
-                    psixx(i) = psixxi
-                    kplantx(i) = kplantxi
-                    psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
-                    psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
+                  !   ecx(i)=sum(ex(i,:))* real(air%rlam(i), r_2) /(1.0_r_2-real(canopy%fwet(i), r_2))
+                  !   ! if (present(wbpsdo)) then
+                  !   !    print*, 'saturation: ex_modified: ',ex(i,:), sum(real(ex(i,:),r_2))
+                  !   ! else
+                  !   !   ! print*, 'ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
+                  !   ! endif
+                  !   CALL calc_psix(ssnow, soil, canopy, veg, casapool,max(sum(real(ex(i,:),r_2)), 0.0_r_2),psixxi,kplantxi,i)
+                  !   !if psixx(i)<-10
+                  !   psixx(i) = psixxi
+                  !   kplantx(i) = kplantxi
+                  !   psilx(i,1) = psixx(i) - max(ex(i,1),0.0_r_2) / kplantx(i)
+                  !   psilx(i,2) = psixx(i) - max(ex(i,2),0.0_r_2) / kplantx(i)
 
 
-                    !met%dva = (qstvair - met%qvair) *  C%rmair/C%rmh2o * met%pmb * 100.0
-                    ! if (present(wbpsdo)) then
-                    !    print*, 'saturation: psix_modified: ',psixx(i)
-                    !    print*, 'saturation: kplant_modified: ',kplantx(i)
-                    !    print*, 'saturation: psil_modified: ',psilx(i,:)
-                    !    print*, 'saturation: g0_modified: ',g0xx(i,:)
-                    ! else
-                    !   ! print*, 'ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
-                    ! endif
+                  !   !met%dva = (qstvair - met%qvair) *  C%rmair/C%rmh2o * met%pmb * 100.0
+                  !   ! if (present(wbpsdo)) then
+                  !   !    print*, 'saturation: psix_modified: ',psixx(i)
+                  !   !    print*, 'saturation: kplant_modified: ',kplantx(i)
+                  !   !    print*, 'saturation: psil_modified: ',psilx(i,:)
+                  !   !    print*, 'saturation: g0_modified: ',g0xx(i,:)
+                  !   ! else
+                  !   !   ! print*, 'ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
+                  !   ! endif
 
-                    endif
-                     ! fwpsi(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
-                     !       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
-                     ! fwpsi(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
-                     !       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
-                     ! g0xx(i,:) = veg%g0(i) * fwpsi(i,:)
-                  endif
+                  !   endif
+                  !    ! fwpsi(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                  !    !       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
+                  !    ! fwpsi(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+                  !    !       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
+                  !    ! g0xx(i,:) = veg%g0(i) * fwpsi(i,:)
+                  ! endif
 
                   ! if (any(allktau == ktau_tot) .and. (iter==4)) then
                   ! print*,'ktau_tot, i and k',ktau_tot, iter, k
