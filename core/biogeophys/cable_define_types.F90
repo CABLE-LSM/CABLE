@@ -383,7 +383,8 @@ module cable_def_types_mod
           dc => null(),  & !used in iteration in dryLeaf
           root_conduc => null(), &
           huber_value => null(), &
-          root_shoot => null()
+          root_shoot => null(), &
+          LAImax => null()
       integer, dimension(:), pointer :: Nmax => null()
 
      logical, dimension(:), pointer :: &
@@ -1210,6 +1211,7 @@ contains
     allocate( veg%huber_value(mp) )
     allocate( veg%root_shoot(mp) )
     allocate(veg%Nmax(mp)) 
+    allocate( veg%LAImax(mp) )
 
   end subroutine alloc_veg_parameter_type
 
@@ -1912,6 +1914,7 @@ contains
     deallocate( veg%huber_value ) 
     deallocate( veg%root_shoot ) 
     deallocate( veg%Nmax ) 
+    deallocate( veg%LAImax ) 
 
   end subroutine dealloc_veg_parameter_type
 
@@ -2496,6 +2499,7 @@ contains
     veg%huber_value = 0
     veg%root_shoot = 0
     veg%Nmax = 0
+    veg%LAImax = 0
    
   end subroutine zero_veg_parameter_type
 

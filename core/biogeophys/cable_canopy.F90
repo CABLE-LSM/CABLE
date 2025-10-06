@@ -2801,7 +2801,7 @@ CONTAINS
                      ! else
                      !   ! print*, 'ex and total_est_evap', sum(real(ex(i,:),r_2)), total_est_evap(i)
                      ! endif
-                    if (sum(real(ex(i,:),r_2))>total_est_evap(i)) then
+                    if ((sum(real(ex(i,:),r_2))>total_est_evap(i)))then
                     !g0xx(i,:) = total_est_evap(i)/sum(real(ex(i,:),r_2)) * veg%g0(i)
                     ex(i,1) = total_est_evap(i) * ex(i,1)/sum(real(ex(i,:),r_2))
                     ex(i,2) = total_est_evap(i) * ex(i,2)/sum(real(ex(i,:),r_2))
@@ -3079,9 +3079,9 @@ CONTAINS
             tlfxm(i) = 0.0_r_2
             dsxm(i) = 0.0_r_2
             Mtag = 0
-               fwpsi(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+            fwpsi(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
                       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,1))))
-               fwpsi(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+            fwpsi(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
                       (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilx(i,2))))
             if ( (abs_deltlf(i) > 0.1 .or. Any(abs_deltpsil(i,:) > 0.1)) .AND. k > 0 .AND. k < kmax ) then
                Numtag = 3
@@ -3102,40 +3102,40 @@ CONTAINS
                !    psilxm(i,2) = 0.95 *psilxx(i,2) + ( 1.0 - 0.95 ) * psilx(i,2)
                ! endif 
                ! calculate the new fwpsi1_tmp based on modified psilx
-               fwpsi1_tmp(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
-                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilxm(i,1))))
-               fwpsi1_tmp(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
-                      (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilxm(i,2))))
-               Mtag=1
-               inc = 0.02_r_2
-               if ((fwpsi1_tmp(i,1)-fwpsixx(i,1)<-0.05_r_2) .AND. (fwpsi1_tmp(i,1)-fwpsixx(i,1)>-0.1_r_2)) then
-                  Mtag=2
-                  if (present(wbpsdo)) then
-                     canopy%N_neg_sw = canopy%N_neg_sw + 1.0
-                  else
-                     canopy%N_neg = canopy%N_neg + 1.0
-                  endif
+               ! fwpsi1_tmp(i,1) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+               !        (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilxm(i,1))))
+               ! fwpsi1_tmp(i,2) = (1.0_r_2 +exp(veg%slope_leaf(i) * veg%psi_50_leaf(i))) / &
+               !        (1.0_r_2+exp(veg%slope_leaf(i) * (veg%psi_50_leaf(i)-psilxm(i,2))))
+               ! Mtag=1
+               ! inc = 0.02_r_2
+               ! if ((fwpsi1_tmp(i,1)-fwpsixx(i,1)<-0.05_r_2) .AND. (fwpsi1_tmp(i,1)-fwpsixx(i,1)>-0.1_r_2)) then
+               !    Mtag=2
+               !    if (present(wbpsdo)) then
+               !       canopy%N_neg_sw = canopy%N_neg_sw + 1.0
+               !    else
+               !       canopy%N_neg = canopy%N_neg + 1.0
+               !    endif
                   
-                  fwpsi1_tmp(i,1) = fwpsixx(i,1) - inc
-                  psilxm(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
-                  log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,1)) / fwpsi1_tmp(i,1) )
-                  fwpsi1_tmp(i,2) = fwpsixx(i,2) - inc
-                  psilxm(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
-                  log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,2)) / fwpsi1_tmp(i,2) )
-               elseif ((fwpsi1_tmp(i,1)-fwpsixx(i,1)>0.05_r_2) .AND. (fwpsi1_tmp(i,1)-fwpsixx(i,1)<0.1_r_2)) then
-                  Mtag=3
-                  if (present(wbpsdo)) then
-                     canopy%N_pos_sw = canopy%N_pos_sw + 1.0
-                  else
-                     canopy%N_pos = canopy%N_pos + 1.0
-                  endif
-                  fwpsi1_tmp(i,1) = fwpsixx(i,1) + inc
-                  psilxm(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
-                  log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,1)) / fwpsi1_tmp(i,1) )
-                  fwpsi1_tmp(i,2) = fwpsixx(i,2) + inc
-                  psilxm(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
-                  log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,2)) / fwpsi1_tmp(i,2) )   
-               endif
+               !    fwpsi1_tmp(i,1) = fwpsixx(i,1) - inc
+               !    psilxm(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
+               !    log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,1)) / fwpsi1_tmp(i,1) )
+               !    fwpsi1_tmp(i,2) = fwpsixx(i,2) - inc
+               !    psilxm(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
+               !    log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,2)) / fwpsi1_tmp(i,2) )
+               ! elseif ((fwpsi1_tmp(i,1)-fwpsixx(i,1)>0.05_r_2) .AND. (fwpsi1_tmp(i,1)-fwpsixx(i,1)<0.1_r_2)) then
+               !    Mtag=3
+               !    if (present(wbpsdo)) then
+               !       canopy%N_pos_sw = canopy%N_pos_sw + 1.0
+               !    else
+               !       canopy%N_pos = canopy%N_pos + 1.0
+               !    endif
+               !    fwpsi1_tmp(i,1) = fwpsixx(i,1) + inc
+               !    psilxm(i,1) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
+               !    log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,1)) / fwpsi1_tmp(i,1) )
+               !    fwpsi1_tmp(i,2) = fwpsixx(i,2) + inc
+               !    psilxm(i,2) = veg%psi_50_leaf(i) - (1.0_r_2 / veg%slope_leaf(i)) * &
+               !    log( (1.0_r_2 + exp(veg%slope_leaf(i)*veg%psi_50_leaf(i)) - fwpsi1_tmp(i,2)) / fwpsi1_tmp(i,2) )   
+               ! endif
             elseif ( k > 0 .AND. k < kmax ) then
                Numtag = Numtag - 1
             endif

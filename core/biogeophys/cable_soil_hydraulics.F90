@@ -119,7 +119,8 @@ CONTAINS
       ! print*, 'root_biomass/leaf biomass: ', root_biomass/leaf_biomass
       !root_biomass = 318.9 * gC2DM ! Spruce experiment
       !! new method to calculate fine root biomass
-      leaf_biomass = veg%vlai(i) / casabiome%sla(veg%iveg(i)) ! gc m-2
+      !leaf_biomass = veg%vlai(i) / casabiome%sla(veg%iveg(i)) ! gc m-2
+      leaf_biomass = veg%LAImax(i) / casabiome%sla(veg%iveg(i)) ! gc m-2
       root_biomass = Bfr_Bl * leaf_biomass * gC2DM
 
       ! sensitivity experiment values
@@ -576,7 +577,8 @@ CONTAINS
          ! veg%b_plant(i), veg%c_plant(i))
          !BAI = casapool%cplant(i,1) * gC2DM * SLA * huber_value !  m2 m-2
          huber_value = veg%huber_value(i)
-         BAI = veg%vlai(i) * huber_value !  m2 m-2 
+         !BAI = veg%vlai(i) * huber_value !  m2 m-2 
+         BAI = veg%LAImax(i) * huber_value !  m2 m-2 
          ! print*, 'new BAI',BAI
          plc = get_xylem_vulnerability(psix, &
          veg%b_plant(i), veg%c_plant(i))
