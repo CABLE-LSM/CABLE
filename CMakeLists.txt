@@ -301,6 +301,7 @@ else()
         src/util/cable_climate_type_mod.F90
         src/util/masks_cbl.F90
         src/util/cable_array_utils.F90
+        src/util/netcdf/cable_netcdf_decomp_util.F90
         src/util/netcdf/cable_netcdf.F90
         src/util/netcdf/cable_netcdf_internal.F90
         src/util/netcdf/cable_netcdf_stub_types.F90
