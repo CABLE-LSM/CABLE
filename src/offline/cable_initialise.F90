@@ -31,7 +31,7 @@
 
 MODULE cable_init_module
 
-  USE cable_abort_module,       ONLY: abort, nc_abort
+  USE cable_abort_module,       ONLY: cable_abort, nc_abort
   USE cable_def_types_mod
   USE cable_IO_vars_module,       ONLY: latitude,longitude, patch,            &
        landpt,smoy,ncid_rin,max_vegpatches,          &
@@ -58,7 +58,7 @@ CONTAINS
   !
   ! CALLed from: load_parameters
   !
-  ! CALLs: abort
+  ! CALLs: cable_abort
   !
   !==============================================================================
 
@@ -120,8 +120,8 @@ CONTAINS
 
     END DO
 
-    IF(ANY(ssnow%tgg>350.0).OR.ANY(ssnow%tgg<180.0)) CALL abort('Soil temps nuts')
-    IF(ANY(ssnow%albsoilsn>1.0).OR.ANY(ssnow%albsoilsn<0.0)) CALL abort('Albedo nuts')
+    IF(ANY(ssnow%tgg>350.0).OR.ANY(ssnow%tgg<180.0)) CALL cable_abort('Soil temps nuts')
+    IF(ANY(ssnow%albsoilsn>1.0).OR.ANY(ssnow%albsoilsn<0.0)) CALL cable_abort('Albedo nuts')
 
     ! Site independent initialisations (all gridcells):
     ! soil+snow albedo for infrared (other values read in below):
@@ -154,7 +154,7 @@ CONTAINS
   ! CALLs: nc_abort
   !        extraRestart
   !        readpar
-  !        abort
+  !        cable_abort
   !
   ! Input file: [restart].nc
   !
@@ -220,7 +220,7 @@ CONTAINS
     IF(ok /= NF90_NOERR) CALL nc_abort                                          &
          (ok,'Error finding number of land points in restart file '             &
          //TRIM(filename%restart_in)//' (SUBROUTINE get_restart)')
-    IF(mland_restart /= mland) CALL abort('Number of land points in '//         &
+    IF(mland_restart /= mland) CALL cable_abort('Number of land points in '//         &
          'restart file '//TRIM(filename%restart_in)//                           &
          ' differs from number in met file '//TRIM(filename%met))
 
@@ -252,7 +252,7 @@ CONTAINS
     !         (ok,'Error finding number of surface types in restart file ' &
     !         //TRIM(filename%restart_in)//' (SUBROUTINE get_restart)')
     !    IF(surftype_restart /= 4) CALL &
-    !         abort('Number of surface types per grid cell in '// &
+    !         cable_abort('Number of surface types per grid cell in '// &
     !         'restart file '//TRIM(filename%restart_in)// &
     !         ' differs from number in cable_variables.f90 ')
     !    ! Get surffrac variable:
@@ -295,11 +295,11 @@ CONTAINS
     IF(ok/=NF90_NOERR) CALL nc_abort(ok,'Error reading longitude in file '      &
          //TRIM(filename%restart_in)// '(SUBROUTINE get_restart)')
     IF(ANY(ABS(lat_restart-latitude)>0.01))                                     &
-         CALL abort('Latitude of land points in '//                             &
+         CALL cable_abort('Latitude of land points in '//                             &
          'restart file '//TRIM(filename%restart_in)//                           &
          ' differs from met file '//TRIM(filename%met))
     IF(ANY(ABS(lon_restart-longitude)>0.01))                                    &
-         CALL abort('Longitude of land points in '//                            &
+         CALL cable_abort('Longitude of land points in '//                            &
          'restart file '//TRIM(filename%restart_in)//                           &
          ' differs from met file '//TRIM(filename%met))
     DEALLOCATE(lat_restart,lon_restart)
@@ -496,7 +496,7 @@ CONTAINS
        IF (ANY(INvar /= veg%iveg)) THEN
           PRINT *, 'Error: veg type in restart file different from met input'
           PRINT *, 'Recommend not using this restart file as parameters have changed.'
-          CALL abort('Check iveg in '//filename%restart_in)
+          CALL cable_abort('Check iveg in '//filename%restart_in)
        ENDIF
     ELSE
        ! no problem with overwriting default values
@@ -539,7 +539,7 @@ CONTAINS
        IF (ANY(INvar /= soil%isoilm)) THEN
           PRINT *, 'Error: soil type in restart file different from met input'
           PRINT *, 'Recommend not using this restart file as parameters have changed.'
-          CALL abort('Check isoil in '//filename%restart_in)
+          CALL cable_abort('Check isoil in '//filename%restart_in)
        ENDIF
     ELSE
        ! no problem with overwriting default values

@@ -20,55 +20,38 @@
 
 MODULE cable_abort_module
 
+  USE iso_fortran_env, ONLY: error_unit
   USE cable_IO_vars_module, ONLY: check, logn
+  USE cable_mpi_mod, ONLY: mpi_grp_t
+
   IMPLICIT NONE
+
+  TYPE(mpi_grp_t), PRIVATE :: mpi_grp_global
 
 CONTAINS
 
-  !==============================================================================
-  !
-  ! Name: abort
-  !
-  ! Purpose: Prints an error message and stops the code
-  !
-  ! CALLed from: get_default_inits
-  !              get_restart_data
-  !              get_default_lai
-  !              open_met_file
-  !              get_met_data
-  !              load_parameters
-  !              open_output_file
-  !              write_output
-  !              read_gridinfo
-  !              countpatch
-  !              get_type_parameters
-  !              readpar_i
-  !              readpar_r
-  !              readpar_rd
-  !              readpar_r2
-  !              readpar_r2d
-  !              define_output_variable_r1
-  !              define_output_variable_r2
-  !              define_output_parameter_r1
-  !              define_output_parameter_r2
-  !              write_output_variable_r1
-  !              write_output_variable_r2
-  !              write_output_parameter_r1
-  !              write_output_parameter_r1d
-  !              write_output_parameter_r2
-  !              write_output_parameter_r2d
-  !
-  !==============================================================================
+  SUBROUTINE cable_abort_module_init(mpi_grp)
+    !! Initialise abort module
+    TYPE(mpi_grp_t), intent(in) :: mpi_grp
+    mpi_grp_global = mpi_grp
+  END SUBROUTINE
 
-  SUBROUTINE abort(message)
+  SUBROUTINE cable_abort(message, file, line)
+    !! Print the error message and stop the code
+    CHARACTER(LEN=*), INTENT(IN) :: message !! Error message
+    CHARACTER(LEN=*), INTENT(IN), OPTIONAL :: file
+    INTEGER, INTENT(IN), OPTIONAL :: line
+    CHARACTER(5) :: line_string
 
-    ! Input arguments
-    CHARACTER(LEN=*), INTENT(IN) :: message
+    IF (present(file) .AND. present(line)) THEN
+      WRITE (line_string, "(I5)") line
+      WRITE (error_unit, *) file // ":" // trim(adjustl(line_string)) // ": " // message
+    ELSE
+      WRITE (error_unit, *) message
+    END IF
+    call mpi_grp_global%abort()
 
-    WRITE (*, *) message
-    STOP 1
-
-  END SUBROUTINE abort
+  END SUBROUTINE
 
   !==============================================================================
   !

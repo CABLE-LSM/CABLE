@@ -272,7 +272,7 @@ CONTAINS
        PRINT *, 'nslayer and ms = ', nslayer, ms
        PRINT *, 'ntime not equal 12 months: ', ntime
        IF (ntime /=12) THEN
-          CALL abort('Variable dimensions do not match (read_gridinfo)')
+          CALL cable_abort('Variable dimensions do not match (read_gridinfo)')
        ELSE
           PRINT*, 'warning: soil layers below nslayer will be initialsed with moisture'
           PRINT*,    'and temperature of lowest layer in grid_info'
@@ -1546,9 +1546,9 @@ CONTAINS
 
     ! check tgg and alb
     IF(ANY(ssnow%tgg > 350.0) .OR. ANY(ssnow%tgg < 180.0))                     &
-         CALL abort('Soil temps nuts')
+         CALL cable_abort('Soil temps nuts')
     IF(ANY(ssnow%albsoilsn > 1.0) .OR. ANY(ssnow%albsoilsn < 0.0))             &
-         CALL abort('Albedo nuts')
+         CALL cable_abort('Albedo nuts')
 
     WRITE(logn, *)
 
@@ -2360,7 +2360,7 @@ CONTAINS
           WRITE(*, *) 'Land point number:', i
           WRITE(*, *) 'Veg types:', veg%iveg(landpt(i)%cstart:                 &
                (landpt(i)%cstart + landpt(i)%nap - 1))
-          CALL abort('Unknown vegetation type! Aborting.')
+          CALL cable_abort('Unknown vegetation type! Aborting.')
        END IF
        ! Check all soil types make sense:
        IF(ANY(soil%isoilm(landpt(i)%cstart:(landpt(i)%cstart + landpt(i)%nap   &
@@ -2368,7 +2368,7 @@ CONTAINS
             + landpt(i)%nap - 1)) > mstype)) THEN
           WRITE(*,*) 'SUBROUTINE load_parameters:'
           WRITE(*,*) 'Land point number:',i
-          CALL abort('Unknown soil type! Aborting.')
+          CALL cable_abort('Unknown soil type! Aborting.')
        END IF
        ! Check patch fractions sum to 1 in each grid cell:
        IF((SUM(patch(landpt(i)%cstart:landpt(i)%cend)%frac) - 1.0)             &
@@ -2384,14 +2384,14 @@ CONTAINS
                patch(landpt(i)%cstart:landpt(i)%cend)%longitude
           WRITE(*,*) 'patch latitudes are:  ',                                 &
                patch(landpt(i)%cstart:landpt(i)%cend)%latitude
-          CALL abort ('Sum of fractional coverage of vegetation patches /= 1!')
+          CALL cable_abort ('Sum of fractional coverage of vegetation patches /= 1!')
        END IF
        !      ! Check sum of surface type fractions is 1:
        !      IF(landpt(i)%veg%frac + landpt(i)%urban%frac +                   &
        !         landpt(i)%lake%frac + landpt(i)%ice%frac /= 1) THEN
        !        WRITE(*,*) 'SUBROUTINE load_parameters:'
        !        WRITE(*,*) 'At land point number', i
-       !        CALL abort ('Sum of fractional coverage of surface types /= 1!')
+       !        CALL cable_abort ('Sum of fractional coverage of surface types /= 1!')
        !      END IF
     END DO
     ! Check sand+soil+clay fractions sum to 1:
@@ -2444,7 +2444,7 @@ CONTAINS
                   soil%ssat(landpt(i)%cstart + j - 1)) THEN
                 WRITE(*, *) 'SUBROUTINE load_parameters:'
                 WRITE(*, *) 'At land point number', i, 'patch:', j
-                CALL abort ('Wilting pt < field capacity < saturation '//      &
+                CALL cable_abort ('Wilting pt < field capacity < saturation '//      &
                      'violated!')
              END IF
           END DO
