@@ -126,6 +126,10 @@ CONTAINS
 
     INTEGER :: ierr
 
+#ifndef __MPI__
+    STOP 999
+#endif
+
     IF (this%comm /= MPI_COMM_UNDEFINED) THEN
       ! Here we use an arbitrary error code
 #ifdef __MPI__
