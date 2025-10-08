@@ -1,3 +1,4 @@
+
 !==============================================================================
 ! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
@@ -622,7 +623,11 @@ CONTAINS
     !
     !  outputs
     !     xk(mp):          modifier of soil litter decomposition rate (dimensionless)
+
+USE cable_surface_types_mod,  ONLY: c3_cropland, c4_cropland
+
     IMPLICIT NONE
+
     REAL(r_2), DIMENSION(mp), INTENT(OUT) :: xklitter,xksoil
     TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
     TYPE (soil_parameter_type),   INTENT(INOUT) :: soil ! soil parameters
@@ -666,8 +671,9 @@ CONTAINS
           xktemp(npt)  = casabiome%q10soil(veg%iveg(npt))**(0.1*(tsavg(npt)-TKzeroC-35.0))
           xkwater(npt) = ((fwps(npt)-wfpscoefb)/(wfpscoefa-wfpscoefb))**wfpscoefe    &
                * ((fwps(npt)-wfpscoefc)/(wfpscoefa-wfpscoefc))**wfpscoefd
-          IF (veg%iveg(npt) == cropland .OR. veg%iveg(npt) == croplnd2) &
+          IF ( veg%iveg(npt) == c3_cropland .OR. veg%iveg(npt) == c4_cropland ) THEN
                xkwater(npt)=1.0
+          END IF
           xklitter(npt) = casabiome%xkoptlitter(veg%iveg(npt)) * xktemp(npt) * xkwater(npt)
 
           IF( .NOT. cable_user%SRF) THEN
@@ -799,6 +805,8 @@ CONTAINS
     !     fromLtoCO2(mp,mlitter):      fraction of decomposed litter emitted as CO2 (fraction)
     !     fromStoCO2(mp,msoil):        fraction of decomposed soil C emitted as Co2 (fraction)
 
+USE cable_surface_types_mod,  ONLY: c3_cropland, c4_cropland
+
     IMPLICIT NONE
     REAL(r_2), DIMENSION(mp), INTENT(IN) :: xklitter,xksoil
     TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
@@ -837,7 +845,7 @@ CONTAINS
        casaflux%kpocc(:)          = xksoil(:) * casabiome%xkpocc(casamet%isorder(:))
 
 
-       WHERE(veg%iveg==cropland)      ! for cultivated land type
+       WHERE( veg%iveg == c3_cropland .OR. veg%iveg == c4_cropland )      ! for cultivated land type
           casaflux%ksoil(:,mic)  = casaflux%ksoil(:,mic) * 1.25
           casaflux%ksoil(:,slow) = casaflux%ksoil(:,slow)* 1.5
           casaflux%ksoil(:,pass) = casaflux%ksoil(:,pass)* 1.5
@@ -2296,7 +2304,12 @@ END SUBROUTINE casa_delplant
    END SUBROUTINE casa_pdummy
 
   SUBROUTINE phenology(iday,veg,phen)
+
+USE cable_surface_types_mod, ONLY: evergreen_needleleaf, evergreen_broadleaf
+USE cable_surface_types_mod, ONLY: aust_mesic, aust_xeric
+
     IMPLICIT NONE
+
     INTEGER,              INTENT(IN)    :: iday
     TYPE (veg_parameter_type),    INTENT(INOUT) :: veg  ! vegetation parameters
     TYPE (phen_variable), INTENT(INOUT) :: phen
@@ -2338,8 +2351,14 @@ END SUBROUTINE casa_delplant
        END SELECT
     ENDDO
 
-    WHERE(veg%iveg==1 .OR. veg%iveg ==2 )
+    ! This looks redundant. Need to review (https://github.com/ACCESS-NRI/UM7/issues/95#issuecomment-2739102117)
+    WHERE( veg%iveg == evergreen_needleleaf .OR.                               &
+           veg%iveg == evergreen_broadleaf  .OR.                               &
+           veg%iveg == aust_mesic           .OR.                               &
+           veg%iveg == aust_xeric         ) 
+
        phen%phase = 2
+    
     ENDWHERE
 
   END SUBROUTINE phenology

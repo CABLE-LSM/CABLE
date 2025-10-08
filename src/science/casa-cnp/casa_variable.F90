@@ -290,7 +290,6 @@ MODULE casavariable
      LOGICAL           :: l_ndep
      ! added vh
      CHARACTER(LEN=199) :: c2cdumppath='' ! cable2casa dump for casa spinup
-     CHARACTER(LEN=199) :: out=''    ! casa output file
   END TYPE casafiles_type
   TYPE(casafiles_type) :: casafile
 
@@ -308,8 +307,8 @@ CONTAINS
     TYPE (casa_balance), INTENT(INOUT) :: casabal
     INTEGER,             INTENT(IN) :: arraysize
 
-    ALLOCATE(casabiome%ivt2(mvtype),                   &
-         casabiome%xkleafcoldmax(mvtype),          &
+    ! r_2 type arrays
+    ALLOCATE(casabiome%xkleafcoldmax(mvtype),      &
          casabiome%xkleafcoldexp(mvtype),          &
          casabiome%xkleafdrymax(mvtype),           &
          casabiome%xkleafdryexp(mvtype),           &
@@ -355,10 +354,14 @@ CONTAINS
                                 !  casabiome%ratioPcplantmin(mvtype,leaf)    &
                                 ! vh_js !
          casabiome%ratioPcplantmax(mvtype,mplant),   &
-         casabiome%ratioPcplantmin(mvtype,mplant)    &
+         casabiome%ratioPcplantmin(mvtype,mplant),   &
+         SOURCE=0.0_r_2                              &
          )
 
-    ALLOCATE(casapool%Clabile(arraysize),               &
+    ! integer type arrays
+    ALLOCATE(casabiome%ivt2(mvtype), SOURCE=-9999)
+
+    ALLOCATE(casapool%Clabile(arraysize),           &
          casapool%dClabiledt(arraysize),            &
          casapool%Cplant(arraysize,mplant),         &
          casapool%Nplant(arraysize,mplant),         &
@@ -402,7 +405,9 @@ CONTAINS
          casapool%Ctot(arraysize),                  &
          casapool%cwoodprod(arraysize,mwood),       &
          casapool%nwoodprod(arraysize,mwood),       &
-         casapool%pwoodprod(arraysize,mwood))        
+         casapool%pwoodprod(arraysize,mwood),       &
+         SOURCE=0.0_r_2                              &
+         )        
 
     ALLOCATE(casaflux%Cgpp(arraysize),                 &
          casaflux%Cnpp(arraysize),                     &
@@ -458,65 +463,85 @@ CONTAINS
          casaflux%Cplant_turnover(arraysize,mplant) , &
          casaflux%Cplant_turnover_disturbance(arraysize) , &
          casaflux%Cplant_turnover_crowding(arraysize) , &
-         casaflux%Cplant_turnover_resource_limitation(arraysize))
+         casaflux%Cplant_turnover_resource_limitation(arraysize), &
+         SOURCE=0.0_r_2                                 &
+         )
 
     ALLOCATE(casaflux%FluxCtolitter(arraysize,mlitter),    &
          casaflux%FluxNtolitter(arraysize,mlitter),    &
-         casaflux%FluxPtolitter(arraysize,mlitter))
+         casaflux%FluxPtolitter(arraysize,mlitter),    &
+         SOURCE=0.0_r_2                                 &
+         )
 
     ALLOCATE(casaflux%FluxCtosoil(arraysize,msoil),        &
          casaflux%FluxNtosoil(arraysize,msoil),        &
-         casaflux%FluxPtosoil(arraysize,msoil))
+         casaflux%FluxPtosoil(arraysize,msoil),        &
+         SOURCE=0.0_r_2                                 &
+         )
 
     ALLOCATE(casaflux%FluxCtohwp(arraysize),    &
          casaflux%FluxNtohwp(arraysize),    &
-         casaflux%FluxPtohwp(arraysize))
+         casaflux%FluxPtohwp(arraysize),               &
+         SOURCE=0.0_r_2                                 &
+         )
 
     ALLOCATE(casaflux%FluxCtoclear(arraysize),    &
          casaflux%FluxNtoclear(arraysize),    &
-         casaflux%FluxPtoclear(arraysize))
+         casaflux%FluxPtoclear(arraysize),             &
+         SOURCE=0.0_r_2                                 &
+         )
 
-    ALLOCATE(casaflux%CtransferLUC(arraysize))
+    ALLOCATE(casaflux%CtransferLUC(arraysize), SOURCE=0.0_r_2)
 
-    ALLOCATE(casaflux%FluxCtoco2(arraysize))
+    ALLOCATE(casaflux%FluxCtoco2(arraysize), SOURCE=0.0_r_2)
 
-  ALLOCATE(casaflux%meangpp(arraysize))
-  ALLOCATE(casaflux%meanrleaf(arraysize))
+  ALLOCATE(casaflux%meangpp(arraysize), SOURCE=0.0_r_2)
+  ALLOCATE(casaflux%meanrleaf(arraysize), SOURCE=0.0_r_2)
   
-    ALLOCATE(casamet%glai(arraysize),                &
-         casamet%lnonwood(arraysize),            &
-         casamet%Tairk(arraysize),               &
-         casamet%precip(arraysize),              &
-         casamet%tsoilavg(arraysize),            &
-         casamet%moistavg(arraysize),            &
-         casamet%btran(arraysize),               &
-         casamet%Tsoil(arraysize,ms),            &
-         casamet%moist(arraysize,ms),            &
-         casamet%iveg2(arraysize),               &
+  ! r_2 type arrays
+  ALLOCATE(casamet%glai(arraysize),                &
+       casamet%Tairk(arraysize),               &
+       casamet%precip(arraysize),              &
+       casamet%tsoilavg(arraysize),            &
+       casamet%moistavg(arraysize),            &
+       casamet%btran(arraysize),               &
+       casamet%Tsoil(arraysize,ms),            &
+       casamet%moist(arraysize,ms),            &
+       casamet%lat(arraysize),                 &
+       casamet%lon(arraysize),                 &
+       casamet%areacell(arraysize),             &
+       casamet%Tairkspin(arraysize,mdyear),     &
+       casamet%cgppspin(arraysize,mdyear),      &
+       casamet%crmplantspin_1(arraysize,mdyear),&
+       casamet%crmplantspin_2(arraysize,mdyear),&
+       casamet%crmplantspin_3(arraysize,mdyear),&
+       casamet%Tsoilspin_1(arraysize,mdyear),   &
+       casamet%Tsoilspin_2(arraysize,mdyear),   &
+       casamet%Tsoilspin_3(arraysize,mdyear),   &
+       casamet%Tsoilspin_4(arraysize,mdyear),   &
+       casamet%Tsoilspin_5(arraysize,mdyear),   &
+       casamet%Tsoilspin_6(arraysize,mdyear),   &
+       casamet%moistspin_1(arraysize,mdyear),   &
+       casamet%moistspin_2(arraysize,mdyear),   &
+       casamet%moistspin_3(arraysize,mdyear),   &
+       casamet%moistspin_4(arraysize,mdyear),   &
+       casamet%moistspin_5(arraysize,mdyear),   &
+       casamet%moistspin_6(arraysize,mdyear),   &
+       casamet%mtempspin(arraysize,mdyear),     &
+       SOURCE=0.0_r_2                           &
+       )
+
+    ! integer type arrays
+    ALLOCATE( casamet%iveg2(arraysize),          &
+         SOURCE=-9999                            &
+         )
+
+    ALLOCATE(casamet%lnonwood(arraysize),        &
          casamet%ijgcm(arraysize),               &
          casamet%isorder(arraysize),             &
-         casamet%lat(arraysize),                 &
-         casamet%lon(arraysize),                 &
-         casamet%areacell(arraysize),             &
+         SOURCE=0                                &
+         )
 
-         casamet%Tairkspin(arraysize,mdyear),     &
-         casamet%cgppspin(arraysize,mdyear),      &
-         casamet%crmplantspin_1(arraysize,mdyear),&
-         casamet%crmplantspin_2(arraysize,mdyear),&
-         casamet%crmplantspin_3(arraysize,mdyear),&
-         casamet%Tsoilspin_1(arraysize,mdyear),   &
-         casamet%Tsoilspin_2(arraysize,mdyear),   &
-         casamet%Tsoilspin_3(arraysize,mdyear),   &
-         casamet%Tsoilspin_4(arraysize,mdyear),   &
-         casamet%Tsoilspin_5(arraysize,mdyear),   &
-         casamet%Tsoilspin_6(arraysize,mdyear),   &
-         casamet%moistspin_1(arraysize,mdyear),   &
-         casamet%moistspin_2(arraysize,mdyear),   &
-         casamet%moistspin_3(arraysize,mdyear),   &
-         casamet%moistspin_4(arraysize,mdyear),   &
-         casamet%moistspin_5(arraysize,mdyear),   &
-         casamet%moistspin_6(arraysize,mdyear),  &
-         casamet%mtempspin(arraysize,mdyear))
 
     ALLOCATE(casabal%FCgppyear(arraysize),           &
          casabal%FCnppyear(arraysize),           &
@@ -542,23 +567,29 @@ CONTAINS
          casabal%dCdtyear(arraysize),            &
          casabal%LAImax(arraysize),              &
          casabal%Cleafmean(arraysize),           &
-         casabal%Crootmean(arraysize)            )
+         casabal%Crootmean(arraysize),            &
+         SOURCE=0.0                           &
+         )
 
 
     ALLOCATE(casabal%glaimon(arraysize,12),          &
-         casabal%glaimonx(arraysize,12))
+         casabal%glaimonx(arraysize,12),             &
+         SOURCE=0.0_r_2)
 
     ALLOCATE(casabal%cplantlast(arraysize,mplant),   &
          casabal%nplantlast(arraysize,mplant),   &
-         casabal%pplantlast(arraysize,mplant))
+         casabal%pplantlast(arraysize,mplant),       &
+         SOURCE=0.0_r_2)
 
     ALLOCATE(casabal%clitterlast(arraysize,mlitter), &
          casabal%nlitterlast(arraysize,mlitter), &
-         casabal%plitterlast(arraysize,mlitter))
+         casabal%plitterlast(arraysize,mlitter), &
+         SOURCE=0.0_r_2)
 
     ALLOCATE(casabal%csoillast(arraysize,msoil),     &
          casabal%nsoillast(arraysize,msoil),     &
-         casabal%psoillast(arraysize,msoil))
+         casabal%psoillast(arraysize,msoil), &
+         SOURCE=0.0_r_2)
 
     ALLOCATE(casabal%nsoilminlast(arraysize),        &
          casabal%psoillablast(arraysize),        &
@@ -570,7 +601,8 @@ CONTAINS
          casabal%sumcbal(arraysize),             &
          casabal%sumnbal(arraysize),             &
          casabal%sumpbal(arraysize),             &
-         casabal%clabilelast(arraysize))
+         casabal%clabilelast(arraysize),         &
+         SOURCE=0.0_r_2)
   END SUBROUTINE alloc_casavariable
 
   SUBROUTINE alloc_sum_casavariable(  sum_casapool, sum_casaflux &
@@ -622,15 +654,15 @@ CONTAINS
          sum_casapool%ratioNCsoilmax(arraysize,msoil),  &
          sum_casapool%ratioPcsoil(arraysize,msoil),     &
          sum_casapool%ratioPcplant(arraysize,mplant),   &
-         sum_casapool%ratioPclitter(arraysize,mlitter)  &
-         )
+         sum_casapool%ratioPclitter(arraysize,mlitter), &
+         SOURCE=0.0_r_2)
 
     ALLOCATE(sum_casaflux%Cgpp(arraysize),                     &
          sum_casaflux%Cnpp(arraysize),                     &
          sum_casaflux%Crp(arraysize),                      &
          sum_casaflux%Crgplant(arraysize),                 &
          sum_casaflux%Nminfix(arraysize),                  &
-         sum_casaflux%Nminuptake(arraysize),               &
+         sum_casaflux%Nminuptake(arraysize),               & 
          sum_casaflux%Plabuptake(arraysize),               &
          sum_casaflux%Clabloss(arraysize),                 &
          sum_casaflux%fracClabile(arraysize),              &
@@ -679,17 +711,20 @@ CONTAINS
          sum_casaflux%Cplant_turnover(arraysize,mplant) , &
          sum_casaflux%Cplant_turnover_disturbance(arraysize) , &
          sum_casaflux%Cplant_turnover_crowding(arraysize) , &
-         sum_casaflux%Cplant_turnover_resource_limitation(arraysize))
+         sum_casaflux%Cplant_turnover_resource_limitation(arraysize), &
+         SOURCE=0.0_r_2)
 
     ALLOCATE(sum_casaflux%FluxCtolitter(arraysize,mlitter),    &
          sum_casaflux%FluxNtolitter(arraysize,mlitter),    &
-         sum_casaflux%FluxPtolitter(arraysize,mlitter))
+         sum_casaflux%FluxPtolitter(arraysize,mlitter), &
+         SOURCE=0.0_r_2)
 
     ALLOCATE(sum_casaflux%FluxCtosoil(arraysize,msoil),        &
          sum_casaflux%FluxNtosoil(arraysize,msoil),        &
-         sum_casaflux%FluxPtosoil(arraysize,msoil))
+         sum_casaflux%FluxPtosoil(arraysize,msoil), &
+         SOURCE=0.0_r_2)
 
-    ALLOCATE(sum_casaflux%FluxCtoco2(arraysize))
+    ALLOCATE(sum_casaflux%FluxCtoco2(arraysize), SOURCE=0.0_r_2)
 
   END SUBROUTINE alloc_sum_casavariable
 
