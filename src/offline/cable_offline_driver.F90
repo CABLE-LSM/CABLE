@@ -62,9 +62,9 @@ PROGRAM cable_offline_driver
     CALL serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
   ELSE
     IF (mpi_grp%rank == 0) THEN
-      CALL mpidrv_master(mpi_grp%comm, dels, koffset, kend, PLUME, CRU)
+      CALL mpidrv_master(mpi_grp%comm%mpi_val, dels, koffset, kend, PLUME, CRU)
     ELSE
-      CALL mpidrv_worker(mpi_grp%comm)
+      CALL mpidrv_worker(mpi_grp%comm%mpi_val)
     END IF
   END IF
 
