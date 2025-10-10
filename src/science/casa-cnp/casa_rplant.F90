@@ -55,11 +55,11 @@ SUBROUTINE casa_rplant(veg,casabiome,casapool,casaflux,casamet,climate)
 ! maintenance respiration of woody tisse and fineroots
 ! see Sitch et al. (2003), GCB, reqn (23)
 
-USE casa_cnp_module,         ONLY: vcmax_np
+USE casa_cnp_module,         ONLY: vcmax_np 
 USE cable_surface_types_mod, ONLY: evergreen_broadleaf, deciduous_broadleaf
 USE cable_surface_types_mod, ONLY: evergreen_needleleaf, deciduous_needleleaf
-USE cable_surface_types_mod, ONLY: aust_temperate, aust_tropical
-USE cable_surface_types_mod, ONLY: c3_grassland, tundra, c3_cropland
+USE cable_surface_types_mod, ONLY: aust_mesic, aust_xeric
+USE cable_surface_types_mod, ONLY: c3_grassland, tundra, c3_cropland                    
 
     IMPLICIT NONE
 
@@ -114,8 +114,8 @@ USE cable_surface_types_mod, ONLY: c3_grassland, tundra, c3_cropland
              vcmaxmax(npt) = vcmax_np(nleaf(npt), pleaf(npt))
           ENDIF
           IF ( veg%iveg(npt) .EQ. evergreen_broadleaf .OR.                     &
-               veg%iveg(npt) .EQ. aust_temperate      .OR.                     &
-               veg%iveg(npt) .EQ. aust_tropical       .OR.                     &
+               veg%iveg(npt) .EQ. aust_mesic          .OR.                     &
+               veg%iveg(npt) .EQ. aust_xeric          .OR.                     &
                veg%iveg(npt) .EQ. deciduous_broadleaf ) THEN
              ! broadleaf forest
 
