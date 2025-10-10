@@ -568,7 +568,7 @@ CONTAINS
          casabal%dCdtyear(arraysize),            &
          casabal%LAImax(arraysize),              &
          casabal%Cleafmean(arraysize),           &
-         casabal%Crootmean(arraysize),            &
+         casabal%Crootmean(arraysize),           &
          SOURCE=0.0_r_2                          &
          )
 
