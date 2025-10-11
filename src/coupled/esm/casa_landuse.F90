@@ -54,9 +54,17 @@ SUBROUTINE newlitter( casabiome,frac_x,ifpre_x,frac_y,ifpre_y, &
     IF (icycle > 2) dpplant(:,nP) = pplant_x(:,nP) * frac_x(:) - pplant_y(:,nP) * frac_y(:)
   END DO
 ! NB: logged wood should not be transfered to litter
-                  dcplant(1:mlogmax,wood) = 0.
-  IF (icycle > 1) dnplant(1:mlogmax,wood) = 0.
-  IF (icycle > 2) dpplant(1:mlogmax,wood) = 0.
+  ! rml - allow tree types outside 1:mlogmax 
+  DO nv = 1,mvtype
+    IF (casabiome%ivt2(nv) == forest) THEN
+      !dcplant(1:mlogmax,wood) = 0.
+      dcplant(nv,wood) = 0.
+      !IF (icycle > 1) dnplant(1:mlogmax,wood) = 0.
+      IF (icycle > 1) dnplant(nv,wood) = 0.
+      !IF (icycle > 2) dpplant(1:mlogmax,wood) = 0.
+      IF (icycle > 2) dpplant(nv,wood) = 0.
+    ENDIF
+  ENDDO
 
   WHERE(sum(dcplant,2) > 0.)
   ! In land use, all plant nutient is allocated to litter pools without re-asorbsion.Q.Zhang 11/08/2011 
@@ -199,6 +207,7 @@ SUBROUTINE newlitter_thin( &
    dplitter = 0.0
 
    ! Find the change in the plant pools
+   ! Should only have a non-zero change where thinning has occured.
    DO np=1,mplant
                       dcplant(:,np) = cplant_x(:,np) - cplant_y(:,np)
       IF (icycle > 1) dnplant(:,np) = nplant_x(:,np) - nplant_y(:,np)
@@ -206,9 +215,11 @@ SUBROUTINE newlitter_thin( &
    END DO
 
    ! Wood should not be transfered to litter, it has already gone to products
+
                    dcplant(:,wood) = 0.0
    IF (icycle > 1) dnplant(:,wood) = 0.0
    IF (icycle > 2) dpplant(:,wood) = 0.0
+
 
    ! Calculate plant->litter allocation ratios from C/N.
    ! All plant nutients are allocated to litter pools without re-asorpsion.
@@ -227,9 +238,12 @@ SUBROUTINE newlitter_thin( &
       fromPtoL(:,cwd,wood) = 0.0
    END WHERE
 
-   DO nv=1,mlogmax
+   ! rml 4/8/25 I think we can safely loop this over all tiles because it is 
+   ! only implemented when thinning is active
+   !DO nv=1,mlogmax
+   DO nv=1,mvtype
       IF (tile_exists(nv) .AND. thinning(nv)<1.0) THEN
-         ! Caluclate the change in each litter pools.
+         ! Calculate the change in each litter pools.
          DO nl=1,mlitter
             DO np=1,mplant
                dclitter(nv,nl) = &
@@ -269,11 +283,13 @@ SUBROUTINE newlitter_thin( &
    END DO
 
    ! Check for conservation of mass
-   imbalance = ABS(SUM(dcplant(1:mlogmax,:)) - SUM(dclitter(1:mlogmax,:)))
+   ! rml 4/8/25 Check over all tiles rather than just over tree tiles
+   !imbalance = ABS(SUM(dcplant(1:mlogmax,:)) - SUM(dclitter(1:mlogmax,:)))
+   imbalance = ABS(SUM(dcplant(1:mvtype,:)) - SUM(dclitter(1:mvtype,:)))
    IF (imbalance > 1.0E-10) THEN
       WRITE (6,*) "Violation of carbon conservation in newlitter_thin"
       WRITE (6,*) "difference", &
-            SUM(dcplant(1:mlogmax,:)) - SUM(dclitter(1:mlogmax,:))
+            SUM(dcplant(1:mvtype,:)) - SUM(dclitter(1:mvtype,:))
       WRITE (6,*) "dcplant", dcplant
       WRITE (6,*) "dclitter", dclitter
       WRITE (6,*) "tile_exists", tile_exists
@@ -281,49 +297,62 @@ SUBROUTINE newlitter_thin( &
 END SUBROUTINE newlitter_thin
 
 
-SUBROUTINE newplant(cplant_x,frac_x,ifpre_x, &
+SUBROUTINE newplant(casabiome_ivt2, cplant_x,frac_x,ifpre_x, &
                     cplant_y,frac_y,ifpre_y,logc)
 ! Used for LAND USE CHANGE SIMULATION
 ! Call by casa_reinit
-! Re-allcate plant C,N,P pools to new patch array. 
+! Re-allocate plant C,N,P pools to new patch array. 
 ! Q.Zhang @ 29/05/2011
-  USE cable_def_types_mod
-  USE casadimension
-  USE casaparm
+USE cable_def_types_mod
+USE casadimension
+USE casaparm
 
-  implicit none
+IMPLICIT NONE
 
-  logical,DIMENSION(mvtype),INTENT(in) :: ifpre_x,ifpre_y
-  real,DIMENSION(mvtype),INTENT(in) :: frac_x,frac_y
-  real(r_2),DIMENSION(mvtype,mplant),INTENT(inout) :: cplant_x,cplant_y
-  real(r_2),DIMENSION(mvtype),INTENT(inout) :: logc
-  ! local variable
-  integer p 
+INTEGER,   INTENT(IN)    :: casabiome_ivt2(mvtype)
+LOGICAL,   INTENT(IN)    :: ifpre_x(mvtype), ifpre_y(mvtype)
+REAL,      INTENT(IN)    :: frac_x(mvtype), frac_y(mvtype)
+REAL(r_2), INTENT(INOUT) :: cplant_x(mvtype, mplant), cplant_y(mvtype, mplant)
+REAl(r_2), INTENT(INOUT) :: logc(mvtype)
 
-  DO p = 1, mvtype
-     ! exist in both years    
-     IF (ifpre_x(p) .and. ifpre_y(p)) THEN
-        IF (abs(frac_x(p)-0.0)<1.e-8 .or. abs(frac_y(p)-0.0)<1.e-8) THEN
-print *, 'Lest Veg0', p,ifpre_x(p),ifpre_y(p),frac_x(p),frac_y(p)
-          STOP "vegetation fraction .eq. 0"
-        END IF
-        IF ((frac_x(p)-frac_y(p))>0.) THEN  ! patch weight decrease 
-          ! New pools
-          cplant_y(p,:) = cplant_x(p,:)
-          ! Save wood log
-          IF (p<=mlogmax) logc(p) = cplant_x(p,wood) * (frac_x(p) - frac_y(p))
-        ELSE ! patch weight incease
-          cplant_y(p,:) = cplant_x(p,:)*frac_x(p)/frac_y(p)
-        END IF
-   ! plant clear in the second year
-     ELSEIF (ifpre_x(p) .and. .not.ifpre_y(p)) THEN
-        IF (p<=mlogmax) logc(p) = cplant_x(p,wood) * (frac_x(p) - frac_y(p))
-    ! does not exist in both years
-     ELSE 
+! local variable
+INTEGER :: P 
 
-     END IF
+DO p = 1, mvtype
+  
+  ! exist in both years    
+  IF (ifpre_x(p) .AND. ifpre_y(p)) THEN
+    
+    IF (abs(frac_x(p)-0.0) < 1.e-8 .OR. abs(frac_y(p)-0.0) < 1.e-8 ) THEN
+      STOP "vegetation fraction .eq. 0"
+    END IF
+    
+    IF ((frac_x(p)-frac_y(p))>0.) THEN  ! patch weight decrease 
+      
+      ! New pools
+      cplant_y(p,:) = cplant_x(p,:)
+      
+      ! Save wood log for forest types
+      IF (casabiome_ivt2(p) == forest) THEN
+        logc(p) = cplant_x(p,wood) * (frac_x(p) - frac_y(p))
+      END IF
 
-  END DO  ! end pft loop
+    ELSE ! patch weight increase
+      
+      cplant_y(p,:) = cplant_x(p,:)*frac_x(p)/frac_y(p)
+    
+    END IF
+  
+  ! plant clear in the second year
+  ELSEIF ( ifpre_x(p) .AND. .NOT. ifpre_y(p) ) THEN
+    
+    IF (casabiome_ivt2(p)==forest) THEN
+      logc(p) = cplant_x(p,wood) * (frac_x(p) - frac_y(p))
+    END IF
+  
+  END IF
+
+END DO  ! end pft loop
 
 END SUBROUTINE newplant
 
