@@ -77,9 +77,8 @@ SUBROUTINE Limit_HGT_LAI( HGT_pft_temp, LAI_pft_cbl, HGT_pft_cbl, mp, land_pts,&
 !     1. canopy height for tall vegetation is limited to be greater than 1m
 !     2. canopy height for other vegetation is limited to be greater than 0.1m
 
-USE cable_surface_types_mod, ONLY: shrub_cable, evergreen_broadleaf,           &
-                                   deciduous_broadleaf, aust_temperate,        &       
-                                   aust_tropical        
+USE cable_surface_types_mod, ONLY: shrub_cable, aust_xeric, wetland
+                                          
 
 IMPLICIT NONE
 
@@ -111,6 +110,7 @@ REAL,    INTENT(IN)  :: Clai_thresh                   ! minimum LAI threshold
 !local vars
 INTEGER :: i,j, n
 REAL :: LAI_pft_temp(land_pts,ntiles) ! needed to filter spatail map
+REAL :: hgt_max
 
 !Retain init where tile_frac=0
 LAI_pft_temp(:,:) = 0.0
@@ -124,20 +124,18 @@ DO n=1,ntiles
 
     IF( tile_frac(i,n) .GT. 0.0 ) THEN
 
-      IF( n < shrub_cable ) THEN ! trees 
-        
-        LAI_pft_temp(i,n) = MAX( 0.99*CLAI_thresh, LAI_pft(i,n) )
-        HGT_pft_temp(i,n) = MAX( 1.0, HGT_pft(i,n) )
-         
-      ELSE IF( n >= shrub_cable  .AND. n < aust_temperate ) THEN  ! shrubs/grass
+      ! Apply correction to vegetated types only
+      IF ( n <= aust_xeric ) THEN
+
+        ! Max height for all trees
+        hgt_max = 1.0 
+        ! Max height for shrubs, grasses, crops, tundra and wetlands
+        IF ( ANY( n == [shrub_cable: wetland] ) ) THEN 
+           hgt_max = 0.1
+        END IF
 
         LAI_pft_temp(i,n) = MAX( 0.99*CLAI_thresh, LAI_pft(i,n) )
-        HGT_pft_temp(i,n) = MAX( 0.1, HGT_pft(i,n) ) 
-
-      ELSE IF( n == aust_temperate .OR. n == aust_tropical ) THEN  ! Aust. trees
-
-        LAI_pft_temp(i,n) = MAX( CLAI_thresh, LAI_pft(i,n) ) 
-        HGT_pft_temp(i,n) = MAX( 1.0, HGT_pft(i,n) ) 
+        HGT_pft_temp(i,n) = MAX( hgt_max, HGT_pft(i,n) )
 
       ENDIF
 
