@@ -937,11 +937,11 @@ CONTAINS
     !   npatch         - # patches in each grid from input data set
     !   inLon          - via cable_param_module
     !   inLat          - via cable_param_module
-    !   longitude      - via cable_IO_vars_module, dim(mland), not patches
-    !   latitude       - via cable_IO_vars_module, dim(mland), not patches
+    !   longitude      - via cable_IO_vars_module, dim(mland_global), not patches
+    !   latitude       - via cable_IO_vars_module, dim(mland_global), not patches
     !   nmetpatches    - via cable_IO_vars_module
-    !   vegtype_metfile - via cable_IO_vars_module, dim(mland,nmetpatches)
-    !   soiltype_metfile- via cable_IO_vars_module, dim(mland,nmetpatches)
+    !   vegtype_metfile - via cable_IO_vars_module, dim(mland_global,nmetpatches)
+    !   soiltype_metfile- via cable_IO_vars_module, dim(mland_global,nmetpatches)
     ! Output variables:
     !   max_vegpatches - via cable_IO_vars_module
     !   landpt%type    - via cable_IO_vars_module (%nap,cstart,cend,ilon,ilat)
@@ -958,7 +958,7 @@ CONTAINS
     landpt(:)%ilon = -999
     landpt(:)%ilat = -999
     ncount = 0
-    DO kk = 1, mland
+    DO kk = 1, mland_global
        distance = 5300.0 ! initialise, units are degrees
        DO jj = 1, nlat
           DO ii = 1, nlon
@@ -999,11 +999,11 @@ CONTAINS
     !   npatch         - # patches in each grid from input data set
     !   inLon          - via cable_param_module
     !   inLat          - via cable_param_module
-    !   longitude      - via cable_IO_vars_module, dim(mland), not patches
-    !   latitude       - via cable_IO_vars_module, dim(mland), not patches
+    !   longitude      - via cable_IO_vars_module, dim(mland_global), not patches
+    !   latitude       - via cable_IO_vars_module, dim(mland_global), not patches
     !   nmetpatches    - via cable_IO_vars_module
-    !   vegtype_metfile - via cable_IO_vars_module, dim(mland,nmetpatches)
-    !   soiltype_metfile- via cable_IO_vars_module, dim(mland,nmetpatches)
+    !   vegtype_metfile - via cable_IO_vars_module, dim(mland_global,nmetpatches)
+    !   soiltype_metfile- via cable_IO_vars_module, dim(mland_global,nmetpatches)
     ! Output variables:
     !   max_vegpatches - via cable_IO_vars_module
     !   landpt%type    - via cable_IO_vars_module (%nap,cstart,cend,ilon,ilat)
@@ -1139,11 +1139,11 @@ CONTAINS
     ! soil profiles with the correct monthly average values (BP apr2010)
     !
     ! Input variables:
-    !   longitude      - via cable_IO_vars_module, dim(mland), not patches
-    !   latitude       - via cable_IO_vars_module, dim(mland), not patches
+    !   longitude      - via cable_IO_vars_module, dim(mland_global), not patches
+    !   latitude       - via cable_IO_vars_module, dim(mland_global), not patches
     !   nmetpatches    - via cable_IO_vars_module
-    !   vegtype_metfile - via cable_IO_vars_module, dim(mland,nmetpatches)
-    !   soiltype_metfile- via cable_IO_vars_module, dim(mland,nmetpatches)
+    !   vegtype_metfile - via cable_IO_vars_module, dim(mland_global,nmetpatches)
+    !   soiltype_metfile- via cable_IO_vars_module, dim(mland_global,nmetpatches)
     ! Output variables:
     !   max_vegpatches - via cable_IO_vars_module
     !   landpt(mp)%type- via cable_IO_vars_module (%nap,cstart,cend,ilon,ilat)
@@ -1304,8 +1304,8 @@ CONTAINS
           END IF
        END IF
 
-       patch(landpt(e)%cstart:landpt(e)%cend)%longitude = longitude(e)
-       patch(landpt(e)%cstart:landpt(e)%cend)%latitude  = latitude(e)
+       patch(landpt(e)%cstart:landpt(e)%cend)%longitude = longitude(to_land_index_global(e))
+       patch(landpt(e)%cstart:landpt(e)%cend)%latitude  = latitude(to_land_index_global(e))
        soil%isoilm(landpt(e)%cstart:landpt(e)%cend) =                           &
             inSoil(landpt(e)%ilon, landpt(e)%ilat)
        ! Set initial soil temperature and moisture according to starting month
@@ -1467,12 +1467,12 @@ CONTAINS
        IF(ASSOCIATED(vegtype_metfile)) THEN ! i.e. iveg found in the met file
           ! Overwrite iveg for those patches available in met file,
           ! which are currently set to def values above:
-          veg%iveg(landpt(e)%cstart:landpt(e)%cstart + nmetpatches - 1) =      &
-               vegtype_metfile(e, :)
+          veg%iveg(landpt(e)%cstart:landpt(e)%cstart + nmetpatches - 1) = &
+            vegtype_metfile(to_land_index_global(e), :)
 
         IF(exists%patch) &
-          patch(landpt(e)%cstart:landpt(e)%cstart)%frac =      &
-                                                          vegpatch_metfile(e,landpt(e)%cstart:landpt(e)%cstart )
+          patch(landpt(e)%cstart:landpt(e)%cstart)%frac = &
+            vegpatch_metfile(to_land_index_global(e), landpt(e)%cstart:landpt(e)%cstart)
 
           ! In case gridinfo file provides more patches than met file(BP may08)
           DO f = nmetpatches+1, landpt(e)%nap
@@ -1486,7 +1486,7 @@ CONTAINS
        ! Similarly, if user defined soil types are present then use them:
        IF(ASSOCIATED(soiltype_metfile)) THEN ! i.e. isoil found in the met file
           soil%isoilm(landpt(e)%cstart:landpt(e)%cstart + nmetpatches - 1) =   &
-               soiltype_metfile(e, :)
+               soiltype_metfile(to_land_index_global(e), :)
        END IF
        ! offline only above
        !call veg% init that is common
@@ -1535,9 +1535,9 @@ CONTAINS
              soil%GWwatr(h)    = 0.01
 
           END IF
-          rad%latitude(h) = latitude(e)
+          rad%latitude(h) = latitude(to_land_index_global(e))
           !IF(hide%Ticket49Bug4) &
-          rad%longitude(h) = longitude(e)
+          rad%longitude(h) = longitude(to_land_index_global(e))
           !jhan:is this done online? YES
           veg%ejmax(h) = 2.0 * veg%vcmax(h)
        END DO ! over each veg patch in land point
