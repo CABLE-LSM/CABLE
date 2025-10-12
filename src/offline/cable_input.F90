@@ -599,9 +599,9 @@ CONTAINS
              latitude = lat_all(1,1)
              longitude = lon_all(1,1)
              mland_fromfile=1
-             ALLOCATE(land_x(mland_fromfile),land_y(mland_fromfile))
-             land_x = 1
-             land_y = 1
+             ALLOCATE(land_x_global(mland_fromfile),land_y_global(mland_fromfile))
+             land_x_global = 1
+             land_y_global = 1
           ELSE
              ! Call cable_abort if more than one gridcell and no
              ! recognised grid system:
@@ -634,7 +634,7 @@ CONTAINS
           ! Allocate latitude and longitude variables:
           ALLOCATE(latitude(mland_fromfile),longitude(mland_fromfile))
           ! Write to indicies of points in all-grid which are land
-          ALLOCATE(land_x(mland_fromfile),land_y(mland_fromfile))
+          ALLOCATE(land_x_global(mland_fromfile),land_y_global(mland_fromfile))
           ! Allocate "mask" variable:
           ALLOCATE(mask(xdimsize,ydimsize))
           ! Initialise all gridpoints as sea:
@@ -650,8 +650,8 @@ CONTAINS
              ! Write to mask variable:
              mask(x,y)=1
              ! Save indicies:
-             land_x(j) = x
-             land_y(j) = y
+             land_x_global(j) = x
+             land_y_global(j) = y
           END DO
        END IF ! does "land" variable exist
     ELSE ! i.e. "mask" variable exists
@@ -693,16 +693,16 @@ CONTAINS
        latitude = lat_temp(1:mland_fromfile)
        longitude = lon_temp(1:mland_fromfile)
        ! Write to indicies of points in mask which are land
-       ALLOCATE(land_x(mland_fromfile),land_y(mland_fromfile))
-       land_x = land_xtmp(1:mland_fromfile)
-       land_y = land_ytmp(1:mland_fromfile)
+       ALLOCATE(land_x_global(mland_fromfile),land_y_global(mland_fromfile))
+       land_x_global = land_xtmp(1:mland_fromfile)
+       land_y_global = land_ytmp(1:mland_fromfile)
        ! Clear lon_temp, lat_temp,land_xtmp,land_ytmp
        DEALLOCATE(lat_temp,lon_temp,land_xtmp,land_ytmp)
     END IF ! "mask" variable or no "mask" variable
 
     ! Set global mland value (number of land points), used to allocate
     ! all of CABLE's arrays:
-    mland = mland_fromfile
+    mland_global = mland_fromfile
 
     ! Write number of land points to log file:
     WRITE(logn,'(24X,I7,A29)') mland_fromfile, ' of which are land grid cells'
@@ -1210,12 +1210,12 @@ CONTAINS
                   ' in '//TRIM(filename%met)//' (SUBROUTINE open_met_data)')
           END IF
           ! Allocate space for elevation variable:
-          ALLOCATE(elevation(mland))
+          ALLOCATE(elevation(mland_global))
           ! Get site elevations:
           IF(metGrid=='mask') THEN
-             DO i = 1, mland
+             DO i = 1, mland_global
                 ok= NF90_GET_VAR(ncid_met,id%Elev,data2, &
-                     start=(/land_x(i),land_y(i)/),count=(/1,1/))
+                     start=(/land_x_global(i),land_y_global(i)/),count=(/1,1/))
                 IF(ok /= NF90_NOERR) CALL nc_abort &
                      (ok,'Error reading elevation in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -1338,12 +1338,12 @@ CONTAINS
                'Unknown avPrecip units in met data file ' &
                //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
           ! Allocate space for avPrecip variable:
-          ALLOCATE(avPrecip(mland))
+          ALLOCATE(avPrecip(mland_global))
           ! Get avPrecip from met file:
           IF(metGrid=='mask') THEN
-             DO i = 1, mland
+             DO i = 1, mland_global
                 ok= NF90_GET_VAR(ncid_met,id%avPrecip,data2, &
-                     start=(/land_x(i),land_y(i)/),count=(/1,1/))
+                     start=(/land_x_global(i),land_y_global(i)/),count=(/1,1/))
                 IF(ok /= NF90_NOERR) CALL nc_abort &
                      (ok,'Error reading avPrecip in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -1351,7 +1351,7 @@ CONTAINS
              END DO
           ELSE IF(metGrid=='land') THEN
              ! Allocate single preciaion temporary variable:
-             ALLOCATE(temparray1(mland))
+             ALLOCATE(temparray1(mland_global))
              ! Collect data from land only grid in netcdf file:
              ok= NF90_GET_VAR(ncid_met,id%avPrecip,temparray1)
              IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -1363,14 +1363,14 @@ CONTAINS
           END IF
           ! Now find average precip from met data, and create rescaling
           ! factor for spinup:
-          ALLOCATE(PrecipScale(mland))
-          DO i = 1, mland
+          ALLOCATE(PrecipScale(mland_global))
+          DO i = 1, mland_global
              IF(metGrid=='mask') THEN
                 ! Allocate space for temporary precip variable:
                 ALLOCATE(tempPrecip3(1,1,kend))
                 ! Get all data for this grid cell:
                 ok= NF90_GET_VAR(ncid_met,id%Rainf,tempPrecip3, &
-                     start=(/land_x(i),land_y(i),1+koffset/),count=(/1,1,kend/))
+                     start=(/land_x_global(i),land_y_global(i),1+koffset/),count=(/1,1,kend/))
                 IF(ok /= NF90_NOERR) CALL nc_abort &
                      (ok,'Error reading Rainf in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -1380,7 +1380,7 @@ CONTAINS
                 ! Get snowfall data for this grid cell:
                 IF(exists%Snowf) THEN
                    ok= NF90_GET_VAR(ncid_met,id%Snowf,tempPrecip3, &
-                        start=(/land_x(i),land_y(i),1+koffset/),count=(/1,1,kend/))
+                        start=(/land_x_global(i),land_y_global(i),1+koffset/),count=(/1,1,kend/))
                    IF(ok /= NF90_NOERR) CALL nc_abort &
                         (ok,'Error reading Snowf in met data file ' &
                         //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -1439,16 +1439,16 @@ CONTAINS
        ! Note existence of at least one model parameter in the met file:
        exists%parameters = .TRUE.
        ! Allocate space for user-defined veg type variable:
-       ALLOCATE(vegtype_metfile(mland,nmetpatches))
-       IF(exists%patch)  ALLOCATE(vegpatch_metfile(mland,nmetpatches))
+       ALLOCATE(vegtype_metfile(mland_global,nmetpatches))
+       IF(exists%patch)  ALLOCATE(vegpatch_metfile(mland_global,nmetpatches))
 
        ! Check dimension of veg type:
        ok=NF90_INQUIRE_VARIABLE(ncid_met,id%iveg,ndims=iveg_dims)
        IF(metGrid=='mask') THEN ! i.e. at least two spatial dimensions
           IF(iveg_dims==2) THEN ! no patch specific iveg information, just x,y
-             DO i = 1, mland
+             DO i = 1, mland_global
                 ok= NF90_GET_VAR(ncid_met,id%iveg,data2i, & ! get iveg data
-                     start=(/land_x(i),land_y(i)/),count=(/1,1/))
+                     start=(/land_x_global(i),land_y_global(i)/),count=(/1,1/))
                 IF(ok /= NF90_NOERR) CALL nc_abort &
                      (ok,'Error reading iveg in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -1464,10 +1464,10 @@ CONTAINS
                   (ok,'Patch-specific vegetation type (iveg) must be accompanied '// &
                   'by a patchfrac variable - this was not found in met data file '&
                   //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
-             DO i = 1, mland
+             DO i = 1, mland_global
                 ! Then, get the patch specific iveg data:
                 ok= NF90_GET_VAR(ncid_met,id%iveg,vegtype_metfile(i,:), &
-                     start=(/land_x(i),land_y(i),1/),count=(/1,1,nmetpatches/))
+                     start=(/land_x_global(i),land_y_global(i),1/),count=(/1,1,nmetpatches/))
                 IF(ok /= NF90_NOERR) CALL nc_abort & ! check read ok
                      (ok,'Error reading iveg in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -1476,7 +1476,7 @@ CONTAINS
 
                 !Anna: also read patch fractions
                 ok= NF90_GET_VAR(ncid_met,id%patchfrac,vegpatch_metfile(i,:), &
-                     start=(/land_x(i),land_y(i),1/),count=(/1,1,nmetpatches/))
+                     start=(/land_x_global(i),land_y_global(i),1/),count=(/1,1,nmetpatches/))
                 IF(ok /= NF90_NOERR) CALL nc_abort & ! check read ok
                      (ok,'Error reading patchfrac in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -1486,7 +1486,7 @@ CONTAINS
        ELSE IF(metGrid=='land') THEN
           ! Collect data from land only grid in netcdf file:
           IF(iveg_dims==1) THEN ! i.e. no patch specific iveg information
-             DO i = 1, mland
+             DO i = 1, mland_global
                 ok= NF90_GET_VAR(ncid_met,id%iveg,data1i, &
                      start=(/i/),count=(/1/))
                 IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -1508,13 +1508,13 @@ CONTAINS
               IF(exists%patch) then
                 !Anna: also read patch fractions
                 ok= NF90_GET_VAR(ncid_met,id%patchfrac,vegpatch_metfile(i,:), &
-                     start=(/land_x(i),land_y(i),1/),count=(/1,1,nmetpatches/))
+                     start=(/land_x_global(i),land_y_global(i),1/),count=(/1,1,nmetpatches/))
                 IF(ok /= NF90_NOERR) CALL nc_abort & ! check read ok
                      (ok,'Error reading patchfrac in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
               END IF
 
-             DO i = 1, mland
+             DO i = 1, mland_global
                 ! Then, get the patch specific iveg data:
                 ok= NF90_GET_VAR(ncid_met, id%iveg, &
                      vegtype_metfile(i,:),&
@@ -1539,13 +1539,13 @@ CONTAINS
        ! Check dimension of soil type:
        ok=NF90_INQUIRE_VARIABLE(ncid_met,id%isoil,ndims=isoil_dims)
        ! Allocate space for user-defined soil type variable:
-       ALLOCATE(soiltype_metfile(mland,nmetpatches))
+       ALLOCATE(soiltype_metfile(mland_global,nmetpatches))
        ! Get soil type from met file:
        IF(metGrid=='mask') THEN
           IF(isoil_dims==2) THEN ! i.e. no patch specific isoil information
-             DO i = 1, mland
+             DO i = 1, mland_global
                 ok= NF90_GET_VAR(ncid_met,id%isoil,data2i, &
-                     start=(/land_x(i),land_y(i)/),count=(/1,1/))
+                     start=(/land_x_global(i),land_y_global(i)/),count=(/1,1/))
                 IF(ok /= NF90_NOERR) CALL nc_abort &
                      (ok,'Error reading isoil in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -1553,10 +1553,10 @@ CONTAINS
                 soiltype_metfile(i,:)=data2i(1,1)
              END DO
           ELSE IF(isoil_dims==3) THEN ! i.e. patch specific isoil information
-             DO i = 1, mland
+             DO i = 1, mland_global
                 ok= NF90_GET_VAR(ncid_met,id%isoil, &
                      soiltype_metfile(i,:), &
-                     start=(/land_x(i),land_y(i),1/),count=(/1,1,nmetpatches/))
+                     start=(/land_x_global(i),land_y_global(i),1/),count=(/1,1,nmetpatches/))
                 IF(ok /= NF90_NOERR) CALL nc_abort &
                      (ok,'Error reading isoil in met data file ' &
                      //TRIM(filename%met)//' (SUBROUTINE open_met_file)')
@@ -1565,7 +1565,7 @@ CONTAINS
        ELSE IF(metGrid=='land') THEN
           IF(isoil_dims==1) THEN ! i.e. no patch specific isoil information
              ! Collect data from land only grid in netcdf file:
-             DO i = 1, mland
+             DO i = 1, mland_global
                 ok= NF90_GET_VAR(ncid_met,id%isoil,data1i, &
                      start=(/i/),count=(/1/))
                 IF(ok /= NF90_NOERR) CALL nc_abort &
@@ -1575,7 +1575,7 @@ CONTAINS
                 soiltype_metfile(i,:) = data1i(1)
              END DO
           ELSE IF(isoil_dims==2) THEN ! i.e. patch specific isoil information
-             DO i = 1, mland
+             DO i = 1, mland_global
                 ok= NF90_GET_VAR(ncid_met, id%isoil, &
                      soiltype_metfile(i,:), &
                      start=(/i,1/), count=(/1,nmetpatches/))
@@ -2184,10 +2184,10 @@ CONTAINS
           ! Rescale precip to average rainfall for this site:
           DO i=1,mland ! over all land points/grid cells
              met%precip(landpt(i)%cstart:landpt(i)%cend) = &
-                  met%precip(landpt(i)%cstart) / PrecipScale(i)
+                  met%precip(landpt(i)%cstart) / PrecipScale(to_land_index_global(i))
              ! Added for snow (EK nov2007)
              met%precip_sn(landpt(i)%cstart:landpt(i)%cend) = &
-                  met%precip_sn(landpt(i)%cstart) / PrecipScale(i)
+                  met%precip_sn(landpt(i)%cstart) / PrecipScale(to_land_index_global(i))
           ENDDO
        END IF
 
@@ -2507,9 +2507,9 @@ CONTAINS
           ! Rescale precip to average rainfall for this site:
           DO i=1,mland ! over all land points/grid cells
              met%precip(landpt(i)%cstart:landpt(i)%cend) = &
-                  met%precip(landpt(i)%cstart) / PrecipScale(i)
+                  met%precip(landpt(i)%cstart) / PrecipScale(to_land_index_global(i))
              met%precip_sn(landpt(i)%cstart:landpt(i)%cend) = &
-                  met%precip_sn(landpt(i)%cstart) / PrecipScale(i)
+                  met%precip_sn(landpt(i)%cstart) / PrecipScale(to_land_index_global(i))
           ENDDO
        END IF
 
@@ -2804,7 +2804,7 @@ CONTAINS
     INTEGER, DIMENSION(:), ALLOCATABLE :: Iwood
 
     ! Allocate spatial heterogeneity variables:
-    ALLOCATE(landpt(mland))
+    ALLOCATE(landpt_global(mland_global))
 
     WRITE(logn,*) '-------------------------------------------------------'
     WRITE(logn,*) 'Looking for parameters and initial states....'

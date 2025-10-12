@@ -57,7 +57,11 @@ MODULE cable_IO_vars_module
 
   INTEGER,POINTER,DIMENSION(:,:) :: mask ! land/sea mask from met file
 
-  INTEGER,POINTER,DIMENSION(:) :: land_x,land_y ! indicies of land in mask
+  INTEGER, POINTER, DIMENSION(:) :: land_x, land_y
+    !! Indexes into the global lat lon grid for each land point in the local land grid of this MPI rank
+
+  INTEGER, POINTER, DIMENSION(:) :: land_x_global, land_y_global
+    !! Indexes into the global lat lon grid for each land point in the global land grid
 
   INTEGER ::                                                                  &
        xdimsize,ydimsize,   & ! sizes of x and y dimensions
@@ -86,7 +90,10 @@ MODULE cable_IO_vars_module
   END TYPE land_type
 
 
-  TYPE(land_type),DIMENSION(:),POINTER :: landpt
+  TYPE(land_type), DIMENSION(:), POINTER :: landpt
+    !! Land information for each land point in the local grid of this MPI rank
+  TYPE(land_type), DIMENSION(:), POINTER :: landpt_global
+    !! Land information for each land point in the global grid
   TYPE(patch_type), DIMENSION(:), POINTER :: patch
 
   INTEGER ::                                                                  &
@@ -552,5 +559,12 @@ CONTAINS
     END IF
 
   END SUBROUTINE set_group_output_values
+
+  FUNCTION to_land_index_global(land_index_local) RESULT(land_index_global)
+    !! Translate local land index on current MPI rank to global land index
+    INTEGER, INTENT(IN) :: land_index_local
+    INTEGER :: land_index_global
+    land_index_global = land_decomp_start + land_index_local - 1
+  END FUNCTION to_land_index_global
 
 END MODULE cable_IO_vars_module

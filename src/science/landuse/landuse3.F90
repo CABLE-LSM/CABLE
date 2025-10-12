@@ -736,7 +736,7 @@ END MODULE landuse_variable
                             cstart,cend,nap,lucmp)
   !! Main driver for the land-use change
   !
-  USE cable_IO_vars_module, ONLY: mask,patch,landpt, latitude, longitude
+  USE cable_IO_vars_module, ONLY: mask,patch,landpt, latitude, longitude, to_land_index_global
   USE cable_def_types_mod,  ONLY: mp,mvtype,mstype,mland,r_2,ms,msn,nrb,ncp,ncs,           &
                                   soil_parameter_type, soil_snow_type, veg_parameter_type, &
                                   balances_type, canopy_type, bgc_pool_type, radiation_type
@@ -951,8 +951,8 @@ END MODULE landuse_variable
      ! assign lucmp%lat lucmp%lon
      do p=1,mland
         do q=cstart(p),cend(p)
-           lucmp%lat(q) = latitude(p)
-           lucmp%lon(q) = longitude(p)
+           lucmp%lat(q) = latitude(to_land_index_global(p))
+           lucmp%lon(q) = longitude(to_land_index_global(p))
         enddo
      enddo
 
