@@ -60,9 +60,10 @@ SUBROUTINE casa_feedback( ktau, veg, casabiome, casapool, casamet )
   ! first initialize
   ncleafx(:) = casabiome%ratioNCplantmax(veg%iveg(:),leaf)
   npleafx = 14.2
-  npleafx_coef = 1.0
 
   DO np=1,mp
+    
+    npleafx_coef = 1.0
     ivt=veg%iveg(np)
     IF (casamet%iveg2(np)/=icewater &
         .AND. casamet%glai(np)>casabiome%glaimin(ivt)  &
