@@ -844,7 +844,6 @@ USE cable_surface_types_mod,  ONLY: c3_cropland, c4_cropland
        casaflux%kpocc(:)          = xksoil(:) * casabiome%xkpocc(casamet%isorder(:))
 
 
-       !!bitwiseWHERE( veg%iveg == c3_cropland .OR. veg%iveg == c4_cropland )      ! for cultivated land type
        WHERE( veg%iveg == c3_cropland .OR. veg%iveg == c4_cropland )      ! for cultivated land type
           casaflux%ksoil(:,mic)  = casaflux%ksoil(:,mic) * 1.25
           casaflux%ksoil(:,slow) = casaflux%ksoil(:,slow)* 1.5
@@ -2306,7 +2305,7 @@ END SUBROUTINE casa_delplant
   SUBROUTINE phenology(iday,veg,phen)
 
 USE cable_surface_types_mod, ONLY: evergreen_needleleaf, evergreen_broadleaf
-USE cable_surface_types_mod, ONLY: aust_temperate
+USE cable_surface_types_mod, ONLY: aust_mesic, aust_xeric
 
     IMPLICIT NONE
 
@@ -2351,12 +2350,14 @@ USE cable_surface_types_mod, ONLY: aust_temperate
        END SELECT
     ENDDO
 
+    ! This looks redundant. Need to review (https://github.com/ACCESS-NRI/UM7/issues/95#issuecomment-2739102117)
     WHERE( veg%iveg == evergreen_needleleaf .OR.                               &
            veg%iveg == evergreen_broadleaf  .OR.                               &
-           veg%iveg == aust_temperate         )
+           veg%iveg == aust_mesic           .OR.                               &
+           veg%iveg == aust_xeric         ) 
 
        phen%phase = 2
-
+    
     ENDWHERE
 
   END SUBROUTINE phenology
