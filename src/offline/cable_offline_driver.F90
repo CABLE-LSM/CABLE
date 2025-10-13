@@ -59,7 +59,7 @@ PROGRAM cable_offline_driver
   END SELECT
 
   IF (mpi_grp%size == 1) THEN
-    CALL serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
+    CALL serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi_grp)
   ELSE
     IF (mpi_grp%rank == 0) THEN
       CALL mpidrv_master(mpi_grp%comm%mpi_val, dels, koffset, kend, PLUME, CRU)

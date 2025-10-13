@@ -58,6 +58,7 @@ MODULE cable_input_module
   USE casa_inout_module, ONLY: casa_readphen, casa_init
   USE casa_readbiome_module, ONLY: casa_readbiome
   USE cable_checks_module, ONLY: check_range
+  USE cable_mpi_mod, ONLY: mpi_grp_t
 
   IMPLICIT NONE
 
@@ -2722,7 +2723,7 @@ CONTAINS
   SUBROUTINE load_parameters(met,air,ssnow,veg,climate,bgc,soil,canopy,rough,rad,        &
        sum_flux,bal,logn,vegparmnew,casabiome,casapool,    &
        casaflux,sum_casapool, sum_casaflux,casamet,casabal,phen,POP,spinup,EMSOIL, &
-       TFRZ, LUC_EXPT, POPLUC)
+       TFRZ, LUC_EXPT, POPLUC, mpi_grp)
     !* Defines the priority order of sources of parameter
     ! values for CABLE, determines the total number of patches over all grid
     ! cells, and writes parameter values to CABLE's parameter arrays.
@@ -2776,6 +2777,7 @@ CONTAINS
     TYPE( POP_TYPE ), INTENT(INOUT)         :: POP
     TYPE( POPLUC_TYPE ), INTENT(INOUT)         :: POPLUC
     TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
+    TYPE(mpi_grp_t), INTENT(IN) :: mpi_grp
     INTEGER,INTENT(IN)                      :: logn     ! log file unit number
     LOGICAL,INTENT(IN)                      :: &
          vegparmnew, &  ! are we using the new format?
@@ -2818,7 +2820,7 @@ CONTAINS
     ! soil types based on latitude and longitude. This includes determining
     ! the number of patches in each grid cell, and so the total number of
     ! patches.
-    CALL get_default_params(logn,vegparmnew,LUC_EXPT)
+    CALL get_default_params(logn, vegparmnew, LUC_EXPT, mpi_grp)
 
 
     !| 2. Allocate CABLE (and CASA's [+phenology], if used) variables now that
