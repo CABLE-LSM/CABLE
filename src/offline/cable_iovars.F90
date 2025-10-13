@@ -90,7 +90,10 @@ MODULE cable_IO_vars_module
   END TYPE land_type
 
 
-  TYPE(land_type),DIMENSION(:),POINTER :: landpt
+  TYPE(land_type), DIMENSION(:), POINTER :: landpt
+    !! Land information for each land point in the local grid of this MPI rank
+  TYPE(land_type), DIMENSION(:), POINTER :: landpt_global
+    !! Land information for each land point in the global grid
   TYPE(patch_type), DIMENSION(:), POINTER :: patch
 
   INTEGER ::                                                                  &

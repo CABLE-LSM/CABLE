@@ -2804,7 +2804,7 @@ CONTAINS
     INTEGER, DIMENSION(:), ALLOCATABLE :: Iwood
 
     ! Allocate spatial heterogeneity variables:
-    ALLOCATE(landpt(mland))
+    ALLOCATE(landpt_global(mland_global))
 
     WRITE(logn,*) '-------------------------------------------------------'
     WRITE(logn,*) 'Looking for parameters and initial states....'
