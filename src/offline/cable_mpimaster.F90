@@ -94,6 +94,7 @@ MODULE cable_mpimaster
   USE casa_cable
   USE casa_inout_module
   USE cable_checks_module, ONLY: constant_check_range
+  USE cable_mpi_mod, ONLY: mpi_grp_t
 
   IMPLICIT NONE
 
@@ -228,6 +229,7 @@ CONTAINS
 
     ! MPI:
     INTEGER               :: comm ! MPI communicator for comms with the workers
+    INTEGER               :: comm_master ! MPI subcommunicator for master rank
     REAL, INTENT(INOUT) :: dels !! Time step size in seconds
     INTEGER, INTENT(INOUT) :: koffset !! Timestep to start at
     INTEGER, INTENT(INOUT) :: kend !! No. of time steps in run
@@ -329,7 +331,11 @@ CONTAINS
     integer,   dimension(:),       allocatable,  save  :: cstart,cend,nap  
     real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new    
 
+    type(mpi_grp_t) :: mpi_grp_master
 
+    CALL MPI_Comm_rank(comm, rank, ierr)
+    CALL MPI_Comm_split(comm, COLOR_MASTER, rank, comm_master, ierr)
+    mpi_grp_master = mpi_grp_t(comm_master)
 
     ! END header
 
@@ -413,7 +419,7 @@ CONTAINS
                bal, logn, vegparmnew, casabiome, casapool, &
                casaflux, sum_casapool, sum_casaflux, &
                casamet, casabal, phen, POP, spinup, &
-               CEMSOIL, CTFRZ, LUC_EXPT, POPLUC )
+               CEMSOIL, CTFRZ, LUC_EXPT, POPLUC, mpi_grp_master)
 
           IF (check%ranges /= NO_CHECK) THEN
             WRITE (*, *) "Checking parameter ranges"

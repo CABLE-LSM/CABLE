@@ -163,6 +163,7 @@ CONTAINS
 
     ! MPI:
     INTEGER               :: comm ! MPI communicator for comms with the workers
+    INTEGER               :: comm_worker ! MPI subcommunicator for worker ranks
 
     ! timing variables
     INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
@@ -225,6 +226,9 @@ CONTAINS
     REAL,ALLOCATABLE, SAVE :: rhoch(:,:)
     REAL,ALLOCATABLE, SAVE :: xk(:,:)
     ! END header
+
+    CALL MPI_Comm_rank(comm, rank, ierr)
+    CALL MPI_Comm_split(comm, COLOR_WORKER, rank, comm_worker, ierr)
 
     ! Maciej: make sure the variable does not go out of scope
     mp = 0

@@ -100,6 +100,15 @@ MODULE cable_IO_vars_module
        max_vegpatches,   & ! The maximum # of patches in any grid cell
        nmetpatches         ! size of patch dimension in met file, if exists
 
+  INTEGER :: land_decomp_start
+    !! Starting land point index of this MPI rank in global land array
+  INTEGER :: land_decomp_end
+    !! Ending land point index of this MPI rank in global land array
+  INTEGER :: patch_decomp_start
+    !! Starting patch index of this MPI rank in global patch array
+  INTEGER :: patch_decomp_end
+    !! Ending patch index of this MPI rank in global patch array
+
   ! =============== File details ==========================
    TYPE globalMet_type
      LOGICAL           ::                                                     &
