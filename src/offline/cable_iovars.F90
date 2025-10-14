@@ -20,6 +20,7 @@
 MODULE cable_IO_vars_module
 
   USE cable_def_types_mod, ONLY : r_2, mvtype, mstype
+  USE cable_netcdf_mod, ONLY: cable_netcdf_decomp_t
 
   IMPLICIT NONE
 
