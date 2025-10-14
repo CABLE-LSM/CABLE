@@ -17,7 +17,8 @@ MODULE cable_mpi_mod
     mpi_grp_t, &
     mpi_mod_init, &
     mpi_mod_end, &
-    mpi_check_error
+    mpi_check_error, &
+    MPI_COMM_UNDEFINED
 
   TYPE(MPI_Comm), PARAMETER :: MPI_COMM_UNDEFINED = MPI_COMM_NULL
 
