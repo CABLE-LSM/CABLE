@@ -20,6 +20,7 @@
 MODULE cable_IO_vars_module
 
   USE cable_def_types_mod, ONLY : r_2, mvtype, mstype
+  USE cable_netcdf_mod, ONLY: cable_netcdf_decomp_t
 
   IMPLICIT NONE
 
@@ -108,6 +109,10 @@ MODULE cable_IO_vars_module
     !! Starting patch index of this MPI rank in global patch array
   INTEGER :: patch_decomp_end
     !! Ending patch index of this MPI rank in global patch array
+
+  type io_decomp_t
+    class(cable_netcdf_decomp_t), allocatable :: grid_real32_1d
+  end type io_decomp_t
 
   ! =============== File details ==========================
    TYPE globalMet_type
