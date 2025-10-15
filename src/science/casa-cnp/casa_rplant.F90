@@ -55,11 +55,11 @@ SUBROUTINE casa_rplant(veg,casabiome,casapool,casaflux,casamet,climate)
 ! maintenance respiration of woody tisse and fineroots
 ! see Sitch et al. (2003), GCB, reqn (23)
 
-USE casa_cnp_module,         ONLY: vcmax_np 
+USE casa_cnp_module,         ONLY: vcmax_np
 USE cable_surface_types_mod, ONLY: evergreen_broadleaf, deciduous_broadleaf
 USE cable_surface_types_mod, ONLY: evergreen_needleleaf, deciduous_needleleaf
 USE cable_surface_types_mod, ONLY: aust_mesic, aust_xeric
-USE cable_surface_types_mod, ONLY: c3_grassland, tundra, c3_cropland                    
+USE cable_surface_types_mod, ONLY: c3_grassland, tundra, c3_cropland
 
     IMPLICIT NONE
 
