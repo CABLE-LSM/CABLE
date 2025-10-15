@@ -49,7 +49,7 @@ SUBROUTINE newlitter( casabiome,frac_x,ifpre_x,frac_y,ifpre_y, &
 
 ! I. transfer removed plant to litter
   DO nP =1,mplant
-                    dcplant(:,nP) = cplant_x(:,nP) * frac_x(:) - cplant_y(:,nP) * frac_y(:)
+    dcplant(:,nP) = cplant_x(:,nP) * frac_x(:) - cplant_y(:,nP) * frac_y(:)
     IF (icycle > 1) dnplant(:,nP) = nplant_x(:,nP) * frac_x(:) - nplant_y(:,nP) * frac_y(:)
     IF (icycle > 2) dpplant(:,nP) = pplant_x(:,nP) * frac_x(:) - pplant_y(:,nP) * frac_y(:)
   END DO
@@ -57,11 +57,8 @@ SUBROUTINE newlitter( casabiome,frac_x,ifpre_x,frac_y,ifpre_y, &
   ! rml - allow tree types outside 1:mlogmax 
   DO nv = 1,mvtype
     IF (casabiome%ivt2(nv) == forest) THEN
-      !dcplant(1:mlogmax,wood) = 0.
       dcplant(nv,wood) = 0.
-      !IF (icycle > 1) dnplant(1:mlogmax,wood) = 0.
       IF (icycle > 1) dnplant(nv,wood) = 0.
-      !IF (icycle > 2) dpplant(1:mlogmax,wood) = 0.
       IF (icycle > 2) dpplant(nv,wood) = 0.
     ENDIF
   ENDDO
@@ -125,17 +122,17 @@ SUBROUTINE newlitter( casabiome,frac_x,ifpre_x,frac_y,ifpre_y, &
   DO nv=1,mvtype
     IF (ifpre_y(nv)) THEN   ! pft exist in the 2nd year
       IF ((frac_x(nv)-frac_y(nv))>0.) THEN  ! patch weight decrease 
-                        clitter_y(nv,:) = clitter_x(nv,:)
+        clitter_y(nv,:) = clitter_x(nv,:)
         IF (icycle > 1) nlitter_y(nv,:) = nlitter_x(nv,:)
         IF (icycle > 2) plitter_y(nv,:) = plitter_x(nv,:)
       ELSE IF ((frac_x(nv)-frac_y(nv))<0.) THEN ! patch increase
-                        clitter_y(nv,:) = (clitter_x(nv,:)*frac_x(nv) + dcY(:)*dfrac(nv)/sum_y) / frac_y(nv)
+        clitter_y(nv,:) = (clitter_x(nv,:)*frac_x(nv) + dcY(:)*dfrac(nv)/sum_y) / frac_y(nv)
         IF (icycle > 1) nlitter_y(nv,:) = (nlitter_x(nv,:)*frac_x(nv) + dnY(:)*dfrac(nv)/sum_y)	/ frac_y(nv)
         IF (icycle > 2) plitter_y(nv,:) = (plitter_x(nv,:)*frac_x(nv) + dpY(:)*dfrac(nv)/sum_y)	/ frac_y(nv)
       ELSE ! no change 
-                        clitter_y(nv,:) = clitter_x(nv,:)
+        clitter_y(nv,:) = clitter_x(nv,:)
         IF (icycle > 1) nlitter_y(nv,:) = nlitter_x(nv,:)
-	IF (icycle > 2) plitter_y(nv,:) = plitter_x(nv,:)
+        IF (icycle > 2) plitter_y(nv,:) = plitter_x(nv,:)
       ENDIF
     ENDIF
   END DO
@@ -209,17 +206,16 @@ SUBROUTINE newlitter_thin( &
    ! Find the change in the plant pools
    ! Should only have a non-zero change where thinning has occured.
    DO np=1,mplant
-                      dcplant(:,np) = cplant_x(:,np) - cplant_y(:,np)
+      dcplant(:,np) = cplant_x(:,np) - cplant_y(:,np)
       IF (icycle > 1) dnplant(:,np) = nplant_x(:,np) - nplant_y(:,np)
       IF (icycle > 2) dpplant(:,np) = pplant_x(:,np) - pplant_y(:,np)
    END DO
 
    ! Wood should not be transfered to litter, it has already gone to products
 
-                   dcplant(:,wood) = 0.0
+   dcplant(:,wood) = 0.0
    IF (icycle > 1) dnplant(:,wood) = 0.0
    IF (icycle > 2) dpplant(:,wood) = 0.0
-
 
    ! Calculate plant->litter allocation ratios from C/N.
    ! All plant nutients are allocated to litter pools without re-asorpsion.
@@ -240,7 +236,6 @@ SUBROUTINE newlitter_thin( &
 
    ! rml 4/8/25 I think we can safely loop this over all tiles because it is 
    ! only implemented when thinning is active
-   !DO nv=1,mlogmax
    DO nv=1,mvtype
       IF (tile_exists(nv) .AND. thinning(nv)<1.0) THEN
          ! Calculate the change in each litter pools.
