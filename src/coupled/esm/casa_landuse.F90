@@ -279,7 +279,6 @@ SUBROUTINE newlitter_thin( &
 
    ! Check for conservation of mass
    ! rml 4/8/25 Check over all tiles rather than just over tree tiles
-   !imbalance = ABS(SUM(dcplant(1:mlogmax,:)) - SUM(dclitter(1:mlogmax,:)))
    imbalance = ABS(SUM(dcplant(1:mvtype,:)) - SUM(dclitter(1:mvtype,:)))
    IF (imbalance > 1.0E-10) THEN
       WRITE (6,*) "Violation of carbon conservation in newlitter_thin"
