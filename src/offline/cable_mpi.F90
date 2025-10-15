@@ -37,6 +37,7 @@ MODULE cable_mpi_mod
   INTERFACE mpi_grp_t
     !* Overload the default construct for mpi_grp_t
     PROCEDURE mpi_grp_constructor
+    PROCEDURE mpi_grp_constructor_legacy
   END INTERFACE mpi_grp_t
 
 CONTAINS
@@ -119,6 +120,13 @@ CONTAINS
     END IF
 
   END FUNCTION mpi_grp_constructor
+
+  FUNCTION mpi_grp_constructor_legacy(comm) RESULT(mpi_grp)
+    !* Contructor for mpi_grp_t using the legacy communicator type.
+    INTEGER, INTENT(IN) :: comm !! MPI communicator
+    TYPE(mpi_grp_t) :: mpi_grp
+    mpi_grp = mpi_grp_constructor(MPI_Comm(comm))
+  END FUNCTION mpi_grp_constructor_legacy
 
   SUBROUTINE mpi_grp_abort(this)
     !* Class method to abort execution of an MPI group.
