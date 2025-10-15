@@ -1,4 +1,3 @@
-
 !==============================================================================
 ! This source code is part of the
 ! Australian Community Atmosphere Biosphere Land Exchange (CABLE) model.
@@ -2355,10 +2354,8 @@ USE cable_surface_types_mod, ONLY: aust_mesic, aust_xeric
     WHERE( veg%iveg == evergreen_needleleaf .OR.                               &
            veg%iveg == evergreen_broadleaf  .OR.                               &
            veg%iveg == aust_mesic           .OR.                               &
-           veg%iveg == aust_xeric         ) 
-
-       phen%phase = 2
-    
+           veg%iveg == aust_xeric         )
+      phen%phase = 2
     ENDWHERE
 
   END SUBROUTINE phenology
