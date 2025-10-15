@@ -124,7 +124,8 @@ DO n=1,ntiles
 
     IF( tile_frac(i,n) .GT. 0.0 ) THEN
 
-      ! Apply correction to vegetated types only
+      ! surface types ordered as vegetated = 1:13. non vegetated = 14:17 
+      ! aust_xeric is last vegetated tile (13). Limit canopy height & LAI
       IF ( n <= aust_xeric ) THEN
 
         ! Max height for all trees
