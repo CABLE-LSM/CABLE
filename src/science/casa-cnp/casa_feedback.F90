@@ -35,7 +35,9 @@ module feedback_mod
 contains
 
 SUBROUTINE casa_feedback( ktau, veg, casabiome, casapool, casamet )
-USE cable_surface_types_mod, ONLY: evergreen_broadleaf, aust_temperate
+
+  USE cable_surface_types_mod, ONLY: evergreen_broadleaf, aust_mesic,         &
+                                     aust_xeric
   USE cable_def_types_mod
   USE casadimension
   USE casaparm
@@ -53,12 +55,15 @@ USE cable_surface_types_mod, ONLY: evergreen_broadleaf, aust_temperate
   real, dimension(mp)  :: ncleafx,npleafx, pleafx, nleafx ! local variables
   real, dimension(17)                   ::  xnslope
   data xnslope/0.80,1.00,2.00,1.00,1.00,1.00,0.50,1.00,0.34,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00/
+  REAL :: npleafx_coef
 
   ! first initialize
   ncleafx(:) = casabiome%ratioNCplantmax(veg%iveg(:),leaf)
   npleafx = 14.2
 
   DO np=1,mp
+    
+    npleafx_coef = 1.0
     ivt=veg%iveg(np)
     IF (casamet%iveg2(np)/=icewater &
         .AND. casamet%glai(np)>casabiome%glaimin(ivt)  &
@@ -74,21 +79,19 @@ USE cable_surface_types_mod, ONLY: evergreen_broadleaf, aust_temperate
 
     IF (TRIM(cable_user%vcmax).eq.'standard') then
        IF (casamet%glai(np) > casabiome%glaimin(ivt)) THEN
-          IF ( ivt /= evergreen_broadleaf .AND. ivt /= aust_temperate ) THEN
-             veg%vcmax(np) = ( casabiome%nintercept(ivt) &
-                  + casabiome%nslope(ivt)*ncleafx(np)/casabiome%sla(ivt) ) * 1.0e-6
-          ELSE
-             IF (casapool%nplant(np,leaf)>0.0.AND.casapool%pplant(np,leaf)>0.0) THEN
-                veg%vcmax(np) = ( casabiome%nintercept(ivt)  &
-                     + casabiome%nslope(ivt)*(0.4+9.0/npleafx(np)) &
-                     * ncleafx(np)/casabiome%sla(ivt) ) * 1.0e-6
-             ELSE
-                veg%vcmax(np) = ( casabiome%nintercept(ivt) &
-                     + casabiome%nslope(ivt)*ncleafx(np)/casabiome%sla(ivt) )*1.0e-6
-             ENDIF
-          ENDIF
-          veg%vcmax(np) =veg%vcmax(np)* xnslope(ivt)
-       ENDIF
+          IF (ANY(ivt .EQ. (/ evergreen_broadleaf, aust_mesic, aust_xeric /)) &
+             .AND. casapool%nplant(np,leaf)>0.0 .AND.                         &
+                   casapool%pplant(np,leaf)>0.0 ) THEN
+
+             ! In all other cases, npleafx_coef = 1.0   
+             npleafx_coef = (0.4 + 9.0/npleafx(np)) 
+          END IF
+
+          veg%vcmax(np) = ( casabiome%nintercept(ivt)                          &
+                  + casabiome%nslope(ivt) * npleafx_coef * ncleafx(np)         &
+                  / casabiome%sla(ivt) ) * xnslope(ivt) * 1.0e-6
+
+       END IF
 
     elseif (TRIM(cable_user%vcmax).eq.'Walker2014') then
        !Walker, A. P. et al.: The relationship of leaf photosynthetic traits – Vcmax and Jmax –
