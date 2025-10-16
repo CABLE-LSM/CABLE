@@ -120,7 +120,7 @@ USE cable_surface_types_mod, ONLY: aust_mesic, aust_xeric
 
        ENDIF
 
-       IF ( ( veg%iveg(np) == deciduous_needleleaf  .OR.                       &
+       IF ( veg%iveg(np) == deciduous_needleleaf  .OR.                         &
               veg%iveg(np) == deciduous_broadleaf   .OR.                       &
               ( veg%iveg(np) .GE. c3_grassland                                 &
                 .AND. veg%iveg(np) .LE. c4_cropland ) ) THEN
