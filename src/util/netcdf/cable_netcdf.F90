@@ -26,7 +26,9 @@ module cable_netcdf_mod
     CABLE_NETCDF_INT, &
     CABLE_NETCDF_FLOAT, &
     CABLE_NETCDF_DOUBLE, &
-    CABLE_NETCDF_FILE_MAX_STR_LEN, &
+    CABLE_NETCDF_MAX_STR_LEN_FILE, &
+    CABLE_NETCDF_MAX_STR_LEN_VAR, &
+    CABLE_NETCDF_MAX_STR_LEN_DIM, &
     CABLE_NETCDF_MAX_RANK, &
     CABLE_NETCDF_UNLIMITED
 
@@ -37,7 +39,9 @@ module cable_netcdf_mod
       CABLE_NETCDF_DOUBLE
   end enum
 
-  integer, parameter :: CABLE_NETCDF_FILE_MAX_STR_LEN = 200
+  integer, parameter :: CABLE_NETCDF_MAX_STR_LEN_FILE = 200
+  integer, parameter :: CABLE_NETCDF_MAX_STR_LEN_VAR = 80
+  integer, parameter :: CABLE_NETCDF_MAX_STR_LEN_DIM = 20
   integer, parameter :: CABLE_NETCDF_UNLIMITED = -1
   integer, parameter :: CABLE_NETCDF_MAX_RANK = 3
 

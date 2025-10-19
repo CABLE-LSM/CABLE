@@ -1,5 +1,5 @@
 module cable_netcdf_decomp_util_mod
-  use cable_netcdf_mod, only: cable_netcdf_decomp_t, cable_netcdf_create_decomp
+  use cable_netcdf_mod, only: cable_netcdf_decomp_t, cable_netcdf_create_decomp, CABLE_NETCDF_MAX_STR_LEN_DIM
   use cable_array_utils_mod, only: array_index, array_offset
   use cable_abort_module, only: cable_abort
   implicit none
@@ -14,10 +14,8 @@ module cable_netcdf_decomp_util_mod
     io_decomp_patch_to_patch, &
     dim_spec_t
 
-  integer, parameter :: MAX_DIM_SPEC_NAME_LEN = 20
-
   type dim_spec_t
-    character(MAX_DIM_SPEC_NAME_LEN) :: name
+    character(CABLE_NETCDF_MAX_STR_LEN_DIM) :: name
     integer :: size
   end type
 
