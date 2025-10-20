@@ -530,6 +530,7 @@ CONTAINS
 !               cansat, iter, climate,gspsdo = canopy%gsw_epotvpd)
 !         endif
          if (iter==4) then
+                 print *,'in cable_canopy, wbpsdo, calc_soil_root_resistance'
             wbpsdo = SPREAD(real(soil%ssat,r_2), 2, ms) 
             DO j = 1, mp
                CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, j, wbpsdo)

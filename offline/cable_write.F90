@@ -244,7 +244,7 @@ CONTAINS
         ! If this is an ALMA 4D surface variable
         ! AND the user has forced the grid type as ALMA:
         IF(dimswitch == 'ALMA' .AND. output%grid(1:3) == 'ALM') THEN
-          WRITE(logn, *) 'Writing R1 '//vname//' to output file using mask grid'
+          WRITE(logn, *) 'define R1 '//vname//' to output file using mask grid'
           ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/xID, yID, zID, tID/),   &
                varID &
 #ifndef __NETCDF3__
@@ -256,7 +256,7 @@ CONTAINS
           IF(.NOT.ASSOCIATED(otmp4xyzt))                                       &
              ALLOCATE(otmp4xyzt(xdimsize, ydimsize, 1, 1))
         ELSE ! normal x-y-t mask grid
-          WRITE(logn, *) 'Writing R1 '//vname//' to output file using mask grid'
+          WRITE(logn, *) 'define R1 '//vname//' to output file using mask grid'
           ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/xID, yID, tID/), varID &
 #ifndef __NETCDF3__
                , deflate_level=4, shuffle = .TRUE. &
@@ -274,7 +274,7 @@ CONTAINS
             .OR.(output%grid(1:3) == 'def' .AND. metGrid == 'land')) THEN
       ! Should patch-specific info be written for this variable?
       IF(writepatch .OR. output%patch) THEN
-        WRITE(logn, *) 'Writing R1 '//vname//                                     &
+        WRITE(logn, *) 'define R1 '//vname//                                     &
                       ' to output file using land grid with patch-specific info'
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/landID, patchID, tID/),   &
              varID &
@@ -290,7 +290,7 @@ CONTAINS
         IF( .NOT. ASSOCIATED(otmp3lpt)) ALLOCATE(otmp3lpt(mland,               &
                                                  max_vegpatches, 1))
       ELSE ! only grid point values, no patch-specific info
-        WRITE(logn, *) 'Writing R1 '//vname//' to output file using land grid'
+        WRITE(logn, *) 'define R1 '//vname//' to output file using land grid'
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/landID,tID/), varID &
 #ifndef __NETCDF3__
              , deflate_level=4, shuffle = .TRUE. &
@@ -355,7 +355,7 @@ CONTAINS
       ! (no patches in ALMA format)?
       IF((writepatch .OR. output%patch) .AND. output%vars5D .AND.              &
          ( .NOT. output%grid(1:3) == 'ALM')) THEN
-        WRITE(logn, *) 'Writing '//vname//                                     &
+        WRITE(logn, *) 'define '//vname//                                     &
                       ' to output file using mask grid with patch-specific info'
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/xID, yID, patchID,        &
              othdimID, tID/), varID &
@@ -400,7 +400,7 @@ CONTAINS
                                    ' - in SUBROUTINE define_output_variable_r2 - 01')
         END IF
       ELSE ! only grid point values, no patch-specific info
-        WRITE(logn, *) 'Writing R2 '//vname//' to output file using mask grid'
+        WRITE(logn, *) 'define R2 '//vname//' to output file using mask grid'
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/xID, yID, othdimID, tID/), varID &
 #ifndef __NETCDF3__
              , deflate_level=4, shuffle = .TRUE. &
@@ -447,7 +447,7 @@ CONTAINS
             .OR. (output%grid(1:3) == 'def' .AND. metGrid == 'land')) THEN
       ! Should patch-specific info be written for this variable?
       IF(writepatch .OR. output%patch .AND. output%vars5D) THEN
-        WRITE(logn, *) 'Writing R2 '//vname//                                     &
+        WRITE(logn, *) 'define R2 '//vname//                                     &
                       ' to output file using land grid with patch-specific info'
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/landID, patchID,          &
              othdimID, tID/), varID &
@@ -498,7 +498,7 @@ CONTAINS
                                    ' - in SUBROUTINE define_output_variable_r2 - 03')
         END IF
       ELSE ! only grid point values, no patch-specific info
-        WRITE(logn, *) 'Writing R2 '//vname//' to output file using land grid'
+        WRITE(logn, *) 'define R2 '//vname//' to output file using land grid'
         ok = NF90_DEF_VAR(ncid, vname, NF90_FLOAT, (/landID, othdimID, tID/),  &
              varID &
 #ifndef __NETCDF3__
@@ -653,7 +653,7 @@ CONTAINS
        ! (writepatch) OR all have been (output%patch) AND we're NOT writing
        ! a restart file (which uses a different technique to store patch info):
        if ((writepatch .or. output%patch) .and. .not. present(restart)) then
-          write(logn, *) 'Writing P1 '//pname//' to output file using land grid with patch-specific info'
+          write(logn, *) 'define P1 '//pname//' to output file using land grid with patch-specific info'
           if (dimswitch(1:2) == 're') then
              ok = nf90_def_var(ncid, pname, nf90_float, (/landid, patchid/), parid &
 #ifndef __NETCDF3__
@@ -785,7 +785,7 @@ CONTAINS
        ! (no patches in ALMA format)?
        IF((writepatch .OR. output%patch) .AND. (.NOT. output%grid(1:3)         &
           == 'ALM') .AND.(dimswitch/='surftype')) THEN
-          WRITE(logn, *) 'Writing P2 '//pname//                                   &
+          WRITE(logn, *) 'define P2 '//pname//                                   &
                       ' to output file using mask grid with patch-specific info'
           ok = NF90_DEF_VAR(ncid, pname, NF90_FLOAT, (/xID, yID, patchID,      &
                othdimID/),parID &
@@ -814,7 +814,7 @@ CONTAINS
              continue
           END IF
        ELSE ! only grid point values, no patch-specific info
-          WRITE(logn, *) 'Writing P2 '//pname//' to output file using mask grid'
+          WRITE(logn, *) 'define P2 '//pname//' to output file using mask grid'
           ok = NF90_DEF_VAR(ncid, pname, NF90_FLOAT, (/xID, yID, othdimID/)    &
                , parID &
 #ifndef __NETCDF3__
@@ -853,7 +853,7 @@ CONTAINS
        ! a restart file (which uses a different technique to store patch info):
        IF((writepatch .OR. output%patch) .AND. (dimswitch /= 'surftype')       &
           .AND. .NOT. PRESENT(restart)) THEN
-          WRITE(logn, *) 'Writing P2 '//pname//                                   &
+          WRITE(logn, *) 'define P2 '//pname//                                   &
                       ' to output file using land grid with patch-specific info'
           ! Define parameter as double precision if required:
           IF(dimswitch(1:2) == 'r2') THEN
@@ -897,7 +897,7 @@ CONTAINS
        ELSE ! variable has no explicit patch dimension (incl. restart file)
           ! Restart file definitions will be directed to this part of interface.
           ! If not writing a restart file, report variable writing to log file:
-          IF(.NOT.PRESENT(restart)) WRITE(logn,*) 'Writing P2 '//pname// &
+          IF(.NOT.PRESENT(restart)) WRITE(logn,*) 'define P2 '//pname// &
                ' to output file using land grid'
           ! Define parameter as double precision if required for restart file:
           IF(dimswitch(1:2)=='r2') THEN

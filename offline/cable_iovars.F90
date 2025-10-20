@@ -201,6 +201,339 @@ MODULE cable_IO_vars_module
       ! variables specified individually:
       LOGICAL ::                                                               &
          fbeam = .FALSE.,     & ! fraction of direct visible radiation
+         SWdown = .TRUE.,    & ! 5 downward short-wave radiation [W/m2]
+         FracDiff = .FALSE.,  & ! 6 Fraction of diffuse radiation [-]
+         LWdown = .FALSE.,    & ! 7 downward long-wave radiation [W/m2]
+         Rainf = .TRUE.,     & ! 8 rainfall [kg/m2/s]
+         Snowf = .FALSE.,     & ! 9 snowfall [kg/m2/s]
+         PSurf = .FALSE.,     & ! 10 surface pressure [Pa]
+         Tair = .TRUE.,      & ! 11 surface air temperature [K]
+         Qair = .FALSE.,      & ! 12 specific humidity [kg/kg]
+         CO2air = .FALSE.,    & ! 13 CO2 concentration [ppmv]
+         Wind = .FALSE.,      & ! 14 windspeed [m/s]
+         Wind_N = .FALSE.,    & ! 15 surface wind speed, N component [m/s]
+         Wind_E = .FALSE.,    & ! 16 surface wind speed, E component [m/s]
+         LAI = .TRUE.,       & !
+         Qh = .TRUE.,        & ! 17 sensible heat flux [W/m2]
+         Qle = .TRUE.,       & ! 18 latent heat flux [W/m2]
+         Qg = .FALSE.,        & ! 19 ground heat flux [W/m2]
+         SWnet = .FALSE.,     & ! 20 net shortwave [W/m2]
+         LWnet = .FALSE.,     & ! 21 net longwave [W/m2]
+         Evap = .FALSE.,      & ! 22 total evapotranspiration [kg/m2/s]
+         Ewater = .FALSE.,    & ! 23 evap. from surface water storage [kg/m2/s]
+         ESoil = .FALSE.,     & ! 24 bare soil evaporation [kg/m2/s]
+         TVeg = .TRUE.,      & ! 25 vegetation transpiration [kg/m2/s]
+         TSap = .FALSE.,      & ! 25b, trans. from sapflux at top of leaves [kg/m2/s], ms8355
+         ECanop = .FALSE.,    & ! 26 interception evaporation [kg/m2/s]
+         PotEvap = .FALSE.,   & ! 27 potential evapotranspiration [kg/m2/s]
+         ACond = .FALSE.,     & ! 28 aerodynamic conductance [m/s]
+         SoilWet = .FALSE.,   & ! 29 total soil wetness [-]
+         Albedo = .FALSE.,    & ! 30 albedo [-]
+         visAlbedo = .FALSE., & ! vars intro for Ticket #27
+         nirAlbedo = .FALSE., & ! vars intro for Ticket #27
+         VegT = .TRUE.,      & ! 31 vegetation temperature [K]
+         LeafT = .TRUE.,      & ! leaf temperature [K]
+         SoilTemp = .FALSE.,  & ! 32 av.layer soil temperature [K]
+         SoilMoist = .TRUE., & ! 33 av.layer soil moisture [kg/m2]
+         SoilMoistPFT = .TRUE., & ! Total soil moisture per PFT [kg/m2]
+         SoilMoistIce = .FALSE., & ! 33 av.layer soil frozen moisture [kg/m2]
+         Qs = .FALSE.,        & ! 34 surface runoff [kg/m2/s]
+         Qsb = .FALSE.,       &! 35 subsurface runoff [kg/m2/s]
+         DelSoilMoist = .FALSE., & ! 36 change in soilmoisture ! (sum layers) [kg/m2]
+         DelSWE = .FALSE.,    & ! 37 change in snow water equivalent [kg/m2]
+         DelIntercept = .FALSE.,& ! 38 change in interception storage [kg/m2]
+         SnowT = .FALSE.,     & ! 39 snow surface temp [K]
+         BaresoilT = .FALSE., & ! 40 surface bare soil temp [K]
+         AvgSurfT = .FALSE.,  & ! 41 Average surface temperature [K]
+         RadT = .FALSE.,      & ! 42 Radiative surface temperature [K]
+         SWE = .FALSE.,       & ! 43 snow water equivalent [kg/m2]
+         SnowMelt = .FALSE.,  & ! 43 snow melt [kg/m2/s] !vh!
+         RootMoist = .FALSE., & ! 44 root zone soil moisture [kg/m2]
+         CanopInt = .FALSE.,  & ! 45 total canopy water storage [kg/m2]
+         NEE  = .FALSE.,      & ! 46 net ecosystem exchange [umol/m2/s]
+         NPP  = .FALSE.,      & ! 47 net primary production of C
+                                ! by veg [umol/m2/s]
+         GPP = .TRUE.,       & ! 48 gross primary production C
+                                ! by veg [umol/m2/s]
+         AutoResp = .FALSE.,  & ! 49 autotrophic respiration [umol/m2/s]
+         LeafResp = .FALSE.,  & ! 51 autotrophic respiration [umol/m2/s]
+         HeteroResp = .FALSE.,& ! 50 heterotrophic respiration [umol/m2/s]
+         SnowDepth = .FALSE., & ! actual depth of snow in [m]
+         !variables
+         Rnet = .TRUE.,      & ! net absorbed radiation [W/m2]
+         HVeg = .FALSE.,      & ! sensible heat from vegetation [W/m2]
+         HSoil = .FALSE.,     & ! sensible heat from soil [W/m2]
+         RnetSoil = .FALSE.,  & ! sensible heat from soil [W/m2] !vh!
+         Ebal = .FALSE.,      & ! cumulative energy balance [W/m2]
+         Wbal = .FALSE.,      & ! cumulative water balance [W/m2]
+         !! vh_js ! added CanT and fwsoil to the list
+         CanT = .FALSE.,      & ! within-canopy temperature [K]
+         Fwsoil = .TRUE.,      & ! soil moisture modifier to stomatal conductance
+         Fwsoiltmp = .FALSE.,      & 
+         fwpsi = .FALSE.,      & 
+         Area = .FALSE., & ! patch area in km2
+         GPP_components = .FALSE.,    & ! sunlit and shaded GPP, plus J and C limited components
+         Qcan = .FALSE.,     & ! absorbed radiation by canopy
+         uptake_layer = .FALSE.,     &
+
+         ! vh_mc ! additional variables for ESM-SnowMIP
+         hfds       = .false., & ! downward heat flux at ground surface [W/m2]
+         hfdsn      = .false., & ! downward heat flux into snowpack [W/m2]
+         hfls       = .false., & ! surface upward latent heat flux [W/m2]
+         hfmlt      = .false., & ! energy of fusion [W/m2]
+         hfrs       = .false., & ! heat transferred to snowpack by rain [W/m2]
+         hfsbl      = .false., & ! energy of sublimation [W/m2]
+         hfss       = .false., & ! surface upward sensible heat flux [W/m2]
+         rlus       = .false., & ! surface upwelling longwave radiation [W/m2]
+         rsus       = .false., & ! surface upwelling shortwave radiation [W/m2]
+         esn        = .false., & ! liquid water evaporation from snowpack [kg/m2/s]
+         evspsbl    = .false., & ! total water vapour flux from the surface to the atmosphere [kg/m2/s]
+         evspsblsoi = .false., & ! evaporation and sublimation from soil [kg/m2/s]
+         evspsblveg = .false., & ! evaporation and sublimation from canopy [kg/m2/s]
+         mrrob      = .false., & ! subsurface runoff [kg/m2/s]
+         mrros      = .false., & ! surface runoff [kg/m2/s]
+         sbl        = .false., & ! sublimation of snow [kg/m2/s]
+         snm        = .false., & ! surface snow melt [kg/m2/s]
+         snmsl      = .false., & ! water flowing out of snowpack [kg/m2/s]
+         tran       = .false., & ! transpiration [kg/m2/s]
+         albs       = .false., & ! surface albedo [-]
+         albsn      = .false., & ! snow albedo [-]
+         cw         = .false., & ! total canopy water storage [kg/m2]
+         lqsn       = .false., & ! mass fraction of liquid water in snowpack [-]
+         lwsnl      = .false., & ! liquid water content of snowpack [kg/m2]
+         mrfsofr    = .false., & ! mass fractions of frozen water in soil layers [-]
+         mrlqso     = .false., & ! mass fractions of unfrozen water in soil layers [-]
+         mrlsl      = .false., & ! masses of frozen and unfrozen moisture in soil layers [kg/m2]
+         snc        = .false., & ! snow area fraction [-]
+         snd        = .false., & ! snowdepth [m]
+         snw        = .false., & ! mass of snowpack [kg/m2]
+         snwc       = .false., & ! mass of snow intercepted by vegetation [kg/m2]
+         tcs        = .false., & ! vegetation canopy temperature [K]
+         tgs        = .false., & ! temperature of bare soil [K]
+         ts         = .false., & ! surface temperature [K]
+         tsl        = .false., & ! temperatures of soil layers [K]
+         tsn        = .false., & ! snow internal temperature [K]
+         tsns       = .false., & ! snow surface temperature [K]
+
+         !! vh_js !! additional casa variables
+
+         NBP = .FALSE., &
+         dCdt = .FALSE., &
+         TotSoilCarb = .FALSE.,   &
+         TotLivBiomass = .FALSE., &
+         TotLittCarb = .FALSE., &
+         SoilCarbFast = .FALSE., &
+         SoilCarbSlow = .FALSE., &
+         SoilCarbPassive = .FALSE., &
+         LittCarbMetabolic = .FALSE., &
+         LittCarbStructural = .FALSE., &
+         LittCarbCWD = .FALSE., &
+         PlantCarbLeaf = .TRUE., &
+         PlantCarbFineRoot = .TRUE., &
+         PlantCarbWood = .TRUE., &
+         PlantTurnover = .FALSE., &
+         PlantTurnoverLeaf = .FALSE., &
+         PlantTurnoverFineRoot = .FALSE., &
+         PlantTurnoverWood = .FALSE., &
+         PlantTurnoverWoodDist = .FALSE., &
+         PlantTurnoverWoodCrowding = .FALSE., &
+         PlantTurnoverWoodResourceLim = .FALSE., &
+         LandUseFlux = .FALSE., &
+         !parameters
+         bch = .FALSE.,       & ! parameter b in Campbell equation 1985
+         latitude = .FALSE.,  & ! site latitude
+         clay = .TRUE.,      & ! fraction of clay in soil
+         css = .FALSE.,       & ! heat capacity of soil minerals [J/kg/C]
+         rhosoil = .FALSE.,   & ! soil density [kg/m3]
+         hyds = .FALSE.,      & ! hydraulic conductivity @ saturation [m/s], Ksat
+         rs20 = .FALSE.,      & ! soil respiration at 20 C [dimensionless],
+                                ! (0.1 - 10), prop to om
+         sand  = .TRUE.,     & ! fraction of sand in soil
+         sfc = .FALSE.,       & ! vol H2O @ field capacity
+         sfc_recal = .FALSE.,       & ! vol H2O @ field capacity
+         silt  = .TRUE.,     & ! fraction of silt in soil
+         ssat = .FALSE.,      & ! vol H2O @ saturation
+         sucs = .FALSE.,      & ! suction at saturation [m]
+         swilt = .FALSE.,     & ! vol H2O @ wilting
+         swilt_recal = .FALSE.,     & ! vol H2O @ wilting
+         sres = .FALSE.,      & ! vol of residual in the soil
+         froot = .FALSE.,     & ! fraction of roots in each soil layer
+         zse = .FALSE.,       & ! thickness of each soil layer (1=top) (m)
+         canst1 = .FALSE.,    & ! max intercepted water by canopy [mm/LAI]
+                                ! (0.08 - 0.12) {avoid}
+         dleaf = .FALSE.,     & ! chararacteristic length of leaf [m],
+                                ! (0.005 - 0.2) pine -> tropical
+         ejmax  = .TRUE.,    & ! max pot. electron transport rate
+                                ! top leaf[mol/m2/s](1e-5 - 3e-4) {use}
+         frac4  = .FALSE.,    & ! fraction of c4 plants [-]
+         hc = .FALSE.,        & ! height of canopy [m]
+         zr = .FALSE.,        &
+         rp20  = .FALSE.,     & ! plant respiration coefficient at
+                                ! 20 C [-] 0.1 - 10 (frp 0 - 15e-6 mol/m2/s)
+         g0   = .TRUE.,      & ! Ticket #56
+         g1   = .TRUE.,      & ! Ticket #56
+         g1tuzet  = .TRUE., &
+         slope_leaf   = .TRUE.,      & 
+         g3   = .FALSE.,      & 
+         a1gs   = .TRUE.,      & 
+         d0gs   = .TRUE.,      & 
+         psi_50_leaf = .TRUE.,      & 
+         P50 = .TRUE., &
+         P88dP50 = .TRUE., &
+         rpcoef  = .FALSE.,   & ! temperature coef nonleaf plant
+                                ! respiration [1/C] (0.8 - 1.5)
+         shelrb  = .FALSE.,   & ! sheltering factor [-] {avoid - insensitive?}
+         vcmax  = .TRUE.,    & ! maximum RuBP carboxylation rate
+                                ! top leaf [mol/m2/s](5e-6 - 1.5e-4){use}
+         xfang  = .FALSE.,    & ! leaf angle PARAMETER (dimensionless)
+                                ! (v leaf -1.0 horiz 1.0 sphere 0 (-1 - 1))
+         wai    = .FALSE.,    & ! wood area index
+         vegcf  = .FALSE.,    & !
+         vcmax_scalar = .TRUE., & !
+         extkn  = .TRUE.,    & !
+         alpha  = .FALSE.,    & !
+         ratecp = .FALSE.,    & ! plant carbon pool rate constant (1/year)
+         ratecs = .FALSE.,    & ! soil carbon pool rate constant (1/year)
+         albsoil = .FALSE.,   & ! soil reflectance [-]
+         taul = .FALSE.,      & ! leaf transmissivity [-](V:0.07 - 0.15
+                                ! NIR: 0.3 - 0.6 IR: 0.0 - 0.05)
+         refl = .FALSE.,      & ! leaf reflectance [-](V:0.07 - 0.15 \
+                                ! NIR: 0.3 - 0.6 IR: 0.0 - 0.05)
+         tminvj = .FALSE.,    & ! min temperature of the start of
+                                ! photosynthesis(leaf phenology)[-] (-10 - 10)
+         tmaxvj  = .FALSE.,   & ! max temperature of the start of
+                                ! photosynthesis(leaf phenology)[-] (-5 - 15)
+         vbeta = .FALSE.,     & ! stomatal sensitivity to soil water
+         xalbnir = .FALSE.,   & ! modifier for albedo in near ir band
+         iveg  = .TRUE.,     & ! vegetation type from global index
+         patchfrac  = .FALSE.,& ! fractional cover of each veg/soil patch
+         isoil  = .TRUE.,    & ! soil type from global index
+         meth  = .FALSE.,     & ! method for solving turbulence in canopy scheme
+         za  = .FALSE.,       & ! something to do with roughness ????
+         c13o2 = .false., &      ! carbon pools and flux output for 13C isotopes
+         psi_soil = .TRUE.,       & 
+         kmax = .TRUE.,    &
+         psi_rootzone = .FALSE.,       & 
+         psix = .TRUE.,       & 
+         psi_can_sl = .TRUE.,       & 
+         psi_can_sh = .TRUE.,       &
+         abs_deltpsil_sl = .TRUE.,       & 
+         abs_deltpsil_sh = .TRUE.,       &
+         abs_deltcs_sl = .TRUE.,       & 
+         abs_deltcs_sh = .TRUE.,       &
+         abs_deltpsil_sl_vpd = .FALSE.,       & 
+         abs_deltpsil_sh_vpd = .FALSE.,       &
+         abs_deltcs_sl_vpd = .FALSE.,       & 
+         abs_deltcs_sh_vpd = .FALSE.,       &
+         abs_deltpsil_sl_sw = .TRUE.,       & 
+         abs_deltpsil_sh_sw = .TRUE.,       &
+         abs_deltcs_sl_sw = .TRUE.,       & 
+         abs_deltcs_sh_sw = .TRUE.,       &
+         abs_deltpsil_sl_ref = .FALSE.,       & 
+         abs_deltpsil_sh_ref = .FALSE.,       &
+         abs_deltcs_sl_ref = .FALSE.,       & 
+         abs_deltcs_sh_ref = .FALSE.,       &
+         abs_deltpsil_sl_ref1 = .FALSE.,       & 
+         abs_deltpsil_sh_ref1 = .FALSE.,       &
+         abs_deltcs_sl_ref1 = .FALSE.,       & 
+         abs_deltcs_sh_ref1 = .FALSE.,       &
+         gsw_sl = .TRUE.,                &
+         gsw_epotvpd_sl = .FALSE.,       &
+         gsw_epotvpd_sh = .FALSE.,       &
+         gsw_ref_sl = .FALSE.,       &
+         gsw_ref_sh = .FALSE.,       &
+         gsw_ref1_sl = .FALSE.,       &
+         gsw_ref1_sh = .FALSE.,       &
+         gsw_epotcan3_sl = .TRUE.,       &
+         gsw_epotcan3_sh = .TRUE.,       &
+         fwpsi_sl = .TRUE.,       &
+         fwpsi_sh = .TRUE.,       &   
+         plc_sat = .FALSE.,       & 
+         plc_stem = .FALSE.,       & 
+         plc_can = .FALSE.,       & 
+         gsw_sun = .FALSE.,       & 
+         gsw_sha = .FALSE.,       &
+         kplant = .TRUE.,       &
+         abs_deltlf = .TRUE.,   &
+         abs_deltds = .TRUE.,   &
+         abs_deltlf_vpd = .FALSE.,   &
+         abs_deltds_vpd = .FALSE.,   &
+         abs_deltlf_sw = .FALSE.,   &
+         abs_deltds_sw = .FALSE.,   &
+         abs_deltlf_ref = .FALSE.,   &
+         abs_deltds_ref = .FALSE.,   &
+         abs_deltlf_ref1 = .FALSE.,   &
+         abs_deltds_ref1 = .FALSE.,   &
+         N_neg = .FALSE.,   &
+         N_pos = .FALSE.,   &
+         N_neg_sw = .FALSE.,   &
+         N_pos_sw = .FALSE.,   &
+         ksoil = .TRUE.,  &
+         kroot = .TRUE.,  &
+         b_plant = .TRUE.,  &
+         c_plant = .TRUE., &
+         root_conduc = .FALSE., &
+         ksoilmean = .TRUE., &
+         krootmean = .TRUE., &
+         kbelowmean = .TRUE., &
+         psi_soilmean = .TRUE., &
+         wb_soilmean = .TRUE., &
+         rwc_soilmean = .FALSE., &
+         rwc_soilmean_recal = .TRUE., &
+         psi_soilmean1 = .FALSE., &
+         psi_rootmean = .FALSE., &
+         epotcan1 = .FALSE., &
+         epotcan2 = .FALSE., &
+         epotcan3 = .TRUE., &
+         GPP_epotcan3 = .TRUE., &
+         epotref = .FALSE., &
+         epotref1 = .FALSE., &
+         epotvpd = .FALSE., &
+         fevc = .FALSE., &
+         total_est_evap = .FALSE., &
+         wb_30 = .FALSE., &
+         psi_30 = .FALSE., &
+         wb_fr_rootzone = .FALSE., &
+         psi_fr_rootzone = .FALSE.
+   END TYPE output_inclusion_type
+
+
+   TYPE patchout_inclusion_type
+
+      ! Which variables to include in output file, values initialised here
+      ! and can be reset by namelist file read in driver:
+      ! Groups of output variables:
+
+      LOGICAL ::                                                               &
+         met = .FALSE.,       & ! input met data
+         flux = .FALSE.,      &  ! convective, runoff, NEE
+         radiation = .FALSE., & ! net rad, albedo
+         carbon = .FALSE.,    & ! NEE, GPP, NPP, stores
+         soil = .FALSE.,      &  ! soil states
+         snow = .FALSE.,      &  ! snow states
+         ! vh_mc !
+         snowmip = .false.,   & ! additional variables for ESM-SnowMIP
+         veg = .FALSE.,       & ! vegetation states
+         params = .FALSE.,    & ! input parameters used to produce run
+         balances = .FALSE.,  & ! energy and water balances
+         restart = .FALSE.,   & ! create restart file?
+         ensemble = .FALSE.,  & ! are we creating an ensemble run?
+         patch = .FALSE. ,    & ! should patch-specific info be written to output file?
+         vars5D = .FALSE.,    & ! allow 5D variables in output? If FALSE, average over patches
+         ! vh_js !
+         casa = .FALSE.         ! additional casa outputs (C stores and plant turnover)
+
+      ! Should output grid follow met file 'default'; force with 'land' or 'mask':
+      CHARACTER(LEN=7) ::                                                      &
+         grid = 'default', &
+         averaging = 'all' ! 'all', 'daily', 'monthly', 'user6'(6hrly)
+
+      INTEGER ::                                                               &
+         interval ! in case of 'user6' above, interval will be 6
+
+      ! variables specified individually:
+      LOGICAL ::                                                               &
+         fbeam = .FALSE.,     & ! fraction of direct visible radiation
          SWdown = .FALSE.,    & ! 5 downward short-wave radiation [W/m2]
          FracDiff = .FALSE.,  & ! 6 Fraction of diffuse radiation [-]
          LWdown = .FALSE.,    & ! 7 downward long-wave radiation [W/m2]
@@ -376,9 +709,9 @@ MODULE cable_IO_vars_module
          slope_leaf   = .FALSE.,      & 
          g3   = .FALSE.,      & 
          a1gs   = .FALSE.,      & 
-         d0gs   = .FALSE.,      & 
+         d0gs   = .FALSE.,     & 
          psi_50_leaf = .FALSE.,      & 
-         P50 = .FALSE., &
+         P50 =  .FALSE., &
          P88dP50 = .FALSE., &
          rpcoef  = .FALSE.,   & ! temperature coef nonleaf plant
                                 ! respiration [1/C] (0.8 - 1.5)
@@ -416,9 +749,9 @@ MODULE cable_IO_vars_module
          psi_rootzone = .FALSE.,       & 
          psix = .FALSE.,       & 
          psi_can_sl = .FALSE.,       & 
-         psi_can_sh = .FALSE.,       &
+         psi_can_sh = .FALSE.,     &
          abs_deltpsil_sl = .FALSE.,       & 
-         abs_deltpsil_sh = .FALSE.,       &
+         abs_deltpsil_sh = .FALSE.,      &
          abs_deltcs_sl = .FALSE.,       & 
          abs_deltcs_sh = .FALSE.,       &
          abs_deltpsil_sl_vpd = .FALSE.,       & 
@@ -437,6 +770,7 @@ MODULE cable_IO_vars_module
          abs_deltpsil_sh_ref1 = .FALSE.,       &
          abs_deltcs_sl_ref1 = .FALSE.,       & 
          abs_deltcs_sh_ref1 = .FALSE.,       &
+         gsw_sl = .FALSE.,                &
          gsw_epotvpd_sl = .FALSE.,       &
          gsw_epotvpd_sh = .FALSE.,       &
          gsw_ref_sl = .FALSE.,       &
@@ -494,10 +828,10 @@ MODULE cable_IO_vars_module
          psi_30 = .FALSE., &
          wb_fr_rootzone = .FALSE., &
          psi_fr_rootzone = .FALSE.
-   END TYPE output_inclusion_type
+   END TYPE patchout_inclusion_type
 
    TYPE(output_inclusion_type), SAVE :: output
-   TYPE(output_inclusion_type), SAVE :: patchout ! do we want patch-specific info
+   TYPE(patchout_inclusion_type), SAVE :: patchout ! do we want patch-specific info
 
    TYPE checks_type
       LOGICAL :: ranges, energy_bal, mass_bal

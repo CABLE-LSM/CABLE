@@ -228,7 +228,6 @@ CONTAINS
       ! parallel, turn back into resistance (MPa s m2 kg-1 H2O)
       ssnow%Rsr(i) = 1.0 / rsum
 
-
    END SUBROUTINE calc_soil_root_resistance
    ! ----------------------------------------------------------------------------
 
