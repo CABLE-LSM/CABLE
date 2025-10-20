@@ -4822,9 +4822,6 @@ CONTAINS
          ! Reset temporary output variable:
          out%psi_can_sl = 0.0
       END IF
-   END IF
-   IF(output%veg) THEN
-     !IF(output%veg) THEN
         ! Add current timestep's value to total of temporary output variable:
         out%psi_can_sh = out%psi_can_sh + REAL(canopy%psi_can(:,2), 4)
         IF(writenow) THEN
@@ -4839,9 +4836,6 @@ CONTAINS
            ! Reset temporary output variable:
            out%psi_can_sh = 0.0
         END IF
-     END IF
-     IF(output%veg) THEN
-          !IF(output%veg) THEN
              ! Add current timestep's value to total of temporary output variable:
              out%kplant = out%kplant + REAL(canopy%kplant, 4)
              IF(writenow) THEN
