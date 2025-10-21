@@ -130,7 +130,7 @@ DO n=1,ntiles
         ! Max height for all trees
         hgt_max = 1.0 
         ! Max height for shrubs, grasses, crops, tundra and wetlands
-        IF ( ANY( n == [shrub_cable: wetland] ) ) THEN 
+        IF ( n >= shrub_cable .AND. n <=  wetland ) THEN 
            hgt_max = 0.1
         END IF
         
