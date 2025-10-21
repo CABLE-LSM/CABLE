@@ -133,7 +133,10 @@ DO n=1,ntiles
         IF ( ANY( n == [shrub_cable: wetland] ) ) THEN 
            hgt_max = 0.1
         END IF
-     
+        
+        ! 99% factor allows LAI_pft_temp to drop below CLAI_thresh, and 
+        ! subsequently trigger appropriate science in dryLeaf, photosynthesis
+        ! Coherent treatment of "vegetated" status/science would be preferable 
         LAI_pft_temp(i,n) = MAX( 0.99*CLAI_thresh, LAI_pft(i,n) )
         HGT_pft_temp(i,n) = MAX( hgt_max, HGT_pft(i,n) )
 
