@@ -116,7 +116,7 @@ REAL :: hgt_max
 LAI_pft_temp(:,:) = 0.0
 HGT_pft_temp(:,:) = 0.0
 
-!Comensurate with restricted ordering of PFTs in UM. Not generically applicable 
+! surface types ordered as vegetated = 1:13. non vegetated = 14:17 
 DO n=1,ntiles
   DO j=1,tile_pts(n)
 
@@ -124,8 +124,8 @@ DO n=1,ntiles
 
     IF( tile_frac(i,n) .GT. 0.0 ) THEN
 
-      ! surface types ordered as vegetated = 1:13. non vegetated = 14:17 
-      ! aust_xeric is last vegetated tile (13). Limit canopy height & LAI
+      ! Check canopy height & LAI > lower limit for vegetated PFTs 
+      ! where Aust_xeric is last vegetated tile. 
       IF ( n <= aust_xeric ) THEN
 
         ! Max height for all trees
@@ -134,7 +134,7 @@ DO n=1,ntiles
         IF ( ANY( n == [shrub_cable: wetland] ) ) THEN 
            hgt_max = 0.1
         END IF
-
+     
         LAI_pft_temp(i,n) = MAX( 0.99*CLAI_thresh, LAI_pft(i,n) )
         HGT_pft_temp(i,n) = MAX( hgt_max, HGT_pft(i,n) )
 
