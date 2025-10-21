@@ -125,8 +125,7 @@ DO n=1,ntiles
     IF( tile_frac(i,n) .GT. 0.0 ) THEN
 
       ! Check canopy height & LAI > lower limit for vegetated PFTs 
-      ! where Aust_xeric is last vegetated tile. 
-      IF ( n <= aust_xeric ) THEN
+      IF ( n <= npft ) THEN
 
         ! Max height for all trees
         hgt_max = 1.0 
