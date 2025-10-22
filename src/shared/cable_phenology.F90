@@ -47,7 +47,7 @@ CONTAINS
 USE cable_surface_types_mod, ONLY: evergreen_needleleaf, deciduous_needleleaf
 USE cable_surface_types_mod, ONLY: evergreen_broadleaf, deciduous_broadleaf    
 USE cable_surface_types_mod, ONLY: c3_grassland, c4_cropland, shrub_cable  
-USE cable_surface_types_mod, ONLY: aust_temperate, aust_tropical         
+USE cable_surface_types_mod, ONLY: aust_mesic, aust_xeric         
 
     IMPLICIT NONE
 
@@ -66,9 +66,10 @@ USE cable_surface_types_mod, ONLY: aust_temperate, aust_tropical
     DO np= 1,mp
 
        ! evergreen pfts
-       !!bitwiseIF ( veg%iveg(np) == evergreen_needleleaf .OR.                          &
-       IF ( veg%iveg(np) == evergreen_broadleaf  .OR.                          &
-            veg%iveg(np) == aust_temperate       .OR.                          &
+       IF ( veg%iveg(np) == evergreen_needleleaf .OR.                          &
+            veg%iveg(np) == evergreen_broadleaf  .OR.                          &
+            veg%iveg(np) == aust_mesic           .OR.                          &
+            veg%iveg(np) == aust_xeric           .OR.                          &
             veg%iveg(np) == shrub_cable           ) THEN
 
           phen%doyphase(np,1) = -50
@@ -81,8 +82,7 @@ USE cable_surface_types_mod, ONLY: aust_temperate, aust_tropical
 
        ! summergreen woody pfts
        IF ( veg%iveg(np) == deciduous_needleleaf .OR.                          &
-            veg%iveg(np) == deciduous_broadleaf  .OR.                          & 
-            veg%iveg(np) == aust_tropical         ) THEN
+            veg%iveg(np) == deciduous_broadleaf  ) THEN
 
           ! Calculate GDD0  base value (=gdd to bud burst) for this PFT given
           !  current length of chilling period (Sykes et al 1996, Eqn 1)
@@ -120,9 +120,8 @@ USE cable_surface_types_mod, ONLY: aust_temperate, aust_tropical
 
        ENDIF
 
-       IF (   veg%iveg(np) == deciduous_needleleaf  .OR.                       &
+       IF ( veg%iveg(np) == deciduous_needleleaf  .OR.                         &
               veg%iveg(np) == deciduous_broadleaf   .OR.                       &
-              veg%iveg(np) == aust_tropical         .OR.                       &
               ( veg%iveg(np) .GE. c3_grassland                                 &
                 .AND. veg%iveg(np) .LE. c4_cropland ) ) THEN
 
