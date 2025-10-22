@@ -16,7 +16,7 @@ PRIVATE
 
 CONTAINS
 
-SUBROUTINE comp_friction_vel(friction_vel, iter, mp, CVONK, CUMIN, CPI_C,      &
+SUBROUTINE comp_friction_vel(friction_vel, mp, CVONK, CUMIN, CPI_C,            &
                              zetar, zref_uv, zref_tq, z0m, ua )
   !*## Purpose
   !
@@ -69,7 +69,6 @@ IMPLICIT NONE
 
 INTEGER, INTENT(IN) :: mp               !! size of cable vector of land points (-)
 REAL, INTENT(OUT) :: friction_vel(mp)   !! friction velocity (ms\(^{-1}\))
-INTEGER, INTENT(IN) :: iter             !! MO iteration counter (-)
 ! physical constants
 REAL, INTENT(IN) :: CVONK               !! von Karman constant (-)
 REAL, INTENT(IN):: CUMIN                !! minimum value of wind speed (ms\(^{-1}\))
