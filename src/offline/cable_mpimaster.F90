@@ -167,7 +167,7 @@ MODULE cable_mpimaster
 
 CONTAINS
 
-  SUBROUTINE mpidrv_master (comm, dels, koffset, kend, PLUME, CRU)
+  SUBROUTINE mpidrv_master (comm, dels, koffset, kend, PLUME, CRU, mpi_grp_master)
 
     USE mpi
 
@@ -229,12 +229,12 @@ CONTAINS
 
     ! MPI:
     INTEGER               :: comm ! MPI communicator for comms with the workers
-    INTEGER               :: comm_master ! MPI subcommunicator for master rank
     REAL, INTENT(INOUT) :: dels !! Time step size in seconds
     INTEGER, INTENT(INOUT) :: koffset !! Timestep to start at
     INTEGER, INTENT(INOUT) :: kend !! No. of time steps in run
     TYPE(PLUME_MIP_TYPE), INTENT(IN) :: PLUME
     TYPE(CRU_TYPE), INTENT(IN) :: CRU
+    TYPE(mpi_grp_t), INTENT(INOUT) :: mpi_grp_master
 
     ! timing variables
     INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
@@ -330,12 +330,6 @@ CONTAINS
     integer,   dimension(:,:),     allocatable,  save  :: landmask
     integer,   dimension(:),       allocatable,  save  :: cstart,cend,nap  
     real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new    
-
-    type(mpi_grp_t) :: mpi_grp_master
-
-    CALL MPI_Comm_rank(comm, rank, ierr)
-    CALL MPI_Comm_split(comm, COLOR_MASTER, rank, comm_master, ierr)
-    mpi_grp_master = mpi_grp_t(comm_master)
 
     ! END header
 

@@ -127,9 +127,6 @@ MODULE cable_mpicommon
   ! MPI: Fortran types extents
   INTEGER :: extr1, extr2, extid, extl
 
-  INTEGER, PARAMETER :: COLOR_MASTER = 0
-  INTEGER, PARAMETER :: COLOR_WORKER = 1
-
 CONTAINS
 
   ! calculates extents of the Fortran types used by CABLE
