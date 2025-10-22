@@ -32,7 +32,7 @@ REAL :: heat_cap_lower_limit(mp,ms)
 
 ktau = ktau +1
 
-IF( (cable_user%soilsnow_init_spec ) ) THEN
+IF( .NOT.cable_user%cable_runtime_coupled ) THEN
 
    IF( ktau_gl <= 1 ) THEN
       IF (cable_runtime%um) canopy%dgdtg = 0.0 ! RML added um condition
@@ -76,7 +76,7 @@ IF( (cable_user%soilsnow_init_spec ) ) THEN
            & + (ssnow%wb(:,1) - ssnow%wbice(:,1) ) * Ccswat * Cdensity_liq &
            & + ssnow%wbice(:,1) * Ccsice * Cdensity_ice, xx ) * soil%zse(1)
    END IF
-ENDIF  ! if(.NOT.soilsnow_init_spec )
+ENDIF  ! if(.NOT.cable_runtime_coupled)
 
 IF (ktau <= 1)       THEN
   xx=heat_cap_lower_limit(:,1)
@@ -131,7 +131,7 @@ END SUBROUTINE spec_init_soil_snow
           !H!ssnow%smass(j,3) = 0.0
           !H!ssnow%ssdn(j,:) = ssnow%ssdnn(j)
 
-          IF( (cable_user%soilsnow_init_spec ) ) THEN
+          IF( .NOT.cable_user%CABLE_RUNTIME_COUPLED ) THEN
              IF( soil%isoilm(j) == 9 .AND. ktau_gl <= 2 )                       &
                                 ! permanent ice: fixed hard-wired number in next version
                   ssnow%ssdnn(j) = 700.0
@@ -144,7 +144,7 @@ END SUBROUTINE spec_init_soil_snow
              !H!ssnow%tggsn(j,:) = MIN( CTFRZ, ssnow%tgg(j,1) )
              !H!ssnow%ssdn(j,2) = ssnow%ssdn(j,1)
              !H!ssnow%ssdn(j,3) = ssnow%ssdn(j,1)
-             IF( (cable_user%soilsnow_init_spec ) ) THEN
+             IF( .NOT. cable_user%cable_runtime_coupled) THEN
                 IF( soil%isoilm(j) == 9 .AND. ktau_gl <= 2 ) THEN
                    ! permanent ice: fix hard-wired number in next version
                    ssnow%ssdn(j,1)  = 450.0

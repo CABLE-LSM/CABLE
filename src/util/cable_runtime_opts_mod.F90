@@ -88,7 +88,7 @@ TYPE kbl_user_switches
        consistency_check     = .FALSE., & !
        casa_dump_read        = .FALSE., & !
        casa_dump_write       = .FALSE., & !
-       soilsnow_init_spec    = .FALSE., & !
+       cable_runtime_coupled = .TRUE. , & !
        LogWorker             = .TRUE. , & ! Write Output of each worker
                              ! L.Stevens - Test Switches
        l_new_roughness_soil  = .FALSE., & !

@@ -997,7 +997,7 @@ CONTAINS
     END IF
 
      !> 7. MMY???
-    IF( (cable_user%soilsnow_init_spec ) .AND. (first_gw_hydro_call)) THEN
+    IF( (.NOT.cable_user%cable_runtime_coupled ) .AND. (first_gw_hydro_call)) THEN
 
        IF (cable_runtime%um) canopy%dgdtg = 0.0 ! RML added um condition  
 
@@ -1081,7 +1081,7 @@ CONTAINS
                   soil%zse_vec(i,k) +   gammzz_snow(i,k)
           END DO
        END DO                          
-    ENDIF  ! IF( (cable_user%soilsnow_init_spec ) ) and first_gw_hydro_call
+    ENDIF  ! if(.NOT.cable_runtime_coupled) and first_gw_hydro_call
 
   !>  wbliq_old is used for hysteresis 
    ssnow%wbliq_old = ssnow%wbliq       
