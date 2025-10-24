@@ -10,7 +10,7 @@ CONTAINS
        nleaf2met,nleaf2str,nroot2met,nroot2str,nwood2cwd,         &
        pleaf2met,pleaf2str,proot2met,proot2str,pwood2cwd)
 USE cable_def_types_mod
-USE cable_common_module, ONLY : cable_user
+USE cable_common_module, ONLY : cable_runtime, cable_user
 USE casadimension
 USE casa_cnp_module
 USE casa_inout_module, ONLY : casa_cnpflux
@@ -52,8 +52,8 @@ xKNlimiting = 1.0
 ! zero annual sums
 IF (idoy==1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)
 
-IF (cable_user%PHENOLOGY_SWITCH.EQ.'MODIS' ) THEN
-  CALL phenology(idoy,veg,phen)
+IF (cable_user%PHENOLOGY_SWITCH.EQ.'MODIS' .OR. cable_runtime%esm15 ) THEN
+       CALL phenology(idoy,veg,phen)
 ENDIF
 CALL avgsoil(veg,soil,casamet)
 
