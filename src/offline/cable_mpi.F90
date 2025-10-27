@@ -32,6 +32,7 @@ MODULE cable_mpi_mod
     INTEGER :: size = -1   !! Size of the communicator
   CONTAINS
     PROCEDURE :: abort => mpi_grp_abort !! Send abort signal to processes in this group
+    PROCEDURE :: split => mpi_grp_split !! Split this group into sub-groups
   END TYPE mpi_grp_t
 
   INTERFACE mpi_grp_t
@@ -147,6 +148,27 @@ CONTAINS
     END IF
 
   END SUBROUTINE mpi_grp_abort
+
+  SUBROUTINE mpi_grp_split(this, color, key, new_grp)
+    !* Class method to split an MPI group.
+    CLASS(mpi_grp_t), INTENT(IN) :: this
+    INTEGER, INTENT(IN) :: color, key
+    TYPE(mpi_grp_t), INTENT(OUT) :: new_grp
+
+    TYPE(MPI_Comm) :: new_comm
+    INTEGER :: ierr
+
+    IF (this%comm /= MPI_COMM_UNDEFINED) THEN
+#ifdef __MPI__
+      CALL MPI_Comm_split(this%comm, color, key, new_comm, ierr)
+#endif
+      call mpi_check_error(ierr)
+      new_grp = mpi_grp_t(new_comm)
+    ELSE
+      new_grp = mpi_grp_t()
+    END IF
+
+  END SUBROUTINE mpi_grp_split
 
   SUBROUTINE mpi_check_error(ierr)
     !* Check if an MPI return code signaled an error. If so, print the
