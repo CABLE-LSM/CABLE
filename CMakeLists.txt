@@ -7,6 +7,7 @@ project(
 )
 
 option(CABLE_MPI "Build the MPI executable" OFF)
+option(CABLE_TESTS "Build CABLE tests" OFF)
 
 # third party libs
 if(CABLE_MPI)
@@ -14,6 +15,27 @@ if(CABLE_MPI)
 endif()
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(NETCDF REQUIRED IMPORTED_TARGET "netcdf-fortran")
+
+if(CABLE_TESTS)
+    if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 2024.0.0)
+        message(WARNING "Fortuno tests require Intel Fortran 2024.0.0 or later")
+    elseif(CMAKE_Fortran_COMPILER_ID MATCHES "GNU" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 13.2)
+        message(WARNING "Fortuno tests require GNU Fortran 13.2 or later")
+    endif()
+    enable_testing()
+    option(FORTUNO_WITH_MPI "Fortuno: whether to build the MPI interface" ${CABLE_MPI})
+    if(CABLE_MPI)
+        set(fortuno_libs Fortuno::fortuno_mpi)
+    else()
+        set(fortuno_libs Fortuno::fortuno_serial)
+    endif ()
+    include(FetchContent)
+    FetchContent_Declare(Fortuno
+        GIT_REPOSITORY https://github.com/fortuno-repos/fortuno
+        GIT_TAG eb61214fd76d6235a3072b6f8ed83d0380c2f266
+    )
+    FetchContent_MakeAvailable(Fortuno)
+endif()
 
 set(CABLE_Intel_Fortran_FLAGS -fp-model precise)
 set(CABLE_Intel_Fortran_FLAGS_DEBUG -O0 -g -traceback -fpe0)
@@ -138,7 +160,7 @@ if(CABLE_LIBRARY)
         else()
             message(STATUS "Cannot compile library with unknown compiler")
         endif()
-    
+
     else()
         message(STATUS "Specified library application does not exist")
     endif()
@@ -311,4 +333,26 @@ else()
         install(TARGETS cable RUNTIME)
     endif()
 
+    if (CABLE_TESTS)
+        add_executable(
+            cable-tests
+            tests/testapp.F90
+            tests/test_example.F90
+        )
+        if(CABLE_MPI)
+            target_sources(cable-tests PRIVATE tests/utils/fortuno_interface_mpi.F90)
+        else()
+            target_sources(cable-tests PRIVATE tests/utils/fortuno_interface_serial.F90)
+        endif()
+        target_link_libraries(cable-tests PRIVATE cable_common ${fortuno_libs})
+        if(CABLE_MPI)
+            add_test(
+                NAME cable-tests
+                COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:cable-tests>
+            )
+            set_tests_properties(cable-tests PROPERTIES PROCESSORS 1)
+        else()
+            add_test(NAME cable-tests COMMAND $<TARGET_FILE:cable-tests>)
+        endif()
+    endif()
 endif()
