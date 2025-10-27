@@ -26,6 +26,7 @@ Options:
                 Build just CABLE science library (libscable_science.a), for a
                 specified coupled application. Options for the coupled
                 application are ESM1.6.
+  -t, --tests   Enable CABLE unit tests.
   -h, --help    Show this screen.
 
 Enabling debug mode:
@@ -51,6 +52,9 @@ build_args=()
 
 # Install
 do_install=1
+
+# Tests
+do_tests=0
 
 # Argument parsing adapted and stolen from http://mywiki.wooledge.org/BashFAQ/035#Complex_nonstandard_add-on_utilities
 while [ ${#} -gt 0 ]; do
@@ -78,6 +82,10 @@ while [ ${#} -gt 0 ]; do
             CMAKE_BUILD_PARALLEL_LEVEL=${2}
             shift
             ;;
+        -t|--tests)
+            cmake_args+=(-DCABLE_TESTS="ON")
+            do_tests=1
+            ;;
         -h|--help)
             show_help
             exit
@@ -98,7 +106,13 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
     module add netcdf/4.6.3
     case ${compiler} in
         intel)
-            module add intel-compiler/2019.5.281
+            if [ $do_tests -eq 1 ]; then
+                # This is required to as Fortuno requires Intel Fortran
+                # 2024.0.0 or higher
+                module add intel-compiler-llvm/2024.0.2
+            else
+                module add intel-compiler/2019.5.281
+            fi
             compiler_lib_install_dir=Intel
             [[ -n ${mpi} ]] && module add intel-mpi/2019.5.281
             ;;
@@ -150,4 +164,8 @@ cmake --build build "${build_args[@]}"
 # Install if requested
 if [ $do_install -eq 1 ]; then
     cmake --install build --prefix .
+fi
+
+if [ $do_tests -eq 1 ]; then
+    ctest --test-dir build --verbose
 fi
