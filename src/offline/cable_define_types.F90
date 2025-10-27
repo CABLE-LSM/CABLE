@@ -37,16 +37,19 @@ USE cable_climate_type_mod, ONLY: climate_type
   !---CABLE default KINDs for representing INTEGER/REAL values
   !---at least 10-digit precision
 
-  INTEGER :: mp,    & ! # total no of patches/tiles
-       mvtype,& ! total # vegetation types,   from input
+  INTEGER :: mp           !! Total number of patches/tiles in the local grid of this MPI rank
+  INTEGER :: mp_global    !! Total number of patches/tiles in the global grid
+  INTEGER :: mvtype       !! Total number of vegetation types
 #ifdef UM_BUILD 
-       mstype=9,& ! total # soil types, needs to be defined at compile time for now
+  INTEGER :: mstype = 9   !! Total number of soil types, needs to be defined at compile time for now
 #else       
-       mstype,& ! total # soil types,         from input
+  INTEGER :: mstype       !! Total number of soil types, from input
 #endif
-       mland,& !                          ! # land grid cells
-       mpatch  !number of patches   ! mpatch added by rk4417 - phase2
-               !allows for setting this to a const value
+  INTEGER :: mland        !! Total number of land grid cells in the local grid of this MPI rank
+  INTEGER :: mland_global !! Total number of land grid cells in the global grid
+  INTEGER :: mpatch ! mpatch added by rk4417 - phase2
+     !! Number of patches - allows for setting this to a const value
+
        
   INTEGER, PARAMETER ::                                                        &
        i_d  = KIND(9), &
