@@ -275,6 +275,11 @@ else()
         src/offline/spincasacnp.F90
         src/util/cable_climate_type_mod.F90
         src/util/masks_cbl.F90
+        src/util/cable_array_utils.F90
+        src/util/netcdf/cable_netcdf.F90
+        src/util/netcdf/cable_netcdf_internal.F90
+        src/util/netcdf/cable_netcdf_stub_types.F90
+        src/util/netcdf/nf90/cable_netcdf_nf90.F90
     )
 
     target_link_libraries(cable_common PRIVATE PkgConfig::NETCDF)
@@ -286,6 +291,9 @@ else()
 
     if(TARGET PIO::PIO_Fortran)
         target_link_libraries(cable_common PRIVATE PIO::PIO_Fortran)
+        target_sources(cable_common PRIVATE src/util/netcdf/pio/cable_netcdf_pio.F90)
+    else()
+        target_sources(cable_common PRIVATE src/util/netcdf/pio/cable_netcdf_pio_stub.F90)
     endif()
 
     if(CABLE_MPI)
