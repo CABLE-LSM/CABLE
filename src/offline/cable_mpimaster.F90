@@ -415,7 +415,7 @@ CONTAINS
                bal, logn, vegparmnew, casabiome, casapool, &
                casaflux, sum_casapool, sum_casaflux, &
                casamet, casabal, phen, POP, spinup, &
-               CEMSOIL, CTFRZ, LUC_EXPT, POPLUC )
+               CEMSOIL, CTFRZ, LUC_EXPT, POPLUC, mpi_grp_master)
 
           IF (check%ranges /= NO_CHECK) THEN
             WRITE (*, *) "Checking parameter ranges"

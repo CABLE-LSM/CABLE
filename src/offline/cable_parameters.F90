@@ -63,6 +63,8 @@ MODULE cable_param_module
   USE cable_pft_params_mod
   USE cable_soil_params_mod
   USE CABLE_LUC_EXPT, ONLY: LUC_EXPT, LUC_EXPT_TYPE, LUC_EXPT_SET_TILES
+  USE cable_mpi_mod, ONLY: mpi_grp_t
+  USE cable_array_utils_mod, ONLY: array_partition
   IMPLICIT NONE
   PRIVATE
   PUBLIC get_default_params, write_default_params, derived_parameters,         &
@@ -136,7 +138,7 @@ MODULE cable_param_module
   
 CONTAINS
 
-  SUBROUTINE get_default_params(logn, vegparmnew, LUC_EXPT)
+  SUBROUTINE get_default_params(logn, vegparmnew, LUC_EXPT, mpi_grp)
     USE cable_common_module, ONLY : filename,             &
          calcsoilalbedo,cable_user
     ! Load parameters for each veg type and each soil type. (get_type_parameters)
@@ -150,6 +152,7 @@ CONTAINS
     INTEGER, INTENT(IN) :: logn     ! log file unit number
     LOGICAL,      INTENT(IN) :: vegparmnew ! new format input file (BP dec2007)
     TYPE (LUC_EXPT_TYPE), INTENT(INOUT) :: LUC_EXPT
+    TYPE(mpi_grp_t), INTENT(IN) :: mpi_grp
 
     ! local variables
     INTEGER :: npatch
@@ -190,6 +193,8 @@ CONTAINS
 
     ! count to obtain 'landpt_global', 'max_vegpatches' and 'mp_global'
     CALL countPatch(nlon, nlat, npatch)
+
+    CALL init_local_structure_variables(mpi_grp)
 
   END SUBROUTINE get_default_params
   !=============================================================================
@@ -1124,6 +1129,31 @@ CONTAINS
     PRINT *, 'Total number of patches (countPatch): ', ncount
 
   END SUBROUTINE countPatch
+
+  SUBROUTINE init_local_structure_variables(mpi_grp)
+    !! Initialise local structure variables for the current MPI rank
+    TYPE(mpi_grp_t), INTENT(IN) :: mpi_grp
+
+    CALL array_partition(mland_global, mpi_grp%size, mpi_grp%rank, land_decomp_start, mland)
+
+    land_decomp_end = land_decomp_start + mland - 1
+
+    ALLOCATE(land_x(mland), source=land_x_global(land_decomp_start:land_decomp_end))
+    ALLOCATE(land_y(mland), source=land_y_global(land_decomp_start:land_decomp_end))
+
+    patch_decomp_start = landpt_global(land_decomp_start)%cstart
+    patch_decomp_end = landpt_global(land_decomp_end)%cend
+    mp = patch_decomp_end - patch_decomp_start + 1
+
+    ALLOCATE(landpt(mland))
+    landpt(:)%cstart = landpt_global(land_decomp_start:land_decomp_end)%cstart - patch_decomp_start + 1
+    landpt(:)%cend   = landpt_global(land_decomp_start:land_decomp_end)%cend - patch_decomp_start + 1
+    landpt(:)%nap    = landpt_global(land_decomp_start:land_decomp_end)%nap
+    landpt(:)%ilon   = landpt_global(land_decomp_start:land_decomp_end)%ilon
+    landpt(:)%ilat   = landpt_global(land_decomp_start:land_decomp_end)%ilat
+
+  END SUBROUTINE init_local_structure_variables
+
   !=============================================================================
   SUBROUTINE write_default_params(met,  air,    ssnow, veg, bgc,               &
        soil, canopy, rough, rad, logn,              &
