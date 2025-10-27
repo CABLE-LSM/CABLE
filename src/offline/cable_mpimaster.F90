@@ -94,6 +94,7 @@ MODULE cable_mpimaster
   USE casa_cable
   USE casa_inout_module
   USE cable_checks_module, ONLY: constant_check_range
+  USE cable_mpi_mod, ONLY: mpi_grp_t
 
   IMPLICIT NONE
 
@@ -166,7 +167,7 @@ MODULE cable_mpimaster
 
 CONTAINS
 
-  SUBROUTINE mpidrv_master (comm, dels, koffset, kend, PLUME, CRU)
+  SUBROUTINE mpidrv_master (comm, dels, koffset, kend, PLUME, CRU, mpi_grp_master)
 
     USE mpi
 
@@ -233,6 +234,7 @@ CONTAINS
     INTEGER, INTENT(INOUT) :: kend !! No. of time steps in run
     TYPE(PLUME_MIP_TYPE), INTENT(IN) :: PLUME
     TYPE(CRU_TYPE), INTENT(IN) :: CRU
+    TYPE(mpi_grp_t), INTENT(INOUT) :: mpi_grp_master
 
     ! timing variables
     INTEGER, PARAMETER ::  kstart = 1   ! start of simulation
