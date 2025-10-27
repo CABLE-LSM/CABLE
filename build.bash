@@ -17,6 +17,9 @@ options below will be passed to CMake when generating the build system.
 Options:
   -c, --clean   Delete build directory before invoking CMake.
   -m, --mpi     Compile MPI executable.
+  -p, --parallelio
+                Enable parallel I/O support. This flag requires that --mpi is
+                also set.
   -C, --compiler <compiler>
                 Specify the compiler to use.
   -n, --ncpus <ncpus>
@@ -63,6 +66,9 @@ while [ ${#} -gt 0 ]; do
             mpi=1
             cmake_args+=(-DCABLE_MPI="ON")
             ;;
+        -p|--parallelio)
+            pio=1
+            ;;
         -l|--library)
             build_args+=(--target cable_science)
             cmake_args+=(-DCABLE_LIBRARY="ON")
@@ -98,9 +104,15 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
     module add netcdf/4.6.3
     case ${compiler} in
         intel)
-            module add intel-compiler/2019.5.281
+            module add intel-compiler/2021.10.0
             compiler_lib_install_dir=Intel
-            [[ -n ${mpi} ]] && module add intel-mpi/2019.5.281
+            [[ -n ${mpi} ]] && module add openmpi/4.1.7
+            # This is required so that the Parallel IO library is discoverable
+            # via CMake's `find_package` mechanism:
+            # TODO(Sean): This install of Parallel IO is specific to
+            # openmpi/4.1.7. We need a better way to provide this library on
+            # Gadi.
+            [[ -n ${pio} ]] && prepend_path CMAKE_PREFIX_PATH "/g/data/tm70/sb8430/parallelio_install"
             ;;
         gnu)
             module add gcc/13.2.0
@@ -121,6 +133,15 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
         # This is required so that the openmpi MPI libraries are discoverable
         # via CMake's `find_package` mechanism:
         prepend_path CMAKE_PREFIX_PATH "${OPENMPI_BASE}/include/${compiler_lib_install_dir}"
+    fi
+
+    if [[ -n ${pio} ]]; then
+        # The NetCDF Fortran version must be consistent with the version used in Parallel IO
+        # TODO(Sean): we need a better way to provide these libraries on Gadi
+        prepend_path CMAKE_PREFIX_PATH "/g/data/tm70/sb8430/spack/0.22/release/linux-rocky8-x86_64_v4/intel-2021.10.0/netcdf-c-4.9.2-oxepdmgcx6raxo4vi4teu45qqr63v3uj"
+        prepend_path PKG_CONFIG_PATH "/g/data/tm70/sb8430/spack/0.22/release/linux-rocky8-x86_64_v4/intel-2021.10.0/netcdf-c-4.9.2-oxepdmgcx6raxo4vi4teu45qqr63v3uj/lib/pkgconfig"
+        prepend_path CMAKE_PREFIX_PATH "/g/data/tm70/sb8430/spack/0.22/release/linux-rocky8-x86_64_v4/intel-2021.10.0/netcdf-fortran-4.6.1-eq777uogbelnhv43ln6jyub2gbmos42x"
+        prepend_path PKG_CONFIG_PATH "/g/data/tm70/sb8430/spack/0.22/release/linux-rocky8-x86_64_v4/intel-2021.10.0/netcdf-fortran-4.6.1-eq777uogbelnhv43ln6jyub2gbmos42x/lib/pkgconfig"
     fi
 
 elif hostname -f | grep -E '(mc16|mcmini)' > /dev/null; then
