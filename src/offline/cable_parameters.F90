@@ -957,7 +957,6 @@ CONTAINS
     ! and longitude(:) has already been converted to -180 to 180 for CABLE.
     landpt(:)%ilon = -999
     landpt(:)%ilat = -999
-    ncount = 0
     DO kk = 1, mland
        distance = 5300.0 ! initialise, units are degrees
        DO jj = 1, nlat
