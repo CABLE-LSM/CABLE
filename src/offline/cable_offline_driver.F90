@@ -58,7 +58,7 @@ PROGRAM cable_offline_driver
     STOP
   END SELECT
 
-  IF (mpi_grp%size == 1) THEN
+  IF (mpi_grp%size == 1 .OR. .NOT. cable_user%mpi_legacy) THEN
     CALL serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site)
   ELSE
     IF (mpi_grp%rank == 0) THEN
