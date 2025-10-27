@@ -91,6 +91,7 @@ MODULE cable_mpimaster
     compare_consistency_check_values
   USE cable_mpicommon
   USE cable_IO_vars_module, ONLY : NO_CHECK
+  USE cable_io_decomp_mod, ONLY: io_decomp_t, cable_io_decomp_init
   USE casa_cable
   USE casa_inout_module
   USE cable_checks_module, ONLY: constant_check_range
@@ -331,7 +332,7 @@ CONTAINS
     integer,   dimension(:),       allocatable,  save  :: cstart,cend,nap  
     real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new    
 
-
+    type(io_decomp_t) :: io_decomp
 
     ! END header
 
@@ -631,6 +632,7 @@ CONTAINS
             ktau = 0
           ENDIF
 
+          call cable_io_decomp_init(io_decomp)
           ! MPI: mostly original serial code follows...
         ENDIF ! CALL1
 
