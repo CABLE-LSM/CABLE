@@ -17,6 +17,9 @@ options below will be passed to CMake when generating the build system.
 Options:
   -c, --clean   Delete build directory before invoking CMake.
   -m, --mpi     Compile MPI executable.
+  -p, --parallelio
+                Enable parallel I/O support. This flag requires that --mpi is
+                also set.
   -C, --compiler <compiler>
                 Specify the compiler to use.
   -n, --ncpus <ncpus>
@@ -67,6 +70,9 @@ while [ ${#} -gt 0 ]; do
             mpi=1
             cmake_args+=(-DCABLE_MPI="ON")
             ;;
+        -p|--parallelio)
+            pio=1
+            ;;
         -l|--library)
             build_args+=(--target cable_science)
             cmake_args+=(-DCABLE_LIBRARY="ON")
@@ -108,11 +114,21 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
         intel)
             if [ $do_tests -eq 1 ]; then
                 module add intel-compiler-llvm/2025.0.4
+            elif [[ -n ${pio} ]]; then
+                # TODO(Sean): This is because Parallel IO and its dependencies
+                # were built with this compiler. Can we avoid hard coding this?
+                module add intel-compiler-llvm/2025.0.4
             else
                 module add intel-compiler/2019.5.281
             fi
             compiler_lib_install_dir=Intel
-            [[ -n ${mpi} ]] && module add intel-mpi/2019.5.281
+            [[ -n ${mpi} ]] && module load openmpi/4.0.7
+            # This is required so that the Parallel IO library is discoverable
+            # via CMake's `find_package` mechanism:
+            # TODO(Sean): This install of Parallel IO is specific to
+            # openmpi/4.0.7. We need a better way to provide this library on
+            # Gadi.
+            [[ -n ${pio} ]] && prepend_path CMAKE_PREFIX_PATH "/g/data/tm70/sb8430/spack/1.1/release/linux-x86_64/parallelio-2.6.8-txnbfehdnpwm3vrtp627cab26f7gcrss"
             ;;
         gnu)
             module add gcc/13.2.0
@@ -133,6 +149,15 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
         # This is required so that the openmpi MPI libraries are discoverable
         # via CMake's `find_package` mechanism:
         prepend_path CMAKE_PREFIX_PATH "${OPENMPI_BASE}/include/${compiler_lib_install_dir}"
+    fi
+
+    if [[ -n ${pio} ]]; then
+        # The NetCDF Fortran version must be consistent with the version used in Parallel IO
+        # TODO(Sean): we need a better way to provide these libraries on Gadi
+        prepend_path CMAKE_PREFIX_PATH "/g/data/tm70/sb8430/spack/1.1/release/linux-x86_64/netcdf-c-4.9.3-lqagnkvmdyriatt6sq2vw5cmt5nfbabz"
+        prepend_path PKG_CONFIG_PATH "/g/data/tm70/sb8430/spack/1.1/release/linux-x86_64/netcdf-c-4.9.3-lqagnkvmdyriatt6sq2vw5cmt5nfbabz/lib/pkgconfig"
+        prepend_path CMAKE_PREFIX_PATH "/g/data/tm70/sb8430/spack/1.1/release/linux-x86_64/netcdf-fortran-4.6.2-qs6grg5wgm3anh5gmcmlwxelrzexc6v5"
+        prepend_path PKG_CONFIG_PATH "/g/data/tm70/sb8430/spack/1.1/release/linux-x86_64/netcdf-fortran-4.6.2-qs6grg5wgm3anh5gmcmlwxelrzexc6v5/lib/pkgconfig"
     fi
 
 elif hostname -f | grep -E '(mc16|mcmini)' > /dev/null; then
