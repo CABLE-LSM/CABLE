@@ -36,7 +36,6 @@ INTEGER, PARAMETER ::                                                          &
   mf = 2,            & ! types of leaves (sunlit / shaded)
   r_2  = SELECTED_REAL_KIND(12, 50), &!this will be removed
                        ! double precision real dimension
-  niter = 4,         & ! number of iterations for za/L
   n_assim_rates = 3, & ! Rubisco, RuBP and Sink-limited rates of photosynthesis
   n_soiltypes = 9      ! number of soil types
 
