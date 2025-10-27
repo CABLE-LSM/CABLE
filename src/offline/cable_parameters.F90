@@ -950,8 +950,8 @@ CONTAINS
     INTEGER, INTENT(IN) :: nlon, nlat
 
     ! local variables
-    REAL :: lon2, distance, newLength
-    INTEGER :: ii, jj, kk, tt, ncount
+    REAL :: tmp_lon, distance, newLength
+    INTEGER :: ii, jj, kk
 
     ! range of longitudes from input file (inLon) should be -180 to 180,
     ! and longitude(:) has already been converted to -180 to 180 for CABLE.
@@ -963,8 +963,11 @@ CONTAINS
        DO jj = 1, nlat
           DO ii = 1, nlon
              IF (inVeg(ii,jj, 1) > 0) THEN
-                newLength = SQRT((inLon(ii) - longitude(kk))**2                      &
-                     + (inLat(jj) -  latitude(kk))**2)
+                tmp_lon = inLon(ii) - longitude(kk)
+                if (tmp_lon > 180.0) then
+                  tmp_lon = 360 - tmp_lon
+                end if
+                newLength = (tmp_lon)**2 + (inLat(jj) -  latitude(kk))**2
                 IF (newLength < distance) THEN
                    distance = newLength
                    landpt(kk)%ilon = ii
@@ -1012,7 +1015,7 @@ CONTAINS
     INTEGER, INTENT(IN) :: nlon, nlat, npatch
 
     ! local variables
-    REAL :: lon2, distance, newLength
+    REAL :: tmp_lon, distance, newLength
     INTEGER :: ii, jj, kk, tt, ncount
 
 ! mpatch setting below introduced by rk4417 - phase2    
@@ -1027,12 +1030,15 @@ CONTAINS
     landpt(:)%ilat = -999
     ncount = 0
     DO kk = 1, mland
-       distance = 300.0 ! initialise, units are degrees
+       distance = 300.0 ** 2 ! initialise, units are degrees
        DO jj = 1, nlat
           DO ii = 1, nlon
              IF (inVeg(ii,jj, 1) > 0) THEN
-                newLength = SQRT((inLon(ii) - longitude(kk))**2                      &
-                     + (inLat(jj) -  latitude(kk))**2)
+                tmp_lon = inLon(ii) - longitude(kk)
+                if (tmp_lon > 180.0) then
+                  tmp_lon = 360.0 - tmp_lon
+                end if
+                newLength = tmp_lon**2 + (inLat(jj) -  latitude(kk))**2
                 IF (newLength < distance) THEN
                    distance = newLength
                    landpt(kk)%ilon = ii
