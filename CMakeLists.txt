@@ -7,6 +7,7 @@ project(
 )
 
 option(CABLE_MPI "Build the MPI executable" OFF)
+option(CABLE_TESTS "Build CABLE tests" OFF)
 
 # third party libs
 if(CABLE_MPI)
@@ -18,6 +19,30 @@ if(CABLE_MPI)
 endif()
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(NETCDF REQUIRED IMPORTED_TARGET "netcdf-fortran")
+
+if(CABLE_TESTS)
+    enable_testing()
+    include(FetchContent)
+    if(CABLE_MPI)
+        option(FORTUNO_WITH_MPI "Fortuno: whether to build the MPI interface" ON)
+        FetchContent_Declare(
+            FortunoMPI
+            GIT_REPOSITORY https://github.com/fortuno-repos/fortuno
+            GIT_TAG main
+        )
+        FetchContent_MakeAvailable(FortunoMPI)
+        set(fortuno_libs Fortuno::fortuno_mpi)
+    else()
+        option(FORTUNO_WITH_MPI "Fortuno: whether to build the MPI interface" OFF)
+        FetchContent_Declare(Fortuno
+            GIT_REPOSITORY https://github.com/fortuno-repos/fortuno
+            GIT_TAG main
+            FIND_PACKAGE_ARGS CONFIG
+        )
+        FetchContent_MakeAvailable(Fortuno)
+        set(fortuno_libs Fortuno::fortuno_serial)
+    endif ()
+endif()
 
 set(CABLE_Intel_Fortran_FLAGS -fp-model precise)
 set(CABLE_Intel_Fortran_FLAGS_DEBUG -O0 -g -traceback -fpe0)
@@ -318,4 +343,33 @@ else()
         install(TARGETS cable RUNTIME)
     endif()
 
+    if (CABLE_TESTS)
+        add_executable(
+            cable-tests
+            tests/cable_tests.F90
+            tests/fixtures.F90
+            tests/utils/file_utils.F90
+            tests/test_cable_netcdf.F90
+        )
+        if(CABLE_MPI)
+            target_sources(cable-tests PRIVATE tests/fortuno_interface_mpi.f90)
+        else()
+            target_sources(cable-tests PRIVATE tests/fortuno_interface_serial.f90)
+        endif()
+        target_link_libraries(cable-tests PRIVATE cable_common ${fortuno_libs})
+        if(CABLE_MPI)
+            add_test(NAME cable-tests-serial
+                COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:cable-tests> ~parallel
+            )
+            set_tests_properties(cable-tests-serial PROPERTIES PROCESSORS 1)
+            add_test(NAME cable-tests-parallel
+                COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:cable-tests> parallel
+            )
+            set_tests_properties(cable-tests-parallel PROPERTIES PROCESSORS 4)
+        else()
+            add_test(NAME cable-tests-serial
+                COMMAND $<TARGET_FILE:cable-tests> ~parallel
+            )
+        endif()
+    endif()
 endif()

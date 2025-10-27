@@ -104,7 +104,7 @@ if hostname -f | grep gadi.nci.org.au > /dev/null; then
     module add netcdf/4.6.3
     case ${compiler} in
         intel)
-            module add intel-compiler/2021.10.0
+            module add intel-compiler-llvm/2025.0.4
             compiler_lib_install_dir=Intel
             [[ -n ${mpi} ]] && module add openmpi/4.1.7
             # This is required so that the Parallel IO library is discoverable
