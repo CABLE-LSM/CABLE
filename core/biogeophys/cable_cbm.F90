@@ -196,7 +196,7 @@ CONTAINS
          ENDIF
       ENDIF
       do i = 1, mp
-      print *, 'cbm: second call calc_soil_root_resistance'
+      ! print *, 'cbm: second call calc_soil_root_resistance'
          CALL calc_soil_root_resistance(ssnow, soil, veg, casapool, casabiome, root_length, i)
          CALL calc_swp(ssnow, soil, i)
          CALL calc_psix(ssnow, soil, canopy, veg, casapool,sum(real(ssnow%uptake_layer(i,:),r_2)),psix,kplant,i)

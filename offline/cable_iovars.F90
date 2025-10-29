@@ -201,19 +201,19 @@ MODULE cable_IO_vars_module
       ! variables specified individually:
       LOGICAL ::                                                               &
          fbeam = .FALSE.,     & ! fraction of direct visible radiation
-         SWdown = .TRUE.,    & ! 5 downward short-wave radiation [W/m2]
+         SWdown = .FALSE.,    & ! 5 downward short-wave radiation [W/m2]
          FracDiff = .FALSE.,  & ! 6 Fraction of diffuse radiation [-]
          LWdown = .FALSE.,    & ! 7 downward long-wave radiation [W/m2]
          Rainf = .TRUE.,     & ! 8 rainfall [kg/m2/s]
          Snowf = .FALSE.,     & ! 9 snowfall [kg/m2/s]
          PSurf = .FALSE.,     & ! 10 surface pressure [Pa]
-         Tair = .TRUE.,      & ! 11 surface air temperature [K]
+         Tair = .FALSE.,      & ! 11 surface air temperature [K]
          Qair = .FALSE.,      & ! 12 specific humidity [kg/kg]
          CO2air = .FALSE.,    & ! 13 CO2 concentration [ppmv]
          Wind = .FALSE.,      & ! 14 windspeed [m/s]
          Wind_N = .FALSE.,    & ! 15 surface wind speed, N component [m/s]
          Wind_E = .FALSE.,    & ! 16 surface wind speed, E component [m/s]
-         LAI = .TRUE.,       & !
+         LAI = .FALSE.,       & !
          Qh = .TRUE.,        & ! 17 sensible heat flux [W/m2]
          Qle = .TRUE.,       & ! 18 latent heat flux [W/m2]
          Qg = .FALSE.,        & ! 19 ground heat flux [W/m2]
@@ -231,10 +231,10 @@ MODULE cable_IO_vars_module
          Albedo = .FALSE.,    & ! 30 albedo [-]
          visAlbedo = .FALSE., & ! vars intro for Ticket #27
          nirAlbedo = .FALSE., & ! vars intro for Ticket #27
-         VegT = .TRUE.,      & ! 31 vegetation temperature [K]
-         LeafT = .TRUE.,      & ! leaf temperature [K]
+         VegT = .FALSE.,      & ! 31 vegetation temperature [K]
+         LeafT = .FALSE.,      & ! leaf temperature [K]
          SoilTemp = .FALSE.,  & ! 32 av.layer soil temperature [K]
-         SoilMoist = .TRUE., & ! 33 av.layer soil moisture [kg/m2]
+         SoilMoist = .FALSE., & ! 33 av.layer soil moisture [kg/m2]
          SoilMoistPFT = .TRUE., & ! Total soil moisture per PFT [kg/m2]
          SoilMoistIce = .FALSE., & ! 33 av.layer soil frozen moisture [kg/m2]
          Qs = .FALSE.,        & ! 34 surface runoff [kg/m2/s]
@@ -260,7 +260,7 @@ MODULE cable_IO_vars_module
          HeteroResp = .FALSE.,& ! 50 heterotrophic respiration [umol/m2/s]
          SnowDepth = .FALSE., & ! actual depth of snow in [m]
          !variables
-         Rnet = .TRUE.,      & ! net absorbed radiation [W/m2]
+         Rnet = .FALSE.,      & ! net absorbed radiation [W/m2]
          HVeg = .FALSE.,      & ! sensible heat from vegetation [W/m2]
          HSoil = .FALSE.,     & ! sensible heat from soil [W/m2]
          RnetSoil = .FALSE.,  & ! sensible heat from soil [W/m2] !vh!
@@ -268,7 +268,7 @@ MODULE cable_IO_vars_module
          Wbal = .FALSE.,      & ! cumulative water balance [W/m2]
          !! vh_js ! added CanT and fwsoil to the list
          CanT = .FALSE.,      & ! within-canopy temperature [K]
-         Fwsoil = .TRUE.,      & ! soil moisture modifier to stomatal conductance
+         Fwsoil = .FALSE.,      & ! soil moisture modifier to stomatal conductance
          Fwsoiltmp = .FALSE.,      & 
          fwpsi = .FALSE.,      & 
          Area = .FALSE., & ! patch area in km2
@@ -328,9 +328,9 @@ MODULE cable_IO_vars_module
          LittCarbMetabolic = .FALSE., &
          LittCarbStructural = .FALSE., &
          LittCarbCWD = .FALSE., &
-         PlantCarbLeaf = .TRUE., &
-         PlantCarbFineRoot = .TRUE., &
-         PlantCarbWood = .TRUE., &
+         PlantCarbLeaf = .FALSE., &
+         PlantCarbFineRoot = .FALSE., &
+         PlantCarbWood = .FALSE., &
          PlantTurnover = .FALSE., &
          PlantTurnoverLeaf = .FALSE., &
          PlantTurnoverFineRoot = .FALSE., &
@@ -342,16 +342,16 @@ MODULE cable_IO_vars_module
          !parameters
          bch = .FALSE.,       & ! parameter b in Campbell equation 1985
          latitude = .FALSE.,  & ! site latitude
-         clay = .TRUE.,      & ! fraction of clay in soil
+         clay = .FALSE.,      & ! fraction of clay in soil
          css = .FALSE.,       & ! heat capacity of soil minerals [J/kg/C]
          rhosoil = .FALSE.,   & ! soil density [kg/m3]
          hyds = .FALSE.,      & ! hydraulic conductivity @ saturation [m/s], Ksat
          rs20 = .FALSE.,      & ! soil respiration at 20 C [dimensionless],
                                 ! (0.1 - 10), prop to om
-         sand  = .TRUE.,     & ! fraction of sand in soil
+         sand  = .FALSE.,     & ! fraction of sand in soil
          sfc = .FALSE.,       & ! vol H2O @ field capacity
          sfc_recal = .FALSE.,       & ! vol H2O @ field capacity
-         silt  = .TRUE.,     & ! fraction of silt in soil
+         silt  = .FALSE.,     & ! fraction of silt in soil
          ssat = .FALSE.,      & ! vol H2O @ saturation
          sucs = .FALSE.,      & ! suction at saturation [m]
          swilt = .FALSE.,     & ! vol H2O @ wilting
@@ -363,7 +363,7 @@ MODULE cable_IO_vars_module
                                 ! (0.08 - 0.12) {avoid}
          dleaf = .FALSE.,     & ! chararacteristic length of leaf [m],
                                 ! (0.005 - 0.2) pine -> tropical
-         ejmax  = .TRUE.,    & ! max pot. electron transport rate
+         ejmax  = .FALSE.,    & ! max pot. electron transport rate
                                 ! top leaf[mol/m2/s](1e-5 - 3e-4) {use}
          frac4  = .FALSE.,    & ! fraction of c4 plants [-]
          hc = .FALSE.,        & ! height of canopy [m]
@@ -371,26 +371,26 @@ MODULE cable_IO_vars_module
          rp20  = .FALSE.,     & ! plant respiration coefficient at
                                 ! 20 C [-] 0.1 - 10 (frp 0 - 15e-6 mol/m2/s)
          g0   = .TRUE.,      & ! Ticket #56
-         g1   = .TRUE.,      & ! Ticket #56
+         g1   = .FALSE.,      & ! Ticket #56
          g1tuzet  = .TRUE., &
          slope_leaf   = .TRUE.,      & 
          g3   = .FALSE.,      & 
-         a1gs   = .TRUE.,      & 
-         d0gs   = .TRUE.,      & 
+         a1gs   = .FALSE.,      & 
+         d0gs   = .FALSE.,      & 
          psi_50_leaf = .TRUE.,      & 
          P50 = .TRUE., &
          P88dP50 = .TRUE., &
          rpcoef  = .FALSE.,   & ! temperature coef nonleaf plant
                                 ! respiration [1/C] (0.8 - 1.5)
          shelrb  = .FALSE.,   & ! sheltering factor [-] {avoid - insensitive?}
-         vcmax  = .TRUE.,    & ! maximum RuBP carboxylation rate
+         vcmax  = .FALSE.,    & ! maximum RuBP carboxylation rate
                                 ! top leaf [mol/m2/s](5e-6 - 1.5e-4){use}
          xfang  = .FALSE.,    & ! leaf angle PARAMETER (dimensionless)
                                 ! (v leaf -1.0 horiz 1.0 sphere 0 (-1 - 1))
          wai    = .FALSE.,    & ! wood area index
          vegcf  = .FALSE.,    & !
-         vcmax_scalar = .TRUE., & !
-         extkn  = .TRUE.,    & !
+         vcmax_scalar = .FALSE., & !
+         extkn  = .FALSE.,    & !
          alpha  = .FALSE.,    & !
          ratecp = .FALSE.,    & ! plant carbon pool rate constant (1/year)
          ratecs = .FALSE.,    & ! soil carbon pool rate constant (1/year)
@@ -405,30 +405,30 @@ MODULE cable_IO_vars_module
                                 ! photosynthesis(leaf phenology)[-] (-5 - 15)
          vbeta = .FALSE.,     & ! stomatal sensitivity to soil water
          xalbnir = .FALSE.,   & ! modifier for albedo in near ir band
-         iveg  = .TRUE.,     & ! vegetation type from global index
+         iveg  = .FALSE.,     & ! vegetation type from global index
          patchfrac  = .FALSE.,& ! fractional cover of each veg/soil patch
          isoil  = .TRUE.,    & ! soil type from global index
          meth  = .FALSE.,     & ! method for solving turbulence in canopy scheme
          za  = .FALSE.,       & ! something to do with roughness ????
          c13o2 = .false., &      ! carbon pools and flux output for 13C isotopes
-         psi_soil = .TRUE.,       & 
+         psi_soil = .FALSE.,       & 
          kmax = .TRUE.,    &
          psi_rootzone = .FALSE.,       & 
-         psix = .TRUE.,       & 
-         psi_can_sl = .TRUE.,       & 
-         psi_can_sh = .TRUE.,       &
-         abs_deltpsil_sl = .TRUE.,       & 
-         abs_deltpsil_sh = .TRUE.,       &
-         abs_deltcs_sl = .TRUE.,       & 
-         abs_deltcs_sh = .TRUE.,       &
+         psix = .FALSE.,       & 
+         psi_can_sl = .FALSE.,       & 
+         psi_can_sh = .FALSE.,       &
+         abs_deltpsil_sl = .FALSE.,       & 
+         abs_deltpsil_sh = .FALSE.,       &
+         abs_deltcs_sl = .FALSE.,       & 
+         abs_deltcs_sh = .FALSE.,       &
          abs_deltpsil_sl_vpd = .FALSE.,       & 
          abs_deltpsil_sh_vpd = .FALSE.,       &
          abs_deltcs_sl_vpd = .FALSE.,       & 
          abs_deltcs_sh_vpd = .FALSE.,       &
-         abs_deltpsil_sl_sw = .TRUE.,       & 
-         abs_deltpsil_sh_sw = .TRUE.,       &
-         abs_deltcs_sl_sw = .TRUE.,       & 
-         abs_deltcs_sh_sw = .TRUE.,       &
+         abs_deltpsil_sl_sw = .FALSE.,       & 
+         abs_deltpsil_sh_sw = .FALSE.,       &
+         abs_deltcs_sl_sw = .FALSE.,       & 
+         abs_deltcs_sh_sw = .FALSE.,       &
          abs_deltpsil_sl_ref = .FALSE.,       & 
          abs_deltpsil_sh_ref = .FALSE.,       &
          abs_deltcs_sl_ref = .FALSE.,       & 
@@ -446,16 +446,16 @@ MODULE cable_IO_vars_module
          gsw_ref1_sh = .FALSE.,       &
          gsw_epotcan3_sl = .TRUE.,       &
          gsw_epotcan3_sh = .TRUE.,       &
-         fwpsi_sl = .TRUE.,       &
-         fwpsi_sh = .TRUE.,       &   
+         fwpsi_sl = .FALSE.,       &
+         fwpsi_sh = .FALSE.,       &   
          plc_sat = .FALSE.,       & 
          plc_stem = .FALSE.,       & 
          plc_can = .FALSE.,       & 
          gsw_sun = .FALSE.,       & 
          gsw_sha = .FALSE.,       &
-         kplant = .TRUE.,       &
-         abs_deltlf = .TRUE.,   &
-         abs_deltds = .TRUE.,   &
+         kplant = .FALSE.,       &
+         abs_deltlf = .FALSE.,   &
+         abs_deltds = .FALSE.,   &
          abs_deltlf_vpd = .FALSE.,   &
          abs_deltds_vpd = .FALSE.,   &
          abs_deltlf_sw = .FALSE.,   &
@@ -468,14 +468,14 @@ MODULE cable_IO_vars_module
          N_pos = .FALSE.,   &
          N_neg_sw = .FALSE.,   &
          N_pos_sw = .FALSE.,   &
-         ksoil = .TRUE.,  &
-         kroot = .TRUE.,  &
+         ksoil = .FALSE.,  &
+         kroot = .FALSE.,  &
          b_plant = .TRUE.,  &
          c_plant = .TRUE., &
          root_conduc = .FALSE., &
-         ksoilmean = .TRUE., &
-         krootmean = .TRUE., &
-         kbelowmean = .TRUE., &
+         ksoilmean = .FALSE., &
+         krootmean = .FALSE., &
+         kbelowmean = .FALSE., &
          psi_soilmean = .TRUE., &
          wb_soilmean = .TRUE., &
          rwc_soilmean = .FALSE., &
@@ -494,7 +494,8 @@ MODULE cable_IO_vars_module
          wb_30 = .FALSE., &
          psi_30 = .FALSE., &
          wb_fr_rootzone = .FALSE., &
-         psi_fr_rootzone = .FALSE.
+         psi_fr_rootzone = .FALSE., &
+         dlf = .FALSE.
    END TYPE output_inclusion_type
 
 
