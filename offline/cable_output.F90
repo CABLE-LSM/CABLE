@@ -2596,6 +2596,7 @@ CONTAINS
     type(icanopy_type) :: C
     REAL(r_2), DIMENSION(1) :: timetemp ! temporary variable for storing time
     real(r_2), DIMENSION(mp) :: psi_sat
+    real(r_2), DIMENSION(mp) :: psi_soilmean_tmp, wb_soilmean_tmp
     ! value
     LOGICAL :: writenow ! write to output file during this time step?
     INTEGER, SAVE :: out_timestep ! counter for output time steps
@@ -3359,17 +3360,26 @@ CONTAINS
     END IF
      IF(output%soil .OR. output%psi_soilmean) THEN
      ! Add current timestep's value to total of temporary output variable:
-     out%psi_soilmean= out%psi_soilmean +sum(toreal4(ssnow%uptake_layer),2) / &
+     psi_soilmean_tmp = sum(toreal4(ssnow%uptake_layer),2) / &
       toreal4(sum(1.0_r_2 /(toreal4(ssnow%rootR) + toreal4(ssnow%soilR)) ,2)) + toreal4(canopy%psix)
-        psi_sat = toreal4(soil%sucs * C%grav * C%RHOW * 1E-6)
-   
+
+     out%psi_soilmean= out%psi_soilmean + psi_soilmean_tmp
+
+     psi_sat = toreal4(soil%sucs * C%grav * C%RHOW * 1E-6)
+     wb_soilmean_tmp = toreal4((psi_soilmean_tmp / psi_sat) ** (-1.0_r_2 / soil%bch) * soil%ssat)
+
+     out%wb_soilmean= out%wb_soilmean + wb_soilmean_tmp
+     out%rwc_soilmean_recal = out%rwc_soilmean_recal + &
+             toreal4((wb_soilmean_tmp - soil%swilt_recal)/(soil%sfc_recal - soil%swilt_recal))
+
      IF(writenow) THEN
         ! Divide accumulated variable by number of accumulated time steps:
 
         out%psi_soilmean = out%psi_soilmean * rinterval
-
-     out%wb_soilmean= toreal4((out%psi_soilmean / psi_sat) ** (-1.0_r_2 / soil%bch) * soil%ssat)
-     out%rwc_soilmean_recal = toreal4((out%wb_soilmean - soil%swilt_recal)/(soil%sfc_recal - soil%swilt_recal))
+        out%wb_soilmean = out%wb_soilmean * rinterval
+        out%rwc_soilmean_recal = out%rwc_soilmean_recal * rinterval
+!     out%wb_soilmean= toreal4((out%psi_soilmean / psi_sat) ** (-1.0_r_2 / soil%bch) * soil%ssat)
+ !    out%rwc_soilmean_recal = toreal4((out%wb_soilmean - soil%swilt_recal)/(soil%sfc_recal - soil%swilt_recal))
         CALL write_ovar(out_timestep, ncid_out, ovid%psi_soilmean, 'psi_soilmean', &
         out%psi_soilmean, ranges%psi_soil, patchout%psi_soilmean, 'default', met)
         out%psi_soilmean = zero4
