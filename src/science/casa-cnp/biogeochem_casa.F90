@@ -52,7 +52,7 @@ xKNlimiting = 1.0
 ! zero annual sums
 IF (idoy==1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)
 
-IF (cable_user%PHENOLOGY_SWITCH.EQ.'MODIS' .OR. cable_runtime%esm15 ) THEN
+IF (cable_user%PHENOLOGY_SWITCH.EQ.'MODIS' ) THEN
        CALL phenology(idoy,veg,phen)
 ENDIF
 CALL avgsoil(veg,soil,casamet)
