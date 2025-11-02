@@ -11,17 +11,16 @@
 !
 MODULE cable_adjust_JV_gm_module
 
-  use cable_def_types_mod, only: mp, veg_parameter_type
+  use cable_def_types_mod, only: mp, veg_parameter_type, r2
   use cable_data_module,   only: icanopy_type, point2constants
   use cable_abort_module,  only: nc_abort
   use cable_canopy_module, only: light_inhibition
-  use netcdf
-  use minpack
+  use minpack, only: lmdif1
 
   type(icanopy_type) :: C
 
-  integer, parameter :: nrci=3000
-  integer, parameter :: nrcic4=1200
+  integer, parameter :: nrci = 3000
+  integer, parameter :: nrcic4 = 1200
   real(r2) :: gmmax25, Vcmax25Ci, Jmax25Ci, Vcmax25Cc, Jmax25Cc, k25Ci, k25Cc
   real(r2) :: Rd
   real(r2) :: Kc_ci, Ko_ci, gammastar_ci, Km_ci

@@ -11,7 +11,7 @@ contains
   SUBROUTINE BLAZE_DRIVER(NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
        climate, shootfrac, idoy, curyear, CTLFLAG, POP, veg)
 
-    use cable_def_types_mod, only: r2
+    use cable_def_types_mod, only: i4, r2
     USE CABLE_COMMON_MODULE, ONLY: IS_LEAPYEAR, DOYSOD2YMDHMS !, Esatf
     USE CASAVARIABLE,        ONLY: casa_pool, casa_flux, casa_met
     USE BLAZE_MOD,           ONLY: RUN_BLAZE, TYPE_TURNOVER, BLAZE_TURNOVER, &
@@ -21,7 +21,7 @@ contains
     USE cable_IO_vars_module, ONLY: landpt, patch
     USE CABLE_DEF_TYPES_MOD, ONLY:  climate_type
     USE POPMODULE,            ONLY: ADJUST_POP_FOR_FIRE
-    USE POP_TYPES,            ONLY: POP_TYPE, i4, dp
+    USE POP_TYPES,            ONLY: POP_TYPE
     USE cable_def_types_mod, ONLY: veg_parameter_type
 
     IMPLICIT NONE
@@ -196,7 +196,7 @@ contains
     ! print*, 'BA: ', BLAZE%AB
     ! print*, 'dist: ', int(veg%disturbance_interval(Iw,:), i4)
 
-    POP%pop_grid(:)%fire_mortality = 0.0_dp
+    POP%pop_grid(:)%fire_mortality = 0.0_r2
 !!$  CALL ADJUST_POP_FOR_FIRE(pop,int(veg%disturbance_interval(Iw,:), i4), &
 !!$       casaflux%fire_mortality_vs_height(Iw,:,:))
     CALL ADJUST_POP_FOR_FIRE(pop,int(veg%disturbance_interval(Iw,:), i4), &
@@ -204,7 +204,7 @@ contains
     print*,"CLN ADJUST_POP_FOR_FIRE" ,int(veg%disturbance_interval(Iw,:), i4), &
          veg%disturbance_intensity(Iw,1), veg%disturbance_intensity(Iw,2)
     casaflux%kplant_fire(Iw,WOOD) = max(min(POP%pop_grid(:)%fire_mortality/POP%pop_grid(:)%cmass_sum, &
-         0.99_dp),0.0_dp)
+         0.99_r2), 0.0_r2)
 
     !write(556,*) casaflux%kplant_fire(1,WOOD),  casaflux%kplant(1,WOOD), BLAZE%AB
     !write(557,*) BLAZE%AB, casaflux%fire_mortality_vs_height(1,:,2)

@@ -923,7 +923,7 @@ contains
   ! Write into 13C Casa output file
   subroutine c13o2_write_output(file_id, vars, var_ids, days, c13o2pools)
 
-    use cable_def_types_mod, only: r2
+    use cable_def_types_mod, only: r2, r1
     use cable_common_module, only: cable_user
     use cable_c13o2_def,     only: c13o2_pool
     use netcdf,              only: nf90_put_var, nf90_noerr
@@ -941,7 +941,6 @@ contains
     integer :: nland, nplant, nlitter, nsoil
     integer :: timestep
     real(r2) :: dt
-    integer, parameter :: sp = kind(1.0)
 
     ! write(*,*) 'Writing 13CO2 output.'
     nland   = c13o2pools%ntile
@@ -966,19 +965,19 @@ contains
        else if (trim(vars(i)) == 'longitude') then
           continue
        else if (trim(vars(i)) == 'cplant') then
-          status = nf90_put_var(file_id, var_ids(i), real(c13o2pools%cplant,sp), &
+          status = nf90_put_var(file_id, var_ids(i), real(c13o2pools%cplant, r1), &
                start=(/1,1,timestep/), count=(/nland,nplant,1/))
        else if (trim(vars(i)) == 'clitter') then
-          status = nf90_put_var(file_id, var_ids(i), real(c13o2pools%clitter,sp), &
+          status = nf90_put_var(file_id, var_ids(i), real(c13o2pools%clitter, r1), &
                start=(/1,1,timestep/), count=(/nland,nlitter,1/))
        else if (trim(vars(i)) == 'csoil') then
-          status = nf90_put_var(file_id, var_ids(i), real(c13o2pools%csoil,sp), &
+          status = nf90_put_var(file_id, var_ids(i), real(c13o2pools%csoil, r1), &
                start=(/1,1,timestep/), count=(/nland,nsoil,1/))
        else if (trim(vars(i)) == 'clabile') then
-          status = nf90_put_var(file_id, var_ids(i), real(c13o2pools%clabile,sp), &
+          status = nf90_put_var(file_id, var_ids(i), real(c13o2pools%clabile, r1), &
                start=(/1,timestep/), count=(/nland,1/))
        ! else if (trim(vars(i)) == 'charvest') then
-       !    status = nf90_put_var(file_id, var_ids(i), real(c13o2pools%charvest,sp), &
+       !    status = nf90_put_var(file_id, var_ids(i), real(c13o2pools%charvest, r1), &
        !         start=(/1,timestep/), count=(/nland,1/))
        else
           write(*,*) 'Var: ', i, trim(vars(i)), ', var_id: ', var_ids(i), ', file_id: ', file_id

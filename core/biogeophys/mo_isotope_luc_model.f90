@@ -129,7 +129,6 @@ contains
   subroutine isotope_luc_model_1d(Ciso, A, dA, C, S, Rs, T, Rt, At, trash)
 
     use cable_def_types_mod, only: r2
-    use mo_kind,  only: i4
     use mo_utils, only: eq !, ne
 #ifdef __MPI__
     use mpi,      only: MPI_Abort
@@ -149,8 +148,8 @@ contains
     real(r2), dimension(:),   intent(inout), optional :: trash  ! garbage can for numerical inconsistencies
 
     ! Local variables
-    ! integer(i4) :: i  ! counter
-    integer(i4) :: nn ! number of pools
+    ! integer :: i  ! counter
+    integer :: nn ! number of pools
     ! real(r2), dimension(size(Ciso,1)) :: R    ! Isotope ratio of pool
     ! defaults for optional inputs
     real(r2), dimension(size(Ciso,1)) :: iC, iS, iRs, iT, iRt
@@ -161,7 +160,7 @@ contains
 #endif
 
     ! Check sizes
-    nn = size(Ciso,1)
+    nn = size(Ciso, 1)
     if ( (size(A,1) /= nn) .or. (size(dA,1) /= nn) .or. (size(dA,2) /= nn) ) then
        write(*,*) 'Error isotope_luc_model_1d: non-fitting dimensions between isotopic concentrations,'
        write(*,*) '                            land areas and land-area changes.'

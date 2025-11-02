@@ -38,7 +38,6 @@
 MODULE mo_c13o2_photosynthesis
 
   use cable_def_types_mod, only: r2
-  use mo_kind, only: i4
 
   implicit none
 
@@ -249,9 +248,9 @@ contains
     real(r2), dimension(:), intent(out)   :: Ass13                ! 13CO2 flux [mol(13CO2)/m2s]
 
     ! Local variables
-    integer(i4) :: nn  ! number of grid points
-    integer(i4) :: jl  ! counter
-    real(r2)    :: tmp ! temporary real
+    integer  :: nn  ! number of grid points
+    integer  :: jl  ! counter
+    real(r2) :: tmp ! temporary real
     real(r2), dimension(size(isc3)) :: Rdm, Rds, leakage, Vp, Phi1 ! for C4
     real(r2), dimension(size(isc3)) :: Ass                         ! net assimilation
     real(r2), dimension(size(isc3)) :: k                           ! carboxylation efficiency

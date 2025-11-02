@@ -8,7 +8,8 @@ contains
        casaflux,casamet,casabal,phen,POP,climate,LALLOC,LUC_EXPT, POPLUC, &
        sum_casapool, sum_casaflux, c13o2flux, c13o2pools, sum_c13o2pools, c13o2luc )
 
-    USE cable_def_types_mod
+    USE cable_def_types_mod,  only: mp, mland, r2, &
+         veg_parameter_type, soil_parameter_type, climate_type
     USE cable_carbon_module
     USE cable_common_module,  ONLY: CABLE_USER, is_casa_time
     USE cable_IO_vars_module, ONLY: logn, landpt
@@ -16,14 +17,14 @@ contains
     USE casaparm
     USE casavariable
     USE phenvariable
-    USE POP_Types,            Only: POP_TYPE
+    USE POP_Types,            only: pop_type
     USE POPMODULE,            ONLY: POP_init_single
     ! use cable_pop_io,         only: pop_io
     USE CABLE_LUC_EXPT,       ONLY: LUC_EXPT_TYPE, read_LUH2, &
          ptos, ptog, stog, gtos, pharv, smharv, syharv, &
          ptoc, ptoq, stoc, stoq, ctos, qtos, & 
          ctor, qtor, rtoc, rtoq, qtoc, ctoq
-    USE POPLUC_Types
+    USE POPLUC_Types,         only: POPLUC_TYPE
     USE POPLUC_Module,        ONLY: POPLUCStep, POPLUC_weights_Transfer, & ! WRITE_LUC_OUTPUT_NC, &
          POP_LUC_CASA_transfer, WRITE_LUC_RESTART_NC, &
          POPLUC_set_patchfrac
@@ -65,14 +66,14 @@ contains
     type(c13o2_luc),            intent(inout) :: c13o2luc
 
     ! local variables
-    INTEGER                  :: myearspin,nyear, yyyy, nyear_dump
-    CHARACTER(LEN=99)        :: ncfile
-    CHARACTER(LEN=4)         :: cyear
-    INTEGER                  :: ktau,ktauday,nday,idoy
-    real(r2), dimension(mp)      :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
-    real(r2), dimension(mp)      :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
-    real(r2), dimension(mp)      :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-    real(r2), dimension(mp)      :: xnplimit,  xkNlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
+    INTEGER                 :: myearspin, nyear, yyyy, nyear_dump
+    CHARACTER(LEN=99)       :: ncfile
+    CHARACTER(LEN=4)        :: cyear
+    INTEGER                 :: ktau, ktauday, nday, idoy
+    real(r2), dimension(mp) :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
+    real(r2), dimension(mp) :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
+    real(r2), dimension(mp) :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
+    real(r2), dimension(mp) :: xnplimit,  xkNlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
 
     ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
     integer :: k, j, l

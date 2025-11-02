@@ -20,7 +20,7 @@ USE cable_io_vars_module,   ONLY: logn, land_x, land_y, exists, nMetPatches,&
 USE cable_input_module,     ONLY: SPATIO_TEMPORAL_DATASET, find_variable_ID,&
                                 prepare_spatiotemporal_dataset, read_metvals,&
                                 open_at_first_file
-USE cable_def_types_mod,    ONLY: MET_TYPE, r2, mLand
+USE cable_def_types_mod,    ONLY: MET_TYPE, r1, r2, mLand
 USE cable_weathergenerator, ONLY: WEATHER_GENERATOR_TYPE, WGEN_INIT,&
                                 WGEN_DAILY_CONSTANTS, WGEN_SUBDIURNAL_MET
 USE mo_utils,               ONLY: eq
@@ -44,8 +44,6 @@ INTEGER, PRIVATE, PARAMETER  :: rain = 1, lwdn = 2, swdn = 3, pres = 4,&
                                 vph1500 = 12, fdiff = 13, prevTmax = 14,&
                                 nextTmin = 15, nextvph0900 = 16,&
                                 prevvph1500 = 17
-INTEGER, PRIVATE, PARAMETER  :: sp = kind(1.0)
-INTEGER, PRIVATE, PARAMETER  :: dp = KIND(1.0d0)
 ! We have two separate "classes" variables- the "core" variables, which each are
 ! assigned their own reader, and "derived" variables, which are derived in a
 ! sense from the core variables. At the moment, these "derived" variables are
@@ -281,7 +279,7 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau)
      WG%PrecipDay      = real(max(CRU%MET(rain)%METVALS  / 1000., 0.0), r2) ! ->[m/d]
      !WG%PrecipDay      = max(CRU%MET(rain)%METVALS  / 1000., 0.0)/2.0 ! ->[m/d] ! test vh !
      WG%SnowDay        = 0.0_r2
-     WG%VapPmbDay = real(esatf(real(WG%TempMinDay, sp)), r2)
+     WG%VapPmbDay = real(esatf(real(WG%TempMinDay, r1)), r2)
      call WGEN_DAILY_CONSTANTS(WG, CRU%mland, int(met%doy(1))+1)
 
      ! To get the diurnal cycle for lwdn get whole day and scale with
@@ -335,7 +333,7 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau)
      met%qv(is:ie) = CRU%MET(qair)%METVALS(iland)
 
      ! rel humidity (%)
-     met%rhum(is:ie)  = real(WG%VapPmb(iland))/esatf(real(WG%Temp(iland),sp)) * 100.0
+     met%rhum(is:ie)  = real(WG%VapPmb(iland))/esatf(real(WG%Temp(iland), r1)) * 100.0
      met%u10(is:ie)   = met%ua(is:ie)
      ! initialise within canopy air temp
      met%tvair(is:ie) = met%tk(is:ie)
@@ -1245,13 +1243,13 @@ ELEMENTAL FUNCTION Esatf(TC)
 ! ------------------------------------------------------------------------------
 IMPLICIT NONE
 
-REAL(sp), INTENT(IN) :: TC          ! temp [deg C]
-REAL(sp)             :: Esatf       ! saturation vapour pressure [mb]
+REAL(r1), INTENT(IN) :: TC          ! temp [deg C]
+REAL(r1)             :: Esatf       ! saturation vapour pressure [mb]
 
-REAL(sp) :: TCtmp                   ! local
-REAL(sp),PARAMETER:: A = 6.106      ! Teten coefficients
-REAL(sp),PARAMETER:: B = 17.27      ! Teten coefficients
-REAL(sp),PARAMETER:: C = 237.3      ! Teten coefficients
+REAL(r1) :: TCtmp                   ! local
+REAL(r1), PARAMETER:: A = 6.106      ! Teten coefficients
+REAL(r1), PARAMETER:: B = 17.27      ! Teten coefficients
+REAL(r1), PARAMETER:: C = 237.3      ! Teten coefficients
 
 TCtmp = TC                            ! preserve TC
 IF (TCtmp > 100.0) TCtmp = 100.0   ! constrain TC to (-40.0, 100.0)

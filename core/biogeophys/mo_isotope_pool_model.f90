@@ -129,7 +129,6 @@ contains
   subroutine isotope_pool_model_1d(dt, Ciso, C, F, S, Rs, T, Rt, alpha, beta, trash)
 
     use cable_def_types_mod, only: r2
-    use mo_kind,  only: i4
     use mo_utils, only: eq, ne
 #ifdef __MPI__
     use mpi,      only: MPI_Abort
@@ -150,8 +149,8 @@ contains
     real(r2), dimension(:),   intent(inout), optional :: trash  ! garbage can for numerical inconsistencies
 
     ! Local variables
-    integer(i4) :: i  ! counter
-    integer(i4) :: nn ! number of pools
+    integer :: i  ! counter
+    integer :: nn ! number of pools
     real(r2), dimension(size(Ciso,1)) :: R                   ! Isotope ratio of pool
     ! defaults for optional inputs
     real(r2), dimension(size(Ciso,1))            :: iS, iRs, iT, iRt
@@ -289,7 +288,6 @@ contains
   subroutine isotope_pool_model_2d(dt, Ciso, C, F, S, Rs, T, Rt, alpha, beta, trash, trans)
 
     use cable_def_types_mod, only: r2
-    use mo_kind,  only: i4
     use mo_utils, only: eq, ne
 #ifdef __MPI__
     use mpi,      only: MPI_Abort
@@ -311,9 +309,9 @@ contains
     logical,                    intent(in),    optional :: trans  ! transposed order pools and fluxes
 
    ! Local variables
-    integer(i4) :: i, j  ! counter
-    integer(i4) :: nland ! number of land points
-    integer(i4) :: nn    ! number of pools
+    integer :: i, j  ! counter
+    integer :: nland ! number of land points
+    integer :: nn    ! number of pools
     real(r2), dimension(size(Ciso,1),size(Ciso,2)) :: R       ! Isotope ratio of pool
     ! defaults for optional inputs
     real(r2), dimension(size(Ciso,1),size(Ciso,2)) :: iS, iRs, iT, iRt
@@ -542,7 +540,6 @@ contains
   function diag_2d(matrix)
 
     use cable_def_types_mod, only: r2
-    use mo_kind, only: i4
 #ifdef __MPI__
     use mpi,     only: MPI_Abort
 #endif
@@ -552,7 +549,7 @@ contains
     real(r2), dimension(:,:), intent(in) :: matrix
     real(r2), dimension(:), allocatable  :: diag_2d
 
-    integer(i4) :: i
+    integer :: i
 #ifdef __MPI__
     integer :: ierr
 #endif
@@ -575,7 +572,6 @@ contains
   function diag_3d(matrix, trans)
 
     use cable_def_types_mod, only: r2
-    use mo_kind, only: i4
 #ifdef __MPI__
     use mpi,     only: MPI_Abort
 #endif
@@ -586,7 +582,7 @@ contains
     logical,                    intent(in), optional :: trans   ! two first or two last dimensions
     real(r2), dimension(:,:),   allocatable          :: diag_3d
 
-    integer(i4) :: i, j
+    integer :: i, j
     logical :: itrans
 #ifdef __MPI__
     integer :: ierr

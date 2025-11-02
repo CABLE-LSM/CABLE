@@ -16,14 +16,14 @@
 
 MODULE math_constants
 
-  USE cable_def_types_mod, ONLY : i4, r2
+  USE cable_def_types_mod, ONLY: r2
 
   IMPLICIT NONE
 
   REAL, PARAMETER :: pi     = 3.141592653589793238462643383279502884197
   REAL, PARAMETER :: pi180  = pi / 180.0 ! radians / degree
   REAL, PARAMETER :: two_pi = 2.0 * pi
-  REAL(r2), PARAMETER :: pi_r2 = 3.141592653589793238462643383279502884197
+  REAL(r2), PARAMETER :: pi_r2 = 3.141592653589793238462643383279502884197_r2
 
 END MODULE math_constants
 

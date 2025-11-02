@@ -17,15 +17,15 @@ contains
     ! CLOSE_FILE : Flag to close file at the end of Episode (Episode only)
     ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     USE netcdf
-    USE TypeDef,      only: dp
+    USE TypeDef,       only: r2
     USE POP_constants
     USE POP_types
     USE CASADIMENSION, only: icycle
-    USE CASAVARIABLE, only: casa_met
+    USE CASAVARIABLE,  only: casa_met
     USE CABLE_COMMON_MODULE
-    use mo_utils,     only: ne
+    use mo_utils,      only: ne
 #ifdef __MPI__
-    use mpi,          only: MPI_Abort
+    use mpi,           only: MPI_Abort
 #endif
 
     IMPLICIT NONE
@@ -138,7 +138,7 @@ contains
 
     ! TEMPORARY ARRAYS
     INTEGER,  ALLOCATABLE :: I11(:), I22(:,:), I33(:,:,:), I44(:,:,:,:)
-    REAL(dp), ALLOCATABLE :: R1(:), R2(:,:), R3(:,:,:), R4(:,:,:,:)
+    REAL(r2), ALLOCATABLE :: RR1(:), RR2(:,:), RR3(:,:,:), RR4(:,:,:,:)
 #ifdef __MPI__
     integer :: ierr
 #endif
@@ -712,19 +712,19 @@ contains
 
        ! PUT 3D VARS ( mp,nlayer, t )
 
-       ALLOCATE( R2( mp, nlayer ) )
+       ALLOCATE( RR2( mp, nlayer ) )
        !  DO i = 1, SIZE(AR2)
        DO i = 1, SIZE(VIDR2)
           DO m = 1, mp
              SELECT CASE (i)
              CASE(1)
-                R2(m,:) = POP%pop_grid(m)%biomass
+                RR2(m,:) = POP%pop_grid(m)%biomass
              CASE(2)
-                R2(m,:) = POP%pop_grid(m)%density
+                RR2(m,:) = POP%pop_grid(m)%density
              CASE(3)
-                R2(m,:) = POP%pop_grid(m)%hmean
+                RR2(m,:) = POP%pop_grid(m)%hmean
              CASE(4)
-                R2(m,:) = POP%pop_grid(m)%hmax
+                RR2(m,:) = POP%pop_grid(m)%hmax
              CASE default
                 write(*,*) "Parameter not assigned in pop_io.F90!"
 #ifdef __MPI__
@@ -734,26 +734,26 @@ contains
 #endif
              END SELECT
           END DO
-          STATUS = NF90_PUT_VAR(FILE_ID, VIDR2( i), R2,         &
+          STATUS = NF90_PUT_VAR(FILE_ID, VIDR2( i), RR2,         &
                start=(/ 1, 1, CNT /), count=(/ mp, nlayer, 1 /) )
           IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
        END DO
-       DEALLOCATE( R2 )
+       DEALLOCATE( RR2 )
 
        ! PUT 3D VARS ( mp,height_bins, t )
 
-       ALLOCATE( R2( mp, height_bins ) )
+       ALLOCATE( RR2( mp, height_bins ) )
        DO i = 1, SIZE(VIDR3)
           DO m = 1, mp
              SELECT CASE(i)
              CASE(1)
-                R2(m,:) = POP%pop_grid(m)%cmass_stem_bin
+                RR2(m,:) = POP%pop_grid(m)%cmass_stem_bin
              CASE(2)
-                R2(m,:) = POP%pop_grid(m)%densindiv_bin
+                RR2(m,:) = POP%pop_grid(m)%densindiv_bin
              CASE(3)
-                R2(m,:) = POP%pop_grid(m)%height_bin
+                RR2(m,:) = POP%pop_grid(m)%height_bin
              CASE(4)
-                R2(m,:) = POP%pop_grid(m)%diameter_bin
+                RR2(m,:) = POP%pop_grid(m)%diameter_bin
              CASE default
                 write(*,*) "Parameter not assigned in pop_io.F90!"
 #ifdef __MPI__
@@ -763,11 +763,11 @@ contains
 #endif
              END SELECT
           END DO
-          STATUS = NF90_PUT_VAR(FILE_ID, VIDR3( i), R2,         &
+          STATUS = NF90_PUT_VAR(FILE_ID, VIDR3( i), RR2,         &
                start=(/ 1, 1, CNT /), count=(/ mp, height_bins, 1 /) )
           IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
        END DO
-       DEALLOCATE( R2)
+       DEALLOCATE( RR2)
 
        ! PUT 3D VARS ( mp,ndisturb, t )
 
@@ -815,58 +815,58 @@ contains
        END DO
        DEALLOCATE( I22 )
 
-       ALLOCATE( R2( mp, npatch2d ) )
+       ALLOCATE( RR2( mp, npatch2d ) )
        DO i = 1, SIZE(VIDR5)
           DO m = 1, mp
              SELECT CASE ( i )
              CASE( 1)
-                R2(m,:)=POP%pop_grid(m)%freq
+                RR2(m,:)=POP%pop_grid(m)%freq
              CASE( 2)
-                R2(m,:)=POP%pop_grid(m)%freq_old
+                RR2(m,:)=POP%pop_grid(m)%freq_old
              CASE( 3)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%factor_recruit
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%factor_recruit
              CASE( 4)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%pgap
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%pgap
              CASE( 5)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%lai
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%lai
              CASE( 6)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%biomass
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%biomass
              CASE( 7)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%biomass_old
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%biomass_old
              CASE( 8)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%sapwood
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%sapwood
              CASE( 9)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%heartwood
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%heartwood
              CASE( 10)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%sapwood_old
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%sapwood_old
              CASE( 11)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%sapwood_area
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%sapwood_area
              CASE( 12)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%sapwood_area_old
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%sapwood_area_old
              CASE( 13)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%stress_mortality
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%stress_mortality
              CASE( 14)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%fire_mortality
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%fire_mortality
              CASE( 15)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%cat_mortality
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%cat_mortality
              CASE( 16)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%crowding_mortality
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%crowding_mortality
              CASE( 17)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%cpc
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%cpc
              CASE( 18)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%sapwood_loss
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%sapwood_loss
              CASE( 19)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%sapwood_area_loss
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%sapwood_area_loss
              CASE( 20)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%growth
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%growth
              CASE( 21)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%area_growth
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%area_growth
              CASE( 22)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%frac_NPP
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%frac_NPP
              CASE( 23)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%frac_respiration
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%frac_respiration
              CASE( 24)
-                R2(m,:)=POP%pop_grid(m)%patch(:)%frac_light_uptake
+                RR2(m,:)=POP%pop_grid(m)%patch(:)%frac_light_uptake
              CASE default
                 write(*,*) "Parameter not assigned in pop_io.F90!"
 #ifdef __MPI__
@@ -876,11 +876,11 @@ contains
 #endif
              END SELECT
           END DO
-          STATUS = NF90_PUT_VAR(FILE_ID, VIDR5( i), R2,         &
+          STATUS = NF90_PUT_VAR(FILE_ID, VIDR5( i), RR2,         &
                start=(/ 1, 1, CNT /), count=(/ mp, npatch2d, 1 /) )
           IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
        END DO
-       DEALLOCATE( R2 )
+       DEALLOCATE( RR2 )
 
        ! PUT 4D VARS ( mp,npatch2d, ndisturb,t )
        ALLOCATE( I33( mp, npatch2d, ndisturb ) )
@@ -912,13 +912,13 @@ contains
        END DO
        DEALLOCATE( I33 )
 
-       ALLOCATE( R3( mp, npatch2d, ndisturb ) )
+       ALLOCATE( RR3( mp, npatch2d, ndisturb ) )
        DO i = 1, SIZE(VIDR7)
 
           DO m = 1, mp
              SELECT CASE ( i )
              CASE( 1)
-                R3(m,:,:)= POP%pop_grid(m)%freq_ranked_age_unique
+                RR3(m,:,:)= POP%pop_grid(m)%freq_ranked_age_unique
              CASE default
                 write(*,*) "Parameter not assigned in pop_io.F90!"
 #ifdef __MPI__
@@ -929,11 +929,11 @@ contains
              END SELECT
           END DO
 
-          STATUS = NF90_PUT_VAR(FILE_ID, VIDR7( i), R3,         &
+          STATUS = NF90_PUT_VAR(FILE_ID, VIDR7( i), RR3,         &
                start=(/1, 1, 1, CNT /), count=(/ mp, npatch2d,ndisturb, 1 /) )
           IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
        END DO
-       DEALLOCATE( R3 )
+       DEALLOCATE( RR3 )
 
        !PUT 4D VARS ( mp,npatch2d, nlayer,t )
        ALLOCATE( I33( mp, npatch2d, nlayer ) )
@@ -959,19 +959,19 @@ contains
        END DO
        DEALLOCATE( I33 )
 
-       ALLOCATE( R3( mp, npatch2d, nlayer ) )
+       ALLOCATE( RR3( mp, npatch2d, nlayer ) )
        DO i = 1, SIZE(VIDR8)
           DO p = 1, npatch2d
              DO m = 1, mp
                 SELECT CASE ( i )
                 CASE( 1)
-                   R3(m,p,:)=POP%pop_grid(m)%patch(p)%layer(:)%biomass
+                   RR3(m,p,:)=POP%pop_grid(m)%patch(p)%layer(:)%biomass
                 CASE( 2)
-                   R3(m,p,:)=POP%pop_grid(m)%patch(p)%layer(:)%density
+                   RR3(m,p,:)=POP%pop_grid(m)%patch(p)%layer(:)%density
                 CASE( 3)
-                   R3(m,p,:)=POP%pop_grid(m)%patch(p)%layer(:)%hmean
+                   RR3(m,p,:)=POP%pop_grid(m)%patch(p)%layer(:)%hmean
                 CASE( 4)
-                   R3(m,p,:)=POP%pop_grid(m)%patch(p)%layer(:)%hmax
+                   RR3(m,p,:)=POP%pop_grid(m)%patch(p)%layer(:)%hmax
                 CASE default
                    write(*,*) "Parameter not assigned in pop_io.F90!"
 #ifdef __MPI__
@@ -982,11 +982,11 @@ contains
                 END SELECT
              END DO
           END DO
-          STATUS = NF90_PUT_VAR(FILE_ID, VIDR8( i), R3,         &
+          STATUS = NF90_PUT_VAR(FILE_ID, VIDR8( i), RR3,         &
                start=(/1, 1, 1, CNT /), count=(/ mp, npatch2d,nlayer, 1 /) )
           IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
        END DO
-       DEALLOCATE( R3 )
+       DEALLOCATE( RR3 )
 
        ! PUT 5D VARS ( mp,npatch2d, nlayer,ncohort_max,t )
        ALLOCATE( I44( mp, npatch2d, nlayer, ncohort_max ) )
@@ -1017,55 +1017,55 @@ contains
        ENDDO
        DEALLOCATE(I44)
 
-       ALLOCATE( R4( mp, npatch2d, nlayer, ncohort_max ) )
+       ALLOCATE( RR4( mp, npatch2d, nlayer, ncohort_max ) )
        DO i = 1, SIZE(VIDR9)
           DO l = 1, nlayer
              DO p = 1, npatch2d
                 DO m = 1, mp
                    SELECT CASE ( i )
                    CASE( 1)
-                      R4(m,p,l,:)=POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%biomass
+                      RR4(m,p,l,:)=POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%biomass
                    CASE( 2)
-                      R4(m,p,l,:)=POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%density
+                      RR4(m,p,l,:)=POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%density
                    CASE( 3)
-                      R4(m,p,l,:)= &
+                      RR4(m,p,l,:)= &
                            POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%frac_resource_uptake
                    CASE( 4)
-                      R4(m,p,l,:)= &
+                      RR4(m,p,l,:)= &
                            POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%frac_light_uptake
                    CASE( 5)
-                      R4(m,p,l,:)= &
+                      RR4(m,p,l,:)= &
                            POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%frac_interception
                    CASE( 6)
-                      R4(m,p,l,:)= &
+                      RR4(m,p,l,:)= &
                            POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%frac_respiration
                    CASE( 7)
-                      R4(m,p,l,:)=POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%frac_NPP
+                      RR4(m,p,l,:)=POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%frac_NPP
                    CASE( 8)
-                      R4(m,p,l,:)  = &
+                      RR4(m,p,l,:)  = &
                            POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%respiration_scalar
                    CASE( 9)
-                      R4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%crown_area
+                      RR4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%crown_area
                    CASE( 10)
-                      R4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%Pgap
+                      RR4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%Pgap
                    CASE( 11)
-                      R4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%height
+                      RR4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%height
                    CASE( 12)
-                      R4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%diameter
+                      RR4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%diameter
                    CASE( 13)
-                      R4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%sapwood
+                      RR4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%sapwood
                    CASE( 14)
-                      R4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%heartwood
+                      RR4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%heartwood
                    CASE( 15)
-                      R4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%sapwood_area
+                      RR4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%sapwood_area
                    CASE( 16)
-                      R4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%basal_area
+                      RR4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%basal_area
                    CASE( 17)
-                      R4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%LAI
+                      RR4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%LAI
                    CASE( 18)
-                      R4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%Cleaf
+                      RR4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%Cleaf
                    CASE( 19)
-                      R4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%Croot
+                      RR4(m,p,l,:) =POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%Croot
                    CASE default
                       write(*,*) "Parameter not assigned in pop_io.F90!"
 #ifdef __MPI__
@@ -1077,12 +1077,12 @@ contains
                 END DO
              END DO
           END DO
-          STATUS = NF90_PUT_VAR(FILE_ID, VIDR9( i), R4,         &
+          STATUS = NF90_PUT_VAR(FILE_ID, VIDR9( i), RR4,         &
                start=(/ 1, 1,1,1, CNT /), count=(/ mp, npatch2d,nlayer,ncohort_max,1 /) )
           IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
        ENDDO
-       DEALLOCATE(R4)
+       DEALLOCATE(RR4)
 
        ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
        ! READ POP VALUES AS RESTART VALUES
@@ -1211,26 +1211,26 @@ contains
        ENDIF
 
        ! CHECK LAT 'N LON
-       ALLOCATE( R1( mp ) )
+       ALLOCATE( RR1( mp ) )
        STATUS = NF90_INQ_VARID( FILE_ID, TRIM(AR0(1)), dID )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-       STATUS = NF90_GET_VAR ( FILE_ID, dID, R1 )
+       STATUS = NF90_GET_VAR ( FILE_ID, dID, RR1 )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-       IF ( ANY ( ne(casamet%lat(POP%Iwood), R1) ) ) THEN
+       IF ( ANY ( ne(casamet%lat(POP%Iwood), RR1) ) ) THEN
           WRITE(*,*)"INPUT LATs don't match casamet! pop_io.F90" &
                , TRIM(fname)
           ! STOP
        ENDIF
        STATUS = NF90_INQ_VARID( FILE_ID, TRIM(AR0(2)), dID )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-       STATUS = NF90_GET_VAR ( FILE_ID, dID, R1 )
+       STATUS = NF90_GET_VAR ( FILE_ID, dID, RR1 )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-       IF ( ANY ( ne(casamet%lon(POP%Iwood), R1) ) ) THEN
+       IF ( ANY ( ne(casamet%lon(POP%Iwood), RR1) ) ) THEN
           WRITE(*,*)"INPUT LONs don't match casamet! pop_io.F90" &
                , TRIM(fname)
           !STOP
        ENDIF
-       DEALLOCATE ( R1 )
+       DEALLOCATE ( RR1 )
 
        ! GET 0D VARS ( np )
        STATUS = NF90_INQ_VARID( FILE_ID, TRIM(AI0(1)), dID )
@@ -1252,61 +1252,61 @@ contains
             start=(/ 1,tx /), count=(/ mp, 1 /) )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
-       ALLOCATE ( R1( mp ) )
+       ALLOCATE ( RR1( mp ) )
        DO i = 1, SIZE(AR1)
           STATUS = NF90_INQ_VARID( FILE_ID, TRIM(AR1(i)), dID )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-          STATUS = NF90_GET_VAR  ( FILE_ID, dID, R1, start=(/1,tx/), count=(/mp,1/) )
+          STATUS = NF90_GET_VAR  ( FILE_ID, dID, RR1, start=(/1,tx/), count=(/mp,1/) )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
           SELECT CASE ( i )
           CASE( 1)
-             POP%pop_grid(:)%cmass_sum          = R1
+             POP%pop_grid(:)%cmass_sum          = RR1
           CASE( 2)
-             POP%pop_grid(:)%cmass_sum_old      = R1
+             POP%pop_grid(:)%cmass_sum_old      = RR1
           CASE( 3)
-             POP%pop_grid(:)%cheartwood_sum     = R1
+             POP%pop_grid(:)%cheartwood_sum     = RR1
           CASE( 4)
-             POP%pop_grid(:)%csapwood_sum       = R1
+             POP%pop_grid(:)%csapwood_sum       = RR1
           CASE( 5)
-             POP%pop_grid(:)%csapwood_sum_old   = R1
+             POP%pop_grid(:)%csapwood_sum_old   = RR1
           CASE( 6)
-             POP%pop_grid(:)%densindiv          = R1
+             POP%pop_grid(:)%densindiv          = RR1
           CASE( 7)
-             POP%pop_grid(:)%height_mean        = R1
+             POP%pop_grid(:)%height_mean        = RR1
           CASE( 8)
-             POP%pop_grid(:)%height_max         = R1
+             POP%pop_grid(:)%height_max         = RR1
           CASE( 9)
-             POP%pop_grid(:)%basal_area         = R1
+             POP%pop_grid(:)%basal_area         = RR1
           CASE(10)
-             POP%pop_grid(:)%sapwood_loss       = R1
+             POP%pop_grid(:)%sapwood_loss       = RR1
           CASE(11)
-             POP%pop_grid(:)%sapwood_area_loss  = R1
+             POP%pop_grid(:)%sapwood_area_loss  = RR1
           CASE(12)
-             POP%pop_grid(:)%stress_mortality   = R1
+             POP%pop_grid(:)%stress_mortality   = RR1
           CASE(13)
-             POP%pop_grid(:)%crowding_mortality = R1
+             POP%pop_grid(:)%crowding_mortality = RR1
           CASE(14)
-             POP%pop_grid(:)%fire_mortality     = R1
+             POP%pop_grid(:)%fire_mortality     = RR1
           CASE(15)
-             POP%pop_grid(:)%cat_mortality      = R1
+             POP%pop_grid(:)%cat_mortality      = RR1
           CASE(16)
-             POP%pop_grid(:)%res_mortality      = R1
+             POP%pop_grid(:)%res_mortality      = RR1
           CASE(17)
-             POP%pop_grid(:)%growth             = R1
+             POP%pop_grid(:)%growth             = RR1
           CASE(18)
-             POP%pop_grid(:)%area_growth        = R1
+             POP%pop_grid(:)%area_growth        = RR1
           CASE(19)
-             POP%pop_grid(:)%crown_cover        = R1
+             POP%pop_grid(:)%crown_cover        = RR1
           CASE(20)
-             POP%pop_grid(:)%crown_area         = R1
+             POP%pop_grid(:)%crown_area         = RR1
           CASE(21)
-             POP%pop_grid(:)%crown_volume       = R1
+             POP%pop_grid(:)%crown_volume       = RR1
           CASE(22)
-             POP%pop_grid(:)%sapwood_area       = R1
+             POP%pop_grid(:)%sapwood_area       = RR1
           CASE(23)
-             POP%pop_grid(:)%sapwood_area_old   = R1
+             POP%pop_grid(:)%sapwood_area_old   = RR1
           CASE(24)
-             POP%pop_grid(:)%KClump             = R1
+             POP%pop_grid(:)%KClump             = RR1
           CASE default
              write(*,*) "Parameter not assigned in pop_io.F90!"
 #ifdef __MPI__
@@ -1316,26 +1316,26 @@ contains
 #endif
           END SELECT
        END DO
-       DEALLOCATE ( R1 )
+       DEALLOCATE ( RR1 )
 
        ! GET 2D VARS ( mp,nlayer )
-       ALLOCATE( R2( mp, nlayer ) )
+       ALLOCATE( RR2( mp, nlayer ) )
        DO i = 1, SIZE(AR2)
           STATUS = NF90_INQ_VARID( FILE_ID, TRIM(AR2(i)), dID )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-          STATUS = NF90_GET_VAR  ( FILE_ID, dID, R2, &
+          STATUS = NF90_GET_VAR  ( FILE_ID, dID, RR2, &
                start=(/ 1, 1, tx /), count=(/ mp, nlayer, 1 /) )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
           DO m = 1, mp
              SELECT CASE ( i )
              CASE( 1)
-                POP%pop_grid(m)%biomass = R2(m,:)
+                POP%pop_grid(m)%biomass = RR2(m,:)
              CASE( 2)
-                POP%pop_grid(m)%density = R2(m,:)
+                POP%pop_grid(m)%density = RR2(m,:)
              CASE( 3)
-                POP%pop_grid(m)%hmean   = R2(m,:)
+                POP%pop_grid(m)%hmean   = RR2(m,:)
              CASE( 4)
-                POP%pop_grid(m)%hmax    = R2(m,:)
+                POP%pop_grid(m)%hmax    = RR2(m,:)
              CASE default
                 write(*,*) "Parameter not assigned in pop_io.F90!"
 #ifdef __MPI__
@@ -1346,26 +1346,26 @@ contains
              END SELECT
           END DO
        END DO
-       DEALLOCATE( R2 )
+       DEALLOCATE( RR2 )
 
        ! GET 2D VARS ( mp,height_bins )
-       ALLOCATE( R2( mp, height_bins ) )
+       ALLOCATE( RR2( mp, height_bins ) )
        DO i = 1, SIZE(AR3)
           STATUS = NF90_INQ_VARID( FILE_ID, TRIM(AR3(i)), dID )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-          STATUS = NF90_GET_VAR  ( FILE_ID, dID, R2, &
+          STATUS = NF90_GET_VAR  ( FILE_ID, dID, RR2, &
                start=(/ 1, 1, tx /), count=(/ mp, height_bins, 1 /) )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
           DO m = 1, mp
              SELECT CASE ( i )
              CASE( 1)
-                POP%pop_grid(m)%cmass_stem_bin = R2(m,:)
+                POP%pop_grid(m)%cmass_stem_bin = RR2(m,:)
              CASE( 2)
-                POP%pop_grid(m)%densindiv_bin  = R2(m,:)
+                POP%pop_grid(m)%densindiv_bin  = RR2(m,:)
              CASE( 3)
-                POP%pop_grid(m)%height_bin     = R2(m,:)
+                POP%pop_grid(m)%height_bin     = RR2(m,:)
              CASE( 4)
-                POP%pop_grid(m)%diameter_bin   = R2(m,:)
+                POP%pop_grid(m)%diameter_bin   = RR2(m,:)
              CASE default
                 write(*,*) "Parameter not assigned in pop_io.F90!"
 #ifdef __MPI__
@@ -1376,7 +1376,7 @@ contains
              END SELECT
           END DO
        END DO
-       DEALLOCATE( R2 )
+       DEALLOCATE( RR2 )
 
        ! GET 2D VARS ( mp,ndisturb)
        ALLOCATE ( I22( mp, ndisturb ) )
@@ -1404,63 +1404,63 @@ contains
 
        ! PATCH STRUCTURE
        ! GET 2D VARS ( mp,npatch2d )
-       ALLOCATE( R2( mp, npatch2d ) )
+       ALLOCATE( RR2( mp, npatch2d ) )
        DO i = 1, SIZE(AR5)
           STATUS = NF90_INQ_VARID( FILE_ID, TRIM(AR5(i)), dID )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-          STATUS = NF90_GET_VAR  ( FILE_ID, dID, R2, &
+          STATUS = NF90_GET_VAR  ( FILE_ID, dID, RR2, &
                start=(/ 1, 1, tx /), count=(/ mp, npatch2d, 1 /) )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
           DO m = 1, mp
              SELECT CASE ( i )
              CASE( 1)
-                POP%pop_grid(m)%freq                        = R2(m,:)
+                POP%pop_grid(m)%freq                        = RR2(m,:)
              CASE( 2)
-                POP%pop_grid(m)%freq_old                    = R2(m,:)
+                POP%pop_grid(m)%freq_old                    = RR2(m,:)
              CASE( 3)
-                POP%pop_grid(m)%patch(:)%factor_recruit     = R2(m,:)
+                POP%pop_grid(m)%patch(:)%factor_recruit     = RR2(m,:)
              CASE( 4)
-                POP%pop_grid(m)%patch(:)%pgap               = R2(m,:)
+                POP%pop_grid(m)%patch(:)%pgap               = RR2(m,:)
              CASE( 5)
-                POP%pop_grid(m)%patch(:)%lai                = R2(m,:)
+                POP%pop_grid(m)%patch(:)%lai                = RR2(m,:)
              CASE( 6)
-                POP%pop_grid(m)%patch(:)%biomass            = R2(m,:)
+                POP%pop_grid(m)%patch(:)%biomass            = RR2(m,:)
              CASE( 7)
-                POP%pop_grid(m)%patch(:)%biomass_old        = R2(m,:)
+                POP%pop_grid(m)%patch(:)%biomass_old        = RR2(m,:)
              CASE( 8)
-                POP%pop_grid(m)%patch(:)%sapwood            = R2(m,:)
+                POP%pop_grid(m)%patch(:)%sapwood            = RR2(m,:)
              CASE( 9)
-                POP%pop_grid(m)%patch(:)%heartwood          = R2(m,:)
+                POP%pop_grid(m)%patch(:)%heartwood          = RR2(m,:)
              CASE( 10)
-                POP%pop_grid(m)%patch(:)%sapwood_old        = R2(m,:)
+                POP%pop_grid(m)%patch(:)%sapwood_old        = RR2(m,:)
              CASE( 11)
-                POP%pop_grid(m)%patch(:)%sapwood_area       = R2(m,:)
+                POP%pop_grid(m)%patch(:)%sapwood_area       = RR2(m,:)
              CASE( 12)
-                POP%pop_grid(m)%patch(:)%sapwood_area_old   = R2(m,:)
+                POP%pop_grid(m)%patch(:)%sapwood_area_old   = RR2(m,:)
              CASE( 13)
-                POP%pop_grid(m)%patch(:)%stress_mortality   = R2(m,:)
+                POP%pop_grid(m)%patch(:)%stress_mortality   = RR2(m,:)
              CASE( 14)
-                POP%pop_grid(m)%patch(:)%fire_mortality     = R2(m,:)
+                POP%pop_grid(m)%patch(:)%fire_mortality     = RR2(m,:)
              CASE( 15)
-                POP%pop_grid(m)%patch(:)%cat_mortality      = R2(m,:)
+                POP%pop_grid(m)%patch(:)%cat_mortality      = RR2(m,:)
              CASE( 16)
-                POP%pop_grid(m)%patch(:)%crowding_mortality = R2(m,:)
+                POP%pop_grid(m)%patch(:)%crowding_mortality = RR2(m,:)
              CASE( 17)
-                POP%pop_grid(m)%patch(:)%cpc                = R2(m,:)
+                POP%pop_grid(m)%patch(:)%cpc                = RR2(m,:)
              CASE( 18)
-                POP%pop_grid(m)%patch(:)%sapwood_loss       = R2(m,:)
+                POP%pop_grid(m)%patch(:)%sapwood_loss       = RR2(m,:)
              CASE( 19)
-                POP%pop_grid(m)%patch(:)%sapwood_area_loss  = R2(m,:)
+                POP%pop_grid(m)%patch(:)%sapwood_area_loss  = RR2(m,:)
              CASE( 20)
-                POP%pop_grid(m)%patch(:)%growth             = R2(m,:)
+                POP%pop_grid(m)%patch(:)%growth             = RR2(m,:)
              CASE( 21)
-                POP%pop_grid(m)%patch(:)%area_growth        = R2(m,:)
+                POP%pop_grid(m)%patch(:)%area_growth        = RR2(m,:)
              CASE( 22)
-                POP%pop_grid(m)%patch(:)%frac_NPP           = R2(m,:)
+                POP%pop_grid(m)%patch(:)%frac_NPP           = RR2(m,:)
              CASE( 23)
-                POP%pop_grid(m)%patch(:)%frac_respiration   = R2(m,:)
+                POP%pop_grid(m)%patch(:)%frac_respiration   = RR2(m,:)
              CASE( 24)
-                POP%pop_grid(m)%patch(:)%frac_light_uptake  = R2(m,:)
+                POP%pop_grid(m)%patch(:)%frac_light_uptake  = RR2(m,:)
              CASE default
                 write(*,*) "Parameter not assigned in pop_io.F90!"
 #ifdef __MPI__
@@ -1471,7 +1471,7 @@ contains
              END SELECT
           END DO
        END DO
-       DEALLOCATE( R2 )
+       DEALLOCATE( RR2 )
 
        ! GET 3D VARS ( mp,npatch2d,ndisturb )
        ALLOCATE( I33( mp, npatch2d, ndisturb ) )
@@ -1505,16 +1505,16 @@ contains
        END DO
        DEALLOCATE( I33 )
 
-       ALLOCATE( R3( mp, npatch2d,ndisturb ) )
+       ALLOCATE( RR3( mp, npatch2d,ndisturb ) )
        STATUS = NF90_INQ_VARID( FILE_ID, TRIM(AR7(1)), dID )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-       STATUS = NF90_GET_VAR  ( FILE_ID, dID, R3, &
+       STATUS = NF90_GET_VAR  ( FILE_ID, dID, RR3, &
             start=(/ 1, 1, 1, tx /), count=(/ mp, npatch2d, ndisturb, 1 /) )
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
        DO m = 1, mp
-          POP%pop_grid(m)%freq_ranked_age_unique = R3(m,:,:)
+          POP%pop_grid(m)%freq_ranked_age_unique = RR3(m,:,:)
        END DO
-       DEALLOCATE( R3 )
+       DEALLOCATE( RR3 )
 
        ! LAYER STRUCTURE
        ! GET 3D VARS ( mp,npatch2d,nlayer )
@@ -1543,24 +1543,24 @@ contains
        END DO
        DEALLOCATE( I33 )
 
-       ALLOCATE( R3( mp, npatch2d, nlayer ) )
+       ALLOCATE( RR3( mp, npatch2d, nlayer ) )
        DO i = 1, SIZE(AR8)
           STATUS = NF90_INQ_VARID( FILE_ID, TRIM(AR8(i)), dID )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-          STATUS = NF90_GET_VAR  ( FILE_ID, dID, R3, &
+          STATUS = NF90_GET_VAR  ( FILE_ID, dID, RR3, &
                start=(/ 1, 1, 1, tx /), count=(/ mp, npatch2d, nlayer, 1 /) )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
           DO p = 1, npatch2d
              DO m = 1, mp
                 SELECT CASE ( i )
                 CASE( 1)
-                   POP%pop_grid(m)%patch(p)%layer(:)%biomass = R3(m,p,:)
+                   POP%pop_grid(m)%patch(p)%layer(:)%biomass = RR3(m,p,:)
                 CASE( 2)
-                   POP%pop_grid(m)%patch(p)%layer(:)%density = R3(m,p,:)
+                   POP%pop_grid(m)%patch(p)%layer(:)%density = RR3(m,p,:)
                 CASE( 3)
-                   POP%pop_grid(m)%patch(p)%layer(:)%hmean   = R3(m,p,:)
+                   POP%pop_grid(m)%patch(p)%layer(:)%hmean   = RR3(m,p,:)
                 CASE( 4)
-                   POP%pop_grid(m)%patch(p)%layer(:)%hmax    = R3(m,p,:)
+                   POP%pop_grid(m)%patch(p)%layer(:)%hmax    = RR3(m,p,:)
                 CASE default
                    write(*,*) "Parameter not assigned in pop_io.F90!"
 #ifdef __MPI__
@@ -1572,7 +1572,7 @@ contains
              END DO
           END DO
        END DO
-       DEALLOCATE( R3 )
+       DEALLOCATE( RR3 )
 
        ! COHORT STRUCTURE
        ! GET 4D VARS ( mp,npatch2d,nlayer,ncohort_max )
@@ -1605,11 +1605,11 @@ contains
        END DO
        DEALLOCATE( I44 )
 
-       ALLOCATE( R4( mp, npatch2d, nlayer, ncohort_max ) )
+       ALLOCATE( RR4( mp, npatch2d, nlayer, ncohort_max ) )
        DO i = 1, SIZE(AR9)
           STATUS = NF90_INQ_VARID( FILE_ID, TRIM(AR9(i)), dID )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
-          STATUS = NF90_GET_VAR  ( FILE_ID, dID, R4, start=(/ 1, 1, 1, 1, tx /), &
+          STATUS = NF90_GET_VAR  ( FILE_ID, dID, RR4, start=(/ 1, 1, 1, 1, tx /), &
                count=(/ mp,npatch2d,nlayer,ncohort_max,1 /) )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
           DO l = 1, nlayer
@@ -1617,43 +1617,43 @@ contains
                 DO m = 1, mp
                    SELECT CASE ( i )
                    CASE( 1)
-                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%biomass              = R4(m,p,l,:)
+                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%biomass              = RR4(m,p,l,:)
                    CASE( 2)
-                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%density              = R4(m,p,l,:)
+                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%density              = RR4(m,p,l,:)
                    CASE( 3)
-                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%frac_resource_uptake = R4(m,p,l,:)
+                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%frac_resource_uptake = RR4(m,p,l,:)
                    CASE( 4)
-                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%frac_light_uptake    = R4(m,p,l,:)
+                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%frac_light_uptake    = RR4(m,p,l,:)
                    CASE( 5)
-                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%frac_interception    = R4(m,p,l,:)
+                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%frac_interception    = RR4(m,p,l,:)
                    CASE( 6)
-                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%frac_respiration     = R4(m,p,l,:)
+                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%frac_respiration     = RR4(m,p,l,:)
                    CASE( 7)
-                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%frac_NPP             = R4(m,p,l,:)
+                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%frac_NPP             = RR4(m,p,l,:)
                    CASE( 8)
-                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%respiration_scalar   = R4(m,p,l,:)
+                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%respiration_scalar   = RR4(m,p,l,:)
                    CASE( 9)
-                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%crown_area           = R4(m,p,l,:)
+                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%crown_area           = RR4(m,p,l,:)
                    CASE( 10)
-                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%Pgap                 = R4(m,p,l,:)
+                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%Pgap                 = RR4(m,p,l,:)
                    CASE( 11)
-                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%height               = R4(m,p,l,:)
+                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%height               = RR4(m,p,l,:)
                    CASE( 12)
-                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%diameter             = R4(m,p,l,:)
+                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%diameter             = RR4(m,p,l,:)
                    CASE( 13)
-                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%sapwood              = R4(m,p,l,:)
+                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%sapwood              = RR4(m,p,l,:)
                    CASE( 14)
-                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%heartwood            = R4(m,p,l,:)
+                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%heartwood            = RR4(m,p,l,:)
                    CASE( 15)
-                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%sapwood_area         = R4(m,p,l,:)
+                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%sapwood_area         = RR4(m,p,l,:)
                    CASE( 16)
-                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%basal_area           = R4(m,p,l,:)
+                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%basal_area           = RR4(m,p,l,:)
                    CASE( 17)
-                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%LAI                  = R4(m,p,l,:)
+                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%LAI                  = RR4(m,p,l,:)
                    CASE( 18)
-                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%Cleaf                = R4(m,p,l,:)
+                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%Cleaf                = RR4(m,p,l,:)
                    CASE( 19)
-                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%Croot                = R4(m,p,l,:)
+                      POP%pop_grid(m)%patch(p)%layer(l)%cohort(:)%Croot                = RR4(m,p,l,:)
                    CASE default
                       write(*,*) "Parameter not assigned in pop_io.F90!"
 #ifdef __MPI__
@@ -1666,7 +1666,7 @@ contains
              END DO
           END DO
        END DO
-       DEALLOCATE( R4 )
+       DEALLOCATE( RR4 )
 
     ELSE
        WRITE(*,*) 'ACTION = ',TRIM(ACTION)

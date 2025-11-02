@@ -60,7 +60,10 @@
 
 PROGRAM cable_offline_driver
 
-  use cable_def_types_mod
+  use cable_def_types_mod,  only: mland, mp, ms, r2, &
+       air_type, roughness_type, balances_type, soil_parameter_type, &
+       sum_flux_type, bgc_pool_type, &
+       alloc_cbm_var, zero_cbm_var
   use cable_io_vars_module, only: logn, gswpfile, ncciy, leaps, &
        verbose, fixedCO2, output, check, patchout, soilparmnew, &
        timeunits, exists, calendar, landpt
@@ -1494,14 +1497,14 @@ SUBROUTINE prepareFiles(ncciy)
   WRITE(logn,*) 'CABLE offline global run using gswp forcing for ', ncciy
   write(*,*)    'CABLE offline global run using gswp forcing for ', ncciy
 
-  CALL renameFiles(logn,gswpfile%rainf,ncciy,'rainf')
-  CALL renameFiles(logn,gswpfile%snowf,ncciy,'snowf')
-  CALL renameFiles(logn,gswpfile%LWdown,ncciy,'LWdown')
-  CALL renameFiles(logn,gswpfile%SWdown,ncciy,'SWdown')
-  CALL renameFiles(logn,gswpfile%PSurf,ncciy,'PSurf')
-  CALL renameFiles(logn,gswpfile%Qair,ncciy,'Qair')
-  CALL renameFiles(logn,gswpfile%Tair,ncciy,'Tair')
-  CALL renameFiles(logn,gswpfile%wind,ncciy,'wind')
+  CALL renameFiles(logn, gswpfile%rainf, ncciy, 'rainf')
+  CALL renameFiles(logn, gswpfile%snowf, ncciy, 'snowf')
+  CALL renameFiles(logn, gswpfile%LWdown, ncciy, 'LWdown')
+  CALL renameFiles(logn, gswpfile%SWdown, ncciy, 'SWdown')
+  CALL renameFiles(logn, gswpfile%PSurf, ncciy, 'PSurf')
+  CALL renameFiles(logn, gswpfile%Qair, ncciy, 'Qair')
+  CALL renameFiles(logn, gswpfile%Tair, ncciy, 'Tair')
+  CALL renameFiles(logn, gswpfile%wind, ncciy, 'wind')
 
 END SUBROUTINE prepareFiles
 
@@ -1529,7 +1532,7 @@ END SUBROUTINE renameFiles
 ! ***************************************************************************************
 ! subroutine for reading LU input data, zeroing biomass in empty secondary forest tiles
 ! and tranferring LUC-based age weights for secondary forest to POP structure
-SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, c13o2pools )
+SUBROUTINE LUCdriver(casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg, c13o2pools)
 
   USE cable_def_types_mod,  ONLY: r2, veg_parameter_type, mland
   USE cable_carbon_module
@@ -1544,7 +1547,7 @@ SUBROUTINE LUCdriver( casabiome, casapool, casaflux, POP, LUC_EXPT, POPLUC, veg,
        ptos, ptog, stog, gtos, pharv, smharv, syharv, &
        ptoc, ptoq, stoc, stoq, ctos, qtos, &
        ctor, qtor, rtoc, rtoq, qtoc, ctoq
-  USE POPLUC_Types
+  USE POPLUC_Types,         only: POPLUC_TYPE
   USE POPLUC_Module,        ONLY: POPLUCStep, POPLUC_weights_Transfer
   ! 13C
   use cable_c13o2_def,      only: c13o2_pool
