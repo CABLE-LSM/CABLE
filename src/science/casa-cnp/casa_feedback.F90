@@ -53,8 +53,6 @@ SUBROUTINE casa_feedback( ktau, veg, casabiome, casapool, casamet )
 
   integer np,ivt
   real, dimension(mp)  :: ncleafx,npleafx, pleafx, nleafx ! local variables
-  real, dimension(17)                   ::  xnslope
-  data xnslope/0.80,1.00,2.00,1.00,1.00,1.00,0.50,1.00,0.34,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00/
   REAL :: npleafx_coef
 
   ! first initialize
@@ -89,7 +87,7 @@ SUBROUTINE casa_feedback( ktau, veg, casabiome, casapool, casamet )
 
           veg%vcmax(np) = ( casabiome%nintercept(ivt)                          &
                   + casabiome%nslope(ivt) * npleafx_coef * ncleafx(np)         &
-                  / casabiome%sla(ivt) ) * xnslope(ivt) * 1.0e-6
+                  / casabiome%sla(ivt) ) * 1.0e-6
 
        END IF
 
