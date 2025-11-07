@@ -131,7 +131,13 @@ if(CABLE_LIBRARY)
             src/coupled/esm/casa_landuse.F90
             src/coupled/esm/LAI_canopy_height_cbl.F90
         )
-        add_compile_options(-r8 -i8)
+	if(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
+	    add_compile_options(-r8 -i8)
+        elseif(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
+	    add_compile_options(-fdefault-real-8 -fdefault-integer-8)
+	else()
+	    message(STATUS "Cannot compile library with unknown compiler")
+	endif()
     
     else()
         message(STATUS "Specified library application does not exist")
