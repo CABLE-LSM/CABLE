@@ -828,7 +828,12 @@ MODULE cable_IO_vars_module
          wb_30 = .FALSE., &
          psi_30 = .FALSE., &
          wb_fr_rootzone = .FALSE., &
-         psi_fr_rootzone = .FALSE.
+         psi_fr_rootzone = .FALSE., &
+         rwc_30 = .FALSE., &
+         rwc_fr_rootzone = .FALSE., &
+         wb_depth_rootzone = .FALSE., &
+         rwc_depth_rootzone = .FALSE.
+
    END TYPE patchout_inclusion_type
 
    TYPE(output_inclusion_type), SAVE :: output

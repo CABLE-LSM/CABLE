@@ -216,11 +216,23 @@ CONTAINS
       elsewhere
          zsetmp = min(real(0.30) - layer_depth, soil%zse)
       endwhere
-      
       ssnow%wb_30 = sum(ssnow%wb * reshape(zsetmp, [ms, 1]), dim=1) / sum(zsetmp)
       ssnow%psi_30 = real(soil%sucs * C%grav * C%RHOW * 1E-6) * MAX(1.E-9, MIN(1.0, ssnow%wb_30 / &
          soil%ssat)) ** (-soil%bch)
-      
+      ssnow%rwc_30 =  real((ssnow%wb_30 - soil%swilt_recal)/(soil%sfc_recal - soil%swilt_recal))
+      do i = 1, mp
+         zsetmp = soil%zse
+         where (layer_depth > veg%zr(i))
+            zsetmp = 0.0
+         elsewhere
+            zsetmp = min(real(veg%zr(i)) - layer_depth, soil%zse)
+         endwhere
+         zsetmp = zsetmp / sum(zsetmp)
+         ssnow%wb_depth_rootzone(i) =  sum(ssnow%wb(i,:) * zsetmp)
+         ssnow%rwc_depth_rootzone(i) =  real((ssnow%wb_depth_rootzone(i) - soil%swilt_recal(i)) / &
+         (soil%sfc_recal(i) - soil%swilt_recal(i)))
+      end do
+
       do i = 1, mp
          froottmp = veg%froot(i,:)
          where (layer_depth > veg%zr(i))
@@ -230,6 +242,8 @@ CONTAINS
       ssnow%wb_fr_rootzone(i) = sum(ssnow%wb(i,:) * froottmp)
       ssnow%psi_fr_rootzone(i) = real(soil%sucs(i) * C%grav * C%RHOW * 1E-6) * MAX(1.E-9, MIN(1.0, ssnow%wb_fr_rootzone(i) / &
          soil%ssat(i))) ** (-soil%bch(i))
+      ssnow%rwc_fr_rootzone(i) =  real((ssnow%wb_fr_rootzone(i) - soil%swilt_recal(i)) &
+      /(soil%sfc_recal(i) - soil%swilt_recal(i)))
       end do
       ssnow%deltss = ssnow%tss-ssnow%otss
       ! correction required for energy balance in online simulations

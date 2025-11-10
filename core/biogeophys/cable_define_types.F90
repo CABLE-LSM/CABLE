@@ -236,7 +236,12 @@ module cable_def_types_mod
           wb_30 => null(),  &
           psi_30 => null(), &
           wb_fr_rootzone => null(), &
-          psi_fr_rootzone => null()
+          psi_fr_rootzone => null(), &
+          wb_depth_rootzone => null(),&
+          rwc_30 => null(), &
+          rwc_fr_rootzone => null(), &
+          rwc_depth_rootzone => null()
+
 
      real, dimension(:,:), pointer :: &
           sconds => null(),     & !
@@ -1122,6 +1127,10 @@ contains
     allocate ( ssnow%psi_30(mp) )
     allocate ( ssnow%wb_fr_rootzone(mp) )
     allocate ( ssnow%psi_fr_rootzone(mp) )
+    allocate ( ssnow%wb_depth_rootzone(mp) )
+    allocate ( ssnow%rwc_30(mp) )
+    allocate ( ssnow%rwc_fr_rootzone(mp) )
+    allocate ( ssnow%rwc_depth_rootzone(mp) )
   end subroutine alloc_soil_snow_type
 
   ! ------------------------------------------------------------------
@@ -1830,7 +1839,11 @@ contains
     deallocate( ssnow%wb_30 )
     deallocate( ssnow%psi_30 )
     deallocate( ssnow%wb_fr_rootzone )
-    deallocate( ssnow%psi_fr_rootzone ) 
+    deallocate( ssnow%psi_fr_rootzone )
+    deallocate( ssnow%wb_depth_rootzone ) 
+    deallocate( ssnow%rwc_fr_rootzone ) 
+    deallocate( ssnow%rwc_30 ) 
+    deallocate( ssnow%rwc_depth_rootzone ) 
   end subroutine dealloc_soil_snow_type
 
   ! ------------------------------------------------------------------
@@ -2405,7 +2418,10 @@ contains
     ssnow%psi_30     = 0
     ssnow%wb_fr_rootzone     = 0
     ssnow%psi_fr_rootzone     = 0   
-
+    ssnow%wb_depth_rootzone     = 0
+    ssnow%rwc_depth_rootzone     = 0
+    ssnow%rwc_fr_rootzone     = 0
+    ssnow%rwc_30     = 0
   end subroutine zero_soil_snow_type
 
 
