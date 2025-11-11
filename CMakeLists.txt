@@ -88,6 +88,7 @@ add_library(
     core/blaze/blaze.F90
     core/blaze/simfire.F90
     core/utils/minpack.f90
+    core/utils/cable_polynomial.f90
     offline/cable_abort.F90
     offline/cable_bios_met_obs_params.F90
     offline/cable_checks.F90
