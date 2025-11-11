@@ -23,7 +23,10 @@ module cable_io_decomp_mod
   use cable_netcdf_decomp_util_mod, only: io_decomp_patch_to_land_patch
   use cable_netcdf_decomp_util_mod, only: io_decomp_patch_to_patch
 
-  use cable_netcdf_mod, only: cable_netcdf_decomp_t, CABLE_NETCDF_FLOAT
+  use cable_netcdf_mod, only: cable_netcdf_decomp_t
+  use cable_netcdf_mod, only: CABLE_NETCDF_INT
+  use cable_netcdf_mod, only: CABLE_NETCDF_FLOAT
+  use cable_netcdf_mod, only: CABLE_NETCDF_DOUBLE
 
   implicit none
   private
@@ -33,53 +36,101 @@ module cable_io_decomp_mod
     cable_io_decomp_init
 
   type io_decomp_t
+    class(cable_netcdf_decomp_t), allocatable :: patch_to_x_y_patch_int32
     class(cable_netcdf_decomp_t), allocatable :: patch_to_x_y_patch_real32
+    class(cable_netcdf_decomp_t), allocatable :: patch_to_x_y_patch_real64
+    class(cable_netcdf_decomp_t), allocatable :: patch_soil_to_x_y_patch_soil_int32
     class(cable_netcdf_decomp_t), allocatable :: patch_soil_to_x_y_patch_soil_real32
+    class(cable_netcdf_decomp_t), allocatable :: patch_soil_to_x_y_patch_soil_real64
+    class(cable_netcdf_decomp_t), allocatable :: patch_snow_to_x_y_patch_snow_int32
     class(cable_netcdf_decomp_t), allocatable :: patch_snow_to_x_y_patch_snow_real32
+    class(cable_netcdf_decomp_t), allocatable :: patch_snow_to_x_y_patch_snow_real64
+    class(cable_netcdf_decomp_t), allocatable :: patch_rad_to_x_y_patch_rad_int32
     class(cable_netcdf_decomp_t), allocatable :: patch_rad_to_x_y_patch_rad_real32
+    class(cable_netcdf_decomp_t), allocatable :: patch_rad_to_x_y_patch_rad_real64
+    class(cable_netcdf_decomp_t), allocatable :: patch_plantcarbon_to_x_y_patch_plantcarbon_int32
     class(cable_netcdf_decomp_t), allocatable :: patch_plantcarbon_to_x_y_patch_plantcarbon_real32
+    class(cable_netcdf_decomp_t), allocatable :: patch_plantcarbon_to_x_y_patch_plantcarbon_real64
+    class(cable_netcdf_decomp_t), allocatable :: patch_soilcarbon_to_x_y_patch_soilcarbon_int32
     class(cable_netcdf_decomp_t), allocatable :: patch_soilcarbon_to_x_y_patch_soilcarbon_real32
+    class(cable_netcdf_decomp_t), allocatable :: patch_soilcarbon_to_x_y_patch_soilcarbon_real64
 
+    class(cable_netcdf_decomp_t), allocatable :: patch_to_land_patch_int32
     class(cable_netcdf_decomp_t), allocatable :: patch_to_land_patch_real32
+    class(cable_netcdf_decomp_t), allocatable :: patch_to_land_patch_real64
+    class(cable_netcdf_decomp_t), allocatable :: patch_soil_to_land_patch_soil_int32
     class(cable_netcdf_decomp_t), allocatable :: patch_soil_to_land_patch_soil_real32
+    class(cable_netcdf_decomp_t), allocatable :: patch_soil_to_land_patch_soil_real64
+    class(cable_netcdf_decomp_t), allocatable :: patch_snow_to_land_patch_snow_int32
     class(cable_netcdf_decomp_t), allocatable :: patch_snow_to_land_patch_snow_real32
+    class(cable_netcdf_decomp_t), allocatable :: patch_snow_to_land_patch_snow_real64
+    class(cable_netcdf_decomp_t), allocatable :: patch_rad_to_land_patch_rad_int32
     class(cable_netcdf_decomp_t), allocatable :: patch_rad_to_land_patch_rad_real32
+    class(cable_netcdf_decomp_t), allocatable :: patch_rad_to_land_patch_rad_real64
+    class(cable_netcdf_decomp_t), allocatable :: patch_plantcarbon_to_land_patch_plantcarbon_int32
     class(cable_netcdf_decomp_t), allocatable :: patch_plantcarbon_to_land_patch_plantcarbon_real32
+    class(cable_netcdf_decomp_t), allocatable :: patch_plantcarbon_to_land_patch_plantcarbon_real64
+    class(cable_netcdf_decomp_t), allocatable :: patch_soilcarbon_to_land_patch_soilcarbon_int32
     class(cable_netcdf_decomp_t), allocatable :: patch_soilcarbon_to_land_patch_soilcarbon_real32
+    class(cable_netcdf_decomp_t), allocatable :: patch_soilcarbon_to_land_patch_soilcarbon_real64
 
+    class(cable_netcdf_decomp_t), allocatable :: patch_to_patch_int32
     class(cable_netcdf_decomp_t), allocatable :: patch_to_patch_real32
+    class(cable_netcdf_decomp_t), allocatable :: patch_to_patch_real64
+    class(cable_netcdf_decomp_t), allocatable :: patch_soil_to_patch_soil_int32
     class(cable_netcdf_decomp_t), allocatable :: patch_soil_to_patch_soil_real32
+    class(cable_netcdf_decomp_t), allocatable :: patch_soil_to_patch_soil_real64
+    class(cable_netcdf_decomp_t), allocatable :: patch_snow_to_patch_snow_int32
     class(cable_netcdf_decomp_t), allocatable :: patch_snow_to_patch_snow_real32
+    class(cable_netcdf_decomp_t), allocatable :: patch_snow_to_patch_snow_real64
+    class(cable_netcdf_decomp_t), allocatable :: patch_rad_to_patch_rad_int32
     class(cable_netcdf_decomp_t), allocatable :: patch_rad_to_patch_rad_real32
+    class(cable_netcdf_decomp_t), allocatable :: patch_rad_to_patch_rad_real64
+    class(cable_netcdf_decomp_t), allocatable :: patch_plantcarbon_to_patch_plantcarbon_int32
     class(cable_netcdf_decomp_t), allocatable :: patch_plantcarbon_to_patch_plantcarbon_real32
+    class(cable_netcdf_decomp_t), allocatable :: patch_plantcarbon_to_patch_plantcarbon_real64
+    class(cable_netcdf_decomp_t), allocatable :: patch_soilcarbon_to_patch_soilcarbon_int32
     class(cable_netcdf_decomp_t), allocatable :: patch_soilcarbon_to_patch_soilcarbon_real32
+    class(cable_netcdf_decomp_t), allocatable :: patch_soilcarbon_to_patch_soilcarbon_real64
 
+    class(cable_netcdf_decomp_t), allocatable :: land_to_x_y_int32
     class(cable_netcdf_decomp_t), allocatable :: land_to_x_y_real32
+    class(cable_netcdf_decomp_t), allocatable :: land_to_x_y_real64
+    class(cable_netcdf_decomp_t), allocatable :: land_soil_to_x_y_soil_int32
     class(cable_netcdf_decomp_t), allocatable :: land_soil_to_x_y_soil_real32
+    class(cable_netcdf_decomp_t), allocatable :: land_soil_to_x_y_soil_real64
+    class(cable_netcdf_decomp_t), allocatable :: land_snow_to_x_y_snow_int32
     class(cable_netcdf_decomp_t), allocatable :: land_snow_to_x_y_snow_real32
+    class(cable_netcdf_decomp_t), allocatable :: land_snow_to_x_y_snow_real64
+    class(cable_netcdf_decomp_t), allocatable :: land_rad_to_x_y_rad_int32
     class(cable_netcdf_decomp_t), allocatable :: land_rad_to_x_y_rad_real32
+    class(cable_netcdf_decomp_t), allocatable :: land_rad_to_x_y_rad_real64
+    class(cable_netcdf_decomp_t), allocatable :: land_plantcarbon_to_x_y_plantcarbon_int32
     class(cable_netcdf_decomp_t), allocatable :: land_plantcarbon_to_x_y_plantcarbon_real32
+    class(cable_netcdf_decomp_t), allocatable :: land_plantcarbon_to_x_y_plantcarbon_real64
+    class(cable_netcdf_decomp_t), allocatable :: land_soilcarbon_to_x_y_soilcarbon_int32
     class(cable_netcdf_decomp_t), allocatable :: land_soilcarbon_to_x_y_soilcarbon_real32
+    class(cable_netcdf_decomp_t), allocatable :: land_soilcarbon_to_x_y_soilcarbon_real64
 
+    class(cable_netcdf_decomp_t), allocatable :: land_to_land_int32
     class(cable_netcdf_decomp_t), allocatable :: land_to_land_real32
+    class(cable_netcdf_decomp_t), allocatable :: land_to_land_real64
+    class(cable_netcdf_decomp_t), allocatable :: land_soil_to_land_soil_int32
     class(cable_netcdf_decomp_t), allocatable :: land_soil_to_land_soil_real32
+    class(cable_netcdf_decomp_t), allocatable :: land_soil_to_land_soil_real64
+    class(cable_netcdf_decomp_t), allocatable :: land_snow_to_land_snow_int32
     class(cable_netcdf_decomp_t), allocatable :: land_snow_to_land_snow_real32
+    class(cable_netcdf_decomp_t), allocatable :: land_snow_to_land_snow_real64
+    class(cable_netcdf_decomp_t), allocatable :: land_rad_to_land_rad_int32
     class(cable_netcdf_decomp_t), allocatable :: land_rad_to_land_rad_real32
+    class(cable_netcdf_decomp_t), allocatable :: land_rad_to_land_rad_real64
+    class(cable_netcdf_decomp_t), allocatable :: land_plantcarbon_to_land_plantcarbon_int32
     class(cable_netcdf_decomp_t), allocatable :: land_plantcarbon_to_land_plantcarbon_real32
+    class(cable_netcdf_decomp_t), allocatable :: land_plantcarbon_to_land_plantcarbon_real64
+    class(cable_netcdf_decomp_t), allocatable :: land_soilcarbon_to_land_soilcarbon_int32
     class(cable_netcdf_decomp_t), allocatable :: land_soilcarbon_to_land_soilcarbon_real32
+    class(cable_netcdf_decomp_t), allocatable :: land_soilcarbon_to_land_soilcarbon_real64
 
-    class(cable_netcdf_decomp_t), pointer :: output_base_real32
-    class(cable_netcdf_decomp_t), pointer :: output_base_soil_real32
-    class(cable_netcdf_decomp_t), pointer :: output_base_snow_real32
-    class(cable_netcdf_decomp_t), pointer :: output_base_rad_real32
-    class(cable_netcdf_decomp_t), pointer :: output_base_plantcarbon_real32
-    class(cable_netcdf_decomp_t), pointer :: output_base_soilcarbon_real32
-    class(cable_netcdf_decomp_t), pointer :: output_base_patch_real32
-    class(cable_netcdf_decomp_t), pointer :: output_base_patch_soil_real32
-    class(cable_netcdf_decomp_t), pointer :: output_base_patch_snow_real32
-    class(cable_netcdf_decomp_t), pointer :: output_base_patch_rad_real32
-    class(cable_netcdf_decomp_t), pointer :: output_base_patch_plantcarbon_real32
-    class(cable_netcdf_decomp_t), pointer :: output_base_patch_soilcarbon_real32
   end type io_decomp_t
 
 contains
@@ -177,80 +228,100 @@ contains
     var_shape_patch_plantcarbon      = [dim_spec_t('patch', mp_global), dim_spec_t('plantcarbon', ncp)]
     var_shape_patch_soilcarbon       = [dim_spec_t('patch', mp_global), dim_spec_t('soilcarbon', ncs)]
 
+    io_decomp%land_to_x_y_int32                                  = io_decomp_land_to_x_y(land_x, land_y, mem_shape_land, var_shape_x_y, CABLE_NETCDF_INT)
     io_decomp%land_to_x_y_real32                                 = io_decomp_land_to_x_y(land_x, land_y, mem_shape_land, var_shape_x_y, CABLE_NETCDF_FLOAT)
+    io_decomp%land_to_x_y_real64                                 = io_decomp_land_to_x_y(land_x, land_y, mem_shape_land, var_shape_x_y, CABLE_NETCDF_DOUBLE)
+    io_decomp%land_soil_to_x_y_soil_int32                        = io_decomp_land_to_x_y(land_x, land_y, mem_shape_land_soil, var_shape_x_y_soil, CABLE_NETCDF_INT)
     io_decomp%land_soil_to_x_y_soil_real32                       = io_decomp_land_to_x_y(land_x, land_y, mem_shape_land_soil, var_shape_x_y_soil, CABLE_NETCDF_FLOAT)
+    io_decomp%land_soil_to_x_y_soil_real64                       = io_decomp_land_to_x_y(land_x, land_y, mem_shape_land_soil, var_shape_x_y_soil, CABLE_NETCDF_DOUBLE)
+    io_decomp%land_snow_to_x_y_snow_int32                        = io_decomp_land_to_x_y(land_x, land_y, mem_shape_land_snow, var_shape_x_y_snow, CABLE_NETCDF_INT)
     io_decomp%land_snow_to_x_y_snow_real32                       = io_decomp_land_to_x_y(land_x, land_y, mem_shape_land_snow, var_shape_x_y_snow, CABLE_NETCDF_FLOAT)
+    io_decomp%land_snow_to_x_y_snow_real64                       = io_decomp_land_to_x_y(land_x, land_y, mem_shape_land_snow, var_shape_x_y_snow, CABLE_NETCDF_DOUBLE)
+    io_decomp%land_rad_to_x_y_rad_int32                          = io_decomp_land_to_x_y(land_x, land_y, mem_shape_land_rad, var_shape_x_y_rad, CABLE_NETCDF_INT)
     io_decomp%land_rad_to_x_y_rad_real32                         = io_decomp_land_to_x_y(land_x, land_y, mem_shape_land_rad, var_shape_x_y_rad, CABLE_NETCDF_FLOAT)
+    io_decomp%land_rad_to_x_y_rad_real64                         = io_decomp_land_to_x_y(land_x, land_y, mem_shape_land_rad, var_shape_x_y_rad, CABLE_NETCDF_DOUBLE)
+    io_decomp%land_plantcarbon_to_x_y_plantcarbon_int32          = io_decomp_land_to_x_y(land_x, land_y, mem_shape_land_plantcarbon, var_shape_x_y_plantcarbon, CABLE_NETCDF_INT)
     io_decomp%land_plantcarbon_to_x_y_plantcarbon_real32         = io_decomp_land_to_x_y(land_x, land_y, mem_shape_land_plantcarbon, var_shape_x_y_plantcarbon, CABLE_NETCDF_FLOAT)
+    io_decomp%land_plantcarbon_to_x_y_plantcarbon_real64         = io_decomp_land_to_x_y(land_x, land_y, mem_shape_land_plantcarbon, var_shape_x_y_plantcarbon, CABLE_NETCDF_DOUBLE)
+    io_decomp%land_soilcarbon_to_x_y_soilcarbon_int32            = io_decomp_land_to_x_y(land_x, land_y, mem_shape_land_soilcarbon, var_shape_x_y_soilcarbon, CABLE_NETCDF_INT)
     io_decomp%land_soilcarbon_to_x_y_soilcarbon_real32           = io_decomp_land_to_x_y(land_x, land_y, mem_shape_land_soilcarbon, var_shape_x_y_soilcarbon, CABLE_NETCDF_FLOAT)
+    io_decomp%land_soilcarbon_to_x_y_soilcarbon_real64           = io_decomp_land_to_x_y(land_x, land_y, mem_shape_land_soilcarbon, var_shape_x_y_soilcarbon, CABLE_NETCDF_DOUBLE)
 
+    io_decomp%land_to_land_int32                                 = io_decomp_land_to_land(land_decomp_start, mem_shape_land, var_shape_land, CABLE_NETCDF_INT)
     io_decomp%land_to_land_real32                                = io_decomp_land_to_land(land_decomp_start, mem_shape_land, var_shape_land, CABLE_NETCDF_FLOAT)
+    io_decomp%land_to_land_real64                                = io_decomp_land_to_land(land_decomp_start, mem_shape_land, var_shape_land, CABLE_NETCDF_DOUBLE)
+    io_decomp%land_soil_to_land_soil_int32                       = io_decomp_land_to_land(land_decomp_start, mem_shape_land_soil, var_shape_land_soil, CABLE_NETCDF_INT)
     io_decomp%land_soil_to_land_soil_real32                      = io_decomp_land_to_land(land_decomp_start, mem_shape_land_soil, var_shape_land_soil, CABLE_NETCDF_FLOAT)
+    io_decomp%land_soil_to_land_soil_real64                      = io_decomp_land_to_land(land_decomp_start, mem_shape_land_soil, var_shape_land_soil, CABLE_NETCDF_DOUBLE)
+    io_decomp%land_snow_to_land_snow_int32                       = io_decomp_land_to_land(land_decomp_start, mem_shape_land_snow, var_shape_land_snow, CABLE_NETCDF_INT)
     io_decomp%land_snow_to_land_snow_real32                      = io_decomp_land_to_land(land_decomp_start, mem_shape_land_snow, var_shape_land_snow, CABLE_NETCDF_FLOAT)
+    io_decomp%land_snow_to_land_snow_real64                      = io_decomp_land_to_land(land_decomp_start, mem_shape_land_snow, var_shape_land_snow, CABLE_NETCDF_DOUBLE)
+    io_decomp%land_rad_to_land_rad_int32                         = io_decomp_land_to_land(land_decomp_start, mem_shape_land_rad, var_shape_land_rad, CABLE_NETCDF_INT)
     io_decomp%land_rad_to_land_rad_real32                        = io_decomp_land_to_land(land_decomp_start, mem_shape_land_rad, var_shape_land_rad, CABLE_NETCDF_FLOAT)
+    io_decomp%land_rad_to_land_rad_real64                        = io_decomp_land_to_land(land_decomp_start, mem_shape_land_rad, var_shape_land_rad, CABLE_NETCDF_DOUBLE)
+    io_decomp%land_plantcarbon_to_land_plantcarbon_int32         = io_decomp_land_to_land(land_decomp_start, mem_shape_land_plantcarbon, var_shape_land_plantcarbon, CABLE_NETCDF_INT)
     io_decomp%land_plantcarbon_to_land_plantcarbon_real32        = io_decomp_land_to_land(land_decomp_start, mem_shape_land_plantcarbon, var_shape_land_plantcarbon, CABLE_NETCDF_FLOAT)
+    io_decomp%land_plantcarbon_to_land_plantcarbon_real64        = io_decomp_land_to_land(land_decomp_start, mem_shape_land_plantcarbon, var_shape_land_plantcarbon, CABLE_NETCDF_DOUBLE)
+    io_decomp%land_soilcarbon_to_land_soilcarbon_int32           = io_decomp_land_to_land(land_decomp_start, mem_shape_land_soilcarbon, var_shape_land_soilcarbon, CABLE_NETCDF_INT)
     io_decomp%land_soilcarbon_to_land_soilcarbon_real32          = io_decomp_land_to_land(land_decomp_start, mem_shape_land_soilcarbon, var_shape_land_soilcarbon, CABLE_NETCDF_FLOAT)
+    io_decomp%land_soilcarbon_to_land_soilcarbon_real64          = io_decomp_land_to_land(land_decomp_start, mem_shape_land_soilcarbon, var_shape_land_soilcarbon, CABLE_NETCDF_DOUBLE)
 
+    io_decomp%patch_to_x_y_patch_int32                           = io_decomp_patch_to_x_y_patch(land_x, land_y, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch, var_shape_x_y_patch, CABLE_NETCDF_INT)
     io_decomp%patch_to_x_y_patch_real32                          = io_decomp_patch_to_x_y_patch(land_x, land_y, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch, var_shape_x_y_patch, CABLE_NETCDF_FLOAT)
+    io_decomp%patch_to_x_y_patch_real64                          = io_decomp_patch_to_x_y_patch(land_x, land_y, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch, var_shape_x_y_patch, CABLE_NETCDF_DOUBLE)
+    io_decomp%patch_soil_to_x_y_patch_soil_int32                 = io_decomp_patch_to_x_y_patch(land_x, land_y, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_soil, var_shape_x_y_soil, CABLE_NETCDF_INT)
     io_decomp%patch_soil_to_x_y_patch_soil_real32                = io_decomp_patch_to_x_y_patch(land_x, land_y, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_soil, var_shape_x_y_soil, CABLE_NETCDF_FLOAT)
+    io_decomp%patch_soil_to_x_y_patch_soil_real64                = io_decomp_patch_to_x_y_patch(land_x, land_y, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_soil, var_shape_x_y_soil, CABLE_NETCDF_DOUBLE)
+    io_decomp%patch_snow_to_x_y_patch_snow_int32                 = io_decomp_patch_to_x_y_patch(land_x, land_y, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_snow, var_shape_x_y_snow, CABLE_NETCDF_INT)
     io_decomp%patch_snow_to_x_y_patch_snow_real32                = io_decomp_patch_to_x_y_patch(land_x, land_y, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_snow, var_shape_x_y_snow, CABLE_NETCDF_FLOAT)
+    io_decomp%patch_snow_to_x_y_patch_snow_real64                = io_decomp_patch_to_x_y_patch(land_x, land_y, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_snow, var_shape_x_y_snow, CABLE_NETCDF_DOUBLE)
+    io_decomp%patch_rad_to_x_y_patch_rad_int32                   = io_decomp_patch_to_x_y_patch(land_x, land_y, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_rad, var_shape_x_y_rad, CABLE_NETCDF_INT)
     io_decomp%patch_rad_to_x_y_patch_rad_real32                  = io_decomp_patch_to_x_y_patch(land_x, land_y, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_rad, var_shape_x_y_rad, CABLE_NETCDF_FLOAT)
+    io_decomp%patch_rad_to_x_y_patch_rad_real64                  = io_decomp_patch_to_x_y_patch(land_x, land_y, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_rad, var_shape_x_y_rad, CABLE_NETCDF_DOUBLE)
+    io_decomp%patch_plantcarbon_to_x_y_patch_plantcarbon_int32   = io_decomp_patch_to_x_y_patch(land_x, land_y, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_plantcarbon, var_shape_x_y_plantcarbon, CABLE_NETCDF_INT)
     io_decomp%patch_plantcarbon_to_x_y_patch_plantcarbon_real32  = io_decomp_patch_to_x_y_patch(land_x, land_y, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_plantcarbon, var_shape_x_y_plantcarbon, CABLE_NETCDF_FLOAT)
+    io_decomp%patch_plantcarbon_to_x_y_patch_plantcarbon_real64  = io_decomp_patch_to_x_y_patch(land_x, land_y, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_plantcarbon, var_shape_x_y_plantcarbon, CABLE_NETCDF_DOUBLE)
+    io_decomp%patch_soilcarbon_to_x_y_patch_soilcarbon_int32     = io_decomp_patch_to_x_y_patch(land_x, land_y, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_soilcarbon, var_shape_x_y_soilcarbon, CABLE_NETCDF_INT)
     io_decomp%patch_soilcarbon_to_x_y_patch_soilcarbon_real32    = io_decomp_patch_to_x_y_patch(land_x, land_y, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_soilcarbon, var_shape_x_y_soilcarbon, CABLE_NETCDF_FLOAT)
+    io_decomp%patch_soilcarbon_to_x_y_patch_soilcarbon_real64    = io_decomp_patch_to_x_y_patch(land_x, land_y, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_soilcarbon, var_shape_x_y_soilcarbon, CABLE_NETCDF_DOUBLE)
 
+    io_decomp%patch_to_land_patch_int32                          = io_decomp_patch_to_land_patch(land_decomp_start, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch, var_shape_land_patch, CABLE_NETCDF_INT)
     io_decomp%patch_to_land_patch_real32                         = io_decomp_patch_to_land_patch(land_decomp_start, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch, var_shape_land_patch, CABLE_NETCDF_FLOAT)
+    io_decomp%patch_to_land_patch_real64                         = io_decomp_patch_to_land_patch(land_decomp_start, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch, var_shape_land_patch, CABLE_NETCDF_DOUBLE)
+    io_decomp%patch_soil_to_land_patch_soil_int32                = io_decomp_patch_to_land_patch(land_decomp_start, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_soil, var_shape_land_soil, CABLE_NETCDF_INT)
     io_decomp%patch_soil_to_land_patch_soil_real32               = io_decomp_patch_to_land_patch(land_decomp_start, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_soil, var_shape_land_soil, CABLE_NETCDF_FLOAT)
+    io_decomp%patch_soil_to_land_patch_soil_real64               = io_decomp_patch_to_land_patch(land_decomp_start, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_soil, var_shape_land_soil, CABLE_NETCDF_DOUBLE)
+    io_decomp%patch_snow_to_land_patch_snow_int32                = io_decomp_patch_to_land_patch(land_decomp_start, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_snow, var_shape_land_snow, CABLE_NETCDF_INT)
     io_decomp%patch_snow_to_land_patch_snow_real32               = io_decomp_patch_to_land_patch(land_decomp_start, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_snow, var_shape_land_snow, CABLE_NETCDF_FLOAT)
+    io_decomp%patch_snow_to_land_patch_snow_real64               = io_decomp_patch_to_land_patch(land_decomp_start, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_snow, var_shape_land_snow, CABLE_NETCDF_DOUBLE)
+    io_decomp%patch_rad_to_land_patch_rad_int32                  = io_decomp_patch_to_land_patch(land_decomp_start, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_rad, var_shape_land_rad, CABLE_NETCDF_INT)
     io_decomp%patch_rad_to_land_patch_rad_real32                 = io_decomp_patch_to_land_patch(land_decomp_start, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_rad, var_shape_land_rad, CABLE_NETCDF_FLOAT)
+    io_decomp%patch_rad_to_land_patch_rad_real64                 = io_decomp_patch_to_land_patch(land_decomp_start, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_rad, var_shape_land_rad, CABLE_NETCDF_DOUBLE)
+    io_decomp%patch_plantcarbon_to_land_patch_plantcarbon_int32  = io_decomp_patch_to_land_patch(land_decomp_start, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_plantcarbon, var_shape_land_plantcarbon, CABLE_NETCDF_INT)
     io_decomp%patch_plantcarbon_to_land_patch_plantcarbon_real32 = io_decomp_patch_to_land_patch(land_decomp_start, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_plantcarbon, var_shape_land_plantcarbon, CABLE_NETCDF_FLOAT)
+    io_decomp%patch_plantcarbon_to_land_patch_plantcarbon_real64 = io_decomp_patch_to_land_patch(land_decomp_start, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_plantcarbon, var_shape_land_plantcarbon, CABLE_NETCDF_DOUBLE)
+    io_decomp%patch_soilcarbon_to_land_patch_soilcarbon_int32    = io_decomp_patch_to_land_patch(land_decomp_start, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_soilcarbon, var_shape_land_soilcarbon, CABLE_NETCDF_INT)
     io_decomp%patch_soilcarbon_to_land_patch_soilcarbon_real32   = io_decomp_patch_to_land_patch(land_decomp_start, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_soilcarbon, var_shape_land_soilcarbon, CABLE_NETCDF_FLOAT)
+    io_decomp%patch_soilcarbon_to_land_patch_soilcarbon_real64   = io_decomp_patch_to_land_patch(land_decomp_start, landpt(:)%cstart, landpt(:)%nap, mem_shape_patch_soilcarbon, var_shape_land_soilcarbon, CABLE_NETCDF_DOUBLE)
 
+    io_decomp%patch_to_patch_int32                               = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch, var_shape_patch, CABLE_NETCDF_INT)
     io_decomp%patch_to_patch_real32                              = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch, var_shape_patch, CABLE_NETCDF_FLOAT)
+    io_decomp%patch_to_patch_real64                              = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch, var_shape_patch, CABLE_NETCDF_DOUBLE)
+    io_decomp%patch_soil_to_patch_soil_int32                     = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_soil, var_shape_patch_soil, CABLE_NETCDF_INT)
     io_decomp%patch_soil_to_patch_soil_real32                    = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_soil, var_shape_patch_soil, CABLE_NETCDF_FLOAT)
+    io_decomp%patch_soil_to_patch_soil_real64                    = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_soil, var_shape_patch_soil, CABLE_NETCDF_DOUBLE)
+    io_decomp%patch_snow_to_patch_snow_int32                     = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_snow, var_shape_patch_snow, CABLE_NETCDF_INT)
     io_decomp%patch_snow_to_patch_snow_real32                    = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_snow, var_shape_patch_snow, CABLE_NETCDF_FLOAT)
+    io_decomp%patch_snow_to_patch_snow_real64                    = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_snow, var_shape_patch_snow, CABLE_NETCDF_DOUBLE)
+    io_decomp%patch_rad_to_patch_rad_int32                       = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_rad, var_shape_patch_rad, CABLE_NETCDF_INT)
     io_decomp%patch_rad_to_patch_rad_real32                      = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_rad, var_shape_patch_rad, CABLE_NETCDF_FLOAT)
+    io_decomp%patch_rad_to_patch_rad_real64                      = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_rad, var_shape_patch_rad, CABLE_NETCDF_DOUBLE)
+    io_decomp%patch_plantcarbon_to_patch_plantcarbon_int32       = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_plantcarbon, var_shape_patch_plantcarbon, CABLE_NETCDF_INT)
     io_decomp%patch_plantcarbon_to_patch_plantcarbon_real32      = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_plantcarbon, var_shape_patch_plantcarbon, CABLE_NETCDF_FLOAT)
+    io_decomp%patch_plantcarbon_to_patch_plantcarbon_real64      = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_plantcarbon, var_shape_patch_plantcarbon, CABLE_NETCDF_DOUBLE)
+    io_decomp%patch_soilcarbon_to_patch_soilcarbon_int32         = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_soilcarbon, var_shape_patch_soilcarbon, CABLE_NETCDF_INT)
     io_decomp%patch_soilcarbon_to_patch_soilcarbon_real32        = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_soilcarbon, var_shape_patch_soilcarbon, CABLE_NETCDF_FLOAT)
-
-    requires_x_y_output_grid = ( &
-      ( &
-        output%grid == 'default' .AND. metGrid == 'mask' &
-      ) .OR. ( &
-        output%grid == 'mask' .OR. output%grid == 'ALMA' &
-      ) &
-    )
-    if (requires_x_y_output_grid) then
-      io_decomp%output_base_real32                   => io_decomp%land_to_x_y_real32
-      io_decomp%output_base_soil_real32              => io_decomp%land_soil_to_x_y_soil_real32
-      io_decomp%output_base_snow_real32              => io_decomp%land_snow_to_x_y_snow_real32
-      io_decomp%output_base_rad_real32               => io_decomp%land_rad_to_x_y_rad_real32
-      io_decomp%output_base_plantcarbon_real32       => io_decomp%land_plantcarbon_to_x_y_plantcarbon_real32
-      io_decomp%output_base_soilcarbon_real32        => io_decomp%land_soilcarbon_to_x_y_soilcarbon_real32
-      io_decomp%output_base_patch_real32             => io_decomp%patch_to_x_y_patch_real32
-      io_decomp%output_base_patch_soil_real32        => io_decomp%patch_soil_to_x_y_patch_soil_real32
-      io_decomp%output_base_patch_snow_real32        => io_decomp%patch_snow_to_x_y_patch_snow_real32
-      io_decomp%output_base_patch_rad_real32         => io_decomp%patch_rad_to_x_y_patch_rad_real32
-      io_decomp%output_base_patch_plantcarbon_real32 => io_decomp%patch_plantcarbon_to_x_y_patch_plantcarbon_real32
-      io_decomp%output_base_patch_soilcarbon_real32  => io_decomp%patch_soilcarbon_to_x_y_patch_soilcarbon_real32
-    end if
-
-    requires_land_output_grid = ( &
-      output%grid == 'land' .OR. (output%grid == 'default' .AND. metGrid == 'land') &
-    )
-    if (requires_land_output_grid) then
-      io_decomp%output_base_real32                   => io_decomp%land_to_land_real32
-      io_decomp%output_base_soil_real32              => io_decomp%land_soil_to_land_soil_real32
-      io_decomp%output_base_snow_real32              => io_decomp%land_snow_to_land_snow_real32
-      io_decomp%output_base_rad_real32               => io_decomp%land_rad_to_land_rad_real32
-      io_decomp%output_base_plantcarbon_real32       => io_decomp%land_plantcarbon_to_land_plantcarbon_real32
-      io_decomp%output_base_soilcarbon_real32        => io_decomp%land_soilcarbon_to_land_soilcarbon_real32
-      io_decomp%output_base_patch_real32             => io_decomp%patch_to_land_patch_real32
-      io_decomp%output_base_patch_soil_real32        => io_decomp%patch_soil_to_land_patch_soil_real32
-      io_decomp%output_base_patch_snow_real32        => io_decomp%patch_snow_to_land_patch_snow_real32
-      io_decomp%output_base_patch_rad_real32         => io_decomp%patch_rad_to_land_patch_rad_real32
-      io_decomp%output_base_patch_plantcarbon_real32 => io_decomp%patch_plantcarbon_to_land_patch_plantcarbon_real32
-      io_decomp%output_base_patch_soilcarbon_real32  => io_decomp%patch_soilcarbon_to_land_patch_soilcarbon_real32
-    end if
+    io_decomp%patch_soilcarbon_to_patch_soilcarbon_real64        = io_decomp_patch_to_patch(patch_decomp_start, mem_shape_patch_soilcarbon, var_shape_patch_soilcarbon, CABLE_NETCDF_DOUBLE)
 
   end subroutine
 
