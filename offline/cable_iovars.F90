@@ -269,8 +269,9 @@ MODULE cable_IO_vars_module
          Fwsoil = .FALSE.,      & ! soil moisture modifier to stomatal conductance
          Area = .FALSE., & ! patch area in km2
          GPP_components = .FALSE.,    & ! sunlit and shaded GPP, plus J and C limited components
-         Qcan = .FALSE.,     & ! absorbed radiation by canopy
+         Qcan = .FALSE. ! absorbed radiation by canopy
 
+      LOGICAL :: &
          ! vh_mc ! additional variables for ESM-SnowMIP
          hfds       = .false., & ! downward heat flux at ground surface [W/m2]
          hfdsn      = .false., & ! downward heat flux into snowpack [W/m2]
@@ -308,10 +309,10 @@ MODULE cable_IO_vars_module
          ts         = .false., & ! surface temperature [K]
          tsl        = .false., & ! temperatures of soil layers [K]
          tsn        = .false., & ! snow internal temperature [K]
-         tsns       = .false., & ! snow surface temperature [K]
+         tsns       = .false.    ! snow surface temperature [K]
 
+      LOGICAL :: &
          !! vh_js !! additional casa variables
-
          NBP = .FALSE., &
          dCdt = .FALSE., &
          TotSoilCarb = .FALSE.,   &
@@ -390,7 +391,10 @@ MODULE cable_IO_vars_module
          patchfrac  = .FALSE.,& ! fractional cover of each veg/soil patch
          isoil  = .FALSE.,    & ! soil type from global index
          meth  = .FALSE.,     & ! method for solving turbulence in canopy scheme
-         za  = .FALSE.,       & ! something to do with roughness ????
+         za  = .FALSE.          ! something to do with roughness ????
+
+      LOGICAL :: &
+         ! mc 13co2    
          c13o2 = .false.        ! carbon pools and flux output for 13C isotopes
    END TYPE output_inclusion_type
 
