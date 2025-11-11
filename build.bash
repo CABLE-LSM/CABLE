@@ -40,7 +40,8 @@ cmake_args=(-DCMAKE_BUILD_TYPE=Release -DCABLE_MPI=OFF)
 while [ ${#} -gt 0 ]; do
     case ${1} in
         -c|--clean)
-            rm -r bin build
+	    if [[ -d bin ]] ; then rm -r bin ; fi
+	    if [[ -d build ]] ; then rm -r build ; fi
             exit
             ;;
         -m|--mpi)
