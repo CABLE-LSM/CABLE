@@ -42,7 +42,6 @@ INTEGER, PARAMETER :: METB    = 1
 INTEGER, PARAMETER :: STR     = 2
 INTEGER, PARAMETER :: CWD     = 3
 
-INTEGER, PARAMETER :: r_2     = 4
 INTEGER, PARAMETER :: T_AVG   = 5
 
 REAL,    PARAMETER :: fbranch = 0.05 ! fraction of CPLANT_w(wood) attributed to branches

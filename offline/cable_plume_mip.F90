@@ -1124,7 +1124,7 @@ END SUBROUTINE GET_PLUME_Ndep
     !
     !==============================================================================
 
-    USE cable_def_types_mod,   ONLY: MET_TYPE, r_2
+    USE cable_def_types_mod,   ONLY: MET_TYPE, r2
     USE cable_IO_vars_module,  ONLY: LANDPT, latitude
     USE cable_common_module,   ONLY: DOYSOD2YMDHMS
     USE cable_weathergenerator,ONLY: WEATHER_GENERATOR_TYPE, WGEN_INIT, &
@@ -1244,9 +1244,9 @@ END SUBROUTINE GET_PLUME_Ndep
        met%precip(is:ie)    = real(WG%Precip(i))  ! +  WG%Snow(i)
        met%precip_sn(is:ie) = real(min(WG%Snow(i), WG%Precip(i)))
        met%fld(is:ie)       = PLUME%MET(lwdn)%VAL(i) * real(WG%PhiLD(i)) / PLUME%AVG_LWDN(i)
-       met%fsd(is:ie,1)     = real(WG%PhiSD(i) * 0.5_r_2)
-       met%fsd(is:ie,2)     = real(WG%PhiSD(i) * 0.5_r_2)
-       met%tk(is:ie)        = real(WG%Temp(i) + 273.15_r_2)
+       met%fsd(is:ie,1)     = real(WG%PhiSD(i) * 0.5_r2)
+       met%fsd(is:ie,2)     = real(WG%PhiSD(i) * 0.5_r2)
+       met%tk(is:ie)        = real(WG%Temp(i) + 273.15_r2)
        met%ua(is:ie)        = real(WG%Wind(i))
        met%coszen(is:ie)    = real(WG%coszen(i))
        ! compute qv

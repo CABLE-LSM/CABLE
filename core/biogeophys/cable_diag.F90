@@ -35,15 +35,16 @@
 
 !#define UM_BUILD YES
 MODULE cable_diag_module
-  use cable_def_types_mod, only : r_2
-   IMPLICIT NONE
-   INTEGER, PARAMETER :: gok=0
-   INTEGER :: galloctest=1
 
-   !--- subrs overloaded to respond to call cable_diag
-   INTERFACE cable_diag
-      MODULE PROCEDURE cable_diag1
-   END INTERFACE cable_diag
+  IMPLICIT NONE
+
+  INTEGER, PARAMETER :: gok = 0
+  INTEGER :: galloctest = 1
+
+  !--- subrs overloaded to respond to call cable_diag
+  INTERFACE cable_diag
+     MODULE PROCEDURE cable_diag1
+  END INTERFACE cable_diag
 
 #ifndef UM_BUILD
   interface put_var_nc
@@ -53,108 +54,116 @@ MODULE cable_diag_module
   interface get_var_nc
      module procedure get_var_ncr2, get_var_ncr3
   end interface get_var_nc
-
 #endif
+
 CONTAINS
 
-!==========================================================================!
-! cable_diag1/2/3 call subrs to write filename.dat which contains description
-! of data and format etc., and filename.bin containing the data
-!==========================================================================!
+  !==========================================================================!
+  ! cable_diag1/2/3 call subrs to write filename.dat which contains description
+  ! of data and format etc., and filename.bin containing the data
+  !==========================================================================!
 
-SUBROUTINE cable_diag1( iDiag, basename, dimx, dimy, timestep, node, &
-                        vname1, var1, once )
-   integer, intent(inOUT) :: iDiag
-   integer, SAVE :: pDiag=713
-   integer, intent(in) :: dimx, dimy, timestep,node
-   real, intent(in), dimension(:) :: var1
-   integer, optional :: once
-   character(len=*), intent(in) :: basename, vname1
-   character(len=30) :: filename, chnode
+  SUBROUTINE cable_diag1( iDiag, basename, dimx, dimy, timestep, node, &
+       vname1, var1, once )
 
-      IF(iDiag==0) tHEN
-         pDiag = pDiag+2
-         iDiag=pDiag
-      ENDIF
+    integer,          intent(inout) :: iDiag
+    character(len=*), intent(in) :: basename
+    integer,          intent(in) :: dimx, dimy, timestep, node
+    character(len=*), intent(in) :: vname1
+    real,             intent(in), dimension(:) :: var1
+    integer,          intent(in), optional :: once
 
-      write(chnode,10) node
-   10 format(i3.3)
-      filename=trim(trim(basename)//trim(chnode))
+    integer, SAVE :: pDiag=713
+    character(len=30) :: filename, chnode
 
-      if (timestep == 1) &
+    IF(iDiag==0) tHEN
+       pDiag = pDiag+2
+       iDiag=pDiag
+    ENDIF
+
+    write(chnode,10) node
+10  format(i3.3)
+    filename=trim(trim(basename)//trim(chnode))
+
+    if (timestep == 1) &
          call cable_diag_desc1( iDiag, trim(filename), dimx, dimy, vname1 )
 
-      if( present(once) ) then
-         if (timestep == 1) &
-         ! write data only on first timestep
-         call cable_diag_data1( iDiag, trim(filename), timestep, dimy, var1 )
-      else
-         ! write data every timestep
-         call cable_diag_data1( iDiag, trim(filename), timestep, dimy, var1 )
-      endif
+    if( present(once) ) then
+       if (timestep == 1) &
+                                ! write data only on first timestep
+            call cable_diag_data1( iDiag, trim(filename), timestep, dimy, var1 )
+    else
+       ! write data every timestep
+       call cable_diag_data1( iDiag, trim(filename), timestep, dimy, var1 )
+    endif
 
-END SUBROUTINE cable_diag1
+  END SUBROUTINE cable_diag1
 
-!=============================================================================!
-!=============================================================================!
+  !=============================================================================!
+  !=============================================================================!
 
-SUBROUTINE cable_diag_desc1( iDiag, filename, dimx, dimy, vname1 )
+  SUBROUTINE cable_diag_desc1( iDiag, filename, dimx, dimy, vname1 )
 
-   integer, intent(in) :: iDiag,dimx,dimy
-   integer, PARAMETER :: Nvars=1
-   character(len=*), intent(in) :: filename, vname1
-   integer, save :: gopenstatus = 1
+    integer,          intent(in) :: iDiag
+    character(len=*), intent(in) :: filename
+    integer,          intent(in) :: dimx, dimy
+    character(len=*), intent(in) :: vname1
 
-     open(unit=iDiag,file=filename//'.dat', status="replace", &
-          action="write", iostat=gopenstatus )
+    integer, PARAMETER :: Nvars=1
+    integer, save :: gopenstatus = 1
 
-      if(gopenstatus==gok) then
-            write (iDiag,*) 'Number of var(s): '
-            write (iDiag,*) Nvars
-            write (iDiag,*) 'Name of var(s): '
-            write (iDiag,7139) vname1
- 7139       format(a)
-            write (iDiag,*) 'dimension of var(s) in x: '
-            write (iDiag,*) dimx
-            write (iDiag,*) 'dimension of var(s) in y: '
-            write (iDiag,*) dimy
-      else
-         write (*,*) filename//'.dat',' Error: unable to write'
-      endif
+    open(unit=iDiag,file=filename//'.dat', status="replace", &
+         action="write", iostat=gopenstatus )
 
-   close(iDiag)
+    if(gopenstatus==gok) then
+       write (iDiag,*) 'Number of var(s): '
+       write (iDiag,*) Nvars
+       write (iDiag,*) 'Name of var(s): '
+       write (iDiag,7139) vname1
+7139   format(a)
+       write (iDiag,*) 'dimension of var(s) in x: '
+       write (iDiag,*) dimx
+       write (iDiag,*) 'dimension of var(s) in y: '
+       write (iDiag,*) dimy
+    else
+       write (*,*) filename//'.dat',' Error: unable to write'
+    endif
 
-END SUBROUTINE cable_diag_desc1
+    close(iDiag)
+
+  END SUBROUTINE cable_diag_desc1
 
 
-SUBROUTINE cable_diag_data1( iDiag, filename, timestep, kend, var1  )
+  SUBROUTINE cable_diag_data1( iDiag, filename, timestep, kend, var1  )
 
-   integer, intent(in) :: iDiag, timestep, kend
-   real, intent(in), dimension(:) :: var1
-   character(len=*), intent(in) :: filename
-   integer, save :: gopenstatus = 1
+    integer, intent(in) :: iDiag
+    character(len=*), intent(in) :: filename
+    integer, intent(in) :: timestep, kend
+    real, intent(in), dimension(:) :: var1
 
-   if (timestep == 1)  then
-      open(unit=iDiag+1,file=filename//'.bin',status="unknown", &
-           action="write", iostat=gopenstatus, form="unformatted", &
-           position='append' )
-   endif
+    integer, save :: gopenstatus = 1
 
-   if(gopenstatus==gok) then
-         write (iDiag+1) var1
-   else
-      write (*,*) filename//'.bin',' NOT open for write. Error'
-   endif
+    if (timestep == 1)  then
+       open(unit=iDiag+1,file=filename//'.bin',status="unknown", &
+            action="write", iostat=gopenstatus, form="unformatted", &
+            position='append' )
+    endif
 
-   if (timestep == kend) &
-      close(iDiag+1)
+    if(gopenstatus==gok) then
+       write (iDiag+1) var1
+    else
+       write (*,*) filename//'.bin',' NOT open for write. Error'
+    endif
 
-END SUBROUTINE cable_diag_data1
+    if (timestep == kend) &
+         close(iDiag+1)
+
+  END SUBROUTINE cable_diag_data1
 
 
 #ifndef UM_BUILD
   subroutine def_dims(nd, ncid, dimID, dim_len, dim_name )
-    
+
     use netcdf
 
     implicit none
@@ -179,14 +188,14 @@ END SUBROUTINE cable_diag_data1
   subroutine def_vars(ncid, xtype, dimID, var_name, varID)
 
     use netcdf
-    
+
     implicit none
-    
+
     integer,                        intent(in)    :: ncid, xtype
     integer,          dimension(:), intent(in)    :: dimID
     character(len=*), dimension(:), intent(in)    :: var_name
     integer,          dimension(:), intent(inout) :: varID
-    
+
     integer :: ncok
 
     ! lat
@@ -360,7 +369,7 @@ END SUBROUTINE cable_diag_data1
 #endif
          )
     if (ncok /= nf90_noerr ) call stderr_nc(ncok,'def var ', var_name(20))
-    
+
     !du10_max
     ncok = NF90_DEF_VAR(ncid, trim(var_name(21)), xtype, &
          (/ dimID(1), dimID(3)/), varID(21) &
@@ -446,13 +455,13 @@ END SUBROUTINE cable_diag_data1
 
   end subroutine def_vars
 
-  
-  subroutine def_var_atts( ncfile_in, ncid, varID )
-    
+
+  subroutine def_var_atts(ncfile_in, ncid, varID)
+
     use netcdf
-    
+
     implicit none
-    
+
     character(len=*),      intent(in) :: ncfile_in
     integer,               intent(in) :: ncid       ! netcdf file ID
     integer, dimension(:), intent(in) :: varID      ! (1) ~ tvair, (2) ~ pmb
@@ -472,20 +481,24 @@ END SUBROUTINE cable_diag_data1
     write(dummy,11) varID(2)
 
     return
-    
+
   end subroutine def_var_atts
 
-  
+
   ! ------------------------------------------------------------------
   ! put_var_nc
 
   subroutine put_var_ncr1(ncid, var_name, var)
+
     use netcdf
-    use cable_def_types_mod, only : mp
+    use cable_def_types_mod, only: mp
+
     implicit none
-    character(len=*), intent(in) ::  var_name
-    real, dimension(:),intent(in) :: var
-    integer, intent(in) :: ncid
+
+    integer,            intent(in) :: ncid
+    character(len=*),   intent(in) :: var_name
+    real, dimension(:), intent(in) :: var
+
     integer :: ncok, varID
 
     ncok = NF90_INQ_VARID(ncid, var_name, varId)
@@ -498,34 +511,41 @@ END SUBROUTINE cable_diag_data1
 
 
   subroutine put_var_ncr2(ncid, var_name, var, n_call)
+
+    use cable_def_types_mod, only : r2, mp
     use netcdf
-    use cable_def_types_mod, only : r_2, mp
+    
     implicit none
-    character(len=*), intent(in) ::  var_name
-    real(r_2), dimension(:),intent(in) :: var
-    integer, intent(in) :: ncid, n_call
+
+    integer,                intent(in) :: ncid
+    character(len=*),       intent(in) :: var_name
+    real(r2), dimension(:), intent(in) :: var
+    integer,                intent(in) :: n_call
+
     integer :: ncok, varID
 
     ncok = NF90_INQ_VARID(ncid, var_name, varId)
     if (ncok /= nf90_noerr) call stderr_nc(ncok, 'inquire var ', var_name)
-   
+
     ncok = NF90_PUT_VAR(ncid, varId, var, start=(/1,n_call/), count=(/mp,1/))
     if (ncok /= nf90_noerr ) call stderr_nc(ncok, 'putting var ', var_name)
 
   end subroutine put_var_ncr2
 
-  
+
   !soil vars
   subroutine put_var_ncr3(ncid, var_name, var, n_call, nl)
-    
+
     use netcdf
-    use cable_def_types_mod, only : r_2, mp
-    
+    use cable_def_types_mod, only: r2, mp
+
     implicit none
-    
-    character(len=*), intent(in) :: var_name
-    real(r_2), dimension(:,:),intent(in) :: var
-    integer, intent(in) :: ncid, n_call, nl
+
+    integer,                  intent(in) :: ncid
+    character(len=*),         intent(in) :: var_name
+    real(r2), dimension(:,:), intent(in) :: var
+    integer,                  intent(in) :: n_call, nl
+
     integer :: ncok, varID
 
     ncok = NF90_INQ_VARID( ncid, var_name, varId)
@@ -536,22 +556,22 @@ END SUBROUTINE cable_diag_data1
 
   end subroutine put_var_ncr3
 
-  
+
   ! ------------------------------------------------------------------
   ! get_var_nc
 
   subroutine get_var_ncr2(ncid, var_name, var, n_call)
-    
+
     use netcdf,              only: nf90_inq_varid, nf90_noerr, nf90_get_var
-    use cable_def_types_mod, only: r_2,mp
-    
+    use cable_def_types_mod, only: r2, mp
+
     implicit none
-    
-    integer,                 intent(in)  :: ncid
-    character(len=*),        intent(in)  :: var_name
-    real(r_2), dimension(:), intent(out) :: var
-    integer,                 intent(in)  :: n_call
-    
+
+    integer,                intent(in)  :: ncid
+    character(len=*),       intent(in)  :: var_name
+    real(r2), dimension(:), intent(out) :: var
+    integer,                intent(in)  :: n_call
+
     integer :: ncok, varID
 
     ncok = NF90_INQ_VARID(ncid, var_name, varId)
@@ -560,23 +580,23 @@ END SUBROUTINE cable_diag_data1
     ncok = NF90_GET_VAR(ncid, varId, var, start=(/1,n_call/), count=(/mp,1/) )
 
     if (ncok /= nf90_noerr ) call stderr_nc(ncok, 'getting var ', var_name)
-    
+
   end subroutine get_var_ncr2
 
-  
+
   subroutine get_var_ncr3(ncid, var_name, var, n_call, nl)
 
     use netcdf,              only: nf90_inq_varid, nf90_noerr, nf90_get_var
-    use cable_def_types_mod, only : r_2, mp
-    
+    use cable_def_types_mod, only : r2, mp
+
     implicit none
-    
-    integer,                   intent(in)  :: ncid
-    character(len=*),          intent(in)  :: var_name
-    real(r_2), dimension(:,:), intent(out) :: var
-    integer,                   intent(in)  :: n_call
-    integer,                   intent(in)  :: nl
-    
+
+    integer,                  intent(in)  :: ncid
+    character(len=*),         intent(in)  :: var_name
+    real(r2), dimension(:,:), intent(out) :: var
+    integer,                  intent(in)  :: n_call
+    integer,                  intent(in)  :: nl
+
     integer :: ncok, varID
 
     ncok = nf90_inq_varid(ncid, var_name, varid)
@@ -587,20 +607,20 @@ END SUBROUTINE cable_diag_data1
 
   end subroutine get_var_ncr3
 
-  
+
   ! ------------------------------------------------------------------
   ! netCDF error handling
 
-  subroutine stderr_nc(status,message, var)
-    
+  subroutine stderr_nc(status, message, var)
+
     use netcdf
 #ifdef __MPI__
     use mpi, only: MPI_Abort
 #endif
-    
-    character(len=*), intent(in) :: message, var
+
     INTEGER, INTENT(IN) :: status
-    
+    character(len=*), intent(in) :: message, var
+
     character(len=7) :: err_mess
 #ifdef __MPI__
     integer :: ierr
@@ -618,22 +638,19 @@ END SUBROUTINE cable_diag_data1
   end subroutine stderr_nc
 #endif
 
-  
+
   ! ------------------------------------------------------------------
   ! cable generic print status
 
   subroutine cable_stat(routname)
-    
+
     use cable_common_module, only : ktau_gl, knode_gl
 
     character(len=*), intent(in) :: routname
-    
+
     if (knode_gl==1) write(6,*) 'CABLE@  ', routname, ktau_gl
 
   end subroutine cable_stat
 
 
 END MODULE cable_diag_module
-
-
-

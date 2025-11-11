@@ -224,7 +224,7 @@ contains
     ! BLAZE variables
     type(TYPE_BLAZE)     :: BLAZE
     type(TYPE_SIMFIRE)   :: SIMFIRE
-    ! REAL(r_2), DIMENSION(:), ALLOCATABLE :: POP_TO, POP_CWD, POP_STR
+    ! REAL(r2), DIMENSION(:), ALLOCATABLE :: POP_TO, POP_CWD, POP_STR
 
     ! 13C
     type(c13o2_flux) :: c13o2flux
@@ -233,8 +233,8 @@ contains
     ! I/O
     ! discrimination
     ! integer :: ileaf
-    real(r_2), dimension(:,:), allocatable :: gpp
-    real(r_2), dimension(:),   allocatable :: Ra
+    real(r2), dimension(:,:), allocatable :: gpp
+    real(r2), dimension(:),   allocatable :: Ra
 
     ! declare vars for switches (default .FALSE.) etc declared thru namelist
     logical, save :: &
@@ -537,7 +537,7 @@ contains
                 call worker_restart_type(comm, canopy, air, veg, ssnow)
              end if
 
-             canopy%fes_cor = 0.0_r_2
+             canopy%fes_cor = 0.0_r2
              canopy%fhs_cor = 0.
              met%ofsd       = 0.1 ! not used
              !MC diff to serial code - pdep not set
@@ -545,8 +545,8 @@ contains
              met%pdep = 0.0
              !MC - do we need that? casamet also set only if icycle>0
              ! if (trim(cable_user%MetType) .eq. 'cru') then
-             !    casamet%glai = 1.0_r_2
-             !    where (veg%iveg(:) .ge. 14) casamet%glai = 0.0_r_2
+             !    casamet%glai = 1.0_r2
+             !    where (veg%iveg(:) .ge. 14) casamet%glai = 0.0_r2
              ! end if
              if ((trim(cable_user%MetType) == 'cru') .and. (icycle > 0)) then
                 if (all(real(casamet%glai(:)) == 0.)) then
@@ -687,12 +687,12 @@ contains
              ! 13C
              if (cable_user%c13o2) then
                 gpp  = canopy%An + canopy%Rd
-                Ra   = isoratio(c13o2flux%ca, real(met%ca,r_2), 1.0_r_2)
+                Ra   = isoratio(c13o2flux%ca, real(met%ca,r2), 1.0_r2)
                 !MCTest
                 c13o2flux%An       = canopy%An
-                ! c13o2flux%An       = 1.005_r_2 * canopy%An !  * vpdbc13 / vpdbc13 ! Test 5 permil
-                c13o2flux%Disc     = 0.0_r_2
-                c13o2flux%Vstarch  = c13o2flux%Vstarch + 1.0e-6_r_2
+                ! c13o2flux%An       = 1.005_r2 * canopy%An !  * vpdbc13 / vpdbc13 ! Test 5 permil
+                c13o2flux%Disc     = 0.0_r2
+                c13o2flux%Vstarch  = c13o2flux%Vstarch + 1.0e-6_r2
                 c13o2flux%Rstarch  = c13o2flux%Rstarch
                 c13o2flux%Rsucrose = c13o2flux%Rsucrose
                 c13o2flux%Rphoto   = c13o2flux%Rphoto
@@ -701,13 +701,13 @@ contains
                 !       call c13o2_discrimination_simple( &
                 !            ! -- Input
                 !            ! isc3
-                !            real(dels,r_2), canopy%isc3, &
+                !            real(dels,r2), canopy%isc3, &
                 !            ! GPP and Leaf respiration
                 !            gpp(:,ileaf), canopy%Rd(:,ileaf), &
                 !            ! Ambient and stomatal CO2 concentration
-                !            real(met%ca,r_2), canopy%ci(:,ileaf), &
+                !            real(met%ca,r2), canopy%ci(:,ileaf), &
                 !            ! leaf temperature
-                !            real(canopy%tlf,r_2), &
+                !            real(canopy%tlf,r2), &
                 !            ! Ambient isotope ratio
                 !            Ra, &
                 !            ! -- Inout
@@ -721,16 +721,16 @@ contains
                 !    else
                 !       call c13o2_discrimination( &
                 !            ! -- Input
-                !            real(dels,r_2), canopy%isc3, &
+                !            real(dels,r2), canopy%isc3, &
                 !            ! Photosynthesis variables
                 !            ! Vcmax<< because of temperature dependence of Vcmax
                 !            canopy%vcmax(:,ileaf), gpp(:,ileaf), canopy%Rd(:,ileaf), canopy%gammastar(:,ileaf), &
                 !            ! CO2 concentrations
-                !            real(met%ca,r_2), canopy%ci(:,ileaf), &
+                !            real(met%ca,r2), canopy%ci(:,ileaf), &
                 !            ! Conductances
                 !            canopy%gac(:,ileaf), canopy%gbc(:,ileaf), canopy%gsc(:,ileaf), &
                 !            ! leaf temperature
-                !            real(canopy%tlf,r_2), &
+                !            real(canopy%tlf,r2), &
                 !            ! Ambient isotope ratio
                 !            Ra, &
                 !            ! -- Inout
@@ -872,11 +872,11 @@ contains
 
           if ((icycle > 0) .and. (.not. casaonly)) then
              ! re-initalise annual flux sums
-             casabal%FCgppyear = 0.0_r_2
-             casabal%FCrpyear  = 0.0_r_2
-             casabal%FCnppyear = 0.0_r_2
-             casabal%FCrsyear  = 0.0_r_2
-             casabal%FCneeyear = 0.0_r_2
+             casabal%FCgppyear = 0.0_r2
+             casabal%FCrpyear  = 0.0_r2
+             casabal%FCnppyear = 0.0_r2
+             casabal%FCrsyear  = 0.0_r2
+             casabal%FCneeyear = 0.0_r2
           end if
 
        end do YEARLOOP
@@ -4287,22 +4287,22 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
   integer,                   intent(in)  :: icomm, ocomm
 
   ! local variables
-  real(r_2), dimension(:), allocatable, save  :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
-  real(r_2), dimension(:), allocatable, save  :: avg_nleaf2met, avg_nleaf2str, avg_nroot2met, avg_nroot2str, avg_nwood2cwd
-  real(r_2), dimension(:), allocatable, save  :: avg_pleaf2met, avg_pleaf2str, avg_proot2met, avg_proot2str, avg_pwood2cwd
-  real(r_2), dimension(:), allocatable, save  :: avg_cgpp,      avg_cnpp,      avg_nuptake,   avg_puptake
-  real(r_2), dimension(:), allocatable, save  :: avg_nsoilmin,  avg_psoillab,  avg_psoilsorb, avg_psoilocc
+  real(r2), dimension(:), allocatable, save  :: avg_cleaf2met, avg_cleaf2str, avg_croot2met, avg_croot2str, avg_cwood2cwd
+  real(r2), dimension(:), allocatable, save  :: avg_nleaf2met, avg_nleaf2str, avg_nroot2met, avg_nroot2str, avg_nwood2cwd
+  real(r2), dimension(:), allocatable, save  :: avg_pleaf2met, avg_pleaf2str, avg_proot2met, avg_proot2str, avg_pwood2cwd
+  real(r2), dimension(:), allocatable, save  :: avg_cgpp,      avg_cnpp,      avg_nuptake,   avg_puptake
+  real(r2), dimension(:), allocatable, save  :: avg_nsoilmin,  avg_psoillab,  avg_psoilsorb, avg_psoilocc
   ! chris 12/oct/2012 for spin up casa
-  real(r_2), dimension(:), allocatable, save  :: avg_ratioNCsoilmic,  avg_ratioNCsoilslow,  avg_ratioNCsoilpass
-  real(r_2), dimension(:), allocatable, save  :: avg_xnplimit,  avg_xkNlimiting,avg_xklitter, avg_xksoil
+  real(r2), dimension(:), allocatable, save  :: avg_ratioNCsoilmic,  avg_ratioNCsoilslow,  avg_ratioNCsoilpass
+  real(r2), dimension(:), allocatable, save  :: avg_xnplimit,  avg_xkNlimiting,avg_xklitter, avg_xksoil
 
   ! local variables
   integer                  :: myearspin, nyear, nloop1, loy
   integer                  :: ktau,ktauday,nday,idoy,ktauy,nloop
-  real(r_2), dimension(mp) :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
-  real(r_2), dimension(mp) :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
-  real(r_2), dimension(mp) :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-  real(r_2), dimension(mp) :: xnplimit,  xknlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
+  real(r2), dimension(mp) :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
+  real(r2), dimension(mp) :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
+  real(r2), dimension(mp) :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
+  real(r2), dimension(mp) :: xnplimit,  xknlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
 
   ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
   integer, allocatable :: iw(:) ! array of indices corresponding to woody (shrub or forest) tiles
@@ -4316,8 +4316,8 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
   type(type_simfire) :: simfire
 
   ! 13C
-  real(r_2), dimension(:,:), allocatable :: casasave
-  real(r_2), dimension(:), allocatable :: avg_c13leaf2met, avg_c13leaf2str, avg_c13root2met, &
+  real(r2), dimension(:,:), allocatable :: casasave
+  real(r2), dimension(:), allocatable :: avg_c13leaf2met, avg_c13leaf2str, avg_c13root2met, &
        avg_c13root2str, avg_c13wood2cwd
 
   if (.not.allocated(iw)) allocate(iw(POP%np))
@@ -4444,7 +4444,7 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
            end if  ! end of year
         else
            casaflux%stemnpp = 0.0_dp
-           casaflux%potstemnpp = 0.0_r_2
+           casaflux%potstemnpp = 0.0_r2
         end if ! CALL_POP
 
         !CLN CALL BLAZE_DRIVER(...)
@@ -4616,7 +4616,7 @@ SUBROUTINE worker_spincasacnp(dels, kstart, kend, mloop, &
               end if  ! end of year
            else
               casaflux%stemnpp = 0.0_dp
-              casaflux%potstemnpp = 0.0_r_2
+              casaflux%potstemnpp = 0.0_r2
            end if ! CALL_POP
            write(wlogn,*) 'idoy ', idoy
 
@@ -4686,10 +4686,10 @@ SUBROUTINE worker_CASAONLY_LUC(dels, kstart, kend, veg, soil, casabiome, casapoo
   ! local variables
   integer           :: myearspin, nyear
   integer           :: ktau, ktauday, nday, idoy
-  real(r_2), dimension(mp) :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
-  real(r_2), dimension(mp) :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
-  real(r_2), dimension(mp) :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
-  real(r_2), dimension(mp) :: xnplimit,  xkNlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
+  real(r2), dimension(mp) :: cleaf2met, cleaf2str, croot2met, croot2str, cwood2cwd
+  real(r2), dimension(mp) :: nleaf2met, nleaf2str, nroot2met, nroot2str, nwood2cwd
+  real(r2), dimension(mp) :: pleaf2met, pleaf2str, proot2met, proot2str, pwood2cwd
+  real(r2), dimension(mp) :: xnplimit,  xkNlimiting, xklitter, xksoil,xkleaf, xkleafcold, xkleafdry
 
   ! more variables to store the spinup pool size over the last 10 loops. Added by Yp Wang 30 Nov 2012
   real(dp) :: StemNPP(mp,2)

@@ -212,8 +212,8 @@ SUBROUTINE mass_balance(dels, ktau, ssnow, soil, canopy, met, air, bal)
    TYPE(balances_type),INTENT(INOUT)        :: bal
 
    ! Local variables
-   REAL(r_2), DIMENSION(:,:,:),POINTER, SAVE :: bwb => null() ! volumetric soil moisture
-   REAL(r_2), DIMENSION(mp)                  :: delwb         ! change in soilmoisture b/w tsteps
+   REAL(r2), DIMENSION(:,:,:),POINTER, SAVE :: bwb => null() ! volumetric soil moisture
+   REAL(r2), DIMENSION(mp)                  :: delwb         ! change in soilmoisture b/w tsteps
    REAL, DIMENSION(mp)                  :: canopy_wbal !canopy water balance
    INTEGER                              :: k           ! do loop counter
 
@@ -261,7 +261,7 @@ SUBROUTINE mass_balance(dels, ktau, ssnow, soil, canopy, met, air, bal)
 
    ENDIF
    ! write(*,"(100e16.6)")  REAL(canopy%through(1) - ssnow%delwcol(1)-ssnow%runoff(1) &
-   !                   - ssnow%evap(1) - max(canopy%fevc(1),0.0)*dels/air%rlam(1), r_2), &
+   !                   - ssnow%evap(1) - max(canopy%fevc(1),0.0)*dels/air%rlam(1), r2), &
    ! canopy%through(1),  ssnow%delwcol(1), ssnow%runoff(1),  ssnow%evap(1),  max(canopy%fevc(1),0.0)*dels/air%rlam(1)
 
    if (ktau == 1) then

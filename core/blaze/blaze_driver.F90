@@ -11,7 +11,7 @@ contains
   SUBROUTINE BLAZE_DRIVER(NCELLS, BLAZE, SF, casapool,  casaflux, casamet, &
        climate, shootfrac, idoy, curyear, CTLFLAG, POP, veg)
 
-    use cable_def_types_mod, only: r_2
+    use cable_def_types_mod, only: i4, r2
     USE CABLE_COMMON_MODULE, ONLY: IS_LEAPYEAR, DOYSOD2YMDHMS !, Esatf
     USE CASAVARIABLE,        ONLY: casa_pool, casa_flux, casa_met
     USE BLAZE_MOD,           ONLY: RUN_BLAZE, TYPE_TURNOVER, BLAZE_TURNOVER, &
@@ -21,7 +21,7 @@ contains
     USE cable_IO_vars_module, ONLY: landpt, patch
     USE CABLE_DEF_TYPES_MOD, ONLY:  climate_type
     USE POPMODULE,            ONLY: ADJUST_POP_FOR_FIRE
-    USE POP_TYPES,            ONLY: POP_TYPE, i4b, dp
+    USE POP_TYPES,            ONLY: POP_TYPE
     USE cable_def_types_mod, ONLY: veg_parameter_type
 
     IMPLICIT NONE
@@ -91,7 +91,7 @@ contains
 !!$  ! set heights at which tree mortality is calculated
 !!$  nbins = mheights
 !!$  DO i=1,nbins
-!!$     casaflux%fire_mortality_vs_height(:,i,1) = real(BIN_POWER**i, r_2)
+!!$     casaflux%fire_mortality_vs_height(:,i,1) = real(BIN_POWER**i, r2)
 !!$  ENDDO
 
 
@@ -157,10 +157,10 @@ contains
 
     !CVH
     ! set casa fire turnover rates and partitioning of fire losses here!
-    casaflux%kplant_fire = 0.0_r_2
-    casaflux%klitter_fire = 0.0_r_2
-    casaflux%fromPtoL_fire = 0.0_r_2
-    !casaflux%fire_mortality_vs_height(:,:,2) = 0.0_r_2
+    casaflux%kplant_fire = 0.0_r2
+    casaflux%klitter_fire = 0.0_r2
+    casaflux%fromPtoL_fire = 0.0_r2
+    !casaflux%fire_mortality_vs_height(:,:,2) = 0.0_r2
 
 
 
@@ -176,10 +176,10 @@ contains
 !!$           DO nh = 1,mheights
 !!$              hgt = real(casaflux%fire_mortality_vs_height(patch_index,nh,1))
 !!$              casaflux%fire_mortality_vs_height(patch_index,nh,2) = &
-!!$                   (1._r_2 - real(p_surv_OzSavanna(hgt,BLAZE%FLI(i)),r_2)) * BLAZE%AB(i) !*
+!!$                   (1._r2 - real(p_surv_OzSavanna(hgt,BLAZE%FLI(i)),r2)) * BLAZE%AB(i) !*
 !!$
 !!$
-!!$              ! (1._r_2 - casaflux%fire_mortality_vs_height(patch_index,nh,2))  &
+!!$              ! (1._r2 - casaflux%fire_mortality_vs_height(patch_index,nh,2))  &
 !!$
 !!$           ENDDO
 !!$        ENDIF
@@ -194,17 +194,17 @@ contains
     ! print*, 'IW', POP%Iwood
     ! print*, 'fire_mort',  casaflux%fire_mortality_vs_height(Iw,:,:)
     ! print*, 'BA: ', BLAZE%AB
-    ! print*, 'dist: ', int(veg%disturbance_interval(Iw,:), i4b)
+    ! print*, 'dist: ', int(veg%disturbance_interval(Iw,:), i4)
 
-    POP%pop_grid(:)%fire_mortality = 0.0_dp
-!!$  CALL ADJUST_POP_FOR_FIRE(pop,int(veg%disturbance_interval(Iw,:), i4b), &
+    POP%pop_grid(:)%fire_mortality = 0.0_r2
+!!$  CALL ADJUST_POP_FOR_FIRE(pop,int(veg%disturbance_interval(Iw,:), i4), &
 !!$       casaflux%fire_mortality_vs_height(Iw,:,:))
-    CALL ADJUST_POP_FOR_FIRE(pop,int(veg%disturbance_interval(Iw,:), i4b), &
+    CALL ADJUST_POP_FOR_FIRE(pop,int(veg%disturbance_interval(Iw,:), i4), &
          veg%disturbance_intensity(Iw,1), veg%disturbance_intensity(Iw,2)  )
-    print*,"CLN ADJUST_POP_FOR_FIRE" ,int(veg%disturbance_interval(Iw,:), i4b), &
+    print*,"CLN ADJUST_POP_FOR_FIRE" ,int(veg%disturbance_interval(Iw,:), i4), &
          veg%disturbance_intensity(Iw,1), veg%disturbance_intensity(Iw,2)
     casaflux%kplant_fire(Iw,WOOD) = max(min(POP%pop_grid(:)%fire_mortality/POP%pop_grid(:)%cmass_sum, &
-         0.99_dp),0.0_dp)
+         0.99_r2), 0.0_r2)
 
     !write(556,*) casaflux%kplant_fire(1,WOOD),  casaflux%kplant(1,WOOD), BLAZE%AB
     !write(557,*) BLAZE%AB, casaflux%fire_mortality_vs_height(1,:,2)
@@ -217,55 +217,55 @@ contains
 
           IF ( casamet%lnonwood(patch_index) == 1 ) THEN ! Here non-wood
 
-             casaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i), r_2) !CLN ???
-             casaflux%kplant_fire(patch_index,FROOT) =  real(BLAZE%AB(i), r_2) !CLN ???
-             casaflux%kplant_fire(patch_index,WOOD)  = 0.0_r_2
+             casaflux%kplant_fire(patch_index,LEAF)  = real(BLAZE%AB(i), r2) !CLN ???
+             casaflux%kplant_fire(patch_index,FROOT) =  real(BLAZE%AB(i), r2) !CLN ???
+             casaflux%kplant_fire(patch_index,WOOD)  = 0.0_r2
 
-             casaflux%klitter_fire(patch_index,METB) = real(BLAZE%AB(i) * ag_litter_frac, r_2)
-             casaflux%klitter_fire(patch_index,STR)  =  real(BLAZE%AB(i) * ag_litter_frac, r_2)
-             casaflux%klitter_fire(patch_index,CWD)  = 0.0_r_2
+             casaflux%klitter_fire(patch_index,METB) = real(BLAZE%AB(i) * ag_litter_frac, r2)
+             casaflux%klitter_fire(patch_index,STR)  =  real(BLAZE%AB(i) * ag_litter_frac, r2)
+             casaflux%klitter_fire(patch_index,CWD)  = 0.0_r2
 
-             casaflux%fromPtoL_fire(patch_index,METB,LEAF)  = 0.0_r_2
-             casaflux%fromPtoL_fire(patch_index,METB,FROOT) = 0.0_r_2
-             casaflux%fromPtoL_fire(patch_index,METB,WOOD)  = 0.0_r_2
+             casaflux%fromPtoL_fire(patch_index,METB,LEAF)  = 0.0_r2
+             casaflux%fromPtoL_fire(patch_index,METB,FROOT) = 0.0_r2
+             casaflux%fromPtoL_fire(patch_index,METB,WOOD)  = 0.0_r2
 
-             casaflux%fromPtoL_fire(patch_index,STR,LEAF)  = 0.0_r_2
-             casaflux%fromPtoL_fire(patch_index,STR,FROOT) = 0.0_r_2
-             casaflux%fromPtoL_fire(patch_index,STR,WOOD)  = 0.0_r_2
+             casaflux%fromPtoL_fire(patch_index,STR,LEAF)  = 0.0_r2
+             casaflux%fromPtoL_fire(patch_index,STR,FROOT) = 0.0_r2
+             casaflux%fromPtoL_fire(patch_index,STR,WOOD)  = 0.0_r2
 
-             casaflux%fromPtoL_fire(patch_index,CWD,LEAF)  = 0.0_r_2
-             casaflux%fromPtoL_fire(patch_index,CWD,FROOT) = 0.0_r_2
-             casaflux%fromPtoL_fire(patch_index,CWD,WOOD)  = 0.0_r_2
+             casaflux%fromPtoL_fire(patch_index,CWD,LEAF)  = 0.0_r2
+             casaflux%fromPtoL_fire(patch_index,CWD,FROOT) = 0.0_r2
+             casaflux%fromPtoL_fire(patch_index,CWD,WOOD)  = 0.0_r2
 
           ELSEIF ( casamet%lnonwood(patch_index) == 0 ) THEN ! Here woody patches
              casaflux%kplant_fire(patch_index,LEAF) =  real(BLAZE%AB(i) * &
-                  (TO(i, LEAF )%TO_ATM + TO(i, LEAF )%TO_STR), r_2)
+                  (TO(i, LEAF )%TO_ATM + TO(i, LEAF )%TO_STR), r2)
              casaflux%kplant_fire(patch_index,FROOT) = real(BLAZE%AB(i) * &
-                  (TO(i, FROOT )%TO_ATM + TO(i, FROOT )%TO_STR), r_2)
+                  (TO(i, FROOT )%TO_ATM + TO(i, FROOT )%TO_STR), r2)
 
 
              casaflux%klitter_fire(patch_index,METB) = real(BLAZE%AB(i) * &
-                  (TO(i, MLIT )%TO_ATM) * ag_litter_frac, r_2)
+                  (TO(i, MLIT )%TO_ATM) * ag_litter_frac, r2)
              casaflux%klitter_fire(patch_index,STR) =  real(BLAZE%AB(i) * &
-                  (TO(i, SLIT )%TO_ATM) * ag_litter_frac, r_2)
+                  (TO(i, SLIT )%TO_ATM) * ag_litter_frac, r2)
              casaflux%klitter_fire(patch_index,CWD) =  real(BLAZE%AB(i) * &
-                  (TO(i, CLIT )%TO_ATM) * ag_litter_frac, r_2)
+                  (TO(i, CLIT )%TO_ATM) * ag_litter_frac, r2)
 
              casaflux%fromPtoL_fire(patch_index,STR,LEAF) = real(TO(i, LEAF )%TO_STR/ &
-                  MAX((TO(i, LEAF )%TO_STR + TO(i, LEAF )%TO_ATM),1.e-5), r_2)
+                  MAX((TO(i, LEAF )%TO_STR + TO(i, LEAF )%TO_ATM),1.e-5), r2)
 
              casaflux%fromPtoL_fire(patch_index,STR,FROOT) = real(TO(i, FROOT )%TO_STR/ &
-                  MAX((TO(i, FROOT )%TO_STR + TO(i, FROOT )%TO_ATM),1.e-5), r_2)
+                  MAX((TO(i, FROOT )%TO_STR + TO(i, FROOT )%TO_ATM),1.e-5), r2)
 
              ! maintain look-up table values for partitioning flux from woody biomass, but assume
              ! flux to atm only applies to above-ground wood (70% of total)
 
              casaflux%fromPtoL_fire(patch_index,CWD,WOOD) = real(TO(i, WOOD )%TO_CWD/ &
-                  MAX((TO(i, WOOD )%TO_CWD + TO(i, WOOD )%TO_ATM*0.7 +  TO(i, WOOD )%TO_STR ),1.e-5), r_2)
+                  MAX((TO(i, WOOD )%TO_CWD + TO(i, WOOD )%TO_ATM*0.7 +  TO(i, WOOD )%TO_STR ),1.e-5), r2)
 
              casaflux%fromPtoL_fire(patch_index,STR,WOOD) = real(TO(i, WOOD )%TO_STR/ &
                   MAX((TO(i, WOOD )%TO_CWD + TO(i, WOOD )%TO_ATM + &
-                  TO(i, WOOD )%TO_STR ),1e-5), r_2)
+                  TO(i, WOOD )%TO_STR ),1e-5), r2)
 
 
 

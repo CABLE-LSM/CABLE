@@ -20,7 +20,7 @@ USE cable_io_vars_module,   ONLY: logn, land_x, land_y, exists, nMetPatches,&
 USE cable_input_module,     ONLY: SPATIO_TEMPORAL_DATASET, find_variable_ID,&
                                 prepare_spatiotemporal_dataset, read_metvals,&
                                 open_at_first_file
-USE cable_def_types_mod,    ONLY: MET_TYPE, r_2, mLand
+USE cable_def_types_mod,    ONLY: MET_TYPE, r1, r2, mLand
 USE cable_weathergenerator, ONLY: WEATHER_GENERATOR_TYPE, WGEN_INIT,&
                                 WGEN_DAILY_CONSTANTS, WGEN_SUBDIURNAL_MET
 USE mo_utils,               ONLY: eq
@@ -44,8 +44,6 @@ INTEGER, PRIVATE, PARAMETER  :: rain = 1, lwdn = 2, swdn = 3, pres = 4,&
                                 vph1500 = 12, fdiff = 13, prevTmax = 14,&
                                 nextTmin = 15, nextvph0900 = 16,&
                                 prevvph1500 = 17
-INTEGER, PRIVATE, PARAMETER  :: sp = kind(1.0)
-INTEGER, PRIVATE, PARAMETER  :: dp = KIND(1.0d0)
 ! We have two separate "classes" variables- the "core" variables, which each are
 ! assigned their own reader, and "derived" variables, which are derived in a
 ! sense from the core variables. At the moment, these "derived" variables are
@@ -269,19 +267,19 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau)
 
      ! Convert wind from u and v components to wind speed by Pythagorean Theorem
      WG%WindDay        = real(sqrt((CRU%MET(uwind)%METVALS * CRU%MET(uwind)%METVALS) +  &
-          (CRU%MET(vwind)%METVALS * CRU%MET(vwind)%METVALS)), r_2)
+          (CRU%MET(vwind)%METVALS * CRU%MET(vwind)%METVALS)), r2)
      ! Convert all temperatures from K to C
-     WG%TempMinDay     = real(CRU%MET(  Tmin  )%METVALS - 273.15, r_2)
-     WG%TempMaxDay     = real(CRU%MET(  Tmax  )%METVALS - 273.15, r_2)
-     WG%TempMinDayNext = real(CRU%MET(NextTmin)%METVALS - 273.15, r_2)
-     WG%TempMaxDayPrev = real(CRU%MET(PrevTmax)%METVALS - 273.15, r_2)
+     WG%TempMinDay     = real(CRU%MET(  Tmin  )%METVALS - 273.15, r2)
+     WG%TempMaxDay     = real(CRU%MET(  Tmax  )%METVALS - 273.15, r2)
+     WG%TempMinDayNext = real(CRU%MET(NextTmin)%METVALS - 273.15, r2)
+     WG%TempMaxDayPrev = real(CRU%MET(PrevTmax)%METVALS - 273.15, r2)
      ! Convert solar radiation from J /m2/s to MJ/m2/d
-     WG%SolarMJDay     = real(CRU%MET(swdn)%METVALS * 1.e-6 * SecDay, r_2) ! ->[MJ/m2/d]
+     WG%SolarMJDay     = real(CRU%MET(swdn)%METVALS * 1.e-6 * SecDay, r2) ! ->[MJ/m2/d]
      ! Convert precip from mm to m/day
-     WG%PrecipDay      = real(max(CRU%MET(rain)%METVALS  / 1000., 0.0), r_2) ! ->[m/d]
+     WG%PrecipDay      = real(max(CRU%MET(rain)%METVALS  / 1000., 0.0), r2) ! ->[m/d]
      !WG%PrecipDay      = max(CRU%MET(rain)%METVALS  / 1000., 0.0)/2.0 ! ->[m/d] ! test vh !
-     WG%SnowDay        = 0.0_r_2
-     WG%VapPmbDay = real(esatf(real(WG%TempMinDay, sp)), r_2)
+     WG%SnowDay        = 0.0_r2
+     WG%VapPmbDay = real(esatf(real(WG%TempMinDay, r1)), r2)
      call WGEN_DAILY_CONSTANTS(WG, CRU%mland, int(met%doy(1))+1)
 
      ! To get the diurnal cycle for lwdn get whole day and scale with
@@ -313,15 +311,15 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau)
 
      ! Cable's swdown is split into two components, visible and nir, which
      ! get half of the CRU-NCEP swdown each.
-     met%fsd(is:ie,1) = real(WG%PhiSD(iland) * 0.5_r_2)  ! Visible
-     met%fsd(is:ie,2) = real(WG%PhiSD(iland) * 0.5_r_2)  ! NIR
+     met%fsd(is:ie,1) = real(WG%PhiSD(iland) * 0.5_r2)  ! Visible
+     met%fsd(is:ie,2) = real(WG%PhiSD(iland) * 0.5_r2)  ! NIR
 
      if (.NOT. cable_user%calc_fdiff) then ! read from met forcing, otherwise calculated in cable_radiation.F90
         met%fdiff(is:ie) = CRU%MET(fdiff)%METVALS(iland)
      endif
 
      ! Convert C to K for cable's tk
-     met%tk(is:ie)     = real(WG%Temp(iland) + 273.15_r_2)
+     met%tk(is:ie)     = real(WG%Temp(iland) + 273.15_r2)
 
      met%ua(is:ie)     = real(WG%Wind(iland))
      met%coszen(is:ie) = real(WG%coszen(iland))
@@ -335,7 +333,7 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau)
      met%qv(is:ie) = CRU%MET(qair)%METVALS(iland)
 
      ! rel humidity (%)
-     met%rhum(is:ie)  = real(WG%VapPmb(iland))/esatf(real(WG%Temp(iland),sp)) * 100.0
+     met%rhum(is:ie)  = real(WG%VapPmb(iland))/esatf(real(WG%Temp(iland), r1)) * 100.0
      met%u10(is:ie)   = met%ua(is:ie)
      ! initialise within canopy air temp
      met%tvair(is:ie) = met%tk(is:ie)
@@ -355,7 +353,7 @@ SUBROUTINE CRU_GET_SUBDIURNAL_MET(CRU, MET, CurYear, ktau)
      !       met%precip_sn(is:ie) = met%precip(is:ie)
      !    endif
 
-     if (WG%Temp(iland) <= 0.0_r_2) then
+     if (WG%Temp(iland) <= 0.0_r2) then
         met%precip_sn(is:ie) = met%precip(is:ie)
      else
         met%precip_sn(is:ie) = 0.0
@@ -392,6 +390,8 @@ SUBROUTINE BIOS_GET_SUBDIURNAL_MET(CRU, Met, CurYear, ktau)
   ! Uses the current date to retrieve the relevant entry from the respective
   ! variable datasets, and process them into quantities appropriate for the
   ! subdiurnal weather generator.
+
+  USE cable_def_types_mod, ONLY: r1, r2
 
   TYPE(CRU_TYPE), INTENT(INOUT) :: CRU  ! Meta information about the Met config
   TYPE(MET_TYPE), INTENT(INOUT) :: Met  ! The Met data storage
@@ -482,22 +482,22 @@ SUBROUTINE BIOS_GET_SUBDIURNAL_MET(CRU, Met, CurYear, ktau)
     is = LandPt(iLand)%cStart
     ie = LandPt(iLand)%cEnd
 
-    Met%Precip(is:ie)     = REAL(WG%Precip(iLand), sp)
-    Met%Precip_sn(is:ie)  = REAL(WG%Snow(iLand), sp)
+    Met%Precip(is:ie)     = REAL(WG%Precip(iLand), r1)
+    Met%Precip_sn(is:ie)  = REAL(WG%Snow(iLand), r1)
     ! Why is it done this way? Doesn't make much sense
     Met%Precip(is:ie)     = Met%Precip(is:ie) + Met%Precip_sn(is:ie)
-    Met%fld(is:ie)        = REAL(WG%PhilD(iLand), sp)
-    Met%fsd(is:ie,1)      = REAL(WG%PhiSD(iLand) * 0.5_dp, sp)
-    Met%fsd(is:ie,2)      = REAL(WG%PhiSD(iLand) * 0.5_dp, sp)
-    Met%tk(is:ie)         = REAL(WG%Temp(iLand) + 273.15_dp, sp)
+    Met%fld(is:ie)        = REAL(WG%PhilD(iLand), r1)
+    Met%fsd(is:ie,1)      = REAL(WG%PhiSD(iLand) * 0.5_r2, r1)
+    Met%fsd(is:ie,2)      = REAL(WG%PhiSD(iLand) * 0.5_r2, r1)
+    Met%tk(is:ie)         = REAL(WG%Temp(iLand) + 273.15_r2, r1)
     ! Factor of 2 to convert 2m screen height to 40m zref (??)
-    Met%ua(is:ie)         = REAL(WG%Wind(iLand) * 2.0_dp, sp)
-    Met%coszen(is:ie)     = REAL(WG%coszen(iLand), sp)
-    Met%qv(is:ie)         = REAL(WG%VapPmb(iLand) / WG%Pmb(iLand), sp) *&
+    Met%ua(is:ie)         = REAL(WG%Wind(iLand) * 2.0_r2, r1)
+    Met%coszen(is:ie)     = REAL(WG%coszen(iLand), r1)
+    Met%qv(is:ie)         = REAL(WG%VapPmb(iLand) / WG%Pmb(iLand), r1) *&
                             RMWbyRMA
-    Met%Pmb(is:ie)        = REAL(WG%Pmb(iLand), sp)
-    Met%rhum(is:ie)       = REAL(WG%VapPmb(iLand), sp) /&
-                            ESATF(REAL(WG%Temp(iLand), sp)) * 100.0
+    Met%Pmb(is:ie)        = REAL(WG%Pmb(iLand), r1)
+    Met%rhum(is:ie)       = REAL(WG%VapPmb(iLand), r1) /&
+                            ESATF(REAL(WG%Temp(iLand), r1)) * 100.0
     Met%u10(is:ie)        = Met%ua(is:ie)
     Met%tvair(is:ie)      = Met%tk(is:ie)
     Met%tvrad(is:ie)      = Met%tk(is:ie)
@@ -1243,13 +1243,13 @@ ELEMENTAL FUNCTION Esatf(TC)
 ! ------------------------------------------------------------------------------
 IMPLICIT NONE
 
-REAL(sp), INTENT(IN) :: TC          ! temp [deg C]
-REAL(sp)             :: Esatf       ! saturation vapour pressure [mb]
+REAL(r1), INTENT(IN) :: TC          ! temp [deg C]
+REAL(r1)             :: Esatf       ! saturation vapour pressure [mb]
 
-REAL(sp) :: TCtmp                   ! local
-REAL(sp),PARAMETER:: A = 6.106      ! Teten coefficients
-REAL(sp),PARAMETER:: B = 17.27      ! Teten coefficients
-REAL(sp),PARAMETER:: C = 237.3      ! Teten coefficients
+REAL(r1) :: TCtmp                   ! local
+REAL(r1), PARAMETER:: A = 6.106      ! Teten coefficients
+REAL(r1), PARAMETER:: B = 17.27      ! Teten coefficients
+REAL(r1), PARAMETER:: C = 237.3      ! Teten coefficients
 
 TCtmp = TC                            ! preserve TC
 IF (TCtmp > 100.0) TCtmp = 100.0   ! constrain TC to (-40.0, 100.0)

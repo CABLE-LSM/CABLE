@@ -12,7 +12,7 @@ contains
     ! Modified to operate for multiple veg tiles but a single soil column, March 2011
     ! Rewritten for same number of soil columns as veg tiles May 2012
     USE cable_def_types_mod,  ONLY: veg_parameter_type, soil_parameter_type, soil_snow_type, met_type, &
-         canopy_type, air_type, radiation_type, ms, mp, r_2, i_d
+         canopy_type, air_type, radiation_type, ms, mp, r2, i4
     USE cable_common_module , ONLY: cable_user
     USE sli_numbers,          ONLY:  zero, half, one, two, four, thousand, & ! numbers
          Tzero, experiment, &                                       ! variables
@@ -31,78 +31,78 @@ contains
     IMPLICIT NONE
 
     REAL,                      INTENT(IN)    :: dt
-    TYPE(veg_parameter_type),  INTENT(INOUT) :: veg     ! all r_1
-    TYPE(soil_parameter_type), INTENT(INOUT) :: soil    ! all r_1
-    TYPE(soil_snow_type),      INTENT(INOUT) :: ssnow   ! r_1, r_2 desaster
-    TYPE(met_type),            INTENT(INOUT) :: met     ! all r_1
-    TYPE(canopy_type),         INTENT(INOUT) :: canopy  ! all r_1
-    TYPE(air_type),            INTENT(INOUT) :: air     ! all r_1
+    TYPE(veg_parameter_type),  INTENT(INOUT) :: veg     ! all r1
+    TYPE(soil_parameter_type), INTENT(INOUT) :: soil    ! all r1
+    TYPE(soil_snow_type),      INTENT(INOUT) :: ssnow   ! r1, r2 desaster
+    TYPE(met_type),            INTENT(INOUT) :: met     ! all r1
+    TYPE(canopy_type),         INTENT(INOUT) :: canopy  ! all r1
+    TYPE(air_type),            INTENT(INOUT) :: air     ! all r1
     TYPE(radiation_type),      INTENT(IN)    :: rad
     INTEGER,                   INTENT(IN)    :: ktau ! integration step number
     INTEGER,                   INTENT(IN)    :: SEB_only ! integration step number
 
-    REAL(r_2), PARAMETER :: emsoil = 0.97_r_2
-    REAL(r_2), PARAMETER :: rhocp = 1.1822e3_r_2
-    REAL(r_2), PARAMETER :: Dva   = 2.17e-5_r_2
-    INTEGER(i_d) :: i, k, kk, setroot
-    REAL(r_2)    :: ti, tf
+    REAL(r2), PARAMETER :: emsoil = 0.97_r2
+    REAL(r2), PARAMETER :: rhocp = 1.1822e3_r2
+    REAL(r2), PARAMETER :: Dva   = 2.17e-5_r2
+    INTEGER(i4) :: i, k, kk, setroot
+    REAL(r2)    :: ti, tf
     TYPE(vars_met),  DIMENSION(1:mp)      :: vmet ! Meteorology above soil
     TYPE(vars),      DIMENSION(1:mp)      :: vlit
     TYPE(vars),      DIMENSION(1:mp,1:ms) :: var
     TYPE(vars_snow), DIMENSION(1:mp)      :: vsnow
-    INTEGER(i_d),    DIMENSION(1:mp)      :: nsteps
-    REAL(r_2),       DIMENSION(1:mp,1:ms) :: Tsoil, S, thetai, Jsensible
-    REAL(r_2),       DIMENSION(1:mp)      :: SL, TL, T0
-    REAL(r_2),       DIMENSION(1:mp)      :: drn, evap, infil, qprec, qprec_snow,qprec_snow_tmp, runoff, runoff_sat
-    REAL(r_2),       DIMENSION(1:mp)      :: win, wp, wpi, h0, deltah0, h0old,hsnowold, discharge
-    REAL(r_2),       DIMENSION(1:mp)      :: ip, ipi ! volumetric ice content of profile (final and initial)
-    REAL(r_2),       DIMENSION(1:mp,1:ms) :: wex, csoil, qex, kth, phi, thetal_max, Sliq, Ksat
-    REAL(r_2),       DIMENSION(1:mp,1:ms) :: FS
+    INTEGER(i4),    DIMENSION(1:mp)      :: nsteps
+    REAL(r2),       DIMENSION(1:mp,1:ms) :: Tsoil, S, thetai, Jsensible
+    REAL(r2),       DIMENSION(1:mp)      :: SL, TL, T0
+    REAL(r2),       DIMENSION(1:mp)      :: drn, evap, infil, qprec, qprec_snow,qprec_snow_tmp, runoff, runoff_sat
+    REAL(r2),       DIMENSION(1:mp)      :: win, wp, wpi, h0, deltah0, h0old,hsnowold, discharge
+    REAL(r2),       DIMENSION(1:mp)      :: ip, ipi ! volumetric ice content of profile (final and initial)
+    REAL(r2),       DIMENSION(1:mp,1:ms) :: wex, csoil, qex, kth, phi, thetal_max, Sliq, Ksat
+    REAL(r2),       DIMENSION(1:mp,1:ms) :: FS
     ! surface temperature (top of top soil layer or top of litter layer)
-    REAL(r_2),       DIMENSION(1:mp)      :: Tsurface
-    REAL(r_2),       DIMENSION(1:mp)      :: gr, grc
-    REAL(r_2),       DIMENSION(1:mp)      :: Etrans
-    REAL(r_2),       DIMENSION(1:mp)      :: gamm
-    REAL(r_2),       DIMENSION(1:mp)      :: G0, H, lE, Epot
-    REAL(r_2),       DIMENSION(1:mp,-nsnow_max:ms) :: qh, qvsig, qlsig, qvTsig, qvh
-    REAL(r_2),       DIMENSION(1:mp)      :: deltaTa, lE_old !, SA, SB, wpAi, wpBi, wpA, wpB
-    REAL(r_2),       DIMENSION(1:mp)      :: evap_pot, deltaice_cum_T, deltaice_cum_S, zdelta
-    REAL(r_2),       DIMENSION(1:mp)      :: fws
-    REAL(r_2),       DIMENSION(1:mp)      :: Qadvcum, Jcol_sensible, Jcol_latent_S, Jcol_latent_T
-    REAL(r_2),       DIMENSION(1:mp)      :: tmp1d1, deltaEsnow
-    REAL(r_2),       DIMENSION(1:mp)      :: hice, phie
-    REAL(r_2)                             :: tmp1d1a, tmp1d2, tmp1d3, tmp1d4, &
+    REAL(r2),       DIMENSION(1:mp)      :: Tsurface
+    REAL(r2),       DIMENSION(1:mp)      :: gr, grc
+    REAL(r2),       DIMENSION(1:mp)      :: Etrans
+    REAL(r2),       DIMENSION(1:mp)      :: gamm
+    REAL(r2),       DIMENSION(1:mp)      :: G0, H, lE, Epot
+    REAL(r2),       DIMENSION(1:mp,-nsnow_max:ms) :: qh, qvsig, qlsig, qvTsig, qvh
+    REAL(r2),       DIMENSION(1:mp)      :: deltaTa, lE_old !, SA, SB, wpAi, wpBi, wpA, wpB
+    REAL(r2),       DIMENSION(1:mp)      :: evap_pot, deltaice_cum_T, deltaice_cum_S, zdelta
+    REAL(r2),       DIMENSION(1:mp)      :: fws
+    REAL(r2),       DIMENSION(1:mp)      :: Qadvcum, Jcol_sensible, Jcol_latent_S, Jcol_latent_T
+    REAL(r2),       DIMENSION(1:mp)      :: tmp1d1, deltaEsnow
+    REAL(r2),       DIMENSION(1:mp)      :: hice, phie
+    REAL(r2)                             :: tmp1d1a, tmp1d2, tmp1d3, tmp1d4, &
          tmp1d5, tmp1d6, tmp1d7, tmp1d8, tmp1d9,tmp1d10, tmp1d11, &
          tmp1d12,tmp1d13, tmp1d14, tmp1d15, tmp1d16
-    REAL(r_2) :: rbw, rbh, rrc ! resistances for output
-    INTEGER(i_d), DIMENSION(1:mp) :: index
+    REAL(r2) :: rbw, rbh, rrc ! resistances for output
+    INTEGER(i4), DIMENSION(1:mp) :: index
 
     ! Topmodel
-    REAL(r_2), DIMENSION(1:mp) :: fsat ! topmodel saturated area
-    REAL(r_2), DIMENSION(1:mp) :: qb   ! topmodel baseflow
+    REAL(r2), DIMENSION(1:mp) :: fsat ! topmodel saturated area
+    REAL(r2), DIMENSION(1:mp) :: qb   ! topmodel baseflow
 
     ! Model switches
-    INTEGER(i_d), PARAMETER :: litter       = 2 ! which litter model
+    INTEGER(i4), PARAMETER :: litter       = 2 ! which litter model
     ! 0: no litter
     ! 1: full litter
     ! 2: litter resistance
-    INTEGER(i_d), PARAMETER :: advection    = 1 ! heat advection by water
-    INTEGER(i_d), PARAMETER :: isotopologue = 0 ! which isotope
+    INTEGER(i4), PARAMETER :: advection    = 1 ! heat advection by water
+    INTEGER(i4), PARAMETER :: isotopologue = 0 ! which isotope
     ! 0: no isotope calculations
     ! 1: HDO
     ! 2: H218O
     ! 3: HDO & H218O
     ! 0: normal run
-    INTEGER(i_d), PARAMETER :: condition    = 3 ! condition matrix before solving
+    INTEGER(i4), PARAMETER :: condition    = 3 ! condition matrix before solving
     ! 0: no conditioning
     ! 1: condition columns
     ! 2: condition lines
     ! 3: condition first lines then columns
     LOGICAL, SAVE :: first = .true.
-    INTEGER(i_d), SAVE  :: counter
+    INTEGER(i4), SAVE  :: counter
 
     ! Error flag if nstep of SLI > nsteps_max: err=0 -> no error; err/=0 -> error
-    INTEGER(i_d), DIMENSION(1:mp) :: err
+    INTEGER(i4), DIMENSION(1:mp) :: err
 
     ! initialise cumulative variables
     ! Jcol_sensible = zero
@@ -173,10 +173,10 @@ contains
     ! Set root density distribution (leave in for sli offline)
     setroot = 0  ! reset rooting depths
     if (setroot == 1) then
-       call setroots(x*100.0_r_2, real(veg%F10,r_2), real(veg%ZR,r_2)*100.0_r_2, FS)
+       call setroots(x*100.0_r2, real(veg%F10,r2), real(veg%ZR,r2)*100.0_r2, FS)
        veg%froot = real(FS)
     else
-       FS = real(veg%froot,r_2)
+       FS = real(veg%froot,r2)
     endif
     ! set required soil hydraulic params
     if (.not. allocated(par)) then
@@ -208,17 +208,17 @@ contains
        vmet%phiva = zero
     endif
 
-    vmet%Ta  = real(met%Tvair,r_2) - Tzero
-    vmet%Da  = real(met%dva,r_2)
+    vmet%Ta  = real(met%Tvair,r2) - Tzero
+    vmet%Da  = real(met%dva,r2)
     vmet%rbh = ssnow%rtsoil
     vmet%rbw = vmet%rbh
 
-    gr       = four * emsoil * (vmet%Ta+Tzero)**3 *5.67e-8_r_2 ! radiation conductance Wm-2K-1
+    gr       = four * emsoil * (vmet%Ta+Tzero)**3 *5.67e-8_r2 ! radiation conductance Wm-2K-1
     grc      = one/vmet%rbh   + gr/rhocp
     vmet%rrc = one/grc                            ! resistance to radiative and convective heat transfer
 
-    vmet%rha   = max(min((esat(vmet%Ta)-vmet%Da)/esat(vmet%Ta),one),0.1_r_2)
-    vmet%cva   = vmet%rha * esat(vmet%Ta)*0.018_r_2/thousand/8.314_r_2/(vmet%Ta+Tzero) ! m3 H2O (liq) m-3 (air)
+    vmet%rha   = max(min((esat(vmet%Ta)-vmet%Da)/esat(vmet%Ta),one),0.1_r2)
+    vmet%cva   = vmet%rha * esat(vmet%Ta)*0.018_r2/thousand/8.314_r2/(vmet%Ta+Tzero) ! m3 H2O (liq) m-3 (air)
     vmet%phiva = Dva * vmet%cva
     vmet%Rn    = canopy%fns
     ! vmet%Rnsw  = rad%qssabs  ! shortwave radiation absorbed
@@ -250,9 +250,9 @@ contains
           vsnow(kk)%depth      = zero
           vsnow(kk)%totdepth   = zero
           vsnow(kk)%wcol       = zero
-          vsnow(kk)%dens       = 120._r_2 ! snow density kg m-3
+          vsnow(kk)%dens       = 120._r2 ! snow density kg m-3
           vsnow(kk)%tsn        = zero
-          vsnow(kk)%kH         = 0.16_r_2 ! snow thermal cond (W m-2 K-1)
+          vsnow(kk)%kH         = 0.16_r2 ! snow thermal cond (W m-2 K-1)
           vsnow(kk)%Dv         = Dva      ! m2 s-1
           vsnow(kk)%sl         = zero
           vsnow(kk)%kE         = zero
@@ -264,7 +264,7 @@ contains
           vsnow(kk)%nsnow_last = 0
           ssnow%cls(kk)        = one
           vsnow(kk)%J                      = zero
-          vsnow(kk)%fsnowliq_max           = 0.03_r_2
+          vsnow(kk)%fsnowliq_max           = 0.03_r2
           vsnow(kk)%deltaJlatent           = zero
           vsnow(kk)%deltaJsensible         = zero
           vsnow(kk)%Qadv_snow              = zero
@@ -295,7 +295,7 @@ contains
     lE_old   = ssnow%lE
     zdelta   = ssnow%zdelta
 
-    SL    = 0.5_r_2   ! degree of litter saturation
+    SL    = 0.5_r2   ! degree of litter saturation
     Tsoil = ssnow%Tsoil
     TL(:) = Tsoil(:,1) ! litter T
 
@@ -350,15 +350,15 @@ contains
           vsnow(kk)%hsnow(:) = ssnow%smass(kk,1:nsnow_max)/thousand ! SWE (state variable)
           vsnow(kk)%depth(:) = ssnow%sdepth(kk,1:nsnow_max)  ! depth of snow pack (m)
           vsnow(kk)%dens(:)  = ssnow%ssdn(kk,1:nsnow_max)
-          where (vsnow(kk)%dens <= 200._r_2)
-             vsnow(kk)%fsnowliq_max = 0.03_r_2
+          where (vsnow(kk)%dens <= 200._r2)
+             vsnow(kk)%fsnowliq_max = 0.03_r2
           elsewhere
-             vsnow(kk)%fsnowliq_max = 0.03_r_2 + (0.1_r_2 - 0.03_r_2)*(vsnow(kk)%dens-200._r_2)/vsnow(kk)%dens
+             vsnow(kk)%fsnowliq_max = 0.03_r2 + (0.1_r2 - 0.03_r2)*(vsnow(kk)%dens-200._r2)/vsnow(kk)%dens
           endwhere
           vsnow(kk)%fsnowliq_max = 0.1 !MC! ???
-          vsnow(kk)%tsn(:) = real(ssnow%tggsn(kk,1:nsnow_max),r_2) - Tzero
+          vsnow(kk)%tsn(:) = real(ssnow%tggsn(kk,1:nsnow_max),r2) - Tzero
           vsnow(kk)%kH(:)  = ssnow%sconds(kk,1:nsnow_max)
-          vsnow(kk)%Dv(:)  = Dva*(max(real(ssnow%tggsn(kk,1:nsnow_max),r_2)/Tzero,0.0_r_2))**1.88_r_2 ! m2 s-1
+          vsnow(kk)%Dv(:)  = Dva*(max(real(ssnow%tggsn(kk,1:nsnow_max),r2)/Tzero,0.0_r2))**1.88_r2 ! m2 s-1
           vsnow(kk)%sl     = slope_esat_ice(vsnow(kk)%tsn) * Mw/thousand/Rgas/(vsnow(kk)%tsn+Tzero)
           vsnow(kk)%kE     = vsnow(kk)%Dv*vsnow(kk)%sl*thousand*lambdaf
           vsnow(kk)%kth    = vsnow(kk)%kE + vsnow(kk)%kH
@@ -369,10 +369,10 @@ contains
           ssnow%isflag(kk)       = 0
           vsnow(kk)%hsnow        = zero
           vsnow(kk)%depth        = zero
-          vsnow(kk)%dens         = 120_r_2 ! snow density kg m-3
+          vsnow(kk)%dens         = 120_r2 ! snow density kg m-3
           vsnow(kk)%tsn          = zero
-          vsnow(kk)%kH           = 0.16_r_2    ! snow thermal cond (W m-2 K-1)
-          vsnow(kk)%Dv           = Dva ! *(Tzero/Tzero)**1.88_r_2 ! m2 s-1
+          vsnow(kk)%kH           = 0.16_r2    ! snow thermal cond (W m-2 K-1)
+          vsnow(kk)%Dv           = Dva ! *(Tzero/Tzero)**1.88_r2 ! m2 s-1
           vsnow(kk)%sl           = zero
           vsnow(kk)%kE           = zero
           vsnow(kk)%kth          = vsnow(kk)%kH
@@ -383,7 +383,7 @@ contains
           vsnow(kk)%Jsensible    = zero
           vsnow(kk)%J            = zero
           vsnow(kk)%nsnow        = 0
-          vsnow(kk)%fsnowliq_max = 0.03_r_2
+          vsnow(kk)%fsnowliq_max = 0.03_r2
        endif
        ! heat stored in snowpack
        where (vsnow(kk)%hsnow > zero)
@@ -419,12 +419,12 @@ contains
 
     deltaTa = zero
     lE_old  = ssnow%lE
-    gamm    = real(veg%gamma,r_2)
+    gamm    = real(veg%gamma,r2)
     where (canopy%through>=met%precip_sn)
        qprec      = max((canopy%through-met%precip_sn)/thousand/dt , zero)             ! liq precip rate (m s-1)
        qprec_snow = (met%precip_sn)/thousand/dt
     elsewhere
-       qprec = max(real(canopy%through,r_2), zero)
+       qprec = max(real(canopy%through,r2), zero)
        qprec_snow = zero
     endwhere
     !if ( wlogn == 1011) then
@@ -433,14 +433,14 @@ contains
     !endif
     ! re-calculate qprec_snow and qprec based on total precip and air T (ref Jin et al. Table II, Hyd Proc, 1999
     ! qprec_tot = qprec + qprec_snow
-    ! where (vmet%Ta > 2.5_r_2)
+    ! where (vmet%Ta > 2.5_r2)
     !    qprec_snow = zero
     !    qprec = qprec_tot
-    ! elsewhere ((vmet%Ta <= 2.5_r_2) .and. (vmet%Ta > 2.0_r_2))
-    !    qprec_snow = 0.6_r_2 * qprec_tot
+    ! elsewhere ((vmet%Ta <= 2.5_r2) .and. (vmet%Ta > 2.0_r2))
+    !    qprec_snow = 0.6_r2 * qprec_tot
     !    qprec = qprec_tot - qprec_snow
-    ! elsewhere ((vmet%Ta <= 2.0_r_2) .and. (vmet%Ta > zero))
-    !    qprec_snow = (1._r_2 - (54.62_r_2 - 0.2_r_2 *(vmet%Ta + Tzero)))*qprec_tot
+    ! elsewhere ((vmet%Ta <= 2.0_r2) .and. (vmet%Ta > zero))
+    !    qprec_snow = (1._r2 - (54.62_r2 - 0.2_r2 *(vmet%Ta + Tzero)))*qprec_tot
     !    qprec = qprec_tot - qprec_snow
     ! elsewhere (vmet%Ta <= zero)
     !    qprec = zero
@@ -476,7 +476,7 @@ contains
 
           do kk=1, mp
              call getrex(ssnow%S(kk,:), ssnow%rex(kk,:), fws(kk), FS(kk,:), par(kk,:)%the, &
-                  par(kk,:)%thw, Etrans(kk), gamm(kk), dx(kk,:), real(dt,r_2))
+                  par(kk,:)%thw, Etrans(kk), gamm(kk), dx(kk,:), real(dt,r2))
           enddo
 
        else

@@ -37,18 +37,18 @@
 !*********************************************************************************
 MODULE POPLUC_CONSTANTS
 
-  USE TYPEdef, ONLY: dp, i4b
+  USE TYPEdef, ONLY: i4
 
   implicit none
 
-  INTEGER(i4b), PARAMETER :: LENGTH_SECDF_HISTORY = 4000
-  INTEGER(i4b), PARAMETER :: AGE_MAX = 1000
+  INTEGER(i4), PARAMETER :: LENGTH_SECDF_HISTORY = 4000
+  INTEGER(i4), PARAMETER :: AGE_MAX = 1000
   ! N.B. needs to be the same as veg%disturbance_interval
-  INTEGER(i4b), PARAMETER :: disturbance_interval = 100
-  LOGICAL,      PARAMETER :: IFHARVEST=.FALSE.
-  INTEGER(i4b), PARAMETER :: ROTATION=70
-  INTEGER(i4b), PARAMETER :: nLU=3    ! number of land-use tiles (pf, sf, grass)
-  INTEGER(i4b), PARAMETER :: nTrans=4 ! number of possible gross transition types (ptog, ptos, stog, gtos)
+  INTEGER(i4), PARAMETER :: disturbance_interval = 100
+  LOGICAL,     PARAMETER :: IFHARVEST=.FALSE.
+  INTEGER(i4), PARAMETER :: ROTATION=70
+  INTEGER(i4), PARAMETER :: nLU=3    ! number of land-use tiles (pf, sf, grass)
+  INTEGER(i4), PARAMETER :: nTrans=4 ! number of possible gross transition types (ptog, ptos, stog, gtos)
 
 END MODULE POPLUC_CONSTANTS
 
@@ -56,56 +56,56 @@ END MODULE POPLUC_CONSTANTS
 
 MODULE POPLUC_Types
 
-  USE TYPEdef,          ONLY: dp, i4b
+  USE TYPEdef,          ONLY: i4, r2
   USE POPLUC_Constants, ONLY: LENGTH_SECDF_HISTORY, AGE_MAX
 
   implicit none
 
   TYPE POPLUC_TYPE
-     INTEGER(i4b), POINTER :: it
-     INTEGER(i4b), POINTER :: np
-     INTEGER(i4b), POINTER :: firstyear
-     INTEGER(i4b), POINTER :: thisyear
-     INTEGER(i4b), DIMENSION(:),POINTER :: n_event => null() ! number of secondary forest transitions
-     REAL(dp), DIMENSION(:),POINTER :: latitude => null(), longitude => null()
-     REAL(dp), DIMENSION(:),POINTER :: primf => null(), secdf => null(), grass => null(), &  ! land cover types
+     INTEGER(i4), POINTER :: it
+     INTEGER(i4), POINTER :: np
+     INTEGER(i4), POINTER :: firstyear
+     INTEGER(i4), POINTER :: thisyear
+     INTEGER(i4), DIMENSION(:),POINTER :: n_event => null() ! number of secondary forest transitions
+     REAL(r2), DIMENSION(:),POINTER :: latitude => null(), longitude => null()
+     REAL(r2), DIMENSION(:),POINTER :: primf => null(), secdf => null(), grass => null(), &  ! land cover types
           ptos => null(), ptog => null(), stog => null(), gtop => null(), gtos => null(),    & ! transitions
           frac_primf => null(), frac_forest => null()
-     REAL(dp), DIMENSION(:),POINTER :: crop => null(), past => null() ! components of managed grass (crop,pasture)
+     REAL(r2), DIMENSION(:),POINTER :: crop => null(), past => null() ! components of managed grass (crop,pasture)
      ! transitions associated with crop (c) and pasture (q)
-     REAL(dp), DIMENSION(:),POINTER :: ptoc => null(), ptoq => null(), stoc => null(), stoq => null(), &
+     REAL(r2), DIMENSION(:),POINTER :: ptoc => null(), ptoq => null(), stoc => null(), stoq => null(), &
           qtos => null(), ctos => null(), ctor => null(), qtor => null(), rtoc => null(), rtoq => null(), &
           qtoc => null(), ctoq => null()
-     REAL(dp), DIMENSION(:,:),POINTER ::  freq_age_primary => null(), freq_age_secondary => null(), &
+     REAL(r2), DIMENSION(:,:),POINTER ::  freq_age_primary => null(), freq_age_secondary => null(), &
           biomass_age_primary => null(), biomass_age_secondary => null()
-     REAL(dp), DIMENSION(:,:),POINTER :: age_history_secdf => null(), area_history_secdf => null()
-     REAL(dp), DIMENSION(:,:),POINTER :: FNEP => null(), Clitt => null(), Csoil => null(), Cbiomass => null()
-     REAL(dp), DIMENSION(:,:),POINTER :: FHarvest => null(), FClearance => null(), FTransferNet => null()
-     REAL(dp), DIMENSION(:,:),POINTER :: FTransferGross => null()
-     REAL(dp), DIMENSION(:),POINTER :: pharv => null(), smharv => null(), syharv => null()
+     REAL(r2), DIMENSION(:,:),POINTER :: age_history_secdf => null(), area_history_secdf => null()
+     REAL(r2), DIMENSION(:,:),POINTER :: FNEP => null(), Clitt => null(), Csoil => null(), Cbiomass => null()
+     REAL(r2), DIMENSION(:,:),POINTER :: FHarvest => null(), FClearance => null(), FTransferNet => null()
+     REAL(r2), DIMENSION(:,:),POINTER :: FTransferGross => null()
+     REAL(r2), DIMENSION(:),POINTER :: pharv => null(), smharv => null(), syharv => null()
      ! ag prod pool (grazing + crop harvest) and loss to atm, loss of C from biosphere due to crop/pasture harvest
-     REAL(dp), DIMENSION(:),POINTER :: AgProd => null(), AgProdPast => null(), AgProdCrop => null(), &
+     REAL(r2), DIMENSION(:),POINTER :: AgProd => null(), AgProdPast => null(), AgProdCrop => null(), &
           AgProdLoss => null(), AgProdLossPast => null(), AgProdLossCrop => null(), FAg => null()
-     REAL(dp), DIMENSION(:,:),POINTER :: HarvProd => null(), ClearProd => null() ! wood harvest and clearance pools
-     REAL(dp), DIMENSION(:,:),POINTER :: fracHarvProd => null(), fracClearProd => null()
-     REAL(dp), DIMENSION(:,:),POINTER :: HarvProdLoss => null(), ClearProdLoss => null()
-     REAL(dp), DIMENSION(:),POINTER :: fracHarvResid => null(), fracHarvSecResid => null(), fracClearResid => null()
-     REAL(dp), DIMENSION(:),POINTER :: kSecHarv => null(), kNatDist => null(), &
+     REAL(r2), DIMENSION(:,:),POINTER :: HarvProd => null(), ClearProd => null() ! wood harvest and clearance pools
+     REAL(r2), DIMENSION(:,:),POINTER :: fracHarvProd => null(), fracClearProd => null()
+     REAL(r2), DIMENSION(:,:),POINTER :: HarvProdLoss => null(), ClearProdLoss => null()
+     REAL(r2), DIMENSION(:),POINTER :: fracHarvResid => null(), fracHarvSecResid => null(), fracClearResid => null()
+     REAL(r2), DIMENSION(:),POINTER :: kSecHarv => null(), kNatDist => null(), &
           kExpand1 => null(), kExpand2 => null(), kClear => null()
      ! carbon denisty in sec forest harvest area, relative to tile average
-     REAL(dp), DIMENSION(:),POINTER :: cRelClear => null()
+     REAL(r2), DIMENSION(:),POINTER :: cRelClear => null()
      ! biomass density loss rates
      ! For 13C
      ! Residual flux to litter from harvesting primary forest
-     real(dp), dimension(:), pointer :: FluxPHarvResidtoLitter => null()
+     real(r2), dimension(:), pointer :: FluxPHarvResidtoLitter => null()
      ! Residual flux to litter from harvesting secondary forest
-     real(dp), dimension(:), pointer :: FluxSHarvResidtoLitter => null()
+     real(r2), dimension(:), pointer :: FluxSHarvResidtoLitter => null()
      ! Residual flux to litter from clearing primary forest
-     real(dp), dimension(:), pointer :: FluxPClearResidtoLitter => null()
+     real(r2), dimension(:), pointer :: FluxPClearResidtoLitter => null()
      ! Residual flux to litter from clearing secondary forest
-     real(dp), dimension(:), pointer :: FluxSClearResidtoLitter => null()
+     real(r2), dimension(:), pointer :: FluxSClearResidtoLitter => null()
      ! Harvest and Clearance induced change of plant pool of secondary forest
-     real(dp), dimension(:), pointer :: dcSHarvClear => null()
+     real(r2), dimension(:), pointer :: dcSHarvClear => null()
   END TYPE POPLUC_TYPE
 
 END MODULE POPLUC_Types
@@ -117,7 +117,7 @@ MODULE POPLUC_Module
   !-------------------------------------------------------------------------------
   ! * This module contains all subroutines for POPLUC calcs at a single time step.
   !-------------------------------------------------------------------------------
-  USE TYPEdef,              ONLY: dp, sp, i4b
+  USE TYPEdef,              ONLY: i4, r1, r2
   USE POPLUC_Types
   USE POPLUC_Constants
   USE casavariable,         ONLY: casa_pool, casa_balance, casa_flux, casa_biome
@@ -129,8 +129,8 @@ MODULE POPLUC_Module
 
   implicit none
 
-  real(dp), dimension(3) :: kHarvProd, kClearProd
-  real(dp)               :: kAgProd
+  real(r2), dimension(3) :: kHarvProd, kClearProd
+  real(r2)               :: kAgProd
 
 CONTAINS
 
@@ -140,79 +140,79 @@ CONTAINS
 
     type(popluc_type), intent(inout) :: popluc
 
-    popluc%firstyear               = 0_i4b
-    popluc%thisyear                = 0_i4b
-    popluc%n_event                 = 0_i4b
-    popluc%latitude                = 0.0_dp
-    popluc%longitude               = 0.0_dp
-    popluc%primf                   = 0.0_dp
-    popluc%secdf                   = 0.0_dp
-    popluc%grass                   = 0.0_dp
-    popluc%crop                    = 0.0_dp
-    popluc%past                    = 0.0_dp
-    popluc%ptos                    = 0.0_dp
-    popluc%ptog                    = 0.0_dp
-    popluc%stog                    = 0.0_dp
-    popluc%gtop                    = 0.0_dp
-    popluc%gtos                    = 0.0_dp
-    popluc%ptoc                    = 0.0_dp
-    popluc%ptoq                    = 0.0_dp
-    popluc%stoc                    = 0.0_dp
-    popluc%stoq                    = 0.0_dp
-    popluc%qtos                    = 0.0_dp
-    popluc%ctos                    = 0.0_dp
-    popluc%ctor                    = 0.0_dp
-    popluc%qtor                    = 0.0_dp
-    popluc%rtoc                    = 0.0_dp
-    popluc%rtoq                    = 0.0_dp
-    popluc%qtoc                    = 0.0_dp
-    popluc%ctoq                    = 0.0_dp
-    popluc%frac_forest             = 0.0_dp
-    popluc%frac_primf              = 0.0_dp
-    popluc%area_history_secdf      = 0.0_dp
-    popluc%age_history_secdf       = 0.0_dp
-    popluc%freq_age_secondary      = 0.0_dp
-    popluc%freq_age_primary        = 0.0_dp
-    popluc%biomass_age_primary     = 0.0_dp
-    popluc%biomass_age_secondary   = 0.0_dp
-    popluc%FNEP                    = 0.0_dp
-    popluc%Clitt                   = 0.0_dp
-    popluc%Csoil                   = 0.0_dp
-    popluc%Cbiomass                = 0.0_dp
-    popluc%FHarvest                = 0.0_dp
-    popluc%FClearance              = 0.0_dp
-    popluc%FTransferNet            = 0.0_dp
-    popluc%FTransferGross          = 0.0_dp
-    popluc%pharv                   = 0.0_dp
-    popluc%smharv                  = 0.0_dp
-    popluc%syharv                  = 0.0_dp
-    popluc%HarvProd                = 0.0_dp
-    popluc%HarvProdLoss            = 0.0_dp
-    popluc%fracHarvProd            = 0.0_dp
-    popluc%fracHarvResid           = 0.0_dp
-    popluc%fracHarvSecResid        = 0.0_dp
-    popluc%ClearProd               = 0.0_dp
-    popluc%ClearProdLoss           = 0.0_dp
-    popluc%fracClearProd           = 0.0_dp
-    popluc%fracClearResid          = 0.0_dp
-    popluc%kSecHarv                = 0.0_dp
-    popluc%kNatDist                = 0.0_dp
-    popluc%kExpand1                = 0.0_dp
-    popluc%kExpand2                = 0.0_dp
-    popluc%kClear                  = 0.0_dp
-    popluc%cRelClear               = 0.0_dp
-    popluc%AgProd                  = 0.0_dp
-    popluc%AgProdPast              = 0.0_dp
-    popluc%AgProdCrop              = 0.0_dp
-    popluc%AgProdLoss              = 0.0_dp
-    popluc%AgProdLossPast          = 0.0_dp
-    popluc%AgProdLossCrop          = 0.0_dp
-    popluc%FAg                     = 0.0_dp
-    popluc%FluxPHarvResidtoLitter  = 0.0_dp
-    popluc%FluxSHarvResidtoLitter  = 0.0_dp
-    popluc%FluxPClearResidtoLitter = 0.0_dp
-    popluc%FluxSClearResidtoLitter = 0.0_dp
-    popluc%dcSHarvClear            = 0.0_dp
+    popluc%firstyear               = 0_i4
+    popluc%thisyear                = 0_i4
+    popluc%n_event                 = 0_i4
+    popluc%latitude                = 0.0_r2
+    popluc%longitude               = 0.0_r2
+    popluc%primf                   = 0.0_r2
+    popluc%secdf                   = 0.0_r2
+    popluc%grass                   = 0.0_r2
+    popluc%crop                    = 0.0_r2
+    popluc%past                    = 0.0_r2
+    popluc%ptos                    = 0.0_r2
+    popluc%ptog                    = 0.0_r2
+    popluc%stog                    = 0.0_r2
+    popluc%gtop                    = 0.0_r2
+    popluc%gtos                    = 0.0_r2
+    popluc%ptoc                    = 0.0_r2
+    popluc%ptoq                    = 0.0_r2
+    popluc%stoc                    = 0.0_r2
+    popluc%stoq                    = 0.0_r2
+    popluc%qtos                    = 0.0_r2
+    popluc%ctos                    = 0.0_r2
+    popluc%ctor                    = 0.0_r2
+    popluc%qtor                    = 0.0_r2
+    popluc%rtoc                    = 0.0_r2
+    popluc%rtoq                    = 0.0_r2
+    popluc%qtoc                    = 0.0_r2
+    popluc%ctoq                    = 0.0_r2
+    popluc%frac_forest             = 0.0_r2
+    popluc%frac_primf              = 0.0_r2
+    popluc%area_history_secdf      = 0.0_r2
+    popluc%age_history_secdf       = 0.0_r2
+    popluc%freq_age_secondary      = 0.0_r2
+    popluc%freq_age_primary        = 0.0_r2
+    popluc%biomass_age_primary     = 0.0_r2
+    popluc%biomass_age_secondary   = 0.0_r2
+    popluc%FNEP                    = 0.0_r2
+    popluc%Clitt                   = 0.0_r2
+    popluc%Csoil                   = 0.0_r2
+    popluc%Cbiomass                = 0.0_r2
+    popluc%FHarvest                = 0.0_r2
+    popluc%FClearance              = 0.0_r2
+    popluc%FTransferNet            = 0.0_r2
+    popluc%FTransferGross          = 0.0_r2
+    popluc%pharv                   = 0.0_r2
+    popluc%smharv                  = 0.0_r2
+    popluc%syharv                  = 0.0_r2
+    popluc%HarvProd                = 0.0_r2
+    popluc%HarvProdLoss            = 0.0_r2
+    popluc%fracHarvProd            = 0.0_r2
+    popluc%fracHarvResid           = 0.0_r2
+    popluc%fracHarvSecResid        = 0.0_r2
+    popluc%ClearProd               = 0.0_r2
+    popluc%ClearProdLoss           = 0.0_r2
+    popluc%fracClearProd           = 0.0_r2
+    popluc%fracClearResid          = 0.0_r2
+    popluc%kSecHarv                = 0.0_r2
+    popluc%kNatDist                = 0.0_r2
+    popluc%kExpand1                = 0.0_r2
+    popluc%kExpand2                = 0.0_r2
+    popluc%kClear                  = 0.0_r2
+    popluc%cRelClear               = 0.0_r2
+    popluc%AgProd                  = 0.0_r2
+    popluc%AgProdPast              = 0.0_r2
+    popluc%AgProdCrop              = 0.0_r2
+    popluc%AgProdLoss              = 0.0_r2
+    popluc%AgProdLossPast          = 0.0_r2
+    popluc%AgProdLossCrop          = 0.0_r2
+    popluc%FAg                     = 0.0_r2
+    popluc%FluxPHarvResidtoLitter  = 0.0_r2
+    popluc%FluxSHarvResidtoLitter  = 0.0_r2
+    popluc%FluxPClearResidtoLitter = 0.0_r2
+    popluc%FluxSClearResidtoLitter = 0.0_r2
+    popluc%dcSHarvClear            = 0.0_r2
 
   END SUBROUTINE zero_popluc
 
@@ -312,19 +312,19 @@ CONTAINS
     IMPLICIT NONE
 
     CHARACTER(5),      INTENT(IN)    :: from_state, to_state
-    REAL(dp),          INTENT(INOUT) :: frac_change_grid
-    INTEGER(i4b),      INTENT(IN)    :: g  ! grid cell index
+    REAL(r2),          INTENT(INOUT) :: frac_change_grid
+    INTEGER(i4),      INTENT(IN)    :: g  ! grid cell index
     TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
 
-    REAL(dp) :: frac_open_grid, remaining
-    INTEGER(i4b) :: n  ! position of new element in POPLUC%SecFor array
-    INTEGER(i4b) :: i
-    REAL(dp) :: tmp, tmp1, tmp2
+    REAL(r2) :: frac_open_grid, remaining
+    INTEGER(i4) :: n  ! position of new element in POPLUC%SecFor array
+    INTEGER(i4) :: i
+    REAL(r2) :: tmp, tmp1, tmp2
 #ifdef __MPI__
     integer :: ierr
 #endif
 
-    ! frac_open_grid = 1.0_dp-POPLUC%frac_forest(g)
+    ! frac_open_grid = 1.0_r2-POPLUC%frac_forest(g)
     frac_open_grid = POPLUC%grass(g)
     n = POPLUC%n_event(g)
     IF (from_state=='PRIMF') THEN
@@ -333,37 +333,37 @@ CONTAINS
           IF (to_state=='SECDF') POPLUC%ptos(g) = POPLUC%primf(g)
           IF (to_state=='C3ANN') POPLUC%ptog(g) = POPLUC%primf(g)
           frac_change_grid = POPLUC%primf(g)
-          POPLUC%primf(g) = 0.0_dp
+          POPLUC%primf(g) = 0.0_r2
        ELSE
           POPLUC%primf(g) = POPLUC%primf(g) - frac_change_grid
        ENDIF
 
        IF (to_state=='SECDF') THEN
           ! Transition from primary -> secondary forest(ptos)
-          IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0_dp) THEN
+          IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0_r2) THEN
              tmp = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
                   /sum( POPLUC%freq_age_secondary(g,:))
           ELSE
-             tmp = 0.0_dp
+             tmp = 0.0_r2
           ENDIF
-          POPLUC%kExpand1(g) = 0.0_dp
+          POPLUC%kExpand1(g) = 0.0_r2
           POPLUC%n_event(g)  = POPLUC%n_event(g) + 1
           n = POPLUC%n_event(g)
           POPLUC%area_history_secdf(g,n) = frac_change_grid
-          POPLUC%age_history_secdf(g,n)  = 0.0_dp
+          POPLUC%age_history_secdf(g,n)  = 0.0_r2
           POPLUC%freq_age_secondary(g,1) = POPLUC%freq_age_secondary(g,1) + frac_change_grid
 
-          IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0_dp) THEN
+          IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0_r2) THEN
              tmp1 = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
                   /sum( POPLUC%freq_age_secondary(g,:))
           ELSE
-             tmp1 = 0.0_dp
+             tmp1 = 0.0_r2
           ENDIF
-          if (tmp.gt.0.0_dp) then
+          if (tmp.gt.0.0_r2) then
              tmp2 = (tmp1-tmp)/tmp
              POPLUC%kExpand1(g) = -tmp2
           else
-             POPLUC%kExpand1(g) = 0.0_dp
+             POPLUC%kExpand1(g) = 0.0_r2
           endif
        ENDIF
 
@@ -382,73 +382,73 @@ CONTAINS
           ! Otherwise uniform harvest
 
           if (sum( POPLUC%freq_age_secondary(g,10:age_max)) .gt. frac_change_grid) then
-             IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0_dp) THEN
+             IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0_r2) THEN
                 tmp = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
                      /sum( POPLUC%freq_age_secondary(g,:))
              ELSE
-                tmp = 0.0_dp
+                tmp = 0.0_r2
              ENDIF
-             POPLUC%kClear(g) = 0.0_dp
-             POPLUC%CRelClear(g) = 0.0_dp
+             POPLUC%kClear(g) = 0.0_r2
+             POPLUC%CRelClear(g) = 0.0_r2
              remaining = frac_change_grid
              i = 10
-             DO WHILE (remaining > 0.0_dp .and. i <= age_max )
+             DO WHILE (remaining > 0.0_r2 .and. i <= age_max )
                 IF (POPLUC%freq_age_secondary(g,i).GE.remaining) THEN
                    POPLUC%freq_age_secondary(g,i) =POPLUC%freq_age_secondary(g,i) &
                         - remaining
                    POPLUC%CRelClear(g) = POPLUC%biomass_age_secondary(g,i)*remaining
-                   remaining = 0.0_dp
+                   remaining = 0.0_r2
                 ELSE
                    remaining = remaining - POPLUC%freq_age_secondary(g,i)
-                   POPLUC%freq_age_secondary(g,i) = 0.0_dp
+                   POPLUC%freq_age_secondary(g,i) = 0.0_r2
                    POPLUC%CRelClear(g) =  POPLUC%CRelClear(g) &
                         + POPLUC%biomass_age_secondary(g,i)*POPLUC%freq_age_secondary(g,i)
                    i = i+1
                 ENDIF
 
              ENDDO
-             if (tmp .gt. 0.0_dp .and. frac_change_grid.gt.0.0_dp) then
+             if (tmp .gt. 0.0_r2 .and. frac_change_grid.gt.0.0_r2) then
                 POPLUC%CRelClear(g)  =  POPLUC%CRelClear(g) /frac_change_grid/ tmp
              else
-                POPLUC%CRelClear(g) = 0.0_dp
+                POPLUC%CRelClear(g) = 0.0_r2
              endif
 
-             if (remaining.gt.0.0_dp) POPLUC%stog(g) = POPLUC%stog(g)-remaining
+             if (remaining.gt.0.0_r2) POPLUC%stog(g) = POPLUC%stog(g)-remaining
 
-             IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0_dp) THEN
+             IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0_r2) THEN
                 tmp1 = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
                      /sum( POPLUC%freq_age_secondary(g,:))
              ELSE
-                tmp1 = 0.0_dp
+                tmp1 = 0.0_r2
              ENDIF
-             if (tmp.gt.0.0_dp) then
+             if (tmp.gt.0.0_r2) then
                 tmp2 = (tmp1-tmp)/tmp
                 POPLUC%kClear(g) = -tmp2
              else
-                POPLUC%kClear(g) = 0.0_dp
+                POPLUC%kClear(g) = 0.0_r2
              endif
           else
              ! uniform clearance across age classes
 
-             POPLUC%kClear(g) = 0.0_dp ! no change in biomass density
+             POPLUC%kClear(g) = 0.0_r2 ! no change in biomass density
              frac_change_grid = min(sum( POPLUC%freq_age_secondary(g,:)), frac_change_grid)
              POPLUC%stog(g) = frac_change_grid
              !if (g==3) write(*,*) 'b4 age_sec', frac_change_grid,  sum(POPLUC%freq_age_secondary(g,:))
-             POPLUC%freq_age_secondary(g,:) = POPLUC%freq_age_secondary(g,:)*(1.0_dp-frac_change_grid)
+             POPLUC%freq_age_secondary(g,:) = POPLUC%freq_age_secondary(g,:)*(1.0_r2-frac_change_grid)
              !if (g==3) write(*,*) 'after age_sec',POPLUC%stog(g),  sum(POPLUC%freq_age_secondary(g,:))
-             POPLUC%CRelClear(g) = 1.0_dp
+             POPLUC%CRelClear(g) = 1.0_r2
           endif
 
        ENDIF
 
     ELSEIF (to_state=='SECDF') THEN
-       IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0_dp) THEN
+       IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0_r2) THEN
           tmp = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
                /sum( POPLUC%freq_age_secondary(g,:))
        ELSE
-          tmp = 0.0_dp
+          tmp = 0.0_r2
        ENDIF
-       POPLUC%kExpand2(g) = 0.0_dp
+       POPLUC%kExpand2(g) = 0.0_r2
 
        POPLUC%n_event(g) = POPLUC%n_event(g)+1
        n = POPLUC%n_event(g)
@@ -458,28 +458,28 @@ CONTAINS
 !!$endif
        if (frac_change_grid.LE.frac_open_grid) THEN
           POPLUC%area_history_secdf(g,n) = frac_change_grid
-          POPLUC%age_history_secdf(g,n) = 0.0_dp
+          POPLUC%age_history_secdf(g,n) = 0.0_r2
           POPLUC%freq_age_secondary(g,1) = POPLUC%freq_age_secondary(g,1) + frac_change_grid
        ELSE
           POPLUC%area_history_secdf(g,n) = frac_open_grid
-          POPLUC%age_history_secdf(g,n) = 0.0_dp
+          POPLUC%age_history_secdf(g,n) = 0.0_r2
           POPLUC%freq_age_secondary(g,1) = POPLUC%freq_age_secondary(g,1) + frac_open_grid
           ! gtos to frac_change_grid here!!
           POPLUC%gtos(g) =  frac_open_grid
        ENDIF
 
-       IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0_dp) THEN
+       IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0_r2) THEN
           tmp1 = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
                /sum( POPLUC%freq_age_secondary(g,:))
        ELSE
-          tmp1 = 0.0_dp
+          tmp1 = 0.0_r2
        ENDIF
 
-         if (tmp.gt.0.0_dp) then
+         if (tmp.gt.0.0_r2) then
             tmp2 = (tmp1-tmp)/tmp
             POPLUC%kExpand2(g) = -tmp2
          else
-            POPLUC%kExpand2(g) = 0.0_dp
+            POPLUC%kExpand2(g) = 0.0_r2
          endif
 
       ELSEIF (to_state=='PRIMF') THEN
@@ -506,24 +506,24 @@ CONTAINS
     implicit none
 
     type(popluc_type), intent(inout) :: POPLUC
-    integer(i4b),      intent(in)    :: g
+    integer(i4),      intent(in)    :: g
 
-    integer(i4b) :: age, i, iage
-    real(dp)     :: fac, disturbance_freq
+    integer(i4) :: age, i, iage
+    real(r2)     :: fac, disturbance_freq
 
     ! First get relative weights for primary forest
-    disturbance_freq = 1.0_dp / real(disturbance_interval,dp)
+    disturbance_freq = 1.0_r2 / real(disturbance_interval, r2)
 
     !fac = POPLUC%frac_primf/POPLUC%frac_forest
-    fac = 1.0_dp
+    fac = 1.0_r2
     do iage=1, age_max
-       POPLUC%freq_age_primary(g,iage)   = REALExponential(disturbance_freq, real(iage-1,dp))
-       POPLUC%freq_age_secondary(g,iage) = 0.0_dp
+       POPLUC%freq_age_primary(g,iage)   = REALExponential(disturbance_freq, real(iage-1, r2))
+       POPLUC%freq_age_secondary(g,iage) = 0.0_r2
     end do
     POPLUC%freq_age_primary(g,:) = POPLUC%freq_age_primary(g,:) / sum(POPLUC%freq_age_primary(g,:)) * fac
 
     !  Loop through secondary forest stands to transfer weights
-    fac = 1.0_dp
+    fac = 1.0_r2
     do i=1, POPLUC%n_event(g)
        age = nint(POPLUC%age_history_secdf(g,i))
        POPLUC%freq_age_secondary(g,age+1) = POPLUC%area_history_secdf(g,i)/fac
@@ -538,89 +538,89 @@ CONTAINS
     IMPLICIT NONE
 
     TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
-    INTEGER(i4b),      INTENT(IN)    :: g
+    INTEGER(i4),      INTENT(IN)    :: g
 
-    INTEGER(i4b) :: n_event, i
-    REAL(dp):: remaining
-    REAL(dp):: tmp, tmp1, tmp2
+    INTEGER(i4) :: n_event, i
+    REAL(r2):: remaining
+    REAL(r2):: tmp, tmp1, tmp2
 
     n_event = POPLUC%n_event(g)
-    POPLUC%kSecHarv(g) = 0.0_dp
-    POPLUC%kNatDist(g) = 0.0_dp
+    POPLUC%kSecHarv(g) = 0.0_r2
+    POPLUC%kNatDist(g) = 0.0_r2
 
     POPLUC%freq_age_secondary(g,2:age_max)=POPLUC%freq_age_secondary(g,1:age_max-1)
     POPLUC%biomass_age_secondary(g,2:age_max)=POPLUC%biomass_age_secondary(g,1:age_max-1)
 
-    POPLUC%freq_age_secondary(g,1)    = 0.0_dp
-    POPLUC%biomass_age_secondary(g,1) = 0.0_dp
+    POPLUC%freq_age_secondary(g,1)    = 0.0_r2
+    POPLUC%biomass_age_secondary(g,1) = 0.0_r2
     ! adjust secondary age distribution for secondary forest harvest area
 
     if (POPLUC%smharv(g)+POPLUC%syharv(g).gt.0) then
       ! if (sum(POPLUC%biomass_age_secondary(g,:)).gt.0.5*1000) then ! only harvest if biomass density > 0.5 kg Cm-2
-       if (sum(POPLUC%biomass_age_secondary(g,:)* POPLUC%freq_age_secondary(g,:)).gt.0.5_dp) then
+       if (sum(POPLUC%biomass_age_secondary(g,:)* POPLUC%freq_age_secondary(g,:)).gt.0.5_r2) then
           ! only harvest if biomass density > 0.5 kg Cm-2
-          IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0_dp) THEN
+          IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0_r2) THEN
              tmp = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
                   /sum( POPLUC%freq_age_secondary(g,:))
           ELSE
-             tmp = 0.0_dp
+             tmp = 0.0_r2
           ENDIF
 
           remaining = POPLUC%smharv(g)+POPLUC%syharv(g)
           i = age_max
-          do while (remaining.gt.1.e-10_dp)
+          do while (remaining.gt.1.e-10_r2)
 
              if (POPLUC%freq_age_secondary(g,i) .gt. remaining) then
                 POPLUC%freq_age_secondary(g,i) = POPLUC%freq_age_secondary(g,i) - remaining
                 POPLUC%freq_age_secondary(g,1) = POPLUC%freq_age_secondary(g,1) + remaining
-                remaining = 0.0_dp
+                remaining = 0.0_r2
              else
 
 
                 POPLUC%freq_age_secondary(g,1) = POPLUC%freq_age_secondary(g,1) + &
                      POPLUC%freq_age_secondary(g,i)
                 remaining = remaining - POPLUC%freq_age_secondary(g,i)
-                POPLUC%freq_age_secondary(g,i) = 0.0_dp
+                POPLUC%freq_age_secondary(g,i) = 0.0_r2
 
                 i = i-1;
              end if
              if (i.lt.2) then
                 POPLUC%smharv(g) = POPLUC%smharv(g)+POPLUC%syharv(g) - remaining
-                POPLUC%syharv(g) = 0.0_dp
-                remaining = 0.0_dp
+                POPLUC%syharv(g) = 0.0_r2
+                remaining = 0.0_r2
              endif
 
           enddo
 
 
-          IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0_dp) THEN
+          IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0_r2) THEN
              tmp1 = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
                   /sum( POPLUC%freq_age_secondary(g,:))
           ELSE
-             tmp1 = 0.0_dp
+             tmp1 = 0.0_r2
           ENDIF
-          if (tmp.gt.0.0_dp) then
+          if (tmp.gt.0.0_r2) then
              tmp2 = (tmp1-tmp)/tmp
              POPLUC%kSecHarv(g) = -tmp2
           else
-             POPLUC%kSecHarv(g) = 0.0_dp
+             POPLUC%kSecHarv(g) = 0.0_r2
           endif
 
        endif
     endif
 
     ! remove IFHARVEST ?
-    IF (IFHARVEST .and. POPLUC%freq_age_secondary(g,ROTATION+1).gt.0.0_dp) THEN
+    IF (IFHARVEST .and. POPLUC%freq_age_secondary(g,ROTATION+1).gt.0.0_r2) THEN
        POPLUC%freq_age_secondary(g,1) = POPLUC%freq_age_secondary(g,1) + &
             POPLUC%freq_age_secondary(g,ROTATION+1)
-       POPLUC%freq_age_secondary(g,ROTATION+1) = 0.0_dp
+       POPLUC%freq_age_secondary(g,ROTATION+1) = 0.0_r2
     ENDIF
 
-    IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0_dp) THEN
+    IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0_r2) THEN
        tmp = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
             /sum( POPLUC%freq_age_secondary(g,:))
     ELSE
-       tmp = 0.0_dp
+       tmp = 0.0_r2
     ENDIF
     ! adjust secondary age distribution for natural disturbance
     i = age_max
@@ -628,21 +628,21 @@ CONTAINS
        POPLUC%freq_age_secondary(g,1) =  POPLUC%freq_age_secondary(g,1) +  &
             POPLUC%freq_age_secondary(g,i)/disturbance_interval
        POPLUC%freq_age_secondary(g,i) = POPLUC%freq_age_secondary(g,i)* &
-            (1._dp - 1._dp/disturbance_interval)
+            (1._r2 - 1._r2/disturbance_interval)
     ENDDO
 
-    IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0_dp) THEN
+    IF (sum( POPLUC%freq_age_secondary(g,:)) .gt. 0.0_r2) THEN
        tmp1 = sum( POPLUC%freq_age_secondary(g,:)*POPLUC%biomass_age_secondary(g,:)) &
             /sum( POPLUC%freq_age_secondary(g,:))
     ELSE
-       tmp1 = 0.0_dp
+       tmp1 = 0.0_r2
     ENDIF
 
-    if (tmp.gt.0.0_dp) then
+    if (tmp.gt.0.0_r2) then
        tmp2 = (tmp1-tmp)/tmp
        POPLUC%kNatDist(g) = -tmp2
     else
-       POPLUC%kNatDist(g) = 0.0_dp
+       POPLUC%kNatDist(g) = 0.0_r2
     endif
 
   END SUBROUTINE INCREMENT_AGE
@@ -654,9 +654,9 @@ CONTAINS
     IMPLICIT NONE
 
     TYPE(POPLUC_TYPE), INTENT(INOUT) :: POPLUC
-    INTEGER(i4b),      INTENT(IN)    :: year
+    INTEGER(i4),      INTENT(IN)    :: year
 
-    INTEGER(i4b) :: g
+    INTEGER(i4) :: g
 
     POPLUC%it = POPLUC%it + 1
 
@@ -672,24 +672,24 @@ CONTAINS
 
        DO g=1, POPLUC%np
 
-         POPLUC%kClear(g)   = 0.0_dp
-         POPLUC%kExpand1(g) = 0.0_dp
-         POPLUC%kExpand2(g) = 0.0_dp
-         POPLUC%kSecHarv(g) = 0.0_dp
+         POPLUC%kClear(g)   = 0.0_r2
+         POPLUC%kExpand1(g) = 0.0_r2
+         POPLUC%kExpand2(g) = 0.0_r2
+         POPLUC%kSecHarv(g) = 0.0_r2
          !CALL increment_age(POPLUC,g)
 
-         if (POPLUC%stog(g) .gt.0.0_dp) &
+         if (POPLUC%stog(g) .gt.0.0_r2) &
                CALL execute_luc_event('SECDF','C3ANN',POPLUC%stog(g),g,POPLUC)
 
-         if (POPLUC%ptos(g) .gt. 0.0_dp) &
+         if (POPLUC%ptos(g) .gt. 0.0_r2) &
               CALL execute_luc_event('PRIMF','SECDF',POPLUC%ptos(g),g,POPLUC)
 
-         if (POPLUC%ptog(g) .gt. 0.0_dp) &
+         if (POPLUC%ptog(g) .gt. 0.0_r2) &
               CALL execute_luc_event('PRIMF','C3ANN',POPLUC%ptog(g),g,POPLUC)
 
-         if (POPLUC%gtop(g) .gt.0.0_dp) &
+         if (POPLUC%gtop(g) .gt.0.0_r2) &
               CALL execute_luc_event('C3ANN','PRIMF',POPLUC%gtop(g),g,POPLUC)
-         if (POPLUC%gtos(g) .gt.0.0_dp) &
+         if (POPLUC%gtos(g) .gt.0.0_r2) &
               CALL execute_luc_event('C3ANN','SECDF',POPLUC%gtos(g),g,POPLUC)
 
          POPLUC%frac_forest(g) =  POPLUC%primf(g)+ SUM(POPLUC%freq_age_secondary(g,:))
@@ -715,15 +715,15 @@ CONTAINS
     TYPE(POP_TYPE),      INTENT(INOUT) :: POP
     TYPE(LUC_EXPT_TYPE), INTENT(IN)    :: LUC_EXPT
     integer:: g, j, l
-    REAL(dp), DIMENSION(:), ALLOCATABLE:: freq_age
+    REAL(r2), DIMENSION(:), ALLOCATABLE:: freq_age
 
     DO l = 1, POP%np
-       pop%pop_grid(l)%freq_age = 0.0_dp
+       pop%pop_grid(l)%freq_age = 0.0_r2
     ENDDO
     ALLOCATE(freq_age(age_max))
 
     DO g = 1,POPLUC%np   ! loop over POPLUC gricells (same as CABLE grid-cells)
-       IF (.NOT.LUC_EXPT%prim_only(g) .and.sum(POPLUC%freq_age_secondary(g,:)).gt.1.e-12_dp) THEN
+       IF (.NOT.LUC_EXPT%prim_only(g) .and.sum(POPLUC%freq_age_secondary(g,:)).gt.1.e-12_r2) THEN
           ! check if tile is secondary forest
           j = landpt(g)%cstart + 1       ! cable index for secondary forest tile
           freq_age = POPLUC%freq_age_secondary(g,:)/sum(POPLUC%freq_age_secondary(g,:))
@@ -767,28 +767,28 @@ CONTAINS
          p  =  1, &
          s  =  2, &
          gr =  3
-    REAL(dp) :: dcplant(nLU,nLU,3), dclitter(nLU,nLU,3), dcsoil(nLU,nLU,3)
-    REAL(dp) :: dcplant_r(nLU,3), dclitter_r(nLU,3), dcsoil_r(nLU,3)
-    REAL(dp) :: dcplant_d(nLU,3), dclitter_d(nLU,3), dcsoil_d(nLU,3)
-    REAL(dp) :: dnplant(nLU,nLU,3), dnlitter(nLU,nLU,3), dnsoil(nLU,nLU,3)
-    REAL(dp) :: dnplant_r(nLU,3), dnlitter_r(nLU,3), dnsoil_r(nLU,3)
-    REAL(dp) :: dnplant_d(nLU,3), dnlitter_d(nLU,3), dnsoil_d(nLU,3)
-    REAL(dp) :: dpplant(nLU,nLU,3), dplitter(nLU,nLU,3), dpsoil(nLU,nLU,3)
-    REAL(dp) :: dpplant_r(nLU,3), dplitter_r(nLU,3), dpsoil_r(nLU,3)
-    REAL(dp) :: dpplant_d(nLU,3), dplitter_d(nLU,3), dpsoil_d(nLU,3)
-    REAL(dp) :: dnsoilmin_r(nLU), dclabile_r(nLU)
-    REAL(dp) :: dnsoilmin_d(nLU), dclabile_d(nLU)
-    REAL(dp) :: dclabile(nLU, nLU)
-    REAL(dp) :: dA_r(nLU), dA_d(nLU), dA(nLU), deltaA, dwood_transfer
-    REAL(dp), ALLOCATABLE :: dcHarvCLear(:), dcHarv(:), dcClear(:), dcExpand(:), &
+    REAL(r2) :: dcplant(nLU,nLU,3), dclitter(nLU,nLU,3), dcsoil(nLU,nLU,3)
+    REAL(r2) :: dcplant_r(nLU,3), dclitter_r(nLU,3), dcsoil_r(nLU,3)
+    REAL(r2) :: dcplant_d(nLU,3), dclitter_d(nLU,3), dcsoil_d(nLU,3)
+    REAL(r2) :: dnplant(nLU,nLU,3), dnlitter(nLU,nLU,3), dnsoil(nLU,nLU,3)
+    REAL(r2) :: dnplant_r(nLU,3), dnlitter_r(nLU,3), dnsoil_r(nLU,3)
+    REAL(r2) :: dnplant_d(nLU,3), dnlitter_d(nLU,3), dnsoil_d(nLU,3)
+    REAL(r2) :: dpplant(nLU,nLU,3), dplitter(nLU,nLU,3), dpsoil(nLU,nLU,3)
+    REAL(r2) :: dpplant_r(nLU,3), dplitter_r(nLU,3), dpsoil_r(nLU,3)
+    REAL(r2) :: dpplant_d(nLU,3), dplitter_d(nLU,3), dpsoil_d(nLU,3)
+    REAL(r2) :: dnsoilmin_r(nLU), dclabile_r(nLU)
+    REAL(r2) :: dnsoilmin_d(nLU), dclabile_d(nLU)
+    REAL(r2) :: dclabile(nLU, nLU)
+    REAL(r2) :: dA_r(nLU), dA_d(nLU), dA(nLU), deltaA, dwood_transfer
+    REAL(r2), ALLOCATABLE :: dcHarvCLear(:), dcHarv(:), dcClear(:), dcExpand(:), &
          dcNat(:),  FHarvClear(:), FDist(:), dcExpand1(:), dcExpand2(:), &
          FNatDist(:), FHarv(:), FClear(:)
-    ! 13C REAL(dp) :: kHarvProd(3), kClearProd(3), kAgProd
-    REAL(dp) :: NatDist_loss, Clear_Loss, SecHarv_Loss , Dist_Loss, &
+    ! 13C REAL(r2) :: kHarvProd(3), kClearProd(3), kAgProd
+    REAL(r2) :: NatDist_loss, Clear_Loss, SecHarv_Loss , Dist_Loss, &
          scalefac, tmp
 #ifdef __C13DEBUG__
-    real(dp) :: tmp_dplant(nLU,3), tmp_tplant(nLU,3), tmp_dlit(nLU,3), tmp_slit(nLU,3)
-    real(dp) :: tmp_dsoil(nLU,3)
+    real(r2) :: tmp_dplant(nLU,3), tmp_tplant(nLU,3), tmp_dlit(nLU,3), tmp_slit(nLU,3)
+    real(r2) :: tmp_dsoil(nLU,3)
     integer  :: iwtile, iwpool
 #endif
 
@@ -797,21 +797,21 @@ CONTAINS
     ! Biomass removal is similar for pastures (e.g. Carlassare et al. 2002, Agronomy Journal) but 
     ! management- and region-specific. For pastures large parts of the removed biomass is added again as litter.
     ! Here, we only account for the C ending up in the end product and being respired by livestock.
-    REAL(dp), PARAMETER :: HIcrop = 0.5_dp
-    REAL(dp), PARAMETER :: HIpast = 0.2_dp
+    REAL(r2), PARAMETER :: HIcrop = 0.5_r2
+    REAL(r2), PARAMETER :: HIpast = 0.2_r2
 
     ! turnover rates for harvest and clearance products (y-1)
-    kHarvProd(1) = 1.0_dp ! / 1.0_dp
-    kHarvProd(2) = 1.0_dp / 10.0_dp
-    kHarvProd(3) = 1.0_dp / 100.0_dp
+    kHarvProd(1) = 1.0_r2 ! / 1.0_r2
+    kHarvProd(2) = 1.0_r2 / 10.0_r2
+    kHarvProd(3) = 1.0_r2 / 100.0_r2
     kClearProd   = kHarvProd
-    kAgProd      = 1.0_dp ! / 1.0_dp
+    kAgProd      = 1.0_r2 ! / 1.0_r2
 
     ! zero POPLUC fluxes
-    popluc%FtransferNet   = 0.0_dp
-    popluc%FtransferGross = 0.0_dp
-    popluc%FHarvest       = 0.0_dp
-    popluc%FClearance     = 0.0_dp
+    popluc%FtransferNet   = 0.0_r2
+    popluc%FtransferGross = 0.0_r2
+    popluc%FHarvest       = 0.0_r2
+    popluc%FClearance     = 0.0_r2
 
     ! local variable for storing sum of biomass change due to
     !secondary harvest, clearance and expansion, and secondary forest
@@ -828,65 +828,65 @@ CONTAINS
     Allocate(dcExpand1(POPLUC%np))
     Allocate(dcExpand2(POPLUC%np))
     Allocate(dcNat(POPLUC%np))
-    FHarvClear            = 0.0_dp
-    FDist                 = 0.0_dp
-    FNatDist              = 0.0_dp
-    FHarv                 = 0.0_dp
-    FClear                = 0.0_dp
-    dcHarvClear           = 0.0_dp
-    dcHarv                = 0.0_dp
-    dcClear               = 0.0_dp
-    dcExpand              = 0.0_dp
-    dcExpand1             = 0.0_dp ! change in sec for carbon density by p->s
-    dcExpand2             = 0.0_dp ! change in sec for carbon density by g->s
-    dcNat                 = 0.0_dp
-    POPLUC%FHarvest       = 0.0_dp
-    POPLUC%FClearance     = 0.0_dp
-    casaflux%FluxCtohwp   = 0.0_dp
-    casaflux%FluxCtoclear = 0.0_dp
-    casaflux%CtransferLUC = 0.0_dp
+    FHarvClear            = 0.0_r2
+    FDist                 = 0.0_r2
+    FNatDist              = 0.0_r2
+    FHarv                 = 0.0_r2
+    FClear                = 0.0_r2
+    dcHarvClear           = 0.0_r2
+    dcHarv                = 0.0_r2
+    dcClear               = 0.0_r2
+    dcExpand              = 0.0_r2
+    dcExpand1             = 0.0_r2 ! change in sec for carbon density by p->s
+    dcExpand2             = 0.0_r2 ! change in sec for carbon density by g->s
+    dcNat                 = 0.0_r2
+    POPLUC%FHarvest       = 0.0_r2
+    POPLUC%FClearance     = 0.0_r2
+    casaflux%FluxCtohwp   = 0.0_r2
+    casaflux%FluxCtoclear = 0.0_r2
+    casaflux%CtransferLUC = 0.0_r2
 
-    popluc%FluxPHarvResidtoLitter  = 0.0_dp
-    popluc%FluxSHarvResidtoLitter  = 0.0_dp
-    popluc%FluxPClearResidtoLitter = 0.0_dp
-    popluc%FluxSClearResidtoLitter = 0.0_dp
-    popluc%dcSHarvClear            = 0.0_dp
+    popluc%FluxPHarvResidtoLitter  = 0.0_r2
+    popluc%FluxSHarvResidtoLitter  = 0.0_r2
+    popluc%FluxPClearResidtoLitter = 0.0_r2
+    popluc%FluxSClearResidtoLitter = 0.0_r2
+    popluc%dcSHarvClear            = 0.0_r2
 
     DO g = 1,POPLUC%np  ! loop over CABLE grid-cells
-       dcHarv(g)  = 0.0_dp
-       dcClear(g) = 0.0_dp
-       POPLUC%FHarvest(g,2)   = 0.0_dp
-       POPLUC%FClearance(g,2) = 0.0_dp
+       dcHarv(g)  = 0.0_r2
+       dcClear(g) = 0.0_r2
+       POPLUC%FHarvest(g,2)   = 0.0_r2
+       POPLUC%FClearance(g,2) = 0.0_r2
        j = landpt(g)%cstart ! index of primary veg tile in each grid-cell
        DO l = 1, POP%np   ! loop over all POP tiles (== wooded tiles in CABLE)
           IF (.NOT.LUC_EXPT%prim_only(g)) THEN ! land-use change may occur
 
              if (POP%Iwood(l).eq.j+1 .and. &
-                  (patch(j+1)%frac+ POPLUC%gtos(g)+POPLUC%ptos(g)-POPLUC%stog(g)) .gt. 0.0_dp) then
+                  (patch(j+1)%frac+ POPLUC%gtos(g)+POPLUC%ptos(g)-POPLUC%stog(g)) .gt. 0.0_r2) then
                 ! fraction biomass density loss to disturbance
                 ! includes natural disturbance, expansion, harvest, clearing
-                if ((POP%pop_grid(l)%cmass_sum_old+POP%pop_grid(l)%growth).gt.1.e-6_dp) then
+                if ((POP%pop_grid(l)%cmass_sum_old+POP%pop_grid(l)%growth).gt.1.e-6_r2) then
                    Dist_loss = POP%pop_grid(l)%cat_mortality &
                         /(POP%pop_grid(l)%cmass_sum_old+POP%pop_grid(l)%growth)
                 else
-                   Dist_loss = 0.0_dp
+                   Dist_loss = 0.0_r2
                 end if
                 POPLUC%biomass_age_secondary(g,:)=POP%pop_grid(l)%biomass_age
              endif
 
              if (POP%Iwood(l).eq.j+1 .and. &
-                  (patch(j+1)%frac+ POPLUC%gtos(g)+POPLUC%ptos(g)-POPLUC%stog(g)) .gt. 0.0_dp  ) then
+                  (patch(j+1)%frac+ POPLUC%gtos(g)+POPLUC%ptos(g)-POPLUC%stog(g)) .gt. 0.0_r2  ) then
                 ! if secondary forest and new secondary forest area > 0
                 ! set POPLUC diagnostic 2o forest age distribution to POP age distribution
 
                 ! change in biomass area density due to secondary forest expansion [g C m-2]
                 dcExpand(g) = -(POPLUC%gtos(g)+POPLUC%ptos(g))*casapool%cplant(j+1,2)/ &
                      (patch(j+1)%frac + POPLUC%gtos(g)+POPLUC%ptos(g)-POPLUC%stog(g))
-                if (abs((-POPLUC%kNatDist(g) - POPLUC%kSecHarv(g) -  POPLUC%kClear(g))) .gt.0.0_dp) then
+                if (abs((-POPLUC%kNatDist(g) - POPLUC%kSecHarv(g) -  POPLUC%kClear(g))) .gt.0.0_r2) then
                    scalefac = (-Dist_loss -   dcExpand(g)/casapool%cplant(j+1,2))/ &
                         (-POPLUC%kNatDist(g) - POPLUC%kSecHarv(g) -  POPLUC%kClear(g))
                 else
-                   scalefac = 0.0_dp
+                   scalefac = 0.0_r2
                 endif
 
                 ! relative  changes in biomass density due to sec forest
@@ -895,20 +895,20 @@ CONTAINS
                    SecHarv_loss =  scalefac * POPLUC%kSecHarv(g)
                    NatDist_Loss =  scalefac *  POPLUC%kNatDist(g)
                    Clear_loss = scalefac * POPLUC%kClear(g)
-                elseif ( abs(-POPLUC%kNatDist(g) - POPLUC%kSecHarv(g)).gt.0.0_dp ) then
+                elseif ( abs(-POPLUC%kNatDist(g) - POPLUC%kSecHarv(g)).gt.0.0_r2 ) then
                    scalefac = (-Dist_loss -   dcExpand(g)/casapool%cplant(j+1,2))/ &
                         (-POPLUC%kNatDist(g) - POPLUC%kSecHarv(g))
-                   Clear_Loss = 0.0_dp
+                   Clear_Loss = 0.0_r2
                    SecHarv_loss =  scalefac * POPLUC%kSecHarv(g)
                    NatDist_Loss =  scalefac *  POPLUC%kNatDist(g)
-                   if (scalefac.lt.0.0_dp) then
-                      SecHarv_loss =  0.0_dp
-                      NatDist_Loss =  0.0_dp
+                   if (scalefac.lt.0.0_r2) then
+                      SecHarv_loss =  0.0_r2
+                      NatDist_Loss =  0.0_r2
                    endif
                 else
-                   Clear_Loss = 0.0_dp
-                   SecHarv_loss =  0.0_dp
-                   NatDist_Loss =  0.0_dp
+                   Clear_Loss = 0.0_r2
+                   SecHarv_loss =  0.0_r2
+                   NatDist_Loss =  0.0_r2
 
                 endif
 
@@ -929,8 +929,8 @@ CONTAINS
 !!$               scalefac, casapool%cplant(j+1,2) + dcExpand(g)+dcClear(g)+dcHarv(g),  &
 !!$               casapool%cplant(j+1,2) , dcExpand(g),dcClear(g),dcHarv(g), dcnat(g)
 
-                if ((casapool%cplant(j+1,2) + dcExpand(g)+dcClear(g)+dcHarv(g)).gt.0.0_dp .and. &
-                     dcnat(g).lt.0.0_dp) then
+                if ((casapool%cplant(j+1,2) + dcExpand(g)+dcClear(g)+dcHarv(g)).gt.0.0_r2 .and. &
+                     dcnat(g).lt.0.0_r2) then
                    ! flux + A0C0 = (A + dA) * (C + dC)
                    ! flux = A0 * dC + dA( C0 + dC)
                    ! harvest+ clearance flux (not yet corrected for carbon remaining &
@@ -969,18 +969,18 @@ CONTAINS
                    ! secondary forest harvest flux (goes to harvest wood products) &
                    ! [g C m-2] (grid-cell basis)
                    !  corrected for carbon remaining in landscape as litter
-                   if ((FHarv(g)).gt.0.0_dp) then
-                      POPLUC%FHarvest(g,2) =  (1.0_dp-POPLUC%fracHarvSecResid(g))*FHarv(g)
+                   if ((FHarv(g)).gt.0.0_r2) then
+                      POPLUC%FHarvest(g,2) =  (1.0_r2-POPLUC%fracHarvSecResid(g))*FHarv(g)
                    endif
                    ! secondary forest clearance flux (goes to clearance pool) &
                    ! [g C m-2] (grid-cell basis)
                    !  corrected for carbon remaining in landscape as litter
-                   if ((FClear(g)).gt.0.0_dp) then
-                      POPLUC%FClearance(g,2) =  (1.0_dp-POPLUC%fracClearResid(g))* FClear(g)
+                   if ((FClear(g)).gt.0.0_r2) then
+                      POPLUC%FClearance(g,2) =  (1.0_r2-POPLUC%fracClearResid(g))* FClear(g)
                    endif
                 else
-                   dcHarvClear(g) = 0.0_dp
-                   POPLUC%stog(g) = 0.0_dp
+                   dcHarvClear(g) = 0.0_r2
+                   POPLUC%stog(g) = 0.0_r2
                 endif
              endif
           ENDIF
@@ -1004,73 +1004,73 @@ CONTAINS
        ! dC refers to change in carbon [g m-2] (grid-cell basis)
        ! dn refers to change in nitrogen [g m-2] (grid-cell basis)
        ! dp refers to change in phosphorous [g m-2] (grid-cell basis)
-       dA_r       = 0.0_dp
-       dA_d       = 0.0_dp
-       dA         = 0.0_dp
-       dcsoil     = 0.0_dp
-       dcplant    = 0.0_dp
-       dclitter   = 0.0_dp
-       dclabile   = 0.0_dp
-       dcsoil_r   = 0.0_dp
-       dcplant_r  = 0.0_dp
-       dclitter_r = 0.0_dp
-       dcsoil_r   = 0.0_dp
-       dcplant_r  = 0.0_dp
-       dclitter_r = 0.0_dp
-       dclabile_r = 0.0_dp
+       dA_r       = 0.0_r2
+       dA_d       = 0.0_r2
+       dA         = 0.0_r2
+       dcsoil     = 0.0_r2
+       dcplant    = 0.0_r2
+       dclitter   = 0.0_r2
+       dclabile   = 0.0_r2
+       dcsoil_r   = 0.0_r2
+       dcplant_r  = 0.0_r2
+       dclitter_r = 0.0_r2
+       dcsoil_r   = 0.0_r2
+       dcplant_r  = 0.0_r2
+       dclitter_r = 0.0_r2
+       dclabile_r = 0.0_r2
 
-       dcsoil_d   = 0.0_dp
-       dcplant_d  = 0.0_dp
-       dclitter_d = 0.0_dp
-       dcsoil_d   = 0.0_dp
-       dcplant_d  = 0.0_dp
-       dclitter_d = 0.0_dp
-       dclabile_d = 0.0_dp
+       dcsoil_d   = 0.0_r2
+       dcplant_d  = 0.0_r2
+       dclitter_d = 0.0_r2
+       dcsoil_d   = 0.0_r2
+       dcplant_d  = 0.0_r2
+       dclitter_d = 0.0_r2
+       dclabile_d = 0.0_r2
 
-       dnsoil      = 0.0_dp
-       dnplant     = 0.0_dp
-       dnlitter    = 0.0_dp
-       dnsoil_r    = 0.0_dp
-       dnplant_r   = 0.0_dp
-       dnlitter_r  = 0.0_dp
-       dnsoil_r    = 0.0_dp
-       dnplant_r   = 0.0_dp
-       dnlitter_r  = 0.0_dp
-       dnsoilmin_r = 0.0_dp
+       dnsoil      = 0.0_r2
+       dnplant     = 0.0_r2
+       dnlitter    = 0.0_r2
+       dnsoil_r    = 0.0_r2
+       dnplant_r   = 0.0_r2
+       dnlitter_r  = 0.0_r2
+       dnsoil_r    = 0.0_r2
+       dnplant_r   = 0.0_r2
+       dnlitter_r  = 0.0_r2
+       dnsoilmin_r = 0.0_r2
 
-       dnlitter    = 0.0_dp
-       dnsoil_d    = 0.0_dp
-       dnplant_d   = 0.0_dp
-       dnlitter_d  = 0.0_dp
-       dnsoil_d    = 0.0_dp
-       dnplant_d   = 0.0_dp
-       dnlitter_d  = 0.0_dp
-       dnsoilmin_d = 0.0_dp
+       dnlitter    = 0.0_r2
+       dnsoil_d    = 0.0_r2
+       dnplant_d   = 0.0_r2
+       dnlitter_d  = 0.0_r2
+       dnsoil_d    = 0.0_r2
+       dnplant_d   = 0.0_r2
+       dnlitter_d  = 0.0_r2
+       dnsoilmin_d = 0.0_r2
 
-       dpsoil         = 0.0_dp
-       dpplant        = 0.0_dp
-       dplitter       = 0.0_dp
-       dpsoil_r       = 0.0_dp
-       dpplant_r      = 0.0_dp
-       dplitter_r     = 0.0_dp
-       dpsoil_r       = 0.0_dp
-       dpplant_r      = 0.0_dp
-       dplitter_r     = 0.0_dp
-       dwood_transfer = 0.0_dp
+       dpsoil         = 0.0_r2
+       dpplant        = 0.0_r2
+       dplitter       = 0.0_r2
+       dpsoil_r       = 0.0_r2
+       dpplant_r      = 0.0_r2
+       dplitter_r     = 0.0_r2
+       dpsoil_r       = 0.0_r2
+       dpplant_r      = 0.0_r2
+       dplitter_r     = 0.0_r2
+       dwood_transfer = 0.0_r2
 
-       dpsoil_d   = 0.0_dp
-       dpplant_d  = 0.0_dp
-       dplitter_d = 0.0_dp
-       dpsoil_d   = 0.0_dp
-       dpplant_d  = 0.0_dp
-       dplitter_d = 0.0_dp
+       dpsoil_d   = 0.0_r2
+       dpplant_d  = 0.0_r2
+       dplitter_d = 0.0_r2
+       dpsoil_d   = 0.0_r2
+       dpplant_d  = 0.0_r2
+       dplitter_d = 0.0_r2
 
 #ifdef __C13DEBUG__
-       tmp_dplant = 0.0_dp
-       tmp_tplant = 0.0_dp
-       tmp_dlit   = 0.0_dp
-       tmp_slit   = 0.0_dp
-       tmp_dsoil = 0.0_dp
+       tmp_r2lant = 0.0_r2
+       tmp_tplant = 0.0_r2
+       tmp_dlit   = 0.0_r2
+       tmp_slit   = 0.0_r2
+       tmp_dsoil = 0.0_r2
 #endif
 
        IF (.NOT.LUC_EXPT%prim_only(g)) THEN ! only worry about transitions where land-use change is possible
@@ -1100,20 +1100,20 @@ CONTAINS
                 idlu = gr                      ! donor land use index
                 irlu = s                       ! receiver land use index (s = secondary)
              endif
-             dcsoil   = 0.0_dp
-             dclitter = 0.0_dp
-             dcplant  = 0.0_dp
-             dclabile = 0.0_dp
-             dnsoil   = 0.0_dp
-             dnlitter = 0.0_dp
-             dnplant  = 0.0_dp
-             dpsoil   = 0.0_dp
-             dplitter = 0.0_dp
-             dpplant  = 0.0_dp
-             dwood_transfer = 0.0_dp
+             dcsoil   = 0.0_r2
+             dclitter = 0.0_r2
+             dcplant  = 0.0_r2
+             dclabile = 0.0_r2
+             dnsoil   = 0.0_r2
+             dnlitter = 0.0_r2
+             dnplant  = 0.0_r2
+             dpsoil   = 0.0_r2
+             dplitter = 0.0_r2
+             dpplant  = 0.0_r2
+             dwood_transfer = 0.0_r2
 
              ! transfer fluxes : only consider cases where gross transition area is greater than zero
-             if (deltaA.gt.0.0_dp) then
+             if (deltaA.gt.0.0_r2) then
                 ! all soil pools
 
                 ! change in carbon associated with gross transition
@@ -1155,20 +1155,20 @@ CONTAINS
                 dplitter_d(idlu,1) =  dplitter_d(idlu,1) - dplitter(irlu,idlu,1)
 
                 ! CWD : donor pool inhreits CWD and residues from harvest/clearance
-                tmp = 0.0_dp
-                if (idlu == s .and. casapool%cplant(idp,2).gt.1.e-5_dp ) then
+                tmp = 0.0_r2
+                if (idlu == s .and. casapool%cplant(idp,2).gt.1.e-5_r2 ) then
                    ! secondary forest clearance: use secondary forest clearance flux from above
                    ! 13C
-                   tmp = POPLUC%fracClearResid(g) * POPLUC%Fclearance(g,2) / (1.0_dp-POPLUC%fracClearResid(g))
+                   tmp = POPLUC%fracClearResid(g) * POPLUC%Fclearance(g,2) / (1.0_r2-POPLUC%fracClearResid(g))
                    popluc%FluxSClearResidtoLitter(g) = tmp
                    dclitter(irlu,idlu,3) = deltaA*casapool%clitter(idp,3) + tmp
                    dnlitter(irlu,idlu,3) = deltaA*casapool%nlitter(idp,3) + &
                         POPLUC%fracClearResid(g)*POPLUC%Fclearance(g,2)/ &
-                        (1.0_dp-POPLUC%fracClearResid(g))  &
+                        (1.0_r2-POPLUC%fracClearResid(g))  &
                         *casapool%nplant(idp,2)/ casapool%cplant(idp,2)
                    dplitter(irlu,idlu,3) = deltaA*casapool%plitter(idp,3) + &
                        POPLUC%fracClearResid(g)*POPLUC%Fclearance(g,2)/ &
-                        (1.0_dp-POPLUC%fracClearResid(g))  &
+                        (1.0_r2-POPLUC%fracClearResid(g))  &
                           *casapool%pplant(idp,2)/ casapool%cplant(idp,2)
                 elseif (idlu == p .and. irlu == s) then
                    ! primary forest harvest: assume harvest is uniform across age-classes
@@ -1234,18 +1234,18 @@ CONTAINS
                 dclabile_d(irlu) =  dclabile_d(idlu) - deltaA*casapool%clabile(idp)
 
                 ! biomass: no biomass inherited
-                dcplant(irlu,idlu,:) = 0.0_dp
+                dcplant(irlu,idlu,:) = 0.0_r2
 #ifdef __C13DEBUG__
-                tmp_dplant(irlu,:) = tmp_dplant(irlu,:) + 0.0_dp
+                tmp_dplant(irlu,:) = tmp_dplant(irlu,:) + 0.0_r2
 #endif
                 dcplant_r(irlu,:) =  dcplant_r(irlu,:) + dcplant(irlu,idlu,:)
                 dcplant_d(idlu,:) =  dcplant_d(idlu,:) - dcplant(irlu,idlu,:)
 
-                dnplant(irlu,idlu,:) = 0.0_dp
+                dnplant(irlu,idlu,:) = 0.0_r2
                 dnplant_r(irlu,:) =  dnplant_r(irlu,:) + dnplant(irlu,idlu,:)
                 dnplant_d(idlu,:) =  dnplant_d(idlu,:) - dnplant(irlu,idlu,:)
 
-                dpplant(irlu,idlu,:) = 0.0_dp
+                dpplant(irlu,idlu,:) = 0.0_r2
                 dpplant_r(irlu,:) =  dpplant_r(irlu,:) + dpplant(irlu,idlu,:)
                 dpplant_d(idlu,:) =  dpplant_d(idlu,:) - dpplant(irlu,idlu,:)
 
@@ -1258,13 +1258,13 @@ CONTAINS
                 ! (note secondary harvest and clearance fluxes are already evaluated &
                 !  at the top of this subroutine)
                 if (idlu==p .and. irlu ==s) then
-                   popluc%FHarvest(g,idlu) =  (1.0_dp -POPLUC%fracHarvResid(g)) &
+                   popluc%FHarvest(g,idlu) =  (1.0_r2 -POPLUC%fracHarvResid(g)) &
                         *casapool%cplant(idp,2)*deltaA
                 endif
                 ! Clearance Flux
                 ! primary forest to grass
                 if ((idlu==p) .and. irlu ==gr) then
-                   popluc%FClearance(g,idlu) =  (1.0_dp -POPLUC%fracClearResid(g)) &
+                   popluc%FClearance(g,idlu) =  (1.0_r2 -POPLUC%fracClearResid(g)) &
                         * casapool%cplant(idp,2)*deltaA
                 endif
 
@@ -1284,7 +1284,7 @@ CONTAINS
 #endif
              !if (g==3 .and. POPLUC%thisyear==1837 .and. ilu==2) &
              !     write(*,*) 'c00',casapool%cplant(irp,2),casapool%cplant(irp,2)*patch(j)%frac
-             dwood_transfer = 0.0_dp
+             dwood_transfer = 0.0_r2
              dA(ilu) = dA_r(ilu) + dA_d(ilu)
              ! Net Transfer Flux
              POPLUC%FTransferNet(g,ilu) = sum(dcsoil_r(ilu,:) + dcsoil_d(ilu,:)) + &
@@ -1294,23 +1294,23 @@ CONTAINS
              if (ilu ==2) then
                 ! augment CWD pools in secondary veg tiles by harvest residues
                 ! 13C
-                tmp = POPLUC%fracHarvSecResid(g) * POPLUC%FHarvest(g,2) / (1.0_dp -POPLUC%fracHarvSecResid(g))
+                tmp = POPLUC%fracHarvSecResid(g) * POPLUC%FHarvest(g,2) / (1.0_r2 -POPLUC%fracHarvSecResid(g))
                 popluc%FluxSHarvResidtoLitter(g) = tmp
                 dclitter_r(ilu,3) = dclitter_r(irlu,3) + tmp
 #ifdef __C13DEBUG__
                 tmp_slit(irlu,3) = tmp_slit(irlu,3) + tmp
 #endif
-                if (casapool%cplant(irp,2) .gt. 1.e-5_dp) then
+                if (casapool%cplant(irp,2) .gt. 1.e-5_r2) then
                    dnlitter_r(ilu,3) = dnlitter_r(irlu,3) +  &
-                        POPLUC%fracHarvSecResid(g)*POPLUC%FHarvest(g,2)/(1.0_dp -POPLUC%fracHarvSecResid(g)) &
+                        POPLUC%fracHarvSecResid(g)*POPLUC%FHarvest(g,2)/(1.0_r2 -POPLUC%fracHarvSecResid(g)) &
                         *casapool%nplant(irp,2)/ casapool%cplant(irp,2)
                    dplitter_r(ilu,3) = dplitter_r(irlu,3) +  &
-                        POPLUC%fracHarvSecResid(g)*POPLUC%FHarvest(g,2)/(1.0_dp -POPLUC%fracHarvSecResid(g)) &
+                        POPLUC%fracHarvSecResid(g)*POPLUC%FHarvest(g,2)/(1.0_r2 -POPLUC%fracHarvSecResid(g)) &
                         *casapool%pplant(irp,2)/ casapool%cplant(irp,2)
                 endif
              endif
 
-             if ((patch(irp)%frac+dA(ilu)).gt.1.e-5_dp) then ! avoid fpe's by ensuring finite new tile area
+             if ((patch(irp)%frac+dA(ilu)).gt.1.e-5_r2) then ! avoid fpe's by ensuring finite new tile area
                 casapool%nsoilmin(irp) = casapool%nsoilmin(irp) +  &
                      (dnsoilmin_r(ilu) - casapool%nsoilmin(irp)*(dA(ilu) - dA_d(ilu))) &
                      /(patch(irp)%frac+dA(ilu))
@@ -1421,8 +1421,8 @@ CONTAINS
                 !   harvest and clearing, as well as increase in (below ground) CWD
                 !   where secondary forest harvest occurs
 
-                if (ilu .eq.s .and. (casapool%cplant(irp,2)+dcHarvClear(g)).gt.0.0_dp  &
-                     .and. casapool%cplant(irp,2).gt.1.e-10_dp  ) then
+                if (ilu .eq.s .and. (casapool%cplant(irp,2)+dcHarvClear(g)).gt.0.0_r2  &
+                     .and. casapool%cplant(irp,2).gt.1.e-10_r2  ) then
                    popluc%dcSHarvClear(g) = dcHarvClear(g)
                    casapool%nplant(irp,2) = casapool%nplant(irp,2) + (dcHarvClear(g)) &
                         * casapool%nplant(irp,2)/casapool%cplant(irp,2)
@@ -1434,17 +1434,17 @@ CONTAINS
                       print*, 'PP07 ', casapool%cplant(irp,iwpool), dcHarvClear(g)
                    endif
 #endif
-                elseif (ilu .eq.s .and. (casapool%cplant(irp,2)+dcHarvClear(g)).le.0.0_dp  ) then
-                   POPLUC%FHarvest(g,2)   = 0.0_dp
-                   POPLUC%FClearance(g,2) = 0.0_dp
-                   popluc%FluxSHarvResidtoLitter(g)  = 0.0_dp
-                   popluc%FluxSClearResidtoLitter(g) = 0.0_dp
+                elseif (ilu .eq.s .and. (casapool%cplant(irp,2)+dcHarvClear(g)).le.0.0_r2  ) then
+                   POPLUC%FHarvest(g,2)   = 0.0_r2
+                   POPLUC%FClearance(g,2) = 0.0_r2
+                   popluc%FluxSHarvResidtoLitter(g)  = 0.0_r2
+                   popluc%FluxSClearResidtoLitter(g) = 0.0_r2
                 endif
-             endif ! (patch(irp)%frac+dA(ilu)).gt.1.e-5_dp
+             endif ! (patch(irp)%frac+dA(ilu)).gt.1.e-5_r2
 
-             if (patch(irp)%frac .gt. 1.e-8_dp) then
-                casaflux%FluxCtohwp(irp)   = POPLUC%FHarvest(g,ilu)   / patch(irp)%frac * real(ktauday,dp)
-                casaflux%FluxCtoclear(irp) = POPLUC%FClearance(g,ilu) / patch(irp)%frac * real(ktauday,dp)
+             if (patch(irp)%frac .gt. 1.e-8_r2) then
+                casaflux%FluxCtohwp(irp)   = POPLUC%FHarvest(g,ilu)   / patch(irp)%frac * real(ktauday, r2)
+                casaflux%FluxCtoclear(irp) = POPLUC%FClearance(g,ilu) / patch(irp)%frac * real(ktauday, r2)
              endif
              !if (g==3 .and. POPLUC%thisyear==1837 ) write(*,*) 'c01c',  casapool%cplant(irp,2), ilu,dcharvclear(g)
           enddo ! ilu=1, nlu
@@ -1459,51 +1459,51 @@ CONTAINS
              irp = ilu + j -1
              ! Update tile area
              if (ilu == p) then
-                POPLUC%primf(g) = min(1.0_dp, max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp))
+                POPLUC%primf(g) = min(1.0_r2, max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_r2))
              elseif (ilu == s) then
-                POPLUC%secdf(g) = min(1.0_dp, max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp))
-                if (eq(POPLUC%secdf(g), 0.0_dp)) then
-                   POPLUC%freq_age_secondary(g,:) = 0.0_dp
+                POPLUC%secdf(g) = min(1.0_r2, max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_r2))
+                if (eq(POPLUC%secdf(g), 0.0_r2)) then
+                   POPLUC%freq_age_secondary(g,:) = 0.0_r2
                 endif
              elseif (ilu == gr) then
-                POPLUC%grass(g) = min(1.0_dp, max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp))
+                POPLUC%grass(g) = min(1.0_r2, max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_r2))
 
                 ! Update crop and pasture fraction within the grass land use type 
                 POPLUC%past(g) = min(max(POPLUC%past(g) + (POPLUC%ptoq(g) + POPLUC%stoq(g) + POPLUC%ctoq(g) + POPLUC%rtoq(g)) &
-                     - (POPLUC%qtos(g) + POPLUC%qtoc(g) + POPLUC%qtor(g)),0.0_dp), POPLUC%grass(g))
+                     - (POPLUC%qtos(g) + POPLUC%qtoc(g) + POPLUC%qtor(g)),0.0_r2), POPLUC%grass(g))
                 POPLUC%crop(g) = min(max(POPLUC%crop(g) + (POPLUC%ptoc(g) + POPLUC%stoc(g) + POPLUC%qtoc(g) + POPLUC%rtoc(g)) &
-                     - (POPLUC%ctos(g) + POPLUC%ctoq(g) + POPLUC%ctor(g)),0.0_dp), POPLUC%grass(g) - POPLUC%past(g))
+                     - (POPLUC%ctos(g) + POPLUC%ctoq(g) + POPLUC%ctor(g)),0.0_r2), POPLUC%grass(g) - POPLUC%past(g))
              endif
 
              POPLUC%csoil(g,ilu) = sum(casapool%csoil(irp,:))* &
-                  max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp)
+                  max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_r2)
              POPLUC%clitt(g,ilu) = sum(casapool%clitter(irp,:))* &
-                  max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp)
+                  max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_r2)
              POPLUC%cbiomass(g,ilu) = sum(casapool%cplant(irp,:))* &
-                  max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp)
+                  max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_r2)
              ! if (g==4  .and. ilu==2) write(*,*) 'c02', casapool%cplant(irp,2), &
-             !    casapool%cplant(irp,2)* max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp), &
+             !    casapool%cplant(irp,2)* max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_r2), &
              !    patch(irp)%frac,  dA_r(ilu) + dA_d(ilu)
 
              !  if (g==4  .and. ilu==3) write(*,*) 'c03', casapool%csoil(irp,2), &
-             !     casapool%csoil(irp,2)* max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_dp), &
+             !     casapool%csoil(irp,2)* max(patch(irp)%frac + dA_r(ilu) + dA_d(ilu), 0.0_r2), &
              !     patch(irp)%frac,  dA_r(ilu) + dA_d(ilu)
 
           ENDDO
        ELSE
 
-          POPLUC%csoil(g,:)    = 0.0_dp
-          POPLUC%clitt(g,:)    = 0.0_dp
-          POPLUC%cbiomass(g,:) = 0.0_dp
-          POPLUC%FNEP(g,:)     = 0.0_dp
+          POPLUC%csoil(g,:)    = 0.0_r2
+          POPLUC%clitt(g,:)    = 0.0_r2
+          POPLUC%cbiomass(g,:) = 0.0_r2
+          POPLUC%FNEP(g,:)     = 0.0_r2
 
           POPLUC%csoil(g,1)    = sum(casapool%csoil(j,:))*patch(j)%frac
           POPLUC%clitt(g,1)    = sum(casapool%clitter(j,:))*patch(j)%frac
           POPLUC%cbiomass(g,1) = sum(casapool%cplant(j,:))*patch(j)%frac
           POPLUC%FNEP(g,1)     = casabal%Fcneeyear(j)*patch(j)%frac
           POPLUC%primf(g)      = patch(j)%frac
-          POPLUC%secdf(g)      = 0.0_dp
-          if (POPLUC%grass(g).gt.0.0_dp .and. l.eq.j+1) then
+          POPLUC%secdf(g)      = 0.0_r2
+          if (POPLUC%grass(g).gt.0.0_r2 .and. l.eq.j+1) then
              POPLUC%csoil(g,3)    = sum(casapool%csoil(l,:))*patch(l)%frac
              POPLUC%clitt(g,3)    = sum(casapool%clitter(l,:))*patch(l)%frac
              POPLUC%cbiomass(g,3) = sum(casapool%cplant(l,:))*patch(l)%frac
@@ -1519,7 +1519,7 @@ CONTAINS
        POPLUC%AgProdLossCrop(g)  = kAgProd * POPLUC%AgProdCrop(g) 
        POPLUC%AgProdLoss(g)      = POPLUC%AgProdPast(g) + POPLUC%AgProdCrop(g)  
 
-       if (POPLUC%grass(g).gt.0.0_dp .and. l.eq.j+2) then
+       if (POPLUC%grass(g).gt.0.0_r2 .and. l.eq.j+2) then
           ! Those quantities are calculated at grid cell level (hence multiplied by frac) 
           POPLUC%FAg(g)        = casaflux%Charvest(l)*patch(l)%frac
           POPLUC%AgProdPast(g) = POPLUC%AgProdPast(g) + casaflux%CharvestPast(l) &
@@ -1527,16 +1527,16 @@ CONTAINS
           POPLUC%AgProdCrop(g) = POPLUC%AgProdCrop(g) + casaflux%CharvestCrop(l) & 
                                  * patch(l)%frac - POPLUC%AgProdLossCrop(g)
           POPLUC%AgProd(g)     = POPLUC%AgProdPast(g) + POPLUC%AgProdCrop(g)
-          casaflux%charvest(l)     = 0.0_dp
-          casaflux%charvestpast(l) = 0.0_dp
-          casaflux%charvestcrop(l) = 0.0_dp
+          casaflux%charvest(l)     = 0.0_r2
+          casaflux%charvestpast(l) = 0.0_r2
+          casaflux%charvestcrop(l) = 0.0_r2
           ! Note: we are not keeping track of nharvest and pharvest for crops and pastures separately!
-          casaflux%nharvest(l)     = 0.0_dp
+          casaflux%nharvest(l)     = 0.0_r2
           ! fraction grass AGB to be removed next year through grazing and harvest
-          casaflux%fharvestPast(l) = min(POPLUC%past(g)/POPLUC%grass(g),1.0_dp) * HIpast
-          casaflux%fharvestCrop(l) = min(POPLUC%crop(g)/POPLUC%grass(g),1.0_dp) * HIcrop
+          casaflux%fharvestPast(l) = min(POPLUC%past(g)/POPLUC%grass(g),1.0_r2) * HIpast
+          casaflux%fharvestCrop(l) = min(POPLUC%crop(g)/POPLUC%grass(g),1.0_r2) * HIcrop
           casaflux%fharvest(l)     = casaflux%fharvestPast(l) + casaflux%fharvestCrop(l)
-          casaflux%fcrop(l) = min(POPLUC%crop(g)/POPLUC%grass(g), 1.0_dp)
+          casaflux%fcrop(l) = min(POPLUC%crop(g)/POPLUC%grass(g), 1.0_r2)
        endif
        DO j=1, 3
           POPLUC%HarvProd(g,j) = POPLUC%HarvProd(g,j) + &
@@ -1575,8 +1575,8 @@ CONTAINS
     TYPE(veg_parameter_type), INTENT(IN)    :: veg  ! vegetation parameters
     TYPE(POP_TYPE),           INTENT(INOUT) :: POP
 
-    INTEGER(i4b), INTENT(IN) :: np
-    INTEGER(i4b) :: j, k, l
+    INTEGER(i4), INTENT(IN) :: np
+    INTEGER(i4) :: j, k, l
 
     CALL alloc_POPLUC(POPLUC,np)
 
@@ -1588,33 +1588,33 @@ CONTAINS
     CALL POPLUC_set_params(POPLUC, LUC_EXPT)
 
     IF (cable_user%POPLUC_RunType .eq. 'init') THEN
-       POPLUC%frac_primf = real(LUC_EXPT%primaryf, dp)
-       POPLUC%primf      = real(LUC_EXPT%primaryf, dp)
-       POPLUC%grass      = real(LUC_EXPT%grass, dp)
-       POPLUC%past       = real(LUC_EXPT%past, dp)
-       POPLUC%crop       = real(LUC_EXPT%crop, dp)
-       where ((POPLUC%primf + POPLUC%grass) > 1.0_dp) POPLUC%grass = 1.0_dp - POPLUC%primf
-       POPLUC%frac_forest = 1.0_dp - POPLUC%grass
-       POPLUC%freq_age_secondary(:,1) = max(POPLUC%frac_forest - POPLUC%primf, 0.0_dp)
-       POPLUC%latitude  = real(patch(landpt(:)%cstart)%latitude,dp)
-       POPLUC%longitude = real(patch(landpt(:)%cstart)%longitude,dp)
+       POPLUC%frac_primf = real(LUC_EXPT%primaryf, r2)
+       POPLUC%primf      = real(LUC_EXPT%primaryf, r2)
+       POPLUC%grass      = real(LUC_EXPT%grass, r2)
+       POPLUC%past       = real(LUC_EXPT%past, r2)
+       POPLUC%crop       = real(LUC_EXPT%crop, r2)
+       where ((POPLUC%primf + POPLUC%grass) > 1.0_r2) POPLUC%grass = 1.0_r2 - POPLUC%primf
+       POPLUC%frac_forest = 1.0_r2 - POPLUC%grass
+       POPLUC%freq_age_secondary(:,1) = max(POPLUC%frac_forest - POPLUC%primf, 0.0_r2)
+       POPLUC%latitude  = real(patch(landpt(:)%cstart)%latitude, r2)
+       POPLUC%longitude = real(patch(landpt(:)%cstart)%longitude, r2)
 
        ! zero biomass in secondary forest tiles (both CASA and POP variables)
        where (veg%iLU ==2)
-          casapool%cplant(:,leaf) = 0.01_dp
+          casapool%cplant(:,leaf) = 0.01_r2
           casapool%nplant(:,leaf)= casabiome%ratioNCplantmin(veg%iveg,leaf)* casapool%cplant(:,leaf)
           casapool%pplant(:,leaf)= casabiome%ratioPCplantmin(veg%iveg,leaf)* casapool%cplant(:,leaf)
 
-          casapool%cplant(:,froot) = 0.01_dp
+          casapool%cplant(:,froot) = 0.01_r2
           casapool%nplant(:,froot)= casabiome%ratioNCplantmin(veg%iveg,froot)* &
                casapool%cplant(:,froot)
           casapool%pplant(:,froot)= casabiome%ratioPCplantmin(veg%iveg,froot)* &
                casapool%cplant(:,froot)
 
-          casapool%cplant(:,wood) = 0.01_dp
+          casapool%cplant(:,wood) = 0.01_r2
           casapool%nplant(:,wood)= casabiome%ratioNCplantmin(veg%iveg,wood)* casapool%cplant(:,wood)
           casapool%pplant(:,wood)= casabiome%ratioPCplantmin(veg%iveg,wood)* casapool%cplant(:,wood)
-          casaflux%frac_sapwood = 1.0_dp
+          casaflux%frac_sapwood = 1.0_r2
        endwhere
 
        DO k=1, np
@@ -1634,9 +1634,9 @@ CONTAINS
        CALL READ_LUC_RESTART_NC(POPLUC)
 
        POPLUC%frac_primf  = POPLUC%primf
-       POPLUC%frac_forest = 1.0_dp - POPLUC%grass
-       POPLUC%latitude    = real(patch(landpt(:)%cstart)%latitude,dp)
-       POPLUC%longitude   = real(patch(landpt(:)%cstart)%longitude,dp)
+       POPLUC%frac_forest = 1.0_r2 - POPLUC%grass
+       POPLUC%latitude    = real(patch(landpt(:)%cstart)%latitude, r2)
+       POPLUC%longitude   = real(patch(landpt(:)%cstart)%longitude, r2)
 
     ENDIF
 
@@ -1662,7 +1662,7 @@ CONTAINS
 
     TYPE(POPLUC_TYPE), INTENT(IN) :: POPLUC
     TYPE (LUC_EXPT_TYPE), INTENT(IN) :: LUC_EXPT
-    INTEGER(i4b) :: j, k, l
+    INTEGER(i4) :: j, k, l
 
     DO k=1, POPLUC%np
        j = landpt(k)%cstart
@@ -1670,7 +1670,7 @@ CONTAINS
        IF (.NOT.LUC_EXPT%prim_only(k)) THEN
           patch(j)%frac = POPLUC%primf(k)
           patch(l)%frac = POPLUC%grass(k)
-          patch(j+1)%frac = 1.0_dp -  patch(j)%frac - patch(l)%frac
+          patch(j+1)%frac = 1.0_r2 -  patch(j)%frac - patch(l)%frac
        ENDIF
     ENDDO
 
@@ -1685,84 +1685,84 @@ CONTAINS
     TYPE(POPLUC_TYPE),    INTENT(INOUT) :: POPLUC
     TYPE (LUC_EXPT_TYPE), INTENT(IN)    :: LUC_EXPT
 
-    INTEGER(i4b) :: g, np
+    INTEGER(i4) :: g, np
 
     np = POPLUC%np
     DO g=1, np
-       POPLUC%fracharvProd(g, 1) = 0.9_dp
-       POPLUC%fracharvProd(g, 2) = 0.04_dp
-       POPLUC%fracharvProd(g, 3) = 0.06_dp
+       POPLUC%fracharvProd(g, 1) = 0.9_r2
+       POPLUC%fracharvProd(g, 2) = 0.04_r2
+       POPLUC%fracharvProd(g, 3) = 0.06_r2
 
-       POPLUC%fracClearProd(g, 1) = 0.597_dp
-       POPLUC%fracClearProd(g, 2) = 0.403_dp
-       POPLUC%fracClearProd(g, 3) = 0.0_dp
-       POPLUC%fracClearResid(g) = 0.33_dp
-       POPLUC%fracHarvResid(g) = 0.79_dp
-       POPLUC%fracHarvSecResid(g) = 0.81_dp
+       POPLUC%fracClearProd(g, 1) = 0.597_r2
+       POPLUC%fracClearProd(g, 2) = 0.403_r2
+       POPLUC%fracClearProd(g, 3) = 0.0_r2
+       POPLUC%fracClearResid(g) = 0.33_r2
+       POPLUC%fracHarvResid(g) = 0.79_r2
+       POPLUC%fracHarvSecResid(g) = 0.81_r2
 
        IF (LUC_EXPT%biome(g)==1 .OR. LUC_EXPT%biome(g)==2) THEN
           ! Tropical Evergreen and Tropical Deciduous
-          POPLUC%fracharvProd(g, 1) = 0.9_dp
-          POPLUC%fracharvProd(g, 2) = 0.04_dp
-          POPLUC%fracharvProd(g, 3) = 0.06_dp
+          POPLUC%fracharvProd(g, 1) = 0.9_r2
+          POPLUC%fracharvProd(g, 2) = 0.04_r2
+          POPLUC%fracharvProd(g, 3) = 0.06_r2
 
-          POPLUC%fracClearProd(g, 1) = 0.597_dp
-          POPLUC%fracClearProd(g, 2) = 0.403_dp
-          POPLUC%fracClearProd(g, 3) = 0.0_dp
+          POPLUC%fracClearProd(g, 1) = 0.597_r2
+          POPLUC%fracClearProd(g, 2) = 0.403_r2
+          POPLUC%fracClearProd(g, 3) = 0.0_r2
 
-          IF (LUC_EXPT%biome(g)==1) POPLUC%fracHarvResid(g) = 0.79_dp
-          IF (LUC_EXPT%biome(g)==2) POPLUC%fracHarvResid(g) = 0.86_dp
-          IF (LUC_EXPT%biome(g)==1) POPLUC%fracHarvSecResid(g) = 0.71_dp
-          IF (LUC_EXPT%biome(g)==2) POPLUC%fracHarvSecResid(g) = 0.81_dp
+          IF (LUC_EXPT%biome(g)==1) POPLUC%fracHarvResid(g) = 0.79_r2
+          IF (LUC_EXPT%biome(g)==2) POPLUC%fracHarvResid(g) = 0.86_r2
+          IF (LUC_EXPT%biome(g)==1) POPLUC%fracHarvSecResid(g) = 0.71_r2
+          IF (LUC_EXPT%biome(g)==2) POPLUC%fracHarvSecResid(g) = 0.81_r2
 
-          POPLUC%fracClearResid(g) = 0.33_dp
+          POPLUC%fracClearResid(g) = 0.33_r2
 
        ELSEIF (LUC_EXPT%biome(g).GE.4 .OR. LUC_EXPT%biome(g).LE.10) THEN
 
           ! Other Forest
-          POPLUC%fracharvProd(g, 1) = 0.4_dp
-          POPLUC%fracharvProd(g, 2) = 0.24_dp
-          POPLUC%fracharvProd(g, 3) = 0.36_dp
+          POPLUC%fracharvProd(g, 1) = 0.4_r2
+          POPLUC%fracharvProd(g, 2) = 0.24_r2
+          POPLUC%fracharvProd(g, 3) = 0.36_r2
 
-          POPLUC%fracClearProd(g, 1) = 0.597_dp
-          POPLUC%fracClearProd(g, 2) = 0.2985_dp
-          POPLUC%fracClearProd(g, 3) = 0.1045_dp
+          POPLUC%fracClearProd(g, 1) = 0.597_r2
+          POPLUC%fracClearProd(g, 2) = 0.2985_r2
+          POPLUC%fracClearProd(g, 3) = 0.1045_r2
 
-          IF (LUC_EXPT%ivegp(g)==2) POPLUC%fracHarvResid(g) = 0.83_dp
-          IF (LUC_EXPT%ivegp(g)==1 .OR. LUC_EXPT%ivegp(g)==3 ) POPLUC%fracHarvResid(g) = 0.87_dp
-          IF (LUC_EXPT%ivegp(g)==4) POPLUC%fracHarvResid(g) = 0.78_dp
+          IF (LUC_EXPT%ivegp(g)==2) POPLUC%fracHarvResid(g) = 0.83_r2
+          IF (LUC_EXPT%ivegp(g)==1 .OR. LUC_EXPT%ivegp(g)==3 ) POPLUC%fracHarvResid(g) = 0.87_r2
+          IF (LUC_EXPT%ivegp(g)==4) POPLUC%fracHarvResid(g) = 0.78_r2
 
-          IF (LUC_EXPT%ivegp(g)==2) POPLUC%fracHarvSecResid(g) = 0.75_dp
-          IF (LUC_EXPT%ivegp(g)==1 .OR. LUC_EXPT%ivegp(g)==3 ) POPLUC%fracHarvSecResid(g) = 0.82_dp
-          IF (LUC_EXPT%ivegp(g)==4) POPLUC%fracHarvSecResid(g) = 0.70_dp
+          IF (LUC_EXPT%ivegp(g)==2) POPLUC%fracHarvSecResid(g) = 0.75_r2
+          IF (LUC_EXPT%ivegp(g)==1 .OR. LUC_EXPT%ivegp(g)==3 ) POPLUC%fracHarvSecResid(g) = 0.82_r2
+          IF (LUC_EXPT%ivegp(g)==4) POPLUC%fracHarvSecResid(g) = 0.70_r2
 
-          POPLUC%fracClearResid(g) = 0.33_dp
+          POPLUC%fracClearResid(g) = 0.33_r2
 
        ELSEIF (LUC_EXPT%biome(g).EQ.3 .OR. LUC_EXPT%biome(g).GE.11) THEN
           ! savanna and shrub
-          POPLUC%fracharvProd(g, 1) = 1.0_dp
-          POPLUC%fracharvProd(g, 2) = 0.0_dp
-          POPLUC%fracharvProd(g, 3) = 0.0_dp
+          POPLUC%fracharvProd(g, 1) = 1.0_r2
+          POPLUC%fracharvProd(g, 2) = 0.0_r2
+          POPLUC%fracharvProd(g, 3) = 0.0_r2
 
-          POPLUC%fracClearProd(g, 1) = 0.8_dp
-          POPLUC%fracClearProd(g, 2) = 0.2_dp
-          POPLUC%fracClearProd(g, 3) = 0.0_dp
+          POPLUC%fracClearProd(g, 1) = 0.8_r2
+          POPLUC%fracClearProd(g, 2) = 0.2_r2
+          POPLUC%fracClearProd(g, 3) = 0.0_r2
 
           IF (LUC_EXPT%biome(g).EQ.13 .OR.(LUC_EXPT%biome(g).EQ.14)  ) THEN
-             POPLUC%fracHarvResid(g) = 0.78_dp
-             POPLUC%fracHarvSecResid(g) = 0.70_dp
+             POPLUC%fracHarvResid(g) = 0.78_r2
+             POPLUC%fracHarvSecResid(g) = 0.70_r2
           ELSE
-             POPLUC%fracHarvResid(g) = 0.86_dp
-             POPLUC%fracHarvSecResid(g) = 0.81_dp
+             POPLUC%fracHarvResid(g) = 0.86_r2
+             POPLUC%fracHarvSecResid(g) = 0.81_r2
           ENDIF
 
-          POPLUC%fracClearResid(g) = 0.5_dp
+          POPLUC%fracClearResid(g) = 0.5_r2
 
        ENDIF
       ! no residue test
-      !POPLUC%fracClearResid(g) = 0.0_dp
-     ! POPLUC%fracHarvResid(g) = 0.0_dp
-     ! POPLUC%fracHarvSecResid(g) = 0.0_dp
+      !POPLUC%fracClearResid(g) = 0.0_r2
+     ! POPLUC%fracHarvResid(g) = 0.0_r2
+     ! POPLUC%fracHarvSecResid(g) = 0.0_r2
 
     ENDDO
 
@@ -1863,15 +1863,15 @@ CONTAINS
   ! Use to determine average age (x, years) of patches with a given random disturbance
   ! frequency lambda (disturbances per year)
 
-  REAL(dp) FUNCTION REALExponential(lambda, x)
+  REAL(r2) FUNCTION REALExponential(lambda, x)
 
     IMPLICIT NONE
 
-    REAL(dp), INTENT(IN) :: lambda
-    REAL(dp), INTENT(IN) :: x
+    REAL(r2), INTENT(IN) :: lambda
+    REAL(r2), INTENT(IN) :: x
 
-    IF (x.LT.0.0_dp) THEN ! Shouldn't happen but ...
-       REALExponential = 0.0_dp
+    IF (x.LT.0.0_r2) THEN ! Shouldn't happen but ...
+       REALExponential = 0.0_r2
     ELSE
        REALExponential = lambda*EXP(-lambda*x)
     ENDIF
@@ -1920,7 +1920,7 @@ CONTAINS
     INTEGER, SAVE :: VID2(SIZE(A2))
     INTEGER, SAVE :: VID4(SIZE(A4)), VID5(SIZE(A5)), VID6(size(A6))
     INTEGER, SAVE :: FILE_ID, CNT = 0
-    REAL(dp), ALLOCATABLE :: freq_age_secondary(:,:)
+    REAL(r2), ALLOCATABLE :: freq_age_secondary(:,:)
     INTEGER :: g
     LOGICAL :: put_age_vars
 
@@ -1994,10 +1994,10 @@ CONTAINS
     A6(4) = 'ClearProdLoss'
 
     DO g=1,mp
-       if (sum(POPLUC%freq_age_secondary(g,:)).gt.1.e-12_dp ) then
+       if (sum(POPLUC%freq_age_secondary(g,:)).gt.1.e-12_r2 ) then
           freq_age_secondary(g,:) = POPLUC%freq_age_secondary(g,:)/sum(POPLUC%freq_age_secondary(g,:))
        else
-          freq_age_secondary(g,:) = 0.0_dp
+          freq_age_secondary(g,:) = 0.0_r2
        endif
     ENDDO
 
@@ -2131,10 +2131,10 @@ CONTAINS
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
        ! PUT LAT / LON ( mp )
-       STATUS = NF90_PUT_VAR(FILE_ID, VID0(1), real(POPLUC%latitude,sp))
+       STATUS = NF90_PUT_VAR(FILE_ID, VID0(1), real(POPLUC%latitude, r1))
        IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-       STATUS = NF90_PUT_VAR(FILE_ID, VID0(2), real(POPLUC%longitude,sp))
+       STATUS = NF90_PUT_VAR(FILE_ID, VID0(2), real(POPLUC%longitude, r1))
        IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
        CALL1 = .FALSE.
@@ -2148,135 +2148,135 @@ CONTAINS
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     ! PUT 2D VARS ( mp, t )
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 1), real(POPLUC%primf,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 1), real(POPLUC%primf, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 2), real(POPLUC%secdf,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 2), real(POPLUC%secdf, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 3), real(POPLUC%grass,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 3), real(POPLUC%grass, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 4), real(POPLUC%ptos,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 4), real(POPLUC%ptos, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 5), real(POPLUC%ptog,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 5), real(POPLUC%ptog, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 6), real(POPLUC%stog,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 6), real(POPLUC%stog, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 7), real(POPLUC%gtop,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 7), real(POPLUC%gtop, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 8), real(POPLUC%gtos,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 8), real(POPLUC%gtos, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 9), real(POPLUC%frac_primf,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 9), real(POPLUC%frac_primf, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1(10), real(POPLUC%frac_forest,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1(10), real(POPLUC%frac_forest, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 11), real(POPLUC%pharv,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 11), real(POPLUC%pharv, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 12), real(POPLUC%smharv,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 12), real(POPLUC%smharv, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 13), real(POPLUC%syharv,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 13), real(POPLUC%syharv, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 14), real(POPLUC%crop,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 14), real(POPLUC%crop, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 15), real(POPLUC%past,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 15), real(POPLUC%past, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 16), real(POPLUC%ptoc,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 16), real(POPLUC%ptoc, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 17), real(POPLUC%ptoq,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 17), real(POPLUC%ptoq, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 18), real(POPLUC%stoc,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 18), real(POPLUC%stoc, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 19), real(POPLUC%stoq,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 19), real(POPLUC%stoq, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 20), real(POPLUC%qtos,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 20), real(POPLUC%qtos, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 21), real(POPLUC%ctos,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 21), real(POPLUC%ctos, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 22), real(POPLUC%AgProd,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 22), real(POPLUC%AgProd, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 23), real(POPLUC%AgProdPast,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 23), real(POPLUC%AgProdPast, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 24), real(POPLUC%AgProdCrop,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 24), real(POPLUC%AgProdCrop, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 25), real(POPLUC%AgProdLoss,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 25), real(POPLUC%AgProdLoss, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 26), real(POPLUC%AgProdLossPast,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 26), real(POPLUC%AgProdLossPast, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 27), real(POPLUC%AgProdLossCrop,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 27), real(POPLUC%AgProdLossCrop, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 28), real(POPLUC%FAg,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 28), real(POPLUC%FAg, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 29), real(POPLUC%ctor,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 29), real(POPLUC%ctor, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 30), real(POPLUC%qtor,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 30), real(POPLUC%qtor, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 31), real(POPLUC%rtoc,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 31), real(POPLUC%rtoc, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 32), real(POPLUC%rtoq,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 32), real(POPLUC%rtoq, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 33), real(POPLUC%qtoc,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 33), real(POPLUC%qtoc, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 34), real(POPLUC%ctoq,sp), start=(/ 1, CNT /), count=(/ mp, 1 /) )
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 34), real(POPLUC%ctoq, r1), start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
     STATUS = NF90_PUT_VAR(FILE_ID, VIDI1(1), POPLUC%n_event, start=(/ 1, CNT /), count=(/ mp, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     if (put_age_vars) then
        ! PUT 3D VARS ( mp, mage, t )
-       STATUS = NF90_PUT_VAR(FILE_ID, VID2(1), real(POPLUC%freq_age_primary,sp), &
+       STATUS = NF90_PUT_VAR(FILE_ID, VID2(1), real(POPLUC%freq_age_primary, r1), &
             start=(/ 1,1,CNT /), count=(/ mp,age_max,1 /) )
        IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-       STATUS = NF90_PUT_VAR(FILE_ID, VID2(2), real(freq_age_secondary,sp),   &
+       STATUS = NF90_PUT_VAR(FILE_ID, VID2(2), real(freq_age_secondary, r1),   &
             start=(/ 1,1,CNT /), count=(/ mp,age_max,1 /) )
        IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-       STATUS = NF90_PUT_VAR(FILE_ID, VID2(3), real(POPLUC%biomass_age_primary,sp), &
+       STATUS = NF90_PUT_VAR(FILE_ID, VID2(3), real(POPLUC%biomass_age_primary, r1), &
             start=(/ 1,1,CNT /), count=(/ mp,age_max,1 /) )
        IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-       STATUS = NF90_PUT_VAR(FILE_ID, VID2(4), real(POPLUC%biomass_age_secondary,sp), &
+       STATUS = NF90_PUT_VAR(FILE_ID, VID2(4), real(POPLUC%biomass_age_secondary, r1), &
             start=(/ 1,1,CNT /), count=(/ mp,age_max,1 /) )
        IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     endif
 
     ! PUT 3D VARS ( mp, nLU, t )
-    STATUS = NF90_PUT_VAR(FILE_ID, VID4(1), real(POPLUC%FHarvest,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID4(1), real(POPLUC%FHarvest, r1), &
          start=(/ 1,1,CNT /), count=(/ mp,nLU,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID4(2), real(POPLUC%FClearance,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID4(2), real(POPLUC%FClearance, r1), &
          start=(/ 1,1,CNT /), count=(/ mp,nLU,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID4(3), real(POPLUC%FNEP,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID4(3), real(POPLUC%FNEP, r1), &
          start=(/ 1,1,CNT /), count=(/ mp,nLU,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID4(4), real(POPLUC%Clitt,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID4(4), real(POPLUC%Clitt, r1), &
          start=(/ 1,1,CNT /), count=(/ mp,nLU,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID4(5), real(POPLUC%CSoil,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID4(5), real(POPLUC%CSoil, r1), &
          start=(/ 1,1,CNT /), count=(/ mp,nLU,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID4(6), real(POPLUC%CBiomass,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID4(6), real(POPLUC%CBiomass, r1), &
          start=(/ 1,1,CNT /), count=(/ mp,nLU,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID4(7), real(POPLUC%FTransferNet,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID4(7), real(POPLUC%FTransferNet, r1), &
          start=(/ 1,1,CNT /), count=(/ mp,nLU,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     ! PUT 3D VARS ( mp, nTrans, t )
-    STATUS = NF90_PUT_VAR(FILE_ID, VID5(1), real(POPLUC%FTransferGross,sp),   &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID5(1), real(POPLUC%FTransferGross, r1),   &
          start=(/ 1,1,CNT /), count=(/ mp,nTrans,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     ! PUT 3D VARS ( mp, nprod, t )
-    STATUS = NF90_PUT_VAR(FILE_ID, VID6(1), real(POPLUC%HarvProd,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID6(1), real(POPLUC%HarvProd, r1), &
          start=(/ 1,1,CNT /), count=(/ mp,nprod,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID6(2), real(POPLUC%ClearProd,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID6(2), real(POPLUC%ClearProd, r1), &
          start=(/ 1,1,CNT /), count=(/ mp,nprod,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID6(3), real(POPLUC%HarvProdLoss,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID6(3), real(POPLUC%HarvProdLoss, r1), &
          start=(/ 1,1,CNT /), count=(/ mp,nprod,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
-    STATUS = NF90_PUT_VAR(FILE_ID, VID6(4), real(POPLUC%ClearProdLoss,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID6(4), real(POPLUC%ClearProdLoss, r1), &
          start=(/ 1,1,CNT /), count=(/ mp,nprod,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
@@ -2457,7 +2457,7 @@ CONTAINS
     INTEGER   :: STATUS, land_dim, mage_dim, nprod_dim
     INTEGER   :: i, mp, FILE_ID, dID, nprod
     CHARACTER :: FNAME*99
-    REAL(dp), ALLOCATABLE :: TMP(:), TMP2(:,:), TMP3(:,:)
+    REAL(r2), ALLOCATABLE :: TMP(:), TMP2(:,:), TMP3(:,:)
 
     ! 1 dim arrays (mp )
     CHARACTER(len=20), DIMENSION(2) :: A0
@@ -2619,20 +2619,20 @@ CONTAINS
     INTEGER, SAVE :: VID2(SIZE(A2))
     INTEGER, SAVE :: VID4(SIZE(A4)), VID5(SIZE(A5)), VID6(size(A6))
     INTEGER, SAVE :: FILE_ID, CNT = 0, latID, lonID
-    REAL(dp), ALLOCATABLE :: freq_age_secondary(:,:)
+    REAL(r2), ALLOCATABLE :: freq_age_secondary(:,:)
     INTEGER :: g, k
     LOGICAL :: put_age_vars
-    REAL(dp) :: ncmissingr = -1.e+33_dp
+    REAL(r2) :: ncmissingr = -1.e+33_r2
     INTEGER :: ncmissingi = -9999999
     ! REAL :: missing_value = -999999.0 ! for netcdf output
     INTEGER :: nx, ny
     LOGICAL,DIMENSION(:,:),ALLOCATABLE :: LandMask
     ! Logical landmask, true for land, false for non-land
-    REAL(dp), DIMENSION(:,:), ALLOCATABLE :: fieldr
+    REAL(r2), DIMENSION(:,:), ALLOCATABLE :: fieldr
     INTEGER, DIMENSION(:,:), ALLOCATABLE :: fieldi
-    REAL(dp), DIMENSION(:,:,:), ALLOCATABLE :: tmparr1
-    REAL(dp), DIMENSION(:,:,:), ALLOCATABLE :: tmparr2
-    REAL(dp), DIMENSION(:,:,:), ALLOCATABLE :: tmparr3
+    REAL(r2), DIMENSION(:,:,:), ALLOCATABLE :: tmparr1
+    REAL(r2), DIMENSION(:,:,:), ALLOCATABLE :: tmparr2
+    REAL(r2), DIMENSION(:,:,:), ALLOCATABLE :: tmparr3
 
     mp = POPLUC%np
     nx = xdimsize
@@ -2722,10 +2722,10 @@ CONTAINS
     A6(4) = 'ClearProdLoss'
 
     DO g=1,mp
-       if (sum(POPLUC%freq_age_secondary(g,:)) .gt. 1.e-12_dp ) then
+       if (sum(POPLUC%freq_age_secondary(g,:)) .gt. 1.e-12_r2 ) then
           freq_age_secondary(g,:) = POPLUC%freq_age_secondary(g,:)/sum(POPLUC%freq_age_secondary(g,:))
        else
-          freq_age_secondary(g,:) = 0.0_dp
+          freq_age_secondary(g,:) = 0.0_r2
        endif
     ENDDO
 
@@ -2835,12 +2835,12 @@ CONTAINS
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
           ! Define missing/fill values:
-          STATUS = NF90_PUT_ATT(FILE_ID, VID0(i), '_FillValue', REAL(ncmissingr, sp))
+          STATUS = NF90_PUT_ATT(FILE_ID, VID0(i), '_FillValue', REAL(ncmissingr, r1))
           IF (STATUS /= NF90_NOERR) CALL handle_err                                        &
                (STATUS, 'Error defining '//A0(i)//' variable attributes in output file. '// &
                                                       '(INTERFACE define_ovar)')
           ! Define missing/fill values:
-          STATUS = NF90_PUT_ATT(FILE_ID, VID0(i), 'missing_value', REAL(ncmissingr, sp))
+          STATUS = NF90_PUT_ATT(FILE_ID, VID0(i), 'missing_value', REAL(ncmissingr, r1))
           IF (STATUS /= NF90_NOERR) CALL handle_err                                        &
                (STATUS, 'Error defining '//A0(i)//' variable attributes in output file. '// &
                '(INTERFACE define_ovar)')
@@ -2855,12 +2855,12 @@ CONTAINS
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
           ! Define missing/fill values:
-          STATUS = NF90_PUT_ATT(FILE_ID, VID1(i), '_FillValue', REAL(ncmissingr, sp))
+          STATUS = NF90_PUT_ATT(FILE_ID, VID1(i), '_FillValue', REAL(ncmissingr, r1))
           IF (STATUS /= NF90_NOERR) CALL handle_err                                        &
                (STATUS, 'Error defining '//A1(i)//' variable attributes in output file. '// &
                                                       '(INTERFACE define_ovar)')
           ! Define missing/fill values:
-          STATUS = NF90_PUT_ATT(FILE_ID, VID1(i), 'missing_value', REAL(ncmissingr, sp))
+          STATUS = NF90_PUT_ATT(FILE_ID, VID1(i), 'missing_value', REAL(ncmissingr, r1))
           IF (STATUS /= NF90_NOERR) CALL handle_err                                        &
                (STATUS, 'Error defining '//A1(i)//' variable attributes in output file. '// &
                '(INTERFACE define_ovar)')
@@ -2906,12 +2906,12 @@ CONTAINS
                )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
           ! Define missing/fill values:
-          STATUS = NF90_PUT_ATT(FILE_ID, VID4(i), '_FillValue', REAL(ncmissingr, sp))
+          STATUS = NF90_PUT_ATT(FILE_ID, VID4(i), '_FillValue', REAL(ncmissingr, r1))
           IF (STATUS /= NF90_NOERR) CALL handle_err                                        &
                (STATUS, 'Error defining '//A4(i)//' variable attributes in output file. '// &
                                                       '(INTERFACE define_ovar)')
           ! Define missing/fill values:
-          STATUS = NF90_PUT_ATT(FILE_ID, VID4(i), 'missing_value', REAL(ncmissingr, sp))
+          STATUS = NF90_PUT_ATT(FILE_ID, VID4(i), 'missing_value', REAL(ncmissingr, r1))
           IF (STATUS /= NF90_NOERR) CALL handle_err                                        &
                (STATUS, 'Error defining '//A4(i)//' variable attributes in output file. '// &
                '(INTERFACE define_ovar)')
@@ -2926,12 +2926,12 @@ CONTAINS
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
           ! Define missing/fill values:
-          STATUS = NF90_PUT_ATT(FILE_ID, VID5(i), '_FillValue', REAL(ncmissingr, sp))
+          STATUS = NF90_PUT_ATT(FILE_ID, VID5(i), '_FillValue', REAL(ncmissingr, r1))
           IF (STATUS /= NF90_NOERR) CALL handle_err                                        &
                (STATUS, 'Error defining '//A5(i)//' variable attributes in output file. '// &
                                                       '(INTERFACE define_ovar)')
           ! Define missing/fill values:
-          STATUS = NF90_PUT_ATT(FILE_ID, VID5(i), 'missing_value', REAL(ncmissingr, sp))
+          STATUS = NF90_PUT_ATT(FILE_ID, VID5(i), 'missing_value', REAL(ncmissingr, r1))
           IF (STATUS /= NF90_NOERR) CALL handle_err                                        &
                (STATUS, 'Error defining '//A5(i)//' variable attributes in output file. '// &
                '(INTERFACE define_ovar)')
@@ -2945,12 +2945,12 @@ CONTAINS
                )
           IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
           ! Define missing/fill values:
-          STATUS = NF90_PUT_ATT(FILE_ID, VID6(i), '_FillValue', REAL(ncmissingr, sp))
+          STATUS = NF90_PUT_ATT(FILE_ID, VID6(i), '_FillValue', REAL(ncmissingr, r1))
           IF (STATUS /= NF90_NOERR) CALL handle_err                                        &
                (STATUS, 'Error defining '//A6(i)//' variable attributes in output file. '// &
                                                       '(INTERFACE define_ovar)')
           ! Define missing/fill values:
-          STATUS = NF90_PUT_ATT(FILE_ID, VID6(i), 'missing_value', REAL(ncmissingr, sp))
+          STATUS = NF90_PUT_ATT(FILE_ID, VID6(i), 'missing_value', REAL(ncmissingr, r1))
           IF (STATUS /= NF90_NOERR) CALL handle_err                                        &
                (STATUS, 'Error defining '//A6(i)//' variable attributes in output file. '// &
                '(INTERFACE define_ovar)')
@@ -2961,28 +2961,28 @@ CONTAINS
        IF (STATUS /= NF90_noerr) CALL handle_err(STATUS)
 
        ! Write GrADS coordinate variables
-       STATUS = NF90_PUT_VAR(FILE_ID, xvID, REAL(lon_all(:, 1), sp))
+       STATUS = NF90_PUT_VAR(FILE_ID, xvID, REAL(lon_all(:, 1), r1))
        IF(STATUS /= NF90_NOERR) CALL handle_err                                         &
             (STATUS, 'Error writing GrADS x coordinate variable to ' &
             //TRIM(filename%out)// ' (SUBROUTINE open_output_file)')
-       STATUS = NF90_PUT_VAR(FILE_ID, yvID, REAL(lat_all(1, :), sp))
+       STATUS = NF90_PUT_VAR(FILE_ID, yvID, REAL(lat_all(1, :), r1))
        IF(STATUS /= NF90_NOERR) CALL handle_err                                         &
          (STATUS, 'Error writing GrADS y coordinate variable to ' &
          //TRIM(filename%out)// ' (SUBROUTINE open_output_file)')
 
 
        ! PUT LAT / LON ( mp )
-       STATUS = NF90_PUT_VAR(FILE_ID, VID0(1), real(UNPACK(POPLUC%latitude,landmask, fieldr),sp))
+       STATUS = NF90_PUT_VAR(FILE_ID, VID0(1), real(UNPACK(POPLUC%latitude,landmask, fieldr), r1))
        IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-       STATUS = NF90_PUT_VAR(FILE_ID, VID0(2), real(UNPACK(POPLUC%longitude, landmask, fieldr),sp))
+       STATUS = NF90_PUT_VAR(FILE_ID, VID0(2), real(UNPACK(POPLUC%longitude, landmask, fieldr), r1))
        IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
        ! PUT LAT / LON ( mp )
-       STATUS = NF90_PUT_VAR(FILE_ID, latID, real(lat_all,sp))
+       STATUS = NF90_PUT_VAR(FILE_ID, latID, real(lat_all, r1))
        IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-       STATUS = NF90_PUT_VAR(FILE_ID, lonID, real(lon_all,sp))
+       STATUS = NF90_PUT_VAR(FILE_ID, lonID, real(lon_all, r1))
        IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
        CALL1 = .FALSE.
@@ -2994,139 +2994,139 @@ CONTAINS
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     ! PUT 2D VARS ( mp, t )
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 1), real(UNPACK(POPLUC%primf,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 1), real(UNPACK(POPLUC%primf,landmask, fieldr), r1), &
          start=(/ 1, 1, CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 2), real(UNPACK(POPLUC%secdf,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 2), real(UNPACK(POPLUC%secdf,landmask, fieldr), r1), &
          start=(/ 1, 1, CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 3), real(UNPACK(POPLUC%grass,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 3), real(UNPACK(POPLUC%grass,landmask, fieldr), r1), &
          start=(/ 1, 1, CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 4), real(UNPACK(POPLUC%ptos,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 4), real(UNPACK(POPLUC%ptos,landmask, fieldr), r1), &
          start=(/ 1, 1, CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 5), real(UNPACK(POPLUC%ptog,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 5), real(UNPACK(POPLUC%ptog,landmask, fieldr), r1), &
          start=(/ 1,1, CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 6), real(UNPACK(POPLUC%stog, landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 6), real(UNPACK(POPLUC%stog, landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 7), real(UNPACK(POPLUC%gtop,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 7), real(UNPACK(POPLUC%gtop,landmask, fieldr), r1), &
          start=(/ 1, 1, CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 8), real(UNPACK(POPLUC%gtos,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 8), real(UNPACK(POPLUC%gtos,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 9), real(UNPACK(POPLUC%frac_primf,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 9), real(UNPACK(POPLUC%frac_primf,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1(10), real(UNPACK(POPLUC%frac_forest,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1(10), real(UNPACK(POPLUC%frac_forest,landmask, fieldr), r1), &
          start=(/ 1, 1, CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 11), real(UNPACK(POPLUC%pharv, landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 11), real(UNPACK(POPLUC%pharv, landmask, fieldr), r1), &
          start=(/ 1, 1, CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 12), real(UNPACK(POPLUC%smharv,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 12), real(UNPACK(POPLUC%smharv,landmask, fieldr), r1), &
          start=(/ 1, 1, CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 13), real(UNPACK(POPLUC%syharv,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 13), real(UNPACK(POPLUC%syharv,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 14), real(UNPACK(POPLUC%crop,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 14), real(UNPACK(POPLUC%crop,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 15), real(UNPACK(POPLUC%past,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 15), real(UNPACK(POPLUC%past,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 16), real(UNPACK(POPLUC%ptoc,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 16), real(UNPACK(POPLUC%ptoc,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 17), real(UNPACK(POPLUC%ptoq,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 17), real(UNPACK(POPLUC%ptoq,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 18), real(UNPACK(POPLUC%stoc,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 18), real(UNPACK(POPLUC%stoc,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 19), real(UNPACK(POPLUC%stoq,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 19), real(UNPACK(POPLUC%stoq,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 20), real(UNPACK(POPLUC%qtos,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 20), real(UNPACK(POPLUC%qtos,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 21), real(UNPACK(POPLUC%ctos,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 21), real(UNPACK(POPLUC%ctos,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 22), real(UNPACK(POPLUC%AgProd,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 22), real(UNPACK(POPLUC%AgProd,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 23), real(UNPACK(POPLUC%AgProdPast,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 23), real(UNPACK(POPLUC%AgProdPast,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 24), real(UNPACK(POPLUC%AgProdCrop,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 24), real(UNPACK(POPLUC%AgProdCrop,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 25), real(UNPACK(POPLUC%AgProdLoss,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 25), real(UNPACK(POPLUC%AgProdLoss,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 26), real(UNPACK(POPLUC%AgProdLossPast,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 26), real(UNPACK(POPLUC%AgProdLossPast,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 27), real(UNPACK(POPLUC%AgProdLossCrop,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 27), real(UNPACK(POPLUC%AgProdLossCrop,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 28), real(UNPACK(POPLUC%FAg,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 28), real(UNPACK(POPLUC%FAg,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 29), real(UNPACK(POPLUC%ctor,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 29), real(UNPACK(POPLUC%ctor,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 30), real(UNPACK(POPLUC%qtor,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 30), real(UNPACK(POPLUC%qtor,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 31), real(UNPACK(POPLUC%rtoc,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 31), real(UNPACK(POPLUC%rtoc,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 32), real(UNPACK(POPLUC%rtoq,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 32), real(UNPACK(POPLUC%rtoq,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 33), real(UNPACK(POPLUC%qtoc,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 33), real(UNPACK(POPLUC%qtoc,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
-    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 34), real(UNPACK(POPLUC%ctoq,landmask, fieldr),sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID1( 34), real(UNPACK(POPLUC%ctoq,landmask, fieldr), r1), &
          start=(/ 1, 1,CNT /), count=(/ nx,ny, 1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
@@ -3138,49 +3138,49 @@ CONTAINS
     DO k=1,nLU
        tmparr1(:,:,k) = UNPACK(POPLUC%FHarvest(:,k),landmask, fieldr)
     ENDDO
-    STATUS = NF90_PUT_VAR(FILE_ID, VID4(1), real(tmparr1,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID4(1), real(tmparr1, r1), &
          start=(/ 1,1,1,CNT /), count=(/ nx,ny,nLU,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     DO k=1,nLU
        tmparr1(:,:,k) = UNPACK(POPLUC%FClearance(:,k),landmask, fieldr)
     ENDDO
-    STATUS = NF90_PUT_VAR(FILE_ID, VID4(2), real(tmparr1,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID4(2), real(tmparr1, r1), &
          start=(/ 1,1,1,CNT /), count=(/ nx,ny,nLU,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     DO k=1,nLU
        tmparr1(:,:,k) = UNPACK(POPLUC%FNEP(:,k),landmask, fieldr)
     ENDDO
-    STATUS = NF90_PUT_VAR(FILE_ID, VID4(3), real(tmparr1,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID4(3), real(tmparr1, r1), &
          start=(/ 1,1,1,CNT /), count=(/ nx,ny,nLU,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     DO k=1,nLU
        tmparr1(:,:,k) = UNPACK(POPLUC%Clitt(:,k),landmask, fieldr)
     ENDDO
-    STATUS = NF90_PUT_VAR(FILE_ID, VID4(4), real(tmparr1,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID4(4), real(tmparr1, r1), &
          start=(/ 1,1,1,CNT /), count=(/ nx,ny,nLU,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     DO k=1,nLU
        tmparr1(:,:,k) = UNPACK(POPLUC%Csoil(:,k),landmask, fieldr)
     ENDDO
-    STATUS = NF90_PUT_VAR(FILE_ID, VID4(5), real(tmparr1,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID4(5), real(tmparr1, r1), &
          start=(/ 1,1,1,CNT /), count=(/ nx,ny,nLU,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     DO k=1,nLU
        tmparr1(:,:,k) = UNPACK(POPLUC%CBiomass(:,k),landmask, fieldr)
     ENDDO
-    STATUS = NF90_PUT_VAR(FILE_ID, VID4(6), real(tmparr1,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID4(6), real(tmparr1, r1), &
          start=(/ 1,1,1,CNT /), count=(/ nx,ny,nLU,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     DO k=1,nLU
        tmparr1(:,:,k) = UNPACK(POPLUC%FTransferNet(:,k),landmask, fieldr)
     ENDDO
-    STATUS = NF90_PUT_VAR(FILE_ID, VID4(7), real(tmparr1,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID4(7), real(tmparr1, r1), &
          start=(/ 1,1,1,CNT /), count=(/ nx,ny,nLU,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
@@ -3188,7 +3188,7 @@ CONTAINS
     DO k=1,nTrans
        tmparr2(:,:,k) = UNPACK(POPLUC%FTransferGross(:,k),landmask, fieldr)
     ENDDO
-    STATUS = NF90_PUT_VAR(FILE_ID, VID5(1), real(tmparr2,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID5(1), real(tmparr2, r1), &
          start=(/ 1,1,1,CNT /), count=(/ nx,ny,nTrans,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
@@ -3196,28 +3196,28 @@ CONTAINS
     DO k=1,nprod
        tmparr3(:,:,k) = UNPACK(POPLUC%HarvProd(:,k),landmask, fieldr)
     ENDDO
-    STATUS = NF90_PUT_VAR(FILE_ID, VID6(1), real(tmparr3,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID6(1), real(tmparr3, r1), &
          start=(/ 1,1,1,CNT /), count=(/ nx,ny,nprod,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     DO k=1,nprod
        tmparr3(:,:,k) = UNPACK(POPLUC%ClearProd(:,k),landmask, fieldr)
     ENDDO
-    STATUS = NF90_PUT_VAR(FILE_ID, VID6(2), real(tmparr3,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID6(2), real(tmparr3, r1), &
          start=(/ 1,1,1,CNT /), count=(/ nx,ny,nprod,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     DO k=1,nprod
        tmparr3(:,:,k) = UNPACK(POPLUC%HarvProdLoss(:,k),landmask, fieldr)
     ENDDO
-    STATUS = NF90_PUT_VAR(FILE_ID, VID6(3), real(tmparr3,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID6(3), real(tmparr3, r1), &
          start=(/ 1,1,1,CNT /), count=(/ nx,ny,nprod,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
     DO k=1,nprod
        tmparr3(:,:,k) = UNPACK(POPLUC%ClearProdLoss(:,k),landmask, fieldr)
     ENDDO
-    STATUS = NF90_PUT_VAR(FILE_ID, VID6(4), real(tmparr3,sp), &
+    STATUS = NF90_PUT_VAR(FILE_ID, VID6(4), real(tmparr3, r1), &
          start=(/ 1,1,1,CNT /), count=(/ nx,ny,nprod,1 /) )
     IF(STATUS /= NF90_NoErr) CALL handle_err(STATUS)
 
