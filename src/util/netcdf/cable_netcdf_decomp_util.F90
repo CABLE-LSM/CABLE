@@ -62,8 +62,12 @@ contains
 
     mem_land_subscript = subscript(mem_shape_spec, 'land')
 
-    mem_shape = [(mem_shape_spec(i)%size, i = 1, size(mem_shape_spec))]
-    grid_shape = [(var_shape_spec(i)%size, i = 1, size(var_shape_spec))]
+    mem_shape = mem_shape_spec(:)%size
+    grid_shape = var_shape_spec(:)%size
+
+    allocate(mem_index, mold=mem_shape)
+    allocate(grid_index, mold=grid_shape)
+    allocate(compmap(product(mem_shape)))
 
     do mem_offset = 1, size(compmap)
       call array_index(mem_offset, mem_shape, mem_index)
@@ -99,8 +103,12 @@ contains
 
     mem_patch_subscript = subscript(mem_shape_spec, 'patch')
 
-    mem_shape = [(mem_shape_spec(i)%size, i = 1, size(mem_shape_spec))]
-    grid_shape = [(var_shape_spec(i)%size, i = 1, size(var_shape_spec))]
+    mem_shape = mem_shape_spec(:)%size
+    grid_shape = var_shape_spec(:)%size
+
+    allocate(mem_index, mold=mem_shape)
+    allocate(grid_index, mold=grid_shape)
+    allocate(compmap(product(mem_shape)))
 
     do mem_offset = 1, size(compmap)
       call array_index(mem_offset, mem_shape, mem_index)
@@ -138,8 +146,12 @@ contains
 
     mem_land_subscript = subscript(mem_shape_spec, 'land')
 
-    mem_shape = [(mem_shape_spec(i)%size, i = 1, size(mem_shape_spec))]
-    grid_shape = [(var_shape_spec(i)%size, i = 1, size(var_shape_spec))]
+    mem_shape = mem_shape_spec(:)%size
+    grid_shape = var_shape_spec(:)%size
+
+    allocate(mem_index, mold=mem_shape)
+    allocate(grid_index, mold=grid_shape)
+    allocate(compmap(product(mem_shape)))
 
     do mem_offset = 1, size(compmap)
       call array_index(mem_offset, mem_shape, mem_index)
@@ -173,8 +185,12 @@ contains
 
     mem_patch_subscript = subscript(mem_shape_spec, 'patch')
 
-    mem_shape = [(mem_shape_spec(i)%size, i = 1, size(mem_shape_spec))]
-    grid_shape = [(var_shape_spec(i)%size, i = 1, size(var_shape_spec))]
+    mem_shape = mem_shape_spec(:)%size
+    grid_shape = var_shape_spec(:)%size
+
+    allocate(mem_index, mold=mem_shape)
+    allocate(grid_index, mold=grid_shape)
+    allocate(compmap(product(mem_shape)))
 
     do mem_offset = 1, size(compmap)
       call array_index(mem_offset, mem_shape, mem_index)
@@ -210,8 +226,12 @@ contains
 
     mem_patch_subscript = subscript(mem_shape_spec, 'patch')
 
-    mem_shape = [(mem_shape_spec(i)%size, i = 1, size(mem_shape_spec))]
-    grid_shape = [(var_shape_spec(i)%size, i = 1, size(var_shape_spec))]
+    mem_shape = mem_shape_spec(:)%size
+    grid_shape = var_shape_spec(:)%size
+
+    allocate(mem_index, mold=mem_shape)
+    allocate(grid_index, mold=grid_shape)
+    allocate(compmap(product(mem_shape)))
 
     do mem_offset = 1, size(compmap)
       call array_index(mem_offset, mem_shape, mem_index)
