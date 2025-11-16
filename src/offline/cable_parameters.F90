@@ -958,7 +958,7 @@ CONTAINS
     landpt(:)%ilon = -999
     landpt(:)%ilat = -999
     DO kk = 1, mland
-       distance = 5300.0 ! initialise, units are degrees
+       distance = 144.0 ! initialise, units are degrees^2
        DO jj = 1, nlat
           DO ii = 1, nlon
              IF (inVeg(ii,jj, 1) > 0) THEN
@@ -1029,7 +1029,7 @@ CONTAINS
     landpt(:)%ilat = -999
     ncount = 0
     DO kk = 1, mland
-       distance = 300.0 ** 2 ! initialise, units are degrees
+       distance = 144.0 ! initialise, units are degrees^2
        DO jj = 1, nlat
           DO ii = 1, nlon
              IF (inVeg(ii,jj, 1) > 0) THEN
