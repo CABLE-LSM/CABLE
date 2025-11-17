@@ -957,7 +957,13 @@ CONTAINS
     ! and longitude(:) has already been converted to -180 to 180 for CABLE.
     landpt(:)%ilon = -999
     landpt(:)%ilat = -999
+
+    ! This search is not a nearest neighbour in the true sense, due to the latitude dependence on
+    ! arc length. It is only a nearest neighbour in the latitute/longitude coordinate space.
     DO kk = 1, mland
+       ! This is the maximum distance in degrees^2 for a gridinfo point to be considered valid for
+       ! the nearest neighbour search. If no valid neighbours are found within this 12 degree radius,
+       ! consider the search failed and crash out.
        distance = 144.0 ! initialise, units are degrees^2
        DO jj = 1, nlat
           DO ii = 1, nlon
@@ -1028,7 +1034,13 @@ CONTAINS
     landpt(:)%ilon = -999
     landpt(:)%ilat = -999
     ncount = 0
+
+    ! This search is not a nearest neighbour in the true sense, due to the latitude dependence on
+    ! arc length. It is only a nearest neighbour in the latitute/longitude coordinate space.
     DO kk = 1, mland
+       ! This is the maximum distance in degrees^2 for a gridinfo point to be considered valid for
+       ! the nearest neighbour search. If no valid neighbours are found within this 12 degree radius,
+       ! consider the search failed and crash out.
        distance = 144.0 ! initialise, units are degrees^2
        DO jj = 1, nlat
           DO ii = 1, nlon
