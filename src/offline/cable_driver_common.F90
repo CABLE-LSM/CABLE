@@ -42,6 +42,7 @@ MODULE cable_driver_common_mod
   USE CABLE_PLUME_MIP, ONLY : PLUME_MIP_TYPE, PLUME_MIP_INIT
   USE CABLE_CRU, ONLY : CRU_TYPE, CRU_INIT
   USE CABLE_site, ONLY : site_TYPE, site_INIT
+  USE cable_abort_module, ONLY : cable_abort_module_init
   IMPLICIT NONE
   PRIVATE
 
@@ -121,6 +122,8 @@ CONTAINS
 
     INTEGER :: ioerror, unit
     CHARACTER(len=4) :: cRank ! for worker-logfiles
+
+    CALL cable_abort_module_init(mpi_grp)
 
     !check to see if first argument passed to cable is
     !the name of the namelist file
