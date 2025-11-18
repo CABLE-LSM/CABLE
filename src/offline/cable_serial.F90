@@ -85,6 +85,7 @@ MODULE cable_serial
        patch_type,landpt,&
        defaultLAI, sdoy, smoy, syear, timeunits, calendar, &
        NO_CHECK
+  use cable_io_vars_module, only: patch
   USE cable_io_decomp_mod, ONLY: io_decomp_t
   USE cable_io_decomp_mod, ONLY: cable_io_decomp_init
   USE casa_ncdf_module, ONLY: is_casa_time
@@ -112,6 +113,12 @@ USE cable_phys_constants_mod, ONLY : CSBOLTZ => SBOLTZ
        ncid_wd,ncid_mask
   USE cable_output_module,  ONLY: create_restart,open_output_file,            &
        write_output,close_output_file
+  use cable_output_prototype_v2_mod, only: cable_output_mod_init
+  use cable_output_prototype_v2_mod, only: cable_output_mod_end
+  use cable_output_prototype_v2_mod, only: cable_output_commit
+  use cable_output_prototype_v2_mod, only: cable_output_update
+  use cable_output_definitions_mod, only: cable_output_definitions_set
+  use cable_netcdf_mod, only: cable_netcdf_mod_init, cable_netcdf_mod_end
    USE cable_checks_module, ONLY: constant_check_range
   USE cable_write_module,   ONLY: nullify_write
   USE cable_IO_vars_module, ONLY: timeunits,calendar
@@ -273,10 +280,13 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
   real(r_2), dimension(:,:,:),   allocatable,  save  :: patchfrac_new
 
   type(io_decomp_t) :: io_decomp
+
+  integer :: start_year
 ! END header
 
 ! INISTUFF
 
+  call cable_netcdf_mod_init(mpi_grp)
 
   ! outer loop - spinup loop no. ktau_tot :
   ktau     = 0
@@ -462,6 +472,12 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
 
           call cable_io_decomp_init(io_decomp)
 
+          if (.not. casaonly) then
+            call cable_output_mod_init(io_decomp)
+            call cable_output_definitions_set(canopy)
+            call cable_output_commit()
+          end if
+
         ENDIF ! CALL 1
 
         ! globally (WRT code) accessible kend through USE cable_common_module
@@ -571,6 +587,17 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
             IF (icycle>1) CALL casa_cnpflux(casaflux,casapool,casabal,.TRUE.)
             IF ( CABLE_USER%POPLUC) CALL POPLUC_set_patchfrac(POPLUC,LUC_EXPT)
           ENDIF
+
+          ! TODO(Sean): this is a hack for determining if the current time step
+          ! is the last of the month. Better way to do this?
+          IF(ktau == 1) THEN
+            !MC - use met%year(1) instead of CABLE_USER%YearStart for non-GSWP forcing and leap years
+            IF ( TRIM(cable_user%MetType) .EQ. '' ) THEN
+                start_year = met%year(1)
+            ELSE
+                start_year = CABLE_USER%YearStart
+            ENDIF
+          END IF
 
           IF ( .NOT. CASAONLY ) THEN
 
@@ -722,6 +749,14 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
               CALL write_output( dels, ktau, met, canopy, casaflux, casapool, casamet, &
                    ssnow, rad, bal, air, soil, veg, CSBOLTZ, CEMLEAF, CEMSOIL )
             END SELECT
+            call cable_output_update( &
+              time_index=ktau, &
+              dels=dels, &
+              leaps=leaps, &
+              start_year=start_year, &
+              patch=patch, &
+              landpt=landpt &
+            )
           ENDIF
 
 
@@ -904,6 +939,8 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
         ENDIF
         IF (TRIM(cable_user%MetType) == "gswp3") CALL close_met_file
 
+        if (.not. casaonly) call cable_output_mod_end()
+
         IF ((icycle.GT.0).AND.(.NOT.casaonly)) THEN
           ! re-initalise annual flux sums
           casabal%FCgppyear=0.0
@@ -1014,6 +1051,7 @@ SUBROUTINE serialdrv(NRRRR, dels, koffset, kend, GSWP_MID, PLUME, CRU, site, mpi
     !--- LN ------------------------------------------[
   ENDIF
 
+  call cable_netcdf_mod_end()
 
 
   IF ( TRIM(cable_user%MetType) .NE. "gswp" .AND. &
